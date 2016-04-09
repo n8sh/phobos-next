@@ -1,0 +1,12 @@
+{
+    "name": "phobos-next",
+    "description": "Various reusable D code.",
+    "homepage": "https://github.com/nordlow/phobos-next",
+    "license": "Boost",
+    "authors": [
+        "Per Nordlöw"
+    ],
+
+    "sourcePaths": [ "src" ],
+    "importPaths": [ "src" ]
+}

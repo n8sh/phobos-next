@@ -29,11 +29,20 @@ template UnsignedOfSameSizeAs(T)
 T makeBit(T, I...)(I bixs) @safe @nogc pure nothrow
     if (isIntegral!T &&
         allSatisfy!(isIntegral, I))
-    in { foreach (bix; bixs) { assert(0 <= bix && bix < 8*T.sizeof); } }
-body {
+in
+{
+    foreach (bix; bixs)
+    {
+        assert(0 <= bix && bix < 8*T.sizeof);
+    }
+}
+body
+{
     typeof(return) x;
     foreach (bix; bixs)
+    {
         x |= cast(T)((cast(T)1) << bix);
+    }
     return x;
 }
 alias btm = makeBit;

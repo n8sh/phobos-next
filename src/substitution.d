@@ -52,6 +52,7 @@ template substSwitch(substs...)
     }
 }
 alias replacementSwitch = substSwitch;
+alias substitute = substSwitch;
 
 @safe pure nothrow unittest
 {
@@ -60,9 +61,9 @@ alias replacementSwitch = substSwitch;
         immutable a = "a";
         const b = "b";
         auto c = "c";
-        return value.substSwitch!("x", a,
-                                  "y", b,
-                                  "z", c);
+        return value.substitute!("x", a,
+                                 "y", b,
+                                 "z", c);
     }
     assert(xyz_abc__("x") == "a");
     assert(xyz_abc__("y") == "b");

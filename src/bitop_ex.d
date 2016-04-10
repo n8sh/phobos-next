@@ -26,8 +26,9 @@ template UnsignedOfSameSizeAs(T)
 }
 
 /** Returns: Zero Instance T with $(D bix):th Bit set. */
-T makeBit(T, I...)(I bixs) @safe @nogc pure nothrow if (isIntegral!T &&
-                                                        allSatisfy!(isIntegral, I))
+T makeBit(T, I...)(I bixs) @safe @nogc pure nothrow
+    if (isIntegral!T &&
+        allSatisfy!(isIntegral, I))
     in { foreach (bix; bixs) { assert(0 <= bix && bix < 8*T.sizeof); } }
 body {
     typeof(return) x;
@@ -42,14 +43,16 @@ unittest {
 }
 
 /** Returns: Check if all $(D bix):th Bits Of $(D a) are set. */
-bool getBit(T, I...)(in T a, I bixs) @safe @nogc pure nothrow if (isIntegral!T &&
-                                                                  allSatisfy!(isIntegral, I))
+bool getBit(T, I...)(in T a, I bixs) @safe @nogc pure nothrow
+    if (isIntegral!T &&
+        allSatisfy!(isIntegral, I))
 {
     return a & makeBit!T(bixs) ? true : false;
 }
 /** Returns: Check if all $(D bix):th Bits Of $(D a) are set. */
-bool getBit(T, I)(in T a, I bix) @trusted @nogc pure nothrow if ((!(isIntegral!T)) &&
-                                                                 allSatisfy!(isIntegral, I))
+bool getBit(T, I)(in T a, I bix) @trusted @nogc pure nothrow
+    if ((!(isIntegral!T)) &&
+        allSatisfy!(isIntegral, I))
 {
     return (*(cast(UnsignedOfSameSizeAs!T*)&a)).getBit(bix); // reuse integer variant
 }
@@ -78,15 +81,17 @@ unittest {
 /** Test and sets the $(D bix):th Bit Of $(D a) to one.
     Returns: A non-zero value if the bit was set, and a zero if it was clear.
 */
-void setBit(T, I...)(ref T a, I bixs) @safe @nogc pure nothrow if (isIntegral!T &&
-                                                                   allSatisfy!(isIntegral, I))
+void setBit(T, I...)(ref T a, I bixs) @safe @nogc pure nothrow
+    if (isIntegral!T &&
+        allSatisfy!(isIntegral, I))
 {
     a |= makeBit!T(bixs);
 }
 
 /** Returns: Check if all $(D bix):th Bits Of $(D a) are set. */
-void setBit(T, I...)(ref T a, I bixs) @trusted @nogc pure nothrow if ((!(isIntegral!T)) &&
-                                                                      allSatisfy!(isIntegral, I))
+void setBit(T, I...)(ref T a, I bixs) @trusted @nogc pure nothrow
+    if ((!(isIntegral!T)) &&
+        allSatisfy!(isIntegral, I))
 {
     alias U = UnsignedOfSameSizeAs!T;
     (*(cast(U*)&a)) |= makeBit!U(bixs); // reuse integer variant
@@ -97,25 +102,29 @@ alias bts = setBit;
 /* alias btc = complementBit; */
 /* alias btr = resetBit; */
 
-void setLowestBit(T)(ref T a) @safe @nogc pure nothrow if (isIntegral!T)
+void setLowestBit(T)(ref T a) @safe @nogc pure nothrow
+    if (isIntegral!T)
 {
     setBit(a, 0);
 }
 alias setBottomBit = setLowestBit;
 
-void setHighestBit(T)(ref T a) @safe @nogc pure nothrow if (isIntegral!T)
+void setHighestBit(T)(ref T a) @safe @nogc pure nothrow
+    if (isIntegral!T)
 {
     setBit(a, 8*T.sizeof - 1);
 }
 alias setTopBit = setHighestBit;
 
-bool getLowBit(T)(T a) @safe @nogc pure nothrow if (isIntegral!T)
+bool getLowBit(T)(T a) @safe @nogc pure nothrow
+    if (isIntegral!T)
 {
     return (a & (1 << 0)) != 0;
 }
 alias getBottomBit = getLowBit;
 
-bool getHighBit(T)(T a) @safe @nogc pure nothrow if (isIntegral!T)
+bool getHighBit(T)(T a) @safe @nogc pure nothrow
+    if (isIntegral!T)
 {
     return (a & (1 << 8*T.sizeof - 1)) != 0;
 }
@@ -135,26 +144,30 @@ unittest
     assert(!x.getLowBit);
 }
 
-void resetBit(T, I...)(ref T a, I bixs) @safe @nogc pure nothrow if (isIntegral!T &&
-                                                                   allSatisfy!(isIntegral, I))
+void resetBit(T, I...)(ref T a, I bixs) @safe @nogc pure nothrow
+    if (isIntegral!T &&
+        allSatisfy!(isIntegral, I))
 {
     a &= ~makeBit!T(bixs);
 }
 
-void resetBit(T, I...)(ref T a, I bixs) @trusted @nogc pure nothrow if ((!(isIntegral!T)) &&
-                                                                      allSatisfy!(isIntegral, I))
+void resetBit(T, I...)(ref T a, I bixs) @trusted @nogc pure nothrow
+    if ((!(isIntegral!T)) &&
+        allSatisfy!(isIntegral, I))
 {
     alias U = UnsignedOfSameSizeAs!T;
     (*(cast(U*)&a)) &= ~makeBit!U(bixs); // reuse integer variant
 }
 
-void resetLowestBit(T)(ref T a) @safe @nogc pure nothrow if (isIntegral!T)
+void resetLowestBit(T)(ref T a) @safe @nogc pure nothrow
+    if (isIntegral!T)
 {
     resetBit(a, 0);
 }
 alias resetBottomBit = resetLowestBit;
 
-void resetHighestBit(T)(ref T a) @safe @nogc pure nothrow if (isIntegral!T)
+void resetHighestBit(T)(ref T a) @safe @nogc pure nothrow
+    if (isIntegral!T)
 {
     resetBit(a, 8*T.sizeof - 1);
 }

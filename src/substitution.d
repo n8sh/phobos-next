@@ -25,17 +25,14 @@ import traits_ex : haveCommonType;
 
 /** Similar to $(D among) but for set of replacements/substitutions $(D substs).
     Time-Complexity: O(1) thanks to D's $(D switch) guaranteeing O(1).
-
-    TODO Rename to `substitute` and restrict to not conflict with other
-    `substitute` overloads in this module.
 */
-template substSwitch(substs...)
+template substitute(substs...)
     if ((substs.length & 1) == 0 && // need even number of elements (>= 1)
         substs.length >= 2 && // and at least one replacement pair
         isExpressionTuple!substs &&
         haveCommonType!(substs))
 {
-    Value substSwitch(Value)(Value value)
+    Value substitute(Value)(Value value)
         if (haveCommonType!(Value, substs)) // TODO need static map incorrect
     {
         switch (value)
@@ -52,7 +49,7 @@ template substSwitch(substs...)
     }
 }
 alias replacementSwitch = substSwitch;
-alias substitute = substSwitch;
+alias substSwitch = substitute;
 
 @safe pure nothrow unittest
 {

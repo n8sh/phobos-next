@@ -142,7 +142,7 @@ unittest
 
 /** Randomize Contents of $(D x).
  */
-auto ref randInPlace(T)(ref T x) @trusted
+auto ref randInPlace(T)(ref T x)
     if (isStaticArray!T)
 {
     foreach (ref e; x)
@@ -173,7 +173,7 @@ unittest
 /** Blockwise Randomize Contents of $(D x) of Array Type $(D A).
     Randomizes in array blocks of type $(D B).
  */
-auto ref randInPlaceBlockwise(B = size_t, A)(ref A x) @trusted
+auto ref randInPlaceBlockwise(B = size_t, A)(ref A x)
     if (isArray!A &&
         isIntegral!(ElementType!A))
 {

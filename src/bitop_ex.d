@@ -7,8 +7,8 @@
 */
 module bitop_ex;
 
-import std.traits: isIntegral;
-import std.meta: allSatisfy;
+import std.traits : isIntegral;
+import std.meta : allSatisfy;
 
 /** Get an Unsigned Type of size as $(D T) if possible. */
 template UnsignedOfSameSizeAs(T)

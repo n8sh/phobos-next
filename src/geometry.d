@@ -85,9 +85,9 @@ private void isFixMatrixImpl (E, uint R, uint C)(Matrix!(E, R, C) mat) {}
 // ==============================================================================================
 
 version(unittestAllInstances) {
-    enum defaultElementTypes = ["float", "double", "real"];
+    static immutable defaultElementTypes = ["float", "double", "real"];
 } else {
-    enum defaultElementTypes = ["real"];
+    static immutable defaultElementTypes = ["real"];
 }
 
 // See also: http://stackoverflow.com/questions/18552454/using-ctfe-to-generate-set-of-struct-aliases/18553026?noredirect=1#18553026
@@ -103,8 +103,9 @@ in
 }
 body
 {
-    import std.string;
-    import std.conv;
+    import std.string : toLower;
+    import std.conv : to;
+
     string code;
     if (!aliasName.length)
     {

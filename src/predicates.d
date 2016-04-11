@@ -225,6 +225,7 @@ alias isInited = isDefaulted;
 
 /** Check if $(D x) is a power of 2 (binary power).
     See also: http://forum.dlang.org/thread/zumhmosfkvwjymjhmtlt@forum.dlang.org#post-fvnmurrctavpfkunssdf:40forum.dlang.org
+    TODO Replace with Phobos builtin. Is there one close to next2Power?
  */
 bool isPowerOf2(uint x) @safe pure nothrow @nogc
 {

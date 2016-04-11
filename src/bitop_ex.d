@@ -119,6 +119,7 @@ alias bts = setBit;
 /* alias btc = complementBit; */
 /* alias btr = resetBit; */
 
+/** Set lowest bit of `a` to one. */
 void setLowestBit(T)(ref T a) @safe @nogc pure nothrow
     if (isIntegral!T)
 {
@@ -126,6 +127,7 @@ void setLowestBit(T)(ref T a) @safe @nogc pure nothrow
 }
 alias setBottomBit = setLowestBit;
 
+/** Set highest bit of `a` to one. */
 void setHighestBit(T)(ref T a) @safe @nogc pure nothrow
     if (isIntegral!T)
 {
@@ -133,6 +135,7 @@ void setHighestBit(T)(ref T a) @safe @nogc pure nothrow
 }
 alias setTopBit = setHighestBit;
 
+/** Get lowest bit of `a`. */
 bool getLowBit(T)(T a) @safe @nogc pure nothrow
     if (isIntegral!T)
 {
@@ -140,6 +143,7 @@ bool getLowBit(T)(T a) @safe @nogc pure nothrow
 }
 alias getBottomBit = getLowBit;
 
+/** Get highest bit of `a`. */
 bool getHighBit(T)(T a) @safe @nogc pure nothrow
     if (isIntegral!T)
 {
@@ -163,6 +167,7 @@ unittest
     assert(!x.getLowBit);
 }
 
+/** Reset bits `I` of `a` (to zero). */
 void resetBit(T, I...)(ref T a, I bixs) @safe @nogc pure nothrow
     if (isIntegral!T &&
         allSatisfy!(isIntegral, I))
@@ -170,6 +175,7 @@ void resetBit(T, I...)(ref T a, I bixs) @safe @nogc pure nothrow
     a &= ~makeBit!T(bixs);
 }
 
+/** Reset bits `I` of `a` (to zero). */
 void resetBit(T, I...)(ref T a, I bixs) @nogc pure nothrow
     if ((!(isIntegral!T)) &&
         allSatisfy!(isIntegral, I))
@@ -178,6 +184,7 @@ void resetBit(T, I...)(ref T a, I bixs) @nogc pure nothrow
     (*(cast(U*)&a)) &= ~makeBit!U(bixs); // reuse integer variant
 }
 
+/** Reset lowest bit of `a` (to zero). */
 void resetLowestBit(T)(ref T a) @safe @nogc pure nothrow
     if (isIntegral!T)
 {
@@ -185,6 +192,7 @@ void resetLowestBit(T)(ref T a) @safe @nogc pure nothrow
 }
 alias resetBottomBit = resetLowestBit;
 
+/** Reset highest bit of `a` (to zero). */
 void resetHighestBit(T)(ref T a) @safe @nogc pure nothrow
     if (isIntegral!T)
 {

@@ -61,7 +61,7 @@ bool getBit(T, I...)(in T a, I bixs) @safe @nogc pure nothrow
     return a & makeBit!T(bixs) ? true : false;
 }
 /** Returns: Check if all $(D bix):th Bits Of $(D a) are set. */
-bool getBit(T, I)(in T a, I bix) @trusted @nogc pure nothrow
+bool getBit(T, I)(in T a, I bix) @nogc pure nothrow
     if ((!(isIntegral!T)) &&
         allSatisfy!(isIntegral, I))
 {
@@ -162,7 +162,7 @@ void resetBit(T, I...)(ref T a, I bixs) @safe @nogc pure nothrow
     a &= ~makeBit!T(bixs);
 }
 
-void resetBit(T, I...)(ref T a, I bixs) @trusted @nogc pure nothrow
+void resetBit(T, I...)(ref T a, I bixs) @nogc pure nothrow
     if ((!(isIntegral!T)) &&
         allSatisfy!(isIntegral, I))
 {

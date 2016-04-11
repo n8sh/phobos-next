@@ -33,7 +33,7 @@ T makeBit(T, I...)(I bixs) @safe @nogc pure nothrow
         allSatisfy!(isIntegral, I))
 in
 {
-    foreach (bix; bixs)
+    foreach (const bix; bixs)
     {
         assert(0 <= bix && bix < 8*T.sizeof);
     }
@@ -41,7 +41,7 @@ in
 body
 {
     typeof(return) x;
-    foreach (bix; bixs)
+    foreach (const bix; bixs)
     {
         x |= cast(T)((cast(T)1) << bix);
     }
@@ -79,12 +79,12 @@ unittest
     {
         const mn = T.min, mx = T.max;
         enum nBits = 8*T.sizeof;
-        foreach (ix; 0..nBits-1)
+        foreach (const ix; 0..nBits-1)
         {
             assert(!mn.bt(ix));
         }
         assert(mn.bt(nBits - 1));
-        foreach (ix; 0..T.sizeof)
+        foreach (const ix; 0..T.sizeof)
         {
             assert(mx.bt(ix));
         }

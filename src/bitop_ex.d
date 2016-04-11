@@ -48,7 +48,10 @@ body
     return x;
 }
 alias btm = makeBit;
-unittest {
+
+///
+unittest
+{
     assert(makeBit!int(2) == 4);
     assert(makeBit!int(2, 3) == 12);
 }
@@ -68,21 +71,24 @@ bool getBit(T, I)(in T a, I bix) @nogc pure nothrow
     return (*(cast(UnsignedOfSameSizeAs!T*)&a)).getBit(bix); // reuse integer variant
 }
 alias bt = getBit;
-void testGetBit(T)()
+
+///
+unittest
 {
-    const mn = T.min, mx = T.max;
-    enum nBits = 8*T.sizeof;
-    foreach (ix; 0..nBits-1)
+    static void testGetBit(T)()
     {
-        assert(!mn.bt(ix));
+        const mn = T.min, mx = T.max;
+        enum nBits = 8*T.sizeof;
+        foreach (ix; 0..nBits-1)
+        {
+            assert(!mn.bt(ix));
+        }
+        assert(mn.bt(nBits - 1));
+        foreach (ix; 0..T.sizeof)
+        {
+            assert(mx.bt(ix));
+        }
     }
-    assert(mn.bt(nBits - 1));
-    foreach (ix; 0..T.sizeof)
-    {
-        assert(mx.bt(ix));
-    }
-}
-unittest {
     testGetBit!byte;
     testGetBit!short;
     testGetBit!int;
@@ -141,6 +147,7 @@ bool getHighBit(T)(T a) @safe @nogc pure nothrow
 }
 alias getTopBit = getHighBit;
 
+///
 unittest
 {
     const ubyte x = 1;
@@ -148,6 +155,7 @@ unittest
     assert(x.getLowBit);
 }
 
+///
 unittest
 {
     const ubyte x = 128;
@@ -186,6 +194,7 @@ alias resetTopBit = resetHighestBit;
 
 alias btr = resetBit;
 
+///
 unittest
 {
     alias T = int;
@@ -208,6 +217,7 @@ unittest
     assert(b == T.min);
 }
 
+///
 unittest
 {
     static void test(T)()

@@ -84,9 +84,12 @@ private void isFixMatrixImpl (E, uint R, uint C)(Matrix!(E, R, C) mat) {}
 
 // ==============================================================================================
 
-version(unittestAllInstances) {
+version(unittestAllInstances)
+{
     static immutable defaultElementTypes = ["float", "double", "real"];
-} else {
+}
+else
+{
     static immutable defaultElementTypes = ["real"];
 }
 

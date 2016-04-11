@@ -152,9 +152,6 @@ unittest {
 
 // ==============================================================================================
 
-static if (__VERSION__ < 2066) import algorithm_ex: clamp;
-else import std.algorithm: clamp;
-
 /** Smoothstep from $(D edge0) to $(D edge1) at $(D x).
     Returns: 0.0 if x <= edge0 and 1.0 if x >= edge1 and performs smooth
     hermite interpolation between 0 and 1 when edge0 < x < edge1.
@@ -163,6 +160,7 @@ else import std.algorithm: clamp;
 CommonType!(T1,T2,T3) smoothstep(T1, T2, T3) (T1 edge0, T2 edge1, T3 x) @safe pure nothrow
 if (isFloatingPoint!(CommonType!(T1,T2,T3)))
 {
+    import std.algorithm: clamp;
     x = clamp((x - edge0) / (edge1 - edge0), 0, 1);
     return x * x * (3 - 2 * x);
 }
@@ -178,6 +176,7 @@ unittest {
 if (isFloatingPoint!(E))
 {
     // Scale, and clamp x to 0..1 range
+    import std.algorithm: clamp;
     x = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
     // Evaluate polynomial
     return x*x*x*(x*(x*6 - 15) + 10); // evaluate polynomial

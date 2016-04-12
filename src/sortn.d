@@ -53,7 +53,7 @@ void conditionalSwap(alias less = "a < b", Range, Indexes...)(Range r)
 }
 
 /** Largest length supported by network sort `sortUpTo`. */
-enum sortUpToMaxLength = 9;
+enum sortUpToMaxLength = 10;
 
 /** Sort at most then first `n` elements of `r` using comparison `less`.
 
@@ -118,8 +118,15 @@ body
         s.conditionalSwap!(less, Range,
                            0,1, 3,4, 6,7, 1,2, 4,5, 7,8, 0,1, 3,4, 6,7,
                            0,3, 3,6, 0,3, 1,4, 4,7, 1,4, 2,5, 5,8, 2,5,
-                           1,3, 5,7, 2,6, 4,6, 2,4, 2,3, 5,6
-            );
+                           1,3, 5,7, 2,6, 4,6, 2,4, 2,3, 5,6);
+    }
+    else static if (n == 10)    // A. Waksman.
+    {
+        s.conditionalSwap!(less, Range,
+                           4,9, 3,8, 2,7, 1,6, 0,5, 1,4, 6,9, 0,3, 5,8,
+                           0,2, 3,6, 7,9, 0,1, 2,4, 5,7, 8,9,
+                           1,2, 4,6, 7,8, 3,5, 2,5, 6,8, 1,3, 4,7,
+                           2,3, 6,7, 3,4, 5,6, 4,5);
     }
     else
     {

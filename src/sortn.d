@@ -266,6 +266,7 @@ auto hybridSort(alias less = "a < b", Range)(Range r) // TODO uint or size_t?
     return sort!less(r);
 }
 
+///
 @safe pure unittest
 {
     import std.algorithm.sorting : isSorted;

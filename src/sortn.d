@@ -36,9 +36,9 @@ void conditionalSwap(alias less = "a < b", Range, Indexes...)(Range r)
         (Indexes.length & 1) == 0) // even number of indexes
 {
     import std.algorithm.mutation : swapAt;
-    enum n = Indexes.length / 2; // number of replacements
     import std.functional : binaryFun;
     alias comp = binaryFun!less; //< comparison
+    enum n = Indexes.length / 2; // number of replacements
     foreach (const i; iota!(0, n))
     {
         const j = Indexes[2*i];
@@ -61,25 +61,43 @@ in
 }
 body
 {
+    auto s = r[0 .. n];
     static if (n < 2)
     {
         // already sorted
     }
     else static if (n == 2)
     {
-        r[0 .. n].conditionalSwap!(less, Range, 0, 1);
+        s.conditionalSwap!(less, Range, 0, 1);
     }
     else static if (n == 3)
     {
-        r[0 .. n].conditionalSwap!(less, Range, 0,1, 1,2, 0,1);
+        s.conditionalSwap!(less, Range,
+                           0,1,
+                           1,2,
+                           0,1);
     }
     else static if (n == 4)
     {
-        r[0 .. n].conditionalSwap!(less, Range, 0,1, 2,3, 0,2, 1,3, 1,2);
+        s.conditionalSwap!(less, Range,
+                           0,1, 2,3, // in parallel
+                           0,2, 1,3, // in parallel
+                           1,2);
+    }
+    else static if (n == 5)
+    {
+        s.conditionalSwap!(less, Range,
+                           0,1, 3,4, // in parallel
+                           0,2,
+                           1,2,
+                           0,3,
+                           2,3,
+                           1,4,
+                           1,2, 3,4); // in parallel
     }
 
     import std.algorithm.sorting : assumeSorted;
-    return r[0 .. n].assumeSorted;
+    return s.assumeSorted;
 }
 
 @safe pure nothrow // @nogc
@@ -89,7 +107,7 @@ unittest
     import std.algorithm : equal;
     import std.algorithm.sorting : isSorted;
 
-    enum maxLength = 4;
+    enum maxLength = 5;
 
     foreach (uint n; iota!(0, maxLength + 1))
     {

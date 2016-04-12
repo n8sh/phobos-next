@@ -26,12 +26,12 @@ private template siotaImpl(size_t to, size_t now)
     else                  { alias siotaImpl = AliasSeq!(now, siotaImpl!(to, now+1)); }
 }
 
-/** Conditional pairwise swap elements of `Range` `r` at indexes `Indexes`.
-    See also: http://stackoverflow.com/questions/3903086/standard-sorting-networks-for-small-values-of-n
+/** Conditional pairwise swap elements of `Range` `r` at indexes `Indexes` using
+    comparison `less`.
  */
 void conditionalSwap(alias less = "a < b", Range, Indexes...)(Range r)
     if (isRandomAccessRange!Range &&
-        // TODO allSatisfy!(isIntegral, Indexes) &&
+        allSatisfy!(isIntegral, typeof(Indexes)) &&
         Indexes.length &&
         (Indexes.length & 1) == 0) // even number of indexes
 {
@@ -43,10 +43,16 @@ void conditionalSwap(alias less = "a < b", Range, Indexes...)(Range r)
     {
         const j = Indexes[2*i];
         const k = Indexes[2*i + 1];
-        if (!comp(r[j], r[k])) r.swapAt(j, k);
+        if (!comp(r[j], r[k]))
+        {
+            r.swapAt(j, k);
+        }
     }
 }
 
+/** Sort at most then first `n` elements of `r` using comparison `less`.
+   See also: http://stackoverflow.com/questions/3903086/standard-sorting-networks-for-small-values-of-n
+ */
 auto sortUpTo(uint n, alias less = "a < b", Range)(Range r) // TODO uint or size_t?
     if (isRandomAccessRange!Range)
 in
@@ -55,7 +61,7 @@ in
 }
 body
 {
-    static if (n == 0)
+    static if (n < 2)
     {
         // already sorted
     }
@@ -67,6 +73,11 @@ body
     {
         r[0 .. n].conditionalSwap!(less, Range, 0,1, 1,2, 0,1);
     }
+    else static if (n == 4)
+    {
+        r[0 .. n].conditionalSwap!(less, Range, 0,1, 2,3, 0,2, 1,3, 1,2);
+    }
+
     import std.algorithm.sorting : assumeSorted;
     return r[0 .. n].assumeSorted;
 }
@@ -78,7 +89,7 @@ unittest
     import std.algorithm : equal;
     import std.algorithm.sorting : isSorted;
 
-    enum maxLength = 3;
+    enum maxLength = 4;
 
     foreach (uint n; iota!(0, maxLength + 1))
     {

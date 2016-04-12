@@ -119,15 +119,16 @@ unittest
 
     enum maxLength = 6;
 
+    alias T = uint;
+
     foreach (uint n; iota!(0, maxLength + 1))
     {
-        pragma(msg, "n:", n);
         int[n] xs;
         import std.range : iota;
 
         foreach (const i; 0.iota(n))
         {
-            xs[i] = n - i;
+            xs[i] = cast(T)(n - i);
         }
 
         dln("before:", xs[]);

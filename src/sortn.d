@@ -92,12 +92,10 @@ body
     else static if (n == 5)
     {
         s.conditionalSwap!(less, Range,
-                           0,1, 3,4, // 2 in parallel
+                           0,1, 3,4,  // 2 in parallel
                            0,2,
-                           1,2,
-                           0,3,
-                           2,3,
-                           1,4,
+                           1,2, 0,3,  // 2 in parallel
+                           2,3, 1,4,  // 2 in parallel
                            1,2, 3,4); // 2 in parallel
     }
     else static if (n == 6)

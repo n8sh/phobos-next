@@ -6,6 +6,8 @@
     See also: http://cpansearch.perl.org/src/JGAMBLE/Algorithm-Networksort-1.30/lib/Algorithm/Networksort.pm
 
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
+
+    TODO Stability of equal elements: Scalar builtin values are always stable.
 */
 module sortn;
 
@@ -49,6 +51,9 @@ void conditionalSwap(alias less = "a < b", Range, Indexes...)(Range r)
         }
     }
 }
+
+/** Largest length supported by network sort `sortUpTo`. */
+enum maxNetworkSortLength = 6;
 
 /** Sort at most then first `n` elements of `r` using comparison `less`.
    See also: http://stackoverflow.com/questions/3903086/standard-sorting-networks-for-small-values-of-n
@@ -105,12 +110,31 @@ body
                            2,3,
             );
     }
+    else
+    {
+        static assert(n > maxNetworkSortLength); // check that maxNetworkSortLength is
+        static assert(false, "Range must contain at most " ~ maxNetworkSortLength.stringof ~ " elements");
+    }
 
     import std.algorithm.sorting : assumeSorted;
     return s.assumeSorted;
 }
 
-@safe pure nothrow // @nogc
+auto hybridSort(alias less = "a < b", Range)(Range r) // TODO uint or size_t?
+    if (isRandomAccessRange!Range)
+{
+    if (r.length <= maxNetworkSortLength)
+    {
+        r.sortUpTo!less;
+    }
+    else
+    {
+        import std.algorithm.sorting : isSorted;
+        return sort(r);
+    }
+}
+
+@safe pure nothrow //@nogc
 unittest
 {
     import dbg : dln;

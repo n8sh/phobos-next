@@ -123,31 +123,32 @@ body
 auto hybridSort(alias less = "a < b", Range)(Range r) // TODO uint or size_t?
     if (isRandomAccessRange!Range)
 {
-    if (r.length <= maxNetworkSortLength)
+    import std.algorithm.sorting : isSorted;
+    foreach (uint n; iota!(2, maxNetworkSortLength + 1))
     {
-        r.sortUpTo!less;
+        if (n == r.length)
+        {
+            auto s = r.sortUpTo!(n, less);
+            debug assert(s.isSorted);
+            return s;
+        }
     }
-    else
-    {
-        import std.algorithm.sorting : isSorted;
-        return sort(r);
-    }
+    import std.algorithm.sorting : sort;
+    return sort(r);
 }
 
 @safe pure nothrow //@nogc
 unittest
 {
     import dbg : dln;
-    import std.algorithm : equal;
     import std.algorithm.sorting : isSorted;
-
-    enum maxLength = 6;
 
     alias T = uint;
 
-    foreach (uint n; iota!(0, maxLength + 1))
+    import std.range : iota;
+    foreach (uint n; iota(0, maxNetworkSortLength + 1))
     {
-        int[n] xs;
+        auto xs = new int[n];
         import std.range : iota;
 
         foreach (const i; 0.iota(n))
@@ -156,7 +157,7 @@ unittest
         }
 
         dln("before:", xs[]);
-        xs[].sortUpTo!n;
+        xs[].hybridSort;
         dln("after:", xs[]);
         assert(xs[].isSorted);
     }

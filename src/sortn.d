@@ -53,7 +53,7 @@ void conditionalSwap(alias less = "a < b", Range, Indexes...)(Range r)
 }
 
 /** Largest length supported by network sort `sortUpTo`. */
-enum sortUpToMaxLength = 10;
+enum sortUpToMaxLength = 12;
 
 /** Sort at most then first `n` elements of `r` using comparison `less`.
 
@@ -128,6 +128,26 @@ body
                            1,2, 4,6, 7,8, 3,5, 2,5, 6,8, 1,3, 4,7,
                            2,3, 6,7, 3,4, 5,6, 4,5);
     }
+    else static if (n == 11)    // 12-input by Shapiro and Green, minus the connections to a twelfth input.
+    {
+        s.conditionalSwap!(less, Range,
+                           0,1, 2,3, 4,5, 6,7, 8,9,
+                           1,3, 5,7, 0,2, 4,6, 8,10,
+                           1,2, 5,6, 9,10, 1,5, 6,10,
+                           5,9, 2,6, 1,5, 6,10, 0,4,
+                           3,7, 4,8, 0,4, 1,4, 7,10, 3,8,
+                           2,3, 8,9, 2,4, 7,9, 3,5, 6,8, 3,4, 5,6, 7,8);
+    }
+    else static if (n == 12)    // Shapiro and Green.
+    {
+        s.conditionalSwap!(less, Range,
+                           0,1, 2,3, 4,5, 6,7, 8,9, 10,11,
+                           1,3, 5,7, 9,11, 0,2, 4,6, 8,10,
+                           1,2, 5,6, 9,10, 1,5, 6,10,
+                           5,9, 2,6, 1,5, 6,10, 0,4, 7,11,
+                           3,7, 4,8, 0,4, 7,11, 1,4, 7,10, 3,8,
+                           2,3, 8,9, 2,4, 7,9, 3,5, 6,8, 3,4, 5,6, 7,8);
+    }
     else
     {
         static assert(false, "Unsupported n " ~ n.stringof);
@@ -161,25 +181,48 @@ auto hybridSort(alias less = "a < b", Range)(Range r) // TODO uint or size_t?
     return sort!less(r);
 }
 
-@safe pure nothrow unittest
+@safe pure // nothrow
+unittest
 {
     import std.algorithm.sorting : isSorted;
     import std.algorithm.iteration : permutations;
     import std.range : iota;
+    import std.random : randomShuffle, Random;
+
+    Random random;
+
+    import dbg : dln;
 
     alias T = uint;
+
+    const maxPermutationLength = 9;
+    const maxPermutations = 1_00_000;
 
     import std.meta : AliasSeq;
     foreach (less; AliasSeq!("a < b", "a > b"))
     {
         foreach (const n; iota(0, sortUpToMaxLength + 1))
         {
-            foreach (x; iota(0, n).permutations)
+            if (n >= maxPermutationLength) // if number of elements is too large
             {
-                import std.array : array;
-                auto y = x.array;
-                y.hybridSort!less;
-                assert(y.isSorted!less);
+                foreach (x; iota(0, maxPermutations))
+                {
+                    import std.array : array;
+                    auto y = iota(0, n).array;
+                    y.randomShuffle(random);
+                    y.hybridSort!less;
+                    assert(y.isSorted!less);
+                }
+            }
+            else
+            {
+                foreach (x; iota(0, n).permutations)
+                {
+                    import std.array : array;
+                    auto y = x.array;
+                    y.hybridSort!less;
+                    assert(y.isSorted!less);
+                }
             }
         }
     }

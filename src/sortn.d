@@ -53,7 +53,7 @@ void conditionalSwap(alias less = "a < b", Range, Indexes...)(Range r)
 }
 
 /** Largest length supported by network sort `sortUpTo`. */
-enum sortUpToMaxLength = 6;
+enum sortUpToMaxLength = 9;
 
 /** Sort at most then first `n` elements of `r` using comparison `less`.
 
@@ -71,6 +71,7 @@ in
 body
 {
     auto s = r[0 .. n];
+
     static if (n < 2)
     {
         // already sorted
@@ -112,10 +113,17 @@ body
                            2,3,
             );
     }
+    else static if (n == 9)     // R. W. Floyd.
+    {
+        s.conditionalSwap!(less, Range,
+                           0,1, 3,4, 6,7, 1,2, 4,5, 7,8, 0,1, 3,4, 6,7,
+                           0,3, 3,6, 0,3, 1,4, 4,7, 1,4, 2,5, 5,8, 2,5,
+                           1,3, 5,7, 2,6, 4,6, 2,4, 2,3, 5,6
+            );
+    }
     else
     {
-        static assert(n > sortUpToMaxLength); // check that sortUpToMaxLength is
-        static assert(false, "Range must contain at most " ~ sortUpToMaxLength.stringof ~ " elements");
+        static assert(false, "Unsupported n " ~ n.stringof);
     }
 
     import std.algorithm.sorting : assumeSorted;
@@ -131,11 +139,15 @@ auto hybridSort(alias less = "a < b", Range)(Range r) // TODO uint or size_t?
     import std.algorithm.sorting : isSorted;
     foreach (uint n; iota!(2, sortUpToMaxLength + 1))
     {
-        if (n == r.length)
+        static if (__traits(compiles, { r.sortUpTo!(n, less); }))
         {
-            auto s = r.sortUpTo!(n, less);
-            debug assert(s.isSorted!less);
-            return s;
+            // pragma(msg, n);
+            if (n == r.length)
+            {
+                auto s = r.sortUpTo!(n, less);
+                debug assert(s.isSorted!less);
+                return s;
+            }
         }
     }
     import std.algorithm.sorting : sort;

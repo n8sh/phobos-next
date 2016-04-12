@@ -7,7 +7,7 @@
 
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
 
-    TODO Stability of equal elements: Scalar builtin values are always stable.
+    TODO Stability of equal elements: Need template parameter `equalityStability`? Scalar builtin values are always stable.
 */
 module sortn;
 
@@ -23,7 +23,7 @@ template iota(size_t from, size_t to)
 }
 private template iotaImpl(size_t to, size_t now)
 {
-    import std.meta: AliasSeq;
+    import std.meta : AliasSeq;
     static if (now >= to) { alias iotaImpl = AliasSeq!(now); }
     else                  { alias iotaImpl = AliasSeq!(now, iotaImpl!(to, now+1)); }
 }

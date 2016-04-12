@@ -53,7 +53,7 @@ void conditionalSwap(alias less = "a < b", Range, Indexes...)(Range r)
 }
 
 /** Largest length supported by network sort `sortUpTo`. */
-enum maxNetworkSortLength = 6;
+enum maxSortUpToLength = 6;
 
 /** Sort at most then first `n` elements of `r` using comparison `less`.
 
@@ -114,8 +114,8 @@ body
     }
     else
     {
-        static assert(n > maxNetworkSortLength); // check that maxNetworkSortLength is
-        static assert(false, "Range must contain at most " ~ maxNetworkSortLength.stringof ~ " elements");
+        static assert(n > maxSortUpToLength); // check that maxSortUpToLength is
+        static assert(false, "Range must contain at most " ~ maxSortUpToLength.stringof ~ " elements");
     }
 
     import std.algorithm.sorting : assumeSorted;
@@ -128,7 +128,7 @@ auto hybridSort(alias less = "a < b", Range)(Range r) // TODO uint or size_t?
     if (isRandomAccessRange!Range)
 {
     import std.algorithm.sorting : isSorted;
-    foreach (uint n; iota!(2, maxNetworkSortLength + 1))
+    foreach (uint n; iota!(2, maxSortUpToLength + 1))
     {
         if (n == r.length)
         {
@@ -150,7 +150,7 @@ auto hybridSort(alias less = "a < b", Range)(Range r) // TODO uint or size_t?
 
     alias T = uint;
 
-    foreach (const n; iota(0, maxNetworkSortLength + 1))
+    foreach (const n; iota(0, maxSortUpToLength + 1))
     {
         foreach (x; iota(0, n).permutations)
         {

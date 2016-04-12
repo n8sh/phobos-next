@@ -56,7 +56,11 @@ void conditionalSwap(alias less = "a < b", Range, Indexes...)(Range r)
 enum maxNetworkSortLength = 6;
 
 /** Sort at most then first `n` elements of `r` using comparison `less`.
-   See also: http://stackoverflow.com/questions/3903086/standard-sorting-networks-for-small-values-of-n
+
+    Note: Sorting networks for `n` >= 3 are not unique.
+
+    See also: http://stackoverflow.com/questions/3903086/standard-sorting-networks-for-small-values-of-n
+    See also: http://www.cs.brandeis.edu/~hugues/sorting_networks.html
  */
 auto sortUpTo(uint n, alias less = "a < b", Range)(Range r) // TODO uint or size_t?
     if (isRandomAccessRange!Range)

@@ -110,8 +110,7 @@ body
                            0,2, 1,4, 3,5, // 3 in parallel
                            0,1, 2,3, 4,5, // 3 in parallel
                            1,2, 3,4,      // 2 in parallel
-                           2,3,
-            );
+                           2,3);
     }
     else static if (n == 9)     // R. W. Floyd.
     {

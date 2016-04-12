@@ -28,8 +28,8 @@ private template iotaImpl(size_t to, size_t now)
     else                  { alias iotaImpl = AliasSeq!(now, iotaImpl!(to, now+1)); }
 }
 
-/** Conditional pairwise swap elements of `Range` `r` at indexes `Indexes` using
-    comparison `less`.
+/** Conditionally pairwise sort elements of `Range` `r` at indexes `Indexes`
+    using comparison `less`.
  */
 void conditionalSwap(alias less = "a < b", Range, Indexes...)(Range r)
     if (isRandomAccessRange!Range &&

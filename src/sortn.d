@@ -9,38 +9,13 @@
 */
 module sortn;
 
+import std.meta : allSatisfy;
+import std.traits : isIntegral;
 import std.range : isInputRange, isRandomAccessRange;
-
-/** Apply conditional swaps at indexes `ixs` in range `r`.
- */
-void conditionalSwap(alias less = "a < b", Range, Ixs...)(Range r, Ixs ixs)
-    if (isInputRange!Range &&
-        (Ixs.length & 1) == 0) // even number of indexes
-{
-    import std.algorithm.mutation : swapAt;
-    enum n = Ixs.length / 2; // number of replacements
-    foreach (const i; iota!(0, n))
-    {
-        r.swapAt!less(ixs[2*i + 0],
-                      ixs[2*i + 1]);
-    }
-}
-
-Range sortUpTo(uint n, alias less = "a < b", Range)(Range r) // TODO uint or size_t?
-    if (isRandomAccessRange!Range)
-in
-{
-    assert(r.length <= n);
-}
-body
-{
-    import std.algorithm.sorting : assumeSorted;
-    return r[0 .. n].assumeSorted;
-}
 
 /** Static Iota. */
 template iota(size_t from, size_t to)
-if (from <= to)
+    if (from <= to)
 {
     alias iota = siotaImpl!(to-1, from);
 }
@@ -51,24 +26,75 @@ private template siotaImpl(size_t to, size_t now)
     else                  { alias siotaImpl = AliasSeq!(now, siotaImpl!(to, now+1)); }
 }
 
-@safe pure nothrow @nogc unittest
+/** Conditional pairwise swap elements of `Range` `r` at indexes `Indexes`.
+    See also: http://stackoverflow.com/questions/3903086/standard-sorting-networks-for-small-values-of-n
+ */
+void conditionalSwap(alias less = "a < b", Range, Indexes...)(Range r)
+    if (isRandomAccessRange!Range &&
+        // TODO allSatisfy!(isIntegral, Indexes) &&
+        Indexes.length &&
+        (Indexes.length & 1) == 0) // even number of indexes
 {
-    import std.algorithm : equal;
-
-    foreach (uint n; iota!(0, 20))
+    import std.algorithm.mutation : swapAt;
+    enum n = Indexes.length / 2; // number of replacements
+    import std.functional : binaryFun;
+    alias comp = binaryFun!less; //< comparison
+    foreach (const i; iota!(0, n))
     {
-        int[n] xs;
-        import std.range : iota, retro;
+        const j = Indexes[2*i];
+        const k = Indexes[2*i + 1];
+        if (!comp(r[j], r[k])) r.swapAt(j, k);
+    }
+}
 
-        foreach (const i; 0.iota(n).retro)
+auto sortUpTo(uint n, alias less = "a < b", Range)(Range r) // TODO uint or size_t?
+    if (isRandomAccessRange!Range)
+in
+{
+    assert(r.length <= n);
+}
+body
+{
+    static if (n == 0)
+    {
+        // already sorted
+    }
+    else static if (n == 2)
+    {
+        r[0 .. n].conditionalSwap!(less, Range, 0, 1);
+    }
+    else static if (n == 3)
+    {
+        r[0 .. n].conditionalSwap!(less, Range, 0,1, 1,2, 0,1);
+    }
+    import std.algorithm.sorting : assumeSorted;
+    return r[0 .. n].assumeSorted;
+}
+
+@safe pure nothrow // @nogc
+unittest
+{
+    import dbg : dln;
+    import std.algorithm : equal;
+    import std.algorithm.sorting : isSorted;
+
+    enum maxLength = 3;
+
+    foreach (uint n; iota!(0, maxLength + 1))
+    {
+        pragma(msg, "n:", n);
+        int[n] xs;
+        import std.range : iota;
+
+        foreach (const i; 0.iota(n))
         {
-            xs[i] = i;
+            xs[i] = n - i;
         }
 
-        import std.algorithm.sorting : sort;
-        sort(xs[]);
-
-        assert(xs[].equal(0.iota(n)));
+        dln("before:", xs[]);
+        xs[].sortUpTo!n;
+        dln("after:", xs[]);
+        assert(xs[].isSorted);
     }
 
 }

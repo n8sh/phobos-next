@@ -80,20 +80,30 @@ body
     else static if (n == 4)
     {
         s.conditionalSwap!(less, Range,
-                           0,1, 2,3, // in parallel
-                           0,2, 1,3, // in parallel
+                           0,1, 2,3, // 2 in parallel
+                           0,2, 1,3, // 2 in parallel
                            1,2);
     }
     else static if (n == 5)
     {
         s.conditionalSwap!(less, Range,
-                           0,1, 3,4, // in parallel
+                           0,1, 3,4, // 2 in parallel
                            0,2,
                            1,2,
                            0,3,
                            2,3,
                            1,4,
-                           1,2, 3,4); // in parallel
+                           1,2, 3,4); // 2 in parallel
+    }
+    else static if (n == 6)
+    {
+        s.conditionalSwap!(less, Range,
+                           0,1, 2,3, 4,5, // 3 in parallel
+                           0,2, 1,4, 3,5, // 3 in parallel
+                           0,1, 2,3, 4,5, // 3 in parallel
+                           1,2, 3,4,      // 2 in parallel
+                           2,3,
+            );
     }
 
     import std.algorithm.sorting : assumeSorted;
@@ -107,7 +117,7 @@ unittest
     import std.algorithm : equal;
     import std.algorithm.sorting : isSorted;
 
-    enum maxLength = 5;
+    enum maxLength = 6;
 
     foreach (uint n; iota!(0, maxLength + 1))
     {

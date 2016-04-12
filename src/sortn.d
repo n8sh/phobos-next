@@ -280,7 +280,7 @@ auto hybridSort(alias less = "a < b", Range)(Range r) // TODO uint or size_t?
 
     alias T = uint;
 
-    const maxPermutationLength = 9;
+    const maxFullPermutationTestLength = 8;
     const maxPermutations = 10_000;
 
     import std.meta : AliasSeq;
@@ -288,7 +288,7 @@ auto hybridSort(alias less = "a < b", Range)(Range r) // TODO uint or size_t?
     {
         foreach (const n; iota(0, sortUpToMaxLength + 1))
         {
-            if (n >= maxPermutationLength) // if number of elements is too large
+            if (n > maxFullPermutationTestLength) // if number of elements is too large
             {
                 foreach (x; iota(0, maxPermutations))
                 {

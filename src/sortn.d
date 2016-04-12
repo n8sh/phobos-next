@@ -1,8 +1,11 @@
 #!/usr/bin/env rdmd-dev-module
 
-/** Sorting Networks.
-    License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
+/** Fixed Length Sorting via Sorting Networks.
+
+    See also: http://forum.dlang.org/post/ne5m62$1gu5$1@digitalmars.com
     See also: http://cpansearch.perl.org/src/JGAMBLE/Algorithm-Networksort-1.30/lib/Algorithm/Networksort.pm
+
+    License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
 */
 module sortn;
 
@@ -207,10 +210,17 @@ bool ip_sort(T)(T* a, size_t n)
     return rval;
 }
 
-void conditionalSwap(alias less = "a < b", R, Indexes...)(Indexes ixs)
-    if (isInputRange!R)
+void conditionalSwap(alias less = "a < b", R, Indexes...)(R r, Indexes ixs)
+    if (isInputRange!R &&
+        (Indexes.length & 1) == 0) // even number of indexes
 {
     import std.algorithm.mutation : swapAt;
+    enum n = Indexes.length / 2; // number of replacements
+    foreach (const i; iota!(0, n))
+    {
+        r.swapAt(ixs[2*i + 0],
+                 ixs[2*i + 1]);
+    }
 }
 
 /** Static Iota.
@@ -235,6 +245,7 @@ private template siotaImpl(size_t to, size_t now)
     int[n] xs;
     foreach (const e; iota!(0, n))
     {
+        pragma(msg, e);
         xs[e] = e;
     }
     import std.range : iota;

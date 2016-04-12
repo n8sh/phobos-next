@@ -9,6 +9,70 @@
 */
 module sortn;
 
+import std.range : isInputRange, isRandomAccessRange;
+
+/** Apply conditional swaps at indexes `ixs` in range `r`.
+ */
+void conditionalSwap(alias less = "a < b", Range, Ixs...)(Range r, Ixs ixs)
+    if (isInputRange!Range &&
+        (Ixs.length & 1) == 0) // even number of indexes
+{
+    import std.algorithm.mutation : swapAt;
+    enum n = Ixs.length / 2; // number of replacements
+    foreach (const i; iota!(0, n))
+    {
+        r.swapAt!less(ixs[2*i + 0],
+                      ixs[2*i + 1]);
+    }
+}
+
+Range sortUpTo(uint n, alias less = "a < b", Range)(Range r) // TODO uint or size_t?
+    if (isRandomAccessRange!Range)
+in
+{
+    assert(r.length <= n);
+}
+body
+{
+    import std.algorithm.sorting : assumeSorted;
+    return r[0 .. n].assumeSorted;
+}
+
+/** Static Iota. */
+template iota(size_t from, size_t to)
+if (from <= to)
+{
+    alias iota = siotaImpl!(to-1, from);
+}
+private template siotaImpl(size_t to, size_t now)
+{
+    import std.meta: AliasSeq;
+    static if (now >= to) { alias siotaImpl = AliasSeq!(now); }
+    else                  { alias siotaImpl = AliasSeq!(now, siotaImpl!(to, now+1)); }
+}
+
+@safe pure nothrow @nogc unittest
+{
+    import std.algorithm : equal;
+
+    foreach (uint n; iota!(0, 20))
+    {
+        int[n] xs;
+        import std.range : iota, retro;
+
+        foreach (const i; 0.iota(n).retro)
+        {
+            xs[i] = i;
+        }
+
+        import std.algorithm.sorting : sort;
+        sort(xs[]);
+
+        assert(xs[].equal(0.iota(n)));
+    }
+
+}
+
 /** Assign-Sort-4 `a`, `b`, `c` and `d` into `k`, `l`, `m` and `n` .
  * Time-Complexity: (\em Small!): 5 CMP, 4 MOV
  * Code Complexity: (\em Large!): 23 CMP, 24*4 MOV
@@ -208,46 +272,4 @@ bool ip_sort(T)(T* a, size_t n)
     case 4: ip_sort(a[0], a[1], a[2], a[3]); rval = true; break;
     }
     return rval;
-}
-
-void conditionalSwap(alias less = "a < b", R, Indexes...)(R r, Indexes ixs)
-    if (isInputRange!R &&
-        (Indexes.length & 1) == 0) // even number of indexes
-{
-    import std.algorithm.mutation : swapAt;
-    enum n = Indexes.length / 2; // number of replacements
-    foreach (const i; iota!(0, n))
-    {
-        r.swapAt(ixs[2*i + 0],
-                 ixs[2*i + 1]);
-    }
-}
-
-/** Static Iota.
-    TODO Add to Phobos.
-*/
-template iota(size_t from, size_t to)
-    if (from <= to)
-{
-    alias iota = siotaImpl!(to-1, from);
-}
-private template siotaImpl(size_t to, size_t now)
-{
-    import std.meta: AliasSeq;
-    static if (now >= to) { alias siotaImpl = AliasSeq!(now); }
-    else                  { alias siotaImpl = AliasSeq!(now, siotaImpl!(to, now+1)); }
-}
-
-@safe pure nothrow @nogc unittest
-{
-    import std.algorithm : equal;
-    enum n = 3;
-    int[n] xs;
-    foreach (const e; iota!(0, n))
-    {
-        pragma(msg, e);
-        xs[e] = e;
-    }
-    import std.range : iota;
-    assert(xs[].equal(0.iota(n)));
 }

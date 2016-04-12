@@ -118,6 +118,8 @@ body
     return s.assumeSorted;
 }
 
+/** Hybrid sort `r`.
+ */
 auto hybridSort(alias less = "a < b", Range)(Range r) // TODO uint or size_t?
     if (isRandomAccessRange!Range)
 {

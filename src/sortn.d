@@ -119,7 +119,7 @@ body
     }
 
     import std.algorithm.sorting : assumeSorted;
-    return s.assumeSorted;
+    return s.assumeSorted!less;
 }
 
 /** Hybrid sort `r` using sortUpTo for if length of `r` is less than or equal to
@@ -134,12 +134,12 @@ auto hybridSort(alias less = "a < b", Range)(Range r) // TODO uint or size_t?
         if (n == r.length)
         {
             auto s = r.sortUpTo!(n, less);
-            debug assert(s.isSorted);
+            debug assert(s.isSorted!less);
             return s;
         }
     }
     import std.algorithm.sorting : sort;
-    return sort(r);
+    return sort!less(r);
 }
 
 @safe pure nothrow unittest
@@ -150,14 +150,15 @@ auto hybridSort(alias less = "a < b", Range)(Range r) // TODO uint or size_t?
 
     alias T = uint;
 
+    enum less = "a < b";
     foreach (const n; iota(0, sortUpToMaxLength + 1))
     {
         foreach (x; iota(0, n).permutations)
         {
             import std.array : array;
             auto y = x.array;
-            y.hybridSort;
-            assert(y.isSorted);
+            y.hybridSort!less;
+            assert(y.isSorted!less);
         }
     }
 

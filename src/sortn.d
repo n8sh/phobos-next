@@ -150,16 +150,18 @@ auto hybridSort(alias less = "a < b", Range)(Range r) // TODO uint or size_t?
 
     alias T = uint;
 
-    enum less = "a < b";
-    foreach (const n; iota(0, sortUpToMaxLength + 1))
+    import std.meta : AliasSeq;
+    foreach (less; AliasSeq!("a < b", "a > b"))
     {
-        foreach (x; iota(0, n).permutations)
+        foreach (const n; iota(0, sortUpToMaxLength + 1))
         {
-            import std.array : array;
-            auto y = x.array;
-            y.hybridSort!less;
-            assert(y.isSorted!less);
+            foreach (x; iota(0, n).permutations)
+            {
+                import std.array : array;
+                auto y = x.array;
+                y.hybridSort!less;
+                assert(y.isSorted!less);
+            }
         }
     }
-
 }

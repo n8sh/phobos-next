@@ -145,24 +145,20 @@ auto hybridSort(alias less = "a < b", Range)(Range r) // TODO uint or size_t?
 {
     import dbg : dln;
     import std.algorithm.sorting : isSorted;
+    import std.algorithm.iteration : permutations;
+    import std.range : iota;
 
     alias T = uint;
 
-    import std.range : iota;
-    foreach (uint n; iota(0, maxNetworkSortLength + 1))
+    foreach (const n; iota(0, maxNetworkSortLength + 1))
     {
-        auto xs = new int[n];
-        import std.range : iota;
-
-        foreach (const i; 0.iota(n))
+        foreach (x; iota(0, n).permutations)
         {
-            xs[i] = cast(T)(n - i);
+            import std.array : array;
+            auto y = x.array;
+            y.hybridSort;
+            assert(y.isSorted);
         }
-
-        dln("before:", xs[]);
-        xs[].hybridSort;
-        dln("after:", xs[]);
-        assert(xs[].isSorted);
     }
 
 }

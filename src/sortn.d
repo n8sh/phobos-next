@@ -106,11 +106,11 @@ enum networkSortMaxLength = 22;
     See also: http://stackoverflow.com/questions/3903086/standard-sorting-networks-for-small-values-of-n
     See also: http://www.cs.brandeis.edu/~hugues/sorting_networks.html
  */
-auto networkSortUpTo(uint n, alias less = "a < b", Range)(Range r) // TODO uint or size_t?
+auto networkSortUpTo(uint n, alias less = "a < b", Range)(Range r)
     if (isRandomAccessRange!Range)
 in
 {
-    assert(r.length <= n);
+    assert(r.length >= n);
 }
 body
 {
@@ -321,6 +321,19 @@ body
     return s.assumeSorted!less;
 }
 
+/** Sort range `x` of length `n` using a networking sort.
+ */
+auto networkSortExactly(uint n, alias less = "a < b", Range)(Range r)
+    if (isRandomAccessRange!Range)
+in
+{
+    assert(r.length == n);
+}
+body
+{
+    x[].networkSortUpTo!n;
+}
+
 /** Sort static array `x` of length `n` using a networking sort.
  */
 auto networkSortExactly(alias less = "a < b", T, size_t n)(ref T[n] x)
@@ -340,7 +353,7 @@ auto networkSortExactly(alias less = "a < b", T, size_t n)(ref T[n] x)
 /** Hybrid sort `r` using `networkSortUpTo` if length of `r` is less-than-or-equal to
     `networkSortMaxLength` and `std.algorithm.sorting.sort` otherwise.
  */
-auto hybridSort(alias less = "a < b", Range)(Range r) // TODO uint or size_t?
+auto hybridSort(alias less = "a < b", Range)(Range r)
     if (isRandomAccessRange!Range)
 {
     import std.algorithm.sorting : isSorted;

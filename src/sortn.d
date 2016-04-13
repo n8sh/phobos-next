@@ -8,6 +8,32 @@
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
 
     TODO Stability of equal elements: Need template parameter `equalityStability`? Scalar builtin values are always stable.
+
+    TODO There is a nice peephole optimization you could make. Consider:
+
+    r.conditionalSwap!("a < b", less, 0, 1, 1, 2)(r);
+
+    which needs to do
+
+    if (r[1] < r[0]) r.swapAt(0, 1);
+    if (r[2] < r[1]) r.swapAt(1, 2);
+
+    For types with no elaborate copy/assignment, it's more efficient to use a
+    "hole"-based approach - assign the first element to a temporary and then
+    consider it a hole that you fill, then leaving another hole:
+
+    if (r[1] < r[0])
+    if (r[2] < r[0]) r.swapAt(0, 1, 2);
+    else r.swapAt(0, 1);
+    else
+    if (r[2] < r[1]) r.swapAt(1, 2);
+
+    with swapAt with three argument having this definition:
+
+    auto t = r[a]; r[a] = r[b]; r[b] = r[c]; r[c] = t;
+
+    i.e. create a temporary (which creates a "hole" in the array) then fill it
+    leaving another hole etc., until the last hole is filled with the temporary.
 */
 module sortn;
 

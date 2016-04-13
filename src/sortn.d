@@ -30,21 +30,32 @@ private template iotaImpl(size_t to, size_t now)
     else                  { alias iotaImpl = AliasSeq!(now, iotaImpl!(to, now+1)); }
 }
 
-/** Conditionally pairwise sort elements of `Range` `r` at indexes `Indexes`
-    using comparison `less`.
+/** Conditionally pairwise sort elements of `Range` `r` at `indexes` using
+    comparison predicate `less`.
+
+    TODO Perhaps defines as
+
+    template conditionalSwap(indexes...)
+    {
+       void conditionalSwap(less = "a < b", Range)(Range r)
+       {
+       }
+    }
+
+    instead.
  */
-void conditionalSwap(alias less = "a < b", Range, Indexes...)(Range r)
+void conditionalSwap(alias less = "a < b", Range, indexes...)(Range r)
     if (isRandomAccessRange!Range &&
-        allSatisfy!(isIntegral, typeof(Indexes)) &&
-        Indexes.length &&
-        (Indexes.length & 1) == 0) // even number of indexes
+        allSatisfy!(isIntegral, typeof(indexes)) &&
+        indexes.length &&
+        (indexes.length & 1) == 0) // even number of indexes
 {
     import std.algorithm.mutation : swapAt;
     import std.functional : binaryFun;
-    foreach (const i; iota!(0, Indexes.length / 2))
+    foreach (const i; iota!(0, indexes.length / 2))
     {
-        const j = Indexes[2*i];
-        const k = Indexes[2*i + 1];
+        const j = indexes[2*i];
+        const k = indexes[2*i + 1];
 
         static assert(j >= 0, "First part of index pair " ~ i.stringof ~ " is negative");
         static assert(j >= 0, "Second part of index pair " ~ i.stringof ~ " is negative");

@@ -110,7 +110,7 @@ enum networkSortMaxLength = 22;
 
 /** Sort at most the first `n` elements of `r` using comparison `less`.
 
-    Note: Sorting networks for `n` >= 3 are not unique.
+    Note: Sorting networks are not unique, not even optimal solutions.
 
     See also: http://stackoverflow.com/questions/3903086/standard-sorting-networks-for-small-values-of-n
     See also: http://www.cs.brandeis.edu/~hugues/sorting_networks.html

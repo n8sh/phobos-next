@@ -9,6 +9,9 @@
 
     TODO Stability of equal elements: Need template parameter `equalityStability`? Scalar builtin values are always stable.
 
+    TODO There should be a notion of at what point the networks become too bulky
+    to be fast - 6-16 may be the limit.
+
     TODO There is a nice peephole optimization you could make. Consider:
 
     r.conditionalSwap!("a < b", less, 0, 1, 1, 2)(r);
@@ -47,7 +50,7 @@ version(unittest) import std.algorithm.comparison : equal;
 template iota(size_t from, size_t to)
     if (from <= to)
 {
-    alias iota = iotaImpl!(to-1, from);
+    alias iota = iotaImpl!(to - 1, from);
 }
 private template iotaImpl(size_t to, size_t now)
 {

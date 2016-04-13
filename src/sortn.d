@@ -43,6 +43,10 @@ void conditionalSwap(alias less = "a < b", Range, Indexes...)(Range r)
     {
         const j = Indexes[2*i];
         const k = Indexes[2*i + 1];
+
+        static assert(j >= 0, "First part of index pair " ~ i.stringof ~ " is negative");
+        static assert(j >= 0, "Second part of index pair " ~ i.stringof ~ " is negative");
+
         if (!binaryFun!less(r[j], r[k]))
         {
             r.swapAt(j, k);
@@ -267,7 +271,7 @@ body
     return s.assumeSorted!less;
 }
 
-/** Hybrid sort `r` using sortUpTo for if length of `r` is less than or equal to
+/** Hybrid sort `r` using `sortUpTo` if length of `r` is less than or equal to
     `sortUpToMaxLength` and `std.algorithm.sorting.sort` otherwise.
  */
 auto hybridSort(alias less = "a < b", Range)(Range r) // TODO uint or size_t?

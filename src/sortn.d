@@ -39,8 +39,7 @@ void conditionalSwap(alias less = "a < b", Range, Indexes...)(Range r)
 {
     import std.algorithm.mutation : swapAt;
     import std.functional : binaryFun;
-    enum n = Indexes.length / 2; // number of replacements
-    foreach (const i; iota!(0, n))
+    foreach (const i; iota!(0, Indexes.length / 2))
     {
         const j = Indexes[2*i];
         const k = Indexes[2*i + 1];

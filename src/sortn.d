@@ -271,7 +271,7 @@ body
     return s.assumeSorted!less;
 }
 
-/** Hybrid sort `r` using `sortUpTo` if length of `r` is less than or equal to
+/** Hybrid sort `r` using `sortUpTo` if length of `r` is less-than-or-equal to
     `sortUpToMaxLength` and `std.algorithm.sorting.sort` otherwise.
  */
 auto hybridSort(alias less = "a < b", Range)(Range r) // TODO uint or size_t?

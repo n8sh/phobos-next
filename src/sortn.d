@@ -7,6 +7,15 @@
 
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
 
+    TODO see some sizes are not supported, we should not have holes.
+
+    TODO Sometimes the sort routine gets too bulky. Suggestion: also define
+    networks for `medianOfUpTo` and `medianExactly`, then use them in a
+    quicksort manner - first compute the median to segregate values in
+    below/over the median, then make two calls to `sortExactly!(n / 2)`. That
+    way you get to sort n values with median of n values (smaller and simpler)
+    and two sorts of n / 2 values.
+
     TODO Stability of equal elements: Need template parameter `equalityStability`? Scalar builtin values are always stable.
 
     TODO There should be a notion of at what point the networks become too bulky

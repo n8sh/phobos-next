@@ -348,7 +348,6 @@ auto hybridSort(alias less = "a < b", Range)(Range r) // TODO uint or size_t?
     {
         static if (__traits(compiles, { r.networkSortUpTo!(n, less); }))
         {
-            // pragma(msg, n);
             if (n == r.length)
             {
                 auto s = r.networkSortUpTo!(n, less);

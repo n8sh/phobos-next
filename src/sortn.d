@@ -15,6 +15,8 @@ import std.meta : allSatisfy;
 import std.traits : isIntegral;
 import std.range : isInputRange, isRandomAccessRange;
 
+version(unittest) import std.algorithm.comparison : equal;
+
 /** Static Iota. */
 template iota(size_t from, size_t to)
     if (from <= to)
@@ -278,6 +280,23 @@ body
     import std.algorithm.sorting : assumeSorted;
     return s.assumeSorted!less;
 }
+
+/** Sort static array `x` of length `n` using a networking sort.
+ */
+auto networkSortExactly(alias less = "a < b", T, size_t n)(ref T[n] x)
+{
+    x[].sortUpTo!n;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    int[4] x = [2, 3, 0, 1];
+    const int[4] y = [0, 1, 2, 3];
+    x.networkSortExactly;
+    assert(x[].equal(y[]));
+}
+
 
 /** Hybrid sort `r` using `sortUpTo` if length of `r` is less-than-or-equal to
     `sortUpToMaxLength` and `std.algorithm.sorting.sort` otherwise.

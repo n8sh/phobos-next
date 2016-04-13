@@ -87,7 +87,7 @@ void conditionalSwap(alias less = "a < b", Range, indexes...)(Range r)
         const k = indexes[2*i + 1];
 
         static assert(j >= 0, "First part of index pair " ~ i.stringof ~ " is negative");
-        static assert(j >= 0, "Second part of index pair " ~ i.stringof ~ " is negative");
+        static assert(k >= 0, "Second part of index pair " ~ i.stringof ~ " is negative");
 
         if (!binaryFun!less(r[j], r[k]))
         {

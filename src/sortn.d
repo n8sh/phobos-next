@@ -96,8 +96,8 @@ void conditionalSwap(alias less = "a < b", Range, indexes...)(Range r)
     }
 }
 
-/** Largest length supported by network sort `sortUpTo`. */
-enum sortUpToMaxLength = 22;
+/** Largest length supported by network sort `networkSortUpTo`. */
+enum networkSortMaxLength = 22;
 
 /** Sort at most then first `n` elements of `r` using comparison `less`.
 
@@ -106,7 +106,7 @@ enum sortUpToMaxLength = 22;
     See also: http://stackoverflow.com/questions/3903086/standard-sorting-networks-for-small-values-of-n
     See also: http://www.cs.brandeis.edu/~hugues/sorting_networks.html
  */
-auto sortUpTo(uint n, alias less = "a < b", Range)(Range r) // TODO uint or size_t?
+auto networkSortUpTo(uint n, alias less = "a < b", Range)(Range r) // TODO uint or size_t?
     if (isRandomAccessRange!Range)
 in
 {
@@ -325,7 +325,7 @@ body
  */
 auto networkSortExactly(alias less = "a < b", T, size_t n)(ref T[n] x)
 {
-    x[].sortUpTo!n;
+    x[].networkSortUpTo!n;
 }
 
 ///
@@ -338,21 +338,21 @@ auto networkSortExactly(alias less = "a < b", T, size_t n)(ref T[n] x)
 }
 
 
-/** Hybrid sort `r` using `sortUpTo` if length of `r` is less-than-or-equal to
-    `sortUpToMaxLength` and `std.algorithm.sorting.sort` otherwise.
+/** Hybrid sort `r` using `networkSortUpTo` if length of `r` is less-than-or-equal to
+    `networkSortMaxLength` and `std.algorithm.sorting.sort` otherwise.
  */
 auto hybridSort(alias less = "a < b", Range)(Range r) // TODO uint or size_t?
     if (isRandomAccessRange!Range)
 {
     import std.algorithm.sorting : isSorted;
-    foreach (uint n; iota!(2, sortUpToMaxLength + 1))
+    foreach (uint n; iota!(2, networkSortMaxLength + 1))
     {
-        static if (__traits(compiles, { r.sortUpTo!(n, less); }))
+        static if (__traits(compiles, { r.networkSortUpTo!(n, less); }))
         {
             // pragma(msg, n);
             if (n == r.length)
             {
-                auto s = r.sortUpTo!(n, less);
+                auto s = r.networkSortUpTo!(n, less);
                 debug assert(s.isSorted!less);
                 return s;
             }
@@ -382,7 +382,7 @@ auto hybridSort(alias less = "a < b", Range)(Range r) // TODO uint or size_t?
     import std.meta : AliasSeq;
     foreach (less; AliasSeq!("a < b", "a > b"))
     {
-        foreach (const n; iota(0, sortUpToMaxLength + 1))
+        foreach (const n; iota(0, networkSortMaxLength + 1))
         {
             if (n > maxFullPermutationTestLength) // if number of elements is too large
             {

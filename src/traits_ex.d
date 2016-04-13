@@ -715,6 +715,8 @@ auto enumMembers(T)()
     import std.traits: EnumMembers;
     return [EnumMembers!T];
 }
+alias enumEnumerators = enumMembers;
+alias enumConstants = enumMembers;
 
 /** Dynamic Variant of $(D EnumMembers) without Enumerator Aliases.
     See also: http://forum.dlang.org/thread/bspwlfypfishykezzocx@forum.dlang.org#post-dguqnroxbfewerepomwq:40forum.dlang.org

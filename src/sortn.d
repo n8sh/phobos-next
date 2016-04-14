@@ -4,10 +4,12 @@
 
     See also: http://forum.dlang.org/post/ne5m62$1gu5$1@digitalmars.com
     See also: http://cpansearch.perl.org/src/JGAMBLE/Algorithm-Networksort-1.30/lib/Algorithm/Networksort.pm
+    See also: http://www.angelfire.com/blog/ronz/Articles/999SortingNetworksReferen.html
 
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
 
     TODO see some sizes are not supported, we should not have holes.
+    Use http://www.angelfire.com/blog/ronz/Articles/999SortingNetworksReferen.html
 
     TODO Sometimes the sort routine gets too bulky. Suggestion: also define
     networks for `medianOfUpTo` and `medianExactly`, then use them in a

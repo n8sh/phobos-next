@@ -8,7 +8,7 @@
 module trie;
 
 import std.meta : AliasSeq;
-import std.traits : isIntegral, isSomeChar, isSomeString, isArray, allSatisfy;
+import std.traits : isIntegral, isSomeChar, isSomeString, isArray, allSatisfy, anySatisfy;
 import std.range : ElementType;
 
 enum isTrieableKeyElementType(T) = isIntegral!T || isSomeChar!T;
@@ -20,6 +20,12 @@ enum isTrieableKey(T) = (isTrieableKeyElementType!T ||
 struct Node(size_t N)
 {
     Node!N*[N] nexts;
+
+    /// Indicates that child at this index is occupied.
+    static Node!N* oneSet = cast(Node!N*)1;
+
+    /// Indicates that all children are occupied (typically only for fixed-sized types).
+    static Node!N* allSet = cast(Node!N*)size_t.max;
 }
 
 /** Radix Tree storing keys of types `Keys`.
@@ -33,6 +39,8 @@ struct RadixTree(Value, Keys...)
 
     enum radix = 4;             // radix in number of bits
     enum N = 2^^radix;
+
+    enum isFixed = allSatisfy!(isTrieableKeyElementType, Keys);
 
     static if (isSet)
     {
@@ -55,28 +63,22 @@ struct RadixTree(Value, Keys...)
         }
     }
 
-    private Node!N _root;
+    private Node!N* _root;
 }
 alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
 
 /// Instantiator.
-auto radixTreeMap(Value, Keys...)()
-{
-    return RadixTree!(Value, Keys)();
-}
+auto radixTreeMap(Value, Keys...)() { return RadixTree!(Value, Keys)(); }
 
 /// Instantiator.
-auto radixTreeSet(Keys...)()
-{
-    return RadixTree!(void, Keys)();
-}
+auto radixTreeSet(Keys...)() { return RadixTree!(void, Keys)(); }
 
 @safe pure nothrow unittest
 {
     struct X { int i; float f; string s; }
     alias Value = X;
-    foreach (Key; AliasSeq!(uint, char, string))
+    foreach (Key; AliasSeq!(char, uint, string))
     {
         auto set = radixTreeSet!(Key);
         set.insert(Key.init);

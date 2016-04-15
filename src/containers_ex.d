@@ -93,7 +93,6 @@ version(none) unittest
                         testHashSetInSituRegion,
                         testAA)(10);
     import std.stdio : writeln;
-
     import std.conv : to;
     writeln("testHashSetMallocator: ", to!Duration(r[0]));
     writeln("testHashSetInSituRegion:     ", to!Duration(r[1]));

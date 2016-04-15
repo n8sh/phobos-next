@@ -1,6 +1,8 @@
 /** Tries and PrefixTrees.
 
     See also: https://en.wikipedia.org/wiki/Trie
+
+    TODO Extend bitop_ex.d with {set,get}{Bit,Qit,Bytes} and reuse
  */
 module trie;
 
@@ -8,16 +10,17 @@ import std.meta : AliasSeq;
 import std.traits : isIntegral, isSomeChar, isSomeString, isArray, allSatisfy;
 import std.range : ElementType;
 
-enum isTrieableElementType(T) = isIntegral!T || isSomeChar!T;
-enum isTrieType(T) = (isTrieableElementType!T ||
-                      (isArray!T &&
-                       isTrieableElementType!(ElementType!T)));
+enum isTrieableKeyElementType(T) = isIntegral!T || isSomeChar!T;
+
+enum isTrieableKey(T) = (isTrieableKeyElementType!T ||
+                         (isArray!T &&
+                          isTrieableKeyElementType!(ElementType!T)));
 
 /** Radix Tree storing keys of types `Keys`.
     See also: https://en.wikipedia.org/wiki/Radix_tree
  */
 struct RadixTree(Value, Keys...)
-    if (allSatisfy!(isTrieType, Keys))
+    if (allSatisfy!(isTrieableKey, Keys))
 {
 }
 alias RadixTrie = RadixTree;
@@ -39,9 +42,12 @@ auto radixTreeSet(Keys...)()
 {
     struct S { int i; float f; string s; }
     alias Value = S;
-    foreach (T; AliasSeq!(uint, char, string))
+    foreach (Key; AliasSeq!(uint, char, string))
     {
-        auto set = radixTreeSet!T();
-        auto map = radixTreeMap!(Value, T)();
+        auto set = radixTreeSet!Key();
+        set.insert(Key.init);
+
+        auto map = radixTreeMap!(Value, Key)();
+        set.insert(Key.init, Value.init);
     }
 }

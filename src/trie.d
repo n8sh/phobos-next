@@ -4,11 +4,12 @@
  */
 module trie;
 
-import std.traits : isIntegral, isSomeString, allSatisfy;
+import std.meta : AliasSeq;
+import std.traits : isIntegral, isSomeChar, isSomeString, isArray, allSatisfy;
 import std.range : ElementType;
 
 enum isTrieableElementType(T) = isIntegral!T || isSomeChar!T;
-enum isTrieType(T) = (isTrieableElementType ||
+enum isTrieType(T) = (isTrieableElementType!T ||
                       (isArray!T &&
                        isTrieableElementType!(ElementType!T)));
 
@@ -23,18 +24,23 @@ alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
 
 /// Instantiator.
-auto radixTreeSet(Value, Keys...)(Keys keys)
+auto radixTreeMap(Value, Keys...)()
 {
-    return RadixTree!(Value, Keys)(keys);
+    return RadixTree!(Value, Keys)();
 }
 
 /// Instantiator.
-auto radixTreeSet(Keys...)(Keys key)
+auto radixTreeSet(Keys...)()
 {
-    return RadixTree!(void, Keys)(keys);
+    return RadixTree!(void, Keys)();
 }
 
 @safe pure nothrow unittest
 {
-    auto rt = radixTreeSet!(uint)();
+    alias Value = string;
+    foreach (T; AliasSeq!(uint, char))
+    {
+        auto set = radixTreeSet!T();
+        auto map = radixTreeMap!(Value, T)();
+    }
 }

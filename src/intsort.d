@@ -5,7 +5,7 @@
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
     Authors: $(WEB Per Nordlöw)
  */
-module isort;
+module intsort;
 
 import std.range: isBidirectionalRange, isRandomAccessRange, ElementType;
 import std.traits: isUnsigned, isSigned, isIntegral, isFloatingPoint, Unsigned, Signed, isNumeric;

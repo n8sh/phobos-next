@@ -37,8 +37,9 @@ auto radixTreeSet(Keys...)()
 
 @safe pure nothrow unittest
 {
-    alias Value = string;
-    foreach (T; AliasSeq!(uint, char))
+    struct S { int i; float f; string s; }
+    alias Value = S;
+    foreach (T; AliasSeq!(uint, char, string))
     {
         auto set = radixTreeSet!T();
         auto map = radixTreeMap!(Value, T)();

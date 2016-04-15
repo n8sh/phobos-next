@@ -93,13 +93,13 @@ import std.traits: isUnsigned, isSigned, isIntegral, isFloatingPoint, Unsigned, 
 
    See also: http://forum.dlang.org/thread/vmytpazcusauxypkwdbn@forum.dlang.org#post-vmytpazcusauxypkwdbn:40forum.dlang.org
  */
-void radixSortImpl(R,
-                   alias fun = "a",
-                   bool fastDigitDiscardal = false)(R x,
-                                                    const bool descending = false,
-                                                    bool doInPlace = false/* , */
-                                                    /* ElementType!R elementMin = ElementType!(R).max, */
-                                                    /* ElementType!R elementMax = ElementType!(R).min */)
+void radixSort(R,
+               alias fun = "a",
+               bool fastDigitDiscardal = false)(R x,
+                                                const bool descending = false,
+                                                bool doInPlace = false/* , */
+                                                /* ElementType!R elementMin = ElementType!(R).max, */
+                                                /* ElementType!R elementMax = ElementType!(R).min */)
     if (isRandomAccessRange!R &&
         (isNumeric!(ElementType!R)))
 {
@@ -289,7 +289,7 @@ void radixSortImpl(R,
 {
     import std.stdio: writeln;
 
-/** Test $(D radixSortImpl) with ElementType $(D E) */
+/** Test $(D radixSort) with ElementType $(D E) */
     void test(E)(int n) @safe
     {
         writeln("ElementType=", E.stringof, " n=", n);
@@ -318,7 +318,7 @@ void radixSortImpl(R,
         // Reverse Radix Sort
         {
             auto b = a.dup;
-            radixSortImpl!(typeof(b), "a", false)(b, true);
+            radixSort!(typeof(b), "a", false)(b, true);
             if (show) writeln("reverse radix sorted: ", b[0 .. min(nMax, $)]);
             assert(b.retro.equal(qa));
         }
@@ -326,7 +326,7 @@ void radixSortImpl(R,
         // Standard Radix Sort
         {
             auto b = a.dup;
-            sw.reset; sw.start(); radixSortImpl!(typeof(b), "b", false)(b); sw.stop;
+            sw.reset; sw.start(); radixSort!(typeof(b), "b", false)(b); sw.stop;
             immutable radixTime1 = sw.peek.usecs;
             if (show)
             {
@@ -342,7 +342,7 @@ void radixSortImpl(R,
         // Standard Radix Sort Fast-Discardal
         {
             auto b = a.dup;
-            sw.reset; sw.start(); radixSortImpl!(typeof(b), "b", true)(b); sw.stop;
+            sw.reset; sw.start(); radixSort!(typeof(b), "b", true)(b); sw.stop;
             assert(b.equal(qa));
             immutable radixTime = sw.peek.usecs;
             if (show)
@@ -374,6 +374,7 @@ unittest
     import std.meta: AliasSeq;
 
     const n = 1_000_000;
+
     foreach (ix, T; AliasSeq!(byte, short))
     {
         import std.container: Array;
@@ -387,7 +388,7 @@ unittest
 
         auto b = a.dup;
 
-        radixSortImpl(a[]);
+        radixSort(a[]);
         assert(a[].isSorted);
 
         b[].sort;

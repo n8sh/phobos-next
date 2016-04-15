@@ -167,6 +167,18 @@ body
                            1,2, 3,4,      // 2 in parallel
                            2,3);
     }
+    // TODO enable this:
+    // else static if (n == 8)
+    // {
+    //     s.conditionalSwap!(less, Range,
+    //                        0,7, 1,6, 2,5, 3,4,
+    //                        0,3, 4,7,
+    //                        1,2, 5,6,
+    //                        0,1, 2,3, 4,5, 6,7,
+    //                        2,4, 3,5,
+    //                        1,2, 3,4, 5,6,
+    //                        2,3, 4,5);
+    // }
     else static if (n == 9)     // R. W. Floyd.
     {
         s.conditionalSwap!(less, Range,
@@ -399,7 +411,7 @@ auto hybridSort(alias less = "a < b", Range)(Range r)
     alias T = uint;
 
     const maxFullPermutationTestLength = 8;
-    const maxPermutations = 10_000;
+    const maxTriedShufflings = 10_000; // maximum number of shufflings to try
 
     import std.meta : AliasSeq;
     foreach (less; AliasSeq!("a < b", "a > b"))
@@ -408,7 +420,7 @@ auto hybridSort(alias less = "a < b", Range)(Range r)
         {
             if (n > maxFullPermutationTestLength) // if number of elements is too large
             {
-                foreach (x; iota(0, maxPermutations))
+                foreach (x; iota(0, maxTriedShufflings))
                 {
                     import std.array : array;
                     auto y = iota(0, n).array;

@@ -177,18 +177,6 @@ body
                            0,2, 1,3, 4,6, 5,7,
                            0,1, 2,3, 4,5, 6,7);
     }
-    // TODO enable this:
-    // else static if (n == 8)
-    // {
-    //     s.conditionalSwap!(less, Range,
-    //                        0,7, 1,6, 2,5, 3,4,
-    //                        0,3, 4,7,
-    //                        1,2, 5,6,
-    //                        0,1, 2,3, 4,5, 6,7,
-    //                        2,4, 3,5,
-    //                        1,2, 3,4, 5,6,
-    //                        2,3, 4,5);
-    // }
     else static if (n == 9)     // R. W. Floyd.
     {
         s.conditionalSwap!(less, Range,

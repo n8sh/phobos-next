@@ -359,7 +359,7 @@ void radixSortImpl(R,
     }
 
     import std.meta: AliasSeq;
-    const n = 1000_000;
+    const n = 1_000_000;
     foreach (ix, T; AliasSeq!(byte, short, int, long))
     {
         test!T(n); // test signed
@@ -373,7 +373,7 @@ unittest
 {
     import std.meta: AliasSeq;
 
-    const n = 1000_000;
+    const n = 1_000_000;
     foreach (ix, T; AliasSeq!(byte, short))
     {
         import std.container: Array;

@@ -104,7 +104,6 @@ public:
             case i: return this.interpretAs!T.to!U;
             }
         }
-        static if (__VERSION__ <= 2068) assert(false); // TODO remove
     }
 
     @property string toString() const @trusted // TODO pure
@@ -118,7 +117,6 @@ public:
             case i: return this.interpretAs!T.to!(typeof(return));
             }
         }
-        static if (__VERSION__ <= 2068) assert(false); // TODO remove
     }
 
     /** Returns: $(D this) as a HTML-tagged $(D string). */
@@ -366,7 +364,6 @@ public:
                     return a < b ? -1 : a > b ? 1 : 0; // TODO functionize to defaultOpCmp
                 }
             }
-            static if (__VERSION__ <= 2068) assert(false); // TODO remove
         }
         int opCmp(T)(in T that) const @trusted
         {
@@ -396,7 +393,6 @@ public:
             case i: return this.interpretAs!T.hashOf(hash);
             }
         }
-        static if (__VERSION__ <= 2068) assert(false); // TODO remove
     }
 
 private:

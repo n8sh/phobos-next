@@ -296,7 +296,7 @@ body
                            3,4, 5,6, 7,8, 9,10, 11,12,
                            6,7, 8,9);
     }
-    else static if (n == 16) // Green's construction.
+    else static if (n == 16) // Green's construction. TODO Use 10-step Bitonic sorter instead?
     {
         s.conditionalSwap!(less, Range,
                            0,1, 2,3, 4,5, 6,7, 8,9, 10,11, 12,13, 14,15,

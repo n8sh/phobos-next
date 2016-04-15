@@ -167,6 +167,16 @@ body
                            1,2, 3,4,      // 2 in parallel
                            2,3);
     }
+    else static if (n == 8)     // Bitonic Sorter. 6-steps: https://en.wikipedia.org/wiki/Bitonic_sorter
+    {
+        s.conditionalSwap!(less, Range,
+                           0,1, 2,3, 4,5, 6,7,
+                           0,3, 4,7, 1,2, 5,6,
+                           0,1, 2,3, 4,5, 6,7,
+                           0,7, 1,6, 2,5, 3,4,
+                           0,2, 1,3, 4,6, 5,7,
+                           0,1, 2,3, 4,5, 6,7);
+    }
     // TODO enable this:
     // else static if (n == 8)
     // {

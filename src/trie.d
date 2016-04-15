@@ -31,8 +31,8 @@ struct RadixTree(Value, Keys...)
     enum isSet = is(Value == void);
     enum hasValue = !isSet;
 
-    enum radixBits = 4;
-    enum N = 2^^radixBits;
+    enum radix = 4;             // radix in number of bits
+    enum N = 2^^radix;
 
     static if (isSet)
     {
@@ -78,11 +78,11 @@ auto radixTreeSet(Keys...)()
     alias Value = X;
     foreach (Key; AliasSeq!(uint, char, string))
     {
-        auto set = radixTreeSet!Key();
+        auto set = radixTreeSet!(Key);
         set.insert(Key.init);
         assert(set.contains(Key.init));
 
-        auto map = radixTreeMap!(Value, Key)();
+        auto map = radixTreeMap!(Value, Key);
         map.insert(Value.init, Key.init);
     }
 }

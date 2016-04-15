@@ -2,6 +2,7 @@
 
     See also: https://en.wikipedia.org/wiki/Trie
 
+    TODO reuse `UnsignedOfSameSizeAs`
     TODO Extend bitop_ex.d with {set,get}{Bit,Qit,Bytes} and reuse
  */
 module trie;
@@ -22,6 +23,21 @@ enum isTrieableKey(T) = (isTrieableKeyElementType!T ||
 struct RadixTree(Value, Keys...)
     if (allSatisfy!(isTrieableKey, Keys))
 {
+    enum isSet = is(Value == void);
+    enum hasValue = !isSet;
+
+    static if (isSet)
+    {
+        void insert(Keys keys)
+        {
+        }
+    }
+    else
+    {
+        void insert(Value value, Keys keys)
+        {
+        }
+    }
 }
 alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
@@ -40,14 +56,14 @@ auto radixTreeSet(Keys...)()
 
 @safe pure nothrow unittest
 {
-    struct S { int i; float f; string s; }
-    alias Value = S;
+    struct X { int i; float f; string s; }
+    alias Value = X;
     foreach (Key; AliasSeq!(uint, char, string))
     {
         auto set = radixTreeSet!Key();
         set.insert(Key.init);
 
         auto map = radixTreeMap!(Value, Key)();
-        set.insert(Key.init, Value.init);
+        map.insert(Value.init, Key.init);
     }
 }

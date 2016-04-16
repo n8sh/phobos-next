@@ -9,6 +9,12 @@ module intsort;
 
 import std.range : isBidirectionalRange, isRandomAccessRange, ElementType;
 import std.traits : isUnsigned, isSigned, isIntegral, isFloatingPoint, Unsigned, Signed, isNumeric;
+import std.meta : AliasSeq;
+
+alias RadixSortableElementTypes = AliasSeq!(ubyte, ushort, uint, ulong,
+                                            byte, short, int, long,
+                                            char, wchar, dchar,
+                                            float, double);
 
 /** Biject (Shift) Signed $(D a) "up" to Unsigned (before radix sorting). */
 @trusted pure nothrow auto bijectToUnsigned(T)(T a)

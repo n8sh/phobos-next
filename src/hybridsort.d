@@ -11,16 +11,14 @@ auto hybridSort(alias less = "a < b", Range)(Range r)
     if (isRandomAccessRange!Range)
 {
     import std.range : ElementType;
-    static if (isIntegral!(ElementType!Range))
+    static if (isNumeric!(ElementType!Range))
     {
         import intsort : radixSort;
-        r.radixSort;
-        import std.algorithm.sorting : assumeSorted;
-        return r.assumeSorted;
+        return r.radixSort;
     }
     else
     {
         import std.algorithm.sorting : sort;
-        return sort!less(r);
+        return r.sort!less;
     }
 }

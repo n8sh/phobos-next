@@ -8,6 +8,8 @@ shared static this()
 {
     foreach (i, E; RadixSortableElementTypes)
     {
+        import std.stdio : writeln;
+        writeln("TODO Calculate radixSortMinLength for ", E.stringof);
         radixSortMinLength[i] = 0; // calulate limit
     }
 }

@@ -21,18 +21,18 @@ struct Node(size_t N)
 {
     Node!N*[N] nexts;
 
-    /// Indicates that child at this index is occupied.
+    /// Indicates that only child at this index is occupied.
     static Node!N* oneSet = cast(Node!N*)1;
 
     /// Indicates that all children are occupied (typically only for fixed-sized types).
     static Node!N* allSet = cast(Node!N*)size_t.max;
 }
 
-/** Radix Tree storing keys of types `Keys`.
+/** Radix Tree storing keys of type `Key`.
     See also: https://en.wikipedia.org/wiki/Radix_tree
  */
-struct RadixTree(Value, Keys...)
-    if (allSatisfy!(isTrieableKey, Keys))
+struct RadixTree(Key, Value)
+    if (allSatisfy!(isTrieableKey, Key))
 {
     enum isSet = is(Value == void);
     enum hasValue = !isSet;
@@ -40,24 +40,28 @@ struct RadixTree(Value, Keys...)
     enum radix = 4;             // radix in number of bits
     enum N = 2^^radix;
 
-    enum isFixed = allSatisfy!(isTrieableKeyElementType, Keys);
+    /// Check if tree has fixed depth.
+    enum isFixed = isTrieableKeyElementType!Key;
+
+    enum isBinary = radix == 2;
 
     static if (isSet)
     {
-        void insert(Keys keys)
+        void insert(Key key)
         {
+            auto current = _root;
         }
-        bool contains(Keys keys) const
+        bool contains(Key key) const
         {
             return true;
         }
     }
     else
     {
-        void insert(Value value, Keys keys)
+        void insert(Key key, Value value)
         {
         }
-        Value contains(Keys keys) const
+        Value contains(Key key) const
         {
             return Value.init;
         }
@@ -69,10 +73,10 @@ alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
 
 /// Instantiator.
-auto radixTreeMap(Value, Keys...)() { return RadixTree!(Value, Keys)(); }
+auto radixTreeMap(Key, Value)() { return RadixTree!(Key, Value)(); }
 
 /// Instantiator.
-auto radixTreeSet(Keys...)() { return RadixTree!(void, Keys)(); }
+auto radixTreeSet(Key)() { return RadixTree!(Key, void)(); }
 
 @safe pure nothrow unittest
 {
@@ -84,7 +88,7 @@ auto radixTreeSet(Keys...)() { return RadixTree!(void, Keys)(); }
         set.insert(Key.init);
         assert(set.contains(Key.init));
 
-        auto map = radixTreeMap!(Value, Key);
-        map.insert(Value.init, Key.init);
+        auto map = radixTreeMap!(Key, Value);
+        map.insert(Key.init, Value.init);
     }
 }

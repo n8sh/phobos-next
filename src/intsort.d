@@ -11,7 +11,8 @@ import std.range : isBidirectionalRange, isRandomAccessRange, ElementType;
 import std.traits : isUnsigned, isSigned, isIntegral, isFloatingPoint, Unsigned, Signed, isNumeric;
 
 /** Biject (Shift) Signed $(D a) "up" to Unsigned (before radix sorting). */
-@trusted pure nothrow auto bijectToUnsigned(T)(T a) if (isNumeric!T)
+@trusted pure nothrow auto bijectToUnsigned(T)(T a)
+    if (isNumeric!T)
 {
     static if (isIntegral!T)
     {
@@ -44,11 +45,13 @@ import std.traits : isUnsigned, isSigned, isIntegral, isFloatingPoint, Unsigned,
     }
 
     /** Biject (Shift) Unsigned  $(D a) "back down" to Signed (after radix sorting). */
-    void bijectFromUnsigned(U)(U a, ref Signed!U b) if (isUnsigned!T)
+    void bijectFromUnsigned(U)(U a, ref Signed!U b)
+        if (isUnsigned!T)
     {
         b = a - (cast(Unsigned!T)1 << (8*U.sizeof - 1)); // "add down""
     }
-    void bijectFromUnsigned(U)(U a, ref U b) if (isUnsigned!U)
+    void bijectFromUnsigned(U)(U a, ref U b)
+        if (isUnsigned!U)
     {
         b = a;                  ///< Identity.
     }

@@ -93,10 +93,10 @@ import std.traits: isUnsigned, isSigned, isIntegral, isFloatingPoint, Unsigned, 
 
    See also: http://forum.dlang.org/thread/vmytpazcusauxypkwdbn@forum.dlang.org#post-vmytpazcusauxypkwdbn:40forum.dlang.org
  */
-void radixSort(R,
+auto radixSort(R,
                alias fun = "a",
+               bool descending = false,
                bool fastDigitDiscardal = false)(R x,
-                                                const bool descending = false,
                                                 bool doInPlace = false/* , */
                                                 /* ElementType!R elementMin = ElementType!(R).max, */
                                                 /* ElementType!R elementMax = ElementType!(R).min */)
@@ -283,6 +283,16 @@ void radixSort(R,
             }
         }
     }
+
+    import std.algorithm.sorting : assumeSorted; // TODO move this to radixSort when know how map less to descending
+    static if (descending)
+    {
+        return x.assumeSorted!"a > b";
+    }
+    else
+    {
+        return x.assumeSorted!"a < b";
+    }
 }
 
 @safe unittest
@@ -318,7 +328,7 @@ void radixSort(R,
         // Reverse Radix Sort
         {
             auto b = a.dup;
-            radixSort!(typeof(b), "a", false)(b, true);
+            radixSort!(typeof(b), "a", true)(b);
             if (show) writeln("reverse radix sorted: ", b[0 .. min(nMax, $)]);
             assert(b.retro.equal(qa));
         }
@@ -342,7 +352,7 @@ void radixSort(R,
         // Standard Radix Sort Fast-Discardal
         {
             auto b = a.dup;
-            sw.reset; sw.start(); radixSort!(typeof(b), "b", true)(b); sw.stop;
+            sw.reset; sw.start(); radixSort!(typeof(b), "b", false, true)(b); sw.stop;
             assert(b.equal(qa));
             immutable radixTime = sw.peek.usecs;
             if (show)

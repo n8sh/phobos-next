@@ -7,8 +7,8 @@
  */
 module intsort;
 
-import std.range: isBidirectionalRange, isRandomAccessRange, ElementType;
-import std.traits: isUnsigned, isSigned, isIntegral, isFloatingPoint, Unsigned, Signed, isNumeric;
+import std.range : isBidirectionalRange, isRandomAccessRange, ElementType;
+import std.traits : isUnsigned, isSigned, isIntegral, isFloatingPoint, Unsigned, Signed, isNumeric;
 
 /** Biject (Shift) Signed $(D a) "up" to Unsigned (before radix sorting). */
 @trusted pure nothrow auto bijectToUnsigned(T)(T a) if (isNumeric!T)
@@ -103,8 +103,8 @@ auto radixSort(R,
     if (isRandomAccessRange!R &&
         (isNumeric!(ElementType!R)))
 {
-    import std.algorithm: min, max;
-    import std.range: front;
+    import std.algorithm : min, max;
+    import std.range : front;
 
     immutable n = x.length; // number of elements
     alias E = ElementType!R;
@@ -215,7 +215,7 @@ auto radixSort(R,
 
         // Non-In-Place requires temporary \p y. TODO We could allocate these as
         // a stack-allocated array for small arrays and gain extra speed.
-        import std.array: uninitializedArray;
+        import std.array : uninitializedArray;
         auto y = uninitializedArray!(E[])(n);
 
         foreach (d; 0 .. nDigits) // for each digit-index \c d (in base \c radix) starting with least significant (LSD-first)
@@ -272,13 +272,13 @@ auto radixSort(R,
                 }
                 else
                 {
-                    import std.algorithm: copy;
+                    import std.algorithm : copy;
                     copy(y[], x[]);
                 }
             }
             else
             {
-                import std.algorithm: swap;
+                import std.algorithm : swap;
                 swap(x, y);
             }
         }
@@ -297,7 +297,7 @@ auto radixSort(R,
 
 @safe unittest
 {
-    import std.stdio: writeln;
+    import std.stdio : writeln;
 
 /** Test $(D radixSort) with ElementType $(D E) */
     void test(E)(int n) @safe
@@ -305,11 +305,11 @@ auto radixSort(R,
         writeln("ElementType=", E.stringof, " n=", n);
 
         immutable show = true;
-        import random_ex: randInPlace;
-        import std.algorithm: sort, min, max, isSorted;
-        import std.range: retro;
-        import std.algorithm: equal;
-        import std.datetime: StopWatch, AutoStart, TickDuration;
+        import random_ex : randInPlace;
+        import std.algorithm : sort, min, max, isSorted;
+        import std.range : retro;
+        import std.algorithm : equal;
+        import std.datetime : StopWatch, AutoStart, TickDuration;
         auto sw = StopWatch();
         immutable nMax = 5;
 
@@ -368,7 +368,7 @@ auto radixSort(R,
         writeln("");
     }
 
-    import std.meta: AliasSeq;
+    import std.meta : AliasSeq;
     const n = 1_000_000;
     foreach (ix, T; AliasSeq!(byte, short, int, long))
     {
@@ -381,15 +381,15 @@ auto radixSort(R,
 
 unittest
 {
-    import std.meta: AliasSeq;
+    import std.meta : AliasSeq;
 
     const n = 1_000_000;
 
     foreach (ix, T; AliasSeq!(byte, short))
     {
-        import std.container: Array;
-        import std.algorithm: sort, isSorted, swap;
-        import random_ex: randInPlace;
+        import std.container : Array;
+        import std.algorithm : sort, isSorted, swap;
+        import random_ex : randInPlace;
 
         auto a = Array!T();
         a.length = n;

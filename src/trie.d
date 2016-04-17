@@ -17,23 +17,28 @@ enum isTrieableKey(T) = (isTrieableKeyElementType!T ||
                          (isInputRange!T &&
                           isTrieableKeyElementType!(ElementType!T)));
 
-struct Node(size_t N, Value = void)
+/** Non-Bottom (Leaf) Node referencing sub-`BranchNode`s or `LeafNode`s. */
+struct BranchNode(size_t N, Value = void)
 {
     /// Indicates that only child at this index is occupied.
-    static Node!N* oneSet = cast(Node!N*)1;
+    static BranchNode!N* oneSet = cast(BranchNode!N*)1;
 
     /// Indicates that all children are occupied (typically only for fixed-sized types).
-    static Node!N* allSet = cast(Node!N*)size_t.max;
+    static BranchNode!N* allSet = cast(BranchNode!N*)size_t.max;
 
-    Node!N*[N] nexts;
+    BranchNode!N*[N] nexts;
+}
 
+/** Bottom-Most Leaf Node optionnally storing `Value`. */
+struct LeafNode(size_t N, Value = void)
+{
     static if (!is(Value == void))
     {
         Value value;
     }
 }
 
-/** Defines how the entries in each `Node` are packed. */
+/** Defines how the entries in each `BranchNode` are packed. */
 enum NodePacking
 {
     just1Bit,
@@ -88,7 +93,7 @@ struct RadixTree(Key, Value)
         }
     }
 
-    private Node!(N, Value)* _root;
+    private BranchNode!(N, Value)* _root;
 }
 alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;

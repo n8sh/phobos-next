@@ -34,13 +34,23 @@ enum NodePacking
     dense8Bit,
 }
 
+extern(C) pure nothrow @system @nogc
+{
+    void* malloc(size_t size);
+    void* calloc(size_t nmemb, size_t size);
+    void* realloc(void* ptr, size_t size);
+    void free(void* ptr);
+}
+
 /** Radix Tree storing keys of type `Key`.
     See also: https://en.wikipedia.org/wiki/Radix_tree
  */
 struct RadixTree(Key, Value)
     if (allSatisfy!(isTrieableKey, Key))
 {
+    import std.algorithm : all;
     import bitop_ex : UnsignedOfSameSizeAs;
+
     enum isSet = is(Value == void);
     enum hasValue = !isSet;
 
@@ -48,31 +58,37 @@ struct RadixTree(Key, Value)
     enum M = 2^^R;     // branch-multiplicity, typically either 2, 4, 16 or 256
     enum partMask = M - 1;
 
-    /// `true` if tree has fixed depth.
+    alias Br = BranchNode!(M, Value);
+
+    /// Tree depth.
+    enum maxDepth = 8*Key.sizeof / R;
+
+    /// `true` if tree has fixed max depth.
     enum isFixed = isFixedTrieableKeyType!Key;
 
     /// `true` if tree has binary branch.
     enum isBinary = R == 2;
 
-    alias Branch = typeof(root);
-
-    @trusted:
+    size_t depth() @safe pure nothrow const
+    {
+        return root !is null ? root.depth : 0;
+    }
 
     static if (isSet)
     {
-        void insert(Key key)
+        void insert(Key key) @trusted
         {
             makeRoot;
 
             auto current = root;
-            enum maxDepth = 8*Key.sizeof / R;
 
             foreach (chunkIx; iota!(0, maxDepth)) // foreach chunk
             {
                 enum last = chunkIx == maxDepth - 1;
                 enum bitShift = chunkIx*R;
                 const u = *(cast(UnsignedOfSameSizeAs!Key*)(&key)); // TODO functionize and reuse here and in intsort.d
-                const uint partValue = (u >> bitShift) & partMask;
+                const uint partValue = (u >> bitShift) & partMask; // part of value which is also an index
+                assert(partValue < M); // extra range check
                 // dln(Key.stringof, " key = ", key, "; chunkIx:", chunkIx, "; partValue:", partValue);
 
                 static if (last) // the last iteration
@@ -82,7 +98,7 @@ struct RadixTree(Key, Value)
                 {
                     if (current.nexts[partValue] is null)
                     {
-                        current.nexts[partValue] = new Branch;
+                        current.nexts[partValue] = allocateBranch;
                     }
                     current = current.nexts[partValue];
                 }
@@ -105,12 +121,21 @@ struct RadixTree(Key, Value)
         }
     }
 
-    void makeRoot()
+    private:
+
+    Br* allocateBranch() @trusted
     {
-        if (root is null) { root = new Branch; }
+        auto branch = cast(typeof(return))calloc(1, Br.sizeof);
+        assert(branch.nexts[].all!(x => x is null));
+        return branch;
     }
 
-    private BranchNode!(M, Value) root;
+    void makeRoot()
+    {
+        if (root is null) { root = allocateBranch; }
+    }
+
+    private Br* root;
 }
 alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
@@ -125,7 +150,7 @@ auto radixTreeSet(Key)() { return RadixTree!(Key, void)(); }
 {
     struct X { int i; float f; string s; }
     alias Value = X;
-    foreach (Key; AliasSeq!(ubyte))
+    foreach (Key; AliasSeq!(uint))
     {
         auto set = radixTreeSet!(Key);
         auto map = radixTreeMap!(Key, Value);
@@ -146,15 +171,21 @@ auto radixTreeSet(Key)() { return RadixTree!(Key, void)(); }
 }
 
 /** Non-bottom branch node referencing sub-`BranchNode`s or `LeafNode`s. */
-private class BranchNode(size_t M, Value = void)
+private struct BranchNode(size_t M, Value = void)
 {
     /// Indicates that only child at this index is occupied.
-    // TODO make this work: static auto oneSet = cast(typeof(this))(cast(void*)1UL);
+    static auto oneSet = cast(typeof(this)*)1UL;
 
     /// Indicates that all children are occupied (typically only for fixed-sized types).
-    // TODO make this work: static auto allSet = cast(BranchNode!M)cast(void*)size_t.max;
+    static auto allSet = cast(typeof(this)*)size_t.max;
 
-    BranchNode!M[M] nexts;
+    BranchNode!M*[M] nexts;
+
+    size_t depth() @safe pure nothrow const
+    {
+        import std.algorithm : map, reduce, max;
+        return reduce!max(0UL, nexts[].map!(next => next !is null ? next.depth : 0UL));
+    }
 
     static if (!is(Value == void))
     {

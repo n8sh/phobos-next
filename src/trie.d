@@ -83,6 +83,21 @@ auto radixTreeMap(Key, Value)() { return RadixTree!(Key, Value)(); }
 /// Instantiator.
 auto radixTreeSet(Key)() { return RadixTree!(Key, void)(); }
 
+@safe pure nothrow unittest
+{
+    struct X { int i; float f; string s; }
+    alias Value = X;
+    foreach (Key; AliasSeq!(char, uint))
+    {
+        auto set = radixTreeSet!(Key);
+        set.insert(Key.init);
+        assert(set.contains(Key.init));
+
+        auto map = radixTreeMap!(Key, Value);
+        map.insert(Key.init, Value.init);
+    }
+}
+
 /** Non-Bottom (Leaf) Node referencing sub-`BranchNode`s or `LeafNode`s. */
 struct BranchNode(size_t N, Value = void)
 {
@@ -101,20 +116,5 @@ struct LeafNode(size_t N, Value = void)
     static if (!is(Value == void))
     {
         Value value;
-    }
-}
-
-@safe pure nothrow unittest
-{
-    struct X { int i; float f; string s; }
-    alias Value = X;
-    foreach (Key; AliasSeq!(char, uint))
-    {
-        auto set = radixTreeSet!(Key);
-        set.insert(Key.init);
-        assert(set.contains(Key.init));
-
-        auto map = radixTreeMap!(Key, Value);
-        map.insert(Key.init, Value.init);
     }
 }

@@ -36,7 +36,7 @@ struct Node(size_t N, Value = void)
 /** Defines how the entries in each `Node` are packed. */
 enum NodePacking
 {
-    justBit,
+    only1Bit,
 
     sparse2Bit,
     denseBit,

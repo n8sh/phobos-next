@@ -17,27 +17,6 @@ enum isTrieableKey(T) = (isTrieableKeyElementType!T ||
                          (isInputRange!T &&
                           isTrieableKeyElementType!(ElementType!T)));
 
-/** Non-Bottom (Leaf) Node referencing sub-`BranchNode`s or `LeafNode`s. */
-struct BranchNode(size_t N, Value = void)
-{
-    /// Indicates that only child at this index is occupied.
-    static BranchNode!N* oneSet = cast(BranchNode!N*)1;
-
-    /// Indicates that all children are occupied (typically only for fixed-sized types).
-    static BranchNode!N* allSet = cast(BranchNode!N*)size_t.max;
-
-    BranchNode!N*[N] nexts;
-}
-
-/** Bottom-Most Leaf Node optionnally storing `Value`. */
-struct LeafNode(size_t N, Value = void)
-{
-    static if (!is(Value == void))
-    {
-        Value value;
-    }
-}
-
 /** Defines how the entries in each `BranchNode` are packed. */
 enum NodePacking
 {
@@ -103,6 +82,27 @@ auto radixTreeMap(Key, Value)() { return RadixTree!(Key, Value)(); }
 
 /// Instantiator.
 auto radixTreeSet(Key)() { return RadixTree!(Key, void)(); }
+
+/** Non-Bottom (Leaf) Node referencing sub-`BranchNode`s or `LeafNode`s. */
+struct BranchNode(size_t N, Value = void)
+{
+    /// Indicates that only child at this index is occupied.
+    static BranchNode!N* oneSet = cast(BranchNode!N*)1;
+
+    /// Indicates that all children are occupied (typically only for fixed-sized types).
+    static BranchNode!N* allSet = cast(BranchNode!N*)size_t.max;
+
+    BranchNode!N*[N] nexts;
+}
+
+/** Bottom-Most Leaf Node optionnally storing `Value`. */
+struct LeafNode(size_t N, Value = void)
+{
+    static if (!is(Value == void))
+    {
+        Value value;
+    }
+}
 
 @safe pure nothrow unittest
 {

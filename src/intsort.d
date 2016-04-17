@@ -16,6 +16,8 @@ alias RadixSortableElementTypes = AliasSeq!(ubyte, ushort, uint, ulong,
                                             char, wchar, dchar,
                                             float, double);
 
+enum isRadixSortableElementType(T) = false; // TODO Among(T, RadixSortableElementTypes);
+
 /** Biject (Shift) Signed $(D a) "up" to Unsigned (before radix sorting). */
 @trusted pure nothrow auto bijectToUnsigned(T)(T a)
     if (isNumeric!T)

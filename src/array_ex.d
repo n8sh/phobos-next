@@ -89,7 +89,7 @@ static struct Large(E, bool useGC)
         alias _free = free;
     }
 
-    pure nothrow @trusted:
+    pure nothrow:
 
     static if (useGC)
     {
@@ -114,7 +114,7 @@ static struct Large(E, bool useGC)
         this(size_t n)
         {
             length = n;
-            ptr = cast(E*)malloc(E.sizeof * length);
+            ptr = cast(E*)_malloc(E.sizeof * length);
         }
         void resize(size_t n)
         {

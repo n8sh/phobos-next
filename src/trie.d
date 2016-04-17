@@ -148,6 +148,7 @@ auto radixTreeSet(Key)() { return RadixTree!(Key, void)(); }
 
 @safe pure nothrow unittest
 {
+    import std.algorithm : equal;
     struct X { int i; float f; string s; }
     alias Value = X;
     foreach (Key; AliasSeq!(uint))
@@ -163,6 +164,8 @@ auto radixTreeSet(Key)() { return RadixTree!(Key, void)(); }
         {
             const k = cast(Key)e;
             set.insert(k);
+            dln(set.depth);
+            assert(set.depth == set.maxDepth);
             assert(set.contains(k));
         }
 
@@ -184,7 +187,7 @@ private struct BranchNode(size_t M, Value = void)
     size_t depth() @safe pure nothrow const
     {
         import std.algorithm : map, reduce, max;
-        return reduce!max(0UL, nexts[].map!(next => next !is null ? next.depth : 0UL));
+        return reduce!max(0UL, nexts[].map!(next => next !is null ? next.depth : 0UL)); // TODO replace with fold when switching to 2.071
     }
 
     static if (!is(Value == void))

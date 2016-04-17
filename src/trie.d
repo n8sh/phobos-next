@@ -11,11 +11,11 @@ import std.meta : AliasSeq;
 import std.traits : isIntegral, isSomeChar, isSomeString, isArray, allSatisfy, anySatisfy;
 import std.range : isInputRange, ElementType;
 
-enum isTrieableKeyElementType(T) = isIntegral!T || isSomeChar!T;
+enum isFixedTrieableKeyType(T) = isIntegral!T || isSomeChar!T;
 
-enum isTrieableKey(T) = (isTrieableKeyElementType!T ||
+enum isTrieableKey(T) = (isFixedTrieableKeyType!T ||
                          (isInputRange!T &&
-                          isTrieableKeyElementType!(ElementType!T)));
+                          isFixedTrieableKeyType!(ElementType!T)));
 
 /** Defines how the entries in each `BranchNode` are packed. */
 enum NodePacking
@@ -41,19 +41,26 @@ struct RadixTree(Key, Value)
     enum isSet = is(Value == void);
     enum hasValue = !isSet;
 
-    enum radix = 4;             // radix in number of bits
-    enum N = 2^^radix;
+    enum R = 4;        // radix in number of bits, typically either 1, 2, 4 or 8
+    enum M = 2^^R;     // branch-multiplicity, typically either 2, 4, 16 or 256
 
-    /// Check if tree has fixed depth.
-    enum isFixed = isTrieableKeyElementType!Key;
+    /// `true` if tree has fixed depth.
+    enum isFixed = isFixedTrieableKeyType!Key;
 
-    enum isBinary = radix == 2;
+    /// `true` if tree has binary branch.
+    enum isBinary = R == 2;
 
     static if (isSet)
     {
         void insert(Key key)
         {
             auto current = _root;
+            enum maxDepth = 8*Key.sizeof / R;
+            foreach (i; iota!(0, maxDepth)) // static
+            {
+                enum bitShift = i*R;
+                pragma(msg, bitShift);
+            }
         }
         bool contains(Key key) const
         {
@@ -72,7 +79,7 @@ struct RadixTree(Key, Value)
         }
     }
 
-    private BranchNode!(N, Value)* _root;
+    private BranchNode!(M, Value)* _root;
 }
 alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
@@ -87,34 +94,58 @@ auto radixTreeSet(Key)() { return RadixTree!(Key, void)(); }
 {
     struct X { int i; float f; string s; }
     alias Value = X;
-    foreach (Key; AliasSeq!(char, uint))
+    foreach (Key; AliasSeq!(ubyte))
     {
         auto set = radixTreeSet!(Key);
-        set.insert(Key.init);
-        assert(set.contains(Key.init));
-
         auto map = radixTreeMap!(Key, Value);
+
+        static assert(set.isSet);
+        static assert(map.hasValue);
+
+        import std.range : iota;
+        foreach (e; 0.iota(256))
+        {
+            const k = cast(Key)e;
+            set.insert(k);
+            assert(set.contains(k));
+        }
+
         map.insert(Key.init, Value.init);
     }
 }
 
 /** Non-Bottom (Leaf) Node referencing sub-`BranchNode`s or `LeafNode`s. */
-struct BranchNode(size_t N, Value = void)
+struct BranchNode(size_t M, Value = void)
 {
     /// Indicates that only child at this index is occupied.
-    static BranchNode!N* oneSet = cast(BranchNode!N*)1;
+    static BranchNode!M* oneSet = cast(BranchNode!M*)1;
 
     /// Indicates that all children are occupied (typically only for fixed-sized types).
-    static BranchNode!N* allSet = cast(BranchNode!N*)size_t.max;
+    static BranchNode!M* allSet = cast(BranchNode!M*)size_t.max;
 
-    BranchNode!N*[N] nexts;
+    BranchNode!M*[M] nexts;
 }
 
 /** Bottom-Most Leaf Node optionnally storing `Value`. */
-struct LeafNode(size_t N, Value = void)
+struct LeafNode(Value = void)
 {
     static if (!is(Value == void))
     {
         Value value;
     }
+}
+
+/** Static Iota.
+    TODO Move to Phobos.
+ */
+template iota(size_t from, size_t to)
+    if (from <= to)
+{
+        alias iota = iotaImpl!(to - 1, from);
+}
+private template iotaImpl(size_t to, size_t now)
+{
+    import std.meta : AliasSeq;
+    static if (now >= to) { alias iotaImpl = AliasSeq!(now); }
+    else                  { alias iotaImpl = AliasSeq!(now, iotaImpl!(to, now + 1)); }
 }

@@ -57,20 +57,20 @@ unittest
 }
 
 /** Returns: Check if all $(D bix):th Bits Of $(D a) are set. */
-bool getBit(T, I...)(in T a, I bixs) @safe @nogc pure nothrow
+bool testBit(T, I...)(in T a, I bixs) @safe @nogc pure nothrow
     if (isIntegral!T &&
         allSatisfy!(isIntegral, I))
 {
     return a & makeBit!T(bixs) ? true : false;
 }
 /** Returns: Check if all $(D bix):th Bits Of $(D a) are set. */
-bool getBit(T, I)(in T a, I bix) @nogc pure nothrow
+bool testBit(T, I)(in T a, I bix) @nogc pure nothrow
     if ((!(isIntegral!T)) &&
         allSatisfy!(isIntegral, I))
 {
-    return (*(cast(UnsignedOfSameSizeAs!T*)&a)).getBit(bix); // reuse integer variant
+    return (*(cast(UnsignedOfSameSizeAs!T*)&a)).testBit(bix); // reuse integer variant
 }
-alias bt = getBit;
+alias bt = testBit;
 
 ///
 unittest

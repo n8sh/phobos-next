@@ -714,14 +714,14 @@ auto ref packBitParallelRunLengths(R)(in R x)
 
     /* size_t[nBits] counts; */
 
-    import bitset: BitSet;
+    import bitset : BitSet;
     foreach (eltIx, elt; x)
     {
         /* BitSet!nBits bits; */
         foreach (bitIndex; 0..nBits)
         {
-            import bitop_ex: getBit;
-            runs[bitIndex][eltIx] = elt.getBit(bitIndex);
+            import bitop_ex: testBit;
+            runs[bitIndex][eltIx] = elt.testBit(bitIndex);
         }
     }
     return runs;

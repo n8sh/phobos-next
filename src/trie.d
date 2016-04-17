@@ -76,31 +76,32 @@ struct RadixTree(Key, Value)
 
     static if (isSet)
     {
-        void insert(Key key) @trusted
+        void insert(Key key) @trusted pure
         {
             makeRoot;
 
             auto current = root;
 
-            foreach (chunkIx; iota!(0, maxDepth)) // foreach chunk
+            foreach (chunkIx; iota!(0, maxDepth)) // foreach chunk index. TODO RT-iota instead?
             {
-                enum last = chunkIx == maxDepth - 1;
+                enum isLast = chunkIx + 1 == maxDepth; // if this is the last chunk
                 enum bitShift = chunkIx*R;
                 const u = *(cast(UnsignedOfSameSizeAs!Key*)(&key)); // TODO functionize and reuse here and in intsort.d
                 const uint partValue = (u >> bitShift) & partMask; // part of value which is also an index
                 assert(partValue < M); // extra range check
                 // dln(Key.stringof, " key = ", key, "; chunkIx:", chunkIx, "; partValue:", partValue);
 
-                static if (last) // the last iteration
+                if (current.nexts[partValue] is null)
                 {
-                }
-                else
-                {
-                    if (current.nexts[partValue] is null)
+                    static if (isLast) // this is the last iteration
+                    {
+                        current.nexts[partValue] = Br.oneSet; // tag this as last
+                    }
+                    else
                     {
                         current.nexts[partValue] = allocateBranch;
+                        current = current.nexts[partValue];
                     }
-                    current = current.nexts[partValue];
                 }
             }
         }
@@ -164,7 +165,6 @@ auto radixTreeSet(Key)() { return RadixTree!(Key, void)(); }
         {
             const k = cast(Key)e;
             set.insert(k);
-            dln(set.depth);
             assert(set.depth == set.maxDepth);
             assert(set.contains(k));
         }
@@ -177,18 +177,20 @@ auto radixTreeSet(Key)() { return RadixTree!(Key, void)(); }
 private struct BranchNode(size_t M, Value = void)
 {
     /// Indicates that only child at this index is occupied.
-    static auto oneSet = cast(typeof(this)*)1UL;
+    static immutable oneSet = cast(typeof(this)*)1UL;
 
     /// Indicates that all children are occupied (typically only for fixed-sized types).
-    static auto allSet = cast(typeof(this)*)size_t.max;
+    // static immutable allSet = cast(typeof(this)*)size_t.max;
 
-    BranchNode!M*[M] nexts;
+    BranchNode!(M, Value)*[M] nexts;
 
     size_t depth() @safe pure nothrow const
     {
         // TODO replace with fold when switching to 2.071
         import std.algorithm : map, reduce, max;
-        return reduce!max(0UL, nexts[].map!(next => next !is null ? next.depth : 0UL));
+        return reduce!max(0UL, nexts[].map!(next => (next == oneSet ? 1UL :
+                                                     next !is null ? 1 + next.depth :
+                                                     0UL)));
     }
 
     static if (!is(Value == void))

@@ -33,6 +33,21 @@ struct Node(size_t N, Value = void)
     }
 }
 
+/** Defines how the entries in each `Node` are packed. */
+enum NodePacking
+{
+    justBit,
+
+    sparse2Bit,
+    denseBit,
+
+    sparse4Bit,
+    dense4Bit,
+
+    sparse8Bit,
+    dense8Bit,
+}
+
 /** Radix Tree storing keys of type `Key`.
     See also: https://en.wikipedia.org/wiki/Radix_tree
  */

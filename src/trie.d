@@ -186,8 +186,9 @@ private struct BranchNode(size_t M, Value = void)
 
     size_t depth() @safe pure nothrow const
     {
+        // TODO replace with fold when switching to 2.071
         import std.algorithm : map, reduce, max;
-        return reduce!max(0UL, nexts[].map!(next => next !is null ? next.depth : 0UL)); // TODO replace with fold when switching to 2.071
+        return reduce!max(0UL, nexts[].map!(next => next !is null ? next.depth : 0UL));
     }
 
     static if (!is(Value == void))

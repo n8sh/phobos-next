@@ -83,7 +83,7 @@ struct RadixTree(Key, Value)
         {
             makeRoot;
 
-            auto current = root;
+            auto curr = root;
 
             foreach (chunkIx; iota!(0, maxDepth)) // foreach chunk index. TODO RT-iota instead?
             {
@@ -108,17 +108,23 @@ struct RadixTree(Key, Value)
                 assert(partValue < M); // extra range check
                 // dln(Key.stringof, " key = ", key, "; chunkIx:", chunkIx, "; partValue:", partValue);
 
-                if (current.nexts[partValue] is null)
+                static if (isLast) // this is the last iteration
                 {
-                    static if (isLast) // this is the last iteration
+                    if (curr.nexts[partValue] is null)
                     {
-                        current.nexts[partValue] = Br.oneSet; // tag this as last
+                        curr.nexts[partValue] = Br.oneSet; // tag this as last
                     }
                     else
                     {
-                        current.nexts[partValue] = allocateBranch;
-                        current = current.nexts[partValue];
                     }
+                }
+                else
+                {
+                    if (curr.nexts[partValue] is null)
+                    {
+                        curr.nexts[partValue] = makeBranch;
+                    }
+                    curr = curr.nexts[partValue];
                 }
             }
         }
@@ -141,7 +147,7 @@ struct RadixTree(Key, Value)
 
     private:
 
-    Br* allocateBranch() @trusted
+    Br* makeBranch() @trusted
     {
         auto branch = cast(typeof(return))calloc(1, Br.sizeof);
         assert(branch.nexts[].all!(x => x is null));
@@ -150,7 +156,7 @@ struct RadixTree(Key, Value)
 
     void makeRoot()
     {
-        if (root is null) { root = allocateBranch; }
+        if (root is null) { root = makeBranch; }
     }
 
     private Br* root;

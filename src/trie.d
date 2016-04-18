@@ -88,7 +88,8 @@ struct RadixTree(Key, Value)
             foreach (chunkIx; iota!(0, maxDepth)) // foreach chunk index. TODO RT-iota instead?
             {
                 enum isLast = chunkIx + 1 == maxDepth; // if this is the last chunk
-                enum bitShift = chunkIx*R;
+                enum bitShift = (maxDepth - 1 - chunkIx)*R; // most signficant bit chunk first
+
                 const u = *(cast(UnsignedOfSameSizeAs!Key*)(&key)); // TODO functionize and reuse here and in intsort.d
                 const uint partValue = (u >> bitShift) & partMask; // part of value which is also an index
                 assert(partValue < M); // extra range check

@@ -120,11 +120,11 @@ struct RadixTree(Key, Value)
                 }
                 else
                 {
-                    if (curr.nexts[partValue] is null)
+                    if (curr.nexts[partValue] is null) // if branch not yet visited
                     {
-                        curr.nexts[partValue] = makeBranch;
+                        curr.nexts[partValue] = makeBranch; // create it
                     }
-                    curr = curr.nexts[partValue];
+                    curr = curr.nexts[partValue]; // and visit it
                 }
             }
         }

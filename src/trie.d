@@ -4,6 +4,31 @@
 
     TODO reuse `UnsignedOfSameSizeAs`
     TODO Extend bitop_ex.d with {set,get}{Bit,Qit,Bytes} and reuse
+
+    TODO RadixTree: Assigning a void pointer to a class
+
+    I've just started working on a RadixTree implementation in D here:
+
+    https://github.com/nordlow/phobos-next/blob/master/src/trie.d
+
+    I plan to use this a generic solution that CT-specializes to either a RadixTreeMap and RadixTreeSet as replacements for a HashMap and a HashSet.
+
+    Each radix-tree branching contains 2^^radix pointers to the next sub-branching. In the RadixTreeSet case I want these pointers to also be able to contain special "codes" with the following meanings
+
+    0x1: *only* value associated with sub-branching is set.
+
+    0xFFFFFFFFFFFFFFFF: all values values in this sub-branch are set.
+
+    How do I assign an unsigned integer value to a class type?
+
+    I've tried
+
+    static auto oneSet = cast(typeof(this))(cast(void*)1UL);
+
+    but it fails as
+
+    trie.d(152,49): Error: cannot cast void* to trie.BranchNode!(16LU, void)
+
  */
 module trie;
 

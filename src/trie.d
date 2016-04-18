@@ -85,28 +85,28 @@ struct RadixTree(Key, Value)
 
             auto curr = root;
 
-            foreach (chunkIx; iota!(0, maxDepth)) // foreach chunk index. TODO RT-iota instead?
+            foreach (ix; iota!(0, maxDepth)) // foreach chunk index. TODO RT-iota instead?
             {
-                // bit shift. TODO functionize
+                // bit shift. TODO functionize to chunk(ix)
                 static if (isIntegral!Key ||
                            isSomeChar!Key) // because top-most bit in ASCII coding (char) is often sparse
                 {
                     /* most signficant bit chunk first because integers are
                        typically more sparse in more significatn bits */
-                    enum shift = (maxDepth - 1 - chunkIx)*R;
+                    enum shift = (maxDepth - 1 - ix)*R;
                 }
                 else
                 {
                     // default to least signficant bit chunk first
-                    enum shift = chunkIx*R;
+                    enum shift = ix*R;
                 }
                 const u = *(cast(UnsignedOfSameSizeAs!Key*)(&key)); // TODO functionize and reuse here and in intsort.d
                 const uint partValue = (u >> shift) & partMask; // part of value which is also an index
                 assert(partValue < M); // extra range check
 
-                // dln(Key.stringof, " key = ", key, "; chunkIx:", chunkIx, "; partValue:", partValue);
+                // dln(Key.stringof, " key = ", key, "; ix:", ix, "; partValue:", partValue);
 
-                enum isLast = chunkIx + 1 == maxDepth; // if this is the last chunk
+                enum isLast = ix + 1 == maxDepth; // if this is the last chunk
                 static if (isLast) // this is the last iteration
                 {
                     if (curr.nexts[partValue] is null)

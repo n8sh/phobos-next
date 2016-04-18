@@ -58,6 +58,9 @@ struct RadixTree(Key, Value)
     enum M = 2^^R;     // branch-multiplicity, typically either 2, 4, 16 or 256
     enum partMask = M - 1;
 
+    alias order = M;   // tree order
+    alias radix = R;
+
     alias Br = BranchNode!(M, Value);
 
     /// Tree depth.

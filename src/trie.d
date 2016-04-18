@@ -19,7 +19,7 @@ enum isTrieableKey(T) = (isFixedTrieableKeyType!T ||
                          (isInputRange!T &&
                           isFixedTrieableKeyType!(ElementType!T)));
 
-/** Defines how the entries in each `BranchNode` are packed. */
+/** Defines how the entries in each `Branch` are packed. */
 enum NodePacking
 {
     just1Bit,
@@ -61,7 +61,7 @@ struct RadixTree(Key, Value)
     alias order = M;   // tree order
     alias radix = R;
 
-    alias Br = BranchNode!(M, Value);
+    alias Br = Branch!(M, Value);
 
     /// Tree depth.
     enum maxDepth = 8*Key.sizeof / R;
@@ -195,8 +195,8 @@ auto radixTreeSet(Key)() { return RadixTree!(Key, void)(); }
     }
 }
 
-/** Non-bottom branch node referencing sub-`BranchNode`s or `LeafNode`s. */
-private struct BranchNode(size_t M, Value = void)
+/** Non-bottom branch node referencing sub-`Branch`s or `Leaf`s. */
+private struct Branch(size_t M, Value = void)
 {
     /// Indicates that only child at this index is occupied.
     static immutable oneSet = cast(typeof(this)*)1UL;
@@ -204,7 +204,7 @@ private struct BranchNode(size_t M, Value = void)
     /// Indicates that all children are occupied (typically only for fixed-sized types).
     // static immutable allSet = cast(typeof(this)*)size_t.max;
 
-    BranchNode!(M, Value)*[M] nexts;
+    Branch!(M, Value)*[M] nexts;
 
     size_t depth() @safe pure nothrow const
     {
@@ -222,7 +222,7 @@ private struct BranchNode(size_t M, Value = void)
 }
 
 /** Bottom-most leaf node optionally storing `Value`. */
-private struct LeafNode(Value = void)
+private struct Leaf(Value = void)
 {
     static if (!is(Value == void))
     {

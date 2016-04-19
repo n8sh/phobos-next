@@ -185,6 +185,7 @@ struct RadixTree(Key, Value)
                     curr = curr.nexts[partValue]; // and visit it
                 }
             }
+            // return false;
         }
 
         /** Returns: `true` if key is contained in set, `false` otherwise. */

@@ -111,7 +111,7 @@ struct RadixTree(Key, Value)
                 release(next);
             }
         }
-        freeBranch(curr);
+        deallocateBranch(curr);
     }
 
     ~this()
@@ -181,7 +181,7 @@ struct RadixTree(Key, Value)
                 {
                     if (curr.nexts[partValue] is null) // if branch not yet visited
                     {
-                        curr.nexts[partValue] = makeBranch; // create it
+                        curr.nexts[partValue] = allocateBranch; // create it
                     }
                     curr = curr.nexts[partValue]; // and visit it
                 }
@@ -209,21 +209,21 @@ struct RadixTree(Key, Value)
 
     private:
 
-    Br* makeBranch() @trusted
+    Br* allocateBranch() @trusted
     {
         auto branch = cast(typeof(return))calloc(1, Br.sizeof);
         assert(branch.nexts[].all!(x => x is null));
         return branch;
     }
 
-    void freeBranch(Br* branch) @trusted
+    void deallocateBranch(Br* branch) @trusted
     {
         free(cast(void*)branch);  // TODO Allocator.free
     }
 
     void makeRoot()
     {
-        if (root is null) { root = makeBranch; }
+        if (root is null) { root = allocateBranch; }
     }
 
     private Br* root;

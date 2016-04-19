@@ -345,16 +345,16 @@ version(benchmark) unittest
 
             static assert(set.isSet);
 
+            import std.conv : to;
+            import std.datetime : StopWatch, AutoStart, Duration;
             enum n = 10_000_000;
+            auto sw = StopWatch(AutoStart.yes);
             foreach (Key k; 0.iota(n))
             {
-                // assert(!set.contains(k));
                 assert(set.insert(k)); // insert new value returns `true`
-                // assert(!set.insert(k)); // reinsert same value returns `false`
-                // assert(set.contains(k));
             }
 
-            dln("Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes. Sleeping...");
+            dln("Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
             sleep(5);
             dln("Sleep done");
 
@@ -369,8 +369,7 @@ version(benchmark) unittest
 /** Non-bottom branch node referencing sub-`Branch`s or `Leaf`s. */
 private struct Branch(size_t M, Value = void)
 {
-    enum isSet = is(Value == void);
-    enum hasValue = !isSet;
+    enum hasValue = !is(Value == void);
 
     /// Indicates that only child at this index is occupied.
     static immutable oneSet = cast(typeof(this)*)1UL;
@@ -391,19 +390,14 @@ private struct Branch(size_t M, Value = void)
                                                      0UL)));
     }
 
-    static if (hasValue)
-    {
-        Value value;
-    }
+    static if (hasValue) { Value value; }
 }
 
-/** Bottom-most leaf node optionally storing `Value`. */
-private struct Leaf(Value = void)
+/** Bottom-most leaf node of `RadixTree`-set storing keys of fixed-length type `Key`. */
+private struct FixedKeySetLeaf(size_t M, Key, Value = void)
 {
-    static if (!is(Value == void))
-    {
-        Value value;
-    }
+    import bitset : BitSet;
+    BitSet!M keySeats;
 }
 
 /** Static Iota.

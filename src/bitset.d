@@ -16,7 +16,7 @@ import rational: Rational;
 /* TODO opSlice, opSliceAssign */
 struct BitSet(size_t len, Block = size_t)
 {
-    enum bitsPerBlocks = Block.sizeof * 8;
+    enum bitsPerBlocks = 8*Block.sizeof;
     enum noBlocks = (len + (bitsPerBlocks-1)) / bitsPerBlocks;
     Block[noBlocks] _data;
 
@@ -197,14 +197,21 @@ struct BitSet(size_t len, Block = size_t)
         }
     }
 
-    @property Block reverseBlock(in Block block) {
+    @property Block reverseBlock(in Block block)
+    {
         static if (Block.sizeof == 4)
+        {
             return cast(uint)block.bitswap;
+        }
         else static if (Block.sizeof == 8)
+        {
             return (((cast(Block)((cast(uint)(block)).bitswap)) << 32) +
                     (cast(Block)((cast(uint)(block >> 32)).bitswap)));
+        }
         else
+        {
             return block;
+        }
     }
 
     /**

@@ -256,8 +256,8 @@ auto radixTreeSet(Key)() { return RadixTree!(Key, void)(); }
             foreach (e; 0.iota(256))
             {
                 const k = cast(Key)e;
-                assert(set.insert(k)); // insert new value
-                assert(!set.insert(k)); // reinsert same value
+                assert(set.insert(k)); // insert new value returns `true`
+                assert(!set.insert(k)); // reinsert same value returns `false`
                 assert(set.depth == set.maxDepth);
                 assert(set.contains(k));
             }

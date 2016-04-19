@@ -137,7 +137,7 @@ struct RadixTree(Key, Value)
 
             auto curr = root;
 
-            foreach (ix; iota!(0, maxDepth)) // foreach chunk index. TODO RT-iota instead?
+            foreach (ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
                 const partValue = bitsChunk!(ix)(key);
 

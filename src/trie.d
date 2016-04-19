@@ -121,6 +121,7 @@ struct RadixTree(Key,
         auto curr = oldRoot;
         while (curr)
         {
+            // TODO iterative or recursive?
         }
         assert(false, "TODO traverse tree by branches and leafs and make copies of them");
     }

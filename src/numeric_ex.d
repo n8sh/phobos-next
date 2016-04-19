@@ -30,13 +30,14 @@ unittest { assert([1, 2, 3, 4].product == 24); }
 
 // ==============================================================================================
 
-version(none) {
+version(none)
+{
 
-/** Computes $(LUCKY Discrete Signal Entropy) of input range $(D range).
- */
-    auto signalEntropy(Range, RequestedBinType = double)(in Range range)
-        @safe pure if (isInputRange!Range
-                       && !is(CommonType!(ElementType!Range, F, G) == void))
+    /** Computes $(LUCKY Discrete Signal Entropy) of input range $(D range).
+     */
+    auto signalEntropy(Range, RequestedBinType = double)(in Range range) @safe pure
+        if (isInputRange!Range &&
+            !is(CommonType!(ElementType!Range, F, G) == void))
     {
         enum normalized = true; // we need normalized histogram
         import ngram: histogram, Kind, Storage, Symmetry;
@@ -61,11 +62,12 @@ version(none) {
         assert(p3.signalEntropy == 1);
     }
 
-/** Returns: Element in $(D r ) that minimizes $(D fun).
-    LaTeX: \underset{x}{\arg\min} */
-    auto argmin_(alias fun, Range)(in Range r)
-        @safe pure if (isInputRange!Range &&
-                       is(typeof(fun(r.front) < fun(r.front)) == bool))
+    /** Returns: Element in $(D r ) that minimizes $(D fun).
+        LaTeX: \underset{x}{\arg\min} */
+    auto argmin_(alias fun, Range)(in Range r) @safe pure
+        if (isInputRange!Range &&
+            is(typeof(fun(r.front) <
+                      fun(r.front)) == bool))
     {
         auto bestX = r.front;
         auto bestY = fun(bestX);
@@ -78,16 +80,18 @@ version(none) {
         }
         return bestX;
     }
-    unittest {
+    unittest
+    {
         assert(argmin!(x => x*x)([1, 2, 3]) == 1);
         assert(argmin!(x => x*x)([3, 2, 1]) == 1);
     }
 
-/** Returns: Element in $(D r ) that maximizes $(D fun).
-    LaTeX: \underset{x}{\arg\max} */
-    auto argmax_(alias fun, Range)(in Range r)
-        @safe pure if (isInputRange!Range &&
-                       is(typeof(fun(r.front) > fun(r.front)) == bool))
+  /** Returns: Element in $(D r ) that maximizes $(D fun).
+      LaTeX: \underset{x}{\arg\max} */
+    auto argmax_(alias fun, Range)(in Range r) @safe pure
+        if (isInputRange!Range &&
+            is(typeof(fun(r.front) >
+                      fun(r.front)) == bool))
     {
         auto bestX = r.front;
         auto bestY = fun(bestX);
@@ -100,7 +104,8 @@ version(none) {
         }
         return bestX;
     }
-    unittest {
+    unittest
+    {
         assert(argmax!(x => x*x)([1, 2, 3]) == 3);
         assert(argmax!(x => x*x)([3, 2, 1]) == 3);
     }
@@ -116,21 +121,24 @@ auto argmin(alias fun, Range)(in Range r)
     import std.front: front;
     return typeof(r.front).max.reduce!((a,b) => fun(a) < fun(b) ? a : b)(r);
 }
-unittest {
+unittest
+{
     /* assert(argmin!(x => x*x)([1, 2, 3]) == 1); */
     /* assert(argmin!(x => x*x)([3, 2, 1]) == 1); */
 }
 
 /** Returns: Element in $(D r ) that maximizes $(D fun).
     LaTeX: \underset{x}{\arg\max} */
-auto argmax(alias fun, Range)(in Range r)
-    @safe pure if (isInputRange!Range &&
-                   is(typeof(fun(r.front) > fun(r.front)) == bool))
+auto argmax(alias fun, Range)(in Range r) @safe pure
+    if (isInputRange!Range &&
+        is(typeof(fun(r.front) >
+                  fun(r.front)) == bool))
 {
     import std.front: front;
     return typeof(r.front).min.reduce!((a,b) => fun(a) > fun(b) ? a : b)(r);
 }
-unittest {
+unittest
+{
     /* assert(argmax!(x => x*x)([1, 2, 3]) == 3); */
     /* assert(argmax!(x => x*x)([3, 2, 1]) == 3); */
 }
@@ -158,13 +166,14 @@ unittest {
     This is useful in cases where you would want a threshold function with a smooth transition.
 */
 CommonType!(T1,T2,T3) smoothstep(T1, T2, T3) (T1 edge0, T2 edge1, T3 x) @safe pure nothrow
-if (isFloatingPoint!(CommonType!(T1,T2,T3)))
+    if (isFloatingPoint!(CommonType!(T1,T2,T3)))
 {
     import std.algorithm: clamp;
     x = clamp((x - edge0) / (edge1 - edge0), 0, 1);
     return x * x * (3 - 2 * x);
 }
-unittest {
+unittest
+{
     //  assert(smoothstep(1, 0, 2) == 0);
     assert(smoothstep(1.0, 0.0, 2.0) == 0);
     assert(smoothstep(1.0, 0.0, 0.5) == 0.5);
@@ -173,7 +182,7 @@ unittest {
 
 /** Smootherstep from $(D edge0) to $(D edge1) at $(D x). */
 @safe pure nothrow E smootherstep(E)(E edge0, E edge1, E x)
-if (isFloatingPoint!(E))
+    if (isFloatingPoint!(E))
 {
     // Scale, and clamp x to 0..1 range
     import std.algorithm: clamp;
@@ -181,6 +190,7 @@ if (isFloatingPoint!(E))
     // Evaluate polynomial
     return x*x*x*(x*(x*6 - 15) + 10); // evaluate polynomial
 }
-unittest {
+unittest
+{
     assert(smootherstep(1.0, 0.0, 2.0) == 0);
 }

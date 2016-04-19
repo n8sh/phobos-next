@@ -131,6 +131,9 @@ struct RadixTree(Key, Value)
 
     static if (isSet)
     {
+        /** Insert `key`.
+            Returns: `false` if key was previously already inserted, `true` otherwise.
+        */
         bool insert(Key key) pure
         {
             makeRoot;
@@ -183,6 +186,7 @@ struct RadixTree(Key, Value)
             return false;
         }
 
+        /** Returns: `true` if key is contained in set, `false` otherwise. */
         bool contains(Key key)
         {
             if (!root) { return false; }
@@ -221,14 +225,19 @@ struct RadixTree(Key, Value)
     }
     else
     {
+        /** Insert `key`.
+            Returns: `false` if key was previously already inserted, `true` otherwise.
+        */
         bool insert(Key key, Value value)
         {
             makeRoot;
             return false;
         }
-        Value contains(Key key) const
+
+        /** Returns: pointer to value if `key` is contained in set, null otherwise. */
+        Value* contains(Key key) const
         {
-            return Value.init;
+            return null;
         }
     }
 

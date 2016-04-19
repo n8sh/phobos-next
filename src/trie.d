@@ -284,6 +284,7 @@ struct RadixTree(Key,
         return cast(typeof(return))root;
     }
 
+    /// Returns: number of branches used in `this` tree.
     debug size_t branchCount() @safe pure nothrow @nogc { return _branchCount; }
 
     private Br* root;

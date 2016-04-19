@@ -321,6 +321,8 @@ auto check()
                 assert(set.depth == set.maxDepth);
             }
 
+            assert(set.branchCount == 40);
+
             auto map = radixTreeMap!(Key, Value);
             static assert(map.hasValue);
 
@@ -402,7 +404,7 @@ private struct Branch(size_t M, Value = void)
 private struct FixedKeySetLeaf(size_t M, Key, Value = void)
 {
     import bitset : BitSet;
-    BitSet!M keySeats;
+    BitSet!M lastBitChunkDenseMap;
 }
 
 /** Static Iota.

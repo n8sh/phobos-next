@@ -88,8 +88,8 @@ struct RadixTree(Key,
     import std.algorithm : all;
     import bitop_ex : UnsignedOfSameSizeAs;
 
-    enum isSet = is(Value == void);
-    enum hasValue = !isSet;
+    enum isSet = is(Value == void); // `true` if this tree is a set
+    enum isMap = !isSet;        // `true` if this tree is a map
 
     enum M = 2^^R;     // branch-multiplicity, typically either 2, 4, 16 or 256
     enum chunkMask = M - 1;
@@ -97,7 +97,7 @@ struct RadixTree(Key,
     alias order = M;   // tree order
     alias R = radix;
 
-    alias Br = Branch!(M, Value);
+    alias Br = Branch!(M, Key, Value);
 
     /// Tree depth.
     enum maxDepth = 8*Key.sizeof / R;
@@ -350,7 +350,7 @@ auto check()
             assert(set.branchCount == 40);
 
             auto map = radixTreeMap!(Key, Value);
-            static assert(map.hasValue);
+            static assert(map.isMap);
 
             map.insert(Key.init, Value.init);
         }
@@ -392,7 +392,7 @@ version(benchmark) unittest
             dln("Sleeping done");
 
             auto map = radixTreeMap!(Key, Value);
-            static assert(map.hasValue);
+            static assert(map.isMap);
 
             map.insert(Key.init, Value.init);
         }
@@ -400,9 +400,12 @@ version(benchmark) unittest
 }
 
 /** Non-bottom branch node referencing sub-`Branch`s or `Leaf`s. */
-private struct Branch(size_t M, Value = void)
+private struct Branch(size_t M, Key, Value = void)
 {
-    enum hasValue = !is(Value == void);
+    enum isMap = !is(Value == void);
+
+    /// `true` if tree has fixed max depth.
+    enum isFixed = isFixedTrieableKeyType!Key;
 
     /// Indicates that only child at this index is occupied.
     static immutable oneSet = cast(typeof(this)*)1UL;
@@ -410,7 +413,7 @@ private struct Branch(size_t M, Value = void)
     /// Indicates that all children are occupied (typically only for fixed-sized types).
     // static immutable allSet = cast(typeof(this)*)size_t.max;
 
-    alias Nexts = Branch!(M, Value)*[M];
+    alias Nexts = Branch!(M, Key, Value)*[M];
     Nexts nexts;
 
     /** Returns: depth of tree at this branch. */
@@ -423,14 +426,22 @@ private struct Branch(size_t M, Value = void)
                                                      0UL)));
     }
 
-    static if (hasValue) { Value value; }
+    static if (!isFixed)
+    {
+        KeySetLeaf!(M, Key, Value) nextOccupations; // if the value of next branch i is occupied
+    }
+    static if (isMap)
+    {
+        Value value;
+    }
 }
 
 /** Bottom-most leaf node of `RadixTree`-set storing keys of fixed-length type `Key`. */
-private struct FixedKeySetLeaf(size_t M, Key, Value = void)
+private struct KeySetLeaf(size_t M, Key, Value = void)
 {
     import bitset : BitSet;
     BitSet!M lastBitChunkDenseMap;
+    alias lastBitChunkDenseMap this;
 }
 
 /** Static Iota.

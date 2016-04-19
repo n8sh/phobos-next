@@ -158,6 +158,7 @@ struct RadixTree(Key, Value)
                         }
                         else
                         {
+                            // TODO test this
                             if (curr.isOccupied)
                             {
                                 return false;

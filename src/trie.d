@@ -185,7 +185,7 @@ struct RadixTree(Key, Value)
                     curr = curr.nexts[partValue]; // and visit it
                 }
             }
-            // return false;
+            assert(false, "End of function should be reached");
         }
 
         /** Returns: `true` if key is contained in set, `false` otherwise. */

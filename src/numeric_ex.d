@@ -18,6 +18,8 @@ auto sum(Range, SumType = ElementType!Range)(Range range)
 {
     return reduce!"a+b"(0, range);
 }
+
+///
 unittest { assert([1, 2, 3, 4].sum == 10); }
 
 /** TODO Remove when product is standard in Phobos. */
@@ -26,6 +28,8 @@ auto product(Range)(Range range)
 {
     return reduce!"a*b"(1, range);
 }
+
+///
 unittest { assert([1, 2, 3, 4].product == 24); }
 
 // ==============================================================================================
@@ -50,6 +54,7 @@ version(none)
         return hist[].entropy;
     }
 
+    ///
     unittest
     {
         const ubyte[] p1 = [ 0, 1, 0, 1 ];
@@ -80,6 +85,8 @@ version(none)
         }
         return bestX;
     }
+
+    ///
     unittest
     {
         assert(argmin!(x => x*x)([1, 2, 3]) == 1);
@@ -104,6 +111,8 @@ version(none)
         }
         return bestX;
     }
+
+    ///
     unittest
     {
         assert(argmax!(x => x*x)([1, 2, 3]) == 3);
@@ -121,6 +130,8 @@ auto argmin(alias fun, Range)(in Range r)
     import std.front: front;
     return typeof(r.front).max.reduce!((a,b) => fun(a) < fun(b) ? a : b)(r);
 }
+
+///
 unittest
 {
     /* assert(argmin!(x => x*x)([1, 2, 3]) == 1); */
@@ -137,6 +148,8 @@ auto argmax(alias fun, Range)(in Range r) @safe pure
     import std.front: front;
     return typeof(r.front).min.reduce!((a,b) => fun(a) > fun(b) ? a : b)(r);
 }
+
+///
 unittest
 {
     /* assert(argmax!(x => x*x)([1, 2, 3]) == 3); */
@@ -150,7 +163,10 @@ CommonType!(T1, T2) step(T1, T2)(T1 edge, T2 x)
 {
     return x < edge ? 0 : 1;
 }
-unittest {
+
+///
+unittest
+{
     assert(step(0, 1) == 1.0f);
     assert(step(0, 10) == 1.0f);
     assert(step(1, 0) == 0.0f);
@@ -172,6 +188,8 @@ CommonType!(T1,T2,T3) smoothstep(T1, T2, T3) (T1 edge0, T2 edge1, T3 x) @safe pu
     x = clamp((x - edge0) / (edge1 - edge0), 0, 1);
     return x * x * (3 - 2 * x);
 }
+
+///
 unittest
 {
     //  assert(smoothstep(1, 0, 2) == 0);
@@ -190,6 +208,8 @@ unittest
     // Evaluate polynomial
     return x*x*x*(x*(x*6 - 15) + 10); // evaluate polynomial
 }
+
+///
 unittest
 {
     assert(smootherstep(1.0, 0.0, 2.0) == 0);

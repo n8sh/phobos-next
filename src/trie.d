@@ -428,7 +428,7 @@ private struct Branch(size_t M, Key, Value = void)
 
     static if (!isFixed)        // variable length keys only
     {
-        KeySetLeaf!(M, Key, Value) nextOccupations; // if i:th bit is set nextOccupation is set
+        KeySetLeaf!(M, Key, Value) nextOccupations; // if i:th bit is set key (and optionally value) associated with next[i] is also defined
     }
     static if (isMap)
     {
@@ -440,8 +440,8 @@ private struct Branch(size_t M, Key, Value = void)
 private struct KeySetLeaf(size_t M, Key, Value = void)
 {
     import bitset : BitSet;
-    BitSet!M lastBitChunkDenseMap;
-    alias lastBitChunkDenseMap this;
+    BitSet!M _lastBitChunkDenseMap; // if i:th bit is set corresponding next is set
+    alias _lastBitChunkDenseMap this;
 }
 
 /** Static Iota.

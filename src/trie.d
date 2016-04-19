@@ -187,11 +187,13 @@ struct RadixTree(Key, Value)
         }
 
         /** Returns: `true` if key is contained in set, `false` otherwise. */
-        bool contains(Key key) // TODO const. we need tail-constness for local variable `curr`
+        bool contains(Key key) const @trusted
         {
             if (!root) { return false; }
 
-            auto curr = root;
+            // NOTE need this cast for tail constness of Br.
+            // TODO is there an existing Phobos function for this?
+            auto curr = cast(const(Br)*)root;
 
             foreach (ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {

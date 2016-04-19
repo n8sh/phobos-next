@@ -125,6 +125,7 @@ struct RadixTree(Key, Value)
         const u = *(cast(UnsignedOfSameSizeAs!Key*)(&key)); // TODO functionize and reuse here and in intsort.d
         const uint partValue = (u >> shift) & partMask; // part of value which is also an index
         assert(partValue < M); // extra range check
+        // dln(Key.stringof, " key = ", key, "; ix:", ix, "; partValue:", partValue);
         return partValue;
     }
 
@@ -139,7 +140,6 @@ struct RadixTree(Key, Value)
             foreach (ix; iota!(0, maxDepth)) // foreach chunk index. TODO RT-iota instead?
             {
                 const partValue = bitsChunk!(ix)(key);
-                // dln(Key.stringof, " key = ", key, "; ix:", ix, "; partValue:", partValue);
 
                 enum isLast = ix + 1 == maxDepth; // if this is the last chunk
                 static if (isLast) // this is the last iteration

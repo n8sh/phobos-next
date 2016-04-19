@@ -102,6 +102,23 @@ struct RadixTree(Key, Value)
         return root !is null ? root.depth : 0;
     }
 
+    void release(Br* curr) pure nothrow
+    {
+        foreach (next; curr.nexts)
+        {
+            if (next && next != Br.oneSet)
+            {
+                release(next);
+            }
+        }
+        freeBranch(curr);
+    }
+
+    ~this()
+    {
+        if (root) { release(root); }
+    }
+
     static if (isSet)
     {
         bool insert(Key key) @trusted pure
@@ -197,6 +214,11 @@ struct RadixTree(Key, Value)
         auto branch = cast(typeof(return))calloc(1, Br.sizeof);
         assert(branch.nexts[].all!(x => x is null));
         return branch;
+    }
+
+    void freeBranch(Br* branch) @trusted
+    {
+        free(cast(void*)branch);  // TODO Allocator.free
     }
 
     void makeRoot()

@@ -76,6 +76,8 @@ auto ref either(Ts...)(ref Ts a)
         return a[0] ? a[0] : either(a[1 .. $]); // recurse
     }
 }
+
+///
 @safe pure /*TODO nothrow*/ unittest
 {
     immutable p = 1, q = 2;
@@ -124,6 +126,7 @@ CommonType!T every(T...)(lazy T a)
     }
 }
 
+///
 @safe pure /*TODO nothrow*/ unittest
 {
     assert(every(3) == 3);
@@ -154,6 +157,7 @@ version(none) // WARNING disabled because I don't see any use of this for.
         }
     }
 
+    ///
     unittest
     {
         immutable p = 1, q = 2;
@@ -201,6 +205,7 @@ CommonType!T[] tryEvery(S, T...)(ref S whole,
     }
 }
 
+///
 unittest
 {
     auto whole = `xyz`;
@@ -250,6 +255,8 @@ auto minElement(alias F = min, R)(in R range)
     return reduce!F(M, range);
 }
 alias smallest = minElement;
+
+///
 unittest { assert([4, 1, 2, 3].minElement == 1); }
 
 /** Returns: Maximum Element in X.
@@ -262,6 +269,8 @@ auto maxElement(alias F = max, R)(in R range)
     return reduce!F(ElementType!R.min, range);
 }
 alias largest = maxElement;
+
+///
 unittest { assert([4, 1, 2, 3].maxElement == 4); }
 
 /** Returns: Minmum and Maximum Element in X. */
@@ -273,6 +282,8 @@ auto minmaxElement(alias F = min, alias G = max, R)(in R range)
     return reduce!(F, G)(tuple(Unqual!(ElementType!R).max,
                                Unqual!(ElementType!R).min), range);
 }
+
+///
 unittest { assert([1, 2, 3].minmaxElement == tuple(1, 3)); }
 
 import std.typecons : Nullable;
@@ -299,12 +310,16 @@ auto ref reset(T)(ref T a) @trusted // pure nothrow
     else
         return a = T.init;
 }
-unittest {
+
+///
+unittest
+{
     int x = 42;
     x.reset;
     assert(x == x.init);
 }
 
+///
 unittest
 {
     import std.typecons : Nullable;
@@ -340,6 +355,8 @@ auto findInOrder(alias pred = `a == b`,
     }
     return hit;
 }
+
+///
 unittest
 {
     import std.range : empty;
@@ -387,6 +404,7 @@ inout(T[]) overlap(T)(inout(T[]) a,
     }
 }
 
+///
 unittest
 {
     auto x = [-11_111, 11, 22, 333_333];
@@ -449,6 +467,7 @@ bool isSymmetric(R)(R range, size_t minLength = 0) // TODO good value for minLen
     return i >= minLength;
 }
 
+///
 unittest
 {
     assert(`dallassallad`.isSymmetric);
@@ -601,6 +620,7 @@ alias isPermutationOf = isAnagramOf; // TODO Only define isAnagramOf for strings
 }
 
 /* ref Unqual!T unqual(T)(in T x) pure nothrow if isStuct!T { return cast(Unqual!T)x; } */
+/* /// */
 /* unittest { */
 /*     const int x; */
 /*     unqual(x) = 1; */
@@ -653,6 +673,7 @@ auto ref windowedReduce(Reduction reduction = Reduction.forwardDifference, R)(R 
 /*     } */
 /* } */
 
+/* /// */
 /* unittest { */
 /*     import std.range: front; */
 /*     dln([1].windowedReduce!(Reduction.forwardDifference)); */
@@ -660,6 +681,7 @@ auto ref windowedReduce(Reduction reduction = Reduction.forwardDifference, R)(R 
 /*     dln([1, 22, 333].windowedReduce!(Reduction.forwardDifference)); */
 /* } */
 
+///
 unittest
 {
     import std.datetime: Clock, SysTime, Duration;
@@ -675,6 +697,7 @@ unittest
     version(print) dln(Duration.sizeof);
 }
 
+///
 @safe pure unittest
 {
     immutable i = [1, 4, 9, 17];
@@ -728,6 +751,7 @@ auto ref packBitParallelRunLengths(R)(in R x)
 }
 alias packBPRL = packBitParallelRunLengths;
 
+///
 pure unittest
 {
     /* import backtrace.backtrace; */
@@ -805,6 +829,7 @@ auto forwardDifference(R)(R r)
     return ForwardDifference(r);
 }
 
+///
 unittest
 {
     import msgpack;
@@ -838,6 +863,7 @@ auto apply(alias fun, N)(N n)
     return n.iota.map!(n => fun);
 }
 
+///
 unittest
 {
     import std.datetime: Clock, SysTime, Duration;
@@ -874,13 +900,19 @@ void orderInPlace(T...)(ref T t) @trusted
             t[idx] = sorted[idx];
     }
 }
-unittest {
+
+///
+unittest
+{
     auto x = 2, y = 1;
     orderInPlace(x, y);
     assert(x == 1);
     assert(y == 2);
 }
-unittest {
+
+///
+unittest
+{
     auto x = 3, y = 1, z = 2;
     orderInPlace(x, y, z);
     assert(x == 1);
@@ -907,6 +939,8 @@ template sort(alias less = `a < b`, SwapStrategy ss = SwapStrategy.unstable)
         return stdSort!(less, ss)(r);
     }
 }
+
+///
 unittest
 {
     int[5] a = [ 9, 5, 1, 7, 3 ];
@@ -931,6 +965,7 @@ auto ref stableSort(T)(auto ref T a) pure
     return a;
 }
 
+///
 unittest
 {
     import random_ex: randInPlace;
@@ -959,6 +994,7 @@ void doTimes(uint n)(lazy void expr)
     foreach (i; iota!(0, n)) expr();
 }
 
+///
 unittest
 {
     int i = 0;
@@ -989,6 +1025,7 @@ void times(alias action, N)(N n)
     }
 }
 
+///
 unittest
 {
     enum n = 10;
@@ -1013,7 +1050,10 @@ template naryFun(string fun)
         mixin(genNaryFun!(fun, V));
     }
 }
-unittest {
+
+///
+unittest
+{
     alias test = naryFun!`a + b + c`;
     assert(test(1, 2, 3) == 6);
 }
@@ -1037,7 +1077,10 @@ auto zipWith(alias fun, Ranges...)(Ranges ranges)
         return zip(ranges).map!(a => naryFun!fun(a.expand));
     // return zip(ranges).map!(a => fun(a.expand));
 }
-unittest {
+
+///
+unittest
+{
     auto x = [1, 2, 3];
     import std.array: array;
     assert(zipWith!`a+b`(x, x).array == [2, 4, 6]);
@@ -1105,7 +1148,10 @@ struct Limits(T)
 }
 
 auto limits(T)() { return Limits!T(); }
-unittest {
+
+///
+unittest
+{
     /* import std.file: SysTime; */
     /* SysTime st; */
     Limits!int x;
@@ -1124,6 +1170,7 @@ unittest {
 /*             return x`211A`; */
 /*         } */
 /* } */
+/* /// */
 /* unittest { */
 /*     import rational: Rational; */
 /*     dln(getTypeString!Rational); */
@@ -1143,6 +1190,7 @@ bool areColinear(T)(T a, T b)
 /*         x(elt); */
 /*     } */
 /* } */
+/* /// */
 /* unittest { */
 /*     version(print) [1, 2, 3, 4].each(a => dln(a)); */
 /* } */
@@ -1171,6 +1219,7 @@ auto fibonacci(T = int)(T nth = 0)
     return nth == 0 ? Fibonacci(0, 1) : Fibonacci(1, 1);
 }
 
+///
 unittest
 {
     import std.range: take;
@@ -1197,6 +1246,7 @@ template expand(alias array, size_t idx = 0)
     }
 }
 
+///
 unittest
 {
     static void foo(int a, int b, int c)
@@ -1221,6 +1271,7 @@ auto len(T)(in T a)
     return a.length;
 }
 
+///
 unittest
 {
     import std.algorithm.iteration: map;
@@ -1250,6 +1301,7 @@ auto ref T set(string member, T, U)(auto ref T a, in U value)
     return a;
 }
 
+///
 unittest
 {
     class C { int x, y, z, w; }
@@ -1292,6 +1344,7 @@ alias takeUntil = until;
 
 alias dropUntil = find;
 
+///
 unittest
 {
     assert([1, 2, 3].dropWhile(1) == [2, 3]);
@@ -1311,6 +1364,7 @@ auto takeWhile(alias pred = `a == b`, R, E)(R range, E element)
 }
 alias takeAllOf = takeWhile;
 
+///
 unittest
 {
     import std.algorithm: equal;
@@ -1358,6 +1412,7 @@ auto split(alias pred, R)(R haystack)
     }
 }
 
+///
 unittest
 {
     import std.algorithm: equal;
@@ -1403,6 +1458,7 @@ auto splitBefore(alias pred, R)(R haystack)
     }
 }
 
+///
 unittest
 {
     import std.algorithm: equal;
@@ -1453,6 +1509,7 @@ auto splitAfter(alias pred, R)(R haystack)
     }
 }
 
+///
 unittest
 {
     import std.algorithm: equal;
@@ -1469,6 +1526,7 @@ auto moveUntil(alias pred, R)(ref R r)
     return split[0];
 }
 
+///
 unittest
 {
     auto r = `xxx111`;
@@ -1483,6 +1541,7 @@ auto moveWhile(alias pred, R)(ref R r)
     return r.moveUntil!(a => !pred(a));
 }
 
+///
 unittest
 {
     auto r = `xxx111`;
@@ -1516,6 +1575,7 @@ auto findPopBefore(alias pred = `a == b`, R1, R2)(ref R1 haystack,
     }
 }
 
+///
 unittest
 {
     auto haystack = `xy`;
@@ -1524,6 +1584,7 @@ unittest
     assert(pop == `xy`);
 }
 
+///
 unittest
 {
     auto haystack = `xyz`;
@@ -1559,6 +1620,7 @@ auto findPopAfter(alias pred = `a == b`, R1, R2)(ref R1 haystack,
     }
 }
 
+///
 unittest
 {
     auto source = `xyz`;
@@ -1569,6 +1631,7 @@ unittest
     assert(haystack == `z`);
 }
 
+///
 unittest
 {
     auto source = `xy`;
@@ -1642,6 +1705,7 @@ Tuple!(R, size_t) findFirstOfAnyInOrder(alias pred = `a == b`, R)(R haystack, co
     }
 }
 
+///
 unittest
 {
     assert(`abc`.findFirstOfAnyInOrder([`x`]) == tuple(``, 0UL));
@@ -1672,6 +1736,7 @@ bool areStrictlyOrdered(Ts...)(Ts args)
     return true;
 }
 
+///
 unittest
 {
     static assert(!__traits(compiles, areStrictlyOrdered()));
@@ -1696,6 +1761,7 @@ bool areUnstrictlyOrdered(Ts...)(Ts args)
     return true;
 }
 
+///
 unittest
 {
     static assert(!__traits(compiles, areUnstrictlyOrdered()));
@@ -1780,6 +1846,7 @@ ref R append(R, Args...)(ref R data,
     return data;
 }
 
+///
 unittest
 {
     int[] data;
@@ -1800,6 +1867,7 @@ unittest
     static assert(!__traits(compiles, { data.append(); }));
 }
 
+///
 unittest
 {
     import std.container: Array;
@@ -1850,6 +1918,7 @@ T[n] s(T, size_t n)(auto ref T[n] values) @property @safe pure nothrow
     return values;
 }
 
+///
 @safe pure nothrow unittest
 {
     enum n = 3;
@@ -1860,8 +1929,7 @@ T[n] s(T, size_t n)(auto ref T[n] values) @property @safe pure nothrow
     assert([1, 2, 3].s[2] == 3);
 }
 
-/**
-*/
+/** Make a static array. */
 auto staticArray() @property @safe
 {
     static struct _staticArray
@@ -1880,8 +1948,7 @@ auto staticArray() @property @safe
     return _staticArray();
 }
 
-/**
-*/
+/** Returns: `true` if `value` is equal to any of `values`, `false` otherwise. */
 bool isAmong(alias pred = (a, b) => a == b,
              Value,
              Values...)(Value value,
@@ -1892,6 +1959,7 @@ bool isAmong(alias pred = (a, b) => a == b,
     return value.among!pred(values) != 0;
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     assert(`b`.isAmong(`a`, `b`));
@@ -1901,8 +1969,7 @@ bool isAmong(alias pred = (a, b) => a == b,
 import std.traits : isExpressionTuple;
 import traits_ex : haveCommonType;
 
-/**
-   */
+/** Returns: `true` if `value` is equal to any of `values`, `false` otherwise. */
 template isAmong(values...)
     if (isExpressionTuple!values)
 {
@@ -1920,7 +1987,7 @@ template isAmong(values...)
     }
 }
 
-/// Ditto
+///
 @safe pure nothrow @nogc unittest
 {
     assert(`b`.isAmong!(`a`, `b`));
@@ -1929,8 +1996,7 @@ template isAmong(values...)
 
 import std.algorithm.setops : cartesianProduct;
 
-/** More descriptive alias.
- */
+/** More descriptive alias. */
 alias elementCombinations = cartesianProduct;
 
 /** Reset all members in aggregate instance $(D c).
@@ -1951,6 +2017,7 @@ void resetAllMembers(T)(T c)
     }
 }
 
+///
 unittest
 {
     class C
@@ -1997,6 +2064,7 @@ bool hasHoles(R)(R r)
     return !r.isLinearRamp;
 }
 
+///
 @safe pure nothrow unittest
 {
     assert([1].isLinearRamp);

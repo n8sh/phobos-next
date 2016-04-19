@@ -187,7 +187,7 @@ struct RadixTree(Key, Value)
         }
 
         /** Returns: `true` if key is contained in set, `false` otherwise. */
-        bool contains(Key key)
+        bool contains(Key key) // TODO const. How do we make this const?
         {
             if (!root) { return false; }
 
@@ -323,7 +323,8 @@ private struct Branch(size_t M, Value = void)
     /// Indicates that all children are occupied (typically only for fixed-sized types).
     // static immutable allSet = cast(typeof(this)*)size_t.max;
 
-    Branch!(M, Value)*[M] nexts;
+    alias Nexts = Branch!(M, Value)*[M];
+    Nexts nexts;
 
     size_t depth() @safe pure nothrow const
     {

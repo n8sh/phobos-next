@@ -36,10 +36,9 @@ import std.meta : AliasSeq;
 import std.traits : isIntegral, isSomeChar, isSomeString, isScalarType, isArray, allSatisfy, anySatisfy;
 import std.range : isInputRange, ElementType;
 
-version(unittest)
-{
-    import dbg : dln;
-}
+version = benchmark;
+
+import dbg : dln;
 
 enum isFixedTrieableKeyType(T) = isScalarType!T;
 
@@ -102,12 +101,13 @@ struct RadixTree(Key, Value)
 
     size_t depth() @safe pure nothrow const
     {
-        return root !is null ? root.depth : 0;
+        return root !is null ? root.linearDepth : 0;
     }
 
     ~this()
     {
         if (root) { release(root); }
+        debug assert(_branchCount == 0);
     }
 
     auto bitsChunk(uint chunkIndex)(Key key) const @trusted pure nothrow
@@ -128,7 +128,6 @@ struct RadixTree(Key, Value)
         const u = *(cast(UnsignedOfSameSizeAs!Key*)(&key)); // TODO functionize and reuse here and in intsort.d
         const uint partValue = (u >> shift) & partMask; // part of value which is also an index
         assert(partValue < M); // extra range check
-        // dln(Key.stringof, " key = ", key, "; ix:", ix, "; partValue:", partValue);
         return partValue;
     }
 
@@ -248,6 +247,7 @@ struct RadixTree(Key, Value)
     Br* allocateBranch() @trusted
     {
         auto branch = cast(typeof(return))calloc(1, Br.sizeof);
+        ++_branchCount;
         assert(branch.nexts[].all!(x => x is null));
         return branch;
     }
@@ -267,6 +267,7 @@ struct RadixTree(Key, Value)
 
     void deallocateBranch(Br* branch) @trusted
     {
+        --_branchCount;
         free(cast(void*)branch);  // TODO Allocator.free
     }
 
@@ -276,12 +277,15 @@ struct RadixTree(Key, Value)
     }
 
     // TODO is there an existing Phobos function for this?
-    const(Br)* tailConstRoot() const @trusted
+    const(Br)* tailConstRoot() const pure @trusted nothrow @nogc
     {
         return cast(typeof(return))root;
     }
 
+    size_t branchCount() @safe pure nothrow @nogc { return _branchCount; }
+
     private Br* root;
+    debug size_t _branchCount = 0;
 }
 alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
@@ -292,7 +296,7 @@ auto radixTreeMap(Key, Value)() { return RadixTree!(Key, Value)(); }
 /// Instantiator.
 auto radixTreeSet(Key)() { return RadixTree!(Key, void)(); }
 
-auto tester()
+auto check()
 {
     import std.range : iota;
     foreach (const it; 0.iota(1))
@@ -303,12 +307,10 @@ auto tester()
         foreach (Key; AliasSeq!(uint))
         {
             auto set = radixTreeSet!(Key);
-            auto map = radixTreeMap!(Key, Value);
 
             static assert(set.isSet);
-            static assert(map.hasValue);
 
-            foreach (Key k; 0.iota(256))
+            foreach (Key k; 0.iota(512))
             {
                 assert(!set.contains(k));
                 assert(set.insert(k)); // insert new value returns `true`
@@ -317,23 +319,61 @@ auto tester()
                 assert(set.depth == set.maxDepth);
             }
 
+            auto map = radixTreeMap!(Key, Value);
+            static assert(map.hasValue);
+
             map.insert(Key.init, Value.init);
         }
     }
 }
 
-@safe nothrow unittest
+@safe pure nothrow unittest
 {
-    tester();
+    check();
+}
+
+/// Performance benchmark
+version(benchmark) unittest
+{
     import core.thread : sleep;
-    dln("Sleeping...");
-    sleep(5);
-    dln("Sleep done");
+    import std.range : iota;
+    foreach (const it; 0.iota(1))
+    {
+        import std.algorithm : equal;
+        struct TestValueType { int i; float f; string s; }
+        alias Value = TestValueType;
+        foreach (Key; AliasSeq!(uint))
+        {
+            auto set = radixTreeSet!(Key);
+
+            static assert(set.isSet);
+
+            foreach (Key k; 0.iota(10_000_000))
+            {
+                // assert(!set.contains(k));
+                assert(set.insert(k)); // insert new value returns `true`
+                // assert(!set.insert(k)); // reinsert same value returns `false`
+                // assert(set.contains(k));
+            }
+
+            dln("Sleeping...");
+            sleep(5);
+            dln("Sleep done");
+
+            auto map = radixTreeMap!(Key, Value);
+            static assert(map.hasValue);
+
+            map.insert(Key.init, Value.init);
+        }
+    }
 }
 
 /** Non-bottom branch node referencing sub-`Branch`s or `Leaf`s. */
 private struct Branch(size_t M, Value = void)
 {
+    enum isSet = is(Value == void);
+    enum hasValue = !isSet;
+
     /// Indicates that only child at this index is occupied.
     static immutable oneSet = cast(typeof(this)*)1UL;
 
@@ -343,16 +383,17 @@ private struct Branch(size_t M, Value = void)
     alias Nexts = Branch!(M, Value)*[M];
     Nexts nexts;
 
-    size_t depth() @safe pure nothrow const
+    /** Returns: depth of tree at this branch. */
+    size_t linearDepth() @safe pure nothrow const
     {
         // TODO replace with fold when switching to 2.071
         import std.algorithm : map, reduce, max;
         return reduce!max(0UL, nexts[].map!(next => (next == oneSet ? 1UL :
-                                                     next !is null ? 1 + next.depth :
+                                                     next !is null ? 1 + next.linearDepth :
                                                      0UL)));
     }
 
-    static if (!is(Value == void))
+    static if (hasValue)
     {
         Value value;
     }

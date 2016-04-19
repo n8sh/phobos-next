@@ -192,7 +192,6 @@ struct RadixTree(Key, Value)
             if (!root) { return false; }
 
             auto curr = tailConstRoot;
-
             foreach (ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
                 const partValue = bitsChunk!(ix)(key);

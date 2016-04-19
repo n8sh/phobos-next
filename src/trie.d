@@ -11,7 +11,6 @@
 
     TODO Andrei!: Name members to indicate complexity
 
-    TODO reuse `UnsignedOfSameSizeAs`
     TODO Extend bitop_ex.d with {set,get}{Bit,Qit,Bytes} and reuse
 
     TODO RadixTree: Assigning a void pointer to a class

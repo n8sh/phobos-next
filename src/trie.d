@@ -136,7 +136,6 @@ struct RadixTree(Key, Value)
             makeRoot;
 
             auto curr = root;
-
             foreach (ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
                 const partValue = bitsChunk!(ix)(key);
@@ -183,9 +182,41 @@ struct RadixTree(Key, Value)
 
             return false;
         }
-        bool contains(Key key) const
+
+        bool contains(Key key)
         {
-            return true;
+            if (!root) { return false; }
+
+            auto curr = root;
+            foreach (ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
+            {
+                const partValue = bitsChunk!(ix)(key);
+                if (curr.nexts[partValue] is null)
+                {
+                    return false;
+                }
+                else
+                {
+                    static if (isFixedTrieableKeyType!Key)
+                    {
+                        if (curr.nexts[partValue] == Br.oneSet) { return true; }
+                    }
+                    else
+                    {
+                        if (curr.isOccupied)
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            curr.isOccupied = false;
+                            return true;
+                        }
+                    }
+                    curr = curr.nexts[partValue];
+                }
+            }
+            return false;
         }
     }
     else
@@ -262,10 +293,11 @@ auto radixTreeSet(Key)() { return RadixTree!(Key, void)(); }
             foreach (e; 0.iota(256))
             {
                 const k = cast(Key)e;
+                assert(!set.contains(k));
                 assert(set.insert(k)); // insert new value returns `true`
                 assert(!set.insert(k)); // reinsert same value returns `false`
-                assert(set.depth == set.maxDepth);
                 assert(set.contains(k));
+                assert(set.depth == set.maxDepth);
             }
 
             map.insert(Key.init, Value.init);

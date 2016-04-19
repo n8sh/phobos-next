@@ -102,18 +102,6 @@ struct RadixTree(Key, Value)
         return root !is null ? root.depth : 0;
     }
 
-    void release(Br* curr) pure nothrow
-    {
-        foreach (next; curr.nexts)
-        {
-            if (next && next != Br.oneSet)
-            {
-                release(next);
-            }
-        }
-        deallocateBranch(curr);
-    }
-
     ~this()
     {
         if (root) { release(root); }
@@ -214,6 +202,18 @@ struct RadixTree(Key, Value)
         auto branch = cast(typeof(return))calloc(1, Br.sizeof);
         assert(branch.nexts[].all!(x => x is null));
         return branch;
+    }
+
+    void release(Br* curr) pure nothrow
+    {
+        foreach (next; curr.nexts)
+        {
+            if (next && next != Br.oneSet)
+            {
+                release(next);
+            }
+        }
+        deallocateBranch(curr);
     }
 
     void deallocateBranch(Br* branch) @trusted

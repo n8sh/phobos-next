@@ -356,7 +356,7 @@ version(benchmark) unittest
 
             dln("Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
             sleep(5);
-            dln("Sleep done");
+            dln("Sleeping done");
 
             auto map = radixTreeMap!(Key, Value);
             static assert(map.hasValue);

@@ -72,7 +72,9 @@ extern(C) pure nothrow @system @nogc
 /** Radix Tree storing keys of type `Key`.
     See also: https://en.wikipedia.org/wiki/Radix_tree
  */
-struct RadixTree(Key, Value)
+struct RadixTree(Key,
+                 Value,
+                 size_t radix = 4) // radix in number of bits, typically either 1, 2, 4 or 8
     if (allSatisfy!(isTrieableKey, Key))
 {
     import std.algorithm : all;
@@ -81,12 +83,11 @@ struct RadixTree(Key, Value)
     enum isSet = is(Value == void);
     enum hasValue = !isSet;
 
-    enum R = 4;        // radix in number of bits, typically either 1, 2, 4 or 8
     enum M = 2^^R;     // branch-multiplicity, typically either 2, 4, 16 or 256
     enum partMask = M - 1;
 
     alias order = M;   // tree order
-    alias radix = R;
+    alias R = radix;
 
     alias Br = Branch!(M, Value);
 
@@ -290,11 +291,11 @@ struct RadixTree(Key, Value)
 alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
 
-/// Instantiator.
-auto radixTreeMap(Key, Value)() { return RadixTree!(Key, Value)(); }
+/// Instantiator of radix tree set.
+auto radixTreeSet(Key, size_t radix = 4)() { return RadixTree!(Key, void, radix)(); }
 
-/// Instantiator.
-auto radixTreeSet(Key)() { return RadixTree!(Key, void)(); }
+/// Instantiator of radix tree map.
+auto radixTreeMap(Key, Value, size_t radix = 4)() { return RadixTree!(Key, Value, radix)(); }
 
 auto check()
 {

@@ -23,17 +23,6 @@
     0x1: *only* value associated with sub-branching is set.
 
     0xFFFFFFFFFFFFFFFF: all values values in this sub-branch are set.
-
-    How do I assign an unsigned integer value to a class type?
-
-    I've tried
-
-    static auto oneSet = cast(typeof(this))(cast(void*)1UL);
-
-    but it fails as
-
-    trie.d(152,49): Error: cannot cast void* to trie.BranchNode!(16LU, void)
-
  */
 module trie;
 

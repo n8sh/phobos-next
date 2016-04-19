@@ -14,7 +14,7 @@
     https://github.com/nordlow/phobos-next/blob/master/src/trie.d
 
     I plan to use this a generic solution that CT-specializes to either a
-    RadixTreeMap and RadixTreeSet as replacements for a HashMap and a HashSet.
+    `RadixTreeMap` and `RadixTreeSet` as replacements for a `HashMap` and a `HashSet`.
 
     Each radix-tree branching contains 2^^radix pointers to the next
     sub-branching. In the RadixTreeSet case I want these pointers to also be

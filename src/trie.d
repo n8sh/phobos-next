@@ -113,6 +113,18 @@ struct RadixTree(Key,
         return root !is null ? root.linearDepth : 0;
     }
 
+    this(this)
+    {
+        if (root is null) return;
+        auto oldRoot = root;
+        makeRoot;
+        auto curr = oldRoot;
+        while (curr)
+        {
+        }
+        assert(false, "TODO traverse tree by branches and leafs and make copies of them");
+    }
+
     ~this()
     {
         if (root) { release(root); }

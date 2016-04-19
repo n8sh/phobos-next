@@ -36,7 +36,10 @@ import std.meta : AliasSeq;
 import std.traits : isIntegral, isSomeChar, isSomeString, isScalarType, isArray, allSatisfy, anySatisfy;
 import std.range : isInputRange, ElementType;
 
-import dbg : dln;
+version(unittest)
+{
+    import dbg : dln;
+}
 
 enum isFixedTrieableKeyType(T) = isScalarType!T;
 
@@ -290,7 +293,7 @@ auto radixTreeMap(Key, Value)() { return RadixTree!(Key, Value)(); }
 /// Instantiator.
 auto radixTreeSet(Key)() { return RadixTree!(Key, void)(); }
 
-@safe pure nothrow unittest
+auto tester()
 {
     import std.range : iota;
     foreach (const it; 0.iota(1))
@@ -319,6 +322,15 @@ auto radixTreeSet(Key)() { return RadixTree!(Key, void)(); }
             map.insert(Key.init, Value.init);
         }
     }
+}
+
+@safe nothrow unittest
+{
+    tester();
+    import core.thread : sleep;
+    dln("Sleeping...");
+    sleep(5);
+    dln("Sleep done");
 }
 
 /** Non-bottom branch node referencing sub-`Branch`s or `Leaf`s. */

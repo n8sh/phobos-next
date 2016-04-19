@@ -239,28 +239,31 @@ auto radixTreeSet(Key)() { return RadixTree!(Key, void)(); }
 
 @safe pure nothrow unittest
 {
-    import std.algorithm : equal;
-    struct X { int i; float f; string s; }
-    alias Value = X;
-    foreach (Key; AliasSeq!(uint))
+    import std.range : iota;
+    foreach (const it; 0.iota(1))
     {
-        auto set = radixTreeSet!(Key);
-        auto map = radixTreeMap!(Key, Value);
-
-        static assert(set.isSet);
-        static assert(map.hasValue);
-
-        import std.range : iota;
-        foreach (e; 0.iota(256))
+        import std.algorithm : equal;
+        struct X { int i; float f; string s; }
+        alias Value = X;
+        foreach (Key; AliasSeq!(uint))
         {
-            const k = cast(Key)e;
-            assert(set.insert(k));
-            assert(!set.insert(k));
-            assert(set.depth == set.maxDepth);
-            assert(set.contains(k));
-        }
+            auto set = radixTreeSet!(Key);
+            auto map = radixTreeMap!(Key, Value);
 
-        map.insert(Key.init, Value.init);
+            static assert(set.isSet);
+            static assert(map.hasValue);
+
+            foreach (e; 0.iota(256))
+            {
+                const k = cast(Key)e;
+                assert(set.insert(k));
+                assert(!set.insert(k));
+                assert(set.depth == set.maxDepth);
+                assert(set.contains(k));
+            }
+
+            map.insert(Key.init, Value.init);
+        }
     }
 }
 

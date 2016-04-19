@@ -102,7 +102,7 @@ struct RadixTree(Key,
     /// Tree depth.
     enum maxDepth = 8*Key.sizeof / R;
 
-    /// `true` if tree has fixed max depth.
+    /// `true` if tree has fixed a key of fixed length and in turn a tree of fixed max depth.
     enum isFixed = isFixedTrieableKeyType!Key;
 
     /// `true` if tree has binary branch.
@@ -426,9 +426,9 @@ private struct Branch(size_t M, Key, Value = void)
                                                      0UL)));
     }
 
-    static if (!isFixed)
+    static if (!isFixed)        // variable length keys only
     {
-        KeySetLeaf!(M, Key, Value) nextOccupations; // if the value of next branch i is occupied
+        KeySetLeaf!(M, Key, Value) nextOccupations; // if i:th bit is set nextOccupation is set
     }
     static if (isMap)
     {

@@ -2,6 +2,8 @@
 
     See also: https://en.wikipedia.org/wiki/Trie
 
+    TODO Add RadixTreeRange.{front,popFront,empty}. Reuse RefCounted reference to root.
+
     TODO reuse `UnsignedOfSameSizeAs`
     TODO Extend bitop_ex.d with {set,get}{Bit,Qit,Bytes} and reuse
 

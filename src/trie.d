@@ -254,7 +254,8 @@ struct RadixTree(Key, Value)
     {
         foreach (next; curr.nexts)
         {
-            if (next && next != Br.oneSet)
+            if (next &&
+                next != Br.oneSet)
             {
                 release(next);
             }

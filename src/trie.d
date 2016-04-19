@@ -347,7 +347,7 @@ auto check()
                 assert(set.depth == set.maxDepth);
             }
 
-            assert(set.branchCount == 40);
+            debug assert(set.branchCount == 40);
 
             auto map = radixTreeMap!(Key, Value);
             static assert(map.isMap);

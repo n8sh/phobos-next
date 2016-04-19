@@ -104,7 +104,7 @@ struct RadixTree(Key, Value)
 
     static if (isSet)
     {
-        void insert(Key key) @trusted pure
+        bool insert(Key key) @trusted pure
         {
             makeRoot;
 
@@ -137,9 +137,27 @@ struct RadixTree(Key, Value)
                     if (curr.nexts[partValue] is null)
                     {
                         curr.nexts[partValue] = Br.oneSet; // tag this as last
+                        return true; // a new value was inserted
                     }
                     else
                     {
+                        static if (isFixedTrieableKeyType!Key)
+                        {
+                            assert(curr.nexts[partValue] == Br.oneSet);
+                            return false; // value already set
+                        }
+                        else
+                        {
+                            if (curr.isOccupied)
+                            {
+                                return false;
+                            }
+                            else
+                            {
+                                curr.isOccupied = false;
+                                return true;
+                            }
+                        }
                     }
                 }
                 else
@@ -151,6 +169,8 @@ struct RadixTree(Key, Value)
                     curr = curr.nexts[partValue]; // and visit it
                 }
             }
+
+            return false;
         }
         bool contains(Key key) const
         {
@@ -159,9 +179,10 @@ struct RadixTree(Key, Value)
     }
     else
     {
-        void insert(Key key, Value value)
+        bool insert(Key key, Value value)
         {
             makeRoot;
+            return false;
         }
         Value contains(Key key) const
         {
@@ -211,7 +232,8 @@ auto radixTreeSet(Key)() { return RadixTree!(Key, void)(); }
         foreach (e; 0.iota(256))
         {
             const k = cast(Key)e;
-            set.insert(k);
+            assert(set.insert(k));
+            assert(!set.insert(k));
             assert(set.depth == set.maxDepth);
             assert(set.contains(k));
         }

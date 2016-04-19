@@ -111,7 +111,7 @@ struct RadixTree(Key,
     /** Get chunkIndex:th chunk of `radix` number of bits. */
     auto bitsChunk(uint chunkIndex)(Key key) const @trusted pure nothrow
     {
-        // bit shift. TODO functionize to chunk(ix)
+        // calculate bit shift to current chunk
         static if (isIntegral!Key ||
                    isSomeChar!Key) // because top-most bit in ASCII coding (char) is often sparse
         {
@@ -125,6 +125,7 @@ struct RadixTree(Key,
             enum shift = (maxDepth - 1 - chunkIndex)*R;
             // enum shift = chunkIndex*R; // least significant bit first
         }
+
         const u = *(cast(UnsignedOfSameSizeAs!Key*)(&key)); // TODO functionize and reuse here and in intsort.d
         const uint chunkBits = (u >> shift) & chunkMask; // part of value which is also an index
         static assert(radix <= 8*chunkBits.sizeof, "Need more precision in chunkBits");

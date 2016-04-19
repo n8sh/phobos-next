@@ -272,7 +272,6 @@ struct RadixTree(Key, Value)
         if (root is null) { root = allocateBranch; }
     }
 
-    // NOTE need this cast for tail constness of Br.
     // TODO is there an existing Phobos function for this?
     const(Br)* tailConstRoot() const @trusted
     {

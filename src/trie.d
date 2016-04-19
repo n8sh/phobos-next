@@ -107,9 +107,30 @@ struct RadixTree(Key, Value)
         if (root) { release(root); }
     }
 
+    auto bitsChunk(uint chunkIndex)(Key key) const @trusted pure nothrow
+    {
+        // bit shift. TODO functionize to chunk(ix)
+        static if (isIntegral!Key ||
+                   isSomeChar!Key) // because top-most bit in ASCII coding (char) is often sparse
+        {
+            /* most signficant bit chunk first because integers are
+               typically more sparse in more significatn bits */
+            enum shift = (maxDepth - 1 - chunkIndex)*R;
+        }
+        else
+        {
+            // default to least signficant bit chunk first
+            enum shift = chunkIndex*R;
+        }
+        const u = *(cast(UnsignedOfSameSizeAs!Key*)(&key)); // TODO functionize and reuse here and in intsort.d
+        const uint partValue = (u >> shift) & partMask; // part of value which is also an index
+        assert(partValue < M); // extra range check
+        return partValue;
+    }
+
     static if (isSet)
     {
-        bool insert(Key key) @trusted pure
+        bool insert(Key key) pure
         {
             makeRoot;
 
@@ -117,23 +138,7 @@ struct RadixTree(Key, Value)
 
             foreach (ix; iota!(0, maxDepth)) // foreach chunk index. TODO RT-iota instead?
             {
-                // bit shift. TODO functionize to chunk(ix)
-                static if (isIntegral!Key ||
-                           isSomeChar!Key) // because top-most bit in ASCII coding (char) is often sparse
-                {
-                    /* most signficant bit chunk first because integers are
-                       typically more sparse in more significatn bits */
-                    enum shift = (maxDepth - 1 - ix)*R;
-                }
-                else
-                {
-                    // default to least signficant bit chunk first
-                    enum shift = ix*R;
-                }
-                const u = *(cast(UnsignedOfSameSizeAs!Key*)(&key)); // TODO functionize and reuse here and in intsort.d
-                const uint partValue = (u >> shift) & partMask; // part of value which is also an index
-                assert(partValue < M); // extra range check
-
+                const partValue = bitsChunk!(ix)(key);
                 // dln(Key.stringof, " key = ", key, "; ix:", ix, "; partValue:", partValue);
 
                 enum isLast = ix + 1 == maxDepth; // if this is the last chunk

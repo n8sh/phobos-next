@@ -84,7 +84,7 @@ struct RadixTree(Key,
     enum hasValue = !isSet;
 
     enum M = 2^^R;     // branch-multiplicity, typically either 2, 4, 16 or 256
-    enum partMask = M - 1;
+    enum chunkMask = M - 1;
 
     alias order = M;   // tree order
     alias R = radix;
@@ -111,6 +111,7 @@ struct RadixTree(Key,
         debug assert(_branchCount == 0);
     }
 
+    /** Get chunkIndex:th chunk of `radix` number of bits. */
     auto bitsChunk(uint chunkIndex)(Key key) const @trusted pure nothrow
     {
         // bit shift. TODO functionize to chunk(ix)
@@ -118,18 +119,19 @@ struct RadixTree(Key,
                    isSomeChar!Key) // because top-most bit in ASCII coding (char) is often sparse
         {
             /* most signficant bit chunk first because integers are
-               typically more sparse in more significatn bits */
+               typically more sparse in more significant bits */
             enum shift = (maxDepth - 1 - chunkIndex)*R;
         }
         else
         {
-            // default to least signficant bit chunk first
-            enum shift = chunkIndex*R;
+            // default to most signficant bit chunk first
+            enum shift = (maxDepth - 1 - chunkIndex)*R;
+            // enum shift = chunkIndex*R; // least significant bit first
         }
         const u = *(cast(UnsignedOfSameSizeAs!Key*)(&key)); // TODO functionize and reuse here and in intsort.d
-        const uint partValue = (u >> shift) & partMask; // part of value which is also an index
-        assert(partValue < M); // extra range check
-        return partValue;
+        const uint chunkValue = (u >> shift) & chunkMask; // part of value which is also an index
+        assert(chunkValue < M); // extra range check
+        return chunkValue;
     }
 
     static if (isSet)
@@ -144,21 +146,21 @@ struct RadixTree(Key,
             auto curr = root;
             foreach (ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
-                const partValue = bitsChunk!(ix)(key);
+                const chunkValue = bitsChunk!(ix)(key);
 
                 enum isLast = ix + 1 == maxDepth; // if this is the last chunk
                 static if (isLast) // this is the last iteration
                 {
-                    if (curr.nexts[partValue] is null)
+                    if (curr.nexts[chunkValue] is null)
                     {
-                        curr.nexts[partValue] = Br.oneSet; // tag this as last
+                        curr.nexts[chunkValue] = Br.oneSet; // tag this as last
                         return true; // a new value was inserted
                     }
                     else
                     {
                         static if (isFixedTrieableKeyType!Key)
                         {
-                            assert(curr.nexts[partValue] == Br.oneSet);
+                            assert(curr.nexts[chunkValue] == Br.oneSet);
                             return false; // value already set
                         }
                         else
@@ -178,11 +180,11 @@ struct RadixTree(Key,
                 }
                 else
                 {
-                    if (curr.nexts[partValue] is null) // if branch not yet visited
+                    if (curr.nexts[chunkValue] is null) // if branch not yet visited
                     {
-                        curr.nexts[partValue] = allocateBranch; // create it
+                        curr.nexts[chunkValue] = allocateBranch; // create it
                     }
-                    curr = curr.nexts[partValue]; // and visit it
+                    curr = curr.nexts[chunkValue]; // and visit it
                 }
             }
             assert(false, "End of function should be reached");
@@ -196,8 +198,8 @@ struct RadixTree(Key,
             auto curr = tailConstRoot;
             foreach (ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
-                const partValue = bitsChunk!(ix)(key);
-                if (curr.nexts[partValue] is null)
+                const chunkValue = bitsChunk!(ix)(key);
+                if (curr.nexts[chunkValue] is null)
                 {
                     return false;
                 }
@@ -205,7 +207,7 @@ struct RadixTree(Key,
                 {
                     static if (isFixedTrieableKeyType!Key)
                     {
-                        if (curr.nexts[partValue] == Br.oneSet) { return true; }
+                        if (curr.nexts[chunkValue] == Br.oneSet) { return true; }
                     }
                     else
                     {
@@ -219,7 +221,7 @@ struct RadixTree(Key,
                             return true;
                         }
                     }
-                    curr = curr.nexts[partValue];
+                    curr = curr.nexts[chunkValue];
                 }
             }
             return false;

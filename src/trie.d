@@ -71,7 +71,7 @@ struct RadixTree(Key,
                  size_t radix = 4) // radix in number of bits, typically either 1, 2, 4 or 8
     if (allSatisfy!(isTrieableKey, Key))
 {
-    static assert(radix <= 32, "Radix is currently limited to 32");
+    static assert(radix <= 32, "Radix is currently limited to 32"); // TODO adjust?
     static assert(radix <= 8*Key.sizeof, "Radix must be less than or equal to Key bit-precision"); // TODO Use strictly less than: radix < ... instead?
 
     import std.algorithm : all;

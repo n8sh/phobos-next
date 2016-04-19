@@ -360,6 +360,7 @@ auto check()
                 assert(!set.insert(k)); // reinsert same value returns `false`
                 assert(set.contains(k));
                 assert(set.depth == set.maxDepth);
+                assert(!set.contains(k + 1)); // next is yet inserted
             }
 
             debug assert(set.branchCount == 40);

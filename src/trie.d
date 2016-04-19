@@ -187,11 +187,12 @@ struct RadixTree(Key, Value)
         }
 
         /** Returns: `true` if key is contained in set, `false` otherwise. */
-        bool contains(Key key) // TODO const. How do we make this const?
+        bool contains(Key key) // TODO const. we need tail-constness for local variable `curr`
         {
             if (!root) { return false; }
 
             auto curr = root;
+
             foreach (ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
                 const partValue = bitsChunk!(ix)(key);

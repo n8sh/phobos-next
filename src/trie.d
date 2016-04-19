@@ -298,8 +298,8 @@ auto tester()
     foreach (const it; 0.iota(1))
     {
         import std.algorithm : equal;
-        struct X { int i; float f; string s; }
-        alias Value = X;
+        struct TestValueType { int i; float f; string s; }
+        alias Value = TestValueType;
         foreach (Key; AliasSeq!(uint))
         {
             auto set = radixTreeSet!(Key);

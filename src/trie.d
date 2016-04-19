@@ -187,13 +187,11 @@ struct RadixTree(Key, Value)
         }
 
         /** Returns: `true` if key is contained in set, `false` otherwise. */
-        bool contains(Key key) const @trusted
+        bool contains(Key key) const
         {
             if (!root) { return false; }
 
-            // NOTE need this cast for tail constness of Br.
-            // TODO is there an existing Phobos function for this?
-            auto curr = cast(const(Br)*)root;
+            auto curr = tailConstRoot;
 
             foreach (ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
@@ -273,6 +271,13 @@ struct RadixTree(Key, Value)
     void makeRoot()
     {
         if (root is null) { root = allocateBranch; }
+    }
+
+    // NOTE need this cast for tail constness of Br.
+    // TODO is there an existing Phobos function for this?
+    const(Br)* tailConstRoot() const @trusted
+    {
+        return cast(typeof(return))root;
     }
 
     private Br* root;

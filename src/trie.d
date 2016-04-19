@@ -19,8 +19,9 @@
 
     https://github.com/nordlow/phobos-next/blob/master/src/trie.d
 
-    I plan to use this a generic solution that CT-specializes to either a
-    `RadixTreeMap` and `RadixTreeSet` as replacements for a `HashMap` and a `HashSet`.
+    The current solution is very generic as it CT-specializes to either a
+    `RadixTreeMap` and `RadixTreeSet`. These provide very memory-efficient
+    replacements for a `HashMap` and a `HashSet`.
 
     Each radix-tree branching contains 2^^radix pointers to the next
     sub-branching. In the RadixTreeSet case I want these pointers to also be
@@ -70,6 +71,10 @@ extern(C) pure nothrow @system @nogc
 }
 
 /** Radix Tree storing keys of type `Key`.
+
+    In set-case (Value is Void) this containers is especially suitable for
+    representing a set of 32 or 64 integers/pointers.
+
     See also: https://en.wikipedia.org/wiki/Radix_tree
  */
 struct RadixTree(Key,

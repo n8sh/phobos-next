@@ -308,9 +308,8 @@ auto tester()
             static assert(set.isSet);
             static assert(map.hasValue);
 
-            foreach (e; 0.iota(256))
+            foreach (Key k; 0.iota(256))
             {
-                const k = cast(Key)e;
                 assert(!set.contains(k));
                 assert(set.insert(k)); // insert new value returns `true`
                 assert(!set.insert(k)); // reinsert same value returns `false`

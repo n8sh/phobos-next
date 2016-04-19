@@ -112,9 +112,20 @@ struct RadixTree(Key,
     /// `true` if tree has binary branch.
     enum isBinary = R == 2;
 
+    /// Get depth of tree.
     size_t depth() @safe pure nothrow const
     {
         return root !is null ? root.linearDepth : 0;
+    }
+
+    alias BranchUsageHistogram = size_t[M];
+
+    BranchUsageHistogram branchUsageHistogram()
+    {
+        typeof(return) hist;
+        // TODO reuse rangeinterface when made available
+        root.calculate(hist);
+        return hist;
     }
 
     this(this)
@@ -127,7 +138,7 @@ struct RadixTree(Key,
         {
             // TODO iterative or recursive?
         }
-        assert(false, "TODO traverse tree by branches and leafs and make copies of them");
+        assert(false, "TODO calculate tree by branches and leafs and make copies of them");
     }
 
     ~this()
@@ -392,6 +403,7 @@ version(benchmark) unittest
             }
 
             dln("Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
+            dln("BranchUsageHistogram: ", set.branchUsageHistogram);
             sleep(5);
             dln("Sleeping done");
 
@@ -406,6 +418,8 @@ version(benchmark) unittest
 /** Non-bottom branch node referencing sub-`Branch`s or `Leaf`s. */
 private struct Branch(size_t M, Key, Value = void)
 {
+    alias BranchUsageHistogram = size_t[M];
+
     enum isMap = !is(Value == void);
 
     /// `true` if tree has fixed max depth.
@@ -428,6 +442,19 @@ private struct Branch(size_t M, Key, Value = void)
         return reduce!max(0UL, nexts[].map!(next => (next == oneSet ? 1UL :
                                                      next !is null ? 1 + next.linearDepth :
                                                      0UL)));
+    }
+
+    /** Returns: depth of tree at this branch. */
+    void calculate(ref BranchUsageHistogram hist) @safe pure nothrow const
+    {
+        import std.algorithm : count, filter;
+        size_t nzcnt = 0; // number of non-zero branches
+        foreach (next; nexts[].filter!(next => next !is null))
+        {
+            ++nzcnt;
+            if (next != oneSet) { next.calculate(hist); }
+        }
+        ++hist[nzcnt - 1];
     }
 
     static if (!isFixed)        // variable length keys only

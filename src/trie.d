@@ -2,7 +2,12 @@
 
     See also: https://en.wikipedia.org/wiki/Trie
 
-    TODO Add RadixTreeRange.{front,popFront,empty}. Reuse RefCounted reference to root.
+    TODO Name members so they indicate that range isSorted.
+
+    TODO Andrei!: SortedRange must be extended to hold InputRanges aswell.
+
+    TODO Add RadixTreeRange.{front,popFront,empty}. Reuse RefCounted reference
+    to root. Add checks with `isSorted`.
 
     TODO reuse `UnsignedOfSameSizeAs`
     TODO Extend bitop_ex.d with {set,get}{Bit,Qit,Bytes} and reuse

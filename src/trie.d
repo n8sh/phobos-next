@@ -71,6 +71,8 @@ struct RadixTree(Key,
                  size_t radix = 4) // radix in number of bits, typically either 1, 2, 4 or 8
     if (allSatisfy!(isTrieableKey, Key))
 {
+    static assert(radix <= 32, "Radix is currently limited to 32");
+
     import std.algorithm : all;
     import bitop_ex : UnsignedOfSameSizeAs;
 
@@ -124,6 +126,8 @@ struct RadixTree(Key,
         }
         const u = *(cast(UnsignedOfSameSizeAs!Key*)(&key)); // TODO functionize and reuse here and in intsort.d
         const uint chunkBits = (u >> shift) & chunkMask; // part of value which is also an index
+        static assert(radix <= 8*chunkBits.sizeof, "Need more precision in chunkBits");
+
         assert(chunkBits < M); // extra range check
         return chunkBits;
     }

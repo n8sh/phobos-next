@@ -247,7 +247,7 @@ struct RadixTree(Key, Value)
     Br* allocateBranch() @trusted
     {
         auto branch = cast(typeof(return))calloc(1, Br.sizeof);
-        ++_branchCount;
+        debug ++_branchCount;
         assert(branch.nexts[].all!(x => x is null));
         return branch;
     }
@@ -267,7 +267,7 @@ struct RadixTree(Key, Value)
 
     void deallocateBranch(Br* branch) @trusted
     {
-        --_branchCount;
+        debug --_branchCount;
         free(cast(void*)branch);  // TODO Allocator.free
     }
 
@@ -282,7 +282,7 @@ struct RadixTree(Key, Value)
         return cast(typeof(return))root;
     }
 
-    size_t branchCount() @safe pure nothrow @nogc { return _branchCount; }
+    debug size_t branchCount() @safe pure nothrow @nogc { return _branchCount; }
 
     private Br* root;
     debug size_t _branchCount = 0;

@@ -348,7 +348,8 @@ version(benchmark) unittest
 
             static assert(set.isSet);
 
-            foreach (Key k; 0.iota(10_000_000))
+            enum n = 10_000_000;
+            foreach (Key k; 0.iota(n))
             {
                 // assert(!set.contains(k));
                 assert(set.insert(k)); // insert new value returns `true`
@@ -356,7 +357,7 @@ version(benchmark) unittest
                 // assert(set.contains(k));
             }
 
-            dln("Sleeping...");
+            dln("Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes. Sleeping...");
             sleep(5);
             dln("Sleep done");
 

@@ -139,7 +139,7 @@ struct RadixTree(Key,
         /** Insert `key`.
             Returns: `false` if key was previously already inserted, `true` otherwise.
         */
-        bool insert(Key key) pure
+        bool insert(Key key)
         {
             makeRoot;
 

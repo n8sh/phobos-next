@@ -8,8 +8,8 @@ version(unittest)
 /** A variant pointer to either of `Types`.
 
     Realizes a very lightweight version of polymorphism packed inside one single
-    pointer. Typically the three least significant bits are used to store type
-    information.
+    pointer. Typically most significant bits are used to store type
+    information. These are normally unused on modern systems.
  */
 struct VariantPointer(Types...)
 {
@@ -96,10 +96,9 @@ pure nothrow unittest
         static assert(!__traits(compiles, { T[] a; vp = &a; }));
         static assert(!__traits(compiles, { vp.peek!(T[]*); }));
 
+        // stack pointer
         T a = 73;
-
         vp = &a;
-
         foreach (U; Types)
         {
             static if (is(T == U))
@@ -112,5 +111,23 @@ pure nothrow unittest
                 assert(!vp.peek!U);
             }
         }
+
+        // heap pointer
+        T* b = new T;
+        *b = 73;
+        vp = b;
+        foreach (U; Types)
+        {
+            static if (is(T == U))
+            {
+                assert(vp.peek!U);
+                assert(*(vp.peek!U) == *b);
+            }
+            else
+            {
+                assert(!vp.peek!U);
+            }
+        }
+
     }
 }

@@ -78,10 +78,6 @@ extern(C) pure nothrow @system @nogc
     void free(void* ptr);
 }
 
-/** Reference to node. */
-alias NodePtr(size_t M, Key, Value = void) = VariantPointer!(BranchM!(M, Key, Value),
-                                                             LeafM!(M, Key, Value));
-
 /** Radix Tree storing keys of type `Key`.
 
     In set-case (Value is Void) this containers is especially suitable for
@@ -109,10 +105,6 @@ struct RadixTree(Key,
     alias order = M;   // tree order
     alias R = radix;
 
-    alias Branch = BranchM!(M, Key, Value);
-    alias Leaf = LeafM!(M, Key, Value);
-    alias NodeP = NodePtr!(M, Key, Value);
-
     /// Tree depth.
     enum maxDepth = 8*Key.sizeof / R;
 
@@ -121,6 +113,96 @@ struct RadixTree(Key,
 
     /// `true` if tree has binary branch.
     enum isBinary = R == 2;
+
+    /** Reference to node. */
+    alias NodeP = VariantPointer!(BranchM, LeafM);
+
+    /** Non-bottom branch node containing densly packed array of `M` number of
+        pointers to sub-`BranchM`s or `Leaf`s.
+    */
+    static private struct BranchM
+    {
+        alias BranchUsageHistogram = size_t[M];
+
+        enum isMap = !is(Value == void);
+
+        /// `true` if tree has fixed max depth.
+        enum isFixed = isFixedTrieableKeyType!Key;
+
+        /// Indicates that only child at this index is occupied.
+        static immutable oneSet = cast(typeof(this)*)1UL;
+
+        /// Indicates that all children are occupied (typically only for fixed-sized types).
+        // static immutable allSet = cast(typeof(this)*)size_t.max;
+
+        alias Nexts = NodeP[M];
+        Nexts nexts;
+
+        /** Returns: depth of tree at this branch. */
+        // size_t linearDepth() @safe pure nothrow const
+        // {
+        //     // TODO replace with fold when switching to 2.071
+        //     import std.algorithm : map, reduce, max;
+        //     return reduce!max(0UL, nexts[].map!(next => (next.peek!(typeof(this)) == oneSet ? 1UL :
+        //                                                  next.ptr !is null ? 1 + next.linearDepth :
+        //                                                  0UL)));
+        // }
+
+        /** Returns: depth of tree at this branch. */
+        void calculate(ref BranchUsageHistogram hist) @safe pure nothrow const
+        {
+            import std.algorithm : count, filter;
+            size_t nzcnt = 0; // number of non-zero branches
+            foreach (next; nexts[].filter!(next => next.ptr !is null))
+            {
+                ++nzcnt;
+                if (const branchM = next.peek!(typeof(this)))
+                {
+                    branchM.calculate(hist);
+                }
+                else if (const leafM = next.peek!(LeafM))
+                {
+                    leafM.calculate(hist);
+                }
+                else
+                {
+                    assert(false, "Unknown pointer");
+                }
+            }
+            ++hist[nzcnt - 1];
+        }
+
+        static if (!isFixed)        // variable length keys only
+        {
+            LeafM nextOccupations; // if i:th bit is set key (and optionally value) associated with next[i] is also defined
+        }
+        static if (isMap)
+        {
+            Value value;
+        }
+    }
+
+    /** Bottom-most leaf node of `RadixTree`-set storing `M` number of densly packed
+        keys of fixed-length type `Key`.
+    */
+    static private struct LeafM
+    {
+        alias BranchUsageHistogram = size_t[M];
+
+        void calculate(ref BranchUsageHistogram hist) @safe pure const
+        {
+            import std.range : iota;
+            foreach (const i; 0.iota(M))
+            {
+                ++hist[i];
+            }
+        }
+
+        import bitset : BitSet;
+        private BitSet!M _bits; // if i:th bit is set corresponding next is set
+
+        alias _bits this;
+    }
 
     /// Get depth of tree.
     // size_t depth() @safe pure nothrow const
@@ -134,7 +216,7 @@ struct RadixTree(Key,
     {
         typeof(return) hist;
         // TODO reuse rangeinterface when made available
-        if (const branchM = _rootPtr.peek!(Branch))
+        if (const branchM = _rootPtr.peek!(BranchM))
         {
             branchM.calculate(hist);
         }
@@ -201,18 +283,26 @@ struct RadixTree(Key,
                 const chunkBits = bitsChunk!(ix)(key);
 
                 enum isLast = ix + 1 == maxDepth; // if this is the last chunk
-                static if (isLast) // this is the last iteration
+                static if (!isLast) // this is not the last
+                {
+                    if (currPtr.nexts[chunkBits] is null) // if branch not yet visited
+                    {
+                        currPtr.nexts[chunkBits] = allocateBranchA; // create it
+                    }
+                    currPtr = currPtr.nexts[chunkBits]; // and visit it
+                }
+                else            // this is the last iteration
                 {
                     if (currPtr.nexts[chunkBits] is null)
                     {
-                        currPtr.nexts[chunkBits] = Branch.oneSet; // tag this as last
+                        currPtr.nexts[chunkBits] = BranchM.oneSet; // tag this as last
                         return true; // a new value was inserted
                     }
                     else
                     {
                         static if (isFixedTrieableKeyType!Key)
                         {
-                            assert(currPtr.nexts[chunkBits] == Branch.oneSet);
+                            assert(currPtr.nexts[chunkBits] == BranchM.oneSet);
                             return false; // value already set
                         }
                         else
@@ -230,20 +320,12 @@ struct RadixTree(Key,
                         }
                     }
                 }
-                else
-                {
-                    if (currPtr.nexts[chunkBits] is null) // if branch not yet visited
-                    {
-                        currPtr.nexts[chunkBits] = allocateBranchA; // create it
-                    }
-                    currPtr = currPtr.nexts[chunkBits]; // and visit it
-                }
             }
             assert(false, "End of function should be reached");
         }
 
         /** Returns: `true` if key is contained in set, `false` otherwise. */
-        bool contains(Key key) const
+        bool contains(Key key) const nothrow
         {
             if (!_rootPtr) { return false; }
 
@@ -259,7 +341,7 @@ struct RadixTree(Key,
                 {
                     static if (isFixedTrieableKeyType!Key)
                     {
-                        if (currPtr.nexts[chunkBits] == Branch.oneSet) { return true; }
+                        if (currPtr.nexts[chunkBits] == BranchM.oneSet) { return true; }
                     }
                     else
                     {
@@ -278,6 +360,13 @@ struct RadixTree(Key,
             }
             return false;
         }
+
+	/** Supports $(B `Key` in `this`) syntax. */
+	bool opBinaryRight(string op)(Key key) const nothrow if (op == "in")
+	{
+            return contains(key);
+	}
+
     }
     else
     {
@@ -307,12 +396,12 @@ struct RadixTree(Key,
         return node;
     }
 
-    void release(Branch* currPtr) pure nothrow
+    void release(BranchM* currPtr) pure nothrow
     {
         import std.algorithm : count, filter;
         foreach (next; currPtr.nexts[].filter!(next => next))
         {
-            if (auto branchM = next.peek!(Branch))
+            if (auto branchM = next.peek!(BranchM))
             {
                 release(branchM);  // recurse
             }
@@ -320,7 +409,15 @@ struct RadixTree(Key,
         deallocateNode(currPtr);
     }
 
-    void deallocateNode(NodeType)(NodeTypA* branch) @trusted
+    void release(NodeP currPtr) pure nothrow
+    {
+        if (auto branchM = currPtr.peek!(BranchM))
+        {
+            release(branchM);  // recurse
+        }
+    }
+
+    void deallocateNode(NodeType)(NodeType* branch) @trusted
     {
         debug --_branchCount;
         free(cast(void*)branch);  // TODO Allocator.free
@@ -328,11 +425,11 @@ struct RadixTree(Key,
 
     void makeRoot()
     {
-        if (_rootPtr.ptr is null) { _rootPtr = allocateNode!Branch; }
+        if (_rootPtr.ptr is null) { _rootPtr = allocateNode!BranchM; }
     }
 
     // TODO is there an existing Phobos function for this?
-    const(Branch)* tailConstRoot() const pure @trusted nothrow @nogc
+    const(BranchM)* tailConstRoot() const pure @trusted nothrow @nogc
     {
         return cast(typeof(return))_rootPtr;
     }
@@ -369,9 +466,11 @@ auto check()
             foreach (Key k; 0.iota(512))
             {
                 assert(!set.contains(k));
+                assert(!k in set);
                 assert(set.insert(k)); // insert new value returns `true`
                 assert(!set.insert(k)); // reinsert same value returns `false`
                 assert(set.contains(k));
+                assert(k in set);
                 assert(set.depth == set.maxDepth);
                 assert(!set.contains(k + 1)); // next is yet inserted
             }
@@ -427,93 +526,6 @@ version(benchmark) unittest
             map.insert(Key.init, Value.init);
         }
     }
-}
-
-/** Non-bottom branch node containing densly packed array of `M` number of
-    pointers to sub-`BranchM`s or `Leaf`s.
-*/
-private struct BranchM(size_t M, Key, Value = void)
-{
-    alias BranchUsageHistogram = size_t[M];
-
-    enum isMap = !is(Value == void);
-
-    /// `true` if tree has fixed max depth.
-    enum isFixed = isFixedTrieableKeyType!Key;
-
-    /// Indicates that only child at this index is occupied.
-    static immutable oneSet = cast(typeof(this)*)1UL;
-
-    /// Indicates that all children are occupied (typically only for fixed-sized types).
-    // static immutable allSet = cast(typeof(this)*)size_t.max;
-
-    alias Nexts = NodePtr!(M, Key, Value)[M];
-    Nexts nexts;
-
-    /** Returns: depth of tree at this branch. */
-    // size_t linearDepth() @safe pure nothrow const
-    // {
-    //     // TODO replace with fold when switching to 2.071
-    //     import std.algorithm : map, reduce, max;
-    //     return reduce!max(0UL, nexts[].map!(next => (next.peek!(typeof(this)) == oneSet ? 1UL :
-    //                                                  next.ptr !is null ? 1 + next.linearDepth :
-    //                                                  0UL)));
-    // }
-
-    /** Returns: depth of tree at this branch. */
-    void calculate(ref BranchUsageHistogram hist) @safe pure nothrow const
-    {
-        import std.algorithm : count, filter;
-        size_t nzcnt = 0; // number of non-zero branches
-        foreach (next; nexts[].filter!(next => next.ptr !is null))
-        {
-            ++nzcnt;
-            if (const branchM = next.peek!(typeof(this)))
-            {
-                branchM.calculate(hist);
-            }
-            else if (const leafM = next.peek!(LeafM!(M, Key, Value)))
-            {
-                leafM.calculate(hist);
-            }
-            else
-            {
-                assert(false, "Unknown pointer");
-            }
-        }
-        ++hist[nzcnt - 1];
-    }
-
-    static if (!isFixed)        // variable length keys only
-    {
-        LeafM!(M, Key, Value) nextOccupations; // if i:th bit is set key (and optionally value) associated with next[i] is also defined
-    }
-    static if (isMap)
-    {
-        Value value;
-    }
-}
-
-/** Bottom-most leaf node of `RadixTree`-set storing `M` number of densly packed
-    keys of fixed-length type `Key`.
-*/
-private struct LeafM(size_t M, Key, Value = void)
-{
-    alias BranchUsageHistogram = size_t[M];
-
-    void calculate(ref BranchUsageHistogram hist) @safe pure const
-    {
-        import std.range : iota;
-        foreach (const i; 0.iota(M))
-        {
-            ++hist[i];
-        }
-    }
-
-    import bitset : BitSet;
-    private BitSet!M _bits; // if i:th bit is set corresponding next is set
-
-    alias _bits this;
 }
 
 /** Static Iota.

@@ -15,6 +15,9 @@ version(unittest)
     pointer are zero?
 
     See also: http://forum.dlang.org/post/sybuoliqhhefcovxjfjv@forum.dlang.org
+
+    TODO What todo with the fact that the GC will fail to scan VariantPointers?
+    Can the GC be tweaked to mask out the type bits before scanning?
  */
 struct VariantPointer(Types...)
 {

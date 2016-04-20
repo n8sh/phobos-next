@@ -362,7 +362,8 @@ struct RadixTree(Key,
         }
 
 	/** Supports $(B `Key` in `this`) syntax. */
-	bool opBinaryRight(string op)(Key key) const nothrow if (op == "in")
+	bool opBinaryRight(string op)(Key key) const nothrow
+            if (op == "in")
 	{
             return contains(key);
 	}

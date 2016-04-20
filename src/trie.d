@@ -39,7 +39,6 @@
  */
 module trie;
 
-import std.meta : AliasSeq;
 import std.traits : isIntegral, isSomeChar, isSomeString, isScalarType, isArray, allSatisfy, anySatisfy;
 import std.range : isInputRange, ElementType;
 
@@ -90,6 +89,9 @@ struct RadixTree(Key,
                  size_t radix = 4) // radix in number of bits, typically either 1, 2, 4 or 8
     if (allSatisfy!(isTrieableKeyType, Key))
 {
+    import std.meta : AliasSeq, staticMap;
+    import std.typecons : ConstOf;
+
     static assert(radix <= 32, "Radix is currently limited to 32"); // TODO adjust?
     static assert(radix <= 8*Key.sizeof, "Radix must be less than or equal to Key bit-precision"); // TODO Use strictly less than: radix < ... instead?
 
@@ -114,8 +116,13 @@ struct RadixTree(Key,
     /// `true` if tree has binary branch.
     enum isBinary = R == 2;
 
-    /** Reference to node. */
-    alias NodeP = VariantPointer!(BranchM, LeafM);
+    /** Node types. */
+    alias NodeTypes = AliasSeq!(BranchM, LeafM);
+
+    /** Mutable node. */
+    alias NodeP = VariantPointer!(NodeTypes);
+    /** Constant node. */
+    alias ConstNodeP = VariantPointer!(staticMap!(ConstOf, NodeTypes));
 
     /** Non-bottom branch node containing densly packed array of `M` number of
         pointers to sub-`BranchM`s or `Leaf`s.
@@ -156,9 +163,9 @@ struct RadixTree(Key,
             foreach (next; nexts[].filter!(next => next.ptr !is null))
             {
                 ++nzcnt;
-                if (const branchM = next.peek!(typeof(this)))
+                if (const nextBranchM = next.peek!(typeof(this)))
                 {
-                    branchM.calculate(hist);
+                    nextBranchM.calculate(hist);
                 }
                 else if (const leafM = next.peek!(LeafM))
                 {
@@ -285,39 +292,62 @@ struct RadixTree(Key,
                 enum isLast = ix + 1 == maxDepth; // if this is the last chunk
                 static if (!isLast) // this is not the last
                 {
-                    if (currPtr.nexts[chunkBits] is null) // if branch not yet visited
+                    if (auto currBranchM = currPtr.peek!BranchM)
                     {
-                        currPtr.nexts[chunkBits] = allocateBranchA; // create it
+                        if (!currBranchM.nexts[chunkBits]) // if branch not yet visited
+                        {
+                            currBranchM.nexts[chunkBits] = allocateNode!BranchM; // create it
+                        }
+                        currPtr = currBranchM.nexts[chunkBits]; // and visit it
                     }
-                    currPtr = currPtr.nexts[chunkBits]; // and visit it
-                }
-                else            // this is the last iteration
-                {
-                    if (currPtr.nexts[chunkBits] is null)
+                    else if (auto currLeafM = currPtr.peek!LeafM)
                     {
-                        currPtr.nexts[chunkBits] = BranchM.oneSet; // tag this as last
-                        return true; // a new value was inserted
+                        assert(false, "TODO");
                     }
                     else
                     {
-                        static if (isFixedTrieableKeyType!Key)
+                        assert(false, "TODO");
+                    }
+                }
+                else            // this is the last iteration
+                {
+                    if (auto currBranchM = currPtr.peek!BranchM)
+                    {
+                        if (!currBranchM.nexts[chunkBits])
                         {
-                            assert(currPtr.nexts[chunkBits] == BranchM.oneSet);
-                            return false; // value already set
+                            currBranchM.nexts[chunkBits] = BranchM.oneSet; // tag this as last
+                            return true; // a new value was inserted
                         }
                         else
                         {
-                            // TODO test this
-                            if (currPtr.isOccupied)
+                            static if (isFixedTrieableKeyType!Key)
                             {
-                                return false;
+                                assert(currBranchM.nexts[chunkBits].peek!BranchM == BranchM.oneSet);
+                                return false; // value already set
                             }
                             else
                             {
-                                currPtr.isOccupied = false;
-                                return true;
+                                dln("TODO");
+                                // TODO test this
+                                if (currPtr.isOccupied)
+                                {
+                                    return false;
+                                }
+                                else
+                                {
+                                    currPtr.isOccupied = false;
+                                    return true;
+                                }
                             }
                         }
+                    }
+                    else if (auto currLeafM = currPtr.peek!LeafM)
+                    {
+                        assert(false, "TODO");
+                    }
+                    else
+                    {
+                        assert(false, "TODO");
                     }
                 }
             }
@@ -341,7 +371,7 @@ struct RadixTree(Key,
                 {
                     static if (isFixedTrieableKeyType!Key)
                     {
-                        if (currPtr.nexts[chunkBits] == BranchM.oneSet) { return true; }
+                        if (currPtr.nexts[chunkBits].peek!BranchM == BranchM.oneSet) { return true; }
                     }
                     else
                     {
@@ -402,9 +432,9 @@ struct RadixTree(Key,
         import std.algorithm : count, filter;
         foreach (next; currPtr.nexts[].filter!(next => next))
         {
-            if (auto branchM = next.peek!(BranchM))
+            if (auto nextBranchM = next.peek!BranchM)
             {
-                release(branchM);  // recurse
+                release(nextBranchM);  // recurse
             }
         }
         deallocateNode(currPtr);
@@ -412,9 +442,9 @@ struct RadixTree(Key,
 
     void release(NodeP currPtr) pure nothrow
     {
-        if (auto branchM = currPtr.peek!(BranchM))
+        if (auto nextBranchM = currPtr.peek!BranchM)
         {
-            release(branchM);  // recurse
+            release(nextBranchM);  // recurse
         }
     }
 
@@ -430,7 +460,7 @@ struct RadixTree(Key,
     }
 
     // TODO is there an existing Phobos function for this?
-    const(BranchM)* tailConstRoot() const pure @trusted nothrow @nogc
+    const(typeof(_rootPtr)) tailConstRoot() const pure @trusted nothrow @nogc
     {
         return cast(typeof(return))_rootPtr;
     }
@@ -458,6 +488,7 @@ auto check()
         import std.algorithm : equal;
         struct TestValueType { int i; float f; string s; }
         alias Value = TestValueType;
+        import std.meta : AliasSeq;
         foreach (Key; AliasSeq!(uint))
         {
             auto set = radixTreeSet!(Key);
@@ -501,6 +532,7 @@ version(benchmark) unittest
         import std.algorithm : equal;
         struct TestValueType { int i; float f; string s; }
         alias Value = TestValueType;
+        import std.meta : AliasSeq;
         foreach (Key; AliasSeq!(uint))
         {
             auto set = radixTreeSet!(Key);

@@ -62,15 +62,16 @@ struct VariantPointer(Types...)
     }
 
     private bool isOfType(T)() const nothrow @nogc
+        if (allows!T)
     {
         return ((_raw & typeMask) >> typeShift) == tixOf!T;
     }
 
     @property inout(T)* peek(T)() inout @trusted @nogc nothrow
+        if (allows!T)
     {
-        static if (!is(T == void))
-            static assert(allows!T, "Cannot store a " ~ T.stringof ~ " in a " ~ name);
-        if (!isOfType!T) return null;
+        static if (is(T == void)) static assert(allows!T, "Cannot store a " ~ T.stringof ~ " in a " ~ name);
+        if (!isOfType!T) { return null; }
         return cast(inout T*)(cast(S)_raw & ~typeMask);
     }
 
@@ -82,28 +83,33 @@ pure nothrow unittest
     import std.meta : AliasSeq;
 
     alias Types = AliasSeq!(byte, short, int, long,
-                            float, double, real, char);
+                            ubyte, ushort, uint, ulong,
+                            float, double, real,
+                            char, wchar, dchar);
 
     alias VP = VariantPointer!Types;
 
-    VP x;
+    VP vp;
 
     foreach (T; Types)
     {
+        static assert(!__traits(compiles, { T[] a; vp = &a; }));
+        static assert(!__traits(compiles, { vp.peek!(T[]*); }));
+
         T a = 73;
 
-        x = &a;
+        vp = &a;
 
         foreach (U; Types)
         {
             static if (is(T == U))
             {
-                assert(x.peek!U);
-                assert(*(x.peek!U) == a);
+                assert(vp.peek!U);
+                assert(*(vp.peek!U) == a);
             }
             else
             {
-                assert(!x.peek!U);
+                assert(!vp.peek!U);
             }
         }
     }

@@ -416,8 +416,8 @@ version(benchmark) unittest
     }
 }
 
-/** Non-bottom branch node referencing densly packed `M` number of
-    sub-`BranchM`s or `Leaf`s.
+/** Non-bottom branch node containing densly packed array of `M` number of
+    pointers to sub-`BranchM`s or `Leaf`s.
 */
 private struct BranchM(size_t M, Key, Value = void)
 {

@@ -13,6 +13,8 @@ module variant_pointer;
 
     TODO What todo with the fact that the GC will fail to scan VariantPointers?
     Can the GC be tweaked to mask out the type bits before scanning?
+
+    TODO Enable support for is null instead of isNull?
  */
 struct VariantPointer(Types...)
 {
@@ -75,15 +77,20 @@ struct VariantPointer(Types...)
         return ((_raw & typeMask) >> typeShift) == indexOf!T;
     }
 
+    @property inout(void)* ptr() inout @trusted @nogc nothrow { return cast(void*)(_raw & ~typeMask); }
+
     @property inout(T)* peek(T)() inout @trusted @nogc nothrow
         if (allows!T)
     {
         static if (is(T == void)) static assert(allows!T, "Cannot store a " ~ T.stringof ~ " in a " ~ name);
         if (!isOfType!T) { return null; }
-        return cast(inout T*)(cast(S)_raw & ~typeMask);
+        return cast(inout T*)ptr();
     }
 
+    bool isNull() const @safe pure nothrow @nogc { return ptr() is null; }
+
     private S _raw;
+
 }
 
 ///

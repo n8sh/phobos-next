@@ -51,7 +51,7 @@ enum isTrieableKey(T) = (isFixedTrieableKeyType!T ||
                          (isInputRange!T &&
                           isFixedTrieableKeyType!(ElementType!T)));
 
-/** Defines how the entries in each `Branch` are packed. */
+/** Defines how the entries in each `BranchM` are packed. */
 enum NodePacking
 {
     just1Bit,
@@ -101,7 +101,7 @@ struct RadixTree(Key,
     alias order = M;   // tree order
     alias R = radix;
 
-    alias Br = Branch!(M, Key, Value);
+    alias Br = BranchM!(M, Key, Value);
 
     /// Tree depth.
     enum maxDepth = 8*Key.sizeof / R;
@@ -416,10 +416,15 @@ version(benchmark) unittest
     }
 }
 
-/** Non-bottom branch node referencing sub-`Branch`s or `Leaf`s. */
-private struct Branch(size_t M, Key, Value = void)
+/** Non-bottom branch node referencing densly packed `M` number of
+    sub-`BranchM`s or `Leaf`s.
+*/
+private struct BranchM(size_t M, Key, Value = void)
 {
     import variant_pointer : VariantPointer;
+
+    alias Next = VariantPointer!(BranchM!(M, Key, Value),
+                                 KeySetLeafM!(M, Key, Value));
 
     alias BranchUsageHistogram = size_t[M];
 
@@ -434,7 +439,7 @@ private struct Branch(size_t M, Key, Value = void)
     /// Indicates that all children are occupied (typically only for fixed-sized types).
     // static immutable allSet = cast(typeof(this)*)size_t.max;
 
-    alias Nexts = Branch!(M, Key, Value)*[M];
+    alias Nexts = BranchM!(M, Key, Value)*[M];
     Nexts nexts;
 
     /** Returns: depth of tree at this branch. */
@@ -462,7 +467,7 @@ private struct Branch(size_t M, Key, Value = void)
 
     static if (!isFixed)        // variable length keys only
     {
-        KeySetLeaf!(M, Key, Value) nextOccupations; // if i:th bit is set key (and optionally value) associated with next[i] is also defined
+        KeySetLeafM!(M, Key, Value) nextOccupations; // if i:th bit is set key (and optionally value) associated with next[i] is also defined
     }
     static if (isMap)
     {
@@ -470,8 +475,10 @@ private struct Branch(size_t M, Key, Value = void)
     }
 }
 
-/** Bottom-most leaf node of `RadixTree`-set storing keys of fixed-length type `Key`. */
-private struct KeySetLeaf(size_t M, Key, Value = void)
+/** Bottom-most leaf node of `RadixTree`-set storing `M` number of densly packed
+    keys of fixed-length type `Key`.
+*/
+private struct KeySetLeafM(size_t M, Key, Value = void)
 {
     import bitset : BitSet;
     BitSet!M _lastBitChunkDenseMap; // if i:th bit is set corresponding next is set

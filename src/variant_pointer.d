@@ -31,9 +31,9 @@ struct VariantPointer(Types...)
     static assert(N <= maxTypeCount, "Can only represent 8 different types");
 
     import std.meta : staticIndexOf;
-    enum tixOf(T) = staticIndexOf!(T, Types); // TODO cast to ubyte if N is <= 256
+    enum indexOf(T) = staticIndexOf!(T, Types); // TODO cast to ubyte if N is <= 256
 
-    enum allows(T) = tixOf!T >= 0;
+    enum allows(T) = indexOf!T >= 0;
 
     extern (D) S toHash() const @trusted pure nothrow
     {
@@ -64,13 +64,13 @@ struct VariantPointer(Types...)
     body
     {
         _raw = (cast(S)that | // pointer in lower part
-                (cast(S)(tixOf!T) << typeShift)); // use higher bits for type information
+                (cast(S)(indexOf!T) << typeShift)); // use higher bits for type information
     }
 
     private bool isOfType(T)() const nothrow @nogc
         if (allows!T)
     {
-        return ((_raw & typeMask) >> typeShift) == tixOf!T;
+        return ((_raw & typeMask) >> typeShift) == indexOf!T;
     }
 
     @property inout(T)* peek(T)() inout @trusted @nogc nothrow

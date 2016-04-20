@@ -13,6 +13,8 @@ version(unittest)
 
     TODO Ask forum.dlang.org: Is it safe to assume that `typeBits` most significant bits of a
     pointer are zero?
+
+    See also: http://forum.dlang.org/post/sybuoliqhhefcovxjfjv@forum.dlang.org
  */
 struct VariantPointer(Types...)
 {

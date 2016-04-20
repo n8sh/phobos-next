@@ -21,7 +21,6 @@ struct VariantPointer(Types...)
     static assert(this.sizeof == (void*).sizeof); // should have same size as pointer
 
     alias S = size_t;
-    private enum N = Types.length; // useful local shorthand
 
     /// Number of bits used to represent value type pointed to.
     enum typeBits = 8;
@@ -32,10 +31,10 @@ struct VariantPointer(Types...)
     enum typeShift = 8*S.sizeof - typeBits;
     enum typeMask = cast(S)(maxTypeCount - 1) << typeShift;
 
-    static assert(N <= maxTypeCount, "Can only represent 8 different types");
+    static assert(Types.length <= maxTypeCount, "Can only represent 8 different types");
 
     import std.meta : staticIndexOf;
-    enum indexOf(T) = staticIndexOf!(T, Types); // TODO cast to ubyte if N is <= 256
+    enum indexOf(T) = staticIndexOf!(T, Types); // TODO cast to ubyte if Types.length is <= 256
 
     /// Is `true` iff a `T*` can be assigned to `this`.
     enum allows(T) = indexOf!T >= 0;

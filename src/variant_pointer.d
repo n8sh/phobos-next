@@ -108,6 +108,7 @@ pure nothrow unittest
     alias VP = VariantPointer!Types;
 
     VP vp;
+    assert(!vp);
 
     foreach (T; Types)
     {
@@ -117,6 +118,7 @@ pure nothrow unittest
         // assignment from stack pointer
         T a = 73;
         vp = &a;
+        assert(vp);
         foreach (U; Types)
         {
             static if (is(T == U))
@@ -134,6 +136,7 @@ pure nothrow unittest
         T* b = new T;
         *b = 73;
         vp = b;
+        assert(vp);
         foreach (U; Types)
         {
             static if (is(T == U))

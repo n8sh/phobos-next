@@ -89,6 +89,8 @@ struct VariantPointer(Types...)
 
     bool isNull() const @safe pure nothrow @nogc { return ptr is null; }
 
+    bool opCast(T : bool)() const { return !isNull; }
+
     private S _raw;
 
 }

@@ -47,9 +47,9 @@ import dbg : dln;
 
 enum isFixedTrieableKeyType(T) = isScalarType!T;
 
-enum isTrieableKey(T) = (isFixedTrieableKeyType!T ||
-                         (isInputRange!T &&
-                          isFixedTrieableKeyType!(ElementType!T)));
+enum isTrieableKeyType(T) = (isFixedTrieableKeyType!T ||
+                             (isInputRange!T &&
+                              isFixedTrieableKeyType!(ElementType!T)));
 
 /** Defines how the entries in each `BranchM` are packed. */
 enum NodePacking
@@ -84,7 +84,7 @@ extern(C) pure nothrow @system @nogc
 struct RadixTree(Key,
                  Value,
                  size_t radix = 4) // radix in number of bits, typically either 1, 2, 4 or 8
-    if (allSatisfy!(isTrieableKey, Key))
+    if (allSatisfy!(isTrieableKeyType, Key))
 {
     static assert(radix <= 32, "Radix is currently limited to 32"); // TODO adjust?
     static assert(radix <= 8*Key.sizeof, "Radix must be less than or equal to Key bit-precision"); // TODO Use strictly less than: radix < ... instead?

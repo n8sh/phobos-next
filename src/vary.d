@@ -59,7 +59,7 @@ public:
 
     private enum N = typeCount; // useful local shorthand
 
-    enum tixOf(T) = staticIndexOf!(T, Types); // TODO cast to ubyte if N is <= 256
+    enum indexOf(T) = staticIndexOf!(T, Types); // TODO cast to ubyte if N is <= 256
 
     // static checking
     static assert(N >= 2,
@@ -70,8 +70,8 @@ public:
                   "Cannot store some of the types " ~ Types.stringof ~ " in a " ~ name);
 
     enum bool allows(T) = ((N == 0 ||
-                            tixOf!(T) >= 0 ||
-                            ((!hasIndirections!T) && tixOf!(Unqual!T) >= 0))); // ok to remove constness of value types
+                            indexOf!(T) >= 0 ||
+                            ((!hasIndirections!T) && indexOf!(Unqual!T) >= 0))); // ok to remove constness of value types
 
     // Use same as staticIndexOf
     template staticAssignableTypeIndexOf(U)
@@ -171,7 +171,7 @@ public:
         {
             (cast(ubyte*)&_data)[0 .. T.sizeof] = (cast(ubyte*)&that)[0 .. T.sizeof];
         }
-        _tix = cast(Ix)tixOf!U; // set type tag
+        _tix = cast(Ix)indexOf!U; // set type tag
     }
 
     /** If the $(D VaryN) object holds a value of the $(I exact) type $(D T),
@@ -220,7 +220,7 @@ public:
     /// Returns: $(D true) iff $(D this) $(D VaryN) can store an instance of $(D T).
     bool isOfType(T)() const @safe nothrow @nogc
     {
-        return _tix == tixOf!T;
+        return _tix == indexOf!T;
     }
 
     /// Force $(D this) to the null (undefined) state.

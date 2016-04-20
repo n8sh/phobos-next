@@ -134,6 +134,7 @@ public:
         return hasValue ? typeNamesRT[_tix] : null;
     }
 
+    /** Copy Construct. */
     this(VaryN that) @safe @nogc nothrow
     {
         _data = that._data;

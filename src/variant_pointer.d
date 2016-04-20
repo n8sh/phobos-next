@@ -1,10 +1,5 @@
 module variant_pointer;
 
-version(unittest)
-{
-    import dbg : dln;
-}
-
 /** A variant pointer to either of `Types`.
 
     Realizes a very lightweight version of polymorphism packed inside one single

@@ -11,7 +11,7 @@ version(unittest)
     pointer. Typically most significant bits are used to store type
     information. These are normally unused on modern systems.
 
-    TODO Forums: is it safe to assume that `typeBits` most significant bits of a
+    TODO Ask forum.dlang.org: Is it safe to assume that `typeBits` most significant bits of a
     pointer are zero?
  */
 struct VariantPointer(Types...)

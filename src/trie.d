@@ -130,7 +130,7 @@ struct RadixTree(Key,
 
     alias BranchUsageHistogram = size_t[M];
 
-    BranchUsageHistogram branchUsageHistogram()
+    BranchUsageHistogram branchUsageHistogram() const
     {
         typeof(return) hist;
         // TODO reuse rangeinterface when made available

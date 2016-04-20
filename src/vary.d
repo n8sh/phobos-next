@@ -142,7 +142,6 @@ public:
         // TODO run postblits
     }
 
-    /** Construct from $(D value) of type $(D T). */
     this(T)(T value) @safe @nogc nothrow
         if (allowed!T)
     {
@@ -150,9 +149,6 @@ public:
         init(value);
     }
 
-    /** Assigns a $(D VaryN) from a generic argument.
-        Statically rejects disallowed types.
-     */
     VaryN opAssign(T)(T that) @trusted @nogc nothrow
         if (allowed!T)
     {
@@ -199,14 +195,14 @@ public:
         return interpretAs!T;
     }
 
-    /// Ditto
+    /// ditto
     @property inout(Types[index]) get(uint index)() inout @safe
         if (index < Types.length)
     {
         return get!(Types[index]);
     }
 
-    /// Interpret Data as type $(D T).
+    /// Interpret data as type $(D T).
     private @property auto ref inout(T) interpretAs(T)() inout @trusted @nogc nothrow
     {
         static if (_data.alignof >= T.alignof)
@@ -221,7 +217,7 @@ public:
         }
     }
 
-    /// Returns: $(D true) $(D this) $(D VaryN) can store an instance of $(D T).
+    /// Returns: $(D true) iff $(D this) $(D VaryN) can store an instance of $(D T).
     bool isOfType(T)() const @safe nothrow @nogc
     {
         return _tix == tixOf!T;

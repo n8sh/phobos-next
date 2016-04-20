@@ -13,6 +13,8 @@ version(unittest)
  */
 struct VariantPointer(Types...)
 {
+    static assert(this.sizeof == (void*).sizeof); // should have same size as pointer
+
     alias S = size_t;
     private enum N = Types.length; // useful local shorthand
 
@@ -27,8 +29,6 @@ struct VariantPointer(Types...)
     enum tixOf(T) = staticIndexOf!(T, Types); // TODO cast to ubyte if N is <= 256
 
     enum allows(T) = tixOf!T >= 0;
-
-    static assert(this.sizeof == (void*).sizeof); // should have same size as pointer
 
     extern (D) S toHash() const @trusted pure nothrow
     {
@@ -54,7 +54,7 @@ struct VariantPointer(Types...)
     private void init(T)(T* that)
     in
     {
-        assert(!(cast(S)that & typeMask));
+        assert(!(cast(S)that & typeMask)); // check that top-most bits of pointer aren't already occupied
     }
     body
     {

@@ -419,6 +419,8 @@ version(benchmark) unittest
 /** Non-bottom branch node referencing sub-`Branch`s or `Leaf`s. */
 private struct Branch(size_t M, Key, Value = void)
 {
+    import variant_pointer : VariantPointer;
+
     alias BranchUsageHistogram = size_t[M];
 
     enum isMap = !is(Value == void);

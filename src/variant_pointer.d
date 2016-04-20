@@ -78,6 +78,7 @@ struct VariantPointer(Types...)
     private S _raw;
 }
 
+///
 pure nothrow unittest
 {
     import std.meta : AliasSeq;
@@ -96,7 +97,7 @@ pure nothrow unittest
         static assert(!__traits(compiles, { T[] a; vp = &a; }));
         static assert(!__traits(compiles, { vp.peek!(T[]*); }));
 
-        // stack pointer
+        // assignment from stack pointer
         T a = 73;
         vp = &a;
         foreach (U; Types)
@@ -112,7 +113,7 @@ pure nothrow unittest
             }
         }
 
-        // heap pointer
+        // assignment from heap pointer
         T* b = new T;
         *b = 73;
         vp = b;

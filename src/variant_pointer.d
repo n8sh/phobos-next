@@ -21,11 +21,12 @@ struct VariantPointer(Types...)
     enum typeShift = 8*S.sizeof - typeBits;
     enum typeMask = cast(S)(maxTypeCount - 1) << typeShift;
 
+    static assert(N <= maxTypeCount, "Can only represent 8 different types");
+
     import std.meta : staticIndexOf;
     enum tixOf(T) = staticIndexOf!(T, Types); // TODO cast to ubyte if N is <= 256
 
     enum allows(T) = tixOf!T >= 0;
-    static assert(N <= maxTypeCount, "Can only represent 8 different types");
 
     static assert(this.sizeof == (void*).sizeof); // should have same size as pointer
 

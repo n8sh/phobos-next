@@ -4,7 +4,7 @@ module variant_pointer;
 
     Realizes a very lightweight version of polymorphism packed inside one single
     pointer. Typically most significant bits are used to store type
-    information. These are normally unused on modern systems.
+    information. These are normally unused on modern systems 64-bit systems.
 
     TODO Ask forum.dlang.org: Is it safe to assume that `typeBits` most significant bits of a
     pointer are zero?

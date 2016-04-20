@@ -23,8 +23,12 @@ struct VariantPointer(Types...)
     alias S = size_t;
     private enum N = Types.length; // useful local shorthand
 
-    enum typeBits = 8;               // number of bits used to represent type
-    enum maxTypeCount = 2^^typeBits; // maximum of different types
+    /// Number of bits used to represent value type pointed to.
+    enum typeBits = 8;
+
+    /// Maximum number of different `Types` allowed.
+    enum maxTypeCount = 2^^typeBits;
+
     enum typeShift = 8*S.sizeof - typeBits;
     enum typeMask = cast(S)(maxTypeCount - 1) << typeShift;
 
@@ -33,6 +37,7 @@ struct VariantPointer(Types...)
     import std.meta : staticIndexOf;
     enum indexOf(T) = staticIndexOf!(T, Types); // TODO cast to ubyte if N is <= 256
 
+    /// Is `true` iff a `T*` can be assigned to `this`.
     enum allows(T) = indexOf!T >= 0;
 
     extern (D) S toHash() const pure nothrow

@@ -11,7 +11,7 @@
     TODO Andrei!: Provide in operator for fixed-length keys!?
 
     TODO Add RadixTreeRange.{front,popFront,empty}. Reuse RefCounted reference
-    to _rootP. Add checks with `isSorted`.
+    to _rootPtr. Add checks with `isSorted`.
 
     TODO Name members so they indicate that range isSorted.
 
@@ -125,7 +125,7 @@ struct RadixTree(Key,
     /// Get depth of tree.
     // size_t depth() @safe pure nothrow const
     // {
-    //     return _rootP !is null ? _rootP.linearDepth : 0;
+    //     return _rootPtr !is null ? _rootPtr.linearDepth : 0;
     // }
 
     alias BranchUsageHistogram = size_t[M];
@@ -134,7 +134,7 @@ struct RadixTree(Key,
     {
         typeof(return) hist;
         // TODO reuse rangeinterface when made available
-        if (const branchM = _rootP.peek!(Branch))
+        if (const branchM = _rootPtr.peek!(Branch))
         {
             branchM.calculate(hist);
         }
@@ -143,8 +143,8 @@ struct RadixTree(Key,
 
     this(this)
     {
-        if (_rootP.ptr is null) return;
-        auto oldRootPtr = _rootP;
+        if (_rootPtr.ptr is null) return;
+        auto oldRootPtr = _rootPtr;
         makeRoot;
         auto currPtr = oldRootPtr;
         while (currPtr)
@@ -156,7 +156,7 @@ struct RadixTree(Key,
 
     ~this()
     {
-        if (_rootP) { release(_rootP); }
+        if (_rootPtr) { release(_rootPtr); }
         debug assert(_branchCount == 0);
     }
 
@@ -195,7 +195,7 @@ struct RadixTree(Key,
         {
             makeRoot;
 
-            auto currPtr = _rootP;
+            auto currPtr = _rootPtr;
             foreach (ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
                 const chunkBits = bitsChunk!(ix)(key);
@@ -245,7 +245,7 @@ struct RadixTree(Key,
         /** Returns: `true` if key is contained in set, `false` otherwise. */
         bool contains(Key key) const
         {
-            if (!_rootP) { return false; }
+            if (!_rootPtr) { return false; }
 
             auto currPtr = tailConstRoot;
             foreach (ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
@@ -328,19 +328,19 @@ struct RadixTree(Key,
 
     void makeRoot()
     {
-        if (_rootP.ptr is null) { _rootP = allocateNode!Branch; }
+        if (_rootPtr.ptr is null) { _rootPtr = allocateNode!Branch; }
     }
 
     // TODO is there an existing Phobos function for this?
     const(Branch)* tailConstRoot() const pure @trusted nothrow @nogc
     {
-        return cast(typeof(return))_rootP;
+        return cast(typeof(return))_rootPtr;
     }
 
     /// Returns: number of branches used in `this` tree.
     debug size_t branchCount() @safe pure nothrow @nogc { return _branchCount; }
 
-    private NodeP _rootP;
+    private NodeP _rootPtr;
     debug size_t _branchCount = 0;
 }
 alias RadixTrie = RadixTree;

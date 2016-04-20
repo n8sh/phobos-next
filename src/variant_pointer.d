@@ -60,10 +60,30 @@ struct VariantPointer(Types...)
         return this;
     }
 
+    @property inout(void)* ptr() inout @trusted @nogc nothrow { return cast(void*)(_raw & ~typeMask); }
+
+    @property inout(T)* peek(T)() inout @trusted @nogc nothrow
+        if (allows!T)
+    {
+        static if (is(T == void)) static assert(allows!T, "Cannot store a " ~ T.stringof ~ " in a " ~ name);
+        if (!isOfType!T) { return null; }
+        return cast(inout T*)ptr;
+    }
+
+    bool opEquals(U)(U* that) const @trusted nothrow @nogc
+    {
+        auto x = peek!U; // if `this` contains pointer of to instance of type `U`
+        return x && x == that; // and is equal to it
+    }
+
+    bool isNull() const @safe pure nothrow @nogc { return ptr is null; }
+
+    bool opCast(T : bool)() const @safe pure nothrow @nogc { return ptr !is null; }
+
     private void init(T)(T* that)
     in
     {
-        assert(!(cast(S)that & typeMask)); // check that top-most bits of pointer aren't already occupied
+            assert(!(cast(S)that & typeMask)); // check that top-most bits of pointer aren't already occupied
     }
     body
     {
@@ -76,20 +96,6 @@ struct VariantPointer(Types...)
     {
         return ((_raw & typeMask) >> typeShift) == indexOf!T;
     }
-
-    @property inout(void)* ptr() inout @trusted @nogc nothrow { return cast(void*)(_raw & ~typeMask); }
-
-    @property inout(T)* peek(T)() inout @trusted @nogc nothrow
-        if (allows!T)
-    {
-        static if (is(T == void)) static assert(allows!T, "Cannot store a " ~ T.stringof ~ " in a " ~ name);
-        if (!isOfType!T) { return null; }
-        return cast(inout T*)ptr;
-    }
-
-    bool isNull() const @safe pure nothrow @nogc { return ptr is null; }
-
-    bool opCast(T : bool)() const { return !isNull; }
 
     private S _raw;
 
@@ -117,7 +123,10 @@ pure nothrow unittest
 
         // assignment from stack pointer
         T a = 73;
+        T a_ = 73;
         vp = &a;
+        assert(vp == &a);
+        assert(vp != &a_);
         assert(vp);
         foreach (U; Types)
         {
@@ -134,8 +143,12 @@ pure nothrow unittest
 
         // assignment from heap pointer
         T* b = new T;
+        T* b_ = new T;
         *b = 73;
+        *b_ = 73;
         vp = b;
+        assert(vp == b);
+        assert(vp != b_);
         assert(vp);
         foreach (U; Types)
         {

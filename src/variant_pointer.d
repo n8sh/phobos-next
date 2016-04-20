@@ -35,7 +35,7 @@ struct VariantPointer(Types...)
 
     enum allows(T) = indexOf!T >= 0;
 
-    extern (D) S toHash() const @trusted pure nothrow
+    extern (D) S toHash() const pure nothrow
     {
         import core.internal.hash : hashOf;
         return _raw.hashOf;
@@ -67,7 +67,7 @@ struct VariantPointer(Types...)
                 (cast(S)(indexOf!T) << typeShift)); // use higher bits for type information
     }
 
-    private bool isOfType(T)() const nothrow @nogc
+    private bool isOfType(T)() @safe const nothrow @nogc
         if (allows!T)
     {
         return ((_raw & typeMask) >> typeShift) == indexOf!T;

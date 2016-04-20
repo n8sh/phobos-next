@@ -84,10 +84,10 @@ struct VariantPointer(Types...)
     {
         static if (is(T == void)) static assert(allows!T, "Cannot store a " ~ T.stringof ~ " in a " ~ name);
         if (!isOfType!T) { return null; }
-        return cast(inout T*)ptr();
+        return cast(inout T*)ptr;
     }
 
-    bool isNull() const @safe pure nothrow @nogc { return ptr() is null; }
+    bool isNull() const @safe pure nothrow @nogc { return ptr is null; }
 
     private S _raw;
 

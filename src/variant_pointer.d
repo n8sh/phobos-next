@@ -10,6 +10,9 @@ version(unittest)
     Realizes a very lightweight version of polymorphism packed inside one single
     pointer. Typically most significant bits are used to store type
     information. These are normally unused on modern systems.
+
+    TODO Forums: is it safe to assume that `typeBits` most significant bits of a
+    pointer are zero?
  */
 struct VariantPointer(Types...)
 {

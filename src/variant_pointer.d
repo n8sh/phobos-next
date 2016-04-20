@@ -1,4 +1,4 @@
-module variant_ex;
+module variant_pointer;
 
 /** A variant pointer to either of `Types`.
 

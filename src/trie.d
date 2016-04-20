@@ -11,7 +11,7 @@
     TODO Andrei!: Provide in operator for fixed-length keys!?
 
     TODO Add RadixTreeRange.{front,popFront,empty}. Reuse RefCounted reference
-    to root. Add checks with `isSorted`.
+    to _rootP. Add checks with `isSorted`.
 
     TODO Name members so they indicate that range isSorted.
 
@@ -111,7 +111,7 @@ struct RadixTree(Key,
 
     alias Branch = BranchM!(M, Key, Value);
     alias Leaf = LeafM!(M, Key, Value);
-    alias Node = NodePtr!(M, Key, Value);
+    alias NodeP = NodePtr!(M, Key, Value);
 
     /// Tree depth.
     enum maxDepth = 8*Key.sizeof / R;
@@ -125,7 +125,7 @@ struct RadixTree(Key,
     /// Get depth of tree.
     // size_t depth() @safe pure nothrow const
     // {
-    //     return root !is null ? root.linearDepth : 0;
+    //     return _rootP !is null ? _rootP.linearDepth : 0;
     // }
 
     alias BranchUsageHistogram = size_t[M];
@@ -134,7 +134,7 @@ struct RadixTree(Key,
     {
         typeof(return) hist;
         // TODO reuse rangeinterface when made available
-        if (const branchM = root.peek!(Branch))
+        if (const branchM = _rootP.peek!(Branch))
         {
             branchM.calculate(hist);
         }
@@ -143,11 +143,11 @@ struct RadixTree(Key,
 
     this(this)
     {
-        if (root.ptr is null) return;
-        auto oldRoot = root;
+        if (_rootP.ptr is null) return;
+        auto oldRootPtr = _rootP;
         makeRoot;
-        auto curr = oldRoot;
-        while (curr)
+        auto currPtr = oldRootPtr;
+        while (currPtr)
         {
             // TODO iterative or recursive?
         }
@@ -156,7 +156,7 @@ struct RadixTree(Key,
 
     ~this()
     {
-        if (root) { release(root); }
+        if (_rootP) { release(_rootP); }
         debug assert(_branchCount == 0);
     }
 
@@ -195,7 +195,7 @@ struct RadixTree(Key,
         {
             makeRoot;
 
-            auto curr = root;
+            auto currPtr = _rootP;
             foreach (ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
                 const chunkBits = bitsChunk!(ix)(key);
@@ -203,28 +203,28 @@ struct RadixTree(Key,
                 enum isLast = ix + 1 == maxDepth; // if this is the last chunk
                 static if (isLast) // this is the last iteration
                 {
-                    if (curr.nexts[chunkBits] is null)
+                    if (currPtr.nexts[chunkBits] is null)
                     {
-                        curr.nexts[chunkBits] = Branch.oneSet; // tag this as last
+                        currPtr.nexts[chunkBits] = Branch.oneSet; // tag this as last
                         return true; // a new value was inserted
                     }
                     else
                     {
                         static if (isFixedTrieableKeyType!Key)
                         {
-                            assert(curr.nexts[chunkBits] == Branch.oneSet);
+                            assert(currPtr.nexts[chunkBits] == Branch.oneSet);
                             return false; // value already set
                         }
                         else
                         {
                             // TODO test this
-                            if (curr.isOccupied)
+                            if (currPtr.isOccupied)
                             {
                                 return false;
                             }
                             else
                             {
-                                curr.isOccupied = false;
+                                currPtr.isOccupied = false;
                                 return true;
                             }
                         }
@@ -232,11 +232,11 @@ struct RadixTree(Key,
                 }
                 else
                 {
-                    if (curr.nexts[chunkBits] is null) // if branch not yet visited
+                    if (currPtr.nexts[chunkBits] is null) // if branch not yet visited
                     {
-                        curr.nexts[chunkBits] = allocateBranchA; // create it
+                        currPtr.nexts[chunkBits] = allocateBranchA; // create it
                     }
-                    curr = curr.nexts[chunkBits]; // and visit it
+                    currPtr = currPtr.nexts[chunkBits]; // and visit it
                 }
             }
             assert(false, "End of function should be reached");
@@ -245,13 +245,13 @@ struct RadixTree(Key,
         /** Returns: `true` if key is contained in set, `false` otherwise. */
         bool contains(Key key) const
         {
-            if (!root) { return false; }
+            if (!_rootP) { return false; }
 
-            auto curr = tailConstRoot;
+            auto currPtr = tailConstRoot;
             foreach (ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
                 const chunkBits = bitsChunk!(ix)(key);
-                if (curr.nexts[chunkBits] is null)
+                if (currPtr.nexts[chunkBits] is null)
                 {
                     return false;
                 }
@@ -259,21 +259,21 @@ struct RadixTree(Key,
                 {
                     static if (isFixedTrieableKeyType!Key)
                     {
-                        if (curr.nexts[chunkBits] == Branch.oneSet) { return true; }
+                        if (currPtr.nexts[chunkBits] == Branch.oneSet) { return true; }
                     }
                     else
                     {
-                        if (curr.isOccupied)
+                        if (currPtr.isOccupied)
                         {
                             return false;
                         }
                         else
                         {
-                            curr.isOccupied = false;
+                            currPtr.isOccupied = false;
                             return true;
                         }
                     }
-                    curr = curr.nexts[chunkBits];
+                    currPtr = currPtr.nexts[chunkBits];
                 }
             }
             return false;
@@ -307,17 +307,17 @@ struct RadixTree(Key,
         return node;
     }
 
-    void release(Branch* curr) pure nothrow
+    void release(Branch* currPtr) pure nothrow
     {
         import std.algorithm : count, filter;
-        foreach (next; curr.nexts[].filter!(next => next))
+        foreach (next; currPtr.nexts[].filter!(next => next))
         {
             if (auto branchM = next.peek!(Branch))
             {
                 release(branchM);  // recurse
             }
         }
-        deallocateNode(curr);
+        deallocateNode(currPtr);
     }
 
     void deallocateNode(NodeType)(NodeTypA* branch) @trusted
@@ -328,19 +328,19 @@ struct RadixTree(Key,
 
     void makeRoot()
     {
-        if (root.ptr is null) { root = allocateNode!Branch; }
+        if (_rootP.ptr is null) { _rootP = allocateNode!Branch; }
     }
 
     // TODO is there an existing Phobos function for this?
     const(Branch)* tailConstRoot() const pure @trusted nothrow @nogc
     {
-        return cast(typeof(return))root;
+        return cast(typeof(return))_rootP;
     }
 
     /// Returns: number of branches used in `this` tree.
     debug size_t branchCount() @safe pure nothrow @nogc { return _branchCount; }
 
-    private Node root;
+    private NodeP _rootP;
     debug size_t _branchCount = 0;
 }
 alias RadixTrie = RadixTree;

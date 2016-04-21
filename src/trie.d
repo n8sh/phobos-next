@@ -5,6 +5,8 @@
     TODO Add sparse 2^^n-branches for n < radix: 2^^1=B2, 2^^2=B4, 2^^3=B8, B^^4=B16. Use
     sortExactly from sortn.d to order their members.
 
+    TODO Add traits isSparseNodeType, isDenseNodeType.
+
     TODO if `Value` is a `isScalarType` store it in Value[M]
     TODO if `Value` is a `bool` store it in bitset
 
@@ -67,21 +69,6 @@ enum isFixedTrieableKeyType(T) = isScalarType!T;
 enum isTrieableKeyType(T) = (isFixedTrieableKeyType!T ||
                              (isInputRange!T &&
                               isFixedTrieableKeyType!(ElementType!T)));
-
-/** Defines how the entries in each `BM` are packed. */
-enum NodePacking
-{
-    just1Bit,
-
-    sparse2Bit,
-    denseBit,
-
-    sparse4Bit,
-    dense4Bit,
-
-    sparse8Bit,
-    dense8Bit,
-}
 
 extern(C) pure nothrow @system @nogc
 {

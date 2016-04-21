@@ -135,8 +135,6 @@ struct RadixTree(Key,
     /** Constant node. */
     alias ConstNodePtr = VariantPointer!(staticMap!(ConstOf, NodeTypes));
 
-    alias Nexts = NodePtr[M];
-
     alias BranchUsageHistogram = size_t[M];
 
     /** Non-bottom branch node containing densly packed array of `M` number of
@@ -144,7 +142,7 @@ struct RadixTree(Key,
     */
     static private struct BranchM
     {
-        /// Indicates that only child at this index is occupied.
+        /// Indicates that only next/child at this index is occupied.
         static immutable oneSet = cast(typeof(this)*)1UL;
 
         static if (isFixed)
@@ -154,15 +152,15 @@ struct RadixTree(Key,
             static immutable allSet = cast(typeof(this)*)size_t.max;
         }
 
-        Nexts nexts;
+        NodePtr[M] subs;        // sub-branches
 
         /** Returns: depth of tree at this branch. */
         // size_t linearDepth() @safe pure nothrow const
         // {
         //     // TODO replace with fold when switching to 2.071
         //     import std.algorithm : map, reduce, max;
-        //     return reduce!max(0UL, nexts[].map!(next => (next.peek!(typeof(this)) == oneSet ? 1UL :
-        //                                                  next ? 1 + next.linearDepth :
+        //     return reduce!max(0UL, subs[].map!(sub => (sub.peek!(typeof(this)) == oneSet ? 1UL :
+        //                                                  sub ? 1 + sub.linearDepth :
         //                                                  0UL)));
         // }
 
@@ -171,21 +169,21 @@ struct RadixTree(Key,
         {
             import std.algorithm : count, filter;
             size_t nzcnt = 0; // number of non-zero branches
-            foreach (next; nexts[].filter!(next => next))
+            foreach (sub; subs[].filter!(sub => sub))
             {
                 ++nzcnt;
-                if (const nextBranchM = next.peek!BranchM)
+                if (const subBranchM = sub.peek!BranchM)
                 {
-                    if (nextBranchM != BranchM.oneSet)
+                    if (subBranchM != BranchM.oneSet)
                     {
-                        nextBranchM.calculate(hist);
+                        subBranchM.calculate(hist);
                     }
                 }
-                else if (const nextLeafM = next.peek!LeafM)
+                else if (const subLeafM = sub.peek!LeafM)
                 {
-                    nextLeafM.calculate(hist);
+                    subLeafM.calculate(hist);
                 }
-                else if (next)
+                else if (sub)
                 {
                     assert(false, "Unknown type of non-null pointer");
                 }
@@ -195,7 +193,7 @@ struct RadixTree(Key,
 
         static if (!isFixed)        // variable length keys only
         {
-            LeafM nextOccupations; // if i:th bit is set key (and optionally value) associated with next[i] is also defined
+            LeafM subOccupations; // if i:th bit is set key (and optionally value) associated with sub[i] is also defined
             static if (isMap)
             {
                 Value value;
@@ -218,7 +216,7 @@ struct RadixTree(Key,
         }
 
         import bitset : BitSet;
-        private BitSet!M _bits; // if i:th bit is set corresponding next is set
+        private BitSet!M _bits; // if i:th bit is set corresponding sub is set
 
         alias _bits this;
 
@@ -245,7 +243,7 @@ struct RadixTree(Key,
                 branchM.calculate(hist);
             }
         }
-        else if (const nextLeafM = _rootPtr.peek!LeafM)
+        else if (const subLeafM = _rootPtr.peek!LeafM)
         {
             assert(false, "TODO");
         }
@@ -316,41 +314,54 @@ struct RadixTree(Key,
                 const chunkBits = bitsChunk!ix(key);
 
                 enum isLast = ix + 1 == maxDepth; // if this is the last chunk
-                static if (!isLast) // this is not the last
+                enum isSecondLast = ix + 2 == maxDepth; // if this is the second last chunk
+                static if (!isLast)                     // not last
                 {
                     if (auto currBranchM = currPtr.peek!BranchM)
                     {
                         assert(currBranchM != BranchM.oneSet);
-                        if (!currBranchM.nexts[chunkBits]) // if branch not yet visited
+                        if (!currBranchM.subs[chunkBits]) // if branch not yet visited
                         {
-                            currBranchM.nexts[chunkBits] = allocateNode!BranchM; // create it
+                            currBranchM.subs[chunkBits] = allocateNode!BranchM; // create it
                         }
-                        currPtr = currBranchM.nexts[chunkBits]; // and visit it
+                        currPtr = currBranchM.subs[chunkBits]; // and visit it
                     }
-                    else if (auto currLeafM = currPtr.peek!LeafM)
-                    {
-                        assert(false, "TODO");
-                    }
-                    else if (currPtr)
-                    {
-                        assert(false, "Unknown type of non-null pointer");
-                    }
+                    else if (auto currLeafM = currPtr.peek!LeafM) { assert(false, "TODO"); }
+                    else if (currPtr) { assert(false, "Unknown type of non-null pointer"); }
                 }
-                else            // this is the last iteration
+                else static if (isSecondLast) // second last
+                {
+                    if (auto currBranchM = currPtr.peek!BranchM)
+                    {
+                        // assert that sub is a LeafM
+                        if (!currBranchM.subs[chunkBits]) // if not yet set
+                        {
+                            currBranchM.subs[chunkBits] = allocateNode!LeafM;
+                        }
+                        else
+                        {
+                            assert(currBranchM.subs[chunkBits].peek!LeafM);
+                        }
+                        currPtr = currBranchM.subs[chunkBits]; // and visit it
+                    }
+                    else if (auto currLeafM = currPtr.peek!LeafM) { assert(false, "TODO"); }
+                    else if (currPtr) { assert(false, "Unknown type of non-null pointer"); }
+                }
+                else            // last
                 {
                     if (auto currBranchM = currPtr.peek!BranchM)
                     {
                         assert(currBranchM != BranchM.oneSet);
-                        if (!currBranchM.nexts[chunkBits])
+                        if (!currBranchM.subs[chunkBits])
                         {
-                            currBranchM.nexts[chunkBits] = BranchM.oneSet; // tag this as last
+                            currBranchM.subs[chunkBits] = BranchM.oneSet; // tag this as last
                             return true; // a new value was inserted
                         }
                         else
                         {
                             static if (isFixedTrieableKeyType!Key)
                             {
-                                assert(currBranchM.nexts[chunkBits].peek!BranchM == BranchM.oneSet);
+                                assert(currBranchM.subs[chunkBits].peek!BranchM == BranchM.oneSet);
                                 return false; // value already set
                             }
                             else
@@ -371,12 +382,19 @@ struct RadixTree(Key,
                     }
                     else if (auto currLeafM = currPtr.peek!LeafM)
                     {
+                        if (!currLeafM._bits[chunkBits])
+                        {
+                            currLeafM._bits[chunkBits] = true;
+                            return true;
+                        }
+                        else
+                        {
+
+                        }
+
                         assert(false, "TODO");
                     }
-                    else if (currPtr)
-                    {
-                        assert(false, "Unknown type of non-null pointer");
-                    }
+                    else if (currPtr) { assert(false, "Unknown type of non-null pointer"); }
                 }
             }
             assert(false, "End of function should be reached");
@@ -394,7 +412,7 @@ struct RadixTree(Key,
                 if (auto currBranchM = currPtr.peek!BranchM)
                 {
                     assert(currBranchM != BranchM.oneSet);
-                    if (!currBranchM.nexts[chunkBits])
+                    if (!currBranchM.subs[chunkBits])
                     {
                         return false;
                     }
@@ -402,7 +420,7 @@ struct RadixTree(Key,
                     {
                         static if (isFixedTrieableKeyType!Key)
                         {
-                            if (currBranchM.nexts[chunkBits].peek!BranchM == BranchM.oneSet)
+                            if (currBranchM.subs[chunkBits].peek!BranchM == BranchM.oneSet)
                             {
                                 return true;
                             }
@@ -419,17 +437,11 @@ struct RadixTree(Key,
                                 return true;
                             }
                         }
-                        currPtr = currBranchM = currBranchM.nexts[chunkBits].peek!BranchM;
+                        currPtr = currBranchM = currBranchM.subs[chunkBits].peek!BranchM;
                     }
                 }
-                else if (const currLeafM = currPtr.peek!LeafM)
-                {
-                    assert(false, "TODO");
-                }
-                else if (currPtr)
-                {
-                    assert(false, "Unknown type of non-null pointer");
-                }
+                else if (const currLeafM = currPtr.peek!LeafM) { assert(false, "TODO"); }
+                else if (currPtr) { assert(false, "Unknown type of non-null pointer"); }
             }
             return false;
         }
@@ -466,23 +478,23 @@ struct RadixTree(Key,
     {
         NodeType* node = cast(typeof(return))calloc(1, NodeType.sizeof);
         debug ++_branchCount;
-        assert(node.nexts[].all!(x => !x));
+        assert(node.subs[].all!(x => !x));
         return node;
     }
 
     void release(BranchM* currPtr) pure nothrow
     {
         import std.algorithm : count, filter;
-        foreach (next; currPtr.nexts[].filter!(next => next))
+        foreach (sub; currPtr.subs[].filter!(sub => sub))
         {
-            if (auto nextBranchM = next.peek!BranchM)
+            if (auto subBranchM = sub.peek!BranchM)
             {
-                if (nextBranchM != BranchM.oneSet)
+                if (subBranchM != BranchM.oneSet)
                 {
-                    release(nextBranchM);  // recurse
+                    release(subBranchM);  // recurse
                 }
             }
-            else if (auto nextLeafM = next.peek!LeafM)
+            else if (auto subLeafM = sub.peek!LeafM)
             {
                 assert(false, "TODO");
             }
@@ -496,14 +508,14 @@ struct RadixTree(Key,
 
     void release(NodePtr currPtr) pure nothrow
     {
-        if (auto nextBranchM = currPtr.peek!BranchM)
+        if (auto subBranchM = currPtr.peek!BranchM)
         {
-            if (nextBranchM != BranchM.oneSet)
+            if (subBranchM != BranchM.oneSet)
             {
-                release(nextBranchM);  // recurse
+                release(subBranchM);  // recurse
             }
         }
-        else if (auto nextLeafM = currPtr.peek!LeafM)
+        else if (auto subLeafM = currPtr.peek!LeafM)
         {
             assert(false, "TODO");
         }
@@ -568,7 +580,7 @@ auto check()
                 assert(k in set);
                 // assert(set.depth == set.maxDepth);
 
-                assert(!set.contains(k + 1)); // next is yet inserted
+                assert(!set.contains(k + 1)); // sub is yet inserted
             }
 
             // debug assert(set.branchCount == 40);

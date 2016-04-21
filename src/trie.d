@@ -24,6 +24,12 @@
 
     TODO RadixTree: Assigning a void pointer to a class
 
+    TODO Replace
+    - if (auto currBranchM = currPtr.peek!BranchM)
+    - else if (const currLeafM = currPtr.peek!LeafM)
+    with some compacter logic perhaps using mixins or pattern matching using
+    switch-case on internally store type in `VariantPointer`.
+
     I've just started working on a RadixTree implementation in D here:
 
     https://github.com/nordlow/phobos-next/blob/master/src/trie.d
@@ -399,9 +405,12 @@ struct RadixTree(Key,
                             }
                         }
                         currBranchM = currBranchM.nexts[chunkBits].peek!BranchM;
+                        pragma(msg, typeof(currBranchM));
+                        pragma(msg, typeof(currPtr));
+                        currPtr = currBranchM;
                     }
                 }
-                else if (auto currLeafM = currPtr.peek!LeafM)
+                else if (const currLeafM = currPtr.peek!LeafM)
                 {
                     assert(false, "TODO");
                 }

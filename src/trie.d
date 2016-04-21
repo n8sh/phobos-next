@@ -501,12 +501,17 @@ auto check()
             foreach (Key k; 0.iota(512))
             {
                 assert(!set.contains(k));
+
                 assert(k !in set);
+
                 assert(set.insert(k)); // insert new value returns `true`
                 assert(!set.insert(k)); // reinsert same value returns `false`
+                assert(!set.insert(k)); // reinsert same value returns `false`
+
                 assert(set.contains(k));
                 assert(k in set);
                 // assert(set.depth == set.maxDepth);
+
                 assert(!set.contains(k + 1)); // next is yet inserted
             }
 

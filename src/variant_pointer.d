@@ -74,6 +74,17 @@ struct VariantPointer(Types...)
         return this;
     }
 
+    this(typeof(null) value)
+    {
+        // TODO reserve undefined
+    }
+
+    auto opAssign(typeof(null) that)
+    {
+        // TODO reserve undefined
+        return this;
+    }
+
     @property inout(void)* ptr() inout @trusted @nogc nothrow { return cast(void*)(_raw & ~typeMask); }
 
     @property inout(T)* peek(T)() inout @trusted @nogc nothrow
@@ -135,6 +146,7 @@ pure nothrow unittest
     alias VP = VariantPointer!Types;
 
     VP vp;
+    vp = null;
     assert(!vp);
 
     foreach (T; Types)

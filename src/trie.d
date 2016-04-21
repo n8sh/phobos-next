@@ -2,7 +2,7 @@
 
     See also: https://en.wikipedia.org/wiki/Trie
 
-    TODO Need bijectToUnsigned in intsort to support ordered storage of float and double.
+    TODO Need bijectToUnsigned in intsort to support ordered storage of float and double. Move it to bijections.
 
     TODO Add sparse 2^^n-branches for n < radix: 2^^1=B2, 2^^2=B4, 2^^3=B8, B^^4=B16. Use
     sortExactly from sortn.d to order their members.

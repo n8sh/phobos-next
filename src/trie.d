@@ -2,6 +2,9 @@
 
     See also: https://en.wikipedia.org/wiki/Trie
 
+    TODO Add sparse 2^^n-branches for n < radix: 2^^1=B2, 2^^2=B4, 2^^3=B8, B^^4=B16. Use
+    sortExactly from sortn.d to order their members.
+
     TODO if `Value` is a `isScalarType` store it in Value[M]
     TODO if `Value` is a `bool` store it in bitset
 
@@ -270,7 +273,7 @@ struct RadixTree(Key,
     ~this()
     {
         if (_root) { release(_root); }
-        debug assert(_branchCount == 0);
+        // debug assert(_nodeCount == 0);
     }
 
     /** Get chunkIndex:th chunk of `radix` number of bits. */
@@ -292,11 +295,11 @@ struct RadixTree(Key,
         }
 
         const u = *(cast(UnsignedOfSameSizeAs!Key*)(&key)); // TODO functionize and reuse here and in intsort.d
-        const uint chunkBits = (u >> shift) & chunkMask; // part of value which is also an index
-        static assert(radix <= 8*chunkBits.sizeof, "Need more precision in chunkBits");
+        const uint keyBitChunk = (u >> shift) & chunkMask; // part of value which is also an index
+        static assert(radix <= 8*keyBitChunk.sizeof, "Need more precision in keyBitChunk");
 
-        assert(chunkBits < M); // extra range check
-        return chunkBits;
+        assert(keyBitChunk < M); // extra range check
+        return keyBitChunk;
     }
 
     static if (isSet)
@@ -311,7 +314,7 @@ struct RadixTree(Key,
             Node curr = _root;
             foreach (const ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
-                const chunkBits = bitsChunk!ix(key);
+                const keyBitChunk = bitsChunk!ix(key);
 
                 enum isLast = ix + 1 == maxDepth; // if this is the last chunk
                 enum isSecondLast = ix + 2 == maxDepth; // if this is the second last chunk
@@ -321,15 +324,15 @@ struct RadixTree(Key,
                     if (auto currBM = curr.peek!BM)
                     {
                         // assert that sub is a LM
-                        if (!currBM.subs[chunkBits]) // if not yet set
+                        if (!currBM.subs[keyBitChunk]) // if not yet set
                         {
-                            currBM.subs[chunkBits] = allocateNode!LM;
+                            currBM.subs[keyBitChunk] = allocateNode!LM;
                         }
                         else
                         {
-                            assert(currBM.subs[chunkBits].peek!LM);
+                            assert(currBM.subs[keyBitChunk].peek!LM);
                         }
-                        curr = currBM.subs[chunkBits]; // and visit it
+                        curr = currBM.subs[keyBitChunk]; // and visit it
                     }
                     else if (auto currLM = curr.peek!LM) { assert(false, "TODO"); }
                     else if (curr) { assert(false, "Unknown type of non-null pointer"); }
@@ -339,16 +342,16 @@ struct RadixTree(Key,
                     if (auto currBM = curr.peek!BM) // branch-M
                     {
                         assert(currBM != BM.oneSet);
-                        if (!currBM.subs[chunkBits])
+                        if (!currBM.subs[keyBitChunk])
                         {
-                            currBM.subs[chunkBits] = BM.oneSet; // tag this as last
+                            currBM.subs[keyBitChunk] = BM.oneSet; // tag this as last
                             return true; // a new value was inserted
                         }
                         else
                         {
                             static if (isFixedTrieableKeyType!Key)
                             {
-                                assert(currBM.subs[chunkBits].peek!BM == BM.oneSet);
+                                assert(currBM.subs[keyBitChunk].peek!BM == BM.oneSet);
                                 return false; // value already set
                             }
                             else
@@ -369,9 +372,9 @@ struct RadixTree(Key,
                     }
                     else if (auto currLM = curr.peek!LM) // leaf-M
                     {
-                        if (!currLM._bits[chunkBits])
+                        if (!currLM._bits[keyBitChunk])
                         {
-                            return currLM._bits[chunkBits] = true;
+                            return currLM._bits[keyBitChunk] = true;
                         }
                         else
                         {
@@ -387,11 +390,11 @@ struct RadixTree(Key,
                     if (auto currBM = curr.peek!BM)
                     {
                         assert(currBM != BM.oneSet);
-                        if (!currBM.subs[chunkBits]) // if branch not yet visited
+                        if (!currBM.subs[keyBitChunk]) // if branch not yet visited
                         {
-                            currBM.subs[chunkBits] = allocateNode!BM; // create it
+                            currBM.subs[keyBitChunk] = allocateNode!BM; // create it
                         }
-                        curr = currBM.subs[chunkBits]; // and visit it
+                        curr = currBM.subs[keyBitChunk]; // and visit it
                     }
                     else if (auto currLM = curr.peek!LM) { assert(false, "TODO"); }
                     else if (curr) { assert(false, "Unknown type of non-null pointer"); }
@@ -408,11 +411,11 @@ struct RadixTree(Key,
             Node curr = _root;
             foreach (const ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
-                const chunkBits = bitsChunk!ix(key);
+                const keyBitChunk = bitsChunk!ix(key);
                 if (auto currBM = curr.peek!BM)
                 {
                     assert(currBM != BM.oneSet);
-                    if (!currBM.subs[chunkBits])
+                    if (!currBM.subs[keyBitChunk])
                     {
                         return false;
                     }
@@ -420,7 +423,7 @@ struct RadixTree(Key,
                     {
                         static if (isFixedTrieableKeyType!Key)
                         {
-                            if (currBM.subs[chunkBits].peek!BM == BM.oneSet)
+                            if (currBM.subs[keyBitChunk].peek!BM == BM.oneSet)
                             {
                                 return true;
                             }
@@ -437,10 +440,13 @@ struct RadixTree(Key,
                                 return true;
                             }
                         }
-                        curr = currBM.subs[chunkBits];
+                        curr = currBM.subs[keyBitChunk];
                     }
                 }
-                else if (const currLM = curr.peek!LM) { assert(false, "TODO"); }
+                else if (const currLM = curr.peek!LM)
+                {
+                    return currLM._bits[keyBitChunk];
+                }
                 else if (curr) { assert(false, "Unknown type of non-null pointer"); }
             }
             return false;
@@ -477,7 +483,7 @@ struct RadixTree(Key,
     NodeType* allocateNode(NodeType)() @trusted
     {
         NodeType* node = cast(typeof(return))calloc(1, NodeType.sizeof);
-        debug ++_branchCount;
+        debug ++_nodeCount;
         return node;
     }
 
@@ -495,7 +501,7 @@ struct RadixTree(Key,
             }
             else if (auto subLM = sub.peek!LM)
             {
-                assert(false, "TODO");
+                // ok
             }
             else if (curr)
             {
@@ -524,10 +530,10 @@ struct RadixTree(Key,
         }
     }
 
-    void deallocateNode(NodeType)(NodeType* branch) @trusted
+    void deallocateNode(NodeType)(NodeType* nt) @trusted
     {
-        debug --_branchCount;
-        free(cast(void*)branch);  // TODO Allocator.free
+        debug --_nodeCount;
+        free(cast(void*)nt);  // TODO Allocator.free
     }
 
     void makeRoot()
@@ -536,10 +542,10 @@ struct RadixTree(Key,
     }
 
     /// Returns: number of branches used in `this` tree.
-    debug size_t branchCount() @safe pure nothrow @nogc { return _branchCount; }
+    debug size_t branchCount() @safe pure nothrow @nogc { return _nodeCount; }
 
     private Node _root;
-    debug size_t _branchCount = 0;
+    debug size_t _nodeCount = 0;
 }
 alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
@@ -547,7 +553,7 @@ alias CompactPrefixTree = RadixTree;
 /// Instantiator of radix tree set.
 auto radixTreeSet(Key, size_t radix = 4)() { return RadixTree!(Key, void, radix)(); }
 
-/// Instantiator of radix tree map.
+/// Instantiator of radix tree map.73
 auto radixTreeMap(Key, Value, size_t radix = 4)() { return RadixTree!(Key, Value, radix)(); }
 
 auto check()
@@ -584,8 +590,6 @@ auto check()
 
             // debug assert(set.branchCount == 40);
 
-            dln("DONE testing!");
-
             auto map = radixTreeMap!(Key, Value);
             static assert(map.isMap);
 
@@ -618,17 +622,32 @@ version(benchmark) unittest
 
             import std.conv : to;
             import std.datetime : StopWatch, AutoStart, Duration;
+
             enum n = 10_000_000;
-            auto sw = StopWatch(AutoStart.yes);
-            foreach (Key k; 0.iota(n))
+
             {
-                assert(set.insert(k)); // insert new value returns `true`
+                auto sw = StopWatch(AutoStart.yes);
+                foreach (Key k; 0.iota(n))
+                {
+                    assert(set.insert(k)); // insert new value returns `true`
+                }
+
+                dln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
+                dln("BranchUsageHistogram: ", set.branchUsageHistogram);
+                sleep(5);
+                dln("Sleeping done");
             }
 
-            dln("Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
-            dln("BranchUsageHistogram: ", set.branchUsageHistogram);
-            sleep(5);
-            dln("Sleeping done");
+            {
+                auto sw = StopWatch(AutoStart.yes);
+                bool[int] aa;
+                foreach (Key k; 0.iota(n))
+                {
+                    aa[k] = true;
+                }
+
+                dln("D-AA: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
+            }
 
             auto map = radixTreeMap!(Key, Value);
             static assert(map.isMap);

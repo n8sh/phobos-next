@@ -166,17 +166,17 @@ struct RadixTree(Key,
             foreach (next; nexts[].filter!(next => next))
             {
                 ++nzcnt;
-                if (const nextBranchM = next.peek!(typeof(this)))
+                if (const nextBranchM = next.peek!BranchM)
                 {
                     nextBranchM.calculate(hist);
                 }
-                else if (const leafM = next.peek!(LeafM))
+                else if (const nextLeafM = next.peek!LeafM)
                 {
-                    leafM.calculate(hist);
+                    nextLeafM.calculate(hist);
                 }
-                else
+                else if (next)
                 {
-                    assert(false, "Unknown pointer");
+                    assert(false, "Unknown type of non-null pointer");
                 }
             }
             ++hist[nzcnt - 1];
@@ -226,9 +226,17 @@ struct RadixTree(Key,
     {
         typeof(return) hist;
         // TODO reuse rangeinterface when made available
-        if (const branchM = _rootPtr.peek!(BranchM))
+        if (const branchM = _rootPtr.peek!BranchM)
         {
             branchM.calculate(hist);
+        }
+        else if (const nextLeafM = _rootPtr.peek!LeafM)
+        {
+            assert(false, "TODO");
+        }
+        else if (_rootPtr)
+        {
+            assert(false, "Unknown type of non-null pointer");
         }
         return hist;
     }
@@ -307,9 +315,9 @@ struct RadixTree(Key,
                     {
                         assert(false, "TODO");
                     }
-                    else
+                    else if (currPtr)
                     {
-                        assert(false, "TODO");
+                        assert(false, "Unknown type of non-null pointer");
                     }
                 }
                 else            // this is the last iteration
@@ -348,9 +356,9 @@ struct RadixTree(Key,
                     {
                         assert(false, "TODO");
                     }
-                    else
+                    else if (currPtr)
                     {
-                        assert(false, "TODO");
+                        assert(false, "Unknown type of non-null pointer");
                     }
                 }
             }
@@ -392,6 +400,14 @@ struct RadixTree(Key,
                         }
                         currBranchM = currBranchM.nexts[chunkBits].peek!BranchM;
                     }
+                }
+                else if (auto currLeafM = currPtr.peek!LeafM)
+                {
+                    assert(false, "TODO");
+                }
+                else if (currPtr)
+                {
+                    assert(false, "Unknown type of non-null pointer");
                 }
             }
             return false;
@@ -442,6 +458,14 @@ struct RadixTree(Key,
             {
                 release(nextBranchM);  // recurse
             }
+            else if (auto nextLeafM = next.peek!LeafM)
+            {
+                assert(false, "TODO");
+            }
+            else if (currPtr)
+            {
+                assert(false, "Unknown type of non-null pointer");
+            }
         }
         deallocateNode(currPtr);
     }
@@ -451,6 +475,14 @@ struct RadixTree(Key,
         if (auto nextBranchM = currPtr.peek!BranchM)
         {
             release(nextBranchM);  // recurse
+        }
+        else if (auto nextLeafM = currPtr.peek!LeafM)
+        {
+            assert(false, "TODO");
+        }
+        else if (currPtr)
+        {
+            assert(false, "Unknown type of non-null pointer");
         }
     }
 

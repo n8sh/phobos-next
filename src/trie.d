@@ -12,7 +12,7 @@
     TODO Andrei!: Provide in operator for fixed-length keys!?
 
     TODO Add RadixTreeRange.{front,popFront,empty}. Reuse RefCounted reference
-    to _rootPtr. Add checks with `isSorted`.
+    to _root. Add checks with `isSorted`.
 
     TODO Name members so they indicate that range isSorted.
 
@@ -27,8 +27,8 @@
     TODO Should opBinaryRight return void* instead of bool for set-case?
 
     TODO Replace
-    - if (auto currBM = currPtr.peek!BM)
-    - else if (const currLM = currPtr.peek!LM)
+    - if (auto currBM = curr.peek!BM)
+    - else if (const currLM = curr.peek!LM)
     with some compacter logic perhaps using mixins or pattern matching using
     switch-case on internally store type in `VariantPointer`.
 
@@ -131,7 +131,7 @@ struct RadixTree(Key,
     alias NodeTypes = AliasSeq!(BM, LM);
 
     /** Mutable node. */
-    alias NodePtr = VariantPointer!(NodeTypes);
+    alias Node = VariantPointer!(NodeTypes);
     /** Constant node. */
     alias ConstNodePtr = VariantPointer!(staticMap!(ConstOf, NodeTypes));
 
@@ -152,7 +152,7 @@ struct RadixTree(Key,
             static immutable allSet = cast(typeof(this)*)size_t.max;
         }
 
-        NodePtr[M] subs;        // sub-branches
+        Node[M] subs;        // sub-branches
 
         /** Returns: depth of tree at this branch. */
         // size_t linearDepth() @safe pure nothrow const
@@ -229,25 +229,25 @@ struct RadixTree(Key,
     /// Get depth of tree.
     // size_t depth() @safe pure nothrow const
     // {
-    //     return _rootPtr !is null ? _rootPtr.linearDepth : 0;
+    //     return _root !is null ? _root.linearDepth : 0;
     // }
 
     BranchUsageHistogram branchUsageHistogram() const
     {
         typeof(return) hist;
         // TODO reuse rangeinterface when made available
-        if (const bM = _rootPtr.peek!BM)
+        if (const bM = _root.peek!BM)
         {
             if (bM != BM.oneSet)
             {
                 bM.calculate(hist);
             }
         }
-        else if (const subLM = _rootPtr.peek!LM)
+        else if (const subLM = _root.peek!LM)
         {
             assert(false, "TODO");
         }
-        else if (_rootPtr)
+        else if (_root)
         {
             assert(false, "Unknown type of non-null pointer");
         }
@@ -256,11 +256,11 @@ struct RadixTree(Key,
 
     this(this)
     {
-        if (!_rootPtr.ptr) return;
-        auto oldRootPtr = _rootPtr;
+        if (!_root.ptr) return;
+        auto oldRootPtr = _root;
         makeRoot;
-        auto currPtr = oldRootPtr;
-        while (currPtr)
+        auto curr = oldRootPtr;
+        while (curr)
         {
             // TODO iterative or recursive?
         }
@@ -269,7 +269,7 @@ struct RadixTree(Key,
 
     ~this()
     {
-        if (_rootPtr) { release(_rootPtr); }
+        if (_root) { release(_root); }
         debug assert(_branchCount == 0);
     }
 
@@ -308,30 +308,17 @@ struct RadixTree(Key,
         {
             makeRoot;
 
-            NodePtr currPtr = _rootPtr;
+            Node curr = _root;
             foreach (const ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
                 const chunkBits = bitsChunk!ix(key);
 
                 enum isLast = ix + 1 == maxDepth; // if this is the last chunk
                 enum isSecondLast = ix + 2 == maxDepth; // if this is the second last chunk
-                static if (!isLast)                     // not last
+
+                static if (isSecondLast)
                 {
-                    if (auto currBM = currPtr.peek!BM)
-                    {
-                        assert(currBM != BM.oneSet);
-                        if (!currBM.subs[chunkBits]) // if branch not yet visited
-                        {
-                            currBM.subs[chunkBits] = allocateNode!BM; // create it
-                        }
-                        currPtr = currBM.subs[chunkBits]; // and visit it
-                    }
-                    else if (auto currLM = currPtr.peek!LM) { assert(false, "TODO"); }
-                    else if (currPtr) { assert(false, "Unknown type of non-null pointer"); }
-                }
-                else static if (isSecondLast) // second last
-                {
-                    if (auto currBM = currPtr.peek!BM)
+                    if (auto currBM = curr.peek!BM)
                     {
                         // assert that sub is a LM
                         if (!currBM.subs[chunkBits]) // if not yet set
@@ -342,14 +329,14 @@ struct RadixTree(Key,
                         {
                             assert(currBM.subs[chunkBits].peek!LM);
                         }
-                        currPtr = currBM.subs[chunkBits]; // and visit it
+                        curr = currBM.subs[chunkBits]; // and visit it
                     }
-                    else if (auto currLM = currPtr.peek!LM) { assert(false, "TODO"); }
-                    else if (currPtr) { assert(false, "Unknown type of non-null pointer"); }
+                    else if (auto currLM = curr.peek!LM) { assert(false, "TODO"); }
+                    else if (curr) { assert(false, "Unknown type of non-null pointer"); }
                 }
-                else            // last
+                else static if (isLast)
                 {
-                    if (auto currBM = currPtr.peek!BM)
+                    if (auto currBM = curr.peek!BM) // branch-M
                     {
                         assert(currBM != BM.oneSet);
                         if (!currBM.subs[chunkBits])
@@ -368,19 +355,19 @@ struct RadixTree(Key,
                             {
                                 dln("TODO");
                                 // TODO test this
-                                if (currPtr.isOccupied)
+                                if (curr.isOccupied)
                                 {
                                     return false;
                                 }
                                 else
                                 {
-                                    currPtr.isOccupied = false;
+                                    curr.isOccupied = false;
                                     return true;
                                 }
                             }
                         }
                     }
-                    else if (auto currLM = currPtr.peek!LM)
+                    else if (auto currLM = curr.peek!LM) // leaf-M
                     {
                         if (!currLM._bits[chunkBits])
                         {
@@ -393,7 +380,21 @@ struct RadixTree(Key,
 
                         assert(false, "TODO");
                     }
-                    else if (currPtr) { assert(false, "Unknown type of non-null pointer"); }
+                    else if (curr) { assert(false, "Unknown type of non-null pointer"); }
+                }
+                else            // other
+                {
+                    if (auto currBM = curr.peek!BM)
+                    {
+                        assert(currBM != BM.oneSet);
+                        if (!currBM.subs[chunkBits]) // if branch not yet visited
+                        {
+                            currBM.subs[chunkBits] = allocateNode!BM; // create it
+                        }
+                        curr = currBM.subs[chunkBits]; // and visit it
+                    }
+                    else if (auto currLM = curr.peek!LM) { assert(false, "TODO"); }
+                    else if (curr) { assert(false, "Unknown type of non-null pointer"); }
                 }
             }
             assert(false, "End of function should be reached");
@@ -402,13 +403,13 @@ struct RadixTree(Key,
         /** Returns: `true` if key is contained in set, `false` otherwise. */
         bool contains(Key key) const nothrow
         {
-            if (!_rootPtr) { return false; }
+            if (!_root) { return false; }
 
-            NodePtr currPtr = _rootPtr;
+            Node curr = _root;
             foreach (const ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
                 const chunkBits = bitsChunk!ix(key);
-                if (auto currBM = currPtr.peek!BM)
+                if (auto currBM = curr.peek!BM)
                 {
                     assert(currBM != BM.oneSet);
                     if (!currBM.subs[chunkBits])
@@ -436,11 +437,11 @@ struct RadixTree(Key,
                                 return true;
                             }
                         }
-                        currPtr = currBM = currBM.subs[chunkBits].peek!BM;
+                        curr = currBM.subs[chunkBits];
                     }
                 }
-                else if (const currLM = currPtr.peek!LM) { assert(false, "TODO"); }
-                else if (currPtr) { assert(false, "Unknown type of non-null pointer"); }
+                else if (const currLM = curr.peek!LM) { assert(false, "TODO"); }
+                else if (curr) { assert(false, "Unknown type of non-null pointer"); }
             }
             return false;
         }
@@ -477,14 +478,13 @@ struct RadixTree(Key,
     {
         NodeType* node = cast(typeof(return))calloc(1, NodeType.sizeof);
         debug ++_branchCount;
-        assert(node.subs[].all!(x => !x));
         return node;
     }
 
-    void release(BM* currPtr) pure nothrow
+    void release(BM* curr) pure nothrow
     {
         import std.algorithm : count, filter;
-        foreach (sub; currPtr.subs[].filter!(sub => sub))
+        foreach (sub; curr.subs[].filter!(sub => sub))
         {
             if (auto subBM = sub.peek!BM)
             {
@@ -497,28 +497,28 @@ struct RadixTree(Key,
             {
                 assert(false, "TODO");
             }
-            else if (currPtr)
+            else if (curr)
             {
                 assert(false, "Unknown type of non-null pointer");
             }
         }
-        deallocateNode(currPtr);
+        deallocateNode(curr);
     }
 
-    void release(NodePtr currPtr) pure nothrow
+    void release(Node curr) pure nothrow
     {
-        if (auto subBM = currPtr.peek!BM)
+        if (auto subBM = curr.peek!BM)
         {
             if (subBM != BM.oneSet)
             {
                 release(subBM);  // recurse
             }
         }
-        else if (auto subLM = currPtr.peek!LM)
+        else if (auto subLM = curr.peek!LM)
         {
             assert(false, "TODO");
         }
-        else if (currPtr)
+        else if (curr)
         {
             assert(false, "Unknown type of non-null pointer");
         }
@@ -532,13 +532,13 @@ struct RadixTree(Key,
 
     void makeRoot()
     {
-        if (!_rootPtr.ptr) { _rootPtr = allocateNode!BM; }
+        if (!_root.ptr) { _root = allocateNode!BM; }
     }
 
     /// Returns: number of branches used in `this` tree.
     debug size_t branchCount() @safe pure nothrow @nogc { return _branchCount; }
 
-    private NodePtr _rootPtr;
+    private Node _root;
     debug size_t _branchCount = 0;
 }
 alias RadixTrie = RadixTree;

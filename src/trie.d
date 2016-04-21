@@ -393,6 +393,7 @@ struct RadixTree(Key,
                 const chunkBits = bitsChunk!(ix)(key);
                 if (auto currBranchM = currPtr.peek!BranchM)
                 {
+                    assert(currBranchM != BranchM.oneSet);
                     if (!currBranchM.nexts[chunkBits])
                     {
                         return false;

@@ -309,7 +309,7 @@ struct RadixTree(Key,
         {
             makeRoot;
 
-            auto currPtr = _rootPtr;
+            NodePtr currPtr = _rootPtr;
             foreach (ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
                 const chunkBits = bitsChunk!(ix)(key);

@@ -201,18 +201,26 @@ struct RadixTree(Key,
             import std.range : iota;
             foreach (const i; 0.iota(M))
             {
-                ++hist[i];
+                if (keyLSBits[i])
+                    ++hist[i];
             }
         }
 
         import bitset : BitSet;
-        private BitSet!M _bits; // if i:th bit is set corresponding sub is set
+        private BitSet!M keyLSBits; // if i:th bit is set corresponding sub is set
 
-        alias _bits this;
+        alias keyLSBits this;
 
         static if (isMap)
         {
-            Value[M] values;
+            static if (is(Value == bool))
+            {
+                BitSet!M values;
+            }
+            else
+            {
+                Value[M] values;
+            }
         }
     }
 
@@ -292,9 +300,13 @@ struct RadixTree(Key,
     static if (isSet)
     {
         /** Insert `key`.
-            Returns: `false` if key was previously already inserted, `true` otherwise.
+
+            Returns: a non-null Node if key was previously already inserted,
+            `Node(null)` otherwise. This return value can then be used for map's
+            `insert(Key key, Value value)` so a single implementation for
+            `insert` can be used for both set and map variant.
         */
-        bool insert(Key key)
+        Node insert(Key key)
         {
             makeRoot;
 
@@ -332,14 +344,14 @@ struct RadixTree(Key,
                         if (!currBM.subs[keyBitChunk])
                         {
                             currBM.subs[keyBitChunk] = BM.oneSet; // tag this as last
-                            return true; // a new value was inserted
+                            return Node(currBM); // a new value was inserted
                         }
                         else
                         {
                             static if (isFixedTrieableKeyType!Key)
                             {
                                 assert(currBM.subs[keyBitChunk].peek!BM == BM.oneSet);
-                                return false; // value already set
+                                return Node(null); // value already set
                             }
                             else
                             {
@@ -347,25 +359,26 @@ struct RadixTree(Key,
                                 // TODO test this
                                 if (curr.isOccupied)
                                 {
-                                    return false;
+                                    return Node(null);
                                 }
                                 else
                                 {
                                     curr.isOccupied = false;
-                                    return true;
+                                    return Node(currBM);
                                 }
                             }
                         }
                     }
                     else if (auto currLM = curr.peek!LM) // leaf-M
                     {
-                        if (!currLM._bits[keyBitChunk])
+                        if (!currLM.keyLSBits[keyBitChunk])
                         {
-                            return currLM._bits[keyBitChunk] = true;
+                            currLM.keyLSBits[keyBitChunk] = true;
+                            return Node(currLM);
                         }
                         else
                         {
-                            return false;
+                            return Node(null);
                         }
 
                         assert(false, "TODO");
@@ -432,7 +445,7 @@ struct RadixTree(Key,
                 }
                 else if (const currLM = curr.peek!LM)
                 {
-                    return currLM._bits[keyBitChunk];
+                    return currLM.keyLSBits[keyBitChunk];
                 }
                 else if (curr) { assert(false, "Unknown type of non-null pointer"); }
             }

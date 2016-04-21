@@ -135,25 +135,24 @@ struct RadixTree(Key,
     /** Constant node. */
     alias ConstNodePtr = VariantPointer!(staticMap!(ConstOf, NodeTypes));
 
+    alias Nexts = NodePtr[M];
+
+    alias BranchUsageHistogram = size_t[M];
+
     /** Non-bottom branch node containing densly packed array of `M` number of
         pointers to sub-`BranchM`s or `Leaf`s.
     */
     static private struct BranchM
     {
-        alias BranchUsageHistogram = size_t[M];
-
-        enum isMap = !is(Value == void);
-
-        /// `true` if tree has fixed max depth.
-        enum isFixed = isFixedTrieableKeyType!Key;
-
         /// Indicates that only child at this index is occupied.
         static immutable oneSet = cast(typeof(this)*)1UL;
 
-        /// Indicates that all children are occupied (typically only for fixed-sized types).
-        // static immutable allSet = cast(typeof(this)*)size_t.max;
+        /// Indicates that all children of `this` branch are occupied (fixed-sized Keys).
+        static if (isFixed)
+        {
+            static immutable allSet = cast(typeof(this)*)size_t.max;
+        }
 
-        alias Nexts = NodePtr[M];
         Nexts nexts;
 
         /** Returns: depth of tree at this branch. */
@@ -205,8 +204,6 @@ struct RadixTree(Key,
     */
     static private struct LeafM
     {
-        alias BranchUsageHistogram = size_t[M];
-
         void calculate(ref BranchUsageHistogram hist) @safe pure const
         {
             import std.range : iota;
@@ -227,8 +224,6 @@ struct RadixTree(Key,
     // {
     //     return _rootPtr !is null ? _rootPtr.linearDepth : 0;
     // }
-
-    alias BranchUsageHistogram = size_t[M];
 
     BranchUsageHistogram branchUsageHistogram() const
     {

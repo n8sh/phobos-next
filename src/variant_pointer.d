@@ -47,6 +47,18 @@ struct VariantPointer(Types...)
         return _raw.hashOf;
     }
 
+    @property string toString() const @trusted // TODO pure
+    {
+        import std.conv : to;
+        final switch (currentIndex)
+        {
+            foreach (const i, T; Types)
+            {
+            case i: return T.stringof ~ `@` ~ ptr.to!string;
+            }
+        }
+    }
+
     pure nothrow @nogc:
 
     this(T)(T* value)
@@ -94,10 +106,16 @@ struct VariantPointer(Types...)
                 (cast(S)(indexOf!T) << typeShift)); // use higher bits for type information
     }
 
+    /** Get zero-offset index of current variant type. */
+    private auto currentIndex() const @safe pure nothrow @nogc
+    {
+        return (_raw & typeMask) >> typeShift;
+    }
+
     private bool isOfType(T)() @safe const nothrow @nogc
         if (allows!T)
     {
-        return ((_raw & typeMask) >> typeShift) == indexOf!T;
+        return currentIndex == indexOf!T;
     }
 
     private S _raw;

@@ -2,7 +2,8 @@
 
     See also: https://en.wikipedia.org/wiki/Trie
 
-    TODO Move node types into RadixTree definition.
+    TODO if `Value` is a `isScalarType` store it in Value[M]
+    TODO if `Value` is a `bool` store it in bitset
 
     TODO Andrei!: SortedRange must be extended to hold these InputRanges aswell.
 

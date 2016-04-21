@@ -2,6 +2,8 @@
 
     See also: https://en.wikipedia.org/wiki/Trie
 
+    TODO Need bijectToUnsigned in intsort to support ordered storage of float and double.
+
     TODO Add sparse 2^^n-branches for n < radix: 2^^1=B2, 2^^2=B4, 2^^3=B8, B^^4=B16. Use
     sortExactly from sortn.d to order their members.
 
@@ -96,7 +98,6 @@ struct RadixTree(Key,
     static assert(radix <= 32, "Radix is currently limited to 32"); // TODO adjust?
     static assert(radix <= 8*Key.sizeof, "Radix must be less than or equal to Key bit-precision"); // TODO Use strictly less than: radix < ... instead?
 
-    import std.algorithm : all;
     import bitop_ex : UnsignedOfSameSizeAs;
 
     enum isSet = is(Value == void); // `true` if this tree is a set

@@ -467,7 +467,10 @@ struct RadixTree(Key,
         {
             if (auto nextBranchM = next.peek!BranchM)
             {
-                release(nextBranchM);  // recurse
+                if (nextBranchM != BranchM.oneSet)
+                {
+                    release(nextBranchM);  // recurse
+                }
             }
             else if (auto nextLeafM = next.peek!LeafM)
             {
@@ -485,7 +488,10 @@ struct RadixTree(Key,
     {
         if (auto nextBranchM = currPtr.peek!BranchM)
         {
-            release(nextBranchM);  // recurse
+            if (nextBranchM != BranchM.oneSet)
+            {
+                release(nextBranchM);  // recurse
+            }
         }
         else if (auto nextLeafM = currPtr.peek!LeafM)
         {

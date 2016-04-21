@@ -378,10 +378,11 @@ struct RadixTree(Key,
         {
             if (!_rootPtr) { return false; }
 
-            auto currPtr = _rootPtr;
+            NodePtr currPtr = _rootPtr;
             foreach (ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
                 const chunkBits = bitsChunk!(ix)(key);
+                dln(currPtr);
                 if (auto currBranchM = currPtr.peek!BranchM)
                 {
                     if (!currBranchM.nexts[chunkBits])
@@ -406,10 +407,7 @@ struct RadixTree(Key,
                                 return true;
                             }
                         }
-                        currBranchM = currBranchM.nexts[chunkBits].peek!BranchM;
-                        pragma(msg, typeof(currBranchM));
-                        pragma(msg, typeof(currPtr));
-                        currPtr = currBranchM;
+                        currPtr = currBranchM = currBranchM.nexts[chunkBits].peek!BranchM;
                     }
                 }
                 else if (const currLeafM = currPtr.peek!LeafM)

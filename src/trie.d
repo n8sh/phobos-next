@@ -5,9 +5,9 @@
     TODO if `Value` is a `isScalarType` store it in Value[M]
     TODO if `Value` is a `bool` store it in bitset
 
-    TODO Andrei!: SortedRange must be extended to hold these InputRanges aswell.
+    TODO Andrei!: Provide `opIndex` and make `opSlice` for set-case (`Value` is `void`) return `SortedRange`
 
-    TODO Andrei!: Provide RandomAccess opIndex and opSlice! for fixed-length keys?
+    TODO Andrei!: Provide RandomAccess `opIndex` and `opSlice`! for variable-length keys aswell?
 
     TODO Andrei!: Provide in operator for fixed-length keys!?
 

@@ -400,7 +400,7 @@ struct RadixTree(Key,
                     else if (curr) { assert(false, "Unknown type of non-null pointer"); }
                 }
             }
-            assert(false, "End of function should be reached");
+            assert(false, "End of function shouldn't be reached");
         }
 
         /** Returns: `true` if key is contained in set, `false` otherwise. */

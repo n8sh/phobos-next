@@ -6,7 +6,7 @@ module variant_pointer;
     pointer. Typically most significant bits are used to store type
     information. These are normally unused on 64-bit systems.
 
-    TODO Make typeIndex start at 1 for defined types
+    TODO Make typeIndex start at 1 for defined types. Defaults to zero for null.
 
     TODO Ask forum.dlang.org: Is it safe to assume that `typeBits` most significant bits of a
     pointer are zero?

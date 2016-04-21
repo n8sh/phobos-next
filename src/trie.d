@@ -175,7 +175,10 @@ struct RadixTree(Key,
                 ++nzcnt;
                 if (const nextBranchM = next.peek!BranchM)
                 {
-                    nextBranchM.calculate(hist);
+                    if (nextBranchM != oneSet)
+                    {
+                        nextBranchM.calculate(hist);
+                    }
                 }
                 else if (const nextLeafM = next.peek!LeafM)
                 {
@@ -236,7 +239,10 @@ struct RadixTree(Key,
         // TODO reuse rangeinterface when made available
         if (const branchM = _rootPtr.peek!BranchM)
         {
-            branchM.calculate(hist);
+            if (branchM != BranchM.oneSet)
+            {
+                branchM.calculate(hist);
+            }
         }
         else if (const nextLeafM = _rootPtr.peek!LeafM)
         {
@@ -313,6 +319,7 @@ struct RadixTree(Key,
                 {
                     if (auto currBranchM = currPtr.peek!BranchM)
                     {
+                        assert(currBranchM != BranchM.oneSet);
                         if (!currBranchM.nexts[chunkBits]) // if branch not yet visited
                         {
                             currBranchM.nexts[chunkBits] = allocateNode!BranchM; // create it
@@ -332,6 +339,7 @@ struct RadixTree(Key,
                 {
                     if (auto currBranchM = currPtr.peek!BranchM)
                     {
+                        assert(currBranchM != BranchM.oneSet);
                         if (!currBranchM.nexts[chunkBits])
                         {
                             currBranchM.nexts[chunkBits] = BranchM.oneSet; // tag this as last

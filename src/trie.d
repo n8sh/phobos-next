@@ -209,8 +209,6 @@ struct RadixTree(Key,
         import bitset : BitSet;
         private BitSet!M keyLSBits; // if i:th bit is set corresponding sub is set
 
-        alias keyLSBits this;
-
         static if (isMap)
         {
             static if (is(Value == bool))

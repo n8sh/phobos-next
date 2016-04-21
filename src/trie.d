@@ -192,10 +192,10 @@ struct RadixTree(Key,
         static if (!isFixed)        // variable length keys only
         {
             LeafM nextOccupations; // if i:th bit is set key (and optionally value) associated with next[i] is also defined
-        }
-        static if (isMap)
-        {
-            Value value;
+            static if (isMap)
+            {
+                Value value;
+            }
         }
     }
 
@@ -217,6 +217,11 @@ struct RadixTree(Key,
         private BitSet!M _bits; // if i:th bit is set corresponding next is set
 
         alias _bits this;
+
+        static if (isMap)
+        {
+            Value[M] values; // values
+        }
     }
 
     /// Get depth of tree.

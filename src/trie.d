@@ -311,7 +311,7 @@ struct RadixTree(Key,
             makeRoot;
 
             NodePtr currPtr = _rootPtr;
-            foreach (ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
+            foreach (const ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
                 const chunkBits = bitsChunk!ix(key);
 
@@ -388,7 +388,7 @@ struct RadixTree(Key,
             if (!_rootPtr) { return false; }
 
             NodePtr currPtr = _rootPtr;
-            foreach (ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
+            foreach (const ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
                 const chunkBits = bitsChunk!ix(key);
                 if (auto currBranchM = currPtr.peek!BranchM)

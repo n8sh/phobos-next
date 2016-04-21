@@ -220,7 +220,7 @@ struct RadixTree(Key,
 
         static if (isMap)
         {
-            Value[M] values; // values
+            Value[M] values;
         }
     }
 

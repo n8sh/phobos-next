@@ -313,7 +313,7 @@ struct RadixTree(Key,
             NodePtr currPtr = _rootPtr;
             foreach (ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
-                const chunkBits = bitsChunk!(ix)(key);
+                const chunkBits = bitsChunk!ix(key);
 
                 enum isLast = ix + 1 == maxDepth; // if this is the last chunk
                 static if (!isLast) // this is not the last
@@ -390,7 +390,7 @@ struct RadixTree(Key,
             NodePtr currPtr = _rootPtr;
             foreach (ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
-                const chunkBits = bitsChunk!(ix)(key);
+                const chunkBits = bitsChunk!ix(key);
                 if (auto currBranchM = currPtr.peek!BranchM)
                 {
                     assert(currBranchM != BranchM.oneSet);

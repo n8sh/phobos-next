@@ -362,7 +362,7 @@ struct RadixTree(Key,
         {
             if (!_rootPtr) { return false; }
 
-            auto currPtr = _rootPtr; // TODO use constRoot
+            auto currPtr = _rootPtr;
             foreach (ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
                 const chunkBits = bitsChunk!(ix)(key);
@@ -464,11 +464,6 @@ struct RadixTree(Key,
     {
         if (!_rootPtr.ptr) { _rootPtr = allocateNode!BranchM; }
     }
-
-    // auto ref constRoot() const pure @trusted nothrow @nogc
-    // {
-    //     return cast(ConstNodePtr)_rootPtr;
-    // }
 
     /// Returns: number of branches used in `this` tree.
     debug size_t branchCount() @safe pure nothrow @nogc { return _branchCount; }

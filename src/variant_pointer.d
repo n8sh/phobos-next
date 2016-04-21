@@ -15,6 +15,8 @@ module variant_pointer;
     Can the GC be tweaked to mask out the type bits before scanning?
 
     TODO Enable support for is null instead of isNull?
+
+    TODO Use `enforce()` instead of `assert()` in VariantPointer:init()
  */
 struct VariantPointer(Types...)
 {
@@ -83,7 +85,8 @@ struct VariantPointer(Types...)
     private void init(T)(T* that)
     in
     {
-            assert(!(cast(S)that & typeMask)); // check that top-most bits of pointer aren't already occupied
+        // TODO use enforce instead?
+        assert(!(cast(S)that & typeMask)); // check that top-most bits of pointer aren't already occupied
     }
     body
     {

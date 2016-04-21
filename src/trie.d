@@ -147,9 +147,10 @@ struct RadixTree(Key,
         /// Indicates that only child at this index is occupied.
         static immutable oneSet = cast(typeof(this)*)1UL;
 
-        /// Indicates that all children of `this` branch are occupied (fixed-sized Keys).
         static if (isFixed)
         {
+            /** Indicates that all children of `this` branch are occupied. Only
+                for fixed-sized `Keys`. */
             static immutable allSet = cast(typeof(this)*)size_t.max;
         }
 
@@ -175,7 +176,7 @@ struct RadixTree(Key,
                 ++nzcnt;
                 if (const nextBranchM = next.peek!BranchM)
                 {
-                    if (nextBranchM != oneSet)
+                    if (nextBranchM != BranchM.oneSet)
                     {
                         nextBranchM.calculate(hist);
                     }

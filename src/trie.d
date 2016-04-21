@@ -538,7 +538,7 @@ auto check()
 
             static assert(set.isSet);
 
-            foreach (Key k; 0.iota(4))
+            foreach (Key k; 0.iota(512))
             {
                 assert(!set.contains(k));
 

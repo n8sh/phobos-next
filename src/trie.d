@@ -24,6 +24,8 @@
 
     TODO RadixTree: Assigning a void pointer to a class
 
+    TODO Should opBinaryRight return void* instead of bool for set-case?
+
     TODO Replace
     - if (auto currBranchM = currPtr.peek!BranchM)
     - else if (const currLeafM = currPtr.peek!LeafM)

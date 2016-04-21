@@ -18,6 +18,8 @@
 
     TODO Andrei!: Name members to indicate complexity
 
+    TODO Benchmark `contains()` and compare it to to builtin AAs.in.
+
     TODO Extend bitop_ex.d with {set,get}{Bit,Qit,Bytes} and reuse
 
     TODO RadixTree: Assigning a void pointer to a class

@@ -341,7 +341,7 @@ struct RadixTree(Key,
             {
                 if (auto currBM = curr.peek!BM)
                 {
-                    // assert that sub is a LM
+                    // make it a LM
                     if (!currBM.subs[keyBitChunk]) // if not yet set
                     {
                         currBM.subs[keyBitChunk] = allocateNode!LM;

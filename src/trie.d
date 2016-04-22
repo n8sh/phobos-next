@@ -332,7 +332,7 @@ struct RadixTree(Key,
         Node curr = _root;
         foreach (const ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
         {
-            const keyBitChunk = bitsChunk!ix(key);
+            const MIx keyBitChunk = bitsChunk!ix(key);
 
             enum isLast = ix + 1 == maxDepth; // if this is the last chunk
             enum isSecondLast = ix + 2 == maxDepth; // if this is the second last chunk
@@ -446,7 +446,7 @@ struct RadixTree(Key,
             Node curr = _root;
             foreach (const ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
-                const keyBitChunk = bitsChunk!ix(key);
+                const MIx keyBitChunk = bitsChunk!ix(key);
                 if (auto currBM = curr.peek!BM)
                 {
                     assert(currBM != BM.oneSet);
@@ -599,16 +599,15 @@ auto check()
 
             foreach (Key k; 0.iota(512))
             {
-                assert(!set.contains(k));
+                assert(!set.contains(k)); // key should not yet be in set
+                assert(k !in set);        // alternative syntax
 
-                assert(k !in set);
-
-                assert(set.insert(k)); // insert new value returns `true`
+                assert(set.insert(k));  // insert new value returns `true`
                 assert(!set.insert(k)); // reinsert same value returns `false`
                 assert(!set.insert(k)); // reinsert same value returns `false`
 
-                assert(set.contains(k));
-                assert(k in set);
+                assert(set.contains(k)); // key should now be in set
+                assert(k in set);        // alternative syntax
                 // assert(set.depth == set.maxDepth);
 
                 assert(!set.contains(k + 1)); // sub is yet inserted

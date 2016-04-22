@@ -133,14 +133,15 @@ struct RadixTree(Key,
     alias ConstNodePtr = VariantPointer!(staticMap!(ConstOf, NodeTypes));
 
     /** Radix Index */
-    alias IxM = uint;
+    import modulo : Mod;
+    alias IxM = Mod!(M, uint);
 
     /** Tree Iterator. */
     struct It
     {
         bool opCast(T : bool)() const @safe pure nothrow @nogc { return cast(bool)node; }
         Node node;
-        IxM mix;
+        IxM ixM;
     }
 
     /** Tree Key Find Result. */
@@ -148,10 +149,10 @@ struct RadixTree(Key,
     {
         /* this save 8 bytes and makes this struct 16 bytes instead of 24 bytes
            compared using a member It instead of Node and IxM */
-        auto it() { return It(node, mix); }
+        auto it() { return It(node, ixM); }
         bool opCast(T : bool)() const @safe pure nothrow @nogc { return hit; }
         Node node;
-        IxM mix;
+        IxM ixM;
         bool hit;
     }
 
@@ -655,6 +656,7 @@ version(benchmark) unittest
         {
             auto sw = StopWatch(AutoStart.yes);
 
+            // TODO functionize to randomIota
             auto samples = 0.iota(n).array;
             samples.randomShuffle;
             foreach (Key k; samples) { assert(set.insert(k)); }
@@ -671,6 +673,7 @@ version(benchmark) unittest
             auto sw = StopWatch(AutoStart.yes);
             bool[int] aa;
 
+            // TODO functionize to randomIota
             auto samples = 0.iota(n).array;
             samples.randomShuffle;
             foreach (Key k; samples) { aa[k] = true; }

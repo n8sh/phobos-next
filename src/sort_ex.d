@@ -210,13 +210,24 @@ unittest
     assert(equal(x.sorted, [1, 2, 3]));
 }
 
+import std.random : Random;
+
 /** Functional version of `std.random.randomShuffle`.
 
     Returns: $(D r) randomly shuffled.
 
     If needed a GC-copy of $(D r) is allocated, sorted and returned.
 */
-auto randomlyShuffled(R, E = ElementType!R)(R r)
+auto randomlyShuffled(Range, RandomGen)(Range r, ref RandomGen gen)
+{
+    import std.random : randomShuffle;
+    r.randomShuffle(gen);
+    // TODO reuse copying logic in `sorted`
+    return r;
+}
+
+///
+auto randomlyShuffled(Range)(Range r)
 {
     import std.random : randomShuffle;
     r.randomShuffle();
@@ -225,11 +236,12 @@ auto randomlyShuffled(R, E = ElementType!R)(R r)
 }
 
 ///
-@safe unittest
+@safe pure unittest
 {
     immutable x = [3, 2, 1];
     auto y = x.dup;
-    y.randomlyShuffled;
+    Random random;
+    y.randomlyShuffled(random);
 }
 
 // /** Assign-Sort-4 \p a, \p b, \p c and \p d into \p k, \p l, \p m and \p n .

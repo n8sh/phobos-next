@@ -645,52 +645,59 @@ version(benchmark) unittest
 {
     import core.thread : sleep;
     import std.range : iota;
-    foreach (const it; 0.iota(1))
+
+    import std.algorithm : equal;
+    struct TestValueType { int i; float f; string s; }
+    alias Value = TestValueType;
+    import std.meta : AliasSeq;
+    foreach (Key; AliasSeq!(uint))
     {
-        import std.algorithm : equal;
-        struct TestValueType { int i; float f; string s; }
-        alias Value = TestValueType;
-        import std.meta : AliasSeq;
-        foreach (Key; AliasSeq!(uint))
+        auto set = radixTreeSet!(Key);
+
+        static assert(set.isSet);
+
+        import std.conv : to;
+        import std.datetime : StopWatch, AutoStart, Duration;
+
+        enum n = 10_000_000;
+
+        import std.array : array;
+        import std.random : randomShuffle;
+
         {
-            auto set = radixTreeSet!(Key);
+            auto sw = StopWatch(AutoStart.yes);
 
-            static assert(set.isSet);
-
-            import std.conv : to;
-            import std.datetime : StopWatch, AutoStart, Duration;
-
-            enum n = 10_000_000;
-
+            auto samples = 0.iota(n).array;
+            samples.randomShuffle;
+            foreach (Key k; samples)
             {
-                auto sw = StopWatch(AutoStart.yes);
-                foreach (Key k; 0.iota(n))
-                {
-                    assert(set.insert(k)); // insert new value returns `true`
-                }
-
-                dln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
-                dln("BranchUsageHistogram: ", set.branchUsageHistogram);
-                sleep(5);
-                dln("Sleeping done");
+                assert(set.insert(k)); // insert new value returns `true`
             }
 
-            {
-                auto sw = StopWatch(AutoStart.yes);
-                bool[int] aa;
-                foreach (Key k; 0.iota(n))
-                {
-                    aa[k] = true;
-                }
-
-                dln("D-AA: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
-            }
-
-            auto map = radixTreeMap!(Key, Value);
-            static assert(map.isMap);
-
-            map.insert(Key.init, Value.init);
+            dln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
+            dln("BranchUsageHistogram: ", set.branchUsageHistogram);
+            sleep(5);
+            dln("Sleeping done");
         }
+
+        {
+            auto sw = StopWatch(AutoStart.yes);
+            bool[int] aa;
+
+            auto samples = 0.iota(n).array;
+            samples.randomShuffle;
+            foreach (Key k; samples)
+            {
+                aa[k] = true;
+            }
+
+            dln("D-AA: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
+        }
+
+        auto map = radixTreeMap!(Key, Value);
+        static assert(map.isMap);
+
+        map.insert(Key.init, Value.init);
     }
 }
 

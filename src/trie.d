@@ -141,8 +141,8 @@ struct RadixTree(Key,
         MIx mix;
     }
 
-    /** Tree Search. */
-    struct Search
+    /** Tree Key Search Result. */
+    struct SearchResult
     {
         /* this save 8 bytes and makes this struct 16 bytes instead of 24 bytes
            compared using a member It instead of Node and MIx */

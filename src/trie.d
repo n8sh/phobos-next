@@ -141,8 +141,8 @@ struct RadixTree(Key,
         MIx mix;
     }
 
-    /** Tree Key Search Result. */
-    struct FindResult // TODO shorter naming
+    /** Tree Key Find Result. */
+    struct KeyFindResult // TODO shorter naming
     {
         /* this save 8 bytes and makes this struct 16 bytes instead of 24 bytes
            compared using a member It instead of Node and MIx */
@@ -337,7 +337,7 @@ struct RadixTree(Key,
         used for map's `insert(Key key, Value value)` so a single implementation
         for `insert(Key key)` can be used for both set and map variant.
     */
-    FindResult insert(Key key)
+    KeyFindResult insert(Key key)
     {
         makeRoot;
 
@@ -375,14 +375,14 @@ struct RadixTree(Key,
                     if (!currBM.subs[keyChunk])
                     {
                         currBM.subs[keyChunk] = BM.oneSet; // tag this as last
-                        return FindResult(Node(currBM), keyChunk, true); // a new value was inserted
+                        return KeyFindResult(Node(currBM), keyChunk, true); // a new value was inserted
                     }
                     else
                     {
                         static if (isFixedTrieableKeyType!Key)
                         {
                             assert(currBM.subs[keyChunk].peek!BM == BM.oneSet);
-                            return FindResult(Node(currBM), keyChunk, false); // value already set
+                            return KeyFindResult(Node(currBM), keyChunk, false); // value already set
                         }
                         else
                         {
@@ -405,11 +405,11 @@ struct RadixTree(Key,
                     if (!currLM.keyLSBits[keyChunk])
                     {
                         currLM.keyLSBits[keyChunk] = true;
-                        return FindResult(Node(currLM), keyChunk, true);
+                        return KeyFindResult(Node(currLM), keyChunk, true);
                     }
                     else
                     {
-                        return FindResult(Node(currLM), keyChunk, false);
+                        return KeyFindResult(Node(currLM), keyChunk, false);
                     }
 
                     assert(false, "TODO");
@@ -439,9 +439,9 @@ struct RadixTree(Key,
         /** Insert `key`.
             Returns: `false` if key was previously already inserted, `true` otherwise.
         */
-        FindResult insert(Key key, Value value)
+        KeyFindResult insert(Key key, Value value)
         {
-            FindResult result = insert(key);
+            KeyFindResult result = insert(key);
             // TODO put value at node
             return result;
         }

@@ -142,7 +142,7 @@ struct RadixTree(Key,
     }
 
     /** Tree Key Search Result. */
-    struct SearchResult
+    struct SearchResult // TODO shorter naming
     {
         /* this save 8 bytes and makes this struct 16 bytes instead of 24 bytes
            compared using a member It instead of Node and MIx */

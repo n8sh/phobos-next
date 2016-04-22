@@ -2,6 +2,8 @@
 
     See also: https://en.wikipedia.org/wiki/Trie
 
+    TODO Add support for map insert
+
     TODO Need bijectToUnsigned in intsort to support ordered storage of float and double. Move it to bijections.
 
     TODO Add sparse 2^^n-branches for n < radix: 2^^1=B2, 2^^2=B4, 2^^3=B8, B^^4=B16. Use
@@ -296,111 +298,125 @@ struct RadixTree(Key,
         return keyBitChunk;
     }
 
-    static if (isSet)
+    /** Insert `key`.
+
+        Returns: a non-null Node if key was previously already inserted,
+        `Node(null)` otherwise. This return value can then be used for map's
+        `insert(Key key, Value value)` so a single implementation for
+        `insert(Key key)` can be used for both set and map variant.
+    */
+    Node insert(Key key)
     {
-        /** Insert `key`.
+        makeRoot;
 
-            Returns: a non-null Node if key was previously already inserted,
-            `Node(null)` otherwise. This return value can then be used for map's
-            `insert(Key key, Value value)` so a single implementation for
-            `insert` can be used for both set and map variant.
-        */
-        Node insert(Key key)
+        Node curr = _root;
+        foreach (const ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
         {
-            makeRoot;
+            const keyBitChunk = bitsChunk!ix(key);
 
-            Node curr = _root;
-            foreach (const ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
+            enum isLast = ix + 1 == maxDepth; // if this is the last chunk
+            enum isSecondLast = ix + 2 == maxDepth; // if this is the second last chunk
+
+            static if (isSecondLast)
             {
-                const keyBitChunk = bitsChunk!ix(key);
-
-                enum isLast = ix + 1 == maxDepth; // if this is the last chunk
-                enum isSecondLast = ix + 2 == maxDepth; // if this is the second last chunk
-
-                static if (isSecondLast)
+                if (auto currBM = curr.peek!BM)
                 {
-                    if (auto currBM = curr.peek!BM)
+                    // assert that sub is a LM
+                    if (!currBM.subs[keyBitChunk]) // if not yet set
                     {
-                        // assert that sub is a LM
-                        if (!currBM.subs[keyBitChunk]) // if not yet set
-                        {
-                            currBM.subs[keyBitChunk] = allocateNode!LM;
-                        }
-                        else
-                        {
-                            assert(currBM.subs[keyBitChunk].peek!LM);
-                        }
-                        curr = currBM.subs[keyBitChunk]; // and visit it
+                        currBM.subs[keyBitChunk] = allocateNode!LM;
                     }
-                    else if (auto currLM = curr.peek!LM) { assert(false, "TODO"); }
-                    else if (curr) { assert(false, "Unknown type of non-null pointer"); }
-                }
-                else static if (isLast)
-                {
-                    if (auto currBM = curr.peek!BM) // branch-M
+                    else
                     {
-                        assert(currBM != BM.oneSet);
-                        if (!currBM.subs[keyBitChunk])
+                        assert(currBM.subs[keyBitChunk].peek!LM);
+                    }
+                    curr = currBM.subs[keyBitChunk]; // and visit it
+                }
+                else if (auto currLM = curr.peek!LM) { assert(false, "TODO"); }
+                else if (curr) { assert(false, "Unknown type of non-null pointer"); }
+            }
+            else static if (isLast)
+            {
+                if (auto currBM = curr.peek!BM) // branch-M
+                {
+                    assert(currBM != BM.oneSet);
+                    if (!currBM.subs[keyBitChunk])
+                    {
+                        currBM.subs[keyBitChunk] = BM.oneSet; // tag this as last
+                        return Node(currBM); // a new value was inserted
+                    }
+                    else
+                    {
+                        static if (isFixedTrieableKeyType!Key)
                         {
-                            currBM.subs[keyBitChunk] = BM.oneSet; // tag this as last
-                            return Node(currBM); // a new value was inserted
+                            assert(currBM.subs[keyBitChunk].peek!BM == BM.oneSet);
+                            return Node(null); // value already set
                         }
                         else
                         {
-                            static if (isFixedTrieableKeyType!Key)
+                            assert(false, "TODO");
+                            // TODO test this
+                            if (curr.isOccupied)
                             {
-                                assert(currBM.subs[keyBitChunk].peek!BM == BM.oneSet);
-                                return Node(null); // value already set
+                                return Node(null);
                             }
                             else
                             {
-                                dln("TODO");
-                                // TODO test this
-                                if (curr.isOccupied)
-                                {
-                                    return Node(null);
-                                }
-                                else
-                                {
-                                    curr.isOccupied = false;
-                                    return Node(currBM);
-                                }
+                                curr.isOccupied = false;
+                                return Node(currBM);
                             }
                         }
                     }
-                    else if (auto currLM = curr.peek!LM) // leaf-M
-                    {
-                        if (!currLM.keyLSBits[keyBitChunk])
-                        {
-                            currLM.keyLSBits[keyBitChunk] = true;
-                            return Node(currLM);
-                        }
-                        else
-                        {
-                            return Node(null);
-                        }
-
-                        assert(false, "TODO");
-                    }
-                    else if (curr) { assert(false, "Unknown type of non-null pointer"); }
                 }
-                else            // other
+                else if (auto currLM = curr.peek!LM) // leaf-M
                 {
-                    if (auto currBM = curr.peek!BM)
+                    if (!currLM.keyLSBits[keyBitChunk])
                     {
-                        assert(currBM != BM.oneSet);
-                        if (!currBM.subs[keyBitChunk]) // if branch not yet visited
-                        {
-                            currBM.subs[keyBitChunk] = allocateNode!BM; // create it
-                        }
-                        curr = currBM.subs[keyBitChunk]; // and visit it
+                        currLM.keyLSBits[keyBitChunk] = true;
+                        return Node(currLM);
                     }
-                    else if (auto currLM = curr.peek!LM) { assert(false, "TODO"); }
-                    else if (curr) { assert(false, "Unknown type of non-null pointer"); }
+                    else
+                    {
+                        return Node(null);
+                    }
+
+                    assert(false, "TODO");
                 }
+                else if (curr) { assert(false, "Unknown type of non-null pointer"); }
             }
-            assert(false, "End of function shouldn't be reached");
+            else            // other
+            {
+                if (auto currBM = curr.peek!BM)
+                {
+                    assert(currBM != BM.oneSet);
+                    if (!currBM.subs[keyBitChunk]) // if branch not yet visited
+                    {
+                        currBM.subs[keyBitChunk] = allocateNode!BM; // create it
+                    }
+                    curr = currBM.subs[keyBitChunk]; // and visit it
+                }
+                else if (auto currLM = curr.peek!LM) { assert(false, "TODO"); }
+                else if (curr) { assert(false, "Unknown type of non-null pointer"); }
+            }
         }
+        assert(false, "End of function shouldn't be reached");
+    }
+
+    static if (isMap)
+    {
+        /** Insert `key`.
+            Returns: `false` if key was previously already inserted, `true` otherwise.
+        */
+        Node insert(Key key, Value value)
+        {
+            Node node = insert(key);
+            // TODO put value at node
+            return node;
+        }
+    }
+
+    static if (isSet)
+    {
 
         /** Returns: `true` if key is contained in set, `false` otherwise. */
         bool contains(Key key) const nothrow
@@ -461,15 +477,6 @@ struct RadixTree(Key,
     }
     else
     {
-        /** Insert `key`.
-            Returns: `false` if key was previously already inserted, `true` otherwise.
-        */
-        bool insert(Key key, Value value)
-        {
-            makeRoot;
-            return false;
-        }
-
         /** Returns: pointer to value if `key` is contained in set, null otherwise. */
         Value* contains(Key key) const
         {
@@ -552,7 +559,7 @@ alias CompactPrefixTree = RadixTree;
 /// Instantiator of radix tree set.
 auto radixTreeSet(Key, size_t radix = 4)() { return RadixTree!(Key, void, radix)(); }
 
-/// Instantiator of radix tree map.73
+/// Instantiator of radix tree map.
 auto radixTreeMap(Key, Value, size_t radix = 4)() { return RadixTree!(Key, Value, radix)(); }
 
 auto check()

@@ -199,10 +199,7 @@ struct RadixTree(Key,
                 ++nzcnt;
                 if (const subBM = sub.peek!BM)
                 {
-                    if (subBM != BM.oneSet)
-                    {
-                        subBM.calculate(hist);
-                    }
+                    if (subBM != BM.oneSet) { subBM.calculate(hist); }
                 }
                 else if (const subLM = sub.peek!LM)
                 {
@@ -269,10 +266,7 @@ struct RadixTree(Key,
         // TODO reuse rangeinterface when made available
         if (const bM = _root.peek!BM)
         {
-            if (bM != BM.oneSet)
-            {
-                bM.calculate(hist);
-            }
+            if (bM != BM.oneSet) { bM.calculate(hist); }
         }
         else if (const subLM = _root.peek!LM)
         {
@@ -470,10 +464,7 @@ struct RadixTree(Key,
                     {
                         static if (isFixedTrieableKeyType!Key)
                         {
-                            if (currBM.subs[keyChunk].peek!BM == BM.oneSet)
-                            {
-                                return true;
-                            }
+                            if (currBM.subs[keyChunk].peek!BM == BM.oneSet) { return true; }
                         }
                         else
                         {
@@ -532,10 +523,7 @@ struct RadixTree(Key,
         {
             if (auto subBM = sub.peek!BM)
             {
-                if (subBM != BM.oneSet)
-                {
-                    release(subBM);  // recurse
-                }
+                if (subBM != BM.oneSet) { release(subBM); /* recurse */ }
             }
             else if (auto subLM = sub.peek!LM)
             {
@@ -553,10 +541,7 @@ struct RadixTree(Key,
     {
         if (auto subBM = curr.peek!BM)
         {
-            if (subBM != BM.oneSet)
-            {
-                release(subBM);  // recurse
-            }
+            if (subBM != BM.oneSet) { release(subBM); /* recurse */ }
         }
         else if (auto subLM = curr.peek!LM)
         {
@@ -676,7 +661,7 @@ version(benchmark) unittest
 
             dln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
             dln("BranchUsageHistogram: ", set.branchUsageHistogram);
-            sleep(5);
+            sleep(2);
             dln("Sleeping done");
         }
 
@@ -692,6 +677,8 @@ version(benchmark) unittest
             }
 
             dln("D-AA: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
+            sleep(2);
+            dln("Sleeping done");
         }
 
         auto map = radixTreeMap!(Key, Value);

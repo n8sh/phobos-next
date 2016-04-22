@@ -654,10 +654,7 @@ version(benchmark) unittest
 
             auto samples = 0.iota(n).array;
             samples.randomShuffle;
-            foreach (Key k; samples)
-            {
-                assert(set.insert(k)); // insert new value returns `true`
-            }
+            foreach (Key k; samples) { assert(set.insert(k)); }
 
             dln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
             dln("BranchUsageHistogram: ", set.branchUsageHistogram);
@@ -671,10 +668,7 @@ version(benchmark) unittest
 
             auto samples = 0.iota(n).array;
             samples.randomShuffle;
-            foreach (Key k; samples)
-            {
-                aa[k] = true;
-            }
+            foreach (Key k; samples) { aa[k] = true; }
 
             dln("D-AA: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
             sleep(2);

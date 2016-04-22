@@ -556,10 +556,10 @@ struct RadixTree(Key,
 alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
 
-/// Instantiator of radix tree set.
+/// Instantiator of set-version of `RadixTree`.
 auto radixTreeSet(Key, size_t radix = 4)() { return RadixTree!(Key, void, radix)(); }
 
-/// Instantiator of radix tree map.
+/// Instantiator of map-version of `RadixTree`.
 auto radixTreeMap(Key, Value, size_t radix = 4)() { return RadixTree!(Key, Value, radix)(); }
 
 auto check()

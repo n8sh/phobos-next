@@ -136,7 +136,7 @@ struct RadixTree(Key,
     /** Tree Iterator. */
     struct It
     {
-        bool opCast(T : bool)() const @safe pure nothrow @nogc { return node; }
+        bool opCast(T : bool)() const @safe pure nothrow @nogc { return cast(bool)node; }
         Node node;
         MIx mix;
     }
@@ -320,12 +320,12 @@ struct RadixTree(Key,
 
     /** Insert `key`.
 
-        Returns: a non-null Node if key was previously already inserted,
-        `Node(null)` otherwise. This return value can then be used for map's
-        `insert(Key key, Value value)` so a single implementation for
-        `insert(Key key)` can be used for both set and map variant.
+        Returns: a non-null (defined) iterator `It` if key was previously
+        already inserted, `It.init` otherwise. This return value can then be
+        used for map's `insert(Key key, Value value)` so a single implementation
+        for `insert(Key key)` can be used for both set and map variant.
     */
-    Node insert(Key key)
+    It insert(Key key)
     {
         makeRoot;
 
@@ -363,14 +363,14 @@ struct RadixTree(Key,
                     if (!currBM.subs[keyBitChunk])
                     {
                         currBM.subs[keyBitChunk] = BM.oneSet; // tag this as last
-                        return Node(currBM); // a new value was inserted
+                        return It(Node(currBM), keyBitChunk); // a new value was inserted
                     }
                     else
                     {
                         static if (isFixedTrieableKeyType!Key)
                         {
                             assert(currBM.subs[keyBitChunk].peek!BM == BM.oneSet);
-                            return Node(null); // value already set
+                            return It.init; // value already set
                         }
                         else
                         {
@@ -378,12 +378,12 @@ struct RadixTree(Key,
                             // TODO test this
                             if (curr.isOccupied)
                             {
-                                return Node(null);
+                                return It.init;
                             }
                             else
                             {
                                 curr.isOccupied = false;
-                                return Node(currBM);
+                                return It(Node(currBM), keyBitChunk);
                             }
                         }
                     }
@@ -393,11 +393,11 @@ struct RadixTree(Key,
                     if (!currLM.keyLSBits[keyBitChunk])
                     {
                         currLM.keyLSBits[keyBitChunk] = true;
-                        return Node(currLM);
+                        return It(Node(currLM), keyBitChunk);
                     }
                     else
                     {
-                        return Node(null);
+                        return It.init;
                     }
 
                     assert(false, "TODO");
@@ -427,11 +427,11 @@ struct RadixTree(Key,
         /** Insert `key`.
             Returns: `false` if key was previously already inserted, `true` otherwise.
         */
-        Node insert(Key key, Value value)
+        It insert(Key key, Value value)
         {
-            Node node = insert(key);
+            It it = insert(key);
             // TODO put value at node
-            return node;
+            return it;
         }
     }
 

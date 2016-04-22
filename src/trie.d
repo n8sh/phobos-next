@@ -3,7 +3,7 @@
     See also: https://en.wikipedia.org/wiki/Trie
 
     TODO Avoid range checking of BitSet by adding support for IndexedBy or
-    adding an Index member to BitSet and merge this with MIx, limite to an uint
+    adding an Index member to BitSet and merge this with IxM, limite to an uint
     in the range 0..M-1.
 
     TODO Add support for map insert
@@ -133,25 +133,25 @@ struct RadixTree(Key,
     alias ConstNodePtr = VariantPointer!(staticMap!(ConstOf, NodeTypes));
 
     /** Radix Index */
-    alias MIx = uint;
+    alias IxM = uint;
 
     /** Tree Iterator. */
     struct It
     {
         bool opCast(T : bool)() const @safe pure nothrow @nogc { return cast(bool)node; }
         Node node;
-        MIx mix;
+        IxM mix;
     }
 
     /** Tree Key Find Result. */
     struct KeyFindResult // TODO shorter naming
     {
         /* this save 8 bytes and makes this struct 16 bytes instead of 24 bytes
-           compared using a member It instead of Node and MIx */
+           compared using a member It instead of Node and IxM */
         auto it() { return It(node, mix); }
         bool opCast(T : bool)() const @safe pure nothrow @nogc { return hit; }
         Node node;
-        MIx mix;
+        IxM mix;
         bool hit;
     }
 
@@ -302,7 +302,7 @@ struct RadixTree(Key,
     }
 
     /** Get chunkIndex:th chunk of `radix` number of bits. */
-    MIx bitsChunk(uint chunkIndex)(Key key) const @trusted pure nothrow
+    IxM bitsChunk(uint chunkIndex)(Key key) const @trusted pure nothrow
     {
         // calculate bit shift to current chunk
         static if (isIntegral!Key ||
@@ -341,7 +341,7 @@ struct RadixTree(Key,
         Node curr = _root;
         foreach (const ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
         {
-            const MIx keyChunk = bitsChunk!ix(key);
+            const IxM keyChunk = bitsChunk!ix(key);
 
             enum isLast = ix + 1 == maxDepth; // if this is the last chunk
             enum isSecondLast = ix + 2 == maxDepth; // if this is the second last chunk
@@ -455,7 +455,7 @@ struct RadixTree(Key,
             Node curr = _root;
             foreach (const ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
-                const MIx keyChunk = bitsChunk!ix(key);
+                const IxM keyChunk = bitsChunk!ix(key);
                 if (auto currBM = curr.peek!BM)
                 {
                     assert(currBM != BM.oneSet);

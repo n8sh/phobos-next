@@ -311,11 +311,11 @@ struct RadixTree(Key,
         }
 
         const u = *(cast(UnsignedOfSameSizeAs!Key*)(&key)); // TODO functionize and reuse here and in intsort.d
-        const uint keyBitChunk = (u >> shift) & chunkMask; // part of value which is also an index
-        static assert(radix <= 8*keyBitChunk.sizeof, "Need more precision in keyBitChunk");
+        const uint keyChunk = (u >> shift) & chunkMask; // part of value which is also an index
+        static assert(radix <= 8*keyChunk.sizeof, "Need more precision in keyChunk");
 
-        assert(keyBitChunk < M); // extra range check
-        return keyBitChunk;
+        assert(keyChunk < M); // extra range check
+        return keyChunk;
     }
 
     /** Insert `key`.
@@ -332,7 +332,7 @@ struct RadixTree(Key,
         Node curr = _root;
         foreach (const ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
         {
-            const MIx keyBitChunk = bitsChunk!ix(key);
+            const MIx keyChunk = bitsChunk!ix(key);
 
             enum isLast = ix + 1 == maxDepth; // if this is the last chunk
             enum isSecondLast = ix + 2 == maxDepth; // if this is the second last chunk
@@ -341,16 +341,16 @@ struct RadixTree(Key,
             {
                 if (auto currBM = curr.peek!BM)
                 {
-                    // make it a LM
-                    if (!currBM.subs[keyBitChunk]) // if not yet set
+                    // assure that we have prepare leaf at next depth (sub-node)
+                    if (!currBM.subs[keyChunk]) // if not yet set
                     {
-                        currBM.subs[keyBitChunk] = allocateNode!LM;
+                        currBM.subs[keyChunk] = allocateNode!LM;
                     }
                     else
                     {
-                        assert(currBM.subs[keyBitChunk].peek!LM);
+                        assert(currBM.subs[keyChunk].peek!LM);
                     }
-                    curr = currBM.subs[keyBitChunk]; // and visit it
+                    curr = currBM.subs[keyChunk]; // and go there
                 }
                 else if (auto currLM = curr.peek!LM) { assert(false, "TODO"); }
                 else if (curr) { assert(false, "Unknown type of non-null pointer"); }
@@ -360,16 +360,16 @@ struct RadixTree(Key,
                 if (auto currBM = curr.peek!BM) // branch-M
                 {
                     assert(currBM != BM.oneSet);
-                    if (!currBM.subs[keyBitChunk])
+                    if (!currBM.subs[keyChunk])
                     {
-                        currBM.subs[keyBitChunk] = BM.oneSet; // tag this as last
-                        return It(Node(currBM), keyBitChunk); // a new value was inserted
+                        currBM.subs[keyChunk] = BM.oneSet; // tag this as last
+                        return It(Node(currBM), keyChunk); // a new value was inserted
                     }
                     else
                     {
                         static if (isFixedTrieableKeyType!Key)
                         {
-                            assert(currBM.subs[keyBitChunk].peek!BM == BM.oneSet);
+                            assert(currBM.subs[keyChunk].peek!BM == BM.oneSet);
                             return It.init; // value already set
                         }
                         else
@@ -383,17 +383,17 @@ struct RadixTree(Key,
                             else
                             {
                                 curr.isOccupied = false;
-                                return It(Node(currBM), keyBitChunk);
+                                return It(Node(currBM), keyChunk);
                             }
                         }
                     }
                 }
                 else if (auto currLM = curr.peek!LM) // leaf-M
                 {
-                    if (!currLM.keyLSBits[keyBitChunk])
+                    if (!currLM.keyLSBits[keyChunk])
                     {
-                        currLM.keyLSBits[keyBitChunk] = true;
-                        return It(Node(currLM), keyBitChunk);
+                        currLM.keyLSBits[keyChunk] = true;
+                        return It(Node(currLM), keyChunk);
                     }
                     else
                     {
@@ -409,11 +409,11 @@ struct RadixTree(Key,
                 if (auto currBM = curr.peek!BM)
                 {
                     assert(currBM != BM.oneSet);
-                    if (!currBM.subs[keyBitChunk]) // if branch not yet visited
+                    if (!currBM.subs[keyChunk]) // if branch not yet visited
                     {
-                        currBM.subs[keyBitChunk] = allocateNode!BM; // create it
+                        currBM.subs[keyChunk] = allocateNode!BM; // create it
                     }
-                    curr = currBM.subs[keyBitChunk]; // and visit it
+                    curr = currBM.subs[keyChunk]; // and visit it
                 }
                 else if (auto currLM = curr.peek!LM) { assert(false, "TODO"); }
                 else if (curr) { assert(false, "Unknown type of non-null pointer"); }
@@ -446,11 +446,11 @@ struct RadixTree(Key,
             Node curr = _root;
             foreach (const ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
-                const MIx keyBitChunk = bitsChunk!ix(key);
+                const MIx keyChunk = bitsChunk!ix(key);
                 if (auto currBM = curr.peek!BM)
                 {
                     assert(currBM != BM.oneSet);
-                    if (!currBM.subs[keyBitChunk])
+                    if (!currBM.subs[keyChunk])
                     {
                         return false;
                     }
@@ -458,7 +458,7 @@ struct RadixTree(Key,
                     {
                         static if (isFixedTrieableKeyType!Key)
                         {
-                            if (currBM.subs[keyBitChunk].peek!BM == BM.oneSet)
+                            if (currBM.subs[keyChunk].peek!BM == BM.oneSet)
                             {
                                 return true;
                             }
@@ -475,12 +475,12 @@ struct RadixTree(Key,
                                 return true;
                             }
                         }
-                        curr = currBM.subs[keyBitChunk];
+                        curr = currBM.subs[keyChunk];
                     }
                 }
                 else if (const currLM = curr.peek!LM)
                 {
-                    return currLM.keyLSBits[keyBitChunk];
+                    return currLM.keyLSBits[keyChunk];
                 }
                 else if (curr) { assert(false, "Unknown type of non-null pointer"); }
             }

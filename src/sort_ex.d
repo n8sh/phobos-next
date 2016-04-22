@@ -9,32 +9,6 @@ module sort_ex;
 import std.traits: isAggregateType;
 import std.range: ElementType, isRandomAccessRange, isInputRange;
 
-private template xtorFun(alias xtor)
-{
-    import std.traits: isIntegral;
-    static if (is(typeof(xtor) : string))
-    {
-        auto ref xtorFun(T)(auto ref T a)
-        {
-            mixin("with (a) { return " ~ xtor ~ "; }");
-        }
-    }
-    else static if (isIntegral!(typeof(xtor)))
-    {
-        auto ref xtorFun(T)(auto ref T a)
-        {
-            import std.conv: to;
-            mixin("return a.tupleof[" ~ xtor.to!string ~ "];");
-        }
-    }
-    else
-    {
-        alias xtorFun = xtor;
-    }
-}
-
-/* private alias makePredicate(alias xtor) = (a, b) => (xtorFun!xtor(a) < xtorFun!xtor(b)); */
-
 /* auto sortBy(xtors..., R)(R r) { */
 /*     alias preds = staticMap!(makePredicate, xtors); */
 /*     return r.sort!preds; */
@@ -64,6 +38,33 @@ void rsortBy(alias xtor, R)(R r) if (isRandomAccessRange!R &&
                        xtorFun!xtor(b)));
 }
 
+/* private alias makePredicate(alias xtor) = (a, b) => (xtorFun!xtor(a) < xtorFun!xtor(b)); */
+
+private template xtorFun(alias xtor)
+{
+    import std.traits: isIntegral;
+    static if (is(typeof(xtor) : string))
+    {
+        auto ref xtorFun(T)(auto ref T a)
+        {
+            mixin("with (a) { return " ~ xtor ~ "; }");
+        }
+    }
+    else static if (isIntegral!(typeof(xtor)))
+    {
+        auto ref xtorFun(T)(auto ref T a)
+        {
+            import std.conv: to;
+            mixin("return a.tupleof[" ~ xtor.to!string ~ "];");
+        }
+    }
+    else
+    {
+        alias xtorFun = xtor;
+    }
+}
+
+///
 @safe pure nothrow unittest
 {
     static struct X { int x, y, z; }

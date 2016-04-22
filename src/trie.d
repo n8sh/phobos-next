@@ -133,9 +133,10 @@ struct RadixTree(Key,
     */
     alias MIx = uint;
 
-    /** Tree Iterator */
+    /** Tree Iterator. */
     struct It
     {
+        bool opCast(T : bool)() const @safe pure nothrow @nogc { return node; }
         Node node;
         MIx mix;
     }
@@ -143,8 +144,8 @@ struct RadixTree(Key,
     /** Tree Range. */
     struct Range
     {
-        It begin;
-        It end;
+        It low;                 // start
+        It high;                // beyond last
     }
 
     alias BranchUsageHistogram = size_t[M];
@@ -292,7 +293,7 @@ struct RadixTree(Key,
     }
 
     /** Get chunkIndex:th chunk of `radix` number of bits. */
-    auto bitsChunk(uint chunkIndex)(Key key) const @trusted pure nothrow
+    MIx bitsChunk(uint chunkIndex)(Key key) const @trusted pure nothrow
     {
         // calculate bit shift to current chunk
         static if (isIntegral!Key ||

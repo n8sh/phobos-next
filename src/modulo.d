@@ -4,6 +4,7 @@ module modulo;                  // haha ;)
 
     Similar to Ada's modulo type `0 mod m`.
 
+    TODO Move to std.typecons
     TODO reuse ideas from bound.d (moved here)
  */
 struct Mod(size_t m, T = uint)

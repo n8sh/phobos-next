@@ -141,6 +141,18 @@ struct RadixTree(Key,
         MIx mix;
     }
 
+    /** Tree Search. */
+    struct Search
+    {
+        /* this save 8 bytes and makes this struct 16 bytes instead of 24 bytes
+           compared using a member It instead of Node and MIx */
+        auto it() { return It(node, mix); }
+        bool opCast(T : bool)() const @safe pure nothrow @nogc { return cast(bool)node; }
+        Node node;
+        MIx mix;
+        bool hit;
+    }
+
     /** Tree Range. */
     struct Range
     {
@@ -317,6 +329,8 @@ struct RadixTree(Key,
         assert(keyChunk < M); // extra range check
         return keyChunk;
     }
+
+
 
     /** Insert `key`.
 

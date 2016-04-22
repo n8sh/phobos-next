@@ -112,7 +112,7 @@ void rsortBy(alias xtor, R)(R r) if (isRandomAccessRange!R &&
                   X(0, 1, 2) ]);
 }
 
-/** Return $(D Array) $(D r) Sorted.
+/** Returns: $(D r) sorted.
     If needed a GC-copy of $(D r) is allocated, sorted and returned.
     See also: http://forum.dlang.org/thread/tnrvudehinmkvbifovwo@forum.dlang.org#post-tnrvudehinmkvbifovwo:40forum.dlang.org
     TODO Add to Phobos
@@ -208,6 +208,21 @@ unittest
     import std.container: SList;
     auto x = SList!int(3, 2, 1);
     assert(equal(x.sorted, [1, 2, 3]));
+}
+
+/** Returns: $(D r) randomly shuffled.
+    If needed a GC-copy of $(D r) is allocated, sorted and returned.
+    See also: http://forum.dlang.org/thread/tnrvudehinmkvbifovwo@forum.dlang.org#post-tnrvudehinmkvbifovwo:40forum.dlang.org
+    TODO Add to Phobos
+*/
+auto randomShuffled(R, E = ElementType!R)(R r)
+{
+    import std.traits : isNarrowString;
+    import std.range: hasLength;
+    import range_ex : isSortedRange;
+    r.randomShuffle(r);
+    // TODO reuse copying logic in `sorted`
+    return r;
 }
 
 // /** Assign-Sort-4 \p a, \p b, \p c and \p d into \p k, \p l, \p m and \p n .

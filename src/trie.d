@@ -602,9 +602,9 @@ auto check()
                 assert(!set.contains(k)); // key should not yet be in set
                 assert(k !in set);        // alternative syntax
 
-                assert(set.insert(k));  // insert new value returns `true`
-                assert(!set.insert(k)); // reinsert same value returns `false`
-                assert(!set.insert(k)); // reinsert same value returns `false`
+                assert(set.insert(k));  // insert new value returns `true` (previously not in set)
+                assert(!set.insert(k)); // reinsert same value returns `false` (already in set)
+                assert(!set.insert(k)); // reinsert same value returns `false` (already in set)
 
                 assert(set.contains(k)); // key should now be in set
                 assert(k in set);        // alternative syntax

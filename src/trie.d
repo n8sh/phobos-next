@@ -128,6 +128,25 @@ struct RadixTree(Key,
     /** Constant node. */
     alias ConstNodePtr = VariantPointer!(staticMap!(ConstOf, NodeTypes));
 
+    /** Radix Index
+        TODO limit to an uint in the range 0..M-1.
+    */
+    alias MIx = uint;
+
+    /** Tree Iterator */
+    struct It
+    {
+        Node node;
+        MIx mix;
+    }
+
+    /** Tree Range. */
+    struct Range
+    {
+        It begin;
+        It end;
+    }
+
     alias BranchUsageHistogram = size_t[M];
 
     /** Non-bottom branch node containing densly packed array of `M` number of

@@ -3,6 +3,8 @@ module modulo;                  // haha ;)
 /** Module type within inclusive value range `(0 .. m-1)`.
 
     Similar to Ada's modulo type `0 mod m`.
+
+    TODO reuse ideas from bound.d (moved here)
  */
 struct Mod(size_t m, T = uint)
 {

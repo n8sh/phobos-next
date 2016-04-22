@@ -210,19 +210,26 @@ unittest
     assert(equal(x.sorted, [1, 2, 3]));
 }
 
-/** Returns: $(D r) randomly shuffled.
+/** Functional version of `std.random.randomShuffle`.
+
+    Returns: $(D r) randomly shuffled.
+
     If needed a GC-copy of $(D r) is allocated, sorted and returned.
-    See also: http://forum.dlang.org/thread/tnrvudehinmkvbifovwo@forum.dlang.org#post-tnrvudehinmkvbifovwo:40forum.dlang.org
-    TODO Add to Phobos
 */
-auto randomShuffled(R, E = ElementType!R)(R r)
+auto randomlyShuffled(R, E = ElementType!R)(R r)
 {
-    import std.traits : isNarrowString;
-    import std.range: hasLength;
-    import range_ex : isSortedRange;
-    r.randomShuffle(r);
+    import std.random : randomShuffle;
+    r.randomShuffle();
     // TODO reuse copying logic in `sorted`
     return r;
+}
+
+///
+@safe unittest
+{
+    immutable x = [3, 2, 1];
+    auto y = x.dup;
+    y.randomlyShuffled;
 }
 
 // /** Assign-Sort-4 \p a, \p b, \p c and \p d into \p k, \p l, \p m and \p n .

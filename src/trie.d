@@ -297,7 +297,7 @@ struct RadixTree(Key,
     {
         // calculate bit shift to current chunk
         static if (isIntegral!Key ||
-                   isSomeChar!Key) // because top-most bit in ASCII coding (char) is often sparse
+                   isSomeChar!Key) // because top-most bit in ASCII coding (char) is often sparse (0 is much more common than 1)
         {
             /* most signficant bit chunk first because integers are
                typically more sparse in more significant bits */

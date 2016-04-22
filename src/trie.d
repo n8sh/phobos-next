@@ -610,7 +610,7 @@ auto check()
                 assert(k in set);        // alternative syntax
                 // assert(set.depth == set.maxDepth);
 
-                assert(!set.contains(k + 1)); // sub is yet inserted
+                assert(!set.contains(k + 1)); // next key is not yet in set
             }
 
             // debug assert(set.branchCount == 40);

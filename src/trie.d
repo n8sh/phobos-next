@@ -2,6 +2,10 @@
 
     See also: https://en.wikipedia.org/wiki/Trie
 
+    TODO Avoid range checking of BitSet by adding support for IndexedBy or
+    adding an Index member to BitSet and merge this with MIx, limite to an uint
+    in the range 0..M-1.
+
     TODO Add support for map insert
 
     TODO Need bijectToUnsigned in intsort to support ordered storage of float and double. Move it to bijections.
@@ -128,9 +132,7 @@ struct RadixTree(Key,
     /** Constant node. */
     alias ConstNodePtr = VariantPointer!(staticMap!(ConstOf, NodeTypes));
 
-    /** Radix Index
-        TODO limit to an uint in the range 0..M-1.
-    */
+    /** Radix Index */
     alias MIx = uint;
 
     /** Tree Iterator. */
@@ -160,7 +162,7 @@ struct RadixTree(Key,
         It high;                // beyond last
     }
 
-    alias BranchUsageHistogram = size_t[M];
+    alias UsageHistogram = size_t[M];
 
     /** Non-bottom branch node containing densly packed array of `M` number of
         pointers to sub-`BM`s or `Leaf`s.
@@ -190,7 +192,8 @@ struct RadixTree(Key,
         // }
 
         /** Returns: depth of tree at this branch. */
-        void calculate(ref BranchUsageHistogram hist) @safe pure nothrow const
+        void calculate(ref UsageHistogram bHist,
+                       ref UsageHistogram lHist) @safe pure nothrow const
         {
             import std.algorithm : count, filter;
             size_t nzcnt = 0; // number of non-zero branches
@@ -199,18 +202,18 @@ struct RadixTree(Key,
                 ++nzcnt;
                 if (const subBM = sub.peek!BM)
                 {
-                    if (subBM != BM.oneSet) { subBM.calculate(hist); }
+                    if (subBM != BM.oneSet) { subBM.calculate(bHist, lHist); }
                 }
                 else if (const subLM = sub.peek!LM)
                 {
-                    subLM.calculate(hist);
+                    subLM.calculate(lHist);
                 }
                 else if (sub)
                 {
                     assert(false, "Unknown type of non-null pointer");
                 }
             }
-            ++hist[nzcnt - 1];
+            ++bHist[nzcnt - 1];
         }
 
         static if (!isFixed)        // variable length keys only
@@ -228,13 +231,12 @@ struct RadixTree(Key,
     */
     static private struct LM
     {
-        void calculate(ref BranchUsageHistogram hist) @safe pure const
+        void calculate(ref UsageHistogram hist) @safe pure const
         {
             import std.range : iota;
             foreach (const i; 0.iota(M))
             {
-                if (keyLSBits[i])
-                    ++hist[i];
+                if (keyLSBits[i]) { ++hist[i]; }
             }
         }
 
@@ -260,13 +262,14 @@ struct RadixTree(Key,
     //     return _root !is null ? _root.linearDepth : 0;
     // }
 
-    BranchUsageHistogram branchUsageHistogram() const
+    UsageHistogram[2] usageHistograms() const
     {
-        typeof(return) hist;
+        typeof(return) hists;
+
         // TODO reuse rangeinterface when made available
         if (const bM = _root.peek!BM)
         {
-            if (bM != BM.oneSet) { bM.calculate(hist); }
+            if (bM != BM.oneSet) { bM.calculate(hists[0], hists[1]); }
         }
         else if (const subLM = _root.peek!LM)
         {
@@ -276,7 +279,7 @@ struct RadixTree(Key,
         {
             assert(false, "Unknown type of non-null pointer");
         }
-        return hist;
+        return hists;
     }
 
     this(this)
@@ -657,7 +660,9 @@ version(benchmark) unittest
             foreach (Key k; samples) { assert(set.insert(k)); }
 
             dln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
-            dln("BranchUsageHistogram: ", set.branchUsageHistogram);
+            auto uhists = set.usageHistograms;
+            dln("Branch Usage Histogram: ", uhists[0]);
+            dln("Leaf   Usage Histogram: ", uhists[1]);
             sleep(2);
             dln("Sleeping done");
         }

@@ -9,7 +9,6 @@ import std.traits : isIntegral;
     See also: https://forum.dlang.org/post/hmrpwyqfoxwtywbznbrr@forum.dlang.org
     See also: http://codeforces.com/contest/628/submission/16212299
 
-    TODO Move to Phobos std.typecons
     TODO reuse ideas from bound.d (moved here)
 
     TODO Add function limit()
@@ -25,6 +24,7 @@ import std.traits : isIntegral;
     called after opBinary opUnary etc similar to what is done
     http://codeforces.com/contest/628/submission/16212299
 
+    TODO Move to Phobos std.typecons
  */
 template Mod(size_t m, T = void)
     if (is(T == void) || isIntegral!T)

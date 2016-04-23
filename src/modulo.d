@@ -9,7 +9,6 @@ import std.traits : isIntegral;
     See also: https://forum.dlang.org/post/hmrpwyqfoxwtywbznbrr@forum.dlang.org
     See also: http://codeforces.com/contest/628/submission/16212299
 
-    TODO Add modulo logic
     TODO Move to Phobos std.typecons
     TODO reuse ideas from bound.d (moved here)
 

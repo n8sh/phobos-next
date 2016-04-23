@@ -23,7 +23,8 @@ import std.traits : isIntegral;
     return x % m;
     }
 
-    called after opBinary opUnary etc.
+    called after opBinary opUnary etc similar to what is done
+    http://codeforces.com/contest/628/submission/16212299
 
  */
 template Mod(size_t m, T = void)

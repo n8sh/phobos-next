@@ -16,20 +16,16 @@
     TODO if `Value` is a `isScalarType` store it in Value[M]
     TODO if `Value` is a `bool` store it in bitset
 
-    TODO Andrei!: Provide `opIndex` and make `opSlice` for set-case (`Value` is `void`) return `SortedRange`
-
-    TODO Andrei!: Provide RandomAccess `opIndex` and `opSlice`! for variable-length keys aswell?
-
-    TODO Andrei!: Provide in operator for fixed-length keys!?
+    TODO Provide `opIndex` and make `opSlice` for set-case (`Value` is `void`) return `SortedRange`
+    TODO Provide RandomAccess `opIndex` and `opSlice`! for variable-length keys aswell?
+    TODO Provide in operator for fixed-length keys!?
 
     TODO Add RadixTreeRange.{front,popFront,empty}. Reuse RefCounted reference
     to _root. Add checks with `isSorted`.
 
     TODO Name members so they indicate that range isSorted.
 
-    TODO Andrei!: Name members to indicate complexity
-
-    TODO Benchmark `contains()` and compare it to to builtin AAs.in.
+    TODO Name members to indicate complexity
 
     TODO Extend bitop_ex.d with {set,get}{Bit,Qit,Bytes} and reuse
 

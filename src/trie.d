@@ -162,6 +162,7 @@ struct RadixTree(Key,
         It high;                // beyond last
     }
 
+    /** Tree branch order occurence. */
     alias UsageHistogram = size_t[M];
 
     /** Non-bottom branch node containing densly packed array of `M` number of

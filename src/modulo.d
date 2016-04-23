@@ -2,7 +2,7 @@ module modulo;                  // haha ;)
 
 import std.traits : isIntegral;
 
-/** Module type within inclusive value range `(0 .. m-1)`.
+/** Module type within inclusive value range (0 .. `m`-1).
 
     Similar to Ada's modulo type `0 mod m`.
 

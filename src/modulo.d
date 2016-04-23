@@ -62,7 +62,7 @@ template Mod(size_t m, T = void)
             this.x = value;
         }
 
-        @property size_t prop()
+        @property size_t prop() const
         {
             return x;
         }
@@ -80,7 +80,7 @@ auto mod(size_t m, T)(T value)
 }
 
 ///
-unittest
+@safe pure nothrow @nogc unittest
 {
     // check size logic
     static assert(Mod!(ubyte.max + 1).sizeof == 1);
@@ -104,4 +104,8 @@ unittest
 
     Mod!(8, uint) ui8 = 7;
     Mod!(256, ubyte) ub256 = 255;
+
+    const a = 7.mod!10;
+    const b = 8.mod!256;
+    assert(a < b);
 }

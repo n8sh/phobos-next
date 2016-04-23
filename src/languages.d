@@ -8,7 +8,7 @@ import std.traits: isSomeString;
     See also: https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
     See also: http://msdn.microsoft.com/en-us/library/ms533052(v=vs.85).aspx
 */
-enum Lang:ushort
+enum Language:ushort
 {
     unknown,
 
@@ -338,6 +338,7 @@ enum Lang:ushort
 
     regularExpression, regexp = regularExpression,
 }
+alias Lang = Language;
 
 /** Return true if $(D lang) is case-sensitive. */
 bool hasCase(Lang lang) @safe pure @nogc nothrow

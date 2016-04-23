@@ -34,8 +34,8 @@
     TODO Should opBinaryRight return void* instead of bool for set-case?
 
     TODO Replace
-    - if (auto currBM = curr.peek!BM)
-    - else if (const currLM = curr.peek!LM)
+    - if (auto currBrM = curr.peek!BrM)
+    - else if (const currLfM = curr.peek!LfM)
     with some compacter logic perhaps using mixins or pattern matching using
     switch-case on internally store type in `VariantPointer`.
 
@@ -120,7 +120,7 @@ struct RadixTree(Key,
     enum isBinary = R == 2;
 
     /** Node types. */
-    alias NodeTypes = AliasSeq!(BM, LM);
+    alias NodeTypes = AliasSeq!(BrM, LfM);
 
     /** Mutable node. */
     alias Node = VariantPointer!(NodeTypes);
@@ -159,12 +159,15 @@ struct RadixTree(Key,
     }
 
     /** Tree branch order occurence. */
-    alias UsageHistogram = size_t[M];
+    alias BranchUsageHistogram = size_t[M + 1];
+
+    /** Leaf usage. */
+    alias LeafUsageHistogram = size_t[M + 1];
 
     /** Non-bottom branch node containing densly packed array of `M` number of
-        pointers to sub-`BM`s or `Leaf`s.
+        pointers to sub-`BrM`s or `Leaf`s.
     */
-    static private struct BM
+    static private struct BrM
     {
         /// Indicates that only next/child at this index is occupied.
         static immutable oneSet = cast(typeof(this)*)1UL;
@@ -201,33 +204,33 @@ struct RadixTree(Key,
         // }
 
         /** Returns: depth of tree at this branch. */
-        void calculate(ref UsageHistogram bHist,
-                       ref UsageHistogram lHist) @safe pure nothrow const
+        void calculate(ref BranchUsageHistogram brHist,
+                       ref LeafUsageHistogram lfHist) @safe pure nothrow const
         {
             import std.algorithm : count, filter;
             size_t nzcnt = 0; // number of non-zero branches
             foreach (sub; subs[].filter!(sub => sub))
             {
                 ++nzcnt;
-                if (const subBM = sub.peek!BM)
+                if (const subBrM = sub.peek!BrM)
                 {
-                    if (subBM != BM.oneSet) { subBM.calculate(bHist, lHist); }
+                    if (subBrM != BrM.oneSet) { subBrM.calculate(brHist, lfHist); }
                 }
-                else if (const subLM = sub.peek!LM)
+                else if (const subLfM = sub.peek!LfM)
                 {
-                    subLM.calculate(lHist);
+                    subLfM.calculate(lfHist);
                 }
                 else if (sub)
                 {
                     assert(false, "Unknown type of non-null pointer");
                 }
             }
-            ++bHist[nzcnt - 1];
+            ++brHist[nzcnt - 1];
         }
 
         static if (!isFixed)        // variable length keys only
         {
-            LM subOccupations; // if i:th bit is set key (and optionally value) associated with sub[i] is also defined
+            LfM subOccupations; // if i:th bit is set key (and optionally value) associated with sub[i] is also defined
             static if (isMap)
             {
                 Value value;
@@ -238,15 +241,11 @@ struct RadixTree(Key,
     /** Bottom-most leaf node of `RadixTree`-set storing `M` number of densly packed
         keys of fixed-length type `Key`.
     */
-    static private struct LM
+    static private struct LfM
     {
-        void calculate(ref UsageHistogram hist) @safe pure const
+        void calculate(ref LeafUsageHistogram hist) @safe pure const
         {
-            import std.range : iota;
-            foreach (const i; 0.iota(M))
-            {
-                if (keyLSBits[i]) { ++hist[i]; }
-            }
+            ++hist[keyLSBits.countOnes];
         }
 
         import bitset : BitSet;
@@ -256,7 +255,7 @@ struct RadixTree(Key,
         {
             static if (is(Value == bool))
             {
-                BitSet!M values;
+                BitSet!M values; // efficient storage of set of bool value
             }
             else
             {
@@ -271,16 +270,16 @@ struct RadixTree(Key,
     //     return _root !is null ? _root.linearDepth : 0;
     // }
 
-    UsageHistogram[2] usageHistograms() const
+    BranchUsageHistogram[2] usageHistograms() const
     {
         typeof(return) hists;
 
         // TODO reuse rangeinterface when made available
-        if (const bM = _root.peek!BM)
+        if (const bM = _root.peek!BrM)
         {
-            if (bM != BM.oneSet) { bM.calculate(hists[0], hists[1]); }
+            if (bM != BrM.oneSet) { bM.calculate(hists[0], hists[1]); }
         }
-        else if (const subLM = _root.peek!LM)
+        else if (const subLfM = _root.peek!LfM)
         {
             assert(false, "TODO");
         }
@@ -355,38 +354,38 @@ struct RadixTree(Key,
 
             static if (isSecondLast)
             {
-                if (auto currBM = curr.peek!BM)
+                if (auto currBrM = curr.peek!BrM)
                 {
                     // assure that we have prepare leaf at next depth (sub-node)
-                    if (!currBM.at(keyChunk)) // if not yet set
+                    if (!currBrM.at(keyChunk)) // if not yet set
                     {
-                        currBM.at(keyChunk) = allocateNode!LM;
+                        currBrM.at(keyChunk) = allocateNode!LfM;
                     }
                     else
                     {
-                        assert(currBM.at(keyChunk).peek!LM);
+                        assert(currBrM.at(keyChunk).peek!LfM);
                     }
-                    curr = currBM.at(keyChunk); // and go there
+                    curr = currBrM.at(keyChunk); // and go there
                 }
-                else if (auto currLM = curr.peek!LM) { assert(false, "TODO"); }
+                else if (auto currLfM = curr.peek!LfM) { assert(false, "TODO"); }
                 else if (curr) { assert(false, "Unknown type of non-null pointer"); }
             }
             else static if (isLast)
             {
-                if (auto currBM = curr.peek!BM) // branch-M
+                if (auto currBrM = curr.peek!BrM) // branch-M
                 {
-                    assert(currBM != BM.oneSet);
-                    if (!currBM.at(keyChunk))
+                    assert(currBrM != BrM.oneSet);
+                    if (!currBrM.at(keyChunk))
                     {
-                        currBM.at(keyChunk) = BM.oneSet; // tag this as last
-                        return KeyFindResult(Node(currBM), keyChunk, true); // a new value was inserted
+                        currBrM.at(keyChunk) = BrM.oneSet; // tag this as last
+                        return KeyFindResult(Node(currBrM), keyChunk, true); // a new value was inserted
                     }
                     else
                     {
                         static if (isFixedTrieableKeyType!Key)
                         {
-                            assert(currBM.at(keyChunk).peek!BM == BM.oneSet);
-                            return KeyFindResult(Node(currBM), keyChunk, false); // value already set
+                            assert(currBrM.at(keyChunk).peek!BrM == BrM.oneSet);
+                            return KeyFindResult(Node(currBrM), keyChunk, false); // value already set
                         }
                         else
                         {
@@ -399,21 +398,21 @@ struct RadixTree(Key,
                             else
                             {
                                 curr.isOccupied = false;
-                                return It(Node(currBM), keyChunk);
+                                return It(Node(currBrM), keyChunk);
                             }
                         }
                     }
                 }
-                else if (auto currLM = curr.peek!LM) // leaf-M
+                else if (auto currLfM = curr.peek!LfM) // leaf-M
                 {
-                    if (!currLM.keyLSBits[keyChunk])
+                    if (!currLfM.keyLSBits[keyChunk])
                     {
-                        currLM.keyLSBits[keyChunk] = true;
-                        return KeyFindResult(Node(currLM), keyChunk, true);
+                        currLfM.keyLSBits[keyChunk] = true;
+                        return KeyFindResult(Node(currLfM), keyChunk, true);
                     }
                     else
                     {
-                        return KeyFindResult(Node(currLM), keyChunk, false);
+                        return KeyFindResult(Node(currLfM), keyChunk, false);
                     }
 
                     assert(false, "TODO");
@@ -422,16 +421,16 @@ struct RadixTree(Key,
             }
             else            // other
             {
-                if (auto currBM = curr.peek!BM)
+                if (auto currBrM = curr.peek!BrM)
                 {
-                    assert(currBM != BM.oneSet);
-                    if (!currBM.at(keyChunk)) // if branch not yet visited
+                    assert(currBrM != BrM.oneSet);
+                    if (!currBrM.at(keyChunk)) // if branch not yet visited
                     {
-                        currBM.at(keyChunk) = allocateNode!BM; // create it
+                        currBrM.at(keyChunk) = allocateNode!BrM; // create it
                     }
-                    curr = currBM.at(keyChunk); // and visit it
+                    curr = currBrM.at(keyChunk); // and visit it
                 }
-                else if (auto currLM = curr.peek!LM) { assert(false, "TODO"); }
+                else if (auto currLfM = curr.peek!LfM) { assert(false, "TODO"); }
                 else if (curr) { assert(false, "Unknown type of non-null pointer"); }
             }
         }
@@ -463,10 +462,10 @@ struct RadixTree(Key,
             foreach (const ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
                 const IxM keyChunk = bitsChunk!ix(key);
-                if (auto currBM = curr.peek!BM)
+                if (auto currBrM = curr.peek!BrM)
                 {
-                    assert(currBM != BM.oneSet);
-                    if (!currBM.at(keyChunk))
+                    assert(currBrM != BrM.oneSet);
+                    if (!currBrM.at(keyChunk))
                     {
                         return false;
                     }
@@ -474,26 +473,26 @@ struct RadixTree(Key,
                     {
                         static if (isFixedTrieableKeyType!Key)
                         {
-                            if (currBM.at(keyChunk).peek!BM == BM.oneSet) { return true; }
+                            if (currBrM.at(keyChunk).peek!BrM == BrM.oneSet) { return true; }
                         }
                         else
                         {
-                            if (currBM.isOccupied)
+                            if (currBrM.isOccupied)
                             {
                                 return false;
                             }
                             else
                             {
-                                currBM.isOccupied = false;
+                                currBrM.isOccupied = false;
                                 return true;
                             }
                         }
-                        curr = currBM.at(keyChunk);
+                        curr = currBrM.at(keyChunk);
                     }
                 }
-                else if (const currLM = curr.peek!LM)
+                else if (const currLfM = curr.peek!LfM)
                 {
-                    return currLM.keyLSBits[keyChunk];
+                    return currLfM.keyLSBits[keyChunk];
                 }
                 else if (curr) { assert(false, "Unknown type of non-null pointer"); }
             }
@@ -526,16 +525,16 @@ struct RadixTree(Key,
         return node;
     }
 
-    void release(BM* curr) pure nothrow
+    void release(BrM* curr) pure nothrow
     {
         import std.algorithm : count, filter;
         foreach (sub; curr.subs[].filter!(sub => sub))
         {
-            if (auto subBM = sub.peek!BM)
+            if (auto subBrM = sub.peek!BrM)
             {
-                if (subBM != BM.oneSet) { release(subBM); /* recurse */ }
+                if (subBrM != BrM.oneSet) { release(subBrM); /* recurse */ }
             }
-            else if (auto subLM = sub.peek!LM)
+            else if (auto subLfM = sub.peek!LfM)
             {
                 // ok
             }
@@ -549,11 +548,11 @@ struct RadixTree(Key,
 
     void release(Node curr) pure nothrow
     {
-        if (auto subBM = curr.peek!BM)
+        if (auto subBrM = curr.peek!BrM)
         {
-            if (subBM != BM.oneSet) { release(subBM); /* recurse */ }
+            if (subBrM != BrM.oneSet) { release(subBrM); /* recurse */ }
         }
-        else if (auto subLM = curr.peek!LM)
+        else if (auto subLfM = curr.peek!LfM)
         {
             assert(false, "TODO");
         }
@@ -571,7 +570,7 @@ struct RadixTree(Key,
 
     void makeRoot()
     {
-        if (!_root.ptr) { _root = allocateNode!BM; }
+        if (!_root.ptr) { _root = allocateNode!BrM; }
     }
 
     /// Returns: number of branches used in `this` tree.
@@ -659,13 +658,15 @@ version(benchmark) unittest
         import std.array : array;
         import std.random : randomShuffle;
 
+        // TODO functionize to randomIota in range_ex.d
+        auto randomIotaSamples = 0.iota(n).array; randomIotaSamples.randomShuffle;
+
+        auto randomSamples = 0.iota(n).array; randomIotaSamples.randomShuffle;
+
         {
             auto sw = StopWatch(AutoStart.yes);
 
-            // TODO functionize to randomIota in range_ex.d
-            auto samples = 0.iota(n).array;
-            samples.randomShuffle;
-            foreach (Key k; samples) { assert(set.insert(k)); }
+            foreach (Key k; randomIotaSamples) { assert(set.insert(k)); }
 
             dln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
             auto uhists = set.usageHistograms;
@@ -680,9 +681,7 @@ version(benchmark) unittest
             bool[int] aa;
 
             // TODO functionize to randomIota in range_ex.d
-            auto samples = 0.iota(n).array;
-            samples.randomShuffle;
-            foreach (Key k; samples) { aa[k] = true; }
+            foreach (Key k; randomIotaSamples) { aa[k] = true; }
 
             dln("D-AA: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
             sleep(2);

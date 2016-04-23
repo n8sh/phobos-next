@@ -68,12 +68,11 @@ template Mod(size_t m, T = void)
 ///
 unittest
 {
+    // check size logic
     static assert(Mod!(ubyte.max + 1).sizeof == 1);
     static assert(Mod!(ubyte.max + 2).sizeof == 2);
-
     static assert(Mod!(ushort.max + 1).sizeof == 2);
     static assert(Mod!(ushort.max + 2).sizeof == 4);
-
     static assert(Mod!(cast(size_t)uint.max + 1).sizeof == 4);
     static assert(Mod!(cast(size_t)uint.max + 2).sizeof == 8);
 

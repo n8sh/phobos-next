@@ -538,7 +538,7 @@ struct BitSet(size_t len, Block = size_t)
     alias indexesOfOnes = oneIndexes;
 
     /** Get number of bits set in $(D this). */
-    ulong countOnes() const @safe @nogc pure nothrow
+    Mod!(len + 1) countOnes() const @safe @nogc pure nothrow
     {
         ulong n = 0;
         foreach (ix, block; _data)
@@ -553,7 +553,7 @@ struct BitSet(size_t len, Block = size_t)
                     assert(false, "Insupported blocks size " ~ to!string(block.sizeof));
             }
         }
-        return n;
+        return typeof(return)(n);
     }
     alias count = countOnes;
 

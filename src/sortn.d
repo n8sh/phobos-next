@@ -58,7 +58,7 @@ import std.range : isInputRange, isRandomAccessRange;
 version(unittest) import std.algorithm.comparison : equal;
 
 /** Static Iota.
-    TODO Move to Phobos.
+    TODO Move to Phobos std.range.
 */
 template iota(size_t from, size_t to)
     if (from <= to)

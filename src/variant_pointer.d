@@ -19,6 +19,8 @@ module variant_pointer;
     TODO Enable support for is null instead of isNull?
 
     TODO Use `enforce()` instead of `assert()` in VariantPointer:init()
+
+    TODO Move to Phobos std.variant
  */
 struct VariantPointer(Types...)
 {

@@ -697,7 +697,7 @@ version(benchmark) unittest
 }
 
 /** Static Iota.
-    TODO Move to Phobos.
+    TODO Move to Phobos std.range.
  */
 template iota(size_t from, size_t to)
     if (from <= to)

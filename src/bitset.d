@@ -7,7 +7,6 @@
  */
 module bitset;
 
-import core.bitop;
 import std.format;
 import std.range;
 import std.string;
@@ -16,6 +15,7 @@ import rational : Rational;
 /* TODO opSlice, opSliceAssign */
 struct BitSet(size_t len, Block = size_t)
 {
+    import core.bitop : bt, bts, btr, bitswap;
     import modulo : Mod;
 
     enum bitsPerBlocks = 8*Block.sizeof;
@@ -564,6 +564,7 @@ struct BitSet(size_t len, Block = size_t)
         {
             if (block != 0)
             {
+                import core.bitop : popcnt;
                 static if (block.sizeof == 4)
                     n += cast(uint)block.popcnt;
                 else static if (block.sizeof == 8)

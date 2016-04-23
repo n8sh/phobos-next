@@ -9,7 +9,7 @@ import std.traits : isIntegral;
     See also: https://forum.dlang.org/post/hmrpwyqfoxwtywbznbrr@forum.dlang.org
     See also: http://codeforces.com/contest/628/submission/16212299
 
-    TODO reuse ideas from bound.d (moved here)
+    TODO reuse ideas from bound.d
 
     TODO Add function limit()
     static if (isPow2!m)

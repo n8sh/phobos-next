@@ -1,12 +1,13 @@
 module hybridsort;
 
-import intsort : RadixSortableElementTypes, radixSort;
+import bijections : IntegralBijectableTypes;
+import intsort : radixSort;
 
-static immutable size_t[RadixSortableElementTypes.length] radixSortMinLength;
+static immutable size_t[IntegralBijectableTypes.length] radixSortMinLength;
 
 shared static this()
 {
-    foreach (i, E; RadixSortableElementTypes)
+    foreach (i, E; IntegralBijectableTypes)
     {
         import std.stdio : writeln;
         writeln("TODO Calculate radixSortMinLength for ", E.stringof);

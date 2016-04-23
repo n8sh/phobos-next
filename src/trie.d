@@ -64,6 +64,7 @@ module trie;
 import std.traits : isIntegral, isSomeChar, isSomeString, isScalarType, isArray, allSatisfy, anySatisfy;
 import std.range : isInputRange, ElementType;
 
+import bijections;
 import variant_pointer : VariantPointer;
 
 version = benchmark;

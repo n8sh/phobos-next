@@ -633,7 +633,7 @@ auto check()
     }
 }
 
-@safe pure nothrow unittest
+@safe pure nothrow @nogc unittest
 {
     check();
 }

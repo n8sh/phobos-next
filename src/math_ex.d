@@ -3,8 +3,9 @@ module math_ex;
 import std.traits : isIntegral;
 
 /** Check if `x` is an exact (binary) power of 2.
-   TODO Move to Phobos std.math.
-   */
+    See also: http://forum.dlang.org/post/hloonbgclzloqemycnth@forum.dlang.org
+    TODO Move to Phobos std.math.
+*/
 bool isPow2(T)(T x)
     if (isIntegral!T)
 {

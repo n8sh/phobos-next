@@ -16,6 +16,8 @@ import rational: Rational;
 /* TODO opSlice, opSliceAssign */
 struct BitSet(size_t len, Block = size_t)
 {
+    import modulo : Mod;
+
     enum bitsPerBlocks = 8*Block.sizeof;
     enum noBlocks = (len + (bitsPerBlocks-1)) / bitsPerBlocks;
     Block[noBlocks] _data;
@@ -24,31 +26,33 @@ struct BitSet(size_t len, Block = size_t)
 
     void reset() @safe nothrow { _data[] = 0; }
 
-    /**
-     * Gets the amount of native words backing this $(D BitSet).
-     */
+    /** Gets the amount of native words backing this $(D BitSet). */
     @property static size_t dim() @safe @nogc pure nothrow { return noBlocks; }
 
-    /**
-     * Gets the amount of bits in the $(D BitSet).
-     */
+    /** Gets the amount of bits in the $(D BitSet). */
     @property static size_t length() @safe @nogc pure nothrow { return len; }
 
     BitSet opAssign(BitSet rhs) @safe nothrow { this._data = rhs._data; return this; }
 
-    /**
-     * Gets the $(D i)'th bit in the $(D BitSet).
-     */
-    bool opIndex(size_t i) const @trusted pure nothrow in { assert(i < len); }
+    /** Gets the $(D i)'th bit in the $(D BitSet). */
+    bool opIndex(size_t i) const @trusted pure nothrow in { assert(i < len); } // TODO nothrow or not?
     body
     {
         // Andrei: review for @@@64-bit@@@
         return cast(bool) bt(ptr, i);
     }
 
-    /**
-     * Gets the $(D i)'th bit in the $(D BitSet).
-     * Statically verifies that i is < BitSet length.
+    /** Gets the $(D i)'th bit in the $(D BitSet). No range checking needed. */
+    static if (len > 0)
+    {
+        bool opIndex(Mod!len i) const @trusted pure nothrow
+        {
+            return cast(bool)bt(ptr, i);
+        }
+    }
+
+    /** Gets the $(D i)'th bit in the $(D BitSet).
+        Statically verifies that i is < BitSet length.
      */
     bool at(size_t i)() const @trusted pure nothrow in { static assert(i < len); }
     body
@@ -56,9 +60,7 @@ struct BitSet(size_t len, Block = size_t)
         return cast(bool) bt(ptr, i);
     }
 
-    /**
-     * Puts the $(D i)'th bit in the $(D BitSet) to $(D b).
-     */
+    /** Puts the $(D i)'th bit in the $(D BitSet) to $(D b). */
     auto ref put()(size_t i, bool b) @trusted pure nothrow in { assert(i < len); }
     body
     {
@@ -77,9 +79,7 @@ struct BitSet(size_t len, Block = size_t)
         // Note: This fails during compile-time: assert(bs.at!2 == false);
     }
 
-    /**
-     * Sets the $(D i)'th bit in the $(D BitSet).
-     */
+    /** Sets the $(D i)'th bit in the $(D BitSet). */
     import std.traits: isIntegral;
     bool opIndexAssign(Index)(bool b, Index i) @trusted pure nothrow if (isIntegral!Index) in {
         // import std.traits: isMutable;
@@ -102,14 +102,10 @@ struct BitSet(size_t len, Block = size_t)
         assert(bs[0]);
     }
 
-    /**
-     * Duplicates the $(D BitSet) and its contents.
-     */
+    /** Duplicates the $(D BitSet) and its contents. */
     @property BitSet dup() const @safe @nogc pure nothrow { return this; }
 
-    /**
-     * Support for $(D foreach) loops for $(D BitSet).
-     */
+    /** Support for $(D foreach) loops for $(D BitSet). */
     int opApply(scope int delegate(ref bool) dg)
     {
         int result;
@@ -214,9 +210,7 @@ struct BitSet(size_t len, Block = size_t)
         }
     }
 
-    /**
-     * Reverses the bits of the $(D BitSet) in place.
-     */
+    /** Reverses the bits of the $(D BitSet) in place. */
     @property BitSet reverse() out (result) { assert(result == this); }
     body
     {
@@ -306,10 +300,7 @@ struct BitSet(size_t len, Block = size_t)
         }
     }
 
-
-    /**
-     * Sorts the $(D BitSet)'s elements.
-     */
+    /** Sorts the $(D BitSet)'s elements. */
     @property BitSet sort() out (result) { assert(result == this); }
     body
     {
@@ -359,9 +350,7 @@ struct BitSet(size_t len, Block = size_t)
     /*     } */
 
 
-    /**
-     * Support for operators == and != for $(D BitSet).
-     */
+    /** Support for operators == and != for $(D BitSet). */
     const bool opEquals(in BitSet a2)
     {
         size_t i;
@@ -382,7 +371,8 @@ struct BitSet(size_t len, Block = size_t)
         //printf("i = %d, n = %d, mask = %x, %x, %x\n", i, n, mask, p1[i], p2[i]);
         return (mask == 0) || (p1[i] & mask) == (p2[i] & mask);
     }
-    unittest {
+    unittest
+    {
         debug(bitset) printf("BitSet.opEquals unittest\n");
         auto a = BitSet!5([1,0,1,0,1]);
         auto b = BitSet!5([1,0,1,1,1]);
@@ -391,9 +381,7 @@ struct BitSet(size_t len, Block = size_t)
         assert(a == c);
     }
 
-    /**
-     * Supports comparison operators for $(D BitSet).
-     */
+    /** Supports comparison operators for $(D BitSet). */
     int opCmp(in BitSet a2) const
     {
         uint i;
@@ -432,9 +420,7 @@ struct BitSet(size_t len, Block = size_t)
         assert(a >= c);
     }
 
-    /**
-     * Support for hashing for $(D BitSet).
-     */
+    /** Support for hashing for $(D BitSet). */
     extern(D) size_t toHash() const @trusted pure nothrow
     {
         size_t hash = 3557;
@@ -452,9 +438,7 @@ struct BitSet(size_t len, Block = size_t)
         return hash;
     }
 
-    /**
-     * Set this $(D BitSet) to the contents of $(D ba).
-     */
+    /** Set this $(D BitSet) to the contents of $(D ba). */
     this(bool[] ba) in { assert(length == ba.length); }
     body
     {
@@ -480,9 +464,7 @@ struct BitSet(size_t len, Block = size_t)
         assert(a.empty);
     }
 
-    /**
-     * Check if this $(D BitSet) has only zeros.
-     */
+    /** Check if this $(D BitSet) has only zeros. */
     bool allZero() const @safe @nogc pure nothrow
     {
         foreach (block; _data)
@@ -495,9 +477,7 @@ struct BitSet(size_t len, Block = size_t)
     }
     alias empty = allZero;
 
-    /**
-     * Check if this $(D BitSet) has only ones in range [ $(d low), $(d high) [.
-     */
+    /** Check if this $(D BitSet) has only ones in range [ $(d low), $(d high) [. */
     bool allOneBetween(size_t low, size_t high)
         const @safe @nogc pure nothrow
         in { assert(low + 1 <= len && high <= len); }
@@ -512,8 +492,7 @@ struct BitSet(size_t len, Block = size_t)
     alias allSetBetween = allOneBetween;
     alias fullBetween = allOneBetween;
 
-    /** Returns: Get indexes of all bits set.
-     */
+    /** Get indexes of all bits set. */
     auto oneIndexes() const @safe pure nothrow
     {
         size_t[] ixes;
@@ -530,8 +509,7 @@ struct BitSet(size_t len, Block = size_t)
     }
     alias indexesOfOnes = oneIndexes;
 
-    /** Returns: Number of Bits Set in $(D this).
-     */
+    /** Get number of bits set in $(D this). */
     ulong countOnes() const @safe @nogc pure nothrow
     {
         ulong n = 0;
@@ -553,14 +531,13 @@ struct BitSet(size_t len, Block = size_t)
 
     alias Q = Rational!ulong;
 
-    /** Returns: Number of Bits Set in $(D this).
-     */
+    /** Get number of bits set in $(D this). */
     Q denseness(int depth = -1) const @safe @nogc pure nothrow
     {
         return Q(countOnes, length);
     }
 
-    /** Returns: Number of Bits Unset in $(D this).  */
+    /** Get number of Bits Unset in $(D this). */
     Q sparseness(int depth = -1) const @safe @nogc pure nothrow
     {
         return 1 - denseness(depth);
@@ -579,17 +556,13 @@ struct BitSet(size_t len, Block = size_t)
     /*     _data[] = cast(size_t*)v.ptr[0..v.length]; */
     /* } */
 
-    /**
-     * Convert to $(D void[]).
-     */
+    /** Convert to $(D void[]). */
     void[] opCast(T : void[])()
     {
         return cast(void[])ptr[0 .. dim];
     }
 
-    /**
-     * Convert to $(D size_t[]).
-     */
+    /** Convert to $(D size_t[]). */
     size_t[] opCast(T : size_t[])()
     {
         return ptr[0 .. dim];
@@ -668,8 +641,7 @@ struct BitSet(size_t len, Block = size_t)
         assert(c == d);
     }
 
-    /**
-     * Support for binary operator - for $(D BitSet).
+    /** Support for binary operator - for $(D BitSet).
      *
      * $(D a - b) for $(D BitSet) means the same thing as $(D a &amp; ~b).
      */
@@ -689,8 +661,7 @@ struct BitSet(size_t len, Block = size_t)
         assert(c == d);
     }
 
-    /**
-     * Support for operator &= for $(D BitSet).
+    /** Support for operator &= for $(D BitSet).
      */
     BitSet opAndAssign(in BitSet e2)
     {
@@ -707,9 +678,7 @@ struct BitSet(size_t len, Block = size_t)
         assert(a == c);
     }
 
-
-    /**
-     * Support for operator |= for $(D BitSet).
+    /** Support for operator |= for $(D BitSet).
      */
     BitSet opOrAssign(in BitSet e2)
     {
@@ -726,8 +695,7 @@ struct BitSet(size_t len, Block = size_t)
         assert(a == c);
     }
 
-    /**
-     * Support for operator ^= for $(D BitSet).
+    /** Support for operator ^= for $(D BitSet).
      */
     BitSet opXorAssign(in BitSet e2)
     {
@@ -744,8 +712,7 @@ struct BitSet(size_t len, Block = size_t)
         assert(a == c);
     }
 
-    /**
-     * Support for operator -= for $(D BitSet).
+    /** Support for operator -= for $(D BitSet).
      *
      * $(D a -= b) for $(D BitSet) means the same thing as $(D a &amp;= ~b).
      */
@@ -765,8 +732,7 @@ struct BitSet(size_t len, Block = size_t)
         assert(a == c);
     }
 
-    /**
-     * Return a string representation of this BitSet.
+    /** Return a string representation of this BitSet.
      *
      * Two format specifiers are supported:
      * $(LI $(B %s) which prints the bits as an array, and)

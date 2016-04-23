@@ -67,6 +67,7 @@
 
     TODO Reuse core.checkedint
 
+    TODO Move to Phobos std.typecons
  */
 module bound;
 

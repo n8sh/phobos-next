@@ -1,5 +1,7 @@
 module modulo;                  // haha ;)
 
+import std.traits : isIntegral;
+
 /** Module type within inclusive value range `(0 .. m-1)`.
 
     Similar to Ada's modulo type `0 mod m`.
@@ -7,39 +9,74 @@ module modulo;                  // haha ;)
     TODO Move to std.typecons
     TODO reuse ideas from bound.d (moved here)
  */
-struct Mod(size_t m, T = uint)
+template Mod(size_t m, T = void)
+    if (is(T == void) || isIntegral!T)
 {
-    static assert(m <= 2^^(8*T.sizeof));
+    static assert(m > 0, "m must be greater than zero");
 
-    this(T value)
-    in
+    static if (!is(T == void))
     {
-        assert(value < m); // TODO use enforce instead?
+        alias S = T;
     }
-    body
+    else static if (m - 1 <= ubyte.max)
     {
-        this.x = value;
+        alias S = ubyte;
     }
+    else static if (m - 1 <= ushort.max)
+    {
+        alias S = ushort;
+    }
+    else static if (m - 1 <= uint.max)
+    {
+        alias S = uint;
+    }
+    else
+    {
+        alias S = ulong;
+    }
+    struct Mod
+    {
+        static assert(m - 1 <= 2^^(8*S.sizeof) - 1);
 
-    auto ref opAssign(T value)
-    in
-    {
-        assert(value < m); // TODO use enforce instead?
-    }
-    body
-    {
-        this.x = value;
-    }
+        this(S value)
+        in
+        {
+            assert(value < m); // TODO use enforce instead?
+        }
+        body
+        {
+            this.x = value;
+        }
 
-    @property size_t prop(){ return x; }
+        auto ref opAssign(S value)
+            in
+            {
+                assert(value < m); // TODO use enforce instead?
+            }
+        body
+        {
+            this.x = value;
+        }
 
-    alias prop this;
-    private T x;
+        @property size_t prop(){ return x; }
+
+        alias prop this;
+        private S x;
+    }
 }
 
 ///
 unittest
 {
+    static assert(Mod!(ubyte.max + 1).sizeof == 1);
+    static assert(Mod!(ubyte.max + 2).sizeof == 2);
+
+    static assert(Mod!(ushort.max + 1).sizeof == 2);
+    static assert(Mod!(ushort.max + 2).sizeof == 4);
+
+    static assert(Mod!(cast(size_t)uint.max + 1).sizeof == 4);
+    static assert(Mod!(cast(size_t)uint.max + 2).sizeof == 8);
+
     Mod!(8, ubyte) x = 6;
     Mod!(8, ubyte) y = 7;
 

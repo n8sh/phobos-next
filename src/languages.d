@@ -341,26 +341,26 @@ enum Language:ushort
 alias Lang = Language;
 
 /** Return true if $(D lang) is case-sensitive. */
-bool hasCase(Lang lang) @safe pure @nogc nothrow
+bool hasCase(Language lang) @safe pure @nogc nothrow
 {
     import std.algorithm.comparison: among;
-    with (Lang) return lang.among!(bg, ada) != 0;
+    with (Language) return lang.among!(bg, ada) != 0;
 }
 alias isCaseSensitive = hasCase;
 
 /** Return true if $(D lang) is a formal (computer) language. */
-bool isFormal(Lang lang) @safe pure @nogc nothrow
+bool isFormal(Language lang) @safe pure @nogc nothrow
 {
-    with (Lang) return (lang >= firstFormal &&
+    with (Language) return (lang >= firstFormal &&
                         lang <= lastFormal);
 }
 alias forMachines = isFormal;
 alias isProgrammingLanguage = isFormal;
 
 /** TODO Remove when __traits(documentation is merged */
-string toSpoken(Lang lang, Lang spokenLang = Lang.init) @safe pure @nogc nothrow
+string toSpoken(Language lang, Language spokenLang = Language.init) @safe pure @nogc nothrow
 {
-    switch (lang) with (Lang)
+    switch (lang) with (Language)
     {
         case unknown: return `??`;
         case en: return `English`; // 英語
@@ -497,33 +497,33 @@ string toSpoken(Lang lang, Lang spokenLang = Lang.init) @safe pure @nogc nothrow
     }
 }
 
-Lang decodeLang(S)(S lang) @safe pure nothrow if (isSomeString!S)
+Language decodeLang(S)(S lang) @safe pure nothrow if (isSomeString!S)
 {
     if (lang == `is`)
     {
-        return Lang.is_;
+        return Language.is_;
     }
     else
     {
         try
         {
-            return lang.to!Lang;
+            return lang.to!Language;
         }
         catch (Exception a)
         {
-            return Lang.unknown;
+            return Language.unknown;
         }
     }
 }
 
 unittest
 {
-    assert(`sv`.to!Lang == Lang.sv);
+    assert(`sv`.to!Language == Language.sv);
 }
 
 unittest
 {
-    with (Lang)
+    with (Language)
     {
         assert(unknown.toSpoken == `??`);
         assert(c.toSpoken == `C`);
@@ -536,32 +536,32 @@ unittest
 unittest
 {
     import conv_ex : tolerantTo;
-    assert("en".tolerantTo!Lang == Lang.en);
-    assert("EnglisH".tolerantTo!Lang == Lang.en);
+    assert("en".tolerantTo!Language == Language.en);
+    assert("EnglisH".tolerantTo!Language == Language.en);
 }
 
-string toHTML(Lang lang) @safe @nogc pure nothrow
+string toHTML(Language lang) @safe @nogc pure nothrow
 {
     return lang.toSpoken;
 }
 
-string toMathML(Lang lang)
+string toMathML(Language lang)
     @safe @nogc pure nothrow
 {
     return lang.toHTML;
 }
 
-Lang language(string name)
+Language language(string name)
     @safe @nogc pure nothrow
 {
     switch (name)
     {
-        case `C`:    return Lang.c;
-        case `C++`:  return Lang.cxx;
-        case `Objective-C`:  return Lang.objectiveC;
-        case `D`:    return Lang.d;
-        case `Java`: return Lang.java;
-        default:     return Lang.unknown;
+        case `C`:    return Language.c;
+        case `C++`:  return Language.cxx;
+        case `Objective-C`:  return Language.objectiveC;
+        case `D`:    return Language.d;
+        case `Java`: return Language.java;
+        default:     return Language.unknown;
     }
 }
 
@@ -575,9 +575,9 @@ enum MarkupLang:ubyte
 
 /** Languages that capitalize all their nouns, not only proper ones.
  */
-bool capitalizesNoun(Lang lang)
+bool capitalizesNoun(Language lang)
     @safe pure nothrow @nogc
 {
     import std.algorithm.comparison : among;
-    return lang.among!(Lang.de) != 0;
+    return lang.among!(Language.de) != 0;
 }

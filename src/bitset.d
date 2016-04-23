@@ -35,7 +35,11 @@ struct BitSet(size_t len, Block = size_t)
     BitSet opAssign(BitSet rhs) @safe nothrow { this._data = rhs._data; return this; }
 
     /** Gets the $(D i)'th bit in the $(D BitSet). */
-    bool opIndex(size_t i) const @trusted pure nothrow in { assert(i < len); } // TODO nothrow or not?
+    bool opIndex(size_t i) const @trusted pure nothrow
+    in
+    {
+        assert(i < len);        // TODO nothrow or not?
+    }
     body
     {
         // Andrei: review for @@@64-bit@@@
@@ -54,21 +58,30 @@ struct BitSet(size_t len, Block = size_t)
     /** Gets the $(D i)'th bit in the $(D BitSet).
         Statically verifies that i is < BitSet length.
      */
-    bool at(size_t i)() const @trusted pure nothrow in { static assert(i < len); }
+    bool at(size_t i)() const @trusted pure nothrow
+    in
+    {
+        static assert(i < len);
+    }
     body
     {
         return cast(bool) bt(ptr, i);
     }
 
     /** Puts the $(D i)'th bit in the $(D BitSet) to $(D b). */
-    auto ref put()(size_t i, bool b) @trusted pure nothrow in { assert(i < len); }
+    auto ref put()(size_t i, bool b) @trusted pure nothrow
+    in
+    {
+        assert(i < len);
+    }
     body
     {
         this[i] = b;
         return this;
     }
 
-    unittest {
+    unittest
+    {
         BitSet!4 bs = [0, 1, 0, 0];
         bs.put(3, true);
 
@@ -81,7 +94,10 @@ struct BitSet(size_t len, Block = size_t)
 
     /** Sets the $(D i)'th bit in the $(D BitSet). */
     import std.traits: isIntegral;
-    bool opIndexAssign(Index)(bool b, Index i) @trusted pure nothrow if (isIntegral!Index) in {
+    bool opIndexAssign(Index)(bool b, Index i) @trusted pure nothrow
+        if (isIntegral!Index)
+    in
+    {
         // import std.traits: isMutable;
         // See also: http://stackoverflow.com/questions/19906516/static-parameter-function-specialization-in-d
         /* static if (!isMutable!Index) { */
@@ -90,9 +106,21 @@ struct BitSet(size_t len, Block = size_t)
         /*                   "Index " ~ to!string(i) ~ " must be smaller than BitSet length " ~  to!string(len)); */
         /* } */
         assert(i < len);
-    } body {
+    }
+    body
+    {
         b ? bts(ptr, i) : btr(ptr, i);
         return b;
+    }
+
+    static if (len > 0)
+    {
+        /** Sets the $(D i)'th bit in the $(D BitSet). No range checking needed. */
+        bool opIndexAssign(Index)(bool b, Mod!len i) @trusted pure nothrow
+        {
+            b ? bts(ptr, i) : btr(ptr, i);
+            return b;
+        }
     }
 
     unittest

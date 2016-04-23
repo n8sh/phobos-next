@@ -116,7 +116,7 @@ struct BitSet(size_t len, Block = size_t)
     static if (len > 0)
     {
         /** Sets the $(D i)'th bit in the $(D BitSet). No range checking needed. */
-        bool opIndexAssign(Index)(bool b, Mod!len i) @trusted pure nothrow
+        bool opIndexAssign(bool b, Mod!len i) @trusted pure nothrow
         {
             b ? bts(ptr, i) : btr(ptr, i);
             return b;

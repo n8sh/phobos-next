@@ -2,9 +2,7 @@
 
     See also: https://en.wikipedia.org/wiki/Trie
 
-    TODO Avoid range checking of BitSet by adding support for IndexedBy or
-    adding an Index member to BitSet and merge this with IxM, limite to an uint
-    in the range 0..M-1.
+    TODO Use opIndex instead of at(): x.at(i) => (*x)[i]
 
     TODO Add support for map insert
 
@@ -132,9 +130,9 @@ struct RadixTree(Key,
     /** Constant node. */
     alias ConstNodePtr = VariantPointer!(staticMap!(ConstOf, NodeTypes));
 
-    /** Radix Index */
+    /** Radix Modulo Index */
     import modulo : Mod;
-    alias IxM = Mod!(M, uint);
+    alias IxM = Mod!M; // restricted index type avoids range checking in array indexing below
 
     /** Tree Iterator. */
     struct It
@@ -181,6 +179,18 @@ struct RadixTree(Key,
         }
 
         Node[M] subs;        // sub-branches
+
+        // Indexing with internal range check is safely avoided.
+        // TODO move to modulo.d: opIndex(T[M], IxM index) or at(T[M], IxM index) if that doesn't work
+        auto ref at(IxM index) @trusted
+        {
+            return subs.ptr[index];
+        }
+
+        auto ref opIndex(IxM index)
+        {
+            return at(index);
+        }
 
         /** Returns: depth of tree at this branch. */
         // size_t linearDepth() @safe pure nothrow const
@@ -321,10 +331,8 @@ struct RadixTree(Key,
         }
 
         const u = *(cast(UnsignedOfSameSizeAs!Key*)(&key)); // TODO functionize and reuse here and in intsort.d
-        const uint keyChunk = (u >> shift) & chunkMask; // part of value which is also an index
+        const IxM keyChunk = (u >> shift) & chunkMask; // part of value which is also an index
         static assert(radix <= 8*keyChunk.sizeof, "Need more precision in keyChunk");
-
-        assert(keyChunk < M); // extra range check
         return keyChunk;
     }
 
@@ -352,15 +360,15 @@ struct RadixTree(Key,
                 if (auto currBM = curr.peek!BM)
                 {
                     // assure that we have prepare leaf at next depth (sub-node)
-                    if (!currBM.subs[keyChunk]) // if not yet set
+                    if (!currBM.at(keyChunk)) // if not yet set
                     {
-                        currBM.subs[keyChunk] = allocateNode!LM;
+                        currBM.at(keyChunk) = allocateNode!LM;
                     }
                     else
                     {
-                        assert(currBM.subs[keyChunk].peek!LM);
+                        assert(currBM.at(keyChunk).peek!LM);
                     }
-                    curr = currBM.subs[keyChunk]; // and go there
+                    curr = currBM.at(keyChunk); // and go there
                 }
                 else if (auto currLM = curr.peek!LM) { assert(false, "TODO"); }
                 else if (curr) { assert(false, "Unknown type of non-null pointer"); }
@@ -370,16 +378,16 @@ struct RadixTree(Key,
                 if (auto currBM = curr.peek!BM) // branch-M
                 {
                     assert(currBM != BM.oneSet);
-                    if (!currBM.subs[keyChunk])
+                    if (!currBM.at(keyChunk))
                     {
-                        currBM.subs[keyChunk] = BM.oneSet; // tag this as last
+                        currBM.at(keyChunk) = BM.oneSet; // tag this as last
                         return KeyFindResult(Node(currBM), keyChunk, true); // a new value was inserted
                     }
                     else
                     {
                         static if (isFixedTrieableKeyType!Key)
                         {
-                            assert(currBM.subs[keyChunk].peek!BM == BM.oneSet);
+                            assert(currBM.at(keyChunk).peek!BM == BM.oneSet);
                             return KeyFindResult(Node(currBM), keyChunk, false); // value already set
                         }
                         else
@@ -419,11 +427,11 @@ struct RadixTree(Key,
                 if (auto currBM = curr.peek!BM)
                 {
                     assert(currBM != BM.oneSet);
-                    if (!currBM.subs[keyChunk]) // if branch not yet visited
+                    if (!currBM.at(keyChunk)) // if branch not yet visited
                     {
-                        currBM.subs[keyChunk] = allocateNode!BM; // create it
+                        currBM.at(keyChunk) = allocateNode!BM; // create it
                     }
-                    curr = currBM.subs[keyChunk]; // and visit it
+                    curr = currBM.at(keyChunk); // and visit it
                 }
                 else if (auto currLM = curr.peek!LM) { assert(false, "TODO"); }
                 else if (curr) { assert(false, "Unknown type of non-null pointer"); }
@@ -460,7 +468,7 @@ struct RadixTree(Key,
                 if (auto currBM = curr.peek!BM)
                 {
                     assert(currBM != BM.oneSet);
-                    if (!currBM.subs[keyChunk])
+                    if (!currBM.at(keyChunk))
                     {
                         return false;
                     }
@@ -468,7 +476,7 @@ struct RadixTree(Key,
                     {
                         static if (isFixedTrieableKeyType!Key)
                         {
-                            if (currBM.subs[keyChunk].peek!BM == BM.oneSet) { return true; }
+                            if (currBM.at(keyChunk).peek!BM == BM.oneSet) { return true; }
                         }
                         else
                         {
@@ -482,7 +490,7 @@ struct RadixTree(Key,
                                 return true;
                             }
                         }
-                        curr = currBM.subs[keyChunk];
+                        curr = currBM.at(keyChunk);
                     }
                 }
                 else if (const currLM = curr.peek!LM)
@@ -656,7 +664,7 @@ version(benchmark) unittest
         {
             auto sw = StopWatch(AutoStart.yes);
 
-            // TODO functionize to randomIota
+            // TODO functionize to randomIota in range_ex.d
             auto samples = 0.iota(n).array;
             samples.randomShuffle;
             foreach (Key k; samples) { assert(set.insert(k)); }
@@ -673,7 +681,7 @@ version(benchmark) unittest
             auto sw = StopWatch(AutoStart.yes);
             bool[int] aa;
 
-            // TODO functionize to randomIota
+            // TODO functionize to randomIota in range_ex.d
             auto samples = 0.iota(n).array;
             samples.randomShuffle;
             foreach (Key k; samples) { aa[k] = true; }

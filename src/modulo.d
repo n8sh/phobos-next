@@ -16,6 +16,7 @@ template Mod(size_t m, T = void)
 
     static if (!is(T == void))
     {
+        static assert(m - 1 <= 2^^(8*T.sizeof) - 1);
         alias S = T;
     }
     else static if (m - 1 <= ubyte.max)
@@ -36,8 +37,6 @@ template Mod(size_t m, T = void)
     }
     struct Mod
     {
-        static assert(m - 1 <= 2^^(8*S.sizeof) - 1);
-
         this(S value)
         in
         {
@@ -49,10 +48,10 @@ template Mod(size_t m, T = void)
         }
 
         auto ref opAssign(S value)
-            in
-            {
-                assert(value < m); // TODO use enforce instead?
-            }
+        in
+        {
+            assert(value < m); // TODO use enforce instead?
+        }
         body
         {
             this.x = value;

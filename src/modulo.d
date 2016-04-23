@@ -42,24 +42,26 @@ template Mod(size_t m, T = void)
 
     struct Mod
     {
-        this(S value)
+        this(U)(U value)
+            if (isIntegral!U)
         in
         {
             assert(value < m, "value too large"); // TODO use enforce instead?
         }
         body
         {
-            this.x = value;
+            this.x = cast(S)value; // TODO ok to cast here?
         }
 
-        auto ref opAssign(S value)
+        auto ref opAssign(U)(U value)
+            if (isIntegral!U)
         in
         {
             assert(value < m, "value too large"); // TODO use enforce instead?
         }
         body
         {
-            this.x = value;
+            this.x = cast(S)value; // TODO ok to cast here?
         }
 
         @property size_t prop() const
@@ -96,6 +98,7 @@ auto mod(size_t m, T)(T value)
     assert(x < y);
 
     y = 5;
+    y = 5L;
 
     assert(y < x);
 

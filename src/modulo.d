@@ -7,8 +7,21 @@ import std.traits : isIntegral;
     Similar to Ada's modulo type `0 mod m`.
 
     TODO Add modulo logic
-    TODO Move to std.typecons
+    TODO Move to Phobos std.typecons
     TODO reuse ideas from bound.d (moved here)
+
+    TODO Add function limit()
+    static if (isPow2!m)
+    {
+    return x & 2^^m - 1;
+    }
+    else
+    {
+    return x % m;
+    }
+
+    called after opBinary opUnary etc.
+
  */
 template Mod(size_t m, T = void)
     if (is(T == void) || isIntegral!T)
@@ -20,28 +33,17 @@ template Mod(size_t m, T = void)
         static assert(m - 1 <= 2^^(8*T.sizeof) - 1);
         alias S = T;
     }
-    else static if (m - 1 <= ubyte.max)
-    {
-        alias S = ubyte;
-    }
-    else static if (m - 1 <= ushort.max)
-    {
-        alias S = ushort;
-    }
-    else static if (m - 1 <= uint.max)
-    {
-        alias S = uint;
-    }
-    else
-    {
-        alias S = ulong;
-    }
+    else static if (m - 1 <= ubyte.max)  { alias S = ubyte; }
+    else static if (m - 1 <= ushort.max) { alias S = ushort; }
+    else static if (m - 1 <= uint.max)   { alias S = uint; }
+    else                                 { alias S = ulong; }
+
     struct Mod
     {
         this(S value)
         in
         {
-            assert(value < m); // TODO use enforce instead?
+            assert(value < m, "value too large"); // TODO use enforce instead?
         }
         body
         {
@@ -51,18 +53,28 @@ template Mod(size_t m, T = void)
         auto ref opAssign(S value)
         in
         {
-            assert(value < m); // TODO use enforce instead?
+            assert(value < m, "value too large"); // TODO use enforce instead?
         }
         body
         {
             this.x = value;
         }
 
-        @property size_t prop(){ return x; }
+        @property size_t prop()
+        {
+            return x;
+        }
 
         alias prop this;
         private S x;
     }
+}
+
+/// Instantiator for `Mod`.
+auto mod(size_t m, T)(T value)
+    if (is(T == void) || isIntegral!T)
+{
+    return Mod!(m, T)(value);
 }
 
 ///

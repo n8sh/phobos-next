@@ -490,7 +490,7 @@ import traits_ex : areEquable;
 
     TODO Is there a faster way of calculating anagrams?
     TODO Allow const input
-    TODO Move to std.algorithm.sorting.
+    TODO Move to Phobos std.algorithm.sorting.
     TODO Should requirement isInputRange be relaxed?
 
     Note that implementations in http://rosettacode.org/wiki/Anagrams#D doesn't

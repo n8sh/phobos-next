@@ -107,5 +107,8 @@ auto mod(size_t m, T)(T value)
 
     const a = 7.mod!10;
     const b = 8.mod!256;
+    const c = 257.mod!1000;
+
     assert(a < b);
+    assert(a < c);
 }

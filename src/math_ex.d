@@ -10,6 +10,7 @@ bool isPow2(T)(T x)
     if (isIntegral!T)
 {
     import core.bitop : popcnt;
+    // TODO Use popcnt if available otherwise (x & -x) > (x - 1);
     return popcnt(x) == 1;
 }
 

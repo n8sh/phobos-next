@@ -6,6 +6,8 @@ import std.traits : isIntegral;
 
     Similar to Ada's modulo type `0 mod m`.
 
+    See also: https://forum.dlang.org/post/hmrpwyqfoxwtywbznbrr@forum.dlang.org
+
     TODO Add modulo logic
     TODO Move to Phobos std.typecons
     TODO reuse ideas from bound.d (moved here)

@@ -242,22 +242,27 @@ struct BitSet(size_t len, Block = size_t)
     @property BitSet reverse() out (result) { assert(result == this); }
     body
     {
-        static if (length == noBlocks * bitsPerBlocks)  {
-            static if (noBlocks == 1) {
+        static if (length == noBlocks * bitsPerBlocks)
+        {
+            static if (noBlocks == 1)
+            {
                 _data[0] = reverseBlock(_data[0]);
             }
-            else static if (noBlocks == 2) {
+            else static if (noBlocks == 2)
+            {
                 const tmp = _data[1];
                 _data[1] = reverseBlock(_data[0]);
                 _data[0] = reverseBlock(tmp);
             }
-            else static if (noBlocks == 3) {
+            else static if (noBlocks == 3)
+            {
                 const tmp = _data[2];
                 _data[2] = reverseBlock(_data[0]);
                 _data[1] = reverseBlock(_data[1]);
                 _data[0] = reverseBlock(tmp);
             }
-            else {
+            else
+            {
                 size_t lo = 0;
                 size_t hi = _data.length - 1;
                 for (; lo < hi; lo++, hi--)
@@ -266,11 +271,14 @@ struct BitSet(size_t len, Block = size_t)
                     _data[lo] = reverseBlock(_data[hi]);
                     _data[hi] = t;
                 }
-                if (lo == hi) {
+                if (lo == hi)
+                {
                     _data[lo] = reverseBlock(_data[lo]);
                 }
             }
-        } else {
+        }
+        else
+        {
             static if (length >= 2)
             {
                 size_t lo = 0;
@@ -293,7 +301,8 @@ struct BitSet(size_t len, Block = size_t)
                                  0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0];
         auto b = BitSet!len(data);
         b.reverse;
-        for (size_t i = 0; i < data.length; i++) {
+        for (size_t i = 0; i < data.length; i++)
+        {
             assert(b[i] == data[len - 1 - i]);
         }
     }
@@ -307,7 +316,8 @@ struct BitSet(size_t len, Block = size_t)
                                  0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0];
         auto b = BitSet!len(data);
         b.reverse;
-        for (size_t i = 0; i < data.length; i++) {
+        for (size_t i = 0; i < data.length; i++)
+        {
             assert(b[i] == data[len - 1 - i]);
         }
     }
@@ -323,13 +333,18 @@ struct BitSet(size_t len, Block = size_t)
                                  0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0];
         auto b = BitSet!len(data);
         b.reverse;
-        for (size_t i = 0; i < data.length; i++) {
+        for (size_t i = 0; i < data.length; i++)
+        {
             assert(b[i] == data[len - 1 - i]);
         }
     }
 
     /** Sorts the $(D BitSet)'s elements. */
-    @property BitSet sort() out (result) { assert(result == this); }
+    @property BitSet sort()
+    out (result)
+    {
+        assert(result == this);
+    }
     body
     {
         if (len >= 2)
@@ -497,7 +512,8 @@ struct BitSet(size_t len, Block = size_t)
     {
         foreach (block; _data)
         {
-            if (block != 0) {
+            if (block != 0)
+            {
                 return false;
             }
         }
@@ -508,7 +524,10 @@ struct BitSet(size_t len, Block = size_t)
     /** Check if this $(D BitSet) has only ones in range [ $(d low), $(d high) [. */
     bool allOneBetween(size_t low, size_t high)
         const @safe @nogc pure nothrow
-        in { assert(low + 1 <= len && high <= len); }
+    in
+    {
+        assert(low + 1 <= len && high <= len);
+    }
     body
     {
         foreach (i; low .. high)
@@ -543,7 +562,8 @@ struct BitSet(size_t len, Block = size_t)
         ulong n = 0;
         foreach (ix, block; _data)
         {
-            if (block != 0) {
+            if (block != 0)
+            {
                 static if (block.sizeof == 4)
                     n += cast(uint)block.popcnt;
                 else static if (block.sizeof == 8)

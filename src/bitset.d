@@ -11,7 +11,7 @@ import core.bitop;
 import std.format;
 import std.range;
 import std.string;
-import rational: Rational;
+import rational : Rational;
 
 /* TODO opSlice, opSliceAssign */
 struct BitSet(size_t len, Block = size_t)

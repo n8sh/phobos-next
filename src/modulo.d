@@ -2,9 +2,9 @@ module modulo;                  // haha ;)
 
 import std.traits : isIntegral;
 
-/** Module type within inclusive value range (0 .. `M`-1).
+/** Module type within inclusive value range (0 .. `m`-1).
 
-    Similar to Ada's modulo type `0 mod M`.
+    Similar to Ada's modulo type `0 mod m`.
 
     See also: https://forum.dlang.org/post/hmrpwyqfoxwtywbznbrr@forum.dlang.org
     See also: http://codeforces.com/contest/628/submission/16212299
@@ -14,32 +14,32 @@ import std.traits : isIntegral;
     TODO reuse ideas from bound.d (moved here)
 
     TODO Add function limit()
-    static if (isPow2!M)
+    static if (isPow2!m)
     {
-    return x & 2^^M - 1;
+    return x & 2^^m - 1;
     }
     else
     {
-    return x % M;
+    return x % m;
     }
 
     called after opBinary opUnary etc similar to what is done
     http://codeforces.com/contest/628/submission/16212299
 
  */
-template Mod(size_t M, T = void)
+template Mod(size_t m, T = void)
     if (is(T == void) || isIntegral!T)
 {
-    static assert(M > 0, "M must be greater than zero");
+    static assert(m > 0, "m must be greater than zero");
 
     static if (!is(T == void))
     {
-        static assert(M - 1 <= 2^^(8*T.sizeof) - 1);
+        static assert(m - 1 <= 2^^(8*T.sizeof) - 1);
         alias S = T;
     }
-    else static if (M - 1 <= ubyte.max)  { alias S = ubyte; }
-    else static if (M - 1 <= ushort.max) { alias S = ushort; }
-    else static if (M - 1 <= uint.max)   { alias S = uint; }
+    else static if (m - 1 <= ubyte.max)  { alias S = ubyte; }
+    else static if (m - 1 <= ushort.max) { alias S = ushort; }
+    else static if (m - 1 <= uint.max)   { alias S = uint; }
     else                                 { alias S = ulong; }
 
     struct Mod
@@ -48,7 +48,7 @@ template Mod(size_t M, T = void)
             if (isIntegral!U)
         in
         {
-            assert(value < M, "value too large"); // TODO use enforce instead?
+            assert(value < m, "value too large"); // TODO use enforce instead?
         }
         body
         {
@@ -59,7 +59,7 @@ template Mod(size_t M, T = void)
             if (isIntegral!U)
         in
         {
-            assert(value < M, "value too large"); // TODO use enforce instead?
+            assert(value < m, "value too large"); // TODO use enforce instead?
         }
         body
         {
@@ -77,10 +77,10 @@ template Mod(size_t M, T = void)
 }
 
 /// Instantiator for `Mod`.
-auto mod(size_t M, T)(T value)
+auto mod(size_t m, T)(T value)
     if (is(T == void) || isIntegral!T)
 {
-    return Mod!(M, T)(value);
+    return Mod!(m, T)(value);
 }
 
 ///

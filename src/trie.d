@@ -158,15 +158,15 @@ struct RadixTree(Key,
         It high;                // beyond last
     }
 
-    /** Tree branch order occurence.
-        Index map to order (1 .. M).
+    /** Branch occupation histogram.
+        Index maps to occupation with value range (1 .. M).
     */
-    alias BranchUsageHistogram = size_t[M];
+    alias BranchOccupationHistogram = size_t[M];
 
-    /** Leaf order usage.
-        Index map to order (1 .. M).
+    /** Leaf occupation histogram.
+        Index maps to occupation with value range (1 .. M).
     */
-    alias LeafUsageHistogram = size_t[M];
+    alias LeafOccupationHistogram = size_t[M];
 
     /** Non-bottom branch node containing densly packed array of `M` number of
         pointers to sub-`BrM`s or `Leaf`s.
@@ -208,8 +208,8 @@ struct RadixTree(Key,
         // }
 
         /** Returns: depth of tree at this branch. */
-        void calculate(ref BranchUsageHistogram brHist,
-                       ref LeafUsageHistogram lfHist) @safe pure nothrow const
+        void calculate(ref BranchOccupationHistogram brHist,
+                       ref LeafOccupationHistogram lfHist) @safe pure nothrow const
         {
             import std.algorithm : count, filter;
             size_t nzcnt = 0; // number of non-zero branches
@@ -247,7 +247,7 @@ struct RadixTree(Key,
     */
     static private struct LfM
     {
-        void calculate(ref LeafUsageHistogram hist) @safe pure const
+        void calculate(ref LeafOccupationHistogram hist) @safe pure const
         {
             ++hist[keyLSBits.countOnes - 1];
         }
@@ -274,7 +274,7 @@ struct RadixTree(Key,
     //     return _root !is null ? _root.linearDepth : 0;
     // }
 
-    BranchUsageHistogram[2] usageHistograms() const
+    BranchOccupationHistogram[2] usageHistograms() const
     {
         typeof(return) hists;
 

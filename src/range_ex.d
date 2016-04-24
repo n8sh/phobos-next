@@ -370,8 +370,8 @@ auto slidingSplitter(R)(R data, size_t lower, size_t upper)
         foreach (ix; iota!(0, ch.length)) // for each part in split
         {
             import std.algorithm: equal;
-            assert(equal(ch[ix], name16.front[ix]));
-            assert(equal(ch[ix], name32.front[ix]));
+            assert(ch[ix].equal(name16.front[ix]));
+            assert(ch[ix].equal(name32.front[ix]));
 
         }
         name16.popFront;
@@ -396,8 +396,8 @@ auto slidingSplitter(R)(R data, size_t lower, size_t upper)
         foreach (ix; iota!(0, ch.length)) // for each part in split
         {
             import std.algorithm: equal;
-            assert(equal(ch[ix], name16.front[ix]));
-            assert(equal(ch[ix], name32.front[ix]));
+            assert(ch[ix].equal(name16.front[ix]));
+            assert(ch[ix].equal(name32.front[ix]));
         }
         name16.popFront;
         name32.popFront;
@@ -515,7 +515,7 @@ unittest
     x[0] = "a";
     import std.algorithm: equal;
     import std.typecons : tuple;
-    assert(equal(x.byPair, [tuple(0, "a")]));
+    assert(x.byPair.equal([tuple(0, "a")]));
 }
 
 /** Return Array of Key-Value Pairs of Associative Array $(D aa).
@@ -761,25 +761,25 @@ auto merge(alias less = "a < b", Rs...)(Rs rs) if (Rs.length > 1 &&
                    b.assumeSorted);
 
     static assert(is(typeof(r.front) == double));
-    assert(equal(r, [1, 2, 3, 10, 20, 30, 40, 50, 60]));
-    assert(equal(r.retro, [60, 50, 40, 30, 20, 10, 3, 2, 1]));
+    assert(r.equal([1, 2, 3, 10, 20, 30, 40, 50, 60]));
+    assert(r.retro.equal([60, 50, 40, 30, 20, 10, 3, 2, 1]));
 
     r.popFront;
-    assert(equal(r, [2, 3, 10, 20, 30, 40, 50, 60]));
+    assert(r.equal([2, 3, 10, 20, 30, 40, 50, 60]));
     r.popBack;
-    assert(equal(r, [2, 3, 10, 20, 30, 40, 50]));
+    assert(r.equal([2, 3, 10, 20, 30, 40, 50]));
     r.popFront;
-    assert(equal(r, [3, 10, 20, 30, 40, 50]));
+    assert(r.equal([3, 10, 20, 30, 40, 50]));
     r.popBack;
-    assert(equal(r, [3, 10, 20, 30, 40]));
+    assert(r.equal([3, 10, 20, 30, 40]));
     r.popFront;
-    assert(equal(r, [10, 20, 30, 40]));
+    assert(r.equal([10, 20, 30, 40]));
     r.popBack;
-    assert(equal(r, [10, 20, 30]));
+    assert(r.equal([10, 20, 30]));
     r.popFront;
-    assert(equal(r, [20, 30]));
+    assert(r.equal([20, 30]));
     r.popBack;
-    assert(equal(r, [20]));
+    assert(r.equal([20]));
     r.popFront;
     assert(r.empty);
 }
@@ -897,10 +897,10 @@ unittest
     import std.algorithm : equal, map;
     auto x = [1, 2, 3, 4, 5, 6, 7].map!(a => a); // test with ForwardRange
     auto y = x.adjacentTuples!4;
-    assert(equal(y, [t(1, 2, 3, 4),
-                     t(2, 3, 4, 5),
-                     t(3, 4, 5, 6),
-                     t(4, 5, 6, 7)]));
+    assert(y.equal([t(1, 2, 3, 4),
+                    t(2, 3, 4, 5),
+                    t(3, 4, 5, 6),
+                    t(4, 5, 6, 7)]));
 }
 
 ///
@@ -910,7 +910,7 @@ unittest
     import std.algorithm : equal;
     const x = [1, 2, 3, 4];
     auto y = x.adjacentPairs;
-    assert(equal(y, [t(1, 2), t(2, 3), t(3, 4)]));
+    assert(y.equal([t(1, 2), t(2, 3), t(3, 4)]));
 }
 
 ///
@@ -920,7 +920,7 @@ unittest
     import std.algorithm : equal;
     auto x = ["1", "2", "3", "4"];
     auto y = x.adjacentPairs;
-    assert(equal(y, [t("1", "2"), t("2", "3"), t("3", "4")]));
+    assert(y.equal([t("1", "2"), t("2", "3"), t("3", "4")]));
 }
 
 ///
@@ -930,7 +930,7 @@ unittest
     import std.algorithm : equal;
     const x = ["1", "2", "3", "4"];
     auto y = x.adjacentPairs;
-    assert(equal(y, [t("1", "2"), t("2", "3"), t("3", "4")]));
+    assert(y.equal([t("1", "2"), t("2", "3"), t("3", "4")]));
 }
 
 auto rangify(T)(T range)
@@ -964,5 +964,5 @@ unittest
     import std.algorithm : equal;
     auto s = S();
     s.arr = [1, 2, 3];
-    assert(equal(s.rangify, [1, 2, 3]));
+    assert(s.rangify.equal([1, 2, 3]));
 }

@@ -31,12 +31,12 @@ template Mod(size_t m, T = void)
 {
     static assert(m > 0, "m must be greater than zero");
 
-    static if (!is(T == void)) // check if type T was explicitly required
+    static if (!is(T == void)) // check if type `T` was explicitly required
     {
-        static assert(m - 1 <= 2^^(8*T.sizeof) - 1); // check that it matches `s`
+        static assert(m - 1 <= 2^^(8*T.sizeof) - 1); // if so, check that it matches `s`
         alias S = T;
     }
-    // otherwise infer it from `m`
+    // otherwise, infer it from `m`
     else static if (m - 1 <= ubyte.max)  { alias S = ubyte; }
     else static if (m - 1 <= ushort.max) { alias S = ushort; }
     else static if (m - 1 <= uint.max)   { alias S = uint; }

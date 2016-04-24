@@ -2,6 +2,8 @@
 
     See also: https://en.wikipedia.org/wiki/Trie
 
+    TODO Make oneSet typed VariantPointer
+
     TODO Use opIndex instead of at(): x.at(i) => (*x)[i]
 
     TODO Add support for map insert
@@ -186,16 +188,9 @@ struct RadixTree(Key,
         Node[M] subs;        // sub-branches
 
         // Indexing with internal range check is safely avoided.
-        // TODO move to modulo.d: opIndex(T[M], IxM index) or at(T[M], IxM index) if that doesn't work
-        auto ref at(IxM index) @trusted
-        {
-            return subs.ptr[index];
-        }
-
-        auto ref opIndex(IxM index)
-        {
-            return at(index);
-        }
+        // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
+        auto ref at     (IxM i) @trusted { return subs.ptr[i]; }
+        auto ref opIndex(IxM i) { return at(i); }
 
         /** Returns: depth of tree at this branch. */
         // size_t linearDepth() @safe pure nothrow const
@@ -241,6 +236,52 @@ struct RadixTree(Key,
             }
         }
     }
+
+    static private struct Br(size_t N)
+        if (N == 2 || N == 4 || N == 8)
+    {
+        Node[N] subs;        // sub-branches
+
+        // Indexing with internal range check is safely avoided.
+        // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
+        auto ref at     (Mod!N i) @trusted { return subs.ptr[i]; }
+        auto ref opIndex(Mod!N i) { return at(i); }
+
+        /** Returns: depth of tree at this branch. */
+        void calculate(ref BranchOccupationHistogram brHist,
+                       ref LeafOccupationHistogram lfHist) @safe pure nothrow const
+        {
+            import std.algorithm : count, filter;
+            size_t nzcnt = 0; // number of non-zero branches
+            foreach (sub; subs[].filter!(sub => sub))
+            {
+                ++nzcnt;
+                if (const subBrM = sub.peek!BrM)
+                {
+                    if (subBrM != BrM.oneSet) { subBrM.calculate(brHist, lfHist); }
+                }
+                else if (const subLfM = sub.peek!LfM)
+                {
+                    subLfM.calculate(lfHist);
+                }
+                else if (sub)
+                {
+                    assert(false, "Unknown type of non-null pointer");
+                }
+            }
+            ++brHist[nzcnt - 1];
+        }
+
+        static if (!isFixed)        // variable length keys only
+        {
+            Lf!N subOccupations; // if i:th bit is set key (and optionally value) associated with sub[i] is also defined
+            static if (isMap)
+            {
+                Value value;
+            }
+        }
+    }
+    alias Br2 = Br!2;
 
     /** Bottom-most leaf node of `RadixTree`-set storing `M` number of densly packed
         keys of fixed-length type `Key`.
@@ -313,8 +354,8 @@ struct RadixTree(Key,
         // debug assert(_nodeCount == 0);
     }
 
-    /** Get chunkIndex:th chunk of `radix` number of bits. */
-    IxM bitsChunk(uint chunkIndex)(Key key) const @trusted pure nothrow
+    /** Get i:th chunk of `radix` number of bits. */
+    IxM bitsChunk(uint i)(Key key) const @trusted pure nothrow
     {
         // calculate bit shift to current chunk
         static if (isIntegral!Key ||
@@ -322,13 +363,13 @@ struct RadixTree(Key,
         {
             /* most signficant bit chunk first because integers are
                typically more sparse in more significant bits */
-            enum shift = (maxDepth - 1 - chunkIndex)*R;
+            enum shift = (maxDepth - 1 - i)*R;
         }
         else
         {
             // default to most signficant bit chunk first
-            enum shift = (maxDepth - 1 - chunkIndex)*R;
-            // enum shift = chunkIndex*R; // least significant bit first
+            enum shift = (maxDepth - 1 - i)*R;
+            // enum shift = i*R; // least significant bit first
         }
 
         const u = *(cast(UnsignedOfSameSizeAs!Key*)(&key)); // TODO functionize and reuse here and in intsort.d

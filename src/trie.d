@@ -158,11 +158,15 @@ struct RadixTree(Key,
         It high;                // beyond last
     }
 
-    /** Tree branch order occurence. */
-    alias BranchUsageHistogram = size_t[M + 1];
+    /** Tree branch order occurence.
+        Index map to order (1 .. M).
+    */
+    alias BranchUsageHistogram = size_t[M];
 
-    /** Leaf usage. */
-    alias LeafUsageHistogram = size_t[M + 1];
+    /** Leaf order usage.
+        Index map to order (1 .. M).
+    */
+    alias LeafUsageHistogram = size_t[M];
 
     /** Non-bottom branch node containing densly packed array of `M` number of
         pointers to sub-`BrM`s or `Leaf`s.
@@ -225,7 +229,7 @@ struct RadixTree(Key,
                     assert(false, "Unknown type of non-null pointer");
                 }
             }
-            ++brHist[nzcnt];
+            ++brHist[nzcnt - 1];
         }
 
         static if (!isFixed)        // variable length keys only
@@ -245,7 +249,7 @@ struct RadixTree(Key,
     {
         void calculate(ref LeafUsageHistogram hist) @safe pure const
         {
-            ++hist[keyLSBits.countOnes];
+            ++hist[keyLSBits.countOnes - 1];
         }
 
         import bitset : BitSet;
@@ -658,15 +662,25 @@ version(benchmark) unittest
         import std.array : array;
         import std.random : randomShuffle;
 
+        const useUniqueRandom = false;
+
         // TODO functionize to randomIota in range_ex.d
         auto randomIotaSamples = 0.iota(n).array; randomIotaSamples.randomShuffle;
 
-        auto randomSamples = 0.iota(n).array; randomIotaSamples.randomShuffle;
+        // TODO functionize to lazy generate!rand
+        import random_ex : randomize;
+        auto randomAnySamples = new Key[n]; randomAnySamples.randomize;
 
         {
             auto sw = StopWatch(AutoStart.yes);
 
-            foreach (Key k; randomIotaSamples) { assert(set.insert(k)); }
+            foreach (Key k; randomAnySamples)
+            {
+                if (useUniqueRandom)
+                    assert(set.insert(k));
+                else
+                    set.insert(k);
+            }
 
             dln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
             auto uhists = set.usageHistograms;
@@ -680,8 +694,7 @@ version(benchmark) unittest
             auto sw = StopWatch(AutoStart.yes);
             bool[int] aa;
 
-            // TODO functionize to randomIota in range_ex.d
-            foreach (Key k; randomIotaSamples) { aa[k] = true; }
+            foreach (Key k; randomAnySamples) { aa[k] = true; }
 
             dln("D-AA: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
             sleep(2);

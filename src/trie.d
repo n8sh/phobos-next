@@ -225,7 +225,7 @@ struct RadixTree(Key,
                     assert(false, "Unknown type of non-null pointer");
                 }
             }
-            ++brHist[nzcnt - 1];
+            ++brHist[nzcnt];
         }
 
         static if (!isFixed)        // variable length keys only

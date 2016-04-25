@@ -263,8 +263,9 @@ struct RadixTree(Key,
     // TODO templatize on N (currently 2)
     static private struct Br2
     {
+        // TODO merge these into a new `NodeType`
         Node[2] subs;        // sub-branches
-        Mod!(2, ubyte) subIxMs; // sub-ixMs. NOTE wastes space because IxM[2] only requires two bytes. Use IxM2 instead.
+        IxM[2] subIxs; // sub-ixMs. NOTE wastes space because IxM[2] only requires two bytes. Use IxM2 instead.
 
         // Indexing with internal range check is safely avoided.
         // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
@@ -417,7 +418,7 @@ struct RadixTree(Key,
                     // assure that we have prepared `LfM` at next depth (sub-node)
                     if (!currBrM.at(keyChunk)) // if not yet set
                     {
-                        currBrM.at(keyChunk) = allocateNode!LfM;
+                        currBrM.at(keyChunk) = makeNode!LfM;
                     }
                     else
                     {
@@ -484,7 +485,7 @@ struct RadixTree(Key,
                     assert(currBrM != BrM.oneSet);
                     if (!currBrM.at(keyChunk)) // if branch not yet visited
                     {
-                        currBrM.at(keyChunk) = allocateNode!BrM; // create it
+                        currBrM.at(keyChunk) = makeNode!BrM; // create it
                     }
                     curr = currBrM.at(keyChunk); // and visit it
                 }
@@ -495,32 +496,64 @@ struct RadixTree(Key,
         assert(false, "End of function shouldn't be reached");
     }
 
-    /** Recursive implementation of insert. */
-    pragma(inline) Node insert(Node curr, in Key key, ChunkIx chunkIx) // Node-polymorphic
+    @safe pure nothrow @nogc
     {
-        if      (auto currBr2 = curr.peek!Br2) { return insert(currBr2, key, chunkIx); }
-        else if (auto currBrM = curr.peek!BrM) { return insert(currBrM, key, chunkIx); }
-        else if (auto currLfM = curr.peek!LfM) { return insert(currLfM, key, chunkIx); }
-        else                                   { assert(false, "Unknown Node type"); }
-    }
+        /** Recursive implementation of insert. */
+        pragma(inline) Node insert(Node curr, in Key key, ChunkIx chunkIx) // Node-polymorphic
+        {
+            if      (auto currBr2 = curr.peek!Br2) { return insert(currBr2, key, chunkIx); }
+            else if (auto currBrM = curr.peek!BrM) { return insert(currBrM, key, chunkIx); }
+            else if (auto currLfM = curr.peek!LfM) { return insert(currLfM, key, chunkIx); }
+            else                                   { assert(false, "Unknown Node type"); }
+        }
 
-    Node insert(Br2* br2_ptr, in Key key, ChunkIx chunkIx)
-    {
-        const IxM keyChunk = bitsChunk(key, chunkIx);
-        return Node(br2_ptr);
-    }
+        Node insert(Br2* br2, in Key key, ChunkIx chunkIx)
+        {
+            const IxM keyChunk = bitsChunk(key, chunkIx);
 
-    Node insert(BrM* brM_ptr, in Key key, ChunkIx chunkIx)
-    {
-        const IxM keyChunk = bitsChunk(key, chunkIx);
-        return Node(brM_ptr);
-    }
+            foreach (Mod!(2) subIx; iota!(0, 2)) // each sub node
+            {
+                if (br2.subs[subIx])   // first is occupied
+                {
+                    if (br2.subIxs[subIx] == keyChunk)
+                    {
+                        return insert(br2.subs[subIx], key, chunkIx + 1);
+                    }
+                }
+                else
+                {
+                    assert(false, "use br2.subs[0]");
+                }
+            }
 
-    Node insert(LfM* lfM_ptr, in Key key, ChunkIx chunkIx)
-    {
-        assert(chunkIx + 1 == maxDepth);
-        const IxM keyChunk = bitsChunk(key, chunkIx);
-        return Node(lfM_ptr);
+            return insert(destructiveExpand(br2, key), key, chunkIx);
+        }
+
+        Node insert(BrM* brM, in Key key, ChunkIx chunkIx)
+        {
+            const IxM keyChunk = bitsChunk(key, chunkIx);
+            return Node(brM);
+        }
+
+        Node insert(LfM* lfM, in Key key, ChunkIx chunkIx)
+        {
+            assert(chunkIx + 1 <= maxDepth); // assert that we are at least significant chunk
+            const IxM keyChunk = bitsChunk(key, chunkIx);
+            return Node(lfM);
+        }
+
+        /** Destructively Destructivelydesexpand `br2` into a `BrM` and return it. */
+        BrM* destructiveExpand(Br2* br2, in Key key) @trusted
+        {
+            BrM* brM = makeNode!BrM;
+            assert(false, "Copy subs from br2 to brM and delete br2");
+            foreach (Mod!(2) subIx; iota!(0, 2)) // each sub node
+            {
+                brM.at(br2.subIxs[subIx]) = br2.subs[subIx];
+            }
+            freeNode(br2);
+            return brM;
+        }
     }
 
     static if (isMap)
@@ -605,7 +638,7 @@ struct RadixTree(Key,
     private:
 
     /** Allocate `Node`-type of value type `U`. */
-    U* allocateNode(U)() @trusted
+    U* makeNode(U)() @trusted
     {
         import std.conv : emplace;
         U* node = emplace!U(cast(U*)malloc(U.sizeof));
@@ -632,7 +665,7 @@ struct RadixTree(Key,
                 assert(false, "Unknown type of non-null pointer");
             }
         }
-        deallocateNode(curr);
+        freeNode(curr);
     }
 
     void release(Node curr) pure nothrow
@@ -651,7 +684,7 @@ struct RadixTree(Key,
         }
     }
 
-    void deallocateNode(NodeType)(NodeType* nt) @trusted
+    void freeNode(NodeType)(NodeType* nt) @trusted
     {
         debug --_nodeCount;
         free(cast(void*)nt);  // TODO Allocator.free
@@ -660,7 +693,7 @@ struct RadixTree(Key,
     /** Ensure that root `Node` is allocated. */
     void ensureRootNode(U = BrM)()
     {
-        if (!_root.ptr) { _root = allocateNode!U; }
+        if (!_root.ptr) { _root = makeNode!U; }
     }
 
     /// Returns: number of nodes used in `this` tree.

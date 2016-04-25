@@ -310,7 +310,7 @@ struct RadixTree(Key,
     {
         if (!_root.ptr) return;
         auto oldRootPtr = _root;
-        ensureRoot;
+        ensureRootNode;
         auto curr = oldRootPtr;
         while (curr)
         {
@@ -358,7 +358,7 @@ struct RadixTree(Key,
     */
     KeyFindResult insert(Key key)
     {
-        ensureRoot;
+        ensureRootNode;
 
         Node curr = _root;
         foreach (const ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
@@ -585,7 +585,7 @@ struct RadixTree(Key,
     }
 
     /** Ensure that root `Node` is allocated. */
-    void ensureRoot()
+    void ensureRootNode()
     {
         if (!_root.ptr) { _root = allocateNode!BrM; }
     }

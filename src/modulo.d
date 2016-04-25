@@ -83,8 +83,8 @@ template Mod(size_t m, T = void)
         }
 
         @property size_t prop() const { return x; }
-
         alias prop this;
+
         private S x;
     }
 }

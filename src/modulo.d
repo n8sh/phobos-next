@@ -9,6 +9,8 @@ import std.traits : isIntegral;
     See also: https://forum.dlang.org/post/hmrpwyqfoxwtywbznbrr@forum.dlang.org
     See also: http://codeforces.com/contest/628/submission/16212299
 
+    TODO Allow assignment from Mod!N = Mod!M when N >= M
+
     TODO reuse ideas from bound.d
 
     TODO Add function limit()
@@ -66,6 +68,20 @@ template Mod(size_t m, T = void)
             this.x = cast(S)value; // TODO ok to cast here?
         }
 
+        /// Construct from Mod!n, where `m >= n`.
+        this(size_t n, U)(Mod!(n, U) rhs)
+            if (m >= n)
+        {
+            this.x = rhs.x;
+        }
+
+        /// Assign from Mod!n, where `m >= n`.
+        auto ref opAssign(size_t n, U)(Mod!(n, U) rhs)
+            if (m >= n)
+        {
+            this.x = rhs.x;
+        }
+
         @property size_t prop() const
         {
             return x;
@@ -110,10 +126,17 @@ auto mod(size_t m, T)(T value)
     Mod!(8, uint) ui8 = 7;
     Mod!(256, ubyte) ub256 = 255;
 
-    const a = 7.mod!10;
-    const b = 8.mod!256;
-    const c = 257.mod!1000;
+    auto a = 7.mod!10;
+    auto b = 8.mod!256;
+    auto c = 257.mod!1000;
 
     assert(a < b);
     assert(a < c);
+
+    b = a;
+    c = a;
+    c = b;
+
+    static assert(!__traits(compiles, { a = b; }));
+    static assert(!__traits(compiles, { a = c; }));
 }

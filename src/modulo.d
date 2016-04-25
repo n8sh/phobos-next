@@ -82,8 +82,8 @@ template Mod(size_t m, T = void)
             this.x = rhs.x;
         }
 
-        @property size_t prop() const { return x; }
-        alias prop this;
+        @property size_t _prop() const { return x; }
+        alias _prop this;
 
         private S x;
     }

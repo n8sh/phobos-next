@@ -55,19 +55,19 @@ struct BitSet(size_t len, Block = size_t)
         {
             return cast(bool)bt(ptr, i);
         }
-    }
 
-    /** Get the $(D i)'th bit in the $(D BitSet).
-        Statically verifies that i is < BitSet length.
-     */
-    bool at(size_t i)() const @trusted pure nothrow
-    in
-    {
-        static assert(i < len);
-    }
-    body
-    {
-        return cast(bool) bt(ptr, i);
+        /** Get the $(D i)'th bit in the $(D BitSet).
+            Statically verifies that i is < BitSet length.
+        */
+        bool at(size_t i)() const @trusted pure nothrow
+        in
+        {
+            static assert(i < len);
+        }
+        body
+        {
+            return cast(bool) bt(ptr, i);
+        }
     }
 
     /** Puts the $(D i)'th bit in the $(D BitSet) to $(D b). */

@@ -272,7 +272,7 @@ struct RadixTree(Key,
         {
             static if (is(Value == bool))
             {
-                BitSet!M values; // efficient storage of set of bool value
+                BitSet!M values; // memory-efficient storage of `bool` values
             }
             else
             {

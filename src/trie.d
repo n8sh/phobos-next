@@ -19,9 +19,6 @@
 
     TODO Make Br2, Br4 templated on N when I figure out how to elide the recursive template-instantiation
 
-    TODO if `Value` is a `isScalarType` store it in Value[M]
-    TODO if `Value` is a `bool` store it in bitset
-
     TODO Provide `opIndex` and make `opSlice` for set-case (`Value` is `void`) return `SortedRange`
     TODO Provide RandomAccess `opIndex` and `opSlice`! for variable-length keys aswell?
     TODO Provide in operator for fixed-length keys!?

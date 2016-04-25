@@ -889,9 +889,6 @@ struct BitSet(size_t len, Block = size_t)
     b2[0][0][1] = 1;
     b2[0][0][4] = 1;
     assert(b2.denseness == Q(3, m*n*n));
-
-    /* const BitSet!256 cb0; */
-    /* assert(cb0.denseness == Q(0, 256)); */
 }
 
 @safe pure nothrow @nogc unittest

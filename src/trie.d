@@ -507,7 +507,7 @@ struct RadixTree(Key,
 
         pragma(inline) Node insert(Node curr, in Key key, ChunkIx chunkIx, out bool wasAdded) // Node-polymorphic
         {
-            if (key == 32) dln("Node.insert: chunkIx is ", chunkIx);
+            // dln("Node.insert: chunkIx is ", chunkIx);
             if      (auto currBr2 = curr.peek!Br2) { return insert(currBr2, key, chunkIx, wasAdded); }
             else if (auto currBrM = curr.peek!BrM) { return insert(currBrM, key, chunkIx, wasAdded); }
             else if (auto currLfM = curr.peek!LfM) { return insert(currLfM, key, chunkIx, wasAdded); }
@@ -516,13 +516,13 @@ struct RadixTree(Key,
 
         Node insert(Br2* br2, in Key key, ChunkIx chunkIx, out bool wasAdded)
         {
-            if (key == 32) dln("Br2.insert: chunkIx is ", chunkIx);
+            // dln("Br2.insert: chunkIx is ", chunkIx);
             const IxM chunk = bitsChunk(key, chunkIx);
 
             enum N = 2;         // branch-order, number of possible sub-nodes
             foreach (Mod!N subIx; iota!(0, N)) // each sub node
             {
-                if (key == 32) dln("subIx is ", subIx);
+                // dln("subIx is ", subIx);
                 if (br2.subs[subIx])   // first is occupied
                 {
                     if (br2.subKeyChunks[subIx] == chunk) // and matches chunk
@@ -541,7 +541,7 @@ struct RadixTree(Key,
             }
 
             // if we got here all N sub-nodes are occupied so we need to expand
-            dln("Br2.insert: Calling destructivelyExpand when chunkIx is ", chunkIx);
+            // dln("Br2.insert: Calling destructivelyExpand when chunkIx is ", chunkIx);
             return insert(destructivelyExpand(br2), key, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
         }
 
@@ -554,7 +554,7 @@ struct RadixTree(Key,
         }
         body
         {
-            if (key == 32) dln("BrM.insert: chunkIx is ", chunkIx);
+            // dln("BrM.insert: chunkIx is ", chunkIx);
 
             const IxM chunk = bitsChunk(key, chunkIx);
             if (!brM.at(chunk)) // if not yet set
@@ -577,7 +577,7 @@ struct RadixTree(Key,
         }
         body
         {
-            if (key == 32) dln("LfM.insert: chunkIx is ", chunkIx);
+            // dln("LfM.insert: chunkIx is ", chunkIx);
 
             const IxM chunk = bitsChunk(key, chunkIx);
             if (!lfM.keyLSBits[chunk])
@@ -620,9 +620,9 @@ struct RadixTree(Key,
         /** Insert `key`.
             Returns: `false` if key was previously already inserted, `true` otherwise.
         */
-        KeyFindResult insert(in Key key, Value value)
+        bool insert(in Key key, Value value)
         {
-            KeyFindResult result = insertOld(key);
+            bool result = insert(key);
             // TODO call insertAt(result, value);
             return result;
         }
@@ -706,40 +706,54 @@ struct RadixTree(Key,
         return node;
     }
 
-    void release(BrM* curr) pure nothrow
+    @safe pure nothrow @nogc
     {
-        import std.algorithm : count, filter;
-        foreach (sub; curr.subs[].filter!(sub => sub))
+        void release(BrM* curr)
         {
-            if (auto subBrM = sub.peek!BrM)
+            import std.algorithm : count, filter;
+            foreach (sub; curr.subs[].filter!(sub => sub)) // TODO use static foreach
             {
-                if (subBrM != BrM.oneSet) { release(subBrM); /* recurse */ }
+                release(sub); // recurse
             }
-            else if (auto subLfM = sub.peek!LfM)
+            freeNode(curr);
+        }
+
+        void release(Br2* curr)
+        {
+            import std.algorithm : count, filter;
+            foreach (sub; curr.subs[].filter!(sub => sub)) // TODO use static foreach
             {
-                // ok
+                release(sub); // recurse
+            }
+            freeNode(curr);
+        }
+
+        void release(LfM* curr)
+        {
+            freeNode(curr);
+        }
+
+        void release(Node curr)
+        {
+            if (auto subBrM = curr.peek!BrM)
+            {
+                if (subBrM != BrM.oneSet)
+                {
+                    release(subBrM);
+                }
+            }
+            else if (auto subBr2 = curr.peek!Br2)
+            {
+                release(subBr2);
+            }
+            else if (auto subLfM = curr.peek!LfM)
+            {
+                release(subLfM);
             }
             else if (curr)
             {
                 assert(false, "Unknown type of non-null pointer");
             }
-        }
-        freeNode(curr);
-    }
-
-    void release(Node curr) pure nothrow
-    {
-        if (auto subBrM = curr.peek!BrM)
-        {
-            if (subBrM != BrM.oneSet) { release(subBrM); /* recurse */ }
-        }
-        else if (auto subLfM = curr.peek!LfM)
-        {
-            assert(false, "TODO");
-        }
-        else if (curr)
-        {
-            assert(false, "Unknown type of non-null pointer");
         }
     }
 
@@ -788,18 +802,14 @@ auto check()
             const useContains = false;
             foreach (Key k; 0.iota(512))
             {
-                dln("k is ", k);
                 if (useContains)
                 {
                     assert(!set.contains(k)); // key should not yet be in set
                     assert(k !in set);        // alternative syntax
                 }
 
-                dln("- first insert");
                 assert(set.insert(k));  // insert new value returns `true` (previously not in set)
-                dln("- second insert");
                 assert(!set.insert(k)); // reinsert same value returns `false` (already in set)
-                dln("- third insert");
                 assert(!set.insert(k)); // reinsert same value returns `false` (already in set)
 
                 if (useContains)

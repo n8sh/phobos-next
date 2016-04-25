@@ -310,7 +310,7 @@ struct RadixTree(Key,
     {
         if (!_root.ptr) return;
         auto oldRootPtr = _root;
-        makeRoot;
+        ensureRoot;
         auto curr = oldRootPtr;
         while (curr)
         {
@@ -358,7 +358,7 @@ struct RadixTree(Key,
     */
     KeyFindResult insert(Key key)
     {
-        makeRoot;
+        ensureRoot;
 
         Node curr = _root;
         foreach (const ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
@@ -584,13 +584,14 @@ struct RadixTree(Key,
         free(cast(void*)nt);  // TODO Allocator.free
     }
 
-    void makeRoot()
+    /** Ensure that root `Node` is allocated. */
+    void ensureRoot()
     {
         if (!_root.ptr) { _root = allocateNode!BrM; }
     }
 
-    /// Returns: number of branches used in `this` tree.
-    debug size_t branchCount() @safe pure nothrow @nogc { return _nodeCount; }
+    /// Returns: number of nodes used in `this` tree.
+    debug size_t nodeCount() @safe pure nothrow @nogc { return _nodeCount; }
 
     private Node _root;
     debug size_t _nodeCount = 0;
@@ -635,7 +636,7 @@ auto check()
                 assert(!set.contains(k + 1)); // next key is not yet in set
             }
 
-            // debug assert(set.branchCount == 40);
+            // debug assert(set.nodeCount == 40);
 
             auto map = radixTreeMap!(Key, Value);
             static assert(map.isMap);

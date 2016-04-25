@@ -61,7 +61,7 @@ template allSameIterative(V...)
                     return false;
                 }
             }
-            return true;
+            return true;        // TODO remove warning: statement not reachable
         }
         else
         {

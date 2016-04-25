@@ -124,7 +124,7 @@ struct RadixTree(Key,
     /** Node types. */
     alias NodeTypes = AliasSeq!(Br2, BrM, LfM);
 
-    enum showSizes = true;
+    enum showSizes = false;
     static if (showSizes)
     {
         static if (isSet)
@@ -363,8 +363,8 @@ struct RadixTree(Key,
         }
 
         const u = *(cast(UnsignedOfSameSizeAs!Key*)(&key)); // TODO functionize and reuse here and in intsort.d
-        const IxM keyChunk = (u >> shift) & chunkMask; // part of value which is also an index
-        return keyChunk;
+        const IxM chunk = (u >> shift) & chunkMask; // part of value which is also an index
+        return chunk;
     }
 
     /** Get chunkIx:th chunk of `radix` number of bits. */
@@ -386,8 +386,8 @@ struct RadixTree(Key,
         }
 
         const u = *(cast(UnsignedOfSameSizeAs!Key*)(&key)); // TODO functionize and reuse here and in intsort.d
-        const IxM keyChunk = (u >> shift) & chunkMask; // part of value which is also an index
-        return keyChunk;
+        const IxM chunk = (u >> shift) & chunkMask; // part of value which is also an index
+        return chunk;
     }
 
     /** Insert `key`.
@@ -401,30 +401,25 @@ struct RadixTree(Key,
     {
         ensureRootNode!BrM;
 
-        if (false)
-        {
-            _root = insert(_root, key, 0);
-        }
-
         Node curr = _root;
         foreach (const ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
         {
-            const IxM keyChunk = bitsChunk!ix(key);
+            const IxM chunk = bitsChunk!ix(key);
 
             static if (ix + 2 == maxDepth) // if this is the second last chunk
             {
                 if (auto currBrM = curr.peek!BrM)
                 {
                     // assure that we have prepared `LfM` at next depth (sub-node)
-                    if (!currBrM.at(keyChunk)) // if not yet set
+                    if (!currBrM.at(chunk)) // if not yet set
                     {
-                        currBrM.at(keyChunk) = makeNode!LfM;
+                        currBrM.at(chunk) = makeNode!LfM;
                     }
                     else
                     {
-                        assert(currBrM.at(keyChunk).peek!LfM);
+                        assert(currBrM.at(chunk).peek!LfM);
                     }
-                    curr = currBrM.at(keyChunk); // and go there
+                    curr = currBrM.at(chunk); // and go there
                 }
                 else if (auto currLfM = curr.peek!LfM) { assert(false, "TODO"); }
                 else if (curr) { assert(false, "Unknown type of non-null pointer"); }
@@ -434,17 +429,17 @@ struct RadixTree(Key,
                 if (auto currBrM = curr.peek!BrM) // branch-M
                 {
                     assert(currBrM != BrM.oneSet);
-                    if (!currBrM.at(keyChunk))
+                    if (!currBrM.at(chunk))
                     {
-                        currBrM.at(keyChunk) = BrM.oneSet; // tag this as last
-                        return KeyFindResult(Node(currBrM), keyChunk, true); // a new value was inserted
+                        currBrM.at(chunk) = BrM.oneSet; // tag this as last
+                        return KeyFindResult(Node(currBrM), chunk, true); // a new value was inserted
                     }
                     else
                     {
                         static if (isFixedTrieableKeyType!Key)
                         {
-                            assert(currBrM.at(keyChunk).peek!BrM == BrM.oneSet);
-                            return KeyFindResult(Node(currBrM), keyChunk, false); // value already set
+                            assert(currBrM.at(chunk).peek!BrM == BrM.oneSet);
+                            return KeyFindResult(Node(currBrM), chunk, false); // value already set
                         }
                         else
                         {
@@ -457,21 +452,21 @@ struct RadixTree(Key,
                             else
                             {
                                 curr.isOccupied = false;
-                                return It(Node(currBrM), keyChunk);
+                                return It(Node(currBrM), chunk);
                             }
                         }
                     }
                 }
                 else if (auto currLfM = curr.peek!LfM) // leaf-M
                 {
-                    if (!currLfM.keyLSBits[keyChunk])
+                    if (!currLfM.keyLSBits[chunk])
                     {
-                        currLfM.keyLSBits[keyChunk] = true;
-                        return KeyFindResult(Node(currLfM), keyChunk, true);
+                        currLfM.keyLSBits[chunk] = true;
+                        return KeyFindResult(Node(currLfM), chunk, true);
                     }
                     else
                     {
-                        return KeyFindResult(Node(currLfM), keyChunk, false);
+                        return KeyFindResult(Node(currLfM), chunk, false);
                     }
 
                     assert(false, "TODO");
@@ -483,11 +478,11 @@ struct RadixTree(Key,
                 if (auto currBrM = curr.peek!BrM)
                 {
                     assert(currBrM != BrM.oneSet);
-                    if (!currBrM.at(keyChunk)) // if branch not yet visited
+                    if (!currBrM.at(chunk)) // if branch not yet visited
                     {
-                        currBrM.at(keyChunk) = makeNode!BrM; // create it
+                        currBrM.at(chunk) = makeNode!BrM; // create it
                     }
-                    curr = currBrM.at(keyChunk); // and visit it
+                    curr = currBrM.at(chunk); // and visit it
                 }
                 else if (auto currLfM = curr.peek!LfM) { assert(false, "TODO"); }
                 else if (curr) { assert(false, "Unknown type of non-null pointer"); }
@@ -498,58 +493,84 @@ struct RadixTree(Key,
 
     @safe pure nothrow @nogc
     {
-        /** Recursive implementation of insert. */
-        pragma(inline) Node insert(Node curr, in Key key, ChunkIx chunkIx) // Node-polymorphic
+        /** Insert `key`.
+            Recursive implementation of insert.
+        */
+        bool insertRecursive(in Key key) @safe pure nothrow @nogc
         {
-            if      (auto currBr2 = curr.peek!Br2) { return insert(currBr2, key, chunkIx); }
-            else if (auto currBrM = curr.peek!BrM) { return insert(currBrM, key, chunkIx); }
-            else if (auto currLfM = curr.peek!LfM) { return insert(currLfM, key, chunkIx); }
+            ensureRootNode!BrM;
+            bool wasAdded;      // indicates that key was added
+            _root = insert(_root, key, 0, wasAdded);
+            return wasAdded;
+        }
+
+        pragma(inline) Node insert(Node curr, in Key key, ChunkIx chunkIx, out bool wasAdded) // Node-polymorphic
+        {
+            if      (auto currBr2 = curr.peek!Br2) { return insert(currBr2, key, chunkIx, wasAdded); }
+            else if (auto currBrM = curr.peek!BrM) { return insert(currBrM, key, chunkIx, wasAdded); }
+            else if (auto currLfM = curr.peek!LfM) { return insert(currLfM, key, chunkIx, wasAdded); }
             else                                   { assert(false, "Unknown Node type"); }
         }
 
-        Node insert(Br2* br2, in Key key, ChunkIx chunkIx)
+        Node insert(Br2* br2, in Key key, ChunkIx chunkIx, out bool wasAdded)
         {
-            const IxM keyChunk = bitsChunk(key, chunkIx);
+            const IxM chunk = bitsChunk(key, chunkIx);
 
             enum N = 2;         // branch-order, number of possible sub-nodes
             foreach (Mod!N subIx; iota!(0, N)) // each sub node
             {
                 if (br2.subs[subIx])   // first is occupied
                 {
-                    if (br2.subKeyChunks[subIx] == keyChunk)
+                    if (br2.subKeyChunks[subIx] == chunk)
                     {
-                        return insert(br2.subs[subIx], key, chunkIx + 1);
+                        return insert(br2.subs[subIx], key, chunkIx + 1, wasAdded);
                     }
                 }
                 else            // use first free sub
                 {
-                    br2.subs[subIx] = insert(br2.subs[subIx], key, chunkIx + 1); // use it
-                    br2.subKeyChunks[subIx] = keyChunk;
+                    br2.subs[subIx] = insert(br2.subs[subIx], key, chunkIx + 1, wasAdded); // use it
+                    br2.subKeyChunks[subIx] = chunk;
                     return br2.subs[subIx];
                 }
             }
 
             // if we got here all N sub-nodes are occupied so we need to expand
-            return insert(destructiveExpand(br2, key), key, chunkIx);
+            return insert(destructivelyExpand(br2, key), key, chunkIx, wasAdded);
         }
 
-        Node insert(BrM* brM, in Key key, ChunkIx chunkIx)
+        Node insert(BrM* brM, in Key key, ChunkIx chunkIx, out bool wasAdded)
         {
-            const IxM keyChunk = bitsChunk(key, chunkIx);
-            static assert(false, "TODO");
-            return Node(brM);
+            const IxM chunk = bitsChunk(key, chunkIx);
+            if (!brM.at(chunk)) // if not yet set
+            {
+                brM.at(chunk) = makeNode!LfM;
+            }
+            return insert(brM.at(chunk), key, chunkIx, wasAdded);
         }
 
-        Node insert(LfM* lfM, in Key key, ChunkIx chunkIx)
+        Node insert(LfM* lfM, in Key key, ChunkIx chunkIx, out bool wasAdded)
+        in
         {
             assert(chunkIx + 1 <= maxDepth); // assert that we are at least significant chunk
-            const IxM keyChunk = bitsChunk(key, chunkIx);
-            static assert(false, "TODO");
+            assert(!wasAdded);               // check that we haven't yet added it
+        }
+        body
+        {
+            const IxM chunk = bitsChunk(key, chunkIx);
+            if (!lfM.keyLSBits[chunk])
+            {
+                lfM.keyLSBits[chunkIx] = true;
+                wasAdded = true;
+            }
+            else
+            {
+                wasAdded = false;
+            }
             return Node(lfM);
         }
 
         /** Destructively Destructivelydesexpand `br2` into a `BrM` and return it. */
-        BrM* destructiveExpand(Br2* br2, in Key key) @trusted
+        BrM* destructivelyExpand(Br2* br2, in Key key) @trusted
         {
             BrM* brM = makeNode!BrM;
             enum N = 2;         // branch-order, number of possible sub-nodes
@@ -586,11 +607,11 @@ struct RadixTree(Key,
             Node curr = _root;
             foreach (const ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
-                const IxM keyChunk = bitsChunk!ix(key);
+                const IxM chunk = bitsChunk!ix(key);
                 if (auto currBrM = curr.peek!BrM)
                 {
                     assert(currBrM != BrM.oneSet);
-                    if (!currBrM.at(keyChunk))
+                    if (!currBrM.at(chunk))
                     {
                         return false;
                     }
@@ -598,7 +619,7 @@ struct RadixTree(Key,
                     {
                         static if (isFixedTrieableKeyType!Key)
                         {
-                            if (currBrM.at(keyChunk).peek!BrM == BrM.oneSet) { return true; }
+                            if (currBrM.at(chunk).peek!BrM == BrM.oneSet) { return true; }
                         }
                         else
                         {
@@ -612,12 +633,12 @@ struct RadixTree(Key,
                                 return true;
                             }
                         }
-                        curr = currBrM.at(keyChunk);
+                        curr = currBrM.at(chunk);
                     }
                 }
                 else if (const currLfM = curr.peek!LfM)
                 {
-                    return currLfM.keyLSBits[keyChunk];
+                    return currLfM.keyLSBits[chunk];
                 }
                 else if (curr) { assert(false, "Unknown type of non-null pointer"); }
             }

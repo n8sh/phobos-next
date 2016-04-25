@@ -2,6 +2,8 @@
 
     See also: https://en.wikipedia.org/wiki/Trie
 
+    TODO Can we somehow overload opIndex so we can do brM[i] instead of more cumbersome (*brM)[i] when brM is of type BrM*?
+
     TODO Make oneSet typed VariantPointer
 
     TODO Use opIndex instead of at(): x.at(i) => (*x)[i]

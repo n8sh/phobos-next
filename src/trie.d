@@ -365,10 +365,7 @@ struct RadixTree(Key,
         {
             const IxM keyChunk = bitsChunk!ix(key);
 
-            enum isLast = ix + 1 == maxDepth; // if this is the last chunk
-            enum isSecondLast = ix + 2 == maxDepth; // if this is the second last chunk
-
-            static if (isSecondLast)
+            static if (ix + 2 == maxDepth) // if this is the second last chunk
             {
                 if (auto currBrM = curr.peek!BrM)
                 {
@@ -386,7 +383,7 @@ struct RadixTree(Key,
                 else if (auto currLfM = curr.peek!LfM) { assert(false, "TODO"); }
                 else if (curr) { assert(false, "Unknown type of non-null pointer"); }
             }
-            else static if (isLast)
+            else static if (ix + 1 == maxDepth) // if this is the last chunk
             {
                 if (auto currBrM = curr.peek!BrM) // branch-M
                 {

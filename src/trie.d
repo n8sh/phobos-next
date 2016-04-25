@@ -257,6 +257,7 @@ struct RadixTree(Key,
         }
     }
 
+    // TODO templatize on N (currently 2)
     static private struct Br2
     {
         Node[2] subs;        // sub-branches

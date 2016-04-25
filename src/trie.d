@@ -206,8 +206,8 @@ struct RadixTree(Key,
 
         // Indexing with internal range check is safely avoided.
         // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
-        auto ref at     (IxM i) @trusted { return subs.ptr[i]; }
-        auto ref opIndex(IxM i) { return at(i); }
+        pragma(inline) auto ref at     (IxM i) @trusted { return subs.ptr[i]; }
+        pragma(inline) auto ref opIndex(IxM i) { return at(i); }
 
         /** Returns: depth of tree at this branch. */
         // size_t linearDepth() @safe pure nothrow const
@@ -264,8 +264,8 @@ struct RadixTree(Key,
         Mod!(2, ubyte) subIxMs; // sub-ixMs. NOTE wastes space because IxM[2] only requires two bytes. Use IxM2 instead.
         // Indexing with internal range check is safely avoided.
         // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
-        auto ref at     (Mod!2 i) @trusted { return subs.ptr[i]; }
-        auto ref opIndex(Mod!2 i) { return at(i); }
+        pragma(inline) auto ref at     (Mod!2 i) @trusted { return subs.ptr[i]; }
+        pragma(inline) auto ref opIndex(Mod!2 i) { return at(i); }
     }
 
     /** Bottom-most leaf node of `RadixTree`-set storing `M` number of densly packed
@@ -609,7 +609,7 @@ struct RadixTree(Key,
     }
 
     /// Returns: number of nodes used in `this` tree.
-    debug size_t nodeCount() @safe pure nothrow @nogc { return _nodeCount; }
+    pragma(inline) debug size_t nodeCount() @safe pure nothrow @nogc { return _nodeCount; }
 
     private Node _root;
     debug size_t _nodeCount = 0;

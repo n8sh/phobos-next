@@ -124,6 +124,21 @@ struct RadixTree(Key,
     /** Node types. */
     alias NodeTypes = AliasSeq!(Br2, Br4, BrM, LfM);
 
+    enum showSizes = false;
+    static if (showSizes)
+    {
+        static if (isSet)
+        {
+            pragma(msg, "Set BrM.sizeof: ", BrM.sizeof);
+            pragma(msg, "Set LfM.sizeof: ", LfM.sizeof);
+        }
+        else
+        {
+            pragma(msg, "Map BrM.sizeof: ", BrM.sizeof);
+            pragma(msg, "Map LfM.sizeof: ", LfM.sizeof);
+        }
+    }
+
     /** Mutable node. */
     alias Node = VariantPointer!(NodeTypes);
     /** Constant node. */

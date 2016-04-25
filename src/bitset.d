@@ -35,7 +35,7 @@ struct BitSet(size_t len, Block = size_t)
     BitSet opAssign(BitSet rhs) @safe nothrow { this._data = rhs._data; return this; }
 
     /** Gets the $(D i)'th bit in the $(D BitSet). */
-    bool opIndex(size_t i) const @trusted pure nothrow
+    pragma(inline) bool opIndex(size_t i) const @trusted pure nothrow
     in
     {
         assert(i < len);        // TODO nothrow or not?
@@ -51,7 +51,7 @@ struct BitSet(size_t len, Block = size_t)
     {
         /** Get the $(D i)'th bit in the $(D BitSet).
             No range checking needed because Mod!len is safely pre-bound */
-        bool opIndex(Mod!len i) const @trusted pure nothrow
+        pragma(inline) bool opIndex(Mod!len i) const @trusted pure nothrow
         {
             return cast(bool)bt(ptr, i);
         }
@@ -59,7 +59,7 @@ struct BitSet(size_t len, Block = size_t)
         /** Get the $(D i)'th bit in the $(D BitSet).
             Statically verifies that i is < BitSet length.
         */
-        bool at(size_t i)() const @trusted pure nothrow
+        pragma(inline) bool at(size_t i)() const @trusted pure nothrow
         in
         {
             static assert(i < len);
@@ -71,7 +71,7 @@ struct BitSet(size_t len, Block = size_t)
     }
 
     /** Puts the $(D i)'th bit in the $(D BitSet) to $(D b). */
-    auto ref put()(size_t i, bool b) @trusted pure nothrow
+    pragma(inline) auto ref put()(size_t i, bool b) @trusted pure nothrow
     in
     {
         assert(i < len);
@@ -96,7 +96,7 @@ struct BitSet(size_t len, Block = size_t)
 
     /** Sets the $(D i)'th bit in the $(D BitSet). */
     import std.traits: isIntegral;
-    bool opIndexAssign(Index)(bool b, Index i) @trusted pure nothrow
+    pragma(inline) bool opIndexAssign(Index)(bool b, Index i) @trusted pure nothrow
         if (isIntegral!Index)
     in
     {
@@ -118,7 +118,7 @@ struct BitSet(size_t len, Block = size_t)
     static if (len > 0)
     {
         /** Sets the $(D i)'th bit in the $(D BitSet). No range checking needed. */
-        bool opIndexAssign(bool b, Mod!len i) @trusted pure nothrow
+        pragma(inline) bool opIndexAssign(bool b, Mod!len i) @trusted pure nothrow
         {
             b ? bts(ptr, i) : btr(ptr, i);
             return b;
@@ -223,7 +223,7 @@ struct BitSet(size_t len, Block = size_t)
         }
     }
 
-    @property Block reverseBlock(in Block block)
+    pragma(inline) @property Block reverseBlock(in Block block)
     {
         static if (Block.sizeof == 4)
         {
@@ -584,13 +584,13 @@ struct BitSet(size_t len, Block = size_t)
     alias Q = Rational!ulong;
 
     /** Get number of bits set in $(D this). */
-    Q denseness(int depth = -1) const @safe @nogc pure nothrow
+    pragma(inline) Q denseness(int depth = -1) const @safe @nogc pure nothrow
     {
         return Q(countOnes, length);
     }
 
     /** Get number of Bits Unset in $(D this). */
-    Q sparseness(int depth = -1) const @safe @nogc pure nothrow
+    pragma(inline) Q sparseness(int depth = -1) const @safe @nogc pure nothrow
     {
         return 1 - denseness(depth);
     }

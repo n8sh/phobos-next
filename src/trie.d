@@ -124,7 +124,7 @@ struct RadixTree(Key,
     /** Node types. */
     alias NodeTypes = AliasSeq!(Br2, BrM, LfM);
 
-    enum showSizes = true;
+    enum showSizes = false;
     static if (showSizes)
     {
         static if (isSet)

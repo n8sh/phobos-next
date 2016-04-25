@@ -541,9 +541,9 @@ struct BitSet(size_t len, Block = size_t)
     alias fullBetween = allOneBetween;
 
     /** Get indexes of all bits set. */
-    auto oneIndexes() const @safe pure nothrow
+    size_t[] oneIndexes() const @safe pure nothrow
     {
-        size_t[] ixes;
+        typeof(return) ixes;
         foreach (ix; 0 .. length)
         {
             if (this[ix])

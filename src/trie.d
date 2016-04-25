@@ -404,6 +404,11 @@ struct RadixTree(Key,
     {
         ensureRootNode;
 
+        if (false)
+        {
+            _root = insert(_root, key, 0);
+        }
+
         Node curr = _root;
         foreach (const ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
         {
@@ -517,6 +522,7 @@ struct RadixTree(Key,
 
     Node insert(LfM* lfM_ptr, in Key key, ChunkIx chunkIx)
     {
+        assert(chunkIx + 1 == maxDepth);
         const IxM keyChunk = bitsChunk(key, chunkIx);
         return Node(lfM_ptr);
     }

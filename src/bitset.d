@@ -49,13 +49,15 @@ struct BitSet(size_t len, Block = size_t)
     /** Gets the $(D i)'th bit in the $(D BitSet). No range checking needed. */
     static if (len > 0)
     {
-        bool opIndex(Mod!len i) const @trusted pure nothrow // NOTE no range checking needed
+        /** Get the $(D i)'th bit in the $(D BitSet).
+            No range checking needed because Mod!len is safely pre-bound */
+        bool opIndex(Mod!len i) const @trusted pure nothrow
         {
             return cast(bool)bt(ptr, i);
         }
     }
 
-    /** Gets the $(D i)'th bit in the $(D BitSet).
+    /** Get the $(D i)'th bit in the $(D BitSet).
         Statically verifies that i is < BitSet length.
      */
     bool at(size_t i)() const @trusted pure nothrow

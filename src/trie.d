@@ -332,12 +332,8 @@ struct RadixTree(Key,
     {
         if (!_root.ptr) return;
         auto oldRootPtr = _root;
-        ensureRootNode;
-        auto curr = oldRootPtr;
-        while (curr)
-        {
-            // TODO iterative or recursive?
-        }
+        ensureRootNode!BrM;
+        // insert(oldRootPtr[]);
         assert(false, "TODO calculate tree by branches and leafs and make copies of them");
     }
 
@@ -402,7 +398,7 @@ struct RadixTree(Key,
     */
     KeyFindResult insert(in Key key)
     {
-        ensureRootNode;
+        ensureRootNode!BrM;
 
         if (false)
         {
@@ -662,9 +658,9 @@ struct RadixTree(Key,
     }
 
     /** Ensure that root `Node` is allocated. */
-    void ensureRootNode()
+    void ensureRootNode(U = BrM)()
     {
-        if (!_root.ptr) { _root = allocateNode!BrM; }
+        if (!_root.ptr) { _root = allocateNode!U; }
     }
 
     /// Returns: number of nodes used in `this` tree.

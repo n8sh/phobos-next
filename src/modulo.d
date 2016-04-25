@@ -82,7 +82,7 @@ template Mod(size_t m, T = void)
             this.x = rhs.x;
         }
 
-        @property size_t _prop() const { return x; }
+        @property size_t _prop() const { return x; } // only read-only access
         alias _prop this;
 
         private S x;

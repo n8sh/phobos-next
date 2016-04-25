@@ -272,7 +272,7 @@ struct RadixTree(Key,
         // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
         pragma(inline) auto ref at     (Mod!N i) @trusted { return subs.ptr[i]; }
         pragma(inline) auto ref atSubKeyChunk(Mod!N i) @trusted { return subKeyChunks.ptr[i]; }
-}
+    }
 
     /** Bottom-most leaf node of `RadixTree`-set storing `M` number of densly packed
         keys of fixed-length type `Key`.
@@ -800,7 +800,7 @@ auto check()
             static assert(set.isSet);
 
             const useContains = false;
-            foreach (Key k; 0.iota(512))
+            foreach (Key k; 0.iota(1024))
             {
                 if (useContains)
                 {

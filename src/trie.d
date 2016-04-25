@@ -124,7 +124,7 @@ struct RadixTree(Key,
     /** Node types. */
     alias NodeTypes = AliasSeq!(Br2, BrM, LfM);
 
-    enum showSizes = false;
+    enum showSizes = true;
     static if (showSizes)
     {
         static if (isSet)
@@ -227,7 +227,11 @@ struct RadixTree(Key,
             foreach (sub; subs[].filter!(sub => sub))
             {
                 ++nzcnt;
-                if (const subBrM = sub.peek!BrM)
+                if (const subBr2 = sub.peek!Br2)
+                {
+                    // TODO if (subBr2 != Br2.oneSet) { subBr2.calculate(brHist, lfHist); }
+                }
+                else if (const subBrM = sub.peek!BrM)
                 {
                     if (subBrM != BrM.oneSet) { subBrM.calculate(brHist, lfHist); }
                 }
@@ -256,6 +260,7 @@ struct RadixTree(Key,
     static private struct Br2
     {
         Node[2] subs;        // sub-branches
+        Mod!(2, ubyte) subIxMs; // sub-ixMs. NOTE wastes space because IxM[2] only requires two bytes. Use IxM2 instead.
         // Indexing with internal range check is safely avoided.
         // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
         auto ref at     (Mod!2 i) @trusted { return subs.ptr[i]; }
@@ -299,11 +304,15 @@ struct RadixTree(Key,
         typeof(return) hists;
 
         // TODO reuse rangeinterface when made available
-        if (const bM = _root.peek!BrM)
+        if (const rootBr2 = _root.peek!Br2)
         {
-            if (bM != BrM.oneSet) { bM.calculate(hists[0], hists[1]); }
+            // if (rootBr2 != Br2.oneSet) { rootBr2.calculate(hists[0], hists[1]); }
         }
-        else if (const subLfM = _root.peek!LfM)
+        else if (const rootBrM = _root.peek!BrM)
+        {
+            if (rootBrM != BrM.oneSet) { rootBrM.calculate(hists[0], hists[1]); }
+        }
+        else if (const rooLfM = _root.peek!LfM)
         {
             assert(false, "TODO");
         }

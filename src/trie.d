@@ -27,7 +27,6 @@
     to _root. Add checks with `isSorted`.
 
     TODO Name members so they indicate that range isSorted.
-
     TODO Name members to indicate complexity
 
     TODO Extend bitop_ex.d with {set,get}{Bit,Qit,Bytes} and reuse

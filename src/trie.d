@@ -468,6 +468,12 @@ struct RadixTree(Key,
         assert(false, "End of function shouldn't be reached");
     }
 
+    pragma(inline) KeyFindResult insertAt(Node node, Key key)
+    {
+        KeyFindResult result;
+        return result;
+    }
+
     static if (isMap)
     {
         /** Insert `key`.

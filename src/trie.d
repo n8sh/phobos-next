@@ -46,16 +46,16 @@
     https://github.com/nordlow/phobos-next/blob/master/src/trie.d
 
     The current solution is very generic as it CT-specializes to either a
-    `RadixTreeMap` and `RadixTreeSet`. These provide very memory-efficient
-    replacements for a `HashMap` and a `HashSet`.
+    `RadixTreeMap` and `RadixTreeSet`. These provide memory-efficient
+    replacements for builtin AAs.
 
     Each radix-tree branching contains 2^^radix pointers to the next
-    sub-branching. In the RadixTreeSet case I want these pointers to also be
-    able to contain special "codes" with the following meanings
+    sub-branching. In the set-case I want these pointers to also be able to
+    contain special "codes" with the following meanings
 
-    0x1: *only* value associated with sub-branching is set.
+    - 0x1: *only* key associated with sub-branching is set.
 
-    0xFFFFFFFFFFFFFFFF: all values values in this sub-branch are set.
+    0xFFFFFFFFFFFFFFFF: all values in this sub-branch are set.
  */
 module trie;
 

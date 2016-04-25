@@ -537,9 +537,12 @@ struct RadixTree(Key,
 
     private:
 
-    NodeType* allocateNode(NodeType)() @trusted
+    /** Allocate `Node`-type of value type `U`. */
+    U* allocateNode(U)() @trusted
     {
-        NodeType* node = cast(typeof(return))calloc(1, NodeType.sizeof);
+        import std.conv : emplace;
+        U* node = emplace!U(cast(U*)malloc(U.sizeof));
+        // TODO ensure alignment of node at least that of U.alignof
         debug ++_nodeCount;
         return node;
     }

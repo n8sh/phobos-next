@@ -126,6 +126,11 @@ auto mod(size_t m, T)(T value)
     Mod!(8, uint) ui8 = 7;
     Mod!(256, ubyte) ub256 = 255;
 
+    Mod!(258, ushort) ub258 = ub256;
+
+    // copy construction to smaller modulo is disallowed
+    static assert(!__traits(compiles, { Mod!(255, ubyte) ub255 = ub258; }));
+
     auto a = 7.mod!10;
     auto b = 8.mod!256;
     auto c = 257.mod!1000;
@@ -137,6 +142,7 @@ auto mod(size_t m, T)(T value)
     c = a;
     c = b;
 
+    // assignment to smaller modulo is disallowed
     static assert(!__traits(compiles, { a = b; }));
     static assert(!__traits(compiles, { a = c; }));
 }

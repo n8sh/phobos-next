@@ -13,7 +13,9 @@
     TODO Add sparse 2^^n-branches for n < radix: 2^^1=B2, 2^^2=B4, 2^^3=B8, B^^4=B16. Use
     sortExactly from sortn.d to order their members.
 
-    TODO Add traits isSparseNodeType, isDenseNodeType.
+    TODO Add traits isSparseNodeType, isDenseNodeType or PackingOf!(T) returns either dense, sparse
+
+    TODO Make Br2, Br4 templated on N when I figure out how to elide the recursive template-instantiation
 
     TODO if `Value` is a `isScalarType` store it in Value[M]
     TODO if `Value` is a `bool` store it in bitset
@@ -122,7 +124,7 @@ struct RadixTree(Key,
     enum isBinary = R == 2;
 
     /** Node types. */
-    alias NodeTypes = AliasSeq!(BrM, LfM);
+    alias NodeTypes = AliasSeq!(Br2, Br4, BrM, LfM);
 
     /** Mutable node. */
     alias Node = VariantPointer!(NodeTypes);
@@ -133,12 +135,12 @@ struct RadixTree(Key,
     import modulo : Mod;
     alias IxM = Mod!M; // restricted index type avoids range checking in array indexing below
 
-    /** Tree Iterator. */
+    /** Tree Leaf Iterator. */
     struct It
     {
         bool opCast(T : bool)() const @safe pure nothrow @nogc { return cast(bool)node; }
-        Node node;
-        IxM ixM;
+        Node node;              // current leaf-`Node`. TODO use `Lf` type instead?
+        IxM ixM;                // index to sub at `node`
     }
 
     /** Tree Key Find Result. */
@@ -202,7 +204,6 @@ struct RadixTree(Key,
         //                                                  0UL)));
         // }
 
-        /** Returns: depth of tree at this branch. */
         void calculate(ref BranchOccupationHistogram brHist,
                        ref LeafOccupationHistogram lfHist) @safe pure nothrow const
         {
@@ -237,51 +238,23 @@ struct RadixTree(Key,
         }
     }
 
-    static private struct Br(size_t N)
-        if (N == 2 || N == 4 || N == 8)
+    static private struct Br2
     {
-        Node[N] subs;        // sub-branches
-
+        Node[2] subs;        // sub-branches
         // Indexing with internal range check is safely avoided.
         // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
-        auto ref at     (Mod!N i) @trusted { return subs.ptr[i]; }
-        auto ref opIndex(Mod!N i) { return at(i); }
-
-        /** Returns: depth of tree at this branch. */
-        void calculate(ref BranchOccupationHistogram brHist,
-                       ref LeafOccupationHistogram lfHist) @safe pure nothrow const
-        {
-            import std.algorithm : count, filter;
-            size_t nzcnt = 0; // number of non-zero branches
-            foreach (sub; subs[].filter!(sub => sub))
-            {
-                ++nzcnt;
-                if (const subBrM = sub.peek!BrM)
-                {
-                    if (subBrM != BrM.oneSet) { subBrM.calculate(brHist, lfHist); }
-                }
-                else if (const subLfM = sub.peek!LfM)
-                {
-                    subLfM.calculate(lfHist);
-                }
-                else if (sub)
-                {
-                    assert(false, "Unknown type of non-null pointer");
-                }
-            }
-            ++brHist[nzcnt - 1];
-        }
-
-        static if (!isFixed)        // variable length keys only
-        {
-            Lf!N subOccupations; // if i:th bit is set key (and optionally value) associated with sub[i] is also defined
-            static if (isMap)
-            {
-                Value value;
-            }
-        }
+        auto ref at     (Mod!2 i) @trusted { return subs.ptr[i]; }
+        auto ref opIndex(Mod!2 i) { return at(i); }
     }
-    alias Br2 = Br!2;
+
+    static private struct Br4
+    {
+        Node[4] subs;        // sub-branches
+        // Indexing with internal range check is safely avoided.
+        // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
+        auto ref at     (Mod!4 i) @trusted { return subs.ptr[i]; }
+        auto ref opIndex(Mod!4 i) { return at(i); }
+    }
 
     /** Bottom-most leaf node of `RadixTree`-set storing `M` number of densly packed
         keys of fixed-length type `Key`.
@@ -294,7 +267,7 @@ struct RadixTree(Key,
         }
 
         import bitset : BitSet;
-        private BitSet!M keyLSBits; // if i:th bit is set corresponding sub is set
+        private BitSet!M keyLSBits; // if i:th bit is set, then corresponding sub is set
 
         static if (isMap)
         {
@@ -380,8 +353,8 @@ struct RadixTree(Key,
 
     /** Insert `key`.
 
-        Returns: a non-null (defined) iterator `It` if key was previously
-        already inserted, `It.init` otherwise. This return value can then be
+        Returns: a non-null (defined) `KeyFindResult` if key was previously
+        already inserted, `KeyFindResult.init` otherwise. This return value can then be
         used for map's `insert(Key key, Value value)` so a single implementation
         for `insert(Key key)` can be used for both set and map variant.
     */
@@ -490,7 +463,7 @@ struct RadixTree(Key,
         KeyFindResult insert(Key key, Value value)
         {
             KeyFindResult result = insert(key);
-            // TODO put value at node
+            // TODO call insert(result, value);
             return result;
         }
     }

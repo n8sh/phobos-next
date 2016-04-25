@@ -124,7 +124,7 @@ struct RadixTree(Key,
     /** Node types. */
     alias NodeTypes = AliasSeq!(Br2, BrM, LfM);
 
-    enum showSizes = false;
+    enum showSizes = true;
     static if (showSizes)
     {
         static if (isSet)
@@ -180,12 +180,12 @@ struct RadixTree(Key,
     /** Branch occupation histogram.
         Index maps to occupation with value range (1 .. M).
     */
-    alias BranchMOccupationHistogram = size_t[M];
+    alias BranchOccupationHistogram = size_t[M];
 
     /** Leaf occupation histogram.
         Index maps to occupation with value range (1 .. M).
     */
-    alias LeafMOccupationHistogram = size_t[M];
+    alias LeafOccupationHistogram = size_t[M];
 
     /** Non-bottom branch node containing densly packed array of `M` number of
         pointers to sub-`BrM`s or `Leaf`s.
@@ -219,32 +219,28 @@ struct RadixTree(Key,
         //                                                  0UL)));
         // }
 
-        void calculate(ref BranchMOccupationHistogram brMHist,
-                       ref LeafMOccupationHistogram lfMHist) @safe pure nothrow const
+        void calculate(ref BranchOccupationHistogram brHist,
+                       ref LeafOccupationHistogram lfHist) @safe pure nothrow const
         {
             import std.algorithm : count, filter;
             size_t nzcnt = 0; // number of non-zero branches
             foreach (sub; subs[].filter!(sub => sub))
             {
                 ++nzcnt;
-                if (const subBr2 = sub.peek!Br2)
+                if (const subBrM = sub.peek!BrM)
                 {
-                    // TODO if (subBr2 != BrM.oneSet) { subBr2.calculate(brMHist, lfMHist); }
-                }
-                else if (const subBrM = sub.peek!BrM)
-                {
-                    if (subBrM != BrM.oneSet) { subBrM.calculate(brMHist, lfMHist); }
+                    if (subBrM != BrM.oneSet) { subBrM.calculate(brHist, lfHist); }
                 }
                 else if (const subLfM = sub.peek!LfM)
                 {
-                    subLfM.calculate(lfMHist);
+                    subLfM.calculate(lfHist);
                 }
                 else if (sub)
                 {
                     assert(false, "Unknown type of non-null pointer");
                 }
             }
-            ++brMHist[nzcnt - 1];
+            ++brHist[nzcnt - 1];
         }
 
         static if (!isFixed)        // variable length keys only
@@ -271,7 +267,7 @@ struct RadixTree(Key,
     */
     static private struct LfM
     {
-        void calculate(ref LeafMOccupationHistogram hist) @safe pure const
+        void calculate(ref LeafOccupationHistogram hist) @safe pure const
         {
             ++hist[keyLSBits.countOnes - 1];
         }
@@ -298,7 +294,7 @@ struct RadixTree(Key,
     //     return _root !is null ? _root.linearDepth : 0;
     // }
 
-    BranchMOccupationHistogram[2] usageHistograms() const
+    BranchOccupationHistogram[2] usageHistograms() const
     {
         typeof(return) hists;
 

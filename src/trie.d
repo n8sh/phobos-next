@@ -512,7 +512,6 @@ struct RadixTree(Key,
             const IxM keyChunk = bitsChunk(key, chunkIx);
 
             enum N = 2;         // branch-order, number of possible sub-nodes
-
             foreach (Mod!N subIx; iota!(0, N)) // each sub node
             {
                 if (br2.subs[subIx])   // first is occupied
@@ -530,12 +529,14 @@ struct RadixTree(Key,
                 }
             }
 
+            // if we got here all N sub-nodes are occupied so we need to expand
             return insert(destructiveExpand(br2, key), key, chunkIx);
         }
 
         Node insert(BrM* brM, in Key key, ChunkIx chunkIx)
         {
             const IxM keyChunk = bitsChunk(key, chunkIx);
+            static assert(false, "TODO");
             return Node(brM);
         }
 
@@ -543,6 +544,7 @@ struct RadixTree(Key,
         {
             assert(chunkIx + 1 <= maxDepth); // assert that we are at least significant chunk
             const IxM keyChunk = bitsChunk(key, chunkIx);
+            static assert(false, "TODO");
             return Node(lfM);
         }
 
@@ -550,8 +552,8 @@ struct RadixTree(Key,
         BrM* destructiveExpand(Br2* br2, in Key key) @trusted
         {
             BrM* brM = makeNode!BrM;
-            assert(false, "Copy subs from br2 to brM and delete br2");
-            foreach (Mod!2 subIx; iota!(0, 2)) // each sub node
+            enum N = 2;         // branch-order, number of possible sub-nodes
+            foreach (Mod!N subIx; iota!(0, N)) // each sub node
             {
                 brM.at(br2.subKeyChunks[subIx]) = br2.subs[subIx];
             }

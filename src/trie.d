@@ -262,6 +262,7 @@ struct RadixTree(Key,
     {
         Node[2] subs;        // sub-branches
         Mod!(2, ubyte) subIxMs; // sub-ixMs. NOTE wastes space because IxM[2] only requires two bytes. Use IxM2 instead.
+
         // Indexing with internal range check is safely avoided.
         // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
         pragma(inline) auto ref at     (Mod!2 i) @trusted { return subs.ptr[i]; }
@@ -344,7 +345,7 @@ struct RadixTree(Key,
     }
 
     /** Get i:th chunk of `radix` number of bits. */
-    IxM bitsChunk(uint i)(Key key) const @trusted pure nothrow
+    IxM bitsChunk(uint i)(in Key key) const @trusted pure nothrow
     {
         // calculate bit shift to current chunk
         static if (isIntegral!Key ||
@@ -374,7 +375,7 @@ struct RadixTree(Key,
         used for map's `insert(Key key, Value value)` so a single implementation
         for `insert(Key key)` can be used for both set and map variant.
     */
-    KeyFindResult insert(Key key)
+    KeyFindResult insert(in Key key)
     {
         ensureRootNode;
 
@@ -468,10 +469,23 @@ struct RadixTree(Key,
         assert(false, "End of function shouldn't be reached");
     }
 
-    pragma(inline) KeyFindResult insertAt(Node node, Key key)
+    /** Recursive implementation of insert. */
+    pragma(inline) Node insert(Node curr, in Key key, uint chunkIndex) // Node-polymorphic
     {
-        KeyFindResult result;
-        return result;
+        if      (auto currBr2 = curr.peek!Br2) { return insert(currBr2, key, chunkIndex); }
+        else if (auto currBrM = curr.peek!BrM) { return insert(currBrM, key, chunkIndex); }
+        // else if (auto currLfM = curr.peek!LfM) { return insert(currLfM, key); }
+        else                                   { assert(false, "Unknown Node type"); }
+    }
+
+    Node insert(Br2* br2_ptr, in Key key, uint chunkIndex)
+    {
+        return Node(br2_ptr);
+    }
+
+    Node insert(BrM* brM_ptr, in Key key, uint chunkIndex)
+    {
+        return Node(brM_ptr);
     }
 
     static if (isMap)
@@ -479,7 +493,7 @@ struct RadixTree(Key,
         /** Insert `key`.
             Returns: `false` if key was previously already inserted, `true` otherwise.
         */
-        KeyFindResult insert(Key key, Value value)
+        KeyFindResult insert(in Key key, Value value)
         {
             KeyFindResult result = insert(key);
             // TODO call insertAt(result, value);
@@ -491,7 +505,7 @@ struct RadixTree(Key,
     {
 
         /** Returns: `true` if key is contained in set, `false` otherwise. */
-        bool contains(Key key) const nothrow
+        bool contains(in Key key) const nothrow
         {
             if (!_root) { return false; }
 
@@ -537,7 +551,7 @@ struct RadixTree(Key,
         }
 
 	/** Supports $(B `Key` in `this`) syntax. */
-	bool opBinaryRight(string op)(Key key) const nothrow
+	bool opBinaryRight(string op)(in Key key) const nothrow
             if (op == "in")
 	{
             return contains(key);
@@ -547,7 +561,7 @@ struct RadixTree(Key,
     else
     {
         /** Returns: pointer to value if `key` is contained in set, null otherwise. */
-        Value* contains(Key key) const
+        Value* contains(in Key key) const
         {
             return null;
         }

@@ -265,7 +265,7 @@ struct RadixTree(Key,
     {
         // TODO merge these into a new `NodeType`
         Node[2] subs;        // sub-branches
-        IxM[2] subIxs; // sub-ixMs. NOTE wastes space because IxM[2] only requires two bytes. Use IxM2 instead.
+        IxM[2] subKeyChunks; // sub-ixMs. NOTE wastes space because IxM[2] only requires two bytes. Use IxM2 instead.
 
         // Indexing with internal range check is safely avoided.
         // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
@@ -511,18 +511,22 @@ struct RadixTree(Key,
         {
             const IxM keyChunk = bitsChunk(key, chunkIx);
 
-            foreach (Mod!(2) subIx; iota!(0, 2)) // each sub node
+            enum N = 2;         // branch-order, number of possible sub-nodes
+
+            foreach (Mod!N subIx; iota!(0, N)) // each sub node
             {
                 if (br2.subs[subIx])   // first is occupied
                 {
-                    if (br2.subIxs[subIx] == keyChunk)
+                    if (br2.subKeyChunks[subIx] == keyChunk)
                     {
                         return insert(br2.subs[subIx], key, chunkIx + 1);
                     }
                 }
-                else
+                else            // use first free sub
                 {
-                    assert(false, "use br2.subs[0]");
+                    br2.subs[subIx] = insert(br2.subs[subIx], key, chunkIx + 1); // use it
+                    br2.subKeyChunks[subIx] = keyChunk;
+                    return br2.subs[subIx];
                 }
             }
 
@@ -547,9 +551,9 @@ struct RadixTree(Key,
         {
             BrM* brM = makeNode!BrM;
             assert(false, "Copy subs from br2 to brM and delete br2");
-            foreach (Mod!(2) subIx; iota!(0, 2)) // each sub node
+            foreach (Mod!2 subIx; iota!(0, 2)) // each sub node
             {
-                brM.at(br2.subIxs[subIx]) = br2.subs[subIx];
+                brM.at(br2.subKeyChunks[subIx]) = br2.subs[subIx];
             }
             freeNode(br2);
             return brM;

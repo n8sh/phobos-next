@@ -80,7 +80,7 @@ struct BitSet(size_t len, Block = size_t)
         return this;
     }
 
-    unittest
+    @safe pure nothrow unittest
     {
         BitSet!4 bs = [0, 1, 0, 0];
         bs.put(3, true);
@@ -123,7 +123,7 @@ struct BitSet(size_t len, Block = size_t)
         }
     }
 
-    unittest
+    @safe pure nothrow @nogc unittest
     {
         BitSet!2 bs;
         bs[0] = true;
@@ -414,7 +414,7 @@ struct BitSet(size_t len, Block = size_t)
         //printf("i = %d, n = %d, mask = %x, %x, %x\n", i, n, mask, p1[i], p2[i]);
         return (mask == 0) || (p1[i] & mask) == (p2[i] & mask);
     }
-    unittest
+    nothrow unittest
     {
         debug(bitset) printf("BitSet.opEquals unittest\n");
         auto a = BitSet!5([1,0,1,0,1]);
@@ -450,7 +450,7 @@ struct BitSet(size_t len, Block = size_t)
         return cast(int)this.length() - cast(int)a2.length;
     }
 
-    unittest
+    nothrow unittest
     {
         debug(bitset) printf("BitSet.opCmp unittest\n");
         auto a = BitSet!5([1,0,1,0,1]);
@@ -493,14 +493,15 @@ struct BitSet(size_t len, Block = size_t)
 
     bool opCast(T : bool)() const @safe @nogc pure nothrow { return !this.empty ; }
 
-    unittest {
+    @safe nothrow @nogc unittest
+    {
         static bool[] ba = [1,0,1,0,1];
         auto a = BitSet!5(ba);
         assert(a);
         assert(!a.empty);
     }
-
-    unittest {
+    @safe nothrow @nogc unittest
+    {
         static bool[] ba = [0,0,0];
         auto a = BitSet!3(ba);
         assert(!a);
@@ -616,8 +617,7 @@ struct BitSet(size_t len, Block = size_t)
     {
         return ptr[0 .. dim];
     }
-
-    unittest
+    nothrow unittest
     {
         debug(bitset) printf("BitSet.opCast unittest\n");
         static bool[] ba = [1,0,1,0,1];
@@ -647,7 +647,8 @@ struct BitSet(size_t len, Block = size_t)
             result.ptr[i] = this.ptr[i] & e2.ptr[i];
         return result;
     }
-    unittest {
+    nothrow unittest
+    {
         debug(bitset) printf("BitSet.opAnd unittest\n");
         auto a = BitSet!5([1,0,1,0,1]);
         auto b = BitSet!5([1,0,1,1,0]);
@@ -664,7 +665,8 @@ struct BitSet(size_t len, Block = size_t)
             result.ptr[i] = this.ptr[i] | e2.ptr[i];
         return result;
     }
-    unittest {
+    nothrow unittest
+    {
         debug(bitset) printf("BitSet.opOr unittest\n");
         auto a = BitSet!5([1,0,1,0,1]);
         auto b = BitSet!5([1,0,1,1,0]);
@@ -681,7 +683,8 @@ struct BitSet(size_t len, Block = size_t)
             result.ptr[i] = this.ptr[i] ^ e2.ptr[i];
         return result;
     }
-    unittest {
+    nothrow unittest
+    {
         debug(bitset) printf("BitSet.opXor unittest\n");
         auto a = BitSet!5([1,0,1,0,1]);
         auto b = BitSet!5([1,0,1,1,0]);
@@ -701,7 +704,8 @@ struct BitSet(size_t len, Block = size_t)
             result.ptr[i] = this.ptr[i] & ~e2.ptr[i];
         return result;
     }
-    unittest {
+    nothrow unittest
+    {
         debug(bitset) printf("BitSet.opSub unittest\n");
         auto a = BitSet!5([1,0,1,0,1]);
         auto b = BitSet!5([1,0,1,1,0]);
@@ -718,7 +722,8 @@ struct BitSet(size_t len, Block = size_t)
             ptr[i] &= e2.ptr[i];
         return this;
     }
-    unittest {
+    nothrow unittest
+    {
         debug(bitset) printf("BitSet.opAndAssign unittest\n");
         auto a = BitSet!5([1,0,1,0,1]);
         auto b = BitSet!5([1,0,1,1,0]);
@@ -735,7 +740,8 @@ struct BitSet(size_t len, Block = size_t)
             ptr[i] |= e2.ptr[i];
         return this;
     }
-    unittest {
+    nothrow unittest
+    {
         debug(bitset) printf("BitSet.opOrAssign unittest\n");
         auto a = BitSet!5([1,0,1,0,1]);
         auto b = BitSet!5([1,0,1,1,0]);
@@ -752,7 +758,8 @@ struct BitSet(size_t len, Block = size_t)
             ptr[i] ^= e2.ptr[i];
         return this;
     }
-    unittest {
+    nothrow unittest
+    {
         debug(bitset) printf("BitSet.opXorAssign unittest\n");
         auto a = BitSet!5([1,0,1,0,1]);
         auto b = BitSet!5([1,0,1,1,0]);
@@ -772,7 +779,8 @@ struct BitSet(size_t len, Block = size_t)
             ptr[i] &= ~e2.ptr[i];
         return this;
     }
-    unittest {
+    nothrow unittest
+    {
         debug(bitset) printf("BitSet.opSubAssign unittest\n");
         auto a = BitSet!5([1,0,1,0,1]);
         auto b = BitSet!5([1,0,1,1,0]);
@@ -801,7 +809,6 @@ struct BitSet(size_t len, Block = size_t)
             throw new Exception("Unknown format specifier: %" ~ fmt.spec);
         }
     }
-
     unittest
     {
         auto b = BitSet!16(([0, 0, 0, 0, 1, 1, 1, 1,
@@ -856,7 +863,7 @@ struct BitSet(size_t len, Block = size_t)
     }
 }
 
-unittest
+@safe pure nothrow unittest
 {
     import nesses: denseness, sparseness;
     alias Q = Rational!ulong;
@@ -885,7 +892,7 @@ unittest
     /* assert(cb0.denseness == Q(0, 256)); */
 }
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     import std.traits: isIterable;
     static assert(isIterable!(BitSet!256));

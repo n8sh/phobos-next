@@ -151,6 +151,8 @@ struct RadixTree(Key,
     alias IxM = Mod!M; // restricted index type avoids range checking in array indexing below
     alias ChunkIx = uint;
 
+    static assert(radix <= 8*IxM.sizeof, "Need more precision in IxM");
+
     /** Tree Leaf Iterator. */
     struct It
     {
@@ -365,7 +367,6 @@ struct RadixTree(Key,
 
         const u = *(cast(UnsignedOfSameSizeAs!Key*)(&key)); // TODO functionize and reuse here and in intsort.d
         const IxM keyChunk = (u >> shift) & chunkMask; // part of value which is also an index
-        static assert(radix <= 8*keyChunk.sizeof, "Need more precision in keyChunk");
         return keyChunk;
     }
 
@@ -389,7 +390,6 @@ struct RadixTree(Key,
 
         const u = *(cast(UnsignedOfSameSizeAs!Key*)(&key)); // TODO functionize and reuse here and in intsort.d
         const IxM keyChunk = (u >> shift) & chunkMask; // part of value which is also an index
-        static assert(radix <= 8*keyChunk.sizeof, "Need more precision in keyChunk");
         return keyChunk;
     }
 

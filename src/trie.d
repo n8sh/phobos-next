@@ -67,7 +67,7 @@ import variant_pointer : VariantPointer;
 
 version = benchmark;
 
-import dbg : dln;
+import dbg;
 
 enum isFixedTrieableKeyType(T) = isScalarType!T;
 
@@ -263,15 +263,16 @@ struct RadixTree(Key,
     // TODO templatize on N (currently 2)
     static private struct Br2
     {
+        enum N = 2;
         // TODO merge these into a new `NodeType`
-        Node[2] subs;        // sub-branches
-        IxM[2] subKeyChunks; // sub-ixMs. NOTE wastes space because IxM[2] only requires two bytes. Use IxM2 instead.
+        Node[N] subs;        // sub-branches
+        IxM[N] subKeyChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM2 instead.
 
         // Indexing with internal range check is safely avoided.
         // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
-        pragma(inline) auto ref at     (Mod!2 i) @trusted { return subs.ptr[i]; }
-        pragma(inline) auto ref opIndex(Mod!2 i) { return at(i); }
-    }
+        pragma(inline) auto ref at     (Mod!N i) @trusted { return subs.ptr[i]; }
+        pragma(inline) auto ref atSubKeyChunk(Mod!N i) @trusted { return subKeyChunks.ptr[i]; }
+}
 
     /** Bottom-most leaf node of `RadixTree`-set storing `M` number of densly packed
         keys of fixed-length type `Key`.
@@ -333,7 +334,7 @@ struct RadixTree(Key,
     {
         if (!_root.ptr) return;
         auto oldRootPtr = _root;
-        ensureRootNode!BrM;
+        ensureRootNode;
         // TODO insert(oldRootPtr[]);
         assert(false, "TODO calculate tree by branches and leafs and make copies of them");
     }
@@ -397,9 +398,9 @@ struct RadixTree(Key,
         used for map's `insert(Key key, Value value)` so a single implementation
         for `insert(Key key)` can be used for both set and map variant.
     */
-    KeyFindResult insert(in Key key)
+    KeyFindResult insertOld(in Key key)
     {
-        ensureRootNode!BrM;
+        ensureRootNode;
 
         Node curr = _root;
         foreach (const ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
@@ -413,7 +414,7 @@ struct RadixTree(Key,
                     // assure that we have prepared `LfM` at next depth (sub-node)
                     if (!currBrM.at(chunk)) // if not yet set
                     {
-                        currBrM.at(chunk) = makeNode!LfM;
+                        currBrM.at(chunk) = construct!LfM;
                     }
                     else
                     {
@@ -480,7 +481,7 @@ struct RadixTree(Key,
                     assert(currBrM != BrM.oneSet);
                     if (!currBrM.at(chunk)) // if branch not yet visited
                     {
-                        currBrM.at(chunk) = makeNode!BrM; // create it
+                        currBrM.at(chunk) = construct!BrM; // create it
                     }
                     curr = currBrM.at(chunk); // and visit it
                 }
@@ -491,21 +492,22 @@ struct RadixTree(Key,
         assert(false, "End of function shouldn't be reached");
     }
 
-    @safe pure nothrow @nogc
+    @safe pure nothrow // TODO @nogc
     {
         /** Insert `key`.
             Recursive implementation of insert.
         */
-        bool insertRecursive(in Key key) @safe pure nothrow @nogc
+        bool insert(in Key key)
         {
-            ensureRootNode!BrM;
-            bool wasAdded;      // indicates that key was added
+            ensureRootNode;
+            bool wasAdded = false; // indicates that key was added
             _root = insert(_root, key, 0, wasAdded);
             return wasAdded;
         }
 
         pragma(inline) Node insert(Node curr, in Key key, ChunkIx chunkIx, out bool wasAdded) // Node-polymorphic
         {
+            if (key == 32) dln("Node.insert: chunkIx is ", chunkIx);
             if      (auto currBr2 = curr.peek!Br2) { return insert(currBr2, key, chunkIx, wasAdded); }
             else if (auto currBrM = curr.peek!BrM) { return insert(currBrM, key, chunkIx, wasAdded); }
             else if (auto currLfM = curr.peek!LfM) { return insert(currLfM, key, chunkIx, wasAdded); }
@@ -514,38 +516,51 @@ struct RadixTree(Key,
 
         Node insert(Br2* br2, in Key key, ChunkIx chunkIx, out bool wasAdded)
         {
+            if (key == 32) dln("Br2.insert: chunkIx is ", chunkIx);
             const IxM chunk = bitsChunk(key, chunkIx);
 
             enum N = 2;         // branch-order, number of possible sub-nodes
             foreach (Mod!N subIx; iota!(0, N)) // each sub node
             {
+                if (key == 32) dln("subIx is ", subIx);
                 if (br2.subs[subIx])   // first is occupied
                 {
-                    if (br2.subKeyChunks[subIx] == chunk)
+                    if (br2.subKeyChunks[subIx] == chunk) // and matches chunk
                     {
-                        return insert(br2.subs[subIx], key, chunkIx + 1, wasAdded);
+                        br2.subs[subIx] = insert(br2.subs[subIx], key, chunkIx + 1, wasAdded);
+                        return Node(br2);
                     }
                 }
                 else            // use first free sub
                 {
-                    br2.subs[subIx] = insert(br2.subs[subIx], key, chunkIx + 1, wasAdded); // use it
+                    br2.subs[subIx] = insert(constructSub(chunkIx + 1),
+                                             key, chunkIx + 1, wasAdded); // use it
                     br2.subKeyChunks[subIx] = chunk;
-                    return br2.subs[subIx];
+                    return Node(br2);
                 }
             }
 
             // if we got here all N sub-nodes are occupied so we need to expand
-            return insert(destructivelyExpand(br2, key), key, chunkIx, wasAdded);
+            dln("Br2.insert: Calling destructivelyExpand when chunkIx is ", chunkIx);
+            return insert(destructivelyExpand(br2), key, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
         }
 
         Node insert(BrM* brM, in Key key, ChunkIx chunkIx, out bool wasAdded)
+        in
         {
+            static if (hasFixedDepth)
+                assert(chunkIx + 1 < maxDepth);
+            assert(!wasAdded);               // check that we haven't yet added it
+        }
+        body
+        {
+            if (key == 32) dln("BrM.insert: chunkIx is ", chunkIx);
             const IxM chunk = bitsChunk(key, chunkIx);
             if (!brM.at(chunk)) // if not yet set
             {
-                brM.at(chunk) = makeNode!LfM;
+                brM.at(chunk) = constructSub(chunkIx + 1);
             }
-            return insert(brM.at(chunk), key, chunkIx, wasAdded);
+            return insert(brM.at(chunk), key, chunkIx + 1, wasAdded);
         }
 
         Node insert(LfM* lfM, in Key key, ChunkIx chunkIx, out bool wasAdded)
@@ -559,10 +574,11 @@ struct RadixTree(Key,
         }
         body
         {
+            if (key == 32) dln("LfM.insert: chunkIx is ", chunkIx);
             const IxM chunk = bitsChunk(key, chunkIx);
             if (!lfM.keyLSBits[chunk])
             {
-                lfM.keyLSBits[chunkIx] = true;
+                lfM.keyLSBits[chunk] = true;
                 wasAdded = true;
             }
             else
@@ -572,14 +588,22 @@ struct RadixTree(Key,
             return Node(lfM);
         }
 
-        /** Destructively Destructivelydesexpand `br2` into a `BrM` and return it. */
-        BrM* destructivelyExpand(Br2* br2, in Key key) @trusted
+        Node constructSub(ChunkIx chunkIx)
         {
-            BrM* brM = makeNode!BrM;
+            // dln("constructSub: chunkIx is ", chunkIx);
+            return (chunkIx + 1 == maxDepth ? // is last
+                    Node(construct!LfM) :
+                    Node(construct!Br2));
+        }
+
+        /** Destructively expand `br2` into a `BrM` and return it. */
+        BrM* destructivelyExpand(Br2* br2) @trusted
+        {
             enum N = 2;         // branch-order, number of possible sub-nodes
+            BrM* brM = construct!BrM;
             foreach (Mod!N subIx; iota!(0, N)) // each sub node
             {
-                brM.at(br2.subKeyChunks[subIx]) = br2.subs[subIx];
+                brM.at(br2.atSubKeyChunk(subIx)) = br2.subs[subIx];
             }
             freeNode(br2);
             return brM;
@@ -593,7 +617,7 @@ struct RadixTree(Key,
         */
         KeyFindResult insert(in Key key, Value value)
         {
-            KeyFindResult result = insert(key);
+            KeyFindResult result = insertOld(key);
             // TODO call insertAt(result, value);
             return result;
         }
@@ -668,7 +692,7 @@ struct RadixTree(Key,
     private:
 
     /** Allocate `Node`-type of value type `U`. */
-    U* makeNode(U)() @trusted
+    U* construct(U)() @trusted
     {
         import std.conv : emplace;
         U* node = emplace!U(cast(U*)malloc(U.sizeof));
@@ -721,9 +745,9 @@ struct RadixTree(Key,
     }
 
     /** Ensure that root `Node` is allocated. */
-    void ensureRootNode(U = BrM)()
+    void ensureRootNode(U = Br2)()
     {
-        if (!_root.ptr) { _root = makeNode!U; }
+        if (!_root.ptr) { _root = construct!U; }
     }
 
     /// Returns: number of nodes used in `this` tree.
@@ -756,20 +780,28 @@ auto check()
 
             static assert(set.isSet);
 
+            const useContains = false;
             foreach (Key k; 0.iota(512))
             {
-                assert(!set.contains(k)); // key should not yet be in set
-                assert(k !in set);        // alternative syntax
+                dln("k is ", k);
+                if (useContains)
+                {
+                    assert(!set.contains(k)); // key should not yet be in set
+                    assert(k !in set);        // alternative syntax
+                }
 
                 assert(set.insert(k));  // insert new value returns `true` (previously not in set)
                 assert(!set.insert(k)); // reinsert same value returns `false` (already in set)
                 assert(!set.insert(k)); // reinsert same value returns `false` (already in set)
 
-                assert(set.contains(k)); // key should now be in set
-                assert(k in set);        // alternative syntax
-                // assert(set.depth == set.maxDepth);
+                if (useContains)
+                {
+                    assert(set.contains(k)); // key should now be in set
+                    assert(k in set);        // alternative syntax
+                    assert(!set.contains(k + 1)); // next key is not yet in set
+                }
 
-                assert(!set.contains(k + 1)); // next key is not yet in set
+                // assert(set.depth == set.maxDepth);
             }
 
             // debug assert(set.nodeCount == 40);
@@ -782,7 +814,8 @@ auto check()
     }
 }
 
-@safe pure nothrow @nogc unittest
+@safe pure nothrow // @nogc
+unittest
 {
     check();
 }

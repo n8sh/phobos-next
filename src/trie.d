@@ -555,12 +555,15 @@ struct RadixTree(Key,
         body
         {
             if (key == 32) dln("BrM.insert: chunkIx is ", chunkIx);
+
             const IxM chunk = bitsChunk(key, chunkIx);
             if (!brM.at(chunk)) // if not yet set
             {
                 brM.at(chunk) = constructSub(chunkIx + 1);
             }
-            return insert(brM.at(chunk), key, chunkIx + 1, wasAdded);
+            insert(brM.at(chunk), key, chunkIx + 1, wasAdded);
+
+            return Node(brM);
         }
 
         Node insert(LfM* lfM, in Key key, ChunkIx chunkIx, out bool wasAdded)
@@ -575,6 +578,7 @@ struct RadixTree(Key,
         body
         {
             if (key == 32) dln("LfM.insert: chunkIx is ", chunkIx);
+
             const IxM chunk = bitsChunk(key, chunkIx);
             if (!lfM.keyLSBits[chunk])
             {
@@ -585,6 +589,7 @@ struct RadixTree(Key,
             {
                 wasAdded = false;
             }
+
             return Node(lfM);
         }
 
@@ -790,8 +795,11 @@ auto check()
                     assert(k !in set);        // alternative syntax
                 }
 
+                dln("- first insert");
                 assert(set.insert(k));  // insert new value returns `true` (previously not in set)
+                dln("- second insert");
                 assert(!set.insert(k)); // reinsert same value returns `false` (already in set)
+                dln("- third insert");
                 assert(!set.insert(k)); // reinsert same value returns `false` (already in set)
 
                 if (useContains)

@@ -116,7 +116,7 @@ struct RadixTree(Key,
     enum maxDepth = 8*Key.sizeof / R;
 
     /// `true` if tree has fixed a key of fixed length and in turn a tree of fixed max depth.
-    enum isFixed = isFixedTrieableKeyType!Key;
+    enum hasFixedDepth = isFixedTrieableKeyType!Key;
 
     /// `true` if tree has binary branch.
     enum isBinary = R == 2;
@@ -198,7 +198,7 @@ struct RadixTree(Key,
         /// Indicates that only next/child at this index is occupied.
         static immutable oneSet = cast(typeof(this)*)1UL;
 
-        static if (isFixed)
+        static if (hasFixedDepth)
         {
             /** Indicates that all children of `this` branch are occupied. Only
                 for fixed-sized `Keys`. */
@@ -250,7 +250,7 @@ struct RadixTree(Key,
             ++brHist[nzcnt - 1];
         }
 
-        static if (!isFixed)        // variable length keys only
+        static if (!hasFixedDepth)        // variable length keys only
         {
             LfM subOccupations; // if i:th bit is set key (and optionally value) associated with sub[i] is also defined
             static if (isMap)
@@ -551,7 +551,10 @@ struct RadixTree(Key,
         Node insert(LfM* lfM, in Key key, ChunkIx chunkIx, out bool wasAdded)
         in
         {
-            assert(chunkIx + 1 <= maxDepth); // assert that we are at least significant chunk
+            static if (hasFixedDepth)
+                assert(chunkIx + 1 == maxDepth);
+            else
+                assert(chunkIx + 1 <= maxDepth);
             assert(!wasAdded);               // check that we haven't yet added it
         }
         body

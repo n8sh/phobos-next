@@ -122,7 +122,7 @@ struct RadixTree(Key,
     enum isBinary = R == 2;
 
     /** Node types. */
-    alias NodeTypes = AliasSeq!(Br2, Br4, BrM, LfM);
+    alias NodeTypes = AliasSeq!(Br2, BrM, LfM);
 
     enum showSizes = false;
     static if (showSizes)
@@ -258,15 +258,6 @@ struct RadixTree(Key,
         // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
         auto ref at     (Mod!2 i) @trusted { return subs.ptr[i]; }
         auto ref opIndex(Mod!2 i) { return at(i); }
-    }
-
-    static private struct Br4
-    {
-        Node[4] subs;        // sub-branches
-        // Indexing with internal range check is safely avoided.
-        // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
-        auto ref at     (Mod!4 i) @trusted { return subs.ptr[i]; }
-        auto ref opIndex(Mod!4 i) { return at(i); }
     }
 
     /** Bottom-most leaf node of `RadixTree`-set storing `M` number of densly packed

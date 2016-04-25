@@ -344,8 +344,8 @@ struct RadixTree(Key,
         // debug assert(_nodeCount == 0);
     }
 
-    /** Get i:th chunk of `radix` number of bits. */
-    IxM bitsChunk(uint i)(in Key key) const @trusted pure nothrow
+    /** Get chunkIx:th chunk of `radix` number of bits. */
+    IxM bitsChunk(uint chunkIx)(in Key key) const @trusted pure nothrow
     {
         // calculate bit shift to current chunk
         static if (isIntegral!Key ||
@@ -353,13 +353,37 @@ struct RadixTree(Key,
         {
             /* most signficant bit chunk first because integers are
                typically more sparse in more significant bits */
-            enum shift = (maxDepth - 1 - i)*R;
+            enum shift = (maxDepth - 1 - chunkIx)*R;
         }
         else
         {
             // default to most signficant bit chunk first
-            enum shift = (maxDepth - 1 - i)*R;
-            // enum shift = i*R; // least significant bit first
+            enum shift = (maxDepth - 1 - chunkIx)*R;
+            // enum shift = chunkIx*R; // least significant bit first
+        }
+
+        const u = *(cast(UnsignedOfSameSizeAs!Key*)(&key)); // TODO functionize and reuse here and in intsort.d
+        const IxM keyChunk = (u >> shift) & chunkMask; // part of value which is also an index
+        static assert(radix <= 8*keyChunk.sizeof, "Need more precision in keyChunk");
+        return keyChunk;
+    }
+
+    /** Get chunkIx:th chunk of `radix` number of bits. */
+    IxM bitsChunk()(in Key key, uint chunkIx) const @trusted pure nothrow
+    {
+        // calculate bit shift to current chunk
+        static if (isIntegral!Key ||
+                   isSomeChar!Key) // because top-most bit in ASCII coding (char) is often sparse (0 is much more common than 1)
+        {
+            /* most signficant bit chunk first because integers are
+               typically more sparse in more significant bits */
+            const shift = (maxDepth - 1 - chunkIx)*R;
+        }
+        else
+        {
+            // default to most signficant bit chunk first
+            const shift = (maxDepth - 1 - chunkIx)*R;
+            // enum shift = chunkIx*R; // least significant bit first
         }
 
         const u = *(cast(UnsignedOfSameSizeAs!Key*)(&key)); // TODO functionize and reuse here and in intsort.d
@@ -470,22 +494,30 @@ struct RadixTree(Key,
     }
 
     /** Recursive implementation of insert. */
-    pragma(inline) Node insert(Node curr, in Key key, uint chunkIndex) // Node-polymorphic
+    pragma(inline) Node insert(Node curr, in Key key, uint chunkIx) // Node-polymorphic
     {
-        if      (auto currBr2 = curr.peek!Br2) { return insert(currBr2, key, chunkIndex); }
-        else if (auto currBrM = curr.peek!BrM) { return insert(currBrM, key, chunkIndex); }
-        // else if (auto currLfM = curr.peek!LfM) { return insert(currLfM, key); }
+        if      (auto currBr2 = curr.peek!Br2) { return insert(currBr2, key, chunkIx); }
+        else if (auto currBrM = curr.peek!BrM) { return insert(currBrM, key, chunkIx); }
+        else if (auto currLfM = curr.peek!LfM) { return insert(currLfM, key, chunkIx); }
         else                                   { assert(false, "Unknown Node type"); }
     }
 
-    Node insert(Br2* br2_ptr, in Key key, uint chunkIndex)
+    Node insert(Br2* br2_ptr, in Key key, uint chunkIx)
     {
+        const IxM keyChunk = bitsChunk(key, chunkIx);
         return Node(br2_ptr);
     }
 
-    Node insert(BrM* brM_ptr, in Key key, uint chunkIndex)
+    Node insert(BrM* brM_ptr, in Key key, uint chunkIx)
     {
+        const IxM keyChunk = bitsChunk(key, chunkIx);
         return Node(brM_ptr);
+    }
+
+    Node insert(LfM* lfM_ptr, in Key key, uint chunkIx)
+    {
+        const IxM keyChunk = bitsChunk(key, chunkIx);
+        return Node(lfM_ptr);
     }
 
     static if (isMap)

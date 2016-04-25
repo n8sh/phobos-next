@@ -818,11 +818,7 @@ auto check()
                     assert(k in set);        // alternative syntax
                     assert(!set.contains(k + 1)); // next key is not yet in set
                 }
-
-                // assert(set.depth == set.maxDepth);
             }
-
-            // debug assert(set.nodeCount == 40);
 
             auto map = radixTreeMap!(Key, Value);
             static assert(map.isMap);

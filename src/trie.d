@@ -149,6 +149,7 @@ struct RadixTree(Key,
     /** Radix Modulo Index */
     import modulo : Mod;
     alias IxM = Mod!M; // restricted index type avoids range checking in array indexing below
+    alias ChunkIx = uint;
 
     /** Tree Leaf Iterator. */
     struct It
@@ -345,7 +346,7 @@ struct RadixTree(Key,
     }
 
     /** Get chunkIx:th chunk of `radix` number of bits. */
-    IxM bitsChunk(uint chunkIx)(in Key key) const @trusted pure nothrow
+    IxM bitsChunk(ChunkIx chunkIx)(in Key key) const @trusted pure nothrow
     {
         // calculate bit shift to current chunk
         static if (isIntegral!Key ||
@@ -369,7 +370,7 @@ struct RadixTree(Key,
     }
 
     /** Get chunkIx:th chunk of `radix` number of bits. */
-    IxM bitsChunk()(in Key key, uint chunkIx) const @trusted pure nothrow
+    IxM bitsChunk()(in Key key, ChunkIx chunkIx) const @trusted pure nothrow
     {
         // calculate bit shift to current chunk
         static if (isIntegral!Key ||
@@ -494,7 +495,7 @@ struct RadixTree(Key,
     }
 
     /** Recursive implementation of insert. */
-    pragma(inline) Node insert(Node curr, in Key key, uint chunkIx) // Node-polymorphic
+    pragma(inline) Node insert(Node curr, in Key key, ChunkIx chunkIx) // Node-polymorphic
     {
         if      (auto currBr2 = curr.peek!Br2) { return insert(currBr2, key, chunkIx); }
         else if (auto currBrM = curr.peek!BrM) { return insert(currBrM, key, chunkIx); }
@@ -502,19 +503,19 @@ struct RadixTree(Key,
         else                                   { assert(false, "Unknown Node type"); }
     }
 
-    Node insert(Br2* br2_ptr, in Key key, uint chunkIx)
+    Node insert(Br2* br2_ptr, in Key key, ChunkIx chunkIx)
     {
         const IxM keyChunk = bitsChunk(key, chunkIx);
         return Node(br2_ptr);
     }
 
-    Node insert(BrM* brM_ptr, in Key key, uint chunkIx)
+    Node insert(BrM* brM_ptr, in Key key, ChunkIx chunkIx)
     {
         const IxM keyChunk = bitsChunk(key, chunkIx);
         return Node(brM_ptr);
     }
 
-    Node insert(LfM* lfM_ptr, in Key key, uint chunkIx)
+    Node insert(LfM* lfM_ptr, in Key key, ChunkIx chunkIx)
     {
         const IxM keyChunk = bitsChunk(key, chunkIx);
         return Node(lfM_ptr);

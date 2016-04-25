@@ -148,7 +148,7 @@ struct RadixTree(Key,
 
     /** Radix Modulo Index */
     import modulo : Mod;
-    alias BrMIx = Mod!M; // restricted index type avoids range checking in array indexing below
+    alias IxM = Mod!M; // restricted index type avoids range checking in array indexing below
     alias ChunkIx = uint;
 
     /** Tree Leaf Iterator. */
@@ -156,18 +156,18 @@ struct RadixTree(Key,
     {
         bool opCast(T : bool)() const @safe pure nothrow @nogc { return cast(bool)node; }
         Node node;              // current leaf-`Node`. TODO use `Lf` type instead?
-        BrMIx ixM;                // index to sub at `node`
+        IxM ixM;                // index to sub at `node`
     }
 
     /** Tree Key Find Result. */
     struct KeyFindResult // TODO shorter naming
     {
         /* this save 8 bytes and makes this struct 16 bytes instead of 24 bytes
-           compared using a member It instead of Node and BrMIx */
+           compared using a member It instead of Node and IxM */
         auto it() { return It(node, ixM); }
         bool opCast(T : bool)() const @safe pure nothrow @nogc { return hit; }
         Node node;
-        BrMIx ixM;
+        IxM ixM;
         bool hit;
     }
 
@@ -206,9 +206,9 @@ struct RadixTree(Key,
         Node[M] subs;        // sub-branches
 
         // Indexing with internal range check is safely avoided.
-        // TODO move to modulo.d: opIndex(T[M], BrMIx i) or at(T[M], BrMIx i) if that doesn't work
-        pragma(inline) auto ref at     (BrMIx i) @trusted { return subs.ptr[i]; }
-        pragma(inline) auto ref opIndex(BrMIx i) { return at(i); }
+        // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
+        pragma(inline) auto ref at     (IxM i) @trusted { return subs.ptr[i]; }
+        pragma(inline) auto ref opIndex(IxM i) { return at(i); }
 
         /** Returns: depth of tree at this branch. */
         // size_t linearDepth() @safe pure nothrow const
@@ -262,10 +262,10 @@ struct RadixTree(Key,
     static private struct Br2
     {
         Node[2] subs;        // sub-branches
-        Mod!(2, ubyte) subIxMs; // sub-ixMs. NOTE wastes space because BrMIx[2] only requires two bytes. Use IxM2 instead.
+        Mod!(2, ubyte) subIxMs; // sub-ixMs. NOTE wastes space because IxM[2] only requires two bytes. Use IxM2 instead.
 
         // Indexing with internal range check is safely avoided.
-        // TODO move to modulo.d: opIndex(T[M], BrMIx i) or at(T[M], BrMIx i) if that doesn't work
+        // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
         pragma(inline) auto ref at     (Mod!2 i) @trusted { return subs.ptr[i]; }
         pragma(inline) auto ref opIndex(Mod!2 i) { return at(i); }
     }
@@ -346,7 +346,7 @@ struct RadixTree(Key,
     }
 
     /** Get chunkIx:th chunk of `radix` number of bits. */
-    BrMIx bitsChunk(ChunkIx chunkIx)(in Key key) const @trusted pure nothrow
+    IxM bitsChunk(ChunkIx chunkIx)(in Key key) const @trusted pure nothrow
     {
         // calculate bit shift to current chunk
         static if (isIntegral!Key ||
@@ -364,13 +364,13 @@ struct RadixTree(Key,
         }
 
         const u = *(cast(UnsignedOfSameSizeAs!Key*)(&key)); // TODO functionize and reuse here and in intsort.d
-        const BrMIx keyChunk = (u >> shift) & chunkMask; // part of value which is also an index
+        const IxM keyChunk = (u >> shift) & chunkMask; // part of value which is also an index
         static assert(radix <= 8*keyChunk.sizeof, "Need more precision in keyChunk");
         return keyChunk;
     }
 
     /** Get chunkIx:th chunk of `radix` number of bits. */
-    BrMIx bitsChunk()(in Key key, ChunkIx chunkIx) const @trusted pure nothrow
+    IxM bitsChunk()(in Key key, ChunkIx chunkIx) const @trusted pure nothrow
     {
         // calculate bit shift to current chunk
         static if (isIntegral!Key ||
@@ -388,7 +388,7 @@ struct RadixTree(Key,
         }
 
         const u = *(cast(UnsignedOfSameSizeAs!Key*)(&key)); // TODO functionize and reuse here and in intsort.d
-        const BrMIx keyChunk = (u >> shift) & chunkMask; // part of value which is also an index
+        const IxM keyChunk = (u >> shift) & chunkMask; // part of value which is also an index
         static assert(radix <= 8*keyChunk.sizeof, "Need more precision in keyChunk");
         return keyChunk;
     }
@@ -407,7 +407,7 @@ struct RadixTree(Key,
         Node curr = _root;
         foreach (const ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
         {
-            const BrMIx keyChunk = bitsChunk!ix(key);
+            const IxM keyChunk = bitsChunk!ix(key);
 
             static if (ix + 2 == maxDepth) // if this is the second last chunk
             {
@@ -505,19 +505,19 @@ struct RadixTree(Key,
 
     Node insert(Br2* br2_ptr, in Key key, ChunkIx chunkIx)
     {
-        const BrMIx keyChunk = bitsChunk(key, chunkIx);
+        const IxM keyChunk = bitsChunk(key, chunkIx);
         return Node(br2_ptr);
     }
 
     Node insert(BrM* brM_ptr, in Key key, ChunkIx chunkIx)
     {
-        const BrMIx keyChunk = bitsChunk(key, chunkIx);
+        const IxM keyChunk = bitsChunk(key, chunkIx);
         return Node(brM_ptr);
     }
 
     Node insert(LfM* lfM_ptr, in Key key, ChunkIx chunkIx)
     {
-        const BrMIx keyChunk = bitsChunk(key, chunkIx);
+        const IxM keyChunk = bitsChunk(key, chunkIx);
         return Node(lfM_ptr);
     }
 
@@ -545,7 +545,7 @@ struct RadixTree(Key,
             Node curr = _root;
             foreach (const ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
             {
-                const BrMIx keyChunk = bitsChunk!ix(key);
+                const IxM keyChunk = bitsChunk!ix(key);
                 if (auto currBrM = curr.peek!BrM)
                 {
                     assert(currBrM != BrM.oneSet);

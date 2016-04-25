@@ -70,22 +70,19 @@ template Mod(size_t m, T = void)
 
         /// Construct from Mod!n, where `m >= n`.
         this(size_t n, U)(Mod!(n, U) rhs)
-            if (m >= n)
+            if (m >= n && isIntegral!U)
         {
             this.x = rhs.x;
         }
 
         /// Assign from Mod!n, where `m >= n`.
         auto ref opAssign(size_t n, U)(Mod!(n, U) rhs)
-            if (m >= n)
+            if (m >= n && isIntegral!U)
         {
             this.x = rhs.x;
         }
 
-        @property size_t prop() const
-        {
-            return x;
-        }
+        @property size_t prop() const { return x; }
 
         alias prop this;
         private S x;

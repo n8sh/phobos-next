@@ -387,7 +387,7 @@ struct RadixTree(Key,
             {
                 if (auto currBrM = curr.peek!BrM)
                 {
-                    // assure that we have prepare leaf at next depth (sub-node)
+                    // assure that we have prepared `LfM` at next depth (sub-node)
                     if (!currBrM.at(keyChunk)) // if not yet set
                     {
                         currBrM.at(keyChunk) = allocateNode!LfM;

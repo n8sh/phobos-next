@@ -850,7 +850,7 @@ struct RadixTree(Key,
     pragma(inline) debug size_t nodeCount() @safe pure nothrow @nogc { return _nodeCount; }
 
     private Node _root;
-    size_t _length;
+    size_t _length = 0;
 
     debug size_t _nodeCount = 0;
 }

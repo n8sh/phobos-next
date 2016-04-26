@@ -85,14 +85,13 @@ struct RadixTree(Key,
     import std.algorithm : filter;
     import std.meta : AliasSeq, staticMap;
     import std.typecons : ConstOf;
+    import bitop_ex : UnsignedOfSameSizeAs;
 
     static assert(radix == 4 ||
                   radix == 8 ||
                   radix == 16 ||
                   radix == 32, "Radix is currently limited to either 4, 8, 16, or 32");
     static assert(radix <= 8*Key.sizeof, "Radix must be less than or equal to Key bit-precision"); // TODO Use strictly less than: radix < ... instead?
-
-    import bitop_ex : UnsignedOfSameSizeAs;
 
     enum isSet = is(Value == void); // `true` if this tree is a set
     enum isMap = !isSet;        // `true` if this tree is a map

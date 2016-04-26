@@ -198,8 +198,8 @@ pure nothrow unittest
         assert(vp.currentIndex != 0);
         assert(vp.isOfType!Tp);
 
-        // assert(vp == &a);
-        // assert(vp != &a_);
+        // TODO assert(vp == a);
+        // TODO assert(vp != a_);
         assert(vp);
 
         foreach (Up; Types)
@@ -208,7 +208,7 @@ pure nothrow unittest
             static if (is(T == U))
             {
                 assert(vp.peek!Up);
-                // assert(*(vp.peek!Up) == a);
+                // TODO assert(*(vp.peek!Up) == a);
             }
             else
             {
@@ -222,8 +222,8 @@ pure nothrow unittest
         *b = 73;
         *b_ = 73;
         vp = b;
-        // assert(vp == b);
-        // assert(vp != b_);
+        // TODO assert(vp == b);
+        // TODO assert(vp != b_);
         assert(vp);
         foreach (Up; Types)
         {
@@ -231,7 +231,7 @@ pure nothrow unittest
             static if (is(T == U))
             {
                 assert(vp.peek!Up);
-                // assert(*(vp.peek!Up) == *b);
+                // TODO assert(*(vp.peek!Up) == *b);
             }
             else
             {

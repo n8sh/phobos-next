@@ -3,10 +3,10 @@ module variant_ex;
 /** A variant of `Types` packed into a word (`size_t`).
 
     Realizes a very lightweight version of polymorphism packed inside one single
-    pointer. Typically most significant bits are used to store type
-    information. These are normally unused on 64-bit systems.
+    word. Typically most significant bits are used to store type
+    information. These are normally unused on 64-bit systems (tested on Linux).
 
-    TODO Make typeIndex start at 1 for defined types. Already defaults to zero for null.
+    TODO Make `typeIndex` start at 1 for defined types. Already defaults to zero for null.
 
     TODO Ask forum.dlang.org: Is it safe to assume that `typeBits` most significant bits of a
     pointer are zero?
@@ -16,7 +16,7 @@ module variant_ex;
     TODO What todo with the fact that the GC will fail to scan WordVariant?
     Can the GC be tweaked to mask out the type bits before scanning?
 
-    TODO Enable support for is null instead of isNull?
+    TODO Enable support for `is null` instead of `isNull`?
 
     TODO Use `enforce()` instead of `assert()` in WordVariant:init()
 

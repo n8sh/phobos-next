@@ -27,12 +27,15 @@ module variant_ex;
  */
 struct WordVariant(Types...)
 {
+    // TODO assert that each Type in Types is either a pointer or has size equal to 7
+
+    import std.meta : staticIndexOf;
     import traits_ex : allSame, sizesOf;
 
     enum typeSizes = sizesOf!Types;
-    static assert(allSame!typeSizes, "Types must all be of equal size");
+    // static assert(allSame!typeSizes, "Types must all be of equal size");
 
-    static assert(this.sizeof == size_t.sizeof, "Types must all be equal to machine word size");
+    static assert(this.sizeof == size_t.sizeof, "Types must all <= size_t.sizeof");
 
     alias S = size_t; // TODO templatize?
 
@@ -50,7 +53,6 @@ struct WordVariant(Types...)
     enum typeShift = 8*S.sizeof - typeBits;
     enum typeMask = cast(S)(2^^typeBits - 1) << typeShift;
 
-    import std.meta : staticIndexOf;
     enum indexOf(T) = staticIndexOf!(T, Types); // TODO cast to ubyte if Types.length is <= 256
 
     /// Is `true` iff a `T*` can be assigned to `this`.
@@ -69,7 +71,7 @@ struct WordVariant(Types...)
         {
             foreach (const i, T; Types)
             {
-            case i: return T.stringof ~ `@` ~ peek!T.to!string;
+            case i + 1: return T.stringof ~ `@` ~ peek!T.to!string;
             }
         }
     }
@@ -82,6 +84,11 @@ struct WordVariant(Types...)
         init(value);
     }
 
+    this(typeof(null) value)
+    {
+        _raw = S.init;
+    }
+
     auto opAssign(T)(T that)
         if (allows!T)
     {
@@ -89,54 +96,66 @@ struct WordVariant(Types...)
         return this;
     }
 
-    this(typeof(null) value)
-    {
-    }
-
     auto opAssign(typeof(null) that)
     {
+        _raw = S.init;
         return this;
     }
 
-    @property inout(T)* peek(T)() inout @trusted @nogc nothrow
-        if (allows!T)
+    /** Reference. */
+    static private struct Ref
     {
-        static if (is(T == void)) static assert(allows!T, "Cannot store a " ~ T.stringof ~ " in a " ~ name);
-        if (!isOfType!T) { return null; }
-        return (cast(inout T*)_raw);
+        S _raw;
+        const bool defined;
+        bool opCast(T : bool)() const @safe pure nothrow @nogc { return defined; }
+        S opUnary(string op : "*")() inout { return _raw; }
     }
 
-    bool opEquals(U)(U that) const @trusted nothrow @nogc
+    @property auto ref peek(T)() @trusted @nogc nothrow
+        if (allows!T)
     {
-        auto x = peek!U; // if `this` contains pointer of to instance of type `U`
-        return x && *x == that; // and is equal to it
+        if (!isOfType!T) { return Ref.init; }
+        return Ref(_raw, true);
     }
+
+    @property auto ref peek(T)() const @trusted @nogc nothrow
+        if (allows!T)
+    {
+        if (!isOfType!T) { return const(Ref).init; }
+        return const(Ref)(_raw, true);
+    }
+
+    // bool opEquals(T)(T that) const @trusted nothrow @nogc
+    // {
+    //     auto x = peek!T; // if `this` contains pointer of to instance of type `T`
+    //     return x && *x == that; // and is equal to it
+    // }
 
     bool isNull() const @safe pure nothrow @nogc { return _raw == 0; }
 
     bool opCast(T : bool)() const @safe pure nothrow @nogc { return !isNull; }
 
-    private void init(T)(T* that)
+    private void init(T)(T that)
     in
     {
         assert(!(cast(S)that & typeMask), "Top-most bits of pointer are already occupied"); // TODO use enforce instead?
     }
     body
     {
-        _raw = (cast(S)that | // pointer in lower part
-                (cast(S)(indexOf!T) << typeShift)); // use higher bits for type information
+        _raw = (cast(S)that | // data in lower part
+                (cast(S)(indexOf!T + 1) << typeShift)); // use higher bits for type information
     }
 
     /** Get zero-offset index of current variant type. */
     private auto currentIndex() const @safe pure nothrow @nogc
     {
-        return (_raw & typeMask) >> typeShift;
+        return ((_raw & typeMask) >> typeShift);
     }
 
     private bool isOfType(T)() @safe const nothrow @nogc
         if (allows!T)
     {
-        return currentIndex == indexOf!T;
+        return !isNull && currentIndex == indexOf!T + 1;
     }
 
     private S _raw;             // raw untyped word
@@ -147,6 +166,7 @@ struct WordVariant(Types...)
 pure nothrow unittest
 {
     import std.meta : AliasSeq;
+    import dbg : dln;
 
     alias Types = AliasSeq!(byte*, short*, int*, long*,
                             ubyte*, ushort*, uint*, ulong*,
@@ -171,20 +191,28 @@ pure nothrow unittest
         // assignment from stack pointer
         T a = 73;
         T a_ = 73;
+
         vp = &a;
-        assert(vp == &a);
-        assert(vp != &a_);
         assert(vp);
-        foreach (U; Types)
+        assert(!vp.isNull);
+        assert(vp.currentIndex != 0);
+        assert(vp.isOfType!Tp);
+
+        // assert(vp == &a);
+        // assert(vp != &a_);
+        assert(vp);
+
+        foreach (Up; Types)
         {
+            alias U = typeof(*Up.init);
             static if (is(T == U))
             {
-                assert(vp.peek!U);
-                assert(*(vp.peek!U) == a);
+                assert(vp.peek!Up);
+                // assert(*(vp.peek!Up) == a);
             }
             else
             {
-                assert(!vp.peek!U);
+                assert(!vp.peek!Up);
             }
         }
 
@@ -194,19 +222,20 @@ pure nothrow unittest
         *b = 73;
         *b_ = 73;
         vp = b;
-        assert(vp == b);
-        assert(vp != b_);
+        // assert(vp == b);
+        // assert(vp != b_);
         assert(vp);
-        foreach (U; Types)
+        foreach (Up; Types)
         {
+            alias U = typeof(*Up.init);
             static if (is(T == U))
             {
-                assert(vp.peek!U);
-                assert(*(vp.peek!U) == *b);
+                assert(vp.peek!Up);
+                // assert(*(vp.peek!Up) == *b);
             }
             else
             {
-                assert(!vp.peek!U);
+                assert(!vp.peek!Up);
             }
         }
 

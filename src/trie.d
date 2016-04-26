@@ -36,22 +36,6 @@
     - else if (const currLfM = curr.peek!LfM)
     with some compacter logic perhaps using mixins or pattern matching using
     switch-case on internally store type in `WordVariant`.
-
-    I've just started working on a RadixTree implementation in D here:
-
-    https://github.com/nordlow/phobos-next/blob/master/src/trie.d
-
-    The current solution is very generic as it CT-specializes to either a
-    `RadixTreeMap` and `RadixTreeSet`. These provide memory-efficient
-    replacements for builtin AAs.
-
-    Each radix-tree branching contains 2^^radix pointers to the next
-    sub-branching. In the set-case I want these pointers to also be able to
-    contain special "codes" with the following meanings
-
-    - 0x1: *only* key associated with sub-branching is set.
-
-    0xFFFFFFFFFFFFFFFF: all values in this sub-branch are set.
  */
 module trie;
 

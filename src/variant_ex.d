@@ -27,6 +27,11 @@ module variant_ex;
  */
 struct WordVariant(Types...)
 {
+    import traits_ex : allSame, sizesOf;
+
+    enum typeSizes = sizesOf!Types;
+    static assert(allSame!typeSizes, "Types must all be of equal size");
+
     static assert(this.sizeof == (void*).sizeof); // should have same size as pointer
 
     alias S = size_t; // TODO templatize?
@@ -64,20 +69,20 @@ struct WordVariant(Types...)
         {
             foreach (const i, T; Types)
             {
-            case i: return T.stringof ~ `@` ~ ptr.to!string;
+            case i: return T.stringof ~ `@` ~ peek!T.to!string;
             }
         }
     }
 
     pure nothrow @nogc:
 
-    this(T)(T* value)
+    this(T)(T value)
         if (allows!T)
     {
         init(value);
     }
 
-    auto opAssign(T)(T* that)
+    auto opAssign(T)(T that)
         if (allows!T)
     {
         init(that);
@@ -93,25 +98,23 @@ struct WordVariant(Types...)
         return this;
     }
 
-    @property inout(void)* ptr() inout @trusted @nogc nothrow { return cast(void*)(_raw & ~typeMask); }
-
     @property inout(T)* peek(T)() inout @trusted @nogc nothrow
         if (allows!T)
     {
         static if (is(T == void)) static assert(allows!T, "Cannot store a " ~ T.stringof ~ " in a " ~ name);
         if (!isOfType!T) { return null; }
-        return cast(inout T*)ptr;
+        return (cast(inout T*)_raw);
     }
 
-    bool opEquals(U)(U* that) const @trusted nothrow @nogc
+    bool opEquals(U)(U that) const @trusted nothrow @nogc
     {
         auto x = peek!U; // if `this` contains pointer of to instance of type `U`
-        return x && x == that; // and is equal to it
+        return x && *x == that; // and is equal to it
     }
 
-    bool isNull() const @safe pure nothrow @nogc { return ptr is null; }
+    bool isNull() const @safe pure nothrow @nogc { return _raw == 0; }
 
-    bool opCast(T : bool)() const @safe pure nothrow @nogc { return ptr !is null; }
+    bool opCast(T : bool)() const @safe pure nothrow @nogc { return !isNull; }
 
     private void init(T)(T* that)
     in
@@ -145,10 +148,10 @@ pure nothrow unittest
 {
     import std.meta : AliasSeq;
 
-    alias Types = AliasSeq!(byte, short, int, long,
-                            ubyte, ushort, uint, ulong,
-                            float, double, real,
-                            char, wchar, dchar);
+    alias Types = AliasSeq!(byte*, short*, int*, long*,
+                            ubyte*, ushort*, uint*, ulong*,
+                            float*, double*, real*,
+                            char*, wchar*, dchar*);
 
     alias VP = WordVariant!Types;
 
@@ -158,8 +161,10 @@ pure nothrow unittest
     assert(vp.isNull);
     assert(!vp);
 
-    foreach (T; Types)
+    foreach (Tp; Types)
     {
+        alias T = typeof(*Tp.init);
+
         static assert(!__traits(compiles, { T[] a; vp = &a; }));
         static assert(!__traits(compiles, { vp.peek!(T[]*); }));
 

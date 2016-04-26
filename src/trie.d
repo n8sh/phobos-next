@@ -468,107 +468,6 @@ struct RadixTree(Key,
         return chunk;
     }
 
-    /** Insert `key`.
-
-        Returns: a non-null (defined) `KeyFindResult` if key was previously
-        already inserted, `KeyFindResult.init` otherwise. This return value can then be
-        used for map's `insert(Key key, Value value)` so a single implementation
-        for `insert(Key key)` can be used for both set and map variant.
-    */
-    KeyFindResult insertOld(in Key key)
-    {
-        ensureRootNode;
-
-        Node curr = _root;
-        foreach (const ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
-        {
-            const IxM chunk = bitsChunk!ix(key);
-
-            static if (ix + 2 == maxDepth) // if this is the second last chunk
-            {
-                if (auto currBrM = curr.peek!BrM)
-                {
-                    // assure that we have prepared `LfM` at next depth (sub-node)
-                    if (!currBrM.at(chunk)) // if not yet set
-                    {
-                        currBrM.at(chunk) = construct!LfM;
-                    }
-                    else
-                    {
-                        assert(currBrM.at(chunk).peek!LfM);
-                    }
-                    curr = currBrM.at(chunk); // and go there
-                }
-                else if (auto currLfM = curr.peek!LfM) { assert(false, "TODO"); }
-                else if (curr) { assert(false, "Unknown type of non-null pointer"); }
-            }
-            else static if (ix + 1 == maxDepth) // if this is the last chunk
-            {
-                if (auto currBrM = curr.peek!BrM) // branch-M
-                {
-                    assert(currBrM != BrM.oneSet);
-                    if (!currBrM.at(chunk))
-                    {
-                        currBrM.at(chunk) = BrM.oneSet; // tag this as last
-                        return KeyFindResult(Node(currBrM), chunk, true); // a new value was inserted
-                    }
-                    else
-                    {
-                        static if (isFixedTrieableKeyType!Key)
-                        {
-                            assert(currBrM.at(chunk).peek!BrM == BrM.oneSet);
-                            return KeyFindResult(Node(currBrM), chunk, false); // value already set
-                        }
-                        else
-                        {
-                            assert(false, "TODO");
-                            // TODO test this
-                            if (curr.isOccupied)
-                            {
-                                return It.init;
-                            }
-                            else
-                            {
-                                curr.isOccupied = false;
-                                return It(Node(currBrM), chunk);
-                            }
-                        }
-                    }
-                }
-                else if (auto currLfM = curr.peek!LfM) // leaf-M
-                {
-                    if (!currLfM.keyLSBits[chunk])
-                    {
-                        currLfM.keyLSBits[chunk] = true;
-                        return KeyFindResult(Node(currLfM), chunk, true);
-                    }
-                    else
-                    {
-                        return KeyFindResult(Node(currLfM), chunk, false);
-                    }
-
-                    assert(false, "TODO");
-                }
-                else if (curr) { assert(false, "Unknown type of non-null pointer"); }
-            }
-            else            // other
-            {
-                if (auto currBrM = curr.peek!BrM)
-                {
-                    assert(currBrM != BrM.oneSet);
-                    if (!currBrM.at(chunk)) // if branch not yet visited
-                    {
-                        currBrM.at(chunk) = construct!BrM; // create it
-                    }
-                    curr = currBrM.at(chunk); // and visit it
-                }
-                else if (auto currLfM = curr.peek!LfM) { assert(false, "TODO"); }
-                else if (curr) { assert(false, "Unknown type of non-null pointer"); }
-            }
-        }
-        assert(false, "End of function shouldn't be reached");
-    }
-
     @safe pure nothrow @nogc
     {
         /** Insert `key`.
@@ -708,50 +607,9 @@ struct RadixTree(Key,
 
     static if (isSet)
     {
-
         /** Returns: `true` if key is contained in set, `false` otherwise. */
         bool contains(in Key key) const nothrow
         {
-            if (!_root) { return false; }
-
-            Node curr = _root;
-            foreach (const ix; iota!(0, maxDepth)) // NOTE unrolled/inlined compile-time-foreach chunk index
-            {
-                const IxM chunk = bitsChunk!ix(key);
-                if (auto currBrM = curr.peek!BrM)
-                {
-                    assert(currBrM != BrM.oneSet);
-                    if (!currBrM.at(chunk))
-                    {
-                        return false;
-                    }
-                    else
-                    {
-                        static if (isFixedTrieableKeyType!Key)
-                        {
-                            if (currBrM.at(chunk).peek!BrM == BrM.oneSet) { return true; }
-                        }
-                        else
-                        {
-                            if (currBrM.isOccupied)
-                            {
-                                return false;
-                            }
-                            else
-                            {
-                                currBrM.isOccupied = false;
-                                return true;
-                            }
-                        }
-                        curr = currBrM.at(chunk);
-                    }
-                }
-                else if (const currLfM = curr.peek!LfM)
-                {
-                    return currLfM.keyLSBits[chunk];
-                }
-                else if (curr) { assert(false, "Unknown type of non-null pointer"); }
-            }
             return false;
         }
 

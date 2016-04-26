@@ -196,7 +196,7 @@ struct RadixTree(Key,
     alias LeafMOccupationHistogram = size_t[M];
 
     /** Occupation Histograms. */
-    struct OccupationHistograms
+    struct Hists
     {
         Branch2OccupationHistogram br2;
         BranchMOccupationHistogram brM;
@@ -234,7 +234,7 @@ struct RadixTree(Key,
         //                                                  0UL)));
         // }
 
-        void calculate(ref OccupationHistograms hists) @safe pure nothrow const
+        void calculate(ref Hists hists) @safe pure nothrow const
         {
             import std.algorithm : count, filter;
             size_t nzcnt = 0; // number of non-zero branches
@@ -290,7 +290,7 @@ struct RadixTree(Key,
         pragma(inline) auto ref at     (Mod!N i) @trusted { return subs.ptr[i]; }
         pragma(inline) auto ref atSubKeyChunk(Mod!N i) @trusted { return subKeyChunks.ptr[i]; }
 
-        void calculate(ref OccupationHistograms hists) @safe pure nothrow const
+        void calculate(ref Hists hists) @safe pure nothrow const
         {
             import std.algorithm : count, filter;
             size_t nzcnt = 0; // number of non-zero branches
@@ -326,7 +326,7 @@ struct RadixTree(Key,
     */
     static private struct LfM
     {
-        void calculate(ref OccupationHistograms hists) @safe pure const
+        void calculate(ref Hists hists) @safe pure const
         {
             ++hists.lfM[keyLSBits.countOnes - 1];
         }
@@ -347,7 +347,7 @@ struct RadixTree(Key,
         }
     }
 
-    size_t calculateSubs(Subs)(Subs subs, ref OccupationHistograms hists) @safe pure nothrow const
+    size_t calculateSubs(Subs)(Subs subs, ref Hists hists) @safe pure nothrow const
         if (isInputRange!Subs)
     {
         size_t nzcnt = 0; // number of non-zero branches
@@ -380,7 +380,7 @@ struct RadixTree(Key,
     //     return _root !is null ? _root.linearDepth : 0;
     // }
 
-    OccupationHistograms usageHistograms() const
+    Hists usageHistograms() const
     {
         typeof(return) hists;
 

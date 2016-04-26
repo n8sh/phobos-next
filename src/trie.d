@@ -569,7 +569,7 @@ struct RadixTree(Key,
         assert(false, "End of function shouldn't be reached");
     }
 
-    @safe pure nothrow // TODO @nogc
+    @safe pure nothrow @nogc
     {
         /** Insert `key`.
             Recursive implementation of insert.
@@ -866,7 +866,7 @@ auto radixTreeSet(Key, size_t radix = 4)() { return RadixTree!(Key, void, radix)
 /// Instantiator of map-version of `RadixTree`.
 auto radixTreeMap(Key, Value, size_t radix = 4)() { return RadixTree!(Key, Value, radix)(); }
 
-/// Verify behaviour of `radixTreeSet` and `radixTreeMap` with explicit radix `radix`.
+/// Check correctness when radix is `radix`.
 auto check(size_t radix)()
 {
     import std.range : iota;
@@ -917,15 +917,8 @@ auto check(size_t radix)()
     }
 }
 
-@safe pure nothrow // @nogc
-unittest
-{
-    check!4;
-    check!8;
-}
-
-/// Performance benchmark
-version(benchmark) unittest
+/// Benchmark performance and memory usage when radix is `radix`.
+void benchmark(size_t radix)()
 {
     import core.thread : sleep;
     import std.range : iota;
@@ -936,7 +929,7 @@ version(benchmark) unittest
     import std.meta : AliasSeq;
     foreach (Key; AliasSeq!(uint))
     {
-        auto set = radixTreeSet!(Key);
+        auto set = radixTreeSet!(Key, radix);
 
         static assert(set.isSet);
 
@@ -971,8 +964,8 @@ version(benchmark) unittest
             dln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
             auto uhists = set.usageHistograms;
             dln("2-Branch Usage Histogram: ", uhists.br2);
-            dln("M-Branch Usage Histogram: ", uhists.brM);
-            dln("M-Leaf   Usage Histogram: ", uhists.lfM);
+            dln("M=", 2^^radix, "-Branch Usage Histogram: ", uhists.brM);
+            dln("M=", 2^^radix, "-Leaf   Usage Histogram: ", uhists.lfM);
             sleep(2);
             dln("Sleeping done");
         }
@@ -988,11 +981,26 @@ version(benchmark) unittest
             dln("Sleeping done");
         }
 
-        auto map = radixTreeMap!(Key, Value);
+        dln();
+
+        auto map = radixTreeMap!(Key, Value, radix);
         static assert(map.isMap);
 
         map.insert(Key.init, Value.init);
     }
+}
+
+version(benchmark) unittest
+{
+    benchmark!8;
+    benchmark!4;
+}
+
+@safe pure nothrow @nogc
+unittest
+{
+    check!4;
+    check!8;
 }
 
 /** Static Iota.

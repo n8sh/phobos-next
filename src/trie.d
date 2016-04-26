@@ -190,6 +190,13 @@ struct RadixTree(Key,
     */
     alias LeafMOccupationHistogram = size_t[M];
 
+    /** Occupation Histograms. */
+    struct OccupationHistograms
+    {
+        BranchMOccupationHistogram brM;
+        LeafMOccupationHistogram lfM;
+    }
+
     /** Non-bottom branch node containing densly packed array of `M` number of
         pointers to sub-`BrM`s or `Leaf`s.
     */

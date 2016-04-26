@@ -710,26 +710,11 @@ static private void calculate(Key, Value, size_t radix)(RadixTree!(Key, Value, r
 {
     alias RT = RadixTree!(Key, Value, radix);
     import std.algorithm : count, filter;
-    if (const subBr2 = sub.peek!(RT.Br2))
-    {
-        if (subBr2 != RT.Br2.oneSet) { subBr2.calculate(stats); } // TODO verify correct depth
-    }
-    else if (const subBr4 = sub.peek!(RT.Br4))
-    {
-        if (subBr4 != RT.Br4.oneSet) { subBr4.calculate(stats); } // TODO verify correct depth
-    }
-    else if (const subBr16 = sub.peek!(RT.Br16))
-    {
-        if (subBr16 != RT.Br16.oneSet) { subBr16.calculate(stats); } // TODO verify correct depth
-    }
-    else if (const subBrM = sub.peek!(RT.BrM))
-    {
-        if (subBrM != RT.BrM.oneSet) { subBrM.calculate(stats); } // TODO verify correct depth
-    }
-    else if (const subLfM = sub.peek!(RT.LfM))
-    {
-        subLfM.calculate(stats);
-    }
+    if      (const subBr2  = sub.peek!(RT.Br2))  { if (subBr2 != RT.Br2.oneSet) { subBr2.calculate(stats); } /* TODO verify correct depth */ }
+    else if (const subBr4  = sub.peek!(RT.Br4))  { if (subBr4 != RT.Br4.oneSet) { subBr4.calculate(stats); } /* TODO verify correct depth */ }
+    else if (const subBr16 = sub.peek!(RT.Br16)) { if (subBr16 != RT.Br16.oneSet) { subBr16.calculate(stats); } /* TODO verify correct depth */ }
+    else if (const subBrM  = sub.peek!(RT.BrM))  { if (subBrM != RT.BrM.oneSet) { subBrM.calculate(stats); } /* TODO verify correct depth */ }
+    else if (const subLfM  = sub.peek!(RT.LfM))  { subLfM.calculate(stats); }
     else if (sub)
     {
         assert(false, "Unknown type of non-null pointer");

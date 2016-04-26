@@ -228,13 +228,6 @@ struct RadixTree(Key,
     */
     static private struct BrM
     {
-        static if (hasFixedDepth)
-        {
-            /** Indicates that all children of `this` branch are occupied. Only
-                for fixed-sized `Keys`. */
-            static immutable allSet = cast(typeof(this)*)size_t.max;
-        }
-
         Node[M] subs;        // sub-branches
 
         // Indexing with internal range check is safely avoided.

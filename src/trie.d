@@ -245,11 +245,11 @@ struct RadixTree(Key,
                 ++nzcnt;
                 if (const subBr2 = sub.peek!Br2)
                 {
-                    if (subBr2 != Br2.oneSet) { subBr2.calculate(hists); }
+                    if (subBr2 != Br2.oneSet) { subBr2.calculate(hists); } // TODO verify correct depth
                 }
                 else if (const subBrM = sub.peek!BrM)
                 {
-                    if (subBrM != BrM.oneSet) { subBrM.calculate(hists); }
+                    if (subBrM != BrM.oneSet) { subBrM.calculate(hists); } // TODO verify correct depth
                 }
                 else if (const subLfM = sub.peek!LfM)
                 {
@@ -301,11 +301,11 @@ struct RadixTree(Key,
                 ++nzcnt;
                 if (const subBr2 = sub.peek!Br2)
                 {
-                    if (subBr2 != Br2.oneSet) { subBr2.calculate(hists); }
+                    if (subBr2 != Br2.oneSet) { subBr2.calculate(hists); } // TODO verify correct depth
                 }
                 else if (const subBrM = sub.peek!BrM)
                 {
-                    if (subBrM != BrM.oneSet) { subBrM.calculate(hists); }
+                    if (subBrM != BrM.oneSet) { subBrM.calculate(hists); } // TODO verify correct depth
                 }
                 else if (const subLfM = sub.peek!LfM)
                 {

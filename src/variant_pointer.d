@@ -105,9 +105,9 @@ struct VariantPointer(Types...)
         return cast(inout T*)ptr;
     }
 
-    bool opEquals(U)(U* that) const @trusted nothrow @nogc
+    bool opEquals(T)(T* that) const @trusted nothrow @nogc
     {
-        auto x = peek!U; // if `this` contains pointer of to instance of type `U`
+        auto x = peek!T; // if `this` contains pointer of to instance of type `T`
         return x && x == that; // and is equal to it
     }
 

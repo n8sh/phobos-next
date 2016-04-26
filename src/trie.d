@@ -4,6 +4,8 @@
 
     TODO Can we somehow overload opIndex so we can do brM[i] instead of more cumbersome (*brM)[i] when brM is of type BrM*?
 
+    TODO Make oneSet a member of VariantPointer to an empty dummy-type struct OneSet, AllSet {} and simplify logic
+
     TODO Use opIndex instead of at(): x.at(i) => (*x)[i]
 
     TODO Add support for map insert

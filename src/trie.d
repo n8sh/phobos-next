@@ -128,7 +128,7 @@ struct RadixTree(Key,
     struct AllSet {}
 
     /** Node types. */
-    alias NodeTypes = AliasSeq!(OneSet, // indicates pointing to single chunk of maximum of 64-8 bits
+    alias NodeTypes = AliasSeq!(OneSet, // pointer itself minus most-significant byte (size_t.sizeof - 8) bytes is used to encode bit-chunks
                                 AllSet, // indicate that all leaves in this branch are set (denseness compression)
                                 Br2, Br4, Br16, BrM, // branching-node
                                 LfM);          // leaves-nodes

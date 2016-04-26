@@ -642,19 +642,6 @@ struct RadixTree(Key,
         }
     }
 
-    static if (isMap)
-    {
-        /** Insert `key`.
-            Returns: `false` if key was previously already inserted, `true` otherwise.
-        */
-        bool insert(in Key key, Value value)
-        {
-            bool result = insert(key);
-            // TODO call insertAtSubNode(result, value);
-            return result;
-        }
-    }
-
     static if (isSet)
     {
         /** Returns: `true` if key is contained in set, `false` otherwise. */
@@ -668,8 +655,18 @@ struct RadixTree(Key,
         */
 	bool opBinaryRight(string op)(in Key key) const nothrow if (op == "in") { return contains(key); }
     }
-    else
+
+    static if (isMap)
     {
+        /** Insert `key`.
+            Returns: `false` if key was previously already inserted, `true` otherwise.
+        */
+        bool insert(in Key key, Value value)
+        {
+            bool result = insert(key);
+            // TODO call insertAtSubNode(result, value);
+            return result;
+        }
         /** Returns: pointer to value if `key` is contained in set, null otherwise. */
         Value* contains(in Key key) const
         {

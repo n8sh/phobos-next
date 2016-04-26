@@ -109,7 +109,9 @@ struct RadixTree(Key,
     alias IxM = Mod!M; // restricted index type avoids range checking in array indexing below
     alias ChunkIx = uint;
 
-    /** `R` least significant bits (LSB) of leaves directly packed into a word. */
+    /** `R` least significant bits (LSB) of leaves directly packed into a word.
+        TODO Generalize to packing of more than one `IxM` per byte.
+     */
     static      if (size_t.sizeof == 4) { struct PackedLfs { ubyte cnt; IxM[3] ixMs; } }
     else static if (size_t.sizeof == 8) { struct PackedLfs { ubyte cnt; IxM[7] ixMs; } }
     static assert(PackedLfs.sizeof == size_t.sizeof); // assert that it's size matches platform word-size

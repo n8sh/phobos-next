@@ -486,7 +486,7 @@ struct RadixTree(Key,
             }
 
             // if we got here all N sub-nodes are occupied so we need to expand
-            return insert(destructivelyExpand(br), key, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
+            return insert(expand(br), key, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
         }
 
         Node insert(Br04* br, in Key key, ChunkIx chunkIx, out bool wasAdded)
@@ -514,7 +514,7 @@ struct RadixTree(Key,
             }
 
             // if we got here all N sub-nodes are occupied so we need to expand
-            return insert(destructivelyExpand(br), key, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
+            return insert(expand(br), key, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
         }
 
         Node insert(Br16* br, in Key key, ChunkIx chunkIx, out bool wasAdded)
@@ -542,7 +542,7 @@ struct RadixTree(Key,
             }
 
             // if we got here all N sub-nodes are occupied so we need to expand
-            return insert(destructivelyExpand(br), key, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
+            return insert(expand(br), key, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
         }
 
         Node insert(BrM* brM, in Key key, ChunkIx chunkIx, out bool wasAdded)
@@ -600,7 +600,7 @@ struct RadixTree(Key,
         }
 
         /** Destructively expand `br02` into a `BrM` and return it. */
-        BrM* destructivelyExpand(Br02* br02) @trusted
+        BrM* expand(Br02* br02) @trusted
         {
             enum N = 2;         // branch-order, number of possible sub-nodes
             BrM* brM = construct!BrM;
@@ -613,7 +613,7 @@ struct RadixTree(Key,
         }
 
         /** Destructively expand `br04` into a `BrM` and return it. */
-        BrM* destructivelyExpand(Br04* br04) @trusted
+        BrM* expand(Br04* br04) @trusted
         {
             enum N = 4;         // branch-order, number of possible sub-nodes
             BrM* brM = construct!BrM;
@@ -626,7 +626,7 @@ struct RadixTree(Key,
         }
 
         /** Destructively expand `br04` into a `BrM` and return it. */
-        BrM* destructivelyExpand(Br16* br16) @trusted
+        BrM* expand(Br16* br16) @trusted
         {
             enum N = 16;         // branch-order, number of possible sub-nodes
             BrM* brM = construct!BrM;

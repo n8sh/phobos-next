@@ -86,10 +86,12 @@ struct VariantPointer(Types...)
 
     this(typeof(null) value)
     {
+        // null is the default
     }
 
     auto opAssign(typeof(null) that)
     {
+        _raw = 0;
         return this;
     }
 

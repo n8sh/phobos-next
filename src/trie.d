@@ -416,7 +416,7 @@ struct RadixTree(Key,
     ~this()
     {
         if (_root) { release(_root); }
-        // debug assert(_nodeCount == 0);
+        assert(_nodeCount == 0);
     }
 
     /** Get chunkIx:th chunk of `radix` number of bits. */
@@ -850,8 +850,9 @@ struct RadixTree(Key,
     pragma(inline) debug size_t nodeCount() @safe pure nothrow @nogc { return _nodeCount; }
 
     private Node _root;
-    debug size_t _nodeCount = 0;
     size_t _length;
+
+    debug size_t _nodeCount = 0;
 }
 alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;

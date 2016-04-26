@@ -82,7 +82,7 @@ struct RadixTree(Key,
                  size_t radix = 4) // radix in number of bits, typically either 1, 2, 4 or 8
     if (allSatisfy!(isTrieableKeyType, Key))
 {
-    // TODO make these CT-params
+    // TODO make these CT-params (requires putting branch definitions in same scope as `RadixTree`)
     alias DefaultRootNodeType = Br02;
     alias DefaultSubBranchNodeType = Br02;
 

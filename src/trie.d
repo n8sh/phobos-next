@@ -98,7 +98,10 @@ struct RadixTree(Key,
     import std.meta : AliasSeq, staticMap;
     import std.typecons : ConstOf;
 
-    static assert(radix <= 32, "Radix is currently limited to 32"); // TODO adjust?
+    static assert(radix == 4 ||
+                  radix == 8 ||
+                  radix == 16 ||
+                  radix == 32, "Radix is currently limited to either 4, 8, 16, or 32");
     static assert(radix <= 8*Key.sizeof, "Radix must be less than or equal to Key bit-precision"); // TODO Use strictly less than: radix < ... instead?
 
     import bitop_ex : UnsignedOfSameSizeAs;
@@ -195,8 +198,8 @@ struct RadixTree(Key,
     */
     alias LeafMOccupationHistogram = size_t[M];
 
-    /** Occupation Histograms. */
-    struct Hists
+    /** Tree Statistics. */
+    struct Stats
     {
         Branch2OccupationHistogram br2;
         BranchMOccupationHistogram brM;
@@ -234,7 +237,7 @@ struct RadixTree(Key,
         //                                                  0UL)));
         // }
 
-        void calculate(ref Hists hists) @safe pure nothrow const
+        void calculate(ref Stats hists) @safe pure nothrow const
         {
             import std.algorithm : count, filter;
             size_t nzcnt = 0; // number of non-zero branches
@@ -290,7 +293,7 @@ struct RadixTree(Key,
         pragma(inline) auto ref at     (Mod!N i) @trusted { return subs.ptr[i]; }
         pragma(inline) auto ref atSubKeyChunk(Mod!N i) @trusted { return subKeyChunks.ptr[i]; }
 
-        void calculate(ref Hists hists) @safe pure nothrow const
+        void calculate(ref Stats hists) @safe pure nothrow const
         {
             import std.algorithm : count, filter;
             size_t nzcnt = 0; // number of non-zero branches
@@ -326,7 +329,7 @@ struct RadixTree(Key,
     */
     static private struct LfM
     {
-        void calculate(ref Hists hists) @safe pure const
+        void calculate(ref Stats hists) @safe pure const
         {
             ++hists.lfM[keyLSBits.countOnes - 1];
         }
@@ -347,7 +350,7 @@ struct RadixTree(Key,
         }
     }
 
-    size_t calculateSubs(Subs)(Subs subs, ref Hists hists) @safe pure nothrow const
+    size_t calculateSubs(Subs)(Subs subs, ref Stats hists) @safe pure nothrow const
         if (isInputRange!Subs)
     {
         size_t nzcnt = 0; // number of non-zero branches
@@ -380,7 +383,7 @@ struct RadixTree(Key,
     //     return _root !is null ? _root.linearDepth : 0;
     // }
 
-    Hists usageHistograms() const
+    Stats usageHistograms() const
     {
         typeof(return) hists;
 
@@ -863,7 +866,8 @@ auto radixTreeSet(Key, size_t radix = 4)() { return RadixTree!(Key, void, radix)
 /// Instantiator of map-version of `RadixTree`.
 auto radixTreeMap(Key, Value, size_t radix = 4)() { return RadixTree!(Key, Value, radix)(); }
 
-auto check()
+/// Verify behaviour of `radixTreeSet` and `radixTreeMap` with explicit radix `radix`.
+auto check(size_t radix)()
 {
     import std.range : iota;
     foreach (const it; 0.iota(1))
@@ -874,7 +878,7 @@ auto check()
         import std.meta : AliasSeq;
         foreach (Key; AliasSeq!(uint))
         {
-            auto set = radixTreeSet!(Key);
+            auto set = radixTreeSet!(Key, radix);
 
             static assert(set.isSet);
 
@@ -905,7 +909,7 @@ auto check()
 
             assert(set.length == n);
 
-            auto map = radixTreeMap!(Key, Value);
+            auto map = radixTreeMap!(Key, Value, radix);
             static assert(map.isMap);
 
             map.insert(Key.init, Value.init);
@@ -916,7 +920,8 @@ auto check()
 @safe pure nothrow // @nogc
 unittest
 {
-    check();
+    check!4;
+    check!8;
 }
 
 /// Performance benchmark

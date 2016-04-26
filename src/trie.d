@@ -635,6 +635,26 @@ struct RadixTree(Key,
             freeNode(curr);
         }
 
+        void release(Br4* curr)
+        {
+            import std.algorithm : count, filter;
+            foreach (sub; curr.subs[].filter!(sub => sub)) // TODO use static foreach
+            {
+                release(sub); // recurse
+            }
+            freeNode(curr);
+        }
+
+        void release(Br16* curr)
+        {
+            import std.algorithm : count, filter;
+            foreach (sub; curr.subs[].filter!(sub => sub)) // TODO use static foreach
+            {
+                release(sub); // recurse
+            }
+            freeNode(curr);
+        }
+
         void release(LfM* curr)
         {
             freeNode(curr);
@@ -642,10 +662,12 @@ struct RadixTree(Key,
 
         void release(Node curr)
         {
-            if      (auto subBrM = curr.peek!BrM) { release(subBrM); }
-            else if (auto subBr2 = curr.peek!Br2) { release(subBr2); }
-            else if (auto subLfM = curr.peek!LfM) { release(subLfM); }
-            else if (curr)                        { assert(false, "Unknown type of non-null pointer"); }
+            if      (auto subBr2  = curr.peek!Br2)  { release(subBr2); }
+            else if (auto subBr4  = curr.peek!Br4)  { release(subBr4); }
+            else if (auto subBr16 = curr.peek!Br16) { release(subBr16); }
+            else if (auto subBrM  = curr.peek!BrM)  { release(subBrM); }
+            else if (auto subLfM  = curr.peek!LfM)  { release(subLfM); }
+            else if (curr)                          { assert(false, "Unknown type of non-null pointer"); }
         }
     }
 

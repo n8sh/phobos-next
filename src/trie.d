@@ -4,7 +4,7 @@
 
     TODO Can we somehow overload opIndex so we can do brM[i] instead of more cumbersome (*brM)[i] when brM is of type BrM*?
 
-    TODO Make oneSet a member of VariantPointer to an empty dummy-type struct OneSet, AllSet {} and simplify logic
+    TODO Make oneSet/allSet a member of VariantPointer to an empty dummy-type struct OneSet, AllSet {} and simplify logic in its checking
 
     TODO Use opIndex instead of at(): x.at(i) => (*x)[i]
 
@@ -124,8 +124,13 @@ struct RadixTree(Key,
     /// `true` if tree has binary branch.
     enum isBinary = R == 2;
 
+    struct OneSet {}
+    struct AllSet {}
+
     /** Node types. */
-    alias NodeTypes = AliasSeq!(Br2, Br4, Br16, BrM, // branching-node
+    alias NodeTypes = AliasSeq!(OneSet, // indicates pointing to single chunk of maximum of 64-8 bits
+                                AllSet, // indicate that all leaves in this branch are set (denseness compression)
+                                Br2, Br4, Br16, BrM, // branching-node
                                 LfM);          // leaves-nodes
 
     enum showSizes = false;

@@ -347,6 +347,33 @@ struct RadixTree(Key,
         }
     }
 
+    size_t calculateSubs(Subs)(Subs subs, ref OccupationHistograms hists) @safe pure nothrow const
+        if (isInputRange!Subs)
+    {
+        size_t nzcnt = 0; // number of non-zero branches
+        foreach (Node sub; subs)
+        {
+            ++nzcnt;
+            if (const subBr2 = sub.peek!Br2)
+            {
+                if (subBr2 != Br2.oneSet) { subBr2.calculate(this, hists); } // TODO verify correct depth
+            }
+            else if (const subBrM = sub.peek!BrM)
+            {
+                if (subBrM != BrM.oneSet) { subBrM.calculate(this, hists); } // TODO verify correct depth
+            }
+            else if (const subLfM = sub.peek!LfM)
+            {
+                subLfM.calculate(this, hists);
+            }
+            else if (sub)
+            {
+                assert(false, "Unknown type of non-null pointer");
+            }
+        }
+        return nzcnt;
+    }
+
     /// Get depth of tree.
     // size_t depth() @safe pure nothrow const
     // {

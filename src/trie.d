@@ -782,8 +782,8 @@ static private void calculate(Key, Value, size_t radix)(RadixTree!(Key, Value, r
     if      (const subBr02 = sub.peek!(RT.Br02)) { subBr02.calculate(stats); }
     else if (const subBr04 = sub.peek!(RT.Br04)) { subBr04.calculate(stats); }
     else if (const subBr16 = sub.peek!(RT.Br16)) { subBr16.calculate(stats); }
-    else if (const subBrM  = sub.peek!(RT.BrM))  { subBrM.calculate(stats); }
-    else if (const subLfM  = sub.peek!(RT.LfM))  { subLfM.calculate(stats); }
+    else if (const subBrM  = sub.peek!(RT.BrM))  { subBrM .calculate(stats); }
+    else if (const subLfM  = sub.peek!(RT.LfM))  { subLfM .calculate(stats); }
     else if (sub)
     {
         assert(false, "Unknown type of non-null pointer");

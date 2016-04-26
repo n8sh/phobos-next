@@ -462,7 +462,7 @@ struct RadixTree(Key,
             else if (auto currSBr16 = curr.peek!(SBr16*)) { return insert(*currSBr16, key, chunkIx, wasAdded); }
             else if (auto currBrM   = curr.peek!(BrM*))   { return insert(*currBrM,  key, chunkIx, wasAdded); }
             else if (auto currLfM   = curr.peek!(LfM*))   { return insert(*currLfM,  key, chunkIx, wasAdded); }
-            else                                   { assert(false, "Unknown Node type"); }
+            else                                          { assert(false, "Unknown Node type"); }
         }
 
         Node insert(SBr02* br, in Key key, ChunkIx chunkIx, out bool wasAdded)

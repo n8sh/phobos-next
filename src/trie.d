@@ -186,12 +186,27 @@ struct RadixTree(Key,
     /** M-Branch occupation histogram.
         Index maps to occupation with value range (1 .. M).
     */
-    alias BranchMOccupationHistogram = size_t[M];
+    alias BrMOccupationHistogram = size_t[M];
 
     /** 2-Branch occupation histogram.
         Index maps to occupation with value range (1 .. 2).
     */
-    alias Branch2OccupationHistogram = size_t[2];
+    alias Br2OccupationHistogram = size_t[2];
+
+    /** 4-Branch occupation histogram.
+        Index maps to occupation with value range (1 .. 4).
+    */
+    alias Br4OccupationHistogram = size_t[4];
+
+    /** 16-Branch occupation histogram.
+        Index maps to occupation with value range (1 .. 16).
+    */
+    alias Br16OccupationHistogram = size_t[16];
+
+    /** 256-Branch occupation histogram.
+        Index maps to occupation with value range (1 .. 16).
+    */
+    alias Br256OccupationHistogram = size_t[256];
 
     /** M-Leaf occupation histogram.
         Index maps to occupation with value range (1 .. M).
@@ -201,8 +216,11 @@ struct RadixTree(Key,
     /** Tree Statistics. */
     struct Stats
     {
-        Branch2OccupationHistogram br2;
-        BranchMOccupationHistogram brM;
+        Br2OccupationHistogram br2;
+        Br4OccupationHistogram br4;
+        Br16OccupationHistogram br16;
+        Br256OccupationHistogram br256;
+        BrMOccupationHistogram brM;
         LeafMOccupationHistogram lfM;
     }
 
@@ -964,6 +982,9 @@ void benchmark(size_t radix)()
             dln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
             auto uhists = set.usageHistograms;
             dln("2-Branch Usage Histogram: ", uhists.br2);
+            dln("4-Branch Usage Histogram: ", uhists.br4);
+            dln("16-Branch Usage Histogram: ", uhists.br16);
+            dln("256-Branch Usage Histogram: ", uhists.br256);
             dln("M=", 2^^radix, "-Branch Usage Histogram: ", uhists.brM);
             dln("M=", 2^^radix, "-Leaf   Usage Histogram: ", uhists.lfM);
             sleep(2);

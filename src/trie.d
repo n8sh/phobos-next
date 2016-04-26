@@ -948,7 +948,7 @@ void benchmark(size_t radix)()
 
         import std.range : generate, take;
         import std.random : uniform;
-        auto randomSamples = generate!(() => uniform!Key).take(n); // TODO functionize?
+        auto randomSamples = generate!(() => uniform!Key).take(n);
 
         {
             auto sw = StopWatch(AutoStart.yes);

@@ -201,7 +201,7 @@ pure nothrow unittest
             static if (is(T == U))
             {
                 assert(vp.peek!Up);
-                // TODO assert(*(vp.peek!Up) == a);
+                assert(*(vp.peek!Up) == &a);
             }
             else
             {
@@ -224,7 +224,7 @@ pure nothrow unittest
             static if (is(T == U))
             {
                 assert(vp.peek!Up);
-                // TODO assert(*(vp.peek!Up) == *b);
+                assert(*(vp.peek!Up) == b);
             }
             else
             {

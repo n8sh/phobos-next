@@ -7,7 +7,7 @@
 
     TODO Can we somehow overload opIndex so we can do brM[i] instead of more cumbersome (*brM)[i] when brM is of type BrM*?
 
-    TODO Use opIndex instead of at(): x.at(i) => (*x)[i]
+    TODO Use opIndex instead of atSubNode(): x.atSubNode(i) => (*x)[i]
 
     TODO Need bijectToUnsigned in intsort to support ordered storage of float and double. Move it to bijections.
 
@@ -235,9 +235,9 @@ struct RadixTree(Key,
         Node[M] subNodes;
 
         // Indexing with internal range check is safely avoided.
-        // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
-        pragma(inline) auto ref at     (IxM i) @trusted { return subNodes.ptr[i]; }
-        pragma(inline) auto ref opIndex(IxM i) { return at(i); }
+        // TODO move to modulo.d: opIndex(T[M], IxM i) or atSubNode(T[M], IxM i) if that doesn't work
+        pragma(inline) auto ref atSubNode(IxM i) @trusted { return subNodes.ptr[i]; }
+        pragma(inline) auto ref opIndex(IxM i) { return atSubNode(i); }
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow @nogc const
@@ -265,15 +265,14 @@ struct RadixTree(Key,
     static private struct Br02
     {
         enum N = 2;
-
         // TODO merge these into a new `NodeType`
         Node[N] subNodes;
-        IxM[N] subKeyChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM!2 instead.
+        IxM[N] subChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM!2 instead.
 
         // Indexing with internal range check is safely avoided.
-        // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
-        pragma(inline) auto ref at           (Mod!N i) @trusted { return subNodes.ptr[i]; }
-        pragma(inline) auto ref atSubKeyChunk(Mod!N i) @trusted { return subKeyChunks.ptr[i]; }
+        // TODO move to modulo.d: opIndex(T[M], IxM i) or atSubNode(T[M], IxM i) if that doesn't work
+        pragma(inline) auto ref atSubNode(Mod!N i) @trusted { return subNodes.ptr[i]; }
+        pragma(inline) auto ref atSubChunk(Mod!N i) @trusted { return subChunks.ptr[i]; }
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow const
@@ -292,15 +291,14 @@ struct RadixTree(Key,
     static private struct Br04
     {
         enum N = 4;
-
         // TODO merge these into a new `NodeType`
         Node[N] subNodes;
-        IxM[N] subKeyChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM!4 instead.
+        IxM[N] subChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM!4 instead.
 
         // Indexing with internal range check is safely avoided.
-        // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
-        pragma(inline) auto ref at           (Mod!N i) @trusted { return subNodes.ptr[i]; }
-        pragma(inline) auto ref atSubKeyChunk(Mod!N i) @trusted { return subKeyChunks.ptr[i]; }
+        // TODO move to modulo.d: opIndex(T[M], IxM i) or atSubNode(T[M], IxM i) if that doesn't work
+        pragma(inline) auto ref atSubNode(Mod!N i) @trusted { return subNodes.ptr[i]; }
+        pragma(inline) auto ref atSubChunk(Mod!N i) @trusted { return subChunks.ptr[i]; }
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow const
@@ -319,15 +317,14 @@ struct RadixTree(Key,
     static private struct Br16
     {
         enum N = 16;
-
         // TODO merge these into a new `NodeType`
         Node[N] subNodes;
-        IxM[N] subKeyChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM!16 instead.
+        IxM[N] subChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM!16 instead.
 
         // Indexing with internal range check is safely avoided.
-        // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
-        pragma(inline) auto ref at           (Mod!N i) @trusted { return subNodes.ptr[i]; }
-        pragma(inline) auto ref atSubKeyChunk(Mod!N i) @trusted { return subKeyChunks.ptr[i]; }
+        // TODO move to modulo.d: opIndex(T[M], IxM i) or atSubNode(T[M], IxM i) if that doesn't work
+        pragma(inline) auto ref atSubNode(Mod!N i) @trusted { return subNodes.ptr[i]; }
+        pragma(inline) auto ref atSubChunk(Mod!N i) @trusted { return subChunks.ptr[i]; }
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow const
@@ -471,7 +468,7 @@ struct RadixTree(Key,
             {
                 if (br.subNodes[subIx])   // first is occupied
                 {
-                    if (br.subKeyChunks[subIx] == chunk) // and matches chunk
+                    if (br.subChunks[subIx] == chunk) // and matches chunk
                     {
                         br.subNodes[subIx] = insert(br.subNodes[subIx], key, chunkIx + 1, wasAdded);
                         return Node(br);
@@ -481,7 +478,7 @@ struct RadixTree(Key,
                 {
                     br.subNodes[subIx] = insert(constructSub(chunkIx + 1),
                                              key, chunkIx + 1, wasAdded); // use it
-                    br.subKeyChunks[subIx] = chunk;
+                    br.subChunks[subIx] = chunk;
                     return Node(br);
                 }
             }
@@ -499,7 +496,7 @@ struct RadixTree(Key,
             {
                 if (br.subNodes[subIx])   // first is occupied
                 {
-                    if (br.subKeyChunks[subIx] == chunk) // and matches chunk
+                    if (br.subChunks[subIx] == chunk) // and matches chunk
                     {
                         br.subNodes[subIx] = insert(br.subNodes[subIx], key, chunkIx + 1, wasAdded);
                         return Node(br);
@@ -509,7 +506,7 @@ struct RadixTree(Key,
                 {
                     br.subNodes[subIx] = insert(constructSub(chunkIx + 1),
                                             key, chunkIx + 1, wasAdded); // use it
-                    br.subKeyChunks[subIx] = chunk;
+                    br.subChunks[subIx] = chunk;
                     return Node(br);
                 }
             }
@@ -527,7 +524,7 @@ struct RadixTree(Key,
             {
                 if (br.subNodes[subIx])   // first is occupied
                 {
-                    if (br.subKeyChunks[subIx] == chunk) // and matches chunk
+                    if (br.subChunks[subIx] == chunk) // and matches chunk
                     {
                         br.subNodes[subIx] = insert(br.subNodes[subIx], key, chunkIx + 1, wasAdded);
                         return Node(br);
@@ -537,7 +534,7 @@ struct RadixTree(Key,
                 {
                     br.subNodes[subIx] = insert(constructSub(chunkIx + 1),
                                                 key, chunkIx + 1, wasAdded); // use it
-                    br.subKeyChunks[subIx] = chunk;
+                    br.subChunks[subIx] = chunk;
                     return Node(br);
                 }
             }
@@ -557,11 +554,11 @@ struct RadixTree(Key,
         {
 
             const IxM chunk = bitsChunk(key, chunkIx);
-            if (!brM.at(chunk)) // if not yet set
+            if (!brM.atSubNode(chunk)) // if not yet set
             {
-                brM.at(chunk) = constructSub(chunkIx + 1);
+                brM.atSubNode(chunk) = constructSub(chunkIx + 1);
             }
-            brM.at(chunk) = insert(brM.at(chunk), key, chunkIx + 1, wasAdded);
+            brM.atSubNode(chunk) = insert(brM.atSubNode(chunk), key, chunkIx + 1, wasAdded);
 
             return Node(brM);
         }
@@ -607,7 +604,7 @@ struct RadixTree(Key,
             BrM* brM = construct!BrM;
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             {
-                brM.at(br02.atSubKeyChunk(subIx)) = br02.subNodes[subIx];
+                brM.atSubNode(br02.atSubChunk(subIx)) = br02.subNodes[subIx];
             }
             freeNode(br02);
             return brM;
@@ -620,7 +617,7 @@ struct RadixTree(Key,
             BrM* brM = construct!BrM;
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             {
-                brM.at(br04.atSubKeyChunk(subIx)) = br04.subNodes[subIx];
+                brM.atSubNode(br04.atSubChunk(subIx)) = br04.subNodes[subIx];
             }
             freeNode(br04);
             return brM;
@@ -633,7 +630,7 @@ struct RadixTree(Key,
             BrM* brM = construct!BrM;
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             {
-                brM.at(br16.atSubKeyChunk(subIx)) = br16.subNodes[subIx];
+                brM.atSubNode(br16.atSubChunk(subIx)) = br16.subNodes[subIx];
             }
             freeNode(br16);
             return brM;
@@ -648,7 +645,7 @@ struct RadixTree(Key,
         bool insert(in Key key, Value value)
         {
             bool result = insert(key);
-            // TODO call insertAt(result, value);
+            // TODO call insertAtSubNode(result, value);
             return result;
         }
     }

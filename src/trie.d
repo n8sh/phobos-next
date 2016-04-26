@@ -2,6 +2,9 @@
 
     See also: https://en.wikipedia.org/wiki/Trie
 
+    TODO Add extra CT-parameter being a tuple of `Packing`s that hints about
+    branching statistic. In the case where `hasFixedDepth` is true these packing must add upp to 8*Key.sizeof.
+
     TODO Can we somehow overload opIndex so we can do brM[i] instead of more cumbersome (*brM)[i] when brM is of type BrM*?
 
     TODO Use opIndex instead of at(): x.at(i) => (*x)[i]
@@ -48,6 +51,10 @@ import variant_ex : WordVariant;
 version = benchmark;
 
 import dbg;
+
+enum Packing { dense8bit,
+               dense4bit,
+               sparse12bit, }
 
 enum isFixedTrieableKeyType(T) = isScalarType!T;
 

@@ -116,8 +116,7 @@ struct WordVariant(Types...)
     private void init(T)(T* that)
     in
     {
-        // TODO use enforce instead?
-        assert(!(cast(S)that & typeMask)); // check that top-most bits of pointer aren't already occupied
+        assert(!(cast(S)that & typeMask), "Top-most bits of pointer are already occupied"); // TODO use enforce instead?
     }
     body
     {
@@ -137,7 +136,7 @@ struct WordVariant(Types...)
         return currentIndex == indexOf!T;
     }
 
-    private S _raw;
+    private S _raw;             // raw untyped word
 
 }
 

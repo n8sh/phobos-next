@@ -262,7 +262,7 @@ struct RadixTree(Key,
         }
     }
 
-    // TODO templatize on N (currently 2)
+    // TODO templatize on `N` (currently 2)
     static private struct Br2
     {
         enum N = 2;
@@ -919,8 +919,8 @@ version(benchmark) unittest
 
             dln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
             auto uhists = set.usageHistograms;
-            dln("Branch Usage Histogram: ", uhists[0]);
-            dln("Leaf   Usage Histogram: ", uhists[1]);
+            dln("M-Branch Usage Histogram: ", uhists[0]);
+            dln("M-Leaf   Usage Histogram: ", uhists[1]);
             sleep(2);
             dln("Sleeping done");
         }

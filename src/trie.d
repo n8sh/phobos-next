@@ -376,9 +376,14 @@ struct RadixTree(Key,
     this(this)
     {
         if (!_root.ptr) return;
-        auto oldRootPtr = _root;
-        ensureRootNode;
-        // TODO insert(oldRootPtr[]);
+        auto rhsRoot = _root;
+        debug const oldLength = _length;
+        if (rhsRoot)
+        {
+            _root = null;       // reset
+            _length = 0;        // needs reset because insert updates
+            // TODO insert(rhsRoot[]);
+        }
         assert(false, "TODO calculate tree by branches and leafs and make copies of them");
     }
 
@@ -675,6 +680,7 @@ struct RadixTree(Key,
         }
     }
 
+    bool empty() const @safe pure nothrow @nogc { return !_root; }
     size_t length() const @safe pure nothrow @nogc { return _length; }
 
     private:
@@ -806,6 +812,7 @@ auto check(size_t radix)()
         foreach (Key; AliasSeq!(uint))
         {
             auto set = radixTreeSet!(Key, radix);
+            assert(set.empty);
 
             static assert(set.isSet);
 
@@ -857,6 +864,7 @@ void benchmark(size_t radix)()
     foreach (Key; AliasSeq!(uint))
     {
         auto set = radixTreeSet!(Key, radix);
+        assert(set.empty);
 
         static assert(set.isSet);
 
@@ -914,6 +922,7 @@ void benchmark(size_t radix)()
         dln();
 
         auto map = radixTreeMap!(Key, Value, radix);
+        assert(map.empty);
         static assert(map.isMap);
 
         map.insert(Key.init, Value.init);

@@ -228,8 +228,6 @@ struct RadixTree(Key,
     */
     static private struct BrM
     {
-        static immutable oneSet = cast(typeof(this)*)1UL; /// indicates that only next/child at this index is occupied
-
         static if (hasFixedDepth)
         {
             /** Indicates that all children of `this` branch are occupied. Only
@@ -272,8 +270,6 @@ struct RadixTree(Key,
     {
         enum N = 2;
 
-        static immutable oneSet = cast(typeof(this)*)1UL; /// indicates that only next/child at this index is occupied
-
         // TODO merge these into a new `NodeType`
         Node[N] subs;        // sub-branches
         IxM[N] subKeyChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM2 instead.
@@ -302,8 +298,6 @@ struct RadixTree(Key,
     {
         enum N = 4;
 
-        static immutable oneSet = cast(typeof(this)*)1UL; /// indicates that only next/child at this index is occupied
-
         // TODO merge these into a new `NodeType`
         Node[N] subs;        // sub-branches
         IxM[N] subKeyChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM4 instead.
@@ -331,8 +325,6 @@ struct RadixTree(Key,
     static private struct Br16
     {
         enum N = 16;
-
-        static immutable oneSet = cast(typeof(this)*)1UL; /// indicates that only next/child at this index is occupied
 
         // TODO merge these into a new `NodeType`
         Node[N] subs;        // sub-branches
@@ -657,25 +649,10 @@ struct RadixTree(Key,
 
         void release(Node curr)
         {
-            if (auto subBrM = curr.peek!BrM)
-            {
-                if (subBrM != BrM.oneSet)
-                {
-                    release(subBrM);
-                }
-            }
-            else if (auto subBr2 = curr.peek!Br2)
-            {
-                release(subBr2);
-            }
-            else if (auto subLfM = curr.peek!LfM)
-            {
-                release(subLfM);
-            }
-            else if (curr)
-            {
-                assert(false, "Unknown type of non-null pointer");
-            }
+            if      (auto subBrM = curr.peek!BrM) { release(subBrM); }
+            else if (auto subBr2 = curr.peek!Br2) { release(subBr2); }
+            else if (auto subLfM = curr.peek!LfM) { release(subLfM); }
+            else if (curr)                        { assert(false, "Unknown type of non-null pointer"); }
         }
     }
 
@@ -710,10 +687,10 @@ static private void calculate(Key, Value, size_t radix)(RadixTree!(Key, Value, r
 {
     alias RT = RadixTree!(Key, Value, radix);
     import std.algorithm : count, filter;
-    if      (const subBr2  = sub.peek!(RT.Br2))  { if (subBr2  != RT.Br2.oneSet)  { subBr2.calculate(stats); } /* TODO verify correct depth */ }
-    else if (const subBr4  = sub.peek!(RT.Br4))  { if (subBr4  != RT.Br4.oneSet)  { subBr4.calculate(stats); } /* TODO verify correct depth */ }
-    else if (const subBr16 = sub.peek!(RT.Br16)) { if (subBr16 != RT.Br16.oneSet) { subBr16.calculate(stats); } /* TODO verify correct depth */ }
-    else if (const subBrM  = sub.peek!(RT.BrM))  { if (subBrM  != RT.BrM.oneSet)  { subBrM.calculate(stats); } /* TODO verify correct depth */ }
+    if      (const subBr2  = sub.peek!(RT.Br2))  { subBr2.calculate(stats);  /* TODO verify correct depth */ }
+    else if (const subBr4  = sub.peek!(RT.Br4))  { subBr4.calculate(stats);  /* TODO verify correct depth */ }
+    else if (const subBr16 = sub.peek!(RT.Br16)) { subBr16.calculate(stats); /* TODO verify correct depth */ }
+    else if (const subBrM  = sub.peek!(RT.BrM))  { subBrM.calculate(stats);  /* TODO verify correct depth */ }
     else if (const subLfM  = sub.peek!(RT.LfM))  { subLfM.calculate(stats); }
     else if (sub)
     {

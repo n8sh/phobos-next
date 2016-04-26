@@ -507,7 +507,7 @@ struct RadixTree(Key,
 
         pragma(inline) Node insert(Node curr, in Key key, ChunkIx chunkIx, out bool wasAdded) // Node-polymorphic
         {
-            // dln("Node.insert: chunkIx is ", chunkIx);
+            // if (key == 544) dln("Node.insert: chunkIx is ", chunkIx);
             if      (auto currBr2 = curr.peek!Br2) { return insert(currBr2, key, chunkIx, wasAdded); }
             else if (auto currBrM = curr.peek!BrM) { return insert(currBrM, key, chunkIx, wasAdded); }
             else if (auto currLfM = curr.peek!LfM) { return insert(currLfM, key, chunkIx, wasAdded); }
@@ -516,13 +516,13 @@ struct RadixTree(Key,
 
         Node insert(Br2* br2, in Key key, ChunkIx chunkIx, out bool wasAdded)
         {
-            // dln("Br2.insert: chunkIx is ", chunkIx);
+            // if (key == 544) dln("Br2.insert: chunkIx is ", chunkIx);
             const IxM chunk = bitsChunk(key, chunkIx);
 
             enum N = 2;         // branch-order, number of possible sub-nodes
             foreach (Mod!N subIx; iota!(0, N)) // each sub node
             {
-                // dln("subIx is ", subIx);
+                // if (key == 544) dln("subIx is ", subIx);
                 if (br2.subs[subIx])   // first is occupied
                 {
                     if (br2.subKeyChunks[subIx] == chunk) // and matches chunk
@@ -541,7 +541,7 @@ struct RadixTree(Key,
             }
 
             // if we got here all N sub-nodes are occupied so we need to expand
-            // dln("Br2.insert: Calling destructivelyExpand when chunkIx is ", chunkIx);
+            // if (key == 544) dln("Br2.insert: Calling destructivelyExpand when chunkIx is ", chunkIx);
             return insert(destructivelyExpand(br2), key, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
         }
 
@@ -554,14 +554,14 @@ struct RadixTree(Key,
         }
         body
         {
-            // dln("BrM.insert: chunkIx is ", chunkIx);
+            // if (key == 544) dln("BrM.insert: chunkIx is ", chunkIx);
 
             const IxM chunk = bitsChunk(key, chunkIx);
             if (!brM.at(chunk)) // if not yet set
             {
                 brM.at(chunk) = constructSub(chunkIx + 1);
             }
-            insert(brM.at(chunk), key, chunkIx + 1, wasAdded);
+            brM.at(chunk) = insert(brM.at(chunk), key, chunkIx + 1, wasAdded);
 
             return Node(brM);
         }
@@ -577,7 +577,7 @@ struct RadixTree(Key,
         }
         body
         {
-            // dln("LfM.insert: chunkIx is ", chunkIx);
+            // if (key == 544) dln("LfM.insert: chunkIx is ", chunkIx);
 
             const IxM chunk = bitsChunk(key, chunkIx);
             if (!lfM.keyLSBits[chunk])
@@ -808,8 +808,11 @@ auto check()
                     assert(k !in set);        // alternative syntax
                 }
 
+                // dln("#################################### insert(k), k is ", k);
                 assert(set.insert(k));  // insert new value returns `true` (previously not in set)
+                // dln("#################################### insert(k), k is ", k);
                 assert(!set.insert(k)); // reinsert same value returns `false` (already in set)
+                // dln("#################################### insert(k), k is ", k);
                 assert(!set.insert(k)); // reinsert same value returns `false` (already in set)
 
                 if (useContains)

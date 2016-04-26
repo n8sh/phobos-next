@@ -228,19 +228,19 @@ struct RadixTree(Key,
     */
     static private struct BrM
     {
-        Node[M] subs;        // sub-branches
+        Node[M] subNodes;        // sub-nodes
 
         // Indexing with internal range check is safely avoided.
         // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
-        pragma(inline) auto ref at     (IxM i) @trusted { return subs.ptr[i]; }
+        pragma(inline) auto ref at     (IxM i) @trusted { return subNodes.ptr[i]; }
         pragma(inline) auto ref opIndex(IxM i) { return at(i); }
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow const
         {
             import std.algorithm : filter;
-            size_t nnzSubCount = 0; // number of non-zero sub-branches
-            foreach (sub; subs[].filter!(sub => sub))
+            size_t nnzSubCount = 0; // number of non-zero sub-nodes
+            foreach (sub; subNodes[].filter!(sub => sub))
             {
                 ++nnzSubCount;
                 sub.calculate!(Key, Value, radix)(stats);
@@ -264,20 +264,20 @@ struct RadixTree(Key,
         enum N = 2;
 
         // TODO merge these into a new `NodeType`
-        Node[N] subs;        // sub-branches
+        Node[N] subNodes;        // sub-nodes
         IxM[N] subKeyChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM2 instead.
 
         // Indexing with internal range check is safely avoided.
         // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
-        pragma(inline) auto ref at           (Mod!N i) @trusted { return subs.ptr[i]; }
+        pragma(inline) auto ref at           (Mod!N i) @trusted { return subNodes.ptr[i]; }
         pragma(inline) auto ref atSubKeyChunk(Mod!N i) @trusted { return subKeyChunks.ptr[i]; }
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow const
         {
             import std.algorithm : filter;
-            size_t nnzSubCount = 0; // number of non-zero sub-branches
-            foreach (sub; subs[].filter!(sub => sub))
+            size_t nnzSubCount = 0; // number of non-zero sub-nodes
+            foreach (sub; subNodes[].filter!(sub => sub))
             {
                 ++nnzSubCount;
                 sub.calculate!(Key, Value, radix)(stats);
@@ -292,20 +292,20 @@ struct RadixTree(Key,
         enum N = 4;
 
         // TODO merge these into a new `NodeType`
-        Node[N] subs;        // sub-branches
+        Node[N] subNodes;        // sub-nodes
         IxM[N] subKeyChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM4 instead.
 
         // Indexing with internal range check is safely avoided.
         // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
-        pragma(inline) auto ref at           (Mod!N i) @trusted { return subs.ptr[i]; }
+        pragma(inline) auto ref at           (Mod!N i) @trusted { return subNodes.ptr[i]; }
         pragma(inline) auto ref atSubKeyChunk(Mod!N i) @trusted { return subKeyChunks.ptr[i]; }
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow const
         {
             import std.algorithm : filter;
-            size_t nnzSubCount = 0; // number of non-zero sub-branches
-            foreach (sub; subs[].filter!(sub => sub))
+            size_t nnzSubCount = 0; // number of non-zero sub-nodes
+            foreach (sub; subNodes[].filter!(sub => sub))
             {
                 ++nnzSubCount;
                 sub.calculate!(Key, Value, radix)(stats);
@@ -320,20 +320,20 @@ struct RadixTree(Key,
         enum N = 16;
 
         // TODO merge these into a new `NodeType`
-        Node[N] subs;        // sub-branches
+        Node[N] subNodes;        // sub-nodes
         IxM[N] subKeyChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM16 instead.
 
         // Indexing with internal range check is safely avoided.
         // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
-        pragma(inline) auto ref at           (Mod!N i) @trusted { return subs.ptr[i]; }
+        pragma(inline) auto ref at           (Mod!N i) @trusted { return subNodes.ptr[i]; }
         pragma(inline) auto ref atSubKeyChunk(Mod!N i) @trusted { return subKeyChunks.ptr[i]; }
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow const
         {
             import std.algorithm : filter;
-            size_t nnzSubCount = 0; // number of non-zero sub-branches
-            foreach (sub; subs[].filter!(sub => sub))
+            size_t nnzSubCount = 0; // number of non-zero sub-nodes
+            foreach (sub; subNodes[].filter!(sub => sub))
             {
                 ++nnzSubCount;
                 sub.calculate!(Key, Value, radix)(stats);
@@ -467,17 +467,17 @@ struct RadixTree(Key,
             enum N = 2;         // branch-order, number of possible sub-nodes
             foreach (Mod!N subIx; iota!(0, N)) // each sub node
             {
-                if (br.subs[subIx])   // first is occupied
+                if (br.subNodes[subIx])   // first is occupied
                 {
                     if (br.subKeyChunks[subIx] == chunk) // and matches chunk
                     {
-                        br.subs[subIx] = insert(br.subs[subIx], key, chunkIx + 1, wasAdded);
+                        br.subNodes[subIx] = insert(br.subNodes[subIx], key, chunkIx + 1, wasAdded);
                         return Node(br);
                     }
                 }
                 else            // use first free sub
                 {
-                    br.subs[subIx] = insert(constructSub(chunkIx + 1),
+                    br.subNodes[subIx] = insert(constructSub(chunkIx + 1),
                                              key, chunkIx + 1, wasAdded); // use it
                     br.subKeyChunks[subIx] = chunk;
                     return Node(br);
@@ -495,17 +495,17 @@ struct RadixTree(Key,
             enum N = 2;         // branch-order, number of possible sub-nodes
             foreach (Mod!N subIx; iota!(0, N)) // each sub node
             {
-                if (br.subs[subIx])   // first is occupied
+                if (br.subNodes[subIx])   // first is occupied
                 {
                     if (br.subKeyChunks[subIx] == chunk) // and matches chunk
                     {
-                        br.subs[subIx] = insert(br.subs[subIx], key, chunkIx + 1, wasAdded);
+                        br.subNodes[subIx] = insert(br.subNodes[subIx], key, chunkIx + 1, wasAdded);
                         return Node(br);
                     }
                 }
                 else            // use first free sub
                 {
-                    br.subs[subIx] = insert(constructSub(chunkIx + 1),
+                    br.subNodes[subIx] = insert(constructSub(chunkIx + 1),
                                             key, chunkIx + 1, wasAdded); // use it
                     br.subKeyChunks[subIx] = chunk;
                     return Node(br);
@@ -577,7 +577,7 @@ struct RadixTree(Key,
             BrM* brM = construct!BrM;
             foreach (Mod!N subIx; iota!(0, N)) // each sub node
             {
-                brM.at(br02.atSubKeyChunk(subIx)) = br02.subs[subIx];
+                brM.at(br02.atSubKeyChunk(subIx)) = br02.subNodes[subIx];
             }
             freeNode(br02);
             return brM;
@@ -590,7 +590,7 @@ struct RadixTree(Key,
             BrM* brM = construct!BrM;
             foreach (Mod!N subIx; iota!(0, N)) // each sub node
             {
-                brM.at(br04.atSubKeyChunk(subIx)) = br04.subs[subIx];
+                brM.at(br04.atSubKeyChunk(subIx)) = br04.subNodes[subIx];
             }
             freeNode(br04);
             return brM;
@@ -654,7 +654,7 @@ struct RadixTree(Key,
         void release(BrM* curr)
         {
             import std.algorithm : count, filter;
-            foreach (sub; curr.subs[].filter!(sub => sub)) // TODO use static foreach
+            foreach (sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
             {
                 release(sub); // recurse
             }
@@ -664,7 +664,7 @@ struct RadixTree(Key,
         void release(Br02* curr)
         {
             import std.algorithm : count, filter;
-            foreach (sub; curr.subs[].filter!(sub => sub)) // TODO use static foreach
+            foreach (sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
             {
                 release(sub); // recurse
             }
@@ -674,7 +674,7 @@ struct RadixTree(Key,
         void release(Br04* curr)
         {
             import std.algorithm : count, filter;
-            foreach (sub; curr.subs[].filter!(sub => sub)) // TODO use static foreach
+            foreach (sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
             {
                 release(sub); // recurse
             }
@@ -684,7 +684,7 @@ struct RadixTree(Key,
         void release(Br16* curr)
         {
             import std.algorithm : count, filter;
-            foreach (sub; curr.subs[].filter!(sub => sub)) // TODO use static foreach
+            foreach (sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
             {
                 release(sub); // recurse
             }

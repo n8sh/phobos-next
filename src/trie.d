@@ -482,8 +482,7 @@ struct RadixTree(Key,
                 }
                 else            // use first free sub
                 {
-                    br.subNodes[subIx] = insert(constructSub(chunkIx + 1),
-                                             key, chunkIx + 1, wasAdded); // use it
+                    br.subNodes[subIx] = insert(constructSub(chunkIx + 1), key, chunkIx + 1, wasAdded); // use it
                     br.subChunks[subIx] = chunk;
                     return Node(br);
                 }
@@ -510,8 +509,7 @@ struct RadixTree(Key,
                 }
                 else            // use first free sub
                 {
-                    br.subNodes[subIx] = insert(constructSub(chunkIx + 1),
-                                            key, chunkIx + 1, wasAdded); // use it
+                    br.subNodes[subIx] = insert(constructSub(chunkIx + 1), key, chunkIx + 1, wasAdded); // use it
                     br.subChunks[subIx] = chunk;
                     return Node(br);
                 }
@@ -538,8 +536,7 @@ struct RadixTree(Key,
                 }
                 else            // use first free sub
                 {
-                    br.subNodes[subIx] = insert(constructSub(chunkIx + 1),
-                                                key, chunkIx + 1, wasAdded); // use it
+                    br.subNodes[subIx] = insert(constructSub(chunkIx + 1), key, chunkIx + 1, wasAdded); // use it
                     br.subChunks[subIx] = chunk;
                     return Node(br);
                 }

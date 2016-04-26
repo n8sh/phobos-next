@@ -125,7 +125,7 @@ struct RadixTree(Key,
     enum isBinary = R == 2;
 
     /** Node types. */
-    alias NodeTypes = AliasSeq!(Br2, Br4, BrM, // branching-node
+    alias NodeTypes = AliasSeq!(Br2, Br4, Br16, BrM, // branching-node
                                 LfM);          // leaves-nodes
 
     enum showSizes = false;
@@ -273,6 +273,10 @@ struct RadixTree(Key,
                 {
                     if (subBr4 != Br4.oneSet) { subBr4.calculate(hists); } // TODO verify correct depth
                 }
+                else if (const subBr16 = sub.peek!Br16)
+                {
+                    if (subBr16 != Br16.oneSet) { subBr16.calculate(hists); } // TODO verify correct depth
+                }
                 else if (const subBrM = sub.peek!BrM)
                 {
                     if (subBrM != BrM.oneSet) { subBrM.calculate(hists); } // TODO verify correct depth
@@ -333,6 +337,10 @@ struct RadixTree(Key,
                 {
                     if (subBr4 != Br4.oneSet) { subBr4.calculate(hists); } // TODO verify correct depth
                 }
+                else if (const subBr16 = sub.peek!Br16)
+                {
+                    if (subBr16 != Br16.oneSet) { subBr16.calculate(hists); } // TODO verify correct depth
+                }
                 else if (const subBrM = sub.peek!BrM)
                 {
                     if (subBrM != BrM.oneSet) { subBrM.calculate(hists); } // TODO verify correct depth
@@ -384,6 +392,10 @@ struct RadixTree(Key,
                 {
                     if (subBr4 != Br4.oneSet) { subBr4.calculate(hists); } // TODO verify correct depth
                 }
+                else if (const subBr16 = sub.peek!Br16)
+                {
+                    if (subBr16 != Br16.oneSet) { subBr16.calculate(hists); } // TODO verify correct depth
+                }
                 else if (const subBrM = sub.peek!BrM)
                 {
                     if (subBrM != BrM.oneSet) { subBrM.calculate(hists); } // TODO verify correct depth
@@ -399,6 +411,61 @@ struct RadixTree(Key,
             }
 
             ++hists.br4[nzcnt - 1]; // TODO type-safe indexing
+        }
+    }
+
+    // TODO templatize on `N` (currently 16)
+    static private struct Br16
+    {
+        enum N = 16;
+
+        static immutable oneSet = cast(typeof(this)*)1UL; /// indicates that only next/child at this index is occupied
+
+        // TODO merge these into a new `NodeType`
+        Node[N] subs;        // sub-branches
+        IxM[N] subKeyChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM16 instead.
+
+        // Indexing with internal range check is safely avoided.
+        // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
+        pragma(inline) auto ref at     (Mod!N i) @trusted { return subs.ptr[i]; }
+        pragma(inline) auto ref atSubKeyChunk(Mod!N i) @trusted { return subKeyChunks.ptr[i]; }
+
+        void calculate(ref Stats hists) @safe pure nothrow const
+        {
+            import std.algorithm : count, filter;
+            size_t nzcnt = 0; // number of non-zero branches
+
+            // TODO functionize
+            foreach (sub; subs[].filter!(sub => sub))
+            {
+                ++nzcnt;
+                if (const subBr2 = sub.peek!Br2)
+                {
+                    if (subBr2 != Br2.oneSet) { subBr2.calculate(hists); } // TODO verify correct depth
+                }
+                else if (const subBr4 = sub.peek!Br4)
+                {
+                    if (subBr4 != Br4.oneSet) { subBr4.calculate(hists); } // TODO verify correct depth
+                }
+                else if (const subBr16 = sub.peek!Br16)
+                {
+                    if (subBr16 != Br16.oneSet) { subBr16.calculate(hists); } // TODO verify correct depth
+                }
+                else if (const subBrM = sub.peek!BrM)
+                {
+                    if (subBrM != BrM.oneSet) { subBrM.calculate(hists); } // TODO verify correct depth
+                }
+                else if (const subLfM = sub.peek!LfM)
+                {
+                    subLfM.calculate(hists);
+                }
+                else if (sub)
+                {
+                    assert(false, "Unknown type of non-null pointer");
+                }
+            }
+
+            ++hists.br16[nzcnt - 1]; // TODO type-safe indexing
         }
     }
 
@@ -443,6 +510,10 @@ struct RadixTree(Key,
             {
                 if (subBr4 != Br4.oneSet) { subBr4.calculate(this, hists); } // TODO verify correct depth
             }
+            else if (const subBr16 = sub.peek!Br16)
+            {
+                if (subBr16 != Br16.oneSet) { subBr16.calculate(this, hists); } // TODO verify correct depth
+            }
             else if (const subBrM = sub.peek!BrM)
             {
                 if (subBrM != BrM.oneSet) { subBrM.calculate(this, hists); } // TODO verify correct depth
@@ -478,11 +549,15 @@ struct RadixTree(Key,
         {
             if (rootBr4 != Br4.oneSet) { rootBr4.calculate(hists); }
         }
+        else if (const rootBr16 = _root.peek!Br16)
+        {
+            if (rootBr16 != Br16.oneSet) { rootBr16.calculate(hists); }
+        }
         else if (const rootBrM = _root.peek!BrM)
         {
             if (rootBrM != BrM.oneSet) { rootBrM.calculate(hists); }
         }
-        else if (const rooLfM = _root.peek!LfM)
+        else if (const rootLfM = _root.peek!LfM)
         {
             assert(false, "TODO");
         }

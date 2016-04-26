@@ -172,42 +172,42 @@ struct RadixTree(Key,
     /** M-Branch occupation histogram.
         Index maps to occupation with value range (1 .. M).
     */
-    alias BrMOccupationHistogram = size_t[M];
+    alias BrM_OccupationHistogram = size_t[M];
 
     /** 2-Branch occupation histogram.
         Index maps to occupation with value range (1 .. 2).
     */
-    alias Br2OccupationHistogram = size_t[2];
+    alias Br2_OccupationHistogram = size_t[2];
 
     /** 4-Branch occupation histogram.
         Index maps to occupation with value range (1 .. 4).
     */
-    alias Br4OccupationHistogram = size_t[4];
+    alias Br4_OccupationHistogram = size_t[4];
 
     /** 16-Branch occupation histogram.
         Index maps to occupation with value range (1 .. 16).
     */
-    alias Br16OccupationHistogram = size_t[16];
+    alias Br16_OccupationHistogram = size_t[16];
 
     /** 256-Branch occupation histogram.
-        Index maps to occupation with value range (1 .. 16).
+        Index maps to occupation with value range (1 .. 256).
     */
-    alias Br256OccupationHistogram = size_t[256];
+    alias Br256_OccupationHistogram = size_t[256];
 
     /** M-Leaf occupation histogram.
         Index maps to occupation with value range (1 .. M).
     */
-    alias LeafMOccupationHistogram = size_t[M];
+    alias LeafM_OccupationHistogram = size_t[M];
 
     /** Tree Statistics. */
     struct Stats
     {
-        Br2OccupationHistogram br2;
-        Br4OccupationHistogram br4;
-        Br16OccupationHistogram br16;
-        Br256OccupationHistogram br256;
-        BrMOccupationHistogram brM;
-        LeafMOccupationHistogram lfM;
+        Br2_OccupationHistogram br2;
+        Br4_OccupationHistogram br4;
+        Br16_OccupationHistogram br16;
+        Br256_OccupationHistogram br256;
+        BrM_OccupationHistogram brM;
+        LeafM_OccupationHistogram lfM;
     }
 
     /** Non-bottom branch node containing densly packed array of `M` number of

@@ -63,9 +63,9 @@ extern(C) pure nothrow @system @nogc
     void free(void* ptr);
 }
 
-/** Radix Tree storing keys of type `Key`.
+/** Radix tree container storing keys of type `Key`.
 
-    In set-case (`Value` is `void`) this containers is especially suitable for
+    In set-case (`Value` is `void`) this container is especially suitable for
     representing a set of 32 or 64 integers/pointers.
 
     See also: https://en.wikipedia.org/wiki/Radix_tree

@@ -180,12 +180,17 @@ struct RadixTree(Key,
         It high;                // beyond last
     }
 
-    /** Branch occupation histogram.
+    /** M-Branch occupation histogram.
         Index maps to occupation with value range (1 .. M).
     */
     alias BranchMOccupationHistogram = size_t[M];
 
-    /** Leaf occupation histogram.
+    /** 2-Branch occupation histogram.
+        Index maps to occupation with value range (1 .. 2).
+    */
+    alias Branch2OccupationHistogram = size_t[2];
+
+    /** M-Leaf occupation histogram.
         Index maps to occupation with value range (1 .. M).
     */
     alias LeafMOccupationHistogram = size_t[M];
@@ -193,6 +198,7 @@ struct RadixTree(Key,
     /** Occupation Histograms. */
     struct OccupationHistograms
     {
+        Branch2OccupationHistogram br2;
         BranchMOccupationHistogram brM;
         LeafMOccupationHistogram lfM;
     }
@@ -228,8 +234,7 @@ struct RadixTree(Key,
         //                                                  0UL)));
         // }
 
-        void calculate(ref BranchMOccupationHistogram brMHist,
-                       ref LeafMOccupationHistogram lfMHist) @safe pure nothrow const
+        void calculate(ref OccupationHistograms hists) @safe pure nothrow const
         {
             import std.algorithm : count, filter;
             size_t nzcnt = 0; // number of non-zero branches
@@ -240,15 +245,15 @@ struct RadixTree(Key,
                 ++nzcnt;
                 if (const subBr2 = sub.peek!Br2)
                 {
-                    if (subBr2 != Br2.oneSet) { subBr2.calculate(brMHist, lfMHist); }
+                    if (subBr2 != Br2.oneSet) { subBr2.calculate(hists); }
                 }
                 else if (const subBrM = sub.peek!BrM)
                 {
-                    if (subBrM != BrM.oneSet) { subBrM.calculate(brMHist, lfMHist); }
+                    if (subBrM != BrM.oneSet) { subBrM.calculate(hists); }
                 }
                 else if (const subLfM = sub.peek!LfM)
                 {
-                    subLfM.calculate(lfMHist);
+                    subLfM.calculate(hists);
                 }
                 else if (sub)
                 {
@@ -256,7 +261,7 @@ struct RadixTree(Key,
                 }
             }
 
-            ++brMHist[nzcnt - 1];
+            ++hists.brM[nzcnt - 1]; // TODO type-safe indexing
         }
 
         static if (!hasFixedDepth)        // variable length keys only
@@ -285,8 +290,7 @@ struct RadixTree(Key,
         pragma(inline) auto ref at     (Mod!N i) @trusted { return subs.ptr[i]; }
         pragma(inline) auto ref atSubKeyChunk(Mod!N i) @trusted { return subKeyChunks.ptr[i]; }
 
-        void calculate(ref BranchMOccupationHistogram brMHist,
-                       ref LeafMOccupationHistogram lfMHist) @safe pure nothrow const
+        void calculate(ref OccupationHistograms hists) @safe pure nothrow const
         {
             import std.algorithm : count, filter;
             size_t nzcnt = 0; // number of non-zero branches
@@ -297,15 +301,15 @@ struct RadixTree(Key,
                 ++nzcnt;
                 if (const subBr2 = sub.peek!Br2)
                 {
-                    if (subBr2 != Br2.oneSet) { subBr2.calculate(brMHist, lfMHist); }
+                    if (subBr2 != Br2.oneSet) { subBr2.calculate(hists); }
                 }
                 else if (const subBrM = sub.peek!BrM)
                 {
-                    if (subBrM != BrM.oneSet) { subBrM.calculate(brMHist, lfMHist); }
+                    if (subBrM != BrM.oneSet) { subBrM.calculate(hists); }
                 }
                 else if (const subLfM = sub.peek!LfM)
                 {
-                    subLfM.calculate(lfMHist);
+                    subLfM.calculate(hists);
                 }
                 else if (sub)
                 {
@@ -313,7 +317,7 @@ struct RadixTree(Key,
                 }
             }
 
-            ++brMHist[nzcnt - 1];
+            ++hists.br2[nzcnt - 1]; // TODO type-safe indexing
         }
     }
 
@@ -322,9 +326,9 @@ struct RadixTree(Key,
     */
     static private struct LfM
     {
-        void calculate(ref LeafMOccupationHistogram hist) @safe pure const
+        void calculate(ref OccupationHistograms hists) @safe pure const
         {
-            ++hist[keyLSBits.countOnes - 1];
+            ++hists.lfM[keyLSBits.countOnes - 1];
         }
 
         import bitset : BitSet;
@@ -349,7 +353,7 @@ struct RadixTree(Key,
     //     return _root !is null ? _root.linearDepth : 0;
     // }
 
-    BranchMOccupationHistogram[2] usageHistograms() const
+    OccupationHistograms usageHistograms() const
     {
         typeof(return) hists;
 
@@ -360,7 +364,7 @@ struct RadixTree(Key,
         }
         else if (const rootBrM = _root.peek!BrM)
         {
-            if (rootBrM != BrM.oneSet) { rootBrM.calculate(hists[0], hists[1]); }
+            if (rootBrM != BrM.oneSet) { rootBrM.calculate(hists); }
         }
         else if (const rooLfM = _root.peek!LfM)
         {
@@ -926,8 +930,9 @@ version(benchmark) unittest
 
             dln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
             auto uhists = set.usageHistograms;
-            dln("M-Branch Usage Histogram: ", uhists[0]);
-            dln("M-Leaf   Usage Histogram: ", uhists[1]);
+            dln("2-Branch Usage Histogram: ", uhists.br2);
+            dln("M-Branch Usage Histogram: ", uhists.brM);
+            dln("M-Leaf   Usage Histogram: ", uhists.lfM);
             sleep(2);
             dln("Sleeping done");
         }

@@ -258,40 +258,14 @@ struct RadixTree(Key,
 
         void calculate(ref Stats hists) @safe pure nothrow const
         {
-            import std.algorithm : count, filter;
-            size_t nzcnt = 0; // number of non-zero branches
-
-            // TODO functionize
+            import std.algorithm : filter;
+            size_t nnzSubCount = 0; // number of non-zero sub-branches
             foreach (sub; subs[].filter!(sub => sub))
             {
-                ++nzcnt;
-                if (const subBr2 = sub.peek!Br2)
-                {
-                    if (subBr2 != Br2.oneSet) { subBr2.calculate(hists); } // TODO verify correct depth
-                }
-                else if (const subBr4 = sub.peek!Br4)
-                {
-                    if (subBr4 != Br4.oneSet) { subBr4.calculate(hists); } // TODO verify correct depth
-                }
-                else if (const subBr16 = sub.peek!Br16)
-                {
-                    if (subBr16 != Br16.oneSet) { subBr16.calculate(hists); } // TODO verify correct depth
-                }
-                else if (const subBrM = sub.peek!BrM)
-                {
-                    if (subBrM != BrM.oneSet) { subBrM.calculate(hists); } // TODO verify correct depth
-                }
-                else if (const subLfM = sub.peek!LfM)
-                {
-                    subLfM.calculate(hists);
-                }
-                else if (sub)
-                {
-                    assert(false, "Unknown type of non-null pointer");
-                }
+                ++nnzSubCount;
+                sub.calculate!(Key, Value, radix)(hists);
             }
-
-            ++hists.brM[nzcnt - 1]; // TODO type-safe indexing
+            ++hists.brM[nnzSubCount - 1]; // TODO type-safe indexing
         }
 
         static if (!hasFixedDepth)        // variable length keys only
@@ -322,40 +296,14 @@ struct RadixTree(Key,
 
         void calculate(ref Stats hists) @safe pure nothrow const
         {
-            import std.algorithm : count, filter;
-            size_t nzcnt = 0; // number of non-zero branches
-
-            // TODO functionize
+            import std.algorithm : filter;
+            size_t nnzSubCount = 0; // number of non-zero sub-branches
             foreach (sub; subs[].filter!(sub => sub))
             {
-                ++nzcnt;
-                if (const subBr2 = sub.peek!Br2)
-                {
-                    if (subBr2 != Br2.oneSet) { subBr2.calculate(hists); } // TODO verify correct depth
-                }
-                else if (const subBr4 = sub.peek!Br4)
-                {
-                    if (subBr4 != Br4.oneSet) { subBr4.calculate(hists); } // TODO verify correct depth
-                }
-                else if (const subBr16 = sub.peek!Br16)
-                {
-                    if (subBr16 != Br16.oneSet) { subBr16.calculate(hists); } // TODO verify correct depth
-                }
-                else if (const subBrM = sub.peek!BrM)
-                {
-                    if (subBrM != BrM.oneSet) { subBrM.calculate(hists); } // TODO verify correct depth
-                }
-                else if (const subLfM = sub.peek!LfM)
-                {
-                    subLfM.calculate(hists);
-                }
-                else if (sub)
-                {
-                    assert(false, "Unknown type of non-null pointer");
-                }
+                ++nnzSubCount;
+                sub.calculate!(Key, Value, radix)(hists);
             }
-
-            ++hists.br2[nzcnt - 1]; // TODO type-safe indexing
+            ++hists.br2[nnzSubCount - 1]; // TODO type-safe indexing
         }
     }
 
@@ -377,40 +325,14 @@ struct RadixTree(Key,
 
         void calculate(ref Stats hists) @safe pure nothrow const
         {
-            import std.algorithm : count, filter;
-            size_t nzcnt = 0; // number of non-zero branches
-
-            // TODO functionize
+            import std.algorithm : filter;
+            size_t nnzSubCount = 0; // number of non-zero sub-branches
             foreach (sub; subs[].filter!(sub => sub))
             {
-                ++nzcnt;
-                if (const subBr2 = sub.peek!Br2)
-                {
-                    if (subBr2 != Br2.oneSet) { subBr2.calculate(hists); } // TODO verify correct depth
-                }
-                else if (const subBr4 = sub.peek!Br4)
-                {
-                    if (subBr4 != Br4.oneSet) { subBr4.calculate(hists); } // TODO verify correct depth
-                }
-                else if (const subBr16 = sub.peek!Br16)
-                {
-                    if (subBr16 != Br16.oneSet) { subBr16.calculate(hists); } // TODO verify correct depth
-                }
-                else if (const subBrM = sub.peek!BrM)
-                {
-                    if (subBrM != BrM.oneSet) { subBrM.calculate(hists); } // TODO verify correct depth
-                }
-                else if (const subLfM = sub.peek!LfM)
-                {
-                    subLfM.calculate(hists);
-                }
-                else if (sub)
-                {
-                    assert(false, "Unknown type of non-null pointer");
-                }
+                ++nnzSubCount;
+                sub.calculate!(Key, Value, radix)(hists);
             }
-
-            ++hists.br4[nzcnt - 1]; // TODO type-safe indexing
+            ++hists.br4[nnzSubCount - 1]; // TODO type-safe indexing
         }
     }
 
@@ -432,40 +354,14 @@ struct RadixTree(Key,
 
         void calculate(ref Stats hists) @safe pure nothrow const
         {
-            import std.algorithm : count, filter;
-            size_t nzcnt = 0; // number of non-zero branches
-
-            // TODO functionize
+            import std.algorithm : filter;
+            size_t nnzSubCount = 0; // number of non-zero sub-branches
             foreach (sub; subs[].filter!(sub => sub))
             {
-                ++nzcnt;
-                if (const subBr2 = sub.peek!Br2)
-                {
-                    if (subBr2 != Br2.oneSet) { subBr2.calculate(hists); } // TODO verify correct depth
-                }
-                else if (const subBr4 = sub.peek!Br4)
-                {
-                    if (subBr4 != Br4.oneSet) { subBr4.calculate(hists); } // TODO verify correct depth
-                }
-                else if (const subBr16 = sub.peek!Br16)
-                {
-                    if (subBr16 != Br16.oneSet) { subBr16.calculate(hists); } // TODO verify correct depth
-                }
-                else if (const subBrM = sub.peek!BrM)
-                {
-                    if (subBrM != BrM.oneSet) { subBrM.calculate(hists); } // TODO verify correct depth
-                }
-                else if (const subLfM = sub.peek!LfM)
-                {
-                    subLfM.calculate(hists);
-                }
-                else if (sub)
-                {
-                    assert(false, "Unknown type of non-null pointer");
-                }
+                ++nnzSubCount;
+                sub.calculate!(Key, Value, radix)(hists);
             }
-
-            ++hists.br16[nzcnt - 1]; // TODO type-safe indexing
+            ++hists.br16[nnzSubCount - 1]; // TODO type-safe indexing
         }
     }
 
@@ -493,41 +389,6 @@ struct RadixTree(Key,
                 Value[M] values;
             }
         }
-    }
-
-    size_t calculateSubs(Subs)(Subs subs, ref Stats hists) @safe pure nothrow const
-        if (isInputRange!Subs)
-    {
-        size_t nzcnt = 0; // number of non-zero branches
-        foreach (Node sub; subs)
-        {
-            ++nzcnt;
-            if (const subBr2 = sub.peek!Br2)
-            {
-                if (subBr2 != Br2.oneSet) { subBr2.calculate(this, hists); } // TODO verify correct depth
-            }
-            else if (const subBr4 = sub.peek!Br4)
-            {
-                if (subBr4 != Br4.oneSet) { subBr4.calculate(this, hists); } // TODO verify correct depth
-            }
-            else if (const subBr16 = sub.peek!Br16)
-            {
-                if (subBr16 != Br16.oneSet) { subBr16.calculate(this, hists); } // TODO verify correct depth
-            }
-            else if (const subBrM = sub.peek!BrM)
-            {
-                if (subBrM != BrM.oneSet) { subBrM.calculate(this, hists); } // TODO verify correct depth
-            }
-            else if (const subLfM = sub.peek!LfM)
-            {
-                subLfM.calculate(this, hists);
-            }
-            else if (sub)
-            {
-                assert(false, "Unknown type of non-null pointer");
-            }
-        }
-        return nzcnt;
     }
 
     /// Get depth of tree.
@@ -1020,6 +881,39 @@ struct RadixTree(Key,
 }
 alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
+
+private void calculate(Key, Value, size_t radix)(RadixTree!(Key, Value, radix).Node sub,
+                                                 ref RadixTree!(Key, Value, radix).Stats hists)
+    @safe pure nothrow
+    if (allSatisfy!(isTrieableKeyType, Key))
+{
+    alias RT = RadixTree!(Key, Value, radix);
+    import std.algorithm : count, filter;
+    if (const subBr2 = sub.peek!(RT.Br2))
+    {
+        if (subBr2 != RT.Br2.oneSet) { subBr2.calculate(hists); } // TODO verify correct depth
+    }
+    else if (const subBr4 = sub.peek!(RT.Br4))
+    {
+        if (subBr4 != RT.Br4.oneSet) { subBr4.calculate(hists); } // TODO verify correct depth
+    }
+    else if (const subBr16 = sub.peek!(RT.Br16))
+    {
+        if (subBr16 != RT.Br16.oneSet) { subBr16.calculate(hists); } // TODO verify correct depth
+    }
+    else if (const subBrM = sub.peek!(RT.BrM))
+    {
+        if (subBrM != RT.BrM.oneSet) { subBrM.calculate(hists); } // TODO verify correct depth
+    }
+    else if (const subLfM = sub.peek!(RT.LfM))
+    {
+        subLfM.calculate(hists);
+    }
+    else if (sub)
+    {
+        assert(false, "Unknown type of non-null pointer");
+    }
+}
 
 /// Instantiator of set-version of `RadixTree`.
 auto radixTreeSet(Key, size_t radix = 4)() { return RadixTree!(Key, void, radix)(); }

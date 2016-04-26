@@ -256,16 +256,17 @@ struct RadixTree(Key,
         //                                                  0UL)));
         // }
 
-        void calculate(ref Stats hists) @safe pure nothrow const
+        /** Append statistics of tree under `this` into `stats`. */
+        void calculate(ref Stats stats) @safe pure nothrow const
         {
             import std.algorithm : filter;
             size_t nnzSubCount = 0; // number of non-zero sub-branches
             foreach (sub; subs[].filter!(sub => sub))
             {
                 ++nnzSubCount;
-                sub.calculate!(Key, Value, radix)(hists);
+                sub.calculate!(Key, Value, radix)(stats);
             }
-            ++hists.brM[nnzSubCount - 1]; // TODO type-safe indexing
+            ++stats.brM[nnzSubCount - 1]; // TODO type-safe indexing
         }
 
         static if (!hasFixedDepth)        // variable length keys only
@@ -294,16 +295,17 @@ struct RadixTree(Key,
         pragma(inline) auto ref at     (Mod!N i) @trusted { return subs.ptr[i]; }
         pragma(inline) auto ref atSubKeyChunk(Mod!N i) @trusted { return subKeyChunks.ptr[i]; }
 
-        void calculate(ref Stats hists) @safe pure nothrow const
+        /** Append statistics of tree under `this` into `stats`. */
+        void calculate(ref Stats stats) @safe pure nothrow const
         {
             import std.algorithm : filter;
             size_t nnzSubCount = 0; // number of non-zero sub-branches
             foreach (sub; subs[].filter!(sub => sub))
             {
                 ++nnzSubCount;
-                sub.calculate!(Key, Value, radix)(hists);
+                sub.calculate!(Key, Value, radix)(stats);
             }
-            ++hists.br2[nnzSubCount - 1]; // TODO type-safe indexing
+            ++stats.br2[nnzSubCount - 1]; // TODO type-safe indexing
         }
     }
 
@@ -323,16 +325,17 @@ struct RadixTree(Key,
         pragma(inline) auto ref at     (Mod!N i) @trusted { return subs.ptr[i]; }
         pragma(inline) auto ref atSubKeyChunk(Mod!N i) @trusted { return subKeyChunks.ptr[i]; }
 
-        void calculate(ref Stats hists) @safe pure nothrow const
+        /** Append statistics of tree under `this` into `stats`. */
+        void calculate(ref Stats stats) @safe pure nothrow const
         {
             import std.algorithm : filter;
             size_t nnzSubCount = 0; // number of non-zero sub-branches
             foreach (sub; subs[].filter!(sub => sub))
             {
                 ++nnzSubCount;
-                sub.calculate!(Key, Value, radix)(hists);
+                sub.calculate!(Key, Value, radix)(stats);
             }
-            ++hists.br4[nnzSubCount - 1]; // TODO type-safe indexing
+            ++stats.br4[nnzSubCount - 1]; // TODO type-safe indexing
         }
     }
 
@@ -352,16 +355,17 @@ struct RadixTree(Key,
         pragma(inline) auto ref at     (Mod!N i) @trusted { return subs.ptr[i]; }
         pragma(inline) auto ref atSubKeyChunk(Mod!N i) @trusted { return subKeyChunks.ptr[i]; }
 
-        void calculate(ref Stats hists) @safe pure nothrow const
+        /** Append statistics of tree under `this` into `stats`. */
+        void calculate(ref Stats stats) @safe pure nothrow const
         {
             import std.algorithm : filter;
             size_t nnzSubCount = 0; // number of non-zero sub-branches
             foreach (sub; subs[].filter!(sub => sub))
             {
                 ++nnzSubCount;
-                sub.calculate!(Key, Value, radix)(hists);
+                sub.calculate!(Key, Value, radix)(stats);
             }
-            ++hists.br16[nnzSubCount - 1]; // TODO type-safe indexing
+            ++stats.br16[nnzSubCount - 1]; // TODO type-safe indexing
         }
     }
 
@@ -370,9 +374,10 @@ struct RadixTree(Key,
     */
     static private struct LfM
     {
-        void calculate(ref Stats hists) @safe pure const
+        /** Append statistics of tree under `this` into `stats`. */
+        void calculate(ref Stats stats) @safe pure const
         {
-            ++hists.lfM[keyLSBits.countOnes - 1];
+            ++stats.lfM[keyLSBits.countOnes - 1];
         }
 
         import bitset : BitSet;
@@ -399,34 +404,9 @@ struct RadixTree(Key,
 
     Stats usageHistograms() const
     {
-        typeof(return) hists;
-
-        // TODO reuse rangeinterface when made available
-        if (const rootBr2 = _root.peek!Br2)
-        {
-            if (rootBr2 != Br2.oneSet) { rootBr2.calculate(hists); }
-        }
-        else if (const rootBr4 = _root.peek!Br4)
-        {
-            if (rootBr4 != Br4.oneSet) { rootBr4.calculate(hists); }
-        }
-        else if (const rootBr16 = _root.peek!Br16)
-        {
-            if (rootBr16 != Br16.oneSet) { rootBr16.calculate(hists); }
-        }
-        else if (const rootBrM = _root.peek!BrM)
-        {
-            if (rootBrM != BrM.oneSet) { rootBrM.calculate(hists); }
-        }
-        else if (const rootLfM = _root.peek!LfM)
-        {
-            assert(false, "TODO");
-        }
-        else if (_root)
-        {
-            assert(false, "Unknown type of non-null pointer");
-        }
-        return hists;
+        typeof(return) stats;
+        _root.calculate!(Key, Value, radix)(stats);
+        return stats;
     }
 
     this(this)
@@ -882,8 +862,9 @@ struct RadixTree(Key,
 alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
 
+/** Append statistics of tree under `Node` `sub.` into `stats`. */
 private void calculate(Key, Value, size_t radix)(RadixTree!(Key, Value, radix).Node sub,
-                                                 ref RadixTree!(Key, Value, radix).Stats hists)
+                                                 ref RadixTree!(Key, Value, radix).Stats stats)
     @safe pure nothrow
     if (allSatisfy!(isTrieableKeyType, Key))
 {
@@ -891,23 +872,23 @@ private void calculate(Key, Value, size_t radix)(RadixTree!(Key, Value, radix).N
     import std.algorithm : count, filter;
     if (const subBr2 = sub.peek!(RT.Br2))
     {
-        if (subBr2 != RT.Br2.oneSet) { subBr2.calculate(hists); } // TODO verify correct depth
+        if (subBr2 != RT.Br2.oneSet) { subBr2.calculate(stats); } // TODO verify correct depth
     }
     else if (const subBr4 = sub.peek!(RT.Br4))
     {
-        if (subBr4 != RT.Br4.oneSet) { subBr4.calculate(hists); } // TODO verify correct depth
+        if (subBr4 != RT.Br4.oneSet) { subBr4.calculate(stats); } // TODO verify correct depth
     }
     else if (const subBr16 = sub.peek!(RT.Br16))
     {
-        if (subBr16 != RT.Br16.oneSet) { subBr16.calculate(hists); } // TODO verify correct depth
+        if (subBr16 != RT.Br16.oneSet) { subBr16.calculate(stats); } // TODO verify correct depth
     }
     else if (const subBrM = sub.peek!(RT.BrM))
     {
-        if (subBrM != RT.BrM.oneSet) { subBrM.calculate(hists); } // TODO verify correct depth
+        if (subBrM != RT.BrM.oneSet) { subBrM.calculate(stats); } // TODO verify correct depth
     }
     else if (const subLfM = sub.peek!(RT.LfM))
     {
-        subLfM.calculate(hists);
+        subLfM.calculate(stats);
     }
     else if (sub)
     {

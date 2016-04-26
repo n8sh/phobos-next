@@ -680,7 +680,10 @@ struct RadixTree(Key,
         }
     }
 
+    /** Returns: `true` iff tree is empty (no elements stored). */
     bool empty() const @safe pure nothrow @nogc { return !_root; }
+
+    /** Returns: number of elements store. */
     size_t length() const @safe pure nothrow @nogc { return _length; }
 
     private:

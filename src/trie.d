@@ -16,7 +16,7 @@
 
     TODO Add traits isSparseNodeType, isDenseNodeType or PackingOf!(T) returns either dense, sparse
 
-    TODO Make Br02, Br04 templated on N when I figure out how to elide the recursive template-instantiation
+    TODO Make SBr02, SBr04, SBr16, SBr256 templated on N when I figure out how to elide the recursive template-instantiation
 
     TODO Provide `opIndex` and make `opSlice` for set-case (`Value` is `void`) return `SortedRange`
     TODO Provide RandomAccess `opIndex` and `opSlice`! for variable-length keys aswell?
@@ -83,8 +83,8 @@ struct RadixTree(Key,
     if (allSatisfy!(isTrieableKeyType, Key))
 {
     // TODO make these CT-params (requires putting branch definitions in same scope as `RadixTree`)
-    alias DefaultRootNodeType = Br02;
-    alias DefaultSubBranchNodeType = Br02;
+    alias DefaultRootNodeType = SBr02;
+    alias DefaultSubBranchNodeType = SBr02;
 
     import std.algorithm : filter;
     import std.meta : AliasSeq, staticMap;
@@ -132,21 +132,22 @@ struct RadixTree(Key,
     /** Node types. */
     alias NodeTypes = AliasSeq!(PackedLfs, // directly packed leaves
                                 AllSet, // indicate that all leaves in this branch are set (denseness compression)
-                                Br02, Br04, Br16, BrM, // branching-node
-                                LfM);          // leaves-nodes
+                                SBr02*, SBr04*, SBr16*, // sparse branching nodes
+                                BrM*,                   // dense branching nodes
+                                LfM*);                  // dense leaves-nodes
 
     enum showSizes = false;
     static if (showSizes)
     {
         static if (isSet)
         {
-            pragma(msg, "Set Br02.sizeof: ", Br02.sizeof);
+            pragma(msg, "Set SBr02.sizeof: ", SBr02.sizeof);
             pragma(msg, "Set BrM.sizeof: ", BrM.sizeof);
             pragma(msg, "Set LfM.sizeof: ", LfM.sizeof);
         }
         else
         {
-            pragma(msg, "Map Br02.sizeof: ", Br02.sizeof);
+            pragma(msg, "Map SBr02.sizeof: ", SBr02.sizeof);
             pragma(msg, "Map BrM.sizeof: ", BrM.sizeof);
             pragma(msg, "Map LfM.sizeof: ", LfM.sizeof);
         }
@@ -186,45 +187,45 @@ struct RadixTree(Key,
         It high;                // beyond last
     }
 
-    /** M-Branch occupation histogram.
-        Index maps to occupation with value range (1 .. M).
+    /** M-Branch population histogram.
+        Index maps to population with value range (1 .. M).
     */
-    alias BrM_OccupationHistogram = size_t[M];
+    alias BrM_PopHist = size_t[M];
 
-    /** 2-Branch occupation histogram.
-        Index maps to occupation with value range (1 .. 2).
+    /** 2-Branch population histogram.
+        Index maps to population with value range (1 .. 2).
     */
-    alias Br02_OccupationHistogram = size_t[2];
+    alias SBr02_PopHist = size_t[2];
 
-    /** 4-Branch occupation histogram.
-        Index maps to occupation with value range (1 .. 4).
+    /** 4-Branch population histogram.
+        Index maps to population with value range (1 .. 4).
     */
-    alias Br04_OccupationHistogram = size_t[4];
+    alias SBr04_PopHist = size_t[4];
 
-    /** 16-Branch occupation histogram.
-        Index maps to occupation with value range (1 .. 16).
+    /** 16-Branch population histogram.
+        Index maps to population with value range (1 .. 16).
     */
-    alias Br16_OccupationHistogram = size_t[16];
+    alias SBr16_PopHist = size_t[16];
 
-    /** 256-Branch occupation histogram.
-        Index maps to occupation with value range (1 .. 256).
+    /** 256-Branch population histogram.
+        Index maps to population with value range (1 .. 256).
     */
-    alias Br0256_OccupationHistogram = size_t[256];
+    alias SBr0256_PopHist = size_t[256];
 
-    /** M-Leaf occupation histogram.
-        Index maps to occupation with value range (1 .. M).
+    /** M-Leaf population histogram.
+        Index maps to population with value range (1 .. M).
     */
-    alias LeafM_OccupationHistogram = size_t[M];
+    alias LeafM_PopHist = size_t[M];
 
     /** Tree Statistics. */
     struct Stats
     {
-        Br02_OccupationHistogram br02;
-        Br04_OccupationHistogram br04;
-        Br16_OccupationHistogram br16;
-        Br0256_OccupationHistogram br256;
-        BrM_OccupationHistogram brM;
-        LeafM_OccupationHistogram lfM;
+        SBr02_PopHist sbr02;
+        SBr04_PopHist sbr04;
+        SBr16_PopHist sbr16;
+        SBr0256_PopHist sbr256;
+        BrM_PopHist brM;
+        LeafM_PopHist lfM;
     }
 
     /** Non-bottom branch node containing densly packed array of `M` number of
@@ -262,7 +263,7 @@ struct RadixTree(Key,
     }
 
     // TODO templatize on `N` (currently 2)
-    static private struct Br02
+    static private struct SBr02
     {
         enum N = 2;
         // TODO merge these into a new `NodeType`
@@ -283,12 +284,12 @@ struct RadixTree(Key,
                 ++nnzSubCount;
                 sub.calculate!(Key, Value, radix)(stats);
             }
-            ++stats.br02[nnzSubCount - 1]; // TODO type-safe indexing
+            ++stats.sbr02[nnzSubCount - 1]; // TODO type-safe indexing
         }
     }
 
     // TODO templatize on `N` (currently 4)
-    static private struct Br04
+    static private struct SBr04
     {
         enum N = 4;
         // TODO merge these into a new `NodeType`
@@ -309,12 +310,12 @@ struct RadixTree(Key,
                 ++nnzSubCount;
                 sub.calculate!(Key, Value, radix)(stats);
             }
-            ++stats.br04[nnzSubCount - 1]; // TODO type-safe indexing
+            ++stats.sbr04[nnzSubCount - 1]; // TODO type-safe indexing
         }
     }
 
     // TODO templatize on `N` (currently 16)
-    static private struct Br16
+    static private struct SBr16
     {
         enum N = 16;
         // TODO merge these into a new `NodeType`
@@ -335,7 +336,7 @@ struct RadixTree(Key,
                 ++nnzSubCount;
                 sub.calculate!(Key, Value, radix)(stats);
             }
-            ++stats.br16[nnzSubCount - 1]; // TODO type-safe indexing
+            ++stats.sbr16[nnzSubCount - 1]; // TODO type-safe indexing
         }
     }
 
@@ -375,7 +376,7 @@ struct RadixTree(Key,
 
     this(this)
     {
-        if (!_root.ptr) return;
+        if (!_root) return;
         auto rhsRoot = _root;
         debug const oldLength = _length;
         if (rhsRoot)
@@ -456,15 +457,15 @@ struct RadixTree(Key,
         pragma(inline) Node insert(Node curr, in Key key, ChunkIx chunkIx, out bool wasAdded) // Node-polymorphic
         {
             // TODO use switch
-            if      (auto currBr02 = curr.peek!Br02) { return insert(currBr02, key, chunkIx, wasAdded); }
-            else if (auto currBr04 = curr.peek!Br04) { return insert(currBr04, key, chunkIx, wasAdded); }
-            else if (auto currBr16 = curr.peek!Br16) { return insert(currBr16, key, chunkIx, wasAdded); }
-            else if (auto currBrM  = curr.peek!BrM)  { return insert(currBrM,  key, chunkIx, wasAdded); }
-            else if (auto currLfM  = curr.peek!LfM)  { return insert(currLfM,  key, chunkIx, wasAdded); }
+            if      (auto currSBr02 = curr.peek!(SBr02*)) { return insert(*currSBr02, key, chunkIx, wasAdded); }
+            else if (auto currSBr04 = curr.peek!(SBr04*)) { return insert(*currSBr04, key, chunkIx, wasAdded); }
+            else if (auto currSBr16 = curr.peek!(SBr16*)) { return insert(*currSBr16, key, chunkIx, wasAdded); }
+            else if (auto currBrM   = curr.peek!(BrM*))   { return insert(*currBrM,  key, chunkIx, wasAdded); }
+            else if (auto currLfM   = curr.peek!(LfM*))   { return insert(*currLfM,  key, chunkIx, wasAdded); }
             else                                   { assert(false, "Unknown Node type"); }
         }
 
-        Node insert(Br02* br, in Key key, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(SBr02* br, in Key key, ChunkIx chunkIx, out bool wasAdded)
         {
             const IxM chunk = bitsChunk(key, chunkIx);
 
@@ -492,7 +493,7 @@ struct RadixTree(Key,
             return insert(expand(br), key, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
         }
 
-        Node insert(Br04* br, in Key key, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(SBr04* br, in Key key, ChunkIx chunkIx, out bool wasAdded)
         {
             const IxM chunk = bitsChunk(key, chunkIx);
 
@@ -520,7 +521,7 @@ struct RadixTree(Key,
             return insert(expand(br), key, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
         }
 
-        Node insert(Br16* br, in Key key, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(SBr16* br, in Key key, ChunkIx chunkIx, out bool wasAdded)
         {
             const IxM chunk = bitsChunk(key, chunkIx);
 
@@ -602,42 +603,42 @@ struct RadixTree(Key,
                     Node(construct!DefaultSubBranchNodeType));
         }
 
-        /** Destructively expand `br02` into a `BrM` and return it. */
-        BrM* expand(Br02* br02) @trusted
+        /** Destructively expand `sbr02` into a `BrM` and return it. */
+        BrM* expand(SBr02* sbr02) @trusted
         {
             enum N = 2;         // branch-order, number of possible sub-nodes
             BrM* brM = construct!BrM;
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             {
-                brM.atSubNode(br02.atSubChunk(subIx)) = br02.subNodes[subIx];
+                brM.atSubNode(sbr02.atSubChunk(subIx)) = sbr02.subNodes[subIx];
             }
-            freeNode(br02);
+            freeNode(sbr02);
             return brM;
         }
 
-        /** Destructively expand `br04` into a `BrM` and return it. */
-        BrM* expand(Br04* br04) @trusted
+        /** Destructively expand `sbr04` into a `BrM` and return it. */
+        BrM* expand(SBr04* sbr04) @trusted
         {
             enum N = 4;         // branch-order, number of possible sub-nodes
             BrM* brM = construct!BrM;
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             {
-                brM.atSubNode(br04.atSubChunk(subIx)) = br04.subNodes[subIx];
+                brM.atSubNode(sbr04.atSubChunk(subIx)) = sbr04.subNodes[subIx];
             }
-            freeNode(br04);
+            freeNode(sbr04);
             return brM;
         }
 
-        /** Destructively expand `br04` into a `BrM` and return it. */
-        BrM* expand(Br16* br16) @trusted
+        /** Destructively expand `sbr04` into a `BrM` and return it. */
+        BrM* expand(SBr16* sbr16) @trusted
         {
             enum N = 16;         // branch-order, number of possible sub-nodes
             BrM* brM = construct!BrM;
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             {
-                brM.atSubNode(br16.atSubChunk(subIx)) = br16.subNodes[subIx];
+                brM.atSubNode(sbr16.atSubChunk(subIx)) = sbr16.subNodes[subIx];
             }
-            freeNode(br16);
+            freeNode(sbr16);
             return brM;
         }
     }
@@ -703,7 +704,7 @@ struct RadixTree(Key,
             freeNode(curr);
         }
 
-        void release(Br02* curr)
+        void release(SBr02* curr)
         {
             foreach (sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
             {
@@ -712,7 +713,7 @@ struct RadixTree(Key,
             freeNode(curr);
         }
 
-        void release(Br04* curr)
+        void release(SBr04* curr)
         {
             foreach (sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
             {
@@ -721,7 +722,7 @@ struct RadixTree(Key,
             freeNode(curr);
         }
 
-        void release(Br16* curr)
+        void release(SBr16* curr)
         {
             foreach (sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
             {
@@ -738,11 +739,11 @@ struct RadixTree(Key,
         void release(Node curr)
         {
             // TODO use switch
-            if      (auto subBr02 = curr.peek!Br02) { release(subBr02); }
-            else if (auto subBr04 = curr.peek!Br04) { release(subBr04); }
-            else if (auto subBr16 = curr.peek!Br16) { release(subBr16); }
-            else if (auto subBrM  = curr.peek!BrM)  { release(subBrM); }
-            else if (auto subLfM  = curr.peek!LfM)  { release(subLfM); }
+            if      (auto subSBr02 = curr.peek!(SBr02*)) { release(*subSBr02); }
+            else if (auto subSBr04 = curr.peek!(SBr04*)) { release(*subSBr04); }
+            else if (auto subSBr16 = curr.peek!(SBr16*)) { release(*subSBr16); }
+            else if (auto subBrM   = curr.peek!(BrM*))   { release(*subBrM); }
+            else if (auto subLfM   = curr.peek!(LfM*))   { release(*subLfM); }
             else if (curr)                          { assert(false, "Unknown type of non-null pointer"); }
         }
     }
@@ -756,7 +757,7 @@ struct RadixTree(Key,
     /** Ensure that root `Node` is allocated. */
     void ensureRootNode(U = DefaultRootNodeType)()
     {
-        if (!_root.ptr) { _root = construct!U; }
+        if (!_root) { _root = construct!U; }
     }
 
     /// Returns: number of nodes used in `this` tree.
@@ -779,11 +780,11 @@ static private void calculate(Key, Value, size_t radix)(RadixTree!(Key, Value, r
     alias RT = RadixTree!(Key, Value, radix);
     import std.algorithm : filter;
     // TODO use switch
-    if      (const subBr02 = sub.peek!(RT.Br02)) { subBr02.calculate(stats); }
-    else if (const subBr04 = sub.peek!(RT.Br04)) { subBr04.calculate(stats); }
-    else if (const subBr16 = sub.peek!(RT.Br16)) { subBr16.calculate(stats); }
-    else if (const subBrM  = sub.peek!(RT.BrM))  { subBrM .calculate(stats); }
-    else if (const subLfM  = sub.peek!(RT.LfM))  { subLfM .calculate(stats); }
+    if      (const subSBr02 = sub.peek!(RT.SBr02*)) { (*subSBr02).calculate(stats); }
+    else if (const subSBr04 = sub.peek!(RT.SBr04*)) { (*subSBr04).calculate(stats); }
+    else if (const subSBr16 = sub.peek!(RT.SBr16*)) { (*subSBr16).calculate(stats); }
+    else if (const subBrM   = sub.peek!(RT.BrM*))   { (*subBrM)  .calculate(stats); }
+    else if (const subLfM   = sub.peek!(RT.LfM*))   { (*subLfM)  .calculate(stats); }
     else if (sub)
     {
         assert(false, "Unknown type of non-null pointer");
@@ -895,12 +896,12 @@ void benchmark(size_t radix)()
 
             dln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
             auto uhists = set.usageHistograms;
-            dln("2-Branch Usage Histogram: ", uhists.br02);
-            dln("4-Branch Usage Histogram: ", uhists.br04);
-            dln("16-Branch Usage Histogram: ", uhists.br16);
-            dln("256-Branch Usage Histogram: ", uhists.br256);
-            dln("M=", 2^^radix, "-Branch Usage Histogram: ", uhists.brM);
-            dln("M=", 2^^radix, "-Leaf   Usage Histogram: ", uhists.lfM);
+            dln("2-Branch Population Histogram: ", uhists.sbr02);
+            dln("4-Branch Population Histogram: ", uhists.sbr04);
+            dln("16-Branch Population Histogram: ", uhists.sbr16);
+            dln("256-Branch Population Histogram: ", uhists.sbr256);
+            dln("M=", 2^^radix, "-Branch Population Histogram: ", uhists.brM);
+            dln("M=", 2^^radix, "-Leaf   Population Histogram: ", uhists.lfM);
             sleep(2);
             dln("Sleeping done");
         }

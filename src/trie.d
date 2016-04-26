@@ -236,7 +236,7 @@ struct RadixTree(Key,
         pragma(inline) auto ref opIndex(IxM i) { return at(i); }
 
         /** Append statistics of tree under `this` into `stats`. */
-        void calculate(ref Stats stats) @safe pure nothrow const
+        void calculate(ref Stats stats) @safe pure nothrow @nogc const
         {
             import std.algorithm : filter;
             size_t nnzSubCount = 0; // number of non-zero sub-nodes
@@ -775,7 +775,7 @@ alias CompactPrefixTree = RadixTree;
 /** Append statistics of tree under `Node` `sub.` into `stats`. */
 static private void calculate(Key, Value, size_t radix)(RadixTree!(Key, Value, radix).Node sub,
                                                         ref RadixTree!(Key, Value, radix).Stats stats)
-    @safe pure nothrow
+    @safe pure nothrow @nogc
     if (allSatisfy!(isTrieableKeyType, Key))
 {
     alias RT = RadixTree!(Key, Value, radix);

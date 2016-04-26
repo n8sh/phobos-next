@@ -150,6 +150,7 @@ pure nothrow unittest
     VP vp;
     assert(vp.isNull);
     vp = null;
+    assert(vp.isNull);
     assert(!vp);
 
     foreach (T; Types)

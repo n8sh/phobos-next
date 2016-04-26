@@ -148,6 +148,7 @@ pure nothrow unittest
     alias VP = WordVariant!Types;
 
     VP vp;
+    assert(vp.isNull);
     vp = null;
     assert(!vp);
 

@@ -104,7 +104,14 @@ struct RadixTree(Key,
     /// `true` if tree has binary branch.
     enum isBinary = R == 2;
 
-    struct DirectlyPackedLfs {}
+    /** Radix Modulo Index */
+    import modulo : Mod;
+    alias IxM = Mod!M; // restricted index type avoids range checking in array indexing below
+    alias ChunkIx = uint;
+
+    static      if (size_t.sizeof == 4) { struct DirectlyPackedLfs { ubyte cnt; IxM[3] ixMs; } }
+    else static if (size_t.sizeof == 8) { struct DirectlyPackedLfs { ubyte cnt; IxM[6] ixMs; } }
+
     struct AllSet {}
 
     /** Node types. */
@@ -134,11 +141,6 @@ struct RadixTree(Key,
     alias Node = WordVariant!(NodeTypes);
     /** Constant node. */
     alias ConstNodePtr = WordVariant!(staticMap!(ConstOf, NodeTypes));
-
-    /** Radix Modulo Index */
-    import modulo : Mod;
-    alias IxM = Mod!M; // restricted index type avoids range checking in array indexing below
-    alias ChunkIx = uint;
 
     static assert(radix <= 8*IxM.sizeof, "Need more precision in IxM");
 

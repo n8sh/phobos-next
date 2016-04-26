@@ -32,7 +32,7 @@ struct WordVariant(Types...)
     enum typeSizes = sizesOf!Types;
     static assert(allSame!typeSizes, "Types must all be of equal size");
 
-    static assert(this.sizeof == (void*).sizeof); // should have same size as pointer
+    static assert(this.sizeof == size_t.sizeof, "Types must all be equal to machine word size");
 
     alias S = size_t; // TODO templatize?
 

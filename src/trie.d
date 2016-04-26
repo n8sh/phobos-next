@@ -453,6 +453,7 @@ struct RadixTree(Key,
 
         pragma(inline) Node insert(Node curr, in Key key, ChunkIx chunkIx, out bool wasAdded) // Node-polymorphic
         {
+            // TODO use switch
             if      (auto currBr02 = curr.peek!Br02) { return insert(currBr02, key, chunkIx, wasAdded); }
             else if (auto currBr04 = curr.peek!Br04) { return insert(currBr04, key, chunkIx, wasAdded); }
             else if (auto currBr16 = curr.peek!Br16) { return insert(currBr16, key, chunkIx, wasAdded); }
@@ -740,6 +741,7 @@ struct RadixTree(Key,
 
         void release(Node curr)
         {
+            // TODO use switch
             if      (auto subBr02 = curr.peek!Br02) { release(subBr02); }
             else if (auto subBr04 = curr.peek!Br04) { release(subBr04); }
             else if (auto subBr16 = curr.peek!Br16) { release(subBr16); }
@@ -780,6 +782,7 @@ static private void calculate(Key, Value, size_t radix)(RadixTree!(Key, Value, r
 {
     alias RT = RadixTree!(Key, Value, radix);
     import std.algorithm : count, filter;
+    // TODO use switch
     if      (const subBr02 = sub.peek!(RT.Br02)) { subBr02.calculate(stats); }
     else if (const subBr04 = sub.peek!(RT.Br04)) { subBr04.calculate(stats); }
     else if (const subBr16 = sub.peek!(RT.Br16)) { subBr16.calculate(stats); }

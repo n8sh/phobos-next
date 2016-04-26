@@ -4,7 +4,7 @@
 
     TODO Can we somehow overload opIndex so we can do brM[i] instead of more cumbersome (*brM)[i] when brM is of type BrM*?
 
-    TODO Make oneSet/allSet a member of VariantPointer to an empty dummy-type struct OneSet, AllSet {} and simplify logic in its checking
+    TODO Make oneSet/allSet a member of WordVariant to an empty dummy-type struct DirectlyPackedLfs, AllSet {} and simplify logic in its checking
 
     TODO Use opIndex instead of at(): x.at(i) => (*x)[i]
 
@@ -39,7 +39,7 @@
     - if (auto currBrM = curr.peek!BrM)
     - else if (const currLfM = curr.peek!LfM)
     with some compacter logic perhaps using mixins or pattern matching using
-    switch-case on internally store type in `VariantPointer`.
+    switch-case on internally store type in `WordVariant`.
 
     I've just started working on a RadixTree implementation in D here:
 
@@ -63,7 +63,7 @@ import std.traits : isIntegral, isSomeChar, isSomeString, isScalarType, isArray,
 import std.range : isInputRange, ElementType;
 
 import bijections;
-import variant_pointer : VariantPointer;
+import variant_pointer : WordVariant;
 
 version = benchmark;
 
@@ -124,11 +124,11 @@ struct RadixTree(Key,
     /// `true` if tree has binary branch.
     enum isBinary = R == 2;
 
-    struct OneSet {}
+    struct DirectlyPackedLfs {}
     struct AllSet {}
 
     /** Node types. */
-    alias NodeTypes = AliasSeq!(OneSet, // pointer itself minus most-significant byte (size_t.sizeof - 8) bytes is used to encode bit-chunks
+    alias NodeTypes = AliasSeq!(DirectlyPackedLfs, // directly packed leaves
                                 AllSet, // indicate that all leaves in this branch are set (denseness compression)
                                 Br2, Br4, Br16, BrM, // branching-node
                                 LfM);          // leaves-nodes
@@ -151,9 +151,9 @@ struct RadixTree(Key,
     }
 
     /** Mutable node. */
-    alias Node = VariantPointer!(NodeTypes);
+    alias Node = WordVariant!(NodeTypes);
     /** Constant node. */
-    alias ConstNodePtr = VariantPointer!(staticMap!(ConstOf, NodeTypes));
+    alias ConstNodePtr = WordVariant!(staticMap!(ConstOf, NodeTypes));
 
     /** Radix Modulo Index */
     import modulo : Mod;

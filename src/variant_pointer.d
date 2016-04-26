@@ -1,6 +1,6 @@
 module variant_pointer;
 
-/** A variant pointer to either of `Types`.
+/** A variant of `Types` packed into a word (`size_t`).
 
     Realizes a very lightweight version of polymorphism packed inside one single
     pointer. Typically most significant bits are used to store type
@@ -13,16 +13,16 @@ module variant_pointer;
 
     See also: http://forum.dlang.org/post/sybuoliqhhefcovxjfjv@forum.dlang.org
 
-    TODO What todo with the fact that the GC will fail to scan VariantPointers?
+    TODO What todo with the fact that the GC will fail to scan WordVariant?
     Can the GC be tweaked to mask out the type bits before scanning?
 
     TODO Enable support for is null instead of isNull?
 
-    TODO Use `enforce()` instead of `assert()` in VariantPointer:init()
+    TODO Use `enforce()` instead of `assert()` in WordVariant:init()
 
     TODO Move to Phobos std.variant
  */
-struct VariantPointer(Types...)
+struct WordVariant(Types...)
 {
     static assert(this.sizeof == (void*).sizeof); // should have same size as pointer
 
@@ -145,7 +145,7 @@ pure nothrow unittest
                             float, double, real,
                             char, wchar, dchar);
 
-    alias VP = VariantPointer!Types;
+    alias VP = WordVariant!Types;
 
     VP vp;
     vp = null;

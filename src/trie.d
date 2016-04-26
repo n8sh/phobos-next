@@ -948,12 +948,12 @@ void benchmark(size_t radix)()
 
         // TODO functionize to lazy generate!rand
         import random_ex : randomize;
-        auto randomAnySamples = new Key[n]; randomAnySamples.randomize;
+        auto randomSamples = new Key[n]; randomSamples.randomize;
 
         {
             auto sw = StopWatch(AutoStart.yes);
 
-            foreach (Key k; randomAnySamples)
+            foreach (Key k; randomSamples)
             {
                 if (useUniqueRandom)
                     assert(set.insert(k));
@@ -974,7 +974,7 @@ void benchmark(size_t radix)()
             auto sw = StopWatch(AutoStart.yes);
             bool[int] aa;
 
-            foreach (Key k; randomAnySamples) { aa[k] = true; }
+            foreach (Key k; randomSamples) { aa[k] = true; }
 
             dln("D-AA: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
             sleep(2);

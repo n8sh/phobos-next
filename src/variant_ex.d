@@ -3,8 +3,11 @@ module variant_ex;
 /** A variant of `Types` packed into a word (`size_t`).
 
     Realizes a very lightweight version of polymorphism packed inside one single
-    word. Typically most significant bits are used to store type
+    word/pointer. Typically most significant bits are used to store type
     information. These are normally unused on 64-bit systems (tested on Linux).
+
+    Typically used in tree-data containers to realize hybrid value (sparsely
+    packed sub-tree) and pointer (to dense sub-tree) packing of sub-nodes.
 
     TODO Make `typeIndex` start at 1 for defined types. Already defaults to zero for null.
 

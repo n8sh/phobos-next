@@ -29,24 +29,18 @@ struct WordVariant(Types...)
     alias S = size_t;
 
     /// Number of bits used to represent value type pointed to.
-    static      if (Types.length <= 2)   { enum typeBits_ = 1; }
-    else static if (Types.length <= 4)   { enum typeBits_ = 2; }
-    else static if (Types.length <= 8)   { enum typeBits_ = 3; }
-    else static if (Types.length <= 16)  { enum typeBits_ = 4; }
-    else static if (Types.length <= 32)  { enum typeBits_ = 5; }
-    else static if (Types.length <= 64)  { enum typeBits_ = 6; }
-    else static if (Types.length <= 128) { enum typeBits_ = 7; }
-    else static if (Types.length <= 256) { enum typeBits_ = 8; }
-
-    enum typeBits = 8;
-
-    /// Maximum number of different `Types` allowed.
-    enum maxTypeCount = 2^^typeBits;
+    static      if (Types.length <= 2)   { enum typeBits = 1; }
+    else static if (Types.length <= 4)   { enum typeBits = 2; }
+    else static if (Types.length <= 8)   { enum typeBits = 3; }
+    else static if (Types.length <= 16)  { enum typeBits = 4; }
+    else static if (Types.length <= 32)  { enum typeBits = 5; }
+    else static if (Types.length <= 64)  { enum typeBits = 6; }
+    else static if (Types.length <= 128) { enum typeBits = 7; }
+    else static if (Types.length <= 256) { enum typeBits = 8; }
+    else                                 { static assert(false, "Too many Types"); }
 
     enum typeShift = 8*S.sizeof - typeBits;
-    enum typeMask = cast(S)(maxTypeCount - 1) << typeShift;
-
-    static assert(Types.length <= maxTypeCount, "Can only represent 8 different types");
+    enum typeMask = cast(S)(2^^typeBits - 1) << typeShift;
 
     import std.meta : staticIndexOf;
     enum indexOf(T) = staticIndexOf!(T, Types); // TODO cast to ubyte if Types.length is <= 256

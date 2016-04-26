@@ -663,13 +663,10 @@ struct RadixTree(Key,
             return false;
         }
 
-	/** Supports $(B `Key` in `this`) syntax. */
-	bool opBinaryRight(string op)(in Key key) const nothrow
-            if (op == "in")
-	{
-            return contains(key);
-	}
-
+	/** Supports $(B `Key` in `this`) syntax.
+            TODO return `NodeRef` instead.
+        */
+	bool opBinaryRight(string op)(in Key key) const nothrow if (op == "in") { return contains(key); }
     }
     else
     {

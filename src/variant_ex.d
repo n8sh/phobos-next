@@ -108,7 +108,7 @@ struct WordVariant(Types...)
         S _raw;
         const bool defined;
         bool opCast(T : bool)() const @safe pure nothrow @nogc { return defined; }
-        T opUnary(string op : "*")() inout { return cast(T)(_raw & ~typeMask); }
+        T opUnary(string op : "*")() @trusted inout { return cast(T)(_raw & ~typeMask); }
     }
 
     @property inout(Ref!T) peek(T)() inout @trusted @nogc nothrow

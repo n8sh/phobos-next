@@ -124,7 +124,7 @@ struct RadixTree(Key,
     /** Node types. */
     alias NodeTypes = AliasSeq!(Br2, BrM, LfM);
 
-    enum showSizes = false;
+    enum showSizes = true;
     static if (showSizes)
     {
         static if (isSet)
@@ -195,8 +195,7 @@ struct RadixTree(Key,
     */
     static private struct BrM
     {
-        /// Indicates that only next/child at this index is occupied.
-        static immutable oneSet = cast(typeof(this)*)1UL;
+        static immutable oneSet = cast(typeof(this)*)1UL; /// indicates that only next/child at this index is occupied
 
         static if (hasFixedDepth)
         {
@@ -232,7 +231,7 @@ struct RadixTree(Key,
                 ++nzcnt;
                 if (const subBr2 = sub.peek!Br2)
                 {
-                    // TODO if (subBr2 != Br2.oneSet) { subBr2.calculate(brHist, lfHist); }
+                    if (subBr2 != Br2.oneSet) { subBr2.calculate(brHist, lfHist); }
                 }
                 else if (const subBrM = sub.peek!BrM)
                 {
@@ -264,6 +263,9 @@ struct RadixTree(Key,
     static private struct Br2
     {
         enum N = 2;
+
+        static immutable oneSet = cast(typeof(this)*)1UL; /// indicates that only next/child at this index is occupied
+
         // TODO merge these into a new `NodeType`
         Node[N] subs;        // sub-branches
         IxM[N] subKeyChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM2 instead.
@@ -272,6 +274,34 @@ struct RadixTree(Key,
         // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
         pragma(inline) auto ref at     (Mod!N i) @trusted { return subs.ptr[i]; }
         pragma(inline) auto ref atSubKeyChunk(Mod!N i) @trusted { return subKeyChunks.ptr[i]; }
+
+        void calculate(ref BranchOccupationHistogram brHist,
+                       ref LeafOccupationHistogram lfHist) @safe pure nothrow const
+        {
+            import std.algorithm : count, filter;
+            size_t nzcnt = 0; // number of non-zero branches
+            foreach (sub; subs[].filter!(sub => sub))
+            {
+                ++nzcnt;
+                if (const subBr2 = sub.peek!Br2)
+                {
+                    if (subBr2 != Br2.oneSet) { subBr2.calculate(brHist, lfHist); }
+                }
+                else if (const subBrM = sub.peek!BrM)
+                {
+                    if (subBrM != BrM.oneSet) { subBrM.calculate(brHist, lfHist); }
+                }
+                else if (const subLfM = sub.peek!LfM)
+                {
+                    subLfM.calculate(lfHist);
+                }
+                else if (sub)
+                {
+                    assert(false, "Unknown type of non-null pointer");
+                }
+            }
+            ++brHist[nzcnt - 1];
+        }
     }
 
     /** Bottom-most leaf node of `RadixTree`-set storing `M` number of densly packed
@@ -800,7 +830,7 @@ auto check()
             static assert(set.isSet);
 
             const useContains = false;
-            foreach (Key k; 0.iota(1024))
+            foreach (Key k; 0.iota(100_000))
             {
                 if (useContains)
                 {

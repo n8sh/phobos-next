@@ -82,6 +82,10 @@ struct RadixTree(Key,
                  size_t radix = 4) // radix in number of bits, typically either 1, 2, 4 or 8
     if (allSatisfy!(isTrieableKeyType, Key))
 {
+    // TODO make these CT-params
+    alias DefaultRootNodeType = Br02;
+    alias DefaultSubBranchNodeType = Br02;
+
     import std.algorithm : filter;
     import std.meta : AliasSeq, staticMap;
     import std.typecons : ConstOf;
@@ -593,7 +597,7 @@ struct RadixTree(Key,
             // dln("constructSub: chunkIx is ", chunkIx);
             return (chunkIx + 1 == maxDepth ? // is last
                     Node(construct!LfM) :
-                    Node(construct!Br02));
+                    Node(construct!DefaultSubBranchNodeType));
         }
 
         /** Destructively expand `br02` into a `BrM` and return it. */
@@ -750,7 +754,7 @@ struct RadixTree(Key,
     }
 
     /** Ensure that root `Node` is allocated. */
-    void ensureRootNode(U = Br02)()
+    void ensureRootNode(U = DefaultRootNodeType)()
     {
         if (!_root.ptr) { _root = construct!U; }
     }

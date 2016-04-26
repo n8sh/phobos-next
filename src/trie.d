@@ -269,7 +269,7 @@ struct RadixTree(Key,
 
         // Indexing with internal range check is safely avoided.
         // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
-        pragma(inline) auto ref at     (Mod!N i) @trusted { return subs.ptr[i]; }
+        pragma(inline) auto ref at           (Mod!N i) @trusted { return subs.ptr[i]; }
         pragma(inline) auto ref atSubKeyChunk(Mod!N i) @trusted { return subKeyChunks.ptr[i]; }
 
         /** Append statistics of tree under `this` into `stats`. */
@@ -297,7 +297,7 @@ struct RadixTree(Key,
 
         // Indexing with internal range check is safely avoided.
         // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
-        pragma(inline) auto ref at     (Mod!N i) @trusted { return subs.ptr[i]; }
+        pragma(inline) auto ref at           (Mod!N i) @trusted { return subs.ptr[i]; }
         pragma(inline) auto ref atSubKeyChunk(Mod!N i) @trusted { return subKeyChunks.ptr[i]; }
 
         /** Append statistics of tree under `this` into `stats`. */
@@ -325,7 +325,7 @@ struct RadixTree(Key,
 
         // Indexing with internal range check is safely avoided.
         // TODO move to modulo.d: opIndex(T[M], IxM i) or at(T[M], IxM i) if that doesn't work
-        pragma(inline) auto ref at     (Mod!N i) @trusted { return subs.ptr[i]; }
+        pragma(inline) auto ref at           (Mod!N i) @trusted { return subs.ptr[i]; }
         pragma(inline) auto ref atSubKeyChunk(Mod!N i) @trusted { return subKeyChunks.ptr[i]; }
 
         /** Append statistics of tree under `this` into `stats`. */

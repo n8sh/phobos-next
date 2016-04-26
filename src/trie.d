@@ -232,7 +232,7 @@ struct RadixTree(Key,
     */
     static private struct BrM
     {
-        Node[M] subNodes;
+        Node[M] subNodes; // TODO used typecons_ex.indexedBy
 
         // Indexing with internal range check is safely avoided.
         // TODO move to modulo.d: opIndex(T[M], IxM i) or atSubNode(T[M], IxM i) if that doesn't work
@@ -266,7 +266,7 @@ struct RadixTree(Key,
     {
         enum N = 2;
         // TODO merge these into a new `NodeType`
-        Node[N] subNodes;
+        Node[N] subNodes; // TODO used typecons_ex.indexedBy
         IxM[N] subChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM!2 instead.
 
         // Indexing with internal range check is safely avoided.
@@ -292,7 +292,7 @@ struct RadixTree(Key,
     {
         enum N = 4;
         // TODO merge these into a new `NodeType`
-        Node[N] subNodes;
+        Node[N] subNodes; // TODO used typecons_ex.indexedBy
         IxM[N] subChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM!4 instead.
 
         // Indexing with internal range check is safely avoided.
@@ -318,7 +318,7 @@ struct RadixTree(Key,
     {
         enum N = 16;
         // TODO merge these into a new `NodeType`
-        Node[N] subNodes;
+        Node[N] subNodes; // TODO used typecons_ex.indexedBy
         IxM[N] subChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM!16 instead.
 
         // Indexing with internal range check is safely avoided.

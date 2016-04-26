@@ -29,6 +29,15 @@ struct WordVariant(Types...)
     alias S = size_t;
 
     /// Number of bits used to represent value type pointed to.
+    static      if (Types.length <= 2)   { enum typeBits_ = 1; }
+    else static if (Types.length <= 4)   { enum typeBits_ = 2; }
+    else static if (Types.length <= 8)   { enum typeBits_ = 3; }
+    else static if (Types.length <= 16)  { enum typeBits_ = 4; }
+    else static if (Types.length <= 32)  { enum typeBits_ = 5; }
+    else static if (Types.length <= 64)  { enum typeBits_ = 6; }
+    else static if (Types.length <= 128) { enum typeBits_ = 7; }
+    else static if (Types.length <= 256) { enum typeBits_ = 8; }
+
     enum typeBits = 8;
 
     /// Maximum number of different `Types` allowed.

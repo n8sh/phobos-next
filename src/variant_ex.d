@@ -26,7 +26,7 @@ struct WordVariant(Types...)
 {
     static assert(this.sizeof == (void*).sizeof); // should have same size as pointer
 
-    alias S = size_t;
+    alias S = size_t; // TODO templatize?
 
     /// Number of bits used to represent value type pointed to.
     static      if (Types.length <= 2)   { enum typeBits = 1; }

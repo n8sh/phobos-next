@@ -868,8 +868,8 @@ alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
 
 /** Append statistics of tree under `Node` `sub.` into `stats`. */
-private void calculate(Key, Value, size_t radix)(RadixTree!(Key, Value, radix).Node sub,
-                                                 ref RadixTree!(Key, Value, radix).Stats stats)
+static private void calculate(Key, Value, size_t radix)(RadixTree!(Key, Value, radix).Node sub,
+                                                        ref RadixTree!(Key, Value, radix).Stats stats)
     @safe pure nothrow
     if (allSatisfy!(isTrieableKeyType, Key))
 {

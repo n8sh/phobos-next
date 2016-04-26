@@ -82,6 +82,7 @@ struct RadixTree(Key,
                  size_t radix = 4) // radix in number of bits, typically either 1, 2, 4 or 8
     if (allSatisfy!(isTrieableKeyType, Key))
 {
+    import std.algorithm : filter;
     import std.meta : AliasSeq, staticMap;
     import std.typecons : ConstOf;
 
@@ -238,7 +239,6 @@ struct RadixTree(Key,
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow @nogc const
         {
-            import std.algorithm : filter;
             size_t nnzSubCount = 0; // number of non-zero sub-nodes
             foreach (sub; subNodes[].filter!(sub => sub))
             {
@@ -275,7 +275,6 @@ struct RadixTree(Key,
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow const
         {
-            import std.algorithm : filter;
             size_t nnzSubCount = 0; // number of non-zero sub-nodes
             foreach (sub; subNodes[].filter!(sub => sub))
             {
@@ -303,7 +302,6 @@ struct RadixTree(Key,
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow const
         {
-            import std.algorithm : filter;
             size_t nnzSubCount = 0; // number of non-zero sub-nodes
             foreach (sub; subNodes[].filter!(sub => sub))
             {
@@ -331,7 +329,6 @@ struct RadixTree(Key,
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow const
         {
-            import std.algorithm : filter;
             size_t nnzSubCount = 0; // number of non-zero sub-nodes
             foreach (sub; subNodes[].filter!(sub => sub))
             {
@@ -696,7 +693,6 @@ struct RadixTree(Key,
     {
         void release(BrM* curr)
         {
-            import std.algorithm : count, filter;
             foreach (sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
             {
                 release(sub); // recurse
@@ -706,7 +702,6 @@ struct RadixTree(Key,
 
         void release(Br02* curr)
         {
-            import std.algorithm : count, filter;
             foreach (sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
             {
                 release(sub); // recurse
@@ -716,7 +711,6 @@ struct RadixTree(Key,
 
         void release(Br04* curr)
         {
-            import std.algorithm : count, filter;
             foreach (sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
             {
                 release(sub); // recurse
@@ -726,7 +720,6 @@ struct RadixTree(Key,
 
         void release(Br16* curr)
         {
-            import std.algorithm : count, filter;
             foreach (sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
             {
                 release(sub); // recurse
@@ -781,7 +774,7 @@ static private void calculate(Key, Value, size_t radix)(RadixTree!(Key, Value, r
     if (allSatisfy!(isTrieableKeyType, Key))
 {
     alias RT = RadixTree!(Key, Value, radix);
-    import std.algorithm : count, filter;
+    import std.algorithm : filter;
     // TODO use switch
     if      (const subBr02 = sub.peek!(RT.Br02)) { subBr02.calculate(stats); }
     else if (const subBr04 = sub.peek!(RT.Br04)) { subBr04.calculate(stats); }

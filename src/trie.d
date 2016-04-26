@@ -384,12 +384,6 @@ struct RadixTree(Key,
         }
     }
 
-    /// Get depth of tree.
-    // size_t depth() @safe pure nothrow const
-    // {
-    //     return _root !is null ? _root.linearDepth : 0;
-    // }
-
     Stats usageHistograms() const
     {
         typeof(return) stats;

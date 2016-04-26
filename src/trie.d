@@ -947,8 +947,8 @@ void benchmark(size_t radix)()
         auto randomIotaSamples = 0.iota(n).array; randomIotaSamples.randomShuffle;
 
         import std.range : generate, take;
-        import random_ex : randomized;
-        auto randomSamples = generate!(() => randomized!Key).take(n);
+        import std.random : uniform;
+        auto randomSamples = generate!(() => uniform!Key).take(n); // TODO functionize?
 
         {
             auto sw = StopWatch(AutoStart.yes);

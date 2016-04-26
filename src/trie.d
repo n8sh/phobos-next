@@ -576,6 +576,7 @@ struct RadixTree(Key,
             ensureRootNode;
             bool wasAdded = false; // indicates that key was added
             _root = insert(_root, key, 0, wasAdded);
+            _length += wasAdded;
             return wasAdded;
         }
 
@@ -768,6 +769,8 @@ struct RadixTree(Key,
         }
     }
 
+    size_t length() const @safe pure nothrow @nogc { return _length; }
+
     private:
 
     /** Allocate `Node`-type of value type `U`. */
@@ -848,6 +851,7 @@ struct RadixTree(Key,
 
     private Node _root;
     debug size_t _nodeCount = 0;
+    size_t _length;
 }
 alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
@@ -873,8 +877,9 @@ auto check()
 
             static assert(set.isSet);
 
+            const n = 100_000;
             const useContains = false;
-            foreach (Key k; 0.iota(100_000))
+            foreach (Key k; 0.iota(n))
             {
                 if (useContains)
                 {
@@ -896,6 +901,8 @@ auto check()
                     assert(!set.contains(k + 1)); // next key is not yet in set
                 }
             }
+
+            assert(set.length == n);
 
             auto map = radixTreeMap!(Key, Value);
             static assert(map.isMap);

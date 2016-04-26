@@ -4,11 +4,7 @@
 
     TODO Can we somehow overload opIndex so we can do brM[i] instead of more cumbersome (*brM)[i] when brM is of type BrM*?
 
-    TODO Make oneSet/allSet a member of WordVariant to an empty dummy-type struct DirectlyPackedLfs, AllSet {} and simplify logic in its checking
-
     TODO Use opIndex instead of at(): x.at(i) => (*x)[i]
-
-    TODO Add support for map insert
 
     TODO Need bijectToUnsigned in intsort to support ordered storage of float and double. Move it to bijections.
 

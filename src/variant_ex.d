@@ -1,4 +1,4 @@
-module variant_pointer;
+module variant_ex;
 
 /** A variant of `Types` packed into a word (`size_t`).
 

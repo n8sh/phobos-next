@@ -103,33 +103,26 @@ struct WordVariant(Types...)
     }
 
     /** Reference. */
-    static private struct Ref
+    static private struct Ref(T)
     {
         S _raw;
         const bool defined;
         bool opCast(T : bool)() const @safe pure nothrow @nogc { return defined; }
-        S opUnary(string op : "*")() inout { return _raw; }
+        T opUnary(string op : "*")() inout { return cast(T)(_raw & ~typeMask); }
     }
 
-    @property auto ref peek(T)() @trusted @nogc nothrow
+    @property inout(Ref!T) peek(T)() inout @trusted @nogc nothrow
         if (allows!T)
     {
-        if (!isOfType!T) { return Ref.init; }
-        return Ref(_raw, true);
+        if (!isOfType!T) { return typeof(return).init; }
+        return typeof(return)(_raw, true);
     }
 
-    @property auto ref peek(T)() const @trusted @nogc nothrow
-        if (allows!T)
+    bool opEquals(T)(T that) const @trusted nothrow @nogc
     {
-        if (!isOfType!T) { return const(Ref).init; }
-        return const(Ref)(_raw, true);
+        auto x = peek!T; // if `this` contains pointer of to instance of type `T`
+        return x && *x == that; // and is equal to it
     }
-
-    // bool opEquals(T)(T that) const @trusted nothrow @nogc
-    // {
-    //     auto x = peek!T; // if `this` contains pointer of to instance of type `T`
-    //     return x && *x == that; // and is equal to it
-    // }
 
     bool isNull() const @safe pure nothrow @nogc { return _raw == 0; }
 
@@ -198,8 +191,8 @@ pure nothrow unittest
         assert(vp.currentIndex != 0);
         assert(vp.isOfType!Tp);
 
-        // TODO assert(vp == a);
-        // TODO assert(vp != a_);
+        assert(vp == &a);
+        assert(vp != &a_);
         assert(vp);
 
         foreach (Up; Types)
@@ -222,8 +215,8 @@ pure nothrow unittest
         *b = 73;
         *b_ = 73;
         vp = b;
-        // TODO assert(vp == b);
-        // TODO assert(vp != b_);
+        assert(vp == b);
+        assert(vp != b_);
         assert(vp);
         foreach (Up; Types)
         {

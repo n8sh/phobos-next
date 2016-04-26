@@ -16,7 +16,7 @@
 
     TODO Add traits isSparseNodeType, isDenseNodeType or PackingOf!(T) returns either dense, sparse
 
-    TODO Make Br2, Br4 templated on N when I figure out how to elide the recursive template-instantiation
+    TODO Make Br02, Br04 templated on N when I figure out how to elide the recursive template-instantiation
 
     TODO Provide `opIndex` and make `opSlice` for set-case (`Value` is `void`) return `SortedRange`
     TODO Provide RandomAccess `opIndex` and `opSlice`! for variable-length keys aswell?
@@ -128,7 +128,7 @@ struct RadixTree(Key,
     /** Node types. */
     alias NodeTypes = AliasSeq!(PackedLfs, // directly packed leaves
                                 AllSet, // indicate that all leaves in this branch are set (denseness compression)
-                                Br2, Br4, Br16, BrM, // branching-node
+                                Br02, Br04, Br16, BrM, // branching-node
                                 LfM);          // leaves-nodes
 
     enum showSizes = false;
@@ -136,13 +136,13 @@ struct RadixTree(Key,
     {
         static if (isSet)
         {
-            pragma(msg, "Set Br2.sizeof: ", Br2.sizeof);
+            pragma(msg, "Set Br02.sizeof: ", Br02.sizeof);
             pragma(msg, "Set BrM.sizeof: ", BrM.sizeof);
             pragma(msg, "Set LfM.sizeof: ", LfM.sizeof);
         }
         else
         {
-            pragma(msg, "Map Br2.sizeof: ", Br2.sizeof);
+            pragma(msg, "Map Br02.sizeof: ", Br02.sizeof);
             pragma(msg, "Map BrM.sizeof: ", BrM.sizeof);
             pragma(msg, "Map LfM.sizeof: ", LfM.sizeof);
         }
@@ -190,12 +190,12 @@ struct RadixTree(Key,
     /** 2-Branch occupation histogram.
         Index maps to occupation with value range (1 .. 2).
     */
-    alias Br2_OccupationHistogram = size_t[2];
+    alias Br02_OccupationHistogram = size_t[2];
 
     /** 4-Branch occupation histogram.
         Index maps to occupation with value range (1 .. 4).
     */
-    alias Br4_OccupationHistogram = size_t[4];
+    alias Br04_OccupationHistogram = size_t[4];
 
     /** 16-Branch occupation histogram.
         Index maps to occupation with value range (1 .. 16).
@@ -205,7 +205,7 @@ struct RadixTree(Key,
     /** 256-Branch occupation histogram.
         Index maps to occupation with value range (1 .. 256).
     */
-    alias Br256_OccupationHistogram = size_t[256];
+    alias Br0256_OccupationHistogram = size_t[256];
 
     /** M-Leaf occupation histogram.
         Index maps to occupation with value range (1 .. M).
@@ -215,10 +215,10 @@ struct RadixTree(Key,
     /** Tree Statistics. */
     struct Stats
     {
-        Br2_OccupationHistogram br2;
-        Br4_OccupationHistogram br4;
+        Br02_OccupationHistogram br02;
+        Br04_OccupationHistogram br04;
         Br16_OccupationHistogram br16;
-        Br256_OccupationHistogram br256;
+        Br0256_OccupationHistogram br256;
         BrM_OccupationHistogram brM;
         LeafM_OccupationHistogram lfM;
     }
@@ -259,7 +259,7 @@ struct RadixTree(Key,
     }
 
     // TODO templatize on `N` (currently 2)
-    static private struct Br2
+    static private struct Br02
     {
         enum N = 2;
 
@@ -282,12 +282,12 @@ struct RadixTree(Key,
                 ++nnzSubCount;
                 sub.calculate!(Key, Value, radix)(stats);
             }
-            ++stats.br2[nnzSubCount - 1]; // TODO type-safe indexing
+            ++stats.br02[nnzSubCount - 1]; // TODO type-safe indexing
         }
     }
 
     // TODO templatize on `N` (currently 4)
-    static private struct Br4
+    static private struct Br04
     {
         enum N = 4;
 
@@ -310,7 +310,7 @@ struct RadixTree(Key,
                 ++nnzSubCount;
                 sub.calculate!(Key, Value, radix)(stats);
             }
-            ++stats.br4[nnzSubCount - 1]; // TODO type-safe indexing
+            ++stats.br04[nnzSubCount - 1]; // TODO type-safe indexing
         }
     }
 
@@ -453,42 +453,67 @@ struct RadixTree(Key,
 
         pragma(inline) Node insert(Node curr, in Key key, ChunkIx chunkIx, out bool wasAdded) // Node-polymorphic
         {
-            // if (key == 544) dln("Node.insert: chunkIx is ", chunkIx);
-            if      (auto currBr2 = curr.peek!Br2) { return insert(currBr2, key, chunkIx, wasAdded); }
-            else if (auto currBrM = curr.peek!BrM) { return insert(currBrM, key, chunkIx, wasAdded); }
-            else if (auto currLfM = curr.peek!LfM) { return insert(currLfM, key, chunkIx, wasAdded); }
+            if      (auto currBr02 = curr.peek!Br02) { return insert(currBr02, key, chunkIx, wasAdded); }
+            else if (auto currBr04 = curr.peek!Br04) { return insert(currBr04, key, chunkIx, wasAdded); }
+            else if (auto currBrM  = curr.peek!BrM)  { return insert(currBrM,  key, chunkIx, wasAdded); }
+            else if (auto currLfM  = curr.peek!LfM)  { return insert(currLfM,  key, chunkIx, wasAdded); }
             else                                   { assert(false, "Unknown Node type"); }
         }
 
-        Node insert(Br2* br2, in Key key, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(Br02* br, in Key key, ChunkIx chunkIx, out bool wasAdded)
         {
-            // if (key == 544) dln("Br2.insert: chunkIx is ", chunkIx);
             const IxM chunk = bitsChunk(key, chunkIx);
 
             enum N = 2;         // branch-order, number of possible sub-nodes
             foreach (Mod!N subIx; iota!(0, N)) // each sub node
             {
-                // if (key == 544) dln("subIx is ", subIx);
-                if (br2.subs[subIx])   // first is occupied
+                if (br.subs[subIx])   // first is occupied
                 {
-                    if (br2.subKeyChunks[subIx] == chunk) // and matches chunk
+                    if (br.subKeyChunks[subIx] == chunk) // and matches chunk
                     {
-                        br2.subs[subIx] = insert(br2.subs[subIx], key, chunkIx + 1, wasAdded);
-                        return Node(br2);
+                        br.subs[subIx] = insert(br.subs[subIx], key, chunkIx + 1, wasAdded);
+                        return Node(br);
                     }
                 }
                 else            // use first free sub
                 {
-                    br2.subs[subIx] = insert(constructSub(chunkIx + 1),
+                    br.subs[subIx] = insert(constructSub(chunkIx + 1),
                                              key, chunkIx + 1, wasAdded); // use it
-                    br2.subKeyChunks[subIx] = chunk;
-                    return Node(br2);
+                    br.subKeyChunks[subIx] = chunk;
+                    return Node(br);
                 }
             }
 
             // if we got here all N sub-nodes are occupied so we need to expand
-            // if (key == 544) dln("Br2.insert: Calling destructivelyExpand when chunkIx is ", chunkIx);
-            return insert(destructivelyExpand(br2), key, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
+            return insert(destructivelyExpand(br), key, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
+        }
+
+        Node insert(Br04* br, in Key key, ChunkIx chunkIx, out bool wasAdded)
+        {
+            const IxM chunk = bitsChunk(key, chunkIx);
+
+            enum N = 2;         // branch-order, number of possible sub-nodes
+            foreach (Mod!N subIx; iota!(0, N)) // each sub node
+            {
+                if (br.subs[subIx])   // first is occupied
+                {
+                    if (br.subKeyChunks[subIx] == chunk) // and matches chunk
+                    {
+                        br.subs[subIx] = insert(br.subs[subIx], key, chunkIx + 1, wasAdded);
+                        return Node(br);
+                    }
+                }
+                else            // use first free sub
+                {
+                    br.subs[subIx] = insert(constructSub(chunkIx + 1),
+                                            key, chunkIx + 1, wasAdded); // use it
+                    br.subKeyChunks[subIx] = chunk;
+                    return Node(br);
+                }
+            }
+
+            // if we got here all N sub-nodes are occupied so we need to expand
+            return insert(destructivelyExpand(br), key, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
         }
 
         Node insert(BrM* brM, in Key key, ChunkIx chunkIx, out bool wasAdded)
@@ -500,7 +525,6 @@ struct RadixTree(Key,
         }
         body
         {
-            // if (key == 544) dln("BrM.insert: chunkIx is ", chunkIx);
 
             const IxM chunk = bitsChunk(key, chunkIx);
             if (!brM.at(chunk)) // if not yet set
@@ -523,7 +547,6 @@ struct RadixTree(Key,
         }
         body
         {
-            // if (key == 544) dln("LfM.insert: chunkIx is ", chunkIx);
 
             const IxM chunk = bitsChunk(key, chunkIx);
             if (!lfM.keyLSBits[chunk])
@@ -544,19 +567,32 @@ struct RadixTree(Key,
             // dln("constructSub: chunkIx is ", chunkIx);
             return (chunkIx + 1 == maxDepth ? // is last
                     Node(construct!LfM) :
-                    Node(construct!Br2));
+                    Node(construct!Br02));
         }
 
-        /** Destructively expand `br2` into a `BrM` and return it. */
-        BrM* destructivelyExpand(Br2* br2) @trusted
+        /** Destructively expand `br02` into a `BrM` and return it. */
+        BrM* destructivelyExpand(Br02* br02) @trusted
         {
             enum N = 2;         // branch-order, number of possible sub-nodes
             BrM* brM = construct!BrM;
             foreach (Mod!N subIx; iota!(0, N)) // each sub node
             {
-                brM.at(br2.atSubKeyChunk(subIx)) = br2.subs[subIx];
+                brM.at(br02.atSubKeyChunk(subIx)) = br02.subs[subIx];
             }
-            freeNode(br2);
+            freeNode(br02);
+            return brM;
+        }
+
+        /** Destructively expand `br04` into a `BrM` and return it. */
+        BrM* destructivelyExpand(Br04* br04) @trusted
+        {
+            enum N = 4;         // branch-order, number of possible sub-nodes
+            BrM* brM = construct!BrM;
+            foreach (Mod!N subIx; iota!(0, N)) // each sub node
+            {
+                brM.at(br04.atSubKeyChunk(subIx)) = br04.subs[subIx];
+            }
+            freeNode(br04);
             return brM;
         }
     }
@@ -625,7 +661,7 @@ struct RadixTree(Key,
             freeNode(curr);
         }
 
-        void release(Br2* curr)
+        void release(Br02* curr)
         {
             import std.algorithm : count, filter;
             foreach (sub; curr.subs[].filter!(sub => sub)) // TODO use static foreach
@@ -635,7 +671,7 @@ struct RadixTree(Key,
             freeNode(curr);
         }
 
-        void release(Br4* curr)
+        void release(Br04* curr)
         {
             import std.algorithm : count, filter;
             foreach (sub; curr.subs[].filter!(sub => sub)) // TODO use static foreach
@@ -662,8 +698,8 @@ struct RadixTree(Key,
 
         void release(Node curr)
         {
-            if      (auto subBr2  = curr.peek!Br2)  { release(subBr2); }
-            else if (auto subBr4  = curr.peek!Br4)  { release(subBr4); }
+            if      (auto subBr02 = curr.peek!Br02) { release(subBr02); }
+            else if (auto subBr04 = curr.peek!Br04) { release(subBr04); }
             else if (auto subBr16 = curr.peek!Br16) { release(subBr16); }
             else if (auto subBrM  = curr.peek!BrM)  { release(subBrM); }
             else if (auto subLfM  = curr.peek!LfM)  { release(subLfM); }
@@ -678,7 +714,7 @@ struct RadixTree(Key,
     }
 
     /** Ensure that root `Node` is allocated. */
-    void ensureRootNode(U = Br2)()
+    void ensureRootNode(U = Br02)()
     {
         if (!_root.ptr) { _root = construct!U; }
     }
@@ -702,8 +738,8 @@ static private void calculate(Key, Value, size_t radix)(RadixTree!(Key, Value, r
 {
     alias RT = RadixTree!(Key, Value, radix);
     import std.algorithm : count, filter;
-    if      (const subBr2  = sub.peek!(RT.Br2))  { subBr2.calculate(stats);  /* TODO verify correct depth */ }
-    else if (const subBr4  = sub.peek!(RT.Br4))  { subBr4.calculate(stats);  /* TODO verify correct depth */ }
+    if      (const subBr02 = sub.peek!(RT.Br02)) { subBr02.calculate(stats);  /* TODO verify correct depth */ }
+    else if (const subBr04 = sub.peek!(RT.Br04)) { subBr04.calculate(stats);  /* TODO verify correct depth */ }
     else if (const subBr16 = sub.peek!(RT.Br16)) { subBr16.calculate(stats); /* TODO verify correct depth */ }
     else if (const subBrM  = sub.peek!(RT.BrM))  { subBrM.calculate(stats);  /* TODO verify correct depth */ }
     else if (const subLfM  = sub.peek!(RT.LfM))  { subLfM.calculate(stats); }
@@ -816,8 +852,8 @@ void benchmark(size_t radix)()
 
             dln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
             auto uhists = set.usageHistograms;
-            dln("2-Branch Usage Histogram: ", uhists.br2);
-            dln("4-Branch Usage Histogram: ", uhists.br4);
+            dln("2-Branch Usage Histogram: ", uhists.br02);
+            dln("4-Branch Usage Histogram: ", uhists.br04);
             dln("16-Branch Usage Histogram: ", uhists.br16);
             dln("256-Branch Usage Histogram: ", uhists.br256);
             dln("M=", 2^^radix, "-Branch Usage Histogram: ", uhists.brM);

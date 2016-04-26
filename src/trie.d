@@ -109,13 +109,15 @@ struct RadixTree(Key,
     alias IxM = Mod!M; // restricted index type avoids range checking in array indexing below
     alias ChunkIx = uint;
 
-    static      if (size_t.sizeof == 4) { struct DirectlyPackedLfs { ubyte cnt; IxM[3] ixMs; } }
-    else static if (size_t.sizeof == 8) { struct DirectlyPackedLfs { ubyte cnt; IxM[6] ixMs; } }
+    /** Leaves directly packed into a word. */
+    static      if (size_t.sizeof == 4) { struct PackedLfs { ubyte cnt; IxM[3] ixMs; } }
+    else static if (size_t.sizeof == 8) { struct PackedLfs { ubyte cnt; IxM[7] ixMs; } }
+    static assert(PackedLfs.sizeof == size_t.sizeof); // assert that it's size matches platform word-size
 
     struct AllSet {}
 
     /** Node types. */
-    alias NodeTypes = AliasSeq!(DirectlyPackedLfs, // directly packed leaves
+    alias NodeTypes = AliasSeq!(PackedLfs, // directly packed leaves
                                 AllSet, // indicate that all leaves in this branch are set (denseness compression)
                                 Br2, Br4, Br16, BrM, // branching-node
                                 LfM);          // leaves-nodes

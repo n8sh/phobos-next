@@ -244,16 +244,6 @@ struct RadixTree(Key,
         pragma(inline) auto ref at     (IxM i) @trusted { return subs.ptr[i]; }
         pragma(inline) auto ref opIndex(IxM i) { return at(i); }
 
-        /** Returns: depth of tree at this branch. */
-        // size_t linearDepth() @safe pure nothrow const
-        // {
-        //     // TODO replace with fold when switching to 2.071
-        //     import std.algorithm : map, reduce, max;
-        //     return reduce!max(0UL, subs[].map!(sub => (sub.peek!(typeof(this)) == oneSet ? 1UL :
-        //                                                  sub ? 1 + sub.linearDepth :
-        //                                                  0UL)));
-        // }
-
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow const
         {

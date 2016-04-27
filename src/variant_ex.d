@@ -30,7 +30,7 @@ template bitsNeeeded(size_t length)
     else static if (length <= 64)  { enum bitsNeeeded = 6; }
     else static if (length <= 128) { enum bitsNeeeded = 7; }
     else static if (length <= 256) { enum bitsNeeeded = 8; }
-    else                           { static assert(false, "Too large length"); }
+    else                           { static assert(false, `Too large length`); }
 }
 
 /** Returns: a `string` containing the definition of an `enum` named `name` and
@@ -53,7 +53,15 @@ string makeEnumDefinitionString(string name,
     }
     foreach (E; Es)
     {
-        s ~= prefix ~ E.stringof ~ suffix ~ `, `;
+        static if (E.stringof[$ - 1] == '*')
+        {
+            enum E_ = E.stringof[0 .. $ - 1] ~ "Ptr";
+        }
+        else
+        {
+            enum E_ = E.stringof;
+        }
+        s ~= prefix ~ E_ ~ suffix ~ `, `;
     }
     s ~= `}`;
     return s;
@@ -62,12 +70,13 @@ string makeEnumDefinitionString(string name,
 @safe pure nothrow @nogc unittest
 {
     import std.meta : AliasSeq;
-    alias Types = AliasSeq!(byte, short);
-    mixin(makeEnumDefinitionString!("Type", `_`, `_`, true, Types));
+    alias Types = AliasSeq!(byte, short, int*);
+    mixin(makeEnumDefinitionString!(`Type`, `_`, `_`, true, Types));
     static assert(is(Type == enum));
-    static assert(Type.undefined.stringof == "undefined");
-    static assert(Type._byte_.stringof == "_byte_");
-    static assert(Type._short_.stringof == "_short_");
+    static assert(Type.undefined.stringof == `undefined`);
+    static assert(Type._byte_.stringof == `_byte_`);
+    static assert(Type._short_.stringof == `_short_`);
+    static assert(Type._intPtr_.stringof == `_intPtr_`);
 }
 
 /** A variant of `Types` packed into a word (`size_t`).
@@ -81,11 +90,11 @@ string makeEnumDefinitionString(string name,
  */
 struct WordVariant(Types...)
 {
-    static assert(this.sizeof == size_t.sizeof, "Types must all <= size_t.sizeof");
+    static assert(this.sizeof == size_t.sizeof, `Types must all <= size_t.sizeof`);
 
     alias S = size_t; // TODO templatize?
 
-    // mixin(makeEnumDefinitionString!("Ix", `index`, ``, true, Types));
+    // mixin(makeEnumDefinitionString!(`Ix`, `index`, ``, true, Types));
     // pragma(msg, Ix);
 
     enum typeBits = bitsNeeeded!(Types.length); // number of bits needed to represent variant type
@@ -137,7 +146,7 @@ struct WordVariant(Types...)
         S _raw;
         const bool defined;
         bool opCast(T : bool)() const @safe { return defined; }
-        T opUnary(string op : "*")() @trusted inout { return cast(T)(_raw & ~typeMask); }
+        T opUnary(string op : `*`)() @trusted inout { return cast(T)(_raw & ~typeMask); }
     }
 
     @property inout(Ref!T) peek(T)() inout @trusted if (canStore!T)
@@ -159,7 +168,7 @@ struct WordVariant(Types...)
     private void init(T)(T that)
     in
     {
-        assert(!(cast(S)that & typeMask), "Top-most bits of pointer are already occupied"); // TODO use enforce instead?
+        assert(!(cast(S)that & typeMask), `Top-most bits of pointer are already occupied`); // TODO use enforce instead?
     }
     body
     {
@@ -316,7 +325,7 @@ struct VariantPointerTo(Types...)
 
     @property inout(T)* peek(T)() inout @trusted if (canStorePointerTo!T)
     {
-        static if (is(T == void)) static assert(canStorePointerTo!T, "Cannot store a " ~ T.stringof ~ " in a " ~ name);
+        static if (is(T == void)) static assert(canStorePointerTo!T, `Cannot store a ` ~ T.stringof ~ ` in a ` ~ name);
         if (!pointsTo!T) { return null; }
         return cast(inout T*)ptr;
     }
@@ -334,7 +343,7 @@ struct VariantPointerTo(Types...)
     private void init(T)(T* that)
     in
     {
-        assert(!(cast(S)that & typeMask), "Top-most bits of pointer are already occupied"); // TODO use enforce instead?
+        assert(!(cast(S)that & typeMask), `Top-most bits of pointer are already occupied`); // TODO use enforce instead?
     }
     body
     {

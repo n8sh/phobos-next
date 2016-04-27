@@ -16,7 +16,8 @@
 
     TODO Add traits `isSparseNodeType`, `isDenseNodeType` or PackingOf!(T) returns either dense, sparse
 
-    TODO Make SBr02, SBr04, SBr16, SBr256 templated on N when I figure out how to elide the recursive template-instantiation
+    TODO Make SBr02, SBr04, SBr16, SBr256 templated on N when I figure out how
+    to elide the recursive template-instantiation. Ask forums
 
     TODO Provide `opIndex` and make `opSlice` for set-case (`Value` is `void`) return `SortedRange`
     TODO Provide RandomAccess `opIndex` and `opSlice`! for variable-length keys aswell?

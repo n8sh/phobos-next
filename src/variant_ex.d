@@ -1,9 +1,6 @@
-/** This module contains lightweight versions of polymorphism packed inside one
-    single word/pointer. Typically most significant bits are used to store type
+/** Lightweight versions of polymorphism packed inside one single
+    word/pointer. Most significant bits are used to store type
     information. These are normally unused on 64-bit systems (tested on Linux).
-
-    Typically used in tree-data containers to realize hybrid value (sparsely
-    packed sub-tree) and pointer (to dense sub-tree) packing of sub-nodes.
 
     See also: http://forum.dlang.org/post/sybuoliqhhefcovxjfjv@forum.dlang.org
 
@@ -24,6 +21,10 @@ module variant_ex;
 import std.meta : staticIndexOf;
 
 /** A variant of `Types` packed into a word (`size_t`).
+
+    Suitable for use in tree-data containers, such as radix trees (tries), where
+    hybrid value (sparsely packed sub-tree) and pointer (to dense sub-tree)
+    packing of sub-nodes is needed.
  */
 struct WordVariant(Types...)
 {
@@ -229,7 +230,7 @@ pure nothrow unittest
     }
 }
 
-/** A variant of pointers to `Types` packed into a word (`size_t`).
+/** A typed pointer to a variant of `Types`, packed into a word (`size_t`).
  */
 struct VariantPointer(Types...)
 {

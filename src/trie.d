@@ -468,7 +468,17 @@ struct RadixTree(Key,
 
         pragma(inline) Node insert(Node curr, in Key key, ChunkIx chunkIx, out bool wasAdded) // Node-polymorphic
         {
-            // TODO use switch
+            final switch (curr.currentIx) with (Node.Ix)
+            {
+            case undefined: break;
+            case indexPackedLfs: break;
+            case indexAllSet: break;
+            case indexSBr02Ptr: break;
+            case indexSBr04Ptr: break;
+            case indexSBr16Ptr: break;
+            case indexBrMPtr: break;
+            case indexLfMPtr: break;
+            }
             if      (auto currSBr02 = curr.peek!(SBr02*)) { return insert(*currSBr02, key, chunkIx, wasAdded); }
             else if (auto currSBr04 = curr.peek!(SBr04*)) { return insert(*currSBr04, key, chunkIx, wasAdded); }
             else if (auto currSBr16 = curr.peek!(SBr16*)) { return insert(*currSBr16, key, chunkIx, wasAdded); }

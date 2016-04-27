@@ -9,12 +9,12 @@ module variant_ex;
     Typically used in tree-data containers to realize hybrid value (sparsely
     packed sub-tree) and pointer (to dense sub-tree) packing of sub-nodes.
 
-    TODO Make `typeIndex` start at 1 for defined types. Already defaults to zero for null.
+    See also: http://forum.dlang.org/post/sybuoliqhhefcovxjfjv@forum.dlang.org
+
+    TODO Make `typeIndex` start at 1 for defined types. Already defaults to zero for null. Look in variant_ex.d
 
     TODO Ask forum.dlang.org: Is it safe to assume that `typeBits` most significant bits of a
-    pointer are zero?
-
-    See also: http://forum.dlang.org/post/sybuoliqhhefcovxjfjv@forum.dlang.org
+    pointer are zero? If not put them in least significant part.
 
     TODO What todo with the fact that the GC will fail to scan VariantPointer?
     Can the GC be tweaked to mask out the type bits before scanning?

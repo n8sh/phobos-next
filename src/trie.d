@@ -473,13 +473,13 @@ struct RadixTree(Key,
                 final switch (curr.typeIx)
                 {
                 case undefined:    break;
-                case ix_PackedLfs: break; // TODO auto curr_ = curr.as!PackedLfs;
-                case ix_AllSet:    break; // TODO auto curr_ = curr.as!AllSet;
-                case ix_SBr02Ptr:  break; // TODO auto curr_ = curr.as!SBr02*;
-                case ix_SBr04Ptr:  break; // TODO auto curr_ = curr.as!SBr04*;
-                case ix_SBr16Ptr:  break; // TODO auto curr_ = curr.as!SBr16*;
-                case ix_BrMPtr:    break; // TODO auto curr_ = curr.as!BrM*;
-                case ix_LfMPtr:    break; // TODO auto curr_ = curr.as!LfM*;
+                case ix_PackedLfs: auto curr_ = curr.as!PackedLfs; break;
+                case ix_AllSet:    auto curr_ = curr.as!AllSet; break;
+                case ix_SBr02Ptr:  auto curr_ = curr.as!(SBr02*); break;
+                case ix_SBr04Ptr:  auto curr_ = curr.as!(SBr04*); break;
+                case ix_SBr16Ptr:  auto curr_ = curr.as!(SBr16*); break;
+                case ix_BrMPtr:    auto curr_ = curr.as!(BrM*); break;
+                case ix_LfMPtr:    auto curr_ = curr.as!(LfM*); break;
                 }
             }
             if      (auto currSBr02 = curr.peek!(SBr02*)) { return insert(*currSBr02, key, chunkIx, wasAdded); }

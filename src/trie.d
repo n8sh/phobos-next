@@ -819,8 +819,9 @@ auto radixTreeSet(Key, size_t radix = 4)() { return RadixTree!(Key, void, radix)
 /// Instantiator of map-version of `RadixTree`.
 auto radixTreeMap(Key, Value, size_t radix = 4)() { return RadixTree!(Key, Value, radix)(); }
 
-/// Check correctness when radix is `radix`.
-auto check(size_t radix)()
+/// Check correctness when radix is `radix` and for each `Key` in `Keys`.
+auto check(size_t radix, Keys...)()
+    if (Keys.length >= 1)
 {
     import std.range : iota;
     foreach (const it; 0.iota(1))
@@ -829,7 +830,7 @@ auto check(size_t radix)()
         struct TestValueType { int i; float f; string s; }
         alias Value = TestValueType;
         import std.meta : AliasSeq;
-        foreach (Key; AliasSeq!(uint))
+        foreach (Key; Keys)
         {
             auto set = radixTreeSet!(Key, radix);
             assert(set.empty);
@@ -958,8 +959,8 @@ version(benchmark) unittest
 @safe pure nothrow @nogc
 unittest
 {
-    check!4;
-    check!8;
+    check!(4, uint, ulong);
+    check!(8, uint, ulong);
 }
 
 /** Static Iota.

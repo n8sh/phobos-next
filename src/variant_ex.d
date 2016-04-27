@@ -184,9 +184,10 @@ pragma(inline):
         return !isNull && typeIndex == indexOf!T + 1;
     }
 
-    auto as(T)() const @trusted if (canStore!T)
+    inout(T) as(T)() inout @trusted if (canStore!T)
     {
-        return cast(T)rawValue; // reinterpret
+        inout x = rawValue;
+        return *(cast(typeof(return)*)(cast(void*)&x)); // reinterpret
     }
 
     /** Get zero-offset index as `Ix` of current variant type. */

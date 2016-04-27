@@ -136,9 +136,9 @@ struct WordVariant(Types...)
     this(typeof(null) value) { _raw = S.init; }
 
     /// Assignment from `that`.
-    auto opAssign(T)(T that) if (canStore!T) { init(that); return this; }
+    auto ref opAssign(T)(T that) if (canStore!T) { init(that); return this; }
     /// ditto
-    auto opAssign(typeof(null) that) { _raw = S.init; return this; }
+    auto ref opAssign(typeof(null) that) { _raw = S.init; return this; }
 
 pragma(inline):
 
@@ -332,12 +332,12 @@ struct VariantPointerTo(Types...)
     /// Construction from `value`.
     this(T)(T* value) if (canStorePointerTo!T) { init(value); }
     /// ditto
-    auto opAssign(T)(T* that) if (canStorePointerTo!T) { init(that); return this; }
+    this(typeof(null) value) { /* null is the default */ }
 
     /// Assignment from `that`.
-    this(typeof(null) value) { /* null is the default */ }
+    auto ref opAssign(T)(T* that) if (canStorePointerTo!T) { init(that); return this; }
     /// ditto
-    auto opAssign(typeof(null) that) { _raw = S.init; return this; }
+    auto ref opAssign(typeof(null) that) { _raw = S.init; return this; }
 
     @property inout(void)* ptr() inout @trusted { return cast(void*)(_raw & ~typeMask); }
 

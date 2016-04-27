@@ -470,7 +470,7 @@ struct RadixTree(Key,
         {
             with (Node.Ix)
             {
-                final switch (curr.currentIx)
+                final switch (curr.typeIx)
                 {
                 case undefined: break;
                 case ix_PackedLfs: break; // TODO auto curr_ = curr.as!PackedLfs;

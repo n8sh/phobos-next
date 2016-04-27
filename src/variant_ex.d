@@ -111,7 +111,7 @@ struct WordVariant(Types...)
     @property string toString() const @trusted // TODO pure
     {
         import std.conv : to;
-        final switch (currentIndex)
+        final switch (typeIndex)
         {
             foreach (const i, T; Types)
             {
@@ -181,7 +181,7 @@ pragma(inline):
 
     private bool isOfType(T)() const if (canStore!T)
     {
-        return !isNull && currentIndex == indexOf!T + 1;
+        return !isNull && typeIndex == indexOf!T + 1;
     }
 
     auto ref as(T)() const @trusted if (canStore!T)
@@ -191,13 +191,13 @@ pragma(inline):
     }
 
     /** Get zero-offset index as `Ix` of current variant type. */
-    Ix currentIx() const
+    Ix typeIx() const
     {
-        return cast(typeof(return))currentIndex;
+        return cast(typeof(return))typeIndex;
     }
 
     /** Get zero-offset index of current variant type. */
-    private auto currentIndex() const
+    private auto typeIndex() const
     {
         return ((_raw & typeMask) >> typeShift);
     }
@@ -240,7 +240,7 @@ pure nothrow unittest
         vp = &a;
         assert(vp);
         assert(!vp.isNull);
-        assert(vp.currentIndex != 0);
+        assert(vp.typeIndex != 0);
         assert(vp.isOfType!Tp);
 
         assert(vp == &a);
@@ -310,7 +310,7 @@ struct VariantPointerTo(Types...)
     @property string toString() const @trusted // TODO pure
     {
         import std.conv : to;
-        final switch (currentIndex)
+        final switch (typeIndex)
         {
             foreach (const i, T; Types)
             {
@@ -370,14 +370,14 @@ struct VariantPointerTo(Types...)
     }
 
     /** Get zero-offset index of current variant type. */
-    private auto currentIndex() const
+    private auto typeIndex() const
     {
         return (_raw & typeMask) >> typeShift;
     }
 
     private bool pointsTo(T)() const if (canStorePointerTo!T)
     {
-        return currentIndex == indexOf!T;
+        return typeIndex == indexOf!T;
     }
 
     private S _raw;             // raw untyped word

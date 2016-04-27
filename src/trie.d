@@ -125,12 +125,12 @@ struct RadixTree(Key,
      */
     static      if (size_t.sizeof == 4)
     {
-        static if (radix == 8) { struct PackedLfs { ubyte cnt; IxM[3] ixMs; } }
+        static if (radix == 8) { struct PackedLfs { ubyte cnt; IxM[3] ixMs; } } // TODO handle radix != 8
         static if (isMap && is(Value == bool)) { /* TODO pack bit efficiently */ }
     }
     else static if (size_t.sizeof == 8)
     {
-        static if (radix == 8) { struct PackedLfs { ubyte cnt; IxM[7] ixMs; } }
+        static if (radix == 8) { struct PackedLfs { ubyte cnt; IxM[7] ixMs; } } // TODO handle radix != 8
         static if (isMap && is(Value == bool)) { /* TODO pack bit efficiently */ }
     }
     static assert(PackedLfs.sizeof == size_t.sizeof); // assert that it's size matches platform word-size

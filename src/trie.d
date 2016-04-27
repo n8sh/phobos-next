@@ -628,12 +628,20 @@ struct RadixTree(Key,
         {
             const IxM chunk = bitsChunk(key, chunkIx);
 
+            // TODO this is only marginally faster:
+            // foreach (const i; iota!(0, curr.maxLength))
+            // {
+            //     if (i == curr.length) break;
+            //     else if (curr.ixMs[i] == chunk) { return Node(curr); }
+            // }
+
             import std.algorithm.searching : canFind;
             if (curr.ixMs[0 .. curr.length].canFind(chunk)) // if already stored. TODO use binarySearch
             {
                 return Node(curr); // already there, so return current node as is
             }
-            else if (curr.length < curr.maxLength) // if there's room left in curr
+
+            if (curr.length < curr.maxLength) // if there's room left in curr
             {
                 curr.ixMs[curr.length++] = chunk;
                 // import sortn : networkSortUpTo;

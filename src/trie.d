@@ -607,7 +607,7 @@ struct RadixTree(Key,
             const IxM chunk = bitsChunk(key, chunkIx);
 
             import std.algorithm.searching : canFind;
-            if (curr.ixMs[0 .. curr.length].canFind(chunk)) // if already stored
+            if (curr.ixMs[0 .. curr.length].canFind(chunk)) // if already stored. TODO use binarySearch
             {
                 return Node(curr); // already there, so return current node as is
             }

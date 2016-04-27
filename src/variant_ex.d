@@ -9,12 +9,10 @@ module variant_ex;
     Typically used in tree-data containers to realize hybrid value (sparsely
     packed sub-tree) and pointer (to dense sub-tree) packing of sub-nodes.
 
-    TODO Ask the forums about putting type in most or least significant bits
+    See also: http://forum.dlang.org/post/sybuoliqhhefcovxjfjv@forum.dlang.org
 
     TODO Ask forum.dlang.org: Is it safe to assume that `typeBits` most significant bits of a
-    pointer are zero?
-
-    See also: http://forum.dlang.org/post/sybuoliqhhefcovxjfjv@forum.dlang.org
+    pointer are zero? If not put them in least significant part.
 
     TODO What todo with the fact that the GC will fail to scan WordVariant?
     Can the GC be tweaked to mask out the type bits before scanning?

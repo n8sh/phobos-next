@@ -473,58 +473,58 @@ struct RadixTree(Key,
             }
         }
 
-        Node insert(SBr02* br, in Key key, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(SBr02* curr, in Key key, ChunkIx chunkIx, out bool wasAdded)
         {
             const IxM chunk = bitsChunk(key, chunkIx);
 
             enum N = 2;         // branch-order, number of possible sub-nodes
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             {
-                if (br.subNodes[subIx])   // first is occupied
+                if (curr.subNodes[subIx])   // first is occupied
                 {
-                    if (br.subChunks[subIx] == chunk) // and matches chunk
+                    if (curr.subChunks[subIx] == chunk) // and matches chunk
                     {
-                        br.subNodes[subIx] = insert(br.subNodes[subIx], key, chunkIx + 1, wasAdded);
-                        return Node(br);
+                        curr.subNodes[subIx] = insert(curr.subNodes[subIx], key, chunkIx + 1, wasAdded);
+                        return Node(curr);
                     }
                 }
                 else            // use first free sub
                 {
-                    br.subNodes[subIx] = insert(constructSub(chunkIx + 1), key, chunkIx + 1, wasAdded); // use it
-                    br.subChunks[subIx] = chunk;
-                    return Node(br);
+                    curr.subNodes[subIx] = insert(constructSub(chunkIx + 1), key, chunkIx + 1, wasAdded); // use it
+                    curr.subChunks[subIx] = chunk;
+                    return Node(curr);
                 }
             }
 
             // if we got here all N sub-nodes are occupied so we need to expand
-            return insert(expand(br), key, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
+            return insert(expand(curr), key, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
         }
 
-        Node insert(SBr04* br, in Key key, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(SBr04* curr, in Key key, ChunkIx chunkIx, out bool wasAdded)
         {
             const IxM chunk = bitsChunk(key, chunkIx);
 
             enum N = 4;         // branch-order, number of possible sub-nodes
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             {
-                if (br.subNodes[subIx])   // first is occupied
+                if (curr.subNodes[subIx])   // first is occupied
                 {
-                    if (br.subChunks[subIx] == chunk) // and matches chunk
+                    if (curr.subChunks[subIx] == chunk) // and matches chunk
                     {
-                        br.subNodes[subIx] = insert(br.subNodes[subIx], key, chunkIx + 1, wasAdded);
-                        return Node(br);
+                        curr.subNodes[subIx] = insert(curr.subNodes[subIx], key, chunkIx + 1, wasAdded);
+                        return Node(curr);
                     }
                 }
                 else            // use first free sub
                 {
-                    br.subNodes[subIx] = insert(constructSub(chunkIx + 1), key, chunkIx + 1, wasAdded); // use it
-                    br.subChunks[subIx] = chunk;
-                    return Node(br);
+                    curr.subNodes[subIx] = insert(constructSub(chunkIx + 1), key, chunkIx + 1, wasAdded); // use it
+                    curr.subChunks[subIx] = chunk;
+                    return Node(curr);
                 }
             }
 
             // if we got here all N sub-nodes are occupied so we need to expand
-            return insert(expand(br), key, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
+            return insert(expand(curr), key, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
         }
 
         Node insert(SBr16* curr, in Key key, ChunkIx chunkIx, out bool wasAdded)
@@ -632,42 +632,42 @@ struct RadixTree(Key,
                     Node(construct!DefaultBranchType));
         }
 
-        /** Destructively expand `sbr02` into a `BrM` and return it. */
-        BrM* expand(SBr02* sbr02) @trusted
+        /** Destructively expand `curr` into a `BrM` and return it. */
+        BrM* expand(SBr02* curr) @trusted
         {
             enum N = 2;         // branch-order, number of possible sub-nodes
             auto brM = construct!(typeof(return));
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             {
-                brM.atSubNode(sbr02.atSubChunk(subIx)) = sbr02.subNodes[subIx];
+                brM.atSubNode(curr.atSubChunk(subIx)) = curr.subNodes[subIx];
             }
-            freeNode(sbr02);
+            freeNode(curr);
             return brM;
         }
 
-        /** Destructively expand `sbr04` into a `BrM` and return it. */
-        BrM* expand(SBr04* sbr04) @trusted
+        /** Destructively expand `curr` into a `BrM` and return it. */
+        BrM* expand(SBr04* curr) @trusted
         {
             enum N = 4;         // branch-order, number of possible sub-nodes
             auto brM = construct!(typeof(return));
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             {
-                brM.atSubNode(sbr04.atSubChunk(subIx)) = sbr04.subNodes[subIx];
+                brM.atSubNode(curr.atSubChunk(subIx)) = curr.subNodes[subIx];
             }
-            freeNode(sbr04);
+            freeNode(curr);
             return brM;
         }
 
         /** Destructively expand `sbr04` into a `BrM` and return it. */
-        BrM* expand(SBr16* sbr16) @trusted
+        BrM* expand(SBr16* curr) @trusted
         {
             enum N = 16;         // branch-order, number of possible sub-nodes
             auto brM = construct!(typeof(return));
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             {
-                brM.atSubNode(sbr16.atSubChunk(subIx)) = sbr16.subNodes[subIx];
+                brM.atSubNode(curr.atSubChunk(subIx)) = curr.subNodes[subIx];
             }
-            freeNode(sbr16);
+            freeNode(curr);
             return brM;
         }
 

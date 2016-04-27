@@ -116,9 +116,30 @@ struct RadixTree(Key,
     }
     else static if (size_t.sizeof == 8)
     {
-        static if (radix == 4) { struct PLfs { enum maxLength = 6; IxM[maxLength] ixMs; ubyte length; ubyte _ignored; } } // TODO pack 14 IxM
-        static if (radix == 8) { struct PLfs { enum maxLength = 6; IxM[maxLength] ixMs; ubyte length; ubyte _ignored; } } // TODO handle radix != 8
-        static if (isMap && is(Value == bool)) { /* TODO pack bit efficiently */ }
+        static if (radix == 4)
+        {
+            struct PLfs
+            {
+                enum maxLength = 6;
+                IxM[maxLength] ixMs; // TODO pack 14 `IxM` through a range interface
+                ubyte length;
+                ubyte _ignored;
+            }
+        }
+        else static if (radix == 8)
+        {
+            struct PLfs
+            {
+                enum maxLength = 6;
+                IxM[maxLength] ixMs;
+                ubyte length;
+                ubyte _ignored; // TODO handle radix != 8
+            }
+        }
+        static if (isMap && is(Value == bool))
+        {
+            /* TODO pack bit efficiently */
+        }
     }
 
     // TODO make these CT-params (requires putting branch definitions in same scope as `RadixTree`)

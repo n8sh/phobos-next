@@ -95,7 +95,7 @@ struct WordVariant(Types...)
     alias S = size_t; // TODO templatize?
 
     // mixin(makeEnumDefinitionString!(`Ix`, `index`, ``, true, Types));
-    // pragma(msg, Ix);
+    // static assert(Ix.undefined == 0);
 
     enum typeBits = bitsNeeeded!(Types.length); // number of bits needed to represent variant type
     enum typeShift = 8*S.sizeof - typeBits;
@@ -140,12 +140,15 @@ struct WordVariant(Types...)
     /// ditto
     auto opAssign(typeof(null) that) { _raw = S.init; return this; }
 
-    /** Reference. */
+pragma(inline):
+
+    /** Reference to peek of type `T`. */
     static private struct Ref(T)
     {
         S _raw;
         const bool defined;
-        bool opCast(T : bool)() const @safe { return defined; }
+        pragma(inline):
+        bool opCast(T : bool)() const { return defined; }
         T opUnary(string op : `*`)() @trusted inout { return cast(T)(_raw & ~typeMask); }
     }
 
@@ -336,9 +339,9 @@ struct VariantPointerTo(Types...)
         return x && x == that; // and is equal to it
     }
 
-    bool isNull() const @safe { return ptr is null; }
+    bool isNull() const { return ptr is null; }
 
-    bool opCast(T : bool)() const @safe { return ptr !is null; }
+    bool opCast(T : bool)() const { return ptr !is null; }
 
     private void init(T)(T* that)
     in

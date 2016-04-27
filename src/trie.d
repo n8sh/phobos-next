@@ -55,7 +55,7 @@ enum isTrieableKeyType(T) = (isFixedTrieableKeyType!T ||
                              (isInputRange!T &&
                               isFixedTrieableKeyType!(ElementType!T)));
 
-extern(C) pure nothrow @system @nogc
+extern(C) pure nothrow @system /* TODO @nogc */
 {
     void* malloc(size_t size);
     void* calloc(size_t nmemb, size_t size);
@@ -125,6 +125,11 @@ struct RadixTree(Key,
         static if (isMap && is(Value == bool)) { /* TODO pack bit efficiently */ }
     }
 
+    // TODO make these CT-params (requires putting branch definitions in same scope as `RadixTree`)
+    alias DefaultRootType = SBr02*;
+    alias DefaultBranchType = SBr02*;
+    alias DefaultLeafType = LfM*; // PLfs; // TODO use either LfM* or PLfs instead
+
     static assert(PLfs.sizeof == size_t.sizeof); // assert that it's size matches platform word-size
 
     /** Indicate that all leaves in this branch are set (denseness compression) */
@@ -136,11 +141,6 @@ struct RadixTree(Key,
                                 SBr02*, SBr04*, SBr16*, // sparse branching nodes
                                 BrM*,                   // dense branching nodes
                                 LfM*);                  // dense leaves-nodes
-
-    // TODO make these CT-params (requires putting branch definitions in same scope as `RadixTree`)
-    alias DefaultRootType = SBr02;
-    alias DefaultBranchType = SBr02;
-    alias DefaultLeafType = LfM; // TODO PLfs instead
 
     enum showSizes = false;
     static if (showSizes)
@@ -169,7 +169,7 @@ struct RadixTree(Key,
     /** Tree Leaf Iterator. */
     struct It
     {
-        bool opCast(T : bool)() const @safe pure nothrow @nogc { return cast(bool)node; }
+        bool opCast(T : bool)() const @safe pure nothrow /* TODO @nogc */ { return cast(bool)node; }
         Node node;              // current leaf-`Node`. TODO use `Lf` type instead?
         IxM ixM;                // index to sub at `node`
     }
@@ -180,7 +180,7 @@ struct RadixTree(Key,
         /* this save 8 bytes and makes this struct 16 bytes instead of 24 bytes
            compared using a member It instead of Node and IxM */
         auto it() { return It(node, ixM); }
-        bool opCast(T : bool)() const @safe pure nothrow @nogc { return hit; }
+        bool opCast(T : bool)() const @safe pure nothrow /* TODO @nogc */ { return hit; }
         Node node;
         IxM ixM;
         bool hit;
@@ -247,7 +247,7 @@ struct RadixTree(Key,
         pragma(inline) auto ref opIndex(IxM i) { return atSubNode(i); }
 
         /** Append statistics of tree under `this` into `stats`. */
-        void calculate(ref Stats stats) @safe pure nothrow @nogc const
+        void calculate(ref Stats stats) @safe pure nothrow /* TODO @nogc */ const
         {
             size_t nnzSubCount = 0; // number of non-zero sub-nodes
             foreach (sub; subNodes[].filter!(sub => sub))
@@ -446,7 +446,7 @@ struct RadixTree(Key,
         return chunk;
     }
 
-    @safe pure nothrow @nogc
+    @safe pure nothrow /* TODO @nogc */
     {
         /** Insert `key`.
             Recursive implementation of insert.
@@ -609,8 +609,8 @@ struct RadixTree(Key,
         }
         body
         {
-            // dln(curr);
-            // assert(false);
+            dln(curr);
+            assert(false);
             return Node(curr);
         }
 
@@ -625,7 +625,7 @@ struct RadixTree(Key,
         BrM* expand(SBr02* sbr02) @trusted
         {
             enum N = 2;         // branch-order, number of possible sub-nodes
-            auto brM = construct!BrM;
+            auto brM = construct!(typeof(return));
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             {
                 brM.atSubNode(sbr02.atSubChunk(subIx)) = sbr02.subNodes[subIx];
@@ -638,7 +638,7 @@ struct RadixTree(Key,
         BrM* expand(SBr04* sbr04) @trusted
         {
             enum N = 4;         // branch-order, number of possible sub-nodes
-            auto brM = construct!BrM;
+            auto brM = construct!(typeof(return));
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             {
                 brM.atSubNode(sbr04.atSubChunk(subIx)) = sbr04.subNodes[subIx];
@@ -651,7 +651,7 @@ struct RadixTree(Key,
         BrM* expand(SBr16* sbr16) @trusted
         {
             enum N = 16;         // branch-order, number of possible sub-nodes
-            auto brM = construct!BrM;
+            auto brM = construct!(typeof(return));
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             {
                 brM.atSubNode(sbr16.atSubChunk(subIx)) = sbr16.subNodes[subIx];
@@ -694,24 +694,32 @@ struct RadixTree(Key,
     }
 
     /** Returns: `true` iff tree is empty (no elements stored). */
-    bool empty() const @safe pure nothrow @nogc { return !_root; }
+    bool empty() const @safe pure nothrow /* TODO @nogc */ { return !_root; }
 
     /** Returns: number of elements store. */
-    size_t length() const @safe pure nothrow @nogc { return _length; }
+    size_t length() const @safe pure nothrow /* TODO @nogc */ { return _length; }
 
     private:
 
     /** Allocate `Node`-type of value type `U`. */
-    U* construct(U)() @trusted
+    auto construct(U)() @trusted
     {
-        import std.conv : emplace;
-        U* node = emplace!U(cast(U*)malloc(U.sizeof));
-        // TODO ensure alignment of node at least that of U.alignof
-        debug ++_nodeCount;
-        return node;
+        import std.traits : isPointer;
+        static if (isPointer!U)
+        {
+            import std.conv : emplace;
+            auto node = emplace(cast(U)malloc((*U.init).sizeof));
+            // TODO ensure alignment of node at least that of U.alignof
+            debug ++_nodeCount;
+            return node;
+        }
+        else
+        {
+            return Node(U.init);
+        }
     }
 
-    @safe pure nothrow @nogc
+    @safe pure nothrow /* TODO @nogc */
     {
         void release(BrM* curr)
         {
@@ -786,7 +794,7 @@ struct RadixTree(Key,
     }
 
     /// Returns: number of nodes used in `this` tree.
-    pragma(inline) debug size_t nodeCount() @safe pure nothrow @nogc { return _nodeCount; }
+    pragma(inline) debug size_t nodeCount() @safe pure nothrow /* TODO @nogc */ { return _nodeCount; }
 
     private Node _root;
     size_t _length = 0;
@@ -799,7 +807,7 @@ alias CompactPrefixTree = RadixTree;
 /** Append statistics of tree under `Node` `sub.` into `stats`. */
 static private void calculate(Key, Value, size_t radix)(RadixTree!(Key, Value, radix).Node sub,
                                                         ref RadixTree!(Key, Value, radix).Stats stats)
-    @safe pure nothrow @nogc
+    @safe pure nothrow /* TODO @nogc */
     if (allSatisfy!(isTrieableKeyType, Key))
 {
     alias RT = RadixTree!(Key, Value, radix);
@@ -954,7 +962,7 @@ void benchmark(size_t radix)()
     }
 }
 
-@safe pure nothrow @nogc
+@safe pure nothrow /* TODO @nogc */
 unittest
 {
     check!(4, uint, ulong);

@@ -30,8 +30,6 @@
 
     TODO Extend bitop_ex.d with {set,get}{Bit,Qit,Bytes} and reuse
 
-    TODO RadixTree: Assigning a void pointer to a class
-
     TODO Should opBinaryRight return void* instead of bool for set-case?
  */
 module trie;
@@ -950,17 +948,17 @@ void benchmark(size_t radix)()
     }
 }
 
-version(benchmark) unittest
-{
-    benchmark!8;
-    benchmark!4;
-}
-
 @safe pure nothrow @nogc
 unittest
 {
     check!(4, uint, ulong);
     check!(8, uint, ulong);
+}
+
+version(benchmark) unittest
+{
+    benchmark!8;
+    benchmark!4;
 }
 
 /** Static Iota.

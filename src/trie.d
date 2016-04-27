@@ -76,9 +76,9 @@ struct RadixTree(Key,
     if (allSatisfy!(isTrieableKeyType, Key))
 {
     // TODO make these CT-params (requires putting branch definitions in same scope as `RadixTree`)
-    alias DefaultRootNodeType = SBr02;
-    alias DefaultSubBranchNodeType = SBr02;
-    alias DefaultSubLeafNodeType = LfM; // TODO PLfs instead
+    alias DefaultRootType = SBr02;
+    alias DefaultBranchType = SBr02;
+    alias DefaultLeafType = LfM; // TODO PLfs instead
 
     import std.algorithm : filter;
     import std.meta : AliasSeq, staticMap;
@@ -609,14 +609,16 @@ struct RadixTree(Key,
         }
         body
         {
+            // dln(curr);
+            // assert(false);
             return Node(curr);
         }
 
         Node constructSub(ChunkIx chunkIx)
         {
             return (chunkIx + 1 == maxDepth ? // is last
-                    Node(construct!DefaultSubLeafNodeType) :
-                    Node(construct!DefaultSubBranchNodeType));
+                    Node(construct!DefaultLeafType) :
+                    Node(construct!DefaultBranchType));
         }
 
         /** Destructively expand `sbr02` into a `BrM` and return it. */
@@ -778,7 +780,7 @@ struct RadixTree(Key,
     }
 
     /** Ensure that root `Node` is allocated. */
-    void ensureRootNode(U = DefaultRootNodeType)()
+    void ensureRootNode(U = DefaultRootType)()
     {
         if (!_root) { _root = construct!U; }
     }

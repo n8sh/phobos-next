@@ -606,7 +606,6 @@ struct RadixTree(Key,
         {
             const IxM chunk = bitsChunk(key, chunkIx);
 
-            // TODO if chunk can be found in curr.ixMs[0 .. curr.length]
             import std.algorithm.searching : canFind;
             if (curr.ixMs[0 .. curr.length].canFind(chunk)) // if already stored
             {

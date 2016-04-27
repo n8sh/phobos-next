@@ -468,11 +468,11 @@ struct RadixTree(Key,
                 case undefined: break;
                 case ix_PLfs: auto curr_ = curr.as!PLfs; break;
                 case ix_All1: auto curr_ = curr.as!All1; break;
-                case ix_SBr02Ptr:  return insert(curr.as!(SBr02*), key, chunkIx, wasAdded);
-                case ix_SBr04Ptr:  return insert(curr.as!(SBr04*), key, chunkIx, wasAdded);
-                case ix_SBr16Ptr:  return insert(curr.as!(SBr16*), key, chunkIx, wasAdded);
-                case ix_BrMPtr:    return insert(curr.as!(BrM*), key, chunkIx, wasAdded);
-                case ix_LfMPtr:    return insert(curr.as!(LfM*), key, chunkIx, wasAdded);
+                case ix_SBr02Ptr: return insert(curr.as!(SBr02*), key, chunkIx, wasAdded);
+                case ix_SBr04Ptr: return insert(curr.as!(SBr04*), key, chunkIx, wasAdded);
+                case ix_SBr16Ptr: return insert(curr.as!(SBr16*), key, chunkIx, wasAdded);
+                case ix_BrMPtr:   return insert(curr.as!(BrM*), key, chunkIx, wasAdded);
+                case ix_LfMPtr:   return insert(curr.as!(LfM*), key, chunkIx, wasAdded);
                 }
                 assert(false);
             }
@@ -754,11 +754,11 @@ struct RadixTree(Key,
                 case undefined: break;
                 case ix_PLfs: break;
                 case ix_All1: break;
-                case ix_SBr02Ptr:  return release(curr.as!(SBr02*));
-                case ix_SBr04Ptr:  return release(curr.as!(SBr04*));
-                case ix_SBr16Ptr:  return release(curr.as!(SBr16*));
-                case ix_BrMPtr:    return release(curr.as!(BrM*));
-                case ix_LfMPtr:    return release(curr.as!(LfM*));
+                case ix_SBr02Ptr: return release(curr.as!(SBr02*));
+                case ix_SBr04Ptr: return release(curr.as!(SBr04*));
+                case ix_SBr16Ptr: return release(curr.as!(SBr16*));
+                case ix_BrMPtr:   return release(curr.as!(BrM*));
+                case ix_LfMPtr:   return release(curr.as!(LfM*));
                 }
             }
         }

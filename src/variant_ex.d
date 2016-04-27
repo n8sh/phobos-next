@@ -25,10 +25,13 @@ import std.meta : staticIndexOf;
     Suitable for use in tree-data containers, such as radix trees (tries), where
     hybrid value (sparsely packed sub-tree) and pointer (to dense sub-tree)
     packing of sub-nodes is needed.
+
+    TODO assert that each type in `Types` is either a pointer or has size <=
+    8*size_t.sizeof - typeBits
  */
 struct WordVariant(Types...)
 {
-    // TODO assert that each Type in Types is either a pointer or has size equal to 7
+
     import traits_ex : allSame, sizesOf;
 
     enum typeSizes = sizesOf!Types;
@@ -59,7 +62,7 @@ struct WordVariant(Types...)
 
     pure:
 
-    extern (D) S toHash() const nothrow
+    extern (D) auto toHash() const nothrow
     {
         import core.internal.hash : hashOf;
         return _raw.hashOf;
@@ -249,7 +252,7 @@ struct VariantPointerTo(Types...)
 
     pure:
 
-    extern (D) S toHash() const nothrow
+    extern (D) auto toHash() const nothrow
     {
         import core.internal.hash : hashOf;
         return _raw.hashOf;

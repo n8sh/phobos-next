@@ -94,8 +94,8 @@ struct WordVariant(Types...)
 
     alias S = size_t; // TODO templatize?
 
-    // mixin(makeEnumDefinitionString!(`Ix`, `index`, ``, true, Types));
-    // static assert(Ix.undefined == 0);
+    mixin(makeEnumDefinitionString!(`Ix`, `index`, ``, true, Types));
+    static assert(Ix.undefined == 0);
 
     enum typeBits = bitsNeeeded!(Types.length); // number of bits needed to represent variant type
     enum typeShift = 8*S.sizeof - typeBits;

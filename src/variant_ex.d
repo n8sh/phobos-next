@@ -77,52 +77,40 @@ struct WordVariant(Types...)
 
     pure nothrow @nogc:
 
-    this(T)(T value) if (allows!T)
-    {
-        init(value);
-    }
+    /// Construction from `value`.
+    this(T)(T value) if (allows!T) { init(value); }
+    /// ditto
+    this(typeof(null) value) { _raw = S.init; }
 
-    this(typeof(null) value)
-    {
-        _raw = S.init;
-    }
-
-    auto opAssign(T)(T that) if (allows!T)
-    {
-        init(that);
-        return this;
-    }
-
-    auto opAssign(typeof(null) that)
-    {
-        _raw = S.init;
-        return this;
-    }
+    /// Assignment from `that`.
+    auto opAssign(T)(T that) if (allows!T) { init(that); return this; }
+    /// ditto
+    auto opAssign(typeof(null) that) { _raw = S.init; return this; }
 
     /** Reference. */
     static private struct Ref(T)
     {
         S _raw;
         const bool defined;
-        bool opCast(T : bool)() const @safe pure nothrow @nogc { return defined; }
+        bool opCast(T : bool)() const @safe pure nothrow { return defined; }
         T opUnary(string op : "*")() @trusted inout { return cast(T)(_raw & ~typeMask); }
     }
 
-    @property inout(Ref!T) peek(T)() inout @trusted @nogc nothrow if (allows!T)
+    @property inout(Ref!T) peek(T)() inout @trusted nothrow if (allows!T)
     {
         if (!isOfType!T) { return typeof(return).init; }
         return typeof(return)(_raw, true);
     }
 
-    bool opEquals(T)(T that) const @trusted nothrow @nogc
+    bool opEquals(T)(T that) const @trusted nothrow
     {
         auto x = peek!T; // if `this` contains pointer of to instance of type `T`
         return x && *x == that; // and is equal to it
     }
 
-    bool isNull() const @safe pure nothrow @nogc { return _raw == 0; }
+    bool isNull() const @safe pure nothrow { return _raw == 0; }
 
-    bool opCast(T : bool)() const @safe pure nothrow @nogc { return !isNull; }
+    bool opCast(T : bool)() const @safe pure nothrow { return !isNull; }
 
     private void init(T)(T that)
     in
@@ -136,12 +124,12 @@ struct WordVariant(Types...)
     }
 
     /** Get zero-offset index of current variant type. */
-    private auto currentIndex() const @safe pure nothrow @nogc
+    private auto currentIndex() const @safe pure nothrow
     {
         return ((_raw & typeMask) >> typeShift);
     }
 
-    private bool isOfType(T)() @safe const nothrow @nogc if (allows!T)
+    private bool isOfType(T)() @safe const nothrow if (allows!T)
     {
         return !isNull && currentIndex == indexOf!T + 1;
     }
@@ -277,46 +265,34 @@ struct VariantPointer(Types...)
 
     pure nothrow @nogc:
 
-    this(T)(T* value) if (allows!T)
-    {
-        init(value);
-    }
+    /// Construction from `value`.
+    this(T)(T* value) if (allows!T) { init(value); }
+    /// ditto
+    auto opAssign(T)(T* that) if (allows!T) { init(that); return this; }
 
-    auto opAssign(T)(T* that) if (allows!T)
-    {
-        init(that);
-        return this;
-    }
+    /// Assignment from `that`.
+    this(typeof(null) value) { /* null is the default */ }
+    /// ditto
+    auto opAssign(typeof(null) that) { _raw = S.init; return this; }
 
-    this(typeof(null) value)
-    {
-        // null is the default
-    }
+    @property inout(void)* ptr() inout @trusted nothrow { return cast(void*)(_raw & ~typeMask); }
 
-    auto opAssign(typeof(null) that)
-    {
-        _raw = 0;
-        return this;
-    }
-
-    @property inout(void)* ptr() inout @trusted @nogc nothrow { return cast(void*)(_raw & ~typeMask); }
-
-    @property inout(T)* peek(T)() inout @trusted @nogc nothrow if (allows!T)
+    @property inout(T)* peek(T)() inout @trusted nothrow if (allows!T)
     {
         static if (is(T == void)) static assert(allows!T, "Cannot store a " ~ T.stringof ~ " in a " ~ name);
         if (!isOfType!T) { return null; }
         return cast(inout T*)ptr;
     }
 
-    bool opEquals(T)(T* that) const @trusted nothrow @nogc
+    bool opEquals(T)(T* that) const @trusted nothrow
     {
         auto x = peek!T; // if `this` contains pointer of to instance of type `T`
         return x && x == that; // and is equal to it
     }
 
-    bool isNull() const @safe pure nothrow @nogc { return ptr is null; }
+    bool isNull() const @safe pure nothrow { return ptr is null; }
 
-    bool opCast(T : bool)() const @safe pure nothrow @nogc { return ptr !is null; }
+    bool opCast(T : bool)() const @safe pure nothrow { return ptr !is null; }
 
     private void init(T)(T* that)
     in
@@ -330,12 +306,12 @@ struct VariantPointer(Types...)
     }
 
     /** Get zero-offset index of current variant type. */
-    private auto currentIndex() const @safe pure nothrow @nogc
+    private auto currentIndex() const @safe pure nothrow
     {
         return (_raw & typeMask) >> typeShift;
     }
 
-    private bool isOfType(T)() @safe const nothrow @nogc if (allows!T)
+    private bool isOfType(T)() @safe const nothrow if (allows!T)
     {
         return currentIndex == indexOf!T;
     }

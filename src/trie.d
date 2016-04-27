@@ -133,9 +133,10 @@ struct RadixTree(Key,
                 enum maxLength = 6;
                 IxM[maxLength] ixMs;
                 ubyte length;
-                ubyte _ignored; // TODO handle radix != 8
+                ubyte _ignored;
             }
         }
+        // TODO handle radix != 8
         static if (isMap && is(Value == bool))
         {
             /* TODO pack bit efficiently */

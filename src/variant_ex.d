@@ -185,6 +185,11 @@ pragma(inline):
     }
 
     inout(T) as(T)() inout @trusted if (canStore!T)
+    in
+    {
+        assert(isOfType!T);
+    }
+    body
     {
         inout x = rawValue;
         return *(cast(typeof(return)*)(cast(void*)&x)); // reinterpret

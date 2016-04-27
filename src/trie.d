@@ -75,11 +75,6 @@ struct RadixTree(Key,
                  size_t radix = 4) // radix in number of bits, typically either 1, 2, 4 or 8
     if (allSatisfy!(isTrieableKeyType, Key))
 {
-    // TODO make these CT-params (requires putting branch definitions in same scope as `RadixTree`)
-    alias DefaultRootType = SBr02;
-    alias DefaultBranchType = SBr02;
-    alias DefaultLeafType = LfM; // TODO PLfs instead
-
     import std.algorithm : filter;
     import std.meta : AliasSeq, staticMap;
     import std.typecons : ConstOf;
@@ -141,6 +136,11 @@ struct RadixTree(Key,
                                 SBr02*, SBr04*, SBr16*, // sparse branching nodes
                                 BrM*,                   // dense branching nodes
                                 LfM*);                  // dense leaves-nodes
+
+    // TODO make these CT-params (requires putting branch definitions in same scope as `RadixTree`)
+    alias DefaultRootType = SBr02;
+    alias DefaultBranchType = SBr02;
+    alias DefaultLeafType = LfM; // TODO PLfs instead
 
     enum showSizes = false;
     static if (showSizes)

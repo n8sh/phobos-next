@@ -678,6 +678,7 @@ struct RadixTree(Key,
             auto next = construct!(typeof(return));
             foreach (const ixM; curr.ixMs[0 .. curr.length])
             {
+                assert(!next.keyLSBits[ixM]); // assert no duplicates in ixMs
                 next.keyLSBits[ixM] = true;
             }
             return next;

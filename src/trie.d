@@ -610,7 +610,7 @@ struct RadixTree(Key,
             import std.algorithm.searching : canFind;
             if (curr.ixMs[0 .. curr.length].canFind(chunk)) // if already stored
             {
-                return Node(curr); // just return as is
+                return Node(curr); // already there, so return current node as is
             }
             else if (curr.length < curr.maxLength) // if there's room left in curr
             {
@@ -619,7 +619,7 @@ struct RadixTree(Key,
                 // TODO curr.ixMs[0 .. length].networkSort;
                 // TODO curr.ixMs[0 .. length].sort;
                 wasAdded = true;
-                return Node(curr);
+                return Node(curr); // current node still ok
             }
             else
             {

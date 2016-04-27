@@ -179,10 +179,15 @@ pragma(inline):
                 (cast(S)(indexOf!T + 1) << typeShift)); // use higher bits for type information
     }
 
-    /** Get zero-offset index of current variant type. */
-    private auto currentIndex() const
+    private bool isOfType(T)() const if (canStore!T)
     {
-        return ((_raw & typeMask) >> typeShift);
+        return !isNull && currentIndex == indexOf!T + 1;
+    }
+
+    auto ref as(T)() const @trusted if (canStore!T)
+    {
+        return cast(T)rawValue; // reinterpret
+        // TODO: why doesn't this work: return *(cast(T*)(cast(void*)rawValue)); // reinterpret
     }
 
     /** Get zero-offset index as `Ix` of current variant type. */
@@ -191,10 +196,13 @@ pragma(inline):
         return cast(typeof(return))currentIndex;
     }
 
-    private bool isOfType(T)() const if (canStore!T)
+    /** Get zero-offset index of current variant type. */
+    private auto currentIndex() const
     {
-        return !isNull && currentIndex == indexOf!T + 1;
+        return ((_raw & typeMask) >> typeShift);
     }
+
+    private S rawValue() const { return _raw & ~typeMask; }
 
     private S _raw;             // raw untyped word
 
@@ -246,6 +254,7 @@ pure nothrow unittest
             {
                 assert(vp.peek!Up);
                 assert(*(vp.peek!Up) == &a);
+                assert(vp.as!Up == &a);
             }
             else
             {

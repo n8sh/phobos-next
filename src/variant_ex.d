@@ -33,10 +33,15 @@ template bitsNeeeded(size_t length)
     else                           { static assert(false, "Too large length"); }
 }
 
+/** Returns: a `string` containing the definition of an `enum` named `name` and
+    with enumerator names given by `Es`, optionally prepended with `prefix` and
+    appended with `suffix`.
+*/
 string makeEnumDefinitionString(string name,
                                 string prefix = `_`,
                                 string suffix = ``,
                                 Es...)()
+    if (Es.length >= 1)
 {
     typeof(return) s = `enum ` ~ name ~ ` { `;
     foreach (E; Es)

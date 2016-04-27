@@ -465,9 +465,9 @@ struct RadixTree(Key,
             {
                 final switch (curr.typeIx)
                 {
-                case undefined:    break;
+                case undefined: break;
                 case ix_PLfs: auto curr_ = curr.as!PLfs; break;
-                case ix_All1:    auto curr_ = curr.as!All1; break;
+                case ix_All1: auto curr_ = curr.as!All1; break;
                 case ix_SBr02Ptr:  return insert(curr.as!(SBr02*), key, chunkIx, wasAdded);
                 case ix_SBr04Ptr:  return insert(curr.as!(SBr04*), key, chunkIx, wasAdded);
                 case ix_SBr16Ptr:  return insert(curr.as!(SBr16*), key, chunkIx, wasAdded);
@@ -751,9 +751,9 @@ struct RadixTree(Key,
             {
                 final switch (curr.typeIx)
                 {
-                case undefined:    break;
+                case undefined: break;
                 case ix_PLfs: break;
-                case ix_All1:    break;
+                case ix_All1: break;
                 case ix_SBr02Ptr:  return release(curr.as!(SBr02*));
                 case ix_SBr04Ptr:  return release(curr.as!(SBr04*));
                 case ix_SBr16Ptr:  return release(curr.as!(SBr16*));
@@ -799,9 +799,9 @@ static private void calculate(Key, Value, size_t radix)(RadixTree!(Key, Value, r
     {
         final switch (sub.typeIx)
         {
-        case undefined:    break;
+        case undefined: break;
         case ix_PLfs: break;
-        case ix_All1:    break;
+        case ix_All1: break;
         case ix_SBr02Ptr:  sub.as!(RT.SBr02*).calculate(stats); break;
         case ix_SBr04Ptr:  sub.as!(RT.SBr04*).calculate(stats); break;
         case ix_SBr16Ptr:  sub.as!(RT.SBr16*).calculate(stats); break;

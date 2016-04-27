@@ -168,7 +168,7 @@ struct RadixTree(Key,
     /** Mutable node. */
     alias Node = WordVariant!(NodeTypes);
     /** Constant node. */
-    alias ConstNodePtr = WordVariant!(staticMap!(ConstOf, NodeTypes));
+    // alias ConstNodePtr = WordVariant!(staticMap!(ConstOf, NodeTypes));
 
     static assert(radix <= 8*IxM.sizeof, "Need more precision in IxM");
 

@@ -20,6 +20,19 @@ module variant_ex;
 
 import std.meta : staticIndexOf;
 
+template bitsNeeeded(size_t length)
+{
+    static      if (length <= 2)   { enum bitsNeeeded = 1; }
+    else static if (length <= 4)   { enum bitsNeeeded = 2; }
+    else static if (length <= 8)   { enum bitsNeeeded = 3; }
+    else static if (length <= 16)  { enum bitsNeeeded = 4; }
+    else static if (length <= 32)  { enum bitsNeeeded = 5; }
+    else static if (length <= 64)  { enum bitsNeeeded = 6; }
+    else static if (length <= 128) { enum bitsNeeeded = 7; }
+    else static if (length <= 256) { enum bitsNeeeded = 8; }
+    else                           { static assert(false, "Too large length"); }
+}
+
 /** A variant of `Types` packed into a word (`size_t`).
 
     Suitable for use in tree-data containers, such as radix trees (tries), where
@@ -41,17 +54,7 @@ struct WordVariant(Types...)
 
     alias S = size_t; // TODO templatize?
 
-    /// Number of bits used to represent value type pointed to.
-    static      if (Types.length <= 2)   { enum typeBits = 1; }
-    else static if (Types.length <= 4)   { enum typeBits = 2; }
-    else static if (Types.length <= 8)   { enum typeBits = 3; }
-    else static if (Types.length <= 16)  { enum typeBits = 4; }
-    else static if (Types.length <= 32)  { enum typeBits = 5; }
-    else static if (Types.length <= 64)  { enum typeBits = 6; }
-    else static if (Types.length <= 128) { enum typeBits = 7; }
-    else static if (Types.length <= 256) { enum typeBits = 8; }
-    else                                 { static assert(false, "Too many Types"); }
-
+    enum typeBits = bitsNeeeded!(Types.length); // number of bits needed to represent variant type
     enum typeShift = 8*S.sizeof - typeBits;
     enum typeMask = cast(S)(2^^typeBits - 1) << typeShift;
 
@@ -61,12 +64,6 @@ struct WordVariant(Types...)
     enum canStore(T) = indexOf!T >= 0;
 
     pure:
-
-    extern (D) auto toHash() const nothrow
-    {
-        import core.internal.hash : hashOf;
-        return _raw.hashOf;
-    }
 
     @property string toString() const @trusted // TODO pure
     {
@@ -80,7 +77,15 @@ struct WordVariant(Types...)
         }
     }
 
-    nothrow @nogc:
+    nothrow:
+
+    extern (D) auto toHash() const
+    {
+        import core.internal.hash : hashOf;
+        return _raw.hashOf;
+    }
+
+    @nogc:
 
     /// Construction from `value`.
     this(T)(T value) if (canStore!T) { init(value); }
@@ -97,25 +102,25 @@ struct WordVariant(Types...)
     {
         S _raw;
         const bool defined;
-        bool opCast(T : bool)() const @safe pure nothrow { return defined; }
+        bool opCast(T : bool)() const @safe { return defined; }
         T opUnary(string op : "*")() @trusted inout { return cast(T)(_raw & ~typeMask); }
     }
 
-    @property inout(Ref!T) peek(T)() inout @trusted nothrow if (canStore!T)
+    @property inout(Ref!T) peek(T)() inout @trusted if (canStore!T)
     {
         if (!isOfType!T) { return typeof(return).init; }
         return typeof(return)(_raw, true);
     }
 
-    bool opEquals(T)(T that) const @trusted nothrow
+    bool opEquals(T)(T that) const @trusted
     {
         auto x = peek!T; // if `this` contains pointer of to instance of type `T`
         return x && *x == that; // and is equal to it
     }
 
-    bool isNull() const @safe pure nothrow { return _raw == 0; }
+    bool isNull() const { return _raw == 0; }
 
-    bool opCast(T : bool)() const @safe pure nothrow { return !isNull; }
+    bool opCast(T : bool)() const { return !isNull; }
 
     private void init(T)(T that)
     in
@@ -129,12 +134,12 @@ struct WordVariant(Types...)
     }
 
     /** Get zero-offset index of current variant type. */
-    private auto currentIndex() const @safe pure nothrow
+    private auto currentIndex() const
     {
         return ((_raw & typeMask) >> typeShift);
     }
 
-    private bool isOfType(T)() @safe const nothrow if (canStore!T)
+    private bool isOfType(T)() const if (canStore!T)
     {
         return !isNull && currentIndex == indexOf!T + 1;
     }
@@ -231,17 +236,7 @@ struct VariantPointerTo(Types...)
 
     alias S = size_t; // TODO templatize?
 
-    /// Number of bits used to represent value type pointed to.
-    static      if (Types.length <= 2)   { enum typeBits = 1; }
-    else static if (Types.length <= 4)   { enum typeBits = 2; }
-    else static if (Types.length <= 8)   { enum typeBits = 3; }
-    else static if (Types.length <= 16)  { enum typeBits = 4; }
-    else static if (Types.length <= 32)  { enum typeBits = 5; }
-    else static if (Types.length <= 64)  { enum typeBits = 6; }
-    else static if (Types.length <= 128) { enum typeBits = 7; }
-    else static if (Types.length <= 256) { enum typeBits = 8; }
-    else                                 { static assert(false, "Too many Types"); }
-
+    enum typeBits = bitsNeeeded!(Types.length); // number of bits needed to represent variant type
     enum typeShift = 8*S.sizeof - typeBits;
     enum typeMask = cast(S)(2^^typeBits - 1) << typeShift;
 
@@ -251,12 +246,6 @@ struct VariantPointerTo(Types...)
     enum canStorePointerTo(T) = indexOf!T >= 0;
 
     pure:
-
-    extern (D) auto toHash() const nothrow
-    {
-        import core.internal.hash : hashOf;
-        return _raw.hashOf;
-    }
 
     @property string toString() const @trusted // TODO pure
     {
@@ -270,7 +259,15 @@ struct VariantPointerTo(Types...)
         }
     }
 
-    nothrow @nogc:
+    nothrow:
+
+    extern (D) auto toHash() const
+    {
+        import core.internal.hash : hashOf;
+        return _raw.hashOf;
+    }
+
+    @nogc:
 
     /// Construction from `value`.
     this(T)(T* value) if (canStorePointerTo!T) { init(value); }
@@ -282,24 +279,24 @@ struct VariantPointerTo(Types...)
     /// ditto
     auto opAssign(typeof(null) that) { _raw = S.init; return this; }
 
-    @property inout(void)* ptr() inout @trusted nothrow { return cast(void*)(_raw & ~typeMask); }
+    @property inout(void)* ptr() inout @trusted { return cast(void*)(_raw & ~typeMask); }
 
-    @property inout(T)* peek(T)() inout @trusted nothrow if (canStorePointerTo!T)
+    @property inout(T)* peek(T)() inout @trusted if (canStorePointerTo!T)
     {
         static if (is(T == void)) static assert(canStorePointerTo!T, "Cannot store a " ~ T.stringof ~ " in a " ~ name);
         if (!pointsTo!T) { return null; }
         return cast(inout T*)ptr;
     }
 
-    bool opEquals(T)(T* that) const @trusted nothrow
+    bool opEquals(T)(T* that) const @trusted
     {
         auto x = peek!T; // if `this` contains pointer of to instance of type `T`
         return x && x == that; // and is equal to it
     }
 
-    bool isNull() const @safe nothrow { return ptr is null; }
+    bool isNull() const @safe { return ptr is null; }
 
-    bool opCast(T : bool)() const @safe nothrow { return ptr !is null; }
+    bool opCast(T : bool)() const @safe { return ptr !is null; }
 
     private void init(T)(T* that)
     in
@@ -313,12 +310,12 @@ struct VariantPointerTo(Types...)
     }
 
     /** Get zero-offset index of current variant type. */
-    private auto currentIndex() const @safe nothrow
+    private auto currentIndex() const
     {
         return (_raw & typeMask) >> typeShift;
     }
 
-    private bool pointsTo(T)() @safe const nothrow if (canStorePointerTo!T)
+    private bool pointsTo(T)() const if (canStorePointerTo!T)
     {
         return currentIndex == indexOf!T;
     }

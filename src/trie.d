@@ -125,11 +125,13 @@ struct RadixTree(Key,
      */
     static      if (size_t.sizeof == 4)
     {
+        static if (radix == 4) { struct PackedLfs { ubyte cnt; IxM[3] ixMs; } } // TODO pack 6 IxM
         static if (radix == 8) { struct PackedLfs { ubyte cnt; IxM[3] ixMs; } } // TODO handle radix != 8
         static if (isMap && is(Value == bool)) { /* TODO pack bit efficiently */ }
     }
     else static if (size_t.sizeof == 8)
     {
+        static if (radix == 4) { struct PackedLfs { ubyte cnt; IxM[7] ixMs; } } // TODO pack 14 IxM
         static if (radix == 8) { struct PackedLfs { ubyte cnt; IxM[7] ixMs; } } // TODO handle radix != 8
         static if (isMap && is(Value == bool)) { /* TODO pack bit efficiently */ }
     }

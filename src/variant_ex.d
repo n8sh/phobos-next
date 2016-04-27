@@ -57,8 +57,8 @@ struct WordVariant(Types...)
 
     enum indexOf(T) = staticIndexOf!(T, Types); // TODO cast to ubyte if Types.length is <= 256
 
-    /// Is `true` iff a `T*` can be stored.
-    enum allowsPointerTo(T) = indexOf!T >= 0;
+    /// Is `true` iff a `T` can be stored.
+    enum canStore(T) = indexOf!T >= 0;
 
     pure:
 
@@ -83,12 +83,12 @@ struct WordVariant(Types...)
     nothrow @nogc:
 
     /// Construction from `value`.
-    this(T)(T value) if (allowsPointerTo!T) { init(value); }
+    this(T)(T value) if (canStore!T) { init(value); }
     /// ditto
     this(typeof(null) value) { _raw = S.init; }
 
     /// Assignment from `that`.
-    auto opAssign(T)(T that) if (allowsPointerTo!T) { init(that); return this; }
+    auto opAssign(T)(T that) if (canStore!T) { init(that); return this; }
     /// ditto
     auto opAssign(typeof(null) that) { _raw = S.init; return this; }
 
@@ -101,7 +101,7 @@ struct WordVariant(Types...)
         T opUnary(string op : "*")() @trusted inout { return cast(T)(_raw & ~typeMask); }
     }
 
-    @property inout(Ref!T) peek(T)() inout @trusted nothrow if (allowsPointerTo!T)
+    @property inout(Ref!T) peek(T)() inout @trusted nothrow if (canStore!T)
     {
         if (!isOfType!T) { return typeof(return).init; }
         return typeof(return)(_raw, true);
@@ -134,7 +134,7 @@ struct WordVariant(Types...)
         return ((_raw & typeMask) >> typeShift);
     }
 
-    private bool isOfType(T)() @safe const nothrow if (allowsPointerTo!T)
+    private bool isOfType(T)() @safe const nothrow if (canStore!T)
     {
         return !isNull && currentIndex == indexOf!T + 1;
     }
@@ -248,7 +248,7 @@ struct VariantPointerTo(Types...)
     enum indexOf(T) = staticIndexOf!(T, Types); // TODO cast to ubyte if Types.length is <= 256
 
     /// Is `true` iff a pointer to a `T` can be stored.
-    enum allowsPointerTo(T) = indexOf!T >= 0;
+    enum canStorePointerTo(T) = indexOf!T >= 0;
 
     pure:
 
@@ -273,9 +273,9 @@ struct VariantPointerTo(Types...)
     nothrow @nogc:
 
     /// Construction from `value`.
-    this(T)(T* value) if (allowsPointerTo!T) { init(value); }
+    this(T)(T* value) if (canStorePointerTo!T) { init(value); }
     /// ditto
-    auto opAssign(T)(T* that) if (allowsPointerTo!T) { init(that); return this; }
+    auto opAssign(T)(T* that) if (canStorePointerTo!T) { init(that); return this; }
 
     /// Assignment from `that`.
     this(typeof(null) value) { /* null is the default */ }
@@ -284,9 +284,9 @@ struct VariantPointerTo(Types...)
 
     @property inout(void)* ptr() inout @trusted nothrow { return cast(void*)(_raw & ~typeMask); }
 
-    @property inout(T)* peek(T)() inout @trusted nothrow if (allowsPointerTo!T)
+    @property inout(T)* peek(T)() inout @trusted nothrow if (canStorePointerTo!T)
     {
-        static if (is(T == void)) static assert(allowsPointerTo!T, "Cannot store a " ~ T.stringof ~ " in a " ~ name);
+        static if (is(T == void)) static assert(canStorePointerTo!T, "Cannot store a " ~ T.stringof ~ " in a " ~ name);
         if (!pointsTo!T) { return null; }
         return cast(inout T*)ptr;
     }
@@ -318,7 +318,7 @@ struct VariantPointerTo(Types...)
         return (_raw & typeMask) >> typeShift;
     }
 
-    private bool pointsTo(T)() @safe const nothrow if (allowsPointerTo!T)
+    private bool pointsTo(T)() @safe const nothrow if (canStorePointerTo!T)
     {
         return currentIndex == indexOf!T;
     }

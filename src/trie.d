@@ -103,8 +103,10 @@ struct RadixTree(Key,
     alias ChunkIx = uint;
 
     /** `R` least significant bits (LSB) of leaves directly packed into a word.
+
         TODO Generalize to packing of more than one `IxM` per byte.
         TODO respect byteorder in `PLfs` to work with `WordVariant`
+        TODO implement and use opSlice instead of .ixMs[]
      */
     static      if (size_t.sizeof == 4)
     {
@@ -604,7 +606,7 @@ struct RadixTree(Key,
         {
             const IxM chunk = bitsChunk(key, chunkIx);
 
-            // TODO if chunk can be found in curr.ixMs[0 .. curr.length] // TODO use opSlice
+            // TODO if chunk can be found in curr.ixMs[0 .. curr.length]
             import std.algorithm.searching : canFind;
             if (curr.ixMs[0 .. curr.length].canFind(chunk)) // if already stored
             {
@@ -674,7 +676,7 @@ struct RadixTree(Key,
         LfM* expand(PLfs curr) @trusted
         {
             auto next = construct!(typeof(return));
-            foreach (const ixM; curr.ixMs[0 .. curr.length]) // TODO use opSlice of curr
+            foreach (const ixM; curr.ixMs[0 .. curr.length])
             {
                 next.keyLSBits[ixM] = true;
             }

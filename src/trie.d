@@ -9,7 +9,7 @@
 
     TODO Use opIndex instead of atSubNode(): x.atSubNode(i) => (*x)[i]
 
-    TODO Need bijectToUnsigned in intsort to support ordered storage of float and double. Move it to bijections.
+    TODO Use `bijectToUnsigned` to support ordered storage of float and double
 
     TODO Add sparse 2^^n-branches for n < radix: 2^^1=B2, 2^^2=B4, 2^^3=B8, B^^4=B16. Use
     sortExactly from sortn.d to order their members.

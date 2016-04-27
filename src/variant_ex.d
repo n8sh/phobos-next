@@ -42,10 +42,15 @@ template bitsNeeeded(size_t length)
 string makeEnumDefinitionString(string name,
                                 string prefix = `_`,
                                 string suffix = ``,
+                                bool firstUndefined = true,
                                 Es...)()
     if (Es.length >= 1)
 {
     typeof(return) s = `enum ` ~ name ~ ` { `;
+    static if (firstUndefined)
+    {
+        s ~= `undefined, `;
+    }
     foreach (E; Es)
     {
         s ~= prefix ~ E.stringof ~ suffix ~ `, `;
@@ -58,8 +63,9 @@ string makeEnumDefinitionString(string name,
 {
     import std.meta : AliasSeq;
     alias Types = AliasSeq!(byte, short);
-    mixin(makeEnumDefinitionString!("Type", `_`, `_`, Types));
+    mixin(makeEnumDefinitionString!("Type", `_`, `_`, true, Types));
     static assert(is(Type == enum));
+    static assert(Type.undefined.stringof == "undefined");
     static assert(Type._byte_.stringof == "_byte_");
     static assert(Type._short_.stringof == "_short_");
 }
@@ -78,6 +84,9 @@ struct WordVariant(Types...)
     static assert(this.sizeof == size_t.sizeof, "Types must all <= size_t.sizeof");
 
     alias S = size_t; // TODO templatize?
+
+    // mixin(makeEnumDefinitionString!("Ix", `index`, ``, true, Types));
+    // pragma(msg, Ix);
 
     enum typeBits = bitsNeeeded!(Types.length); // number of bits needed to represent variant type
     enum typeShift = 8*S.sizeof - typeBits;

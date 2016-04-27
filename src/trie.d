@@ -108,14 +108,14 @@ struct RadixTree(Key,
      */
     static      if (size_t.sizeof == 4)
     {
-        static if (radix == 4) { struct PLfs { IxM[2] ixMs; ubyte length; ubyte _ignored; } } // TODO pack 6 IxM
-        static if (radix == 8) { struct PLfs { IxM[2] ixMs; ubyte length; ubyte _ignored; } } // TODO handle radix != 8
+        static if (radix == 4) { struct PLfs { enum maxLength = 2; IxM[maxLength] ixMs; ubyte length; ubyte _ignored; } } // TODO pack 6 IxM
+        static if (radix == 8) { struct PLfs { enum maxLength = 2; IxM[maxLength] ixMs; ubyte length; ubyte _ignored; } } // TODO handle radix != 8
         static if (isMap && is(Value == bool)) { /* TODO pack bit efficiently */ }
     }
     else static if (size_t.sizeof == 8)
     {
-        static if (radix == 4) { struct PLfs { IxM[6] ixMs; ubyte length; ubyte _ignored; } } // TODO pack 14 IxM
-        static if (radix == 8) { struct PLfs { IxM[6] ixMs; ubyte length; ubyte _ignored; } } // TODO handle radix != 8
+        static if (radix == 4) { struct PLfs { enum maxLength = 6; IxM[maxLength] ixMs; ubyte length; ubyte _ignored; } } // TODO pack 14 IxM
+        static if (radix == 8) { struct PLfs { enum maxLength = 6; IxM[maxLength] ixMs; ubyte length; ubyte _ignored; } } // TODO handle radix != 8
         static if (isMap && is(Value == bool)) { /* TODO pack bit efficiently */ }
     }
 
@@ -603,7 +603,16 @@ struct RadixTree(Key,
         }
         body
         {
+            // import sortn : networkSortUpTo;
             dln(curr);
+            if (curr.length < curr.ixMs.length) // if there's room left in curr
+            {
+                // TODO normal insert
+            }
+            else
+            {
+                // TODO need to expand to LfM
+            }
             assert(false);
             return Node(curr);
         }

@@ -133,6 +133,7 @@ struct RadixTree(Key,
         static if (radix == 8) { struct PackedLfs { ubyte cnt; IxM[7] ixMs; } } // TODO handle radix != 8
         static if (isMap && is(Value == bool)) { /* TODO pack bit efficiently */ }
     }
+
     static assert(PackedLfs.sizeof == size_t.sizeof); // assert that it's size matches platform word-size
 
     /** Indicate that all leaves in this branch are set (denseness compression) */

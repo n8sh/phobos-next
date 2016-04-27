@@ -786,6 +786,11 @@ struct RadixTree(Key,
             freeNode(curr);
         }
 
+        void release(PLfs curr)
+        {
+            freeNode(curr);
+        }
+
         void release(Node curr)
         {
             with (Node.Ix)
@@ -793,7 +798,7 @@ struct RadixTree(Key,
                 final switch (curr.typeIx)
                 {
                 case undefined: break;
-                case ix_PLfs: break;
+                case ix_PLfs:     return release(curr.as!(PLfs));
                 case ix_All1: break;
                 case ix_SBr02Ptr: return release(curr.as!(SBr02*));
                 case ix_SBr04Ptr: return release(curr.as!(SBr04*));

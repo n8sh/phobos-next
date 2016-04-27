@@ -78,6 +78,7 @@ struct RadixTree(Key,
     // TODO make these CT-params (requires putting branch definitions in same scope as `RadixTree`)
     alias DefaultRootNodeType = SBr02;
     alias DefaultSubBranchNodeType = SBr02;
+    alias DefaultSubLeafNodeType = LfM; // TODO PLfs instead
 
     import std.algorithm : filter;
     import std.meta : AliasSeq, staticMap;
@@ -608,7 +609,7 @@ struct RadixTree(Key,
         Node constructSub(ChunkIx chunkIx)
         {
             return (chunkIx + 1 == maxDepth ? // is last
-                    Node(construct!LfM) :
+                    Node(construct!DefaultSubLeafNodeType) :
                     Node(construct!DefaultSubBranchNodeType));
         }
 

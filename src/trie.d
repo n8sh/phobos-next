@@ -123,15 +123,24 @@ struct RadixTree(Key,
     /** `R` least significant bits (LSB) of leaves directly packed into a word.
         TODO Generalize to packing of more than one `IxM` per byte.
      */
-    static      if (size_t.sizeof == 4) { struct PackedLfs { ubyte cnt; IxM[3] ixMs; } }
-    else static if (size_t.sizeof == 8) { struct PackedLfs { ubyte cnt; IxM[7] ixMs; } }
+    static      if (size_t.sizeof == 4)
+    {
+        static if (radix == 8) { struct PackedLfs { ubyte cnt; IxM[3] ixMs; } }
+        static if (isMap && is(Value == bool)) { /* TODO pack bit efficiently */ }
+    }
+    else static if (size_t.sizeof == 8)
+    {
+        static if (radix == 8) { struct PackedLfs { ubyte cnt; IxM[7] ixMs; } }
+        static if (isMap && is(Value == bool)) { /* TODO pack bit efficiently */ }
+    }
     static assert(PackedLfs.sizeof == size_t.sizeof); // assert that it's size matches platform word-size
 
+    /** Indicate that all leaves in this branch are set (denseness compression) */
     struct AllSet {}
 
     /** Node types. */
     alias NodeTypes = AliasSeq!(PackedLfs, // directly packed leaves
-                                AllSet, // indicate that all leaves in this branch are set (denseness compression)
+                                AllSet,    // hinter
                                 SBr02*, SBr04*, SBr16*, // sparse branching nodes
                                 BrM*,                   // dense branching nodes
                                 LfM*);                  // dense leaves-nodes

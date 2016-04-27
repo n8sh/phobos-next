@@ -44,7 +44,6 @@ template bitsNeeeded(size_t length)
  */
 struct WordVariant(Types...)
 {
-
     import traits_ex : allSame, sizesOf;
 
     enum typeSizes = sizesOf!Types;

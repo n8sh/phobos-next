@@ -57,7 +57,9 @@ struct WordVariant(Types...)
     /// Is `true` iff a `T*` can be assigned to `this`.
     enum allows(T) = indexOf!T >= 0;
 
-    extern (D) S toHash() const pure nothrow
+    pure:
+
+    extern (D) S toHash() const nothrow
     {
         import core.internal.hash : hashOf;
         return _raw.hashOf;
@@ -75,7 +77,7 @@ struct WordVariant(Types...)
         }
     }
 
-    pure nothrow @nogc:
+    nothrow @nogc:
 
     /// Construction from `value`.
     this(T)(T value) if (allows!T) { init(value); }
@@ -245,7 +247,9 @@ struct VariantPointer(Types...)
     /// Is `true` iff a `T*` can be assigned to `this`.
     enum allows(T) = indexOf!T >= 0;
 
-    extern (D) S toHash() const pure nothrow
+    pure:
+
+    extern (D) S toHash() const nothrow
     {
         import core.internal.hash : hashOf;
         return _raw.hashOf;
@@ -263,7 +267,7 @@ struct VariantPointer(Types...)
         }
     }
 
-    pure nothrow @nogc:
+    nothrow @nogc:
 
     /// Construction from `value`.
     this(T)(T* value) if (allows!T) { init(value); }
@@ -290,9 +294,9 @@ struct VariantPointer(Types...)
         return x && x == that; // and is equal to it
     }
 
-    bool isNull() const @safe pure nothrow { return ptr is null; }
+    bool isNull() const @safe nothrow { return ptr is null; }
 
-    bool opCast(T : bool)() const @safe pure nothrow { return ptr !is null; }
+    bool opCast(T : bool)() const @safe nothrow { return ptr !is null; }
 
     private void init(T)(T* that)
     in
@@ -306,7 +310,7 @@ struct VariantPointer(Types...)
     }
 
     /** Get zero-offset index of current variant type. */
-    private auto currentIndex() const @safe pure nothrow
+    private auto currentIndex() const @safe nothrow
     {
         return (_raw & typeMask) >> typeShift;
     }

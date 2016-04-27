@@ -36,6 +36,8 @@ template bitsNeeeded(size_t length)
 /** Returns: a `string` containing the definition of an `enum` named `name` and
     with enumerator names given by `Es`, optionally prepended with `prefix` and
     appended with `suffix`.
+
+    TODO Move to Phobos std.typecons
 */
 string makeEnumDefinitionString(string name,
                                 string prefix = `_`,

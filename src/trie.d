@@ -605,7 +605,7 @@ struct RadixTree(Key,
         {
             // import sortn : networkSortUpTo;
             dln(curr);
-            if (curr.length < curr.ixMs.length) // if there's room left in curr
+            if (curr.length < curr.maxLength) // if there's room left in curr
             {
                 // TODO normal insert
             }

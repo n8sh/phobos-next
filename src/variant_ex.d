@@ -46,7 +46,7 @@ string makeEnumDefinitionString(string name,
                                 Es...)()
     if (Es.length >= 1)
 {
-    typeof(return) s = `enum ` ~ name ~ ` { `;
+    typeof(return) s = `enum ` ~ name ~ ` : ubyte { `;
     static if (firstUndefined)
     {
         s ~= `undefined, `;
@@ -168,14 +168,14 @@ pragma(inline):
 
     bool opCast(T : bool)() const { return !isNull; }
 
-    private void init(T)(T that)
+    private void init(T)(T that) @trusted
     in
     {
-        assert(!(cast(S)that & typeMask), `Top-most bits of pointer are already occupied`); // TODO use enforce instead?
+        assert(!((*(cast(S*)(&that))) & typeMask), `Top-most bits of pointer are already occupied`); // TODO use enforce instead?
     }
     body
     {
-        _raw = (cast(S)that | // data in lower part
+        _raw = ((*(cast(S*)(&that))) | // data in lower part
                 (cast(S)(indexOf!T + 1) << typeShift)); // use higher bits for type information
     }
 

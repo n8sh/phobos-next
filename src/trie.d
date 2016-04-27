@@ -32,7 +32,7 @@
  */
 module trie;
 
-import std.traits : isIntegral, isSomeChar, isSomeString, isScalarType, isArray, allSatisfy, anySatisfy;
+import std.traits : isIntegral, isSomeChar, isSomeString, isScalarType, isArray, allSatisfy, anySatisfy, isPointer;
 import std.range : isInputRange, ElementType;
 
 import bijections;
@@ -680,6 +680,7 @@ struct RadixTree(Key,
                 assert(!next.keyLSBits[ixM]); // assert no duplicates in ixMs
                 next.keyLSBits[ixM] = true;
             }
+            freeNode(curr);
             return next;
         }
 
@@ -728,13 +729,12 @@ struct RadixTree(Key,
     /** Allocate `Node`-type of value type `U`. */
     auto construct(U)() @trusted
     {
-        import std.traits : isPointer;
+        debug ++_nodeCount;
         static if (isPointer!U)
         {
             import std.conv : emplace;
             auto node = emplace(cast(U)malloc((*U.init).sizeof));
             // TODO ensure alignment of node at least that of U.alignof
-            debug ++_nodeCount;
             return node;
         }
         else
@@ -805,10 +805,13 @@ struct RadixTree(Key,
         }
     }
 
-    void freeNode(NodeType)(NodeType* nt) @trusted
+    void freeNode(NodeType)(NodeType nt) @trusted
     {
+        static if (isPointer!NodeType)
+        {
+            free(cast(void*)nt);  // TODO Allocator.free
+        }
         debug --_nodeCount;
-        free(cast(void*)nt);  // TODO Allocator.free
     }
 
     /** Ensure that root `Node` is allocated. */

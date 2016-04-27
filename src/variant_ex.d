@@ -33,12 +33,15 @@ template bitsNeeeded(size_t length)
     else                           { static assert(false, "Too large length"); }
 }
 
-string makeEnumDefinitionString(string name, string prefix = `_`, Es...)()
+string makeEnumDefinitionString(string name,
+                                string prefix = `_`,
+                                string suffix = ``,
+                                Es...)()
 {
     typeof(return) s = `enum ` ~ name ~ ` { `;
     foreach (E; Es)
     {
-        s ~= prefix ~ E.stringof ~ `, `;
+        s ~= prefix ~ E.stringof ~ suffix ~ `, `;
     }
     s ~= `}`;
     return s;
@@ -46,10 +49,12 @@ string makeEnumDefinitionString(string name, string prefix = `_`, Es...)()
 
 @safe pure nothrow @nogc unittest
 {
-    mixin(makeEnumDefinitionString!("Type", `_`, byte, short));
+    import std.meta : AliasSeq;
+    alias Types = AliasSeq!(byte, short);
+    mixin(makeEnumDefinitionString!("Type", `_`, `_`, Types));
     static assert(is(Type == enum));
-    static assert(Type._byte.stringof == "_byte");
-    static assert(Type._short.stringof == "_short");
+    static assert(Type._byte_.stringof == "_byte_");
+    static assert(Type._short_.stringof == "_short_");
 }
 
 /** A variant of `Types` packed into a word (`size_t`).

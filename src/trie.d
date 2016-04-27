@@ -144,18 +144,15 @@ struct RadixTree(Key,
     }
 
     // TODO make these CT-params (requires putting branch definitions in same scope as `RadixTree`)
-
     static if (radix == 4)
     {
         alias DefaultRootType = SBr02*;
-        alias DefaultBranchType = SBr02*;
     }
     else static if (radix == 8)
     {
         alias DefaultRootType = BrM*;
-        alias DefaultBranchType = BrM*;
     }
-
+    alias DefaultBranchType = DefaultRootType;
     alias DefaultLeafType = PLfs; // TODO use either LfM* or PLfs instead
 
     static assert(PLfs.sizeof == size_t.sizeof); // assert that it's size matches platform word-size

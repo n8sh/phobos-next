@@ -845,11 +845,8 @@ auto check(size_t radix, Keys...)()
                     assert(k !in set);        // alternative syntax
                 }
 
-                // dln("#################################### insert(k), k is ", k);
                 assert(set.insert(k));  // insert new value returns `true` (previously not in set)
-                // dln("#################################### insert(k), k is ", k);
                 assert(!set.insert(k)); // reinsert same value returns `false` (already in set)
-                // dln("#################################### insert(k), k is ", k);
                 assert(!set.insert(k)); // reinsert same value returns `false` (already in set)
 
                 if (useContains)

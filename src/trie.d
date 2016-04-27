@@ -636,49 +636,49 @@ struct RadixTree(Key,
         BrM* expand(SBr02* curr) @trusted
         {
             enum N = 2;         // branch-order, number of possible sub-nodes
-            auto brM = construct!(typeof(return));
+            auto next = construct!(typeof(return));
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             {
-                brM.atSubNode(curr.atSubChunk(subIx)) = curr.subNodes[subIx];
+                next.atSubNode(curr.atSubChunk(subIx)) = curr.subNodes[subIx];
             }
             freeNode(curr);
-            return brM;
+            return next;
         }
 
         /** Destructively expand `curr` into a `BrM` and return it. */
         BrM* expand(SBr04* curr) @trusted
         {
             enum N = 4;         // branch-order, number of possible sub-nodes
-            auto brM = construct!(typeof(return));
+            auto next = construct!(typeof(return));
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             {
-                brM.atSubNode(curr.atSubChunk(subIx)) = curr.subNodes[subIx];
+                next.atSubNode(curr.atSubChunk(subIx)) = curr.subNodes[subIx];
             }
             freeNode(curr);
-            return brM;
+            return next;
         }
 
         /** Destructively expand `sbr04` into a `BrM` and return it. */
         BrM* expand(SBr16* curr) @trusted
         {
             enum N = 16;         // branch-order, number of possible sub-nodes
-            auto brM = construct!(typeof(return));
+            auto next = construct!(typeof(return));
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             {
-                brM.atSubNode(curr.atSubChunk(subIx)) = curr.subNodes[subIx];
+                next.atSubNode(curr.atSubChunk(subIx)) = curr.subNodes[subIx];
             }
             freeNode(curr);
-            return brM;
+            return next;
         }
 
         LfM* expand(PLfs curr) @trusted
         {
-            auto lfM = construct!(typeof(return));
+            auto next = construct!(typeof(return));
             foreach (const ixM; curr.ixMs[0 .. curr.length]) // TODO use opSlice of curr
             {
-                lfM.keyLSBits[ixM] = true;
+                next.keyLSBits[ixM] = true;
             }
-            return lfM;
+            return next;
         }
 
     }

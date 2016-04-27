@@ -185,6 +185,12 @@ pragma(inline):
         return ((_raw & typeMask) >> typeShift);
     }
 
+    /** Get zero-offset index as `Ix` of current variant type. */
+    Ix currentIx() const
+    {
+        return cast(typeof(return))currentIndex;
+    }
+
     private bool isOfType(T)() const if (canStore!T)
     {
         return !isNull && currentIndex == indexOf!T + 1;

@@ -33,12 +33,6 @@
     TODO RadixTree: Assigning a void pointer to a class
 
     TODO Should opBinaryRight return void* instead of bool for set-case?
-
-    TODO Replace
-    - if (auto currBrM = curr.peek!BrM)
-    - else if (const currLfM = curr.peek!LfM)
-    with some compacter logic perhaps using mixins or pattern matching using
-    switch-case on internally store type in `WordVariant`.
  */
 module trie;
 
@@ -755,13 +749,20 @@ struct RadixTree(Key,
 
         void release(Node curr)
         {
-            // TODO use switch
-            if      (auto subSBr02 = curr.peek!(SBr02*)) { release(*subSBr02); }
-            else if (auto subSBr04 = curr.peek!(SBr04*)) { release(*subSBr04); }
-            else if (auto subSBr16 = curr.peek!(SBr16*)) { release(*subSBr16); }
-            else if (auto subBrM   = curr.peek!(BrM*))   { release(*subBrM); }
-            else if (auto subLfM   = curr.peek!(LfM*))   { release(*subLfM); }
-            else if (curr)                          { assert(false, "Unknown type of non-null pointer"); }
+            with (Node.Ix)
+            {
+                final switch (curr.typeIx)
+                {
+                case undefined:    break;
+                case ix_PackedLfs: break;
+                case ix_AllSet:    break;
+                case ix_SBr02Ptr:  return release(curr.as!(SBr02*));
+                case ix_SBr04Ptr:  return release(curr.as!(SBr04*));
+                case ix_SBr16Ptr:  return release(curr.as!(SBr16*));
+                case ix_BrMPtr:    return release(curr.as!(BrM*));
+                case ix_LfMPtr:    return release(curr.as!(LfM*));
+                }
+            }
         }
     }
 

@@ -468,16 +468,19 @@ struct RadixTree(Key,
 
         pragma(inline) Node insert(Node curr, in Key key, ChunkIx chunkIx, out bool wasAdded) // Node-polymorphic
         {
-            final switch (curr.currentIx) with (Node.Ix)
+            with (Node.Ix)
             {
-            case undefined: break;
-            case indexPackedLfs: break;
-            case indexAllSet: break;
-            case indexSBr02Ptr: break;
-            case indexSBr04Ptr: break;
-            case indexSBr16Ptr: break;
-            case indexBrMPtr: break;
-            case indexLfMPtr: break;
+                final switch (curr.currentIx)
+                {
+                case undefined: break;
+                case ix_PackedLfs: break; // TODO auto curr_ = curr.as!PackedLfs;
+                case ix_AllSet: break; // TODO auto curr_ = curr.as!AllSet;
+                case ix_SBr02Ptr: break; // TODO auto curr_ = curr.as!SBr02*;
+                case ix_SBr04Ptr: break; // TODO auto curr_ = curr.as!SBr04*;
+                case ix_SBr16Ptr: break; // TODO auto curr_ = curr.as!SBr16*;
+                case ix_BrMPtr: break; // TODO auto curr_ = curr.as!BrM*;
+                case ix_LfMPtr: break; // TODO auto curr_ = curr.as!LfM*;
+                }
             }
             if      (auto currSBr02 = curr.peek!(SBr02*)) { return insert(*currSBr02, key, chunkIx, wasAdded); }
             else if (auto currSBr04 = curr.peek!(SBr04*)) { return insert(*currSBr04, key, chunkIx, wasAdded); }

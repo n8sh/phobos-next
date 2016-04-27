@@ -616,7 +616,7 @@ struct RadixTree(Key,
         BrM* expand(SBr02* sbr02) @trusted
         {
             enum N = 2;         // branch-order, number of possible sub-nodes
-            BrM* brM = construct!BrM;
+            auto brM = construct!BrM;
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             {
                 brM.atSubNode(sbr02.atSubChunk(subIx)) = sbr02.subNodes[subIx];
@@ -629,7 +629,7 @@ struct RadixTree(Key,
         BrM* expand(SBr04* sbr04) @trusted
         {
             enum N = 4;         // branch-order, number of possible sub-nodes
-            BrM* brM = construct!BrM;
+            auto brM = construct!BrM;
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             {
                 brM.atSubNode(sbr04.atSubChunk(subIx)) = sbr04.subNodes[subIx];
@@ -642,7 +642,7 @@ struct RadixTree(Key,
         BrM* expand(SBr16* sbr16) @trusted
         {
             enum N = 16;         // branch-order, number of possible sub-nodes
-            BrM* brM = construct!BrM;
+            auto brM = construct!BrM;
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             {
                 brM.atSubNode(sbr16.atSubChunk(subIx)) = sbr16.subNodes[subIx];

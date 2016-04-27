@@ -33,6 +33,25 @@ template bitsNeeeded(size_t length)
     else                           { static assert(false, "Too large length"); }
 }
 
+string makeEnumDefinitionString(string name, string prefix = `_`, Es...)()
+{
+    typeof(return) s = `enum ` ~ name ~ ` { `;
+    foreach (E; Es)
+    {
+        s ~= prefix ~ E.stringof ~ `, `;
+    }
+    s ~= `}`;
+    return s;
+}
+
+@safe pure nothrow @nogc unittest
+{
+    mixin(makeEnumDefinitionString!("Type", `_`, byte, short));
+    static assert(is(Type == enum));
+    static assert(Type._byte.stringof == "_byte");
+    static assert(Type._short.stringof == "_short");
+}
+
 /** A variant of `Types` packed into a word (`size_t`).
 
     Suitable for use in tree-data containers, such as radix trees (tries), where

@@ -796,16 +796,20 @@ static private void calculate(Key, Value, size_t radix)(RadixTree!(Key, Value, r
     if (allSatisfy!(isTrieableKeyType, Key))
 {
     alias RT = RadixTree!(Key, Value, radix);
-    import std.algorithm : filter;
-    // TODO use switch
-    if      (const subSBr02 = sub.peek!(RT.SBr02*)) { (*subSBr02).calculate(stats); }
-    else if (const subSBr04 = sub.peek!(RT.SBr04*)) { (*subSBr04).calculate(stats); }
-    else if (const subSBr16 = sub.peek!(RT.SBr16*)) { (*subSBr16).calculate(stats); }
-    else if (const subBrM   = sub.peek!(RT.BrM*))   { (*subBrM)  .calculate(stats); }
-    else if (const subLfM   = sub.peek!(RT.LfM*))   { (*subLfM)  .calculate(stats); }
-    else if (sub)
+
+    with (RT.Node.Ix)
     {
-        assert(false, "Unknown type of non-null pointer");
+        final switch (sub.typeIx)
+        {
+        case undefined:    break;
+        case ix_PackedLfs: break;
+        case ix_AllSet:    break;
+        case ix_SBr02Ptr:  sub.as!(RT.SBr02*).calculate(stats); break;
+        case ix_SBr04Ptr:  sub.as!(RT.SBr04*).calculate(stats); break;
+        case ix_SBr16Ptr:  sub.as!(RT.SBr16*).calculate(stats); break;
+        case ix_BrMPtr:    sub.as!(RT.BrM*).calculate(stats); break;
+        case ix_LfMPtr:    sub.as!(RT.LfM*).calculate(stats); break;
+        }
     }
 }
 

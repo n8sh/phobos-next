@@ -9,7 +9,7 @@ module variant_ex;
     Typically used in tree-data containers to realize hybrid value (sparsely
     packed sub-tree) and pointer (to dense sub-tree) packing of sub-nodes.
 
-    TODO Make `typeIndex` start at 1 for defined types. Already defaults to zero for null.
+    TODO Ask the forums about putting type in most or least significant bits
 
     TODO Ask forum.dlang.org: Is it safe to assume that `typeBits` most significant bits of a
     pointer are zero?

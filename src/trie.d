@@ -557,8 +557,7 @@ struct RadixTree(Key,
         Node insert(BrM* curr, in Key key, ChunkIx chunkIx, out bool wasAdded)
         in
         {
-            static if (hasFixedDepth)
-                assert(chunkIx + 1 < maxDepth);
+            static if (hasFixedDepth) assert(chunkIx + 1 < maxDepth);
             assert(!wasAdded);               // check that we haven't yet added it
         }
         body
@@ -575,10 +574,8 @@ struct RadixTree(Key,
         Node insert(LfM* curr, in Key key, ChunkIx chunkIx, out bool wasAdded)
         in
         {
-            static if (hasFixedDepth)
-                assert(chunkIx + 1 == maxDepth);
-            else
-                assert(chunkIx + 1 <= maxDepth);
+            static if (hasFixedDepth) assert(chunkIx + 1 == maxDepth);
+            else                      assert(chunkIx + 1 <= maxDepth);
             assert(!wasAdded);               // check that we haven't yet added it
         }
         body
@@ -599,22 +596,27 @@ struct RadixTree(Key,
         Node insert(PLfs curr, in Key key, ChunkIx chunkIx, out bool wasAdded)
         in
         {
+            static if (hasFixedDepth) assert(chunkIx + 1 == maxDepth);
+            else                      assert(chunkIx + 1 <= maxDepth);
             assert(!wasAdded);               // check that we haven't yet added it
         }
         body
         {
-            // import sortn : networkSortUpTo;
             dln(curr);
+            const IxM chunk = bitsChunk(key, chunkIx);
+            // TODO if chunk can be found in curr.ixMs[0 .. curr.length] // TODO use opSlice
             if (curr.length < curr.maxLength) // if there's room left in curr
             {
-                // TODO normal insert
+                curr.ixMs[curr.length++] = chunk;
+                // import sortn : networkSortUpTo;
+                // TODO curr.ixMs[0 .. length].networkSort;
+                // TODO curr.ixMs[0 .. length].sort;
+                return Node(curr);
             }
             else
             {
-                // TODO need to expand to LfM
+                return insert(expand(curr), key, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
             }
-            assert(false);
-            return Node(curr);
         }
 
         Node constructSub(ChunkIx chunkIx)
@@ -662,6 +664,17 @@ struct RadixTree(Key,
             freeNode(sbr16);
             return brM;
         }
+
+        LfM* expand(PLfs curr) @trusted
+        {
+            auto lfM = construct!(typeof(return));
+            foreach (const ixM; curr.ixMs[0 .. curr.length]) // TODO use opSlice of curr
+            {
+                lfM.keyLSBits[ixM] = true;
+            }
+            return lfM;
+        }
+
     }
 
     static if (isSet)

@@ -111,6 +111,7 @@ struct RadixTree(Key,
 
     /** `R` least significant bits (LSB) of leaves directly packed into a word.
         TODO Generalize to packing of more than one `IxM` per byte.
+        TODO respect byteorder to work with `WordVariant`
      */
     static      if (size_t.sizeof == 4)
     {

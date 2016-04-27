@@ -166,7 +166,7 @@ struct RadixTree(Key,
     }
 
     /** Mutable node. */
-    alias Node = WordVariant!(NodeTypes);
+    alias Node = WordVariant!NodeTypes;
     /** Constant node. */
     // alias ConstNodePtr = WordVariant!(staticMap!(ConstOf, NodeTypes));
 

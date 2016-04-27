@@ -475,19 +475,14 @@ struct RadixTree(Key,
                 case undefined:    break;
                 case ix_PackedLfs: auto curr_ = curr.as!PackedLfs; break;
                 case ix_AllSet:    auto curr_ = curr.as!AllSet; break;
-                case ix_SBr02Ptr:  auto curr_ = curr.as!(SBr02*); break;
-                case ix_SBr04Ptr:  auto curr_ = curr.as!(SBr04*); break;
-                case ix_SBr16Ptr:  auto curr_ = curr.as!(SBr16*); break;
-                case ix_BrMPtr:    auto curr_ = curr.as!(BrM*); break;
-                case ix_LfMPtr:    auto curr_ = curr.as!(LfM*); break;
+                case ix_SBr02Ptr:  return insert(curr.as!(SBr02*), key, chunkIx, wasAdded);
+                case ix_SBr04Ptr:  return insert(curr.as!(SBr04*), key, chunkIx, wasAdded);
+                case ix_SBr16Ptr:  return insert(curr.as!(SBr16*), key, chunkIx, wasAdded);
+                case ix_BrMPtr:    return insert(curr.as!(BrM*), key, chunkIx, wasAdded);
+                case ix_LfMPtr:    return insert(curr.as!(LfM*), key, chunkIx, wasAdded);
                 }
+                assert(false);
             }
-            if      (auto currSBr02 = curr.peek!(SBr02*)) { return insert(*currSBr02, key, chunkIx, wasAdded); }
-            else if (auto currSBr04 = curr.peek!(SBr04*)) { return insert(*currSBr04, key, chunkIx, wasAdded); }
-            else if (auto currSBr16 = curr.peek!(SBr16*)) { return insert(*currSBr16, key, chunkIx, wasAdded); }
-            else if (auto currBrM   = curr.peek!(BrM*))   { return insert(*currBrM,  key, chunkIx, wasAdded); }
-            else if (auto currLfM   = curr.peek!(LfM*))   { return insert(*currLfM,  key, chunkIx, wasAdded); }
-            else                                          { assert(false, "Unknown Node type"); }
         }
 
         Node insert(SBr02* br, in Key key, ChunkIx chunkIx, out bool wasAdded)

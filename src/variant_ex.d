@@ -44,11 +44,6 @@ template bitsNeeeded(size_t length)
  */
 struct WordVariant(Types...)
 {
-    import traits_ex : allSame, sizesOf;
-
-    enum typeSizes = sizesOf!Types;
-    // static assert(allSame!typeSizes, "Types must all be of equal size");
-
     static assert(this.sizeof == size_t.sizeof, "Types must all <= size_t.sizeof");
 
     alias S = size_t; // TODO templatize?
@@ -151,7 +146,6 @@ struct WordVariant(Types...)
 pure nothrow unittest
 {
     import std.meta : AliasSeq;
-    import dbg : dln;
 
     alias Types = AliasSeq!(byte*, short*, int*, long*,
                             ubyte*, ushort*, uint*, ulong*,

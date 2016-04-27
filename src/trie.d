@@ -602,15 +602,21 @@ struct RadixTree(Key,
         }
         body
         {
-            dln(curr);
             const IxM chunk = bitsChunk(key, chunkIx);
+
             // TODO if chunk can be found in curr.ixMs[0 .. curr.length] // TODO use opSlice
-            if (curr.length < curr.maxLength) // if there's room left in curr
+            import std.algorithm.searching : canFind;
+            if (curr.ixMs[0 .. curr.length].canFind(chunk)) // if already stored
+            {
+                return Node(curr); // just return as is
+            }
+            else if (curr.length < curr.maxLength) // if there's room left in curr
             {
                 curr.ixMs[curr.length++] = chunk;
                 // import sortn : networkSortUpTo;
                 // TODO curr.ixMs[0 .. length].networkSort;
                 // TODO curr.ixMs[0 .. length].sort;
+                wasAdded = true;
                 return Node(curr);
             }
             else

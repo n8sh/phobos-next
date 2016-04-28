@@ -30,6 +30,7 @@ import std.range : isInputRange, ElementType;
 import bijections : isIntegralBijectableType, bijectToUnsigned;
 import variant_ex : WordVariant;
 import typecons_ex : IndexedArray, StrictlyIndexed;
+import modulo : Mod;
 
 version = benchmark;
 
@@ -48,6 +49,9 @@ extern(C) pure nothrow @system @nogc
     void* realloc(void* ptr, size_t size);
     void free(void* ptr);
 }
+
+/** Index to chunk of bits. */
+alias ChunkIx = uint;
 
 /** Radix tree container storing keys of type `Key`.
 
@@ -77,11 +81,11 @@ struct RadixTree(Key,
     enum isSet = is(Value == void); // `true` if this tree is a set
     enum isMap = !isSet;        // `true` if this tree is a map
 
+    alias R = radix;
     enum M = 2^^R;     // branch-multiplicity, typically either 2, 4, 16 or 256
     enum chunkMask = M - 1;
 
     alias order = M;   // tree order
-    alias R = radix;
 
     /// `true` if tree has fixed a key of fixed length and in turn a tree of fixed max depth.
     enum hasFixedDepth = isFixedTrieableKeyType!Key;
@@ -96,9 +100,7 @@ struct RadixTree(Key,
     enum isBinary = R == 2;
 
     /** Radix Modulo Index */
-    import modulo : Mod;
     alias IxM = Mod!M; // restricted index type avoids range checking in array indexing below
-    alias ChunkIx = uint;
 
     /** `R` least significant bits (LSB) of leaves directly packed into a word.
 
@@ -430,28 +432,6 @@ struct RadixTree(Key,
         assert(_nodeCount == 0);
     }
 
-    /** Get chunkIx:th chunk of `radix` number of bits. */
-    IxM bitsChunk()(in UKey ukey, ChunkIx chunkIx) const @trusted pure nothrow
-    {
-        // calculate bit shift to current chunk
-        static if (isIntegral!UKey ||
-                   isSomeChar!UKey) // because top-most bit in ASCII coding (char) is often sparse (0 is much more common than 1)
-        {
-            /* most signficant bit chunk first because integers are
-               typically more sparse in more significant bits */
-            const shift = (maxDepth - 1 - chunkIx)*R;
-        }
-        else
-        {
-            // default to most signficant bit chunk first
-            const shift = (maxDepth - 1 - chunkIx)*R;
-            // enum shift = chunkIx*R; // least significant bit first
-        }
-
-        const IxM chunk = (ukey >> shift) & chunkMask; // part of value which is also an index
-        return chunk;
-    }
-
     @safe pure nothrow @nogc
     {
         /** Insert `key`.
@@ -487,7 +467,7 @@ struct RadixTree(Key,
 
         Node insert(SBr02* curr, in UKey ukey, ChunkIx chunkIx, out bool wasAdded)
         {
-            const IxM chunk = bitsChunk(ukey, chunkIx);
+            const IxM chunk = bitsChunk!radix(ukey, chunkIx);
 
             enum N = 2;         // branch-order, number of possible sub-nodes
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
@@ -514,7 +494,7 @@ struct RadixTree(Key,
 
         Node insert(SBr04* curr, in UKey ukey, ChunkIx chunkIx, out bool wasAdded)
         {
-            const IxM chunk = bitsChunk(ukey, chunkIx);
+            const IxM chunk = bitsChunk!radix(ukey, chunkIx);
 
             enum N = 4;         // branch-order, number of possible sub-nodes
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
@@ -541,7 +521,7 @@ struct RadixTree(Key,
 
         Node insert(SBr16* curr, in UKey ukey, ChunkIx chunkIx, out bool wasAdded)
         {
-            const IxM chunk = bitsChunk(ukey, chunkIx);
+            const IxM chunk = bitsChunk!radix(ukey, chunkIx);
 
             enum N = 16;         // branch-order, number of possible sub-nodes
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
@@ -574,7 +554,7 @@ struct RadixTree(Key,
         }
         body
         {
-            const IxM chunk = bitsChunk(ukey, chunkIx);
+            const IxM chunk = bitsChunk!radix(ukey, chunkIx);
             if (!curr.subNodes[chunk]) // if not yet set
             {
                 curr.subNodes[chunk] = constructSub(chunkIx + 1);
@@ -592,7 +572,7 @@ struct RadixTree(Key,
         }
         body
         {
-            const IxM chunk = bitsChunk(ukey, chunkIx);
+            const IxM chunk = bitsChunk!radix(ukey, chunkIx);
             if (!curr.keyLSBits[chunk])
             {
                 curr.keyLSBits[chunk] = true;
@@ -614,7 +594,7 @@ struct RadixTree(Key,
         }
         body
         {
-            const IxM chunk = bitsChunk(ukey, chunkIx);
+            const IxM chunk = bitsChunk!radix(ukey, chunkIx);
 
             // TODO this is only marginally faster:
             // foreach (const i; iota!(0, curr.maxLength))
@@ -853,6 +833,31 @@ struct RadixTree(Key,
 }
 alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
+
+/** Get chunkIx:th chunk of `radix` number of bits. */
+static private Mod!(2^^radix) bitsChunk(size_t radix, UKey)(in UKey ukey, ChunkIx chunkIx) pure nothrow
+{
+    alias R = radix;
+    enum M = 2^^R;     // branch-multiplicity, typically either 2, 4, 16 or 256
+    enum chunkMask = M - 1;
+    enum maxDepth = 8*UKey.sizeof / radix;
+
+    // calculate bit shift to current chunk
+    static if (isIntegral!UKey ||
+               isSomeChar!UKey) // because top-most bit in ASCII coding (char) is often sparse (0 is much more common than 1)
+    {
+        /* most signficant bit chunk first because integers are
+           typically more sparse in more significant bits */
+        const shift = (maxDepth - 1 - chunkIx)*radix;
+    }
+    else
+    {
+        // default to most signficant bit chunk first
+        const shift = (maxDepth - 1 - chunkIx)*radix;
+    }
+
+    return cast(typeof(return))((ukey >> shift) & chunkMask); // part of value which is also an index
+}
 
 /** Append statistics of tree under `Node` `sub.` into `stats`.
  */

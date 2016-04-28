@@ -2,6 +2,14 @@ module modulo;                  // haha ;)
 
 import std.traits : isIntegral;
 
+template DefaultModuloType(size_t m)
+{
+    static      if (m - 1 <= ubyte.max)  { alias DefaultModuloType = ubyte; }
+    else static if (m - 1 <= ushort.max) { alias DefaultModuloType = ushort; }
+    else static if (m - 1 <= uint.max)   { alias DefaultModuloType = uint; }
+    else                                 { alias DefaultModuloType = ulong; }
+}
+
 /** Module type within inclusive value range (0 .. `m`-1).
 
     Similar to Ada's modulo type `0 mod m`.
@@ -33,21 +41,12 @@ import std.traits : isIntegral;
 
     TODO Move to Phobos std.typecons
  */
-template Mod(size_t m, T = void)
-    if (m >= 1 && (is(T == void) || isIntegral!T))
+template Mod(size_t m, T = DefaultModuloType!m)
+    if (m >= 1 && isIntegral!T)
 {
     import math_ex : isPow2;
 
-    static if (!is(T == void)) // check if type `T` was explicitly required
-    {
-        static assert(m - 1 <= 2^^(8*T.sizeof) - 1); // if so, check that it matches `s`
-        alias S = T;
-    }
-    // otherwise, infer it from `m`
-    else static if (m - 1 <= ubyte.max)  { alias S = ubyte; }
-    else static if (m - 1 <= ushort.max) { alias S = ushort; }
-    else static if (m - 1 <= uint.max)   { alias S = uint; }
-    else                                 { alias S = ulong; }
+    static assert(m - 1 <= 2^^(8*T.sizeof) - 1); // if so, check that it matches `s`
 
     struct Mod
     {
@@ -59,7 +58,7 @@ template Mod(size_t m, T = void)
         }
         body
         {
-            this.x = cast(S)value; // overflow checked in ctor
+            this.x = cast(T)value; // overflow checked in ctor
         }
 
         auto ref opAssign(U)(U value)
@@ -70,27 +69,27 @@ template Mod(size_t m, T = void)
         }
         body
         {
-            this.x = cast(S)value; // overflow checked in ctor
+            this.x = cast(T)value; // overflow checked in ctor
         }
 
         /// Construct from Mod!n, where `m >= n`.
         this(size_t n, U)(Mod!(n, U) rhs)
             if (m >= n && isIntegral!U)
         {
-            this.x = cast(S)rhs.x; // cannot overflow
+            this.x = cast(T)rhs.x; // cannot overflow
         }
 
         /// Assign from Mod!n, where `m >= n`.
         auto ref opAssign(size_t n, U)(Mod!(n, U) rhs)
             if (m >= n && isIntegral!U)
         {
-            this.x = cast(S)rhs.x; // cannot overflow
+            this.x = cast(T)rhs.x; // cannot overflow
         }
 
         @property size_t _prop() const { return x; } // read-only access
         alias _prop this;
 
-        private S x;
+        private T x;
     }
 }
 

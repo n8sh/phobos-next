@@ -90,9 +90,7 @@ struct RadixTree(Key,
     enum isSet = is(Value == void); // `true` if this tree is a set
     enum isMap = !isSet;        // `true` if this tree is a map
 
-    alias R = radix;
-    enum M = 2^^R;     // branch-multiplicity, typically either 2, 4, 16 or 256
-    enum chunkMask = M - 1;
+    enum M = 2^^radix;     // branch-multiplicity, typically either 2, 4, 16 or 256
 
     alias order = M;   // tree order
 
@@ -102,16 +100,16 @@ struct RadixTree(Key,
     static if (hasFixedDepth)
     {
         /// Maximum depth.
-        enum maxDepth = 8*Key.sizeof / R;
+        enum maxDepth = 8*Key.sizeof / radix;
     }
 
     /// `true` if tree has binary branch.
-    enum isBinary = R == 2;
+    enum isBinary = radix == 2;
 
     /** Radix Modulo Index */
     alias IxM = Mod!M; // restricted index type avoids range checking in array indexing below
 
-    /** `R` least significant bits (LSB) of leaves directly packed into a word.
+    /** `radix` least significant bits (LSB) of leaves directly packed into a word.
 
         TODO Generalize to packing of more than one `IxM` per byte.
         TODO respect byteorder in `PLfs` to work with `WordVariant`
@@ -679,9 +677,7 @@ alias CompactPrefixTree = RadixTree;
 /** Get chunkIx:th chunk of `radix` number of bits. */
 static private Mod!(2^^radix) bitsChunk(size_t radix, BKey)(in BKey ukey, ChunkIx chunkIx) pure nothrow
 {
-    alias R = radix;
-    enum M = 2^^R;     // branch-multiplicity, typically either 2, 4, 16 or 256
-    enum chunkMask = M - 1;
+    enum M = 2^^radix;     // branch-multiplicity, typically either 2, 4, 16 or 256
     enum maxDepth = 8*BKey.sizeof / radix;
 
     // calculate bit shift to current chunk
@@ -698,7 +694,7 @@ static private Mod!(2^^radix) bitsChunk(size_t radix, BKey)(in BKey ukey, ChunkI
         const shift = (maxDepth - 1 - chunkIx)*radix;
     }
 
-    return cast(typeof(return))((ukey >> shift) & chunkMask); // part of value which is also an index
+    return cast(typeof(return))((ukey >> shift) & (M - 1)); // part of value which is also an index
 }
 
 /** Append statistics of tree under `Node` `sub.` into `stats`.

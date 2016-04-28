@@ -39,49 +39,20 @@ template bitsNeeeded(size_t length)
 
     TODO Move to Phobos std.typecons
 */
-string makeEnumDefinitionString(string name,
-                                string prefix = `_`,
-                                string suffix = ``,
-                                bool firstUndefined = true,
-                                Es...)()
-    if (Es.length >= 1)
-{
-    typeof(return) s = `enum ` ~ name ~ ` : ubyte { `;
-    static if (firstUndefined) { s ~= `undefined, `; }
-    foreach (E; Es)
-    {
-        static if (E.stringof[$ - 1] == '*') enum E_ = E.stringof[0 .. $ - 1] ~ "Ptr";
-        else                                 enum E_ = E.stringof;
-        s ~= prefix ~ E_ ~ suffix ~ `, `;
-    }
-    s ~= `}`;
-    return s;
-}
-
-@safe pure nothrow @nogc unittest
-{
-    import std.meta : AliasSeq;
-    alias Types = AliasSeq!(byte, short, int*);
-    mixin(makeEnumDefinitionString!(`Type`, `_`, `_`, true, Types));
-    static assert(is(Type == enum));
-    static assert(Type.undefined.stringof == `undefined`);
-    static assert(Type._byte_.stringof == `_byte_`);
-    static assert(Type._short_.stringof == `_short_`);
-    static assert(Type._intPtr_.stringof == `_intPtr_`);
-}
-
-// TODO integrate
 template makeEnumFromSymbolNames(string prefix = `_`,
                                  string suffix = ``,
                                  bool firstUndefined = true,
                                  Es...)
     if (Es.length >= 1)
 {
-    enum members = {
+    enum members =
+    {
         string s = firstUndefined ? `undefined, ` : ``;
         foreach (E; Es)
         {
-            s ~= prefix ~ E.stringof ~ suffix ~ `, `;
+            static if (E.stringof[$ - 1] == '*') enum E_ = E.stringof[0 .. $ - 1] ~ "Ptr";
+            else                                 enum E_ = E.stringof;
+            s ~= prefix ~ E_ ~ suffix ~ `, `;
         }
         return s;
     }();
@@ -91,12 +62,13 @@ template makeEnumFromSymbolNames(string prefix = `_`,
 @safe pure nothrow @nogc unittest
 {
     import std.meta : AliasSeq;
-    alias Types = AliasSeq!(byte, short);
+    alias Types = AliasSeq!(byte, short, int*);
     alias Type = makeEnumFromSymbolNames!(`_`, `_`, true, Types);
     static assert(is(Type == enum));
-    static assert(Type.undefined.stringof == "undefined");
-    static assert(Type._byte_.stringof == "_byte_");
-    static assert(Type._short_.stringof == "_short_");
+    static assert(Type.undefined.stringof == `undefined`);
+    static assert(Type._byte_.stringof == `_byte_`);
+    static assert(Type._short_.stringof == `_short_`);
+    static assert(Type._intPtr_.stringof == `_intPtr_`);
 }
 
 /** A variant of `Types` packed into a word (`size_t`).
@@ -114,7 +86,7 @@ struct WordVariant(Types...)
 
     alias S = size_t; // TODO templatize?
 
-    mixin(makeEnumDefinitionString!(`Ix`, `ix_`, ``, true, Types));
+    alias Ix = makeEnumFromSymbolNames!(`ix_`, ``, true, Types);
     static assert(Ix.undefined == 0);
 
     enum typeBits = bitsNeeeded!(Types.length); // number of bits needed to represent variant type

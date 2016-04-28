@@ -142,16 +142,32 @@ struct IndexedBy(R, I)
     alias _r this; // TODO Use opDispatch instead; to override only opSlice and opIndex
 }
 
-/** Static Array of ElementType `E` indexed by `I`. */
+/** Static Array of ElementType `E` indexed by `I`.
+    TODO assert that `I` is continuous if it is a `enum`.
+*/
 struct IndexedArray(E, I)
-    if (isIndex!(I) &&
-        I.min == 0)             // TODO assert that `I` is continuous
+    if (isIndex!(I))
 {
+    static assert(I.min == 0, "Index type I is currently limited to start at 0 and be continuous");
     alias Index = I;            /// indexing type
     mixin genOps!I;
     alias R = E[I.max + 1];     // needed by mixins
     R _r;                       // static array
     alias _r this; // TODO Use opDispatch instead; to override only opSlice and opIndex
+}
+
+///
+@safe pure nothrow unittest
+{
+    enum N = 7;
+    enum E { x = 0, y = 1, z = 2}
+    alias A = IndexedArray!(size_t, E);
+    static assert(A.sizeof == 3*size_t.sizeof);
+    A x;
+    x[E.x] = 1;
+    x[E.y] = 2;
+    x[E.z] = 3;
+    static assert(!__traits(compiles, { x[1] = 3; })); // no integer indexing
 }
 
 /** Instantiator for `IndexedBy`.

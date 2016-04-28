@@ -13,7 +13,7 @@ alias IntegralBijectableTypes = AliasSeq!(ubyte, ushort, uint, ulong, // TODO uc
 enum isIntegralBijectableType(T) = staticIndexOf!(T, IntegralBijectableTypes);
 
 /** Biject (Shift) Signed $(D a) "up" to Unsigned (before radix sorting). */
-@trusted pure nothrow auto bijectToUnsigned(T)(T a)
+auto bijectToUnsigned(T)(T a) @trusted pure nothrow
     if (isNumeric!T)
 {
     import std.meta : Unqual;

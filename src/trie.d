@@ -49,7 +49,7 @@ enum isTrieableKeyType(T) = (isFixedTrieableKeyType!T ||
                              (isInputRange!T &&
                               isFixedTrieableKeyType!(ElementType!T)));
 
-extern(C) pure nothrow @system /* TODO @nogc */
+extern(C) pure nothrow @system @nogc
 {
     void* malloc(size_t size);
     void* calloc(size_t nmemb, size_t size);
@@ -200,7 +200,7 @@ struct RadixTree(Key,
     /** Tree Leaf Iterator. */
     struct It
     {
-        bool opCast(T : bool)() const @safe pure nothrow /* TODO @nogc */ { return cast(bool)node; }
+        bool opCast(T : bool)() const @safe pure nothrow @nogc { return cast(bool)node; }
         Node node;              // current leaf-`Node`. TODO use `Lf` type instead?
         IxM ixM;                // index to sub at `node`
     }
@@ -211,7 +211,7 @@ struct RadixTree(Key,
         /* this save 8 bytes and makes this struct 16 bytes instead of 24 bytes
            compared using a member It instead of Node and IxM */
         auto it() { return It(node, ixM); }
-        bool opCast(T : bool)() const @safe pure nothrow /* TODO @nogc */ { return hit; }
+        bool opCast(T : bool)() const @safe pure nothrow @nogc { return hit; }
         Node node;
         IxM ixM;
         bool hit;
@@ -285,7 +285,7 @@ struct RadixTree(Key,
         pragma(inline) auto ref subNode(IxM i) @trusted { return subNodes.ptr[i]; }
 
         /** Append statistics of tree under `this` into `stats`. */
-        void calculate(ref Stats stats) @safe pure nothrow /* TODO @nogc */ const
+        void calculate(ref Stats stats) @safe pure nothrow @nogc const
         {
             size_t nnzSubCount = 0; // number of non-zero sub-nodes
             foreach (sub; subNodes[].filter!(sub => sub))
@@ -484,7 +484,7 @@ struct RadixTree(Key,
         return chunk;
     }
 
-    @safe pure nothrow /* TODO @nogc */
+    @safe pure nothrow @nogc
     {
         /** Insert `key`.
             Recursive implementation of insert.
@@ -769,10 +769,10 @@ struct RadixTree(Key,
     }
 
     /** Returns: `true` iff tree is empty (no elements stored). */
-    bool empty() const @safe pure nothrow /* TODO @nogc */ { return !_root; }
+    bool empty() const @safe pure nothrow @nogc { return !_root; }
 
     /** Returns: number of elements store. */
-    size_t length() const @safe pure nothrow /* TODO @nogc */ { return _length; }
+    size_t length() const @safe pure nothrow @nogc { return _length; }
 
     private:
 
@@ -793,7 +793,7 @@ struct RadixTree(Key,
         }
     }
 
-    @safe pure nothrow /* TODO @nogc */
+    @safe pure nothrow @nogc
     {
         void release(BrM* curr)
         {
@@ -876,7 +876,7 @@ struct RadixTree(Key,
     }
 
     /// Returns: number of nodes used in `this` tree.
-    pragma(inline) debug size_t nodeCount() @safe pure nothrow /* TODO @nogc */ { return _nodeCount; }
+    pragma(inline) debug size_t nodeCount() @safe pure nothrow @nogc { return _nodeCount; }
 
     private Node _root;
     size_t _length = 0;
@@ -890,7 +890,7 @@ alias CompactPrefixTree = RadixTree;
  */
 static private void calculate(Key, Value, size_t radix)(RadixTree!(Key, Value, radix).Node sub,
                                                         ref RadixTree!(Key, Value, radix).Stats stats)
-    @safe pure nothrow /* TODO @nogc */
+    @safe pure nothrow @nogc
     if (allSatisfy!(isTrieableKeyType, Key))
 {
     alias RT = RadixTree!(Key, Value, radix);
@@ -1069,7 +1069,7 @@ void benchmark(size_t radix)()
     }
 }
 
-@safe pure nothrow /* TODO @nogc */
+@safe pure nothrow @nogc
 unittest
 {
     check!(4, uint, ulong);

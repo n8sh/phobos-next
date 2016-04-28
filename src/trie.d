@@ -247,7 +247,7 @@ struct RadixTree(Key,
     /** 256-Branch population histogram.
         Index maps to population with value range (1 .. 256).
     */
-    alias SBr0256_PopHist = size_t[256];
+    alias SBr256_PopHist = size_t[256];
 
     /** M-Leaf population histogram.
         Index maps to population with value range (1 .. M).
@@ -260,7 +260,8 @@ struct RadixTree(Key,
         SBr02_PopHist popHist_SBr02;
         SBr04_PopHist popHist_SBr04;
         SBr16_PopHist popHist_SBr16;
-        SBr0256_PopHist popHist_SBr256;
+        SBr256_PopHist popHist_SBr256;
+
         BrM_PopHist popHist_BrM;
         LeafM_PopHist popHist_LfM;
 

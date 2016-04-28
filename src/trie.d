@@ -1023,6 +1023,7 @@ void benchmark(size_t radix)()
             dln("M=", 2^^radix, "-Branch Population Histogram: ", stats.brM);
             dln("M=", 2^^radix, "-Leaf   Population Histogram: ", stats.lfM);
             dln("Population By Node Type: ", stats.popByNodeType);
+
             size_t bytesUsed = 0;
             foreach (Set.Node.Ix ix, pop; stats.popByNodeType) // TODO infer ix to be of type Ix
             {

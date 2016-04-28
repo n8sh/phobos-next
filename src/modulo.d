@@ -93,7 +93,7 @@ template Mod(size_t m, T = void)
 
 /// Instantiator for `Mod`.
 auto mod(size_t m, T)(T value)
-    if (is(T == void) || isIntegral!T)
+    if (isIntegral!T)
 {
     return Mod!(m, T)(value);
 }

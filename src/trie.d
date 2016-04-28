@@ -29,6 +29,9 @@
     TODO Extend bitop_ex.d with {set,get}{Bit,Qit,Bytes} and reuse
 
     TODO Should opBinaryRight return void* instead of bool for set-case?
+
+    TODO Templatize SBrXX on `N` and instantiate as N 2, 4, 16, 256.
+
  */
 module trie;
 
@@ -303,7 +306,6 @@ struct RadixTree(Key,
         }
     }
 
-    // TODO templatize on `N` (currently 2)
     static private struct SBr02
     {
         enum N = 2;
@@ -324,7 +326,6 @@ struct RadixTree(Key,
         }
     }
 
-    // TODO templatize on `N` (currently 4)
     static private struct SBr04
     {
         enum N = 4;
@@ -345,7 +346,6 @@ struct RadixTree(Key,
         }
     }
 
-    // TODO templatize on `N` (currently 16)
     static private struct SBr16
     {
         enum N = 16;

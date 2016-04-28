@@ -37,7 +37,7 @@ import std.range : isInputRange, ElementType;
 
 import bijections;
 import variant_ex : WordVariant;
-import typecons_ex : IndexedArray;
+import typecons_ex : IndexedArray, IndexedBy;
 
 version = benchmark;
 
@@ -279,11 +279,7 @@ struct RadixTree(Key,
     */
     static private struct BrM
     {
-        Node[M] subNodes; // TODO used typecons_ex.IndexedArray
-
-        // Indexing with internal range check is safely avoided.
-        // TODO move to modulo.d: opIndex(T[M], IxM i) or subNode(T[M], IxM i) if that doesn't work
-        pragma(inline) auto ref subNode(IxM i) @trusted { return subNodes.ptr[i]; }
+        IndexedBy!(Node[M]) subNodes;
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow @nogc const
@@ -312,13 +308,8 @@ struct RadixTree(Key,
     {
         enum N = 2;
         // TODO merge these into a new `NodeType`
-        Node[N] subNodes; // TODO used typecons_ex.IndexedArray
-        IxM[N] subChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM!2 instead.
-
-        // Indexing with internal range check is safely avoided.
-        // TODO move to modulo.d: opIndex(T[M], IxM i) or subNode(T[M], IxM i) if that doesn't work
-        pragma(inline) auto ref subNode(Mod!N i) @trusted { return subNodes.ptr[i]; }
-        pragma(inline) auto ref subChunk(Mod!N i) @trusted { return subChunks.ptr[i]; }
+        IndexedBy!(Node[N]) subNodes;
+        IndexedBy!(IxM[N]) subChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM!2 instead.
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow const
@@ -338,13 +329,8 @@ struct RadixTree(Key,
     {
         enum N = 4;
         // TODO merge these into a new `NodeType`
-        Node[N] subNodes; // TODO used typecons_ex.IndexedArray
-        IxM[N] subChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM!4 instead.
-
-        // Indexing with internal range check is safely avoided.
-        // TODO move to modulo.d: opIndex(T[M], IxM i) or subNode(T[M], IxM i) if that doesn't work
-        pragma(inline) auto ref subNode(Mod!N i) @trusted { return subNodes.ptr[i]; }
-        pragma(inline) auto ref subChunk(Mod!N i) @trusted { return subChunks.ptr[i]; }
+        IndexedBy!(Node[N]) subNodes; // TODO used typecons_ex.IndexedArray
+        IndexedBy!(IxM[N]) subChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM!4 instead.
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow const
@@ -364,13 +350,8 @@ struct RadixTree(Key,
     {
         enum N = 16;
         // TODO merge these into a new `NodeType`
-        Node[N] subNodes; // TODO used typecons_ex.IndexedArray
-        IxM[N] subChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM!16 instead.
-
-        // Indexing with internal range check is safely avoided.
-        // TODO move to modulo.d: opIndex(T[M], IxM i) or subNode(T[M], IxM i) if that doesn't work
-        pragma(inline) auto ref subNode(Mod!N i) @trusted { return subNodes.ptr[i]; }
-        pragma(inline) auto ref subChunk(Mod!N i) @trusted { return subChunks.ptr[i]; }
+        IndexedBy!(Node[N]) subNodes; // TODO used typecons_ex.IndexedArray
+        IndexedBy!(IxM[N]) subChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM!16 instead.
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow const
@@ -608,11 +589,11 @@ struct RadixTree(Key,
         body
         {
             const IxM chunk = bitsChunk(key, chunkIx);
-            if (!curr.subNode(chunk)) // if not yet set
+            if (!curr.subNodes[chunk]) // if not yet set
             {
-                curr.subNode(chunk) = constructSub(chunkIx + 1);
+                curr.subNodes[chunk] = constructSub(chunkIx + 1);
             }
-            curr.subNode(chunk) = insert(curr.subNode(chunk), key, chunkIx + 1, wasAdded);
+            curr.subNodes[chunk] = insert(curr.subNodes[chunk], key, chunkIx + 1, wasAdded);
             return Node(curr);
         }
 
@@ -691,7 +672,7 @@ struct RadixTree(Key,
             auto next = construct!(typeof(return));
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             {
-                next.subNode(curr.subChunk(subIx)) = curr.subNodes[subIx];
+                next.subNodes[curr.subChunks[subIx]] = curr.subNodes[subIx];
             }
             freeNode(curr);
             return next;
@@ -704,7 +685,7 @@ struct RadixTree(Key,
             auto next = construct!(typeof(return));
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             {
-                next.subNode(curr.subChunk(subIx)) = curr.subNodes[subIx];
+                next.subNodes[curr.subChunks[subIx]] = curr.subNodes[subIx];
             }
             freeNode(curr);
             return next;
@@ -717,7 +698,7 @@ struct RadixTree(Key,
             auto next = construct!(typeof(return));
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             {
-                next.subNode(curr.subChunk(subIx)) = curr.subNodes[subIx];
+                next.subNodes[curr.subChunks[subIx]] = curr.subNodes[subIx];
             }
             freeNode(curr);
             return next;

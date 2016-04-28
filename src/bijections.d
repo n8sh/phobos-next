@@ -14,7 +14,7 @@ enum isIntegralBijectableType(T) = staticIndexOf!(T, IntegralBijectableTypes) >=
 
 /** Biject (Shift) Signed $(D a) "up" to Unsigned (before radix sorting). */
 auto bijectToUnsigned(T)(T a) @trusted pure nothrow
-    if (isNumeric!T)
+    if (isIntegralBijectableType!T)
 {
     import std.meta : Unqual;
     alias U = Unqual!T;

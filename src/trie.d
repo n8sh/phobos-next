@@ -40,7 +40,7 @@ import std.range : isInputRange, ElementType;
 
 import bijections;
 import variant_ex : WordVariant;
-import typecons_ex : IndexedArray, IndexedBy;
+import typecons_ex : IndexedArray, StrictlyIndexed;
 
 version = benchmark;
 
@@ -282,7 +282,7 @@ struct RadixTree(Key,
     */
     static private struct BrM
     {
-        IndexedBy!(Node[M]) subNodes;
+        StrictlyIndexed!(Node[M]) subNodes;
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow @nogc const
@@ -312,8 +312,8 @@ struct RadixTree(Key,
         enum N = 2;
 
         // TODO merge these into a new `NodeType`
-        IndexedBy!(Node[N]) subNodes;
-        IndexedBy!(IxM[N]) subChunks; // sub-ixMs. TODO Use IxMArray!N instead.
+        StrictlyIndexed!(Node[N]) subNodes;
+        StrictlyIndexed!(IxM[N]) subChunks; // sub-ixMs. TODO Use IxMArray!N instead.
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow const
@@ -334,8 +334,8 @@ struct RadixTree(Key,
         enum N = 4;
 
         // TODO merge these into a new `NodeType`
-        IndexedBy!(Node[N]) subNodes; // TODO used typecons_ex.IndexedArray
-        IndexedBy!(IxM[N]) subChunks; // sub-ixMs. TODO Use IxMArray!N instead.
+        StrictlyIndexed!(Node[N]) subNodes; // TODO used typecons_ex.IndexedArray
+        StrictlyIndexed!(IxM[N]) subChunks; // sub-ixMs. TODO Use IxMArray!N instead.
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow const
@@ -356,8 +356,8 @@ struct RadixTree(Key,
         enum N = 16;
 
         // TODO merge these into a new `NodeType`
-        IndexedBy!(Node[N]) subNodes; // TODO used typecons_ex.IndexedArray
-        IndexedBy!(IxM[N]) subChunks; // sub-ixMs. TODO Use IxMArray!N instead.
+        StrictlyIndexed!(Node[N]) subNodes; // TODO used typecons_ex.IndexedArray
+        StrictlyIndexed!(IxM[N]) subChunks; // sub-ixMs. TODO Use IxMArray!N instead.
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow const

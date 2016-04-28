@@ -199,7 +199,7 @@ auto indexedBy(I, R)(R range)
     return IndexedBy!(R, I)(range);
 }
 
-struct IndexedBy(R, string I_ = "Index")
+struct IndexedBy(R, string I_)
     if (isArray!R &&
         I_ != "I_") // prevent name lookup failure
 {
@@ -225,6 +225,14 @@ struct IndexedBy(R, string I_ = "Index")
     alias _r this; // TODO Use opDispatch instead; to override only opSlice and opIndex
 }
 
+/** Construct wrapper type for `R' which is strictly indexed with type
+    `R.Index`. */
+template StrictlyIndexed(R)
+    if (isArray!R) // prevent name lookup failure
+{
+    alias StrictlyIndexed = IndexedBy!(R, "Index");
+}
+
 /** Instantiator for `IndexedBy`.
  */
 auto indexedBy(string I, R)(R range)
@@ -236,17 +244,17 @@ auto indexedBy(string I, R)(R range)
 
 /** Instantiator for `IndexedBy` with default index set to `I_`.
  */
-auto indexed(R)(R range)
+auto strictlyIndexed(R)(R range)
     if (isArray!R)
 {
-    return IndexedBy!(R)(range);
+    return StrictlyIndexed!(R)(range);
 }
 
 ///
 @safe pure nothrow unittest
 {
     enum N = 7;
-    alias T = IndexedBy!(size_t[N]); // static array
+    alias T = StrictlyIndexed!(size_t[N]); // static array
     static assert(T.sizeof == N*size_t.sizeof);
     import modulo : Mod, mod;
     T x;
@@ -278,7 +286,7 @@ auto indexed(R)(R range)
         auto xi = x.indexedBy!uint;
         auto xj = x.indexedBy!J;
         auto xe = x.indexedBy!E;
-        auto xf = x.indexed;
+        auto xf = x.strictlyIndexed;
 
         auto xs = x.indexedBy!"I";
         alias XS = typeof(xs);

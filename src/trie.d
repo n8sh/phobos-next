@@ -257,12 +257,12 @@ struct RadixTree(Key,
     /** Tree Population and Memory-Usage Statistics. */
     struct Stats
     {
-        SBr02_PopHist sbr02;
-        SBr04_PopHist sbr04;
-        SBr16_PopHist sbr16;
-        SBr0256_PopHist sbr256;
-        BrM_PopHist brM;
-        LeafM_PopHist lfM;
+        SBr02_PopHist popHist_SBr02;
+        SBr04_PopHist popHist_SBr04;
+        SBr16_PopHist popHist_SBr16;
+        SBr0256_PopHist popHist_SBr256;
+        BrM_PopHist popHist_BrM;
+        LeafM_PopHist popHist_LfM;
 
         /** Maps `Node` type/index `Ix` to population.
 
@@ -293,7 +293,7 @@ struct RadixTree(Key,
                 ++nnzSubCount;
                 sub.calculate!(Key, Value, radix)(stats);
             }
-            ++stats.brM[nnzSubCount - 1]; // TODO type-safe indexing
+            ++stats.popHist_BrM[nnzSubCount - 1]; // TODO type-safe indexing
         }
 
         static if (!hasFixedDepth)        // variable length keys only
@@ -328,7 +328,7 @@ struct RadixTree(Key,
                 ++nnzSubCount;
                 sub.calculate!(Key, Value, radix)(stats);
             }
-            ++stats.sbr02[nnzSubCount - 1]; // TODO type-safe indexing
+            ++stats.popHist_SBr02[nnzSubCount - 1]; // TODO type-safe indexing
         }
     }
 
@@ -354,7 +354,7 @@ struct RadixTree(Key,
                 ++nnzSubCount;
                 sub.calculate!(Key, Value, radix)(stats);
             }
-            ++stats.sbr04[nnzSubCount - 1]; // TODO type-safe indexing
+            ++stats.popHist_SBr04[nnzSubCount - 1]; // TODO type-safe indexing
         }
     }
 
@@ -380,7 +380,7 @@ struct RadixTree(Key,
                 ++nnzSubCount;
                 sub.calculate!(Key, Value, radix)(stats);
             }
-            ++stats.sbr16[nnzSubCount - 1]; // TODO type-safe indexing
+            ++stats.popHist_SBr16[nnzSubCount - 1]; // TODO type-safe indexing
         }
     }
 
@@ -392,7 +392,7 @@ struct RadixTree(Key,
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure const
         {
-            ++stats.lfM[keyLSBits.countOnes - 1];
+            ++stats.popHist_LfM[keyLSBits.countOnes - 1];
         }
 
         import bitset : BitSet;
@@ -709,7 +709,7 @@ struct RadixTree(Key,
             return next;
         }
 
-        /** Destructively expand `sbr04` into a `BrM` and return it. */
+        /** Destructively expand `popHist_SBr04` into a `BrM` and return it. */
         BrM* expand(SBr16* curr) @trusted
         {
             enum N = 16;         // branch-order, number of possible sub-nodes
@@ -1016,12 +1016,12 @@ void benchmark(size_t radix)()
 
             dln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
             auto stats = set.usageHistograms;
-            dln("2-Branch Population Histogram: ", stats.sbr02);
-            dln("4-Branch Population Histogram: ", stats.sbr04);
-            dln("16-Branch Population Histogram: ", stats.sbr16);
-            dln("256-Branch Population Histogram: ", stats.sbr256);
-            dln("M=", 2^^radix, "-Branch Population Histogram: ", stats.brM);
-            dln("M=", 2^^radix, "-Leaf   Population Histogram: ", stats.lfM);
+            dln("2-Branch Population Histogram: ", stats.popHist_SBr02);
+            dln("4-Branch Population Histogram: ", stats.popHist_SBr04);
+            dln("16-Branch Population Histogram: ", stats.popHist_SBr16);
+            dln("256-Branch Population Histogram: ", stats.popHist_SBr256);
+            dln("M=", 2^^radix, "-Branch Population Histogram: ", stats.popHist_BrM);
+            dln("M=", 2^^radix, "-Leaf   Population Histogram: ", stats.popHist_LfM);
             dln("Population By Node Type: ", stats.popByNodeType);
 
             size_t totalBytesUsed = 0;

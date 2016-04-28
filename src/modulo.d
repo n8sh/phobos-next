@@ -31,6 +31,8 @@ import std.traits : isIntegral;
 template Mod(size_t m, T = void)
     if (is(T == void) || isIntegral!T)
 {
+    import math_ex : isPow2;
+
     static assert(m > 0, "m must be greater than zero");
 
     static if (!is(T == void)) // check if type `T` was explicitly required

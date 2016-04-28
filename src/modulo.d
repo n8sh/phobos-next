@@ -97,14 +97,14 @@ template Mod(size_t m, T = DefaultModuloType!m)
 auto mod(size_t m, T)(T value)
     if (m >= 1 && isIntegral!T)
 {
-    return Mod!(m, T)(value);
+    return Mod!(m)(value);
 }
 
 ///
 @safe pure nothrow @nogc unittest
 {
-    pragma(msg, typeof(Mod!N(1)));
-    pragma(msg, typeof(1.mod!N));
+    static assert(is(typeof(Mod!3(1)) ==
+                     typeof(1.mod!3)));
 
     // check size logic
     static assert(Mod!(ubyte.max + 1).sizeof == 1);

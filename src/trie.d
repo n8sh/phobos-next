@@ -11,8 +11,6 @@
     TODO Add sparse 2^^n-branches for n < radix: 2^^1=B2, 2^^2=B4, 2^^3=B8, B^^4=B16. Use
     sortExactly from sortn.d to order their members.
 
-    TODO Add traits `isSparseNodeType`, `isDenseNodeType` or PackingOf!(T) returns either dense, sparse
-
     TODO Make SBr02, SBr04, SBr16, SBr256 templated on N when I figure out how
     to elide the recursive template-instantiation. Ask forums
 

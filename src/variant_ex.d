@@ -47,20 +47,11 @@ string makeEnumDefinitionString(string name,
     if (Es.length >= 1)
 {
     typeof(return) s = `enum ` ~ name ~ ` : ubyte { `;
-    static if (firstUndefined)
-    {
-        s ~= `undefined, `;
-    }
+    static if (firstUndefined) { s ~= `undefined, `; }
     foreach (E; Es)
     {
-        static if (E.stringof[$ - 1] == '*')
-        {
-            enum E_ = E.stringof[0 .. $ - 1] ~ "Ptr";
-        }
-        else
-        {
-            enum E_ = E.stringof;
-        }
+        static if (E.stringof[$ - 1] == '*') enum E_ = E.stringof[0 .. $ - 1] ~ "Ptr";
+        else                                 enum E_ = E.stringof;
         s ~= prefix ~ E_ ~ suffix ~ `, `;
     }
     s ~= `}`;
@@ -79,6 +70,7 @@ string makeEnumDefinitionString(string name,
     static assert(Type._intPtr_.stringof == `_intPtr_`);
 }
 
+// TODO integrate
 template makeEnumFromSymbolNames(string prefix = `_`,
                                  string suffix = ``,
                                  bool firstUndefined = true,
@@ -86,14 +78,14 @@ template makeEnumFromSymbolNames(string prefix = `_`,
     if (Es.length >= 1)
 {
     enum members = {
-        string s = "";
+        string s = firstUndefined ? `undefined, ` : ``;
         foreach (E; Es)
         {
             s ~= prefix ~ E.stringof ~ suffix ~ `, `;
         }
         return s;
     }();
-    mixin("enum makeEnumFromSymbolNames {" ~ members ~ "}");
+    mixin("enum makeEnumFromSymbolNames : ubyte {" ~ members ~ "}");
 }
 
 @safe pure nothrow @nogc unittest
@@ -102,6 +94,7 @@ template makeEnumFromSymbolNames(string prefix = `_`,
     alias Types = AliasSeq!(byte, short);
     alias Type = makeEnumFromSymbolNames!(`_`, `_`, true, Types);
     static assert(is(Type == enum));
+    static assert(Type.undefined.stringof == "undefined");
     static assert(Type._byte_.stringof == "_byte_");
     static assert(Type._short_.stringof == "_short_");
 }

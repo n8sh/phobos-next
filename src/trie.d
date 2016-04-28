@@ -273,9 +273,7 @@ struct RadixTree(Key,
         static assert(is(typeof(popByNodeType).Index == Node.Ix));
     }
 
-    /** Non-bottom branch node containing densly packed array of `M` number of
-        pointers to sub-`BrM`s or `Leaf`s.
-    */
+    /** Dense M-Branch with `M` number of sub-nodes. */
     static private struct BrM
     {
         StrictlyIndexed!(Node[M]) subNodes;

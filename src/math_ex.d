@@ -7,35 +7,59 @@ import std.traits : isIntegral;
     See also: http://forum.dlang.org/post/hloonbgclzloqemycnth@forum.dlang.org
     TODO Move to Phobos std.math.
 */
-bool isPow2(T)(T x)
-    if (isIntegral!T)
+bool isPow2(T)(T x) if (isIntegral!T)
 {
     import core.bitop : popcnt;
-    // TODO Use popcnt if available otherwise (x & -x) > (x - 1);
-    // return (x & -x) > (x - 1);
     return popcnt(x) == 1;
 }
 alias isPowerOf2 = isPow2;
 
+/// ditto
+bool isPow2A(T)(T x) if (isIntegral!T)
+{
+    return x && !(x & (x - 1));
+}
+
+bool isPow2D(T)(T x) if (isIntegral!T)
+{
+    return (x > 0) && !(x & (x - 1));
+}
+
+/// ditto, avoids a jump instruction.
+bool isPow2E(T)(T x) if (isIntegral!T)
+{
+    return (x > 0) & !(x & (x - 1));
+}
+
+/// ditto
+bool isPow2F(T)(T x) if (isIntegral!T)
+{
+    return (x & -x) > (x >>> 1);
+}
+
 @safe pure nothrow @nogc unittest
 {
-    // run-time
-    assert(!7.isPow2);
-    assert(8.isPow2);
-    assert(!9.isPow2);
+    import std.meta : AliasSeq;
+    foreach (f; AliasSeq!(isPow2, isPow2A, isPow2D, isPow2E, isPow2F))
+    {
+        // run-time
+        assert(!f(7));
+        assert(f(8));
+        assert(!f(9));
 
-    // compile-time
-    static assert(!7.isPow2);
-    static assert(8.isPow2);
-    static assert(!9.isPow2);
+        // compile-time
+        static assert(!f(7));
+        static assert(f(8));
+        static assert(!f(9));
 
-    assert(!0.isPow2);
-    assert(1.isPow2);
-    assert(2.isPow2);
-    assert(!3.isPow2);
-    assert(4.isPow2);
-    assert(!5.isPow2);
-    assert(!6.isPow2);
-    assert(!7.isPow2);
-    assert(8.isPow2);
+        assert(!f(0));
+        assert(f(1));
+        assert(f(2));
+        assert(!f(3));
+        assert(f(4));
+        assert(!f(5));
+        assert(!f(6));
+        assert(!f(7));
+        assert(f(8));
+    }
 }

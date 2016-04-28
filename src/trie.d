@@ -327,7 +327,7 @@ struct RadixTree(Key,
         enum N = 4;
 
         // TODO merge these into a new `NodeType`
-        StrictlyIndexed!(Node[N]) subNodes; // TODO used typecons_ex.IndexedArray
+        StrictlyIndexed!(Node[N]) subNodes;
         StrictlyIndexed!(IxM[N]) subChunks; // sub-ixMs. TODO Use IxMArray!N instead.
 
         /** Append statistics of tree under `this` into `stats`. */
@@ -349,7 +349,7 @@ struct RadixTree(Key,
         enum N = 16;
 
         // TODO merge these into a new `NodeType`
-        StrictlyIndexed!(Node[N]) subNodes; // TODO used typecons_ex.IndexedArray
+        StrictlyIndexed!(Node[N]) subNodes;
         StrictlyIndexed!(IxM[N]) subChunks; // sub-ixMs. TODO Use IxMArray!N instead.
 
         /** Append statistics of tree under `this` into `stats`. */

@@ -17,9 +17,6 @@
     TODO Add RadixTreeRange.{front,popFront,empty}. Reuse RefCounted reference
     to _root. Add checks with `isSorted`.
 
-    TODO Name members so they indicate that range is sorted (`isSorted`).
-    TODO Name members to indicate complexity
-
     TODO Should opBinaryRight return void* instead of bool for set-case?
 
     TODO Templatize node types including SBrXX on `N` and `UKey` but *not* on

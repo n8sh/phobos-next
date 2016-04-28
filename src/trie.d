@@ -1066,7 +1066,7 @@ void benchmark(size_t radix)()
 @safe pure nothrow @nogc
 unittest
 {
-    check!(4, float, double, uint, ulong);
+    check!(4, float, double, uint, ulong, dchar);
     check!(8, float, double, uint, ulong);
 }
 

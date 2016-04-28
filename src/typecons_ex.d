@@ -16,7 +16,7 @@ public import ties;
 
 import std.typecons: Nullable, NullableRef;
 
-/** Instantiator for $(D Nullable).
+/** Instantiator for `Nullable`.
  */
 auto nullable(T)(T a)
 {
@@ -28,7 +28,7 @@ unittest
     assert(is(typeof(x) == Nullable!double));
 }
 
-/** Instantiator for $(D Nullable).
+/** Instantiator for `Nullable`.
 */
 auto nullable(alias nullValue, T)(T value)
     if (is (typeof(nullValue) == T))
@@ -41,7 +41,7 @@ unittest
     assert(is (typeof(x) == Nullable!(int, int.max)));
 }
 
-/** Instantiator for $(D NullableRef).
+/** Instantiator for `NullableRef`.
  */
 auto nullableRef(T)(T* a) @safe pure nothrow
 {
@@ -68,7 +68,7 @@ template New(T) if (is(T == class))
 import std.traits: isArray, isUnsigned, isInstanceOf, isSomeString;
 import std.range.primitives: hasSlicing;
 
-/** Check if $(D T) is castable to $(D U).
+/** Check if `T` is castable to `U`.
  */
 enum isCastableTo(T, U) = __traits(compiles, { T i = 0; cast(U)i; });
 
@@ -76,7 +76,7 @@ enum isIndex(I) = (is(I == enum) ||
                    isUnsigned!I || // TODO should we allow isUnsigned here?
                    isCastableTo!(I, size_t));
 
-/** Check if $(D R) is indexable by $(D I). */
+/** Check if `R` is indexable by `I`. */
 enum isIndexableBy(R, I) = (isArray!R && // TODO generalize to RandomAccessContainers. Ask on forum for hasIndexing!R.
                             isIndex!I);
 
@@ -86,7 +86,7 @@ unittest
 }
 
 /**
-   Check if $(D R) is indexable by $(D I).
+   Check if `R` is indexable by `I`.
  */
 enum isIndexableBy(R, alias I) = (isArray!R && // TODO generalize to RandomAccessContainers. Ask on forum for hasIndexing!R.
                                   (isSomeString!(typeof(I))));
@@ -118,7 +118,7 @@ mixin template genOps(T)
     }
 }
 
-/** Wrapper for $(D R) with Type-Safe $(D I)-Indexing.
+/** Wrapper for `R` with Type-Safe `I`-Indexing.
     See also: http://forum.dlang.org/thread/gayfjaslyairnzrygbvh@forum.dlang.org#post-gayfjaslyairnzrygbvh:40forum.dlang.org
 
     TODO Merge with https://github.com/rcorre/enumap
@@ -128,7 +128,7 @@ mixin template genOps(T)
 
     TODO Rename to something more concise such as [Bb]y.
 
-    TODO Allow $(D I) to be a string and if so derive $(D Index) to be that string.
+    TODO Allow `I` to be a string and if so derive `Index` to be that string.
 
     TODO Support R being a static array:
          - If I is an enum its number of elements should match R.length
@@ -142,7 +142,7 @@ struct IndexedBy(R, I)
     alias _r this; // TODO Use opDispatch instead; to override only opSlice and opIndex
 }
 
-/** Instantiator for $(D IndexedBy).
+/** Instantiator for `IndexedBy`.
  */
 auto indexedBy(I, R)(R range)
     if (isIndexableBy!(R, I))
@@ -167,7 +167,7 @@ struct IndexedBy(R, string I_ = "Index")
     alias _r this; // TODO Use opDispatch instead; to override only opSlice and opIndex
 }
 
-/** Instantiator for $(D IndexedBy).
+/** Instantiator for `IndexedBy`.
  */
 auto indexedBy(string I, R)(R range)
     if (isArray!R &&
@@ -176,7 +176,7 @@ auto indexedBy(string I, R)(R range)
     return IndexedBy!(R, I)(range);
 }
 
-/** Instantiator for $(D IndexedBy).
+/** Instantiator for `IndexedBy` with default index set to `I_`.
  */
 auto indexed(R)(R range)
     if (isArray!R)

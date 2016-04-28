@@ -2,7 +2,9 @@
 
     See also: https://en.wikipedia.org/wiki/Trie
 
-    TODO tuple keys are mapped to a ubyte array aliased to a raw/binary BKey
+    TODO tuple keys are mapped to a ubyte array aliased to a raw/binary
+    BKey. Need trait to figure if all expanded members are fixed-sized then key
+    will be that aswell.
 
     TODO Can we somehow overload opIndex so we can do brM[i] instead of more cumbersome (*brM)[i] when brM is of type BrM*?
 

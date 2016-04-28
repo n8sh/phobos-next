@@ -1,19 +1,20 @@
 module bijections;
 
-import std.meta : AliasSeq;
+import std.meta : AliasSeq, staticIndexOf;
 
 import std.traits : isUnsigned, isSigned, isIntegral, isFloatingPoint, Unsigned, Signed, isNumeric;
 
-alias IntegralBijectableTypes = AliasSeq!(ubyte, ushort, uint, ulong,
-                                          byte, short, int, long,
+/** List of types that are bijectable to builtin integral types. */
+alias IntegralBijectableTypes = AliasSeq!(ubyte, ushort, uint, ulong, // TODO ucent?
+                                          byte, short, int, long, // TODO cent?
                                           char, wchar, dchar,
-                                          float, double);
+                                          float, double); // TODO real?
 
-enum isRadixSortableElementType(T) = false; // TODO Among(T, IntegralBijectableTypes);
+enum isIntegralBijectableType(T) = staticIndexOf!(T, IntegralBijectableTypes);
 
 /** Biject (Shift) Signed $(D a) "up" to Unsigned (before radix sorting). */
 @trusted pure nothrow auto bijectToUnsigned(T)(T a)
-if (isNumeric!T)
+    if (isNumeric!T)
 {
     static if (isIntegral!T)
     {

@@ -38,7 +38,7 @@ module trie;
 import std.traits : isIntegral, isSomeChar, isSomeString, isScalarType, isArray, allSatisfy, anySatisfy, isPointer;
 import std.range : isInputRange, ElementType;
 
-import bijections;
+import bijections : isIntegralBijectableType;
 import variant_ex : WordVariant;
 import typecons_ex : IndexedArray, StrictlyIndexed;
 
@@ -46,7 +46,7 @@ version = benchmark;
 
 import dbg;
 
-enum isFixedTrieableKeyType(T) = isScalarType!T;
+alias isFixedTrieableKeyType = isIntegralBijectableType;
 
 enum isTrieableKeyType(T) = (isFixedTrieableKeyType!T ||
                              (isInputRange!T &&

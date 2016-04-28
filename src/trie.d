@@ -88,11 +88,14 @@ struct RadixTree(Key,
     alias order = M;   // tree order
     alias R = radix;
 
-    /// Tree depth.
-    enum maxDepth = 8*Key.sizeof / R;
-
     /// `true` if tree has fixed a key of fixed length and in turn a tree of fixed max depth.
     enum hasFixedDepth = isFixedTrieableKeyType!Key;
+
+    static if (hasFixedDepth)
+    {
+        /// Maximum depth.
+        enum maxDepth = 8*Key.sizeof / R;
+    }
 
     /// `true` if tree has binary branch.
     enum isBinary = R == 2;

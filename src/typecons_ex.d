@@ -202,8 +202,7 @@ auto indexed(R)(R range)
     static assert(T.sizeof == N*size_t.sizeof);
     import modulo : Mod, mod;
     x[Mod!N(1)] = 1;
-    pragma(msg, typeof(Mod!N(1)));
-    pragma(msg, typeof(1.mod!N));
+    // TODO x[1.mod!N] = 1;
 }
 
 ///

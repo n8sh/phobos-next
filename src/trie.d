@@ -385,8 +385,8 @@ struct RadixTree(Key,
         }
     }
 
-    /** Bottom-most leaf node of `RadixTree`-set storing `M` number of densly packed
-        keys of fixed-length type `Key`.
+    /** Bottom-most leaf node of tree storing `M` number of densly packed keys
+        of fixed-length type `Key`.
     */
     static private struct LfM
     {

@@ -122,6 +122,13 @@ struct RadixTree(Key,
                 IxM[maxLength] ixMs; // TODO pack 14 `IxM` through a range interface
                 ubyte length;
                 ubyte _ignored;
+                static if (isMap)
+                {
+                    static if (is(Value == bool))
+                        BitSet!maxLength values; // memory-efficient storage of `bool` values
+                    else
+                        Value[maxLength] values;
+                }
             }
         }
         else static if (radix == 8)
@@ -132,6 +139,13 @@ struct RadixTree(Key,
                 IxM[maxLength] ixMs;
                 ubyte length;
                 ubyte _ignored;
+                static if (isMap)
+                {
+                    static if (is(Value == bool))
+                        BitSet!maxLength values; // memory-efficient storage of `bool` values
+                    else
+                        Value[maxLength] values;
+                }
             }
         }
         // TODO handle radix != 8
@@ -153,7 +167,8 @@ struct RadixTree(Key,
     alias DefaultBranchType = DefaultRootType;
     alias DefaultLeafType = PLfs; // TODO use either LfM* or PLfs instead
 
-    static assert(PLfs.sizeof == size_t.sizeof); // assert that it's size matches platform word-size
+    static if (isSet)
+        static assert(PLfs.sizeof == size_t.sizeof); // assert that it's size matches platform word-size
 
     /** Indicate that all leaves in this branch are set (denseness compression) */
     struct All1 {}
@@ -293,10 +308,7 @@ struct RadixTree(Key,
         static if (!hasFixedDepth)        // variable length keys only
         {
             LfM subOccupations; // if i:th bit is set key (and optionally value) associated with sub[i] is also defined
-            static if (isMap)
-            {
-                Value value;
-            }
+            static if (isMap) { Value value; }
         }
     }
 
@@ -383,13 +395,9 @@ struct RadixTree(Key,
         static if (isMap)
         {
             static if (is(Value == bool))
-            {
                 BitSet!M values; // memory-efficient storage of `bool` values
-            }
             else
-            {
                 Value[M] values;
-            }
         }
     }
 

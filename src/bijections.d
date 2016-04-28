@@ -50,12 +50,12 @@ auto bijectToUnsigned(T)(T a) @trusted pure nothrow
 
     /** Biject (Shift) Unsigned  $(D a) "back down" to Signed (after radix sorting). */
     void bijectFromUnsigned(U)(U a, ref Signed!U b)
-    if (isUnsigned!T)
+        if (isUnsigned!T)
     {
         b = a - (cast(Unsigned!T)1 << (8*U.sizeof - 1)); // "add down""
     }
     void bijectFromUnsigned(U)(U a, ref U b)
-    if (isUnsigned!U)
+        if (isUnsigned!U)
     {
         b = a;                  ///< Identity.
     }

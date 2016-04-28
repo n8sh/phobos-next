@@ -103,6 +103,9 @@ auto mod(size_t m, T)(T value)
 ///
 @safe pure nothrow @nogc unittest
 {
+    pragma(msg, typeof(Mod!N(1)));
+    pragma(msg, typeof(1.mod!N));
+
     // check size logic
     static assert(Mod!(ubyte.max + 1).sizeof == 1);
     static assert(Mod!(ubyte.max + 2).sizeof == 2);

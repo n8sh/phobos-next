@@ -1024,25 +1024,31 @@ void benchmark(size_t radix)()
             dln("M=", 2^^radix, "-Leaf   Population Histogram: ", stats.lfM);
             dln("Population By Node Type: ", stats.popByNodeType);
 
-            size_t bytesUsed = 0;
+            size_t totalBytesUsed = 0;
             foreach (Set.Node.Ix ix, pop; stats.popByNodeType) // TODO infer ix to be of type Ix
             {
+                size_t bytesUsed = 0;
                 with (Set.Node.Ix)
                 {
                     final switch (ix)
                     {
                     case undefined: break;
-                    case ix_PLfs:     bytesUsed += pop*Set.PLfs.sizeof; break;
-                    case ix_All1:     bytesUsed += pop*Set.All1.sizeof; break;
-                    case ix_SBr02Ptr: bytesUsed += pop*Set.SBr02.sizeof; break;
-                    case ix_SBr04Ptr: bytesUsed += pop*Set.SBr04.sizeof; break;
-                    case ix_SBr16Ptr: bytesUsed += pop*Set.SBr16.sizeof; break;
-                    case ix_BrMPtr:   bytesUsed += pop*Set.BrM.sizeof; break;
-                    case ix_LfMPtr:   bytesUsed += pop*Set.LfM.sizeof; break;
+                    case ix_PLfs:     bytesUsed = pop*Set.PLfs.sizeof; break;
+                    case ix_All1:     bytesUsed = pop*Set.All1.sizeof; break;
+                    case ix_SBr02Ptr: bytesUsed = pop*Set.SBr02.sizeof; break;
+                    case ix_SBr04Ptr: bytesUsed = pop*Set.SBr04.sizeof; break;
+                    case ix_SBr16Ptr: bytesUsed = pop*Set.SBr16.sizeof; break;
+                    case ix_BrMPtr:   bytesUsed = pop*Set.BrM.sizeof; break;
+                    case ix_LfMPtr:   bytesUsed = pop*Set.LfM.sizeof; break;
                     }
                 }
+                totalBytesUsed += bytesUsed;
+                if (bytesUsed)
+                {
+                    dln("Ix ", ix, " Mbytes used ", bytesUsed/1e6);
+                }
             }
-            dln("Bytes Used: ", bytesUsed);
+            dln("Total Mbytes Used: ", totalBytesUsed/1e6);
 
             sleep(2);
             dln("Sleeping done");

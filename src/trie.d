@@ -1045,10 +1045,10 @@ void benchmark(size_t radix)()
                 totalBytesUsed += bytesUsed;
                 if (bytesUsed)
                 {
-                    dln("Ix ", ix, " Mbytes used ", bytesUsed/1e6);
+                    dln(pop, " number of ", "Ix:x", ix, " uses ", bytesUsed/1e6, " megabytes");
                 }
             }
-            dln("Total Mbytes Used: ", totalBytesUsed/1e6);
+            dln("Tree uses ", totalBytesUsed/1e6, " megabytes");
 
             sleep(2);
             dln("Sleeping done");

@@ -6,10 +6,10 @@
     BKey. Need trait to figure if all expanded members are fixed-sized then key
     will be that aswell.
 
-    TODO - `set.prefix("alpha")` => `SortedTreeRange` of `Tuple!(string, Lang, PoT, Sense)`.
-    TODO - `set.prefix(tuple("alpha"))` => `SortedTreeRange` of `Tuple!(Lang, PoT, Sense)`.
+    TODO - `set.prefix("alpha")`                           => `SortedTreeRange` of `Tuple!(string, Lang, PoT, Sense)`.
+    TODO - `set.prefix(tuple("alpha"))`                    => `SortedTreeRange` of `Tuple!(Lang, PoT, Sense)`.
     TODO - `set.prefix(tuple("alpha", Lang.en, PoT.noun))` => `SortedTreeRange` of `Sense`.
-    TODO - `set.prefix(tuple("alpha", Lang.en))` => `SortedTreeRange` of `Tuple!(PoT, Sense)`.
+    TODO - `set.prefix(tuple("alpha", Lang.en))`           => `SortedTreeRange` of `Tuple!(PoT, Sense)`.
 
     TODO Can we somehow overload opIndex so we can do brM[i] instead of more cumbersome (*brM)[i] when brM is of type BrM*?
 

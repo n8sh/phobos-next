@@ -706,7 +706,7 @@ static private void calculate(Key, Value, size_t radix)(RadixTree!(Key, Value, r
         final switch (sub.typeIx)
         {
         case undefined: break;
-        case ix_PLfs: break; // TODO calculate
+        case ix_PLfs: break; // TODO calculate()
         case ix_All1: break;
         case ix_Br2Ptr: sub.as!(RT.Br2*).calculate(stats); break;
         case ix_BrMPtr: sub.as!(RT.BrM*).calculate(stats); break;

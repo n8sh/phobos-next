@@ -238,6 +238,8 @@ struct RadixTree(Key,
         It high;                // beyond last
     }
 
+    // TODO move these definitions inside branch definitions?
+
     /** M-Branch population histogram.
         Index maps to population with value range (1 .. M).
     */

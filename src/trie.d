@@ -306,6 +306,7 @@ struct RadixTree(Key,
         }
     }
 
+    /** Sparse/Packed 2-Branch. */
     static private struct SBr02
     {
         enum N = 2;
@@ -326,6 +327,7 @@ struct RadixTree(Key,
         }
     }
 
+    /** Sparse/Packed 4-Branch. */
     static private struct SBr04
     {
         enum N = 4;
@@ -346,6 +348,7 @@ struct RadixTree(Key,
         }
     }
 
+    /** Sparse/Packed 16-Branch. */
     static private struct SBr16
     {
         enum N = 16;

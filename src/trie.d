@@ -9,6 +9,8 @@
 
     TODO Make Br2 templated on N when I figure out how
     to elide the recursive template-instantiation. Ask forums
+    TODO Templatize node types including SBrXX on `N` and `UKey` but *not* on
+    `Key` and instantiate as N 2, 4, 16, 256.
 
     TODO Provide `opIndex` and make `opSlice` for set-case (`Value` is `void`) return `SortedRange`
     TODO Provide RandomAccess `opIndex` and `opSlice`! for variable-length keys aswell?
@@ -18,9 +20,6 @@
     to _root. Add checks with `isSorted`.
 
     TODO Should opBinaryRight return void* instead of bool for set-case?
-
-    TODO Templatize node types including SBrXX on `N` and `UKey` but *not* on
-    `Key` and instantiate as N 2, 4, 16, 256.
  */
 module trie;
 

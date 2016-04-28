@@ -413,9 +413,6 @@ auto strictlyIndexed(R)(R range)
     auto y = x.indexedBy!B;
 }
 
-/** TODO shorter name */
-enum StaticArrayOfElementTypeIndexedBy(E, I) = IndexedBy!(E[I.elementCountOf!E], I);
-
 /** Returns: a `string` containing the definition of an `enum` named `name` and
     with enumerator names given by `Es`, optionally prepended with `prefix` and
     appended with `suffix`.

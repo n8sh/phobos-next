@@ -431,28 +431,6 @@ struct RadixTree(Key,
     }
 
     /** Get chunkIx:th chunk of `radix` number of bits. */
-    IxM bitsChunk(ChunkIx chunkIx)(UKey ukey) const @trusted pure nothrow
-    {
-        // calculate bit shift to current chunk
-        static if (isIntegral!Key ||
-                   isSomeChar!Key) // because top-most bit in ASCII coding (char) is often sparse (0 is much more common than 1)
-        {
-            /* most signficant bit chunk first because integers are
-               typically more sparse in more significant bits */
-            enum shift = (maxDepth - 1 - chunkIx)*R;
-        }
-        else
-        {
-            // default to most signficant bit chunk first
-            enum shift = (maxDepth - 1 - chunkIx)*R;
-            // enum shift = chunkIx*R; // least significant bit first
-        }
-
-        const IxM chunk = (ukey >> shift) & chunkMask; // part of value which is also an index
-        return chunk;
-    }
-
-    /** Get chunkIx:th chunk of `radix` number of bits. */
     IxM bitsChunk()(in UKey ukey, ChunkIx chunkIx) const @trusted pure nothrow
     {
         // calculate bit shift to current chunk

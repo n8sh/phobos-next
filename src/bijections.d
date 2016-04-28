@@ -8,10 +8,9 @@ import std.traits : isUnsigned, isSigned, isIntegral, Unsigned, Signed, isNumeri
 alias IntegralBijectableTypes = AliasSeq!(char, wchar, dchar,
                                           ubyte, ushort, uint, ulong, // TODO ucent?
                                           byte, short, int, long, // TODO cent?
-                                          char, wchar, dchar,
                                           float, double); // TODO real?
 
-enum isIntegralBijectableType(T) = staticIndexOf!(T, IntegralBijectableTypes);
+enum isIntegralBijectableType(T) = staticIndexOf!(T, IntegralBijectableTypes) >= 0;
 
 /** Biject (Shift) Signed $(D a) "up" to Unsigned (before radix sorting). */
 auto bijectToUnsigned(T)(T a) @trusted pure nothrow

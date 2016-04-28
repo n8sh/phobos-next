@@ -24,6 +24,7 @@
 module trie;
 
 import std.traits : isIntegral, isSomeChar, isSomeString, isScalarType, isArray, allSatisfy, anySatisfy, isPointer;
+import std.typecons : tuple, Tuple;
 import std.range : isInputRange, ElementType;
 
 import bijections : isIntegralBijectableType, bijectToUnsigned;

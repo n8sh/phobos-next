@@ -34,11 +34,9 @@ import std.traits : isIntegral;
     TODO Move to Phobos std.typecons
  */
 template Mod(size_t m, T = void)
-    if (is(T == void) || isIntegral!T)
+    if (m >= 2 && (is(T == void) || isIntegral!T))
 {
     import math_ex : isPow2;
-
-    static assert(m >= 2, "m must be at least 2");
 
     static if (!is(T == void)) // check if type `T` was explicitly required
     {
@@ -98,7 +96,7 @@ template Mod(size_t m, T = void)
 
 /// Instantiator for `Mod`.
 auto mod(size_t m, T)(T value)
-    if (isIntegral!T)
+    if (m >= 2 && isIntegral!T)
 {
     return Mod!(m, T)(value);
 }

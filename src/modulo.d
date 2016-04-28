@@ -59,7 +59,7 @@ template Mod(size_t m, T = void)
         }
         body
         {
-            this.x = cast(S)value; // TODO ok to cast here?
+            this.x = cast(S)value; // overflow checked in ctor
         }
 
         auto ref opAssign(U)(U value)
@@ -70,21 +70,21 @@ template Mod(size_t m, T = void)
         }
         body
         {
-            this.x = cast(S)value; // TODO ok to cast here?
+            this.x = cast(S)value; // overflow checked in ctor
         }
 
         /// Construct from Mod!n, where `m >= n`.
         this(size_t n, U)(Mod!(n, U) rhs)
             if (m >= n && isIntegral!U)
         {
-            this.x = rhs.x;
+            this.x = cast(S)rhs.x; // cannot overflow
         }
 
         /// Assign from Mod!n, where `m >= n`.
         auto ref opAssign(size_t n, U)(Mod!(n, U) rhs)
             if (m >= n && isIntegral!U)
         {
-            this.x = rhs.x;
+            this.x = cast(S)rhs.x; // cannot overflow
         }
 
         @property size_t _prop() const { return x; } // read-only access
@@ -127,6 +127,7 @@ auto mod(size_t m, T)(T value)
 
     Mod!(8, uint) ui8 = 7;
     Mod!(256, ubyte) ub256 = 255;
+    ub256 = ui8;    // can assign to larger modulo from higher storage precision
 
     Mod!(258, ushort) ub258 = ub256;
 

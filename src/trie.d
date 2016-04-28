@@ -957,7 +957,7 @@ void benchmark(size_t radix)()
     struct TestValueType { int i; float f; string s; }
     alias Value = TestValueType;
     import std.meta : AliasSeq;
-    foreach (Key; AliasSeq!(uint))
+    foreach (Key; AliasSeq!(uint)) // just benchmark uint for now
     {
         auto set = radixTreeSet!(Key, radix);
         alias Set = set;

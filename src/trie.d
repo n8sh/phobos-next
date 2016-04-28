@@ -37,6 +37,7 @@ import std.range : isInputRange, ElementType;
 
 import bijections;
 import variant_ex : WordVariant;
+import typecons_ex : IndexedArray;
 
 version = benchmark;
 
@@ -268,7 +269,6 @@ struct RadixTree(Key,
             Used to calculate complete tree memory usage, excluding allocator
             overhead typically via `malloc` and `calloc`.
          */
-        import typecons_ex : IndexedArray;
         IndexedArray!(size_t, Node.Ix) popByNodeType;
         static assert(is(typeof(popByNodeType).Index == Node.Ix));
     }
@@ -278,7 +278,7 @@ struct RadixTree(Key,
     */
     static private struct BrM
     {
-        Node[M] subNodes; // TODO used typecons_ex.indexedBy
+        Node[M] subNodes; // TODO used typecons_ex.IndexedArray
 
         // Indexing with internal range check is safely avoided.
         // TODO move to modulo.d: opIndex(T[M], IxM i) or subNode(T[M], IxM i) if that doesn't work
@@ -311,7 +311,7 @@ struct RadixTree(Key,
     {
         enum N = 2;
         // TODO merge these into a new `NodeType`
-        Node[N] subNodes; // TODO used typecons_ex.indexedBy
+        Node[N] subNodes; // TODO used typecons_ex.IndexedArray
         IxM[N] subChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM!2 instead.
 
         // Indexing with internal range check is safely avoided.
@@ -337,7 +337,7 @@ struct RadixTree(Key,
     {
         enum N = 4;
         // TODO merge these into a new `NodeType`
-        Node[N] subNodes; // TODO used typecons_ex.indexedBy
+        Node[N] subNodes; // TODO used typecons_ex.IndexedArray
         IxM[N] subChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM!4 instead.
 
         // Indexing with internal range check is safely avoided.
@@ -363,7 +363,7 @@ struct RadixTree(Key,
     {
         enum N = 16;
         // TODO merge these into a new `NodeType`
-        Node[N] subNodes; // TODO used typecons_ex.indexedBy
+        Node[N] subNodes; // TODO used typecons_ex.IndexedArray
         IxM[N] subChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM!16 instead.
 
         // Indexing with internal range check is safely avoided.

@@ -706,7 +706,7 @@ static private void calculate(Key, Value, size_t radix)(RadixTree!(Key, Value, r
         final switch (sub.typeIx)
         {
         case undefined: break;
-        case ix_PLfs: break;
+        case ix_PLfs: break; // TODO calculate
         case ix_All1: break;
         case ix_Br2Ptr: sub.as!(RT.Br2*).calculate(stats); break;
         case ix_BrMPtr: sub.as!(RT.BrM*).calculate(stats); break;
@@ -819,9 +819,9 @@ void benchmark(size_t radix)()
 
             dln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
             auto stats = set.usageHistograms;
-            dln("2-Branch Population Histogram: ", stats.popHist_Br2);
-            dln("M=", 2^^radix, "-Branch Population Histogram: ", stats.popHist_BrM);
-            dln("M=", 2^^radix, "-Leaf   Population Histogram: ", stats.popHist_LfM);
+            dln("Sparse 2-Branch Population Histogram: ", stats.popHist_Br2);
+            dln("Dense M=", 2^^radix, "-Branch Population Histogram: ", stats.popHist_BrM);
+            dln("Dense M=", 2^^radix, "-Leaf   Population Histogram: ", stats.popHist_LfM);
             dln("Population By Node Type: ", stats.popByNodeType);
 
             size_t totalBytesUsed = 0;

@@ -222,25 +222,3 @@ bool isDefaulted(T)(in T a) @safe pure nothrow @nogc
 }
 alias isUntouched = isDefaulted;
 alias isInited = isDefaulted;
-
-/** Check if $(D x) is a power of 2 (binary power).
-    See also: http://forum.dlang.org/thread/zumhmosfkvwjymjhmtlt@forum.dlang.org#post-fvnmurrctavpfkunssdf:40forum.dlang.org
-    TODO Replace with Phobos builtin. Is there one close to next2Power?
- */
-bool isPowerOf2(uint x) @safe pure nothrow @nogc
-{
-    return (x & -x) > (x - 1);
-}
-
-@safe pure nothrow @nogc unittest
-{
-    assert(!0.isPowerOf2);
-    assert(1.isPowerOf2);
-    assert(2.isPowerOf2);
-    assert(!3.isPowerOf2);
-    assert(4.isPowerOf2);
-    assert(!5.isPowerOf2);
-    assert(!6.isPowerOf2);
-    assert(!7.isPowerOf2);
-    assert(8.isPowerOf2);
-}

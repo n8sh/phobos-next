@@ -79,6 +79,33 @@ string makeEnumDefinitionString(string name,
     static assert(Type._intPtr_.stringof == `_intPtr_`);
 }
 
+template makeEnumFromSymbolNames(string prefix = `_`,
+                                 string suffix = ``,
+                                 bool firstUndefined = true,
+                                 Es...)
+    if (Es.length >= 1)
+{
+    enum members = {
+        string s = "";
+        foreach (E; Es)
+        {
+            s ~= prefix ~ E.stringof ~ suffix ~ `, `;
+        }
+        return s;
+    }();
+    mixin("enum makeEnumFromSymbolNames {" ~ members ~ "}");
+}
+
+@safe pure nothrow @nogc unittest
+{
+    import std.meta : AliasSeq;
+    alias Types = AliasSeq!(byte, short);
+    alias Type = makeEnumFromSymbolNames!(`_`, `_`, true, Types);
+    static assert(is(Type == enum));
+    static assert(Type._byte_.stringof == "_byte_");
+    static assert(Type._short_.stringof == "_short_");
+}
+
 /** A variant of `Types` packed into a word (`size_t`).
 
     Suitable for use in tree-data containers, such as radix trees (tries), where

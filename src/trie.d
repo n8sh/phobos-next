@@ -251,7 +251,7 @@ struct RadixTree(Key,
     */
     alias LeafM_PopHist = size_t[M];
 
-    /** Tree Statistics. */
+    /** Tree Population and Memory-Usage Statistics. */
     struct Stats
     {
         SBr02_PopHist sbr02;
@@ -260,6 +260,13 @@ struct RadixTree(Key,
         SBr0256_PopHist sbr256;
         BrM_PopHist brM;
         LeafM_PopHist lfM;
+
+        /** Maps `Node` type/index `Ix` to population.
+
+            Used to calculate complete tree memory usage, excluding allocator
+            overhead typically via `malloc` and `calloc`.
+         */
+        size_t[Node.Ix.max + 1] populationByNodeIx; // TODO use indexedArray!(size_t, Node.Ix)
     }
 
     /** Non-bottom branch node containing densly packed array of `M` number of

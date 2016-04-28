@@ -195,6 +195,18 @@ auto indexed(R)(R range)
 
 @safe pure nothrow unittest
 {
+    enum N = 7;
+    alias T = IndexedBy!(size_t[N]);
+    T x;
+    static assert(T.sizeof == N*size_t.sizeof);
+    import modulo : Mod, mod;
+    x[Mod!N(1)] = 1;
+    pragma(msg, typeof(Mod!N(1)));
+    pragma(msg, typeof(1.mod!N));
+}
+
+@safe pure nothrow unittest
+{
     int[3] x = [1, 2, 3];
 
     // sample index

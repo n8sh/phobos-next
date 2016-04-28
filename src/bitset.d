@@ -47,7 +47,7 @@ struct BitSet(size_t len, Block = size_t)
     }
 
     /** Gets the $(D i)'th bit in the $(D BitSet). No range checking needed. */
-    static if (len > 0)
+    static if (len >= 1)
     {
         /** Get the $(D i)'th bit in the $(D BitSet).
             No range checking needed because Mod!len is safely pre-bound */
@@ -115,7 +115,7 @@ struct BitSet(size_t len, Block = size_t)
         return b;
     }
 
-    static if (len > 0)
+    static if (len >= 1)
     {
         /** Sets the $(D i)'th bit in the $(D BitSet). No range checking needed. */
         pragma(inline) bool opIndexAssign(bool b, Mod!len i) @trusted pure nothrow
@@ -560,39 +560,42 @@ struct BitSet(size_t len, Block = size_t)
     alias indexesOfOnes = oneIndexes;
 
     /** Get number of bits set in $(D this). */
-    Mod!(len + 1) countOnes() const @safe @nogc pure nothrow
+    static if (len >= 1)
     {
-        ulong n = 0;
-        foreach (ix, block; _data)
+        Mod!(len + 1) countOnes() const @safe @nogc pure nothrow
         {
-            if (block != 0)
+            ulong n = 0;
+            foreach (ix, block; _data)
             {
-                import core.bitop : popcnt;
-                static if (block.sizeof == 4)
-                    n += cast(uint)block.popcnt;
-                else static if (block.sizeof == 8)
-                    n += (cast(ulong)((cast(uint)(block)).popcnt) +
-                          cast(ulong)((cast(uint)(block >> 32)).popcnt));
-                else
-                    assert(false, "Insupported blocks size " ~ to!string(block.sizeof));
+                if (block != 0)
+                {
+                    import core.bitop : popcnt;
+                    static if (block.sizeof == 4)
+                        n += cast(uint)block.popcnt;
+                    else static if (block.sizeof == 8)
+                        n += (cast(ulong)((cast(uint)(block)).popcnt) +
+                              cast(ulong)((cast(uint)(block >> 32)).popcnt));
+                    else
+                        assert(false, "Insupported blocks size " ~ to!string(block.sizeof));
+                }
             }
+            return typeof(return)(n);
         }
-        return typeof(return)(n);
-    }
-    alias count = countOnes;
+        alias count = countOnes;
 
-    alias Q = Rational!ulong;
+        alias Q = Rational!ulong;
 
-    /** Get number of bits set in $(D this). */
-    pragma(inline) Q denseness(int depth = -1) const @safe @nogc pure nothrow
-    {
-        return Q(countOnes, length);
-    }
+        /** Get number of bits set in $(D this). */
+        pragma(inline) Q denseness(int depth = -1) const @safe @nogc pure nothrow
+        {
+            return Q(countOnes, length);
+        }
 
-    /** Get number of Bits Unset in $(D this). */
-    pragma(inline) Q sparseness(int depth = -1) const @safe @nogc pure nothrow
-    {
-        return 1 - denseness(depth);
+        /** Get number of Bits Unset in $(D this). */
+        pragma(inline) Q sparseness(int depth = -1) const @safe @nogc pure nothrow
+        {
+            return 1 - denseness(depth);
+        }
     }
 
     /**

@@ -26,8 +26,6 @@
     TODO Name members so they indicate that range is sorted (`isSorted`).
     TODO Name members to indicate complexity
 
-    TODO Extend bitop_ex.d with {set,get}{Bit,Qit,Bytes} and reuse
-
     TODO Should opBinaryRight return void* instead of bool for set-case?
 
     TODO Templatize SBrXX on `N` and instantiate as N 2, 4, 16, 256.

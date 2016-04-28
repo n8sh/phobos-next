@@ -2,10 +2,11 @@ module bijections;
 
 import std.meta : AliasSeq, staticIndexOf;
 
-import std.traits : isUnsigned, isSigned, isIntegral, isFloatingPoint, Unsigned, Signed, isNumeric;
+import std.traits : isUnsigned, isSigned, isIntegral, Unsigned, Signed, isNumeric;
 
 /** List of types that are bijectable to builtin integral types. */
-alias IntegralBijectableTypes = AliasSeq!(ubyte, ushort, uint, ulong, // TODO ucent?
+alias IntegralBijectableTypes = AliasSeq!(char, wchar, dchar,
+                                          ubyte, ushort, uint, ulong, // TODO ucent?
                                           byte, short, int, long, // TODO cent?
                                           char, wchar, dchar,
                                           float, double); // TODO real?
@@ -18,7 +19,11 @@ auto bijectToUnsigned(T)(T a) @trusted pure nothrow
 {
     import std.meta : Unqual;
     alias U = Unqual!T;
-    static if (isIntegral!U)
+
+    static      if (is(U == char))  return *(cast(ubyte*)&a); // reinterpret
+    else static if (is(U == wchar)) return *(cast(ushort*)&a); // reinterpret
+    else static if (is(U == dchar)) return *(cast(uint*)&a); // reinterpret
+    else static if (isIntegral!U)
     {
         static      if (isSigned!U)
             return a + (cast(Unsigned!U)1 << (8*U.sizeof - 1)); // "add up""
@@ -27,17 +32,9 @@ auto bijectToUnsigned(T)(T a) @trusted pure nothrow
         else
             static assert(false, "Unsupported integral input type " ~ U.stringof);
     }
-    else static if (isFloatingPoint!U)
-    {
-        static      if (is(U == float))
-            return ff(*cast(uint*)(&a));
-        else static if (is(U == double))
-            return ff(*cast(ulong*)(&a));
-        else
-            static assert(false, "Unsupported floating point input type " ~ U.stringof);
-    }
-    else
-        static assert(false, "Unsupported input type " ~ U.stringof);
+    else static if (is(U == float))  return ff(*cast(uint*)(&a));
+    else static if (is(U == double)) return ff(*cast(ulong*)(&a));
+    else static assert(false, "Unsupported input type " ~ U.stringof);
 }
 
 @safe @nogc pure nothrow

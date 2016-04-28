@@ -1,6 +1,6 @@
 module bijections;
 
-import std.meta : AliasSeq, staticIndexOf;
+import std.meta : AliasSeq, staticIndexOf, Unqual;
 
 import std.traits : isUnsigned, isSigned, isIntegral, Unsigned, Signed, isNumeric;
 
@@ -10,13 +10,12 @@ alias IntegralBijectableTypes = AliasSeq!(char, wchar, dchar,
                                           byte, short, int, long, // TODO cent?
                                           float, double); // TODO real?
 
-enum isIntegralBijectableType(T) = staticIndexOf!(T, IntegralBijectableTypes) >= 0;
+enum isIntegralBijectableType(T) = staticIndexOf!(Unqual!T, IntegralBijectableTypes) >= 0;
 
 /** Biject (Shift) Signed $(D a) "up" to Unsigned (before radix sorting). */
 auto bijectToUnsigned(T)(T a) @trusted pure nothrow
     if (isIntegralBijectableType!T)
 {
-    import std.meta : Unqual;
     alias U = Unqual!T;
 
     static      if (is(U == char))  return *(cast(ubyte*)&a); // reinterpret

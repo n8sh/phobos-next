@@ -65,7 +65,7 @@ template New(T) if (is(T == class))
     }
 }
 
-import std.traits: isArray, isUnsigned, isInstanceOf, isSomeString;
+import std.traits: isArray, isStaticArray, isUnsigned, isInstanceOf, isSomeString;
 import std.range.primitives: hasSlicing;
 
 /** Check if `T` is castable to `U`.
@@ -154,15 +154,24 @@ struct IndexedBy(R, string I_ = "Index")
     if (isArray!R &&
         I_ != "I_") // prevent name lookup failure
 {
-    mixin(q{ struct } ~ I_ ~
-          q{ {
-                  alias T = size_t;
-                  this(T ix) { this._ix = ix; }
-                  T opCast(U : T)() const { return _ix; }
-                  private T _ix = 0;
-              }
-          });
-    mixin genOps!(mixin(I_));
+    static if (isStaticArray!R) // if length is known at compile-time
+    {
+        import modulo : Mod;
+        alias I = Mod!(R.length); // use strict access
+        mixin genOps!(I);
+    }
+    else
+    {
+        mixin(q{ struct } ~ I_ ~
+              q{ {
+                      alias T = size_t;
+                      this(T ix) { this._ix = ix; }
+                      T opCast(U : T)() const { return _ix; }
+                      private T _ix = 0;
+                  }
+              });
+        mixin genOps!(mixin(I_));
+    }
     R _r;
     alias _r this; // TODO Use opDispatch instead; to override only opSlice and opIndex
 }

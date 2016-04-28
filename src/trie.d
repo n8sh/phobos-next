@@ -33,7 +33,7 @@ import typecons_ex : IndexedArray, StrictlyIndexed;
 
 version = benchmark;
 
-import dbg;
+import dbg : dln;
 
 alias isFixedTrieableKeyType = isIntegralBijectableType;
 

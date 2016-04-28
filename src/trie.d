@@ -266,8 +266,8 @@ struct RadixTree(Key,
             Used to calculate complete tree memory usage, excluding allocator
             overhead typically via `malloc` and `calloc`.
          */
-        import typecons_ex : IndexedBy;
-        IndexedBy!(size_t[Node.Ix.max + 1], Node.Ix) populationByNodeIx; // TODO use IndexedStaticArrayOf!(size_t, Node.Ix)
+        import typecons_ex : IndexedArray;
+        IndexedArray!(size_t, Node.Ix) populationByNodeIx;
         static assert(is(typeof(populationByNodeIx).Index == Node.Ix));
     }
 

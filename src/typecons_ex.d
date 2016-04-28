@@ -142,6 +142,18 @@ struct IndexedBy(R, I)
     alias _r this; // TODO Use opDispatch instead; to override only opSlice and opIndex
 }
 
+/** Static Array of ElementType `E` indexed by `I`. */
+struct IndexedArray(E, I)
+    if (isIndex!(I) &&
+        I.min == 0)             // TODO assert that `I` is continuous
+{
+    alias Index = I;            /// indexing type
+    mixin genOps!I;
+    alias R = E[I.max + 1];     // needed by mixins
+    R _r;                       // static array
+    alias _r this; // TODO Use opDispatch instead; to override only opSlice and opIndex
+}
+
 /** Instantiator for `IndexedBy`.
  */
 auto indexedBy(I, R)(R range)

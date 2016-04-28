@@ -313,7 +313,7 @@ struct RadixTree(Key,
 
         // TODO merge these into a new `NodeType`
         IndexedBy!(Node[N]) subNodes;
-        IndexedBy!(IxM[N]) subChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM!2 instead.
+        IndexedBy!(IxM[N]) subChunks; // sub-ixMs. TODO Use IxMArray!N instead.
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow const
@@ -335,7 +335,7 @@ struct RadixTree(Key,
 
         // TODO merge these into a new `NodeType`
         IndexedBy!(Node[N]) subNodes; // TODO used typecons_ex.IndexedArray
-        IndexedBy!(IxM[N]) subChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM!4 instead.
+        IndexedBy!(IxM[N]) subChunks; // sub-ixMs. TODO Use IxMArray!N instead.
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow const
@@ -357,7 +357,7 @@ struct RadixTree(Key,
 
         // TODO merge these into a new `NodeType`
         IndexedBy!(Node[N]) subNodes; // TODO used typecons_ex.IndexedArray
-        IndexedBy!(IxM[N]) subChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM!16 instead.
+        IndexedBy!(IxM[N]) subChunks; // sub-ixMs. TODO Use IxMArray!N instead.
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow const

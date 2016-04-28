@@ -146,7 +146,7 @@ struct IndexedBy(R, I)
     TODO assert that `I` is continuous if it is a `enum`.
 */
 struct IndexedArray(E, I)
-    if (isIndex!(I))
+    if (isIndex!I)
 {
     static assert(I.min == 0, "Index type I is currently limited to start at 0 and be continuous");
     alias Index = I;            /// indexing type

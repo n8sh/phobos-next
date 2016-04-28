@@ -20,6 +20,12 @@ bool isPow2A(T)(T x) if (isIntegral!T)
     return x && !(x & (x - 1));
 }
 
+/// ditto
+bool isPow2B(T)(T x) if (isIntegral!T)
+{
+    return (x & -x) > (x - 1);
+}
+
 bool isPow2D(T)(T x) if (isIntegral!T)
 {
     return (x > 0) && !(x & (x - 1));

@@ -193,10 +193,11 @@ auto indexed(R)(R range)
     return IndexedBy!(R)(range);
 }
 
+///
 @safe pure nothrow unittest
 {
     enum N = 7;
-    alias T = IndexedBy!(size_t[N]);
+    alias T = IndexedBy!(size_t[N]); // static array
     T x;
     static assert(T.sizeof == N*size_t.sizeof);
     import modulo : Mod, mod;
@@ -205,6 +206,7 @@ auto indexed(R)(R range)
     pragma(msg, typeof(1.mod!N));
 }
 
+///
 @safe pure nothrow unittest
 {
     int[3] x = [1, 2, 3];
@@ -260,6 +262,7 @@ auto indexed(R)(R range)
     }
 }
 
+///
 @safe pure nothrow unittest
 {
     auto x = [1, 2, 3];
@@ -317,6 +320,7 @@ auto indexed(R)(R range)
     }
 }
 
+///
 @safe pure nothrow unittest
 {
     auto x = [1, 2, 3];
@@ -330,6 +334,7 @@ auto indexed(R)(R range)
     auto xj = x.indexedBy!J;
 }
 
+///
 @safe pure nothrow unittest
 {
     auto x = [1, 2, 3];
@@ -342,6 +347,7 @@ auto indexed(R)(R range)
     static assert(!__traits(compiles, { auto xj = x.indexedBy!J; }));
 }
 
+///
 @safe pure nothrow unittest
 {
     auto x = [1, 2, 3];

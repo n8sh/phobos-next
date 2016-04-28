@@ -140,11 +140,12 @@ auto mod(size_t m, T)(T value)
     assert(a < b);
     assert(a < c);
 
+    // assignment to larger modulo (super-type/set) is allowed
     b = a;
     c = a;
     c = b;
 
-    // assignment to smaller modulo is disallowed
+    // assignment to smaller modulo (sub-type/set) is disallowed
     static assert(!__traits(compiles, { a = b; }));
     static assert(!__traits(compiles, { a = c; }));
 }

@@ -415,3 +415,41 @@ auto strictlyIndexed(R)(R range)
 
 /** TODO shorter name */
 enum StaticArrayOfElementTypeIndexedBy(E, I) = IndexedBy!(E[I.elementCountOf!E], I);
+
+/** Returns: a `string` containing the definition of an `enum` named `name` and
+    with enumerator names given by `Es`, optionally prepended with `prefix` and
+    appended with `suffix`.
+
+    TODO Move to Phobos std.typecons
+*/
+template makeEnumFromSymbolNames(string prefix = `_`,
+                                 string suffix = ``,
+                                 bool firstUndefined = true,
+                                 Es...)
+    if (Es.length >= 1)
+{
+    enum members =
+    {
+        string s = firstUndefined ? `undefined, ` : ``;
+        foreach (E; Es)
+        {
+            static if (E.stringof[$ - 1] == '*') enum E_ = E.stringof[0 .. $ - 1] ~ "Ptr";
+            else                                 enum E_ = E.stringof;
+            s ~= prefix ~ E_ ~ suffix ~ `, `;
+        }
+        return s;
+    }();
+    mixin("enum makeEnumFromSymbolNames : ubyte {" ~ members ~ "}");
+}
+
+@safe pure nothrow @nogc unittest
+{
+    import std.meta : AliasSeq;
+    alias Types = AliasSeq!(byte, short, int*);
+    alias Type = makeEnumFromSymbolNames!(`_`, `_`, true, Types);
+    static assert(is(Type == enum));
+    static assert(Type.undefined.stringof == `undefined`);
+    static assert(Type._byte_.stringof == `_byte_`);
+    static assert(Type._short_.stringof == `_short_`);
+    static assert(Type._intPtr_.stringof == `_intPtr_`);
+}

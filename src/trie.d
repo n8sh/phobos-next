@@ -269,8 +269,8 @@ struct RadixTree(Key,
             overhead typically via `malloc` and `calloc`.
          */
         import typecons_ex : IndexedArray;
-        IndexedArray!(size_t, Node.Ix) populationByNodeIx;
-        static assert(is(typeof(populationByNodeIx).Index == Node.Ix));
+        IndexedArray!(size_t, Node.Ix) popByNodeType;
+        static assert(is(typeof(popByNodeType).Index == Node.Ix));
     }
 
     /** Non-bottom branch node containing densly packed array of `M` number of
@@ -894,7 +894,7 @@ static private void calculate(Key, Value, size_t radix)(RadixTree!(Key, Value, r
     if (allSatisfy!(isTrieableKeyType, Key))
 {
     alias RT = RadixTree!(Key, Value, radix);
-    ++stats.populationByNodeIx[sub.typeIx];
+    ++stats.popByNodeType[sub.typeIx];
 
     with (RT.Node.Ix)
     {
@@ -1022,9 +1022,9 @@ void benchmark(size_t radix)()
             dln("256-Branch Population Histogram: ", stats.sbr256);
             dln("M=", 2^^radix, "-Branch Population Histogram: ", stats.brM);
             dln("M=", 2^^radix, "-Leaf   Population Histogram: ", stats.lfM);
-            dln("Population By Node: ", stats.populationByNodeIx);
+            dln("Population By Node Type: ", stats.popByNodeType);
             size_t bytesUsed = 0;
-            foreach (Set.Node.Ix ix, pop; stats.populationByNodeIx) // TODO infer ix to be of type Ix
+            foreach (Set.Node.Ix ix, pop; stats.popByNodeType) // TODO infer ix to be of type Ix
             {
                 with (Set.Node.Ix)
                 {

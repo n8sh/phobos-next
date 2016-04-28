@@ -1025,7 +1025,7 @@ void benchmark(size_t radix)()
             dln("Population By Node Type: ", stats.popByNodeType);
 
             size_t totalBytesUsed = 0;
-            foreach (Set.Node.Ix ix, pop; stats.popByNodeType) // TODO infer ix to be of type Ix
+            foreach (Set.Node.Ix ix, pop; stats.popByNodeType) // TODO use stats.byPair when added to typecons_ex.d
             {
                 size_t bytesUsed = 0;
                 with (Set.Node.Ix)

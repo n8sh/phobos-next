@@ -310,6 +310,7 @@ struct RadixTree(Key,
     static private struct SBr02
     {
         enum N = 2;
+
         // TODO merge these into a new `NodeType`
         IndexedBy!(Node[N]) subNodes;
         IndexedBy!(IxM[N]) subChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM!2 instead.
@@ -331,6 +332,7 @@ struct RadixTree(Key,
     static private struct SBr04
     {
         enum N = 4;
+
         // TODO merge these into a new `NodeType`
         IndexedBy!(Node[N]) subNodes; // TODO used typecons_ex.IndexedArray
         IndexedBy!(IxM[N]) subChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM!4 instead.
@@ -352,6 +354,7 @@ struct RadixTree(Key,
     static private struct SBr16
     {
         enum N = 16;
+
         // TODO merge these into a new `NodeType`
         IndexedBy!(Node[N]) subNodes; // TODO used typecons_ex.IndexedArray
         IndexedBy!(IxM[N]) subChunks; // sub-ixMs. NOTE wastes space because IxM[N] only requires two bytes. Use IxM!16 instead.

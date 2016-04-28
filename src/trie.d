@@ -279,7 +279,6 @@ struct RadixTree(Key,
         // Indexing with internal range check is safely avoided.
         // TODO move to modulo.d: opIndex(T[M], IxM i) or subNode(T[M], IxM i) if that doesn't work
         pragma(inline) auto ref subNode(IxM i) @trusted { return subNodes.ptr[i]; }
-        pragma(inline) auto ref opIndex(IxM i) { return subNode(i); }
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow /* TODO @nogc */ const

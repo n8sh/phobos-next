@@ -4,8 +4,6 @@
 
     TODO Can we somehow overload opIndex so we can do brM[i] instead of more cumbersome (*brM)[i] when brM is of type BrM*?
 
-    TODO Use `bijectToUnsigned` to support ordered storage of float and double
-
     TODO Add sparse 2^^n-branches for n < radix: 2^^1=B2, 2^^2=B4, 2^^3=B8, B^^4=B16. Use
     sortExactly from sortn.d to order their members.
 
@@ -25,14 +23,13 @@
     TODO Should opBinaryRight return void* instead of bool for set-case?
 
     TODO Templatize SBrXX on `N` and instantiate as N 2, 4, 16, 256.
-
  */
 module trie;
 
 import std.traits : isIntegral, isSomeChar, isSomeString, isScalarType, isArray, allSatisfy, anySatisfy, isPointer;
 import std.range : isInputRange, ElementType;
 
-import bijections : isIntegralBijectableType;
+import bijections : isIntegralBijectableType, bijectToUnsigned;
 import variant_ex : WordVariant;
 import typecons_ex : IndexedArray, StrictlyIndexed;
 
@@ -69,13 +66,15 @@ struct RadixTree(Key,
     import std.algorithm : filter;
     import std.meta : AliasSeq, staticMap;
     import std.typecons : ConstOf;
-    import bitop_ex : UnsignedOfSameSizeAs;
 
     static assert(radix == 4 ||
                   radix == 8 ||
                   radix == 16 ||
                   radix == 24, "Radix is currently limited to either 4, 8, 16, or 24");
     static assert(radix <= 8*Key.sizeof, "Radix must be less than or equal to Key bit-precision"); // TODO Use strictly less than: radix < ... instead?
+
+    /** Internal (Unsigned Integer) Key. */
+    alias UKey = typeof(Key.init.bijectToUnsigned);
 
     enum isSet = is(Value == void); // `true` if this tree is a set
     enum isMap = !isSet;        // `true` if this tree is a map
@@ -421,7 +420,7 @@ struct RadixTree(Key,
     }
 
     /** Get chunkIx:th chunk of `radix` number of bits. */
-    IxM bitsChunk(ChunkIx chunkIx)(in Key key) const @trusted pure nothrow
+    IxM bitsChunk(ChunkIx chunkIx)(UKey ukey) const @trusted pure nothrow
     {
         // calculate bit shift to current chunk
         static if (isIntegral!Key ||
@@ -438,17 +437,16 @@ struct RadixTree(Key,
             // enum shift = chunkIx*R; // least significant bit first
         }
 
-        const u = *(cast(UnsignedOfSameSizeAs!Key*)(&key)); // TODO functionize and reuse here and in intsort.d
-        const IxM chunk = (u >> shift) & chunkMask; // part of value which is also an index
+        const IxM chunk = (ukey >> shift) & chunkMask; // part of value which is also an index
         return chunk;
     }
 
     /** Get chunkIx:th chunk of `radix` number of bits. */
-    IxM bitsChunk()(in Key key, ChunkIx chunkIx) const @trusted pure nothrow
+    IxM bitsChunk()(in UKey ukey, ChunkIx chunkIx) const @trusted pure nothrow
     {
         // calculate bit shift to current chunk
-        static if (isIntegral!Key ||
-                   isSomeChar!Key) // because top-most bit in ASCII coding (char) is often sparse (0 is much more common than 1)
+        static if (isIntegral!UKey ||
+                   isSomeChar!UKey) // because top-most bit in ASCII coding (char) is often sparse (0 is much more common than 1)
         {
             /* most signficant bit chunk first because integers are
                typically more sparse in more significant bits */
@@ -461,8 +459,7 @@ struct RadixTree(Key,
             // enum shift = chunkIx*R; // least significant bit first
         }
 
-        const u = *(cast(UnsignedOfSameSizeAs!Key*)(&key)); // TODO functionize and reuse here and in intsort.d
-        const IxM chunk = (u >> shift) & chunkMask; // part of value which is also an index
+        const IxM chunk = (ukey >> shift) & chunkMask; // part of value which is also an index
         return chunk;
     }
 
@@ -475,33 +472,33 @@ struct RadixTree(Key,
         {
             ensureRootNode;
             bool wasAdded = false; // indicates that key was added
-            _root = insert(_root, key, 0, wasAdded);
+            _root = insert(_root, key.bijectToUnsigned, 0, wasAdded);
             _length += wasAdded;
             return wasAdded;
         }
 
-        pragma(inline) Node insert(Node curr, in Key key, ChunkIx chunkIx, out bool wasAdded) // Node-polymorphic
+        pragma(inline) Node insert(Node curr, in UKey ukey, ChunkIx chunkIx, out bool wasAdded) // Node-polymorphic
         {
             with (Node.Ix)
             {
                 final switch (curr.typeIx)
                 {
                 case undefined: break;
-                case ix_PLfs:     return insert(curr.as!(PLfs),   key, chunkIx, wasAdded);
-                case ix_SBr02Ptr: return insert(curr.as!(SBr02*), key, chunkIx, wasAdded);
-                case ix_SBr04Ptr: return insert(curr.as!(SBr04*), key, chunkIx, wasAdded);
-                case ix_SBr16Ptr: return insert(curr.as!(SBr16*), key, chunkIx, wasAdded);
-                case ix_BrMPtr:   return insert(curr.as!(BrM*),   key, chunkIx, wasAdded);
-                case ix_LfMPtr:   return insert(curr.as!(LfM*),   key, chunkIx, wasAdded);
+                case ix_PLfs:     return insert(curr.as!(PLfs),   ukey, chunkIx, wasAdded);
+                case ix_SBr02Ptr: return insert(curr.as!(SBr02*), ukey, chunkIx, wasAdded);
+                case ix_SBr04Ptr: return insert(curr.as!(SBr04*), ukey, chunkIx, wasAdded);
+                case ix_SBr16Ptr: return insert(curr.as!(SBr16*), ukey, chunkIx, wasAdded);
+                case ix_BrMPtr:   return insert(curr.as!(BrM*),   ukey, chunkIx, wasAdded);
+                case ix_LfMPtr:   return insert(curr.as!(LfM*),   ukey, chunkIx, wasAdded);
                 case ix_All1:     auto curr_ = curr.as!All1; break;
                 }
                 assert(false);
             }
         }
 
-        Node insert(SBr02* curr, in Key key, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(SBr02* curr, in UKey ukey, ChunkIx chunkIx, out bool wasAdded)
         {
-            const IxM chunk = bitsChunk(key, chunkIx);
+            const IxM chunk = bitsChunk(ukey, chunkIx);
 
             enum N = 2;         // branch-order, number of possible sub-nodes
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
@@ -510,25 +507,25 @@ struct RadixTree(Key,
                 {
                     if (curr.subChunks[subIx] == chunk) // and matches chunk
                     {
-                        curr.subNodes[subIx] = insert(curr.subNodes[subIx], key, chunkIx + 1, wasAdded);
+                        curr.subNodes[subIx] = insert(curr.subNodes[subIx], ukey, chunkIx + 1, wasAdded);
                         return Node(curr);
                     }
                 }
                 else            // use first free sub
                 {
-                    curr.subNodes[subIx] = insert(constructSub(chunkIx + 1), key, chunkIx + 1, wasAdded); // use it
+                    curr.subNodes[subIx] = insert(constructSub(chunkIx + 1), ukey, chunkIx + 1, wasAdded); // use it
                     curr.subChunks[subIx] = chunk;
                     return Node(curr);
                 }
             }
 
             // if we got here all N sub-nodes are occupied so we need to expand
-            return insert(expand(curr), key, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
+            return insert(expand(curr), ukey, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
         }
 
-        Node insert(SBr04* curr, in Key key, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(SBr04* curr, in UKey ukey, ChunkIx chunkIx, out bool wasAdded)
         {
-            const IxM chunk = bitsChunk(key, chunkIx);
+            const IxM chunk = bitsChunk(ukey, chunkIx);
 
             enum N = 4;         // branch-order, number of possible sub-nodes
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
@@ -537,25 +534,25 @@ struct RadixTree(Key,
                 {
                     if (curr.subChunks[subIx] == chunk) // and matches chunk
                     {
-                        curr.subNodes[subIx] = insert(curr.subNodes[subIx], key, chunkIx + 1, wasAdded);
+                        curr.subNodes[subIx] = insert(curr.subNodes[subIx], ukey, chunkIx + 1, wasAdded);
                         return Node(curr);
                     }
                 }
                 else            // use first free sub
                 {
-                    curr.subNodes[subIx] = insert(constructSub(chunkIx + 1), key, chunkIx + 1, wasAdded); // use it
+                    curr.subNodes[subIx] = insert(constructSub(chunkIx + 1), ukey, chunkIx + 1, wasAdded); // use it
                     curr.subChunks[subIx] = chunk;
                     return Node(curr);
                 }
             }
 
             // if we got here all N sub-nodes are occupied so we need to expand
-            return insert(expand(curr), key, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
+            return insert(expand(curr), ukey, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
         }
 
-        Node insert(SBr16* curr, in Key key, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(SBr16* curr, in UKey ukey, ChunkIx chunkIx, out bool wasAdded)
         {
-            const IxM chunk = bitsChunk(key, chunkIx);
+            const IxM chunk = bitsChunk(ukey, chunkIx);
 
             enum N = 16;         // branch-order, number of possible sub-nodes
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
@@ -564,23 +561,23 @@ struct RadixTree(Key,
                 {
                     if (curr.subChunks[subIx] == chunk) // and matches chunk
                     {
-                        curr.subNodes[subIx] = insert(curr.subNodes[subIx], key, chunkIx + 1, wasAdded);
+                        curr.subNodes[subIx] = insert(curr.subNodes[subIx], ukey, chunkIx + 1, wasAdded);
                         return Node(curr);
                     }
                 }
                 else            // use first free sub
                 {
-                    curr.subNodes[subIx] = insert(constructSub(chunkIx + 1), key, chunkIx + 1, wasAdded); // use it
+                    curr.subNodes[subIx] = insert(constructSub(chunkIx + 1), ukey, chunkIx + 1, wasAdded); // use it
                     curr.subChunks[subIx] = chunk;
                     return Node(curr);
                 }
             }
 
             // if we got here all N sub-nodes are occupied so we need to expand
-            return insert(expand(curr), key, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
+            return insert(expand(curr), ukey, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
         }
 
-        Node insert(BrM* curr, in Key key, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(BrM* curr, in UKey ukey, ChunkIx chunkIx, out bool wasAdded)
         in
         {
             static if (hasFixedDepth) assert(chunkIx + 1 < maxDepth);
@@ -588,16 +585,16 @@ struct RadixTree(Key,
         }
         body
         {
-            const IxM chunk = bitsChunk(key, chunkIx);
+            const IxM chunk = bitsChunk(ukey, chunkIx);
             if (!curr.subNodes[chunk]) // if not yet set
             {
                 curr.subNodes[chunk] = constructSub(chunkIx + 1);
             }
-            curr.subNodes[chunk] = insert(curr.subNodes[chunk], key, chunkIx + 1, wasAdded);
+            curr.subNodes[chunk] = insert(curr.subNodes[chunk], ukey, chunkIx + 1, wasAdded);
             return Node(curr);
         }
 
-        Node insert(LfM* curr, in Key key, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(LfM* curr, in UKey ukey, ChunkIx chunkIx, out bool wasAdded)
         in
         {
             static if (hasFixedDepth) assert(chunkIx + 1 == maxDepth);
@@ -606,7 +603,7 @@ struct RadixTree(Key,
         }
         body
         {
-            const IxM chunk = bitsChunk(key, chunkIx);
+            const IxM chunk = bitsChunk(ukey, chunkIx);
             if (!curr.keyLSBits[chunk])
             {
                 curr.keyLSBits[chunk] = true;
@@ -619,7 +616,7 @@ struct RadixTree(Key,
             return Node(curr);
         }
 
-        Node insert(PLfs curr, in Key key, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(PLfs curr, in UKey ukey, ChunkIx chunkIx, out bool wasAdded)
         in
         {
             static if (hasFixedDepth) assert(chunkIx + 1 == maxDepth);
@@ -628,7 +625,7 @@ struct RadixTree(Key,
         }
         body
         {
-            const IxM chunk = bitsChunk(key, chunkIx);
+            const IxM chunk = bitsChunk(ukey, chunkIx);
 
             // TODO this is only marginally faster:
             // foreach (const i; iota!(0, curr.maxLength))
@@ -654,7 +651,7 @@ struct RadixTree(Key,
             }
             else
             {
-                return insert(expand(curr), key, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
+                return insert(expand(curr), ukey, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
             }
         }
 
@@ -1060,8 +1057,8 @@ void benchmark(size_t radix)()
 @safe pure nothrow @nogc
 unittest
 {
-    check!(4, uint, ulong);
-    check!(8, uint, ulong);
+    check!(4, float, double, uint, ulong);
+    check!(8, float, double, uint, ulong);
 }
 
 version(benchmark) unittest

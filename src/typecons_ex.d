@@ -198,9 +198,9 @@ auto indexed(R)(R range)
 {
     enum N = 7;
     alias T = IndexedBy!(size_t[N]); // static array
-    T x;
     static assert(T.sizeof == N*size_t.sizeof);
     import modulo : Mod, mod;
+    T x;
     x[Mod!N(1)] = 11;
     x[1.mod!N] = 11;
     assert(x[1.mod!N] == 11);

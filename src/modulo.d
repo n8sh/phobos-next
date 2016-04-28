@@ -34,7 +34,7 @@ import std.traits : isIntegral;
     TODO Move to Phobos std.typecons
  */
 template Mod(size_t m, T = void)
-    if (m >= 2 && (is(T == void) || isIntegral!T))
+    if (m >= 1 && (is(T == void) || isIntegral!T))
 {
     import math_ex : isPow2;
 
@@ -96,7 +96,7 @@ template Mod(size_t m, T = void)
 
 /// Instantiator for `Mod`.
 auto mod(size_t m, T)(T value)
-    if (m >= 2 && isIntegral!T)
+    if (m >= 1 && isIntegral!T)
 {
     return Mod!(m, T)(value);
 }

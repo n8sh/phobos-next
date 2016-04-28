@@ -16,26 +16,28 @@ enum isIntegralBijectableType(T) = staticIndexOf!(T, IntegralBijectableTypes);
 @trusted pure nothrow auto bijectToUnsigned(T)(T a)
     if (isNumeric!T)
 {
-    static if (isIntegral!T)
+    import std.meta : Unqual;
+    alias U = Unqual!T;
+    static if (isIntegral!U)
     {
-        static      if (isSigned!T)
-            return a + (cast(Unsigned!T)1 << (8*T.sizeof - 1)); // "add up""
-        else static if (isUnsigned!T)
+        static      if (isSigned!U)
+            return a + (cast(Unsigned!U)1 << (8*U.sizeof - 1)); // "add up""
+        else static if (isUnsigned!U)
             return a;           // identity
         else
-            static assert(false, "Unsupported integral input type " ~ T.stringof);
+            static assert(false, "Unsupported integral input type " ~ U.stringof);
     }
-    else static if (isFloatingPoint!T)
+    else static if (isFloatingPoint!U)
     {
-        static      if (is(T == float))
+        static      if (is(U == float))
             return ff(*cast(uint*)(&a));
-        else static if (is(T == double))
+        else static if (is(U == double))
             return ff(*cast(ulong*)(&a));
         else
-            static assert(false, "Unsupported floating point input type " ~ T.stringof);
+            static assert(false, "Unsupported floating point input type " ~ U.stringof);
     }
     else
-        static assert(false, "Unsupported input type " ~ T.stringof);
+        static assert(false, "Unsupported input type " ~ U.stringof);
 }
 
 @safe @nogc pure nothrow

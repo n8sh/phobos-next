@@ -96,25 +96,46 @@ unittest
     static assert(isIndexableBy!(int[], "I"));
 }
 
-mixin template genOps(T)
+/** Generate `opIndex' and `opSlice` */
+mixin template genOps(I)
 {
-    auto ref opIndex(T i) inout
+    auto ref opIndex(I i) inout
     {
-        assert(cast(size_t)i < _r.length, "Range violation with index " ~ T.stringof);
+        assert(cast(size_t)i < _r.length, "Range violation with index " ~ I.stringof);
         return _r[cast(size_t)i];
     }
-    auto ref opIndexAssign(V)(V value, T i)
+    auto ref opIndexAssign(V)(V value, I i)
     {
-        assert(cast(size_t)i < _r.length, "Range violation with index " ~ T.stringof);
+        assert(cast(size_t)i < _r.length, "Range violation with index " ~ I.stringof);
         return _r[cast(size_t)i] = value;
     }
-
     static if (hasSlicing!R)
     {
-        auto ref opSlice(T i, T j) inout             { return _r[cast(size_t)i ..
+        auto ref opSlice(I i, I j) inout             { return _r[cast(size_t)i ..
                                                                  cast(size_t)j]; }
-        auto ref opSliceAssign(V)(V value, T i, T j) { return _r[cast(size_t)i ..
+        auto ref opSliceAssign(V)(V value, I i, I j) { return _r[cast(size_t)i ..
                                                                  cast(size_t)j] = value; }
+    }
+}
+
+/** Generate `opIndex' and `opSlice` */
+mixin template genTrustedUncheckedOps(I)
+{
+    @trusted:
+    auto ref opIndex(I i) inout
+    {
+        return _r.ptr[cast(size_t)i]; // safe to avoid range checking
+    }
+    auto ref opIndexAssign(V)(V value, I i)
+    {
+        return _r.ptr[cast(size_t)i] = value;
+    }
+    static if (hasSlicing!R)
+    {
+        auto ref opSlice(I i, I j) inout             { return _r.ptr[cast(size_t)i ..
+                                                                     cast(size_t)j]; }
+        auto ref opSliceAssign(V)(V value, I i, I j) { return _r.ptr[cast(size_t)i ..
+                                                                     cast(size_t)j] = value; }
     }
 }
 
@@ -185,8 +206,8 @@ struct IndexedBy(R, string I_ = "Index")
     static if (isStaticArray!R) // if length is known at compile-time
     {
         import modulo : Mod;
-        alias I = Mod!(R.length); // use strict access
-        mixin genOps!(I);
+        alias I = Mod!(R.length);
+        mixin genTrustedUncheckedOps!(I); // no range checking needed because I is always < R.length
     }
     else
     {
@@ -268,8 +289,6 @@ auto indexed(R)(R range)
         xi[  0 ] = 11; assert(xi[  0 ] == 11);
         xj[J(0)] = 11; assert(xj[J(0)] == 11);
         xe[ e0 ] = 11; assert(xe[ e0 ] == 11);
-        xs[XS.I(0)] = 11; assert(xs[XS.I(0)] == 11);
-        xs_[XS.I(0)] = 11; assert(xs_[XS.I(0)] == 11);
 
         // indexing with wrong type
         static assert(!__traits(compiles, { xb[J(0)] = 11; }));
@@ -286,7 +305,7 @@ auto indexed(R)(R range)
         assert(equal(xi[].filter!(a => a < 11), [2, 3]));
         assert(equal(xj[].filter!(a => a < 11), [2, 3]));
         assert(equal(xe[].filter!(a => a < 11), [2, 3]));
-        assert(equal(xs[].filter!(a => a < 11), [2, 3]));
+        // assert(equal(xs[].filter!(a => a < 11), [2, 3]));
     }
 }
 

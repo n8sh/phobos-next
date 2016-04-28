@@ -23,6 +23,11 @@ import std.traits : isIntegral;
     return x % m;
     }
 
+    invariant
+    {
+        assert (0 <= x && x < m);
+    }
+
     called after opBinary opUnary etc similar to what is done
     http://codeforces.com/contest/628/submission/16212299
 
@@ -33,7 +38,7 @@ template Mod(size_t m, T = void)
 {
     import math_ex : isPow2;
 
-    static assert(m > 0, "m must be greater than zero");
+    static assert(m >= 2, "m must be at least 2");
 
     static if (!is(T == void)) // check if type `T` was explicitly required
     {

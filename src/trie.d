@@ -7,7 +7,7 @@
     TODO Add sparse 2^^n-branches for n < radix: 2^^1=B2, 2^^2=B4, 2^^3=B8, B^^4=B16. Use
     sortExactly from sortn.d to order their members.
 
-    TODO Make SBr02 templated on N when I figure out how
+    TODO Make Br2 templated on N when I figure out how
     to elide the recursive template-instantiation. Ask forums
 
     TODO Provide `opIndex` and make `opSlice` for set-case (`Value` is `void`) return `SortedRange`
@@ -160,7 +160,7 @@ struct RadixTree(Key,
     // TODO make these CT-params (requires putting branch definitions in same scope as `RadixTree`)
     static if (radix == 4)
     {
-        alias DefaultRootType = SBr02*;
+        alias DefaultRootType = Br2*;
     }
     else static if (radix == 8)
     {
@@ -180,7 +180,7 @@ struct RadixTree(Key,
                                 All1, // hinter
 
                                 // sparse branches
-                                SBr02*,
+                                Br2*,
 
                                 BrM*,  // dense branches
                                 LfM*); // dense leaves
@@ -190,14 +190,14 @@ struct RadixTree(Key,
     {
         static if (isSet)
         {
-            pragma(msg, "Set SBr02.sizeof: ", SBr02.sizeof);
+            pragma(msg, "Set Br2.sizeof: ", Br2.sizeof);
             pragma(msg, "Set BrM.sizeof: ", BrM.sizeof);
             pragma(msg, "Set LfM.sizeof: ", LfM.sizeof);
             pragma(msg, "Set PLfs.sizeof: ", PLfs.sizeof);
         }
         else
         {
-            pragma(msg, "Map SBr02.sizeof: ", SBr02.sizeof);
+            pragma(msg, "Map Br2.sizeof: ", Br2.sizeof);
             pragma(msg, "Map BrM.sizeof: ", BrM.sizeof);
             pragma(msg, "Map LfM.sizeof: ", LfM.sizeof);
             pragma(msg, "Set PLfs.sizeof: ", PLfs.sizeof);
@@ -248,7 +248,7 @@ struct RadixTree(Key,
     /** 2-Branch population histogram.
         Index maps to population with value range (1 .. 2).
     */
-    alias SBr02_PopHist = size_t[2];
+    alias Br2_PopHist = size_t[2];
 
     /** M-Leaf population histogram.
         Index maps to population with value range (1 .. M).
@@ -258,8 +258,7 @@ struct RadixTree(Key,
     /** Tree Population and Memory-Usage Statistics. */
     struct Stats
     {
-        SBr02_PopHist popHist_SBr02;
-
+        Br2_PopHist popHist_Br2;
         BrM_PopHist popHist_BrM;
         LeafM_PopHist popHist_LfM;
 
@@ -297,7 +296,7 @@ struct RadixTree(Key,
     }
 
     /** Sparse/Packed 2-Branch. */
-    static private struct SBr02
+    static private struct Br2
     {
         enum N = 2;
 
@@ -314,7 +313,7 @@ struct RadixTree(Key,
                 ++nnzSubCount;
                 sub.calculate!(Key, Value, radix)(stats);
             }
-            ++stats.popHist_SBr02[nnzSubCount - 1]; // TODO type-safe indexing
+            ++stats.popHist_Br2[nnzSubCount - 1]; // TODO type-safe indexing
         }
     }
 
@@ -389,17 +388,17 @@ struct RadixTree(Key,
                 final switch (curr.typeIx)
                 {
                 case undefined: break;
-                case ix_PLfs:     return insert(curr.as!(PLfs),   ukey, chunkIx, wasAdded);
-                case ix_SBr02Ptr: return insert(curr.as!(SBr02*), ukey, chunkIx, wasAdded);
-                case ix_BrMPtr:   return insert(curr.as!(BrM*),   ukey, chunkIx, wasAdded);
-                case ix_LfMPtr:   return insert(curr.as!(LfM*),   ukey, chunkIx, wasAdded);
-                case ix_All1:     auto curr_ = curr.as!All1; break;
+                case ix_PLfs:   return insert(curr.as!(PLfs), ukey, chunkIx, wasAdded);
+                case ix_Br2Ptr: return insert(curr.as!(Br2*), ukey, chunkIx, wasAdded);
+                case ix_BrMPtr: return insert(curr.as!(BrM*), ukey, chunkIx, wasAdded);
+                case ix_LfMPtr: return insert(curr.as!(LfM*), ukey, chunkIx, wasAdded);
+                case ix_All1:   auto curr_ = curr.as!All1; break;
                 }
                 assert(false);
             }
         }
 
-        Node insert(SBr02* curr, in UKey ukey, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(Br2* curr, in UKey ukey, ChunkIx chunkIx, out bool wasAdded)
         {
             const IxM chunk = bitsChunk!radix(ukey, chunkIx);
 
@@ -512,7 +511,7 @@ struct RadixTree(Key,
         }
 
         /** Destructively expand `curr` into a `BrM` and return it. */
-        BrM* expand(SBr02* curr) @trusted
+        BrM* expand(Br2* curr) @trusted
         {
             enum N = 2;         // branch-order, number of possible sub-nodes
             auto next = construct!(typeof(return));
@@ -606,7 +605,7 @@ struct RadixTree(Key,
             freeNode(curr);
         }
 
-        void release(SBr02* curr)
+        void release(Br2* curr)
         {
             foreach (sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
             {
@@ -632,11 +631,11 @@ struct RadixTree(Key,
                 final switch (curr.typeIx)
                 {
                 case undefined: break;
-                case ix_PLfs:     return release(curr.as!(PLfs));
+                case ix_PLfs: return release(curr.as!(PLfs));
                 case ix_All1: break;
-                case ix_SBr02Ptr: return release(curr.as!(SBr02*));
-                case ix_BrMPtr:   return release(curr.as!(BrM*));
-                case ix_LfMPtr:   return release(curr.as!(LfM*));
+                case ix_Br2Ptr: return release(curr.as!(Br2*));
+                case ix_BrMPtr: return release(curr.as!(BrM*));
+                case ix_LfMPtr: return release(curr.as!(LfM*));
                 }
             }
         }
@@ -710,9 +709,9 @@ static private void calculate(Key, Value, size_t radix)(RadixTree!(Key, Value, r
         case undefined: break;
         case ix_PLfs: break;
         case ix_All1: break;
-        case ix_SBr02Ptr:  sub.as!(RT.SBr02*).calculate(stats); break;
-        case ix_BrMPtr:    sub.as!(RT.BrM*).calculate(stats); break;
-        case ix_LfMPtr:    sub.as!(RT.LfM*).calculate(stats); break;
+        case ix_Br2Ptr: sub.as!(RT.Br2*).calculate(stats); break;
+        case ix_BrMPtr: sub.as!(RT.BrM*).calculate(stats); break;
+        case ix_LfMPtr: sub.as!(RT.LfM*).calculate(stats); break;
         }
     }
 }
@@ -821,7 +820,7 @@ void benchmark(size_t radix)()
 
             dln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
             auto stats = set.usageHistograms;
-            dln("2-Branch Population Histogram: ", stats.popHist_SBr02);
+            dln("2-Branch Population Histogram: ", stats.popHist_Br2);
             dln("M=", 2^^radix, "-Branch Population Histogram: ", stats.popHist_BrM);
             dln("M=", 2^^radix, "-Leaf   Population Histogram: ", stats.popHist_LfM);
             dln("Population By Node Type: ", stats.popByNodeType);
@@ -835,11 +834,11 @@ void benchmark(size_t radix)()
                     final switch (ix)
                     {
                     case undefined: break;
-                    case ix_PLfs:     bytesUsed = pop*Set.PLfs.sizeof; break;
-                    case ix_All1:     bytesUsed = pop*Set.All1.sizeof; break;
-                    case ix_SBr02Ptr: bytesUsed = pop*Set.SBr02.sizeof; break;
-                    case ix_BrMPtr:   bytesUsed = pop*Set.BrM.sizeof; break;
-                    case ix_LfMPtr:   bytesUsed = pop*Set.LfM.sizeof; break;
+                    case ix_PLfs:   bytesUsed = pop*Set.PLfs.sizeof; break;
+                    case ix_All1:   bytesUsed = pop*Set.All1.sizeof; break;
+                    case ix_Br2Ptr: bytesUsed = pop*Set.Br2.sizeof; break;
+                    case ix_BrMPtr: bytesUsed = pop*Set.BrM.sizeof; break;
+                    case ix_LfMPtr: bytesUsed = pop*Set.LfM.sizeof; break;
                     }
                 }
                 totalBytesUsed += bytesUsed;

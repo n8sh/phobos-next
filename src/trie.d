@@ -4,8 +4,6 @@
 
     TODO Can we somehow overload opIndex so we can do brM[i] instead of more cumbersome (*brM)[i] when brM is of type BrM*?
 
-    TODO Use opIndex instead of subNode(): x.subNode(i) => (*x)[i]
-
     TODO Use `bijectToUnsigned` to support ordered storage of float and double
 
     TODO Add sparse 2^^n-branches for n < radix: 2^^1=B2, 2^^2=B4, 2^^3=B8, B^^4=B16. Use

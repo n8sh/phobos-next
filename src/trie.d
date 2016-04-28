@@ -22,7 +22,8 @@
 
     TODO Should opBinaryRight return void* instead of bool for set-case?
 
-    TODO Templatize SBrXX on `N` and instantiate as N 2, 4, 16, 256.
+    TODO Templatize node types including SBrXX on `N` and `UKey` but *not* on
+    `Key` and instantiate as N 2, 4, 16, 256.
  */
 module trie;
 

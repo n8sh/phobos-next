@@ -178,12 +178,14 @@ struct RadixTree(Key,
             pragma(msg, "Set SBr02.sizeof: ", SBr02.sizeof);
             pragma(msg, "Set BrM.sizeof: ", BrM.sizeof);
             pragma(msg, "Set LfM.sizeof: ", LfM.sizeof);
+            pragma(msg, "Set PLfs.sizeof: ", PLfs.sizeof);
         }
         else
         {
             pragma(msg, "Map SBr02.sizeof: ", SBr02.sizeof);
             pragma(msg, "Map BrM.sizeof: ", BrM.sizeof);
             pragma(msg, "Map LfM.sizeof: ", LfM.sizeof);
+            pragma(msg, "Set PLfs.sizeof: ", PLfs.sizeof);
         }
     }
 
@@ -884,13 +886,15 @@ struct RadixTree(Key,
 alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
 
-/** Append statistics of tree under `Node` `sub.` into `stats`. */
+/** Append statistics of tree under `Node` `sub.` into `stats`.
+ */
 static private void calculate(Key, Value, size_t radix)(RadixTree!(Key, Value, radix).Node sub,
                                                         ref RadixTree!(Key, Value, radix).Stats stats)
     @safe pure nothrow /* TODO @nogc */
     if (allSatisfy!(isTrieableKeyType, Key))
 {
     alias RT = RadixTree!(Key, Value, radix);
+    ++stats.populationByNodeIx[sub.typeIx];
 
     with (RT.Node.Ix)
     {
@@ -977,6 +981,7 @@ void benchmark(size_t radix)()
     foreach (Key; AliasSeq!(uint))
     {
         auto set = radixTreeSet!(Key, radix);
+        alias Set = set;
         assert(set.empty);
 
         static assert(set.isSet);
@@ -1010,13 +1015,34 @@ void benchmark(size_t radix)()
             }
 
             dln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
-            auto uhists = set.usageHistograms;
-            dln("2-Branch Population Histogram: ", uhists.sbr02);
-            dln("4-Branch Population Histogram: ", uhists.sbr04);
-            dln("16-Branch Population Histogram: ", uhists.sbr16);
-            dln("256-Branch Population Histogram: ", uhists.sbr256);
-            dln("M=", 2^^radix, "-Branch Population Histogram: ", uhists.brM);
-            dln("M=", 2^^radix, "-Leaf   Population Histogram: ", uhists.lfM);
+            auto stats = set.usageHistograms;
+            dln("2-Branch Population Histogram: ", stats.sbr02);
+            dln("4-Branch Population Histogram: ", stats.sbr04);
+            dln("16-Branch Population Histogram: ", stats.sbr16);
+            dln("256-Branch Population Histogram: ", stats.sbr256);
+            dln("M=", 2^^radix, "-Branch Population Histogram: ", stats.brM);
+            dln("M=", 2^^radix, "-Leaf   Population Histogram: ", stats.lfM);
+            dln("Population By Node: ", stats.populationByNodeIx);
+            size_t bytesUsed = 0;
+            foreach (Set.Node.Ix ix, pop; stats.populationByNodeIx) // TODO infer ix to be of type Ix
+            {
+                with (Set.Node.Ix)
+                {
+                    final switch (ix)
+                    {
+                    case undefined: break;
+                    case ix_PLfs: bytesUsed += pop*Set.PLfs.sizeof; break;
+                    case ix_All1: bytesUsed += pop*Set.All1.sizeof; break;
+                    case ix_SBr02Ptr: bytesUsed += pop*Set.SBr02.sizeof; break;
+                    case ix_SBr04Ptr: bytesUsed += pop*Set.SBr04.sizeof; break;
+                    case ix_SBr16Ptr: bytesUsed += pop*Set.SBr16.sizeof; break;
+                    case ix_BrMPtr: bytesUsed += pop*Set.BrM.sizeof; break;
+                    case ix_LfMPtr: bytesUsed += pop*Set.LfM.sizeof; break;
+                    }
+                }
+            }
+            dln("Bytes Used: ", bytesUsed);
+
             sleep(2);
             dln("Sleeping done");
         }

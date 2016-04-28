@@ -2,6 +2,8 @@
 
     See also: https://en.wikipedia.org/wiki/Trie
 
+    TODO tuple keys are mapped to a ubyte array aliased to a raw/binary BKey
+
     TODO Can we somehow overload opIndex so we can do brM[i] instead of more cumbersome (*brM)[i] when brM is of type BrM*?
 
     TODO Add sparse 2^^n-branches for n < radix: 2^^1=B2, 2^^2=B4, 2^^3=B8, B^^4=B16. Use
@@ -9,7 +11,7 @@
 
     TODO Make Br2 templated on N when I figure out how
     to elide the recursive template-instantiation. Ask forums
-    TODO Templatize node types including SBrXX on `N` and `UKey` but *not* on
+    TODO Templatize node types including SBrXX on `N` and `BKey` but *not* on
     `Key` and instantiate as N 2, 4, 16, 256.
 
     TODO Provide `opIndex` and make `opSlice` for set-case (`Value` is `void`) return `SortedRange`
@@ -75,8 +77,8 @@ struct RadixTree(Key,
                   radix == 24, "Radix is currently limited to either 4, 8, 16, or 24");
     static assert(radix <= 8*Key.sizeof, "Radix must be less than or equal to Key bit-precision"); // TODO Use strictly less than: radix < ... instead?
 
-    /** Internal (Unsigned Integer) Key. */
-    alias UKey = typeof(Key.init.bijectToUnsigned);
+    /** Raw Internal (Unsigned Integer) Binary Key. */
+    alias BKey = typeof(Key.init.bijectToUnsigned);
 
     enum isSet = is(Value == void); // `true` if this tree is a set
     enum isMap = !isSet;        // `true` if this tree is a map
@@ -381,7 +383,7 @@ struct RadixTree(Key,
             return wasAdded;
         }
 
-        pragma(inline) Node insert(Node curr, in UKey ukey, ChunkIx chunkIx, out bool wasAdded) // Node-polymorphic
+        pragma(inline) Node insert(Node curr, in BKey ukey, ChunkIx chunkIx, out bool wasAdded) // Node-polymorphic
         {
             with (Node.Ix)
             {
@@ -398,7 +400,7 @@ struct RadixTree(Key,
             }
         }
 
-        Node insert(Br2* curr, in UKey ukey, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(Br2* curr, in BKey ukey, ChunkIx chunkIx, out bool wasAdded)
         {
             const IxM chunk = bitsChunk!radix(ukey, chunkIx);
 
@@ -425,7 +427,7 @@ struct RadixTree(Key,
             return insert(expand(curr), ukey, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
         }
 
-        Node insert(BrM* curr, in UKey ukey, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(BrM* curr, in BKey ukey, ChunkIx chunkIx, out bool wasAdded)
         in
         {
             static if (hasFixedDepth) assert(chunkIx + 1 < maxDepth);
@@ -442,7 +444,7 @@ struct RadixTree(Key,
             return Node(curr);
         }
 
-        Node insert(LfM* curr, in UKey ukey, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(LfM* curr, in BKey ukey, ChunkIx chunkIx, out bool wasAdded)
         in
         {
             static if (hasFixedDepth) assert(chunkIx + 1 == maxDepth);
@@ -464,7 +466,7 @@ struct RadixTree(Key,
             return Node(curr);
         }
 
-        Node insert(PLfs curr, in UKey ukey, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(PLfs curr, in BKey ukey, ChunkIx chunkIx, out bool wasAdded)
         in
         {
             static if (hasFixedDepth) assert(chunkIx + 1 == maxDepth);
@@ -668,16 +670,16 @@ alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
 
 /** Get chunkIx:th chunk of `radix` number of bits. */
-static private Mod!(2^^radix) bitsChunk(size_t radix, UKey)(in UKey ukey, ChunkIx chunkIx) pure nothrow
+static private Mod!(2^^radix) bitsChunk(size_t radix, BKey)(in BKey ukey, ChunkIx chunkIx) pure nothrow
 {
     alias R = radix;
     enum M = 2^^R;     // branch-multiplicity, typically either 2, 4, 16 or 256
     enum chunkMask = M - 1;
-    enum maxDepth = 8*UKey.sizeof / radix;
+    enum maxDepth = 8*BKey.sizeof / radix;
 
     // calculate bit shift to current chunk
-    static if (isIntegral!UKey ||
-               isSomeChar!UKey) // because top-most bit in ASCII coding (char) is often sparse (0 is much more common than 1)
+    static if (isIntegral!BKey ||
+               isSomeChar!BKey) // because top-most bit in ASCII coding (char) is often sparse (0 is much more common than 1)
     {
         /* most signficant bit chunk first because integers are
            typically more sparse in more significant bits */

@@ -1072,8 +1072,8 @@ unittest
 
 version(benchmark) unittest
 {
-    benchmark!8;                // should be faster
-    benchmark!4;                // should be slower
+    benchmark!8;
+    benchmark!4;
 }
 
 /** Static Iota.

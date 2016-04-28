@@ -1032,13 +1032,13 @@ void benchmark(size_t radix)()
                     final switch (ix)
                     {
                     case undefined: break;
-                    case ix_PLfs: bytesUsed += pop*Set.PLfs.sizeof; break;
-                    case ix_All1: bytesUsed += pop*Set.All1.sizeof; break;
+                    case ix_PLfs:     bytesUsed += pop*Set.PLfs.sizeof; break;
+                    case ix_All1:     bytesUsed += pop*Set.All1.sizeof; break;
                     case ix_SBr02Ptr: bytesUsed += pop*Set.SBr02.sizeof; break;
                     case ix_SBr04Ptr: bytesUsed += pop*Set.SBr04.sizeof; break;
                     case ix_SBr16Ptr: bytesUsed += pop*Set.SBr16.sizeof; break;
-                    case ix_BrMPtr: bytesUsed += pop*Set.BrM.sizeof; break;
-                    case ix_LfMPtr: bytesUsed += pop*Set.LfM.sizeof; break;
+                    case ix_BrMPtr:   bytesUsed += pop*Set.BrM.sizeof; break;
+                    case ix_LfMPtr:   bytesUsed += pop*Set.LfM.sizeof; break;
                     }
                 }
             }

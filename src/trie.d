@@ -159,11 +159,16 @@ struct RadixTree(Key,
     struct All1 {}
 
     /** Node types. */
-    alias NodeTypes = AliasSeq!(PLfs,   // directly packed leaves
+    alias NodeTypes = AliasSeq!(PLfs, // sparse leaves
                                 All1, // hinter
-                                SBr02*, SBr04*, SBr16*, // sparse branching nodes
-                                BrM*,                   // dense branching nodes
-                                LfM*);                  // dense leaves-nodes
+
+                                // sparse branches
+                                SBr02*,
+                                SBr04*,
+                                SBr16*,
+
+                                BrM*,  // dense branches
+                                LfM*); // dense leaves
 
     enum showSizes = false;
     static if (showSizes)

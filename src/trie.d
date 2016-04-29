@@ -2,6 +2,14 @@
 
     See also: https://en.wikipedia.org/wiki/Trie
 
+    TODO
+    - LfV: Word:
+      - 64-bit:
+        radix-4: Packs 8-bit length + Variable (0 .. 14) IxMs
+        radix-8: Packs 8-bit length + Variable (0 .. 6) IxMs
+    - BrM: IxMs commonPrefix
+    - SBr02: IxMs commonPrefix
+
     TODO tuple keys are mapped to a ubyte array aliased to a raw/binary
     BKey. Need trait to figure if all expanded members are fixed-sized then key
     will be that aswell.

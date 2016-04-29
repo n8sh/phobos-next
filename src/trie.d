@@ -7,8 +7,8 @@
       - 64-bit:
         radix-4: Packs 8-bit length + Variable (0 .. 14) IxMs
         radix-8: Packs 8-bit length + Variable (0 .. 6) IxMs
-    - BrM: IxMs commonPrefix
-    - SBr02: IxMs commonPrefix
+    - BrM: IxMs commonPrefix. IxMs is 7-byte BitSet.
+    - SBr02: IxMs commonPrefix. IxMs is 7-byte BitSet.
 
     TODO tuple keys are mapped to a ubyte array aliased to a raw/binary
     BKey. Need trait to figure if all expanded members are fixed-sized then key
@@ -313,7 +313,7 @@ struct RadixTree(Key,
     /** Sparse/Packed 2-Branch. */
     static private struct Br2
     {
-        enum N = 2;
+        enum N = 2; // TODO make this a CT-param
 
         // TODO merge these into a new `NodeType`
         StrictlyIndexed!(Node[N]) subNodes;

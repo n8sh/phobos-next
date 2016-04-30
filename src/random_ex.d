@@ -393,3 +393,9 @@ private:
         return (x << k) | (x >> (64 - k));
     }
 }
+
+@safe pure nothrow @nogc unittest
+{
+    Xoroshiro128plus x;
+    x.seed(42, 42);
+}

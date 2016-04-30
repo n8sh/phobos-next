@@ -323,3 +323,73 @@ T randomInstanceOf(T)(T low = T.min,
 
 alias randomize = randInPlace;
 alias randomized = randomInstanceOf;
+
+/** Random Number Generator xoroshiro128+
+
+   See also: http://xoroshiro.di.unimi.it/
+   See also: http://forum.dlang.org/post/kdobdorqztlsomweftmi@forum.dlang.org
+   See also: https://www.reddit.com/r/programming/comments/4gtlfz/xoroshiro128_the_fastest_fullperiod_pseudorandom/
+ */
+struct Xoroshiro128plus
+{
+    @safe pure nothrow @nogc:
+    public:
+
+    enum ulong min = ulong.min;
+    enum ulong max = ulong.max;
+
+    enum bool isUniformRandom = true;
+
+    /// Range primitives
+    enum bool empty = false;
+
+    /// ditto
+    ulong front() @property
+    {
+        return s[0] + s[1];
+    }
+
+    /// ditto
+    void popFront()
+    {
+        immutable ulong s1 = s[1] ^ s[0];
+        s[0] = rotateLeft(s[0], 55) ^ s1 ^ (s1 << 14);
+        s[1] = rotateLeft(s1, 36);
+    }
+
+    void seed(ulong s0, ulong s1)
+    in
+    {
+        // seeds are not both 0
+        assert(!(!s0 && !s1));
+    }
+    body
+    {
+        s[0] = s0;
+        s[1] = s1;
+    }
+
+    void seed(ulong[2] s01)
+    in
+    {
+        // seeds are not both 0
+        assert(!(!s01[0] && !s01[1]));
+    }
+    body
+    {
+        s[] = s01[];
+    }
+
+private:
+    ulong[2] s;
+
+    static ulong rotateLeft(ulong x, int k)
+    in
+    {
+        assert(k <= 64);
+    }
+    body
+    {
+        return (x << k) | (x >> (64 - k));
+    }
+}

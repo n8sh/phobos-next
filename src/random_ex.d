@@ -394,8 +394,11 @@ private:
     }
 }
 
-@safe pure nothrow @nogc unittest
+@safe pure unittest
 {
-    Xoroshiro128plus x;
-    x.seed(42, 42);
+    Xoroshiro128plus gen;
+    gen.seed(42, 42);
+    import std.random : uniform;
+    import dbg;
+    auto u = uniform(0, 42, gen);
 }

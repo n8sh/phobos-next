@@ -394,7 +394,7 @@ private:
     }
 }
 
-@safe unittest
+@safe pure nothrow unittest
 {
     Xoroshiro128plus gen;
     gen.seed(150078950, 1313143614);

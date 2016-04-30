@@ -394,11 +394,13 @@ private:
     }
 }
 
-@safe pure unittest
+@safe unittest
 {
     Xoroshiro128plus gen;
-    gen.seed(42, 42);
+    gen.seed(150078950, 1313143614);
     import std.random : uniform;
     import dbg;
-    auto u = uniform(0, 42, gen);
+    import std.range : generate, take;
+    auto x = generate!(() => uniform!int(gen)).take(103);
+    dln(x);
 }

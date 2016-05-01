@@ -147,6 +147,9 @@ auto mod(size_t m, T)(T value)
     auto b = 8.mod!256;
     auto c = 257.mod!1000;
 
+    static assert(c.min == 0);
+    static assert(c.max == 999);
+
     assert(a < b);
     assert(a < c);
 

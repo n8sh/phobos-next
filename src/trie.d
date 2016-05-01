@@ -7,6 +7,9 @@
       - 64-bit:
         radix-4: Packs 8-bit length + Variable (0 .. 14) IxMs
         radix-8: Packs 8-bit length + Variable (0 .. 6) IxMs
+      - 32-bit:
+        radix-4: Packs 8-bit length + Variable (0 .. 14) IxMs
+        radix-8: Packs 8-bit length + Variable (0 .. 2) IxMs
     - BrM: IxMs commonPrefix. IxMs is 7-byte BitSet.
     - SBr02: IxMs commonPrefix. IxMs is 7-byte BitSet.
 

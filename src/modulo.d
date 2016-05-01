@@ -121,6 +121,8 @@ auto mod(size_t m, T)(T value)
     static assert(x.min == 0);
     static assert(x.max == 7);
     Mod!(8, ubyte) y = 7;
+    static assert(y.min == 0);
+    static assert(y.max == 7);
 
     assert(x < y);
 

@@ -50,6 +50,9 @@ template Mod(size_t m, T = DefaultModuloType!m)
 
     struct Mod
     {
+        enum min = 0;
+        enum max = m - 1;
+
         this(U)(U value)
             if (isIntegral!U)
         in
@@ -115,6 +118,8 @@ auto mod(size_t m, T)(T value)
     static assert(Mod!(cast(size_t)uint.max + 2).sizeof == 8);
 
     Mod!(8, ubyte) x = 6;
+    static assert(x.min == 0);
+    static assert(x.max == 7);
     Mod!(8, ubyte) y = 7;
 
     assert(x < y);

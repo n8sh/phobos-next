@@ -4,12 +4,12 @@ import std.traits : isIntegral;
 
 /** Lookup type representing an unsigned integer in inclusive range (0 .. m - 1).
  */
-template DefaultModuloTypeOf(size_t m)
+template DefaultTypeOfModulo(size_t m)
 {
-    static      if (m - 1 <= ubyte.max)  { alias DefaultModuloTypeOf = ubyte; }
-    else static if (m - 1 <= ushort.max) { alias DefaultModuloTypeOf = ushort; }
-    else static if (m - 1 <= uint.max)   { alias DefaultModuloTypeOf = uint; }
-    else                                 { alias DefaultModuloTypeOf = ulong; }
+    static      if (m - 1 <= ubyte.max)  { alias DefaultTypeOfModulo = ubyte; }
+    else static if (m - 1 <= ushort.max) { alias DefaultTypeOfModulo = ushort; }
+    else static if (m - 1 <= uint.max)   { alias DefaultTypeOfModulo = uint; }
+    else                                 { alias DefaultTypeOfModulo = ulong; }
     // TODO ucent?
 }
 
@@ -44,7 +44,7 @@ template DefaultModuloTypeOf(size_t m)
 
     TODO Move to Phobos std.typecons
  */
-template Mod(size_t m, T = DefaultModuloTypeOf!m)
+template Mod(size_t m, T = DefaultTypeOfModulo!m)
     if (m >= 1 && isIntegral!T)
 {
     import math_ex : isPow2;

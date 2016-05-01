@@ -1,4 +1,4 @@
-module modulo;                  // haha ;)
+module modulo;
 
 import std.traits : isIntegral;
 

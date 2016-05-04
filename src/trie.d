@@ -498,7 +498,7 @@ struct RawRadixTree(Value,
 
         Node constructSub(BKey bkey, ChunkIx chunkIx)
         {
-            return ((chunkIx + 1) * radix == bkey.length ? // is last
+            return ((chunkIx + 1) * radix == 8 * bkey.length ? // is last
                     Node(construct!DefaultLeafType) :
                     Node(construct!DefaultBranchType));
         }

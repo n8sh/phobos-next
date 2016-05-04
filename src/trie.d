@@ -635,9 +635,13 @@ static private Mod!(2^^radix) bitsChunk(size_t radix, BKey)(BKey bkey, ChunkIx c
         const shift = chunkIx & 1; // first 0, then 1
         return typeof(return)((bkey[chunkIx/2] >> shift) & (M - 1));
     }
-    else
+    else static if (radix == 8)
     {
         return typeof(return)(bkey[chunkIx] & (M - 1));
+    }
+    else
+    {
+        static assert("Unsupported radix ", radix);
     }
 }
 

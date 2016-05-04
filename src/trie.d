@@ -4,12 +4,12 @@
 
     TODO
     - LfV: Word:
-      - 64-bit:
-        radix-4: Packs 8-bit length + Variable (0 .. 14) IxMs
-        radix-8: Packs 8-bit length + Variable (0 .. 6) IxMs
-      - 32-bit:
-        radix-4: Packs 8-bit length + Variable (0 .. 14) IxMs
-        radix-8: Packs 8-bit length + Variable (0 .. 2) IxMs
+    - 64-bit:
+    radix-4: Packs 8-bit length + Variable (0 .. 14) IxMs
+    radix-8: Packs 8-bit length + Variable (0 .. 6) IxMs
+    - 32-bit:
+    radix-4: Packs 8-bit length + Variable (0 .. 14) IxMs
+    radix-8: Packs 8-bit length + Variable (0 .. 2) IxMs
     - BrM: IxMs commonPrefix. IxMs is 7-byte BitSet.
     - SBr02: IxMs commonPrefix. IxMs is 7-byte BitSet.
 
@@ -40,7 +40,7 @@
     to _root. Add checks with `isSorted`.
 
     TODO Should opBinaryRight return void* instead of bool for set-case?
- */
+*/
 module trie;
 
 import std.traits : isIntegral, isSomeChar, isSomeString, isScalarType, isArray, allSatisfy, anySatisfy, isPointer;
@@ -54,7 +54,7 @@ import modulo : Mod;
 
 version = benchmark;
 
-import dbg : dln;
+import dbg;
 
 alias isFixedTrieableKeyType = isIntegralBijectableType;
 
@@ -62,7 +62,7 @@ enum isTrieableKeyType(T) = (isFixedTrieableKeyType!T ||
                              (isInputRange!T &&
                               isFixedTrieableKeyType!(ElementType!T)));
 
-extern(C) pure nothrow @system @nogc
+extern(C) pure nothrow @system /* TODO @nogc */
 {
     void* malloc(size_t size);
     void* calloc(size_t nmemb, size_t size);
@@ -73,17 +73,19 @@ extern(C) pure nothrow @system @nogc
 /** Index to chunk of bits. */
 alias ChunkIx = uint;
 
+/** Raw Internal (Unsigned Integer) Binary Key. */
+alias BKey = ubyte[];
+alias BKeyN(size_t N) = ubyte[N];
+
 /** Radix tree container storing keys of type `Key`.
 
     In set-case (`Value` is `void`) this container is especially suitable for
     representing a set of 32 or 64 integers/pointers.
 
     See also: https://en.wikipedia.org/wiki/Radix_tree
- */
-struct RadixTree(Key,
-                 Value,
-                 size_t radix = 4) // radix in number of bits, typically either 1, 2, 4 or 8
-    if (allSatisfy!(isTrieableKeyType, Key))
+*/
+struct RawRadixTree(Value,
+                    size_t radix = 4) // radix in number of bits, typically either 1, 2, 4 or 8
 {
     import std.algorithm : filter;
     import std.meta : AliasSeq, staticMap;
@@ -93,10 +95,6 @@ struct RadixTree(Key,
                   radix == 8 ||
                   radix == 16 ||
                   radix == 24, "Radix is currently limited to either 4, 8, 16, or 24");
-    static assert(radix <= 8*Key.sizeof, "Radix must be less than or equal to Key bit-precision"); // TODO Use strictly less than: radix < ... instead?
-
-    /** Raw Internal (Unsigned Integer) Binary Key. */
-    alias BKey = typeof(Key.init.bijectToUnsigned);
 
     enum isSet = is(Value == void); // `true` if this tree is a set
     enum isMap = !isSet;        // `true` if this tree is a map
@@ -104,15 +102,6 @@ struct RadixTree(Key,
     enum M = 2^^radix;     // branch-multiplicity, typically either 2, 4, 16 or 256
 
     alias order = M;   // tree order
-
-    /// `true` if tree has fixed a key of fixed length and in turn a tree of fixed max depth.
-    enum hasFixedDepth = isFixedTrieableKeyType!Key;
-
-    static if (hasFixedDepth)
-    {
-        /// Maximum depth.
-        enum maxDepth = 8*Key.sizeof / radix;
-    }
 
     /// `true` if tree has binary branch.
     enum isBinary = radix == 2;
@@ -125,21 +114,21 @@ struct RadixTree(Key,
         TODO Generalize to packing of more than one `IxM` per byte.
         TODO respect byteorder in `PLfs` to work with `WordVariant`
         TODO implement and use opSlice instead of .ixMs[]
-     */
+    */
     static      if (size_t.sizeof == 4)
     {
-        static if (radix == 4) { struct PLfs { enum maxLength = 2; IxM[maxLength] ixMs; ubyte length; ubyte _ignored; } } // TODO pack 6 IxM
-        static if (radix == 8) { struct PLfs { enum maxLength = 2; IxM[maxLength] ixMs; ubyte length; ubyte _ignored; } } // TODO handle radix != 8
+        static      if (radix == 8) { struct PLfs { enum maxLength = 2; IxM[maxLength] ixMs; ubyte length; ubyte _ignored; } } // TODO handle radix != 8
+        else static if (radix == 4) { struct PLfs { enum maxLength = 2; IxM[maxLength] ixMs; ubyte length; ubyte _ignored; } } // TODO pack 6 IxM
         static if (isMap && is(Value == bool)) { /* TODO pack bit efficiently */ }
     }
     else static if (size_t.sizeof == 8)
     {
-        static if (radix == 4)
+        static if (radix == 8)
         {
             struct PLfs
             {
                 enum maxLength = 6;
-                IxM[maxLength] ixMs; // TODO pack 14 `IxM` through a range interface
+                IxM[maxLength] ixMs;
                 ubyte length;
                 ubyte _ignored;
                 static if (isMap)
@@ -151,12 +140,12 @@ struct RadixTree(Key,
                 }
             }
         }
-        else static if (radix == 8)
+        else static if (radix == 4)
         {
             struct PLfs
             {
                 enum maxLength = 6;
-                IxM[maxLength] ixMs;
+                IxM[maxLength] ixMs; // TODO pack 14 `IxM` through a range interface
                 ubyte length;
                 ubyte _ignored;
                 static if (isMap)
@@ -175,14 +164,14 @@ struct RadixTree(Key,
         }
     }
 
-    // TODO make these CT-params (requires putting branch definitions in same scope as `RadixTree`)
-    static if (radix == 4)
-    {
-        alias DefaultRootType = Br2*;
-    }
-    else static if (radix == 8)
+    // TODO make these CT-params (requires putting branch definitions in same scope as `RawRadixTree`)
+    static if (radix == 8)
     {
         alias DefaultRootType = BrM*;
+    }
+    else static if (radix == 4)
+    {
+        alias DefaultRootType = Br2*;
     }
     alias DefaultBranchType = DefaultRootType;
     alias DefaultLeafType = PLfs; // TODO use either LfM* or PLfs instead
@@ -232,7 +221,7 @@ struct RadixTree(Key,
     /** Tree Leaf Iterator. */
     struct It
     {
-        bool opCast(T : bool)() const @safe pure nothrow @nogc { return cast(bool)node; }
+        bool opCast(T : bool)() const @safe pure nothrow /* TODO @nogc */ { return cast(bool)node; }
         Node node;              // current leaf-`Node`. TODO use `Lf` type instead?
         IxM ixM;                // index to sub at `node`
     }
@@ -243,7 +232,7 @@ struct RadixTree(Key,
         /* this save 8 bytes and makes this struct 16 bytes instead of 24 bytes
            compared using a member It instead of Node and IxM */
         auto it() { return It(node, ixM); }
-        bool opCast(T : bool)() const @safe pure nothrow @nogc { return hit; }
+        bool opCast(T : bool)() const @safe pure nothrow /* TODO @nogc */ { return hit; }
         Node node;
         IxM ixM;
         bool hit;
@@ -295,22 +284,19 @@ struct RadixTree(Key,
         StrictlyIndexed!(Node[M]) subNodes;
 
         /** Append statistics of tree under `this` into `stats`. */
-        void calculate(ref Stats stats) @safe pure nothrow @nogc const
+        void calculate(ref Stats stats) @safe pure nothrow /* TODO @nogc */ const
         {
             size_t nnzSubCount = 0; // number of non-zero sub-nodes
             foreach (sub; subNodes[].filter!(sub => sub))
             {
                 ++nnzSubCount;
-                sub.calculate!(Key, Value, radix)(stats);
+                sub.calculate!(Value, radix)(stats);
             }
             ++stats.popHist_BrM[nnzSubCount - 1]; // TODO type-safe indexing
         }
 
-        static if (!hasFixedDepth)        // variable length keys only
-        {
-            LfM subOccupations; // if i:th bit is set key (and optionally value) associated with sub[i] is also defined
-            static if (isMap) { Value value; }
-        }
+        // LfM subOccupations; // if i:th bit is set key (and optionally value) associated with sub[i] is also defined
+        // static if (isMap) { Value value; }
     }
 
     /** Sparse/Packed 2-Branch. */
@@ -329,7 +315,7 @@ struct RadixTree(Key,
             foreach (sub; subNodes[].filter!(sub => sub))
             {
                 ++nnzSubCount;
-                sub.calculate!(Key, Value, radix)(stats);
+                sub.calculate!(Value, radix)(stats);
             }
             ++stats.popHist_Br2[nnzSubCount - 1]; // TODO type-safe indexing
         }
@@ -361,7 +347,7 @@ struct RadixTree(Key,
     Stats usageHistograms() const
     {
         typeof(return) stats;
-        _root.calculate!(Key, Value, radix)(stats);
+        _root.calculate!(Value, radix)(stats);
         return stats;
     }
 
@@ -385,40 +371,34 @@ struct RadixTree(Key,
         assert(_nodeCount == 0);
     }
 
-    @safe pure nothrow @nogc
+    @safe pure nothrow /* TODO @nogc */
     {
-        /** Insert `key`.
-            Recursive implementation of insert.
-        */
-        bool insert(in Key key)
+        pragma(inline) Node insert(BKey bkey, ChunkIx chunkIx, out bool wasAdded)
         {
             ensureRootNode;
-            bool wasAdded = false; // indicates that key was added
-            _root = insert(_root, key.bijectToUnsigned, 0, wasAdded);
-            _length += wasAdded;
-            return wasAdded;
+            return insert(_root, bkey, chunkIx, wasAdded);
         }
 
-        pragma(inline) Node insert(Node curr, in BKey ukey, ChunkIx chunkIx, out bool wasAdded) // Node-polymorphic
+        pragma(inline) Node insert(Node curr, BKey bkey, ChunkIx chunkIx, out bool wasAdded) // Node-polymorphic
         {
             with (Node.Ix)
             {
                 final switch (curr.typeIx)
                 {
                 case undefined: break;
-                case ix_PLfs:   return insert(curr.as!(PLfs), ukey, chunkIx, wasAdded);
-                case ix_Br2Ptr: return insert(curr.as!(Br2*), ukey, chunkIx, wasAdded);
-                case ix_BrMPtr: return insert(curr.as!(BrM*), ukey, chunkIx, wasAdded);
-                case ix_LfMPtr: return insert(curr.as!(LfM*), ukey, chunkIx, wasAdded);
+                case ix_PLfs:   return insert(curr.as!(PLfs), bkey, chunkIx, wasAdded);
+                case ix_Br2Ptr: return insert(curr.as!(Br2*), bkey, chunkIx, wasAdded);
+                case ix_BrMPtr: return insert(curr.as!(BrM*), bkey, chunkIx, wasAdded);
+                case ix_LfMPtr: return insert(curr.as!(LfM*), bkey, chunkIx, wasAdded);
                 case ix_All1:   auto curr_ = curr.as!All1; break;
                 }
                 assert(false);
             }
         }
 
-        Node insert(Br2* curr, in BKey ukey, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(Br2* curr, BKey bkey, ChunkIx chunkIx, out bool wasAdded)
         {
-            const IxM chunk = bitsChunk!radix(ukey, chunkIx);
+            const IxM chunk = bitsChunk!radix(bkey, chunkIx);
 
             enum N = 2;         // branch-order, number of possible sub-nodes
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
@@ -427,49 +407,46 @@ struct RadixTree(Key,
                 {
                     if (curr.subChunks[subIx] == chunk) // and matches chunk
                     {
-                        curr.subNodes[subIx] = insert(curr.subNodes[subIx], ukey, chunkIx + 1, wasAdded);
+                        curr.subNodes[subIx] = insert(curr.subNodes[subIx], bkey, chunkIx + 1, wasAdded);
                         return Node(curr);
                     }
                 }
                 else            // use first free sub
                 {
-                    curr.subNodes[subIx] = insert(constructSub(chunkIx + 1), ukey, chunkIx + 1, wasAdded); // use it
+                    curr.subNodes[subIx] = insert(constructSub(bkey, chunkIx + 1), bkey, chunkIx + 1, wasAdded); // use it
                     curr.subChunks[subIx] = chunk;
                     return Node(curr);
                 }
             }
 
             // if we got here all N sub-nodes are occupied so we need to expand
-            return insert(expand(curr), ukey, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
+            return insert(expand(curr), bkey, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
         }
 
-        Node insert(BrM* curr, in BKey ukey, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(BrM* curr, BKey bkey, ChunkIx chunkIx, out bool wasAdded)
         in
         {
-            static if (hasFixedDepth) assert(chunkIx + 1 < maxDepth);
             assert(!wasAdded);               // check that we haven't yet added it
         }
         body
         {
-            const IxM chunk = bitsChunk!radix(ukey, chunkIx);
+            const IxM chunk = bitsChunk!radix(bkey, chunkIx);
             if (!curr.subNodes[chunk]) // if not yet set
             {
-                curr.subNodes[chunk] = constructSub(chunkIx + 1);
+                curr.subNodes[chunk] = constructSub(bkey, chunkIx + 1);
             }
-            curr.subNodes[chunk] = insert(curr.subNodes[chunk], ukey, chunkIx + 1, wasAdded);
+            curr.subNodes[chunk] = insert(curr.subNodes[chunk], bkey, chunkIx + 1, wasAdded);
             return Node(curr);
         }
 
-        Node insert(LfM* curr, in BKey ukey, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(LfM* curr, BKey bkey, ChunkIx chunkIx, out bool wasAdded)
         in
         {
-            static if (hasFixedDepth) assert(chunkIx + 1 == maxDepth);
-            else                      assert(chunkIx + 1 <= maxDepth);
             assert(!wasAdded);               // check that we haven't yet added it
         }
         body
         {
-            const IxM chunk = bitsChunk!radix(ukey, chunkIx);
+            const IxM chunk = bitsChunk!radix(bkey, chunkIx);
             if (!curr.keyLSBits[chunk])
             {
                 curr.keyLSBits[chunk] = true;
@@ -482,16 +459,14 @@ struct RadixTree(Key,
             return Node(curr);
         }
 
-        Node insert(PLfs curr, in BKey ukey, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(PLfs curr, BKey bkey, ChunkIx chunkIx, out bool wasAdded)
         in
         {
-            static if (hasFixedDepth) assert(chunkIx + 1 == maxDepth);
-            else                      assert(chunkIx + 1 <= maxDepth);
             assert(!wasAdded);               // check that we haven't yet added it
         }
         body
         {
-            const IxM chunk = bitsChunk!radix(ukey, chunkIx);
+            const IxM chunk = bitsChunk!radix(bkey, chunkIx);
 
             // TODO this is only marginally faster:
             // foreach (const i; iota!(0, curr.maxLength))
@@ -517,13 +492,13 @@ struct RadixTree(Key,
             }
             else
             {
-                return insert(expand(curr), ukey, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
+                return insert(expand(curr), bkey, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
             }
         }
 
-        Node constructSub(ChunkIx chunkIx)
+        Node constructSub(BKey bkey, ChunkIx chunkIx)
         {
-            return (chunkIx + 1 == maxDepth ? // is last
+            return ((chunkIx + 1) * radix == bkey.length ? // is last
                     Node(construct!DefaultLeafType) :
                     Node(construct!DefaultBranchType));
         }
@@ -555,43 +530,11 @@ struct RadixTree(Key,
 
     }
 
-    static if (isSet)
-    {
-        /** Returns: `true` if key is contained in set, `false` otherwise. */
-        bool contains(in Key key) const nothrow
-        {
-            return false;
-        }
-
-	/** Supports $(B `Key` in `this`) syntax.
-            TODO return `NodeRef` instead.
-        */
-	bool opBinaryRight(string op)(in Key key) const nothrow if (op == "in") { return contains(key); }
-    }
-
-    static if (isMap)
-    {
-        /** Insert `key`.
-            Returns: `false` if key was previously already inserted, `true` otherwise.
-        */
-        bool insert(in Key key, Value value)
-        {
-            bool result = insert(key);
-            // TODO call insertAtSubNode(result, value);
-            return result;
-        }
-        /** Returns: pointer to value if `key` is contained in set, null otherwise. */
-        Value* contains(in Key key) const
-        {
-            return null;
-        }
-    }
-
     /** Returns: `true` iff tree is empty (no elements stored). */
-    bool empty() const @safe pure nothrow @nogc { return !_root; }
+    bool empty() const @safe pure nothrow /* TODO @nogc */ { return !_root; }
 
     /** Returns: number of elements store. */
-    size_t length() const @safe pure nothrow @nogc { return _length; }
+    size_t length() const @safe pure nothrow /* TODO @nogc */ { return _length; }
 
     private:
 
@@ -612,7 +555,7 @@ struct RadixTree(Key,
         }
     }
 
-    @safe pure nothrow @nogc
+    @safe pure nothrow /* TODO @nogc */
     {
         void release(BrM* curr)
         {
@@ -675,47 +618,36 @@ struct RadixTree(Key,
     }
 
     /// Returns: number of nodes used in `this` tree.
-    pragma(inline) debug size_t nodeCount() @safe pure nothrow @nogc { return _nodeCount; }
+    pragma(inline) debug size_t nodeCount() @safe pure nothrow /* TODO @nogc */ { return _nodeCount; }
 
     private Node _root;
     size_t _length = 0;
 
     debug size_t _nodeCount = 0;
 }
-alias RadixTrie = RadixTree;
-alias CompactPrefixTree = RadixTree;
 
 /** Get chunkIx:th chunk of `radix` number of bits. */
-static private Mod!(2^^radix) bitsChunk(size_t radix, BKey)(in BKey ukey, ChunkIx chunkIx) pure nothrow
+static private Mod!(2^^radix) bitsChunk(size_t radix, BKey)(BKey bkey, ChunkIx chunkIx) pure nothrow
 {
     enum M = 2^^radix;     // branch-multiplicity, typically either 2, 4, 16 or 256
-    enum maxDepth = 8*BKey.sizeof / radix;
-
-    // calculate bit shift to current chunk
-    static if (isIntegral!BKey ||
-               isSomeChar!BKey) // because top-most bit in ASCII coding (char) is often sparse (0 is much more common than 1)
+    static if (radix == 4)
     {
-        /* most signficant bit chunk first because integers are
-           typically more sparse in more significant bits */
-        const shift = (maxDepth - 1 - chunkIx)*radix;
+        const shift = chunkIx & 1; // first 0, then 1
+        return typeof(return)((bkey[chunkIx/2] >> shift) & (M - 1));
     }
     else
     {
-        // default to most signficant bit chunk first
-        const shift = (maxDepth - 1 - chunkIx)*radix;
+        return typeof(return)(bkey[chunkIx] & (M - 1));
     }
-
-    return cast(typeof(return))((ukey >> shift) & (M - 1)); // part of value which is also an index
 }
 
 /** Append statistics of tree under `Node` `sub.` into `stats`.
  */
-static private void calculate(Key, Value, size_t radix)(RadixTree!(Key, Value, radix).Node sub,
-                                                        ref RadixTree!(Key, Value, radix).Stats stats)
-    @safe pure nothrow @nogc
-    if (allSatisfy!(isTrieableKeyType, Key))
+static private void calculate(Value, size_t radix)(RawRadixTree!(Value, radix).Node sub,
+                                                   ref RawRadixTree!(Value, radix).Stats stats)
+    @safe pure nothrow /* TODO @nogc */
 {
-    alias RT = RadixTree!(Key, Value, radix);
+    alias RT = RawRadixTree!(Value, radix);
     ++stats.popByNodeType[sub.typeIx];
 
     with (RT.Node.Ix)
@@ -731,6 +663,90 @@ static private void calculate(Key, Value, size_t radix)(RadixTree!(Key, Value, r
         }
     }
 }
+
+/// Radix-Tree with key-type `Key`.
+struct RadixTree(Key, Value, size_t radix = 4)
+    if (allSatisfy!(isTrieableKeyType, Key))
+{
+    /** Insert `key`. */
+    bool insert(in Key key)
+        @safe pure nothrow /* TODO @nogc */
+    {
+        // convert unsigned to fixed-length (on the stack) ubyte array
+        static if (isFixedTrieableKeyType!Key)
+        {
+            const ukey = key.bijectToUnsigned;
+            enum nbits = 8*ukey.sizeof;
+            enum chunkCount = nbits/radix;
+
+            BKeyN!(Key.sizeof) bkey;
+
+            static if (radix == 8)
+            {
+                foreach (chunkIx; 0 .. chunkCount)
+                {
+                    const bitShift = (chunkCount - 1 - chunkIx)*radix; // most significant bit chunk first (MSBCF)
+                    bkey[chunkIx] = cast(typeof(return))((ukey >> bitShift) & (M - 1)); // part of value which is also an index
+                }
+            }
+            else static if (radix == 4)
+            {
+                static assert("TODO");
+            }
+            else
+            {
+                static assert("Unsupported radix ", radix);
+            }
+        }
+        else
+        {
+            BKey bkey;
+            assert(false, "TODO");
+        }
+
+        bool wasAdded = false; // indicates that key was added
+        _root = _tree.insert(bkey[], 0, wasAdded);
+        _length += wasAdded;
+        return wasAdded;
+    }
+
+    static if (_tree.isSet)
+    {
+        /** Returns: `true` if key is contained in set, `false` otherwise. */
+        bool contains(in Key key) const nothrow
+        {
+            return false;
+        }
+
+	/** Supports $(B `Key` in `this`) syntax.
+            TODO return `NodeRef` instead.
+        */
+	bool opBinaryRight(string op)(in Key key) const nothrow if (op == "in") { return contains(key); }
+    }
+
+    static if (_tree.isMap)
+    {
+        /** Insert `key`.
+            Returns: `false` if key was previously already inserted, `true` otherwise.
+        */
+        bool insert(in Key key, Value value)
+        {
+            bool result = insert(key);
+            // TODO call insertAtSubNode(result, value);
+            return result;
+        }
+        /** Returns: pointer to value if `key` is contained in set, null otherwise. */
+        Value* contains(in Key key) const
+        {
+            return null;
+        }
+    }
+
+    private RawRadixTree!(Value, radix) _tree;
+    alias _tree this;
+}
+alias RadixTrie = RadixTree;
+alias CompactPrefixTree = RadixTree;
 
 /// Instantiator of set-version of `RadixTree`.
 auto radixTreeSet(Key, size_t radix = 4)() { return RadixTree!(Key, void, radix)(); }
@@ -890,11 +906,11 @@ void benchmark(size_t radix)()
     }
 }
 
-@safe pure nothrow @nogc
+@safe pure nothrow /* TODO @nogc */
 unittest
 {
-    check!(4, double, ulong, dchar);
     check!(8, double, ulong, dchar);
+    check!(4, double, ulong, dchar);
 }
 
 version(benchmark) unittest

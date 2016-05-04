@@ -375,6 +375,7 @@ struct RawRadixTree(Value,
     {
         pragma(inline) Node insert(BKey bkey, ChunkIx chunkIx, out bool wasAdded)
         {
+            dln("insert(): chunkIx:", chunkIx);
             ensureRootNode;
             return insert(_root, bkey, chunkIx, wasAdded);
         }
@@ -629,15 +630,15 @@ struct RawRadixTree(Value,
 /** Get chunkIx:th chunk of `radix` number of bits. */
 static private Mod!(2^^radix) bitsChunk(size_t radix, BKey)(BKey bkey, ChunkIx chunkIx) pure nothrow
 {
-    enum M = 2^^radix;     // branch-multiplicity, typically either 2, 4, 16 or 256
+    enum mask = typeof(return).max;
     static if (radix == 4)
     {
         const shift = chunkIx & 1; // first 0, then 1
-        return typeof(return)((bkey[chunkIx/2] >> shift) & (M - 1));
+        return typeof(return)((bkey[chunkIx/2] >> shift) & mask);
     }
     else static if (radix == 8)
     {
-        return typeof(return)(bkey[chunkIx] & (M - 1));
+        return typeof(return)(bkey[chunkIx] & mask);
     }
     else
     {
@@ -780,6 +781,7 @@ auto check(size_t radix, Keys...)()
             const useContains = false;
             foreach (Key k; 0.iota(n))
             {
+                show!k;
                 if (useContains)
                 {
                     assert(!set.contains(k)); // key should not yet be in set

@@ -1,3 +1,5 @@
+/** Use Phobos' reinterpret!T(x)
+ */
 module bijections;
 
 import std.meta : AliasSeq, staticIndexOf, Unqual;

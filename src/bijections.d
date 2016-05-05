@@ -90,6 +90,11 @@ auto bijectToUnsigned(T)(T a) @trusted pure nothrow
 
 @safe @nogc pure nothrow unittest
 {
+    static assert(is(typeof(ubyte.init.bijectToUnsigned) == ubyte));
+    static assert(is(typeof(ushort.init.bijectToUnsigned) == ushort));
+    static assert(is(typeof(uint.init.bijectToUnsigned) == uint));
+    static assert(is(typeof(ulong.init.bijectToUnsigned) == ulong));
+
     static assert(is(typeof(byte.init.bijectToUnsigned) == ubyte));
     static assert(is(typeof(short.init.bijectToUnsigned) == ushort));
     static assert(is(typeof(int.init.bijectToUnsigned) == uint));

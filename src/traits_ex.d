@@ -719,6 +719,9 @@ alias enumEnumerators = enumMembers;
 alias enumConstants = enumMembers;
 
 /** Dynamic Variant of $(D EnumMembers) excluding the enumerator aliases.
+
+    TODO implement with an array and a bitset indiciating if it has been found yet or not
+
     See also: http://forum.dlang.org/post/ziappmtvucmuefphblse@forum.dlang.org
     See also: http://forum.dlang.org/thread/bspwlfypfishykezzocx@forum.dlang.org#post-dguqnroxbfewerepomwq:40forum.dlang.org
 */

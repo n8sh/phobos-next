@@ -20,20 +20,26 @@ auto bijectToUnsigned(T)(T a) @trusted pure nothrow
 {
     alias U = Unqual!T;
 
-    static      if (is(U == char))  return *(cast(ubyte*)&a); // reinterpret
-    else static if (is(U == wchar)) return *(cast(ushort*)&a); // reinterpret
-    else static if (is(U == dchar)) return *(cast(uint*)&a); // reinterpret
+    static      if (is(U == char))  { return *(cast(ubyte*)&a); } // reinterpret
+    else static if (is(U == wchar)) { return *(cast(ushort*)&a); } // reinterpret
+    else static if (is(U == dchar)) { return *(cast(uint*)&a); } // reinterpret
     else static if (isIntegral!U)
     {
         static      if (isSigned!U)
+        {
             return a + (cast(Unsigned!U)1 << (8*U.sizeof - 1)); // "add up""
+        }
         else static if (isUnsigned!U)
+        {
             return a;           // identity
+        }
         else
+        {
             static assert(false, "Unsupported integral input type " ~ U.stringof);
+        }
     }
-    else static if (is(U == float))  return ff(*cast(uint*)(&a));
-    else static if (is(U == double)) return ff(*cast(ulong*)(&a));
+    else static if (is(U == float))  { return ff(*cast(uint*)(&a)); }
+    else static if (is(U == double)) { return ff(*cast(ulong*)(&a)); }
     else static assert(false, "Unsupported input type " ~ U.stringof);
 }
 

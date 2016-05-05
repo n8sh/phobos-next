@@ -693,7 +693,6 @@ struct RadixTree(Key, Value, size_t radix = 4)
                 foreach (chunkIx; 0 .. chunkCount)
                 {
                     const bitShift = (chunkCount - 1 - chunkIx)*radix; // most significant bit chunk first (MSBCF)
-                    // TODO range check?
                     bkey[chunkIx] = (ukey >> bitShift) & (M - 1); // part of value which is also an index
                 }
             }

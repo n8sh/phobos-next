@@ -718,7 +718,7 @@ auto enumMembers(T)()
 alias enumEnumerators = enumMembers;
 alias enumConstants = enumMembers;
 
-/** Dynamic Variant of $(D EnumMembers) without Enumerator Aliases.
+/** Dynamic Variant of $(D EnumMembers) excluding the enumerator aliases.
     See also: http://forum.dlang.org/thread/bspwlfypfishykezzocx@forum.dlang.org#post-dguqnroxbfewerepomwq:40forum.dlang.org
 */
 auto uniqueEnumMembers(T)()
@@ -778,7 +778,7 @@ template packedBitSizeOf(T)
     {
         static assert(T.min != T.max, "enum T must have at least two enumerators");
         import core.bitop : bsr;
-        enum range = T.max - T.min;
+        enum range = T.max - T.min; // TODO use uniqueEnumMembers.length instead?
         enum packedBitSizeOf = range.bsr + 1;
     }
     // TODO

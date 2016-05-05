@@ -1,4 +1,4 @@
-/** Use Phobos' reinterpret!T(x)
+/** TOOD extract reinterpret!T(x)
     TODO real
  */
 module bijections;

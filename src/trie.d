@@ -376,7 +376,6 @@ struct RawRadixTree(Value,
     {
         pragma(inline) Node insert(BKey bkey, ChunkIx chunkIx, out bool wasAdded)
         {
-            dln("insert(): ", " bkey:", bkey, " chunkIx:", chunkIx);
             ensureRootNode;
             return insert(_root, bkey, chunkIx, wasAdded);
         }
@@ -636,13 +635,11 @@ static private Mod!(2^^radix) bitsChunk(size_t radix, BKey)(BKey bkey, ChunkIx c
     {
         const shift = chunkIx & 1; // first 0, then 1
         const x = typeof(return)((bkey[chunkIx/2] >> shift) & mask);
-        dln(x);
         return x;
     }
     else static if (radix == 8)
     {
         const x = typeof(return)(bkey[chunkIx] & mask);
-        dln(x);
         return x;
     }
     else
@@ -696,7 +693,8 @@ struct RadixTree(Key, Value, size_t radix = 4)
                 foreach (chunkIx; 0 .. chunkCount)
                 {
                     const bitShift = (chunkCount - 1 - chunkIx)*radix; // most significant bit chunk first (MSBCF)
-                    bkey[chunkIx] = cast(typeof(return))((ukey >> bitShift) & (M - 1)); // part of value which is also an index
+                    // TODO range check?
+                    bkey[chunkIx] = (ukey >> bitShift) & (M - 1); // part of value which is also an index
                 }
             }
             else static if (radix == 4)
@@ -786,7 +784,6 @@ auto check(size_t radix, Keys...)()
             const useContains = false;
             foreach (Key k; 0.iota(n))
             {
-                show!k;
                 if (useContains)
                 {
                     assert(!set.contains(k)); // key should not yet be in set
@@ -920,14 +917,14 @@ void benchmark(size_t radix)()
 @safe pure nothrow /* TODO @nogc */
 unittest
 {
-    check!(8, double, ulong, dchar);
-    check!(4, double, ulong, dchar);
+    check!(8, ulong);
+    // check!(4, ulong);
 }
 
 version(benchmark) unittest
 {
     benchmark!8;
-    benchmark!4;
+    // benchmark!4;
 }
 
 /** Static Iota.

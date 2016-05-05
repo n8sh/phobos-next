@@ -780,10 +780,13 @@ auto check(size_t radix, Keys...)()
 
             static assert(set.isSet);
 
-            const n = 100_000;
+            import std.algorithm : min;
+            const n = min(Key.max, 100_000);
             const useContains = false;
-            foreach (Key k; 0.iota(n))
+            import range_ex : iotaOf;
+            foreach (const uk; 0.iota(n))
             {
+                const Key k = cast(Key)uk;
                 if (useContains)
                 {
                     assert(!set.contains(k)); // key should not yet be in set
@@ -798,7 +801,8 @@ auto check(size_t radix, Keys...)()
                 {
                     assert(set.contains(k)); // key should now be in set
                     assert(k in set);        // alternative syntax
-                    assert(!set.contains(k + 1)); // next key is not yet in set
+                    if (k != Key.max)        // except last value
+                        assert(!set.contains(cast(Key)(k + 1))); // next key is not yet in set
                 }
             }
 
@@ -917,7 +921,7 @@ void benchmark(size_t radix)()
 @safe pure nothrow /* TODO @nogc */
 unittest
 {
-    check!(8, ulong);
+    check!(8, ushort, uint, ulong);
     // check!(4, ulong);
 }
 

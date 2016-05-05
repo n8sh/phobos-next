@@ -1,6 +1,7 @@
 /** Tries and PrefixTrees.
 
     See also: https://en.wikipedia.org/wiki/Trie
+    See also: https://en.wikipedia.org/wiki/Radix_tree
 
     TODO
     - LfV: Word:
@@ -375,7 +376,7 @@ struct RawRadixTree(Value,
     {
         pragma(inline) Node insert(BKey bkey, ChunkIx chunkIx, out bool wasAdded)
         {
-            dln("insert(): chunkIx:", chunkIx);
+            dln("insert(): ", " bkey:", bkey, " chunkIx:", chunkIx);
             ensureRootNode;
             return insert(_root, bkey, chunkIx, wasAdded);
         }
@@ -634,11 +635,15 @@ static private Mod!(2^^radix) bitsChunk(size_t radix, BKey)(BKey bkey, ChunkIx c
     static if (radix == 4)
     {
         const shift = chunkIx & 1; // first 0, then 1
-        return typeof(return)((bkey[chunkIx/2] >> shift) & mask);
+        const x = typeof(return)((bkey[chunkIx/2] >> shift) & mask);
+        dln(x);
+        return x;
     }
     else static if (radix == 8)
     {
-        return typeof(return)(bkey[chunkIx] & mask);
+        const x = typeof(return)(bkey[chunkIx] & mask);
+        dln(x);
+        return x;
     }
     else
     {

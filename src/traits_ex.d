@@ -725,7 +725,11 @@ auto uniqueEnumMembers(T)()
 {
     import std.traits: EnumMembers;
     import std.algorithm: sort, uniq;
-    return [EnumMembers!T].sort().uniq;
+    return [EnumMembers!T].sort().uniq; // TODO isn't really only uniq needed?
+}
+
+@safe pure nothrow @nogc unittest
+{
 }
 
 enum sizeOf(T) = T.sizeof;      // TODO Add to Phobos

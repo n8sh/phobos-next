@@ -732,7 +732,7 @@ auto uniqueEnumMembers(T)()
 {
     enum E { x, y, z, Z = z, Y = y }
     import std.algorithm.comparison : equal;
-    assert(uniqueEnumMembers!E.equal([0, 1, 2]));
+    assert(uniqueEnumMembers!E.equal([E.x, E.y, E.z]));
     static assert(E.x == 0);
     static assert(E.y == 1);
     static assert(E.z == 2);

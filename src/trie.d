@@ -85,8 +85,8 @@ alias BKeyN(size_t N) = ubyte[N];
 
     See also: https://en.wikipedia.org/wiki/Radix_tree
 */
-struct RawRadixTree(Value,
-                    size_t radix = 4) // radix in number of bits, typically either 1, 2, 4 or 8
+struct BinaryRadixTree(Value,
+                       size_t radix = 4) // radix in number of bits, typically either 1, 2, 4 or 8
 {
     import std.algorithm : filter;
     import std.meta : AliasSeq, staticMap;
@@ -165,7 +165,7 @@ struct RawRadixTree(Value,
         }
     }
 
-    // TODO make these CT-params (requires putting branch definitions in same scope as `RawRadixTree`)
+    // TODO make these CT-params (requires putting branch definitions in same scope as `BinaryRadixTree`)
     static if (radix == 8)
     {
         alias DefaultRootType = BrM*;
@@ -650,11 +650,11 @@ static private Mod!(2^^radix) bitsChunk(size_t radix, BKey)(BKey bkey, ChunkIx c
 
 /** Append statistics of tree under `Node` `sub.` into `stats`.
  */
-static private void calculate(Value, size_t radix)(RawRadixTree!(Value, radix).Node sub,
-                                                   ref RawRadixTree!(Value, radix).Stats stats)
+static private void calculate(Value, size_t radix)(BinaryRadixTree!(Value, radix).Node sub,
+                                                   ref BinaryRadixTree!(Value, radix).Stats stats)
     @safe pure nothrow /* TODO @nogc */
 {
-    alias RT = RawRadixTree!(Value, radix);
+    alias RT = BinaryRadixTree!(Value, radix);
     ++stats.popByNodeType[sub.typeIx];
 
     with (RT.Node.Ix)
@@ -750,7 +750,7 @@ struct RadixTree(Key, Value, size_t radix = 4)
         }
     }
 
-    private RawRadixTree!(Value, radix) _tree;
+    private BinaryRadixTree!(Value, radix) _tree;
     alias _tree this;
 }
 alias RadixTrie = RadixTree;

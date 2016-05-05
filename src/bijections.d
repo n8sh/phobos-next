@@ -1,4 +1,5 @@
 /** Use Phobos' reinterpret!T(x)
+    TODO real
  */
 module bijections;
 
@@ -8,9 +9,9 @@ import std.traits : isUnsigned, isSigned, isIntegral, Unsigned, Signed, isNumeri
 
 /** List of types that are bijectable to builtin integral types. */
 alias IntegralBijectableTypes = AliasSeq!(char, wchar, dchar,
-                                          ubyte, ushort, uint, ulong, // TODO ucent?
-                                          byte, short, int, long, // TODO cent?
-                                          float, double); // TODO real?
+                                          ubyte, ushort, uint, ulong,
+                                          byte, short, int, long,
+                                          float, double);
 
 enum isIntegralBijectableType(T) = staticIndexOf!(Unqual!T, IntegralBijectableTypes) >= 0;
 

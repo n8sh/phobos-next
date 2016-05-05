@@ -680,6 +680,8 @@ struct RadixTree(Key, Value, size_t radix = 4)
         @safe pure nothrow /* TODO @nogc */
     {
         // convert unsigned to fixed-length (on the stack) ubyte array
+
+        // TODO functionize
         static if (isFixedTrieableKeyType!Key)
         {
             const ukey = key.bijectToUnsigned;
@@ -779,11 +781,14 @@ auto check(size_t radix, Keys...)()
 
             static assert(set.isSet);
 
-            import std.algorithm : min;
-            const n = min(Key.max, 100_000);
+            import std.algorithm : min, max;
+
+            const low = max(Key.min, -100_000);
+            const high = min(Key.max, 100_000);
+            const length = high - low;
+
             const useContains = false;
-            import range_ex : iotaOf;
-            foreach (const uk; 0.iota(n))
+            foreach (const uk; low.iota(high))
             {
                 const Key k = cast(Key)uk;
                 if (useContains)
@@ -805,7 +810,7 @@ auto check(size_t radix, Keys...)()
                 }
             }
 
-            assert(set.length == n);
+            assert(set.length == length);
 
             auto map = radixTreeMap!(Key, Value, radix);
             static assert(map.isMap);
@@ -920,7 +925,9 @@ void benchmark(size_t radix)()
 @safe pure nothrow /* TODO @nogc */
 unittest
 {
-    check!(8, ushort, uint, ulong);
+    check!(8,
+           short, int, long,
+           ushort, uint, ulong);
     // check!(4, ulong);
 }
 

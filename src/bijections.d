@@ -18,29 +18,30 @@ enum isIntegralBijectableType(T) = staticIndexOf!(Unqual!T, IntegralBijectableTy
 auto bijectToUnsigned(T)(T a) @trusted pure nothrow
     if (isIntegralBijectableType!T)
 {
-    alias U = Unqual!T;
+    alias UT = Unqual!T;
 
-    static      if (is(U == char))  { return *(cast(ubyte*)&a); } // reinterpret
-    else static if (is(U == wchar)) { return *(cast(ushort*)&a); } // reinterpret
-    else static if (is(U == dchar)) { return *(cast(uint*)&a); } // reinterpret
-    else static if (isIntegral!U)
+    static      if (is(UT == char))  { return *(cast(ubyte*)&a); } // reinterpret
+    else static if (is(UT == wchar)) { return *(cast(ushort*)&a); } // reinterpret
+    else static if (is(UT == dchar)) { return *(cast(uint*)&a); } // reinterpret
+    else static if (isIntegral!UT)
     {
-        static      if (isSigned!U)
+        static      if (isSigned!UT)
         {
-            return a + (cast(Unsigned!U)1 << (8*U.sizeof - 1)); // "add up""
+            alias UUT = Unsigned!UT;
+            return cast(UUT)(a + (cast(UUT)1 << (8*UT.sizeof - 1))); // "add up""
         }
-        else static if (isUnsigned!U)
+        else static if (isUnsigned!UT)
         {
             return a;           // identity
         }
         else
         {
-            static assert(false, "Unsupported integral input type " ~ U.stringof);
+            static assert(false, "Unsupported integral input type " ~ UT.stringof);
         }
     }
-    else static if (is(U == float))  { return ff(*cast(uint*)(&a)); }
-    else static if (is(U == double)) { return ff(*cast(ulong*)(&a)); }
-    else static assert(false, "Unsupported input type " ~ U.stringof);
+    else static if (is(UT == float))  { return ff(*cast(uint*)(&a)); }
+    else static if (is(UT == double)) { return ff(*cast(ulong*)(&a)); }
+    else static assert(false, "Unsupported input type " ~ UT.stringof);
 }
 
 @safe @nogc pure nothrow
@@ -89,6 +90,11 @@ auto bijectToUnsigned(T)(T a) @trusted pure nothrow
 
 @safe @nogc pure nothrow unittest
 {
+    static assert(is(typeof(byte.init.bijectToUnsigned) == ubyte));
+    static assert(is(typeof(short.init.bijectToUnsigned) == ushort));
+    static assert(is(typeof(int.init.bijectToUnsigned) == uint));
+    static assert(is(typeof(long.init.bijectToUnsigned) == ulong));
+
     static assert(is(typeof(char.init.bijectToUnsigned) == ubyte));
     static assert(is(typeof(wchar.init.bijectToUnsigned) == ushort));
     static assert(is(typeof(dchar.init.bijectToUnsigned) == uint));

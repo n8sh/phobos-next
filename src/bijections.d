@@ -37,6 +37,13 @@ auto bijectToUnsigned(T)(T a) @trusted pure nothrow
     else static assert(false, "Unsupported input type " ~ U.stringof);
 }
 
+@safe @nogc pure nothrow unittest
+{
+    static assert(is(typeof(char.init.bijectToUnsigned) == ubyte));
+    static assert(is(typeof(wchar.init.bijectToUnsigned) == ushort));
+    static assert(is(typeof(dchar.init.bijectToUnsigned) == ulong));
+}
+
 @safe @nogc pure nothrow
 {
     auto bijectToUnsigned(T)(T a, bool descending)

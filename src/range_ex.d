@@ -465,7 +465,9 @@ private template siotaImpl(size_t to, size_t now)
 /** Same as $(D iota) but with explicit conversion to type $(D T).
     See also: http://forum.dlang.org/thread/mailman.955.1444358510.22025.digitalmars-d@puremagic.com?page=1
 */
-auto iotaOf(T, B, E, S)(B begin = T.min, E end = T.max, S step = 1)
+auto iotaOf(T, B, E, S)(B begin = T.min,
+                        E end = T.max,
+                        S step = 1)
 {
     import std.range : iota;
     import std.algorithm.iteration : map;

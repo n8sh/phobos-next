@@ -736,6 +736,8 @@ auto uniqueEnumMembers(T)()
     static assert(E.x == 0);
     static assert(E.y == 1);
     static assert(E.z == 2);
+    static assert(E.Z == E.z);
+    static assert(E.Y == E.y);
 }
 
 enum sizeOf(T) = T.sizeof;      // TODO Add to Phobos

@@ -4,7 +4,6 @@
 module bijections;
 
 import std.meta : AliasSeq, staticIndexOf, Unqual;
-
 import std.traits : isUnsigned, isSigned, isIntegral, Unsigned, Signed, isNumeric, isSomeChar;
 
 /** List of types that are bijectable to builtin integral types. */

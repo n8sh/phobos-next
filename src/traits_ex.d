@@ -728,8 +728,14 @@ auto uniqueEnumMembers(T)()
     return [EnumMembers!T].sort().uniq; // TODO isn't really only uniq needed?
 }
 
-@safe pure nothrow @nogc unittest
+@safe pure nothrow /*@nogc*/ unittest
 {
+    enum E { x, y, z, Z = z, Y = y }
+    import std.algorithm.comparison : equal;
+    assert(uniqueEnumMembers!E.equal([0, 1, 2]));
+    static assert(E.x == 0);
+    static assert(E.y == 1);
+    static assert(E.z == 2);
 }
 
 enum sizeOf(T) = T.sizeof;      // TODO Add to Phobos

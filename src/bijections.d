@@ -90,15 +90,14 @@ auto bijectToUnsigned(T)(T a) @trusted pure nothrow
 
 @safe @nogc pure nothrow unittest
 {
-    static assert(is(typeof(ubyte.init.bijectToUnsigned) == ubyte));
-    static assert(is(typeof(ushort.init.bijectToUnsigned) == ushort));
-    static assert(is(typeof(uint.init.bijectToUnsigned) == uint));
-    static assert(is(typeof(ulong.init.bijectToUnsigned) == ulong));
-
-    static assert(is(typeof(byte.init.bijectToUnsigned) == ubyte));
-    static assert(is(typeof(short.init.bijectToUnsigned) == ushort));
-    static assert(is(typeof(int.init.bijectToUnsigned) == uint));
-    static assert(is(typeof(long.init.bijectToUnsigned) == ulong));
+    foreach (T; AliasSeq!(ubyte, ushort, uint, ulong))
+    {
+        static assert(is(typeof(T.init.bijectToUnsigned) == T));
+    }
+    foreach (T; AliasSeq!(byte, short, int, long))
+    {
+        static assert(is(typeof(T.init.bijectToUnsigned) == Unsigned!T));
+    }
 
     static assert(is(typeof(char.init.bijectToUnsigned) == ubyte));
     static assert(is(typeof(wchar.init.bijectToUnsigned) == ushort));

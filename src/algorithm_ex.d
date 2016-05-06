@@ -385,6 +385,7 @@ bool overlaps(T)(const(T)[] r1, const(T)[] r2) @trusted // pure nothrow
     See also: http://forum.dlang.org/thread/dlfeiszyweafpjiocplf@forum.dlang.org#post-vpzuaqxvtdpzpeuorxdl:40forum.dlang.org
     See also: https://stackoverflow.com/questions/21849580/equality-operator-in-favour-of-std-range-equal
     TODO: Test graphemes in `string` and `wstring`.
+    TODO Add to Phobos
 */
 bool isSymmetric(R)(R range, size_t minLength = 0) // TODO good value for minLength?
     if (isBidirectionalRange!(R))

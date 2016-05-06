@@ -1,4 +1,4 @@
-/** Array container(s) with optional sortedness.
+/** Array container(s) with optional sortedness (`Ordering`).
 
     TODO Split up `Array` into `Array`, `SortedArray`, `SetArray` and reuse
     logic in `Array` via `alias this` or free functions.

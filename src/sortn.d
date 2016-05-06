@@ -112,8 +112,8 @@ void conditionalSwap(alias less = "a < b", Range, indexes...)(Range r)
 /** Largest length supported by network sort `networkSortUpTo`. */
 enum networkSortMaxLength = 22;
 
-/** Sort at most the first `n` elements of `r` using comparison `less` using a
-    networking sorting algorithm.
+/** Sort at most the first `n` elements of `r` using comparison `less` using
+    networking sorting algorithms.
 
     Note: Sorting networks are not unique, not even optimal solutions.
 

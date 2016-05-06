@@ -225,65 +225,6 @@ unittest
 
 import std.traits : isInstanceOf;
 
-/** Returns: Minimum Element in $(D range).
-    See also: http://forum.dlang.org/thread/jufggxqwzhlsmhshtnfj@forum.dlang.org?page=3
- */
-auto minElement(alias F = min, R)(in R range)
-    if (isInputRange!R)
-{
-    import std.algorithm : reduce;
-    import std.range : SortedRange;
-    enum M = ElementType!R.max;
-
-    // TODO Expose predFun in SortedRange so we can check with static if (R.predFun == binaryFun!`a < b`)
-    // TODO or add members minElement and maxElement to SortedRange that wraps this logic.
-
-    // static if (isInstanceOf!(SortedRange, R))
-    // {
-    //     return r.empty ? M : r.front;
-    // }
-    // else static if (isInstanceOf!(SortedRange, R))
-    // {
-    //     return r.empty ? M : r.back; // TODO if R has member back (R.Range isBidirectionalRange)
-    // }
-    // else
-    // {
-    //     return reduce!F(M, range);
-    // }
-    return reduce!F(M, range);
-}
-alias smallest = minElement;
-
-///
-unittest { assert([4, 1, 2, 3].minElement == 1); }
-
-/** Returns: Maximum Element in X.
-    See also: http://forum.dlang.org/thread/jufggxqwzhlsmhshtnfj@forum.dlang.org?page=3
-*/
-auto maxElement(alias F = max, R)(in R range)
-    if (isInputRange!R)
-{
-    import std.algorithm : reduce;
-    return reduce!F(ElementType!R.min, range);
-}
-alias largest = maxElement;
-
-///
-unittest { assert([4, 1, 2, 3].maxElement == 4); }
-
-/** Returns: Minmum and Maximum Element in X. */
-auto minmaxElement(alias F = min, alias G = max, R)(in R range)
-    if (isInputRange!R)
-{
-    import std.typecons : tuple;
-    import std.algorithm : reduce;
-    return reduce!(F, G)(tuple(Unqual!(ElementType!R).max,
-                               Unqual!(ElementType!R).min), range);
-}
-
-///
-unittest { assert([1, 2, 3].minmaxElement == tuple(1, 3)); }
-
 import std.typecons : Nullable;
 
 /** Returns: true iff $(D a) has a value containing meaningful information.

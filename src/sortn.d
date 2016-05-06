@@ -113,7 +113,7 @@ void conditionalSwap(alias less = "a < b", Range, indexes...)(Range r)
 enum networkSortMaxLength = 22;
 
 /** Sort at most the first `n` elements of `r` using comparison `less` using
-    networking sorting algorithms.
+    a networking sort.
 
     Note: Sorting networks are not unique, not even optimal solutions.
 

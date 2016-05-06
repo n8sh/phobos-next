@@ -22,7 +22,7 @@ import dbg: dln;
 import predicates: allZero, allEqualTo;
 import nesses: denseness;
 import rational: Rational;
-import msgpack;
+// import msgpack;
 import std.numeric: dotProduct;
 import std.string: representation;
 import std.conv: to;
@@ -1003,10 +1003,10 @@ unittest
     alias SparseNGram = Unqual!(typeof(bSp));
 
     // check msgpacking
-    auto bSPBytes = bSp.pack();
-    SparseNGram bSp_;
-    bSPBytes.unpack(bSp_);
-    assert(bSp == bSp_);
+    // auto bSPBytes = bSp.pack();
+    // SparseNGram bSp_;
+    // bSPBytes.unpack(bSp_);
+    // assert(bSp == bSp_);
 
     auto bS = x.bigram!(Kind.saturated, Storage.denseStatic);
     const bSCopy = bS;

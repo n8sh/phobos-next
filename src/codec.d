@@ -7,10 +7,10 @@
 */
 module codec;
 
-import std.typecons: Tuple, tuple;
+import std.typecons: Tuple;
 import std.range: front, isInputRange, ElementType;
-import algorithm_ex: forwardDifference;
 import std.array: array;
+import algorithm_ex: forwardDifference;
 
 /** Packing of $(D r) using a forwardDifference.
     Used to pack elements of type ptrdiff, times, etc.
@@ -63,6 +63,7 @@ unittest
 /** Alternative. */
 auto encodeForwardDifference_alt(R)(R r) if (isInputRange!R)
 {
+    import std.typecons: tuple;
     return tuple(r.front, r.forwardDifference);
 }
 /** Alternative. */

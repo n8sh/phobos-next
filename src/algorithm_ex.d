@@ -385,7 +385,7 @@ bool overlaps(T)(const(T)[] r1, const(T)[] r2) @trusted // pure nothrow
     See also: http://forum.dlang.org/thread/dlfeiszyweafpjiocplf@forum.dlang.org#post-vpzuaqxvtdpzpeuorxdl:40forum.dlang.org
     See also: https://stackoverflow.com/questions/21849580/equality-operator-in-favour-of-std-range-equal
     TODO: Test graphemes in `string` and `wstring`.
-    TODO Add to Phobos
+    TODO Move to Phobos
 */
 bool isSymmetric(R)(R range, size_t minLength = 0) // TODO good value for minLength?
     if (isBidirectionalRange!(R))
@@ -2125,7 +2125,7 @@ bool countsAtMost(R)(R r, size_t maxCount) @("complexity", "O(maxCount)")
     `size_t.max` otherwise.
 */
 size_t binarySearch(T, U)(const T[] values, in U value)
-    if (is(typeof(T[0].init == U.init))) // TODO SortedRange support
+    if (is(typeof(values[0].init == U.init))) // TODO SortedRange support
 {
     // value is not in the array if the array is empty
     if (values.length == 0) { return size_t.max; }
@@ -2148,4 +2148,12 @@ size_t binarySearch(T, U)(const T[] values, in U value)
         }
         return index;
     }
+}
+
+@safe pure nothrow @nogc unittest
+{
+    int[9] x = [1, 3, 5, 6, 8, 9, 10, 13, 15];
+    assert(x[].binarySearch(1) != size_t.max);
+    assert(x[].binarySearch(13) != size_t.max);
+    assert(x[].binarySearch(14) == size_t.max);
 }

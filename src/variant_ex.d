@@ -24,7 +24,7 @@ module variant_ex;
 
 import std.meta : staticIndexOf;
 
-template bitsNeeeded(size_t length)
+static private template bitsNeeeded(size_t length)
 {
     static      if (length <= 2)   { enum bitsNeeeded = 1; }
     else static if (length <= 4)   { enum bitsNeeeded = 2; }

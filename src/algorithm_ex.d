@@ -18,8 +18,6 @@ import std.algorithm.searching : find;
 
 version(print) import dbg;
 
-auto typestringof(T)(in T a) { return T.stringof; }
-
 import std.range : dropOne;
 alias tail = dropOne;
 

@@ -1,6 +1,10 @@
 /** Lightweight versions of polymorphism packed inside one single
-    word/pointer. Most significant bits are used to store type
-    information. These are normally unused on 64-bit systems (tested on Linux).
+    word/pointer.
+
+    Most significant bits are used to store type information.
+
+    These higher bits are normally unused on 64-bit systems (tested on
+    Linux). 16 higher bits either 1 (kernel-space) or 0 (user-space).
 
     See also: http://forum.dlang.org/post/sybuoliqhhefcovxjfjv@forum.dlang.org
 

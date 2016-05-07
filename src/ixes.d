@@ -1,6 +1,6 @@
 module ixes;
 
-import std.algorithm: commonPrefix;
+import std.algorithm : commonPrefix;
 import std.meta : allSatisfy;
 import std.range : isInputRange, isBidirectionalRange;
 

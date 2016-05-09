@@ -1,3 +1,10 @@
+/** Introspection of interface and in turn behaviour.
+
+    Enables
+
+    - Automatic Behaviour Visualization
+    - Automatic Test Stub Construction
+ */
 module behaviorism;
 
 enum Flag
@@ -8,3 +15,5 @@ enum Flag
     shuffling,
     subset,
 }
+
+alias Dimensionality = uint;

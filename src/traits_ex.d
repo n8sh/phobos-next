@@ -712,7 +712,7 @@ bool isNewline(S)(S s) @safe pure nothrow @nogc
 */
 auto enumMembers(T)()
 {
-    import std.traits: EnumMembers;
+    import std.traits : EnumMembers;
     return [EnumMembers!T];
 }
 alias enumEnumerators = enumMembers;
@@ -726,22 +726,38 @@ alias enumConstants = enumMembers;
     See also: http://forum.dlang.org/thread/bspwlfypfishykezzocx@forum.dlang.org#post-dguqnroxbfewerepomwq:40forum.dlang.org
 */
 auto uniqueEnumMembers(T)()
+    if (is(T == enum))
 {
-    import std.traits: EnumMembers;
-    import std.algorithm: sort, uniq;
+    import std.traits : EnumMembers;
+    import std.algorithm : sort, uniq;
     return [EnumMembers!T].sort().uniq; // TODO isn't really only uniq needed?
+}
+
+/** Faster Version of `uniqueEnumMembers. */
+auto uniqueEnumMembersHashed(T)()
+    if (is(T == enum))
+{
+    import std.traits : EnumMembers;
+    bool[T] uniquifier;
+    foreach (member; EnumMembers!T)
+    {
+        uniquifier[member] = true;
+    }
+    return uniquifier.keys; // `keys` can be evaluate at compile-time but not `byKey`
 }
 
 @safe pure nothrow /*@nogc*/ unittest
 {
     enum E { x, y, z, Z = z, Y = y }
     import std.algorithm.comparison : equal;
-    assert(uniqueEnumMembers!E.equal([E.x, E.y, E.z]));
+    assert(uniqueEnumMembers!E.equal([E.x, E.y, E.z])); // run-time
+    static assert(uniqueEnumMembers!E.equal([E.x, E.y, E.z])); // compile-time
     static assert(E.x == 0);
     static assert(E.y == 1);
     static assert(E.z == 2);
     static assert(E.Z == E.z);
     static assert(E.Y == E.y);
+    static assert(uniqueEnumMembers!E.equal(uniqueEnumMembersHashed!E));
 }
 
 enum sizeOf(T) = T.sizeof;      // TODO Add to Phobos

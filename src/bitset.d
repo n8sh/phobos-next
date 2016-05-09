@@ -18,6 +18,9 @@ struct BitSet(size_t len, Block = size_t)
     import core.bitop : bt, bts, btr, bitswap;
     import modulo : Mod;
 
+    import std.traits : isUnsigned;
+    static assert(isUnsigned!Block);
+
     enum bitsPerBlocks = 8*Block.sizeof;
     enum noBlocks = (len + (bitsPerBlocks-1)) / bitsPerBlocks;
     Block[noBlocks] _data;
@@ -43,17 +46,35 @@ struct BitSet(size_t len, Block = size_t)
     body
     {
         // Andrei: review for @@@64-bit@@@
-        return cast(bool) bt(ptr, i);
+        static if (is(Block == size_t))
+        {
+            return cast(bool)bt(ptr, i);
+        }
+        else
+        {
+            import bitop_ex : bt;
+            return bt(*ptr, i);
+        }
     }
 
     /** Gets the $(D i)'th bit in the $(D BitSet). No range checking needed. */
     static if (len >= 1)
     {
         /** Get the $(D i)'th bit in the $(D BitSet).
-            No range checking needed because Mod!len is safely pre-bound */
+
+            Avoids range-checking because `i` of type is bound to (0 .. len-1).
+        */
         pragma(inline) bool opIndex(Mod!len i) const @trusted pure nothrow
         {
-            return cast(bool)bt(ptr, i);
+            static if (is(Block == size_t))
+            {
+                return cast(bool)bt(ptr, i);
+            }
+            else
+            {
+                import bitop_ex : bt;
+                return bt(*ptr, cast(uint)i);
+            }
         }
 
         /** Get the $(D i)'th bit in the $(D BitSet).
@@ -66,7 +87,15 @@ struct BitSet(size_t len, Block = size_t)
         }
         body
         {
-            return cast(bool) bt(ptr, i);
+            static if (is(Block == size_t))
+            {
+                return cast(bool)bt(ptr, i);
+            }
+            else
+            {
+                import bitop_ex : bt;
+                return bt(*ptr, cast(uint)i);
+            }
         }
     }
 
@@ -933,6 +962,16 @@ struct BitSet(size_t len, Block = size_t)
 {
     import std.traits : isIterable;
     static assert(isIterable!(BitSet!256));
+}
+
+@safe pure nothrow @nogc unittest
+{
+    import std.traits : isIterable;
+    import std.meta : AliasSeq;
+    foreach (Block; AliasSeq!(ubyte, ushort, uint))
+    {
+        BitSet!(256, Block) x;
+    }
 }
 
 /// ditto

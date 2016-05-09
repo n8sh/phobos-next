@@ -733,7 +733,7 @@ auto uniqueEnumMembers(T)()
     return [EnumMembers!T].sort().uniq; // TODO isn't really only uniq needed?
 }
 
-/** Faster Version of `uniqueEnumMembers. */
+/** Hash-table version of `uniqueEnumMembers. */
 auto uniqueEnumMembersHashed(T)()
     if (is(T == enum))
 {

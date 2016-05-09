@@ -68,8 +68,7 @@ bool testBit(T, I...)(in T a, I bixs) @safe @nogc pure nothrow
 /** Returns: Check if all $(D bix):th Bits Of $(D a) are set. */
 bool testBit(T, I)(in T a, I bix) @nogc pure nothrow
     if ((!(isIntegral!T)) &&
-        allSatisfy!(isIntegral, I) &&
-        I.length >= 1)
+        allSatisfy!(isIntegral, I))
 {
     return (*(cast(UnsignedOfSameSizeAs!T*)&a)).testBit(bix); // reuse integer variant
 }
@@ -118,6 +117,17 @@ void setBit(T, I...)(ref T a, I bixs) @safe @nogc pure nothrow
     a |= makeBit!T(bixs);
 }
 
+/** Test and sets the $(D bix):th Bit Of $(D *a) to one.
+    Returns: A non-zero value if the bit was set, and a zero if it was clear.
+*/
+void setBit(T, I...)(T* a, I bixs) @safe @nogc pure nothrow
+    if (isIntegral!T &&
+        allSatisfy!(isIntegral, I) &&
+        I.length >= 1)
+    {
+        *a |= makeBit!T(bixs);
+    }
+
 /** Returns: Check if all $(D bix):th Bits Of $(D a) are set. */
 void setBit(T, I...)(ref T a, I bixs) @trusted @nogc pure nothrow
     if ((!(isIntegral!T)) &&
@@ -126,15 +136,6 @@ void setBit(T, I...)(ref T a, I bixs) @trusted @nogc pure nothrow
 {
     alias U = UnsignedOfSameSizeAs!T;
     (*(cast(U*)&a)) |= makeBit!U(bixs); // reuse integer variant
-}
-/** Returns: Check if all $(D bix):th Bits Of $(D *a) are set. */
-void setBit(T, I...)(T* a, I bixs) @trusted @nogc pure nothrow
-    if ((!(isIntegral!T)) &&
-        !(is(T == size_t)) &&   // avoid stealing core.bitop.bt
-        allSatisfy!(isIntegral, I) &&
-        I.length >= 1)
-{
-    setBit(*a, bixs);
 }
 alias bts = setBit;
 
@@ -196,6 +197,13 @@ void resetBit(T, I...)(ref T a, I bixs) @safe @nogc pure nothrow
 {
     a &= ~makeBit!T(bixs);
 }
+/** Reset bits `I` of `*a` (to zero). */
+void resetBit(T, I...)(T* a, I bixs) @safe @nogc pure nothrow
+    if (isIntegral!T &&
+        allSatisfy!(isIntegral, I))
+    {
+        *a &= ~makeBit!T(bixs);
+    }
 
 /** Reset bits `I` of `a` (to zero). */
 void resetBit(T, I...)(ref T a, I bixs) @nogc pure nothrow
@@ -238,6 +246,14 @@ unittest
     a.btr(0); assert(a == 6);
     a.btr(1); assert(a == 4);
     a.btr(2); assert(a == 0);
+
+    (&a).bts(0); assert(a == 1);
+    (&a).bts(1); assert(a == 3);
+    (&a).bts(2); assert(a == 7);
+
+    (&a).btr(0); assert(a == 6);
+    (&a).btr(1); assert(a == 4);
+    (&a).btr(2); assert(a == 0);
 
     a.bts(8*T.sizeof - 1); assert(a != 0);
     a.btr(8*T.sizeof - 1); assert(a == 0);

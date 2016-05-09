@@ -19,14 +19,19 @@ struct BitSet(size_t len, Block = size_t)
     import modulo : Mod;
 
     import std.traits : isUnsigned;
-    static assert(isUnsigned!Block);
+    static assert(isUnsigned!Block, "Block must be a builtin unsigned integer");
 
+    /** Number of bits per `Block`. */
     enum bitsPerBlocks = 8*Block.sizeof;
+    /** Number of `Block`s. */
     enum noBlocks = (len + (bitsPerBlocks-1)) / bitsPerBlocks;
+
+    /** Data stored as `Block`s. */
     Block[noBlocks] _data;
 
     @property inout (Block*) ptr() inout { return _data.ptr; }
 
+    /** Reset all bits (to zero). */
     void reset() @safe nothrow { _data[] = 0; }
 
     /** Gets the amount of native words backing this $(D BitSet). */

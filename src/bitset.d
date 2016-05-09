@@ -882,7 +882,7 @@ struct BitSet(size_t len, Block = size_t)
     {
         auto b = BitSet!16(([0, 0, 0, 0, 1, 1, 1, 1,
                              0, 0, 0, 0, 1, 1, 1, 1]));
-        pragma(msg, typeof(b._data), ",", b.blockCount);
+        // TOOD pragma(msg, typeof(b._data), ",", b.blockCount);
 
         auto s1 = format("%s", b);
         // TODO activate: assert(s1 == "[0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1]");

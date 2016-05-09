@@ -7,7 +7,9 @@
  */
 module behaviorism;
 
-enum Flag
+/** TODO Use std.typecons.Flag
+ */
+enum Behaviour
 {
     mutating,
     reordering,

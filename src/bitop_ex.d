@@ -30,7 +30,8 @@ template UnsignedOfSameSizeAs(T)
 /** Returns: Zero Instance T with $(D bix):th Bit set. */
 T makeBit(T, I...)(I bixs) @safe @nogc pure nothrow
     if (isIntegral!T &&
-        allSatisfy!(isIntegral, I))
+        allSatisfy!(isIntegral, I) &&
+        I.length >= 1)
 in
 {
     foreach (const bix; bixs)
@@ -59,16 +60,27 @@ unittest
 /** Returns: Check if all $(D bix):th Bits Of $(D a) are set. */
 bool testBit(T, I...)(in T a, I bixs) @safe @nogc pure nothrow
     if (isIntegral!T &&
-        allSatisfy!(isIntegral, I))
+        allSatisfy!(isIntegral, I) &&
+        I.length >= 1)
 {
     return a & makeBit!T(bixs) ? true : false;
 }
 /** Returns: Check if all $(D bix):th Bits Of $(D a) are set. */
 bool testBit(T, I)(in T a, I bix) @nogc pure nothrow
     if ((!(isIntegral!T)) &&
-        allSatisfy!(isIntegral, I))
+        allSatisfy!(isIntegral, I) &&
+        I.length >= 1)
 {
     return (*(cast(UnsignedOfSameSizeAs!T*)&a)).testBit(bix); // reuse integer variant
+}
+/** Returns: Check if all $(D bix):th Bits Of $(D *a) are set. */
+bool testBit(T, I)(in T* a, I bix) @nogc pure nothrow
+    if ((!(isIntegral!T)) &&
+        !is(T == size_t) &&     // avoid stealing core.bitop.bt
+        allSatisfy!(isIntegral, I) &&
+        I.length >= 1)
+{
+    return testBit(*a, bix);
 }
 alias bt = testBit;
 
@@ -100,7 +112,8 @@ unittest
 */
 void setBit(T, I...)(ref T a, I bixs) @safe @nogc pure nothrow
     if (isIntegral!T &&
-        allSatisfy!(isIntegral, I))
+        allSatisfy!(isIntegral, I) &&
+        I.length >= 1)
 {
     a |= makeBit!T(bixs);
 }
@@ -108,12 +121,21 @@ void setBit(T, I...)(ref T a, I bixs) @safe @nogc pure nothrow
 /** Returns: Check if all $(D bix):th Bits Of $(D a) are set. */
 void setBit(T, I...)(ref T a, I bixs) @trusted @nogc pure nothrow
     if ((!(isIntegral!T)) &&
-        allSatisfy!(isIntegral, I))
+        allSatisfy!(isIntegral, I) &&
+        I.length >= 1)
 {
     alias U = UnsignedOfSameSizeAs!T;
     (*(cast(U*)&a)) |= makeBit!U(bixs); // reuse integer variant
 }
-
+/** Returns: Check if all $(D bix):th Bits Of $(D *a) are set. */
+void setBit(T, I...)(T* a, I bixs) @trusted @nogc pure nothrow
+    if ((!(isIntegral!T)) &&
+        !(is(T == size_t)) &&   // avoid stealing core.bitop.bt
+        allSatisfy!(isIntegral, I) &&
+        I.length >= 1)
+{
+    setBit(*a, bixs);
+}
 alias bts = setBit;
 
 /* alias btc = complementBit; */

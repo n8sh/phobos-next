@@ -22,12 +22,12 @@ struct BitSet(size_t len, Block = size_t)
     static assert(isUnsigned!Block, "Block must be a builtin unsigned integer");
 
     /** Number of bits per `Block`. */
-    enum bitsPerBlocks = 8*Block.sizeof;
+    enum bitsPerBlock = 8*Block.sizeof;
     /** Number of `Block`s. */
-    enum noBlocks = (len + (bitsPerBlocks-1)) / bitsPerBlocks;
+    enum blockCount = (len + (bitsPerBlock-1)) / bitsPerBlock;
 
     /** Data stored as `Block`s. */
-    private Block[noBlocks] _data;
+    private Block[blockCount] _data;
 
     @property inout (Block*) ptr() inout { return _data.ptr; }
 
@@ -35,7 +35,7 @@ struct BitSet(size_t len, Block = size_t)
     void reset() @safe nothrow { _data[] = 0; }
 
     /** Gets the amount of native words backing this $(D BitSet). */
-    @property static size_t dim() @safe @nogc pure nothrow { return noBlocks; }
+    @property static size_t dim() @safe @nogc pure nothrow { return blockCount; }
 
     /** Gets the amount of bits in the $(D BitSet). */
     @property static size_t length() @safe @nogc pure nothrow { return len; }
@@ -285,19 +285,19 @@ struct BitSet(size_t len, Block = size_t)
     @property BitSet reverse() out (result) { assert(result == this); }
     body
     {
-        static if (length == noBlocks * bitsPerBlocks)
+        static if (length == blockCount * bitsPerBlock)
         {
-            static if (noBlocks == 1)
+            static if (blockCount == 1)
             {
                 _data[0] = reverseBlock(_data[0]);
             }
-            else static if (noBlocks == 2)
+            else static if (blockCount == 2)
             {
                 const tmp = _data[1];
                 _data[1] = reverseBlock(_data[0]);
                 _data[0] = reverseBlock(tmp);
             }
-            else static if (noBlocks == 3)
+            else static if (blockCount == 3)
             {
                 const tmp = _data[2];
                 _data[2] = reverseBlock(_data[0]);
@@ -448,14 +448,14 @@ struct BitSet(size_t len, Block = size_t)
             return 0;                // not equal
         auto p1 = this.ptr;
         auto p2 = a2.ptr;
-        auto n = this.length / bitsPerBlocks;
+        auto n = this.length / bitsPerBlock;
         for (i = 0; i < n; i++)
         {
             if (p1[i] != p2[i])
                 return 0;                // not equal
         }
 
-        n = this.length & (bitsPerBlocks-1);
+        n = this.length & (bitsPerBlock-1);
         size_t mask = (1 << n) - 1;
         //printf("i = %d, n = %d, mask = %x, %x, %x\n", i, n, mask, p1[i], p2[i]);
         return (mask == 0) || (p1[i] & mask) == (p2[i] & mask);
@@ -481,13 +481,13 @@ struct BitSet(size_t len, Block = size_t)
             len = a2.length;
         auto p1 = this.ptr;
         auto p2 = a2.ptr;
-        auto n = len / bitsPerBlocks;
+        auto n = len / bitsPerBlock;
         for (i = 0; i < n; i++)
         {
             if (p1[i] != p2[i])
                 break;                // not equal
         }
-        for (size_t j = 0; j < len-i * bitsPerBlocks; j++)
+        for (size_t j = 0; j < len-i * bitsPerBlock; j++)
         {
             size_t mask = cast(size_t)(1 << j);
             auto c = (cast(long)(p1[i] & mask) - cast(long)(p2[i] & mask));
@@ -692,8 +692,8 @@ struct BitSet(size_t len, Block = size_t)
         BitSet result;
         for (size_t i = 0; i < dim; i++)
             result.ptr[i] = ~this.ptr[i];
-        immutable rem = len & (bitsPerBlocks-1); // number of rest bits in last block
-        if (rem < bitsPerBlocks) // rest bits in last block
+        immutable rem = len & (bitsPerBlock-1); // number of rest bits in last block
+        if (rem < bitsPerBlock) // rest bits in last block
             // make remaining bits zero in last block
             result.ptr[dim - 1] &= ~(~(cast(Block)0) << rem);
         return result;
@@ -882,6 +882,7 @@ struct BitSet(size_t len, Block = size_t)
     {
         auto b = BitSet!16(([0, 0, 0, 0, 1, 1, 1, 1,
                              0, 0, 0, 0, 1, 1, 1, 1]));
+        pragma(msg, typeof(b._data), ",", b.blockCount);
 
         auto s1 = format("%s", b);
         // TODO activate: assert(s1 == "[0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1]");

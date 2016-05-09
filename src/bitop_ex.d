@@ -122,11 +122,12 @@ void setBit(T, I...)(ref T a, I bixs) @safe @nogc pure nothrow
 */
 void setBit(T, I...)(T* a, I bixs) @safe @nogc pure nothrow
     if (isIntegral!T &&
+        !is(T == size_t) && // avoid stealing core.bitop.bt
         allSatisfy!(isIntegral, I) &&
         I.length >= 1)
-    {
-        *a |= makeBit!T(bixs);
-    }
+{
+    *a |= makeBit!T(bixs);
+}
 
 /** Returns: Check if all $(D bix):th Bits Of $(D a) are set. */
 void setBit(T, I...)(ref T a, I bixs) @trusted @nogc pure nothrow
@@ -200,6 +201,7 @@ void resetBit(T, I...)(ref T a, I bixs) @safe @nogc pure nothrow
 /** Reset bits `I` of `*a` (to zero). */
 void resetBit(T, I...)(T* a, I bixs) @safe @nogc pure nothrow
     if (isIntegral!T &&
+        !is(T == size_t) && // avoid stealing core.bitop.bt
         allSatisfy!(isIntegral, I))
     {
         *a &= ~makeBit!T(bixs);
@@ -254,6 +256,9 @@ unittest
     (&a).btr(0); assert(a == 6);
     (&a).btr(1); assert(a == 4);
     (&a).btr(2); assert(a == 0);
+
+    (&a).bts(0, 1, 2); assert(a == 7);
+    (&a).btr(0, 1, 2); assert(a == 0);
 
     a.bts(8*T.sizeof - 1); assert(a != 0);
     a.btr(8*T.sizeof - 1); assert(a == 0);

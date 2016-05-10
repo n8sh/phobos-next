@@ -424,15 +424,13 @@ struct BitSet(size_t len, Block = size_t)
     {
         size_t i;
 
-        if (this.length != a2.length)
-            return 0;                // not equal
+        if (this.length != a2.length) { return 0; } // not equal
         auto p1 = this.ptr;
         auto p2 = a2.ptr;
         auto n = this.length / bitsPerBlock;
         for (i = 0; i < n; i++)
         {
-            if (p1[i] != p2[i])
-                return 0;                // not equal
+            if (p1[i] != p2[i]) { return 0; } // not equal
         }
 
         n = this.length & (bitsPerBlock-1);
@@ -457,22 +455,19 @@ struct BitSet(size_t len, Block = size_t)
         uint i;
 
         auto len = this.length;
-        if (a2.length < len)
-            len = a2.length;
+        if (a2.length < len) { len = a2.length; }
         auto p1 = this.ptr;
         auto p2 = a2.ptr;
         auto n = len / bitsPerBlock;
         for (i = 0; i < n; i++)
         {
-            if (p1[i] != p2[i])
-                break;                // not equal
+            if (p1[i] != p2[i]) { break; } // not equal
         }
         for (size_t j = 0; j < len-i * bitsPerBlock; j++)
         {
             size_t mask = cast(size_t)(1 << j);
             auto c = (cast(long)(p1[i] & mask) - cast(long)(p2[i] & mask));
-            if (c)
-                return c > 0 ? 1 : -1;
+            if (c) { return c > 0 ? 1 : -1; }
         }
         return cast(int)this.length - cast(int)a2.length;
     }
@@ -543,10 +538,7 @@ struct BitSet(size_t len, Block = size_t)
     {
         foreach (const block; _blocks)
         {
-            if (block != 0)
-            {
-                return false;
-            }
+            if (block != 0) { return false; }
         }
         return true;
     }
@@ -578,10 +570,7 @@ struct BitSet(size_t len, Block = size_t)
         typeof(return) ixs;
         foreach (const ix; 0 .. length)
         {
-            if (this[ix])
-            {
-                ixs ~= ix;
-            }
+            if (this[ix]) { ixs ~= ix; }
         }
         return ixs;
     }

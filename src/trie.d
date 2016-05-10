@@ -563,7 +563,7 @@ struct BinaryRadixTree(Value,
 
                 return subNode;
             }
-            else // bkey.length == matchedChunks.length
+            else // bkeyChunk already stored, that is: bkey.length == matchedChunks.length
             {
                 return Node(curr); // already stored at `curr`
             }

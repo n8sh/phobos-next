@@ -41,6 +41,8 @@ struct BitSet(size_t len, Block = size_t)
     /** Data stored as `Block`s. */
     private Block[blockCount] _blocks;
 
+    const(ubyte)[] ubytes() const @trusted { return (cast(ubyte*)&_blocks)[0 .. _blocks.sizeof]; }
+
     @property inout (Block*) ptr() inout { return _blocks.ptr; }
 
     /** Reset all bits (to zero). */
@@ -970,6 +972,16 @@ struct BitSet(size_t len, Block = size_t)
     {
         BitSet!(256, Block) x;
     }
+}
+
+/// test ubyte access
+unittest
+{
+    auto b8 = BitSet!(8, ubyte)();
+    b8[0] = 1;
+    b8[1] = 1;
+    b8[7] = 1;
+    assert(b8.ubytes == [128 + 2 + 1]);
 }
 
 /// ditto

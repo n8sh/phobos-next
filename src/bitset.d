@@ -523,7 +523,7 @@ struct BitSet(size_t len, Block = size_t)
 
     bool opCast(T : bool)() const @safe @nogc pure nothrow { return !this.empty ; }
 
-    ///
+    /// construct from dynamic array
     @safe nothrow @nogc unittest
     {
         static bool[] ba = [1,0,1,0,1];
@@ -531,10 +531,18 @@ struct BitSet(size_t len, Block = size_t)
         assert(a);
         assert(!a.empty);
     }
-    ///
+    /// ditto
     @safe nothrow @nogc unittest
     {
         static bool[] ba = [0,0,0];
+        auto a = BitSet!3(ba);
+        assert(!a);
+        assert(a.empty);
+    }
+    /// construct from static array
+    @safe nothrow @nogc unittest
+    {
+        static bool[3] ba = [0,0,0];
         auto a = BitSet!3(ba);
         assert(!a);
         assert(a.empty);

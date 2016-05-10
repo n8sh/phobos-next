@@ -430,7 +430,7 @@ struct BitSet(size_t len, Block = size_t)
 
 
     /** Support for operators == and != for $(D BitSet). */
-    const bool opEquals(in BitSet a2)
+    bool opEquals(in BitSet a2) const
     {
         size_t i;
 

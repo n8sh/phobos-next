@@ -392,7 +392,6 @@ struct BinaryRadixTree(Value,
         /** Insert `chunkIx` part of `bkey` into tree. */
         pragma(inline) Node insert(BKey!radix bkey, ChunkIx chunkIx, out bool wasAdded)
         {
-            // ensure RootNode;
             return _root = insert(_root, bkey, chunkIx, wasAdded);
         }
 

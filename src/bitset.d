@@ -25,14 +25,13 @@ struct BitSet(size_t len, Block = size_t)
 
     import core.bitop : bitswap;
 
-    static if (is(Block == size_t) ||
-               is(Block == ulong))
+    import std.traits : isUnsigned;
+    static assert(isUnsigned!Block, "Block must be a builtin unsigned integer");
+
+    static if (Block.sizeof == 8)
         import core.bitop : bt, bts, btr;
     else
         import bitop_ex : bt, bts, btr; // use my own overloads
-
-    import std.traits : isUnsigned;
-    static assert(isUnsigned!Block, "Block must be a builtin unsigned integer");
 
     /** Number of bits per `Block`. */
     enum bitsPerBlock = 8*Block.sizeof;

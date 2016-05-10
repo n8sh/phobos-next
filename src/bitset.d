@@ -48,6 +48,7 @@ struct BitSet(size_t len, Block = size_t)
     /** Data as an array unsigned bytes. */
     const(ubyte)[] ubytes() const @trusted { return (cast(ubyte*)&_blocks)[0 .. _blocks.sizeof]; }
 
+    /** Get pointer to data blocks. */
     @property inout (Block*) ptr() inout { return _blocks.ptr; }
 
     /** Reset all bits (to zero). */

@@ -173,7 +173,7 @@ struct BitSet(size_t len, Block = size_t)
     {
         int result;
 
-        for (size_t i = 0; i < len; i++)
+        for (size_t i = 0; i < len; ++i)
         {
             bool b = opIndex(i);
             result = dg(b);
@@ -187,7 +187,7 @@ struct BitSet(size_t len, Block = size_t)
     int opApply(scope int delegate(bool) dg) const
     {
         int result;
-        for (size_t i = 0; i < len; i++)
+        for (size_t i = 0; i < len; ++i)
         {
             bool b = opIndex(i);
             result = dg(b);
@@ -200,7 +200,7 @@ struct BitSet(size_t len, Block = size_t)
     int opApply(scope int delegate(ref size_t, ref bool) dg)
     {
         int result;
-        for (size_t i = 0; i < len; i++)
+        for (size_t i = 0; i < len; ++i)
         {
             bool b = opIndex(i);
             result = dg(i, b);
@@ -214,7 +214,7 @@ struct BitSet(size_t len, Block = size_t)
     int opApply(scope int delegate(size_t, bool) dg) const
     {
         int result;
-        for (size_t i = 0; i < len; i++)
+        for (size_t i = 0; i < len; ++i)
         {
             bool b = opIndex(i);
             result = dg(i, b);
@@ -335,7 +335,7 @@ struct BitSet(size_t len, Block = size_t)
                                  0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0];
         auto b = BitSet!len(data);
         b.reverse;
-        for (size_t i = 0; i < data.length; i++)
+        for (size_t i = 0; i < data.length; ++i)
         {
             assert(b[i] == data[len - 1 - i]);
         }
@@ -351,7 +351,7 @@ struct BitSet(size_t len, Block = size_t)
                                  0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0];
         auto b = BitSet!len(data);
         b.reverse;
-        for (size_t i = 0; i < data.length; i++)
+        for (size_t i = 0; i < data.length; ++i)
         {
             assert(b[i] == data[len - 1 - i]);
         }
@@ -369,7 +369,7 @@ struct BitSet(size_t len, Block = size_t)
                                  0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0];
         auto b = BitSet!len(data);
         b.reverse;
-        for (size_t i = 0; i < data.length; i++)
+        for (size_t i = 0; i < data.length; ++i)
         {
             assert(b[i] == data[len - 1 - i]);
         }
@@ -422,9 +422,9 @@ struct BitSet(size_t len, Block = size_t)
     /*         __gshared size_t x = 0b1100011000; */
     /*         __gshared BitSet ba = { 10, &x }; */
     /*         ba.sort(); */
-    /*         for (size_t i = 0; i < 6; i++) */
+    /*         for (size_t i = 0; i < 6; ++i) */
     /*             assert(ba[i] == false); */
-    /*         for (size_t i = 6; i < 10; i++) */
+    /*         for (size_t i = 6; i < 10; ++i) */
     /*             assert(ba[i] == true); */
     /*     } */
 
@@ -438,7 +438,7 @@ struct BitSet(size_t len, Block = size_t)
         auto p1 = this.ptr;
         auto p2 = a2.ptr;
         auto n = this.length / bitsPerBlock;
-        for (i = 0; i < n; i++)
+        for (i = 0; i < n; ++i)
         {
             if (p1[i] != p2[i]) { return 0; } // not equal
         }
@@ -469,7 +469,7 @@ struct BitSet(size_t len, Block = size_t)
         auto p1 = this.ptr;
         auto p2 = a2.ptr;
         auto n = len / bitsPerBlock;
-        for (i = 0; i < n; i++)
+        for (i = 0; i < n; ++i)
         {
             if (p1[i] != p2[i]) { break; } // not equal
         }
@@ -501,12 +501,12 @@ struct BitSet(size_t len, Block = size_t)
     {
         size_t hash = 3557;
         auto n  = len / 8;
-        for (size_t i = 0; i < n; i++)
+        for (size_t i = 0; i < n; ++i)
         {
             hash *= 3559;
             hash += (cast(byte*)this.ptr)[i];
         }
-        for (size_t i = 8*n; i < len; i++)
+        for (size_t i = 8*n; i < len; ++i)
         {
             hash *= 3571;
             hash += bt(this.ptr, i);
@@ -678,7 +678,7 @@ struct BitSet(size_t len, Block = size_t)
     BitSet opCom() const
     {
         BitSet result;
-        for (size_t i = 0; i < dim; i++)
+        for (size_t i = 0; i < dim; ++i)
             result.ptr[i] = ~this.ptr[i];
         immutable rem = len & (bitsPerBlock-1); // number of rest bits in last block
         if (rem < bitsPerBlock) // rest bits in last block
@@ -691,7 +691,7 @@ struct BitSet(size_t len, Block = size_t)
     BitSet opAnd(in BitSet e2) const
     {
         BitSet result;
-        for (size_t i = 0; i < dim; i++)
+        for (size_t i = 0; i < dim; ++i)
             result.ptr[i] = this.ptr[i] & e2.ptr[i];
         return result;
     }
@@ -710,7 +710,7 @@ struct BitSet(size_t len, Block = size_t)
     BitSet opOr(in BitSet e2) const
     {
         BitSet result;
-        for (size_t i = 0; i < dim; i++)
+        for (size_t i = 0; i < dim; ++i)
             result.ptr[i] = this.ptr[i] | e2.ptr[i];
         return result;
     }
@@ -729,7 +729,7 @@ struct BitSet(size_t len, Block = size_t)
     BitSet opXor(in BitSet e2) const
     {
         BitSet result;
-        for (size_t i = 0; i < dim; i++)
+        for (size_t i = 0; i < dim; ++i)
             result.ptr[i] = this.ptr[i] ^ e2.ptr[i];
         return result;
     }
@@ -751,7 +751,7 @@ struct BitSet(size_t len, Block = size_t)
     BitSet opSub(in BitSet e2) const
     {
         BitSet result;
-        for (size_t i = 0; i < dim; i++)
+        for (size_t i = 0; i < dim; ++i)
             result.ptr[i] = this.ptr[i] & ~e2.ptr[i];
         return result;
     }
@@ -770,7 +770,7 @@ struct BitSet(size_t len, Block = size_t)
      */
     BitSet opAndAssign(in BitSet e2)
     {
-        for (size_t i = 0; i < dim; i++)
+        for (size_t i = 0; i < dim; ++i)
             ptr[i] &= e2.ptr[i];
         return this;
     }
@@ -789,7 +789,7 @@ struct BitSet(size_t len, Block = size_t)
      */
     BitSet opOrAssign(in BitSet e2)
     {
-        for (size_t i = 0; i < dim; i++)
+        for (size_t i = 0; i < dim; ++i)
             ptr[i] |= e2.ptr[i];
         return this;
     }
@@ -808,7 +808,7 @@ struct BitSet(size_t len, Block = size_t)
      */
     BitSet opXorAssign(in BitSet e2)
     {
-        for (size_t i = 0; i < dim; i++)
+        for (size_t i = 0; i < dim; ++i)
             ptr[i] ^= e2.ptr[i];
         return this;
     }
@@ -830,7 +830,7 @@ struct BitSet(size_t len, Block = size_t)
     BitSet opSubAssign(in BitSet e2)
     body
     {
-        for (size_t i = 0; i < dim; i++)
+        for (size_t i = 0; i < dim; ++i)
             ptr[i] &= ~e2.ptr[i];
         return this;
     }

@@ -88,16 +88,13 @@ alias BKeyN(size_t radix, size_t N) = Mod!(2^^radix)[N];
     See also: https://en.wikipedia.org/wiki/Radix_tree
 */
 struct BinaryRadixTree(Value,
-                       size_t radix = 4) // radix in number of bits, typically either 1, 2, 4 or 8
+                       size_t radix = 8) // radix in number of bits, typically either 1, 2, 4 or 8
 {
     import std.algorithm : filter;
     import std.meta : AliasSeq, staticMap;
     import std.typecons : ConstOf;
 
-    static assert(radix == 4 ||
-                  radix == 8 ||
-                  radix == 16 ||
-                  radix == 24, "Radix is currently limited to either 4, 8, 16, or 24");
+    static assert(radix == 8, "Radix is currently limited to 8");
 
     enum isSet = is(Value == void); // `true` if this tree is a set. TODO better to use empty struct?
     enum isMap = !isSet;        // `true` if this tree is a map
@@ -156,7 +153,6 @@ struct BinaryRadixTree(Value,
                 }
             }
         }
-        else { static assert(false, "Unsupported radix " ~ radix.stringof); }
 
         // TODO handle radix != 8
         static if (isMap && is(Value == bool))
@@ -178,7 +174,6 @@ struct BinaryRadixTree(Value,
     {
         alias DefaultRootType = Br2*;
     }
-    else { static assert(false, "Unsupported radix " ~ radix.stringof); }
 
     alias DefaultBranchType = DefaultRootType;
     alias DefaultLeafType = PLfs; // TODO use either LfM* or PLfs instead
@@ -407,7 +402,6 @@ struct BinaryRadixTree(Value,
                         assert(false, "Put bkey in a branch instead and recurse");
                     }
                 }
-                else { static assert(false, "Unsupported radix " ~ radix.stringof); }
             }
 
             with (Node.Ix)
@@ -715,7 +709,6 @@ static private Mod!(2^^radix) bitsChunk(size_t radix)(BKey!radix bkey, ChunkIx c
         const x = typeof(return)(bkey[chunkIx] & mask);
         return x;
     }
-    else { static assert(false, "Unsupported radix " ~ radix.stringof); }
 }
 
 /** Append statistics of tree under `Node` `sub.` into `stats`.
@@ -769,7 +762,6 @@ struct RadixTree(Key, Value, size_t radix = 4)
                     bkey[chunkIx] = (ukey >> bitShift) & (M - 1); // part of value which is also an index
                 }
             }
-            else { static assert(false, "Unsupported radix " ~ radix.stringof); }
         }
         else
         {

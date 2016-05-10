@@ -14,7 +14,7 @@ version(unittest)
 
 /** BitSet, a statically sized `BitArray`.
 
-    TODO opSlice, opSliceAssign to provide interopability with range algorithms
+    TODO opSlice, opSliceAssign to for interopability with range algorithms
     TODO Infer `Block` from `len` as is done for `Bound` and `Mod`.
     TODO Optimize `allOnes`, `allZeros` using intrinsic?
  */

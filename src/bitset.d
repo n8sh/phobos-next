@@ -45,6 +45,7 @@ struct BitSet(size_t len, Block = size_t)
     /** Data stored as `Block`s. */
     private Block[blockCount] _blocks;
 
+    /** Data as an array unsigned bytes. */
     const(ubyte)[] ubytes() const @trusted { return (cast(ubyte*)&_blocks)[0 .. _blocks.sizeof]; }
 
     @property inout (Block*) ptr() inout { return _blocks.ptr; }

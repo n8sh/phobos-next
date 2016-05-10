@@ -118,25 +118,7 @@ struct BinaryRadixTree(Value,
         TODO respect byteorder in `PLfs` to work with `WordVariant`
         TODO implement and use opSlice instead of .ixMs[]
     */
-    static      if (size_t.sizeof == 4) // 32-bit CPU
-    {
-        static      if (radix == 8)
-        {
-            struct PLfs
-            {
-                enum maxLength = 2;
-                IxM[maxLength] ixMs;
-                ubyte length;
-                ubyte _mustBeIgnored;
-            }
-        }
-
-        static if (isMap && is(Value == bool))
-        {
-            /* TODO pack bit efficiently */
-        }
-    }
-    else static if (size_t.sizeof == 8) // 64-bit CPU
+    static if (size_t.sizeof == 8) // 64-bit CPU
     {
         static if (radix == 8)
         {
@@ -174,11 +156,17 @@ struct BinaryRadixTree(Value,
                 }
             }
         }
+        else { static assert(false, "Unsupported radix " ~ radix.stringof); }
+
         // TODO handle radix != 8
         static if (isMap && is(Value == bool))
         {
             /* TODO pack bit efficiently */
         }
+    }
+    else
+    {
+        static assert(false, "Currently requires a 64-bit CPU (size_t.sizeof == 8)");
     }
 
     // TODO make these CT-params (requires putting branch definitions in same scope as `BinaryRadixTree`)
@@ -190,6 +178,8 @@ struct BinaryRadixTree(Value,
     {
         alias DefaultRootType = Br2*;
     }
+    else { static assert(false, "Unsupported radix " ~ radix.stringof); }
+
     alias DefaultBranchType = DefaultRootType;
     alias DefaultLeafType = PLfs; // TODO use either LfM* or PLfs instead
 
@@ -417,10 +407,7 @@ struct BinaryRadixTree(Value,
                         assert(false, "Put bkey in a branch instead and recurse");
                     }
                 }
-                else
-                {
-                    static assert("Handle radix", radix);
-                }
+                else { static assert(false, "Unsupported radix " ~ radix.stringof); }
             }
 
             with (Node.Ix)
@@ -728,10 +715,7 @@ static private Mod!(2^^radix) bitsChunk(size_t radix)(BKey!radix bkey, ChunkIx c
         const x = typeof(return)(bkey[chunkIx] & mask);
         return x;
     }
-    else
-    {
-        static assert("Unsupported radix ", radix);
-    }
+    else { static assert(false, "Unsupported radix " ~ radix.stringof); }
 }
 
 /** Append statistics of tree under `Node` `sub.` into `stats`.
@@ -785,10 +769,7 @@ struct RadixTree(Key, Value, size_t radix = 4)
                     bkey[chunkIx] = (ukey >> bitShift) & (M - 1); // part of value which is also an index
                 }
             }
-            else
-            {
-                static assert("Unsupported radix ", radix);
-            }
+            else { static assert(false, "Unsupported radix " ~ radix.stringof); }
         }
         else
         {

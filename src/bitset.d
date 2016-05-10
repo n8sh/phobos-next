@@ -591,7 +591,9 @@ struct BitSet(size_t len, Block = size_t)
     alias allSetBetween = allOneBetween;
     alias fullBetween = allOneBetween;
 
-    /** Get indexes of all bits set. */
+    /** Get indexes of all bits set.
+        TODO when opSlice is implemented use: return this[].filter!(bit => bit);
+     */
     size_t[] oneIndexes() const @safe pure nothrow
     {
         typeof(return) ixes;
@@ -603,7 +605,6 @@ struct BitSet(size_t len, Block = size_t)
             }
         }
         return ixes;
-        // TODO when opSlice is implemented use: return this[].filter!(bit => bit);
     }
     alias indexesOfOnes = oneIndexes;
 

@@ -14,7 +14,7 @@ version(unittest)
 
 /** BitSet, a statically sized `BitArray`.
 
-    TODO opSlice, opSliceAssign
+    TODO opSlice, opSliceAssign to provide interopability with range algorithms
     TODO Infer `Block` from `len` as is done for `Bound` and `Mod`.
     TODO Optimize `allOnes`, `allZeros` using intrinsic?
  */
@@ -579,7 +579,6 @@ struct BitSet(size_t len, Block = size_t)
     alias fullBetween = allOneBetween;
 
     /** Get indexes of all bits set.
-        TODO when opSlice is implemented use: return this[].filter!(bit => bit);
      */
     size_t[] oneIndexes() const @safe pure nothrow
     {

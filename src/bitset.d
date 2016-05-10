@@ -7,8 +7,6 @@
  */
 module bitset;
 
-import rational : Rational;
-
 version(unittest)
 {
     import dbg;
@@ -17,6 +15,7 @@ version(unittest)
 /* TODO opSlice, opSliceAssign */
 struct BitSet(size_t len, Block = size_t)
 {
+    import rational : Rational;
     import std.format : FormatSpec, format;
     import core.bitop : bt, bts, btr, bitswap;
     import modulo : Mod;
@@ -934,6 +933,7 @@ struct BitSet(size_t len, Block = size_t)
 @safe pure nothrow unittest
 {
     import nesses: denseness, sparseness;
+    import rational : Rational;
     alias Q = Rational!ulong;
 
     enum m = 256, n = 256;
@@ -947,6 +947,7 @@ struct BitSet(size_t len, Block = size_t)
 @safe pure nothrow unittest
 {
     import nesses: denseness, sparseness;
+    import rational : Rational;
     alias Q = Rational!ulong;
 
     enum m = 256, n = 256;

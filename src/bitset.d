@@ -7,9 +7,6 @@
  */
 module bitset;
 
-import std.format;
-import std.range;
-import std.string;
 import rational : Rational;
 
 version(unittest)
@@ -20,6 +17,7 @@ version(unittest)
 /* TODO opSlice, opSliceAssign */
 struct BitSet(size_t len, Block = size_t)
 {
+    import std.format : FormatSpec, format;
     import core.bitop : bt, bts, btr, bitswap;
     import modulo : Mod;
 
@@ -890,6 +888,8 @@ struct BitSet(size_t len, Block = size_t)
 
     private void formatBitString(scope void delegate(const(char)[]) sink) const
     {
+        import std.range : put;
+
         if (!length) { return; }
 
         const leftover = len % 8;

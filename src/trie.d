@@ -542,8 +542,8 @@ struct BinaryRadixTree(Value,
                 if (matchedChunks.empty) // nothing in common
                 {
                     bool wasAddedDontCare;
-                    br.subNodes[0] = PLf(bkeyChunk); // TODO addSubBranch()
-                    insert(sub, curr, chunkIx, wasAddedDontCare);
+                    br.subNodes[0] = PLf(bkeyChunk); // TODO functionize to addSubBranch()
+                    br.subNodes[1] = curr;
                 }
                 else if (bkey.length < matchedChunks.length)
                 {

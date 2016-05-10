@@ -14,7 +14,7 @@
     - BrM: IxMs commonPrefix. IxMs is 7-byte BitSet.
     - SBr02: IxMs commonPrefix. IxMs is 7-byte BitSet.
 
-    TODO Merge bkey and chunkIx into bkey. Remove range checking by slicing using bkey.ptr[0 .. ]
+    TODO Merge bkey and bix into bkey. Remove range checking by slicing using bkey.ptr[0 .. ]
 
     TODO tuple keys are mapped to a ubyte array aliased to a raw/binary
     BKey. Need trait to figure if all expanded members are fixed-sized then key
@@ -74,7 +74,7 @@ extern(C) pure nothrow @system /* TODO @nogc */
 }
 
 /** Index to chunk of bits. */
-alias ChunkIx = uint;
+alias BIx = uint;
 
 /** Raw Internal (Unsigned Integer) Binary Key. */
 alias BKey(size_t radix) = Mod!(2^^radix)[]; // TODO use bitset to more naturally support radix != 8
@@ -381,19 +381,20 @@ struct BinaryRadixTree(Value,
 
     @safe pure nothrow /* TODO @nogc */
     {
-        /** Insert `chunkIx` part of `bkey` into tree. */
-        pragma(inline) Node insert(BKey!radix bkey, ChunkIx chunkIx, out bool wasAdded)
+        /** Insert `bix` part of `bkey` into tree. */
+        pragma(inline) Node insert(BKey!radix bkey, BIx bix, out bool wasAdded)
         {
-            return _root = insert(_root, bkey, chunkIx, wasAdded);
+            return _root = insert(_root, bkey, bix, wasAdded);
         }
 
-        /** Insert `chunkIx` part of `bkey` into tree with root node `curr`. */
-        pragma(inline) Node insert(Node curr, BKey!radix bkey, ChunkIx chunkIx, out bool wasAdded) // Node-polymorphic
+        /** Insert `bix` part of `bkey` into tree with root node `curr`. */
+        pragma(inline) Node insert(Node curr, BKey!radix bkey, BIx bix, out bool wasAdded) // Node-polymorphic
         {
-            show!(bkey, chunkIx, wasAdded);
+            if (bkey.length == bix) { return curr; } // we're done
+            show!(bkey, bix, wasAdded);
             if (!curr)          // if no curr yet
             {
-                show!(bkey, chunkIx, wasAdded);
+                show!(bkey, bix, wasAdded);
                 static if (radix == 8)
                 {
                     if (bkey.length < PLf.maxLength)
@@ -405,7 +406,7 @@ struct BinaryRadixTree(Value,
                         currPLf.length = cast(ubyte)bkey.length; // TODO remove when value-range-propagation can limit bkey.length to (0 .. PLf.maxLength)
                         wasAdded = true;
 
-                        show!(bkey, chunkIx, wasAdded, currPLf);
+                        show!(bkey, bix, wasAdded, currPLf);
 
                         return Node(currPLf);
                     }
@@ -421,21 +422,21 @@ struct BinaryRadixTree(Value,
                 final switch (curr.typeIx)
                 {
                 case undefined: break;
-                case ix_PLf:    return insert(curr.as!(PLf), bkey, chunkIx, wasAdded);
-                case ix_PLfs:   return insert(curr.as!(PLfs), bkey, chunkIx, wasAdded);
-                case ix_Br2Ptr: return insert(curr.as!(Br2*), bkey, chunkIx, wasAdded);
-                case ix_BrMPtr: return insert(curr.as!(BrM*), bkey, chunkIx, wasAdded);
-                case ix_LfMPtr: return insert(curr.as!(LfM*), bkey, chunkIx, wasAdded);
+                case ix_PLf:    return insert(curr.as!(PLf), bkey, bix, wasAdded);
+                case ix_PLfs:   return insert(curr.as!(PLfs), bkey, bix, wasAdded);
+                case ix_Br2Ptr: return insert(curr.as!(Br2*), bkey, bix, wasAdded);
+                case ix_BrMPtr: return insert(curr.as!(BrM*), bkey, bix, wasAdded);
+                case ix_LfMPtr: return insert(curr.as!(LfM*), bkey, bix, wasAdded);
                 case ix_All1:   auto curr_ = curr.as!All1; break;
                 }
                 assert(false);
             }
         }
 
-        /** Insert `chunkIx` part of `bkey` into tree with root node `curr`. */
-        Node insert(Br2* curr, BKey!radix bkey, ChunkIx chunkIx, out bool wasAdded)
+        /** Insert `bix` part of `bkey` into tree with root node `curr`. */
+        Node insert(Br2* curr, BKey!radix bkey, BIx bix, out bool wasAdded)
         {
-            const IxM chunk = bitsChunk!radix(bkey, chunkIx);
+            const IxM chunk = bitsChunk!radix(bkey, bix);
 
             enum N = 2;         // branch-order, number of possible sub-nodes
             foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
@@ -444,46 +445,46 @@ struct BinaryRadixTree(Value,
                 {
                     if (curr.subChunks[subIx] == chunk) // and matches chunk
                     {
-                        curr.subNodes[subIx] = insert(curr.subNodes[subIx], bkey, chunkIx + 1, wasAdded);
+                        curr.subNodes[subIx] = insert(curr.subNodes[subIx], bkey, bix + 1, wasAdded);
                         return Node(curr);
                     }
                 }
                 else            // use first free sub
                 {
-                    curr.subNodes[subIx] = insert(constructSub(bkey, chunkIx + 1), bkey, chunkIx + 1, wasAdded); // use it
+                    curr.subNodes[subIx] = insert(constructSub(bkey, bix + 1), bkey, bix + 1, wasAdded); // use it
                     curr.subChunks[subIx] = chunk;
                     return Node(curr);
                 }
             }
 
             // if we got here all N sub-nodes are occupied so we need to expand
-            return insert(expand(curr), bkey, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
+            return insert(expand(curr), bkey, bix, wasAdded); // NOTE stay at same bix (depth)
         }
 
-        Node insert(BrM* curr, BKey!radix bkey, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(BrM* curr, BKey!radix bkey, BIx bix, out bool wasAdded)
         in
         {
             assert(!wasAdded);               // check that we haven't yet added it
         }
         body
         {
-            const IxM chunk = bitsChunk!radix(bkey, chunkIx);
+            const IxM chunk = bitsChunk!radix(bkey, bix);
             if (!curr.subNodes[chunk]) // if not yet set
             {
-                curr.subNodes[chunk] = constructSub(bkey, chunkIx + 1);
+                curr.subNodes[chunk] = constructSub(bkey, bix + 1);
             }
-            curr.subNodes[chunk] = insert(curr.subNodes[chunk], bkey, chunkIx + 1, wasAdded);
+            curr.subNodes[chunk] = insert(curr.subNodes[chunk], bkey, bix + 1, wasAdded);
             return Node(curr);
         }
 
-        Node insert(LfM* curr, BKey!radix bkey, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(LfM* curr, BKey!radix bkey, BIx bix, out bool wasAdded)
         in
         {
             assert(!wasAdded);               // check that we haven't yet added it
         }
         body
         {
-            const IxM chunk = bitsChunk!radix(bkey, chunkIx);
+            const IxM chunk = bitsChunk!radix(bkey, bix);
             if (!curr.keyLSBits[chunk])
             {
                 curr.keyLSBits[chunk] = true;
@@ -496,19 +497,19 @@ struct BinaryRadixTree(Value,
             return Node(curr);
         }
 
-        Node insert(PLf curr, BKey!radix bkey, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(PLf curr, BKey!radix bkey, BIx bix, out bool wasAdded)
         in
         {
             assert(!wasAdded);               // check that we haven't yet added it
         }
         body
         {
-            show!(bkey, chunkIx, wasAdded);
+            show!(bkey, bix, wasAdded);
 
             import std.range : empty;
             import std.algorithm : commonPrefix;
 
-            const bkeyChunk = bkey[chunkIx .. $];
+            const bkeyChunk = bkey[bix .. $];
 
             if (bkeyChunk.empty) { return Node(curr); }
 
@@ -521,7 +522,7 @@ struct BinaryRadixTree(Value,
                 if (matchedChunks.empty) // no common prefix
                 {
                     br.subNodes.at!0 = curr;
-                    return this.insert(br, bkey, chunkIx, wasAdded);
+                    return this.insert(br, bkey, bix, wasAdded);
                 }
                 else
                 {
@@ -546,14 +547,14 @@ struct BinaryRadixTree(Value,
             }
        }
 
-        Node insert(PLfs curr, BKey!radix bkey, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(PLfs curr, BKey!radix bkey, BIx bix, out bool wasAdded)
         in
         {
             assert(!wasAdded);               // check that we haven't yet added it
         }
         body
         {
-            const IxM chunk = bitsChunk!radix(bkey, chunkIx);
+            const IxM chunk = bitsChunk!radix(bkey, bix);
 
             // TODO this is only marginally faster:
             // foreach (const i; iota!(0, curr.maxLength))
@@ -579,14 +580,14 @@ struct BinaryRadixTree(Value,
             }
             else
             {
-                return insert(expand(curr), bkey, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
+                return insert(expand(curr), bkey, bix, wasAdded); // NOTE stay at same bix (depth)
             }
         }
 
-        /** Construct and return sub-Node at `chunkIx` in `bkey`.  */
-        Node constructSub(BKey!radix bkey, ChunkIx chunkIx)
+        /** Construct and return sub-Node at `bix` in `bkey`.  */
+        Node constructSub(BKey!radix bkey, BIx bix)
         {
-            return ((chunkIx + 1) * radix == 8 * bkey.length ? // is last
+            return ((bix + 1) * radix == 8 * bkey.length ? // is last
                     Node(construct!DefaultLeafType) :
                     Node(construct!DefaultBranchType));
         }
@@ -710,13 +711,13 @@ struct BinaryRadixTree(Value,
     debug size_t _nodeCount = 0;
 }
 
-/** Get chunkIx:th chunk of `radix` number of bits. */
-static private Mod!(2^^radix) bitsChunk(size_t radix)(BKey!radix bkey, ChunkIx chunkIx) pure nothrow
+/** Get bix:th chunk of `radix` number of bits. */
+static private Mod!(2^^radix) bitsChunk(size_t radix)(BKey!radix bkey, BIx bix) pure nothrow
 {
     enum mask = typeof(return).max;
     static if (radix == 8)
     {
-        const x = typeof(return)(bkey[chunkIx] & mask);
+        const x = typeof(return)(bkey[bix] & mask);
         return x;
     }
 }
@@ -766,10 +767,10 @@ struct RadixTree(Key, Value, size_t radix = 4)
 
             static if (radix == 8)
             {
-                foreach (chunkIx; 0 .. chunkCount)
+                foreach (bix; 0 .. chunkCount)
                 {
-                    const bitShift = (chunkCount - 1 - chunkIx)*radix; // most significant bit chunk first (MSBCF)
-                    bkey[chunkIx] = (ukey >> bitShift) & (M - 1); // part of value which is also an index
+                    const bitShift = (chunkCount - 1 - bix)*radix; // most significant bit chunk first (MSBCF)
+                    bkey[bix] = (ukey >> bitShift) & (M - 1); // part of value which is also an index
                 }
             }
         }

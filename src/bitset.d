@@ -603,8 +603,7 @@ struct BitSet(size_t len, Block = size_t)
             }
         }
         return ixes;
-        // TODO when opSlice is implemented use:
-        // return this[].filter!(bit => bit);
+        // TODO when opSlice is implemented use: return this[].filter!(bit => bit);
     }
     alias indexesOfOnes = oneIndexes;
 

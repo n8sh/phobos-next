@@ -97,7 +97,7 @@ struct BinaryRadixTree(Value,
     static assert(radix == 8, "Radix is currently limited to 8");
 
     enum isSet = is(Value == void); // `true` if this tree is a set. TODO better to use empty struct?
-    enum isMap = !isSet;        // `true` if this tree is a map
+    enum isMap = !isSet;            // `true` if this tree is a map
 
     enum M = 2^^radix;     // branch-multiplicity, typically either 2, 4, 16 or 256
 

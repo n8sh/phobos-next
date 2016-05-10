@@ -122,10 +122,18 @@ struct BinaryRadixTree(Value,
             // Packed Variable-Length Single Leaf
             struct PLf
             {
-                enum maxLength = 6;
+                enum maxLength = (size_t.sizeof - 2) / IxM.sizeof;
+                pragma(msg, maxLength);
                 IxM[maxLength] ixMs;
-                ubyte length;
+                ubyte length;   // TODO bound 0 .. 6
                 ubyte _mustBeIgnored; // this byte must be ignored because it contains Node-type
+
+                @property auto toString() const
+                {
+                    import std.conv : to;
+                    return "PLf:" ~ ixMs[0 .. length].to!string;
+                }
+
                 static if (isMap)
                 {
                     static if (is(Value == bool))
@@ -384,7 +392,6 @@ struct BinaryRadixTree(Value,
         pragma(inline) Node insert(Node curr, BKey!radix bkey, ChunkIx chunkIx, out bool wasAdded) // Node-polymorphic
         {
             show!(bkey, chunkIx, wasAdded);
-            // dln("bkey:", bkey, " chunkIx:", chunkIx, " wasAdded:", wasAdded);
             if (!curr)          // if no curr yet
             {
                 show!(bkey, chunkIx, wasAdded);
@@ -396,7 +403,7 @@ struct BinaryRadixTree(Value,
 
                         // TODO functionize these two lines
                         currPLf.ixMs[0 .. bkey.length] = bkey;
-                        currPLf.length = cast(ubyte)bkey.length; // TODO better way?
+                        currPLf.length = cast(ubyte)bkey.length; // TODO remove when value-range-propagation can limit bkey.length to (0 .. PLf.maxLength)
                         wasAdded = true;
 
                         show!(bkey, chunkIx, wasAdded, currPLf);

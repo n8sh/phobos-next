@@ -99,6 +99,11 @@ unittest
 /** Generate `opIndex' and `opSlice` */
 mixin template genOps(I)
 {
+    auto ref at(size_t i)() inout
+    {
+        assert(cast(size_t)i < _r.length, "Range violation with index " ~ I.stringof);
+        return _r[i];
+    }
     auto ref opIndex(I i) inout
     {
         assert(cast(size_t)i < _r.length, "Range violation with index " ~ I.stringof);
@@ -122,6 +127,11 @@ mixin template genOps(I)
 mixin template genTrustedUncheckedOps(I)
 {
     @trusted:
+    auto ref at(size_t i)() inout
+    {
+        static assert(i < _r.length, "Indexe " ~ i ~ " larger than _r " ~ _r.length);
+        return _r.ptr[i];
+    }
     auto ref opIndex(I i) inout
     {
         return _r.ptr[cast(size_t)i]; // safe to avoid range checking
@@ -257,10 +267,15 @@ auto strictlyIndexed(R)(R range)
     alias T = StrictlyIndexed!(size_t[N]); // static array
     static assert(T.sizeof == N*size_t.sizeof);
     import modulo : Mod, mod;
+
     T x;
+
     x[Mod!N(1)] = 11;
     x[1.mod!N] = 11;
     assert(x[1.mod!N] == 11);
+
+    x.at!1 = 12;
+    assert(x.at!1 == 12);
 }
 
 ///

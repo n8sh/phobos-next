@@ -38,12 +38,12 @@ struct BitSet(size_t len, Block = size_t)
     enum blockCount = (len + (bitsPerBlock-1)) / bitsPerBlock;
 
     /** Data stored as `Block`s. */
-    private Block[blockCount] _data;
+    private Block[blockCount] _blocks;
 
-    @property inout (Block*) ptr() inout { return _data.ptr; }
+    @property inout (Block*) ptr() inout { return _blocks.ptr; }
 
     /** Reset all bits (to zero). */
-    void reset() @safe nothrow { _data[] = 0; }
+    void reset() @safe nothrow { _blocks[] = 0; }
 
     /** Gets the amount of native words backing this $(D BitSet). */
     @property static size_t dim() @safe @nogc pure nothrow { return blockCount; }
@@ -51,7 +51,7 @@ struct BitSet(size_t len, Block = size_t)
     /** Number of bits in the $(D BitSet). */
     enum length = len;
 
-    BitSet opAssign(BitSet rhs) @safe nothrow { this._data = rhs._data; return this; }
+    BitSet opAssign(BitSet rhs) @safe nothrow { this._blocks = rhs._blocks; return this; }
 
     /** Gets the $(D i)'th bit in the $(D BitSet). */
     pragma(inline) bool opIndex(size_t i) const @trusted pure nothrow
@@ -271,34 +271,34 @@ struct BitSet(size_t len, Block = size_t)
         {
             static if (blockCount == 1)
             {
-                _data[0] = reverseBlock(_data[0]);
+                _blocks[0] = reverseBlock(_blocks[0]);
             }
             else static if (blockCount == 2)
             {
-                const tmp = _data[1];
-                _data[1] = reverseBlock(_data[0]);
-                _data[0] = reverseBlock(tmp);
+                const tmp = _blocks[1];
+                _blocks[1] = reverseBlock(_blocks[0]);
+                _blocks[0] = reverseBlock(tmp);
             }
             else static if (blockCount == 3)
             {
-                const tmp = _data[2];
-                _data[2] = reverseBlock(_data[0]);
-                _data[1] = reverseBlock(_data[1]);
-                _data[0] = reverseBlock(tmp);
+                const tmp = _blocks[2];
+                _blocks[2] = reverseBlock(_blocks[0]);
+                _blocks[1] = reverseBlock(_blocks[1]);
+                _blocks[0] = reverseBlock(tmp);
             }
             else
             {
                 size_t lo = 0;
-                size_t hi = _data.length - 1;
+                size_t hi = _blocks.length - 1;
                 for (; lo < hi; lo++, hi--)
                 {
-                    immutable t = reverseBlock(_data[lo]);
-                    _data[lo] = reverseBlock(_data[hi]);
-                    _data[hi] = t;
+                    immutable t = reverseBlock(_blocks[lo]);
+                    _blocks[lo] = reverseBlock(_blocks[hi]);
+                    _blocks[hi] = t;
                 }
                 if (lo == hi)
                 {
-                    _data[lo] = reverseBlock(_data[lo]);
+                    _blocks[lo] = reverseBlock(_blocks[lo]);
                 }
             }
         }
@@ -543,7 +543,7 @@ struct BitSet(size_t len, Block = size_t)
     /** Check if this $(D BitSet) has only zeros. */
     bool allZero() const @safe @nogc pure nothrow
     {
-        foreach (const block; _data)
+        foreach (const block; _blocks)
         {
             if (block != 0)
             {
@@ -595,7 +595,7 @@ struct BitSet(size_t len, Block = size_t)
         Mod!(len + 1) countOnes() const @safe @nogc pure nothrow
         {
             ulong n = 0;
-            foreach (const ix, const block; _data)
+            foreach (const ix, const block; _blocks)
             {
                 if (block != 0)
                 {
@@ -639,7 +639,7 @@ struct BitSet(size_t len, Block = size_t)
     /*     assert(numbits <= v.length * 8); */
     /*     assert((v.length & 3) == 0); // must be whole bytes */
     /* } body { */
-    /*     _data[] = cast(size_t*)v.ptr[0..v.length]; */
+    /*     _blocks[] = cast(size_t*)v.ptr[0..v.length]; */
     /* } */
 
     /** Convert to $(D void[]). */

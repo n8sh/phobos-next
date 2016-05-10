@@ -29,9 +29,13 @@ struct BitSet(size_t len, Block = size_t)
     static assert(isUnsigned!Block, "Block must be a builtin unsigned integer");
 
     static if (Block.sizeof == 8)
+    {
         import core.bitop : bt, bts, btr;
+    }
     else
+    {
         import bitop_ex : bt, bts, btr; // use my own overloads
+    }
 
     /** Number of bits per `Block`. */
     enum bitsPerBlock = 8*Block.sizeof;

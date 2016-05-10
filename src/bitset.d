@@ -51,8 +51,6 @@ struct BitSet(size_t len, Block = size_t)
     /** Number of bits in the $(D BitSet). */
     enum length = len;
 
-    BitSet opAssign(BitSet rhs) @safe nothrow { this._blocks = rhs._blocks; return this; }
-
     /** Gets the $(D i)'th bit in the $(D BitSet). */
     pragma(inline) bool opIndex(size_t i) const @trusted pure nothrow
     in
@@ -975,7 +973,8 @@ unittest
 {
     import std.format : format;
 
-    const b0 = BitSet!0([]);
+    const b_ = BitSet!0([]);
+    const b0 = b_;
     assert(format("%s", b0) == "[]");
     assert(format("%b", b0) is null);
 

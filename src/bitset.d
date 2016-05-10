@@ -40,8 +40,6 @@ struct BitSet(size_t len, Block = size_t)
     /** Number of bits in the $(D BitSet). */
     enum length = len;
 
-    // @property static size_t length() @safe @nogc pure nothrow { return len; }
-
     BitSet opAssign(BitSet rhs) @safe nothrow { this._data = rhs._data; return this; }
 
     /** Gets the $(D i)'th bit in the $(D BitSet). */

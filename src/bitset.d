@@ -14,7 +14,7 @@ version(unittest)
 
 /** BitSet, a statically sized `BitArray`.
 
-    TODO opSlice, opSliceAssign to for interopability with range algorithms via private static struct Range
+    TODO opSlice, opSliceAssign to for interopability with range algorithms via private static struct member `Range`
     TODO Infer `Block` from `len` as is done for `Bound` and `Mod`.
     TODO Optimize `allOnes`, `allZeros` using intrinsic?
  */

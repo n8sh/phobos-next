@@ -880,11 +880,12 @@ struct BitSet(size_t len, Block = size_t)
     ///
     unittest
     {
+        import dbg;
+
         auto b = BitSet!16(([0, 0, 0, 0, 1, 1, 1, 1,
                              0, 0, 0, 0, 1, 1, 1, 1]));
-        // TOOD pragma(msg, typeof(b._data), ",", b.blockCount);
-
         auto s1 = format("%s", b);
+        dln(typeof(b._data).stringof, " length=", b.length, " blockCount:", b.blockCount, ": ", s1);
         // TODO activate: assert(s1 == "[0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1]");
 
         auto s2 = format("%b", b);
@@ -897,10 +898,10 @@ struct BitSet(size_t len, Block = size_t)
             return;
 
         auto leftover = len % 8;
-        foreach (idx; 0 .. leftover)
+        foreach (ix; 0 .. leftover)
         {
             import bitop_ex : bt;
-            char[1] res = cast(char)(bt(ptr, idx) + '0');
+            char[1] res = cast(char)(bt(ptr, ix) + '0');
             sink.put(res[]);
         }
 
@@ -908,12 +909,12 @@ struct BitSet(size_t len, Block = size_t)
             sink.put("_");
 
         size_t cnt;
-        foreach (idx; leftover .. len)
+        foreach (ix; leftover .. len)
         {
             import bitop_ex : bt;
-            char[1] res = cast(char)(bt(ptr, idx) + '0');
+            char[1] res = cast(char)(bt(ptr, ix) + '0');
             sink.put(res[]);
-            if (++cnt == 8 && idx != len - 1)
+            if (++cnt == 8 && ix != len - 1)
             {
                 sink.put("_");
                 cnt = 0;
@@ -924,12 +925,12 @@ struct BitSet(size_t len, Block = size_t)
     private void formatBitSet(scope void delegate(const(char)[]) sink) const
     {
         sink("[");
-        foreach (idx; 0 .. len)
+        foreach (ix; 0 .. len)
         {
             import bitop_ex : bt;
-            char[1] res = cast(char)(bt(ptr, idx) + '0');
+            char[1] res = cast(char)(bt(ptr, ix) + '0');
             sink(res[]);
-            if (idx+1 < len)
+            if (ix+1 < len)
                 sink(", ");
         }
         sink("]");

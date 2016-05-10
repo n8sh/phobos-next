@@ -12,7 +12,7 @@ version(unittest)
     import dbg;
 }
 
-/** BitSet, a statically sized `BitArray`.
+/** BitSet, a statically sized `std.bitmanip.BitArray`.
 
     TODO opSlice, opSliceAssign to for interopability with range algorithms via private static struct member `Range`
     TODO Infer `Block` from `len` as is done for `Bound` and `Mod`.

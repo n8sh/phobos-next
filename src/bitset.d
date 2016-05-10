@@ -596,15 +596,15 @@ struct BitSet(size_t len, Block = size_t)
      */
     size_t[] oneIndexes() const @safe pure nothrow
     {
-        typeof(return) ixes;
+        typeof(return) ixs;
         foreach (ix; 0 .. length)
         {
             if (this[ix])
             {
-                ixes ~= ix;
+                ixs ~= ix;
             }
         }
-        return ixes;
+        return ixs;
     }
     alias indexesOfOnes = oneIndexes;
 

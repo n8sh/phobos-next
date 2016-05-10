@@ -37,8 +37,10 @@ struct BitSet(size_t len, Block = size_t)
     /** Gets the amount of native words backing this $(D BitSet). */
     @property static size_t dim() @safe @nogc pure nothrow { return blockCount; }
 
-    /** Gets the amount of bits in the $(D BitSet). */
-    @property static size_t length() @safe @nogc pure nothrow { return len; }
+    /** Number of bits in the $(D BitSet). */
+    enum length = len;
+
+    // @property static size_t length() @safe @nogc pure nothrow { return len; }
 
     BitSet opAssign(BitSet rhs) @safe nothrow { this._data = rhs._data; return this; }
 
@@ -494,7 +496,7 @@ struct BitSet(size_t len, Block = size_t)
             if (c)
                 return c > 0 ? 1 : -1;
         }
-        return cast(int)this.length() - cast(int)a2.length;
+        return cast(int)this.length - cast(int)a2.length;
     }
 
     ///
@@ -889,34 +891,35 @@ struct BitSet(size_t len, Block = size_t)
         // TODO activate: assert(s1 == "[0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1]");
 
         auto s2 = format("%b", b);
+        dln(s2);
         // TODO activate: assert(s2 == "00001111_00001111");
     }
 
     private void formatBitString(scope void delegate(const(char)[]) sink) const
     {
-        if (!length)
-            return;
+        import bitop_ex : bt;
 
-        auto leftover = len % 8;
+        if (!length) { return; }
+
+        const leftover = len % 8;
         foreach (ix; 0 .. leftover)
         {
-            import bitop_ex : bt;
-            char[1] res = cast(char)(bt(ptr, ix) + '0');
+            const bit = bt(ptr, ix);
+            const char[1] res = cast(char)(bit + '0');
             sink.put(res[]);
         }
 
-        if (leftover && len > 8)
-            sink.put("_");
+        if (leftover && len > 8) { sink.put("_"); } // separator
 
         size_t cnt;
         foreach (ix; leftover .. len)
         {
-            import bitop_ex : bt;
-            char[1] res = cast(char)(bt(ptr, ix) + '0');
+            const bit = bt(ptr, ix);
+            const char[1] res = cast(char)(bit + '0');
             sink.put(res[]);
             if (++cnt == 8 && ix != len - 1)
             {
-                sink.put("_");
+                sink.put("_");  // separator
                 cnt = 0;
             }
         }
@@ -928,10 +931,10 @@ struct BitSet(size_t len, Block = size_t)
         foreach (ix; 0 .. len)
         {
             import bitop_ex : bt;
-            char[1] res = cast(char)(bt(ptr, ix) + '0');
+            const bit = bt(ptr, ix);
+            const char[1] res = cast(char)(bit + '0');
             sink(res[]);
-            if (ix+1 < len)
-                sink(", ");
+            if (ix+1 < len) { sink(", "); } // separator
         }
         sink("]");
     }

@@ -889,28 +889,29 @@ struct BitSet(size_t len, Block = size_t)
     {
         import std.range : put;
 
-        if (!length) { return; }
-
-        const leftover = len % 8;
-        foreach (ix; 0 .. leftover)
+        static if (length)
         {
-            const bit = this[ix];
-            const char[1] res = cast(char)(bit + '0');
-            sink.put(res[]);
-        }
-
-        if (leftover && len > 8) { sink.put("_"); } // separator
-
-        size_t cnt;
-        foreach (ix; leftover .. len)
-        {
-            const bit = this[ix];
-            const char[1] res = cast(char)(bit + '0');
-            sink.put(res[]);
-            if (++cnt == 8 && ix != len - 1)
+            const leftover = len % 8;
+            foreach (ix; 0 .. leftover)
             {
-                sink.put("_");  // separator
-                cnt = 0;
+                const bit = this[ix];
+                const char[1] res = cast(char)(bit + '0');
+                sink.put(res[]);
+            }
+
+            if (leftover && len > 8) { sink.put("_"); } // separator
+
+            size_t cnt;
+            foreach (ix; leftover .. len)
+            {
+                const bit = this[ix];
+                const char[1] res = cast(char)(bit + '0');
+                sink.put(res[]);
+                if (++cnt == 8 && ix != len - 1)
+                {
+                    sink.put("_");  // separator
+                    cnt = 0;
+                }
             }
         }
     }
@@ -989,8 +990,10 @@ struct BitSet(size_t len, Block = size_t)
 }
 
 /// ditto
-version(none) unittest // TODO activate
+unittest
 {
+    import std.format : format;
+
     const b0 = BitSet!0([]);
     assert(format("%s", b0) == "[]");
     assert(format("%b", b0) is null);

@@ -553,7 +553,7 @@ struct BitSet(size_t len, Block = size_t)
     {
         foreach (const block; _blocks)
         {
-            if (block != 0) { return false; }
+            if (block != 0) { return false; } // TODO optimize using intrinsic?
         }
         return true;
     }

@@ -298,7 +298,7 @@ struct BitSet(size_t len, Block = size_t)
             {
                 size_t lo = 0;
                 size_t hi = _blocks.length - 1;
-                for (; lo < hi; lo++, hi--)
+                for (; lo < hi; ++lo, --hi)
                 {
                     immutable t = reverseBlock(_blocks[lo]);
                     _blocks[lo] = reverseBlock(_blocks[hi]);
@@ -316,7 +316,7 @@ struct BitSet(size_t len, Block = size_t)
             {
                 size_t lo = 0;
                 size_t hi = len - 1;
-                for (; lo < hi; lo++, hi--)
+                for (; lo < hi; ++lo, --hi)
                 {
                     immutable t = this[lo];
                     this[lo] = this[hi];

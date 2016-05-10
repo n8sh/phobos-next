@@ -383,8 +383,11 @@ struct BinaryRadixTree(Value,
         /** Insert `chunkIx` part of `bkey` into tree with root node `curr`. */
         pragma(inline) Node insert(Node curr, BKey!radix bkey, ChunkIx chunkIx, out bool wasAdded) // Node-polymorphic
         {
+            show!(bkey, chunkIx, wasAdded);
+            // dln("bkey:", bkey, " chunkIx:", chunkIx, " wasAdded:", wasAdded);
             if (!curr)          // if no curr yet
             {
+                show!(bkey, chunkIx, wasAdded);
                 static if (radix == 8)
                 {
                     if (bkey.length < PLf.maxLength)
@@ -394,6 +397,9 @@ struct BinaryRadixTree(Value,
                         // TODO functionize these two lines
                         currPLf.ixMs[0 .. bkey.length] = bkey;
                         currPLf.length = cast(ubyte)bkey.length; // TODO better way?
+                        wasAdded = true;
+
+                        show!(bkey, chunkIx, wasAdded, currPLf);
 
                         return Node(currPLf);
                     }
@@ -491,6 +497,8 @@ struct BinaryRadixTree(Value,
         }
         body
         {
+            show!(bkey, chunkIx, wasAdded);
+
             import std.range : empty;
             import std.algorithm : commonPrefix;
 
@@ -506,8 +514,8 @@ struct BinaryRadixTree(Value,
                 import std.range : empty;
                 if (matchedChunks.empty) // no common prefix
                 {
-                    br.subNodes.at!0 = this.insert(bkey, chunkIx, wasAdded); // add into empty node (Node.init);
-                    br.subNodes.at!1 = curr;
+                    br.subNodes.at!0 = curr;
+                    return this.insert(br, bkey, chunkIx, wasAdded);
                 }
                 else
                 {
@@ -525,10 +533,6 @@ struct BinaryRadixTree(Value,
                         assert(false, "Shouldn't happen");
                     }
                 }
-
-                assert(wasAdded);
-
-                return Node(br);
             }
             else // bkeyChunk already stored, that is: bkey.length == matchedChunks.length
             {
@@ -824,10 +828,12 @@ auto radixTreeMap(Key, Value, size_t radix = 4)() { return RadixTree!(Key, Value
     enum radix = 8;
     auto set = radixTreeSet!(ubyte, radix);
 
+    dln("Adding 0");
     assert(set.insert(0));
     assert(!set.insert(0));
     assert(set.nodeCount == 1); // one leaf
 
+    dln("Adding 1");
     assert(set.insert(1));
     assert(!set.insert(1));
     assert(set.nodeCount == 3); // one branch two leaves

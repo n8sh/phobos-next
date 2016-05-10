@@ -535,15 +535,14 @@ struct BinaryRadixTree(Value,
             auto matchedChunks = commonPrefix(curr.data, bkeyChunk); // TODO avoid allocation
             if (matchedChunks.length != bkeyChunk.length) // if nothing in common we need to branch
             {
-                auto br = DefaultBranchType();
-                auto sub = Node(br);
+                auto subBranch = construct!DefaultBranchType;
+                auto subNode = Node(subBranch);
 
                 import std.range : empty;
                 if (matchedChunks.empty) // nothing in common
                 {
-                    bool wasAddedDontCare;
-                    br.subNodes[0] = PLf(bkeyChunk); // TODO functionize to addSubBranch()
-                    br.subNodes[1] = curr;
+                    subBranch.subNodes[0] = PLf(bkeyChunk); // TODO functionize to addSubBranch()
+                    subBranch.subNodes[1] = curr;
                 }
                 else if (bkey.length < matchedChunks.length)
                 {
@@ -558,7 +557,7 @@ struct BinaryRadixTree(Value,
 
                 assert(wasAdded);
 
-                return sub;
+                return subNode;
             }
             else // bkey.length == matchedChunks.length
             {

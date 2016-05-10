@@ -123,7 +123,6 @@ struct BinaryRadixTree(Value,
             struct PLf
             {
                 enum maxLength = (size_t.sizeof - 2) / IxM.sizeof;
-                pragma(msg, maxLength);
                 IxM[maxLength] ixMs;
                 ubyte length;   // TODO bound 0 .. 6
                 ubyte _mustBeIgnored; // this byte must be ignored because it contains Node-type
@@ -145,7 +144,7 @@ struct BinaryRadixTree(Value,
             }
             struct PLfs
             {
-                enum maxLength = 6;
+                enum maxLength = (size_t.sizeof - 2) / IxM.sizeof;
                 IxM[maxLength] ixMs;
                 ubyte length;
                 ubyte _mustBeIgnored; // this byte must be ignored because it contains Node-type

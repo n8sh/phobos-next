@@ -12,7 +12,11 @@ version(unittest)
     import dbg;
 }
 
-/* TODO opSlice, opSliceAssign */
+/** BitSet, a statically sized `BitArray`.
+
+    TODO opSlice, opSliceAssign
+    TODO Infer `Block` from `len` as is done for `Bound` and `Mod`.
+ */
 struct BitSet(size_t len, Block = size_t)
 {
     import rational : Rational;

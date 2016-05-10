@@ -439,7 +439,7 @@ struct BitSet(size_t len, Block = size_t)
         return (mask == 0) || (p1[i] & mask) == (p2[i] & mask);
     }
     ///
-    nothrow unittest
+5    nothrow unittest
     {
         debug(bitset) printf("BitSet.opEquals unittest\n");
         auto a = BitSet!5([1,0,1,0,1]);
@@ -505,7 +505,11 @@ struct BitSet(size_t len, Block = size_t)
     }
 
     /** Set this $(D BitSet) to the contents of $(D ba). */
-    this(bool[] ba) in { assert(length == ba.length); }
+    this(bool[] ba)
+    in
+    {
+        assert(length == ba.length);
+    }
     body
     {
         foreach (const i, const b; ba)

@@ -241,7 +241,7 @@ struct BitSet(size_t len, Block = size_t)
         static bool[] ba = [1,0,1];
         auto a = BitSet!3(ba);
         size_t i;
-        foreach (b;a)
+        foreach (b; a)
         {
             switch (i)
             {
@@ -252,7 +252,7 @@ struct BitSet(size_t len, Block = size_t)
             }
             i++;
         }
-        foreach (j,b;a)
+        foreach (j, b; a)
         {
             switch (j)
             {
@@ -534,7 +534,7 @@ struct BitSet(size_t len, Block = size_t)
     this(bool[] ba) in { assert(length == ba.length); }
     body
     {
-        foreach (i, b; ba)
+        foreach (const i, const b; ba)
         {
             this[i] = b;
         }
@@ -562,7 +562,7 @@ struct BitSet(size_t len, Block = size_t)
     /** Check if this $(D BitSet) has only zeros. */
     bool allZero() const @safe @nogc pure nothrow
     {
-        foreach (block; _data)
+        foreach (const block; _data)
         {
             if (block != 0)
             {
@@ -582,7 +582,7 @@ struct BitSet(size_t len, Block = size_t)
     }
     body
     {
-        foreach (i; low .. high)
+        foreach (const i; low .. high)
         {
             if (!this[i]) { return false; }
         }
@@ -597,7 +597,7 @@ struct BitSet(size_t len, Block = size_t)
     size_t[] oneIndexes() const @safe pure nothrow
     {
         typeof(return) ixs;
-        foreach (ix; 0 .. length)
+        foreach (const ix; 0 .. length)
         {
             if (this[ix])
             {
@@ -614,7 +614,7 @@ struct BitSet(size_t len, Block = size_t)
         Mod!(len + 1) countOnes() const @safe @nogc pure nothrow
         {
             ulong n = 0;
-            foreach (ix, block; _data)
+            foreach (const ix, const block; _data)
             {
                 if (block != 0)
                 {
@@ -892,7 +892,7 @@ struct BitSet(size_t len, Block = size_t)
         static if (length)
         {
             const leftover = len % 8;
-            foreach (ix; 0 .. leftover)
+            foreach (const ix; 0 .. leftover)
             {
                 const bit = this[ix];
                 const char[1] res = cast(char)(bit + '0');
@@ -902,7 +902,7 @@ struct BitSet(size_t len, Block = size_t)
             if (leftover && len > 8) { sink.put("_"); } // separator
 
             size_t cnt;
-            foreach (ix; leftover .. len)
+            foreach (const ix; leftover .. len)
             {
                 const bit = this[ix];
                 const char[1] res = cast(char)(bit + '0');
@@ -919,7 +919,7 @@ struct BitSet(size_t len, Block = size_t)
     private void formatBitSet(scope void delegate(const(char)[]) sink) const
     {
         sink("[");
-        foreach (ix; 0 .. len)
+        foreach (const ix; 0 .. len)
         {
             const bit = this[ix];
             const char[1] res = cast(char)(bit + '0');

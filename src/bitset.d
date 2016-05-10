@@ -253,7 +253,8 @@ struct BitSet(size_t len, Block = size_t)
         }
     }
 
-    pragma(inline) @property Block reverseBlock(in Block block)
+    /** Reverse block `Block`. */
+    private pragma(inline) @property Block reverseBlock(in Block block)
     {
         static if (Block.sizeof == 4)
         {
@@ -261,7 +262,7 @@ struct BitSet(size_t len, Block = size_t)
         }
         else static if (Block.sizeof == 8)
         {
-            return (((cast(Block)((cast(uint)(block)).bitswap)) << 32) +
+            return (((cast(Block)((cast(uint)(block)).bitswap)) << 32) |
                     (cast(Block)((cast(uint)(block >> 32)).bitswap)));
         }
         else

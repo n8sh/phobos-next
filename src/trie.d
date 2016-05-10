@@ -4,7 +4,7 @@
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
     TODO
-    - LfV: Word:
+    - PLf: Word:
     - 64-bit:
     radix-4: Packs 8-bit length + Variable (0 .. 14) IxMs
     radix-8: Packs 8-bit length + Variable (0 .. 6) IxMs
@@ -75,8 +75,8 @@ extern(C) pure nothrow @system /* TODO @nogc */
 alias ChunkIx = uint;
 
 /** Raw Internal (Unsigned Integer) Binary Key. */
-alias BKey = ubyte[];
-alias BKeyN(size_t N) = ubyte[N];
+alias BKey(size_t radix) = Mod!(2^^radix)[]; // TODO use bitset to more naturally support radix != 8
+alias BKeyN(size_t radix, size_t N) = Mod!(2^^radix)[N];
 
 /** Radix tree container storing keys of type `Key`.
 
@@ -116,22 +116,60 @@ struct BinaryRadixTree(Value,
         TODO respect byteorder in `PLfs` to work with `WordVariant`
         TODO implement and use opSlice instead of .ixMs[]
     */
-    static      if (size_t.sizeof == 4)
+    static      if (size_t.sizeof == 4) // 32-bit CPU
     {
-        static      if (radix == 8) { struct PLfs { enum maxLength = 2; IxM[maxLength] ixMs; ubyte length; ubyte _ignored; } } // TODO handle radix != 8
-        else static if (radix == 4) { struct PLfs { enum maxLength = 2; IxM[maxLength] ixMs; ubyte length; ubyte _ignored; } } // TODO pack 6 IxM
-        static if (isMap && is(Value == bool)) { /* TODO pack bit efficiently */ }
+        static      if (radix == 8)
+        {
+            struct PLfs
+            {
+                enum maxLength = 2;
+                IxM[maxLength] ixMs;
+                ubyte length;
+                ubyte _mustBeIgnored;
+            }
+        }
+        else static if (radix == 4)
+        {
+            struct PLfs
+            {
+                enum maxLength = 2;
+                IxM[maxLength] ixMs; // TODO pack 6 IxM
+                ubyte length;
+                ubyte _mustBeIgnored;
+            }
+        }
+
+        static if (isMap && is(Value == bool))
+        {
+            /* TODO pack bit efficiently */
+        }
     }
-    else static if (size_t.sizeof == 8)
+    else static if (size_t.sizeof == 8) // 64-bit CPU
     {
         static if (radix == 8)
         {
+            // Packed Variable-Length Single Leaf
+            struct PLf
+            {
+                enum maxLength = 6;
+                IxM[maxLength] ixMs;
+                ubyte length;
+                ubyte _mustBeIgnored; // this byte must be ignored because it contains Node-type
+                static if (isMap)
+                {
+                    static if (is(Value == bool))
+                        static assert(false, "TODO store bit value in bitfield");
+                    else
+                        Value[maxLength] values;
+                }
+                auto ref data() { return ixMs[0 .. length]; }
+            }
             struct PLfs
             {
                 enum maxLength = 6;
                 IxM[maxLength] ixMs;
                 ubyte length;
-                ubyte _ignored;
+                ubyte _mustBeIgnored; // this byte must be ignored because it contains Node-type
                 static if (isMap)
                 {
                     static if (is(Value == bool))
@@ -148,7 +186,7 @@ struct BinaryRadixTree(Value,
                 enum maxLength = 6;
                 IxM[maxLength] ixMs; // TODO pack 14 `IxM` through a range interface
                 ubyte length;
-                ubyte _ignored;
+                ubyte _mustBeIgnored; // this byte must be ignored because it contains Node-type
                 static if (isMap)
                 {
                     static if (is(Value == bool))
@@ -184,33 +222,32 @@ struct BinaryRadixTree(Value,
     struct All1 {}
 
     /** Node types. */
-    alias NodeTypes = AliasSeq!(PLfs, // sparse leaves
+    alias NodeTypes = AliasSeq!(PLf, // dense leaf
+                                PLfs, // sparse leaves
+
                                 All1, // hinter
 
                                 // sparse branches
                                 Br2*,
 
                                 BrM*,  // dense branches
+
                                 LfM*); // dense leaves
 
-    enum showSizes = false;
-    static if (showSizes)
-    {
-        static if (isSet)
-        {
-            pragma(msg, "Set Br2.sizeof: ", Br2.sizeof);
-            pragma(msg, "Set BrM.sizeof: ", BrM.sizeof);
-            pragma(msg, "Set LfM.sizeof: ", LfM.sizeof);
-            pragma(msg, "Set PLfs.sizeof: ", PLfs.sizeof);
-        }
-        else
-        {
-            pragma(msg, "Map Br2.sizeof: ", Br2.sizeof);
-            pragma(msg, "Map BrM.sizeof: ", BrM.sizeof);
-            pragma(msg, "Map LfM.sizeof: ", LfM.sizeof);
-            pragma(msg, "Set PLfs.sizeof: ", PLfs.sizeof);
-        }
-    }
+    // static if (isSet)
+    // {
+    //     pragma(msg, "Set Br2.sizeof: ", Br2.sizeof);
+    //     pragma(msg, "Set BrM.sizeof: ", BrM.sizeof);
+    //     pragma(msg, "Set LfM.sizeof: ", LfM.sizeof);
+    //     pragma(msg, "Set PLfs.sizeof: ", PLfs.sizeof);
+    // }
+    // else
+    // {
+    //     pragma(msg, "Map Br2.sizeof: ", Br2.sizeof);
+    //     pragma(msg, "Map BrM.sizeof: ", BrM.sizeof);
+    //     pragma(msg, "Map LfM.sizeof: ", LfM.sizeof);
+    //     pragma(msg, "Set PLfs.sizeof: ", PLfs.sizeof);
+    // }
 
     /** Mutable node. */
     alias Node = WordVariant!NodeTypes;
@@ -374,19 +411,45 @@ struct BinaryRadixTree(Value,
 
     @safe pure nothrow /* TODO @nogc */
     {
-        pragma(inline) Node insert(BKey bkey, ChunkIx chunkIx, out bool wasAdded)
+        pragma(inline) Node insert(BKey!radix bkey, ChunkIx chunkIx, out bool wasAdded)
         {
-            ensureRootNode;
-            return insert(_root, bkey, chunkIx, wasAdded);
+            // ensureRootNode;
+            return _root = insert(_root, bkey, chunkIx, wasAdded);
         }
 
-        pragma(inline) Node insert(Node curr, BKey bkey, ChunkIx chunkIx, out bool wasAdded) // Node-polymorphic
+        pragma(inline) Node insert(Node curr, BKey!radix bkey, ChunkIx chunkIx, out bool wasAdded) // Node-polymorphic
         {
+            if (!curr)          // if no curr yet
+            {
+                static if (radix == 8)
+                {
+                    if (bkey.length < PLf.maxLength)
+                    {
+                        PLf currPVLf = construct!PLf;
+
+                        // TODO functionize these two lines
+                        currPVLf.ixMs[0 .. bkey.length] = bkey;
+                        currPVLf.length = cast(ubyte)bkey.length; // TODO better way?
+
+                        return Node(currPVLf);
+                    }
+                    else
+                    {
+                        assert(false, "Put bkey in a branch instead and recurse");
+                    }
+                }
+                else
+                {
+                    static assert("Handle radix", radix);
+                }
+            }
+
             with (Node.Ix)
             {
                 final switch (curr.typeIx)
                 {
                 case undefined: break;
+                case ix_PLf:    return insert(curr.as!(PLf), bkey, chunkIx, wasAdded);
                 case ix_PLfs:   return insert(curr.as!(PLfs), bkey, chunkIx, wasAdded);
                 case ix_Br2Ptr: return insert(curr.as!(Br2*), bkey, chunkIx, wasAdded);
                 case ix_BrMPtr: return insert(curr.as!(BrM*), bkey, chunkIx, wasAdded);
@@ -397,7 +460,7 @@ struct BinaryRadixTree(Value,
             }
         }
 
-        Node insert(Br2* curr, BKey bkey, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(Br2* curr, BKey!radix bkey, ChunkIx chunkIx, out bool wasAdded)
         {
             const IxM chunk = bitsChunk!radix(bkey, chunkIx);
 
@@ -424,7 +487,7 @@ struct BinaryRadixTree(Value,
             return insert(expand(curr), bkey, chunkIx, wasAdded); // NOTE stay at same chunkIx (depth)
         }
 
-        Node insert(BrM* curr, BKey bkey, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(BrM* curr, BKey!radix bkey, ChunkIx chunkIx, out bool wasAdded)
         in
         {
             assert(!wasAdded);               // check that we haven't yet added it
@@ -440,7 +503,7 @@ struct BinaryRadixTree(Value,
             return Node(curr);
         }
 
-        Node insert(LfM* curr, BKey bkey, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(LfM* curr, BKey!radix bkey, ChunkIx chunkIx, out bool wasAdded)
         in
         {
             assert(!wasAdded);               // check that we haven't yet added it
@@ -460,7 +523,50 @@ struct BinaryRadixTree(Value,
             return Node(curr);
         }
 
-        Node insert(PLfs curr, BKey bkey, ChunkIx chunkIx, out bool wasAdded)
+        Node insert(PLf curr, BKey!radix bkey, ChunkIx chunkIx, out bool wasAdded)
+        in
+        {
+            assert(!wasAdded);               // check that we haven't yet added it
+        }
+        body
+        {
+            import std.algorithm : commonPrefix;
+            const bkeyChunk = bkey[chunkIx .. $];
+            auto matchedChunks = commonPrefix(curr.data, bkeyChunk); // TODO avoid allocation
+            if (matchedChunks.length != bkeyChunk.length) // if nothing in common we need to branch
+            {
+                auto br = DefaultBranchType();
+                auto sub = Node(br);
+
+                import std.range : empty;
+                if (matchedChunks.empty) // nothing in common
+                {
+                    bool wasAddedDontCare;
+                    br.subNodes[0] = PLf(bkeyChunk); // TODO addSubBranch()
+                    insert(sub, curr, chunkIx, wasAddedDontCare);
+                }
+                else if (bkey.length < matchedChunks.length)
+                {
+                }
+                else if (bkey.length > matchedChunks.length)
+                {
+                }
+                else
+                {
+                    assert(false, "Shouldn't happen");
+                }
+
+                assert(wasAdded);
+
+                return sub;
+            }
+            else // bkey.length == matchedChunks.length
+            {
+                return Node(curr); //
+            }
+       }
+
+        Node insert(PLfs curr, BKey!radix bkey, ChunkIx chunkIx, out bool wasAdded)
         in
         {
             assert(!wasAdded);               // check that we haven't yet added it
@@ -497,7 +603,8 @@ struct BinaryRadixTree(Value,
             }
         }
 
-        Node constructSub(BKey bkey, ChunkIx chunkIx)
+        /** Construct and return sub-Node at `chunkIx` in `bkey`.  */
+        Node constructSub(BKey!radix bkey, ChunkIx chunkIx)
         {
             return ((chunkIx + 1) * radix == 8 * bkey.length ? // is last
                     Node(construct!DefaultLeafType) :
@@ -517,6 +624,7 @@ struct BinaryRadixTree(Value,
             return next;
         }
 
+        /** Destructively expand `curr` into a `LfM` and return it. */
         LfM* expand(PLfs curr) @trusted
         {
             auto next = construct!(typeof(return));
@@ -576,15 +684,9 @@ struct BinaryRadixTree(Value,
             freeNode(curr);
         }
 
-        void release(LfM* curr)
-        {
-            freeNode(curr);
-        }
-
-        void release(PLfs curr)
-        {
-            freeNode(curr);
-        }
+        void release(PLf curr) { freeNode(curr); }
+        void release(PLfs curr) { freeNode(curr); }
+        void release(LfM* curr) { freeNode(curr); }
 
         void release(Node curr)
         {
@@ -593,6 +695,7 @@ struct BinaryRadixTree(Value,
                 final switch (curr.typeIx)
                 {
                 case undefined: break;
+                case ix_PLf: return release(curr.as!(PLf));
                 case ix_PLfs: return release(curr.as!(PLfs));
                 case ix_All1: break;
                 case ix_Br2Ptr: return release(curr.as!(Br2*));
@@ -628,7 +731,7 @@ struct BinaryRadixTree(Value,
 }
 
 /** Get chunkIx:th chunk of `radix` number of bits. */
-static private Mod!(2^^radix) bitsChunk(size_t radix, BKey)(BKey bkey, ChunkIx chunkIx) pure nothrow
+static private Mod!(2^^radix) bitsChunk(size_t radix)(BKey!radix bkey, ChunkIx chunkIx) pure nothrow
 {
     enum mask = typeof(return).max;
     static if (radix == 4)
@@ -671,7 +774,7 @@ static private void calculate(Value, size_t radix)(BinaryRadixTree!(Value, radix
     }
 }
 
-/// Radix-Tree with key-type `Key`.
+/// Radix-Tree with key-type `Key` and value-type `Value`.
 struct RadixTree(Key, Value, size_t radix = 4)
     if (allSatisfy!(isTrieableKeyType, Key))
 {
@@ -688,7 +791,7 @@ struct RadixTree(Key, Value, size_t radix = 4)
             enum nbits = 8*ukey.sizeof;
             enum chunkCount = nbits/radix;
 
-            BKeyN!(Key.sizeof) bkey;
+            BKeyN!(radix, Key.sizeof) bkey;
 
             static if (radix == 8)
             {
@@ -709,7 +812,7 @@ struct RadixTree(Key, Value, size_t radix = 4)
         }
         else
         {
-            BKey bkey;
+            BKey!radix bkey;
             assert(false, "TODO");
         }
 
@@ -757,10 +860,10 @@ struct RadixTree(Key, Value, size_t radix = 4)
 alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
 
-/// Instantiator of set-version of `RadixTree`.
+/// Instantiator of set-version of `RadixTree` where value-type is `void`.
 auto radixTreeSet(Key, size_t radix = 4)() { return RadixTree!(Key, void, radix)(); }
 
-/// Instantiator of map-version of `RadixTree`.
+/// Instantiator of map-version of `RadixTree` where value-type is `Value`.
 auto radixTreeMap(Key, Value, size_t radix = 4)() { return RadixTree!(Key, Value, radix)(); }
 
 /// Check correctness when radix is `radix` and for each `Key` in `Keys`.
@@ -882,6 +985,7 @@ void benchmark(size_t radix)()
                     final switch (ix)
                     {
                     case undefined: break;
+                    case ix_PLf:   bytesUsed = pop*Set.PLf.sizeof; break;
                     case ix_PLfs:   bytesUsed = pop*Set.PLfs.sizeof; break;
                     case ix_All1:   bytesUsed = pop*Set.All1.sizeof; break;
                     case ix_Br2Ptr: bytesUsed = pop*Set.Br2.sizeof; break;
@@ -926,6 +1030,7 @@ void benchmark(size_t radix)()
 unittest
 {
     check!(8,
+           ubyte,
            short, int, long,
            ushort, uint, ulong);
     // check!(4, ulong);

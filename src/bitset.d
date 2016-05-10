@@ -16,6 +16,7 @@ version(unittest)
 
     TODO opSlice, opSliceAssign
     TODO Infer `Block` from `len` as is done for `Bound` and `Mod`.
+    TODO Optimize `allOnes`, `allZeros` using intrinsic?
  */
 struct BitSet(size_t len, Block = size_t)
 {
@@ -553,7 +554,7 @@ struct BitSet(size_t len, Block = size_t)
     {
         foreach (const block; _blocks)
         {
-            if (block != 0) { return false; } // TODO optimize using intrinsic?
+            if (block != 0) { return false; }
         }
         return true;
     }

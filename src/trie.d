@@ -548,9 +548,11 @@ struct BinaryRadixTree(Value,
                 }
                 else if (bkey.length < matchedChunks.length)
                 {
+                    assert(false, "TODO");
                 }
                 else if (bkey.length > matchedChunks.length)
                 {
+                    assert(false, "TODO");
                 }
                 else
                 {
@@ -563,7 +565,7 @@ struct BinaryRadixTree(Value,
             }
             else // bkey.length == matchedChunks.length
             {
-                return Node(curr); //
+                return Node(curr); // already stored at `curr`
             }
        }
 

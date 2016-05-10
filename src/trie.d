@@ -286,7 +286,7 @@ struct BinaryRadixTree(Value,
     // TODO move these definitions inside branch definitions?
 
     /** M-Branch population histogram.
-        Index maps to population with value range (1 .. M).
+        Index maps to population with value range (1 .. `M`).
     */
     alias BrM_PopHist = size_t[M];
 
@@ -296,7 +296,7 @@ struct BinaryRadixTree(Value,
     alias Br2_PopHist = size_t[2];
 
     /** M-Leaf population histogram.
-        Index maps to population with value range (1 .. M).
+        Index maps to population with value range (1 .. `M`).
     */
     alias LeafM_PopHist = size_t[M];
 
@@ -411,12 +411,14 @@ struct BinaryRadixTree(Value,
 
     @safe pure nothrow /* TODO @nogc */
     {
+        /** Insert `chunkIx` part of `bkey` into tree. */
         pragma(inline) Node insert(BKey!radix bkey, ChunkIx chunkIx, out bool wasAdded)
         {
-            // ensureRootNode;
+            // ensure RootNode;
             return _root = insert(_root, bkey, chunkIx, wasAdded);
         }
 
+        /** Insert `chunkIx` part of `bkey` into tree with root node `curr`. */
         pragma(inline) Node insert(Node curr, BKey!radix bkey, ChunkIx chunkIx, out bool wasAdded) // Node-polymorphic
         {
             if (!curr)          // if no curr yet
@@ -460,6 +462,7 @@ struct BinaryRadixTree(Value,
             }
         }
 
+        /** Insert `chunkIx` part of `bkey` into tree with root node `curr`. */
         Node insert(Br2* curr, BKey!radix bkey, ChunkIx chunkIx, out bool wasAdded)
         {
             const IxM chunk = bitsChunk!radix(bkey, chunkIx);

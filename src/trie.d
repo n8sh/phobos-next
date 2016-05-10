@@ -532,6 +532,8 @@ struct BinaryRadixTree(Value,
         {
             import std.algorithm : commonPrefix;
             const bkeyChunk = bkey[chunkIx .. $];
+            import std.range : empty;
+            if (bkeyChunk.empty) { return curr; }
             auto matchedChunks = commonPrefix(curr.data, bkeyChunk); // TODO avoid allocation
             if (matchedChunks.length != bkeyChunk.length) // if nothing in common we need to branch
             {

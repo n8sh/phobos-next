@@ -19,11 +19,10 @@ version(unittest)
  */
 struct BitSet(size_t len, Block = size_t)
 {
-    import rational : Rational;
     import std.format : FormatSpec, format;
-    import modulo : Mod;
-
     import core.bitop : bitswap;
+    import rational : Rational;
+    import modulo : Mod;
 
     import std.traits : isUnsigned;
     static assert(isUnsigned!Block, "Block must be a builtin unsigned integer");

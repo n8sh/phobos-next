@@ -14,6 +14,8 @@
     - BrM: IxMs commonPrefix. IxMs is 7-byte BitSet.
     - SBr02: IxMs commonPrefix. IxMs is 7-byte BitSet.
 
+    TODO Merge bkey and chunkIx into bkey. Remove range checking by slicing using bkey.ptr[0 .. ]
+
     TODO tuple keys are mapped to a ubyte array aliased to a raw/binary
     BKey. Need trait to figure if all expanded members are fixed-sized then key
     will be that aswell.
@@ -128,16 +130,6 @@ struct BinaryRadixTree(Value,
                 ubyte _mustBeIgnored;
             }
         }
-        else static if (radix == 4)
-        {
-            struct PLfs
-            {
-                enum maxLength = 2;
-                IxM[maxLength] ixMs; // TODO pack 6 IxM
-                ubyte length;
-                ubyte _mustBeIgnored;
-            }
-        }
 
         static if (isMap && is(Value == bool))
         {
@@ -173,24 +165,10 @@ struct BinaryRadixTree(Value,
                 static if (isMap)
                 {
                     static if (is(Value == bool))
+                    {
+                        import bitset : BitSet;
                         BitSet!maxLength values; // memory-efficient storage of `bool` values
-                    else
-                        Value[maxLength] values;
-                }
-            }
-        }
-        else static if (radix == 4)
-        {
-            struct PLfs
-            {
-                enum maxLength = 6;
-                IxM[maxLength] ixMs; // TODO pack 14 `IxM` through a range interface
-                ubyte length;
-                ubyte _mustBeIgnored; // this byte must be ignored because it contains Node-type
-                static if (isMap)
-                {
-                    static if (is(Value == bool))
-                        BitSet!maxLength values; // memory-efficient storage of `bool` values
+                    }
                     else
                         Value[maxLength] values;
                 }
@@ -427,13 +405,13 @@ struct BinaryRadixTree(Value,
                 {
                     if (bkey.length < PLf.maxLength)
                     {
-                        PLf currPVLf = construct!PLf;
+                        PLf currPLf = construct!PLf;
 
                         // TODO functionize these two lines
-                        currPVLf.ixMs[0 .. bkey.length] = bkey;
-                        currPVLf.length = cast(ubyte)bkey.length; // TODO better way?
+                        currPLf.ixMs[0 .. bkey.length] = bkey;
+                        currPLf.length = cast(ubyte)bkey.length; // TODO better way?
 
-                        return Node(currPVLf);
+                        return Node(currPLf);
                     }
                     else
                     {
@@ -533,38 +511,44 @@ struct BinaryRadixTree(Value,
         }
         body
         {
-            import std.algorithm : commonPrefix;
-            const bkeyChunk = bkey[chunkIx .. $];
             import std.range : empty;
-            if (bkeyChunk.empty) { return curr; }
+            import std.algorithm : commonPrefix;
+
+            const bkeyChunk = bkey[chunkIx .. $];
+
+            if (bkeyChunk.empty) { return Node(curr); }
+
             const matchedChunks = commonPrefix(curr.data, bkeyChunk); // TODO avoid allocation if commonPrefix allocates
-            if (matchedChunks.length != bkeyChunk.length) // if nothing in common we need to branch
+            if (bkey.length != matchedChunks.length) // if bkeyChunk not found
             {
-                auto subBranch = construct!DefaultBranchType;
-                auto subNode = Node(subBranch);
+                auto br = construct!DefaultBranchType; // create new branch
 
                 import std.range : empty;
-                if (matchedChunks.empty) // nothing in common
+                if (matchedChunks.empty) // no common prefix
                 {
-                    subBranch.subNodes[0] = PLf(bkeyChunk); // TODO functionize to addSubBranch()
-                    subBranch.subNodes[1] = curr;
-                }
-                else if (bkey.length < matchedChunks.length)
-                {
-                    assert(false, "TODO");
-                }
-                else if (bkey.length > matchedChunks.length)
-                {
-                    assert(false, "TODO");
+                    br.subNodes.at!0 = this.insert(bkey, chunkIx, wasAdded); // add into empty node (Node.init);
+                    br.subNodes.at!1 = curr;
                 }
                 else
                 {
-                    assert(false, "Shouldn't happen");
+                    assert(false, "TODO put common part in br.prefix");
+                    if (bkey.length < matchedChunks.length)
+                    {
+                        assert(false, "TODO");
+                    }
+                    else if (bkey.length > matchedChunks.length)
+                    {
+                        assert(false, "TODO");
+                    }
+                    else
+                    {
+                        assert(false, "Shouldn't happen");
+                    }
                 }
 
                 assert(wasAdded);
 
-                return subNode;
+                return Node(br);
             }
             else // bkeyChunk already stored, that is: bkey.length == matchedChunks.length
             {
@@ -740,13 +724,7 @@ struct BinaryRadixTree(Value,
 static private Mod!(2^^radix) bitsChunk(size_t radix)(BKey!radix bkey, ChunkIx chunkIx) pure nothrow
 {
     enum mask = typeof(return).max;
-    static if (radix == 4)
-    {
-        const shift = chunkIx & 1; // first 0, then 1
-        const x = typeof(return)((bkey[chunkIx/2] >> shift) & mask);
-        return x;
-    }
-    else static if (radix == 8)
+    static if (radix == 8)
     {
         const x = typeof(return)(bkey[chunkIx] & mask);
         return x;
@@ -771,6 +749,7 @@ static private void calculate(Value, size_t radix)(BinaryRadixTree!(Value, radix
         final switch (sub.typeIx)
         {
         case undefined: break;
+        case ix_PLf: break; // TODO calculate()
         case ix_PLfs: break; // TODO calculate()
         case ix_All1: break;
         case ix_Br2Ptr: sub.as!(RT.Br2*).calculate(stats); break;
@@ -806,10 +785,6 @@ struct RadixTree(Key, Value, size_t radix = 4)
                     const bitShift = (chunkCount - 1 - chunkIx)*radix; // most significant bit chunk first (MSBCF)
                     bkey[chunkIx] = (ukey >> bitShift) & (M - 1); // part of value which is also an index
                 }
-            }
-            else static if (radix == 4)
-            {
-                static assert("TODO");
             }
             else
             {
@@ -872,6 +847,20 @@ auto radixTreeSet(Key, size_t radix = 4)() { return RadixTree!(Key, void, radix)
 /// Instantiator of map-version of `RadixTree` where value-type is `Value`.
 auto radixTreeMap(Key, Value, size_t radix = 4)() { return RadixTree!(Key, Value, radix)(); }
 
+@safe pure nothrow /* TODO @nogc */ unittest
+{
+    enum radix = 8;
+    auto set = radixTreeSet!(ubyte, radix);
+
+    assert(set.insert(0));
+    assert(!set.insert(0));
+    assert(set.nodeCount == 1); // one leaf
+
+    assert(set.insert(1));
+    assert(!set.insert(1));
+    assert(set.nodeCount == 3); // one branch two leaves
+}
+
 /// Check correctness when radix is `radix` and for each `Key` in `Keys`.
 auto check(size_t radix, Keys...)()
     if (Keys.length >= 1)
@@ -885,6 +874,7 @@ auto check(size_t radix, Keys...)()
         import std.meta : AliasSeq;
         foreach (Key; Keys)
         {
+            dln("Key: ", Key.stringof);
             auto set = radixTreeSet!(Key, radix);
             assert(set.empty);
 
@@ -900,6 +890,7 @@ auto check(size_t radix, Keys...)()
             foreach (const uk; low.iota(high))
             {
                 const Key k = cast(Key)uk;
+                show!k;
                 if (useContains)
                 {
                     assert(!set.contains(k)); // key should not yet be in set

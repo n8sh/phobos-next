@@ -86,7 +86,7 @@ alias bt = testBit;
 ///
 unittest
 {
-    static void testGetBit(T)()
+    static void test(T)()
     {
         const mn = T.min, mx = T.max;
         enum nBits = 8*T.sizeof;
@@ -100,10 +100,10 @@ unittest
             assert(mx.bt(ix));
         }
     }
-    testGetBit!byte;
-    testGetBit!short;
-    testGetBit!int;
-    testGetBit!long;
+    test!byte;
+    test!short;
+    test!int;
+    test!long;
 }
 
 /** Test and sets the $(D bix):th Bit Of $(D a) to one.

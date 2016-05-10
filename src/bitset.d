@@ -12,6 +12,11 @@ import std.range;
 import std.string;
 import rational : Rational;
 
+version(unittest)
+{
+    import dbg;
+}
+
 /* TODO opSlice, opSliceAssign */
 struct BitSet(size_t len, Block = size_t)
 {
@@ -134,7 +139,8 @@ struct BitSet(size_t len, Block = size_t)
     }
     body
     {
-        static if (is(Block == ulong) && is(Block == size_t)) // TODO remove this
+        static if (is(Block == ulong) && // TODO remove this
+                   is(Block == size_t)) // TODO remove this
         {
             b ? bts(ptr, i) : btr(ptr, i);
         }
@@ -151,7 +157,8 @@ struct BitSet(size_t len, Block = size_t)
         /** Sets the $(D i)'th bit in the $(D BitSet). No range checking needed. */
         pragma(inline) bool opIndexAssign(bool b, Mod!len i) @trusted pure nothrow
         {
-            static if (is(Block == ulong) && is(Block == size_t)) // TODO remove this
+            static if (is(Block == ulong) && // TODO remove this
+                       is(Block == size_t)) // TODO remove this
             {
                 b ? bts(ptr, cast(size_t)i) : btr(ptr, cast(size_t)i);
             }
@@ -880,29 +887,23 @@ struct BitSet(size_t len, Block = size_t)
     ///
     unittest
     {
-        import dbg;
-
         auto b = BitSet!16(([0, 0, 0, 0, 1, 1, 1, 1,
                              0, 0, 0, 0, 1, 1, 1, 1]));
         auto s1 = format("%s", b);
-        dln(typeof(b._data).stringof, " length=", b.length, " blockCount:", b.blockCount, ": ", s1);
-        // TODO activate: assert(s1 == "[0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1]");
+        assert(s1 == "[0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1]");
 
         auto s2 = format("%b", b);
-        dln(s2);
-        // TODO activate: assert(s2 == "00001111_00001111");
+        assert(s2 == "00001111_00001111");
     }
 
     private void formatBitString(scope void delegate(const(char)[]) sink) const
     {
-        import bitop_ex : bt;
-
         if (!length) { return; }
 
         const leftover = len % 8;
         foreach (ix; 0 .. leftover)
         {
-            const bit = bt(ptr, ix);
+            const bit = this[ix];
             const char[1] res = cast(char)(bit + '0');
             sink.put(res[]);
         }
@@ -912,7 +913,7 @@ struct BitSet(size_t len, Block = size_t)
         size_t cnt;
         foreach (ix; leftover .. len)
         {
-            const bit = bt(ptr, ix);
+            const bit = this[ix];
             const char[1] res = cast(char)(bit + '0');
             sink.put(res[]);
             if (++cnt == 8 && ix != len - 1)
@@ -928,8 +929,7 @@ struct BitSet(size_t len, Block = size_t)
         sink("[");
         foreach (ix; 0 .. len)
         {
-            import bitop_ex : bt;
-            const bit = bt(ptr, ix);
+            const bit = this[ix];
             const char[1] res = cast(char)(bit + '0');
             sink(res[]);
             if (ix+1 < len) { sink(", "); } // separator

@@ -21,8 +21,15 @@ struct BitSet(size_t len, Block = size_t)
 {
     import rational : Rational;
     import std.format : FormatSpec, format;
-    import core.bitop : bt, bts, btr, bitswap;
     import modulo : Mod;
+
+    import core.bitop : bitswap;
+
+    static if (is(Block == size_t) ||
+               is(Block == ulong))
+        import core.bitop : bt, bts, btr;
+    else
+        import bitop_ex : bt, bts, btr; // use my own overloads
 
     import std.traits : isUnsigned;
     static assert(isUnsigned!Block, "Block must be a builtin unsigned integer");
@@ -57,15 +64,7 @@ struct BitSet(size_t len, Block = size_t)
     body
     {
         // Andrei: review for @@@64-bit@@@
-        static if (is(Block == size_t))
-        {
-            return cast(bool)bt(ptr, i);
-        }
-        else
-        {
-            import bitop_ex : bt;
-            return bt(*ptr, i);
-        }
+        return cast(bool)bt(ptr, i);
     }
 
     /** Gets the $(D i)'th bit in the $(D BitSet). No range checking needed. */
@@ -77,7 +76,6 @@ struct BitSet(size_t len, Block = size_t)
         */
         pragma(inline) bool opIndex(Mod!len i) const @trusted pure nothrow
         {
-            import bitop_ex : bt;
             return cast(bool)bt(ptr, cast(size_t)i);
         }
 
@@ -140,16 +138,7 @@ struct BitSet(size_t len, Block = size_t)
     }
     body
     {
-        static if (is(Block == ulong) && // TODO remove this
-                   is(Block == size_t)) // TODO remove this
-        {
-            b ? bts(ptr, i) : btr(ptr, i);
-        }
-        else
-        {
-            import bitop_ex : bts, btr;
-            b ? bts(ptr, i) : btr(ptr, i);
-        }
+        b ? bts(ptr, i) : btr(ptr, i);
         return b;
     }
 
@@ -158,16 +147,7 @@ struct BitSet(size_t len, Block = size_t)
         /** Sets the $(D i)'th bit in the $(D BitSet). No range checking needed. */
         pragma(inline) bool opIndexAssign(bool b, Mod!len i) @trusted pure nothrow
         {
-            static if (is(Block == ulong) && // TODO remove this
-                       is(Block == size_t)) // TODO remove this
-            {
-                b ? bts(ptr, cast(size_t)i) : btr(ptr, cast(size_t)i);
-            }
-            else
-            {
-                import bitop_ex : bts, btr;
-                b ? bts(ptr, cast(size_t)i) : btr(ptr, cast(size_t)i);
-            }
+            b ? bts(ptr, cast(size_t)i) : btr(ptr, cast(size_t)i);
             return b;
         }
     }
@@ -528,7 +508,6 @@ struct BitSet(size_t len, Block = size_t)
         for (size_t i = 8*n; i < len; i++)
         {
             hash *= 3571;
-            import bitop_ex : bt;
             hash += bt(this.ptr, i);
         }
         return hash;

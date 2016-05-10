@@ -512,10 +512,7 @@ struct BitSet(size_t len, Block = size_t)
     }
     body
     {
-        foreach (const i, const b; ba)
-        {
-            this[i] = b;
-        }
+        foreach (const i, const b; ba) { this[i] = b; }
     }
 
     bool opCast(T : bool)() const @safe @nogc pure nothrow { return !this.empty ; }

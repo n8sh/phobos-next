@@ -973,12 +973,13 @@ unittest
 {
     import std.format : format;
 
-    const b_ = BitSet!0([]);
-    const b0 = b_;
+    const b0_ = BitSet!0([]);
+    const b0 = b0_;
     assert(format("%s", b0) == "[]");
     assert(format("%b", b0) is null);
 
-    const b1 = BitSet!1([1]);
+    const b1_ = BitSet!1([1]);
+    const b1 = b1_;
     assert(format("%s", b1) == "[1]");
     assert(format("%b", b1) == "1");
 

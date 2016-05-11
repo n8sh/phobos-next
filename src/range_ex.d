@@ -6,7 +6,7 @@
 
 module range_ex;
 
-import std.range: hasSlicing, isSomeString, isNarrowString, isInfinite, isInputRange, ElementType;
+import std.range: hasSlicing, isSomeString, isNarrowString, isInfinite, isInputRange, isBidirectionalRange, ElementType;
 import std.traits: hasUnsharedAliasing, hasElaborateDestructor, isScalarType;
 
 public import slicing;
@@ -104,7 +104,7 @@ alias takeFront = stealFront;
     See also: http://forum.dlang.org/thread/onibkzepudfisxtrigsi@forum.dlang.org#post-dafmzroxvaeejyxrkbon:40forum.dlang.org
 */
 auto stealBack(R)(ref R r)
-    if (isInputRange!R &&
+    if (isBidirectionalRange!R &&
         hasStealableElements!R)
 {
     import std.range: moveBack, popBack;

@@ -521,6 +521,7 @@ struct BinaryRadixTree(Value,
                 import std.range : empty;
                 if (matchedChunks.empty) // no common prefix
                 {
+                    show!(bkey, bix, wasAdded);
                     br.subNodes.at!0 = curr;
                     return this.insert(br, bkey, bix, wasAdded);
                 }

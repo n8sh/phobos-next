@@ -749,6 +749,7 @@ auto uniqueEnumMembersHashed(T)()
     return uniquifier.keys; // `keys` can be evaluate at compile-time but not `byKey`
 }
 
+///
 @safe pure nothrow /*@nogc*/ unittest
 {
     enum E { x, y, z, Z = z, Y = y }

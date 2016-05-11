@@ -720,7 +720,9 @@ alias enumConstants = enumMembers;
 
 /** Dynamic Variant of $(D EnumMembers) excluding the enumerator aliases.
 
-    TODO implement with an array and a bitset indiciating if it has been found yet or not
+    TODO implement with an array and a bitset indiciating if it has been found
+    yet or not. Should have linear complexity and much less memory usage than
+    `uniqueEnumMembersHashed`.
 
     See also: http://forum.dlang.org/post/ziappmtvucmuefphblse@forum.dlang.org
     See also: http://forum.dlang.org/post/awihyvzjswwayeqtklly@forum.dlang.org

@@ -129,6 +129,18 @@ struct BinaryRadixTree(Value,
                 ubyte length;   // TODO bound 0 .. 6
                 ubyte _mustBeIgnored; // this byte must be ignored because it contains Node-type
 
+                bool empty() @safe pure nothrow @nogc
+                {
+                    return length == 0;
+                }
+
+                void popFront() @safe pure nothrow @nogc
+                {
+                    assert(!empty);
+                    ixMs[0 .. length - 1] = ixMs[1 .. length]; // shift out first
+                    --length;
+                }
+
                 @property auto toString() const
                 {
                     import std.conv : to;
@@ -529,7 +541,12 @@ struct BinaryRadixTree(Value,
                 if (matchedChunks.empty) // no common prefix
                 {
                     show!(bkey, bix, wasAdded);
-                    br.subNodes.at!0 = curr; // set first branch
+
+                    // TODO functionize
+                    const branchIxM = curr.ixMs[0]; // first index is index into branch `subNodes`
+                    curr.popFront;                  // pop first index
+                    br.subNodes[branchIxM] = curr;
+
                     return this.insert(br, bkey, bix, wasAdded);
                 }
                 else

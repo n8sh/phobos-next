@@ -365,8 +365,8 @@ public:
 
         int opCmp(U)(in U that) const @trusted
         {
-            static assert (allowsAssignmentFrom!U, // TODO relax to allowsComparisonWith!U
-                           "Cannot compare " ~ VaryN.stringof ~ " with " ~ U.stringof);
+            static assert(allowsAssignmentFrom!U, // TODO relax to allowsComparisonWith!U
+                          "Cannot compare " ~ VaryN.stringof ~ " with " ~ U.stringof);
 
             static if (haveCommonType!Types)
             {

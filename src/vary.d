@@ -510,13 +510,13 @@ nothrow unittest
     a[C(2.0)] = "2.0";
 }
 
-///
+/// verify nothrow comparisons
 nothrow unittest
 {
     alias C = FastVariant!(int, float, double);
-    assert(C(1.0) < 2);         // comparison is nothrow
-    assert(C(1.0) < 2.0);       // comparison is nothrow
-    assert(C(1.0) < 2.0);       // comparison is nothrow
+    assert(C(1.0) < 2);
+    assert(C(1.0) < 2.0);
+    assert(C(1.0) < 2.0);
     static assert(!__traits(compiles, { C(1.0) < "a"; })); // cannot compare with string
 }
 

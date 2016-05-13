@@ -893,10 +893,10 @@ auto check(size_t radix, Keys...)()
 
             const low = max(Key.min, -100_000);
             const high = min(Key.max, 100_000);
-            const length = high - low;
+            const length = high - low + 1;
 
             const useContains = false;
-            foreach (const uk; low.iota(high))
+            foreach (const uk; low.iota(high + 1))
             {
                 const Key k = cast(Key)uk;
                 show!k;

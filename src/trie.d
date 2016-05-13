@@ -129,22 +129,30 @@ struct BinaryRadixTree(Value,
                 Mod!(maxLength + 1) length;
                 ubyte _mustBeIgnored; // this byte must be ignored because it contains Node-type
 
-                bool empty() @safe pure nothrow @nogc
-                {
-                    return length == 0;
-                }
-
-                void popFront() @safe pure nothrow @nogc
-                {
-                    assert(!empty);
-                    suffix[0 .. length - 1] = suffix[1 .. length]; // shift out first
-                    length = length - 1;
-                }
-
                 @property auto toString() const
                 {
                     import std.conv : to;
                     return "PLf:" ~ suffix[0 .. length].to!string;
+                }
+
+                @safe pure nothrow @nogc:
+
+                bool empty()
+                {
+                    return length == 0;
+                }
+
+                IxM front()
+                {
+                    assert(!empty);
+                    return suffix[0];
+                }
+
+                void popFront()
+                {
+                    assert(!empty);
+                    suffix[0 .. length - 1] = suffix[1 .. length]; // shift out first
+                    length = length - 1;
                 }
 
                 static if (isMap)
@@ -546,7 +554,7 @@ struct BinaryRadixTree(Value,
                     show!(bkey, bix, wasAdded);
 
                     // TODO functionize
-                    const branchIxM = curr.suffix[0]; // first index is index into branch `subNodes`
+                    const branchIxM = curr.front; // first index is index into branch `subNodes`
                     curr.popFront;                  // pop first index
                     br.subNodes[branchIxM] = curr;
 

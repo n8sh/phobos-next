@@ -361,18 +361,21 @@ public:
                 }
             }
         }
-        int opCmp(T)(in T that) const @trusted
+
+        int opCmp(U)(in U that) const @trusted
         {
+            static assert (allows!U, "Cannot compare " ~ VaryN.stringof ~ " with " ~ U.stringof);
+
             static if (haveCommonType!Types)
             {
                 pragma(msg, "nothrow opCmp is possible for " ~ VaryN.stringof);
             }
-            static assert (allows!T, "Cannot compare " ~ VaryN.stringof ~ " with " ~ T.stringof);
-            if (!isOfType!T)
+            if (!isOfType!U)
             {
-                throw new VaryNException("Cannot compare " ~ VaryN.stringof ~ " with " ~ T.stringof);
+                throw new VaryNException("Cannot compare " ~ VaryN.stringof ~ " with " ~ U.stringof);
             }
-            const a = this.interpretAs!T;
+
+            const a = this.interpretAs!U;
             const b = that;
             return a < b ? -1 : a > b ? 1 : 0; // TODO functionize to defaultOpCmp
         }

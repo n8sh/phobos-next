@@ -311,7 +311,8 @@ struct BinaryRadixTree(Value,
     /** Dense M-Branch with `M` number of sub-nodes. */
     static private struct BrM
     {
-        IxM prefix; // common prefix for all element stored in this branch
+        IxM[] prefix; // common prefix for all elements stored in this branch
+        bool occupied;
         StrictlyIndexed!(Node[M]) subNodes;
 
         /** Append statistics of tree under `this` into `stats`. */
@@ -334,6 +335,7 @@ struct BinaryRadixTree(Value,
     static private struct Br2
     {
         IxM prefix;
+        bool occupied;
 
         enum N = 2; // TODO make this a CT-param
 
@@ -430,7 +432,10 @@ struct BinaryRadixTree(Value,
                     }
                     else
                     {
-                        assert(false, "Chop off first chunk from bkey construct a BrM using it and do insertAt(b, rest)");
+                        BrM* br = construct!(BrM*);
+                        br.prefix[] = subkey[0 .. subkey.length - PLf.maxLength];
+                        bix += br.prefix.length;
+                        curr = Node(br);
                     }
                 }
             }
@@ -453,41 +458,65 @@ struct BinaryRadixTree(Value,
 
         /** Insert `bix` part of `bkey` into tree with root node `curr`. */
         Node insertAt(Br2* curr, BKey!radix bkey, BIx bix, out bool wasAdded)
+        in
         {
-            const IxM chunk = bitsChunk!radix(bkey, bix);
-
-            enum N = 2;         // branch-order, number of possible sub-nodes
-            foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
+            assert(bix <= bkey.length);
+            assert(!wasAdded);               // check that we haven't yet added it
+        }
+        body
+        {
+            if (bix == bkey.length)
             {
-                if (curr.subNodes[subIx])   // first is occupied
+                if (!curr.occupied) { wasAdded = true; }
+                curr.occupied = true;
+                return Node(curr);
+            }
+            else
+            {
+                const IxM chunk = bitsChunk!radix(bkey, bix);
+
+                enum N = 2;         // branch-order, number of possible sub-nodes
+                foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
                 {
-                    if (curr.subChunks[subIx] == chunk) // and matches chunk
+                    if (curr.subNodes[subIx])   // first is occupied
                     {
-                        curr.subNodes[subIx] = insertAt(curr.subNodes[subIx], bkey, bix + 1, wasAdded);
+                        if (curr.subChunks[subIx] == chunk) // and matches chunk
+                        {
+                            curr.subNodes[subIx] = insertAt(curr.subNodes[subIx], bkey, bix + 1, wasAdded);
+                            return Node(curr);
+                        }
+                    }
+                    else            // use first free sub
+                    {
+                        curr.subNodes[subIx] = insertAt(constructSub(bkey, bix + 1), bkey, bix + 1, wasAdded); // use it
+                        curr.subChunks[subIx] = chunk;
                         return Node(curr);
                     }
                 }
-                else            // use first free sub
-                {
-                    curr.subNodes[subIx] = insertAt(constructSub(bkey, bix + 1), bkey, bix + 1, wasAdded); // use it
-                    curr.subChunks[subIx] = chunk;
-                    return Node(curr);
-                }
-            }
 
-            // if we got here all N sub-nodes are occupied so we need to expand
-            return insertAt(expand(curr), bkey, bix, wasAdded); // NOTE stay at same bix (depth)
+                // if we got here all N sub-nodes are occupied so we need to expand
+                return insertAt(expand(curr), bkey, bix, wasAdded); // NOTE stay at same bix (depth)
+            }
         }
 
         Node insertAt(BrM* curr, BKey!radix bkey, BIx bix, out bool wasAdded)
         in
         {
+            assert(bix <= bkey.length);
             assert(!wasAdded);               // check that we haven't yet added it
         }
         body
         {
-            const IxM chunk = bitsChunk!radix(bkey, bix);
-            curr.subNodes[chunk] = insertAt(curr.subNodes[chunk], bkey, bix + 1, wasAdded); // recurse
+            if (bix == bkey.length)
+            {
+                if (!curr.occupied) { wasAdded = true; }
+                curr.occupied = true;
+            }
+            else
+            {
+                const IxM chunk = bitsChunk!radix(bkey, bix);
+                curr.subNodes[chunk] = insertAt(curr.subNodes[chunk], bkey, bix + 1, wasAdded); // recurse
+            }
             return Node(curr);
         }
 
@@ -542,7 +571,10 @@ struct BinaryRadixTree(Value,
                 }
                 else
                 {
-                    assert(false, "TODO put common part in br.prefix");
+                    dln("curr.data: ", curr.data);
+                    dln("subkey: ", subkey);
+                    dln("matchedChunks: ", matchedChunks);
+                    assert(false, "TODO put common part in br.prefix: ");
                     if (bkey.length < matchedChunks.length)
                     {
                         assert(false, "TODO");

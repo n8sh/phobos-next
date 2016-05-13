@@ -126,7 +126,7 @@ struct BinaryRadixTree(Value,
             {
                 enum maxLength = (size_t.sizeof - 2) / IxM.sizeof;
                 IxM[maxLength] suffix;
-                ubyte length;   // TODO bound 0 .. 6
+                Mod!(maxLength + 1) length;
                 ubyte _mustBeIgnored; // this byte must be ignored because it contains Node-type
 
                 bool empty() @safe pure nothrow @nogc
@@ -138,7 +138,7 @@ struct BinaryRadixTree(Value,
                 {
                     assert(!empty);
                     suffix[0 .. length - 1] = suffix[1 .. length]; // shift out first
-                    --length;
+                    length = length - 1;
                 }
 
                 @property auto toString() const

@@ -344,7 +344,7 @@ public:
         {
             static if (haveCommonType!Types)
             {
-                pragma(msg, "nothrow opCmp is possible for " ~ VaryN.stringof);
+                pragma(msg, "TODO nothrow opCmp is possible for " ~ VaryN.stringof);
             }
             if (_tix != that._tix)
             {
@@ -370,7 +370,7 @@ public:
 
             static if (haveCommonType!Types)
             {
-                pragma(msg, "nothrow opCmp is possible for " ~ VaryN.stringof);
+                pragma(msg, "TODO nothrow opCmp is possible for " ~ VaryN.stringof);
             }
             if (!isOfType!U)
             {

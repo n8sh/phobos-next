@@ -137,12 +137,12 @@ struct BinaryRadixTree(Value,
 
                 @safe pure nothrow @nogc:
 
-                bool empty()
+                bool empty() const
                 {
                     return length == 0;
                 }
 
-                IxM front()
+                IxM front() const
                 {
                     assert(!empty);
                     return suffix[0];

@@ -517,6 +517,7 @@ nothrow unittest
     assert(C(1.0) < 2);
     assert(C(1.0) < 2.0);
     assert(C(1.0) < 2.0);
+    static assert(!__traits(compiles, { C(1.0) < 'a'; })); // cannot compare with char
     static assert(!__traits(compiles, { C(1.0) < "a"; })); // cannot compare with string
 }
 

@@ -3,6 +3,8 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO Move construction params into construct!NodeType(params...)
+
     TODO
     - PLf: Word:
     - 64-bit:
@@ -400,8 +402,6 @@ struct BinaryRadixTree(Value,
                     if (bkey.length < PLf.maxLength)
                     {
                         PLf currPLf = construct!PLf;
-
-                        // TODO functionize these two lines
                         currPLf.ixMs[0 .. bkey.length] = bkey;
                         currPLf.length = cast(ubyte)bkey.length; // TODO remove when value-range-propagation can limit bkey.length to (0 .. PLf.maxLength)
                         wasAdded = true;
@@ -468,12 +468,17 @@ struct BinaryRadixTree(Value,
         }
         body
         {
+            show!(bkey, bix, wasAdded);
             const IxM chunk = bitsChunk!radix(bkey, bix);
+            show!(chunk);
             if (!curr.subNodes[chunk]) // if not yet set
             {
                 curr.subNodes[chunk] = constructSub(bkey, bix + 1);
+                dln("added: ", curr.subNodes[chunk]);
             }
+            dln("here");
             curr.subNodes[chunk] = insert(curr.subNodes[chunk], bkey, bix + 1, wasAdded);
+            show!wasAdded;
             return Node(curr);
         }
 
@@ -522,7 +527,7 @@ struct BinaryRadixTree(Value,
                 if (matchedChunks.empty) // no common prefix
                 {
                     show!(bkey, bix, wasAdded);
-                    br.subNodes.at!0 = curr;
+                    br.subNodes.at!0 = curr; // set first branch
                     return this.insert(br, bkey, bix, wasAdded);
                 }
                 else
@@ -588,7 +593,11 @@ struct BinaryRadixTree(Value,
         /** Construct and return sub-Node at `bix` in `bkey`.  */
         Node constructSub(BKey!radix bkey, BIx bix)
         {
-            return ((bix + 1) * radix == 8 * bkey.length ? // is last
+            dln("(bix + 1) * radix: ", (bix + 1) * radix);
+            dln("8 * bkey.length: ", 8 * bkey.length);
+            const bool isLast = (bix + 1) * radix == 8 * bkey.length;
+            show!isLast;
+            return (isLast ?
                     Node(construct!DefaultLeafType) :
                     Node(construct!DefaultBranchType));
         }
@@ -630,13 +639,13 @@ struct BinaryRadixTree(Value,
     private:
 
     /** Allocate `Node`-type of value type `U`. */
-    auto construct(U)() @trusted
+    auto construct(U, Args...)(Args args) @trusted
     {
         debug ++_nodeCount;
         static if (isPointer!U)
         {
             import std.conv : emplace;
-            auto node = emplace(cast(U)malloc((*U.init).sizeof));
+            auto node = emplace(cast(U)malloc((*U.init).sizeof), args);
             // TODO ensure alignment of node at least that of U.alignof
             return node;
         }
@@ -1038,4 +1047,16 @@ private template iotaImpl(size_t to, size_t now)
     import std.meta : AliasSeq;
     static if (now >= to) { alias iotaImpl = AliasSeq!(now); }
     else                  { alias iotaImpl = AliasSeq!(now, iotaImpl!(to, now + 1)); }
+}
+
+int main(string[] args)
+{
+    int x = 1;
+    int y = 1;
+    auto z = x + y;
+    check!(8,
+           ubyte,
+           short, int, long,
+           ushort, uint, ulong);
+    return 0;
 }

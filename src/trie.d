@@ -417,6 +417,7 @@ struct BinaryRadixTree(Value,
         /** Insert `bix` part of `bkey` into tree with root node `curr`. */
         pragma(inline) Node insertAt(Node curr, BKey!radix bkey, BIx bix, out bool wasAdded) // Node-polymorphic
         {
+            // TODO functionize and perhaps merge with constructSub
             if (!curr)          // if no curr yet
             {
                 static if (radix == 8)

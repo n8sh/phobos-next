@@ -508,10 +508,25 @@ nothrow unittest
     string[C] a;
     a[C(1.0f)] = "1.0f";
     a[C(2.0)] = "2.0";
+}
+
+///
+nothrow unittest
+{
+    alias C = FastVariant!(int, float, double);
     assert(C(1.0) < 2);         // comparison is nothrow
     assert(C(1.0) < 2.0);       // comparison is nothrow
     assert(C(1.0) < 2.0);       // comparison is nothrow
-    static assert(!__traits(compiles, { C(1.0) < "a"; })); // cannot compare with string
+}
+
+/// TODO
+nothrow unittest
+{
+    // alias C = FastVariant!(int, float, double);
+    // alias D = FastVariant!(float, double);
+    // assert(C(1) < D(2.0));
+    // assert(C(1) < D(1.0));
+    // static assert(!__traits(compiles, { C(1.0) < "a"; })); // cannot compare with string
 }
 
 /// if types have CommonType comparison is nothrow @nogc

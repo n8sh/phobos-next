@@ -555,7 +555,7 @@ struct BinaryRadixTree(Value,
 
             if (subkey.empty) { return Node(curr); }
 
-            const matchedPrefix = commonPrefix(curr.data, subkey); // TODO avoid allocation if commonPrefix allocates
+            auto matchedPrefix = commonPrefix(curr.data, subkey); // TODO avoid allocation if commonPrefix allocates
             if (bkey.length != matchedPrefix.length) // if subkey not found
             {
                 auto br = construct!DefaultBranchType; // create new branch
@@ -575,8 +575,7 @@ struct BinaryRadixTree(Value,
                     dln("curr.data: ", curr.data);
                     dln("subkey: ", subkey);
                     dln("matchedPrefix: ", matchedPrefix);
-                    br.prefix[] = matchedPrefix;
-                    assert(false, "TODO put common part in br.prefix: ");
+                    br.prefix = matchedPrefix[]; // TODO make matchedPrefix const and assign upon construction of br
                     if (bkey.length < matchedPrefix.length)
                     {
                         assert(false, "TODO");

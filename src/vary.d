@@ -517,6 +517,7 @@ nothrow unittest
     assert(C(1.0) < 2);         // comparison is nothrow
     assert(C(1.0) < 2.0);       // comparison is nothrow
     assert(C(1.0) < 2.0);       // comparison is nothrow
+    static assert(!__traits(compiles, { C(1.0) < "a"; })); // cannot compare with string
 }
 
 /// TODO

@@ -158,7 +158,7 @@ struct BinaryRadixTree(Value,
                 static if (isMap)
                 {
                     static if (is(Value == bool))
-                        static assert(false, "TODO store bit value in bitfield");
+                        static assert(false, "TODO store bit packed");
                     else
                         Value[maxLength] values;
                 }
@@ -417,8 +417,7 @@ struct BinaryRadixTree(Value,
         {
             import std.range : empty;
 
-            const subkey = bkey[bix .. $];
-            if (subkey.empty) { return curr; } // we're done
+            const subkey = bkey[bix .. $];     // TODO use bkey.ptr[bix .. $] when we know things work
 
             show!(subkey, wasAdded);
 
@@ -495,15 +494,7 @@ struct BinaryRadixTree(Value,
         {
             show!(bkey, bix, wasAdded);
             const IxM chunk = bitsChunk!radix(bkey, bix);
-            show!(chunk);
-            if (!curr.subNodes[chunk]) // if not yet set
-            {
-                curr.subNodes[chunk] = constructSub(bkey, bix + 1);
-                dln("added: ", curr.subNodes[chunk]);
-            }
-            dln("here");
-            curr.subNodes[chunk] = insertAt(curr.subNodes[chunk], bkey, bix + 1, wasAdded);
-            show!wasAdded;
+            curr.subNodes[chunk] = insertAt(curr.subNodes[chunk], bkey, bix + 1, wasAdded); // recurse
             return Node(curr);
         }
 
@@ -623,13 +614,17 @@ struct BinaryRadixTree(Value,
         /** Construct and return sub-Node at `bix` in `bkey`.  */
         Node constructSub(BKey!radix bkey, BIx bix)
         {
-            dln("(bix + 1) * radix: ", (bix + 1) * radix);
-            dln("8 * bkey.length: ", 8 * bkey.length);
-            const bool isLast = (bix + 1) * radix == 8 * bkey.length;
-            show!isLast;
-            return (isLast ?
-                    Node(construct!DefaultLeafType) :
-                    Node(construct!DefaultBranchType));
+            if (bkey.length == bix)
+            {
+                return Node(construct!PLf);
+            }
+            else
+            {
+                const bool isLast = (bix + 1) * radix == 8 * bkey.length;
+                return (isLast ?
+                        Node(construct!DefaultLeafType) :
+                        Node(construct!DefaultBranchType));
+            }
         }
 
         /** Destructively expand `curr` into a `BrM` and return it. */

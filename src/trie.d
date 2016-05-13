@@ -115,7 +115,7 @@ struct BinaryRadixTree(Value,
 
         TODO Generalize to packing of more than one `IxM` per byte.
         TODO respect byteorder in `PLfs` to work with `WordVariant`
-        TODO implement and use opSlice instead of .ixMs[]
+        TODO implement and use opSlice instead of .suffix[]
     */
     static if (size_t.sizeof == 8) // 64-bit CPU
     {
@@ -125,7 +125,7 @@ struct BinaryRadixTree(Value,
             struct PLf
             {
                 enum maxLength = (size_t.sizeof - 2) / IxM.sizeof;
-                IxM[maxLength] ixMs;
+                IxM[maxLength] suffix;
                 ubyte length;   // TODO bound 0 .. 6
                 ubyte _mustBeIgnored; // this byte must be ignored because it contains Node-type
 
@@ -137,14 +137,14 @@ struct BinaryRadixTree(Value,
                 void popFront() @safe pure nothrow @nogc
                 {
                     assert(!empty);
-                    ixMs[0 .. length - 1] = ixMs[1 .. length]; // shift out first
+                    suffix[0 .. length - 1] = suffix[1 .. length]; // shift out first
                     --length;
                 }
 
                 @property auto toString() const
                 {
                     import std.conv : to;
-                    return "PLf:" ~ ixMs[0 .. length].to!string;
+                    return "PLf:" ~ suffix[0 .. length].to!string;
                 }
 
                 static if (isMap)
@@ -154,7 +154,7 @@ struct BinaryRadixTree(Value,
                     else
                         Value[maxLength] values;
                 }
-                auto ref data() { return ixMs[0 .. length]; }
+                auto ref data() { return suffix[0 .. length]; }
             }
             struct PLfs
             {
@@ -303,6 +303,7 @@ struct BinaryRadixTree(Value,
     /** Dense M-Branch with `M` number of sub-nodes. */
     static private struct BrM
     {
+        IxM prefix; // common prefix for all element stored in this branch
         StrictlyIndexed!(Node[M]) subNodes;
 
         /** Append statistics of tree under `this` into `stats`. */
@@ -324,6 +325,8 @@ struct BinaryRadixTree(Value,
     /** Sparse/Packed 2-Branch. */
     static private struct Br2
     {
+        IxM prefix;
+
         enum N = 2; // TODO make this a CT-param
 
         // TODO merge these into a new `NodeType`
@@ -418,7 +421,7 @@ struct BinaryRadixTree(Value,
                     if (subkey.length <= PLf.maxLength)
                     {
                         PLf currPLf = construct!PLf;
-                        currPLf.ixMs[0 .. subkey.length] = subkey;
+                        currPLf.suffix[0 .. subkey.length] = subkey;
                         currPLf.length = cast(ubyte)subkey.length; // TODO remove when value-range-propagation can limit bkey.length to (0 .. PLf.maxLength)
                         wasAdded = true;
 
@@ -523,7 +526,7 @@ struct BinaryRadixTree(Value,
         }
         body
         {
-            show!(bkey, bix, wasAdded);
+            show!(curr, bkey, bix, wasAdded);
 
             import std.range : empty;
             import std.algorithm : commonPrefix;
@@ -543,7 +546,7 @@ struct BinaryRadixTree(Value,
                     show!(bkey, bix, wasAdded);
 
                     // TODO functionize
-                    const branchIxM = curr.ixMs[0]; // first index is index into branch `subNodes`
+                    const branchIxM = curr.suffix[0]; // first index is index into branch `subNodes`
                     curr.popFront;                  // pop first index
                     br.subNodes[branchIxM] = curr;
 

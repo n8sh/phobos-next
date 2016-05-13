@@ -415,23 +415,17 @@ struct BinaryRadixTree(Value,
         /** Insert `bix` part of `bkey` into tree with root node `curr`. */
         pragma(inline) Node insertAt(Node curr, BKey!radix bkey, BIx bix, out bool wasAdded) // Node-polymorphic
         {
-            import std.range : empty;
-
-            const subkey = bkey[bix .. $];     // TODO use bkey.ptr[bix .. $] when we know things work
-
-            show!(subkey, wasAdded);
-
             if (!curr)          // if no curr yet
             {
                 static if (radix == 8)
                 {
+                    const subkey = bkey[bix .. $];     // TODO use bkey.ptr[bix .. $] when we know things work
                     if (subkey.length <= PLf.maxLength)
                     {
                         PLf currPLf = construct!PLf;
                         currPLf.suffix[0 .. subkey.length] = subkey;
                         currPLf.length = cast(ubyte)subkey.length; // TODO remove when value-range-propagation can limit bkey.length to (0 .. PLf.maxLength)
                         wasAdded = true;
-
                         return Node(currPLf);
                     }
                     else
@@ -492,7 +486,6 @@ struct BinaryRadixTree(Value,
         }
         body
         {
-            show!(bkey, bix, wasAdded);
             const IxM chunk = bitsChunk!radix(bkey, bix);
             curr.subNodes[chunk] = insertAt(curr.subNodes[chunk], bkey, bix + 1, wasAdded); // recurse
             return Node(curr);
@@ -525,8 +518,6 @@ struct BinaryRadixTree(Value,
         }
         body
         {
-            show!(curr, bkey, bix, wasAdded);
-
             import std.range : empty;
             import std.algorithm : commonPrefix;
 
@@ -542,8 +533,6 @@ struct BinaryRadixTree(Value,
                 import std.range : empty;
                 if (matchedChunks.empty) // no common prefix
                 {
-                    show!(bkey, bix, wasAdded);
-
                     // TODO functionize
                     const branchIxM = curr.front; // first index is index into branch `subNodes`
                     curr.popFront;                  // pop first index

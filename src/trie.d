@@ -398,11 +398,11 @@ struct BinaryRadixTree(Value,
         /** Insert `bix` part of `bkey` into tree. */
         pragma(inline) Node insert(BKey!radix bkey, BIx bix, out bool wasAdded)
         {
-            return _root = insert(_root, bkey, bix, wasAdded);
+            return _root = insertAt(_root, bkey, bix, wasAdded);
         }
 
         /** Insert `bix` part of `bkey` into tree with root node `curr`. */
-        pragma(inline) Node insert(Node curr, BKey!radix bkey, BIx bix, out bool wasAdded) // Node-polymorphic
+        pragma(inline) Node insertAt(Node curr, BKey!radix bkey, BIx bix, out bool wasAdded) // Node-polymorphic
         {
             import std.range : empty;
 
@@ -426,7 +426,7 @@ struct BinaryRadixTree(Value,
                     }
                     else
                     {
-                        assert(false, "Chop off first chunk from bkey construct a BrM using it and do insert(b, rest)");
+                        assert(false, "Chop off first chunk from bkey construct a BrM using it and do insertAt(b, rest)");
                     }
                 }
             }
@@ -436,11 +436,11 @@ struct BinaryRadixTree(Value,
                 final switch (curr.typeIx)
                 {
                 case undefined: break;
-                case ix_PLf:    return insert(curr.as!(PLf), bkey, bix, wasAdded);
-                case ix_PLfs:   return insert(curr.as!(PLfs), bkey, bix, wasAdded);
-                case ix_Br2Ptr: return insert(curr.as!(Br2*), bkey, bix, wasAdded);
-                case ix_BrMPtr: return insert(curr.as!(BrM*), bkey, bix, wasAdded);
-                case ix_LfMPtr: return insert(curr.as!(LfM*), bkey, bix, wasAdded);
+                case ix_PLf:    return insertAt(curr.as!(PLf), bkey, bix, wasAdded);
+                case ix_PLfs:   return insertAt(curr.as!(PLfs), bkey, bix, wasAdded);
+                case ix_Br2Ptr: return insertAt(curr.as!(Br2*), bkey, bix, wasAdded);
+                case ix_BrMPtr: return insertAt(curr.as!(BrM*), bkey, bix, wasAdded);
+                case ix_LfMPtr: return insertAt(curr.as!(LfM*), bkey, bix, wasAdded);
                 case ix_All1:   auto curr_ = curr.as!All1; break;
                 }
                 assert(false);
@@ -448,7 +448,7 @@ struct BinaryRadixTree(Value,
         }
 
         /** Insert `bix` part of `bkey` into tree with root node `curr`. */
-        Node insert(Br2* curr, BKey!radix bkey, BIx bix, out bool wasAdded)
+        Node insertAt(Br2* curr, BKey!radix bkey, BIx bix, out bool wasAdded)
         {
             const IxM chunk = bitsChunk!radix(bkey, bix);
 
@@ -459,23 +459,23 @@ struct BinaryRadixTree(Value,
                 {
                     if (curr.subChunks[subIx] == chunk) // and matches chunk
                     {
-                        curr.subNodes[subIx] = insert(curr.subNodes[subIx], bkey, bix + 1, wasAdded);
+                        curr.subNodes[subIx] = insertAt(curr.subNodes[subIx], bkey, bix + 1, wasAdded);
                         return Node(curr);
                     }
                 }
                 else            // use first free sub
                 {
-                    curr.subNodes[subIx] = insert(constructSub(bkey, bix + 1), bkey, bix + 1, wasAdded); // use it
+                    curr.subNodes[subIx] = insertAt(constructSub(bkey, bix + 1), bkey, bix + 1, wasAdded); // use it
                     curr.subChunks[subIx] = chunk;
                     return Node(curr);
                 }
             }
 
             // if we got here all N sub-nodes are occupied so we need to expand
-            return insert(expand(curr), bkey, bix, wasAdded); // NOTE stay at same bix (depth)
+            return insertAt(expand(curr), bkey, bix, wasAdded); // NOTE stay at same bix (depth)
         }
 
-        Node insert(BrM* curr, BKey!radix bkey, BIx bix, out bool wasAdded)
+        Node insertAt(BrM* curr, BKey!radix bkey, BIx bix, out bool wasAdded)
         in
         {
             assert(!wasAdded);               // check that we haven't yet added it
@@ -491,12 +491,12 @@ struct BinaryRadixTree(Value,
                 dln("added: ", curr.subNodes[chunk]);
             }
             dln("here");
-            curr.subNodes[chunk] = insert(curr.subNodes[chunk], bkey, bix + 1, wasAdded);
+            curr.subNodes[chunk] = insertAt(curr.subNodes[chunk], bkey, bix + 1, wasAdded);
             show!wasAdded;
             return Node(curr);
         }
 
-        Node insert(LfM* curr, BKey!radix bkey, BIx bix, out bool wasAdded)
+        Node insertAt(LfM* curr, BKey!radix bkey, BIx bix, out bool wasAdded)
         in
         {
             assert(!wasAdded);               // check that we haven't yet added it
@@ -516,7 +516,7 @@ struct BinaryRadixTree(Value,
             return Node(curr);
         }
 
-        Node insert(PLf curr, BKey!radix bkey, BIx bix, out bool wasAdded)
+        Node insertAt(PLf curr, BKey!radix bkey, BIx bix, out bool wasAdded)
         in
         {
             assert(!wasAdded);               // check that we haven't yet added it
@@ -547,7 +547,7 @@ struct BinaryRadixTree(Value,
                     curr.popFront;                  // pop first index
                     br.subNodes[branchIxM] = curr;
 
-                    return insert(br, bkey, bix, wasAdded);
+                    return insertAt(br, bkey, bix, wasAdded);
                 }
                 else
                 {
@@ -572,7 +572,7 @@ struct BinaryRadixTree(Value,
             }
        }
 
-        Node insert(PLfs curr, BKey!radix bkey, BIx bix, out bool wasAdded)
+        Node insertAt(PLfs curr, BKey!radix bkey, BIx bix, out bool wasAdded)
         in
         {
             assert(!wasAdded);               // check that we haven't yet added it
@@ -605,7 +605,7 @@ struct BinaryRadixTree(Value,
             }
             else
             {
-                return insert(expand(curr), bkey, bix, wasAdded); // NOTE stay at same bix (depth)
+                return insertAt(expand(curr), bkey, bix, wasAdded); // NOTE stay at same bix (depth)
             }
         }
 
@@ -780,7 +780,7 @@ struct RadixTree(Key, Value, size_t radix = 4)
     if (allSatisfy!(isTrieableKeyType, Key))
 {
     /** Insert `key`. */
-    bool insert(in Key key)
+    bool insertAt(in Key key)
         @safe pure nothrow /* TODO @nogc */
     {
         // convert unsigned to fixed-length (on the stack) ubyte array
@@ -834,9 +834,9 @@ struct RadixTree(Key, Value, size_t radix = 4)
         /** Insert `key`.
             Returns: `false` if key was previously already inserted, `true` otherwise.
         */
-        bool insert(in Key key, Value value)
+        bool insertAt(in Key key, Value value)
         {
-            bool result = insert(key);
+            bool result = insertAt(key);
             // TODO call insertAtSubNode(result, value);
             return result;
         }
@@ -865,13 +865,13 @@ auto radixTreeMap(Key, Value, size_t radix = 4)() { return RadixTree!(Key, Value
     auto set = radixTreeSet!(ubyte, radix);
 
     dln("Adding 0");
-    assert(set.insert(0));
-    assert(!set.insert(0));
+    assert(set.insertAt(0));
+    assert(!set.insertAt(0));
     assert(set.nodeCount == 1); // one leaf
 
     dln("Adding 1");
-    assert(set.insert(1));
-    assert(!set.insert(1));
+    assert(set.insertAt(1));
+    assert(!set.insertAt(1));
     assert(set.nodeCount == 3); // one branch two leaves
 }
 
@@ -911,9 +911,9 @@ auto check(size_t radix, Keys...)()
                     assert(k !in set);        // alternative syntax
                 }
 
-                assert(set.insert(k));  // insert new value returns `true` (previously not in set)
-                assert(!set.insert(k)); // reinsert same value returns `false` (already in set)
-                assert(!set.insert(k)); // reinsert same value returns `false` (already in set)
+                assert(set.insertAt(k));  // insertAt new value returns `true` (previously not in set)
+                assert(!set.insertAt(k)); // reinsert same value returns `false` (already in set)
+                assert(!set.insertAt(k)); // reinsert same value returns `false` (already in set)
 
                 if (useContains)
                 {
@@ -929,7 +929,7 @@ auto check(size_t radix, Keys...)()
             auto map = radixTreeMap!(Key, Value, radix);
             static assert(map.isMap);
 
-            map.insert(Key.init, Value.init);
+            map.insertAt(Key.init, Value.init);
         }
     }
 }
@@ -975,9 +975,9 @@ void benchmark(size_t radix)()
             foreach (Key k; randomSamples)
             {
                 if (useUniqueRandom)
-                    assert(set.insert(k));
+                    assert(set.insertAt(k));
                 else
-                    set.insert(k);
+                    set.insertAt(k);
             }
 
             dln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
@@ -1033,7 +1033,7 @@ void benchmark(size_t radix)()
         assert(map.empty);
         static assert(map.isMap);
 
-        map.insert(Key.init, Value.init);
+        map.insertAt(Key.init, Value.init);
     }
 }
 

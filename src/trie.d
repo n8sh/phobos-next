@@ -429,7 +429,7 @@ struct BinaryRadixTree(Value,
                         currPLf.suffix[0 .. subkey.length] = subkey;
                         currPLf.length = cast(ubyte)subkey.length; // TODO remove when value-range-propagation can limit bkey.length to (0 .. PLf.maxLength)
                         wasAdded = true;
-                        return Node(currPLf);
+                        return Node(currPLf); // we're done so return directly
                     }
                     else // subkey doesn't fit in a PLf
                     {

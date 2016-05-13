@@ -547,7 +547,7 @@ struct BinaryRadixTree(Value,
                     curr.popFront;                  // pop first index
                     br.subNodes[branchIxM] = curr;
 
-                    return this.insert(br, bkey, bix, wasAdded);
+                    return insert(br, bkey, bix, wasAdded);
                 }
                 else
                 {

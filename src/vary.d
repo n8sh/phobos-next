@@ -340,9 +340,9 @@ public:
 
     static if (allSatisfy!(isComparable, Types))
     {
-        int opCmp(in VaryN that) const @trusted
+        int opCmp(in VaryN that) const @trusted // TODO extend to VaryN!(ThatTypes)
         {
-            static if (haveCommonType!Types)
+            static if (haveCommonType!Types) // TODO extend to haveCommonType!(Types, ThatTypes)
             {
                 pragma(msg, "TODO nothrow opCmp is possible for " ~ VaryN.stringof);
             }

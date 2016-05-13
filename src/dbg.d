@@ -82,7 +82,7 @@ template show(Args...)
             foreach (const i, Arg; Args)
             {
                 if (i) debug write(", "); // separator
-                debug write(Args[i].stringof, " is ", Arg);
+                debug write(Args[i].stringof, ":", Arg);
             }
             debug writeln();
         }

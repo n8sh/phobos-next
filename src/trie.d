@@ -392,27 +392,29 @@ struct BinaryRadixTree(Value,
         /** Insert `bix` part of `bkey` into tree with root node `curr`. */
         pragma(inline) Node insert(Node curr, BKey!radix bkey, BIx bix, out bool wasAdded) // Node-polymorphic
         {
-            if (bkey.length == bix) { return curr; } // we're done
-            show!(bkey, bix, wasAdded);
+            import std.range : empty;
+
+            const subkey = bkey[bix .. $];
+            if (subkey.empty) { return curr; } // we're done
+
+            show!(subkey, wasAdded);
+
             if (!curr)          // if no curr yet
             {
-                show!(bkey, bix, wasAdded);
                 static if (radix == 8)
                 {
-                    if (bkey.length < PLf.maxLength)
+                    if (subkey.length <= PLf.maxLength)
                     {
                         PLf currPLf = construct!PLf;
-                        currPLf.ixMs[0 .. bkey.length] = bkey;
-                        currPLf.length = cast(ubyte)bkey.length; // TODO remove when value-range-propagation can limit bkey.length to (0 .. PLf.maxLength)
+                        currPLf.ixMs[0 .. subkey.length] = subkey;
+                        currPLf.length = cast(ubyte)subkey.length; // TODO remove when value-range-propagation can limit bkey.length to (0 .. PLf.maxLength)
                         wasAdded = true;
-
-                        show!(bkey, bix, wasAdded, currPLf);
 
                         return Node(currPLf);
                     }
                     else
                     {
-                        assert(false, "Put bkey in a branch instead and recurse");
+                        assert(false, "Chop off first chunk from bkey construct a BrM using it and do insert(b, rest)");
                     }
                 }
             }

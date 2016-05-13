@@ -75,6 +75,12 @@ public:
                                           ((!hasIndirections!U) && // no indirections and
                                            indexOf!(Unqual!U) >= 0))); // ok to remove constness of value types
 
+    // template comparableWith(U)
+    // {
+    //     enum bool isComparableWith(T) = is(typeof(T < U));
+    //     enum bool comparableWith = allSatisfy!(isComparableWith, Types);
+    // }
+
     // Use same as staticIndexOf
     template staticAssignableTypeIndexOf(U)
     {
@@ -344,7 +350,7 @@ public:
         {
             static if (haveCommonType!Types) // TODO extend to haveCommonType!(Types, ThatTypes)
             {
-                pragma(msg, "TODO nothrow opCmp is possible for " ~ VaryN.stringof);
+                pragma(msg, "TODO nothrow opCmp is possible for ", VaryN.stringof);
             }
             if (_tix != that._tix)
             {
@@ -365,21 +371,30 @@ public:
 
         int opCmp(U)(in U that) const @trusted
         {
-            static assert(allowsAssignmentFrom!U, // TODO relax to allowsComparisonWith!U
-                          "Cannot compare " ~ VaryN.stringof ~ " with " ~ U.stringof);
-
-            static if (haveCommonType!Types)
+            static if (haveCommonType!(Types, U)) // TODO is CommonType or isComparable the correct way of checking this?
             {
-                pragma(msg, "TODO nothrow opCmp is possible for " ~ VaryN.stringof);
+                final switch (_tix)
+                {
+                    foreach (const i, T; Types)
+                    {
+                    case i:
+                        const a = this.interpretAs!T;
+                        return a < that ? -1 : a > that ? 1 : 0; // TODO functionize to defaultOpCmp
+                    }
+                }
             }
-            if (!isOfType!U)
+            else
             {
-                throw new VaryNException("Cannot compare " ~ VaryN.stringof ~ " with " ~ U.stringof);
-            }
+                static assert(allowsAssignmentFrom!U, // TODO relax to allowsComparisonWith!U
+                              "Cannot compare " ~ VaryN.stringof ~ " with " ~ U.stringof);
 
-            const a = this.interpretAs!U;
-            const b = that;
-            return a < b ? -1 : a > b ? 1 : 0; // TODO functionize to defaultOpCmp
+                if (!isOfType!U)
+                {
+                    throw new VaryNException("Cannot compare " ~ VaryN.stringof ~ " with " ~ U.stringof);
+                }
+                const a = this.interpretAs!U;
+                return a < that ? -1 : a > that ? 1 : 0; // TODO functionize to defaultOpCmp
+            }
         }
     }
 
@@ -494,6 +509,10 @@ nothrow unittest
     string[C] a;
     a[C(1.0f)] = "1.0f";
     a[C(2.0)] = "2.0";
+    assert(C(1.0) < 2);         // comparison is nothrow
+    assert(C(1.0) < 2.0);       // comparison is nothrow
+    assert(C(1.0) < 2.0);       // comparison is nothrow
+    static assert(!__traits(compiles, { C(1.0) < "a"; })); // cannot compare with string
 }
 
 /// if types have CommonType comparison is nothrow @nogc

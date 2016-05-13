@@ -516,12 +516,12 @@ struct BinaryRadixTree(Value,
             import std.range : empty;
             import std.algorithm : commonPrefix;
 
-            const bkeyChunk = bkey[bix .. $];
+            const subkey = bkey[bix .. $];
 
-            if (bkeyChunk.empty) { return Node(curr); }
+            if (subkey.empty) { return Node(curr); }
 
-            const matchedChunks = commonPrefix(curr.data, bkeyChunk); // TODO avoid allocation if commonPrefix allocates
-            if (bkey.length != matchedChunks.length) // if bkeyChunk not found
+            const matchedChunks = commonPrefix(curr.data, subkey); // TODO avoid allocation if commonPrefix allocates
+            if (bkey.length != matchedChunks.length) // if subkey not found
             {
                 auto br = construct!DefaultBranchType; // create new branch
 
@@ -549,7 +549,7 @@ struct BinaryRadixTree(Value,
                     }
                 }
             }
-            else // bkeyChunk already stored, that is: bkey.length == matchedChunks.length
+            else // subkey already stored, that is: bkey.length == matchedChunks.length
             {
                 return Node(curr); // already stored at `curr`
             }

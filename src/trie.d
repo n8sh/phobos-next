@@ -555,13 +555,13 @@ struct BinaryRadixTree(Value,
 
             if (subkey.empty) { return Node(curr); }
 
-            const matchedChunks = commonPrefix(curr.data, subkey); // TODO avoid allocation if commonPrefix allocates
-            if (bkey.length != matchedChunks.length) // if subkey not found
+            const matchedPrefix = commonPrefix(curr.data, subkey); // TODO avoid allocation if commonPrefix allocates
+            if (bkey.length != matchedPrefix.length) // if subkey not found
             {
                 auto br = construct!DefaultBranchType; // create new branch
 
                 import std.range : empty;
-                if (matchedChunks.empty) // no common prefix
+                if (matchedPrefix.empty) // no common prefix
                 {
                     // TODO functionize
                     const branchIxM = curr.front; // first index is index into branch `subNodes`
@@ -574,13 +574,14 @@ struct BinaryRadixTree(Value,
                 {
                     dln("curr.data: ", curr.data);
                     dln("subkey: ", subkey);
-                    dln("matchedChunks: ", matchedChunks);
+                    dln("matchedPrefix: ", matchedPrefix);
+                    br.prefix[] = matchedPrefix;
                     assert(false, "TODO put common part in br.prefix: ");
-                    if (bkey.length < matchedChunks.length)
+                    if (bkey.length < matchedPrefix.length)
                     {
                         assert(false, "TODO");
                     }
-                    else if (bkey.length > matchedChunks.length)
+                    else if (bkey.length > matchedPrefix.length)
                     {
                         assert(false, "TODO");
                     }
@@ -590,7 +591,7 @@ struct BinaryRadixTree(Value,
                     }
                 }
             }
-            else // subkey already stored, that is: bkey.length == matchedChunks.length
+            else // subkey already stored, that is: bkey.length == matchedPrefix.length
             {
                 return Node(curr); // already stored at `curr`
             }

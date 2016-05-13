@@ -508,6 +508,8 @@ nothrow unittest
     string[C] a;
     a[C(1.0f)] = "1.0f";
     a[C(2.0)] = "2.0";
+    assert(a[C(1.0f)] == "1.0f");
+    assert(a[C(2.0)] == "2.0");
 }
 
 /// verify nothrow comparisons

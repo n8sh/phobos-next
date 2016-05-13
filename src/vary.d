@@ -387,7 +387,6 @@ public:
             {
                 static assert(allowsAssignmentFrom!U, // TODO relax to allowsComparisonWith!U
                               "Cannot compare " ~ VaryN.stringof ~ " with " ~ U.stringof);
-
                 if (!isOfType!U)
                 {
                     throw new VaryNException("Cannot compare " ~ VaryN.stringof ~ " with " ~ U.stringof);

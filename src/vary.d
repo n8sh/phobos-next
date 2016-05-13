@@ -69,9 +69,11 @@ public:
     static assert(allSatisfy!(isAllowedVaryType, Types),
                   "Cannot store some of the types " ~ Types.stringof ~ " in a " ~ name);
 
-    enum bool allows(T) = ((N == 0 ||
-                            indexOf!(T) >= 0 ||
-                            ((!hasIndirections!T) && indexOf!(Unqual!T) >= 0))); // ok to remove constness of value types
+    /** `true` if `U` is allowed to be assigned to `this` */
+    enum bool allowsAssignmentFrom(U) = ((N == 0 ||
+                                          indexOf!(U) >= 0 ||      // either direct match or
+                                          ((!hasIndirections!U) && // no indirections and
+                                           indexOf!(Unqual!U) >= 0))); // ok to remove constness of value types
 
     // Use same as staticIndexOf
     template staticAssignableTypeIndexOf(U)
@@ -143,16 +145,16 @@ public:
     }
 
     this(T)(T value) @safe @nogc nothrow
-        if (allows!T)
+        if (allowsAssignmentFrom!T)
     {
-        // static assert(allows!T, "Cannot store a " ~ T.stringof ~ " in a " ~ name ~ ", valid types are " ~ Types.stringof);
+        // static assert(allowsAssignmentFrom!T, "Cannot store a " ~ T.stringof ~ " in a " ~ name ~ ", valid types are " ~ Types.stringof);
         init(value);
     }
 
     VaryN opAssign(T)(T that) @trusted @nogc nothrow
-        if (allows!T)
+        if (allowsAssignmentFrom!T)
     {
-        // static assert(allows!T, "Cannot store a " ~ T.stringof ~ " in a " ~ name ~ ", valid types are " ~ Types.stringof);
+        // static assert(allowsAssignmentFrom!T, "Cannot store a " ~ T.stringof ~ " in a " ~ name ~ ", valid types are " ~ Types.stringof);
         if (hasValue) clearDataIndirections;
         init(that);
         return this;
@@ -182,8 +184,7 @@ public:
     {
         alias U = Unqual!T;
         static if (!is(U == void))
-            static assert(allows!U, "Cannot store a " ~ U.stringof
-                          ~ " in a " ~ name);
+            static assert(allowsAssignmentFrom!U, "Cannot store a " ~ U.stringof ~ " in a " ~ name);
         if (!isOfType!U) return null;
         return cast(inout U*)&_data; // TODO alignment
     }
@@ -319,7 +320,7 @@ public:
         bool opEquals(T)(in T that) const @trusted nothrow
         {
             // TODO assert failure only if none of the Types isComparable to T
-            static assert (allows!T,
+            static assert (allowsAssignmentFrom!T,
                            "Cannot equal any possible type of " ~ VaryN.stringof ~
                            " with " ~ T.stringof);
 
@@ -364,7 +365,8 @@ public:
 
         int opCmp(U)(in U that) const @trusted
         {
-            static assert (allows!U, "Cannot compare " ~ VaryN.stringof ~ " with " ~ U.stringof);
+            static assert (allowsAssignmentFrom!U, // TODO relax to allowsComparisonWith!U
+                           "Cannot compare " ~ VaryN.stringof ~ " with " ~ U.stringof);
 
             static if (haveCommonType!Types)
             {
@@ -435,9 +437,9 @@ pure:
     FastVariant!(float, double) a = 1.0;
 
     static assert(!a.hasFixedSize);
-    static assert(a.allows!float);
-    static assert(a.allows!double);
-    static assert(!a.allows!string);
+    static assert(a.allowsAssignmentFrom!float);
+    static assert(a.allowsAssignmentFrom!double);
+    static assert(!a.allowsAssignmentFrom!string);
 
     a.clear;
     assert(!a.hasValue);
@@ -521,9 +523,9 @@ unittest
                         int, float,
                         long, double, Date, TimeOfDay);
 
-    static assert(C.allows!int);
-    static assert(!C.allows!(int[2]));
-    static assert(C.allows!(const(int)));
+    static assert(C.allowsAssignmentFrom!int);
+    static assert(!C.allowsAssignmentFrom!(int[2]));
+    static assert(C.allowsAssignmentFrom!(const(int)));
 
     static assert(C.dataMaxSize == string.sizeof);
     static assert(!__traits(compiles, { assert(d == 'a'); }));

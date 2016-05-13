@@ -431,12 +431,12 @@ struct BinaryRadixTree(Value,
                         wasAdded = true;
                         return Node(currPLf);
                     }
-                    else
+                    else // subkey doesn't fit in a PLf
                     {
                         BrM* br = construct!(BrM*);
-                        br.prefix[] = subkey[0 .. subkey.length - PLf.maxLength];
+                        br.prefix[] = subkey[0 .. subkey.length - PLf.maxLength]; // so extract prefix that doesn't fit in PLf into BrM
                         bix += br.prefix.length;
-                        curr = Node(br);
+                        curr = Node(br); // use this branch below in this function to insert into
                     }
                 }
             }

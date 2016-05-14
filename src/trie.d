@@ -82,6 +82,14 @@ alias BIx = uint;
 alias BKey(size_t radixPow2) = Mod!(2^^radixPow2)[]; // TODO use bitset to more naturally support radixPow2 != 8
 alias BKeyN(size_t radixPow2, size_t N) = Mod!(2^^radixPow2)[N];
 
+enum cacheLineSize = 64;
+
+shared static this()
+{
+    import core.cpuid;
+    assert(cacheLineSize == dataCaches()[0].lineSize, "Cache line is not 64 bytes");
+}
+
 /** Radix tree container storing keys of type `Key`.
 
     In set-case (`Value` is `void`) this container is especially suitable for

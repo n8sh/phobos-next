@@ -276,13 +276,6 @@ struct RawRadixTree(Value,
         bool hit;
     }
 
-    /** Tree Range. */
-    struct Range
-    {
-        It low;                 // start
-        It high;                // beyond last
-    }
-
     // TODO move these definitions inside branch definitions?
 
     /** M-Branch population histogram.

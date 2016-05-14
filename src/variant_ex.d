@@ -48,7 +48,7 @@ static private template bitsNeeeded(size_t length)
  */
 struct WordVariant(Types...)
 {
-    static assert(this.sizeof == size_t.sizeof, `Types must all <= size_t.sizeof`);
+    static assert(this.sizeof == (void*).sizeof); // should have same size as pointer
 
     alias S = size_t; // TODO templatize?
 

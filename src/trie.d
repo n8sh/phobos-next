@@ -927,7 +927,8 @@ auto check(size_t radixPow2, Keys...)()
         foreach (Key; Keys)
         {
             dln("Key: ", Key.stringof);
-            auto set = radixTreeSet!(Key, radixPow2);
+            alias Tree = radixTreeSet!(Key, radixPow2);
+            auto set = Tree;
             assert(set.empty);
 
             static assert(set.isSet);
@@ -939,6 +940,7 @@ auto check(size_t radixPow2, Keys...)()
             const length = high - low + 1;
 
             const useContains = false;
+            size_t cnt = 0;
             foreach (const uk; low.iota(high + 1))
             {
                 const Key k = cast(Key)uk;
@@ -950,6 +952,12 @@ auto check(size_t radixPow2, Keys...)()
                 }
 
                 assert(set.insertAt(k));  // insertAt new value returns `true` (previously not in set)
+                switch (cnt)             // if first
+                {
+                case 0: assert(set._root.peek!(Tree.PLf)); break;
+                case 1: assert(set._root.peek!(Tree.BrM*)); break;
+                default: break;
+                }
                 assert(!set.insertAt(k)); // reinsert same value returns `false` (already in set)
                 assert(!set.insertAt(k)); // reinsert same value returns `false` (already in set)
 
@@ -960,6 +968,7 @@ auto check(size_t radixPow2, Keys...)()
                     if (k != Key.max)        // except last value
                         assert(!set.contains(cast(Key)(k + 1))); // next key is not yet in set
                 }
+                ++cnt;
             }
 
             assert(set.length == length);

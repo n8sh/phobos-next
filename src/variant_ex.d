@@ -182,47 +182,47 @@ pure nothrow unittest
                             float*, double*, real*,
                             char*, wchar*, dchar*);
 
-    alias VP = WordVariant!Types;
+    alias V = WordVariant!Types;
 
-    VP vp;
-    assert(vp.isNull);
-    vp = null;
-    assert(vp.isNull);
-    assert(!vp);
+    V v;
+    assert(v.isNull);
+    v = null;
+    assert(v.isNull);
+    assert(!v);
 
     foreach (Tp; Types)
     {
         alias T = typeof(*Tp.init);
 
-        static assert(!__traits(compiles, { T[] a; vp = &a; }));
-        static assert(!__traits(compiles, { vp.peek!(T[]*); }));
+        static assert(!__traits(compiles, { T[] a; v = &a; }));
+        static assert(!__traits(compiles, { v.peek!(T[]*); }));
 
         // assignment from stack pointer
         T a = 73;
         T a_ = 73;
 
-        vp = &a;
-        assert(vp);
-        assert(!vp.isNull);
-        assert(vp.typeIndex != 0);
-        assert(vp.isOfType!Tp);
+        v = &a;
+        assert(v);
+        assert(!v.isNull);
+        assert(v.typeIndex != 0);
+        assert(v.isOfType!Tp);
 
-        assert(vp == &a);
-        assert(vp != &a_);
-        assert(vp);
+        assert(v == &a);
+        assert(v != &a_);
+        assert(v);
 
         foreach (Up; Types)
         {
             alias U = typeof(*Up.init);
             static if (is(T == U))
             {
-                assert(vp.peek!Up);
-                assert(*(vp.peek!Up) == &a);
-                assert(vp.as!Up == &a);
+                assert(v.peek!Up);
+                assert(*(v.peek!Up) == &a);
+                assert(v.as!Up == &a);
             }
             else
             {
-                assert(!vp.peek!Up);
+                assert(!v.peek!Up);
             }
         }
 
@@ -231,21 +231,21 @@ pure nothrow unittest
         T* b_ = new T;
         *b = 73;
         *b_ = 73;
-        vp = b;
-        assert(vp == b);
-        assert(vp != b_);
-        assert(vp);
+        v = b;
+        assert(v == b);
+        assert(v != b_);
+        assert(v);
         foreach (Up; Types)
         {
             alias U = typeof(*Up.init);
             static if (is(T == U))
             {
-                assert(vp.peek!Up);
-                assert(*(vp.peek!Up) == b);
+                assert(v.peek!Up);
+                assert(*(v.peek!Up) == b);
             }
             else
             {
-                assert(!vp.peek!Up);
+                assert(!v.peek!Up);
             }
         }
 
@@ -359,36 +359,36 @@ pure nothrow unittest
                             float, double, real,
                             char, wchar, dchar);
 
-    alias VP = VariantPointerTo!Types;
+    alias V = VariantPointerTo!Types;
 
-    VP vp;
-    assert(vp.isNull);
-    vp = null;
-    assert(vp.isNull);
-    assert(!vp);
+    V v;
+    assert(v.isNull);
+    v = null;
+    assert(v.isNull);
+    assert(!v);
 
     foreach (T; Types)
     {
-        static assert(!__traits(compiles, { T[] a; vp = &a; }));
-        static assert(!__traits(compiles, { vp.peek!(T[]*); }));
+        static assert(!__traits(compiles, { T[] a; v = &a; }));
+        static assert(!__traits(compiles, { v.peek!(T[]*); }));
 
         // assignment from stack pointer
         T a = 73;
         T a_ = 73;
-        vp = &a;
-        assert(vp == &a);
-        assert(vp != &a_);
-        assert(vp);
+        v = &a;
+        assert(v == &a);
+        assert(v != &a_);
+        assert(v);
         foreach (U; Types)
         {
             static if (is(T == U))
             {
-                assert(vp.peek!U);
-                assert(*(vp.peek!U) == a);
+                assert(v.peek!U);
+                assert(*(v.peek!U) == a);
             }
             else
             {
-                assert(!vp.peek!U);
+                assert(!v.peek!U);
             }
         }
 
@@ -397,20 +397,20 @@ pure nothrow unittest
         T* b_ = new T;
         *b = 73;
         *b_ = 73;
-        vp = b;
-        assert(vp == b);
-        assert(vp != b_);
-        assert(vp);
+        v = b;
+        assert(v == b);
+        assert(v != b_);
+        assert(v);
         foreach (U; Types)
         {
             static if (is(T == U))
             {
-                assert(vp.peek!U);
-                assert(*(vp.peek!U) == *b);
+                assert(v.peek!U);
+                assert(*(v.peek!U) == *b);
             }
             else
             {
-                assert(!vp.peek!U);
+                assert(!v.peek!U);
             }
         }
 

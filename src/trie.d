@@ -16,8 +16,6 @@
     - BrM: IxMs commonPrefix. IxMs is 7-byte BitSet.
     - SBr02: IxMs commonPrefix. IxMs is 7-byte BitSet.
 
-    TODO Merge bkey and bix into bkey. Remove range checking by slicing using bkey.ptr[0 .. ]
-
     TODO tuple keys are mapped to a ubyte array aliased to a raw/binary
     BKey. Need trait to figure if all expanded members are fixed-sized then key
     will be that aswell.

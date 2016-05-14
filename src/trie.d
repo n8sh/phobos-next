@@ -822,6 +822,7 @@ struct RadixTree(Key, Value, size_t radixPow2 = 4)
         static if (isFixedTrieableKeyType!Key)
         {
             const ukey = key.bijectToUnsigned;
+            show!ukey;
             enum nbits = 8*ukey.sizeof;
             enum chunkCount = nbits/radixPow2;
 
@@ -838,7 +839,6 @@ struct RadixTree(Key, Value, size_t radixPow2 = 4)
         }
         else
         {
-            BKey!radixPow2 bkey;
             assert(false, "TODO");
         }
 

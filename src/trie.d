@@ -84,8 +84,8 @@ alias BKeyN(size_t radixPow2, size_t N) = Mod!(2^^radixPow2)[N];
 
 /** Size of a CPU cache line in bytes.
 
-    Tree storage should be adapted to make use at least these many bytes in
-    container tree nodes.
+    Container layouts should be adapted to make use of at least this many bytes
+    in its nodes.
  */
 enum cacheLineSize = 64;
 

@@ -123,7 +123,7 @@ pragma(inline):
         return x && *x == that; // and is equal to it
     }
 
-    bool isNull() const { return _raw == 0; }
+    bool isNull() const { return _raw == S.init; }
 
     bool opCast(T : bool)() const { return !isNull; }
 

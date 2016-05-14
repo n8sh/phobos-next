@@ -137,16 +137,14 @@ struct RawRadixTree(Value,
             {
                 enum maxLength = (size_t.sizeof - 2) / IxM.sizeof;
 
-                this(IxM[] arg)
-                in
+                this(IxM[] key_)
                 {
-                    assert(arg.length != 0);
-                    assert(arg.length <= maxLength);
-                }
-                body
-                {
-                    suffix[0 .. arg.length] = arg;
-                    length = arg.length;
+                    assert(key_.length != 0);
+                    assert(key_.length <= maxLength);
+
+                    this.suffix[0 .. key_.length] = key_;
+                    this.length = key_.length;
+                    this._mustBeIgnored = 0;
                 }
 
                 @property auto toString() const
@@ -172,22 +170,31 @@ struct RawRadixTree(Value,
                 {
                     assert(!empty);
                     suffix[0 .. length - 1] = suffix[1 .. length]; // shift out first
-                    length = length - 1;
+                    --length;
+                    assert(!empty, "empty!");
                 }
 
-                static if (isMap)
+                void popBack()
                 {
-                    static if (is(Value == bool))
-                        static assert(false, "TODO store bit packed");
-                    else
-                        Value[maxLength] values;
+                    assert(!empty);
+                    --length;
+                    assert(!empty, "empty!");
                 }
+
                 auto ref data() { return suffix[0 .. length]; }
 
             private:
                 IxM[maxLength] suffix;
-                Mod!(maxLength + 1) length;
+                Mod!(maxLength + 1, ubyte) length;
                 ubyte _mustBeIgnored; // this byte must be ignored because it contains Node-type
+
+                // static if (isMap)
+                // {
+                //     static if (is(Value == bool))
+                //         static assert(false, "TODO store bit packed");
+                //     else
+                //         Value[maxLength] values;
+                // }
             }
             struct PLfs
             {
@@ -195,16 +202,16 @@ struct RawRadixTree(Value,
                 IxM[maxLength] ixMs;
                 ubyte length;
                 ubyte _mustBeIgnored; // this byte must be ignored because it contains Node-type
-                static if (isMap)
-                {
-                    static if (is(Value == bool))
-                    {
-                        import bitset : BitSet;
-                        BitSet!maxLength values; // memory-efficient storage of `bool` values
-                    }
-                    else
-                        Value[maxLength] values;
-                }
+                // static if (isMap)
+                // {
+                //     static if (is(Value == bool))
+                //     {
+                //         import bitset : BitSet;
+                //         BitSet!maxLength values; // memory-efficient storage of `bool` values
+                //     }
+                //     else
+                //         Value[maxLength] values;
+                // }
             }
         }
 
@@ -235,14 +242,9 @@ struct RawRadixTree(Value,
     static if (isSet)
         static assert(PLfs.sizeof == size_t.sizeof); // assert that it's size matches platform word-size
 
-    /** Indicate that all leaves in this branch are set (denseness compression) */
-    struct All1 {}
-
     /** Node types. */
     alias NodeTypes = AliasSeq!(PLf, // dense leaf
                                 PLfs, // sparse leaves
-
-                                All1, // hinter
 
                                 // sparse branches
                                 Br2*,
@@ -250,21 +252,6 @@ struct RawRadixTree(Value,
                                 BrM*,  // dense branches
 
                                 LfM*); // dense leaves
-
-    // static if (isSet)
-    // {
-    //     pragma(msg, "Set Br2.sizeof: ", Br2.sizeof);
-    //     pragma(msg, "Set BrM.sizeof: ", BrM.sizeof);
-    //     pragma(msg, "Set LfM.sizeof: ", LfM.sizeof);
-    //     pragma(msg, "Set PLfs.sizeof: ", PLfs.sizeof);
-    // }
-    // else
-    // {
-    //     pragma(msg, "Map Br2.sizeof: ", Br2.sizeof);
-    //     pragma(msg, "Map BrM.sizeof: ", BrM.sizeof);
-    //     pragma(msg, "Map LfM.sizeof: ", LfM.sizeof);
-    //     pragma(msg, "Set PLfs.sizeof: ", PLfs.sizeof);
-    // }
 
     /** Mutable node. */
     alias Node = WordVariant!NodeTypes;
@@ -468,7 +455,6 @@ struct RawRadixTree(Value,
                 case ix_Br2Ptr: return insertAt(curr.as!(Br2*), key, wasAdded);
                 case ix_BrMPtr: return insertAt(curr.as!(BrM*), key, wasAdded);
                 case ix_LfMPtr: return insertAt(curr.as!(LfM*), key, wasAdded);
-                case ix_All1:   auto curr_ = curr.as!All1; break;
                 }
                 assert(false);
             }
@@ -745,7 +731,6 @@ struct RawRadixTree(Value,
                 case undefined: break;
                 case ix_PLf: return release(curr.as!(PLf));
                 case ix_PLfs: return release(curr.as!(PLfs));
-                case ix_All1: break;
                 case ix_Br2Ptr: return release(curr.as!(Br2*));
                 case ix_BrMPtr: return release(curr.as!(BrM*));
                 case ix_LfMPtr: return release(curr.as!(LfM*));
@@ -805,7 +790,6 @@ static private void calculate(Value, size_t radixPow2)(RawRadixTree!(Value, radi
         case undefined: break;
         case ix_PLf: break; // TODO calculate()
         case ix_PLfs: break; // TODO calculate()
-        case ix_All1: break;
         case ix_Br2Ptr: sub.as!(RT.Br2*).calculate(stats); break;
         case ix_BrMPtr: sub.as!(RT.BrM*).calculate(stats); break;
         case ix_LfMPtr: sub.as!(RT.LfM*).calculate(stats); break;
@@ -827,7 +811,7 @@ struct RadixTree(Key, Value, size_t radixPow2 = 4)
         static if (isFixedTrieableKeyType!Key)
         {
             const ukey = typedKey.bijectToUnsigned;
-             show!ukey;
+            show!ukey;
             enum nbits = 8*ukey.sizeof;
             enum chunkCount = nbits/radixPow2;
 
@@ -1059,7 +1043,6 @@ void benchmark(size_t radixPow2)()
                     case undefined: break;
                     case ix_PLf:   bytesUsed = pop*Set.PLf.sizeof; break;
                     case ix_PLfs:   bytesUsed = pop*Set.PLfs.sizeof; break;
-                    case ix_All1:   bytesUsed = pop*Set.All1.sizeof; break;
                     case ix_Br2Ptr: bytesUsed = pop*Set.Br2.sizeof; break;
                     case ix_BrMPtr: bytesUsed = pop*Set.BrM.sizeof; break;
                     case ix_LfMPtr: bytesUsed = pop*Set.LfM.sizeof; break;

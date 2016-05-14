@@ -92,6 +92,28 @@ template Mod(size_t m, T = DefaultTypeOfModulo!m)
             this.x = cast(T)rhs.x; // cannot overflow
         }
 
+        auto opUnary(string op, string file = __FILE__, int line = __LINE__)()
+        {
+            static      if (op == "+")
+            {
+                return this;
+            }
+            else static if (op == "--")
+            {
+                if (x == min) x = max; else --x;
+                return this;
+            }
+            else static if (op == "++")
+            {
+                if (x == max) x = min; else ++x;
+                return this;
+            }
+            else
+            {
+                static assert("Unsupported unary operator ", op);
+            }
+        }
+
         @property size_t _prop() const { return x; } // read-only access
         alias _prop this;
 
@@ -136,6 +158,11 @@ auto mod(size_t m, T)(T value)
 
     assert(y == 5);
     assert(y != 0);
+
+    y++;
+    assert(y == 6);
+    assert(++y == 7);
+    assert(y == 7);
 
     Mod!(8, uint) ui8 = 7;
     Mod!(256, ubyte) ub256 = 255;

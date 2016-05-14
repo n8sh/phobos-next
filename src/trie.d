@@ -49,7 +49,7 @@
 module trie;
 
 import std.traits : isIntegral, isSomeChar, isSomeString, isScalarType, isArray, allSatisfy, anySatisfy, isPointer;
-import std.typecons : tuple, Tuple;
+import std.typecons : tuple, Tuple, Unqual;
 import std.range : isInputRange, ElementType;
 
 import bijections : isIntegralBijectableType, bijectToUnsigned;
@@ -836,6 +836,18 @@ struct RadixTree(Key, Value, size_t radixPow2 = 4)
                     bkey[bix] = (ukey >> bitShift) & (M - 1); // part of value which is also an index
                 }
             }
+        }
+        else static if (is(Unqual!Key == string))
+        {
+            const ubyte[] bkey = Key.representation;
+        }
+        else static if (is(Unqual!Key == wstring))
+        {
+            const ushort[] bkey = Key.representation;
+        }
+        else static if (is(Unqual!Key == dstring))
+        {
+            const uint[] bkey = Key.representation;
         }
         else
         {

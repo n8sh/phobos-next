@@ -48,7 +48,9 @@ static private template bitsNeeeded(size_t length)
  */
 struct WordVariant(Types...)
 {
-    static assert(this.sizeof == (void*).sizeof); // should have same size as pointer
+    import traits_ex : allSame, sizesOf;
+    static assert(allSame!(sizesOf!(Types)), "ff");
+    static assert(this.sizeof == (void*).sizeof, "Size must be same as word (pointer)");
 
     alias S = size_t; // TODO templatize?
 
@@ -257,7 +259,7 @@ pure nothrow unittest
  */
 struct VariantPointerTo(Types...)
 {
-    static assert(this.sizeof == (void*).sizeof); // should have same size as pointer
+    static assert(this.sizeof == (void*).sizeof, "Size must be same as word (pointer)");
 
     alias S = size_t; // TODO templatize?
 

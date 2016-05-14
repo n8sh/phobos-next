@@ -144,7 +144,6 @@ struct RawRadixTree(Value,
 
                     this.suffix[0 .. key_.length] = key_;
                     this.length = key_.length;
-                    this._mustBeIgnored = 0;
                 }
 
                 @property auto toString() const
@@ -186,7 +185,7 @@ struct RawRadixTree(Value,
             private:
                 IxM[maxLength] suffix;
                 Mod!(maxLength + 1, ubyte) length;
-                ubyte _mustBeIgnored; // this byte must be ignored because it contains Node-type
+                ubyte _mustBeIgnored = 0; // this byte must be ignored because it contains Node-type
 
                 // static if (isMap)
                 // {
@@ -201,7 +200,7 @@ struct RawRadixTree(Value,
                 enum maxLength = (size_t.sizeof - 2) / IxM.sizeof;
                 IxM[maxLength] ixMs;
                 ubyte length;
-                ubyte _mustBeIgnored; // this byte must be ignored because it contains Node-type
+                ubyte _mustBeIgnored = 0; // this byte must be ignored because it contains Node-type
                 // static if (isMap)
                 // {
                 //     static if (is(Value == bool))

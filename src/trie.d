@@ -136,9 +136,18 @@ struct RawRadixTree(Value,
             struct PLf
             {
                 enum maxLength = (size_t.sizeof - 2) / IxM.sizeof;
-                IxM[maxLength] suffix;
-                Mod!(maxLength + 1) length;
-                ubyte _mustBeIgnored; // this byte must be ignored because it contains Node-type
+
+                this(IxM[] arg)
+                in
+                {
+                    assert(arg.length != 0);
+                    assert(arg.length <= maxLength);
+                }
+                body
+                {
+                    suffix[0 .. arg.length] = arg;
+                    length = arg.length;
+                }
 
                 @property auto toString() const
                 {
@@ -174,6 +183,11 @@ struct RawRadixTree(Value,
                         Value[maxLength] values;
                 }
                 auto ref data() { return suffix[0 .. length]; }
+
+            private:
+                IxM[maxLength] suffix;
+                Mod!(maxLength + 1) length;
+                ubyte _mustBeIgnored; // this byte must be ignored because it contains Node-type
             }
             struct PLfs
             {
@@ -338,7 +352,7 @@ struct RawRadixTree(Value,
     /** Sparse/Packed 2-Branch. */
     static private struct Br2
     {
-        IxM prefix;
+        IxM[] prefix;
         bool occupied;
 
         enum N = 2; // TODO make this a CT-param
@@ -469,7 +483,7 @@ struct RawRadixTree(Value,
         body
         {
             import std.range : empty;
-            if (key.empty)
+            if (curr.prefix == key)
             {
                 if (!curr.occupied) { wasAdded = true; }
                 curr.occupied = true;
@@ -513,7 +527,7 @@ struct RawRadixTree(Value,
         body
         {
             import std.range : empty;
-            if (key.empty)
+            if (curr.prefix == key)
             {
                 if (!curr.occupied) { wasAdded = true; }
                 curr.occupied = true;

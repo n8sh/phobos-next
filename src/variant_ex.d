@@ -42,9 +42,6 @@ static private template bitsNeeeded(size_t length)
     Suitable for use in tree-data containers, such as radix trees (tries), where
     hybrid value (sparsely packed sub-tree) and pointer (to dense sub-tree)
     packing of sub-nodes is needed.
-
-    TODO assert that each type in `Types` is either a pointer or has size <=
-    8*size_t.sizeof - typeBits
  */
 struct WordVariant(Types...)
 {

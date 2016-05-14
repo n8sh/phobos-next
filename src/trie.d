@@ -844,10 +844,12 @@ struct RadixTree(Key, Value, size_t radixPow2 = 4)
         else static if (is(Unqual!Key == wstring))
         {
             const ushort[] bkey = Key.representation;
+            assert(false, "TODO convert bkey to ubyte[]");
         }
         else static if (is(Unqual!Key == dstring))
         {
             const uint[] bkey = Key.representation;
+            assert(false, "TODO convert bkey to ubyte[]");
         }
         else
         {

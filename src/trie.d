@@ -79,8 +79,8 @@ extern(C) pure nothrow @system /* TODO @nogc */
 alias BIx = uint;
 
 /** Raw Internal (Unsigned Integer) Binary Key. */
-alias BKey(size_t radixPow2) = Mod!(2^^radixPow2)[]; // TODO use bitset to more naturally support radixPow2 != 8
-alias BKeyN(size_t radixPow2, size_t N) = Mod!(2^^radixPow2)[N];
+alias Key(size_t radixPow2) = Mod!(2^^radixPow2)[]; // TODO use bitset to more naturally support radixPow2 != 8
+alias KeyN(size_t radixPow2, size_t N) = Mod!(2^^radixPow2)[N];
 
 /** Size of a CPU cache line in bytes.
 
@@ -95,7 +95,7 @@ shared static this()
     assert(cacheLineSize == dataCaches()[0].lineSize, "Cache line is not 64 bytes");
 }
 
-/** Raw radix tree container storing untyped variable-length keys using `BKey`.
+/** Raw radix tree container storing untyped variable-length keys using `Key`.
 
     In set-case (`Value` is `void`) this container is especially suitable for
     representing a set of 32 or 64 integers/pointers.
@@ -217,8 +217,8 @@ struct RawRadixTree(Value,
         alias DefaultRootType = Br2*;
     }
 
-    alias DefaultBranchType = DefaultRootType;
-    alias DefaultLeafType = PLfs; // TODO use either LfM* or PLfs instead
+    alias DefaultBr = DefaultRootType;
+    alias DefaultLf = PLfs; // TODO use either LfM* or PLfs instead
 
     static if (isSet)
         static assert(PLfs.sizeof == size_t.sizeof); // assert that it's size matches platform word-size
@@ -415,13 +415,13 @@ struct RawRadixTree(Value,
     @safe pure nothrow /* TODO @nogc */
     {
         /** Insert `bkey` into `this` tree. */
-        pragma(inline) Node insert(BKey!radixPow2 bkey, out bool wasAdded)
+        pragma(inline) Node insert(Key!radixPow2 bkey, out bool wasAdded)
         {
             return _root = insertAt(_root, bkey, wasAdded);
         }
 
         /** Insert `bkey` into sub-tree under root `curr`. */
-        pragma(inline) Node insertAt(Node curr, BKey!radixPow2 bkey, out bool wasAdded) // Node-polymorphic
+        pragma(inline) Node insertAt(Node curr, Key!radixPow2 bkey, out bool wasAdded) // Node-polymorphic
         {
             // TODO functionize and perhaps merge with constructSub
             if (!curr)          // if no curr yet
@@ -430,7 +430,7 @@ struct RawRadixTree(Value,
                 {
                     if (bkey.length <= PLf.maxLength)
                     {
-                        PLf currPLf = construct!PLf;
+                        PLf currPLf = construct!(PLf);
                         currPLf.suffix[0 .. bkey.length] = bkey;
                         currPLf.length = cast(ubyte)bkey.length; // TODO remove when value-range-propagation can limit bkey.length to (0 .. PLf.maxLength)
                         wasAdded = true;
@@ -463,7 +463,7 @@ struct RawRadixTree(Value,
         }
 
         /** Insert `bkey` into sub-tree under root `curr`. */
-        Node insertAt(Br2* curr, BKey!radixPow2 bkey, out bool wasAdded)
+        Node insertAt(Br2* curr, Key!radixPow2 bkey, out bool wasAdded)
         in
         {
             assert(!wasAdded);               // check that we haven't yet added it
@@ -506,7 +506,7 @@ struct RawRadixTree(Value,
             }
         }
 
-        Node insertAt(BrM* curr, BKey!radixPow2 bkey, out bool wasAdded)
+        Node insertAt(BrM* curr, Key!radixPow2 bkey, out bool wasAdded)
         in
         {
             assert(!wasAdded);               // check that we haven't yet added it
@@ -527,7 +527,7 @@ struct RawRadixTree(Value,
             return Node(curr);
         }
 
-        Node insertAt(LfM* curr, BKey!radixPow2 bkey, out bool wasAdded)
+        Node insertAt(LfM* curr, Key!radixPow2 bkey, out bool wasAdded)
         in
         {
             assert(!wasAdded);               // check that we haven't yet added it
@@ -547,7 +547,7 @@ struct RawRadixTree(Value,
             return Node(curr);
         }
 
-        Node insertAt(PLf curr, BKey!radixPow2 bkey, out bool wasAdded)
+        Node insertAt(PLf curr, Key!radixPow2 bkey, out bool wasAdded)
         in
         {
             assert(!wasAdded);               // check that we haven't yet added it
@@ -559,48 +559,40 @@ struct RawRadixTree(Value,
 
             if (bkey.empty) { return Node(curr); }
 
-            auto matchedPrefix = commonPrefix(curr.data, bkey); // TODO avoid allocation if commonPrefix allocates
-            if (bkey.length != matchedPrefix.length) // if bkey not found
+            auto prefix = commonPrefix(curr.data, bkey);
+            if (prefix.length == bkey.length) // bkey already stored
             {
-                auto br = construct!DefaultBranchType; // create new branch
-
-                import std.range : empty;
-                if (matchedPrefix.empty) // no common prefix
-                {
-                    // TODO functionize
-                    const branchIxM = curr.front; // first index is index into branch `subNodes`
-                    curr.popFront;                  // pop first index
-                    br.subNodes[branchIxM] = curr;
-
-                    return insertAt(br, bkey, wasAdded);
-                }
-                else
-                {
-                    dln("curr.data: ", curr.data);
-                    dln("bkey: ", bkey);
-                    dln("matchedPrefix: ", matchedPrefix);
-                    br.prefix = matchedPrefix[]; // TODO make matchedPrefix const and assign upon construction of br
-                    if (bkey.length < matchedPrefix.length)
-                    {
-                        assert(false, "TODO");
-                    }
-                    else if (bkey.length > matchedPrefix.length)
-                    {
-                        assert(false, "TODO");
-                    }
-                    else
-                    {
-                        assert(false, "Shouldn't happen");
-                    }
-                }
+                return Node(curr); // already stored in `curr`
             }
-            else // bkey already stored, that is: bkey.length == matchedPrefix.length
+            else
             {
-                return Node(curr); // already stored at `curr`
+                auto br = insertAt(splice(prefix, curr.data[prefix.length .. $]),
+                                   bkey[prefix.length .. $], wasAdded);
+                freeNode(curr);
+                return br;
             }
-       }
+        }
 
-        Node insertAt(PLfs curr, BKey!radixPow2 bkey, out bool wasAdded)
+        /** Create branch with key prefix `prefixBkey` containing one sub-node with
+            sub-key `suffixBKey`. */
+        Node splice(Key!radixPow2 prefixBkey,
+                    Key!radixPow2 suffixBkey)
+        in
+        {
+            import std.range : empty;
+        }
+        body
+        {
+            auto br = construct!(DefaultBr)(prefixBkey[]);
+
+            bool wasAdded;
+            auto node = insertAt(br, suffixBkey, wasAdded);
+            assert(wasAdded); // assure that existing key was reinserted
+
+            return node;
+        }
+
+        Node insertAt(PLfs curr, Key!radixPow2 bkey, out bool wasAdded)
         in
         {
             assert(!wasAdded);               // check that we haven't yet added it
@@ -638,19 +630,19 @@ struct RawRadixTree(Value,
         }
 
         /** Construct and return sub-Node at `bkey`.  */
-        Node constructSub(BKey!radixPow2 bkey)
+        Node constructSub(Key!radixPow2 bkey)
         {
             import std.range : empty;
             if (bkey.empty)
             {
-                return Node(construct!PLf);
+                return Node(construct!(PLf));
             }
             else
             {
                 const bool isLast = bkey.length == 1;
                 return (isLast ?
-                        Node(construct!DefaultLeafType) :
-                        Node(construct!DefaultBranchType));
+                        Node(construct!(DefaultLf)) :
+                        Node(construct!(DefaultBr)));
             }
         }
 
@@ -761,7 +753,7 @@ struct RawRadixTree(Value,
     /** Ensure that root `Node` is allocated. */
     void ensureRootNode(U = DefaultRootType)()
     {
-        if (!_root) { _root = construct!U; }
+        if (!_root) { _root = construct!(U); }
     }
 
     /// Returns: number of nodes used in `this` tree.
@@ -774,7 +766,7 @@ struct RawRadixTree(Value,
 }
 
 /** Get bix:th chunk of `radixPow2` number of bits. */
-static private Mod!(2^^radixPow2) bitsChunk(size_t radixPow2)(BKey!radixPow2 bkey) pure nothrow
+static private Mod!(2^^radixPow2) bitsChunk(size_t radixPow2)(Key!radixPow2 bkey) pure nothrow
 {
     enum mask = typeof(return).max;
     static if (radixPow2 == 8)
@@ -826,7 +818,7 @@ struct RadixTree(Key, Value, size_t radixPow2 = 4)
             enum nbits = 8*ukey.sizeof;
             enum chunkCount = nbits/radixPow2;
 
-            BKeyN!(radixPow2, Key.sizeof) bkey;
+            KeyN!(radixPow2, Key.sizeof) bkey;
 
             static if (radixPow2 == 8)
             {

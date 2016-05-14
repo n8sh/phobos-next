@@ -90,7 +90,7 @@ shared static this()
     assert(cacheLineSize == dataCaches()[0].lineSize, "Cache line is not 64 bytes");
 }
 
-/** Radix tree container storing keys of type `Key`.
+/** Raw radix tree container storing untyped variable-length keys using `BKey`.
 
     In set-case (`Value` is `void`) this container is especially suitable for
     representing a set of 32 or 64 integers/pointers.

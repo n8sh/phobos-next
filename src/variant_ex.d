@@ -46,7 +46,7 @@ static private template bitsNeeeded(size_t length)
 struct WordVariant(Types...)
 {
     import traits_ex : allSame, sizesOf;
-    static assert(allSame!(sizesOf!(Types)), "ff");
+    static assert(allSame!(sizesOf!(Types)), "Types must have equal size");
     static assert(this.sizeof == (void*).sizeof, "Size must be same as word (pointer)");
 
     alias S = size_t; // TODO templatize?

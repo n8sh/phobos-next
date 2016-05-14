@@ -954,8 +954,8 @@ auto check(size_t radixPow2, Keys...)()
                 assert(set.insertAt(k));  // insertAt new value returns `true` (previously not in set)
                 switch (cnt)             // if first
                 {
-                case 0: assert(set._root.peek!(Tree.PLf)); break; // first should result in a leaf
-                case 1: assert(set._root.peek!(Tree.BrM*)); break; // second should result in a branch
+                case 0: assert(set._root.peek!(Tree.PLf)); break; // first insert should result in a leaf
+                case 1: assert(set._root.peek!(Tree.BrM*)); break; // second insert should result in a branch
                 default: break;
                 }
                 assert(!set.insertAt(k)); // reinsert same value returns `false` (already in set)

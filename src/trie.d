@@ -82,7 +82,11 @@ alias BIx = uint;
 alias BKey(size_t radixPow2) = Mod!(2^^radixPow2)[]; // TODO use bitset to more naturally support radixPow2 != 8
 alias BKeyN(size_t radixPow2, size_t N) = Mod!(2^^radixPow2)[N];
 
-/** Size of a CPU cache line in bytes. */
+/** Size of a CPU cache line in bytes.
+
+    Tree storage should be adapted to make use at least these many bytes in
+    container tree nodes.
+ */
 enum cacheLineSize = 64;
 
 shared static this()

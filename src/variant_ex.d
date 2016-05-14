@@ -130,7 +130,7 @@ pragma(inline):
     private void init(T)(T that) @trusted
     in
     {
-        assert(!((*(cast(S*)(&that))) & typeMask), `Top-most bits of pointer are already occupied`); // TODO use enforce instead?
+        assert(!((*(cast(S*)(&that))) & typeMask), `Top-most bits of parameter is already occupied`); // TODO use enforce instead?
     }
     body
     {

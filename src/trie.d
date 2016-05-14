@@ -93,7 +93,7 @@ shared static this()
     assert(cacheLineSize == dataCaches()[0].lineSize, "Cache line is not 64 bytes");
 }
 
-/** Raw radix tree container storing untyped variable-length keys using `Key`.
+/** Raw radix tree container storing untyped variable-length keys of type `Key`.
 
     In set-case (`Value` is `void`) this container is especially suitable for
     representing a set of 32 or 64 integers/pointers.
@@ -813,7 +813,7 @@ struct RadixTree(Key, Value, size_t radixPow2 = 4)
         static if (isFixedTrieableKeyType!Key)
         {
             const ukey = typedKey.bijectToUnsigned;
-            show!ukey;
+             show!ukey;
             enum nbits = 8*ukey.sizeof;
             enum chunkCount = nbits/radixPow2;
 

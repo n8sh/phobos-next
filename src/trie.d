@@ -414,34 +414,33 @@ struct RawRadixTree(Value,
 
     @safe pure nothrow /* TODO @nogc */
     {
-        /** Insert `bix` part of `bkey` into tree. */
-        pragma(inline) Node insert(BKey!radixPow2 bkey, BIx bix, out bool wasAdded)
+        /** Insert `bkey` into `this` tree. */
+        pragma(inline) Node insert(BKey!radixPow2 bkey, out bool wasAdded)
         {
-            return _root = insertAt(_root, bkey, bix, wasAdded);
+            return _root = insertAt(_root, bkey, wasAdded);
         }
 
-        /** Insert `bix` part of `bkey` into tree with root node `curr`. */
-        pragma(inline) Node insertAt(Node curr, BKey!radixPow2 bkey, BIx bix, out bool wasAdded) // Node-polymorphic
+        /** Insert `bkey` into sub-tree under root `curr`. */
+        pragma(inline) Node insertAt(Node curr, BKey!radixPow2 bkey, out bool wasAdded) // Node-polymorphic
         {
             // TODO functionize and perhaps merge with constructSub
             if (!curr)          // if no curr yet
             {
                 static if (radixPow2 == 8)
                 {
-                    const subkey = bkey[bix .. $];     // TODO use bkey.ptr[bix .. $] when we know things work
-                    if (subkey.length <= PLf.maxLength)
+                    if (bkey.length <= PLf.maxLength)
                     {
                         PLf currPLf = construct!PLf;
-                        currPLf.suffix[0 .. subkey.length] = subkey;
-                        currPLf.length = cast(ubyte)subkey.length; // TODO remove when value-range-propagation can limit bkey.length to (0 .. PLf.maxLength)
+                        currPLf.suffix[0 .. bkey.length] = bkey;
+                        currPLf.length = cast(ubyte)bkey.length; // TODO remove when value-range-propagation can limit bkey.length to (0 .. PLf.maxLength)
                         wasAdded = true;
                         return Node(currPLf); // we're done so return directly
                     }
-                    else // subkey doesn't fit in a PLf
+                    else // bkey doesn't fit in a PLf
                     {
                         BrM* br = construct!(BrM*);
-                        br.prefix[] = subkey[0 .. subkey.length - PLf.maxLength]; // so extract prefix that doesn't fit in PLf into BrM
-                        bix += br.prefix.length;
+                        br.prefix[] = bkey[0 .. bkey.length - PLf.maxLength]; // so extract prefix that doesn't fit in PLf into BrM
+                        bkey = bkey[br.prefix.length .. $];
                         curr = Node(br); // use this branch below in this function to insert into
                     }
                 }
@@ -452,27 +451,27 @@ struct RawRadixTree(Value,
                 final switch (curr.typeIx)
                 {
                 case undefined: break;
-                case ix_PLf:    return insertAt(curr.as!(PLf), bkey, bix, wasAdded);
-                case ix_PLfs:   return insertAt(curr.as!(PLfs), bkey, bix, wasAdded);
-                case ix_Br2Ptr: return insertAt(curr.as!(Br2*), bkey, bix, wasAdded);
-                case ix_BrMPtr: return insertAt(curr.as!(BrM*), bkey, bix, wasAdded);
-                case ix_LfMPtr: return insertAt(curr.as!(LfM*), bkey, bix, wasAdded);
+                case ix_PLf:    return insertAt(curr.as!(PLf), bkey, wasAdded);
+                case ix_PLfs:   return insertAt(curr.as!(PLfs), bkey, wasAdded);
+                case ix_Br2Ptr: return insertAt(curr.as!(Br2*), bkey, wasAdded);
+                case ix_BrMPtr: return insertAt(curr.as!(BrM*), bkey, wasAdded);
+                case ix_LfMPtr: return insertAt(curr.as!(LfM*), bkey, wasAdded);
                 case ix_All1:   auto curr_ = curr.as!All1; break;
                 }
                 assert(false);
             }
         }
 
-        /** Insert `bix` part of `bkey` into tree with root node `curr`. */
-        Node insertAt(Br2* curr, BKey!radixPow2 bkey, BIx bix, out bool wasAdded)
+        /** Insert `bkey` into sub-tree under root `curr`. */
+        Node insertAt(Br2* curr, BKey!radixPow2 bkey, out bool wasAdded)
         in
         {
-            assert(bix <= bkey.length);
             assert(!wasAdded);               // check that we haven't yet added it
         }
         body
         {
-            if (bix == bkey.length)
+            import std.range : empty;
+            if (bkey.empty)
             {
                 if (!curr.occupied) { wasAdded = true; }
                 curr.occupied = true;
@@ -480,7 +479,7 @@ struct RawRadixTree(Value,
             }
             else
             {
-                const IxM chunk = bitsChunk!radixPow2(bkey, bix);
+                const IxM chunk = bitsChunk!radixPow2(bkey);
 
                 enum N = 2;         // branch-order, number of possible sub-nodes
                 foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
@@ -489,52 +488,53 @@ struct RawRadixTree(Value,
                     {
                         if (curr.subChunks[subIx] == chunk) // and matches chunk
                         {
-                            curr.subNodes[subIx] = insertAt(curr.subNodes[subIx], bkey, bix + 1, wasAdded);
+                            curr.subNodes[subIx] = insertAt(curr.subNodes[subIx], bkey[1 .. $], wasAdded);
                             return Node(curr);
                         }
                     }
                     else            // use first free sub
                     {
-                        curr.subNodes[subIx] = insertAt(constructSub(bkey, bix + 1), bkey, bix + 1, wasAdded); // use it
+                        auto subkey = bkey[1 .. $];
+                        curr.subNodes[subIx] = insertAt(constructSub(subkey), subkey, wasAdded); // use it
                         curr.subChunks[subIx] = chunk;
                         return Node(curr);
                     }
                 }
 
                 // if we got here all N sub-nodes are occupied so we need to expand
-                return insertAt(expand(curr), bkey, bix, wasAdded); // NOTE stay at same bix (depth)
+                return insertAt(expand(curr), bkey, wasAdded); // NOTE stay on same depth
             }
         }
 
-        Node insertAt(BrM* curr, BKey!radixPow2 bkey, BIx bix, out bool wasAdded)
+        Node insertAt(BrM* curr, BKey!radixPow2 bkey, out bool wasAdded)
         in
         {
-            assert(bix <= bkey.length);
             assert(!wasAdded);               // check that we haven't yet added it
         }
         body
         {
-            if (bix == bkey.length)
+            import std.range : empty;
+            if (bkey.empty)
             {
                 if (!curr.occupied) { wasAdded = true; }
                 curr.occupied = true;
             }
             else
             {
-                const IxM chunk = bitsChunk!radixPow2(bkey, bix);
-                curr.subNodes[chunk] = insertAt(curr.subNodes[chunk], bkey, bix + 1, wasAdded); // recurse
+                const IxM chunk = bitsChunk!radixPow2(bkey);
+                curr.subNodes[chunk] = insertAt(curr.subNodes[chunk], bkey[1 .. $], wasAdded); // recurse
             }
             return Node(curr);
         }
 
-        Node insertAt(LfM* curr, BKey!radixPow2 bkey, BIx bix, out bool wasAdded)
+        Node insertAt(LfM* curr, BKey!radixPow2 bkey, out bool wasAdded)
         in
         {
             assert(!wasAdded);               // check that we haven't yet added it
         }
         body
         {
-            const IxM chunk = bitsChunk!radixPow2(bkey, bix);
+            const IxM chunk = bitsChunk!radixPow2(bkey);
             if (!curr.keyLSBits[chunk])
             {
                 curr.keyLSBits[chunk] = true;
@@ -547,7 +547,7 @@ struct RawRadixTree(Value,
             return Node(curr);
         }
 
-        Node insertAt(PLf curr, BKey!radixPow2 bkey, BIx bix, out bool wasAdded)
+        Node insertAt(PLf curr, BKey!radixPow2 bkey, out bool wasAdded)
         in
         {
             assert(!wasAdded);               // check that we haven't yet added it
@@ -557,12 +557,10 @@ struct RawRadixTree(Value,
             import std.range : empty;
             import std.algorithm : commonPrefix;
 
-            const subkey = bkey[bix .. $];
+            if (bkey.empty) { return Node(curr); }
 
-            if (subkey.empty) { return Node(curr); }
-
-            auto matchedPrefix = commonPrefix(curr.data, subkey); // TODO avoid allocation if commonPrefix allocates
-            if (bkey.length != matchedPrefix.length) // if subkey not found
+            auto matchedPrefix = commonPrefix(curr.data, bkey); // TODO avoid allocation if commonPrefix allocates
+            if (bkey.length != matchedPrefix.length) // if bkey not found
             {
                 auto br = construct!DefaultBranchType; // create new branch
 
@@ -574,12 +572,12 @@ struct RawRadixTree(Value,
                     curr.popFront;                  // pop first index
                     br.subNodes[branchIxM] = curr;
 
-                    return insertAt(br, bkey, bix, wasAdded);
+                    return insertAt(br, bkey, wasAdded);
                 }
                 else
                 {
                     dln("curr.data: ", curr.data);
-                    dln("subkey: ", subkey);
+                    dln("bkey: ", bkey);
                     dln("matchedPrefix: ", matchedPrefix);
                     br.prefix = matchedPrefix[]; // TODO make matchedPrefix const and assign upon construction of br
                     if (bkey.length < matchedPrefix.length)
@@ -596,20 +594,20 @@ struct RawRadixTree(Value,
                     }
                 }
             }
-            else // subkey already stored, that is: bkey.length == matchedPrefix.length
+            else // bkey already stored, that is: bkey.length == matchedPrefix.length
             {
                 return Node(curr); // already stored at `curr`
             }
        }
 
-        Node insertAt(PLfs curr, BKey!radixPow2 bkey, BIx bix, out bool wasAdded)
+        Node insertAt(PLfs curr, BKey!radixPow2 bkey, out bool wasAdded)
         in
         {
             assert(!wasAdded);               // check that we haven't yet added it
         }
         body
         {
-            const IxM chunk = bitsChunk!radixPow2(bkey, bix);
+            const IxM chunk = bitsChunk!radixPow2(bkey);
 
             // TODO this is only marginally faster:
             // foreach (const i; iota!(0, curr.maxLength))
@@ -635,20 +633,21 @@ struct RawRadixTree(Value,
             }
             else
             {
-                return insertAt(expand(curr), bkey, bix, wasAdded); // NOTE stay at same bix (depth)
+                return insertAt(expand(curr), bkey, wasAdded); // NOTE stay at same (depth)
             }
         }
 
-        /** Construct and return sub-Node at `bix` in `bkey`.  */
-        Node constructSub(BKey!radixPow2 bkey, BIx bix)
+        /** Construct and return sub-Node at `bkey`.  */
+        Node constructSub(BKey!radixPow2 bkey)
         {
-            if (bkey.length == bix)
+            import std.range : empty;
+            if (bkey.empty)
             {
                 return Node(construct!PLf);
             }
             else
             {
-                const bool isLast = (bix + 1) * radixPow2 == 8 * bkey.length;
+                const bool isLast = bkey.length == 1;
                 return (isLast ?
                         Node(construct!DefaultLeafType) :
                         Node(construct!DefaultBranchType));
@@ -775,12 +774,12 @@ struct RawRadixTree(Value,
 }
 
 /** Get bix:th chunk of `radixPow2` number of bits. */
-static private Mod!(2^^radixPow2) bitsChunk(size_t radixPow2)(BKey!radixPow2 bkey, BIx bix) pure nothrow
+static private Mod!(2^^radixPow2) bitsChunk(size_t radixPow2)(BKey!radixPow2 bkey) pure nothrow
 {
     enum mask = typeof(return).max;
     static if (radixPow2 == 8)
     {
-        const x = typeof(return)(bkey[bix] & mask);
+        const x = typeof(return)(bkey[0] & mask);
         return x;
     }
 }
@@ -844,7 +843,7 @@ struct RadixTree(Key, Value, size_t radixPow2 = 4)
         }
 
         bool wasAdded = false; // indicates that key was added
-        _root = _tree.insert(bkey[], 0, wasAdded);
+        _root = _tree.insert(bkey[], wasAdded);
         _length += wasAdded;
         return wasAdded;
     }

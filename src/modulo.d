@@ -163,7 +163,7 @@ auto mod(size_t m, T)(T value)
     assert(y == 6);
     assert(++y == 7);
     assert(y++ == 7);
-    assert(y == 0);
+    assert(y == y.min);
     assert(--y == y.max);
     assert(++y == y.min);
 

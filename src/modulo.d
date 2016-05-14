@@ -100,12 +100,18 @@ template Mod(size_t m, T = DefaultTypeOfModulo!m)
             }
             else static if (op == "--")
             {
-                if (x == min) x = max; else --x;
+                static if (isPow2(m))
+                    x = (x - 1) & max; // more efficient
+                else
+                    if (x == min) x = max; else --x;
                 return this;
             }
             else static if (op == "++")
             {
-                if (x == max) x = min; else ++x;
+                static if (isPow2(m))
+                    x = (x + 1) & max; // more efficient
+                else
+                    if (x == max) x = min; else ++x;
                 return this;
             }
             else

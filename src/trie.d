@@ -1120,15 +1120,3 @@ private template iotaImpl(size_t to, size_t now)
     static if (now >= to) { alias iotaImpl = AliasSeq!(now); }
     else                  { alias iotaImpl = AliasSeq!(now, iotaImpl!(to, now + 1)); }
 }
-
-int main(string[] args)
-{
-    int x = 1;
-    int y = 1;
-    auto z = x + y;
-    check!(8,
-           ubyte,
-           short, int, long,
-           ushort, uint, ulong);
-    return 0;
-}

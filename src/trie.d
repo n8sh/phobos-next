@@ -179,7 +179,7 @@ struct RawRadixTree(Value,
                     assert(!empty, "empty!");
                 }
 
-                auto ref chunks() inout { return suffix[0 .. length]; }
+                auto chunks() inout { return suffix[0 .. length]; }
                 alias chunks this;
 
             private:

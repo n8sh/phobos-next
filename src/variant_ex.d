@@ -71,6 +71,7 @@ struct WordVariant(Types...)
         import std.conv : to;
         final switch (typeIndex) // typeIndex starts at 0 (undefined)
         {
+        case 0: return "null";
             foreach (const i, T; Types)
             {
             case i + 1: return T.stringof ~ `@` ~ peek!T.to!string; // which means that we must add 1

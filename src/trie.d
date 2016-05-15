@@ -179,7 +179,7 @@ struct RawRadixTree(Value,
                     assert(!empty, "empty!");
                 }
 
-                auto chunks() { return suffix[0 .. length]; }
+                inout(Ix[]) chunks() inout { return suffix[0 .. length]; }
                 alias chunks this;
 
             private:
@@ -436,6 +436,7 @@ struct RawRadixTree(Value,
             // TODO functionize and perhaps merge with constructSub
             if (!curr)          // if no curr yet
             {
+                show!(key);
                 static if (radixPow2 == 8)
                 {
                     if (key.length <= PLf.maxLength)
@@ -454,6 +455,7 @@ struct RawRadixTree(Value,
                 }
             }
 
+            show!(key, curr);
             with (Node.Ix)
             {
                 final switch (curr.typeIx)

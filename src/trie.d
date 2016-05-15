@@ -148,7 +148,7 @@ struct RawRadixTree(Value,
                 @property auto toString() const
                 {
                     import std.conv : to;
-                    return "PLf:" ~ suffix[0 .. length].to!string;
+                    return chunks.to!string;
                 }
 
                 @safe pure nothrow @nogc:

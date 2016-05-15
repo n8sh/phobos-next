@@ -139,7 +139,6 @@ struct RawRadixTree(Value,
 
                 this(Ix[] key_)
                 {
-                    assert(key_.length != 0);
                     assert(key_.length <= maxLength);
 
                     this.suffix[0 .. key_.length] = key_;
@@ -438,9 +437,7 @@ struct RawRadixTree(Value,
                 {
                     if (key.length <= PLf.maxLength)
                     {
-                        PLf currPLf = construct!(PLf);
-                        currPLf.suffix[0 .. key.length] = key;
-                        currPLf.length = cast(ubyte)key.length; // TODO remove when value-range-propagation can limit key.length to (0 .. PLf.maxLength)
+                        PLf currPLf = construct!(PLf)(key);
                         wasAdded = true;
                         return Node(currPLf); // we're done so return directly
                     }
@@ -690,7 +687,8 @@ struct RawRadixTree(Value,
 
     private:
 
-    /** Allocate `Node`-type of value type `U`. */
+    /** Allocate (if pointer) and Construct a `Node`-type of value type `U`
+        using constructor arguments `args` of `Args`. */
     auto construct(U, Args...)(Args args) @trusted
     {
         debug ++_nodeCount;
@@ -703,7 +701,7 @@ struct RawRadixTree(Value,
         }
         else
         {
-            return U.init;
+            return U(args);
         }
     }
 
@@ -961,8 +959,12 @@ auto check(size_t radixPow2, Keys...)()
                 assert(set.insertAt(k));  // insertAt new value returns `true` (previously not in set)
                 switch (cnt)             // if first
                 {
-                case 0: assert(set._root.peek!(Tree.PLf)); break; // first insert should result in a leaf
-                case 1: assert(set._root.peek!(Tree.BrM*)); break; // second insert should result in a branch
+                case 0:                                // after first insert
+                    assert(set._root.peek!(Tree.PLf)); // top should be a leaf
+                    break;
+                case 1:                                 // after second insert
+                    assert(set._root.peek!(Tree.BrM*)); // top should be a branch
+                    break;
                 default: break;
                 }
                 assert(!set.insertAt(k)); // reinsert same value returns `false` (already in set)

@@ -806,7 +806,7 @@ static private void calculate(Value, size_t radixPow2)(RawRadixTree!(Value, radi
 }
 
 /// Radix-Tree with key-type `Key` and value-type `Value`.
-struct RadixTree(Key, Value, size_t radixPow2 = 4)
+struct RadixTree(Key, Value, size_t radixPow2 = 8)
     if (allSatisfy!(isTrieableKeyType, Key))
 {
     /** Insert `key`.

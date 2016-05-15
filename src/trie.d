@@ -810,7 +810,7 @@ struct RadixTree(Key, Value, size_t radixPow2 = 4)
     if (allSatisfy!(isTrieableKeyType, Key))
 {
     /** Insert `key`. */
-    bool insertAt(in Key typedKey)
+    bool insert(in Key typedKey)
         @safe pure nothrow /* TODO @nogc */
     {
         // convert unsigned to fixed-length (on the stack) ubyte array
@@ -878,9 +878,9 @@ struct RadixTree(Key, Value, size_t radixPow2 = 4)
         /** Insert `key`.
             Returns: `false` if key was previously already inserted, `true` otherwise.
         */
-        bool insertAt(in Key key, Value value)
+        bool insert(in Key key, Value value)
         {
-            bool result = insertAt(key);
+            bool result = insert(key);
             // TODO call insertAtSubNode(result, value);
             return result;
         }
@@ -909,13 +909,13 @@ auto radixTreeMap(Key, Value, size_t radixPow2 = 4)() { return RadixTree!(Key, V
     auto set = radixTreeSet!(ubyte, radixPow2);
 
     dln("Adding 0");
-    assert(set.insertAt(0));
-    assert(!set.insertAt(0));
+    assert(set.insert(0));
+    assert(!set.insert(0));
     assert(set.nodeCount == 1); // one leaf
 
     dln("Adding 1");
-    assert(set.insertAt(1));
-    assert(!set.insertAt(1));
+    assert(set.insert(1));
+    assert(!set.insert(1));
     assert(set.nodeCount == 3); // one branch two leaves
 }
 
@@ -957,7 +957,7 @@ auto check(size_t radixPow2, Keys...)()
                     assert(k !in set);        // alternative syntax
                 }
 
-                assert(set.insertAt(k));  // insertAt new value returns `true` (previously not in set)
+                assert(set.insert(k));  // insert new value returns `true` (previously not in set)
                 switch (cnt)             // if first
                 {
                 case 0:                                // after first insert
@@ -968,8 +968,8 @@ auto check(size_t radixPow2, Keys...)()
                     break;
                 default: break;
                 }
-                assert(!set.insertAt(k)); // reinsert same value returns `false` (already in set)
-                assert(!set.insertAt(k)); // reinsert same value returns `false` (already in set)
+                assert(!set.insert(k)); // reinsert same value returns `false` (already in set)
+                assert(!set.insert(k)); // reinsert same value returns `false` (already in set)
 
                 if (useContains)
                 {
@@ -988,7 +988,7 @@ auto check(size_t radixPow2, Keys...)()
             auto map = radixTreeMap!(Key, Value, radixPow2);
             static assert(map.isMap);
 
-            map.insertAt(Key.init, Value.init);
+            map.insert(Key.init, Value.init);
         }
     }
 }
@@ -1034,9 +1034,9 @@ void benchmark(size_t radixPow2)()
             foreach (Key k; randomSamples)
             {
                 if (useUniqueRandom)
-                    assert(set.insertAt(k));
+                    assert(set.insert(k));
                 else
-                    set.insertAt(k);
+                    set.insert(k);
             }
 
             dln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
@@ -1091,7 +1091,7 @@ void benchmark(size_t radixPow2)()
         assert(map.empty);
         static assert(map.isMap);
 
-        map.insertAt(Key.init, Value.init);
+        map.insert(Key.init, Value.init);
     }
 }
 

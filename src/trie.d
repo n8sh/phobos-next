@@ -975,7 +975,9 @@ auto check(size_t radixPow2, Keys...)()
                     assert(set.contains(k)); // key should now be in set
                     assert(k in set);        // alternative syntax
                     if (k != Key.max)        // except last value
+                    {
                         assert(!set.contains(cast(Key)(k + 1))); // next key is not yet in set
+                    }
                 }
                 ++cnt;
             }

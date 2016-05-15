@@ -179,7 +179,8 @@ struct RawRadixTree(Value,
                     assert(!empty, "empty!");
                 }
 
-                auto ref data() { return suffix[0 .. length]; }
+                auto chunks() { return suffix[0 .. length]; }
+                alias chunks this;
 
             private:
                 Ix[maxLength] suffix;
@@ -201,7 +202,7 @@ struct RawRadixTree(Value,
                 Ix[] ixs = [11.mod!M, 22.mod!M, 33.mod!M];
                 auto plf = PLf(ixs);
                 import std.algorithm : equal;
-                assert(plf.data.equal([11, 22, 33]));
+                assert(plf.chunks.equal([11, 22, 33]));
             }
 
             struct PLfs
@@ -564,14 +565,14 @@ struct RawRadixTree(Value,
 
             if (key.empty) { return Node(curr); }
 
-            auto prefix = commonPrefix(curr.data, key);
+            auto prefix = commonPrefix(curr.chunks, key);
             if (prefix.length == key.length) // key already stored
             {
                 return Node(curr); // already stored in `curr`
             }
             else
             {
-                auto br = insertAt(splice(prefix, curr.data[prefix.length .. $]),
+                auto br = insertAt(splice(prefix, curr.chunks[prefix.length .. $]),
                                    key[prefix.length .. $], wasAdded);
                 freeNode(curr);
                 return br;

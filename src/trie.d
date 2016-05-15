@@ -810,7 +810,7 @@ struct RadixTree(Key, Value, size_t radixPow2 = 4)
     if (allSatisfy!(isTrieableKeyType, Key))
 {
     /** Insert `key`.
-        Returns: `true` if key wasn't previously inserted, `false` otherwise.
+        Returns: `true` if `key` wasn't previously inserted, `false` otherwise.
      */
     bool insert(in Key typedKey)
         @safe pure nothrow /* TODO @nogc */

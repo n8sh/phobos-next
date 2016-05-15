@@ -481,31 +481,31 @@ struct RawRadixTree(Value,
         {
             assert(false, "TODO sync with changes in insertAt(BrM*");
 
-            const Ix chunk = bitsChunk!radixPow2(key);
+            // const Ix ix = bitsChunk!radixPow2(key);
 
-            enum N = 2;         // branch-order, number of possible sub-nodes
-            foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
-            {
-                if (curr.subNodes[subIx])   // first is occupied
-                {
-                    if (curr.subChunks[subIx] == chunk) // and matches chunk
-                    {
-                        curr.subNodes[subIx] = insertAt(curr.subNodes[subIx], key[1 .. $], wasAdded);
-                        return Node(curr);
-                    }
-                }
-                else            // use first free sub
-                {
-                    auto subkey = key[1 .. $];
-                    curr.subNodes[subIx] = insertAt(constructSub(subkey),
-                                                    subkey, wasAdded); // use it
-                    curr.subChunks[subIx] = chunk;
-                    return Node(curr);
-                }
-            }
+            // enum N = 2;         // branch-order, number of possible sub-nodes
+            // foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
+            // {
+            //     if (curr.subNodes[subIx])   // first is occupied
+            //     {
+            //         if (curr.subChunks[subIx] == ix) // and matches ix
+            //         {
+            //             curr.subNodes[subIx] = insertAt(curr.subNodes[subIx], key[1 .. $], wasAdded);
+            //             return Node(curr);
+            //         }
+            //     }
+            //     else            // use first free sub
+            //     {
+            //         auto subkey = key[1 .. $];
+            //         curr.subNodes[subIx] = insertAt(constructSub(subkey),
+            //                                         subkey, wasAdded); // use it
+            //         curr.subChunks[subIx] = ix;
+            //         return Node(curr);
+            //     }
+            // }
 
-            // if we got here all N sub-nodes are occupied so we need to expand
-            return insertAt(expand(curr), key, wasAdded); // NOTE stay on same depth
+            // // if we got here all N sub-nodes are occupied so we need to expand
+            // return insertAt(expand(curr), key, wasAdded); // NOTE stay on same depth
         }
 
         Node insertAt(BrM* curr, Key!radixPow2 key, out bool wasAdded)
@@ -515,23 +515,24 @@ struct RawRadixTree(Value,
         }
         body
         {
-            // TODO functionize this and reuse here and in insertAt(Br2*)
             import std.algorithm : commonPrefix;
-            auto matchedPrefix = commonPrefix(key, curr.prefix).length;
+            auto matchedPrefix = commonPrefix(key, curr.prefix);
 
             if (matchedPrefix.length == key.length &&
                 matchedPrefix.length < curr.prefix.length) // prefix is an extension of key
             {
-                curr.prefix = curr.prefix[matchedPrefix.length .. $]; // drop matchedPrefix
-                BrM* prefixBr = construct!(DefaultBr)(matchedPrefix,
-                                                      true); // because `key` occupies
-                prefixBr.insert(curr);
-                return Node(prefixBr);
+                BrM* br_ = construct!(DefaultBr)(matchedPrefix,
+                                                 true); // because `key` occupies this node
+                br_.subNodes[curr.prefix[matchedPrefix.length]] = curr;
+                curr.prefix = curr.prefix[matchedPrefix.length + 1 .. $]; // drop matchedPrefix plus index
+                return Node(br_);
             }
             else if (matchedPrefix.length == curr.prefix.length &&
                      matchedPrefix.length < key.length) // key is an extension of prefix
             {
                 key = key[matchedPrefix.length .. $]; // strip `curr.prefix from beginning of `key`
+                const ix = key[0];
+                curr.subNodes[ix] = insertAt(curr.subNodes[ix], key[1 .. $], wasAdded); // recurse
             }
             else if (matchedPrefix.length == curr.prefix.length && // exact key prefix match
                      matchedPrefix.length == key.length)
@@ -543,20 +544,24 @@ struct RawRadixTree(Value,
                 }
                 return Node(curr);
             }
-            else
+            else if (matchedPrefix.length == 0) // no match
             {
+                if (curr.prefix.length == 0)
+                {
+                    const ix = key[0];
+                    curr.subNodes[ix] = insertAt(curr.subNodes[ix], key[1 .. $], wasAdded); // recurse
+                    return Node(curr);
+                }
+                else
+                {
+                    BrM* br_ = construct!(DefaultBr);
+                    br_.subNodes[curr.prefix[0]] = curr;
+                    curr.prefix = curr.prefix[1 .. $];
+                    return insertAt(br_, key, wasAdded);
+                }
             }
 
-            if (key.length == matchedPrefix.length)
-            {
-                const Ix chunk = bitsChunk!radixPow2(key);
-
-                auto subNode = curr.subNodes[chunk];
-                show!(key, chunk, subNode);
-
-                curr.subNodes[chunk] = insertAt(curr.subNodes[chunk], key[1 .. $], wasAdded); // recurse
-            }
-            return Node(curr);
+            assert(false, "Shouldn't happen");
         }
 
         Node insertAt(LfM* curr, Key!radixPow2 key, out bool wasAdded)
@@ -566,10 +571,10 @@ struct RawRadixTree(Value,
         }
         body
         {
-            const Ix chunk = bitsChunk!radixPow2(key);
-            if (!curr.keyLSBits[chunk])
+            const ix = bitsChunk!radixPow2(key);
+            if (!curr.keyLSBits[ix])
             {
-                curr.keyLSBits[chunk] = true;
+                curr.keyLSBits[ix] = true;
                 wasAdded = true;
             }
             else
@@ -631,24 +636,24 @@ struct RawRadixTree(Value,
         }
         body
         {
-            const Ix chunk = bitsChunk!radixPow2(key);
+            const Ix ix = bitsChunk!radixPow2(key);
 
             // TODO this is only marginally faster:
             // foreach (const i; iota!(0, curr.maxLength))
             // {
             //     if (i == curr.length) break;
-            //     else if (curr.ixMs[i] == chunk) { return Node(curr); }
+            //     else if (curr.ixMs[i] == ix) { return Node(curr); }
             // }
 
             import std.algorithm.searching : canFind;
-            if (curr.ixMs[0 .. curr.length].canFind(chunk)) // if already stored. TODO use binarySearch
+            if (curr.ixMs[0 .. curr.length].canFind(ix)) // if already stored. TODO use binarySearch
             {
                 return Node(curr); // already there, so return current node as is
             }
 
             if (curr.length < curr.maxLength) // if there's room left in curr
             {
-                curr.ixMs[curr.length++] = chunk;
+                curr.ixMs[curr.length++] = ix;
                 // import sortn : networkSortUpTo;
                 // TODO curr.ixMs[0 .. length].networkSort;
                 // TODO curr.ixMs[0 .. length].sort;

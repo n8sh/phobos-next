@@ -521,11 +521,11 @@ struct RawRadixTree(Value,
             if (matchedPrefix.length == key.length &&
                 matchedPrefix.length < curr.prefix.length) // prefix is an extension of key
             {
-                BrM* br_ = construct!(DefaultBr)(matchedPrefix,
+                BrM* br = construct!(DefaultBr)(matchedPrefix,
                                                  true); // because `key` occupies this node
-                br_.subNodes[curr.prefix[matchedPrefix.length]] = curr;
+                br.subNodes[curr.prefix[matchedPrefix.length]] = curr;
                 curr.prefix = curr.prefix[matchedPrefix.length + 1 .. $]; // drop matchedPrefix plus index
-                return Node(br_);
+                return Node(br);
             }
             else if (matchedPrefix.length == curr.prefix.length &&
                      matchedPrefix.length < key.length) // key is an extension of prefix
@@ -544,10 +544,10 @@ struct RawRadixTree(Value,
                 }
                 else
                 {
-                    BrM* br_ = construct!(DefaultBr);
-                    br_.subNodes[curr.prefix[0]] = curr;
+                    BrM* br = construct!(DefaultBr);
+                    br.subNodes[curr.prefix[0]] = curr;
                     curr.prefix = curr.prefix[1 .. $];
-                    return insertAt(br_, key, wasAdded);
+                    return insertAt(br, key, wasAdded);
                 }
             }
             else if (matchedPrefix.length == curr.prefix.length && // exact key prefix match

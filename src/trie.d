@@ -120,11 +120,11 @@ struct RawRadixTree(Value,
     enum isBinary = radixPow2 == 2;
 
     /** Radix Modulo Index */
-    alias IxM = Mod!M; // restricted index type avoids range checking in array indexing below
+    alias Ix = Mod!M; // restricted index type avoids range checking in array indexing below
 
     /** `radixPow2` least significant bits (LSB) of leaves directly packed into a word.
 
-        TODO Generalize to packing of more than one `IxM` per byte.
+        TODO Generalize to packing of more than one `Ix` per byte.
         TODO respect byteorder in `PLfs` to work with `WordVariant`
         TODO implement and use opSlice instead of .suffix[]
     */
@@ -135,9 +135,9 @@ struct RawRadixTree(Value,
             // Packed Variable-Length Single Leaf
             struct PLf
             {
-                enum maxLength = (size_t.sizeof - 2) / IxM.sizeof;
+                enum maxLength = (size_t.sizeof - 2) / Ix.sizeof;
 
-                this(IxM[] key_)
+                this(Ix[] key_)
                 {
                     assert(key_.length != 0);
                     assert(key_.length <= maxLength);
@@ -159,7 +159,7 @@ struct RawRadixTree(Value,
                     return length == 0;
                 }
 
-                IxM front() const
+                Ix front() const
                 {
                     assert(!empty);
                     return suffix[0];
@@ -183,7 +183,7 @@ struct RawRadixTree(Value,
                 auto ref data() { return suffix[0 .. length]; }
 
             private:
-                IxM[maxLength] suffix;
+                Ix[maxLength] suffix;
                 Mod!(maxLength + 1, ubyte) length;
                 ubyte _mustBeIgnored = 0; // this byte must be ignored because it contains Node-type
 
@@ -195,10 +195,17 @@ struct RawRadixTree(Value,
                 //         Value[maxLength] values;
                 // }
             }
+
+            unittest
+            {
+                PLf x;
+                Ix[] ixs;
+            }
+
             struct PLfs
             {
-                enum maxLength = (size_t.sizeof - 2) / IxM.sizeof;
-                IxM[maxLength] ixMs;
+                enum maxLength = (size_t.sizeof - 2) / Ix.sizeof;
+                Ix[maxLength] ixMs;
                 ubyte length;
                 ubyte _mustBeIgnored = 0; // this byte must be ignored because it contains Node-type
                 // static if (isMap)
@@ -257,25 +264,25 @@ struct RawRadixTree(Value,
     /** Constant node. */
     // TODO make work with indexNaming alias ConstNodePtr = WordVariant!(staticMap!(ConstOf, NodeTypes));
 
-    static assert(radixPow2 <= 8*IxM.sizeof, "Need more precision in IxM");
+    static assert(radixPow2 <= 8*Ix.sizeof, "Need more precision in Ix");
 
     /** Tree Leaf Iterator. */
     struct It
     {
         bool opCast(T : bool)() const @safe pure nothrow /* TODO @nogc */ { return cast(bool)node; }
         Node node;              // current leaf-`Node`. TODO use `Lf` type instead?
-        IxM ixM;                // index to sub at `node`
+        Ix ixM;                // index to sub at `node`
     }
 
     /** Tree Key Find Result. */
     struct KeyFindResult // TODO shorter naming
     {
         /* this save 8 bytes and makes this struct 16 bytes instead of 24 bytes
-           compared using a member It instead of Node and IxM */
+           compared using a member It instead of Node and Ix */
         auto it() { return It(node, ixM); }
         bool opCast(T : bool)() const @safe pure nothrow /* TODO @nogc */ { return hit; }
         Node node;
-        IxM ixM;
+        Ix ixM;
         bool hit;
     }
 
@@ -315,7 +322,7 @@ struct RawRadixTree(Value,
     /** Dense M-Branch with `M` number of sub-nodes. */
     static private struct BrM
     {
-        IxM[] prefix; // common prefix for all elements stored in this branch
+        Ix[] prefix; // common prefix for all elements stored in this branch
         bool occupied;
         StrictlyIndexed!(Node[M]) subNodes;
 
@@ -338,14 +345,14 @@ struct RawRadixTree(Value,
     /** Sparse/Packed 2-Branch. */
     static private struct Br2
     {
-        IxM[] prefix;
+        Ix[] prefix;
         bool occupied;
 
         enum N = 2; // TODO make this a CT-param
 
         // TODO merge these into a new `NodeType`
         StrictlyIndexed!(Node[N]) subNodes;
-        StrictlyIndexed!(IxM[N]) subChunks; // sub-ixMs. TODO Use IxMArray!N instead.
+        StrictlyIndexed!(Ix[N]) subChunks; // sub-ixMs. TODO Use IxMArray!N instead.
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow const
@@ -476,7 +483,7 @@ struct RawRadixTree(Value,
             }
             else
             {
-                const IxM chunk = bitsChunk!radixPow2(key);
+                const Ix chunk = bitsChunk!radixPow2(key);
 
                 enum N = 2;         // branch-order, number of possible sub-nodes
                 foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
@@ -519,7 +526,7 @@ struct RawRadixTree(Value,
             }
             else
             {
-                const IxM chunk = bitsChunk!radixPow2(key);
+                const Ix chunk = bitsChunk!radixPow2(key);
                 curr.subNodes[chunk] = insertAt(curr.subNodes[chunk], key[1 .. $], wasAdded); // recurse
             }
             return Node(curr);
@@ -532,7 +539,7 @@ struct RawRadixTree(Value,
         }
         body
         {
-            const IxM chunk = bitsChunk!radixPow2(key);
+            const Ix chunk = bitsChunk!radixPow2(key);
             if (!curr.keyLSBits[chunk])
             {
                 curr.keyLSBits[chunk] = true;
@@ -597,7 +604,7 @@ struct RawRadixTree(Value,
         }
         body
         {
-            const IxM chunk = bitsChunk!radixPow2(key);
+            const Ix chunk = bitsChunk!radixPow2(key);
 
             // TODO this is only marginally faster:
             // foreach (const i; iota!(0, curr.maxLength))

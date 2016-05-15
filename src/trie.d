@@ -531,8 +531,24 @@ struct RawRadixTree(Value,
                      matchedPrefix.length < key.length) // key is an extension of prefix
             {
                 key = key[matchedPrefix.length .. $]; // strip `curr.prefix from beginning of `key`
-                const ix = key[0];
-                curr.subNodes[ix] = insertAt(curr.subNodes[ix], key[1 .. $], wasAdded); // recurse
+                const subIx = key[0];
+                curr.subNodes[subIx] = insertAt(curr.subNodes[subIx], key[1 .. $], wasAdded); // recurse
+            }
+            else if (matchedPrefix.length == 0) // no prefix key match
+            {
+                if (curr.prefix.length == 0) // no current prefix
+                {
+                    const subIx = key[0];
+                    curr.subNodes[subIx] = insertAt(curr.subNodes[subIx], key[1 .. $], wasAdded); // recurse
+                    return Node(curr);
+                }
+                else
+                {
+                    BrM* br_ = construct!(DefaultBr);
+                    br_.subNodes[curr.prefix[0]] = curr;
+                    curr.prefix = curr.prefix[1 .. $];
+                    return insertAt(br_, key, wasAdded);
+                }
             }
             else if (matchedPrefix.length == curr.prefix.length && // exact key prefix match
                      matchedPrefix.length == key.length)
@@ -543,22 +559,6 @@ struct RawRadixTree(Value,
                     wasAdded = true;
                 }
                 return Node(curr);
-            }
-            else if (matchedPrefix.length == 0) // no match
-            {
-                if (curr.prefix.length == 0)
-                {
-                    const ix = key[0];
-                    curr.subNodes[ix] = insertAt(curr.subNodes[ix], key[1 .. $], wasAdded); // recurse
-                    return Node(curr);
-                }
-                else
-                {
-                    BrM* br_ = construct!(DefaultBr);
-                    br_.subNodes[curr.prefix[0]] = curr;
-                    curr.prefix = curr.prefix[1 .. $];
-                    return insertAt(br_, key, wasAdded);
-                }
             }
 
             assert(false, "Shouldn't happen");

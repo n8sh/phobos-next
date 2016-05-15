@@ -809,7 +809,9 @@ static private void calculate(Value, size_t radixPow2)(RawRadixTree!(Value, radi
 struct RadixTree(Key, Value, size_t radixPow2 = 4)
     if (allSatisfy!(isTrieableKeyType, Key))
 {
-    /** Insert `key`. */
+    /** Insert `key`.
+        Returns: `true` if key wasn't previously inserted, `false` otherwise.
+     */
     bool insert(in Key typedKey)
         @safe pure nothrow /* TODO @nogc */
     {

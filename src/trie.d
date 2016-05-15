@@ -518,6 +518,7 @@ struct RawRadixTree(Value,
             import std.algorithm : commonPrefix;
             auto matchedPrefix = commonPrefix(key, curr.prefix);
 
+            // prefix:abcd, key:ab
             if (matchedPrefix.length == key.length &&
                 matchedPrefix.length < curr.prefix.length) // prefix is an extension of key
             {
@@ -527,12 +528,14 @@ struct RawRadixTree(Value,
                 curr.prefix = curr.prefix[matchedPrefix.length + 1 .. $]; // drop matchedPrefix plus index
                 return Node(br);
             }
+            // prefix:ab, key:abcd
             else if (matchedPrefix.length == curr.prefix.length &&
                      matchedPrefix.length < key.length) // key is an extension of prefix
             {
                 key = key[matchedPrefix.length .. $]; // strip `curr.prefix from beginning of `key`
                 // continue below
             }
+            // prefix:ab, key:cd
             else if (matchedPrefix.length == 0) // no prefix key match
             {
                 if (curr.prefix.length == 0) // no current prefix
@@ -547,6 +550,7 @@ struct RawRadixTree(Value,
                     return insertAt(br, key, wasAdded);
                 }
             }
+            // prefix:ab, key:ab
             else if (matchedPrefix.length == curr.prefix.length && // exact key prefix match
                      matchedPrefix.length == key.length)
             {

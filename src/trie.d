@@ -447,7 +447,7 @@ struct RawRadixTree(Value,
                     }
                     else // key doesn't fit in a PLf
                     {
-                        BrM* br = construct!(BrM*);
+                        BrM* br = construct!(DefaultBr);
                         br.prefix[] = key[0 .. key.length - PLf.maxLength]; // so extract prefix that doesn't fit in PLf into BrM
                         key = key[br.prefix.length .. $];
                         curr = Node(br); // use this branch below in this function to insert into
@@ -479,41 +479,33 @@ struct RawRadixTree(Value,
         }
         body
         {
-            import std.range : empty;
-            if (curr.prefix == key)
-            {
-                if (!curr.occupied) { wasAdded = true; }
-                curr.occupied = true;
-                return Node(curr);
-            }
-            else
-            {
-                const Ix chunk = bitsChunk!radixPow2(key);
+            assert(false, "TODO sync with changes in insertAt(BrM*");
 
-                enum N = 2;         // branch-order, number of possible sub-nodes
-                foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
+            const Ix chunk = bitsChunk!radixPow2(key);
+
+            enum N = 2;         // branch-order, number of possible sub-nodes
+            foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
+            {
+                if (curr.subNodes[subIx])   // first is occupied
                 {
-                    if (curr.subNodes[subIx])   // first is occupied
+                    if (curr.subChunks[subIx] == chunk) // and matches chunk
                     {
-                        if (curr.subChunks[subIx] == chunk) // and matches chunk
-                        {
-                            curr.subNodes[subIx] = insertAt(curr.subNodes[subIx], key[1 .. $], wasAdded);
-                            return Node(curr);
-                        }
-                    }
-                    else            // use first free sub
-                    {
-                        auto subkey = key[1 .. $];
-                        curr.subNodes[subIx] = insertAt(constructSub(subkey),
-                                                        subkey, wasAdded); // use it
-                        curr.subChunks[subIx] = chunk;
+                        curr.subNodes[subIx] = insertAt(curr.subNodes[subIx], key[1 .. $], wasAdded);
                         return Node(curr);
                     }
                 }
-
-                // if we got here all N sub-nodes are occupied so we need to expand
-                return insertAt(expand(curr), key, wasAdded); // NOTE stay on same depth
+                else            // use first free sub
+                {
+                    auto subkey = key[1 .. $];
+                    curr.subNodes[subIx] = insertAt(constructSub(subkey),
+                                                    subkey, wasAdded); // use it
+                    curr.subChunks[subIx] = chunk;
+                    return Node(curr);
+                }
             }
+
+            // if we got here all N sub-nodes are occupied so we need to expand
+            return insertAt(expand(curr), key, wasAdded); // NOTE stay on same depth
         }
 
         Node insertAt(BrM* curr, Key!radixPow2 key, out bool wasAdded)
@@ -523,15 +515,45 @@ struct RawRadixTree(Value,
         }
         body
         {
-            import std.range : empty;
-            if (curr.prefix == key)
+            // TODO functionize this and reuse here and in insertAt(Br2*)
+            import std.algorithm : commonPrefix;
+            auto matchedPrefix = commonPrefix(key, curr.prefix).length;
+
+            if (matchedPrefix.length == key.length &&
+                matchedPrefix.length < curr.prefix.length) // prefix is an extension of key
             {
-                if (!curr.occupied) { wasAdded = true; }
-                curr.occupied = true;
+                curr.prefix = curr.prefix[matchedPrefix.length .. $]; // drop matchedPrefix
+                BrM* prefixBr = construct!(DefaultBr)(matchedPrefix,
+                                                      true); // because `key` occupies
+                prefixBr.insert(curr);
+                return Node(prefixBr);
+            }
+            else if (matchedPrefix.length == curr.prefix.length &&
+                     matchedPrefix.length < key.length) // key is an extension of prefix
+            {
+                key = key[matchedPrefix.length .. $]; // strip `curr.prefix from beginning of `key`
+            }
+            else if (matchedPrefix.length == curr.prefix.length && // exact key prefix match
+                     matchedPrefix.length == key.length)
+            {
+                if (!curr.occupied)
+                {
+                    curr.occupied = true;
+                    wasAdded = true;
+                }
+                return Node(curr);
             }
             else
             {
+            }
+
+            if (key.length == matchedPrefix.length)
+            {
                 const Ix chunk = bitsChunk!radixPow2(key);
+
+                auto subNode = curr.subNodes[chunk];
+                show!(key, chunk, subNode);
+
                 curr.subNodes[chunk] = insertAt(curr.subNodes[chunk], key[1 .. $], wasAdded); // recurse
             }
             return Node(curr);
@@ -569,7 +591,7 @@ struct RawRadixTree(Value,
 
             if (key.empty) { return Node(curr); }
 
-            auto prefix = commonPrefix(curr.chunks, key);
+            auto prefix = commonPrefix(key, curr.chunks);
             if (prefix.length == key.length) // key already stored
             {
                 return Node(curr); // already stored in `curr`

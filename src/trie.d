@@ -196,10 +196,13 @@ struct RawRadixTree(Value,
                 // }
             }
 
-            unittest
+            @safe pure nothrow unittest
             {
-                PLf x;
-                Ix[] ixs;
+                import modulo : mod;
+                Ix[] ixs = [11.mod!M, 22.mod!M, 33.mod!M];
+                auto plf = PLf(ixs);
+                import std.algorithm : equal;
+                assert(plf.data.equal([11, 22, 33]));
             }
 
             struct PLfs

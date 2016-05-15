@@ -431,6 +431,8 @@ struct RawRadixTree(Value,
         /** Insert `key` into sub-tree under root `curr`. */
         pragma(inline) Node insertAt(Node curr, Key!radixPow2 key, out bool wasAdded) // Node-polymorphic
         {
+            show!(key);
+
             // TODO functionize and perhaps merge with constructSub
             if (!curr)          // if no curr yet
             {
@@ -951,15 +953,15 @@ auto check(size_t radixPow2, Keys...)()
             size_t cnt = 0;
             foreach (const uk; low.iota(high + 1))
             {
-                const Key k = cast(Key)uk;
-                show!k;
+                const Key key = cast(Key)uk;
+                show!key;
                 if (useContains)
                 {
-                    assert(!set.contains(k)); // key should not yet be in set
-                    assert(k !in set);        // alternative syntax
+                    assert(!set.contains(key)); // key should not yet be in set
+                    assert(key !in set);        // alternative syntax
                 }
 
-                assert(set.insert(k));  // insert new value returns `true` (previously not in set)
+                assert(set.insert(key));  // insert new value returns `true` (previously not in set)
                 switch (cnt)             // if first
                 {
                 case 0:                                // after first insert
@@ -970,16 +972,16 @@ auto check(size_t radixPow2, Keys...)()
                     break;
                 default: break;
                 }
-                assert(!set.insert(k)); // reinsert same value returns `false` (already in set)
-                assert(!set.insert(k)); // reinsert same value returns `false` (already in set)
+                assert(!set.insert(key)); // reinsert same value returns `false` (already in set)
+                assert(!set.insert(key)); // reinsert same value returns `false` (already in set)
 
                 if (useContains)
                 {
-                    assert(set.contains(k)); // key should now be in set
-                    assert(k in set);        // alternative syntax
-                    if (k != Key.max)        // except last value
+                    assert(set.contains(key)); // key should now be in set
+                    assert(key in set);        // alternative syntax
+                    if (key != Key.max)        // except last value
                     {
-                        assert(!set.contains(cast(Key)(k + 1))); // next key is not yet in set
+                        assert(!set.contains(cast(Key)(key + 1))); // next key is not yet in set
                     }
                 }
                 ++cnt;

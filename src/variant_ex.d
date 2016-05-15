@@ -185,6 +185,9 @@ pure nothrow unittest
     alias V = WordVariant!Types;
 
     V v;
+
+    try { assert(v.toString == "null"); } catch (Exception e) { }
+
     assert(v.isNull);
     v = null;
     assert(v.isNull);

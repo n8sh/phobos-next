@@ -522,7 +522,7 @@ struct RawRadixTree(Value,
                 matchedPrefix.length < curr.prefix.length) // prefix is an extension of key
             {
                 BrM* br = construct!(DefaultBr)(matchedPrefix,
-                                                 true); // because `key` occupies this node
+                                                true); // `true` because `key` occupies this node
                 br.subNodes[curr.prefix[matchedPrefix.length]] = curr;
                 curr.prefix = curr.prefix[matchedPrefix.length + 1 .. $]; // drop matchedPrefix plus index
                 return Node(br);
@@ -530,6 +530,7 @@ struct RawRadixTree(Value,
             else if (matchedPrefix.length == curr.prefix.length &&
                      matchedPrefix.length < key.length) // key is an extension of prefix
             {
+                // TODO reuse below XYZ
                 key = key[matchedPrefix.length .. $]; // strip `curr.prefix from beginning of `key`
                 const subIx = key[0];
                 curr.subNodes[subIx] = insertAt(curr.subNodes[subIx], key[1 .. $], wasAdded); // recurse
@@ -538,6 +539,7 @@ struct RawRadixTree(Value,
             {
                 if (curr.prefix.length == 0) // no current prefix
                 {
+                    // TODO reuse above XYZ
                     const subIx = key[0];
                     curr.subNodes[subIx] = insertAt(curr.subNodes[subIx], key[1 .. $], wasAdded); // recurse
                     return Node(curr);

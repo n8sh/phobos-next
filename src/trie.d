@@ -481,25 +481,25 @@ struct RawRadixTree(Value,
         {
             assert(false, "TODO sync with changes in insertAt(BrM*");
 
-            // const Ix ix = bitsChunk!radixPow2(key);
+            // const Ix ix = key[0];
 
             // enum N = 2;         // branch-order, number of possible sub-nodes
-            // foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
+            // foreach (Mod!N ix; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             // {
-            //     if (curr.subNodes[subIx])   // first is occupied
+            //     if (curr.subNodes[ix])   // first is occupied
             //     {
-            //         if (curr.subChunks[subIx] == ix) // and matches ix
+            //         if (curr.subChunks[ix] == ix) // and matches ix
             //         {
-            //             curr.subNodes[subIx] = insertAt(curr.subNodes[subIx], key[1 .. $], wasAdded);
+            //             curr.subNodes[ix] = insertAt(curr.subNodes[ix], key[1 .. $], wasAdded);
             //             return Node(curr);
             //         }
             //     }
             //     else            // use first free sub
             //     {
             //         auto subkey = key[1 .. $];
-            //         curr.subNodes[subIx] = insertAt(constructSub(subkey),
+            //         curr.subNodes[ix] = insertAt(constructSub(subkey),
             //                                         subkey, wasAdded); // use it
-            //         curr.subChunks[subIx] = ix;
+            //         curr.subChunks[ix] = ix;
             //         return Node(curr);
             //     }
             // }
@@ -562,8 +562,8 @@ struct RawRadixTree(Value,
                 return Node(curr);
             }
 
-            const subIx = key[0];
-            curr.subNodes[subIx] = insertAt(curr.subNodes[subIx], key[1 .. $], wasAdded); // recurse
+            const ix = key[0];
+            curr.subNodes[ix] = insertAt(curr.subNodes[ix], key[1 .. $], wasAdded); // recurse
             return Node(curr);
         }
 
@@ -574,7 +574,7 @@ struct RawRadixTree(Value,
         }
         body
         {
-            const ix = bitsChunk!radixPow2(key);
+            const ix = key[0];
             if (!curr.keyLSBits[ix])
             {
                 curr.keyLSBits[ix] = true;
@@ -639,7 +639,7 @@ struct RawRadixTree(Value,
         }
         body
         {
-            const Ix ix = bitsChunk!radixPow2(key);
+            const Ix ix = key[0];
 
             // TODO this is only marginally faster:
             // foreach (const i; iota!(0, curr.maxLength))
@@ -691,9 +691,9 @@ struct RawRadixTree(Value,
         {
             enum N = 2;         // branch-order, number of possible sub-nodes
             auto next = construct!(typeof(return));
-            foreach (Mod!N subIx; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
+            foreach (Mod!N ix; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             {
-                next.subNodes[curr.subChunks[subIx]] = curr.subNodes[subIx];
+                next.subNodes[curr.subChunks[ix]] = curr.subNodes[ix];
             }
             freeNode(curr);
             return next;
@@ -803,17 +803,6 @@ struct RawRadixTree(Value,
     size_t _length = 0;
 
     debug size_t _nodeCount = 0;
-}
-
-/** Get bix:th chunk of `radixPow2` number of bits. */
-static private Mod!(2^^radixPow2) bitsChunk(size_t radixPow2)(Key!radixPow2 key) pure nothrow
-{
-    enum mask = typeof(return).max;
-    static if (radixPow2 == 8)
-    {
-        const x = typeof(return)(key[0] & mask);
-        return x;
-    }
 }
 
 /** Append statistics of tree under `Node` `sub.` into `stats`.

@@ -66,7 +66,7 @@ struct WordVariant(Types...)
 
     pure:
 
-    @property string toString() const @trusted // TODO pure
+    @property string toString() const @trusted // TODO pure nothrow
     {
         import std.conv : to;
         final switch (typeIndex) // typeIndex starts at 0 (undefined)

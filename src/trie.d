@@ -354,8 +354,8 @@ struct RawRadixTree(Value,
         enum N = 2; // TODO make this a CT-param
 
         // TODO merge these into a new `NodeType`
-        StrictlyIndexed!(Node[N]) subNodes;
-        StrictlyIndexed!(Ix[N]) subChunks; // sub-ixMs. TODO Use IxMArray!N instead.
+        StrictlyIndexed!(Node[N]) subNodes; // sub-nodes
+        StrictlyIndexed!(Ix[N]) subChunks; // sub-Ix
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow const

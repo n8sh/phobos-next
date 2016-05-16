@@ -425,6 +425,12 @@ struct RawRadixTree(Value,
         /** Insert `key` into `this` tree. */
         pragma(inline) Node insert(Key!radixPow2 key, out bool wasAdded)
         {
+            dln("_root:", _root);
+            if (auto brM = _root.peek!(BrM*))
+            {
+                dln("BrM root prefix:", (*brM).prefix);
+            }
+            dln("key:", key);
             return _root = insertAt(_root, key, wasAdded);
         }
 
@@ -448,7 +454,7 @@ struct RawRadixTree(Value,
                     else // key doesn't fit in a PLf
                     {
                         BrM* br = construct!(DefaultBr);
-                        br.prefix[] = key[0 .. key.length - PLf.maxLength]; // so extract prefix that doesn't fit in PLf into BrM
+                        br.prefix = key[0 .. key.length - PLf.maxLength]; // so extract prefix that doesn't fit in PLf into BrM
                         key = key[br.prefix.length .. $];
                         curr = Node(br); // use this branch below in this function to insert into
                     }
@@ -518,8 +524,9 @@ struct RawRadixTree(Value,
             import std.algorithm : commonPrefix;
             auto matchedPrefix = commonPrefix(key, curr.prefix);
 
-            show!(key, matchedPrefix);
-            dln("curr.prefix:", curr.prefix);
+            dln("key:", key);
+            dln("BrM* curr.prefix:", curr.prefix);
+            dln("matchedPrefix:", matchedPrefix);
 
             // prefix:abcd, key:ab
             if (matchedPrefix.length == key.length &&
@@ -529,7 +536,10 @@ struct RawRadixTree(Value,
                 BrM* br = construct!(DefaultBr)(matchedPrefix,
                                                 true); // `true` because `key` occupies this node
                 br.subNodes[curr.prefix[matchedPrefix.length]] = curr;
+                dln("Before curr.prefix:", curr.prefix);
                 curr.prefix = curr.prefix[matchedPrefix.length + 1 .. $]; // drop matchedPrefix plus index
+                dln("After curr.prefix:", curr.prefix);
+                dln("br.prefix:", br.prefix);
                 return Node(br);
             }
             // prefix:ab, key:abcd
@@ -553,8 +563,12 @@ struct RawRadixTree(Value,
                 {
                     BrM* br = construct!(DefaultBr);
                     br.subNodes[curr.prefix[0]] = curr;
+                    dln("Before curr.prefix:", curr.prefix);
                     curr.prefix = curr.prefix[1 .. $];
-                    return insertAt(br, key, wasAdded);
+                    dln("After curr.prefix:", curr.prefix);
+                    dln("br.prefix:", br.prefix);
+                    auto node = insertAt(br, key, wasAdded);
+                    return node;
                 }
             }
             // prefix:ab, key:ab
@@ -572,8 +586,10 @@ struct RawRadixTree(Value,
 
             const ix = key[0];
             dln("_ ix:", ix);
-            dln("curr.subNodes:", curr.subNodes);
+            dln("key[1 .. $]:", key[1 .. $]);
+            // dln("curr.subNodes:", curr.subNodes);
             curr.subNodes[ix] = insertAt(curr.subNodes[ix], key[1 .. $], wasAdded); // recurse
+            dln("BrM* curr:prefix:", curr.prefix);
             return Node(curr);
         }
 
@@ -604,6 +620,8 @@ struct RawRadixTree(Value,
         }
         body
         {
+            dln("key:", key);
+
             import std.range : empty;
             import std.algorithm : commonPrefix;
 

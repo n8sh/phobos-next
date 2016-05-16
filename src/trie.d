@@ -571,6 +571,8 @@ struct RawRadixTree(Value,
             }
 
             const ix = key[0];
+            dln("_ ix:", ix);
+            dln("curr.subNodes:", curr.subNodes);
             curr.subNodes[ix] = insertAt(curr.subNodes[ix], key[1 .. $], wasAdded); // recurse
             return Node(curr);
         }
@@ -975,13 +977,13 @@ auto check(size_t radixPow2, Keys...)()
             foreach (const uk; low.iota(high + 1))
             {
                 const Key key = cast(Key)uk;
-                show!key;
                 if (useContains)
                 {
                     assert(!set.contains(key)); // key should not yet be in set
                     assert(key !in set);        // alternative syntax
                 }
 
+                dln("============================= NEW INSERT of key:", key);
                 assert(set.insert(key));  // insert new value returns `true` (previously not in set)
                 switch (cnt)             // if first
                 {
@@ -993,7 +995,9 @@ auto check(size_t radixPow2, Keys...)()
                     break;
                 default: break;
                 }
+                dln("============================= EXISTING of key:", key);
                 assert(!set.insert(key)); // reinsert same value returns `false` (already in set)
+                dln("============================= EXISTING of key:", key);
                 assert(!set.insert(key)); // reinsert same value returns `false` (already in set)
 
                 if (useContains)

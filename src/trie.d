@@ -518,10 +518,14 @@ struct RawRadixTree(Value,
             import std.algorithm : commonPrefix;
             auto matchedPrefix = commonPrefix(key, curr.prefix);
 
+            show!(key, matchedPrefix);
+            dln("curr.prefix:", curr.prefix);
+
             // prefix:abcd, key:ab
             if (matchedPrefix.length == key.length &&
                 matchedPrefix.length < curr.prefix.length) // prefix is an extension of key
             {
+                dln("1 key:", key);
                 BrM* br = construct!(DefaultBr)(matchedPrefix,
                                                 true); // `true` because `key` occupies this node
                 br.subNodes[curr.prefix[matchedPrefix.length]] = curr;
@@ -532,12 +536,14 @@ struct RawRadixTree(Value,
             else if (matchedPrefix.length == curr.prefix.length &&
                      matchedPrefix.length < key.length) // key is an extension of prefix
             {
+                dln("2 key:", key);
                 key = key[matchedPrefix.length .. $]; // strip `curr.prefix from beginning of `key`
                 // continue below
             }
             // prefix:ab, key:cd
             else if (matchedPrefix.length == 0) // no prefix key match
             {
+                dln("3 key:", key);
                 if (curr.prefix.length == 0) // no current prefix
                 {
                     // continue below
@@ -554,6 +560,7 @@ struct RawRadixTree(Value,
             else if (matchedPrefix.length == curr.prefix.length && // exact key prefix match
                      matchedPrefix.length == key.length)
             {
+                dln("4 key:", key);
                 if (!curr.occupied)
                 {
                     curr.occupied = true;
@@ -563,6 +570,7 @@ struct RawRadixTree(Value,
             }
 
             const ix = key[0];
+            dln("_ ix:", ix);
             curr.subNodes[ix] = insertAt(curr.subNodes[ix], key[1 .. $], wasAdded); // recurse
             return Node(curr);
         }
@@ -600,34 +608,26 @@ struct RawRadixTree(Value,
             if (key.empty) { return Node(curr); }
 
             auto prefix = commonPrefix(key, curr.chunks);
-            if (prefix.length == key.length) // key already stored
+            if (prefix.length == key.length &&
+                prefix.length == curr.chunks.length) // key already stored
             {
                 return Node(curr); // already stored in `curr`
             }
             else
             {
-                auto br = insertAt(splice(prefix, curr.chunks[prefix.length .. $]),
-                                   key[prefix.length .. $], wasAdded);
-                freeNode(curr);
-                return br;
+                return insertAt(splice(curr, prefix), key, wasAdded);
             }
         }
 
-        /** Create branch with key prefix `prefixBkey` containing one sub-node with
-            sub-key `suffixBKey`. */
-        Node splice(Key!radixPow2 prefixBkey,
-                    Key!radixPow2 suffixBkey)
-        in
+        /** Splice `curr` using `prefix`. */
+        Node splice(PLf curr, Key!radixPow2 prefix)
         {
-            import std.range : empty;
-        }
-        body
-        {
-            auto br = construct!(DefaultBr)(prefixBkey[]);
+            auto br = construct!(DefaultBr)(prefix);
 
-            bool wasAdded;
-            auto node = insertAt(br, suffixBkey, wasAdded);
+            bool wasAdded;      // dummy
+            auto node = insertAt(br, curr.chunks[prefix.length .. $], wasAdded);
             assert(wasAdded); // assure that existing key was reinserted
+            freeNode(curr);   // remove old current
 
             return node;
         }

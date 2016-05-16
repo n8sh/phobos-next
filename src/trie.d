@@ -361,7 +361,7 @@ struct RawRadixTree(Value,
     static private struct BrM
     {
         Prefix prefix;   // common prefix for all elements stored in this branch
-        bool occupied;
+        bool occupied;   // key at this branch is occupied
         StrictlyIndexed!(Node[M]) subNodes;
 
         /** Append statistics of tree under `this` into `stats`. */
@@ -384,9 +384,9 @@ struct RawRadixTree(Value,
     static private struct Br4
     {
         Prefix prefix;   // common prefix for all elements stored in this branch
-        bool occupied;
+        bool occupied;   // key at this branch is occupied
 
-        enum N = 4; // TODO make this a CT-param
+        enum N = 4; // TODO make this a CT-param when this structu is moved into global scope
 
         // TODO merge these into a new `NodeType`
         StrictlyIndexed!(Node[N]) subNodes; // sub-nodes

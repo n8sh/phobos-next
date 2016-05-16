@@ -226,7 +226,7 @@ struct RawRadixTree(Value,
             struct PLf
             {
                 enum maxLength = (size_t.sizeof - 2) / Ix.sizeof;
-                this(Ix[] ixs) { chunks = ixs; }
+                this(Ix[] ixs) { this.chunks = ixs; }
                 IxsN!(maxLength, radixPow2) chunks;
                 alias chunks this;
             private:

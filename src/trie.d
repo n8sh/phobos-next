@@ -352,6 +352,7 @@ struct RawRadixTree(Value,
         Br2_PopHist popHist_Br2;
         Br4_PopHist popHist_Br4;
         BrM_PopHist popHist_BrM;
+
         LeafM_PopHist popHist_LfM;
 
         /** Maps `Node` type/index `Ix` to population.

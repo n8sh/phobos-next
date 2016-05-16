@@ -93,6 +93,59 @@ shared static this()
     assert(cacheLineSize == dataCaches()[0].lineSize, "Cache line is not 64 bytes");
 }
 
+struct IxsN(size_t n, size_t m = 8)
+{
+    enum maxLength = n;
+    alias Ix = Mod!m;
+
+    this(Ix[] ixs)
+    {
+        assert(ixs.length <= maxLength);
+
+        this.ixs[0 .. ixs.length] = ixs;
+        this.length = ixs.length;
+    }
+
+    @property auto toString() const
+    {
+        return chunks.to!string;
+    }
+
+    @safe pure nothrow @nogc:
+
+    bool empty() const
+    {
+        return length == 0;
+    }
+
+    Ix front() const
+    {
+        assert(!empty);
+        return ixs[0];
+    }
+
+    void popFront()
+    {
+        assert(!empty);
+        ixs[0 .. length - 1] = ixs[1 .. length]; // shift out first
+        --length;
+    }
+
+    void popBack()
+    {
+        assert(!empty);
+        --length;
+    }
+
+    auto chunks() inout { return ixs[0 .. length]; }
+    alias chunks this;
+private:
+    ubyte length;
+    Ix[n] ixs;              // ixs
+}
+
+static assert(IxsN!6.sizeof == 7);
+
 /** Raw radix tree container storing untyped variable-length `Key`.
 
     In set-case (`Value` is `void`) this container is especially suitable for
@@ -123,6 +176,8 @@ struct RawRadixTree(Value,
     /** Radix Modulo Index */
     alias Ix = Mod!M; // restricted index type avoids range checking in array indexing below
 
+    alias Prefix = immutable(Ix)[];
+
     /** `radixPow2` least significant bits (LSB) of leaves directly packed into a word.
 
         TODO Generalize to packing of more than one `Ix` per byte.
@@ -136,53 +191,10 @@ struct RawRadixTree(Value,
             // Packed Variable-Length Single Leaf
             struct PLf
             {
-                enum maxLength = (size_t.sizeof - 2) / Ix.sizeof;
-
-                this(Ix[] key_)
-                {
-                    assert(key_.length <= maxLength);
-
-                    this.suffix[0 .. key_.length] = key_;
-                    this.length = key_.length;
-                }
-
-                @property auto toString() const
-                {
-                    return chunks.to!string;
-                }
-
-                @safe pure nothrow @nogc:
-
-                bool empty() const
-                {
-                    return length == 0;
-                }
-
-                Ix front() const
-                {
-                    assert(!empty);
-                    return suffix[0];
-                }
-
-                void popFront()
-                {
-                    assert(!empty);
-                    suffix[0 .. length - 1] = suffix[1 .. length]; // shift out first
-                    --length;
-                }
-
-                void popBack()
-                {
-                    assert(!empty);
-                    --length;
-                }
-
-                auto chunks() inout { return suffix[0 .. length]; }
-                alias chunks this;
+                alias ixs this;
 
             private:
-                Ix[maxLength] suffix;
-                Mod!(maxLength + 1, ubyte) length;
+                IxsN!7 ixs;
                 ubyte _mustBeIgnored = 0; // this byte must be ignored because it contains Node-type
 
                 // static if (isMap)
@@ -319,8 +331,6 @@ struct RawRadixTree(Value,
         IndexedArray!(size_t, Node.Ix) popByNodeType;
         static assert(is(typeof(popByNodeType).Index == Node.Ix));
     }
-
-    alias Prefix = immutable(Ix)[];
 
     /** Dense M-Branch with `M` number of sub-nodes. */
     static private struct BrM

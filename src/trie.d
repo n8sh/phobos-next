@@ -169,14 +169,12 @@ struct RawRadixTree(Value,
                     assert(!empty);
                     suffix[0 .. length - 1] = suffix[1 .. length]; // shift out first
                     --length;
-                    assert(!empty, "empty!");
                 }
 
                 void popBack()
                 {
                     assert(!empty);
                     --length;
-                    assert(!empty, "empty!");
                 }
 
                 auto chunks() inout { return suffix[0 .. length]; }

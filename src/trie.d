@@ -103,6 +103,7 @@ shared static this()
 struct RawRadixTree(Value,
                     size_t radixPow2 = 8) // radixPow2 in number of bits, typically either 1, 2, 4 or 8
 {
+    import std.conv : to;
     import std.algorithm : filter;
     import std.meta : AliasSeq, staticMap;
     import std.typecons : ConstOf;
@@ -147,7 +148,6 @@ struct RawRadixTree(Value,
 
                 @property auto toString() const
                 {
-                    import std.conv : to;
                     return chunks.to!string;
                 }
 
@@ -320,10 +320,12 @@ struct RawRadixTree(Value,
         static assert(is(typeof(popByNodeType).Index == Node.Ix));
     }
 
+    alias Prefix = immutable(Ix)[];
+
     /** Dense M-Branch with `M` number of sub-nodes. */
     static private struct BrM
     {
-        Ix[] prefix; // common prefix for all elements stored in this branch
+        Prefix prefix;   // common prefix for all elements stored in this branch
         bool occupied;
         StrictlyIndexed!(Node[M]) subNodes;
 
@@ -346,7 +348,7 @@ struct RawRadixTree(Value,
     /** Sparse/Packed 2-Branch. */
     static private struct Br2
     {
-        Ix[] prefix;
+        Prefix prefix;   // common prefix for all elements stored in this branch
         bool occupied;
 
         enum N = 2; // TODO make this a CT-param
@@ -423,24 +425,15 @@ struct RawRadixTree(Value,
         /** Insert `key` into `this` tree. */
         pragma(inline) Node insert(Key!radixPow2 key, out bool wasAdded)
         {
-            dln("_root:", _root);
-            if (auto brM = _root.peek!(BrM*))
-            {
-                dln("BrM root prefix:", (*brM).prefix);
-            }
-            dln("key:", key);
             return _root = insertAt(_root, key, wasAdded);
         }
 
         /** Insert `key` into sub-tree under root `curr`. */
         pragma(inline) Node insertAt(Node curr, Key!radixPow2 key, out bool wasAdded) // Node-polymorphic
         {
-            show!(key);
-
             // TODO functionize and perhaps merge with constructSub
             if (!curr)          // if no curr yet
             {
-                show!(key);
                 static if (radixPow2 == 8)
                 {
                     if (key.length <= PLf.maxLength)
@@ -452,14 +445,13 @@ struct RawRadixTree(Value,
                     else // key doesn't fit in a PLf
                     {
                         BrM* br = construct!(DefaultBr);
-                        br.prefix = key[0 .. key.length - PLf.maxLength]; // so extract prefix that doesn't fit in PLf into BrM
+                        br.prefix = key[0 .. key.length - PLf.maxLength].to!Prefix; // so extract prefix that doesn't fit in PLf into BrM
                         key = key[br.prefix.length .. $];
                         curr = Node(br); // use this branch below in this function to insert into
                     }
                 }
             }
 
-            show!(key, curr);
             with (Node.Ix)
             {
                 final switch (curr.typeIx)
@@ -522,37 +514,26 @@ struct RawRadixTree(Value,
             import std.algorithm : commonPrefix;
             auto matchedPrefix = commonPrefix(key, curr.prefix);
 
-            dln("key:", key);
-            dln("BrM* curr.prefix:", curr.prefix);
-            dln("matchedPrefix:", matchedPrefix);
-
             // prefix:abcd, key:ab
             if (matchedPrefix.length == key.length &&
                 matchedPrefix.length < curr.prefix.length) // prefix is an extension of key
             {
-                dln("1 key:", key);
-                BrM* br = construct!(DefaultBr)(matchedPrefix,
+                BrM* br = construct!(DefaultBr)(matchedPrefix.to!Prefix,
                                                 true); // `true` because `key` occupies this node
                 br.subNodes[curr.prefix[matchedPrefix.length]] = curr;
-                dln("Before curr.prefix:", curr.prefix);
-                curr.prefix = curr.prefix[matchedPrefix.length + 1 .. $]; // drop matchedPrefix plus index
-                dln("After curr.prefix:", curr.prefix);
-                dln("br.prefix:", br.prefix);
+                curr.prefix = curr.prefix[matchedPrefix.length + 1 .. $].to!Prefix; // drop matchedPrefix plus index
                 return Node(br);
             }
             // prefix:ab, key:abcd
             else if (matchedPrefix.length == curr.prefix.length &&
                      matchedPrefix.length < key.length) // key is an extension of prefix
             {
-                dln("2 key:", key);
                 key = key[matchedPrefix.length .. $]; // strip `curr.prefix from beginning of `key`
-                dln("2 key:", key);
                 // continue below
             }
             // prefix:ab, key:cd
             else if (matchedPrefix.length == 0) // no prefix key match
             {
-                dln("3 key:", key);
                 if (curr.prefix.length == 0) // no current prefix
                 {
                     // continue below
@@ -561,10 +542,7 @@ struct RawRadixTree(Value,
                 {
                     BrM* br = construct!(DefaultBr);
                     br.subNodes[curr.prefix[0]] = curr;
-                    dln("Before curr.prefix:", curr.prefix);
-                    curr.prefix = curr.prefix[1 .. $];
-                    dln("After curr.prefix:", curr.prefix);
-                    dln("br.prefix:", br.prefix);
+                    curr.prefix = curr.prefix[1 .. $].to!Prefix;
                     auto node = insertAt(br, key, wasAdded);
                     return node;
                 }
@@ -573,7 +551,6 @@ struct RawRadixTree(Value,
             else if (matchedPrefix.length == curr.prefix.length && // exact key prefix match
                      matchedPrefix.length == key.length)
             {
-                dln("4 key:", key);
                 if (!curr.occupied)
                 {
                     curr.occupied = true;
@@ -583,11 +560,7 @@ struct RawRadixTree(Value,
             }
 
             const ix = key[0];
-            dln("_ ix:", ix);
-            dln("key[1 .. $]:", key[1 .. $]);
             curr.subNodes[ix] = insertAt(curr.subNodes[ix], key[1 .. $], wasAdded); // recurse
-            dln("BrM*:", curr);
-            dln("BrM* curr:prefix:", curr.prefix);
             return Node(curr);
         }
 
@@ -618,8 +591,6 @@ struct RawRadixTree(Value,
         }
         body
         {
-            dln("key:", key);
-
             import std.range : empty;
             import std.algorithm : commonPrefix;
 
@@ -640,7 +611,7 @@ struct RawRadixTree(Value,
         /** Splice `curr` using `prefix`. */
         Node splice(PLf curr, Key!radixPow2 prefix)
         {
-            auto br = construct!(DefaultBr)(prefix);
+            auto br = construct!(DefaultBr)(prefix.to!Prefix);
 
             bool wasAdded;      // dummy
             auto node = insertAt(br, curr.chunks, wasAdded);
@@ -862,7 +833,6 @@ struct RadixTree(Key, Value, size_t radixPow2 = 8)
         static if (isFixedTrieableKeyType!Key)
         {
             const ukey = typedKey.bijectToUnsigned;
-            show!ukey;
             enum nbits = 8*ukey.sizeof;
             enum chunkCount = nbits/radixPow2;
 
@@ -952,12 +922,10 @@ auto radixTreeMap(Key, Value, size_t radixPow2 = 4)() { return RadixTree!(Key, V
     enum radixPow2 = 8;
     auto set = radixTreeSet!(ubyte, radixPow2);
 
-    dln("Adding 0");
     assert(set.insert(0));
     assert(!set.insert(0));
     assert(set.nodeCount == 1); // one leaf
 
-    dln("Adding 1");
     assert(set.insert(1));
     assert(!set.insert(1));
     assert(set.nodeCount == 3); // one branch two leaves
@@ -1000,7 +968,8 @@ auto check(size_t radixPow2, Keys...)()
                     assert(key !in set);        // alternative syntax
                 }
 
-                dln("============================= NEW INSERT of key:", key);
+                const show = false;
+                if (show) { dln("============================= NEW INSERT of key:", key); }
                 assert(set.insert(key));  // insert new value returns `true` (previously not in set)
                 switch (cnt)             // if first
                 {
@@ -1012,7 +981,7 @@ auto check(size_t radixPow2, Keys...)()
                     break;
                 default: break;
                 }
-                dln("============================= EXISTING of key:", key);
+                if (show) { dln("============================= EXISTING INSERT of key:", key); }
                 assert(!set.insert(key)); // reinsert same value returns `false` (already in set)
 
                 if (useContains)

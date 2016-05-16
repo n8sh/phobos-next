@@ -503,7 +503,7 @@ struct RawRadixTree(Value,
                         wasAdded = true;
                         return Node(currPLf); // we're done so return directly
                     }
-                    else // key doesn't fit in a PLf
+                    else // key doesn't fit in a `PLf`
                     {
                         BrM* br = construct!(DefaultBr)(key[0 .. key.length - PLf.maxLength].to!(typeof(DefaultBr.prefix)));
                         key = key[br.prefix.length .. $];

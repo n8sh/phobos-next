@@ -1004,16 +1004,21 @@ auto check(uint radixPow2, Keys...)()
                 const show = false;
                 if (show) { dln("============================= NEW INSERT of key:", key); }
                 assert(set.insert(key));  // insert new value returns `true` (previously not in set)
-                switch (cnt)             // if first
+
+                static if (Key.sizeof <= Tree.PLf.maxLength)
                 {
-                case 0:                                // after first insert
-                    assert(set._root.peek!(Tree.PLf)); // top should be a leaf
-                    break;
-                case 1:                                 // after second insert
-                    assert(set._root.peek!(Tree.BrM*)); // top should be a branch
-                    break;
-                default: break;
+                    switch (cnt)             // if first
+                    {
+                    case 0:                                // after first insert
+                        assert(set._root.peek!(Tree.PLf)); // top should be a leaf
+                        break;
+                    case 1:                                 // after second insert
+                        assert(set._root.peek!(Tree.BrM*)); // top should be a branch
+                        break;
+                    default: break;
+                    }
                 }
+
                 if (show) { dln("============================= EXISTING INSERT of key:", key); }
                 assert(!set.insert(key)); // reinsert same value returns `false` (already in set)
 

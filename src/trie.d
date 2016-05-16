@@ -168,6 +168,7 @@ static assert(IxsN!(6, 8).sizeof == 7);
     auto plf = IxsN!(7, radixPow2)(ixs);
 
     assert(plf.length == 4);
+    assert(!plf.empty);
 
     assert(plf.equal([11, 22, 33, 44]));
     plf.popFront;
@@ -178,6 +179,7 @@ static assert(IxsN!(6, 8).sizeof == 7);
     assert(plf.equal([33]));
     plf.popFront;
     assert(plf.empty);
+    assert(plf.length == 0);
 }
 
 /** Raw radix tree container storing untyped variable-length `Key`.
@@ -358,7 +360,7 @@ struct RawRadixTree(Value,
     /** Dense M-Branch with `M` number of sub-nodes. */
     static private struct BrM
     {
-        IxsN!15 prefix;   // common prefix for all elements stored in this branch
+        IxsN!15 prefix;  // common prefix for all elements stored in this branch
         bool occupied;   // key at this branch is occupied
         StrictlyIndexed!(Node[M]) subNodes;
 
@@ -381,7 +383,7 @@ struct RawRadixTree(Value,
     /** Sparse/Packed 4-Branch. */
     static private struct Br4
     {
-        IxsN!15 prefix;   // common prefix for all elements stored in this branch
+        IxsN!15 prefix;  // common prefix for all elements stored in this branch
         bool occupied;   // key at this branch is occupied
 
         enum N = 4; // TODO make this a CT-param when this structu is moved into global scope

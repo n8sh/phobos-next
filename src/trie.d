@@ -559,6 +559,12 @@ struct RawRadixTree(Value,
                 return Node(curr);
             }
 
+            import std.range : empty;
+            if (key.empty)
+            {
+                dln("*curr:", *curr);
+            }
+
             const ix = key[0];
             curr.subNodes[ix] = insertAt(curr.subNodes[ix], key[1 .. $], wasAdded); // recurse
             return Node(curr);
@@ -968,7 +974,7 @@ auto check(size_t radixPow2, Keys...)()
                     assert(key !in set);        // alternative syntax
                 }
 
-                const show = false;
+                const show = true;
                 if (show) { dln("============================= NEW INSERT of key:", key); }
                 assert(set.insert(key));  // insert new value returns `true` (previously not in set)
                 switch (cnt)             // if first
@@ -1112,8 +1118,9 @@ void benchmark(size_t radixPow2)()
 unittest
 {
     check!(8,
+           int,
            ubyte,
-           short, int, long,
+           short, long,
            ushort, uint, ulong);
     // check!(4, ulong);
 }

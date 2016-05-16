@@ -357,7 +357,7 @@ struct RawRadixTree(Value,
         static assert(is(typeof(popByNodeType).Index == Node.Ix));
     }
 
-    /** Dense M-Branch with `M` number of sub-nodes. */
+    /** Dense/Unpacked `M`-Branch with `M` number of sub-nodes. */
     static private struct BrM
     {
         IxsN!15 prefix;  // common prefix for all elements stored in this branch

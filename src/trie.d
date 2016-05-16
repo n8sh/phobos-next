@@ -334,7 +334,12 @@ struct RawRadixTree(Value,
     /** 2-Branch population histogram.
         Index maps to population with value range (1 .. 2).
     */
-    alias Br4_PopHist = size_t[2];
+    alias Br2_PopHist = size_t[2];
+
+    /** 4-Branch population histogram.
+        Index maps to population with value range (1 .. 4).
+    */
+    alias Br4_PopHist = size_t[4];
 
     /** M-Leaf population histogram.
         Index maps to population with value range (1 .. `M`).
@@ -344,6 +349,7 @@ struct RawRadixTree(Value,
     /** Tree Population and Memory-Usage Statistics. */
     struct Stats
     {
+        Br2_PopHist popHist_Br2;
         Br4_PopHist popHist_Br4;
         BrM_PopHist popHist_BrM;
         LeafM_PopHist popHist_LfM;
@@ -1094,7 +1100,8 @@ void benchmark(uint radixPow2)()
 
             dln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
             auto stats = set.usageHistograms;
-            dln("Sparse 2-Branch Population Histogram: ", stats.popHist_Br4);
+            dln("Sparse 2-Branch Population Histogram: ", stats.popHist_Br2);
+            dln("Sparse 4-Branch Population Histogram: ", stats.popHist_Br4);
             dln("Dense M=", 2^^radixPow2, "-Branch Population Histogram: ", stats.popHist_BrM);
             dln("Dense M=", 2^^radixPow2, "-Leaf   Population Histogram: ", stats.popHist_LfM);
             dln("Population By Node Type: ", stats.popByNodeType);

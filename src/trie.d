@@ -587,8 +587,8 @@ struct RawRadixTree(Value,
             const ix = key[0];
             dln("_ ix:", ix);
             dln("key[1 .. $]:", key[1 .. $]);
-            // dln("curr.subNodes:", curr.subNodes);
             curr.subNodes[ix] = insertAt(curr.subNodes[ix], key[1 .. $], wasAdded); // recurse
+            dln("BrM*:", curr);
             dln("BrM* curr:prefix:", curr.prefix);
             return Node(curr);
         }
@@ -899,7 +899,8 @@ struct RadixTree(Key, Value, size_t radixPow2 = 8)
         }
 
         bool wasAdded = false; // indicates that key was added
-        _root = _tree.insert(key[], wasAdded);
+        _tree.insert(key[], wasAdded);
+
         _length += wasAdded;
         return wasAdded;
     }

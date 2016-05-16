@@ -30,7 +30,7 @@
     TODO Add sparse 2^^n-branches for n < radixPow2: 2^^1=B2, 2^^2=B4, 2^^3=B8, B^^4=B16. Use
     sortExactly from sortn.d to order their members.
 
-    TODO Make Br2 templated on N when I figure out how
+    TODO Make Br4 templated on N when I figure out how
     to elide the recursive template-instantiation. Ask forums
     TODO Templatize node types including SBrXX on `N` and `BKey` but *not* on
     `Key` and instantiate as N 2, 4, 16, 256.
@@ -240,7 +240,7 @@ struct RawRadixTree(Value,
     }
     else static if (radixPow2 == 4)
     {
-        alias DefaultRootType = Br2*;
+        alias DefaultRootType = Br4*;
     }
 
     alias DefaultBr = DefaultRootType;
@@ -254,7 +254,7 @@ struct RawRadixTree(Value,
                                 PLfs, // sparse leaves
 
                                 // sparse branches
-                                Br2*,
+                                Br4*,
 
                                 BrM*,  // dense branches
 
@@ -297,7 +297,7 @@ struct RawRadixTree(Value,
     /** 2-Branch population histogram.
         Index maps to population with value range (1 .. 2).
     */
-    alias Br2_PopHist = size_t[2];
+    alias Br4_PopHist = size_t[2];
 
     /** M-Leaf population histogram.
         Index maps to population with value range (1 .. `M`).
@@ -307,7 +307,7 @@ struct RawRadixTree(Value,
     /** Tree Population and Memory-Usage Statistics. */
     struct Stats
     {
-        Br2_PopHist popHist_Br2;
+        Br4_PopHist popHist_Br4;
         BrM_PopHist popHist_BrM;
         LeafM_PopHist popHist_LfM;
 
@@ -345,13 +345,13 @@ struct RawRadixTree(Value,
         // static if (isMap) { Value value; }
     }
 
-    /** Sparse/Packed 2-Branch. */
-    static private struct Br2
+    /** Sparse/Packed 4-Branch. */
+    static private struct Br4
     {
         Prefix prefix;   // common prefix for all elements stored in this branch
         bool occupied;
 
-        enum N = 2; // TODO make this a CT-param
+        enum N = 4; // TODO make this a CT-param
 
         // TODO merge these into a new `NodeType`
         StrictlyIndexed!(Node[N]) subNodes; // sub-nodes
@@ -366,7 +366,7 @@ struct RawRadixTree(Value,
                 ++nnzSubCount;
                 sub.calculate!(Value, radixPow2)(stats);
             }
-            ++stats.popHist_Br2[nnzSubCount - 1]; // TODO type-safe indexing
+            ++stats.popHist_Br4[nnzSubCount - 1]; // TODO type-safe indexing
         }
     }
 
@@ -459,7 +459,7 @@ struct RawRadixTree(Value,
                 case undefined: break;
                 case ix_PLf:    return insertAt(curr.as!(PLf), key, wasAdded);
                 case ix_PLfs:   return insertAt(curr.as!(PLfs), key, wasAdded);
-                case ix_Br2Ptr: return insertAt(curr.as!(Br2*), key, wasAdded);
+                case ix_Br4Ptr: return insertAt(curr.as!(Br4*), key, wasAdded);
                 case ix_BrMPtr: return insertAt(curr.as!(BrM*), key, wasAdded);
                 case ix_LfMPtr: return insertAt(curr.as!(LfM*), key, wasAdded);
                 }
@@ -468,7 +468,7 @@ struct RawRadixTree(Value,
         }
 
         /** Insert `key` into sub-tree under root `curr`. */
-        Node insertAt(Br2* curr, Key!radixPow2 key, out bool wasAdded)
+        Node insertAt(Br4* curr, Key!radixPow2 key, out bool wasAdded)
         in
         {
             assert(!wasAdded);               // check that we haven't yet added it
@@ -479,7 +479,7 @@ struct RawRadixTree(Value,
 
             // const Ix ix = key[0];
 
-            // enum N = 2;         // branch-order, number of possible sub-nodes
+            // enum N = Br4.N;         // branch-order, number of possible sub-nodes
             // foreach (Mod!N ix; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             // {
             //     if (curr.subNodes[ix])   // first is occupied
@@ -676,9 +676,9 @@ struct RawRadixTree(Value,
         }
 
         /** Destructively expand `curr` into a `BrM` and return it. */
-        BrM* expand(Br2* curr) @trusted
+        BrM* expand(Br4* curr) @trusted
         {
-            enum N = 2;         // branch-order, number of possible sub-nodes
+            enum N = Br4.N;         // branch-order, number of possible sub-nodes
             auto next = construct!(typeof(return));
             foreach (Mod!N ix; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             {
@@ -740,7 +740,7 @@ struct RawRadixTree(Value,
             freeNode(curr);
         }
 
-        void release(Br2* curr)
+        void release(Br4* curr)
         {
             foreach (sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
             {
@@ -762,7 +762,7 @@ struct RawRadixTree(Value,
                 case undefined: break;
                 case ix_PLf: return release(curr.as!(PLf));
                 case ix_PLfs: return release(curr.as!(PLfs));
-                case ix_Br2Ptr: return release(curr.as!(Br2*));
+                case ix_Br4Ptr: return release(curr.as!(Br4*));
                 case ix_BrMPtr: return release(curr.as!(BrM*));
                 case ix_LfMPtr: return release(curr.as!(LfM*));
                 }
@@ -810,7 +810,7 @@ static private void calculate(Value, size_t radixPow2)(RawRadixTree!(Value, radi
         case undefined: break;
         case ix_PLf: break; // TODO calculate()
         case ix_PLfs: break; // TODO calculate()
-        case ix_Br2Ptr: sub.as!(RT.Br2*).calculate(stats); break;
+        case ix_Br4Ptr: sub.as!(RT.Br4*).calculate(stats); break;
         case ix_BrMPtr: sub.as!(RT.BrM*).calculate(stats); break;
         case ix_LfMPtr: sub.as!(RT.LfM*).calculate(stats); break;
         }
@@ -1054,7 +1054,7 @@ void benchmark(size_t radixPow2)()
 
             dln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
             auto stats = set.usageHistograms;
-            dln("Sparse 2-Branch Population Histogram: ", stats.popHist_Br2);
+            dln("Sparse 2-Branch Population Histogram: ", stats.popHist_Br4);
             dln("Dense M=", 2^^radixPow2, "-Branch Population Histogram: ", stats.popHist_BrM);
             dln("Dense M=", 2^^radixPow2, "-Leaf   Population Histogram: ", stats.popHist_LfM);
             dln("Population By Node Type: ", stats.popByNodeType);
@@ -1070,7 +1070,7 @@ void benchmark(size_t radixPow2)()
                     case undefined: break;
                     case ix_PLf:   bytesUsed = pop*Set.PLf.sizeof; break;
                     case ix_PLfs:   bytesUsed = pop*Set.PLfs.sizeof; break;
-                    case ix_Br2Ptr: bytesUsed = pop*Set.Br2.sizeof; break;
+                    case ix_Br4Ptr: bytesUsed = pop*Set.Br4.sizeof; break;
                     case ix_BrMPtr: bytesUsed = pop*Set.BrM.sizeof; break;
                     case ix_LfMPtr: bytesUsed = pop*Set.LfM.sizeof; break;
                     }

@@ -431,6 +431,61 @@ struct RawRadixTree(Value,
         }
     }
 
+    /** Set sub-`Node` of branch `Node` `br` at index `ix to `sub`. */
+    Node setSub(Node br, Ix ix, Node sub)
+    {
+        switch (br.typeIx)
+        {
+        case Node.Ix.ix_Br2Ptr: break;
+        case Node.Ix.ix_Br4Ptr: break;
+        case Node.Ix.ix_BrMPtr:
+            br.as!(BrM*).subNodes[ix] = sub;
+            break;
+        default: assert(false, "Unsupported Node type");
+        }
+        return br;
+    }
+
+    /** Get sub-`Node` of branch `Node` `br` at index `ix. */
+    inout(Node) getSub(inout Node br, Ix ix)
+    {
+        switch (br.typeIx)
+        {
+        case Node.Ix.ix_Br2Ptr:
+            break;
+        case Node.Ix.ix_Br4Ptr:
+            break;
+        case Node.Ix.ix_BrMPtr:
+            return br.as!(BrM*).subNodes[ix];
+        default: assert(false, "Unsupported Node type");
+        }
+        return Node.init;
+    }
+
+    /** Returns: `true` if `br` is occupied, `false` otherwise. */
+    bool isOccupied(Node br) const
+    {
+        switch (br.typeIx)
+        {
+        case Node.Ix.ix_Br2Ptr: return br.as!(Br2*).occupied;
+        case Node.Ix.ix_Br4Ptr: return br.as!(Br4*).occupied;
+        case Node.Ix.ix_BrMPtr: return br.as!(BrM*).occupied;
+        default: assert(false, "Unsupported Node type");
+        }
+    }
+
+    /** Get prefix of branch node `br`. */
+    auto ref getPrefix(inout Node br)
+    {
+        switch (br.typeIx)
+        {
+        case Node.Ix.ix_Br2Ptr: return br.as!(Br2*).prefix;
+        case Node.Ix.ix_Br4Ptr: return br.as!(Br4*).prefix;
+        case Node.Ix.ix_BrMPtr: return br.as!(BrM*).prefix;
+        default: assert(false, "Unsupported Node type");
+        }
+    }
+
     /** Bottom-most leaf node of tree storing `M` number of densly packed keys
         of fixed-length type `Key`.
     */
@@ -533,6 +588,12 @@ struct RawRadixTree(Value,
             }
         }
 
+        pragma(inline) Node insertAtBranch(Node curr, Key!radixPow2 key, out bool wasAdded) // Node-polymorphic
+        {
+            // TODO move logic from insertAt(BrM and use members setSub, getSub, isOccupied getPrefix to access)
+            return curr;
+        }
+
         /** Insert `key` into sub-tree under root `curr`. */
         Node insertAt(Br2* curr, Key!radixPow2 key, out bool wasAdded)
         {
@@ -543,9 +604,7 @@ struct RawRadixTree(Value,
         Node insertAt(Br4* curr, Key!radixPow2 key, out bool wasAdded)
         {
             assert(false, "TODO sync with changes in insertAt(BrM*");
-
             // const Ix ix = key[0];
-
             // enum N = Br4.N;         // branch-order, number of possible sub-nodes
             // foreach (Mod!N ix; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             // {
@@ -566,7 +625,6 @@ struct RawRadixTree(Value,
             //         return Node(curr);
             //     }
             // }
-
             // // if we got here all N sub-nodes are occupied so we need to expand
             // return insertAt(expand(curr), key, wasAdded); // NOTE stay on same depth
         }

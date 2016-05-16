@@ -16,7 +16,7 @@
 
     TODO Enable support for `is null` instead of `isNull`?
 
-    TODO Use `enforce()` instead of `assert()` in WordVariant:init()
+    TODO Use `enforce()` instead of `assert()` in WordVariant:initialize()
 
     TODO Move to Phobos std.variant
 */
@@ -90,12 +90,12 @@ struct WordVariant(Types...)
     @nogc:
 
     /// Construction from `value`.
-    this(T)(T value) if (canStore!T) { init(value); }
+    this(T)(T value) if (canStore!T) { initialize(value); }
     /// ditto
     this(typeof(null) value) { _raw = S.init; }
 
     /// Assignment from `that`.
-    auto ref opAssign(T)(T that) if (canStore!T) { init(that); return this; }
+    auto ref opAssign(T)(T that) if (canStore!T) { initialize(that); return this; }
     /// ditto
     auto ref opAssign(typeof(null) that) { _raw = S.init; return this; }
 
@@ -127,7 +127,7 @@ pragma(inline):
 
     bool opCast(T : bool)() const { return !isNull; }
 
-    private void init(T)(T that) @trusted
+    private void initialize(T)(T that) @trusted
     in
     {
         assert(!((*(cast(S*)(&that))) & typeMask), `Top-most bits of parameter is already occupied`); // TODO use enforce instead?

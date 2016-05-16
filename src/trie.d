@@ -93,11 +93,11 @@ shared static this()
     assert(cacheLineSize == dataCaches()[0].lineSize, "Cache line is not 64 bytes");
 }
 
-/** Statically allocated array of `Ix`.  */
-struct IxsN(size_t n,
+/** Statically allocated array of `Ix` of maximum length `n`.
+ */
+struct IxsN(size_t maxLength,
             size_t radixPow2 = 8)
 {
-    enum maxLength = n;
     enum M = 2^^radixPow2;     // branch-multiplicity, typically either 2, 4, 16 or 256
     alias Ix = Mod!M;
 
@@ -106,7 +106,7 @@ struct IxsN(size_t n,
         assert(ixs.length <= maxLength);
 
         this.ixs[0 .. ixs.length] = ixs;
-        this.length = ixs.length;
+        this.length = cast(ubyte)ixs.length;
     }
 
     @property auto toString() const
@@ -122,7 +122,7 @@ struct IxsN(size_t n,
         return length == 0;
     }
 
-    Ix front() const
+    auto ref front() inout
     {
         assert(!empty);
         return ixs[0];
@@ -145,10 +145,22 @@ struct IxsN(size_t n,
     alias chunks this;
 private:
     ubyte length;
-    Ix[n] ixs;              // ixs
+    Ix[maxLength] ixs;              // ixs
 }
 
 static assert(IxsN!(6, 8).sizeof == 7);
+
+@safe pure nothrow unittest
+{
+    enum radixPow2 = 8;
+    enum M = 2^^radixPow2;
+    import modulo : mod;
+    alias Ix = Mod!(M, ubyte);
+    Ix[] ixs = [11.mod!M, 22.mod!M, 33.mod!M];
+    auto plf = IxsN!(7, radixPow2)(ixs);
+    import std.algorithm : equal;
+    assert(plf.chunks.equal([11, 22, 33]));
+}
 
 /** Raw radix tree container storing untyped variable-length `Key`.
 
@@ -195,12 +207,12 @@ struct RawRadixTree(Value,
             // Packed Variable-Length Single Leaf
             struct PLf
             {
-                alias ixs this;
-
+                enum maxLength = (size_t.sizeof - 2) / Ix.sizeof;
+                this(Ix[] ixs) { chunks = ixs; }
+                IxsN!(maxLength, radixPow2) chunks;
+                alias chunks this;
             private:
-                IxsN!(6, radixPow2) ixs;
                 ubyte _mustBeIgnored = 0; // this byte must be ignored because it contains Node-type
-
                 // static if (isMap)
                 // {
                 //     static if (is(Value == bool))
@@ -208,15 +220,6 @@ struct RawRadixTree(Value,
                 //     else
                 //         Value[maxLength] values;
                 // }
-            }
-
-            @safe pure nothrow unittest
-            {
-                import modulo : mod;
-                Ix[] ixs = [11.mod!M, 22.mod!M, 33.mod!M];
-                auto plf = PLf(ixs);
-                import std.algorithm : equal;
-                assert(plf.chunks.equal([11, 22, 33]));
             }
 
             struct PLfs

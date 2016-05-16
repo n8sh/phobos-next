@@ -210,8 +210,6 @@ struct RawRadixTree(Value,
     /** Radix Modulo Index */
     alias Ix = Mod!M; // restricted index type avoids range checking in array indexing below
 
-    alias Prefix = immutable(Ix)[];
-
     /** `radixPow2` least significant bits (LSB) of leaves directly packed into a word.
 
         TODO Generalize to packing of more than one `Ix` per byte.
@@ -360,7 +358,7 @@ struct RawRadixTree(Value,
     /** Dense M-Branch with `M` number of sub-nodes. */
     static private struct BrM
     {
-        Prefix prefix;   // common prefix for all elements stored in this branch
+        IxsN!15 prefix;   // common prefix for all elements stored in this branch
         bool occupied;   // key at this branch is occupied
         StrictlyIndexed!(Node[M]) subNodes;
 
@@ -383,7 +381,7 @@ struct RawRadixTree(Value,
     /** Sparse/Packed 4-Branch. */
     static private struct Br4
     {
-        Prefix prefix;   // common prefix for all elements stored in this branch
+        IxsN!15 prefix;   // common prefix for all elements stored in this branch
         bool occupied;   // key at this branch is occupied
 
         enum N = 4; // TODO make this a CT-param when this structu is moved into global scope
@@ -480,7 +478,7 @@ struct RawRadixTree(Value,
                     else // key doesn't fit in a PLf
                     {
                         BrM* br = construct!(DefaultBr);
-                        br.prefix = key[0 .. key.length - PLf.maxLength].to!Prefix; // so extract prefix that doesn't fit in PLf into BrM
+                        br.prefix = key[0 .. key.length - PLf.maxLength].to!(typeof(DefaultBr.prefix)); // so extract prefix that doesn't fit in PLf into BrM
                         key = key[br.prefix.length .. $];
                         curr = Node(br); // use this branch below in this function to insert into
                     }
@@ -553,10 +551,10 @@ struct RawRadixTree(Value,
             if (matchedPrefix.length == key.length &&
                 matchedPrefix.length < curr.prefix.length) // prefix is an extension of key
             {
-                BrM* br = construct!(DefaultBr)(matchedPrefix.to!Prefix,
-                                                true); // `true` because `key` occupies this node
+                DefaultBr br = construct!(DefaultBr)(matchedPrefix.to!(typeof(DefaultBr.prefix)),
+                                                     true); // `true` because `key` occupies this node
                 br.subNodes[curr.prefix[matchedPrefix.length]] = curr;
-                curr.prefix = curr.prefix[matchedPrefix.length + 1 .. $].to!Prefix; // drop matchedPrefix plus index
+                curr.prefix = curr.prefix[matchedPrefix.length + 1 .. $].to!(typeof(BrM.prefix)); // drop matchedPrefix plus index
                 return Node(br);
             }
             // prefix:ab, key:abcd
@@ -588,7 +586,7 @@ struct RawRadixTree(Value,
                 {
                     BrM* br = construct!(DefaultBr);
                     br.subNodes[curr.prefix[0]] = curr;
-                    curr.prefix = curr.prefix[1 .. $].to!Prefix;
+                    curr.prefix = curr.prefix[1 .. $].to!(typeof(DefaultBr.prefix));
                     auto node = insertAt(br, key, wasAdded);
                     return node;
                 }
@@ -646,7 +644,7 @@ struct RawRadixTree(Value,
         /** Splice `curr` using `prefix`. */
         Node splice(PLf curr, Key!radixPow2 prefix)
         {
-            auto br = construct!(DefaultBr)(prefix.to!Prefix);
+            auto br = construct!(DefaultBr)(prefix.to!(typeof(DefaultBr.prefix)));
 
             bool wasAdded;      // dummy
             auto node = insertAt(br, curr.chunks, wasAdded);

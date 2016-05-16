@@ -131,7 +131,12 @@ struct IxsN(size_t maxLength,
     void popFront()
     {
         assert(!empty);
-        ixs[0 .. length - 1] = ixs[1 .. length]; // shift out first
+
+        // TODO is there a reusable Phobos function for this?
+        foreach (const i; 0 .. length - 1)
+        {
+            ixs[i] = ixs[i + 1]; // TODO move construct?
+        }
         --length;
     }
 
@@ -152,14 +157,27 @@ static assert(IxsN!(6, 8).sizeof == 7);
 
 @safe pure nothrow unittest
 {
+    import std.algorithm : equal;
+    import modulo : mod;
+
     enum radixPow2 = 8;
     enum M = 2^^radixPow2;
-    import modulo : mod;
+
     alias Ix = Mod!(M, ubyte);
-    Ix[] ixs = [11.mod!M, 22.mod!M, 33.mod!M];
+    Ix[] ixs = [11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M];
     auto plf = IxsN!(7, radixPow2)(ixs);
-    import std.algorithm : equal;
-    assert(plf.chunks.equal([11, 22, 33]));
+
+    assert(plf.length == 4);
+
+    assert(plf.equal([11, 22, 33, 44]));
+    plf.popFront;
+    assert(plf.equal([22, 33, 44]));
+    plf.popBack;
+    assert(plf.equal([22, 33]));
+    plf.popFront;
+    assert(plf.equal([33]));
+    plf.popFront;
+    assert(plf.empty);
 }
 
 /** Raw radix tree container storing untyped variable-length `Key`.

@@ -150,7 +150,7 @@ struct IxsN(size_t maxLength,
     alias chunks this;
 private:
     ubyte length;
-    Ix[maxLength] ixs;              // ixs
+    Ix[maxLength] ixs;          // ixs
 }
 
 static assert(IxsN!(6, 8).sizeof == 7);
@@ -230,7 +230,7 @@ struct RawRadixTree(Value,
                 IxsN!(maxLength, radixPow2) chunks;
                 alias chunks this;
             private:
-                ubyte _mustBeIgnored = 0; // this byte must be ignored because it contains Node-type
+                ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
                 // static if (isMap)
                 // {
                 //     static if (is(Value == bool))
@@ -245,7 +245,7 @@ struct RawRadixTree(Value,
                 enum maxLength = (size_t.sizeof - 2) / Ix.sizeof;
                 Ix[maxLength] ixMs;
                 ubyte length;
-                ubyte _mustBeIgnored = 0; // this byte must be ignored because it contains Node-type
+                ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
                 // static if (isMap)
                 // {
                 //     static if (is(Value == bool))

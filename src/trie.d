@@ -531,6 +531,17 @@ struct RawRadixTree(Value,
                 key = key[matchedPrefix.length .. $]; // strip `curr.prefix from beginning of `key`
                 // continue below
             }
+            // prefix:ab, key:ab
+            else if (matchedPrefix.length == curr.prefix.length && // exact key prefix match
+                     matchedPrefix.length == key.length)
+            {
+                if (!curr.occupied)
+                {
+                    curr.occupied = true;
+                    wasAdded = true;
+                }
+                return Node(curr);
+            }
             // prefix:ab, key:cd
             else if (matchedPrefix.length == 0) // no prefix key match
             {
@@ -546,23 +557,6 @@ struct RawRadixTree(Value,
                     auto node = insertAt(br, key, wasAdded);
                     return node;
                 }
-            }
-            // prefix:ab, key:ab
-            else if (matchedPrefix.length == curr.prefix.length && // exact key prefix match
-                     matchedPrefix.length == key.length)
-            {
-                if (!curr.occupied)
-                {
-                    curr.occupied = true;
-                    wasAdded = true;
-                }
-                return Node(curr);
-            }
-
-            import std.range : empty;
-            if (key.empty)
-            {
-                dln("*curr:", *curr);
             }
 
             const ix = key[0];

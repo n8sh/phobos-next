@@ -291,6 +291,7 @@ struct RawRadixTree(Value,
                                 PLfs, // sparse leaves
 
                                 // sparse branches
+                                Br2*,
                                 Br4*,
 
                                 BrM*,  // dense branches
@@ -386,7 +387,32 @@ struct RawRadixTree(Value,
         // static if (isMap) { Value value; }
     }
 
-    /** Sparse/Packed 4-Branch. TODO templatize on N */
+    /** Sparse/Packed 2-Branch. */
+    static private struct Br2
+    {
+        IxsN!15 prefix;  // common prefix for all elements stored in this branch
+        bool occupied;   // key at this branch is occupied
+
+        enum N = 2; // TODO make this a CT-param when this structu is moved into global scope
+
+        // TODO merge these into a new `NodeType`
+        StrictlyIndexed!(Node[N]) subNodes; // sub-nodes
+        StrictlyIndexed!(Ix[N]) subIxs; // sub-Ix
+
+        /** Append statistics of tree under `this` into `stats`. */
+        void calculate(ref Stats stats) @safe pure nothrow const
+        {
+            size_t nnzSubCount = 0; // number of non-zero sub-nodes
+            foreach (sub; subNodes[].filter!(sub => sub))
+            {
+                ++nnzSubCount;
+                sub.calculate!(Value, radixPow2)(stats);
+            }
+            ++stats.popHist_Br2[nnzSubCount - 1]; // TODO type-safe indexing
+        }
+    }
+
+    /** Sparse/Packed 4-Branch. */
     static private struct Br4
     {
         IxsN!15 prefix;  // common prefix for all elements stored in this branch
@@ -500,6 +526,7 @@ struct RawRadixTree(Value,
                 case undefined: break;
                 case ix_PLf:    return insertAt(curr.as!(PLf), key, wasAdded);
                 case ix_PLfs:   return insertAt(curr.as!(PLfs), key, wasAdded);
+                case ix_Br2Ptr: return insertAt(curr.as!(Br2*), key, wasAdded);
                 case ix_Br4Ptr: return insertAt(curr.as!(Br4*), key, wasAdded);
                 case ix_BrMPtr: return insertAt(curr.as!(BrM*), key, wasAdded);
                 case ix_LfMPtr: return insertAt(curr.as!(LfM*), key, wasAdded);
@@ -509,12 +536,13 @@ struct RawRadixTree(Value,
         }
 
         /** Insert `key` into sub-tree under root `curr`. */
-        Node insertAt(Br4* curr, Key!radixPow2 key, out bool wasAdded)
-        in
+        Node insertAt(Br2* curr, Key!radixPow2 key, out bool wasAdded)
         {
-            assert(!wasAdded);               // check that we haven't yet added it
+            assert(false, "TODO sync with changes in insertAt(BrM*");
         }
-        body
+
+        /** Insert `key` into sub-tree under root `curr`. */
+        Node insertAt(Br4* curr, Key!radixPow2 key, out bool wasAdded)
         {
             assert(false, "TODO sync with changes in insertAt(BrM*");
 
@@ -546,11 +574,6 @@ struct RawRadixTree(Value,
         }
 
         Node insertAt(BrM* curr, Key!radixPow2 key, out bool wasAdded)
-        in
-        {
-            assert(!wasAdded);               // check that we haven't yet added it
-        }
-        body
         {
             import std.algorithm : commonPrefix;
             auto matchedPrefix = commonPrefix(key, curr.prefix);
@@ -606,11 +629,6 @@ struct RawRadixTree(Value,
         }
 
         Node insertAt(LfM* curr, Key!radixPow2 key, out bool wasAdded)
-        in
-        {
-            assert(!wasAdded);               // check that we haven't yet added it
-        }
-        body
         {
             const ix = key[0];
             if (!curr.keyLSBits[ix])
@@ -626,11 +644,6 @@ struct RawRadixTree(Value,
         }
 
         Node insertAt(PLf curr, Key!radixPow2 key, out bool wasAdded)
-        in
-        {
-            assert(!wasAdded);               // check that we haven't yet added it
-        }
-        body
         {
             import std.range : empty;
             import std.algorithm : commonPrefix;
@@ -663,11 +676,6 @@ struct RawRadixTree(Value,
         }
 
         Node insertAt(PLfs curr, Key!radixPow2 key, out bool wasAdded)
-        in
-        {
-            assert(!wasAdded);               // check that we haven't yet added it
-        }
-        body
         {
             const Ix ix = key[0];
 
@@ -781,6 +789,15 @@ struct RawRadixTree(Value,
             freeNode(curr);
         }
 
+        void release(Br2* curr)
+        {
+            foreach (sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
+            {
+                release(sub); // recurse
+            }
+            freeNode(curr);
+        }
+
         void release(Br4* curr)
         {
             foreach (sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
@@ -803,6 +820,7 @@ struct RawRadixTree(Value,
                 case undefined: break;
                 case ix_PLf: return release(curr.as!(PLf));
                 case ix_PLfs: return release(curr.as!(PLfs));
+                case ix_Br2Ptr: return release(curr.as!(Br2*));
                 case ix_Br4Ptr: return release(curr.as!(Br4*));
                 case ix_BrMPtr: return release(curr.as!(BrM*));
                 case ix_LfMPtr: return release(curr.as!(LfM*));
@@ -851,6 +869,7 @@ static private void calculate(Value, uint radixPow2)(RawRadixTree!(Value, radixP
         case undefined: break;
         case ix_PLf: break; // TODO calculate()
         case ix_PLfs: break; // TODO calculate()
+        case ix_Br2Ptr: sub.as!(RT.Br2*).calculate(stats); break;
         case ix_Br4Ptr: sub.as!(RT.Br4*).calculate(stats); break;
         case ix_BrMPtr: sub.as!(RT.BrM*).calculate(stats); break;
         case ix_LfMPtr: sub.as!(RT.LfM*).calculate(stats); break;
@@ -1117,6 +1136,7 @@ void benchmark(uint radixPow2)()
                     case undefined: break;
                     case ix_PLf:   bytesUsed = pop*Set.PLf.sizeof; break;
                     case ix_PLfs:   bytesUsed = pop*Set.PLfs.sizeof; break;
+                    case ix_Br2Ptr: bytesUsed = pop*Set.Br2.sizeof; break;
                     case ix_Br4Ptr: bytesUsed = pop*Set.Br4.sizeof; break;
                     case ix_BrMPtr: bytesUsed = pop*Set.BrM.sizeof; break;
                     case ix_LfMPtr: bytesUsed = pop*Set.LfM.sizeof; break;

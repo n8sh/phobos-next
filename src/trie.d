@@ -93,10 +93,13 @@ shared static this()
     assert(cacheLineSize == dataCaches()[0].lineSize, "Cache line is not 64 bytes");
 }
 
-struct IxsN(size_t n, size_t m = 8)
+/** Statically allocated array of `Ix`.  */
+struct IxsN(size_t n,
+            size_t radixPow2 = 8)
 {
     enum maxLength = n;
-    alias Ix = Mod!m;
+    enum M = 2^^radixPow2;     // branch-multiplicity, typically either 2, 4, 16 or 256
+    alias Ix = Mod!M;
 
     this(Ix[] ixs)
     {
@@ -108,7 +111,8 @@ struct IxsN(size_t n, size_t m = 8)
 
     @property auto toString() const
     {
-        return chunks.to!string;
+        import std.conv : to;
+        return ixs[0 .. length].to!string;
     }
 
     @safe pure nothrow @nogc:
@@ -144,7 +148,7 @@ private:
     Ix[n] ixs;              // ixs
 }
 
-static assert(IxsN!6.sizeof == 7);
+static assert(IxsN!(6, 8).sizeof == 7);
 
 /** Raw radix tree container storing untyped variable-length `Key`.
 
@@ -194,7 +198,7 @@ struct RawRadixTree(Value,
                 alias ixs this;
 
             private:
-                IxsN!7 ixs;
+                IxsN!(6, radixPow2) ixs;
                 ubyte _mustBeIgnored = 0; // this byte must be ignored because it contains Node-type
 
                 // static if (isMap)

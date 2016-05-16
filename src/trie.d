@@ -505,8 +505,7 @@ struct RawRadixTree(Value,
                     }
                     else // key doesn't fit in a PLf
                     {
-                        BrM* br = construct!(DefaultBr);
-                        br.prefix = key[0 .. key.length - PLf.maxLength].to!(typeof(DefaultBr.prefix)); // so extract prefix that doesn't fit in PLf into BrM
+                        BrM* br = construct!(DefaultBr)(key[0 .. key.length - PLf.maxLength].to!(typeof(DefaultBr.prefix)));
                         key = key[br.prefix.length .. $];
                         curr = Node(br); // use this branch below in this function to insert into
                     }

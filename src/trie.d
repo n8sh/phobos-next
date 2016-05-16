@@ -362,7 +362,7 @@ struct RawRadixTree(Value,
     static private struct BrM
     {
         IxsN!15 prefix;  // common prefix for all elements stored in this branch
-        bool occupied;   // key at this branch is occupied
+        bool isKey;   // key at this branch is occupied
         StrictlyIndexed!(Node[M]) subNodes;
 
         /** Append statistics of tree under `this` into `stats`. */
@@ -385,7 +385,7 @@ struct RawRadixTree(Value,
     static private struct Br2
     {
         IxsN!15 prefix;  // common prefix for all elements stored in this branch
-        bool occupied;   // key at this branch is occupied
+        bool isKey;   // key at this branch is occupied
 
         enum N = 2; // TODO make this a CT-param when this structu is moved into global scope
 
@@ -410,7 +410,7 @@ struct RawRadixTree(Value,
     static private struct Br4
     {
         IxsN!15 prefix;  // common prefix for all elements stored in this branch
-        bool occupied;   // key at this branch is occupied
+        bool isKey;   // key at this branch is occupied
 
         enum N = 4; // TODO make this a CT-param when this structu is moved into global scope
 
@@ -463,13 +463,13 @@ struct RawRadixTree(Value,
     }
 
     /** Returns: `true` if `br` is occupied, `false` otherwise. */
-    bool occupied(Node br) const
+    bool isKey(Node br) const
     {
         switch (br.typeIx)
         {
-        case Node.Ix.ix_Br2Ptr: return br.as!(Br2*).occupied;
-        case Node.Ix.ix_Br4Ptr: return br.as!(Br4*).occupied;
-        case Node.Ix.ix_BrMPtr: return br.as!(BrM*).occupied;
+        case Node.Ix.ix_Br2Ptr: return br.as!(Br2*).isKey;
+        case Node.Ix.ix_Br4Ptr: return br.as!(Br4*).isKey;
+        case Node.Ix.ix_BrMPtr: return br.as!(BrM*).isKey;
         default: assert(false, "Unsupported Node type");
         }
     }
@@ -655,9 +655,9 @@ struct RawRadixTree(Value,
             else if (matchedPrefix.length == curr.prefix.length && // exact key prefix match
                      matchedPrefix.length == key.length)
             {
-                if (!curr.occupied)
+                if (!curr.isKey)
                 {
-                    curr.occupied = true;
+                    curr.isKey = true;
                     wasAdded = true;
                 }
                 return Node(curr);

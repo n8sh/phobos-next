@@ -489,26 +489,32 @@ struct RawRadixTree(Value,
             return _root = insertAt(_root, key, wasAdded);
         }
 
+        pragma(inline) Node insertNew(Key!radixPow2 key, out bool wasAdded)
+        {
+            // TODO functionize to insertNew()
+            if (key.length <= PLf.maxLength)
+            {
+                PLf currPLf = construct!(PLf)(key);
+                wasAdded = true;
+                return Node(currPLf);
+            }
+            else // key doesn't fit in a `PLf`
+            {
+                // TODO functionize
+                BrM* br = construct!(DefaultBr)(key[0 .. key.length - PLf.maxLength].to!(typeof(DefaultBr.prefix)));
+                key = key[br.prefix.length .. $];
+                assert(false, "TODO test");
+                return Node(br); // use this branch below in this function to insert into
+            }
+        }
+
         /** Insert `key` into sub-tree under root `curr`. */
         pragma(inline) Node insertAt(Node curr, Key!radixPow2 key, out bool wasAdded) // Node-polymorphic
         {
-            // TODO functionize and perhaps merge with constructSub
-            if (!curr)          // if no curr yet
+            if (!curr)
             {
-                if (key.length <= PLf.maxLength)
-                {
-                    PLf currPLf = construct!(PLf)(key);
-                    wasAdded = true;
-                    return Node(currPLf); // we're done so return directly
-                }
-                else // key doesn't fit in a `PLf`
-                {
-                    // TODO functionize
-                    BrM* br = construct!(DefaultBr)(key[0 .. key.length - PLf.maxLength].to!(typeof(DefaultBr.prefix)));
-                    key = key[br.prefix.length .. $];
-                    curr = Node(br); // use this branch below in this function to insert into
-                    assert(false, "TODO test");
-                }
+                curr = insertNew(key, wasAdded);
+                if (wasAdded) { return curr; } // we're done so return directly
             }
 
             with (Node.Ix)

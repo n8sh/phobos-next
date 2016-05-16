@@ -463,7 +463,7 @@ struct RawRadixTree(Value,
     }
 
     /** Returns: `true` if `br` is occupied, `false` otherwise. */
-    bool isOccupied(Node br) const
+    bool occupied(Node br) const
     {
         switch (br.typeIx)
         {
@@ -475,7 +475,7 @@ struct RawRadixTree(Value,
     }
 
     /** Get prefix of branch node `br`. */
-    auto ref getPrefix(inout Node br)
+    auto ref prefix(inout Node br)
     {
         switch (br.typeIx)
         {

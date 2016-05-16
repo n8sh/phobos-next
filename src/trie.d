@@ -355,7 +355,7 @@ struct RawRadixTree(Value,
 
         // TODO merge these into a new `NodeType`
         StrictlyIndexed!(Node[N]) subNodes; // sub-nodes
-        StrictlyIndexed!(Ix[N]) subChunks; // sub-Ix
+        StrictlyIndexed!(Ix[N]) subIxs; // sub-Ix
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe pure nothrow const
@@ -484,7 +484,7 @@ struct RawRadixTree(Value,
             // {
             //     if (curr.subNodes[ix])   // first is occupied
             //     {
-            //         if (curr.subChunks[ix] == ix) // and matches ix
+            //         if (curr.subIxs[ix] == ix) // and matches ix
             //         {
             //             curr.subNodes[ix] = insertAt(curr.subNodes[ix], key[1 .. $], wasAdded);
             //             return Node(curr);
@@ -495,7 +495,7 @@ struct RawRadixTree(Value,
             //         auto subkey = key[1 .. $];
             //         curr.subNodes[ix] = insertAt(constructSub(subkey),
             //                                         subkey, wasAdded); // use it
-            //         curr.subChunks[ix] = ix;
+            //         curr.subIxs[ix] = ix;
             //         return Node(curr);
             //     }
             // }
@@ -688,7 +688,7 @@ struct RawRadixTree(Value,
             auto next = construct!(typeof(return));
             foreach (Mod!N ix; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
             {
-                next.subNodes[curr.subChunks[ix]] = curr.subNodes[ix];
+                next.subNodes[curr.subIxs[ix]] = curr.subNodes[ix];
             }
             freeNode(curr);
             return next;

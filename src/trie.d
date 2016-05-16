@@ -781,7 +781,7 @@ struct RawRadixTree(Value,
         }
 
         /** Destructively expand `curr` into a `BrM` and return it. */
-        BrM* expand(Br4* curr) @trusted
+        BrM* expand(Br4* curr)
         {
             enum N = Br4.N;         // branch-order, number of possible sub-nodes
             auto next = construct!(typeof(return));
@@ -794,7 +794,7 @@ struct RawRadixTree(Value,
         }
 
         /** Destructively expand `curr` into a `LfM` and return it. */
-        LfM* expand(PLfs curr) @trusted
+        LfM* expand(PLfs curr)
         {
             auto next = construct!(typeof(return));
             foreach (const ixM; curr.ixMs[0 .. curr.length])
@@ -832,6 +832,15 @@ struct RawRadixTree(Value,
         {
             return U(args);
         }
+    }
+
+    void freeNode(NodeType)(NodeType nt) @trusted
+    {
+        static if (isPointer!NodeType)
+        {
+            free(cast(void*)nt);  // TODO Allocator.free
+        }
+        debug --_nodeCount;
     }
 
     @safe pure nothrow /* TODO @nogc */
@@ -883,15 +892,6 @@ struct RawRadixTree(Value,
                 }
             }
         }
-    }
-
-    void freeNode(NodeType)(NodeType nt) @trusted
-    {
-        static if (isPointer!NodeType)
-        {
-            free(cast(void*)nt);  // TODO Allocator.free
-        }
-        debug --_nodeCount;
     }
 
     /** Ensure that root `Node` is allocated. */

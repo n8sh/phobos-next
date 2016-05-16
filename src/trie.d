@@ -538,6 +538,7 @@ struct RawRadixTree(Value,
             {
                 dln("2 key:", key);
                 key = key[matchedPrefix.length .. $]; // strip `curr.prefix from beginning of `key`
+                dln("2 key:", key);
                 // continue below
             }
             // prefix:ab, key:cd
@@ -570,7 +571,6 @@ struct RawRadixTree(Value,
             }
 
             const ix = key[0];
-            dln("_ ix:", ix);
             curr.subNodes[ix] = insertAt(curr.subNodes[ix], key[1 .. $], wasAdded); // recurse
             return Node(curr);
         }
@@ -625,7 +625,7 @@ struct RawRadixTree(Value,
             auto br = construct!(DefaultBr)(prefix);
 
             bool wasAdded;      // dummy
-            auto node = insertAt(br, curr.chunks[prefix.length .. $], wasAdded);
+            auto node = insertAt(br, curr.chunks, wasAdded);
             assert(wasAdded); // assure that existing key was reinserted
             freeNode(curr);   // remove old current
 

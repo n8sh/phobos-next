@@ -511,7 +511,7 @@ struct RawRadixTree(Value,
         /** Insert `key` into sub-tree under root `curr`. */
         pragma(inline) Node insertAt(Node curr, Key!radixPow2 key, out bool wasAdded) // Node-polymorphic
         {
-            if (!curr)
+            if (!curr)          // if no existing `Node` to insert at
             {
                 curr = insertNew(key, wasAdded);
                 if (wasAdded) { return curr; } // we're done so return directly

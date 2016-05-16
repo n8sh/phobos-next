@@ -380,7 +380,7 @@ struct RawRadixTree(Value,
         // static if (isMap) { Value value; }
     }
 
-    /** Sparse/Packed 4-Branch. */
+    /** Sparse/Packed 4-Branch. TODO templatize on N */
     static private struct Br4
     {
         IxsN!15 prefix;  // common prefix for all elements stored in this branch

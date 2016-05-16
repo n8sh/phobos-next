@@ -96,7 +96,7 @@ shared static this()
 /** Statically allocated `Ix`-array of maximum length `n`.
  */
 struct IxsN(size_t maxLength,
-            size_t radixPow2 = 8)
+            uint radixPow2 = 8)
 {
     enum M = 2^^radixPow2;     // branch-multiplicity, typically either 2, 4, 16 or 256
     alias Ix = Mod!M;
@@ -188,7 +188,7 @@ static assert(IxsN!(6, 8).sizeof == 7);
     See also: https://en.wikipedia.org/wiki/Radix_tree
 */
 struct RawRadixTree(Value,
-                    size_t radixPow2 = 8) // radixPow2 in number of bits, typically either 1, 2, 4 or 8
+                    uint radixPow2 = 8) // radixPow2 in number of bits, typically either 1, 2, 4 or 8
 {
     import std.conv : to;
     import std.algorithm : filter;
@@ -831,7 +831,7 @@ struct RawRadixTree(Value,
 
 /** Append statistics of tree under `Node` `sub.` into `stats`.
  */
-static private void calculate(Value, size_t radixPow2)(RawRadixTree!(Value, radixPow2).Node sub,
+static private void calculate(Value, uint radixPow2)(RawRadixTree!(Value, radixPow2).Node sub,
                                                    ref RawRadixTree!(Value, radixPow2).Stats stats)
     @safe pure nothrow /* TODO @nogc */
 {
@@ -853,7 +853,7 @@ static private void calculate(Value, size_t radixPow2)(RawRadixTree!(Value, radi
 }
 
 /// Radix-Tree with key-type `Key` and value-type `Value`.
-struct RadixTree(Key, Value, size_t radixPow2 = 8)
+struct RadixTree(Key, Value, uint radixPow2 = 8)
     if (allSatisfy!(isTrieableKeyType, Key))
 {
     /** Insert `key`.
@@ -947,10 +947,10 @@ alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
 
 /// Instantiator of set-version of `RadixTree` where value-type is `void` (unused).
-auto radixTreeSet(Key, size_t radixPow2 = 4)() { return RadixTree!(Key, void, radixPow2)(); }
+auto radixTreeSet(Key, uint radixPow2 = 4)() { return RadixTree!(Key, void, radixPow2)(); }
 
 /// Instantiator of map-version of `RadixTree` where value-type is `Value`.
-auto radixTreeMap(Key, Value, size_t radixPow2 = 4)() { return RadixTree!(Key, Value, radixPow2)(); }
+auto radixTreeMap(Key, Value, uint radixPow2 = 4)() { return RadixTree!(Key, Value, radixPow2)(); }
 
 @safe pure nothrow /* TODO @nogc */ unittest
 {
@@ -967,7 +967,7 @@ auto radixTreeMap(Key, Value, size_t radixPow2 = 4)() { return RadixTree!(Key, V
 }
 
 /// Check correctness when radixPow2 is `radixPow2` and for each `Key` in `Keys`.
-auto check(size_t radixPow2, Keys...)()
+auto check(uint radixPow2, Keys...)()
     if (Keys.length >= 1)
 {
     import std.range : iota;
@@ -1042,7 +1042,7 @@ auto check(size_t radixPow2, Keys...)()
 }
 
 /// Benchmark performance and memory usage when radixPow2 is `radixPow2`.
-void benchmark(size_t radixPow2)()
+void benchmark(uint radixPow2)()
 {
     import core.thread : sleep;
     import std.range : iota;

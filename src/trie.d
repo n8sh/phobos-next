@@ -968,7 +968,7 @@ auto check(size_t radixPow2, Keys...)()
                     assert(key !in set);        // alternative syntax
                 }
 
-                const show = true;
+                const show = false;
                 if (show) { dln("============================= NEW INSERT of key:", key); }
                 assert(set.insert(key));  // insert new value returns `true` (previously not in set)
                 switch (cnt)             // if first

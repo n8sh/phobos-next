@@ -495,20 +495,19 @@ struct RawRadixTree(Value,
             // TODO functionize and perhaps merge with constructSub
             if (!curr)          // if no curr yet
             {
-                static if (radixPow2 == 8)
+                if (key.length <= PLf.maxLength)
                 {
-                    if (key.length <= PLf.maxLength)
-                    {
-                        PLf currPLf = construct!(PLf)(key);
-                        wasAdded = true;
-                        return Node(currPLf); // we're done so return directly
-                    }
-                    else // key doesn't fit in a `PLf`
-                    {
-                        BrM* br = construct!(DefaultBr)(key[0 .. key.length - PLf.maxLength].to!(typeof(DefaultBr.prefix)));
-                        key = key[br.prefix.length .. $];
-                        curr = Node(br); // use this branch below in this function to insert into
-                    }
+                    PLf currPLf = construct!(PLf)(key);
+                    wasAdded = true;
+                    return Node(currPLf); // we're done so return directly
+                }
+                else // key doesn't fit in a `PLf`
+                {
+                    // TODO functionize
+                    BrM* br = construct!(DefaultBr)(key[0 .. key.length - PLf.maxLength].to!(typeof(DefaultBr.prefix)));
+                    key = key[br.prefix.length .. $];
+                    curr = Node(br); // use this branch below in this function to insert into
+                    assert(false, "TODO test");
                 }
             }
 

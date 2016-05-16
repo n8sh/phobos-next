@@ -997,8 +997,6 @@ auto check(size_t radixPow2, Keys...)()
                 }
                 dln("============================= EXISTING of key:", key);
                 assert(!set.insert(key)); // reinsert same value returns `false` (already in set)
-                dln("============================= EXISTING of key:", key);
-                assert(!set.insert(key)); // reinsert same value returns `false` (already in set)
 
                 if (useContains)
                 {

@@ -399,8 +399,17 @@ struct RawRadixTree(Value,
         StrictlyIndexed!(Node[N]) subNodes; // sub-nodes
         StrictlyIndexed!(Ix[N]) subIxs; // sub-Ix
 
+        @safe pure nothrow const:
+
+        bool empty() @nogc { return subCount == 0; }
+        bool full() @nogc { return subCount == N; }
+
+        void pushBack(Node sub, Ix ix)
+        {
+        }
+
         /** Append statistics of tree under `this` into `stats`. */
-        void calculate(ref Stats stats) @safe pure nothrow const
+        void calculate(ref Stats stats)
         {
             size_t nnzSubCount = 0; // number of non-zero sub-nodes
             foreach (sub; subNodes[].filter!(sub => sub))
@@ -428,8 +437,17 @@ struct RawRadixTree(Value,
         StrictlyIndexed!(Node[N]) subNodes; // sub-nodes
         StrictlyIndexed!(Ix[N]) subIxs; // sub-Ix
 
+        @safe pure nothrow const:
+
+        bool empty() @nogc { return subCount == 0; }
+        bool full() @nogc { return subCount == N; }
+
+        void pushBack(Node sub, Ix ix)
+        {
+        }
+
         /** Append statistics of tree under `this` into `stats`. */
-        void calculate(ref Stats stats) @safe pure nothrow const
+        void calculate(ref Stats stats)
         {
             size_t nnzSubCount = 0; // number of non-zero sub-nodes
             foreach (sub; subNodes[].filter!(sub => sub))
@@ -448,13 +466,13 @@ struct RawRadixTree(Value,
         {
         case Node.Ix.ix_Br2Ptr:
             auto br_ = br.as!(Br2*);
-            if (br_.subNodes.at!0 &&
-                br_.subNodes.at!1) // TODO reuse member full()
-            {
-                // TODO expand
-            }
+            if (br_.full) { return setSub(cast(Node)expand(br_), ix, sub); }
+            br_.pushBack(sub, ix);
             break;
         case Node.Ix.ix_Br4Ptr:
+            auto br_ = br.as!(Br4*);
+            if (br_.full) { return setSub(cast(Node)expand(br_), ix, sub); }
+            br_.pushBack(sub, ix);
             break;
         case Node.Ix.ix_BrMPtr:
             br.as!(BrM*).subNodes[ix] = sub;

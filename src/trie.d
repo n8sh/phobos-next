@@ -446,8 +446,16 @@ struct RawRadixTree(Value,
     {
         switch (br.typeIx)
         {
-        case Node.Ix.ix_Br2Ptr: break;
-        case Node.Ix.ix_Br4Ptr: break;
+        case Node.Ix.ix_Br2Ptr:
+            auto br_ = br.as!(Br2*);
+            if (br_.subNodes.at!0 &&
+                br_.subNodes.at!1) // TODO reuse member full()
+            {
+                // TODO expand
+            }
+            break;
+        case Node.Ix.ix_Br4Ptr:
+            break;
         case Node.Ix.ix_BrMPtr:
             br.as!(BrM*).subNodes[ix] = sub;
             break;
@@ -463,16 +471,16 @@ struct RawRadixTree(Value,
         {
         case Node.Ix.ix_Br2Ptr:
             auto br_ = br.as!(Br2*);
-            foreach (const subIx; iota!(0, typeof(br_).N))
+            foreach (subIx; iota!(0, typeof(br_).N))
             {
-                if (br_.subIxs[subIx.mod!2] == ix) { return br_.subNodes[subIx.mod!2]; }
+                if (br_.subIxs.at!subIx == ix) { return br_.subNodes.at!subIx; }
             }
             break;
         case Node.Ix.ix_Br4Ptr:
             auto br_ = br.as!(Br4*);
-            foreach (const subIx; iota!(0, typeof(br_).N))
+            foreach (subIx; iota!(0, typeof(br_).N))
             {
-                if (br_.subIxs[subIx.mod!4] == ix) { return br_.subNodes[subIx.mod!4]; }
+                if (br_.subIxs.at!subIx == ix) { return br_.subNodes.at!subIx; }
             }
             break;
         case Node.Ix.ix_BrMPtr:
@@ -799,25 +807,26 @@ struct RawRadixTree(Value,
             }
         }
 
-        // /** Destructively expand `curr` of type `Br2` into a `Br4` and return it. */
-        // Br4* expand(Br2* curr)
-        // {
-        //     auto next = construct!(typeof(return));
-        //     foreach (Mod!(curr.N) ix; iota!(0, curr.N)) // each sub node. TODO use iota!(Mod!N)
-        //     {
-        //         next.subNodes[curr.subIxs[ix]] = curr.subNodes[ix];
-        //     }
-        //     freeNode(curr);
-        //     return next;
-        // }
+        /** Destructively expand `curr` of type `Br2` into a `Br4` and return it. */
+        Br4* expand(Br2* curr)
+        {
+            auto next = construct!(typeof(return));
+            foreach (const subIx; iota!(0, curr.N)) // each sub node. TODO use iota!(Mod!N)
+            {
+                next.subNodes.at!subIx = curr.subNodes.at!subIx;
+                next.subIxs.at!subIx = curr.subIxs.at!subIx;
+            }
+            freeNode(curr);
+            return next;
+        }
 
         /** Destructively expand `curr` of type `Br4` into a `BrM` and return it. */
         BrM* expand(Br4* curr)
         {
             auto next = construct!(typeof(return));
-            foreach (Mod!(curr.N) ix; iota!(0, curr.N)) // each sub node. TODO use iota!(Mod!N)
+            foreach (Mod!(curr.N) subIx; iota!(0, curr.N)) // each sub node. TODO use iota!(Mod!N)
             {
-                next.subNodes[curr.subIxs[ix]] = curr.subNodes[ix];
+                next.subNodes[curr.subIxs[subIx]] = curr.subNodes[subIx];
             }
             freeNode(curr);
             return next;

@@ -826,7 +826,7 @@ struct RawRadixTree(Value,
             auto next = construct!(typeof(return));
             foreach (Mod!(curr.N) subIx; iota!(0, curr.N)) // each sub node. TODO use iota!(Mod!N)
             {
-                next.subNodes[curr.subIxs[subIx]] = curr.subNodes[subIx];
+                next.subNodes[curr.subIxs.at!subIx] = curr.subNodes.at!subIx;
             }
             freeNode(curr);
             return next;

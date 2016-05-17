@@ -49,7 +49,7 @@ import std.range : isInputRange, ElementType;
 import bijections : isIntegralBijectableType, bijectToUnsigned;
 import variant_ex : WordVariant;
 import typecons_ex : IndexedArray, StrictlyIndexed;
-import modulo : Mod;
+import modulo : Mod, mod;
 
 version = benchmark;
 
@@ -462,16 +462,17 @@ struct RawRadixTree(Value,
         switch (br.typeIx)
         {
         case Node.Ix.ix_Br2Ptr:
-            auto br2 = br.as!(Br2*);
-            foreach (const i, node; br2.subNodes)
+            auto br_ = br.as!(Br2*);
+            foreach (const subIx; iota!(0, typeof(br_).N))
             {
-
+                if (br_.subIxs[subIx.mod!2] == ix) { return br_.subNodes[subIx.mod!2]; }
             }
             break;
         case Node.Ix.ix_Br4Ptr:
-            auto br4 = br.as!(Br4*);
-            foreach (const i, node; br4.subNodes)
+            auto br_ = br.as!(Br4*);
+            foreach (const subIx; iota!(0, typeof(br_).N))
             {
+                if (br_.subIxs[subIx.mod!4] == ix) { return br_.subNodes[subIx.mod!4]; }
             }
             break;
         case Node.Ix.ix_BrMPtr:

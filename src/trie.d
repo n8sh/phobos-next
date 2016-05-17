@@ -799,12 +799,23 @@ struct RawRadixTree(Value,
             }
         }
 
-        /** Destructively expand `curr` into a `BrM` and return it. */
+        // /** Destructively expand `curr` of type `Br2` into a `Br4` and return it. */
+        // Br4* expand(Br2* curr)
+        // {
+        //     auto next = construct!(typeof(return));
+        //     foreach (Mod!(curr.N) ix; iota!(0, curr.N)) // each sub node. TODO use iota!(Mod!N)
+        //     {
+        //         next.subNodes[curr.subIxs[ix]] = curr.subNodes[ix];
+        //     }
+        //     freeNode(curr);
+        //     return next;
+        // }
+
+        /** Destructively expand `curr` of type `Br4` into a `BrM` and return it. */
         BrM* expand(Br4* curr)
         {
-            enum N = Br4.N;         // branch-order, number of possible sub-nodes
             auto next = construct!(typeof(return));
-            foreach (Mod!N ix; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
+            foreach (Mod!(curr.N) ix; iota!(0, curr.N)) // each sub node. TODO use iota!(Mod!N)
             {
                 next.subNodes[curr.subIxs[ix]] = curr.subNodes[ix];
             }

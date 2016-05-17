@@ -496,7 +496,7 @@ struct RawRadixTree(Value,
         pragma(msg, "Br4.subIxs.sizeof:", Br4.subIxs.sizeof, " Br4.subIxs.alignof:", Br4.subIxs.alignof);
     }
 
-    /** Set sub-`Node` of branch `Node` `br` at index `ix to `subNode`. */
+    /** Set sub-`Node` of branch `Node` `br` at index `ix` to `subNode`. */
     Node setSub(Node br, Ix subIx, Node subNode)
     {
         switch (br.typeIx)

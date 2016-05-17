@@ -402,7 +402,7 @@ struct RawRadixTree(Value,
                          bool, "isKey", 1)); // key at this branch is occupied
 
         @safe pure nothrow:
-        void pushBackSubAtIx(Tuple!(Ix, Node) sub)
+        void pushBackSub(Tuple!(Ix, Node) sub)
         {
             assert(!full);
             const backIx = subCount.mod!N;
@@ -439,7 +439,7 @@ struct RawRadixTree(Value,
                          bool, "isKey", 1)); // key at this branch is occupied
 
         @safe pure nothrow:
-        void pushBackSubAtIx(Tuple!(Ix, Node) sub)
+        void pushBackSub(Tuple!(Ix, Node) sub)
         {
             assert(!full);
             const backIx = subCount.mod!N;
@@ -486,12 +486,12 @@ struct RawRadixTree(Value,
         case Node.Ix.ix_Br2Ptr:
             auto br2 = br.as!(Br2*);
             if (br2.full) { return setSub(cast(Node)expand(br2), subIx, subNode); } // expand if needed
-            br2.pushBackSubAtIx(tuple(subIx, subNode));
+            br2.pushBackSub(tuple(subIx, subNode));
             break;
         case Node.Ix.ix_Br4Ptr:
             auto br4 = br.as!(Br4*);
             if (br4.full) { return setSub(cast(Node)expand(br4), subIx, subNode); } // expand if needed
-            br4.pushBackSubAtIx(tuple(subIx, subNode));
+            br4.pushBackSub(tuple(subIx, subNode));
             break;
         case Node.Ix.ix_BrMPtr:
             br.as!(BrM*).subNodes[subIx] = subNode;

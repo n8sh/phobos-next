@@ -397,7 +397,6 @@ struct RawRadixTree(Value,
         StrictlyIndexed!(Ix[N]) subIxs;
 
         @safe pure nothrow:
-
         void pushBack(Node sub, Ix ix)
         {
             assert(!full);
@@ -405,11 +404,9 @@ struct RawRadixTree(Value,
             subIxs[subCount.mod!N] = ix;
             ++subCount;
         }
-
         const:
         bool empty() @nogc { return subCount == 0; }
         bool full() @nogc { return subCount == N; }
-
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats)
         {
@@ -435,7 +432,6 @@ struct RawRadixTree(Value,
         StrictlyIndexed!(Ix[N]) subIxs;
 
         @safe pure nothrow:
-
         void pushBack(Node sub, Ix ix)
         {
             assert(!full);
@@ -443,12 +439,9 @@ struct RawRadixTree(Value,
             subIxs[subCount.mod!N] = ix;
             ++subCount;
         }
-
         const:
-
         bool empty() @nogc { return subCount == 0; }
         bool full() @nogc { return subCount == N; }
-
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats)
         {

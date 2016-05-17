@@ -191,6 +191,7 @@ static assert(IxsN!(6, 8).sizeof == 7);
     all keys matching a given key prefix. This enables efficient storage of long
     URLs sharing a common prefix, typically a domain and path.
 
+    See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 */
 struct RawRadixTree(Value,

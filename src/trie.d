@@ -362,10 +362,13 @@ struct RawRadixTree(Value,
         static assert(is(typeof(popByNodeType).Index == Node.Ix));
     }
 
+    enum brMPrefixLength = 15; // we can afford larger prefix here because BrM is so large
+    enum brNPrefixLength = 7;
+
     /** Dense/Unpacked `M`-Branch with `M` number of sub-nodes. */
     static private struct BrM
     {
-        IxsN!15 prefix;  // common prefix for all elements stored in this branch
+        IxsN!brMPrefixLength prefix;  // common prefix for all elements stored in this branch
         bool isKey;      // key at this branch is occupied
         StrictlyIndexed!(Node[M]) subNodes;
 
@@ -389,12 +392,12 @@ struct RawRadixTree(Value,
     static private struct Br2
     {
         enum N = 2; // TODO make this a CT-param when this structu is moved into global scope
-        IxsN!15 prefix;  // common prefix for all elements stored in this branch
+        IxsN!brNPrefixLength prefix;  // common prefix for all elements stored in this branch
 
         bool isKey;             // key at this branch is occupied
         ubyte subCount;         // counts length of defined elements in subNodes
-        StrictlyIndexed!(Node[N]) subNodes;
         StrictlyIndexed!(Ix[N]) subIxs;
+        StrictlyIndexed!(Node[N]) subNodes;
 
         @safe pure nothrow:
         void pushBackSubAtIx(Node sub, Ix ix)
@@ -424,12 +427,12 @@ struct RawRadixTree(Value,
     static private struct Br4
     {
         enum N = 4; // TODO make this a CT-param when this structu is moved into global scope
-        IxsN!15 prefix;  // common prefix for all elements stored in this branch
+        IxsN!brNPrefixLength prefix;  // common prefix for all elements stored in this branch
 
         bool isKey;             // key at this branch is occupied
         ubyte subCount;         // counts length of defined elements in subNodes
-        StrictlyIndexed!(Node[N]) subNodes;
         StrictlyIndexed!(Ix[N]) subIxs;
+        StrictlyIndexed!(Node[N]) subNodes;
 
         @safe pure nothrow:
         void pushBackSubAtIx(Node sub, Ix ix)
@@ -462,12 +465,12 @@ struct RawRadixTree(Value,
         {
         case Node.Ix.ix_Br2Ptr:
             auto br2 = br.as!(Br2*);
-            if (br2.full) { return setSub(cast(Node)expand(br2), ix, sub); }
+            if (br2.full) { return setSub(cast(Node)expand(br2), ix, sub); } // expand if needed
             br2.pushBackSubAtIx(sub, ix);
             break;
         case Node.Ix.ix_Br4Ptr:
             auto br4 = br.as!(Br4*);
-            if (br4.full) { return setSub(cast(Node)expand(br4), ix, sub); }
+            if (br4.full) { return setSub(cast(Node)expand(br4), ix, sub); } // expand if needed
             br4.pushBackSubAtIx(sub, ix);
             break;
         case Node.Ix.ix_BrMPtr:
@@ -481,26 +484,26 @@ struct RawRadixTree(Value,
     /** Get sub-`Node` of branch `Node` `br` at index `ix. */
     inout(Node) getSub(inout Node br, Ix ix)
     {
-        switch (br.typeIx)
-        {
-        case Node.Ix.ix_Br2Ptr:
-            auto br2 = br.as!(Br2*);
-            foreach (i; iota!(0, typeof(br2).N))
-            {
-                if (br2.subIxs.at!i == ix) { return br2.subNodes.at!i; }
-            }
-            break;
-        case Node.Ix.ix_Br4Ptr:
-            auto br4 = br.as!(Br4*);
-            foreach (i; iota!(0, typeof(br4).N))
-            {
-                if (br4.subIxs.at!i == ix) { return br4.subNodes.at!i; }
-            }
-            break;
-        case Node.Ix.ix_BrMPtr:
-            return br.as!(BrM*).subNodes[ix];
-        default: assert(false, "Unsupported Node type");
-        }
+        // switch (br.typeIx)
+        // {
+        // case Node.Ix.ix_Br2Ptr:
+        //     auto br2 = br.as!(Br2*);
+        //     foreach (Mod!N i; 0 ..  br2.subCount)
+        //     {
+        //         if (br2.subIxs[i] == ix) { return br2.subNodes.at!i; }
+        //     }
+        //     break;
+        // case Node.Ix.ix_Br4Ptr:
+        //     auto br4 = br.as!(Br4*);
+        //     foreach (i; iota!(0, typeof(br4).N))
+        //     {
+        //         if (br4.subIxs.at!i == ix) { return br4.subNodes.at!i; }
+        //     }
+        //     break;
+        // case Node.Ix.ix_BrMPtr:
+        //     return br.as!(BrM*).subNodes[ix];
+        // default: assert(false, "Unsupported Node type");
+        // }
         return Node.init;
     }
 
@@ -517,13 +520,13 @@ struct RawRadixTree(Value,
     }
 
     /** Get prefix of branch node `br`. */
-    auto ref prefix(inout Node br)
+    auto prefix(inout Node br)
     {
         switch (br.typeIx)
         {
-        case Node.Ix.ix_Br2Ptr: return br.as!(Br2*).prefix;
-        case Node.Ix.ix_Br4Ptr: return br.as!(Br4*).prefix;
-        case Node.Ix.ix_BrMPtr: return br.as!(BrM*).prefix;
+        case Node.Ix.ix_Br2Ptr: return br.as!(Br2*).prefix[];
+        case Node.Ix.ix_Br4Ptr: return br.as!(Br4*).prefix[];
+        case Node.Ix.ix_BrMPtr: return br.as!(BrM*).prefix[];
         default: assert(false, "Unsupported Node type");
         }
     }

@@ -368,7 +368,7 @@ struct RawRadixTree(Value,
     /** Dense/Unpacked `M`-Branch with `M` number of sub-nodes. */
     static private struct BrM
     {
-        IxsN!brMPrefixLength prefix;  // common prefix for all elements stored in this branch
+        IxsN!brMPrefixLength prefix; // prefix common to all `subNodes`
         bool isKey;      // key at this branch is occupied
         StrictlyIndexed!(Node[M]) subNodes;
 
@@ -392,7 +392,7 @@ struct RawRadixTree(Value,
     static private struct Br2
     {
         enum N = 2; // TODO make this a CT-param when this structu is moved into global scope
-        IxsN!brNPrefixLength prefix;  // common prefix for all elements stored in this branch
+        IxsN!brNPrefixLength prefix; // prefix common to all `subNodes`
 
         bool isKey;             // key at this branch is occupied
         ubyte subCount;         // counts length of defined elements in subNodes
@@ -427,7 +427,7 @@ struct RawRadixTree(Value,
     static private struct Br4
     {
         enum N = 4; // TODO make this a CT-param when this structu is moved into global scope
-        IxsN!brNPrefixLength prefix;  // common prefix for all elements stored in this branch
+        IxsN!brNPrefixLength prefix; // prefix common to all `subNodes`
 
         bool isKey;             // key at this branch is occupied
         ubyte subCount;         // counts length of defined elements in subNodes

@@ -468,14 +468,14 @@ struct RawRadixTree(Value,
         switch (br.typeIx)
         {
         case Node.Ix.ix_Br2Ptr:
-            auto br_ = br.as!(Br2*);
-            if (br_.full) { return setSub(cast(Node)expand(br_), ix, sub); }
-            br_.pushBack(sub, ix);
+            auto br2 = br.as!(Br2*);
+            if (br2.full) { return setSub(cast(Node)expand(br2), ix, sub); }
+            br2.pushBack(sub, ix);
             break;
         case Node.Ix.ix_Br4Ptr:
-            auto br_ = br.as!(Br4*);
-            if (br_.full) { return setSub(cast(Node)expand(br_), ix, sub); }
-            br_.pushBack(sub, ix);
+            auto br4 = br.as!(Br4*);
+            if (br4.full) { return setSub(cast(Node)expand(br4), ix, sub); }
+            br4.pushBack(sub, ix);
             break;
         case Node.Ix.ix_BrMPtr:
             br.as!(BrM*).subNodes[ix] = sub;
@@ -491,17 +491,17 @@ struct RawRadixTree(Value,
         switch (br.typeIx)
         {
         case Node.Ix.ix_Br2Ptr:
-            auto br_ = br.as!(Br2*);
-            foreach (i; iota!(0, typeof(br_).N))
+            auto br2 = br.as!(Br2*);
+            foreach (i; iota!(0, typeof(br2).N))
             {
-                if (br_.subIxs.at!i == ix) { return br_.subNodes.at!i; }
+                if (br2.subIxs.at!i == ix) { return br2.subNodes.at!i; }
             }
             break;
         case Node.Ix.ix_Br4Ptr:
-            auto br_ = br.as!(Br4*);
-            foreach (i; iota!(0, typeof(br_).N))
+            auto br4 = br.as!(Br4*);
+            foreach (i; iota!(0, typeof(br4).N))
             {
-                if (br_.subIxs.at!i == ix) { return br_.subNodes.at!i; }
+                if (br4.subIxs.at!i == ix) { return br4.subNodes.at!i; }
             }
             break;
         case Node.Ix.ix_BrMPtr:

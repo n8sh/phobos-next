@@ -394,12 +394,11 @@ struct RawRadixTree(Value,
     {
         enum N = 2; // TODO make this a CT-param when this structu is moved into global scope
 
+        StrictlyIndexed!(Node[N]) subNodes; // larger alignment first
+        StrictlyIndexed!(Ix[N]) subIxs;
         IxsN!brNPrefixLength prefix; // prefix common to all `subNodes`
-
         mixin(bitfields!(ubyte, "subCount", 7, // counts length of defined elements in subNodes
                          bool, "isKey", 1)); // key at this branch is occupied
-        StrictlyIndexed!(Ix[N]) subIxs; // need this before subNodes to save memory
-        StrictlyIndexed!(Node[N]) subNodes;
 
         @safe pure nothrow:
         void pushBackSubAtIx(Node sub, Ix ix)
@@ -425,19 +424,16 @@ struct RawRadixTree(Value,
         }
     }
 
-    pragma(msg, Br2.sizeof);
-    pragma(msg, Br4.sizeof);
-
     /** Sparse/Packed 4-Branch. */
     static private struct Br4
     {
         enum N = 4; // TODO make this a CT-param when this structu is moved into global scope
-        IxsN!brNPrefixLength prefix; // prefix common to all `subNodes`
 
+        StrictlyIndexed!(Node[N]) subNodes; // larger alignment first
+        StrictlyIndexed!(Ix[N]) subIxs;
+        IxsN!brNPrefixLength prefix; // prefix common to all `subNodes`
         mixin(bitfields!(ubyte, "subCount", 7, // counts length of defined elements in subNodes
                          bool, "isKey", 1)); // key at this branch is occupied
-        StrictlyIndexed!(Ix[N]) subIxs;
-        StrictlyIndexed!(Node[N]) subNodes;
 
         @safe pure nothrow:
         void pushBackSubAtIx(Node sub, Ix ix)
@@ -462,6 +458,9 @@ struct RawRadixTree(Value,
             ++stats.popHist_Br4[nnzSubCount - 1]; // TODO type-safe indexing
         }
     }
+
+    pragma(msg, "Br2.sizeof:", Br2.sizeof);
+    pragma(msg, "Br4.sizeof:", Br4.sizeof);
 
     /** Set sub-`Node` of branch `Node` `br` at index `ix to `sub`. */
     Node setSub(Node br, Ix ix, Node sub)

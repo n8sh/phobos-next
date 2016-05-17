@@ -397,7 +397,7 @@ struct RawRadixTree(Value,
         StrictlyIndexed!(Ix[N]) subIxs;
 
         @safe pure nothrow:
-        void pushBack(Node sub, Ix ix)
+        void pushBackSubAtIx(Node sub, Ix ix)
         {
             assert(!full);
             subNodes[subCount.mod!N] = sub;
@@ -432,7 +432,7 @@ struct RawRadixTree(Value,
         StrictlyIndexed!(Ix[N]) subIxs;
 
         @safe pure nothrow:
-        void pushBack(Node sub, Ix ix)
+        void pushBackSubAtIx(Node sub, Ix ix)
         {
             assert(!full);
             subNodes[subCount.mod!N] = sub;
@@ -463,12 +463,12 @@ struct RawRadixTree(Value,
         case Node.Ix.ix_Br2Ptr:
             auto br2 = br.as!(Br2*);
             if (br2.full) { return setSub(cast(Node)expand(br2), ix, sub); }
-            br2.pushBack(sub, ix);
+            br2.pushBackSubAtIx(sub, ix);
             break;
         case Node.Ix.ix_Br4Ptr:
             auto br4 = br.as!(Br4*);
             if (br4.full) { return setSub(cast(Node)expand(br4), ix, sub); }
-            br4.pushBack(sub, ix);
+            br4.pushBackSubAtIx(sub, ix);
             break;
         case Node.Ix.ix_BrMPtr:
             br.as!(BrM*).subNodes[ix] = sub;

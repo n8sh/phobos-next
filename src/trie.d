@@ -395,7 +395,12 @@ struct RawRadixTree(Value,
         // static if (isMap) { Value value; }
     }
 
-    /** Sparse/Packed 2-Branch. */
+    /** Sparse/Packed full 2-way branch.
+
+        A 2-branch always always contain two defined sub-nodes (`full` always
+        returns `true`). If more are added it is automatically expanded to
+        larger branch, typicall 4-branch `Br4`.
+     */
     static private struct Br2
     {
         enum N = 2; // TODO make this a CT-param when this structu is moved into global scope
@@ -404,44 +409,28 @@ struct RawRadixTree(Value,
         StrictlyIndexed!(Node[N]) subNodes;
         IxsN!brNPrefixLength prefix; // prefix (edge-label) common to all `subNodes`
         StrictlyIndexed!(Ix[N]) subIxs;
-        mixin(bitfields!(ubyte, "subCount", 7, // counts length of defined elements in subNodes
-                         bool, "isKey", 1)); // key at this branch is occupied
+        bool isKey;             // key at this branch is occupied
 
         @safe pure nothrow:
-        void pushBackSub(Tuple!(Ix, Node) sub)
-        {
-            assert(!full);
-            const backIx = subCount.mod!N;
-            subIxs[backIx] = sub[0];
-            subNodes[backIx] = sub[1];
-            subCount = cast(ubyte)(subCount + 1);
-        }
         inout(Node) findSub(Ix ix) inout
         {
-            foreach (const i_; 0 ..  subCount)
-            {
-                const i = i_.mod!N;
-                if (subIxs[i] == ix) { return subNodes[i]; }
-            }
+            if (subIxs.at!0 == ix) { return subNodes.at!0; }
+            if (subIxs.at!1 == ix) { return subNodes.at!1; }
             return Node.init;
         }
-        const:
-        bool empty() @nogc { return subCount == 0; }
-        bool full() @nogc { return subCount == N; }
+        enum empty = false;
+        enum full = true;
         /** Append statistics of tree under `this` into `stats`. */
-        void calculate(ref Stats stats)
+        void calculate(ref Stats stats) const
         {
-            size_t nnzSubCount = 0; // number of non-zero sub-nodes
-            foreach (sub; subNodes[0 .. subCount])
-            {
-                ++nnzSubCount;
-                sub.calculate!(Value, radixPow2)(stats);
-            }
+            const nnzSubCount = 2; // number of non-zero sub-nodes
+            subNodes.at!0.calculate!(Value, radixPow2)(stats);
+            subNodes.at!1.calculate!(Value, radixPow2)(stats);
             ++stats.popHist_Br2[nnzSubCount - 1]; // TODO type-safe indexing
         }
     }
 
-    /** Sparse/Packed 4-Branch. */
+    /** Sparse/Packed 4-way branch. */
     static private struct Br4
     {
         enum N = 4; // TODO make this a CT-param when this structu is moved into global scope
@@ -515,7 +504,6 @@ struct RawRadixTree(Value,
                 return br;      // already added
             }
             if (br2.full) { return setSub(cast(Node)expand(br2), subIx, subNode); } // expand if needed
-            br2.pushBackSub(tuple(subIx, subNode));
             break;
         case Node.Ix.ix_Br4Ptr:
             auto br4 = br.as!(Br4*);
@@ -953,10 +941,8 @@ struct RawRadixTree(Value,
 
         void release(Br2* curr)
         {
-            foreach (sub; curr.subNodes[0 .. curr.subCount])
-            {
-                release(sub); // recurse
-            }
+            release(curr.subNodes.at!0); // recurse
+            release(curr.subNodes.at!1); // recurse
             freeNode(curr);
         }
 

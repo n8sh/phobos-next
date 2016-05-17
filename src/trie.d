@@ -396,8 +396,6 @@ struct RawRadixTree(Value,
 
         bool isKey;      // key at this branch is occupied
         Mod!N subCount; // counts length of defined elements in subNodes
-
-        // TODO merge these into a new `NodeType`
         StrictlyIndexed!(Node[N]) subNodes; // sub-nodes
         StrictlyIndexed!(Ix[N]) subIxs; // sub-Ix
 
@@ -427,8 +425,6 @@ struct RawRadixTree(Value,
 
         bool isKey;      // key at this branch is occupied
         Mod!N subCount; // counts length of defined elements in subNodes
-
-        // TODO merge these into a new `NodeType`
         StrictlyIndexed!(Node[N]) subNodes; // sub-nodes
         StrictlyIndexed!(Ix[N]) subIxs; // sub-Ix
 

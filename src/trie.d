@@ -195,7 +195,7 @@ static assert(IxsN!(6, 8).sizeof == 7);
     See also: https://en.wikipedia.org/wiki/Radix_tree
 */
 struct RawRadixTree(Value,
-                    uint radixPow2 = 8) // radixPow2 in number of bits, typically either 1, 2, 4 or 8
+                    uint radixPow2 = 8) // binary power of radix, in number of bits, typically either 1, 2, 4 or 8
 {
     import std.bitmanip : bitfields;
     import std.conv : to;

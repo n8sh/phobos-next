@@ -391,8 +391,8 @@ struct RawRadixTree(Value,
         enum N = 2; // TODO make this a CT-param when this structu is moved into global scope
         IxsN!15 prefix;  // common prefix for all elements stored in this branch
 
-        bool isKey;      // key at this branch is occupied
-        Mod!N subCount; // counts length of defined elements in subNodes
+        bool isKey;             // key at this branch is occupied
+        ubyte subCount;         // counts length of defined elements in subNodes
         StrictlyIndexed!(Node[N]) subNodes;
         StrictlyIndexed!(Ix[N]) subIxs;
 
@@ -401,8 +401,8 @@ struct RawRadixTree(Value,
         void pushBack(Node sub, Ix ix)
         {
             assert(!full);
-            subNodes[subCount] = sub;
-            subIxs[subCount] = ix;
+            subNodes[subCount.mod!N] = sub;
+            subIxs[subCount.mod!N] = ix;
             ++subCount;
         }
 
@@ -429,8 +429,8 @@ struct RawRadixTree(Value,
         enum N = 4; // TODO make this a CT-param when this structu is moved into global scope
         IxsN!15 prefix;  // common prefix for all elements stored in this branch
 
-        bool isKey;      // key at this branch is occupied
-        Mod!N subCount; // counts length of defined elements in subNodes
+        bool isKey;             // key at this branch is occupied
+        ubyte subCount;         // counts length of defined elements in subNodes
         StrictlyIndexed!(Node[N]) subNodes;
         StrictlyIndexed!(Ix[N]) subIxs;
 
@@ -439,8 +439,8 @@ struct RawRadixTree(Value,
         void pushBack(Node sub, Ix ix)
         {
             assert(!full);
-            subNodes[subCount] = sub;
-            subIxs[subCount] = ix;
+            subNodes[subCount.mod!N] = sub;
+            subIxs[subCount.mod!N] = ix;
             ++subCount;
         }
 

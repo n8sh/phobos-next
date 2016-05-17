@@ -392,11 +392,12 @@ struct RawRadixTree(Value,
     static private struct Br2
     {
         enum N = 2; // TODO make this a CT-param when this structu is moved into global scope
+
         IxsN!brNPrefixLength prefix; // prefix common to all `subNodes`
 
         bool isKey;             // key at this branch is occupied
         ubyte subCount;         // counts length of defined elements in subNodes
-        StrictlyIndexed!(Ix[N]) subIxs;
+        StrictlyIndexed!(Ix[N]) subIxs; // need this before subNodes to save memory
         StrictlyIndexed!(Node[N]) subNodes;
 
         @safe pure nothrow:
@@ -422,6 +423,9 @@ struct RawRadixTree(Value,
             ++stats.popHist_Br2[nnzSubCount - 1]; // TODO type-safe indexing
         }
     }
+
+    pragma(msg, Br2.sizeof);
+    pragma(msg, Br4.sizeof);
 
     /** Sparse/Packed 4-Branch. */
     static private struct Br4

@@ -402,11 +402,11 @@ struct RawRadixTree(Value,
                          bool, "isKey", 1)); // key at this branch is occupied
 
         @safe pure nothrow:
-        void pushBackSubAtIx(Node sub, Ix ix)
+        void pushBackSubAtIx(Tuple!(Ix, Node) sub)
         {
             assert(!full);
-            subNodes[subCount.mod!N] = sub;
-            subIxs[subCount.mod!N] = ix;
+            subIxs[subCount.mod!N] = sub[0];
+            subNodes[subCount.mod!N] = sub[1];
             subCount = cast(ubyte)(subCount + 1);
         }
         const:
@@ -438,11 +438,11 @@ struct RawRadixTree(Value,
                          bool, "isKey", 1)); // key at this branch is occupied
 
         @safe pure nothrow:
-        void pushBackSubAtIx(Node sub, Ix ix)
+        void pushBackSubAtIx(Tuple!(Ix, Node) sub)
         {
             assert(!full);
-            subNodes[subCount.mod!N] = sub;
-            subIxs[subCount.mod!N] = ix;
+            subIxs[subCount.mod!N] = sub[0];
+            subNodes[subCount.mod!N] = sub[1];
             subCount = cast(ubyte)(subCount + 1);
         }
         const:
@@ -476,23 +476,23 @@ struct RawRadixTree(Value,
         pragma(msg, "Br4.subIxs.sizeof:", Br4.subIxs.sizeof, " Br4.subIxs.alignof:", Br4.subIxs.alignof);
     }
 
-    /** Set sub-`Node` of branch `Node` `br` at index `ix to `sub`. */
-    Node setSub(Node br, Ix ix, Node sub)
+    /** Set subNode-`Node` of branch `Node` `br` at index `ix to `subNode`. */
+    Node setSub(Node br, Ix subIx, Node subNode)
     {
         switch (br.typeIx)
         {
         case Node.Ix.ix_Br2Ptr:
             auto br2 = br.as!(Br2*);
-            if (br2.full) { return setSub(cast(Node)expand(br2), ix, sub); } // expand if needed
-            br2.pushBackSubAtIx(sub, ix);
+            if (br2.full) { return setSub(cast(Node)expand(br2), subIx, subNode); } // expand if needed
+            br2.pushBackSubAtIx(tuple(subIx, subNode));
             break;
         case Node.Ix.ix_Br4Ptr:
             auto br4 = br.as!(Br4*);
-            if (br4.full) { return setSub(cast(Node)expand(br4), ix, sub); } // expand if needed
-            br4.pushBackSubAtIx(sub, ix);
+            if (br4.full) { return setSub(cast(Node)expand(br4), subIx, subNode); } // expand if needed
+            br4.pushBackSubAtIx(tuple(subIx, subNode));
             break;
         case Node.Ix.ix_BrMPtr:
-            br.as!(BrM*).subNodes[ix] = sub;
+            br.as!(BrM*).subNodes[subIx] = subNode;
             break;
         default: assert(false, "Unsupported Node type");
         }

@@ -391,22 +391,24 @@ struct RawRadixTree(Value,
         enum N = 2; // TODO make this a CT-param when this structu is moved into global scope
         IxsN!15 prefix;  // common prefix for all elements stored in this branch
 
-        // TODO use bitfield:
-        // import std.bitmanip : bitfields;
-        // mixin(bitfields!(Mod!N, "subCount", 7,
-        //                  bool, "isKey", 1));
-
         bool isKey;      // key at this branch is occupied
         Mod!N subCount; // counts length of defined elements in subNodes
-        StrictlyIndexed!(Node[N]) subNodes; // sub-nodes
-        StrictlyIndexed!(Ix[N]) subIxs; // sub-Ix
+        StrictlyIndexed!(Node[N]) subNodes;
+        StrictlyIndexed!(Ix[N]) subIxs;
 
-        @safe pure nothrow const:
-        bool empty() @nogc { return subCount == 0; }
-        bool full() @nogc { return subCount == N; }
+        @safe pure nothrow:
+
         void pushBack(Node sub, Ix ix)
         {
+            assert(!full);
+            subNodes[subCount] = sub;
+            subIxs[subCount] = ix;
+            ++subCount;
         }
+
+        const:
+        bool empty() @nogc { return subCount == 0; }
+        bool full() @nogc { return subCount == N; }
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats)
@@ -427,22 +429,25 @@ struct RawRadixTree(Value,
         enum N = 4; // TODO make this a CT-param when this structu is moved into global scope
         IxsN!15 prefix;  // common prefix for all elements stored in this branch
 
-        // TODO use bitfield:
-        // import std.bitmanip : bitfields;
-        // mixin(bitfields!(Mod!N, "subCount", 7,
-        //                  bool, "isKey", 1));
-
         bool isKey;      // key at this branch is occupied
         Mod!N subCount; // counts length of defined elements in subNodes
-        StrictlyIndexed!(Node[N]) subNodes; // sub-nodes
-        StrictlyIndexed!(Ix[N]) subIxs; // sub-Ix
+        StrictlyIndexed!(Node[N]) subNodes;
+        StrictlyIndexed!(Ix[N]) subIxs;
 
-        @safe pure nothrow const:
-        bool empty() @nogc { return subCount == 0; }
-        bool full() @nogc { return subCount == N; }
+        @safe pure nothrow:
+
         void pushBack(Node sub, Ix ix)
         {
+            assert(!full);
+            subNodes[subCount] = sub;
+            subIxs[subCount] = ix;
+            ++subCount;
         }
+
+        const:
+
+        bool empty() @nogc { return subCount == 0; }
+        bool full() @nogc { return subCount == N; }
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats)
@@ -456,6 +461,9 @@ struct RawRadixTree(Value,
             ++stats.popHist_Br4[nnzSubCount - 1]; // TODO type-safe indexing
         }
     }
+
+    pragma(msg, Br2.sizeof);
+    pragma(msg, Br4.sizeof);
 
     /** Set sub-`Node` of branch `Node` `br` at index `ix to `sub`. */
     Node setSub(Node br, Ix ix, Node sub)

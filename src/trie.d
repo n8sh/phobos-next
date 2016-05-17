@@ -504,26 +504,28 @@ struct RawRadixTree(Value,
     /** Get sub-`Node` of branch `Node` `br` at index `ix. */
     inout(Node) getSub(inout Node br, Ix ix)
     {
-        // switch (br.typeIx)
-        // {
-        // case Node.Ix.ix_Br2Ptr:
-        //     auto br2 = br.as!(Br2*);
-        //     foreach (Mod!N i; 0 ..  br2.subCount)
-        //     {
-        //         if (br2.subIxs[i] == ix) { return br2.subNodes.at!i; }
-        //     }
-        //     break;
-        // case Node.Ix.ix_Br4Ptr:
-        //     auto br4 = br.as!(Br4*);
-        //     foreach (i; iota!(0, typeof(br4).N))
-        //     {
-        //         if (br4.subIxs.at!i == ix) { return br4.subNodes.at!i; }
-        //     }
-        //     break;
-        // case Node.Ix.ix_BrMPtr:
-        //     return br.as!(BrM*).subNodes[ix];
-        // default: assert(false, "Unsupported Node type");
-        // }
+        switch (br.typeIx)
+        {
+        case Node.Ix.ix_Br2Ptr:
+            auto br2 = br.as!(Br2*);
+            foreach (const i_; 0 ..  br2.subCount)
+            {
+                const i = i_.mod!(br2.N);
+                if (br2.subIxs[i] == ix) { return br2.subNodes[i]; }
+            }
+            break;
+        case Node.Ix.ix_Br4Ptr:
+            auto br4 = br.as!(Br4*);
+            foreach (const i_; 0 ..  br4.subCount)
+            {
+                const i = i_.mod!(br4.N);
+                if (br4.subIxs[i] == ix) { return br4.subNodes[i]; }
+            }
+            break;
+        case Node.Ix.ix_BrMPtr:
+            return br.as!(BrM*).subNodes[ix];
+        default: assert(false, "Unsupported Node type");
+        }
         return Node.init;
     }
 

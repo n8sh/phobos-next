@@ -364,7 +364,7 @@ struct RawRadixTree(Value,
     static private struct BrM
     {
         IxsN!15 prefix;  // common prefix for all elements stored in this branch
-        bool isKey;   // key at this branch is occupied
+        bool isKey;      // key at this branch is occupied
         StrictlyIndexed!(Node[M]) subNodes;
 
         /** Append statistics of tree under `this` into `stats`. */
@@ -386,10 +386,16 @@ struct RawRadixTree(Value,
     /** Sparse/Packed 2-Branch. */
     static private struct Br2
     {
-        IxsN!15 prefix;  // common prefix for all elements stored in this branch
-        bool isKey;   // key at this branch is occupied
-
         enum N = 2; // TODO make this a CT-param when this structu is moved into global scope
+        IxsN!15 prefix;  // common prefix for all elements stored in this branch
+
+        // TODO use bitfield:
+        // import std.bitmanip : bitfields;
+        // mixin(bitfields!(Mod!N, "subCount", 7,
+        //                  bool, "isKey", 1));
+
+        bool isKey;      // key at this branch is occupied
+        Mod!N subCount; // counts length of defined elements in subNodes
 
         // TODO merge these into a new `NodeType`
         StrictlyIndexed!(Node[N]) subNodes; // sub-nodes
@@ -411,10 +417,16 @@ struct RawRadixTree(Value,
     /** Sparse/Packed 4-Branch. */
     static private struct Br4
     {
-        IxsN!15 prefix;  // common prefix for all elements stored in this branch
-        bool isKey;   // key at this branch is occupied
-
         enum N = 4; // TODO make this a CT-param when this structu is moved into global scope
+        IxsN!15 prefix;  // common prefix for all elements stored in this branch
+
+        // TODO use bitfield:
+        // import std.bitmanip : bitfields;
+        // mixin(bitfields!(Mod!N, "subCount", 7,
+        //                  bool, "isKey", 1));
+
+        bool isKey;      // key at this branch is occupied
+        Mod!N subCount; // counts length of defined elements in subNodes
 
         // TODO merge these into a new `NodeType`
         StrictlyIndexed!(Node[N]) subNodes; // sub-nodes
@@ -454,8 +466,17 @@ struct RawRadixTree(Value,
         switch (br.typeIx)
         {
         case Node.Ix.ix_Br2Ptr:
+            auto br2 = br.as!(Br2*);
+            foreach (const i, node; br2.subNodes)
+            {
+
+            }
             break;
         case Node.Ix.ix_Br4Ptr:
+            auto br4 = br.as!(Br4*);
+            foreach (const i, node; br4.subNodes)
+            {
+            }
             break;
         case Node.Ix.ix_BrMPtr:
             return br.as!(BrM*).subNodes[ix];

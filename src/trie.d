@@ -414,7 +414,7 @@ struct RawRadixTree(Value,
         void calculate(ref Stats stats)
         {
             size_t nnzSubCount = 0; // number of non-zero sub-nodes
-            foreach (sub; subNodes[].filter!(sub => sub))
+            foreach (sub; subNodes[0 .. subCount])
             {
                 ++nnzSubCount;
                 sub.calculate!(Value, radixPow2)(stats);
@@ -453,7 +453,7 @@ struct RawRadixTree(Value,
         void calculate(ref Stats stats)
         {
             size_t nnzSubCount = 0; // number of non-zero sub-nodes
-            foreach (sub; subNodes[].filter!(sub => sub))
+            foreach (sub; subNodes[0 .. subCount])
             {
                 ++nnzSubCount;
                 sub.calculate!(Value, radixPow2)(stats);
@@ -916,7 +916,7 @@ struct RawRadixTree(Value,
 
         void release(Br2* curr)
         {
-            foreach (sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
+            foreach (sub; curr.subNodes[0 .. curr.subCount])
             {
                 release(sub); // recurse
             }
@@ -925,7 +925,7 @@ struct RawRadixTree(Value,
 
         void release(Br4* curr)
         {
-            foreach (sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
+            foreach (sub; curr.subNodes[0 .. curr.subCount])
             {
                 release(sub); // recurse
             }

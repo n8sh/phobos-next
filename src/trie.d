@@ -187,6 +187,10 @@ static assert(IxsN!(6, 8).sizeof == 7);
     In set-case (`Value` is `void`) this container is especially suitable for
     representing a set of 32 or 64 integers/pointers.
 
+    Radix-trees are suitable for storing variable-keys and provide completion of
+    all keys matching a given key prefix. This enables efficient storage of long
+    URLs sharing a common prefix, typically a domain and path.
+
     See also: https://en.wikipedia.org/wiki/Radix_tree
 */
 struct RawRadixTree(Value,

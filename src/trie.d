@@ -405,8 +405,9 @@ struct RawRadixTree(Value,
         void pushBackSubAtIx(Tuple!(Ix, Node) sub)
         {
             assert(!full);
-            subIxs[subCount.mod!N] = sub[0];
-            subNodes[subCount.mod!N] = sub[1];
+            const backIx = subCount.mod!N;
+            subIxs[backIx] = sub[0];
+            subNodes[backIx] = sub[1];
             subCount = cast(ubyte)(subCount + 1);
         }
         const:
@@ -441,8 +442,9 @@ struct RawRadixTree(Value,
         void pushBackSubAtIx(Tuple!(Ix, Node) sub)
         {
             assert(!full);
-            subIxs[subCount.mod!N] = sub[0];
-            subNodes[subCount.mod!N] = sub[1];
+            const backIx = subCount.mod!N;
+            subIxs[backIx] = sub[0];
+            subNodes[backIx] = sub[1];
             subCount = cast(ubyte)(subCount + 1);
         }
         const:

@@ -548,7 +548,6 @@ struct RawRadixTree(Value,
 
         pragma(inline) Node insertNew(Key!radixPow2 key, out bool wasAdded)
         {
-            // TODO functionize to insertNew()
             if (key.length <= PLf.maxLength)
             {
                 PLf currPLf = construct!(PLf)(key);

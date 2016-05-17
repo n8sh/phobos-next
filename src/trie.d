@@ -371,7 +371,7 @@ struct RawRadixTree(Value,
     /** Dense/Unpacked `M`-Branch with `M` number of sub-nodes. */
     static private struct BrM
     {
-        IxsN!brMPrefixLength prefix; // prefix common to all `subNodes`
+        IxsN!brMPrefixLength prefix; // prefix (edge-label) common to all `subNodes`
         bool isKey;      // key at this branch is occupied
         StrictlyIndexed!(Node[M]) subNodes;
 
@@ -398,7 +398,7 @@ struct RawRadixTree(Value,
 
         // members in order of decreasing alignof:
         StrictlyIndexed!(Node[N]) subNodes;
-        IxsN!brNPrefixLength prefix;        // prefix common to all `subNodes`
+        IxsN!brNPrefixLength prefix; // prefix (edge-label) common to all `subNodes`
         StrictlyIndexed!(Ix[N]) subIxs;
         mixin(bitfields!(ubyte, "subCount", 7, // counts length of defined elements in subNodes
                          bool, "isKey", 1)); // key at this branch is occupied
@@ -444,7 +444,7 @@ struct RawRadixTree(Value,
 
         // members in order of decreasing alignof:
         StrictlyIndexed!(Node[N]) subNodes;
-        IxsN!brNPrefixLength prefix; // prefix common to all `subNodes`
+        IxsN!brNPrefixLength prefix; // prefix common to all `subNodes` (also called edge-label)
         StrictlyIndexed!(Ix[N]) subIxs;
         mixin(bitfields!(ubyte, "subCount", 7, // counts length of defined elements in subNodes
                          bool, "isKey", 1)); // key at this branch is occupied

@@ -117,6 +117,11 @@ pragma(inline):
         return typeof(return)(_raw, true);
     }
 
+    bool opEquals(WordVariant that) const @trusted
+    {
+        return _raw == that._raw;
+    }
+
     bool opEquals(T)(T that) const @trusted
     {
         auto x = peek!T; // if `this` contains pointer of to instance of type `T`

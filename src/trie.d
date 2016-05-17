@@ -3,6 +3,8 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO How do we store difference between null and empty arrays?
+
     TODO Use std.experimental.allocator
 
     TODO Move construction params into construct!NodeType(params...)

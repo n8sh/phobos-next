@@ -394,9 +394,10 @@ struct RawRadixTree(Value,
     {
         enum N = 2; // TODO make this a CT-param when this structu is moved into global scope
 
+        // members in order of decreasing alignof:
         StrictlyIndexed!(Node[N]) subNodes; // larger alignment first
-        StrictlyIndexed!(Ix[N]) subIxs;
         IxsN!brNPrefixLength prefix; // prefix common to all `subNodes`
+        StrictlyIndexed!(Ix[N]) subIxs;
         mixin(bitfields!(ubyte, "subCount", 7, // counts length of defined elements in subNodes
                          bool, "isKey", 1)); // key at this branch is occupied
 
@@ -429,9 +430,10 @@ struct RawRadixTree(Value,
     {
         enum N = 4; // TODO make this a CT-param when this structu is moved into global scope
 
-        StrictlyIndexed!(Node[N]) subNodes; // larger alignment first
-        StrictlyIndexed!(Ix[N]) subIxs;
+        // members in order of decreasing alignof:
+        StrictlyIndexed!(Node[N]) subNodes;
         IxsN!brNPrefixLength prefix; // prefix common to all `subNodes`
+        StrictlyIndexed!(Ix[N]) subIxs;
         mixin(bitfields!(ubyte, "subCount", 7, // counts length of defined elements in subNodes
                          bool, "isKey", 1)); // key at this branch is occupied
 
@@ -461,6 +463,15 @@ struct RawRadixTree(Value,
 
     pragma(msg, "Br2.sizeof:", Br2.sizeof);
     pragma(msg, "Br4.sizeof:", Br4.sizeof);
+
+    pragma(msg, "Br2.subNodes.sizeof:", Br2.subNodes.sizeof);
+    pragma(msg, "Br4.subNodes.sizeof:", Br4.subNodes.sizeof);
+
+    pragma(msg, "Br2.prefix.sizeof:", Br2.prefix.sizeof);
+    pragma(msg, "Br4.prefix.sizeof:", Br4.prefix.sizeof);
+
+    pragma(msg, "Br2.subIxs.sizeof:", Br2.subIxs.sizeof);
+    pragma(msg, "Br4.subIxs.sizeof:", Br4.subIxs.sizeof);
 
     /** Set sub-`Node` of branch `Node` `br` at index `ix to `sub`. */
     Node setSub(Node br, Ix ix, Node sub)

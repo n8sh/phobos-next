@@ -471,16 +471,16 @@ struct RawRadixTree(Value,
         {
         case Node.Ix.ix_Br2Ptr:
             auto br_ = br.as!(Br2*);
-            foreach (subIx; iota!(0, typeof(br_).N))
+            foreach (i; iota!(0, typeof(br_).N))
             {
-                if (br_.subIxs.at!subIx == ix) { return br_.subNodes.at!subIx; }
+                if (br_.subIxs.at!i == ix) { return br_.subNodes.at!i; }
             }
             break;
         case Node.Ix.ix_Br4Ptr:
             auto br_ = br.as!(Br4*);
-            foreach (subIx; iota!(0, typeof(br_).N))
+            foreach (i; iota!(0, typeof(br_).N))
             {
-                if (br_.subIxs.at!subIx == ix) { return br_.subNodes.at!subIx; }
+                if (br_.subIxs.at!i == ix) { return br_.subNodes.at!i; }
             }
             break;
         case Node.Ix.ix_BrMPtr:
@@ -811,10 +811,10 @@ struct RawRadixTree(Value,
         Br4* expand(Br2* curr)
         {
             auto next = construct!(typeof(return));
-            foreach (const subIx; iota!(0, curr.N)) // each sub node. TODO use iota!(Mod!N)
+            foreach (const i; iota!(0, curr.N)) // each sub node. TODO use iota!(Mod!N)
             {
-                next.subNodes.at!subIx = curr.subNodes.at!subIx;
-                next.subIxs.at!subIx = curr.subIxs.at!subIx;
+                next.subNodes.at!i = curr.subNodes.at!i;
+                next.subIxs.at!i = curr.subIxs.at!i;
             }
             freeNode(curr);
             return next;
@@ -824,9 +824,9 @@ struct RawRadixTree(Value,
         BrM* expand(Br4* curr)
         {
             auto next = construct!(typeof(return));
-            foreach (Mod!(curr.N) subIx; iota!(0, curr.N)) // each sub node. TODO use iota!(Mod!N)
+            foreach (Mod!(curr.N) i; iota!(0, curr.N)) // each sub node. TODO use iota!(Mod!N)
             {
-                next.subNodes[curr.subIxs.at!subIx] = curr.subNodes.at!subIx;
+                next.subNodes[curr.subIxs.at!i] = curr.subNodes.at!i;
             }
             freeNode(curr);
             return next;

@@ -400,10 +400,8 @@ struct RawRadixTree(Value,
         StrictlyIndexed!(Ix[N]) subIxs; // sub-Ix
 
         @safe pure nothrow const:
-
         bool empty() @nogc { return subCount == 0; }
         bool full() @nogc { return subCount == N; }
-
         void pushBack(Node sub, Ix ix)
         {
         }
@@ -438,10 +436,8 @@ struct RawRadixTree(Value,
         StrictlyIndexed!(Ix[N]) subIxs; // sub-Ix
 
         @safe pure nothrow const:
-
         bool empty() @nogc { return subCount == 0; }
         bool full() @nogc { return subCount == N; }
-
         void pushBack(Node sub, Ix ix)
         {
         }

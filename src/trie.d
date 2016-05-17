@@ -485,7 +485,7 @@ struct RawRadixTree(Value,
         {
         case Node.Ix.ix_Br2Ptr:
             auto br2 = br.as!(Br2*);
-            if (auto subNode_ = getSub(br, subIx))
+            if (auto subNode_ = subAt(br, subIx))
             {
                 assert(subNode_ == subNode, "Existing subNode differs from parameter");
                 return br;      // already added
@@ -495,7 +495,7 @@ struct RawRadixTree(Value,
             break;
         case Node.Ix.ix_Br4Ptr:
             auto br4 = br.as!(Br4*);
-            if (auto subNode_ = getSub(br, subIx))
+            if (auto subNode_ = subAt(br, subIx))
             {
                 assert(subNode_ == subNode, "Existing subNode differs from parameter");
                 return br;      // already added
@@ -512,7 +512,7 @@ struct RawRadixTree(Value,
     }
 
     /** Get sub-`Node` of branch `Node` `br` at index `ix. */
-    inout(Node) getSub(inout Node br, Ix ix)
+    inout(Node) subAt(inout Node br, Ix ix)
     {
         switch (br.typeIx)
         {
@@ -666,7 +666,7 @@ struct RawRadixTree(Value,
 
         pragma(inline) Node insertAtBranch(Node curr, Key!radixPow2 key, out bool wasAdded) // Node-polymorphic
         {
-            // TODO move logic from insertAt(BrM and use members setSub, getSub, isOccupied getPrefix to access)
+            // TODO move logic from insertAt(BrM and use members setSub, subAt, isOccupied getPrefix to access)
             return curr;
         }
 

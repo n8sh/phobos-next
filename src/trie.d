@@ -3,6 +3,8 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO Can we store Br2, Br4 and Br16 together in a variable length array?
+
     TODO How do we store difference between null and empty arrays?
 
     TODO Use std.experimental.allocator

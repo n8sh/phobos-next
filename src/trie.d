@@ -462,9 +462,6 @@ struct RawRadixTree(Value,
         }
     }
 
-    pragma(msg, Br2.sizeof);
-    pragma(msg, Br4.sizeof);
-
     /** Set sub-`Node` of branch `Node` `br` at index `ix to `sub`. */
     Node setSub(Node br, Ix ix, Node sub)
     {

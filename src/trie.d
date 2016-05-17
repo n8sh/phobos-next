@@ -190,6 +190,7 @@ static assert(IxsN!(6, 8).sizeof == 7);
 struct RawRadixTree(Value,
                     uint radixPow2 = 8) // radixPow2 in number of bits, typically either 1, 2, 4 or 8
 {
+    import std.bitmanip : bitfields;
     import std.conv : to;
     import std.algorithm : filter;
     import std.meta : AliasSeq, staticMap;
@@ -395,8 +396,8 @@ struct RawRadixTree(Value,
 
         IxsN!brNPrefixLength prefix; // prefix common to all `subNodes`
 
-        bool isKey;             // key at this branch is occupied
-        ubyte subCount;         // counts length of defined elements in subNodes
+        mixin(bitfields!(ubyte, "subCount", 7, // counts length of defined elements in subNodes
+                         bool, "isKey", 1)); // key at this branch is occupied
         StrictlyIndexed!(Ix[N]) subIxs; // need this before subNodes to save memory
         StrictlyIndexed!(Node[N]) subNodes;
 
@@ -406,7 +407,7 @@ struct RawRadixTree(Value,
             assert(!full);
             subNodes[subCount.mod!N] = sub;
             subIxs[subCount.mod!N] = ix;
-            ++subCount;
+            subCount = cast(ubyte)(subCount + 1);
         }
         const:
         bool empty() @nogc { return subCount == 0; }
@@ -433,8 +434,8 @@ struct RawRadixTree(Value,
         enum N = 4; // TODO make this a CT-param when this structu is moved into global scope
         IxsN!brNPrefixLength prefix; // prefix common to all `subNodes`
 
-        bool isKey;             // key at this branch is occupied
-        ubyte subCount;         // counts length of defined elements in subNodes
+        mixin(bitfields!(ubyte, "subCount", 7, // counts length of defined elements in subNodes
+                         bool, "isKey", 1)); // key at this branch is occupied
         StrictlyIndexed!(Ix[N]) subIxs;
         StrictlyIndexed!(Node[N]) subNodes;
 
@@ -444,7 +445,7 @@ struct RawRadixTree(Value,
             assert(!full);
             subNodes[subCount.mod!N] = sub;
             subIxs[subCount.mod!N] = ix;
-            ++subCount;
+            subCount = cast(ubyte)(subCount + 1);
         }
         const:
         bool empty() @nogc { return subCount == 0; }

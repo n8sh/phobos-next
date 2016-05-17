@@ -25,7 +25,7 @@
 
     TODO Can we somehow overload opIndex so we can do brM[i] instead of more cumbersome (*brM)[i] when brM is of type BrM*?
 
-    TODO Add sparse 2^^n-branches for n < radixPow2: 2^^1=B2, 2^^2=B4, 2^^3=B8, B^^4=B16. Use
+    TODO Add sparse `2^^n`-branches for `n < radixPow2`: 2^^1=B2, 2^^2=B4, 2^^3=B8, B^^4=B16. Use
     sortExactly from sortn.d to order their members.
 
     TODO Make Br4 templated on N when I figure out how

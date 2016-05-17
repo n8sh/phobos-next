@@ -410,6 +410,15 @@ struct RawRadixTree(Value,
             subNodes[backIx] = sub[1];
             subCount = cast(ubyte)(subCount + 1);
         }
+        inout(Node) findSub(Ix ix) inout
+        {
+            foreach (const i_; 0 ..  subCount)
+            {
+                const i = i_.mod!N;
+                if (subIxs[i] == ix) { return subNodes[i]; }
+            }
+            return Node.init;
+        }
         const:
         bool empty() @nogc { return subCount == 0; }
         bool full() @nogc { return subCount == N; }
@@ -446,6 +455,15 @@ struct RawRadixTree(Value,
             subIxs[backIx] = sub[0];
             subNodes[backIx] = sub[1];
             subCount = cast(ubyte)(subCount + 1);
+        }
+        inout(Node) findSub(Ix ix) inout
+        {
+            foreach (const i_; 0 ..  subCount)
+            {
+                const i = i_.mod!N;
+                if (subIxs[i] == ix) { return subNodes[i]; }
+            }
+            return Node.init;
         }
         const:
         bool empty() @nogc { return subCount == 0; }
@@ -516,24 +534,9 @@ struct RawRadixTree(Value,
     {
         switch (br.typeIx)
         {
-        case Node.Ix.ix_Br2Ptr:
-            auto br2 = br.as!(Br2*);
-            foreach (const i_; 0 ..  br2.subCount)
-            {
-                const i = i_.mod!(br2.N);
-                if (br2.subIxs[i] == ix) { return br2.subNodes[i]; }
-            }
-            break;
-        case Node.Ix.ix_Br4Ptr:
-            auto br4 = br.as!(Br4*);
-            foreach (const i_; 0 ..  br4.subCount)
-            {
-                const i = i_.mod!(br4.N);
-                if (br4.subIxs[i] == ix) { return br4.subNodes[i]; }
-            }
-            break;
-        case Node.Ix.ix_BrMPtr:
-            return br.as!(BrM*).subNodes[ix];
+        case Node.Ix.ix_Br2Ptr: if (auto subNode = br.as!(Br2*).findSub(ix)) { return subNode; } break;
+        case Node.Ix.ix_Br4Ptr: if (auto subNode = br.as!(Br4*).findSub(ix)) { return subNode; } break;
+        case Node.Ix.ix_BrMPtr: return br.as!(BrM*).subNodes[ix];
         default: assert(false, "Unsupported Node type");
         }
         return Node.init;

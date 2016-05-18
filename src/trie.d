@@ -806,12 +806,12 @@ struct RawRadixTree(Value,
             }
             else
             {
-                return insertAt(splice(curr, prefix), key, wasAdded);
+                return insertAt(split(curr, prefix), key, wasAdded);
             }
         }
 
-        /** Splice `curr` using `prefix`. */
-        Node splice(PLf curr, Key!radixPow2 prefix)
+        /** Split `curr` using `prefix`. */
+        Node split(PLf curr, Key!radixPow2 prefix)
         {
             auto br = construct!(DefaultBr)(prefix.to!(typeof(DefaultBr.prefix)));
 

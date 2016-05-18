@@ -3,7 +3,7 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
-    TODO Add function reprefix({Br2|BrM) and call after insertAt({Br2|BrM})
+    TODO Add function reprefix({Br2|BrM) and call after insertAt({Br2|BrM}). Only useful when one single leaf is present?
 
     TODO Can we store Br2, Br4 and Br16 together in a variable length array?
 
@@ -694,13 +694,8 @@ struct RawRadixTree(Value,
             }
             else // key doesn't fit in a `PLf`
             {
-                import std.range : dropExactly;
-                auto prefix = key.dropExactly(PLf.maxLength);
-                dln(prefix);
-                BrM* br = construct!(DefaultBr)(prefix);
-                dln("key:", key);
-                assert(false, "TODO test");
-                return Node(br); // use this branch below in this function to insert into
+                return insertAt(construct!(DefaultBr)(key[0 .. PLf.maxLength]),
+                                key, wasAdded);
             }
         }
 
@@ -709,23 +704,26 @@ struct RawRadixTree(Value,
         {
             if (!curr)          // if no existing `Node` to insert at
             {
-                curr = insertNew(key, wasAdded);
-                if (wasAdded) { return curr; } // we're done so return directly
+                auto next = insertNew(key, wasAdded);
+                assert(wasAdded);
+                return next;
             }
-
-            with (Node.Ix)
+            else
             {
-                final switch (curr.typeIx)
+                with (Node.Ix)
                 {
-                case undefined: break;
-                case ix_PLf:    return insertAt(curr.as!(PLf), key, wasAdded);
-                case ix_PLfs:   return insertAt(curr.as!(PLfs), key, wasAdded);
-                case ix_Br2Ptr: return insertAt(curr.as!(Br2*), key, wasAdded);
-                case ix_Br4Ptr: return insertAt(curr.as!(Br4*), key, wasAdded);
-                case ix_BrMPtr: return insertAt(curr.as!(BrM*), key, wasAdded);
-                case ix_LfMPtr: return insertAt(curr.as!(LfM*), key, wasAdded);
+                    final switch (curr.typeIx)
+                    {
+                    case undefined: break;
+                    case ix_PLf:    return insertAt(curr.as!(PLf), key, wasAdded);
+                    case ix_PLfs:   return insertAt(curr.as!(PLfs), key, wasAdded);
+                    case ix_Br2Ptr: return insertAt(curr.as!(Br2*), key, wasAdded);
+                    case ix_Br4Ptr: return insertAt(curr.as!(Br4*), key, wasAdded);
+                    case ix_BrMPtr: return insertAt(curr.as!(BrM*), key, wasAdded);
+                    case ix_LfMPtr: return insertAt(curr.as!(LfM*), key, wasAdded);
+                    }
+                    assert(false);
                 }
-                assert(false);
             }
         }
 
@@ -1392,7 +1390,6 @@ void benchmark(uint radixPow2)()
 unittest
 {
     check!(8,
-           ulong,
            int, short, byte,
            uint, ushort, ubyte);
     // check!(4, ulong);

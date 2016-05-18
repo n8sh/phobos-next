@@ -236,6 +236,7 @@ bool equalLength(R, Ss...)(const R r, const Ss ss) @safe pure nothrow @nogc
 
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
+    See also: https://github.com/npgall/concurrent-trees
 */
 struct RawRadixTree(Value,
                     uint radixPow2 = 8) // binary power of radix, typically either 1, 2, 4 or 8

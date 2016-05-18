@@ -831,14 +831,10 @@ struct RawRadixTree(Value,
         Node insertAt(LfM* curr, Key!radixPow2 key, out bool wasAdded)
         {
             const ix = key[0];
-            if (!curr.keyLSBits[ix])
+            wasAdded = !curr.keyLSBits[ix];
+            if (wasAdded)
             {
                 curr.keyLSBits[ix] = true;
-                wasAdded = true;
-            }
-            else
-            {
-                wasAdded = false;
             }
             return Node(curr);
         }

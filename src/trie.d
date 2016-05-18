@@ -704,9 +704,9 @@ struct RawRadixTree(Value,
         {
             if (!curr)          // if no existing `Node` to insert at
             {
-                auto next = insertNew(key, wasAdded);
+                curr = insertNew(key, wasAdded);
                 assert(wasAdded);
-                return next;
+                return curr;
             }
             else
             {
@@ -717,9 +717,11 @@ struct RawRadixTree(Value,
                     case undefined: break;
                     case ix_PLf:    return insertAt(curr.as!(PLf), key, wasAdded);
                     case ix_PLfs:   return insertAt(curr.as!(PLfs), key, wasAdded);
+
                     case ix_Br2Ptr: return insertAt(curr.as!(Br2*), key, wasAdded);
                     case ix_Br4Ptr: return insertAt(curr.as!(Br4*), key, wasAdded);
                     case ix_BrMPtr: return insertAt(curr.as!(BrM*), key, wasAdded);
+
                     case ix_LfMPtr: return insertAt(curr.as!(LfM*), key, wasAdded);
                     }
                     assert(false);
@@ -1179,6 +1181,7 @@ struct RadixTree(Key, Value, uint radixPow2 = 8)
     private RawRadixTree!(Value, radixPow2) _tree;
     alias _tree this;
 }
+alias PatriciaTrie = RadixTree;
 alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
 

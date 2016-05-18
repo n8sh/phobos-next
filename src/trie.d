@@ -556,64 +556,53 @@ struct RawRadixTree(Value,
         pragma(msg, "Br4.subIxs.sizeof:", Br4.subIxs.sizeof, " Br4.subIxs.alignof:", Br4.subIxs.alignof);
     }
 
-    /** Set sub-`Node` of branch `Node br` at index `ix` to `subNode`. */
-    Node setSub(Node br, Ix subIx, Node subNode)
+    /** Set sub-`Node` of branch `Node curr` at index `ix` to `subNode`. */
+    Node setSub(Node curr, Ix subIx, Node subNode)
     {
-        switch (br.typeIx)
+        switch (curr.typeIx)
         {
-        case Node.Ix.ix_Br2Ptr:
-            auto br2 = br.as!(Br2*);
-            return setSub(br2, subIx, subNode);
-            break;
-        case Node.Ix.ix_Br4Ptr:
-            auto br4 = br.as!(Br4*);
-            import std.algorithm : countUntil;
-            const i = br4.subIxs[0 .. br4.subCount].countUntil(subIx);
-            if (i != -1)        // if hit
-            {
-                br4.subNodes[i.mod!(br4.N)] = subNode;
-            }
-            else
-            {
-                if (br4.full)
-                {
-                    BrM* brM = expand(br4);
-                    br = brM;
-                    goto case Node.Ix.ix_BrMPtr;
-                }
-                else
-                {
-                    br4.pushBackSub(tuple(subIx, subNode));
-                }
-            }
-            break;
-        case Node.Ix.ix_BrMPtr:
-            br.as!(BrM*).subNodes[subIx] = subNode;
-            break;
-        default: assert(false, "Unsupported Node type " ~ br.typeIx.to!string);
+        case Node.Ix.ix_Br2Ptr: return setSub(curr.as!(Br2*), subIx, subNode);
+        case Node.Ix.ix_Br4Ptr: return setSub(curr.as!(Br4*), subIx, subNode);
+        case Node.Ix.ix_BrMPtr: return setSub(curr.as!(BrM*), subIx, subNode);
+        default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
         }
-        return br;
+        return curr;
     }
 
-    Node setSub(Br2* br2, Ix subIx, Node subNode)
+    Node setSub(Br2* curr, Ix subIx, Node subNode)
     {
-        if      (br2.subIxs.at!0 == subIx) { br2.subNodes.at!0 = subNode; } // first reuse case
-        else if (br2.subIxs.at!1 == subIx) { br2.subNodes.at!1 = subNode; } // second reuse case
+        if      (curr.subIxs.at!0 == subIx) { curr.subNodes.at!0 = subNode; } // first reuse case
+        else if (curr.subIxs.at!1 == subIx) { curr.subNodes.at!1 = subNode; } // second reuse case
         else
         {
-            return setSub(expand(br2), subIx, subNode);
+            return setSub(expand(curr), subIx, subNode); // fast, because directly calls setSub(Br4*, ...)
         }
-        return cast(Node)br2;
+        return curr.to!Node;
     }
 
-    Node setSub(Br4* br4, Ix subIx, Node subNode)
+    Node setSub(Br4* curr, Ix subIx, Node subNode)
     {
-        return cast(Node)br4;
+        import std.algorithm : countUntil;
+        const i = curr.subIxs[0 .. curr.subCount].countUntil(subIx);
+        if (i != -1)            // if hit
+        {
+            curr.subNodes[i.mod!(curr.N)] = subNode; // reuse
+        }
+        else if (!curr.full)     // if room left in curr
+        {
+            curr.pushBackSub(tuple(subIx, subNode)); // add one to existing
+        }
+        else
+        {
+            return setSub(expand(curr), subIx, subNode);
+        }
+        return curr.to!Node;
     }
 
-    Node setSub(BrM* brM, Ix subIx, Node subNode)
+    pragma(inline) Node setSub(BrM* curr, Ix subIx, Node subNode)
     {
-        return cast(Node)brM;
+        curr.subNodes[subIx] = subNode;
+        return curr.to!Node;
     }
 
     /** Get sub-`Node` of branch `Node br` at index `ix. */

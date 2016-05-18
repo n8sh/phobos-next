@@ -1390,8 +1390,8 @@ void benchmark(uint radixPow2)()
 unittest
 {
     check!(8,
-           int, short, byte,
-           uint, ushort, ubyte);
+           long, int, short, byte,
+           ulong, uint, ushort, ubyte);
     // check!(4, ulong);
 }
 

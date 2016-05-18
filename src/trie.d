@@ -76,9 +76,6 @@ extern(C) pure nothrow @system /* TODO @nogc */
     void free(void* ptr);
 }
 
-/** Index to chunk of bits. */
-alias BIx = uint;
-
 /** Raw Internal (Unsigned Integer) Binary Key. */
 alias Key(size_t radixPow2) = Mod!(2^^radixPow2)[]; // TODO use bitset to more naturally support radixPow2 != 8
 alias KeyN(size_t radixPow2, size_t N) = Mod!(2^^radixPow2)[N];
@@ -566,14 +563,7 @@ struct RawRadixTree(Value,
         {
         case Node.Ix.ix_Br2Ptr:
             auto br2 = br.as!(Br2*);
-            if      (br2.subIxs.at!0 == subIx) { br2.subNodes.at!0 = subNode; } // first reuse case
-            else if (br2.subIxs.at!1 == subIx) { br2.subNodes.at!1 = subNode; } // second reuse case
-            else
-            {
-                Br4* br4 = expand(br2);
-                br = br4;
-                goto case Node.Ix.ix_Br4Ptr;
-            }
+            return setSub(br2, subIx, subNode);
             break;
         case Node.Ix.ix_Br4Ptr:
             auto br4 = br.as!(Br4*);
@@ -607,6 +597,12 @@ struct RawRadixTree(Value,
 
     Node setSub(Br2* br2, Ix subIx, Node subNode)
     {
+        if      (br2.subIxs.at!0 == subIx) { br2.subNodes.at!0 = subNode; } // first reuse case
+        else if (br2.subIxs.at!1 == subIx) { br2.subNodes.at!1 = subNode; } // second reuse case
+        else
+        {
+            return setSub(expand(br2), subIx, subNode);
+        }
         return cast(Node)br2;
     }
 

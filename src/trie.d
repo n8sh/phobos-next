@@ -568,7 +568,7 @@ struct RawRadixTree(Value,
         }
         return curr;
     }
-
+    /// ditto
     Node setSub(Br2* curr, Ix subIx, Node subNode)
     {
         if      (curr.subIxs.at!0 == subIx) { curr.subNodes.at!0 = subNode; } // first reuse case
@@ -579,7 +579,7 @@ struct RawRadixTree(Value,
         }
         return curr.to!Node;
     }
-
+    /// ditto
     Node setSub(Br4* curr, Ix subIx, Node subNode)
     {
         import std.algorithm : countUntil;
@@ -598,7 +598,7 @@ struct RawRadixTree(Value,
         }
         return curr.to!Node;
     }
-
+    /// ditto
     pragma(inline) Node setSub(BrM* curr, Ix subIx, Node subNode)
     {
         curr.subNodes[subIx] = subNode;

@@ -750,28 +750,30 @@ struct RawRadixTree(Value,
         Node insertAt(BrM* curr, Key!radixPow2 key, out bool wasAdded)
         {
             import std.algorithm : commonPrefix;
-            auto match = commonPrefix(key, curr.prefix);
+            auto matchedPrefix = commonPrefix(key, curr.prefix);
+
+            // TODO share with logic in insertAt(PLf, ...)
 
             // prefix:abcd, key:ab
-            if (match.length == key.length &&
-                match.length < curr.prefix.length) // prefix is an extension of key
+            if (matchedPrefix.length == key.length &&
+                matchedPrefix.length < curr.prefix.length) // prefix is an extension of key
             {
-                DefaultBr br = construct!(DefaultBr)(match.to!(typeof(DefaultBr.prefix)),
+                DefaultBr br = construct!(DefaultBr)(matchedPrefix.to!(typeof(DefaultBr.prefix)),
                                                      true); // `true` because `key` occupies this node
-                br.subNodes[curr.prefix[match.length]] = curr;
-                curr.prefix = curr.prefix[match.length + 1 .. $].to!(typeof(BrM.prefix)); // drop match plus index
+                br.subNodes[curr.prefix[matchedPrefix.length]] = curr;
+                curr.prefix = curr.prefix[matchedPrefix.length + 1 .. $].to!(typeof(BrM.prefix)); // drop matchedPrefix plus index
                 return Node(br);
             }
             // prefix:ab, key:abcd
-            else if (match.length == curr.prefix.length &&
-                     match.length < key.length) // key is an extension of prefix
+            else if (matchedPrefix.length == curr.prefix.length &&
+                     matchedPrefix.length < key.length) // key is an extension of prefix
             {
-                key = key[match.length .. $]; // strip `curr.prefix from beginning of `key`
+                key = key[matchedPrefix.length .. $]; // strip `curr.prefix from beginning of `key`
                 // continue below
             }
             // prefix:ab, key:ab
-            else if (match.length == curr.prefix.length && // exact key prefix match
-                     match.length == key.length)
+            else if (matchedPrefix.length == curr.prefix.length && // exact key prefix match
+                     matchedPrefix.length == key.length)
             {
                 if (!curr.isKey)
                 {
@@ -781,7 +783,7 @@ struct RawRadixTree(Value,
                 return Node(curr);
             }
             // prefix:ab, key:cd
-            else if (match.length == 0) // no prefix key match
+            else if (matchedPrefix.length == 0) // no prefix key match
             {
                 if (curr.prefix.length == 0) // no current prefix
                 {
@@ -824,15 +826,16 @@ struct RawRadixTree(Value,
 
             if (key.empty) { return Node(curr); }
 
-            auto prefix = commonPrefix(key, curr.chunks);
-
-            if (equalLength(prefix, key, curr.chunks)) // key already stored
+            // TODO share with logic in insertAt(BrM*, ...)
+            auto matchedPrefix = commonPrefix(key, curr.chunks);
+            if (equalLength(matchedPrefix, key, curr.chunks)) // key already stored
             {
                 return Node(curr); // already stored in `curr`
             }
             else
             {
-                return insertAt(split(curr, prefix), key, wasAdded);
+                dln("matchedPrefix:", matchedPrefix, " key:", key, " curr.chunks:", curr.chunks);
+                return insertAt(split(curr, matchedPrefix), key, wasAdded);
             }
         }
 

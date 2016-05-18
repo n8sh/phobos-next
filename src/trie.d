@@ -93,7 +93,7 @@ shared static this()
     assert(cacheLineSize == dataCaches()[0].lineSize, "Cache line is not 64 bytes");
 }
 
-/** Statically allocated `Ix`-array of maximum length `maxLength`.
+/** Statically allocated `Ix`-array of fixed pre-allocated length `maxLength`.
  */
 struct IxsN(size_t maxLength,
             uint radixPow2 = 8)

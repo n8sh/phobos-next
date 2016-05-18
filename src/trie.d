@@ -595,7 +595,7 @@ struct RawRadixTree(Value,
         }
         else
         {
-            return setSub(expand(curr), subIx, subNode);
+            return setSub(expand(curr), subIx, subNode); // fast, because directly calls setSub(BrM*, ...)
         }
         return curr.to!Node;
     }

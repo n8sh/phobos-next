@@ -237,6 +237,10 @@ bool equalLength(R, Ss...)(const R r, const Ss ss) @safe pure nothrow @nogc
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
     See also: https://github.com/npgall/concurrent-trees
+    See also: http://code.dogmap.org/kart/
+    See also: http://cr.yp.to/critbit.html
+    See also: https://gcc.gnu.org/onlinedocs/libstdc++/ext/pb_ds/trie_based_containers.html
+    See also: https://github.com/npgall/concurrent-trees
 */
 struct RawRadixTree(Value,
                     uint radixPow2 = 8) // binary power of radix, typically either 1, 2, 4 or 8
@@ -571,6 +575,17 @@ struct RawRadixTree(Value,
             break;
         case Node.Ix.ix_Br4Ptr:
             auto br4 = br.as!(Br4*);
+            import std.algorithm : countUntil;
+
+            const i = br4.subIxs[0 .. br4.subCount].countUntil(subIx);
+            if (i != -1)
+            {
+
+            }
+            else
+            {
+            }
+
             if (auto existingSubNode = br4.findSub(subIx))
             {
                 assert(existingSubNode == subNode, "Existing subNode differs from parameter");
@@ -1104,7 +1119,7 @@ struct RadixTree(Key, Value, uint radixPow2 = 8)
         static if (isFixedTrieableKeyType!Key)
         {
             const ukey = typedKey.bijectToUnsigned;
-            enum nbits = 8*ukey.sizeof;
+            enum nbits = 8*ukey.sizeof; // bitsize of ukey
             enum chunkCount = nbits/radixPow2;
 
             KeyN!(radixPow2, Key.sizeof) key;

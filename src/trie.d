@@ -824,7 +824,11 @@ struct RawRadixTree(Value,
             import std.range : empty;
             import std.algorithm : commonPrefix;
 
-            if (key.empty) { return Node(curr); }
+            if (key.empty)
+            {
+                assert(curr.chunks.empty, "Leaf is not empty");
+                return Node(curr);
+            }
 
             auto matchedPrefix = commonPrefix(key, curr.chunks);
             if (equalLength(matchedPrefix, key, curr.chunks)) // key already stored

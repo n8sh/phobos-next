@@ -1239,8 +1239,6 @@ auto check(uint radixPow2, Keys...)()
                     assert(key !in set);        // alternative syntax
                 }
 
-                const show = false;
-                if (show) { dln("============================= NEW INSERT of key:", key); }
                 assert(set.insert(key));  // insert new value returns `true` (previously not in set)
 
                 static if (Key.sizeof <= Tree.PLf.maxLength)
@@ -1257,7 +1255,6 @@ auto check(uint radixPow2, Keys...)()
                     }
                 }
 
-                if (show) { dln("============================= EXISTING INSERT of key:", key); }
                 assert(!set.insert(key)); // reinsert same value returns `false` (already in set)
 
                 if (useContains)
@@ -1389,6 +1386,7 @@ void benchmark(uint radixPow2)()
 @safe pure nothrow /* TODO @nogc */
 unittest
 {
+    // TODO Support this struct A { long x, y; }
     check!(8,
            long, int, short, byte,
            ulong, uint, ushort, ubyte);

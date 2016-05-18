@@ -97,6 +97,7 @@ shared static this()
  */
 struct IxsN(size_t maxLength,
             uint radixPow2 = 8)
+    if (maxLength >= 2)         // no use storing less than 2 bytes
 {
     enum M = 2^^radixPow2;     // branch-multiplicity, typically either 2, 4, 16 or 256
     alias Ix = Mod!M;
@@ -371,7 +372,6 @@ struct RawRadixTree(Value,
     }
 
     enum brMPrefixLength = 15; // we can afford larger prefix here because BrM is so large
-    enum brNPrefixLength = 7;
 
     /** Dense/Unpacked `M`-Branch with `M` number of sub-nodes. */
     static private struct BrM
@@ -408,7 +408,7 @@ struct RawRadixTree(Value,
 
         // members in order of decreasing alignof:
         StrictlyIndexed!(Node[N]) subNodes;
-        IxsN!brNPrefixLength prefix; // prefix (edge-label) common to all `subNodes`
+        IxsN!7 prefix; // prefix (edge-label) common to all `subNodes`
         StrictlyIndexed!(Ix[N]) subIxs;
         bool isKey;             // key at this branch is occupied
 
@@ -438,7 +438,7 @@ struct RawRadixTree(Value,
 
         // members in order of decreasing alignof:
         StrictlyIndexed!(Node[N]) subNodes;
-        IxsN!brNPrefixLength prefix; // prefix common to all `subNodes` (also called edge-label)
+        IxsN!7 prefix; // prefix common to all `subNodes` (also called edge-label)
         StrictlyIndexed!(Ix[N]) subIxs;
         mixin(bitfields!(ubyte, "subCount", 7, // counts length of defined elements in subNodes
                          bool, "isKey", 1)); // key at this branch is occupied
@@ -504,7 +504,10 @@ struct RawRadixTree(Value,
                 assert(existingSubNode == subNode, "Existing subNode differs from parameter");
                 return br;      // already added
             }
-            if (br2.full) { return setSub(cast(Node)expand(br2), subIx, subNode); } // expand if needed
+            else
+            {
+                return setSub(cast(Node)expand(br2), subIx, subNode); // always expand
+            }
             break;
         case Node.Ix.ix_Br4Ptr:
             auto br4 = br.as!(Br4*);

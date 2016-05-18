@@ -826,7 +826,6 @@ struct RawRadixTree(Value,
 
             if (key.empty) { return Node(curr); }
 
-            // TODO share with logic in insertAt(BrM*, ...)
             auto matchedPrefix = commonPrefix(key, curr.chunks);
             if (equalLength(matchedPrefix, key, curr.chunks)) // key already stored
             {
@@ -834,8 +833,9 @@ struct RawRadixTree(Value,
             }
             else
             {
-                dln("matchedPrefix:", matchedPrefix, " key:", key, " curr.chunks:", curr.chunks);
-                return insertAt(split(curr, matchedPrefix), key, wasAdded);
+                // dln("matchedPrefix:", matchedPrefix, " key:", key, " curr.chunks:", curr.chunks);
+                return insertAt(split(curr, matchedPrefix), // split curr into branch
+                                key, wasAdded);
             }
         }
 

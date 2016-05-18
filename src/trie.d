@@ -557,7 +557,7 @@ struct RawRadixTree(Value,
     }
 
     /** Set sub-`Node` of branch `Node curr` at index `ix` to `subNode`. */
-    Node setSub(Node curr, Ix subIx, Node subNode)
+    pragma(inline) Node setSub(Node curr, Ix subIx, Node subNode)
     {
         switch (curr.typeIx)
         {
@@ -566,11 +566,12 @@ struct RawRadixTree(Value,
         case Node.Ix.ix_BrMPtr: return setSub(curr.as!(BrM*), subIx, subNode);
         default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
         }
-        return curr;
     }
     /// ditto
     Node setSub(Br2* curr, Ix subIx, Node subNode)
     {
+        assert(curr.subNodes.at!0);
+        assert(curr.subNodes.at!1);
         if      (curr.subIxs.at!0 == subIx) { curr.subNodes.at!0 = subNode; } // first reuse case
         else if (curr.subIxs.at!1 == subIx) { curr.subNodes.at!1 = subNode; } // second reuse case
         else

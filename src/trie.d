@@ -3,6 +3,8 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO Add function reprefix({Br2|BrM) and call after insertAt({Br2|BrM})
+
     TODO Can we store Br2, Br4 and Br16 together in a variable length array?
 
     TODO How do we store difference between null and empty arrays?
@@ -49,6 +51,7 @@ module trie;
 import std.traits : isIntegral, isSomeChar, isSomeString, isScalarType, isArray, allSatisfy, anySatisfy, isPointer;
 import std.typecons : tuple, Tuple, Unqual;
 import std.range : isInputRange, ElementType;
+import std.range.primitives : hasLength;
 
 import bijections : isIntegralBijectableType, bijectToUnsigned;
 import variant_ex : WordVariant;
@@ -200,8 +203,6 @@ static assert(IxsN!(6, 8).sizeof == 7);
     assert(!plf.empty);
     assert(plf.full);
 }
-
-import std.range.primitives : hasLength;
 
 /** Returns: `true` if `r` and all `ss` all have equal length.
  */
@@ -417,12 +418,20 @@ struct RawRadixTree(Value,
     /** Dense/Unpacked `M`-Branch with `M` number of sub-nodes. */
     static private struct BrM
     {
+        @safe pure nothrow:
+
+        this(Ix[] prefix, bool isKey = false)
+        {
+            this.prefix = prefix;
+            this.isKey = isKey;
+        }
+
         IxsN!brMPrefixLength prefix; // prefix (edge-label) common to all `subNodes`
         bool isKey;      // key at this branch is occupied
         StrictlyIndexed!(Node[M]) subNodes;
 
         /** Append statistics of tree under `this` into `stats`. */
-        void calculate(ref Stats stats) @safe pure nothrow /* TODO @nogc */ const
+        void calculate(ref Stats stats)  /* TODO @nogc */ const
         {
             size_t nnzSubCount = 0; // number of non-zero sub-nodes
             foreach (sub; subNodes[].filter!(sub => sub))
@@ -457,6 +466,13 @@ struct RawRadixTree(Value,
         bool isKey;             // key at this branch is occupied
 
         @safe pure nothrow:
+
+        this(Ix[] prefix, bool isKey = false)
+        {
+            this.prefix = prefix;
+            this.isKey = isKey;
+        }
+
         inout(Node) findSub(Ix ix) inout
         {
             if (subIxs.at!0 == ix) { return subNodes.at!0; }
@@ -678,9 +694,11 @@ struct RawRadixTree(Value,
             }
             else // key doesn't fit in a `PLf`
             {
-                // TODO functionize
-                BrM* br = construct!(DefaultBr)(key[0 .. key.length - PLf.maxLength].to!(typeof(DefaultBr.prefix)));
-                key = key[br.prefix.length .. $];
+                import std.range : dropExactly;
+                auto prefix = key.dropExactly(PLf.maxLength);
+                dln(prefix);
+                BrM* br = construct!(DefaultBr)(prefix);
+                dln("key:", key);
                 assert(false, "TODO test");
                 return Node(br); // use this branch below in this function to insert into
             }
@@ -1374,6 +1392,7 @@ void benchmark(uint radixPow2)()
 unittest
 {
     check!(8,
+           ulong,
            int, short, byte,
            uint, ushort, ubyte);
     // check!(4, ulong);

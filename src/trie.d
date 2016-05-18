@@ -463,8 +463,9 @@ struct RawRadixTree(Value,
             if (subIxs.at!1 == ix) { return subNodes.at!1; }
             return Node.init;
         }
-        enum empty = false;
-        enum full = true;
+        enum empty = false;     // never empty
+        enum full = true;       // always full
+
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) const
         {
@@ -508,6 +509,7 @@ struct RawRadixTree(Value,
         const:
         bool empty() @nogc { return subCount == 0; }
         bool full() @nogc { return subCount == N; }
+
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats)
         {

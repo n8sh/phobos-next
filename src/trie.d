@@ -570,29 +570,32 @@ struct RawRadixTree(Value,
             else if (br2.subIxs.at!1 == subIx) { br2.subNodes.at!1 = subNode; } // second reuse case
             else
             {
-                return setSub(cast(Node)expand(br2), subIx, subNode); // we need to expand
+                Br4* br4 = expand(br2);
+                br = br4;
+                goto case Node.Ix.ix_Br4Ptr;
             }
             break;
         case Node.Ix.ix_Br4Ptr:
             auto br4 = br.as!(Br4*);
             import std.algorithm : countUntil;
-
             const i = br4.subIxs[0 .. br4.subCount].countUntil(subIx);
-            if (i != -1)
+            if (i != -1)        // if hit
             {
-
+                br4.subNodes[i.mod!(br4.N)] = subNode;
             }
             else
             {
+                if (br4.full)
+                {
+                    BrM* brM = expand(br4);
+                    br = brM;
+                    goto case Node.Ix.ix_BrMPtr;
+                }
+                else
+                {
+                    br4.pushBackSub(tuple(subIx, subNode));
+                }
             }
-
-            if (auto existingSubNode = br4.findSub(subIx))
-            {
-                assert(existingSubNode == subNode, "Existing subNode differs from parameter");
-                return br;      // already added
-            }
-            if (br4.full) { return setSub(cast(Node)expand(br4), subIx, subNode); } // expand if needed
-            br4.pushBackSub(tuple(subIx, subNode));
             break;
         case Node.Ix.ix_BrMPtr:
             br.as!(BrM*).subNodes[subIx] = subNode;
@@ -600,6 +603,21 @@ struct RawRadixTree(Value,
         default: assert(false, "Unsupported Node type " ~ br.typeIx.to!string);
         }
         return br;
+    }
+
+    Node setSub(Br2* br2, Ix subIx, Node subNode)
+    {
+        return cast(Node)br2;
+    }
+
+    Node setSub(Br4* br4, Ix subIx, Node subNode)
+    {
+        return cast(Node)br4;
+    }
+
+    Node setSub(BrM* brM, Ix subIx, Node subNode)
+    {
+        return cast(Node)brM;
     }
 
     /** Get sub-`Node` of branch `Node br` at index `ix. */

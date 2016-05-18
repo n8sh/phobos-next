@@ -447,9 +447,12 @@ struct RawRadixTree(Value,
     {
         enum N = 2; // TODO make this a CT-param when this structu is moved into global scope
 
+        enum preferredSizeOfThis = 32;
+        enum prefixLength = preferredSizeOfThis - subNodes.sizeof - subIxs.sizeof - isKey.sizeof - 1; // bytes left
+
         // members in order of decreasing alignof:
         StrictlyIndexed!(Node[N]) subNodes;
-        IxsN!7 prefix; // prefix (edge-label) common to all `subNodes`
+        IxsN!prefixLength prefix; // prefix (edge-label) common to all `subNodes`
         StrictlyIndexed!(Ix[N]) subIxs;
         bool isKey;             // key at this branch is occupied
 
@@ -518,7 +521,7 @@ struct RawRadixTree(Value,
         }
     }
 
-    static if (false)
+    static if (true)
     {
         pragma(msg, "Br2.sizeof:", Br2.sizeof, " Br2.alignof:", Br2.alignof);
         pragma(msg, "Br4.sizeof:", Br4.sizeof, " Br4.alignof:", Br4.alignof);

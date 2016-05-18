@@ -750,28 +750,28 @@ struct RawRadixTree(Value,
         Node insertAt(BrM* curr, Key!radixPow2 key, out bool wasAdded)
         {
             import std.algorithm : commonPrefix;
-            auto matchedPrefix = commonPrefix(key, curr.prefix);
+            auto match = commonPrefix(key, curr.prefix);
 
             // prefix:abcd, key:ab
-            if (matchedPrefix.length == key.length &&
-                matchedPrefix.length < curr.prefix.length) // prefix is an extension of key
+            if (match.length == key.length &&
+                match.length < curr.prefix.length) // prefix is an extension of key
             {
-                DefaultBr br = construct!(DefaultBr)(matchedPrefix.to!(typeof(DefaultBr.prefix)),
+                DefaultBr br = construct!(DefaultBr)(match.to!(typeof(DefaultBr.prefix)),
                                                      true); // `true` because `key` occupies this node
-                br.subNodes[curr.prefix[matchedPrefix.length]] = curr;
-                curr.prefix = curr.prefix[matchedPrefix.length + 1 .. $].to!(typeof(BrM.prefix)); // drop matchedPrefix plus index
+                br.subNodes[curr.prefix[match.length]] = curr;
+                curr.prefix = curr.prefix[match.length + 1 .. $].to!(typeof(BrM.prefix)); // drop match plus index
                 return Node(br);
             }
             // prefix:ab, key:abcd
-            else if (matchedPrefix.length == curr.prefix.length &&
-                     matchedPrefix.length < key.length) // key is an extension of prefix
+            else if (match.length == curr.prefix.length &&
+                     match.length < key.length) // key is an extension of prefix
             {
-                key = key[matchedPrefix.length .. $]; // strip `curr.prefix from beginning of `key`
+                key = key[match.length .. $]; // strip `curr.prefix from beginning of `key`
                 // continue below
             }
             // prefix:ab, key:ab
-            else if (matchedPrefix.length == curr.prefix.length && // exact key prefix match
-                     matchedPrefix.length == key.length)
+            else if (match.length == curr.prefix.length && // exact key prefix match
+                     match.length == key.length)
             {
                 if (!curr.isKey)
                 {
@@ -781,7 +781,7 @@ struct RawRadixTree(Value,
                 return Node(curr);
             }
             // prefix:ab, key:cd
-            else if (matchedPrefix.length == 0) // no prefix key match
+            else if (match.length == 0) // no prefix key match
             {
                 if (curr.prefix.length == 0) // no current prefix
                 {

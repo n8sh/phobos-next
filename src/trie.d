@@ -474,7 +474,7 @@ struct RawRadixTree(Value,
             this.isKey = isKey;
         }
 
-        inout(Node) findSub(Ix ix) inout
+        pragma(inline) inout(Node) findSub(Ix ix) inout
         {
             if (subIxs.at!0 == ix) { return subNodes.at!0; }
             if (subIxs.at!1 == ix) { return subNodes.at!1; }
@@ -524,8 +524,8 @@ struct RawRadixTree(Value,
             return Node.init;
         }
         const:
-        bool empty() @nogc { return subCount == 0; }
-        bool full() @nogc { return subCount == N; }
+        pragma(inline) bool empty() @nogc { return subCount == 0; }
+        pragma(inline) bool full() @nogc { return subCount == N; }
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats)
@@ -566,7 +566,7 @@ struct RawRadixTree(Value,
             else if (br2.subIxs.at!1 == subIx) { br2.subNodes.at!1 = subNode; } // second reuse case
             else
             {
-                return setSub(cast(Node)expand(br2), subIx, subNode); // always expand
+                return setSub(cast(Node)expand(br2), subIx, subNode); // we need to expand
             }
             break;
         case Node.Ix.ix_Br4Ptr:

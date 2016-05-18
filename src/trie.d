@@ -274,9 +274,9 @@ struct RawRadixTree(Value,
             struct PLf
             {
                 enum maxLength = (size_t.sizeof - 2) / Ix.sizeof;
-                this(Ix[] ixs) { this.chunks = ixs; }
-                IxsN!(maxLength, radixPow2) chunks;
-                alias chunks this;
+                this(Ix[] suffix) { this.suffix = suffix; }
+                IxsN!(maxLength, radixPow2) suffix;
+                alias suffix this;
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
                 // static if (isMap)
@@ -831,18 +831,18 @@ struct RawRadixTree(Value,
 
             if (key.empty)
             {
-                assert(curr.chunks.empty, "Leaf is not empty");
+                assert(curr.suffix.empty, "Leaf is not empty when key is");
                 return Node(curr);
             }
 
-            auto matchedPrefix = commonPrefix(key, curr.chunks);
-            if (equalLength(matchedPrefix, key, curr.chunks)) // key already stored
+            auto matchedPrefix = commonPrefix(key, curr.suffix);
+            if (equalLength(matchedPrefix, key, curr.suffix)) // key already stored
             {
                 return Node(curr); // already stored in `curr`
             }
             else
             {
-                // dln("matchedPrefix:", matchedPrefix, " key:", key, " curr.chunks:", curr.chunks);
+                // dln("matchedPrefix:", matchedPrefix, " key:", key, " curr.suffix:", curr.suffix);
                 return insertAt(split(curr, matchedPrefix), // split curr into branch
                                 key, wasAdded);
             }
@@ -854,7 +854,7 @@ struct RawRadixTree(Value,
             auto br = construct!(DefaultBr)(prefix.to!(typeof(DefaultBr.prefix)));
 
             bool wasAdded;      // dummy
-            auto node = insertAt(br, curr.chunks, wasAdded);
+            auto node = insertAt(br, curr.suffix, wasAdded);
             assert(wasAdded); // assure that existing key was reinserted
             freeNode(curr);   // remove old current
 

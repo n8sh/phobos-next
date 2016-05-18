@@ -566,7 +566,7 @@ struct RawRadixTree(Value,
         case Node.Ix.ix_BrMPtr:
             br.as!(BrM*).subNodes[subIx] = subNode;
             break;
-        default: assert(false, "Unsupported Node type");
+        default: assert(false, "Unsupported Node type " ~ br.typeIx.to!string);
         }
         return br;
     }
@@ -579,7 +579,7 @@ struct RawRadixTree(Value,
         case Node.Ix.ix_Br2Ptr: if (auto subNode = br.as!(Br2*).findSub(ix)) { return subNode; } break;
         case Node.Ix.ix_Br4Ptr: if (auto subNode = br.as!(Br4*).findSub(ix)) { return subNode; } break;
         case Node.Ix.ix_BrMPtr: return br.as!(BrM*).subNodes[ix];
-        default: assert(false, "Unsupported Node type");
+        default: assert(false, "Unsupported Node type " ~ br.typeIx.to!string);
         }
         return Node.init;
     }
@@ -592,7 +592,7 @@ struct RawRadixTree(Value,
         case Node.Ix.ix_Br2Ptr: return br.as!(Br2*).isKey;
         case Node.Ix.ix_Br4Ptr: return br.as!(Br4*).isKey;
         case Node.Ix.ix_BrMPtr: return br.as!(BrM*).isKey;
-        default: assert(false, "Unsupported Node type");
+        default: assert(false, "Unsupported Node type " ~ br.typeIx.to!string);
         }
     }
 
@@ -604,7 +604,7 @@ struct RawRadixTree(Value,
         case Node.Ix.ix_Br2Ptr: return br.as!(Br2*).prefix[];
         case Node.Ix.ix_Br4Ptr: return br.as!(Br4*).prefix[];
         case Node.Ix.ix_BrMPtr: return br.as!(BrM*).prefix[];
-        default: assert(false, "Unsupported Node type");
+        default: assert(false, "Unsupported Node type " ~ br.typeIx.to!string);
         }
     }
 

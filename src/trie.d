@@ -48,7 +48,7 @@
 */
 module trie;
 
-import std.traits : isIntegral, isSomeChar, isSomeString, isScalarType, isArray, allSatisfy, anySatisfy, isPointer;
+import std.traits : isIntegral, isFloatingPoint, isSomeChar, isSomeString, isScalarType, isArray, allSatisfy, anySatisfy, isPointer;
 import std.typecons : tuple, Tuple, Unqual;
 import std.range : isInputRange, ElementType;
 import std.range.primitives : hasLength;
@@ -1224,8 +1224,16 @@ auto check(uint radixPow2, Keys...)()
 
             import std.algorithm : min, max;
 
-            const low = max(Key.min, -100_000);
-            const high = min(Key.max, 100_000);
+            static if (isIntegral!Key)
+            {
+                const low = max(Key.min, -100_000);
+                const high = min(Key.max, 100_000);
+            }
+            else static if (isFloatingPoint!Key)
+            {
+                const low = -100_000;
+                const high = 100_000;
+            }
             const length = high - low + 1;
 
             const useContains = false;
@@ -1388,9 +1396,9 @@ unittest
 {
     // TODO Support this struct A { long x, y; }
     check!(8,
+           float, double,
            long, int, short, byte,
            ulong, uint, ushort, ubyte);
-    // check!(4, ulong);
 }
 
 version(benchmark) unittest

@@ -107,19 +107,19 @@ struct IxsN(size_t maxLength,
         assert(ixs.length <= maxLength);
 
         this.ixs[0 .. ixs.length] = ixs;
-        this.length = cast(ubyte)ixs.length;
+        this._length = cast(ubyte)ixs.length;
     }
 
     @property auto toString() const
     {
         import std.conv : to;
-        return ixs[0 .. length].to!string;
+        return ixs[0 .. _length].to!string;
     }
 
     @safe pure nothrow @nogc:
 
-    bool empty() const { return length == 0; }
-    bool full() const { return length == maxLength; }
+    bool empty() const { return _length == 0; }
+    bool full() const { return _length == maxLength; }
 
     auto ref front() inout
     {
@@ -132,29 +132,32 @@ struct IxsN(size_t maxLength,
         assert(!empty);
 
         // TODO is there a reusable Phobos function for this?
-        foreach (const i; 0 .. length - 1)
+        foreach (const i; 0 .. _length - 1)
         {
             ixs[i] = ixs[i + 1]; // TODO move construct?
         }
-        --length;
+        --_length;
     }
 
-    void popBack() { assert(!empty); --length; }
+    void popBack() { assert(!empty); --_length; }
     void pushBack(Ixs...)(Ixs moreIxs)
         if (Ixs.length <= maxLength)
     {
         assert(!full);
         foreach (const i, const ix; moreIxs)
         {
-            this.ixs[length + i] = ix;
+            this.ixs[_length + i] = ix;
         }
-        length += Ixs.length;
+        _length += Ixs.length;
     }
 
-    auto chunks() inout { return ixs[0 .. length]; }
+    auto chunks() inout { return ixs[0 .. _length]; }
     alias chunks this;
+
+    auto length() const { return _length; }
+
 private:
-    ubyte length;               // number of defined elements in ixs
+    ubyte _length;               // number of defined elements in ixs
     Ix[maxLength] ixs;          // indexes
 }
 
@@ -196,6 +199,29 @@ static assert(IxsN!(6, 8).sizeof == 7);
     assert(plf.equal([11, 22, 33, 44, 55, 66, 77]));
     assert(!plf.empty);
     assert(plf.full);
+}
+
+import std.range.primitives : hasLength;
+
+/** Returns: `true` if `r` and all `ss` all have equal length.
+ */
+bool equalLength(R, Ss...)(R r, Ss ss)
+    if (Ss.length >= 1 &&
+        allSatisfy!(hasLength, R, Ss))
+{
+    foreach (const ref s; ss)
+    {
+        if (r.length != s.length) { return false; }
+    }
+    return true;
+}
+
+@safe pure nothrow unittest
+{
+    assert(equalLength([1], [2], [3]));
+    assert(!equalLength([1, 1], [2], [3]));
+    assert(!equalLength([1], [2, 2], [3]));
+    assert(!equalLength([1], [2], [3, 3]));
 }
 
 /** Raw radix tree container storing untyped variable-length `Key`.
@@ -799,8 +825,8 @@ struct RawRadixTree(Value,
             if (key.empty) { return Node(curr); }
 
             auto prefix = commonPrefix(key, curr.chunks);
-            if (prefix.length == key.length &&
-                prefix.length == curr.chunks.length) // key already stored
+
+            if (equalLength(prefix, key, curr.chunks)) // key already stored
             {
                 return Node(curr); // already stored in `curr`
             }

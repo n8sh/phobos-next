@@ -521,7 +521,7 @@ struct RawRadixTree(Value,
         }
     }
 
-    static if (true)
+    static if (false)
     {
         pragma(msg, "Br2.sizeof:", Br2.sizeof, " Br2.alignof:", Br2.alignof);
         pragma(msg, "Br4.sizeof:", Br4.sizeof, " Br4.alignof:", Br4.alignof);

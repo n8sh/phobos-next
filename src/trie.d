@@ -1119,8 +1119,10 @@ struct RadixTree(Key, Value, uint radixPow2 = 8)
         static if (isFixedTrieableKeyType!Key)
         {
             const ukey = typedKey.bijectToUnsigned;
+
             enum nbits = 8*ukey.sizeof; // bitsize of ukey
-            enum chunkCount = nbits/radixPow2;
+            enum chunkCount = nbits/radixPow2; // number of chunks in ukey
+            static assert(chunkCount*radixPow2 == nbits, "Bitsize of Key must be a multiple of radixPow2:" ~ radixPow2.stringof);
 
             KeyN!(radixPow2, Key.sizeof) key;
 

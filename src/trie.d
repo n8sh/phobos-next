@@ -118,10 +118,8 @@ struct IxsN(size_t maxLength,
 
     @safe pure nothrow @nogc:
 
-    bool empty() const
-    {
-        return length == 0;
-    }
+    bool empty() const { return length == 0; }
+    bool full() const { return length == maxLength; }
 
     auto ref front() inout
     {
@@ -141,17 +139,23 @@ struct IxsN(size_t maxLength,
         --length;
     }
 
-    void popBack()
+    void popBack() { assert(!empty); --length; }
+    void pushBack(Ixs...)(Ixs moreIxs)
+        if (Ixs.length <= maxLength)
     {
-        assert(!empty);
-        --length;
+        assert(!full);
+        foreach (const i, const ix; moreIxs)
+        {
+            this.ixs[length + i] = ix;
+        }
+        length += Ixs.length;
     }
 
     auto chunks() inout { return ixs[0 .. length]; }
     alias chunks this;
 private:
-    ubyte length;
-    Ix[maxLength] ixs;          // ixs
+    ubyte length;               // number of defined elements in ixs
+    Ix[maxLength] ixs;          // indexes
 }
 
 static assert(IxsN!(6, 8).sizeof == 7);
@@ -166,21 +170,32 @@ static assert(IxsN!(6, 8).sizeof == 7);
 
     alias Ix = Mod!(M, ubyte);
     Ix[] ixs = [11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M];
-    auto plf = IxsN!(7, radixPow2)(ixs);
+    enum maxLength = 7;
+    auto plf = IxsN!(maxLength, radixPow2)(ixs);
 
     assert(plf.length == 4);
     assert(!plf.empty);
 
     assert(plf.equal([11, 22, 33, 44]));
+    assert(!plf.full);
     plf.popFront;
     assert(plf.equal([22, 33, 44]));
+    assert(!plf.full);
     plf.popBack;
     assert(plf.equal([22, 33]));
+    assert(!plf.full);
     plf.popFront;
     assert(plf.equal([33]));
+    assert(!plf.full);
     plf.popFront;
     assert(plf.empty);
+    assert(!plf.full);
     assert(plf.length == 0);
+
+    plf.pushBack(11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M, 55.mod!M, 66.mod!M, 77.mod!M);
+    assert(plf.equal([11, 22, 33, 44, 55, 66, 77]));
+    assert(!plf.empty);
+    assert(plf.full);
 }
 
 /** Raw radix tree container storing untyped variable-length `Key`.

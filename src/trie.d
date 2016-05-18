@@ -205,7 +205,7 @@ import std.range.primitives : hasLength;
 
 /** Returns: `true` if `r` and all `ss` all have equal length.
  */
-bool equalLength(R, Ss...)(R r, Ss ss)
+bool equalLength(R, Ss...)(const R r, const Ss ss) @safe pure nothrow @nogc
     if (Ss.length >= 1 &&
         allSatisfy!(hasLength, R, Ss))
 {

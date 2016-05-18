@@ -562,11 +562,8 @@ struct RawRadixTree(Value,
         {
         case Node.Ix.ix_Br2Ptr:
             auto br2 = br.as!(Br2*);
-            if (auto existingSubNode = br2.findSub(subIx))
-            {
-                assert(existingSubNode == subNode, "Existing subNode differs from parameter");
-                return br;      // already added
-            }
+            if      (br2.subIxs.at!0 == subIx) { br2.subNodes.at!0 = subNode; } // first reuse case
+            else if (br2.subIxs.at!1 == subIx) { br2.subNodes.at!1 = subNode; } // second reuse case
             else
             {
                 return setSub(cast(Node)expand(br2), subIx, subNode); // always expand

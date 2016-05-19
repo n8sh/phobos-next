@@ -1046,8 +1046,8 @@ struct RawRadixTree(Value,
 
         void release(Br2* curr)
         {
-            release(curr.subNodes.at!0); // recurse
-            release(curr.subNodes.at!1); // recurse
+            if (curr.subNodes.at!0) { release(curr.subNodes.at!0); } // recurse
+            if (curr.subNodes.at!1) { release(curr.subNodes.at!1); } // recurse
             freeNode(curr);
         }
 

@@ -9,11 +9,9 @@
 
     TODO Is std.algorithm.countUntil the most suitable function to use in setSub(Br4*, ...)
 
-    TODO How do we store difference between null and empty arrays?
+    TODO How do we store difference between null and empty arrays in Keys?
 
     TODO Use std.experimental.allocator
-
-    TODO Move construction params into construct!NodeType(params...)
 
     TODO
     - PLf: Word:

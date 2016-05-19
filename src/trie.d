@@ -253,15 +253,15 @@ struct RawRadixTree(Value,
     enum isSet = is(Value == void); // `true` if this tree is a set. TODO better to use empty struct?
     enum isMap = !isSet;            // `true` if this tree is a map
 
-    enum M = 2^^radixPow2;     // branch-multiplicity, typically either 2, 4, 16 or 256
+    enum radix = 2^^radixPow2;     // branch-multiplicity, typically either 2, 4, 16 or 256
 
-    alias order = M;   // tree order
+    alias order = radix;   // tree order
 
     /// `true` if tree has binary branch.
     enum isBinary = radixPow2 == 2;
 
     /** Radix Modulo Index */
-    alias Ix = Mod!M; // restricted index type avoids range checking in array indexing below
+    alias Ix = Mod!radix; // restricted index type avoids range checking in array indexing below
 
     /** `radixPow2` least significant bits (LSB) of leaves directly packed into a word.
 
@@ -324,11 +324,11 @@ struct RawRadixTree(Value,
     // TODO make these CT-params (requires putting branch definitions in same scope as `RawRadixTree`)
     static if (radixPow2 == 8)
     {
-        alias DefaultRootType = BrM*;
+        alias DefaultRootType = Br2*;
     }
     else static if (radixPow2 == 4)
     {
-        alias DefaultRootType = Br4*;
+        alias DefaultRootType = Br2*;
     }
 
     alias DefaultBr = DefaultRootType;
@@ -378,10 +378,10 @@ struct RawRadixTree(Value,
 
     // TODO move these definitions inside branch definitions?
 
-    /** M-Branch population histogram.
-        Index maps to population with value range (1 .. `M`).
+    /** radix-Branch population histogram.
+        Index maps to population with value range (1 .. `radix`).
     */
-    alias BrM_PopHist = size_t[M];
+    alias BrM_PopHist = size_t[radix];
 
     /** 2-Branch population histogram.
         Index maps to population with value range (1 .. 2).
@@ -393,10 +393,10 @@ struct RawRadixTree(Value,
     */
     alias Br4_PopHist = size_t[4];
 
-    /** M-Leaf population histogram.
-        Index maps to population with value range (1 .. `M`).
+    /** radix-Leaf population histogram.
+        Index maps to population with value range (1 .. `radix`).
     */
-    alias LeafM_PopHist = size_t[M];
+    alias LeafM_PopHist = size_t[radix];
 
     /** Tree Population and Memory-Usage Statistics. */
     struct Stats
@@ -413,39 +413,6 @@ struct RawRadixTree(Value,
          */
         IndexedArray!(size_t, Node.Ix) popByNodeType;
         static assert(is(typeof(popByNodeType).Index == Node.Ix));
-    }
-
-    enum brMPrefixLength = 15; // we can afford larger prefix here because BrM is so large
-
-    /** Dense/Unpacked `M`-Branch with `M` number of sub-nodes. */
-    static private struct BrM
-    {
-        @safe pure nothrow:
-
-        this(Ix[] prefix, bool isKey = false)
-        {
-            this.prefix = prefix;
-            this.isKey = isKey;
-        }
-
-        IxsN!brMPrefixLength prefix; // prefix (edge-label) common to all `subNodes`
-        bool isKey;      // key at this branch is occupied
-        StrictlyIndexed!(Node[M]) subNodes;
-
-        /** Append statistics of tree under `this` into `stats`. */
-        void calculate(ref Stats stats)  /* TODO @nogc */ const
-        {
-            size_t nnzSubCount = 0; // number of non-zero sub-nodes
-            foreach (sub; subNodes[].filter!(sub => sub))
-            {
-                ++nnzSubCount;
-                sub.calculate!(Value, radixPow2)(stats);
-            }
-            ++stats.popHist_BrM[nnzSubCount - 1]; // TODO type-safe indexing
-        }
-
-        // LfM subOccupations; // if i:th bit is set key (and optionally value) associated with sub[i] is also defined
-        // static if (isMap) { Value value; }
     }
 
     /** Sparse/Packed full 2-way branch.
@@ -469,27 +436,39 @@ struct RawRadixTree(Value,
 
         @safe pure nothrow:
 
-        this(Ix[] prefix, bool isKey = false)
+        this(Ix[] prefix, bool isKey)
         {
             this.prefix = prefix;
             this.isKey = isKey;
         }
 
+        this(Ix[] prefix, bool isKey, Ix subIx, Node subNode)
+        {
+            this.prefix = prefix;
+            this.isKey = isKey;
+            this.subIxs.at!0 = subIx;
+            this.subNodes.at!0 = subNode;
+        }
+
         pragma(inline) inout(Node) findSub(Ix ix) inout
         {
-            if (subIxs.at!0 == ix) { return subNodes.at!0; }
-            if (subIxs.at!1 == ix) { return subNodes.at!1; }
+            if (subNodes.at!0 && subIxs.at!0 == ix) { return subNodes.at!0; }
+            if (subNodes.at!1 && subIxs.at!1 == ix) { return subNodes.at!1; }
             return Node.init;
         }
-        enum empty = false;     // never empty
-        enum full = true;       // always full
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) const
         {
-            const nnzSubCount = 2; // number of non-zero sub-nodes
-            subNodes.at!0.calculate!(Value, radixPow2)(stats);
-            subNodes.at!1.calculate!(Value, radixPow2)(stats);
+            auto nnzSubCount = 0; // number of non-zero sub-nodes
+            foreach (const i; iota!(0, 2))
+            {
+                if (subNodes.at!i)
+                {
+                    subNodes.at!i.calculate!(Value, radixPow2)(stats);
+                    ++nnzSubCount;
+                }
+            }
             ++stats.popHist_Br2[nnzSubCount - 1]; // TODO type-safe indexing
         }
     }
@@ -507,6 +486,25 @@ struct RawRadixTree(Value,
                          bool, "isKey", 1)); // key at this branch is occupied
 
         @safe pure nothrow:
+
+        this(Ix[] prefix, bool isKey = false)
+        {
+            this.prefix = prefix;
+            this.isKey = isKey;
+        }
+
+        this(Br2* rhs)
+        {
+            this.prefix = rhs.prefix;
+            this.isKey = rhs.isKey;
+            this.subCount = rhs.N;
+            foreach (const i; iota!(0, rhs.N)) // each sub node. TODO use iota!(Mod!N)
+            {
+                this.subIxs.at!i = rhs.subIxs.at!i;
+                this.subNodes.at!i = rhs.subNodes.at!i;
+            }
+        }
+
         void pushBackSub(Tuple!(Ix, Node) sub)
         {
             assert(!full);
@@ -541,6 +539,51 @@ struct RawRadixTree(Value,
         }
     }
 
+    enum brMPrefixLength = 15; // we can afford larger prefix here because BrM is so large
+
+    /** Dense/Unpacked `radix`-branch with `radix` number of sub-nodes. */
+    static private struct BrM
+    {
+        @safe pure nothrow:
+
+        this(Ix[] prefix, bool isKey = false)
+        {
+            this.prefix = prefix;
+            this.isKey = isKey;
+        }
+
+        this(Br4* rhs)
+        {
+            this.prefix = rhs.prefix;
+            this.isKey = rhs.isKey;
+            foreach (i; 0 .. rhs.subCount) // each sub node. TODO use iota!(Mod!N)
+            {
+                const iN = i.mod!(Br4.N);
+                const ix = rhs.subIxs[iN];
+                this.subNodes[ix] = rhs.subNodes[iN];
+            }
+        }
+
+        IxsN!brMPrefixLength prefix; // prefix (edge-label) common to all `subNodes`
+        bool isKey;      // key at this branch is occupied
+        StrictlyIndexed!(Node[radix]) subNodes;
+
+        /** Append statistics of tree under `this` into `stats`. */
+        void calculate(ref Stats stats)  /* TODO @nogc */ const
+        {
+            size_t nnzSubCount = 0; // number of non-zero sub-nodes
+            foreach (sub; subNodes[].filter!(sub => sub))
+            {
+                ++nnzSubCount;
+                sub.calculate!(Value, radixPow2)(stats);
+            }
+            ++stats.popHist_BrM[nnzSubCount - 1]; // TODO type-safe indexing
+        }
+
+        // LfM subOccupations; // if i:th bit is set key (and optionally value) associated with sub[i] is also defined
+        // static if (isMap) { Value value; }
+    }
+
     static if (false)
     {
         pragma(msg, "Br2.sizeof:", Br2.sizeof, " Br2.alignof:", Br2.alignof);
@@ -570,18 +613,16 @@ struct RawRadixTree(Value,
     /// ditto
     Node setSub(Br2* curr, Ix subIx, Node subNode)
     {
-        assert(curr.subNodes.at!0);
-        assert(curr.subNodes.at!1);
-        if      (curr.subIxs.at!0 == subIx) { curr.subNodes.at!0 = subNode; } // first reuse case
-        else if (curr.subIxs.at!1 == subIx) { curr.subNodes.at!1 = subNode; } // second reuse case
+        if      (curr.subNodes.at!0 && curr.subIxs.at!0 == subIx) { curr.subNodes.at!0 = subNode; } // first reuse case
+        else if (curr.subNodes.at!1 && curr.subIxs.at!1 == subIx) { curr.subNodes.at!1 = subNode; } // second reuse case
         else
         {
             return setSub(expand(curr), subIx, subNode); // fast, because directly calls setSub(Br4*, ...)
         }
-        return curr.to!Node;
+        return Node(curr);
     }
     /// ditto
-    Node setSub(Br4* curr, Ix subIx, Node subNode)
+    Node setSub(Br4* curr, Ix subIx, Node subNode) @safe pure nothrow
     {
         import std.algorithm : countUntil;
         const i = curr.subIxs[0 .. curr.subCount].countUntil(subIx);
@@ -597,17 +638,17 @@ struct RawRadixTree(Value,
         {
             return setSub(expand(curr), subIx, subNode); // fast, because directly calls setSub(BrM*, ...)
         }
-        return curr.to!Node;
+        return Node(curr);
     }
     /// ditto
-    pragma(inline) Node setSub(BrM* curr, Ix subIx, Node subNode)
+    pragma(inline) Node setSub(BrM* curr, Ix subIx, Node subNode) @safe pure nothrow @nogc
     {
         curr.subNodes[subIx] = subNode;
-        return curr.to!Node;
+        return Node(curr);
     }
 
     /** Get sub-`Node` of branch `Node br` at index `ix. */
-    inout(Node) getSub(inout Node br, Ix ix)
+    inout(Node) getSub(inout Node br, Ix ix) @safe pure nothrow
     {
         switch (br.typeIx)
         {
@@ -620,30 +661,57 @@ struct RawRadixTree(Value,
     }
 
     /** Returns: `true` if `br` is occupied, `false` otherwise. */
-    bool isKey(Node br) const
+    pragma(inline) bool isKey(Node br) const @safe pure nothrow
     {
         switch (br.typeIx)
         {
         case Node.Ix.ix_Br2Ptr: return br.as!(Br2*).isKey;
         case Node.Ix.ix_Br4Ptr: return br.as!(Br4*).isKey;
         case Node.Ix.ix_BrMPtr: return br.as!(BrM*).isKey;
+            // TODO extend to leaves aswell?
+        default: assert(false, "Unsupported Node type " ~ br.typeIx.to!string);
+        }
+    }
+
+    pragma(inline) void makeKey(Node br) const @safe pure nothrow
+    {
+        switch (br.typeIx)
+        {
+        case Node.Ix.ix_Br2Ptr: br.as!(Br2*).isKey = true; break;
+        case Node.Ix.ix_Br4Ptr: br.as!(Br4*).isKey = true; break;
+        case Node.Ix.ix_BrMPtr: br.as!(BrM*).isKey = true; break;
+            // TODO extend to leaves aswell?
         default: assert(false, "Unsupported Node type " ~ br.typeIx.to!string);
         }
     }
 
     /** Get prefix of branch node `br`. */
-    auto prefix(inout Node br)
+    auto getPrefix(inout Node br) @safe pure nothrow
     {
         switch (br.typeIx)
         {
         case Node.Ix.ix_Br2Ptr: return br.as!(Br2*).prefix[];
         case Node.Ix.ix_Br4Ptr: return br.as!(Br4*).prefix[];
         case Node.Ix.ix_BrMPtr: return br.as!(BrM*).prefix[];
+            // TODO extend to leaves aswell?
         default: assert(false, "Unsupported Node type " ~ br.typeIx.to!string);
         }
     }
 
-    /** Bottom-most leaf node of tree storing `M` number of densly packed keys
+    /** Set prefix of branch node `br` to `prefix`. */
+    void setPrefix(Node br, Ix[] prefix) @safe pure nothrow
+    {
+        switch (br.typeIx)
+        {
+        case Node.Ix.ix_Br2Ptr: br.as!(Br2*).prefix = typeof(br.as!(Br2*).prefix)(prefix); break;
+        case Node.Ix.ix_Br4Ptr: br.as!(Br4*).prefix = typeof(br.as!(Br4*).prefix)(prefix); break;
+        case Node.Ix.ix_BrMPtr: br.as!(BrM*).prefix = typeof(br.as!(BrM*).prefix)(prefix); break;
+            // TODO extend to leaves aswell?
+        default: assert(false, "Unsupported Node type " ~ br.typeIx.to!string);
+        }
+    }
+
+    /** Bottom-most leaf node of tree storing `radix` number of densly packed keys
         of fixed-length type `Key`.
     */
     static private struct LfM
@@ -655,14 +723,14 @@ struct RawRadixTree(Value,
         }
 
         import bitset : BitSet;
-        private BitSet!M keyLSBits; // if i:th bit is set, then corresponding sub is set
+        private BitSet!radix keyLSBits; // if i:th bit is set, then corresponding sub is set
 
         static if (isMap)
         {
             static if (is(Value == bool))
-                BitSet!M values; // memory-efficient storage of `bool` values
+                BitSet!radix values; // memory-efficient storage of `bool` values
             else
-                Value[M] values;
+                Value[radix] values;
         }
     }
 
@@ -711,13 +779,13 @@ struct RawRadixTree(Value,
             }
             else // key doesn't fit in a `PLf`
             {
-                return insertAt(construct!(DefaultBr)(key[0 .. PLf.maxLength]),
+                return insertAt(construct!(DefaultBr)(key[0 .. PLf.maxLength], false).to!Node,
                                 key, wasAdded);
             }
         }
 
         /** Insert `key` into sub-tree under root `curr`. */
-        pragma(inline) Node insertAt(Node curr, Key!radixPow2 key, out bool wasAdded) // `Node`-polymorphic
+        pragma(inline) Node insertAt(Node curr, Key!radixPow2 key, out bool wasAdded)
         {
             if (!curr)          // if no existing `Node` to insert at
             {
@@ -735,9 +803,9 @@ struct RawRadixTree(Value,
                     case ix_PLf:    return insertAt(curr.as!(PLf), key, wasAdded);
                     case ix_PLfs:   return insertAt(curr.as!(PLfs), key, wasAdded);
 
-                    case ix_Br2Ptr: return insertAtBranch(curr.as!(Br2*), key, wasAdded);
-                    case ix_Br4Ptr: return insertAtBranch(curr.as!(Br4*), key, wasAdded);
-                    case ix_BrMPtr: return insertAtBranch(curr.as!(BrM*), key, wasAdded);
+                    case ix_Br2Ptr: return insertAtBranch(curr, key, wasAdded);
+                    case ix_Br4Ptr: return insertAtBranch(curr, key, wasAdded);
+                    case ix_BrMPtr: return insertAtBranch(curr, key, wasAdded);
 
                     case ix_LfMPtr: return insertAt(curr.as!(LfM*), key, wasAdded);
                     }
@@ -746,59 +814,57 @@ struct RawRadixTree(Value,
             }
         }
 
-        Node insertAtBranch(Node curr, Key!radixPow2 key, out bool wasAdded) // `Node`-polymorphic
+        Node insertAtBranch(Node curr, Key!radixPow2 key, out bool wasAdded)
         {
             import std.algorithm : commonPrefix;
-            auto matchedPrefix = commonPrefix(key, curr.prefix);
+            auto currPrefix = getPrefix(curr);
+            auto matchedPrefix = commonPrefix(key, currPrefix);
 
             // prefix:abcd, key:ab
             if (matchedPrefix.length == key.length &&
-                matchedPrefix.length < curr.prefix.length) // prefix is an extension of key
+                matchedPrefix.length < currPrefix.length) // prefix is an extension of key
             {
-                DefaultBr br = construct!(DefaultBr)(matchedPrefix.to!(typeof(DefaultBr.prefix)),
-                                                     true); // `true` because `key` occupies this node
-                br.subNodes[curr.prefix[matchedPrefix.length]] = curr;
-                curr.prefix = curr.prefix[matchedPrefix.length + 1 .. $].to!(typeof(BrM.prefix)); // drop matchedPrefix plus index
+                const subIx = currPrefix[matchedPrefix.length]; // need this first
+                setPrefix(curr, currPrefix[matchedPrefix.length + 1 .. $]); // drop matchedPrefix plus index
+                auto br = construct!(DefaultBr)(matchedPrefix, true, // `true` because `key` occupies this node
+                                                subIx, curr);
                 return Node(br);
             }
             // prefix:ab, key:abcd
-            else if (matchedPrefix.length == curr.prefix.length &&
+            else if (matchedPrefix.length == currPrefix.length &&
                      matchedPrefix.length < key.length) // key is an extension of prefix
             {
-                key = key[matchedPrefix.length .. $]; // strip `curr.prefix from beginning of `key`
+                key = key[matchedPrefix.length .. $]; // strip `currPrefix from beginning of `key`
                 // continue below
             }
             // prefix:ab, key:ab
-            else if (matchedPrefix.length == curr.prefix.length && // exact key prefix match
+            else if (matchedPrefix.length == currPrefix.length && // exact key prefix match
                      matchedPrefix.length == key.length)
             {
-                if (!curr.isKey)
+                if (!isKey(curr))
                 {
-                    curr.isKey = true;
+                    makeKey(curr);
                     wasAdded = true;
                 }
-                return Node(curr);
+                return curr;
             }
             // prefix:ab, key:cd
             else if (matchedPrefix.length == 0) // no prefix key match
             {
-                if (curr.prefix.length == 0) // no current prefix
+                if (currPrefix.length == 0) // no current prefix
                 {
                     // continue below
                 }
                 else
                 {
-                    BrM* br = construct!(DefaultBr);
-                    br.subNodes[curr.prefix[0]] = curr;
-                    curr.prefix = curr.prefix[1 .. $].to!(typeof(DefaultBr.prefix));
-                    auto node = insertAt(br, key, wasAdded);
-                    return node;
+                    const subIx = currPrefix[0];
+                    setPrefix(curr, currPrefix[1 .. $].to!(typeof(DefaultBr.prefix)));
+                    return insertAtBranch(Node(construct!(DefaultBr)(Ix[].init, false, subIx, curr)), key, wasAdded);
                 }
             }
 
             const ix = key[0];
-            curr.subNodes[ix] = insertAt(curr.subNodes[ix], key[1 .. $], wasAdded); // recurse
-            return Node(curr);
+            return setSub(curr, ix, insertAt(getSub(curr, ix), key[1 .. $], wasAdded)); // recurse
         }
 
         Node insertAt(LfM* curr, Key!radixPow2 key, out bool wasAdded)
@@ -842,10 +908,10 @@ struct RawRadixTree(Value,
         /** Split `curr` using `prefix`. */
         Node split(PLf curr, Key!radixPow2 prefix)
         {
-            auto br = construct!(DefaultBr)(prefix.to!(typeof(DefaultBr.prefix)));
+            auto br = construct!(DefaultBr)(prefix, false);
 
             bool wasAdded;      // dummy
-            auto node = insertAt(br, curr.suffix, wasAdded);
+            auto node = insertAt(br.to!Node, curr.suffix, wasAdded);
             assert(wasAdded); // assure that existing key was reinserted
             freeNode(curr);   // remove old current
 
@@ -904,12 +970,7 @@ struct RawRadixTree(Value,
         /** Destructively expand `curr` of type `Br2` into a `Br4` and return it. */
         Br4* expand(Br2* curr)
         {
-            auto next = construct!(typeof(return));
-            foreach (const i; iota!(0, curr.N)) // each sub node. TODO use iota!(Mod!N)
-            {
-                next.subNodes.at!i = curr.subNodes.at!i;
-                next.subIxs.at!i = curr.subIxs.at!i;
-            }
+            auto next = construct!(typeof(return))(curr);
             freeNode(curr);
             return next;
         }
@@ -917,11 +978,7 @@ struct RawRadixTree(Value,
         /** Destructively expand `curr` of type `Br4` into a `BrM` and return it. */
         BrM* expand(Br4* curr)
         {
-            auto next = construct!(typeof(return));
-            foreach (Mod!(curr.N) i; iota!(0, curr.N)) // each sub node. TODO use iota!(Mod!N)
-            {
-                next.subNodes[curr.subIxs.at!i] = curr.subNodes.at!i;
-            }
+            auto next = construct!(typeof(return))(curr);
             freeNode(curr);
             return next;
         }
@@ -1092,7 +1149,7 @@ struct RadixTree(Key, Value, uint radixPow2 = 8)
                 foreach (bix; 0 .. chunkCount)
                 {
                     const bitShift = (chunkCount - 1 - bix)*radixPow2; // most significant bit chunk first (MSBCF)
-                    key[bix] = (ukey >> bitShift) & (M - 1); // part of value which is also an index
+                    key[bix] = (ukey >> bitShift) & (radix - 1); // part of value which is also an index
                 }
             }
         }
@@ -1316,8 +1373,8 @@ void benchmark(uint radixPow2)()
             auto stats = set.usageHistograms;
             dln("Sparse 2-Branch Population Histogram: ", stats.popHist_Br2);
             dln("Sparse 4-Branch Population Histogram: ", stats.popHist_Br4);
-            dln("Dense M=", 2^^radixPow2, "-Branch Population Histogram: ", stats.popHist_BrM);
-            dln("Dense M=", 2^^radixPow2, "-Leaf   Population Histogram: ", stats.popHist_LfM);
+            dln("Dense radix=", 2^^radixPow2, "-Branch Population Histogram: ", stats.popHist_BrM);
+            dln("Dense radix=", 2^^radixPow2, "-Leaf   Population Histogram: ", stats.popHist_LfM);
             dln("Population By Node Type: ", stats.popByNodeType);
 
             size_t totalBytesUsed = 0;

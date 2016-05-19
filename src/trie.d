@@ -7,6 +7,8 @@
 
     TODO Can we store Br2, Br4 and Br16 together in a variable length array?
 
+    TODO Is std.algorithm.countUntil the most suitable function to use in setSub(Br4*, ...)
+
     TODO How do we store difference between null and empty arrays?
 
     TODO Use std.experimental.allocator
@@ -324,7 +326,7 @@ struct RawRadixTree(Value,
     // TODO make these CT-params (requires putting branch definitions in same scope as `RawRadixTree`)
     static if (radixPow2 == 8)
     {
-        alias DefaultRootType = Br4*;
+        alias DefaultRootType = Br2*;
     }
 
     alias DefaultBr = DefaultRootType;
@@ -637,8 +639,8 @@ struct RawRadixTree(Value,
     Node setSub(Br4* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
         import std.algorithm : countUntil;
-        const i = curr.subIxs[0 .. curr.subCount].countUntil(subIx);
-        if (i != -1)            // if hit
+        const i = curr.subIxs[0 .. curr.subCount].countUntil(subIx); // TODO is this the preferred function?
+        if (i != -1)            // if hit. TODO use bool conversion if this gets added to countUntil
         {
             curr.subNodes[i.mod!(curr.N)] = subNode; // reuse
         }

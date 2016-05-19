@@ -417,7 +417,7 @@ struct RawRadixTree(Value,
 
     /** Sparse/Packed full 2-way branch.
 
-        A 2-branch always always contain two defined sub-nodes (`full` always
+        A 2-branch always contain two defined sub-nodes (`full` always
         returns `true`). If more are added it is automatically expanded to
         larger branch, typicall 4-branch `Br4`.
      */

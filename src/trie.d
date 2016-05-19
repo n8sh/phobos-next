@@ -717,7 +717,7 @@ struct RawRadixTree(Value,
         }
 
         /** Insert `key` into sub-tree under root `curr`. */
-        pragma(inline) Node insertAt(Node curr, Key!radixPow2 key, out bool wasAdded) // Node-polymorphic
+        pragma(inline) Node insertAt(Node curr, Key!radixPow2 key, out bool wasAdded) // `Node`-polymorphic
         {
             if (!curr)          // if no existing `Node` to insert at
             {
@@ -735,9 +735,9 @@ struct RawRadixTree(Value,
                     case ix_PLf:    return insertAt(curr.as!(PLf), key, wasAdded);
                     case ix_PLfs:   return insertAt(curr.as!(PLfs), key, wasAdded);
 
-                    case ix_Br2Ptr: return insertAt(curr.as!(Br2*), key, wasAdded);
-                    case ix_Br4Ptr: return insertAt(curr.as!(Br4*), key, wasAdded);
-                    case ix_BrMPtr: return insertAt(curr.as!(BrM*), key, wasAdded);
+                    case ix_Br2Ptr: return insertAtBranch(curr.as!(Br2*), key, wasAdded);
+                    case ix_Br4Ptr: return insertAtBranch(curr.as!(Br4*), key, wasAdded);
+                    case ix_BrMPtr: return insertAtBranch(curr.as!(BrM*), key, wasAdded);
 
                     case ix_LfMPtr: return insertAt(curr.as!(LfM*), key, wasAdded);
                     }
@@ -746,53 +746,10 @@ struct RawRadixTree(Value,
             }
         }
 
-        pragma(inline) Node insertAtBranch(Node curr, Key!radixPow2 key, out bool wasAdded) // Node-polymorphic
-        {
-            // TODO move logic from insertAt(BrM and use members setSub, getSub, isOccupied getPrefix to access)
-            return curr;
-        }
-
-        /** Insert `key` into sub-tree under root `curr`. */
-        Node insertAt(Br2* curr, Key!radixPow2 key, out bool wasAdded)
-        {
-            assert(false, "TODO sync with changes in insertAt(BrM*");
-        }
-
-        /** Insert `key` into sub-tree under root `curr`. */
-        Node insertAt(Br4* curr, Key!radixPow2 key, out bool wasAdded)
-        {
-            assert(false, "TODO sync with changes in insertAt(BrM*");
-            // const Ix ix = key[0];
-            // enum N = Br4.N;         // branch-order, number of possible sub-nodes
-            // foreach (Mod!N ix; iota!(0, N)) // each sub node. TODO use iota!(Mod!N)
-            // {
-            //     if (curr.subNodes[ix])   // first is occupied
-            //     {
-            //         if (curr.subIxs[ix] == ix) // and matches ix
-            //         {
-            //             curr.subNodes[ix] = insertAt(curr.subNodes[ix], key[1 .. $], wasAdded);
-            //             return Node(curr);
-            //         }
-            //     }
-            //     else            // use first free sub
-            //     {
-            //         auto subkey = key[1 .. $];
-            //         curr.subNodes[ix] = insertAt(constructSub(subkey),
-            //                                         subkey, wasAdded); // use it
-            //         curr.subIxs[ix] = ix;
-            //         return Node(curr);
-            //     }
-            // }
-            // // if we got here all N sub-nodes are occupied so we need to expand
-            // return insertAt(expand(curr), key, wasAdded); // NOTE stay on same depth
-        }
-
-        Node insertAt(BrM* curr, Key!radixPow2 key, out bool wasAdded)
+        Node insertAtBranch(Node curr, Key!radixPow2 key, out bool wasAdded) // `Node`-polymorphic
         {
             import std.algorithm : commonPrefix;
             auto matchedPrefix = commonPrefix(key, curr.prefix);
-
-            // TODO share with logic in insertAt(PLf, ...)
 
             // prefix:abcd, key:ab
             if (matchedPrefix.length == key.length &&

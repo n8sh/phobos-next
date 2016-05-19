@@ -34,9 +34,6 @@
     TODO Add sparse `2^^n`-branches for `n < radixPow2`: 2^^1=B2, 2^^2=B4, 2^^3=B8, B^^4=B16. Use
     sortExactly from sortn.d to order their members.
 
-    TODO Make Br4 templated on N when I figure out how
-    to elide the recursive template-instantiation. Ask forums
-
     TODO Provide `opIndex` and make `opSlice` for set-case (`Value` is `void`) return `SortedRange`
     TODO Provide RandomAccess `opIndex` and `opSlice`! for variable-length keys aswell?
     TODO Provide in operator for fixed-length keys!?

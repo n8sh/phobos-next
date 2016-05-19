@@ -129,7 +129,7 @@ mixin template genTrustedUncheckedOps(I)
     @trusted:
     auto ref at(size_t i)() inout
     {
-        static assert(i < _r.length, "Index " ~ i ~ " must be smaller than array length" ~ _r.length);
+        static assert(i < _r.length, "Index " ~ i.stringof ~ " must be smaller than array length " ~ _r.length.stringof);
         return _r.ptr[i];
     }
     auto ref opIndex(I i) inout

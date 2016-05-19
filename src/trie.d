@@ -769,7 +769,7 @@ struct RawRadixTree(Value,
             return _root = insertAt(_root, key, wasAdded);
         }
 
-        pragma(inline) Node insertNew(Key!radixPow2 key, out bool wasAdded)
+        Node insertNew(Key!radixPow2 key, out bool wasAdded)
         {
             if (key.length <= PLf.maxLength)
             {
@@ -780,7 +780,7 @@ struct RawRadixTree(Value,
             else // key doesn't fit in a `PLf`
             {
                 import std.algorithm : min;
-                return insertAt(construct!(DefaultBr)(key[0 .. min(DefaultBr.prefixLength, key.length)], false).to!Node,
+                return insertAt(Node(construct!(DefaultBr)(key[0 .. min(DefaultBr.prefixLength, key.length)], false)),
                                 key, wasAdded);
             }
         }
@@ -912,7 +912,7 @@ struct RawRadixTree(Value,
             auto br = construct!(DefaultBr)(prefix, false);
 
             bool wasAdded;      // dummy
-            auto node = insertAt(br.to!Node, curr.suffix, wasAdded);
+            auto node = insertAt(Node(br), curr.suffix, wasAdded);
             assert(wasAdded); // assure that existing key was reinserted
             freeNode(curr);   // remove old current
 

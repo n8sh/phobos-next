@@ -613,16 +613,19 @@ struct RawRadixTree(Value,
     /// ditto
     Node setSub(Br2* curr, Ix subIx, Node subNode)
     {
-        if      (curr.subNodes.at!0 && curr.subIxs.at!0 == subIx) { curr.subNodes.at!0 = subNode; } // first reuse case
-        else if (curr.subNodes.at!1 && curr.subIxs.at!1 == subIx) { curr.subNodes.at!1 = subNode; } // second reuse case
-        else
+        foreach (const i; iota!(0, curr.N)) // each sub node. TODO use iota!(Mod!N)
         {
-            return setSub(expand(curr), subIx, subNode); // fast, because directly calls setSub(Br4*, ...)
+            if (curr.subIxs.at!i == subIx)
+            {
+                if (curr.subNodes.at!i) { dln("Existing subNode:", curr.subNodes.at!i, " at subIx:", curr.subIxs.at!i); }
+                curr.subNodes.at!i = subNode;
+                return Node(curr);
+            }
         }
-        return Node(curr);
+        return setSub(expand(curr), subIx, subNode); // fast, because directly calls setSub(Br4*, ...)
     }
     /// ditto
-    Node setSub(Br4* curr, Ix subIx, Node subNode) @safe pure nothrow
+    Node setSub(Br4* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
         import std.algorithm : countUntil;
         const i = curr.subIxs[0 .. curr.subCount].countUntil(subIx);
@@ -641,8 +644,9 @@ struct RawRadixTree(Value,
         return Node(curr);
     }
     /// ditto
-    pragma(inline) Node setSub(BrM* curr, Ix subIx, Node subNode) @safe pure nothrow @nogc
+    pragma(inline) Node setSub(BrM* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
+        if (curr.subNodes[subIx]) { dln("Existing subNode:", curr.subNodes[subIx], " at subIx:", subIx); }
         curr.subNodes[subIx] = subNode;
         return Node(curr);
     }
@@ -1072,7 +1076,7 @@ struct RawRadixTree(Value,
             {
                 final switch (curr.typeIx)
                 {
-                case undefined: break;
+                case undefined: break; // ignored
                 case ix_PLf: return release(curr.as!(PLf));
                 case ix_PLfs: return release(curr.as!(PLfs));
                 case ix_Br2Ptr: return release(curr.as!(Br2*));

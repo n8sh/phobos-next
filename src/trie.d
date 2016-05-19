@@ -758,7 +758,7 @@ struct RawRadixTree(Value,
     ~this()
     {
         if (_root) { release(_root); }
-        assert(_nodeCount == 0);
+        assert(_nodeCount == 0, "Node count is not zero: " ~ _nodeCount.to!string);
     }
 
     @safe pure nothrow /* TODO @nogc */
@@ -780,7 +780,7 @@ struct RawRadixTree(Value,
             else // key doesn't fit in a `PLf`
             {
                 import std.algorithm : min;
-                return insertAt(Node(construct!(DefaultBr)(key[0 .. min(DefaultBr.prefixLength, key.length)], false)),
+                return insertAt(Node(construct!(DefaultBr)(key[0 .. min(key.length, DefaultBr.prefixLength)], false)),
                                 key, wasAdded);
             }
         }
@@ -821,24 +821,23 @@ struct RawRadixTree(Value,
             auto currPrefix = getPrefix(curr);
             auto matchedPrefix = commonPrefix(key, currPrefix);
 
-            // prefix:abcd, key:ab
+            // prefix:"abcd", key:"ab"
             if (matchedPrefix.length == key.length &&
                 matchedPrefix.length < currPrefix.length) // prefix is an extension of key
             {
-                const subIx = currPrefix[matchedPrefix.length]; // need this first
+                const subIx = currPrefix[matchedPrefix.length]; // need index first
                 setPrefix(curr, currPrefix[matchedPrefix.length + 1 .. $]); // drop matchedPrefix plus index
-                auto br = construct!(DefaultBr)(matchedPrefix, true, // `true` because `key` occupies this node
-                                                subIx, curr);
-                return Node(br);
+                return Node(construct!(DefaultBr)(matchedPrefix, true, // `true` because `key` occupies this node
+                                                  subIx, curr));
             }
-            // prefix:ab, key:abcd
+            // prefix:"ab", key:"abcd"
             else if (matchedPrefix.length == currPrefix.length &&
                      matchedPrefix.length < key.length) // key is an extension of prefix
             {
                 key = key[matchedPrefix.length .. $]; // strip `currPrefix from beginning of `key`
                 // continue below
             }
-            // prefix:ab, key:ab
+            // prefix:"ab", key:"ab"
             else if (matchedPrefix.length == currPrefix.length && // exact key prefix match
                      matchedPrefix.length == key.length)
             {
@@ -849,7 +848,7 @@ struct RawRadixTree(Value,
                 }
                 return curr;
             }
-            // prefix:ab, key:cd
+            // prefix:"ab", key:"cd"
             else if (matchedPrefix.length == 0) // no prefix key match
             {
                 if (currPrefix.length == 0) // no current prefix
@@ -858,9 +857,9 @@ struct RawRadixTree(Value,
                 }
                 else
                 {
-                    const subIx = currPrefix[0];
-                    setPrefix(curr, currPrefix[1 .. $].to!(typeof(DefaultBr.prefix)));
-                    return insertAtBranch(Node(construct!(DefaultBr)(Ix[].init, false, subIx, curr)), key, wasAdded);
+                    const subIx = currPrefix[0]; // subIx = 'a'
+                    setPrefix(curr, currPrefix[1 .. $].to!(typeof(DefaultBr.prefix))); // new prefix becomes "b"
+                    return insertAt(Node(construct!(DefaultBr)(Ix[].init, false, subIx, curr)), key, wasAdded);
                 }
             }
 
@@ -1278,6 +1277,7 @@ auto check(uint radixPow2, Keys...)()
             foreach (const uk; low.iota(high + 1))
             {
                 const Key key = cast(Key)uk;
+                dln("key:", key);
                 if (useContains)
                 {
                     assert(!set.contains(key)); // key should not yet be in set
@@ -1285,20 +1285,6 @@ auto check(uint radixPow2, Keys...)()
                 }
 
                 assert(set.insert(key));  // insert new value returns `true` (previously not in set)
-
-                static if (Key.sizeof <= Tree.PLf.maxLength)
-                {
-                    switch (cnt)             // if first
-                    {
-                    case 0:                                // after first insert
-                        assert(set._root.peek!(Tree.PLf)); // top should be a leaf
-                        break;
-                    case 1:                                 // after second insert
-                        assert(set._root.peek!(Tree.BrM*)); // top should be a branch
-                        break;
-                    default: break;
-                    }
-                }
 
                 assert(!set.insert(key)); // reinsert same value returns `false` (already in set)
 
@@ -1433,9 +1419,10 @@ unittest
 {
     // TODO Support this struct A { long x, y; }
     check!(8,
+           byte, short, int, long,
+           ubyte, ushort, uint, ulong,
            float, double,
-           long, int, short, byte,
-           ulong, uint, ushort, ubyte);
+        );
 }
 
 version(benchmark) unittest

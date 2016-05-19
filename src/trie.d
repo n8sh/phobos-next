@@ -324,11 +324,7 @@ struct RawRadixTree(Value,
     // TODO make these CT-params (requires putting branch definitions in same scope as `RawRadixTree`)
     static if (radixPow2 == 8)
     {
-        alias DefaultRootType = Br2*;
-    }
-    else static if (radixPow2 == 4)
-    {
-        alias DefaultRootType = Br2*;
+        alias DefaultRootType = Br4*;
     }
 
     alias DefaultBr = DefaultRootType;
@@ -428,7 +424,7 @@ struct RawRadixTree(Value,
         enum preferredSizeOfThis = 32;
         enum prefixLength = preferredSizeOfThis - subNodes.sizeof - subIxs.sizeof - isKey.sizeof - 1; // bytes left
 
-        // members in order of decreasing alignof:
+        // members in order of decreasing `alignof`:
         StrictlyIndexed!(Node[N]) subNodes;
         IxsN!prefixLength prefix; // prefix (edge-label) common to all `subNodes`
         StrictlyIndexed!(Ix[N]) subIxs;
@@ -448,6 +444,8 @@ struct RawRadixTree(Value,
             this.isKey = isKey;
             this.subIxs.at!0 = subIx;
             this.subNodes.at!0 = subNode;
+            assert(this.subIxs.at!1);
+            assert(this.subNodes.at!1);
         }
 
         pragma(inline) inout(Node) findSub(Ix ix) inout
@@ -461,7 +459,7 @@ struct RawRadixTree(Value,
         void calculate(ref Stats stats) const
         {
             auto nnzSubCount = 0; // number of non-zero sub-nodes
-            foreach (const i; iota!(0, 2))
+            foreach (const i; iota!(0, N))
             {
                 if (subNodes.at!i)
                 {
@@ -478,9 +476,11 @@ struct RawRadixTree(Value,
     {
         enum N = 4; // TODO make this a CT-param when this structu is moved into global scope
 
-        // members in order of decreasing alignof:
+        enum prefixLength = 7;
+
+        // members in order of decreasing `alignof`:
         StrictlyIndexed!(Node[N]) subNodes;
-        IxsN!7 prefix; // prefix common to all `subNodes` (also called edge-label)
+        IxsN!prefixLength prefix; // prefix common to all `subNodes` (also called edge-label)
         StrictlyIndexed!(Ix[N]) subIxs;
         mixin(bitfields!(ubyte, "subCount", 7, // counts length of defined elements in subNodes
                          bool, "isKey", 1)); // key at this branch is occupied
@@ -491,6 +491,15 @@ struct RawRadixTree(Value,
         {
             this.prefix = prefix;
             this.isKey = isKey;
+        }
+
+        this(Ix[] prefix, bool isKey, Ix subIx, Node subNode)
+        {
+            this.prefix = prefix;
+            this.isKey = isKey;
+            this.subIxs.at!0 = subIx;
+            this.subNodes.at!0 = subNode;
+            this.subCount = 1;
         }
 
         this(Br2* rhs)
@@ -646,7 +655,7 @@ struct RawRadixTree(Value,
     /// ditto
     pragma(inline) Node setSub(BrM* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
-        if (curr.subNodes[subIx]) { dln("Existing subNode:", curr.subNodes[subIx], " at subIx:", subIx); }
+        // if (curr.subNodes[subIx]) { dln("Existing subNode:", curr.subNodes[subIx], " at subIx:", subIx); }
         curr.subNodes[subIx] = subNode;
         return Node(curr);
     }
@@ -762,7 +771,7 @@ struct RawRadixTree(Value,
     ~this()
     {
         if (_root) { release(_root); }
-        assert(_nodeCount == 0, "Node count is not zero: " ~ _nodeCount.to!string);
+        assert(_nodeCount == 0, "Node count is not zero, but " ~ _nodeCount.to!string);
     }
 
     @safe pure nothrow /* TODO @nogc */
@@ -1283,7 +1292,7 @@ auto check(uint radixPow2, Keys...)()
             foreach (const uk; low.iota(high + 1))
             {
                 const Key key = cast(Key)uk;
-                dln("key:", key);
+                // dln("key:", key);
                 if (useContains)
                 {
                     assert(!set.contains(key)); // key should not yet be in set

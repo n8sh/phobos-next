@@ -779,7 +779,8 @@ struct RawRadixTree(Value,
             }
             else // key doesn't fit in a `PLf`
             {
-                return insertAt(construct!(DefaultBr)(key[0 .. PLf.maxLength], false).to!Node,
+                import std.algorithm : min;
+                return insertAt(construct!(DefaultBr)(key[0 .. min(DefaultBr.prefixLength, key.length)], false).to!Node,
                                 key, wasAdded);
             }
         }
@@ -790,7 +791,7 @@ struct RawRadixTree(Value,
             if (!curr)          // if no existing `Node` to insert at
             {
                 curr = insertNew(key, wasAdded);
-                assert(wasAdded);
+                assert(wasAdded); // must be added to new Node
                 return curr;
             }
             else

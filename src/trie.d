@@ -512,12 +512,12 @@ private struct RawRadixTree(Value,
             this.prefix = rhs.prefix;
             this.isKey = rhs.isKey;
             assert(rhs.full); // we want rhs to be full for now
-            this.subCount = rhs.N;
             foreach (const i; iota!(0, rhs.N)) // each sub node. TODO use iota!(Mod!N)
             {
                 this.subIxs.at!i = rhs.subIxs.at!i;
                 this.subNodes.at!i = rhs.subNodes.at!i;
             }
+            this.subCount = rhs.N;
         }
 
         void pushBackSub(Tuple!(Ix, Node) sub)

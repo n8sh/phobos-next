@@ -419,13 +419,14 @@ struct RawRadixTree(Value,
         enum N = 2; // TODO make this a CT-param when this structu is moved into global scope
 
         enum preferredSizeOfThis = 32;
-        enum prefixLength = preferredSizeOfThis - subNodes.sizeof - subIxs.sizeof - isKey.sizeof - 1; // bytes left
+        enum prefixLength = preferredSizeOfThis - subNodes.sizeof - subIxs.sizeof - 1 - 1; // bytes left
 
         // members in order of decreasing `alignof`:
         StrictlyIndexed!(Node[N]) subNodes;
         IxsN!prefixLength prefix; // prefix (edge-label) common to all `subNodes`
         StrictlyIndexed!(Ix[N]) subIxs;
-        bool isKey;             // key at this branch is occupied
+        mixin(bitfields!(ubyte, "subCount", 7, // counts length of defined elements in subNodes
+                         bool, "isKey", 1)); // key at this branch is occupied
 
         @safe pure nothrow:
 
@@ -441,30 +442,41 @@ struct RawRadixTree(Value,
             this.isKey = isKey;
             this.subIxs.at!0 = subIx;
             this.subNodes.at!0 = subNode;
-            assert(this.subIxs.at!1);
-            assert(this.subNodes.at!1);
+            this.subCount = 1;
         }
 
-        pragma(inline) inout(Node) findSub(Ix ix) inout
+        void pushBackSub(Tuple!(Ix, Node) sub)
         {
-            if (subNodes.at!0 && subIxs.at!0 == ix) { return subNodes.at!0; }
-            if (subNodes.at!1 && subIxs.at!1 == ix) { return subNodes.at!1; }
+            assert(!full);
+            const backIx = subCount.mod!N;
+            subIxs[backIx] = sub[0];
+            subNodes[backIx] = sub[1];
+            subCount = cast(ubyte)(subCount + 1);
+        }
+        inout(Node) findSub(Ix ix) inout
+        {
+            foreach (const i_; 0 ..  subCount)
+            {
+                const i = i_.mod!N;
+                if (subIxs[i] == ix) { return subNodes[i]; }
+            }
             return Node.init;
         }
 
+        const:
+        pragma(inline) bool empty() @nogc { return subCount == 0; }
+        pragma(inline) bool full() @nogc { return subCount == N; }
+
         /** Append statistics of tree under `this` into `stats`. */
-        void calculate(ref Stats stats) const
+        void calculate(ref Stats stats)
         {
-            auto nnzSubCount = 0; // number of non-zero sub-nodes
-            foreach (const i; iota!(0, N))
+            size_t nnzSubCount = 0; // number of non-zero sub-nodes
+            foreach (sub; subNodes[0 .. subCount])
             {
-                if (subNodes.at!i)
-                {
-                    subNodes.at!i.calculate!(Value, radixPow2)(stats);
-                    ++nnzSubCount;
-                }
+                ++nnzSubCount;
+                sub.calculate!(Value, radixPow2)(stats);
             }
-            ++stats.popHist_Br2[nnzSubCount - 1]; // TODO type-safe indexing
+            ++stats.popHist_Br4[nnzSubCount - 1]; // TODO type-safe indexing
         }
     }
 
@@ -515,8 +527,8 @@ struct RawRadixTree(Value,
         {
             assert(!full);
             const backIx = subCount.mod!N;
-            subIxs[backIx] = sub[0];
-            subNodes[backIx] = sub[1];
+            subIxs[backIx] = sub[0]; // TODO use .ptr[]
+            subNodes[backIx] = sub[1]; // TODO use .ptr[]
             subCount = cast(ubyte)(subCount + 1);
         }
         inout(Node) findSub(Ix ix) inout
@@ -617,18 +629,23 @@ struct RawRadixTree(Value,
         }
     }
     /// ditto
-    Node setSub(Br2* curr, Ix subIx, Node subNode)
+    Node setSub(Br2* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
-        foreach (const i; iota!(0, curr.N)) // each sub node. TODO use iota!(Mod!N)
+        import std.algorithm : countUntil;
+        const i = curr.subIxs[0 .. curr.subCount].countUntil(subIx); // TODO is this the preferred function?
+        if (i != -1)            // if hit. TODO use bool conversion if this gets added to countUntil
         {
-            if (curr.subIxs.at!i == subIx)
-            {
-                if (curr.subNodes.at!i) { dln("Existing subNode:", curr.subNodes.at!i, " at subIx:", curr.subIxs.at!i); }
-                curr.subNodes.at!i = subNode;
-                return Node(curr);
-            }
+            curr.subNodes[i.mod!(curr.N)] = subNode; // reuse
         }
-        return setSub(expand(curr), subIx, subNode); // fast, because directly calls setSub(Br4*, ...)
+        else if (!curr.full)     // if room left in curr
+        {
+            curr.pushBackSub(tuple(subIx, subNode)); // add one to existing
+        }
+        else
+        {
+            return setSub(expand(curr), subIx, subNode); // fast, because directly calls setSub(BrM*, ...)
+        }
+        return Node(curr);
     }
     /// ditto
     Node setSub(Br4* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */

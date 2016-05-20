@@ -11,6 +11,8 @@
 
     TODO How do we store difference between null and empty arrays in Keys?
 
+    TODO Make array indexing/slicing as @trusted and use .ptr[] instead of [] when things are stable
+
     TODO Use std.experimental.allocator
 
     TODO
@@ -527,8 +529,8 @@ struct RawRadixTree(Value,
         {
             assert(!full);
             const backIx = subCount.mod!N;
-            subIxs[backIx] = sub[0]; // TODO use .ptr[]
-            subNodes[backIx] = sub[1]; // TODO use .ptr[]
+            subIxs[backIx] = sub[0];
+            subNodes[backIx] = sub[1];
             subCount = cast(ubyte)(subCount + 1);
         }
         inout(Node) findSub(Ix ix) inout

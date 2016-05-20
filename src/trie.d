@@ -212,7 +212,7 @@ bool equalLength(R, Ss...)(const R r, const Ss ss) @safe pure nothrow @nogc
     assert(!equalLength([1], [2], [3, 3]));
 }
 
-/** Raw radix tree container storing untyped variable-length `Key`.
+/** Raw adaptive radix tree container storing untyped variable-length `Key`.
 
     In set-case (`Value` is `void`) this container is especially suitable for
     representing a set of 32 or 64 integers/pointers.
@@ -221,7 +221,7 @@ bool equalLength(R, Ss...)(const R r, const Ss ss) @safe pure nothrow @nogc
     all keys matching a given key prefix. This enables efficient storage of long
     URLs sharing a common prefix, typically a domain and path.
 
-    For a good introduction to package radix trees see also:
+    For a good introduction to adpative radix trees see also:
     https://infosys.cs.uni-saarland.de/publications/ARCD15.pdf
 
     See also: https://en.wikipedia.org/wiki/Trie
@@ -232,8 +232,8 @@ bool equalLength(R, Ss...)(const R r, const Ss ss) @safe pure nothrow @nogc
     See also: https://gcc.gnu.org/onlinedocs/libstdc++/ext/pb_ds/trie_based_containers.html
     See also: https://github.com/npgall/concurrent-trees
 */
-struct RawRadixTree(Value,
-                    uint radixPow2 = 8) // binary power of radix, typically either 1, 2, 4 or 8
+private struct RawRadixTree(Value,
+                            uint radixPow2 = 8) // binary power of radix, typically either 1, 2, 4 or 8
 {
     import std.bitmanip : bitfields;
     import std.conv : to;

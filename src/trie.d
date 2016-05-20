@@ -511,6 +511,7 @@ private struct RawRadixTree(Value,
         {
             this.prefix = rhs.prefix;
             this.isKey = rhs.isKey;
+            assert(rhs.full); // we want rhs to be full for now
             this.subCount = rhs.N;
             foreach (const i; iota!(0, rhs.N)) // each sub node. TODO use iota!(Mod!N)
             {

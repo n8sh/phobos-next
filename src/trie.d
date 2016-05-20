@@ -4,13 +4,9 @@
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
     TODO Add function reprefix({Br2|BrM) and call after insertAt({Br2|BrM}). Only useful when one single leaf is present?
-
     TODO Can we store Br2, Br4 and Br16 together in a variable length array?
-
     TODO Is std.algorithm.countUntil the most suitable function to use in setSub(Br4*, ...)
-
     TODO Make array indexing/slicing as @trusted and use .ptr[] instead of [] when things are stable
-
     TODO Use std.experimental.allocator
 
     TODO

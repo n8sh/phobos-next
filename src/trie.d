@@ -466,13 +466,13 @@ private struct RawRadixTree(Value,
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats)
         {
-            size_t nnzSubCount = 0; // number of non-zero sub-nodes
+            size_t count = 0; // number of non-zero sub-nodes
             foreach (sub; subNodes[0 .. subCount])
             {
-                ++nnzSubCount;
+                ++count;
                 sub.calculate!(Value, radixPow2)(stats);
             }
-            ++stats.popHist_Br2[nnzSubCount - 1]; // TODO type-safe indexing
+            ++stats.popHist_Br2[count - 1]; // TODO type-safe indexing
         }
     }
 
@@ -544,13 +544,13 @@ private struct RawRadixTree(Value,
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats)
         {
-            size_t nnzSubCount = 0; // number of non-zero sub-nodes
+            size_t count = 0; // number of non-zero sub-nodes
             foreach (sub; subNodes[0 .. subCount])
             {
-                ++nnzSubCount;
+                ++count;
                 sub.calculate!(Value, radixPow2)(stats);
             }
-            ++stats.popHist_Br4[nnzSubCount - 1]; // TODO type-safe indexing
+            ++stats.popHist_Br4[count - 1]; // TODO type-safe indexing
         }
     }
 
@@ -586,13 +586,13 @@ private struct RawRadixTree(Value,
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats)  /* TODO @nogc */ const
         {
-            size_t nnzSubCount = 0; // number of non-zero sub-nodes
+            size_t count = 0; // number of non-zero sub-nodes
             foreach (sub; subNodes[].filter!(sub => sub))
             {
-                ++nnzSubCount;
+                ++count;
                 sub.calculate!(Value, radixPow2)(stats);
             }
-            ++stats.popHist_BrM[nnzSubCount - 1]; // TODO type-safe indexing
+            ++stats.popHist_BrM[count - 1]; // TODO type-safe indexing
         }
 
         // LfM subOccupations; // if i:th bit is set key (and optionally value) associated with sub[i] is also defined

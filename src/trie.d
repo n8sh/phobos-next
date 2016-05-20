@@ -472,7 +472,7 @@ private struct RawRadixTree(Value,
                 ++nnzSubCount;
                 sub.calculate!(Value, radixPow2)(stats);
             }
-            ++stats.popHist_Br4[nnzSubCount - 1]; // TODO type-safe indexing
+            ++stats.popHist_Br2[nnzSubCount - 1]; // TODO type-safe indexing
         }
     }
 

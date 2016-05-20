@@ -221,6 +221,9 @@ bool equalLength(R, Ss...)(const R r, const Ss ss) @safe pure nothrow @nogc
     all keys matching a given key prefix. This enables efficient storage of long
     URLs sharing a common prefix, typically a domain and path.
 
+    For a good introduction to package radix trees see also:
+    https://infosys.cs.uni-saarland.de/publications/ARCD15.pdf
+
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
     See also: https://github.com/npgall/concurrent-trees

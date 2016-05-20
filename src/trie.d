@@ -9,8 +9,6 @@
 
     TODO Is std.algorithm.countUntil the most suitable function to use in setSub(Br4*, ...)
 
-    TODO How do we store difference between null and empty arrays in Keys?
-
     TODO Make array indexing/slicing as @trusted and use .ptr[] instead of [] when things are stable
 
     TODO Use std.experimental.allocator

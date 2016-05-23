@@ -3,6 +3,9 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO Use bitset storage in Br{2,4} and call it BrB. Active when sizeof BrN
+    is larger than 32 bytes (256 bits) and all leaves are single PLf. Converted to when BrN.length >= someLimit
+
     TODO Add function reprefix({Br2|BrM) and call after insertAt({Br2|BrM}). Only useful when one single leaf is present?
     TODO Can we store Br2, Br4 and Br16 together in a variable length array?
     TODO Is std.algorithm.countUntil the most suitable function to use in setSub(Br4*, ...)

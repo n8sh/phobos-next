@@ -70,6 +70,11 @@ struct BitSet(size_t len, Block = size_t)
             return _ix == _jx;
         }
 
+        size_t length() const nothrow
+        {
+            return _jx - _ix;
+        }
+
         bool front() const
         {
             assert(!empty);     // TODO use enforce instead?
@@ -98,6 +103,16 @@ struct BitSet(size_t len, Block = size_t)
         BitSet _store;          // copy of store
         size_t _ix = 0;         // iterator into _store
         size_t _jx = _store.length;
+    }
+
+    pragma(inline) Range opSlice() const @trusted pure nothrow
+    {
+        return Range(this);
+    }
+
+    pragma(inline) Range opSlice(size_t i, size_t j) const @trusted pure nothrow
+    {
+        return Range(this, i, j);
     }
 
     /** Gets the $(D i)'th bit in the $(D BitSet). */
@@ -164,6 +179,25 @@ struct BitSet(size_t len, Block = size_t)
         assert(bs.at!3 == true);
         assert(bs.at!4 == true);
         assert(bs.at!5 == false);
+
+        auto rs = bs[1 .. 6 - 1]; // TODO Use opDollar
+        assert(rs.length == 4);
+        assert(rs.front == 1);
+        assert(rs.back == 1);
+
+        rs.popFront;
+        assert(rs.front == 0);
+        assert(rs.back == 1);
+
+        rs.popBack;
+        assert(rs.front == 0);
+        assert(rs.back == 0);
+
+        rs.popFront;
+        rs.popBack;
+
+        assert(rs.length == 0);
+        assert(rs.empty);
     }
 
     /** Sets the $(D i)'th bit in the $(D BitSet). */

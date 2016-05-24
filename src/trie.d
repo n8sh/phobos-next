@@ -1080,13 +1080,13 @@ private struct RawRadixTree(Value,
                 write(typeof(currPBr).stringof, ": ");
 
                 // print sub-leaves
-                write("PLf:");
+                write("PLf#");
                 import std.algorithm : map;
                 foreach (const subNodePLf; currPBr.subNodes[].map!(subNode => subNode.peek!PLf))
                 {
                     if (subNodePLf)
                     {
-                        write((*subNodePLf).length, ",");
+                        write((*subNodePLf).length);
                     }
                 }
                 writeln;
@@ -1103,7 +1103,7 @@ private struct RawRadixTree(Value,
                 write(typeof(currFBr).stringof, ": ");
 
                 // print sub-leaves
-                write("PLf:");
+                write("PLf#");
                 import std.algorithm : map;
                 foreach (const subNodePLf; currFBr.subNodes[].map!(subNode => subNode.peek!PLf))
                 {
@@ -1456,6 +1456,8 @@ void benchmark(uint radixPow2)()
 
         dln();
 
+        set.print();
+
         auto map = radixTreeMap!(Key, Value, radixPow2);
         assert(map.empty);
         static assert(map.isMap);
@@ -1512,7 +1514,7 @@ auto testPrint(uint radixPow2, Keys...)()
     }
 }
 
-@safe unittest
+version(none) @safe unittest
 {
     testPrint!(8,
                byte, short, int, long,

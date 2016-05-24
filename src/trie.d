@@ -1045,11 +1045,14 @@ private struct RawRadixTree(Value,
 
     void print() @safe const
     {
-        printAt(_root);
+        printAt(_root, 0);
     }
 
-    void printAt(Node curr) @safe const
+    void printAt(Node curr, size_t depth) @safe const
     {
+        import std.range : repeat;
+        import std.stdio : write, writeln;
+        writeln("-".repeat(depth));
         with (Node.Ix)
         {
             final switch (curr.typeIx)
@@ -1063,9 +1066,15 @@ private struct RawRadixTree(Value,
                 break;
             case ix_PBrPtr:
                 auto currPBr = curr.as!(PBr*);
+                foreach (const subNode; currPBr.subNodes)
+                {
+                }
                 break;
             case ix_FBrPtr:
                 auto currFBr = curr.as!(FBr*);
+                foreach (const subNode; currFBr.subNodes)
+                {
+                }
                 break;
             case ix_MLfPtr:
                 auto currMLf = curr.as!(MLf*);
@@ -1416,6 +1425,51 @@ unittest
            byte, short, int, long,
            ubyte, ushort, uint, ulong,
            float, double,
+        );
+}
+
+auto testPrint(uint radixPow2, Keys...)()
+    if (Keys.length >= 1)
+{
+    import std.range : iota;
+    foreach (const it; 0.iota(1))
+    {
+        foreach (Key; Keys)
+        {
+            dln("Key: ", Key.stringof);
+            alias Tree = radixTreeSet!(Key, radixPow2);
+            auto set = Tree;
+
+            import std.algorithm : min, max;
+
+            static if (isIntegral!Key)
+            {
+                const low = max(Key.min, -100_000);
+                const high = min(Key.max, 100_000);
+            }
+            else static if (isFloatingPoint!Key)
+            {
+                const low = -100_000;
+                const high = 100_000;
+            }
+
+            foreach (const uk; low.iota(high + 1))
+            {
+                const Key key = cast(Key)uk;
+                assert(set.insert(key));  // insert new value returns `true` (previously not in set)
+                assert(!set.insert(key)); // reinsert same value returns `false` (already in set)
+            }
+        }
+    }
+}
+
+@safe unittest
+{
+    // TODO Support this struct A { long x, y; }
+    testPrint!(8,
+               byte, short, int, long,
+               ubyte, ushort, uint, ulong,
+               float, double,
         );
 }
 

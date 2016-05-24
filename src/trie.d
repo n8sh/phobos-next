@@ -823,10 +823,10 @@ private struct RawRadixTree(Value,
         /** Insert `key` into `this` tree. */
         pragma(inline) Node insert(Key!radixPow2 key, out bool wasAdded)
         {
-            return _root = insertAt(_root, key, wasAdded);
+            return _root = insertAt(_root, key, 0, wasAdded);
         }
 
-        Node insertNew(Key!radixPow2 key, out bool wasAdded)
+        Node insertNew(Key!radixPow2 key, size_t superPrefixLength, out bool wasAdded)
         {
             if (key.length <= PLf.maxLength)
             {
@@ -839,16 +839,16 @@ private struct RawRadixTree(Value,
                 import std.algorithm : min;
                 auto brKey = key[0 .. min(key.length, DefaultBr.prefixLength)];
                 return insertAt(Node(construct!(DefaultBr)(brKey, false)), // as much as possible of key in branch prefix
-                                key, wasAdded);
+                                key, superPrefixLength + brKey.length, wasAdded);
             }
         }
 
         /** Insert `key` into sub-tree under root `curr`. */
-        pragma(inline) Node insertAt(Node curr, Key!radixPow2 key, out bool wasAdded)
+        pragma(inline) Node insertAt(Node curr, Key!radixPow2 key, size_t superPrefixLength, out bool wasAdded)
         {
             if (!curr)          // if no existing `Node` to insert at
             {
-                curr = insertNew(key, wasAdded);
+                curr = insertNew(key, superPrefixLength, wasAdded);
                 assert(wasAdded); // must be added to new Node
                 return curr;
             }
@@ -859,21 +859,21 @@ private struct RawRadixTree(Value,
                     final switch (curr.typeIx)
                     {
                     case undefined: break;
-                    case ix_PLf:    return insertAt(curr.as!(PLf), key, wasAdded);
-                    case ix_PLfs:   return insertAt(curr.as!(PLfs), key, wasAdded);
+                    case ix_PLf:    return insertAt(curr.as!(PLf), key, superPrefixLength, wasAdded);
+                    case ix_PLfs:   return insertAt(curr.as!(PLfs), key, superPrefixLength, wasAdded);
 
-                    case ix_Br2Ptr: return insertAtBranch(curr, key, wasAdded);
-                    case ix_Br4Ptr: return insertAtBranch(curr, key, wasAdded);
-                    case ix_BrFPtr: return insertAtBranch(curr, key, wasAdded);
+                    case ix_Br2Ptr: return insertAtBranch(curr, key, superPrefixLength, wasAdded);
+                    case ix_Br4Ptr: return insertAtBranch(curr, key, superPrefixLength, wasAdded);
+                    case ix_BrFPtr: return insertAtBranch(curr, key, superPrefixLength, wasAdded);
 
-                    case ix_LfMPtr: return insertAt(curr.as!(LfM*), key, wasAdded);
+                    case ix_LfMPtr: return insertAt(curr.as!(LfM*), key, superPrefixLength, wasAdded);
                     }
                     assert(false);
                 }
             }
         }
 
-        Node insertAtBranch(Node curr, Key!radixPow2 key, out bool wasAdded)
+        Node insertAtBranch(Node curr, Key!radixPow2 key, size_t superPrefixLength, out bool wasAdded)
         {
             import std.algorithm : commonPrefix;
             auto currPrefix = getPrefix(curr);
@@ -917,15 +917,15 @@ private struct RawRadixTree(Value,
                 {
                     const subIx = currPrefix[0]; // subIx = 'a'
                     setPrefix(curr, currPrefix[1 .. $].to!(typeof(DefaultBr.prefix))); // new prefix becomes "b"
-                    return insertAt(Node(construct!(DefaultBr)(Ix[].init, false, subIx, curr)), key, wasAdded);
+                    return insertAt(Node(construct!(DefaultBr)(Ix[].init, false, subIx, curr)), key, superPrefixLength, wasAdded);
                 }
             }
 
             const ix = key[0];
-            return setSub(curr, ix, insertAt(getSub(curr, ix), key[1 .. $], wasAdded)); // recurse
+            return setSub(curr, ix, insertAt(getSub(curr, ix), key[1 .. $], superPrefixLength, wasAdded)); // recurse
         }
 
-        Node insertAt(LfM* curr, Key!radixPow2 key, out bool wasAdded)
+        Node insertAt(LfM* curr, Key!radixPow2 key, size_t superPrefixLength, out bool wasAdded)
         {
             assert(false, "TODO");
             static if (false)
@@ -940,7 +940,7 @@ private struct RawRadixTree(Value,
             }
         }
 
-        Node insertAt(PLf curr, Key!radixPow2 key, out bool wasAdded)
+        Node insertAt(PLf curr, Key!radixPow2 key, size_t superPrefixLength, out bool wasAdded)
         {
             import std.range : empty;
             import std.algorithm : commonPrefix;
@@ -959,7 +959,7 @@ private struct RawRadixTree(Value,
             else
             {
                 return insertAt(split(curr, matchedPrefix), // split curr into branch
-                                key, wasAdded);
+                                key, superPrefixLength, wasAdded);
             }
         }
 
@@ -969,14 +969,14 @@ private struct RawRadixTree(Value,
             auto br = construct!(DefaultBr)(prefix, false);
 
             bool wasAdded;      // dummy
-            auto node = insertAt(Node(br), curr.suffix, wasAdded);
+            auto node = insertAt(Node(br), curr.suffix, 0, wasAdded);
             assert(wasAdded); // assure that existing key was reinserted
             freeNode(curr);   // remove old current
 
             return node;
         }
 
-        Node insertAt(PLfs curr, Key!radixPow2 key, out bool wasAdded)
+        Node insertAt(PLfs curr, Key!radixPow2 key, size_t superPrefixLength, out bool wasAdded)
         {
             const Ix ix = key[0];
 
@@ -1004,7 +1004,7 @@ private struct RawRadixTree(Value,
             }
             else
             {
-                return insertAt(expand(curr), key, wasAdded); // NOTE stay at same (depth)
+                return insertAt(expand(curr), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
             }
         }
 

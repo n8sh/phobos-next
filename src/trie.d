@@ -660,10 +660,22 @@ private struct RawRadixTree(Value,
     {
         switch (br.typeIx)
         {
-        case Node.Ix.ix_BBrPtr: if (br.as!(BBr*).hasSubAt(ix)) { return Node(PLf(Ix[].init)); } break;
-        case Node.Ix.ix_PBrPtr: if (auto subNode = br.as!(PBr*).findSub(ix)) { return subNode; } break;
-        case Node.Ix.ix_FBrPtr: return br.as!(FBr*).subNodes[ix];
-        default: assert(false, "Unsupported Node type " ~ br.typeIx.to!string);
+        case Node.Ix.ix_BBrPtr:
+            if (br.as!(BBr*).hasSubAt(ix))
+            {
+                return Node(PLf(Ix[].init));
+            }
+            break;
+        case Node.Ix.ix_PBrPtr:
+            if (auto subNode = br.as!(PBr*).findSub(ix))
+            {
+                return subNode;
+            }
+            break;
+        case Node.Ix.ix_FBrPtr:
+            return br.as!(FBr*).subNodes[ix];
+        default:
+            assert(false, "Unsupported Node type " ~ br.typeIx.to!string);
         }
         return Node.init;
     }

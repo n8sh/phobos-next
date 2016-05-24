@@ -381,7 +381,11 @@ private struct RawRadixTree(Value,
     {
         PBr_PopHist popHist_PBr; // packed branch population histogram
         FBr_PopHist popHist_FBr; // full branch population histogram
+
         LeafM_PopHist popHist_LfM;
+
+        size_t allPLf0CountOfPBr; // number of `PBr` which sub-branches are all `PLf` of length 0
+        size_t allPLf0CountOfFBr; // number of `FBr` which sub-branches are all `PLf` of length 0
 
         /** Maps `Node` type/index `Ix` to population.
 
@@ -465,13 +469,23 @@ private struct RawRadixTree(Value,
         void calculate(ref Stats stats)
         {
             size_t count = 0; // number of non-zero sub-nodes
-            foreach (sub; subNodes[0 .. subCount])
+            bool allPLf0 = true;
+            foreach (const sub; subNodes[0 .. subCount]) // TODO reuse bySubNode
             {
                 ++count;
                 sub.calculate!(Value, radixPow2)(stats);
+                if (const subPLfRef = sub.peek!PLf)
+                {
+                    const subPLf = *subPLfRef;
+                    if (subPLf.length != 0)
+                    {
+                        allPLf0 = false;
+                    }
+                }
             }
             assert(count <= radix);
             ++stats.popHist_PBr[count - 1]; // TODO type-safe indexing
+            stats.allPLf0CountOfPBr += allPLf0;
         }
     }
 
@@ -508,8 +522,8 @@ private struct RawRadixTree(Value,
         void calculate(ref Stats stats)  /* TODO @nogc */ const
         {
             size_t count = 0; // number of non-zero sub-nodes
-            bool allPLf1 = true;
-            foreach (sub; subNodes[].filter!(sub => sub))
+            bool allPLf0 = true;
+            foreach (const sub; subNodes[].filter!(sub => sub)) // TODO reuse bySubNode
             {
                 ++count;
                 sub.calculate!(Value, radixPow2)(stats);
@@ -518,12 +532,13 @@ private struct RawRadixTree(Value,
                     const subPLf = *subPLfRef;
                     if (subPLf.length != 0)
                     {
-                        allPLf1 = false;
+                        allPLf0 = false;
                     }
                 }
             }
             assert(count <= radix);
             ++stats.popHist_FBr[count - 1]; // TODO type-safe indexing
+            stats.allPLf0CountOfFBr += allPLf0;
         }
 
         // LfM subOccupations; // if i:th bit is set key (and optionally value) associated with sub[i] is also defined
@@ -1283,6 +1298,8 @@ void benchmark(uint radixPow2)()
             dln("Dense radix=", 2^^radixPow2, "-Branch Population Histogram: ", stats.popHist_FBr);
             dln("Dense radix=", 2^^radixPow2, "-Leaf   Population Histogram: ", stats.popHist_LfM);
             dln("Population By Node Type: ", stats.popByNodeType);
+            dln("Number of PBr with PLf-0 only subNodes: ", stats.allPLf0CountOfPBr);
+            dln("Number of FBr with PLf-0 only subNodes: ", stats.allPLf0CountOfFBr);
 
             size_t totalBytesUsed = 0;
             foreach (Set.Node.Ix ix, pop; stats.popByNodeType) // TODO use stats.byPair when added to typecons_ex.d

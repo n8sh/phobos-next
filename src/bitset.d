@@ -60,6 +60,46 @@ struct BitSet(size_t len, Block = size_t)
     /** Number of bits in the $(D BitSet). */
     enum length = len;
 
+    /** Look at how std.container.array implements this. */
+    struct Range
+    {
+        @safe pure @nogc:
+
+        bool empty() const nothrow
+        {
+            return _ix == _jx;
+        }
+
+        bool front() const
+        {
+            assert(!empty);     // TODO use enforce instead?
+            return _store[_ix];
+        }
+
+        bool back() const
+        {
+            assert(!empty);     // TODO use enforce instead?
+            return _store[_jx - 1];
+        }
+
+        void popFront()
+        {
+            assert(!empty);
+            ++_ix;
+        }
+
+        void popBack()
+        {
+            assert(!empty);
+            ++_ix;
+        }
+
+    private:
+        BitSet _store;          // copy of store
+        size_t _ix = 0;         // iterator into _store
+        size_t _jx = _store.length;
+    }
+
     /** Gets the $(D i)'th bit in the $(D BitSet). */
     pragma(inline) bool opIndex(size_t i) const @trusted pure nothrow
     in

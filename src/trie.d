@@ -1116,13 +1116,13 @@ struct RadixTree(Key, Value, uint radixPow2 = 8)
         }
         else static if (is(Unqual!Key == wstring))
         {
-            const ushort[] key = Key.representation;
-            assert(false, "TODO convert key to ubyte[]");
+            const ushort[] ushortKey = Key.representation;
+            const ubyte[] key = (cast(ubyte*)ushortKey.ptr)[0 .. ushortKey[0].sizeof * ushortKey.length]; // TODO @trusted functionize
         }
         else static if (is(Unqual!Key == dstring))
         {
-            const uint[] key = Key.representation;
-            assert(false, "TODO convert key to ubyte[]");
+            const uint[] uintKey = Key.representation;
+            const ubyte[] key = (cast(ubyte*)uintKey.ptr)[0 .. ushortKey[0].sizeof * uintKey.length]; // TODO @trusted functionize
         }
         else
         {

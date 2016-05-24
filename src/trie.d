@@ -465,12 +465,17 @@ private struct RawRadixTree(Value,
         pragma(inline) bool empty() @nogc { return subCount == 0; }
         pragma(inline) bool full() @nogc { return subCount == N; }
 
+        auto bySubNode() inout @nogc
+        {
+            return subNodes[0 .. subCount];
+        }
+
         /** Returns `true` if this branch can be packed into a bitset, that is
             contains only subNodes of type `PLf` of zero length. */
-        bool isBitPackable() @safe pure nothrow @nogc
+        bool isBitPackable() @nogc
         {
             typeof(return) allPLf0 = true;
-            foreach (const sub; subNodes[0 .. subCount]) // TODO reuse bySubNode
+            foreach (const sub; bySubNode)
             {
                 if (const subPLfRef = sub.peek!PLf)
                 {
@@ -488,7 +493,7 @@ private struct RawRadixTree(Value,
         void calculate(ref Stats stats)
         {
             size_t count = 0; // number of non-zero sub-nodes
-            foreach (const sub; subNodes[0 .. subCount]) // TODO reuse bySubNode
+            foreach (const sub; bySubNode)
             {
                 ++count;
                 sub.calculate!(Value, radixPow2)(stats);
@@ -533,9 +538,9 @@ private struct RawRadixTree(Value,
         bool isBitPackable() const @safe pure nothrow @nogc
         {
             typeof(return) allPLf0 = true;
-            foreach (const sub; subNodes[].filter!(sub => sub)) // TODO reuse bySubNode
+            foreach (const subNode; subNodes)
             {
-                if (const subPLfRef = sub.peek!PLf)
+                if (const subPLfRef = subNode.peek!PLf)
                 {
                     const subPLf = *subPLfRef;
                     if (subPLf.length != 0)
@@ -551,10 +556,13 @@ private struct RawRadixTree(Value,
         void calculate(ref Stats stats)  /* TODO @nogc */ const
         {
             size_t count = 0; // number of non-zero sub-nodes
-            foreach (const sub; subNodes[].filter!(sub => sub)) // TODO reuse bySubNode
+            foreach (const subNode; subNodes)
             {
-                ++count;
-                sub.calculate!(Value, radixPow2)(stats);
+                if (subNode)
+                {
+                    ++count;
+                    subNode.calculate!(Value, radixPow2)(stats);
+                }
             }
             assert(count <= radix);
             ++stats.popHist_FBr[count - 1]; // TODO type-safe indexing

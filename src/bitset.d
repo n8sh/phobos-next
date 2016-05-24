@@ -163,52 +163,6 @@ struct BitSet(size_t len, Block = size_t)
         return this;
     }
 
-    ///
-    @safe pure nothrow unittest
-    {
-        BitSet!6 bs = [0, 1, 0, 0, 1, 0];
-        bs.put(3, true);
-
-        import std.algorithm : equal;
-
-        assert(bs[0] == false);
-        assert(bs[1] == true);
-        assert(bs[2] == false);
-        assert(bs[3] == true);
-        assert(bs[4] == true);
-        assert(bs[5] == false);
-
-        assert(bs.at!0 == false);
-        assert(bs.at!1 == true);
-        assert(bs.at!2 == false);
-        assert(bs.at!3 == true);
-        assert(bs.at!4 == true);
-        assert(bs.at!5 == false);
-
-        // test slicing
-        assert(bs[].equal([0, 1, 0, 1, 1, 0]));
-        assert(bs[1 .. 4].equal([1, 0, 1]));
-
-        auto rs = bs[1 .. 6 - 1]; // TODO Use opDollar
-        assert(rs.length == 4);
-        assert(rs.front == 1);
-        assert(rs.back == 1);
-
-        rs.popFront;
-        assert(rs.front == 0);
-        assert(rs.back == 1);
-
-        rs.popBack;
-        assert(rs.front == 1);
-        assert(rs.back == 1);
-
-        rs.popFront;
-        rs.popBack;
-
-        assert(rs.length == 0);
-        assert(rs.empty);
-    }
-
     /** Sets the $(D i)'th bit in the $(D BitSet). */
     import std.traits: isIntegral;
     pragma(inline) bool opIndexAssign(Index)(bool b, Index i) @trusted pure nothrow
@@ -1105,4 +1059,50 @@ unittest
 
     const b17 = BitSet!17([1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1]);
     assert(format("%b", b17) == "1_00001111_00001111");
+}
+
+///
+@safe pure nothrow unittest
+{
+    BitSet!6 bs = [0, 1, 0, 0, 1, 0];
+    bs.put(3, true);
+
+    import std.algorithm : equal;
+
+    assert(bs[0] == false);
+    assert(bs[1] == true);
+    assert(bs[2] == false);
+    assert(bs[3] == true);
+    assert(bs[4] == true);
+    assert(bs[5] == false);
+
+    assert(bs.at!0 == false);
+    assert(bs.at!1 == true);
+    assert(bs.at!2 == false);
+    assert(bs.at!3 == true);
+    assert(bs.at!4 == true);
+    assert(bs.at!5 == false);
+
+    // test slicing
+    assert(bs[].equal([0, 1, 0, 1, 1, 0]));
+    assert(bs[1 .. 4].equal([1, 0, 1]));
+
+    auto rs = bs[1 .. 6 - 1]; // TODO Use opDollar
+    assert(rs.length == 4);
+    assert(rs.front == 1);
+    assert(rs.back == 1);
+
+    rs.popFront;
+    assert(rs.front == 0);
+    assert(rs.back == 1);
+
+    rs.popBack;
+    assert(rs.front == 1);
+    assert(rs.back == 1);
+
+    rs.popFront;
+    rs.popBack;
+
+    assert(rs.length == 0);
+    assert(rs.empty);
 }

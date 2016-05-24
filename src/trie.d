@@ -1154,6 +1154,9 @@ private struct RawRadixTree(Value,
         if (!_root) { _root = construct!(U); }
     }
 
+    /** Get fixed length of keys, or `size_t.max` if key length is variable. */
+    size_t keyLength() const @safe pure nothrow @nogc { return _keyLength; }
+
     /** Returns: `true` if all keys are of fixed size, `false` otherwise. */
     bool hasFixedKeyLength() const @safe pure nothrow @nogc { return keyLength != size_t.max; }
 
@@ -1163,7 +1166,7 @@ private struct RawRadixTree(Value,
     private:
     Node _root;                 ///< tree root node
     size_t _length = 0; ///< number of elements (keys or key-value-pairs) currently stored under `_root`
-    auto _maxKeyLength = size_t.max; ///< maximum length of key
+    immutable _keyLength = size_t.max; ///< maximum length of key
     debug size_t _nodeCount = 0;
 }
 
@@ -1197,7 +1200,7 @@ struct RadixTree(Key, Value, uint radixPow2 = 8)
 {
     this(bool unusedDummy)      // TODO how do we get rid of the need for `unusedDummy`?
     {
-        _maxKeyLength = isFixedTrieableKeyType!Key ? Key.sizeof : size_t.max;
+        this._keyLength = isFixedTrieableKeyType!Key ? Key.sizeof : size_t.max;
     }
 
     /** Insert `key`.

@@ -1008,16 +1008,6 @@ struct BitSet(size_t len, Block = size_t)
     static assert(isIterable!(BitSet!256));
 }
 
-@safe pure nothrow @nogc unittest
-{
-    import std.traits : isIterable;
-    import std.meta : AliasSeq;
-    foreach (Block; AliasSeq!(ubyte, ushort, uint))
-    {
-        BitSet!(256, Block) x;
-    }
-}
-
 /// test ubyte access
 unittest
 {
@@ -1109,5 +1099,9 @@ unittest
         assert(rs.empty);
     }
 
-    testRange!size_t;
+    import std.meta : AliasSeq;
+    foreach (Block; AliasSeq!(size_t))
+    {
+        testRange!Block;
+    }
 }

@@ -1064,45 +1064,50 @@ unittest
 ///
 @safe pure nothrow unittest
 {
-    BitSet!6 bs = [false, 1, 0, 0, true, 0];
-    bs.put(3, true);
+    static testRange(Block)()
+    {
+        BitSet!(6, Block) bs = [false, 1, 0, 0, true, 0];
+        bs.put(3, true);
 
-    import std.algorithm : equal;
+        import std.algorithm : equal;
 
-    assert(bs[0] == false);
-    assert(bs[1] == true);
-    assert(bs[2] == false);
-    assert(bs[3] == true);
-    assert(bs[4] == true);
-    assert(bs[5] == false);
+        assert(bs[0] == false);
+        assert(bs[1] == true);
+        assert(bs[2] == false);
+        assert(bs[3] == true);
+        assert(bs[4] == true);
+        assert(bs[5] == false);
 
-    assert(bs.at!0 == false);
-    assert(bs.at!1 == true);
-    assert(bs.at!2 == false);
-    assert(bs.at!3 == true);
-    assert(bs.at!4 == true);
-    assert(bs.at!5 == false);
+        assert(bs.at!0 == false);
+        assert(bs.at!1 == true);
+        assert(bs.at!2 == false);
+        assert(bs.at!3 == true);
+        assert(bs.at!4 == true);
+        assert(bs.at!5 == false);
 
-    // test slicing
-    assert(bs[].equal([0, 1, 0, 1, 1, 0]));
-    assert(bs[1 .. 4].equal([1, 0, 1]));
+        // test slicing
+        assert(bs[].equal([0, 1, 0, 1, 1, 0]));
+        assert(bs[1 .. 4].equal([1, 0, 1]));
 
-    auto rs = bs[1 .. 6 - 1]; // TODO Use opDollar
-    assert(rs.length == 4);
-    assert(rs.front == 1);
-    assert(rs.back == 1);
+        auto rs = bs[1 .. 6 - 1]; // TODO Use opDollar
+        assert(rs.length == 4);
+        assert(rs.front == 1);
+        assert(rs.back == 1);
 
-    rs.popFront;
-    assert(rs.front == 0);
-    assert(rs.back == 1);
+        rs.popFront;
+        assert(rs.front == 0);
+        assert(rs.back == 1);
 
-    rs.popBack;
-    assert(rs.front == 1);
-    assert(rs.back == 1);
+        rs.popBack;
+        assert(rs.front == 1);
+        assert(rs.back == 1);
 
-    rs.popFront;
-    rs.popBack;
+        rs.popFront;
+        rs.popBack;
 
-    assert(rs.length == 0);
-    assert(rs.empty);
+        assert(rs.length == 0);
+        assert(rs.empty);
+    }
+
+    testRange!size_t;
 }

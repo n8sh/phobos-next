@@ -1391,7 +1391,9 @@ auto radixTreeMap(Key, Value, uint radixPow2 = 4)() { return RadixTree!(Key, Val
 
     assert(set.insert(1));
     assert(!set.insert(1));
-    assert(set.nodeCount == 3); // one branch two leaves
+
+    assert(set.insert(2));
+    assert(!set.insert(2));
 }
 
 /// Check correctness when radixPow2 is `radixPow2` and for each `Key` in `Keys`.

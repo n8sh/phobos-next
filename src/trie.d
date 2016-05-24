@@ -1112,16 +1112,16 @@ struct RadixTree(Key, Value, uint radixPow2 = 8)
         }
         else static if (is(Unqual!Key == string))
         {
-            const ubyte[] key = Key.representation;
+            immutable ubyte[] key = Key.representation; // lexical byte-order
         }
         else static if (is(Unqual!Key == wstring))
         {
-            const ushort[] rKey = Key.representation;
+            const ushort[] rKey = Key.representation; // lexical byte-order. TODO do we need most significant byte byte-order for each `ushort` for this to work?
             const ubyte[] key = (cast(ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
         }
         else static if (is(Unqual!Key == dstring))
         {
-            const uint[] rKey = Key.representation;
+            const uint[] rKey = Key.representation; // lexical byte-order. TODO do we need most significant byte byte-order for each `ushort` for this to work?
             const ubyte[] key = (cast(ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
         }
         else

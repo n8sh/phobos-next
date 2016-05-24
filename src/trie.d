@@ -1396,15 +1396,14 @@ auto radixTreeMap(Key, Value, uint radixPow2 = 4)() { return RadixTree!(Key, Val
 
     assert(set.insert(0));
     assert(!set.insert(0));
+    assert(set.branchCount == 0);
 
-    assert(set.insert(1));
-    assert(!set.insert(1));
-
-    assert(set.insert(2));
-    assert(!set.insert(2));
-
-    assert(set.insert(3));
-    assert(!set.insert(3));
+    foreach (const i; 1 .. 256)
+    {
+        assert(set.insert(i));
+        assert(!set.insert(i));
+        assert(set.branchCount == 1);
+    }
 }
 
 /// Check correctness when radixPow2 is `radixPow2` and for each `Key` in `Keys`.

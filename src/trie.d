@@ -1211,6 +1211,7 @@ auto check(uint radixPow2, Keys...)()
             dln("Key: ", Key.stringof);
             alias Tree = radixTreeSet!(Key, radixPow2);
             auto set = Tree;
+            assert(set.hasFixedKeyLength == isFixedTrieableKeyType!Key);
             assert(set.empty);
 
             static assert(set.isSet);
@@ -1260,6 +1261,7 @@ auto check(uint radixPow2, Keys...)()
             assert(set.length == length);
 
             auto map = radixTreeMap!(Key, Value, radixPow2);
+            assert(map.hasFixedKeyLength == isFixedTrieableKeyType!Key);
             static assert(map.isMap);
 
             map.insert(Key.init, Value.init);

@@ -217,7 +217,7 @@ bool equalLength(R, Ss...)(const R r, const Ss ss) @safe pure nothrow @nogc
     assert(!equalLength([1], [2], [3, 3]));
 }
 
-/** Raw adaptive radix tree container storing untyped variable-length `Key`.
+/** Raw adaptive radix tree (ART) container storing untyped variable-length `Key`.
 
     In set-case (`Value` is `void`) this container is especially suitable for
     representing a set of 32 or 64 integers/pointers.
@@ -1157,9 +1157,10 @@ private struct RawRadixTree(Value,
     /// Returns: number of nodes used in `this` tree.
     pragma(inline) debug size_t nodeCount() @safe pure nothrow /* TODO @nogc */ { return _nodeCount; }
 
-    private Node _root;
-    size_t _length = 0;
-
+    private:
+    Node _root;                 ///< tree root node
+    size_t _length = 0; ///< number of elements (keys or key-value-pairs) currently stored under `_root`
+    auto _maxKeyLength = size_t.max; ///< maximum length of key
     debug size_t _nodeCount = 0;
 }
 
@@ -1191,6 +1192,18 @@ static private void calculate(Value, uint radixPow2)(RawRadixTree!(Value, radixP
 struct RadixTree(Key, Value, uint radixPow2 = 8)
     if (allSatisfy!(isTrieableKeyType, Key))
 {
+    this(bool unusedDummy)      // TODO how do we get rid of the need for `unusedDummy`?
+    {
+        static if (isFixedTrieableKeyType!Key)
+        {
+            _maxKeyLength = Key.sizeof;
+        }
+        else
+        {
+            _maxKeyLength = size_t.max;
+        }
+    }
+
     /** Insert `key`.
         Returns: `true` if `key` wasn't previously inserted, `false` otherwise.
      */
@@ -1285,10 +1298,10 @@ alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
 
 /// Instantiator of set-version of `RadixTree` where value-type is `void` (unused).
-auto radixTreeSet(Key, uint radixPow2 = 4)() { return RadixTree!(Key, void, radixPow2)(); }
+auto radixTreeSet(Key, uint radixPow2 = 4)() { return RadixTree!(Key, void, radixPow2)(false); }
 
 /// Instantiator of map-version of `RadixTree` where value-type is `Value`.
-auto radixTreeMap(Key, Value, uint radixPow2 = 4)() { return RadixTree!(Key, Value, radixPow2)(); }
+auto radixTreeMap(Key, Value, uint radixPow2 = 4)() { return RadixTree!(Key, Value, radixPow2)(false); }
 
 @safe pure nothrow /* TODO @nogc */ unittest
 {

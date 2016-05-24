@@ -1077,10 +1077,10 @@ private struct RawRadixTree(Value,
                 break;
             case ix_PBrPtr:
                 auto currPBr = curr.as!(PBr*);
-                write(typeof(currPBr).stringof, ": ");
+                write(typeof(currPBr).stringof, ": ", "prefix=", currPBr.prefix, " ");
 
                 // print sub-leaves
-                write("PLf#");
+                write("sub-PLfs-lengths=");
                 import std.algorithm : map;
                 foreach (const subNodePLf; currPBr.subNodes[].map!(subNode => subNode.peek!PLf))
                 {
@@ -1100,10 +1100,10 @@ private struct RawRadixTree(Value,
                 break;
             case ix_FBrPtr:
                 auto currFBr = curr.as!(FBr*);
-                write(typeof(currFBr).stringof, ": ");
+                write(typeof(currFBr).stringof, ": ", "prefix=", currFBr.prefix, " ");
 
                 // print sub-leaves
-                write("PLf#");
+                write("sub-PLfs-lengths=");
                 import std.algorithm : map;
                 foreach (const subNodePLf; currFBr.subNodes[].map!(subNode => subNode.peek!PLf))
                 {

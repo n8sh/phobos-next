@@ -42,6 +42,7 @@ import typecons_ex : IndexedArray, StrictlyIndexed;
 import modulo : Mod, mod;
 
 version = benchmark;
+version = print;
 
 import dbg;
 
@@ -1456,7 +1457,7 @@ void benchmark(uint radixPow2)()
 
         dln();
 
-        set.print();
+        version(print) set.print();
 
         auto map = radixTreeMap!(Key, Value, radixPow2);
         assert(map.empty);
@@ -1509,12 +1510,12 @@ auto testPrint(uint radixPow2, Keys...)()
                 assert(!set.insert(key)); // reinsert same value returns `false` (already in set)
             }
 
-            set.print;
+            version(print) set.print();
         }
     }
 }
 
-version(none) @safe unittest
+version(print) @safe unittest
 {
     testPrint!(8,
                byte, short, int, long,

@@ -802,7 +802,7 @@ private struct RawRadixTree(Value,
     ~this()
     {
         if (_root) { release(_root); }
-        assert(_pointerNodeCount == 0, "Node count is not zero, but " ~ _pointerNodeCount.to!string);
+        assert(_pointerNodeCount == 0, "Pointer node count is not zero, but " ~ _pointerNodeCount.to!string);
     }
 
     @safe pure nothrow /* TODO @nogc */
@@ -1529,6 +1529,7 @@ void benchmark(uint radixPow2)()
 
             dln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
             auto stats = set.usageHistograms;
+            dln("Sparse Bit-Branch Population Histogram: ", stats.popHist_BBr);
             dln("Sparse 4-Branch Population Histogram: ", stats.popHist_PBr);
             dln("Dense radix=", 2^^radixPow2, "-Branch Population Histogram: ", stats.popHist_FBr);
             dln("Dense radix=", 2^^radixPow2, "-Leaf   Population Histogram: ", stats.popHist_MLf);

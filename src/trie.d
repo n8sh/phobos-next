@@ -430,7 +430,7 @@ private struct RawRadixTree(Value,
         }
 
         private:
-        BitSet!(radix, uint) _keyBits; // 32 bytes
+        BitSet!(radix) _keyBits; // 32 bytes
         IxsN!prefixLength prefix; // prefix common to all `subNodes` (also called edge-label)
         bool isKey;
     }
@@ -1394,6 +1394,9 @@ auto radixTreeMap(Key, Value, uint radixPow2 = 4)() { return RadixTree!(Key, Val
 
     assert(set.insert(2));
     assert(!set.insert(2));
+
+    assert(set.insert(3));
+    assert(!set.insert(3));
 }
 
 /// Check correctness when radixPow2 is `radixPow2` and for each `Key` in `Keys`.

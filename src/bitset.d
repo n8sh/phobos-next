@@ -612,9 +612,9 @@ struct BitSet(size_t len, Block = size_t)
                 {
                     import std.conv : to;
                     import core.bitop : popcnt;
-                    static      if (block.sizeof == 1) n += cast(uint)block.popcnt;
-                    else static if (block.sizeof == 2) n += cast(uint)block.popcnt;
-                    else static if (block.sizeof == 4) n += cast(uint)block.popcnt;
+                    static      if (block.sizeof == 1) { n += cast(uint)block.popcnt; } // TODO do we need to force uint-overload of `popcnt`?
+                    else static if (block.sizeof == 2) { n += cast(uint)block.popcnt; } // TODO do we need to force uint-overload of `popcnt`?
+                    else static if (block.sizeof == 4) { n += cast(uint)block.popcnt; } // TODO do we need to force uint-overload of `popcnt`?
                     else static if (block.sizeof == 8) n += (cast(ulong)((cast(uint)(block)).popcnt) +
                                                              cast(ulong)((cast(uint)(block >> 32)).popcnt));
                     else

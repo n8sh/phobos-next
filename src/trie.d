@@ -470,6 +470,7 @@ private struct RawRadixTree(Value,
                 ++count;
                 sub.calculate!(Value, radixPow2)(stats);
             }
+            assert(count <= radix);
             ++stats.popHist_BrP[count - 1]; // TODO type-safe indexing
         }
     }
@@ -512,6 +513,7 @@ private struct RawRadixTree(Value,
                 ++count;
                 sub.calculate!(Value, radixPow2)(stats);
             }
+            assert(count <= radix);
             ++stats.popHist_BrF[count - 1]; // TODO type-safe indexing
         }
 

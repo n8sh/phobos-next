@@ -716,11 +716,8 @@ private struct RawRadixTree(Value,
                     case undefined: break;
                     case ix_PLf:    return insertAt(curr.as!(PLf), key, superPrefixLength, wasAdded);
                     case ix_PLfs:   return insertAt(curr.as!(PLfs), key, superPrefixLength, wasAdded);
-
                     case ix_BrPPtr:
-                    case ix_BrFPtr:
-                        return insertAtBranch(curr, key, superPrefixLength, wasAdded);
-
+                    case ix_BrFPtr: return insertAtBranch(curr, key, superPrefixLength, wasAdded);
                     case ix_LfMPtr: return insertAt(curr.as!(LfM*), key, superPrefixLength, wasAdded);
                     }
                     assert(false);

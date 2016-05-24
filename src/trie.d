@@ -41,7 +41,7 @@ import variant_ex : WordVariant;
 import typecons_ex : IndexedArray, StrictlyIndexed;
 import modulo : Mod, mod;
 
-version = debugAllocations;
+// version = debugAllocations;
 version = benchmark;
 // version = print;
 
@@ -640,6 +640,7 @@ private struct RawRadixTree(Value,
             if (subPLf.suffix.empty)
             {
                 curr._keyBits[subIx] = true;
+                freeNode(subNode); // free it because it's stored inside the bitset itself
                 return Node(curr);
             }
             else
@@ -801,7 +802,7 @@ private struct RawRadixTree(Value,
     ~this()
     {
         if (_root) { release(_root); }
-        assert(_nodeCount == 0, "Node count is not zero, but " ~ _nodeCount.to!string);
+        assert(_pointerNodeCount == 0, "Node count is not zero, but " ~ _pointerNodeCount.to!string);
     }
 
     @safe pure nothrow /* TODO @nogc */
@@ -1068,9 +1069,9 @@ private struct RawRadixTree(Value,
     auto construct(U, Args...)(Args args) @trusted
     {
         version(debugAllocations) { dln("constructing ", U.stringof, " from ", args); }
-        debug ++_nodeCount;
         static if (isPointer!U)
         {
+            debug ++_pointerNodeCount;
             import std.conv : emplace;
             return emplace(cast(U)malloc((*U.init).sizeof), args);
             // TODO ensure alignment of node at least that of U.alignof
@@ -1087,8 +1088,8 @@ private struct RawRadixTree(Value,
         static if (isPointer!NodeType)
         {
             free(cast(void*)nt);  // TODO Allocator.free
+            debug --_pointerNodeCount;
         }
-        debug --_nodeCount;
     }
 
     @safe pure nothrow /* TODO @nogc */
@@ -1152,7 +1153,7 @@ private struct RawRadixTree(Value,
     bool hasFixedKeyLength() const @safe pure nothrow @nogc { return keyLength != size_t.max; }
 
     /// Returns: number of nodes used in `this` tree.
-    pragma(inline) debug size_t nodeCount() @safe pure nothrow /* TODO @nogc */ { return _nodeCount; }
+    pragma(inline) debug size_t nodeCount() @safe pure nothrow /* TODO @nogc */ { return _pointerNodeCount; }
 
     void print() @safe const
     {
@@ -1248,7 +1249,7 @@ private struct RawRadixTree(Value,
     Node _root;                 ///< tree root node
     size_t _length = 0; ///< number of elements (keys or key-value-pairs) currently stored under `_root`
     immutable _keyLength = size_t.max; ///< maximum length of key
-    debug size_t _nodeCount = 0;
+    debug long _pointerNodeCount = 0;
 }
 
 /** Append statistics of tree under `Node` `sub.` into `stats`.
@@ -1395,16 +1396,15 @@ auto radixTreeMap(Key, Value, uint radixPow2 = 4)() { return RadixTree!(Key, Val
 
     assert(set.insert(0));
     assert(!set.insert(0));
-    assert(set.nodeCount == 1); // one leaf
 
     assert(set.insert(1));
     assert(!set.insert(1));
 
-    // assert(set.insert(2));
-    // assert(!set.insert(2));
+    assert(set.insert(2));
+    assert(!set.insert(2));
 
-    // assert(set.insert(3));
-    // assert(!set.insert(3));
+    assert(set.insert(3));
+    assert(!set.insert(3));
 }
 
 /// Check correctness when radixPow2 is `radixPow2` and for each `Key` in `Keys`.

@@ -1043,6 +1043,15 @@ private struct RawRadixTree(Value,
     /// Returns: number of nodes used in `this` tree.
     pragma(inline) debug size_t nodeCount() @safe pure nothrow /* TODO @nogc */ { return _nodeCount; }
 
+    void print()
+    {
+        printAt(_root);
+    }
+
+    void printAt(Node curr)
+    {
+    }
+
     private:
     Node _root;                 ///< tree root node
     size_t _length = 0; ///< number of elements (keys or key-value-pairs) currently stored under `_root`
@@ -1116,13 +1125,13 @@ struct RadixTree(Key, Value, uint radixPow2 = 8)
         }
         else static if (is(Unqual!Key == wstring))
         {
-            const ushort[] rKey = Key.representation; // lexical byte-order. TODO do we need most significant byte byte-order for each `ushort` for this to work?
-            const ubyte[] key = (cast(ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
+            immutable ushort[] rKey = Key.representation; // lexical byte-order. TODO do we need most significant byte byte-order for each `ushort` for this to work?
+            immutable ubyte[] key = (cast(immutable ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
         }
         else static if (is(Unqual!Key == dstring))
         {
-            const uint[] rKey = Key.representation; // lexical byte-order. TODO do we need most significant byte byte-order for each `ushort` for this to work?
-            const ubyte[] key = (cast(ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
+            immutable uint[] rKey = Key.representation; // lexical byte-order. TODO do we need most significant byte byte-order for each `ushort` for this to work?
+            immutable ubyte[] key = (cast(immutable ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
         }
         else
         {
@@ -1166,6 +1175,11 @@ struct RadixTree(Key, Value, uint radixPow2 = 8)
         {
             return null;
         }
+    }
+
+    void print()
+    {
+        _tree.print();
     }
 
     private RawRadixTree!(Value, radixPow2) _tree;

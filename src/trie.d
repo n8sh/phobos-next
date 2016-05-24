@@ -41,6 +41,7 @@ import variant_ex : WordVariant;
 import typecons_ex : IndexedArray, StrictlyIndexed;
 import modulo : Mod, mod;
 
+version = debugAllocations;
 version = benchmark;
 // version = print;
 
@@ -1066,13 +1067,13 @@ private struct RawRadixTree(Value,
         using constructor arguments `args` of `Args`. */
     auto construct(U, Args...)(Args args) @trusted
     {
+        version(debugAllocations) { dln("constructing ", U.stringof, " from ", args); }
         debug ++_nodeCount;
         static if (isPointer!U)
         {
             import std.conv : emplace;
-            auto node = emplace(cast(U)malloc((*U.init).sizeof), args);
+            return emplace(cast(U)malloc((*U.init).sizeof), args);
             // TODO ensure alignment of node at least that of U.alignof
-            return node;
         }
         else
         {
@@ -1082,6 +1083,7 @@ private struct RawRadixTree(Value,
 
     void freeNode(NodeType)(NodeType nt) @trusted
     {
+        version(debugAllocations) { dln("freeing ", NodeType.stringof, " ", nt); }
         static if (isPointer!NodeType)
         {
             free(cast(void*)nt);  // TODO Allocator.free
@@ -1120,6 +1122,7 @@ private struct RawRadixTree(Value,
 
         void release(Node curr)
         {
+            version(debugAllocations) { dln("releasing Node ", curr); }
             with (Node.Ix)
             {
                 final switch (curr.typeIx)
@@ -1397,11 +1400,11 @@ auto radixTreeMap(Key, Value, uint radixPow2 = 4)() { return RadixTree!(Key, Val
     assert(set.insert(1));
     assert(!set.insert(1));
 
-    assert(set.insert(2));
-    assert(!set.insert(2));
+    // assert(set.insert(2));
+    // assert(!set.insert(2));
 
-    assert(set.insert(3));
-    assert(!set.insert(3));
+    // assert(set.insert(3));
+    // assert(!set.insert(3));
 }
 
 /// Check correctness when radixPow2 is `radixPow2` and for each `Key` in `Keys`.

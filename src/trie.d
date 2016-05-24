@@ -802,7 +802,7 @@ private struct RawRadixTree(Value,
     ~this()
     {
         if (_root) { release(_root); }
-        assert(_pointerNodeCount == 0, "Pointer node count is not zero, but " ~ _pointerNodeCount.to!string);
+        assert(_branchCount == 0, "Pointer node count is not zero, but " ~ _branchCount.to!string);
     }
 
     @safe pure nothrow /* TODO @nogc */
@@ -1071,7 +1071,7 @@ private struct RawRadixTree(Value,
         version(debugAllocations) { dln("constructing ", U.stringof, " from ", args); }
         static if (isPointer!U)
         {
-            debug ++_pointerNodeCount;
+            debug ++_branchCount;
             import std.conv : emplace;
             return emplace(cast(U)malloc((*U.init).sizeof), args);
             // TODO ensure alignment of node at least that of U.alignof
@@ -1088,7 +1088,7 @@ private struct RawRadixTree(Value,
         static if (isPointer!NodeType)
         {
             free(cast(void*)nt);  // TODO Allocator.free
-            debug --_pointerNodeCount;
+            debug --_branchCount;
         }
     }
 
@@ -1153,7 +1153,7 @@ private struct RawRadixTree(Value,
     bool hasFixedKeyLength() const @safe pure nothrow @nogc { return keyLength != size_t.max; }
 
     /// Returns: number of nodes used in `this` tree.
-    pragma(inline) debug size_t nodeCount() @safe pure nothrow /* TODO @nogc */ { return _pointerNodeCount; }
+    pragma(inline) debug size_t branchCount() @safe pure nothrow /* TODO @nogc */ { return _branchCount; }
 
     void print() @safe const
     {
@@ -1249,7 +1249,7 @@ private struct RawRadixTree(Value,
     Node _root;                 ///< tree root node
     size_t _length = 0; ///< number of elements (keys or key-value-pairs) currently stored under `_root`
     immutable _keyLength = size_t.max; ///< maximum length of key
-    debug long _pointerNodeCount = 0;
+    debug long _branchCount = 0;
 }
 
 /** Append statistics of tree under `Node` `sub.` into `stats`.

@@ -42,7 +42,7 @@ import typecons_ex : IndexedArray, StrictlyIndexed;
 import modulo : Mod, mod;
 
 version = benchmark;
-version = print;
+// version = print;
 
 import dbg;
 
@@ -329,7 +329,9 @@ private struct RawRadixTree(Value,
                                 // sparse branches
                                 PBr*,
 
-                                FBr*,  // dense branches
+                                // dense branches
+                                FBr*,
+                                BBr*,
 
                                 MLf*); // dense leaves
 
@@ -362,15 +364,19 @@ private struct RawRadixTree(Value,
 
     // TODO move these definitions inside branch definitions?
 
-    /** radix-Branch population histogram.
-        Index maps to population with value range (1 .. `radix`).
+    /** 256-Branch population histogram.
     */
-    alias FBr_PopHist = size_t[radix];
+    alias BBr_PopHist = size_t[radix];
 
     /** 4-Branch population histogram.
         Index maps to population with value range (1 .. 4).
     */
     alias PBr_PopHist = size_t[4];
+
+    /** radix-Branch population histogram.
+        Index maps to population with value range (1 .. `radix`).
+    */
+    alias FBr_PopHist = size_t[radix];
 
     /** radix-Leaf population histogram.
         Index maps to population with value range (1 .. `radix`).
@@ -380,6 +386,7 @@ private struct RawRadixTree(Value,
     /** Tree Population and Memory-Usage Statistics. */
     struct Stats
     {
+        BBr_PopHist popHist_BBr;
         PBr_PopHist popHist_PBr; // packed branch population histogram
         FBr_PopHist popHist_FBr; // full branch population histogram
 
@@ -395,6 +402,23 @@ private struct RawRadixTree(Value,
          */
         IndexedArray!(size_t, Node.Ix) popByNodeType;
         static assert(is(typeof(popByNodeType).Index == Node.Ix));
+    }
+
+    /** Full Bottom Branch. */
+    static private struct BBr
+    {
+        import bitset : BitSet;
+        BitSet!(radix, uint) keyBits;
+
+        @safe pure nothrow:
+
+        /** Append statistics of tree under `this` into `stats`. */
+        void calculate(ref Stats stats)
+        {
+            const count = keyBits.countOnes; // number of non-zero sub-nodes
+            assert(count <= radix);
+            ++stats.popHist_BBr[count - 1]; // TODO type-safe indexing
+        }
     }
 
     /** Sparse/Packed/Partial 4-way branch. */
@@ -764,6 +788,7 @@ private struct RawRadixTree(Value,
                     case undefined: break;
                     case ix_PLf:    return insertAt(curr.as!(PLf), key, superPrefixLength, wasAdded);
                     case ix_PLfs:   return insertAt(curr.as!(PLfs), key, superPrefixLength, wasAdded);
+                    case ix_BBrPtr:
                     case ix_PBrPtr:
                     case ix_FBrPtr: return insertAtBranch(curr, key, superPrefixLength, wasAdded);
                     case ix_MLfPtr: return insertAt(curr.as!(MLf*), key, superPrefixLength, wasAdded);
@@ -818,7 +843,10 @@ private struct RawRadixTree(Value,
                 {
                     const subIx = currPrefix[0]; // subIx = 'a'
                     setPrefix(curr, currPrefix[1 .. $].to!(typeof(DefaultBr.prefix))); // new prefix becomes "b"
-                    return insertAt(Node(construct!(DefaultBr)(Ix[].init, false, subIx, curr)), key, superPrefixLength, wasAdded);
+                    return insertAt(Node(construct!(DefaultBr)(Ix[].init, false, subIx, curr)),
+                                    key,
+                                    superPrefixLength,
+                                    wasAdded);
                 }
             }
 
@@ -863,18 +891,32 @@ private struct RawRadixTree(Value,
             }
             else
             {
-                return insertAt(split(curr, matchedPrefix), // split curr into branch
+                return insertAt(split(curr, matchedPrefix, key), // split curr into branch
                                 key, superPrefixLength, wasAdded);
             }
         }
 
         /** Split `curr` using `prefix`. */
-        Node split(PLf curr, Key!radixPow2 prefix)
+        Node split(PLf curr, Key!radixPow2 prefix, Key!radixPow2 key)
         {
-            auto br = construct!(DefaultBr)(prefix, false);
+            import std.range : empty;
+
+            Node br;
+            // TODO functionize
+            if (prefix.empty &&
+                curr.length == 1 &&
+                key.length == 1)
+            {
+                br = construct!(DefaultBr)(prefix, false);
+                // show!(prefix, curr, key);
+            }
+            else
+            {
+                br = construct!(DefaultBr)(prefix, false);
+            }
 
             bool wasAdded;      // dummy
-            auto node = insertAt(Node(br), curr.suffix, 0, wasAdded);
+            auto node = insertAt(br, curr.suffix, 0, wasAdded);
             assert(wasAdded); // assure that existing key was reinserted
             freeNode(curr);   // remove old current
 
@@ -990,18 +1032,23 @@ private struct RawRadixTree(Value,
 
     @safe pure nothrow /* TODO @nogc */
     {
-        void release(FBr* curr)
+        void release(BBr* curr)
         {
-            foreach (sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
-            {
-                release(sub); // recurse
-            }
             freeNode(curr);
         }
 
         void release(PBr* curr)
         {
             foreach (sub; curr.subNodes[0 .. curr.subCount])
+            {
+                release(sub); // recurse
+            }
+            freeNode(curr);
+        }
+
+        void release(FBr* curr)
+        {
+            foreach (sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
             {
                 release(sub); // recurse
             }
@@ -1021,6 +1068,7 @@ private struct RawRadixTree(Value,
                 case undefined: break; // ignored
                 case ix_PLf: return release(curr.as!(PLf));
                 case ix_PLfs: return release(curr.as!(PLfs));
+                case ix_BBrPtr: return release(curr.as!(BBr*));
                 case ix_PBrPtr: return release(curr.as!(PBr*));
                 case ix_FBrPtr: return release(curr.as!(FBr*));
                 case ix_MLfPtr: return release(curr.as!(MLf*));
@@ -1075,6 +1123,9 @@ private struct RawRadixTree(Value,
             case ix_PLfs:
                 auto currPLfs = curr.as!(PLfs);
                 writeln(typeof(currPLfs).stringof, ": ");
+                break;
+            case ix_BBrPtr:
+                dln("TODO");
                 break;
             case ix_PBrPtr:
                 auto currPBr = curr.as!(PBr*);
@@ -1154,6 +1205,7 @@ static private void calculate(Value, uint radixPow2)(RawRadixTree!(Value, radixP
         case undefined: break;
         case ix_PLf: break; // TODO calculate()
         case ix_PLfs: break; // TODO calculate()
+        case ix_BBrPtr: sub.as!(RT.BBr*).calculate(stats); break;
         case ix_PBrPtr: sub.as!(RT.PBr*).calculate(stats); break;
         case ix_FBrPtr: sub.as!(RT.FBr*).calculate(stats); break;
         case ix_MLfPtr: sub.as!(RT.MLf*).calculate(stats); break;
@@ -1428,6 +1480,7 @@ void benchmark(uint radixPow2)()
                     case undefined: break;
                     case ix_PLf:    bytesUsed = pop*Set.PLf.sizeof; break;
                     case ix_PLfs:   bytesUsed = pop*Set.PLfs.sizeof; break;
+                    case ix_BBrPtr: bytesUsed = pop*Set.BBr.sizeof; totalBytesUsed += bytesUsed; break;
                     case ix_PBrPtr: bytesUsed = pop*Set.PBr.sizeof; totalBytesUsed += bytesUsed; break;
                     case ix_FBrPtr: bytesUsed = pop*Set.FBr.sizeof; totalBytesUsed += bytesUsed; break;
                     case ix_MLfPtr: bytesUsed = pop*Set.MLf.sizeof; totalBytesUsed += bytesUsed; break;

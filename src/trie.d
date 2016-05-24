@@ -237,6 +237,7 @@ private struct RawRadixTree(Value,
     import std.algorithm : filter;
     import std.meta : AliasSeq, staticMap;
     import std.typecons : ConstOf;
+    import bitset : BitSet;
 
     static assert(radixPow2 == 8, "Radix is currently limited to 8");
 
@@ -330,8 +331,8 @@ private struct RawRadixTree(Value,
                                 PBr*,
 
                                 // dense branches
-                                FBr*,
                                 BBr*,
+                                FBr*,
 
                                 MLf*); // dense leaves
 
@@ -404,22 +405,36 @@ private struct RawRadixTree(Value,
         static assert(is(typeof(popByNodeType).Index == Node.Ix));
     }
 
-    /** Full Bottom Branch. */
+    /** Full Bitset Branch with only bottom-most leaves. */
     static private struct BBr
     {
-        import bitset : BitSet;
-        BitSet!(radix, uint) keyBits;
+        enum prefixLength = 5;
 
         @safe pure nothrow:
+
+        this(Ix[] prefix, bool isKey = false)
+        {
+            this.prefix = prefix;
+            this.isKey = isKey;
+        }
+
+        pragma(inline) const hasSubAt(Ix ix) @nogc { return _keyBits[ix]; }
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats)
         {
-            const count = keyBits.countOnes; // number of non-zero sub-nodes
+            const count = _keyBits.countOnes; // number of non-zero sub-nodes
             assert(count <= radix);
             ++stats.popHist_BBr[count - 1]; // TODO type-safe indexing
         }
+
+        private:
+        BitSet!(radix, uint) _keyBits; // 32 bytes
+        IxsN!prefixLength prefix; // prefix common to all `subNodes` (also called edge-label)
+        bool isKey;
     }
+
+    static assert(BBr.sizeof == 40);
 
     /** Sparse/Packed/Partial 4-way branch. */
     static private struct PBr
@@ -427,13 +442,6 @@ private struct RawRadixTree(Value,
         enum N = 4;
 
         enum prefixLength = 7;
-
-        // members in order of decreasing `alignof`:
-        StrictlyIndexed!(Node[N]) subNodeSlots;
-        IxsN!prefixLength prefix; // prefix common to all `subNodes` (also called edge-label)
-        StrictlyIndexed!(Ix[N]) subIxSlots;
-        mixin(bitfields!(ubyte, "subCount", 7, // counts length of defined elements in subNodeSlots
-                         bool, "isKey", 1)); // key at this branch is occupied
 
         @safe pure nothrow:
 
@@ -486,9 +494,9 @@ private struct RawRadixTree(Value,
             }
             return Node.init;
         }
-        const:
-        pragma(inline) bool empty() @nogc { return subCount == 0; }
-        pragma(inline) bool full() @nogc { return subCount == N; }
+
+        pragma(inline) bool empty() const @nogc { return subCount == 0; }
+        pragma(inline) bool full() const @nogc { return subCount == N; }
 
         pragma(inline) auto subNodes() inout @nogc
         {
@@ -497,7 +505,7 @@ private struct RawRadixTree(Value,
 
         /** Returns `true` if this branch can be packed into a bitset, that is
             contains only sub-nodes of type `PLf` of zero length. */
-        bool isBitPackable() @nogc
+        bool isBitPackable() const @nogc
         {
             typeof(return) allPLf0 = true;
             foreach (const sub; subNodes)
@@ -512,7 +520,7 @@ private struct RawRadixTree(Value,
         }
 
         /** Append statistics of tree under `this` into `stats`. */
-        void calculate(ref Stats stats)
+        void calculate(ref Stats stats) const
         {
             size_t count = 0; // number of non-zero sub-nodes
             foreach (const sub; subNodes)
@@ -524,7 +532,18 @@ private struct RawRadixTree(Value,
             ++stats.popHist_PBr[count - 1]; // TODO type-safe indexing
             stats.allPLf0CountOfPBr += isBitPackable;
         }
+
+        private:
+
+        // members in order of decreasing `alignof`:
+        StrictlyIndexed!(Node[N]) subNodeSlots;
+        IxsN!prefixLength prefix; // prefix common to all `subNodes` (also called edge-label)
+        StrictlyIndexed!(Ix[N]) subIxSlots;
+        mixin(bitfields!(ubyte, "subCount", 7, // counts length of defined elements in subNodeSlots
+                         bool, "isKey", 1)); // key at this branch is occupied
     }
+
+    static assert(PBr.sizeof == 48);
 
     enum brMPrefixLength = 15; // we can afford larger prefix here because FBr is so large
 
@@ -641,6 +660,7 @@ private struct RawRadixTree(Value,
     {
         switch (br.typeIx)
         {
+        case Node.Ix.ix_BBrPtr: if (br.as!(BBr*).hasSubAt(ix)) { return Node(PLf(Ix[].init)); } break;
         case Node.Ix.ix_PBrPtr: if (auto subNode = br.as!(PBr*).findSub(ix)) { return subNode; } break;
         case Node.Ix.ix_FBrPtr: return br.as!(FBr*).subNodes[ix];
         default: assert(false, "Unsupported Node type " ~ br.typeIx.to!string);
@@ -676,6 +696,7 @@ private struct RawRadixTree(Value,
     {
         switch (br.typeIx)
         {
+        case Node.Ix.ix_BBrPtr: return br.as!(BBr*).prefix[];
         case Node.Ix.ix_PBrPtr: return br.as!(PBr*).prefix[];
         case Node.Ix.ix_FBrPtr: return br.as!(FBr*).prefix[];
             // TODO extend to leaves aswell?
@@ -907,8 +928,7 @@ private struct RawRadixTree(Value,
                 curr.length == 1 &&
                 key.length == 1)
             {
-                br = construct!(DefaultBr)(prefix, false);
-                // show!(prefix, curr, key);
+                br = construct!(BBr*)(prefix, false);
             }
             else
             {

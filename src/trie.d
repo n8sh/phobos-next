@@ -404,10 +404,10 @@ private struct RawRadixTree(Value,
         enum prefixLength = 7;
 
         // members in order of decreasing `alignof`:
-        StrictlyIndexed!(Node[N]) subNodes;
+        StrictlyIndexed!(Node[N]) subNodeSlots;
         IxsN!prefixLength prefix; // prefix common to all `subNodes` (also called edge-label)
         StrictlyIndexed!(Ix[N]) subIxs;
-        mixin(bitfields!(ubyte, "subCount", 7, // counts length of defined elements in subNodes
+        mixin(bitfields!(ubyte, "subCount", 7, // counts length of defined elements in subNodeSlots
                          bool, "isKey", 1)); // key at this branch is occupied
 
         @safe pure nothrow:
@@ -423,7 +423,7 @@ private struct RawRadixTree(Value,
             this.prefix = prefix;
             this.isKey = isKey;
             this.subIxs.at!0 = subIx;
-            this.subNodes.at!0 = subNode;
+            this.subNodeSlots.at!0 = subNode;
             this.subCount = 1;
         }
 
@@ -432,7 +432,7 @@ private struct RawRadixTree(Value,
             assert(!full);
             const backIx = subCount.mod!N;
             subIxs[backIx] = sub[0];
-            subNodes[backIx] = sub[1];
+            subNodeSlots[backIx] = sub[1];
             subCount = cast(ubyte)(subCount + 1);
         }
         inout(Node) findSub(Ix ix) inout
@@ -442,12 +442,12 @@ private struct RawRadixTree(Value,
             case 0:
                 break;
             case 1:
-                if (subIxs.at!0 == ix) { return subNodes.at!0; }
+                if (subIxs.at!0 == ix) { return subNodeSlots.at!0; }
                 break;
             case 2:
                 foreach (i; iota!(0, 2))
                 {
-                    if (subIxs.at!i == ix) { return subNodes.at!i; }
+                    if (subIxs.at!i == ix) { return subNodeSlots.at!i; }
                 }
                 break;
             default:
@@ -455,7 +455,7 @@ private struct RawRadixTree(Value,
                 foreach (const i_; 0 ..  subCount)
                 {
                     const i = i_.mod!N;
-                    if (subIxs[i] == ix) { return subNodes[i]; }
+                    if (subIxs[i] == ix) { return subNodeSlots[i]; }
                 }
                 break;
             }
@@ -465,17 +465,17 @@ private struct RawRadixTree(Value,
         pragma(inline) bool empty() @nogc { return subCount == 0; }
         pragma(inline) bool full() @nogc { return subCount == N; }
 
-        auto bySubNode() inout @nogc
+        pragma(inline) auto subNodes() inout @nogc
         {
-            return subNodes[0 .. subCount];
+            return subNodeSlots[0 .. subCount];
         }
 
         /** Returns `true` if this branch can be packed into a bitset, that is
-            contains only subNodes of type `PLf` of zero length. */
+            contains only sub-nodes of type `PLf` of zero length. */
         bool isBitPackable() @nogc
         {
             typeof(return) allPLf0 = true;
-            foreach (const sub; bySubNode)
+            foreach (const sub; subNodes)
             {
                 if (const subPLfRef = sub.peek!PLf)
                 {
@@ -493,7 +493,7 @@ private struct RawRadixTree(Value,
         void calculate(ref Stats stats)
         {
             size_t count = 0; // number of non-zero sub-nodes
-            foreach (const sub; bySubNode)
+            foreach (const sub; subNodes)
             {
                 ++count;
                 sub.calculate!(Value, radixPow2)(stats);
@@ -598,7 +598,7 @@ private struct RawRadixTree(Value,
         const i = curr.subIxs[0 .. curr.subCount].countUntil(subIx); // TODO is this the preferred function?
         if (i != -1)            // if hit. TODO use bool conversion if this gets added to countUntil
         {
-            curr.subNodes[i.mod!(curr.N)] = subNode; // reuse
+            curr.subNodeSlots[i.mod!(curr.N)] = subNode; // reuse
         }
         else if (!curr.full)     // if room left in curr
         {

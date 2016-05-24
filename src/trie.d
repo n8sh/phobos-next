@@ -685,7 +685,7 @@ private struct RawRadixTree(Value,
         case Node.Ix.ix_BBrPtr:
             if (br.as!(BBr*).hasSubAt(ix))
             {
-                return Node(PLf(Ix[].init));
+                return Node(PLf.init);
             }
             break;
         case Node.Ix.ix_PBrPtr:
@@ -707,6 +707,7 @@ private struct RawRadixTree(Value,
     {
         switch (br.typeIx)
         {
+        case Node.Ix.ix_BBrPtr: return br.as!(BBr*).isKey;
         case Node.Ix.ix_PBrPtr: return br.as!(PBr*).isKey;
         case Node.Ix.ix_FBrPtr: return br.as!(FBr*).isKey;
             // TODO extend to leaves aswell?
@@ -718,6 +719,7 @@ private struct RawRadixTree(Value,
     {
         switch (br.typeIx)
         {
+        case Node.Ix.ix_BBrPtr: br.as!(BBr*).isKey = true; break;
         case Node.Ix.ix_PBrPtr: br.as!(PBr*).isKey = true; break;
         case Node.Ix.ix_FBrPtr: br.as!(FBr*).isKey = true; break;
             // TODO extend to leaves aswell?
@@ -743,6 +745,7 @@ private struct RawRadixTree(Value,
     {
         switch (br.typeIx)
         {
+        case Node.Ix.ix_BBrPtr: br.as!(BBr*).prefix = typeof(br.as!(BBr*).prefix)(prefix); break;
         case Node.Ix.ix_PBrPtr: br.as!(PBr*).prefix = typeof(br.as!(PBr*).prefix)(prefix); break;
         case Node.Ix.ix_FBrPtr: br.as!(FBr*).prefix = typeof(br.as!(FBr*).prefix)(prefix); break;
             // TODO extend to leaves aswell?
@@ -843,9 +846,11 @@ private struct RawRadixTree(Value,
                     case undefined: break;
                     case ix_PLf:    return insertAt(curr.as!(PLf), key, superPrefixLength, wasAdded);
                     case ix_PLfs:   return insertAt(curr.as!(PLfs), key, superPrefixLength, wasAdded);
+
                     case ix_BBrPtr:
                     case ix_PBrPtr:
                     case ix_FBrPtr: return insertAtBranch(curr, key, superPrefixLength, wasAdded);
+
                     case ix_MLfPtr: return insertAt(curr.as!(MLf*), key, superPrefixLength, wasAdded);
                     }
                     assert(false);

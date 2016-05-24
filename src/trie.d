@@ -229,7 +229,7 @@ bool equalLength(R, Ss...)(const R r, const Ss ss) @safe pure nothrow @nogc
     Branch packing of leaves is more efficiently when `Key.sizeof` is fixed,
     that is `hasFixedKeyLength` returns `true`.
 
-    For a good introduction to adaptive radix trees see also:
+    For a good introduction to adaptive radix trees (ART) see also:
     https://infosys.cs.uni-saarland.de/publications/ARCD15.pdf
 
     See also: https://en.wikipedia.org/wiki/Trie

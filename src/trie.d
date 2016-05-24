@@ -420,6 +420,8 @@ private struct RawRadixTree(Value,
 
         pragma(inline) const hasSubAt(Ix ix) @nogc { return _keyBits[ix]; }
 
+        pragma(inline) bool empty() const @nogc { return _keyBits.allZero; }
+
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats)
         {
@@ -623,10 +625,27 @@ private struct RawRadixTree(Value,
     {
         switch (curr.typeIx)
         {
+        case Node.Ix.ix_BBrPtr: return setSub(curr.as!(BBr*), subIx, subNode);
         case Node.Ix.ix_PBrPtr: return setSub(curr.as!(PBr*), subIx, subNode);
         case Node.Ix.ix_FBrPtr: return setSub(curr.as!(FBr*), subIx, subNode);
         default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
         }
+    }
+    /// ditto
+    Node setSub(BBr* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
+    {
+        if (const subPLfRef = subNode.peek!(PLf))
+        {
+            const subPLf = *subPLfRef;
+            if (subPLf.suffix.empty)
+            {
+                curr._keyBits[subIx] = true;
+                return Node(curr);
+            }
+        }
+        show!subIx;
+        show!subNode;
+        assert(false);
     }
     /// ditto
     Node setSub(PBr* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
@@ -650,7 +669,6 @@ private struct RawRadixTree(Value,
     /// ditto
     pragma(inline) Node setSub(FBr* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
-        // if (curr.subNodes[subIx]) { dln("Existing subNode:", curr.subNodes[subIx], " at subIx:", subIx); }
         curr.subNodes[subIx] = subNode;
         return Node(curr);
     }

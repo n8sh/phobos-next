@@ -1188,7 +1188,9 @@ private struct RawRadixTree(Value,
                 writeln(typeof(currPLfs).stringof, ": ");
                 break;
             case ix_BBrPtr:
-                dln("TODO");
+                auto currBBr = curr.as!(BBr*);
+                write(typeof(currBBr).stringof, ": ", "prefix=", currBBr.prefix, " leaves=...");
+                writeln;
                 break;
             case ix_PBrPtr:
                 auto currPBr = curr.as!(PBr*);
@@ -1585,7 +1587,8 @@ void benchmark(uint radixPow2)()
 
         dln();
 
-        version(print) set.print();
+        // version(print)
+        set.print();
 
         auto map = radixTreeMap!(Key, Value, radixPow2);
         assert(map.empty);

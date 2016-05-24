@@ -839,7 +839,7 @@ private struct RawRadixTree(Value,
                 import std.algorithm : min;
                 auto brKey = key[0 .. min(key.length, DefaultBr.prefixLength)];
                 return insertAt(Node(construct!(DefaultBr)(brKey, false)), // as much as possible of key in branch prefix
-                                key, superPrefixLength + brKey.length, wasAdded);
+                                key, superPrefixLength, wasAdded);
             }
         }
 
@@ -862,9 +862,10 @@ private struct RawRadixTree(Value,
                     case ix_PLf:    return insertAt(curr.as!(PLf), key, superPrefixLength, wasAdded);
                     case ix_PLfs:   return insertAt(curr.as!(PLfs), key, superPrefixLength, wasAdded);
 
-                    case ix_Br2Ptr: return insertAtBranch(curr, key, superPrefixLength, wasAdded);
-                    case ix_Br4Ptr: return insertAtBranch(curr, key, superPrefixLength, wasAdded);
-                    case ix_BrFPtr: return insertAtBranch(curr, key, superPrefixLength, wasAdded);
+                    case ix_Br2Ptr:
+                    case ix_Br4Ptr:
+                    case ix_BrFPtr:
+                        return insertAtBranch(curr, key, superPrefixLength, wasAdded);
 
                     case ix_LfMPtr: return insertAt(curr.as!(LfM*), key, superPrefixLength, wasAdded);
                     }
@@ -893,6 +894,7 @@ private struct RawRadixTree(Value,
                      matchedPrefix.length < key.length) // key is an extension of prefix
             {
                 key = key[matchedPrefix.length .. $]; // strip `currPrefix from beginning of `key`
+                superPrefixLength += matchedPrefix.length;
                 // continue below
             }
             // prefix:"ab", key:"ab"
@@ -922,7 +924,11 @@ private struct RawRadixTree(Value,
             }
 
             const ix = key[0];
-            return setSub(curr, ix, insertAt(getSub(curr, ix), key[1 .. $], superPrefixLength, wasAdded)); // recurse
+            return setSub(curr, ix,
+                          insertAt(getSub(curr, ix), // recurse
+                                   key[1 .. $],
+                                   superPrefixLength + 1,
+                                   wasAdded));
         }
 
         Node insertAt(LfM* curr, Key!radixPow2 key, size_t superPrefixLength, out bool wasAdded)

@@ -480,10 +480,7 @@ private struct RawRadixTree(Value,
                 if (const subPLfRef = sub.peek!PLf)
                 {
                     const subPLf = *subPLfRef;
-                    if (subPLf.length != 0)
-                    {
-                        allPLf0 = false;
-                    }
+                    if (subPLf.length != 0) { allPLf0 = false; }
                 }
             }
             return allPLf0;
@@ -543,10 +540,7 @@ private struct RawRadixTree(Value,
                 if (const subPLfRef = subNode.peek!PLf)
                 {
                     const subPLf = *subPLfRef;
-                    if (subPLf.length != 0)
-                    {
-                        allPLf0 = false;
-                    }
+                    if (subPLf.length != 0) { allPLf0 = false; }
                 }
             }
             return allPLf0;

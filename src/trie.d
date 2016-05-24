@@ -1338,8 +1338,12 @@ void benchmark(uint radixPow2)()
                     final switch (ix)
                     {
                     case undefined: break;
-                    case ix_PLf:   bytesUsed = pop*Set.PLf.sizeof; break;
-                    case ix_PLfs:   bytesUsed = pop*Set.PLfs.sizeof; break;
+                    case ix_PLf:
+                        // bytesUsed = pop*Set.PLf.sizeof;
+                        break;
+                    case ix_PLfs:
+                        // bytesUsed = pop*Set.PLfs.sizeof;
+                        break;
                     case ix_PBrPtr: bytesUsed = pop*Set.PBr.sizeof; break;
                     case ix_FBrPtr: bytesUsed = pop*Set.FBr.sizeof; break;
                     case ix_LfMPtr: bytesUsed = pop*Set.LfM.sizeof; break;

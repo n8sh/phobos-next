@@ -465,15 +465,13 @@ private struct RawRadixTree(Value,
         pragma(inline) bool empty() @nogc { return subCount == 0; }
         pragma(inline) bool full() @nogc { return subCount == N; }
 
-        /** Append statistics of tree under `this` into `stats`. */
-        void calculate(ref Stats stats)
+        /** Returns `true` if this branch can be packed into a bitset, that is
+            contains only subNodes of type `PLf` of zero length. */
+        bool isBitPackable() @safe pure nothrow @nogc
         {
-            size_t count = 0; // number of non-zero sub-nodes
-            bool allPLf0 = true;
+            typeof(return) allPLf0 = true;
             foreach (const sub; subNodes[0 .. subCount]) // TODO reuse bySubNode
             {
-                ++count;
-                sub.calculate!(Value, radixPow2)(stats);
                 if (const subPLfRef = sub.peek!PLf)
                 {
                     const subPLf = *subPLfRef;
@@ -483,9 +481,21 @@ private struct RawRadixTree(Value,
                     }
                 }
             }
+            return allPLf0;
+        }
+
+        /** Append statistics of tree under `this` into `stats`. */
+        void calculate(ref Stats stats)
+        {
+            size_t count = 0; // number of non-zero sub-nodes
+            foreach (const sub; subNodes[0 .. subCount]) // TODO reuse bySubNode
+            {
+                ++count;
+                sub.calculate!(Value, radixPow2)(stats);
+            }
             assert(count <= radix);
             ++stats.popHist_PBr[count - 1]; // TODO type-safe indexing
-            stats.allPLf0CountOfPBr += allPLf0;
+            stats.allPLf0CountOfPBr += isBitPackable;
         }
     }
 
@@ -518,15 +528,13 @@ private struct RawRadixTree(Value,
         bool isKey;      // key at this branch is occupied
         StrictlyIndexed!(Node[radix]) subNodes;
 
-        /** Append statistics of tree under `this` into `stats`. */
-        void calculate(ref Stats stats)  /* TODO @nogc */ const
+        /** Returns `true` if this branch can be packed into a bitset, that is
+            contains only subNodes of type `PLf` of zero length. */
+        bool isBitPackable() const @safe pure nothrow @nogc
         {
-            size_t count = 0; // number of non-zero sub-nodes
-            bool allPLf0 = true;
+            typeof(return) allPLf0 = true;
             foreach (const sub; subNodes[].filter!(sub => sub)) // TODO reuse bySubNode
             {
-                ++count;
-                sub.calculate!(Value, radixPow2)(stats);
                 if (const subPLfRef = sub.peek!PLf)
                 {
                     const subPLf = *subPLfRef;
@@ -536,9 +544,21 @@ private struct RawRadixTree(Value,
                     }
                 }
             }
+            return allPLf0;
+        }
+
+        /** Append statistics of tree under `this` into `stats`. */
+        void calculate(ref Stats stats)  /* TODO @nogc */ const
+        {
+            size_t count = 0; // number of non-zero sub-nodes
+            foreach (const sub; subNodes[].filter!(sub => sub)) // TODO reuse bySubNode
+            {
+                ++count;
+                sub.calculate!(Value, radixPow2)(stats);
+            }
             assert(count <= radix);
             ++stats.popHist_FBr[count - 1]; // TODO type-safe indexing
-            stats.allPLf0CountOfFBr += allPLf0;
+            stats.allPLf0CountOfFBr += isBitPackable;
         }
 
         // LfM subOccupations; // if i:th bit is set key (and optionally value) associated with sub[i] is also defined

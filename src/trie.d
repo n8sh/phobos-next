@@ -1392,7 +1392,7 @@ auto radixTreeMap(Key, Value, uint radixPow2 = 4)() { return RadixTree!(Key, Val
 @safe pure nothrow /* TODO @nogc */ unittest
 {
     enum radixPow2 = 8;
-    auto set = radixTreeSet!(ubyte, radixPow2);
+    auto set = radixTreeSet!(ushort, radixPow2);
 
     assert(set.insert(0));
     assert(!set.insert(0));
@@ -1404,6 +1404,14 @@ auto radixTreeMap(Key, Value, uint radixPow2 = 4)() { return RadixTree!(Key, Val
         assert(!set.insert(i));
         assert(set.branchCount == 1);
     }
+
+    assert(set.insert(256));
+    assert(!set.insert(256));
+    assert(set.branchCount == 2);
+
+    assert(set.insert(257));
+    assert(!set.insert(257));
+    assert(set.branchCount == 3);
 }
 
 /// Check correctness when radixPow2 is `radixPow2` and for each `Key` in `Keys`.

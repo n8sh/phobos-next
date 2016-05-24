@@ -1052,7 +1052,11 @@ private struct RawRadixTree(Value,
     {
         import std.range : repeat;
         import std.stdio : write, writeln;
-        writeln("-".repeat(depth));
+
+        if (!curr) { return; }
+
+        if (depth != 0) { write("- ".repeat(depth)); }
+
         with (Node.Ix)
         {
             final switch (curr.typeIx)
@@ -1060,24 +1064,29 @@ private struct RawRadixTree(Value,
             case undefined: break;
             case ix_PLf:
                 auto currPLf = curr.as!(PLf);
+                writeln(typeof(currPLf).stringof);
                 break;
             case ix_PLfs:
                 auto currPLfs = curr.as!(PLfs);
+                writeln(typeof(currPLfs).stringof);
                 break;
             case ix_PBrPtr:
                 auto currPBr = curr.as!(PBr*);
+                writeln(typeof(currPBr).stringof);
                 foreach (const subNode; currPBr.subNodes)
                 {
                 }
                 break;
             case ix_FBrPtr:
                 auto currFBr = curr.as!(FBr*);
+                writeln(typeof(currFBr).stringof);
                 foreach (const subNode; currFBr.subNodes)
                 {
                 }
                 break;
             case ix_MLfPtr:
                 auto currMLf = curr.as!(MLf*);
+                writeln(typeof(currMLf).stringof);
                 break;
             }
         }
@@ -1459,6 +1468,8 @@ auto testPrint(uint radixPow2, Keys...)()
                 assert(set.insert(key));  // insert new value returns `true` (previously not in set)
                 assert(!set.insert(key)); // reinsert same value returns `false` (already in set)
             }
+
+            set.print;
         }
     }
 }

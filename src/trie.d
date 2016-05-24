@@ -645,6 +645,8 @@ private struct RawRadixTree(Value,
             {
             }
         }
+        const currValue = *curr;
+        show!currValue;
         show!subIx;
         show!subNode;
         assert(false, "Expand BBr into either PBr or FBr depending on curr.popcnt");

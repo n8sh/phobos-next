@@ -226,8 +226,8 @@ bool equalLength(R, Ss...)(const R r, const Ss ss) @safe pure nothrow @nogc
     all keys matching a given key prefix. This enables efficient storage of long
     URLs sharing a common prefix, typically a domain and path.
 
-    Tree packs of leaves more efficiently when `Key.sizeof` is fixed, that is
-    `hasFixedKeyLength` returns `true`.
+    Branch packing of leaves is more efficiently when `Key.sizeof` is fixed,
+    that is `hasFixedKeyLength` returns `true`.
 
     For a good introduction to adpative radix trees see also:
     https://infosys.cs.uni-saarland.de/publications/ARCD15.pdf

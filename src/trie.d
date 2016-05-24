@@ -418,8 +418,7 @@ private struct RawRadixTree(Value,
             this.isKey = isKey;
         }
 
-        pragma(inline) const hasSubAt(Ix ix) @nogc { return _keyBits[ix]; }
-
+        pragma(inline) bool hasSubAt(Ix ix) const @nogc { return _keyBits[ix]; }
         pragma(inline) bool empty() const @nogc { return _keyBits.allZero; }
 
         /** Append statistics of tree under `this` into `stats`. */

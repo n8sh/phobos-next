@@ -3,10 +3,12 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO Optimize BrB.findSub for specific `subCount`
+
     TODO Use bitset storage in Br{2,4} and call it BrB. Active when sizeof BrN
     is larger than 32 bytes (256 bits) and all leaves are single PLf. Converted to when BrN.length >= someLimit
 
-    TODO Add function reprefix({Br2|BrM) and call after insertAt({Br2|BrM}). Only useful when one single leaf is present?
+    TODO Add function reprefix({Br2|BrF) and call after insertAt({Br2|BrF}). Only useful when one single leaf is present?
     TODO Can we store Br2, Br4 and Br16 together in a variable length array?
     TODO Is std.algorithm.countUntil the most suitable function to use in setSub(Br4*, ...)
     TODO Make array indexing/slicing as @trusted and use .ptr[] instead of [] when things are stable
@@ -20,7 +22,7 @@
     - 32-bit:
     radixPow2-4: Packs 8-bit length + Variable (0 .. 14) IxMs
     radixPow2-8: Packs 8-bit length + Variable (0 .. 2) IxMs
-    - BrM: IxMs commonPrefix. IxMs is 7-byte BitSet.
+    - BrF: IxMs commonPrefix. IxMs is 7-byte BitSet.
     - SBr02: IxMs commonPrefix. IxMs is 7-byte BitSet.
 
     TODO - `set.prefix("alpha")`                           => `SortedTreeRange` of `Tuple!(string, Lang, PoT, Sense)`.
@@ -28,7 +30,7 @@
     TODO - `set.prefix(tuple("alpha", Lang.en))`           => `SortedTreeRange` of `Tuple!(PoT, Sense)`.
     TODO - `set.prefix(tuple("alpha", Lang.en, PoT.noun))` => `SortedTreeRange` of `Tuple!(Sense)`.
 
-    TODO Can we somehow overload opIndex so we can do brM[i] instead of more cumbersome (*brM)[i] when brM is of type BrM*?
+    TODO Can we somehow overload opIndex so we can do brM[i] instead of more cumbersome (*brM)[i] when brM is of type BrF*?
 
     TODO Provide `opIndex` and make `opSlice` for set-case (`Value` is `void`) return `SortedRange`
     TODO Provide RandomAccess `opIndex` and `opSlice`! for variable-length keys aswell?
@@ -337,7 +339,7 @@ private struct RawRadixTree(Value,
                                 Br2*,
                                 Br4*,
 
-                                BrM*,  // dense branches
+                                BrF*,  // dense branches
 
                                 LfM*); // dense leaves
 
@@ -373,7 +375,7 @@ private struct RawRadixTree(Value,
     /** radix-Branch population histogram.
         Index maps to population with value range (1 .. `radix`).
     */
-    alias BrM_PopHist = size_t[radix];
+    alias BrF_PopHist = size_t[radix];
 
     /** 2-Branch population histogram.
         Index maps to population with value range (1 .. 2).
@@ -395,7 +397,7 @@ private struct RawRadixTree(Value,
     {
         Br2_PopHist popHist_Br2;
         Br4_PopHist popHist_Br4;
-        BrM_PopHist popHist_BrM;
+        BrF_PopHist popHist_BrF;
         LeafM_PopHist popHist_LfM;
 
         /** Maps `Node` type/index `Ix` to population.
@@ -454,10 +456,21 @@ private struct RawRadixTree(Value,
         }
         inout(Node) findSub(Ix ix) inout
         {
-            foreach (const i_; 0 ..  subCount)
+            switch (subCount)
             {
-                const i = i_.mod!N;
-                if (subIxs[i] == ix) { return subNodes[i]; }
+            case 0:
+                break;
+            case 1:
+                if (subIxs.at!0 == ix) { return subNodes.at!0; }
+                break;
+            case 2:
+                foreach (i; iota!(0, 2))
+                {
+                    if (subIxs.at!i == ix) { return subNodes.at!i; }
+                }
+                break;
+            default:
+                assert(false);
             }
             return Node.init;
         }
@@ -533,10 +546,27 @@ private struct RawRadixTree(Value,
         }
         inout(Node) findSub(Ix ix) inout
         {
-            foreach (const i_; 0 ..  subCount)
+            switch (subCount)
             {
-                const i = i_.mod!N;
-                if (subIxs[i] == ix) { return subNodes[i]; }
+            case 0:
+                break;
+            case 1:
+                if (subIxs.at!0 == ix) { return subNodes.at!0; }
+                break;
+            case 2:
+                foreach (i; iota!(0, 2))
+                {
+                    if (subIxs.at!i == ix) { return subNodes.at!i; }
+                }
+                break;
+            default:
+                // TODO do binary search
+                foreach (const i_; 0 ..  subCount)
+                {
+                    const i = i_.mod!N;
+                    if (subIxs[i] == ix) { return subNodes[i]; }
+                }
+                break;
             }
             return Node.init;
         }
@@ -557,10 +587,10 @@ private struct RawRadixTree(Value,
         }
     }
 
-    enum brMPrefixLength = 15; // we can afford larger prefix here because BrM is so large
+    enum brMPrefixLength = 15; // we can afford larger prefix here because BrF is so large
 
     /** Dense/Unpacked `radix`-branch with `radix` number of sub-nodes. */
-    static private struct BrM
+    static private struct BrF
     {
         @safe pure nothrow:
 
@@ -595,7 +625,7 @@ private struct RawRadixTree(Value,
                 ++count;
                 sub.calculate!(Value, radixPow2)(stats);
             }
-            ++stats.popHist_BrM[count - 1]; // TODO type-safe indexing
+            ++stats.popHist_BrF[count - 1]; // TODO type-safe indexing
         }
 
         // LfM subOccupations; // if i:th bit is set key (and optionally value) associated with sub[i] is also defined
@@ -624,7 +654,7 @@ private struct RawRadixTree(Value,
         {
         case Node.Ix.ix_Br2Ptr: return setSub(curr.as!(Br2*), subIx, subNode);
         case Node.Ix.ix_Br4Ptr: return setSub(curr.as!(Br4*), subIx, subNode);
-        case Node.Ix.ix_BrMPtr: return setSub(curr.as!(BrM*), subIx, subNode);
+        case Node.Ix.ix_BrFPtr: return setSub(curr.as!(BrF*), subIx, subNode);
         default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
         }
     }
@@ -643,7 +673,7 @@ private struct RawRadixTree(Value,
         }
         else
         {
-            return setSub(expand(curr), subIx, subNode); // fast, because directly calls setSub(BrM*, ...)
+            return setSub(expand(curr), subIx, subNode); // fast, because directly calls setSub(BrF*, ...)
         }
         return Node(curr);
     }
@@ -662,12 +692,12 @@ private struct RawRadixTree(Value,
         }
         else
         {
-            return setSub(expand(curr), subIx, subNode); // fast, because directly calls setSub(BrM*, ...)
+            return setSub(expand(curr), subIx, subNode); // fast, because directly calls setSub(BrF*, ...)
         }
         return Node(curr);
     }
     /// ditto
-    pragma(inline) Node setSub(BrM* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
+    pragma(inline) Node setSub(BrF* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
         // if (curr.subNodes[subIx]) { dln("Existing subNode:", curr.subNodes[subIx], " at subIx:", subIx); }
         curr.subNodes[subIx] = subNode;
@@ -681,7 +711,7 @@ private struct RawRadixTree(Value,
         {
         case Node.Ix.ix_Br2Ptr: if (auto subNode = br.as!(Br2*).findSub(ix)) { return subNode; } break;
         case Node.Ix.ix_Br4Ptr: if (auto subNode = br.as!(Br4*).findSub(ix)) { return subNode; } break;
-        case Node.Ix.ix_BrMPtr: return br.as!(BrM*).subNodes[ix];
+        case Node.Ix.ix_BrFPtr: return br.as!(BrF*).subNodes[ix];
         default: assert(false, "Unsupported Node type " ~ br.typeIx.to!string);
         }
         return Node.init;
@@ -694,7 +724,7 @@ private struct RawRadixTree(Value,
         {
         case Node.Ix.ix_Br2Ptr: return br.as!(Br2*).isKey;
         case Node.Ix.ix_Br4Ptr: return br.as!(Br4*).isKey;
-        case Node.Ix.ix_BrMPtr: return br.as!(BrM*).isKey;
+        case Node.Ix.ix_BrFPtr: return br.as!(BrF*).isKey;
             // TODO extend to leaves aswell?
         default: assert(false, "Unsupported Node type " ~ br.typeIx.to!string);
         }
@@ -706,7 +736,7 @@ private struct RawRadixTree(Value,
         {
         case Node.Ix.ix_Br2Ptr: br.as!(Br2*).isKey = true; break;
         case Node.Ix.ix_Br4Ptr: br.as!(Br4*).isKey = true; break;
-        case Node.Ix.ix_BrMPtr: br.as!(BrM*).isKey = true; break;
+        case Node.Ix.ix_BrFPtr: br.as!(BrF*).isKey = true; break;
             // TODO extend to leaves aswell?
         default: assert(false, "Unsupported Node type " ~ br.typeIx.to!string);
         }
@@ -719,7 +749,7 @@ private struct RawRadixTree(Value,
         {
         case Node.Ix.ix_Br2Ptr: return br.as!(Br2*).prefix[];
         case Node.Ix.ix_Br4Ptr: return br.as!(Br4*).prefix[];
-        case Node.Ix.ix_BrMPtr: return br.as!(BrM*).prefix[];
+        case Node.Ix.ix_BrFPtr: return br.as!(BrF*).prefix[];
             // TODO extend to leaves aswell?
         default: assert(false, "Unsupported Node type " ~ br.typeIx.to!string);
         }
@@ -732,7 +762,7 @@ private struct RawRadixTree(Value,
         {
         case Node.Ix.ix_Br2Ptr: br.as!(Br2*).prefix = typeof(br.as!(Br2*).prefix)(prefix); break;
         case Node.Ix.ix_Br4Ptr: br.as!(Br4*).prefix = typeof(br.as!(Br4*).prefix)(prefix); break;
-        case Node.Ix.ix_BrMPtr: br.as!(BrM*).prefix = typeof(br.as!(BrM*).prefix)(prefix); break;
+        case Node.Ix.ix_BrFPtr: br.as!(BrF*).prefix = typeof(br.as!(BrF*).prefix)(prefix); break;
             // TODO extend to leaves aswell?
         default: assert(false, "Unsupported Node type " ~ br.typeIx.to!string);
         }
@@ -833,7 +863,7 @@ private struct RawRadixTree(Value,
 
                     case ix_Br2Ptr: return insertAtBranch(curr, key, wasAdded);
                     case ix_Br4Ptr: return insertAtBranch(curr, key, wasAdded);
-                    case ix_BrMPtr: return insertAtBranch(curr, key, wasAdded);
+                    case ix_BrFPtr: return insertAtBranch(curr, key, wasAdded);
 
                     case ix_LfMPtr: return insertAt(curr.as!(LfM*), key, wasAdded);
                     }
@@ -1002,8 +1032,8 @@ private struct RawRadixTree(Value,
             return next;
         }
 
-        /** Destructively expand `curr` of type `Br4` into a `BrM` and return it. */
-        BrM* expand(Br4* curr)
+        /** Destructively expand `curr` of type `Br4` into a `BrF` and return it. */
+        BrF* expand(Br4* curr)
         {
             auto next = construct!(typeof(return))(curr);
             freeNode(curr);
@@ -1062,7 +1092,7 @@ private struct RawRadixTree(Value,
 
     @safe pure nothrow /* TODO @nogc */
     {
-        void release(BrM* curr)
+        void release(BrF* curr)
         {
             foreach (sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
             {
@@ -1104,7 +1134,7 @@ private struct RawRadixTree(Value,
                 case ix_PLfs: return release(curr.as!(PLfs));
                 case ix_Br2Ptr: return release(curr.as!(Br2*));
                 case ix_Br4Ptr: return release(curr.as!(Br4*));
-                case ix_BrMPtr: return release(curr.as!(BrM*));
+                case ix_BrFPtr: return release(curr.as!(BrF*));
                 case ix_LfMPtr: return release(curr.as!(LfM*));
                 }
             }
@@ -1144,7 +1174,7 @@ static private void calculate(Value, uint radixPow2)(RawRadixTree!(Value, radixP
         case ix_PLfs: break; // TODO calculate()
         case ix_Br2Ptr: sub.as!(RT.Br2*).calculate(stats); break;
         case ix_Br4Ptr: sub.as!(RT.Br4*).calculate(stats); break;
-        case ix_BrMPtr: sub.as!(RT.BrM*).calculate(stats); break;
+        case ix_BrFPtr: sub.as!(RT.BrF*).calculate(stats); break;
         case ix_LfMPtr: sub.as!(RT.LfM*).calculate(stats); break;
         }
     }
@@ -1389,7 +1419,7 @@ void benchmark(uint radixPow2)()
             auto stats = set.usageHistograms;
             dln("Sparse 2-Branch Population Histogram: ", stats.popHist_Br2);
             dln("Sparse 4-Branch Population Histogram: ", stats.popHist_Br4);
-            dln("Dense radix=", 2^^radixPow2, "-Branch Population Histogram: ", stats.popHist_BrM);
+            dln("Dense radix=", 2^^radixPow2, "-Branch Population Histogram: ", stats.popHist_BrF);
             dln("Dense radix=", 2^^radixPow2, "-Leaf   Population Histogram: ", stats.popHist_LfM);
             dln("Population By Node Type: ", stats.popByNodeType);
 
@@ -1406,7 +1436,7 @@ void benchmark(uint radixPow2)()
                     case ix_PLfs:   bytesUsed = pop*Set.PLfs.sizeof; break;
                     case ix_Br2Ptr: bytesUsed = pop*Set.Br2.sizeof; break;
                     case ix_Br4Ptr: bytesUsed = pop*Set.Br4.sizeof; break;
-                    case ix_BrMPtr: bytesUsed = pop*Set.BrM.sizeof; break;
+                    case ix_BrFPtr: bytesUsed = pop*Set.BrF.sizeof; break;
                     case ix_LfMPtr: bytesUsed = pop*Set.LfM.sizeof; break;
                     }
                 }

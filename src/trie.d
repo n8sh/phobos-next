@@ -1043,13 +1043,35 @@ private struct RawRadixTree(Value,
     /// Returns: number of nodes used in `this` tree.
     pragma(inline) debug size_t nodeCount() @safe pure nothrow /* TODO @nogc */ { return _nodeCount; }
 
-    void print()
+    void print() @safe const
     {
         printAt(_root);
     }
 
-    void printAt(Node curr)
+    void printAt(Node curr) @safe const
     {
+        with (Node.Ix)
+        {
+            final switch (curr.typeIx)
+            {
+            case undefined: break;
+            case ix_PLf:
+                auto currPLf = curr.as!(PLf);
+                break;
+            case ix_PLfs:
+                auto currPLfs = curr.as!(PLfs);
+                break;
+            case ix_PBrPtr:
+                auto currPBr = curr.as!(PBr*);
+                break;
+            case ix_FBrPtr:
+                auto currFBr = curr.as!(FBr*);
+                break;
+            case ix_MLfPtr:
+                auto currMLf = curr.as!(MLf*);
+                break;
+            }
+        }
     }
 
     private:
@@ -1177,7 +1199,7 @@ struct RadixTree(Key, Value, uint radixPow2 = 8)
         }
     }
 
-    void print()
+    void print() @safe const
     {
         _tree.print();
     }

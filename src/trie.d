@@ -379,8 +379,8 @@ private struct RawRadixTree(Value,
     /** Tree Population and Memory-Usage Statistics. */
     struct Stats
     {
-        BrP_PopHist popHist_BrP;
-        BrF_PopHist popHist_BrF;
+        BrP_PopHist popHist_BrP; // packed branch population histogram
+        BrF_PopHist popHist_BrF; // full branch population histogram
         LeafM_PopHist popHist_LfM;
 
         /** Maps `Node` type/index `Ix` to population.

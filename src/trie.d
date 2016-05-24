@@ -1194,14 +1194,7 @@ struct RadixTree(Key, Value, uint radixPow2 = 8)
 {
     this(bool unusedDummy)      // TODO how do we get rid of the need for `unusedDummy`?
     {
-        static if (isFixedTrieableKeyType!Key)
-        {
-            _maxKeyLength = Key.sizeof;
-        }
-        else
-        {
-            _maxKeyLength = size_t.max;
-        }
+        _maxKeyLength = isFixedTrieableKeyType!Key ? Key.sizeof : size_t.max;
     }
 
     /** Insert `key`.

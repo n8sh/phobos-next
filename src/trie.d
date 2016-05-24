@@ -3,26 +3,15 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
-    TODO Optimize BrB.findSub for specific `subCount`
+    TODO Optimize BrP.findSub for specific `subCount`
 
-    TODO Use bitset storage in BrP and call it BrB. Active when sizeof BrN
+    TODO Use bitset storage in BrP and call it BrP. Active when sizeof BrN
     is larger than 32 bytes (256 bits) and all leaves are single PLf. Converted to when BrN.length >= someLimit
 
     TODO Add function reprefix({BrP|BrF) and call after insertAt({BrP|BrF}). Only useful when one single leaf is present?
     TODO Is std.algorithm.countUntil the most suitable function to use in setSub(BrP*, ...)
     TODO Make array indexing/slicing as @trusted and use .ptr[] instead of [] when things are stable
     TODO Use std.experimental.allocator
-
-    TODO
-    - PLf: Word:
-    - 64-bit:
-    radixPow2-4: Packs 8-bit length + Variable (0 .. 14) IxMs
-    radixPow2-8: Packs 8-bit length + Variable (0 .. 6) IxMs
-    - 32-bit:
-    radixPow2-4: Packs 8-bit length + Variable (0 .. 14) IxMs
-    radixPow2-8: Packs 8-bit length + Variable (0 .. 2) IxMs
-    - BrF: IxMs commonPrefix. IxMs is 7-byte BitSet.
-    - SBr02: IxMs commonPrefix. IxMs is 7-byte BitSet.
 
     TODO - `set.prefix("alpha")`                           => `SortedTreeRange` of `Tuple!(string, Lang, PoT, Sense)`.
     TODO - `set.prefix(tuple("alpha"))`                    => `SortedTreeRange` of `Tuple!(Lang, PoT, Sense)`.
@@ -321,7 +310,6 @@ private struct RawRadixTree(Value,
         static assert(false, "Currently requires a 64-bit CPU (size_t.sizeof == 8)");
     }
 
-    // TODO make these CT-params (requires putting branch definitions in same scope as `RawRadixTree`)
     static if (radixPow2 == 8)
     {
         alias DefaultRootType = BrP*;
@@ -404,10 +392,10 @@ private struct RawRadixTree(Value,
         static assert(is(typeof(popByNodeType).Index == Node.Ix));
     }
 
-    /** Sparse/Packed 4-way branch. */
+    /** Sparse/Packed/Partial 4-way branch. */
     static private struct BrP
     {
-        enum N = 4; // TODO make this a CT-param when this structu is moved into global scope
+        enum N = 4;
 
         enum prefixLength = 7;
 

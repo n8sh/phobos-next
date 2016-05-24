@@ -834,10 +834,11 @@ private struct RawRadixTree(Value,
                 wasAdded = true;
                 return Node(currPLf);
             }
-            else // key doesn't fit in a `PLf`
+            else                // key doesn't fit in a `PLf`
             {
                 import std.algorithm : min;
-                return insertAt(Node(construct!(DefaultBr)(key[0 .. min(key.length, DefaultBr.prefixLength)], false)),
+                auto brKey = key[0 .. min(key.length, DefaultBr.prefixLength)];
+                return insertAt(Node(construct!(DefaultBr)(brKey, false)), // as much as possible of key in branch prefix
                                 key, wasAdded);
             }
         }

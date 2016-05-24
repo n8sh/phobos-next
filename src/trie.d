@@ -1332,18 +1332,13 @@ void benchmark(uint radixPow2)()
                     final switch (ix)
                     {
                     case undefined: break;
-                    case ix_PLf:
-                        // bytesUsed = pop*Set.PLf.sizeof;
-                        break;
-                    case ix_PLfs:
-                        // bytesUsed = pop*Set.PLfs.sizeof;
-                        break;
-                    case ix_PBrPtr: bytesUsed = pop*Set.PBr.sizeof; break;
-                    case ix_FBrPtr: bytesUsed = pop*Set.FBr.sizeof; break;
-                    case ix_MLfPtr: bytesUsed = pop*Set.MLf.sizeof; break;
+                    case ix_PLf:    bytesUsed = pop*Set.PLf.sizeof; break;
+                    case ix_PLfs:   bytesUsed = pop*Set.PLfs.sizeof; break;
+                    case ix_PBrPtr: bytesUsed = pop*Set.PBr.sizeof; totalBytesUsed += bytesUsed; break;
+                    case ix_FBrPtr: bytesUsed = pop*Set.FBr.sizeof; totalBytesUsed += bytesUsed; break;
+                    case ix_MLfPtr: bytesUsed = pop*Set.MLf.sizeof; totalBytesUsed += bytesUsed; break;
                     }
                 }
-                totalBytesUsed += bytesUsed;
                 if (bytesUsed)
                 {
                     dln(pop, " number of ", ix, " uses ", bytesUsed/1e6, " megabytes");

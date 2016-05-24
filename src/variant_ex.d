@@ -153,12 +153,8 @@ pragma(inline):
     }
 
     inout(T) as(T)() inout @trusted if (canStore!T)
-    in
     {
-        assert(isOfType!T);
-    }
-    body
-    {
+        assert(isOfType!T); // TODO make this an enforce or throw new Exception
         inout x = rawValue;
         return *(cast(typeof(return)*)(cast(void*)&x)); // reinterpret
     }

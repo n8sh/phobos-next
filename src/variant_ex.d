@@ -108,7 +108,11 @@ pragma(inline):
         const bool defined;
         pragma(inline):
         bool opCast(T : bool)() const { return defined; }
-        T opUnary(string op : `*`)() @trusted inout { return cast(T)(_raw & ~typeMask); }
+        inout(T) opUnary(string op : `*`)() @trusted inout
+        {
+            auto data = (_raw & ~typeMask); // mask away type bits
+            return *(cast(typeof(return)*)&data);
+        }
     }
 
     @property inout(Ref!T) peek(T)() inout @trusted if (canStore!T)

@@ -59,7 +59,7 @@ struct BitSet(size_t len, Block = size_t)
     /** Number of bits in the $(D BitSet). */
     enum length = len;
 
-    /** BitSet Range.
+    /** BitSet Range. Doesn't provide
 
        TODO opSliceAssign to for interopability with range algorithms via private static struct member `Range`
        TODO Look at how std.container.array implements this.
@@ -80,13 +80,13 @@ struct BitSet(size_t len, Block = size_t)
 
         bool front() const
         {
-            assert(!empty);     // TODO use enforce instead?
+            assert(!empty);     // TODO use enforce when it's @nogc
             return _store[_ix];
         }
 
         bool back() const
         {
-            assert(!empty);     // TODO use enforce instead?
+            assert(!empty);     // TODO use enforce when it's @nogc
             return _store[_jx - 1];
         }
 

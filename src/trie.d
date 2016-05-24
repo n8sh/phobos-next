@@ -1116,13 +1116,13 @@ struct RadixTree(Key, Value, uint radixPow2 = 8)
         }
         else static if (is(Unqual!Key == wstring))
         {
-            const ushort[] ushortKey = Key.representation;
-            const ubyte[] key = (cast(ubyte*)ushortKey.ptr)[0 .. ushortKey[0].sizeof * ushortKey.length]; // TODO @trusted functionize
+            const ushort[] rKey = Key.representation;
+            const ubyte[] key = (cast(ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
         }
         else static if (is(Unqual!Key == dstring))
         {
-            const uint[] uintKey = Key.representation;
-            const ubyte[] key = (cast(ubyte*)uintKey.ptr)[0 .. ushortKey[0].sizeof * uintKey.length]; // TODO @trusted functionize
+            const uint[] rKey = Key.representation;
+            const ubyte[] key = (cast(ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
         }
         else
         {

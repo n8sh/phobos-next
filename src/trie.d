@@ -1465,7 +1465,6 @@ auto testPrint(uint radixPow2, Keys...)()
 
 @safe unittest
 {
-    // TODO Support this struct A { long x, y; }
     testPrint!(8,
                byte, short, int, long,
                ubyte, ushort, uint, ulong,

@@ -14,7 +14,6 @@ version(unittest)
 
 /** BitSet, a statically sized `std.bitmanip.BitArray`.
 
-    TODO opSlice, opSliceAssign to for interopability with range algorithms via private static struct member `Range`
     TODO Infer `Block` from `len` as is done for `Bound` and `Mod`.
     TODO Optimize `allOnes`, `allZeros` using intrinsic?
  */
@@ -60,7 +59,11 @@ struct BitSet(size_t len, Block = size_t)
     /** Number of bits in the $(D BitSet). */
     enum length = len;
 
-    /** Look at how std.container.array implements this. */
+    /** BitSet Range.
+
+       TODO opSliceAssign to for interopability with range algorithms via private static struct member `Range`
+       TODO Look at how std.container.array implements this.
+    */
     struct Range
     {
         @safe pure @nogc:

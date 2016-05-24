@@ -1064,7 +1064,7 @@ unittest
 ///
 @safe pure nothrow unittest
 {
-    BitSet!6 bs = [0, 1, 0, 0, 1, 0];
+    BitSet!6 bs = [false, 1, 0, 0, true, 0];
     bs.put(3, true);
 
     import std.algorithm : equal;

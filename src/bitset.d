@@ -1061,7 +1061,7 @@ unittest
     assert(format("%b", b17) == "1_00001111_00001111");
 }
 
-///
+/// test range
 @safe pure nothrow unittest
 {
     static testRange(Block)()

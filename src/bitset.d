@@ -170,7 +170,6 @@ struct BitSet(size_t len, Block = size_t)
         bs.put(3, true);
 
         import std.algorithm : equal;
-        assert(bs[].equal([0, 1, 0, 1, 1, 0]));
 
         assert(bs[0] == false);
         assert(bs[1] == true);
@@ -185,6 +184,10 @@ struct BitSet(size_t len, Block = size_t)
         assert(bs.at!3 == true);
         assert(bs.at!4 == true);
         assert(bs.at!5 == false);
+
+        // test slicing
+        assert(bs[].equal([0, 1, 0, 1, 1, 0]));
+        assert(bs[1 .. 4].equal([1, 0, 1]));
 
         auto rs = bs[1 .. 6 - 1]; // TODO Use opDollar
         assert(rs.length == 4);

@@ -1154,6 +1154,9 @@ private struct RawRadixTree(Value,
         if (!_root) { _root = construct!(U); }
     }
 
+    /** Returns: `true` if all keys are of fixed size, `false` otherwise. */
+    bool hasFixedKeyLength() const @safe pure nothrow @nogc { return _maxKeyLength != size_t.max; }
+
     /// Returns: number of nodes used in `this` tree.
     pragma(inline) debug size_t nodeCount() @safe pure nothrow /* TODO @nogc */ { return _nodeCount; }
 

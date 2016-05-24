@@ -641,10 +641,13 @@ private struct RawRadixTree(Value,
                 curr._keyBits[subIx] = true;
                 return Node(curr);
             }
+            else
+            {
+            }
         }
         show!subIx;
         show!subNode;
-        assert(false);
+        assert(false, "Expand BBr into either PBr or FBr depending on curr.popcnt");
     }
     /// ditto
     Node setSub(PBr* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */

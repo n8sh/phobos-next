@@ -1055,7 +1055,12 @@ private struct RawRadixTree(Value,
 
         if (!curr) { return; }
 
-        if (depth != 0) { write("- ".repeat(depth)); }
+        foreach (const i; 0 .. depth)
+        {
+            write(depth);
+        }
+
+        write("-");
 
         with (Node.Ix)
         {
@@ -1064,25 +1069,58 @@ private struct RawRadixTree(Value,
             case undefined: break;
             case ix_PLf:
                 auto currPLf = curr.as!(PLf);
-                writeln(typeof(currPLf).stringof);
+                writeln(typeof(currPLf).stringof, ": ");
                 break;
             case ix_PLfs:
                 auto currPLfs = curr.as!(PLfs);
-                writeln(typeof(currPLfs).stringof);
+                writeln(typeof(currPLfs).stringof, ": ");
                 break;
             case ix_PBrPtr:
                 auto currPBr = curr.as!(PBr*);
-                writeln(typeof(currPBr).stringof);
-                foreach (const subNode; currPBr.subNodes)
+                write(typeof(currPBr).stringof, ": ");
+
+                // print sub-leaves
+                write("PLf:");
+                import std.algorithm : map;
+                foreach (const subNodePLf; currPBr.subNodes[].map!(subNode => subNode.peek!PLf))
                 {
+                    if (subNodePLf)
+                    {
+                        write((*subNodePLf).length, ",");
+                    }
+                }
+                writeln;
+
+                // print sub-branches
+                import std.algorithm : map;
+                foreach (const subNode; currPBr.subNodes[].filter!(subNode => !subNode.peek!PLf))
+                {
+                    printAt(subNode, depth + 1);
                 }
                 break;
             case ix_FBrPtr:
                 auto currFBr = curr.as!(FBr*);
-                writeln(typeof(currFBr).stringof);
-                foreach (const subNode; currFBr.subNodes)
+                write(typeof(currFBr).stringof, ": ");
+
+                // print sub-leaves
+                write("PLf:");
+                import std.algorithm : map;
+                foreach (const subNodePLf; currFBr.subNodes[].map!(subNode => subNode.peek!PLf))
                 {
+                    if (subNodePLf)
+                    {
+                        write((*subNodePLf).length);
+                    }
                 }
+                writeln;
+
+                // print sub-branches
+                import std.algorithm : map;
+                foreach (const subNode; currFBr.subNodes[].filter!(subNode => !subNode.peek!PLf))
+                {
+                    printAt(subNode, depth + 1);
+                }
+
                 break;
             case ix_MLfPtr:
                 auto currMLf = curr.as!(MLf*);

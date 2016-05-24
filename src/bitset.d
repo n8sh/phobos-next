@@ -169,6 +169,9 @@ struct BitSet(size_t len, Block = size_t)
         BitSet!6 bs = [0, 1, 0, 0, 1, 0];
         bs.put(3, true);
 
+        import std.algorithm : equal;
+        assert(bs[].equal([0, 1, 0, 1, 1, 0]));
+
         assert(bs[0] == false);
         assert(bs[1] == true);
         assert(bs[2] == false);
@@ -193,8 +196,8 @@ struct BitSet(size_t len, Block = size_t)
         assert(rs.back == 1);
 
         rs.popBack;
-        assert(rs.front == 0);
-        assert(rs.back == 0);
+        assert(rs.front == 1);
+        assert(rs.back == 1);
 
         rs.popFront;
         rs.popBack;

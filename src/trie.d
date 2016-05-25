@@ -448,12 +448,12 @@ private struct RawRadixTree(Value,
             this.isKey = isKey;
         }
 
-        this(Ix[] prefix, bool isKey, Ix subIx, Node subNode)
+        this(Ix[] prefix, bool isKey, Ix subIx, Node subNonSLf)
         {
             this.prefix = prefix;
             this.isKey = isKey;
             this.subIxSlots.at!0 = subIx;
-            this.subNodeSlots.at!0 = subNode;
+            this.subNodeSlots.at!0 = subNonSLf;
             this.subCount = 1;
         }
 
@@ -576,9 +576,9 @@ private struct RawRadixTree(Value,
         bool isBitPackable() const @safe pure nothrow @nogc
         {
             typeof(return) allSLf0 = true;
-            foreach (const subNode; subNodes)
+            foreach (const subNonSLf; subNodes)
             {
-                if (const subSLfRef = subNode.peek!SLf)
+                if (const subSLfRef = subNonSLf.peek!SLf)
                 {
                     if ((*subSLfRef).length != 0) { allSLf0 = false; }
                 }
@@ -590,12 +590,12 @@ private struct RawRadixTree(Value,
         void calculate(ref Stats stats)  /* TODO @nogc */ const
         {
             size_t count = 0; // number of non-zero sub-nodes
-            foreach (const subNode; subNodes)
+            foreach (const subNonSLf; subNodes)
             {
-                if (subNode)
+                if (subNonSLf)
                 {
                     ++count;
-                    subNode.calculate!(Value, radixPow2)(stats);
+                    subNonSLf.calculate!(Value, radixPow2)(stats);
                 }
             }
             assert(count <= radix);
@@ -614,27 +614,27 @@ private struct RawRadixTree(Value,
         pragma(msg, "PBr.subIxs.sizeof:", PBr.subIxs.sizeof, " PBr.subIxs.alignof:", PBr.subIxs.alignof);
     }
 
-    /** Set sub-`Node` of branch `Node curr` at index `ix` to `subNode`. */
-    pragma(inline) Node setSub(Node curr, Ix subIx, Node subNode)
+    /** Set sub-`Node` of branch `Node curr` at index `ix` to `subNonSLf`. */
+    pragma(inline) Node setSub(Node curr, Ix subIx, Node subNonSLf)
     {
         switch (curr.typeIx)
         {
-        case Node.Ix.ix_BBrPtr: return setSub(curr.as!(BBr*), subIx, subNode);
-        case Node.Ix.ix_PBrPtr: return setSub(curr.as!(PBr*), subIx, subNode);
-        case Node.Ix.ix_FBrPtr: return setSub(curr.as!(FBr*), subIx, subNode);
+        case Node.Ix.ix_BBrPtr: return setSub(curr.as!(BBr*), subIx, subNonSLf);
+        case Node.Ix.ix_PBrPtr: return setSub(curr.as!(PBr*), subIx, subNonSLf);
+        case Node.Ix.ix_FBrPtr: return setSub(curr.as!(FBr*), subIx, subNonSLf);
         default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
         }
     }
     /// ditto
-    Node setSub(BBr* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
+    Node setSub(BBr* curr, Ix subIx, Node subNonSLf) @safe pure nothrow /* TODO @nogc */
     {
-        if (const subSLfRef = subNode.peek!(SLf))
+        if (const subSLfRef = subNonSLf.peek!(SLf))
         {
             const subSLf = *subSLfRef;
             if (subSLf.suffix.empty)
             {
                 curr._keyBits[subIx] = true;
-                freeNode(subNode); // free it because it's stored inside the bitset itself
+                freeNode(subNonSLf); // free it because it's stored inside the bitset itself
                 return Node(curr);
             }
             else
@@ -644,32 +644,32 @@ private struct RawRadixTree(Value,
         const currValue = *curr;
         show!currValue;
         show!subIx;
-        show!subNode;
+        show!subNonSLf;
         assert(false, "Expand BBr into either PBr or FBr depending on curr.popcnt");
     }
     /// ditto
-    Node setSub(PBr* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
+    Node setSub(PBr* curr, Ix subIx, Node subNonSLf) @safe pure nothrow /* TODO @nogc */
     {
         import std.algorithm : countUntil;
         const i = curr.subIxSlots[0 .. curr.subCount].countUntil(subIx); // TODO is this the preferred function?
         if (i != -1)            // if hit. TODO use bool conversion if this gets added to countUntil
         {
-            curr.subNodeSlots[i.mod!(curr.N)] = subNode; // reuse
+            curr.subNodeSlots[i.mod!(curr.N)] = subNonSLf; // reuse
         }
         else if (!curr.full)     // if room left in curr
         {
-            curr.pushBackSub(tuple(subIx, subNode)); // add one to existing
+            curr.pushBackSub(tuple(subIx, subNonSLf)); // add one to existing
         }
         else
         {
-            return setSub(expand(curr), subIx, subNode); // fast, because directly calls setSub(FBr*, ...)
+            return setSub(expand(curr), subIx, subNonSLf); // fast, because directly calls setSub(FBr*, ...)
         }
         return Node(curr);
     }
     /// ditto
-    pragma(inline) Node setSub(FBr* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
+    pragma(inline) Node setSub(FBr* curr, Ix subIx, Node subNonSLf) @safe pure nothrow /* TODO @nogc */
     {
-        curr.subNodes[subIx] = subNode;
+        curr.subNodes[subIx] = subNonSLf;
         return Node(curr);
     }
 
@@ -685,9 +685,9 @@ private struct RawRadixTree(Value,
             }
             break;
         case Node.Ix.ix_PBrPtr:
-            if (auto subNode = br.as!(PBr*).findSub(ix))
+            if (auto subNonSLf = br.as!(PBr*).findSub(ix))
             {
-                return subNode;
+                return subNonSLf;
             }
             break;
         case Node.Ix.ix_FBrPtr:
@@ -1154,7 +1154,7 @@ private struct RawRadixTree(Value,
                 // print sub-leaves
                 write("sub-SLf-lengths=");
                 import std.algorithm : map;
-                foreach (const subSLf; currPBr.subNodes[].map!(subNode => subNode.peek!SLf))
+                foreach (const subSLf; currPBr.subNodes[].map!(subNonSLf => subNonSLf.peek!SLf))
                 {
                     if (subSLf)
                     {
@@ -1165,9 +1165,9 @@ private struct RawRadixTree(Value,
 
                 // print sub-branches
                 import std.algorithm : map;
-                foreach (const subNode; currPBr.subNodes[].filter!(subNode => !subNode.peek!SLf))
+                foreach (const subNonSLf; currPBr.subNodes[].filter!(subNonSLf => !subNonSLf.peek!SLf))
                 {
-                    printAt(subNode, depth + 1);
+                    printAt(subNonSLf, depth + 1);
                 }
                 break;
             case ix_FBrPtr:
@@ -1178,7 +1178,7 @@ private struct RawRadixTree(Value,
                 // print sub-leaves
                 write("sub-SLf-lengths=");
                 import std.algorithm : map;
-                foreach (const subSLf; currFBr.subNodes[].map!(subNode => subNode.peek!SLf))
+                foreach (const subSLf; currFBr.subNodes[].map!(subNonSLf => subNonSLf.peek!SLf))
                 {
                     if (subSLf)
                     {
@@ -1189,9 +1189,9 @@ private struct RawRadixTree(Value,
 
                 // print sub-branches
                 import std.algorithm : map;
-                foreach (const subNode; currFBr.subNodes[].filter!(subNode => !subNode.peek!SLf))
+                foreach (const subNonSLf; currFBr.subNodes[].filter!(subNonSLf => !subNonSLf.peek!SLf))
                 {
-                    printAt(subNode, depth + 1);
+                    printAt(subNonSLf, depth + 1);
                 }
 
                 break;

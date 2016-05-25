@@ -3,6 +3,8 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO Store `isKey` in top-most bit of length part of `IxsN prefix` in branch node.
+
     TODO Optimize PBr.findSub for specific `subCount`
 
     TODO Use bitset storage in PBr and call it PBr. Active when sizeof BrN
@@ -265,7 +267,7 @@ private struct RawRadixTree(Value,
     {
         static if (radixPow2 == 8)
         {
-            // Packed Variable-Length Single Leaf
+            /// Variable-Length Single-Key Leaf
             struct PLf
             {
                 enum maxLength = (size_t.sizeof - 2) / Ix.sizeof;
@@ -283,6 +285,7 @@ private struct RawRadixTree(Value,
                 // }
             }
 
+            /// Fixed-Length Multiple-Key Leaf
             struct PLfs
             {
                 enum maxLength = (size_t.sizeof - 2) / Ix.sizeof;
@@ -319,7 +322,7 @@ private struct RawRadixTree(Value,
     }
 
     alias DefaultBr = DefaultRootType;
-    alias DefaultLf = PLfs; // TODO use either MLf* or PLfs instead
+    alias DefaultLf = PLfs;
 
     static if (isSet)
         static assert(PLfs.sizeof == size_t.sizeof); // assert that it's size matches platform word-size
@@ -333,9 +336,7 @@ private struct RawRadixTree(Value,
 
                                 // dense branches
                                 BBr*,
-                                FBr*,
-
-                                MLf*); // dense leaves
+                                FBr*);
 
     /** Mutable node. */
     alias Node = WordVariant!NodeTypes;
@@ -392,8 +393,6 @@ private struct RawRadixTree(Value,
         PBr_PopHist popHist_PBr; // packed branch population histogram
         FBr_PopHist popHist_FBr; // full branch population histogram
 
-        LeafM_PopHist popHist_MLf;
-
         size_t allPLf0CountOfPBr; // number of `PBr` which sub-branches are all `PLf` of length 0
         size_t allPLf0CountOfFBr; // number of `FBr` which sub-branches are all `PLf` of length 0
 
@@ -431,7 +430,7 @@ private struct RawRadixTree(Value,
         }
 
         private:
-        BitSet!(radix) _keyBits; // 32 bytes
+        BitSet!radix _keyBits;  // 32 bytes
         IxsN!prefixLength prefix; // prefix common to all `subNodes` (also called edge-label)
         bool isKey;
     }
@@ -608,7 +607,6 @@ private struct RawRadixTree(Value,
             stats.allPLf0CountOfFBr += isBitPackable;
         }
 
-        // MLf subOccupations; // if i:th bit is set key (and optionally value) associated with sub[i] is also defined
         // static if (isMap) { Value value; }
     }
 
@@ -755,29 +753,6 @@ private struct RawRadixTree(Value,
         }
     }
 
-    /** Bottom-most leaf node of tree storing `radix` number of densly packed keys
-        of fixed-length type `Key`.
-    */
-    static private struct MLf
-    {
-        /** Append statistics of tree under `this` into `stats`. */
-        void calculate(ref Stats stats) @safe pure const
-        {
-            ++stats.popHist_MLf[keyLSBits.countOnes - 1];
-        }
-
-        import bitset : BitSet;
-        private BitSet!radix keyLSBits; // if i:th bit is set, then corresponding sub is set
-
-        static if (isMap)
-        {
-            static if (is(Value == bool))
-                BitSet!radix values; // memory-efficient storage of `bool` values
-            else
-                Value[radix] values;
-        }
-    }
-
     Stats usageHistograms() const
     {
         typeof(return) stats;
@@ -852,8 +827,6 @@ private struct RawRadixTree(Value,
                     case ix_BBrPtr:
                     case ix_PBrPtr:
                     case ix_FBrPtr: return insertAtBranch(curr, key, superPrefixLength, wasAdded);
-
-                    case ix_MLfPtr: return insertAt(curr.as!(MLf*), key, superPrefixLength, wasAdded);
                     }
                     assert(false);
                 }
@@ -918,21 +891,6 @@ private struct RawRadixTree(Value,
                                    key[1 .. $],
                                    superPrefixLength + 1,
                                    wasAdded));
-        }
-
-        Node insertAt(MLf* curr, Key!radixPow2 key, size_t superPrefixLength, out bool wasAdded)
-        {
-            assert(false, "TODO");
-            static if (false)
-            {
-                const ix = key[0];
-                wasAdded = !curr.keyLSBits[ix];
-                if (wasAdded)
-                {
-                    curr.keyLSBits[ix] = true;
-                }
-                return Node(curr);
-            }
         }
 
         Node insertAt(PLf curr, Key!radixPow2 key, size_t superPrefixLength, out bool wasAdded)
@@ -1012,7 +970,7 @@ private struct RawRadixTree(Value,
             }
             else
             {
-                return insertAt(expand(curr), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
+                return insertAt(Node(expand(curr)), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
             }
         }
 
@@ -1041,14 +999,14 @@ private struct RawRadixTree(Value,
             return next;
         }
 
-        /** Destructively expand `curr` into a `MLf` and return it. */
-        MLf* expand(PLfs curr)
+        /** Destructively expand `curr` into a `BBr` and return it. */
+        BBr* expand(PLfs curr)
         {
             auto next = construct!(typeof(return));
             foreach (const ixM; curr.ixMs[0 .. curr.length])
             {
-                assert(!next.keyLSBits[ixM]); // assert no duplicates in ixMs
-                next.keyLSBits[ixM] = true;
+                assert(!next._keyBits[ixM]); // assert no duplicates in ixMs
+                next._keyBits[ixM] = true;
             }
             freeNode(curr);
             return next;
@@ -1119,7 +1077,6 @@ private struct RawRadixTree(Value,
 
         void release(PLf curr) { freeNode(curr); }
         void release(PLfs curr) { freeNode(curr); }
-        void release(MLf* curr) { freeNode(curr); }
 
         void release(Node curr)
         {
@@ -1134,7 +1091,6 @@ private struct RawRadixTree(Value,
                 case ix_BBrPtr: return release(curr.as!(BBr*));
                 case ix_PBrPtr: return release(curr.as!(PBr*));
                 case ix_FBrPtr: return release(curr.as!(FBr*));
-                case ix_MLfPtr: return release(curr.as!(MLf*));
                 }
             }
         }
@@ -1243,10 +1199,6 @@ private struct RawRadixTree(Value,
                 }
 
                 break;
-            case ix_MLfPtr:
-                auto currMLf = curr.as!(MLf*);
-                writeln(typeof(*currMLf).stringof);
-                break;
             }
         }
     }
@@ -1277,7 +1229,6 @@ static private void calculate(Value, uint radixPow2)(RawRadixTree!(Value, radixP
         case ix_BBrPtr: sub.as!(RT.BBr*).calculate(stats); break;
         case ix_PBrPtr: sub.as!(RT.PBr*).calculate(stats); break;
         case ix_FBrPtr: sub.as!(RT.FBr*).calculate(stats); break;
-        case ix_MLfPtr: sub.as!(RT.MLf*).calculate(stats); break;
         }
     }
 }
@@ -1545,7 +1496,6 @@ void benchmark(uint radixPow2)()
             dln("Sparse Bit-Branch Population Histogram: ", stats.popHist_BBr);
             dln("Sparse 4-Branch Population Histogram: ", stats.popHist_PBr);
             dln("Dense radix=", 2^^radixPow2, "-Branch Population Histogram: ", stats.popHist_FBr);
-            dln("Dense radix=", 2^^radixPow2, "-Leaf   Population Histogram: ", stats.popHist_MLf);
             dln("Population By Node Type: ", stats.popByNodeType);
             dln("Number of PBr with PLf-0 only subNodes: ", stats.allPLf0CountOfPBr);
             dln("Number of FBr with PLf-0 only subNodes: ", stats.allPLf0CountOfFBr);
@@ -1564,7 +1514,6 @@ void benchmark(uint radixPow2)()
                     case ix_BBrPtr: bytesUsed = pop*Set.BBr.sizeof; totalBytesUsed += bytesUsed; break;
                     case ix_PBrPtr: bytesUsed = pop*Set.PBr.sizeof; totalBytesUsed += bytesUsed; break;
                     case ix_FBrPtr: bytesUsed = pop*Set.FBr.sizeof; totalBytesUsed += bytesUsed; break;
-                    case ix_MLfPtr: bytesUsed = pop*Set.MLf.sizeof; totalBytesUsed += bytesUsed; break;
                     }
                 }
                 if (bytesUsed)

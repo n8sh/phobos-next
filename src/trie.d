@@ -124,6 +124,12 @@ struct IxsN(size_t maxLength,
         return ixs[0];
     }
 
+    auto ref back() inout
+    {
+        assert(!empty);
+        return ixs[_length - 1];
+    }
+
     void popFront()
     {
         assert(!empty);

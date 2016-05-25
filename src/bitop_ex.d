@@ -12,6 +12,8 @@ module bitop_ex;
 import std.traits : isIntegral;
 import std.meta : allSatisfy;
 
+pure @nogc nothrow:
+
 /** Get an Unsigned Type of size as $(D T) if possible. */
 template UnsignedOfSameSizeAs(T)
 {
@@ -28,7 +30,7 @@ template UnsignedOfSameSizeAs(T)
 }
 
 /** Returns: Zero Instance T with $(D bix):th Bit set. */
-T makeBit(T, I...)(I bixs) @safe @nogc pure nothrow
+T makeBit(T, I...)(I bixs) @safe
     if (isIntegral!T &&
         allSatisfy!(isIntegral, I) &&
         I.length >= 1)
@@ -51,7 +53,7 @@ body
 alias btm = makeBit;
 
 /** Returns: Check if all $(D bix):th Bits Of $(D a) are set. */
-bool testBit(T, I...)(in T a, I bixs) @safe @nogc pure nothrow
+bool testBit(T, I...)(in T a, I bixs) @safe
     if (isIntegral!T &&
         allSatisfy!(isIntegral, I) &&
         I.length >= 1)
@@ -59,16 +61,16 @@ bool testBit(T, I...)(in T a, I bixs) @safe @nogc pure nothrow
     return a & makeBit!T(bixs) ? true : false;
 }
 /** Returns: Check if all $(D bix):th Bits Of $(D a) are set. */
-bool testBit(T, I)(in T a, I bix) @nogc pure nothrow
+bool testBit(T, I)(in T a, I bix)
     if ((!(isIntegral!T)) &&
         allSatisfy!(isIntegral, I))
 {
     return (*(cast(UnsignedOfSameSizeAs!T*)&a)).testBit(bix); // reuse integer variant
 }
 /** Returns: Check if all $(D bix):th Bits Of $(D *a) are set. */
-bool testBit(T, I)(in T* a, I bix) @nogc pure nothrow
+bool testBit(T, I)(in T* a, I bix)
     if ((!(isIntegral!T)) &&
-        !is(T == size_t) &&     // avoid stealing core.bitop.bt
+        !is(T == size_t) &&     // avoid stealing `core.bitop.bt`
         allSatisfy!(isIntegral, I) &&
         I.length >= 1)
 {
@@ -102,7 +104,7 @@ unittest
 /** Test and sets the $(D bix):th Bit Of $(D a) to one.
     Returns: A non-zero value if the bit was set, and a zero if it was clear.
 */
-void setBit(T, I...)(ref T a, I bixs) @safe @nogc pure nothrow
+void setBit(T, I...)(ref T a, I bixs) @safe
     if (isIntegral!T &&
         allSatisfy!(isIntegral, I) &&
         I.length >= 1)
@@ -113,7 +115,7 @@ void setBit(T, I...)(ref T a, I bixs) @safe @nogc pure nothrow
 /** Test and sets the $(D bix):th Bit Of $(D *a) to one.
     Returns: A non-zero value if the bit was set, and a zero if it was clear.
 */
-void setBit(T, I...)(T* a, I bixs) @safe @nogc pure nothrow
+void setBit(T, I...)(T* a, I bixs) @safe
     if (isIntegral!T &&
         !is(T == size_t) && // avoid stealing core.bitop.bt
         allSatisfy!(isIntegral, I) &&
@@ -123,7 +125,7 @@ void setBit(T, I...)(T* a, I bixs) @safe @nogc pure nothrow
 }
 
 /** Returns: Check if all $(D bix):th Bits Of $(D a) are set. */
-void setBit(T, I...)(ref T a, I bixs) @trusted @nogc pure nothrow
+void setBit(T, I...)(ref T a, I bixs) @trusted
     if ((!(isIntegral!T)) &&
         allSatisfy!(isIntegral, I) &&
         I.length >= 1)
@@ -137,7 +139,7 @@ alias bts = setBit;
 /* alias btr = resetBit; */
 
 /** Set lowest bit of `a` to one. */
-void setLowestBit(T)(ref T a) @safe @nogc pure nothrow
+void setLowestBit(T)(ref T a) @safe
     if (isIntegral!T)
 {
     setBit(a, 0);
@@ -145,7 +147,7 @@ void setLowestBit(T)(ref T a) @safe @nogc pure nothrow
 alias setBottomBit = setLowestBit;
 
 /** Set highest bit of `a` to one. */
-void setHighestBit(T)(ref T a) @safe @nogc pure nothrow
+void setHighestBit(T)(ref T a) @safe
     if (isIntegral!T)
 {
     setBit(a, 8*T.sizeof - 1);
@@ -153,7 +155,7 @@ void setHighestBit(T)(ref T a) @safe @nogc pure nothrow
 alias setTopBit = setHighestBit;
 
 /** Get lowest bit of `a`. */
-bool getLowBit(T)(T a) @safe @nogc pure nothrow
+bool getLowBit(T)(T a) @safe
     if (isIntegral!T)
 {
     return (a & (1 << 0)) != 0;
@@ -161,7 +163,7 @@ bool getLowBit(T)(T a) @safe @nogc pure nothrow
 alias getBottomBit = getLowBit;
 
 /** Get highest bit of `a`. */
-bool getHighBit(T)(T a) @safe @nogc pure nothrow
+bool getHighBit(T)(T a) @safe
     if (isIntegral!T)
 {
     return (a & (1 << 8*T.sizeof - 1)) != 0;
@@ -185,14 +187,14 @@ unittest
 }
 
 /** Reset bits `I` of `a` (to zero). */
-void resetBit(T, I...)(ref T a, I bixs) @safe @nogc pure nothrow
+void resetBit(T, I...)(ref T a, I bixs) @safe
     if (isIntegral!T &&
         allSatisfy!(isIntegral, I))
 {
     a &= ~makeBit!T(bixs);
 }
 /** Reset bits `I` of `*a` (to zero). */
-void resetBit(T, I...)(T* a, I bixs) @safe @nogc pure nothrow
+void resetBit(T, I...)(T* a, I bixs) @safe
     if (isIntegral!T &&
         !is(T == size_t) && // avoid stealing core.bitop.bt
         allSatisfy!(isIntegral, I))
@@ -201,7 +203,7 @@ void resetBit(T, I...)(T* a, I bixs) @safe @nogc pure nothrow
     }
 
 /** Reset bits `I` of `a` (to zero). */
-void resetBit(T, I...)(ref T a, I bixs) @nogc pure nothrow
+void resetBit(T, I...)(ref T a, I bixs)
     if ((!(isIntegral!T)) &&
         allSatisfy!(isIntegral, I))
 {
@@ -210,7 +212,7 @@ void resetBit(T, I...)(ref T a, I bixs) @nogc pure nothrow
 }
 
 /** Reset lowest bit of `a` (to zero). */
-void resetLowestBit(T)(ref T a) @safe @nogc pure nothrow
+void resetLowestBit(T)(ref T a) @safe
     if (isIntegral!T)
 {
     resetBit(a, 0);
@@ -218,7 +220,7 @@ void resetLowestBit(T)(ref T a) @safe @nogc pure nothrow
 alias resetBottomBit = resetLowestBit;
 
 /** Reset highest bit of `a` (to zero). */
-void resetHighestBit(T)(ref T a) @safe @nogc pure nothrow
+void resetHighestBit(T)(ref T a) @safe
     if (isIntegral!T)
 {
     resetBit(a, 8*T.sizeof - 1);

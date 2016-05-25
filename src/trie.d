@@ -93,7 +93,7 @@ struct IxsN(size_t maxLength,
         if (Ixs.length >= 1 &&
             Ixs.length <= maxLength)
     {
-        foreach (i, ix; ixs)
+        foreach (const i, const ix; ixs)
         {
             this.ixs[i] = ix;
         }

@@ -1135,11 +1135,11 @@ private struct RawRadixTree(Value,
             case undefined: break;
             case ix_SLf:
                 auto currSLf = curr.as!(SLf);
-                writeln(typeof(currSLf).stringof, " ", currSLf);
+                writeln(typeof(currSLf).stringof, "#", currSLf.length, ": ", currSLf[]);
                 break;
             case ix_MLf:
                 auto currMLf = curr.as!(MLf);
-                writeln(typeof(currMLf).stringof, " ", currMLf);
+                writeln(typeof(currMLf).stringof, "#", currMLf.length, ": ", currMLf[]);
                 break;
             case ix_BBrPtr:
                 auto currBBr = curr.as!(BBr*);

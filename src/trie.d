@@ -89,11 +89,15 @@ struct IxsN(size_t maxLength,
     enum M = 2^^radixPow2;     // branch-multiplicity, typically either 2, 4, 16 or 256
     alias Ix = Mod!M;
 
-    this(Ix ix)
+    this(Ixs...)(Ixs ixs)
+        if (Ixs.length >= 1 &&
+            Ixs.length <= maxLength)
     {
-        assert(1 <= maxLength);
-        this.ixs[0] = ix;
-        this._length = 1;
+        foreach (i, ix; ixs)
+        {
+            this.ixs[i] = ix;
+        }
+        this._length = ixs.length;
     }
 
     this(Ix[] ixs)

@@ -133,7 +133,6 @@ struct IxsN(size_t maxLength,
     void popFront()
     {
         assert(!empty);
-
         // TODO is there a reusable Phobos function for this?
         foreach (const i; 0 .. _length - 1)
         {

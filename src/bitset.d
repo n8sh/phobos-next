@@ -127,7 +127,14 @@ struct BitSet(size_t len, Block = size_t)
     body
     {
         // Andrei: review for @@@64-bit@@@
-        return cast(bool)bt(ptr, i);
+        static if (Block.sizeof == 8)
+        {
+            return cast(bool)bt(ptr, i);
+        }
+        else
+        {
+            return bt(_blocks[i/bitsPerBlock], i%bitsPerBlock);
+        }
     }
 
     /** Gets the $(D i)'th bit in the $(D BitSet). No range checking needed. */
@@ -139,7 +146,14 @@ struct BitSet(size_t len, Block = size_t)
         */
         pragma(inline) bool opIndex(Mod!len i) const @trusted pure nothrow
         {
-            return cast(bool)bt(ptr, cast(size_t)i);
+            static if (Block.sizeof == 8)
+            {
+                return cast(bool)bt(ptr, cast(size_t)i);
+            }
+            else
+            {
+                return bt(_blocks[i/bitsPerBlock], i%bitsPerBlock);
+            }
         }
 
         /** Get the $(D i)'th bit in the $(D BitSet).
@@ -1052,18 +1066,10 @@ unittest
 }
 
 /// test range
-@safe pure nothrow unittest
+pure nothrow unittest
 {
     static testRange(Block)()
     {
-        BitSet!(16, Block) x = [0, 1, 0, 1, 0, 1, 0, 1,
-                                0, 1, 0, 1, 0, 1, 0, 1];
-        foreach (const i; 0 .. 16)
-        {
-            dln("i:", i, " x[i]:", x[i]);
-        }
-        dln(x._blocks);
-
         BitSet!(6, Block) bs = [false, 1, 0, 0, true, 0];
         bs.put(3, true);
 

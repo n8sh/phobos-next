@@ -511,7 +511,7 @@ struct BitSet(size_t len, Block = size_t)
     }
 
     /** Supports comparison operators for $(D BitSet). */
-    int opCmp(in BitSet a2) const
+    int opCmp(U)(in BitSet!(len, U) a2) const
     {
         uint i;
 
@@ -1114,7 +1114,7 @@ pure nothrow unittest
     }
 
     import std.meta : AliasSeq;
-    foreach (Block; AliasSeq!(uint, size_t))
+    foreach (Block; AliasSeq!(ubyte, ushort, uint, ulong, size_t))
     {
         testRange!Block;
     }

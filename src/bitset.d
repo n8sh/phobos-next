@@ -180,7 +180,7 @@ struct BitSet(size_t len, Block = size_t)
     }
     body
     {
-        b ? bts(ptr, i) : btr(ptr, i);
+        b ? bts(ptr, cast(size_t)i) : btr(ptr, cast(size_t)i);
         return b;
     }
 
@@ -1056,6 +1056,14 @@ unittest
 {
     static testRange(Block)()
     {
+        BitSet!(16, Block) x = [0, 1, 0, 1, 0, 1, 0, 1,
+                                0, 1, 0, 1, 0, 1, 0, 1];
+        foreach (const i; 0 .. 16)
+        {
+            dln("i:", i, " x[i]:", x[i]);
+        }
+        dln(x._blocks);
+
         BitSet!(6, Block) bs = [false, 1, 0, 0, true, 0];
         bs.put(3, true);
 
@@ -1100,7 +1108,7 @@ unittest
     }
 
     import std.meta : AliasSeq;
-    foreach (Block; AliasSeq!(size_t))
+    foreach (Block; AliasSeq!(uint, size_t))
     {
         testRange!Block;
     }

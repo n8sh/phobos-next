@@ -302,7 +302,6 @@ private struct RawRadixTree(Value,
             {
                 enum maxLength = (size_t.sizeof - 2) / Ix.sizeof; // maximum number of elements
                 Ix[maxLength] keys;
-                alias keys this;
                 ubyte length; // number of objects defined in keys
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
@@ -1139,7 +1138,7 @@ private struct RawRadixTree(Value,
                 break;
             case ix_MLf:
                 auto currMLf = curr.as!(MLf);
-                writeln(typeof(currMLf).stringof, "#", currMLf.length, ": ", currMLf[]);
+                writeln(typeof(currMLf).stringof, "#", currMLf.length, ": ", currMLf.keys[0 .. currMLf.length]);
                 break;
             case ix_BBrPtr:
                 auto currBBr = curr.as!(BBr*);

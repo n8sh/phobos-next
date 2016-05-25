@@ -882,13 +882,13 @@ private struct RawRadixTree(Value,
             }
             else
             {
-                return insertAt(expand(curr, matchedPrefix, key),
+                return insertAt(split(curr, matchedPrefix, key),
                                 key, superPrefixLength, wasAdded);
             }
         }
 
-        /** Expand `curr` using `prefix`. */
-        Node expand(SLf curr, Key!radixPow2 prefix, Key!radixPow2 key)
+        /** Split `curr` using `prefix`. */
+        Node split(SLf curr, Key!radixPow2 prefix, Key!radixPow2 key)
         {
             import std.range : empty;
 

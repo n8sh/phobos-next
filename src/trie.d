@@ -89,10 +89,16 @@ struct IxsN(size_t maxLength,
     enum M = 2^^radixPow2;     // branch-multiplicity, typically either 2, 4, 16 or 256
     alias Ix = Mod!M;
 
+    this(Ix ix)
+    {
+        assert(1 <= maxLength);
+        this.ixs[0] = ix;
+        this._length = 1;
+    }
+
     this(Ix[] ixs)
     {
         assert(ixs.length <= maxLength);
-
         this.ixs[0 .. ixs.length] = ixs;
         this._length = cast(ubyte)ixs.length;
     }
@@ -281,9 +287,12 @@ private struct RawRadixTree(Value,
             /// Fixed-Length Multiple-Key Leaf
             struct MLf
             {
-                enum maxLength = (size_t.sizeof - 2) / Ix.sizeof;
-                Ix[maxLength] ixMs;
-                ubyte length;
+                enum maxLength = (size_t.sizeof - 2) / Ix.sizeof; // maximum number of elements
+                this(Ix key) { this.keys = key; }
+                this(Ix[] keys) { this.keys = keys; }
+                Ix[maxLength] keys;
+                ubyte length; // number of objects defined in keys
+            private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
         }
@@ -887,32 +896,6 @@ private struct RawRadixTree(Value,
             }
         }
 
-        /** Split `curr` using `prefix`. */
-        Node split(SLf curr, Key!radixPow2 prefix, Key!radixPow2 key)
-        {
-            import std.range : empty;
-
-            Node br;
-            // TODO functionize
-            if (prefix.empty &&
-                curr.length == 1 &&
-                key.length == 1)
-            {
-                br = construct!(BBr*)(prefix, false); // TODO construct a MLf instead
-            }
-            else
-            {
-                br = construct!(DefaultBr)(prefix, false);
-            }
-
-            bool wasAdded;      // dummy
-            auto node = insertAt(br, curr.suffix, 0, wasAdded);
-            assert(wasAdded); // assure that existing key was reinserted
-            freeNode(curr);   // remove old current
-
-            return node;
-        }
-
         Node insertAt(MLf curr, Key!radixPow2 key, size_t superPrefixLength, out bool wasAdded)
         {
             const Ix ix = key[0];
@@ -921,27 +904,58 @@ private struct RawRadixTree(Value,
             // foreach (const i; iota!(0, curr.maxLength))
             // {
             //     if (i == curr.length) break;
-            //     else if (curr.ixMs[i] == ix) { return Node(curr); }
+            //     else if (curr.keys[i] == ix) { return Node(curr); }
             // }
 
             import std.algorithm.searching : canFind;
-            if (curr.ixMs[0 .. curr.length].canFind(ix)) // if already stored. TODO use binarySearch
+            if (curr.keys[0 .. curr.length].canFind(ix)) // if already stored. TODO use binarySearch
             {
                 return Node(curr); // already there, so return current node as is
             }
 
-            if (curr.length < curr.maxLength) // if there's room left in curr
+            if (curr.length < curr.maxLength) // if room left
             {
-                curr.ixMs[curr.length++] = ix;
+                curr.keys[curr.length++] = ix;
                 // import sortn : networkSortUpTo;
-                // TODO curr.ixMs[0 .. length].networkSort;
-                // TODO curr.ixMs[0 .. length].sort;
+                // TODO curr.keys[0 .. length].networkSort;
+                // TODO curr.keys[0 .. length].sort;
                 wasAdded = true;
                 return Node(curr); // current node still ok
             }
             else
             {
                 return insertAt(Node(expand(curr)), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
+            }
+        }
+
+        /** Split `curr` using `prefix`. */
+        Node split(SLf curr, Key!radixPow2 prefix, Key!radixPow2 key) // TODO key here is a bit malplaced
+        {
+            import std.range : empty;
+
+            // TODO use this when prefix != 0 but curr.length == 1 and key.length == 1
+            // next = construct!(BBr*)(Ix[].init, false);
+
+            if (prefix.empty &&
+                curr.length == 1 &&
+                key.length == 1)
+            {
+                return Node(construct!(MLf)(curr[0]));
+            }
+            // else if (prefix.length == 1)
+            // {
+            //     assert(false, "Use P1Lf with single-length prefix and a maximum of 4 ");
+            // }
+            else
+            {
+                auto next = construct!(DefaultBr)(prefix, false);
+
+                bool wasAdded;      // dummy
+                auto node = insertAt(Node(next), curr.suffix, 0, wasAdded);
+                assert(wasAdded); // assure that existing key was reinserted
+                freeNode(curr);   // remove old current
+
+                return node;
             }
         }
 
@@ -974,9 +988,9 @@ private struct RawRadixTree(Value,
         BBr* expand(MLf curr)
         {
             auto next = construct!(typeof(return));
-            foreach (const ixM; curr.ixMs[0 .. curr.length])
+            foreach (const ixM; curr.keys[0 .. curr.length])
             {
-                assert(!next._keyBits[ixM]); // assert no duplicates in ixMs
+                assert(!next._keyBits[ixM]); // assert no duplicates in keys
                 next._keyBits[ixM] = true;
             }
             freeNode(curr);
@@ -1119,7 +1133,7 @@ private struct RawRadixTree(Value,
                 auto currBBr = curr.as!(BBr*);
                 write(typeof(*currBBr).stringof, ":");
                 if (!currBBr.prefix.empty) { write(" prefix=", currBBr.prefix); }
-                write(" leaf-count=", currBBr._keyBits.countOnes);
+                write(" #ones=", currBBr._keyBits.countOnes);
                 writeln;
                 break;
             case ix_PBrPtr:
@@ -1336,7 +1350,6 @@ auto radixTreeMap(Key, Value, uint radixPow2 = 4)() { return RadixTree!(Key, Val
 
     assert(set.insert(257));
     assert(!set.insert(257));
-    assert(set.branchCount == 3);
 }
 
 /// Check correctness when radixPow2 is `radixPow2` and for each `Key` in `Keys`.

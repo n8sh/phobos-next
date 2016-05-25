@@ -1128,6 +1128,7 @@ private struct RawRadixTree(Value,
 
         with (Node.Ix)
         {
+            import std.algorithm : map;
             final switch (curr.typeIx)
             {
             case undefined: break;
@@ -1153,7 +1154,6 @@ private struct RawRadixTree(Value,
 
                 // print sub-leaves
                 write("sub-SLf-lengths=");
-                import std.algorithm : map;
                 foreach (const subSLf; currPBr.subNodes[].map!(subNonSLf => subNonSLf.peek!SLf))
                 {
                     if (subSLf)
@@ -1164,7 +1164,6 @@ private struct RawRadixTree(Value,
                 writeln;
 
                 // print sub-branches
-                import std.algorithm : map;
                 foreach (const subNonSLf; currPBr.subNodes[].filter!(subNonSLf => !subNonSLf.peek!SLf))
                 {
                     printAt(subNonSLf, depth + 1);
@@ -1177,7 +1176,6 @@ private struct RawRadixTree(Value,
 
                 // print sub-leaves
                 write("sub-SLf-lengths=");
-                import std.algorithm : map;
                 foreach (const subSLf; currFBr.subNodes[].map!(subNonSLf => subNonSLf.peek!SLf))
                 {
                     if (subSLf)
@@ -1188,7 +1186,6 @@ private struct RawRadixTree(Value,
                 writeln;
 
                 // print sub-branches
-                import std.algorithm : map;
                 foreach (const subNonSLf; currFBr.subNodes[].filter!(subNonSLf => !subNonSLf.peek!SLf))
                 {
                     printAt(subNonSLf, depth + 1);

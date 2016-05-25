@@ -61,20 +61,20 @@ bool testBit(T, I...)(in T a, I bixs) @safe
     return a & makeBit!T(bixs) ? true : false;
 }
 /** Returns: Check if all $(D bix):th Bits Of $(D a) are set. */
-bool testBit(T, I)(in T a, I bix)
+bool testBit(T, I...)(in T a, I bixs) @trusted
     if ((!(isIntegral!T)) &&
         allSatisfy!(isIntegral, I))
 {
-    return (*(cast(UnsignedOfSameSizeAs!T*)&a)).testBit(bix); // reuse integer variant
+    return (*(cast(UnsignedOfSameSizeAs!T*)&a)).testBit(bixs); // reuse integer variant
 }
 /** Returns: Check if all $(D bix):th Bits Of $(D *a) are set. */
-bool testBit(T, I)(in T* a, I bix)
+bool testBit(T, I...)(in T* a, I bixs)
     if ((!(isIntegral!T)) &&
         !is(T == size_t) &&     // avoid stealing `core.bitop.bt`
         allSatisfy!(isIntegral, I) &&
         I.length >= 1)
 {
-    return testBit(*a, bix);
+    return testBit(*a, bixs);
 }
 alias bt = testBit;
 

@@ -560,7 +560,7 @@ struct BitSet(size_t len, Block = size_t)
         for (size_t i = 8*n; i < len; ++i)
         {
             hash *= 3571;
-            hash += bt(this.ptr, i);
+            hash += this[i];
         }
         return hash;
     }

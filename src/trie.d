@@ -882,13 +882,13 @@ private struct RawRadixTree(Value,
             }
             else
             {
-                return insertAt(split(curr, matchedPrefix, key), // split curr into branch
+                return insertAt(expand(curr, matchedPrefix, key),
                                 key, superPrefixLength, wasAdded);
             }
         }
 
-        /** Split `curr` using `prefix`. */
-        Node split(SLf curr, Key!radixPow2 prefix, Key!radixPow2 key)
+        /** Expand `curr` using `prefix`. */
+        Node expand(SLf curr, Key!radixPow2 prefix, Key!radixPow2 key)
         {
             import std.range : empty;
 
@@ -898,7 +898,7 @@ private struct RawRadixTree(Value,
                 curr.length == 1 &&
                 key.length == 1)
             {
-                br = construct!(BBr*)(prefix, false);
+                br = construct!(BBr*)(prefix, false); // TODO construct a MLf instead
             }
             else
             {

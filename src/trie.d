@@ -276,13 +276,6 @@ private struct RawRadixTree(Value,
                 alias suffix this;
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
-                // static if (isMap)
-                // {
-                //     static if (is(Value == bool))
-                //         static assert(false, "TODO store bit packed");
-                //     else
-                //         Value[maxLength] values;
-                // }
             }
 
             /// Fixed-Length Multiple-Key Leaf
@@ -292,23 +285,7 @@ private struct RawRadixTree(Value,
                 Ix[maxLength] ixMs;
                 ubyte length;
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
-                // static if (isMap)
-                // {
-                //     static if (is(Value == bool))
-                //     {
-                //         import bitset : BitSet;
-                //         BitSet!maxLength values; // memory-efficient storage of `bool` values
-                //     }
-                //     else
-                //         Value[maxLength] values;
-                // }
             }
-        }
-
-        // TODO handle radixPow2 != 8
-        static if (isMap && is(Value == bool))
-        {
-            /* TODO pack bit efficiently */
         }
     }
     else
@@ -602,8 +579,6 @@ private struct RawRadixTree(Value,
             ++stats.popHist_FBr[count - 1]; // TODO type-safe indexing
             stats.allSLf0CountOfFBr += isBitPackable;
         }
-
-        // static if (isMap) { Value value; }
     }
 
     static if (false)

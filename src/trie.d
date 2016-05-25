@@ -1152,13 +1152,13 @@ private struct RawRadixTree(Value,
                 if (!currPBr.prefix.empty) { write(" prefix=", currPBr.prefix); }
 
                 // print sub-leaves
-                write("sub-MLf-lengths=");
+                write("sub-SLf-lengths=");
                 import std.algorithm : map;
-                foreach (const subNodeSLf; currPBr.subNodes[].map!(subNode => subNode.peek!SLf))
+                foreach (const subSLf; currPBr.subNodes[].map!(subNode => subNode.peek!SLf))
                 {
-                    if (subNodeSLf)
+                    if (subSLf)
                     {
-                        write((*subNodeSLf).length);
+                        write((*subSLf).length);
                     }
                 }
                 writeln;
@@ -1176,13 +1176,13 @@ private struct RawRadixTree(Value,
                 if (!currFBr.prefix.empty) { write(" prefix=", currFBr.prefix); }
 
                 // print sub-leaves
-                write("sub-MLf-lengths=");
+                write("sub-SLf-lengths=");
                 import std.algorithm : map;
-                foreach (const subNodeSLf; currFBr.subNodes[].map!(subNode => subNode.peek!SLf))
+                foreach (const subSLf; currFBr.subNodes[].map!(subNode => subNode.peek!SLf))
                 {
-                    if (subNodeSLf)
+                    if (subSLf)
                     {
-                        write((*subNodeSLf).length);
+                        write((*subSLf).length);
                     }
                 }
                 writeln;

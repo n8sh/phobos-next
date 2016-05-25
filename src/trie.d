@@ -942,32 +942,33 @@ private struct RawRadixTree(Value,
         /** Split `curr` using `prefix`. */
         Node split(SLf curr, Key!radixPow2 prefix, Key!radixPow2 key) // TODO key here is a bit malplaced
         {
-            import std.range : empty;
-
-            // TODO use this when prefix != 0 but curr.length == 1 and key.length == 1
-            // next = construct!(BBr*)(Ix[].init, false);
-
-            if (prefix.empty &&
-                curr.length == 1 &&
-                key.length == 1)
+            Node next;
+            if (curr.length == 1 && key.length == 1) // storage in outer node is possible
             {
-                return Node(construct!(MLf)(curr[0]));
+                if (prefix.length == 0)
+                {
+                    return Node(construct!(MLf)(curr[0]));
+                }
+                else if (prefix.length == 1)
+                {
+                    assert(false, "Use P1Lf with single-length prefix and a maximum of 4 ");
+                }
+                else
+                {
+                    next = construct!(BBr*)(prefix, false);
+                }
             }
-            // else if (prefix.length == 1)
-            // {
-            //     assert(false, "Use P1Lf with single-length prefix and a maximum of 4 ");
-            // }
-            else
+            if (!next)
             {
-                auto next = construct!(DefaultBr)(prefix, false);
-
-                bool wasAdded;      // dummy
-                auto node = insertAt(Node(next), curr.suffix, 0, wasAdded);
-                assert(wasAdded); // assure that existing key was reinserted
-                freeNode(curr);   // remove old current
-
-                return node;
+                next = construct!(DefaultBr)(prefix, false);
             }
+
+            bool wasAdded;      // dummy
+            auto node = insertAt(next, curr.suffix, 0, wasAdded);
+            assert(wasAdded); // assure that existing key was reinserted
+            freeNode(curr);   // remove old current
+
+            return node;
         }
 
         /** Construct and return sub-Node at `key`.  */

@@ -292,9 +292,8 @@ private struct RawRadixTree(Value,
             struct MLf
             {
                 enum maxLength = (size_t.sizeof - 2) / Ix.sizeof; // maximum number of elements
-                this(Ix key) { this.keys = key; }
-                this(Ix[] keys) { this.keys = keys; }
                 Ix[maxLength] keys;
+                alias keys this;
                 ubyte length; // number of objects defined in keys
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`

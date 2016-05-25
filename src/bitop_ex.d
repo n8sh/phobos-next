@@ -280,6 +280,7 @@ unittest
 {
     assert(makeBit!int(2) == 4);
     assert(makeBit!int(2, 3) == 12);
+    assert(makeBit!uint(0, 31) == 2^^31 + 1);
 
     import std.meta : AliasSeq;
     foreach (T; AliasSeq!(ubyte, ushort, uint, ulong))

@@ -41,7 +41,7 @@ in
 }
 body
 {
-    typeof(return) x;
+    T x = 0;
     foreach (const bix; bixs)
     {
         x |= cast(T)((cast(T)1) << bix);
@@ -49,13 +49,6 @@ body
     return x;
 }
 alias btm = makeBit;
-
-///
-unittest
-{
-    assert(makeBit!int(2) == 4);
-    assert(makeBit!int(2, 3) == 12);
-}
 
 /** Returns: Check if all $(D bix):th Bits Of $(D a) are set. */
 bool testBit(T, I...)(in T a, I bixs) @safe @nogc pure nothrow
@@ -90,12 +83,12 @@ unittest
     {
         const mn = T.min, mx = T.max;
         enum nBits = 8*T.sizeof;
-        foreach (const ix; 0..nBits-1)
+        foreach (const ix; 0 .. nBits-1)
         {
             assert(!mn.bt(ix));
         }
         assert(mn.bt(nBits - 1));
-        foreach (const ix; 0..T.sizeof)
+        foreach (const ix; 0 .. T.sizeof)
         {
             assert(mx.bt(ix));
         }
@@ -280,4 +273,28 @@ unittest
 
     test!float;
     test!double;
+}
+
+///
+unittest
+{
+    assert(makeBit!int(2) == 4);
+    assert(makeBit!int(2, 3) == 12);
+
+    import std.meta : AliasSeq;
+    foreach (T; AliasSeq!(ubyte, ushort, uint, ulong))
+    {
+        foreach (const n; 0 .. 8*T.sizeof)
+        {
+            const x = makeBit!T(n);
+            assert(x == 2UL^^n);
+
+            T y = x;
+            y.resetBit(n);
+            assert(y == 0);
+
+            y.setBit(n);
+            assert(y == x);
+        }
+    }
 }

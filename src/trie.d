@@ -1189,12 +1189,15 @@ private struct RawRadixTree(Value,
                 break;
             case ix_BBrPtr:
                 auto currBBr = curr.as!(BBr*);
-                write(typeof(*currBBr).stringof, ": ", "prefix=", currBBr.prefix, " leaf-count=", currBBr._keyBits.countOnes);
+                write(typeof(*currBBr).stringof, ":");
+                if (!currBBr.prefix.empty) { write(" prefix=", currBBr.prefix); }
+                write(" leaf-count=", currBBr._keyBits.countOnes);
                 writeln;
                 break;
             case ix_PBrPtr:
                 auto currPBr = curr.as!(PBr*);
-                write(typeof(*currPBr).stringof, ": ", "prefix=", currPBr.prefix, " ");
+                write(typeof(*currPBr).stringof, ": ");
+                if (!currPBr.prefix.empty) { write(" prefix=", currPBr.prefix); }
 
                 // print sub-leaves
                 write("sub-PLfs-lengths=");
@@ -1217,7 +1220,8 @@ private struct RawRadixTree(Value,
                 break;
             case ix_FBrPtr:
                 auto currFBr = curr.as!(FBr*);
-                write(typeof(*currFBr).stringof, ": ", "prefix=", currFBr.prefix, " ");
+                write(typeof(*currFBr).stringof, ": ");
+                if (!currFBr.prefix.empty) { write(" prefix=", currFBr.prefix); }
 
                 // print sub-leaves
                 write("sub-PLfs-lengths=");

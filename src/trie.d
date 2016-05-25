@@ -1534,8 +1534,6 @@ void benchmark(uint radixPow2)()
             dln("Sleeping done");
         }
 
-        dln();
-
         // version(print)
         set.print();
 

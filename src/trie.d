@@ -8,7 +8,7 @@
     TODO Optimize PBr.findSub for specific `subCount`
 
     TODO Use bitset storage in PBr and call it PBr. Active when sizeof BrN
-    is larger than 32 bytes (256 bits) and all leaves are single PLf. Converted to when BrN.length >= someLimit
+    is larger than 32 bytes (256 bits) and all leaves are single SLf. Converted to when BrN.length >= someLimit
 
     TODO Add function reprefix({PBr|FBr) and call after insertAt({PBr|FBr}). Only useful when one single leaf is present?
     TODO Is std.algorithm.countUntil the most suitable function to use in setSub(PBr*, ...)
@@ -260,7 +260,7 @@ private struct RawRadixTree(Value,
     /** `radixPow2` least significant bits (LSB) of leaves directly packed into a word.
 
         TODO Generalize to packing of more than one `Ix` per byte.
-        TODO respect byteorder in `PLfs` to work with `WordVariant`
+        TODO respect byteorder in `MLf` to work with `WordVariant`
         TODO implement and use opSlice instead of .suffix[]
     */
     static if (size_t.sizeof == 8) // 64-bit CPU
@@ -268,7 +268,7 @@ private struct RawRadixTree(Value,
         static if (radixPow2 == 8)
         {
             /// Variable-Length Single-Key Leaf
-            struct PLf
+            struct SLf
             {
                 enum maxLength = (size_t.sizeof - 2) / Ix.sizeof;
                 this(Ix[] suffix) { this.suffix = suffix; }
@@ -286,7 +286,7 @@ private struct RawRadixTree(Value,
             }
 
             /// Fixed-Length Multiple-Key Leaf
-            struct PLfs
+            struct MLf
             {
                 enum maxLength = (size_t.sizeof - 2) / Ix.sizeof;
                 Ix[maxLength] ixMs;
@@ -322,19 +322,15 @@ private struct RawRadixTree(Value,
     }
 
     alias DefaultBr = DefaultRootType;
-    alias DefaultLf = PLfs;
+    alias DefaultLf = MLf;
 
     static if (isSet)
-        static assert(PLfs.sizeof == size_t.sizeof); // assert that it's size matches platform word-size
+        static assert(MLf.sizeof == size_t.sizeof); // assert that it's size matches platform word-size
 
     /** Node types. */
-    alias NodeTypes = AliasSeq!(PLf, // dense leaf
-                                PLfs, // sparse leaves
-
-                                // sparse branches
+    alias NodeTypes = AliasSeq!(SLf,
+                                MLf,
                                 PBr*,
-
-                                // dense branches
                                 BBr*,
                                 FBr*);
 
@@ -393,8 +389,8 @@ private struct RawRadixTree(Value,
         PBr_PopHist popHist_PBr; // packed branch population histogram
         FBr_PopHist popHist_FBr; // full branch population histogram
 
-        size_t allPLf0CountOfPBr; // number of `PBr` which sub-branches are all `PLf` of length 0
-        size_t allPLf0CountOfFBr; // number of `FBr` which sub-branches are all `PLf` of length 0
+        size_t allSLf0CountOfPBr; // number of `PBr` which sub-branches are all `SLf` of length 0
+        size_t allSLf0CountOfFBr; // number of `FBr` which sub-branches are all `SLf` of length 0
 
         /** Maps `Node` type/index `Ix` to population.
 
@@ -505,19 +501,19 @@ private struct RawRadixTree(Value,
         }
 
         /** Returns `true` if this branch can be packed into a bitset, that is
-            contains only sub-nodes of type `PLf` of zero length. */
+            contains only sub-nodes of type `SLf` of zero length. */
         bool isBitPackable() const @nogc
         {
-            typeof(return) allPLf0 = true;
+            typeof(return) allSLf0 = true;
             foreach (const sub; subNodes)
             {
-                if (const subPLfRef = sub.peek!PLf)
+                if (const subSLfRef = sub.peek!SLf)
                 {
-                    const subPLf = *subPLfRef;
-                    if (subPLf.length != 0) { allPLf0 = false; }
+                    const subSLf = *subSLfRef;
+                    if (subSLf.length != 0) { allSLf0 = false; }
                 }
             }
-            return allPLf0;
+            return allSLf0;
         }
 
         /** Append statistics of tree under `this` into `stats`. */
@@ -531,7 +527,7 @@ private struct RawRadixTree(Value,
             }
             assert(count <= radix);
             ++stats.popHist_PBr[count - 1]; // TODO type-safe indexing
-            stats.allPLf0CountOfPBr += isBitPackable;
+            stats.allSLf0CountOfPBr += isBitPackable;
         }
 
         private:
@@ -576,18 +572,18 @@ private struct RawRadixTree(Value,
         StrictlyIndexed!(Node[radix]) subNodes;
 
         /** Returns `true` if this branch can be packed into a bitset, that is
-            contains only subNodes of type `PLf` of zero length. */
+            contains only subNodes of type `SLf` of zero length. */
         bool isBitPackable() const @safe pure nothrow @nogc
         {
-            typeof(return) allPLf0 = true;
+            typeof(return) allSLf0 = true;
             foreach (const subNode; subNodes)
             {
-                if (const subPLfRef = subNode.peek!PLf)
+                if (const subSLfRef = subNode.peek!SLf)
                 {
-                    if ((*subPLfRef).length != 0) { allPLf0 = false; }
+                    if ((*subSLfRef).length != 0) { allSLf0 = false; }
                 }
             }
-            return allPLf0;
+            return allSLf0;
         }
 
         /** Append statistics of tree under `this` into `stats`. */
@@ -604,7 +600,7 @@ private struct RawRadixTree(Value,
             }
             assert(count <= radix);
             ++stats.popHist_FBr[count - 1]; // TODO type-safe indexing
-            stats.allPLf0CountOfFBr += isBitPackable;
+            stats.allSLf0CountOfFBr += isBitPackable;
         }
 
         // static if (isMap) { Value value; }
@@ -632,10 +628,10 @@ private struct RawRadixTree(Value,
     /// ditto
     Node setSub(BBr* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
-        if (const subPLfRef = subNode.peek!(PLf))
+        if (const subSLfRef = subNode.peek!(SLf))
         {
-            const subPLf = *subPLfRef;
-            if (subPLf.suffix.empty)
+            const subSLf = *subSLfRef;
+            if (subSLf.suffix.empty)
             {
                 curr._keyBits[subIx] = true;
                 freeNode(subNode); // free it because it's stored inside the bitset itself
@@ -685,7 +681,7 @@ private struct RawRadixTree(Value,
         case Node.Ix.ix_BBrPtr:
             if (br.as!(BBr*).hasSubAt(ix))
             {
-                return Node(PLf.init);
+                return Node(SLf.init);
             }
             break;
         case Node.Ix.ix_PBrPtr:
@@ -790,13 +786,13 @@ private struct RawRadixTree(Value,
 
         Node insertNew(Key!radixPow2 key, size_t superPrefixLength, out bool wasAdded)
         {
-            if (key.length <= PLf.maxLength)
+            if (key.length <= SLf.maxLength)
             {
-                PLf currPLf = construct!(PLf)(key);
+                SLf currSLf = construct!(SLf)(key);
                 wasAdded = true;
-                return Node(currPLf);
+                return Node(currSLf);
             }
-            else                // key doesn't fit in a `PLf`
+            else                // key doesn't fit in a `SLf`
             {
                 import std.algorithm : min;
                 auto brKey = key[0 .. min(key.length, DefaultBr.prefixLength)];
@@ -821,8 +817,8 @@ private struct RawRadixTree(Value,
                     final switch (curr.typeIx)
                     {
                     case undefined: break;
-                    case ix_PLf:    return insertAt(curr.as!(PLf), key, superPrefixLength, wasAdded);
-                    case ix_PLfs:   return insertAt(curr.as!(PLfs), key, superPrefixLength, wasAdded);
+                    case ix_SLf:    return insertAt(curr.as!(SLf), key, superPrefixLength, wasAdded);
+                    case ix_MLf:   return insertAt(curr.as!(MLf), key, superPrefixLength, wasAdded);
 
                     case ix_BBrPtr:
                     case ix_PBrPtr:
@@ -893,7 +889,7 @@ private struct RawRadixTree(Value,
                                    wasAdded));
         }
 
-        Node insertAt(PLf curr, Key!radixPow2 key, size_t superPrefixLength, out bool wasAdded)
+        Node insertAt(SLf curr, Key!radixPow2 key, size_t superPrefixLength, out bool wasAdded)
         {
             import std.range : empty;
             import std.algorithm : commonPrefix;
@@ -917,7 +913,7 @@ private struct RawRadixTree(Value,
         }
 
         /** Split `curr` using `prefix`. */
-        Node split(PLf curr, Key!radixPow2 prefix, Key!radixPow2 key)
+        Node split(SLf curr, Key!radixPow2 prefix, Key!radixPow2 key)
         {
             import std.range : empty;
 
@@ -942,7 +938,7 @@ private struct RawRadixTree(Value,
             return node;
         }
 
-        Node insertAt(PLfs curr, Key!radixPow2 key, size_t superPrefixLength, out bool wasAdded)
+        Node insertAt(MLf curr, Key!radixPow2 key, size_t superPrefixLength, out bool wasAdded)
         {
             const Ix ix = key[0];
 
@@ -980,7 +976,7 @@ private struct RawRadixTree(Value,
             import std.range : empty;
             if (key.empty)
             {
-                return Node(construct!(PLf));
+                return Node(construct!(SLf));
             }
             else
             {
@@ -1000,7 +996,7 @@ private struct RawRadixTree(Value,
         }
 
         /** Destructively expand `curr` into a `BBr` and return it. */
-        BBr* expand(PLfs curr)
+        BBr* expand(MLf curr)
         {
             auto next = construct!(typeof(return));
             foreach (const ixM; curr.ixMs[0 .. curr.length])
@@ -1075,8 +1071,8 @@ private struct RawRadixTree(Value,
             freeNode(curr);
         }
 
-        void release(PLf curr) { freeNode(curr); }
-        void release(PLfs curr) { freeNode(curr); }
+        void release(SLf curr) { freeNode(curr); }
+        void release(MLf curr) { freeNode(curr); }
 
         void release(Node curr)
         {
@@ -1086,8 +1082,8 @@ private struct RawRadixTree(Value,
                 final switch (curr.typeIx)
                 {
                 case undefined: break; // ignored
-                case ix_PLf: return release(curr.as!(PLf));
-                case ix_PLfs: return release(curr.as!(PLfs));
+                case ix_SLf: return release(curr.as!(SLf));
+                case ix_MLf: return release(curr.as!(MLf));
                 case ix_BBrPtr: return release(curr.as!(BBr*));
                 case ix_PBrPtr: return release(curr.as!(PBr*));
                 case ix_FBrPtr: return release(curr.as!(FBr*));
@@ -1135,13 +1131,13 @@ private struct RawRadixTree(Value,
             final switch (curr.typeIx)
             {
             case undefined: break;
-            case ix_PLf:
-                auto currPLf = curr.as!(PLf);
-                writeln(typeof(currPLf).stringof, ": ");
+            case ix_SLf:
+                auto currSLf = curr.as!(SLf);
+                writeln(typeof(currSLf).stringof, ": ");
                 break;
-            case ix_PLfs:
-                auto currPLfs = curr.as!(PLfs);
-                writeln(typeof(currPLfs).stringof, ": ");
+            case ix_MLf:
+                auto currMLf = curr.as!(MLf);
+                writeln(typeof(currMLf).stringof, ": ");
                 break;
             case ix_BBrPtr:
                 auto currBBr = curr.as!(BBr*);
@@ -1156,20 +1152,20 @@ private struct RawRadixTree(Value,
                 if (!currPBr.prefix.empty) { write(" prefix=", currPBr.prefix); }
 
                 // print sub-leaves
-                write("sub-PLfs-lengths=");
+                write("sub-MLf-lengths=");
                 import std.algorithm : map;
-                foreach (const subNodePLf; currPBr.subNodes[].map!(subNode => subNode.peek!PLf))
+                foreach (const subNodeSLf; currPBr.subNodes[].map!(subNode => subNode.peek!SLf))
                 {
-                    if (subNodePLf)
+                    if (subNodeSLf)
                     {
-                        write((*subNodePLf).length);
+                        write((*subNodeSLf).length);
                     }
                 }
                 writeln;
 
                 // print sub-branches
                 import std.algorithm : map;
-                foreach (const subNode; currPBr.subNodes[].filter!(subNode => !subNode.peek!PLf))
+                foreach (const subNode; currPBr.subNodes[].filter!(subNode => !subNode.peek!SLf))
                 {
                     printAt(subNode, depth + 1);
                 }
@@ -1180,20 +1176,20 @@ private struct RawRadixTree(Value,
                 if (!currFBr.prefix.empty) { write(" prefix=", currFBr.prefix); }
 
                 // print sub-leaves
-                write("sub-PLfs-lengths=");
+                write("sub-MLf-lengths=");
                 import std.algorithm : map;
-                foreach (const subNodePLf; currFBr.subNodes[].map!(subNode => subNode.peek!PLf))
+                foreach (const subNodeSLf; currFBr.subNodes[].map!(subNode => subNode.peek!SLf))
                 {
-                    if (subNodePLf)
+                    if (subNodeSLf)
                     {
-                        write((*subNodePLf).length);
+                        write((*subNodeSLf).length);
                     }
                 }
                 writeln;
 
                 // print sub-branches
                 import std.algorithm : map;
-                foreach (const subNode; currFBr.subNodes[].filter!(subNode => !subNode.peek!PLf))
+                foreach (const subNode; currFBr.subNodes[].filter!(subNode => !subNode.peek!SLf))
                 {
                     printAt(subNode, depth + 1);
                 }
@@ -1224,8 +1220,8 @@ static private void calculate(Value, uint radixPow2)(RawRadixTree!(Value, radixP
         final switch (sub.typeIx)
         {
         case undefined: break;
-        case ix_PLf: break; // TODO calculate()
-        case ix_PLfs: break; // TODO calculate()
+        case ix_SLf: break; // TODO calculate()
+        case ix_MLf: break; // TODO calculate()
         case ix_BBrPtr: sub.as!(RT.BBr*).calculate(stats); break;
         case ix_PBrPtr: sub.as!(RT.PBr*).calculate(stats); break;
         case ix_FBrPtr: sub.as!(RT.FBr*).calculate(stats); break;
@@ -1497,8 +1493,8 @@ void benchmark(uint radixPow2)()
             dln("Sparse 4-Branch Population Histogram: ", stats.popHist_PBr);
             dln("Dense radix=", 2^^radixPow2, "-Branch Population Histogram: ", stats.popHist_FBr);
             dln("Population By Node Type: ", stats.popByNodeType);
-            dln("Number of PBr with PLf-0 only subNodes: ", stats.allPLf0CountOfPBr);
-            dln("Number of FBr with PLf-0 only subNodes: ", stats.allPLf0CountOfFBr);
+            dln("Number of PBr with SLf-0 only subNodes: ", stats.allSLf0CountOfPBr);
+            dln("Number of FBr with SLf-0 only subNodes: ", stats.allSLf0CountOfFBr);
 
             size_t totalBytesUsed = 0;
             foreach (Set.Node.Ix ix, pop; stats.popByNodeType) // TODO use stats.byPair when added to typecons_ex.d
@@ -1509,8 +1505,8 @@ void benchmark(uint radixPow2)()
                     final switch (ix)
                     {
                     case undefined: break;
-                    case ix_PLf:    bytesUsed = pop*Set.PLf.sizeof; break;
-                    case ix_PLfs:   bytesUsed = pop*Set.PLfs.sizeof; break;
+                    case ix_SLf:    bytesUsed = pop*Set.SLf.sizeof; break;
+                    case ix_MLf:   bytesUsed = pop*Set.MLf.sizeof; break;
                     case ix_BBrPtr: bytesUsed = pop*Set.BBr.sizeof; totalBytesUsed += bytesUsed; break;
                     case ix_PBrPtr: bytesUsed = pop*Set.PBr.sizeof; totalBytesUsed += bytesUsed; break;
                     case ix_FBrPtr: bytesUsed = pop*Set.FBr.sizeof; totalBytesUsed += bytesUsed; break;

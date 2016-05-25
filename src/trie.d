@@ -176,31 +176,35 @@ static assert(IxsN!(6, 8).sizeof == 7);
     alias Ix = Mod!(M, ubyte);
     Ix[] ixs = [11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M];
     enum maxLength = 7;
-    auto plf = IxsN!(maxLength, radixPow2)(ixs);
 
-    assert(plf.length == 4);
-    assert(!plf.empty);
+    auto x = IxsN!(maxLength, radixPow2)(ixs);
+    auto y = IxsN!(maxLength, radixPow2)(11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M);
 
-    assert(plf.equal([11, 22, 33, 44]));
-    assert(!plf.full);
-    plf.popFront;
-    assert(plf.equal([22, 33, 44]));
-    assert(!plf.full);
-    plf.popBack;
-    assert(plf.equal([22, 33]));
-    assert(!plf.full);
-    plf.popFront;
-    assert(plf.equal([33]));
-    assert(!plf.full);
-    plf.popFront;
-    assert(plf.empty);
-    assert(!plf.full);
-    assert(plf.length == 0);
+    assert(x == y);
 
-    plf.pushBack(11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M, 55.mod!M, 66.mod!M, 77.mod!M);
-    assert(plf.equal([11, 22, 33, 44, 55, 66, 77]));
-    assert(!plf.empty);
-    assert(plf.full);
+    assert(x.length == 4);
+    assert(!x.empty);
+
+    assert(x.equal([11, 22, 33, 44]));
+    assert(!x.full);
+    x.popFront;
+    assert(x.equal([22, 33, 44]));
+    assert(!x.full);
+    x.popBack;
+    assert(x.equal([22, 33]));
+    assert(!x.full);
+    x.popFront;
+    assert(x.equal([33]));
+    assert(!x.full);
+    x.popFront;
+    assert(x.empty);
+    assert(!x.full);
+    assert(x.length == 0);
+
+    x.pushBack(11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M, 55.mod!M, 66.mod!M, 77.mod!M);
+    assert(x.equal([11, 22, 33, 44, 55, 66, 77]));
+    assert(!x.empty);
+    assert(x.full);
 }
 
 /** Returns: `true` if `r` and all `ss` all have equal length.

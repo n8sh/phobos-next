@@ -59,10 +59,12 @@ struct BitSet(size_t len, Block = size_t)
     /** Number of bits in the $(D BitSet). */
     enum length = len;
 
-    /** BitSet Range. Doesn't provide
+    /** BitSet Range.
 
-       TODO opSliceAssign to for interopability with range algorithms via private static struct member `Range`
-       TODO Look at how std.container.array implements this.
+        TODO Provide opSliceAssign for interopability with range algorithms
+        via private static struct member `Range`
+
+        TODO Look at how std.container.array implements this.
     */
     struct Range
     {
@@ -481,7 +483,8 @@ struct BitSet(size_t len, Block = size_t)
 
 
     /** Support for operators == and != for $(D BitSet). */
-    bool opEquals(in BitSet a2) const
+    bool opEquals(Block2)(in BitSet!(len, Block2) a2) const
+        if (isUnsigned!Block2)
     {
         size_t i;
 
@@ -503,15 +506,18 @@ struct BitSet(size_t len, Block = size_t)
     nothrow unittest
     {
         debug(bitset) printf("BitSet.opEquals unittest\n");
-        auto a = BitSet!5([1,0,1,0,1]);
-        auto b = BitSet!5([1,0,1,1,1]);
-        auto c = BitSet!5([1,0,1,0,1]);
+        auto a = BitSet!(5, ubyte)([1,0,1,0,1]);
+        auto b = BitSet!(5, ushort)([1,0,1,1,1]);
+        auto c = BitSet!(5, uint)([1,0,1,0,1]);
+        auto d = BitSet!(5, ulong)([1,1,1,1,1]);
         assert(a != b);
         assert(a == c);
+        assert(a != d);
     }
 
     /** Supports comparison operators for $(D BitSet). */
-    int opCmp(U)(in BitSet!(len, U) a2) const
+    int opCmp(Block2)(in BitSet!(len, Block2) a2) const
+        if (isUnsigned!Block2)
     {
         uint i;
 
@@ -537,14 +543,16 @@ struct BitSet(size_t len, Block = size_t)
     nothrow unittest
     {
         debug(bitset) printf("BitSet.opCmp unittest\n");
-        auto a = BitSet!5([1,0,1,0,1]);
-        auto b = BitSet!5([1,0,1,1,1]);
-        auto c = BitSet!5([1,0,1,0,1]);
+        auto a = BitSet!(5, ubyte)([1,0,1,0,1]);
+        auto b = BitSet!(5, ushort)([1,0,1,1,1]);
+        auto c = BitSet!(5, uint)([1,0,1,0,1]);
+        auto d = BitSet!(5, ulong)([1,1,1,1,1]);
         assert(a <  b);
         assert(a <= b);
         assert(a == c);
         assert(a <= c);
         assert(a >= c);
+        assert(c < d);
     }
 
     /** Support for hashing for $(D BitSet). */

@@ -1456,7 +1456,7 @@ auto check(uint span, Keys...)()
             {
                 static if (isIntegral!Key)
                 {
-                    const low = max(Key.min, -100_000);
+                    const low = max(Key.min, -98900); // chosen to minimize number of lines of debug output before bug in contains happens
                     const high = min(Key.max, 100_000);
                     const length = high - low + 1;
                 }

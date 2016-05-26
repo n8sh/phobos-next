@@ -1471,16 +1471,19 @@ auto check(uint span, Keys...)()
                 foreach (const uk; low.iota(high + 1))
                 {
                     const Key key = cast(Key)uk;
-                    dln("========================= Inserting new key:", key);
+                    dln("========================= Before insert of new key:", key);
                     if (useContains)
                     {
                         assert(!set.contains(key)); // key should not yet be in set
                         assert(key !in set);        // alternative syntax
                     }
 
+                    dln("========================= Inserting new key:", key);
                     assert(set.insert(key));  // insert new value returns `true` (previously not in set)
+                    dln("========================= Inserting existing key:", key);
                     assert(!set.insert(key)); // reinsert same value returns `false` (already in set)
 
+                    dln("========================= After insert of key:", key);
                     if (useContains)
                     {
                         assert(set.contains(key)); // key should now be in set
@@ -1491,6 +1494,8 @@ auto check(uint span, Keys...)()
                         }
                     }
                     ++cnt;
+
+                    import std.stdio : writeln; try { debug writeln(); } catch (Exception e) {} // empty newline
                 }
                 assert(set.length == length);
             }

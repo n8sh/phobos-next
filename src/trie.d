@@ -943,11 +943,11 @@ private struct RawRadixTree(Value,
         Node split(SLf curr, Key!radixPow2 prefix, Key!radixPow2 key) // TODO key here is a bit malplaced
         {
             Node next;
-            if (curr.length == 1 && key.length == 1) // storage in outer node is possible
+            if (curr.suffix.length == 1 && key.length == 1) // storage in outer node is possible
             {
                 if (prefix.length == 0)
                 {
-                    return Node(construct!(MLf)(curr[0])); // TODO has no effect. why?
+                    return Node(construct!(MLf)(curr.suffix[0])); // TODO removing parameter has no effect. why?
                 }
                 else if (prefix.length == 1)
                 {

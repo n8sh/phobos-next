@@ -814,15 +814,13 @@ private struct RawRadixTree(Value,
             final switch (curr.typeIx) with (Node.Ix)
             {
             case undefined: break; // ignored
-                // leaves
             case ix_SLf:
                 return curr.as!(SLf).suffix == key;
             case ix_MLf:
                 import std.algorithm.searching : canFind;
                 return key.length == 1 && curr.as!(MLf).keys.canFind(key[0]); // TODO use binarySearch
             case ix_FLfPtr:
-                break;
-                // branches
+                return key.length == 1 && curr.as!(FLf*).hasSubAt(key[0]);
             case ix_PBrPtr:
                 break;
             case ix_FBrPtr:

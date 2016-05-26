@@ -394,6 +394,13 @@ private struct RawRadixTree(Value,
         Ix ix;               // index to sub at `node`
     }
 
+    /** Tree Range. */
+    struct Range
+    {
+        It begin;
+        It end;
+    }
+
     /** 256-Branch population histogram.
     */
     alias FLf_PopHist = size_t[radix];

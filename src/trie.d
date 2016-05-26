@@ -301,7 +301,7 @@ private struct RawRadixTree(Value,
                 }
 
                 IxsN!(maxLength, span) suffix;
-                alias suffix this;
+                // alias suffix this;
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
@@ -320,7 +320,7 @@ private struct RawRadixTree(Value,
                 }
 
                 IxsN!(maxLength, span) keys;
-                alias keys this;
+                // alias keys this;
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
@@ -525,7 +525,7 @@ private struct RawRadixTree(Value,
                 if (const subSLfRef = sub.peek!SLf)
                 {
                     const subSLf = *subSLfRef;
-                    if (subSLf.length != 0) { allSLf0 = false; }
+                    if (subSLf.suffix.length != 0) { allSLf0 = false; }
                 }
             }
             return allSLf0;
@@ -595,7 +595,7 @@ private struct RawRadixTree(Value,
             {
                 if (const subSLfRef = subNode.peek!SLf)
                 {
-                    if ((*subSLfRef).length != 0) { allSLf0 = false; }
+                    if ((*subSLfRef).suffix.length != 0) { allSLf0 = false; }
                 }
             }
             return allSLf0;
@@ -978,7 +978,7 @@ private struct RawRadixTree(Value,
             }
 
             // not already stored `curr` so add it
-            if (curr.length < curr.maxLength) // if room left
+            if (curr.keys.length < curr.maxLength) // if room left
             {
                 curr.keys.pushBack(key[0]);
                 wasAdded = true;
@@ -1051,7 +1051,7 @@ private struct RawRadixTree(Value,
         BBr* expand(MLf curr)
         {
             auto next = construct!(typeof(return));
-            foreach (const ixM; curr.keys[0 .. curr.length])
+            foreach (const ixM; curr.keys[0 .. curr.keys.length])
             {
                 assert(!next._keyBits[ixM]); // assert no duplicates in keys
                 next._keyBits[ixM] = true;
@@ -1184,11 +1184,11 @@ private struct RawRadixTree(Value,
             case undefined: break;
             case ix_SLf:
                 auto currSLf = curr.as!(SLf);
-                writeln(typeof(currSLf).stringof, "#", currSLf.length, ": ", currSLf);
+                writeln(typeof(currSLf).stringof, "#", currSLf.suffix.length, ": ", currSLf);
                 break;
             case ix_MLf:
                 auto currMLf = curr.as!(MLf);
-                writeln(typeof(currMLf).stringof, "#", currMLf.length, ": ", currMLf);
+                writeln(typeof(currMLf).stringof, "#", currMLf.keys.length, ": ", currMLf);
                 break;
             case ix_BBrPtr:
                 auto currBBr = curr.as!(BBr*);

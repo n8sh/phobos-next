@@ -838,13 +838,13 @@ private struct RawRadixTree(Value,
             case ix_PBrPtr:
                 auto curr_ = curr.as!(PBr*);
                 return (key.skipOver(curr_.prefix) &&
-                        key.length &&
-                        containsAt(curr_.findSub(key[0]), key[1 .. $])); // recurse
+                        (key.length == 0 && curr_.isKey ||                 // either stored at `curr`
+                         containsAt(curr_.findSub(key[0]), key[1 .. $]))); // recurse
             case ix_FBrPtr:
                 auto curr_ = curr.as!(FBr*);
                 return (key.skipOver(curr_.prefix) &&
-                        key.length &&
-                        containsAt(curr_.subNodes[key[0]], key[1 .. $])); // recurse
+                        (key.length == 0 && curr_.isKey ||                 // either stored at `curr`
+                         containsAt(curr_.subNodes[key[0]], key[1 .. $]))); // recurse
             }
         }
     }
@@ -1429,7 +1429,7 @@ auto check(uint span, Keys...)()
 
             import std.algorithm : min, max;
 
-            const useContains = false;
+            const useContains = true;
 
             static if (isIntegral!Key ||
                        isFloatingPoint!Key)

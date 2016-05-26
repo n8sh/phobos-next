@@ -929,13 +929,6 @@ private struct RawRadixTree(Value,
         {
             const Ix ix = key[0];
 
-            // TODO this is only marginally faster:
-            // foreach (const i; iota!(0, curr.maxLength))
-            // {
-            //     if (i == curr.length) break;
-            //     else if (curr.keys[i] == ix) { return Node(curr); }
-            // }
-
             // check if already stored in `curr`
             import std.algorithm.searching : canFind;
             if (curr.keys[0 .. curr.length].canFind(ix)) // if already stored. TODO use binarySearch

@@ -1314,14 +1314,16 @@ struct RadixTree(TypedKey, Value, uint span = 8)
 
     static if (_tree.isSet)
     {
+        const nothrow:
+
         /** Returns: `true` if key is contained in set, `false` otherwise. */
-        bool contains(in TypedKey typedKey) const nothrow
+        bool contains(in TypedKey typedKey)
         {
             return _tree.contains(remapKey(typedKey));
         }
 
 	/** Supports $(B `TypedKey` in `this`) syntax. */
-	bool opBinaryRight(string op)(in TypedKey key) const nothrow if (op == "in") { return contains(key); }
+	bool opBinaryRight(string op)(in TypedKey key) if (op == "in") { return contains(key); }
     }
 
     static if (_tree.isMap)

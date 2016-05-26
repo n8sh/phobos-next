@@ -820,7 +820,7 @@ private struct RawRadixTree(Value,
                     return curr.as!(SLf).suffix == key;
                 case ix_MLf:
                     import std.algorithm.searching : canFind;
-                    return key.length == 1 && curr.as!(MLf).keys.canFind(key[0]);
+                    return key.length == 1 && curr.as!(MLf).keys.canFind(key[0]); // TODO use binarySearch
                 case ix_BBrPtr: break;
                 case ix_PBrPtr: break;
                 case ix_FBrPtr: break;

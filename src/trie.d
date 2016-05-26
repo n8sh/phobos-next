@@ -33,7 +33,7 @@
 
     TODO Should opBinaryRight return void* instead of bool for set-case?
 
-    TODO Add struct Range. Use same construct as in containers-em/src/containers/ttree.d
+    TODO Add `struct Range`. Use same construct as in containers-em/src/containers/ttree.d
 
     Returns: a range of elements which are equivalent (though not necessarily equal) to value.
     auto equalRange(this This)(inout T value)

@@ -1321,9 +1321,6 @@ struct RadixTree(TypedKey, Value, uint span = 8)
         {
             return _tree.contains(remapKey(typedKey));
         }
-
-	/** Supports $(B `TypedKey` in `this`) syntax. */
-	bool opBinaryRight(string op)(in TypedKey key) if (op == "in") { return contains(key); }
     }
 
     static if (_tree.isMap)
@@ -1343,6 +1340,9 @@ struct RadixTree(TypedKey, Value, uint span = 8)
             return null;
         }
     }
+
+    /** Supports $(B `TypedKey` in `this`) syntax. */
+    auto opBinaryRight(string op)(in TypedKey key) const if (op == "in") { return contains(key); }
 
     void print() @safe const
     {

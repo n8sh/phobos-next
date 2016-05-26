@@ -1380,27 +1380,24 @@ auto check(uint radixPow2, Keys...)()
 
             import std.algorithm : min, max;
 
-            static if (isIntegral!Key)
-            {
-                const low = max(Key.min, -100_000);
-                const high = min(Key.max, 100_000);
-                const length = high - low + 1;
-            }
-            else static if (isFloatingPoint!Key)
-            {
-                const low = -100_000;
-                const high = 100_000;
-                const length = high - low + 1;
-            }
-            else static if (isSomeString!Key)
-            {
-            }
-
             const useContains = false;
 
-            static if (isIntegral!Key &&
+            static if (isIntegral!Key ||
                        isFloatingPoint!Key)
             {
+                static if (isIntegral!Key)
+                {
+                    const low = max(Key.min, -100_000);
+                    const high = min(Key.max, 100_000);
+                    const length = high - low + 1;
+                }
+                else static if (isFloatingPoint!Key)
+                {
+                    const low = -100_000;
+                    const high = 100_000;
+                    const length = high - low + 1;
+                }
+
                 size_t cnt = 0;
                 foreach (const uk; low.iota(high + 1))
                 {

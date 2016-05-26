@@ -1306,7 +1306,7 @@ struct RadixTree(TypedKey, Value, uint span = 8)
         // convert unsigned to fixed-length (on the stack) ubyte array
 
         bool wasAdded = false; // indicates that key was added
-        _tree.insert(remapKey(typedKey), wasAdded);
+        _tree.insert(typedKey.remapKey, wasAdded);
 
         _length += wasAdded;
         return wasAdded;
@@ -1319,7 +1319,7 @@ struct RadixTree(TypedKey, Value, uint span = 8)
         /** Returns: `true` if key is contained in set, `false` otherwise. */
         bool contains(in TypedKey typedKey)
         {
-            return _tree.contains(remapKey(typedKey));
+            return _tree.contains(typedKey.remapKey);
         }
     }
 

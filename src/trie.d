@@ -947,7 +947,7 @@ private struct RawRadixTree(Value,
             {
                 if (prefix.length == 0)
                 {
-                    return Node(construct!(MLf)(curr[0]));
+                    return Node(construct!(MLf)(curr[0])); // TODO has no effect. why?
                 }
                 else if (prefix.length == 1)
                 {

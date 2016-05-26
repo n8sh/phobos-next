@@ -34,25 +34,18 @@
     TODO Should opBinaryRight return void* instead of bool for set-case?
 
     TODO
+
+    Returns: a range of elements which are equivalent (though not necessarily equal) to value.
+    auto equalRange(this This)(inout T value)
+
+    Returns: a range of elements which are greater than low and smaller than highValue.
+    auto bound(this This)(inout T lowValue, inout T highValue)
+
     Returns: a range of elements which are less than value.
     auto lowerBound(this This)(inout T value)
-    {
-        return Range!(This)(cast(const(Node)*) root, RangeType.lower, value);
-    }
-
-    Returns: a range of elements which are equivalent (though not necessarily
-    equal) to value.
-    auto equalRange(this This)(inout T value)
-    {
-        return Range!(This)(cast(const(Node)*) root, RangeType.equal, value);
-    }
 
     Returns: a range of elements which are greater than value.
     auto upperBound(this This)(inout T value)
-    {
-        return Range!(This)(cast(const(Node)*) root, RangeType.upper, value);
-    }
-
 */
 module trie;
 

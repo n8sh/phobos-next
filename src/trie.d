@@ -1634,9 +1634,9 @@ unittest
 {
     // TODO Support this struct A { long x, y; }
     check!(8,
-           int, byte, short, long,
-           uint, ubyte, ushort, ulong,
-           float, double,
+           double, float,
+           long, int, short, byte,
+           ulong, uint, ushort, ubyte,
            // string, wstring, dstring,
         );
 }
@@ -1681,9 +1681,9 @@ auto testPrint(uint span, Keys...)()
 version(print) @safe unittest
 {
     testPrint!(8,
-               byte, short, int, long,
-               ubyte, ushort, uint, ulong,
-               float, double,
+               double, float,
+               long, int, short, byte,
+               ulong, uint, ushort, ubyte,
         );
 }
 

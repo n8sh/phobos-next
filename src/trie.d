@@ -825,6 +825,7 @@ private struct RawRadixTree(Value,
             case undefined: break; // ignored
             case ix_SLf:    return curr.as!(SLf).suffix == key;
             case ix_MLf:
+                // TODO functionize to MLf.contains()
                 import std.algorithm.searching : canFind;
                 return key.length == 1 && curr.as!(MLf).keys.canFind(key[0]); // TODO use binarySearch
             case ix_FLfPtr: return curr.as!(FLf*).contains(key);

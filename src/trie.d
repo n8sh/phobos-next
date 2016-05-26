@@ -3,6 +3,8 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO
+
     TODO Store `isKey` in top-most bit of length part of `IxsN prefix` in branch node.
 
     TODO Optimize PBr.findSub for specific `subPopulation`
@@ -30,6 +32,27 @@
     to _root. Add checks with `isSorted`.
 
     TODO Should opBinaryRight return void* instead of bool for set-case?
+
+    TODO
+    Returns: a range of elements which are less than value.
+    auto lowerBound(this This)(inout T value)
+    {
+        return Range!(This)(cast(const(Node)*) root, RangeType.lower, value);
+    }
+
+    Returns: a range of elements which are equivalent (though not necessarily
+    equal) to value.
+    auto equalRange(this This)(inout T value)
+    {
+        return Range!(This)(cast(const(Node)*) root, RangeType.equal, value);
+    }
+
+    Returns: a range of elements which are greater than value.
+    auto upperBound(this This)(inout T value)
+    {
+        return Range!(This)(cast(const(Node)*) root, RangeType.upper, value);
+    }
+
 */
 module trie;
 
@@ -822,6 +845,7 @@ private struct RawRadixTree(Value,
         /** Returns: `true` if `key` is stored, `false` otherwise. */
         pragma(inline) bool contains(Key!span key)
         {
+            dln("contains key=", key);
             return containsAt(_root, key);
         }
 
@@ -837,11 +861,13 @@ private struct RawRadixTree(Value,
             case ix_FLfPtr: return curr.as!(FLf*).contains(key);
             case ix_PBrPtr:
                 auto curr_ = curr.as!(PBr*);
+                dln("BBr: key=", key, " prefix:", curr_.prefix, " isKey:", curr_.isKey);
                 return (key.skipOver(curr_.prefix) &&
                         (key.length == 0 && curr_.isKey ||                 // either stored at `curr`
                          key.length >= 1 && containsAt(curr_.findSub(key[0]), key[1 .. $]))); // recurse
             case ix_FBrPtr:
                 auto curr_ = curr.as!(FBr*);
+                dln("FBr: key=", key, " prefix:", curr_.prefix, " isKey:", curr_.isKey);
                 return (key.skipOver(curr_.prefix) &&
                         (key.length == 0 && curr_.isKey ||                 // either stored at `curr`
                          key.length >= 1 && containsAt(curr_.subNodes[key[0]], key[1 .. $]))); // recurse
@@ -854,6 +880,7 @@ private struct RawRadixTree(Value,
         /** Insert `key` into `this` tree. */
         pragma(inline) Node insert(Key!span key, out bool wasAdded)
         {
+            dln("insert key=", key);
             return _root = insertAt(_root, key, 0, wasAdded);
         }
 
@@ -1451,6 +1478,7 @@ auto check(uint span, Keys...)()
                 foreach (const uk; low.iota(high + 1))
                 {
                     const Key key = cast(Key)uk;
+                    dln("========================= Inserting new key:", key);
                     if (useContains)
                     {
                         assert(!set.contains(key)); // key should not yet be in set
@@ -1597,8 +1625,8 @@ unittest
 {
     // TODO Support this struct A { long x, y; }
     check!(8,
-           byte, short, int, long,
-           ubyte, ushort, uint, ulong,
+           int, byte, short, long,
+           uint, ubyte, ushort, ulong,
            float, double,
            // string, wstring, dstring,
         );

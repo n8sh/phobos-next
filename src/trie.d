@@ -23,8 +23,11 @@
 
     TODO Add `struct Range`. Use same construct as in `containers-em/src/containers/ttree.d`.
 
-    TODO Add RawRadixTree.Range.{front,popFront,empty}. Reuse RefCounted reference
-    to _root. Add checks with `isSorted`.
+    - Needs:
+      - Node _curr;
+      - Ix _ix;
+    - Members front, popFront, empty
+    - Reuse RefCounted reference to _root. Add checks with `isSorted`.
 
     Prefix:
     - `set.prefix("alpha")`                           => `SortedTreeRange` of `Tuple!(string, Lang, PoT, Sense)`.

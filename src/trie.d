@@ -1237,7 +1237,7 @@ static private void calculate(Value, uint span)(RawRadixTree!(Value, span).Node 
     }
 }
 
-private Key!span remapKey(TypedKey, uint span = 8)(in TypedKey typedKey)
+static private Key!span remapKey(TypedKey, uint span = 8)(in TypedKey typedKey)
     @safe pure nothrow /* TODO @nogc */
     if (allSatisfy!(isTrieableKeyType, TypedKey))
 {
@@ -1261,7 +1261,7 @@ private Key!span remapKey(TypedKey, uint span = 8)(in TypedKey typedKey)
             }
         }
 
-        return key.dup;
+        return key.dup; // TODO avoid this
     }
     else static if (is(Unqual!TypedKey == string))
     {

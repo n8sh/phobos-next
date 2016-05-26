@@ -811,7 +811,7 @@ private struct RawRadixTree(Value,
         /** Insert `key` into sub-tree under root `curr`. */
         pragma(inline) bool containsAt(Node curr, in Key!span key)
         {
-            with (Node.Ix) final switch (curr.typeIx)
+            final switch (curr.typeIx) with (Node.Ix)
             {
             case undefined: break; // ignored
             case ix_SLf:
@@ -863,7 +863,7 @@ private struct RawRadixTree(Value,
             }
             else
             {
-                with (Node.Ix) final switch (curr.typeIx)
+                final switch (curr.typeIx) with (Node.Ix)
                 {
                 case undefined: break;
                 case ix_SLf:    return insertAt(curr.as!(SLf), key, superPrefixLength, wasAdded);
@@ -1123,7 +1123,7 @@ private struct RawRadixTree(Value,
         void release(Node curr)
         {
             version(debugAllocations) { dln("releasing Node ", curr); }
-            with (Node.Ix) final switch (curr.typeIx)
+            final switch (curr.typeIx) with (Node.Ix)
             {
             case undefined: break; // ignored
             case ix_SLf: return release(curr.as!(SLf));
@@ -1168,7 +1168,7 @@ private struct RawRadixTree(Value,
         }
 
         import std.algorithm : map;
-        with (Node.Ix) final switch (curr.typeIx)
+        final switch (curr.typeIx) with (Node.Ix)
         {
         case undefined: break;
         case ix_SLf:

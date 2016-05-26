@@ -605,7 +605,7 @@ private struct RawRadixTree(Value,
         Mod!(radix + 1) subPopulation() const
         {
             typeof(return) count = 0; // number of non-zero sub-nodes
-            foreach (const subNode; subNodes)
+            foreach (const subNode; subNodes) // TODO why can't we use std.algorithm.count here?
             {
                 if (subNode) { ++count; }
             }

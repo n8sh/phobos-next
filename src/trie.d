@@ -24,11 +24,10 @@
     TODO Add `struct Range`. Use same construct as in `containers-em/src/containers/ttree.d`.
 
     - Members:
-      - Node _curr;
-      - Ix _ix;
-      - front
-      - popFront
-      - empty
+      - It front()
+      - void popFront()
+      - bool empty())
+      - It it; // It is defined below
     - Reuse RefCounted reference to _root. Add checks with `isSorted`.
 
     Prefix:
@@ -387,12 +386,12 @@ private struct RawRadixTree(Value,
 
     static assert(span <= 8*Ix.sizeof, "Need more precision in Ix");
 
-    /** Tree Leaf Iterator. */
+    /** Tree Iterator. */
     struct It
     {
         bool opCast(T : bool)() const @safe pure nothrow /* TODO @nogc */ { return cast(bool)node; }
-        Node node;              // current leaf-`Node`. TODO use `Lf` type instead?
-        Ix ixM;                // index to sub at `node`
+        Node node;           // current leaf-`Node`. TODO use `Lf` type instead?
+        Ix ix;               // index to sub at `node`
     }
 
     /** Tree Key Find Result. */

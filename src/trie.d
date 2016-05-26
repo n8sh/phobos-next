@@ -786,7 +786,7 @@ private struct RawRadixTree(Value,
     ~this()
     {
         if (_root) { release(_root); }
-        assert(_branchCount == 0, "Pointer node count is not zero, but " ~ _branchCount.to!string);
+        debug assert(_branchCount == 0, "Pointer node count is not zero, but " ~ _branchCount.to!string);
     }
 
     @safe pure nothrow /* TODO @nogc */
@@ -936,18 +936,17 @@ private struct RawRadixTree(Value,
             //     else if (curr.keys[i] == ix) { return Node(curr); }
             // }
 
+            // check if already stored in `curr`
             import std.algorithm.searching : canFind;
             if (curr.keys[0 .. curr.length].canFind(ix)) // if already stored. TODO use binarySearch
             {
                 return Node(curr); // already there, so return current node as is
             }
 
+            // not already stored `curr` so add it
             if (curr.length < curr.maxLength) // if room left
             {
                 curr.keys.pushBack(ix);
-                // import sortn : networkSortUpTo;
-                // TODO curr.keys[0 .. length].networkSort;
-                // TODO curr.keys[0 .. length].sort;
                 wasAdded = true;
                 return Node(curr); // current node still ok
             }
@@ -1595,12 +1594,6 @@ version(print) @safe unittest
         );
 }
 
-version(benchmark) unittest
-{
-    benchmark!8;
-    // benchmark!4;
-}
-
 /** Static Iota.
     TODO Move to Phobos std.range.
  */
@@ -1614,4 +1607,10 @@ private template iotaImpl(size_t to, size_t now)
     import std.meta : AliasSeq;
     static if (now >= to) { alias iotaImpl = AliasSeq!(now); }
     else                  { alias iotaImpl = AliasSeq!(now, iotaImpl!(to, now + 1)); }
+}
+
+version(benchmark)
+void main(string[] args)
+{
+    benchmark!8;
 }

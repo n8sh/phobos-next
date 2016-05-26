@@ -1140,10 +1140,10 @@ private struct RawRadixTree(Value,
 
         foreach (const i; 0 .. depth)
         {
-            write(depth);
+            write('-');
         }
 
-        write("-");
+        write(' ');
 
         with (Node.Ix)
         {

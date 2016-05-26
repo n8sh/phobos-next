@@ -898,8 +898,10 @@ private struct RawRadixTree(Value,
             {
                 import std.algorithm : min;
                 auto brKey = key[0 .. min(key.length, DefaultBr.prefixLength)];
-                return insertAt(Node(construct!(DefaultBr)(brKey, false)), // as much as possible of key in branch prefix
-                                key, superPrefixLength, wasAdded);
+                auto next = insertAt(Node(construct!(DefaultBr)(brKey, false)), // as much as possible of key in branch prefix
+                                     key, superPrefixLength, wasAdded);
+                assert(wasAdded);
+                return next;
             }
         }
 

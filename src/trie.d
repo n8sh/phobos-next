@@ -394,20 +394,6 @@ private struct RawRadixTree(Value,
         Ix ix;               // index to sub at `node`
     }
 
-    /** Tree Key Find Result. */
-    struct KeyFindResult // TODO shorter naming
-    {
-        /* this save 8 bytes and makes this struct 16 bytes instead of 24 bytes
-           compared using a member It instead of Node and Ix */
-        auto it() { return It(node, ixM); }
-        bool opCast(T : bool)() const @safe pure nothrow /* TODO @nogc */ { return hit; }
-        Node node;
-        Ix ixM;
-        bool hit;
-    }
-
-    // TODO move these definitions inside branch definitions?
-
     /** 256-Branch population histogram.
     */
     alias FLf_PopHist = size_t[radix];

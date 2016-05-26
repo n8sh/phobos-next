@@ -811,20 +811,17 @@ private struct RawRadixTree(Value,
         /** Insert `key` into sub-tree under root `curr`. */
         pragma(inline) bool containsAt(Node curr, in Key!span key)
         {
-            with (Node.Ix)
+            with (Node.Ix) final switch (curr.typeIx)
             {
-                final switch (curr.typeIx)
-                {
-                case undefined: break; // ignored
-                case ix_SLf:
-                    return curr.as!(SLf).suffix == key;
-                case ix_MLf:
-                    import std.algorithm.searching : canFind;
-                    return key.length == 1 && curr.as!(MLf).keys.canFind(key[0]); // TODO use binarySearch
-                case ix_BBrPtr: break;
-                case ix_PBrPtr: break;
-                case ix_FBrPtr: break;
-                }
+            case undefined: break; // ignored
+            case ix_SLf:
+                return curr.as!(SLf).suffix == key;
+            case ix_MLf:
+                import std.algorithm.searching : canFind;
+                return key.length == 1 && curr.as!(MLf).keys.canFind(key[0]); // TODO use binarySearch
+            case ix_BBrPtr: break;
+            case ix_PBrPtr: break;
+            case ix_FBrPtr: break;
             }
             return false;
         }
@@ -866,20 +863,17 @@ private struct RawRadixTree(Value,
             }
             else
             {
-                with (Node.Ix)
+                with (Node.Ix) final switch (curr.typeIx)
                 {
-                    final switch (curr.typeIx)
-                    {
-                    case undefined: break;
-                    case ix_SLf:    return insertAt(curr.as!(SLf), key, superPrefixLength, wasAdded);
-                    case ix_MLf:   return insertAt(curr.as!(MLf), key, superPrefixLength, wasAdded);
+                case undefined: break;
+                case ix_SLf:    return insertAt(curr.as!(SLf), key, superPrefixLength, wasAdded);
+                case ix_MLf:   return insertAt(curr.as!(MLf), key, superPrefixLength, wasAdded);
 
-                    case ix_BBrPtr:
-                    case ix_PBrPtr:
-                    case ix_FBrPtr: return insertAtBranch(curr, key, superPrefixLength, wasAdded);
-                    }
-                    assert(false);
+                case ix_BBrPtr:
+                case ix_PBrPtr:
+                case ix_FBrPtr: return insertAtBranch(curr, key, superPrefixLength, wasAdded);
                 }
+                assert(false);
             }
         }
 
@@ -1129,17 +1123,14 @@ private struct RawRadixTree(Value,
         void release(Node curr)
         {
             version(debugAllocations) { dln("releasing Node ", curr); }
-            with (Node.Ix)
+            with (Node.Ix) final switch (curr.typeIx)
             {
-                final switch (curr.typeIx)
-                {
-                case undefined: break; // ignored
-                case ix_SLf: return release(curr.as!(SLf));
-                case ix_MLf: return release(curr.as!(MLf));
-                case ix_BBrPtr: return release(curr.as!(BBr*));
-                case ix_PBrPtr: return release(curr.as!(PBr*));
-                case ix_FBrPtr: return release(curr.as!(FBr*));
-                }
+            case undefined: break; // ignored
+            case ix_SLf: return release(curr.as!(SLf));
+            case ix_MLf: return release(curr.as!(MLf));
+            case ix_BBrPtr: return release(curr.as!(BBr*));
+            case ix_PBrPtr: return release(curr.as!(PBr*));
+            case ix_FBrPtr: return release(curr.as!(FBr*));
             }
         }
     }
@@ -1176,49 +1167,46 @@ private struct RawRadixTree(Value,
             write('-');
         }
 
-        with (Node.Ix)
+        import std.algorithm : map;
+        with (Node.Ix) final switch (curr.typeIx)
         {
-            import std.algorithm : map;
-            final switch (curr.typeIx)
+        case undefined: break;
+        case ix_SLf:
+            auto currSLf = curr.as!(SLf);
+            writeln(typeof(currSLf).stringof, "#", currSLf.suffix.length, ": ", currSLf);
+            break;
+        case ix_MLf:
+            auto currMLf = curr.as!(MLf);
+            writeln(typeof(currMLf).stringof, "#", currMLf.keys.length, ": ", currMLf);
+            break;
+        case ix_BBrPtr:
+            auto currBBr = curr.as!(BBr*);
+            write(typeof(*currBBr).stringof, ":");
+            if (!currBBr.prefix.empty) { write(" prefix=", currBBr.prefix); }
+            write(" #ones=", currBBr._keyBits.countOnes);
+            writeln();
+            break;
+        case ix_PBrPtr:
+            auto currPBr = curr.as!(PBr*);
+            write(typeof(*currPBr).stringof, "#", currPBr.subPopulation, ": ");
+            if (!currPBr.prefix.empty) { write(" prefix=", currPBr.prefix); }
+            writeln();
+            foreach (const subNode; currPBr.subNodes)
             {
-            case undefined: break;
-            case ix_SLf:
-                auto currSLf = curr.as!(SLf);
-                writeln(typeof(currSLf).stringof, "#", currSLf.suffix.length, ": ", currSLf);
-                break;
-            case ix_MLf:
-                auto currMLf = curr.as!(MLf);
-                writeln(typeof(currMLf).stringof, "#", currMLf.keys.length, ": ", currMLf);
-                break;
-            case ix_BBrPtr:
-                auto currBBr = curr.as!(BBr*);
-                write(typeof(*currBBr).stringof, ":");
-                if (!currBBr.prefix.empty) { write(" prefix=", currBBr.prefix); }
-                write(" #ones=", currBBr._keyBits.countOnes);
-                writeln();
-                break;
-            case ix_PBrPtr:
-                auto currPBr = curr.as!(PBr*);
-                write(typeof(*currPBr).stringof, "#", currPBr.subPopulation, ": ");
-                if (!currPBr.prefix.empty) { write(" prefix=", currPBr.prefix); }
-                writeln();
-                foreach (const subNode; currPBr.subNodes)
-                {
-                    printAt(subNode, depth + 1);
-                }
-                break;
-            case ix_FBrPtr:
-                auto currFBr = curr.as!(FBr*);
-                write(typeof(*currFBr).stringof, "#", currFBr.subPopulation, ": ");
-                writeln();
-                if (!currFBr.prefix.empty) { write(" prefix=", currFBr.prefix); }
-                foreach (const subNode; currFBr.subNodes)
-                {
-                    printAt(subNode, depth + 1);
-                }
-
-                break;
+                printAt(subNode, depth + 1);
             }
+            break;
+        case ix_FBrPtr:
+            auto currFBr = curr.as!(FBr*);
+            write(typeof(*currFBr).stringof, "#", currFBr.subPopulation, ": ");
+            writeln();
+            if (!currFBr.prefix.empty) { write(" prefix=", currFBr.prefix); }
+            foreach (const subNode; currFBr.subNodes)
+            {
+                printAt(subNode, depth + 1);
+            }
+
+            break;
         }
     }
 

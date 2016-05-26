@@ -1261,7 +1261,7 @@ static private Key!span remapKey(TypedKey, uint span = 8)(in TypedKey typedKey)
             }
         }
 
-        return key.dup; // TODO avoid this
+        return key.dup; // TODO avoid allocation this
     }
     else static if (is(Unqual!TypedKey == string))
     {

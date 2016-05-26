@@ -313,8 +313,10 @@ private struct RawRadixTree(Value,
 
                 pragma(inline) bool contains(Key!span key) const @nogc
                 {
+                    // TODO use binarySearch
                     import std.algorithm.searching : canFind;
-                    return key.length == 1 && keys[].canFind(key[0]); // TODO use binarySearch
+                    return (key.length == 1 &&
+                            keys[].canFind(key[0]));
                 }
 
                 @property string toString() const @safe pure

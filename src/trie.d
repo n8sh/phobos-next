@@ -1434,6 +1434,7 @@ void benchmark(uint radixPow2)()
 {
     import core.thread : sleep;
     import std.range : iota;
+    import std.stdio : writeln;
 
     import std.algorithm : equal;
     struct TestValueType { int i; float f; string s; }
@@ -1479,14 +1480,14 @@ void benchmark(uint radixPow2)()
                 static if (false) { assert(!set.insert(k)); }
             }
 
-            dln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
+            writeln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
             auto stats = set.usageHistograms;
-            dln("Sparse Bit-Branch Population Histogram: ", stats.popHist_BBr);
-            dln("Sparse 4-Branch Population Histogram: ", stats.popHist_PBr);
-            dln("Dense radix=", 2^^radixPow2, "-Branch Population Histogram: ", stats.popHist_FBr);
-            dln("Population By Node Type: ", stats.popByNodeType);
-            dln("Number of PBr with SLf-0 only subNodes: ", stats.allSLf0CountOfPBr);
-            dln("Number of FBr with SLf-0 only subNodes: ", stats.allSLf0CountOfFBr);
+            writeln("Sparse Bit-Branch Population Histogram: ", stats.popHist_BBr);
+            writeln("Sparse 4-Branch Population Histogram: ", stats.popHist_PBr);
+            writeln("Dense radix=", 2^^radixPow2, "-Branch Population Histogram: ", stats.popHist_FBr);
+            writeln("Population By Node Type: ", stats.popByNodeType);
+            writeln("Number of PBr with SLf-0 only subNodes: ", stats.allSLf0CountOfPBr);
+            writeln("Number of FBr with SLf-0 only subNodes: ", stats.allSLf0CountOfFBr);
 
             size_t totalBytesUsed = 0;
             foreach (Set.Node.Ix ix, pop; stats.popByNodeType) // TODO use stats.byPair when added to typecons_ex.d
@@ -1506,13 +1507,13 @@ void benchmark(uint radixPow2)()
                 }
                 if (bytesUsed)
                 {
-                    dln(pop, " number of ", ix, " uses ", bytesUsed/1e6, " megabytes");
+                    writeln(pop, " number of ", ix, " uses ", bytesUsed/1e6, " megabytes");
                 }
             }
-            dln("Tree uses ", totalBytesUsed/1e6, " megabytes");
+            writeln("Tree uses ", totalBytesUsed/1e6, " megabytes");
 
             sleep(2);
-            dln("Sleeping done");
+            writeln("Sleeping done");
         }
 
         {
@@ -1521,9 +1522,9 @@ void benchmark(uint radixPow2)()
 
             foreach (Key k; randomSamples) { aa[k] = true; }
 
-            dln("D-AA: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
+            writeln("D-AA: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
             sleep(2);
-            dln("Sleeping done");
+            writeln("Sleeping done");
         }
 
         // version(print)

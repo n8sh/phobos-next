@@ -386,7 +386,7 @@ private struct RawRadixTree(Value,
 
     static assert(span <= 8*Ix.sizeof, "Need more precision in Ix");
 
-    /** Tree Iterator. */
+    /** Iterator. */
     struct It
     {
         bool opCast(T : bool)() const @safe pure nothrow /* TODO @nogc */ { return cast(bool)node; }

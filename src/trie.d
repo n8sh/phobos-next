@@ -801,9 +801,9 @@ private struct RawRadixTree(Value,
         {
             if (key.length <= SLf.maxLength)
             {
-                SLf currSLf = construct!(SLf)(key);
+                SLf topSLf = construct!(SLf)(key);
                 wasAdded = true;
-                return Node(currSLf);
+                return Node(topSLf);
             }
             else                // key doesn't fit in a `SLf`
             {

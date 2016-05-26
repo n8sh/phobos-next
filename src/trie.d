@@ -315,12 +315,12 @@ private struct RawRadixTree(Value,
                 {
                     import std.string : format;
                     string s;
-                    foreach (key; keys[0 .. length]) { s ~= format("%.2x", key) ~ ','; }
+                    foreach (key; keys) { s ~= format("%.2x", key) ~ ','; }
                     return s;
                 }
 
-                Ix[maxLength] keys;
-                ubyte length; // number of objects defined in keys
+                IxsN!(maxLength, radixPow2) keys;
+                alias keys this;
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
@@ -944,7 +944,7 @@ private struct RawRadixTree(Value,
 
             if (curr.length < curr.maxLength) // if room left
             {
-                curr.keys[curr.length++] = ix;
+                curr.keys.pushBack(ix);
                 // import sortn : networkSortUpTo;
                 // TODO curr.keys[0 .. length].networkSort;
                 // TODO curr.keys[0 .. length].sort;
@@ -965,7 +965,7 @@ private struct RawRadixTree(Value,
             {
                 if (prefix.length == 0)
                 {
-                    return Node(construct!(MLf)(curr.suffix[0])); // TODO removing parameter has no effect. why?
+                    return Node(construct!(MLf)(curr.suffix)); // TODO removing parameter has no effect. why?
                 }
                 else if (prefix.length == 1)
                 {

@@ -838,7 +838,7 @@ private struct RawRadixTree(Value,
         /** Returns: `true` if `key` is stored, `false` otherwise. */
         pragma(inline) bool contains(Key!span key)
         {
-            dln("contains key=", key);
+            // dln("contains key=", key);
             return containsAt(_root, key);
         }
 
@@ -854,13 +854,13 @@ private struct RawRadixTree(Value,
             case ix_FLfPtr: return curr.as!(FLf*).contains(key);
             case ix_PBrPtr:
                 auto curr_ = curr.as!(PBr*);
-                dln("BBr: key=", key, " prefix:", curr_.prefix, " isKey:", curr_.isKey);
+                // dln("BBr: key=", key, " prefix:", curr_.prefix, " isKey:", curr_.isKey);
                 return (key.skipOver(curr_.prefix) &&
                         (key.length == 0 && curr_.isKey ||                 // either stored at `curr`
                          key.length >= 1 && containsAt(curr_.findSub(key[0]), key[1 .. $]))); // recurse
             case ix_FBrPtr:
                 auto curr_ = curr.as!(FBr*);
-                dln("FBr: key=", key, " prefix:", curr_.prefix, " isKey:", curr_.isKey);
+                // dln("FBr: key=", key, " prefix:", curr_.prefix, " isKey:", curr_.isKey);
                 return (key.skipOver(curr_.prefix) &&
                         (key.length == 0 && curr_.isKey ||                 // either stored at `curr`
                          key.length >= 1 && containsAt(curr_.subNodes[key[0]], key[1 .. $]))); // recurse
@@ -873,7 +873,7 @@ private struct RawRadixTree(Value,
         /** Insert `key` into `this` tree. */
         pragma(inline) Node insert(Key!span key, out bool wasAdded)
         {
-            dln("insert key=", key);
+            // dln("insert key=", key);
             return _root = insertAt(_root, key, 0, wasAdded);
         }
 
@@ -1482,19 +1482,19 @@ auto check(uint span, Keys...)()
                 foreach (const uk; low.iota(high + 1))
                 {
                     const Key key = cast(Key)uk;
-                    dln("========================= Before insert of new key:", key);
+                    // dln("========================= Before insert of new key:", key);
                     if (useContains)
                     {
                         assert(!set.contains(key)); // key should not yet be in set
                         assert(key !in set);        // alternative syntax
                     }
 
-                    dln("========================= Inserting new key:", key);
+                    // dln("========================= Inserting new key:", key);
                     assert(set.insert(key));  // insert new value returns `true` (previously not in set)
-                    dln("========================= Inserting existing key:", key);
+                    // dln("========================= Inserting existing key:", key);
                     assert(!set.insert(key)); // reinsert same value returns `false` (already in set)
 
-                    dln("========================= After insert of key:", key);
+                    // dln("========================= After insert of key:", key);
                     if (useContains)
                     {
                         assert(set.contains(key)); // key should now be in set
@@ -1506,7 +1506,7 @@ auto check(uint span, Keys...)()
                     }
                     ++cnt;
 
-                    import std.stdio : writeln; try { debug writeln(); } catch (Exception e) {} // empty newline
+                    // import std.stdio : writeln; try { debug writeln(); } catch (Exception e) {} // empty newline
                 }
                 assert(set.length == length);
             }

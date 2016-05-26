@@ -1474,6 +1474,10 @@ void benchmark(uint radixPow2)()
                     assert(set.insert(k));
                 else
                     set.insert(k);
+
+                /* second insert of same key should always return `false` to
+                   indicate that key was already stored */
+                assert(!set.insert(k));
             }
 
             dln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");

@@ -1167,7 +1167,6 @@ private struct RawRadixTree(Value,
             write('-');
         }
 
-        import std.algorithm : map;
         final switch (curr.typeIx) with (Node.Ix)
         {
         case undefined: break;

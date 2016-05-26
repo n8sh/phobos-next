@@ -19,12 +19,12 @@
 
     TODO Provide `opIndex` and make `opSlice` for set-case (`Value` is `void`) return `SortedRange`
 
-    TODO Add RadixTreeRange.{front,popFront,empty}. Reuse RefCounted reference
-    to _root. Add checks with `isSorted`.
-
     TODO Should opBinaryRight return void* instead of bool for set-case?
 
     TODO Add `struct Range`. Use same construct as in `containers-em/src/containers/ttree.d`.
+
+    TODO Add RadixTreeRange.{front,popFront,empty}. Reuse RefCounted reference
+    to _root. Add checks with `isSorted`.
 
     Prefix:
     - `set.prefix("alpha")`                           => `SortedTreeRange` of `Tuple!(string, Lang, PoT, Sense)`.

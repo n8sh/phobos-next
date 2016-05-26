@@ -1170,7 +1170,7 @@ private struct RawRadixTree(Value,
                 break;
             case ix_PBrPtr:
                 auto currPBr = curr.as!(PBr*);
-                write(typeof(*currPBr).stringof, ": ");
+                write(typeof(*currPBr).stringof, "#", currPBr.subPopulation, ": ");
                 if (!currPBr.prefix.empty) { write(" prefix=", currPBr.prefix); }
                 writeln();
                 foreach (const subNode; currPBr.subNodes)

@@ -985,11 +985,7 @@ private struct RawRadixTree(Value,
             assert(key.length == 1);
 
             // check if already stored in `curr`
-            import std.algorithm.searching : canFind;
-            if (curr.keys.canFind(key[0])) // if already stored. TODO use binarySearch
-            {
-                return Node(curr); // already there, so return current node as is
-            }
+            if (curr.contains(key)) { return Node(curr); }
 
             // not already stored `curr` so add it
             if (curr.keys.length < curr.maxLength) // if room left

@@ -989,7 +989,7 @@ private struct RawRadixTree(Value,
                 return Node(curr);
             }
 
-            auto matchedPrefix = commonPrefix(curr.suffix, key);
+            auto matchedPrefix = commonPrefix(key, curr.suffix);
             if (equalLength(matchedPrefix, key, curr.suffix)) // key already stored
             {
                 return Node(curr); // already stored in `curr`

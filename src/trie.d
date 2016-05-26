@@ -106,8 +106,7 @@ struct IxsN(size_t maxLength,
     alias Ix = Mod!M;
 
     this(Ixs...)(Ixs ixs)
-        if (Ixs.length >= 1 &&
-            Ixs.length <= maxLength)
+        if (Ixs.length >= 1 && Ixs.length <= maxLength)
     {
         foreach (const i, const ix; ixs)
         {
@@ -326,6 +325,12 @@ private struct RawRadixTree(Value,
             struct MLf
             {
                 enum maxLength = (size_t.sizeof - 2) / Ix.sizeof; // maximum number of elements
+
+                this(Ixs...)(Ixs ixs)
+                if (Ixs.length >= 1 && Ixs.length <= maxLength)
+                {
+                    this.keys = ixs;
+                }
 
                 pragma(inline) bool contains(Key!span key) const @nogc
                 {
@@ -879,11 +884,15 @@ private struct RawRadixTree(Value,
 
         Node insertNew(Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
-            if (key.length <= SLf.maxLength)
+            if (key.length == 1)
             {
-                SLf topSLf = construct!(SLf)(key);
                 wasAdded = true;
-                return Node(topSLf);
+                return Node(construct!(MLf)(key[0]));
+            }
+            else if (key.length <= SLf.maxLength)
+            {
+                wasAdded = true;
+                return Node(construct!(SLf)(key));
             }
             else                // key doesn't fit in a `SLf`
             {

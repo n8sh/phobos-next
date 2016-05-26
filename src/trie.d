@@ -1233,6 +1233,8 @@ struct RadixTree(Key, Value, uint radixPow2 = 8)
     bool insert(in Key typedKey)
         @safe pure nothrow /* TODO @nogc */
     {
+        import std.string : representation;
+
         // convert unsigned to fixed-length (on the stack) ubyte array
 
         // TODO functionize
@@ -1257,17 +1259,17 @@ struct RadixTree(Key, Value, uint radixPow2 = 8)
         }
         else static if (is(Unqual!Key == string))
         {
-            immutable ubyte[] key = Key.representation; // lexical byte-order
+            const ubyte[] key = typedKey.representation; // lexical byte-order
         }
         else static if (is(Unqual!Key == wstring))
         {
-            immutable ushort[] rKey = Key.representation; // lexical byte-order. TODO do we need most significant byte byte-order for each `ushort` for this to work?
-            immutable ubyte[] key = (cast(immutable ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
+            const ushort[] rKey = typedKey.representation; // lexical byte-order. TODO do we need most significant byte byte-order for each `ushort` for this to work?
+            const ubyte[] key = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
         }
         else static if (is(Unqual!Key == dstring))
         {
-            immutable uint[] rKey = Key.representation; // lexical byte-order. TODO do we need most significant byte byte-order for each `ushort` for this to work?
-            immutable ubyte[] key = (cast(immutable ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
+            const uint[] rKey = typedKey.representation; // lexical byte-order. TODO do we need most significant byte byte-order for each `ushort` for this to work?
+            const ubyte[] key = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
         }
         else
         {
@@ -1382,43 +1384,49 @@ auto check(uint radixPow2, Keys...)()
             {
                 const low = max(Key.min, -100_000);
                 const high = min(Key.max, 100_000);
+                const length = high - low + 1;
             }
             else static if (isFloatingPoint!Key)
             {
                 const low = -100_000;
                 const high = 100_000;
+                const length = high - low + 1;
             }
-            const length = high - low + 1;
+            else static if (isSomeString!Key)
+            {
+            }
 
             const useContains = false;
-            size_t cnt = 0;
-            foreach (const uk; low.iota(high + 1))
+
+            static if (isIntegral!Key &&
+                       isFloatingPoint!Key)
             {
-                const Key key = cast(Key)uk;
-                // dln("key:", key);
-                if (useContains)
+                size_t cnt = 0;
+                foreach (const uk; low.iota(high + 1))
                 {
-                    assert(!set.contains(key)); // key should not yet be in set
-                    assert(key !in set);        // alternative syntax
-                }
-
-                assert(set.insert(key));  // insert new value returns `true` (previously not in set)
-
-                assert(!set.insert(key)); // reinsert same value returns `false` (already in set)
-
-                if (useContains)
-                {
-                    assert(set.contains(key)); // key should now be in set
-                    assert(key in set);        // alternative syntax
-                    if (key != Key.max)        // except last value
+                    const Key key = cast(Key)uk;
+                    if (useContains)
                     {
-                        assert(!set.contains(cast(Key)(key + 1))); // next key is not yet in set
+                        assert(!set.contains(key)); // key should not yet be in set
+                        assert(key !in set);        // alternative syntax
                     }
-                }
-                ++cnt;
-            }
 
-            assert(set.length == length);
+                    assert(set.insert(key));  // insert new value returns `true` (previously not in set)
+                    assert(!set.insert(key)); // reinsert same value returns `false` (already in set)
+
+                    if (useContains)
+                    {
+                        assert(set.contains(key)); // key should now be in set
+                        assert(key in set);        // alternative syntax
+                        if (key != Key.max)        // except last value
+                        {
+                            assert(!set.contains(cast(Key)(key + 1))); // next key is not yet in set
+                        }
+                    }
+                    ++cnt;
+                }
+                assert(set.length == length);
+            }
 
             auto map = radixTreeMap!(Key, Value, radixPow2);
             assert(map.hasFixedKeyLength == isFixedTrieableKeyType!Key);
@@ -1546,6 +1554,7 @@ unittest
            byte, short, int, long,
            ubyte, ushort, uint, ulong,
            float, double,
+           // string, wstring, dstring,
         );
 }
 

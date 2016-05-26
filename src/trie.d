@@ -296,7 +296,7 @@ private struct RawRadixTree(Value,
                 {
                     import std.string : format;
                     string s;
-                    foreach (key; suffix) { s ~= format("%.2x", key); }
+                    foreach (key; suffix) { s ~= format("%.2X", key); }
                     return s;
                 }
 
@@ -315,7 +315,7 @@ private struct RawRadixTree(Value,
                 {
                     import std.string : format;
                     string s;
-                    foreach (key; keys) { s ~= format("%.2x", key) ~ ','; }
+                    foreach (key; keys) { s ~= format("%.2X", key) ~ ','; }
                     return s;
                 }
 

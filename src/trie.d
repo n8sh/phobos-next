@@ -925,22 +925,33 @@ private struct RawRadixTree(Value,
             auto currPrefix = getPrefix(curr);
             auto matchedPrefix = commonPrefix(key, currPrefix);
 
-            // prefix:"abcd", key:"ab"
-            if (matchedPrefix.length == key.length &&
-                matchedPrefix.length < currPrefix.length) // prefix is an extension of key
+            // in order of descending probability
+            // most probable: key is an extension of prefix: prefix:"ab", key:"abcd"
+            if (matchedPrefix.length == currPrefix.length &&
+                matchedPrefix.length < key.length)
+            {
+                key = key[matchedPrefix.length .. $]; // strip `currPrefix from beginning of `key`
+                superPrefixLength += matchedPrefix.length;
+                // continue below
+            }
+            // prefix is an extension of key: prefix:"abcd", key:"ab"
+            else if (matchedPrefix.length == key.length &&
+                     matchedPrefix.length < currPrefix.length)
             {
                 const subIx = currPrefix[matchedPrefix.length]; // need index first
                 setPrefix(curr, currPrefix[matchedPrefix.length + 1 .. $]); // drop matchedPrefix plus index
                 return Node(construct!(DefaultBr)(matchedPrefix, true, // `true` because `key` occupies this node
                                                   subIx, curr));
             }
-            // prefix:"ab", key:"abcd"
-            else if (matchedPrefix.length == currPrefix.length &&
-                     matchedPrefix.length < key.length) // key is an extension of prefix
+            // prefix and key share beginning: prefix:"ab11", key:"ab22"
+            else if (matchedPrefix.length < key.length &&
+                     matchedPrefix.length < currPrefix.length)
             {
-                key = key[matchedPrefix.length .. $]; // strip `currPrefix from beginning of `key`
-                superPrefixLength += matchedPrefix.length;
-                // continue below
+                const subIx = currPrefix[matchedPrefix.length]; // need index first
+                setPrefix(curr, currPrefix[matchedPrefix.length + 1 .. $]); // drop matchedPrefix plus index
+                curr = Node(construct!(DefaultBr)(matchedPrefix, false, // key is not occupied
+                                                  subIx, curr));
+                key = key[matchedPrefix.length .. $];
             }
             // prefix:"ab", key:"ab"
             else if (matchedPrefix.length == currPrefix.length && // exact key prefix match

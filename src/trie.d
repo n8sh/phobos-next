@@ -432,6 +432,14 @@ private struct RawRadixTree(Value,
         pragma(inline) bool hasSubAt(Ix ix) const @nogc { return _keyBits[ix]; }
         pragma(inline) bool empty() const @nogc { return _keyBits.allZero; }
 
+        pragma(inline) bool contains(Key!span key) const @nogc
+        {
+            import std.algorithm : skipOver;
+            return (key.skipOver(prefix[]) &&  // matching prefix
+                    key.length == 1 &&       // one key-chunk left
+                    _keyBits[key[0]]);       // and it's set
+        }
+
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats)
         {
@@ -804,29 +812,31 @@ private struct RawRadixTree(Value,
     const @safe pure nothrow /* TODO @nogc */
     {
         /** Returns: `true` if `key` is stored, `false` otherwise. */
-        pragma(inline) bool contains(in Key!span key)
+        pragma(inline) bool contains(Key!span key)
         {
             return containsAt(_root, key);
         }
 
         /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
-        pragma(inline) bool containsAt(Node curr, in Key!span key)
+        pragma(inline) bool containsAt(Node curr, Key!span key)
         {
             final switch (curr.typeIx) with (Node.Ix)
             {
             case undefined: break; // ignored
-            case ix_SLf:
-                return curr.as!(SLf).suffix == key;
+            case ix_SLf:    return curr.as!(SLf).suffix == key;
             case ix_MLf:
                 import std.algorithm.searching : canFind;
                 return key.length == 1 && curr.as!(MLf).keys.canFind(key[0]); // TODO use binarySearch
-            case ix_FLfPtr:
-                return key.length == 1 && curr.as!(FLf*).hasSubAt(key[0]);
+            case ix_FLfPtr: return curr.as!(FLf*).contains(key);
             case ix_PBrPtr:
                 auto curr_ = curr.as!(PBr*);
+                import std.algorithm : commonPrefix;
+                auto matchedPrefix = commonPrefix(key, curr_.prefix);
                 break;
             case ix_FBrPtr:
                 auto curr_ = curr.as!(FBr*);
+                import std.algorithm : commonPrefix;
+                auto matchedPrefix = commonPrefix(key, curr_.prefix);
                 break;
             }
             return false;

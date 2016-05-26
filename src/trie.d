@@ -3,8 +3,6 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
-    TODO
-
     TODO Store `isKey` in top-most bit of length part of `IxsN prefix` in branch node.
 
     TODO Optimize PBr.findSub for specific `subPopulation`

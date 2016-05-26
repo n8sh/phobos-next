@@ -828,22 +828,23 @@ private struct RawRadixTree(Value,
         {
             final switch (curr.typeIx) with (Node.Ix)
             {
-            case undefined: break; // ignored
+            case undefined: return false;
             case ix_SLf:    return curr.as!(SLf).suffix == key;
             case ix_MLf:    return curr.as!(MLf).contains(key);
             case ix_FLfPtr: return curr.as!(FLf*).contains(key);
             case ix_PBrPtr:
                 auto curr_ = curr.as!(PBr*);
-                import std.algorithm : commonPrefix;
-                auto matchedPrefix = commonPrefix(key, curr_.prefix);
-                break;
+                import std.algorithm : skipOver;
+                return (key.skipOver(curr_.prefix) &&
+                        key.length &&
+                        containsAt(curr_.findSub(key[0]), key[1 .. $])); // recurse
             case ix_FBrPtr:
                 auto curr_ = curr.as!(FBr*);
-                import std.algorithm : commonPrefix;
-                auto matchedPrefix = commonPrefix(key, curr_.prefix);
-                break;
+                import std.algorithm : skipOver;
+                return (key.skipOver(curr_.prefix) &&
+                        key.length &&
+                        containsAt(curr_.subNodes[key[0]], key[1 .. $])); // recurse
             }
-            return false;
         }
     }
 

@@ -801,6 +801,20 @@ private struct RawRadixTree(Value,
         debug assert(_branchCount == 0, "Pointer node count is not zero, but " ~ _branchCount.to!string);
     }
 
+    const @safe pure nothrow /* TODO @nogc */
+    {
+        pragma(inline) bool contains(in Key!span key)
+        {
+            return containsAt(_root, key);
+        }
+
+        /** Insert `key` into sub-tree under root `curr`. */
+        pragma(inline) bool containsAt(Node curr, in Key!span key)
+        {
+            return false;
+        }
+    }
+
     @safe pure nothrow /* TODO @nogc */
     {
         /** Insert `key` into `this` tree. */
@@ -1223,66 +1237,76 @@ static private void calculate(Value, uint span)(RawRadixTree!(Value, span).Node 
     }
 }
 
-/// Radix-Tree with key-type `Key` and value-type `Value`.
-struct RadixTree(Key, Value, uint span = 8)
-    if (allSatisfy!(isTrieableKeyType, Key))
+private Key!span remapKey(TypedKey, uint span = 8)(in TypedKey typedKey)
+    @safe pure nothrow /* TODO @nogc */
+    if (allSatisfy!(isTrieableKeyType, TypedKey))
+{
+    static if (isFixedTrieableKeyType!TypedKey)
+    {
+        const ukey = typedKey.bijectToUnsigned;
+
+        enum nbits = 8*ukey.sizeof; // bitsize of ukey
+        enum chunkCount = nbits/span; // number of chunks in ukey
+        static assert(chunkCount*span == nbits, "Bitsize of TypedKey must be a multiple of span:" ~ span.stringof);
+
+        KeyN!(span, TypedKey.sizeof) key;
+
+        static if (span == 8)
+        {
+            foreach (bix; 0 .. chunkCount)
+            {
+                const bitShift = (chunkCount - 1 - bix)*span; // most significant bit chunk first (MSBCF)
+                enum radix = 2^^span;
+                key[bix] = (ukey >> bitShift) & (radix - 1); // part of value which is also an index
+            }
+        }
+
+        return key.dup;
+    }
+    else static if (is(Unqual!TypedKey == string))
+    {
+        const ubyte[] key = typedKey.representation; // lexical byte-order
+        return key;
+    }
+    else static if (is(Unqual!TypedKey == wstring))
+    {
+        const ushort[] rKey = typedKey.representation; // lexical byte-order. TODO do we need most significant byte byte-order for each `ushort` for this to work?
+        const ubyte[] key = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
+        return key;
+    }
+    else static if (is(Unqual!TypedKey == dstring))
+    {
+        const uint[] rKey = typedKey.representation; // lexical byte-order. TODO do we need most significant byte byte-order for each `ushort` for this to work?
+        const ubyte[] key = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
+        return key;
+    }
+    else
+    {
+        assert(false, "TODO");
+    }
+}
+
+/// Radix-Tree with key-type `TypedKey` and value-type `Value`.
+struct RadixTree(TypedKey, Value, uint span = 8)
+    if (allSatisfy!(isTrieableKeyType, TypedKey))
 {
     this(bool unusedDummy)      // TODO how do we get rid of the need for `unusedDummy`?
     {
-        this._keyLength = isFixedTrieableKeyType!Key ? Key.sizeof : size_t.max;
+        this._keyLength = isFixedTrieableKeyType!TypedKey ? TypedKey.sizeof : size_t.max;
     }
 
     /** Insert `key`.
         Returns: `true` if `key` wasn't previously inserted, `false` otherwise.
      */
-    bool insert(in Key typedKey)
+    bool insert(in TypedKey typedKey)
         @safe pure nothrow /* TODO @nogc */
     {
         import std.string : representation;
 
         // convert unsigned to fixed-length (on the stack) ubyte array
 
-        // TODO functionize
-        static if (isFixedTrieableKeyType!Key)
-        {
-            const ukey = typedKey.bijectToUnsigned;
-
-            enum nbits = 8*ukey.sizeof; // bitsize of ukey
-            enum chunkCount = nbits/span; // number of chunks in ukey
-            static assert(chunkCount*span == nbits, "Bitsize of Key must be a multiple of span:" ~ span.stringof);
-
-            KeyN!(span, Key.sizeof) key;
-
-            static if (span == 8)
-            {
-                foreach (bix; 0 .. chunkCount)
-                {
-                    const bitShift = (chunkCount - 1 - bix)*span; // most significant bit chunk first (MSBCF)
-                    key[bix] = (ukey >> bitShift) & (radix - 1); // part of value which is also an index
-                }
-            }
-        }
-        else static if (is(Unqual!Key == string))
-        {
-            const ubyte[] key = typedKey.representation; // lexical byte-order
-        }
-        else static if (is(Unqual!Key == wstring))
-        {
-            const ushort[] rKey = typedKey.representation; // lexical byte-order. TODO do we need most significant byte byte-order for each `ushort` for this to work?
-            const ubyte[] key = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
-        }
-        else static if (is(Unqual!Key == dstring))
-        {
-            const uint[] rKey = typedKey.representation; // lexical byte-order. TODO do we need most significant byte byte-order for each `ushort` for this to work?
-            const ubyte[] key = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
-        }
-        else
-        {
-            assert(false, "TODO");
-        }
-
         bool wasAdded = false; // indicates that key was added
-        _tree.insert(key[], wasAdded);
+        _tree.insert(remapKey(typedKey), wasAdded);
 
         _length += wasAdded;
         return wasAdded;
@@ -1291,15 +1315,13 @@ struct RadixTree(Key, Value, uint span = 8)
     static if (_tree.isSet)
     {
         /** Returns: `true` if key is contained in set, `false` otherwise. */
-        bool contains(in Key key) const nothrow
+        bool contains(in TypedKey typedKey) const nothrow
         {
-            return false;
+            return _tree.contains(remapKey(typedKey));
         }
 
-	/** Supports $(B `Key` in `this`) syntax.
-            TODO return `NodeRef` instead.
-        */
-	bool opBinaryRight(string op)(in Key key) const nothrow if (op == "in") { return contains(key); }
+	/** Supports $(B `TypedKey` in `this`) syntax. */
+	bool opBinaryRight(string op)(in TypedKey key) const nothrow if (op == "in") { return contains(key); }
     }
 
     static if (_tree.isMap)
@@ -1307,14 +1329,14 @@ struct RadixTree(Key, Value, uint span = 8)
         /** Insert `key`.
             Returns: `false` if key was previously already inserted, `true` otherwise.
         */
-        bool insert(in Key key, Value value)
+        bool insert(in TypedKey key, Value value)
         {
             bool result = insert(key);
-            // TODO call insertAtSubNode(result, value);
             return result;
         }
+
         /** Returns: pointer to value if `key` is contained in set, null otherwise. */
-        Value* contains(in Key key) const
+        Value* contains(in TypedKey key) const
         {
             return null;
         }

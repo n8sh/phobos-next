@@ -5,7 +5,7 @@
 
     TODO Store `isKey` in top-most bit of length part of `IxsN prefix` in branch node.
 
-    TODO Optimize PBr.findSub for specific `subCount`
+    TODO Optimize PBr.findSub for specific `subPopulation`
 
     TODO Use bitset storage in PBr and call it PBr. Active when sizeof BrN
     is larger than 32 bytes (256 bits) and all leaves are single SLf. Converted to when BrN.length >= someLimit
@@ -469,20 +469,20 @@ private struct RawRadixTree(Value,
             this.isKey = isKey;
             this.subIxSlots.at!0 = subIx;
             this.subNodeSlots.at!0 = subNode;
-            this.subCount = 1;
+            this.subPopulation = 1;
         }
 
         void pushBackSub(Tuple!(Ix, Node) sub)
         {
             assert(!full);
-            const backIx = subCount.mod!N;
+            const backIx = subPopulation.mod!N;
             subIxSlots[backIx] = sub[0];
             subNodeSlots[backIx] = sub[1];
-            subCount = cast(ubyte)(subCount + 1);
+            subPopulation = cast(ubyte)(subPopulation + 1);
         }
         inout(Node) findSub(Ix ix) inout
         {
-            switch (subCount)
+            switch (subPopulation)
             {
             case 0:
                 break;
@@ -497,7 +497,7 @@ private struct RawRadixTree(Value,
                 break;
             default:
                 // TODO do binary search
-                foreach (const i_; 0 ..  subCount)
+                foreach (const i_; 0 ..  subPopulation)
                 {
                     const i = i_.mod!N;
                     if (subIxSlots[i] == ix) { return subNodeSlots[i]; }
@@ -507,12 +507,12 @@ private struct RawRadixTree(Value,
             return Node.init;
         }
 
-        pragma(inline) bool empty() const @nogc { return subCount == 0; }
-        pragma(inline) bool full() const @nogc { return subCount == N; }
+        pragma(inline) bool empty() const @nogc { return subPopulation == 0; }
+        pragma(inline) bool full() const @nogc { return subPopulation == N; }
 
         pragma(inline) auto subNodes() inout @nogc
         {
-            return subNodeSlots[0 .. subCount];
+            return subNodeSlots[0 .. subPopulation];
         }
 
         /** Returns `true` if this branch can be packed into a bitset, that is
@@ -551,7 +551,7 @@ private struct RawRadixTree(Value,
         StrictlyIndexed!(Node[N]) subNodeSlots;
         IxsN!prefixLength prefix; // prefix common to all `subNodes` (also called edge-label)
         StrictlyIndexed!(Ix[N]) subIxSlots;
-        mixin(bitfields!(ubyte, "subCount", 7, // counts length of defined elements in subNodeSlots
+        mixin(bitfields!(ubyte, "subPopulation", 7, // counts length of defined elements in subNodeSlots
                          bool, "isKey", 1)); // key at this branch is occupied
     }
 
@@ -574,7 +574,7 @@ private struct RawRadixTree(Value,
         {
             this.prefix = rhs.prefix;
             this.isKey = rhs.isKey;
-            foreach (const i; 0 .. rhs.subCount) // each sub node. TODO use iota!(Mod!N)
+            foreach (const i; 0 .. rhs.subPopulation) // each sub node. TODO use iota!(Mod!N)
             {
                 const iN = i.mod!(PBr.N);
                 const subIx = rhs.subIxSlots[iN];
@@ -599,6 +599,18 @@ private struct RawRadixTree(Value,
                 }
             }
             return allSLf0;
+        }
+
+        /// Number of non-null sub-Nodes.
+        Mod!(radix + 1) subPopulation() const
+        {
+            typeof(return) count = 0; // number of non-zero sub-nodes
+            foreach (const subNode; subNodes)
+            {
+                if (subNode) { ++count; }
+            }
+            assert(count <= radix);
+            return count;
         }
 
         /** Append statistics of tree under `this` into `stats`. */
@@ -664,7 +676,7 @@ private struct RawRadixTree(Value,
     Node setSub(PBr* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
         import std.algorithm : countUntil;
-        const i = curr.subIxSlots[0 .. curr.subCount].countUntil(subIx); // TODO is this the preferred function?
+        const i = curr.subIxSlots[0 .. curr.subPopulation].countUntil(subIx); // TODO is this the preferred function?
         if (i != -1)            // if hit. TODO use bool conversion if this gets added to countUntil
         {
             curr.subNodeSlots[i.mod!(curr.N)] = subNode; // reuse
@@ -1066,7 +1078,7 @@ private struct RawRadixTree(Value,
 
         void release(PBr* curr)
         {
-            foreach (sub; curr.subNodes[0 .. curr.subCount])
+            foreach (sub; curr.subNodes[0 .. curr.subPopulation])
             {
                 release(sub); // recurse
             }
@@ -1168,7 +1180,8 @@ private struct RawRadixTree(Value,
                 break;
             case ix_FBrPtr:
                 auto currFBr = curr.as!(FBr*);
-                write(typeof(*currFBr).stringof, ": ");
+                import std.algorithm : count;
+                write(typeof(*currFBr).stringof, "#", currFBr.subPopulation, ": ");
                 writeln();
                 if (!currFBr.prefix.empty) { write(" prefix=", currFBr.prefix); }
                 foreach (const subNode; currFBr.subNodes)

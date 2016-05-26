@@ -1270,13 +1270,15 @@ static private Key!span remapKey(TypedKey, uint span = 8)(in TypedKey typedKey)
     }
     else static if (is(Unqual!TypedKey == wstring))
     {
-        const ushort[] rKey = typedKey.representation; // lexical byte-order. TODO do we need most significant byte byte-order for each `ushort` for this to work?
+        const ushort[] rKey = typedKey.representation; // lexical byte-order.
+        // TODO fix most significant byte order of elements in rKey
         const ubyte[] key = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
         return key;
     }
     else static if (is(Unqual!TypedKey == dstring))
     {
-        const uint[] rKey = typedKey.representation; // lexical byte-order. TODO do we need most significant byte byte-order for each `ushort` for this to work?
+        const uint[] rKey = typedKey.representation; // lexical byte-order
+        // TODO fix most significant byte order of elements in rKey
         const ubyte[] key = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
         return key;
     }

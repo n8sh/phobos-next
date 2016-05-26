@@ -961,7 +961,7 @@ private struct RawRadixTree(Value,
         Node split(SLf curr, Key!radixPow2 prefix, Key!radixPow2 key) // TODO key here is a bit malplaced
         {
             Node next;
-            if (curr.suffix.length == 1 && key.length == 1) // storage in outer node is possible
+            if (curr.suffix.length == 1 && key.length == 1) // if (outer) leaf node storage is possible
             {
                 if (prefix.length == 0)
                 {

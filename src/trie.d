@@ -76,7 +76,7 @@ enum cacheLineSize = 64;
 
 shared static this()
 {
-    import core.cpuid;
+    import core.cpuid : dataCaches;
     assert(cacheLineSize == dataCaches()[0].lineSize, "Cache line is not 64 bytes");
 }
 

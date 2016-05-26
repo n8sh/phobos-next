@@ -64,8 +64,8 @@ extern(C) pure nothrow @system /* TODO @nogc */
 }
 
 /** Raw Internal (Unsigned Integer) Binary Key. */
-alias Key(size_t radixPow2) = Mod!(2^^radixPow2)[]; // TODO use bitset to more naturally support radixPow2 != 8
-alias KeyN(size_t radixPow2, size_t N) = Mod!(2^^radixPow2)[N];
+alias Key(size_t span) = Mod!(2^^span)[]; // TODO use bitset to more naturally support span != 8
+alias KeyN(size_t span, size_t N) = Mod!(2^^span)[N];
 
 /** Size of a CPU cache line in bytes.
 
@@ -83,10 +83,10 @@ shared static this()
 /** Statically allocated `Ix`-array of fixed pre-allocated length `maxLength`.
  */
 struct IxsN(size_t maxLength,
-            uint radixPow2 = 8)
+            uint span = 8)
     if (maxLength >= 2)         // no use storing less than 2 bytes
 {
-    enum M = 2^^radixPow2;     // branch-multiplicity, typically either 2, 4, 16 or 256
+    enum M = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
     alias Ix = Mod!M;
 
     this(Ixs...)(Ixs ixs)
@@ -170,15 +170,15 @@ static assert(IxsN!(6, 8).sizeof == 7);
     import std.algorithm : equal;
     import modulo : mod;
 
-    enum radixPow2 = 8;
-    enum M = 2^^radixPow2;
+    enum span = 8;
+    enum M = 2^^span;
 
     alias Ix = Mod!(M, ubyte);
     Ix[] ixs = [11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M];
     enum maxLength = 7;
 
-    auto x = IxsN!(maxLength, radixPow2)(ixs);
-    auto y = IxsN!(maxLength, radixPow2)(11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M);
+    auto x = IxsN!(maxLength, span)(ixs);
+    auto y = IxsN!(maxLength, span)(11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M);
 
     assert(x == y);
 
@@ -252,7 +252,7 @@ bool equalLength(R, Ss...)(const R r, const Ss ss) @safe pure nothrow @nogc
     See also: https://github.com/npgall/concurrent-trees
 */
 private struct RawRadixTree(Value,
-                            uint radixPow2 = 8) // binary power of radix, typically either 1, 2, 4 or 8
+                            uint span = 8) // binary power of radix, typically either 1, 2, 4 or 8
 {
     import std.bitmanip : bitfields;
     import std.conv : to;
@@ -261,22 +261,22 @@ private struct RawRadixTree(Value,
     import std.typecons : ConstOf;
     import bitset : BitSet;
 
-    static assert(radixPow2 == 8, "Radix is currently limited to 8");
+    static assert(span == 8, "Radix is currently limited to 8");
 
     enum isSet = is(Value == void); // `true` if this tree is a set. TODO better to use empty struct?
     enum isMap = !isSet;            // `true` if this tree is a map
 
-    enum radix = 2^^radixPow2;     // branch-multiplicity, typically either 2, 4, 16 or 256
+    enum radix = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
 
     alias order = radix;   // tree order
 
     /// `true` if tree has binary branch.
-    enum isBinary = radixPow2 == 2;
+    enum isBinary = span == 2;
 
     /** Radix Modulo Index */
     alias Ix = Mod!radix; // restricted index type avoids range checking in array indexing below
 
-    /** `radixPow2` least significant bits (LSB) of leaves directly packed into a word.
+    /** `span` least significant bits (LSB) of leaves directly packed into a word.
 
         TODO Generalize to packing of more than one `Ix` per byte.
         TODO respect byteorder in `MLf` to work with `WordVariant`
@@ -284,7 +284,7 @@ private struct RawRadixTree(Value,
     */
     static if (size_t.sizeof == 8) // 64-bit CPU
     {
-        static if (radixPow2 == 8)
+        static if (span == 8)
         {
             /// Variable-Length Single-Key Leaf
             struct SLf
@@ -300,7 +300,7 @@ private struct RawRadixTree(Value,
                     return s;
                 }
 
-                IxsN!(maxLength, radixPow2) suffix;
+                IxsN!(maxLength, span) suffix;
                 alias suffix this;
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
@@ -319,7 +319,7 @@ private struct RawRadixTree(Value,
                     return s;
                 }
 
-                IxsN!(maxLength, radixPow2) keys;
+                IxsN!(maxLength, span) keys;
                 alias keys this;
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
@@ -331,7 +331,7 @@ private struct RawRadixTree(Value,
         static assert(false, "Currently requires a 64-bit CPU (size_t.sizeof == 8)");
     }
 
-    static if (radixPow2 == 8)
+    static if (span == 8)
     {
         alias DefaultRootType = PBr*;
     }
@@ -354,7 +354,7 @@ private struct RawRadixTree(Value,
     /** Constant node. */
     // TODO make work with indexNaming alias ConstNodePtr = WordVariant!(staticMap!(ConstOf, NodeTypes));
 
-    static assert(radixPow2 <= 8*Ix.sizeof, "Need more precision in Ix");
+    static assert(span <= 8*Ix.sizeof, "Need more precision in Ix");
 
     /** Tree Leaf Iterator. */
     struct It
@@ -538,7 +538,7 @@ private struct RawRadixTree(Value,
             foreach (const sub; subNodes)
             {
                 ++count;
-                sub.calculate!(Value, radixPow2)(stats);
+                sub.calculate!(Value, span)(stats);
             }
             assert(count <= radix);
             ++stats.popHist_PBr[count - 1]; // TODO type-safe indexing
@@ -622,7 +622,7 @@ private struct RawRadixTree(Value,
                 if (subNode)
                 {
                     ++count;
-                    subNode.calculate!(Value, radixPow2)(stats);
+                    subNode.calculate!(Value, span)(stats);
                 }
             }
             assert(count <= radix);
@@ -777,7 +777,7 @@ private struct RawRadixTree(Value,
     Stats usageHistograms() const
     {
         typeof(return) stats;
-        _root.calculate!(Value, radixPow2)(stats);
+        _root.calculate!(Value, span)(stats);
         return stats;
     }
 
@@ -804,12 +804,12 @@ private struct RawRadixTree(Value,
     @safe pure nothrow /* TODO @nogc */
     {
         /** Insert `key` into `this` tree. */
-        pragma(inline) Node insert(Key!radixPow2 key, out bool wasAdded)
+        pragma(inline) Node insert(Key!span key, out bool wasAdded)
         {
             return _root = insertAt(_root, key, 0, wasAdded);
         }
 
-        Node insertNew(Key!radixPow2 key, size_t superPrefixLength, out bool wasAdded)
+        Node insertNew(Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
             if (key.length <= SLf.maxLength)
             {
@@ -827,7 +827,7 @@ private struct RawRadixTree(Value,
         }
 
         /** Insert `key` into sub-tree under root `curr`. */
-        pragma(inline) Node insertAt(Node curr, Key!radixPow2 key, size_t superPrefixLength, out bool wasAdded)
+        pragma(inline) Node insertAt(Node curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
             if (!curr)          // if no existing `Node` to insert at
             {
@@ -854,7 +854,7 @@ private struct RawRadixTree(Value,
             }
         }
 
-        Node insertAtBranch(Node curr, Key!radixPow2 key, size_t superPrefixLength, out bool wasAdded)
+        Node insertAtBranch(Node curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
             import std.algorithm : commonPrefix;
             auto currPrefix = getPrefix(curr);
@@ -914,7 +914,7 @@ private struct RawRadixTree(Value,
                                    wasAdded));
         }
 
-        Node insertAt(SLf curr, Key!radixPow2 key, size_t superPrefixLength, out bool wasAdded)
+        Node insertAt(SLf curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
             import std.range : empty;
             import std.algorithm : commonPrefix;
@@ -937,7 +937,7 @@ private struct RawRadixTree(Value,
             }
         }
 
-        Node insertAt(MLf curr, Key!radixPow2 key, size_t superPrefixLength, out bool wasAdded)
+        Node insertAt(MLf curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
             const Ix ix = key[0];
 
@@ -962,7 +962,7 @@ private struct RawRadixTree(Value,
         }
 
         /** Split `curr` using `prefix`. */
-        Node split(SLf curr, Key!radixPow2 prefix, Key!radixPow2 key) // TODO key here is a bit malplaced
+        Node split(SLf curr, Key!span prefix, Key!span key) // TODO key here is a bit malplaced
         {
             Node next;
             if (curr.suffix.length == 1 && key.length == 1) // if (outer) leaf node storage is possible
@@ -994,7 +994,7 @@ private struct RawRadixTree(Value,
         }
 
         /** Construct and return sub-Node at `key`.  */
-        Node constructSub(Key!radixPow2 key)
+        Node constructSub(Key!span key)
         {
             import std.range : empty;
             if (key.empty)
@@ -1202,11 +1202,11 @@ private struct RawRadixTree(Value,
 
 /** Append statistics of tree under `Node` `sub.` into `stats`.
  */
-static private void calculate(Value, uint radixPow2)(RawRadixTree!(Value, radixPow2).Node sub,
-                                                   ref RawRadixTree!(Value, radixPow2).Stats stats)
+static private void calculate(Value, uint span)(RawRadixTree!(Value, span).Node sub,
+                                                   ref RawRadixTree!(Value, span).Stats stats)
     @safe pure nothrow /* TODO @nogc */
 {
-    alias RT = RawRadixTree!(Value, radixPow2);
+    alias RT = RawRadixTree!(Value, span);
     ++stats.popByNodeType[sub.typeIx];
 
     with (RT.Node.Ix)
@@ -1224,7 +1224,7 @@ static private void calculate(Value, uint radixPow2)(RawRadixTree!(Value, radixP
 }
 
 /// Radix-Tree with key-type `Key` and value-type `Value`.
-struct RadixTree(Key, Value, uint radixPow2 = 8)
+struct RadixTree(Key, Value, uint span = 8)
     if (allSatisfy!(isTrieableKeyType, Key))
 {
     this(bool unusedDummy)      // TODO how do we get rid of the need for `unusedDummy`?
@@ -1248,16 +1248,16 @@ struct RadixTree(Key, Value, uint radixPow2 = 8)
             const ukey = typedKey.bijectToUnsigned;
 
             enum nbits = 8*ukey.sizeof; // bitsize of ukey
-            enum chunkCount = nbits/radixPow2; // number of chunks in ukey
-            static assert(chunkCount*radixPow2 == nbits, "Bitsize of Key must be a multiple of radixPow2:" ~ radixPow2.stringof);
+            enum chunkCount = nbits/span; // number of chunks in ukey
+            static assert(chunkCount*span == nbits, "Bitsize of Key must be a multiple of span:" ~ span.stringof);
 
-            KeyN!(radixPow2, Key.sizeof) key;
+            KeyN!(span, Key.sizeof) key;
 
-            static if (radixPow2 == 8)
+            static if (span == 8)
             {
                 foreach (bix; 0 .. chunkCount)
                 {
-                    const bitShift = (chunkCount - 1 - bix)*radixPow2; // most significant bit chunk first (MSBCF)
+                    const bitShift = (chunkCount - 1 - bix)*span; // most significant bit chunk first (MSBCF)
                     key[bix] = (ukey >> bitShift) & (radix - 1); // part of value which is also an index
                 }
             }
@@ -1325,7 +1325,7 @@ struct RadixTree(Key, Value, uint radixPow2 = 8)
         _tree.print();
     }
 
-    private RawRadixTree!(Value, radixPow2) _tree;
+    private RawRadixTree!(Value, span) _tree;
     alias _tree this;
 }
 alias PatriciaTrie = RadixTree;
@@ -1333,15 +1333,15 @@ alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
 
 /// Instantiator of set-version of `RadixTree` where value-type is `void` (unused).
-auto radixTreeSet(Key, uint radixPow2 = 4)() { return RadixTree!(Key, void, radixPow2)(false); }
+auto radixTreeSet(Key, uint span = 4)() { return RadixTree!(Key, void, span)(false); }
 
 /// Instantiator of map-version of `RadixTree` where value-type is `Value`.
-auto radixTreeMap(Key, Value, uint radixPow2 = 4)() { return RadixTree!(Key, Value, radixPow2)(false); }
+auto radixTreeMap(Key, Value, uint span = 4)() { return RadixTree!(Key, Value, span)(false); }
 
 @safe pure nothrow /* TODO @nogc */ unittest
 {
-    enum radixPow2 = 8;
-    auto set = radixTreeSet!(ushort, radixPow2);
+    enum span = 8;
+    auto set = radixTreeSet!(ushort, span);
 
     assert(set.insert(0));
     assert(!set.insert(0));
@@ -1362,8 +1362,8 @@ auto radixTreeMap(Key, Value, uint radixPow2 = 4)() { return RadixTree!(Key, Val
     assert(!set.insert(257));
 }
 
-/// Check correctness when radixPow2 is `radixPow2` and for each `Key` in `Keys`.
-auto check(uint radixPow2, Keys...)()
+/// Check correctness when span is `span` and for each `Key` in `Keys`.
+auto check(uint span, Keys...)()
     if (Keys.length >= 1)
 {
     import std.range : iota;
@@ -1376,7 +1376,7 @@ auto check(uint radixPow2, Keys...)()
         foreach (Key; Keys)
         {
             dln("Key: ", Key.stringof);
-            alias Tree = radixTreeSet!(Key, radixPow2);
+            alias Tree = radixTreeSet!(Key, span);
             auto set = Tree;
             assert(set.hasFixedKeyLength == isFixedTrieableKeyType!Key);
             assert(set.empty);
@@ -1430,7 +1430,7 @@ auto check(uint radixPow2, Keys...)()
                 assert(set.length == length);
             }
 
-            auto map = radixTreeMap!(Key, Value, radixPow2);
+            auto map = radixTreeMap!(Key, Value, span);
             assert(map.hasFixedKeyLength == isFixedTrieableKeyType!Key);
             static assert(map.isMap);
 
@@ -1439,8 +1439,8 @@ auto check(uint radixPow2, Keys...)()
     }
 }
 
-/// Benchmark performance and memory usage when radixPow2 is `radixPow2`.
-void benchmark(uint radixPow2)()
+/// Benchmark performance and memory usage when span is `span`.
+void benchmark(uint span)()
 {
     import core.thread : sleep;
     import std.range : iota;
@@ -1452,7 +1452,7 @@ void benchmark(uint radixPow2)()
     import std.meta : AliasSeq;
     foreach (Key; AliasSeq!(uint)) // just benchmark uint for now
     {
-        auto set = radixTreeSet!(Key, radixPow2);
+        auto set = radixTreeSet!(Key, span);
         alias Set = set;
         assert(set.empty);
 
@@ -1494,7 +1494,7 @@ void benchmark(uint radixPow2)()
             auto stats = set.usageHistograms;
             writeln("Sparse Bit-Branch Population Histogram: ", stats.popHist_BBr);
             writeln("Sparse 4-Branch Population Histogram: ", stats.popHist_PBr);
-            writeln("Dense radix=", 2^^radixPow2, "-Branch Population Histogram: ", stats.popHist_FBr);
+            writeln("Dense radix=", 2^^span, "-Branch Population Histogram: ", stats.popHist_FBr);
             writeln("Population By Node Type: ", stats.popByNodeType);
             writeln("Number of PBr with SLf-0 only subNodes: ", stats.allSLf0CountOfPBr);
             writeln("Number of FBr with SLf-0 only subNodes: ", stats.allSLf0CountOfFBr);
@@ -1540,7 +1540,7 @@ void benchmark(uint radixPow2)()
         // version(print)
         set.print();
 
-        auto map = radixTreeMap!(Key, Value, radixPow2);
+        auto map = radixTreeMap!(Key, Value, span);
         assert(map.empty);
         static assert(map.isMap);
 
@@ -1560,7 +1560,7 @@ unittest
         );
 }
 
-auto testPrint(uint radixPow2, Keys...)()
+auto testPrint(uint span, Keys...)()
     if (Keys.length >= 1)
 {
     import std.range : iota;
@@ -1569,7 +1569,7 @@ auto testPrint(uint radixPow2, Keys...)()
         foreach (Key; Keys)
         {
             dln("Key: ", Key.stringof);
-            alias Tree = radixTreeSet!(Key, radixPow2);
+            alias Tree = radixTreeSet!(Key, span);
             auto set = Tree;
 
             import std.algorithm : min, max;

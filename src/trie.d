@@ -23,10 +23,12 @@
 
     TODO Add `struct Range`. Use same construct as in `containers-em/src/containers/ttree.d`.
 
-    - Needs:
+    - Members:
       - Node _curr;
       - Ix _ix;
-    - Members front, popFront, empty
+      - front
+      - popFront
+      - empty
     - Reuse RefCounted reference to _root. Add checks with `isSorted`.
 
     Prefix:

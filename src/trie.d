@@ -823,8 +823,10 @@ private struct RawRadixTree(Value,
             case ix_FLfPtr:
                 return key.length == 1 && curr.as!(FLf*).hasSubAt(key[0]);
             case ix_PBrPtr:
+                auto curr_ = curr.as!(PBr*);
                 break;
             case ix_FBrPtr:
+                auto curr_ = curr.as!(FBr*);
                 break;
             }
             return false;
@@ -1175,36 +1177,36 @@ private struct RawRadixTree(Value,
         {
         case undefined: break;
         case ix_SLf:
-            auto currSLf = curr.as!(SLf);
-            writeln(typeof(currSLf).stringof, "#", currSLf.suffix.length, ": ", currSLf);
+            auto curr_ = curr.as!(SLf);
+            writeln(typeof(curr_).stringof, "#", curr_.suffix.length, ": ", curr_);
             break;
         case ix_MLf:
-            auto currMLf = curr.as!(MLf);
-            writeln(typeof(currMLf).stringof, "#", currMLf.keys.length, ": ", currMLf);
+            auto curr_ = curr.as!(MLf);
+            writeln(typeof(curr_).stringof, "#", curr_.keys.length, ": ", curr_);
             break;
         case ix_FLfPtr:
-            auto currFLf = curr.as!(FLf*);
-            write(typeof(*currFLf).stringof, ":");
-            if (!currFLf.prefix.empty) { write(" prefix=", currFLf.prefix); }
-            write(" #ones=", currFLf._keyBits.countOnes);
+            auto curr_ = curr.as!(FLf*);
+            write(typeof(*curr_).stringof, ":");
+            if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix); }
+            write(" #ones=", curr_._keyBits.countOnes);
             writeln();
             break;
         case ix_PBrPtr:
-            auto currPBr = curr.as!(PBr*);
-            write(typeof(*currPBr).stringof, "#", currPBr.subPopulation, ": ");
-            if (!currPBr.prefix.empty) { write(" prefix=", currPBr.prefix); }
+            auto curr_ = curr.as!(PBr*);
+            write(typeof(*curr_).stringof, "#", curr_.subPopulation, ": ");
+            if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix); }
             writeln();
-            foreach (const subNode; currPBr.subNodes)
+            foreach (const subNode; curr_.subNodes)
             {
                 printAt(subNode, depth + 1);
             }
             break;
         case ix_FBrPtr:
-            auto currFBr = curr.as!(FBr*);
-            write(typeof(*currFBr).stringof, "#", currFBr.subPopulation, ": ");
+            auto curr_ = curr.as!(FBr*);
+            write(typeof(*curr_).stringof, "#", curr_.subPopulation, ": ");
             writeln();
-            if (!currFBr.prefix.empty) { write(" prefix=", currFBr.prefix); }
-            foreach (const subNode; currFBr.subNodes)
+            if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix); }
+            foreach (const subNode; curr_.subNodes)
             {
                 printAt(subNode, depth + 1);
             }

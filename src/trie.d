@@ -291,6 +291,15 @@ private struct RawRadixTree(Value,
             {
                 enum maxLength = (size_t.sizeof - 2) / Ix.sizeof;
                 this(Ix[] suffix) { this.suffix = suffix; }
+
+                @property string toString() const @safe pure
+                {
+                    import std.string : format;
+                    string s;
+                    foreach (key; suffix) { s ~= format("%.2x", key); }
+                    return s;
+                }
+
                 IxsN!(maxLength, radixPow2) suffix;
                 alias suffix this;
             private:
@@ -301,6 +310,15 @@ private struct RawRadixTree(Value,
             struct MLf
             {
                 enum maxLength = (size_t.sizeof - 2) / Ix.sizeof; // maximum number of elements
+
+                @property string toString() const @safe pure
+                {
+                    import std.string : format;
+                    string s;
+                    foreach (key; keys[0 .. length]) { s ~= format("%.2x", key) ~ ','; }
+                    return s;
+                }
+
                 Ix[maxLength] keys;
                 ubyte length; // number of objects defined in keys
             private:
@@ -1135,11 +1153,11 @@ private struct RawRadixTree(Value,
             case undefined: break;
             case ix_SLf:
                 auto currSLf = curr.as!(SLf);
-                writeln(typeof(currSLf).stringof, "#", currSLf.length, ": ", currSLf[]);
+                writeln(typeof(currSLf).stringof, "#", currSLf.length, ": ", currSLf);
                 break;
             case ix_MLf:
                 auto currMLf = curr.as!(MLf);
-                writeln(typeof(currMLf).stringof, "#", currMLf.length, ": ", currMLf.keys[0 .. currMLf.length]);
+                writeln(typeof(currMLf).stringof, "#", currMLf.length, ": ", currMLf);
                 break;
             case ix_BBrPtr:
                 auto currBBr = curr.as!(BBr*);

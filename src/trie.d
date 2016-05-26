@@ -803,12 +803,13 @@ private struct RawRadixTree(Value,
 
     const @safe pure nothrow /* TODO @nogc */
     {
+        /** Returns: `true` if `key` is stored, `false` otherwise. */
         pragma(inline) bool contains(in Key!span key)
         {
             return containsAt(_root, key);
         }
 
-        /** Insert `key` into sub-tree under root `curr`. */
+        /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
         pragma(inline) bool containsAt(Node curr, in Key!span key)
         {
             final switch (curr.typeIx) with (Node.Ix)
@@ -1323,7 +1324,7 @@ struct RadixTree(TypedKey, Value, uint span = 8)
     {
         const nothrow:
 
-        /** Returns: `true` if key is contained in set, `false` otherwise. */
+        /** Returns: `true` if `key` is stored, `false` otherwise. */
         bool contains(in TypedKey typedKey)
         {
             return _tree.contains(typedKey.remapKey);

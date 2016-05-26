@@ -811,6 +811,21 @@ private struct RawRadixTree(Value,
         /** Insert `key` into sub-tree under root `curr`. */
         pragma(inline) bool containsAt(Node curr, in Key!span key)
         {
+            with (Node.Ix)
+            {
+                final switch (curr.typeIx)
+                {
+                case undefined: break; // ignored
+                case ix_SLf:
+                    return curr.as!(SLf).suffix == key;
+                case ix_MLf:
+                    import std.algorithm.searching : canFind;
+                    return key.length == 1 && curr.as!(MLf).keys.canFind(key[0]);
+                case ix_BBrPtr: break;
+                case ix_PBrPtr: break;
+                case ix_FBrPtr: break;
+                }
+            }
             return false;
         }
     }
@@ -953,11 +968,11 @@ private struct RawRadixTree(Value,
 
         Node insertAt(MLf curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
-            const Ix ix = key[0];
+            assert(key.length == 1);
 
             // check if already stored in `curr`
             import std.algorithm.searching : canFind;
-            if (curr.keys[0 .. curr.length].canFind(ix)) // if already stored. TODO use binarySearch
+            if (curr.keys.canFind(key[0])) // if already stored. TODO use binarySearch
             {
                 return Node(curr); // already there, so return current node as is
             }
@@ -965,7 +980,7 @@ private struct RawRadixTree(Value,
             // not already stored `curr` so add it
             if (curr.length < curr.maxLength) // if room left
             {
-                curr.keys.pushBack(ix);
+                curr.keys.pushBack(key[0]);
                 wasAdded = true;
                 return Node(curr); // current node still ok
             }

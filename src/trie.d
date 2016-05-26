@@ -574,11 +574,11 @@ private struct RawRadixTree(Value,
         {
             this.prefix = rhs.prefix;
             this.isKey = rhs.isKey;
-            foreach (i; 0 .. rhs.subCount) // each sub node. TODO use iota!(Mod!N)
+            foreach (const i; 0 .. rhs.subCount) // each sub node. TODO use iota!(Mod!N)
             {
                 const iN = i.mod!(PBr.N);
-                const ix = rhs.subIxSlots[iN];
-                this.subNodes[ix] = rhs.subNodes[iN];
+                const subIx = rhs.subIxSlots[iN];
+                this.subNodes[subIx] = rhs.subNodes[iN];
             }
         }
 

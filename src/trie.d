@@ -19,7 +19,6 @@
 
     TODO Provide `opIndex` and make `opSlice` for set-case (`Value` is `void`) return `SortedRange`
     TODO Provide RandomAccess `opIndex` and `opSlice`! for variable-length keys aswell?
-    TODO Provide in operator for fixed-length keys!?
 
     TODO Add RadixTreeRange.{front,popFront,empty}. Reuse RefCounted reference
     to _root. Add checks with `isSorted`.

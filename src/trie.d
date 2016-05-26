@@ -1143,8 +1143,6 @@ private struct RawRadixTree(Value,
             write('-');
         }
 
-        write(' ');
-
         with (Node.Ix)
         {
             import std.algorithm : map;

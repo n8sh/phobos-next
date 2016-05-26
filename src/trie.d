@@ -311,6 +311,12 @@ private struct RawRadixTree(Value,
             {
                 enum maxLength = (size_t.sizeof - 2) / Ix.sizeof; // maximum number of elements
 
+                pragma(inline) bool contains(Key!span key) const @nogc
+                {
+                    import std.algorithm.searching : canFind;
+                    return key.length == 1 && keys[].canFind(key[0]); // TODO use binarySearch
+                }
+
                 @property string toString() const @safe pure
                 {
                     import std.string : format;
@@ -824,10 +830,7 @@ private struct RawRadixTree(Value,
             {
             case undefined: break; // ignored
             case ix_SLf:    return curr.as!(SLf).suffix == key;
-            case ix_MLf:
-                // TODO functionize to MLf.contains()
-                import std.algorithm.searching : canFind;
-                return key.length == 1 && curr.as!(MLf).keys.canFind(key[0]); // TODO use binarySearch
+            case ix_MLf:    return curr.as!(MLf).contains(key);
             case ix_FLfPtr: return curr.as!(FLf*).contains(key);
             case ix_PBrPtr:
                 auto curr_ = curr.as!(PBr*);

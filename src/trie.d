@@ -23,7 +23,7 @@
 
     TODO Add `struct Range`. Use same construct as in `containers-em/src/containers/ttree.d`.
 
-    TODO Add RadixTreeRange.{front,popFront,empty}. Reuse RefCounted reference
+    TODO Add RawRadixTree.Range.{front,popFront,empty}. Reuse RefCounted reference
     to _root. Add checks with `isSorted`.
 
     Prefix:

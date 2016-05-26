@@ -1180,7 +1180,6 @@ private struct RawRadixTree(Value,
                 break;
             case ix_FBrPtr:
                 auto currFBr = curr.as!(FBr*);
-                import std.algorithm : count;
                 write(typeof(*currFBr).stringof, "#", currFBr.subPopulation, ": ");
                 writeln();
                 if (!currFBr.prefix.empty) { write(" prefix=", currFBr.prefix); }

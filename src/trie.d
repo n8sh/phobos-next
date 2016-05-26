@@ -952,6 +952,7 @@ private struct RawRadixTree(Value,
                 curr = Node(construct!(DefaultBr)(matchedPrefix, false, // key is not occupied
                                                   subIx, curr));
                 key = key[matchedPrefix.length .. $];
+                superPrefixLength += matchedPrefix.length;
             }
             // prefix:"ab", key:"ab"
             else if (matchedPrefix.length == currPrefix.length && // exact key prefix match

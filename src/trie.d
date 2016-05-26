@@ -18,7 +18,6 @@
     TODO Can we somehow overload opIndex so we can do brM[i] instead of more cumbersome (*brM)[i] when brM is of type FBr*?
 
     TODO Provide `opIndex` and make `opSlice` for set-case (`Value` is `void`) return `SortedRange`
-    TODO Provide RandomAccess `opIndex` and `opSlice`! for variable-length keys aswell?
 
     TODO Add RadixTreeRange.{front,popFront,empty}. Reuse RefCounted reference
     to _root. Add checks with `isSorted`.

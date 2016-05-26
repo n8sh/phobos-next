@@ -826,6 +826,7 @@ private struct RawRadixTree(Value,
         /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
         pragma(inline) bool containsAt(Node curr, Key!span key)
         {
+            import std.algorithm : skipOver;
             final switch (curr.typeIx) with (Node.Ix)
             {
             case undefined: return false;
@@ -834,13 +835,11 @@ private struct RawRadixTree(Value,
             case ix_FLfPtr: return curr.as!(FLf*).contains(key);
             case ix_PBrPtr:
                 auto curr_ = curr.as!(PBr*);
-                import std.algorithm : skipOver;
                 return (key.skipOver(curr_.prefix) &&
                         key.length &&
                         containsAt(curr_.findSub(key[0]), key[1 .. $])); // recurse
             case ix_FBrPtr:
                 auto curr_ = curr.as!(FBr*);
-                import std.algorithm : skipOver;
                 return (key.skipOver(curr_.prefix) &&
                         key.length &&
                         containsAt(curr_.subNodes[key[0]], key[1 .. $])); // recurse
@@ -960,10 +959,9 @@ private struct RawRadixTree(Value,
 
         Node insertAt(SLf curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
-            import std.range : empty;
             import std.algorithm : commonPrefix;
 
-            if (key.empty)
+            if (key.length == 0)
             {
                 assert(curr.suffix.empty, "Leaf is not empty when key is");
                 return Node(curr);
@@ -1036,8 +1034,7 @@ private struct RawRadixTree(Value,
         /** Construct and return sub-Node at `key`.  */
         Node constructSub(Key!span key)
         {
-            import std.range : empty;
-            if (key.empty)
+            if (key.length == 0)
             {
                 return Node(construct!(SLf));
             }

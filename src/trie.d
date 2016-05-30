@@ -7,8 +7,8 @@
 
     TODO Optimize PBr.findSub for specific `subPopulation`
 
-    TODO Use bitset storage in PBr and call it PBr. Active when sizeof BrN
-    is larger than 32 bytes (256 bits) and all leaves are single SLf. Converted to when BrN.length >= someLimit
+    TODO Expand PBr to BBr when sizeof BrN is larger than 32 bytes (256 bits) and all
+    leaves are single SLf. Converted to when BrN.length >= someLimit
 
     TODO Add function reprefix({PBr|FBr) and call after insertAt({PBr|FBr}). Only useful when one single leaf is present?
     TODO Is std.algorithm.countUntil the most suitable function to use in setSub(PBr*, ...)

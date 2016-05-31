@@ -1414,15 +1414,14 @@ alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
 
 /// Instantiator of set-version of `RadixTree` where value-type is `void` (unused).
-auto radixTreeSet(Key, uint span = 4)() { return RadixTree!(Key, void, span)(false); }
+auto radixTreeSet(Key, uint span = 8)() { return RadixTree!(Key, void, span)(false); }
 
 /// Instantiator of map-version of `RadixTree` where value-type is `Value`.
-auto radixTreeMap(Key, Value, uint span = 4)() { return RadixTree!(Key, Value, span)(false); }
+auto radixTreeMap(Key, Value, uint span = 8)() { return RadixTree!(Key, Value, span)(false); }
 
 @safe pure nothrow /* TODO @nogc */ unittest
 {
-    enum span = 8;
-    auto set = radixTreeSet!(ushort, span);
+    auto set = radixTreeSet!(ushort);
 
     assert(set.insert(0));
     assert(!set.insert(0));
@@ -1441,6 +1440,29 @@ auto radixTreeMap(Key, Value, uint span = 4)() { return RadixTree!(Key, Value, s
 
     assert(set.insert(257));
     assert(!set.insert(257));
+}
+
+// @safe pure nothrow
+/* TODO @nogc */ unittest
+{
+    auto set = radixTreeSet!(ulong);
+
+    assert(set.insert(0));
+    assert(!set.insert(0));
+    assert(set.branchCount == 1);
+
+    foreach (const i; 1 .. 256)
+    {
+        assert(set.insert(i));
+        assert(!set.insert(i));
+        assert(set.branchCount == 1);
+    }
+
+    assert(set.insert(256));
+    assert(!set.insert(256));
+    assert(set.branchCount == 2);
+
+    set.print();
 }
 
 /// Check correctness when span is `span` and for each `Key` in `Keys`.

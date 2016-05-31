@@ -796,29 +796,33 @@ private struct RawRadixTree(Value,
         }
     }
 
-    /** Get prefix of branch node `br`. */
-    auto getPrefix(inout Node br) @safe pure nothrow
+    /** Get prefix of node `curr`. */
+    auto getPrefix(inout Node curr) @safe pure nothrow
     {
-        switch (br.typeIx)
+        switch (curr.typeIx)
         {
-        case Node.Ix.ix_FLfPtr: return br.as!(FLf*).prefix[];
-        case Node.Ix.ix_PBrPtr: return br.as!(PBr*).prefix[];
-        case Node.Ix.ix_FBrPtr: return br.as!(FBr*).prefix[];
+        case Node.Ix.ix_SLf:    return curr.as!(SLf).suffix[]; // suffix is the prefix
+        case Node.Ix.ix_MLf:    return inout(Ix[]).init; // no prefix
+        case Node.Ix.ix_FLfPtr: return curr.as!(FLf*).prefix[];
+        case Node.Ix.ix_PBrPtr: return curr.as!(PBr*).prefix[];
+        case Node.Ix.ix_FBrPtr: return curr.as!(FBr*).prefix[];
             // TODO extend to leaves aswell?
-        default: assert(false, "Unsupported Node type " ~ br.typeIx.to!string);
+        default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
         }
     }
 
-    /** Set prefix of branch node `br` to `prefix`. */
-    void setPrefix(Node br, Ix[] prefix) @safe pure nothrow
+    /** Set prefix of branch node `curr` to `prefix`. */
+    void setPrefix(Node curr, Ix[] prefix) @safe pure nothrow
     {
-        switch (br.typeIx)
+        switch (curr.typeIx)
         {
-        case Node.Ix.ix_FLfPtr: br.as!(FLf*).prefix = typeof(br.as!(FLf*).prefix)(prefix); break;
-        case Node.Ix.ix_PBrPtr: br.as!(PBr*).prefix = typeof(br.as!(PBr*).prefix)(prefix); break;
-        case Node.Ix.ix_FBrPtr: br.as!(FBr*).prefix = typeof(br.as!(FBr*).prefix)(prefix); break;
+        case Node.Ix.ix_SLf:    curr.as!(SLf).suffix  = typeof(curr.as!(SLf).suffix)(prefix); break;
+        case Node.Ix.ix_MLf:    assert(prefix.length == 0); break;
+        case Node.Ix.ix_FLfPtr: curr.as!(FLf*).prefix = typeof(curr.as!(FLf*).prefix)(prefix); break;
+        case Node.Ix.ix_PBrPtr: curr.as!(PBr*).prefix = typeof(curr.as!(PBr*).prefix)(prefix); break;
+        case Node.Ix.ix_FBrPtr: curr.as!(FBr*).prefix = typeof(curr.as!(FBr*).prefix)(prefix); break;
             // TODO extend to leaves aswell?
-        default: assert(false, "Unsupported Node type " ~ br.typeIx.to!string);
+        default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
         }
     }
 
@@ -909,6 +913,7 @@ private struct RawRadixTree(Value,
             {
                 import std.algorithm : min;
                 auto brKey = key[0 .. min(key.length, DefaultBr.maxPrefixLength)];
+                dln("Creating DefaultBr: key:", key, " brKey:", brKey, " superPrefixLength:", superPrefixLength);
                 auto next = insertAt(Node(construct!(DefaultBr)(brKey, false)), // as much as possible of key in branch prefix
                                      key, superPrefixLength, wasAdded);
                 assert(wasAdded);
@@ -962,6 +967,7 @@ private struct RawRadixTree(Value,
             {
                 const subIx = currPrefix[matchedPrefix.length]; // need index first
                 setPrefix(curr, currPrefix[matchedPrefix.length + 1 .. $]); // drop matchedPrefix plus index
+                dln("Creating DefaultBr:", " matchedPrefix:", matchedPrefix);
                 return Node(construct!(DefaultBr)(matchedPrefix, true, // `true` because `key` occupies this node
                                                   subIx, curr));
             }
@@ -971,6 +977,7 @@ private struct RawRadixTree(Value,
             {
                 const subIx = currPrefix[matchedPrefix.length]; // need index first
                 setPrefix(curr, currPrefix[matchedPrefix.length + 1 .. $]); // drop matchedPrefix plus index
+                dln("Creating DefaultBr:", " matchedPrefix:", matchedPrefix);
                 curr = Node(construct!(DefaultBr)(matchedPrefix, false, // key is not occupied
                                                   subIx, curr));
                 key = key[matchedPrefix.length .. $];
@@ -998,6 +1005,7 @@ private struct RawRadixTree(Value,
                 {
                     const subIx = currPrefix[0]; // subIx = 'a'
                     setPrefix(curr, currPrefix[1 .. $].to!(typeof(DefaultBr.prefix))); // new prefix becomes "b"
+                    dln("Creating DefaultBr:");
                     return insertAt(Node(construct!(DefaultBr)(Ix[].init, false, subIx, curr)),
                                     key,
                                     superPrefixLength,

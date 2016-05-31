@@ -443,13 +443,19 @@ private struct RawRadixTree(Value,
     static private struct FLf
     {
         enum prefixLength = 5;
+        enum maxSubCount = 256;
 
         @safe pure nothrow:
 
-        this(Ix[] prefix, bool isKey = false)
+        this(Ixs...)(Ix[] prefix, bool isKey, Ixs subIxs)
+            if (Ixs.length <= maxSubCount)
         {
             this.prefix = prefix;
             this.isKey = isKey;
+            foreach (subIx; subIxs)
+            {
+                _keyBits[subIx] = true;
+            }
         }
 
         pragma(inline) bool hasSubAt(Ix ix) const @nogc { return _keyBits[ix]; }
@@ -492,6 +498,7 @@ private struct RawRadixTree(Value,
         {
             this.prefix = prefix;
             this.isKey = isKey;
+            assert(!isBitPackable);
         }
 
         this(Ix[] prefix, bool isKey, Ix subIx, Node subNode)
@@ -501,6 +508,7 @@ private struct RawRadixTree(Value,
             this.subIxSlots.at!0 = subIx;
             this.subNodeSlots.at!0 = subNode;
             this.subPopulation = 1;
+            assert(!isBitPackable);
         }
 
         void pushBackSub(Tuple!(Ix, Node) sub)
@@ -1014,15 +1022,23 @@ private struct RawRadixTree(Value,
             }
 
             auto matchedPrefix = commonPrefix(key, curr.suffix);
-            if (equalLength(matchedPrefix, key, curr.suffix)) // key already stored
+            if (curr.suffix.length == key.length)
             {
-                return Node(curr); // already stored in `curr`
+                if (matchedPrefix.length == key.length) // curr.suffix, key and matchedPrefix all equal
+                {
+                    return Node(curr); // already stored in `curr`
+                }
+                else if (matchedPrefix.length + 1 == key.length) // key and curr.suffix are both matchedPrefix plus one extra
+                {
+                    auto next = construct!(FLf*)(matchedPrefix, false,
+                                                 curr.suffix[$ - 1],
+                                                 key[$ - 1]);
+                    freeNode(curr);
+                    return Node(next);
+                }
             }
-            else
-            {
-                return insertAt(split(curr, matchedPrefix, key),
-                                key, superPrefixLength, wasAdded);
-            }
+            return insertAt(split(curr, matchedPrefix, key),
+                            key, superPrefixLength, wasAdded);
         }
 
         Node insertAt(MLf curr, Key!span key, size_t superPrefixLength, out bool wasAdded)

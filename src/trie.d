@@ -442,7 +442,7 @@ private struct RawRadixTree(Value,
     /** Full Bitset Branch with only bottom-most leaves. */
     static private struct FLf
     {
-        enum prefixLength = 5;
+        enum maxPrefixLength = 5;
         enum maxSubCount = 256;
 
         @safe pure nothrow:
@@ -479,7 +479,7 @@ private struct RawRadixTree(Value,
 
         private:
         BitSet!radix _keyBits;  // 32 bytes
-        IxsN!prefixLength prefix; // prefix common to all `subNodes` (also called edge-label)
+        IxsN!maxPrefixLength prefix; // prefix common to all `subNodes` (also called edge-label)
         bool isKey;
     }
 
@@ -490,7 +490,7 @@ private struct RawRadixTree(Value,
     {
         enum N = 4;
 
-        enum prefixLength = 7;
+        enum maxPrefixLength = 7;
 
         @safe pure nothrow:
 
@@ -589,7 +589,7 @@ private struct RawRadixTree(Value,
 
         // members in order of decreasing `alignof`:
         StrictlyIndexed!(Node[N]) subNodeSlots;
-        IxsN!prefixLength prefix; // prefix common to all `subNodes` (also called edge-label)
+        IxsN!maxPrefixLength prefix; // prefix common to all `subNodes` (also called edge-label)
         StrictlyIndexed!(Ix[N]) subIxSlots;
         mixin(bitfields!(ubyte, "subPopulation", 7, // counts length of defined elements in subNodeSlots
                          bool, "isKey", 1)); // key at this branch is occupied
@@ -597,11 +597,11 @@ private struct RawRadixTree(Value,
 
     static assert(PBr.sizeof == 48);
 
-    enum brMPrefixLength = 15; // we can afford larger prefix here because FBr is so large
-
     /** Dense/Unpacked `radix`-branch with `radix` number of sub-nodes. */
     static private struct FBr
     {
+        enum maxPrefixLength = 15; // we can afford larger prefix here because FBr is so large
+
         @safe pure nothrow:
 
         this(Ix[] prefix, bool isKey = false)
@@ -624,7 +624,7 @@ private struct RawRadixTree(Value,
             // assert(false);
         }
 
-        IxsN!brMPrefixLength prefix; // prefix (edge-label) common to all `subNodes`
+        IxsN!maxPrefixLength prefix; // prefix (edge-label) common to all `subNodes`
         bool isKey;      // key at this branch is occupied
         StrictlyIndexed!(Node[radix]) subNodes;
 
@@ -632,15 +632,21 @@ private struct RawRadixTree(Value,
             contains only subNodes of type `SLf` of zero length. */
         bool isBitPackable() const @safe pure nothrow /* TODO @nogc */
         {
-            typeof(return) allSLf0 = true;
             foreach (const subNode; subNodes)
             {
                 if (const subSLfRef = subNode.peek!SLf)
                 {
-                    if ((*subSLfRef).suffix.length != 0) { allSLf0 = false; }
+                    if ((*subSLfRef).suffix.length != 0)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
                 }
             }
-            return allSLf0;
+            return true;
         }
 
         /// Number of non-null sub-Nodes.
@@ -904,7 +910,7 @@ private struct RawRadixTree(Value,
             else                // key doesn't fit in a `SLf`
             {
                 import std.algorithm : min;
-                auto brKey = key[0 .. min(key.length, DefaultBr.prefixLength)];
+                auto brKey = key[0 .. min(key.length, DefaultBr.maxPrefixLength)];
                 auto next = insertAt(Node(construct!(DefaultBr)(brKey, false)), // as much as possible of key in branch prefix
                                      key, superPrefixLength, wasAdded);
                 assert(wasAdded);

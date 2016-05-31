@@ -751,6 +751,10 @@ private struct RawRadixTree(Value,
     {
         switch (curr.typeIx)
         {
+        // case Node.Ix.ix_SLf:
+        //     auto currSLf = curr.as!(SLf);
+        //     if (currSLf.suffix.length == 1 && currSLf.suffix[0] == ix) { return curr; }
+        //     break;
         case Node.Ix.ix_FLfPtr:
             if (curr.as!(FLf*).hasSubAt(ix))
             {

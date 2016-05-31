@@ -746,53 +746,53 @@ private struct RawRadixTree(Value,
         return Node(curr);
     }
 
-    /** Get sub-`Node` of branch `Node br` at index `ix. */
-    inout(Node) getSub(inout Node br, Ix ix) @safe pure nothrow
+    /** Get sub-`Node` of branch `Node curr` at index `ix. */
+    inout(Node) getSub(inout Node curr, Ix ix) @safe pure nothrow
     {
-        switch (br.typeIx)
+        switch (curr.typeIx)
         {
         case Node.Ix.ix_FLfPtr:
-            if (br.as!(FLf*).hasSubAt(ix))
+            if (curr.as!(FLf*).hasSubAt(ix))
             {
                 return Node(SLf.init);
             }
             break;
         case Node.Ix.ix_PBrPtr:
-            if (auto subNode = br.as!(PBr*).findSub(ix))
+            if (auto subNode = curr.as!(PBr*).findSub(ix))
             {
                 return subNode;
             }
             break;
         case Node.Ix.ix_FBrPtr:
-            return br.as!(FBr*).subNodes[ix];
+            return curr.as!(FBr*).subNodes[ix];
         default:
-            assert(false, "Unsupported Node type " ~ br.typeIx.to!string);
+            assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
         }
         return Node.init;
     }
 
-    /** Returns: `true` if `br` is occupied, `false` otherwise. */
-    pragma(inline) bool isKey(Node br) const @safe pure nothrow
+    /** Returns: `true` if `curr` is occupied, `false` otherwise. */
+    pragma(inline) bool isKey(Node curr) const @safe pure nothrow
     {
-        switch (br.typeIx)
+        switch (curr.typeIx)
         {
-        case Node.Ix.ix_FLfPtr: return br.as!(FLf*).isKey;
-        case Node.Ix.ix_PBrPtr: return br.as!(PBr*).isKey;
-        case Node.Ix.ix_FBrPtr: return br.as!(FBr*).isKey;
+        case Node.Ix.ix_FLfPtr: return curr.as!(FLf*).isKey;
+        case Node.Ix.ix_PBrPtr: return curr.as!(PBr*).isKey;
+        case Node.Ix.ix_FBrPtr: return curr.as!(FBr*).isKey;
             // TODO extend to leaves aswell?
-        default: assert(false, "Unsupported Node type " ~ br.typeIx.to!string);
+        default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
         }
     }
 
-    pragma(inline) void makeKey(Node br) const @safe pure nothrow
+    pragma(inline) void makeKey(Node curr) const @safe pure nothrow
     {
-        switch (br.typeIx)
+        switch (curr.typeIx)
         {
-        case Node.Ix.ix_FLfPtr: br.as!(FLf*).isKey = true; break;
-        case Node.Ix.ix_PBrPtr: br.as!(PBr*).isKey = true; break;
-        case Node.Ix.ix_FBrPtr: br.as!(FBr*).isKey = true; break;
+        case Node.Ix.ix_FLfPtr: curr.as!(FLf*).isKey = true; break;
+        case Node.Ix.ix_PBrPtr: curr.as!(PBr*).isKey = true; break;
+        case Node.Ix.ix_FBrPtr: curr.as!(FBr*).isKey = true; break;
             // TODO extend to leaves aswell?
-        default: assert(false, "Unsupported Node type " ~ br.typeIx.to!string);
+        default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
         }
     }
 

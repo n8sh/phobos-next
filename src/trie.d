@@ -620,6 +620,8 @@ private struct RawRadixTree(Value,
                 const subIx = rhs.subIxSlots[iN];
                 this.subNodes[subIx] = rhs.subNodes[iN];
             }
+            // dln("Expanded PBr:", *rhs, " to ", this);
+            // assert(false);
         }
 
         IxsN!brMPrefixLength prefix; // prefix (edge-label) common to all `subNodes`

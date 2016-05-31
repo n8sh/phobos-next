@@ -548,18 +548,21 @@ private struct RawRadixTree(Value,
 
         /** Returns `true` if this branch can be packed into a bitset, that is
             contains only sub-nodes of type `SLf` of zero length. */
-        bool isBitPackable() const @nogc
+        bool isBitPackable() const /* TODO @nogc */
         {
-            typeof(return) allSLf0 = true;
             foreach (const sub; subNodes)
             {
                 if (const subSLfRef = sub.peek!SLf)
                 {
                     const subSLf = *subSLfRef;
-                    if (subSLf.suffix.length != 0) { allSLf0 = false; }
+                    if (subSLf.suffix.length != 0) { return false; }
+                }
+                else
+                {
+                    return false;
                 }
             }
-            return allSLf0;
+            return true;
         }
 
         /** Append statistics of tree under `this` into `stats`. */
@@ -619,7 +622,7 @@ private struct RawRadixTree(Value,
 
         /** Returns `true` if this branch can be packed into a bitset, that is
             contains only subNodes of type `SLf` of zero length. */
-        bool isBitPackable() const @safe pure nothrow @nogc
+        bool isBitPackable() const @safe pure nothrow /* TODO @nogc */
         {
             typeof(return) allSLf0 = true;
             foreach (const subNode; subNodes)
@@ -707,6 +710,7 @@ private struct RawRadixTree(Value,
     Node setSub(PBr* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
         import std.algorithm : countUntil;
+        assert(!curr.isBitPackable);
         const i = curr.subIxSlots[0 .. curr.subPopulation].countUntil(subIx); // TODO is this the preferred function?
         if (i != -1)            // if hit. TODO use bool conversion if this gets added to countUntil
         {
@@ -716,15 +720,18 @@ private struct RawRadixTree(Value,
         {
             curr.pushBackSub(tuple(subIx, subNode)); // add one to existing
         }
-        else
+        else                    // if no room left in curr we need to expand
         {
-            return setSub(expand(curr), subIx, subNode); // fast, because directly calls setSub(FBr*, ...)
+            auto next = construct!(FBr*)(curr);
+            freeNode(curr);
+            return setSub(next, subIx, subNode); // fast, because directly calls setSub(FBr*, ...)
         }
         return Node(curr);
     }
     /// ditto
     pragma(inline) Node setSub(FBr* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
+        assert(!curr.isBitPackable);
         curr.subNodes[subIx] = subNode;
         return Node(curr);
     }
@@ -914,7 +921,7 @@ private struct RawRadixTree(Value,
                 {
                 case undefined: break;
                 case ix_SLf:    return insertAt(curr.as!(SLf), key, superPrefixLength, wasAdded);
-                case ix_MLf:   return insertAt(curr.as!(MLf), key, superPrefixLength, wasAdded);
+                case ix_MLf:    return insertAt(curr.as!(MLf), key, superPrefixLength, wasAdded);
 
                 case ix_FLfPtr:
                 case ix_PBrPtr:
@@ -1084,14 +1091,6 @@ private struct RawRadixTree(Value,
                         Node(construct!(DefaultLf)) :
                         Node(construct!(DefaultBr)));
             }
-        }
-
-        /** Destructively expand `curr` of type `PBr` into a `FBr` and return it. */
-        FBr* expand(PBr* curr)
-        {
-            auto next = construct!(typeof(return))(curr);
-            freeNode(curr);
-            return next;
         }
 
         /** Destructively expand `curr` into a `FLf` and return it. */

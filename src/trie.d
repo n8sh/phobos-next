@@ -1033,6 +1033,7 @@ private struct RawRadixTree(Value,
                     auto next = construct!(FLf*)(matchedPrefix, false,
                                                  curr.suffix[$ - 1],
                                                  key[$ - 1]);
+                    wasAdded = true;
                     freeNode(curr);
                     return Node(next);
                 }

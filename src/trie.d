@@ -498,7 +498,6 @@ private struct RawRadixTree(Value,
         {
             this.prefix = prefix;
             this.isKey = isKey;
-            assert(!isBitPackable);
         }
 
         this(Ix[] prefix, bool isKey, Ix subIx, Node subNode)
@@ -508,7 +507,6 @@ private struct RawRadixTree(Value,
             this.subIxSlots.at!0 = subIx;
             this.subNodeSlots.at!0 = subNode;
             this.subPopulation = 1;
-            assert(!isBitPackable);
         }
 
         void pushBackSub(Tuple!(Ix, Node) sub)
@@ -718,7 +716,6 @@ private struct RawRadixTree(Value,
     Node setSub(PBr* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
         import std.algorithm : countUntil;
-        assert(!curr.isBitPackable);
         const i = curr.subIxSlots[0 .. curr.subPopulation].countUntil(subIx); // TODO is this the preferred function?
         if (i != -1)            // if hit. TODO use bool conversion if this gets added to countUntil
         {
@@ -739,7 +736,6 @@ private struct RawRadixTree(Value,
     /// ditto
     pragma(inline) Node setSub(FBr* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
-        assert(!curr.isBitPackable);
         curr.subNodes[subIx] = subNode;
         return Node(curr);
     }

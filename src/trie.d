@@ -491,7 +491,7 @@ private struct RawRadixTree(Value,
     {
         enum N = 4;
 
-        enum maxPrefixLength = 7;
+        enum maxPrefixLength = 10; // 2, 10, 18, ...
 
         @safe pure nothrow:
 
@@ -1547,12 +1547,10 @@ unittest
     {
         assert(set.insert(i));
         assert(!set.insert(i));
-        assert(set.branchCount == 1);
     }
 
     assert(set.insert(256));
     assert(!set.insert(256));
-    assert(set.branchCount == 2);
 
     set.print();
 }

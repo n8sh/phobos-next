@@ -1695,6 +1695,8 @@ void benchmark(uint span)()
             writeln("PBr Population Histogram: ", stats.popHist_PBr);
             writeln("FBr radix=", 2^^span, "-Branch Population Histogram: ", stats.popHist_FBr);
             writeln("Population By Node Type: ", stats.popByNodeType);
+
+            // these should be zero
             writeln("Number of PBr with SLf-0 only subNodes: ", stats.allSLf0CountOfPBr);
             writeln("Number of FBr with SLf-0 only subNodes: ", stats.allSLf0CountOfFBr);
 

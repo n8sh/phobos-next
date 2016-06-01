@@ -907,7 +907,7 @@ private struct RawRadixTree(Value,
             if (key.length == 1)
             {
                 wasAdded = true;
-                return Node(construct!(MLf1)(key[0]));
+                return Node(construct!(MLf1)(key[0])); // promote packing of single-Ix leaves
             }
             // else if (key.length == 2)
             // {
@@ -993,6 +993,7 @@ private struct RawRadixTree(Value,
                 dln("curr:", curr, " currPrefix:", currPrefix, " Creating DefaultBr:", " matchedPrefix:", matchedPrefix, " key:", key);
                 const subIx = currPrefix[matchedPrefix.length]; // need index first
                 setPrefix(curr, currPrefix[matchedPrefix.length + 1 .. $]); // drop matchedPrefix plus index
+                dln("curr prefix changed to:", getPrefix(curr));
                 curr = Node(construct!(DefaultBr)(matchedPrefix, false, // key is not occupied
                                                   subIx, curr));
                 key = key[matchedPrefix.length .. $];
@@ -1473,8 +1474,8 @@ unittest
     // assert(!set.insert(1));
     // assert(set.branchCount == 2);
 
-    // set.print();
-    // assert(false);
+    set.print();
+    assert(false);
 
     foreach (const i; 2 .. 256)
     {

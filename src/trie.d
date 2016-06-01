@@ -559,7 +559,7 @@ private struct RawRadixTree(Value,
         {
             foreach (const sub; subNodes)
             {
-                if (const subSLfNRef = sub.peek!SLfN)
+                if (const subSLfNRef = sub.peek!(SLfN))
                 {
                     const subSLfN = *subSLfNRef;
                     if (subSLfN.suffix.length != 0) { return false; }
@@ -633,7 +633,7 @@ private struct RawRadixTree(Value,
         {
             foreach (const subNode; subNodes)
             {
-                if (const subSLfNRef = subNode.peek!SLfN)
+                if (const subSLfNRef = subNode.peek!(SLfN))
                 {
                     if ((*subSLfNRef).suffix.length != 0)
                     {

@@ -1466,15 +1466,19 @@ unittest
         assert(!set.insert(i));
     }
 
-    auto rootFLf = set._root.peek!(Set.FLf*);
-    assert(rootFLf);
-    assert(!(*rootFLf).empty);
-    assert((*rootFLf).full);
+    const rootRef = set._root.peek!(Set.FLf*);
+    assert(rootRef);
+
+    const root = *rootRef;
+    assert(!root.empty);
+    assert(root.full);
 }
 
-@safe pure nothrow /* TODO @nogc */ unittest
+// @safe pure nothrow /* TODO @nogc */
+unittest
 {
     auto set = radixTreeSet!(ushort);
+    alias Set = typeof(set);
 
     assert(set.insert(0));
     assert(!set.insert(0));
@@ -1493,6 +1497,15 @@ unittest
 
     assert(set.insert(257));
     assert(!set.insert(257));
+
+    const rootRef = set._root.peek!(Set.PBr*);
+    assert(rootRef);
+
+    const root = *rootRef;
+
+    assert(root.subPopulation == 2);
+    assert(root.subNodes[0].peek!(Set.FLf*));
+    assert(root.subNodes[1].peek!(Set.MLf));
 }
 
 // @safe pure nothrow

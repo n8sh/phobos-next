@@ -1477,36 +1477,40 @@ unittest
 // @safe pure nothrow /* TODO @nogc */
 unittest
 {
-    auto set = radixTreeSet!(ushort);
-    alias Set = typeof(set);
-
-    assert(set.insert(0));
-    assert(!set.insert(0));
-    assert(set.branchCount == 0);
-
-    foreach (const i; 1 .. 256)
+    import std.meta : AliasSeq;
+    foreach (T; AliasSeq!(ushort, uint))
     {
-        assert(set.insert(i));
-        assert(!set.insert(i));
-        assert(set.branchCount == 1);
+        auto set = radixTreeSet!(T);
+        alias Set = typeof(set);
+
+        assert(set.insert(0));
+        assert(!set.insert(0));
+        assert(set.branchCount == 0);
+
+        foreach (const i; 1 .. 256)
+        {
+            assert(set.insert(i));
+            assert(!set.insert(i));
+            assert(set.branchCount == 1);
+        }
+
+        assert(set.insert(256));
+        assert(!set.insert(256));
+        assert(set.branchCount == 2);
+
+        assert(set.insert(257));
+        assert(!set.insert(257));
+
+        const rootRef = set._root.peek!(Set.PBr*);
+        assert(rootRef);
+
+        const root = *rootRef;
+
+        assert(root.subPopulation == 2);
+        assert(root.subNodes.length == 2);
+        assert(root.subNodes[0].peek!(Set.FLf*));
+        assert(root.subNodes[1].peek!(Set.MLf));
     }
-
-    assert(set.insert(256));
-    assert(!set.insert(256));
-    assert(set.branchCount == 2);
-
-    assert(set.insert(257));
-    assert(!set.insert(257));
-
-    const rootRef = set._root.peek!(Set.PBr*);
-    assert(rootRef);
-
-    const root = *rootRef;
-
-    assert(root.subPopulation == 2);
-    assert(root.subNodes.length == 2);
-    assert(root.subNodes[0].peek!(Set.FLf*));
-    assert(root.subNodes[1].peek!(Set.MLf));
 }
 
 // @safe pure nothrow

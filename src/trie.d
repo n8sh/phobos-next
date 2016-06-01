@@ -5,13 +5,13 @@
 
     TODO Store `isKey` in top-most bit of length part of `IxsN prefix` in branch node.
 
-    TODO Optimize PBr.findSub for specific `subPopulation`
+    TODO Optimize PBr4.findSub for specific `subPopulation`
 
-    TODO Expand PBr to BBr when sizeof BrN is larger than 32 bytes (256 bits) and all
+    TODO Expand PBr4 to BBr when sizeof BrN is larger than 32 bytes (256 bits) and all
     leaves are single SLfN. Converted to when BrN.length >= someLimit
 
-    TODO Add function reprefix({PBr|FBr) and call after insertAt({PBr|FBr}). Only useful when one single leaf is present?
-    TODO Is std.algorithm.countUntil the most suitable function to use in setSub(PBr*, ...)
+    TODO Add function reprefix({PBr4|FBr) and call after insertAt({PBr4|FBr}). Only useful when one single leaf is present?
+    TODO Is std.algorithm.countUntil the most suitable function to use in setSub(PBr4*, ...)
     TODO Make array indexing/slicing as @trusted and use .ptr[] instead of [] when things are stable
     TODO Use std.experimental.allocator
 
@@ -363,7 +363,7 @@ private struct RawRadixTree(Value,
 
     static if (span == 8)
     {
-        alias DefaultRootType = PBr*;
+        alias DefaultRootType = PBr4*;
     }
 
     alias DefaultBr = DefaultRootType;
@@ -375,7 +375,7 @@ private struct RawRadixTree(Value,
     /** Node types. */
     alias NodeTypes = AliasSeq!(SLfN,
                                 MLf1,
-                                PBr*,
+                                PBr4*,
                                 FLf1*,
                                 FBr*);
 
@@ -408,7 +408,7 @@ private struct RawRadixTree(Value,
     /** 4-Branch population histogram.
         Index maps to population with value range (1 .. 4).
     */
-    alias PBr_PopHist = size_t[4];
+    alias PBr4_PopHist = size_t[4];
 
     /** radix-Branch population histogram.
         Index maps to population with value range (1 .. `radix`).
@@ -424,10 +424,10 @@ private struct RawRadixTree(Value,
     struct Stats
     {
         FLf1_PopHist popHist_FLf1;
-        PBr_PopHist popHist_PBr; // packed branch population histogram
+        PBr4_PopHist popHist_PBr4; // packed branch population histogram
         FBr_PopHist popHist_FBr; // full branch population histogram
 
-        size_t allSLfN0CountOfPBr; // number of `PBr` which sub-branches are all `SLfN` of length 0
+        size_t allSLfN0CountOfPBr4; // number of `PBr4` which sub-branches are all `SLfN` of length 0
         size_t allSLfN0CountOfFBr; // number of `FBr` which sub-branches are all `SLfN` of length 0
 
         /** Maps `Node` type/index `Ix` to population.
@@ -487,7 +487,7 @@ private struct RawRadixTree(Value,
     static assert(FLf1.sizeof == 48);
 
     /** Sparse/Packed/Partial 4-way branch. */
-    static private struct PBr
+    static private struct PBr4
     {
         enum N = 4;
 
@@ -582,8 +582,8 @@ private struct RawRadixTree(Value,
                 sub.calculate!(Value, span)(stats);
             }
             assert(count <= radix);
-            ++stats.popHist_PBr[count - 1]; // TODO type-safe indexing
-            stats.allSLfN0CountOfPBr += hasMinimumDepth;
+            ++stats.popHist_PBr4[count - 1]; // TODO type-safe indexing
+            stats.allSLfN0CountOfPBr4 += hasMinimumDepth;
         }
 
         private:
@@ -596,7 +596,7 @@ private struct RawRadixTree(Value,
                          bool, "isKey", 1)); // key at this branch is occupied
     }
 
-    static assert(PBr.sizeof == 48);
+    static assert(PBr4.sizeof == 48);
 
     /** Dense/Unpacked `radix`-branch with `radix` number of sub-nodes. */
     static private struct FBr
@@ -611,13 +611,13 @@ private struct RawRadixTree(Value,
             this.isKey = isKey;
         }
 
-        this(PBr* rhs)
+        this(PBr4* rhs)
         {
             this.prefix = rhs.prefix;
             this.isKey = rhs.isKey;
             foreach (const i; 0 .. rhs.subPopulation) // each sub node. TODO use iota!(Mod!N)
             {
-                const iN = i.mod!(PBr.N);
+                const iN = i.mod!(PBr4.N);
                 const subIx = rhs.subIxSlots[iN];
                 this.subNodes[subIx] = rhs.subNodes[iN];
             }
@@ -680,10 +680,10 @@ private struct RawRadixTree(Value,
 
     static if (false)
     {
-        pragma(msg, "PBr.sizeof:", PBr.sizeof, " PBr.alignof:", PBr.alignof);
-        pragma(msg, "PBr.subNodes.sizeof:", PBr.subNodes.sizeof, " PBr.subNodes.alignof:", PBr.subNodes.alignof);
-        pragma(msg, "PBr.prefix.sizeof:", PBr.prefix.sizeof, " PBr.prefix.alignof:", PBr.prefix.alignof);
-        pragma(msg, "PBr.subIxs.sizeof:", PBr.subIxs.sizeof, " PBr.subIxs.alignof:", PBr.subIxs.alignof);
+        pragma(msg, "PBr4.sizeof:", PBr4.sizeof, " PBr4.alignof:", PBr4.alignof);
+        pragma(msg, "PBr4.subNodes.sizeof:", PBr4.subNodes.sizeof, " PBr4.subNodes.alignof:", PBr4.subNodes.alignof);
+        pragma(msg, "PBr4.prefix.sizeof:", PBr4.prefix.sizeof, " PBr4.prefix.alignof:", PBr4.prefix.alignof);
+        pragma(msg, "PBr4.subIxs.sizeof:", PBr4.subIxs.sizeof, " PBr4.subIxs.alignof:", PBr4.subIxs.alignof);
     }
 
     /** Set sub-`Node` of branch `Node curr` at index `ix` to `subNode`. */
@@ -692,7 +692,7 @@ private struct RawRadixTree(Value,
         switch (curr.typeIx)
         {
         case Node.Ix.ix_FLf1Ptr: return setSub(curr.as!(FLf1*), subIx, subNode);
-        case Node.Ix.ix_PBrPtr: return setSub(curr.as!(PBr*), subIx, subNode);
+        case Node.Ix.ix_PBr4Ptr: return setSub(curr.as!(PBr4*), subIx, subNode);
         case Node.Ix.ix_FBrPtr: return setSub(curr.as!(FBr*), subIx, subNode);
         default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
         }
@@ -717,10 +717,10 @@ private struct RawRadixTree(Value,
         show!currValue;
         show!subIx;
         show!subNode;
-        assert(false, "Expand FLf1 into either PBr or FBr depending on curr.popcnt");
+        assert(false, "Expand FLf1 into either PBr4 or FBr depending on curr.popcnt");
     }
     /// ditto
-    Node setSub(PBr* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
+    Node setSub(PBr4* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
         import std.algorithm : countUntil;
         const i = curr.subIxSlots[0 .. curr.subPopulation].countUntil(subIx); // TODO is this the preferred function?
@@ -762,8 +762,8 @@ private struct RawRadixTree(Value,
                 return Node(SLfN.init);
             }
             break;
-        case Node.Ix.ix_PBrPtr:
-            if (auto subNode = curr.as!(PBr*).findSub(ix))
+        case Node.Ix.ix_PBr4Ptr:
+            if (auto subNode = curr.as!(PBr4*).findSub(ix))
             {
                 return subNode;
             }
@@ -782,7 +782,7 @@ private struct RawRadixTree(Value,
         switch (curr.typeIx)
         {
         case Node.Ix.ix_FLf1Ptr: return curr.as!(FLf1*).isKey;
-        case Node.Ix.ix_PBrPtr: return curr.as!(PBr*).isKey;
+        case Node.Ix.ix_PBr4Ptr: return curr.as!(PBr4*).isKey;
         case Node.Ix.ix_FBrPtr: return curr.as!(FBr*).isKey;
             // TODO extend to leaves aswell?
         default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
@@ -794,7 +794,7 @@ private struct RawRadixTree(Value,
         switch (curr.typeIx)
         {
         case Node.Ix.ix_FLf1Ptr: curr.as!(FLf1*).isKey = true; break;
-        case Node.Ix.ix_PBrPtr: curr.as!(PBr*).isKey = true; break;
+        case Node.Ix.ix_PBr4Ptr: curr.as!(PBr4*).isKey = true; break;
         case Node.Ix.ix_FBrPtr: curr.as!(FBr*).isKey = true; break;
             // TODO extend to leaves aswell?
         default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
@@ -809,7 +809,7 @@ private struct RawRadixTree(Value,
         case Node.Ix.ix_SLfN:    return curr.as!(SLfN).suffix[]; // suffix is the prefix
         case Node.Ix.ix_MLf1:    return inout(Ix[]).init; // no prefix
         case Node.Ix.ix_FLf1Ptr: return curr.as!(FLf1*).prefix[];
-        case Node.Ix.ix_PBrPtr: return curr.as!(PBr*).prefix[];
+        case Node.Ix.ix_PBr4Ptr: return curr.as!(PBr4*).prefix[];
         case Node.Ix.ix_FBrPtr: return curr.as!(FBr*).prefix[];
             // TODO extend to leaves aswell?
         default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
@@ -824,7 +824,7 @@ private struct RawRadixTree(Value,
         case Node.Ix.ix_SLfN:    curr.as!(SLfN).suffix  = typeof(curr.as!(SLfN).suffix)(prefix); break;
         case Node.Ix.ix_MLf1:    assert(prefix.length == 0); break;
         case Node.Ix.ix_FLf1Ptr: curr.as!(FLf1*).prefix = typeof(curr.as!(FLf1*).prefix)(prefix); break;
-        case Node.Ix.ix_PBrPtr: curr.as!(PBr*).prefix = typeof(curr.as!(PBr*).prefix)(prefix); break;
+        case Node.Ix.ix_PBr4Ptr: curr.as!(PBr4*).prefix = typeof(curr.as!(PBr4*).prefix)(prefix); break;
         case Node.Ix.ix_FBrPtr: curr.as!(FBr*).prefix = typeof(curr.as!(FBr*).prefix)(prefix); break;
             // TODO extend to leaves aswell?
         default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
@@ -877,8 +877,8 @@ private struct RawRadixTree(Value,
             case ix_SLfN:    return curr.as!(SLfN).suffix == key;
             case ix_MLf1:    return curr.as!(MLf1).contains(key);
             case ix_FLf1Ptr: return curr.as!(FLf1*).contains(key);
-            case ix_PBrPtr:
-                auto curr_ = curr.as!(PBr*);
+            case ix_PBr4Ptr:
+                auto curr_ = curr.as!(PBr4*);
                 // dln("BBr: key=", key, " prefix:", curr_.prefix, " isKey:", curr_.isKey);
                 return (key.skipOver(curr_.prefix) &&
                         (key.length == 0 && curr_.isKey ||                 // either stored at `curr`
@@ -954,7 +954,7 @@ private struct RawRadixTree(Value,
                 case ix_MLf1:    return insertAt(curr.as!(MLf1), key, superPrefixLength, wasAdded);
 
                 case ix_FLf1Ptr:
-                case ix_PBrPtr:
+                case ix_PBr4Ptr:
                 case ix_FBrPtr: return insertAtBranch(curr, key, superPrefixLength, wasAdded);
                 }
                 assert(false);
@@ -1198,7 +1198,7 @@ private struct RawRadixTree(Value,
             freeNode(curr);
         }
 
-        void release(PBr* curr)
+        void release(PBr4* curr)
         {
             foreach (sub; curr.subNodes[0 .. curr.subPopulation])
             {
@@ -1228,7 +1228,7 @@ private struct RawRadixTree(Value,
             case ix_SLfN: return release(curr.as!(SLfN));
             case ix_MLf1: return release(curr.as!(MLf1));
             case ix_FLf1Ptr: return release(curr.as!(FLf1*));
-            case ix_PBrPtr: return release(curr.as!(PBr*));
+            case ix_PBr4Ptr: return release(curr.as!(PBr4*));
             case ix_FBrPtr: return release(curr.as!(FBr*));
             }
         }
@@ -1284,8 +1284,8 @@ private struct RawRadixTree(Value,
             write(" #ones=", curr_._keyBits.countOnes);
             writeln();
             break;
-        case ix_PBrPtr:
-            auto curr_ = curr.as!(PBr*);
+        case ix_PBr4Ptr:
+            auto curr_ = curr.as!(PBr4*);
             write(typeof(*curr_).stringof, "#", curr_.subPopulation, ": ");
             if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix); }
             writeln();
@@ -1332,7 +1332,7 @@ static private void calculate(Value, uint span)(RawRadixTree!(Value, span).Node 
         case ix_SLfN: break; // TODO calculate()
         case ix_MLf1: break; // TODO calculate()
         case ix_FLf1Ptr: sub.as!(RT.FLf1*).calculate(stats); break;
-        case ix_PBrPtr: sub.as!(RT.PBr*).calculate(stats); break;
+        case ix_PBr4Ptr: sub.as!(RT.PBr4*).calculate(stats); break;
         case ix_FBrPtr: sub.as!(RT.FBr*).calculate(stats); break;
         }
     }
@@ -1562,7 +1562,7 @@ unittest
         assert(!set.insert(257));
         assert(set.contains(257));
 
-        const rootRef = set._root.peek!(Set.PBr*);
+        const rootRef = set._root.peek!(Set.PBr4*);
         assert(rootRef);
 
         const root = *rootRef;
@@ -1680,7 +1680,7 @@ void benchmark(uint span)()
         import std.conv : to;
         import std.datetime : StopWatch, AutoStart, Duration;
 
-        enum n = 50_000_000;
+        enum n = 500_000;
 
         import std.array : array;
         import std.random : randomShuffle;
@@ -1712,12 +1712,12 @@ void benchmark(uint span)()
             writeln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
             auto stats = set.usageHistograms;
             writeln("FLf1 Population Histogram: ", stats.popHist_FLf1);
-            writeln("PBr Population Histogram: ", stats.popHist_PBr);
+            writeln("PBr4 Population Histogram: ", stats.popHist_PBr4);
             writeln("FBr radix=", 2^^span, "-Branch Population Histogram: ", stats.popHist_FBr);
             writeln("Population By Node Type: ", stats.popByNodeType);
 
             // these should be zero
-            writeln("Number of PBr with SLfN-0 only subNodes: ", stats.allSLfN0CountOfPBr);
+            writeln("Number of PBr4 with SLfN-0 only subNodes: ", stats.allSLfN0CountOfPBr4);
             writeln("Number of FBr with SLfN-0 only subNodes: ", stats.allSLfN0CountOfFBr);
 
             size_t totalBytesUsed = 0;
@@ -1732,7 +1732,7 @@ void benchmark(uint span)()
                     case ix_SLfN:    bytesUsed = pop*Set.SLfN.sizeof; break;
                     case ix_MLf1:    bytesUsed = pop*Set.MLf1.sizeof; break;
                     case ix_FLf1Ptr: bytesUsed = pop*Set.FLf1.sizeof; totalBytesUsed += bytesUsed; break;
-                    case ix_PBrPtr: bytesUsed = pop*Set.PBr.sizeof; totalBytesUsed += bytesUsed; break;
+                    case ix_PBr4Ptr: bytesUsed = pop*Set.PBr4.sizeof; totalBytesUsed += bytesUsed; break;
                     case ix_FBrPtr: bytesUsed = pop*Set.FBr.sizeof; totalBytesUsed += bytesUsed; break;
                     }
                 }

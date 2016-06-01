@@ -555,7 +555,7 @@ private struct RawRadixTree(Value,
 
         /** Returns `true` if this branch can be packed into a bitset, that is
             contains only sub-nodes of type `SLfN` of zero length. */
-        bool isBitPackable() const /* TODO @nogc */
+        bool hasMinimumDepth() const /* TODO @nogc */
         {
             foreach (const sub; subNodes)
             {
@@ -583,7 +583,7 @@ private struct RawRadixTree(Value,
             }
             assert(count <= radix);
             ++stats.popHist_PBr[count - 1]; // TODO type-safe indexing
-            stats.allSLfN0CountOfPBr += isBitPackable;
+            stats.allSLfN0CountOfPBr += hasMinimumDepth;
         }
 
         private:
@@ -629,7 +629,7 @@ private struct RawRadixTree(Value,
 
         /** Returns `true` if this branch can be packed into a bitset, that is
             contains only subNodes of type `SLfN` of zero length. */
-        bool isBitPackable() const @safe pure nothrow /* TODO @nogc */
+        bool hasMinimumDepth() const @safe pure nothrow /* TODO @nogc */
         {
             foreach (const subNode; subNodes)
             {
@@ -674,7 +674,7 @@ private struct RawRadixTree(Value,
             }
             assert(count <= radix);
             ++stats.popHist_FBr[count - 1]; // TODO type-safe indexing
-            stats.allSLfN0CountOfFBr += isBitPackable;
+            stats.allSLfN0CountOfFBr += hasMinimumDepth;
         }
     }
 
@@ -1680,7 +1680,7 @@ void benchmark(uint span)()
         import std.conv : to;
         import std.datetime : StopWatch, AutoStart, Duration;
 
-        enum n = 10_000_000;
+        enum n = 50_000_000;
 
         import std.array : array;
         import std.random : randomShuffle;

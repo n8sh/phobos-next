@@ -410,6 +410,11 @@ private struct RawRadixTree(Value,
     */
     alias PBr4_PopHist = size_t[4];
 
+    /** 16-Branch population histogram.
+        Index maps to population with value range (1 .. 4).
+    */
+    alias PBr16_PopHist = size_t[16];
+
     /** radix-Branch population histogram.
         Index maps to population with value range (1 .. `radix`).
     */
@@ -425,9 +430,11 @@ private struct RawRadixTree(Value,
     {
         FLf1_PopHist popHist_FLf1;
         PBr4_PopHist popHist_PBr4; // packed branch population histogram
+        PBr16_PopHist popHist_PBr16; // packed branch population histogram
         FBrM_PopHist popHist_FBrM; // full branch population histogram
 
         size_t allSLfN0CountOfPBr4; // number of `PBr4` which sub-branches are all `SLfN` of length 0
+        size_t allSLfN0CountOfPBr16; // number of `PBr16` which sub-branches are all `SLfN` of length 0
         size_t allSLfN0CountOfFBrM; // number of `FBrM` which sub-branches are all `SLfN` of length 0
 
         /** Maps `Node` type/index `Ix` to population.
@@ -597,6 +604,116 @@ private struct RawRadixTree(Value,
     }
 
     static assert(PBr4.sizeof == 48);
+
+    /** Sparse/Packed/Partial 16-way branch. */
+    static private struct PBr16
+    {
+        enum N = 16;
+
+        enum maxPrefixLength = 10; // 2, 10, 18, ...
+
+        @safe pure nothrow:
+
+        this(Ix[] prefix, bool isKey = false)
+        {
+            this.prefix = prefix;
+            this.isKey = isKey;
+        }
+
+        this(Ix[] prefix, bool isKey, Ix subIx, Node subNode)
+        {
+            this.prefix = prefix;
+            this.isKey = isKey;
+            this.subIxSlots.at!0 = subIx;
+            this.subNodeSlots.at!0 = subNode;
+            this.subPopulation = 1;
+        }
+
+        void pushBackSub(Tuple!(Ix, Node) sub)
+        {
+            assert(!full);
+            const backIx = subPopulation.mod!N;
+            subIxSlots[backIx] = sub[0];
+            subNodeSlots[backIx] = sub[1];
+            subPopulation = cast(ubyte)(subPopulation + 1);
+        }
+        inout(Node) findSub(Ix ix) inout
+        {
+            switch (subPopulation)
+            {
+            case 0:
+                break;
+            case 1:
+                if (subIxSlots.at!0 == ix) { return subNodeSlots.at!0; }
+                break;
+            case 2:
+                foreach (i; iota!(0, 2))
+                {
+                    if (subIxSlots.at!i == ix) { return subNodeSlots.at!i; }
+                }
+                break;
+            default:
+                // TODO do binary search
+                foreach (const i_; 0 ..  subPopulation)
+                {
+                    const i = i_.mod!N;
+                    if (subIxSlots[i] == ix) { return subNodeSlots[i]; }
+                }
+                break;
+            }
+            return Node.init;
+        }
+
+        pragma(inline) bool empty() const @nogc { return subPopulation == 0; }
+        pragma(inline) bool full() const @nogc { return subPopulation == N; }
+
+        pragma(inline) auto subNodes() inout @nogc
+        {
+            return subNodeSlots[0 .. subPopulation];
+        }
+
+        /** Returns `true` if this branch can be packed into a bitset, that is
+            contains only sub-nodes of type `SLfN` of zero length. */
+        bool hasMinimumDepth() const /* TODO @nogc */
+        {
+            foreach (const sub; subNodes)
+            {
+                if (const subSLfNRef = sub.peek!(SLfN))
+                {
+                    const subSLfN = *subSLfNRef;
+                    if (subSLfN.suffix.length != 0) { return false; }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /** Append statistics of tree under `this` into `stats`. */
+        void calculate(ref Stats stats) const
+        {
+            size_t count = 0; // number of non-zero sub-nodes
+            foreach (const sub; subNodes)
+            {
+                ++count;
+                sub.calculate!(Value, span)(stats);
+            }
+            assert(count <= radix);
+            ++stats.popHist_PBr16[count - 1]; // TODO type-safe indexing
+            stats.allSLfN0CountOfPBr16 += hasMinimumDepth;
+        }
+
+    private:
+
+        // members in order of decreasing `alignof`:
+        StrictlyIndexed!(Node[N]) subNodeSlots;
+        IxsN!maxPrefixLength prefix; // prefix common to all `subNodes` (also called edge-label)
+        StrictlyIndexed!(Ix[N]) subIxSlots;
+        mixin(bitfields!(ubyte, "subPopulation", 7, // counts length of defined elements in subNodeSlots
+                         bool, "isKey", 1)); // key at this branch is occupied
+    }
 
     /** Dense/Unpacked `radix`-branch with `radix` number of sub-nodes. */
     static private struct FBrM
@@ -1713,11 +1830,13 @@ void benchmark(uint span)()
             auto stats = set.usageHistograms;
             writeln("FLf1 Population Histogram: ", stats.popHist_FLf1);
             writeln("PBr4 Population Histogram: ", stats.popHist_PBr4);
+            writeln("PBr16 Population Histogram: ", stats.popHist_PBr16);
             writeln("FBrM radix=", 2^^span, "-Branch Population Histogram: ", stats.popHist_FBrM);
             writeln("Population By Node Type: ", stats.popByNodeType);
 
             // these should be zero
             writeln("Number of PBr4 with SLfN-0 only subNodes: ", stats.allSLfN0CountOfPBr4);
+            writeln("Number of PBr16 with SLfN-0 only subNodes: ", stats.allSLfN0CountOfPBr16);
             writeln("Number of FBrM with SLfN-0 only subNodes: ", stats.allSLfN0CountOfFBrM);
 
             size_t totalBytesUsed = 0;

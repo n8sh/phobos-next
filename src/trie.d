@@ -1504,6 +1504,7 @@ unittest
     const root = *rootRef;
 
     assert(root.subPopulation == 2);
+    assert(root.subNodes.length == 2);
     assert(root.subNodes[0].peek!(Set.FLf*));
     assert(root.subNodes[1].peek!(Set.MLf));
 }

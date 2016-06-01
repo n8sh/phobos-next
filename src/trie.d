@@ -442,7 +442,7 @@ private struct RawRadixTree(Value,
     /** Full Bitset Branch with only bottom-most leaves. */
     static private struct FLf1
     {
-        enum maxPrefixLength = 6; // 6, 14,
+        enum maxPrefixLength = 6; // 6, 14, 22, ...
         enum maxSubCount = 256;
 
         @safe pure nothrow:

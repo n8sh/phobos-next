@@ -1473,6 +1473,7 @@ unittest
         assert(set.insert(i));
         assert(!set.insert(i));
         assert(set.contains(i));
+        assert(set.branchCount == 1);
         const rootRef = set._root.peek!(Set.FLf*);
         assert(rootRef);
     }

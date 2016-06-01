@@ -1542,7 +1542,11 @@ unittest
     assert(!set.insert(0));
     assert(set.branchCount == 1);
 
-    foreach (const i; 1 .. 256)
+    assert(set.insert(1));
+    assert(!set.insert(1));
+    assert(set.branchCount == 2);
+
+    foreach (const i; 2 .. 256)
     {
         assert(set.insert(i));
         assert(!set.insert(i));

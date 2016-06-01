@@ -1450,6 +1450,32 @@ auto radixTreeSet(Key, uint span = 8)() { return RadixTree!(Key, void, span)(fal
 /// Instantiator of map-version of `RadixTree` where value-type is `Value`.
 auto radixTreeMap(Key, Value, uint span = 8)() { return RadixTree!(Key, Value, span)(false); }
 
+@safe pure nothrow /* TODO @nogc */ unittest
+{
+    auto set = radixTreeSet!(ulong);
+
+    assert(set.insert(0));
+    assert(!set.insert(0));
+    assert(set.branchCount == 1);
+
+    assert(set.insert(1));
+    assert(!set.insert(1));
+    assert(set.branchCount == 2);
+
+    // set.print();
+
+    // assert(false);
+
+    foreach (const i; 2 .. 256)
+    {
+        assert(set.insert(i));
+        assert(!set.insert(i));
+    }
+
+    assert(set.insert(256));
+    assert(!set.insert(256));
+}
+
 @safe pure nothrow /* TODO @nogc */
 unittest
 {
@@ -1532,28 +1558,6 @@ unittest
         assert(root.subNodes[0].peek!(Set.FLf*));
         assert(root.subNodes[1].peek!(Set.MLf));
     }
-}
-
-@safe pure nothrow /* TODO @nogc */ unittest
-{
-    auto set = radixTreeSet!(ulong);
-
-    assert(set.insert(0));
-    assert(!set.insert(0));
-    assert(set.branchCount == 1);
-
-    assert(set.insert(1));
-    assert(!set.insert(1));
-    assert(set.branchCount == 2);
-
-    foreach (const i; 2 .. 256)
-    {
-        assert(set.insert(i));
-        assert(!set.insert(i));
-    }
-
-    assert(set.insert(256));
-    assert(!set.insert(256));
 }
 
 /// Check correctness when span is `span` and for each `Key` in `Keys`.

@@ -1534,8 +1534,7 @@ unittest
     }
 }
 
-// @safe pure nothrow
-/* TODO @nogc */ unittest
+@safe pure nothrow /* TODO @nogc */ unittest
 {
     auto set = radixTreeSet!(ulong);
 
@@ -1551,8 +1550,6 @@ unittest
 
     assert(set.insert(256));
     assert(!set.insert(256));
-
-    set.print();
 }
 
 /// Check correctness when span is `span` and for each `Key` in `Keys`.

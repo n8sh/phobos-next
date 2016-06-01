@@ -697,6 +697,13 @@ struct BitSet(size_t len, Block = size_t)
         {
             return 1 - denseness(depth);
         }
+
+        /** Check if this $(D BitSet) has only ones. */
+        bool allOne() const @safe @nogc pure nothrow
+        {
+            return countOnes == len;
+        }
+        alias full = allOne;
     }
 
     /**

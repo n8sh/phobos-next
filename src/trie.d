@@ -459,7 +459,8 @@ private struct RawRadixTree(Value,
         }
 
         pragma(inline) bool hasSubAt(Ix ix) const @nogc { return _keyBits[ix]; }
-        pragma(inline) bool empty() const @nogc { return _keyBits.allZero; }
+        pragma(inline) bool empty() const @nogc { return _keyBits.empty; }
+        pragma(inline) bool full() const @nogc { return _keyBits.full; }
 
         pragma(inline) bool contains(Key!span key) const @nogc
         {
@@ -971,7 +972,7 @@ private struct RawRadixTree(Value,
             {
                 const subIx = currPrefix[matchedPrefix.length]; // need index first
                 setPrefix(curr, currPrefix[matchedPrefix.length + 1 .. $]); // drop matchedPrefix plus index
-                dln("Creating DefaultBr:", " matchedPrefix:", matchedPrefix);
+                dln("curr:", curr, " Creating DefaultBr:", " matchedPrefix:", matchedPrefix, " key:", key);
                 return Node(construct!(DefaultBr)(matchedPrefix, true, // `true` because `key` occupies this node
                                                   subIx, curr));
             }
@@ -979,9 +980,9 @@ private struct RawRadixTree(Value,
             else if (matchedPrefix.length < key.length &&
                      matchedPrefix.length < currPrefix.length)
             {
+                dln("curr:", curr, " currPrefix:", currPrefix, " Creating DefaultBr:", " matchedPrefix:", matchedPrefix, " key:", key);
                 const subIx = currPrefix[matchedPrefix.length]; // need index first
                 setPrefix(curr, currPrefix[matchedPrefix.length + 1 .. $]); // drop matchedPrefix plus index
-                dln("Creating DefaultBr:", " matchedPrefix:", matchedPrefix);
                 curr = Node(construct!(DefaultBr)(matchedPrefix, false, // key is not occupied
                                                   subIx, curr));
                 key = key[matchedPrefix.length .. $];
@@ -1448,6 +1449,28 @@ auto radixTreeSet(Key, uint span = 8)() { return RadixTree!(Key, void, span)(fal
 
 /// Instantiator of map-version of `RadixTree` where value-type is `Value`.
 auto radixTreeMap(Key, Value, uint span = 8)() { return RadixTree!(Key, Value, span)(false); }
+
+@safe pure nothrow /* TODO @nogc */
+unittest
+{
+    auto set = radixTreeSet!(ubyte);
+    alias Set = typeof(set);
+
+    assert(set.insert(0));
+    assert(!set.insert(0));
+    assert(set.branchCount == 0);
+
+    foreach (const i; 1 .. 256)
+    {
+        assert(set.insert(i));
+        assert(!set.insert(i));
+    }
+
+    auto rootFLf = set._root.peek!(Set.FLf*);
+    assert(rootFLf);
+    assert(!(*rootFLf).empty);
+    assert((*rootFLf).full);
+}
 
 @safe pure nothrow /* TODO @nogc */ unittest
 {

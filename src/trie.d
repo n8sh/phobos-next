@@ -1474,7 +1474,7 @@ unittest
     assert(root.full);
 }
 
-// @safe pure nothrow /* TODO @nogc */
+@safe pure nothrow /* TODO @nogc */
 unittest
 {
     import std.meta : AliasSeq;

@@ -1456,18 +1456,25 @@ unittest
     auto set = radixTreeSet!(ubyte);
     alias Set = typeof(set);
 
-    assert(!set.contains(0));
-    assert(set.insert(0));
-    assert(!set.insert(0));
-    assert(set.contains(0));
-    assert(set.branchCount == 0);
-
-    foreach (const i; 1 .. 256)
+    foreach (const i; 0 .. Set.MLf.maxLength)
     {
         assert(!set.contains(i));
         assert(set.insert(i));
         assert(!set.insert(i));
         assert(set.contains(i));
+        assert(set.branchCount == 0);
+        const rootRef = set._root.peek!(Set.MLf);
+        assert(rootRef);
+    }
+
+    foreach (const i; Set.MLf.maxLength .. 256)
+    {
+        assert(!set.contains(i));
+        assert(set.insert(i));
+        assert(!set.insert(i));
+        assert(set.contains(i));
+        const rootRef = set._root.peek!(Set.FLf*);
+        assert(rootRef);
     }
 
     const rootRef = set._root.peek!(Set.FLf*);

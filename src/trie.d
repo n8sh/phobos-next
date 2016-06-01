@@ -601,7 +601,7 @@ private struct RawRadixTree(Value,
     /** Dense/Unpacked `radix`-branch with `radix` number of sub-nodes. */
     static private struct FBr
     {
-        enum maxPrefixLength = 15; // we can afford larger prefix here because FBr is so large
+        enum maxPrefixLength = 15; // 7, 15, 23, ..., we can afford larger prefix here because FBr is so large
 
         @safe pure nothrow:
 

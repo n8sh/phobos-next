@@ -442,7 +442,7 @@ private struct RawRadixTree(Value,
     /** Full Bitset Branch with only bottom-most leaves. */
     static private struct FLf1
     {
-        enum maxPrefixLength = 5; // 5, 13, 21, ...
+        enum maxPrefixLength = 6; // 6, 14,
         enum maxSubCount = 256;
 
         @safe pure nothrow:
@@ -918,6 +918,11 @@ private struct RawRadixTree(Value,
             {
                 wasAdded = true;
                 return Node(construct!(SLfN)(key));
+            }
+            else if (key.length <= FLf1.maxPrefixLength) // only if FLf1.maxPrefixLength > SLfN.maxLength
+            {
+                wasAdded = true;
+                return Node(construct!(FLf1*)(key[0 .. $ - 1], false, key[$ - 1]));
             }
             else                // key doesn't fit in a `SLfN`
             {
@@ -1461,12 +1466,12 @@ unittest
     auto set = radixTreeSet!(ulong);
 
     assert(set.insert(0));
-    assert(!set.insert(0));
-    assert(set.branchCount == 1);
+    // assert(!set.insert(0));
+    // assert(set.branchCount == 1);
 
     assert(set.insert(1));
-    assert(!set.insert(1));
-    assert(set.branchCount == 2);
+    // assert(!set.insert(1));
+    // assert(set.branchCount == 2);
 
     // set.print();
     // assert(false);

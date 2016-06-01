@@ -1483,23 +1483,31 @@ unittest
         auto set = radixTreeSet!(T);
         alias Set = typeof(set);
 
+        assert(!set.contains(0));
         assert(set.insert(0));
         assert(!set.insert(0));
+        assert(set.contains(0));
         assert(set.branchCount == 0);
 
         foreach (const i; 1 .. 256)
         {
+            assert(!set.contains(i));
             assert(set.insert(i));
             assert(!set.insert(i));
+            assert(set.contains(i));
             assert(set.branchCount == 1);
         }
 
+        assert(!set.contains(256));
         assert(set.insert(256));
         assert(!set.insert(256));
+        assert(set.contains(256));
         assert(set.branchCount == 2);
 
+        assert(!set.contains(257));
         assert(set.insert(257));
         assert(!set.insert(257));
+        assert(set.contains(257));
 
         const rootRef = set._root.peek!(Set.PBr*);
         assert(rootRef);

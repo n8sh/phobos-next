@@ -610,7 +610,7 @@ private struct RawRadixTree(Value,
     {
         enum N = 16;
 
-        enum maxPrefixLength = 10; // 2, 10, 18, ...
+        enum maxPrefixLength = 14;
 
         @safe pure nothrow:
 

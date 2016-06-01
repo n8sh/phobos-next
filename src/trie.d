@@ -442,7 +442,7 @@ private struct RawRadixTree(Value,
     /** Full Bitset Branch with only bottom-most leaves. */
     static private struct FLf1
     {
-        enum maxPrefixLength = 6; // 6, 14, 22, ...
+        enum maxPrefixLength = 14; // 6, 14, 22, ...
         enum maxSubCount = 256;
 
         @safe pure nothrow:
@@ -484,7 +484,7 @@ private struct RawRadixTree(Value,
         bool isKey;
     }
 
-    static assert(FLf1.sizeof == 40);
+    static assert(FLf1.sizeof == 48);
 
     /** Sparse/Packed/Partial 4-way branch. */
     static private struct PBr
@@ -993,10 +993,14 @@ private struct RawRadixTree(Value,
                 dln("curr:", curr, " currPrefix:", currPrefix, " Creating DefaultBr:", " matchedPrefix:", matchedPrefix, " key:", key);
                 const subIx = currPrefix[matchedPrefix.length]; // need index first
                 setPrefix(curr, currPrefix[matchedPrefix.length + 1 .. $]); // drop matchedPrefix plus index
-                dln("curr prefix changed to:", getPrefix(curr));
+
+                const currNewPrefix = getPrefix(curr);
+                dln("curr prefix changed to:", currNewPrefix);
+
                 curr = Node(construct!(DefaultBr)(matchedPrefix, false, // key is not occupied
                                                   subIx, curr));
                 key = key[matchedPrefix.length .. $];
+                dln("key was prefixed:", key);
                 superPrefixLength += matchedPrefix.length;
             }
             // prefix:"ab", key:"ab"
@@ -1474,8 +1478,8 @@ unittest
     // assert(!set.insert(1));
     // assert(set.branchCount == 2);
 
-    set.print();
-    assert(false);
+    // set.print();
+    // assert(false);
 
     foreach (const i; 2 .. 256)
     {

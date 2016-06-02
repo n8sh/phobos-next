@@ -352,14 +352,14 @@ private struct RawRadixTree(Value,
     /** `span` least significant bits (LSB) of leaves directly packed into a word.
 
         TODO Generalize to packing of more than one `Ix` per byte.
-        TODO respect byteorder in `MLf1` to work with `WordVariant`
+        TODO respect byteorder in `HLf1` to work with `WordVariant`
         TODO implement and use opSlice instead of .suffix[]
     */
     static if (size_t.sizeof == 8) // 64-bit CPU
     {
         static if (span == 8)
         {
-            /// Single-Branch/Leaf with a maximum Ix-length of 6.
+            /// Single-Key Leaf with maximum key-length 6.
             struct SLf6
             {
                 enum maxLength = (size_t.sizeof - 2) / Ix.sizeof;
@@ -378,7 +378,7 @@ private struct RawRadixTree(Value,
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
 
-            /// Binary-Branch with leaves of Ix-length 3.
+            /// Binary-Key Leaf with key-length 3.
             struct BLf3
             {
                 enum maxLength = 2;
@@ -387,7 +387,7 @@ private struct RawRadixTree(Value,
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
 
-            /// Ternary-Branch with leaves of Ix-length 2.
+            /// Ternary-Key Leaf with key-length 2.
             struct TLf2
             {
                 enum maxLength = 3;
@@ -396,8 +396,8 @@ private struct RawRadixTree(Value,
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
 
-            /// Fixed-Length Multiple-1-Key Leaf
-            struct MLf1
+            /// Hexa-Key Leaf with key-length 1.
+            struct HLf1
             {
                 enum maxLength = (size_t.sizeof - 2) / Ix.sizeof; // maximum number of elements
 
@@ -440,14 +440,14 @@ private struct RawRadixTree(Value,
     }
 
     alias DefaultBr = DefaultRootType;
-    alias DefaultLf = MLf1;
+    alias DefaultLf = HLf1;
 
     static if (isSet)
-        static assert(MLf1.sizeof == size_t.sizeof); // assert that it's size matches platform word-size
+        static assert(HLf1.sizeof == size_t.sizeof); // assert that it's size matches platform word-size
 
     /** Node types. */
     alias NodeTypes = AliasSeq!(SLf6,
-                                MLf1,
+                                HLf1,
                                 PBr4*,
                                 FLf1*,
                                 FBrM*);
@@ -1001,7 +1001,7 @@ private struct RawRadixTree(Value,
         switch (curr.typeIx)
         {
         case Node.Ix.ix_SLf6:    return curr.as!(SLf6).suffix[]; // suffix is the prefix
-        case Node.Ix.ix_MLf1:    return inout(Ix[]).init; // no prefix
+        case Node.Ix.ix_HLf1:    return inout(Ix[]).init; // no prefix
         case Node.Ix.ix_FLf1Ptr: return curr.as!(FLf1*).prefix[];
         case Node.Ix.ix_PBr4Ptr: return curr.as!(PBr4*).prefix[];
         case Node.Ix.ix_FBrMPtr: return curr.as!(FBrM*).prefix[];
@@ -1016,7 +1016,7 @@ private struct RawRadixTree(Value,
         switch (curr.typeIx)
         {
         case Node.Ix.ix_SLf6:    curr.as!(SLf6).suffix  = typeof(curr.as!(SLf6).suffix)(prefix); break;
-        case Node.Ix.ix_MLf1:    assert(prefix.length == 0); break;
+        case Node.Ix.ix_HLf1:    assert(prefix.length == 0); break;
         case Node.Ix.ix_FLf1Ptr: curr.as!(FLf1*).prefix = typeof(curr.as!(FLf1*).prefix)(prefix); break;
         case Node.Ix.ix_PBr4Ptr: curr.as!(PBr4*).prefix = typeof(curr.as!(PBr4*).prefix)(prefix); break;
         case Node.Ix.ix_FBrMPtr: curr.as!(FBrM*).prefix = typeof(curr.as!(FBrM*).prefix)(prefix); break;
@@ -1069,7 +1069,7 @@ private struct RawRadixTree(Value,
             {
             case undefined: return false;
             case ix_SLf6:    return curr.as!(SLf6).suffix == key;
-            case ix_MLf1:    return curr.as!(MLf1).contains(key);
+            case ix_HLf1:    return curr.as!(HLf1).contains(key);
             case ix_FLf1Ptr: return curr.as!(FLf1*).contains(key);
             case ix_PBr4Ptr:
                 auto curr_ = curr.as!(PBr4*);
@@ -1101,12 +1101,12 @@ private struct RawRadixTree(Value,
             if (key.length == 1)
             {
                 wasAdded = true;
-                return Node(construct!(MLf1)(key[0])); // promote packing of single-Ix leaves
+                return Node(construct!(HLf1)(key[0])); // promote packing of single-Ix leaves
             }
             // else if (key.length == 2)
             // {
             //     wasAdded = true;
-            //     return Node(construct!(MLf12)(key));
+            //     return Node(construct!(HLf12)(key));
             // }
             else if (key.length <= SLf6.maxLength)
             {
@@ -1151,7 +1151,7 @@ private struct RawRadixTree(Value,
                 {
                 case undefined: break;
                 case ix_SLf6:    return insertAt(curr.as!(SLf6), key, superPrefixLength, wasAdded);
-                case ix_MLf1:    return insertAt(curr.as!(MLf1), key, superPrefixLength, wasAdded);
+                case ix_HLf1:    return insertAt(curr.as!(HLf1), key, superPrefixLength, wasAdded);
 
                 case ix_FLf1Ptr:
                 case ix_PBr4Ptr:
@@ -1265,7 +1265,7 @@ private struct RawRadixTree(Value,
                             key, superPrefixLength, wasAdded);
         }
 
-        Node insertAt(MLf1 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
+        Node insertAt(HLf1 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
             assert(key.length == 1);
 
@@ -1293,7 +1293,7 @@ private struct RawRadixTree(Value,
             {
                 if (prefix.length == 0)
                 {
-                    return Node(construct!(MLf1)(curr.suffix)); // TODO removing parameter has no effect. why?
+                    return Node(construct!(HLf1)(curr.suffix)); // TODO removing parameter has no effect. why?
                 }
                 else if (prefix.length == 1)
                 {
@@ -1318,7 +1318,7 @@ private struct RawRadixTree(Value,
         }
 
         /** Destructively expand `curr` into a `FLf1` and return it. */
-        FLf1* expand(MLf1 curr)
+        FLf1* expand(HLf1 curr)
         {
             auto next = construct!(typeof(return));
             foreach (const ixM; curr.keys[0 .. curr.keys.length])
@@ -1394,7 +1394,7 @@ private struct RawRadixTree(Value,
         }
 
         void release(SLf6 curr) { freeNode(curr); }
-        void release(MLf1 curr) { freeNode(curr); }
+        void release(HLf1 curr) { freeNode(curr); }
 
         void release(Node curr)
         {
@@ -1403,7 +1403,7 @@ private struct RawRadixTree(Value,
             {
             case undefined: break; // ignored
             case ix_SLf6: return release(curr.as!(SLf6));
-            case ix_MLf1: return release(curr.as!(MLf1));
+            case ix_HLf1: return release(curr.as!(HLf1));
             case ix_FLf1Ptr: return release(curr.as!(FLf1*));
             case ix_PBr4Ptr: return release(curr.as!(PBr4*));
             case ix_FBrMPtr: return release(curr.as!(FBrM*));
@@ -1455,8 +1455,8 @@ private struct RawRadixTree(Value,
             auto curr_ = curr.as!(SLf6);
             writeln(typeof(curr_).stringof, "#", curr_.suffix.length, ": ", curr_);
             break;
-        case ix_MLf1:
-            auto curr_ = curr.as!(MLf1);
+        case ix_HLf1:
+            auto curr_ = curr.as!(HLf1);
             writeln(typeof(curr_).stringof, "#", curr_.keys.length, ": ", curr_);
             break;
         case ix_FLf1Ptr:
@@ -1512,7 +1512,7 @@ static private void calculate(Value, uint span)(RawRadixTree!(Value, span).Node 
         {
         case undefined: break;
         case ix_SLf6: break; // TODO calculate()
-        case ix_MLf1: break; // TODO calculate()
+        case ix_HLf1: break; // TODO calculate()
         case ix_FLf1Ptr: sub.as!(RT.FLf1*).calculate(stats); break;
         case ix_PBr4Ptr: sub.as!(RT.PBr4*).calculate(stats); break;
         case ix_FBrMPtr: sub.as!(RT.FBrM*).calculate(stats); break;
@@ -1678,18 +1678,18 @@ unittest
     auto set = radixTreeSet!(ubyte);
     alias Set = typeof(set);
 
-    foreach (const i; 0 .. Set.MLf1.maxLength)
+    foreach (const i; 0 .. Set.HLf1.maxLength)
     {
         assert(!set.contains(i));
         assert(set.insert(i));
         assert(!set.insert(i));
         assert(set.contains(i));
         assert(set.branchCount == 0);
-        const rootRef = set._root.peek!(Set.MLf1);
+        const rootRef = set._root.peek!(Set.HLf1);
         assert(rootRef);
     }
 
-    foreach (const i; Set.MLf1.maxLength .. 256)
+    foreach (const i; Set.HLf1.maxLength .. 256)
     {
         assert(!set.contains(i));
         assert(set.insert(i));
@@ -1752,7 +1752,7 @@ unittest
         assert(root.subPopulation == 2);
         assert(root.subNodes.length == 2);
         assert(root.subNodes[0].peek!(Set.FLf1*));
-        assert(root.subNodes[1].peek!(Set.MLf1));
+        assert(root.subNodes[1].peek!(Set.HLf1));
     }
 }
 
@@ -1913,7 +1913,7 @@ void benchmark(uint span)()
                     {
                     case undefined: break;
                     case ix_SLf6:    bytesUsed = pop*Set.SLf6.sizeof; break;
-                    case ix_MLf1:    bytesUsed = pop*Set.MLf1.sizeof; break;
+                    case ix_HLf1:    bytesUsed = pop*Set.HLf1.sizeof; break;
                     case ix_FLf1Ptr: bytesUsed = pop*Set.FLf1.sizeof; totalBytesUsed += bytesUsed; break;
                     case ix_PBr4Ptr: bytesUsed = pop*Set.PBr4.sizeof; totalBytesUsed += bytesUsed; break;
                     case ix_FBrMPtr: bytesUsed = pop*Set.FBrM.sizeof; totalBytesUsed += bytesUsed; break;

@@ -55,7 +55,6 @@ import std.traits : isIntegral, isFloatingPoint, isSomeChar, isSomeString, isSca
 import std.typecons : tuple, Tuple, Unqual;
 import std.range : isInputRange, ElementType;
 import std.range.primitives : hasLength;
-import std.algorithm.searching : canFind;
 
 import bijections : isIntegralBijectableType, bijectToUnsigned;
 import variant_ex : WordVariant;
@@ -193,6 +192,7 @@ struct IxsN(size_t maxLength,
 
     bool contains(Ix[] ix) const @nogc
     {
+        import std.algorithm.searching : canFind;
         return (ix.length == L && chunks.canFind(ix)); // TODO use binarySearch
     }
 

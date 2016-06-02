@@ -100,27 +100,32 @@ shared static this()
 /** Statically allocated `Ix`-array of fixed pre-allocated length `maxLength`.
  */
 struct IxsN(size_t maxLength,
+            uint elementLength = 1,
             uint span = 8)
-    if (maxLength >= 2)         // no use storing less than 2 bytes
+    if (maxLength*elementLength >= 2)         // no use storing less than 2 bytes
 {
+    enum L = elementLength;
     enum M = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
     alias Ix = Mod!M;
 
-    this(Ixs...)(Ixs ixs)
+    static if (L == 1)
+    {
+        this(Ixs...)(Ixs ixs)
         if (Ixs.length >= 1 && Ixs.length <= maxLength)
-    {
-        foreach (const i, const ix; ixs)
         {
-            this.ixs[i] = ix;
+            foreach (const i, const ix; ixs)
+            {
+                this.ixs[i] = ix;
+            }
+            this._length = ixs.length;
         }
-        this._length = ixs.length;
-    }
 
-    this(Ix[] ixs)
-    {
-        assert(ixs.length <= maxLength);
-        this.ixs[0 .. ixs.length] = ixs;
-        this._length = cast(ubyte)ixs.length;
+        this(Ix[] ixs)
+        {
+            assert(ixs.length <= maxLength);
+            this.ixs[0 .. ixs.length] = ixs;
+            this._length = cast(ubyte)ixs.length;
+        }
     }
 
     @property auto toString() const
@@ -137,13 +142,27 @@ struct IxsN(size_t maxLength,
     auto ref front() inout
     {
         assert(!empty);
-        return ixs[0];
+        static if (L == 1)
+            return ixs[0];
+        else
+        {
+            Ix[L] tmp;
+            foreach (const i; iota!(0, L)) { tmp[i] = ixs[i]; }
+            return tmp;
+        }
     }
 
     auto ref back() inout
     {
         assert(!empty);
-        return ixs[_length - 1];
+        static if (L == 1)
+            return ixs[_length - 1];
+        else
+        {
+            Ix[L] tmp;
+            foreach (const i; iota!(0, L)) { tmp[i] = ixs[$ - L + i]; }
+            return tmp;
+        }
     }
 
     void popFront()
@@ -154,10 +173,10 @@ struct IxsN(size_t maxLength,
         {
             ixs[i] = ixs[i + 1]; // TODO move construct?
         }
-        --_length;
+        _length -= L;
     }
 
-    void popBack() { assert(!empty); --_length; }
+    void popBack() { assert(!empty); _length -= L; }
     void pushBack(Ixs...)(Ixs moreIxs)
         if (Ixs.length <= maxLength)
     {
@@ -179,7 +198,7 @@ private:
     Ix[maxLength] ixs;          // indexes
 }
 
-static assert(IxsN!(6, 8).sizeof == 7);
+static assert(IxsN!(6, 1, 8).sizeof == 7);
 
 @safe pure nothrow unittest
 {
@@ -193,8 +212,8 @@ static assert(IxsN!(6, 8).sizeof == 7);
     Ix[] ixs = [11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M];
     enum maxLength = 7;
 
-    auto x = IxsN!(maxLength, span)(ixs);
-    auto y = IxsN!(maxLength, span)(11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M);
+    auto x = IxsN!(maxLength, 1, span)(ixs);
+    auto y = IxsN!(maxLength, 1, span)(11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M);
 
     assert(x == y);
 
@@ -316,7 +335,7 @@ private struct RawRadixTree(Value,
                     return s;
                 }
 
-                IxsN!(maxLength, span) suffix;
+                IxsN!(maxLength, 1, span) suffix;
                 // alias suffix this;
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
@@ -349,7 +368,7 @@ private struct RawRadixTree(Value,
                     return s;
                 }
 
-                IxsN!(maxLength, span) keys;
+                IxsN!(maxLength, 1, span) keys;
                 // alias keys this;
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`

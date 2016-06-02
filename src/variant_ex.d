@@ -68,13 +68,22 @@ struct WordVariant(Types...)
 
     @property string toString() const @trusted // TODO pure nothrow
     {
+        import std.traits : isPointer;
         import std.conv : to;
         final switch (typeIndex) // typeIndex starts at 0 (undefined)
         {
         case 0: return "null";
             foreach (const i, T; Types)
             {
-            case i + 1: return T.stringof ~ `@` ~ as!T.to!string; // which means that we must add 1
+            case i + 1:
+                static if (isPointer!T)
+                {
+                    return T.stringof ~ `@` ~ as!T.to!string; // TODO ~ `:` ~ (*as!T).to!string;
+                }
+                else
+                {
+                    return T.stringof ~ `@` ~ as!T.to!string;
+                }
             }
         }
     }

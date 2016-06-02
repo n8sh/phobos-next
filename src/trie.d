@@ -193,7 +193,8 @@ struct IxsN(size_t maxLength,
     bool contains(Ix[] ix) const @nogc
     {
         import std.algorithm.searching : canFind;
-        return (ix.length == L && chunks.canFind(ix)); // TODO use binarySearch
+        return (ix.length == L &&
+                chunks.canFind(ix)); // TODO use binarySearch
     }
 
     auto chunks() inout { return _ixs[0 .. _length]; }

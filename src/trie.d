@@ -178,7 +178,10 @@ struct IxsN(size_t maxLength,
         // TODO is there a reusable Phobos function for this?
         foreach (const i; 0 .. _length - 1)
         {
-            _ixs[i] = _ixs[i + 1]; // TODO move construct?
+            foreach (const j; iota!(0, L))
+            {
+                _ixs[i + j] = _ixs[i + j + 1]; // TODO move construct?
+            }
         }
         _length = _length - L; // TODO use Mod.opAssign
     }
@@ -356,7 +359,7 @@ private struct RawRadixTree(Value,
             struct BLf3
             {
                 enum maxLength = 2;
-                IxsN!(maxLength, 3, span) suffix;
+                IxsN!(maxLength, 3, span) keys;
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
@@ -365,7 +368,7 @@ private struct RawRadixTree(Value,
             struct TLf2
             {
                 enum maxLength = 3;
-                IxsN!(maxLength, 2, span) suffix;
+                IxsN!(maxLength, 2, span) keys;
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }

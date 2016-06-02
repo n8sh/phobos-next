@@ -204,9 +204,13 @@ struct IxsN(size_t maxLength,
 private:
     Mod!(maxLength + 1) _length;                    // number of defined elements in ixs
     static if (L == 1)
+    {
         Ix[maxLength] _ixs; // byte indexes
+    }
     else
+    {
         Ix[L][maxLength] _ixs; // byte indexes
+    }
 }
 
 static assert(IxsN!(6, 1, 8).sizeof == 7);

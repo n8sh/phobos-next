@@ -118,7 +118,7 @@ struct IxsN(size_t maxLength,
         {
             foreach (const i, const ix; ixs)
             {
-                this._ixs[i] = ix;
+                _ixs[i] = ix;
             }
             this._length = ixs.length;
         }
@@ -126,7 +126,7 @@ struct IxsN(size_t maxLength,
         this(Ix[] ixs)
         {
             assert(ixs.length <= maxLength);
-            this._ixs[0 .. ixs.length] = ixs;
+            _ixs[0 .. ixs.length] = ixs;
             this._length = cast(ubyte)ixs.length;
         }
     }
@@ -200,7 +200,7 @@ struct IxsN(size_t maxLength,
             assert(!full);
             foreach (const i, const ix; moreIxs)
             {
-                this._ixs[_length + i] = ix;
+                _ixs[_length + i] = ix;
             }
             _length = _length + Ixs.length; // TODO use Mod.opAssign
         }

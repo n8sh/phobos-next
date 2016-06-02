@@ -197,10 +197,20 @@ struct IxsN(size_t maxLength,
         void pushBack(Ixs...)(Ixs moreIxs)
             if (Ixs.length <= maxLength)
         {
-            assert(!full);
+            assert(length + Ixs.length <= maxLength);
             foreach (const i, const ix; moreIxs)
             {
-                _ixs[_length + i] = ix;
+                static if (L == 1)
+                {
+                    _ixs[_length + i] = ix;
+                }
+                else
+                {
+                    foreach (const j; iota!(0, L))
+                    {
+                        _ixs[L*(_length + i) + j] = ix[j];
+                    }
+                }
             }
             _length = _length + Ixs.length; // TODO use Mod.opAssign
         }

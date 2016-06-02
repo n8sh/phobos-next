@@ -1121,20 +1121,15 @@ private struct RawRadixTree(Value,
                 wasAdded = true;
                 return Node(construct!(HLf1)(key[0])); // promote packing of single-Ix leaves
             }
-            else if (key.length == 2)
-            {
-                wasAdded = true;
-                return Node(construct!(TLf2)(key));
-            }
-            else if (key.length == 3)
-            {
-                wasAdded = true;
-                return Node(construct!(BLf3)(key));
-            }
             // else if (key.length == 2)
             // {
             //     wasAdded = true;
-            //     return Node(construct!(HLf12)(key));
+            //     return Node(construct!(TLf2)(key));
+            // }
+            // else if (key.length == 3)
+            // {
+            //     wasAdded = true;
+            //     return Node(construct!(BLf3)(key));
             // }
             else if (key.length <= SLf6.maxLength)
             {

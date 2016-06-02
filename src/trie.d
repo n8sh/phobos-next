@@ -1367,7 +1367,7 @@ private struct RawRadixTree(Value,
 
         foreach (const i; 0 .. depth)
         {
-            write('-');
+            write(' ');
         }
         if (subIx != uint.max)
         {

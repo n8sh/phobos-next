@@ -174,10 +174,13 @@ struct IxsN(size_t maxLength,
         {
             _ixs[i] = _ixs[i + 1]; // TODO move construct?
         }
-        _length = _length - L;
+        _length = _length - L; // TODO use Mod.opAssign
     }
 
-    void popBack() { assert(!empty); _length = _length - L; }
+    void popBack()
+    {
+        assert(!empty); _length = _length - L; // TODO Use opAssign
+    }
     void pushBack(Ixs...)(Ixs moreIxs)
         if (Ixs.length <= maxLength)
     {
@@ -186,7 +189,7 @@ struct IxsN(size_t maxLength,
         {
             this._ixs[_length + i] = ix;
         }
-        _length = _length + Ixs.length;
+        _length = _length + Ixs.length; // TODO use Mod.opAssign
     }
 
     auto chunks() inout { return _ixs[0 .. _length]; }

@@ -202,7 +202,7 @@ struct IxsN(size_t maxLength,
     auto length() const { return _length; }
 
 private:
-    Mod!(maxLength + 1) _length;                    // number of defined elements in ixs
+    Mod!(maxLength + 1) _length; // number of defined elements in _ixs
     static if (L == 1)
     {
         Ix[maxLength] _ixs;     // byte indexes

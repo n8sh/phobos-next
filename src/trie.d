@@ -357,7 +357,7 @@ private struct RawRadixTree(Value,
                 {
                     import std.string : format;
                     string s;
-                    foreach (const i, const key; suffix[])
+                    foreach (const i, const key; suffix)
                     {
                         const first = i == 0; // first iteration
                         if (!first) { s ~= '_'; }
@@ -415,7 +415,12 @@ private struct RawRadixTree(Value,
                 {
                     import std.string : format;
                     string s;
-                    foreach (key; keys) { s ~= format("%.2X", key) ~ ','; } // in hexadecimal
+                    foreach (const i, const key; keys)
+                    {
+                        const first = i == 0; // first iteration
+                        if (!first) { s ~= ','; }
+                        s ~= format("%.2X", key); // in hexadecimal
+                    }
                     return s;
                 }
 

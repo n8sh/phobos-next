@@ -3,6 +3,8 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO Check for case when expanding to bit-branch instead of PBr4 in all `expand()` overloads
+
     TODO Make array indexing/slicing as @trusted and use .ptr[] instead of [] when things are stable. Especially in IxsN
 
     TODO Store `isKey` in top-most bit of length part of `IxsN prefix` in branch node.

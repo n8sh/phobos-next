@@ -352,8 +352,8 @@ private struct RawRadixTree(Value,
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
 
-            /// Pair-Branch with leaves of Ix-length 3.
-            struct PLf3
+            /// Binary-Branch with leaves of Ix-length 3.
+            struct BLf3
             {
                 enum maxLength = 2;
                 IxsN!(maxLength, 3, span) suffix;

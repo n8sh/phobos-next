@@ -177,18 +177,15 @@ struct IxsN(size_t maxLength,
         --_length;
     }
 
-    static if (L == 1)
+    void pushBack(Es...)(Es moreEs)
+        if (Es.length <= maxLength)
     {
-        void pushBack(Ixs...)(Ixs moreIxs)
-            if (Ixs.length <= maxLength)
+        assert(length + Es.length <= maxLength);
+        foreach (const i, const ix; moreEs)
         {
-            assert(length + Ixs.length <= maxLength);
-            foreach (const i, const ix; moreIxs)
-            {
-                _ixs[_length + i] = ix;
-            }
-            _length = _length + Ixs.length; // TODO use Mod.opAssign
+            _ixs[_length + i] = ix;
         }
+        _length = _length + Es.length; // TODO use Mod.opAssign
     }
 
     bool contains(Ix[] ix) const @nogc
@@ -1116,46 +1113,44 @@ private struct RawRadixTree(Value,
 
         Node insertNew(Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
-            if (key.length == 1)
+            switch (key.length)
             {
+            case 1:
                 wasAdded = true;
-                return Node(construct!(HLf1)(key[0])); // promote packing of single-Ix leaves
-            }
-            // else if (key.length == 2)
-            // {
-            //     wasAdded = true;
-            //     return Node(construct!(TLf2)(key));
-            // }
-            // else if (key.length == 3)
-            // {
-            //     wasAdded = true;
-            //     return Node(construct!(BLf3)(key));
-            // }
-            else if (key.length <= SLf6.maxLength)
-            {
+                return Node(construct!(HLf1)(key[0])); // promote packing
+            case 2:
                 wasAdded = true;
-                return Node(construct!(SLf6)(key));
-            }
-            else if (key.length <= FLf1.maxPrefixLength) // only if FLf1.maxPrefixLength > SLf6.maxLength
-            {
+                return Node(construct!(TLf2)(key)); // promote packing
+            case 3:
                 wasAdded = true;
-                return Node(construct!(FLf1*)(key[0 .. $ - 1], false, key[$ - 1]));
-            }
-            else                // key doesn't fit in a `SLf6`
-            {
-                import std.algorithm : min;
-                auto brKey = key[0 .. min(key.length, DefaultBr.maxPrefixLength)];
-                dln("Creating DefaultBr: key:", key, " brKey:", brKey, " superPrefixLength:", superPrefixLength);
-                auto next = insertAt(Node(construct!(DefaultBr)(brKey, false)), // as much as possible of key in branch prefix
-                                     key, superPrefixLength, wasAdded);
-
-                // assert that next branch shouldn't be a bit-packed branch instead
-                debug if (const nextPBr4Ref = next.peek!(PBr4*))
+                return Node(construct!(BLf3)(key)); // promote packing
+            default:
+                if (key.length <= SLf6.maxLength)
                 {
-                    assert(!(*nextPBr4Ref).hasMinimumDepth);
+                    wasAdded = true;
+                    return Node(construct!(SLf6)(key));
                 }
-                assert(wasAdded);
-                return next;
+                else if (key.length <= FLf1.maxPrefixLength) // only if FLf1.maxPrefixLength > SLf6.maxLength
+                {
+                    wasAdded = true;
+                    return Node(construct!(FLf1*)(key[0 .. $ - 1], false, key[$ - 1]));
+                }
+                else                // key doesn't fit in a `SLf6`
+                {
+                    import std.algorithm : min;
+                    auto brKey = key[0 .. min(key.length, DefaultBr.maxPrefixLength)];
+                    dln("Creating DefaultBr: key:", key, " brKey:", brKey, " superPrefixLength:", superPrefixLength);
+                    auto next = insertAt(Node(construct!(DefaultBr)(brKey, false)), // as much as possible of key in branch prefix
+                                         key, superPrefixLength, wasAdded);
+
+                    // assert that next branch shouldn't be a bit-packed branch instead
+                    debug if (const nextPBr4Ref = next.peek!(PBr4*))
+                    {
+                        assert(!(*nextPBr4Ref).hasMinimumDepth);
+                    }
+                    assert(wasAdded);
+                    return next;
+                }
             }
         }
 
@@ -1292,28 +1287,45 @@ private struct RawRadixTree(Value,
 
         Node insertAt(BLf3 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
-            if (curr.contains(key)) { return Node(curr); } // already stored
-            assert(false);
+            assert(key.length == curr.keyLength);
+            if (curr.contains(key)) { return Node(curr); }
+            if (!curr.keys.empty)
+            {
+                curr.keys.pushBack(key);
+                wasAdded = true;
+                return Node(curr);
+            }
+            else
+            {
+                return insertAt(Node(expand(curr)), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
+            }
         }
 
         Node insertAt(TLf2 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
-            if (curr.contains(key)) { return Node(curr); } // already stored
-            assert(false);
+            assert(key.length == curr.keyLength);
+            if (curr.contains(key)) { return Node(curr); }
+            if (!curr.keys.empty)
+            {
+                curr.keys.pushBack(key);
+                wasAdded = true;
+                return Node(curr);
+            }
+            else
+            {
+                return insertAt(Node(expand(curr)), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
+            }
         }
 
         Node insertAt(HLf1 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
-            assert(key.length == 1);
-
-            if (curr.contains(key)) { return Node(curr); } // already stored
-
-            // not already stored `curr` so add it
-            if (curr.keys.length < curr.maxLength) // if room left
+            assert(key.length == curr.keyLength);
+            if (curr.contains(key)) { return Node(curr); }
+            if (!curr.keys.empty)
             {
                 curr.keys.pushBack(key[0]);
                 wasAdded = true;
-                return Node(curr); // current node still ok
+                return Node(curr);
             }
             else
             {
@@ -1353,11 +1365,49 @@ private struct RawRadixTree(Value,
             return superNext;
         }
 
-        /** Destructively expand `curr` into a `FLf1` and return it. */
+        /** Destructively expand `curr` and return it. */
+        PBr4* expand(BLf3 curr)
+        {
+            auto keyPrefix = Ix[].init; // TODO calculate from curr.keys
+            auto next = construct!(typeof(return))(keyPrefix);
+
+            assert(curr.keys.length <= next.N);
+            foreach (const i, key; curr.keys) // TODO const key
+            {
+                const iN = i.mod!(next.N); // TODO shouldn't be needed
+                next.subIxSlots[iN] = key[0];
+                next.subNodeSlots[iN] = construct!(SLf6)(key[1 .. $]);
+            }
+            next.subPopulation = cast(ubyte)curr.keys.length; // TODO dumb cast frmo Mod!3 to ubyte
+
+            freeNode(curr);
+            return next;
+        }
+
+        /** Destructively expand `curr` and return it. */
+        PBr4* expand(TLf2 curr)
+        {
+            auto keyPrefix = Ix[].init; // TODO calculate from curr.keys
+            auto next = construct!(typeof(return))(keyPrefix);
+
+            assert(curr.keys.length <= next.N);
+            foreach (const i, key; curr.keys) // TODO const key
+            {
+                const iN = i.mod!(next.N); // TODO shouldn't be needed
+                next.subIxSlots[iN] = key[0];
+                next.subNodeSlots[iN] = construct!(SLf6)(key[1 .. $]);
+            }
+            next.subPopulation = cast(ubyte)curr.keys.length; // TODO dumb cast frmo Mod!3 to ubyte
+
+            freeNode(curr);
+            return next;
+        }
+
+        /** Destructively expand `curr` and return it. */
         FLf1* expand(HLf1 curr)
         {
             auto next = construct!(typeof(return));
-            foreach (const ixM; curr.keys[0 .. curr.keys.length])
+            foreach (const ixM; curr.keys)
             {
                 assert(!next._keyBits[ixM]); // assert no duplicates in keys
                 next._keyBits[ixM] = true;

@@ -99,7 +99,7 @@ shared static this()
 }
 
 /** Statically allocated `Ix`-array of fixed pre-allocated length `maxLength` of
-    Ix-elements in chunks of elementLength, that is `ElementType` is
+    Ix-elements in chunks of elementLength. `ElementType` is
     `Ix[elementLength]`.
  */
 struct IxsN(size_t maxLength,

@@ -1048,6 +1048,12 @@ private struct RawRadixTree(Value,
                 dln("Creating DefaultBr: key:", key, " brKey:", brKey, " superPrefixLength:", superPrefixLength);
                 auto next = insertAt(Node(construct!(DefaultBr)(brKey, false)), // as much as possible of key in branch prefix
                                      key, superPrefixLength, wasAdded);
+
+                // assert that next branch shouldn't be a bit-packed branch instead
+                debug if (const nextPBr4Ref = next.peek!(PBr4*))
+                {
+                    assert(!(*nextPBr4Ref).hasMinimumDepth);
+                }
                 assert(wasAdded);
                 return next;
             }

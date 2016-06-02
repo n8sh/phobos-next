@@ -555,6 +555,10 @@ private struct RawRadixTree(Value,
         pragma(inline) bool empty() const @nogc { return subPopulation == 0; }
         pragma(inline) bool full() const @nogc { return subPopulation == N; }
 
+        pragma(inline) auto subIxs() inout @nogc
+        {
+            return subIxSlots[0 .. subPopulation];
+        }
         pragma(inline) auto subNodes() inout @nogc
         {
             return subNodeSlots[0 .. subPopulation];
@@ -1354,7 +1358,7 @@ private struct RawRadixTree(Value,
         printAt(_root, 0);
     }
 
-    void printAt(Node curr, size_t depth) @safe const
+    void printAt(Node curr, size_t depth, uint subIx = uint.max) @safe const
     {
         import std.range : repeat;
         import std.stdio : write, writeln;
@@ -1364,6 +1368,11 @@ private struct RawRadixTree(Value,
         foreach (const i; 0 .. depth)
         {
             write('-');
+        }
+        if (subIx != uint.max)
+        {
+            import std.string : format;
+            write(format("%.2X ", subIx));
         }
 
         final switch (curr.typeIx) with (Node.Ix)
@@ -1389,9 +1398,9 @@ private struct RawRadixTree(Value,
             write(typeof(*curr_).stringof, "#", curr_.subPopulation, ": ");
             if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix); }
             writeln();
-            foreach (const subNode; curr_.subNodes)
+            foreach (const i, const subNode; curr_.subNodes)
             {
-                printAt(subNode, depth + 1);
+                printAt(subNode, depth + 1, cast(uint)curr_.subIxs[i]);
             }
             break;
         case ix_FBrMPtr:
@@ -1399,9 +1408,9 @@ private struct RawRadixTree(Value,
             write(typeof(*curr_).stringof, "#", curr_.subPopulation, ": ");
             writeln();
             if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix); }
-            foreach (const subNode; curr_.subNodes)
+            foreach (const i, const subNode; curr_.subNodes)
             {
-                printAt(subNode, depth + 1);
+                printAt(subNode, depth + 1, cast(uint)i);
             }
 
             break;

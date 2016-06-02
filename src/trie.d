@@ -120,14 +120,14 @@ struct IxsN(size_t maxLength,
             {
                 _ixs[i] = ix;
             }
-            this._length = ixs.length;
+            _length = ixs.length;
         }
 
         this(Ix[] ixs)
         {
             assert(ixs.length <= maxLength);
             _ixs[0 .. ixs.length] = ixs;
-            this._length = cast(ubyte)ixs.length;
+            _length = cast(ubyte)ixs.length;
         }
     }
 

@@ -152,7 +152,7 @@ struct IxsN(size_t maxLength,
         else
         {
             Ix[L] tmp;
-            foreach (const i; iota!(0, L)) { tmp[i] = _ixs[i]; }
+            foreach (const j; iota!(0, L)) { tmp[j] = _ixs[j]; }
             return tmp;
         }
     }
@@ -167,7 +167,7 @@ struct IxsN(size_t maxLength,
         else
         {
             Ix[L] tmp;
-            foreach (const i; iota!(0, L)) { tmp[i] = _ixs[$ - L + i]; }
+            foreach (const j; iota!(0, L)) { tmp[j] = _ixs[$ - L + j]; }
             return tmp;
         }
     }

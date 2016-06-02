@@ -64,6 +64,8 @@ struct WordVariant(Types...)
     /// Is `true` iff a `T` can be stored.
     enum canStore(T) = indexOf!T >= 0;
 
+    pure:
+
     @property string toString() const @trusted // TODO pure nothrow
     {
         import std.traits : isPointer;
@@ -76,7 +78,7 @@ struct WordVariant(Types...)
             case i + 1:
                 static if (isPointer!T)
                 {
-                    return T.stringof ~ `@` ~ as!T.to!string ~ `:` ~ (*as!T).to!string;
+                    return T.stringof ~ `@` ~ as!T.to!string; // TODO ~ `:` ~ (*as!T).to!string;
                 }
                 else
                 {
@@ -85,8 +87,6 @@ struct WordVariant(Types...)
             }
         }
     }
-
-    pure:
 
     nothrow:
 
@@ -186,7 +186,8 @@ pragma(inline):
 
 }
 
-/* TODO pure */ nothrow unittest
+///
+pure nothrow unittest
 {
     import std.meta : AliasSeq;
 

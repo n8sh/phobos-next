@@ -190,15 +190,19 @@ struct IxsN(size_t maxLength,
     {
         assert(!empty); _length = _length - L; // TODO Use opAssign
     }
-    void pushBack(Ixs...)(Ixs moreIxs)
-        if (Ixs.length <= maxLength)
+
+    static if (L == 1)
     {
-        assert(!full);
-        foreach (const i, const ix; moreIxs)
+        void pushBack(Ixs...)(Ixs moreIxs)
+        if (Ixs.length <= maxLength)
         {
-            this._ixs[_length + i] = ix;
+            assert(!full);
+            foreach (const i, const ix; moreIxs)
+            {
+                this._ixs[_length + i] = ix;
+            }
+            _length = _length + Ixs.length; // TODO use Mod.opAssign
         }
-        _length = _length + Ixs.length; // TODO use Mod.opAssign
     }
 
     auto chunks() inout { return _ixs[0 .. _length]; }

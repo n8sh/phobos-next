@@ -348,7 +348,24 @@ private struct RawRadixTree(Value,
                 }
 
                 IxsN!(maxLength, 1, span) suffix;
-                // alias suffix this;
+            private:
+                ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
+            }
+
+            /// Pair-Branch with leaves of Ix-length 3.
+            struct PLf3
+            {
+                enum maxLength = 2;
+                IxsN!(maxLength, 3, span) suffix;
+            private:
+                ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
+            }
+
+            /// Triple-Branch with leaves of Ix-length 2.
+            struct TLf2
+            {
+                enum maxLength = 3;
+                IxsN!(maxLength, 2, span) suffix;
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
@@ -381,7 +398,6 @@ private struct RawRadixTree(Value,
                 }
 
                 IxsN!(maxLength, 1, span) keys;
-                // alias keys this;
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }

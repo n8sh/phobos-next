@@ -1232,12 +1232,12 @@ private struct RawRadixTree(Value,
                 next = construct!(DefaultBr)(prefix, false);
             }
 
-            bool wasAdded;      // dummy
-            auto node = insertAt(next, curr.suffix, 0, wasAdded);
-            assert(wasAdded); // assure that existing key was reinserted
+            bool wasAddedCurr;      // dummy
+            auto superNext = insertAt(next, curr.suffix, 0, wasAddedCurr);
+            assert(wasAddedCurr); // assure that `curr` was reinserted
             freeNode(curr);   // remove old current
 
-            return node;
+            return superNext;
         }
 
         /** Destructively expand `curr` into a `FLf1` and return it. */

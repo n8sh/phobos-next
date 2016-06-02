@@ -333,7 +333,7 @@ private struct RawRadixTree(Value,
     {
         static if (span == 8)
         {
-            /// Fixed-Length Single-Key Leaf
+            /// Single-Branch/Leaf with a maximum Ix-length of 6.
             struct SLf6
             {
                 enum maxLength = (size_t.sizeof - 2) / Ix.sizeof;
@@ -361,7 +361,7 @@ private struct RawRadixTree(Value,
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
 
-            /// Triple-Branch with leaves of Ix-length 2.
+            /// Ternary-Branch with leaves of Ix-length 2.
             struct TLf2
             {
                 enum maxLength = 3;

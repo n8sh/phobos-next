@@ -205,11 +205,11 @@ private:
     Mod!(maxLength + 1) _length;                    // number of defined elements in ixs
     static if (L == 1)
     {
-        Ix[maxLength] _ixs; // byte indexes
+        Ix[maxLength] _ixs;     // byte indexes
     }
     else
     {
-        Ix[L][maxLength] _ixs; // byte indexes
+        Ix[L][maxLength] _ixs;  // byte indexes
     }
 }
 

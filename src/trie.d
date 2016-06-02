@@ -188,7 +188,8 @@ struct IxsN(size_t maxLength,
 
     void popBack()
     {
-        assert(!empty); _length = _length - L; // TODO Use opAssign
+        assert(!empty);
+        _length = _length - L; // TODO Use opAssign
     }
 
     static if (L == 1)

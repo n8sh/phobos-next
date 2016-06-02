@@ -116,18 +116,19 @@ struct IxsN(size_t maxLength,
     else
         alias E = Ix[L];
 
+    this(Es...)(Es ixs)
+        if (Es.length >= 1 &&
+            Es.length <= maxLength)
+    {
+        foreach (const i, const ix; ixs)
+        {
+            _ixs[i] = ix;
+        }
+        _length = ixs.length;
+    }
+
     static if (L == 1)
     {
-        this(Ixs...)(Ixs ixs)
-        if (Ixs.length >= 1 && Ixs.length <= maxLength)
-        {
-            foreach (const i, const ix; ixs)
-            {
-                _ixs[i] = ix;
-            }
-            _length = ixs.length;
-        }
-
         this(Ix[] ixs)
         {
             assert(ixs.length <= maxLength);
@@ -377,6 +378,12 @@ private struct RawRadixTree(Value,
                 enum keyLength = 3;
                 enum maxLength = 2;
 
+                this(Ixs...)(Ixs ixs)
+                if (Ixs.length >= 1 && Ixs.length <= maxLength)
+                {
+                    this.keys = ixs;
+                }
+
                 pragma(inline) bool contains(Key!span key) const @nogc { return keys.contains(key); }
 
                 IxsN!(maxLength, keyLength, span) keys;
@@ -389,6 +396,12 @@ private struct RawRadixTree(Value,
             {
                 enum keyLength = 2;
                 enum maxLength = 3;
+
+                this(Ixs...)(Ixs ixs)
+                if (Ixs.length >= 1 && Ixs.length <= maxLength)
+                {
+                    this.keys = ixs;
+                }
 
                 pragma(inline) bool contains(Key!span key) const @nogc { return keys.contains(key); }
 
@@ -1108,6 +1121,16 @@ private struct RawRadixTree(Value,
                 wasAdded = true;
                 return Node(construct!(HLf1)(key[0])); // promote packing of single-Ix leaves
             }
+            else if (key.length == 2)
+            {
+                wasAdded = true;
+                return Node(construct!(TLf2)(key));
+            }
+            else if (key.length == 3)
+            {
+                wasAdded = true;
+                return Node(construct!(BLf3)(key));
+            }
             // else if (key.length == 2)
             // {
             //     wasAdded = true;
@@ -1274,11 +1297,13 @@ private struct RawRadixTree(Value,
 
         Node insertAt(BLf3 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            if (curr.contains(key)) { return Node(curr); } // already stored
             assert(false);
         }
 
         Node insertAt(TLf2 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            if (curr.contains(key)) { return Node(curr); } // already stored
             assert(false);
         }
 
@@ -1286,8 +1311,7 @@ private struct RawRadixTree(Value,
         {
             assert(key.length == 1);
 
-            // check if already stored in `curr`
-            if (curr.contains(key)) { return Node(curr); }
+            if (curr.contains(key)) { return Node(curr); } // already stored
 
             // not already stored `curr` so add it
             if (curr.keys.length < curr.maxLength) // if room left

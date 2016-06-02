@@ -142,7 +142,7 @@ struct IxsN(size_t maxLength,
     bool empty() const { return _length == 0; }
     bool full() const { return _length == maxLength; }
 
-    auto ref front() inout
+    auto front() inout
     {
         assert(!empty);
         static if (L == 1)
@@ -157,7 +157,7 @@ struct IxsN(size_t maxLength,
         }
     }
 
-    auto ref back() inout
+    auto back() inout
     {
         assert(!empty);
         static if (L == 1)

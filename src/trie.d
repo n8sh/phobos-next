@@ -1107,12 +1107,16 @@ private struct RawRadixTree(Value,
             else if (matchedPrefix.length < key.length &&
                      matchedPrefix.length < currPrefix.length)
             {
-                dln("curr:", curr, " currPrefix:", currPrefix, " Creating DefaultBr:", " matchedPrefix:", matchedPrefix, " key:", key);
+                dln("curr:", curr);
+                dln("cPr:", currPrefix);
+                dln("key:", key);
+                dln("matchedPrefix:", matchedPrefix);
                 const subIx = currPrefix[matchedPrefix.length]; // need index first
-                setPrefix(curr, currPrefix[matchedPrefix.length + 1 .. $]); // drop matchedPrefix plus index
+                setPrefix(curr, currPrefix[matchedPrefix.length + 1 .. $]); // drop matchedPrefix plus index to next super branch
 
                 const currNewPrefix = getPrefix(curr);
                 dln("curr prefix changed to:", currNewPrefix);
+                dln("subIx:", subIx);
 
                 curr = Node(construct!(DefaultBr)(matchedPrefix, false, // key is not occupied
                                                   subIx, curr));
@@ -1797,7 +1801,7 @@ void benchmark(uint span)()
         import std.conv : to;
         import std.datetime : StopWatch, AutoStart, Duration;
 
-        enum n = 500_000;
+        enum n = 50_000;
 
         import std.array : array;
         import std.random : randomShuffle;

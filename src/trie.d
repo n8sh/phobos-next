@@ -1396,7 +1396,7 @@ private struct RawRadixTree(Value,
         case ix_PBr4Ptr:
             auto curr_ = curr.as!(PBr4*);
             write(typeof(*curr_).stringof, "#", curr_.subPopulation);
-            if (!curr_.prefix.empty) { write(" P=", curr_.prefix); }
+            if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix); }
             writeln(":");
             foreach (const i, const subNode; curr_.subNodes)
             {
@@ -1406,7 +1406,7 @@ private struct RawRadixTree(Value,
         case ix_FBrMPtr:
             auto curr_ = curr.as!(FBrM*);
             write(typeof(*curr_).stringof, "#", curr_.subPopulation);
-            if (!curr_.prefix.empty) { write(" P=", curr_.prefix); }
+            if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix); }
             writeln(":");
             foreach (const i, const subNode; curr_.subNodes)
             {

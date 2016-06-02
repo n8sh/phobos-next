@@ -1177,8 +1177,8 @@ private struct RawRadixTree(Value,
                 else if (matchedPrefix.length + 1 == key.length) // key and curr.suffix are both matchedPrefix plus one extra
                 {
                     auto next = construct!(FLf1*)(matchedPrefix, false,
-                                                 curr.suffix[$ - 1],
-                                                 key[$ - 1]);
+                                                  curr.suffix[$ - 1],
+                                                  key[$ - 1]);
                     wasAdded = true;
                     freeNode(curr);
                     return Node(next);
@@ -1229,6 +1229,10 @@ private struct RawRadixTree(Value,
             }
             if (!next)
             {
+                // dln("============================================");
+                // dln(curr);
+                // dln(prefix);
+                // dln(key);
                 next = construct!(DefaultBr)(prefix, false);
             }
 

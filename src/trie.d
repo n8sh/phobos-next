@@ -116,7 +116,7 @@ struct IxsN(size_t maxLength,
         {
             foreach (const i, const ix; ixs)
             {
-                this.ixs[i] = ix;
+                this._ixs[i] = ix;
             }
             this._length = ixs.length;
         }
@@ -124,7 +124,7 @@ struct IxsN(size_t maxLength,
         this(Ix[] ixs)
         {
             assert(ixs.length <= maxLength);
-            this.ixs[0 .. ixs.length] = ixs;
+            this._ixs[0 .. ixs.length] = ixs;
             this._length = cast(ubyte)ixs.length;
         }
     }
@@ -132,7 +132,7 @@ struct IxsN(size_t maxLength,
     @property auto toString() const
     {
         import std.conv : to;
-        return ixs[0 .. _length].to!string;
+        return _ixs[0 .. _length].to!string;
     }
 
     @safe pure nothrow @nogc:
@@ -144,11 +144,11 @@ struct IxsN(size_t maxLength,
     {
         assert(!empty);
         static if (L == 1)
-            return ixs[0];
+            return _ixs[0];
         else
         {
             Ix[L] tmp;
-            foreach (const i; iota!(0, L)) { tmp[i] = ixs[i]; }
+            foreach (const i; iota!(0, L)) { tmp[i] = _ixs[i]; }
             return tmp;
         }
     }
@@ -157,11 +157,11 @@ struct IxsN(size_t maxLength,
     {
         assert(!empty);
         static if (L == 1)
-            return ixs[_length - 1];
+            return _ixs[_length - 1];
         else
         {
             Ix[L] tmp;
-            foreach (const i; iota!(0, L)) { tmp[i] = ixs[$ - L + i]; }
+            foreach (const i; iota!(0, L)) { tmp[i] = _ixs[$ - L + i]; }
             return tmp;
         }
     }
@@ -172,7 +172,7 @@ struct IxsN(size_t maxLength,
         // TODO is there a reusable Phobos function for this?
         foreach (const i; 0 .. _length - 1)
         {
-            ixs[i] = ixs[i + 1]; // TODO move construct?
+            _ixs[i] = _ixs[i + 1]; // TODO move construct?
         }
         _length -= L;
     }
@@ -184,22 +184,24 @@ struct IxsN(size_t maxLength,
         assert(!full);
         foreach (const i, const ix; moreIxs)
         {
-            this.ixs[_length + i] = ix;
+            this._ixs[_length + i] = ix;
         }
         _length += Ixs.length;
     }
 
-    auto chunks() inout { return ixs[0 .. _length]; }
+    auto chunks() inout { return _ixs[0 .. _length]; }
     alias chunks this;
 
     auto length() const { return _length; }
 
 private:
-    ubyte _length;               // number of defined elements in ixs
-    Ix[maxLength] ixs;          // indexes
+    ubyte _length;                    // number of defined elements in ixs
+    Ix[maxLength*elementLength] _ixs; // byte indexes
 }
 
 static assert(IxsN!(6, 1, 8).sizeof == 7);
+static assert(IxsN!(3, 2, 8).sizeof == 7);
+static assert(IxsN!(2, 3, 8).sizeof == 7);
 
 @safe pure nothrow unittest
 {

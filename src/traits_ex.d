@@ -473,7 +473,7 @@ unittest
     static assert(isComparable!Bar);
 }
 
-// TODO variadic
+// TODO  variadic
 enum areComparable(T, U) = is(typeof({ return T.init <  U.init; })); ///< TODO Move to Phobos' std.traits
 enum areEquable   (T, U) = is(typeof({ return T.init == U.init; })); ///< TODO Move to Phobos' std.traits
 enum areNotEquable(T, U) = is(typeof({ return T.init != U.init; })); ///< TODO Move to Phobos' std.traits

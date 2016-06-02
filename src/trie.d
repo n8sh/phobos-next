@@ -360,7 +360,7 @@ private struct RawRadixTree(Value,
                     foreach (const i, const key; suffix[])
                     {
                         const first = i == 0; // first iteration
-                        if (!first) { s ~= '-'; }
+                        if (!first) { s ~= '_'; }
                         s ~= format("%.2X", key); // in hexadecimal
                     }
                     return s;

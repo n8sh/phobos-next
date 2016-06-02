@@ -174,10 +174,10 @@ struct IxsN(size_t maxLength,
         {
             _ixs[i] = _ixs[i + 1]; // TODO move construct?
         }
-        _length -= L;
+        _length = _length - L;
     }
 
-    void popBack() { assert(!empty); _length -= L; }
+    void popBack() { assert(!empty); _length = _length - L; }
     void pushBack(Ixs...)(Ixs moreIxs)
         if (Ixs.length <= maxLength)
     {
@@ -186,7 +186,7 @@ struct IxsN(size_t maxLength,
         {
             this._ixs[_length + i] = ix;
         }
-        _length += Ixs.length;
+        _length = _length + Ixs.length;
     }
 
     auto chunks() inout { return _ixs[0 .. _length]; }
@@ -195,7 +195,7 @@ struct IxsN(size_t maxLength,
     auto length() const { return _length; }
 
 private:
-    ubyte _length;                    // number of defined elements in ixs
+    Mod!(maxLength + 1) _length;                    // number of defined elements in ixs
     Ix[maxLength*elementLength] _ixs; // byte indexes
 }
 

@@ -357,7 +357,12 @@ private struct RawRadixTree(Value,
                 {
                     import std.string : format;
                     string s;
-                    foreach (key; suffix) { s ~= format("%.2X", key); } // in hexadecimal
+                    foreach (const i, const key; suffix[])
+                    {
+                        const first = i == 0; // first iteration
+                        if (!first) { s ~= '-'; }
+                        s ~= format("%.2X", key); // in hexadecimal
+                    }
                     return s;
                 }
 

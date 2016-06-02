@@ -3,6 +3,8 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO Make array indexing/slicing as @trusted and use .ptr[] instead of [] when things are stable. Especially in IxsN
+
     TODO Store `isKey` in top-most bit of length part of `IxsN prefix` in branch node.
 
     TODO Optimize PBr4.findSub for specific `subPopulation`
@@ -12,7 +14,6 @@
 
     TODO Add function reprefix({PBr4|FBrM) and call after insertAt({PBr4|FBrM}). Only useful when one single leaf is present?
     TODO Is std.algorithm.countUntil the most suitable function to use in setSub(PBr4*, ...)
-    TODO Make array indexing/slicing as @trusted and use .ptr[] instead of [] when things are stable
     TODO Use std.experimental.allocator
 
     TODO Can we somehow overload opIndex so we can do brM[i] instead of more cumbersome (*brM)[i] when brM is of type FBrM*?

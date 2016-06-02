@@ -55,6 +55,7 @@ import std.traits : isIntegral, isFloatingPoint, isSomeChar, isSomeString, isSca
 import std.typecons : tuple, Tuple, Unqual;
 import std.range : isInputRange, ElementType;
 import std.range.primitives : hasLength;
+import std.algorithm.searching : canFind;
 
 import bijections : isIntegralBijectableType, bijectToUnsigned;
 import variant_ex : WordVariant;
@@ -112,6 +113,11 @@ struct IxsN(size_t maxLength,
     alias Ix = Mod!M;
 
     static if (L == 1)
+        alias E = Ix;
+    else
+        alias E = Ix[L];
+
+    static if (L == 1)
     {
         this(Ixs...)(Ixs ixs)
         if (Ixs.length >= 1 && Ixs.length <= maxLength)
@@ -145,31 +151,13 @@ struct IxsN(size_t maxLength,
     auto front() inout
     {
         assert(!empty);
-        static if (L == 1)
-        {
-            return _ixs[0];
-        }
-        else
-        {
-            Ix[L] tmp;
-            foreach (const j; iota!(0, L)) { tmp[j] = _ixs[j]; }
-            return tmp;
-        }
+        return _ixs[0];
     }
 
     auto back() inout
     {
         assert(!empty);
-        static if (L == 1)
-        {
-            return _ixs[_length - 1];
-        }
-        else
-        {
-            Ix[L] tmp;
-            foreach (const j; iota!(0, L)) { tmp[j] = _ixs[$ - L + j]; }
-            return tmp;
-        }
+        return _ixs[_length - 1];
     }
 
     void popFront()
@@ -178,18 +166,15 @@ struct IxsN(size_t maxLength,
         // TODO is there a reusable Phobos function for this?
         foreach (const i; 0 .. _length - 1)
         {
-            foreach (const j; iota!(0, L))
-            {
-                _ixs[i + j] = _ixs[i + j + 1]; // TODO move construct?
-            }
+            _ixs[i] = _ixs[i + 1]; // TODO move construct?
         }
-        _length = _length - L; // TODO use Mod.opAssign
+        --_length;
     }
 
     void popBack()
     {
         assert(!empty);
-        _length = _length - L; // TODO Use opAssign
+        --_length;
     }
 
     static if (L == 1)
@@ -200,20 +185,15 @@ struct IxsN(size_t maxLength,
             assert(length + Ixs.length <= maxLength);
             foreach (const i, const ix; moreIxs)
             {
-                static if (L == 1)
-                {
-                    _ixs[_length + i] = ix;
-                }
-                else
-                {
-                    foreach (const j; iota!(0, L))
-                    {
-                        _ixs[L*(_length + i) + j] = ix[j];
-                    }
-                }
+                _ixs[_length + i] = ix;
             }
             _length = _length + Ixs.length; // TODO use Mod.opAssign
         }
+    }
+
+    bool contains(Ix[] ix) const @nogc
+    {
+        return (ix.length == L && chunks.canFind(ix)); // TODO use binarySearch
     }
 
     auto chunks() inout { return _ixs[0 .. _length]; }
@@ -223,7 +203,10 @@ struct IxsN(size_t maxLength,
 
 private:
     Mod!(maxLength + 1) _length;                    // number of defined elements in ixs
-    Ix[maxLength*elementLength] _ixs; // byte indexes
+    static if (L == 1)
+        Ix[maxLength] _ixs; // byte indexes
+    else
+        Ix[L][maxLength] _ixs; // byte indexes
 }
 
 static assert(IxsN!(6, 1, 8).sizeof == 7);
@@ -381,8 +364,12 @@ private struct RawRadixTree(Value,
             /// Binary-Key Leaf with key-length 3.
             struct BLf3
             {
+                enum keyLength = 3;
                 enum maxLength = 2;
-                IxsN!(maxLength, 3, span) keys;
+
+                pragma(inline) bool contains(Key!span key) const @nogc { return keys.contains(key); }
+
+                IxsN!(maxLength, keyLength, span) keys;
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
@@ -390,8 +377,12 @@ private struct RawRadixTree(Value,
             /// Ternary-Key Leaf with key-length 2.
             struct TLf2
             {
+                enum keyLength = 2;
                 enum maxLength = 3;
-                IxsN!(maxLength, 2, span) keys;
+
+                pragma(inline) bool contains(Key!span key) const @nogc { return keys.contains(key); }
+
+                IxsN!(maxLength, keyLength, span) keys;
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
@@ -399,21 +390,16 @@ private struct RawRadixTree(Value,
             /// Hexa-Key Leaf with key-length 1.
             struct HLf1
             {
+                enum keyLength = 1;
                 enum maxLength = (size_t.sizeof - 2) / Ix.sizeof; // maximum number of elements
 
                 this(Ixs...)(Ixs ixs)
-                if (Ixs.length >= 1 && Ixs.length <= maxLength)
+                    if (Ixs.length >= 1 && Ixs.length <= maxLength)
                 {
                     this.keys = ixs;
                 }
 
-                pragma(inline) bool contains(Key!span key) const @nogc
-                {
-                    // TODO use binarySearch
-                    import std.algorithm.searching : canFind;
-                    return (key.length == 1 &&
-                            keys[].canFind(key[0]));
-                }
+                pragma(inline) bool contains(Key!span key) const @nogc { return keys.contains(key); }
 
                 @property string toString() const @safe pure
                 {
@@ -447,6 +433,8 @@ private struct RawRadixTree(Value,
 
     /** Node types. */
     alias NodeTypes = AliasSeq!(SLf6,
+                                BLf3,
+                                TLf2,
                                 HLf1,
                                 PBr4*,
                                 FLf1*,
@@ -1069,6 +1057,8 @@ private struct RawRadixTree(Value,
             {
             case undefined: return false;
             case ix_SLf6:    return curr.as!(SLf6).suffix == key;
+            case ix_BLf3:    return curr.as!(BLf3).contains(key);
+            case ix_TLf2:    return curr.as!(TLf2).contains(key);
             case ix_HLf1:    return curr.as!(HLf1).contains(key);
             case ix_FLf1Ptr: return curr.as!(FLf1*).contains(key);
             case ix_PBr4Ptr:
@@ -1151,6 +1141,8 @@ private struct RawRadixTree(Value,
                 {
                 case undefined: break;
                 case ix_SLf6:    return insertAt(curr.as!(SLf6), key, superPrefixLength, wasAdded);
+                case ix_BLf3:    return insertAt(curr.as!(BLf3), key, superPrefixLength, wasAdded);
+                case ix_TLf2:    return insertAt(curr.as!(TLf2), key, superPrefixLength, wasAdded);
                 case ix_HLf1:    return insertAt(curr.as!(HLf1), key, superPrefixLength, wasAdded);
 
                 case ix_FLf1Ptr:
@@ -1263,6 +1255,16 @@ private struct RawRadixTree(Value,
             }
             return insertAt(split(curr, matchedPrefix, key),
                             key, superPrefixLength, wasAdded);
+        }
+
+        Node insertAt(BLf3 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
+        {
+            assert(false);
+        }
+
+        Node insertAt(TLf2 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
+        {
+            assert(false);
         }
 
         Node insertAt(HLf1 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
@@ -1394,6 +1396,8 @@ private struct RawRadixTree(Value,
         }
 
         void release(SLf6 curr) { freeNode(curr); }
+        void release(BLf3 curr) { freeNode(curr); }
+        void release(TLf2 curr) { freeNode(curr); }
         void release(HLf1 curr) { freeNode(curr); }
 
         void release(Node curr)
@@ -1403,6 +1407,8 @@ private struct RawRadixTree(Value,
             {
             case undefined: break; // ignored
             case ix_SLf6: return release(curr.as!(SLf6));
+            case ix_BLf3: return release(curr.as!(BLf3));
+            case ix_TLf2: return release(curr.as!(TLf2));
             case ix_HLf1: return release(curr.as!(HLf1));
             case ix_FLf1Ptr: return release(curr.as!(FLf1*));
             case ix_PBr4Ptr: return release(curr.as!(PBr4*));
@@ -1454,6 +1460,14 @@ private struct RawRadixTree(Value,
         case ix_SLf6:
             auto curr_ = curr.as!(SLf6);
             writeln(typeof(curr_).stringof, "#", curr_.suffix.length, ": ", curr_);
+            break;
+        case ix_BLf3:
+            auto curr_ = curr.as!(BLf3);
+            writeln(typeof(curr_).stringof, "#", curr_.keys.length, ": ", curr_);
+            break;
+        case ix_TLf2:
+            auto curr_ = curr.as!(TLf2);
+            writeln(typeof(curr_).stringof, "#", curr_.keys.length, ": ", curr_);
             break;
         case ix_HLf1:
             auto curr_ = curr.as!(HLf1);
@@ -1512,6 +1526,8 @@ static private void calculate(Value, uint span)(RawRadixTree!(Value, span).Node 
         {
         case undefined: break;
         case ix_SLf6: break; // TODO calculate()
+        case ix_BLf3: break; // TODO calculate()
+        case ix_TLf2: break; // TODO calculate()
         case ix_HLf1: break; // TODO calculate()
         case ix_FLf1Ptr: sub.as!(RT.FLf1*).calculate(stats); break;
         case ix_PBr4Ptr: sub.as!(RT.PBr4*).calculate(stats); break;
@@ -1913,6 +1929,8 @@ void benchmark(uint span)()
                     {
                     case undefined: break;
                     case ix_SLf6:    bytesUsed = pop*Set.SLf6.sizeof; break;
+                    case ix_BLf3:    bytesUsed = pop*Set.BLf3.sizeof; break;
+                    case ix_TLf2:    bytesUsed = pop*Set.TLf2.sizeof; break;
                     case ix_HLf1:    bytesUsed = pop*Set.HLf1.sizeof; break;
                     case ix_FLf1Ptr: bytesUsed = pop*Set.FLf1.sizeof; totalBytesUsed += bytesUsed; break;
                     case ix_PBr4Ptr: bytesUsed = pop*Set.PBr4.sizeof; totalBytesUsed += bytesUsed; break;

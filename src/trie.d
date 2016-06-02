@@ -1099,7 +1099,6 @@ private struct RawRadixTree(Value,
             {
                 const subIx = currPrefix[matchedPrefix.length]; // need index first
                 setPrefix(curr, currPrefix[matchedPrefix.length + 1 .. $]); // drop matchedPrefix plus index
-                dln("curr:", curr, " Creating DefaultBr:", " matchedPrefix:", matchedPrefix, " key:", key);
                 return Node(construct!(DefaultBr)(matchedPrefix, true, // `true` because `key` occupies this node
                                                   subIx, curr));
             }
@@ -1107,21 +1106,11 @@ private struct RawRadixTree(Value,
             else if (matchedPrefix.length < key.length &&
                      matchedPrefix.length < currPrefix.length)
             {
-                dln("curr:", curr);
-                dln("cPr:", currPrefix);
-                dln("key:", key);
-                dln("matchedPrefix:", matchedPrefix);
                 const subIx = currPrefix[matchedPrefix.length]; // need index first
                 setPrefix(curr, currPrefix[matchedPrefix.length + 1 .. $]); // drop matchedPrefix plus index to next super branch
-
-                const currNewPrefix = getPrefix(curr);
-                dln("curr prefix changed to:", currNewPrefix);
-                dln("subIx:", subIx);
-
                 curr = Node(construct!(DefaultBr)(matchedPrefix, false, // key is not occupied
                                                   subIx, curr));
-                key = key[matchedPrefix.length .. $];
-                dln("key was prefixed:", key);
+                key = key[matchedPrefix.length .. $]; // skip matchedPrefix from key
                 superPrefixLength += matchedPrefix.length;
             }
             // prefix:"ab", key:"ab"
@@ -1243,22 +1232,6 @@ private struct RawRadixTree(Value,
             freeNode(curr);   // remove old current
 
             return node;
-        }
-
-        /** Construct and return sub-Node at `key`.  */
-        Node constructSub(Key!span key)
-        {
-            if (key.length == 0)
-            {
-                return Node(construct!(SLfN));
-            }
-            else
-            {
-                const bool isLast = key.length == 1;
-                return (isLast ?
-                        Node(construct!(DefaultLf)) :
-                        Node(construct!(DefaultBr)));
-            }
         }
 
         /** Destructively expand `curr` into a `FLf1` and return it. */

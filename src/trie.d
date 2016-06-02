@@ -144,7 +144,9 @@ struct IxsN(size_t maxLength,
     {
         assert(!empty);
         static if (L == 1)
+        {
             return _ixs[0];
+        }
         else
         {
             Ix[L] tmp;
@@ -157,7 +159,9 @@ struct IxsN(size_t maxLength,
     {
         assert(!empty);
         static if (L == 1)
+        {
             return _ixs[_length - 1];
+        }
         else
         {
             Ix[L] tmp;

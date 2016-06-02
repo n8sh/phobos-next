@@ -195,7 +195,7 @@ struct IxsN(size_t maxLength,
     static if (L == 1)
     {
         void pushBack(Ixs...)(Ixs moreIxs)
-        if (Ixs.length <= maxLength)
+            if (Ixs.length <= maxLength)
         {
             assert(!full);
             foreach (const i, const ix; moreIxs)

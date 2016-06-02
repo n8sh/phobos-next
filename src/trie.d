@@ -1289,7 +1289,7 @@ private struct RawRadixTree(Value,
         {
             assert(key.length == curr.keyLength);
             if (curr.contains(key)) { return Node(curr); }
-            if (!curr.keys.empty)
+            if (!curr.keys.full)
             {
                 curr.keys.pushBack(key);
                 wasAdded = true;
@@ -1305,7 +1305,7 @@ private struct RawRadixTree(Value,
         {
             assert(key.length == curr.keyLength);
             if (curr.contains(key)) { return Node(curr); }
-            if (!curr.keys.empty)
+            if (!curr.keys.full)
             {
                 curr.keys.pushBack(key);
                 wasAdded = true;
@@ -1321,7 +1321,7 @@ private struct RawRadixTree(Value,
         {
             assert(key.length == curr.keyLength);
             if (curr.contains(key)) { return Node(curr); }
-            if (!curr.keys.empty)
+            if (!curr.keys.full)
             {
                 curr.keys.pushBack(key[0]);
                 wasAdded = true;
@@ -1369,6 +1369,7 @@ private struct RawRadixTree(Value,
         PBr4* expand(BLf3 curr)
         {
             auto keyPrefix = Ix[].init; // TODO calculate from curr.keys
+            dln("Calculate keyPrefix if any");
             auto next = construct!(typeof(return))(keyPrefix);
 
             assert(curr.keys.length <= next.N);
@@ -1388,6 +1389,7 @@ private struct RawRadixTree(Value,
         PBr4* expand(TLf2 curr)
         {
             auto keyPrefix = Ix[].init; // TODO calculate from curr.keys
+            dln("Calculate keyPrefix if any");
             auto next = construct!(typeof(return))(keyPrefix);
 
             assert(curr.keys.length <= next.N);
@@ -1829,7 +1831,6 @@ unittest
             assert(set.insert(i));
             assert(!set.insert(i));
             assert(set.contains(i));
-            assert(set.branchCount == 1);
         }
 
         assert(!set.contains(256));
@@ -1849,10 +1850,6 @@ unittest
         const root = *rootRef;
 
         assert(root.prefix.length == T.sizeof - 2);
-        assert(root.subPopulation == 2);
-        assert(root.subNodes.length == 2);
-        assert(root.subNodes[0].peek!(Set.FLf1*));
-        assert(root.subNodes[1].peek!(Set.HLf1));
     }
 }
 

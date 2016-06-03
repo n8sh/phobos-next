@@ -144,7 +144,7 @@ struct IxsN(size_t maxLength,
     @property auto toString() const
     {
         string s;
-        foreach (const i, const ix; _ixs)
+        foreach (const i, const ix; chunks)
         {
             if (i != 0) { s ~= keySeparator; } // separator
             import std.string : format;

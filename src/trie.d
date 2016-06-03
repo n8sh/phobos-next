@@ -147,17 +147,16 @@ struct IxsN(size_t maxLength,
         foreach (const i, const ix; _ixs)
         {
             if (i != 0) { s ~= keySeparator; } // separator
+            import std.string : format;
             static if (elementLength == 1)
             {
-                import std.conv : to;
-                s ~= ix.to!string;
+                s ~= format("%.2X", ix); // in hexadecimal
             }
             else
             {
                 foreach (const j, const subIx; ix[])
                 {
                     if (j != 0) { s ~= '_'; } // separator
-                    import std.string : format;
                     s ~= format("%.2X", subIx); // in hexadecimal
                 }
             }

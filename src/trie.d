@@ -144,7 +144,7 @@ struct IxsN(size_t maxLength,
         string s;
         foreach (const i, const ix; _ixs)
         {
-            if (i != 0) { s ~= ' '; } // separator
+            if (i != 0) { s ~= ','; } // separator
             static if (elementLength == 1)
             {
                 import std.conv : to;
@@ -451,7 +451,7 @@ private struct RawRadixTree(Value,
                     foreach (const i, const key; keys)
                     {
                         const first = i == 0; // first iteration
-                        if (!first) { s ~= ' '; }
+                        if (!first) { s ~= ','; }
                         s ~= format("%.2X", key); // in hexadecimal
                     }
                     return s;

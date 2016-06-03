@@ -1074,6 +1074,13 @@ private struct RawRadixTree(Value,
     ~this()
     {
         if (_root) { release(_root); }
+        debug
+        {
+            if (_heapNodeAllocationBalance != 0)
+            {
+                dln(nodeCountsByIx);
+            }
+        }
         debug assert(_heapNodeAllocationBalance == 0,
                      "Heap Node allocation balance is not zero, but " ~
                      _heapNodeAllocationBalance.to!string);
@@ -1135,9 +1142,9 @@ private struct RawRadixTree(Value,
             case 2:
                 wasAdded = true;
                 return Node(construct!(TLf2)(key)); // promote packing
-            // case 3:
-            //     wasAdded = true;
-            //     return Node(construct!(BLf3)(key)); // promote packing
+            case 3:
+                wasAdded = true;
+                return Node(construct!(BLf3)(key)); // promote packing
             default:
                 if (key.length <= SLf6.maxLength)
                 {
@@ -1479,21 +1486,22 @@ private struct RawRadixTree(Value,
 
     private:
 
-    /** Allocate (if pointer) and Construct a `Node`-type of value type `U`
+    /** Allocate (if pointer) and Construct a `Node`-type of value type `NodeType`
         using constructor arguments `args` of `Args`. */
-    auto construct(U, Args...)(Args args) @trusted
+    auto construct(NodeType, Args...)(Args args) @trusted
     {
-        version(debugAllocations) { dln("constructing ", U.stringof, " from ", args); }
-        static if (isPointer!U)
+        version(debugAllocations) { dln("constructing ", NodeType.stringof, " from ", args); }
+        static if (isPointer!NodeType)
         {
             debug ++_heapNodeAllocationBalance;
+            debug ++nodeCountsByIx[NodeType.stringof];
             import std.conv : emplace;
-            return emplace(cast(U)malloc((*U.init).sizeof), args);
-            // TODO ensure alignment of node at least that of U.alignof
+            return emplace(cast(NodeType)malloc((*NodeType.init).sizeof), args);
+            // TODO ensure alignment of node at least that of NodeType.alignof
         }
         else
         {
-            return U(args);
+            return NodeType(args);
         }
     }
 
@@ -1504,6 +1512,7 @@ private struct RawRadixTree(Value,
         {
             free(cast(void*)nt);  // TODO Allocator.free
             debug --_heapNodeAllocationBalance;
+            debug --nodeCountsByIx[NodeType.stringof];
         }
     }
 
@@ -1567,7 +1576,10 @@ private struct RawRadixTree(Value,
     bool hasFixedKeyLength() const @safe pure nothrow @nogc { return keyLength != size_t.max; }
 
     /// Returns: number of nodes used in `this` tree.
-    pragma(inline) debug size_t branchCount() @safe pure nothrow /* TODO @nogc */ { return _heapNodeAllocationBalance; }
+    pragma(inline) debug size_t heapNodeAllocationBalance() @safe pure nothrow /* TODO @nogc */
+    {
+        return _heapNodeAllocationBalance;
+    }
 
     void print() @safe const
     {
@@ -1646,6 +1658,7 @@ private struct RawRadixTree(Value,
     size_t _length = 0; ///< number of elements (keys or key-value-pairs) currently stored under `_root`
     immutable _keyLength = size_t.max; ///< maximum length of key
     debug long _heapNodeAllocationBalance = 0;
+    debug size_t[string] nodeCountsByIx;
 }
 
 /** Append statistics of tree under `Node` `sub.` into `stats`.
@@ -1807,22 +1820,22 @@ unittest
 
     assert(set.insert(0));
     assert(!set.insert(0));
-    assert(set.branchCount == 1);
+    assert(set.heapNodeAllocationBalance == 1);
 
     assert(set.insert(1));
     assert(!set.insert(1));
-    assert(set.branchCount == 1);
+    assert(set.heapNodeAllocationBalance == 1);
 
     foreach (const i; 2 .. 256)
     {
         assert(set.insert(i));
         assert(!set.insert(i));
-        assert(set.branchCount == 1);
+        assert(set.heapNodeAllocationBalance == 1);
     }
 
     assert(set.insert(256));
     assert(!set.insert(256));
-    assert(set.branchCount == 2);
+    assert(set.heapNodeAllocationBalance == 2);
 }
 
 @safe pure nothrow /* TODO @nogc */
@@ -1837,7 +1850,7 @@ unittest
         assert(set.insert(i));
         assert(!set.insert(i));
         assert(set.contains(i));
-        assert(set.branchCount == 0);
+        assert(set.heapNodeAllocationBalance == 0);
         const rootRef = set._root.peek!(Set.HLf1);
         assert(rootRef);
     }
@@ -1848,7 +1861,7 @@ unittest
         assert(set.insert(i));
         assert(!set.insert(i));
         assert(set.contains(i));
-        assert(set.branchCount == 1);
+        assert(set.heapNodeAllocationBalance == 1);
         const rootRef = set._root.peek!(Set.FLf1*);
         assert(rootRef);
     }
@@ -1874,7 +1887,7 @@ unittest
         assert(set.insert(0));
         assert(!set.insert(0));
         assert(set.contains(0));
-        assert(set.branchCount == 0);
+        assert(set.heapNodeAllocationBalance == 0);
 
         foreach (const i; 1 .. 256)
         {
@@ -1888,7 +1901,7 @@ unittest
         assert(set.insert(256));
         assert(!set.insert(256));
         assert(set.contains(256));
-        assert(set.branchCount == 2);
+        assert(set.heapNodeAllocationBalance == 2);
 
         assert(!set.contains(257));
         assert(set.insert(257));

@@ -1303,7 +1303,7 @@ private struct RawRadixTree(Value,
                 }
                 dln("TODO expand to FLf1");
             }
-            return insertAt(expand(curr), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
+            return insertAt(expandUnbalanced(curr), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
         }
 
         Node insertAt(TLf2 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
@@ -1319,7 +1319,7 @@ private struct RawRadixTree(Value,
                 }
                 dln("TODO expand to FLf1");
             }
-            return insertAt(expand(curr), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
+            return insertAt(expandUnbalanced(curr), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
         }
 
         Node insertAt(HLf1 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
@@ -1335,7 +1335,7 @@ private struct RawRadixTree(Value,
                 }
                 dln("TODO expand to FLf1");
             }
-            return insertAt(expand(curr), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
+            return insertAt(expandUnbalanced(curr), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
         }
 
         /** Split `curr` using `prefix`. */
@@ -1371,7 +1371,7 @@ private struct RawRadixTree(Value,
         }
 
         /** Destructively expand `curr` and return it. */
-        Node expand(BLf3 curr)
+        Node expandUnbalanced(BLf3 curr)
         {
             auto keyPrefix = Ix[].init; // TODO calculate from curr.keys
             dln("Calculate keyPrefix if any");
@@ -1391,7 +1391,7 @@ private struct RawRadixTree(Value,
         }
 
         /** Destructively expand `curr` and return it. */
-        Node expand(TLf2 curr)
+        Node expandUnbalanced(TLf2 curr)
         {
             auto keyPrefix = Ix[].init; // TODO calculate from curr.keys
             dln("Calculate keyPrefix if any");
@@ -1411,7 +1411,7 @@ private struct RawRadixTree(Value,
         }
 
         /** Destructively expand `curr` making room for `nextKey` and return it. */
-        Node expand(HLf1 curr)
+        Node expandUnbalanced(HLf1 curr)
         {
             auto next = construct!(FLf1*);
             foreach (const ixM; curr.keys)

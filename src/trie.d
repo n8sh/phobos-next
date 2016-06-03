@@ -1302,6 +1302,8 @@ private struct RawRadixTree(Value,
                     return Node(curr);
                 }
                 dln("TODO expand to FLf1");
+                dln(curr);
+                dln(key);
             }
             return insertAt(expandToUnbalanced(curr), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
         }
@@ -1318,12 +1320,15 @@ private struct RawRadixTree(Value,
                     return Node(curr);
                 }
                 dln("TODO expand to FLf1");
+                dln(curr);
+                dln(key);
             }
             return insertAt(expandToUnbalanced(curr), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
         }
 
         Node insertAt(HLf1 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            static assert(curr.keyLength == 1);
             if (curr.keyLength == key.length)
             {
                 if (curr.contains(key)) { return Node(curr); }
@@ -1333,7 +1338,18 @@ private struct RawRadixTree(Value,
                     wasAdded = true;
                     return Node(curr);
                 }
-                dln("TODO expand to FLf1");
+
+                auto next = construct!(FLf1*)(Ix[].init, false);
+                foreach (const currKey; curr.keys)
+                {
+                    next._keyBits[currKey] = true;
+                }
+                next._keyBits[key[0]] = true;
+                freeNode(curr);
+
+                wasAdded = true;
+
+                return Node(next);
             }
             return insertAt(expandToUnbalanced(curr), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
         }

@@ -162,7 +162,7 @@ struct IxsN(size_t maxLength,
         return _ixs[_length - 1];
     }
 
-    void popFront()
+    auto ref popFront()
     {
         assert(!empty);
         // TODO is there a reusable Phobos function for this?
@@ -171,15 +171,17 @@ struct IxsN(size_t maxLength,
             _ixs[i] = _ixs[i + 1]; // TODO move construct?
         }
         --_length;
+        return this;
     }
 
-    void popBack()
+    auto ref popBack()
     {
         assert(!empty);
         --_length;
+        return this;
     }
 
-    void pushBack(Es...)(Es moreEs)
+    auto ref pushBack(Es...)(Es moreEs)
         if (Es.length <= maxLength)
     {
         assert(length + Es.length <= maxLength);
@@ -188,6 +190,7 @@ struct IxsN(size_t maxLength,
             _ixs[_length + i] = ix;
         }
         _length = _length + Es.length; // TODO use Mod.opAssign
+        return this;
     }
 
     bool contains(Ix[] ix) const @nogc

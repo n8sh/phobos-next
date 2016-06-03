@@ -460,6 +460,7 @@ private struct RawRadixTree(Value,
         static assert(false, "Currently requires a 64-bit CPU (size_t.sizeof == 8)");
     }
 
+    // TODO make these run-time arguments at different key depths and map to statistics of typed-key
     alias DefaultRootType = PBr4*;
     alias DefaultBr = DefaultRootType;
 

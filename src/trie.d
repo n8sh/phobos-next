@@ -3,6 +3,8 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO Allow node constructors to take const and immutable prefixes
+
     TODO Check for case when expanding to bit-branch instead of PBr4 in all `expand()` overloads
 
     TODO Make array indexing/slicing as @trusted and use .ptr[] instead of [] when things are stable. Especially in IxsN
@@ -1329,7 +1331,7 @@ private struct RawRadixTree(Value,
 
                 if (curr.keys[0][0] == key[0] &&
                     curr.keys[0][0] == curr.keys[1][0] &&
-                    curr.keys[1][0] == curr.keys[2][0])
+                    curr.keys[1][0] == curr.keys[2][0]) // if curr and key have common prefix of length 1
                 {
                     auto prefix = curr.keys[0][0 .. 1];
                     auto next = construct!(FLf1*)(prefix, false);

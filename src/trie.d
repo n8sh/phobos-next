@@ -1310,9 +1310,22 @@ private struct RawRadixTree(Value,
                     wasAdded = true;
                     return Node(curr);
                 }
-                dln("TODO expand to FLf1");
-                dln(curr);
-                dln(key);
+                enum PL = 2;    // searched prefix length
+                if (curr.keys[0][0 .. PL] ==          key[0 .. PL] &&
+                    curr.keys[0][0 .. PL] == curr.keys[1][0 .. PL] &&
+                    curr.keys[1][0 .. PL] == curr.keys[2][0 .. PL]) // if curr and key have common prefix of length 2
+                {
+                    auto prefix = curr.keys[0][0 .. PL];
+                    auto next = construct!(FLf1*)(prefix, false);
+                    foreach (const currKey; curr.keys)
+                    {
+                        next._keyBits[currKey[PL]] = true;
+                    }
+                    next._keyBits[key[PL]] = true;
+                    freeNode(curr);
+                    wasAdded = true;
+                    return Node(next);
+                }
             }
             return insertAt(expandToUnbalanced(curr), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
         }
@@ -1328,8 +1341,7 @@ private struct RawRadixTree(Value,
                     wasAdded = true;
                     return Node(curr);
                 }
-
-                if (curr.keys[0][0] == key[0] &&
+                if (curr.keys[0][0] ==          key[0] &&
                     curr.keys[0][0] == curr.keys[1][0] &&
                     curr.keys[1][0] == curr.keys[2][0]) // if curr and key have common prefix of length 1
                 {

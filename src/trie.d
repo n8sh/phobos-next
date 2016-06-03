@@ -460,13 +460,8 @@ private struct RawRadixTree(Value,
         static assert(false, "Currently requires a 64-bit CPU (size_t.sizeof == 8)");
     }
 
-    static if (span == 8)
-    {
-        alias DefaultRootType = PBr4*;
-    }
-
+    alias DefaultRootType = PBr4*;
     alias DefaultBr = DefaultRootType;
-    alias DefaultLf = HLf1;
 
     static if (isSet)
         static assert(HLf1.sizeof == size_t.sizeof); // assert that it's size matches platform word-size

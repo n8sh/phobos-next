@@ -217,8 +217,8 @@ struct IxsN(size_t maxLength,
     bool contains(Ix[] ix) const @nogc
     {
         import std.algorithm.searching : canFind;
-        return (ix.length == L &&
-                chunks.canFind(ix)); // TODO use binarySearch
+        if (ix.length != L) { return false; }
+        return (chunks.canFind(ix)); // TODO use binarySearch
     }
 
     auto chunks() inout { return _ixs[0 .. _length]; }
@@ -597,7 +597,7 @@ private struct RawRadixTree(Value,
     /** Sparse/Packed/Partial 4-way branch. */
     static private struct PBr4
     {
-        enum N = 4;
+        enum maxSubPopulation = 4;
 
         enum maxPrefixLength = 10; // 2, 10, 18, ...
 
@@ -621,7 +621,7 @@ private struct RawRadixTree(Value,
         void pushBackSub(Tuple!(Ix, Node) sub)
         {
             assert(!full);
-            const backIx = subPopulation.mod!N;
+            const backIx = subPopulation.mod!maxSubPopulation;
             subIxSlots[backIx] = sub[0];
             subNodeSlots[backIx] = sub[1];
             subPopulation = cast(ubyte)(subPopulation + 1);
@@ -645,7 +645,7 @@ private struct RawRadixTree(Value,
                 // TODO do binary search
                 foreach (const i_; 0 ..  subPopulation)
                 {
-                    const i = i_.mod!N;
+                    const i = i_.mod!maxSubPopulation;
                     if (subIxSlots[i] == ix) { return subNodeSlots[i]; }
                 }
                 break;
@@ -654,7 +654,7 @@ private struct RawRadixTree(Value,
         }
 
         pragma(inline) bool empty() const @nogc { return subPopulation == 0; }
-        pragma(inline) bool full() const @nogc { return subPopulation == N; }
+        pragma(inline) bool full() const @nogc { return subPopulation == maxSubPopulation; }
 
         pragma(inline) auto subIxs() inout @nogc
         {
@@ -701,9 +701,9 @@ private struct RawRadixTree(Value,
         private:
 
         // members in order of decreasing `alignof`:
-        StrictlyIndexed!(Node[N]) subNodeSlots;
+        StrictlyIndexed!(Node[maxSubPopulation]) subNodeSlots;
         IxsN!maxPrefixLength prefix; // prefix common to all `subNodes` (also called edge-label)
-        StrictlyIndexed!(Ix[N]) subIxSlots;
+        StrictlyIndexed!(Ix[maxSubPopulation]) subIxSlots;
         mixin(bitfields!(ubyte, "subPopulation", 7, // counts length of defined elements in subNodeSlots
                          bool, "isKey", 1)); // key at this branch is occupied
     }
@@ -839,7 +839,7 @@ private struct RawRadixTree(Value,
             this.isKey = rhs.isKey;
             foreach (const i; 0 .. rhs.subPopulation) // each sub node. TODO use iota!(Mod!N)
             {
-                const iN = i.mod!(PBr4.N);
+                const iN = i.mod!(PBr4.maxSubPopulation);
                 const subIx = rhs.subIxSlots[iN];
                 this.subNodes[subIx] = rhs.subNodes[iN];
             }
@@ -948,7 +948,7 @@ private struct RawRadixTree(Value,
         const i = curr.subIxSlots[0 .. curr.subPopulation].countUntil(subIx); // TODO is this the preferred function?
         if (i != -1)            // if hit. TODO use bool conversion if this gets added to countUntil
         {
-            curr.subNodeSlots[i.mod!(curr.N)] = subNode; // reuse
+            curr.subNodeSlots[i.mod!(curr.maxSubPopulation)] = subNode; // reuse
         }
         else if (!curr.full)     // if room left in curr
         {
@@ -1139,9 +1139,9 @@ private struct RawRadixTree(Value,
             case 2:
                 wasAdded = true;
                 return Node(construct!(TLf2)(key)); // promote packing
-            case 3:
-                wasAdded = true;
-                return Node(construct!(BLf3)(key)); // promote packing
+            // case 3:
+            //     wasAdded = true;
+            //     return Node(construct!(BLf3)(key)); // promote packing
             default:
                 if (key.length <= SLf6.maxLength)
                 {
@@ -1428,10 +1428,10 @@ private struct RawRadixTree(Value,
             auto keyPrefix = Ix[].init; // TODO calculate from curr.keys
             auto next = construct!(PBr4*)(keyPrefix);
 
-            assert(curr.keys.length <= next.N);
+            assert(curr.keys.length <= next.maxSubPopulation);
             foreach (const i, key; curr.keys) // TODO const key
             {
-                const iN = i.mod!(next.N); // TODO shouldn't be needed
+                const iN = i.mod!(next.maxSubPopulation); // TODO shouldn't be needed
                 next.subIxSlots[iN] = key[0];
                 next.subNodeSlots[iN] = construct!(SLf6)(key[1 .. $]);
             }
@@ -1447,10 +1447,10 @@ private struct RawRadixTree(Value,
             auto keyPrefix = Ix[].init; // TODO calculate from curr.keys
             auto next = construct!(PBr4*)(keyPrefix);
 
-            assert(curr.keys.length <= next.N);
+            assert(curr.keys.length <= next.maxSubPopulation);
             foreach (const i, key; curr.keys) // TODO const key
             {
-                const iN = i.mod!(next.N); // TODO shouldn't be needed
+                const iN = i.mod!(next.maxSubPopulation); // TODO shouldn't be needed
                 next.subIxSlots[iN] = key[0];
                 next.subNodeSlots[iN] = construct!(SLf6)(key[1 .. $]);
             }
@@ -2013,7 +2013,7 @@ void benchmark(uint span)()
         import std.conv : to;
         import std.datetime : StopWatch, AutoStart, Duration;
 
-        enum n = 50_000;
+        enum n = 5_000;
 
         import std.array : array;
         import std.random : randomShuffle;

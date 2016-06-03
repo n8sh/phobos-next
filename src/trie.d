@@ -1137,9 +1137,9 @@ private struct RawRadixTree(Value,
             case 2:
                 wasAdded = true;
                 return Node(construct!(TLf2)(key)); // promote packing
-            case 3:
-                wasAdded = true;
-                return Node(construct!(BLf3)(key)); // promote packing
+            // case 3:
+            //     wasAdded = true;
+            //     return Node(construct!(BLf3)(key)); // promote packing
             default:
                 if (key.length <= SLf6.maxLength)
                 {
@@ -1424,7 +1424,6 @@ private struct RawRadixTree(Value,
         Node expandToUnbalanced(BLf3 curr)
         {
             auto keyPrefix = Ix[].init; // TODO calculate from curr.keys
-            dln("Calculate keyPrefix if any");
             auto next = construct!(PBr4*)(keyPrefix);
 
             assert(curr.keys.length <= next.N);
@@ -1444,7 +1443,6 @@ private struct RawRadixTree(Value,
         Node expandToUnbalanced(TLf2 curr)
         {
             auto keyPrefix = Ix[].init; // TODO calculate from curr.keys
-            dln("Calculate keyPrefix if any");
             auto next = construct!(PBr4*)(keyPrefix);
 
             assert(curr.keys.length <= next.N);

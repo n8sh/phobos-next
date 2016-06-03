@@ -377,6 +377,8 @@ private struct RawRadixTree(Value,
                 enum maxLength = (size_t.sizeof - 2) / Ix.sizeof;
                 this(Ix[] suffix) { this.suffix = suffix; }
 
+                pragma(inline) bool contains(Key!span key) const @nogc { return suffix == key; }
+
                 @property string toString() const @safe pure
                 {
                     import std.string : format;
@@ -1095,7 +1097,7 @@ private struct RawRadixTree(Value,
             final switch (curr.typeIx) with (Node.Ix)
             {
             case undefined: return false;
-            case ix_SLf6:    return curr.as!(SLf6).suffix == key;
+            case ix_SLf6:    return curr.as!(SLf6).contains(key);
             case ix_BLf3:    return curr.as!(BLf3).contains(key);
             case ix_TLf2:    return curr.as!(TLf2).contains(key);
             case ix_HLf1:    return curr.as!(HLf1).contains(key);

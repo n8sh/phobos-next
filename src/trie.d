@@ -1489,10 +1489,10 @@ private struct RawRadixTree(Value,
     auto construct(NodeType, Args...)(Args args) @trusted
     {
         version(debugAllocations) { dln("constructing ", NodeType.stringof, " from ", args); }
+        debug ++nodeCountsByIx[NodeType.stringof];
         static if (isPointer!NodeType)
         {
             debug ++_heapNodeAllocationBalance;
-            debug ++nodeCountsByIx[NodeType.stringof];
             import std.conv : emplace;
             return emplace(cast(NodeType)malloc((*NodeType.init).sizeof), args);
             // TODO ensure alignment of node at least that of NodeType.alignof
@@ -1510,8 +1510,8 @@ private struct RawRadixTree(Value,
         {
             free(cast(void*)nt);  // TODO Allocator.free
             debug --_heapNodeAllocationBalance;
-            debug --nodeCountsByIx[NodeType.stringof];
         }
+        debug --nodeCountsByIx[NodeType.stringof];
     }
 
     @safe pure nothrow /* TODO @nogc */

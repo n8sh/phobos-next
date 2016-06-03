@@ -1135,9 +1135,9 @@ private struct RawRadixTree(Value,
             case 2:
                 wasAdded = true;
                 return Node(construct!(TLf2)(key)); // promote packing
-            // case 3:
-            //     wasAdded = true;
-            //     return Node(construct!(BLf3)(key)); // promote packing
+            case 3:
+                wasAdded = true;
+                return Node(construct!(BLf3)(key)); // promote packing
             default:
                 if (key.length <= SLf6.maxLength)
                 {
@@ -1199,40 +1199,40 @@ private struct RawRadixTree(Value,
         {
             import std.algorithm : commonPrefix;
             auto currPrefix = getPrefix(curr);
-            auto matchedPrefix = commonPrefix(key, currPrefix);
+            auto matchedKeyPrefix = commonPrefix(key, currPrefix);
 
             // in order of descending probability
             // most probable: key is an extension of prefix: prefix:"ab", key:"abcd"
-            if (matchedPrefix.length == currPrefix.length &&
-                matchedPrefix.length < key.length)
+            if (matchedKeyPrefix.length == currPrefix.length &&
+                matchedKeyPrefix.length < key.length)
             {
-                key = key[matchedPrefix.length .. $]; // strip `currPrefix from beginning of `key`
-                superPrefixLength += matchedPrefix.length;
+                key = key[matchedKeyPrefix.length .. $]; // strip `currPrefix from beginning of `key`
+                superPrefixLength += matchedKeyPrefix.length;
                 // continue below
             }
             // prefix is an extension of key: prefix:"abcd", key:"ab"
-            else if (matchedPrefix.length == key.length &&
-                     matchedPrefix.length < currPrefix.length)
+            else if (matchedKeyPrefix.length == key.length &&
+                     matchedKeyPrefix.length < currPrefix.length)
             {
-                const subIx = currPrefix[matchedPrefix.length]; // need index first
-                setPrefix(curr, currPrefix[matchedPrefix.length + 1 .. $]); // drop matchedPrefix plus index
-                return Node(construct!(DefaultBr)(matchedPrefix, true, // `true` because `key` occupies this node
+                const subIx = currPrefix[matchedKeyPrefix.length]; // need index first
+                setPrefix(curr, currPrefix[matchedKeyPrefix.length + 1 .. $]); // drop matchedKeyPrefix plus index
+                return Node(construct!(DefaultBr)(matchedKeyPrefix, true, // `true` because `key` occupies this node
                                                   subIx, curr));
             }
             // prefix and key share beginning: prefix:"ab11", key:"ab22"
-            else if (matchedPrefix.length < key.length &&
-                     matchedPrefix.length < currPrefix.length)
+            else if (matchedKeyPrefix.length < key.length &&
+                     matchedKeyPrefix.length < currPrefix.length)
             {
-                const subIx = currPrefix[matchedPrefix.length]; // need index first
-                setPrefix(curr, currPrefix[matchedPrefix.length + 1 .. $]); // drop matchedPrefix plus index to next super branch
-                curr = Node(construct!(DefaultBr)(matchedPrefix, false, // key is not occupied
+                const subIx = currPrefix[matchedKeyPrefix.length]; // need index first
+                setPrefix(curr, currPrefix[matchedKeyPrefix.length + 1 .. $]); // drop matchedKeyPrefix plus index to next super branch
+                curr = Node(construct!(DefaultBr)(matchedKeyPrefix, false, // key is not occupied
                                                   subIx, curr));
-                key = key[matchedPrefix.length .. $]; // skip matchedPrefix from key
-                superPrefixLength += matchedPrefix.length;
+                key = key[matchedKeyPrefix.length .. $]; // skip matchedKeyPrefix from key
+                superPrefixLength += matchedKeyPrefix.length;
             }
             // prefix:"ab", key:"ab"
-            else if (matchedPrefix.length == currPrefix.length && // exact key prefix match
-                     matchedPrefix.length == key.length)
+            else if (matchedKeyPrefix.length == currPrefix.length && // exact key prefix match
+                     matchedKeyPrefix.length == key.length)
             {
                 if (!isKey(curr))
                 {
@@ -1242,7 +1242,7 @@ private struct RawRadixTree(Value,
                 return curr;
             }
             // prefix:"ab", key:"cd"
-            else if (matchedPrefix.length == 0) // no prefix key match
+            else if (matchedKeyPrefix.length == 0) // no prefix key match
             {
                 if (currPrefix.length == 0) // no current prefix
                 {
@@ -1278,16 +1278,16 @@ private struct RawRadixTree(Value,
                 return Node(curr);
             }
 
-            auto matchedPrefix = commonPrefix(key, curr.suffix);
+            auto matchedKeyPrefix = commonPrefix(key, curr.suffix);
             if (curr.suffix.length == key.length)
             {
-                if (matchedPrefix.length == key.length) // curr.suffix, key and matchedPrefix all equal
+                if (matchedKeyPrefix.length == key.length) // curr.suffix, key and matchedKeyPrefix all equal
                 {
                     return Node(curr); // already stored in `curr`
                 }
-                else if (matchedPrefix.length + 1 == key.length) // key and curr.suffix are both matchedPrefix plus one extra
+                else if (matchedKeyPrefix.length + 1 == key.length) // key and curr.suffix are both matchedKeyPrefix plus one extra
                 {
-                    auto next = construct!(FLf1*)(matchedPrefix, false,
+                    auto next = construct!(FLf1*)(matchedKeyPrefix, false,
                                                   curr.suffix[$ - 1],
                                                   key[$ - 1]);
                     wasAdded = true;
@@ -1295,7 +1295,7 @@ private struct RawRadixTree(Value,
                     return Node(next);
                 }
             }
-            return insertAt(split(curr, matchedPrefix, key),
+            return insertAt(split(curr, matchedKeyPrefix, key),
                             key, superPrefixLength, wasAdded);
         }
 

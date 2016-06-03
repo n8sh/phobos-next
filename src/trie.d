@@ -404,7 +404,7 @@ private struct RawRadixTree(Value,
                 enum maxLength = 2;
 
                 this(Keys...)(Keys keys)
-                if (Keys.length >= 1 && Keys.length <= maxLength)
+                    if (Keys.length >= 1 && Keys.length <= maxLength)
                 {
                     this.keys = keys;
                     dln(keys);
@@ -425,7 +425,7 @@ private struct RawRadixTree(Value,
                 enum maxLength = 3;
 
                 this(Keys...)(Keys keys)
-                if (Keys.length >= 1 && Keys.length <= maxLength)
+                    if (Keys.length >= 1 && Keys.length <= maxLength)
                 {
                     this.keys = keys;
                 }

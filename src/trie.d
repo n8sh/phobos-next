@@ -1095,14 +1095,14 @@ private struct RawRadixTree(Value,
                 auto curr_ = curr.as!(PBr4*);
                 // dln("BBr: key=", key, " prefix:", curr_.prefix, " isKey:", curr_.isKey);
                 return (key.skipOver(curr_.prefix) &&
-                        (key.length == 0 && curr_.isKey ||                 // either stored at `curr`
-                         key.length >= 1 && containsAt(curr_.findSub(key[0]), key[1 .. $]))); // recurse
+                        ((key.length == 0 && curr_.isKey) ||                 // either stored at `curr`
+                         (key.length >= 1 && containsAt(curr_.findSub(key[0]), key[1 .. $])))); // recurse
             case ix_FBrMPtr:
                 auto curr_ = curr.as!(FBrM*);
                 // dln("FBrM: key=", key, " prefix:", curr_.prefix, " isKey:", curr_.isKey);
                 return (key.skipOver(curr_.prefix) &&
-                        (key.length == 0 && curr_.isKey ||                 // either stored at `curr`
-                         key.length >= 1 && containsAt(curr_.subNodes[key[0]], key[1 .. $]))); // recurse
+                        ((key.length == 0 && curr_.isKey) ||                 // either stored at `curr`
+                         (key.length >= 1 && containsAt(curr_.subNodes[key[0]], key[1 .. $])))); // recurse
             }
         }
     }
@@ -1123,12 +1123,12 @@ private struct RawRadixTree(Value,
             case 1:
                 wasAdded = true;
                 return Node(construct!(HLf1)(key[0])); // promote packing
-            case 2:
-                wasAdded = true;
-                return Node(construct!(TLf2)(key)); // promote packing
-            case 3:
-                wasAdded = true;
-                return Node(construct!(BLf3)(key)); // promote packing
+            // case 2:
+            //     wasAdded = true;
+            //     return Node(construct!(TLf2)(key)); // promote packing
+            // case 3:
+            //     wasAdded = true;
+            //     return Node(construct!(BLf3)(key)); // promote packing
             default:
                 if (key.length <= SLf6.maxLength)
                 {
@@ -1292,50 +1292,47 @@ private struct RawRadixTree(Value,
 
         Node insertAt(BLf3 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
-            assert(key.length == curr.keyLength);
-            if (curr.contains(key)) { return Node(curr); }
-            if (!curr.keys.full)
+            if (curr.keyLength == key.length)
             {
-                curr.keys.pushBack(key);
-                wasAdded = true;
-                return Node(curr);
+                if (curr.contains(key)) { return Node(curr); }
+                if (!curr.keys.full)
+                {
+                    curr.keys.pushBack(key);
+                    wasAdded = true;
+                    return Node(curr);
+                }
             }
-            else
-            {
-                return insertAt(Node(expand(curr)), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
-            }
+            return insertAt(expand(curr, key), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
         }
 
         Node insertAt(TLf2 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
-            assert(key.length == curr.keyLength);
-            if (curr.contains(key)) { return Node(curr); }
-            if (!curr.keys.full)
+            if (curr.keyLength == key.length)
             {
-                curr.keys.pushBack(key);
-                wasAdded = true;
-                return Node(curr);
+                if (curr.contains(key)) { return Node(curr); }
+                if (!curr.keys.full)
+                {
+                    curr.keys.pushBack(key);
+                    wasAdded = true;
+                    return Node(curr);
+                }
             }
-            else
-            {
-                return insertAt(Node(expand(curr)), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
-            }
+            return insertAt(expand(curr, key), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
         }
 
         Node insertAt(HLf1 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
-            assert(key.length == curr.keyLength);
-            if (curr.contains(key)) { return Node(curr); }
-            if (!curr.keys.full)
+            if (curr.keyLength == key.length)
             {
-                curr.keys.pushBack(key[0]);
-                wasAdded = true;
-                return Node(curr);
+                if (curr.contains(key)) { return Node(curr); }
+                if (!curr.keys.full)
+                {
+                    curr.keys.pushBack(key[0]);
+                    wasAdded = true;
+                    return Node(curr);
+                }
             }
-            else
-            {
-                return insertAt(Node(expand(curr)), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
-            }
+            return insertAt(expand(curr, key), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
         }
 
         /** Split `curr` using `prefix`. */
@@ -1371,11 +1368,11 @@ private struct RawRadixTree(Value,
         }
 
         /** Destructively expand `curr` and return it. */
-        PBr4* expand(BLf3 curr)
+        Node expand(BLf3 curr, Key!span nextKey)
         {
             auto keyPrefix = Ix[].init; // TODO calculate from curr.keys
             dln("Calculate keyPrefix if any");
-            auto next = construct!(typeof(return))(keyPrefix);
+            auto next = construct!(PBr4*)(keyPrefix);
 
             assert(curr.keys.length <= next.N);
             foreach (const i, key; curr.keys) // TODO const key
@@ -1387,15 +1384,15 @@ private struct RawRadixTree(Value,
             next.subPopulation = cast(ubyte)curr.keys.length; // TODO dumb cast frmo Mod!3 to ubyte
 
             freeNode(curr);
-            return next;
+            return Node(next);
         }
 
         /** Destructively expand `curr` and return it. */
-        PBr4* expand(TLf2 curr)
+        Node expand(TLf2 curr, Key!span nextKey)
         {
             auto keyPrefix = Ix[].init; // TODO calculate from curr.keys
             dln("Calculate keyPrefix if any");
-            auto next = construct!(typeof(return))(keyPrefix);
+            auto next = construct!(PBr4*)(keyPrefix);
 
             assert(curr.keys.length <= next.N);
             foreach (const i, key; curr.keys) // TODO const key
@@ -1407,20 +1404,20 @@ private struct RawRadixTree(Value,
             next.subPopulation = cast(ubyte)curr.keys.length; // TODO dumb cast frmo Mod!3 to ubyte
 
             freeNode(curr);
-            return next;
+            return Node(next);
         }
 
-        /** Destructively expand `curr` and return it. */
-        FLf1* expand(HLf1 curr)
+        /** Destructively expand `curr` making room for `nextKey` and return it. */
+        Node expand(HLf1 curr, Key!span nextKey)
         {
-            auto next = construct!(typeof(return));
+            auto next = construct!(FLf1*);
             foreach (const ixM; curr.keys)
             {
                 assert(!next._keyBits[ixM]); // assert no duplicates in keys
                 next._keyBits[ixM] = true;
             }
             freeNode(curr);
-            return next;
+            return Node(next);
         }
 
     }

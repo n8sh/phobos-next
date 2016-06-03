@@ -1078,7 +1078,7 @@ private struct RawRadixTree(Value,
     ~this()
     {
         if (_root) { release(_root); }
-        debug assert(_branchCount == 0, "Pointer node count is not zero, but " ~ _branchCount.to!string);
+        debug assert(_pointerNodeBalance == 0, "Pointer Node balance is not zero, but " ~ _pointerNodeBalance.to!string);
     }
 
     const @safe pure nothrow /* TODO @nogc */
@@ -1137,9 +1137,9 @@ private struct RawRadixTree(Value,
             case 2:
                 wasAdded = true;
                 return Node(construct!(TLf2)(key)); // promote packing
-            // case 3:
-            //     wasAdded = true;
-            //     return Node(construct!(BLf3)(key)); // promote packing
+            case 3:
+                wasAdded = true;
+                return Node(construct!(BLf3)(key)); // promote packing
             default:
                 if (key.length <= SLf6.maxLength)
                 {
@@ -1488,7 +1488,7 @@ private struct RawRadixTree(Value,
         version(debugAllocations) { dln("constructing ", U.stringof, " from ", args); }
         static if (isPointer!U)
         {
-            debug ++_branchCount;
+            debug ++_pointerNodeBalance;
             import std.conv : emplace;
             return emplace(cast(U)malloc((*U.init).sizeof), args);
             // TODO ensure alignment of node at least that of U.alignof
@@ -1505,7 +1505,7 @@ private struct RawRadixTree(Value,
         static if (isPointer!NodeType)
         {
             free(cast(void*)nt);  // TODO Allocator.free
-            debug --_branchCount;
+            debug --_pointerNodeBalance;
         }
     }
 
@@ -1569,7 +1569,7 @@ private struct RawRadixTree(Value,
     bool hasFixedKeyLength() const @safe pure nothrow @nogc { return keyLength != size_t.max; }
 
     /// Returns: number of nodes used in `this` tree.
-    pragma(inline) debug size_t branchCount() @safe pure nothrow /* TODO @nogc */ { return _branchCount; }
+    pragma(inline) debug size_t branchCount() @safe pure nothrow /* TODO @nogc */ { return _pointerNodeBalance; }
 
     void print() @safe const
     {
@@ -1647,7 +1647,7 @@ private struct RawRadixTree(Value,
     Node _root;                 ///< tree root node
     size_t _length = 0; ///< number of elements (keys or key-value-pairs) currently stored under `_root`
     immutable _keyLength = size_t.max; ///< maximum length of key
-    debug long _branchCount = 0;
+    debug long _pointerNodeBalance = 0;
 }
 
 /** Append statistics of tree under `Node` `sub.` into `stats`.

@@ -403,10 +403,12 @@ private struct RawRadixTree(Value,
                 enum keyLength = 3;
                 enum maxLength = 2;
 
-                this(Ixs...)(Ixs ixs)
-                if (Ixs.length >= 1 && Ixs.length <= maxLength)
+                this(Keys...)(Keys keys)
+                if (Keys.length >= 1 && Keys.length <= maxLength)
                 {
-                    this.keys = ixs;
+                    this.keys = keys;
+                    dln(keys);
+                    dln(this.keys);
                 }
 
                 pragma(inline) bool contains(Key!span key) const @nogc { return keys.contains(key); }
@@ -422,10 +424,10 @@ private struct RawRadixTree(Value,
                 enum keyLength = 2;
                 enum maxLength = 3;
 
-                this(Ixs...)(Ixs ixs)
-                if (Ixs.length >= 1 && Ixs.length <= maxLength)
+                this(Keys...)(Keys keys)
+                if (Keys.length >= 1 && Keys.length <= maxLength)
                 {
-                    this.keys = ixs;
+                    this.keys = keys;
                 }
 
                 pragma(inline) bool contains(Key!span key) const @nogc { return keys.contains(key); }
@@ -441,10 +443,10 @@ private struct RawRadixTree(Value,
                 enum keyLength = 1;
                 enum maxLength = (size_t.sizeof - 2) / Ix.sizeof; // maximum number of elements
 
-                this(Ixs...)(Ixs ixs)
-                    if (Ixs.length >= 1 && Ixs.length <= maxLength)
+                this(Keys...)(Keys keys)
+                    if (Keys.length >= 1 && Keys.length <= maxLength)
                 {
-                    this.keys = ixs;
+                    this.keys = keys;
                 }
 
                 pragma(inline) bool contains(Key!span key) const @nogc { return keys.contains(key); }

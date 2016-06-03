@@ -445,19 +445,6 @@ private struct RawRadixTree(Value,
 
                 pragma(inline) bool contains(Key!span key) const @nogc { return keys.contains(key); }
 
-                @property string toString() const @safe pure
-                {
-                    import std.string : format;
-                    string s;
-                    foreach (const i, const key; keys)
-                    {
-                        const first = i == 0; // first iteration
-                        if (!first) { s ~= keySeparator; }
-                        s ~= format("%.2X", key); // in hexadecimal
-                    }
-                    return s;
-                }
-
                 IxsN!(maxLength, 1, span) keys;
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`

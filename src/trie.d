@@ -1078,7 +1078,9 @@ private struct RawRadixTree(Value,
     ~this()
     {
         if (_root) { release(_root); }
-        debug assert(_pointerNodeBalance == 0, "Pointer Node balance is not zero, but " ~ _pointerNodeBalance.to!string);
+        debug assert(_heapNodeAllocationBalance == 0,
+                     "Heap Node allocation balance is not zero, but " ~
+                     _heapNodeAllocationBalance.to!string);
     }
 
     const @safe pure nothrow /* TODO @nogc */
@@ -1488,7 +1490,7 @@ private struct RawRadixTree(Value,
         version(debugAllocations) { dln("constructing ", U.stringof, " from ", args); }
         static if (isPointer!U)
         {
-            debug ++_pointerNodeBalance;
+            debug ++_heapNodeAllocationBalance;
             import std.conv : emplace;
             return emplace(cast(U)malloc((*U.init).sizeof), args);
             // TODO ensure alignment of node at least that of U.alignof
@@ -1505,7 +1507,7 @@ private struct RawRadixTree(Value,
         static if (isPointer!NodeType)
         {
             free(cast(void*)nt);  // TODO Allocator.free
-            debug --_pointerNodeBalance;
+            debug --_heapNodeAllocationBalance;
         }
     }
 
@@ -1569,7 +1571,7 @@ private struct RawRadixTree(Value,
     bool hasFixedKeyLength() const @safe pure nothrow @nogc { return keyLength != size_t.max; }
 
     /// Returns: number of nodes used in `this` tree.
-    pragma(inline) debug size_t branchCount() @safe pure nothrow /* TODO @nogc */ { return _pointerNodeBalance; }
+    pragma(inline) debug size_t branchCount() @safe pure nothrow /* TODO @nogc */ { return _heapNodeAllocationBalance; }
 
     void print() @safe const
     {
@@ -1647,7 +1649,7 @@ private struct RawRadixTree(Value,
     Node _root;                 ///< tree root node
     size_t _length = 0; ///< number of elements (keys or key-value-pairs) currently stored under `_root`
     immutable _keyLength = size_t.max; ///< maximum length of key
-    debug long _pointerNodeBalance = 0;
+    debug long _heapNodeAllocationBalance = 0;
 }
 
 /** Append statistics of tree under `Node` `sub.` into `stats`.

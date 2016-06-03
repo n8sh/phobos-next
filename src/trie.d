@@ -1074,16 +1074,14 @@ private struct RawRadixTree(Value,
     ~this()
     {
         if (_root) { release(_root); }
-        debug
+        try
         {
-            if (_heapNodeAllocationBalance != 0)
-            {
-                dln(nodeCountsByIx);
-            }
+            debug assert(_heapNodeAllocationBalance == 0,
+                         "Heap Node allocation balance is not zero, but " ~
+                         _heapNodeAllocationBalance.to!string ~
+                         ", nodeCountsByIx is " ~ nodeCountsByIx.to!string);
         }
-        debug assert(_heapNodeAllocationBalance == 0,
-                     "Heap Node allocation balance is not zero, but " ~
-                     _heapNodeAllocationBalance.to!string);
+        catch (Exception e) {}
     }
 
     const @safe pure nothrow /* TODO @nogc */

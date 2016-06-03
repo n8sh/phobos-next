@@ -371,7 +371,7 @@ private struct RawRadixTree(Value,
     {
         static if (span == 8)
         {
-            /// Single-Key Leaf with maximum key-length 6.
+            /// Single/1-Key Leaf with maximum key-length 6.
             struct SLf6
             {
                 enum maxLength = (size_t.sizeof - 2) / Ix.sizeof;
@@ -397,7 +397,7 @@ private struct RawRadixTree(Value,
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
 
-            /// Binary-Key Leaf with key-length 3.
+            /// Binary/2-Key Leaf with key-length 3.
             struct BLf3
             {
                 enum keyLength = 3;
@@ -418,7 +418,7 @@ private struct RawRadixTree(Value,
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
 
-            /// Ternary-Key Leaf with key-length 2.
+            /// Ternary/3-Key Leaf with key-length 2.
             struct TLf2
             {
                 enum keyLength = 2;
@@ -437,7 +437,7 @@ private struct RawRadixTree(Value,
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
 
-            /// Hexa-Key Leaf with key-length 1.
+            /// Hexa/6-Key Leaf with key-length 1.
             struct HLf1
             {
                 enum keyLength = 1;

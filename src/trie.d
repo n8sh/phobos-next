@@ -9,7 +9,7 @@
 
     TODO Make array indexing/slicing as @trusted and use .ptr[] instead of [] when things are stable. Especially in IxsN
 
-    TODO Store `isKey` in top-most bit of length part of `IxsN prefix` in branch node.
+    TODO Store `isKey` in top-most bit of length part of `IxsN prefix` and use for BLf3, TLf2, and HLf1.
 
     TODO Optimize PBr4.findSub for specific `subPopulation`
 

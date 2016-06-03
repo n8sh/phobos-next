@@ -1019,6 +1019,7 @@ private struct RawRadixTree(Value,
         switch (curr.typeIx)
         {
         case Node.Ix.ix_SLf6:    return curr.as!(SLf6).suffix[]; // suffix is the prefix
+        // case Node.Ix.ix_TLf2:    return curr.as!(TLf2).prefix[];
         case Node.Ix.ix_HLf1:    return inout(Ix[]).init; // no prefix
         case Node.Ix.ix_FLf1Ptr: return curr.as!(FLf1*).prefix[];
         case Node.Ix.ix_PBr4Ptr: return curr.as!(PBr4*).prefix[];
@@ -1123,9 +1124,9 @@ private struct RawRadixTree(Value,
             case 1:
                 wasAdded = true;
                 return Node(construct!(HLf1)(key[0])); // promote packing
-            // case 2:
-            //     wasAdded = true;
-            //     return Node(construct!(TLf2)(key)); // promote packing
+            case 2:
+                wasAdded = true;
+                return Node(construct!(TLf2)(key)); // promote packing
             // case 3:
             //     wasAdded = true;
             //     return Node(construct!(BLf3)(key)); // promote packing
@@ -1319,9 +1320,22 @@ private struct RawRadixTree(Value,
                     wasAdded = true;
                     return Node(curr);
                 }
-                dln("TODO expand to FLf1");
-                dln(curr);
-                dln(key);
+
+                if (curr.keys[0][0] == key[0] &&
+                    curr.keys[0][0] == curr.keys[1][0] &&
+                    curr.keys[1][0] == curr.keys[2][0])
+                {
+                    auto prefix = curr.keys[0][0 .. 1];
+                    auto next = construct!(FLf1*)(prefix, false);
+                    foreach (const currKey; curr.keys)
+                    {
+                        next._keyBits[currKey[1]] = true;
+                    }
+                    next._keyBits[key[1]] = true;
+                    freeNode(curr);
+                    wasAdded = true;
+                    return Node(next);
+                }
             }
             return insertAt(expandToUnbalanced(curr), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
         }
@@ -1346,9 +1360,7 @@ private struct RawRadixTree(Value,
                 }
                 next._keyBits[key[0]] = true;
                 freeNode(curr);
-
                 wasAdded = true;
-
                 return Node(next);
             }
             return insertAt(expandToUnbalanced(curr), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
@@ -1566,19 +1578,19 @@ private struct RawRadixTree(Value,
         case undefined: break;
         case ix_SLf6:
             auto curr_ = curr.as!(SLf6);
-            writeln(typeof(curr_).stringof, "#", curr_.suffix.length, ": ", curr_);
+            writeln(typeof(curr_).stringof, "#", curr_.suffix.length, ": ", curr_.suffix);
             break;
         case ix_BLf3:
             auto curr_ = curr.as!(BLf3);
-            writeln(typeof(curr_).stringof, "#", curr_.keys.length, ": ", curr_);
+            writeln(typeof(curr_).stringof, "#", curr_.keys.length, ": ", curr_.keys);
             break;
         case ix_TLf2:
             auto curr_ = curr.as!(TLf2);
-            writeln(typeof(curr_).stringof, "#", curr_.keys.length, ": ", curr_);
+            writeln(typeof(curr_).stringof, "#", curr_.keys.length, ": ", curr_.keys);
             break;
         case ix_HLf1:
             auto curr_ = curr.as!(HLf1);
-            writeln(typeof(curr_).stringof, "#", curr_.keys.length, ": ", curr_);
+            writeln(typeof(curr_).stringof, "#", curr_.keys.length, ": ", curr_.keys);
             break;
         case ix_FLf1Ptr:
             auto curr_ = curr.as!(FLf1*);

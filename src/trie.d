@@ -141,8 +141,26 @@ struct IxsN(size_t maxLength,
 
     @property auto toString() const
     {
-        import std.conv : to;
-        return _ixs[0 .. _length].to!string;
+        string s;
+        foreach (const i, const ix; _ixs)
+        {
+            if (i != 0) { s ~= ' '; } // separator
+            static if (elementLength == 1)
+            {
+                import std.conv : to;
+                s ~= ix.to!string;
+            }
+            else
+            {
+                foreach (const j, const subIx; ix[])
+                {
+                    if (j != 0) { s ~= '_'; } // separator
+                    import std.string : format;
+                    s ~= format("%.2X", subIx); // in hexadecimal
+                }
+            }
+        }
+        return s;
     }
 
     @safe pure nothrow @nogc:
@@ -433,7 +451,7 @@ private struct RawRadixTree(Value,
                     foreach (const i, const key; keys)
                     {
                         const first = i == 0; // first iteration
-                        if (!first) { s ~= ','; }
+                        if (!first) { s ~= ' '; }
                         s ~= format("%.2X", key); // in hexadecimal
                     }
                     return s;

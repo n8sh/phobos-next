@@ -961,33 +961,42 @@ private struct RawRadixTree(Value,
     /// ditto
     pragma(inline) Node setSub(FBrM* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
+        try
+        {
+            debug assert(!curr.subNodes[subIx],
+                         "sub-Node at index " ~ subIx.to!string ~
+                         " already set to " ~ subNode.to!string);
+        }
+        catch (Exception e) {}
         curr.subNodes[subIx] = subNode;
         return Node(curr);
     }
 
-    /** Get sub-`Node` of branch `Node curr` at index `ix. */
-    inout(Node) getSub(inout Node curr, Ix ix) @safe pure nothrow
+    /** Get sub-`Node` of branch `Node curr` at index `subIx. */
+    Node getSub(Node curr, Ix subIx) @safe pure nothrow
     {
         switch (curr.typeIx)
         {
         // case Node.Ix.ix_SLf6:
         //     auto currSLf6 = curr.as!(SLf6);
-        //     if (currSLf6.suffix.length == 1 && currSLf6.suffix[0] == ix) { return curr; }
+        //     if (currSLf6.suffix.length == 1 && currSLf6.suffix[0] == subIx) { return curr; }
         //     break;
         case Node.Ix.ix_FLf1Ptr:
-            if (curr.as!(FLf1*).hasSubAt(ix))
+            if (curr.as!(FLf1*).hasSubAt(subIx))
             {
                 return Node(SLf6.init);
             }
             break;
         case Node.Ix.ix_PBr4Ptr:
-            if (auto subNode = curr.as!(PBr4*).findSub(ix))
+            if (auto subNode = curr.as!(PBr4*).findSub(subIx))
             {
                 return subNode;
             }
             break;
         case Node.Ix.ix_FBrMPtr:
-            return curr.as!(FBrM*).subNodes[ix];
+            auto sub = curr.as!(FBrM*).subNodes[subIx];
+            curr.as!(FBrM*).subNodes[subIx] = Node.init; // zero it to prevent multiple references
+            return sub;
         default:
             assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
         }

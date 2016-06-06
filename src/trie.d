@@ -2049,9 +2049,13 @@ void benchmark(uint span)()
             foreach (Key k; randomSamples)
             {
                 if (useUniqueRandom)
+                {
                     assert(set.insert(k));
+                }
                 else
+                {
                     set.insert(k);
+                }
 
                 /* second insert of same key should always return `false` to
                    indicate that key was already stored */

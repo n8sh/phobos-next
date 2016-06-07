@@ -1172,7 +1172,7 @@ private struct RawRadixTree(Value,
                 }
                 else
                 {
-                    // prefix:"ab", key:"ab"
+                    // curr.prefix equals key: prefix:"ab", key:"ab"
                     if (!isKey(curr))
                     {
                         makeKey(curr);

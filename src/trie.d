@@ -538,6 +538,9 @@ private struct RawRadixTree(Value,
          */
         IndexedArray!(size_t, Node.Ix) popByNodeType;
         static assert(is(typeof(popByNodeType).Index == Node.Ix));
+
+        /// Number of heap-allocated `Node`s. Should always equal `heapNodeAllocationBalance`.
+        size_t heapNodeCount;
     }
 
     /** Full Bitset Branch with only bottom-most leaves. */
@@ -1682,9 +1685,9 @@ static private void calculate(Value, uint span)(RawRadixTree!(Value, span).Node 
         case ix_BLf3: break; // TODO calculate()
         case ix_TLf2: break; // TODO calculate()
         case ix_HLf1: break; // TODO calculate()
-        case ix_FLf1Ptr: sub.as!(RT.FLf1*).calculate(stats); break;
-        case ix_PBr4Ptr: sub.as!(RT.PBr4*).calculate(stats); break;
-        case ix_FBrMPtr: sub.as!(RT.FBrM*).calculate(stats); break;
+        case ix_FLf1Ptr: ++stats.heapNodeCount; sub.as!(RT.FLf1*).calculate(stats); break;
+        case ix_PBr4Ptr: ++stats.heapNodeCount; sub.as!(RT.PBr4*).calculate(stats); break;
+        case ix_FBrMPtr: ++stats.heapNodeCount; sub.as!(RT.FBrM*).calculate(stats); break;
         }
     }
 }
@@ -1755,14 +1758,15 @@ struct RadixTree(TypedKey, Value, uint span = 8)
     bool insert(in TypedKey typedKey)
         @safe pure nothrow /* TODO @nogc */
     {
+        // dln("inserting typedKey:", typedKey);
         import std.string : representation;
 
         // convert unsigned to fixed-length (on the stack) ubyte array
 
         bool wasAdded = false; // indicates that key was added
         _tree.insert(typedKey.remapKey, wasAdded);
-
         _length += wasAdded;
+
         return wasAdded;
     }
 
@@ -2127,7 +2131,7 @@ unittest
 {
     // TODO Support this struct A { long x, y; }
     check!(8,
-           double, float,
+           float, double,
            long, int, short, byte,
            ulong, uint, ushort, ubyte,
            // string, wstring, dstring,

@@ -1339,9 +1339,14 @@ private struct RawRadixTree(Value,
                         next = construct!(FLf1*)(prefix, false);
                     }
                     break;
-                case 2: freeNode(curr); return Node(construct!(TLf2)(curr.suffix));
-                case 3: freeNode(curr); return Node(construct!(BLf3)(curr.suffix));
-                default: break;
+                case 2:
+                    freeNode(curr);
+                    return Node(construct!(TLf2)(curr.suffix));
+                case 3:
+                    freeNode(curr);
+                    return Node(construct!(BLf3)(curr.suffix));
+                default:
+                    break;
                 }
             }
 

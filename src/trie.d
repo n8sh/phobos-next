@@ -13,9 +13,6 @@
 
     TODO Optimize PBr4.findSub for specific `subPopulation`
 
-    TODO Expand PBr4 to BBr when sizeof BrN is larger than 32 bytes (256 bits) and all
-    leaves are single SLf6. Converted to when BrN.length >= someLimit
-
     TODO Add function reprefix({PBr4|FBrM) and call after insertAt({PBr4|FBrM}). Only useful when one single leaf is present?
     TODO Is std.algorithm.countUntil the most suitable function to use in setSub(PBr4*, ...)
     TODO Use std.experimental.allocator
@@ -1136,7 +1133,14 @@ private struct RawRadixTree(Value,
         pragma(inline) Node insert(Key!span key, out bool wasAdded)
         {
             // dln("insert key=", key);
-            return _root = insertAt(_root, key, 0, wasAdded);
+            _root = insertAt(_root, key, 0, wasAdded);
+            debug
+            {
+                Stats stats;
+                calculate(this, stats);
+                assert(heapNodeAllocationBalance);
+            }
+            return _root;
         }
 
         Node insertNew(Key!span key, size_t superPrefixLength, out bool wasAdded)
@@ -1671,7 +1675,7 @@ private struct RawRadixTree(Value,
 /** Append statistics of tree under `Node` `sub.` into `stats`.
  */
 static private void calculate(Value, uint span)(RawRadixTree!(Value, span).Node sub,
-                                                   ref RawRadixTree!(Value, span).Stats stats)
+                                                ref RawRadixTree!(Value, span).Stats stats)
     @safe pure nothrow /* TODO @nogc */
 {
     alias RT = RawRadixTree!(Value, span);

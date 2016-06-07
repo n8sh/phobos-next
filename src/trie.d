@@ -363,7 +363,7 @@ private struct RawRadixTree(Value,
 
         TODO Generalize to packing of more than one `Ix` per byte.
         TODO respect byteorder in `HLf1` to work with `WordVariant`
-        TODO implement and use opSlice instead of .suffix[]
+        TODO implement and use opSlice instead of .key[]
     */
     static if (size_t.sizeof == 8) // 64-bit CPU
     {
@@ -373,24 +373,24 @@ private struct RawRadixTree(Value,
             struct SLf6
             {
                 enum maxLength = (size_t.sizeof - 2) / Ix.sizeof;
-                this(Ix[] suffix) { this.suffix = suffix; }
+                this(Ix[] key) { this.key = key; }
 
-                pragma(inline) bool contains(Key!span key) const @nogc { return suffix == key; }
+                pragma(inline) bool contains(Key!span key) const @nogc { return this.key == key; }
 
                 @property string toString() const @safe pure
                 {
                     import std.string : format;
                     string s;
-                    foreach (const i, const key; suffix)
+                    foreach (const i, const ix; key)
                     {
                         const first = i == 0; // first iteration
                         if (!first) { s ~= '_'; }
-                        s ~= format("%.2X", key); // in hexadecimal
+                        s ~= format("%.2X", ix); // in hexadecimal
                     }
                     return s;
                 }
 
-                IxsN!(maxLength, 1, span) suffix;
+                IxsN!(maxLength, 1, span) key;
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
@@ -676,7 +676,7 @@ private struct RawRadixTree(Value,
                 if (const subSLf6Ref = sub.peek!(SLf6))
                 {
                     const subSLf6 = *subSLf6Ref;
-                    if (subSLf6.suffix.length != 0) { return false; }
+                    if (subSLf6.key.length != 0) { return false; }
                 }
                 else
                 {
@@ -749,7 +749,7 @@ private struct RawRadixTree(Value,
             {
                 if (const subSLf6Ref = subNode.peek!(SLf6))
                 {
-                    if ((*subSLf6Ref).suffix.length != 0)
+                    if ((*subSLf6Ref).key.length != 0)
                     {
                         return false;
                     }
@@ -817,7 +817,7 @@ private struct RawRadixTree(Value,
         if (const subSLf6Ref = subNode.peek!(SLf6))
         {
             const subSLf6 = *subSLf6Ref;
-            if (subSLf6.suffix.empty)
+            if (subSLf6.key.empty)
             {
                 curr._keyBits[subIx] = true;
                 freeNode(subNode); // free it because it's stored inside the bitset itself
@@ -940,7 +940,7 @@ private struct RawRadixTree(Value,
     {
         switch (curr.typeIx)
         {
-        case Node.Ix.ix_SLf6:    return curr.as!(SLf6).suffix[]; // suffix is the prefix
+        case Node.Ix.ix_SLf6:    return curr.as!(SLf6).key[]; // suffix is the prefix
         // case Node.Ix.ix_TLf2:    return curr.as!(TLf2).prefix[];
         case Node.Ix.ix_HLf1:    return inout(Ix[]).init; // no prefix
         case Node.Ix.ix_FLf1Ptr: return curr.as!(FLf1*).prefix[];
@@ -956,7 +956,7 @@ private struct RawRadixTree(Value,
     {
         switch (curr.typeIx)
         {
-        case Node.Ix.ix_SLf6:    curr.as!(SLf6).suffix  = typeof(curr.as!(SLf6).suffix)(prefix); break;
+        case Node.Ix.ix_SLf6:    curr.as!(SLf6).key  = typeof(curr.as!(SLf6).key)(prefix); break;
         case Node.Ix.ix_HLf1:    assert(prefix.length == 0); break;
         case Node.Ix.ix_FLf1Ptr: curr.as!(FLf1*).prefix = typeof(curr.as!(FLf1*).prefix)(prefix); break;
         case Node.Ix.ix_PBr4Ptr: curr.as!(PBr4*).prefix = typeof(curr.as!(PBr4*).prefix)(prefix); break;
@@ -1197,27 +1197,27 @@ private struct RawRadixTree(Value,
 
             if (key.length == 0)
             {
-                assert(curr.suffix.empty, "Leaf is not empty when key is");
+                assert(curr.key.empty, "Leaf is not empty when key is");
                 return Node(curr);
             }
 
-            auto matchedKeyPrefix = commonPrefix(key, curr.suffix);
-            if (curr.suffix.length == key.length)
+            auto matchedKeyPrefix = commonPrefix(key, curr.key);
+            if (curr.key.length == key.length)
             {
-                if (matchedKeyPrefix.length == key.length) // curr.suffix, key and matchedKeyPrefix all equal
+                if (matchedKeyPrefix.length == key.length) // curr.key, key and matchedKeyPrefix all equal
                 {
                     return Node(curr); // already stored in `curr`
                 }
-                else if (matchedKeyPrefix.length + 1 == key.length) // key and curr.suffix are both matchedKeyPrefix plus one extra
+                else if (matchedKeyPrefix.length + 1 == key.length) // key and curr.key are both matchedKeyPrefix plus one extra
                 {
                     Node next;
                     switch (matchedKeyPrefix.length)
                     {
-                    case 1: next = construct!(TLf2)(curr.suffix, key); break;
-                    case 2: next = construct!(BLf3)(curr.suffix, key); break;
+                    case 1: next = construct!(TLf2)(curr.key, key); break;
+                    case 2: next = construct!(BLf3)(curr.key, key); break;
                     default:
                         next = construct!(FLf1*)(matchedKeyPrefix, false,
-                                                 curr.suffix[$ - 1],
+                                                 curr.key[$ - 1],
                                                  key[$ - 1]);
                         break;
                     }
@@ -1320,15 +1320,15 @@ private struct RawRadixTree(Value,
         Node split(SLf6 curr, Key!span prefix, Key!span key) // TODO key here is a bit malplaced
         {
             Node next;
-            if (curr.suffix.length == key.length) // balanced tree possible
+            if (curr.key.length == key.length) // balanced tree possible
             {
-                switch (curr.suffix.length)
+                switch (curr.key.length)
                 {
                 case 1:
                     if (prefix.length == 0)
                     {
                         freeNode(curr);
-                        return Node(construct!(HLf1)(curr.suffix)); // TODO removing parameter has no effect. why?
+                        return Node(construct!(HLf1)(curr.key)); // TODO removing parameter has no effect. why?
                     }
                     else if (prefix.length == 1)
                     {
@@ -1341,10 +1341,10 @@ private struct RawRadixTree(Value,
                     break;
                 case 2:
                     freeNode(curr);
-                    return Node(construct!(TLf2)(curr.suffix));
+                    return Node(construct!(TLf2)(curr.key));
                 case 3:
                     freeNode(curr);
-                    return Node(construct!(BLf3)(curr.suffix));
+                    return Node(construct!(BLf3)(curr.key));
                 default:
                     break;
                 }
@@ -1354,7 +1354,7 @@ private struct RawRadixTree(Value,
             if (!next) { next = construct!(DefaultBr)(prefix, false); }
 
             bool wasAddedCurr;      // dummy
-            auto superNext = insertAt(next, curr.suffix, 0, wasAddedCurr);
+            auto superNext = insertAt(next, curr.key, 0, wasAddedCurr);
             assert(wasAddedCurr); // assure that `curr` was reinserted
             freeNode(curr);   // remove old current
 
@@ -1559,7 +1559,7 @@ private struct RawRadixTree(Value,
         case undefined: break;
         case ix_SLf6:
             auto curr_ = curr.as!(SLf6);
-            writeln(typeof(curr_).stringof, "#", curr_.suffix.length, ": ", curr_.suffix);
+            writeln(typeof(curr_).stringof, "#", curr_.key.length, ": ", curr_.key);
             break;
         case ix_BLf3:
             auto curr_ = curr.as!(BLf3);

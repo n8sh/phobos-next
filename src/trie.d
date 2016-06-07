@@ -848,9 +848,9 @@ private struct RawRadixTree(Value,
                     isHeapAllocatedNode(existingSubNode) &&
                     existingSubNode != subNode)
                 {
-                    dln("sub-Node at index " ~ subIx.to!string ~
-                        " changes from " ~ existingSubNode.to!string ~
-                        " to " ~ subNode.to!string);
+                    // dln("sub-Node at index " ~ subIx.to!string ~
+                    //     " changes from " ~ existingSubNode.to!string ~
+                    //     " to " ~ subNode.to!string);
                 }
             }
             catch (Exception e) {}
@@ -1953,7 +1953,7 @@ void benchmark(uint span)()
         import std.conv : to;
         import std.datetime : StopWatch, AutoStart, Duration;
 
-        enum n = 5_000;
+        enum n = 10_000_000;
 
         import std.array : array;
         import std.random : randomShuffle;

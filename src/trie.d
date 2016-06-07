@@ -1174,7 +1174,6 @@ private struct RawRadixTree(Value,
                 {
                     const subIx = currPrefix[0]; // subIx = 'a'
                     setPrefix(curr, currPrefix[1 .. $].to!(typeof(DefaultBr.prefix))); // new prefix becomes "b"
-                    dln("Creating DefaultBr:");
                     return insertAt(Node(construct!(DefaultBr)(Ix[].init, false, subIx, curr)),
                                     key,
                                     superPrefixLength,

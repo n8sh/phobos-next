@@ -3,7 +3,7 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
-    TODO Allow node constructors to take const and immutable prefixes
+    TODO Allow NodeType-constructors to take const and immutable prefixes
 
     TODO Check for case when expanding to bit-branch instead of PBr4 in all `expand()` overloads
 

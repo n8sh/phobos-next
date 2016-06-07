@@ -1123,8 +1123,6 @@ private struct RawRadixTree(Value,
             auto currPrefix = getPrefix(curr);
             auto matchedKeyPrefix = commonPrefix(key, currPrefix);
 
-            // in order of descending probability
-
             // prefix:"ab", key:"cd"
             if (matchedKeyPrefix.length == 0) // no prefix key match
             {

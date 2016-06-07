@@ -968,7 +968,7 @@ private struct RawRadixTree(Value,
         if (_root) { release(_root); }
         try
         {
-            if (_heapNodeAllocationBalance == 0)
+            if (_heapNodeAllocationBalance != 0)
             {
                 dln("Heap Node allocation balance is not zero, but " ~
                     _heapNodeAllocationBalance.to!string ~

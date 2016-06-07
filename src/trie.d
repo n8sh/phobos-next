@@ -2024,7 +2024,7 @@ unittest
 unittest
 {
     check!(8,
-           float, double,
+           double, float,
            long, int, short, byte,
            ulong, uint, ushort, ubyte);
 }

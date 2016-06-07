@@ -1211,15 +1211,15 @@ private struct RawRadixTree(Value,
                 else if (matchedKeyPrefix.length + 1 == key.length) // key and curr.suffix are both matchedKeyPrefix plus one extra
                 {
                     Node next;
-                    if (matchedKeyPrefix.length == 1)
+                    switch (matchedKeyPrefix.length)
                     {
-                        next = construct!(TLf2)(curr.suffix, key);
-                    }
-                    else
-                    {
+                    case 1: next = construct!(TLf2)(curr.suffix, key); break;
+                    case 2: next = construct!(BLf3)(curr.suffix, key); break;
+                    default:
                         next = construct!(FLf1*)(matchedKeyPrefix, false,
                                                  curr.suffix[$ - 1],
                                                  key[$ - 1]);
+                        break;
                     }
                     wasAdded = true;
                     freeNode(curr);

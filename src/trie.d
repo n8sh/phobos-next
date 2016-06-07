@@ -1132,15 +1132,6 @@ private struct RawRadixTree(Value,
                 superPrefixLength += matchedKeyPrefix.length;
                 // continue below
             }
-            // prefix is an extension of key: prefix:"abcd", key:"ab"
-            else if (matchedKeyPrefix.length == key.length &&
-                     matchedKeyPrefix.length < currPrefix.length)
-            {
-                const subIx = currPrefix[matchedKeyPrefix.length]; // need index first
-                setPrefix(curr, currPrefix[matchedKeyPrefix.length + 1 .. $]); // drop matchedKeyPrefix plus index
-                return Node(construct!(DefaultBr)(matchedKeyPrefix, true, // `true` because `key` occupies this node
-                                                  subIx, curr));
-            }
             // prefix and key share beginning: prefix:"ab11", key:"ab22"
             else if (matchedKeyPrefix.length < key.length &&
                      matchedKeyPrefix.length < currPrefix.length)
@@ -1151,6 +1142,15 @@ private struct RawRadixTree(Value,
                                                   subIx, curr));
                 key = key[matchedKeyPrefix.length .. $]; // skip matchedKeyPrefix from key
                 superPrefixLength += matchedKeyPrefix.length;
+            }
+            // prefix is an extension of key: prefix:"abcd", key:"ab"
+            else if (matchedKeyPrefix.length == key.length &&
+                     matchedKeyPrefix.length < currPrefix.length)
+            {
+                const subIx = currPrefix[matchedKeyPrefix.length]; // need index first
+                setPrefix(curr, currPrefix[matchedKeyPrefix.length + 1 .. $]); // drop matchedKeyPrefix plus index
+                return Node(construct!(DefaultBr)(matchedKeyPrefix, true, // `true` because `key` occupies this node
+                                                  subIx, curr));
             }
             // prefix:"ab", key:"ab"
             else if (matchedKeyPrefix.length == currPrefix.length && // exact key prefix match

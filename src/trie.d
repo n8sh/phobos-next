@@ -968,10 +968,10 @@ private struct RawRadixTree(Value,
         if (_root) { release(_root); }
         try
         {
-            debug assert(_heapNodeAllocationBalance == 0,
-                         "Heap Node allocation balance is not zero, but " ~
-                         _heapNodeAllocationBalance.to!string ~
-                         ", nodeCountsByIx is " ~ nodeCountsByIx.to!string);
+            // debug assert(_heapNodeAllocationBalance == 0,
+            //              "Heap Node allocation balance is not zero, but " ~
+            //              _heapNodeAllocationBalance.to!string ~
+            //              ", nodeCountsByIx is " ~ nodeCountsByIx.to!string);
         }
         catch (Exception e) {}
     }
@@ -1206,10 +1206,9 @@ private struct RawRadixTree(Value,
                     wasAdded = true;
                     return Node(curr);
                 }
-                enum PL = 2;    // searched prefix length
+                enum PL = curr.keyLength - 1;    // searched prefix length
                 if (curr.keys[0][0 .. PL] ==          key[0 .. PL] &&
-                    curr.keys[0][0 .. PL] == curr.keys[1][0 .. PL] &&
-                    curr.keys[1][0 .. PL] == curr.keys[2][0 .. PL]) // if curr and key have common prefix of length 2
+                    curr.keys[0][0 .. PL] == curr.keys[1][0 .. PL])
                 {
                     auto prefix = curr.keys[0][0 .. PL];
                     auto next = construct!(FLf1*)(prefix, false);

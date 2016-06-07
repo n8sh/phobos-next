@@ -1324,6 +1324,7 @@ private struct RawRadixTree(Value,
             {
                 if (prefix.length == 0)
                 {
+                    freeNode(curr);
                     return Node(construct!(HLf1)(curr.suffix)); // TODO removing parameter has no effect. why?
                 }
                 else if (prefix.length == 1)

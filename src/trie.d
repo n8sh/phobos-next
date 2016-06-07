@@ -1320,7 +1320,7 @@ private struct RawRadixTree(Value,
         Node split(SLf6 curr, Key!span prefix, Key!span key) // TODO key here is a bit malplaced
         {
             Node next;
-            if (curr.suffix.length && key.length)
+            if (curr.suffix.length == key.length)
             {
                 switch (curr.suffix.length)
                 {
@@ -1339,16 +1339,14 @@ private struct RawRadixTree(Value,
                         next = construct!(FLf1*)(prefix, false);
                     }
                     break;
-                case 2: assert(false, "Use TLf2");
-                case 3: assert(false, "Use BLf3");
+                case 2: freeNode(curr); return Node(construct!(TLf2)(curr.suffix));
+                case 3: freeNode(curr); return Node(construct!(BLf3)(curr.suffix));
                 default: break;
                 }
             }
 
-            if (!next)
-            {
-                next = construct!(DefaultBr)(prefix, false);
-            }
+            // default case
+            if (!next) { next = construct!(DefaultBr)(prefix, false); }
 
             bool wasAddedCurr;      // dummy
             auto superNext = insertAt(next, curr.suffix, 0, wasAddedCurr);

@@ -1213,6 +1213,7 @@ private struct RawRadixTree(Value,
                     Node next;
                     switch (matchedKeyPrefix.length)
                     {
+                    case 0: next = construct!(HLf1)(curr.key[0], key[0]); break;
                     case 1: next = construct!(TLf2)(curr.key, key); break;
                     case 2: next = construct!(BLf3)(curr.key, key); break;
                     default:

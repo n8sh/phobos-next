@@ -843,10 +843,14 @@ private struct RawRadixTree(Value,
             const i_ = i.mod!(curr.maxSubPopulation);
             try
             {
-                if (curr.subNodeSlots[i_])
+                const existingSubNode = curr.subNodeSlots[i_];
+                if (existingSubNode &&
+                    isHeapAllocatedNode(existingSubNode) &&
+                    existingSubNode != subNode)
                 {
                     dln("sub-Node at index " ~ subIx.to!string ~
-                        " already set to " ~ curr.subNodeSlots[i_].to!string);
+                        " changes from " ~ existingSubNode.to!string ~
+                        " to " ~ subNode.to!string);
                 }
             }
             catch (Exception e) {}
@@ -1469,6 +1473,21 @@ private struct RawRadixTree(Value,
             case ix_FLf1Ptr: return release(curr.as!(FLf1*));
             case ix_PBr4Ptr: return release(curr.as!(PBr4*));
             case ix_FBrMPtr: return release(curr.as!(FBrM*));
+            }
+        }
+
+        bool isHeapAllocatedNode(Node curr) const
+        {
+            final switch (curr.typeIx) with (Node.Ix)
+            {
+            case undefined: return false;
+            case ix_SLf6: return false;
+            case ix_BLf3: return false;
+            case ix_TLf2: return false;
+            case ix_HLf1: return false;
+            case ix_FLf1Ptr: return true;
+            case ix_PBr4Ptr: return true;
+            case ix_FBrMPtr: return true;
             }
         }
     }

@@ -1210,12 +1210,20 @@ private struct RawRadixTree(Value,
                 }
                 else if (matchedKeyPrefix.length + 1 == key.length) // key and curr.suffix are both matchedKeyPrefix plus one extra
                 {
-                    auto next = construct!(FLf1*)(matchedKeyPrefix, false,
-                                                  curr.suffix[$ - 1],
-                                                  key[$ - 1]);
+                    Node next;
+                    if (matchedKeyPrefix.length == 1)
+                    {
+                        next = construct!(TLf2)(curr.suffix, key);
+                    }
+                    else
+                    {
+                        next = construct!(FLf1*)(matchedKeyPrefix, false,
+                                                 curr.suffix[$ - 1],
+                                                 key[$ - 1]);
+                    }
                     wasAdded = true;
                     freeNode(curr);
-                    return Node(next);
+                    return next;
                 }
             }
             return insertAt(split(curr, matchedKeyPrefix, key),

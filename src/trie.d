@@ -62,7 +62,7 @@ import variant_ex : WordVariant;
 import typecons_ex : IndexedArray, StrictlyIndexed;
 import modulo : Mod, mod;
 
-// version = enterSingleInfiniteMemoryLeakage;
+// version = enterSingleInfiniteMemoryLeakageTest;
 // version = debugAllocations;
 version = benchmark;
 // version = print;
@@ -2010,7 +2010,7 @@ void benchmark(uint span)()
 }
 
 /// leak test
-version(enterSingleInfiniteMemoryLeakage)
+version(enterSingleInfiniteMemoryLeakageTest)
 @safe pure nothrow /* TODO @nogc */
 unittest
 {

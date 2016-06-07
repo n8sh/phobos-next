@@ -1320,7 +1320,7 @@ private struct RawRadixTree(Value,
         Node split(SLf6 curr, Key!span prefix, Key!span key) // TODO key here is a bit malplaced
         {
             Node next;
-            if (curr.suffix.length == key.length)
+            if (curr.suffix.length == key.length) // balanced tree possible
             {
                 switch (curr.suffix.length)
                 {

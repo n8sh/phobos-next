@@ -1132,15 +1132,7 @@ private struct RawRadixTree(Value,
         /** Insert `key` into `this` tree. */
         pragma(inline) Node insert(Key!span key, out bool wasAdded)
         {
-            // dln("insert key=", key);
-            _root = insertAt(_root, key, 0, wasAdded);
-            debug
-            {
-                Stats stats;
-                calculate(this, stats);
-                assert(heapNodeAllocationBalance);
-            }
-            return _root;
+            return _root = insertAt(_root, key, 0, wasAdded);
         }
 
         Node insertNew(Key!span key, size_t superPrefixLength, out bool wasAdded)

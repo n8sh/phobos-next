@@ -1133,8 +1133,8 @@ private struct RawRadixTree(Value,
                 // continue below
             }
             // prefix and key share beginning: prefix:"ab11", key:"ab22"
-            else if (matchedKeyPrefix.length < key.length &&
-                     matchedKeyPrefix.length < currPrefix.length)
+            else if (matchedKeyPrefix.length < currPrefix.length &&
+                     matchedKeyPrefix.length < key.length)
             {
                 const subIx = currPrefix[matchedKeyPrefix.length]; // need index first
                 setPrefix(curr, currPrefix[matchedKeyPrefix.length + 1 .. $]); // drop matchedKeyPrefix plus index to next super branch
@@ -1144,8 +1144,8 @@ private struct RawRadixTree(Value,
                 superPrefixLength += matchedKeyPrefix.length;
             }
             // prefix is an extension of key: prefix:"abcd", key:"ab"
-            else if (matchedKeyPrefix.length == key.length &&
-                     matchedKeyPrefix.length < currPrefix.length)
+            else if (matchedKeyPrefix.length < currPrefix.length &&
+                     matchedKeyPrefix.length == key.length)
             {
                 const subIx = currPrefix[matchedKeyPrefix.length]; // need index first
                 setPrefix(curr, currPrefix[matchedKeyPrefix.length + 1 .. $]); // drop matchedKeyPrefix plus index

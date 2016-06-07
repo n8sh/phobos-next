@@ -631,6 +631,18 @@ private struct RawRadixTree(Value,
                     if (subIxSlots.at!i == ix) { return subNodeSlots.at!i; }
                 }
                 break;
+            case 3:
+                foreach (i; iota!(0, 3))
+                {
+                    if (subIxSlots.at!i == ix) { return subNodeSlots.at!i; }
+                }
+                break;
+            case 4:
+                foreach (i; iota!(0, 4))
+                {
+                    if (subIxSlots.at!i == ix) { return subNodeSlots.at!i; }
+                }
+                break;
             default:
                 // TODO do binary search
                 foreach (const i_; 0 ..  subPopulation)
@@ -826,13 +838,15 @@ private struct RawRadixTree(Value,
     {
         import std.algorithm : countUntil;
         const i = curr.subIxSlots[0 .. curr.subPopulation].countUntil(subIx); // TODO is this the preferred function?
-        if (i != -1)            // if hit. TODO use bool conversion if this gets added to countUntil
+        if (i != -1)            // if hit. TODO use bool conversion when available in countUntil
         {
             try
             {
-                dln(!curr.subNodeSlots[i.mod!(curr.maxSubPopulation)],
-                    "sub-Node at index " ~ subIx.to!string ~
-                    " already set to " ~ curr.subNodeSlots[i.mod!(curr.maxSubPopulation)].to!string);
+                if (curr.subNodeSlots[i.mod!(curr.maxSubPopulation)])
+                {
+                    dln("sub-Node at index " ~ subIx.to!string ~
+                        " already set to " ~ curr.subNodeSlots[i.mod!(curr.maxSubPopulation)].to!string);
+                }
             }
             catch (Exception e) {}
             curr.subNodeSlots[i.mod!(curr.maxSubPopulation)] = subNode; // reuse
@@ -845,6 +859,7 @@ private struct RawRadixTree(Value,
         {
             auto next = construct!(FBrM*)(curr);
             freeNode(curr);
+            assert(!getSub(next, subIx)); // key slot should be free
             return setSub(next, subIx, subNode); // fast, because directly calls setSub(FBrM*, ...)
         }
         return Node(curr);
@@ -868,10 +883,6 @@ private struct RawRadixTree(Value,
     {
         switch (curr.typeIx)
         {
-        // case Node.Ix.ix_SLf6:
-        //     auto currSLf6 = curr.as!(SLf6);
-        //     if (currSLf6.suffix.length == 1 && currSLf6.suffix[0] == subIx) { return curr; }
-        //     break;
         case Node.Ix.ix_FLf1Ptr:
             if (curr.as!(FLf1*).hasSubAt(subIx))
             {

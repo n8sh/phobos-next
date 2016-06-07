@@ -1337,11 +1337,11 @@ private struct RawRadixTree(Value,
             }
             else if (curr.suffix.length == 2 && key.length == 2)
             {
-                dln("Use TLf2 instead");
+                dln("TODO Use TLf2 instead");
             }
             else if (curr.suffix.length == 3 && key.length == 3)
             {
-                dln("Use BLf3 instead");
+                dln("TODO Use BLf3 instead");
             }
 
             if (!next)

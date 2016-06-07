@@ -970,7 +970,7 @@ private struct RawRadixTree(Value,
         {
             if (_heapNodeAllocationBalance != 0)
             {
-                dln("Heap Node allocation balance is not zero, but " ~
+                dln("warning: Memory is leaking: Heap Node allocation balance is not zero, but " ~
                     _heapNodeAllocationBalance.to!string ~
                     ", nodeCountsByIx is " ~ nodeCountsByIx.to!string);
             }
@@ -2008,16 +2008,23 @@ void benchmark(uint span)()
     }
 }
 
+/// leak test
 @safe pure nothrow /* TODO @nogc */
 unittest
 {
-    // TODO Support this struct A { long x, y; }
+    while (true)
+    {
+        check!(8, float);
+    }
+}
+
+@safe pure nothrow /* TODO @nogc */
+unittest
+{
     check!(8,
            float, double,
            long, int, short, byte,
-           ulong, uint, ushort, ubyte,
-           // string, wstring, dstring,
-        );
+           ulong, uint, ushort, ubyte);
 }
 
 auto testPrint(uint span, Keys...)()

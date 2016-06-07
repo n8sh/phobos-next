@@ -1320,29 +1320,29 @@ private struct RawRadixTree(Value,
         Node split(SLf6 curr, Key!span prefix, Key!span key) // TODO key here is a bit malplaced
         {
             Node next;
-            if (curr.suffix.length == 1 && key.length == 1) // if (outer) leaf node storage is possible
+            if (curr.suffix.length && key.length)
             {
-                if (prefix.length == 0)
+                switch (curr.suffix.length)
                 {
-                    freeNode(curr);
-                    return Node(construct!(HLf1)(curr.suffix)); // TODO removing parameter has no effect. why?
+                case 1:
+                    if (prefix.length == 0)
+                    {
+                        freeNode(curr);
+                        return Node(construct!(HLf1)(curr.suffix)); // TODO removing parameter has no effect. why?
+                    }
+                    else if (prefix.length == 1)
+                    {
+                        assert(false, "Use P1Lf with single-length prefix and a maximum of 4 ");
+                    }
+                    else
+                    {
+                        next = construct!(FLf1*)(prefix, false);
+                    }
+                    break;
+                case 2: assert(false, "Use TLf2");
+                case 3: assert(false, "Use BLf3");
+                default: break;
                 }
-                else if (prefix.length == 1)
-                {
-                    assert(false, "Use P1Lf with single-length prefix and a maximum of 4 ");
-                }
-                else
-                {
-                    next = construct!(FLf1*)(prefix, false);
-                }
-            }
-            else if (curr.suffix.length == 2 && key.length == 2)
-            {
-                dln("TODO Use TLf2 instead");
-            }
-            else if (curr.suffix.length == 3 && key.length == 3)
-            {
-                dln("TODO Use BLf3 instead");
             }
 
             if (!next)

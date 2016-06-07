@@ -1335,6 +1335,12 @@ private struct RawRadixTree(Value,
                     next = construct!(FLf1*)(prefix, false);
                 }
             }
+            else if (curr.suffix.length == 2 &&
+                     key.length == 2)
+            {
+                dln("Use TLf2 instead");
+            }
+
             if (!next)
             {
                 next = construct!(DefaultBr)(prefix, false);

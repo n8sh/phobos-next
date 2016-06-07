@@ -1182,6 +1182,7 @@ private struct RawRadixTree(Value,
                 }
             }
 
+            assert(key.length != 0);
             const ix = key[0];
             return setSub(curr, ix,
                           insertAt(getSub(curr, ix), // recurse

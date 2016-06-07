@@ -828,6 +828,13 @@ private struct RawRadixTree(Value,
         const i = curr.subIxSlots[0 .. curr.subPopulation].countUntil(subIx); // TODO is this the preferred function?
         if (i != -1)            // if hit. TODO use bool conversion if this gets added to countUntil
         {
+            try
+            {
+                dln(!curr.subNodeSlots[i.mod!(curr.maxSubPopulation)],
+                    "sub-Node at index " ~ subIx.to!string ~
+                    " already set to " ~ curr.subNodeSlots[i.mod!(curr.maxSubPopulation)].to!string);
+            }
+            catch (Exception e) {}
             curr.subNodeSlots[i.mod!(curr.maxSubPopulation)] = subNode; // reuse
         }
         else if (!curr.full)     // if room left in curr
@@ -1320,7 +1327,7 @@ private struct RawRadixTree(Value,
         Node expandToUnbalanced(BLf3 curr)
         {
             auto keyPrefix = Ix[].init; // TODO calculate from curr.keys
-            auto next = construct!(PBr4*)(keyPrefix);
+            auto next = construct!(DefaultBr)(keyPrefix);
 
             assert(curr.keys.length <= next.maxSubPopulation);
             foreach (const i, key; curr.keys) // TODO const key
@@ -1339,7 +1346,7 @@ private struct RawRadixTree(Value,
         Node expandToUnbalanced(TLf2 curr)
         {
             auto keyPrefix = Ix[].init; // TODO calculate from curr.keys
-            auto next = construct!(PBr4*)(keyPrefix);
+            auto next = construct!(DefaultBr)(keyPrefix);
 
             assert(curr.keys.length <= next.maxSubPopulation);
             foreach (const i, key; curr.keys) // TODO const key

@@ -407,6 +407,18 @@ private struct RawRadixTree(Value,
                     this.keys = keys;
                 }
 
+                inout(Ix)[] prefix() inout
+                {
+                    final switch (keys.length)
+                    {
+                    case 1:
+                        return keys[0][];
+                    case 2:
+                        import std.algorithm : commonPrefix;
+                        return commonPrefix(keys[0][], keys[1][]);
+                    }
+                }
+
                 pragma(inline) bool contains(Key!span key) const @nogc { return keys.contains(key); }
 
                 IxsN!(maxLength, keyLength, span) keys;
@@ -424,6 +436,22 @@ private struct RawRadixTree(Value,
                     if (Keys.length >= 1 && Keys.length <= maxLength)
                 {
                     this.keys = keys;
+                }
+
+                inout(Ix)[] prefix() inout
+                {
+                    final switch (keys.length)
+                    {
+                    case 1:
+                        return keys[0][];
+                    case 2:
+                        import std.algorithm : commonPrefix;
+                        return commonPrefix(keys[0][], keys[1][]);
+                    case 3:
+                        import std.algorithm : commonPrefix;
+                        return commonPrefix(keys[0][],
+                                            commonPrefix(keys[1][], keys[2][])); // TODO make and reuse variadic commonPrefix
+                    }
                 }
 
                 pragma(inline) bool contains(Key!span key) const @nogc { return keys.contains(key); }
@@ -715,6 +743,7 @@ private struct RawRadixTree(Value,
     /** Dense/Unpacked `radix`-branch with `radix` number of sub-nodes. */
     static private struct FBrM
     {
+        enum maxSubPopulation = 256;
         enum maxPrefixLength = 15; // 7, 15, 23, ..., we can afford larger prefix here because FBrM is so large
 
         @safe pure nothrow:
@@ -841,19 +870,6 @@ private struct RawRadixTree(Value,
         if (i != -1)            // if hit. TODO use bool conversion when available in countUntil
         {
             const i_ = i.mod!(curr.maxSubPopulation);
-            try
-            {
-                const existingSubNode = curr.subNodeSlots[i_];
-                if (existingSubNode &&
-                    isHeapAllocatedNode(existingSubNode) &&
-                    existingSubNode != subNode)
-                {
-                    // dln("sub-Node at index " ~ subIx.to!string ~
-                    //     " changes from " ~ existingSubNode.to!string ~
-                    //     " to " ~ subNode.to!string);
-                }
-            }
-            catch (Exception e) {}
             curr.subNodeSlots[i_] = subNode; // reuse
         }
         else if (!curr.full)     // if room left in curr
@@ -864,7 +880,7 @@ private struct RawRadixTree(Value,
         {
             auto next = construct!(FBrM*)(curr);
             freeNode(curr);
-            assert(!getSub(Node(next), subIx)); // key slot should be free
+            assert(!getSub(next, subIx)); // key slot should be free
             return setSub(next, subIx, subNode); // fast, because directly calls setSub(FBrM*, ...)
         }
         return Node(curr);
@@ -883,35 +899,41 @@ private struct RawRadixTree(Value,
         return Node(curr);
     }
 
+    Node getSub(FLf1* curr, Ix subIx) @safe pure nothrow
+    {
+        if (curr.hasSubAt(subIx))
+        {
+            return Node(SLf6.init);
+        }
+        return Node.init;
+    }
+
+    Node getSub(PBr4* curr, Ix subIx) @safe pure nothrow
+    {
+        if (auto subNode = curr.findSub(subIx))
+        {
+            return subNode;
+        }
+        return Node.init;
+    }
+
+    Node getSub(FBrM* curr, Ix subIx) @safe pure nothrow
+    {
+        auto sub = curr.subNodes[subIx];
+        curr.subNodes[subIx] = Node.init; // zero it to prevent multiple references
+        return sub;
+    }
+
     /** Get sub-`Node` of branch `Node curr` at index `subIx. */
     Node getSub(Node curr, Ix subIx) @safe pure nothrow
     {
         switch (curr.typeIx)
         {
-        case Node.Ix.ix_FLf1Ptr:
-            auto curr_ = curr.as!(FLf1*);
-            if (curr_.hasSubAt(subIx))
-            {
-                return Node(SLf6.init);
-            }
-            break;
-        case Node.Ix.ix_PBr4Ptr:
-            auto curr_ = curr.as!(PBr4*);
-            debug if (memoryLeakingKey) { dln("curr_:", *curr_); }
-            if (auto subNode = curr_.findSub(subIx))
-            {
-                return subNode;
-            }
-            break;
-        case Node.Ix.ix_FBrMPtr:
-            auto curr_ = curr.as!(FBrM*);
-            auto sub = curr_.subNodes[subIx];
-            curr.as!(FBrM*).subNodes[subIx] = Node.init; // zero it to prevent multiple references
-            return sub;
-        default:
-            assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
+        case Node.Ix.ix_FLf1Ptr: return getSub(curr.as!(FLf1*), subIx);
+        case Node.Ix.ix_PBr4Ptr: return getSub(curr.as!(PBr4*), subIx);
+        case Node.Ix.ix_FBrMPtr: return getSub(curr.as!(FBrM*), subIx);
+        default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
         }
-        return Node.init;
     }
 
     /** Returns: `true` if `curr` is occupied, `false` otherwise. */
@@ -1256,12 +1278,8 @@ private struct RawRadixTree(Value,
             assert(key.length != 0);
 
             const ix = key[0];
-            Node currentSub = getSub(curr, ix);
-            debug if (memoryLeakingKey) { dln("ix:", ix); }
-            debug if (memoryLeakingKey) { dln("currentSub:", currentSub); }
-
             return setSub(curr, ix,
-                          insertAt(currentSub, // recurse
+                          insertAt(getSub(curr, ix), // recurse
                                    key[1 .. $],
                                    superPrefixLength + 1,
                                    wasAdded));
@@ -1334,7 +1352,7 @@ private struct RawRadixTree(Value,
                     return Node(next);
                 }
             }
-            return insertAt(expandToUnbalanced(curr), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
+            return insertAt(expandToUnbalanced(curr, superPrefixLength), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
         }
 
         Node insertAt(TLf2 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
@@ -1364,7 +1382,8 @@ private struct RawRadixTree(Value,
                     return Node(next);
                 }
             }
-            return insertAt(expandToUnbalanced(curr), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
+            return insertAt(expandToUnbalanced(curr, superPrefixLength),
+                            key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
         }
 
         Node insertAt(HLf1 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
@@ -1390,7 +1409,8 @@ private struct RawRadixTree(Value,
                 wasAdded = true;
                 return Node(next);
             }
-            return insertAt(expandToUnbalanced(curr), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
+            return insertAt(expandToUnbalanced(curr, superPrefixLength),
+                            key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
         }
 
         /** Split `curr` using `prefix`. */
@@ -1440,45 +1460,43 @@ private struct RawRadixTree(Value,
         }
 
         /** Destructively expand `curr` and return it. */
-        Node expandToUnbalanced(BLf3 curr)
+        Node expandToUnbalanced(BLf3 curr, size_t superPrefixLength)
         {
-            auto keyPrefix = Ix[].init; // TODO calculate from curr.keys
-            auto next = construct!(DefaultBr)(keyPrefix);
-
-            assert(curr.keys.length <= next.maxSubPopulation);
-            foreach (const i, key; curr.keys) // TODO const key
+            auto currPrefix = curr.prefix;
+            Node next = construct!(DefaultBr)(currPrefix);
+            foreach (key; curr.keys) // TODO const key
             {
-                const iN = i.mod!(next.maxSubPopulation); // TODO shouldn't be needed
-                next.subIxSlots[iN] = key[0];
-                next.subNodeSlots[iN] = construct!(SLf6)(key[1 .. $]);
+                bool wasAddedCurr;
+                next = insertAtBranch(next,
+                                      key[currPrefix.length .. $],
+                                      superPrefixLength + currPrefix.length,
+                                      wasAddedCurr);
+                assert(wasAddedCurr);
             }
-            next.subPopulation = cast(ubyte)curr.keys.length; // TODO dumb cast frmo Mod!3 to ubyte
-
             freeNode(curr);
-            return Node(next);
+            return next;
         }
 
         /** Destructively expand `curr` and return it. */
-        Node expandToUnbalanced(TLf2 curr)
+        Node expandToUnbalanced(TLf2 curr, size_t superPrefixLength)
         {
-            auto keyPrefix = Ix[].init; // TODO calculate from curr.keys
-            auto next = construct!(DefaultBr)(keyPrefix);
-
-            assert(curr.keys.length <= next.maxSubPopulation);
-            foreach (const i, key; curr.keys) // TODO const key
+            auto currPrefix = curr.prefix;
+            Node next = construct!(DefaultBr)(currPrefix);
+            foreach (key; curr.keys) // TODO const key
             {
-                const iN = i.mod!(next.maxSubPopulation); // TODO shouldn't be needed
-                next.subIxSlots[iN] = key[0];
-                next.subNodeSlots[iN] = construct!(SLf6)(key[1 .. $]);
+                bool wasAddedCurr;
+                next = insertAtBranch(next,
+                                      key[currPrefix.length .. $],
+                                      superPrefixLength + currPrefix.length,
+                                      wasAddedCurr);
+                assert(wasAddedCurr);
             }
-            next.subPopulation = cast(ubyte)curr.keys.length; // TODO dumb cast frmo Mod!3 to ubyte
-
             freeNode(curr);
-            return Node(next);
+            return next;
         }
 
         /** Destructively expand `curr` making room for `nextKey` and return it. */
-        Node expandToUnbalanced(HLf1 curr)
+        Node expandToUnbalanced(HLf1 curr, size_t superPrefixLength)
         {
             auto next = construct!(FLf1*);
             foreach (const ixM; curr.keys)

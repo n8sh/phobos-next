@@ -487,8 +487,7 @@ private struct RawRadixTree(Value,
     }
 
     // TODO make these run-time arguments at different key depths and map to statistics of typed-key
-    alias DefaultRootType = PBr4*;
-    alias DefaultBr = DefaultRootType;
+    alias DefaultBr = PBr4*; // either PBr4*, FBrM*
 
     static if (isSet)
         static assert(HLf1.sizeof == size_t.sizeof); // assert that it's size matches platform word-size
@@ -1622,12 +1621,6 @@ private struct RawRadixTree(Value,
         }
     }
 
-    /** Ensure that root `Node` is allocated. */
-    void ensureRootNode(U = DefaultRootType)()
-    {
-        if (!_root) { _root = construct!(U); }
-    }
-
     /** Get fixed length of keys, or `size_t.max` if key length is variable. */
     size_t keyLength() const @safe pure nothrow @nogc { return _keyLength; }
 
@@ -2047,6 +2040,7 @@ auto check(uint span, Keys...)()
                 foreach (const uk; low.iota(high + 1))
                 {
                     const Key key = cast(Key)uk;
+                    dln("key: ", key);
                     // dln("========================= Before insert of new key:", key);
                     if (useContains)
                     {

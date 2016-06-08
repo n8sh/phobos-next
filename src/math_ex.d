@@ -10,7 +10,15 @@ import std.traits : isIntegral;
 bool isPow2(T)(T x) if (isIntegral!T)
 {
     import core.bitop : popcnt;
-    return popcnt(x) == 1;
+    static if (__VERSION__ >= 2071 ||
+               is(T == uint))
+    {
+        return popcnt(x) == 1;
+    }
+    else
+    {
+        return isPow2A(x);
+    }
 }
 alias isPowerOf2 = isPow2;
 

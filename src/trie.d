@@ -1037,6 +1037,47 @@ private struct RawRadixTree(Value,
                          (key.length >= 1 && containsAt(curr_.subNodes[key[0]], key[1 .. $])))); // recurse
             }
         }
+
+        pragma(inline) size_t countHeapNodes()
+        {
+            return countHeapNodesAt(_root);
+        }
+
+        pragma(inline) size_t countHeapNodesAt(Node curr)
+        {
+            size_t count = 0;
+            final switch (curr.typeIx) with (Node.Ix)
+            {
+            case undefined: break;
+            case ix_SLf6: break;
+            case ix_BLf3: break;
+            case ix_TLf2: break;
+            case ix_HLf1: break;
+
+            case ix_FLf1Ptr:
+                ++count;
+                break;
+
+            case ix_PBr4Ptr:
+                auto curr_ = curr.as!(PBr4*);
+                ++count;
+                foreach (subNode; curr_.subNodeSlots[0 .. curr_.subPopulation])
+                {
+                    if (subNode) { count += countHeapNodesAt(subNode); }
+                }
+                break;
+
+            case ix_FBrMPtr:
+                ++count;
+                auto curr_ = curr.as!(FBrM*);
+                foreach (subNode; curr_.subNodes)
+                {
+                    if (subNode) { count += countHeapNodesAt(subNode); }
+                }
+                break;
+            }
+            return count;
+        }
     }
 
     @safe pure nothrow /* TODO @nogc */
@@ -1044,7 +1085,21 @@ private struct RawRadixTree(Value,
         /** Insert `key` into `this` tree. */
         pragma(inline) Node insert(Key!span key, out bool wasAdded)
         {
-            return _root = insertAt(_root, key, 0, wasAdded);
+            debug if (key == [57, 3, 1, 255])
+            {
+                dln("Before memory leak");
+                debug memoryLeakingKey = true;
+                if (countHeapNodes() != _heapNodeAllocationBalance)
+                {
+                    dln("Memory leak after insertion of key:", key);
+                }
+            }
+
+            _root = insertAt(_root, key, 0, wasAdded);
+
+            debug if (key == [57, 3, 1, 255]) { assert(countHeapNodes() == _heapNodeAllocationBalance, "Memory leaked"); }
+
+            return _root;
         }
 
         Node insertNew(Key!span key, size_t superPrefixLength, out bool wasAdded)
@@ -1093,6 +1148,7 @@ private struct RawRadixTree(Value,
         /** Insert `key` into sub-tree under root `curr`. */
         pragma(inline) Node insertAt(Node curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            if (memoryLeakingKey) { dln("key:", key); }
             if (!curr)          // if no existing `Node` to insert at
             {
                 curr = insertNew(key, superPrefixLength, wasAdded);
@@ -1636,6 +1692,7 @@ private struct RawRadixTree(Value,
     immutable _keyLength = size_t.max; ///< maximum length of key
     debug long _heapNodeAllocationBalance = 0;
     debug size_t[string] nodeCountsByIx;
+    debug bool memoryLeakingKey;
 }
 
 /** Append statistics of tree under `Node` `sub.` into `stats`.
@@ -2110,7 +2167,7 @@ unittest
 unittest
 {
     check!(8,
-           double, float,
+           float, double,
            long, int, short, byte,
            ulong, uint, ushort, ubyte);
 }

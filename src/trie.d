@@ -1579,7 +1579,31 @@ private struct RawRadixTree(Value,
             auto curr_ = curr.as!(FLf1*);
             write(typeof(*curr_).stringof, ":");
             if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix); }
-            write(" #count=", curr_._keyBits.countOnes);
+            write(" #count=", curr_._keyBits.countOnes, ": ");
+
+            // keys
+            size_t ix = 0;
+            bool other = false;
+            foreach (const value;  curr_._keyBits[])
+            {
+                string s;
+                if (value)
+                {
+                    if (other)
+                    {
+                        s ~= keySeparator;
+                    }
+                    else
+                    {
+                        other = true;
+                    }
+                    import std.string : format;
+                    s ~= format("%.2X", ix);
+                }
+                ++ix;
+                write(s);
+            }
+
             writeln();
             break;
         case ix_PBr4Ptr:

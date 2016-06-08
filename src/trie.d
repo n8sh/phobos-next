@@ -843,19 +843,27 @@ private struct RawRadixTree(Value,
     /// ditto
     Node setSub(FLf1* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
-        if (const subSLf6Ref = subNode.peek!(SLf6))
+        if (const subNodeRef = subNode.peek!(SLf6))
         {
-            const subSLf6 = *subSLf6Ref;
-            if (subSLf6.key.empty)
+            const subNode_ = *subNodeRef;
+            if (subNode_.key.empty)
             {
                 curr._keyBits[subIx] = true;
                 freeNode(subNode); // free it because it's stored inside the bitset itself
                 return Node(curr);
             }
-            else
-            {
-            }
         }
+        else if (const subNodeRef = subNode.peek!(HLf1))
+        {
+            const subNode_ = *subNodeRef;
+            foreach (key; subNode_.keys)
+            {
+                curr._keyBits[key] = true;
+            }
+            freeNode(subNode); // free it because it's stored inside the bitset itself
+            return Node(curr);
+        }
+
         const currValue = *curr;
         show!currValue;
         show!subIx;

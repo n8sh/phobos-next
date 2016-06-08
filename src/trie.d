@@ -994,7 +994,7 @@ private struct RawRadixTree(Value,
         {
             if (_heapNodeAllocationBalance != 0)
             {
-                dln("warning: Memory leak: Heap Node allocation balance is not zero, but " ~
+                dln("warning: Memory leak, heap Node allocation balance is not zero, but " ~
                     _heapNodeAllocationBalance.to!string ~
                     ", nodeCountsByIx is " ~ nodeCountsByIx.to!string);
             }

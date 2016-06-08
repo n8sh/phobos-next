@@ -1464,6 +1464,8 @@ private struct RawRadixTree(Value,
         {
             auto currPrefix = curr.prefix;
             Node next = construct!(DefaultBr)(currPrefix);
+
+            // TODO functionize:
             foreach (key; curr.keys) // TODO const key
             {
                 bool wasAddedCurr;
@@ -1482,6 +1484,8 @@ private struct RawRadixTree(Value,
         {
             auto currPrefix = curr.prefix;
             Node next = construct!(DefaultBr)(currPrefix);
+
+            // TODO functionize:
             foreach (key; curr.keys) // TODO const key
             {
                 bool wasAddedCurr;

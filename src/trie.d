@@ -889,19 +889,23 @@ private struct RawRadixTree(Value,
         switch (curr.typeIx)
         {
         case Node.Ix.ix_FLf1Ptr:
-            if (curr.as!(FLf1*).hasSubAt(subIx))
+            auto curr_ = curr.as!(FLf1*);
+            if (curr_.hasSubAt(subIx))
             {
                 return Node(SLf6.init);
             }
             break;
         case Node.Ix.ix_PBr4Ptr:
-            if (auto subNode = curr.as!(PBr4*).findSub(subIx))
+            auto curr_ = curr.as!(PBr4*);
+            debug if (memoryLeakingKey) { dln("curr_:", *curr_); }
+            if (auto subNode = curr_.findSub(subIx))
             {
                 return subNode;
             }
             break;
         case Node.Ix.ix_FBrMPtr:
-            auto sub = curr.as!(FBrM*).subNodes[subIx];
+            auto curr_ = curr.as!(FBrM*);
+            auto sub = curr_.subNodes[subIx];
             curr.as!(FBrM*).subNodes[subIx] = Node.init; // zero it to prevent multiple references
             return sub;
         default:
@@ -1104,6 +1108,7 @@ private struct RawRadixTree(Value,
 
         Node insertNew(Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            debug if (memoryLeakingKey) { dln("key:", key); }
             switch (key.length)
             {
             case 1:
@@ -1111,6 +1116,7 @@ private struct RawRadixTree(Value,
                 return Node(construct!(HLf1)(key[0])); // promote packing
             case 2:
                 wasAdded = true;
+                debug if (memoryLeakingKey) { dln("key:", key); }
                 return Node(construct!(TLf2)(key)); // promote packing
             case 3:
                 wasAdded = true;
@@ -1148,10 +1154,11 @@ private struct RawRadixTree(Value,
         /** Insert `key` into sub-tree under root `curr`. */
         pragma(inline) Node insertAt(Node curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
-            if (memoryLeakingKey) { dln("key:", key); }
+            debug if (memoryLeakingKey) { dln("key:", key, " curr:", curr); }
             if (!curr)          // if no existing `Node` to insert at
             {
                 curr = insertNew(key, superPrefixLength, wasAdded);
+                debug if (memoryLeakingKey) { dln("key:", key, " inserted to new curr:", curr); }
                 assert(wasAdded); // must be added to new Node
                 return curr;
             }
@@ -1175,6 +1182,7 @@ private struct RawRadixTree(Value,
 
         Node insertAtBranch(Node curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            debug if (memoryLeakingKey) { dln("curr:", curr, " curr.prefix:", getPrefix(curr), " key:", key); }
             import std.algorithm : commonPrefix;
             auto currPrefix = getPrefix(curr);
             auto matchedKeyPrefix = commonPrefix(key, currPrefix);
@@ -1184,10 +1192,12 @@ private struct RawRadixTree(Value,
             {
                 if (currPrefix.length == 0) // no current prefix
                 {
+                    debug if (memoryLeakingKey) { dln("curr:", curr, " curr.prefix:", getPrefix(curr), " key:", key); }
                     // continue below
                 }
                 else
                 {
+                    debug if (memoryLeakingKey) { dln("curr:", curr, " curr.prefix:", getPrefix(curr), " key:", key); }
                     const subIx = currPrefix[0]; // subIx = 'a'
                     setPrefix(curr, currPrefix[1 .. $].to!(typeof(DefaultBr.prefix))); // new prefix becomes "b"
                     return insertAt(Node(construct!(DefaultBr)(Ix[].init, false, subIx, curr)),
@@ -1201,6 +1211,7 @@ private struct RawRadixTree(Value,
                 if (matchedKeyPrefix.length == currPrefix.length)
                 {
                     // most probable: key is an extension of prefix: prefix:"ab", key:"abcd"
+                    debug if (memoryLeakingKey) { dln("curr:", curr, " curr.prefix:", getPrefix(curr), " key:", key); }
                     key = key[matchedKeyPrefix.length .. $]; // strip `currPrefix from beginning of `key`
                     superPrefixLength += matchedKeyPrefix.length;
                     // continue below
@@ -1208,6 +1219,7 @@ private struct RawRadixTree(Value,
                 else
                 {
                     // prefix and key share beginning: prefix:"ab11", key:"ab22"
+                    debug if (memoryLeakingKey) { dln("curr:", curr, " curr.prefix:", getPrefix(curr), " key:", key); }
                     const subIx = currPrefix[matchedKeyPrefix.length]; // need index first
                     setPrefix(curr, currPrefix[matchedKeyPrefix.length + 1 .. $]); // drop matchedKeyPrefix plus index to next super branch
                     curr = Node(construct!(DefaultBr)(matchedKeyPrefix, false, // key is not occupied
@@ -1221,6 +1233,7 @@ private struct RawRadixTree(Value,
                 if (matchedKeyPrefix.length < currPrefix.length)
                 {
                     // prefix is an extension of key: prefix:"abcd", key:"ab"
+                    debug if (memoryLeakingKey) { dln("curr:", curr, " curr.prefix:", getPrefix(curr), " key:", key); }
                     const subIx = currPrefix[matchedKeyPrefix.length]; // need index first
                     setPrefix(curr, currPrefix[matchedKeyPrefix.length + 1 .. $]); // drop matchedKeyPrefix plus index
                     return Node(construct!(DefaultBr)(matchedKeyPrefix, true, // `true` because `key` occupies this node
@@ -1229,6 +1242,7 @@ private struct RawRadixTree(Value,
                 else
                 {
                     // prefix equals key: prefix:"ab", key:"ab"
+                    debug if (memoryLeakingKey) { dln("curr:", curr, " curr.prefix:", getPrefix(curr), " key:", key); }
                     if (!isKey(curr))
                     {
                         makeKey(curr);
@@ -1238,10 +1252,16 @@ private struct RawRadixTree(Value,
                 }
             }
 
+            debug if (memoryLeakingKey) { dln("curr:", curr, " curr.prefix:", getPrefix(curr), " key:", key); }
             assert(key.length != 0);
+
             const ix = key[0];
+            Node currentSub = getSub(curr, ix);
+            debug if (memoryLeakingKey) { dln("ix:", ix); }
+            debug if (memoryLeakingKey) { dln("currentSub:", currentSub); }
+
             return setSub(curr, ix,
-                          insertAt(getSub(curr, ix), // recurse
+                          insertAt(currentSub, // recurse
                                    key[1 .. $],
                                    superPrefixLength + 1,
                                    wasAdded));

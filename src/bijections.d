@@ -3,7 +3,16 @@
  */
 module bijections;
 
-import std.meta : AliasSeq, staticIndexOf, Unqual;
+static if (__VERSION__ >= 2071)
+{
+    import std.meta : Unqual;
+}
+else
+{
+    import std.typecons : Unqual;
+}
+
+import std.meta : AliasSeq, staticIndexOf;
 import std.traits : isUnsigned, isSigned, isIntegral, Unsigned, Signed, isNumeric, isSomeChar;
 
 /** List of types that are bijectable to builtin integral types. */

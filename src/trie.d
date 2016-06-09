@@ -85,8 +85,11 @@ extern(C) pure nothrow @system /* TODO @nogc */
     void free(void* ptr);
 }
 
-/** Raw Internal (Unsigned Integer) Binary Key. */
-alias Key(size_t span) = Mod!(2^^span)[]; // TODO use bitset to more naturally support span != 8
+/** Mutable Raw Key. */
+alias Key(size_t span) = Mod!(2^^span)[]; // TODO use bitset to more naturally support span != 8.
+/** Immutable Raw Key. */
+alias IKey(size_t span) = immutable(Mod!(2^^span))[]; // TODO use bitset to more naturally support span != 8.
+/** Fixed-Length Raw Key. */
 alias KeyN(size_t span, size_t N) = Mod!(2^^span)[N];
 
 /** Size of a CPU cache line in bytes.

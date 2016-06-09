@@ -114,10 +114,10 @@ enum keySeparator = ',';
 struct IxsN(size_t maxLength,
             uint elementLength = 1,
             uint span = 8)
-    if (maxLength*elementLength >= 2)         // no use storing less than 2 bytes
+    if (maxLength*elementLength >= 2) // no use storing less than 2 bytes
 {
     enum L = elementLength;
-    enum M = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
+    enum M = 2^^span;   // branch-multiplicity, typically either 2, 4, 16 or 256
     alias Ix = Mod!M;
 
     static if (L == 1)

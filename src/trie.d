@@ -1619,10 +1619,7 @@ private struct RawRadixTree(Value,
 
         if (!curr) { return; }
 
-        foreach (const i; 0 .. depth)
-        {
-            write('-');
-        }
+        foreach (const i; 0 .. depth) { write('-'); } // prefix
         if (subIx != uint.max)
         {
             import std.string : format;

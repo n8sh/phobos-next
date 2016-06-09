@@ -1129,6 +1129,7 @@ private struct RawRadixTree(Value,
 
         Node insertNew(Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            assert(hasVariableKeyLength || key.length + superPrefixLength == fixedKeyLength);
             switch (key.length)
             {
             case 1:
@@ -1173,7 +1174,8 @@ private struct RawRadixTree(Value,
         /** Insert `key` into sub-tree under root `curr`. */
         pragma(inline) Node insertAt(Node curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
-            if (willFail) { dln("Will fail, key:", key, " curr:", curr, " currPrefix:", getPrefix(curr)); }
+            assert(hasVariableKeyLength || key.length + superPrefixLength == fixedKeyLength);
+            if (willFail) { dln("Will fail, key:", key, " curr:", curr); }
             if (!curr)          // if no existing `Node` to insert at
             {
                 curr = insertNew(key, superPrefixLength, wasAdded);
@@ -1199,6 +1201,7 @@ private struct RawRadixTree(Value,
 
         Node insertAtBranch(Node curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            assert(hasVariableKeyLength || key.length + superPrefixLength == fixedKeyLength);
             if (willFail) { dln("Will fail, key:", key, " curr:", curr, " currPrefix:", getPrefix(curr)); }
 
             import std.algorithm : commonPrefix;
@@ -1284,6 +1287,7 @@ private struct RawRadixTree(Value,
 
         Node insertAt(OneLf6 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            assert(hasVariableKeyLength || key.length + superPrefixLength == fixedKeyLength);
             import std.algorithm : commonPrefix;
 
             if (key.length == 0)
@@ -1325,6 +1329,7 @@ private struct RawRadixTree(Value,
 
         Node insertAt(TwoLf3 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            assert(hasVariableKeyLength || key.length + superPrefixLength == fixedKeyLength);
             if (curr.keyLength == key.length)
             {
                 if (curr.contains(key)) { return Node(curr); }
@@ -1356,6 +1361,7 @@ private struct RawRadixTree(Value,
 
         Node insertAt(TriLf2 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            assert(hasVariableKeyLength || key.length + superPrefixLength == fixedKeyLength);
             if (curr.keyLength == key.length)
             {
                 if (curr.contains(key)) { return Node(curr); }
@@ -1388,6 +1394,7 @@ private struct RawRadixTree(Value,
 
         Node insertAt(SixLf1 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            assert(hasVariableKeyLength || key.length + superPrefixLength == fixedKeyLength);
             static assert(curr.keyLength == 1);
             if (curr.keyLength == key.length)
             {
@@ -1621,6 +1628,11 @@ private struct RawRadixTree(Value,
     {
         return (fixedKeyLength !=
                 fixedKeyLengthUndefined);
+    }
+    /** Returns: `true` if keys in tree may be of variable length/size, `false` otherwise. */
+    bool hasVariableKeyLength() const @safe pure nothrow @nogc
+    {
+        return !hasFixedKeyLength;
     }
 
     /// Returns: number of nodes used in `this` tree. Should always equal `Stats.heapNodeCount`.

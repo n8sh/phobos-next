@@ -1051,7 +1051,7 @@ private struct RawRadixTree(Value,
         /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
         pragma(inline) bool containsAt(Node curr, Key!span key)
         {
-            if (key == [57, 1, 1, 255]) { dln("Will fail, key:", key, " curr:", curr); }
+            if (willFail) { dln("Will fail, key:", key, " curr:", curr); }
             import std.algorithm : skipOver;
             final switch (curr.typeIx) with (Node.Ix)
             {
@@ -1060,7 +1060,10 @@ private struct RawRadixTree(Value,
             case ix_TwoLf3: return curr.as!(TwoLf3).contains(key);
             case ix_TriLf2: return curr.as!(TriLf2).contains(key);
             case ix_SixLf1: return curr.as!(SixLf1).contains(key);
-            case ix_FullLf1Ptr: return curr.as!(FullLf1*).contains(key);
+            case ix_FullLf1Ptr:
+                auto curr_ = curr.as!(FullLf1*);
+                if (willFail) { dln("Will fail, key:", key, " curr:", *curr_, " currPrefix:", curr_.prefix[]); }
+                return curr_.contains(key);
             case ix_LinBr4Ptr:
                 auto curr_ = curr.as!(LinBr4*);
                 return (key.skipOver(curr_.prefix) &&
@@ -1146,6 +1149,7 @@ private struct RawRadixTree(Value,
                 else if (key.length <= FullLf1.maxPrefixLength) // only if FullLf1.maxPrefixLength > OneLf6.maxLength
                 {
                     wasAdded = true;
+                    debug if (willFail) { dln("prefix:", key[0 .. $ - 1]); }
                     return Node(construct!(FullLf1*)(key[0 .. $ - 1], false, key[$ - 1]));
                 }
                 else                // key doesn't fit in a `OneLf6`
@@ -1169,7 +1173,7 @@ private struct RawRadixTree(Value,
         /** Insert `key` into sub-tree under root `curr`. */
         pragma(inline) Node insertAt(Node curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
-            if (key == [57, 1, 1, 255]) { dln("Will fail, key:", key, " curr:", curr); }
+            if (willFail) { dln("Will fail, key:", key, " curr:", curr, " currPrefix:", getPrefix(curr)); }
             if (!curr)          // if no existing `Node` to insert at
             {
                 curr = insertNew(key, superPrefixLength, wasAdded);
@@ -1195,6 +1199,8 @@ private struct RawRadixTree(Value,
 
         Node insertAtBranch(Node curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            if (willFail) { dln("Will fail, key:", key, " curr:", curr, " currPrefix:", getPrefix(curr)); }
+
             import std.algorithm : commonPrefix;
             auto currPrefix = getPrefix(curr);
             auto matchedKeyPrefix = commonPrefix(key, currPrefix);
@@ -1204,10 +1210,12 @@ private struct RawRadixTree(Value,
             {
                 if (currPrefix.length == 0) // no current prefix
                 {
+                    if (willFail) { debug try { dln(); } catch (Exception e) {} }
                     // continue below
                 }
                 else
                 {
+                    if (willFail) { debug try { dln(); } catch (Exception e) {} }
                     const subIx = currPrefix[0]; // subIx = 'a'
                     setPrefix(curr, currPrefix[1 .. $].to!(typeof(DefaultBr.prefix))); // new prefix becomes "b"
                     return insertAt(Node(construct!(DefaultBr)(Ix[].init, false, subIx, curr)),
@@ -1220,6 +1228,7 @@ private struct RawRadixTree(Value,
             {
                 if (matchedKeyPrefix.length == currPrefix.length)
                 {
+                    if (willFail) { debug try { dln(); } catch (Exception e) {} }
                     // most probable: key is an extension of prefix: prefix:"ab", key:"abcd"
                     key = key[matchedKeyPrefix.length .. $]; // strip `currPrefix from beginning of `key`
                     superPrefixLength += matchedKeyPrefix.length;
@@ -1227,6 +1236,7 @@ private struct RawRadixTree(Value,
                 }
                 else
                 {
+                    if (willFail) { debug try { dln(); } catch (Exception e) {} }
                     // prefix and key share beginning: prefix:"ab11", key:"ab22"
                     const subIx = currPrefix[matchedKeyPrefix.length]; // need index first
                     setPrefix(curr, currPrefix[matchedKeyPrefix.length + 1 .. $]); // drop matchedKeyPrefix plus index to next super branch
@@ -1240,6 +1250,7 @@ private struct RawRadixTree(Value,
             {
                 if (matchedKeyPrefix.length < currPrefix.length)
                 {
+                    if (willFail) { debug try { dln(); } catch (Exception e) {} }
                     // prefix is an extension of key: prefix:"abcd", key:"ab"
                     const subIx = currPrefix[matchedKeyPrefix.length]; // need index first
                     setPrefix(curr, currPrefix[matchedKeyPrefix.length + 1 .. $]); // drop matchedKeyPrefix plus index
@@ -1248,6 +1259,7 @@ private struct RawRadixTree(Value,
                 }
                 else
                 {
+                    if (willFail) { debug try { dln(); } catch (Exception e) {} }
                     // prefix equals key: prefix:"ab", key:"ab"
                     if (!isKey(curr))
                     {
@@ -1260,8 +1272,11 @@ private struct RawRadixTree(Value,
 
             assert(key.length != 0);
             const ix = key[0];
+            if (willFail) { debug try { dln("ix:", ix); } catch (Exception e) {} }
+            Node subNode = getSub(curr, ix);
+            if (willFail) { debug try { dln("subNode:", subNode); } catch (Exception e) {} }
             return setSub(curr, ix,
-                          insertAt(getSub(curr, ix), // recurse
+                          insertAt(subNode, // recurse
                                    key[1 .. $],
                                    superPrefixLength + 1,
                                    wasAdded));
@@ -1293,9 +1308,10 @@ private struct RawRadixTree(Value,
                     case 1: next = construct!(TriLf2)(curr.key, key); break;
                     case 2: next = construct!(TwoLf3)(curr.key, key); break;
                     default:
+                        if (willFail) { dln("prefix:", matchedKeyPrefix); }
                         next = construct!(FullLf1*)(matchedKeyPrefix, false,
-                                                 curr.key[$ - 1],
-                                                 key[$ - 1]);
+                                                    curr.key[$ - 1],
+                                                    key[$ - 1]);
                         break;
                     }
                     wasAdded = true;
@@ -1323,6 +1339,7 @@ private struct RawRadixTree(Value,
                     curr.keys[0][0 .. PL] == curr.keys[1][0 .. PL])
                 {
                     auto prefix = curr.keys[0][0 .. PL];
+                    if (willFail) { dln("prefix:", prefix); }
                     auto next = construct!(FullLf1*)(prefix, false);
                     foreach (const currKey; curr.keys)
                     {
@@ -1353,6 +1370,7 @@ private struct RawRadixTree(Value,
                     curr.keys[1][0] == curr.keys[2][0]) // if curr and key have common prefix of length 1
                 {
                     auto prefix = curr.keys[0][0 .. 1];
+                    if (willFail) { dln("prefix:", prefix); }
                     auto next = construct!(FullLf1*)(prefix, false);
                     foreach (const currKey; curr.keys)
                     {
@@ -1381,6 +1399,7 @@ private struct RawRadixTree(Value,
                     return Node(curr);
                 }
 
+                if (willFail) { dln("prefix empty"); }
                 auto next = construct!(FullLf1*)(Ix[].init, false);
                 foreach (const currKey; curr.keys)
                 {
@@ -1415,6 +1434,7 @@ private struct RawRadixTree(Value,
                     }
                     else
                     {
+                        if (willFail) { dln("prefix:", prefix); }
                         next = construct!(FullLf1*)(prefix, false);
                     }
                     break;
@@ -1483,6 +1503,7 @@ private struct RawRadixTree(Value,
         /** Destructively expand `curr` making room for `nextKey` and return it. */
         Node expandToUnbalanced(SixLf1 curr, size_t superPrefixLength)
         {
+            if (willFail) { dln("prefix empty"); }
             auto next = construct!(FullLf1*);
             foreach (const ixM; curr.keys)
             {
@@ -1595,11 +1616,8 @@ private struct RawRadixTree(Value,
         }
     }
 
-    /** Get fixed length of keys, or `size_t.max` if key length is variable. */
-    size_t keyLength() const @safe pure nothrow @nogc { return _keyLength; }
-
     /** Returns: `true` if all keys are of fixed size, `false` otherwise. */
-    bool hasFixedKeyLength() const @safe pure nothrow @nogc { return keyLength != size_t.max; }
+    bool hasFixedKeyLength() const @safe pure nothrow @nogc { return fixedKeyLength != fixedKeyLengthUndefined; }
 
     /// Returns: number of nodes used in `this` tree. Should always equal `Stats.heapNodeCount`.
     pragma(inline) debug size_t heapNodeAllocationBalance() @safe pure nothrow /* TODO @nogc */
@@ -1703,10 +1721,14 @@ private struct RawRadixTree(Value,
     private:
     Node _root;                 ///< tree root node
     size_t _length = 0; ///< number of elements (keys or key-value-pairs) currently stored under `_root`
-    immutable _keyLength = size_t.max; ///< maximum length of key
+    immutable fixedKeyLength = fixedKeyLengthUndefined; ///< maximum length of key if fixed, otherwise 0
+    enum fixedKeyLengthUndefined = 0;
+
+    // debug stuff
     debug long _heapNodeAllocationBalance = 0;
     debug size_t[string] nodeCountsByIx;
-    debug bool memoryLeakingKey;
+    debug bool willFail;
+
 }
 
 /** Append statistics of tree under `Node` `sub.` into `stats`.
@@ -1791,7 +1813,7 @@ struct RadixTree(TypedKey, Value, uint span = 8)
 {
     this(bool unusedDummy)      // TODO how do we get rid of the need for `unusedDummy`?
     {
-        this._keyLength = isFixedTrieableKeyType!TypedKey ? TypedKey.sizeof : size_t.max;
+        this.fixedKeyLength = isFixedTrieableKeyType!TypedKey ? TypedKey.sizeof : fixedKeyLengthUndefined;
     }
 
     /** Insert `key`.
@@ -2016,6 +2038,8 @@ auto check(uint span, Keys...)()
                         assert(!set.contains(key)); // key should not yet be in set
                         assert(key !in set);        // alternative syntax
                     }
+
+                    debug if (key == -32639) { set.willFail = true; }
 
                     assert(set.insert(key));  // insert new value returns `true` (previously not in set)
                     if (useContains)

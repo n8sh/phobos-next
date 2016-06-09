@@ -1045,13 +1045,13 @@ private struct RawRadixTree(Value,
         /** Returns: `true` if `key` is stored, `false` otherwise. */
         pragma(inline) bool contains(Key!span key)
         {
-            if (key == [57, 1, 1, 255]) { dln("Will fail!"); }
             return containsAt(_root, key);
         }
 
         /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
         pragma(inline) bool containsAt(Node curr, Key!span key)
         {
+            if (key == [57, 1, 1, 255]) { dln("Will fail, key:", key, " curr:", curr); }
             import std.algorithm : skipOver;
             final switch (curr.typeIx) with (Node.Ix)
             {

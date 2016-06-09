@@ -1276,13 +1276,17 @@ private struct RawRadixTree(Value,
             assert(key.length != 0);
             const ix = key[0];
             if (willFail) { debug try { dln("ix:", ix); } catch (Exception e) {} }
-            Node subNode = getSub(curr, ix);
-            if (willFail) { debug try { dln("subNode:", subNode); } catch (Exception e) {} }
-            return setSub(curr, ix,
-                          insertAt(subNode, // recurse
-                                   key[1 .. $],
-                                   superPrefixLength + 1,
-                                   wasAdded));
+
+            Node currSubNode = getSub(curr, ix);
+            if (willFail) { debug try { dln("currSubNode:", currSubNode); } catch (Exception e) {} }
+
+            Node nextSubNode = insertAt(currSubNode, // recurse
+                                        key[1 .. $],
+                                        superPrefixLength + 1,
+                                        wasAdded);
+            if (willFail) { debug try { dln("nextSubNode:", nextSubNode); } catch (Exception e) {} }
+
+            return setSub(curr, ix, nextSubNode);
         }
 
         Node insertAt(OneLf6 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)

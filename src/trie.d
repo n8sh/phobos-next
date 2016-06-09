@@ -1617,7 +1617,10 @@ private struct RawRadixTree(Value,
     }
 
     /** Returns: `true` if all keys are of fixed size, `false` otherwise. */
-    bool hasFixedKeyLength() const @safe pure nothrow @nogc { return fixedKeyLength != fixedKeyLengthUndefined; }
+    bool hasFixedKeyLength() const @safe pure nothrow @nogc
+    {
+        return fixedKeyLength != fixedKeyLengthUndefined;
+    }
 
     /// Returns: number of nodes used in `this` tree. Should always equal `Stats.heapNodeCount`.
     pragma(inline) debug size_t heapNodeAllocationBalance() @safe pure nothrow /* TODO @nogc */

@@ -3,6 +3,8 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO Make `Key` array of `immutable Ix` like `string`
+
     TODO Allow NodeType-constructors to take const and immutable prefixes
 
     TODO Check for case when expanding to bit-branch instead of PBr4 in all `expand()` overloads
@@ -1040,7 +1042,7 @@ private struct RawRadixTree(Value,
         /** Returns: `true` if `key` is stored, `false` otherwise. */
         pragma(inline) bool contains(Key!span key)
         {
-            // dln("contains key=", key);
+            dln("contains key=", key);
             return containsAt(_root, key);
         }
 

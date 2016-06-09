@@ -1616,7 +1616,7 @@ private struct RawRadixTree(Value,
         }
     }
 
-    /** Returns: `true` if all keys are of fixed size, `false` otherwise. */
+    /** Returns: `true` if all keys in tree are of fixed length/size, `false` otherwise. */
     bool hasFixedKeyLength() const @safe pure nothrow @nogc
     {
         return (fixedKeyLength !=

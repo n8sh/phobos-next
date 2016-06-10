@@ -1389,6 +1389,7 @@ private struct RawRadixTree(Value,
 
         Node insertAt(TwoLf3 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            assert(hasVariableKeyLength || curr.keyLength == key.length);
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
             assert(superPrefixLength + key.length == fixedKeyLength);
@@ -1424,6 +1425,7 @@ private struct RawRadixTree(Value,
 
         Node insertAt(TriLf2 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            assert(hasVariableKeyLength || curr.keyLength == key.length);
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
             if (willFail) { dln("Will fail, key:", key, " curr:", curr, " superPrefixLength:", superPrefixLength); }
@@ -1458,8 +1460,8 @@ private struct RawRadixTree(Value,
 
         Node insertAt(SixLf1 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
-            assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
             assert(hasVariableKeyLength || curr.keyLength == key.length);
+            assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
             if (willFail) { dln("Will fail, key:", key, " curr:", curr, " superPrefixLength:", superPrefixLength); }
             if (curr.keyLength == key.length)
@@ -1491,6 +1493,7 @@ private struct RawRadixTree(Value,
         /** Split `curr` using `prefix`. */
         Node split(OneLf6 curr, Key!span prefix, Key!span key, size_t superPrefixLength) // TODO key here is a bit malplaced
         {
+            assert(hasVariableKeyLength || curr.key.length == key.length);
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
             Node next;

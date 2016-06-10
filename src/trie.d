@@ -1459,6 +1459,7 @@ private struct RawRadixTree(Value,
         Node insertAt(SixLf1 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
+            assert(hasVariableKeyLength || curr.keyLength == key.length);
 
             if (willFail) { dln("Will fail, key:", key, " curr:", curr, " superPrefixLength:", superPrefixLength); }
             if (curr.keyLength == key.length)

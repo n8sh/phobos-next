@@ -1380,7 +1380,7 @@ private struct RawRadixTree(Value,
                     return Node(next);
                 }
             }
-            return insertAt(expandToUnbalanced(curr, superPrefixLength), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
+            return insertAt(expand(curr, superPrefixLength), key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
         }
 
         Node insertAt(TriLf2 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
@@ -1411,7 +1411,7 @@ private struct RawRadixTree(Value,
                     return Node(next);
                 }
             }
-            return insertAt(expandToUnbalanced(curr, superPrefixLength),
+            return insertAt(expand(curr, superPrefixLength),
                             key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
         }
 
@@ -1440,7 +1440,7 @@ private struct RawRadixTree(Value,
                 return Node(next);
             }
             if (willFail) { dln("curr:", curr, " key:", key, " superPrefixLength:", superPrefixLength); }
-            return insertAt(expandToUnbalanced(curr, superPrefixLength),
+            return insertAt(expand(curr, superPrefixLength),
                             key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
         }
 
@@ -1491,7 +1491,7 @@ private struct RawRadixTree(Value,
         }
 
         /** Destructively expand `curr` and return it. */
-        Node expandToUnbalanced(TwoLf3 curr, size_t superPrefixLength)
+        Node expand(TwoLf3 curr, size_t superPrefixLength)
         {
             auto currPrefix = curr.prefix;
             if (willFail) { dln("Will fail, curr:", curr, " superPrefixLength:", superPrefixLength, " prefix:", currPrefix); }
@@ -1503,7 +1503,7 @@ private struct RawRadixTree(Value,
                 bool wasAddedCurr;
                 next = insertAtBranch(next,
                                       key[currPrefix.length .. $],
-                                      superPrefixLength + currPrefix.length,
+                                      superPrefixLength,
                                       wasAddedCurr);
                 assert(wasAddedCurr);
             }
@@ -1512,7 +1512,7 @@ private struct RawRadixTree(Value,
         }
 
         /** Destructively expand `curr` and return it. */
-        Node expandToUnbalanced(TriLf2 curr, size_t superPrefixLength)
+        Node expand(TriLf2 curr, size_t superPrefixLength)
         {
             auto currPrefix = curr.prefix;
             Node next = construct!(DefaultBr)(currPrefix);
@@ -1523,7 +1523,7 @@ private struct RawRadixTree(Value,
                 bool wasAddedCurr;
                 next = insertAtBranch(next,
                                       key[currPrefix.length .. $],
-                                      superPrefixLength + currPrefix.length,
+                                      superPrefixLength,
                                       wasAddedCurr);
                 assert(wasAddedCurr);
             }
@@ -1532,7 +1532,7 @@ private struct RawRadixTree(Value,
         }
 
         /** Destructively expand `curr` making room for `nextKey` and return it. */
-        Node expandToUnbalanced(SixLf1 curr, size_t superPrefixLength)
+        Node expand(SixLf1 curr, size_t superPrefixLength)
         {
             auto next = construct!(FullLf1*);
             foreach (const ixM; curr.keys)

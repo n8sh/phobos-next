@@ -200,6 +200,18 @@ struct IxsN(size_t maxLength,
         return this;
     }
 
+    auto ref popFrontN(size_t n)
+    {
+        assert(length >= n);
+        // TODO is there a reusable Phobos function for this?
+        foreach (const i; 0 .. _length - n)
+        {
+            _ixs[i] = _ixs[i + n]; // TODO move construct?
+        }
+        _length = _length - n;
+        return this;
+    }
+
     auto ref popBack()
     {
         assert(!empty);
@@ -1024,6 +1036,19 @@ private struct RawRadixTree(Value,
         }
     }
 
+    /** Pop `n`  from prefix. */
+    void popFrontNPrefix(Node curr, size_t n) @safe pure nothrow
+    {
+        switch (curr.typeIx)
+        {
+        case Node.Ix.ix_FullLf1Ptr: curr.as!(FullLf1*).prefix.popFrontN(n); break;
+        case Node.Ix.ix_LinBr4Ptr: curr.as!(LinBr4*).prefix.popFrontN(n); break;
+        case Node.Ix.ix_FullBrMPtr: curr.as!(FullBrM*).prefix.popFrontN(n); break;
+            // TODO extend to leaves aswell?
+        default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
+        }
+    }
+
     Stats usageHistograms() const
     {
         typeof(return) stats;
@@ -1241,7 +1266,7 @@ private struct RawRadixTree(Value,
                 {
                     if (willFail) { dln("curr:", curr); }
                     const subIx = currPrefix[0]; // subIx = 'a'
-                    setPrefix(curr, currPrefix[1 .. $]); // new prefix becomes "b"
+                    popFrontNPrefix(curr, 1);
                     return insertAt(Node(construct!(DefaultBr)(Ix[].init, false, subIx, curr)),
                                     key,
                                     superPrefixLength,
@@ -1263,7 +1288,7 @@ private struct RawRadixTree(Value,
                     if (willFail) { dln("curr:", curr, " superPrefixLength:", superPrefixLength, " matchedKeyPrefix:", matchedKeyPrefix); }
                     // prefix and key share beginning: prefix:"ab11", key:"ab22"
                     const subIx = currPrefix[matchedKeyPrefix.length]; // need index first
-                    setPrefix(curr, currPrefix[matchedKeyPrefix.length + 1 .. $]); // drop matchedKeyPrefix plus index to next super branch
+                    popFrontNPrefix(curr, matchedKeyPrefix.length + 1); // drop matchedKeyPrefix plus index to next super branch
                     curr = Node(construct!(DefaultBr)(matchedKeyPrefix, false, // key is not occupied
                                                       subIx, curr));
                     key = key[matchedKeyPrefix.length .. $]; // skip matchedKeyPrefix from key
@@ -1277,7 +1302,7 @@ private struct RawRadixTree(Value,
                     if (willFail) { dln("curr:", curr, " superPrefixLength:", superPrefixLength, " matchedKeyPrefix:", matchedKeyPrefix); }
                     // prefix is an extension of key: prefix:"abcd", key:"ab"
                     const subIx = currPrefix[matchedKeyPrefix.length]; // need index first
-                    setPrefix(curr, currPrefix[matchedKeyPrefix.length + 1 .. $]); // drop matchedKeyPrefix plus index
+                    popFrontNPrefix(curr, matchedKeyPrefix.length + 1); // drop matchedKeyPrefix plus index to next super branch
                     return Node(construct!(DefaultBr)(matchedKeyPrefix, true, // `true` because `key` occupies this node
                                                       subIx, curr));
                 }

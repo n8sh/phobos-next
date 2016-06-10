@@ -1370,9 +1370,7 @@ private struct RawRadixTree(Value,
                 if (curr.keys[0][0 .. PL] ==          key[0 .. PL] &&
                     curr.keys[0][0 .. PL] == curr.keys[1][0 .. PL]) // if curr and key can be packed into a FullLf1
                 {
-                    auto matchedKeyPrefix = curr.keys[0][0 .. PL];
-                    if (willFail) { dln("matchedKeyPrefix:", matchedKeyPrefix); }
-                    auto next = construct!(FullLf1*)(matchedKeyPrefix, false);
+                    auto next = construct!(FullLf1*)(key[0 .. PL], false);
                     foreach (const currKey; curr.keys)
                     {
                         next._keyBits[currKey[PL]] = true;

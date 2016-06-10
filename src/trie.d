@@ -1524,7 +1524,7 @@ private struct RawRadixTree(Value,
         /** Destructively expand `curr` and return it. */
         Node expand(TwoLf3 curr, size_t superPrefixLength)
         {
-            assert(superPrefixLength + 3 == fixedKeyLength);
+            assert(hasVariableKeyLength || superPrefixLength + 3 == fixedKeyLength);
             auto currPrefix = curr.prefix;
             if (willFail) { dln("Will fail, curr:", curr, " superPrefixLength:", superPrefixLength, " prefix:", currPrefix); }
 

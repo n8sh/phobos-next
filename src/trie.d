@@ -1573,7 +1573,7 @@ private struct RawRadixTree(Value,
                 bool wasAddedCurr;
                 next = insertAtBranch(next,
                                       key[currPrefix.length .. $],
-                                      superPrefixLength,
+                                      superPrefixLength + currPrefix.length,
                                       wasAddedCurr);
                 assert(wasAddedCurr);
             }

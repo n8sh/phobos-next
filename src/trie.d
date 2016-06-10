@@ -1364,9 +1364,8 @@ private struct RawRadixTree(Value,
                     return Node(curr);
                 }
 
-                enum PL = curr.keyLength - 1;    // searched prefix length
-
                 // TODO Use variadic commonPrefix(curr.keys[0], curr.keys[1], key)
+                enum PL = curr.keyLength - 1;    // searched prefix length
                 if (curr.keys[0][0 .. PL] ==          key[0 .. PL] &&
                     curr.keys[0][0 .. PL] == curr.keys[1][0 .. PL]) // if `curr` and `key` can be combined into a `FullLf1`
                 {

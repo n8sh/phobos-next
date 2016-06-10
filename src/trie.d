@@ -1394,13 +1394,12 @@ private struct RawRadixTree(Value,
                     wasAdded = true;
                     return Node(curr);
                 }
+
                 if (curr.keys[0][0] ==          key[0] &&
                     curr.keys[0][0] == curr.keys[1][0] &&
-                    curr.keys[1][0] == curr.keys[2][0]) // if curr and key have common prefix of length 1
+                    curr.keys[1][0] == curr.keys[2][0]) // if `curr` and `key` can be combined into a `FullLf1`
                 {
-                    auto matchedKeyPrefix = curr.keys[0][0 .. 1];
-                    if (willFail) { dln("matchedKeyPrefix:", matchedKeyPrefix); }
-                    auto next = construct!(FullLf1*)(matchedKeyPrefix, false);
+                    auto next = construct!(FullLf1*)(key[0 .. 1], false);
                     foreach (const currKey; curr.keys)
                     {
                         next._keyBits[currKey[1]] = true;

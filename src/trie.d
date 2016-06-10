@@ -1241,7 +1241,7 @@ private struct RawRadixTree(Value,
                 {
                     if (willFail) { dln("curr:", curr); }
                     const subIx = currPrefix[0]; // subIx = 'a'
-                    setPrefix(curr, currPrefix[1 .. $].to!(typeof(DefaultBr.prefix))); // new prefix becomes "b"
+                    setPrefix(curr, currPrefix[1 .. $]); // new prefix becomes "b"
                     return insertAt(Node(construct!(DefaultBr)(Ix[].init, false, subIx, curr)),
                                     key,
                                     superPrefixLength,
@@ -1305,7 +1305,11 @@ private struct RawRadixTree(Value,
                                         key[1 .. $],
                                         getPrefix(curr).length + 1,
                                         wasAdded);
-            if (willFail) { debug try { dln("nextSubNode:", nextSubNode); } catch (Exception e) {} }
+            if (willFail) { debug try { dln(" superPrefixLength:", superPrefixLength,
+                                            " curr:", curr,
+                                            " getPrefix:", getPrefix(curr),
+                                            " ix:", ix,
+                                            " nextSubNode:", nextSubNode); } catch (Exception e) {} }
 
             return setSub(curr, ix, nextSubNode, superPrefixLength);
         }
@@ -1353,6 +1357,7 @@ private struct RawRadixTree(Value,
 
         Node insertAt(TwoLf3 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            assert(superPrefixLength + key.length == fixedKeyLength);
             if (willFail) { dln("Will fail, key:", key, " curr:", curr, " superPrefixLength:", superPrefixLength); }
             if (curr.keyLength == key.length)
             {

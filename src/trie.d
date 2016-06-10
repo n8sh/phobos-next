@@ -2129,7 +2129,7 @@ auto check(uint span, Keys...)()
                         assert(key !in set);        // alternative syntax
                     }
 
-                    debug if (key == -32765) { set.willFail = true; }
+                    debug set.willFail = (key == -32765);
 
                     assert(set.insert(key));  // insert new value returns `true` (previously not in set)
                     if (useContains)

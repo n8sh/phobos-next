@@ -842,6 +842,18 @@ private struct RawRadixTree(Value,
     /** Set sub-`Node` of branch `Node curr` at index `ix` to `subNode`. */
     pragma(inline) Node setSub(Node curr, Ix subIx, Node subNode, size_t superPrefixLength)
     {
+        debug if ((curr.peek!(FullBrM*) ||
+                   curr.peek!(LinBr4*)) &&
+                  subNode.peek!(SixLf1))
+        {
+            if (!(hasVariableKeyLength || superPrefixLength + 2 == fixedKeyLength))
+            {
+                dln(curr);
+                dln(superPrefixLength);
+                dln(fixedKeyLength);
+            }
+            assert(hasVariableKeyLength || superPrefixLength + 2 == fixedKeyLength);
+        }
         switch (curr.typeIx)
         {
         case Node.Ix.ix_FullLf1Ptr: return setSub(curr.as!(FullLf1*), subIx, subNode);
@@ -1220,12 +1232,12 @@ private struct RawRadixTree(Value,
             {
                 if (currPrefix.length == 0) // no current prefix
                 {
-                    if (willFail) { debug try { dln(); } catch (Exception e) {} }
+                    if (willFail) { dln("curr:", curr); }
                     // continue below
                 }
                 else
                 {
-                    if (willFail) { debug try { dln(); } catch (Exception e) {} }
+                    if (willFail) { dln("curr:", curr); }
                     const subIx = currPrefix[0]; // subIx = 'a'
                     setPrefix(curr, currPrefix[1 .. $].to!(typeof(DefaultBr.prefix))); // new prefix becomes "b"
                     return insertAt(Node(construct!(DefaultBr)(Ix[].init, false, subIx, curr)),
@@ -1238,7 +1250,7 @@ private struct RawRadixTree(Value,
             {
                 if (matchedKeyPrefix.length == currPrefix.length)
                 {
-                    if (willFail) { debug try { dln(); } catch (Exception e) {} }
+                    if (willFail) { dln("curr:", curr, " superPrefixLength:", superPrefixLength, " matchedKeyPrefix:", matchedKeyPrefix); }
                     // most probable: key is an extension of prefix: prefix:"ab", key:"abcd"
                     key = key[matchedKeyPrefix.length .. $]; // strip `currPrefix from beginning of `key`
                     superPrefixLength += matchedKeyPrefix.length;
@@ -1246,20 +1258,21 @@ private struct RawRadixTree(Value,
                 }
                 else
                 {
-                    if (willFail) { debug try { dln(); } catch (Exception e) {} }
+                    if (willFail) { dln("curr:", curr, " superPrefixLength:", superPrefixLength, " matchedKeyPrefix:", matchedKeyPrefix); }
                     // prefix and key share beginning: prefix:"ab11", key:"ab22"
                     const subIx = currPrefix[matchedKeyPrefix.length]; // need index first
                     setPrefix(curr, currPrefix[matchedKeyPrefix.length + 1 .. $]); // drop matchedKeyPrefix plus index to next super branch
                     curr = Node(construct!(DefaultBr)(matchedKeyPrefix, false, // key is not occupied
                                                       subIx, curr));
                     key = key[matchedKeyPrefix.length .. $]; // skip matchedKeyPrefix from key
+                    superPrefixLength += matchedKeyPrefix.length;
                 }
             }
             else
             {
                 if (matchedKeyPrefix.length < currPrefix.length)
                 {
-                    if (willFail) { debug try { dln(); } catch (Exception e) {} }
+                    if (willFail) { dln("curr:", curr, " superPrefixLength:", superPrefixLength, " matchedKeyPrefix:", matchedKeyPrefix); }
                     // prefix is an extension of key: prefix:"abcd", key:"ab"
                     const subIx = currPrefix[matchedKeyPrefix.length]; // need index first
                     setPrefix(curr, currPrefix[matchedKeyPrefix.length + 1 .. $]); // drop matchedKeyPrefix plus index
@@ -1268,7 +1281,7 @@ private struct RawRadixTree(Value,
                 }
                 else
                 {
-                    if (willFail) { debug try { dln(); } catch (Exception e) {} }
+                    if (willFail) { dln("curr:", curr, " superPrefixLength:", superPrefixLength, " matchedKeyPrefix:", matchedKeyPrefix); }
                     // prefix equals key: prefix:"ab", key:"ab"
                     if (!isKey(curr))
                     {
@@ -1288,7 +1301,7 @@ private struct RawRadixTree(Value,
 
             Node nextSubNode = insertAt(currSubNode, // recurse
                                         key[1 .. $],
-                                        superPrefixLength + getPrefix(curr).length + 1,
+                                        getPrefix(curr).length + 1,
                                         wasAdded);
             if (willFail) { debug try { dln("nextSubNode:", nextSubNode); } catch (Exception e) {} }
 
@@ -2059,7 +2072,7 @@ auto check(uint span, Keys...)()
                         assert(key !in set);        // alternative syntax
                     }
 
-                    debug if (key == -32639) { set.willFail = true; }
+                    debug if (key == -32765) { set.willFail = true; }
 
                     assert(set.insert(key));  // insert new value returns `true` (previously not in set)
                     if (useContains)

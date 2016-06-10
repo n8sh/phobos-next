@@ -418,7 +418,6 @@ unittest
 
 /** Is $(D ElementType) of type of $(D a). */
 alias ElementTypeOf(alias a) = ElementType!(typeof(a));
-alias elTypeOf = ElementTypeOf;
 ///
 unittest
 {

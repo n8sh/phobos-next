@@ -3,6 +3,8 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO Add and use IxsN.at(ix) and use inplace of IxsN.opIndex
+
     TODO Make `Key` array of `immutable Ix` like `string`
 
     TODO Allow NodeType-constructors to take const and immutable prefixes
@@ -1351,6 +1353,7 @@ private struct RawRadixTree(Value,
 
         Node insertAt(TwoLf3 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            if (willFail) { dln("Will fail, key:", key, " curr:", curr, " superPrefixLength:", superPrefixLength); }
             if (curr.keyLength == key.length)
             {
                 if (curr.contains(key)) { return Node(curr); }
@@ -1360,9 +1363,12 @@ private struct RawRadixTree(Value,
                     wasAdded = true;
                     return Node(curr);
                 }
+
                 enum PL = curr.keyLength - 1;    // searched prefix length
+
+                // TODO Use variadic commonPrefix(curr.keys[0], curr.keys[1], key)
                 if (curr.keys[0][0 .. PL] ==          key[0 .. PL] &&
-                    curr.keys[0][0 .. PL] == curr.keys[1][0 .. PL])
+                    curr.keys[0][0 .. PL] == curr.keys[1][0 .. PL]) // if curr and key can be packed into a FullLf1
                 {
                     auto matchedKeyPrefix = curr.keys[0][0 .. PL];
                     if (willFail) { dln("matchedKeyPrefix:", matchedKeyPrefix); }

@@ -1151,7 +1151,9 @@ private struct RawRadixTree(Value,
                 {
                     wasAdded = true;
                     debug if (willFail) { dln("prefix:", key[0 .. $ - 1]); }
-                    return Node(construct!(FullLf1*)(key[0 .. $ - 1], false, key[$ - 1]));
+                    auto prefix = key[0 .. $ - 1];
+                    assert(hasVariableKeyLength || superPrefixLength + prefix.length + 1 == fixedKeyLength);
+                    return Node(construct!(FullLf1*)(prefix, false, key[$ - 1]));
                 }
                 else                // key doesn't fit in a `OneLf6`
                 {
@@ -1316,7 +1318,8 @@ private struct RawRadixTree(Value,
                     case 1: next = construct!(TriLf2)(curr.key, key); break;
                     case 2: next = construct!(TwoLf3)(curr.key, key); break;
                     default:
-                        if (willFail) { dln("prefix:", matchedKeyPrefix); }
+                        if (willFail) { dln("matchedKeyPrefix:", matchedKeyPrefix); }
+                        assert(hasVariableKeyLength || superPrefixLength + matchedKeyPrefix.length + 1 == fixedKeyLength);
                         next = construct!(FullLf1*)(matchedKeyPrefix, false,
                                                     curr.key[$ - 1],
                                                     key[$ - 1]);
@@ -1327,7 +1330,7 @@ private struct RawRadixTree(Value,
                     return next;
                 }
             }
-            return insertAt(split(curr, matchedKeyPrefix, key),
+            return insertAt(split(curr, matchedKeyPrefix, key, superPrefixLength),
                             key, superPrefixLength, wasAdded);
         }
 
@@ -1347,9 +1350,10 @@ private struct RawRadixTree(Value,
                 if (curr.keys[0][0 .. PL] ==          key[0 .. PL] &&
                     curr.keys[0][0 .. PL] == curr.keys[1][0 .. PL])
                 {
-                    auto prefix = curr.keys[0][0 .. PL];
-                    if (willFail) { dln("prefix:", prefix); }
-                    auto next = construct!(FullLf1*)(prefix, false);
+                    auto matchedKeyPrefix = curr.keys[0][0 .. PL];
+                    if (willFail) { dln("matchedKeyPrefix:", matchedKeyPrefix); }
+                    assert(hasVariableKeyLength || superPrefixLength + matchedKeyPrefix.length + 1 == fixedKeyLength);
+                    auto next = construct!(FullLf1*)(matchedKeyPrefix, false);
                     foreach (const currKey; curr.keys)
                     {
                         next._keyBits[currKey[PL]] = true;
@@ -1379,9 +1383,10 @@ private struct RawRadixTree(Value,
                     curr.keys[0][0] == curr.keys[1][0] &&
                     curr.keys[1][0] == curr.keys[2][0]) // if curr and key have common prefix of length 1
                 {
-                    auto prefix = curr.keys[0][0 .. 1];
-                    if (willFail) { dln("prefix:", prefix); }
-                    auto next = construct!(FullLf1*)(prefix, false);
+                    auto matchedKeyPrefix = curr.keys[0][0 .. 1];
+                    if (willFail) { dln("matchedKeyPrefix:", matchedKeyPrefix); }
+                    assert(hasVariableKeyLength || superPrefixLength + matchedKeyPrefix.length + 1 == fixedKeyLength);
+                    auto next = construct!(FullLf1*)(matchedKeyPrefix, false);
                     foreach (const currKey; curr.keys)
                     {
                         next._keyBits[currKey[1]] = true;
@@ -1411,6 +1416,7 @@ private struct RawRadixTree(Value,
                 }
 
                 if (willFail) { dln("prefix empty"); }
+                assert(hasVariableKeyLength || superPrefixLength + 1 == fixedKeyLength);
                 auto next = construct!(FullLf1*)(Ix[].init, false);
                 foreach (const currKey; curr.keys)
                 {
@@ -1426,7 +1432,7 @@ private struct RawRadixTree(Value,
         }
 
         /** Split `curr` using `prefix`. */
-        Node split(OneLf6 curr, Key!span prefix, Key!span key) // TODO key here is a bit malplaced
+        Node split(OneLf6 curr, Key!span prefix, Key!span key, size_t superPrefixLength) // TODO key here is a bit malplaced
         {
             Node next;
             if (curr.key.length == key.length) // balanced tree possible
@@ -1446,6 +1452,7 @@ private struct RawRadixTree(Value,
                     else
                     {
                         if (willFail) { dln("prefix:", prefix); }
+                        assert(hasVariableKeyLength || superPrefixLength + prefix.length + 1 == fixedKeyLength);
                         next = construct!(FullLf1*)(prefix, false);
                     }
                     break;
@@ -1515,6 +1522,7 @@ private struct RawRadixTree(Value,
         Node expandToUnbalanced(SixLf1 curr, size_t superPrefixLength)
         {
             if (willFail) { dln("prefix empty"); }
+            assert(hasVariableKeyLength || superPrefixLength + 1 == fixedKeyLength);
             auto next = construct!(FullLf1*);
             foreach (const ixM; curr.keys)
             {

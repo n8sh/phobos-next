@@ -1385,6 +1385,7 @@ private struct RawRadixTree(Value,
 
         Node insertAt(TriLf2 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            if (willFail) { dln("Will fail, key:", key, " curr:", curr, " superPrefixLength:", superPrefixLength); }
             if (curr.keyLength == key.length)
             {
                 if (curr.contains(key)) { return Node(curr); }
@@ -1416,6 +1417,7 @@ private struct RawRadixTree(Value,
 
         Node insertAt(SixLf1 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            if (willFail) { dln("Will fail, key:", key, " curr:", curr, " superPrefixLength:", superPrefixLength); }
             if (curr.keyLength == key.length)
             {
                 if (curr.contains(key)) { return Node(curr); }
@@ -1492,6 +1494,7 @@ private struct RawRadixTree(Value,
         Node expandToUnbalanced(TwoLf3 curr, size_t superPrefixLength)
         {
             auto currPrefix = curr.prefix;
+            if (willFail) { dln("Will fail, curr:", curr, " superPrefixLength:", superPrefixLength, " prefix:", currPrefix); }
             Node next = construct!(DefaultBr)(currPrefix);
 
             // TODO functionize:

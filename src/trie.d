@@ -492,7 +492,7 @@ private struct RawRadixTree(Value,
     }
 
     // TODO make these run-time arguments at different key depths and map to statistics of typed-key
-    alias DefaultBr = LinBr4*; // either LinBr4*, FullBrM*
+    alias DefaultBr = FullBrM*; // either LinBr4*, FullBrM*
 
     static if (isSet)
         static assert(SixLf1.sizeof == size_t.sizeof); // assert that it's size matches platform word-size
@@ -756,6 +756,12 @@ private struct RawRadixTree(Value,
         {
             this.prefix = prefix;
             this.isKey = isKey;
+        }
+
+        this(Ix[] prefix, bool isKey, Ix subIx, Node subNode)
+        {
+            this(prefix, isKey);
+            this.subNodes[subIx] = subNode;
         }
 
         this(LinBr4* rhs)
@@ -1177,7 +1183,7 @@ private struct RawRadixTree(Value,
         pragma(inline) Node insertAt(Node curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
             assert(hasVariableKeyLength || key.length + superPrefixLength == fixedKeyLength);
-            if (willFail) { dln("Will fail, key:", key, " curr:", curr); }
+            if (willFail) { dln("Will fail, key:", key, " curr:", curr, " superPrefixLength:", superPrefixLength); }
             if (!curr)          // if no existing `Node` to insert at
             {
                 curr = insertNew(key, superPrefixLength, wasAdded);
@@ -1204,7 +1210,10 @@ private struct RawRadixTree(Value,
         Node insertAtBranch(Node curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
             assert(hasVariableKeyLength || key.length + superPrefixLength == fixedKeyLength);
-            if (willFail) { dln("Will fail, key:", key, " curr:", curr, " currPrefix:", getPrefix(curr)); }
+            if (willFail) { dln("Will fail, key:", key,
+                                " curr:", curr,
+                                " superPrefixLength:", superPrefixLength,
+                                " currPrefix:", getPrefix(curr)); }
 
             import std.algorithm : commonPrefix;
             auto currPrefix = getPrefix(curr);
@@ -1427,6 +1436,7 @@ private struct RawRadixTree(Value,
                 wasAdded = true;
                 return Node(next);
             }
+            if (willFail) { dln("curr:", curr, " key:", key, " superPrefixLength:", superPrefixLength); }
             return insertAt(expandToUnbalanced(curr, superPrefixLength),
                             key, superPrefixLength, wasAdded); // NOTE stay at same (depth)
         }
@@ -1521,7 +1531,6 @@ private struct RawRadixTree(Value,
         /** Destructively expand `curr` making room for `nextKey` and return it. */
         Node expandToUnbalanced(SixLf1 curr, size_t superPrefixLength)
         {
-            if (willFail) { dln("prefix empty"); }
             assert(hasVariableKeyLength || superPrefixLength + 1 == fixedKeyLength);
             auto next = construct!(FullLf1*);
             foreach (const ixM; curr.keys)
@@ -2007,11 +2016,9 @@ unittest
         assert(!set.insert(257));
         assert(set.contains(257));
 
-        const rootRef = set._root.peek!(Set.LinBr4*);
+        const rootRef = set._root.peek!(Set.DefaultBr);
         assert(rootRef);
-
         const root = *rootRef;
-
         assert(root.prefix.length == T.sizeof - 2);
     }
 }

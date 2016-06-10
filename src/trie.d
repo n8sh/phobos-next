@@ -1220,6 +1220,8 @@ private struct RawRadixTree(Value,
         /** Insert `key` into sub-tree under root `curr`. */
         pragma(inline) Node insertAt(Node curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
+
             if (willFail) { dln("Will fail, key:", key, " curr:", curr, " superPrefixLength:", superPrefixLength); }
             if (!curr)          // if no existing `Node` to insert at
             {
@@ -1246,6 +1248,8 @@ private struct RawRadixTree(Value,
 
         Node insertAtBranch(Node curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
+
             if (willFail) { dln("Will fail, key:", key,
                                 " curr:", curr,
                                 " superPrefixLength:", superPrefixLength,
@@ -1329,7 +1333,7 @@ private struct RawRadixTree(Value,
 
             Node nextSubNode = insertAt(currSubNode, // recurse
                                         key[1 .. $],
-                                        getPrefix(curr).length + 1,
+                                        superPrefixLength + 1,
                                         wasAdded);
             if (willFail) { debug try { dln(" superPrefixLength:", superPrefixLength,
                                             " curr:", curr,
@@ -1342,6 +1346,8 @@ private struct RawRadixTree(Value,
 
         Node insertAt(OneLf6 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
+
             import std.algorithm : commonPrefix;
 
             if (key.length == 0)
@@ -1383,6 +1389,8 @@ private struct RawRadixTree(Value,
 
         Node insertAt(TwoLf3 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
+
             assert(superPrefixLength + key.length == fixedKeyLength);
             if (willFail) { dln("Will fail, key:", key, " curr:", curr, " superPrefixLength:", superPrefixLength); }
             if (curr.keyLength == key.length)
@@ -1416,6 +1424,8 @@ private struct RawRadixTree(Value,
 
         Node insertAt(TriLf2 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
+
             if (willFail) { dln("Will fail, key:", key, " curr:", curr, " superPrefixLength:", superPrefixLength); }
             if (curr.keyLength == key.length)
             {
@@ -1448,6 +1458,8 @@ private struct RawRadixTree(Value,
 
         Node insertAt(SixLf1 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
+
             if (willFail) { dln("Will fail, key:", key, " curr:", curr, " superPrefixLength:", superPrefixLength); }
             if (curr.keyLength == key.length)
             {
@@ -1478,6 +1490,8 @@ private struct RawRadixTree(Value,
         /** Split `curr` using `prefix`. */
         Node split(OneLf6 curr, Key!span prefix, Key!span key, size_t superPrefixLength) // TODO key here is a bit malplaced
         {
+            assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
+
             Node next;
             if (curr.key.length == key.length) // balanced tree possible
             {

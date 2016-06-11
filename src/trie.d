@@ -860,14 +860,10 @@ private struct RawRadixTree(Value,
                    curr.peek!(LinBr4*)) &&
                   subNode.peek!(SixLf1))
         {
-            if (!(hasVariableKeyLength || superPrefixLength + 2 == fixedKeyLength))
-            {
-                dln(superPrefixLength);
-                dln(curr);
-                dln(getPrefix(curr));
-                dln(fixedKeyLength);
-            }
-            assert(hasVariableKeyLength || superPrefixLength + 2 == fixedKeyLength);
+            dln("superPrefixLength:", superPrefixLength,
+                " curr:", curr,
+                " currPrefix:", getPrefix(curr),
+                " fixedKeyLength:", fixedKeyLength);
         }
         switch (curr.typeIx)
         {
@@ -1856,6 +1852,7 @@ static private void calculate(Value, uint span)(RawRadixTree!(Value, span).Node 
     }
 }
 
+/** Remap typed key `typedKey` to untype key of `Key`. */
 static private Key!span remapKey(TypedKey, uint span = 8)(in TypedKey typedKey)
     @safe pure nothrow /* TODO @nogc */
     if (allSatisfy!(isTrieableKeyType, TypedKey))

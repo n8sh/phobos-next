@@ -241,6 +241,12 @@ struct IxsN(size_t maxLength,
     auto chunks() inout { return _ixs[0 .. _length]; }
     alias chunks this;
 
+    auto ref at(uint ix)()
+        if (ix < maxLength)
+    {
+        return _ixs[i];
+    }
+
     auto length() const { return _length; }
 
 private:

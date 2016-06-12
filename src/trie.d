@@ -3,7 +3,7 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
-    TODO Add and use IxsN.at(ix) and use inplace of IxsN.opIndex
+    TODO Use IxsN.at(ix) and use inplace of IxsN.opIndex
 
     TODO Make `Key` array of `immutable Ix` like `string`
 

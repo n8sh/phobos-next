@@ -162,11 +162,7 @@ struct BitSet(size_t len, Block = size_t)
             Statically verifies that i is < BitSet length.
         */
         pragma(inline) bool at(size_t i)() const @trusted pure nothrow
-        in
-        {
-            static assert(i < len);
-        }
-        body
+            if (i < len)
         {
             return this[i];
         }

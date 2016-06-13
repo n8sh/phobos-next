@@ -20,6 +20,8 @@ template DefaultTypeOfModulo(size_t m)
     See also: https://forum.dlang.org/post/hmrpwyqfoxwtywbznbrr@forum.dlang.org
     See also: http://codeforces.com/contest/628/submission/16212299
 
+    TODO disallow assignment from value >= 256 for when M < 256
+
     TODO Allow assignment from Mod!N = Mod!M when N >= M
 
     TODO reuse ideas from bound.d

@@ -349,7 +349,7 @@ bool equalLength(R, Ss...)(const R r, const Ss ss) @safe pure nothrow @nogc
     that is `hasFixedKeyLength` returns `true`.
 
     For optimal performance, the individual bit-chunks should be arranged
-    starting with most sparse bits chunk first. For integers this means most
+    starting with most sparse chunks first. For integers this means most
     significant chunk (byte) first.
 
     For a good introduction to adaptive radix trees (ART) see also:

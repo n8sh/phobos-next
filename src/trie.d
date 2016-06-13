@@ -278,7 +278,7 @@ static assert(IxsN!(2, 3, 8).sizeof == 7);
     enum maxLength = 7;
 
     auto x = IxsN!(maxLength, 1, span)(ixs);
-    auto y = IxsN!(maxLength, 1, span)(11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M);
+    auto y = IxsN!(maxLength, 1, span)(11, 22, 33, 44);
 
     assert(x == y);
 
@@ -309,7 +309,7 @@ static assert(IxsN!(2, 3, 8).sizeof == 7);
     assert(!x.full);
     assert(x.length == 0);
 
-    x.pushBack(11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M, 55.mod!M, 66.mod!M, 77.mod!M);
+    x.pushBack(11, 22, 33, 44, 55, 66, 77);
     assert(x.equal([11, 22, 33, 44, 55, 66, 77]));
     assert(!x.empty);
     assert(x.full);

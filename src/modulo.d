@@ -94,8 +94,8 @@ template Mod(size_t m, T = TypeOfModulo!m)
             this.x = cast(T)rhs.x; // cannot overflow
         }
 
-        auto ref opOpAssign(string op, Rhs)(Rhs rhs)
-            if (op == "+" || op == "-")
+        auto ref opOpAssign(string op, U)(U rhs)
+            if (op == "+" || op == "-" && isIntegral!U)
         {
             mixin("tmp = x " ~ op ~ "rhs;");
             _value = cast(V)tmp;

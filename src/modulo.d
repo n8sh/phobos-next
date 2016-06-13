@@ -3,6 +3,7 @@ module modulo;
 import std.traits : isIntegral;
 
 /** Lookup type representing an unsigned integer in inclusive range (0 .. m - 1).
+    TODO Merge with similar logic in bound.d
  */
 template TypeOfModulo(size_t m)
 {

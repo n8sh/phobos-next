@@ -161,6 +161,7 @@ auto mod(size_t m, T = TypeOfModulo!m)(T value)
     static assert(Mod!(cast(size_t)uint.max + 1).sizeof == 4);
     static assert(Mod!(cast(size_t)uint.max + 2).sizeof == 8);
 
+    // assert that storage defaults to packed unsigned integer
     static assert(is(Mod!(8, ubyte) == Mod!(8)));
 
     Mod!(8, ubyte) x = 6;

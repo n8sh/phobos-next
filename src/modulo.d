@@ -51,6 +51,9 @@ template Mod(size_t m, T = TypeOfModulo!m)
 {
     import math_ex : isPow2;
 
+    // smallest builtin unsigned integer type that can fit 2^^m
+    alias UI = TypeOfModulo!m;
+
     static assert(m - 1 <= 2^^(8*T.sizeof) - 1); // if so, check that it matches `s`
 
     struct Mod
@@ -58,8 +61,7 @@ template Mod(size_t m, T = TypeOfModulo!m)
         enum min = 0;
         enum max = m - 1;
 
-        this(U)(U value)
-            if (isIntegral!U)
+        this(UI value)
         in
         {
             assert(value < m, "value too large"); // TODO use enforce instead?
@@ -69,8 +71,7 @@ template Mod(size_t m, T = TypeOfModulo!m)
             this.x = cast(T)value; // overflow checked in ctor
         }
 
-        auto ref opAssign(U)(U value)
-            if (isIntegral!U)
+        auto ref opAssign(UI value)
         in
         {
             assert(value < m, "value too large"); // TODO use enforce instead?
@@ -130,8 +131,8 @@ template Mod(size_t m, T = TypeOfModulo!m)
 }
 
 /// Instantiator for `Mod`.
-auto mod(size_t m, T)(T value)
-    if (m >= 1 && isIntegral!T)
+auto mod(size_t m, T = TypeOfModulo!m)(T value)
+    if (m >= 1)
 {
     return Mod!(m)(value);
 }

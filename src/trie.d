@@ -348,6 +348,9 @@ bool equalLength(R, Ss...)(const R r, const Ss ss) @safe pure nothrow @nogc
     Branch packing of leaves is more efficiently when `Key.sizeof` is fixed,
     that is `hasFixedKeyLength` returns `true`.
 
+    For optimal performance, the individual bit-chunks should be arranged
+    starting with most sparse bits chunk first.
+
     For a good introduction to adaptive radix trees (ART) see also:
     https://infosys.cs.uni-saarland.de/publications/ARCD15.pdf
 

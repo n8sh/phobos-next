@@ -61,17 +61,8 @@ template Mod(size_t m, T = TypeOfModulo!m)
         enum min = 0;
         enum max = m - 1;
 
+        /// Construct from `value` of unsigned integer type `UI`.
         this(UI value)
-        in
-        {
-            assert(value < m, "value too large"); // TODO use enforce instead?
-        }
-        body
-        {
-            this.x = cast(T)value; // overflow checked in ctor
-        }
-
-        auto ref opAssign(UI value)
         in
         {
             assert(value < m, "value too large"); // TODO use enforce instead?
@@ -88,11 +79,30 @@ template Mod(size_t m, T = TypeOfModulo!m)
             this.x = cast(T)rhs.x; // cannot overflow
         }
 
+        /// Assign from `value` of unsigned integer type `UI`.
+        auto ref opAssign(UI value)
+        in
+        {
+            assert(value < m, "value too large"); // TODO use enforce instead?
+        }
+        body
+        {
+            this.x = cast(T)value; // overflow checked in ctor
+        }
+
         /// Assign from Mod!n, where `m >= n`.
         auto ref opAssign(size_t n, U)(Mod!(n, U) rhs)
             if (m >= n && isIntegral!U)
         {
             this.x = cast(T)rhs.x; // cannot overflow
+        }
+
+        auto ref opOpAssign(string op, Rhs)(Rhs rhs)
+            if (op == "+" || op == "-")
+        {
+            mixin("tmp = x " ~ op ~ "rhs;");
+            _value = cast(V)tmp;
+            return this;
         }
 
         auto opUnary(string op, string file = __FILE__, int line = __LINE__)()

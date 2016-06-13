@@ -20,8 +20,6 @@ template TypeOfModulo(size_t m)
     See also: https://forum.dlang.org/post/hmrpwyqfoxwtywbznbrr@forum.dlang.org
     See also: http://codeforces.com/contest/628/submission/16212299
 
-    TODO Allow assignment from Mod!N = Mod!M when N >= M
-
     TODO reuse ideas from bound.d
 
     TODO Add function limit()

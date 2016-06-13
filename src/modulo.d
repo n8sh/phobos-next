@@ -167,6 +167,7 @@ auto mod(size_t m, T = TypeOfModulo!m)(T value)
     Mod!(8, ubyte) y = 7;
     static assert(y.min == 0);
     static assert(y.max == 7);
+    static assert(!__traits(compiles, { Mod!(8, ubyte) z = 256; }));
 
     assert(x < y);
 

@@ -161,6 +161,8 @@ auto mod(size_t m, T = TypeOfModulo!m)(T value)
     static assert(Mod!(cast(size_t)uint.max + 1).sizeof == 4);
     static assert(Mod!(cast(size_t)uint.max + 2).sizeof == 8);
 
+    static assert(is(Mod!(8, ubyte) == Mod!(8)));
+
     Mod!(8, ubyte) x = 6;
     static assert(x.min == 0);
     static assert(x.max == 7);

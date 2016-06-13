@@ -97,8 +97,8 @@ template Mod(size_t m, T = TypeOfModulo!m)
         auto ref opOpAssign(string op, U)(U rhs)
             if (op == "+" || op == "-" && isIntegral!U)
         {
-            mixin("tmp = x " ~ op ~ "rhs;");
-            _value = cast(V)tmp;
+            mixin("auto tmp = x " ~ op ~ "rhs;");
+            x = cast(T)tmp;
             return this;
         }
 
@@ -215,4 +215,19 @@ auto mod(size_t m, T = TypeOfModulo!m)(T value)
     // assignment to smaller modulo (sub-type/set) is disallowed
     static assert(!__traits(compiles, { a = b; }));
     static assert(!__traits(compiles, { a = c; }));
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    Mod!(256, ubyte) x = 55;
+
+    x += 200;
+    assert(x == 255);
+
+    x += 1;
+    assert(x == 0);
+
+    x -= 4;
+    assert(x == 252);
 }

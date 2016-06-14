@@ -66,7 +66,7 @@ template Mod(size_t m, T = TypeOfModulo!m)
             if (isIntegral!U)
         in
         {
-            static if (m != 2^^(U.sizeof))
+            static if (m != 2^^(U.sizeof)) // dynamic check only modulo doesn't equal storage precision
                 assert(value < m, `value too large`); // TODO use enforce instead?
         }
         body
@@ -86,7 +86,7 @@ template Mod(size_t m, T = TypeOfModulo!m)
             if (isIntegral!U)
         in
         {
-            static if (m != 2^^(U.sizeof))
+            static if (m != 2^^(U.sizeof)) // dynamic check only modulo doesn't equal storage precision
                 assert(value < m, `value too large`); // TODO use enforce instead?
         }
         body

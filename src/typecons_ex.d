@@ -274,7 +274,7 @@ auto indexedBy(string I, R)(R range)
     return IndexedBy!(R, I)(range);
 }
 
-/** Instantiator for `IndexedBy` with default index set to `IndexTypeName`.
+/** Instantiator for `IndexedBy`.
  */
 auto strictlyIndexed(R)(R range)
     if (isArray!R)

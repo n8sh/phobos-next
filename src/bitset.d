@@ -1058,6 +1058,7 @@ struct BitSet(size_t len, Block = size_t)
     import std.algorithm : equal;
     import nesses: denseness;
     import rational : Rational;
+
     alias Q = Rational!ulong;
     enum m = 256;
 
@@ -1090,6 +1091,7 @@ struct BitSet(size_t len, Block = size_t)
     import std.algorithm : equal;
     import nesses: denseness;
     import rational : Rational;
+
     alias Q = Rational!ulong;
     enum m = 256;
 

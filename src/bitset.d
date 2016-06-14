@@ -17,7 +17,7 @@ version(unittest)
     TODO Infer `Block` from `len` as is done for `Bound` and `Mod`.
     TODO Optimize `allOnes`, `allZeros` using intrinsic?
  */
-struct BitSet(size_t len, Block = size_t)
+struct BitSet(uint len, Block = size_t)
 {
     import std.format : FormatSpec, format;
     import core.bitop : bitswap;
@@ -54,7 +54,7 @@ struct BitSet(size_t len, Block = size_t)
     void reset() @safe nothrow { _blocks[] = 0; }
 
     /** Gets the amount of native words backing this $(D BitSet). */
-    @property static size_t dim() @safe @nogc pure nothrow { return blockCount; }
+    @property static uint dim() @safe @nogc pure nothrow { return blockCount; }
 
     /** Number of bits in the $(D BitSet). */
     enum length = len;
@@ -651,13 +651,13 @@ struct BitSet(size_t len, Block = size_t)
             this(BitSet store)
             {
                 this._store = store;
-                while (_i < length &&
-                       !_store[_i])
+                // pre-adjust front index
+                while (_i < length && !_store[_i])
                 {
                     ++_i;
                 }
-                while (_j > 1 &&
-                       !_store[_j])
+                // pre-adjust back index
+                while (_j > 1 && !_store[_j])
                 {
                     --_j;
                 }
@@ -700,8 +700,8 @@ struct BitSet(size_t len, Block = size_t)
 
         private:
             BitSet _store;          // copy of store
-            size_t _i = 0;         // iterator into _store
-            size_t _j = _store.length - 1;
+            uint _i = 0;         // iterator into _store
+            uint _j = _store.length - 1;
         }
 
         /** Get indexes of all bits set.

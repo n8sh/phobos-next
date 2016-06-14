@@ -145,7 +145,7 @@ struct IxsN(size_t maxLength,
         {
             assert(ixs.length <= maxLength);
             _ixs[0 .. ixs.length] = ixs;
-            _length = cast(ubyte)ixs.length;
+            _length = ixs.length;
         }
     }
 
@@ -673,7 +673,7 @@ private struct RawRadixTree(Value,
             const backIx = subPopulation.mod!maxSubPopulation;
             subIxSlots[backIx] = sub[0];
             subNodeSlots[backIx] = sub[1];
-            subPopulation = cast(ubyte)(subPopulation + 1);
+            subPopulation = cast(ubyte)(subPopulation + 1); // TODO remove need for cast
         }
         inout(Node) findSub(Ix ix) inout
         {

@@ -1615,7 +1615,6 @@ private struct RawRadixTree(Value,
             else
             {
                 auto currPrefix = curr.prefix;
-                assert(currPrefix.length != 0);
                 next = construct!(DefaultBr)(currPrefix);
                 foreach (key; curr.keys) // TODO const key
                 {
@@ -2144,7 +2143,7 @@ auto checkString(uint span, Keys...)()
 
         import std.random : Random, uniform;
         auto gen = Random();
-        const maxLength = 16;
+        const maxLength = 10;
 
         const count = 100_000;
         bool[string] elements;  // set of strings using D's builtin associative array

@@ -867,7 +867,7 @@ private struct RawRadixTree(Value,
     }
 
     /** Set sub-`Node` of branch `Node curr` at index `ix` to `subNode`. */
-    pragma(inline) Node setSub(Node curr, Ix subIx, Node subNode, size_t superPrefixLength)
+    pragma(inline) Node setSub(Node curr, Ix subIx, Node subNode, size_t superPrefixLength) @safe pure nothrow
     {
         // debug if ((curr.peek!(FullBrM*) ||
         //            curr.peek!(LinBr4*)) &&
@@ -880,14 +880,14 @@ private struct RawRadixTree(Value,
         // }
         switch (curr.typeIx)
         {
-        case Node.Ix.ix_FullLf1Ptr: return setSub(curr.as!(FullLf1*), subIx, subNode);
-        case Node.Ix.ix_LinBr4Ptr: return setSub(curr.as!(LinBr4*), subIx, subNode);
-        case Node.Ix.ix_FullBrMPtr: return setSub(curr.as!(FullBrM*), subIx, subNode);
+        case Node.Ix.ix_FullLf1Ptr: return setSub(curr.as!(FullLf1*), subIx, subNode, superPrefixLength);
+        case Node.Ix.ix_LinBr4Ptr: return setSub(curr.as!(LinBr4*), subIx, subNode, superPrefixLength);
+        case Node.Ix.ix_FullBrMPtr: return setSub(curr.as!(FullBrM*), subIx, subNode, superPrefixLength);
         default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
         }
     }
     /// ditto
-    Node setSub(FullLf1* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
+    Node setSub(FullLf1* curr, Ix subIx, Node subNode, size_t superPrefixLength) @safe pure nothrow /* TODO @nogc */
     {
         if (const subNodeRef = subNode.peek!(OneLf6))
         {
@@ -899,25 +899,33 @@ private struct RawRadixTree(Value,
                 return Node(curr);
             }
         }
-        else if (const subNodeRef = subNode.peek!(SixLf1))
-        {
-            const subNode_ = *subNodeRef;
-            foreach (key; subNode_.keys)
-            {
-                curr._keyBits[key] = true;
-            }
-            freeNode(subNode); // free it because it's stored inside the bitset itself
-            return Node(curr);
-        }
 
-        const currValue = *curr;
-        show!currValue;
-        show!subIx;
-        show!subNode;
-        assert(false, "Expand FullLf1 into either LinBr4 or FullBrM depending on curr.popcnt");
+        // need to expand
+        const extraCount = curr._keyBits[subIx] ? 0 : 1; // if one extra sub-node needes to be added
+        Node next;
+        if (curr._keyBits.countOnes + extraCount <= LinBr4.maxSubPopulation) // if `curr` keys plus on extra fit
+        {
+            auto next_ = construct!(LinBr4*)(curr.prefix, curr.isKey);
+            foreach (const ix; curr._keyBits.oneIndexes)
+            {
+                setSub(next_, ix, Node(construct!(OneLf6)), superPrefixLength);
+            }
+            next = next_;
+        }
+        else
+        {
+            auto next_ = construct!(FullBrM*)(curr.prefix, curr.isKey, );
+            foreach (const ix; curr._keyBits.oneIndexes)
+            {
+                setSub(next_, ix, Node(construct!(OneLf6)), superPrefixLength);
+            }
+            next = next_;
+        }
+        freeNode(curr);
+        return setSub(next, subIx, subNode, superPrefixLength); // insert on new
     }
     /// ditto
-    Node setSub(LinBr4* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
+    Node setSub(LinBr4* curr, Ix subIx, Node subNode, size_t superPrefixLength) @safe pure nothrow /* TODO @nogc */
     {
         if (const hit = curr.subIxSlots.findIndex(subIx))
         {
@@ -932,12 +940,12 @@ private struct RawRadixTree(Value,
             auto next = construct!(FullBrM*)(curr);
             freeNode(curr);
             assert(!getSub(next, subIx)); // key slot should be free
-            return setSub(next, subIx, subNode); // fast, because directly calls setSub(FullBrM*, ...)
+            return setSub(next, subIx, subNode, superPrefixLength); // fast, because directly calls setSub(FullBrM*, ...)
         }
         return Node(curr);
     }
     /// ditto
-    pragma(inline) Node setSub(FullBrM* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
+    pragma(inline) Node setSub(FullBrM* curr, Ix subIx, Node subNode, size_t superPrefixLength) @safe pure nothrow /* TODO @nogc */
     {
         try
         {
@@ -2156,7 +2164,7 @@ auto checkString(uint span, Keys...)()
         foreach (const key; elements.byKey)
         {
             dln("key:", key);
-            set.willFail = key == "fyovlktl";
+            set.willFail = key == "dx";
 
             dln("assert(!set.contains(key)) ################################ : ");
             assert(!set.contains(key));

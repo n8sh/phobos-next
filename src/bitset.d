@@ -644,6 +644,7 @@ struct BitSet(uint len, Block = size_t)
 
     static if (len >= 1)
     {
+        /** Range over all indexes hold a one (set bit). */
         struct OneIndexes
         {
             @safe pure @nogc:

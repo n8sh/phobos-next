@@ -222,6 +222,24 @@ struct IndexedBy(R, string IndexTypeName)
         mixin(`private static alias I__ = ` ~ IndexTypeName ~ `;`);
 
         mixin genTrustedUncheckedOps!(I__); // no range checking needed because I is always < R.length
+
+        /** Get index of element `E` wrapped in a bool-convertable struct. */
+        auto findIndex(E)(E e) @safe pure nothrow @nogc
+        {
+            static struct Result
+            {
+                Index index;
+                bool hit;
+                bool opCast(T : bool)() const @safe @nogc pure nothrow { return hit; }
+            }
+            import std.algorithm : countUntil;
+            const ix = _r[].countUntil(e);
+            if (ix >= 0)
+            {
+                return Result(Index(ix), true);
+            }
+            return Result(Index(0), false);
+        }
     }
     else
     {
@@ -267,10 +285,16 @@ auto strictlyIndexed(R)(R range)
 ///
 @safe pure nothrow unittest
 {
-    int[3] x = [1, 2, 3];
+    enum m = 3;
+    int[m] x = [11, 22, 33];
     auto y = x.strictlyIndexed;
     alias Y = typeof(y);
     pragma(msg, Y.Index);
+    if (auto hit = y.findIndex(11)) { assert(hit.index == 0); } else { assert(false); }
+    if (auto hit = y.findIndex(22)) { assert(hit.index == 1); } else { assert(false); }
+    if (auto hit = y.findIndex(33)) { assert(hit.index == 2); } else { assert(false); }
+    assert(!y.findIndex(44));
+    assert(!y.findIndex(55));
 }
 
 ///

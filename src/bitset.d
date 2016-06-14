@@ -650,7 +650,7 @@ struct BitSet(size_t len, Block = size_t)
 
             bool empty() const nothrow
             {
-                return _i == _j;
+                return _i > _j;
             }
 
             Mod!len front() const
@@ -668,7 +668,7 @@ struct BitSet(size_t len, Block = size_t)
             void popFront()
             {
                 assert(!empty);
-                while (++_i != _j)
+                while (++_i <= _j)
                 {
                     if (_store[_i]) { break; }
                 }
@@ -677,7 +677,7 @@ struct BitSet(size_t len, Block = size_t)
             void popBack()
             {
                 assert(!empty);
-                while (_i != --_j)
+                while (_i <= --_j)
                 {
                     if (_store[_j]) { break; }
                 }
@@ -1049,11 +1049,21 @@ struct BitSet(size_t len, Block = size_t)
 
     BitSet!m b0;
     b0[0] = 1;
+    b0[1] = 1;
+
+    b0[m/2 - 1] = 1;
     b0[m/2] = 1;
+    b0[m/2 + 1] = 1;
+
+    b0[m - 2] = 1;
     b0[m - 1] = 1;
-    assert(b0.oneIndexes.equal([0, m/2, m - 1]));
-    assert(b0.countOnes == 3);
-    assert(b0.denseness == Q(3, m));
+    dln(b0.oneIndexes);
+    assert(b0.oneIndexes.equal([0, 1,
+                                m/2 - 1, m/2, m/2 + 1,
+                                m - 2,
+                                m - 1]));
+    assert(b0.countOnes == 7);
+    assert(b0.denseness == Q(7, m));
 
     BitSet!m[n] b1;
     b1[0][0] = 1;

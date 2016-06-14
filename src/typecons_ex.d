@@ -209,19 +209,23 @@ auto indexedBy(I, R)(R range)
     return IndexedBy!(R, I)(range);
 }
 
-struct IndexedBy(R, string I_)
+struct IndexedBy(R, string IndexTypeName)
     if (isArray!R &&
-        I_ != "I_") // prevent name lookup failure
+        IndexTypeName != "IndexTypeName") // prevent name lookup failure
 {
     static if (isStaticArray!R) // if length is known at compile-time
     {
         import modulo : Mod;
-        alias I = Mod!(R.length);
-        mixin genTrustedUncheckedOps!(I); // no range checking needed because I is always < R.length
+        mixin(`alias ` ~ IndexTypeName ~ ` = Mod!(R.length);`);
+
+        // dummy variable needed for symbol argument to `genTrustedUncheckedOps`
+        mixin(`private static alias I__ = ` ~ IndexTypeName ~ `;`);
+
+        mixin genTrustedUncheckedOps!(I__); // no range checking needed because I is always < R.length
     }
     else
     {
-        mixin(q{ struct } ~ I_ ~
+        mixin(q{ struct } ~ IndexTypeName ~
               q{ {
                       alias T = size_t;
                       this(T ix) { this._ix = ix; }
@@ -229,7 +233,7 @@ struct IndexedBy(R, string I_)
                       private T _ix = 0;
                   }
               });
-        mixin genOps!(mixin(I_));
+        mixin genOps!(mixin(IndexTypeName));
     }
     R _r;
     alias _r this; // TODO Use opDispatch instead; to override only opSlice and opIndex
@@ -247,17 +251,26 @@ template StrictlyIndexed(R)
  */
 auto indexedBy(string I, R)(R range)
     if (isArray!R &&
-        I != "I_") // prevent name lookup failure
+        I != "IndexTypeName") // prevent name lookup failure
 {
     return IndexedBy!(R, I)(range);
 }
 
-/** Instantiator for `IndexedBy` with default index set to `I_`.
+/** Instantiator for `IndexedBy` with default index set to `IndexTypeName`.
  */
 auto strictlyIndexed(R)(R range)
     if (isArray!R)
 {
     return StrictlyIndexed!(R)(range);
+}
+
+///
+@safe pure nothrow unittest
+{
+    int[3] x = [1, 2, 3];
+    auto y = x.strictlyIndexed;
+    alias Y = typeof(y);
+    pragma(msg, Y.Index);
 }
 
 ///

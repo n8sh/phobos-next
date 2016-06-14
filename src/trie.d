@@ -1578,7 +1578,6 @@ private struct RawRadixTree(Value,
             else
             {
                 auto currPrefix = curr.prefix;
-                assert(currPrefix.length != 0);
                 next = construct!(DefaultBr)(currPrefix);
                 // TODO functionize:
                 foreach (key; curr.keys) // TODO const key

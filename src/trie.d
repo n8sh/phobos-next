@@ -869,15 +869,15 @@ private struct RawRadixTree(Value,
     /** Set sub-`Node` of branch `Node curr` at index `ix` to `subNode`. */
     pragma(inline) Node setSub(Node curr, Ix subIx, Node subNode, size_t superPrefixLength)
     {
-        debug if ((curr.peek!(FullBrM*) ||
-                   curr.peek!(LinBr4*)) &&
-                  subNode.peek!(SixLf1))
-        {
-            dln("superPrefixLength:", superPrefixLength,
-                " curr:", curr,
-                " currPrefix:", getPrefix(curr),
-                " fixedKeyLength:", fixedKeyLength);
-        }
+        // debug if ((curr.peek!(FullBrM*) ||
+        //            curr.peek!(LinBr4*)) &&
+        //           subNode.peek!(SixLf1))
+        // {
+        //     dln("superPrefixLength:", superPrefixLength,
+        //         " curr:", curr,
+        //         " currPrefix:", getPrefix(curr),
+        //         " fixedKeyLength:", fixedKeyLength);
+        // }
         switch (curr.typeIx)
         {
         case Node.Ix.ix_FullLf1Ptr: return setSub(curr.as!(FullLf1*), subIx, subNode);
@@ -1466,13 +1466,13 @@ private struct RawRadixTree(Value,
 
         Node insertAt(SixLf1 curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
             if (!(hasVariableKeyLength || curr.keyLength == key.length))
             {
                 dln(curr);
                 dln(key);
             }
             assert(hasVariableKeyLength || curr.keyLength == key.length);
-            assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
             if (willFail) { dln("Will fail, key:", key, " curr:", curr, " superPrefixLength:", superPrefixLength); }
             if (curr.keyLength == key.length)
@@ -1864,9 +1864,11 @@ static private void calculate(Value, uint span)(RawRadixTree!(Value, span).Node 
 
 /** Remap typed key `typedKey` to untype key of `Key`. */
 static private Key!span remapKey(TypedKey, uint span = 8)(in TypedKey typedKey)
-    @safe pure nothrow /* TODO @nogc */
+    @trusted pure nothrow /* TODO @nogc */
     if (allSatisfy!(isTrieableKeyType, TypedKey))
 {
+    enum radix = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
+    alias Ix = Mod!radix;
     static if (isFixedTrieableKeyType!TypedKey)
     {
         const ukey = typedKey.bijectToUnsigned;
@@ -1882,7 +1884,6 @@ static private Key!span remapKey(TypedKey, uint span = 8)(in TypedKey typedKey)
             foreach (bix; 0 .. chunkCount)
             {
                 const bitShift = (chunkCount - 1 - bix)*span; // most significant bit chunk first (MSBCF)
-                enum radix = 2^^span;
                 key[bix] = (ukey >> bitShift) & (radix - 1); // part of value which is also an index
             }
         }
@@ -1891,8 +1892,9 @@ static private Key!span remapKey(TypedKey, uint span = 8)(in TypedKey typedKey)
     }
     else static if (is(Unqual!TypedKey == string))
     {
+        import std.string : representation;
         const ubyte[] key = typedKey.representation; // lexical byte-order
-        return key;
+        return cast(Ix[])key;
     }
     else static if (is(Unqual!TypedKey == wstring))
     {
@@ -2138,20 +2140,22 @@ auto check(uint span, Keys...)()
                 foreach (const uk; low.iota(high + 1))
                 {
                     const Key key = cast(Key)uk;
-                    // dln("key:", key);
+                    debug set.willFail = (key == -32639);
                     if (useContains)
                     {
+                        if (set.willFail) dln("before check no contains yet");
                         assert(!set.contains(key)); // key should not yet be in set
                         assert(key !in set);        // alternative syntax
                     }
 
-                    // debug set.willFail = (key == -32765);
-
+                    if (set.willFail) dln("before first insert()");
                     assert(set.insert(key));  // insert new value returns `true` (previously not in set)
                     if (useContains)
                     {
+                        if (set.willFail) dln("before check passing contains()");
                         assert(set.contains(key)); // key should now be in set
                     }
+                    if (set.willFail) dln("before second insert()");
                     assert(!set.insert(key)); // reinsert same value returns `false` (already in set)
 
                     if (useContains)
@@ -2166,6 +2170,10 @@ auto check(uint span, Keys...)()
                     ++cnt;
                 }
                 assert(set.length == length);
+            }
+            else
+            {
+                static assert(false, `Handle type: "` ~ Key.stringof ~ `"`);
             }
 
             auto map = radixTreeMap!(Key, Value, span);
@@ -2309,6 +2317,7 @@ unittest
 unittest
 {
     check!(8,
+           string,
            float, double,
            long, int, short, byte,
            ulong, uint, ushort, ubyte);

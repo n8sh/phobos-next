@@ -1279,6 +1279,11 @@ private struct RawRadixTree(Value,
                 if (currPrefix.length == 0) // no current prefix
                 {
                     if (willFail) { dln("curr:", curr); }
+                    if (key.length == 0)
+                    {
+                        if (!isKey(curr)) { makeKey(curr); wasAdded = true; }
+                        return curr;
+                    }
                     // continue below
                 }
                 else
@@ -1332,11 +1337,7 @@ private struct RawRadixTree(Value,
                 {
                     if (willFail) { dln("curr:", curr, " superPrefixLength:", superPrefixLength, " matchedKeyPrefix:", matchedKeyPrefix); }
                     // prefix equals key: prefix:"ab", key:"ab"
-                    if (!isKey(curr))
-                    {
-                        makeKey(curr);
-                        wasAdded = true;
-                    }
+                    if (!isKey(curr)) { makeKey(curr); wasAdded = true; }
                     return curr;
                 }
             }

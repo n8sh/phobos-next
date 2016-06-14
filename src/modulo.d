@@ -62,7 +62,7 @@ template Mod(size_t m, T = TypeOfModulo!m)
         this(UI value)
         in
         {
-            assert(value < m, "value too large"); // TODO use enforce instead?
+            assert(value < m, `value too large`); // TODO use enforce instead?
         }
         body
         {
@@ -80,7 +80,7 @@ template Mod(size_t m, T = TypeOfModulo!m)
         auto ref opAssign(UI value)
         in
         {
-            assert(value < m, "value too large"); // TODO use enforce instead?
+            assert(value < m, `value too large`); // TODO use enforce instead?
         }
         body
         {
@@ -95,20 +95,21 @@ template Mod(size_t m, T = TypeOfModulo!m)
         }
 
         auto ref opOpAssign(string op, U)(U rhs)
-            if (op == "+" || op == "-" && isIntegral!U)
+            if (op == `+` || op == `-` || op == `*` &&
+                isIntegral!U)
         {
-            mixin("auto tmp = x " ~ op ~ "rhs;");
+            mixin(`auto tmp = x ` ~ op ~ `rhs;`);
             x = cast(T)tmp;
             return this;
         }
 
         auto opUnary(string op, string file = __FILE__, int line = __LINE__)()
         {
-            static      if (op == "+")
+            static      if (op == `+`)
             {
                 return this;
             }
-            else static if (op == "--")
+            else static if (op == `--`)
             {
                 static if (isPow2(m))
                     x = (x - 1) & max; // more efficient
@@ -116,7 +117,7 @@ template Mod(size_t m, T = TypeOfModulo!m)
                     if (x == min) x = max; else --x;
                 return this;
             }
-            else static if (op == "++")
+            else static if (op == `++`)
             {
                 static if (isPow2(m))
                     x = (x + 1) & max; // more efficient
@@ -126,7 +127,7 @@ template Mod(size_t m, T = TypeOfModulo!m)
             }
             else
             {
-                static assert("Unsupported unary operator ", op);
+                static assert(`Unsupported unary operator `, op);
             }
         }
 

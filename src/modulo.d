@@ -53,6 +53,9 @@ template Mod(size_t m, T = TypeOfModulo!m)
 
     static assert(m - 1 <= 2^^(8*T.sizeof) - 1); // if so, check that it matches `s`
 
+    // `this` uses exactly as many bits as storage type `T`
+    enum exactStorageTypeMatch = m == 2^^(T.sizeof);
+
     struct Mod
     {
         enum min = 0;
@@ -63,7 +66,8 @@ template Mod(size_t m, T = TypeOfModulo!m)
             if (isIntegral!U)
         in
         {
-            assert(value < m, `value too large`); // TODO use enforce instead?
+            static if (m != 2^^(U.sizeof))
+                assert(value < m, `value too large`); // TODO use enforce instead?
         }
         body
         {
@@ -82,7 +86,8 @@ template Mod(size_t m, T = TypeOfModulo!m)
             if (isIntegral!U)
         in
         {
-            assert(value < m, `value too large`); // TODO use enforce instead?
+            static if (m != 2^^(U.sizeof))
+                assert(value < m, `value too large`); // TODO use enforce instead?
         }
         body
         {

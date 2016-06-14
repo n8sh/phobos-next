@@ -130,7 +130,7 @@ template Mod(size_t m, T = TypeOfModulo!m)
             }
         }
 
-        @property size_t _prop() const { return x; } // read-only access
+        @property size_t _prop() const @safe pure nothrow @nogc { return x; } // read-only access
         alias _prop this;
 
         private T x;

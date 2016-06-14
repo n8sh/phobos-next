@@ -642,23 +642,23 @@ struct BitSet(size_t len, Block = size_t)
     alias allSetBetween = allOneBetween;
     alias fullBetween = allOneBetween;
 
-    /** Get indexes of all bits set.
-        TODO rangify
-     */
-    size_t[] oneIndexes() const @safe pure nothrow
-    {
-        typeof(return) ixs;
-        foreach (const ix; 0 .. length)
-        {
-            if (this[ix]) { ixs ~= ix; }
-        }
-        return ixs;
-    }
-    alias indexesOfOnes = oneIndexes;
-
     /** Get number of bits set in $(D this). */
     static if (len >= 1)
     {
+        /** Get indexes of all bits set.
+         */
+        Mod!len[] oneIndexes() const @safe pure nothrow
+        {
+            typeof(return) ixs;
+            foreach (const ix; 0 .. length)
+            {
+                import modulo : mod;
+                if (this[ix]) { ixs ~= ix.mod!length; }
+            }
+            return ixs;
+        }
+        alias indexesOfOnes = oneIndexes;
+
         Mod!(len + 1) countOnes() const @safe @nogc pure nothrow
         {
             typeof(return) n = 0;

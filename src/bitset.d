@@ -1064,18 +1064,20 @@ struct BitSet(size_t len, Block = size_t)
     BitSet!m b0;
     b0[1] = 1;
     b0[2] = 1;
+    b0[m/2 - 11] = 1;
     b0[m/2 - 1] = 1;
     b0[m/2] = 1;
     b0[m/2 + 1] = 1;
+    b0[m/2 + 11] = 1;
     b0[m - 3] = 1;
     b0[m - 2] = 1;
 
     assert(b0.oneIndexes.equal([1, 2,
-                                m/2 - 1, m/2, m/2 + 1,
+                                m/2 - 11, m/2 - 1, m/2, m/2 + 1, m/2 + 11,
                                 m - 3,
                                 m - 2]));
-    assert(b0.countOnes == 7);
-    assert(b0.denseness == Q(7, m));
+    assert(b0.countOnes == 9);
+    assert(b0.denseness == Q(9, m));
 }
 
 /// run-time
@@ -1090,18 +1092,20 @@ struct BitSet(size_t len, Block = size_t)
     BitSet!m b0;
     b0[0] = 1;
     b0[1] = 1;
+    b0[m/2 - 11] = 1;
     b0[m/2 - 1] = 1;
     b0[m/2] = 1;
     b0[m/2 + 1] = 1;
+    b0[m/2 + 11] = 1;
     b0[m - 2] = 1;
     b0[m - 1] = 1;
 
     assert(b0.oneIndexes.equal([0, 1,
-                                m/2 - 1, m/2, m/2 + 1,
+                                m/2 - 11, m/2 - 1, m/2, m/2 + 1, m/2 + 11,
                                 m - 2,
                                 m - 1]));
-    assert(b0.countOnes == 7);
-    assert(b0.denseness == Q(7, m));
+    assert(b0.countOnes == 9);
+    assert(b0.denseness == Q(9, m));
 }
 
 /// run-time

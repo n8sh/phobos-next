@@ -660,7 +660,7 @@ struct BitSet(size_t len, Block = size_t)
     {
         Mod!(len + 1) countOnes() const @safe @nogc pure nothrow
         {
-            ulong n = 0;
+            typeof(return) n = 0;
             foreach (const ix, const block; _blocks)
             {
                 if (block != 0)

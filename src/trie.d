@@ -1,4 +1,4 @@
-/** Tries and PrefixTrees.
+/** Tries and Prefix Trees.
 
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
@@ -2170,6 +2170,12 @@ auto check(uint span, Keys...)()
                     ++cnt;
                 }
                 assert(set.length == length);
+            }
+            else static if (is(Key == string))
+            {
+                const maxLength = 100
+                import std.random : uniform;
+                const length = 0.uniform(maxLength);
             }
             else
             {

@@ -133,6 +133,7 @@ struct IxsN(size_t maxLength,
     {
         foreach (const i, const ix; ixs)
         {
+            static assert(!is(typeof(ix) == int));
             _ixs[i] = ix;
         }
         _length = ixs.length;
@@ -188,6 +189,7 @@ struct IxsN(size_t maxLength,
         return _ixs[_length - 1];
     }
 
+    /** Pop one front element. */
     auto ref popFront()
     {
         assert(!empty);
@@ -200,6 +202,7 @@ struct IxsN(size_t maxLength,
         return this;
     }
 
+    /** Pop `n` front elements. */
     auto ref popFrontN(size_t n)
     {
         assert(length >= n);
@@ -208,7 +211,7 @@ struct IxsN(size_t maxLength,
         {
             _ixs[i] = _ixs[i + n]; // TODO move construct?
         }
-        _length = _length - n;
+        _length -= n;
         return this;
     }
 
@@ -227,7 +230,7 @@ struct IxsN(size_t maxLength,
         {
             _ixs[_length + i] = ix;
         }
-        _length = _length + Es.length; // TODO use Mod.opAssign
+        _length += Es.length;
         return this;
     }
 
@@ -278,7 +281,7 @@ static assert(IxsN!(2, 3, 8).sizeof == 7);
     enum maxLength = 7;
 
     auto x = IxsN!(maxLength, 1, span)(ixs);
-    auto y = IxsN!(maxLength, 1, span)(11, 22, 33, 44);
+    auto y = IxsN!(maxLength, 1, span)(11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M);
 
     assert(x == y);
 
@@ -309,7 +312,7 @@ static assert(IxsN!(2, 3, 8).sizeof == 7);
     assert(!x.full);
     assert(x.length == 0);
 
-    x.pushBack(11, 22, 33, 44, 55, 66, 77);
+    x.pushBack(11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M, 55.mod!M, 66.mod!M, 77.mod!M);
     assert(x.equal([11, 22, 33, 44, 55, 66, 77]));
     assert(!x.empty);
     assert(x.full);
@@ -916,12 +919,9 @@ private struct RawRadixTree(Value,
     /// ditto
     Node setSub(LinBr4* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
-        import std.algorithm : countUntil;
-        const i = curr.subIxSlots[0 .. curr.subPopulation].countUntil(subIx); // TODO is this the preferred function?
-        if (i != -1)            // if hit. TODO use bool conversion when available in countUntil
+        if (const hit = curr.subIxSlots.findIndex(subIx))
         {
-            const i_ = i.mod!(curr.maxSubPopulation);
-            curr.subNodeSlots[i_] = subNode; // reuse
+            curr.subNodeSlots[hit.index] = subNode; // reuse
         }
         else if (!curr.full)     // if room left in curr
         {

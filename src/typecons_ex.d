@@ -228,9 +228,9 @@ struct IndexedBy(R, string IndexTypeName)
         {
             static struct Result
             {
-                Index index;    // index if hit is `true', 0 otherwise
-                private bool hit; // `true` if `index` is defined, `false` otherwise
-                bool opCast(T : bool)() const @safe @nogc pure nothrow { return hit; }
+                Index index;    // index if exists is `true', 0 otherwise
+                bool exists;  // `true` if `index` is defined, `false` otherwise
+                bool opCast(T : bool)() const @safe @nogc pure nothrow { return exists; }
             }
             import std.algorithm : countUntil;
             const ix = _r[].countUntil(e); // is safe
@@ -293,12 +293,19 @@ auto strictlyIndexed(R)(R range)
 
     static assert(is(typeof(y.findIndex(11).index) == Y.Index));
 
+    assert(y.findIndex(11).exists);
+    assert(y.findIndex(22).exists);
+    assert(y.findIndex(33).exists);
+
     if (auto hit = y.findIndex(11)) { assert(hit.index == 0); } else { assert(false); }
     if (auto hit = y.findIndex(22)) { assert(hit.index == 1); } else { assert(false); }
     if (auto hit = y.findIndex(33)) { assert(hit.index == 2); } else { assert(false); }
 
     assert(!y.findIndex(44));
     assert(!y.findIndex(55));
+
+    assert(!y.findIndex(44).exists);
+    assert(!y.findIndex(55).exists);
 }
 
 ///

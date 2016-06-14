@@ -1056,12 +1056,16 @@ struct BitSet(size_t len, Block = size_t)
 @safe pure nothrow unittest
 {
     import std.algorithm : equal;
-    import nesses: denseness, sparseness;
+    import nesses: denseness;
     import rational : Rational;
     alias Q = Rational!ulong;
     enum m = 256;
 
     BitSet!m b0;
+
+    import modulo : Mod;
+    static assert(is(typeof(b0.oneIndexes.front()) == Mod!m));
+
     b0[1] = 1;
     b0[2] = 1;
     b0[m/2 - 11] = 1;
@@ -1084,12 +1088,16 @@ struct BitSet(size_t len, Block = size_t)
 @safe pure nothrow unittest
 {
     import std.algorithm : equal;
-    import nesses: denseness, sparseness;
+    import nesses: denseness;
     import rational : Rational;
     alias Q = Rational!ulong;
     enum m = 256;
 
     BitSet!m b0;
+
+    import modulo : Mod;
+    static assert(is(typeof(b0.oneIndexes.front()) == Mod!m));
+
     b0[0] = 1;
     b0[1] = 1;
     b0[m/2 - 11] = 1;
@@ -1112,7 +1120,7 @@ struct BitSet(size_t len, Block = size_t)
 @safe pure nothrow unittest
 {
     import std.algorithm : equal;
-    import nesses: denseness, sparseness;
+    import nesses: denseness;
     import rational : Rational;
     alias Q = Rational!ulong;
 

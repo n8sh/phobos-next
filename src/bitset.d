@@ -643,6 +643,7 @@ struct BitSet(size_t len, Block = size_t)
     alias fullBetween = allOneBetween;
 
     /** Get indexes of all bits set.
+        TODO rangify
      */
     size_t[] oneIndexes() const @safe pure nothrow
     {
@@ -1001,6 +1002,7 @@ struct BitSet(size_t len, Block = size_t)
 /// run-time
 @safe pure nothrow unittest
 {
+    import std.algorithm : equal;
     import nesses: denseness, sparseness;
     import rational : Rational;
     alias Q = Rational!ulong;
@@ -1011,7 +1013,7 @@ struct BitSet(size_t len, Block = size_t)
     b0[0] = 1;
     b0[m/2] = 1;
     b0[m - 1] = 1;
-    assert(b0.oneIndexes == [0, m/2, m - 1]);
+    assert(b0.oneIndexes.equal([0, m/2, m - 1]));
     assert(b0.countOnes == 3);
     assert(b0.denseness == Q(3, m));
 

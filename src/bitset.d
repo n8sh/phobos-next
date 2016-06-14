@@ -701,9 +701,9 @@ struct BitSet(uint len, Block = size_t)
             }
 
         private:
-            BitSet _store;          // copy of store
-            uint _i = 0;         // iterator into _store
-            uint _j = _store.length - 1;
+            BitSet _store;               // copy of store
+            uint _i = 0;                 // front index into _store
+            uint _j = _store.length - 1; // back index into _store
         }
 
         /** Get indexes of all bits set.

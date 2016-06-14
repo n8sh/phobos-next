@@ -72,42 +72,42 @@ struct BitSet(size_t len, Block = size_t)
 
         bool empty() const nothrow
         {
-            return _ix == _jx;
+            return _i == _j;
         }
 
         size_t length() const nothrow
         {
-            return _jx - _ix;
+            return _j - _i;
         }
 
         bool front() const
         {
             assert(!empty);     // TODO use enforce when it's @nogc
-            return _store[_ix];
+            return _store[_i];
         }
 
         bool back() const
         {
             assert(!empty);     // TODO use enforce when it's @nogc
-            return _store[_jx - 1];
+            return _store[_j - 1];
         }
 
         void popFront()
         {
             assert(!empty);
-            ++_ix;
+            ++_i;
         }
 
         void popBack()
         {
             assert(!empty);
-            ++_ix;
+            ++_i;
         }
 
     private:
         BitSet _store;          // copy of store
-        size_t _ix = 0;         // iterator into _store
-        size_t _jx = _store.length;
+        size_t _i = 0;         // iterator into _store
+        size_t _j = _store.length;
     }
 
     pragma(inline) Range opSlice() const @trusted pure nothrow
@@ -642,22 +642,61 @@ struct BitSet(size_t len, Block = size_t)
     alias allSetBetween = allOneBetween;
     alias fullBetween = allOneBetween;
 
-    /** Get number of bits set in $(D this). */
     static if (len >= 1)
     {
-        /** Get indexes of all bits set.
-         */
-        Mod!len[] oneIndexes() const @safe pure nothrow
+        struct OneIndexes
         {
-            typeof(return) ixs;
-            foreach (const ix; 0 .. length)
+            @safe pure @nogc:
+
+            bool empty() const nothrow
             {
-                import modulo : mod;
-                if (this[ix]) { ixs ~= ix.mod!length; }
+                return _i == _j;
             }
-            return ixs;
+
+            Mod!len front() const
+            {
+                assert(!empty);     // TODO use enforce when it's @nogc
+                return typeof(return)(_i);
+            }
+
+            Mod!len back() const
+            {
+                assert(!empty);     // TODO use enforce when it's @nogc
+                return typeof(return)(_j);
+            }
+
+            void popFront()
+            {
+                assert(!empty);
+                while (++_i != _j)
+                {
+                    if (_store[_i]) { break; }
+                }
+            }
+
+            void popBack()
+            {
+                assert(!empty);
+                while (_i != --_j)
+                {
+                    if (_store[_j]) { break; }
+                }
+            }
+
+        private:
+            BitSet _store;          // copy of store
+            size_t _i = 0;         // iterator into _store
+            size_t _j = _store.length - 1;
         }
 
+        /** Get indexes of all bits set.
+         */
+        auto oneIndexes() const @safe pure nothrow
+        {
+            return OneIndexes(this);
+        }
+
+        /** Get number of bits set in $(D this). */
         Mod!(len + 1) countOnes() const @safe @nogc pure nothrow
         {
             typeof(return) n = 0;

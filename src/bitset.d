@@ -651,12 +651,14 @@ struct BitSet(uint len, Block = size_t)
             this(BitSet store)
             {
                 this._store = store;
-                // pre-adjust front index
+
+                // pre-adjust front index. TODO make lazy and move to front
                 while (_i < length && !_store[_i])
                 {
                     ++_i;
                 }
-                // pre-adjust back index
+
+                // pre-adjust back index. TODO make lazy and move to front
                 while (_j > 1 && !_store[_j])
                 {
                     --_j;

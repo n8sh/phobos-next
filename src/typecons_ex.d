@@ -288,12 +288,15 @@ auto strictlyIndexed(R)(R range)
     enum m = 3;
     int[m] x = [11, 22, 33];
     auto y = x.strictlyIndexed;
+
     alias Y = typeof(y);
-    pragma(msg, Y.Index);
+
     static assert(is(typeof(y.findIndex(11).index) == Y.Index));
+
     if (auto hit = y.findIndex(11)) { assert(hit.index == 0); } else { assert(false); }
     if (auto hit = y.findIndex(22)) { assert(hit.index == 1); } else { assert(false); }
     if (auto hit = y.findIndex(33)) { assert(hit.index == 2); } else { assert(false); }
+
     assert(!y.findIndex(44));
     assert(!y.findIndex(55));
 }

@@ -1254,6 +1254,7 @@ private struct RawRadixTree(Value,
 
         Node insertAtBranch(Node curr, Key!span key, size_t superPrefixLength, out bool wasAdded)
         {
+            assert(key.length != 0);
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
             if (willFail) { dln("Will fail, key:", key,
@@ -1275,9 +1276,12 @@ private struct RawRadixTree(Value,
                 }
                 else
                 {
-                    if (willFail) { dln("curr:", curr); }
                     const subIx = currPrefix[0]; // subIx = 'a'
+                    if (willFail) { dln("curr:", curr, " subIx:", subIx); }
+                    if (willFail) dln("before popFrontNPrefix: ", getPrefix(curr));
                     popFrontNPrefix(curr, 1);
+                    if (willFail) dln("after popFrontNPrefix: ", getPrefix(curr));
+                    if (willFail) dln("key: ", key);
                     return insertAt(Node(construct!(DefaultBr)(Ix[].init, false, subIx, curr)),
                                     key,
                                     superPrefixLength,
@@ -1398,7 +1402,6 @@ private struct RawRadixTree(Value,
             assert(hasVariableKeyLength || curr.keyLength == key.length);
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
-            assert(superPrefixLength + key.length == fixedKeyLength);
             if (willFail) { dln("Will fail, key:", key, " curr:", curr, " superPrefixLength:", superPrefixLength); }
             if (curr.keyLength == key.length)
             {
@@ -1555,20 +1558,32 @@ private struct RawRadixTree(Value,
         {
             assert(hasVariableKeyLength || superPrefixLength + curr.keyLength == fixedKeyLength);
 
-            auto currPrefix = curr.prefix;
-            if (willFail) { dln("Will fail, curr:", curr, " superPrefixLength:", superPrefixLength, " prefix:", currPrefix); }
-
-            Node next = construct!(DefaultBr)(currPrefix);
-
-            // TODO functionize:
-            foreach (key; curr.keys) // TODO const key
+            Node next;
+            if (curr.keys.length == 1) // only one key
             {
+                next = construct!(DefaultBr)(Ix[].init); // so no prefix
                 bool wasAddedCurr;
                 next = insertAtBranch(next,
-                                      key[currPrefix.length .. $],
-                                      superPrefixLength + currPrefix.length,
+                                      curr.keys[0],
+                                      superPrefixLength,
                                       wasAddedCurr);
                 assert(wasAddedCurr);
+            }
+            else
+            {
+                auto currPrefix = curr.prefix;
+                assert(currPrefix.length != 0);
+                next = construct!(DefaultBr)(currPrefix);
+                // TODO functionize:
+                foreach (key; curr.keys) // TODO const key
+                {
+                    bool wasAddedCurr;
+                    next = insertAtBranch(next,
+                                          key[currPrefix.length .. $],
+                                          superPrefixLength + currPrefix.length,
+                                          wasAddedCurr);
+                    assert(wasAddedCurr);
+                }
             }
             freeNode(curr);
             return next;
@@ -1579,18 +1594,34 @@ private struct RawRadixTree(Value,
         {
             assert(hasVariableKeyLength || superPrefixLength + curr.keyLength == fixedKeyLength);
 
-            auto currPrefix = curr.prefix;
-            Node next = construct!(DefaultBr)(currPrefix);
-
             // TODO functionize:
-            foreach (key; curr.keys) // TODO const key
+            Node next;
+            if (curr.keys.length == 1) // only one key
             {
+                next = construct!(DefaultBr)(Ix[].init); // so no prefix
                 bool wasAddedCurr;
                 next = insertAtBranch(next,
-                                      key[currPrefix.length .. $],
-                                      superPrefixLength + currPrefix.length,
+                                      curr.keys[0],
+                                      superPrefixLength,
                                       wasAddedCurr);
                 assert(wasAddedCurr);
+            }
+            else
+            {
+                auto currPrefix = curr.prefix;
+                assert(currPrefix.length != 0);
+                next = construct!(DefaultBr)(currPrefix);
+                foreach (key; curr.keys) // TODO const key
+                {
+                    bool wasAddedCurr;
+                    auto subKey = key[currPrefix.length .. $];
+                    assert(subKey.length != 0);
+                    next = insertAtBranch(next,
+                                          subKey,
+                                          superPrefixLength + currPrefix.length,
+                                          wasAddedCurr);
+                    assert(wasAddedCurr);
+                }
             }
             freeNode(curr);
             return next;
@@ -2095,8 +2126,61 @@ unittest
     }
 }
 
+auto checkString(uint span, Keys...)()
+    if (Keys.length >= 1)
+{
+    import std.range : iota;
+    foreach (Key; Keys)
+    {
+        auto set = radixTreeSet!(Key, span);
+        alias Set = set;
+        assert(set.empty);
+
+        import std.random : Random, uniform;
+        auto gen = Random();
+        const maxLength = 16;
+
+        const count = 100_000;
+        bool[string] elements;  // set of strings using D's builtin associative array
+        while (elements.length < count)
+        {
+            const length = uniform(1, maxLength, gen);
+            auto key = new char[length];
+            foreach (ix; 0 .. length)
+            {
+                key[ix] = cast(char)('a' + 0.uniform(26, gen));
+            }
+            elements[key[].idup] = true;
+        }
+
+        foreach (const key; elements.byKey)
+        {
+            dln("key:", key);
+            set.willFail = key == "fyovlktl";
+
+            dln("assert(!set.contains(key)) ################################ : ");
+            assert(!set.contains(key));
+
+            dln("assert(set.insert(key)) ################################ : ");
+            assert(set.insert(key));
+
+            dln("assert(!set.insert(key)) ################################ :");
+            assert(!set.insert(key));
+
+            dln("assert(set.contains(key)) ################################ :");
+            assert(set.contains(key));
+        }
+    }
+}
+
+pure /* TODO @nogc */
+unittest
+{
+    checkString!(8, string);
+}
+
 /// Check correctness when span is `span` and for each `Key` in `Keys`.
-auto check(uint span, Keys...)()
+auto checkNumeric(uint span, Keys...)()
     if (Keys.length >= 1)
 {
     import std.range : iota;
@@ -2170,12 +2254,6 @@ auto check(uint span, Keys...)()
                     ++cnt;
                 }
                 assert(set.length == length);
-            }
-            else static if (is(Key == string))
-            {
-                const maxLength = 100
-                import std.random : uniform;
-                const length = 0.uniform(maxLength);
             }
             else
             {
@@ -2315,18 +2393,17 @@ unittest
 {
     while (true)
     {
-        check!(8, float);
+        checkNumeric!(8, float);
     }
 }
 
 @safe pure nothrow /* TODO @nogc */
 unittest
 {
-    check!(8,
-           string,
-           float, double,
-           long, int, short, byte,
-           ulong, uint, ushort, ubyte);
+    checkNumeric!(8,
+                  float, double,
+                  long, int, short, byte,
+                  ulong, uint, ushort, ubyte);
 }
 
 auto testPrint(uint span, Keys...)()

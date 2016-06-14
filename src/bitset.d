@@ -657,7 +657,6 @@ struct BitSet(size_t len, Block = size_t)
             }
             return ixs;
         }
-        alias indexesOfOnes = oneIndexes;
 
         Mod!(len + 1) countOnes() const @safe @nogc pure nothrow
         {

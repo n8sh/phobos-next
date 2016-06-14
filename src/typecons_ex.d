@@ -228,12 +228,12 @@ struct IndexedBy(R, string IndexTypeName)
         {
             static struct Result
             {
-                Index index;
-                bool hit;
+                Index index;    // index if hit is `true', 0 otherwise
+                private bool hit; // `true` if `index` is defined, `false` otherwise
                 bool opCast(T : bool)() const @safe @nogc pure nothrow { return hit; }
             }
             import std.algorithm : countUntil;
-            const ix = _r[].countUntil(e);
+            const ix = _r[].countUntil(e); // is safe
             if (ix >= 0)
             {
                 return Result(Index(ix), true);

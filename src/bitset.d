@@ -648,6 +648,21 @@ struct BitSet(size_t len, Block = size_t)
         {
             @safe pure @nogc:
 
+            this(BitSet store)
+            {
+                this._store = store;
+                while (_i < length &&
+                       !_store[_i])
+                {
+                    ++_i;
+                }
+                while (_j > 1 &&
+                       !_store[_j])
+                {
+                    --_j;
+                }
+            }
+
             bool empty() const nothrow
             {
                 return _i > _j;
@@ -1044,26 +1059,60 @@ struct BitSet(size_t len, Block = size_t)
     import nesses: denseness, sparseness;
     import rational : Rational;
     alias Q = Rational!ulong;
+    enum m = 256;
 
-    enum m = 256, n = 256;
+    BitSet!m b0;
+    b0[1] = 1;
+    b0[2] = 1;
+    b0[m/2 - 1] = 1;
+    b0[m/2] = 1;
+    b0[m/2 + 1] = 1;
+    b0[m - 3] = 1;
+    b0[m - 2] = 1;
+
+    assert(b0.oneIndexes.equal([1, 2,
+                                m/2 - 1, m/2, m/2 + 1,
+                                m - 3,
+                                m - 2]));
+    assert(b0.countOnes == 7);
+    assert(b0.denseness == Q(7, m));
+}
+
+/// run-time
+@safe pure nothrow unittest
+{
+    import std.algorithm : equal;
+    import nesses: denseness, sparseness;
+    import rational : Rational;
+    alias Q = Rational!ulong;
+    enum m = 256;
 
     BitSet!m b0;
     b0[0] = 1;
     b0[1] = 1;
-
     b0[m/2 - 1] = 1;
     b0[m/2] = 1;
     b0[m/2 + 1] = 1;
-
     b0[m - 2] = 1;
     b0[m - 1] = 1;
-    dln(b0.oneIndexes);
+
     assert(b0.oneIndexes.equal([0, 1,
                                 m/2 - 1, m/2, m/2 + 1,
                                 m - 2,
                                 m - 1]));
     assert(b0.countOnes == 7);
     assert(b0.denseness == Q(7, m));
+}
+
+/// run-time
+@safe pure nothrow unittest
+{
+    import std.algorithm : equal;
+    import nesses: denseness, sparseness;
+    import rational : Rational;
+    alias Q = Rational!ulong;
+
+    enum m = 256, n = 256;
 
     BitSet!m[n] b1;
     b1[0][0] = 1;

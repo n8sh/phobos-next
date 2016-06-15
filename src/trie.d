@@ -1787,7 +1787,7 @@ private struct RawRadixTree(Value,
         case undefined: break;
         case ix_OneLf6:
             auto curr_ = curr.as!(OneLf6);
-            writeln(typeof(curr_).stringof, "#", curr_.key.length, ": ", curr_.key);
+            writeln(typeof(curr_).stringof, "#", curr_.key.length, ": ", curr_.to!string);
             break;
         case ix_TwoLf3:
             auto curr_ = curr.as!(TwoLf3);

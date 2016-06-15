@@ -2151,13 +2151,13 @@ auto checkString(uint span, Keys...)()
         {
             import std.string : representation;
             set.willFail = key == "enl";
+            if (set.willFail) { set.print(); }
 
             if (set.willFail) dln("key:", key, " (", key.representation, ")");
 
             if (set.willFail) dln("assert(!set.contains(key)) ################################ : ");
             assert(!set.contains(key));
 
-            if (set.willFail) { set.print(); }
             if (set.willFail) dln("assert(set.insert(key)) ################################ : ");
             assert(set.insert(key));
 

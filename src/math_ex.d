@@ -17,7 +17,7 @@ bool isPow2(T)(T x)
     // }
     // else
         static if (__VERSION__ >= 2071 ||
-                    is(T == uint))
+                   is(T == uint))
     {
         import core.bitop : popcnt;
         return popcnt(x) == 1;

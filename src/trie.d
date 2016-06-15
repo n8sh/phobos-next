@@ -1262,14 +1262,15 @@ private struct RawRadixTree(Value,
         {
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
-            if (willFail) { dln("WILL FAIL: key:", key,
-                                " curr:", curr,
-                                " currPrefix:", getPrefix(curr),
-                                " superPrefixLength:", superPrefixLength); }
-
             import std.algorithm : commonPrefix;
             auto currPrefix = getPrefix(curr);
             auto matchedKeyPrefix = commonPrefix(key, currPrefix);
+
+            if (willFail) { dln("WILL FAIL: key:", key,
+                                " curr:", curr,
+                                " currPrefix:", getPrefix(curr),
+                                " matchedKeyPrefix:", matchedKeyPrefix,
+                                " superPrefixLength:", superPrefixLength); }
 
             // prefix:"ab", key:"cd"
             if (matchedKeyPrefix.length == 0) // no prefix key match
@@ -1332,6 +1333,7 @@ private struct RawRadixTree(Value,
                 {
                     if (willFail) { dln(""); }
                     // prefix and key share beginning: prefix:"ab11", key:"ab22"
+                    assert(currPrefix.length <= matchedKeyPrefix.length + 1);
                     const subIx = currPrefix[matchedKeyPrefix.length]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length + 1); // drop matchedKeyPrefix plus index to next super branch
                     return insertAtBranch(Node(construct!(DefaultBr)(matchedKeyPrefix, false, // key is not occupied
@@ -2052,10 +2054,14 @@ unittest
         assert(set.heapNodeAllocationBalance == 1);
     }
 
-    assert(set.insert(256));
     set.willFail = true;
+
+    set.print();
+    assert(set.insert(256));
+
     set.print();
     assert(!set.insert(256));
+
     assert(set.heapNodeAllocationBalance == 2);
 }
 

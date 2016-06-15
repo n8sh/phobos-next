@@ -1293,6 +1293,7 @@ private struct RawRadixTree(Value,
                     {
                         if (willFail) { dln(""); }
                         const subIx = key[0];
+                        assert(getSub(curr, subIx));
                         return setSub(curr, subIx,
                                       insertAt(getSub(curr, subIx), // recurse
                                                key[1 .. $],
@@ -1304,13 +1305,14 @@ private struct RawRadixTree(Value,
                 else
                 {
                     if (willFail) { dln(""); }
-                    const subIx = currPrefix[0]; // subIx = 'a'
+                    const currSubIx = currPrefix[0]; // subIx = 'a'
                     popFrontNPrefix(curr, 1);
-                    return insertAtBranch(Node(construct!(DefaultBr)(Ix[].init, false,
-                                                                     subIx, curr)),
-                                          key,
-                                          superPrefixLength,
-                                          wasAdded);
+                    auto next = Node(construct!(DefaultBr)(Ix[].init, false,
+                                                           currSubIx, curr));
+                    assert(getSub(next, key[0]));
+                    return setSub(next, key[0],
+                                  insertNew(key[1 .. $], superPrefixLength, wasAdded),
+                                  superPrefixLength);
                 }
             }
             else if (matchedKeyPrefix.length < key.length)
@@ -1336,8 +1338,9 @@ private struct RawRadixTree(Value,
                     assert(currPrefix.length <= matchedKeyPrefix.length + 1);
                     const subIx = currPrefix[matchedKeyPrefix.length]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length + 1); // drop matchedKeyPrefix plus index to next super branch
-                    return insertAtBranch(Node(construct!(DefaultBr)(matchedKeyPrefix, false, // key is not occupied
-                                                                     subIx, curr)),
+                    auto next = Node(construct!(DefaultBr)(matchedKeyPrefix, false, // key is not occupied
+                                                           subIx, curr));
+                    return insertAtBranch(next,
                                           key[matchedKeyPrefix.length .. $],
                                           superPrefixLength + matchedKeyPrefix.length,
                                           wasAdded);
@@ -1593,7 +1596,8 @@ private struct RawRadixTree(Value,
                 foreach (key; curr.keys)
                 {
                     bool wasAddedCurr;
-                    next = setSub(next, key[prefixLength], insertNew(key[prefixLength + 1 .. $], superPrefixLength, wasAddedCurr),
+                    next = setSub(next, key[prefixLength],
+                                  insertNew(key[prefixLength + 1 .. $], superPrefixLength, wasAddedCurr),
                                   superPrefixLength);
                     assert(wasAddedCurr);
                 }

@@ -1,19 +1,25 @@
 module math_ex;
 
-import std.traits : isIntegral;
+import std.traits : isIntegral, isNumeric;
 
 /** Check if `x` is an exact (binary) power of 2.
     See also: http://forum.dlang.org/thread/zumhmosfkvwjymjhmtlt@forum.dlang.org#post-fvnmurrctavpfkunssdf:40forum.dlang.org
     See also: http://forum.dlang.org/post/hloonbgclzloqemycnth@forum.dlang.org
-
-    TODO replace with std.math.isPowerOf2 added here: https://github.com/dlang/phobos/pull/4327/files
 */
-bool isPow2(T)(T x) if (isIntegral!T)
+bool isPow2(T)(T x)
+    if (isNumeric!T)
 {
-    import core.bitop : popcnt;
-    static if (__VERSION__ >= 2071 ||
-               is(T == uint))
+    // TODO uncomment:
+    // static if (__VERSION__ >= 2072)
+    // {
+    //     import std.math : isPowerOf2; // https://github.com/dlang/phobos/pull/4327/files
+    //     return isPowerOf2(x);
+    // }
+    // else
+        static if (__VERSION__ >= 2071 ||
+                    is(T == uint))
     {
+        import core.bitop : popcnt;
         return popcnt(x) == 1;
     }
     else

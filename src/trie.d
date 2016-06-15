@@ -2205,13 +2205,13 @@ private static auto randomUniqueStrings(size_t count = 1_000_000,
     return stringSet.byKey.array;
 }
 
-auto checkString(uint span, Keys...)()
+auto checkString(Keys...)()
     if (Keys.length >= 1)
 {
     import std.range : iota;
     foreach (Key; Keys)
     {
-        auto set = radixTreeSet!(Key, span);
+        auto set = radixTreeSet!(Key);
         alias Set = set;
         assert(set.empty);
 
@@ -2248,11 +2248,20 @@ auto checkString(uint span, Keys...)()
 @safe pure /* TODO @nogc */
 unittest
 {
-    checkString!(8, string);
+    checkString!(string);
+}
+
+/// Create a set of words from /usr/share/dict/words
+unittest
+{
+    import std.stdio : File;
+    foreach (const line; File("/etc/termcap").byLine())
+    {
+    }
 }
 
 /// Check correctness when span is `span` and for each `Key` in `Keys`.
-auto checkNumeric(uint span, Keys...)()
+auto checkNumeric(Keys...)()
     if (Keys.length >= 1)
 {
     import std.range : iota;
@@ -2265,7 +2274,7 @@ auto checkNumeric(uint span, Keys...)()
         foreach (Key; Keys)
         {
             dln("Key: ", Key.stringof);
-            alias Tree = radixTreeSet!(Key, span);
+            alias Tree = radixTreeSet!(Key);
             auto set = Tree;
             assert(set.hasFixedKeyLength == isFixedTrieableKeyType!Key);
             assert(set.empty);
@@ -2332,7 +2341,7 @@ auto checkNumeric(uint span, Keys...)()
                 static assert(false, `Handle type: "` ~ Key.stringof ~ `"`);
             }
 
-            auto map = radixTreeMap!(Key, Value, span);
+            auto map = radixTreeMap!(Key, Value);
             assert(map.hasFixedKeyLength == isFixedTrieableKeyType!Key);
             static assert(map.isMap);
 
@@ -2465,15 +2474,14 @@ unittest
 {
     while (true)
     {
-        checkNumeric!(8, float);
+        checkNumeric!(float);
     }
 }
 
 @safe pure nothrow /* TODO @nogc */
 unittest
 {
-    checkNumeric!(8,
-                  float, double,
+    checkNumeric!(float, double,
                   long, int, short, byte,
                   ulong, uint, ushort, ubyte);
 }

@@ -1409,8 +1409,9 @@ private struct RawRadixTree(Value,
                 // TODO Use variadic commonPrefix(curr.keys[0], curr.keys[1], key)
                 enum PL = curr.keyLength - 1;    // searched prefix length
                 if (curr.keys[0][0 .. PL] ==          key[0 .. PL] &&
-                    curr.keys[0][0 .. PL] == curr.keys[1][0 .. PL]) // if `curr` and `key` can be combined into a `FullLf1`
+                    curr.keys[0][0 .. PL] == curr.keys[1][0 .. PL]) // `curr.keys` and `key` share all but last Ix
                 {
+                    // if `curr` and `key` can be combined into a `FullLf1`
                     auto next = construct!(FullLf1*)(key[0 .. PL], false);
                     foreach (const currKey; curr.keys)
                     {
@@ -1443,8 +1444,9 @@ private struct RawRadixTree(Value,
 
                 if (curr.keys[0][0] ==          key[0] &&
                     curr.keys[0][0] == curr.keys[1][0] &&
-                    curr.keys[1][0] == curr.keys[2][0]) // if `curr` and `key` can be combined into a `FullLf1`
+                    curr.keys[1][0] == curr.keys[2][0]) // `curr.keys` and `key` share all but last Ix
                 {
+                    // if `curr` and `key` can be combined into a `FullLf1`
                     auto next = construct!(FullLf1*)(key[0 .. 1], false);
                     foreach (const currKey; curr.keys)
                     {
@@ -2146,11 +2148,12 @@ auto checkString(uint span, Keys...)()
 
         foreach (const key; elements.byKey)
         {
+            dln(`key:`, key);
             import std.conv : to;
             immutable failMessage = `Failed for key: "` ~ key.to!string ~ `"`;
 
             import std.string : representation;
-            set.willFail = (key == "thqdc");
+            set.willFail = (key == `thqgmrit`);
             if (set.willFail) { set.print(); }
 
             if (set.willFail) dln(`key:`, key, ` (`, key.representation, `)`);
@@ -2160,6 +2163,11 @@ auto checkString(uint span, Keys...)()
 
             if (set.willFail) dln(`assert(set.insert(key)) ################################ : `);
             assert(set.insert(key), failMessage);
+
+            if (key != `thqdc`)
+            {
+                assert(!set.contains(`thqdc`));
+            }
 
             if (set.willFail) dln(`assert(!set.insert(key)) ################################ :`);
             assert(!set.insert(key), failMessage);

@@ -24,7 +24,7 @@ template TypeOfModulo(size_t m)
     TODO reuse ideas from bound.d
 
     TODO Add function limit()
-    static if (isPow2!m)
+    static if (isPowerOf2!m)
     {
     return x & 2^^m - 1;
     }
@@ -46,7 +46,7 @@ template TypeOfModulo(size_t m)
 template Mod(size_t m, T = TypeOfModulo!m)
     if (m >= 1 && isIntegral!T)
 {
-    import math_ex : isPow2;
+    import math_ex : isPowerOf2;
 
     // smallest builtin unsigned integer type that can fit 2^^m
     alias UI = TypeOfModulo!m;
@@ -117,7 +117,7 @@ template Mod(size_t m, T = TypeOfModulo!m)
             }
             else static if (op == `--`)
             {
-                static if (isPow2(m))
+                static if (isPowerOf2(m))
                     x = (x - 1) & max; // more efficient
                 else
                     if (x == min) x = max; else --x;
@@ -125,7 +125,7 @@ template Mod(size_t m, T = TypeOfModulo!m)
             }
             else static if (op == `++`)
             {
-                static if (isPow2(m))
+                static if (isPowerOf2(m))
                     x = (x + 1) & max; // more efficient
                 else
                     if (x == max) x = min; else ++x;

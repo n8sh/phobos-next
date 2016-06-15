@@ -1291,12 +1291,13 @@ private struct RawRadixTree(Value,
                     else
                     {
                         if (willFail) { dln(""); }
-                        const ix = key[0];
-                        return setSub(curr, ix,
-                                      insertAt(getSub(curr, ix), // recurse
+                        const subIx = key[0];
+                        return setSub(curr, subIx,
+                                      insertAt(getSub(curr, subIx), // recurse
                                                key[1 .. $],
                                                superPrefixLength + 1,
-                                               wasAdded), superPrefixLength);
+                                               wasAdded),
+                                      superPrefixLength);
                     }
                 }
                 else
@@ -1319,12 +1320,13 @@ private struct RawRadixTree(Value,
                     // most probable: key is an extension of prefix: prefix:"ab", key:"abcd"
                     key = key[matchedKeyPrefix.length .. $]; // strip `currPrefix from beginning of `key`
                     superPrefixLength += matchedKeyPrefix.length;
-                    const ix = key[0];
-                    return setSub(curr, ix,
-                                  insertAt(getSub(curr, ix), // recurse
+                    const subIx = key[0];
+                    return setSub(curr, subIx,
+                                  insertAt(getSub(curr, subIx), // recurse
                                            key[1 .. $],
                                            superPrefixLength + 1,
-                                           wasAdded), superPrefixLength);
+                                           wasAdded),
+                                  superPrefixLength);
                 }
                 else
                 {

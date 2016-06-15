@@ -2528,8 +2528,7 @@ version(print) @safe unittest
     testPrint!(8,
                double, float,
                long, int, short, byte,
-               ulong, uint, ushort, ubyte,
-        );
+               ulong, uint, ushort, ubyte);
 }
 
 /** Static Iota.

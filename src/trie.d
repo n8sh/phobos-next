@@ -652,7 +652,7 @@ private struct RawRadixTree(Value,
 
         @safe pure nothrow:
 
-        this(Ix[] prefix, bool isKey = false)
+        this(Ix[] prefix, bool isKey)
         {
             this.prefix = prefix;
             this.isKey = isKey;
@@ -1278,7 +1278,8 @@ private struct RawRadixTree(Value,
                     popFrontNPrefix(curr, 1);
                     if (willFail) dln("after popFrontNPrefix: ", getPrefix(curr));
                     if (willFail) dln("key: ", key);
-                    return insertAt(Node(construct!(DefaultBr)(Ix[].init, false, subIx, curr)),
+                    return insertAt(Node(construct!(DefaultBr)(Ix[].init, false,
+                                                               subIx, curr)),
                                     key,
                                     superPrefixLength,
                                     wasAdded);
@@ -1549,7 +1550,7 @@ private struct RawRadixTree(Value,
             Node next;
             if (curr.keys.length == 1) // only one key
             {
-                next = construct!(DefaultBr)(Ix[].init); // so no prefix
+                next = construct!(DefaultBr)(Ix[].init, false); // so no prefix
                 bool wasAddedCurr;
                 next = insertAtBranch(next,
                                       curr.keys[0],
@@ -1560,7 +1561,7 @@ private struct RawRadixTree(Value,
             else
             {
                 auto currPrefix = curr.prefix;
-                next = construct!(DefaultBr)(currPrefix);
+                next = construct!(DefaultBr)(currPrefix, false);
                 // TODO functionize:
                 foreach (key; curr.keys) // TODO const key
                 {
@@ -1585,7 +1586,7 @@ private struct RawRadixTree(Value,
             Node next;
             if (curr.keys.length == 1) // only one key
             {
-                next = construct!(DefaultBr)(Ix[].init); // so no prefix
+                next = construct!(DefaultBr)(Ix[].init, false); // so no prefix
                 bool wasAddedCurr;
                 next = insertAtBranch(next,
                                       curr.keys[0],
@@ -1596,7 +1597,7 @@ private struct RawRadixTree(Value,
             else
             {
                 auto currPrefix = curr.prefix;
-                next = construct!(DefaultBr)(currPrefix);
+                next = construct!(DefaultBr)(currPrefix, false);
                 foreach (key; curr.keys) // TODO const key
                 {
                     bool wasAddedCurr;

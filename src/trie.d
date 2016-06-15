@@ -2163,6 +2163,8 @@ auto checkString(uint span, Keys...)()
             dln("assert(!set.contains(key)) ################################ : ");
             assert(!set.contains(key));
 
+            if (set.willFail) { set.print(); }
+
             dln("assert(set.insert(key)) ################################ : ");
             assert(set.insert(key));
 
@@ -2170,10 +2172,6 @@ auto checkString(uint span, Keys...)()
             assert(!set.insert(key));
 
             dln("assert(set.contains(key)) ################################ :");
-            if (set.willFail)
-            {
-                set.print();
-            }
             assert(set.contains(key));
         }
     }

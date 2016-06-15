@@ -2195,7 +2195,7 @@ unittest
 }
 
 /** Calculate and print statistics of `tree`. */
-void showStatistics(RT)(in RT tree)
+void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a copy ctor here
 {
     import std.stdio : writeln;
     auto stats = tree.usageHistograms;

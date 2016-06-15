@@ -623,8 +623,8 @@ private struct RawRadixTree(Value,
         {
             import std.algorithm : skipOver;
             return (key.skipOver(prefix[]) &&  // matching prefix
-                    key.length == 1 &&       // one key-chunk left
-                    _keyBits[key[0]]);       // and it's set
+                    key.length == 1 &&         // one key-chunk left
+                    _keyBits[key[0]]);         // and it's set
         }
 
         /** Append statistics of tree under `this` into `stats`. */
@@ -1120,10 +1120,7 @@ private struct RawRadixTree(Value,
             case ix_TwoLf3: return curr.as!(TwoLf3).contains(key);
             case ix_TriLf2: return curr.as!(TriLf2).contains(key);
             case ix_SixLf1: return curr.as!(SixLf1).contains(key);
-            case ix_FullLf1Ptr:
-                auto curr_ = curr.as!(FullLf1*);
-                if (willFail) { dln("Will fail, key:", key, " curr:", *curr_, " currPrefix:", curr_.prefix[]); }
-                return curr_.contains(key);
+            case ix_FullLf1Ptr: return curr.as!(FullLf1*).contains(key);
             case ix_LinBr4Ptr:
                 auto curr_ = curr.as!(LinBr4*);
                 return (key.skipOver(curr_.prefix) &&

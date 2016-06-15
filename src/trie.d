@@ -2158,7 +2158,7 @@ auto checkString(uint span, Keys...)()
         {
             import std.string : representation;
             dln("key:", key, " (", key.representation, ")");
-            set.willFail = key == "rxo";
+            set.willFail = key == "isn";
 
             dln("assert(!set.contains(key)) ################################ : ");
             assert(!set.contains(key));

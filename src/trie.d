@@ -2183,7 +2183,9 @@ unittest
 /** Generate `count` number of random unique strings of minimum length 1 and
     maximum length `maxLength`.
  */
-private static auto randomUniqueStrings(size_t count = 1_000_000, uint maxLength = 16) @trusted
+private static auto randomUniqueStrings(size_t count = 1_000_000,
+                                        uint maxLength = 16)
+    @trusted
 {
     import std.random : Random, uniform;
     auto gen = Random();

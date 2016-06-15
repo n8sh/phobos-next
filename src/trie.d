@@ -1363,7 +1363,6 @@ private struct RawRadixTree(Value,
                 {
                     if (willFail) { dln(""); }
                     // prefix and key share beginning: prefix:"ab11", key:"ab22"
-                    assert(currPrefix.length <= matchedKeyPrefix.length + 1);
 
                     const currSubIx = currPrefix[matchedKeyPrefix.length]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length + 1); // drop matchedKeyPrefix plus index to next super branch

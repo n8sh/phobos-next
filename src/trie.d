@@ -1110,7 +1110,10 @@ private struct RawRadixTree(Value,
             case ix_TwoLf3: return curr.as!(TwoLf3).contains(key);
             case ix_TriLf2: return curr.as!(TriLf2).contains(key);
             case ix_SixLf1: return curr.as!(SixLf1).contains(key);
-            case ix_FullLf1Ptr: return curr.as!(FullLf1*).contains(key);
+            case ix_FullLf1Ptr:
+                auto curr_ = curr.as!(FullLf1*);
+                if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr, " currPrefix:", curr_.prefix, " isKey:", curr_.isKey); }
+                return curr_.contains(key);
             case ix_LinBr4Ptr:
                 auto curr_ = curr.as!(LinBr4*);
                 if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr, " currPrefix:", curr_.prefix, " isKey:", curr_.isKey); }
@@ -2147,7 +2150,7 @@ auto checkString(uint span, Keys...)()
             immutable failMessage = `Failed for key: "` ~ key.to!string ~ `"`;
 
             import std.string : representation;
-            set.willFail = false;
+            set.willFail = (key == "thqdc");
             if (set.willFail) { set.print(); }
 
             if (set.willFail) dln(`key:`, key, ` (`, key.representation, `)`);

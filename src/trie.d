@@ -2180,6 +2180,29 @@ unittest
     }
 }
 
+/** Generate `count` number of random unique strings of minimum length 1 and
+    maximum length `maxLength`.
+ */
+private static auto randomUniqueStrings(size_t count = 1_000_000, uint maxLength = 16) @trusted
+{
+    import std.random : Random, uniform;
+    auto gen = Random();
+
+    bool[string] stringSet;  // set of strings using D's builtin associative array
+    while (stringSet.length < count)
+    {
+        const length = uniform(1, maxLength, gen);
+        auto key = new char[length];
+        foreach (ix; 0 .. length)
+        {
+            key[ix] = cast(char)('a' + 0.uniform(26, gen));
+        }
+        stringSet[key[].idup] = true;
+    }
+    import std.array : array;
+    return stringSet.byKey.array;
+}
+
 auto checkString(uint span, Keys...)()
     if (Keys.length >= 1)
 {
@@ -2190,25 +2213,7 @@ auto checkString(uint span, Keys...)()
         alias Set = set;
         assert(set.empty);
 
-        import std.random : Random, uniform;
-        auto gen = Random();
-        const maxLength = 16;
-
-        bool[string] elements;  // set of strings using D's builtin associative array
-
-        const count = 1_000_000;
-        while (elements.length < count)
-        {
-            const length = uniform(1, maxLength, gen);
-            auto key = new char[length];
-            foreach (ix; 0 .. length)
-            {
-                key[ix] = cast(char)('a' + 0.uniform(26, gen));
-            }
-            elements[key[].idup] = true;
-        }
-
-        foreach (const key; elements.byKey)
+        foreach (const key; randomUniqueStrings)
         {
             // dln(`key:`, key);
             import std.conv : to;
@@ -2238,7 +2243,7 @@ auto checkString(uint span, Keys...)()
     }
 }
 
-pure /* TODO @nogc */
+@safe pure /* TODO @nogc */
 unittest
 {
     checkString!(8, string);

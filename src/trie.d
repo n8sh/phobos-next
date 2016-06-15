@@ -1601,7 +1601,7 @@ private struct RawRadixTree(Value,
             if (!next) { next = construct!(DefaultBr)(prefix, false); }
 
             bool wasAddedCurr;      // dummy
-            auto superNext = insertAt(next, curr.key, 0, wasAddedCurr);
+            auto superNext = insertAt(next, curr.key, superPrefixLength, wasAddedCurr);
             assert(wasAddedCurr); // assure that `curr` was reinserted
             freeNode(curr);   // remove old current
 

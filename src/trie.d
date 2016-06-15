@@ -1334,13 +1334,24 @@ private struct RawRadixTree(Value,
                 }
                 else
                 {
-                    if (willFail) { dln(""); }
                     const currSubIx = currPrefix[0]; // subIx = 'a'
                     popFrontNPrefix(curr, 1);
-                    return Node(construct!(DefaultBr)(Ix[].init, false,
-                                                      currSubIx, curr,
-                                                      key[0],
-                                                      insertNew(key[1 .. $], superPrefixLength, wasAdded)));
+                    if (key.length == 0)
+                    {
+                        if (willFail) { dln(""); }
+                        wasAdded = true;
+                        return Node(construct!(DefaultBr)(Ix[].init,
+                                                          true, // because `key` is empty
+                                                          currSubIx, curr));
+                    }
+                    else
+                    {
+                        if (willFail) { dln(""); }
+                        return Node(construct!(DefaultBr)(Ix[].init, false,
+                                                          currSubIx, curr,
+                                                          key[0],
+                                                          insertNew(key[1 .. $], superPrefixLength, wasAdded)));
+                    }
                 }
             }
             else if (matchedKeyPrefix.length < key.length)

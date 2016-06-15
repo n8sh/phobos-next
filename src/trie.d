@@ -1553,6 +1553,8 @@ private struct RawRadixTree(Value,
         {
             assert(hasVariableKeyLength || superPrefixLength + curr.keyLength == fixedKeyLength);
 
+            if (willFail) { dln("WILL FAIL: curr:", curr, " superPrefixLength:", superPrefixLength); }
+
             Node next;
             if (curr.keys.length == 1) // only one key
             {
@@ -1566,11 +1568,14 @@ private struct RawRadixTree(Value,
             }
             else
             {
+                if (willFail) { debug try { dln("curr:"); printAt(Node(curr), 0); } catch (Exception e) {} }
                 auto currPrefix = curr.prefix;
                 next = construct!(DefaultBr)(currPrefix, false);
+                if (willFail) { dln("WILL FAIL: curr:", curr, " currPrefix:", currPrefix); }
                 // TODO functionize:
                 foreach (key; curr.keys) // TODO const key
                 {
+                    if (willFail) { dln("WILL FAIL: key:", key); }
                     bool wasAddedCurr;
                     next = insertAtBranch(next,
                                           key[currPrefix.length .. $],
@@ -1578,6 +1583,7 @@ private struct RawRadixTree(Value,
                                           wasAddedCurr);
                     assert(wasAddedCurr);
                 }
+                if (willFail) { debug try { dln("next:"); printAt(next, 0); } catch (Exception e) {} }
             }
             freeNode(curr);
             return next;

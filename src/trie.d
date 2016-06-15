@@ -1237,9 +1237,9 @@ private struct RawRadixTree(Value,
 
             if (!curr)          // if no existing `Node` to insert at
             {
-                curr = insertNew(key, superPrefixLength, wasAdded);
+                auto next = insertNew(key, superPrefixLength, wasAdded);
                 assert(wasAdded); // must be added to new Node
-                return curr;
+                return next;
             }
             else
             {
@@ -2054,6 +2054,7 @@ unittest
 
     assert(set.insert(256));
     set.willFail = true;
+    set.print();
     assert(!set.insert(256));
     assert(set.heapNodeAllocationBalance == 2);
 }

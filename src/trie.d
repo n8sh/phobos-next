@@ -1569,17 +1569,16 @@ private struct RawRadixTree(Value,
             else
             {
                 if (willFail) { debug try { dln("curr:"); printAt(Node(curr), 0); } catch (Exception e) {} }
-                auto currPrefix = curr.prefix;
-                next = construct!(DefaultBr)(currPrefix, false);
-                if (willFail) { dln("WILL FAIL: curr:", curr, " currPrefix:", currPrefix); }
+                immutable prefixLength = curr.prefix.length;
+                next = construct!(DefaultBr)(curr.prefix, false);
                 // TODO functionize:
                 foreach (key; curr.keys) // TODO const key
                 {
                     if (willFail) { dln("WILL FAIL: key:", key); }
                     bool wasAddedCurr;
                     next = insertAtBranch(next,
-                                          key[currPrefix.length .. $],
-                                          superPrefixLength + currPrefix.length,
+                                          key[prefixLength .. $],
+                                          superPrefixLength + prefixLength,
                                           wasAddedCurr);
                     assert(wasAddedCurr);
                 }
@@ -1608,16 +1607,16 @@ private struct RawRadixTree(Value,
             }
             else
             {
-                auto currPrefix = curr.prefix;
-                next = construct!(DefaultBr)(currPrefix, false);
+                immutable prefixLength = curr.prefix.length;
+                next = construct!(DefaultBr)(curr.prefix, false);
                 foreach (key; curr.keys) // TODO const key
                 {
                     bool wasAddedCurr;
-                    auto subKey = key[currPrefix.length .. $];
+                    auto subKey = key[prefixLength .. $];
                     assert(subKey.length != 0);
                     next = insertAtBranch(next,
                                           subKey,
-                                          superPrefixLength + currPrefix.length,
+                                          superPrefixLength + prefixLength,
                                           wasAddedCurr);
                     assert(wasAddedCurr);
                 }

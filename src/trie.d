@@ -2160,7 +2160,7 @@ auto checkString(uint span, Keys...)()
             immutable failMessage = `Failed for key: "` ~ key.to!string ~ `"`;
 
             import std.string : representation;
-            set.willFail = false;
+            set.willFail = (key == `wixwaa`);
             if (set.willFail) { set.print(); }
 
             if (set.willFail) dln(`key:`, key, ` (`, key.representation, `)`);

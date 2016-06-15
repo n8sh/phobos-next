@@ -519,7 +519,7 @@ private struct RawRadixTree(Value,
     }
 
     // TODO make these run-time arguments at different key depths and map to statistics of typed-key
-    alias DefaultBr = FullBrM*; // either LinBr4*, FullBrM*
+    alias DefaultBr = LinBr4*; // either LinBr4*, FullBrM*
 
     static if (isSet)
         static assert(SixLf1.sizeof == size_t.sizeof); // assert that it's size matches platform word-size
@@ -2160,7 +2160,7 @@ auto checkString(uint span, Keys...)()
         foreach (const key; elements.byKey)
         {
             dln("key:", key);
-            set.willFail = key == "dx";
+            set.willFail = key == "rxo";
 
             dln("assert(!set.contains(key)) ################################ : ");
             assert(!set.contains(key));
@@ -2172,12 +2172,16 @@ auto checkString(uint span, Keys...)()
             assert(!set.insert(key));
 
             dln("assert(set.contains(key)) ################################ :");
+            if (set.willFail)
+            {
+                set.print();
+            }
             assert(set.contains(key));
         }
     }
 }
 
-pure /* TODO @nogc */
+//pure /* TODO @nogc */
 unittest
 {
     checkString!(8, string);

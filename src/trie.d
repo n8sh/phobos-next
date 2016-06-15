@@ -1113,13 +1113,13 @@ private struct RawRadixTree(Value,
             case ix_FullLf1Ptr: return curr.as!(FullLf1*).contains(key);
             case ix_LinBr4Ptr:
                 auto curr_ = curr.as!(LinBr4*);
-                if (willFail) { dln("Will fail, key:", key, " curr:", curr, " currPrefix:", curr_.prefix, " isKey:", curr_.isKey); }
+                if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr, " currPrefix:", curr_.prefix, " isKey:", curr_.isKey); }
                 return (key.skipOver(curr_.prefix) &&        // matching prefix
                         ((key.length == 0 && curr_.isKey) || // either stored at `curr`
                          (key.length >= 1 && containsAt(curr_.findSub(key[0]), key[1 .. $])))); // recurse
             case ix_FullBrMPtr:
                 auto curr_ = curr.as!(FullBrM*);
-                if (willFail) { dln("Will fail, key:", key, " curr:", curr, " currPrefix:", curr_.prefix, " isKey:", curr_.isKey); }
+                if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr, " currPrefix:", curr_.prefix, " isKey:", curr_.isKey); }
                 return (key.skipOver(curr_.prefix) &&        // matching prefix
                         ((key.length == 0 && curr_.isKey) || // either stored at `curr`
                          (key.length >= 1 && containsAt(curr_.subNodes[key[0]], key[1 .. $])))); // recurse
@@ -1225,7 +1225,7 @@ private struct RawRadixTree(Value,
         {
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
-            if (willFail) { dln("Will fail, key:", key, " curr:", curr, " superPrefixLength:", superPrefixLength); }
+            if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr, " superPrefixLength:", superPrefixLength); }
             if (!curr)          // if no existing `Node` to insert at
             {
                 curr = insertNew(key, superPrefixLength, wasAdded);
@@ -1253,7 +1253,7 @@ private struct RawRadixTree(Value,
         {
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
-            if (willFail) { dln("Will fail, key:", key,
+            if (willFail) { dln("WILL FAIL: key:", key,
                                 " curr:", curr,
                                 " superPrefixLength:", superPrefixLength,
                                 " currPrefix:", getPrefix(curr)); }
@@ -1315,6 +1315,7 @@ private struct RawRadixTree(Value,
                     // prefix is an extension of key: prefix:"abcd", key:"ab"
                     const subIx = currPrefix[matchedKeyPrefix.length]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length + 1); // drop matchedKeyPrefix plus index to next super branch
+                    wasAdded = true;
                     return Node(construct!(DefaultBr)(matchedKeyPrefix, true, // `true` because `key` occupies this node
                                                       subIx, curr));
                 }
@@ -1391,7 +1392,7 @@ private struct RawRadixTree(Value,
             assert(hasVariableKeyLength || curr.keyLength == key.length);
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
-            if (willFail) { dln("Will fail, key:", key, " curr:", curr, " superPrefixLength:", superPrefixLength); }
+            if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr, " superPrefixLength:", superPrefixLength); }
             if (curr.keyLength == key.length)
             {
                 if (curr.contains(key)) { return Node(curr); }
@@ -1426,7 +1427,7 @@ private struct RawRadixTree(Value,
             assert(hasVariableKeyLength || curr.keyLength == key.length);
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
-            if (willFail) { dln("Will fail, key:", key, " curr:", curr, " superPrefixLength:", superPrefixLength); }
+            if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr, " superPrefixLength:", superPrefixLength); }
             if (curr.keyLength == key.length)
             {
                 if (curr.contains(key)) { return Node(curr); }
@@ -1466,7 +1467,7 @@ private struct RawRadixTree(Value,
             }
             assert(hasVariableKeyLength || curr.keyLength == key.length);
 
-            if (willFail) { dln("Will fail, key:", key, " curr:", curr, " superPrefixLength:", superPrefixLength); }
+            if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr, " superPrefixLength:", superPrefixLength); }
             if (curr.keyLength == key.length)
             {
                 if (curr.contains(key)) { return Node(curr); }
@@ -2125,7 +2126,7 @@ auto checkString(uint span, Keys...)()
 
         import std.random : Random, uniform;
         auto gen = Random();
-        const maxLength = 10;
+        const maxLength = 16;
 
         const count = 100_000;
         bool[string] elements;  // set of strings using D's builtin associative array
@@ -2143,7 +2144,7 @@ auto checkString(uint span, Keys...)()
         foreach (const key; elements.byKey)
         {
             import std.string : representation;
-            set.willFail = key == "enl";
+            set.willFail = key == "bkrr";
             if (set.willFail) { set.print(); }
 
             if (set.willFail) dln("key:", key, " (", key.representation, ")");

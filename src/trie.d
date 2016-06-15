@@ -1951,8 +1951,10 @@ static private Key!span remapKey(TypedKey, uint span = 8)(in TypedKey typedKey)
     @trusted pure nothrow /* TODO @nogc */
     if (allSatisfy!(isTrieableKeyType, TypedKey))
 {
+    import std.traits : isArray;
     enum radix = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
     alias Ix = Mod!radix;
+
     static if (isFixedTrieableKeyType!TypedKey)
     {
         const ukey = typedKey.bijectToUnsigned;
@@ -1974,7 +1976,8 @@ static private Key!span remapKey(TypedKey, uint span = 8)(in TypedKey typedKey)
 
         return key.dup; // TODO avoid this GC-allocation
     }
-    else static if (is(Unqual!TypedKey == string))
+    else static if (isArray!TypedKey &&
+                    is(Unqual!(typeof(TypedKey.init[0])) == char))
     {
         import std.string : representation;
         const ubyte[] key = typedKey.representation; // lexical byte-order
@@ -1996,7 +1999,7 @@ static private Key!span remapKey(TypedKey, uint span = 8)(in TypedKey typedKey)
     }
     else
     {
-        assert(false, "TODO");
+        static assert(false, "TODO Handle typed key " ~ TypedKey.stringof);
     }
 }
 
@@ -2072,7 +2075,18 @@ alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
 
 /// Instantiator of set-version of `RadixTree` where value-type is `void` (unused).
-auto radixTreeSet(Key, uint span = 8)() { return RadixTree!(Key, void, span)(false); }
+auto radixTreeSet(Key, uint span = 8)()
+{
+    static if (is(Key == string))
+    {
+        alias MutableKey = const(char)[];
+    }
+    else
+    {
+        alias MutableKey = Key;
+    }
+    return RadixTree!(MutableKey, void, span)(false);
+}
 
 /// Instantiator of map-version of `RadixTree` where value-type is `Value`.
 auto radixTreeMap(Key, Value, uint span = 8)() { return RadixTree!(Key, Value, span)(false); }
@@ -2180,6 +2194,29 @@ unittest
     }
 }
 
+/// Create a set of words from /usr/share/dict/words
+unittest
+{
+    import std.stdio : File;
+    auto set = radixTreeSet!(string);
+    assert(set.empty);
+    foreach (const line; File("/usr/share/dict/words").byLine())
+    {
+        import std.algorithm.searching : endsWith;
+        import std.range : empty;
+        if (!line.empty &&
+            !line.endsWith(`'s`)) // skip genitive forms
+        {
+            if (line.length <= 12)
+            {
+                assert(!set.contains(line));
+                assert(set.insert(line));
+                assert(set.contains(line));
+            }
+        }
+    }
+}
+
 /** Generate `count` number of random unique strings of minimum length 1 and
     maximum length `maxLength`.
  */
@@ -2249,15 +2286,6 @@ auto checkString(Keys...)()
 unittest
 {
     checkString!(string);
-}
-
-/// Create a set of words from /usr/share/dict/words
-unittest
-{
-    import std.stdio : File;
-    foreach (const line; File("/etc/termcap").byLine())
-    {
-    }
 }
 
 /// Check correctness when span is `span` and for each `Key` in `Keys`.

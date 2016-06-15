@@ -5,7 +5,8 @@ import std.traits : isIntegral;
 /** Check if `x` is an exact (binary) power of 2.
     See also: http://forum.dlang.org/thread/zumhmosfkvwjymjhmtlt@forum.dlang.org#post-fvnmurrctavpfkunssdf:40forum.dlang.org
     See also: http://forum.dlang.org/post/hloonbgclzloqemycnth@forum.dlang.org
-    TODO Move to Phobos std.math.
+
+    TODO replace with std.math.isPowerOf2 added https://github.com/dlang/phobos/pull/4327/files
 */
 bool isPow2(T)(T x) if (isIntegral!T)
 {

@@ -1231,7 +1231,11 @@ private struct RawRadixTree(Value,
         {
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
-            if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr, " superPrefixLength:", superPrefixLength); }
+            if (willFail) { dln("WILL FAIL: key:", key,
+                                " curr:", curr,
+                                " currPrefix:", getPrefix(curr),
+                                " superPrefixLength:", superPrefixLength); }
+
             if (!curr)          // if no existing `Node` to insert at
             {
                 curr = insertNew(key, superPrefixLength, wasAdded);
@@ -1261,8 +1265,8 @@ private struct RawRadixTree(Value,
 
             if (willFail) { dln("WILL FAIL: key:", key,
                                 " curr:", curr,
-                                " superPrefixLength:", superPrefixLength,
-                                " currPrefix:", getPrefix(curr)); }
+                                " currPrefix:", getPrefix(curr),
+                                " superPrefixLength:", superPrefixLength); }
 
             import std.algorithm : commonPrefix;
             auto currPrefix = getPrefix(curr);
@@ -1275,6 +1279,7 @@ private struct RawRadixTree(Value,
                 {
                     if (key.length == 0)
                     {
+                        if (willFail) { dln(""); }
                         // both prefix and key is empty
                         assert(currPrefix == key); // assert exact match
                         if (!isKey(curr))
@@ -1286,6 +1291,7 @@ private struct RawRadixTree(Value,
                     }
                     else
                     {
+                        if (willFail) { dln(""); }
                         const ix = key[0];
                         return setSub(curr, ix,
                                       insertAt(getSub(curr, ix), // recurse
@@ -1296,6 +1302,7 @@ private struct RawRadixTree(Value,
                 }
                 else
                 {
+                    if (willFail) { dln(""); }
                     const subIx = currPrefix[0]; // subIx = 'a'
                     popFrontNPrefix(curr, 1);
                     return insertAtBranch(Node(construct!(DefaultBr)(Ix[].init, false,
@@ -1309,6 +1316,7 @@ private struct RawRadixTree(Value,
             {
                 if (matchedKeyPrefix.length == currPrefix.length)
                 {
+                    if (willFail) { dln(""); }
                     // most probable: key is an extension of prefix: prefix:"ab", key:"abcd"
                     key = key[matchedKeyPrefix.length .. $]; // strip `currPrefix from beginning of `key`
                     superPrefixLength += matchedKeyPrefix.length;
@@ -1321,6 +1329,7 @@ private struct RawRadixTree(Value,
                 }
                 else
                 {
+                    if (willFail) { dln(""); }
                     // prefix and key share beginning: prefix:"ab11", key:"ab22"
                     const subIx = currPrefix[matchedKeyPrefix.length]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length + 1); // drop matchedKeyPrefix plus index to next super branch
@@ -1336,6 +1345,7 @@ private struct RawRadixTree(Value,
                 assert(matchedKeyPrefix.length == key.length);
                 if (matchedKeyPrefix.length < currPrefix.length)
                 {
+                    if (willFail) { dln(""); }
                     // prefix is an extension of key: prefix:"abcd", key:"ab"
                     const subIx = currPrefix[matchedKeyPrefix.length]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length + 1); // drop matchedKeyPrefix plus index to next super branch
@@ -1345,6 +1355,7 @@ private struct RawRadixTree(Value,
                 }
                 else // if (matchedKeyPrefix.length == currPrefix.length)
                 {
+                    if (willFail) { dln(""); }
                     assert(matchedKeyPrefix.length == currPrefix.length);
                     // prefix equals key: prefix:"ab", key:"ab"
                     assert(currPrefix == key); // assert exact match

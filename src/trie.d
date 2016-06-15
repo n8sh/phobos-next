@@ -1183,6 +1183,9 @@ private struct RawRadixTree(Value,
         {
             switch (key.length)
             {
+            case 0:
+                wasAdded = true;
+                return Node(construct!(OneLf6)());
             case 1:
                 wasAdded = true;
                 return Node(construct!(SixLf1)(key[0])); // promote packing
@@ -1568,21 +1571,16 @@ private struct RawRadixTree(Value,
             }
             else
             {
-                if (willFail) { debug try { dln("curr:"); printAt(Node(curr), 0); } catch (Exception e) {} }
                 immutable prefixLength = curr.prefix.length;
                 next = construct!(DefaultBr)(curr.prefix, false);
                 // TODO functionize:
-                foreach (key; curr.keys) // TODO const key
+                foreach (key; curr.keys)
                 {
-                    if (willFail) { dln("WILL FAIL: key:", key); }
                     bool wasAddedCurr;
-                    next = insertAtBranch(next,
-                                          key[prefixLength .. $],
-                                          superPrefixLength + prefixLength,
-                                          wasAddedCurr);
+                    next = setSub(next, key[prefixLength], insertNew(key[prefixLength + 1 .. $], superPrefixLength, wasAddedCurr),
+                                  superPrefixLength);
                     assert(wasAddedCurr);
                 }
-                if (willFail) { debug try { dln("next:"); printAt(next, 0); } catch (Exception e) {} }
             }
             freeNode(curr);
             return next;
@@ -1609,15 +1607,12 @@ private struct RawRadixTree(Value,
             {
                 immutable prefixLength = curr.prefix.length;
                 next = construct!(DefaultBr)(curr.prefix, false);
-                foreach (key; curr.keys) // TODO const key
+                // TODO functionize:
+                foreach (key; curr.keys)
                 {
                     bool wasAddedCurr;
-                    auto subKey = key[prefixLength .. $];
-                    assert(subKey.length != 0);
-                    next = insertAtBranch(next,
-                                          subKey,
-                                          superPrefixLength + prefixLength,
-                                          wasAddedCurr);
+                    next = setSub(next, key[prefixLength], insertNew(key[prefixLength + 1 .. $], superPrefixLength, wasAddedCurr),
+                                  superPrefixLength);
                     assert(wasAddedCurr);
                 }
             }
@@ -2138,8 +2133,9 @@ auto checkString(uint span, Keys...)()
         auto gen = Random();
         const maxLength = 16;
 
-        const count = 1_000_000;
         bool[string] elements;  // set of strings using D's builtin associative array
+
+        const count = 1_000_000;
         while (elements.length < count)
         {
             const length = uniform(1, maxLength, gen);
@@ -2151,14 +2147,18 @@ auto checkString(uint span, Keys...)()
             elements[key[].idup] = true;
         }
 
+        // elements[`thqkdc`] = true;
+        // elements[`thqkxw`] = true;
+        // elements[`thqgmrit`] = true;
+
         foreach (const key; elements.byKey)
         {
-            dln(`key:`, key);
+            // dln(`key:`, key);
             import std.conv : to;
             immutable failMessage = `Failed for key: "` ~ key.to!string ~ `"`;
 
             import std.string : representation;
-            set.willFail = (key == `thqgmrit`);
+            set.willFail = false;
             if (set.willFail) { set.print(); }
 
             if (set.willFail) dln(`key:`, key, ` (`, key.representation, `)`);
@@ -2168,11 +2168,6 @@ auto checkString(uint span, Keys...)()
 
             if (set.willFail) dln(`assert(set.insert(key)) ################################ : `);
             assert(set.insert(key), failMessage);
-
-            if (key != `thqdc`)
-            {
-                assert(!set.contains(`thqdc`));
-            }
 
             if (set.willFail) dln(`assert(!set.insert(key)) ################################ :`);
             assert(!set.insert(key), failMessage);

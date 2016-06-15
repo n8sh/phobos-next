@@ -2215,7 +2215,7 @@ auto checkString(uint span, Keys...)()
             immutable failMessage = `Failed for key: "` ~ key.to!string ~ `"`;
 
             import std.string : representation;
-            set.willFail = (key == `iex`);
+            // set.willFail = (key == `iex`);
             if (set.willFail) { set.print(); }
 
             if (set.willFail) dln(`key:`, key, ` (`, key.representation, `)`);
@@ -2289,7 +2289,7 @@ auto checkNumeric(uint span, Keys...)()
                 foreach (const uk; low.iota(high + 1))
                 {
                     const Key key = cast(Key)uk;
-                    debug set.willFail = (key == -32639);
+                    // debug set.willFail = (key == -32639);
                     if (useContains)
                     {
                         if (set.willFail) dln("before check no contains yet");

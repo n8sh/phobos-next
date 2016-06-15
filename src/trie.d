@@ -1571,8 +1571,9 @@ private struct RawRadixTree(Value,
             }
             else
             {
-                immutable prefixLength = curr.prefix.length;
-                next = construct!(DefaultBr)(curr.prefix, false);
+                auto next_ = construct!(DefaultBr)(curr.prefix, false);
+                immutable prefixLength = next_.prefix.length;
+                next = next_;
                 // TODO functionize:
                 foreach (key; curr.keys)
                 {
@@ -1605,8 +1606,9 @@ private struct RawRadixTree(Value,
             }
             else
             {
-                immutable prefixLength = curr.prefix.length;
-                next = construct!(DefaultBr)(curr.prefix, false);
+                auto next_ = construct!(DefaultBr)(curr.prefix, false);
+                immutable prefixLength = next_.prefix.length;
+                next = next_;
                 // TODO functionize:
                 foreach (key; curr.keys)
                 {

@@ -2128,7 +2128,7 @@ auto checkString(uint span, Keys...)()
         auto gen = Random();
         const maxLength = 16;
 
-        const count = 100_000;
+        const count = 1_000_000;
         bool[string] elements;  // set of strings using D's builtin associative array
         while (elements.length < count)
         {
@@ -2143,23 +2143,26 @@ auto checkString(uint span, Keys...)()
 
         foreach (const key; elements.byKey)
         {
+            import std.conv : to;
+            immutable failMessage = `Failed for key: "` ~ key.to!string ~ `"`;
+
             import std.string : representation;
             set.willFail = false;
             if (set.willFail) { set.print(); }
 
-            if (set.willFail) dln("key:", key, " (", key.representation, ")");
+            if (set.willFail) dln(`key:`, key, ` (`, key.representation, `)`);
 
-            if (set.willFail) dln("assert(!set.contains(key)) ################################ : ");
-            assert(!set.contains(key));
+            if (set.willFail) dln(`assert(!set.contains(key)) ################################ : `);
+            assert(!set.contains(key), failMessage);
 
-            if (set.willFail) dln("assert(set.insert(key)) ################################ : ");
-            assert(set.insert(key));
+            if (set.willFail) dln(`assert(set.insert(key)) ################################ : `);
+            assert(set.insert(key), failMessage);
 
-            if (set.willFail) dln("assert(!set.insert(key)) ################################ :");
-            assert(!set.insert(key));
+            if (set.willFail) dln(`assert(!set.insert(key)) ################################ :`);
+            assert(!set.insert(key), failMessage);
 
-            if (set.willFail) dln("assert(set.contains(key)) ################################ :");
-            assert(set.contains(key));
+            if (set.willFail) dln(`assert(set.contains(key)) ################################ :`);
+            assert(set.contains(key), failMessage);
         }
     }
 }

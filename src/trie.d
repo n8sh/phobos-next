@@ -869,15 +869,6 @@ private struct RawRadixTree(Value,
     /** Set sub-`Node` of branch `Node curr` at index `ix` to `subNode`. */
     pragma(inline) Node setSub(Node curr, Ix subIx, Node subNode, size_t superPrefixLength) @safe pure nothrow
     {
-        // debug if ((curr.peek!(FullBrM*) ||
-        //            curr.peek!(LinBr4*)) &&
-        //           subNode.peek!(SixLf1))
-        // {
-        //     dln("superPrefixLength:", superPrefixLength,
-        //         " curr:", curr,
-        //         " currPrefix:", getPrefix(curr),
-        //         " fixedKeyLength:", fixedKeyLength);
-        // }
         switch (curr.typeIx)
         {
         case Node.Ix.ix_FullLf1Ptr: return setSub(curr.as!(FullLf1*), subIx, subNode, superPrefixLength);
@@ -914,7 +905,7 @@ private struct RawRadixTree(Value,
         }
         else
         {
-            auto next_ = construct!(FullBrM*)(curr.prefix, curr.isKey, );
+            auto next_ = construct!(FullBrM*)(curr.prefix, curr.isKey);
             foreach (const ix; curr._keyBits.oneIndexes)
             {
                 setSub(next_, ix, Node(construct!(OneLf6)), superPrefixLength);

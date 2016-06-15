@@ -1340,14 +1340,14 @@ private struct RawRadixTree(Value,
                     {
                         if (willFail) { dln(""); }
                         wasAdded = true;
-                        return Node(construct!(DefaultBr)(Ix[].init,
+                        return Node(construct!(DefaultBr)(matchedKeyPrefix,
                                                           true, // because `key` is empty
                                                           currSubIx, curr));
                     }
                     else
                     {
                         if (willFail) { dln(""); }
-                        return Node(construct!(DefaultBr)(Ix[].init, false,
+                        return Node(construct!(DefaultBr)(matchedKeyPrefix, false,
                                                           currSubIx, curr,
                                                           key[0],
                                                           insertNew(key[1 .. $], superPrefixLength, wasAdded)));

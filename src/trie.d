@@ -2144,7 +2144,7 @@ auto checkString(uint span, Keys...)()
         foreach (const key; elements.byKey)
         {
             import std.string : representation;
-            set.willFail = key == "bkrr";
+            set.willFail = false;
             if (set.willFail) { set.print(); }
 
             if (set.willFail) dln("key:", key, " (", key.representation, ")");

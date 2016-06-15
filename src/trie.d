@@ -2237,10 +2237,12 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
 /// Create a set of words from /usr/share/dict/words
 unittest
 {
-    import std.stdio : File;
+    immutable path = "/usr/share/dict/words";
+    import std.stdio : File, writeln;
     auto set = radixTreeSet!(string);
     assert(set.empty);
-    foreach (const line; File("/usr/share/dict/words").byLine())
+    size_t count = 0;
+    foreach (const line; File(path).byLine())
     {
         import std.algorithm.searching : endsWith;
         import std.range : empty;
@@ -2252,9 +2254,12 @@ unittest
                 assert(!set.contains(line));
                 assert(set.insert(line));
                 assert(set.contains(line));
+                ++count;
             }
         }
     }
+    dln("Added ", count, " words from ", path);
+    set.showStatistics();
 }
 
 /** Generate `count` number of random unique strings of minimum length 1 and
@@ -2475,7 +2480,7 @@ void benchmark()()
 
             writeln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
 
-            set.showStatistics;
+            set.showStatistics();
 
             sleep(2);
             writeln("Sleeping done");

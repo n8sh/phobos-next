@@ -2149,10 +2149,6 @@ auto checkString(uint span, Keys...)()
             elements[key[].idup] = true;
         }
 
-        // elements[`thqkdc`] = true;
-        // elements[`thqkxw`] = true;
-        // elements[`thqgmrit`] = true;
-
         foreach (const key; elements.byKey)
         {
             // dln(`key:`, key);
@@ -2170,6 +2166,9 @@ auto checkString(uint span, Keys...)()
 
             if (set.willFail) dln(`assert(set.insert(key)) ################################ : `);
             assert(set.insert(key), failMessage);
+
+            if (set.willFail) dln(`assert(set.contains(key)) ################################ :`);
+            assert(set.contains(key), failMessage);
 
             if (set.willFail) dln(`assert(!set.insert(key)) ################################ :`);
             assert(!set.insert(key), failMessage);

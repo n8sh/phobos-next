@@ -1111,7 +1111,6 @@ private struct RawRadixTree(Value,
         /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
         pragma(inline) bool containsAt(Node curr, Key!span key)
         {
-            if (willFail) { dln("Will fail, key:", key, " curr:", curr); }
             import std.algorithm : skipOver;
             final switch (curr.typeIx) with (Node.Ix)
             {
@@ -1123,11 +1122,13 @@ private struct RawRadixTree(Value,
             case ix_FullLf1Ptr: return curr.as!(FullLf1*).contains(key);
             case ix_LinBr4Ptr:
                 auto curr_ = curr.as!(LinBr4*);
+                if (willFail) { dln("Will fail, key:", key, " curr:", curr, " currPrefix:", curr_.prefix, " isKey:", curr_.isKey); }
                 return (key.skipOver(curr_.prefix) &&        // matching prefix
                         ((key.length == 0 && curr_.isKey) || // either stored at `curr`
                          (key.length >= 1 && containsAt(curr_.findSub(key[0]), key[1 .. $])))); // recurse
             case ix_FullBrMPtr:
                 auto curr_ = curr.as!(FullBrM*);
+                if (willFail) { dln("Will fail, key:", key, " curr:", curr, " currPrefix:", curr_.prefix, " isKey:", curr_.isKey); }
                 return (key.skipOver(curr_.prefix) &&        // matching prefix
                         ((key.length == 0 && curr_.isKey) || // either stored at `curr`
                          (key.length >= 1 && containsAt(curr_.subNodes[key[0]], key[1 .. $])))); // recurse
@@ -1796,7 +1797,7 @@ private struct RawRadixTree(Value,
             break;
         case ix_FullLf1Ptr:
             auto curr_ = curr.as!(FullLf1*);
-            write(typeof(*curr_).stringof, "#", curr_._keyBits.countOnes, (curr_.isKey ? " X" : " _"));
+            write(typeof(*curr_).stringof, "#", curr_._keyBits.countOnes, (curr_.isKey ? " X" : " _"), " @", curr_);
             if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix); }
             write(": ");
 
@@ -1827,7 +1828,7 @@ private struct RawRadixTree(Value,
             break;
         case ix_LinBr4Ptr:
             auto curr_ = curr.as!(LinBr4*);
-            write(typeof(*curr_).stringof, "#", curr_.subPopulation, (curr_.isKey ? " X" : " _"));
+            write(typeof(*curr_).stringof, "#", curr_.subPopulation, (curr_.isKey ? " X" : " _"), " @", curr_);
             if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix); }
             writeln(":");
             foreach (const i, const subNode; curr_.subNodes)
@@ -1837,7 +1838,7 @@ private struct RawRadixTree(Value,
             break;
         case ix_FullBrMPtr:
             auto curr_ = curr.as!(FullBrM*);
-            write(typeof(*curr_).stringof, "#", curr_.subPopulation, (curr_.isKey ? " X" : " _"));
+            write(typeof(*curr_).stringof, "#", curr_.subPopulation, (curr_.isKey ? " X" : " _"), " @", curr_);
             if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix); }
             writeln(":");
             foreach (const i, const subNode; curr_.subNodes)

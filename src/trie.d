@@ -2150,20 +2150,21 @@ auto checkString(uint span, Keys...)()
         foreach (const key; elements.byKey)
         {
             import std.string : representation;
-            dln("key:", key, " (", key.representation, ")");
             set.willFail = key == "enl";
 
-            // dln("assert(!set.contains(key)) ################################ : ");
+            if (set.willFail) dln("key:", key, " (", key.representation, ")");
+
+            if (set.willFail) dln("assert(!set.contains(key)) ################################ : ");
             assert(!set.contains(key));
 
-            // if (set.willFail) { set.print(); }
-            // dln("assert(set.insert(key)) ################################ : ");
+            if (set.willFail) { set.print(); }
+            if (set.willFail) dln("assert(set.insert(key)) ################################ : ");
             assert(set.insert(key));
 
-            // dln("assert(!set.insert(key)) ################################ :");
+            if (set.willFail) dln("assert(!set.insert(key)) ################################ :");
             assert(!set.insert(key));
 
-            // dln("assert(set.contains(key)) ################################ :");
+            if (set.willFail) dln("assert(set.contains(key)) ################################ :");
             assert(set.contains(key));
         }
     }

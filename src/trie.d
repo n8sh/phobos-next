@@ -1233,7 +1233,6 @@ private struct RawRadixTree(Value,
 
             if (willFail) { dln("WILL FAIL: key:", key,
                                 " curr:", curr,
-                                " currPrefix:", getPrefix(curr),
                                 " superPrefixLength:", superPrefixLength); }
 
             if (!curr)          // if no existing `Node` to insert at

@@ -2249,7 +2249,7 @@ unittest
         if (!line.empty &&
             !line.endsWith(`'s`)) // skip genitive forms
         {
-            if (line.length <= 12)
+            if (line.length <= 15)
             {
                 assert(!set.contains(line));
                 assert(set.insert(line));

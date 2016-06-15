@@ -1803,7 +1803,7 @@ private struct RawRadixTree(Value,
             break;
         case ix_FullLf1Ptr:
             auto curr_ = curr.as!(FullLf1*);
-            write(typeof(*curr_).stringof, "#", curr_._keyBits.countOnes, (curr_.isKey ? " SET" : " UNSET"));
+            write(typeof(*curr_).stringof, "#", curr_._keyBits.countOnes, (curr_.isKey ? " X" : " _"));
             if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix); }
             write(": ");
 
@@ -1834,7 +1834,7 @@ private struct RawRadixTree(Value,
             break;
         case ix_LinBr4Ptr:
             auto curr_ = curr.as!(LinBr4*);
-            write(typeof(*curr_).stringof, "#", curr_.subPopulation, (curr_.isKey ? " SET" : " UNSET"));
+            write(typeof(*curr_).stringof, "#", curr_.subPopulation, (curr_.isKey ? " X" : " _"));
             if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix); }
             writeln(":");
             foreach (const i, const subNode; curr_.subNodes)
@@ -1844,7 +1844,7 @@ private struct RawRadixTree(Value,
             break;
         case ix_FullBrMPtr:
             auto curr_ = curr.as!(FullBrM*);
-            write(typeof(*curr_).stringof, "#", curr_.subPopulation, (curr_.isKey ? " SET" : " UNSET"));
+            write(typeof(*curr_).stringof, "#", curr_.subPopulation, (curr_.isKey ? " X" : " _"));
             if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix); }
             writeln(":");
             foreach (const i, const subNode; curr_.subNodes)

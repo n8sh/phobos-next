@@ -2194,6 +2194,46 @@ unittest
     }
 }
 
+/** Calculate and print statistics of `tree`. */
+void showStatistics(RT)(in RT tree)
+{
+    import std.stdio : writeln;
+    auto stats = tree.usageHistograms;
+    writeln("FullLf1 Population Histogram: ", stats.popHist_FullLf1);
+    writeln("LinBr4 Population Histogram: ", stats.popHist_LinBr4);
+    writeln("FullBrM Population Histogram: ", stats.popHist_FullBrM);
+    writeln("Population By Node Type: ", stats.popByNodeType);
+
+    // these should be zero
+    writeln("Number of LinBr4 with OneLf6-0 only subNodes: ", stats.allOneLf60CountOfLinBr4);
+    writeln("Number of FullBrM with OneLf6-0 only subNodes: ", stats.allOneLf60CountOfFullBrM);
+
+    size_t totalBytesUsed = 0;
+    foreach (RT.Node.Ix ix, pop; stats.popByNodeType) // TODO use stats.byPair when added to typecons_ex.d
+    {
+        size_t bytesUsed = 0;
+        with (RT.Node.Ix)
+        {
+            final switch (ix)
+            {
+            case undefined: break;
+            case ix_OneLf6: bytesUsed = pop*RT.OneLf6.sizeof; break;
+            case ix_TwoLf3: bytesUsed = pop*RT.TwoLf3.sizeof; break;
+            case ix_TriLf2: bytesUsed = pop*RT.TriLf2.sizeof; break;
+            case ix_SixLf1: bytesUsed = pop*RT.SixLf1.sizeof; break;
+            case ix_FullLf1Ptr: bytesUsed = pop*RT.FullLf1.sizeof; totalBytesUsed += bytesUsed; break;
+            case ix_LinBr4Ptr: bytesUsed = pop*RT.LinBr4.sizeof; totalBytesUsed += bytesUsed; break;
+            case ix_FullBrMPtr: bytesUsed = pop*RT.FullBrM.sizeof; totalBytesUsed += bytesUsed; break;
+            }
+        }
+        if (bytesUsed)
+        {
+            writeln(pop, " number of ", ix, " uses ", bytesUsed/1e6, " megabytes");
+        }
+    }
+    writeln("Tree uses ", totalBytesUsed/1e6, " megabytes");
+}
+
 /// Create a set of words from /usr/share/dict/words
 unittest
 {
@@ -2379,7 +2419,7 @@ auto checkNumeric(Keys...)()
 }
 
 /// Benchmark performance and memory usage when span is `span`.
-void benchmark(uint span)()
+void benchmark()()
 {
     import core.thread : sleep;
     import std.range : iota;
@@ -2391,7 +2431,7 @@ void benchmark(uint span)()
     import std.meta : AliasSeq;
     foreach (Key; AliasSeq!(uint)) // just benchmark uint for now
     {
-        auto set = radixTreeSet!(Key, span);
+        auto set = radixTreeSet!(Key);
         alias Set = set;
         assert(set.empty);
 
@@ -2434,40 +2474,8 @@ void benchmark(uint span)()
             }
 
             writeln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
-            auto stats = set.usageHistograms;
-            writeln("FullLf1 Population Histogram: ", stats.popHist_FullLf1);
-            writeln("LinBr4 Population Histogram: ", stats.popHist_LinBr4);
-            writeln("FullBrM radix=", 2^^span, "-Branch Population Histogram: ", stats.popHist_FullBrM);
-            writeln("Population By Node Type: ", stats.popByNodeType);
 
-            // these should be zero
-            writeln("Number of LinBr4 with OneLf6-0 only subNodes: ", stats.allOneLf60CountOfLinBr4);
-            writeln("Number of FullBrM with OneLf6-0 only subNodes: ", stats.allOneLf60CountOfFullBrM);
-
-            size_t totalBytesUsed = 0;
-            foreach (Set.Node.Ix ix, pop; stats.popByNodeType) // TODO use stats.byPair when added to typecons_ex.d
-            {
-                size_t bytesUsed = 0;
-                with (Set.Node.Ix)
-                {
-                    final switch (ix)
-                    {
-                    case undefined: break;
-                    case ix_OneLf6: bytesUsed = pop*Set.OneLf6.sizeof; break;
-                    case ix_TwoLf3: bytesUsed = pop*Set.TwoLf3.sizeof; break;
-                    case ix_TriLf2: bytesUsed = pop*Set.TriLf2.sizeof; break;
-                    case ix_SixLf1: bytesUsed = pop*Set.SixLf1.sizeof; break;
-                    case ix_FullLf1Ptr: bytesUsed = pop*Set.FullLf1.sizeof; totalBytesUsed += bytesUsed; break;
-                    case ix_LinBr4Ptr: bytesUsed = pop*Set.LinBr4.sizeof; totalBytesUsed += bytesUsed; break;
-                    case ix_FullBrMPtr: bytesUsed = pop*Set.FullBrM.sizeof; totalBytesUsed += bytesUsed; break;
-                    }
-                }
-                if (bytesUsed)
-                {
-                    writeln(pop, " number of ", ix, " uses ", bytesUsed/1e6, " megabytes");
-                }
-            }
-            writeln("Tree uses ", totalBytesUsed/1e6, " megabytes");
+            set.showStatistics;
 
             sleep(2);
             writeln("Sleeping done");
@@ -2487,7 +2495,7 @@ void benchmark(uint span)()
         // version(print)
         set.print();
 
-        auto map = radixTreeMap!(Key, Value, span);
+        auto map = radixTreeMap!(Key, Value);
         assert(map.empty);
         static assert(map.isMap);
 
@@ -2577,5 +2585,5 @@ private template iotaImpl(size_t to, size_t now)
 version(benchmark)
 void main(string[] args)
 {
-    benchmark!8;
+    benchmark;
 }

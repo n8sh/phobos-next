@@ -430,8 +430,8 @@ private struct RawRadixTree(Value,
             /// Binary/2-Key Leaf with key-length 3.
             struct TwoLf3
             {
-                enum keyLength = 3;
-                enum maxLength = 2;
+                enum keyLength = 3; // fixed length key
+                enum maxLength = 2; // maximum number of keys stored
 
                 this(Keys...)(Keys keys)
                     if (Keys.length >= 1 && Keys.length <= maxLength)
@@ -461,8 +461,8 @@ private struct RawRadixTree(Value,
             /// Ternary/3-Key Leaf with key-length 2.
             struct TriLf2
             {
-                enum keyLength = 2;
-                enum maxLength = 3;
+                enum keyLength = 2; // fixed length key
+                enum maxLength = 3; // maximum number of keys stored
 
                 this(Keys...)(Keys keys)
                     if (Keys.length >= 1 && Keys.length <= maxLength)
@@ -1362,13 +1362,6 @@ private struct RawRadixTree(Value,
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
             import std.algorithm : commonPrefix;
-
-            if (key.length == 0)
-            {
-                assert(curr.key.empty, "Leaf is not empty when key is");
-                return Node(curr);
-            }
-
             auto matchedKeyPrefix = commonPrefix(key, curr.key);
             if (curr.key.length == key.length)
             {
@@ -2158,20 +2151,19 @@ auto checkString(uint span, Keys...)()
         {
             import std.string : representation;
             dln("key:", key, " (", key.representation, ")");
-            set.willFail = key == "isn";
+            // set.willFail = key == "isn";
 
-            dln("assert(!set.contains(key)) ################################ : ");
+            // dln("assert(!set.contains(key)) ################################ : ");
             assert(!set.contains(key));
 
-            if (set.willFail) { set.print(); }
-
-            dln("assert(set.insert(key)) ################################ : ");
+            // if (set.willFail) { set.print(); }
+            // dln("assert(set.insert(key)) ################################ : ");
             assert(set.insert(key));
 
-            dln("assert(!set.insert(key)) ################################ :");
+            // dln("assert(!set.insert(key)) ################################ :");
             assert(!set.insert(key));
 
-            dln("assert(set.contains(key)) ################################ :");
+            // dln("assert(set.contains(key)) ################################ :");
             assert(set.contains(key));
         }
     }

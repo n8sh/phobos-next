@@ -667,6 +667,25 @@ private struct RawRadixTree(Value,
             this.subPopulation = 1;
         }
 
+        this(Ix[] prefix, bool isKey,
+             Ix subIx0, Node subNode0,
+             Ix subIx1, Node subNode1)
+        {
+            assert(subIx0 != subIx1);
+            assert(subNode0 != subNode1);
+
+            this.prefix = prefix;
+            this.isKey = isKey;
+
+            this.subIxSlots.at!0 = subIx0;
+            this.subNodeSlots.at!0 = subNode0;
+
+            this.subIxSlots.at!1 = subIx1;
+            this.subNodeSlots.at!1 = subNode1;
+
+            this.subPopulation = 2;
+        }
+
         void pushBackSub(Tuple!(Ix, Node) sub)
         {
             assert(!full);
@@ -789,6 +808,18 @@ private struct RawRadixTree(Value,
         {
             this(prefix, isKey);
             this.subNodes[subIx] = subNode;
+        }
+
+        this(Ix[] prefix, bool isKey,
+             Ix subIx0, Node subNode0,
+             Ix subIx1, Node subNode1)
+        {
+            assert(subIx0 != subIx1);
+            assert(subNode0 != subNode1);
+
+            this(prefix, isKey);
+            this.subNodes[subIx0] = subNode0;
+            this.subNodes[subIx1] = subNode1;
         }
 
         this(LinBr4* rhs)
@@ -1293,7 +1324,6 @@ private struct RawRadixTree(Value,
                     {
                         if (willFail) { dln(""); }
                         const subIx = key[0];
-                        assert(getSub(curr, subIx));
                         return setSub(curr, subIx,
                                       insertAt(getSub(curr, subIx), // recurse
                                                key[1 .. $],
@@ -1307,12 +1337,10 @@ private struct RawRadixTree(Value,
                     if (willFail) { dln(""); }
                     const currSubIx = currPrefix[0]; // subIx = 'a'
                     popFrontNPrefix(curr, 1);
-                    auto next = Node(construct!(DefaultBr)(Ix[].init, false,
-                                                           currSubIx, curr));
-                    assert(getSub(next, key[0]));
-                    return setSub(next, key[0],
-                                  insertNew(key[1 .. $], superPrefixLength, wasAdded),
-                                  superPrefixLength);
+                    return Node(construct!(DefaultBr)(Ix[].init, false,
+                                                      currSubIx, curr,
+                                                      key[0],
+                                                      insertNew(key[1 .. $], superPrefixLength, wasAdded)));
                 }
             }
             else if (matchedKeyPrefix.length < key.length)
@@ -1336,14 +1364,15 @@ private struct RawRadixTree(Value,
                     if (willFail) { dln(""); }
                     // prefix and key share beginning: prefix:"ab11", key:"ab22"
                     assert(currPrefix.length <= matchedKeyPrefix.length + 1);
-                    const subIx = currPrefix[matchedKeyPrefix.length]; // need index first
+
+                    const currSubIx = currPrefix[matchedKeyPrefix.length]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length + 1); // drop matchedKeyPrefix plus index to next super branch
-                    auto next = Node(construct!(DefaultBr)(matchedKeyPrefix, false, // key is not occupied
-                                                           subIx, curr));
-                    return insertAtBranch(next,
-                                          key[matchedKeyPrefix.length .. $],
-                                          superPrefixLength + matchedKeyPrefix.length,
-                                          wasAdded);
+
+                    return Node(construct!(DefaultBr)(matchedKeyPrefix, false, // key is not occupied
+                                                      currSubIx,
+                                                      curr,
+                                                      key[matchedKeyPrefix.length],
+                                                      insertNew(key[matchedKeyPrefix.length + 1.. $], superPrefixLength, wasAdded)));
                 }
             }
             else // if (matchedKeyPrefix.length == key.length)

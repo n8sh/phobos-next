@@ -623,8 +623,8 @@ private struct RawRadixTree(Value,
         {
             import std.algorithm : skipOver;
             return (key.skipOver(prefix[]) &&  // matching prefix
-                    key.length == 1 &&         // one key-chunk left
-                    _keyBits[key[0]]);         // and it's set
+                    ((key.length == 0 && isKey) || // direct match
+                     (key.length == 1 && _keyBits[key[0]]))); // sub-match
         }
 
         /** Append statistics of tree under `this` into `stats`. */
@@ -1123,13 +1123,13 @@ private struct RawRadixTree(Value,
             case ix_FullLf1Ptr: return curr.as!(FullLf1*).contains(key);
             case ix_LinBr4Ptr:
                 auto curr_ = curr.as!(LinBr4*);
-                return (key.skipOver(curr_.prefix) &&
-                        ((key.length == 0 && curr_.isKey) ||                 // either stored at `curr`
+                return (key.skipOver(curr_.prefix) &&        // matching prefix
+                        ((key.length == 0 && curr_.isKey) || // either stored at `curr`
                          (key.length >= 1 && containsAt(curr_.findSub(key[0]), key[1 .. $])))); // recurse
             case ix_FullBrMPtr:
                 auto curr_ = curr.as!(FullBrM*);
-                return (key.skipOver(curr_.prefix) &&
-                        ((key.length == 0 && curr_.isKey) ||                 // either stored at `curr`
+                return (key.skipOver(curr_.prefix) &&        // matching prefix
+                        ((key.length == 0 && curr_.isKey) || // either stored at `curr`
                          (key.length >= 1 && containsAt(curr_.subNodes[key[0]], key[1 .. $])))); // recurse
             }
         }

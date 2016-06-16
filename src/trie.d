@@ -7,7 +7,7 @@
 
     TODO Use IxsN.at(ix) and use inplace of IxsN.opIndex
 
-    TODO Make `Key` and Ix[] array of `immutable Ix` like `string`
+    TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
 
     TODO Allow NodeType-constructors to take const and immutable prefixes
 

@@ -2023,7 +2023,7 @@ struct RadixTree(TypedKey, Value)
             _tree.insert(key.remapKey, insertionNode);
             if (insertionNode)
             {
-                dln("TODO Set Value value at insertionNode");
+                dln("TODO Set value:", value, " at insertionNode:", insertionNode);
             }
             _length += !insertionNode.isNull;
             return !insertionNode.isNull;

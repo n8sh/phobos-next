@@ -602,7 +602,7 @@ private struct RawRadixTree(Value)
     /** Dense Bitset Branch with only bottom-most leaves. */
     static private struct DenseLf1
     {
-        enum maxPrefixLength = 14; // 6, 14, 22, ...
+        enum prefixCapacity = 14; // 6, 14, 22, ...
         enum maxSubCount = 256;
 
         @safe pure nothrow:
@@ -640,7 +640,7 @@ private struct RawRadixTree(Value)
 
         private:
         BitSet!radix _keyBits;  // 32 bytes
-        IxsN!maxPrefixLength prefix; // prefix common to all `subNodes` (also called edge-label)
+        IxsN!prefixCapacity prefix; // prefix common to all `subNodes` (also called edge-label)
         bool isKey;
     }
 
@@ -651,7 +651,7 @@ private struct RawRadixTree(Value)
     {
         enum subCapacity = 4; // maximum number of sub indexes and nodes preallocated
 
-        enum maxPrefixLength = 10; // 2, 10, 18, ...
+        enum prefixCapacity = 10; // 2, 10, 18, ...
 
         @safe pure nothrow:
 
@@ -785,7 +785,7 @@ private struct RawRadixTree(Value)
 
         // members in order of decreasing `alignof`:
         StrictlyIndexed!(Node[subCapacity]) subNodeSlots;
-        IxsN!maxPrefixLength prefix; // prefix common to all `subNodes` (also called edge-label)
+        IxsN!prefixCapacity prefix; // prefix common to all `subNodes` (also called edge-label)
         StrictlyIndexed!(Ix[subCapacity]) subIxSlots;
         mixin(bitfields!(ubyte, "subCount", 7, // counts length of defined elements in subNodeSlots
                          bool, "isKey", 1)); // key at this branch is occupied
@@ -797,7 +797,7 @@ private struct RawRadixTree(Value)
     static private struct DenseBrM
     {
         enum subCapacity = 256;
-        enum maxPrefixLength = 15; // 7, 15, 23, ..., we can afford larger prefix here because DenseBrM is so large
+        enum prefixCapacity = 15; // 7, 15, 23, ..., we can afford larger prefix here because DenseBrM is so large
 
         @safe pure nothrow:
 
@@ -837,7 +837,7 @@ private struct RawRadixTree(Value)
             }
         }
 
-        IxsN!maxPrefixLength prefix; // prefix (edge-label) common to all `subNodes`
+        IxsN!prefixCapacity prefix; // prefix (edge-label) common to all `subNodes`
         bool isKey;      // key at this branch is occupied
         StrictlyIndexed!(Node[radix]) subNodes;
 
@@ -1226,7 +1226,7 @@ private struct RawRadixTree(Value)
                 {
                     return insertionNode = Node(construct!(OneLf6)(key));
                 }
-                else if (key.length <= DenseLf1.maxPrefixLength) // only if DenseLf1.maxPrefixLength > OneLf6.capacity
+                else if (key.length <= DenseLf1.prefixCapacity) // only if DenseLf1.prefixCapacity > OneLf6.capacity
                 {
                     auto prefix = key[0 .. $ - 1];
                     return insertionNode = Node(construct!(DenseLf1*)(prefix, false, key[$ - 1]));
@@ -1234,7 +1234,7 @@ private struct RawRadixTree(Value)
                 else                // key doesn't fit in a `OneLf6`
                 {
                     import std.algorithm : min;
-                    auto brKey = key[0 .. min(key.length, DefaultBr.maxPrefixLength)];
+                    auto brKey = key[0 .. min(key.length, DefaultBr.prefixCapacity)];
                     auto next = insertAt(Node(construct!(DefaultBr)(brKey, false)), // as much as possible of key in branch prefix
                                          key, superPrefixLength, insertionNode);
 

@@ -697,6 +697,7 @@ private struct RawRadixTree(Value)
             subNodeSlots[backIx] = sub[1];
             subCount = cast(ubyte)(subCount + 1); // TODO remove need for cast
         }
+
         inout(Node) findSub(Ix ix) inout
         {
             switch (subCount)

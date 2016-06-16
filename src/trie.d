@@ -383,8 +383,9 @@ private struct RawRadixTree(Value)
     import std.typecons : ConstOf;
     import bitset : BitSet;
 
-    enum isSet = is(Value == void); // `true` if this tree is a set. TODO better to use empty struct?
-    enum isMap = !isSet;            // `true` if this tree is a map
+    enum hasValue = is(Value == void);
+    enum isSet = hasValue; // `true` if this tree is a set. TODO better to use empty struct?
+    enum isMap = !isSet;   // `true` if this tree is a map
 
     /// `true` if tree has binary branch.
     enum isBinary = span == 2;

@@ -573,11 +573,6 @@ private struct RawRadixTree(Value)
     */
     alias DenseBrM_PopHist = size_t[radix];
 
-    /** radix-Leaf population histogram.
-        Index maps to population with value range (1 .. `radix`).
-    */
-    alias LeafM_PopHist = size_t[radix];
-
     /** Tree Population and Memory-Usage Statistics. */
     struct Stats
     {

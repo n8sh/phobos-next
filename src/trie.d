@@ -649,7 +649,7 @@ private struct RawRadixTree(Value)
     /** Sparse/Packed/Partial 4-way branch. */
     static private struct SparseBr4
     {
-        enum subCapacity = 4;
+        enum subCapacity = 4; // maximum number of sub indexes and nodes preallocated
 
         enum maxPrefixLength = 10; // 2, 10, 18, ...
 

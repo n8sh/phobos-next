@@ -17,7 +17,7 @@
 
     TODO Store `isKey` in top-most bit of length part of `IxsN prefix` and use for TwoLf3, TriLf2, and SixLf1.
 
-    TODO Optimize SparseBr4.findSub for specific `subPopulation`
+    TODO Optimize SparseBr4.findSub for specific `subCount`
 
     TODO Add function reprefix({SparseBr4|DenseBrM) and call after insertAt({SparseBr4|DenseBrM}). Only useful when one single leaf is present?
     TODO Is std.algorithm.countUntil the most suitable function to use in setSub(SparseBr4*, ...)
@@ -649,7 +649,7 @@ private struct RawRadixTree(Value)
     /** Sparse/Packed/Partial 4-way branch. */
     static private struct SparseBr4
     {
-        enum maxSubPopulation = 4;
+        enum subCapacity = 4;
 
         enum maxPrefixLength = 10; // 2, 10, 18, ...
 
@@ -667,7 +667,7 @@ private struct RawRadixTree(Value)
             this.isKey = isKey;
             this.subIxSlots.at!0 = subIx;
             this.subNodeSlots.at!0 = subNode;
-            this.subPopulation = 1;
+            this.subCount = 1;
         }
 
         this(Ix[] prefix, bool isKey,
@@ -686,20 +686,20 @@ private struct RawRadixTree(Value)
             this.subIxSlots.at!1 = subIx1;
             this.subNodeSlots.at!1 = subNode1;
 
-            this.subPopulation = 2;
+            this.subCount = 2;
         }
 
         void pushBackSub(Tuple!(Ix, Node) sub)
         {
             assert(!full);
-            const backIx = subPopulation.mod!maxSubPopulation;
+            const backIx = subCount.mod!subCapacity;
             subIxSlots[backIx] = sub[0];
             subNodeSlots[backIx] = sub[1];
-            subPopulation = cast(ubyte)(subPopulation + 1); // TODO remove need for cast
+            subCount = cast(ubyte)(subCount + 1); // TODO remove need for cast
         }
         inout(Node) findSub(Ix ix) inout
         {
-            switch (subPopulation)
+            switch (subCount)
             {
             case 0:
                 break;
@@ -726,9 +726,9 @@ private struct RawRadixTree(Value)
                 break;
             default:
                 // TODO do binary search
-                foreach (const i_; 0 ..  subPopulation)
+                foreach (const i_; 0 ..  subCount)
                 {
-                    const i = i_.mod!maxSubPopulation;
+                    const i = i_.mod!subCapacity;
                     if (subIxSlots[i] == ix) { return subNodeSlots[i]; }
                 }
                 break;
@@ -736,16 +736,16 @@ private struct RawRadixTree(Value)
             return Node.init;
         }
 
-        pragma(inline) bool empty() const @nogc { return subPopulation == 0; }
-        pragma(inline) bool full() const @nogc { return subPopulation == maxSubPopulation; }
+        pragma(inline) bool empty() const @nogc { return subCount == 0; }
+        pragma(inline) bool full() const @nogc { return subCount == subCapacity; }
 
         pragma(inline) auto subIxs() inout @nogc
         {
-            return subIxSlots[0 .. subPopulation];
+            return subIxSlots[0 .. subCount];
         }
         pragma(inline) auto subNodes() inout @nogc
         {
-            return subNodeSlots[0 .. subPopulation];
+            return subNodeSlots[0 .. subCount];
         }
 
         /** Returns `true` if this branch can be packed into a bitset, that is
@@ -784,10 +784,10 @@ private struct RawRadixTree(Value)
         private:
 
         // members in order of decreasing `alignof`:
-        StrictlyIndexed!(Node[maxSubPopulation]) subNodeSlots;
+        StrictlyIndexed!(Node[subCapacity]) subNodeSlots;
         IxsN!maxPrefixLength prefix; // prefix common to all `subNodes` (also called edge-label)
-        StrictlyIndexed!(Ix[maxSubPopulation]) subIxSlots;
-        mixin(bitfields!(ubyte, "subPopulation", 7, // counts length of defined elements in subNodeSlots
+        StrictlyIndexed!(Ix[subCapacity]) subIxSlots;
+        mixin(bitfields!(ubyte, "subCount", 7, // counts length of defined elements in subNodeSlots
                          bool, "isKey", 1)); // key at this branch is occupied
     }
 
@@ -796,7 +796,7 @@ private struct RawRadixTree(Value)
     /** Dense/Unpacked `radix`-branch with `radix` number of sub-nodes. */
     static private struct DenseBrM
     {
-        enum maxSubPopulation = 256;
+        enum subCapacity = 256;
         enum maxPrefixLength = 15; // 7, 15, 23, ..., we can afford larger prefix here because DenseBrM is so large
 
         @safe pure nothrow:
@@ -829,9 +829,9 @@ private struct RawRadixTree(Value)
         {
             this.prefix = rhs.prefix;
             this.isKey = rhs.isKey;
-            foreach (const i; 0 .. rhs.subPopulation) // each sub node. TODO use iota!(Mod!N)
+            foreach (const i; 0 .. rhs.subCount) // each sub node. TODO use iota!(Mod!N)
             {
-                const iN = i.mod!(SparseBr4.maxSubPopulation);
+                const iN = i.mod!(SparseBr4.subCapacity);
                 const subIx = rhs.subIxSlots[iN];
                 this.subNodes[subIx] = rhs.subNodes[iN];
             }
@@ -863,7 +863,7 @@ private struct RawRadixTree(Value)
         }
 
         /// Number of non-null sub-Nodes.
-        Mod!(radix + 1) subPopulation() const
+        Mod!(radix + 1) subCount() const
         {
             typeof(return) count = 0; // number of non-zero sub-nodes
             foreach (const subNode; subNodes) // TODO why can't we use std.algorithm.count here?
@@ -928,7 +928,7 @@ private struct RawRadixTree(Value)
         // need to expand
         const extraCount = curr._keyBits[subIx] ? 0 : 1; // if one extra sub-node needes to be added
         Node next;
-        if (curr._keyBits.countOnes + extraCount <= SparseBr4.maxSubPopulation) // if `curr` keys plus on extra fit
+        if (curr._keyBits.countOnes + extraCount <= SparseBr4.subCapacity) // if `curr` keys plus on extra fit
         {
             auto next_ = construct!(SparseBr4*)(curr.prefix, curr.isKey);
             foreach (const ix; curr._keyBits.oneIndexes)
@@ -1186,7 +1186,7 @@ private struct RawRadixTree(Value)
             case ix_SparseBr4Ptr:
                 auto curr_ = curr.as!(SparseBr4*);
                 ++count;
-                foreach (subNode; curr_.subNodeSlots[0 .. curr_.subPopulation])
+                foreach (subNode; curr_.subNodeSlots[0 .. curr_.subCount])
                 {
                     if (subNode) { count += countHeapNodesAt(subNode); }
                 }
@@ -1723,7 +1723,7 @@ private struct RawRadixTree(Value)
 
         void release(SparseBr4* curr)
         {
-            foreach (sub; curr.subNodes[0 .. curr.subPopulation])
+            foreach (sub; curr.subNodes[0 .. curr.subCount])
             {
                 release(sub); // recurse
             }
@@ -1865,7 +1865,7 @@ private struct RawRadixTree(Value)
             break;
         case ix_SparseBr4Ptr:
             auto curr_ = curr.as!(SparseBr4*);
-            write(typeof(*curr_).stringof, "#", curr_.subPopulation, (curr_.isKey ? " X" : " _"), " @", curr_);
+            write(typeof(*curr_).stringof, "#", curr_.subCount, (curr_.isKey ? " X" : " _"), " @", curr_);
             if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix); }
             writeln(":");
             foreach (const i, const subNode; curr_.subNodes)
@@ -1875,7 +1875,7 @@ private struct RawRadixTree(Value)
             break;
         case ix_DenseBrMPtr:
             auto curr_ = curr.as!(DenseBrM*);
-            write(typeof(*curr_).stringof, "#", curr_.subPopulation, (curr_.isKey ? " X" : " _"), " @", curr_);
+            write(typeof(*curr_).stringof, "#", curr_.subCount, (curr_.isKey ? " X" : " _"), " @", curr_);
             if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix); }
             writeln(":");
             foreach (const i, const subNode; curr_.subNodes)

@@ -483,7 +483,7 @@ private struct RawRadixTree(Value,
                     case 3:
                         import std.algorithm : commonPrefix;
                         return commonPrefix(keys.at!0[],
-                                            commonPrefix(keys.at!1[], keys[2][])); // TODO make and reuse variadic commonPrefix
+                                            commonPrefix(keys.at!1[], keys.at!2[])); // TODO make and reuse variadic commonPrefix
                     }
                 }
 
@@ -1503,9 +1503,9 @@ private struct RawRadixTree(Value,
                     return Node(curr);
                 }
 
-                if (curr.keys.at!0[0] ==          key[0] &&
+                if (curr.keys.at!0[0] == key[0] &&
                     curr.keys.at!0[0] == curr.keys.at!1[0] &&
-                    curr.keys.at!1[0] == curr.keys[2][0]) // `curr.keys` and `key` share all but last Ix
+                    curr.keys.at!1[0] == curr.keys.at!2[0]) // `curr.keys` and `key` share all but last Ix
                 {
                     // if `curr` and `key` can be combined into a `DenseLf1`
                     auto next = construct!(DenseLf1*)(key[0 .. 1], false);

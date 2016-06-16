@@ -552,7 +552,7 @@ private struct RawRadixTree(Value)
     /** Tree Iterator. */
     alias Iterator = ElementRef[];
 
-    /** Tree Bidirectional Range. */
+    /** Tree Range. Is `isBidirectionalRange`. */
     struct Range
     {
         Iterator front;

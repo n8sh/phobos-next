@@ -1992,11 +1992,11 @@ struct RadixTree(TypedKey, Value)
     /** Insert `key`.
         Returns: `true` if `key` wasn't previously inserted, `false` otherwise.
      */
-    bool insert(in TypedKey typedKey)
+    bool insert(in TypedKey key)
         @safe pure nothrow /* TODO @nogc */
     {
         _tree.Node insertionNode; // indicates that key was added
-        _tree.insert(typedKey.remapKey, insertionNode);
+        _tree.insert(key.remapKey, insertionNode);
         _length += !insertionNode.isNull;
         return !insertionNode.isNull;
     }
@@ -2019,8 +2019,14 @@ struct RadixTree(TypedKey, Value)
         */
         bool insert(in TypedKey key, Value value)
         {
-            bool result = insert(key);
-            return result;
+            _tree.Node insertionNode; // indicates that key was added
+            _tree.insert(key.remapKey, insertionNode);
+            if (insertionNode)
+            {
+                dln("TODO Set Value value at insertionNode");
+            }
+            _length += !insertionNode.isNull;
+            return !insertionNode.isNull;
         }
 
         /** Returns: pointer to value if `key` is contained in set, null otherwise. */

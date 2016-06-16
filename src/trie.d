@@ -550,18 +550,7 @@ private struct RawRadixTree(Value)
     }
 
     /** Tree Iterator. */
-    struct Iterator
-    {
-        enum hasFixedKeyLength = true;
-        static if (hasFixedKeyLength)
-        {
-            ElementRef[4] key;
-        }
-        else
-        {
-            ElementRef[] key;
-        }
-    }
+    alias Iterator = ElementRef[];
 
     /** Tree Range. */
     struct Range

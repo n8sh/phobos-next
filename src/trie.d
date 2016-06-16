@@ -597,7 +597,7 @@ private struct RawRadixTree(Value)
         size_t heapNodeCount;
     }
 
-    /** Full Bitset Branch with only bottom-most leaves. */
+    /** Dense Bitset Branch with only bottom-most leaves. */
     static private struct DenseLf1
     {
         enum maxPrefixLength = 14; // 6, 14, 22, ...

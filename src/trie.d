@@ -244,6 +244,7 @@ struct IxsN(size_t capacity,
     auto chunks() inout { return _ixs[0 .. _length]; }
     alias chunks this;
 
+    /** Variant of `opIndex` with compile-time range checking. */
     auto ref at(uint ix)() inout
         if (ix < capacity)
     {
@@ -475,14 +476,14 @@ private struct RawRadixTree(Value,
                     final switch (keys.length)
                     {
                     case 1:
-                        return keys[0][];
+                        return keys.at!0[];
                     case 2:
                         import std.algorithm : commonPrefix;
-                        return commonPrefix(keys[0][], keys[1][]);
+                        return commonPrefix(keys.at!0[], keys.at!1[]);
                     case 3:
                         import std.algorithm : commonPrefix;
-                        return commonPrefix(keys[0][],
-                                            commonPrefix(keys[1][], keys[2][])); // TODO make and reuse variadic commonPrefix
+                        return commonPrefix(keys.at!0[],
+                                            commonPrefix(keys.at!1[], keys[2][])); // TODO make and reuse variadic commonPrefix
                     }
                 }
 
@@ -1466,10 +1467,10 @@ private struct RawRadixTree(Value,
                     return Node(curr);
                 }
 
-                // TODO Use variadic commonPrefix(curr.keys[0], curr.keys[1], key)
+                // TODO Use variadic commonPrefix(curr.keys.at!0, curr.keys.at!1, key)
                 enum PL = curr.keyLength - 1;    // searched prefix length
-                if (curr.keys[0][0 .. PL] ==          key[0 .. PL] &&
-                    curr.keys[0][0 .. PL] == curr.keys[1][0 .. PL]) // `curr.keys` and `key` share all but last Ix
+                if (curr.keys.at!0[0 .. PL] ==          key[0 .. PL] &&
+                    curr.keys.at!0[0 .. PL] == curr.keys.at!1[0 .. PL]) // `curr.keys` and `key` share all but last Ix
                 {
                     // if `curr` and `key` can be combined into a `DenseLf1`
                     auto next = construct!(DenseLf1*)(key[0 .. PL], false);
@@ -1502,9 +1503,9 @@ private struct RawRadixTree(Value,
                     return Node(curr);
                 }
 
-                if (curr.keys[0][0] ==          key[0] &&
-                    curr.keys[0][0] == curr.keys[1][0] &&
-                    curr.keys[1][0] == curr.keys[2][0]) // `curr.keys` and `key` share all but last Ix
+                if (curr.keys.at!0[0] ==          key[0] &&
+                    curr.keys.at!0[0] == curr.keys.at!1[0] &&
+                    curr.keys.at!1[0] == curr.keys[2][0]) // `curr.keys` and `key` share all but last Ix
                 {
                     // if `curr` and `key` can be combined into a `DenseLf1`
                     auto next = construct!(DenseLf1*)(key[0 .. 1], false);
@@ -1621,7 +1622,7 @@ private struct RawRadixTree(Value,
                 next = construct!(DefaultBr)(Ix[].init, false); // so no prefix
                 bool wasAddedCurr;
                 next = insertAtBranch(next,
-                                      curr.keys[0],
+                                      curr.keys.at!0,
                                       superPrefixLength,
                                       wasAddedCurr);
                 assert(wasAddedCurr);
@@ -1657,7 +1658,7 @@ private struct RawRadixTree(Value,
                 next = construct!(DefaultBr)(Ix[].init, false); // so no prefix
                 bool wasAddedCurr;
                 next = insertAtBranch(next,
-                                      curr.keys[0],
+                                      curr.keys.at!0,
                                       superPrefixLength,
                                       wasAddedCurr);
                 assert(wasAddedCurr);

@@ -599,6 +599,48 @@ private struct RawRadixTree(Value = void)
         size_t heapNodeCount;
     }
 
+    /** Sparsely coded leaves. */
+    static private struct SparseLf1
+    {
+        @safe pure nothrow:
+
+        this(Ixs...)(bool isKey, Ixs subIxs)
+            if (Ixs.length <= maxSubCount)
+        {
+            this.isKey = isKey;
+            foreach (subIx; subIxs)
+            {
+                _keyBits[subIx] = true;
+            }
+        }
+
+        pragma(inline) bool hasSubAt(Ix ix) const @nogc
+        {
+            import std.algorithm.searching : canFind;
+            return keys.canFind(ix);
+        }
+        pragma(inline) bool empty() const @nogc { return keys.length == 0; }
+        pragma(inline) bool full() const @nogc { return keys.length == radix; }
+
+        pragma(inline) bool contains(Key!span key) const @nogc
+        {
+            return keys.length == 1 && hasSubAt(keys[0]);
+        }
+
+        /** Append statistics of tree under `this` into `stats`. */
+        void calculate(ref Stats stats)
+        {
+            dln("TODO");
+        }
+
+    private:
+        Ix[] keys;
+        static if (hasValue)
+        {
+            Value[] values;     // values
+        }
+    }
+
     /** Dense Bitset Branch with only bottom-most leaves. */
     static private struct DenseLf1
     {

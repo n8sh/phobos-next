@@ -109,14 +109,14 @@ shared static this()
 
 enum keySeparator = ',';
 
-/** Statically allocated `Ix`-array of fixed pre-allocated length `maxLength` of
+/** Statically allocated `Ix`-array of fixed pre-allocated length `capacity` of
     Ix-elements in chunks of elementLength. `ElementType` is
     `Ix[elementLength]`.
  */
-struct IxsN(size_t maxLength,
+struct IxsN(size_t capacity,
             uint elementLength = 1,
             uint span = 8)
-    if (maxLength*elementLength >= 2) // no use storing less than 2 bytes
+    if (capacity*elementLength >= 2) // no use storing less than 2 bytes
 {
     enum L = elementLength;
     enum M = 2^^span;   // branch-multiplicity, typically either 2, 4, 16 or 256
@@ -129,7 +129,7 @@ struct IxsN(size_t maxLength,
 
     this(Es...)(Es ixs)
         if (Es.length >= 1 &&
-            Es.length <= maxLength)
+            Es.length <= capacity)
     {
         foreach (const i, const ix; ixs)
         {
@@ -143,7 +143,7 @@ struct IxsN(size_t maxLength,
     {
         this(Ix[] ixs)
         {
-            assert(ixs.length <= maxLength);
+            assert(ixs.length <= capacity);
             _ixs[0 .. ixs.length] = ixs;
             _length = ixs.length;
         }
@@ -175,7 +175,7 @@ struct IxsN(size_t maxLength,
     @safe pure nothrow @nogc:
 
     bool empty() const { return _length == 0; }
-    bool full() const { return _length == maxLength; }
+    bool full() const { return _length == capacity; }
 
     auto front() inout
     {
@@ -223,9 +223,9 @@ struct IxsN(size_t maxLength,
     }
 
     auto ref pushBack(Es...)(Es moreEs)
-        if (Es.length <= maxLength)
+        if (Es.length <= capacity)
     {
-        assert(length + Es.length <= maxLength);
+        assert(length + Es.length <= capacity);
         foreach (const i, const ix; moreEs)
         {
             _ixs[_length + i] = ix;
@@ -245,7 +245,7 @@ struct IxsN(size_t maxLength,
     alias chunks this;
 
     auto ref at(uint ix)()
-        if (ix < maxLength)
+        if (ix < capacity)
     {
         return _ixs[i];
     }
@@ -253,14 +253,14 @@ struct IxsN(size_t maxLength,
     auto length() const { return _length; }
 
 private:
-    Mod!(maxLength + 1) _length; // number of defined elements in `_ixs`
+    Mod!(capacity + 1) _length; // number of defined elements in `_ixs`
     static if (L == 1)
     {
-        Ix[maxLength] _ixs;     // byte indexes
+        Ix[capacity] _ixs;     // byte indexes
     }
     else
     {
-        Ix[L][maxLength] _ixs;  // byte indexes
+        Ix[L][capacity] _ixs;  // byte indexes
     }
 }
 
@@ -278,10 +278,10 @@ static assert(IxsN!(2, 3, 8).sizeof == 7);
 
     alias Ix = Mod!(M, ubyte);
     Ix[] ixs = [11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M];
-    enum maxLength = 7;
+    enum capacity = 7;
 
-    auto x = IxsN!(maxLength, 1, span)(ixs);
-    auto y = IxsN!(maxLength, 1, span)(11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M);
+    auto x = IxsN!(capacity, 1, span)(ixs);
+    auto y = IxsN!(capacity, 1, span)(11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M);
 
     assert(x == y);
 
@@ -404,7 +404,7 @@ private struct RawRadixTree(Value,
             /// Single/1-Key Leaf with maximum key-length 6.
             struct OneLf6
             {
-                enum maxLength = (size_t.sizeof - 2) / Ix.sizeof;
+                enum capacity = (size_t.sizeof - 2) / Ix.sizeof;
                 this(Ix[] key) { this.key = key; }
 
                 pragma(inline) bool contains(Key!span key) const @nogc { return this.key == key; }
@@ -422,7 +422,7 @@ private struct RawRadixTree(Value,
                     return s;
                 }
 
-                IxsN!(maxLength, 1, span) key;
+                IxsN!(capacity, 1, span) key;
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
@@ -431,10 +431,10 @@ private struct RawRadixTree(Value,
             struct TwoLf3
             {
                 enum keyLength = 3; // fixed length key
-                enum maxLength = 2; // maximum number of keys stored
+                enum capacity = 2; // maximum number of keys stored
 
                 this(Keys...)(Keys keys)
-                    if (Keys.length >= 1 && Keys.length <= maxLength)
+                    if (Keys.length >= 1 && Keys.length <= capacity)
                 {
                     this.keys = keys;
                 }
@@ -453,7 +453,7 @@ private struct RawRadixTree(Value,
 
                 pragma(inline) bool contains(Key!span key) const @nogc { return keys.contains(key); }
 
-                IxsN!(maxLength, keyLength, span) keys;
+                IxsN!(capacity, keyLength, span) keys;
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
@@ -462,10 +462,10 @@ private struct RawRadixTree(Value,
             struct TriLf2
             {
                 enum keyLength = 2; // fixed length key
-                enum maxLength = 3; // maximum number of keys stored
+                enum capacity = 3; // maximum number of keys stored
 
                 this(Keys...)(Keys keys)
-                    if (Keys.length >= 1 && Keys.length <= maxLength)
+                    if (Keys.length >= 1 && Keys.length <= capacity)
                 {
                     this.keys = keys;
                 }
@@ -488,7 +488,7 @@ private struct RawRadixTree(Value,
 
                 pragma(inline) bool contains(Key!span key) const @nogc { return keys.contains(key); }
 
-                IxsN!(maxLength, keyLength, span) keys;
+                IxsN!(capacity, keyLength, span) keys;
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
@@ -497,17 +497,17 @@ private struct RawRadixTree(Value,
             struct SixLf1
             {
                 enum keyLength = 1;
-                enum maxLength = (size_t.sizeof - 2) / Ix.sizeof; // maximum number of elements
+                enum capacity = (size_t.sizeof - 2) / Ix.sizeof; // maximum number of elements
 
                 this(Keys...)(Keys keys)
-                    if (Keys.length >= 1 && Keys.length <= maxLength)
+                    if (Keys.length >= 1 && Keys.length <= capacity)
                 {
                     this.keys = keys;
                 }
 
                 pragma(inline) bool contains(Key!span key) const @nogc { return keys.contains(key); }
 
-                IxsN!(maxLength, 1, span) keys;
+                IxsN!(capacity, 1, span) keys;
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
@@ -1227,12 +1227,12 @@ private struct RawRadixTree(Value,
                 wasAdded = true;
                 return Node(construct!(TwoLf3)(key)); // promote packing
             default:
-                if (key.length <= OneLf6.maxLength)
+                if (key.length <= OneLf6.capacity)
                 {
                     wasAdded = true;
                     return Node(construct!(OneLf6)(key));
                 }
-                else if (key.length <= DenseLf1.maxPrefixLength) // only if DenseLf1.maxPrefixLength > OneLf6.maxLength
+                else if (key.length <= DenseLf1.maxPrefixLength) // only if DenseLf1.maxPrefixLength > OneLf6.capacity
                 {
                     wasAdded = true;
                     debug if (willFail) { dln("prefix:", key[0 .. $ - 1]); }
@@ -2123,7 +2123,7 @@ unittest
     auto set = radixTreeSet!(ubyte);
     alias Set = typeof(set);
 
-    foreach (const i; 0 .. Set.SixLf1.maxLength)
+    foreach (const i; 0 .. Set.SixLf1.capacity)
     {
         assert(!set.contains(i));
         assert(set.insert(i));
@@ -2134,7 +2134,7 @@ unittest
         assert(rootRef);
     }
 
-    foreach (const i; Set.SixLf1.maxLength .. 256)
+    foreach (const i; Set.SixLf1.capacity .. 256)
     {
         assert(!set.contains(i));
         assert(set.insert(i));
@@ -2265,10 +2265,10 @@ unittest
 }
 
 /** Generate `count` number of random unique strings of minimum length 1 and
-    maximum length `maxLength`.
+    maximum length `capacity`.
  */
 private static auto randomUniqueStrings(size_t count = 1_000_000,
-                                        uint maxLength = 16)
+                                        uint capacity = 16)
     @trusted
 {
     import std.random : Random, uniform;
@@ -2277,7 +2277,7 @@ private static auto randomUniqueStrings(size_t count = 1_000_000,
     bool[string] stringSet;  // set of strings using D's builtin associative array
     while (stringSet.length < count)
     {
-        const length = uniform(1, maxLength, gen);
+        const length = uniform(1, capacity, gen);
         auto key = new char[length];
         foreach (ix; 0 .. length)
         {

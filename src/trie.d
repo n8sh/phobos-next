@@ -2251,7 +2251,7 @@ unittest
         {
             if (line.length <= 15)
             {
-                // dln(line);
+                // version(print) dln(line);
                 assert(!set.contains(line));
                 assert(set.insert(line));
                 assert(set.contains(line));

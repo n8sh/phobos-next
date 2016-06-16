@@ -2259,9 +2259,9 @@ unittest
             }
         }
     }
-    dln("Added ", count, " words from ", path);
-    set.showStatistics();
-    // set.print();
+    // version(print) dln("Added ", count, " words from ", path);
+    version(print) set.showStatistics();
+    // version(print) set.print();
 }
 
 /** Generate `count` number of random unique strings of minimum length 1 and

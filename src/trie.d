@@ -30,10 +30,10 @@
     TODO Add `struct Range`. Use same construct as in `containers-em/src/containers/ttree.d`.
 
     - Members:
-      - It front()
+      - Iterator front()
       - void popFront()
       - bool empty())
-      - It it; // It is defined below
+      - Iterator it; // Iterator is defined below
     - Reuse RefCounted reference to _root. Add checks with `isSorted`.
 
     Prefix:
@@ -549,8 +549,8 @@ private struct RawRadixTree(Value)
         Ix ix;
     }
 
-    /** Iterator. */
-    struct It
+    /** Tree Iterator. */
+    struct Iterator
     {
         enum hasFixedKeyLength = true;
         static if (hasFixedKeyLength)
@@ -566,8 +566,8 @@ private struct RawRadixTree(Value)
     /** Tree Range. */
     struct Range
     {
-        It begin;
-        It end;
+        Iterator front;
+        Iterator back;
     }
 
     /** 256-Branch population histogram.

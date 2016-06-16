@@ -1998,7 +1998,6 @@ struct RadixTree(TypedKey, Value)
         _tree.Node insertionNode; // indicates that key was added
         _tree.insert(typedKey.remapKey, insertionNode);
         _length += !insertionNode.isNull;
-
         return !insertionNode.isNull;
     }
 

@@ -244,10 +244,10 @@ struct IxsN(size_t capacity,
     auto chunks() inout { return _ixs[0 .. _length]; }
     alias chunks this;
 
-    auto ref at(uint ix)()
+    auto ref at(uint ix)() inout
         if (ix < capacity)
     {
-        return _ixs[i];
+        return _ixs[ix];
     }
 
     auto length() const { return _length; }
@@ -444,10 +444,10 @@ private struct RawRadixTree(Value,
                     final switch (keys.length)
                     {
                     case 1:
-                        return keys[0][];
+                        return keys.at!0[];
                     case 2:
                         import std.algorithm : commonPrefix;
-                        return commonPrefix(keys[0][], keys[1][]);
+                        return commonPrefix(keys.at!0[], keys.at!1[]);
                     }
                 }
 
@@ -2251,7 +2251,7 @@ unittest
         {
             if (line.length <= 15)
             {
-                dln(line);
+                // dln(line);
                 assert(!set.contains(line));
                 assert(set.insert(line));
                 assert(set.contains(line));
@@ -2261,7 +2261,7 @@ unittest
     }
     dln("Added ", count, " words from ", path);
     set.showStatistics();
-    set.print();
+    // set.print();
 }
 
 /** Generate `count` number of random unique strings of minimum length 1 and

@@ -535,9 +535,11 @@ private struct RawRadixTree(Value = void)
                                 TwoLf3,
                                 TriLf2,
                                 SixLf1,
+                                DenseBrM*,
                                 SparseBr4*,
                                 DenseLf1*,
-                                DenseBrM*);
+                                SparseLf1*,
+                                );
 
     /** Mutable node. */
     alias Node = WordVariant!NodeTypes;
@@ -1191,19 +1193,15 @@ private struct RawRadixTree(Value = void)
             case ix_TwoLf3: return curr.as!(TwoLf3).contains(key);
             case ix_TriLf2: return curr.as!(TriLf2).contains(key);
             case ix_SixLf1: return curr.as!(SixLf1).contains(key);
-            case ix_DenseLf1Ptr:
-                auto curr_ = curr.as!(DenseLf1*);
-                if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr, " currPrefix:", curr_.prefix, " isKey:", curr_.isKey); }
-                return curr_.contains(key);
+            case ix_SparseLf1Ptr: return curr.as!(SparseLf1*).contains(key);
+            case ix_DenseLf1Ptr: return curr.as!(DenseLf1*).contains(key);
             case ix_SparseBr4Ptr:
                 auto curr_ = curr.as!(SparseBr4*);
-                if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr, " currPrefix:", curr_.prefix, " isKey:", curr_.isKey); }
                 return (key.skipOver(curr_.prefix) &&        // matching prefix
                         ((key.length == 0 && curr_.isKey) || // either stored at `curr`
                          (key.length >= 1 && containsAt(curr_.findSub(key[0]), key[1 .. $])))); // recurse
             case ix_DenseBrMPtr:
                 auto curr_ = curr.as!(DenseBrM*);
-                if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr, " currPrefix:", curr_.prefix, " isKey:", curr_.isKey); }
                 return (key.skipOver(curr_.prefix) &&        // matching prefix
                         ((key.length == 0 && curr_.isKey) || // either stored at `curr`
                          (key.length >= 1 && containsAt(curr_.subNodes[key[0]], key[1 .. $])))); // recurse
@@ -1226,6 +1224,7 @@ private struct RawRadixTree(Value = void)
             case ix_TriLf2: break;
             case ix_SixLf1: break;
 
+            case ix_SparseLf1Ptr:
             case ix_DenseLf1Ptr:
                 ++count;
                 break;
@@ -1317,6 +1316,7 @@ private struct RawRadixTree(Value = void)
                 case ix_TriLf2: return insertAt(curr.as!(TriLf2), key, superPrefixLength, insertionNode);
                 case ix_SixLf1: return insertAt(curr.as!(SixLf1), key, superPrefixLength, insertionNode);
 
+                case ix_SparseLf1Ptr:
                 case ix_DenseLf1Ptr:
                 case ix_SparseBr4Ptr:
                 case ix_DenseBrMPtr: return insertAtBranch(curr, key, superPrefixLength, insertionNode);
@@ -1763,6 +1763,10 @@ private struct RawRadixTree(Value = void)
 
     @safe pure nothrow /* TODO @nogc */
     {
+        void release(SparseLf1* curr)
+        {
+            freeNode(curr);
+        }
         void release(DenseLf1* curr)
         {
             freeNode(curr);
@@ -1801,6 +1805,7 @@ private struct RawRadixTree(Value = void)
             case ix_TwoLf3: return release(curr.as!(TwoLf3));
             case ix_TriLf2: return release(curr.as!(TriLf2));
             case ix_SixLf1: return release(curr.as!(SixLf1));
+            case ix_SparseLf1Ptr: return release(curr.as!(SparseLf1*));
             case ix_DenseLf1Ptr: return release(curr.as!(DenseLf1*));
             case ix_SparseBr4Ptr: return release(curr.as!(SparseBr4*));
             case ix_DenseBrMPtr: return release(curr.as!(DenseBrM*));
@@ -1816,6 +1821,7 @@ private struct RawRadixTree(Value = void)
             case ix_TwoLf3: return false;
             case ix_TriLf2: return false;
             case ix_SixLf1: return false;
+            case ix_SparseLf1Ptr: return true;
             case ix_DenseLf1Ptr: return true;
             case ix_SparseBr4Ptr: return true;
             case ix_DenseBrMPtr: return true;
@@ -1878,6 +1884,10 @@ private struct RawRadixTree(Value = void)
         case ix_SixLf1:
             auto curr_ = curr.as!(SixLf1);
             writeln(typeof(curr_).stringof, "#", curr_.keys.length, ": ", curr_.keys);
+            break;
+        case ix_SparseLf1Ptr:
+            auto curr_ = curr.as!(SparseLf1*);
+            dln("TODO");
             break;
         case ix_DenseLf1Ptr:
             auto curr_ = curr.as!(DenseLf1*);
@@ -1965,6 +1975,7 @@ static private void calculate(Value)(RawRadixTree!(Value).Node sub,
         case ix_TwoLf3: break; // TODO calculate()
         case ix_TriLf2: break; // TODO calculate()
         case ix_SixLf1: break; // TODO calculate()
+        case ix_SparseLf1Ptr: ++stats.heapNodeCount; sub.as!(RT.SparseLf1*).calculate(stats); break;
         case ix_DenseLf1Ptr: ++stats.heapNodeCount; sub.as!(RT.DenseLf1*).calculate(stats); break;
         case ix_SparseBr4Ptr: ++stats.heapNodeCount; sub.as!(RT.SparseBr4*).calculate(stats); break;
         case ix_DenseBrMPtr: ++stats.heapNodeCount; sub.as!(RT.DenseBrM*).calculate(stats); break;
@@ -2247,6 +2258,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
             case ix_TwoLf3: bytesUsed = pop*RT.TwoLf3.sizeof; break;
             case ix_TriLf2: bytesUsed = pop*RT.TriLf2.sizeof; break;
             case ix_SixLf1: bytesUsed = pop*RT.SixLf1.sizeof; break;
+            case ix_SparseLf1Ptr: bytesUsed = pop*RT.SparseLf1.sizeof; totalBytesUsed += bytesUsed; break;
             case ix_DenseLf1Ptr: bytesUsed = pop*RT.DenseLf1.sizeof; totalBytesUsed += bytesUsed; break;
             case ix_SparseBr4Ptr: bytesUsed = pop*RT.SparseBr4.sizeof; totalBytesUsed += bytesUsed; break;
             case ix_DenseBrMPtr: bytesUsed = pop*RT.DenseBrM.sizeof; totalBytesUsed += bytesUsed; break;

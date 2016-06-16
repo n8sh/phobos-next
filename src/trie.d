@@ -281,8 +281,8 @@ static assert(IxsN!(2, 3, 8).sizeof == 7);
     Ix[] ixs = [11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M];
     enum capacity = 7;
 
-    auto x = IxsN!(capacity, 1, span)(ixs);
-    auto y = IxsN!(capacity, 1, span)(11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M);
+    auto x = IxsN!(capacity, 1)(ixs);
+    auto y = IxsN!(capacity, 1)(11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M);
 
     assert(x == y);
 
@@ -340,6 +340,13 @@ bool equalLength(R, Ss...)(const R r, const Ss ss) @safe pure nothrow @nogc
     assert(!equalLength([1], [2], [3, 3]));
 }
 
+/// Binary power of radix, typically either 1, 2, 4 or 8.
+private enum span = 8;
+private enum radix = 2^^span; // branch-multiplicity, typically either 2, 4, 16 or 256
+alias order = radix;          // tree order
+
+static assert(span == 8, "Radix is currently limited to 8");
+
 /** Raw adaptive radix tree (ART) container storing untyped variable-length `Key`.
 
     In set-case (`Value` is `void`) this container is especially suitable for
@@ -367,8 +374,7 @@ bool equalLength(R, Ss...)(const R r, const Ss ss) @safe pure nothrow @nogc
     See also: https://gcc.gnu.org/onlinedocs/libstdc++/ext/pb_ds/trie_based_containers.html
     See also: https://github.com/npgall/concurrent-trees
 */
-private struct RawRadixTree(Value,
-                            uint span = 8) // binary power of radix, typically either 1, 2, 4 or 8
+private struct RawRadixTree(Value)
 {
     import std.bitmanip : bitfields;
     import std.conv : to;
@@ -377,14 +383,8 @@ private struct RawRadixTree(Value,
     import std.typecons : ConstOf;
     import bitset : BitSet;
 
-    static assert(span == 8, "Radix is currently limited to 8");
-
     enum isSet = is(Value == void); // `true` if this tree is a set. TODO better to use empty struct?
     enum isMap = !isSet;            // `true` if this tree is a map
-
-    enum radix = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
-
-    alias order = radix;   // tree order
 
     /// `true` if tree has binary branch.
     enum isBinary = span == 2;
@@ -423,7 +423,7 @@ private struct RawRadixTree(Value,
                     return s;
                 }
 
-                IxsN!(capacity, 1, span) key;
+                IxsN!(capacity, 1) key;
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
@@ -454,7 +454,7 @@ private struct RawRadixTree(Value,
 
                 pragma(inline) bool contains(Key!span key) const @nogc { return keys.contains(key); }
 
-                IxsN!(capacity, keyLength, span) keys;
+                IxsN!(capacity, keyLength) keys;
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
@@ -489,7 +489,7 @@ private struct RawRadixTree(Value,
 
                 pragma(inline) bool contains(Key!span key) const @nogc { return keys.contains(key); }
 
-                IxsN!(capacity, keyLength, span) keys;
+                IxsN!(capacity, keyLength) keys;
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
@@ -508,7 +508,7 @@ private struct RawRadixTree(Value,
 
                 pragma(inline) bool contains(Key!span key) const @nogc { return keys.contains(key); }
 
-                IxsN!(capacity, 1, span) keys;
+                IxsN!(capacity, 1) keys;
             private:
                 ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
@@ -772,7 +772,7 @@ private struct RawRadixTree(Value,
             foreach (const sub; subNodes)
             {
                 ++count;
-                sub.calculate!(Value, span)(stats);
+                sub.calculate!(Value)(stats);
             }
             assert(count <= radix);
             ++stats.popHist_SparseBr4[count - 1]; // TODO type-safe indexing
@@ -881,7 +881,7 @@ private struct RawRadixTree(Value,
                 if (subNode)
                 {
                     ++count;
-                    subNode.calculate!(Value, span)(stats);
+                    subNode.calculate!(Value)(stats);
                 }
             }
             assert(count <= radix);
@@ -1090,7 +1090,7 @@ private struct RawRadixTree(Value,
     Stats usageHistograms() const
     {
         typeof(return) stats;
-        _root.calculate!(Value, span)(stats);
+        _root.calculate!(Value)(stats);
         return stats;
     }
 
@@ -1924,11 +1924,11 @@ private struct RawRadixTree(Value,
 
 /** Append statistics of tree under `Node` `sub.` into `stats`.
  */
-static private void calculate(Value, uint span)(RawRadixTree!(Value, span).Node sub,
-                                                ref RawRadixTree!(Value, span).Stats stats)
+static private void calculate(Value)(RawRadixTree!(Value).Node sub,
+                                     ref RawRadixTree!(Value).Stats stats)
     @safe pure nothrow /* TODO @nogc */
 {
-    alias RT = RawRadixTree!(Value, span);
+    alias RT = RawRadixTree!(Value);
     ++stats.popByNodeType[sub.typeIx];
 
     with (RT.Node.Ix)
@@ -1948,7 +1948,7 @@ static private void calculate(Value, uint span)(RawRadixTree!(Value, span).Node 
 }
 
 /** Remap typed key `typedKey` to untype key of `Key`. */
-static private Key!span remapKey(TypedKey, uint span = 8)(in TypedKey typedKey)
+static private Key!span remapKey(TypedKey)(in TypedKey typedKey)
     @trusted pure nothrow /* TODO @nogc */
     if (allSatisfy!(isTrieableKeyType, TypedKey))
 {
@@ -2005,7 +2005,7 @@ static private Key!span remapKey(TypedKey, uint span = 8)(in TypedKey typedKey)
 }
 
 /// Radix-Tree with key-type `TypedKey` and value-type `Value`.
-struct RadixTree(TypedKey, Value, uint span = 8)
+struct RadixTree(TypedKey, Value)
     if (allSatisfy!(isTrieableKeyType, TypedKey))
 {
     this(bool unusedDummy)      // TODO how do we get rid of the need for `unusedDummy`?
@@ -2068,7 +2068,7 @@ struct RadixTree(TypedKey, Value, uint span = 8)
         _tree.print();
     }
 
-    private RawRadixTree!(Value, span) _tree;
+    private RawRadixTree!(Value) _tree;
     alias _tree this;
 }
 alias PatriciaTrie = RadixTree;
@@ -2076,7 +2076,7 @@ alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
 
 /// Instantiator of set-version of `RadixTree` where value-type is `void` (unused).
-auto radixTreeSet(Key, uint span = 8)()
+auto radixTreeSet(Key)()
 {
     static if (is(Key == string))
     {
@@ -2086,11 +2086,11 @@ auto radixTreeSet(Key, uint span = 8)()
     {
         alias MutableKey = Key;
     }
-    return RadixTree!(MutableKey, void, span)(false);
+    return RadixTree!(MutableKey, void)(false);
 }
 
 /// Instantiator of map-version of `RadixTree` where value-type is `Value`.
-auto radixTreeMap(Key, Value, uint span = 8)() { return RadixTree!(Key, Value, span)(false); }
+auto radixTreeMap(Key, Value)() { return RadixTree!(Key, Value)(false); }
 
 // @safe pure nothrow /* TODO @nogc */
 unittest
@@ -2539,7 +2539,7 @@ auto testPrint(uint span, Keys...)()
         foreach (Key; Keys)
         {
             dln("Key: ", Key.stringof);
-            alias Tree = radixTreeSet!(Key, span);
+            alias Tree = radixTreeSet!(Key);
             auto set = Tree;
 
             import std.algorithm : min, max;

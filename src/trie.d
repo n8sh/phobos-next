@@ -524,7 +524,9 @@ private struct RawRadixTree(Value)
     alias DefaultBr = SparseBr4*; // either SparseBr4*, DenseBrM*
 
     static if (hasValue)
+    {
         static assert(SixLf1.sizeof == size_t.sizeof); // assert that it's size matches platform word-size
+    }
 
     /** Node types. */
     alias NodeTypes = AliasSeq!(OneLf6,
@@ -1993,11 +1995,6 @@ struct RadixTree(TypedKey, Value)
     bool insert(in TypedKey typedKey)
         @safe pure nothrow /* TODO @nogc */
     {
-        // dln("inserting typedKey:", typedKey);
-        import std.string : representation;
-
-        // convert unsigned to fixed-length (on the stack) ubyte array
-
         _tree.Node insertionNode; // indicates that key was added
         _tree.insert(typedKey.remapKey, insertionNode);
         _length += !insertionNode.isNull;

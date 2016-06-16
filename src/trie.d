@@ -383,9 +383,9 @@ private struct RawRadixTree(Value)
     import std.typecons : ConstOf;
     import bitset : BitSet;
 
+    /** Is `true` if this tree stores values of type `Value` along with keys,
+     that is be a map rather than a set */
     enum hasValue = is(Value == void);
-    enum isSet = hasValue; // `true` if this tree is a set. TODO better to use empty struct?
-    enum isMap = !isSet;   // `true` if this tree is a map
 
     /// `true` if tree has binary branch.
     enum isBinary = span == 2;
@@ -523,7 +523,7 @@ private struct RawRadixTree(Value)
     // TODO make these run-time arguments at different key depths and map to statistics of typed-key
     alias DefaultBr = SparseBr4*; // either SparseBr4*, DenseBrM*
 
-    static if (isSet)
+    static if (hasValue)
         static assert(SixLf1.sizeof == size_t.sizeof); // assert that it's size matches platform word-size
 
     /** Node types. */
@@ -2014,7 +2014,7 @@ struct RadixTree(TypedKey, Value)
         return !insertionNode.isNull;
     }
 
-    static if (_tree.isSet)
+    static if (_tree.hasValue)
     {
         const nothrow:
 
@@ -2025,7 +2025,7 @@ struct RadixTree(TypedKey, Value)
         }
     }
 
-    static if (_tree.isMap)
+    static if (!_tree.hasValue)
     {
         /** Insert `key`.
             Returns: `false` if key was previously already inserted, `true` otherwise.
@@ -2338,7 +2338,7 @@ auto checkNumeric(Keys...)()
             assert(set.hasFixedKeyLength == isFixedTrieableKeyType!Key);
             assert(set.empty);
 
-            static assert(set.isSet);
+            static assert(set.hasValue);
 
             import std.algorithm : min, max;
 
@@ -2402,7 +2402,7 @@ auto checkNumeric(Keys...)()
 
             auto map = radixTreeMap!(Key, Value);
             assert(map.hasFixedKeyLength == isFixedTrieableKeyType!Key);
-            static assert(map.isMap);
+            static assert(!map.hasValue);
 
             map.insert(Key.init, Value.init);
         }
@@ -2426,7 +2426,7 @@ void benchmark()()
         alias Set = set;
         assert(set.empty);
 
-        static assert(set.isSet);
+        static assert(set.hasValue);
 
         import std.conv : to;
         import std.datetime : StopWatch, AutoStart, Duration;
@@ -2488,7 +2488,7 @@ void benchmark()()
 
         auto map = radixTreeMap!(Key, Value);
         assert(map.empty);
-        static assert(map.isMap);
+        static assert(!map.hasValue);
 
         map.insert(Key.init, Value.init);
     }

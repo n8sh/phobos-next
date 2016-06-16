@@ -3,6 +3,8 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO Use Tuple!(Ix, Node) in constructors for SparseBr4 and DenseBrM
+
     TODO Use IxsN.at(ix) and use inplace of IxsN.opIndex
 
     TODO Make `Key` and Ix[] array of `immutable Ix` like `string`

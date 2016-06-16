@@ -5,7 +5,7 @@
 
     TODO Use IxsN.at(ix) and use inplace of IxsN.opIndex
 
-    TODO Make `Key` array of `immutable Ix` like `string`
+    TODO Make `Key` and Ix[] array of `immutable Ix` like `string`
 
     TODO Allow NodeType-constructors to take const and immutable prefixes
 
@@ -141,7 +141,7 @@ struct IxsN(size_t capacity,
 
     static if (L == 1)
     {
-        this(Ix[] ixs)
+        this(const Ix[] ixs)
         {
             assert(ixs.length <= capacity);
             _ixs[0 .. ixs.length] = ixs;
@@ -234,7 +234,7 @@ struct IxsN(size_t capacity,
         return this;
     }
 
-    bool contains(Ix[] ix) const @nogc
+    bool contains(const Ix[] ix) const @nogc
     {
         import std.algorithm.searching : canFind;
         if (ix.length != L) { return false; }

@@ -541,12 +541,18 @@ private struct RawRadixTree(Value)
 
     static assert(span <= 8*Ix.sizeof, "Need more precision in Ix");
 
+    /** Leaf-Index (Key and Value) Reference. */
+    struct LfRef
+    {
+        bool opCast(T : bool)() const @safe pure nothrow /* TODO @nogc */ { return node; }
+        Node node;           // current leaf-`Node`. TODO use `Lf` type instead?
+        bool isKey;          // true if `key` is currently stored at `node.isKey` in branch node
+        Ix ix;               // otherwise index at leaf-node
+    }
+
     /** Iterator. */
     struct It
     {
-        bool opCast(T : bool)() const @safe pure nothrow /* TODO @nogc */ { return cast(bool)node; }
-        Node node;           // current leaf-`Node`. TODO use `Lf` type instead?
-        Ix ix;               // index to sub at `node`
     }
 
     /** Tree Range. */

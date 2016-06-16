@@ -306,7 +306,7 @@ struct Array(E,
     alias comp = binaryFun!less; //< comparison
 
     /// Maximum number of elements that fits in SSO-packed
-    enum smallLength = (_storeLength.sizeof + _length.sizeof) / E.sizeof;
+    enum smallLength = (_storeCapacity.sizeof + _length.sizeof) / E.sizeof;
 
     /// Returns: `true` iff is SSO-packed.
     bool isSmall() const @safe pure nothrow @nogc { return length <= smallLength; }
@@ -329,7 +329,7 @@ struct Array(E,
         {
             _storePtr = cast(E*)GC.malloc(E.sizeof * n);
             static if (shouldAddGCRange!E) { GC.addRange(ptr, length * E.sizeof); }
-            _length = _storeLength = n;
+            _length = _storeCapacity = n;
             zero;
         }
     }
@@ -339,7 +339,7 @@ struct Array(E,
         {
             _storePtr = cast(E*)_malloc(E.sizeof * n);
             static if (shouldAddGCRange!E) { GC.addRange(ptr, length * E.sizeof); }
-            _length = _storeLength = n;
+            _length = _storeCapacity = n;
             zero;
         }
     }
@@ -348,7 +348,7 @@ struct Array(E,
 
     void zero() @("complexity", "O(length)")
     {
-        ptr[0 .. length] = 0; // NOTE should we zero [0 .. _storeLength] instead?
+        ptr[0 .. length] = 0; // NOTE should we zero [0 .. _storeCapacity] instead?
     }
 
     /** Construct from InputRange `values`.
@@ -359,7 +359,7 @@ struct Array(E,
     {
         // init
         _storePtr = null;
-        _storeLength = 0;
+        _storeCapacity = 0;
 
         // append new data
         import std.range : hasLength;
@@ -400,7 +400,7 @@ struct Array(E,
         void reserve(size_t n) pure nothrow @trusted
         {
             makeReservedLengthAtLeast(n);
-            _storePtr = cast(E*)GC.realloc(_storePtr, E.sizeof * _storeLength);
+            _storePtr = cast(E*)GC.realloc(_storePtr, E.sizeof * _storeCapacity);
             static if (shouldAddGCRange!E) { GC.addRange(ptr, length * E.sizeof); }
         }
     }
@@ -409,14 +409,14 @@ struct Array(E,
         void reserve(size_t n) pure nothrow @trusted @nogc
         {
             makeReservedLengthAtLeast(n);
-            _storePtr = cast(E*)_realloc(_storePtr, E.sizeof * _storeLength);
+            _storePtr = cast(E*)_realloc(_storePtr, E.sizeof * _storeCapacity);
         }
     }
 
     /// Helper for `reserve`.
     private void makeReservedLengthAtLeast(size_t n) pure nothrow @safe @nogc
     {
-        if (_storeLength < n) { _storeLength = n.nextPow2; }
+        if (_storeCapacity < n) { _storeCapacity = n.nextPow2; }
     }
 
     /// Pack/Compress storage.
@@ -432,7 +432,7 @@ struct Array(E,
             {
                 GC.free(_storePtr); debug _storePtr = null;
             }
-            _storeLength = _length;
+            _storeCapacity = _length;
         }
     }
     else
@@ -441,13 +441,13 @@ struct Array(E,
         {
             if (length)
             {
-                _storePtr = cast(E*)_realloc(_storePtr, E.sizeof * _storeLength);
+                _storePtr = cast(E*)_realloc(_storePtr, E.sizeof * _storeCapacity);
             }
             else
             {
                 _free(_storePtr); debug _storePtr = null;
             }
-            _storeLength = _length;
+            _storeCapacity = _length;
         }
     }
     alias pack = compress;
@@ -858,7 +858,7 @@ struct Array(E,
     /// Get length of reserved store.
     size_t reservedLength() const @safe
     {
-        return _storeLength;
+        return _storeCapacity;
     }
 
     /// Get internal pointer.
@@ -875,8 +875,8 @@ struct Array(E,
     }
 
     // TODO reuse Store store
-    E* _storePtr;               // store
-    size_t _storeLength;        // store length
+    E* _storePtr;               // store pointer
+    size_t _storeCapacity;      // store capacity
 
     size_t _length;             // length
 }

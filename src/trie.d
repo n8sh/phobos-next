@@ -387,7 +387,7 @@ private struct RawRadixTree(Value)
 
     /** Is `true` if this tree stores values of type `Value` along with keys,
      that is be a map rather than a set */
-    enum hasValue = is(Value == void);
+    enum hasValue = !is(Value == void);
 
     /// `true` if tree has binary branch.
     enum isBinary = span == 2;
@@ -525,7 +525,7 @@ private struct RawRadixTree(Value)
     // TODO make these run-time arguments at different key depths and map to statistics of typed-key
     alias DefaultBr = SparseBr4*; // either SparseBr4*, DenseBrM*
 
-    static if (hasValue)
+    static if (!hasValue)
     {
         static assert(SixLf1.sizeof == size_t.sizeof); // assert that it's size matches platform word-size
     }
@@ -640,11 +640,15 @@ private struct RawRadixTree(Value)
 
         private:
         BitSet!radix _keyBits;  // 32 bytes
+        static if (hasValue)
+        {
+            Value[radix] values; // values
+        }
         IxsN!prefixCapacity prefix; // prefix common to all `subNodes` (also called edge-label)
         bool isKey;
     }
 
-    static assert(DenseLf1.sizeof == 48);
+    static if (!hasValue) { static assert(DenseLf1.sizeof == 48); }
 
     /** Sparse/Packed/Partial 4-way branch. */
     static private struct SparseBr4
@@ -2004,7 +2008,7 @@ struct RadixTree(TypedKey, Value)
         return !insertionNode.isNull;
     }
 
-    static if (_tree.hasValue)
+    static if (!_tree.hasValue)
     {
         const nothrow:
 
@@ -2015,7 +2019,7 @@ struct RadixTree(TypedKey, Value)
         }
     }
 
-    static if (!_tree.hasValue)
+    static if (_tree.hasValue)
     {
         /** Insert `key`.
             Returns: `false` if key was previously already inserted, `true` otherwise.
@@ -2334,7 +2338,7 @@ auto checkNumeric(Keys...)()
             assert(set.hasFixedKeyLength == isFixedTrieableKeyType!Key);
             assert(set.empty);
 
-            static assert(set.hasValue);
+            static assert(!set.hasValue);
 
             import std.algorithm : min, max;
 
@@ -2398,7 +2402,7 @@ auto checkNumeric(Keys...)()
 
             auto map = radixTreeMap!(Key, Value);
             assert(map.hasFixedKeyLength == isFixedTrieableKeyType!Key);
-            static assert(!map.hasValue);
+            static assert(map.hasValue);
 
             map.insert(Key.init, Value.init);
         }
@@ -2422,7 +2426,7 @@ void benchmark()()
         alias Set = set;
         assert(set.empty);
 
-        static assert(set.hasValue);
+        static assert(!set.hasValue);
 
         import std.conv : to;
         import std.datetime : StopWatch, AutoStart, Duration;
@@ -2484,7 +2488,7 @@ void benchmark()()
 
         auto map = radixTreeMap!(Key, Value);
         assert(map.empty);
-        static assert(!map.hasValue);
+        static assert(map.hasValue);
 
         map.insert(Key.init, Value.init);
     }

@@ -107,8 +107,7 @@ template Mod(size_t m, T = TypeOfModulo!m)
                 op == `*` &&
                 isIntegral!U)
         {
-            mixin(`auto tmp = x ` ~ op ~ `rhs;`);
-            x = cast(T)tmp;
+            mixin(`x = cast(T)(x ` ~ op ~ `rhs);`);
             return this;
         }
 

@@ -305,7 +305,7 @@ struct Array(E,
             _storePtr = cast(E*)GC.malloc(E.sizeof * n);
             static if (shouldAddGCRange!E) { GC.addRange(ptr, length * E.sizeof); }
             _length = _storeCapacity = n;
-            zero;
+            defaultInitialize;
         }
     }
     else
@@ -315,14 +315,14 @@ struct Array(E,
             _storePtr = cast(E*)_malloc(E.sizeof * n);
             static if (shouldAddGCRange!E) { GC.addRange(ptr, length * E.sizeof); }
             _length = _storeCapacity = n;
-            zero;
+            defaultInitialize;
         }
     }
 
     this(this) @disable;       /// TODO activate when internal RC-logic is ready
 
     /** Zero-initialize all elements. */
-    void zero(E zeroValue = E.init) @("complexity", "O(length)")
+    void defaultInitialize(E zeroValue = E.init) @("complexity", "O(length)")
     {
         ptr[0 .. length] = zeroValue; // NOTE should we zero [0 .. _storeCapacity] instead?
     }

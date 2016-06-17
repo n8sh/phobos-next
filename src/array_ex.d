@@ -300,7 +300,7 @@ struct Array(E,
     /// Construct with length `n`.
     static if (useGC)
     {
-        this(size_t n) pure @trusted nothrow
+        this(size_t n) @trusted nothrow
         {
             _storePtr = cast(E*)GC.malloc(E.sizeof * n);
             static if (shouldAddGCRange!E)
@@ -314,7 +314,7 @@ struct Array(E,
     }
     else
     {
-        this(size_t n) pure nothrow @trusted @nogc
+        this(size_t n) nothrow @trusted @nogc
         {
             _storePtr = cast(E*)_malloc(E.sizeof * n);
             static if (shouldAddGCRange!E)

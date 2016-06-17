@@ -615,15 +615,21 @@ private struct RawRadixTree(Value = void)
 
             _length = es._length;
 
-            // reserve():
+            // TODO reuse allocate or reserve
             _capacity = nextPow2(es._length);
             _keys = malloc(_capacity*Ix.sizeof);
-            _values = malloc(_capacity*Value.sizeof);
+            static if (hasValue)
+            {
+                _values = malloc(_capacity*Value.sizeof);
+            }
 
             foreach (const i, const e; es)
             {
                 _keys[i] = e[0];
-                _values[i] = e[1];
+                static if (hasValue)
+                {
+                    _values[i] = e[1];
+                }
             }
         }
 

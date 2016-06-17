@@ -604,44 +604,71 @@ private struct RawRadixTree(Value = void)
     /** Sparsely coded leaves. */
     static private struct SparseLf1
     {
-        @safe pure nothrow:
+        alias Length = ushort;
+        alias Capacity = ushort;
 
-        this(Ixs...)(bool isKey, Ixs subIxs)
-            if (Ixs.length <= maxSubCount)
+        pure nothrow /* TODO @nogc */:
+
+        this(Es...)(Es es) @safe
         {
-            this.isKey = isKey;
-            foreach (subIx; subIxs)
+            import std.math : nextPow2;
+
+            _length = es._length;
+
+            // reserve():
+            _capacity = nextPow2(es._length);
+            _keys = malloc(_capacity*Ix.sizeof);
+            _values = malloc(_capacity*Value.sizeof);
+
+            foreach (const i, const e; es)
             {
-                _keyBits[subIx] = true;
+                _keys[i] = e[0];
+                _values[i] = e[1];
             }
         }
 
-        pragma(inline) bool hasSubAt(Ix ix) const @nogc
+        ~this()
+        {
+            free(_keys); debug _keys = null;
+            static if (hasValue)
+            {
+                free(_values); debug _values = null;
+            }
+        }
+
+        /** Reserve room for `newCapacity` number of elements. */
+        void reserve(Capacity newCapacity) @trusted
+        {
+            if (_capacity < newCapacity)
+            {
+                _keys = cast(typeof(_keys))realloc(_keys, _capacity*Ix.sizeof);
+                _values = cast(typeof(_values))realloc(_values, _capacity*Value.sizeof);
+            }
+            _capacity = newCapacity;
+        }
+
+        pragma(inline) bool empty() const @safe @nogc { return _length == 0; }
+        pragma(inline) bool full() const @safe @nogc { return _length == radix; }
+        pragma(inline) Length length() const @safe @nogc { return _length; }
+        pragma(inline) Capacity capacity() const @safe @nogc { return _capacity; }
+        pragma(inline) bool contains(Key!span key) const @trusted @nogc
         {
             import std.algorithm.searching : canFind;
-            return keys.canFind(ix);
-        }
-        pragma(inline) bool empty() const @nogc { return keys.length == 0; }
-        pragma(inline) bool full() const @nogc { return keys.length == radix; }
-
-        pragma(inline) bool contains(Key!span key) const @nogc
-        {
-            return keys.length == 1 && hasSubAt(keys[0]);
+            return (key.length == 1 &&
+                    _keys[0 .. _length].canFind(key[0]));
         }
 
         /** Append statistics of tree under `this` into `stats`. */
-        void calculate(ref Stats stats)
+        void calculate(ref Stats stats) @safe
         {
             dln("TODO");
         }
 
     private:
-        // TODO code as a variable length struct of a special structure called a TupleArray!(Ix, Value)
-        Ix[] keys;
-        static if (hasValue)
-        {
-            Value[] values; // values
-        }
+        Length _length;
+        Capacity _capacity;
+        Ix* _keys;
+        Value* _values;
     }
 
     /** Dense Bitset Branch with only bottom-most leaves. */
@@ -2382,7 +2409,7 @@ auto checkNumeric(Keys...)()
     foreach (const it; 0.iota(1))
     {
         import std.algorithm : equal;
-        struct TestValueType { int i; float f; string s; }
+        struct TestValueType { int i; float f; char ch; }
         alias Value = TestValueType;
         import std.meta : AliasSeq;
         foreach (Key; Keys)
@@ -2472,7 +2499,7 @@ void benchmark()()
     import std.stdio : writeln;
 
     import std.algorithm : equal;
-    struct TestValueType { int i; float f; string s; }
+    struct TestValueType { int i; float f; char ch; }
     alias Value = TestValueType;
     import std.meta : AliasSeq;
     foreach (Key; AliasSeq!(uint)) // just benchmark uint for now

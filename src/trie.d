@@ -636,10 +636,11 @@ private struct RawRadixTree(Value = void)
         }
 
     private:
+        // TODO code as a variable length struct of a special structure called a TupleArray!(Ix, Value)
         Ix[] keys;
         static if (hasValue)
         {
-            Value[] values;     // values
+            Value[] values; // values
         }
     }
 

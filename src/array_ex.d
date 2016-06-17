@@ -266,7 +266,7 @@ enum isArray(C) = isInstanceOf!(Array, C);
 struct Array(E,
              Ordering ordering = Ordering.unsorted,
              bool useGC = shouldAddGCRange!E,
-             alias less = "a < b") // TODO move out of this definition
+             alias less = "a < b") // TODO move out of this definition and support only for the case when `ordering` is not `Ordering.unsorted`
 {
     import std.range : isInputRange, ElementType;
     import std.traits : isAssignable, Unqual, isSomeChar;

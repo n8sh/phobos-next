@@ -67,7 +67,9 @@ template Mod(size_t m, T = TypeOfModulo!m)
         in
         {
             static if (m != 2^^(U.sizeof)) // dynamic check only modulo doesn't equal storage precision
+            {
                 assert(value < m, `value too large`); // TODO use enforce instead?
+            }
         }
         body
         {
@@ -87,7 +89,9 @@ template Mod(size_t m, T = TypeOfModulo!m)
         in
         {
             static if (m != 2^^(U.sizeof)) // dynamic check only modulo doesn't equal storage precision
+            {
                 assert(value < m, `value too large`); // TODO use enforce instead?
+            }
         }
         body
         {
@@ -120,17 +124,25 @@ template Mod(size_t m, T = TypeOfModulo!m)
             else static if (op == `--`)
             {
                 static if (isPowerOf2(m))
+                {
                     x = (x - 1) & max; // more efficient
+                }
                 else
+                {
                     if (x == min) x = max; else --x;
+                }
                 return this;
             }
             else static if (op == `++`)
             {
                 static if (isPowerOf2(m))
+                {
                     x = (x + 1) & max; // more efficient
+                }
                 else
+                {
                     if (x == max) x = min; else ++x;
+                }
                 return this;
             }
             else

@@ -321,7 +321,7 @@ struct Array(E,
 
     this(this) @disable;       /// TODO activate when internal RC-logic is ready
 
-    /** Zero-initialize all elements. */
+    /** Default-initialize all elements to `zeroValue`.. */
     void defaultInitialize(E zeroValue = E.init) @("complexity", "O(length)")
     {
         ptr[0 .. length] = zeroValue; // NOTE should we zero [0 .. _storeCapacity] instead?

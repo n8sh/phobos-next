@@ -41,32 +41,7 @@ version(unittest)
 
 enum IsOrdered(Ordering ordering) = ordering != Ordering.unsorted;
 
-static if (__VERSION__ >= 2071)
-{
-    import std.math : nextPow2;
-}
-else
-{
-/**
-   Returns $(D s) rounded up to the nearest power of 2.
-   Taken from `roundUpToPowerOf2` in allocator.
-*/
-    auto nextPow2(size_t s)
-    {
-        import std.meta : AliasSeq;
-        assert(s <= (size_t.max >> 1) + 1);
-        --s;
-        static if (size_t.sizeof == 4)
-            alias Shifts = AliasSeq!(1, 2, 4, 8, 16);
-        else
-            alias Shifts = AliasSeq!(1, 2, 4, 8, 16, 32);
-        foreach (i; Shifts)
-        {
-            s |= s >> i;
-        }
-        return s + 1;
-    }
-}
+import std.math : nextPow2;
 
 template shouldAddGCRange(T)
 {

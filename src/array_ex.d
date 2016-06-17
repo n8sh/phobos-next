@@ -850,10 +850,10 @@ struct Array(E,
         return ptr[0 .. length];
     }
 
+private:
     // TODO reuse Store store
     E* _storePtr;               // store pointer
     size_t _storeCapacity;      // store capacity
-
     size_t _length;             // length
 }
 

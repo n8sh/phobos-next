@@ -303,7 +303,11 @@ struct Array(E,
         this(size_t n) pure @trusted nothrow
         {
             _storePtr = cast(E*)GC.malloc(E.sizeof * n);
-            static if (shouldAddGCRange!E) { GC.addRange(ptr, length * E.sizeof); }
+            static if (shouldAddGCRange!E)
+            {
+                import core.memory : GC;
+                GC.addRange(ptr, length * E.sizeof);
+            }
             _length = _storeCapacity = n;
             defaultInitialize;
         }
@@ -313,7 +317,11 @@ struct Array(E,
         this(size_t n) pure nothrow @trusted @nogc
         {
             _storePtr = cast(E*)_malloc(E.sizeof * n);
-            static if (shouldAddGCRange!E) { GC.addRange(ptr, length * E.sizeof); }
+            static if (shouldAddGCRange!E)
+            {
+                import core.memory : GC;
+                GC.addRange(ptr, length * E.sizeof);
+            }
             _length = _storeCapacity = n;
             defaultInitialize;
         }
@@ -433,7 +441,11 @@ struct Array(E,
     {
         ~this() nothrow @trusted
         {
-            static if (shouldAddGCRange!E) { GC.removeRange(ptr); }
+            static if (shouldAddGCRange!E)
+            {
+                import core.memory : GC;
+                GC.removeRange(ptr);
+            }
             GC.free(_storePtr); debug _storePtr = null;
         }
     }
@@ -441,7 +453,11 @@ struct Array(E,
     {
         ~this() nothrow @trusted @nogc
         {
-            static if (shouldAddGCRange!E) { GC.removeRange(ptr); }
+            static if (shouldAddGCRange!E)
+            {
+                import core.memory : GC;
+                GC.removeRange(ptr);
+            }
             _free(_storePtr); debug _storePtr = null;
         }
     }

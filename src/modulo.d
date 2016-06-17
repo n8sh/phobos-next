@@ -102,7 +102,10 @@ template Mod(size_t m, T = TypeOfModulo!m)
         }
 
         auto ref opOpAssign(string op, U)(U rhs)
-            if (op == `+` || op == `-` || op == `*` && isIntegral!U)
+            if (op == `+` ||
+                op == `-` ||
+                op == `*` &&
+                isIntegral!U)
         {
             mixin(`auto tmp = x ` ~ op ~ `rhs;`);
             x = cast(T)tmp;

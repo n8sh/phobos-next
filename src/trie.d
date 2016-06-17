@@ -604,8 +604,8 @@ private struct RawRadixTree(Value = void)
     /** Sparsely coded leaves. */
     static private struct SparseLf1
     {
-        alias Length = ushort;
-        alias Capacity = ushort;
+        alias Length = Mod!(radix + 1);
+        alias Capacity = Mod!(radix + 1);
 
         pure nothrow /* TODO @nogc */:
 

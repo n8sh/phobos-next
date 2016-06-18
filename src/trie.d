@@ -663,7 +663,7 @@ private struct RawRadixTree(Value = void)
         {
             import std.algorithm.searching : canFind;
             return (key.length == 1 &&
-                    _keys[0 .. _length].canFind(key[0]));
+                    _keys[0 .. _length].canFind(key[0])); // TODO binarySearch
         }
 
         /** Append statistics of tree under `this` into `stats`. */

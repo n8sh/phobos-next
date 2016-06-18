@@ -610,14 +610,8 @@ private struct RawRadixTree(Value = void)
         pure nothrow /* TODO @nogc */:
 
         // Element type `E`.
-        static if (hasValue)
-        {
-            alias E = Tuple!(Ix, Value);
-        }
-        else
-        {
-            alias E = Ix;
-        }
+        static if (hasValue) { alias E = Tuple!(Ix, Value); }
+        else                 { alias E = Ix; }
 
         this(E[] es...)
         {
@@ -755,6 +749,10 @@ private struct RawRadixTree(Value = void)
         enum prefixCapacity = 10; // 2, 10, 18, ...
 
         @safe pure nothrow:
+
+        // Element type `E`.
+        static if (hasValue) { alias E = Tuple!(Ix, Node, Value); }
+        else                 { alias E = Tuple!(Ix, Node); }
 
         this(Ix[] prefix, bool isKey)
         {

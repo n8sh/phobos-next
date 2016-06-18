@@ -48,8 +48,6 @@ template substitute(substs...)
         }
     }
 }
-alias replacementSwitch = substSwitch;
-alias substSwitch = substitute;
 
 @safe pure nothrow unittest
 {

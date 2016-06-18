@@ -609,7 +609,16 @@ private struct RawRadixTree(Value = void)
 
         pure nothrow /* TODO @nogc */:
 
-        this(Es...)(Es es) @safe
+        static if (hasValue)
+        {
+            alias E = Tuple!(Ix, Value);
+        }
+        else
+        {
+            alias E = Ix;
+        }
+
+        this(Es...)(Es es) @safe // TODO use: `E[] es...`
         {
             import std.math : nextPow2;
 

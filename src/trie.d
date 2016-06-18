@@ -642,6 +642,9 @@ private struct RawRadixTree(Value = void)
             }
         }
 
+        pragma(inline) Length length() const @safe @nogc { return _length; }
+        pragma(inline) Capacity capacity() const @safe @nogc { return _capacity; }
+
         /** Reserve room for `newCapacity` number of elements. */
         void reserve(Capacity newCapacity) @trusted
         {
@@ -655,8 +658,7 @@ private struct RawRadixTree(Value = void)
 
         pragma(inline) bool empty() const @safe @nogc { return _length == 0; }
         pragma(inline) bool full() const @safe @nogc { return _length == radix; }
-        pragma(inline) Length length() const @safe @nogc { return _length; }
-        pragma(inline) Capacity capacity() const @safe @nogc { return _capacity; }
+
         pragma(inline) bool contains(Key!span key) const @trusted @nogc
         {
             import std.algorithm.searching : canFind;

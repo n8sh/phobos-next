@@ -856,7 +856,7 @@ private struct RawRadixTree(Value = void)
         {
             foreach (const sub; subNodes)
             {
-                if (const subOneLf6Ref = sub.peek!(OneLf6))
+                if (const subOneLf6Ref = sub.peek!(OneLf6)) // TODO functionize
                 {
                     const subOneLf6 = *subOneLf6Ref;
                     if (subOneLf6.key.length != 0) { return false; }
@@ -886,6 +886,7 @@ private struct RawRadixTree(Value = void)
         private:
 
         // members in order of decreasing `alignof`:
+        Node directLeaves;
         StrictlyIndexed!(Node[subCapacity]) subNodeSlots;
         IxsN!prefixCapacity prefix; // prefix common to all `subNodes` (also called edge-label)
         StrictlyIndexed!(Ix[subCapacity]) subIxSlots;
@@ -893,7 +894,7 @@ private struct RawRadixTree(Value = void)
                          bool, "isKey", 1)); // key at this branch is occupied
     }
 
-    static assert(SparseBr4.sizeof == 48);
+    static assert(SparseBr4.sizeof == 56);
 
     /** Dense/Unpacked `radix`-branch with `radix` number of sub-nodes. */
     static private struct DenseBrM

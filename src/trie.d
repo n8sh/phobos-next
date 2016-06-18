@@ -609,6 +609,7 @@ private struct RawRadixTree(Value = void)
 
         pure nothrow /* TODO @nogc */:
 
+        // Element type `E`.
         static if (hasValue)
         {
             alias E = Tuple!(Ix, Value);
@@ -618,26 +619,33 @@ private struct RawRadixTree(Value = void)
             alias E = Ix;
         }
 
-        this(Es...)(Es es) @safe // TODO use: `E[] es...`
+        this(E[] es...)
         {
             import std.math : nextPow2;
 
-            _length = es._length;
+            _length = es.length;
 
             // TODO reuse allocate or reserve
-            _capacity = nextPow2(es._length);
-            _keys = malloc(_capacity*Ix.sizeof);
+            _capacity = nextPow2(es.length);
+
+            // allocate
+            _keys = cast(typeof(_keys))malloc(_capacity*Ix.sizeof);
             static if (hasValue)
             {
-                _values = malloc(_capacity*Value.sizeof);
+                _values = cast(typeof(_values))malloc(_capacity*Value.sizeof);
             }
 
+            // initialize
             foreach (const i, const e; es)
             {
-                _keys[i] = e[0];
                 static if (hasValue)
                 {
+                    _keys[i] = e[0];
                     _values[i] = e[1];
+                }
+                else
+                {
+                    _keys[i] = e;
                 }
             }
         }

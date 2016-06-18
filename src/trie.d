@@ -3,6 +3,13 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO Make the GC aware of all Value scalars and arrays:
+    static if (shouldAddGCRange!Value)
+    {
+        import core.memory : GC;
+        GC.addRange(_values, length * Value.sizeof);
+    }
+
     TODO Use variadic list of Tuple!(Ix, Node) in constructors for SparseBr4 and DenseBrM
 
     TODO Use IxsN.at(ix) and use inplace of IxsN.opIndex
@@ -760,13 +767,19 @@ private struct RawRadixTree(Value = void)
             this.isKey = isKey;
         }
 
-        this(Ix[] prefix, bool isKey, Ix subIx, Node subNode)
+        this(Ix[] prefix, bool isKey, E[] subs...)
         {
             this.prefix = prefix;
             this.isKey = isKey;
-            this.subIxSlots.at!0 = subIx;
-            this.subNodeSlots.at!0 = subNode;
-            this.subCount = 1;
+
+            foreach (i, sub; subs)
+            {
+                pragma(msg, typeof(sub[0]));
+                pragma(msg, typeof(sub[1]));
+                this.subIxSlots[i] = sub[0];
+                this.subNodeSlots[i] = sub[1];
+            }
+            this.subCount = subs.length;
         }
 
         this(Ix[] prefix, bool isKey,

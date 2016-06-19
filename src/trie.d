@@ -6,8 +6,8 @@
     TODO Make the GC aware of all Value scalars and arrays:
     static if (shouldAddGCRange!Value)
     {
-        import core.memory : GC;
-        GC.addRange(_values, length * Value.sizeof);
+    import core.memory : GC;
+    GC.addRange(_values, length * Value.sizeof);
     }
 
     TODO Use variadic list of Tuple!(Ix, Node) in constructors for SparseBr4 and DenseBrM
@@ -767,19 +767,13 @@ private struct RawRadixTree(Value = void)
             this.isKey = isKey;
         }
 
-        this(Ix[] prefix, bool isKey, E[] subs...)
+        this(Ix[] prefix, bool isKey, Ix subIx, Node subNode)
         {
             this.prefix = prefix;
             this.isKey = isKey;
-
-            foreach (i, sub; subs)
-            {
-                pragma(msg, typeof(sub[0]));
-                pragma(msg, typeof(sub[1]));
-                this.subIxSlots[i] = sub[0];
-                this.subNodeSlots[i] = sub[1];
-            }
-            this.subCount = subs.length;
+            this.subIxSlots.at!0 = subIx;
+            this.subNodeSlots.at!0 = subNode;
+            this.subCount = 1;
         }
 
         this(Ix[] prefix, bool isKey,

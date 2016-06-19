@@ -621,6 +621,11 @@ private struct RawRadixTree(Value = void)
         else                 { alias E = Ix; }
 
         this(E[] es...)
+        in
+        {
+            assert(es.length <= radix);
+        }
+        body
         {
             import std.math : nextPow2;
 
@@ -669,7 +674,10 @@ private struct RawRadixTree(Value = void)
             if (_capacity < newCapacity)
             {
                 _keys = cast(typeof(_keys))realloc(_keys, _capacity*Ix.sizeof);
-                _values = cast(typeof(_values))realloc(_values, _capacity*Value.sizeof);
+                static if (hasValue)
+                {
+                    _values = cast(typeof(_values))realloc(_values, _capacity*Value.sizeof);
+                }
             }
             _capacity = newCapacity;
         }

@@ -614,19 +614,16 @@ private struct RawRadixTree(Value = void)
         alias Length = Mod!(radix + 1);
         alias Capacity = Mod!(radix + 1);
 
-        pure nothrow /* TODO @nogc */:
-
-        // Element type `E`.
+        // Constructor Parameter Element type `E`.
         static if (hasValue) { alias E = Tuple!(Ix, Value); }
         else                 { alias E = Ix; }
 
+        pure nothrow /* TODO @nogc */:
+
         this(E[] es...)
-        in
         {
             assert(es.length <= radix);
-        }
-        body
-        {
+
             import std.math : nextPow2;
 
             _length = es.length;
@@ -710,6 +707,10 @@ private struct RawRadixTree(Value = void)
     {
         enum prefixCapacity = 14; // 6, 14, 22, ...
         enum maxSubCount = 256;
+
+        // Constructor Parameter Element type `E`.
+        static if (hasValue) { alias E = Tuple!(Ix, Value); }
+        else                 { alias E = Ix; }
 
         @safe pure nothrow:
 

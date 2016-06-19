@@ -88,7 +88,7 @@ enum isTrieableKeyType(T) = (isFixedTrieableKeyType!T ||
                              (isInputRange!T &&
                               isFixedTrieableKeyType!(ElementType!T)));
 
-extern(C) pure nothrow @system /* TODO @nogc */
+extern(C) pure nothrow @system @nogc
 {
     void* malloc(size_t size);
     void* calloc(size_t nmemb, size_t size);
@@ -666,7 +666,7 @@ private struct RawRadixTree(Value = void)
         pragma(inline) Capacity capacity() const @safe @nogc { return _capacity; }
 
         /** Reserve room for `newCapacity` number of elements. */
-        void reserve(Capacity newCapacity) @trusted
+        void reserve(Capacity newCapacity) @trusted @nogc
         {
             if (_capacity < newCapacity)
             {

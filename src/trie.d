@@ -548,9 +548,9 @@ private struct RawRadixTree(Value = void)
                               SparseLeaf1*);
 
     /** Mutable leaf node of 1-Ix leaves. */
-    alias Leaf1 = WordVariant!(SixLeaf1,
-                               DenseLeaf1*,
-                               SparseLeaf1*);
+    alias Leaf = WordVariant!(SixLeaf1,
+                              DenseLeaf1*,
+                              SparseLeaf1*);
 
     /** Constant node. */
     // TODO make work with indexNaming
@@ -623,15 +623,13 @@ private struct RawRadixTree(Value = void)
 
         pure nothrow /* TODO @nogc */:
 
-        this(E[] es...) @nogc
+        this(E[] es...) @nogc @trusted
         {
             assert(es.length <= radix);
 
-            import std.math : nextPow2;
-
             _length = es.length;
-
             // TODO reuse allocate or reserve
+            import std.math : nextPow2;
             _capacity = nextPow2(es.length);
 
             // allocate
@@ -656,13 +654,18 @@ private struct RawRadixTree(Value = void)
             }
         }
 
-        ~this()
+        ~this() @trusted
         {
             free(_keys); debug _keys = null;
             static if (hasValue)
             {
                 free(_values); debug _values = null;
             }
+        }
+
+        auto ref append(Ix[] ixs...) @trusted @nogc
+        {
+            return this;
         }
 
         pragma(inline) Length length() const @safe @nogc { return _length; }
@@ -903,7 +906,7 @@ private struct RawRadixTree(Value = void)
         private:
 
         // members in order of decreasing `alignof`:
-        Leaf1 subLeaves1;
+        Leaf leaf;
         StrictlyIndexed!(Node[subCapacity]) subNodeSlots;
         IxsN!prefixCapacity prefix; // prefix common to all `subNodes` (also called edge-label)
         StrictlyIndexed!(Ix[subCapacity]) subIxSlots;
@@ -958,7 +961,7 @@ private struct RawRadixTree(Value = void)
         }
 
         // members in order of decreasing `alignof`:
-        Leaf1 subLeaves1;
+        Leaf leaf;
         IxsN!prefixCapacity prefix; // prefix (edge-label) common to all `subNodes`
         bool isKey;      // key at this branch is occupied
         StrictlyIndexed!(Node[radix]) subNodes;
@@ -1155,6 +1158,17 @@ private struct RawRadixTree(Value = void)
         }
     }
 
+    /** Returns: `true` if `curr` is a branch node. */
+    pragma(inline) bool isBranch(Node curr) const @safe pure nothrow
+    {
+        switch (curr.typeIx)
+        {
+        case Node.Ix.ix_SparseBranch4Ptr:
+        case Node.Ix.ix_DenseBranchMPtr: return true;
+        default: return false;
+        }
+    }
+
     pragma(inline) void makeKey(Node curr) const @safe pure nothrow
     {
         switch (curr.typeIx)
@@ -1168,7 +1182,7 @@ private struct RawRadixTree(Value = void)
     }
 
     /** Get prefix of node `curr`. */
-    auto getPrefix(inout Node curr) @safe pure nothrow
+    pragma(inline) auto getPrefix(inout Node curr) @safe pure nothrow
     {
         switch (curr.typeIx)
         {
@@ -1183,8 +1197,30 @@ private struct RawRadixTree(Value = void)
         }
     }
 
+    /** Get leaves of node `curr`. */
+    pragma(inline) inout(Leaf) getLeaf(inout Node curr) @safe pure nothrow
+    {
+        switch (curr.typeIx)
+        {
+        case Node.Ix.ix_SparseBranch4Ptr: return curr.as!(SparseBranch4*).leaf;
+        case Node.Ix.ix_DenseBranchMPtr: return curr.as!(DenseBranchM*).leaf;
+        default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
+        }
+    }
+
+    /** Set leaves node of node `curr` to `leaf`. */
+    pragma(inline) Node setLeaf(Node curr, Leaf leaf) @safe pure nothrow
+    {
+        switch (curr.typeIx)
+        {
+        case Node.Ix.ix_SparseBranch4Ptr: curr.as!(SparseBranch4*).leaf = leaf; return curr;
+        case Node.Ix.ix_DenseBranchMPtr: curr.as!(DenseBranchM*).leaf = leaf; return curr;
+        default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
+        }
+    }
+
     /** Set prefix of branch node `curr` to `prefix`. */
-    void setPrefix(Node curr, Ix[] prefix) @safe pure nothrow
+    pragma(inline) void setPrefix(Node curr, Ix[] prefix) @safe pure nothrow
     {
         switch (curr.typeIx)
         {
@@ -1199,7 +1235,7 @@ private struct RawRadixTree(Value = void)
     }
 
     /** Pop `n`  from prefix. */
-    void popFrontNPrefix(Node curr, size_t n) @safe pure nothrow
+    pragma(inline) void popFrontNPrefix(Node curr, size_t n) @safe pure nothrow
     {
         switch (curr.typeIx)
         {
@@ -1391,8 +1427,37 @@ private struct RawRadixTree(Value = void)
 
                 case ix_SparseLeaf1Ptr:
                 case ix_DenseLeaf1Ptr:
+                    dln("Remove prefix from DenseLeaf1 directly call insertAt() ");
+                    return insertAtBranch(curr, key, superPrefixLength, insertionNode);
+
                 case ix_SparseBranch4Ptr:
-                case ix_DenseBranchMPtr: return insertAtBranch(curr, key, superPrefixLength, insertionNode);
+                case ix_DenseBranchMPtr:
+                    return insertAtBranch(curr, key, superPrefixLength, insertionNode);
+                }
+            }
+        }
+
+        static if (!hasValue)
+        {
+            Leaf insertAtLeaf(Leaf curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
+            {
+                switch (curr.typeIx) with (Leaf.Ix)
+                {
+                case undefined: return typeof(return).init;
+                case ix_SparseLeaf1Ptr:
+                    auto curr_ = curr.as!(SparseLeaf1*);
+                    if (curr_)
+                    {
+                        curr_.append(key);
+                    }
+                    else
+                    {
+                        curr_ = construct!(SparseLeaf1*)(key);
+                    }
+                    return Leaf(curr_);
+                case ix_DenseLeaf1Ptr:
+                    return curr;
+                default: assert(false, "Unsupported Leaf type " ~ curr.typeIx.to!string);
                 }
             }
         }
@@ -1401,12 +1466,24 @@ private struct RawRadixTree(Value = void)
         {
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
-            // if (key.length == 0) dln("TODO key shouldn't be empty!");
-            // if (key.length == 1)
-            // {
-            //     subLeaves1 = insertAtLeaf(subLeaves1);
-            //     return curr;
-            // }
+            if (key.length == 0) { dln("TODO key shouldn't be empty!"); }
+            if (key.length == 1 &&
+                isBranch(curr))
+            {
+                static if (hasValue)
+                {
+                    dln("TODO Support hasValue version");
+                }
+                else
+                {
+                    setLeaf(curr, insertAtLeaf(getLeaf(curr), key, superPrefixLength, insertionNode));
+                }
+                if (!insertionNode) // if inserted into a non-heap allocated node
+                {
+                    insertionNode = curr; // use current branch instead
+                }
+                return curr;
+            }
 
             import std.algorithm : commonPrefix;
             auto currPrefix = getPrefix(curr);

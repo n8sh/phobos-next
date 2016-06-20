@@ -76,6 +76,7 @@ struct WordVariant(Types...)
             foreach (const i, T; Types)
             {
             case i + 1:
+                // TODO improve this to look more like D-code:
                 static if (isPointer!T)
                 {
                     return T.stringof ~ `@` ~ as!T.to!string; // TODO ~ `:` ~ (*as!T).to!string;

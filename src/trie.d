@@ -531,11 +531,23 @@ private struct RawRadixTree(Value = void)
 
     // TODO make these run-time arguments at different key depths and map to statistics of typed-key
     alias DefaultBranch = SparseBranch4*; // either SparseBranch4*, DenseBranchM*
+    alias DefaultLeaf = SparseLeaf1*; // either SparseLeaf1*, DenseLeaf1*
 
     static if (!hasValue)
     {
         static assert(SixLeaf1.sizeof == size_t.sizeof); // assert that it's size matches platform word-size
     }
+
+    /** Pointer node. */
+    alias PtrNode = WordVariant!(DenseBranchM*,
+                                 SparseBranch4*,
+                                 DenseLeaf1*,
+                                 SparseLeaf1*);
+
+    /** Mutable leaf node of 1-Ix leaves. */
+    alias Leaf = WordVariant!(SixLeaf1,
+                              DenseLeaf1*,
+                              SparseLeaf1*);
 
     /** Mutable node. */
     alias Node = WordVariant!(OneLeaf6,
@@ -544,11 +556,6 @@ private struct RawRadixTree(Value = void)
                               SixLeaf1,
                               DenseBranchM*,
                               SparseBranch4*,
-                              DenseLeaf1*,
-                              SparseLeaf1*);
-
-    /** Mutable leaf node of 1-Ix leaves. */
-    alias Leaf = WordVariant!(SixLeaf1,
                               DenseLeaf1*,
                               SparseLeaf1*);
 
@@ -663,9 +670,17 @@ private struct RawRadixTree(Value = void)
             }
         }
 
-        auto ref append(Ix[] ixs...) @trusted @nogc
+        bool linearInsert(Key!span key) @trusted @nogc
         {
-            return this;
+            assert(key.length == 1); // TODO remove when key is turned into Ix
+            if (!contains(key))
+            {
+                reserve(Capacity(length + 1));
+                _keys[length] = key[0];
+                ++_length;
+                return true;
+            }
+            return false;
         }
 
         pragma(inline) Length length() const @safe @nogc { return _length; }
@@ -674,6 +689,7 @@ private struct RawRadixTree(Value = void)
         /** Reserve room for `newCapacity` number of elements. */
         void reserve(Capacity newCapacity) @trusted @nogc
         {
+            assert(!full);
             if (_capacity < newCapacity)
             {
                 _keys = cast(typeof(_keys))realloc(_keys, _capacity*Ix.sizeof);
@@ -1108,7 +1124,7 @@ private struct RawRadixTree(Value = void)
         return Node(curr);
     }
 
-    Node getSub(DenseLeaf1* curr, Ix subIx) @safe pure nothrow
+    pragma(inline) Node getSub(DenseLeaf1* curr, Ix subIx) @safe pure nothrow
     {
         if (curr.hasSubAt(subIx))
         {
@@ -1117,7 +1133,7 @@ private struct RawRadixTree(Value = void)
         return Node.init;
     }
 
-    Node getSub(SparseBranch4* curr, Ix subIx) @safe pure nothrow
+    pragma(inline) Node getSub(SparseBranch4* curr, Ix subIx) @safe pure nothrow
     {
         if (auto subNode = curr.findSub(subIx))
         {
@@ -1126,7 +1142,7 @@ private struct RawRadixTree(Value = void)
         return Node.init;
     }
 
-    Node getSub(DenseBranchM* curr, Ix subIx) @safe pure nothrow
+    pragma(inline) Node getSub(DenseBranchM* curr, Ix subIx) @safe pure nothrow
     {
         auto sub = curr.subNodes[subIx];
         curr.subNodes[subIx] = Node.init; // zero it to prevent multiple references
@@ -1134,7 +1150,7 @@ private struct RawRadixTree(Value = void)
     }
 
     /** Get sub-`Node` of branch `Node curr` at index `subIx. */
-    Node getSub(Node curr, Ix subIx) @safe pure nothrow
+    pragma(inline) Node getSub(Node curr, Ix subIx) @safe pure nothrow
     {
         switch (curr.typeIx)
         {
@@ -1441,24 +1457,30 @@ private struct RawRadixTree(Value = void)
         {
             Leaf insertAtLeaf(Leaf curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
             {
+                dln("curr:", curr, " key:", key);
+                assert(key.length == 1); // TODO remove when key is turned into Ix
                 switch (curr.typeIx) with (Leaf.Ix)
                 {
                 case undefined: return typeof(return).init;
                 case ix_SparseLeaf1Ptr:
                     auto curr_ = curr.as!(SparseLeaf1*);
-                    if (curr_)
+                    if (curr_.linearInsert(key))
                     {
-                        curr_.append(key);
+                        insertionNode = Node(curr_);
                     }
-                    else
-                    {
-                        curr_ = construct!(SparseLeaf1*)(key);
-                    }
-                    return Leaf(curr_);
+                    break;
                 case ix_DenseLeaf1Ptr:
-                    return curr;
-                default: assert(false, "Unsupported Leaf type " ~ curr.typeIx.to!string);
+                    auto curr_ = curr.as!(DenseLeaf1*);
+                    if (!curr_.contains(key))
+                    {
+                        curr_._keyBits[key[0]] = true;
+                        insertionNode = Node(curr_);
+                    }
+                    break;
+                default:
+                    assert(false, "Unsupported Leaf type " ~ curr.typeIx.to!string);
                 }
+                return curr;
             }
         }
 
@@ -1467,22 +1489,33 @@ private struct RawRadixTree(Value = void)
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
             if (key.length == 0) { dln("TODO key shouldn't be empty!"); }
-            if (key.length == 1 &&
-                isBranch(curr))
+
+            if (key.length == 1)
             {
-                static if (hasValue)
+                if (isBranch(curr))
                 {
-                    dln("TODO Support hasValue version");
+                    static if (hasValue)
+                    {
+                        dln("TODO Support hasValue version");
+                    }
+                    else
+                    {
+                        auto leaf = getLeaf(curr);
+                        if (!leaf)
+                        {
+                            dln("curr:", curr, " key:", key);
+                            auto leaf_ = construct!(DefaultLeaf)(key[0]);
+                            setLeaf(curr, Leaf(leaf_));
+                            insertionNode = leaf_;
+                        }
+                        else
+                        {
+                            dln("curr:", curr, " key:", key);
+                            setLeaf(curr, insertAtLeaf(leaf, key, superPrefixLength, insertionNode));
+                        }
+                    }
+                    return curr;
                 }
-                else
-                {
-                    setLeaf(curr, insertAtLeaf(getLeaf(curr), key, superPrefixLength, insertionNode));
-                }
-                if (!insertionNode) // if inserted into a non-heap allocated node
-                {
-                    insertionNode = curr; // use current branch instead
-                }
-                return curr;
             }
 
             import std.algorithm : commonPrefix;
@@ -1532,16 +1565,16 @@ private struct RawRadixTree(Value = void)
                     {
                         if (willFail) { dln(""); }
                         return insertionNode = Node(construct!(DefaultBranch)(matchedKeyPrefix,
-                                                                          true, // because `key` is empty
-                                                                          currSubIx, curr));
+                                                                              true, // because `key` is empty
+                                                                              currSubIx, curr));
                     }
                     else
                     {
                         if (willFail) { dln(""); }
                         return Node(construct!(DefaultBranch)(matchedKeyPrefix, false,
-                                                          currSubIx, curr,
-                                                          key[0],
-                                                          insertNew(key[1 .. $], superPrefixLength, insertionNode)));
+                                                              currSubIx, curr,
+                                                              key[0],
+                                                              insertNew(key[1 .. $], superPrefixLength, insertionNode)));
                     }
                 }
             }
@@ -1881,10 +1914,10 @@ private struct RawRadixTree(Value = void)
     }
 
     /** Returns: `true` iff tree is empty (no elements stored). */
-    bool empty() const @safe pure nothrow /* TODO @nogc */ { return !_root; }
+    pragma(inline) bool empty() const @safe pure nothrow /* TODO @nogc */ { return !_root; }
 
     /** Returns: number of elements store. */
-    size_t length() const @safe pure nothrow /* TODO @nogc */ { return _length; }
+    pragma(inline) size_t length() const @safe pure nothrow /* TODO @nogc */ { return _length; }
 
     private:
 
@@ -1920,11 +1953,11 @@ private struct RawRadixTree(Value = void)
 
     @safe pure nothrow /* TODO @nogc */
     {
-        void release(SparseLeaf1* curr)
+        pragma(inline) void release(SparseLeaf1* curr)
         {
             freeNode(curr);
         }
-        void release(DenseLeaf1* curr)
+        pragma(inline) void release(DenseLeaf1* curr)
         {
             freeNode(curr);
         }
@@ -1987,13 +2020,13 @@ private struct RawRadixTree(Value = void)
     }
 
     /** Returns: `true` if all keys in tree are of fixed length/size, `false` otherwise. */
-    bool hasFixedKeyLength() const @safe pure nothrow @nogc
+    pragma(inline) bool hasFixedKeyLength() const @safe pure nothrow @nogc
     {
         return (fixedKeyLength !=
                 fixedKeyLengthUndefined);
     }
     /** Returns: `true` if keys in tree may be of variable length/size, `false` otherwise. */
-    bool hasVariableKeyLength() const @safe pure nothrow @nogc
+    pragma(inline) bool hasVariableKeyLength() const @safe pure nothrow @nogc
     {
         return !hasFixedKeyLength;
     }
@@ -2004,7 +2037,7 @@ private struct RawRadixTree(Value = void)
         return _heapNodeAllocationBalance;
     }
 
-    void print() @safe const
+    pragma(inline) void print() @safe const
     {
         printAt(_root, 0);
     }
@@ -2449,6 +2482,7 @@ unittest
                 // version(print) dln(line);
                 assert(!set.contains(line));
                 assert(set.insert(line));
+                assert(!set.insert(line));
                 assert(set.contains(line));
                 ++count;
             }

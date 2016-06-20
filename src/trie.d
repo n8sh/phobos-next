@@ -758,6 +758,15 @@ private struct RawRadixTree(Value = void)
                     ((key.length == 0 && isKey) || // direct match
                      (key.length == 1 && _keyBits[key[0]]))); // sub-match
         }
+        pragma(inline) bool insert(Key!span key) @nogc
+        {
+            assert(key.length == 1);
+            if (!_keyBits[key[0]])
+            {
+                return _keyBits[key[0]] = true;
+            }
+            return false;
+        }
 
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats)
@@ -1471,9 +1480,8 @@ private struct RawRadixTree(Value = void)
                     break;
                 case ix_DenseLeaf1Ptr:
                     auto curr_ = curr.as!(DenseLeaf1*);
-                    if (!curr_.contains(key))
+                    if (curr_.insert(key))
                     {
-                        curr_._keyBits[key[0]] = true;
                         insertionNode = Node(curr_);
                     }
                     break;

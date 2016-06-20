@@ -1327,8 +1327,7 @@ private struct RawRadixTree(Value = void)
             case ix_DenseLeaf1Ptr:  return curr.as!(DenseLeaf1*).contains(key);
             }
         }
-
-        /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
+        /// ditto
         pragma(inline) bool containsAt(Node curr, Key!span key)
         {
             import std.algorithm : skipOver;

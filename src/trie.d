@@ -1401,6 +1401,13 @@ private struct RawRadixTree(Value = void)
         {
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
+            // if (key.length == 0) dln("TODO key shouldn't be empty!");
+            // if (key.length == 1)
+            // {
+            //     subLfs1 = insertAtLeaf(subLfs1);
+            //     return curr;
+            // }
+
             import std.algorithm : commonPrefix;
             auto currPrefix = getPrefix(curr);
             auto matchedKeyPrefix = commonPrefix(key, currPrefix);

@@ -903,7 +903,7 @@ private struct RawRadixTree(Value = void)
         private:
 
         // members in order of decreasing `alignof`:
-        Node directLeaves;
+        Lf1 subLfs;
         StrictlyIndexed!(Node[subCapacity]) subNodeSlots;
         IxsN!prefixCapacity prefix; // prefix common to all `subNodes` (also called edge-label)
         StrictlyIndexed!(Ix[subCapacity]) subIxSlots;
@@ -957,6 +957,8 @@ private struct RawRadixTree(Value = void)
             }
         }
 
+        // members in order of decreasing `alignof`:
+        Lf1 subLfs;
         IxsN!prefixCapacity prefix; // prefix (edge-label) common to all `subNodes`
         bool isKey;      // key at this branch is occupied
         StrictlyIndexed!(Node[radix]) subNodes;

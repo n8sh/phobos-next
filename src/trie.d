@@ -1317,7 +1317,7 @@ private struct RawRadixTree(Value = void)
         }
 
         /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
-        pragma(inline) bool containsAtLeaf(Leaf curr, Key!span key)
+        pragma(inline) bool containsAt(Leaf curr, Key!span key)
         {
             final switch (curr.typeIx) with (Leaf.Ix)
             {
@@ -1345,7 +1345,7 @@ private struct RawRadixTree(Value = void)
                 auto curr_ = curr.as!(SparseBranch4*);
                 if (key.length == 1)
                 {
-                    return containsAtLeaf(curr_.leaf, key);
+                    return containsAt(curr_.leaf, key);
                 }
                 return (key.skipOver(curr_.prefix) &&        // matching prefix
                         ((key.length == 0 && curr_.isKey) || // either stored at `curr`
@@ -1354,7 +1354,7 @@ private struct RawRadixTree(Value = void)
                 auto curr_ = curr.as!(DenseBranchM*);
                 if (key.length == 1)
                 {
-                    return containsAtLeaf(curr_.leaf, key);
+                    return containsAt(curr_.leaf, key);
                 }
                 return (key.skipOver(curr_.prefix) &&        // matching prefix
                         ((key.length == 0 && curr_.isKey) || // either stored at `curr`

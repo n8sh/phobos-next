@@ -365,7 +365,7 @@ static assert(span == 8, "Radix is currently limited to 8");
     all keys matching a given key prefix. This enables efficient storage of long
     URLs sharing a common prefix, typically a domain and path.
 
-    Branchanch packing of leaves is more efficiently when `Key.sizeof` is fixed,
+    Branch packing of leaves is more efficiently when `Key.sizeof` is fixed,
     that is `hasFixedKeyLength` returns `true`.
 
     For optimal performance, the individual bit-chunks should be arranged
@@ -575,16 +575,16 @@ private struct RawRadixTree(Value = void)
         Iterator back;
     }
 
-    /** 256-Branchanch population histogram.
+    /** 256-Branch population histogram.
     */
     alias DenseLeaf1_PopHist = size_t[radix];
 
-    /** 4-Branchanch population histogram.
+    /** 4-Branch population histogram.
         Index maps to population with value range (1 .. 4).
     */
     alias SparseBranch4_PopHist = size_t[4];
 
-    /** radix-Branchanch population histogram.
+    /** radix-Branch population histogram.
         Index maps to population with value range (1 .. `radix`).
     */
     alias DenseBranchM_PopHist = size_t[radix];
@@ -705,7 +705,7 @@ private struct RawRadixTree(Value = void)
         Value* _values;
     }
 
-    /** Dense Bitset Branchanch with only bottom-most leaves. */
+    /** Dense Bitset Branch with only bottom-most leaves. */
     static private struct DenseLeaf1
     {
         enum prefixCapacity = 14; // 6, 14, 22, ...
@@ -1392,12 +1392,12 @@ private struct RawRadixTree(Value = void)
                 case ix_SparseLeaf1Ptr:
                 case ix_DenseLeaf1Ptr:
                 case ix_SparseBranch4Ptr:
-                case ix_DenseBranchMPtr: return insertAtBranchanch(curr, key, superPrefixLength, insertionNode);
+                case ix_DenseBranchMPtr: return insertAtBranch(curr, key, superPrefixLength, insertionNode);
                 }
             }
         }
 
-        Node insertAtBranchanch(Node curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
+        Node insertAtBranch(Node curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
         {
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
@@ -1726,7 +1726,7 @@ private struct RawRadixTree(Value = void)
             {
                 next = construct!(DefaultBranch)(Ix[].init, false); // so no prefix
                 Node insertionNodeCurr;
-                next = insertAtBranchanch(next,
+                next = insertAtBranch(next,
                                       curr.keys.at!0,
                                       superPrefixLength,
                                       insertionNodeCurr);
@@ -1762,7 +1762,7 @@ private struct RawRadixTree(Value = void)
             {
                 next = construct!(DefaultBranch)(Ix[].init, false); // so no prefix
                 Node insertionNodeCurr;
-                next = insertAtBranchanch(next,
+                next = insertAtBranch(next,
                                       curr.keys.at!0,
                                       superPrefixLength,
                                       insertionNodeCurr);

@@ -1485,7 +1485,6 @@ private struct RawRadixTree(Value = void)
         {
             Leaf insertAtLeaf(Leaf curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
             {
-                dln("curr:", curr, " key:", key);
                 assert(key.length == 1); // TODO remove when key is turned into Ix
                 switch (curr.typeIx) with (Leaf.Ix)
                 {
@@ -1530,14 +1529,12 @@ private struct RawRadixTree(Value = void)
                         auto leaf = getLeaf(curr);
                         if (!leaf)
                         {
-                            dln("curr:", curr, " key:", key);
                             auto leaf_ = construct!(DefaultLeaf)(key[0]);
                             setLeaf(curr, Leaf(leaf_));
                             insertionNode = leaf_;
                         }
                         else
                         {
-                            dln("curr:", curr, " key:", key);
                             setLeaf(curr, insertAtLeaf(leaf, key, superPrefixLength, insertionNode));
                         }
                     }
@@ -2506,7 +2503,7 @@ unittest
         {
             if (line.length <= 15)
             {
-                // version(print) dln(line);
+                dln(line);
                 assert(!set.contains(line));
                 assert(set.insert(line));
                 assert(!set.insert(line));

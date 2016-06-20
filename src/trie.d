@@ -977,11 +977,17 @@ private struct RawRadixTree(Value = void)
         {
             this.prefix = rhs.prefix;
             this.isKey = rhs.isKey;
+
+            // move leaf
+            this.leaf = rhs.leaf;
+            debug rhs.leaf = null; // to be on the safe side
+
             foreach (const i; 0 .. rhs.subCount) // each sub node. TODO use iota!(Mod!N)
             {
                 const iN = i.mod!(SparseBranch4.subCapacity);
                 const subIx = rhs.subIxSlots[iN];
                 this.subNodes[subIx] = rhs.subNodes[iN];
+                debug rhs.subNodes[iN] = null;
             }
         }
 

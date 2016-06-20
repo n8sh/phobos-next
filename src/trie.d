@@ -1316,6 +1316,7 @@ private struct RawRadixTree(Value = void)
             return containsAt(_root, key);
         }
 
+        /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
         pragma(inline) bool containsAtLeaf(Leaf curr, Key!span key)
         {
             final switch (curr.typeIx) with (Leaf.Ix)

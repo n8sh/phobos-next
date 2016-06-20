@@ -537,19 +537,15 @@ private struct RawRadixTree(Value = void)
         static assert(SixLf1.sizeof == size_t.sizeof); // assert that it's size matches platform word-size
     }
 
-    /** Node types. */
-    alias NodeTypes = AliasSeq!(OneLf6,
-                                TwoLf3,
-                                TriLf2,
-                                SixLf1,
-                                DenseBrM*,
-                                SparseBr4*,
-                                DenseLf1*,
-                                SparseLf1*,
-                                );
-
     /** Mutable node. */
-    alias Node = WordVariant!NodeTypes;
+    alias Node = WordVariant!(OneLf6,
+                              TwoLf3,
+                              TriLf2,
+                              SixLf1,
+                              DenseBrM*,
+                              SparseBr4*,
+                              DenseLf1*,
+                              SparseLf1*);
     /** Constant node. */
     // TODO make work with indexNaming alias ConstNodePtr = WordVariant!(staticMap!(ConstOf, NodeTypes));
 
@@ -620,7 +616,7 @@ private struct RawRadixTree(Value = void)
 
         pure nothrow /* TODO @nogc */:
 
-        this(E[] es...)
+        this(E[] es...) @nogc
         {
             assert(es.length <= radix);
 

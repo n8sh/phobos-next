@@ -1990,7 +1990,11 @@ private struct RawRadixTree(Value = void)
         {
             foreach (sub; curr.subNodes[0 .. curr.subCount])
             {
-                release(sub); // recurse
+                release(sub); // recurse branch
+            }
+            if (curr.leaf)
+            {
+                release(curr.leaf); // recurse leaf
             }
             freeNode(curr);
         }
@@ -1999,7 +2003,11 @@ private struct RawRadixTree(Value = void)
         {
             foreach (sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
             {
-                release(sub); // recurse
+                release(sub); // recurse branch
+            }
+            if (curr.leaf)
+            {
+                release(curr.leaf); // recurse leaf
             }
             freeNode(curr);
         }
@@ -2009,6 +2017,19 @@ private struct RawRadixTree(Value = void)
         void release(TriLeaf2 curr) { freeNode(curr); }
         void release(SixLeaf1 curr) { freeNode(curr); }
 
+        /// Release `Leaf curr`.
+        void release(Leaf curr)
+        {
+            final switch (curr.typeIx) with (Leaf.Ix)
+            {
+            case undefined: break; // ignored
+            case ix_SixLeaf1: return release(curr.as!(SixLeaf1));
+            case ix_SparseLeaf1Ptr: return release(curr.as!(SparseLeaf1*));
+            case ix_DenseLeaf1Ptr: return release(curr.as!(DenseLeaf1*));
+            }
+        }
+
+        /// Release `Node curr`.
         void release(Node curr)
         {
             version(debugAllocations) { dln("releasing Node ", curr); }

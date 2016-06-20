@@ -546,6 +546,12 @@ private struct RawRadixTree(Value = void)
                               SparseBr4*,
                               DenseLf1*,
                               SparseLf1*);
+
+    /** Mutable leaf node of 1-Ix leaves. */
+    alias Lf1 = WordVariant!(SixLf1,
+                             DenseLf1*,
+                             SparseLf1*);
+
     /** Constant node. */
     // TODO make work with indexNaming
     // alias ConstNodePtr = WordVariant!(staticMap!(ConstOf, Node));

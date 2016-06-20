@@ -1319,6 +1319,7 @@ private struct RawRadixTree(Value = void)
         /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
         pragma(inline) bool containsAt(Leaf curr, Key!span key)
         {
+            if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); }
             final switch (curr.typeIx) with (Leaf.Ix)
             {
             case undefined: return false;
@@ -1330,6 +1331,7 @@ private struct RawRadixTree(Value = void)
         /// ditto
         pragma(inline) bool containsAt(Node curr, Key!span key)
         {
+            if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); }
             import std.algorithm : skipOver;
             final switch (curr.typeIx) with (Node.Ix)
             {
@@ -1451,6 +1453,7 @@ private struct RawRadixTree(Value = void)
         /** Insert `key` into sub-tree under root `curr`. */
         pragma(inline) Node insertAt(Node curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
         {
+            if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); }
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
             if (!curr)          // if no existing `Node` to insert at
@@ -1485,6 +1488,7 @@ private struct RawRadixTree(Value = void)
         {
             Leaf insertAtLeaf(Leaf curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
             {
+                if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); }
                 assert(key.length == 1); // TODO remove when key is turned into Ix
                 switch (curr.typeIx) with (Leaf.Ix)
                 {

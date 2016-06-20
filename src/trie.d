@@ -547,7 +547,8 @@ private struct RawRadixTree(Value = void)
                               DenseLf1*,
                               SparseLf1*);
     /** Constant node. */
-    // TODO make work with indexNaming alias ConstNodePtr = WordVariant!(staticMap!(ConstOf, NodeTypes));
+    // TODO make work with indexNaming
+    // alias ConstNodePtr = WordVariant!(staticMap!(ConstOf, Node));
 
     static assert(span <= 8*Ix.sizeof, "Need more precision in Ix");
 

@@ -1514,7 +1514,7 @@ private struct RawRadixTree(Value = void)
         {
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
-            if (key.length == 0) { dln("TODO key shouldn't be empty!"); }
+            if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); }
 
             if (key.length == 1)
             {

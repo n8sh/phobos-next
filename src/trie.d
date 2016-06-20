@@ -1316,6 +1316,17 @@ private struct RawRadixTree(Value = void)
             return containsAt(_root, key);
         }
 
+        pragma(inline) bool containsAtLeaf(Leaf curr, Key!span key)
+        {
+            final switch (curr.typeIx) with (Leaf.Ix)
+            {
+            case undefined: return false;
+            case ix_SixLeaf1: return curr.as!(SixLeaf1).contains(key);
+            case ix_SparseLeaf1Ptr: return curr.as!(SparseLeaf1*).contains(key);
+            case ix_DenseLeaf1Ptr:  return curr.as!(DenseLeaf1*).contains(key);
+            }
+        }
+
         /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
         pragma(inline) bool containsAt(Node curr, Key!span key)
         {
@@ -1328,14 +1339,22 @@ private struct RawRadixTree(Value = void)
             case ix_TriLeaf2: return curr.as!(TriLeaf2).contains(key);
             case ix_SixLeaf1: return curr.as!(SixLeaf1).contains(key);
             case ix_SparseLeaf1Ptr: return curr.as!(SparseLeaf1*).contains(key);
-            case ix_DenseLeaf1Ptr: return curr.as!(DenseLeaf1*).contains(key);
+            case ix_DenseLeaf1Ptr:  return curr.as!(DenseLeaf1*).contains(key);
             case ix_SparseBranch4Ptr:
                 auto curr_ = curr.as!(SparseBranch4*);
+                if (key.length == 1)
+                {
+                    return containsAtLeaf(curr_.leaf, key);
+                }
                 return (key.skipOver(curr_.prefix) &&        // matching prefix
                         ((key.length == 0 && curr_.isKey) || // either stored at `curr`
                          (key.length >= 1 && containsAt(curr_.findSub(key[0]), key[1 .. $])))); // recurse
             case ix_DenseBranchMPtr:
                 auto curr_ = curr.as!(DenseBranchM*);
+                if (key.length == 1)
+                {
+                    return containsAtLeaf(curr_.leaf, key);
+                }
                 return (key.skipOver(curr_.prefix) &&        // matching prefix
                         ((key.length == 0 && curr_.isKey) || // either stored at `curr`
                          (key.length >= 1 && containsAt(curr_.subNodes[key[0]], key[1 .. $])))); // recurse
@@ -1504,7 +1523,7 @@ private struct RawRadixTree(Value = void)
                 {
                     static if (hasValue)
                     {
-                        dln("TODO Support hasValue version");
+                        dln("TODO Support hasValue version for key:", key);
                     }
                     else
                     {

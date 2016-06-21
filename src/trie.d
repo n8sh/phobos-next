@@ -794,9 +794,10 @@ private struct RawRadixTree(Value = void)
         static if (hasValue) { alias E = Tuple!(Ix, Node, Value); }
         else                 { alias E = Tuple!(Ix, Node); }
 
-        this(Ix[] prefix)
+        this(Ix[] prefix, Leaf leaf = Leaf.init)
         {
             this.prefix = prefix;
+            this.leaf = leaf;
         }
 
         this(Ix[] prefix, Ix subIx, Node subNode)
@@ -1619,8 +1620,7 @@ private struct RawRadixTree(Value = void)
 
             assert(curr.keyLength != key.length);
 
-            auto next_ = construct!(DefaultBranch)(Ix[].init); // need DefaultBranch
-            next_.leaf = construct!(SparseLeaf1*)(curr.keys); // add existing keys to leaf
+            auto next_ = construct!(DefaultBranch)(Ix[].init, Leaf(curr)); // need DefaultBranch
 
             return insertAt(Node(next_), key, superPrefixLength, insertionNode); // NOTE stay at same (depth)
         }

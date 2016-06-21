@@ -2315,10 +2315,15 @@ unittest
         auto set = radixTreeSet!(T);
         alias Set = typeof(set);
 
+        // 0
         assert(!set.contains(0));
+
         assert(set.insert(0));
+        assert(set.contains(0));
+
         assert(!set.insert(0));
         assert(set.contains(0));
+
         assert(set.heapNodeAllocationBalance == 0);
 
         foreach (const i; 1 .. 256)
@@ -2337,11 +2342,13 @@ unittest
 
         assert(!set.contains(256));
         assert(set.insert(256));
+        assert(set.contains(256));
         assert(!set.insert(256));
         assert(set.contains(256));
 
         assert(!set.contains(257));
         assert(set.insert(257));
+        assert(set.contains(257));
         assert(!set.insert(257));
         assert(set.contains(257));
 

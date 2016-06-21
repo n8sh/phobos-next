@@ -613,6 +613,8 @@ private struct RawRadixTree(Value = void)
     /** Sparsely coded leaves. */
     static private struct SparseLeaf1
     {
+        import std.math : nextPow2;
+
         alias Length = Mod!(radix + 1);
         alias Capacity = Mod!(radix + 1);
 
@@ -628,7 +630,6 @@ private struct RawRadixTree(Value = void)
 
             _length = es.length;
             // TODO reuse allocate or reserve
-            import std.math : nextPow2;
             _capacity = nextPow2(es.length);
 
             // allocate
@@ -662,8 +663,9 @@ private struct RawRadixTree(Value = void)
             }
         }
 
-        bool linearInsert(Ix key) @trusted @nogc
+        bool linearInsert(Ix key) @trusted /* TODO @nogc */
         {
+            dln("contains:", contains(key));
             if (!contains(key))
             {
                 reserve(Capacity(length + 1));
@@ -678,18 +680,18 @@ private struct RawRadixTree(Value = void)
         pragma(inline) Capacity capacity() const @safe @nogc { return _capacity; }
 
         /** Reserve room for `newCapacity` number of elements. */
-        void reserve(Capacity newCapacity) @trusted @nogc
+        void reserve(Capacity newCapacity) @trusted // TODO @nogc
         {
             assert(!full);
-            if (_capacity < newCapacity)
+            if (newCapacity > _capacity)
             {
+                _capacity = nextPow2(newCapacity - 1); // need minus one here
                 _keys = cast(typeof(_keys))realloc(_keys, _capacity*Ix.sizeof);
                 static if (hasValue)
                 {
                     _values = cast(typeof(_values))realloc(_values, _capacity*Value.sizeof);
                 }
             }
-            _capacity = newCapacity;
         }
 
         pragma(inline) bool empty() const @safe @nogc { return _length == 0; }
@@ -2210,8 +2212,9 @@ unittest
 
     foreach (const i; 2 .. 256)
     {
-        dln(i);
-        set.print();
+        if (i == 255) { set.willFail = true; }
+        // dln(i);
+        // set.print();
         assert(set.insert(i));
         assert(!set.insert(i));
         assert(set.heapNodeAllocationBalance == 2);

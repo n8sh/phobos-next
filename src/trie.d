@@ -628,13 +628,13 @@ private struct RawRadixTree(Value = void)
 
         pure nothrow /* TODO @nogc */:
 
-        this(E[] es...) @nogc @trusted
+        this(Ix[] es...) @nogc @trusted
         {
             assert(es.length <= radix);
 
             _length = es.length;
             // TODO reuse allocate or reserve
-            _capacity = nextPow2(es.length);
+            _capacity = nextPow2(es .length);
 
             // allocate
             _keys = cast(typeof(_keys))malloc(_capacity*Ix.sizeof);
@@ -648,8 +648,9 @@ private struct RawRadixTree(Value = void)
             {
                 static if (hasValue)
                 {
-                    _keys[i] = e[0];
-                    _values[i] = e[1];
+                    _keys[i] = e;
+                    // _keys[i] = e[0];
+                    // _values[i] = e[1];
                 }
                 else
                 {
@@ -735,10 +736,6 @@ private struct RawRadixTree(Value = void)
     static private struct DenseLeaf1
     {
         enum maxSubCount = 256;
-
-        // Constructor Parameter Element type `E`.
-        static if (hasValue) { alias E = Tuple!(Ix, Value); }
-        else                 { alias E = Ix; }
 
         @safe pure nothrow:
 
@@ -1436,7 +1433,8 @@ private struct RawRadixTree(Value = void)
                             static if (hasValue)
                             {
                                 if (willFail) { dln(""); }
-                                auto leaf_ = construct!(DefaultLeaf)(tuple(key[0], Value.init)); // TODO fix
+                                // auto leaf_ = construct!(DefaultLeaf)(tuple(key[0], Value.init)); // TODO fix
+                                auto leaf_ = construct!(DefaultLeaf)(key[0]);
                             }
                             else
                             {
@@ -1606,8 +1604,13 @@ private struct RawRadixTree(Value = void)
                 freeNode(curr);
                 return insertionNode = Node(next);
             }
-            return insertAt(expand(curr, superPrefixLength),
-                            key, superPrefixLength, insertionNode); // NOTE stay at same (depth)
+
+            assert(curr.keyLength != key.length);
+
+            auto next_ = construct!(DefaultBranch)(Ix[].init); // need DefaultBranch
+            next_.leaf = construct!(SparseLeaf1*)(curr.keys); // add existing keys to leaf
+
+            return insertAt(Node(next_), key, superPrefixLength, insertionNode); // NOTE stay at same (depth)
         }
 
         /** Split `curr` using `prefix`. */
@@ -2413,6 +2416,7 @@ unittest
             if (line.length <= 15)
             {
                 dln(line);
+                if (line == "Abby") { set.willFail = true; }
 
                 assert(!set.contains(line));
 

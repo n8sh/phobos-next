@@ -900,9 +900,13 @@ private struct RawRadixTree(Value = void)
         StrictlyIndexed!(Ix[subCapacity]) subIxSlots;
         mixin(bitfields!(ubyte, "subCount", 7, // counts length of defined elements in subNodeSlots
                          bool, "isKey", 1)); // key at this branch is occupied
+        static if (hasValue)
+        {
+            Value value;
+        }
     }
 
-    static assert(SparseBranch4.sizeof == 56);
+    static if (!hasValue) static assert(SparseBranch4.sizeof == 56);
 
     /** Dense/Unpacked `radix`-branch with `radix` number of sub-nodes. */
     static private struct DenseBranchM
@@ -959,6 +963,10 @@ private struct RawRadixTree(Value = void)
         IxsN!prefixCapacity prefix; // prefix (edge-label) common to all `subNodes`
         bool isKey;      // key at this branch is occupied
         StrictlyIndexed!(Node[radix]) subNodes;
+        static if (hasValue)
+        {
+            Value value;
+        }
 
         /// Number of non-null sub-Nodes.
         Mod!(radix + 1) subCount() const
@@ -1318,9 +1326,11 @@ private struct RawRadixTree(Value = void)
                 else                // key doesn't fit in a `OneLeaf6`
                 {
                     import std.algorithm : min;
-                    auto prefix = key[0 .. min(key.length, DefaultBranch.prefixCapacity)];
-                    auto next = insertAt(Node(construct!(DefaultBranch)(prefix, false)), // as much as possible of key in branch prefix
+                    dln("key:", key);
+                    auto prefix = key[0 .. min(key.length, DefaultBranch.prefixCapacity)]; // as much as possible of key in branch prefix
+                    auto next = insertAt(Node(construct!(DefaultBranch)(prefix, false)),
                                          key, superPrefixLength, insertionNode);
+                    dln("prefix:", prefix);
                     assert(insertionNode);
                     return next;
                 }
@@ -1535,6 +1545,7 @@ private struct RawRadixTree(Value = void)
                 assert(matchedKeyPrefix.length == key.length);
                 if (matchedKeyPrefix.length < currPrefix.length)
                 {
+                    dln("HERE");
                     if (willFail) { dln("WILL FAIL"); }
                     // prefix is an extension of key: prefix:"abcd", key:"ab"
                     const subIx = currPrefix[matchedKeyPrefix.length]; // need index first
@@ -1544,8 +1555,9 @@ private struct RawRadixTree(Value = void)
                 }
                 else // if (matchedKeyPrefix.length == currPrefix.length)
                 {
-                    if (willFail) { dln("WILL FAIL"); }
                     assert(matchedKeyPrefix.length == currPrefix.length);
+                    dln("HERE");
+                    if (willFail) { dln("WILL FAIL"); }
                     // prefix equals key: prefix:"ab", key:"ab"
                     assert(currPrefix == key); // assert exact match
                     if (!isKey(curr))

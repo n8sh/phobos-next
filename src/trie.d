@@ -1465,28 +1465,22 @@ private struct RawRadixTree(Value = void)
 
         Node insertAtBranchLeaf(Node curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
         {
-            auto leaf = getLeaf(curr);
-            if (!leaf)
+            if (auto leaf = getLeaf(curr))
             {
-                if (willFail) { dln(""); }
-                static if (hasValue)
-                {
-                    if (willFail) { dln(""); }
-                    // auto leaf_ = construct!(DefaultLeaf)(tuple(key[0], Value.init)); // TODO fix
-                    auto leaf_ = construct!(DefaultLeaf)(key[0]);
-                }
-                else
-                {
-                    if (willFail) { dln(""); }
-                    auto leaf_ = construct!(DefaultLeaf)(key[0]);
-                }
-                setLeaf(curr, Leaf(leaf_));
-                insertionNode = leaf_;
+                setLeaf(curr, insertAtLeaf(leaf, key[0], superPrefixLength, insertionNode));
             }
             else
             {
-                if (willFail) { dln(""); }
-                setLeaf(curr, insertAtLeaf(leaf, key[0], superPrefixLength, insertionNode));
+                static if (hasValue)
+                {
+                    auto leaf_ = construct!(SparseLeaf1*)(key[0]); // needed for values
+                }
+                else
+                {
+                    auto leaf_ = construct!(SixLeaf1)(key[0]); // can pack more efficiently when no value
+                }
+                setLeaf(curr, Leaf(leaf_));
+                insertionNode = leaf_;
             }
             return curr;
         }

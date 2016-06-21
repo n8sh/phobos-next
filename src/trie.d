@@ -1400,6 +1400,7 @@ private struct RawRadixTree(Value = void)
             {
                 if (currPrefix.length == 0) // no current prefix
                 {
+                    if (willFail) { dln(""); }
                     const subIx = key[0];
                     return setSub(curr, subIx,
                                   insertAt(getSub(curr, subIx), // recurse
@@ -1410,6 +1411,7 @@ private struct RawRadixTree(Value = void)
                 }
                 else
                 {
+                    if (willFail) { dln(""); }
                     const currSubIx = currPrefix[0]; // subIx = 'a'
                     popFrontNPrefix(curr, 1);
                     return insertAtBranch(Node(construct!(DefaultBranch)(matchedKeyPrefix,
@@ -1421,6 +1423,7 @@ private struct RawRadixTree(Value = void)
             {
                 if (matchedKeyPrefix.length == currPrefix.length)
                 {
+                    if (willFail) { dln(""); }
                     // most probable: key is an extension of prefix: prefix:"ab", key:"abcd"
                     key = key[matchedKeyPrefix.length .. $]; // strip `currPrefix from beginning of `key`
                     assert(key.length);
@@ -1430,12 +1433,15 @@ private struct RawRadixTree(Value = void)
                         auto leaf = getLeaf(curr);
                         if (!leaf)
                         {
+                            if (willFail) { dln(""); }
                             static if (hasValue)
                             {
+                                if (willFail) { dln(""); }
                                 auto leaf_ = construct!(DefaultLeaf)(tuple(key[0], Value.init)); // TODO fix
                             }
                             else
                             {
+                                if (willFail) { dln(""); }
                                 auto leaf_ = construct!(DefaultLeaf)(key[0]);
                             }
                             setLeaf(curr, Leaf(leaf_));
@@ -1443,12 +1449,14 @@ private struct RawRadixTree(Value = void)
                         }
                         else
                         {
+                            if (willFail) { dln(""); }
                             setLeaf(curr, insertAtLeaf(leaf, key[0], superPrefixLength, insertionNode));
                         }
                         return curr;
                     }
                     else
                     {
+                        if (willFail) { dln(""); }
                         const subIx = key[0];
                         return setSub(curr, subIx,
                                       insertAt(getSub(curr, subIx), // recurse
@@ -1461,14 +1469,12 @@ private struct RawRadixTree(Value = void)
                 else
                 {
                     // prefix and key share beginning: prefix:"ab11", key:"ab22"
-
-                    const currSubIx = currPrefix[matchedKeyPrefix.length - 1]; // need index first before we modify curr.prefix
-                    popFrontNPrefix(curr, matchedKeyPrefix.length);
-
-                    return insertAtBranch(Node(construct!(DefaultBranch)(matchedKeyPrefix[0 .. $ - 1],
+                    const currSubIx = currPrefix[matchedKeyPrefix.length]; // need index first before we modify curr.prefix
+                    popFrontNPrefix(curr, matchedKeyPrefix.length + 1);
+                    return insertAtBranch(Node(construct!(DefaultBranch)(matchedKeyPrefix,
                                                                          currSubIx, curr)),
-                                          key[matchedKeyPrefix.length - 1 .. $],
-                                          superPrefixLength + matchedKeyPrefix.length - 1,
+                                          key, // sub key has length >= 1
+                                          superPrefixLength,
                                           insertionNode);
                 }
             }
@@ -1477,6 +1483,7 @@ private struct RawRadixTree(Value = void)
                 assert(matchedKeyPrefix.length == key.length);
                 if (matchedKeyPrefix.length < currPrefix.length)
                 {
+                    if (willFail) { dln(""); }
                     // prefix is an extension of key: prefix:"abcd", key:"ab"
                     const currSubIx = currPrefix[matchedKeyPrefix.length - 1]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
@@ -2218,11 +2225,14 @@ unittest
         assert(set.heapNodeAllocationBalance == 2);
     }
 
-    if (true) { set.willFail = true; }
-    assert(set.insert(256));
-    assert(!set.insert(256));
+    foreach (const i; 256 .. 256 + 6)
+    {
+        assert(set.insert(i));
+        assert(!set.insert(i));
+        assert(set.heapNodeAllocationBalance == 3);
+    }
 
-    assert(set.heapNodeAllocationBalance == 2);
+    set.print();
 }
 
 @safe pure nothrow /* TODO @nogc */

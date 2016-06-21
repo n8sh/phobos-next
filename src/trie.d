@@ -1988,7 +1988,7 @@ private struct RawRadixTree(Value = void)
             writeln(":");
             if (curr_.leaf)
             {
-                printAt(toNode(curr_.leaf), depth);
+                printAt(toNode(curr_.leaf), depth + 1);
             }
             foreach (const i, const subNode; curr_.subNodes)
             {
@@ -2002,7 +2002,7 @@ private struct RawRadixTree(Value = void)
             writeln(":");
             if (curr_.leaf)
             {
-                printAt(toNode(curr_.leaf), depth);
+                printAt(toNode(curr_.leaf), depth + 1);
             }
             foreach (const i, const subNode; curr_.subNodes)
             {
@@ -2417,7 +2417,11 @@ unittest
             if (line.length <= 15)
             {
                 dln(line);
-                if (line == "Abby") { set.willFail = true; }
+                if (line == "Abby")
+                {
+                    set.willFail = true;
+                    set.print();
+                }
 
                 assert(!set.contains(line));
 

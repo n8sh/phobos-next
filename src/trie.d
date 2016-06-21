@@ -1348,11 +1348,11 @@ private struct RawRadixTree(Value = void)
 
                 case ix_SparseLeaf1Ptr:
                     assert(key.length == 1);
-                    return toNode(insertAtLeaf(Leaf(curr.as!(SparseLeaf1*)), key, superPrefixLength, insertionNode));
+                    return toNode(insertAtLeaf(Leaf(curr.as!(SparseLeaf1*)), key[0], superPrefixLength, insertionNode));
 
                 case ix_DenseLeaf1Ptr:
                     assert(key.length == 1);
-                    return toNode(insertAtLeaf(Leaf(curr.as!(DenseLeaf1*)), key, superPrefixLength, insertionNode));
+                    return toNode(insertAtLeaf(Leaf(curr.as!(DenseLeaf1*)), key[0], superPrefixLength, insertionNode));
 
                 case ix_SparseBranch4Ptr:
                 case ix_DenseBranchMPtr:
@@ -1498,9 +1498,7 @@ private struct RawRadixTree(Value = void)
             switch (curr.typeIx) with (Leaf.Ix)
             {
             case undefined: return typeof(return).init;
-            case ix_SixLeaf1:
-                auto curr_ = curr.as!(SixLeaf1);
-                return insertAt(curr_, key, superPrefixLength, insertionNode);
+            case ix_SixLeaf1: return insertAt(curr.as!(SixLeaf1), key, superPrefixLength, insertionNode);
             case ix_SparseLeaf1Ptr:
                 auto curr_ = curr.as!(SparseLeaf1*);
                 if (curr_.linearInsert(key))
@@ -1597,33 +1595,31 @@ private struct RawRadixTree(Value = void)
                             key, superPrefixLength, insertionNode); // NOTE stay at same (depth)
         }
 
+        Leaf insertAt(SixLeaf1 curr, Ix key, size_t superPrefixLength, out Node insertionNode)
+        {
+            if (curr.contains(key)) { return Leaf(curr); }
+            if (!curr.keys.full)
+            {
+                curr.keys.pushBack(key);
+                insertionNode = Node(curr);
+                return Leaf(curr);
+            }
+
+            auto next = construct!(SparseLeaf1*)(curr.keys); // TODO construct using (curr.keys, key[0])
+            next.pushBack(key); // pushBack instead of insert because we know that `key` is distinct from `curr.keys` from above
+            freeNode(curr);
+            insertionNode = Node(next);
+            return Leaf(next);
+        }
+
         Node insertAt(SixLeaf1 curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
         {
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
-            if (!(hasVariableKeyLength || curr.keyLength == key.length))
-            {
-                dln(curr);
-                dln(key);
-            }
             assert(hasVariableKeyLength || curr.keyLength == key.length);
-
             if (curr.keyLength == key.length)
             {
-                if (curr.contains(key)) { return Node(curr); }
-                if (!curr.keys.full)
-                {
-                    curr.keys.pushBack(key[0]);
-                    return insertionNode = Node(curr);
-                }
-
-                auto next = construct!(SparseLeaf1*)(curr.keys); // TODO construct using (curr.keys, key[0])
-                next.pushBack(key[0]); // pushBack instead of insert because we know that `key` is distinct from `curr.keys` from above
-                freeNode(curr);
-                return insertionNode = Node(next);
+                return toNode(insertAt(curr, key[0], superPrefixLength, insertionNode)); // use `Ix key`-overload
             }
-
-            assert(curr.keyLength != key.length);
-
             return insertAt(Node(construct!(DefaultBranch)(Leaf(curr))),
                             key, superPrefixLength, insertionNode); // NOTE stay at same (depth)
         }

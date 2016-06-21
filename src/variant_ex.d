@@ -55,7 +55,7 @@ struct WordVariant(Types...)
     alias Ix = makeEnumFromSymbolNames!(`ix_`, ``, true, Types);
     static assert(Ix.undefined == 0);
 
-    enum typeBits = bitsNeeeded!(Types.length); // number of bits needed to represent variant type
+    enum typeBits = bitsNeeeded!(1 + Types.length); // number of bits needed to represent variant type, plus one for undefined state
     enum typeShift = 8*S.sizeof - typeBits;
     enum typeMask = cast(S)(2^^typeBits - 1) << typeShift;
 
@@ -103,9 +103,6 @@ struct WordVariant(Types...)
     this(T)(T value) if (canStore!T) { initialize(value); }
     /// ditto
     this(typeof(null) value) { _raw = S.init; }
-
-    /// Copy Construction from `rhs`.
-    this(typeof(this) rhs) { _raw = rhs._raw; }
 
     /// Assignment from `that`.
     auto ref opAssign(T)(T that) if (canStore!T) { initialize(that); return this; }

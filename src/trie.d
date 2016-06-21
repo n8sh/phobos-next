@@ -742,6 +742,7 @@ private struct RawRadixTree(Value = void)
         pragma(inline) bool hasSubAt(Ix ix) const @nogc { return _keyBits[ix]; }
         pragma(inline) bool empty() const @nogc { return _keyBits.empty; }
         pragma(inline) bool full() const @nogc { return _keyBits.full; }
+        pragma(inline) size_t count() const @nogc { return _keyBits.countOnes; }
 
         pragma(inline) bool contains(Ix key) const @nogc
         {
@@ -1909,11 +1910,11 @@ private struct RawRadixTree(Value = void)
             break;
         case ix_SparseLeaf1Ptr:
             auto curr_ = curr.as!(SparseLeaf1*);
-            dln("TODO");
+            write(typeof(*curr_).stringof, "#", curr_.length, " @", curr_);
             break;
         case ix_DenseLeaf1Ptr:
             auto curr_ = curr.as!(DenseLeaf1*);
-            write(typeof(*curr_).stringof, "#", curr_._keyBits.countOnes, " @", curr_);
+            write(typeof(*curr_).stringof, "#", curr_.count(), " @", curr_);
             write(": ");
 
             // keys

@@ -2232,6 +2232,8 @@ unittest
         assert(set.heapNodeAllocationBalance == 3);
     }
 
+    assert(set.insert(256 + 6 + 1));
+    assert(!set.insert(256 + 6 + 1));
     set.print();
 }
 

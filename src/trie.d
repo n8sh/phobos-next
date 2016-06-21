@@ -546,8 +546,8 @@ private struct RawRadixTree(Value = void)
 
     /** Mutable leaf node of 1-Ix leaves. */
     alias Leaf = WordVariant!(SixLeaf1,
-                              DenseLeaf1*,
-                              SparseLeaf1*);
+                              SparseLeaf1*,
+                              DenseLeaf1*);
 
     /** Mutable node. */
     alias Node = WordVariant!(OneLeaf6,
@@ -602,9 +602,6 @@ private struct RawRadixTree(Value = void)
         DenseLeaf1_PopHist popHist_DenseLeaf1;
         SparseBranch4_PopHist popHist_SparseBranch4; // packed branch population histogram
         DenseBranchM_PopHist popHist_DenseBranchM; // full branch population histogram
-
-        size_t allOneLeaf60CountOfSparseBranch4; // number of `SparseBranch4` which sub-branches are all `OneLeaf6` of length 0
-        size_t allOneLeaf60CountOfDenseBranchM; // number of `DenseBranchM` which sub-branches are all `OneLeaf6` of length 0
 
         /** Maps `Node` type/index `Ix` to population.
 
@@ -670,13 +667,12 @@ private struct RawRadixTree(Value = void)
             }
         }
 
-        bool linearInsert(Key!span key) @trusted @nogc
+        bool linearInsert(Ix key) @trusted @nogc
         {
-            assert(key.length == 1); // TODO remove when key is turned into Ix
             if (!contains(key))
             {
                 reserve(Capacity(length + 1));
-                _keys[length] = key[0];
+                _keys[length] = key;
                 ++_length;
                 return true;
             }
@@ -704,11 +700,10 @@ private struct RawRadixTree(Value = void)
         pragma(inline) bool empty() const @safe @nogc { return _length == 0; }
         pragma(inline) bool full() const @safe @nogc { return _length == radix; }
 
-        pragma(inline) bool contains(Key!span key) const @trusted @nogc
+        pragma(inline) bool contains(Ix key) const @trusted @nogc
         {
             import std.algorithm.searching : canFind;
-            return (key.length == 1 &&
-                    _keys[0 .. _length].canFind(key[0])); // TODO binarySearch
+            return (_keys[0 .. _length].canFind(key)); // TODO binarySearch
         }
 
         /** Append statistics of tree under `this` into `stats`. */
@@ -727,7 +722,6 @@ private struct RawRadixTree(Value = void)
     /** Dense Bitset Branch with only bottom-most leaves. */
     static private struct DenseLeaf1
     {
-        enum prefixCapacity = 14; // 6, 14, 22, ...
         enum maxSubCount = 256;
 
         // Constructor Parameter Element type `E`.
@@ -736,11 +730,9 @@ private struct RawRadixTree(Value = void)
 
         @safe pure nothrow:
 
-        this(Ixs...)(Ix[] prefix, bool isKey, Ixs subIxs)
+        this(Ixs...)(Ixs subIxs)
             if (Ixs.length <= maxSubCount)
         {
-            this.prefix = prefix;
-            this.isKey = isKey;
             foreach (subIx; subIxs)
             {
                 _keyBits[subIx] = true;
@@ -751,20 +743,13 @@ private struct RawRadixTree(Value = void)
         pragma(inline) bool empty() const @nogc { return _keyBits.empty; }
         pragma(inline) bool full() const @nogc { return _keyBits.full; }
 
-        pragma(inline) bool contains(Key!span key) const @nogc
+        pragma(inline) bool contains(Ix key) const @nogc
         {
-            import std.algorithm : skipOver;
-            return (key.skipOver(prefix[]) &&  // matching prefix
-                    ((key.length == 0 && isKey) || // direct match
-                     (key.length == 1 && _keyBits[key[0]]))); // sub-match
+            return _keyBits[key];
         }
-        pragma(inline) bool insert(Key!span key) @nogc
+        pragma(inline) bool insert(Ix key) @nogc
         {
-            assert(key.length == 1);
-            if (!_keyBits[key[0]])
-            {
-                return _keyBits[key[0]] = true;
-            }
+            if (!contains(key)) { return _keyBits[key] = true; }
             return false;
         }
 
@@ -776,17 +761,15 @@ private struct RawRadixTree(Value = void)
             ++stats.popHist_DenseLeaf1[count - 1]; // TODO type-safe indexing
         }
 
-        private:
+    private:
         BitSet!radix _keyBits;  // 32 bytes
         static if (hasValue)
         {
             Value[radix] values; // values
         }
-        IxsN!prefixCapacity prefix; // prefix common to all `subNodes` (also called edge-label)
-        bool isKey;
     }
 
-    static if (!hasValue) { static assert(DenseLeaf1.sizeof == 48); }
+    static if (!hasValue) { static assert(DenseLeaf1.sizeof == 32); }
 
     /** Sparse/Packed/Partial 4-way branch. */
     static private struct SparseBranch4
@@ -895,25 +878,6 @@ private struct RawRadixTree(Value = void)
             return subNodeSlots[0 .. subCount];
         }
 
-        /** Returns `true` if this branch can be packed into a bitset, that is
-            contains only sub-nodes of type `OneLeaf6` of zero length. */
-        bool hasMinimumDepth() const /* TODO @nogc */
-        {
-            foreach (const sub; subNodes)
-            {
-                if (const subOneLeaf6Ref = sub.peek!(OneLeaf6)) // TODO functionize
-                {
-                    const subOneLeaf6 = *subOneLeaf6Ref;
-                    if (subOneLeaf6.key.length != 0) { return false; }
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) const
         {
@@ -925,7 +889,6 @@ private struct RawRadixTree(Value = void)
             }
             assert(count <= radix);
             ++stats.popHist_SparseBranch4[count - 1]; // TODO type-safe indexing
-            stats.allOneLeaf60CountOfSparseBranch4 += hasMinimumDepth;
         }
 
         private:
@@ -997,27 +960,6 @@ private struct RawRadixTree(Value = void)
         bool isKey;      // key at this branch is occupied
         StrictlyIndexed!(Node[radix]) subNodes;
 
-        /** Returns `true` if this branch can be packed into a bitset, that is
-            contains only subNodes of type `OneLeaf6` of zero length. */
-        bool hasMinimumDepth() const @safe pure nothrow /* TODO @nogc */
-        {
-            foreach (const subNode; subNodes)
-            {
-                if (const subOneLeaf6Ref = subNode.peek!(OneLeaf6))
-                {
-                    if ((*subOneLeaf6Ref).key.length != 0)
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
         /// Number of non-null sub-Nodes.
         Mod!(radix + 1) subCount() const
         {
@@ -1044,7 +986,6 @@ private struct RawRadixTree(Value = void)
             }
             assert(count <= radix);
             ++stats.popHist_DenseBranchM[count - 1]; // TODO type-safe indexing
-            stats.allOneLeaf60CountOfDenseBranchM += hasMinimumDepth;
         }
     }
 
@@ -1061,49 +1002,10 @@ private struct RawRadixTree(Value = void)
     {
         switch (curr.typeIx)
         {
-        case Node.Ix.ix_DenseLeaf1Ptr: return setSub(curr.as!(DenseLeaf1*), subIx, subNode, superPrefixLength);
         case Node.Ix.ix_SparseBranch4Ptr: return setSub(curr.as!(SparseBranch4*), subIx, subNode, superPrefixLength);
         case Node.Ix.ix_DenseBranchMPtr: return setSub(curr.as!(DenseBranchM*), subIx, subNode, superPrefixLength);
         default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
         }
-    }
-    /// ditto
-    Node setSub(DenseLeaf1* curr, Ix subIx, Node subNode, size_t superPrefixLength) @safe pure nothrow /* TODO @nogc */
-    {
-        if (const subNodeRef = subNode.peek!(OneLeaf6))
-        {
-            const subNode_ = *subNodeRef;
-            if (subNode_.key.empty)
-            {
-                curr._keyBits[subIx] = true;
-                freeNode(subNode); // free it because it's stored inside the bitset itself
-                return Node(curr);
-            }
-        }
-
-        // need to expand
-        const extraCount = curr._keyBits[subIx] ? 0 : 1; // if one extra sub-node needes to be added
-        Node next;
-        if (curr._keyBits.countOnes + extraCount <= SparseBranch4.subCapacity) // if `curr` keys plus on extra fit
-        {
-            auto next_ = construct!(SparseBranch4*)(curr.prefix, curr.isKey);
-            foreach (const ix; curr._keyBits.oneIndexes)
-            {
-                setSub(next_, ix, Node(construct!(OneLeaf6)), superPrefixLength);
-            }
-            next = next_;
-        }
-        else
-        {
-            auto next_ = construct!(DenseBranchM*)(curr.prefix, curr.isKey);
-            foreach (const ix; curr._keyBits.oneIndexes)
-            {
-                setSub(next_, ix, Node(construct!(OneLeaf6)), superPrefixLength);
-            }
-            next = next_;
-        }
-        freeNode(curr);
-        return setSub(next, subIx, subNode, superPrefixLength); // insert on new
     }
     /// ditto
     Node setSub(SparseBranch4* curr, Ix subIx, Node subNode, size_t superPrefixLength) @safe pure nothrow /* TODO @nogc */
@@ -1139,15 +1041,17 @@ private struct RawRadixTree(Value = void)
         return Node(curr);
     }
 
-    pragma(inline) Node getSub(DenseLeaf1* curr, Ix subIx) @safe pure nothrow
+    /** Get sub-`Node` of branch `Node curr` at index `subIx. */
+    pragma(inline) Node getSub(Node curr, Ix subIx) @safe pure nothrow
     {
-        if (curr.hasSubAt(subIx))
+        switch (curr.typeIx)
         {
-            return Node(OneLeaf6.init);
+        case Node.Ix.ix_SparseBranch4Ptr: return getSub(curr.as!(SparseBranch4*), subIx);
+        case Node.Ix.ix_DenseBranchMPtr: return getSub(curr.as!(DenseBranchM*), subIx);
+        default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
         }
-        return Node.init;
     }
-
+    /// ditto
     pragma(inline) Node getSub(SparseBranch4* curr, Ix subIx) @safe pure nothrow
     {
         if (auto subNode = curr.findSub(subIx))
@@ -1156,7 +1060,7 @@ private struct RawRadixTree(Value = void)
         }
         return Node.init;
     }
-
+    /// ditto
     pragma(inline) Node getSub(DenseBranchM* curr, Ix subIx) @safe pure nothrow
     {
         auto sub = curr.subNodes[subIx];
@@ -1164,24 +1068,11 @@ private struct RawRadixTree(Value = void)
         return sub;
     }
 
-    /** Get sub-`Node` of branch `Node curr` at index `subIx. */
-    pragma(inline) Node getSub(Node curr, Ix subIx) @safe pure nothrow
-    {
-        switch (curr.typeIx)
-        {
-        case Node.Ix.ix_DenseLeaf1Ptr: return getSub(curr.as!(DenseLeaf1*), subIx);
-        case Node.Ix.ix_SparseBranch4Ptr: return getSub(curr.as!(SparseBranch4*), subIx);
-        case Node.Ix.ix_DenseBranchMPtr: return getSub(curr.as!(DenseBranchM*), subIx);
-        default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
-        }
-    }
-
     /** Returns: `true` if `curr` is occupied, `false` otherwise. */
     pragma(inline) bool isKey(Node curr) const @safe pure nothrow
     {
         switch (curr.typeIx)
         {
-        case Node.Ix.ix_DenseLeaf1Ptr: return curr.as!(DenseLeaf1*).isKey;
         case Node.Ix.ix_SparseBranch4Ptr: return curr.as!(SparseBranch4*).isKey;
         case Node.Ix.ix_DenseBranchMPtr: return curr.as!(DenseBranchM*).isKey;
             // TODO extend to leaves aswell?
@@ -1204,7 +1095,6 @@ private struct RawRadixTree(Value = void)
     {
         switch (curr.typeIx)
         {
-        case Node.Ix.ix_DenseLeaf1Ptr: curr.as!(DenseLeaf1*).isKey = true; break;
         case Node.Ix.ix_SparseBranch4Ptr: curr.as!(SparseBranch4*).isKey = true; break;
         case Node.Ix.ix_DenseBranchMPtr: curr.as!(DenseBranchM*).isKey = true; break;
             // TODO extend to leaves aswell?
@@ -1217,10 +1107,6 @@ private struct RawRadixTree(Value = void)
     {
         switch (curr.typeIx)
         {
-        case Node.Ix.ix_OneLeaf6: return curr.as!(OneLeaf6).key[]; // suffix is the prefix
-        // case Node.Ix.ix_TriLeaf2: return curr.as!(TriLeaf2).prefix[];
-        case Node.Ix.ix_SixLeaf1: return inout(Ix[]).init; // no prefix
-        case Node.Ix.ix_DenseLeaf1Ptr: return curr.as!(DenseLeaf1*).prefix[];
         case Node.Ix.ix_SparseBranch4Ptr: return curr.as!(SparseBranch4*).prefix[];
         case Node.Ix.ix_DenseBranchMPtr: return curr.as!(DenseBranchM*).prefix[];
             // TODO extend to leaves aswell?
@@ -1255,9 +1141,6 @@ private struct RawRadixTree(Value = void)
     {
         switch (curr.typeIx)
         {
-        case Node.Ix.ix_OneLeaf6:    curr.as!(OneLeaf6).key  = typeof(curr.as!(OneLeaf6).key)(prefix); break;
-        case Node.Ix.ix_SixLeaf1:    assert(prefix.length == 0); break;
-        case Node.Ix.ix_DenseLeaf1Ptr: curr.as!(DenseLeaf1*).prefix = typeof(curr.as!(DenseLeaf1*).prefix)(prefix); break;
         case Node.Ix.ix_SparseBranch4Ptr: curr.as!(SparseBranch4*).prefix = typeof(curr.as!(SparseBranch4*).prefix)(prefix); break;
         case Node.Ix.ix_DenseBranchMPtr: curr.as!(DenseBranchM*).prefix = typeof(curr.as!(DenseBranchM*).prefix)(prefix); break;
             // TODO extend to leaves aswell?
@@ -1270,7 +1153,6 @@ private struct RawRadixTree(Value = void)
     {
         switch (curr.typeIx)
         {
-        case Node.Ix.ix_DenseLeaf1Ptr: curr.as!(DenseLeaf1*).prefix.popFrontN(n); break;
         case Node.Ix.ix_SparseBranch4Ptr: curr.as!(SparseBranch4*).prefix.popFrontN(n); break;
         case Node.Ix.ix_DenseBranchMPtr: curr.as!(DenseBranchM*).prefix.popFrontN(n); break;
             // TODO extend to leaves aswell?
@@ -1330,8 +1212,8 @@ private struct RawRadixTree(Value = void)
             {
             case undefined: return false;
             case ix_SixLeaf1: return curr.as!(SixLeaf1).contains(key);
-            case ix_SparseLeaf1Ptr: return curr.as!(SparseLeaf1*).contains(key);
-            case ix_DenseLeaf1Ptr:  return curr.as!(DenseLeaf1*).contains(key);
+            case ix_SparseLeaf1Ptr: return key.length == 1 && curr.as!(SparseLeaf1*).contains(key[0]);
+            case ix_DenseLeaf1Ptr:  return key.length == 1 && curr.as!(DenseLeaf1*).contains(key[0]);
             }
         }
         /// ditto
@@ -1346,8 +1228,8 @@ private struct RawRadixTree(Value = void)
             case ix_TwoLeaf3: return curr.as!(TwoLeaf3).contains(key);
             case ix_TriLeaf2: return curr.as!(TriLeaf2).contains(key);
             case ix_SixLeaf1: return curr.as!(SixLeaf1).contains(key);
-            case ix_SparseLeaf1Ptr: return curr.as!(SparseLeaf1*).contains(key);
-            case ix_DenseLeaf1Ptr:  return curr.as!(DenseLeaf1*).contains(key);
+            case ix_SparseLeaf1Ptr: return key.length == 1 && curr.as!(SparseLeaf1*).contains(key[0]);
+            case ix_DenseLeaf1Ptr:  return key.length == 1 && curr.as!(DenseLeaf1*).contains(key[0]);
             case ix_SparseBranch4Ptr:
                 auto curr_ = curr.as!(SparseBranch4*);
                 if (key.length == 1)
@@ -1433,33 +1315,33 @@ private struct RawRadixTree(Value = void)
                 {
                     return insertionNode = Node(construct!(OneLeaf6)(key));
                 }
-                else if (key.length <= DenseLeaf1.prefixCapacity) // only if DenseLeaf1.prefixCapacity > OneLeaf6.capacity
-                {
-                    auto prefix = key[0 .. $ - 1];
-                    return insertionNode = Node(construct!(DenseLeaf1*)(prefix, false, key[$ - 1]));
-                }
                 else                // key doesn't fit in a `OneLeaf6`
                 {
                     import std.algorithm : min;
-                    auto brKey = key[0 .. min(key.length, DefaultBranch.prefixCapacity)];
-                    auto next = insertAt(Node(construct!(DefaultBranch)(brKey, false)), // as much as possible of key in branch prefix
-                                         key, superPrefixLength, insertionNode);
-
-                    // assert that next branch shouldn't be a bit-packed branch instead
-                    debug if (const nextSparseBranch4Ref = next.peek!(SparseBranch4*))
-                    {
-                        assert(!(*nextSparseBranch4Ref).hasMinimumDepth);
-                    }
+                    auto prefix = key[0 .. min(key.length, DefaultBranch.prefixCapacity)];
+                    auto next = insertAt(Node(construct!(DefaultBranch)(prefix, false)), // as much as possible of key in branch prefix
+                                         key, superPrefixLength + prefix.length, insertionNode);
                     assert(insertionNode);
                     return next;
                 }
             }
         }
 
+        pragma(inline) Node toNode(Leaf curr)
+        {
+            final switch (curr.typeIx) with (Leaf.Ix)
+            {
+            case undefined: return Node.init;
+            case ix_SixLeaf1: return Node(curr.as!(SixLeaf1));
+            case ix_SparseLeaf1Ptr: return Node(curr.as!(SparseLeaf1*));
+            case ix_DenseLeaf1Ptr: return Node(curr.as!(DenseLeaf1*));
+            }
+        }
+
         /** Insert `key` into sub-tree under root `curr`. */
         pragma(inline) Node insertAt(Node curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
         {
-            if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); }
+            if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); } assert(key.length);
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
             if (!curr)          // if no existing `Node` to insert at
@@ -1479,9 +1361,12 @@ private struct RawRadixTree(Value = void)
                 case ix_SixLeaf1: return insertAt(curr.as!(SixLeaf1), key, superPrefixLength, insertionNode);
 
                 case ix_SparseLeaf1Ptr:
+                    assert(key.length == 1);
+                    return toNode(insertAtLeaf(Leaf(curr.as!(SparseLeaf1*)), key[0], superPrefixLength, insertionNode));
+
                 case ix_DenseLeaf1Ptr:
-                    dln("Remove prefix from DenseLeaf1 directly call insertAt() ");
-                    return insertAtBranch(curr, key, superPrefixLength, insertionNode);
+                    assert(key.length == 1);
+                    return toNode(insertAtLeaf(Leaf(curr.as!(DenseLeaf1*)), key[0], superPrefixLength, insertionNode));
 
                 case ix_SparseBranch4Ptr:
                 case ix_DenseBranchMPtr:
@@ -1490,67 +1375,36 @@ private struct RawRadixTree(Value = void)
             }
         }
 
-        static if (!hasValue)
+        Leaf insertAtLeaf(Leaf curr, Ix key, size_t superPrefixLength, out Node insertionNode)
         {
-            Leaf insertAtLeaf(Leaf curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
+            switch (curr.typeIx) with (Leaf.Ix)
             {
-                if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); }
-                assert(key.length == 1); // TODO remove when key is turned into Ix
-                switch (curr.typeIx) with (Leaf.Ix)
+            case undefined: return typeof(return).init;
+            case ix_SparseLeaf1Ptr:
+                auto curr_ = curr.as!(SparseLeaf1*);
+                if (curr_.linearInsert(key))
                 {
-                case undefined: return typeof(return).init;
-                case ix_SparseLeaf1Ptr:
-                    auto curr_ = curr.as!(SparseLeaf1*);
-                    if (curr_.linearInsert(key))
-                    {
-                        insertionNode = Node(curr_);
-                    }
-                    break;
-                case ix_DenseLeaf1Ptr:
-                    auto curr_ = curr.as!(DenseLeaf1*);
-                    if (curr_.insert(key))
-                    {
-                        insertionNode = Node(curr_);
-                    }
-                    break;
-                default:
-                    assert(false, "Unsupported Leaf type " ~ curr.typeIx.to!string);
+                    insertionNode = Node(curr_);
                 }
-                return curr;
+                break;
+            case ix_DenseLeaf1Ptr:
+                return insertAtLeaf(curr.as!(DenseLeaf1*), key, superPrefixLength, insertionNode);
+            default:
+                assert(false, "Unsupported Leaf type " ~ curr.typeIx.to!string);
             }
+            return curr;
+        }
+
+        pragma(inline) Leaf insertAtLeaf(DenseLeaf1* curr, Ix key, size_t superPrefixLength, out Node insertionNode)
+        {
+            if (curr.insert(key)) { insertionNode = curr; }
+            return Leaf(curr);
         }
 
         Node insertAtBranch(Node curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
         {
+            if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); } assert(key.length);
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
-
-            if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); }
-
-            if (key.length == 1)
-            {
-                if (isBranch(curr))
-                {
-                    static if (hasValue)
-                    {
-                        dln("TODO Support hasValue version for key:", key);
-                    }
-                    else
-                    {
-                        auto leaf = getLeaf(curr);
-                        if (!leaf)
-                        {
-                            auto leaf_ = construct!(DefaultLeaf)(key[0]);
-                            setLeaf(curr, Leaf(leaf_));
-                            insertionNode = leaf_;
-                        }
-                        else
-                        {
-                            setLeaf(curr, insertAtLeaf(leaf, key, superPrefixLength, insertionNode));
-                        }
-                    }
-                    return curr;
-                }
-            }
 
             import std.algorithm : commonPrefix;
             auto currPrefix = getPrefix(curr);
@@ -1569,7 +1423,7 @@ private struct RawRadixTree(Value = void)
                 {
                     if (key.length == 0)
                     {
-                        if (willFail) { dln(""); }
+                        if (willFail) { dln("WILL FAIL"); }
                         // both prefix and key is empty
                         assert(currPrefix == key); // assert exact match
                         if (!isKey(curr))
@@ -1581,7 +1435,7 @@ private struct RawRadixTree(Value = void)
                     }
                     else
                     {
-                        if (willFail) { dln(""); }
+                        if (willFail) { dln("WILL FAIL"); }
                         const subIx = key[0];
                         return setSub(curr, subIx,
                                       insertAt(getSub(curr, subIx), // recurse
@@ -1597,14 +1451,14 @@ private struct RawRadixTree(Value = void)
                     popFrontNPrefix(curr, 1);
                     if (key.length == 0)
                     {
-                        if (willFail) { dln(""); }
+                        if (willFail) { dln("WILL FAIL"); }
                         return insertionNode = Node(construct!(DefaultBranch)(matchedKeyPrefix,
                                                                               true, // because `key` is empty
                                                                               currSubIx, curr));
                     }
                     else
                     {
-                        if (willFail) { dln(""); }
+                        if (willFail) { dln("WILL FAIL"); }
                         return Node(construct!(DefaultBranch)(matchedKeyPrefix, false,
                                                               currSubIx, curr,
                                                               key[0],
@@ -1616,31 +1470,64 @@ private struct RawRadixTree(Value = void)
             {
                 if (matchedKeyPrefix.length == currPrefix.length)
                 {
-                    if (willFail) { dln(""); }
+                    if (willFail) { dln("WILL FAIL"); }
+                    dln("key: ", key);
                     // most probable: key is an extension of prefix: prefix:"ab", key:"abcd"
                     key = key[matchedKeyPrefix.length .. $]; // strip `currPrefix from beginning of `key`
+                    assert(key.length);
                     superPrefixLength += matchedKeyPrefix.length;
-                    const subIx = key[0];
-                    return setSub(curr, subIx,
-                                  insertAt(getSub(curr, subIx), // recurse
-                                           key[1 .. $],
-                                           superPrefixLength + 1,
-                                           insertionNode),
-                                  superPrefixLength);
+                    if (key.length == 1)
+                    {
+                        if (willFail) { dln("WILL FAIL"); }
+                        dln("key: ", key);
+                        auto leaf = getLeaf(curr);
+                        if (!leaf)
+                        {
+                            if (willFail) { dln("WILL FAIL"); }
+                            dln("key: ", key);
+                            static if (hasValue)
+                            {
+                                dln("TODO don't use Value.init here");
+                                auto leaf_ = construct!(DefaultLeaf)(tuple(key[0], Value.init)); // TODO fix
+                            }
+                            else
+                            {
+                                auto leaf_ = construct!(DefaultLeaf)(key[0]);
+                            }
+                            setLeaf(curr, Leaf(leaf_));
+                            insertionNode = leaf_;
+                        }
+                        else
+                        {
+                            if (willFail) { dln("WILL FAIL"); }
+                            setLeaf(curr, insertAtLeaf(leaf, key[0], superPrefixLength, insertionNode));
+                        }
+                        return curr;
+                    }
+                    else
+                    {
+                        const subIx = key[0];
+                        return setSub(curr, subIx,
+                                      insertAt(getSub(curr, subIx), // recurse
+                                               key[1 .. $],
+                                               superPrefixLength + 1,
+                                               insertionNode),
+                                      superPrefixLength);
+                    }
                 }
                 else
                 {
-                    if (willFail) { dln(""); }
+                    if (willFail) { dln("WILL FAIL"); }
                     // prefix and key share beginning: prefix:"ab11", key:"ab22"
 
                     const currSubIx = currPrefix[matchedKeyPrefix.length]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length + 1); // drop matchedKeyPrefix plus index to next super branch
 
                     return Node(construct!(DefaultBranch)(matchedKeyPrefix, false, // key is not occupied
-                                                      currSubIx,
-                                                      curr,
-                                                      key[matchedKeyPrefix.length],
-                                                      insertNew(key[matchedKeyPrefix.length + 1.. $], superPrefixLength, insertionNode)));
+                                                          currSubIx,
+                                                          curr,
+                                                          key[matchedKeyPrefix.length],
+                                                          insertNew(key[matchedKeyPrefix.length + 1.. $], superPrefixLength, insertionNode)));
                 }
             }
             else // if (matchedKeyPrefix.length == key.length)
@@ -1648,16 +1535,16 @@ private struct RawRadixTree(Value = void)
                 assert(matchedKeyPrefix.length == key.length);
                 if (matchedKeyPrefix.length < currPrefix.length)
                 {
-                    if (willFail) { dln(""); }
+                    if (willFail) { dln("WILL FAIL"); }
                     // prefix is an extension of key: prefix:"abcd", key:"ab"
                     const subIx = currPrefix[matchedKeyPrefix.length]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length + 1); // drop matchedKeyPrefix plus index to next super branch
                     return insertionNode = Node(construct!(DefaultBranch)(matchedKeyPrefix, true, // `true` because `key` occupies this node
-                                                                      subIx, curr));
+                                                                          subIx, curr));
                 }
                 else // if (matchedKeyPrefix.length == currPrefix.length)
                 {
-                    if (willFail) { dln(""); }
+                    if (willFail) { dln("WILL FAIL"); }
                     assert(matchedKeyPrefix.length == currPrefix.length);
                     // prefix equals key: prefix:"ab", key:"ab"
                     assert(currPrefix == key); // assert exact match
@@ -1693,13 +1580,19 @@ private struct RawRadixTree(Value = void)
                     case 2: next = construct!(TwoLeaf3)(curr.key, key); break;
                     default:
                         if (willFail) { dln("matchedKeyPrefix:", matchedKeyPrefix); }
-                        next = construct!(DenseLeaf1*)(matchedKeyPrefix, false,
-                                                    curr.key[$ - 1],
-                                                    key[$ - 1]);
+                        next = construct!(DefaultBranch)(matchedKeyPrefix, false);
+                        superPrefixLength += matchedKeyPrefix.length;
+                        Node insertionNodeCurr;
+                        next = insertAtBranch(next, curr.key[$ - 1 .. $], superPrefixLength, insertionNodeCurr);
+                        next = insertAtBranch(next, key[$ - 1 .. $], superPrefixLength, insertionNode);
                         break;
                     }
                     freeNode(curr);
-                    return insertionNode = next;
+                    if (!insertionNode)
+                    {
+                        insertionNode = next;
+                    }
+                    return next;
                 }
             }
             return insertAt(split(curr, matchedKeyPrefix, key, superPrefixLength),
@@ -1720,22 +1613,6 @@ private struct RawRadixTree(Value = void)
                     curr.keys.pushBack(key);
                     return insertionNode = Node(curr);
                 }
-
-                // TODO Use variadic commonPrefix(curr.keys.at!0, curr.keys.at!1, key)
-                enum PL = curr.keyLength - 1;    // searched prefix length
-                if (curr.keys.at!0[0 .. PL] ==          key[0 .. PL] &&
-                    curr.keys.at!0[0 .. PL] == curr.keys.at!1[0 .. PL]) // `curr.keys` and `key` share all but last Ix
-                {
-                    // if `curr` and `key` can be combined into a `DenseLeaf1`
-                    auto next = construct!(DenseLeaf1*)(key[0 .. PL], false);
-                    foreach (const currKey; curr.keys)
-                    {
-                        next._keyBits[currKey[PL]] = true;
-                    }
-                    next._keyBits[key[PL]] = true;
-                    freeNode(curr);
-                    return insertionNode = Node(next);
-                }
             }
             return insertAt(expand(curr, superPrefixLength), key, superPrefixLength, insertionNode); // NOTE stay at same (depth)
         }
@@ -1753,21 +1630,6 @@ private struct RawRadixTree(Value = void)
                 {
                     curr.keys.pushBack(key);
                     return insertionNode = Node(curr);
-                }
-
-                if (curr.keys.at!0[0] == key[0] &&
-                    curr.keys.at!0[0] == curr.keys.at!1[0] &&
-                    curr.keys.at!1[0] == curr.keys.at!2[0]) // `curr.keys` and `key` share all but last Ix
-                {
-                    // if `curr` and `key` can be combined into a `DenseLeaf1`
-                    auto next = construct!(DenseLeaf1*)(key[0 .. 1], false);
-                    foreach (const currKey; curr.keys)
-                    {
-                        next._keyBits[currKey[1]] = true;
-                    }
-                    next._keyBits[key[1]] = true;
-                    freeNode(curr);
-                    return insertionNode = Node(next);
                 }
             }
             return insertAt(expand(curr, superPrefixLength),
@@ -1795,7 +1657,7 @@ private struct RawRadixTree(Value = void)
                 }
 
                 if (willFail) { dln("prefix empty"); }
-                auto next = construct!(DenseLeaf1*)(Ix[].init, false);
+                auto next = construct!(DenseLeaf1*)();
                 foreach (const currKey; curr.keys)
                 {
                     next._keyBits[currKey] = true;
@@ -1812,6 +1674,7 @@ private struct RawRadixTree(Value = void)
         /** Split `curr` using `prefix`. */
         Node split(OneLeaf6 curr, Key!span prefix, Key!span key, size_t superPrefixLength) // TODO key here is a bit malplaced
         {
+            if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); } assert(key.length);
             assert(hasVariableKeyLength || curr.key.length == key.length);
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
@@ -1825,15 +1688,6 @@ private struct RawRadixTree(Value = void)
                     {
                         freeNode(curr);
                         return Node(construct!(SixLeaf1)(curr.key)); // TODO removing parameter has no effect. why?
-                    }
-                    else if (prefix.length == 1)
-                    {
-                        assert(false, "Use P1Leaf with single-length prefix and a maximum of 4 ");
-                    }
-                    else
-                    {
-                        if (willFail) { dln("prefix:", prefix); }
-                        next = construct!(DenseLeaf1*)(prefix, false);
                     }
                     break;
                 case 2:
@@ -2136,8 +1990,7 @@ private struct RawRadixTree(Value = void)
             break;
         case ix_DenseLeaf1Ptr:
             auto curr_ = curr.as!(DenseLeaf1*);
-            write(typeof(*curr_).stringof, "#", curr_._keyBits.countOnes, (curr_.isKey ? " X" : " _"), " @", curr_);
-            if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix); }
+            write(typeof(*curr_).stringof, "#", curr_._keyBits.countOnes, " @", curr_);
             write(": ");
 
             // keys
@@ -2383,6 +2236,7 @@ unittest
     assert(set.heapNodeAllocationBalance == 1);
 
     assert(set.insert(1));
+    set.willFail = true;
     assert(!set.insert(1));
     assert(set.heapNodeAllocationBalance == 1);
 
@@ -2486,10 +2340,6 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
     writeln("DenseBranchM Population Histogram: ", stats.popHist_DenseBranchM);
     writeln("Population By Node Type: ", stats.popByNodeType);
 
-    // these should be zero
-    writeln("Number of SparseBranch4 with OneLeaf6-0 only subNodes: ", stats.allOneLeaf60CountOfSparseBranch4);
-    writeln("Number of DenseBranchM with OneLeaf6-0 only subNodes: ", stats.allOneLeaf60CountOfDenseBranchM);
-
     size_t totalBytesUsed = 0;
     foreach (RT.Node.Ix ix, pop; stats.popByNodeType) // TODO use stats.byPair when added to typecons_ex.d
     {
@@ -2534,7 +2384,8 @@ unittest
         {
             if (line.length <= 15)
             {
-                dln(line);
+                // dln(line);
+                if (line == "Afros") { set.willFail = true; }
                 assert(!set.contains(line));
                 assert(set.insert(line));
                 assert(!set.insert(line));

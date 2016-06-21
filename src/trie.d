@@ -533,11 +533,6 @@ private struct RawRadixTree(Value = void)
     alias DefaultBranch = SparseBranch4*; // either SparseBranch4*, DenseBranchM*
     alias DefaultLeaf = SparseLeaf1*; // either SparseLeaf1*, DenseLeaf1*
 
-    static if (!hasValue)
-    {
-        static assert(SixLeaf1.sizeof == size_t.sizeof); // assert that it's size matches platform word-size
-    }
-
     /** Pointer node. */
     alias PtrNode = WordVariant!(DenseBranchM*,
                                  SparseBranch4*,
@@ -1890,8 +1885,7 @@ private struct RawRadixTree(Value = void)
         final switch (curr.typeIx) with (Node.Ix)
         {
         case undefined:
-            assert(false);
-            dln("TODO");
+            dln("TODO: Trying to print undefined Node");
             break;
         case ix_OneLeaf6:
             auto curr_ = curr.as!(OneLeaf6);
@@ -1950,7 +1944,10 @@ private struct RawRadixTree(Value = void)
             writeln(":");
             if (curr_.leaf)
             {
-                printAt(toNode(curr_.leaf), depth);
+                dln("leaf:", curr_.leaf);
+                auto leafNode = toNode(curr_.leaf);
+                dln("leafNode:", leafNode);
+                printAt(leafNode, depth);
             }
             foreach (const i, const subNode; curr_.subNodes)
             {
@@ -1964,7 +1961,11 @@ private struct RawRadixTree(Value = void)
             writeln(":");
             if (curr_.leaf)
             {
-                printAt(toNode(curr_.leaf), depth);
+                dln("leaf:", curr_.leaf);
+                auto leafNode = toNode(curr_.leaf);
+                dln("leafNode:", leafNode);
+                dln(leafNode);
+                printAt(leafNode, depth);
             }
             foreach (const i, const subNode; curr_.subNodes)
             {

@@ -800,6 +800,11 @@ private struct RawRadixTree(Value = void)
             this.leaf = leaf;
         }
 
+        this(Leaf leaf)
+        {
+            this.leaf = leaf;
+        }
+
         this(Ix[] prefix, Ix subIx, Node subNode)
         {
             this.prefix = prefix;
@@ -1620,9 +1625,8 @@ private struct RawRadixTree(Value = void)
 
             assert(curr.keyLength != key.length);
 
-            auto next_ = construct!(DefaultBranch)(Ix[].init, Leaf(curr)); // need DefaultBranch
-
-            return insertAt(Node(next_), key, superPrefixLength, insertionNode); // NOTE stay at same (depth)
+            return insertAt(Node(construct!(DefaultBranch)(Leaf(curr))),
+                            key, superPrefixLength, insertionNode); // NOTE stay at same (depth)
         }
 
         /** Split `curr` using `prefix`. */

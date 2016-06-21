@@ -1348,33 +1348,6 @@ private struct RawRadixTree(Value = void)
             }
         }
 
-        Leaf insertAtLeaf(Leaf curr, Ix key, size_t superPrefixLength, out Node insertionNode)
-        {
-            if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr); }
-            switch (curr.typeIx) with (Leaf.Ix)
-            {
-            case undefined: return typeof(return).init;
-            case ix_SparseLeaf1Ptr:
-                auto curr_ = curr.as!(SparseLeaf1*);
-                if (curr_.linearInsert(key))
-                {
-                    insertionNode = Node(curr_);
-                }
-                break;
-            case ix_DenseLeaf1Ptr:
-                return insertAtLeaf(curr.as!(DenseLeaf1*), key, superPrefixLength, insertionNode);
-            default:
-                assert(false, "Unsupported Leaf type " ~ curr.typeIx.to!string);
-            }
-            return curr;
-        }
-
-        pragma(inline) Leaf insertAtLeaf(DenseLeaf1* curr, Ix key, size_t superPrefixLength, out Node insertionNode)
-        {
-            if (curr.insert(key)) { insertionNode = curr; }
-            return Leaf(curr);
-        }
-
         Node insertAtBranch(Node curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
         {
             if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr); }
@@ -1398,30 +1371,7 @@ private struct RawRadixTree(Value = void)
                     // NOTE: prefix:"", key:"cd"
                     if (key.length == 1)
                     {
-                        auto leaf = getLeaf(curr);
-                        if (!leaf)
-                        {
-                            if (willFail) { dln(""); }
-                            static if (hasValue)
-                            {
-                                if (willFail) { dln(""); }
-                                // auto leaf_ = construct!(DefaultLeaf)(tuple(key[0], Value.init)); // TODO fix
-                                auto leaf_ = construct!(DefaultLeaf)(key[0]);
-                            }
-                            else
-                            {
-                                if (willFail) { dln(""); }
-                                auto leaf_ = construct!(DefaultLeaf)(key[0]);
-                            }
-                            setLeaf(curr, Leaf(leaf_));
-                            insertionNode = leaf_;
-                        }
-                        else
-                        {
-                            if (willFail) { dln(""); }
-                            setLeaf(curr, insertAtLeaf(leaf, key[0], superPrefixLength, insertionNode));
-                        }
-                        return curr;
+                        return insertAtBranchLeaf(curr, key, superPrefixLength, insertionNode);
                     }
                     else
                     {
@@ -1456,30 +1406,7 @@ private struct RawRadixTree(Value = void)
                     superPrefixLength += matchedKeyPrefix.length;
                     if (key.length == 1)
                     {
-                        auto leaf = getLeaf(curr);
-                        if (!leaf)
-                        {
-                            if (willFail) { dln(""); }
-                            static if (hasValue)
-                            {
-                                if (willFail) { dln(""); }
-                                // auto leaf_ = construct!(DefaultLeaf)(tuple(key[0], Value.init)); // TODO fix
-                                auto leaf_ = construct!(DefaultLeaf)(key[0]);
-                            }
-                            else
-                            {
-                                if (willFail) { dln(""); }
-                                auto leaf_ = construct!(DefaultLeaf)(key[0]);
-                            }
-                            setLeaf(curr, Leaf(leaf_));
-                            insertionNode = leaf_;
-                        }
-                        else
-                        {
-                            if (willFail) { dln(""); }
-                            setLeaf(curr, insertAtLeaf(leaf, key[0], superPrefixLength, insertionNode));
-                        }
-                        return curr;
+                        return insertAtBranchLeaf(curr, key, superPrefixLength, insertionNode);
                     }
                     else
                     {
@@ -1528,6 +1455,61 @@ private struct RawRadixTree(Value = void)
                     assert(false);
                 }
             }
+        }
+
+        Node insertAtBranchLeaf(Node curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
+        {
+            auto leaf = getLeaf(curr);
+            if (!leaf)
+            {
+                if (willFail) { dln(""); }
+                static if (hasValue)
+                {
+                    if (willFail) { dln(""); }
+                    // auto leaf_ = construct!(DefaultLeaf)(tuple(key[0], Value.init)); // TODO fix
+                    auto leaf_ = construct!(DefaultLeaf)(key[0]);
+                }
+                else
+                {
+                    if (willFail) { dln(""); }
+                    auto leaf_ = construct!(DefaultLeaf)(key[0]);
+                }
+                setLeaf(curr, Leaf(leaf_));
+                insertionNode = leaf_;
+            }
+            else
+            {
+                if (willFail) { dln(""); }
+                setLeaf(curr, insertAtLeaf(leaf, key[0], superPrefixLength, insertionNode));
+            }
+            return curr;
+        }
+
+        Leaf insertAtLeaf(Leaf curr, Ix key, size_t superPrefixLength, out Node insertionNode)
+        {
+            if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr); }
+            switch (curr.typeIx) with (Leaf.Ix)
+                                 {
+                                 case undefined: return typeof(return).init;
+                                 case ix_SparseLeaf1Ptr:
+                                     auto curr_ = curr.as!(SparseLeaf1*);
+                                     if (curr_.linearInsert(key))
+                                     {
+                                         insertionNode = Node(curr_);
+                                     }
+                                     break;
+                                 case ix_DenseLeaf1Ptr:
+                                     return insertAtLeaf(curr.as!(DenseLeaf1*), key, superPrefixLength, insertionNode);
+                                 default:
+                                     assert(false, "Unsupported Leaf type " ~ curr.typeIx.to!string);
+                                 }
+            return curr;
+        }
+
+        pragma(inline) Leaf insertAtLeaf(DenseLeaf1* curr, Ix key, size_t superPrefixLength, out Node insertionNode)
+        {
+            if (curr.insert(key)) { insertionNode = curr; }
+            return Leaf(curr);
         }
 
         Node insertAt(OneLeaf6 curr, Key!span key, size_t superPrefixLength, out Node insertionNode)

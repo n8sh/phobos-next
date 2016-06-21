@@ -1317,7 +1317,6 @@ private struct RawRadixTree(Value = void)
         pragma(inline) Node insertAt(Node curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
         {
             if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr); }
-            if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); }
             assert(key.length);
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 

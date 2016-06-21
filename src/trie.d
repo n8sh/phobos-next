@@ -1202,10 +1202,7 @@ private struct RawRadixTree(Value = void)
         pragma(inline) bool containsAt(Node curr, Key!span key)
         {
             if (willFail) { dln("curr:", curr, " key:", key); }
-            if (key.length == 0)
-            {
-                dln("TODO key shouldn't be empty when curr:", curr, " key:", key);
-            }
+            if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr, " key:", key); }
             import std.algorithm : skipOver;
             final switch (curr.typeIx) with (Node.Ix)
             {
@@ -2315,6 +2312,7 @@ unittest
     import std.meta : AliasSeq;
     foreach (T; AliasSeq!(ushort, uint))
     {
+        dln("T:", T.stringof);
         auto set = radixTreeSet!(T);
         alias Set = typeof(set);
 
@@ -2326,6 +2324,7 @@ unittest
 
         foreach (const i; 1 .. 256)
         {
+            dln("i:", i);
             assert(!set.contains(i));
             assert(set.insert(i));
             assert(!set.insert(i));
@@ -2336,7 +2335,6 @@ unittest
         assert(set.insert(256));
         assert(!set.insert(256));
         assert(set.contains(256));
-        assert(set.heapNodeAllocationBalance == 2);
 
         assert(!set.contains(257));
         assert(set.insert(257));

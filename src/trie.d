@@ -2305,7 +2305,7 @@ unittest
     assert(root.full);
 }
 
-@safe pure nothrow /* TODO @nogc */
+// TODO @safe pure nothrow /* TODO @nogc */
 unittest
 {
     import std.meta : AliasSeq;
@@ -2325,9 +2325,12 @@ unittest
         {
             dln("i:", i);
             assert(!set.contains(i));
+
             dln("y:", i);
             set.willFail = is(T == uint);
+            if (set.willFail) { set.print(); }
             assert(set.insert(i));
+
             assert(!set.insert(i));
             assert(set.contains(i));
         }

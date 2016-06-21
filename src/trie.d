@@ -2216,8 +2216,9 @@ unittest
         assert(set.heapNodeAllocationBalance == 2);
     }
 
-    if (true) { set.willFail = true; }
     assert(set.insert(256));
+    if (true) { set.willFail = true; }
+    set.print();
     assert(!set.insert(256));
 
     assert(set.heapNodeAllocationBalance == 2);

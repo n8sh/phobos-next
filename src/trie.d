@@ -1391,11 +1391,11 @@ private struct RawRadixTree(Value = void)
                                 " matchedKeyPrefix:", matchedKeyPrefix,
                                 " superPrefixLength:", superPrefixLength); }
 
-            // prefix:"ab", key:"cd"
             if (matchedKeyPrefix.length == 0) // no prefix key match
             {
                 if (currPrefix.length == 0) // no current prefix
                 {
+                    // prefix:"", key:"cd"
                     if (willFail) { dln(""); }
                     const subIx = key[0];
                     return setSub(curr, subIx,
@@ -1407,6 +1407,7 @@ private struct RawRadixTree(Value = void)
                 }
                 else
                 {
+                    // prefix:"ab", key:"cd"
                     if (willFail) { dln(""); }
                     const currSubIx = currPrefix[0]; // subIx = 'a'
                     popFrontNPrefix(curr, 1);

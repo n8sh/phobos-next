@@ -1316,6 +1316,7 @@ private struct RawRadixTree(Value = void)
         /** Insert `key` into sub-tree under root `curr`. */
         pragma(inline) Node insertAt(Node curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
         {
+            if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr); }
             if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); }
             assert(key.length);
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
@@ -1353,6 +1354,7 @@ private struct RawRadixTree(Value = void)
 
         Leaf insertAtLeaf(Leaf curr, Ix key, size_t superPrefixLength, out Node insertionNode)
         {
+            if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr); }
             switch (curr.typeIx) with (Leaf.Ix)
             {
             case undefined: return typeof(return).init;
@@ -1502,6 +1504,7 @@ private struct RawRadixTree(Value = void)
 
         Node insertAt(OneLeaf6 curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
         {
+            if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr); }
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
             import std.algorithm : commonPrefix;
@@ -1521,11 +1524,11 @@ private struct RawRadixTree(Value = void)
                     case 1: next = construct!(TriLeaf2)(curr.key, key); break;
                     case 2: next = construct!(TwoLeaf3)(curr.key, key); break;
                     default:
+                        if (willFail) { dln("matchedKeyPrefix:", matchedKeyPrefix); }
                         next = construct!(DefaultBranch)(matchedKeyPrefix);
-                        superPrefixLength += matchedKeyPrefix.length;
                         Node insertionNodeCurr;
-                        next = insertAtBranch(next, curr.key[$ - 1 .. $], superPrefixLength, insertionNodeCurr);
-                        next = insertAtBranch(next, key[$ - 1 .. $], superPrefixLength, insertionNode);
+                        next = insertAtBranch(next, curr.key[superPrefixLength .. $], superPrefixLength + matchedKeyPrefix.length, insertionNodeCurr);
+                        next = insertAtBranch(next, key[superPrefixLength .. $], superPrefixLength + matchedKeyPrefix.length, insertionNode);
                         break;
                     }
                     freeNode(curr);

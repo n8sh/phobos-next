@@ -2160,6 +2160,18 @@ auto radixTreeSet(Key)()
 /// Instantiator of map-version of `RadixTree` where value-type is `Value`.
 auto radixTreeMap(Key, Value)() { return RadixTree!(Key, Value)(false); }
 
+@safe pure nothrow /* TODO @nogc */
+unittest
+{
+    auto set = radixTreeSet!(ulong);
+
+    alias NodeType = set.SparseLeaf1*;
+    NodeType sl = null;
+    set.Node node = set.Node(sl);
+    static assert(node.canStore!(NodeType));
+    assert(!node.isNull);
+}
+
 // @safe pure nothrow /* TODO @nogc */
 unittest
 {

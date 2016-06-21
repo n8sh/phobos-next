@@ -1189,7 +1189,6 @@ private struct RawRadixTree(Value = void)
         pragma(inline) bool containsAt(Leaf curr, Key!span key)
         {
             if (willFail) { dln("curr:", curr, " key:", key); }
-            if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); assert(false); }
             final switch (curr.typeIx) with (Leaf.Ix)
             {
             case undefined: return false;
@@ -1202,7 +1201,6 @@ private struct RawRadixTree(Value = void)
         pragma(inline) bool containsAt(Node curr, Key!span key)
         {
             if (willFail) { dln("curr:", curr, " key:", key); }
-            if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr, " key:", key); }
             import std.algorithm : skipOver;
             final switch (curr.typeIx) with (Node.Ix)
             {

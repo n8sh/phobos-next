@@ -1381,6 +1381,7 @@ private struct RawRadixTree(Value = void)
 
         Node insertAtBranch(Node curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
         {
+            if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr); }
             if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); } assert(key.length);
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
@@ -1527,8 +1528,8 @@ private struct RawRadixTree(Value = void)
                         if (willFail) { dln("matchedKeyPrefix:", matchedKeyPrefix); }
                         next = construct!(DefaultBranch)(matchedKeyPrefix);
                         Node insertionNodeCurr;
-                        next = insertAtBranch(next, curr.key[superPrefixLength .. $], superPrefixLength + matchedKeyPrefix.length, insertionNodeCurr);
-                        next = insertAtBranch(next, key[superPrefixLength .. $], superPrefixLength + matchedKeyPrefix.length, insertionNode);
+                        next = insertAtBranch(next, curr.key, superPrefixLength, insertionNodeCurr);
+                        next = insertAtBranch(next, key, superPrefixLength, insertionNode);
                         break;
                     }
                     freeNode(curr);
@@ -2331,13 +2332,10 @@ unittest
 
         foreach (const i; 1 .. 256)
         {
-            dln("i:", i);
             assert(!set.contains(i));
 
-            dln("y:", i);
-            set.willFail = is(T == uint) && i == 1;
-            if (set.willFail) { set.print(); }
             assert(set.insert(i));
+            assert(set.contains(i));
 
             assert(!set.insert(i));
             assert(set.contains(i));

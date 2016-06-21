@@ -2413,8 +2413,7 @@ unittest
         {
             if (line.length <= 15)
             {
-                // dln(line);
-                if (line == "Afros") { set.willFail = true; }
+                dln(line);
                 assert(!set.contains(line));
                 assert(set.insert(line));
                 assert(!set.insert(line));

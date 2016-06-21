@@ -1395,7 +1395,7 @@ private struct RawRadixTree(Value = void)
             {
                 if (currPrefix.length == 0) // no current prefix
                 {
-                    // prefix:"", key:"cd"
+                    // NOTE: prefix:"", key:"cd"
                     if (willFail) { dln(""); }
                     const subIx = key[0];
                     return setSub(curr, subIx,
@@ -1407,7 +1407,7 @@ private struct RawRadixTree(Value = void)
                 }
                 else
                 {
-                    // prefix:"ab", key:"cd"
+                    // NOTE: prefix:"ab", key:"cd"
                     if (willFail) { dln(""); }
                     const currSubIx = currPrefix[0]; // subIx = 'a'
                     popFrontNPrefix(curr, 1);
@@ -1421,7 +1421,7 @@ private struct RawRadixTree(Value = void)
                 if (matchedKeyPrefix.length == currPrefix.length)
                 {
                     if (willFail) { dln(""); }
-                    // most probable: key is an extension of prefix: prefix:"ab", key:"abcd"
+                    // NOTE: most probable: key is an extension of prefix: prefix:"ab", key:"abcd"
                     key = key[matchedKeyPrefix.length .. $]; // strip `currPrefix from beginning of `key`
                     assert(key.length);
                     superPrefixLength += matchedKeyPrefix.length;
@@ -1466,7 +1466,7 @@ private struct RawRadixTree(Value = void)
                 }
                 else
                 {
-                    // prefix and key share beginning: prefix:"ab11", key:"ab22"
+                    // NOTE: prefix and key share beginning: prefix:"ab11", key:"ab22"
                     const currSubIx = currPrefix[matchedKeyPrefix.length]; // need index first before we modify curr.prefix
                     popFrontNPrefix(curr, matchedKeyPrefix.length + 1);
                     return insertAtBranch(Node(construct!(DefaultBranch)(matchedKeyPrefix,
@@ -1482,7 +1482,7 @@ private struct RawRadixTree(Value = void)
                 if (matchedKeyPrefix.length < currPrefix.length)
                 {
                     if (willFail) { dln(""); }
-                    // prefix is an extension of key: prefix:"abcd", key:"ab"
+                    // NOTE: prefix is an extension of key: prefix:"abcd", key:"ab"
                     const currSubIx = currPrefix[matchedKeyPrefix.length - 1]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
                     return insertAtBranch(Node(construct!(DefaultBranch)(matchedKeyPrefix[0 .. $ - 1],

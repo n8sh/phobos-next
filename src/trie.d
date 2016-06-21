@@ -1286,12 +1286,10 @@ private struct RawRadixTree(Value = void)
                 else                // key doesn't fit in a `OneLeaf6`
                 {
                     import std.algorithm : min;
-                    dln("key:", key);
                     auto prefix = key[0 .. min(key.length - 1, // all but last Ix of key
                                                DefaultBranch.prefixCapacity)]; // as much as possible of key in branch prefix
                     auto next = insertAt(Node(construct!(DefaultBranch)(prefix)),
                                          key, superPrefixLength, insertionNode);
-                    dln("prefix:", prefix);
                     assert(insertionNode);
                     return next;
                 }
@@ -1891,7 +1889,10 @@ private struct RawRadixTree(Value = void)
 
         final switch (curr.typeIx) with (Node.Ix)
         {
-        case undefined: break;
+        case undefined:
+            assert(false);
+            dln("TODO");
+            break;
         case ix_OneLeaf6:
             auto curr_ = curr.as!(OneLeaf6);
             writeln(typeof(curr_).stringof, "#", curr_.key.length, ": ", curr_.to!string);
@@ -1914,7 +1915,7 @@ private struct RawRadixTree(Value = void)
             break;
         case ix_DenseLeaf1Ptr:
             auto curr_ = curr.as!(DenseLeaf1*);
-            write(typeof(*curr_).stringof, "#", curr_.count(), " @", curr_);
+            write(typeof(*curr_).stringof, "#", curr_.count, " @", curr_);
             write(": ");
 
             // keys
@@ -2173,11 +2174,8 @@ unittest
 
     foreach (const i; 2 .. 256)
     {
-        dln(i);
-        if (!set.insert(i))
-        {
-            set.print();
-        }
+        set.print();
+        assert(set.insert(i));
         assert(!set.insert(i));
         assert(set.heapNodeAllocationBalance == 2);
     }

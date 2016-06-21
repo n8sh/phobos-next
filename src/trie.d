@@ -707,6 +707,18 @@ private struct RawRadixTree(Value = void)
             dln("TODO");
         }
 
+        pragma(inline) auto ref keys() inout @trusted @nogc
+        {
+            return _keys[0 .. _length];
+        }
+        static if (hasValue)
+        {
+            pragma(inline) auto ref values() inout @trusted @nogc
+            {
+                return _values[0 .. _length];
+            }
+        }
+
     private:
         Length _length;
         Capacity _capacity;
@@ -1905,7 +1917,25 @@ private struct RawRadixTree(Value = void)
             break;
         case ix_SparseLeaf1Ptr:
             auto curr_ = curr.as!(SparseLeaf1*);
-            writeln(typeof(*curr_).stringof, "#", curr_.length, " @", curr_);
+            write(typeof(*curr_).stringof, "#", curr_.length, " @", curr_);
+            write(": ");
+            bool other = false;
+            foreach (const ix; curr_.keys)
+            {
+                string s;
+                if (other)
+                {
+                    s ~= keySeparator;
+                }
+                else
+                {
+                    other = true;
+                }
+                import std.string : format;
+                s ~= format("%.2X", ix);
+                write(s);
+            }
+            writeln();
             break;
         case ix_DenseLeaf1Ptr:
             auto curr_ = curr.as!(DenseLeaf1*);
@@ -1915,10 +1945,10 @@ private struct RawRadixTree(Value = void)
             // keys
             size_t ix = 0;
             bool other = false;
-            foreach (const value;  curr_._keyBits[])
+            foreach (const keyBit; curr_._keyBits[])
             {
                 string s;
-                if (value)
+                if (keyBit)
                 {
                     if (other)
                     {
@@ -2180,6 +2210,7 @@ unittest
 
     foreach (const i; 2 .. 256)
     {
+        dln(i);
         set.print();
         assert(set.insert(i));
         assert(!set.insert(i));

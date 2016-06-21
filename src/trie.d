@@ -665,7 +665,6 @@ private struct RawRadixTree(Value = void)
 
         bool linearInsert(Ix key) @trusted /* TODO @nogc */
         {
-            dln("contains:", contains(key));
             if (!contains(key))
             {
                 reserve(Capacity(length + 1));
@@ -2212,14 +2211,12 @@ unittest
 
     foreach (const i; 2 .. 256)
     {
-        if (i == 255) { set.willFail = true; }
-        // dln(i);
-        // set.print();
         assert(set.insert(i));
         assert(!set.insert(i));
         assert(set.heapNodeAllocationBalance == 2);
     }
 
+    if (true) { set.willFail = true; }
     assert(set.insert(256));
     assert(!set.insert(256));
 

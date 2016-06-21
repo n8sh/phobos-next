@@ -7,7 +7,6 @@
     TODO Assert that inserted keys and corresponding Node-types have length of at least 1
 
     TODO Make the GC aware of all Value scalars and arrays:
-
     static if (shouldAddGCRange!Value)
     {
     import core.memory : GC;
@@ -1189,7 +1188,8 @@ private struct RawRadixTree(Value = void)
         /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
         pragma(inline) bool containsAt(Leaf curr, Key!span key)
         {
-            if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); }
+            if (willFail) { dln("curr:", curr, " key:", key); }
+            if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); assert(false); }
             final switch (curr.typeIx) with (Leaf.Ix)
             {
             case undefined: return false;
@@ -1201,7 +1201,11 @@ private struct RawRadixTree(Value = void)
         /// ditto
         pragma(inline) bool containsAt(Node curr, Key!span key)
         {
-            if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); }
+            if (willFail) { dln("curr:", curr, " key:", key); }
+            if (key.length == 0)
+            {
+                dln("TODO key shouldn't be empty when curr:", curr, " key:", key);
+            }
             import std.algorithm : skipOver;
             final switch (curr.typeIx) with (Node.Ix)
             {
@@ -1214,20 +1218,14 @@ private struct RawRadixTree(Value = void)
             case ix_DenseLeaf1Ptr:  return key.length == 1 && curr.as!(DenseLeaf1*).contains(key[0]);
             case ix_SparseBranch4Ptr:
                 auto curr_ = curr.as!(SparseBranch4*);
-                if (key.length == 1)
-                {
-                    return containsAt(curr_.leaf, key);
-                }
                 return (key.skipOver(curr_.prefix) &&        // matching prefix
-                        (key.length >= 1 && containsAt(curr_.findSub(key[0]), key[1 .. $]))); // recurse
+                        ((key.length == 1 && containsAt(curr_.leaf, key)) ||
+                         (key.length >= 1 && containsAt(curr_.findSub(key[0]), key[1 .. $])))); // recurse
             case ix_DenseBranchMPtr:
                 auto curr_ = curr.as!(DenseBranchM*);
-                if (key.length == 1)
-                {
-                    return containsAt(curr_.leaf, key);
-                }
                 return (key.skipOver(curr_.prefix) &&        // matching prefix
-                        (key.length >= 1 && containsAt(curr_.subNodes[key[0]], key[1 .. $]))); // recurse
+                        ((key.length == 1 && containsAt(curr_.leaf, key)) ||
+                         (key.length >= 1 && containsAt(curr_.subNodes[key[0]], key[1 .. $])))); // recurse
             }
         }
 
@@ -2212,33 +2210,64 @@ unittest
 {
     auto set = radixTreeSet!(ulong);
 
+    // 0
+    assert(!set.contains(0));
+
     assert(set.insert(0));
+    assert(set.contains(0));
+
     assert(!set.insert(0));
+    assert(set.contains(0));
+
     assert(set.heapNodeAllocationBalance == 2);
 
+    // 1
+    assert(!set.contains(1));
+
     assert(set.insert(1));
+    assert(set.contains(1));
+
     assert(!set.insert(1));
+    assert(set.contains(1));
+
     assert(set.heapNodeAllocationBalance == 2);
 
     foreach (const i; 2 .. 256)
     {
+        assert(!set.contains(i));
+
         assert(set.insert(i));
+        assert(set.contains(i));
+
         assert(!set.insert(i));
+        assert(set.contains(i));
+
         assert(set.heapNodeAllocationBalance == 2);
     }
 
     foreach (const i; 256 .. 256 + 6)
     {
+        assert(!set.contains(i));
+
         assert(set.insert(i));
+        assert(set.contains(i));
+
         assert(!set.insert(i));
+        assert(set.contains(i));
+
         assert(set.heapNodeAllocationBalance == 3);
     }
 
     foreach (const i; 256 + 6 + 1 .. 256 + 256)
     {
+        assert(!set.contains(i));
+
         assert(set.insert(i));
-        assert(set.heapNodeAllocationBalance == 4);
+        assert(set.contains(i));
+
         assert(!set.insert(i));
+        assert(set.contains(i));
+
         assert(set.heapNodeAllocationBalance == 4);
     }
     set.print();

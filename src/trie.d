@@ -1905,7 +1905,7 @@ private struct RawRadixTree(Value = void)
             break;
         case ix_SparseLeaf1Ptr:
             auto curr_ = curr.as!(SparseLeaf1*);
-            write(typeof(*curr_).stringof, "#", curr_.length, " @", curr_);
+            writeln(typeof(*curr_).stringof, "#", curr_.length, " @", curr_);
             break;
         case ix_DenseLeaf1Ptr:
             auto curr_ = curr.as!(DenseLeaf1*);
@@ -1944,10 +1944,7 @@ private struct RawRadixTree(Value = void)
             writeln(":");
             if (curr_.leaf)
             {
-                dln("leaf:", curr_.leaf);
-                auto leafNode = toNode(curr_.leaf);
-                dln("leafNode:", leafNode);
-                printAt(leafNode, depth);
+                printAt(toNode(curr_.leaf), depth);
             }
             foreach (const i, const subNode; curr_.subNodes)
             {
@@ -1961,11 +1958,7 @@ private struct RawRadixTree(Value = void)
             writeln(":");
             if (curr_.leaf)
             {
-                dln("leaf:", curr_.leaf);
-                auto leafNode = toNode(curr_.leaf);
-                dln("leafNode:", leafNode);
-                dln(leafNode);
-                printAt(leafNode, depth);
+                printAt(toNode(curr_.leaf), depth);
             }
             foreach (const i, const subNode; curr_.subNodes)
             {

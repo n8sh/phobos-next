@@ -3,6 +3,7 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO Expand SparseBranch4 to DenseBranchM when full
     TODO Assert that inserted keys and corresponding Node-types have length of at least 1
 
     TODO Make the GC aware of all Value scalars and arrays:

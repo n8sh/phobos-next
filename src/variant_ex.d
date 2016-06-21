@@ -104,6 +104,9 @@ struct WordVariant(Types...)
     /// ditto
     this(typeof(null) value) { _raw = S.init; }
 
+    /// Copy Construction from `rhs`.
+    this(typeof(this) rhs) { _raw = rhs._raw; }
+
     /// Assignment from `that`.
     auto ref opAssign(T)(T that) if (canStore!T) { initialize(that); return this; }
     /// ditto

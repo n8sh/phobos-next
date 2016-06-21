@@ -3,6 +3,8 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO Assert that inserted keys and corresponding Node-types have length of at least 1
+
     TODO Make the GC aware of all Value scalars and arrays:
     static if (shouldAddGCRange!Value)
     {
@@ -2216,9 +2218,8 @@ unittest
         assert(set.heapNodeAllocationBalance == 2);
     }
 
-    assert(set.insert(256));
     if (true) { set.willFail = true; }
-    set.print();
+    assert(set.insert(256));
     assert(!set.insert(256));
 
     assert(set.heapNodeAllocationBalance == 2);

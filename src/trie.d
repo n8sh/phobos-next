@@ -2265,7 +2265,6 @@ unittest
 
         assert(set.heapNodeAllocationBalance == 4);
     }
-    set.print();
 }
 
 @safe pure nothrow /* TODO @nogc */

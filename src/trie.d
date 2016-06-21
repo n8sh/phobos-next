@@ -2332,7 +2332,7 @@ unittest
             assert(!set.contains(i));
 
             dln("y:", i);
-            set.willFail = is(T == uint);
+            set.willFail = is(T == uint) && i == 1;
             if (set.willFail) { set.print(); }
             assert(set.insert(i));
 

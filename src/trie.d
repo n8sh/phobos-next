@@ -1503,11 +1503,17 @@ private struct RawRadixTree(Value = void)
                 return insertAt(curr_, key, superPrefixLength, insertionNode);
             case ix_SparseLeaf1Ptr:
                 auto curr_ = curr.as!(SparseLeaf1*);
-                if (curr_.linearInsert(key)) { insertionNode = Node(curr_); }
+                if (curr_.linearInsert(key))
+                {
+                    insertionNode = Node(curr_);
+                }
                 break;
             case ix_DenseLeaf1Ptr:
                 auto curr_ = curr.as!(DenseLeaf1*);
-                if (curr_.insert(key)) { insertionNode = Node(curr_); }
+                if (curr_.insert(key))
+                {
+                    insertionNode = Node(curr_);
+                }
                 break;
             default:
                 assert(false, "Unsupported Leaf type " ~ curr.typeIx.to!string);

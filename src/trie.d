@@ -2309,13 +2309,12 @@ unittest
     assert(root.full);
 }
 
-// TODO @safe pure nothrow /* TODO @nogc */
+@safe pure nothrow /* TODO @nogc */
 unittest
 {
     import std.meta : AliasSeq;
     foreach (T; AliasSeq!(ushort, uint))
     {
-        dln("T:", T.stringof);
         auto set = radixTreeSet!(T);
         alias Set = typeof(set);
 

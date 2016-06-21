@@ -2418,29 +2418,29 @@ unittest
     auto set = radixTreeSet!(string);
     assert(set.empty);
     size_t count = 0;
-    foreach (const line; File(path).byLine())
+    foreach (const word; File(path).byLine())
     {
         import std.algorithm.searching : endsWith;
         import std.range : empty;
-        if (!line.empty &&
-            !line.endsWith(`'s`)) // skip genitive forms
+        if (!word.empty &&
+            !word.endsWith(`'s`)) // skip genitive forms
         {
-            if (line.length <= 15)
+            if (word.length <= 15)
             {
-                dln(line);
-                if (line == "Abby")
+                dln("word:", word);
+                if (word == "Abyssinian")
                 {
                     set.willFail = true;
                     set.print();
                 }
 
-                assert(!set.contains(line));
+                assert(!set.contains(word));
 
-                assert(set.insert(line));
-                assert(set.contains(line));
+                assert(set.insert(word));
+                assert(set.contains(word));
 
-                assert(!set.insert(line));
-                assert(set.contains(line));
+                assert(!set.insert(word));
+                assert(set.contains(word));
 
                 ++count;
             }

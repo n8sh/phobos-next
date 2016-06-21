@@ -1396,14 +1396,43 @@ private struct RawRadixTree(Value = void)
                 if (currPrefix.length == 0) // no current prefix
                 {
                     // NOTE: prefix:"", key:"cd"
-                    if (willFail) { dln(""); }
-                    const subIx = key[0];
-                    return setSub(curr, subIx,
-                                  insertAt(getSub(curr, subIx), // recurse
-                                           key[1 .. $],
-                                           superPrefixLength + 1,
-                                           insertionNode),
-                                  superPrefixLength);
+                    if (key.length == 1)
+                    {
+                        auto leaf = getLeaf(curr);
+                        if (!leaf)
+                        {
+                            if (willFail) { dln(""); }
+                            static if (hasValue)
+                            {
+                                if (willFail) { dln(""); }
+                                // auto leaf_ = construct!(DefaultLeaf)(tuple(key[0], Value.init)); // TODO fix
+                                auto leaf_ = construct!(DefaultLeaf)(key[0]);
+                            }
+                            else
+                            {
+                                if (willFail) { dln(""); }
+                                auto leaf_ = construct!(DefaultLeaf)(key[0]);
+                            }
+                            setLeaf(curr, Leaf(leaf_));
+                            insertionNode = leaf_;
+                        }
+                        else
+                        {
+                            if (willFail) { dln(""); }
+                            setLeaf(curr, insertAtLeaf(leaf, key[0], superPrefixLength, insertionNode));
+                        }
+                        return curr;
+                    }
+                    else
+                    {
+                        const subIx = key[0];
+                        return setSub(curr, subIx,
+                                      insertAt(getSub(curr, subIx), // recurse
+                                               key[1 .. $],
+                                               superPrefixLength + 1,
+                                               insertionNode),
+                                      superPrefixLength);
+                    }
                 }
                 else
                 {

@@ -1316,7 +1316,8 @@ private struct RawRadixTree(Value = void)
         /** Insert `key` into sub-tree under root `curr`. */
         pragma(inline) Node insertAt(Node curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
         {
-            if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); } assert(key.length);
+            if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); }
+            assert(key.length);
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
             if (!curr)          // if no existing `Node` to insert at
@@ -2324,6 +2325,8 @@ unittest
         {
             dln("i:", i);
             assert(!set.contains(i));
+            dln("y:", i);
+            set.willFail = is(T == uint);
             assert(set.insert(i));
             assert(!set.insert(i));
             assert(set.contains(i));

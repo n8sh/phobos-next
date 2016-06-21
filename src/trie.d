@@ -1320,7 +1320,7 @@ private struct RawRadixTree(Value = void)
                     import std.algorithm : min;
                     auto prefix = key[0 .. min(key.length, DefaultBranch.prefixCapacity)];
                     auto next = insertAt(Node(construct!(DefaultBranch)(prefix, false)), // as much as possible of key in branch prefix
-                                         key, superPrefixLength + prefix.length, insertionNode);
+                                         key, superPrefixLength, insertionNode);
                     assert(insertionNode);
                     return next;
                 }

@@ -2452,8 +2452,8 @@ unittest
             if (word.length <= 15)
             {
                 import std.string : representation;
-                dln("word:", word, " of length:", word.length, " of representation:", word.representation);
-                if (word == "sdfsdfd")
+                dln(`word:"`, word, `" of length:`, word.length, ` of representation:`, word.representation);
+                if (word == `Assamese`)
                 {
                     set.willFail = true;
                     set.print();

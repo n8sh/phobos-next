@@ -1153,17 +1153,6 @@ struct RawRadixTree(Value = void)
         return sub;
     }
 
-    /** Returns: `true` if `curr` is a branch node. */
-    pragma(inline) bool isBranch(Node curr) const @safe pure nothrow
-    {
-        switch (curr.typeIx)
-        {
-        case Node.Ix.ix_SparseBranchPtr:
-        case Node.Ix.ix_DenseBranchPtr: return true;
-        default: return false;
-        }
-    }
-
     /** Get prefix of node `curr`. */
     pragma(inline) auto getPrefix(inout Node curr) @safe pure nothrow
     {

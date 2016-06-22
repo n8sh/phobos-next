@@ -2524,6 +2524,9 @@ unittest
     size_t count = 0;
     enum debugPrint = false;
 
+    import std.datetime : StopWatch, AutoStart, Duration;
+    auto sw = StopWatch(AutoStart.yes);
+
     import std.stdio : File;
     foreach (const word; File(path).byLine())
     {
@@ -2557,7 +2560,9 @@ unittest
             }
         }
     }
-    version(print) dln("Added ", count, " words from ", path);
+    sw.stop;
+    import std.conv : to;
+    version(print) dln("Added ", count, " words from ", path, " in ", sw.peek().to!Duration);
     version(print) set.showStatistics();
     // version(print) set.print();
 }

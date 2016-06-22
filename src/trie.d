@@ -2531,7 +2531,7 @@ unittest
                 {
                     import std.string : representation;
                     dln(`word:"`, word, `" of length:`, word.length, ` of representation:`, word.representation);
-                    if (word == `Assamese`)
+                    if (word == `.................`)
                     {
                         set.willFail = true;
                         set.print();

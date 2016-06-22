@@ -673,14 +673,20 @@ struct RawRadixTree(Value = void)
 
         pure nothrow /* TODO @nogc */:
 
-        this(Ix[] es...) @nogc @trusted
+        this(Ix[] es...) // @nogc
+        @trusted
         {
             assert(es.length <= radix);
 
             if (es.length != 0)
             {
                 _length = es.length;
-                _capacity = nextPow2(_length - 1);
+                _capacity = _length == 1 ? 1 : nextPow2(_length - 1);
+                if (_capacity < _length)
+                {
+                    dln(_length);
+                    dln(_capacity);
+                }
                 assert(_capacity >= _length);
 
                 // allocate
@@ -1545,7 +1551,7 @@ struct RawRadixTree(Value = void)
             }
             else
             {
-                static if (hasValue)
+                static if (hasValue) // TODO Add check if key + plus fit in 7 bytes (Value.sizeof <= 6) and use special node for that
                 {
                     auto leaf_ = construct!(SparseLeaf1*)(key); // needed for values
                 }

@@ -2630,6 +2630,9 @@ auto checkString(Keys...)()
         auto set = radixTreeSet!(Key);
         assert(set.empty);
 
+        testContainsAndInsert(set, "zfoifvild");
+        testContainsAndInsert(set, "zfoif");
+
         foreach (const key; randomUniqueStrings)
         {
             testContainsAndInsert(set, key);

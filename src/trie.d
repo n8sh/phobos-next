@@ -1509,7 +1509,7 @@ struct RawRadixTree(Value = void)
                     popFrontNPrefix(curr, matchedKeyPrefix.length + 1);
                     return insertAtBranch(Node(construct!(DefaultBranch)(matchedKeyPrefix,
                                                                          currSubIx, curr)),
-                                          key, // sub key has length >= 1
+                                          key,
                                           superPrefixLength,
                                           insertionNode);
                 }
@@ -1519,14 +1519,13 @@ struct RawRadixTree(Value = void)
                 assert(matchedKeyPrefix.length == key.length);
                 if (matchedKeyPrefix.length < currPrefix.length)
                 {
-                    if (willFail) { dln(""); }
                     // NOTE: prefix is an extension of key: prefix:"abcd", key:"ab"
                     const currSubIx = currPrefix[matchedKeyPrefix.length - 1]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
                     return insertAtBranch(Node(construct!(DefaultBranch)(matchedKeyPrefix[0 .. $ - 1],
                                                                          currSubIx, curr)),
-                                          key[matchedKeyPrefix.length - 1 .. $],
-                                          superPrefixLength + matchedKeyPrefix.length - 1,
+                                          key,
+                                          superPrefixLength,
                                           insertionNode);
                 }
                 else // if (matchedKeyPrefix.length == currPrefix.length)
@@ -2599,12 +2598,12 @@ auto checkString(Keys...)()
     void testContainsAndInsert(Set, Key)(ref Set set, Key key)
         if (isSomeString!Key)
     {
-        dln(`key:`, key);
+        // dln(`key:`, key);
         import std.conv : to;
         immutable failMessage = `Failed for key: "` ~ key.to!string ~ `"`;
 
         import std.string : representation;
-        set.willFail = (key == `zfoif`);
+        set.willFail = (key == `......`);
 
         if (set.willFail) dln(`key:"`, key, `" (`, key.representation, `)`);
 
@@ -2629,10 +2628,6 @@ auto checkString(Keys...)()
     {
         auto set = radixTreeSet!(Key);
         assert(set.empty);
-
-        testContainsAndInsert(set, "zfoifvild");
-        testContainsAndInsert(set, "zfoif");
-
         foreach (const key; randomUniqueStrings)
         {
             testContainsAndInsert(set, key);
@@ -2641,7 +2636,7 @@ auto checkString(Keys...)()
 }
 
 ///
-@safe pure /* TODO @nogc */
+// @safe pure /* TODO @nogc */
 unittest
 {
     checkString!(string);

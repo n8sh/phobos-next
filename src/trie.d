@@ -2145,7 +2145,7 @@ static private Key!span remapKey(TypedKey)(in TypedKey typedKey)
     }
 }
 
-/// Radix-Tree with key-type `Key` and value-type `Value`.
+/// Radix-Tree with key of type `Key` and value of type `Value` (if non-`void`).
 struct RadixTree(Key, Value)
     if (allSatisfy!(isTrieableKeyType, Key))
 {

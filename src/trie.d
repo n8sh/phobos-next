@@ -2447,14 +2447,14 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
     import std.stdio : writeln;
     auto stats = tree.usageHistograms;
 
+    writeln("Population By Node Type: ", stats.popByNodeType);
+    writeln("Population By Leaf Type: ", stats.popByLeafType);
+
     writeln("SparseBranch4 Population Histogram: ", stats.popHist_SparseBranch4);
     writeln("DenseBranchM Population Histogram: ", stats.popHist_DenseBranchM);
 
     writeln("SparseLeaf1 Population Histogram: ", stats.popHist_SparseLeaf1);
     writeln("DenseLeaf1 Population Histogram: ", stats.popHist_DenseLeaf1);
-
-    writeln("Population By Node Type: ", stats.popByNodeType);
-    writeln("Population By Leaf Type: ", stats.popByLeafType);
 
     size_t totalBytesUsed = 0;
 

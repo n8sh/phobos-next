@@ -1615,7 +1615,7 @@ struct RawRadixTree(Value = void)
                     case 1: next = construct!(TriLeaf2)(curr.key, key); break;
                     case 2: next = construct!(TwoLeaf3)(curr.key, key); break;
                     default:
-                        next = construct!(DefaultBranch)(matchedKeyPrefix);
+                        next = construct!(DefaultBranch)(matchedKeyPrefix, 2);
                         Node insertionNodeCurr;
                         next = insertAtBranch(next, curr.key, superPrefixLength, insertionNodeCurr);
                         next = insertAtBranch(next, key, superPrefixLength, insertionNode);
@@ -1694,7 +1694,7 @@ struct RawRadixTree(Value = void)
             {
                 return toNode(insertAt(curr, key[0], superPrefixLength, insertionNode)); // use `Ix key`-overload
             }
-            return insertAt(Node(construct!(DefaultBranch)(Leaf(curr))),
+            return insertAt(Node(construct!(DefaultBranch)(Leaf(curr), 1)),
                             key, superPrefixLength, insertionNode); // NOTE stay at same (depth)
         }
 
@@ -1728,7 +1728,7 @@ struct RawRadixTree(Value = void)
             }
 
             // default case
-            Node next = construct!(DefaultBranch)(prefix);
+            Node next = construct!(DefaultBranch)(prefix, 1);
 
             Node insertionNodeCurr;      // dummy
             next = insertAt(next, curr.key, superPrefixLength, insertionNodeCurr);

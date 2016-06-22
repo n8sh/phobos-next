@@ -258,7 +258,9 @@ struct IxsN(size_t capacity,
 
     bool contains(const Ix ix) const @nogc
     {
-        Ix[1] key = [ix]; // TODO prevent this ugly hack, by adding and using a canFind-overload
+        // TODO prevent this ugly hack, by adding and using a canFind-overload
+        // TODO isn't there any Phobos algorithm that supports searching for T in T[]?
+        Ix[1] key = [ix];
         return contains(key[]);
     }
 

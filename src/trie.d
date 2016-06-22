@@ -279,10 +279,11 @@ struct IxsN(uint capacity,
     alias chunks this;
 
     /** Variant of `opIndex` with compile-time range checking. */
-    auto ref at(uint ix)() inout
+    auto ref at(uint ix)() inout @trusted
         if (ix < capacity)
     {
-        return _ixs[ix];
+        assert(ix < _length);
+        return _ixs.ptr[ix];
     }
 
     /** Get length. */

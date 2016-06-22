@@ -7,8 +7,6 @@
 
     TODO Add sortedness to `IxsN` and make `IxsN.contains()` use `binarySearch()`. Make use of `sortn`.
 
-    TODO Assert that inserted keys and corresponding Node-types have length of at least 1
-
     TODO Make the GC aware of all Value scalars and arrays:
     static if (shouldAddGCRange!Value)
     {
@@ -17,8 +15,6 @@
     }
 
     TODO Use variadic list of Tuple!(Ix, Node) in constructors for SparseBranch and DenseBranch
-
-    TODO Use IxsN.at(ix) and use inplace of IxsN.opIndex
 
     TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
 

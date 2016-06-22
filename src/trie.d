@@ -1592,11 +1592,8 @@ struct RawRadixTree(Value = void)
                 }
             }
 
-            if (willFail) { dln("WILL FAIL 1: key:", key, " curr:", curr); }
             auto next = expand(curr);
-            if (willFail) { dln("WILL FAIL 2: key:", key, " next:", next); }
-
-            return insertAt(Node(next), key, superPrefixLength, insertionNode);
+            return insertAtBranch(Node(next), key, superPrefixLength, insertionNode);
         }
 
         Node insertAt(TwoLeaf3 curr, Key!span key, size_t superPrefixLength, out Node insertionNode)

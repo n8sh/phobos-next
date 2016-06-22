@@ -3,6 +3,8 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO Make SixLeaf1 a HepLeaf1 by using 7 bytes instead of 6
+
     TODO Expand SparseBranch4 to DenseBranchM when full (length >= 48)
 
     TODO Assert that inserted keys and corresponding Node-types have length of at least 1

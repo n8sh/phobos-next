@@ -3,11 +3,9 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
-    TODO Add expand(SparseBranch)
+    TODO Add Node expand(SparseBranch*, newSubCapacity) that expands to either SparseBranch* or DenseBranch*
 
     TODO Add sortedness to `IxsN` and make `IxsN.contains()` use `binarySearch()`. Make use of `sortn`.
-
-    TODO Expand SparseBranch to DenseBranch when full (length >= 48)
 
     TODO Assert that inserted keys and corresponding Node-types have length of at least 1
 
@@ -742,14 +740,14 @@ struct RawRadixTree(Value = void)
         pragma(inline) Length length() const @safe @nogc { return _length; }
         pragma(inline) Capacity capacity() const @safe @nogc { return _capacity; }
 
-        /** Reserve room for `newCapacity` number of elements. */
-        void reserve(Capacity newCapacity) @trusted // TODO @nogc
+        /** Reserve room for `newSubCapacity` number of elements. */
+        void reserve(Capacity newSubCapacity) @trusted // TODO @nogc
         {
             assert(!full);
-            if (_capacity < newCapacity)
+            if (_capacity < newSubCapacity)
             {
-                _capacity = nextPow2(newCapacity - 1); // need minus one here
-                assert(_capacity >= newCapacity);
+                _capacity = nextPow2(newSubCapacity - 1); // need minus one here
+                assert(_capacity >= newSubCapacity);
                 _keys = cast(typeof(_keys))realloc(_keys, _capacity*Ix.sizeof);
                 static if (hasValue)
                 {
@@ -854,13 +852,22 @@ struct RawRadixTree(Value = void)
         static if (hasValue) { alias E = Tuple!(Ix, Node, Value); }
         else                 { alias E = Tuple!(Ix, Node); }
 
-        this(const Ix[] prefix, Leaf leaf = Leaf.init)
+        this(size_t newSubCapacity) // TODO use newSubCapacity
+        {
+        }
+
+        this(const Ix[] prefix, Leaf leaf = Leaf.init, size_t newSubCapacity = 0) // TODO use newSubCapacity
         {
             this.prefix = prefix;
             this.leaf = leaf;
         }
 
-        this(Leaf leaf)
+        this(const Ix[] prefix, size_t newSubCapacity) // TODO use newSubCapacity
+        {
+            this.prefix = prefix;
+        }
+
+        this(Leaf leaf, size_t newSubCapacity = 0) // TODO use newSubCapacity
         {
             this.leaf = leaf;
         }
@@ -1752,7 +1759,7 @@ struct RawRadixTree(Value = void)
             Node next;
             if (curr.keys.length == 1) // only one key
             {
-                next = construct!(DefaultBranch)(Ix[].init); // so no prefix
+                next = construct!(DefaultBranch)(1);
                 Node insertionNodeCurr;
                 next = insertAtBranch(next,
                                       curr.keys.at!0,
@@ -1762,7 +1769,7 @@ struct RawRadixTree(Value = void)
             }
             else
             {
-                next = construct!(DefaultBranch)(curr.prefix);
+                next = construct!(DefaultBranch)(curr.prefix, curr.keys.length);
                 // TODO functionize to insertAtBranch(curr.keys)
                 foreach (key; curr.keys)
                 {
@@ -1784,7 +1791,7 @@ struct RawRadixTree(Value = void)
             Node next;
             if (curr.keys.length == 1) // only one key
             {
-                next = construct!(DefaultBranch)(Ix[].init); // so no prefix
+                next = construct!(DefaultBranch)(curr.keys.length);
                 Node insertionNodeCurr;
                 next = insertAtBranch(next,
                                       curr.keys.at!0,
@@ -1794,7 +1801,7 @@ struct RawRadixTree(Value = void)
             }
             else
             {
-                next = construct!(DefaultBranch)(curr.prefix);
+                next = construct!(DefaultBranch)(curr.prefix, curr.keys.length);
                 // TODO functionize to insertAtBranch(curr.keys)
                 foreach (key; curr.keys)
                 {

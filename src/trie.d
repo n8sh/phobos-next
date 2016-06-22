@@ -1590,11 +1590,14 @@ struct RawRadixTree(Value = void)
                     {
                         insertionNode = next;
                     }
+                    if (willFail) { dln("WILL FAIL: key:", key); }
                     return next;
                 }
             }
-            return insertAt(split(curr, matchedKeyPrefix, key, superPrefixLength),
-                            key, superPrefixLength, insertionNode);
+            if (willFail) { dln("WILL FAIL 1: key:", key); }
+            auto next = split(curr, matchedKeyPrefix, key, superPrefixLength);
+            if (willFail) { dln("WILL FAIL 2: key:", key); }
+            return insertAt(next, key, superPrefixLength, insertionNode);
         }
 
         Node insertAt(TwoLeaf3 curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
@@ -1664,6 +1667,8 @@ struct RawRadixTree(Value = void)
         /** Split `curr` using `prefix`. */
         Node split(OneLeaf7 curr, Key!span prefix, Key!span key, size_t superPrefixLength) // TODO key here is a bit malplaced
         {
+            if (willFail) { dln("WILL FAIL 3: curr:", curr, " key:", key); }
+
             if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); } assert(key.length);
             assert(hasVariableKeyLength || curr.key.length == key.length);
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);

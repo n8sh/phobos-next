@@ -5,6 +5,8 @@
 
     TODO Make SixLeaf1 a HepLeaf1 by using 7 bytes instead of 6
 
+    TODO Add sortedness to `IxsN` and make contains use binarySearch
+
     TODO Expand SparseBranch4 to DenseBranchM when full (length >= 48)
 
     TODO Assert that inserted keys and corresponding Node-types have length of at least 1

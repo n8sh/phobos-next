@@ -1330,7 +1330,7 @@ struct RawRadixTree(Value = void)
         {
             switch (key.length)
             {
-            case 0: return insertionNode = Node(construct!(OneLeaf7)());
+            case 0: assert(false, "key must not be empty"); // return insertionNode = Node(construct!(OneLeaf7)());
             case 1: return insertionNode = Node(construct!(HeptLeaf1)(key[0]));
             case 2: return insertionNode = Node(construct!(TriLeaf2)(key));
             case 3: return insertionNode = Node(construct!(TwoLeaf3)(key));
@@ -1562,6 +1562,7 @@ struct RawRadixTree(Value = void)
 
         Node insertAt(OneLeaf7 curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
         {
+            assert(curr.key.length);
             if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
 
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);

@@ -2145,19 +2145,19 @@ static private Key!span remapKey(TypedKey)(in TypedKey typedKey)
     }
 }
 
-/// Radix-Tree with key-type `TypedKey` and value-type `Value`.
-struct RadixTree(TypedKey, Value)
-    if (allSatisfy!(isTrieableKeyType, TypedKey))
+/// Radix-Tree with key-type `Key` and value-type `Value`.
+struct RadixTree(Key, Value)
+    if (allSatisfy!(isTrieableKeyType, Key))
 {
     this(bool unusedDummy)      // TODO how do we get rid of the need for `unusedDummy`?
     {
-        this.fixedKeyLength = isFixedTrieableKeyType!TypedKey ? TypedKey.sizeof : fixedKeyLengthUndefined;
+        this.fixedKeyLength = isFixedTrieableKeyType!Key ? Key.sizeof : fixedKeyLengthUndefined;
     }
 
     /** Insert `key`.
         Returns: `true` if `key` wasn't previously inserted, `false` otherwise.
      */
-    bool insert(in TypedKey key)
+    bool insert(in Key key)
         @safe pure nothrow /* TODO @nogc */
     {
         _tree.Node insertionNode; // indicates that key was added
@@ -2171,7 +2171,7 @@ struct RadixTree(TypedKey, Value)
         const nothrow:
 
         /** Returns: `true` if `key` is stored, `false` otherwise. */
-        bool contains(in TypedKey typedKey)
+        bool contains(in Key typedKey)
         {
             return _tree.contains(typedKey.remapKey);
         }
@@ -2182,7 +2182,7 @@ struct RadixTree(TypedKey, Value)
         /** Insert `key`.
             Returns: `false` if key was previously already inserted, `true` otherwise.
         */
-        bool insert(in TypedKey key, Value value)
+        bool insert(in Key key, Value value)
         {
             _tree.Node insertionNode; // indicates that key was added
             _tree.insert(key.remapKey, insertionNode);
@@ -2195,14 +2195,14 @@ struct RadixTree(TypedKey, Value)
         }
 
         /** Returns: pointer to value if `key` is contained in set, null otherwise. */
-        Value* contains(in TypedKey key) const
+        Value* contains(in Key key) const
         {
             return null;
         }
     }
 
-    /** Supports $(B `TypedKey` in `this`) syntax. */
-    auto opBinaryRight(string op)(in TypedKey key) const if (op == "in") { return contains(key); }
+    /** Supports $(B `Key` in `this`) syntax. */
+    auto opBinaryRight(string op)(in Key key) const if (op == "in") { return contains(key); }
 
     void print() @safe const
     {

@@ -84,7 +84,7 @@ import modulo : Mod, mod;
 // version = enterSingleInfiniteMemoryLeakTest;
 // version = debugAllocations;
 version = benchmark;
-// version = print;
+version = print;
 
 import dbg;
 
@@ -619,9 +619,9 @@ struct RawRadixTree(Value = void)
     alias DenseLeaf1_PopHist = size_t[radix];
 
     /** 4-Branch population histogram.
-        Index maps to population with value range (1 .. 4).
+        Index maps to population with value range (0 .. 4).
     */
-    alias SparseBranch4_PopHist = size_t[4];
+    alias SparseBranch4_PopHist = size_t[SparseBranch4.subCapacity + 1];
 
     /** radix-Branch population histogram.
         Index maps to population with value range (1 .. `radix`).
@@ -948,7 +948,7 @@ struct RawRadixTree(Value = void)
                 sub.calculate!(Value)(stats);
             }
             assert(count <= radix);
-            ++stats.popHist_SparseBranch4[count - 1]; // TODO type-safe indexing
+            ++stats.popHist_SparseBranch4[count]; // TODO type-safe indexing
         }
 
         private:
@@ -2476,7 +2476,7 @@ unittest
             }
         }
     }
-    // version(print) dln("Added ", count, " words from ", path);
+    version(print) dln("Added ", count, " words from ", path);
     version(print) set.showStatistics();
     // version(print) set.print();
 }

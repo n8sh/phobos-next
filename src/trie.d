@@ -2593,32 +2593,30 @@ private static auto randomUniqueStrings(size_t count = 1_000_000,
 auto checkString(Keys...)()
     if (Keys.length >= 1)
 {
-    enum show = false;
     void testContainsAndInsert(Set, Key)(ref Set set, Key key)
         if (isSomeString!Key)
     {
-        static if (show) { dln(`key:`, key); }
+        // dln(`key:`, key);
         import std.conv : to;
         immutable failMessage = `Failed for key: "` ~ key.to!string ~ `"`;
 
         import std.string : representation;
-        set.willFail = (key == `......`);
+        // set.willFail = (key == `......`);
+        // if (set.willFail) dln(`key:"`, key, `" (`, key.representation, `)`);
 
-        static if (show) { if (set.willFail) dln(`key:"`, key, `" (`, key.representation, `)`); }
-
-        static if (show) { if (set.willFail) dln(`assert(!set.contains(key)) ################################ : `); }
+        // if (set.willFail) dln(`assert(!set.contains(key)) ################################ : `);
         assert(!set.contains(key), failMessage);
 
-        static if (show) { if (set.willFail) dln(`assert(set.insert(key)) ################################ : `); }
+        // if (set.willFail) dln(`assert(set.insert(key)) ################################ : `);
         assert(set.insert(key), failMessage);
 
-        static if (show) { if (set.willFail) dln(`assert(set.contains(key)) ################################ :`); }
+        // if (set.willFail) dln(`assert(set.contains(key)) ################################ :`);
         assert(set.contains(key), failMessage);
 
-        static if (show) { if (set.willFail) dln(`assert(!set.insert(key)) ################################ :`); }
+        // if (set.willFail) dln(`assert(!set.insert(key)) ################################ :`);
         assert(!set.insert(key), failMessage);
 
-        static if (show) { if (set.willFail) dln(`assert(set.contains(key)) ################################ :`);}
+        // if (set.willFail) dln(`assert(set.contains(key)) ################################ :`);
         assert(set.contains(key), failMessage);
     }
 

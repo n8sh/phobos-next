@@ -2228,29 +2228,20 @@ unittest
 {
     auto set = radixTreeSet!(ulong);
 
-    // 0
-    assert(!set.contains(0));
+    foreach (const i; 0 .. 6)
+    {
+        assert(!set.contains(i));
 
-    assert(set.insert(0));
-    assert(set.contains(0));
+        assert(set.insert(i));
+        assert(set.contains(i));
 
-    assert(!set.insert(0));
-    assert(set.contains(0));
+        assert(!set.insert(i));
+        assert(set.contains(i));
 
-    assert(set.heapNodeAllocationBalance == 2);
+        assert(set.heapNodeAllocationBalance == 1);
+    }
 
-    // 1
-    assert(!set.contains(1));
-
-    assert(set.insert(1));
-    assert(set.contains(1));
-
-    assert(!set.insert(1));
-    assert(set.contains(1));
-
-    assert(set.heapNodeAllocationBalance == 2);
-
-    foreach (const i; 2 .. 256)
+    foreach (const i; 6 .. 256)
     {
         assert(!set.contains(i));
 
@@ -2276,7 +2267,7 @@ unittest
         assert(set.heapNodeAllocationBalance == 3);
     }
 
-    foreach (const i; 256 + 6 + 1 .. 256 + 256)
+    foreach (const i; 256 + 6 .. 256 + 256)
     {
         assert(!set.contains(i));
 
@@ -2314,11 +2305,11 @@ unittest
         assert(!set.insert(i));
         assert(set.contains(i));
         assert(set.heapNodeAllocationBalance == 1);
-        const rootRef = set._root.peek!(Set.DenseLeaf1*);
+        const rootRef = set._root.peek!(Set.SparseLeaf1*);
         assert(rootRef);
     }
 
-    const rootRef = set._root.peek!(Set.DenseLeaf1*);
+    const rootRef = set._root.peek!(Set.SparseLeaf1*);
     assert(rootRef);
 
     const root = *rootRef;

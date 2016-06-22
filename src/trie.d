@@ -2453,6 +2453,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
     writeln("Population By Node Type: ", stats.popByNodeType);
 
     size_t totalBytesUsed = 0;
+
     foreach (RT.Node.Ix ix, pop; stats.popByNodeType) // TODO use stats.byPair when added to typecons_ex.d
     {
         size_t bytesUsed = 0;
@@ -2476,6 +2477,26 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
             writeln(pop, " number of ", ix, " uses ", bytesUsed/1e6, " megabytes");
         }
     }
+
+    foreach (RT.Leaf.Ix ix, pop; stats.popByLeafType) // TODO use stats.byPair when added to typecons_ex.d
+    {
+        size_t bytesUsed = 0;
+        with (RT.Leaf.Ix)
+        {
+            final switch (ix)
+            {
+            case undefined: break;
+            case ix_HeptLeaf1: bytesUsed = pop*RT.HeptLeaf1.sizeof; break;
+            case ix_SparseLeaf1Ptr: bytesUsed = pop*RT.SparseLeaf1.sizeof; totalBytesUsed += bytesUsed; break;
+            case ix_DenseLeaf1Ptr: bytesUsed = pop*RT.DenseLeaf1.sizeof; totalBytesUsed += bytesUsed; break;
+            }
+        }
+        if (bytesUsed)
+        {
+            writeln(pop, " number of ", ix, " uses ", bytesUsed/1e6, " megabytes");
+        }
+    }
+
     writeln("Tree uses ", totalBytesUsed/1e6, " megabytes");
 }
 

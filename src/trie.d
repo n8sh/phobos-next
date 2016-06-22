@@ -480,7 +480,8 @@ struct RawRadixTree(Value = void)
                 enum capacity = 2; // maximum number of keys stored
 
                 this(Keys...)(Keys keys)
-                    if (Keys.length >= 1 && Keys.length <= capacity)
+                    if (Keys.length >= 1 &&
+                        Keys.length <= capacity)
                 {
                     this.keys = keys;
                 }
@@ -509,7 +510,8 @@ struct RawRadixTree(Value = void)
                 enum capacity = 3; // maximum number of keys stored
 
                 this(Keys...)(Keys keys)
-                    if (Keys.length >= 1 && Keys.length <= capacity)
+                    if (Keys.length >= 1 &&
+                        Keys.length <= capacity)
                 {
                     this.keys = keys;
                 }
@@ -542,7 +544,8 @@ struct RawRadixTree(Value = void)
                 enum capacity = 7; // maximum number of elements
 
                 this(Keys...)(Keys keys)
-                    if (Keys.length >= 1 && Keys.length <= capacity)
+                    if (Keys.length >= 1 &&
+                        Keys.length <= capacity)
                 {
                     this.keys = keys;
                 }
@@ -1495,6 +1498,7 @@ struct RawRadixTree(Value = void)
                 }
                 else // if (matchedKeyPrefix.length == currPrefix.length)
                 {
+                    if (willFail) { dln(""); }
                     dln("matchedKeyPrefix:", matchedKeyPrefix);
                     dln("currPrefix:", currPrefix);
                     dln("key:", key);
@@ -2439,7 +2443,8 @@ unittest
         {
             if (word.length <= 15)
             {
-                dln("word:", word);
+                import std.string : representation;
+                dln("word:", word, " of length:", word.length, " of representation:", word.representation);
                 if (word == "Abyssinian")
                 {
                     set.willFail = true;

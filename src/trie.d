@@ -2482,6 +2482,7 @@ private static auto randomUniqueStrings(size_t count = 1_000_000,
     return stringSet.byKey.array;
 }
 
+/// Check string types in `Keys`.
 auto checkString(Keys...)()
     if (Keys.length >= 1)
 {
@@ -2522,6 +2523,7 @@ auto checkString(Keys...)()
     }
 }
 
+///
 @safe pure /* TODO @nogc */
 unittest
 {
@@ -2714,6 +2716,7 @@ unittest
     }
 }
 
+///
 @safe pure nothrow /* TODO @nogc */
 unittest
 {

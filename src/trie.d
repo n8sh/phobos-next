@@ -642,8 +642,16 @@ private struct RawRadixTree(Value = void)
             assert(es.length <= radix);
 
             _length = es.length;
-            // TODO reuse allocate or reserve
-            _capacity = nextPow2(es .length);
+
+            if (_length)
+            {
+                _capacity = nextPow2(_length - 1);
+            }
+            else
+            {
+                _capacity = _length;
+            }
+            assert(_capacity >= _length);
 
             // allocate
             _keys = cast(typeof(_keys))malloc(_capacity*Ix.sizeof);

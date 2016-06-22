@@ -2811,9 +2811,6 @@ void benchmark()()
             writeln("Sleeping done");
         }
 
-        // version(print)
-        set.print();
-
         auto map = radixTreeMap!(Key, Value);
         assert(map.empty);
         static assert(map.hasValue);

@@ -1592,11 +1592,11 @@ struct RawRadixTree(Value = void)
                 }
             }
 
-            if (willFail) { dln("WILL FAIL 1: key:", key); }
-            auto next = split(curr, matchedKeyPrefix, key, superPrefixLength);
-            if (willFail) { dln("WILL FAIL 2: key:", key); }
+            if (willFail) { dln("WILL FAIL 1: key:", key, " curr:", curr); }
+            auto next = expand(curr);
+            if (willFail) { dln("WILL FAIL 2: key:", key, " next:", next); }
 
-            return insertAt(next, key, superPrefixLength, insertionNode);
+            return insertAt(Node(next), key, superPrefixLength, insertionNode);
         }
 
         Node insertAt(TwoLeaf3 curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
@@ -1700,6 +1700,16 @@ struct RawRadixTree(Value = void)
             assert(insertionNodeCurr); // assure that `curr` was reinserted
             freeNode(curr);   // remove old current
 
+            return next;
+        }
+
+        /** Destructively expand `curr` and return it. */
+        SparseBranch4* expand(OneLeaf7 curr)
+        {
+            assert(curr.key.length >= 2);
+            auto next = construct!(typeof(return))(curr.key[0 .. $ - 1]);
+            next.leaf = Leaf(construct!(HeptLeaf1)(curr.key[$ - 1]));
+            freeNode(curr);
             return next;
         }
 
@@ -2446,7 +2456,7 @@ unittest
             {
                 import std.string : representation;
                 dln("word:", word, " of length:", word.length, " of representation:", word.representation);
-                if (word == "Abyssinian")
+                if (word == "sdfsdfd")
                 {
                     set.willFail = true;
                     set.print();

@@ -313,6 +313,7 @@ static assert(IxsN!(7, 1, 8).sizeof == 8);
 static assert(IxsN!(3, 2, 8).sizeof == 8);
 static assert(IxsN!(2, 3, 8).sizeof == 8);
 
+///
 @safe pure nothrow unittest
 {
     import std.algorithm : equal;
@@ -376,6 +377,7 @@ bool equalLength(R, Ss...)(const R r, const Ss ss) @safe pure nothrow @nogc
     return true;
 }
 
+///
 @safe pure nothrow unittest
 {
     assert(equalLength([1], [2], [3]));
@@ -2233,6 +2235,7 @@ auto radixTreeSet(Key)()
 /// Instantiator of map-version of `RadixTree` where value-type is `Value`.
 auto radixTreeMap(Key, Value)() { return RadixTree!(Key, Value)(false); }
 
+///
 @safe pure nothrow /* TODO @nogc */
 unittest
 {
@@ -2245,7 +2248,8 @@ unittest
     assert(!node.isNull);
 }
 
-// @safe pure nothrow /* TODO @nogc */
+///
+@safe pure nothrow /* TODO @nogc */
 unittest
 {
     enum N = 7;
@@ -2304,6 +2308,7 @@ unittest
     }
 }
 
+///
 @safe pure nothrow /* TODO @nogc */
 unittest
 {
@@ -2340,6 +2345,7 @@ unittest
     assert(root.full);
 }
 
+///
 @safe pure nothrow /* TODO @nogc */
 unittest
 {

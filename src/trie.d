@@ -2443,6 +2443,7 @@ unittest
     auto set = radixTreeSet!(string);
     assert(set.empty);
     size_t count = 0;
+    const bool debugPrint = false;
     foreach (const word; File(path).byLine())
     {
         import std.algorithm.searching : endsWith;
@@ -2452,12 +2453,15 @@ unittest
         {
             if (word.length <= 15)
             {
-                import std.string : representation;
-                dln(`word:"`, word, `" of length:`, word.length, ` of representation:`, word.representation);
-                if (word == `Assamese`)
+                if (debugPrint)
                 {
-                    set.willFail = true;
-                    set.print();
+                    import std.string : representation;
+                    dln(`word:"`, word, `" of length:`, word.length, ` of representation:`, word.representation);
+                    if (word == `Assamese`)
+                    {
+                        set.willFail = true;
+                        set.print();
+                    }
                 }
 
                 assert(!set.contains(word));

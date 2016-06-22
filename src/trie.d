@@ -642,8 +642,7 @@ private struct RawRadixTree(Value = void)
             assert(es.length <= radix);
 
             _length = es.length;
-
-            if (_length)
+            if (!_length)
             {
                 _capacity = nextPow2(_length - 1);
             }

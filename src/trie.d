@@ -2596,39 +2596,43 @@ private static auto randomUniqueStrings(size_t count = 1_000_000,
 auto checkString(Keys...)()
     if (Keys.length >= 1)
 {
+    void testContainsAndInsert(Set, Key)(ref Set set, Key key)
+        if (isSomeString!Key)
+    {
+        dln(`key:`, key);
+        import std.conv : to;
+        immutable failMessage = `Failed for key: "` ~ key.to!string ~ `"`;
+
+        import std.string : representation;
+        set.willFail = (key == `zfoif`);
+
+        if (set.willFail) dln(`key:"`, key, `" (`, key.representation, `)`);
+
+        // if (set.willFail) dln(`assert(!set.contains(key)) ################################ : `);
+        assert(!set.contains(key), failMessage);
+
+        // if (set.willFail) dln(`assert(set.insert(key)) ################################ : `);
+        assert(set.insert(key), failMessage);
+
+        if (set.willFail) dln(`assert(set.contains(key)) ################################ :`);
+        assert(set.contains(key), failMessage);
+
+        // if (set.willFail) dln(`assert(!set.insert(key)) ################################ :`);
+        assert(!set.insert(key), failMessage);
+
+        // if (set.willFail) dln(`assert(set.contains(key)) ################################ :`);
+        assert(set.contains(key), failMessage);
+    }
+
     import std.range : iota;
     foreach (Key; Keys)
     {
         auto set = radixTreeSet!(Key);
-        alias Set = set;
         assert(set.empty);
 
         foreach (const key; randomUniqueStrings)
         {
-            // dln(`key:`, key);
-            import std.conv : to;
-            immutable failMessage = `Failed for key: "` ~ key.to!string ~ `"`;
-
-            import std.string : representation;
-            set.willFail = (key == `zfoif`);
-            // if (set.willFail) { set.print(); }
-
-            if (set.willFail) dln(`key:"`, key, `" (`, key.representation, `)`);
-
-            // if (set.willFail) dln(`assert(!set.contains(key)) ################################ : `);
-            assert(!set.contains(key), failMessage);
-
-            // if (set.willFail) dln(`assert(set.insert(key)) ################################ : `);
-            assert(set.insert(key), failMessage);
-
-            if (set.willFail) dln(`assert(set.contains(key)) ################################ :`);
-            assert(set.contains(key), failMessage);
-
-            // if (set.willFail) dln(`assert(!set.insert(key)) ################################ :`);
-            assert(!set.insert(key), failMessage);
-
-            // if (set.willFail) dln(`assert(set.contains(key)) ################################ :`);
-            assert(set.contains(key), failMessage);
+            testContainsAndInsert(set, key);
         }
     }
 }

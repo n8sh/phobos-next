@@ -128,7 +128,7 @@ enum keySeparator = ',';
     Ix-elements in chunks of elementLength. `ElementType` is
     `Ix[elementLength]`.
  */
-struct IxsN(size_t capacity,
+struct IxsN(uint capacity,
             uint elementLength = 1,
             uint span = 8)
     if (capacity*elementLength >= 2) // no use storing less than 2 bytes
@@ -279,6 +279,7 @@ struct IxsN(size_t capacity,
 
 private:
     Mod!(capacity + 1) _length; // number of defined elements in `_ixs`
+
     static if (L == 1)
     {
         Ix[capacity] _ixs;     // byte indexes

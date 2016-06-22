@@ -3,8 +3,6 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
-    TODO Make SixLeaf1 a HepLeaf1 by using 7 bytes instead of 6
-
     TODO Add sortedness to `IxsN` and make `IxsN.contains()` use `binarySearch()`. Make use of `sortn`.
 
     TODO Expand SparseBranch4 to DenseBranchM when full (length >= 48)
@@ -30,7 +28,7 @@
 
     TODO Make array indexing/slicing as @trusted and use .ptr[] instead of [] when things are stable. Especially in IxsN
 
-    TODO Store `isKey` in top-most bit of length part of `IxsN prefix` and use for TwoLeaf3, TriLeaf2, and SixLeaf1.
+    TODO Store `isKey` in top-most bit of length part of `IxsN prefix` and use for TwoLeaf3, TriLeaf2, and HeptLeaf1.
 
     TODO Optimize SparseBranch4.findSub for specific `subCount`
 
@@ -47,10 +45,10 @@
     TODO Add `struct Range`. Use same construct as in `containers-em/src/containers/ttree.d`.
 
     - Members:
-      - Iterator front()
-      - void popFront()
-      - bool empty())
-      - Iterator it; // Iterator is defined below
+    - Iterator front()
+    - void popFront()
+    - bool empty())
+    - Iterator it; // Iterator is defined below
     - Reuse RefCounted reference to _root. Add checks with `isSorted`.
 
     Prefix:
@@ -115,7 +113,7 @@ alias KeyN(size_t span, size_t N) = Mod!(2^^span)[N];
 
     Container layouts should be adapted to make use of at least this many bytes
     in its nodes.
- */
+*/
 enum cacheLineSize = 64;
 
 shared static this()
@@ -129,73 +127,73 @@ enum keySeparator = ',';
 /** Statically allocated `Ix`-array of fixed pre-allocated length `capacity` of
     Ix-elements in chunks of elementLength. `ElementType` is
     `Ix[elementLength]`.
- */
+*/
 struct IxsN(uint capacity,
             uint elementLength = 1,
             uint span = 8)
     if (capacity*elementLength >= 2) // no use storing less than 2 bytes
-{
-    enum L = elementLength;
-    enum M = 2^^span;   // branch-multiplicity, typically either 2, 4, 16 or 256
-    alias Ix = Mod!M;
+    {
+        enum L = elementLength;
+        enum M = 2^^span;   // branch-multiplicity, typically either 2, 4, 16 or 256
+        alias Ix = Mod!M;
 
-    /// Element type `E`.
-    static if (L == 1)
-        alias E = Ix;
-    else
-        alias E = Ix[L];
+        /// Element type `E`.
+        static if (L == 1)
+            alias E = Ix;
+        else
+            alias E = Ix[L];
 
-    this(Es...)(Es ixs)
+        this(Es...)(Es ixs)
         if (Es.length >= 1 &&
             Es.length <= capacity)
-    {
-        foreach (const i, const ix; ixs)
         {
-            static assert(!is(typeof(ix) == int));
-            _ixs[i] = ix;
-        }
-        _length = ixs.length;
-    }
-
-    static if (L == 1)
-    {
-        this(const Ix[] ixs)
-        {
-            assert(ixs.length <= capacity);
-            _ixs[0 .. ixs.length] = ixs;
+            foreach (const i, const ix; ixs)
+            {
+                static assert(!is(typeof(ix) == int));
+                _ixs[i] = ix;
+            }
             _length = ixs.length;
         }
-    }
 
-    @property auto toString() const
-    {
-        string s;
-        foreach (const i, const ix; chunks)
+        static if (L == 1)
         {
-            if (i != 0) { s ~= keySeparator; } // separator
-            import std.string : format;
-            static if (elementLength == 1)
+            this(const Ix[] ixs)
             {
-                s ~= format("%.2X", ix); // in hexadecimal
-            }
-            else
-            {
-                foreach (const j, const subIx; ix[])
-                {
-                    if (j != 0) { s ~= '_'; } // separator
-                    s ~= format("%.2X", subIx); // in hexadecimal
-                }
+                assert(ixs.length <= capacity);
+                _ixs[0 .. ixs.length] = ixs;
+                _length = ixs.length;
             }
         }
-        return s;
-    }
 
-    @safe pure nothrow @nogc:
+        @property auto toString() const
+        {
+            string s;
+            foreach (const i, const ix; chunks)
+            {
+                if (i != 0) { s ~= keySeparator; } // separator
+                import std.string : format;
+                static if (elementLength == 1)
+                {
+                    s ~= format("%.2X", ix); // in hexadecimal
+                }
+                else
+                {
+                    foreach (const j, const subIx; ix[])
+                    {
+                        if (j != 0) { s ~= '_'; } // separator
+                        s ~= format("%.2X", subIx); // in hexadecimal
+                    }
+                }
+            }
+            return s;
+        }
 
-    /** Get first element. */
-    auto front() inout          // TODO should throw?
-    {
-        assert(!empty);
+        @safe pure nothrow @nogc:
+
+        /** Get first element. */
+        auto front() inout          // TODO should throw?
+        {
+            assert(!empty);
         return _ixs[0];
     }
 
@@ -221,7 +219,7 @@ struct IxsN(uint capacity,
         {
             _ixs[i] = _ixs[i + 1]; // TODO move construct?
         }
-        --_length;
+        _length = _length - 1;
         return this;
     }
 
@@ -234,7 +232,7 @@ struct IxsN(uint capacity,
         {
             _ixs[i] = _ixs[i + n]; // TODO move construct?
         }
-        _length -= n;
+        _length = _length - n;
         return this;
     }
 
@@ -242,7 +240,7 @@ struct IxsN(uint capacity,
     auto ref popBack()
     {
         assert(!empty);
-        --_length;
+        _length = _length - 1;
         return this;
     }
 
@@ -255,7 +253,7 @@ struct IxsN(uint capacity,
         {
             _ixs[_length + i] = ix;
         }
-        _length += Es.length;
+        _length = _length + Es.length;
         return this;
     }
 
@@ -300,12 +298,20 @@ private:
         Ix[L][capacity] _ixs;  // byte indexes
     }
 
-    Mod!(capacity + 1) _length; // number of defined elements in `_ixs`
+    static if (_ixs.sizeof == 6)
+    {
+        ubyte _padding;
+    }
+
+    enum typeBits = 4;
+    import std.bitmanip : bitfields;
+    mixin(bitfields!(size_t, "_length", 4, // maximum length of 15
+                     ubyte, "_mustBeIgnored", typeBits)); // must be here and ignored because it contains `WordVariant` type of `Node`
 }
 
-static assert(IxsN!(6, 1, 8).sizeof == 7);
-static assert(IxsN!(3, 2, 8).sizeof == 7);
-static assert(IxsN!(2, 3, 8).sizeof == 7);
+static assert(IxsN!(7, 1, 8).sizeof == 8);
+static assert(IxsN!(3, 2, 8).sizeof == 8);
+static assert(IxsN!(2, 3, 8).sizeof == 8);
 
 @safe pure nothrow unittest
 {
@@ -434,7 +440,7 @@ private struct RawRadixTree(Value = void)
     /** `span` least significant bits (LSB) of leaves directly packed into a word.
 
         TODO Generalize to packing of more than one `Ix` per byte.
-        TODO respect byteorder in `SixLeaf1` to work with `WordVariant`
+        TODO respect byteorder in `HeptLeaf1` to work with `WordVariant`
         TODO implement and use opSlice instead of .key[]
     */
     static if (size_t.sizeof == 8) // 64-bit CPU
@@ -463,8 +469,6 @@ private struct RawRadixTree(Value = void)
                 }
 
                 IxsN!(capacity, 1) key;
-            private:
-                ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
 
             /// Binary/2-Key Leaf with key-length 3.
@@ -494,8 +498,6 @@ private struct RawRadixTree(Value = void)
                 pragma(inline) bool contains(Key!span key) const @nogc { return keys.contains(key); }
 
                 IxsN!(capacity, keyLength) keys;
-            private:
-                ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
 
             /// Ternary/3-Key Leaf with key-length 2.
@@ -529,15 +531,13 @@ private struct RawRadixTree(Value = void)
                 pragma(inline) bool contains(Key!span key) const @nogc { return keys.contains(key); }
 
                 IxsN!(capacity, keyLength) keys;
-            private:
-                ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
 
             /// Hexa/6-Key Leaf with key-length 1.
-            struct SixLeaf1
+            struct HeptLeaf1
             {
                 enum keyLength = 1;
-                enum capacity = (size_t.sizeof - 2) / Ix.sizeof; // maximum number of elements
+                enum capacity = 7; // maximum number of elements
 
                 this(Keys...)(Keys keys)
                     if (Keys.length >= 1 && Keys.length <= capacity)
@@ -549,8 +549,6 @@ private struct RawRadixTree(Value = void)
                 pragma(inline) bool contains(Key!span key) const @nogc { return key.length == 1 && keys.contains(key[0]); }
 
                 IxsN!(capacity, 1) keys;
-            private:
-                ubyte _mustBeIgnored = 0; // must be here and ignored because it contains `WordVariant` type of `Node`
             }
         }
     }
@@ -570,7 +568,7 @@ private struct RawRadixTree(Value = void)
                                  SparseLeaf1*);
 
     /** Mutable leaf node of 1-Ix leaves. */
-    alias Leaf = WordVariant!(SixLeaf1,
+    alias Leaf = WordVariant!(HeptLeaf1,
                               SparseLeaf1*,
                               DenseLeaf1*);
 
@@ -578,7 +576,7 @@ private struct RawRadixTree(Value = void)
     alias Node = WordVariant!(OneLeaf6,
                               TwoLeaf3,
                               TriLeaf2,
-                              SixLeaf1,
+                              HeptLeaf1,
                               DenseBranchM*,
                               SparseBranch4*,
                               DenseLeaf1*,
@@ -1236,7 +1234,7 @@ private struct RawRadixTree(Value = void)
             final switch (curr.typeIx) with (Leaf.Ix)
             {
             case undefined: return false;
-            case ix_SixLeaf1: return curr.as!(SixLeaf1).contains(key);
+            case ix_HeptLeaf1: return curr.as!(HeptLeaf1).contains(key);
             case ix_SparseLeaf1Ptr: return key.length == 1 && curr.as!(SparseLeaf1*).contains(key[0]);
             case ix_DenseLeaf1Ptr:  return key.length == 1 && curr.as!(DenseLeaf1*).contains(key[0]);
             }
@@ -1252,7 +1250,7 @@ private struct RawRadixTree(Value = void)
             case ix_OneLeaf6: return curr.as!(OneLeaf6).contains(key);
             case ix_TwoLeaf3: return curr.as!(TwoLeaf3).contains(key);
             case ix_TriLeaf2: return curr.as!(TriLeaf2).contains(key);
-            case ix_SixLeaf1: return curr.as!(SixLeaf1).contains(key);
+            case ix_HeptLeaf1: return curr.as!(HeptLeaf1).contains(key);
             case ix_SparseLeaf1Ptr: return key.length == 1 && curr.as!(SparseLeaf1*).contains(key[0]);
             case ix_DenseLeaf1Ptr:  return key.length == 1 && curr.as!(DenseLeaf1*).contains(key[0]);
             case ix_SparseBranch4Ptr:
@@ -1282,7 +1280,7 @@ private struct RawRadixTree(Value = void)
             case ix_OneLeaf6: break;
             case ix_TwoLeaf3: break;
             case ix_TriLeaf2: break;
-            case ix_SixLeaf1: break;
+            case ix_HeptLeaf1: break;
 
             case ix_SparseLeaf1Ptr:
             case ix_DenseLeaf1Ptr:
@@ -1324,7 +1322,7 @@ private struct RawRadixTree(Value = void)
             switch (key.length)
             {
             case 0: return insertionNode = Node(construct!(OneLeaf6)());
-            case 1: return insertionNode = Node(construct!(SixLeaf1)(key[0]));
+            case 1: return insertionNode = Node(construct!(HeptLeaf1)(key[0]));
             case 2: return insertionNode = Node(construct!(TriLeaf2)(key));
             case 3: return insertionNode = Node(construct!(TwoLeaf3)(key));
             default:
@@ -1350,7 +1348,7 @@ private struct RawRadixTree(Value = void)
             final switch (curr.typeIx) with (Leaf.Ix)
             {
             case undefined: return Node.init;
-            case ix_SixLeaf1: return Node(curr.as!(SixLeaf1));
+            case ix_HeptLeaf1: return Node(curr.as!(HeptLeaf1));
             case ix_SparseLeaf1Ptr: return Node(curr.as!(SparseLeaf1*));
             case ix_DenseLeaf1Ptr: return Node(curr.as!(DenseLeaf1*));
             }
@@ -1377,7 +1375,7 @@ private struct RawRadixTree(Value = void)
                 case ix_OneLeaf6: return insertAt(curr.as!(OneLeaf6), key, superPrefixLength, insertionNode);
                 case ix_TwoLeaf3: return insertAt(curr.as!(TwoLeaf3), key, superPrefixLength, insertionNode);
                 case ix_TriLeaf2: return insertAt(curr.as!(TriLeaf2), key, superPrefixLength, insertionNode);
-                case ix_SixLeaf1: return insertAt(curr.as!(SixLeaf1), key, superPrefixLength, insertionNode);
+                case ix_HeptLeaf1: return insertAt(curr.as!(HeptLeaf1), key, superPrefixLength, insertionNode);
 
                 case ix_SparseLeaf1Ptr:
                     assert(key.length == 1);
@@ -1517,7 +1515,7 @@ private struct RawRadixTree(Value = void)
                 }
                 else
                 {
-                    auto leaf_ = construct!(SixLeaf1)(key); // can pack more efficiently when no value
+                    auto leaf_ = construct!(HeptLeaf1)(key); // can pack more efficiently when no value
                 }
                 setLeaf(curr, Leaf(leaf_));
                 insertionNode = leaf_;
@@ -1531,7 +1529,7 @@ private struct RawRadixTree(Value = void)
             switch (curr.typeIx) with (Leaf.Ix)
             {
             case undefined: return typeof(return).init;
-            case ix_SixLeaf1: return insertAt(curr.as!(SixLeaf1), key, superPrefixLength, insertionNode);
+            case ix_HeptLeaf1: return insertAt(curr.as!(HeptLeaf1), key, superPrefixLength, insertionNode);
             case ix_SparseLeaf1Ptr:
                 auto curr_ = curr.as!(SparseLeaf1*);
                 if (curr_.linearInsert(key))
@@ -1570,7 +1568,7 @@ private struct RawRadixTree(Value = void)
                     Node next;
                     switch (matchedKeyPrefix.length)
                     {
-                    case 0: next = construct!(SixLeaf1)(curr.key[0], key[0]); break;
+                    case 0: next = construct!(HeptLeaf1)(curr.key[0], key[0]); break;
                     case 1: next = construct!(TriLeaf2)(curr.key, key); break;
                     case 2: next = construct!(TwoLeaf3)(curr.key, key); break;
                     default:
@@ -1628,7 +1626,7 @@ private struct RawRadixTree(Value = void)
                             key, superPrefixLength, insertionNode); // NOTE stay at same (depth)
         }
 
-        Leaf insertAt(SixLeaf1 curr, Ix key, size_t superPrefixLength, out Node insertionNode)
+        Leaf insertAt(HeptLeaf1 curr, Ix key, size_t superPrefixLength, out Node insertionNode)
         {
             if (curr.contains(key)) { return Leaf(curr); }
             if (!curr.keys.full)
@@ -1645,7 +1643,7 @@ private struct RawRadixTree(Value = void)
             return Leaf(next);
         }
 
-        Node insertAt(SixLeaf1 curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
+        Node insertAt(HeptLeaf1 curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
         {
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
             assert(hasVariableKeyLength || curr.keyLength == key.length);
@@ -1673,7 +1671,7 @@ private struct RawRadixTree(Value = void)
                     if (prefix.length == 0)
                     {
                         freeNode(curr);
-                        return Node(construct!(SixLeaf1)(curr.key)); // TODO removing parameter has no effect. why?
+                        return Node(construct!(HeptLeaf1)(curr.key)); // TODO removing parameter has no effect. why?
                     }
                     break;
                 case 2:
@@ -1771,7 +1769,7 @@ private struct RawRadixTree(Value = void)
         }
 
         /** Destructively expand `curr` making room for `nextKey` and return it. */
-        Node expand(SixLeaf1 curr, size_t superPrefixLength)
+        Node expand(HeptLeaf1 curr, size_t superPrefixLength)
         {
             assert(hasVariableKeyLength || superPrefixLength + curr.keyLength == fixedKeyLength);
 
@@ -1860,7 +1858,7 @@ private struct RawRadixTree(Value = void)
         void release(OneLeaf6 curr) { freeNode(curr); }
         void release(TwoLeaf3 curr) { freeNode(curr); }
         void release(TriLeaf2 curr) { freeNode(curr); }
-        void release(SixLeaf1 curr) { freeNode(curr); }
+        void release(HeptLeaf1 curr) { freeNode(curr); }
 
         /// Release `Leaf curr`.
         void release(Leaf curr)
@@ -1868,7 +1866,7 @@ private struct RawRadixTree(Value = void)
             final switch (curr.typeIx) with (Leaf.Ix)
             {
             case undefined: break; // ignored
-            case ix_SixLeaf1: return release(curr.as!(SixLeaf1));
+            case ix_HeptLeaf1: return release(curr.as!(HeptLeaf1));
             case ix_SparseLeaf1Ptr: return release(curr.as!(SparseLeaf1*));
             case ix_DenseLeaf1Ptr: return release(curr.as!(DenseLeaf1*));
             }
@@ -1884,7 +1882,7 @@ private struct RawRadixTree(Value = void)
             case ix_OneLeaf6: return release(curr.as!(OneLeaf6));
             case ix_TwoLeaf3: return release(curr.as!(TwoLeaf3));
             case ix_TriLeaf2: return release(curr.as!(TriLeaf2));
-            case ix_SixLeaf1: return release(curr.as!(SixLeaf1));
+            case ix_HeptLeaf1: return release(curr.as!(HeptLeaf1));
             case ix_SparseLeaf1Ptr: return release(curr.as!(SparseLeaf1*));
             case ix_DenseLeaf1Ptr: return release(curr.as!(DenseLeaf1*));
             case ix_SparseBranch4Ptr: return release(curr.as!(SparseBranch4*));
@@ -1900,7 +1898,7 @@ private struct RawRadixTree(Value = void)
             case ix_OneLeaf6: return false;
             case ix_TwoLeaf3: return false;
             case ix_TriLeaf2: return false;
-            case ix_SixLeaf1: return false;
+            case ix_HeptLeaf1: return false;
             case ix_SparseLeaf1Ptr: return true;
             case ix_DenseLeaf1Ptr: return true;
             case ix_SparseBranch4Ptr: return true;
@@ -1963,8 +1961,8 @@ private struct RawRadixTree(Value = void)
             auto curr_ = curr.as!(TriLeaf2);
             writeln(typeof(curr_).stringof, "#", curr_.keys.length, ": ", curr_.keys);
             break;
-        case ix_SixLeaf1:
-            auto curr_ = curr.as!(SixLeaf1);
+        case ix_HeptLeaf1:
+            auto curr_ = curr.as!(HeptLeaf1);
             writeln(typeof(curr_).stringof, "#", curr_.keys.length, ": ", curr_.keys);
             break;
         case ix_SparseLeaf1Ptr:
@@ -2081,7 +2079,7 @@ static private void calculate(Value)(RawRadixTree!(Value).Node sub,
         case ix_OneLeaf6: break; // TODO calculate()
         case ix_TwoLeaf3: break; // TODO calculate()
         case ix_TriLeaf2: break; // TODO calculate()
-        case ix_SixLeaf1: break; // TODO calculate()
+        case ix_HeptLeaf1: break; // TODO calculate()
         case ix_SparseLeaf1Ptr: ++stats.heapNodeCount; sub.as!(RT.SparseLeaf1*).calculate(stats); break;
         case ix_DenseLeaf1Ptr: ++stats.heapNodeCount; sub.as!(RT.DenseLeaf1*).calculate(stats); break;
         case ix_SparseBranch4Ptr: ++stats.heapNodeCount; sub.as!(RT.SparseBranch4*).calculate(stats); break;
@@ -2250,9 +2248,10 @@ unittest
 // @safe pure nothrow /* TODO @nogc */
 unittest
 {
+    enum N = 7;
     auto set = radixTreeSet!(ulong);
 
-    foreach (const i; 0 .. 6)
+    foreach (const i; 0 .. N)
     {
         assert(!set.contains(i));
 
@@ -2265,7 +2264,7 @@ unittest
         assert(set.heapNodeAllocationBalance == 1);
     }
 
-    foreach (const i; 6 .. 256)
+    foreach (const i; N .. 256)
     {
         assert(!set.contains(i));
 
@@ -2278,7 +2277,7 @@ unittest
         assert(set.heapNodeAllocationBalance == 2);
     }
 
-    foreach (const i; 256 .. 256 + 6)
+    foreach (const i; 256 .. 256 + N)
     {
         assert(!set.contains(i));
 
@@ -2291,7 +2290,7 @@ unittest
         assert(set.heapNodeAllocationBalance == 3);
     }
 
-    foreach (const i; 256 + 6 .. 256 + 256)
+    foreach (const i; 256 + N .. 256 + 256)
     {
         assert(!set.contains(i));
 
@@ -2311,18 +2310,18 @@ unittest
     auto set = radixTreeSet!(ubyte);
     alias Set = typeof(set);
 
-    foreach (const i; 0 .. Set.SixLeaf1.capacity)
+    foreach (const i; 0 .. Set.HeptLeaf1.capacity)
     {
         assert(!set.contains(i));
         assert(set.insert(i));
         assert(!set.insert(i));
         assert(set.contains(i));
         assert(set.heapNodeAllocationBalance == 0);
-        const rootRef = set._root.peek!(Set.SixLeaf1);
+        const rootRef = set._root.peek!(Set.HeptLeaf1);
         assert(rootRef);
     }
 
-    foreach (const i; Set.SixLeaf1.capacity .. 256)
+    foreach (const i; Set.HeptLeaf1.capacity .. 256)
     {
         assert(!set.contains(i));
         assert(set.insert(i));
@@ -2350,18 +2349,7 @@ unittest
         auto set = radixTreeSet!(T);
         alias Set = typeof(set);
 
-        // 0
-        assert(!set.contains(0));
-
-        assert(set.insert(0));
-        assert(set.contains(0));
-
-        assert(!set.insert(0));
-        assert(set.contains(0));
-
-        assert(set.heapNodeAllocationBalance == 0);
-
-        foreach (const i; 1 .. 256)
+        foreach (const i; 0 .. 256)
         {
             assert(!set.contains(i));
 
@@ -2413,7 +2401,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
             case ix_OneLeaf6: bytesUsed = pop*RT.OneLeaf6.sizeof; break;
             case ix_TwoLeaf3: bytesUsed = pop*RT.TwoLeaf3.sizeof; break;
             case ix_TriLeaf2: bytesUsed = pop*RT.TriLeaf2.sizeof; break;
-            case ix_SixLeaf1: bytesUsed = pop*RT.SixLeaf1.sizeof; break;
+            case ix_HeptLeaf1: bytesUsed = pop*RT.HeptLeaf1.sizeof; break;
             case ix_SparseLeaf1Ptr: bytesUsed = pop*RT.SparseLeaf1.sizeof; totalBytesUsed += bytesUsed; break;
             case ix_DenseLeaf1Ptr: bytesUsed = pop*RT.DenseLeaf1.sizeof; totalBytesUsed += bytesUsed; break;
             case ix_SparseBranch4Ptr: bytesUsed = pop*RT.SparseBranch4.sizeof; totalBytesUsed += bytesUsed; break;

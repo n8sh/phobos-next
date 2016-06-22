@@ -260,6 +260,7 @@ struct IxsN(size_t capacity,
     {
         // TODO prevent this ugly hack, by adding and using a canFind-overload
         // TODO isn't there any Phobos algorithm that supports searching for T in T[]?
+        // See also: http://forum.dlang.org/post/bmkmkteeqrqiebmybbyr@forum.dlang.org
         Ix[1] key = [ix];
         return contains(key[]);
     }

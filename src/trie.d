@@ -280,9 +280,9 @@ struct IxsN(uint capacity,
 
     /** Variant of `opIndex` with compile-time range checking. */
     auto ref at(uint ix)() inout @trusted
-        if (ix < capacity)
+        if (ix < capacity)      // assert below memory allocation bound
     {
-        assert(ix < _length);
+        assert(ix < _length);   // assert accessing initialized elements
         return _ixs.ptr[ix];
     }
 

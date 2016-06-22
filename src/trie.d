@@ -948,17 +948,20 @@ struct RawRadixTree(Value = void)
         void calculate(ref Stats stats) const
         {
             size_t count = 0; // number of non-zero sub-nodes
+
             foreach (const sub; subNodes)
             {
                 ++count;
                 sub.calculate!(Value)(stats);
             }
-            assert(count <= radix);
-            ++stats.popHist_SparseBranch4[count]; // TODO type-safe indexing
+
             if (leaf)
             {
                 leaf.calculate!(Value)(stats);
             }
+
+            assert(count <= radix);
+            ++stats.popHist_SparseBranch4[count]; // TODO type-safe indexing
         }
 
         private:
@@ -1041,6 +1044,7 @@ struct RawRadixTree(Value = void)
         void calculate(ref Stats stats)  /* TODO @nogc */ const
         {
             size_t count = 0; // number of non-zero sub-nodes
+
             foreach (const subNode; subNodes)
             {
                 if (subNode)
@@ -1049,6 +1053,12 @@ struct RawRadixTree(Value = void)
                     subNode.calculate!(Value)(stats);
                 }
             }
+
+            if (leaf)
+            {
+                leaf.calculate!(Value)(stats);
+            }
+
             assert(count <= radix);
             ++stats.popHist_DenseBranchM[count - 1]; // TODO type-safe indexing
         }

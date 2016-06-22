@@ -1153,18 +1153,6 @@ struct RawRadixTree(Value = void)
         return sub;
     }
 
-    /** Get prefix of node `curr`. */
-    pragma(inline) auto getPrefix(inout Node curr) @safe pure nothrow
-    {
-        switch (curr.typeIx)
-        {
-        case Node.Ix.ix_SparseBranchPtr: return curr.as!(SparseBranch*).prefix[];
-        case Node.Ix.ix_DenseBranchPtr: return curr.as!(DenseBranch*).prefix[];
-            // TODO extend to leaves aswell?
-        default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
-        }
-    }
-
     /** Get leaves of node `curr`. */
     pragma(inline) inout(Leaf) getLeaf(inout Node curr) @safe pure nothrow
     {
@@ -1187,6 +1175,17 @@ struct RawRadixTree(Value = void)
         }
     }
 
+    /** Get prefix of node `curr`. */
+    pragma(inline) auto getPrefix(inout Node curr) @safe pure nothrow
+    {
+        switch (curr.typeIx)
+        {
+        case Node.Ix.ix_SparseBranchPtr: return curr.as!(SparseBranch*).prefix[];
+        case Node.Ix.ix_DenseBranchPtr: return curr.as!(DenseBranch*).prefix[];
+        default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
+        }
+    }
+
     /** Set prefix of branch node `curr` to `prefix`. */
     pragma(inline) void setPrefix(Node curr, const Ix[] prefix) @safe pure nothrow
     {
@@ -1194,7 +1193,6 @@ struct RawRadixTree(Value = void)
         {
         case Node.Ix.ix_SparseBranchPtr: curr.as!(SparseBranch*).prefix = typeof(curr.as!(SparseBranch*).prefix)(prefix); break;
         case Node.Ix.ix_DenseBranchPtr: curr.as!(DenseBranch*).prefix = typeof(curr.as!(DenseBranch*).prefix)(prefix); break;
-            // TODO extend to leaves aswell?
         default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
         }
     }
@@ -1206,7 +1204,6 @@ struct RawRadixTree(Value = void)
         {
         case Node.Ix.ix_SparseBranchPtr: curr.as!(SparseBranch*).prefix.popFrontN(n); break;
         case Node.Ix.ix_DenseBranchPtr: curr.as!(DenseBranch*).prefix.popFrontN(n); break;
-            // TODO extend to leaves aswell?
         default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
         }
     }

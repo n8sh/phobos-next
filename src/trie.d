@@ -5,7 +5,7 @@
 
     TODO Make SixLeaf1 a HepLeaf1 by using 7 bytes instead of 6
 
-    TODO Add sortedness to `IxsN` and make `contains()` use `binarySearch()`
+    TODO Add sortedness to `IxsN` and make `contains()` use `binarySearch()`. Make use of `sortn`.
 
     TODO Expand SparseBranch4 to DenseBranchM when full (length >= 48)
 

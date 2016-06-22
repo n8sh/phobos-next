@@ -189,20 +189,25 @@ struct IxsN(uint capacity,
 
     @safe pure nothrow @nogc:
 
-    bool empty() const { return _length == 0; }
-    bool full() const { return _length == capacity; }
-
-    auto front() inout
+    /** Get first element. */
+    auto front() inout          // TODO should throw?
     {
         assert(!empty);
         return _ixs[0];
     }
 
-    auto back() inout
+    /** Get last element. */
+    auto back() inout           // TODO should throw?
     {
         assert(!empty);
         return _ixs[_length - 1];
     }
+
+    /** Returns: `true` if `this` is empty, `false` otherwise. */
+    bool empty() const { return _length == 0; }
+
+    /** Returns: `true` if `this` is full, `false` otherwise. */
+    bool full() const { return _length == capacity; }
 
     /** Pop one front element. */
     auto ref popFront()
@@ -230,6 +235,7 @@ struct IxsN(uint capacity,
         return this;
     }
 
+    /** Pop last element. */
     auto ref popBack()
     {
         assert(!empty);
@@ -237,6 +243,7 @@ struct IxsN(uint capacity,
         return this;
     }
 
+    /** Push/Add elements `moreEs` at back. */
     auto ref pushBack(Es...)(Es moreEs)
         if (Es.length <= capacity)
     {
@@ -249,6 +256,7 @@ struct IxsN(uint capacity,
         return this;
     }
 
+    /** Returns: `true` if `key` is contained in `this`. */
     bool contains(const Ix[] key) const @nogc
     {
         import std.algorithm.searching : canFind;
@@ -256,6 +264,7 @@ struct IxsN(uint capacity,
         return (chunks.canFind(key)); // TODO use binarySearch
     }
 
+    /** Returns: `true` if `ix` is contained in `this`. */
     bool contains(const Ix ix) const @nogc
     {
         // TODO prevent this ugly hack, by adding and using a canFind-overload
@@ -275,6 +284,7 @@ struct IxsN(uint capacity,
         return _ixs[ix];
     }
 
+    /** Get length. */
     auto length() const { return _length; }
 
 private:

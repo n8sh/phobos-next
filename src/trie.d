@@ -418,7 +418,7 @@ static assert(span == 8, "Radix is currently limited to 8");
     See also: https://gcc.gnu.org/onlinedocs/libstdc++/ext/pb_ds/trie_based_containers.html
     See also: https://github.com/npgall/concurrent-trees
 */
-private struct RawRadixTree(Value = void)
+struct RawRadixTree(Value = void)
 {
     import std.bitmanip : bitfields;
     import std.conv : to;
@@ -1087,7 +1087,7 @@ private struct RawRadixTree(Value = void)
         return Node(curr);
     }
 
-    /** Get sub-`Node` of branch `Node curr` at index `subIx. */
+    /** Get sub-`Node` of branch `Node curr` at index `subIx`. */
     pragma(inline) Node getSub(Node curr, Ix subIx) @safe pure nothrow
     {
         switch (curr.typeIx)

@@ -1667,13 +1667,10 @@ struct RawRadixTree(Value = void)
         /** Split `curr` using `prefix`. */
         Node split(OneLeaf7 curr, Key!span prefix, Key!span key, size_t superPrefixLength) // TODO key here is a bit malplaced
         {
-            if (willFail) { dln("WILL FAIL 3: curr:", curr, " key:", key); }
-
             if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); } assert(key.length);
             assert(hasVariableKeyLength || curr.key.length == key.length);
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
-            Node next;
             if (curr.key.length == key.length) // balanced tree possible
             {
                 switch (curr.key.length)
@@ -1697,14 +1694,14 @@ struct RawRadixTree(Value = void)
             }
 
             // default case
-            if (!next) { next = construct!(DefaultBranch)(prefix); }
+            Node next = construct!(DefaultBranch)(prefix);
 
             Node insertionNodeCurr;      // dummy
-            auto superNext = insertAt(next, curr.key, superPrefixLength, insertionNodeCurr);
+            next = insertAt(next, curr.key, superPrefixLength, insertionNodeCurr);
             assert(insertionNodeCurr); // assure that `curr` was reinserted
             freeNode(curr);   // remove old current
 
-            return superNext;
+            return next;
         }
 
         /** Destructively expand `curr` and return it. */

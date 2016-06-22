@@ -643,8 +643,14 @@ struct RawRadixTree(Value = void)
         IndexedArray!(size_t, Node.Ix) popByNodeType;
         static assert(is(typeof(popByNodeType).Index == Node.Ix));
 
+        IndexedArray!(size_t, Leaf.Ix) popByLeafType;
+        static assert(is(typeof(popByLeafType).Index == Leaf.Ix));
+
         /// Number of heap-allocated `Node`s. Should always equal `heapNodeAllocationBalance`.
         size_t heapNodeCount;
+
+        /// Number of heap-allocated `Leaf`s. Should always equal `heapLeafAllocationBalance`.
+        size_t heapLeafCount;
     }
 
     /** Sparsely coded leaves. */
@@ -755,7 +761,7 @@ struct RawRadixTree(Value = void)
         }
 
         /** Append statistics of tree under `this` into `stats`. */
-        void calculate(ref Stats stats) @safe
+        void calculate(ref Stats stats) @safe const
         {
             dln("TODO");
         }
@@ -949,6 +955,10 @@ struct RawRadixTree(Value = void)
             }
             assert(count <= radix);
             ++stats.popHist_SparseBranch4[count]; // TODO type-safe indexing
+            if (leaf)
+            {
+                leaf.calculate!(Value)(stats);
+            }
         }
 
         private:
@@ -2099,6 +2109,27 @@ static private void calculate(Value)(RawRadixTree!(Value).Node sub,
         case ix_DenseLeaf1Ptr: ++stats.heapNodeCount; sub.as!(RT.DenseLeaf1*).calculate(stats); break;
         case ix_SparseBranch4Ptr: ++stats.heapNodeCount; sub.as!(RT.SparseBranch4*).calculate(stats); break;
         case ix_DenseBranchMPtr: ++stats.heapNodeCount; sub.as!(RT.DenseBranchM*).calculate(stats); break;
+        }
+    }
+}
+
+/** Append statistics of tree under `Leaf` `sub.` into `stats`.
+ */
+static private void calculate(Value)(RawRadixTree!(Value).Leaf sub,
+                                     ref RawRadixTree!(Value).Stats stats)
+    @safe pure nothrow /* TODO @nogc */
+{
+    alias RT = RawRadixTree!(Value);
+    ++stats.popByLeafType[sub.typeIx];
+
+    with (RT.Leaf.Ix)
+    {
+        final switch (sub.typeIx)
+        {
+        case undefined: break;
+        case ix_HeptLeaf1: break; // TODO calculate()
+        case ix_SparseLeaf1Ptr: ++stats.heapLeafCount; sub.as!(RT.SparseLeaf1*).calculate(stats); break;
+        case ix_DenseLeaf1Ptr: ++stats.heapLeafCount; sub.as!(RT.DenseLeaf1*).calculate(stats); break;
         }
     }
 }

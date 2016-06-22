@@ -2598,7 +2598,7 @@ auto checkString(Keys...)()
     void testContainsAndInsert(Set, Key)(ref Set set, Key key)
         if (isSomeString!Key)
     {
-        // dln(`key:`, key);
+        dln(`key:`, key);
         import std.conv : to;
         immutable failMessage = `Failed for key: "` ~ key.to!string ~ `"`;
 
@@ -2628,6 +2628,9 @@ auto checkString(Keys...)()
     {
         auto set = radixTreeSet!(Key);
         assert(set.empty);
+        testContainsAndInsert(set, `fuxwggx`);
+        testContainsAndInsert(set, `fuxwp`);
+        testContainsAndInsert(set, `fuxw`);
         foreach (const key; randomUniqueStrings)
         {
             testContainsAndInsert(set, key);

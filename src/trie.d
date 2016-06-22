@@ -751,6 +751,7 @@ struct RawRadixTree(Value = void)
             if (newCapacity > _capacity)
             {
                 _capacity = nextPow2(newCapacity - 1); // need minus one here
+                assert(_capacity >= newCapacity);
                 _keys = cast(typeof(_keys))realloc(_keys, _capacity*Ix.sizeof);
                 static if (hasValue)
                 {

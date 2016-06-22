@@ -249,11 +249,17 @@ struct IxsN(size_t capacity,
         return this;
     }
 
-    bool contains(const Ix[] ix) const @nogc
+    bool contains(const Ix[] key) const @nogc
     {
         import std.algorithm.searching : canFind;
-        if (ix.length != L) { return false; }
-        return (chunks.canFind(ix)); // TODO use binarySearch
+        if (key.length != L) { return false; }
+        return (chunks.canFind(key)); // TODO use binarySearch
+    }
+
+    bool contains(const Ix ix) const @nogc
+    {
+        Ix[1] key = [ix]; // TODO prevent this ugly hack, by adding and using a canFind-overload
+        return contains(key[]);
     }
 
     auto chunks() inout { return _ixs[0 .. _length]; }
@@ -522,7 +528,8 @@ private struct RawRadixTree(Value = void)
                     this.keys = keys;
                 }
 
-                pragma(inline) bool contains(Key!span key) const @nogc { return keys.contains(key); }
+                pragma(inline) bool contains(Ix key) const @nogc { return keys.contains(key); }
+                pragma(inline) bool contains(Key!span key) const @nogc { return key.length == 1 && keys.contains(key[0]); }
 
                 IxsN!(capacity, 1) keys;
             private:

@@ -810,10 +810,7 @@ struct RawRadixTree(Value = void)
         pragma(inline) bool full() const @nogc { return _keyBits.full; }
         pragma(inline) size_t count() const @nogc { return _keyBits.countOnes; }
 
-        pragma(inline) bool contains(Ix key) const @nogc
-        {
-            return _keyBits[key];
-        }
+        pragma(inline) bool contains(Ix key) const @nogc { return _keyBits[key]; }
         pragma(inline) bool insert(Ix key) @nogc
         {
             if (!contains(key)) { return _keyBits[key] = true; }

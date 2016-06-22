@@ -614,8 +614,12 @@ struct RawRadixTree(Value = void)
         Iterator back;
     }
 
-    /** 256-Branch population histogram.
+    /** Sparse-Branch population histogram.
     */
+    alias SparseLeaf1_PopHist = size_t[radix];
+
+    /** 256-Branch population histogram.
+     */
     alias DenseLeaf1_PopHist = size_t[radix];
 
     /** 4-Branch population histogram.
@@ -624,13 +628,14 @@ struct RawRadixTree(Value = void)
     alias SparseBranch4_PopHist = size_t[SparseBranch4.subCapacity + 1];
 
     /** radix-Branch population histogram.
-        Index maps to population with value range (1 .. `radix`).
+        Index maps to population with value range (0 .. `radix`).
     */
-    alias DenseBranchM_PopHist = size_t[radix];
+    alias DenseBranchM_PopHist = size_t[radix + 1];
 
     /** Tree Population and Memory-Usage Statistics. */
     struct Stats
     {
+        SparseLeaf1_PopHist popHist_SparseLeaf1;
         DenseLeaf1_PopHist popHist_DenseLeaf1;
         SparseBranch4_PopHist popHist_SparseBranch4; // packed branch population histogram
         DenseBranchM_PopHist popHist_DenseBranchM; // full branch population histogram
@@ -763,7 +768,7 @@ struct RawRadixTree(Value = void)
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats) @safe const
         {
-            dln("TODO");
+            ++stats.popHist_SparseLeaf1[length - 1]; // TODO type-safe indexing
         }
 
         pragma(inline) auto ref keys() inout @trusted @nogc
@@ -948,20 +953,19 @@ struct RawRadixTree(Value = void)
         void calculate(ref Stats stats) const
         {
             size_t count = 0; // number of non-zero sub-nodes
-
             foreach (const sub; subNodes)
             {
                 ++count;
                 sub.calculate!(Value)(stats);
             }
+            assert(count <= radix);
+            ++stats.popHist_SparseBranch4[count]; // TODO type-safe indexing
 
             if (leaf)
             {
                 leaf.calculate!(Value)(stats);
             }
 
-            assert(count <= radix);
-            ++stats.popHist_SparseBranch4[count]; // TODO type-safe indexing
         }
 
         private:
@@ -1044,7 +1048,6 @@ struct RawRadixTree(Value = void)
         void calculate(ref Stats stats)  /* TODO @nogc */ const
         {
             size_t count = 0; // number of non-zero sub-nodes
-
             foreach (const subNode; subNodes)
             {
                 if (subNode)
@@ -1053,14 +1056,13 @@ struct RawRadixTree(Value = void)
                     subNode.calculate!(Value)(stats);
                 }
             }
+            assert(count <= radix);
+            ++stats.popHist_DenseBranchM[count]; // TODO type-safe indexing
 
             if (leaf)
             {
                 leaf.calculate!(Value)(stats);
             }
-
-            assert(count <= radix);
-            ++stats.popHist_DenseBranchM[count - 1]; // TODO type-safe indexing
         }
     }
 
@@ -2444,6 +2446,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
 {
     import std.stdio : writeln;
     auto stats = tree.usageHistograms;
+    writeln("SparseLeaf1 Population Histogram: ", stats.popHist_SparseLeaf1);
     writeln("DenseLeaf1 Population Histogram: ", stats.popHist_DenseLeaf1);
     writeln("SparseBranch4 Population Histogram: ", stats.popHist_SparseBranch4);
     writeln("DenseBranchM Population Histogram: ", stats.popHist_DenseBranchM);

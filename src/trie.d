@@ -447,10 +447,10 @@ private struct RawRadixTree(Value = void)
     {
         static if (span == 8)
         {
-            /// Single/1-Key Leaf with maximum key-length 6.
-            struct OneLeaf6
+            /// Single/1-Key Leaf with maximum key-length 7.
+            struct OneLeaf7
             {
-                enum capacity = (size_t.sizeof - 2) / Ix.sizeof;
+                enum capacity = 7;
                 this(Ix[] key) { this.key = key; }
 
                 pragma(inline) bool contains(Key!span key) const @nogc { return this.key == key; }
@@ -533,7 +533,7 @@ private struct RawRadixTree(Value = void)
                 IxsN!(capacity, keyLength) keys;
             }
 
-            /// Hexa/6-Key Leaf with key-length 1.
+            /// Hepa/7-Key Leaf with key-length 1.
             struct HeptLeaf1
             {
                 enum keyLength = 1;
@@ -573,7 +573,7 @@ private struct RawRadixTree(Value = void)
                               DenseLeaf1*);
 
     /** Mutable node. */
-    alias Node = WordVariant!(OneLeaf6,
+    alias Node = WordVariant!(OneLeaf7,
                               TwoLeaf3,
                               TriLeaf2,
                               HeptLeaf1,
@@ -1247,7 +1247,7 @@ private struct RawRadixTree(Value = void)
             final switch (curr.typeIx) with (Node.Ix)
             {
             case undefined: return false;
-            case ix_OneLeaf6: return curr.as!(OneLeaf6).contains(key);
+            case ix_OneLeaf7: return curr.as!(OneLeaf7).contains(key);
             case ix_TwoLeaf3: return curr.as!(TwoLeaf3).contains(key);
             case ix_TriLeaf2: return curr.as!(TriLeaf2).contains(key);
             case ix_HeptLeaf1: return curr.as!(HeptLeaf1).contains(key);
@@ -1277,7 +1277,7 @@ private struct RawRadixTree(Value = void)
             final switch (curr.typeIx) with (Node.Ix)
             {
             case undefined: break;
-            case ix_OneLeaf6: break;
+            case ix_OneLeaf7: break;
             case ix_TwoLeaf3: break;
             case ix_TriLeaf2: break;
             case ix_HeptLeaf1: break;
@@ -1321,16 +1321,16 @@ private struct RawRadixTree(Value = void)
         {
             switch (key.length)
             {
-            case 0: return insertionNode = Node(construct!(OneLeaf6)());
+            case 0: return insertionNode = Node(construct!(OneLeaf7)());
             case 1: return insertionNode = Node(construct!(HeptLeaf1)(key[0]));
             case 2: return insertionNode = Node(construct!(TriLeaf2)(key));
             case 3: return insertionNode = Node(construct!(TwoLeaf3)(key));
             default:
-                if (key.length <= OneLeaf6.capacity)
+                if (key.length <= OneLeaf7.capacity)
                 {
-                    return insertionNode = Node(construct!(OneLeaf6)(key));
+                    return insertionNode = Node(construct!(OneLeaf7)(key));
                 }
-                else                // key doesn't fit in a `OneLeaf6`
+                else                // key doesn't fit in a `OneLeaf7`
                 {
                     import std.algorithm : min;
                     auto prefix = key[0 .. min(key.length - 1, // all but last Ix of key
@@ -1372,7 +1372,7 @@ private struct RawRadixTree(Value = void)
                 final switch (curr.typeIx) with (Node.Ix)
                 {
                 case undefined: return typeof(return).init;
-                case ix_OneLeaf6: return insertAt(curr.as!(OneLeaf6), key, superPrefixLength, insertionNode);
+                case ix_OneLeaf7: return insertAt(curr.as!(OneLeaf7), key, superPrefixLength, insertionNode);
                 case ix_TwoLeaf3: return insertAt(curr.as!(TwoLeaf3), key, superPrefixLength, insertionNode);
                 case ix_TriLeaf2: return insertAt(curr.as!(TriLeaf2), key, superPrefixLength, insertionNode);
                 case ix_HeptLeaf1: return insertAt(curr.as!(HeptLeaf1), key, superPrefixLength, insertionNode);
@@ -1550,7 +1550,7 @@ private struct RawRadixTree(Value = void)
             return curr;
         }
 
-        Node insertAt(OneLeaf6 curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
+        Node insertAt(OneLeaf7 curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
         {
             if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr); }
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
@@ -1656,7 +1656,7 @@ private struct RawRadixTree(Value = void)
         }
 
         /** Split `curr` using `prefix`. */
-        Node split(OneLeaf6 curr, Key!span prefix, Key!span key, size_t superPrefixLength) // TODO key here is a bit malplaced
+        Node split(OneLeaf7 curr, Key!span prefix, Key!span key, size_t superPrefixLength) // TODO key here is a bit malplaced
         {
             if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); } assert(key.length);
             assert(hasVariableKeyLength || curr.key.length == key.length);
@@ -1855,7 +1855,7 @@ private struct RawRadixTree(Value = void)
             freeNode(curr);
         }
 
-        void release(OneLeaf6 curr) { freeNode(curr); }
+        void release(OneLeaf7 curr) { freeNode(curr); }
         void release(TwoLeaf3 curr) { freeNode(curr); }
         void release(TriLeaf2 curr) { freeNode(curr); }
         void release(HeptLeaf1 curr) { freeNode(curr); }
@@ -1879,7 +1879,7 @@ private struct RawRadixTree(Value = void)
             final switch (curr.typeIx) with (Node.Ix)
             {
             case undefined: break; // ignored
-            case ix_OneLeaf6: return release(curr.as!(OneLeaf6));
+            case ix_OneLeaf7: return release(curr.as!(OneLeaf7));
             case ix_TwoLeaf3: return release(curr.as!(TwoLeaf3));
             case ix_TriLeaf2: return release(curr.as!(TriLeaf2));
             case ix_HeptLeaf1: return release(curr.as!(HeptLeaf1));
@@ -1895,7 +1895,7 @@ private struct RawRadixTree(Value = void)
             final switch (curr.typeIx) with (Node.Ix)
             {
             case undefined: return false;
-            case ix_OneLeaf6: return false;
+            case ix_OneLeaf7: return false;
             case ix_TwoLeaf3: return false;
             case ix_TriLeaf2: return false;
             case ix_HeptLeaf1: return false;
@@ -1949,8 +1949,8 @@ private struct RawRadixTree(Value = void)
         case undefined:
             dln("TODO: Trying to print undefined Node");
             break;
-        case ix_OneLeaf6:
-            auto curr_ = curr.as!(OneLeaf6);
+        case ix_OneLeaf7:
+            auto curr_ = curr.as!(OneLeaf7);
             writeln(typeof(curr_).stringof, "#", curr_.key.length, ": ", curr_.to!string);
             break;
         case ix_TwoLeaf3:
@@ -2076,7 +2076,7 @@ static private void calculate(Value)(RawRadixTree!(Value).Node sub,
         final switch (sub.typeIx)
         {
         case undefined: break;
-        case ix_OneLeaf6: break; // TODO calculate()
+        case ix_OneLeaf7: break; // TODO calculate()
         case ix_TwoLeaf3: break; // TODO calculate()
         case ix_TriLeaf2: break; // TODO calculate()
         case ix_HeptLeaf1: break; // TODO calculate()
@@ -2398,7 +2398,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
             final switch (ix)
             {
             case undefined: break;
-            case ix_OneLeaf6: bytesUsed = pop*RT.OneLeaf6.sizeof; break;
+            case ix_OneLeaf7: bytesUsed = pop*RT.OneLeaf7.sizeof; break;
             case ix_TwoLeaf3: bytesUsed = pop*RT.TwoLeaf3.sizeof; break;
             case ix_TriLeaf2: bytesUsed = pop*RT.TriLeaf2.sizeof; break;
             case ix_HeptLeaf1: bytesUsed = pop*RT.HeptLeaf1.sizeof; break;

@@ -2458,6 +2458,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
 
     size_t totalBytesUsed = 0;
 
+    // Node-usage
     foreach (RT.Node.Ix ix, pop; stats.popByNodeType) // TODO use stats.byPair when added to typecons_ex.d
     {
         size_t bytesUsed = 0;
@@ -2482,6 +2483,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
         }
     }
 
+    // Leaf-usage
     foreach (RT.Leaf.Ix ix, pop; stats.popByLeafType) // TODO use stats.byPair when added to typecons_ex.d
     {
         size_t bytesUsed = 0;

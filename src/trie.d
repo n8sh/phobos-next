@@ -137,6 +137,7 @@ struct IxsN(uint capacity,
     enum M = 2^^span;   // branch-multiplicity, typically either 2, 4, 16 or 256
     alias Ix = Mod!M;
 
+    /// Element type `E`.
     static if (L == 1)
         alias E = Ix;
     else
@@ -645,7 +646,7 @@ private struct RawRadixTree(Value = void)
         alias Length = Mod!(radix + 1);
         alias Capacity = Mod!(radix + 1);
 
-        // Constructor Parameter Element type `E`.
+        /// Constructor Parameter Element type `E`.
         static if (hasValue) { alias E = Tuple!(Ix, Value); }
         else                 { alias E = Ix; }
 
@@ -827,7 +828,7 @@ private struct RawRadixTree(Value = void)
 
         @safe pure nothrow:
 
-        // Element type `E`.
+        /// Element type `E`.
         static if (hasValue) { alias E = Tuple!(Ix, Node, Value); }
         else                 { alias E = Tuple!(Ix, Node); }
 

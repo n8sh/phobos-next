@@ -837,7 +837,7 @@ struct RawRadixTree(Value = void)
         static if (hasValue) { alias E = Tuple!(Ix, Node, Value); }
         else                 { alias E = Tuple!(Ix, Node); }
 
-        this(Ix[] prefix, Leaf leaf = Leaf.init)
+        this(const Ix[] prefix, Leaf leaf = Leaf.init)
         {
             this.prefix = prefix;
             this.leaf = leaf;
@@ -848,7 +848,7 @@ struct RawRadixTree(Value = void)
             this.leaf = leaf;
         }
 
-        this(Ix[] prefix, Ix subIx, Node subNode)
+        this(const Ix[] prefix, Ix subIx, Node subNode)
         {
             this.prefix = prefix;
             this.subIxSlots.at!0 = subIx;
@@ -856,7 +856,7 @@ struct RawRadixTree(Value = void)
             this.subCount = 1;
         }
 
-        this(Ix[] prefix,
+        this(const Ix[] prefix,
              Ix subIx0, Node subNode0,
              Ix subIx1, Node subNode1)
         {
@@ -967,18 +967,18 @@ struct RawRadixTree(Value = void)
 
         @safe pure nothrow:
 
-        this(Ix[] prefix)
+        this(const Ix[] prefix)
         {
             this.prefix = prefix;
         }
 
-        this(Ix[] prefix, Ix subIx, Node subNode)
+        this(const Ix[] prefix, Ix subIx, Node subNode)
         {
             this(prefix);
             this.subNodes[subIx] = subNode;
         }
 
-        this(Ix[] prefix,
+        this(const Ix[] prefix,
              Ix subIx0, Node subNode0,
              Ix subIx1, Node subNode1)
         {
@@ -1165,7 +1165,7 @@ struct RawRadixTree(Value = void)
     }
 
     /** Set prefix of branch node `curr` to `prefix`. */
-    pragma(inline) void setPrefix(Node curr, Ix[] prefix) @safe pure nothrow
+    pragma(inline) void setPrefix(Node curr, const Ix[] prefix) @safe pure nothrow
     {
         switch (curr.typeIx)
         {

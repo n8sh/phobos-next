@@ -2510,11 +2510,14 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
 unittest
 {
     immutable path = "/usr/share/dict/words";
-    import std.stdio : File, writeln;
+    import std.stdio : File;
+
     auto set = radixTreeSet!(string);
     assert(set.empty);
+
     size_t count = 0;
     const bool debugPrint = false;
+
     foreach (const word; File(path).byLine())
     {
         import std.algorithm.searching : endsWith;

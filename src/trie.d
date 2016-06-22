@@ -1472,9 +1472,9 @@ struct RawRadixTree(Value = void)
                     if (willFail) { dln(""); }
                     const currSubIx = currPrefix[0]; // subIx = 'a'
                     popFrontNPrefix(curr, 1);
-                    return insertAtBranch(Node(construct!(DefaultBranch)(matchedKeyPrefix,
-                                                                         currSubIx, curr)),
-                                          key, superPrefixLength, insertionNode);
+                    auto next = construct!(DefaultBranch)(matchedKeyPrefix,
+                                                          currSubIx, curr);
+                    return insertAtBranch(Node(next), key, superPrefixLength, insertionNode);
                 }
             }
             else if (matchedKeyPrefix.length < key.length)
@@ -1507,11 +1507,9 @@ struct RawRadixTree(Value = void)
                     // NOTE: prefix and key share beginning: prefix:"ab11", key:"ab22"
                     const currSubIx = currPrefix[matchedKeyPrefix.length]; // need index first before we modify curr.prefix
                     popFrontNPrefix(curr, matchedKeyPrefix.length + 1);
-                    return insertAtBranch(Node(construct!(DefaultBranch)(matchedKeyPrefix,
-                                                                         currSubIx, curr)),
-                                          key,
-                                          superPrefixLength,
-                                          insertionNode);
+                    auto next = construct!(DefaultBranch)(matchedKeyPrefix,
+                                                          currSubIx, curr);
+                    return insertAtBranch(Node(next), key, superPrefixLength, insertionNode);
                 }
             }
             else // if (matchedKeyPrefix.length == key.length)
@@ -1522,19 +1520,19 @@ struct RawRadixTree(Value = void)
                     // NOTE: prefix is an extension of key: prefix:"abcd", key:"ab"
                     const currSubIx = currPrefix[matchedKeyPrefix.length - 1]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
-                    return insertAtBranch(Node(construct!(DefaultBranch)(matchedKeyPrefix[0 .. $ - 1],
-                                                                         currSubIx, curr)),
-                                          key,
-                                          superPrefixLength,
-                                          insertionNode);
+                    auto next = construct!(DefaultBranch)(matchedKeyPrefix[0 .. $ - 1],
+                                                          currSubIx, curr);
+                    return insertAtBranch(Node(next), key, superPrefixLength, insertionNode);
                 }
-                else // if (matchedKeyPrefix.length == currPrefix.length)
+                else /* if (matchedKeyPrefix.length == currPrefix.length) and in turn
+                        if (key.length == currPrefix.length */
                 {
-                    if (willFail) { dln(""); }
-                    dln("matchedKeyPrefix:", matchedKeyPrefix);
-                    dln("currPrefix:", currPrefix);
-                    dln("key:", key);
-                    assert(false);
+                    // NOTE: prefix equals key: prefix:"abcd", key:"abcd"
+                    const currSubIx = currPrefix[matchedKeyPrefix.length - 1]; // need index first
+                    popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
+                    auto next = construct!(DefaultBranch)(matchedKeyPrefix[0 .. $ - 1],
+                                                          currSubIx, curr);
+                    return insertAtBranchLeaf(Node(next), key[$ - 1], superPrefixLength + key.length - 1, insertionNode);
                 }
             }
         }
@@ -2595,42 +2593,42 @@ private static auto randomUniqueStrings(size_t count = 1_000_000,
 auto checkString(Keys...)()
     if (Keys.length >= 1)
 {
+    enum show = false;
     void testContainsAndInsert(Set, Key)(ref Set set, Key key)
         if (isSomeString!Key)
     {
-        dln(`key:`, key);
+        static if (show) { dln(`key:`, key); }
         import std.conv : to;
         immutable failMessage = `Failed for key: "` ~ key.to!string ~ `"`;
 
         import std.string : representation;
         set.willFail = (key == `......`);
 
-        if (set.willFail) dln(`key:"`, key, `" (`, key.representation, `)`);
+        static if (show) { if (set.willFail) dln(`key:"`, key, `" (`, key.representation, `)`); }
 
-        // if (set.willFail) dln(`assert(!set.contains(key)) ################################ : `);
+        static if (show) { if (set.willFail) dln(`assert(!set.contains(key)) ################################ : `); }
         assert(!set.contains(key), failMessage);
 
-        // if (set.willFail) dln(`assert(set.insert(key)) ################################ : `);
+        static if (show) { if (set.willFail) dln(`assert(set.insert(key)) ################################ : `); }
         assert(set.insert(key), failMessage);
 
-        if (set.willFail) dln(`assert(set.contains(key)) ################################ :`);
+        static if (show) { if (set.willFail) dln(`assert(set.contains(key)) ################################ :`); }
         assert(set.contains(key), failMessage);
 
-        // if (set.willFail) dln(`assert(!set.insert(key)) ################################ :`);
+        static if (show) { if (set.willFail) dln(`assert(!set.insert(key)) ################################ :`); }
         assert(!set.insert(key), failMessage);
 
-        // if (set.willFail) dln(`assert(set.contains(key)) ################################ :`);
+        static if (show) { if (set.willFail) dln(`assert(set.contains(key)) ################################ :`);}
         assert(set.contains(key), failMessage);
     }
 
+    import std.stdio : writeln;
     import std.range : iota;
     foreach (Key; Keys)
     {
         auto set = radixTreeSet!(Key);
         assert(set.empty);
-        testContainsAndInsert(set, `fuxwggx`);
-        testContainsAndInsert(set, `fuxwp`);
-        testContainsAndInsert(set, `fuxw`);
+
         foreach (const key; randomUniqueStrings)
         {
             testContainsAndInsert(set, key);

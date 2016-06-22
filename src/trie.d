@@ -2515,7 +2515,7 @@ unittest
     assert(set.empty);
 
     size_t count = 0;
-    const bool debugPrint = false;
+    enum debugPrint = false;
 
     import std.stdio : File;
     foreach (const word; File(path).byLine())
@@ -2527,7 +2527,7 @@ unittest
         {
             if (word.length <= 15)
             {
-                if (debugPrint)
+                static if (debugPrint)
                 {
                     import std.string : representation;
                     dln(`word:"`, word, `" of length:`, word.length, ` of representation:`, word.representation);

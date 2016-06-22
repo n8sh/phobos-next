@@ -1558,7 +1558,6 @@ struct RawRadixTree(Value = void)
 
         Node insertAt(OneLeaf7 curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
         {
-            if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr); }
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
             import std.algorithm : commonPrefix;
@@ -1578,7 +1577,6 @@ struct RawRadixTree(Value = void)
                     case 1: next = construct!(TriLeaf2)(curr.key, key); break;
                     case 2: next = construct!(TwoLeaf3)(curr.key, key); break;
                     default:
-                        if (willFail) { dln("matchedKeyPrefix:", matchedKeyPrefix); }
                         next = construct!(DefaultBranch)(matchedKeyPrefix);
                         Node insertionNodeCurr;
                         next = insertAtBranch(next, curr.key, superPrefixLength, insertionNodeCurr);
@@ -1590,13 +1588,14 @@ struct RawRadixTree(Value = void)
                     {
                         insertionNode = next;
                     }
-                    if (willFail) { dln("WILL FAIL: key:", key); }
                     return next;
                 }
             }
+
             if (willFail) { dln("WILL FAIL 1: key:", key); }
             auto next = split(curr, matchedKeyPrefix, key, superPrefixLength);
             if (willFail) { dln("WILL FAIL 2: key:", key); }
+
             return insertAt(next, key, superPrefixLength, insertionNode);
         }
 

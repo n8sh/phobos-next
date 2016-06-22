@@ -792,12 +792,12 @@ struct RawRadixTree(Value = void)
     /** Dense Bitset Branch with only bottom-most leaves. */
     static private struct DenseLeaf1
     {
-        enum maxSubCount = 256;
+        enum maxCount = radix;
 
         @safe pure nothrow:
 
         this(Ixs...)(Ixs subIxs)
-            if (Ixs.length <= maxSubCount)
+            if (Ixs.length <= maxCount)
         {
             foreach (subIx; subIxs)
             {
@@ -821,7 +821,7 @@ struct RawRadixTree(Value = void)
         void calculate(ref Stats stats)
         {
             const count = _keyBits.countOnes; // number of non-zero sub-nodes
-            assert(count <= radix);
+            assert(count <= maxCount);
             ++stats.popHist_DenseLeaf1[count - 1]; // TODO type-safe indexing
         }
 

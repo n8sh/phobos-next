@@ -1738,16 +1738,12 @@ struct RawRadixTree(Value = void)
             }
             else
             {
-                auto next_ = construct!(DefaultBranch)(curr.prefix);
-                immutable prefixLength = next_.prefix.length;
-                next = next_;
-                // TODO functionize:
+                next = construct!(DefaultBranch)(curr.prefix);
+                // TODO functionize to insertAtBranch(curr.keys)
                 foreach (key; curr.keys)
                 {
                     Node insertionNodeCurr;
-                    next = setSub(next, key[prefixLength],
-                                  insertNew(key[prefixLength + 1 .. $], superPrefixLength, insertionNodeCurr),
-                                  superPrefixLength);
+                    next = insertAtBranch(next, key, superPrefixLength, insertionNodeCurr);
                     assert(insertionNodeCurr);
                 }
             }
@@ -1774,15 +1770,12 @@ struct RawRadixTree(Value = void)
             }
             else
             {
-                auto next_ = construct!(DefaultBranch)(curr.prefix);
-                immutable prefixLength = next_.prefix.length;
-                next = next_;
-                // TODO functionize:
+                next = construct!(DefaultBranch)(curr.prefix);
+                // TODO functionize to insertAtBranch(curr.keys)
                 foreach (key; curr.keys)
                 {
                     Node insertionNodeCurr;
-                    next = setSub(next, key[prefixLength], insertNew(key[prefixLength + 1 .. $], superPrefixLength, insertionNodeCurr),
-                                  superPrefixLength);
+                    next = insertAtBranch(next, key, superPrefixLength, insertionNodeCurr);
                     assert(insertionNodeCurr);
                 }
             }

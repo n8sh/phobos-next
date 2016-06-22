@@ -453,7 +453,11 @@ struct RawRadixTree(Value = void)
             struct OneLeaf7
             {
                 enum capacity = 7;
-                this(Ix[] key) { this.key = key; }
+                this(Ix[] key)
+                {
+                    assert(key.length);
+                    this.key = key;
+                }
 
                 pragma(inline) bool contains(Key!span key) const @nogc { return this.key == key; }
 
@@ -1558,6 +1562,8 @@ struct RawRadixTree(Value = void)
 
         Node insertAt(OneLeaf7 curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
         {
+            if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
+
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
             import std.algorithm : commonPrefix;
@@ -1703,6 +1709,7 @@ struct RawRadixTree(Value = void)
         /** Destructively expand `curr` and return it. */
         SparseBranch4* expand(OneLeaf7 curr)
         {
+            if (willFail) { dln("curr.key:", curr.key); }
             assert(curr.key.length >= 2);
             auto next = construct!(typeof(return))(curr.key[0 .. $ - 1]);
             next.leaf = Leaf(construct!(HeptLeaf1)(curr.key[$ - 1]));

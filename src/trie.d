@@ -289,8 +289,6 @@ struct IxsN(uint capacity,
     auto length() const { return _length; }
 
 private:
-    Mod!(capacity + 1) _length; // number of defined elements in `_ixs`
-
     static if (L == 1)
     {
         Ix[capacity] _ixs;     // byte indexes
@@ -299,6 +297,8 @@ private:
     {
         Ix[L][capacity] _ixs;  // byte indexes
     }
+
+    Mod!(capacity + 1) _length; // number of defined elements in `_ixs`
 }
 
 static assert(IxsN!(6, 1, 8).sizeof == 7);

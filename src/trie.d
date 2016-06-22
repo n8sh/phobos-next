@@ -748,7 +748,7 @@ struct RawRadixTree(Value = void)
         void reserve(Capacity newCapacity) @trusted // TODO @nogc
         {
             assert(!full);
-            if (newCapacity > _capacity)
+            if (_capacity < newCapacity)
             {
                 _capacity = nextPow2(newCapacity - 1); // need minus one here
                 assert(_capacity >= newCapacity);

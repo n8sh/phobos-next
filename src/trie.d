@@ -682,11 +682,6 @@ struct RawRadixTree(Value = void)
             {
                 _length = es.length;
                 _capacity = _length == 1 ? 1 : nextPow2(_length - 1);
-                if (_capacity < _length)
-                {
-                    dln(_length);
-                    dln(_capacity);
-                }
                 assert(_capacity >= _length);
 
                 // allocate

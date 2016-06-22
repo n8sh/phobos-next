@@ -264,15 +264,14 @@ struct IxsN(uint capacity,
         if (key.length != L) { return false; }
         return (chunks.canFind(key)); // TODO use binarySearch
     }
-
-    /** Returns: `true` if `ix` is contained in `this`. */
-    bool contains(const Ix ix) const @nogc
+    static if (L == 1)
     {
-        // TODO prevent this ugly hack, by adding and using a canFind-overload
-        // TODO isn't there any Phobos algorithm that supports searching for T in T[]?
-        // See also: http://forum.dlang.org/post/bmkmkteeqrqiebmybbyr@forum.dlang.org
-        Ix[1] key = [ix];
-        return contains(key[]);
+        /** Returns: `true` if `ix` is contained in `this`. */
+        bool contains(const Ix ix) const @nogc
+        {
+            import std.algorithm.searching : canFind;
+            return (chunks.canFind(ix)); // TODO use binarySearch
+        }
     }
 
     auto chunks() inout { return _ixs[0 .. _length]; }

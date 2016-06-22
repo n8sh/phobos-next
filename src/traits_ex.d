@@ -396,7 +396,7 @@ unittest
     static assert(!isType!"Hello world!" );
 }
 
-/** Note that `NotNull!T` is not `isNullable` :) */
+/** Note that `NotNull!T` is not `isNullable`. */
 template isNullable(T)
 {
     import std.traits: isAssignable;
@@ -735,7 +735,7 @@ auto uniqueEnumMembers(T)()
     return [EnumMembers!T].sort().uniq; // TODO isn't really only uniq needed?
 }
 
-/** Hash-table version of `uniqueEnumMembers. */
+/** Hash-table version of `uniqueEnumMembers`. */
 auto uniqueEnumMembersHashed(T)()
     if (is(T == enum))
 {

@@ -96,7 +96,7 @@ unittest
     static assert(isIndexableBy!(int[], "I"));
 }
 
-/** Generate `opIndex' and `opSlice` */
+/** Generate `opIndex` and `opSlice`. */
 mixin template genOps(I)
 {
     auto ref at(size_t i)() inout
@@ -123,7 +123,7 @@ mixin template genOps(I)
     }
 }
 
-/** Generate `opIndex' and `opSlice` */
+/** Generate `opIndex` and `opSlice`. */
 mixin template genTrustedUncheckedOps(I)
 {
     @trusted:

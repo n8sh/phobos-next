@@ -47,7 +47,7 @@
     - Members:
     - Iterator front()
     - void popFront()
-    - bool empty())
+    - bool empty()
     - Iterator it; // Iterator is defined below
     - Reuse RefCounted reference to _root. Add checks with `isSorted`.
 

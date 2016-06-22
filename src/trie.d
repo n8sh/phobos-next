@@ -2567,7 +2567,6 @@ unittest
     import std.conv : to;
     version(print) dln("Added ", count, " words from ", path, " in ", sw.peek().to!Duration);
     version(print) set.showStatistics();
-    // version(print) set.print();
 }
 
 /** Generate `count` number of random unique strings of minimum length 1 and
@@ -2870,8 +2869,6 @@ auto testPrint(uint span, Keys...)()
                 assert(set.insert(key));  // insert new value returns `true` (previously not in set)
                 assert(!set.insert(key)); // reinsert same value returns `false` (already in set)
             }
-
-            version(print) set.print();
         }
     }
 }

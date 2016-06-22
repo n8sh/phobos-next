@@ -3,5 +3,5 @@
 .dub
 dub.selections.json
 *.lst
-
+*.html
 trie.d

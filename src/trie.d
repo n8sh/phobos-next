@@ -575,11 +575,13 @@ struct RawRadixTree(Value = void)
                                  SparseBranch4*,
                                  DenseLeaf1*,
                                  SparseLeaf1*);
+    static assert(PtrNode.typeBits <= IxsN!(7, 1, 8).typeBits);
 
     /** Mutable leaf node of 1-Ix leaves. */
     alias Leaf = WordVariant!(HeptLeaf1,
                               SparseLeaf1*,
                               DenseLeaf1*);
+    static assert(Leaf.typeBits <= IxsN!(7, 1, 8).typeBits);
 
     /** Mutable node. */
     alias Node = WordVariant!(OneLeaf7,
@@ -590,6 +592,7 @@ struct RawRadixTree(Value = void)
                               SparseBranch4*,
                               DenseLeaf1*,
                               SparseLeaf1*);
+    static assert(Node.typeBits <= IxsN!(7, 1, 8).typeBits);
 
     /** Constant node. */
     // TODO make work with indexNaming

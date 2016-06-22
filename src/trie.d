@@ -679,36 +679,32 @@ struct RawRadixTree(Value = void)
         {
             assert(es.length <= radix);
 
-            _length = es.length;
-            if (!_length)
+            if (es.length != 0)
             {
+                _length = es.length;
                 _capacity = nextPow2(_length - 1);
-            }
-            else
-            {
-                _capacity = _length;
-            }
-            assert(_capacity >= _length);
+                assert(_capacity >= _length);
 
-            // allocate
-            _keys = cast(typeof(_keys))malloc(_capacity*Ix.sizeof);
-            static if (hasValue)
-            {
-                _values = cast(typeof(_values))malloc(_capacity*Value.sizeof);
-            }
-
-            // initialize
-            foreach (const i, const e; es)
-            {
+                // allocate
+                _keys = cast(typeof(_keys))malloc(_capacity*Ix.sizeof);
                 static if (hasValue)
                 {
-                    _keys[i] = e;
-                    // _keys[i] = e[0];
-                    // _values[i] = e[1];
+                    _values = cast(typeof(_values))malloc(_capacity*Value.sizeof);
                 }
-                else
+
+                // initialize
+                foreach (const i, const e; es)
                 {
-                    _keys[i] = e;
+                    static if (hasValue)
+                    {
+                        _keys[i] = e;
+                        // _keys[i] = e[0];
+                        // _values[i] = e[1];
+                    }
+                    else
+                    {
+                        _keys[i] = e;
+                    }
                 }
             }
         }

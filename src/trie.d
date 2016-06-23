@@ -1018,7 +1018,8 @@ struct RawRadixTree(Value = void)
     static private struct SparseBranch
     {
         enum defaultLength = 2;
-        enum subCapacityMax = 64;
+        enum subCapacityMin = 0; // minmum number of preallocated sub-indexes and sub-nodes
+        enum subCapacityMax = 48; // maximum number of preallocated sub-indexes and sub-nodes
         enum prefixCapacity = 13; // 6, 14, 22, ...
 
         alias Count = Mod!(subCapacityMax + 1);
@@ -1313,9 +1314,9 @@ struct RawRadixTree(Value = void)
 
             // curr is full
             Node next;
-            if (curr.empty)     // if curr not yet allocated
+            if (curr.empty)     // if curr also empty length capacity must be zero
             {
-                next = construct!(SparseBranch*)(1, curr);
+                next = construct!(SparseBranch*)(1, curr); // so allocate one
             }
             else if (curr.subCapacity < DefaultBranch.subCapacityMax) // if we can expand to curr
             {
@@ -2030,7 +2031,9 @@ struct RawRadixTree(Value = void)
             static if (is(NodeType == SparseBranch*))
             {
                 static assert(isIntegral!(Args[0]), "First argument must be an integral");
-                return emplace(cast(NodeType)malloc(NodeType.allocationSize(args[0])), args);
+                import std.algorithm : max;
+                const subCapacity = max(SparseBranch.subCapacityMin, args[0]);
+                return emplace(cast(NodeType)malloc(NodeType.allocationSize(subCapacity)), subCapacity, args[1 .. $]);
             }
             else
             {

@@ -569,9 +569,9 @@ struct RawRadixTree(Value = void)
     alias DefaultLeaf = SparseLeaf1*; // either SparseLeaf1*, DenseLeaf1*
 
     /** Leaf Pointer node. */
-    alias LeafPtrNode = WordVariant!(DenseLeaf1*,
-                                     SparseLeaf1*);
-    static assert(LeafPtrNode.typeBits <= IxsN!(7, 1, 8).typeBits);
+    alias HeapLeaf = WordVariant!(DenseLeaf1*,
+                                 SparseLeaf1*);
+    static assert(HeapLeaf.typeBits <= IxsN!(7, 1, 8).typeBits);
 
     /** Mutable leaf node of 1-Ix leaves. */
     alias Leaf = WordVariant!(HeptLeaf1,

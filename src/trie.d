@@ -1341,6 +1341,7 @@ struct RawRadixTree(Value = void)
 
         Node insertNew(Key!span key, out Node insertionNode)
         {
+            if (willFail) { dln("WILL FAIL: curr:", key); }
             switch (key.length)
             {
             case 0: assert(false, "key must not be empty"); // return insertionNode = Node(construct!(OneLeaf7)());
@@ -1366,6 +1367,7 @@ struct RawRadixTree(Value = void)
 
         pragma(inline) Node toNode(Leaf curr) inout
         {
+            if (willFail) { dln("WILL FAIL: curr:", curr); }
             final switch (curr.typeIx) with (Leaf.Ix)
             {
             case undefined: return Node.init;
@@ -2610,7 +2612,7 @@ auto checkNumeric(Keys...)()
         import std.meta : AliasSeq;
         foreach (Key; Keys)
         {
-            dln("Key: ", Key.stringof);
+            // dln("Key: ", Key.stringof);
             alias Tree = radixTreeSet!(Key);
             auto set = Tree;
             assert(set.hasFixedKeyLength == isFixedTrieableKeyType!Key);

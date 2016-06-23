@@ -30,8 +30,6 @@
 
     TODO Store `isKey` in top-most bit of length part of `IxsN prefix` and use for TwoLeaf3, TriLeaf2, and HeptLeaf1.
 
-    TODO Optimize SparseBranch.findSub for specific `subCount`
-
     TODO Add function reprefix({SparseBranch|DenseBranch) and call after insertAt({SparseBranch|DenseBranch}). Only useful when one single leaf is present?
     TODO Is std.algorithm.countUntil the most suitable function to use in setSub(SparseBranch*, ...)
     TODO Use std.experimental.allocator
@@ -872,7 +870,7 @@ struct RawRadixTree(Value = void)
     {
         enum subCapacityMin = 0; // minmum number of preallocated sub-indexes and sub-nodes
         enum subCapacityMax = 48; // maximum number of preallocated sub-indexes and sub-nodes
-        enum prefixCapacity = 13; // 5, 13, 21, ...
+        enum prefixCapacity = 5; // 5, 13, 21, ...
 
         alias Count = Mod!(subCapacityMax + 1);
 
@@ -1041,14 +1039,14 @@ struct RawRadixTree(Value = void)
         IxsN!prefixCapacity prefix; // prefix common to all `subNodes` (also called edge-label)
         Count subCount;
         Count subCapacity;
-        static assert(prefix.sizeof + subCount.sizeof + subCapacity.sizeof == 16); // assert alignment
+        static assert(prefix.sizeof + subCount.sizeof + subCapacity.sizeof == 8); // assert alignment
 
         // variable-length part
         Node[0] _subNodeSlots;
         Ix[0] _subIxSlots;
     }
 
-    static if (!hasValue) static assert(SparseBranch.sizeof == 24);
+    static if (!hasValue) static assert(SparseBranch.sizeof == 16);
 
     /** Dense/Unpacked `radix`-branch with `radix` number of sub-nodes. */
     static private struct DenseBranch
@@ -1447,7 +1445,7 @@ struct RawRadixTree(Value = void)
                     import std.algorithm : min;
                     auto prefix = key[0 .. min(key.length - 1, // all but last Ix of key
                                                DefaultBranch.prefixCapacity)]; // as much as possible of key in branch prefix
-                    auto next = insertAt(Node(construct!(DefaultBranch)(1, prefix)),
+                    auto next = insertAt(Node(constructWithCapacity!(DefaultBranch)(1, prefix)),
                                          key, insertionNode);
                     assert(insertionNode);
                     return next;
@@ -1893,6 +1891,32 @@ struct RawRadixTree(Value = void)
                 import std.algorithm : max;
                 const subCapacity = max(SparseBranch.subCapacityMin, args[0]);
                 return emplace(cast(NodeType)malloc(NodeType.allocationSize(subCapacity)), subCapacity, args[1 .. $]);
+            }
+            else
+            {
+                return emplace(cast(NodeType)malloc((*NodeType.init).sizeof), args);
+            }
+            // TODO ensure alignment of node at least that of NodeType.alignof
+        }
+        else
+        {
+            return NodeType(args);
+        }
+    }
+
+    auto constructWithCapacity(NodeType, Args...)(size_t subCapacity, Args args) @trusted
+    {
+        version(debugAllocations) { dln("constructing ", NodeType.stringof, " from ", args); }
+        debug ++nodeCountsByIx[NodeType.stringof];
+        static if (isPointer!NodeType)
+        {
+            debug ++_heapNodeAllocationBalance;
+            import std.conv : emplace;
+            static if (is(NodeType == SparseBranch*))
+            {
+                import std.algorithm : max;
+                subCapacity = max(SparseBranch.subCapacityMin, subCapacity);
+                return emplace(cast(NodeType)malloc(NodeType.allocationSize(subCapacity)), subCapacity, args);
             }
             else
             {
@@ -2471,9 +2495,6 @@ unittest
 
         // dln("tree:");
         // set.print();
-
-        // dln("set.heapNodeAllocationBalance:", set.heapNodeAllocationBalance);
-        assert(set.heapNodeAllocationBalance == 1);
     }
 
     foreach (const i; N .. 256)
@@ -2486,8 +2507,6 @@ unittest
 
         assert(!set.insert(i));
         assert(set.contains(i));
-
-        assert(set.heapNodeAllocationBalance == 2);
     }
 
     foreach (const i; 256 .. 256 + N)
@@ -2500,8 +2519,6 @@ unittest
 
         assert(!set.insert(i));
         assert(set.contains(i));
-
-        assert(set.heapNodeAllocationBalance == 3);
     }
 
     foreach (const i; 256 + N .. 256 + 256)
@@ -2514,8 +2531,6 @@ unittest
 
         assert(!set.insert(i));
         assert(set.contains(i));
-
-        assert(set.heapNodeAllocationBalance == 4);
     }
 }
 

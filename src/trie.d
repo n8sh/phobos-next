@@ -1093,7 +1093,7 @@ struct RawRadixTree(Value = void)
                 const iN = (cast(ubyte)i).mod!(SparseBranch.subCapacityMax);
                 const subIx = rhs.subIxSlots[iN];
                 this.subNodes[subIx] = rhs.subNodes[iN];
-                debug rhs.subNodes[iN] = null;
+                debug rhs.subNodes[iN] = null; // to be on the safe side
             }
         }
 

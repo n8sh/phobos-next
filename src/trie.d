@@ -420,6 +420,7 @@ static assert(span == 8, "Radix is currently limited to 8");
 */
 struct RawRadixTree(Value = void)
 {
+    import std.math : nextPow2;
     import std.bitmanip : bitfields;
     import std.conv : to;
     import std.algorithm : filter;
@@ -660,8 +661,6 @@ struct RawRadixTree(Value = void)
     /** Sparsely coded leaves. */
     static private struct SparseLeaf1
     {
-        import std.math : nextPow2;
-
         alias Length = Mod!(radix + 1);
         alias Capacity = Mod!(radix + 1);
 

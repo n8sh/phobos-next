@@ -428,8 +428,9 @@ struct RawRadixTree(Value = void)
     import std.typecons : ConstOf;
     import bitset : BitSet;
 
-    /** Is `true` if this tree stores values of type `Value` along with keys,
-     that is be a map rather than a set */
+    /** Is `true` if this tree stores values of type `Value` along with keys. In
+        other words: `this` is a $(I map) rather than a $(I set).
+    */
     enum hasValue = !is(Value == void);
 
     /// `true` if tree has binary branch.

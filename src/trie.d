@@ -715,6 +715,7 @@ struct RawRadixTree(Value = void)
             }
         }
 
+        /** Insert `key` in linear time. */
         bool linearInsert(Ix key) @trusted /* TODO @nogc */
         {
             if (!contains(key))

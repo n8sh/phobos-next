@@ -829,7 +829,9 @@ struct RawRadixTree(Value = void)
 
         static if (hasValue)
         {
+            /// Get value at index `ix`.
             auto ref getValue(Ix ix) inout { return _values[ix]; }
+            /// Set value at index `ix` to `value`.
             void setValue(Ix ix, in Value value) { _values[ix] = value; }
         }
 
@@ -837,7 +839,7 @@ struct RawRadixTree(Value = void)
         BitSet!radix _keyBits;  // 32 bytes
         static if (hasValue)
         {
-            Value[radix] _values; // _values
+            Value[radix] _values; // values
         }
     }
 

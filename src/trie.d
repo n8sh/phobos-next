@@ -2300,8 +2300,7 @@ auto radixTreeSet(Key)()
 auto radixTreeMap(Key, Value)() { return RadixTree!(Key, Value)(false); }
 
 ///
-@safe pure nothrow /* TODO @nogc */
-unittest
+@safe pure nothrow /* TODO @nogc */ unittest
 {
     auto set = radixTreeSet!(ulong);
 
@@ -2313,8 +2312,7 @@ unittest
 }
 
 ///
-@safe pure nothrow /* TODO @nogc */
-unittest
+@safe pure nothrow /* TODO @nogc */ unittest
 {
     enum N = 7;
     auto set = radixTreeSet!(ulong);
@@ -2373,8 +2371,7 @@ unittest
 }
 
 ///
-@safe pure nothrow /* TODO @nogc */
-unittest
+@safe pure nothrow /* TODO @nogc */ unittest
 {
     auto set = radixTreeSet!(ubyte);
     alias Set = typeof(set);
@@ -2410,8 +2407,7 @@ unittest
 }
 
 ///
-@safe pure nothrow /* TODO @nogc */
-unittest
+@safe pure nothrow /* TODO @nogc */ unittest
 {
     import std.meta : AliasSeq;
     foreach (T; AliasSeq!(ushort, uint))
@@ -2814,16 +2810,22 @@ void benchmark()()
 
         map.insert(Key.init, Value.init);
     }
+}
 
-    auto map = radixTreeMap!(uint, bool);
+///
+@safe pure nothrow /* TODO @nogc */ unittest
+{
+    alias Key = uint;
+    alias Value = bool;
+    auto map = radixTreeMap!(Key, Value);
     assert(map.empty);
     static assert(map.hasValue);
+    map.insert(Key.init, Value.init);
 }
 
 /// leak test
 version(enterSingleInfiniteMemoryLeakTest)
-@safe pure nothrow /* TODO @nogc */
-unittest
+@safe pure nothrow /* TODO @nogc */ unittest
 {
     while (true)
     {
@@ -2832,8 +2834,7 @@ unittest
 }
 
 ///
-@safe pure nothrow /* TODO @nogc */
-unittest
+@safe pure nothrow /* TODO @nogc */ unittest
 {
     checkNumeric!(float, double,
                   long, int, short, byte,

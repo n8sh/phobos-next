@@ -829,15 +829,15 @@ struct RawRadixTree(Value = void)
 
         static if (hasValue)
         {
-            auto ref getValue(Ix ix) inout { return values[ix]; }
-            void setValue(Ix ix, in Value value) { values[ix] = value; }
+            auto ref getValue(Ix ix) inout { return _values[ix]; }
+            void setValue(Ix ix, in Value value) { _values[ix] = value; }
         }
 
     private:
         BitSet!radix _keyBits;  // 32 bytes
         static if (hasValue)
         {
-            Value[radix] values; // values
+            Value[radix] _values; // _values
         }
     }
 

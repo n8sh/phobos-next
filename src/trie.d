@@ -626,7 +626,7 @@ struct RawRadixTree(Value = void)
     /** 4-Branch population histogram.
         Index maps to population with value range (0 .. 4).
     */
-    alias SparseBranch_PopHist = size_t[SparseBranch.subCapacity + 1];
+    alias SparseBranch_PopHist = size_t[SparseBranch.subCapacityMax + 1];
 
     /** radix-Branch population histogram.
         Index maps to population with value range (0 .. `radix`).
@@ -863,10 +863,10 @@ struct RawRadixTree(Value = void)
 
     static if (!hasValue) { static assert(DenseLeaf1.sizeof == 32); }
 
-    /** Sparse/Packed/Partial 4-way branch. */
+    /** Sparse/Packed/Partial N-way branch. */
     static private struct SparseBranch
     {
-        enum subCapacity = 4; // maximum number of sub indexes and nodes preallocated
+        enum subCapacityMax = 4; // maximum number of sub indexes and nodes preallocated
 
         enum prefixCapacity = 10; // 2, 10, 18, ...
 
@@ -925,7 +925,7 @@ struct RawRadixTree(Value = void)
         void pushBackSub(Tuple!(Ix, Node) sub)
         {
             assert(!full);
-            const backIx = subCount.mod!subCapacity;
+            const backIx = (cast(ubyte)subCount).mod!subCapacityMax;
             subIxSlots[backIx] = sub[0];
             subNodeSlots[backIx] = sub[1];
             subCount = cast(ubyte)(subCount + 1); // TODO remove need for cast
@@ -962,7 +962,7 @@ struct RawRadixTree(Value = void)
                 // TODO do binary search
                 foreach (const i_; 0 ..  subCount)
                 {
-                    const i = i_.mod!subCapacity;
+                    const i = (cast(ubyte)i_).mod!subCapacityMax;
                     if (subIxSlots[i] == ix) { return subNodeSlots[i]; }
                 }
                 break;
@@ -971,7 +971,7 @@ struct RawRadixTree(Value = void)
         }
 
         pragma(inline) bool empty() const @nogc { return subCount == 0; }
-        pragma(inline) bool full() const @nogc { return subCount == subCapacity; }
+        pragma(inline) bool full() const @nogc { return subCount == subCapacityMax; }
 
         pragma(inline) auto subIxs() inout @nogc
         {
@@ -1005,18 +1005,166 @@ struct RawRadixTree(Value = void)
 
         // members in order of decreasing `alignof`:
         Leaf leaf;
-        StrictlyIndexed!(Node[subCapacity]) subNodeSlots;
+        StrictlyIndexed!(Node[subCapacityMax]) subNodeSlots;
         IxsN!prefixCapacity prefix; // prefix common to all `subNodes` (also called edge-label)
-        StrictlyIndexed!(Ix[subCapacity]) subIxSlots;
-        ubyte subCount;
+        StrictlyIndexed!(Ix[subCapacityMax]) subIxSlots;
+        Mod!(subCapacityMax + 1) subCount;
     }
 
     static if (!hasValue) static assert(SparseBranch.sizeof == 56);
 
+    // /** Sparse/Packed/Partial dynamically allocated branch. */
+    // static private struct SparseBranchDynamic
+    // {
+    //     enum subCapacityMax = 48;
+    //     enum prefixCapacity = 10; // 2, 10, 18, ...
+
+    //     @safe pure nothrow:
+
+    //     /// Element type `E`.
+    //     static if (hasValue) { alias E = Tuple!(Ix, Node, Value); }
+    //     else                 { alias E = Tuple!(Ix, Node); }
+
+    //     this(size_t newSubCapacity) // TODO use newSubCapacity
+    //     {
+    //     }
+
+    //     this(const Ix[] prefix, Leaf leaf = Leaf.init, size_t newSubCapacity = 0) // TODO use newSubCapacity
+    //     {
+    //         this.prefix = prefix;
+    //         this.leaf = leaf;
+    //     }
+
+    //     this(const Ix[] prefix, size_t newSubCapacity) // TODO use newSubCapacity
+    //     {
+    //         this.prefix = prefix;
+    //     }
+
+    //     this(Leaf leaf, size_t newSubCapacity = 0) // TODO use newSubCapacity
+    //     {
+    //         this.leaf = leaf;
+    //     }
+
+    //     this(const Ix[] prefix, Ix subIx, Node subNode)
+    //     {
+    //         this.prefix = prefix;
+    //         this.subIxSlots.at!0 = subIx;
+    //         this.subNodeSlots.at!0 = subNode;
+    //         this.subCount = 1;
+    //     }
+
+    //     this(const Ix[] prefix,
+    //          Ix subIx0, Node subNode0,
+    //          Ix subIx1, Node subNode1)
+    //     {
+    //         assert(subIx0 != subIx1);
+    //         assert(subNode0 != subNode1);
+
+    //         this.prefix = prefix;
+
+    //         this.subIxSlots.at!0 = subIx0;
+    //         this.subNodeSlots.at!0 = subNode0;
+
+    //         this.subIxSlots.at!1 = subIx1;
+    //         this.subNodeSlots.at!1 = subNode1;
+
+    //         this.subCount = 2;
+    //     }
+
+    //     void pushBackSub(Tuple!(Ix, Node) sub)
+    //     {
+    //         assert(!full);
+    //         const backIx = subCount.mod!subCapacity;
+    //         subIxSlots[backIx] = sub[0];
+    //         subNodeSlots[backIx] = sub[1];
+    //         subCount = cast(ubyte)(subCount + 1); // TODO remove need for cast
+    //     }
+
+    //     inout(Node) findSub(Ix ix) inout
+    //     {
+    //         switch (subCount)
+    //         {
+    //         case 0:
+    //             break;
+    //         case 1:
+    //             if (subIxSlots.at!0 == ix) { return subNodeSlots.at!0; }
+    //             break;
+    //         case 2:
+    //             foreach (i; iota!(0, 2))
+    //             {
+    //                 if (subIxSlots.at!i == ix) { return subNodeSlots.at!i; }
+    //             }
+    //             break;
+    //         case 3:
+    //             foreach (i; iota!(0, 3))
+    //             {
+    //                 if (subIxSlots.at!i == ix) { return subNodeSlots.at!i; }
+    //             }
+    //             break;
+    //         case 4:
+    //             foreach (i; iota!(0, 4))
+    //             {
+    //                 if (subIxSlots.at!i == ix) { return subNodeSlots.at!i; }
+    //             }
+    //             break;
+    //         default:
+    //             // TODO do binary search
+    //             foreach (const i_; 0 ..  subCount)
+    //             {
+    //                 const i = i_.mod!subCapacity;
+    //                 if (subIxSlots[i] == ix) { return subNodeSlots[i]; }
+    //             }
+    //             break;
+    //         }
+    //         return Node.init;
+    //     }
+
+    //     pragma(inline) bool empty() const @nogc { return subCount == 0; }
+    //     pragma(inline) bool full() const @nogc { return subCount == subCapacity; }
+
+    //     pragma(inline) auto subIxs() inout @nogc
+    //     {
+    //         return subIxSlots[0 .. subCount];
+    //     }
+    //     pragma(inline) auto subNodes() inout @nogc
+    //     {
+    //         return subNodeSlots[0 .. subCount];
+    //     }
+
+    //     /** Append statistics of tree under `this` into `stats`. */
+    //     void calculate(ref Stats stats) const
+    //     {
+    //         size_t count = 0; // number of non-zero sub-nodes
+    //         foreach (const sub; subNodes)
+    //         {
+    //             ++count;
+    //             sub.calculate!(Value)(stats);
+    //         }
+    //         assert(count <= radix);
+    //         ++stats.popHist_SparseBranch[count]; // TODO type-safe indexing
+
+    //         if (leaf)
+    //         {
+    //             leaf.calculate!(Value)(stats);
+    //         }
+    //     }
+
+    // private:
+    //     // members in order of decreasing `alignof`:
+    //     Leaf leaf;
+    //     IxsN!prefixCapacity prefix; // prefix common to all `subNodes` (also called edge-label)
+    //     Mod!(subCapacityMax + 1) subCount;
+    //     Mod!(subCapacityMax + 1) subCapacity;
+    //     Node[0] subNodeSlots;
+    //     Ix[0] subIxSlots;
+    // }
+
+    // static if (!hasValue) static assert(SparseBranch.sizeof == 24);
+
     /** Dense/Unpacked `radix`-branch with `radix` number of sub-nodes. */
     static private struct DenseBranch
     {
-        enum subCapacity = 256;
+        enum subCapacityMax = 256;
         enum prefixCapacity = 15; // 7, 15, 23, ..., we can afford larger prefix here because DenseBranch is so large
 
         @safe pure nothrow:
@@ -1053,7 +1201,7 @@ struct RawRadixTree(Value = void)
 
             foreach (const i; 0 .. rhs.subCount) // each sub node. TODO use iota!(Mod!N)
             {
-                const iN = i.mod!(SparseBranch.subCapacity);
+                const iN = (cast(ubyte)i).mod!(SparseBranch.subCapacityMax);
                 const subIx = rhs.subIxSlots[iN];
                 this.subNodes[subIx] = rhs.subNodes[iN];
                 debug rhs.subNodes[iN] = null;

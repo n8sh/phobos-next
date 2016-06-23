@@ -940,9 +940,9 @@ struct RawRadixTree(Value = void)
 
             assert(rhs);
 
-            this = *rhs;        // copy basic stuff
-
-            initialize(subCapacity);
+            // these two must be in this order:
+            this = *rhs;             // 1. copy basic stuff
+            initialize(subCapacity); // 2. copy rest
 
             // copy variable length part
             this.subIxs[] = rhs.subIxs[];

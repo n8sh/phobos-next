@@ -1164,13 +1164,19 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        /** Get allocation size in bytes needed to hold `length` number of
+        /** Get allocation size (in bytes) needed to hold `length` number of
             sub-indexes and sub-nodes. */
-        static size_t allocationSize(size_t length)
+        static size_t allocationSize(size_t subCapacity) @safe pure nothrow @nogc
         {
             return (this.sizeof + // base plus
-                    Node.sizeof*length + // actual size of `_subNodeSlots`
-                    Ix.sizeof*length);   // actual size of `_subIxSlots`
+                    Node.sizeof*subCapacity + // actual size of `_subNodeSlots`
+                    Ix.sizeof*subCapacity);   // actual size of `_subIxSlots`
+        }
+
+        /** Get allocated size (in bytes) of `this` including the variable-length part. */
+        size_t allocatedSize() const @safe pure nothrow @nogc
+        {
+            return allocationSize(subCapacity);
         }
 
     private:

@@ -8,10 +8,6 @@
     - `alias Node(Value = void)`
     out of `RawRadixTree`.
 
-    TODO Add `Node expandWithN(SparseBranch*, size_t extraSubCapacity)` that
-    expands make room for extraSubCapacity more keys to either `SparseBranch*`
-    or `DenseBranch*`
-
     TODO Add sortedness to `IxsN` and make `IxsN.contains()` use `binarySearch()`. Make use of `sortn`.
 
     TODO Make the GC aware of all Value scalars and arrays:
@@ -24,7 +20,6 @@
     TODO Use variadic list of Tuple!(Ix, Node) in constructors for SparseBranch and DenseBranch
 
     TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
-
     TODO Allow NodeType-constructors to take const and immutable prefixes
 
     TODO Check for case when expanding to bit-branch instead of SparseBranch in all `expand()` overloads

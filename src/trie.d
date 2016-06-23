@@ -805,18 +805,6 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        pragma(inline) bool hasSubAt(Ix ix) const @nogc { return _keyBits[ix]; }
-        pragma(inline) bool empty() const @nogc { return _keyBits.empty; }
-        pragma(inline) bool full() const @nogc { return _keyBits.full; }
-        pragma(inline) size_t count() const @nogc { return _keyBits.countOnes; }
-
-        pragma(inline) bool contains(Ix key) const @nogc { return _keyBits[key]; }
-        pragma(inline) bool insert(Ix key) @nogc
-        {
-            if (!contains(key)) { return _keyBits[key] = true; }
-            return false;
-        }
-
         /** Append statistics of tree under `this` into `stats`. */
         void calculate(ref Stats stats)
         {
@@ -825,9 +813,24 @@ struct RawRadixTree(Value = void)
             ++stats.popHist_DenseLeaf1[count - 1]; // TODO type-safe indexing
         }
 
+        @nogc:
+
+        pragma(inline) bool hasSubAt(Ix ix) const { return _keyBits[ix]; }
+        pragma(inline) bool empty() const { return _keyBits.empty; }
+        pragma(inline) bool full() const { return _keyBits.full; }
+        pragma(inline) size_t count() const { return _keyBits.countOnes; }
+
+        pragma(inline) bool contains(Ix key) const { return _keyBits[key]; }
+        pragma(inline) bool insert(Ix key)
+        {
+            if (!contains(key)) { return _keyBits[key] = true; }
+            return false;
+        }
+
         static if (hasValue)
         {
-            void setValue(Ix ix, in Value value) @nogc { values[ix] = value; }
+            auto ref getValue(Ix ix) inout { return values[ix]; }
+            void setValue(Ix ix, in Value value) { values[ix] = value; }
         }
 
     private:

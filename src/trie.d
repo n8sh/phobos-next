@@ -1417,7 +1417,7 @@ struct RawRadixTree(Value = void)
         Node insertAtBranch(Node curr, Key!span key, size_t superPrefixLength, out Node insertionNode)
         {
             if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr); }
-            if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); } assert(key.length);
+            assert(key.length);
             assert(hasVariableKeyLength || superPrefixLength + key.length == fixedKeyLength);
 
             import std.algorithm : commonPrefix;
@@ -1439,7 +1439,7 @@ struct RawRadixTree(Value = void)
                     {
                         return insertAtBranchLeaf(curr, key[0], superPrefixLength, insertionNode);
                     }
-                    else
+                    else        // key.length >= 2
                     {
                         const subIx = key[0];
                         return setSub(curr, subIx,
@@ -1450,10 +1450,10 @@ struct RawRadixTree(Value = void)
                                       superPrefixLength);
                     }
                 }
-                else
+                else  // if (currPrefix.length >= 1) // non-empty current prefix
                 {
                     // NOTE: prefix:"ab", key:"cd"
-                    if (willFail) { dln(""); }
+                    dln("curr:", curr, " currPrefix:", currPrefix, " key:", key);
                     const currSubIx = currPrefix[0]; // subIx = 'a'
                     popFrontNPrefix(curr, 1);
                     auto next = construct!(DefaultBranch)(matchedKeyPrefix,

@@ -59,6 +59,7 @@ bool isCapitalized(S)(S s)
 
 @safe pure unittest
 {
+    assert(!``.isCapitalized);
     assert(!`alpha`.isCapitalized);
     assert(!`ALPHA`.isCapitalized);
     assert(!`aThing`.isCapitalized);

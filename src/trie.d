@@ -850,7 +850,14 @@ struct RawRadixTree(Value = void)
         BitSet!radix _keyBits;  // 32 bytes
         static if (hasValue)
         {
-            Value[radix] _values; // values
+            static if (is(Value == bool))
+            {
+                BitSet!radix _values; // packed values
+            }
+            else
+            {
+                Value[radix] _values;
+            }
         }
     }
 
@@ -2807,6 +2814,10 @@ void benchmark()()
 
         map.insert(Key.init, Value.init);
     }
+
+    auto map = radixTreeMap!(uint, bool);
+    assert(map.empty);
+    static assert(map.hasValue);
 }
 
 /// leak test

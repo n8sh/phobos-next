@@ -2525,7 +2525,7 @@ unittest
     auto sw = StopWatch(AutoStart.yes);
 
     import std.stdio : File;
-    foreach (const word; File(path).byLine())
+    foreach (const word; File(path).byLine)
     {
         import std.algorithm.searching : endsWith;
         import std.range : empty;

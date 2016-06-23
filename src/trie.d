@@ -779,12 +779,13 @@ struct RawRadixTree(Value = void)
                 return _values[0 .. _length];
             }
 
-            pragma(inline) bool setValue(Ix key, in Value value) const @trusted @nogc
+            pragma(inline) bool setValue(Ix key, in Value value) @trusted @nogc
             {
-                import std.algorithm.searching : canFind;
-                const hitIx = (_keys[0 .. _length].canFind(key)); // TODO binarySearch
-                if (hitIx != -1)
+                import std.algorithm.searching : find;
+                const hit = (_keys[0 .. _length].find(key)); // TODO binarySearch
+                if (hit.length != 0)
                 {
+                    _values[hit.ptr - _keys] = value;
                     return true;
                 }
                 return false;
@@ -2236,8 +2237,12 @@ struct RadixTree(Key, Value)
                 case ix_HeptLeaf1:
                     assert(false, "Shouldn't happen");
                     // only ok to insert into pointer Node-types:
-                case ix_SparseLeaf1Ptr: insertionNode.as!(_tree.SparseLeaf1*).setValue(rawKey[0], value); break;
-                case ix_DenseLeaf1Ptr: insertionNode.as!(_tree.DenseLeaf1*).setValue(rawKey[0], value); break;
+                case ix_SparseLeaf1Ptr:
+                    assert(insertionNode.as!(_tree.SparseLeaf1*).setValue(rawKey[0], value));
+                    break;
+                case ix_DenseLeaf1Ptr:
+                    insertionNode.as!(_tree.DenseLeaf1*).setValue(rawKey[0], value);
+                    break;
                 case ix_SparseBranchPtr: break;
                 case ix_DenseBranchPtr: break;
                 }

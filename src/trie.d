@@ -863,7 +863,9 @@ struct RawRadixTree(Value = void)
 
     static if (!hasValue) { static assert(DenseLeaf1.sizeof == 32); }
 
-    /** Sparse/Packed/Partial dynamically allocated branch. */
+    /** Sparse/Packed/Partial dynamically sized branch implemented as
+        variable-length struct.
+    */
     static private struct SparseBranch
     {
         enum defaultLength = 2;

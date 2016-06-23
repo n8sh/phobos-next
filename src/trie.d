@@ -1436,7 +1436,6 @@ struct RawRadixTree(Value = void)
 
         Node insertAtBranch(Node curr, Key!span key, out Node insertionNode)
         {
-            if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr); }
             assert(key.length);
 
             import std.algorithm : commonPrefix;

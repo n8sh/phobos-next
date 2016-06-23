@@ -9,15 +9,13 @@ import std.traits : isIntegral, isNumeric;
 bool isPow2(T)(T x)
     if (isNumeric!T)
 {
-    // TODO uncomment:
-    // static if (__VERSION__ >= 2072)
-    // {
-    //     import std.math : isPowerOf2; // https://github.com/dlang/phobos/pull/4327/files
-    //     return isPowerOf2(x);
-    // }
-    // else
-        static if (__VERSION__ >= 2071 ||
-                   is(T == uint))
+    static if (__VERSION__ >= 2072)
+    {
+        import std.math : isPowerOf2; // https://github.com/dlang/phobos/pull/4327/files
+        return isPowerOf2(x);
+    }
+    else static if (__VERSION__ >= 2071 ||
+                    is(T == uint))
     {
         import core.bitop : popcnt;
         return popcnt(x) == 1;

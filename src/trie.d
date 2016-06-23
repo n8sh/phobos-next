@@ -569,11 +569,9 @@ struct RawRadixTree(Value = void)
     alias DefaultLeaf = SparseLeaf1*; // either SparseLeaf1*, DenseLeaf1*
 
     /** Pointer node. */
-    alias PtrNode = WordVariant!(DenseBranch*,
-                                 SparseBranch*,
-                                 DenseLeaf1*,
-                                 SparseLeaf1*);
-    static assert(PtrNode.typeBits <= IxsN!(7, 1, 8).typeBits);
+    alias LeafPtrNode = WordVariant!(DenseLeaf1*,
+                                     SparseLeaf1*);
+    static assert(LeafPtrNode.typeBits <= IxsN!(7, 1, 8).typeBits);
 
     /** Mutable leaf node of 1-Ix leaves. */
     alias Leaf = WordVariant!(HeptLeaf1,
@@ -2231,14 +2229,9 @@ struct RadixTree(Key, Value)
                     auto curr_ = insertionNode.as!(_tree.SparseLeaf1*);
                     // const subIx = curr_.indexOf(key[0]);
                     break;
-                case ix_DenseLeaf1Ptr:
-                    auto curr_ = insertionNode.as!(_tree.DenseLeaf1*);
-                    curr_.setValue(rawKey[0], value);
-                    break;
-                case ix_SparseBranchPtr:
-                    break;
-                case ix_DenseBranchPtr:
-                    break;
+                case ix_DenseLeaf1Ptr: insertionNode.as!(_tree.DenseLeaf1*).setValue(rawKey[0], value); break;
+                case ix_SparseBranchPtr: break;
+                case ix_DenseBranchPtr: break;
                 }
             }
             else

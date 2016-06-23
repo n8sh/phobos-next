@@ -3,6 +3,8 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO Add Branch-hint allocation flag and re-benchmark construction of radixTreeSet with 10000000 uints
+
     TODO Move
     - local structs
     - `alias Node(Value = void)`

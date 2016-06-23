@@ -1479,7 +1479,6 @@ struct RawRadixTree(Value = void)
             {
                 if (matchedKeyPrefix.length == currPrefix.length)
                 {
-                    if (willFail) { dln(""); }
                     // NOTE: key is an extension of prefix: prefix:"ab", key:"abcd"
                     key = key[matchedKeyPrefix.length .. $]; // strip `currPrefix from beginning of `key`
                     assert(key.length);
@@ -1489,7 +1488,6 @@ struct RawRadixTree(Value = void)
                     }
                     else
                     {
-                        if (willFail) { dln(""); }
                         const subIx = key[0];
                         return setSub(curr, subIx,
                                       insertAt(getSub(curr, subIx), // recurse
@@ -1724,7 +1722,6 @@ struct RawRadixTree(Value = void)
         /** Destructively expand `curr` and return it. */
         SparseBranch* expand(OneLeaf7 curr)
         {
-            if (willFail) { dln("curr.key:", curr.key); }
             assert(curr.key.length >= 2);
             auto next = construct!(typeof(return))(curr.key[0 .. $ - 1]);
             next.leaf = Leaf(construct!(HeptLeaf1)(curr.key[$ - 1]));

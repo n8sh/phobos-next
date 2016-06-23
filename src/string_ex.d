@@ -9,12 +9,12 @@ bool isCapitalizedEasy(S)(S s)
     import std.range.primitives : empty, front, popFront;
     import std.uni : isUpper, isLower;
 
-    if (s.empty) return false;
+    if (s.empty) { return false; }
     const firstUpper = s.front.isUpper;
     if (!firstUpper) return false;
     s.popFront;
 
-    if (s.empty) return false;
+    if (s.empty) { return false; }
     return s.front.isLower;
 }
 
@@ -38,8 +38,7 @@ bool isCapitalized(S)(S s)
     import std.ascii : isDigit;
     import std.uni : isUpper, isLower;
 
-    if (s.empty)
-        return false;
+    if (s.empty) { return false; }
 
     const firstDigit = s.front.isDigit;
     const firstUpper = s.front.isUpper;

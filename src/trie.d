@@ -868,7 +868,6 @@ struct RawRadixTree(Value = void)
     */
     static private struct SparseBranch
     {
-        enum defaultLength = 2;
         enum subCapacityMin = 0; // minmum number of preallocated sub-indexes and sub-nodes
         enum subCapacityMax = 48; // maximum number of preallocated sub-indexes and sub-nodes
         enum prefixCapacity = 13; // 6, 14, 22, ...

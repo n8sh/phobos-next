@@ -825,6 +825,11 @@ struct RawRadixTree(Value = void)
             ++stats.popHist_DenseLeaf1[count - 1]; // TODO type-safe indexing
         }
 
+        static if (hasValue)
+        {
+            void setValue(Ix ix, in Value value) @nogc { values[ix] = value; }
+        }
+
     private:
         BitSet!radix _keyBits;  // 32 bytes
         static if (hasValue)
@@ -2071,20 +2076,17 @@ static private void calculate(Value)(RawRadixTree!(Value).Node sub,
     alias RT = RawRadixTree!(Value);
     ++stats.popByNodeType[sub.typeIx];
 
-    with (RT.Node.Ix)
+    final switch (sub.typeIx) with (RT.Node.Ix)
     {
-        final switch (sub.typeIx)
-        {
-        case undefined: break;
-        case ix_OneLeaf7: break; // TODO calculate()
-        case ix_TwoLeaf3: break; // TODO calculate()
-        case ix_TriLeaf2: break; // TODO calculate()
-        case ix_HeptLeaf1: break; // TODO calculate()
-        case ix_SparseLeaf1Ptr: ++stats.heapNodeCount; sub.as!(RT.SparseLeaf1*).calculate(stats); break;
-        case ix_DenseLeaf1Ptr: ++stats.heapNodeCount; sub.as!(RT.DenseLeaf1*).calculate(stats); break;
-        case ix_SparseBranchPtr: ++stats.heapNodeCount; sub.as!(RT.SparseBranch*).calculate(stats); break;
-        case ix_DenseBranchPtr: ++stats.heapNodeCount; sub.as!(RT.DenseBranch*).calculate(stats); break;
-        }
+    case undefined: break;
+    case ix_OneLeaf7: break; // TODO calculate()
+    case ix_TwoLeaf3: break; // TODO calculate()
+    case ix_TriLeaf2: break; // TODO calculate()
+    case ix_HeptLeaf1: break; // TODO calculate()
+    case ix_SparseLeaf1Ptr: ++stats.heapNodeCount; sub.as!(RT.SparseLeaf1*).calculate(stats); break;
+    case ix_DenseLeaf1Ptr: ++stats.heapNodeCount; sub.as!(RT.DenseLeaf1*).calculate(stats); break;
+    case ix_SparseBranchPtr: ++stats.heapNodeCount; sub.as!(RT.SparseBranch*).calculate(stats); break;
+    case ix_DenseBranchPtr: ++stats.heapNodeCount; sub.as!(RT.DenseBranch*).calculate(stats); break;
     }
 }
 
@@ -2203,13 +2205,40 @@ struct RadixTree(Key, Value)
         /** Insert `key`.
             Returns: `false` if key was previously already inserted, `true` otherwise.
         */
-        bool insert(in Key key, Value value)
+        bool insert(in Key key, in Value value)
         {
             _tree.Node insertionNode; // indicates that key was added
-            _tree.insert(key.remapKey, insertionNode);
-            if (insertionNode)
+            auto rawKey = key.remapKey;
+            _tree.insert(rawKey, insertionNode);
+            if (insertionNode)  // if `key` was inserted at `insertionNode`
             {
-                dln("TODO Set value:", value, " at insertionNode:", insertionNode);
+                // set value
+                final switch (insertionNode.typeIx) with (_tree.Node.Ix)
+                {
+                case undefined: break;
+                case ix_OneLeaf7:
+                case ix_TwoLeaf3:
+                case ix_TriLeaf2:
+                case ix_HeptLeaf1:
+                    assert(false, "Shouldn't happen");
+                    // only ok to insert into pointer Node-types:
+                case ix_SparseLeaf1Ptr:
+                    auto curr_ = insertionNode.as!(_tree.SparseLeaf1*);
+                    // const subIx = curr_.indexOf(key[0]);
+                    break;
+                case ix_DenseLeaf1Ptr:
+                    auto curr_ = insertionNode.as!(_tree.DenseLeaf1*);
+                    curr_.setValue(rawKey[0], value);
+                    break;
+                case ix_SparseBranchPtr:
+                    break;
+                case ix_DenseBranchPtr:
+                    break;
+                }
+            }
+            else
+            {
+                dln("TODO warning no insertionNode for key:", key, " rawKey:", rawKey);
             }
             _length += !insertionNode.isNull;
             return !insertionNode.isNull;

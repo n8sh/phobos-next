@@ -881,22 +881,18 @@ struct RawRadixTree(Value = void)
         static if (hasValue) { alias E = Tuple!(Ix, Node, Value); }
         else                 { alias E = Tuple!(Ix, Node); }
 
-        this(size_t newSubCapacity) // TODO use newSubCapacity
-        {
-        }
-
-        this(const Ix[] prefix, Leaf leaf = Leaf.init, size_t newSubCapacity = 0) // TODO use newSubCapacity
+        this(const Ix[] prefix, Leaf leaf = Leaf.init)
         {
             this.prefix = prefix;
             this.leaf = leaf;
         }
 
-        this(const Ix[] prefix, size_t newSubCapacity) // TODO use newSubCapacity
+        this(const Ix[] prefix)
         {
             this.prefix = prefix;
         }
 
-        this(Leaf leaf, size_t newSubCapacity = 0) // TODO use newSubCapacity
+        this(Leaf leaf)
         {
             this.leaf = leaf;
         }
@@ -1023,7 +1019,7 @@ struct RawRadixTree(Value = void)
     {
         enum defaultLength = 2;
         enum subCapacityMax = 64;
-        enum prefixCapacity = 5; // 6, 14, 22, ...
+        enum prefixCapacity = 13; // 6, 14, 22, ...
 
         alias Count = Mod!(subCapacityMax + 1);
 
@@ -1060,12 +1056,11 @@ struct RawRadixTree(Value = void)
              Ix subIx, Node subNode)
         {
             assert(subCapacity >= 1);
+
             initialize(subCapacity);
             this.prefix = prefix;
-
             this.subIxSlots[0] = subIx;
             this.subNodeSlots[0] = subNode;
-
             this.subCount = 1;
         }
 
@@ -1078,28 +1073,30 @@ struct RawRadixTree(Value = void)
             assert(subNode0 != subNode1);
 
             initialize(subCapacity);
-
             this.prefix = prefix;
 
             this.subIxSlots[0] = subIx0;
             this.subIxSlots[1] = subIx1;
-
             this.subNodeSlots[0] = subNode0;
             this.subNodeSlots[1] = subNode1;
-
             this.subCount = 2;
         }
 
-        this(size_t subCapacity, typeof(this)* rhs)
+        this(size_t subCapacity, const typeof(this)* rhs)
         {
+            assert(subCapacity > rhs.subCapacity);
+
             assert(rhs);
-            assert(subCapacity >= rhs.subCapacity);
 
             this = *rhs;        // copy basic stuff
+
+            initialize(subCapacity);
 
             // copy variable length part
             this.subIxs[] = rhs.subIxs[];
             this.subNodes[] = rhs.subNodes[];
+
+            assert(this.subCapacity > rhs.subCapacity);
         }
 
         private void initialize(size_t subCapacity)
@@ -1168,7 +1165,7 @@ struct RawRadixTree(Value = void)
 
         /** Get allocation size in bytes needed to hold `length` number of
             sub-indexes and sub-nodes. */
-        static size_t allocationSize(uint length)
+        static size_t allocationSize(size_t length)
         {
             return (this.sizeof + // base plus
                     Node.sizeof*length + // actual size of `_subNodeSlots`
@@ -1184,14 +1181,14 @@ struct RawRadixTree(Value = void)
         IxsN!prefixCapacity prefix; // prefix common to all `subNodes` (also called edge-label)
         Count subCount;
         Count subCapacity;
-        static assert(prefix.sizeof + subCount.sizeof + subCapacity.sizeof == 8); // assert alignment
+        static assert(prefix.sizeof + subCount.sizeof + subCapacity.sizeof == 16); // assert alignment
 
         // variable-length part
         Node[0] _subNodeSlots;
         Ix[0] _subIxSlots;
     }
 
-    static if (!hasValue) static assert(SparseBranch.sizeof == 16);
+    static if (!hasValue) static assert(SparseBranch.sizeof == 24);
 
     /** Dense/Unpacked `radix`-branch with `radix` number of sub-nodes. */
     static private struct DenseBranch
@@ -1302,20 +1299,16 @@ struct RawRadixTree(Value = void)
     {
         import std.algorithm : countUntil;
         const ix = curr.subIxs.countUntil(subIx);
-        dln("curr:", *curr, " subIx:", subIx, " subNode:", subNode, " ix:", ix);
         if (ix >= 0)            // if `subIx` already stored in `curr.subIxs` at offset `ix`
         {
-            dln("curr:", *curr);
             curr.subNodes[ix] = subNode; // reuse
         }
         else if (!curr.full)     // if room left in curr
         {
-            dln("curr:", *curr);
             curr.pushBack(tuple(subIx, subNode)); // add one to existing
         }
         else                    // if no room left in curr we need to expand
         {
-            dln("curr:", *curr);
             const previousHeapNodeAllocationBalance = heapNodeAllocationBalance;
 
             // curr is full
@@ -1926,7 +1919,7 @@ struct RawRadixTree(Value = void)
             }
 
             // default case
-            Node next = construct!(DefaultBranch)(2, prefix); // current plus one more
+            Node next = construct!(DefaultBranch)(1 + 1, prefix); // current plus one more
 
             Node insertionNodeCurr;      // dummy
             next = insertAt(next, curr.key, insertionNodeCurr);
@@ -1953,14 +1946,14 @@ struct RawRadixTree(Value = void)
             if (curr.keys.length == 1) // only one key
             {
                 Node insertionNodeCurr;
-                next = insertAtBranch(Node(construct!(DefaultBranch)(2)), // current keys plus one more
+                next = insertAtBranch(Node(construct!(DefaultBranch)(1 + 1)), // current keys plus one more
                                       curr.keys.at!0,
                                       insertionNodeCurr);
                 assert(insertionNodeCurr);
             }
             else
             {
-                next = construct!(DefaultBranch)(3, curr.prefix); // current keys plus one more
+                next = construct!(DefaultBranch)(curr.keys.length + 1, curr.prefix);
                 // TODO functionize to insertAtBranch(curr.keys)
                 foreach (key; curr.keys)
                 {
@@ -1980,7 +1973,6 @@ struct RawRadixTree(Value = void)
             Node next;
             if (curr.keys.length == 1) // only one key
             {
-                dln("here");
                 next = construct!(DefaultBranch)(2); // current keys plus one more
                 Node insertionNodeCurr;
                 next = insertAtBranch(next,
@@ -1990,8 +1982,7 @@ struct RawRadixTree(Value = void)
             }
             else
             {
-                dln("here");
-                next = construct!(DefaultBranch)(4, curr.prefix); // current keys plus one more
+                next = construct!(DefaultBranch)(curr.keys.length + 1, curr.prefix);
                 // TODO functionize to insertAtBranch(curr.keys)
                 foreach (key; curr.keys)
                 {
@@ -2533,8 +2524,73 @@ auto radixTreeMap(Key, Value)() { return RadixTree!(Key, Value)(false); }
     assert(!node.isNull);
 }
 
+/** Calculate and print statistics of `tree`. */
+void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a copy ctor here
+{
+    import std.stdio : writeln;
+    auto stats = tree.usageHistograms;
+
+    writeln("Population By Node Type: ", stats.popByNodeType);
+    writeln("Population By Leaf Type: ", stats.popByLeafType);
+
+    writeln("SparseBranch Population Histogram: ", stats.popHist_SparseBranch);
+    writeln("DenseBranch Population Histogram: ", stats.popHist_DenseBranch);
+
+    writeln("SparseLeaf1 Population Histogram: ", stats.popHist_SparseLeaf1);
+    writeln("DenseLeaf1 Population Histogram: ", stats.popHist_DenseLeaf1);
+
+    size_t totalBytesUsed = 0;
+
+    // Node-usage
+    foreach (RT.Node.Ix ix, pop; stats.popByNodeType) // TODO use stats.byPair when added to typecons_ex.d
+    {
+        size_t bytesUsed = 0;
+        with (RT.Node.Ix)
+        {
+            final switch (ix)
+            {
+            case undefined: break;
+            case ix_OneLeaf7: bytesUsed = pop*RT.OneLeaf7.sizeof; break;
+            case ix_TwoLeaf3: bytesUsed = pop*RT.TwoLeaf3.sizeof; break;
+            case ix_TriLeaf2: bytesUsed = pop*RT.TriLeaf2.sizeof; break;
+            case ix_HeptLeaf1: bytesUsed = pop*RT.HeptLeaf1.sizeof; break;
+            case ix_SparseLeaf1Ptr: bytesUsed = pop*RT.SparseLeaf1.sizeof; totalBytesUsed += bytesUsed; break;
+            case ix_DenseLeaf1Ptr: bytesUsed = pop*RT.DenseLeaf1.sizeof; totalBytesUsed += bytesUsed; break;
+            case ix_SparseBranchPtr: bytesUsed = pop*RT.SparseBranch.sizeof; totalBytesUsed += bytesUsed; break;
+            case ix_DenseBranchPtr: bytesUsed = pop*RT.DenseBranch.sizeof; totalBytesUsed += bytesUsed; break;
+            }
+        }
+        if (bytesUsed)
+        {
+            writeln(pop, " number of ", ix, " uses ", bytesUsed/1e6, " megabytes");
+        }
+    }
+
+    // Leaf-usage
+    foreach (RT.Leaf.Ix ix, pop; stats.popByLeafType) // TODO use stats.byPair when added to typecons_ex.d
+    {
+        size_t bytesUsed = 0;
+        with (RT.Leaf.Ix)
+        {
+            final switch (ix)
+            {
+            case undefined: break;
+            case ix_HeptLeaf1: bytesUsed = pop*RT.HeptLeaf1.sizeof; break;
+            case ix_SparseLeaf1Ptr: bytesUsed = pop*RT.SparseLeaf1.sizeof; totalBytesUsed += bytesUsed; break;
+            case ix_DenseLeaf1Ptr: bytesUsed = pop*RT.DenseLeaf1.sizeof; totalBytesUsed += bytesUsed; break;
+            }
+        }
+        if (bytesUsed)
+        {
+            writeln(pop, " number of ", ix, " uses ", bytesUsed/1e6, " megabytes");
+        }
+    }
+
+    writeln("Tree uses ", totalBytesUsed/1e6, " megabytes");
+}
+
 ///
-// @safe pure nothrow /* TODO @nogc */
+@safe pure nothrow /* TODO @nogc */
 unittest
 {
     auto set = radixTreeSet!(ulong);
@@ -2542,7 +2598,7 @@ unittest
 
     foreach (const i; 0 .. N)
     {
-        dln("i:", i);
+        // dln("i:", i);
         assert(!set.contains(i));
 
         assert(set.insert(i));
@@ -2551,16 +2607,16 @@ unittest
         assert(!set.insert(i));
         assert(set.contains(i));
 
-        dln("tree:");
-        set.print();
+        // dln("tree:");
+        // set.print();
 
-        dln("set.heapNodeAllocationBalance:", set.heapNodeAllocationBalance);
+        // dln("set.heapNodeAllocationBalance:", set.heapNodeAllocationBalance);
         assert(set.heapNodeAllocationBalance == 1);
     }
 
     foreach (const i; N .. 256)
     {
-        dln("i:", i);
+        // dln("i:", i);
         assert(!set.contains(i));
 
         assert(set.insert(i));
@@ -2574,7 +2630,7 @@ unittest
 
     foreach (const i; 256 .. 256 + N)
     {
-        dln("i:", i);
+        // dln("i:", i);
         assert(!set.contains(i));
 
         assert(set.insert(i));
@@ -2588,7 +2644,7 @@ unittest
 
     foreach (const i; 256 + N .. 256 + 256)
     {
-        dln("i:", i);
+        // dln("i:", i);
         assert(!set.contains(i));
 
         assert(set.insert(i));
@@ -2673,72 +2729,8 @@ unittest
         assert(rootRef);
         const root = *rootRef;
         assert(root.prefix.length == T.sizeof - 2);
+
     }
-}
-
-/** Calculate and print statistics of `tree`. */
-void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a copy ctor here
-{
-    import std.stdio : writeln;
-    auto stats = tree.usageHistograms;
-
-    writeln("Population By Node Type: ", stats.popByNodeType);
-    writeln("Population By Leaf Type: ", stats.popByLeafType);
-
-    writeln("SparseBranch Population Histogram: ", stats.popHist_SparseBranch);
-    writeln("DenseBranch Population Histogram: ", stats.popHist_DenseBranch);
-
-    writeln("SparseLeaf1 Population Histogram: ", stats.popHist_SparseLeaf1);
-    writeln("DenseLeaf1 Population Histogram: ", stats.popHist_DenseLeaf1);
-
-    size_t totalBytesUsed = 0;
-
-    // Node-usage
-    foreach (RT.Node.Ix ix, pop; stats.popByNodeType) // TODO use stats.byPair when added to typecons_ex.d
-    {
-        size_t bytesUsed = 0;
-        with (RT.Node.Ix)
-        {
-            final switch (ix)
-            {
-            case undefined: break;
-            case ix_OneLeaf7: bytesUsed = pop*RT.OneLeaf7.sizeof; break;
-            case ix_TwoLeaf3: bytesUsed = pop*RT.TwoLeaf3.sizeof; break;
-            case ix_TriLeaf2: bytesUsed = pop*RT.TriLeaf2.sizeof; break;
-            case ix_HeptLeaf1: bytesUsed = pop*RT.HeptLeaf1.sizeof; break;
-            case ix_SparseLeaf1Ptr: bytesUsed = pop*RT.SparseLeaf1.sizeof; totalBytesUsed += bytesUsed; break;
-            case ix_DenseLeaf1Ptr: bytesUsed = pop*RT.DenseLeaf1.sizeof; totalBytesUsed += bytesUsed; break;
-            case ix_SparseBranchPtr: bytesUsed = pop*RT.SparseBranch.sizeof; totalBytesUsed += bytesUsed; break;
-            case ix_DenseBranchPtr: bytesUsed = pop*RT.DenseBranch.sizeof; totalBytesUsed += bytesUsed; break;
-            }
-        }
-        if (bytesUsed)
-        {
-            writeln(pop, " number of ", ix, " uses ", bytesUsed/1e6, " megabytes");
-        }
-    }
-
-    // Leaf-usage
-    foreach (RT.Leaf.Ix ix, pop; stats.popByLeafType) // TODO use stats.byPair when added to typecons_ex.d
-    {
-        size_t bytesUsed = 0;
-        with (RT.Leaf.Ix)
-        {
-            final switch (ix)
-            {
-            case undefined: break;
-            case ix_HeptLeaf1: bytesUsed = pop*RT.HeptLeaf1.sizeof; break;
-            case ix_SparseLeaf1Ptr: bytesUsed = pop*RT.SparseLeaf1.sizeof; totalBytesUsed += bytesUsed; break;
-            case ix_DenseLeaf1Ptr: bytesUsed = pop*RT.DenseLeaf1.sizeof; totalBytesUsed += bytesUsed; break;
-            }
-        }
-        if (bytesUsed)
-        {
-            writeln(pop, " number of ", ix, " uses ", bytesUsed/1e6, " megabytes");
-        }
-    }
-
-    writeln("Tree uses ", totalBytesUsed/1e6, " megabytes");
 }
 
 /// Create a set of words from /usr/share/dict/words

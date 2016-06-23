@@ -2812,7 +2812,7 @@ void benchmark()()
     }
 }
 
-///
+/// test map with bool Values
 @safe pure nothrow /* TODO @nogc */ unittest
 {
     alias Key = uint;

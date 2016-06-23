@@ -671,7 +671,7 @@ struct RawRadixTree(Value = void)
 
         pure nothrow /* TODO @nogc */:
 
-        this(Ix[] es...) // @nogc
+        this(const Ix[] es...) // @nogc
         @trusted
         {
             assert(es.length <= radix);

@@ -42,7 +42,8 @@ bool isCapitalized(S)(S s)
 
     const firstDigit = s.front.isDigit;
     const firstUpper = s.front.isUpper;
-    if (!(firstDigit || firstUpper))
+    if (!(firstDigit ||
+          firstUpper))
         return false;
 
     s.popFront;

@@ -1481,7 +1481,7 @@ struct RawRadixTree(Value = void)
                 if (matchedKeyPrefix.length == currPrefix.length)
                 {
                     if (willFail) { dln(""); }
-                    // NOTE: most probable: key is an extension of prefix: prefix:"ab", key:"abcd"
+                    // NOTE: key is an extension of prefix: prefix:"ab", key:"abcd"
                     key = key[matchedKeyPrefix.length .. $]; // strip `currPrefix from beginning of `key`
                     assert(key.length);
                     if (key.length == 1)

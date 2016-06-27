@@ -1445,8 +1445,8 @@ struct RawRadixTree(Value = void)
                     import std.algorithm : min;
                     auto prefix = key[0 .. min(key.length - 1, // all but last Ix of key
                                                DefaultBranch.prefixCapacity)]; // as much as possible of key in branch prefix
-                    auto next = insertAt(Node(constructWithCapacity!(DefaultBranch)(1, prefix)),
-                                         key, insertionNode);
+                    auto next = insertAtBranch(Node(constructWithCapacity!(DefaultBranch)(1, prefix)),
+                                               key, insertionNode);
                     assert(insertionNode);
                     return next;
                 }
@@ -1806,27 +1806,15 @@ struct RawRadixTree(Value = void)
 
             if (curr.key.length <= DefaultBranch.prefixCapacity + 1) // if `key` fits in `prefix` of `DefaultBranch`
             {
-                if (willFail) { dln("1 curr:", curr); }
                 next = constructWithCapacity!(DefaultBranch)(1 + capacityIncrement, curr.key[0 .. $ - 1], // all but last
                                                              Leaf(construct!(HeptLeaf1)(curr.key[$ - 1]))); // last as a leaf
             }
             else                // curr.key.length > DefaultBranch.prefixCapacity + 1
             {
-                if (willFail) { dln("2 curr:", curr); }
                 next = constructWithCapacity!(DefaultBranch)(1 + capacityIncrement, curr.key[0 .. DefaultBranch.prefixCapacity]);
                 Node insertionNodeCurr;
                 next = insertAtBranch(next, curr.key, insertionNodeCurr);
             }
-
-            try
-            {
-                if (willFail)
-                {
-                    debug printAt(Node(curr), 0);
-                    debug printAt(next, 0);
-                }
-            }
-            catch (Exception e) {}
 
             freeNode(curr);
             return next;

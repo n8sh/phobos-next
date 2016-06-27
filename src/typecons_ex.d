@@ -495,9 +495,22 @@ template makeEnumFromSymbolNames(string prefix = `_`,
         string s = firstUndefined ? `undefined, ` : ``;
         foreach (E; Es)
         {
-            static      if (useMangleOf)              enum E_ = E.mangleof;
-            else static if (E.stringof[$ - 1] == '*') enum E_ = E.stringof[0 .. $ - 1] ~ "Ptr";
-            else                                      enum E_ = E.stringof;
+            static if (useMangleOf)
+            {
+                enum E_ = E.mangleof;
+            }
+            else
+            {
+                import std.traits : isPointer;
+                static if (isPointer!E)
+                {
+                    enum E_ = typeof(*E.init).stringof ~ `Ptr`;
+                }
+                else
+                {
+                    enum E_ = E.stringof;
+                }
+            }
             s ~= prefix ~ E_ ~ suffix ~ `, `;
         }
         return s;

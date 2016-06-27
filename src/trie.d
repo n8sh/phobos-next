@@ -514,6 +514,203 @@ struct HeptLeaf1
     IxsN!(capacity, 1) keys;
 }
 
+/** Sparsely coded leaves with values of type `Value`. */
+static private struct SparseLeaf1(Value)
+{
+    enum hasValue = !is(Value == void);
+    alias Length = Mod!(radix + 1);
+    alias Capacity = Mod!(radix + 1);
+
+    /// Constructor Parameter Element type `E`.
+    static if (hasValue) { alias E = Tuple!(Ix, Value); }
+    else                 { alias E = Ix; }
+
+    pure nothrow /* TODO @nogc */:
+
+    this(Ix[] es...) // @nogc
+    @trusted
+    {
+        assert(es.length <= radix);
+
+        if (es.length != 0)
+        {
+            import std.math : nextPow2;
+
+            _length = es.length;
+            _capacity = _length == 1 ? 1 : nextPow2(_length - 1);
+            assert(_capacity >= _length);
+
+            // allocate
+            _keys = cast(typeof(_keys))malloc(_capacity*Ix.sizeof);
+            static if (hasValue)
+            {
+                _values = cast(typeof(_values))malloc(_capacity*Value.sizeof);
+            }
+
+            // initialize
+            foreach (const i, const e; es)
+            {
+                static if (hasValue)
+                {
+                    _keys[i] = e;
+                    // _keys[i] = e[0];
+                    // _values[i] = e[1];
+                }
+                else
+                {
+                    _keys[i] = e;
+                }
+            }
+        }
+    }
+
+    ~this() @trusted
+    {
+        free(_keys); debug _keys = null;
+        static if (hasValue)
+        {
+            free(_values); debug _values = null;
+        }
+    }
+
+    /** Insert `key` in linear time. */
+    bool linearInsert(Ix key) @trusted /* TODO @nogc */
+    {
+        if (!contains(key))
+        {
+            reserve(Capacity(length + 1));
+            _keys[length] = key;
+            ++_length;
+            return true;
+        }
+        return false;
+    }
+
+    void pushBack(Ix key) @trusted /* TODO @nogc */
+    {
+        reserve(Capacity(length + 1));
+        _keys[length] = key;
+        ++_length;
+    }
+
+    pragma(inline) Length length() const @safe @nogc { return _length; }
+    pragma(inline) Capacity capacity() const @safe @nogc { return _capacity; }
+
+    /** Reserve room for `newSubCapacity` number of elements. */
+    void reserve(Capacity newSubCapacity) @trusted // TODO @nogc
+    {
+        assert(!full);
+        if (_capacity < newSubCapacity)
+        {
+            import std.math : nextPow2;
+
+            _capacity = nextPow2(newSubCapacity - 1); // need minus one here
+            assert(_capacity >= newSubCapacity);
+            _keys = cast(typeof(_keys))realloc(_keys, _capacity*Ix.sizeof);
+            static if (hasValue)
+            {
+                _values = cast(typeof(_values))realloc(_values, _capacity*Value.sizeof);
+            }
+        }
+    }
+
+    pragma(inline) bool empty() const @safe @nogc { return _length == 0; }
+    pragma(inline) bool full() const @safe @nogc { return _length == radix; }
+
+    pragma(inline) bool contains(Ix key) const @trusted @nogc
+    {
+        import std.algorithm.searching : canFind;
+        return (_keys[0 .. _length].canFind(key)); // TODO binarySearch
+    }
+
+    pragma(inline) auto ref keys() inout @trusted @nogc
+    {
+        return _keys[0 .. _length];
+    }
+    static if (hasValue)
+    {
+        pragma(inline) auto ref values() inout @trusted @nogc
+        {
+            return _values[0 .. _length];
+        }
+
+        pragma(inline) bool setValue(Ix key, in Value value) @trusted @nogc
+        {
+            import std.algorithm.searching : find;
+            const hit = (_keys[0 .. _length].find(key)); // TODO binarySearch
+            if (hit.length != 0)
+            {
+                _values[hit.ptr - _keys] = value;
+                return true;
+            }
+            return false;
+        }
+    }
+
+private:
+    Length _length;
+    Capacity _capacity;
+    Ix* _keys;
+    Value* _values;
+}
+
+/** Densely coded leaves with values of type `Value`. */
+static private struct DenseLeaf1(Value)
+{
+    enum hasValue = !is(Value == void);
+    enum maxCount = radix;
+
+    @safe pure nothrow:
+
+    this(Ixs...)(Ixs subIxs)
+    if (Ixs.length <= maxCount)
+    {
+        foreach (subIx; subIxs)
+        {
+            _keyBits[subIx] = true;
+        }
+    }
+
+    @nogc:
+
+    pragma(inline) bool hasSubAt(Ix ix) const { return _keyBits[ix]; }
+    pragma(inline) bool empty() const { return _keyBits.empty; }
+    pragma(inline) bool full() const { return _keyBits.full; }
+    pragma(inline) size_t count() const { return _keyBits.countOnes; }
+
+    pragma(inline) bool contains(Ix key) const { return _keyBits[key]; }
+    pragma(inline) bool insert(Ix key)
+    {
+        if (!contains(key)) { return _keyBits[key] = true; }
+        return false;
+    }
+
+    static if (hasValue)
+    {
+        /// Get value at index `ix`.
+        auto ref getValue(Ix ix) inout { return _values[ix]; }
+        /// Set value at index `ix` to `value`.
+        void setValue(Ix ix, in Value value) { _values[ix] = value; }
+    }
+
+private:
+    import bitset : BitSet;
+    BitSet!radix _keyBits;  // 32 bytes
+    static if (hasValue)
+    {
+        static if (is(Value == bool))
+        {
+            BitSet!radix _values; // packed values
+        }
+        else
+        {
+            Value[radix] _values;
+        }
+    }
+}
+
+static assert((DenseLeaf1!void).sizeof == 32);
+
 /** Raw adaptive radix tree (ART) container storing untyped variable-length `Key`.
 
     In set-case (`Value` is `void`) this container is especially suitable for
@@ -543,7 +740,8 @@ struct HeptLeaf1
 */
 struct RawRadixTree(Value = void)
 {
-    import std.math : nextPow2;
+    alias ValueType = Value;
+
     import std.bitmanip : bitfields;
     import std.conv : to;
     import std.algorithm : filter;
@@ -561,17 +759,17 @@ struct RawRadixTree(Value = void)
 
     // TODO make these run-time arguments at different key depths and map to statistics of typed-key
     alias DefaultBranch = SparseBranch*; // either SparseBranch*, DenseBranch*
-    alias DefaultLeaf = SparseLeaf1*; // either SparseLeaf1*, DenseLeaf1*
+    alias DefaultLeaf = SparseLeaf1!Value*; // either SparseLeaf1*, DenseLeaf1*
 
     /** Leaf Pointer node. */
-    alias LeafPtrNode = WordVariant!(DenseLeaf1*,
-                                     SparseLeaf1*);
+    alias LeafPtrNode = WordVariant!(DenseLeaf1!Value*,
+                                     SparseLeaf1!Value*);
     static assert(LeafPtrNode.typeBits <= IxsN!(7, 1, 8).typeBits);
 
     /** Mutable leaf node of 1-Ix leaves. */
     alias Leaf = WordVariant!(HeptLeaf1,
-                              SparseLeaf1*,
-                              DenseLeaf1*);
+                              SparseLeaf1!Value*,
+                              DenseLeaf1!Value*);
     static assert(Leaf.typeBits <= IxsN!(7, 1, 8).typeBits);
 
     /** Mutable node. */
@@ -581,8 +779,8 @@ struct RawRadixTree(Value = void)
                               HeptLeaf1,
                               DenseBranch*,
                               SparseBranch*,
-                              DenseLeaf1*,
-                              SparseLeaf1*);
+                              DenseLeaf1!Value*,
+                              SparseLeaf1!Value*);
     static assert(Node.typeBits <= IxsN!(7, 1, 8).typeBits);
 
     /** Constant node. */
@@ -653,210 +851,6 @@ struct RawRadixTree(Value = void)
 
         size_t sparseBranchSizeSum;
     }
-
-    /** Sparsely coded leaves. */
-    static private struct SparseLeaf1
-    {
-        alias Length = Mod!(radix + 1);
-        alias Capacity = Mod!(radix + 1);
-
-        /// Constructor Parameter Element type `E`.
-        static if (hasValue) { alias E = Tuple!(Ix, Value); }
-        else                 { alias E = Ix; }
-
-        pure nothrow /* TODO @nogc */:
-
-        this(Ix[] es...) // @nogc
-        @trusted
-        {
-            assert(es.length <= radix);
-
-            if (es.length != 0)
-            {
-                _length = es.length;
-                _capacity = _length == 1 ? 1 : nextPow2(_length - 1);
-                assert(_capacity >= _length);
-
-                // allocate
-                _keys = cast(typeof(_keys))malloc(_capacity*Ix.sizeof);
-                static if (hasValue)
-                {
-                    _values = cast(typeof(_values))malloc(_capacity*Value.sizeof);
-                }
-
-                // initialize
-                foreach (const i, const e; es)
-                {
-                    static if (hasValue)
-                    {
-                        _keys[i] = e;
-                        // _keys[i] = e[0];
-                        // _values[i] = e[1];
-                    }
-                    else
-                    {
-                        _keys[i] = e;
-                    }
-                }
-            }
-        }
-
-        ~this() @trusted
-        {
-            free(_keys); debug _keys = null;
-            static if (hasValue)
-            {
-                free(_values); debug _values = null;
-            }
-        }
-
-        /** Insert `key` in linear time. */
-        bool linearInsert(Ix key) @trusted /* TODO @nogc */
-        {
-            if (!contains(key))
-            {
-                reserve(Capacity(length + 1));
-                _keys[length] = key;
-                ++_length;
-                return true;
-            }
-            return false;
-        }
-
-        void pushBack(Ix key) @trusted /* TODO @nogc */
-        {
-            reserve(Capacity(length + 1));
-            _keys[length] = key;
-            ++_length;
-        }
-
-        pragma(inline) Length length() const @safe @nogc { return _length; }
-        pragma(inline) Capacity capacity() const @safe @nogc { return _capacity; }
-
-        /** Reserve room for `newSubCapacity` number of elements. */
-        void reserve(Capacity newSubCapacity) @trusted // TODO @nogc
-        {
-            assert(!full);
-            if (_capacity < newSubCapacity)
-            {
-                _capacity = nextPow2(newSubCapacity - 1); // need minus one here
-                assert(_capacity >= newSubCapacity);
-                _keys = cast(typeof(_keys))realloc(_keys, _capacity*Ix.sizeof);
-                static if (hasValue)
-                {
-                    _values = cast(typeof(_values))realloc(_values, _capacity*Value.sizeof);
-                }
-            }
-        }
-
-        pragma(inline) bool empty() const @safe @nogc { return _length == 0; }
-        pragma(inline) bool full() const @safe @nogc { return _length == radix; }
-
-        pragma(inline) bool contains(Ix key) const @trusted @nogc
-        {
-            import std.algorithm.searching : canFind;
-            return (_keys[0 .. _length].canFind(key)); // TODO binarySearch
-        }
-
-        /** Append statistics of tree under `this` into `stats`. */
-        void calculate(ref Stats stats) @safe const
-        {
-            ++stats.popHist_SparseLeaf1[length - 1]; // TODO type-safe indexing
-        }
-
-        pragma(inline) auto ref keys() inout @trusted @nogc
-        {
-            return _keys[0 .. _length];
-        }
-        static if (hasValue)
-        {
-            pragma(inline) auto ref values() inout @trusted @nogc
-            {
-                return _values[0 .. _length];
-            }
-
-            pragma(inline) bool setValue(Ix key, in Value value) @trusted @nogc
-            {
-                import std.algorithm.searching : find;
-                const hit = (_keys[0 .. _length].find(key)); // TODO binarySearch
-                if (hit.length != 0)
-                {
-                    _values[hit.ptr - _keys] = value;
-                    return true;
-                }
-                return false;
-            }
-        }
-
-    private:
-        Length _length;
-        Capacity _capacity;
-        Ix* _keys;
-        Value* _values;
-    }
-
-    /** Dense Bitset Branch with only bottom-most leaves. */
-    static private struct DenseLeaf1
-    {
-        enum maxCount = radix;
-
-        @safe pure nothrow:
-
-        this(Ixs...)(Ixs subIxs)
-            if (Ixs.length <= maxCount)
-        {
-            foreach (subIx; subIxs)
-            {
-                _keyBits[subIx] = true;
-            }
-        }
-
-        /** Append statistics of tree under `this` into `stats`. */
-        void calculate(ref Stats stats)
-        {
-            const count = _keyBits.countOnes; // number of non-zero sub-nodes
-            assert(count <= maxCount);
-            ++stats.popHist_DenseLeaf1[count - 1]; // TODO type-safe indexing
-        }
-
-        @nogc:
-
-        pragma(inline) bool hasSubAt(Ix ix) const { return _keyBits[ix]; }
-        pragma(inline) bool empty() const { return _keyBits.empty; }
-        pragma(inline) bool full() const { return _keyBits.full; }
-        pragma(inline) size_t count() const { return _keyBits.countOnes; }
-
-        pragma(inline) bool contains(Ix key) const { return _keyBits[key]; }
-        pragma(inline) bool insert(Ix key)
-        {
-            if (!contains(key)) { return _keyBits[key] = true; }
-            return false;
-        }
-
-        static if (hasValue)
-        {
-            /// Get value at index `ix`.
-            auto ref getValue(Ix ix) inout { return _values[ix]; }
-            /// Set value at index `ix` to `value`.
-            void setValue(Ix ix, in Value value) { _values[ix] = value; }
-        }
-
-    private:
-        BitSet!radix _keyBits;  // 32 bytes
-        static if (hasValue)
-        {
-            static if (is(Value == bool))
-            {
-                BitSet!radix _values; // packed values
-            }
-            else
-            {
-                Value[radix] _values;
-            }
-        }
-    }
-
-    static if (!hasValue) { static assert(DenseLeaf1.sizeof == 32); }
 
     /** Sparse/Packed/Partial dynamically sized branch implemented as
         variable-length struct.
@@ -1341,8 +1335,8 @@ struct RawRadixTree(Value = void)
             {
             case undefined: return false;
             case ix_HeptLeaf1: return curr.as!(HeptLeaf1).contains(key);
-            case ix_SparseLeaf1Ptr: return key.length == 1 && curr.as!(SparseLeaf1*).contains(key[0]);
-            case ix_DenseLeaf1Ptr:  return key.length == 1 && curr.as!(DenseLeaf1*).contains(key[0]);
+            case ix_SparseLeaf1Ptr: return key.length == 1 && curr.as!(SparseLeaf1!Value*).contains(key[0]);
+            case ix_DenseLeaf1Ptr:  return key.length == 1 && curr.as!(DenseLeaf1!Value*).contains(key[0]);
             }
         }
         /// ditto
@@ -1357,8 +1351,8 @@ struct RawRadixTree(Value = void)
             case ix_TwoLeaf3: return curr.as!(TwoLeaf3).contains(key);
             case ix_TriLeaf2: return curr.as!(TriLeaf2).contains(key);
             case ix_HeptLeaf1: return curr.as!(HeptLeaf1).contains(key);
-            case ix_SparseLeaf1Ptr: return key.length == 1 && curr.as!(SparseLeaf1*).contains(key[0]);
-            case ix_DenseLeaf1Ptr:  return key.length == 1 && curr.as!(DenseLeaf1*).contains(key[0]);
+            case ix_SparseLeaf1Ptr: return key.length == 1 && curr.as!(SparseLeaf1!Value*).contains(key[0]);
+            case ix_DenseLeaf1Ptr:  return key.length == 1 && curr.as!(DenseLeaf1!Value*).contains(key[0]);
             case ix_SparseBranchPtr:
                 auto curr_ = curr.as!(SparseBranch*);
                 return (key.skipOver(curr_.prefix) &&        // matching prefix
@@ -1462,8 +1456,8 @@ struct RawRadixTree(Value = void)
             {
             case undefined: return Node.init;
             case ix_HeptLeaf1: return Node(curr.as!(HeptLeaf1));
-            case ix_SparseLeaf1Ptr: return Node(curr.as!(SparseLeaf1*));
-            case ix_DenseLeaf1Ptr: return Node(curr.as!(DenseLeaf1*));
+            case ix_SparseLeaf1Ptr: return Node(curr.as!(SparseLeaf1!Value*));
+            case ix_DenseLeaf1Ptr: return Node(curr.as!(DenseLeaf1!Value*));
             }
         }
 
@@ -1491,11 +1485,11 @@ struct RawRadixTree(Value = void)
 
                 case ix_SparseLeaf1Ptr:
                     assert(key.length == 1);
-                    return toNode(insertAtLeaf(Leaf(curr.as!(SparseLeaf1*)), key[0], insertionNode));
+                    return toNode(insertAtLeaf(Leaf(curr.as!(SparseLeaf1!Value*)), key[0], insertionNode));
 
                 case ix_DenseLeaf1Ptr:
                     assert(key.length == 1);
-                    return toNode(insertAtLeaf(Leaf(curr.as!(DenseLeaf1*)), key[0], insertionNode));
+                    return toNode(insertAtLeaf(Leaf(curr.as!(DenseLeaf1!Value*)), key[0], insertionNode));
 
                 case ix_SparseBranchPtr:
                 case ix_DenseBranchPtr:
@@ -1618,7 +1612,7 @@ struct RawRadixTree(Value = void)
             {
                 static if (hasValue) // TODO Add check if key + plus fit in 7 bytes (Value.sizeof <= 6) and use special node for that
                 {
-                    auto leaf_ = construct!(SparseLeaf1*)(key); // needed for values
+                    auto leaf_ = construct!(SparseLeaf1!Value*)(key); // needed for values
                 }
                 else
                 {
@@ -1638,14 +1632,14 @@ struct RawRadixTree(Value = void)
             case undefined: return typeof(return).init;
             case ix_HeptLeaf1: return insertAt(curr.as!(HeptLeaf1), key, insertionNode);
             case ix_SparseLeaf1Ptr:
-                auto curr_ = curr.as!(SparseLeaf1*);
+                auto curr_ = curr.as!(SparseLeaf1!Value*);
                 if (curr_.linearInsert(key))
                 {
                     insertionNode = Node(curr_);
                 }
                 break;
             case ix_DenseLeaf1Ptr:
-                auto curr_ = curr.as!(DenseLeaf1*);
+                auto curr_ = curr.as!(DenseLeaf1!Value*);
                 if (curr_.insert(key))
                 {
                     insertionNode = Node(curr_);
@@ -1754,7 +1748,7 @@ struct RawRadixTree(Value = void)
                 return Leaf(curr);
             }
 
-            auto next = construct!(SparseLeaf1*)(curr.keys); // TODO construct using (curr.keys, key[0])
+            auto next = construct!(SparseLeaf1!Value*)(curr.keys); // TODO construct using (curr.keys, key[0])
             next.pushBack(key); // pushBack instead of insert because we know that `key` is distinct from `curr.keys` from above
             freeNode(curr);
             insertionNode = Node(next);
@@ -1889,7 +1883,7 @@ struct RawRadixTree(Value = void)
         /** Destructively expand `curr` making room for `nextKey` and return it. */
         Node expand(HeptLeaf1 curr, size_t capacityIncrement = 1)
         {
-            auto next = construct!(SparseLeaf1*)(curr.keys);
+            auto next = construct!(SparseLeaf1!Value*)(curr.keys);
             freeNode(curr);
             return Node(next);
         }
@@ -1951,11 +1945,11 @@ struct RawRadixTree(Value = void)
 
     @safe pure nothrow /* TODO @nogc */
     {
-        pragma(inline) void release(SparseLeaf1* curr)
+        pragma(inline) void release(SparseLeaf1!Value* curr)
         {
             freeNode(curr);
         }
-        pragma(inline) void release(DenseLeaf1* curr)
+        pragma(inline) void release(DenseLeaf1!Value* curr)
         {
             freeNode(curr);
         }
@@ -1998,8 +1992,8 @@ struct RawRadixTree(Value = void)
             {
             case undefined: break; // ignored
             case ix_HeptLeaf1: return release(curr.as!(HeptLeaf1));
-            case ix_SparseLeaf1Ptr: return release(curr.as!(SparseLeaf1*));
-            case ix_DenseLeaf1Ptr: return release(curr.as!(DenseLeaf1*));
+            case ix_SparseLeaf1Ptr: return release(curr.as!(SparseLeaf1!Value*));
+            case ix_DenseLeaf1Ptr: return release(curr.as!(DenseLeaf1!Value*));
             }
         }
 
@@ -2014,8 +2008,8 @@ struct RawRadixTree(Value = void)
             case ix_TwoLeaf3: return release(curr.as!(TwoLeaf3));
             case ix_TriLeaf2: return release(curr.as!(TriLeaf2));
             case ix_HeptLeaf1: return release(curr.as!(HeptLeaf1));
-            case ix_SparseLeaf1Ptr: return release(curr.as!(SparseLeaf1*));
-            case ix_DenseLeaf1Ptr: return release(curr.as!(DenseLeaf1*));
+            case ix_SparseLeaf1Ptr: return release(curr.as!(SparseLeaf1!Value*));
+            case ix_DenseLeaf1Ptr: return release(curr.as!(DenseLeaf1!Value*));
             case ix_SparseBranchPtr: return release(curr.as!(SparseBranch*));
             case ix_DenseBranchPtr: return release(curr.as!(DenseBranch*));
             }
@@ -2097,7 +2091,7 @@ struct RawRadixTree(Value = void)
             writeln(typeof(curr_).stringof, "#", curr_.keys.length, ": ", curr_.keys);
             break;
         case ix_SparseLeaf1Ptr:
-            auto curr_ = curr.as!(SparseLeaf1*);
+            auto curr_ = curr.as!(SparseLeaf1!Value*);
             write(typeof(*curr_).stringof, "#", curr_.length, "/", curr_.capacity, " @", curr_);
             write(": ");
             bool other = false;
@@ -2119,7 +2113,7 @@ struct RawRadixTree(Value = void)
             writeln();
             break;
         case ix_DenseLeaf1Ptr:
-            auto curr_ = curr.as!(DenseLeaf1*);
+            auto curr_ = curr.as!(DenseLeaf1!Value*);
             write(typeof(*curr_).stringof, "#", curr_.count, " @", curr_);
             write(": ");
 
@@ -2193,46 +2187,72 @@ struct RawRadixTree(Value = void)
 
 }
 
-/** Append statistics of tree under `Node` `sub.` into `stats`.
+/** Append statistics of tree under `Node` `curr.` into `stats`.
  */
-static private void calculate(Value)(RawRadixTree!(Value).Node sub,
+static private void calculate(Value)(RawRadixTree!(Value).Node curr,
                                      ref RawRadixTree!(Value).Stats stats)
     @safe pure nothrow /* TODO @nogc */
 {
     alias RT = RawRadixTree!(Value);
-    ++stats.popByNodeType[sub.typeIx];
+    ++stats.popByNodeType[curr.typeIx];
 
-    final switch (sub.typeIx) with (RT.Node.Ix)
+    final switch (curr.typeIx) with (RT.Node.Ix)
     {
     case undefined: break;
     case ix_OneLeafMax7: break; // TODO calculate()
     case ix_TwoLeaf3: break; // TODO calculate()
     case ix_TriLeaf2: break; // TODO calculate()
     case ix_HeptLeaf1: break; // TODO calculate()
-    case ix_SparseLeaf1Ptr: ++stats.heapNodeCount; sub.as!(RT.SparseLeaf1*).calculate(stats); break;
-    case ix_DenseLeaf1Ptr: ++stats.heapNodeCount; sub.as!(RT.DenseLeaf1*).calculate(stats); break;
-    case ix_SparseBranchPtr: ++stats.heapNodeCount; sub.as!(RT.SparseBranch*).calculate(stats); break;
-    case ix_DenseBranchPtr: ++stats.heapNodeCount; sub.as!(RT.DenseBranch*).calculate(stats); break;
+    case ix_SparseLeaf1Ptr:
+        ++stats.heapNodeCount;
+        auto curr_ = curr.as!(SparseLeaf1!Value*);
+        ++stats.popHist_SparseLeaf1[curr_.length - 1]; // TODO type-safe indexing
+        break;
+    case ix_DenseLeaf1Ptr:
+        auto curr_ = curr.as!(DenseLeaf1!Value*);
+        ++stats.heapNodeCount;
+        const count = curr_._keyBits.countOnes; // number of non-zero sub-nodes
+        assert(count <= curr_.maxCount);
+        ++stats.popHist_DenseLeaf1[count - 1]; // TODO type-safe indexing
+        break;
+    case ix_SparseBranchPtr:
+        ++stats.heapNodeCount;
+        curr.as!(RT.SparseBranch*).calculate(stats);
+        break;
+    case ix_DenseBranchPtr:
+        ++stats.heapNodeCount;
+        curr.as!(RT.DenseBranch*).calculate(stats);
+        break;
     }
 }
 
-/** Append statistics of tree under `Leaf` `sub.` into `stats`.
+/** Append statistics of tree under `Leaf` `curr.` into `stats`.
  */
-static private void calculate(Value)(RawRadixTree!(Value).Leaf sub,
+static private void calculate(Value)(RawRadixTree!(Value).Leaf curr,
                                      ref RawRadixTree!(Value).Stats stats)
     @safe pure nothrow /* TODO @nogc */
 {
     alias RT = RawRadixTree!(Value);
-    ++stats.popByLeafType[sub.typeIx];
+    ++stats.popByLeafType[curr.typeIx];
 
     with (RT.Leaf.Ix)
     {
-        final switch (sub.typeIx)
+        final switch (curr.typeIx)
         {
         case undefined: break;
         case ix_HeptLeaf1: break; // TODO calculate()
-        case ix_SparseLeaf1Ptr: ++stats.heapLeafCount; sub.as!(RT.SparseLeaf1*).calculate(stats); break;
-        case ix_DenseLeaf1Ptr: ++stats.heapLeafCount; sub.as!(RT.DenseLeaf1*).calculate(stats); break;
+        case ix_SparseLeaf1Ptr:
+            ++stats.heapNodeCount;
+            auto curr_ = curr.as!(SparseLeaf1!Value*);
+            ++stats.popHist_SparseLeaf1[curr_.length - 1]; // TODO type-safe indexing
+            break;
+        case ix_DenseLeaf1Ptr:
+            auto curr_ = curr.as!(DenseLeaf1!Value*);
+            ++stats.heapNodeCount;
+            const count = curr_._keyBits.countOnes; // number of non-zero curr-nodes
+            assert(count <= curr_.maxCount);
+            ++stats.popHist_DenseLeaf1[count - 1]; // TODO type-safe indexing
+            break;
         }
     }
 }
@@ -2349,10 +2369,10 @@ struct RadixTree(Key, Value)
                     dln("TODO Insertion of key:", key, " in a non-pointer node:", insertionNode);
                     break;
                 case ix_SparseLeaf1Ptr:
-                    assert(insertionNode.as!(_tree.SparseLeaf1*).setValue(rawKey[$ - 1], value));
+                    assert(insertionNode.as!(SparseLeaf1!Value*).setValue(rawKey[$ - 1], value));
                     break;
                 case ix_DenseLeaf1Ptr:
-                    insertionNode.as!(_tree.DenseLeaf1*).setValue(rawKey[$ - 1], value);
+                    insertionNode.as!(DenseLeaf1!Value*).setValue(rawKey[$ - 1], value);
                     break;
                 case ix_SparseBranchPtr: break;
                 case ix_DenseBranchPtr: break;
@@ -2409,13 +2429,14 @@ auto radixTreeMap(Key, Value)() { return RadixTree!(Key, Value)(false); }
 ///
 @safe pure nothrow /* TODO @nogc */ unittest
 {
-    auto set = radixTreeSet!(ulong);
+    alias Value = ulong;
+    auto set = radixTreeSet!(Value);
 
-    alias NodeType = set.SparseLeaf1*;
+    alias NodeType = SparseLeaf1!Value*;
     NodeType sl = null;
-    set.Node node = set.Node(sl);
-    static assert(node.canStore!(NodeType));
-    assert(!node.isNull);
+    // set.Node node = set.Node(sl);
+    // static assert(node.canStore!(NodeType));
+    // assert(!node.isNull);
 }
 
 /** Calculate and print statistics of `tree`. */
@@ -2449,11 +2470,11 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
             case ix_TriLeaf2: bytesUsed = pop*TriLeaf2.sizeof; break;
             case ix_HeptLeaf1: bytesUsed = pop*HeptLeaf1.sizeof; break;
             case ix_SparseLeaf1Ptr:
-                bytesUsed = pop*RT.SparseLeaf1.sizeof;
+                bytesUsed = pop*SparseLeaf1!(RT.ValueType).sizeof;
                 totalBytesUsed += bytesUsed;
                 break;
             case ix_DenseLeaf1Ptr:
-                bytesUsed = pop*RT.DenseLeaf1.sizeof;
+                bytesUsed = pop*DenseLeaf1!(RT.ValueType).sizeof;
                 totalBytesUsed += bytesUsed;
                 break;
             case ix_SparseBranchPtr:
@@ -2482,8 +2503,8 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
             {
             case undefined: break;
             case ix_HeptLeaf1: bytesUsed = pop*HeptLeaf1.sizeof; break;
-            case ix_SparseLeaf1Ptr: bytesUsed = pop*RT.SparseLeaf1.sizeof; totalBytesUsed += bytesUsed; break;
-            case ix_DenseLeaf1Ptr: bytesUsed = pop*RT.DenseLeaf1.sizeof; totalBytesUsed += bytesUsed; break;
+            case ix_SparseLeaf1Ptr: bytesUsed = pop*SparseLeaf1!(RT.ValueType).sizeof; totalBytesUsed += bytesUsed; break;
+            case ix_DenseLeaf1Ptr: bytesUsed = pop*DenseLeaf1!(RT.ValueType).sizeof; totalBytesUsed += bytesUsed; break;
             }
         }
         if (bytesUsed)
@@ -2571,11 +2592,11 @@ unittest
         assert(!set.insert(i));
         assert(set.contains(i));
         assert(set.heapNodeAllocationBalance == 1);
-        const rootRef = set._root.peek!(Set.SparseLeaf1*);
+        const rootRef = set._root.peek!(SparseLeaf1!void*);
         assert(rootRef);
     }
 
-    const rootRef = set._root.peek!(Set.SparseLeaf1*);
+    const rootRef = set._root.peek!(SparseLeaf1!void*);
     assert(rootRef);
 
     const root = *rootRef;

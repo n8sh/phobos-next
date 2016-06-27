@@ -486,7 +486,7 @@ auto strictlyIndexed(R)(R range)
 template makeEnumFromSymbolNames(string prefix = `_`,
                                  string suffix = ``,
                                  bool firstUndefined = true,
-                                 bool useMangleof = false,
+                                 bool useMangleOf = false,
                                  Es...)
     if (Es.length >= 1)
 {
@@ -495,7 +495,7 @@ template makeEnumFromSymbolNames(string prefix = `_`,
         string s = firstUndefined ? `undefined, ` : ``;
         foreach (E; Es)
         {
-            static      if (useMangleof)              enum E_ = E.mangleof;
+            static      if (useMangleOf)              enum E_ = E.mangleof;
             else static if (E.stringof[$ - 1] == '*') enum E_ = E.stringof[0 .. $ - 1] ~ "Ptr";
             else                                      enum E_ = E.stringof;
             s ~= prefix ~ E_ ~ suffix ~ `, `;

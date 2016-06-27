@@ -2630,7 +2630,7 @@ unittest
     assert(set.empty);
 
     size_t count = 0;
-    enum debugPrint = true;
+    enum debugPrint = false;
 
     import std.datetime : StopWatch, AutoStart, Duration;
     auto sw = StopWatch(AutoStart.yes);
@@ -2661,13 +2661,11 @@ unittest
                 }
 
                 assert(set.insert(word));
-                assert(!set.contains("amity"));
 
                 assert(set.contains(word));
 
                 assert(!set.insert(word));
                 assert(set.contains(word));
-
 
                 ++count;
             }

@@ -424,6 +424,7 @@ struct OneLeafMax7
 
     IxsN!(capacity, 1) key;
 }
+
 /// Binary/2-Key Leaf with key-length 3.
 struct TwoLeaf3
 {

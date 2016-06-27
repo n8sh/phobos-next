@@ -486,6 +486,7 @@ auto strictlyIndexed(R)(R range)
 template makeEnumFromSymbolNames(string prefix = `_`,
                                  string suffix = ``,
                                  bool firstUndefined = true,
+                                 bool useMangleof = false,
                                  Es...)
     if (Es.length >= 1)
 {
@@ -494,8 +495,9 @@ template makeEnumFromSymbolNames(string prefix = `_`,
         string s = firstUndefined ? `undefined, ` : ``;
         foreach (E; Es)
         {
-            static if (E.stringof[$ - 1] == '*') enum E_ = E.stringof[0 .. $ - 1] ~ "Ptr";
-            else                                 enum E_ = E.stringof;
+            static      if (useMangleof)              enum E_ = E.mangleof;
+            else static if (E.stringof[$ - 1] == '*') enum E_ = E.stringof[0 .. $ - 1] ~ "Ptr";
+            else                                      enum E_ = E.stringof;
             s ~= prefix ~ E_ ~ suffix ~ `, `;
         }
         return s;
@@ -507,10 +509,27 @@ template makeEnumFromSymbolNames(string prefix = `_`,
 {
     import std.meta : AliasSeq;
     alias Types = AliasSeq!(byte, short, int*);
-    alias Type = makeEnumFromSymbolNames!(`_`, `_`, true, Types);
+    alias Type = makeEnumFromSymbolNames!(`_`, `_`, true, false, Types);
     static assert(is(Type == enum));
     static assert(Type.undefined.stringof == `undefined`);
     static assert(Type._byte_.stringof == `_byte_`);
     static assert(Type._short_.stringof == `_short_`);
     static assert(Type._intPtr_.stringof == `_intPtr_`);
+}
+
+@safe pure nothrow @nogc unittest
+{
+    import std.meta : AliasSeq;
+
+    struct E(T) { T x; }
+
+    alias Types = AliasSeq!(byte, short, int*, E!int);
+    alias Type = makeEnumFromSymbolNames!(`_`, `_`, true, true, Types);
+
+    static assert(is(Type == enum));
+
+    static assert(Type.undefined.stringof == `undefined`);
+    static assert(Type._g_.stringof == `_g_`);
+    static assert(Type._s_.stringof == `_s_`);
+    static assert(Type._Pi_.stringof == `_Pi_`);
 }

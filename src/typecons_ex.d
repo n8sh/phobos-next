@@ -483,7 +483,7 @@ auto strictlyIndexed(R)(R range)
 
     TODO Move to Phobos std.typecons
 */
-template makeEnumFromSymbolNames(string prefix = `_`,
+template makeEnumFromSymbolNames(string prefix = `__`,
                                  string suffix = ``,
                                  bool firstUndefined = true,
                                  bool useMangleOf = false,
@@ -504,12 +504,22 @@ template makeEnumFromSymbolNames(string prefix = `_`,
                 import std.traits : isPointer;
                 static if (isPointer!E)
                 {
-                    enum E_ = typeof(*E.init).stringof ~ `Ptr`;
+                    import std.traits : TemplateOf;
+                    enum isTemplate = is(typeof(TemplateOf!(typeof(*E.init))));
+                    static if (isTemplate) // strip template params for now
+                    {
+                        enum E_ = __traits(identifier, TemplateOf!(typeof(*E))) ~ `Ptr`;
+                    }
+                    else
+                    {
+                        enum E_ = typeof(*E.init).stringof ~ `Ptr`;
+                    }
                 }
                 else
                 {
                     enum E_ = E.stringof;
                 }
+
             }
             s ~= prefix ~ E_ ~ suffix ~ `, `;
         }
@@ -521,13 +531,15 @@ template makeEnumFromSymbolNames(string prefix = `_`,
 @safe pure nothrow @nogc unittest
 {
     import std.meta : AliasSeq;
-    alias Types = AliasSeq!(byte, short, int*);
+    struct E(T) { T x; }
+    alias Types = AliasSeq!(byte, short, int*, E!int*);
     alias Type = makeEnumFromSymbolNames!(`_`, `_`, true, false, Types);
     static assert(is(Type == enum));
     static assert(Type.undefined.stringof == `undefined`);
     static assert(Type._byte_.stringof == `_byte_`);
     static assert(Type._short_.stringof == `_short_`);
     static assert(Type._intPtr_.stringof == `_intPtr_`);
+    static assert(Type._EPtr_.stringof == `_EPtr_`);
 }
 
 @safe pure nothrow @nogc unittest
@@ -536,7 +548,7 @@ template makeEnumFromSymbolNames(string prefix = `_`,
 
     struct E(T) { T x; }
 
-    alias Types = AliasSeq!(byte, short, int*, E!int);
+    alias Types = AliasSeq!(byte, short, int*, E!int*);
     alias Type = makeEnumFromSymbolNames!(`_`, `_`, true, true, Types);
 
     static assert(is(Type == enum));

@@ -1173,7 +1173,7 @@ struct RawRadixTree(Value = void)
             Node next;
             if (curr.empty)     // if curr also empty length capacity must be zero
             {
-                next = construct!(SparseBranch*)(1, curr); // so allocate one
+                next = constructWithCapacity!(SparseBranch*)(1, curr); // so allocate one
             }
             else if (curr.subCapacity < DefaultBranch.subCapacityMax) // if we can expand to curr
             {
@@ -1182,7 +1182,7 @@ struct RawRadixTree(Value = void)
                 const nextSubCapacity = min(nextPow2(cast(uint)curr.subCapacity),
                                             DefaultBranch.subCapacityMax);
                 assert(nextSubCapacity > curr.subCapacity);
-                next = construct!(SparseBranch*)(nextSubCapacity, curr);
+                next = constructWithCapacity!(SparseBranch*)(nextSubCapacity, curr);
             }
             else
             {
@@ -1537,8 +1537,8 @@ struct RawRadixTree(Value = void)
                     // NOTE: prefix:"ab", key:"cd"
                     const currSubIx = currPrefix[0]; // subIx = 'a'
                     popFrontNPrefix(curr, 1);
-                    auto next = construct!(DefaultBranch)(2, matchedKeyPrefix,
-                                                          currSubIx, curr);
+                    auto next = constructWithCapacity!(DefaultBranch)(2, matchedKeyPrefix,
+                                                                      currSubIx, curr);
                     return insertAtBranch(Node(next), key, insertionNode);
                 }
             }
@@ -1567,8 +1567,8 @@ struct RawRadixTree(Value = void)
                     // NOTE: prefix and key share beginning: prefix:"ab11", key:"ab22"
                     const currSubIx = currPrefix[matchedKeyPrefix.length]; // need index first before we modify curr.prefix
                     popFrontNPrefix(curr, matchedKeyPrefix.length + 1);
-                    auto next = construct!(DefaultBranch)(2, matchedKeyPrefix,
-                                                          currSubIx, curr);
+                    auto next = constructWithCapacity!(DefaultBranch)(2, matchedKeyPrefix,
+                                                                      currSubIx, curr);
                     return insertAtBranch(Node(next), key, insertionNode);
                 }
             }
@@ -1580,8 +1580,8 @@ struct RawRadixTree(Value = void)
                     // NOTE: prefix is an extension of key: prefix:"abcd", key:"ab"
                     const currSubIx = currPrefix[matchedKeyPrefix.length - 1]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
-                    auto next = construct!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
-                                                          currSubIx, curr);
+                    auto next = constructWithCapacity!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
+                                                                      currSubIx, curr);
                     return insertAtBranch(Node(next), key, insertionNode);
                 }
                 else /* if (matchedKeyPrefix.length == currPrefix.length) and in turn
@@ -1590,8 +1590,8 @@ struct RawRadixTree(Value = void)
                     // NOTE: prefix equals key: prefix:"abcd", key:"abcd"
                     const currSubIx = currPrefix[matchedKeyPrefix.length - 1]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
-                    auto next = construct!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
-                                                          currSubIx, curr);
+                    auto next = constructWithCapacity!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
+                                                                      currSubIx, curr);
                     return insertAtBranchLeaf(Node(next), key[$ - 1], insertionNode);
                 }
             }
@@ -1679,7 +1679,7 @@ struct RawRadixTree(Value = void)
                         break;
                     default:
                         if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
-                        next = construct!(DefaultBranch)(2, matchedKeyPrefix);
+                        next = constructWithCapacity!(DefaultBranch)(2, matchedKeyPrefix);
                         Node insertionNodeCurr;
                         next = insertAtBranch(next, curr.key, insertionNodeCurr);
                         next = insertAtBranch(next, key, insertionNode);
@@ -1754,7 +1754,7 @@ struct RawRadixTree(Value = void)
             {
                 return toNode(insertAt(curr, key[0], insertionNode)); // use `Ix key`-overload
             }
-            return insertAt(Node(construct!(DefaultBranch)(1, Leaf(curr))), // current `key`
+            return insertAt(Node(constructWithCapacity!(DefaultBranch)(1, Leaf(curr))), // current `key`
                             key, insertionNode); // NOTE stay at same (depth)
         }
 
@@ -1787,7 +1787,7 @@ struct RawRadixTree(Value = void)
             }
 
             // default case
-            Node next = construct!(DefaultBranch)(1 + 1, prefix); // current plus one more
+            Node next = constructWithCapacity!(DefaultBranch)(1 + 1, prefix); // current plus one more
 
             Node insertionNodeCurr;      // dummy
             next = insertAt(next, curr.key, insertionNodeCurr);
@@ -1804,22 +1804,16 @@ struct RawRadixTree(Value = void)
             assert(curr.key.length >= 2);
             typeof(return) next;
 
-            try
-            {
-                if (willFail) { dln("WILL FAIL: curr:", curr, " as string: ", (cast(char[])(curr.key[]))); }
-            }
-            catch (Exception e) {}
-
             if (curr.key.length <= DefaultBranch.prefixCapacity + 1) // if `key` fits in `prefix` of `DefaultBranch`
             {
                 if (willFail) { dln("1 curr:", curr); }
-                next = construct!(DefaultBranch)(1 + capacityIncrement, curr.key[0 .. $ - 1], // all but last
-                                                 Leaf(construct!(HeptLeaf1)(curr.key[$ - 1]))); // last as a leaf
+                next = constructWithCapacity!(DefaultBranch)(1 + capacityIncrement, curr.key[0 .. $ - 1], // all but last
+                                                             Leaf(construct!(HeptLeaf1)(curr.key[$ - 1]))); // last as a leaf
             }
             else                // curr.key.length > DefaultBranch.prefixCapacity + 1
             {
                 if (willFail) { dln("2 curr:", curr); }
-                next = construct!(DefaultBranch)(1 + capacityIncrement, curr.key[0 .. DefaultBranch.prefixCapacity]);
+                next = constructWithCapacity!(DefaultBranch)(1 + capacityIncrement, curr.key[0 .. DefaultBranch.prefixCapacity]);
                 Node insertionNodeCurr;
                 next = insertAtBranch(next, curr.key, insertionNodeCurr);
             }
@@ -1846,14 +1840,14 @@ struct RawRadixTree(Value = void)
             if (curr.keys.length == 1) // only one key
             {
                 Node insertionNodeCurr;
-                next = insertAtBranch(Node(construct!(DefaultBranch)(1 + capacityIncrement)), // current keys plus one more
+                next = insertAtBranch(Node(constructWithCapacity!(DefaultBranch)(1 + capacityIncrement)), // current keys plus one more
                                       curr.keys.at!0,
                                       insertionNodeCurr);
                 assert(insertionNodeCurr);
             }
             else
             {
-                next = construct!(DefaultBranch)(curr.keys.length + capacityIncrement, curr.prefix);
+                next = constructWithCapacity!(DefaultBranch)(curr.keys.length + capacityIncrement, curr.prefix);
                 // TODO functionize to insertAtBranch(curr.keys)
                 foreach (key; curr.keys)
                 {
@@ -1873,7 +1867,7 @@ struct RawRadixTree(Value = void)
             Node next;
             if (curr.keys.length == 1) // only one key
             {
-                next = construct!(DefaultBranch)(1 + capacityIncrement); // current keys plus one more
+                next = constructWithCapacity!(DefaultBranch)(1 + capacityIncrement); // current keys plus one more
                 Node insertionNodeCurr;
                 next = insertAtBranch(next,
                                       curr.keys.at!0,
@@ -1882,7 +1876,7 @@ struct RawRadixTree(Value = void)
             }
             else
             {
-                next = construct!(DefaultBranch)(curr.keys.length + capacityIncrement, curr.prefix);
+                next = constructWithCapacity!(DefaultBranch)(curr.keys.length + capacityIncrement, curr.prefix);
                 // TODO functionize to insertAtBranch(curr.keys)
                 foreach (key; curr.keys)
                 {
@@ -1915,11 +1909,9 @@ struct RawRadixTree(Value = void)
 
     /** Allocate (if pointer) and Construct a `Node`-type of value type `NodeType`
         using constructor arguments `args` of `Args`.
-
-        If `NodeType` is a `SparseBranch` a variable-length struct is allocated
-        using `args[0]`.
     */
     auto construct(NodeType, Args...)(Args args) @trusted
+        if (!is(NodeType == SparseBranch*))
     {
         version(debugAllocations) { dln("constructing ", NodeType.stringof, " from ", args); }
         debug ++nodeCountsByIx[NodeType.stringof];
@@ -1927,17 +1919,7 @@ struct RawRadixTree(Value = void)
         {
             debug ++_heapNodeAllocationBalance;
             import std.conv : emplace;
-            static if (is(NodeType == SparseBranch*))
-            {
-                static assert(isIntegral!(Args[0]), "First argument must be an integral");
-                import std.algorithm : max;
-                const subCapacity = max(SparseBranch.subCapacityMin, args[0]);
-                return emplace(cast(NodeType)malloc(NodeType.allocationSize(subCapacity)), subCapacity, args[1 .. $]);
-            }
-            else
-            {
-                return emplace(cast(NodeType)malloc((*NodeType.init).sizeof), args);
-            }
+            return emplace(cast(NodeType)malloc((*NodeType.init).sizeof), args);
             // TODO ensure alignment of node at least that of NodeType.alignof
         }
         else
@@ -1947,6 +1929,7 @@ struct RawRadixTree(Value = void)
     }
 
     auto constructWithCapacity(NodeType, Args...)(size_t subCapacity, Args args) @trusted
+        if (is(NodeType == SparseBranch*))
     {
         version(debugAllocations) { dln("constructing ", NodeType.stringof, " from ", args); }
         debug ++nodeCountsByIx[NodeType.stringof];
@@ -1954,16 +1937,9 @@ struct RawRadixTree(Value = void)
         {
             debug ++_heapNodeAllocationBalance;
             import std.conv : emplace;
-            static if (is(NodeType == SparseBranch*))
-            {
-                import std.algorithm : max;
-                subCapacity = max(SparseBranch.subCapacityMin, subCapacity);
-                return emplace(cast(NodeType)malloc(NodeType.allocationSize(subCapacity)), subCapacity, args);
-            }
-            else
-            {
-                return emplace(cast(NodeType)malloc((*NodeType.init).sizeof), args);
-            }
+            import std.algorithm : max;
+            subCapacity = max(SparseBranch.subCapacityMin, subCapacity);
+            return emplace(cast(NodeType)malloc(NodeType.allocationSize(subCapacity)), subCapacity, args);
             // TODO ensure alignment of node at least that of NodeType.alignof
         }
         else

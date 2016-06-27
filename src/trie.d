@@ -1453,6 +1453,12 @@ struct RawRadixTree(Value = void)
             }
         }
 
+        Node insertNewBranch(Key!span key, out size_t skippedSuperBranchPrefixLength)
+        {
+            skippedSuperBranchPrefixLength = 0;
+            return Node.init;
+        }
+
         pragma(inline) Node toNode(Leaf curr) inout
         {
             final switch (curr.typeIx) with (Leaf.Ix)
@@ -1687,7 +1693,11 @@ struct RawRadixTree(Value = void)
                         break;
                     default:
                         if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
-                        next = constructWithCapacity!(DefaultBranch)(1 + 1, matchedKeyPrefix);
+                        import std.algorithm : min;
+                        auto nextPrefix = matchedKeyPrefix[0 .. min(matchedKeyPrefix.length,
+                                                                    DefaultBranch.prefixCapacity)]; // limit prefix branch capacity
+                        next = constructWithCapacity!(DefaultBranch)(1 + 1, // `curr` and `key`
+                                                                     nextPrefix);
                         next = insertAtBranch(next, curr.key);
                         next = insertAtBranch(next, key, insertionNode);
                         break;
@@ -1794,7 +1804,8 @@ struct RawRadixTree(Value = void)
             }
 
             // default case
-            Node next = constructWithCapacity!(DefaultBranch)(1 + 1, prefix); // current plus one more
+            Node next = constructWithCapacity!(DefaultBranch)(1 + 1, // current plus one more
+                                                              prefix);
 
             Node insertionNodeCurr;      // dummy
             next = insertAt(next, curr.key, insertionNodeCurr);

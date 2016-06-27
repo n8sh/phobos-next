@@ -52,7 +52,8 @@ struct WordVariant(Types...)
     alias S = size_t; // TODO templatize?
 
     import typecons_ex : makeEnumFromSymbolNames;
-    alias Ix = makeEnumFromSymbolNames!(`ix_`, ``, true, Types);
+    enum useMangleOf = false;
+    alias Ix = makeEnumFromSymbolNames!(`ix_`, ``, true, useMangleOf, Types);
     static assert(Ix.undefined == 0);
 
     enum typeBits = bitsNeeeded!(1 + Types.length); // number of bits needed to represent variant type, plus one for undefined state

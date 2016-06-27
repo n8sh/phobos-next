@@ -1597,6 +1597,14 @@ struct RawRadixTree(Value = void)
             }
         }
 
+        pragma(inline) Node insertAtBranch(Node curr, Key!span key)
+        {
+            Node insertionNodeIngnored;
+            auto next = insertAtBranch(curr, key, insertionNodeIngnored);
+            assert(insertionNodeIngnored);
+            return next;
+        }
+
         Node insertAtBranchLeaf(Node curr, Ix key, out Node insertionNode)
         {
             if (auto leaf = getLeaf(curr))
@@ -1679,9 +1687,8 @@ struct RawRadixTree(Value = void)
                         break;
                     default:
                         if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
-                        next = constructWithCapacity!(DefaultBranch)(2, matchedKeyPrefix);
-                        Node insertionNodeCurr;
-                        next = insertAtBranch(next, curr.key, insertionNodeCurr);
+                        next = constructWithCapacity!(DefaultBranch)(1 + 1, matchedKeyPrefix);
+                        next = insertAtBranch(next, curr.key);
                         next = insertAtBranch(next, key, insertionNode);
                         break;
                     }
@@ -1812,8 +1819,7 @@ struct RawRadixTree(Value = void)
             else                // curr.key.length > DefaultBranch.prefixCapacity + 1
             {
                 next = constructWithCapacity!(DefaultBranch)(1 + capacityIncrement, curr.key[0 .. DefaultBranch.prefixCapacity]);
-                Node insertionNodeCurr;
-                next = insertAtBranch(next, curr.key, insertionNodeCurr);
+                next = insertAtBranch(next, curr.key);
             }
 
             freeNode(curr);
@@ -1827,11 +1833,8 @@ struct RawRadixTree(Value = void)
             Node next;
             if (curr.keys.length == 1) // only one key
             {
-                Node insertionNodeCurr;
                 next = insertAtBranch(Node(constructWithCapacity!(DefaultBranch)(1 + capacityIncrement)), // current keys plus one more
-                                      curr.keys.at!0,
-                                      insertionNodeCurr);
-                assert(insertionNodeCurr);
+                                      curr.keys.at!0);
             }
             else
             {
@@ -1839,9 +1842,7 @@ struct RawRadixTree(Value = void)
                 // TODO functionize to insertAtBranch(curr.keys)
                 foreach (key; curr.keys)
                 {
-                    Node insertionNodeCurr;
-                    next = insertAtBranch(next, key, insertionNodeCurr);
-                    assert(insertionNodeCurr);
+                    next = insertAtBranch(next, key);
                 }
             }
             freeNode(curr);

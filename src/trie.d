@@ -391,6 +391,39 @@ alias order = radix;          // tree order
 
 static assert(span == 8, "Radix is currently limited to 8");
 
+/** Radix Modulo Index */
+alias Ix = Mod!radix; // restricted index type avoids range checking in array indexing below
+
+/// Single/1-Key Leaf with maximum key-length 7.
+struct OneLeafMax7
+{
+    @safe pure:
+    enum capacity = 7;
+
+    this(Ix[] key) nothrow @nogc
+    {
+        assert(key.length != 0);
+        this.key = key;
+    }
+
+    pragma(inline) bool contains(Key!span key) const nothrow @nogc { return this.key == key; }
+
+    @property string toString() const @safe pure
+    {
+        import std.string : format;
+        string s;
+        foreach (const i, const ix; key)
+        {
+            const first = i == 0; // first iteration
+            if (!first) { s ~= '_'; }
+            s ~= format("%.2X", ix); // in hexadecimal
+        }
+        return s;
+    }
+
+    IxsN!(capacity, 1) key;
+}
+
 /** Raw adaptive radix tree (ART) container storing untyped variable-length `Key`.
 
     In set-case (`Value` is `void`) this container is especially suitable for
@@ -436,9 +469,6 @@ struct RawRadixTree(Value = void)
     /// `true` if tree has binary branch.
     enum isBinary = span == 2;
 
-    /** Radix Modulo Index */
-    alias Ix = Mod!radix; // restricted index type avoids range checking in array indexing below
-
     /** `span` least significant bits (LSB) of leaves directly packed into a word.
 
         TODO Generalize to packing of more than one `Ix` per byte.
@@ -449,34 +479,6 @@ struct RawRadixTree(Value = void)
     {
         static if (span == 8)
         {
-            /// Single/1-Key Leaf with maximum key-length 7.
-            struct OneLeafMax7
-            {
-                enum capacity = 7;
-                this(Ix[] key)
-                {
-                    assert(key.length != 0);
-                    this.key = key;
-                }
-
-                pragma(inline) bool contains(Key!span key) const @nogc { return this.key == key; }
-
-                @property string toString() const @safe pure
-                {
-                    import std.string : format;
-                    string s;
-                    foreach (const i, const ix; key)
-                    {
-                        const first = i == 0; // first iteration
-                        if (!first) { s ~= '_'; }
-                        s ~= format("%.2X", ix); // in hexadecimal
-                    }
-                    return s;
-                }
-
-                IxsN!(capacity, 1) key;
-            }
-
             /// Binary/2-Key Leaf with key-length 3.
             struct TwoLeaf3
             {
@@ -2451,7 +2453,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
             final switch (ix)
             {
             case undefined: break;
-            case ix_OneLeafMax7: bytesUsed = pop*RT.OneLeafMax7.sizeof; break;
+            case ix_OneLeafMax7: bytesUsed = pop*OneLeafMax7.sizeof; break;
             case ix_TwoLeaf3: bytesUsed = pop*RT.TwoLeaf3.sizeof; break;
             case ix_TriLeaf2: bytesUsed = pop*RT.TriLeaf2.sizeof; break;
             case ix_HeptLeaf1: bytesUsed = pop*RT.HeptLeaf1.sizeof; break;

@@ -868,7 +868,7 @@ struct RawRadixTree(Value = void)
     */
     static private struct SparseBranch
     {
-        enum subCapacityMin = 0; // minmum number of preallocated sub-indexes and sub-nodes
+        enum subCapacityMin = 0; // minimum number of preallocated sub-indexes and sub-nodes
         enum subCapacityMax = 48; // maximum number of preallocated sub-indexes and sub-nodes
         enum prefixCapacity = 5; // 5, 13, 21, ...
 
@@ -1933,19 +1933,12 @@ struct RawRadixTree(Value = void)
     {
         version(debugAllocations) { dln("constructing ", NodeType.stringof, " from ", args); }
         debug ++nodeCountsByIx[NodeType.stringof];
-        static if (isPointer!NodeType)
-        {
-            debug ++_heapNodeAllocationBalance;
-            import std.conv : emplace;
-            import std.algorithm : max;
-            subCapacity = max(SparseBranch.subCapacityMin, subCapacity);
-            return emplace(cast(NodeType)malloc(NodeType.allocationSize(subCapacity)), subCapacity, args);
-            // TODO ensure alignment of node at least that of NodeType.alignof
-        }
-        else
-        {
-            return NodeType(args);
-        }
+        debug ++_heapNodeAllocationBalance;
+        import std.conv : emplace;
+        import std.algorithm : max;
+        subCapacity = max(SparseBranch.subCapacityMin, subCapacity);
+        return emplace(cast(NodeType)malloc(NodeType.allocationSize(subCapacity)), subCapacity, args);
+        // TODO ensure alignment of node at least that of NodeType.alignof
     }
 
     void freeNode(NodeType)(NodeType nt) @trusted

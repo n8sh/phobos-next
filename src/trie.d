@@ -23,8 +23,6 @@
 
     TODO Make array indexing/slicing as @trusted and use .ptr[] instead of [] when things are stable. Especially in IxsN
 
-    TODO Store `isKey` in top-most bit of length part of `IxsN prefix` and use for TwoLeaf3, TriLeaf2, and HeptLeaf1.
-
     TODO Add function reprefix({SparseBranch|DenseBranch) and call after insertAt({SparseBranch|DenseBranch}). Only useful when one single leaf is present?
     TODO Is std.algorithm.countUntil the most suitable function to use in setSub(SparseBranch*, ...)
     TODO Use std.experimental.allocator

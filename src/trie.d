@@ -2455,13 +2455,22 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
             case ix_TwoLeaf3: bytesUsed = pop*RT.TwoLeaf3.sizeof; break;
             case ix_TriLeaf2: bytesUsed = pop*RT.TriLeaf2.sizeof; break;
             case ix_HeptLeaf1: bytesUsed = pop*RT.HeptLeaf1.sizeof; break;
-            case ix_SparseLeaf1Ptr: bytesUsed = pop*RT.SparseLeaf1.sizeof; totalBytesUsed += bytesUsed; break;
-            case ix_DenseLeaf1Ptr: bytesUsed = pop*RT.DenseLeaf1.sizeof; totalBytesUsed += bytesUsed; break;
+            case ix_SparseLeaf1Ptr:
+                bytesUsed = pop*RT.SparseLeaf1.sizeof;
+                totalBytesUsed += bytesUsed;
+                break;
+            case ix_DenseLeaf1Ptr:
+                bytesUsed = pop*RT.DenseLeaf1.sizeof;
+                totalBytesUsed += bytesUsed;
+                break;
             case ix_SparseBranchPtr:
                 bytesUsed = stats.sparseBranchSizeSum; // must be used because SparseBranch.sizeof cannot be used because it's a variable length struct
                 totalBytesUsed += bytesUsed;
                 break;
-            case ix_DenseBranchPtr: bytesUsed = pop*RT.DenseBranch.sizeof; totalBytesUsed += bytesUsed; break;
+            case ix_DenseBranchPtr:
+                bytesUsed = pop*RT.DenseBranch.sizeof;
+                totalBytesUsed += bytesUsed;
+                break;
             }
         }
         if (bytesUsed)

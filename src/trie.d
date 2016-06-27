@@ -450,12 +450,12 @@ struct RawRadixTree(Value = void)
         static if (span == 8)
         {
             /// Single/1-Key Leaf with maximum key-length 7.
-            struct OneLeaf7
+            struct OneLeafMax7
             {
                 enum capacity = 7;
                 this(Ix[] key)
                 {
-                    assert(key.length);
+                    assert(key.length != 0);
                     this.key = key;
                 }
 
@@ -582,7 +582,7 @@ struct RawRadixTree(Value = void)
     static assert(Leaf.typeBits <= IxsN!(7, 1, 8).typeBits);
 
     /** Mutable node. */
-    alias Node = WordVariant!(OneLeaf7,
+    alias Node = WordVariant!(OneLeafMax7,
                               TwoLeaf3,
                               TriLeaf2,
                               HeptLeaf1,
@@ -1356,7 +1356,7 @@ struct RawRadixTree(Value = void)
             final switch (curr.typeIx) with (Node.Ix)
             {
             case undefined: return false;
-            case ix_OneLeaf7: return curr.as!(OneLeaf7).contains(key);
+            case ix_OneLeafMax7: return curr.as!(OneLeafMax7).contains(key);
             case ix_TwoLeaf3: return curr.as!(TwoLeaf3).contains(key);
             case ix_TriLeaf2: return curr.as!(TriLeaf2).contains(key);
             case ix_HeptLeaf1: return curr.as!(HeptLeaf1).contains(key);
@@ -1386,7 +1386,7 @@ struct RawRadixTree(Value = void)
             final switch (curr.typeIx) with (Node.Ix)
             {
             case undefined: break;
-            case ix_OneLeaf7: break;
+            case ix_OneLeafMax7: break;
             case ix_TwoLeaf3: break;
             case ix_TriLeaf2: break;
             case ix_HeptLeaf1: break;
@@ -1431,16 +1431,16 @@ struct RawRadixTree(Value = void)
             if (willFail) { dln("WILL FAIL: curr:", key); }
             switch (key.length)
             {
-            case 0: assert(false, "key must not be empty"); // return insertionNode = Node(construct!(OneLeaf7)());
+            case 0: assert(false, "key must not be empty"); // return insertionNode = Node(construct!(OneLeafMax7)());
             case 1: return insertionNode = Node(construct!(HeptLeaf1)(key[0]));
             case 2: return insertionNode = Node(construct!(TriLeaf2)(key));
             case 3: return insertionNode = Node(construct!(TwoLeaf3)(key));
             default:
-                if (key.length <= OneLeaf7.capacity)
+                if (key.length <= OneLeafMax7.capacity)
                 {
-                    return insertionNode = Node(construct!(OneLeaf7)(key));
+                    return insertionNode = Node(construct!(OneLeafMax7)(key));
                 }
-                else                // key doesn't fit in a `OneLeaf7`
+                else                // key doesn't fit in a `OneLeafMax7`
                 {
                     import std.algorithm : min;
                     auto prefix = key[0 .. min(key.length - 1, // all but last Ix of key
@@ -1455,7 +1455,6 @@ struct RawRadixTree(Value = void)
 
         pragma(inline) Node toNode(Leaf curr) inout
         {
-            if (willFail) { dln("WILL FAIL: curr:", curr); }
             final switch (curr.typeIx) with (Leaf.Ix)
             {
             case undefined: return Node.init;
@@ -1482,7 +1481,7 @@ struct RawRadixTree(Value = void)
                 final switch (curr.typeIx) with (Node.Ix)
                 {
                 case undefined: return typeof(return).init;
-                case ix_OneLeaf7: return insertAt(curr.as!(OneLeaf7), key, insertionNode);
+                case ix_OneLeafMax7: return insertAt(curr.as!(OneLeafMax7), key, insertionNode);
                 case ix_TwoLeaf3: return insertAt(curr.as!(TwoLeaf3), key, insertionNode);
                 case ix_TriLeaf2: return insertAt(curr.as!(TriLeaf2), key, insertionNode);
                 case ix_HeptLeaf1: return insertAt(curr.as!(HeptLeaf1), key, insertionNode);
@@ -1647,7 +1646,7 @@ struct RawRadixTree(Value = void)
             return curr;
         }
 
-        Node insertAt(OneLeaf7 curr, Key!span key, out Node insertionNode)
+        Node insertAt(OneLeafMax7 curr, Key!span key, out Node insertionNode)
         {
             assert(curr.key.length);
             if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
@@ -1656,6 +1655,7 @@ struct RawRadixTree(Value = void)
             auto matchedKeyPrefix = commonPrefix(key, curr.key);
             if (curr.key.length == key.length)
             {
+                if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
                 if (matchedKeyPrefix.length == key.length) // curr.key, key and matchedKeyPrefix all equal
                 {
                     return Node(curr); // already stored in `curr`
@@ -1665,10 +1665,20 @@ struct RawRadixTree(Value = void)
                     Node next;
                     switch (matchedKeyPrefix.length)
                     {
-                    case 0: next = construct!(HeptLeaf1)(curr.key[0], key[0]); break;
-                    case 1: next = construct!(TriLeaf2)(curr.key, key); break;
-                    case 2: next = construct!(TwoLeaf3)(curr.key, key); break;
+                    case 0:
+                        if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
+                        next = construct!(HeptLeaf1)(curr.key[0], key[0]);
+                        break;
+                    case 1:
+                        if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
+                        next = construct!(TriLeaf2)(curr.key, key);
+                        break;
+                    case 2:
+                        if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
+                        next = construct!(TwoLeaf3)(curr.key, key);
+                        break;
                     default:
+                        if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
                         next = construct!(DefaultBranch)(2, matchedKeyPrefix);
                         Node insertionNodeCurr;
                         next = insertAtBranch(next, curr.key, insertionNodeCurr);
@@ -1684,8 +1694,8 @@ struct RawRadixTree(Value = void)
                 }
             }
 
-            auto next = expand(curr);
-            return insertAtBranch(Node(next), key, insertionNode);
+            if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
+            return insertAtBranch(expand(curr), key, insertionNode);
         }
 
         Node insertAt(TwoLeaf3 curr, Key!span key, out Node insertionNode)
@@ -1749,7 +1759,7 @@ struct RawRadixTree(Value = void)
         }
 
         /** Split `curr` using `prefix`. */
-        Node split(OneLeaf7 curr, Key!span prefix, Key!span key) // TODO key here is a bit malplaced
+        Node split(OneLeafMax7 curr, Key!span prefix, Key!span key) // TODO key here is a bit malplaced
         {
             if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); } assert(key.length);
             assert(hasVariableKeyLength || curr.key.length == key.length);
@@ -1787,31 +1797,65 @@ struct RawRadixTree(Value = void)
             return next;
         }
 
-        /** Destructively expand `curr` and return it. */
-        SparseBranch* expand(OneLeaf7 curr)
+        /** Destructively expand `curr` to make room for `capacityIncrement`
+            more keys and return it. */
+        Node expand(OneLeafMax7 curr, size_t capacityIncrement = 1)
         {
             assert(curr.key.length >= 2);
-            auto next = construct!(typeof(return))(2, curr.key[0 .. $ - 1],
-                                                   Leaf(construct!(HeptLeaf1)(curr.key[$ - 1])));
+            typeof(return) next;
+
+            try
+            {
+                if (willFail) { dln("WILL FAIL: curr:", curr, " as string: ", (cast(char[])(curr.key[]))); }
+            }
+            catch (Exception e) {}
+
+            if (curr.key.length <= DefaultBranch.prefixCapacity + 1) // if `key` fits in `prefix` of `DefaultBranch`
+            {
+                if (willFail) { dln("1 curr:", curr); }
+                const prefix = curr.key[0 .. $ - 1];
+                next = construct!(DefaultBranch)(1 + capacityIncrement, prefix, // all but last
+                                                 Leaf(construct!(HeptLeaf1)(curr.key[$ - 1]))); // last as a leaf
+            }
+            else                // curr.key.length > DefaultBranch.prefixCapacity + 1
+            {
+                if (willFail) { dln("2 curr:", curr); }
+                const prefix = curr.key[0 .. DefaultBranch.prefixCapacity];
+                next = construct!(DefaultBranch)(1 + capacityIncrement, prefix);
+                Node insertionNodeCurr;
+                next = insertAtBranch(next, curr.key[DefaultBranch.prefixCapacity .. $], insertionNodeCurr);
+            }
+
+            try
+            {
+                if (willFail)
+                {
+                    debug printAt(Node(curr), 0);
+                    debug printAt(next, 0);
+                }
+            }
+            catch (Exception e) {}
+
             freeNode(curr);
             return next;
         }
 
-        /** Destructively expand `curr` and return it. */
-        Node expand(TwoLeaf3 curr)
+        /** Destructively expand `curr` to make room for `capacityIncrement`
+            more keys and return it. */
+        Node expand(TwoLeaf3 curr, size_t capacityIncrement = 1)
         {
             Node next;
             if (curr.keys.length == 1) // only one key
             {
                 Node insertionNodeCurr;
-                next = insertAtBranch(Node(construct!(DefaultBranch)(1 + 1)), // current keys plus one more
+                next = insertAtBranch(Node(construct!(DefaultBranch)(1 + capacityIncrement)), // current keys plus one more
                                       curr.keys.at!0,
                                       insertionNodeCurr);
                 assert(insertionNodeCurr);
             }
             else
             {
-                next = construct!(DefaultBranch)(curr.keys.length + 1, curr.prefix);
+                next = construct!(DefaultBranch)(curr.keys.length + capacityIncrement, curr.prefix);
                 // TODO functionize to insertAtBranch(curr.keys)
                 foreach (key; curr.keys)
                 {
@@ -1825,13 +1869,13 @@ struct RawRadixTree(Value = void)
         }
 
         /** Destructively expand `curr` and return it. */
-        Node expand(TriLeaf2 curr)
+        Node expand(TriLeaf2 curr, size_t capacityIncrement = 1)
         {
             // TODO functionize:
             Node next;
             if (curr.keys.length == 1) // only one key
             {
-                next = construct!(DefaultBranch)(2); // current keys plus one more
+                next = construct!(DefaultBranch)(1 + capacityIncrement); // current keys plus one more
                 Node insertionNodeCurr;
                 next = insertAtBranch(next,
                                       curr.keys.at!0,
@@ -1840,7 +1884,7 @@ struct RawRadixTree(Value = void)
             }
             else
             {
-                next = construct!(DefaultBranch)(curr.keys.length + 1, curr.prefix);
+                next = construct!(DefaultBranch)(curr.keys.length + capacityIncrement, curr.prefix);
                 // TODO functionize to insertAtBranch(curr.keys)
                 foreach (key; curr.keys)
                 {
@@ -1854,7 +1898,7 @@ struct RawRadixTree(Value = void)
         }
 
         /** Destructively expand `curr` making room for `nextKey` and return it. */
-        Node expand(HeptLeaf1 curr)
+        Node expand(HeptLeaf1 curr, size_t capacityIncrement = 1)
         {
             auto next = construct!(SparseLeaf1*)(curr.keys);
             freeNode(curr);
@@ -1978,7 +2022,7 @@ struct RawRadixTree(Value = void)
             freeNode(curr);
         }
 
-        void release(OneLeaf7 curr) { freeNode(curr); }
+        void release(OneLeafMax7 curr) { freeNode(curr); }
         void release(TwoLeaf3 curr) { freeNode(curr); }
         void release(TriLeaf2 curr) { freeNode(curr); }
         void release(HeptLeaf1 curr) { freeNode(curr); }
@@ -2002,7 +2046,7 @@ struct RawRadixTree(Value = void)
             final switch (curr.typeIx) with (Node.Ix)
             {
             case undefined: break; // ignored
-            case ix_OneLeaf7: return release(curr.as!(OneLeaf7));
+            case ix_OneLeafMax7: return release(curr.as!(OneLeafMax7));
             case ix_TwoLeaf3: return release(curr.as!(TwoLeaf3));
             case ix_TriLeaf2: return release(curr.as!(TriLeaf2));
             case ix_HeptLeaf1: return release(curr.as!(HeptLeaf1));
@@ -2018,7 +2062,7 @@ struct RawRadixTree(Value = void)
             final switch (curr.typeIx) with (Node.Ix)
             {
             case undefined: return false;
-            case ix_OneLeaf7: return false;
+            case ix_OneLeafMax7: return false;
             case ix_TwoLeaf3: return false;
             case ix_TriLeaf2: return false;
             case ix_HeptLeaf1: return false;
@@ -2072,8 +2116,8 @@ struct RawRadixTree(Value = void)
         case undefined:
             dln("TODO: Trying to print undefined Node");
             break;
-        case ix_OneLeaf7:
-            auto curr_ = curr.as!(OneLeaf7);
+        case ix_OneLeafMax7:
+            auto curr_ = curr.as!(OneLeafMax7);
             writeln(typeof(curr_).stringof, "#", curr_.key.length, ": ", curr_.to!string);
             break;
         case ix_TwoLeaf3:
@@ -2197,7 +2241,7 @@ static private void calculate(Value)(RawRadixTree!(Value).Node sub,
     final switch (sub.typeIx) with (RT.Node.Ix)
     {
     case undefined: break;
-    case ix_OneLeaf7: break; // TODO calculate()
+    case ix_OneLeafMax7: break; // TODO calculate()
     case ix_TwoLeaf3: break; // TODO calculate()
     case ix_TriLeaf2: break; // TODO calculate()
     case ix_HeptLeaf1: break; // TODO calculate()
@@ -2334,7 +2378,7 @@ struct RadixTree(Key, Value)
                 final switch (insertionNode.typeIx) with (_tree.Node.Ix)
                 {
                 case undefined: break;
-                case ix_OneLeaf7:
+                case ix_OneLeafMax7:
                 case ix_TwoLeaf3:
                 case ix_TriLeaf2:
                 case ix_HeptLeaf1:
@@ -2436,7 +2480,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
             final switch (ix)
             {
             case undefined: break;
-            case ix_OneLeaf7: bytesUsed = pop*RT.OneLeaf7.sizeof; break;
+            case ix_OneLeafMax7: bytesUsed = pop*RT.OneLeafMax7.sizeof; break;
             case ix_TwoLeaf3: bytesUsed = pop*RT.TwoLeaf3.sizeof; break;
             case ix_TriLeaf2: bytesUsed = pop*RT.TriLeaf2.sizeof; break;
             case ix_HeptLeaf1: bytesUsed = pop*RT.HeptLeaf1.sizeof; break;
@@ -2619,13 +2663,15 @@ unittest
     assert(set.empty);
 
     size_t count = 0;
-    enum debugPrint = false;
+    enum debugPrint = true;
 
     import std.datetime : StopWatch, AutoStart, Duration;
     auto sw = StopWatch(AutoStart.yes);
 
     import std.stdio : File;
-    foreach (const word; File(path).byLine)
+    string[] firsts = [];
+    import std.range : chain;
+    foreach (const word; chain(firsts, File(path).byLine))
     {
         import std.algorithm.searching : endsWith;
         import std.range : empty;
@@ -2634,24 +2680,27 @@ unittest
         {
             if (word.length <= 15)
             {
+                assert(!set.contains(word));
+
                 static if (debugPrint)
                 {
                     import std.string : representation;
                     dln(`word:"`, word, `" of length:`, word.length, ` of representation:`, word.representation);
-                    if (word == `.................`)
+                    set.willFail = word == `amiable`;
+                    if (set.willFail)
                     {
-                        set.willFail = true;
                         set.print();
                     }
                 }
 
-                assert(!set.contains(word));
-
                 assert(set.insert(word));
+                assert(!set.contains("amity"));
+
                 assert(set.contains(word));
 
                 assert(!set.insert(word));
                 assert(set.contains(word));
+
 
                 ++count;
             }

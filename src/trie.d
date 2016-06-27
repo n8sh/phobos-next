@@ -2511,7 +2511,6 @@ unittest
 
     foreach (const i; 0 .. N)
     {
-        // dln("i:", i);
         assert(!set.contains(i));
 
         assert(set.insert(i));
@@ -2519,14 +2518,10 @@ unittest
 
         assert(!set.insert(i));
         assert(set.contains(i));
-
-        // dln("tree:");
-        // set.print();
     }
 
     foreach (const i; N .. 256)
     {
-        // dln("i:", i);
         assert(!set.contains(i));
 
         assert(set.insert(i));
@@ -2538,7 +2533,6 @@ unittest
 
     foreach (const i; 256 .. 256 + N)
     {
-        // dln("i:", i);
         assert(!set.contains(i));
 
         assert(set.insert(i));
@@ -2550,7 +2544,6 @@ unittest
 
     foreach (const i; 256 + N .. 256 + 256)
     {
-        // dln("i:", i);
         assert(!set.contains(i));
 
         assert(set.insert(i));

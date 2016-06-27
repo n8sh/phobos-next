@@ -1365,12 +1365,12 @@ struct RawRadixTree(Value = void)
             case ix_SparseBranchPtr:
                 auto curr_ = curr.as!(SparseBranch*);
                 return (key.skipOver(curr_.prefix) &&        // matching prefix
-                        ((key.length == 1 && containsAt(curr_.leaf, key)) ||
-                         (key.length >= 1 && containsAt(curr_.findSub(key[0]), key[1 .. $])))); // recurse
+                        ((key.length == 1 && containsAt(curr_.leaf, key)) || // either in leaf
+                         (key.length >= 1 && containsAt(curr_.findSub(key[0]), key[1 .. $])))); // or recurse
             case ix_DenseBranchPtr:
                 auto curr_ = curr.as!(DenseBranch*);
                 return (key.skipOver(curr_.prefix) &&        // matching prefix
-                        ((key.length == 1 && containsAt(curr_.leaf, key)) ||
+                        ((key.length == 1 && containsAt(curr_.leaf, key)) || // either in leaf
                          (key.length >= 1 && containsAt(curr_.subNodes[key[0]], key[1 .. $])))); // recurse
             }
         }

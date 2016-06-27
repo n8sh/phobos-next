@@ -390,6 +390,7 @@ private enum radix = 2^^span; // branch-multiplicity, typically either 2, 4, 16 
 alias order = radix;          // tree order
 
 static assert(span == 8, "Radix is currently limited to 8");
+static assert(size_t.sizeof == 8, "Currently requires a 64-bit CPU (size_t.sizeof == 8)");
 
 /** Radix Modulo Index */
 alias Ix = Mod!radix; // restricted index type avoids range checking in array indexing below
@@ -422,6 +423,94 @@ struct OneLeafMax7
     }
 
     IxsN!(capacity, 1) key;
+}
+/// Binary/2-Key Leaf with key-length 3.
+struct TwoLeaf3
+{
+    enum keyLength = 3; // fixed length key
+    enum capacity = 2; // maximum number of keys stored
+
+    @safe pure:
+
+    this(Keys...)(Keys keys)
+        if (Keys.length >= 1 &&
+            Keys.length <= capacity)
+    {
+        this.keys = keys;
+    }
+
+    inout(Ix)[] prefix() inout nothrow
+    {
+        final switch (keys.length)
+        {
+        case 1:
+            return keys.at!0[];
+        case 2:
+            import std.algorithm : commonPrefix;
+            return commonPrefix(keys.at!0[], keys.at!1[]);
+        }
+    }
+
+    pragma(inline) bool contains(Key!span key) const nothrow @nogc { return keys.contains(key); }
+
+    IxsN!(capacity, keyLength) keys;
+}
+
+/// Ternary/3-Key Leaf with key-length 2.
+struct TriLeaf2
+{
+    enum keyLength = 2; // fixed length key
+    enum capacity = 3; // maximum number of keys stored
+
+    @safe pure:
+
+    this(Keys...)(Keys keys)
+        if (Keys.length >= 1 &&
+            Keys.length <= capacity)
+    {
+        this.keys = keys;
+    }
+
+    inout(Ix)[] prefix() inout nothrow
+    {
+        final switch (keys.length)
+        {
+        case 1:
+            return keys.at!0[];
+        case 2:
+            import std.algorithm : commonPrefix;
+            return commonPrefix(keys.at!0[], keys.at!1[]);
+        case 3:
+            import std.algorithm : commonPrefix;
+            return commonPrefix(keys.at!0[],
+                                commonPrefix(keys.at!1[], keys.at!2[])); // TODO make and reuse variadic commonPrefix
+        }
+    }
+
+    pragma(inline) bool contains(Key!span key) const nothrow @nogc { return keys.contains(key); }
+
+    IxsN!(capacity, keyLength) keys;
+}
+
+/// Hepa/7-Key Leaf with key-length 1.
+struct HeptLeaf1
+{
+    enum keyLength = 1;
+    enum capacity = 7; // maximum number of elements
+
+    @safe pure:
+
+    this(Keys...)(Keys keys)
+        if (Keys.length >= 1 &&
+            Keys.length <= capacity)
+    {
+        this.keys = keys;
+    }
+
+    pragma(inline) bool contains(Ix key) const nothrow @nogc { return keys.contains(key); }
+    pragma(inline) bool contains(Key!span key) const nothrow @nogc { return key.length == 1 && keys.contains(key[0]); }
+
+    IxsN!(capacity, 1) keys;
 }
 
 /** Raw adaptive radix tree (ART) container storing untyped variable-length `Key`.
@@ -468,105 +557,6 @@ struct RawRadixTree(Value = void)
 
     /// `true` if tree has binary branch.
     enum isBinary = span == 2;
-
-    /** `span` least significant bits (LSB) of leaves directly packed into a word.
-
-        TODO Generalize to packing of more than one `Ix` per byte.
-        TODO respect byteorder in `HeptLeaf1` to work with `WordVariant`
-        TODO implement and use opSlice instead of .key[]
-    */
-    static if (size_t.sizeof == 8) // 64-bit CPU
-    {
-        static if (span == 8)
-        {
-            /// Binary/2-Key Leaf with key-length 3.
-            struct TwoLeaf3
-            {
-                enum keyLength = 3; // fixed length key
-                enum capacity = 2; // maximum number of keys stored
-
-                this(Keys...)(Keys keys)
-                    if (Keys.length >= 1 &&
-                        Keys.length <= capacity)
-                {
-                    this.keys = keys;
-                }
-
-                inout(Ix)[] prefix() inout
-                {
-                    final switch (keys.length)
-                    {
-                    case 1:
-                        return keys.at!0[];
-                    case 2:
-                        import std.algorithm : commonPrefix;
-                        return commonPrefix(keys.at!0[], keys.at!1[]);
-                    }
-                }
-
-                pragma(inline) bool contains(Key!span key) const @nogc { return keys.contains(key); }
-
-                IxsN!(capacity, keyLength) keys;
-            }
-
-            /// Ternary/3-Key Leaf with key-length 2.
-            struct TriLeaf2
-            {
-                enum keyLength = 2; // fixed length key
-                enum capacity = 3; // maximum number of keys stored
-
-                this(Keys...)(Keys keys)
-                    if (Keys.length >= 1 &&
-                        Keys.length <= capacity)
-                {
-                    this.keys = keys;
-                }
-
-                inout(Ix)[] prefix() inout
-                {
-                    final switch (keys.length)
-                    {
-                    case 1:
-                        return keys.at!0[];
-                    case 2:
-                        import std.algorithm : commonPrefix;
-                        return commonPrefix(keys.at!0[], keys.at!1[]);
-                    case 3:
-                        import std.algorithm : commonPrefix;
-                        return commonPrefix(keys.at!0[],
-                                            commonPrefix(keys.at!1[], keys.at!2[])); // TODO make and reuse variadic commonPrefix
-                    }
-                }
-
-                pragma(inline) bool contains(Key!span key) const @nogc { return keys.contains(key); }
-
-                IxsN!(capacity, keyLength) keys;
-            }
-
-            /// Hepa/7-Key Leaf with key-length 1.
-            struct HeptLeaf1
-            {
-                enum keyLength = 1;
-                enum capacity = 7; // maximum number of elements
-
-                this(Keys...)(Keys keys)
-                    if (Keys.length >= 1 &&
-                        Keys.length <= capacity)
-                {
-                    this.keys = keys;
-                }
-
-                pragma(inline) bool contains(Ix key) const @nogc { return keys.contains(key); }
-                pragma(inline) bool contains(Key!span key) const @nogc { return key.length == 1 && keys.contains(key[0]); }
-
-                IxsN!(capacity, 1) keys;
-            }
-        }
-    }
-    else
-    {
-        static assert(false, "Currently requires a 64-bit CPU (size_t.sizeof == 8)");
-    }
 
     // TODO make these run-time arguments at different key depths and map to statistics of typed-key
     alias DefaultBranch = SparseBranch*; // either SparseBranch*, DenseBranch*
@@ -2454,9 +2444,9 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
             {
             case undefined: break;
             case ix_OneLeafMax7: bytesUsed = pop*OneLeafMax7.sizeof; break;
-            case ix_TwoLeaf3: bytesUsed = pop*RT.TwoLeaf3.sizeof; break;
-            case ix_TriLeaf2: bytesUsed = pop*RT.TriLeaf2.sizeof; break;
-            case ix_HeptLeaf1: bytesUsed = pop*RT.HeptLeaf1.sizeof; break;
+            case ix_TwoLeaf3: bytesUsed = pop*TwoLeaf3.sizeof; break;
+            case ix_TriLeaf2: bytesUsed = pop*TriLeaf2.sizeof; break;
+            case ix_HeptLeaf1: bytesUsed = pop*HeptLeaf1.sizeof; break;
             case ix_SparseLeaf1Ptr:
                 bytesUsed = pop*RT.SparseLeaf1.sizeof;
                 totalBytesUsed += bytesUsed;
@@ -2490,7 +2480,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
             final switch (ix)
             {
             case undefined: break;
-            case ix_HeptLeaf1: bytesUsed = pop*RT.HeptLeaf1.sizeof; break;
+            case ix_HeptLeaf1: bytesUsed = pop*HeptLeaf1.sizeof; break;
             case ix_SparseLeaf1Ptr: bytesUsed = pop*RT.SparseLeaf1.sizeof; totalBytesUsed += bytesUsed; break;
             case ix_DenseLeaf1Ptr: bytesUsed = pop*RT.DenseLeaf1.sizeof; totalBytesUsed += bytesUsed; break;
             }
@@ -2509,7 +2499,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
 unittest
 {
     auto set = radixTreeSet!(ulong);
-    enum N = set.HeptLeaf1.capacity;
+    enum N = HeptLeaf1.capacity;
 
     foreach (const i; 0 .. N)
     {
@@ -2562,18 +2552,18 @@ unittest
     auto set = radixTreeSet!(ubyte);
     alias Set = typeof(set);
 
-    foreach (const i; 0 .. Set.HeptLeaf1.capacity)
+    foreach (const i; 0 .. HeptLeaf1.capacity)
     {
         assert(!set.contains(i));
         assert(set.insert(i));
         assert(!set.insert(i));
         assert(set.contains(i));
         assert(set.heapNodeAllocationBalance == 0);
-        const rootRef = set._root.peek!(Set.HeptLeaf1);
+        const rootRef = set._root.peek!(HeptLeaf1);
         assert(rootRef);
     }
 
-    foreach (const i; Set.HeptLeaf1.capacity .. 256)
+    foreach (const i; HeptLeaf1.capacity .. 256)
     {
         assert(!set.contains(i));
         assert(set.insert(i));

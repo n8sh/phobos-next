@@ -1813,17 +1813,15 @@ struct RawRadixTree(Value = void)
             if (curr.key.length <= DefaultBranch.prefixCapacity + 1) // if `key` fits in `prefix` of `DefaultBranch`
             {
                 if (willFail) { dln("1 curr:", curr); }
-                const prefix = curr.key[0 .. $ - 1];
-                next = construct!(DefaultBranch)(1 + capacityIncrement, prefix, // all but last
+                next = construct!(DefaultBranch)(1 + capacityIncrement, curr.key[0 .. $ - 1], // all but last
                                                  Leaf(construct!(HeptLeaf1)(curr.key[$ - 1]))); // last as a leaf
             }
             else                // curr.key.length > DefaultBranch.prefixCapacity + 1
             {
                 if (willFail) { dln("2 curr:", curr); }
-                const prefix = curr.key[0 .. DefaultBranch.prefixCapacity];
-                next = construct!(DefaultBranch)(1 + capacityIncrement, prefix);
+                next = construct!(DefaultBranch)(1 + capacityIncrement, curr.key[0 .. DefaultBranch.prefixCapacity]);
                 Node insertionNodeCurr;
-                next = insertAtBranch(next, curr.key[DefaultBranch.prefixCapacity .. $], insertionNodeCurr);
+                next = insertAtBranch(next, curr.key, insertionNodeCurr);
             }
 
             try

@@ -2678,10 +2678,10 @@ unittest
 }
 
 /** Generate `count` number of random unique strings of minimum length 1 and
-    maximum length `capacity`.
+    maximum length of `maxLength`.
  */
 private static auto randomUniqueStrings(size_t count = 1_000_000,
-                                        uint capacity = 16)
+                                        uint maxLength = 32)
     @trusted
 {
     import std.random : Random, uniform;
@@ -2690,7 +2690,7 @@ private static auto randomUniqueStrings(size_t count = 1_000_000,
     bool[string] stringSet;  // set of strings using D's builtin associative array
     while (stringSet.length < count)
     {
-        const length = uniform(1, capacity, gen);
+        const length = uniform(1, maxLength, gen);
         auto key = new char[length];
         foreach (ix; 0 .. length)
         {
@@ -2703,7 +2703,7 @@ private static auto randomUniqueStrings(size_t count = 1_000_000,
 }
 
 /// Check string types in `Keys`.
-auto checkString(Keys...)()
+auto checkString(Keys...)(size_t count, uint maxLength)
     if (Keys.length >= 1)
 {
     void testContainsAndInsert(Set, Key)(ref Set set, Key key)
@@ -2740,7 +2740,8 @@ auto checkString(Keys...)()
         auto set = radixTreeSet!(Key);
         assert(set.empty);
 
-        foreach (const key; randomUniqueStrings)
+        foreach (const key; randomUniqueStrings(count,
+                                                maxLength))
         {
             testContainsAndInsert(set, key);
         }
@@ -2748,10 +2749,13 @@ auto checkString(Keys...)()
 }
 
 ///
-// @safe pure /* TODO @nogc */
+@safe pure /* TODO @nogc */
 unittest
 {
-    checkString!(string);
+    checkString!(string)(100_000, 16);
+    checkString!(string)(100_000, 32);
+    checkString!(string)(100_000, 64);
+    checkString!(string)(100_000, 128);
 }
 
 /// Check correctness when span is `span` and for each `Key` in `Keys`.

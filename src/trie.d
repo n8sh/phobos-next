@@ -2709,27 +2709,12 @@ auto checkString(Keys...)(size_t count, uint maxLength)
     void testContainsAndInsert(Set, Key)(ref Set set, Key key)
         if (isSomeString!Key)
     {
-        // dln(`key:`, key);
         import std.conv : to;
         immutable failMessage = `Failed for key: "` ~ key.to!string ~ `"`;
-
-        import std.string : representation;
-        // set.willFail = (key == `......`);
-        // if (set.willFail) dln(`key:"`, key, `" (`, key.representation, `)`);
-
-        // if (set.willFail) dln(`assert(!set.contains(key)) ################################ : `);
         assert(!set.contains(key), failMessage);
-
-        // if (set.willFail) dln(`assert(set.insert(key)) ################################ : `);
         assert(set.insert(key), failMessage);
-
-        // if (set.willFail) dln(`assert(set.contains(key)) ################################ :`);
         assert(set.contains(key), failMessage);
-
-        // if (set.willFail) dln(`assert(!set.insert(key)) ################################ :`);
         assert(!set.insert(key), failMessage);
-
-        // if (set.willFail) dln(`assert(set.contains(key)) ################################ :`);
         assert(set.contains(key), failMessage);
     }
 

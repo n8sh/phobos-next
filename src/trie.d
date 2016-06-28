@@ -1506,18 +1506,7 @@ struct RawRadixTree(Value = void)
                 if (currPrefix.length == 0) // no current prefix
                 {
                     // NOTE: prefix:"", key:"cd"
-                    if (key.length == 1)
-                    {
-                        return insertAtBranchLeaf(curr, key[0], insertionNode);
-                    }
-                    else        // key.length >= 2
-                    {
-                        const subIx = key[0];
-                        return setSub(curr, subIx,
-                                      insertAt(getSub(curr, subIx), // recurse
-                                               key[1 .. $],
-                                               insertionNode));
-                    }
+                    return insertAtBranchBelowPrefix(curr, key, insertionNode);
                 }
                 else  // if (currPrefix.length >= 1) // non-empty current prefix
                 {
@@ -2701,8 +2690,7 @@ unittest
 /** Generate `count` number of random unique strings of minimum length 1 and
     maximum length of `maxLength`.
  */
-private static auto randomUniqueStrings(size_t count = 1_000_000,
-                                        uint maxLength = 32)
+private static auto randomUniqueStrings(size_t count, uint maxLength)
     @trusted
 {
     import std.random : Random, uniform;
@@ -2732,6 +2720,7 @@ auto checkString(Keys...)(size_t count, uint maxLength)
     {
         import std.conv : to;
         immutable failMessage = `Failed for key: "` ~ key.to!string ~ `"`;
+        set.willFail = key == "utsuj";
         assert(!set.contains(key), failMessage);
         assert(set.insert(key), failMessage);
         assert(set.contains(key), failMessage);
@@ -2755,7 +2744,7 @@ auto checkString(Keys...)(size_t count, uint maxLength)
 }
 
 ///
-@safe pure /* TODO @nogc */
+// @safe pure /* TODO @nogc */
 unittest
 {
     checkString!(string)(2^^18, 2^4);

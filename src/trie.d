@@ -944,6 +944,7 @@ struct RawRadixTree(Value = void)
                 if (hit.length) // we need to insert
                 {
                     const ix = &hit[0] - subIxSlots.ptr; // insertion index. TODO this is kind of ugly. Why doesn't hit.ptr work?
+                    // TODO functionize this loop or reuse memmove:
                     foreach (i; 0 .. subCount - ix)
                     {
                         const iD = subCount - i;

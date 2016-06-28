@@ -2719,10 +2719,13 @@ unittest
         }
     }
     sw.stop;
-    version(print) import std.stdio : writeln;
-    import std.conv : to;
-    version(print) writeln("Added ", count, " words from ", path, " in ", sw.peek().to!Duration);
-    version(print) set.showStatistics();
+    version(print)
+    {
+        import std.conv : to;
+        import std.stdio : writeln;
+        writeln("Added ", count, " words from ", path, " in ", sw.peek().to!Duration);
+        set.showStatistics();
+    }
 }
 
 /** Generate `count` number of random unique strings of minimum length 1 and

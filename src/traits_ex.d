@@ -877,6 +877,7 @@ template templateIdentifierOf(I)
     import std.traits : TemplateOf;
     enum templateIdentifierOf = __traits(identifier, TemplateOf!I);
 }
+alias templateNameOf = templateIdentifierOf;
 
 ///
 @safe pure nothrow @nogc unittest

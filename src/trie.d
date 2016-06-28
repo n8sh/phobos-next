@@ -2704,7 +2704,7 @@ unittest
             {
                 import std.string : representation;
                 dln(`word:"`, word, `" of length:`, word.length, ` of representation:`, word.representation);
-                set.willFail = word == `amiable`;
+                debug set.willFail = word == `amiable`;
                 if (set.willFail)
                 {
                     set.print();

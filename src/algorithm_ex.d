@@ -1821,8 +1821,6 @@ unittest
     static assert(!__traits(compiles, { data.append(); }));
 }
 
-import std.algorithm: aggregate;
-
 /** Distinct Elements of $(D r).
 
    See also: http://forum.dlang.org/thread/jufggxqwzhlsmhshtnfj@forum.dlang.org?page=2
@@ -2153,7 +2151,12 @@ size_t binarySearch(T, U)(const T[] values, in U value)
 @safe pure nothrow @nogc unittest
 {
     int[9] x = [1, 3, 5, 6, 8, 9, 10, 13, 15];
+
+    // check hit
     assert(x[].binarySearch(1) != size_t.max);
     assert(x[].binarySearch(13) != size_t.max);
+
+    // check miss
+    assert(x[].binarySearch(0) == size_t.max);
     assert(x[].binarySearch(14) == size_t.max);
 }

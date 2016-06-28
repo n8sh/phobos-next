@@ -2719,8 +2719,9 @@ unittest
         }
     }
     sw.stop;
+    version(print) import std.stdio : writeln;
     import std.conv : to;
-    version(print) dln("Added ", count, " words from ", path, " in ", sw.peek().to!Duration);
+    version(print) writeln("Added ", count, " words from ", path, " in ", sw.peek().to!Duration);
     version(print) set.showStatistics();
 }
 

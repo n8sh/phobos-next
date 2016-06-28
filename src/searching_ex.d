@@ -36,6 +36,7 @@ size_t binarySearch(T, U)(const T[] values, in U value)
     }
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     int[9] x = [1, 3, 5, 6, 8, 9, 10, 13, 15];

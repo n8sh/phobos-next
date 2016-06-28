@@ -16,7 +16,7 @@
     GC.addRange(_values, length * Value.sizeof);
     }
 
-    TODO Use variadic list of Tuple!(Ix, Node) in constructors for SparseBranch and DenseBranch
+    TODO Use variadic list of `Sub`s in constructors for SparseBranch and DenseBranch
 
     TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
     TODO Allow NodeType-constructors to take const and immutable prefixes
@@ -1057,11 +1057,6 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        // members in order of decreasing `alignof`:
-        Leaf leaf;
-        IxsN!prefixCapacity prefix; // prefix (edge-label) common to all `subNodes`
-        StrictlyIndexed!(Node[radix]) subNodes;
-
         /// Number of non-null sub-Nodes.
         Mod!(radix + 1) subCount() const
         {
@@ -1094,6 +1089,12 @@ struct RawRadixTree(Value = void)
                 leaf.calculate!(Value)(stats);
             }
         }
+
+    private:
+        // members in order of decreasing `alignof`:
+        Leaf leaf;
+        IxsN!prefixCapacity prefix; // prefix (edge-label) common to all `subNodes`
+        StrictlyIndexed!(Node[radix]) subNodes;
     }
 
     static if (false)

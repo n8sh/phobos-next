@@ -40,11 +40,20 @@ size_t binarySearch(T, U)(const T[] values, in U value)
 {
     int[9] x = [1, 3, 5, 6, 8, 9, 10, 13, 15];
 
-    // check hit
-    assert(x[].binarySearch(1) != size_t.max);
-    assert(x[].binarySearch(13) != size_t.max);
-
-    // check miss
-    assert(x[].binarySearch(0) == size_t.max);
-    assert(x[].binarySearch(14) == size_t.max);
+    assert(x.binarySearch(0) == size_t.max);
+    assert(x.binarySearch(1) == 0);
+    assert(x.binarySearch(2) == size_t.max);
+    assert(x.binarySearch(3) == 1);
+    assert(x.binarySearch(4) == size_t.max);
+    assert(x.binarySearch(5) == 2);
+    assert(x.binarySearch(6) == 3);
+    assert(x.binarySearch(7) == size_t.max);
+    assert(x.binarySearch(8) == 4);
+    assert(x.binarySearch(9) == 5);
+    assert(x.binarySearch(10) == 6);
+    assert(x.binarySearch(11) == size_t.max);
+    assert(x.binarySearch(12) == size_t.max);
+    assert(x.binarySearch(13) == 7);
+    assert(x.binarySearch(14) == size_t.max);
+    assert(x.binarySearch(15) == 8);
 }

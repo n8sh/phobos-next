@@ -1598,7 +1598,6 @@ struct RawRadixTree(Value = void)
             }
         }
 
-
         pragma(inline) Node insertAtBranchAbovePrefix(Node curr, Key!span key)
         {
             Node insertionNodeIngnored;

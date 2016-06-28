@@ -1691,7 +1691,7 @@ struct RawRadixTree(Value = void)
                         import std.algorithm : min;
                         const nextPrefixLength = min(matchedKeyPrefix.length,
                                                      DefaultBranch.prefixCapacity); // limit prefix branch capacity
-                        auto nextPrefix = matchedKeyPrefix[0 .. nextPrefixLength];
+                        const nextPrefix = matchedKeyPrefix[0 .. nextPrefixLength];
                         next = constructWithCapacity!(DefaultBranch)(1 + 1, // `curr` and `key`
                                                                      nextPrefix);
                         Node insertionNodeCurr;

@@ -2765,13 +2765,10 @@ auto checkString(Keys...)(size_t count, uint maxLength)
 }
 
 ///
-// @safe pure /* TODO @nogc */
+@safe pure /* TODO @nogc */
 unittest
 {
-    checkString!(string)(2^^18, 2^4);
-    checkString!(string)(2^^17, 2^5);
-    checkString!(string)(2^^16, 2^6);
-    checkString!(string)(2^^15, 2^7);
+    checkString!(string)(2^^18, 2^7);
 }
 
 /// Check correctness when span is `span` and for each `Key` in `Keys`.

@@ -30,10 +30,10 @@ size_t binarySearch(R, E)(const R[] values, in E value)
     }
     else
     {
-        auto index = binarySearch(values[mid + 1 .. $], value); // recurse right
+        const index = binarySearch(values[mid + 1 .. $], value); // recurse right
         if (index != typeof(return).max)
         {
-            index += mid + 1; // adjust the index; it is 0-based in the right-hand side slice.
+            return index + mid + 1; // adjust the index; it is 0-based in the right-hand side slice.
         }
         return index;
     }

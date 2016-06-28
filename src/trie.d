@@ -906,7 +906,7 @@ struct RawRadixTree(Value = void)
             this = *rhs;             // 1. copy basic stuff
             initialize(subCapacity); // 2. copy rest
 
-            // copy variable length part
+            // copy variable length part. TODO optimize:
             this.subIxSlots[0 .. rhs.subCount] = rhs.subIxSlots[0 .. rhs.subCount];
             this.subNodeSlots[0 .. rhs.subCount] = rhs.subNodeSlots[0 .. rhs.subCount];
 
@@ -932,30 +932,48 @@ struct RawRadixTree(Value = void)
         body
         {
             assert(!full);
-            if (!empty)
-            {
-                import searching_ex : lowerBoundIndex;
-                const insertionIndex = subIxSlots.lowerBoundIndex(sub[0]); // find index where insertion should be made
-                ++subCount;
-                assert(false, "TODO: Use result of insertionIndex");
-            }
-            else
+            if (empty)
             {
                 subIxSlots[0] = sub[0];
                 subNodeSlots[0] = sub[1];
                 subCount = 1;
             }
+            else
+            {
+                auto hit = subIxs.upperBound(sub[0]); // find index where insertion should be made
+                if (hit.length) // we need to insert
+                {
+                    const ix = &hit[0] - subIxSlots.ptr; // insertion index
+                    foreach (i; 0 .. subCount - ix)
+                    {
+                        const iD = subCount - i;
+                        const iS = iD - 1;
+                        // dln("i:", i, " Moving from ", iS, " to ", iD);
+                        subIxSlots[iD] = subIxSlots[iS];
+                        subNodeSlots[iD] = subNodeSlots[iS];
+                    }
+                    subIxSlots[ix] = sub[0];
+                    subNodeSlots[ix] = sub[1];
+                }
+                else            // insert at the end
+                {
+                    subIxSlots[subCount] = sub[0];
+                    subNodeSlots[subCount] = sub[1];
+                }
+                ++subCount;
+            }
         }
 
-        inout(Node) findSub(Ix ix) inout
+        inout(Node) containsSub(Ix ix) inout
+        in
         {
-            import searching_ex : binarySearch;
-            const hitIndex = subIxSlots.binarySearch(ix); // find index where insertion should be made
-            if (hitIndex != typeof(hitIndex).max)
-            {
-                return subNodeSlots[hitIndex];
-            }
-            return Node.init;
+            assert(subIxSlots[0 .. subCount].isSorted);
+        }
+        body
+        {
+            import searching_ex : binarySearch; // need this instead of `SortedRange.contains` because we need the index
+            const hitIndex = subIxSlots[0 .. subCount].binarySearch(ix); // find index where insertion should be made
+            return (hitIndex != typeof(hitIndex).max) ? subNodeSlots[hitIndex] : Node.init;
         }
 
         pragma(inline) bool empty() const @nogc { return subCount == 0; }
@@ -1204,7 +1222,7 @@ struct RawRadixTree(Value = void)
     /// ditto
     pragma(inline) Node getSub(SparseBranch* curr, Ix subIx) @safe pure nothrow
     {
-        if (auto subNode = curr.findSub(subIx))
+        if (auto subNode = curr.containsSub(subIx))
         {
             return subNode;
         }
@@ -1345,7 +1363,7 @@ struct RawRadixTree(Value = void)
                 auto curr_ = curr.as!(SparseBranch*);
                 return (key.skipOver(curr_.prefix) &&        // matching prefix
                         ((key.length == 1 && containsAt(curr_.leaf, key)) || // either in leaf
-                         (key.length >= 1 && containsAt(curr_.findSub(key[0]), key[1 .. $])))); // or recurse
+                         (key.length >= 1 && containsAt(curr_.containsSub(key[0]), key[1 .. $])))); // or recurse
             case ix_DenseBranchPtr:
                 auto curr_ = curr.as!(DenseBranch*);
                 return (key.skipOver(curr_.prefix) &&        // matching prefix

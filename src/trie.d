@@ -1528,7 +1528,7 @@ struct RawRadixTree(Value = void)
                     // NOTE: prefix:"ab", key:"cd"
                     const currSubIx = currPrefix[0]; // subIx = 'a'
                     popFrontNPrefix(curr, 1);
-                    auto next = constructWithCapacity!(DefaultBranch)(2, matchedKeyPrefix,
+                    auto next = constructWithCapacity!(DefaultBranch)(2, null,
                                                                       currSubIx, curr);
                     return insertAtBranchAbovePrefix(Node(next), key, insertionNode);
                 }
@@ -1547,7 +1547,7 @@ struct RawRadixTree(Value = void)
                     popFrontNPrefix(curr, matchedKeyPrefix.length + 1);
                     auto next = constructWithCapacity!(DefaultBranch)(2, matchedKeyPrefix,
                                                                       currSubIx, curr);
-                    return insertAtBranchAbovePrefix(Node(next), key, insertionNode);
+                    return insertAtBranchBelowPrefix(Node(next), key[matchedKeyPrefix.length .. $], insertionNode);
                 }
             }
             else // if (matchedKeyPrefix.length == key.length)
@@ -1556,11 +1556,12 @@ struct RawRadixTree(Value = void)
                 if (matchedKeyPrefix.length < currPrefix.length)
                 {
                     // NOTE: prefix is an extension of key: prefix:"abcd", key:"ab"
-                    const currSubIx = currPrefix[matchedKeyPrefix.length - 1]; // need index first
+                    const nextPrefixLength = matchedKeyPrefix.length - 1;
+                    const currSubIx = currPrefix[nextPrefixLength]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
                     auto next = constructWithCapacity!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
                                                                       currSubIx, curr);
-                    return insertAtBranchAbovePrefix(Node(next), key, insertionNode);
+                    return insertAtBranchBelowPrefix(Node(next), key[nextPrefixLength .. $], insertionNode);
                 }
                 else /* if (matchedKeyPrefix.length == currPrefix.length) and in turn
                         if (key.length == currPrefix.length */

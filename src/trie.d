@@ -846,6 +846,8 @@ struct RawRadixTree(Value = void)
     */
     static private struct SparseBranch
     {
+        import std.algorithm.sorting : assumeSorted;
+
         enum subCapacityMin = 0; // minimum number of preallocated sub-indexes and sub-nodes
         enum subCapacityMax = 48; // maximum number of preallocated sub-indexes and sub-nodes
         enum prefixCapacity = 5; // 5, 13, 21, ...
@@ -905,8 +907,8 @@ struct RawRadixTree(Value = void)
             initialize(subCapacity); // 2. copy rest
 
             // copy variable length part
-            this.subIxs[] = rhs.subIxs[];
-            this.subNodes[] = rhs.subNodes[];
+            this.subIxSlots[0 .. rhs.subCount] = rhs.subIxSlots[0 .. rhs.subCount];
+            this.subNodeSlots[0 .. rhs.subCount] = rhs.subNodeSlots[0 .. rhs.subCount];
 
             assert(this.subCapacity > rhs.subCapacity);
         }
@@ -917,8 +919,8 @@ struct RawRadixTree(Value = void)
             debug
             {
                 // zero-initialize variable-length part
-                this.subIxSlots[] = Ix.init;
-                this.subNodeSlots[] = Node.init;
+                subIxSlots[] = Ix.init;
+                subNodeSlots[] = Node.init;
             }
         }
 
@@ -927,12 +929,13 @@ struct RawRadixTree(Value = void)
             assert(!full);
             subIxSlots[subCount] = sub[0];
             subNodeSlots[subCount] = sub[1];
+            // dln("TODO: completeSort");
             ++subCount;
         }
 
         inout(Node) findSub(Ix ix) inout
         {
-            // TODO binarySearch
+            // dln("TODO use binarySearch");
             foreach (const i; 0 .. subCount)
             {
                 if (subIxSlots[i] == ix) { return subNodeSlots[i]; }
@@ -943,7 +946,8 @@ struct RawRadixTree(Value = void)
         pragma(inline) bool empty() const @nogc { return subCount == 0; }
         pragma(inline) bool full()  const @nogc { return subCount == subCapacity; }
 
-        pragma(inline) auto ref subIxs()   inout @nogc { return subIxSlots[0 .. subCount]; }
+        pragma(inline) auto ref subIxs()   inout @nogc { return subIxSlots[0 .. subCount]// .assumeSorted
+            ; }
         pragma(inline) auto ref subNodes() inout @nogc { return subNodeSlots[0 .. subCount]; }
 
         /** Get all sub-`Ix` slots, possible both defined and undefined. */

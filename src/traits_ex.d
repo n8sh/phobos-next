@@ -870,3 +870,17 @@ unittest
 {
     static assert(dimensionality!(int[]) == 1);
 }
+
+/// Get identifier (name) string of template instance `I`.
+template templateIdentifierOf(I)
+{
+    import std.traits : TemplateOf;
+    enum templateIdentifierOf = __traits(identifier, TemplateOf!I);
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    struct S(T) { T x; }
+    static assert(templateIdentifierOf!(S!int) == "S");
+}

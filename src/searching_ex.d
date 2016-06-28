@@ -1,7 +1,7 @@
 #!/usr/bin/env rdmd-dev-module
 
 /** Extensions to std.algorithm.searching.
-    Copyright: Per Nordlöw 2014-.
+    Copyright: Per Nordlöw 2016-.
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
     Authors: $(WEB Per Nordlöw)
 */
@@ -9,6 +9,9 @@ module searching_ex;
 
 /** This function returns the index of the `value` if it exist among `values`,
     `size_t.max` otherwise.
+
+    TODO Should we extend to isRandomAccessRange support? In that case we don't
+    get static array support by default.
 */
 size_t binarySearch(R, E)(const R[] values, in E value)
     if (is(typeof(values[0].init == E.init))) // TODO SortedRange support

@@ -772,15 +772,16 @@ auto forwardDifference(R)(R r)
 ///
 unittest
 {
-    import msgpack;
     import std.array: array;
 
     auto x = [long.max, 0, 1];
     auto y = x.forwardDifference;
 
     version(print) dln(y);
-    version(print) dln(y.pack);
-    version(print) dln(y.array.pack);
+
+    // import msgpack;
+    // version(print) dln(y.pack);
+    // version(print) dln(y.array.pack);
 }
 
 import std.traits: isCallable, ReturnType, arity, ParameterTypeTuple;

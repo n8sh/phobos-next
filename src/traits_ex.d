@@ -871,11 +871,26 @@ unittest
     static assert(dimensionality!(int[]) == 1);
 }
 
-/// Get identifier (name) string of template instance `I`.
+/// Returns: `true` iff `T` is a template instance, `false` otherwise.
+template isTemplateInstance(T)
+{
+    import std.traits : TemplateOf;
+    enum isTemplateInstance = is(typeof(TemplateOf!(T)));
+}
+
+/** Get identifier (name) string of template instance `I`, or `null` if `I` is
+    not a template instance. */
 template templateIdentifierOf(I)
 {
     import std.traits : TemplateOf;
-    enum templateIdentifierOf = __traits(identifier, TemplateOf!I);
+    static if (isTemplateInstance!I)
+    {
+        enum templateIdentifierOf = __traits(identifier, TemplateOf!I);
+    }
+    else
+    {
+        enum templateIdentifierOf = null;
+    }
 }
 alias templateNameOf = templateIdentifierOf;
 
@@ -884,4 +899,5 @@ alias templateNameOf = templateIdentifierOf;
 {
     struct S(T) { T x; }
     static assert(templateIdentifierOf!(S!int) == "S");
+    static assert(templateIdentifierOf!(int) == null);
 }

@@ -3,6 +3,8 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO Break out part of `insertAtBranch` into `insertAtBranchBelowPrefix`.
+
     TODO Add Branch-hint allocation flag and re-benchmark construction of radixTreeSet with 10000000 uints
 
     TODO Add sortedness to `IxsN` and make `IxsN.contains()` use `binarySearch()`. Make use of `sortn`.

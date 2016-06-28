@@ -25,8 +25,6 @@
 
     TODO Is std.algorithm.countUntil the most suitable function to use in setSub(SparseBranch*, ...)
 
-    TODO Can we somehow overload opIndex so we can do brM[i] instead of more cumbersome (*brM)[i] when brM is of type DenseBranch*?
-
     TODO Should opBinaryRight return void* instead of bool for set-case?
 
     TODO Add `struct Range`. Use same construct as in `containers-em/src/containers/ttree.d`.

@@ -878,6 +878,14 @@ template isTemplateInstance(T)
     enum isTemplateInstance = is(typeof(TemplateOf!(T)));
 }
 
+///
+@safe pure nothrow @nogc unittest
+{
+    struct S(T) { T x; }
+    static assert(isTemplateInstance!(S!int));
+    static assert(!isTemplateInstance!(int));
+}
+
 /** Get identifier (name) string of template instance `I`, or `null` if `I` is
     not a template instance. */
 template templateIdentifierOf(I)

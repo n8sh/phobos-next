@@ -894,24 +894,6 @@ struct RawRadixTree(Value = void)
             this.subNodeSlots[0] = subNode;
         }
 
-        this(size_t subCapacity, const Ix[] prefix,
-             Ix subIx0, Node subNode0,
-             Ix subIx1, Node subNode1)
-        {
-            assert(subCapacity >= 2);
-            assert(subIx0 != subIx1);
-            assert(subNode0 != subNode1);
-
-            initialize(subCapacity);
-
-            this.prefix = prefix;
-            this.subCount = 2;
-            this.subIxSlots[0] = subIx0;
-            this.subIxSlots[1] = subIx1;
-            this.subNodeSlots[0] = subNode0;
-            this.subNodeSlots[1] = subNode1;
-        }
-
         this(size_t subCapacity, const typeof(this)* rhs)
         {
             assert(subCapacity > rhs.subCapacity);

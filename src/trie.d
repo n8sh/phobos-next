@@ -927,7 +927,7 @@ struct RawRadixTree(Value = void)
         void linearInsert(Sub sub) // TODO Rename this to logInsert aswell as in array_ex.
         out
         {
-            assert(subIxs.isSorted);
+            // assert(subIxs.isSorted);
         }
         body
         {
@@ -967,7 +967,7 @@ struct RawRadixTree(Value = void)
         inout(Node) containsSub(Ix ix) inout
         in
         {
-            assert(subIxSlots[0 .. subCount].isSorted);
+            // assert(subIxSlots[0 .. subCount].isSorted);
         }
         body
         {
@@ -1166,7 +1166,7 @@ struct RawRadixTree(Value = void)
         }
         else                    // if no room left in curr we need to expand
         {
-            const previousHeapNodeAllocationBalance = heapNodeAllocationBalance;
+            debug const previousHeapNodeAllocationBalance = heapNodeAllocationBalance;
 
             // curr is full
             Node next;
@@ -1190,7 +1190,7 @@ struct RawRadixTree(Value = void)
             freeNode(curr);
             assert(!getSub(next, subIx)); // key slot should be free
 
-            assert(previousHeapNodeAllocationBalance == heapNodeAllocationBalance);
+            debug assert(previousHeapNodeAllocationBalance == heapNodeAllocationBalance);
             return setSub(next, subIx, subNode); // fast, because directly calls setSub(DenseBranch*, ...)
         }
         return Node(curr);
@@ -1315,16 +1315,19 @@ struct RawRadixTree(Value = void)
     ~this()
     {
         if (_root) { release(_root); }
-        try
+        debug
         {
-            if (_heapNodeAllocationBalance != 0)
+            try
             {
-                dln("warning: Memory leak, heap Node allocation balance is not zero, but " ~
-                    _heapNodeAllocationBalance.to!string ~
-                    ", nodeCountsByIx is " ~ nodeCountsByIx.to!string);
+                if (_heapNodeAllocationBalance != 0)
+                {
+                    dln("warning: Memory leak, heap Node allocation balance is not zero, but " ~
+                        _heapNodeAllocationBalance.to!string ~
+                        ", nodeCountsByIx is " ~ nodeCountsByIx.to!string);
+                }
             }
+            catch (Exception e) {}
         }
-        catch (Exception e) {}
     }
 
     const @safe pure nothrow /* TODO @nogc */
@@ -1425,7 +1428,7 @@ struct RawRadixTree(Value = void)
 
         Node insertNew(Key!span key, out Node insertionNode)
         {
-            if (willFail) { dln("WILL FAIL: curr:", key); }
+            debug if (willFail) { dln("WILL FAIL: curr:", key); }
             switch (key.length)
             {
             case 0: assert(false, "key must not be empty"); // return insertionNode = Node(construct!(OneLeafMax7)());
@@ -1471,7 +1474,7 @@ struct RawRadixTree(Value = void)
         /** Insert `key` into sub-tree under root `curr`. */
         pragma(inline) Node insertAt(Node curr, Key!span key, out Node insertionNode)
         {
-            if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr); }
+            debug if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr); }
             assert(key.length);
 
             if (!curr)          // if no existing `Node` to insert at
@@ -1515,7 +1518,7 @@ struct RawRadixTree(Value = void)
             auto currPrefix = getPrefix(curr);
             auto matchedKeyPrefix = commonPrefix(key, currPrefix);
 
-            if (willFail) { dln("WILL FAIL: key:", key,
+            debug if (willFail) { dln("WILL FAIL: key:", key,
                                 " curr:", curr,
                                 " currPrefix:", getPrefix(curr),
                                 " matchedKeyPrefix:", matchedKeyPrefix); }
@@ -1596,7 +1599,7 @@ struct RawRadixTree(Value = void)
         Node insertAtBranchBelowPrefix(Node curr, Key!span key, out Node insertionNode)
         {
             assert(key.length);
-            if (willFail) { dln("WILL FAIL: key:", key,
+            debug if (willFail) { dln("WILL FAIL: key:", key,
                                 " curr:", curr,
                                 " currPrefix:", getPrefix(curr)); }
             if (key.length == 1)
@@ -1691,7 +1694,7 @@ struct RawRadixTree(Value = void)
         Node insertAt(OneLeafMax7 curr, Key!span key, out Node insertionNode)
         {
             assert(curr.key.length);
-            if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
+            debug if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
 
             import std.algorithm : commonPrefix;
             auto matchedKeyPrefix = commonPrefix(key, curr.key);

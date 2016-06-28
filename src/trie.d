@@ -943,7 +943,7 @@ struct RawRadixTree(Value = void)
                 auto hit = subIxs.upperBound(sub[0]); // find index where insertion should be made
                 if (hit.length) // we need to insert
                 {
-                    const ix = &hit[0] - subIxSlots.ptr; // insertion index
+                    const ix = &hit[0] - subIxSlots.ptr; // insertion index. TODO this is kind of ugly. Why doesn't hit.ptr work?
                     foreach (i; 0 .. subCount - ix)
                     {
                         const iD = subCount - i;

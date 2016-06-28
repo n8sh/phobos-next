@@ -1678,7 +1678,6 @@ struct RawRadixTree(Value = void)
             auto matchedKeyPrefix = commonPrefix(key, curr.key);
             if (curr.key.length == key.length)
             {
-                if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
                 if (matchedKeyPrefix.length == key.length) // curr.key, key and matchedKeyPrefix all equal
                 {
                     return Node(curr); // already stored in `curr`
@@ -1689,19 +1688,15 @@ struct RawRadixTree(Value = void)
                     switch (matchedKeyPrefix.length)
                     {
                     case 0:
-                        if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
                         next = construct!(HeptLeaf1)(curr.key[0], key[0]);
                         break;
                     case 1:
-                        if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
                         next = construct!(TriLeaf2)(curr.key, key);
                         break;
                     case 2:
-                        if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
                         next = construct!(TwoLeaf3)(curr.key, key);
                         break;
                     default:
-                        if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
                         import std.algorithm : min;
                         const nextPrefix = matchedKeyPrefix[0 .. min(matchedKeyPrefix.length,
                                                                      DefaultBranch.prefixCapacity)]; // limit prefix branch capacity
@@ -1720,7 +1715,6 @@ struct RawRadixTree(Value = void)
                 }
             }
 
-            if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
             return insertAtBranchAbovePrefix(expand(curr), key, insertionNode);
         }
 
@@ -2749,8 +2743,6 @@ auto checkString(Keys...)(size_t count, uint maxLength)
         assert(set.contains(key), failMessage);
     }
 
-    import std.stdio : writeln;
-    import std.range : iota;
     foreach (Key; Keys)
     {
         auto set = radixTreeSet!(Key);

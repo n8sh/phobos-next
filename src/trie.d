@@ -565,6 +565,7 @@ static private struct SparseLeaf1(Value)
     /** Insert `key` in linear time. */
     bool linearInsert(Ix key) @trusted /* TODO @nogc */
     {
+        dln("length:", length, " key:", key);
         if (!contains(key))
         {
             reserve(Capacity(length + 1));
@@ -640,7 +641,10 @@ private:
     Length _length;
     Capacity _capacity;
     Ix* _keys;
-    Value* _values;
+    static if (hasValue)
+    {
+        Value* _values;
+    }
 }
 
 /** Densely coded leaves with values of type `Value`. */
@@ -919,8 +923,8 @@ struct RawRadixTree(Value = void)
             debug
             {
                 // zero-initialize variable-length part
-                subIxSlots = Ix.init;
-                subNodeSlots = Node.init;
+                subIxSlots[] = Ix.init;
+                subNodeSlots[] = Node.init;
             }
         }
 

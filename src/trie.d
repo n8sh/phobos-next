@@ -846,7 +846,7 @@ struct RawRadixTree(Value = void)
     */
     static private struct SparseBranch
     {
-        import std.algorithm.sorting : assumeSorted;
+        import std.algorithm.sorting : assumeSorted, isSorted;
 
         enum subCapacityMin = 0; // minimum number of preallocated sub-indexes and sub-nodes
         enum subCapacityMax = 48; // maximum number of preallocated sub-indexes and sub-nodes
@@ -924,21 +924,36 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        void pushBack(Sub sub)
+        void linearInsert(Sub sub) // TODO Rename this to logInsert aswell as in array_ex.
+        out
+        {
+            assert(subIxs.isSorted);
+        }
+        body
         {
             assert(!full);
-            subIxSlots[subCount] = sub[0];
-            subNodeSlots[subCount] = sub[1];
-            // dln("TODO: completeSort");
-            ++subCount;
+            if (!empty)
+            {
+                import searching_ex : lowerBoundIndex;
+                const insertionIndex = subIxSlots.lowerBoundIndex(sub[0]); // find index where insertion should be made
+                ++subCount;
+                assert(false, "TODO: Use result of insertionIndex");
+            }
+            else
+            {
+                subIxSlots[0] = sub[0];
+                subNodeSlots[0] = sub[1];
+                subCount = 1;
+            }
         }
 
         inout(Node) findSub(Ix ix) inout
         {
-            // dln("TODO use binarySearch");
-            foreach (const i; 0 .. subCount)
+            import searching_ex : binarySearch;
+            const hitIndex = subIxSlots.binarySearch(ix); // find index where insertion should be made
+            if (hitIndex != typeof(hitIndex).max)
             {
-                if (subIxSlots[i] == ix) { return subNodeSlots[i]; }
+                return subNodeSlots[hitIndex];
             }
             return Node.init;
         }
@@ -946,8 +961,7 @@ struct RawRadixTree(Value = void)
         pragma(inline) bool empty() const @nogc { return subCount == 0; }
         pragma(inline) bool full()  const @nogc { return subCount == subCapacity; }
 
-        pragma(inline) auto ref subIxs()   inout @nogc { return subIxSlots[0 .. subCount]// .assumeSorted
-            ; }
+        pragma(inline) auto ref subIxs()   inout @nogc { return subIxSlots[0 .. subCount].assumeSorted; }
         pragma(inline) auto ref subNodes() inout @nogc { return subNodeSlots[0 .. subCount]; }
 
         /** Get all sub-`Ix` slots, possible both defined and undefined. */
@@ -1130,7 +1144,7 @@ struct RawRadixTree(Value = void)
         }
         else if (!curr.full)     // if room left in curr
         {
-            curr.pushBack(tuple(subIx, subNode)); // add one to existing
+            curr.linearInsert(tuple(subIx, subNode)); // add one to existing
         }
         else                    // if no room left in curr we need to expand
         {

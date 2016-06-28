@@ -5,6 +5,8 @@
 
     TODO Add Branch-hint allocation flag and re-benchmark construction of radixTreeSet with 10000000 uints
 
+    TODO Replace toNode with to!Node
+
     TODO Add sortedness to `IxsN` and make `IxsN.contains()` use `binarySearch()`. Make use of `sortn`.
 
     TODO Make the GC aware of all Value scalars and arrays:
@@ -1317,7 +1319,6 @@ struct RawRadixTree(Value = void)
         /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
         pragma(inline) bool containsAt(Leaf curr, Key!span key)
         {
-            if (willFail) { dln("curr:", curr, " key:", key); }
             final switch (curr.typeIx) with (Leaf.Ix)
             {
             case undefined: return false;
@@ -1329,7 +1330,6 @@ struct RawRadixTree(Value = void)
         /// ditto
         pragma(inline) bool containsAt(Node curr, Key!span key)
         {
-            if (willFail) { dln("curr:", curr, " key:", key); }
             import std.algorithm : skipOver;
             final switch (curr.typeIx) with (Node.Ix)
             {
@@ -1465,20 +1465,20 @@ struct RawRadixTree(Value = void)
             {
                 final switch (curr.typeIx) with (Node.Ix)
                 {
-                case undefined: return typeof(return).init;
-                case ix_OneLeafMax7: return insertAt(curr.as!(OneLeafMax7), key, insertionNode);
-                case ix_TwoLeaf3: return insertAt(curr.as!(TwoLeaf3), key, insertionNode);
-                case ix_TriLeaf2: return insertAt(curr.as!(TriLeaf2), key, insertionNode);
-                case ix_HeptLeaf1: return insertAt(curr.as!(HeptLeaf1), key, insertionNode);
-
+                case undefined:
+                    return typeof(return).init;
+                case ix_OneLeafMax7:
+                    return insertAt(curr.as!(OneLeafMax7), key, insertionNode);
+                case ix_TwoLeaf3:
+                    return insertAt(curr.as!(TwoLeaf3), key, insertionNode);
+                case ix_TriLeaf2:
+                    return insertAt(curr.as!(TriLeaf2), key, insertionNode);
+                case ix_HeptLeaf1:
+                    return insertAt(curr.as!(HeptLeaf1), key, insertionNode);
                 case ix_SparseLeaf1Ptr:
-                    assert(key.length == 1);
-                    return toNode(insertAtLeaf(Leaf(curr.as!(SparseLeaf1!Value*)), key[0], insertionNode));
-
+                    return insertAtLeaf(Leaf(curr.as!(SparseLeaf1!Value*)), key, insertionNode); // TODO use toLeaf(curr)
                 case ix_DenseLeaf1Ptr:
-                    assert(key.length == 1);
-                    return toNode(insertAtLeaf(Leaf(curr.as!(DenseLeaf1!Value*)), key[0], insertionNode));
-
+                    return insertAtLeaf(Leaf(curr.as!(DenseLeaf1!Value*)), key, insertionNode); // TODO use toLeaf(curr)
                 case ix_SparseBranchPtr:
                 case ix_DenseBranchPtr:
                     return insertAtBranchAbovePrefix(curr, key, insertionNode);
@@ -1556,7 +1556,7 @@ struct RawRadixTree(Value = void)
                     popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
                     auto next = constructWithCapacity!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
                                                                       currSubIx, curr);
-                    return insertAtBranchLeaf(Node(next), key[$ - 1], insertionNode);
+                    return insertAtLeafOfBranch(Node(next), key[$ - 1], insertionNode);
                 }
             }
         }
@@ -1577,9 +1577,12 @@ struct RawRadixTree(Value = void)
         Node insertAtBranchBelowPrefix(Node curr, Key!span key, out Node insertionNode)
         {
             assert(key.length);
+            if (willFail) { dln("WILL FAIL: key:", key,
+                                " curr:", curr,
+                                " currPrefix:", getPrefix(curr)); }
             if (key.length == 1)
             {
-                return insertAtBranchLeaf(curr, key[0], insertionNode);
+                return insertAtLeafOfBranch(curr, key[0], insertionNode);
             }
             else
             {
@@ -1599,35 +1602,14 @@ struct RawRadixTree(Value = void)
             return next;
         }
 
-        Node insertAtBranchLeaf(Node curr, Ix key, out Node insertionNode)
+        Leaf insertIxAtLeaftoLeaf(Leaf curr, Ix key, out Node insertionNode)
         {
-            if (auto leaf = getLeaf(curr))
-            {
-                setLeaf(curr, insertAtLeaf(leaf, key, insertionNode));
-            }
-            else
-            {
-                static if (hasValue) // TODO Add check if key + plus fit in 7 bytes (Value.sizeof <= 6) and use special node for that
-                {
-                    auto leaf_ = construct!(SparseLeaf1!Value*)(key); // needed for values
-                }
-                else
-                {
-                    auto leaf_ = construct!(HeptLeaf1)(key); // can pack more efficiently when no value
-                }
-                setLeaf(curr, Leaf(leaf_));
-                insertionNode = leaf_;
-            }
-            return curr;
-        }
-
-        Leaf insertAtLeaf(Leaf curr, Ix key, out Node insertionNode)
-        {
-            if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr); }
             switch (curr.typeIx) with (Leaf.Ix)
             {
-            case undefined: return typeof(return).init;
-            case ix_HeptLeaf1: return insertAt(curr.as!(HeptLeaf1), key, insertionNode);
+            case undefined:
+                return typeof(return).init;
+            case ix_HeptLeaf1:
+                return insertAt(curr.as!(HeptLeaf1), key, insertionNode); // possibly expanded to other Leaf
             case ix_SparseLeaf1Ptr:
                 auto curr_ = curr.as!(SparseLeaf1!Value*);
                 if (curr_.linearInsert(key))
@@ -1646,6 +1628,45 @@ struct RawRadixTree(Value = void)
                 assert(false, "Unsupported Leaf type " ~ curr.typeIx.to!string);
             }
             return curr;
+        }
+
+        Node insertAtLeafOfBranch(Node curr, Ix key, out Node insertionNode)
+        {
+            if (auto leaf = getLeaf(curr))
+            {
+                setLeaf(curr, insertIxAtLeaftoLeaf(leaf, key, insertionNode));
+            }
+            else
+            {
+                static if (hasValue) // TODO Add check if key + plus fit in 7 bytes (Value.sizeof <= 6) and use special node for that
+                {
+                    auto leaf_ = construct!(SparseLeaf1!Value*)(key); // needed for values
+                }
+                else
+                {
+                    auto leaf_ = construct!(HeptLeaf1)(key); // can pack more efficiently when no value
+                }
+                setLeaf(curr, Leaf(leaf_));
+                insertionNode = leaf_;
+            }
+            return curr;
+        }
+
+        Node insertAtLeaf(Leaf curr, Key!span key, out Node insertionNode)
+        {
+            assert(key.length);
+            if (key.length == 1)
+            {
+                return toNode(insertIxAtLeaftoLeaf(curr, key[0], insertionNode));
+            }
+            else
+            {
+                assert(key.length >= 2);
+                const prefixLength = key.length - 2; // >= 0
+                const nextPrefix = key[0 .. prefixLength];
+                auto next = constructWithCapacity!(DefaultBranch)(1, nextPrefix, curr); // one sub-node and one leaf
+                return insertAtBranchBelowPrefix(Node(next), key[prefixLength .. $], insertionNode);
+            }
         }
 
         Node insertAt(OneLeafMax7 curr, Key!span key, out Node insertionNode)

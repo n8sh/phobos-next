@@ -2698,30 +2698,27 @@ unittest
         if (!word.empty &&
             !word.endsWith(`'s`)) // skip genitive forms
         {
-            if (word.length <= 15)
+            assert(!set.contains(word));
+
+            static if (debugPrint)
             {
-                assert(!set.contains(word));
-
-                static if (debugPrint)
+                import std.string : representation;
+                dln(`word:"`, word, `" of length:`, word.length, ` of representation:`, word.representation);
+                set.willFail = word == `amiable`;
+                if (set.willFail)
                 {
-                    import std.string : representation;
-                    dln(`word:"`, word, `" of length:`, word.length, ` of representation:`, word.representation);
-                    set.willFail = word == `amiable`;
-                    if (set.willFail)
-                    {
-                        set.print();
-                    }
+                    set.print();
                 }
-
-                assert(set.insert(word));
-
-                assert(set.contains(word));
-
-                assert(!set.insert(word));
-                assert(set.contains(word));
-
-                ++count;
             }
+
+            assert(set.insert(word));
+
+            assert(set.contains(word));
+
+            assert(!set.insert(word));
+            assert(set.contains(word));
+
+            ++count;
         }
     }
     sw.stop;

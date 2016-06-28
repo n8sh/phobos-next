@@ -14,7 +14,7 @@ size_t binarySearch(T, U)(const T[] values, in U value)
     if (is(typeof(values[0].init == U.init))) // TODO SortedRange support
 {
     // value is not in the array if the array is empty
-    if (values.length == 0) { return size_t.max; }
+    if (values.length == 0) { return typeof(return).max; }
 
     immutable mid = values.length / 2; // mid offset
     if (value == values[mid])
@@ -28,7 +28,7 @@ size_t binarySearch(T, U)(const T[] values, in U value)
     else
     {
         auto index = binarySearch(values[mid + 1 .. $], value); // recurse right
-        if (index != size_t.max)
+        if (index != typeof(return).max)
         {
             index += mid + 1; // adjust the index; it is 0-based in the right-hand side slice.
         }

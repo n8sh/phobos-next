@@ -10,8 +10,8 @@ module searching_ex;
 /** This function returns the index of the `value` if it exist among `values`,
     `size_t.max` otherwise.
 */
-size_t binarySearch(T, U)(const T[] values, in U value)
-    if (is(typeof(values[0].init == U.init))) // TODO SortedRange support
+size_t binarySearch(R, E)(const R[] values, in E value)
+    if (is(typeof(values[0].init == E.init))) // TODO SortedRange support
 {
     // value is not in the array if the array is empty
     if (values.length == 0) { return typeof(return).max; }

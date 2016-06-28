@@ -846,7 +846,7 @@ struct RawRadixTree(Value = void)
     */
     static private struct SparseBranch
     {
-        import std.algorithm.sorting : assumeSorted, isSorted;
+        import std.algorithm.sorting : isSorted;
 
         enum subCapacityMin = 0; // minimum number of preallocated sub-indexes and sub-nodes
         enum subCapacityMax = 48; // maximum number of preallocated sub-indexes and sub-nodes
@@ -979,7 +979,12 @@ struct RawRadixTree(Value = void)
         pragma(inline) bool empty() const @nogc { return subCount == 0; }
         pragma(inline) bool full()  const @nogc { return subCount == subCapacity; }
 
-        pragma(inline) auto ref subIxs()   inout @nogc { return subIxSlots[0 .. subCount].assumeSorted; }
+        pragma(inline) auto ref subIxs()   inout @nogc
+        {
+            import std.algorithm.sorting : assumeSorted;
+            return subIxSlots[0 .. subCount].assumeSorted;
+        }
+
         pragma(inline) auto ref subNodes() inout @nogc { return subNodeSlots[0 .. subCount]; }
 
         /** Get all sub-`Ix` slots, possible both defined and undefined. */

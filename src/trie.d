@@ -1689,15 +1689,14 @@ struct RawRadixTree(Value = void)
                     default:
                         if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
                         import std.algorithm : min;
-                        const nextPrefixLength = min(matchedKeyPrefix.length,
-                                                     DefaultBranch.prefixCapacity); // limit prefix branch capacity
-                        const nextPrefix = matchedKeyPrefix[0 .. nextPrefixLength];
+                        const nextPrefix = matchedKeyPrefix[0 .. min(matchedKeyPrefix.length,
+                                                                     DefaultBranch.prefixCapacity)]; // limit prefix branch capacity
                         next = constructWithCapacity!(DefaultBranch)(1 + 1, // `curr` and `key`
                                                                      nextPrefix);
                         Node insertionNodeCurr;
-                        next = insertAtBranchBelowPrefix(next, curr.key[nextPrefixLength .. $], insertionNodeCurr);
+                        next = insertAtBranchBelowPrefix(next, curr.key[nextPrefix.length .. $], insertionNodeCurr);
                         assert(insertionNodeCurr);
-                        next = insertAtBranchBelowPrefix(next, key[nextPrefixLength .. $], insertionNode);
+                        next = insertAtBranchBelowPrefix(next, key[nextPrefix.length .. $], insertionNode);
                         break;
                     }
                     freeNode(curr);

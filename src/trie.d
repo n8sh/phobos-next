@@ -919,8 +919,8 @@ struct RawRadixTree(Value = void)
             debug
             {
                 // zero-initialize variable-length part
-                subIxSlots[] = Ix.init;
-                subNodeSlots[] = Node.init;
+                subIxSlots = Ix.init;
+                subNodeSlots = Node.init;
             }
         }
 

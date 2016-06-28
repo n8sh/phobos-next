@@ -1046,14 +1046,14 @@ struct RawRadixTree(Value = void)
 
             // move leaf
             this.leaf = rhs.leaf;
-            debug rhs.leaf = null; // to be on the safe side
+            debug rhs.leaf = null; // make reference unique, to be on the safe side
 
             foreach (const i; 0 .. rhs.subCount) // each sub node. TODO use iota!(Mod!N)
             {
                 const iN = (cast(ubyte)i).mod!(SparseBranch.subCapacityMax);
                 const subIx = rhs.subIxSlots[iN];
                 this.subNodes[subIx] = rhs.subNodes[iN];
-                debug rhs.subNodes[iN] = null; // to be on the safe side
+                debug rhs.subNodes[iN] = null; // make reference unique, to be on the safe side
             }
         }
 

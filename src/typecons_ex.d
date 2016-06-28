@@ -505,8 +505,8 @@ template makeEnumFromSymbolNames(string prefix = `__`,
                 static if (isPointer!E)
                 {
                     import std.traits : TemplateOf;
-                    enum isTemplate = is(typeof(TemplateOf!(typeof(*E.init))));
-                    static if (isTemplate) // strip template params for now
+                    enum isTemplateInstance = is(typeof(TemplateOf!(typeof(*E.init))));
+                    static if (isTemplateInstance) // strip template params for now
                     {
                         enum E_ = __traits(identifier, TemplateOf!(typeof(*E))) ~ `Ptr`;
                     }

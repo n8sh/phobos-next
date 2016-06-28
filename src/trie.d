@@ -2604,7 +2604,7 @@ unittest
         assert(set.insert(i));
         assert(!set.insert(i));
         assert(set.contains(i));
-        assert(set.heapNodeAllocationBalance == 0);
+        debug assert(set.heapNodeAllocationBalance == 0);
         const rootRef = set._root.peek!(HeptLeaf1);
         assert(rootRef);
     }
@@ -2615,7 +2615,7 @@ unittest
         assert(set.insert(i));
         assert(!set.insert(i));
         assert(set.contains(i));
-        assert(set.heapNodeAllocationBalance == 1);
+        debug assert(set.heapNodeAllocationBalance == 1);
         const rootRef = set._root.peek!(SparseLeaf1!void*);
         assert(rootRef);
     }
@@ -2757,7 +2757,7 @@ auto checkString(Keys...)(size_t count, uint maxLength)
     {
         import std.conv : to;
         immutable failMessage = `Failed for key: "` ~ key.to!string ~ `"`;
-        set.willFail = key == "utsuj";
+        debug set.willFail = key == "utsuj";
         assert(!set.contains(key), failMessage);
         assert(set.insert(key), failMessage);
         assert(set.contains(key), failMessage);
@@ -2833,19 +2833,19 @@ auto checkNumeric(Keys...)()
                     // debug set.willFail = (key == -32639);
                     if (useContains)
                     {
-                        if (set.willFail) dln("before check no contains yet");
+                        debug if (set.willFail) dln("before check no contains yet");
                         assert(!set.contains(key)); // key should not yet be in set
                         assert(key !in set);        // alternative syntax
                     }
 
-                    if (set.willFail) dln("before first insert()");
+                    debug if (set.willFail) dln("before first insert()");
                     assert(set.insert(key));  // insert new value returns `true` (previously not in set)
                     if (useContains)
                     {
-                        if (set.willFail) dln("before check passing contains()");
+                        debug if (set.willFail) dln("before check passing contains()");
                         assert(set.contains(key)); // key should now be in set
                     }
-                    if (set.willFail) dln("before second insert()");
+                    debug if (set.willFail) dln("before second insert()");
                     assert(!set.insert(key)); // reinsert same value returns `false` (already in set)
 
                     if (useContains)

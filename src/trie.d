@@ -3,7 +3,9 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
-    TODO Break out part of `insertAtBranch` into `insertAtBranchBelowPrefix`.
+    TODO Break out part of `insertAtBranch` into `insertAtBranchBelowPrefix` and
+    use instead of `insertAt` or `insertAtBranch` where we know that key is an
+    extension of prefix.
 
     TODO Add Branch-hint allocation flag and re-benchmark construction of radixTreeSet with 10000000 uints
 

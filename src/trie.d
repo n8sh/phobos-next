@@ -24,7 +24,6 @@
     TODO Make array indexing/slicing as @trusted and use .ptr[] instead of [] when things are stable. Especially in IxsN
 
     TODO Is std.algorithm.countUntil the most suitable function to use in setSub(SparseBranch*, ...)
-    TODO Use std.experimental.allocator
 
     TODO Can we somehow overload opIndex so we can do brM[i] instead of more cumbersome (*brM)[i] when brM is of type DenseBranch*?
 

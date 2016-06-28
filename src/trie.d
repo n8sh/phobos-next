@@ -1425,10 +1425,11 @@ struct RawRadixTree(Value = void)
                 else                // key doesn't fit in a `OneLeafMax7`
                 {
                     import std.algorithm : min;
-                    auto prefix = key[0 .. min(key.length - 1, // all but last Ix of key
-                                               DefaultBranch.prefixCapacity)]; // as much as possible of key in branch prefix
-                    auto next = insertAtBranchAbovePrefix(Node(constructWithCapacity!(DefaultBranch)(1, prefix)),
-                                               key, insertionNode);
+                    const prefixLength = min(key.length - 1, // all but last Ix of key
+                                             DefaultBranch.prefixCapacity); // as much as possible of key in branch prefix
+                    auto prefix = key[0 .. prefixLength];
+                    auto next = insertAtBranchBelowPrefix(Node(constructWithCapacity!(DefaultBranch)(1, prefix)),
+                                                          key[prefix.length .. $], insertionNode);
                     assert(insertionNode);
                     return next;
                 }

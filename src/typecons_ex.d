@@ -14,7 +14,7 @@ module typecons_ex;
 
 public import ties;
 
-import std.typecons: Nullable, NullableRef;
+import std.typecons : Nullable, NullableRef;
 
 /** Instantiator for `Nullable`.
  */
@@ -65,8 +65,8 @@ template New(T) if (is(T == class))
     }
 }
 
-import std.traits: isArray, isStaticArray, isUnsigned, isInstanceOf, isSomeString;
-import std.range.primitives: hasSlicing;
+import std.traits : isArray, isStaticArray, isUnsigned, isInstanceOf, isSomeString;
+import std.range.primitives : hasSlicing;
 
 /** Check if `T` is castable to `U`.
  */
@@ -370,8 +370,8 @@ auto strictlyIndexed(R)(R range)
         static assert(!__traits(compiles, { xs[  0 ] = 11; }));
         static assert(!__traits(compiles, { xs_[  0 ] = 11; }));
 
-        import std.algorithm.comparison: equal;
-        import std.algorithm.iteration: filter;
+        import std.algorithm.comparison : equal;
+        import std.algorithm.iteration : filter;
 
         assert(equal(xb[].filter!(a => a < 11), [2, 3]));
         assert(equal(xi[].filter!(a => a < 11), [2, 3]));
@@ -429,8 +429,8 @@ auto strictlyIndexed(R)(R range)
         static assert(!__traits(compiles, { xj[  0  ..   0 ] = 11; }));
         static assert(!__traits(compiles, { xe[  0  ..   0 ] = 11; }));
 
-        import std.algorithm.comparison: equal;
-        import std.algorithm.iteration: filter;
+        import std.algorithm.comparison : equal;
+        import std.algorithm.iteration : filter;
 
         assert(equal(xb.filter!(a => a < 11), [2, 3]));
         assert(equal(xi.filter!(a => a < 11), [2, 3]));
@@ -470,7 +470,7 @@ auto strictlyIndexed(R)(R range)
 @safe pure nothrow unittest
 {
     auto x = [1, 2, 3];
-    import bound: Bound;
+    import bound : Bound;
     alias B = Bound!(ubyte, 0, 2);
     B b;
     auto c = cast(size_t)b;

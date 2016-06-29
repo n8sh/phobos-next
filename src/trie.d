@@ -670,7 +670,7 @@ static private struct SparseLeaf1(Value)
         return keys.assumeSorted().contains(key);
     }
 
-    pragma(inline) auto ref keys() inout @trusted @nogc
+    pragma(inline) auto keys() inout @trusted @nogc
     {
         return _keys[0 .. _length];
     }
@@ -2250,7 +2250,7 @@ struct RawRadixTree(Value = void)
             write(typeof(*curr_).stringof, " #", curr_.length, "/", curr_.capacity, " @", curr_);
             write(": ");
             bool other = false;
-            foreach (const ix; curr_.keys)
+            foreach (const i, const ix; curr_.keys)
             {
                 string s;
                 if (other)
@@ -2266,7 +2266,7 @@ struct RawRadixTree(Value = void)
                 write(s);
                 static if (hasValue)
                 {
-                    write("=>", curr_.values[ix]);
+                    write("=>", curr_.values[i]);
                 }
             }
             writeln();
@@ -2697,10 +2697,13 @@ unittest
 
     assert(map.insert(key, Value.init));
     map.print;
+    debug map.willFail = true;
     // assert(map.contains(key));
+    // TODO assert(map[key] == value);
 
     // assert(!map.insert(key, Value.init));
     // assert(map.contains(key));
+    // TODO assert(map[key] == value);
 }
 
 /// test map to values of type `bool`

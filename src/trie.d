@@ -992,12 +992,12 @@ struct RawRadixTree(Value = void)
 
         pragma(inline) auto ref subNodes() inout @nogc { return subNodeSlots[0 .. subLength]; }
 
-        /** Get all sub-`Ix` slots, possible both defined and undefined. */
+        /** Get all sub-`Ix` slots, both initialized and uninitialized. */
         auto ref subIxSlots() inout @trusted pure nothrow
         {
             return (cast(Ix*)(cast(void*)_subNodeSlots.ptr + subCapacity * Node.sizeof))[0 .. subCapacity];
         }
-        /** Get all sub-`Node` slots, possible both defined and undefined. */
+        /** Get all sub-`Node` slots, both initialized and uninitialized. */
         auto ref subNodeSlots() inout @trusted pure nothrow
         {
             return _subNodeSlots.ptr[0 .. subCapacity];

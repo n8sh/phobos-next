@@ -895,7 +895,7 @@ struct RawRadixTree(Value = void)
             initialize(subCapacity);
 
             this.prefix = prefix;
-            this.subCount = 1;
+            this.subLength = 1;
             this.subIxSlots[0] = subIx;
             this.subNodeSlots[0] = subNode;
         }
@@ -911,8 +911,8 @@ struct RawRadixTree(Value = void)
             initialize(subCapacity); // 2. copy rest
 
             // copy variable length part. TODO optimize:
-            this.subIxSlots[0 .. rhs.subCount] = rhs.subIxSlots[0 .. rhs.subCount];
-            this.subNodeSlots[0 .. rhs.subCount] = rhs.subNodeSlots[0 .. rhs.subCount];
+            this.subIxSlots[0 .. rhs.subLength] = rhs.subIxSlots[0 .. rhs.subLength];
+            this.subNodeSlots[0 .. rhs.subLength] = rhs.subNodeSlots[0 .. rhs.subLength];
 
             assert(this.subCapacity > rhs.subCapacity);
         }
@@ -940,7 +940,7 @@ struct RawRadixTree(Value = void)
             {
                 subIxSlots[0] = sub[0];
                 subNodeSlots[0] = sub[1];
-                subCount = 1;
+                subLength = 1;
             }
             else
             {
@@ -949,9 +949,9 @@ struct RawRadixTree(Value = void)
                 {
                     const ix = &hit[0] - subIxSlots.ptr; // insertion index. TODO this is kind of ugly. Why doesn't hit.ptr work?
                     // TODO functionize this loop or reuse memmove:
-                    foreach (i; 0 .. subCount - ix)
+                    foreach (i; 0 .. subLength - ix)
                     {
-                        const iD = subCount - i;
+                        const iD = subLength - i;
                         const iS = iD - 1;
                         // dln("i:", i, " Moving from ", iS, " to ", iD);
                         subIxSlots[iD] = subIxSlots[iS];
@@ -962,35 +962,35 @@ struct RawRadixTree(Value = void)
                 }
                 else            // insert at the end
                 {
-                    subIxSlots[subCount] = sub[0];
-                    subNodeSlots[subCount] = sub[1];
+                    subIxSlots[subLength] = sub[0];
+                    subNodeSlots[subLength] = sub[1];
                 }
-                ++subCount;
+                ++subLength;
             }
         }
 
         inout(Node) containsSub(Ix ix) inout
         in
         {
-            // assert(subIxSlots[0 .. subCount].isSorted);
+            // assert(subIxSlots[0 .. subLength].isSorted);
         }
         body
         {
             import searching_ex : binarySearch; // need this instead of `SortedRange.contains` because we need the index
-            const hitIndex = subIxSlots[0 .. subCount].binarySearch(ix); // find index where insertion should be made
+            const hitIndex = subIxSlots[0 .. subLength].binarySearch(ix); // find index where insertion should be made
             return (hitIndex != typeof(hitIndex).max) ? subNodeSlots[hitIndex] : Node.init;
         }
 
-        pragma(inline) bool empty() const @nogc { return subCount == 0; }
-        pragma(inline) bool full()  const @nogc { return subCount == subCapacity; }
+        pragma(inline) bool empty() const @nogc { return subLength == 0; }
+        pragma(inline) bool full()  const @nogc { return subLength == subCapacity; }
 
         pragma(inline) auto ref subIxs()   inout @nogc
         {
             import std.algorithm.sorting : assumeSorted;
-            return subIxSlots[0 .. subCount].assumeSorted;
+            return subIxSlots[0 .. subLength].assumeSorted;
         }
 
-        pragma(inline) auto ref subNodes() inout @nogc { return subNodeSlots[0 .. subCount]; }
+        pragma(inline) auto ref subNodes() inout @nogc { return subNodeSlots[0 .. subLength]; }
 
         /** Get all sub-`Ix` slots, possible both defined and undefined. */
         auto ref subIxSlots() inout @trusted pure nothrow
@@ -1045,9 +1045,9 @@ struct RawRadixTree(Value = void)
         static assert(leaf.alignof == 8); // assert alignment
 
         IxsN!prefixCapacity prefix; // prefix common to all `subNodes` (also called edge-label)
-        Count subCount;
+        Count subLength;
         Count subCapacity;
-        static assert(prefix.sizeof + subCount.sizeof + subCapacity.sizeof == 8); // assert alignment
+        static assert(prefix.sizeof + subLength.sizeof + subCapacity.sizeof == 8); // assert alignment
 
         // variable-length part
         Node[0] _subNodeSlots;
@@ -1094,7 +1094,7 @@ struct RawRadixTree(Value = void)
             this.leaf = rhs.leaf;
             debug rhs.leaf = null; // make reference unique, to be on the safe side
 
-            foreach (const i; 0 .. rhs.subCount) // each sub node. TODO use iota!(Mod!N)
+            foreach (const i; 0 .. rhs.subLength) // each sub node. TODO use iota!(Mod!N)
             {
                 const iN = (cast(ubyte)i).mod!(SparseBranch.subCapacityMax);
                 const subIx = rhs.subIxSlots[iN];
@@ -1104,7 +1104,7 @@ struct RawRadixTree(Value = void)
         }
 
         /// Number of non-null sub-Nodes.
-        Mod!(radix + 1) subCount() const
+        Mod!(radix + 1) subLength() const
         {
             typeof(return) count = 0; // number of non-zero sub-nodes
             foreach (const subNode; subNodes) // TODO why can't we use std.algorithm.count here?
@@ -1409,7 +1409,7 @@ struct RawRadixTree(Value = void)
             case ix_SparseBranchPtr:
                 auto curr_ = curr.as!(SparseBranch*);
                 ++count;
-                foreach (subNode; curr_.subNodeSlots[0 .. curr_.subCount])
+                foreach (subNode; curr_.subNodeSlots[0 .. curr_.subLength])
                 {
                     if (subNode) { count += countHeapNodesAt(subNode); }
                 }
@@ -1990,7 +1990,7 @@ struct RawRadixTree(Value = void)
 
         void release(SparseBranch* curr)
         {
-            foreach (sub; curr.subNodes[0 .. curr.subCount])
+            foreach (sub; curr.subNodes[0 .. curr.subLength])
             {
                 release(sub); // recurse branch
             }
@@ -2178,7 +2178,7 @@ struct RawRadixTree(Value = void)
             break;
         case ix_SparseBranchPtr:
             auto curr_ = curr.as!(SparseBranch*);
-            write(typeof(*curr_).stringof, "#", curr_.subCount, "/", curr_.subCapacity, " @", curr_);
+            write(typeof(*curr_).stringof, "#", curr_.subLength, "/", curr_.subCapacity, " @", curr_);
             if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix); }
             writeln(":");
             if (curr_.leaf)
@@ -2192,7 +2192,7 @@ struct RawRadixTree(Value = void)
             break;
         case ix_DenseBranchPtr:
             auto curr_ = curr.as!(DenseBranch*);
-            write(typeof(*curr_).stringof, "#", curr_.subCount, "/", radix, " @", curr_);
+            write(typeof(*curr_).stringof, "#", curr_.subLength, "/", radix, " @", curr_);
             if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix); }
             writeln(":");
             if (curr_.leaf)

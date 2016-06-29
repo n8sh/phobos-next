@@ -586,6 +586,9 @@ static private struct SparseLeaf1(Value)
     pragma(inline) Length length() const @safe @nogc { return _length; }
     pragma(inline) Capacity capacity() const @safe @nogc { return _capacity; }
 
+    pragma(inline) bool empty() const @safe @nogc { return _length == 0; }
+    pragma(inline) bool full() const @safe @nogc { return _length == radix; }
+
     /** Reserve room for `newSubCapacity` number of elements. */
     void reserve(Capacity newSubCapacity) @trusted // TODO @nogc
     {
@@ -603,9 +606,6 @@ static private struct SparseLeaf1(Value)
             }
         }
     }
-
-    pragma(inline) bool empty() const @safe @nogc { return _length == 0; }
-    pragma(inline) bool full() const @safe @nogc { return _length == radix; }
 
     pragma(inline) bool contains(Ix key) const @trusted @nogc
     {

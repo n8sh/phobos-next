@@ -993,19 +993,25 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        enum InsertionStatus { none, inserted, updated }
+        /** Results of attempt at modification sub. */
+        enum ModificationStatus
+        {
+            none,               // no operation, because container is full
+            inserted,           // new element was inserted
+            updated,            // existing element was update/modified
+        }
 
         /** Try update or inserte sub-node sub[1] at index sub[0].
             Returns: `true` upon updated or insertion, otherwise `false` when `this` is full.
          */
-        InsertionStatus updateOrInsert(Sub sub)
+        ModificationStatus updateOrInsert(Sub sub)
         {
             if (empty)
             {
                 subIxSlots[0] = sub[0];
                 subNodeSlots[0] = sub[1];
                 subLength = 1;
-                return InsertionStatus.inserted;
+                return ModificationStatus.inserted;
             }
             else
             {
@@ -1031,12 +1037,12 @@ struct RawRadixTree(Value = void)
                     debug assert(containsSubAt(sub[0]));
                     subIxSlots[ix - 1] = sub[0];
                     subNodeSlots[ix - 1] = sub[1];
-                    return InsertionStatus.updated;
+                    return ModificationStatus.updated;
                 }
                 debug assert(!containsSubAt(sub[0]));
 
                 // check if full
-                if (full) { return InsertionStatus.none; }
+                if (full) { return ModificationStatus.none; }
 
                 // ok to insert
                 if (ix != subLength) // either inside
@@ -1052,14 +1058,14 @@ struct RawRadixTree(Value = void)
                     subIxSlots[ix] = sub[0];
                     subNodeSlots[ix] = sub[1];
                     ++subLength;
-                    return InsertionStatus.inserted;
+                    return ModificationStatus.inserted;
                 }
                 else            // or at the end
                 {
                     subIxSlots[subLength] = sub[0];
                     subNodeSlots[subLength] = sub[1];
                     ++subLength;
-                    return InsertionStatus.inserted;
+                    return ModificationStatus.inserted;
                 }
             }
         }
@@ -1251,7 +1257,7 @@ struct RawRadixTree(Value = void)
     /// ditto
     Node setSub(SparseBranch* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
-        if (curr.updateOrInsert(Sub(subIx, subNode)) == curr.InsertionStatus.none) // try insert and if it fails
+        if (curr.updateOrInsert(Sub(subIx, subNode)) == curr.ModificationStatus.none) // try insert and if it fails
         {
             // we need to expand because `curr` is full
 

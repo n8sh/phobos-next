@@ -68,7 +68,7 @@ import std.range.primitives : hasLength;
 
 import bijections : isIntegralBijectableType, bijectToUnsigned;
 import variant_ex : WordVariant;
-import typecons_ex : IndexedArray, StrictlyIndexed;
+import typecons_ex : StrictlyIndexed;
 import modulo : Mod, mod;
 
 // version = enterSingleInfiniteMemoryLeakTest;
@@ -876,6 +876,8 @@ struct RawRadixTree(Value = void)
         SparseBranch_PopHist popHist_SparseBranch; // packed branch population histogram
         DenseBranch_PopHist popHist_DenseBranch; // full branch population histogram
 
+        import typecons_ex : IndexedArray;
+
         /** Maps `Node` type/index `Ix` to population.
 
             Used to calculate complete tree memory usage, excluding allocator
@@ -909,10 +911,10 @@ struct RawRadixTree(Value = void)
 
         alias Count = Mod!(subCapacityMax + 1);
 
-        @safe pure nothrow:
-
         /// Element type `Sub`.
         alias Sub = Tuple!(Ix, Node);
+
+        @safe pure nothrow:
 
         this(size_t subCapacity)
         {
@@ -1109,6 +1111,9 @@ struct RawRadixTree(Value = void)
         enum subCapacityMax = 256;
         enum prefixCapacity = 15; // 7, 15, 23, ..., we can afford larger prefix here because DenseBranch is so large
 
+        /// Element type `Sub`.
+        alias Sub = Tuple!(Ix, Node);
+
         @safe pure nothrow:
 
         this(const Ix[] prefix)
@@ -1116,21 +1121,19 @@ struct RawRadixTree(Value = void)
             this.prefix = prefix;
         }
 
-        this(const Ix[] prefix, Ix subIx, Node subNode)
+        this(const Ix[] prefix, Sub sub)
         {
             this(prefix);
-            this.subNodes[subIx] = subNode;
+            this.subNodes[sub[0]] = sub[1];
         }
 
-        this(const Ix[] prefix,
-             Ix subIx0, Node subNode0,
-             Ix subIx1, Node subNode1)
+        this(const Ix[] prefix, Sub subA, Sub subB)
         {
-            assert(subIx0 != subIx1);
-            assert(subNode0 != subNode1);
+            assert(subA[0] != subB[0]);
+            assert(subA[1] != subB[1]);
 
-            this.subNodes[subIx0] = subNode0;
-            this.subNodes[subIx1] = subNode1;
+            this.subNodes[subA[0]] = subA[1];
+            this.subNodes[subB[0]] = subB[1];
         }
 
         this(SparseBranch* rhs)

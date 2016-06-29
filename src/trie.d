@@ -5,6 +5,7 @@
 
     TODO Add Branch-hint allocation flag and re-benchmark construction of radixTreeSet with 10000000 uints
 
+    TODO Replace Node.init with null
     TODO Replace toNode with to!Node
 
     TODO Add sortedness to `IxsN` and make `IxsN.contains()` use `binarySearch()`. Make use of `sortn`.
@@ -506,6 +507,8 @@ struct HeptLeaf1
 /** Sparsely coded leaves with values of type `Value`. */
 static private struct SparseLeaf1(Value)
 {
+    import std.algorithm.sorting : assumeSorted;
+
     enum hasValue = !is(Value == void);
     alias Length = Mod!(radix + 1);
     alias Capacity = Mod!(radix + 1);
@@ -565,18 +568,42 @@ static private struct SparseLeaf1(Value)
         }
     }
 
-    /** Insert `key` in linear time. */
-    bool linearInsert(Ix key) @trusted /* TODO @nogc */
+    /** Insert `key`. */
+    bool insert(Ix key) @trusted /* TODO @nogc */
     {
-        // dln("length:", length, " key:", key);
-        if (!contains(key))
+        if (empty)
         {
-            reserve(Capacity(length + 1));
-            _keys[length] = key;
-            ++_length;
+            reserve(Capacity(1));
+            _keys[0] = key;
+            _length = 1;
             return true;
         }
-        return false;
+        else
+        {
+            if (contains(key)) { return false; }
+            reserve(Capacity(_length + 1));
+            auto hit = keys.assumeSorted.upperBound(key); // find index where insertion should be made
+            if (hit.length) // we need to insert
+            {
+                const ix = &hit[0] - _keys; // insertion index. TODO this is kind of ugly. Why doesn't hit.ptr work?
+                // TODO functionize this loop or reuse memmove:
+                foreach (i; 0 .. _length - ix)
+                {
+                    const iD = _length - i;
+                    const iS = iD - 1;
+                    _keys[iD] = _keys[iS];
+                }
+                _keys[ix] = key;
+                ++_length;
+                return true;
+            }
+            else            // insert at the end
+            {
+                _keys[_length] = key;
+                ++_length;
+                return true;
+            }
+        }
     }
 
     pragma(inline) Length length() const @safe @nogc { return _length; }
@@ -604,7 +631,6 @@ static private struct SparseLeaf1(Value)
 
     pragma(inline) bool contains(Ix key) const @trusted @nogc
     {
-        import std.algorithm.sorting : assumeSorted;
         return keys.assumeSorted().contains(key);
     }
 
@@ -923,20 +949,20 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        void linearInsert(Sub sub) // TODO Rename this to logInsert aswell as in array_ex.
-        out
-        {
-            // assert(subIxs.isSorted);
-        }
-        body
+        /** Insert `sub`.
+
+            Returns: sub-index into `subIxs` and `subNodes` where `sub` was
+            inserted or `subCapacityMax` if `sub` was already stored in `this`.
+        */
+        Mod!(subCapacityMax + 1) insert(Sub sub)
         {
             assert(!full);
-            assert(!containsSub(sub[0]));
             if (empty)
             {
                 subIxSlots[0] = sub[0];
                 subNodeSlots[0] = sub[1];
                 subLength = 1;
+                return 0.mod!(subCapacityMax + 1);
             }
             else
             {
@@ -949,28 +975,25 @@ struct RawRadixTree(Value = void)
                     {
                         const iD = subLength - i;
                         const iS = iD - 1;
-                        // dln("i:", i, " Moving from ", iS, " to ", iD);
                         subIxSlots[iD] = subIxSlots[iS];
                         subNodeSlots[iD] = subNodeSlots[iS];
                     }
                     subIxSlots[ix] = sub[0];
                     subNodeSlots[ix] = sub[1];
+                    ++subLength;
+                    return (cast(ubyte)ix).mod!(subCapacityMax + 1);
                 }
                 else            // insert at the end
                 {
                     subIxSlots[subLength] = sub[0];
                     subNodeSlots[subLength] = sub[1];
+                    ++subLength;
+                    return subCapacityMax.mod!(subCapacityMax + 1);
                 }
-                ++subLength;
             }
         }
 
         inout(Node) containsSub(Ix ix) inout
-        in
-        {
-            // assert(subIxSlots[0 .. subLength].isSorted);
-        }
-        body
         {
             import searching_ex : binarySearch; // need this instead of `SortedRange.contains` because we need the index
             const hitIndex = subIxSlots[0 .. subLength].binarySearch(ix); // find index where insertion should be made
@@ -1168,7 +1191,7 @@ struct RawRadixTree(Value = void)
         }
         else if (!curr.full)     // if room left in curr
         {
-            curr.linearInsert(tuple(subIx, subNode)); // add one to existing
+            curr.insert(tuple(subIx, subNode)); // add one to existing
         }
         else                    // if no room left in curr we need to expand
         {
@@ -1640,7 +1663,7 @@ struct RawRadixTree(Value = void)
                 return insertAt(curr.as!(HeptLeaf1), key, insertionNode); // possibly expanded to other Leaf
             case ix_SparseLeaf1Ptr:
                 auto curr_ = curr.as!(SparseLeaf1!Value*);
-                if (curr_.linearInsert(key))
+                if (curr_.insert(key))
                 {
                     insertionNode = Node(curr_);
                 }
@@ -1789,7 +1812,7 @@ struct RawRadixTree(Value = void)
             }
 
             auto next = construct!(SparseLeaf1!Value*)(curr.keys); // TODO construct using (curr.keys, key[0])
-            next.linearInsert(key); // pushBack instead of insert because we know that `key` is distinct from `curr.keys` from above
+            next.insert(key);
             freeNode(curr);
             insertionNode = Node(next);
             return Leaf(next);

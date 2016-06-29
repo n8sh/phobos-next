@@ -611,19 +611,19 @@ static private struct SparseLeaf1(Value)
 
             reserve(Capacity(_length + 1));
 
-            if (ix != length) // if we move inside
+            if (ix != length) // if we need to make room
             {
-                // TODO functionize this loop or reuse memmove:
-                foreach (i; 0 .. _length - ix)
+                foreach (i; 0 .. _length - ix) // TODO functionize this loop or reuse memmove:
                 {
                     const iD = _length - i;
                     const iS = iD - 1;
                     _keys[iD] = _keys[iS];
                 }
             }
-
-            _keys[ix] = key;
             ++_length;
+
+            _keys[ix] = key;    // set new element
+
             return (cast(ushort)ix).mod!(radix + 1);
         }
     }
@@ -1021,29 +1021,22 @@ struct RawRadixTree(Value = void)
                 // check if full
                 if (full) { return ModificationStatus.none; }
 
-                // ok to insert
-                if (ix != subLength) // either inside
+                if (ix != subLength) // if we need to make room
                 {
-                    // TODO functionize this loop or reuse memmove:
-                    foreach (i; 0 .. subLength - ix)
+                    foreach (i; 0 .. subLength - ix) // TODO functionize this loop or reuse memmove:
                     {
                         const iD = subLength - i;
                         const iS = iD - 1;
                         subIxSlots[iD] = subIxSlots[iS];
                         subNodeSlots[iD] = subNodeSlots[iS];
                     }
-                    subIxSlots[ix] = sub[0];
-                    subNodeSlots[ix] = sub[1];
-                    ++subLength;
-                    return ModificationStatus.inserted;
                 }
-                else            // or at the end
-                {
-                    subIxSlots[subLength] = sub[0];
-                    subNodeSlots[subLength] = sub[1];
-                    ++subLength;
-                    return ModificationStatus.inserted;
-                }
+                ++subLength;
+
+                subIxSlots[ix] = sub[0]; // set new element
+                subNodeSlots[ix] = sub[1]; // set new element
+
+                return ModificationStatus.inserted;
             }
         }
 

@@ -597,20 +597,22 @@ static private struct SparseLeaf1(Value)
         }
         else                    // non-empty
         {
-            auto hit = keys.assumeSorted.upperBound(key); // find index where insertion should be made
-            if (hit.length) // we need to insert
+            const ix = length - keys.assumeSorted.upperBound(key).length; // find index where insertion should be made
+
+            // check for existing key
+            if (ix >= 1 && _keys[ix - 1] == key) // if `key` already inserted
             {
-                const ix = &hit[0] - _keys; // insertion index. TODO this is kind of ugly. Why doesn't hit.ptr work?
+                debug assert(contains(key)); // extra checking
+                return radix.mod!(radix + 1);
+            }
+            debug assert(!contains(key)); // extra checking
 
-                // check for existing key
-                if (ix >= 1 && _keys[ix - 1] == key) // if `key` already inserted
-                {
-                    debug assert(contains(key)); // extra checking
-                    return radix.mod!(radix + 1);
-                }
-                debug assert(!contains(key)); // extra checking
+            // TODO if (full) { return ModificationStatus.none; }
 
-                reserve(Capacity(_length + 1));
+            reserve(Capacity(_length + 1));
+
+            if (ix != length) // if we move inside
+            {
                 // TODO functionize this loop or reuse memmove:
                 foreach (i; 0 .. _length - ix)
                 {
@@ -618,27 +620,11 @@ static private struct SparseLeaf1(Value)
                     const iS = iD - 1;
                     _keys[iD] = _keys[iS];
                 }
-                _keys[ix] = key;
-                ++_length;
-                return (cast(ushort)ix).mod!(radix + 1);
             }
-            else            // insert at the end
-            {
-                const ix = _length;            // insertion index
 
-                // check for existing key
-                if (_keys[ix - 1] == key) // if `key` already inserted
-                {
-                    debug assert(contains(key)); // extra checking
-                    return radix.mod!(radix + 1);
-                }
-                debug assert(!contains(key)); // extra checking
-
-                reserve(Capacity(_length + 1));
-                _keys[ix] = key;
-                ++_length;
-                return (cast(ushort)ix).mod!(radix + 1);
-            }
+            _keys[ix] = key;
+            ++_length;
+            return (cast(ushort)ix).mod!(radix + 1);
         }
     }
 

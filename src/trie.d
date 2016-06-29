@@ -550,6 +550,9 @@ static private struct SparseLeaf1(Value)
                     _keys[i] = e;
                 }
             }
+
+            import std.algorithm.sorting : sort;
+            sort(keys);
         }
     }
 
@@ -576,29 +579,21 @@ static private struct SparseLeaf1(Value)
         return false;
     }
 
-    void pushBack(Ix key) @trusted /* TODO @nogc */
-    {
-        reserve(Capacity(length + 1));
-        _keys[length] = key;
-        ++_length;
-    }
-
     pragma(inline) Length length() const @safe @nogc { return _length; }
     pragma(inline) Capacity capacity() const @safe @nogc { return _capacity; }
 
     pragma(inline) bool empty() const @safe @nogc { return _length == 0; }
     pragma(inline) bool full() const @safe @nogc { return _length == radix; }
 
-    /** Reserve room for `newSubCapacity` number of elements. */
-    void reserve(Capacity newSubCapacity) @trusted // TODO @nogc
+    /** Reserve room for `newCapacity` number of elements. */
+    void reserve(Capacity newCapacity) @trusted // TODO @nogc
     {
         assert(!full);
-        if (_capacity < newSubCapacity)
+        if (_capacity < newCapacity)
         {
             import std.math : nextPow2;
-
-            _capacity = nextPow2(newSubCapacity - 1); // need minus one here
-            assert(_capacity >= newSubCapacity);
+            _capacity = nextPow2(newCapacity - 1); // need minus one here
+            assert(_capacity >= newCapacity);
             _keys = cast(typeof(_keys))realloc(_keys, _capacity*Ix.sizeof);
             static if (hasValue)
             {
@@ -609,8 +604,8 @@ static private struct SparseLeaf1(Value)
 
     pragma(inline) bool contains(Ix key) const @trusted @nogc
     {
-        import std.algorithm.searching : canFind;
-        return (_keys[0 .. _length].canFind(key)); // TODO binarySearch
+        import std.algorithm.sorting : assumeSorted;
+        return keys.assumeSorted().contains(key);
     }
 
     pragma(inline) auto ref keys() inout @trusted @nogc
@@ -936,6 +931,7 @@ struct RawRadixTree(Value = void)
         body
         {
             assert(!full);
+            assert(!containsSub(sub[0]));
             if (empty)
             {
                 subIxSlots[0] = sub[0];
@@ -1793,7 +1789,7 @@ struct RawRadixTree(Value = void)
             }
 
             auto next = construct!(SparseLeaf1!Value*)(curr.keys); // TODO construct using (curr.keys, key[0])
-            next.pushBack(key); // pushBack instead of insert because we know that `key` is distinct from `curr.keys` from above
+            next.linearInsert(key); // pushBack instead of insert because we know that `key` is distinct from `curr.keys` from above
             freeNode(curr);
             insertionNode = Node(next);
             return Leaf(next);

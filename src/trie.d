@@ -1436,6 +1436,7 @@ struct RawRadixTree(Value = void)
         /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
         pragma(inline) bool containsAt(Leaf curr, UKey key)
         {
+            debug if (willFail) { dln("key:", key); }
             final switch (curr.typeIx) with (Leaf.Ix)
             {
             case undefined: return false;
@@ -1447,6 +1448,7 @@ struct RawRadixTree(Value = void)
         /// ditto
         pragma(inline) bool containsAt(Node curr, UKey key)
         {
+            debug if (willFail) { dln("key:", key); }
             import std.algorithm : skipOver;
             final switch (curr.typeIx) with (Node.Ix)
             {
@@ -1455,8 +1457,10 @@ struct RawRadixTree(Value = void)
             case ix_TwoLeaf3: return curr.as!(TwoLeaf3).contains(key);
             case ix_TriLeaf2: return curr.as!(TriLeaf2).contains(key);
             case ix_HeptLeaf1: return curr.as!(HeptLeaf1).contains(key);
-            case ix_SparseLeaf1Ptr: return key.length == 1 && curr.as!(SparseLeaf1!Value*).contains(key[0]);
-            case ix_DenseLeaf1Ptr:  return key.length == 1 && curr.as!(DenseLeaf1!Value*).contains(key[0]);
+            case ix_SparseLeaf1Ptr:
+                return key.length == 1 && curr.as!(SparseLeaf1!Value*).contains(key[0]);
+            case ix_DenseLeaf1Ptr:
+                return key.length == 1 && curr.as!(DenseLeaf1!Value*).contains(key[0]);
             case ix_SparseBranchPtr:
                 auto curr_ = curr.as!(SparseBranch*);
                 return (key.skipOver(curr_.prefix) &&        // matching prefix
@@ -2503,9 +2507,9 @@ struct RadixTree(Key, Value)
         const nothrow:
 
         /** Returns: `true` if `key` is stored, `false` otherwise. */
-        bool contains(in Key typedKey)
+        bool contains(in Key key)
         {
-            return _tree.contains(typedKey.remapKey);
+            return _tree.contains(key.remapKey);
         }
     }
 
@@ -2550,9 +2554,9 @@ struct RadixTree(Key, Value)
         }
 
         /** Returns: pointer to value if `key` is contained in set, null otherwise. */
-        Value* contains(in Key key) const
+        bool contains(in Key key) const
         {
-            return null;
+            return _tree.contains(key.remapKey);
         }
     }
 
@@ -2697,11 +2701,12 @@ unittest
 
     assert(map.insert(key, value));
     map.print;
-    debug map.willFail = true;
     assert(map.contains(key));
     // TODO assert(map[key] == value);
 
+    debug map.willFail = true;
     assert(!map.insert(key, value));
+    dln();
     assert(map.contains(key));
     // TODO assert(map[key] == value);
 }

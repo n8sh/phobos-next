@@ -2478,21 +2478,20 @@ struct RadixTree(Key, Value)
                 // set value
                 final switch (insertionNode.typeIx) with (_tree.Node.Ix)
                 {
-                case undefined: break;
+                case undefined:
                 case ix_OneLeafMax7:
                 case ix_TwoLeaf3:
                 case ix_TriLeaf2:
                 case ix_HeptLeaf1:
-                    dln("TODO Insertion of key:", key, " in a non-pointer node:", insertionNode);
-                    break;
+                case ix_SparseBranchPtr:
+                case ix_DenseBranchPtr:
+                    assert(false);
                 case ix_SparseLeaf1Ptr:
                     assert(insertionNode.as!(SparseLeaf1!Value*).setValue(rawKey[$ - 1], value));
                     break;
                 case ix_DenseLeaf1Ptr:
                     insertionNode.as!(DenseLeaf1!Value*).setValue(rawKey[$ - 1], value);
                     break;
-                case ix_SparseBranchPtr: break;
-                case ix_DenseBranchPtr: break;
                 }
                 ++_length;
                 return true;
@@ -2500,7 +2499,7 @@ struct RadixTree(Key, Value)
             else
             {
                 dln("TODO warning no insertionNode for key:", key, " rawKey:", rawKey);
-                return false;
+                assert(false);
             }
         }
 

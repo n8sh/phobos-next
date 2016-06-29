@@ -100,6 +100,8 @@ alias IKey(size_t span) = immutable(Mod!(2^^span))[]; // TODO use bitset to more
 /** Fixed-Length Raw Key. */
 alias KeyN(size_t span, size_t N) = Mod!(2^^span)[N];
 
+alias UKey = Key!span;
+
 /** Size of a CPU cache line in bytes.
 
     Container layouts should be adapted to make use of at least this many bytes
@@ -400,7 +402,7 @@ struct OneLeafMax7
         this.key = key;
     }
 
-    pragma(inline) bool contains(Key!span key) const nothrow @nogc { return this.key == key; }
+    pragma(inline) bool contains(UKey key) const nothrow @nogc { return this.key == key; }
 
     @property string toString() const @safe pure
     {
@@ -445,7 +447,7 @@ struct TwoLeaf3
         }
     }
 
-    pragma(inline) bool contains(Key!span key) const nothrow @nogc { return keys.contains(key); }
+    pragma(inline) bool contains(UKey key) const nothrow @nogc { return keys.contains(key); }
 
     IxsN!(capacity, keyLength) keys;
 }
@@ -481,7 +483,7 @@ struct TriLeaf2
         }
     }
 
-    pragma(inline) bool contains(Key!span key) const nothrow @nogc { return keys.contains(key); }
+    pragma(inline) bool contains(UKey key) const nothrow @nogc { return keys.contains(key); }
 
     IxsN!(capacity, keyLength) keys;
 }
@@ -502,7 +504,7 @@ struct HeptLeaf1
     }
 
     pragma(inline) bool contains(Ix key) const nothrow @nogc { return keys.contains(key); }
-    pragma(inline) bool contains(Key!span key) const nothrow @nogc { return key.length == 1 && keys.contains(key[0]); }
+    pragma(inline) bool contains(UKey key) const nothrow @nogc { return key.length == 1 && keys.contains(key[0]); }
 
     IxsN!(capacity, 1) keys;
 }
@@ -1402,13 +1404,13 @@ struct RawRadixTree(Value = void)
     const @safe pure nothrow /* TODO @nogc */
     {
         /** Returns: `true` if `key` is stored, `false` otherwise. */
-        pragma(inline) bool contains(Key!span key)
+        pragma(inline) bool contains(UKey key)
         {
             return containsAt(_root, key);
         }
 
         /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
-        pragma(inline) bool containsAt(Leaf curr, Key!span key)
+        pragma(inline) bool containsAt(Leaf curr, UKey key)
         {
             final switch (curr.typeIx) with (Leaf.Ix)
             {
@@ -1419,7 +1421,7 @@ struct RawRadixTree(Value = void)
             }
         }
         /// ditto
-        pragma(inline) bool containsAt(Node curr, Key!span key)
+        pragma(inline) bool containsAt(Node curr, UKey key)
         {
             import std.algorithm : skipOver;
             final switch (curr.typeIx) with (Node.Ix)
@@ -1490,12 +1492,12 @@ struct RawRadixTree(Value = void)
     @safe pure nothrow /* TODO @nogc */
     {
         /** Insert `key` into `this` tree. */
-        pragma(inline) Node insert(Key!span key, out Node insertionNode)
+        pragma(inline) Node insert(UKey key, out Node insertionNode)
         {
             return _root = insertAt(_root, key, insertionNode);
         }
 
-        Node insertNew(Key!span key, out Node insertionNode)
+        Node insertNew(UKey key, out Node insertionNode)
         {
             debug if (willFail) { dln("WILL FAIL: curr:", key); }
             static if (hasValue)
@@ -1542,7 +1544,7 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        Node insertNewBranch(Key!span key, out size_t skippedSuperBranchPrefixLength)
+        Node insertNewBranch(UKey key, out size_t skippedSuperBranchPrefixLength)
         {
             skippedSuperBranchPrefixLength = 0;
             return Node.init;
@@ -1560,7 +1562,7 @@ struct RawRadixTree(Value = void)
         }
 
         /** Insert `key` into sub-tree under root `curr`. */
-        pragma(inline) Node insertAt(Node curr, Key!span key, out Node insertionNode)
+        pragma(inline) Node insertAt(Node curr, UKey key, out Node insertionNode)
         {
             debug if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr); }
             assert(key.length);
@@ -1610,7 +1612,7 @@ struct RawRadixTree(Value = void)
 
         /** Insert `key` into sub-tree under branch `curr` above prefix, that is
             the prefix of `curr` is stripped from `key` prior to insertion. */
-        Node insertAtBranchAbovePrefix(Node curr, Key!span key, out Node insertionNode)
+        Node insertAtBranchAbovePrefix(Node curr, UKey key, out Node insertionNode)
         {
             assert(key.length);
 
@@ -1685,7 +1687,7 @@ struct RawRadixTree(Value = void)
 
         /** Like `insertAtBranchAbovePrefix` but also asserts that `key` is
             currently not stored under `curr`. */
-        pragma(inline) Node insertNewAtBranchAbovePrefix(Node curr, Key!span key)
+        pragma(inline) Node insertNewAtBranchAbovePrefix(Node curr, UKey key)
         {
             Node insertionNode;
             auto next = insertAtBranchAbovePrefix(curr, key, insertionNode);
@@ -1696,7 +1698,7 @@ struct RawRadixTree(Value = void)
         /** Insert `key` into sub-tree under branch `curr` below prefix, that is
             the prefix of `curr` is not stripped from `key` prior to
             insertion. */
-        Node insertAtBranchBelowPrefix(Node curr, Key!span key, out Node insertionNode)
+        Node insertAtBranchBelowPrefix(Node curr, UKey key, out Node insertionNode)
         {
             assert(key.length);
             debug if (willFail) { dln("WILL FAIL: key:", key,
@@ -1716,7 +1718,7 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        pragma(inline) Node insertNewAtBranchBelowPrefix(Node curr, Key!span key)
+        pragma(inline) Node insertNewAtBranchBelowPrefix(Node curr, UKey key)
         {
             Node insertionNode;
             auto next = insertAtBranchBelowPrefix(curr, key, insertionNode);
@@ -1777,7 +1779,7 @@ struct RawRadixTree(Value = void)
             return curr;
         }
 
-        Node insertAtLeaf(Leaf curr, Key!span key, out Node insertionNode)
+        Node insertAtLeaf(Leaf curr, UKey key, out Node insertionNode)
         {
             assert(key.length);
             if (key.length == 1)
@@ -1796,7 +1798,7 @@ struct RawRadixTree(Value = void)
 
         static if (!hasValue)
         {
-            Node insertAt(OneLeafMax7 curr, Key!span key, out Node insertionNode)
+            Node insertAt(OneLeafMax7 curr, UKey key, out Node insertionNode)
             {
                 assert(curr.key.length);
                 debug if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
@@ -1845,7 +1847,7 @@ struct RawRadixTree(Value = void)
                 return insertAtBranchAbovePrefix(expand(curr), key, insertionNode);
             }
 
-            Node insertAt(TwoLeaf3 curr, Key!span key, out Node insertionNode)
+            Node insertAt(TwoLeaf3 curr, UKey key, out Node insertionNode)
             {
                 assert(hasVariableKeyLength || curr.keyLength == key.length);
 
@@ -1861,7 +1863,7 @@ struct RawRadixTree(Value = void)
                 return insertAt(expand(curr), key, insertionNode); // NOTE stay at same (depth)
             }
 
-            Node insertAt(TriLeaf2 curr, Key!span key, out Node insertionNode)
+            Node insertAt(TriLeaf2 curr, UKey key, out Node insertionNode)
             {
                 assert(hasVariableKeyLength || curr.keyLength == key.length);
                 if (curr.keyLength == key.length)
@@ -1894,7 +1896,7 @@ struct RawRadixTree(Value = void)
                 return Leaf(next);
             }
 
-            Node insertAt(HeptLeaf1 curr, Key!span key, out Node insertionNode)
+            Node insertAt(HeptLeaf1 curr, UKey key, out Node insertionNode)
             {
                 assert(hasVariableKeyLength || curr.keyLength == key.length);
                 if (curr.keyLength == key.length)
@@ -1906,7 +1908,7 @@ struct RawRadixTree(Value = void)
             }
 
             /** Split `curr` using `prefix`. */
-            Node split(OneLeafMax7 curr, Key!span prefix, Key!span key) // TODO key here is a bit malplaced
+            Node split(OneLeafMax7 curr, UKey prefix, UKey key) // TODO key here is a bit malplaced
             {
                 if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); } assert(key.length);
                 assert(hasVariableKeyLength || curr.key.length == key.length);
@@ -2386,8 +2388,8 @@ static private void calculate(Value)(RawRadixTree!(Value).Leaf curr,
     }
 }
 
-/** Remap typed key `typedKey` to untype key of `Key`. */
-static private Key!span remapKey(TypedKey)(in TypedKey typedKey)
+/** Remap typed key `typedKey` to untype key of type `UKey`. */
+static private UKey remapKey(TypedKey)(in TypedKey typedKey)
     @trusted pure nothrow /* TODO @nogc */
     if (allSatisfy!(isTrieableKeyType, TypedKey))
 {

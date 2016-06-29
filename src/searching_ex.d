@@ -63,20 +63,21 @@ size_t binarySearch(R, E)(const R[] values, in E value)
 
 import std.range : ElementType, SearchPolicy;
 
-/** Index where element `e` either currently exists or should be placed in order
-    to preserve sortedness in `SortedRange` r.
+/** Index into `range` where element `e` either currently exists or should be
+    placed in order to preserve sortedness of the union of `range` and `value`.
 
     Returns:
     - If elements should be place at the beginning then 0 is returned.
-    - If elements should be place at the end (appended) then r.length is returned.
+    - If elements should be place at the end (appended) then range.length is
+      returned.
 
     Typically used by container insertion algorithms.
 
     TODO Move to member of `SortedRange`.
 */
 size_t insertionIndexOf(R, V,
-                        SearchPolicy sp = SearchPolicy.binarySearch)(R r, V value)
+                        SearchPolicy sp = SearchPolicy.binarySearch)(R range, V value)
     if (is(typeof(ElementType!R.init == V.init))) // TODO SortedRange support
 {
-    return r.length - r.upperBound!sp(value).length;
+    return range.length - range.upperBound!sp(value).length;
 }

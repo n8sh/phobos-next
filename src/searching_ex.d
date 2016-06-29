@@ -79,5 +79,5 @@ size_t insertionIndexOf(R, V,
                         SearchPolicy sp = SearchPolicy.binarySearch)(R range, V value)
     if (is(typeof(ElementType!R.init == V.init))) // TODO SortedRange support
 {
-    return range.length - range.upperBound!sp(value).length;
+    return range.length - range.upperBound!sp(value).length; // always larger than zero
 }

@@ -1268,7 +1268,7 @@ struct RawRadixTree(Value = void)
                 import std.algorithm : min;
                 const nextSubCapacity = min(nextPow2(cast(uint)curr.subCapacity),
                                             DefaultBranch.subCapacityMax);
-                assert(nextSubCapacity > curr.subCapacity);
+                debug assert(nextSubCapacity > curr.subCapacity);
                 auto next_ = constructWithCapacity!(SparseBranch*)(nextSubCapacity, curr);
                 next = next_;
             }
@@ -1277,8 +1277,7 @@ struct RawRadixTree(Value = void)
                 next = construct!(DenseBranch*)(curr);
             }
             freeNode(curr);
-            assert(getSub(next, subIx) == Node.init); // key slot should be unoccupied
-
+            debug assert(getSub(next, subIx) == Node.init); // key slot should be unoccupied
             debug assert(previousHeapNodeAllocationBalance == heapNodeAllocationBalance);
             return setSub(next, subIx, subNode); // fast, because directly calls setSub(DenseBranch*, ...)
         }

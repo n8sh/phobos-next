@@ -1142,7 +1142,7 @@ struct RawRadixTree(Value = void)
 
             // move leaf
             this.leaf = rhs.leaf;
-            debug rhs.leaf = null; // make reference unique, to be on the safe side
+            debug rhs.leaf = Leaf.init; // make reference unique, to be on the safe side
 
             foreach (const i; 0 .. rhs.subLength) // each sub node. TODO use iota!(Mod!N)
             {

@@ -612,14 +612,13 @@ static private struct SparseLeaf1(Value)
 
             reserve(Capacity(_length + 1));
 
-            if (ix != length) // if we need to make room
+            // make room
+            debug assert(_length >= ix);
+            foreach (i; 0 .. _length - ix) // TODO functionize this loop or reuse memmove:
             {
-                foreach (i; 0 .. _length - ix) // TODO functionize this loop or reuse memmove:
-                {
-                    const iD = _length - i;
-                    const iS = iD - 1;
-                    _keys[iD] = _keys[iS];
-                }
+                const iD = _length - i;
+                const iS = iD - 1;
+                _keys[iD] = _keys[iS];
             }
             ++_length;
 
@@ -1020,15 +1019,13 @@ struct RawRadixTree(Value = void)
                 // check if full
                 if (full) { return ModificationStatus.none; }
 
-                if (ix != subLength) // if we need to make room
+                debug assert(subLength >= ix);
+                foreach (i; 0 .. subLength - ix) // TODO functionize this loop or reuse memmove:
                 {
-                    foreach (i; 0 .. subLength - ix) // TODO functionize this loop or reuse memmove:
-                    {
-                        const iD = subLength - i;
-                        const iS = iD - 1;
-                        subIxSlots[iD] = subIxSlots[iS];
-                        subNodeSlots[iD] = subNodeSlots[iS];
-                    }
+                    const iD = subLength - i;
+                    const iS = iD - 1;
+                    subIxSlots[iD] = subIxSlots[iS];
+                    subNodeSlots[iD] = subNodeSlots[iS];
                 }
                 ++subLength;
 

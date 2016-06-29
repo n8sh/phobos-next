@@ -565,7 +565,7 @@ static private struct SparseLeaf1(Value)
     /** Insert `key` in linear time. */
     bool linearInsert(Ix key) @trusted /* TODO @nogc */
     {
-        dln("length:", length, " key:", key);
+        // dln("length:", length, " key:", key);
         if (!contains(key))
         {
             reserve(Capacity(length + 1));
@@ -995,7 +995,7 @@ struct RawRadixTree(Value = void)
         /** Get all sub-`Ix` slots, both initialized and uninitialized. */
         auto ref subIxSlots() inout @trusted pure nothrow
         {
-            return (cast(Ix*)(cast(void*)_subNodeSlots.ptr + subCapacity * Node.sizeof))[0 .. subCapacity];
+            return (cast(Ix*)(_subNodeSlots.ptr + subCapacity))[0 .. subCapacity];
         }
         /** Get all sub-`Node` slots, both initialized and uninitialized. */
         auto ref subNodeSlots() inout @trusted pure nothrow

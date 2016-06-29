@@ -1486,19 +1486,12 @@ struct RawRadixTree(Value = void)
         Node insertNew(Key!span key, out Node insertionNode)
         {
             debug if (willFail) { dln("WILL FAIL: curr:", key); }
-            switch (key.length)
+            static if (hasValue)
             {
-            case 0: assert(false, "key must not be empty"); // return insertionNode = Node(construct!(OneLeafMax7)());
-            case 1: return insertionNode = Node(construct!(HeptLeaf1)(key[0]));
-            case 2: return insertionNode = Node(construct!(TriLeaf2)(key));
-            case 3: return insertionNode = Node(construct!(TwoLeaf3)(key));
-            default:
-                if (key.length <= OneLeafMax7.capacity)
+                switch (key.length)
                 {
-                    return insertionNode = Node(construct!(OneLeafMax7)(key));
-                }
-                else                // key doesn't fit in a `OneLeafMax7`
-                {
+                case 0: assert(false, "key must not be empty"); // return insertionNode = Node(construct!(OneLeafMax7)());
+                default:
                     import std.algorithm : min;
                     const prefixLength = min(key.length - 1, // all but last Ix of key
                                              DefaultBranch.prefixCapacity); // as much as possible of key in branch prefix
@@ -1507,6 +1500,32 @@ struct RawRadixTree(Value = void)
                                                           key[prefix.length .. $], insertionNode);
                     assert(insertionNode);
                     return next;
+                }
+            }
+            else
+            {
+                switch (key.length)
+                {
+                case 0: assert(false, "key must not be empty"); // return insertionNode = Node(construct!(OneLeafMax7)());
+                case 1: return insertionNode = Node(construct!(HeptLeaf1)(key[0]));
+                case 2: return insertionNode = Node(construct!(TriLeaf2)(key));
+                case 3: return insertionNode = Node(construct!(TwoLeaf3)(key));
+                default:
+                    if (key.length <= OneLeafMax7.capacity)
+                    {
+                        return insertionNode = Node(construct!(OneLeafMax7)(key));
+                    }
+                    else                // key doesn't fit in a `OneLeafMax7`
+                    {
+                        import std.algorithm : min;
+                        const prefixLength = min(key.length - 1, // all but last Ix of key
+                                                 DefaultBranch.prefixCapacity); // as much as possible of key in branch prefix
+                        auto prefix = key[0 .. prefixLength];
+                        auto next = insertAtBranchBelowPrefix(Node(constructWithCapacity!(DefaultBranch)(1, prefix)),
+                                                              key[prefix.length .. $], insertionNode);
+                        assert(insertionNode);
+                        return next;
+                    }
                 }
             }
         }

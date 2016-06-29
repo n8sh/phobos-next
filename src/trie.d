@@ -3044,7 +3044,7 @@ void benchmark()()
         import std.conv : to;
         import std.datetime : StopWatch, AutoStart, Duration;
 
-        enum n = 10_000_000;
+        enum n = 1_000_000;
 
         import std.array : array;
         import std.random : randomShuffle;

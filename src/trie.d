@@ -590,12 +590,12 @@ static private struct SparseLeaf1(Value)
                 const ix = &hit[0] - _keys; // insertion index. TODO this is kind of ugly. Why doesn't hit.ptr work?
 
                 // check for existing key
-                if (ix >= 1 && _keys[ix - 1] == key) // already inserted
+                if (ix >= 1 && _keys[ix - 1] == key) // if `key` already inserted
                 {
-                    debug assert(contains(key));
+                    debug assert(contains(key)); // extra checking
                     return false;
                 }
-                debug assert(!contains(key));
+                debug assert(!contains(key)); // extra checking
 
                 reserve(Capacity(_length + 1));
                 // TODO functionize this loop or reuse memmove:
@@ -612,12 +612,12 @@ static private struct SparseLeaf1(Value)
             else            // insert at the end
             {
                 // check for existing key
-                if (_keys[_length - 1] == key) // already inserted
+                if (_keys[_length - 1] == key) // if `key` already inserted
                 {
-                    debug assert(contains(key));
+                    debug assert(contains(key)); // extra checking
                     return false;
                 }
-                debug assert(!contains(key));
+                debug assert(!contains(key)); // extra checking
 
                 reserve(Capacity(_length + 1));
                 _keys[_length] = key;

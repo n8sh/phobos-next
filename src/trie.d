@@ -3,6 +3,9 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO Optimize SparseBranch.insert and SparseLeaf1.insert by calling merging
+    contains and upperBound into one function.
+
     TODO Add Branch-hint allocation flag and re-benchmark construction of radixTreeSet with 10000000 uints
 
     TODO Replace Node.init with null
@@ -580,12 +583,21 @@ static private struct SparseLeaf1(Value)
         }
         else
         {
-            if (contains(key)) { return false; }
-            reserve(Capacity(_length + 1));
+            // if (contains(key)) { return false; }
             auto hit = keys.assumeSorted.upperBound(key); // find index where insertion should be made
             if (hit.length) // we need to insert
             {
                 const ix = &hit[0] - _keys; // insertion index. TODO this is kind of ugly. Why doesn't hit.ptr work?
+
+                // check for existing key
+                if (ix >= 1 && _keys[ix - 1] == key) // already inserted
+                {
+                    debug assert(contains(key));
+                    return false;
+                }
+                debug assert(!contains(key));
+
+                reserve(Capacity(_length + 1));
                 // TODO functionize this loop or reuse memmove:
                 foreach (i; 0 .. _length - ix)
                 {
@@ -599,6 +611,15 @@ static private struct SparseLeaf1(Value)
             }
             else            // insert at the end
             {
+                // check for existing key
+                if (_keys[_length - 1] == key) // already inserted
+                {
+                    debug assert(contains(key));
+                    return false;
+                }
+                debug assert(!contains(key));
+
+                reserve(Capacity(_length + 1));
                 _keys[_length] = key;
                 ++_length;
                 return true;

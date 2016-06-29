@@ -2695,14 +2695,14 @@ unittest
 
     assert(!map.contains(key));
 
-    assert(map.insert(key, Value.init));
+    assert(map.insert(key, value));
     map.print;
     debug map.willFail = true;
-    // assert(map.contains(key));
+    assert(map.contains(key));
     // TODO assert(map[key] == value);
 
-    // assert(!map.insert(key, Value.init));
-    // assert(map.contains(key));
+    assert(!map.insert(key, value));
+    assert(map.contains(key));
     // TODO assert(map[key] == value);
 }
 

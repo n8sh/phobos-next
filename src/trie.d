@@ -510,7 +510,7 @@ struct HeptLeaf1
 /** Sparsely coded leaves with values of type `Value`. */
 static private struct SparseLeaf1(Value)
 {
-    import std.algorithm.sorting : assumeSorted;
+    import std.algorithm.sorting : assumeSorted, isSorted;
 
     enum hasValue = !is(Value == void);
     alias Length = Mod!(radix + 1);
@@ -522,20 +522,26 @@ static private struct SparseLeaf1(Value)
 
     pure nothrow /* TODO @nogc */:
 
-    this(Ix[] es...) // @nogc
+    this(E[] es...) // @nogc
     @trusted
+    in
     {
         assert(es.length <= radix);
-
+        static if (hasValue)
+        {
+            assert(es.isSorted!((a, b) => a[0] < b[0]));
+        }
+    }
+    body
+    {
         if (es.length != 0)
         {
             import std.math : nextPow2;
 
+            // reserve and allocate
             _length = es.length;
             _capacity = _length == 1 ? 1 : nextPow2(_length - 1);
             assert(_capacity >= _length);
-
-            // allocate
             _keys = cast(typeof(_keys))malloc(_capacity*Ix.sizeof);
             static if (hasValue)
             {
@@ -547,9 +553,8 @@ static private struct SparseLeaf1(Value)
             {
                 static if (hasValue)
                 {
-                    _keys[i] = e;
-                    // _keys[i] = e[0];
-                    // _values[i] = e[1];
+                    _keys[i] = e[0];
+                    _values[i] = e[1];
                 }
                 else
                 {
@@ -571,19 +576,22 @@ static private struct SparseLeaf1(Value)
         }
     }
 
-    /** Insert `key`. */
-    bool insert(Ix key) @trusted /* TODO @nogc */
+    /** Insert `key`.
+
+        Returns: index into `_keys` and `-values` where `key` was inserted or
+        `radix` if `key` was already stored.
+     */
+    Mod!(radix + 1) insert1(Ix key) @trusted /* TODO @nogc */
     {
         if (empty)
         {
             reserve(Capacity(1));
             _keys[0] = key;
             _length = 1;
-            return true;
+            return 0.mod!(radix + 1);
         }
-        else
+        else                    // non-empty
         {
-            // if (contains(key)) { return false; }
             auto hit = keys.assumeSorted.upperBound(key); // find index where insertion should be made
             if (hit.length) // we need to insert
             {
@@ -593,7 +601,7 @@ static private struct SparseLeaf1(Value)
                 if (ix >= 1 && _keys[ix - 1] == key) // if `key` already inserted
                 {
                     debug assert(contains(key)); // extra checking
-                    return false;
+                    return radix.mod!(radix + 1);
                 }
                 debug assert(!contains(key)); // extra checking
 
@@ -607,22 +615,24 @@ static private struct SparseLeaf1(Value)
                 }
                 _keys[ix] = key;
                 ++_length;
-                return true;
+                return (cast(ushort)ix).mod!(radix + 1);
             }
             else            // insert at the end
             {
+                const ix = _length;            // insertion index
+
                 // check for existing key
-                if (_keys[_length - 1] == key) // if `key` already inserted
+                if (_keys[ix - 1] == key) // if `key` already inserted
                 {
                     debug assert(contains(key)); // extra checking
-                    return false;
+                    return radix.mod!(radix + 1);
                 }
                 debug assert(!contains(key)); // extra checking
 
                 reserve(Capacity(_length + 1));
-                _keys[_length] = key;
+                _keys[ix] = key;
                 ++_length;
-                return true;
+                return (cast(ushort)ix).mod!(radix + 1);
             }
         }
     }
@@ -929,8 +939,7 @@ struct RawRadixTree(Value = void)
             this.leaf = leaf;
         }
 
-        this(size_t subCapacity, const Ix[] prefix,
-             Ix subIx, Node subNode)
+        this(size_t subCapacity, const Ix[] prefix, Sub sub)
         {
             assert(subCapacity >= 1);
 
@@ -938,14 +947,13 @@ struct RawRadixTree(Value = void)
 
             this.prefix = prefix;
             this.subLength = 1;
-            this.subIxSlots[0] = subIx;
-            this.subNodeSlots[0] = subNode;
+            this.subIxSlots[0] = sub[0];
+            this.subNodeSlots[0] = sub[1];
         }
 
         this(size_t subCapacity, const typeof(this)* rhs)
         {
             assert(subCapacity > rhs.subCapacity);
-
             assert(rhs);
 
             // these two must be in this order:
@@ -973,9 +981,9 @@ struct RawRadixTree(Value = void)
         /** Insert `sub`.
 
             Returns: sub-index into `subIxs` and `subNodes` where `sub` was
-            inserted or `subCapacityMax` if `sub` was already stored in `this`.
+            inserted or `subCapacityMax` if `sub` was already stored.
         */
-        Mod!(subCapacityMax + 1) insert(Sub sub)
+        Mod!(subCapacityMax + 1) insert2(Sub sub)
         {
             assert(!full);
             if (empty)
@@ -1212,7 +1220,7 @@ struct RawRadixTree(Value = void)
         }
         else if (!curr.full)     // if room left in curr
         {
-            curr.insert(tuple(subIx, subNode)); // add one to existing
+            curr.insert2(tuple(subIx, subNode)); // add one to existing
         }
         else                    // if no room left in curr we need to expand
         {
@@ -1540,13 +1548,25 @@ struct RawRadixTree(Value = void)
                 case undefined:
                     return typeof(return).init;
                 case ix_OneLeafMax7:
-                    return insertAt(curr.as!(OneLeafMax7), key, insertionNode);
+                    static if (hasValue)
+                        assert(false);
+                    else
+                        return insertAt(curr.as!(OneLeafMax7), key, insertionNode);
                 case ix_TwoLeaf3:
-                    return insertAt(curr.as!(TwoLeaf3), key, insertionNode);
+                    static if (hasValue)
+                        assert(false);
+                    else
+                        return insertAt(curr.as!(TwoLeaf3), key, insertionNode);
                 case ix_TriLeaf2:
-                    return insertAt(curr.as!(TriLeaf2), key, insertionNode);
+                    static if (hasValue)
+                        assert(false);
+                    else
+                        return insertAt(curr.as!(TriLeaf2), key, insertionNode);
                 case ix_HeptLeaf1:
-                    return insertAt(curr.as!(HeptLeaf1), key, insertionNode);
+                    static if (hasValue)
+                        assert(false);
+                    else
+                        return insertAt(curr.as!(HeptLeaf1), key, insertionNode);
                 case ix_SparseLeaf1Ptr:
                     return insertAtLeaf(Leaf(curr.as!(SparseLeaf1!Value*)), key, insertionNode); // TODO use toLeaf(curr)
                 case ix_DenseLeaf1Ptr:
@@ -1583,10 +1603,10 @@ struct RawRadixTree(Value = void)
                 else  // if (currPrefix.length >= 1) // non-empty current prefix
                 {
                     // NOTE: prefix:"ab", key:"cd"
-                    const currSubIx = currPrefix[0]; // subIx = 'a'
+                    auto currSubIx = currPrefix[0]; // subIx = 'a'
                     popFrontNPrefix(curr, 1);
                     auto next = constructWithCapacity!(DefaultBranch)(2, null,
-                                                                      currSubIx, curr);
+                                                                      DefaultBranch.Sub(currSubIx, curr));
                     return insertAtBranchAbovePrefix(Node(next), key, insertionNode);
                 }
             }
@@ -1600,10 +1620,10 @@ struct RawRadixTree(Value = void)
                 else
                 {
                     // NOTE: prefix and key share beginning: prefix:"ab11", key:"ab22"
-                    const currSubIx = currPrefix[matchedKeyPrefix.length]; // need index first before we modify curr.prefix
+                    auto currSubIx = currPrefix[matchedKeyPrefix.length]; // need index first before we modify curr.prefix
                     popFrontNPrefix(curr, matchedKeyPrefix.length + 1);
                     auto next = constructWithCapacity!(DefaultBranch)(2, matchedKeyPrefix,
-                                                                      currSubIx, curr);
+                                                                      DefaultBranch.Sub(currSubIx, curr));
                     return insertAtBranchBelowPrefix(Node(next), key[matchedKeyPrefix.length .. $], insertionNode);
                 }
             }
@@ -1614,20 +1634,20 @@ struct RawRadixTree(Value = void)
                 {
                     // NOTE: prefix is an extension of key: prefix:"abcd", key:"ab"
                     const nextPrefixLength = matchedKeyPrefix.length - 1;
-                    const currSubIx = currPrefix[nextPrefixLength]; // need index first
+                    auto currSubIx = currPrefix[nextPrefixLength]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
                     auto next = constructWithCapacity!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
-                                                                      currSubIx, curr);
+                                                                      DefaultBranch.Sub(currSubIx, curr));
                     return insertAtBranchBelowPrefix(Node(next), key[nextPrefixLength .. $], insertionNode);
                 }
                 else /* if (matchedKeyPrefix.length == currPrefix.length) and in turn
                         if (key.length == currPrefix.length */
                 {
                     // NOTE: prefix equals key: prefix:"abcd", key:"abcd"
-                    const currSubIx = currPrefix[matchedKeyPrefix.length - 1]; // need index first
+                    auto currSubIx = currPrefix[matchedKeyPrefix.length - 1]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
                     auto next = constructWithCapacity!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
-                                                                      currSubIx, curr);
+                                                                      DefaultBranch.Sub(currSubIx, curr));
                     return insertAtLeafOfBranch(Node(next), key[$ - 1], insertionNode);
                 }
             }
@@ -1681,10 +1701,13 @@ struct RawRadixTree(Value = void)
             case undefined:
                 return typeof(return).init;
             case ix_HeptLeaf1:
-                return insertAt(curr.as!(HeptLeaf1), key, insertionNode); // possibly expanded to other Leaf
+                static if (hasValue)
+                    assert(false);
+                else
+                    return insertAt(curr.as!(HeptLeaf1), key, insertionNode); // possibly expanded to other Leaf
             case ix_SparseLeaf1Ptr:
                 auto curr_ = curr.as!(SparseLeaf1!Value*);
-                if (curr_.insert(key))
+                if (curr_.insert1(key) != radix) // if inserted
                 {
                     insertionNode = Node(curr_);
                 }
@@ -1712,7 +1735,7 @@ struct RawRadixTree(Value = void)
             {
                 static if (hasValue) // TODO Add check if key + plus fit in 7 bytes (Value.sizeof <= 6) and use special node for that
                 {
-                    auto leaf_ = construct!(SparseLeaf1!Value*)(key); // needed for values
+                    auto leaf_ = construct!(SparseLeaf1!Value*)(tuple(key, Value.init)); // needed for values
                 }
                 else
                 {
@@ -1741,227 +1764,229 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        Node insertAt(OneLeafMax7 curr, Key!span key, out Node insertionNode)
+        static if (!hasValue)
         {
-            assert(curr.key.length);
-            debug if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
-
-            import std.algorithm : commonPrefix;
-            auto matchedKeyPrefix = commonPrefix(key, curr.key);
-            if (curr.key.length == key.length)
+            Node insertAt(OneLeafMax7 curr, Key!span key, out Node insertionNode)
             {
-                if (matchedKeyPrefix.length == key.length) // curr.key, key and matchedKeyPrefix all equal
+                assert(curr.key.length);
+                debug if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
+
+                import std.algorithm : commonPrefix;
+                auto matchedKeyPrefix = commonPrefix(key, curr.key);
+                if (curr.key.length == key.length)
                 {
-                    return Node(curr); // already stored in `curr`
-                }
-                else if (matchedKeyPrefix.length + 1 == key.length) // key and curr.key are both matchedKeyPrefix plus one extra
-                {
-                    Node next;
-                    switch (matchedKeyPrefix.length)
+                    if (matchedKeyPrefix.length == key.length) // curr.key, key and matchedKeyPrefix all equal
                     {
-                    case 0:
-                        next = construct!(HeptLeaf1)(curr.key[0], key[0]);
-                        break;
+                        return Node(curr); // already stored in `curr`
+                    }
+                    else if (matchedKeyPrefix.length + 1 == key.length) // key and curr.key are both matchedKeyPrefix plus one extra
+                    {
+                        Node next;
+                        switch (matchedKeyPrefix.length)
+                        {
+                        case 0:
+                            next = construct!(HeptLeaf1)(curr.key[0], key[0]);
+                            break;
+                        case 1:
+                            next = construct!(TriLeaf2)(curr.key, key);
+                            break;
+                        case 2:
+                            next = construct!(TwoLeaf3)(curr.key, key);
+                            break;
+                        default:
+                            import std.algorithm : min;
+                            const nextPrefix = matchedKeyPrefix[0 .. min(matchedKeyPrefix.length,
+                                                                         DefaultBranch.prefixCapacity)]; // limit prefix branch capacity
+                            next = constructWithCapacity!(DefaultBranch)(1 + 1, // `curr` and `key`
+                                                                         nextPrefix);
+                            next = insertNewAtBranchBelowPrefix(next, curr.key[nextPrefix.length .. $]);
+                            next = insertAtBranchBelowPrefix(next, key[nextPrefix.length .. $], insertionNode);
+                            break;
+                        }
+                        freeNode(curr);
+                        if (!insertionNode)
+                        {
+                            insertionNode = next;
+                        }
+                        return next;
+                    }
+                }
+
+                return insertAtBranchAbovePrefix(expand(curr), key, insertionNode);
+            }
+
+            Node insertAt(TwoLeaf3 curr, Key!span key, out Node insertionNode)
+            {
+                assert(hasVariableKeyLength || curr.keyLength == key.length);
+
+                if (curr.keyLength == key.length)
+                {
+                    if (curr.contains(key)) { return Node(curr); }
+                    if (!curr.keys.full)
+                    {
+                        curr.keys.pushBack(key);
+                        return insertionNode = Node(curr);
+                    }
+                }
+                return insertAt(expand(curr), key, insertionNode); // NOTE stay at same (depth)
+            }
+
+            Node insertAt(TriLeaf2 curr, Key!span key, out Node insertionNode)
+            {
+                assert(hasVariableKeyLength || curr.keyLength == key.length);
+                if (curr.keyLength == key.length)
+                {
+                    if (curr.contains(key)) { return Node(curr); }
+                    if (!curr.keys.full)
+                    {
+                        curr.keys.pushBack(key);
+                        return insertionNode = Node(curr);
+                    }
+                }
+                return insertAt(expand(curr),
+                                key, insertionNode); // NOTE stay at same (depth)
+            }
+
+            Leaf insertAt(HeptLeaf1 curr, Ix key, out Node insertionNode)
+            {
+                if (curr.contains(key)) { return Leaf(curr); }
+                if (!curr.keys.full)
+                {
+                    curr.keys.pushBack(key);
+                    insertionNode = Node(curr);
+                    return Leaf(curr);
+                }
+
+                auto next = construct!(SparseLeaf1!Value*)(curr.keys); // TODO construct using (curr.keys, key[0])
+                next.insert1(key);
+                freeNode(curr);
+                insertionNode = Node(next);
+                return Leaf(next);
+            }
+
+            Node insertAt(HeptLeaf1 curr, Key!span key, out Node insertionNode)
+            {
+                assert(hasVariableKeyLength || curr.keyLength == key.length);
+                if (curr.keyLength == key.length)
+                {
+                    return toNode(insertAt(curr, key[0], insertionNode)); // use `Ix key`-overload
+                }
+                return insertAt(Node(constructWithCapacity!(DefaultBranch)(1, Leaf(curr))), // current `key`
+                                key, insertionNode); // NOTE stay at same (depth)
+            }
+
+            /** Split `curr` using `prefix`. */
+            Node split(OneLeafMax7 curr, Key!span prefix, Key!span key) // TODO key here is a bit malplaced
+            {
+                if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); } assert(key.length);
+                assert(hasVariableKeyLength || curr.key.length == key.length);
+
+                if (curr.key.length == key.length) // balanced tree possible
+                {
+                    switch (curr.key.length)
+                    {
                     case 1:
-                        next = construct!(TriLeaf2)(curr.key, key);
+                        if (prefix.length == 0)
+                        {
+                            freeNode(curr);
+                            return Node(construct!(HeptLeaf1)(curr.key)); // TODO removing parameter has no effect. why?
+                        }
                         break;
                     case 2:
-                        next = construct!(TwoLeaf3)(curr.key, key);
-                        break;
-                    default:
-                        import std.algorithm : min;
-                        const nextPrefix = matchedKeyPrefix[0 .. min(matchedKeyPrefix.length,
-                                                                     DefaultBranch.prefixCapacity)]; // limit prefix branch capacity
-                        next = constructWithCapacity!(DefaultBranch)(1 + 1, // `curr` and `key`
-                                                                     nextPrefix);
-                        next = insertNewAtBranchBelowPrefix(next, curr.key[nextPrefix.length .. $]);
-                        next = insertAtBranchBelowPrefix(next, key[nextPrefix.length .. $], insertionNode);
-                        break;
-                    }
-                    freeNode(curr);
-                    if (!insertionNode)
-                    {
-                        insertionNode = next;
-                    }
-                    return next;
-                }
-            }
-
-            return insertAtBranchAbovePrefix(expand(curr), key, insertionNode);
-        }
-
-        Node insertAt(TwoLeaf3 curr, Key!span key, out Node insertionNode)
-        {
-            assert(hasVariableKeyLength || curr.keyLength == key.length);
-
-            if (curr.keyLength == key.length)
-            {
-                if (curr.contains(key)) { return Node(curr); }
-                if (!curr.keys.full)
-                {
-                    curr.keys.pushBack(key);
-                    return insertionNode = Node(curr);
-                }
-            }
-            return insertAt(expand(curr), key, insertionNode); // NOTE stay at same (depth)
-        }
-
-        Node insertAt(TriLeaf2 curr, Key!span key, out Node insertionNode)
-        {
-            assert(hasVariableKeyLength || curr.keyLength == key.length);
-            if (curr.keyLength == key.length)
-            {
-                if (curr.contains(key)) { return Node(curr); }
-                if (!curr.keys.full)
-                {
-                    curr.keys.pushBack(key);
-                    return insertionNode = Node(curr);
-                }
-            }
-            return insertAt(expand(curr),
-                            key, insertionNode); // NOTE stay at same (depth)
-        }
-
-        Leaf insertAt(HeptLeaf1 curr, Ix key, out Node insertionNode)
-        {
-            if (curr.contains(key)) { return Leaf(curr); }
-            if (!curr.keys.full)
-            {
-                curr.keys.pushBack(key);
-                insertionNode = Node(curr);
-                return Leaf(curr);
-            }
-
-            auto next = construct!(SparseLeaf1!Value*)(curr.keys); // TODO construct using (curr.keys, key[0])
-            next.insert(key);
-            freeNode(curr);
-            insertionNode = Node(next);
-            return Leaf(next);
-        }
-
-        Node insertAt(HeptLeaf1 curr, Key!span key, out Node insertionNode)
-        {
-            assert(hasVariableKeyLength || curr.keyLength == key.length);
-            if (curr.keyLength == key.length)
-            {
-                return toNode(insertAt(curr, key[0], insertionNode)); // use `Ix key`-overload
-            }
-            return insertAt(Node(constructWithCapacity!(DefaultBranch)(1, Leaf(curr))), // current `key`
-                            key, insertionNode); // NOTE stay at same (depth)
-        }
-
-        /** Split `curr` using `prefix`. */
-        Node split(OneLeafMax7 curr, Key!span prefix, Key!span key) // TODO key here is a bit malplaced
-        {
-            if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); } assert(key.length);
-            assert(hasVariableKeyLength || curr.key.length == key.length);
-
-            if (curr.key.length == key.length) // balanced tree possible
-            {
-                switch (curr.key.length)
-                {
-                case 1:
-                    if (prefix.length == 0)
-                    {
                         freeNode(curr);
-                        return Node(construct!(HeptLeaf1)(curr.key)); // TODO removing parameter has no effect. why?
+                        return Node(construct!(TriLeaf2)(curr.key));
+                    case 3:
+                        freeNode(curr);
+                        return Node(construct!(TwoLeaf3)(curr.key));
+                    default:
+                        break;
                     }
-                    break;
-                case 2:
-                    freeNode(curr);
-                    return Node(construct!(TriLeaf2)(curr.key));
-                case 3:
-                    freeNode(curr);
-                    return Node(construct!(TwoLeaf3)(curr.key));
-                default:
-                    break;
                 }
+
+                // default case
+                Node next = constructWithCapacity!(DefaultBranch)(1 + 1, prefix); // current plus one more
+                next = insertNewAtBranchBelowPrefix(next, curr.key[prefix.length .. $]);
+                freeNode(curr);   // remove old current
+
+                return next;
             }
 
-            // default case
-            Node next = constructWithCapacity!(DefaultBranch)(1 + 1, prefix); // current plus one more
-            next = insertNewAtBranchBelowPrefix(next, curr.key[prefix.length .. $]);
-            freeNode(curr);   // remove old current
-
-            return next;
-        }
-
-        /** Destructively expand `curr` to make room for `capacityIncrement`
-            more keys and return it. */
-        Node expand(OneLeafMax7 curr, size_t capacityIncrement = 1)
-        {
-            assert(curr.key.length >= 2);
-            typeof(return) next;
-
-            if (curr.key.length <= DefaultBranch.prefixCapacity + 1) // if `key` fits in `prefix` of `DefaultBranch`
+            /** Destructively expand `curr` to make room for `capacityIncrement`
+                more keys and return it. */
+            Node expand(OneLeafMax7 curr, size_t capacityIncrement = 1)
             {
-                next = constructWithCapacity!(DefaultBranch)(1 + capacityIncrement, curr.key[0 .. $ - 1], // all but last
-                                                             Leaf(construct!(HeptLeaf1)(curr.key[$ - 1]))); // last as a leaf
-            }
-            else                // curr.key.length > DefaultBranch.prefixCapacity + 1
-            {
-                next = constructWithCapacity!(DefaultBranch)(1 + capacityIncrement, curr.key[0 .. DefaultBranch.prefixCapacity]);
-                next = insertNewAtBranchBelowPrefix(next, curr.key[DefaultBranch.prefixCapacity .. $]);
-            }
+                assert(curr.key.length >= 2);
+                typeof(return) next;
 
-            freeNode(curr);
-            return next;
-        }
-
-        /** Destructively expand `curr` to make room for `capacityIncrement`
-            more keys and return it. */
-        Node expand(TwoLeaf3 curr, size_t capacityIncrement = 1)
-        {
-            Node next;
-            if (curr.keys.length == 1) // only one key
-            {
-                next = insertNewAtBranchAbovePrefix(Node(constructWithCapacity!(DefaultBranch)(1 + capacityIncrement)), // current keys plus one more
-                                                    curr.keys.at!0);
-            }
-            else
-            {
-                next = constructWithCapacity!(DefaultBranch)(curr.keys.length + capacityIncrement, curr.prefix);
-                // TODO functionize to insertNewAtBranchAbovePrefix(next, curr.keys)
-                foreach (key; curr.keys)
+                if (curr.key.length <= DefaultBranch.prefixCapacity + 1) // if `key` fits in `prefix` of `DefaultBranch`
                 {
-                    next = insertNewAtBranchBelowPrefix(next, key[curr.prefix.length .. $]);
+                    next = constructWithCapacity!(DefaultBranch)(1 + capacityIncrement, curr.key[0 .. $ - 1], // all but last
+                                                                 Leaf(construct!(HeptLeaf1)(curr.key[$ - 1]))); // last as a leaf
                 }
-            }
-            freeNode(curr);
-            return next;
-        }
-
-        /** Destructively expand `curr` and return it. */
-        Node expand(TriLeaf2 curr, size_t capacityIncrement = 1)
-        {
-            // TODO functionize:
-            Node next;
-            if (curr.keys.length == 1) // only one key
-            {
-                next = constructWithCapacity!(DefaultBranch)(1 + capacityIncrement); // current keys plus one more
-                next = insertNewAtBranchAbovePrefix(next, curr.keys.at!0);
-            }
-            else
-            {
-                next = constructWithCapacity!(DefaultBranch)(curr.keys.length + capacityIncrement, curr.prefix);
-                // TODO functionize to insertNewAtBranchAbovePrefix(next, curr.keys)
-                foreach (key; curr.keys)
+                else                // curr.key.length > DefaultBranch.prefixCapacity + 1
                 {
-                    next = insertNewAtBranchBelowPrefix(next, key[curr.prefix.length .. $]);
+                    next = constructWithCapacity!(DefaultBranch)(1 + capacityIncrement, curr.key[0 .. DefaultBranch.prefixCapacity]);
+                    next = insertNewAtBranchBelowPrefix(next, curr.key[DefaultBranch.prefixCapacity .. $]);
                 }
+
+                freeNode(curr);
+                return next;
             }
-            freeNode(curr);
-            return next;
-        }
 
-        /** Destructively expand `curr` making room for `nextKey` and return it. */
-        Node expand(HeptLeaf1 curr, size_t capacityIncrement = 1)
-        {
-            auto next = construct!(SparseLeaf1!Value*)(curr.keys);
-            freeNode(curr);
-            return Node(next);
-        }
+            /** Destructively expand `curr` to make room for `capacityIncrement`
+                more keys and return it. */
+            Node expand(TwoLeaf3 curr, size_t capacityIncrement = 1)
+            {
+                Node next;
+                if (curr.keys.length == 1) // only one key
+                {
+                    next = insertNewAtBranchAbovePrefix(Node(constructWithCapacity!(DefaultBranch)(1 + capacityIncrement)), // current keys plus one more
+                                                        curr.keys.at!0);
+                }
+                else
+                {
+                    next = constructWithCapacity!(DefaultBranch)(curr.keys.length + capacityIncrement, curr.prefix);
+                    // TODO functionize to insertNewAtBranchAbovePrefix(next, curr.keys)
+                    foreach (key; curr.keys)
+                    {
+                        next = insertNewAtBranchBelowPrefix(next, key[curr.prefix.length .. $]);
+                    }
+                }
+                freeNode(curr);
+                return next;
+            }
 
+            /** Destructively expand `curr` and return it. */
+            Node expand(TriLeaf2 curr, size_t capacityIncrement = 1)
+            {
+                // TODO functionize:
+                Node next;
+                if (curr.keys.length == 1) // only one key
+                {
+                    next = constructWithCapacity!(DefaultBranch)(1 + capacityIncrement); // current keys plus one more
+                    next = insertNewAtBranchAbovePrefix(next, curr.keys.at!0);
+                }
+                else
+                {
+                    next = constructWithCapacity!(DefaultBranch)(curr.keys.length + capacityIncrement, curr.prefix);
+                    // TODO functionize to insertNewAtBranchAbovePrefix(next, curr.keys)
+                    foreach (key; curr.keys)
+                    {
+                        next = insertNewAtBranchBelowPrefix(next, key[curr.prefix.length .. $]);
+                    }
+                }
+                freeNode(curr);
+                return next;
+            }
+
+            /** Destructively expand `curr` making room for `nextKey` and return it. */
+            Node expand(HeptLeaf1 curr, size_t capacityIncrement = 1)
+            {
+                auto next = construct!(SparseLeaf1!Value*)(curr.keys);
+                freeNode(curr);
+                return Node(next);
+            }
+        }
     }
 
     /** Returns: `true` iff tree is empty (no elements stored). */

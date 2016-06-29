@@ -534,7 +534,7 @@ static private struct SparseLeaf1(Value)
         assert(es.length <= radix);
         static if (hasValue)
         {
-            assert(es.isSorted!((a, b) => a[0] < b[0]));
+            debug assert(es.isSorted!((a, b) => a[0] < b[0]));
         }
     }
     body
@@ -1023,17 +1023,17 @@ struct RawRadixTree(Value = void)
                 {
                     ix = subLength;
                 }
-                assert(ix >= 0);
+                debug assert(ix >= 0);
 
                 // try update existing
                 if (ix >= 1 && subIxSlots[ix - 1] == sub[0]) // if `key` already inserted
                 {
-                    assert(containsSubAt(sub[0]));
+                    debug assert(containsSubAt(sub[0]));
                     subIxSlots[ix - 1] = sub[0];
                     subNodeSlots[ix - 1] = sub[1];
                     return InsertionStatus.updated;
                 }
-                assert(!containsSubAt(sub[0]));
+                debug assert(!containsSubAt(sub[0]));
 
                 // check if full
                 if (full) { return InsertionStatus.none; }
@@ -1102,7 +1102,7 @@ struct RawRadixTree(Value = void)
                 ++count;
                 sub.calculate!(Value)(stats);
             }
-            assert(count <= radix);
+            debug assert(count <= radix);
             ++stats.popHist_SparseBranch[count]; // TODO type-safe indexing
 
             stats.sparseBranchSizeSum += allocatedSize;

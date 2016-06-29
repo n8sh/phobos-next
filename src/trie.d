@@ -597,7 +597,8 @@ static private struct SparseLeaf1(Value)
         }
         else                    // non-empty
         {
-            const ix = length - keys.assumeSorted.upperBound(key).length; // find index where insertion should be made
+            import searching_ex : insertionIndexOf;
+            const ix = keys.assumeSorted.insertionIndexOf(key); // find index where insertion should be made
 
             // check for existing key
             if (ix >= 1 && _keys[ix - 1] == key) // if `key` already inserted
@@ -1003,10 +1004,8 @@ struct RawRadixTree(Value = void)
             }
             else
             {
-                /** Calculate insertion index `ix`
-                    TODO functionize to size_t insertionIndex(SortedRange r, E e).
-                */
-                const ix = subLength - subIxs.upperBound(sub[0]).length; // find index where insertion should be made
+                import searching_ex : insertionIndexOf;
+                const ix = subIxs.insertionIndexOf(sub[0]); // find index where insertion should be made
 
                 // try update existing
                 if (ix >= 1 && subIxSlots[ix - 1] == sub[0]) // if `key` already inserted

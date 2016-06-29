@@ -127,68 +127,68 @@ struct IxsN(uint capacity,
             uint elementLength = 1,
             uint span = 8)
     if (capacity*elementLength >= 2) // no use storing less than 2 bytes
-    {
-        enum L = elementLength;
-        enum M = 2^^span;   // branch-multiplicity, typically either 2, 4, 16 or 256
-        alias Ix = Mod!M;
+{
+    enum L = elementLength;
+    enum M = 2^^span;   // branch-multiplicity, typically either 2, 4, 16 or 256
+    alias Ix = Mod!M;
 
-        /// Element type `E`.
-        static if (L == 1)
-            alias E = Ix;
-        else
-            alias E = Ix[L];
+    /// Element type `E`.
+    static if (L == 1)
+        alias E = Ix;
+    else
+        alias E = Ix[L];
 
-        this(Es...)(Es ixs)
+    this(Es...)(Es ixs)
         if (Es.length >= 1 &&
             Es.length <= capacity)
+    {
+        foreach (const i, const ix; ixs)
         {
-            foreach (const i, const ix; ixs)
-            {
-                static assert(!is(typeof(ix) == int));
-                _ixs[i] = ix;
-            }
+            static assert(!is(typeof(ix) == int));
+            _ixs[i] = ix;
+        }
+        _length = ixs.length;
+    }
+
+    static if (L == 1)
+    {
+        this(const Ix[] ixs)
+        {
+            assert(ixs.length <= capacity);
+            _ixs[0 .. ixs.length] = ixs;
             _length = ixs.length;
         }
+    }
 
-        static if (L == 1)
+    @property auto toString() const
+    {
+        string s;
+        foreach (const i, const ix; chunks)
         {
-            this(const Ix[] ixs)
+            if (i != 0) { s ~= keySeparator; } // separator
+            import std.string : format;
+            static if (elementLength == 1)
             {
-                assert(ixs.length <= capacity);
-                _ixs[0 .. ixs.length] = ixs;
-                _length = ixs.length;
+                s ~= format("%.2X", ix); // in hexadecimal
             }
-        }
-
-        @property auto toString() const
-        {
-            string s;
-            foreach (const i, const ix; chunks)
+            else
             {
-                if (i != 0) { s ~= keySeparator; } // separator
-                import std.string : format;
-                static if (elementLength == 1)
+                foreach (const j, const subIx; ix[])
                 {
-                    s ~= format("%.2X", ix); // in hexadecimal
-                }
-                else
-                {
-                    foreach (const j, const subIx; ix[])
-                    {
-                        if (j != 0) { s ~= '_'; } // separator
-                        s ~= format("%.2X", subIx); // in hexadecimal
-                    }
+                    if (j != 0) { s ~= '_'; } // separator
+                    s ~= format("%.2X", subIx); // in hexadecimal
                 }
             }
-            return s;
         }
+        return s;
+    }
 
-        @safe pure nothrow @nogc:
+    @safe pure nothrow @nogc:
 
-        /** Get first element. */
-        auto front() inout          // TODO should throw?
-        {
-            assert(!empty);
+    /** Get first element. */
+    auto front() inout          // TODO should throw?
+    {
+        assert(!empty);
         return _ixs[0];
     }
 
@@ -3091,8 +3091,10 @@ void benchmark()()
 {
     alias Key = uint;
     alias Value = bool;
+
     auto map = radixTreeMap!(Key, Value);
     assert(map.empty);
+
     static assert(map.hasValue);
     map.insert(Key.init, Value.init);
 }

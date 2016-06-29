@@ -61,6 +61,7 @@
 */
 module trie;
 
+import std.algorithm : move;
 import std.traits : isIntegral, isFloatingPoint, isSomeChar, isSomeString, isScalarType, isArray, allSatisfy, anySatisfy, isPointer;
 import std.typecons : tuple, Tuple, Unqual;
 import std.range : isInputRange, ElementType;
@@ -1141,7 +1142,7 @@ struct RawRadixTree(Value = void)
             this.prefix = rhs.prefix;
 
             // move leaf
-            this.leaf = rhs.leaf;
+            move(rhs.leaf, this.leaf);
             debug rhs.leaf = Leaf.init; // make reference unique, to be on the safe side
 
             foreach (const i; 0 .. rhs.subLength) // each sub node. TODO use iota!(Mod!N)

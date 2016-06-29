@@ -203,14 +203,14 @@ struct IxsN(uint capacity,
     /** Returns: `true` if `this` is full, `false` otherwise. */
     bool full() const { return _length == capacity; }
 
-    /** Pop one front element. */
+    /** Pop first (front) element. */
     auto ref popFront()
     {
         assert(!empty);
         // TODO is there a reusable Phobos function for this?
         foreach (const i; 0 .. _length - 1)
         {
-            _ixs[i] = _ixs[i + 1]; // TODO move construct?
+            move(_ixs[i + 1], _ixs[i]); // like `_ixs[i] = _ixs[i + 1];` but more generic
         }
         _length = _length - 1;
         return this;
@@ -223,13 +223,13 @@ struct IxsN(uint capacity,
         // TODO is there a reusable Phobos function for this?
         foreach (const i; 0 .. _length - n)
         {
-            _ixs[i] = _ixs[i + n]; // TODO move construct?
+            move(_ixs[i + n], _ixs[i]); // like `_ixs[i] = _ixs[i + n];` but more generic
         }
         _length = _length - n;
         return this;
     }
 
-    /** Pop last element. */
+    /** Pop last (back) element. */
     auto ref popBack()
     {
         assert(!empty);
@@ -302,6 +302,7 @@ private:
                      ubyte, "_mustBeIgnored", typeBits)); // must be here and ignored because it contains `WordVariant` type of `Node`
 }
 
+static assert(IxsN!(3, 1, 8).sizeof == 4);
 static assert(IxsN!(7, 1, 8).sizeof == 8);
 static assert(IxsN!(3, 2, 8).sizeof == 8);
 static assert(IxsN!(2, 3, 8).sizeof == 8);

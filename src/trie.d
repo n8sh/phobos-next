@@ -1129,8 +1129,8 @@ struct RawRadixTree(Value = void)
 
         this(const Ix[] prefix, Sub subA, Sub subB)
         {
-            assert(subA[0] != subB[0]);
-            assert(subA[1] != subB[1]);
+            assert(subA[0] != subB[0]); // disjunct indexes
+            assert(subA[1] != subB[1]); // disjunct nodes
 
             this.subNodes[subA[0]] = subA[1];
             this.subNodes[subB[0]] = subB[1];

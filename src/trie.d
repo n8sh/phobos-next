@@ -676,7 +676,7 @@ static private struct SparseLeaf1(Value)
     }
     static if (hasValue)
     {
-        pragma(inline) auto ref values() inout @trusted @nogc
+        pragma(inline) auto values() const @trusted @nogc
         {
             return _values[0 .. _length];
         }
@@ -741,6 +741,8 @@ static private struct DenseLeaf1(Value)
         auto ref getValue(Ix ix) inout { return _values[ix]; }
         /// Set value at index `ix` to `value`.
         void setValue(Ix ix, in Value value) { _values[ix] = value; }
+
+        auto values() const { return _values; }
     }
 
 private:
@@ -2262,6 +2264,10 @@ struct RawRadixTree(Value = void)
                 import std.string : format;
                 s ~= format("%.2X", ix);
                 write(s);
+                static if (hasValue)
+                {
+                    write("=>", curr_.values[ix]);
+                }
             }
             writeln();
             break;
@@ -2289,8 +2295,12 @@ struct RawRadixTree(Value = void)
                     import std.string : format;
                     s ~= format("%.2X", ix);
                 }
-                ++ix;
                 write(s);
+                static if (hasValue)
+                {
+                    write("=>", curr_.values[ix]);
+                }
+                ++ix;
             }
 
             writeln();
@@ -2666,6 +2676,44 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
     }
 
     writeln("Tree uses ", totalBytesUsed/1e6, " megabytes");
+}
+
+/// test map to values of type `uint`
+// @safe pure nothrow /* TODO @nogc */
+unittest
+{
+    alias Key = uint;
+    alias Value = uint;
+
+    auto map = radixTreeMap!(Key, Value);
+    assert(map.empty);
+
+    static assert(map.hasValue);
+
+    const Key key = 0x01020304;
+    const Value value = 42;
+
+    assert(!map.contains(key));
+
+    assert(map.insert(key, Value.init));
+    map.print;
+    // assert(map.contains(key));
+
+    // assert(!map.insert(key, Value.init));
+    // assert(map.contains(key));
+}
+
+/// test map to values of type `bool`
+@safe pure nothrow /* TODO @nogc */ unittest
+{
+    alias Key = uint;
+    alias Value = bool;
+
+    auto map = radixTreeMap!(Key, Value);
+    assert(map.empty);
+
+    static assert(map.hasValue);
+    map.insert(Key.init, Value.init);
 }
 
 ///
@@ -3084,19 +3132,6 @@ void benchmark()()
 
         map.insert(Key.init, Value.init);
     }
-}
-
-/// test map with bool Values
-@safe pure nothrow /* TODO @nogc */ unittest
-{
-    alias Key = uint;
-    alias Value = bool;
-
-    auto map = radixTreeMap!(Key, Value);
-    assert(map.empty);
-
-    static assert(map.hasValue);
-    map.insert(Key.init, Value.init);
 }
 
 /// leak test

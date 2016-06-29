@@ -2563,10 +2563,8 @@ struct RadixTree(Key, Value)
     /** Supports $(B `Key` in `this`) syntax. */
     auto opBinaryRight(string op)(in Key key) const if (op == "in") { return contains(key); }
 
-    void print() @safe const
-    {
-        _tree.print();
-    }
+    /** Print `this` tree. */
+    void print() @safe const { _tree.print(); }
 
     private RawRadixTree!(Value) _tree;
     alias _tree this;

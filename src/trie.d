@@ -2231,23 +2231,23 @@ struct RawRadixTree(Value = void)
             break;
         case ix_OneLeafMax7:
             auto curr_ = curr.as!(OneLeafMax7);
-            writeln(typeof(curr_).stringof, "#", curr_.key.length, ": ", curr_.to!string);
+            writeln(typeof(curr_).stringof, " #", curr_.key.length, ": ", curr_.to!string);
             break;
         case ix_TwoLeaf3:
             auto curr_ = curr.as!(TwoLeaf3);
-            writeln(typeof(curr_).stringof, "#", curr_.keys.length, ": ", curr_.keys);
+            writeln(typeof(curr_).stringof, " #", curr_.keys.length, ": ", curr_.keys);
             break;
         case ix_TriLeaf2:
             auto curr_ = curr.as!(TriLeaf2);
-            writeln(typeof(curr_).stringof, "#", curr_.keys.length, ": ", curr_.keys);
+            writeln(typeof(curr_).stringof, " #", curr_.keys.length, ": ", curr_.keys);
             break;
         case ix_HeptLeaf1:
             auto curr_ = curr.as!(HeptLeaf1);
-            writeln(typeof(curr_).stringof, "#", curr_.keys.length, ": ", curr_.keys);
+            writeln(typeof(curr_).stringof, " #", curr_.keys.length, ": ", curr_.keys);
             break;
         case ix_SparseLeaf1Ptr:
             auto curr_ = curr.as!(SparseLeaf1!Value*);
-            write(typeof(*curr_).stringof, "#", curr_.length, "/", curr_.capacity, " @", curr_);
+            write(typeof(*curr_).stringof, " #", curr_.length, "/", curr_.capacity, " @", curr_);
             write(": ");
             bool other = false;
             foreach (const ix; curr_.keys)
@@ -2273,7 +2273,7 @@ struct RawRadixTree(Value = void)
             break;
         case ix_DenseLeaf1Ptr:
             auto curr_ = curr.as!(DenseLeaf1!Value*);
-            write(typeof(*curr_).stringof, "#", curr_.count, " @", curr_);
+            write(typeof(*curr_).stringof, " #", curr_.count, " @", curr_);
             write(": ");
 
             // keys
@@ -2307,7 +2307,7 @@ struct RawRadixTree(Value = void)
             break;
         case ix_SparseBranchPtr:
             auto curr_ = curr.as!(SparseBranch*);
-            write(typeof(*curr_).stringof, "#", curr_.subLength, "/", curr_.subCapacity, " @", curr_);
+            write(typeof(*curr_).stringof, " #", curr_.subLength, "/", curr_.subCapacity, " @", curr_);
             if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix); }
             writeln(":");
             if (curr_.leaf)
@@ -2321,7 +2321,7 @@ struct RawRadixTree(Value = void)
             break;
         case ix_DenseBranchPtr:
             auto curr_ = curr.as!(DenseBranch*);
-            write(typeof(*curr_).stringof, "#", curr_.subLength, "/", radix, " @", curr_);
+            write(typeof(*curr_).stringof, " #", curr_.subLength, "/", radix, " @", curr_);
             if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix); }
             writeln(":");
             if (curr_.leaf)

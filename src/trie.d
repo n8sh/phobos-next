@@ -953,14 +953,23 @@ struct RawRadixTree(Value = void)
             this.subNodeSlots[0] = sub[1];
         }
 
-        this(size_t subCapacity, const typeof(this)* rhs)
+        this(size_t subCapacity, typeof(this)* rhs)
+        in
         {
             assert(subCapacity > rhs.subCapacity);
             assert(rhs);
-
+        }
+        body
+        {
             // these two must be in this order:
-            this = *rhs;             // 1. copy basic stuff
-            initialize(subCapacity); // 2. copy rest
+            // 1.
+            move(rhs.leaf, this.leaf);
+            debug rhs.leaf = typeof(rhs.leaf).init;
+            this.subLength = rhs.subLength;
+            move(rhs.prefix, this.prefix);
+
+            // 2.
+            initialize(subCapacity);
 
             // copy variable length part. TODO optimize:
             this.subIxSlots[0 .. rhs.subLength] = rhs.subIxSlots[0 .. rhs.subLength];
@@ -1092,7 +1101,6 @@ struct RawRadixTree(Value = void)
 
         // members in order of decreasing `alignof`:
         Leaf leaf;
-        static assert(leaf.alignof == 8); // assert alignment
 
         IxsN!prefixCapacity prefix; // prefix common to all `subNodes` (also called edge-label)
         Count subLength;

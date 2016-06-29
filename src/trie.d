@@ -3,6 +3,8 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO Search for "functionize this loop or reuse memmove" and use move()
+
     TODO Optimize SparseBranch.insert and SparseLeaf1.insert by calling merging
     contains and upperBound into one function.
 
@@ -831,6 +833,8 @@ struct RawRadixTree(Value = void)
                               SparseLeaf1!Value*);
     static assert(Node.typeBits <= IxsN!(7, 1, 8).typeBits);
 
+    alias Sub = Tuple!(Ix, Node);
+
     /** Constant node. */
     // TODO make work with indexNaming
     // alias ConstNodePtr = WordVariant!(staticMap!(ConstOf, Node));
@@ -915,9 +919,6 @@ struct RawRadixTree(Value = void)
 
         alias Count = Mod!(subCapacityMax + 1);
 
-        /// Element type `Sub`.
-        alias Sub = Tuple!(Ix, Node);
-
         @safe pure nothrow:
 
         this(size_t subCapacity)
@@ -992,27 +993,52 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        /** Insert `sub`.
+        enum InsertionStatus { none, inserted, updated }
 
-            Returns: sub-index into `subIxs` and `subNodes` where `sub` was
-            inserted or `subCapacityMax` if `sub` was already stored.
-        */
-        Mod!(subCapacityMax + 1) insert2(Sub sub)
+        /** Try update or inserte sub-node sub[1] at index sub[0].
+            Returns: `true` upon updated or insertion, otherwise `false` when `this` is full.
+         */
+        InsertionStatus updateOrInsert(Sub sub)
         {
-            assert(!full);
             if (empty)
             {
                 subIxSlots[0] = sub[0];
                 subNodeSlots[0] = sub[1];
                 subLength = 1;
-                return 0.mod!(subCapacityMax + 1);
+                return InsertionStatus.inserted;
             }
             else
             {
                 auto hit = subIxs.upperBound(sub[0]); // find index where insertion should be made
-                if (hit.length) // we need to insert
+
+                // calculate insertion index `ix`. TODO functionize to size_t insertionIndex(SortedRange r, E e)
+                long ix;        // insertion index
+                if (!hit.empty) // `subIxs` contains values larger than `sub[0]`
                 {
-                    const ix = &hit[0] - subIxSlots.ptr; // insertion index. TODO this is kind of ugly. Why doesn't hit.ptr work?
+                    ix = &hit[0] - subIxSlots.ptr; // insertion index. TODO this is kind of ugly. Why doesn't hit.ptr work?
+                }
+                else
+                {
+                    ix = subLength;
+                }
+                assert(ix >= 0);
+
+                // try update existing
+                if (ix >= 1 && subIxSlots[ix - 1] == sub[0]) // if `key` already inserted
+                {
+                    assert(containsSubAt(sub[0]));
+                    subIxSlots[ix - 1] = sub[0];
+                    subNodeSlots[ix - 1] = sub[1];
+                    return InsertionStatus.updated;
+                }
+                assert(!containsSubAt(sub[0]));
+
+                // check if full
+                if (full) { return InsertionStatus.none; }
+
+                // ok to insert
+                if (ix != subLength) // either inside
+                {
                     // TODO functionize this loop or reuse memmove:
                     foreach (i; 0 .. subLength - ix)
                     {
@@ -1024,19 +1050,19 @@ struct RawRadixTree(Value = void)
                     subIxSlots[ix] = sub[0];
                     subNodeSlots[ix] = sub[1];
                     ++subLength;
-                    return (cast(ubyte)ix).mod!(subCapacityMax + 1);
+                    return InsertionStatus.inserted;
                 }
-                else            // insert at the end
+                else            // or at the end
                 {
                     subIxSlots[subLength] = sub[0];
                     subNodeSlots[subLength] = sub[1];
                     ++subLength;
-                    return subCapacityMax.mod!(subCapacityMax + 1);
+                    return InsertionStatus.inserted;
                 }
             }
         }
 
-        inout(Node) containsSub(Ix ix) inout
+        inout(Node) containsSubAt(Ix ix) inout
         {
             import searching_ex : binarySearch; // need this instead of `SortedRange.contains` because we need the index
             const hitIndex = subIxSlots[0 .. subLength].binarySearch(ix); // find index where insertion should be made
@@ -1057,12 +1083,12 @@ struct RawRadixTree(Value = void)
         /** Get all sub-`Ix` slots, both initialized and uninitialized. */
         auto ref subIxSlots() inout @trusted pure nothrow
         {
-            return (cast(Ix*)(_subNodeSlots.ptr + subCapacity))[0 .. subCapacity];
+            return (cast(Ix*)(_subNodeSlots0.ptr + subCapacity))[0 .. subCapacity];
         }
         /** Get all sub-`Node` slots, both initialized and uninitialized. */
         auto ref subNodeSlots() inout @trusted pure nothrow
         {
-            return _subNodeSlots.ptr[0 .. subCapacity];
+            return _subNodeSlots0.ptr[0 .. subCapacity];
         }
 
         /** Append statistics of tree under `this` into `stats`. */
@@ -1090,8 +1116,8 @@ struct RawRadixTree(Value = void)
         static size_t allocationSize(size_t subCapacity) @safe pure nothrow @nogc
         {
             return (this.sizeof + // base plus
-                    Node.sizeof*subCapacity + // actual size of `_subNodeSlots`
-                    Ix.sizeof*subCapacity);   // actual size of `_subIxSlots`
+                    Node.sizeof*subCapacity + // actual size of `_subNodeSlots0`
+                    Ix.sizeof*subCapacity);   // actual size of `_subIxSlots0`
         }
 
         /** Get allocated size (in bytes) of `this` including the variable-length part. */
@@ -1111,8 +1137,8 @@ struct RawRadixTree(Value = void)
         static assert(prefix.sizeof + subLength.sizeof + subCapacity.sizeof == 8); // assert alignment
 
         // variable-length part
-        Node[0] _subNodeSlots;
-        Ix[0] _subIxSlots;
+        Node[0] _subNodeSlots0;
+        Ix[0] _subIxSlots0;
     }
 
     static if (!hasValue) static assert(SparseBranch.sizeof == 16);
@@ -1122,9 +1148,6 @@ struct RawRadixTree(Value = void)
     {
         enum subCapacityMax = 256;
         enum prefixCapacity = 15; // 7, 15, 23, ..., we can afford larger prefix here because DenseBranch is so large
-
-        /// Element type `Sub`.
-        alias Sub = Tuple!(Ix, Node);
 
         @safe pure nothrow:
 
@@ -1226,21 +1249,12 @@ struct RawRadixTree(Value = void)
     /// ditto
     Node setSub(SparseBranch* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
-        import std.algorithm : countUntil;
-        const ix = curr.subIxs.countUntil(subIx);
-        if (ix >= 0)            // if `subIx` already stored in `curr.subIxs` at offset `ix`
+        if (curr.updateOrInsert(Sub(subIx, subNode)) == curr.InsertionStatus.none) // try insert and if it fails
         {
-            curr.subNodes[ix] = subNode; // reuse
-        }
-        else if (!curr.full)     // if room left in curr
-        {
-            curr.insert2(tuple(subIx, subNode)); // add one to existing
-        }
-        else                    // if no room left in curr we need to expand
-        {
+            // we need to expand because `curr` is full
+
             debug const previousHeapNodeAllocationBalance = heapNodeAllocationBalance;
 
-            // curr is full
             Node next;
             if (curr.empty)     // if curr also empty length capacity must be zero
             {
@@ -1253,14 +1267,15 @@ struct RawRadixTree(Value = void)
                 const nextSubCapacity = min(nextPow2(cast(uint)curr.subCapacity),
                                             DefaultBranch.subCapacityMax);
                 assert(nextSubCapacity > curr.subCapacity);
-                next = constructWithCapacity!(SparseBranch*)(nextSubCapacity, curr);
+                auto next_ = constructWithCapacity!(SparseBranch*)(nextSubCapacity, curr);
+                next = next_;
             }
             else
             {
                 next = construct!(DenseBranch*)(curr);
             }
             freeNode(curr);
-            assert(!getSub(next, subIx)); // key slot should be free
+            assert(getSub(next, subIx) == Node.init); // key slot should be unoccupied
 
             debug assert(previousHeapNodeAllocationBalance == heapNodeAllocationBalance);
             return setSub(next, subIx, subNode); // fast, because directly calls setSub(DenseBranch*, ...)
@@ -1294,7 +1309,7 @@ struct RawRadixTree(Value = void)
     /// ditto
     pragma(inline) Node getSub(SparseBranch* curr, Ix subIx) @safe pure nothrow
     {
-        if (auto subNode = curr.containsSub(subIx))
+        if (auto subNode = curr.containsSubAt(subIx))
         {
             return subNode;
         }
@@ -1438,7 +1453,7 @@ struct RawRadixTree(Value = void)
                 auto curr_ = curr.as!(SparseBranch*);
                 return (key.skipOver(curr_.prefix) &&        // matching prefix
                         ((key.length == 1 && containsAt(curr_.leaf, key)) || // either in leaf
-                         (key.length >= 1 && containsAt(curr_.containsSub(key[0]), key[1 .. $])))); // or recurse
+                         (key.length >= 1 && containsAt(curr_.containsSubAt(key[0]), key[1 .. $])))); // or recurse
             case ix_DenseBranchPtr:
                 auto curr_ = curr.as!(DenseBranch*);
                 return (key.skipOver(curr_.prefix) &&        // matching prefix
@@ -1639,7 +1654,7 @@ struct RawRadixTree(Value = void)
                     auto currSubIx = currPrefix[0]; // subIx = 'a'
                     popFrontNPrefix(curr, 1);
                     auto next = constructWithCapacity!(DefaultBranch)(2, null,
-                                                                      DefaultBranch.Sub(currSubIx, curr));
+                                                                      Sub(currSubIx, curr));
                     return insertAtBranchAbovePrefix(Node(next), key, insertionNode);
                 }
             }
@@ -1656,7 +1671,7 @@ struct RawRadixTree(Value = void)
                     auto currSubIx = currPrefix[matchedKeyPrefix.length]; // need index first before we modify curr.prefix
                     popFrontNPrefix(curr, matchedKeyPrefix.length + 1);
                     auto next = constructWithCapacity!(DefaultBranch)(2, matchedKeyPrefix,
-                                                                      DefaultBranch.Sub(currSubIx, curr));
+                                                                      Sub(currSubIx, curr));
                     return insertAtBranchBelowPrefix(Node(next), key[matchedKeyPrefix.length .. $], insertionNode);
                 }
             }
@@ -1670,7 +1685,7 @@ struct RawRadixTree(Value = void)
                     auto currSubIx = currPrefix[nextPrefixLength]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
                     auto next = constructWithCapacity!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
-                                                                      DefaultBranch.Sub(currSubIx, curr));
+                                                                      Sub(currSubIx, curr));
                     return insertAtBranchBelowPrefix(Node(next), key[nextPrefixLength .. $], insertionNode);
                 }
                 else /* if (matchedKeyPrefix.length == currPrefix.length) and in turn
@@ -1680,7 +1695,7 @@ struct RawRadixTree(Value = void)
                     auto currSubIx = currPrefix[matchedKeyPrefix.length - 1]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
                     auto next = constructWithCapacity!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
-                                                                      DefaultBranch.Sub(currSubIx, curr));
+                                                                      Sub(currSubIx, curr));
                     return insertAtLeafOfBranch(Node(next), key[$ - 1], insertionNode);
                 }
             }

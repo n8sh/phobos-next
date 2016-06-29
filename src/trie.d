@@ -1269,8 +1269,7 @@ struct RawRadixTree(Value = void)
                 const nextSubCapacity = min(nextPow2(cast(uint)curr.subCapacity),
                                             DefaultBranch.subCapacityMax);
                 debug assert(nextSubCapacity > curr.subCapacity);
-                auto next_ = constructWithCapacity!(SparseBranch*)(nextSubCapacity, curr);
-                next = next_;
+                next = constructWithCapacity!(SparseBranch*)(nextSubCapacity, curr);
             }
             else
             {

@@ -1009,9 +1009,11 @@ struct RawRadixTree(Value = void)
             }
             else
             {
+                /** Calculate insertion index `ix`
+                    Should be faster than `SortedRange.trisect`.
+                    TODO functionize to size_t insertionIndex(SortedRange r, E e).
+                */
                 auto hit = subIxs.upperBound(sub[0]); // find index where insertion should be made
-
-                // calculate insertion index `ix`. TODO functionize to size_t insertionIndex(SortedRange r, E e)
                 long ix;        // insertion index
                 if (!hit.empty) // `subIxs` contains values larger than `sub[0]`
                 {

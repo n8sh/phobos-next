@@ -827,8 +827,8 @@ struct RawRadixTree(Value = void)
 
     alias Sub = Tuple!(Ix, Node);
 
-    /** Convert `curr` to `Node`. */
-    pragma(inline) Node toNode(Leaf curr) inout
+    /** Safely convert `curr` to `Node`. */
+    pragma(inline) Node toNode(Leaf curr) inout @safe pure nothrow @nogc
     {
         alias T = typeof(return);
         final switch (curr.typeIx) with (Leaf.Ix)
@@ -840,7 +840,7 @@ struct RawRadixTree(Value = void)
         }
     }
     /// ditto
-    pragma(inline) Node toNode(T:Node)(Branch curr) inout
+    pragma(inline) Node toNode(T:Node)(Branch curr) inout @safe pure nothrow @nogc
     {
         alias T = typeof(return);
         final switch (curr.typeIx) with (Branch.Ix)

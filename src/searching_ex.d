@@ -67,13 +67,13 @@ import std.range : ElementType, SearchPolicy;
     inserted in order to preserve sortedness of the union of `range` and `value`.
 
     Returns:
-    - If elements should be place at the beginning then 0 is returned.
-    - If elements should be place at the end (appended) then range.length is
+    - `0`, if `e` should be place at the beginning
+    - `range.length`, if `e` should be append at the end
       returned.
 
-    Typically used by container insertion algorithms.
+    Typically used by container modification/insertion algorithms.
 
-    TODO Move to member of `SortedRange`.
+    TODO Move to the member of `SortedRange`.
 */
 size_t sortedIndexOf(R, V, SearchPolicy sp = SearchPolicy.binarySearch)(R range, V value)
     if (is(typeof(ElementType!R.init == V.init))) // TODO SortedRange support

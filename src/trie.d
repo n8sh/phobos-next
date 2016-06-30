@@ -827,7 +827,9 @@ struct RawRadixTree(Value = void)
 
     alias Sub = Tuple!(Ix, Node);
 
-    /** Safely convert `curr` to `Node`. */
+    /** Safely convert `curr` to `Node`.
+        TODO optimize by moving to constructor of `WordVariant!(SuperNodeTypes).this(WordVariant!(SubNodeTypes))`
+    */
     pragma(inline) Node toNode(Leaf curr) inout @safe pure nothrow @nogc
     {
         alias T = typeof(return);

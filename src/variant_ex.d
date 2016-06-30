@@ -105,7 +105,7 @@ struct WordVariant(Types...)
     /// ditto
     this(typeof(null) value) { _raw = S.init; }
     /// Construction from sub-variant `value`.
-    this(SubTypes...)(WordVariant!(SubTypes) value) { initializeFromSuper(value); }
+    this(SubTypes...)(WordVariant!(SubTypes) value) { initializeFromSub(value); }
 
     /// Copy construction.
     this(this) {}
@@ -117,7 +117,7 @@ struct WordVariant(Types...)
     /// ditto
     auto ref opAssign(typeof(null) that) { _raw = S.init; return this; }
     /// Assignment from sub-variant `value`.
-    auto ref opAssign(SubTypes...)(WordVariant!(SubTypes) value) { initializeFromSuper(value); return this; }
+    auto ref opAssign(SubTypes...)(WordVariant!(SubTypes) value) { initializeFromSub(value); return this; }
 
 pragma(inline):
 
@@ -159,12 +159,12 @@ pragma(inline):
     private void initialize(T)(T that) @trusted
     {
         const thatRaw = (*(cast(S*)(&that)));
-        assert(!(thatRaw & typeMask), `Top-most bits of parameter is already occupied`); // TODO use enforce instead?
+        debug assert(!(thatRaw & typeMask), `Top-most bits of parameter is already occupied`); // TODO use enforce instead?
         _raw = (thatRaw | // data in lower part
                 (cast(S)(indexOf!T + 1) << typeShift)); // use higher bits for type information
     }
 
-    private void initializeFromSuper(SubTypes...)(WordVariant!(SubTypes) that) @trusted
+    private void initializeFromSub(SubTypes...)(WordVariant!(SubTypes) that) @trusted
     {
         import std.meta : staticIndexOf;
         final switch (that.typeIndex)
@@ -190,7 +190,7 @@ pragma(inline):
 
     inout(T) as(T)() inout @trusted if (canStore!T)
     {
-        assert(isOfType!T); // TODO make this an enforce or throw new Exception
+        debug assert(isOfType!T);
         inout x = rawValue;
         return *(cast(typeof(return)*)(cast(void*)&x)); // reinterpret
     }
@@ -401,7 +401,7 @@ struct VariantPointerTo(Types...)
     private void init(T)(T* that)
     {
         const thatRaw = cast(S)that;
-        assert(!(thatRaw & typeMask), `Top-most bits of pointer are already occupied`); // TODO use enforce instead?
+        debug assert(!(thatRaw & typeMask), `Top-most bits of pointer are already occupied`); // TODO use enforce instead?
         _raw = (thatRaw | // pointer in lower part
                 (cast(S)(indexOf!T) << typeShift)); // use higher bits for type information
     }

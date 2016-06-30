@@ -1043,16 +1043,12 @@ struct RawRadixTree(Value = void)
             {
                 import searching_ex : containsStoreIndex;
                 size_t index;
-                const hit = subIxs.containsStoreIndex(sub[0], index);
-
-                if (hit)
+                if (subIxs.containsStoreIndex(sub[0], index))
                 {
-                    debug assert(containsSubAt(sub[0]));
                     subIxSlots[index] = sub[0];
                     subNodeSlots[index] = sub[1];
                     return ModificationStatus.updated;
                 }
-                debug assert(!containsSubAt(sub[0]));
 
                 // check if full
                 if (full) { return ModificationStatus.none; }

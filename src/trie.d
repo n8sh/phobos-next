@@ -821,25 +821,25 @@ struct RawRadixTree(Value = void)
                               DenseLeaf1!Value*);
     static assert(Leaf.typeBits <= IxsN!(7, 1, 8).typeBits);
 
-    /** Convert `curr` to `Node`. */
-    pragma(inline) Node to(T:Node)(Leaf curr) inout
-    {
-        final switch (curr.typeIx) with (Leaf.Ix)
-        {
-        case undefined: return Node.init;
-        case ix_HeptLeaf1: return Node(curr.as!(HeptLeaf1));
-        case ix_SparseLeaf1Ptr: return Node(curr.as!(SparseLeaf1!Value*));
-        case ix_DenseLeaf1Ptr: return Node(curr.as!(DenseLeaf1!Value*));
-        }
-    }
-
     /** Mutable branch node. */
     alias Branch = WordVariant!(DenseBranch*,
                                 SparseBranch*);
 
     /** Convert `curr` to `Node`. */
-    // TODO why does this conflict with to(T:Node(Leaf curr))
-    // pragma(inline) Node to(T:Node)(Branch curr) inout
+    pragma(inline) Node to(T:Node)(Leaf curr) inout
+    {
+        final switch (curr.typeIx) with (Leaf.Ix)
+        {
+        case undefined: return T.init;
+        case ix_HeptLeaf1: return T(curr.as!(HeptLeaf1));
+        case ix_SparseLeaf1Ptr: return T(curr.as!(SparseLeaf1!Value*));
+        case ix_DenseLeaf1Ptr: return T(curr.as!(DenseLeaf1!Value*));
+        }
+    }
+
+    /** Convert `curr` to `Node`. */
+    // TODO Why can't this be named to(T:Node) ?
+    // pragma(inline) Node toNode(T:Node)(Branch curr) inout
     // {
     //     final switch (curr.typeIx) with (Branch.Ix)
     //     {

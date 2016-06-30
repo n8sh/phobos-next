@@ -112,9 +112,13 @@ bool containsStoreIndex(R, V, SearchPolicy sp = SearchPolicy.binarySearch)(R ran
     int[2] x = [1, 3];
     size_t index;
     import std.range : assumeSorted;
+    assert(!x[].assumeSorted.containsStoreIndex(int.min, index) && index == 0);
+    assert(!x[].assumeSorted.containsStoreIndex(-1, index) && index == 0);
     assert(!x[].assumeSorted.containsStoreIndex(0, index) && index == 0);
     assert( x[].assumeSorted.containsStoreIndex(1, index) && index == 0);
     assert(!x[].assumeSorted.containsStoreIndex(2, index) && index == 1);
     assert( x[].assumeSorted.containsStoreIndex(3, index) && index == 1);
     assert(!x[].assumeSorted.containsStoreIndex(4, index) && index == 2);
+    assert(!x[].assumeSorted.containsStoreIndex(5, index) && index == 2);
+    assert(!x[].assumeSorted.containsStoreIndex(int.max, index) && index == 2);
 }

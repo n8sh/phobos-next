@@ -697,8 +697,7 @@ static private struct SparseLeaf1(Value)
         pragma(inline) void setValue(Ix key, in Value value) @trusted /* TODO @nogc */
         {
             size_t index;
-            const hit = keys.assumeSorted.containsStoreIndex(key, index); // find index where insertion should be made
-            if (hit)
+            if (keys.assumeSorted.containsStoreIndex(key, index))
             {
                 _values[index] = value;
             }

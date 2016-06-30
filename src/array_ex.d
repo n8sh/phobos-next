@@ -1,5 +1,7 @@
 /** Array container(s) with optional sortedness (`Ordering`).
 
+    TODO Use containsStoreIndex from searching_ex
+
     TODO Use std.array.insertInPlace in insert()?
 
     TODO Split up `Array` into `Array`, `SortedArray`, `SetArray` and reuse

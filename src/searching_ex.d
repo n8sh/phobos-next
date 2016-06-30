@@ -97,7 +97,6 @@ bool containsStoreIndex(R, V, SearchPolicy sp = SearchPolicy.binarySearch)(R ran
         index = size_t.max;     // indicate undefined
         return false;           // no hit
     }
-
     index = range.length - range.upperBound!sp(value).length; // always larger than zero
     if (index >= 1 && range[index - 1] == value)
     {

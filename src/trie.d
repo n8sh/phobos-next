@@ -804,12 +804,6 @@ struct RawRadixTree(Value = void)
                                      SparseLeaf1!Value*);
     static assert(LeafPtrNode.typeBits <= IxsN!(7, 1, 8).typeBits);
 
-    /** Mutable leaf node of 1-Ix leaves. */
-    alias Leaf = WordVariant!(HeptLeaf1,
-                              SparseLeaf1!Value*,
-                              DenseLeaf1!Value*);
-    static assert(Leaf.typeBits <= IxsN!(7, 1, 8).typeBits);
-
     /** Mutable node. */
     alias Node = WordVariant!(OneLeafMax7,
                               TwoLeaf3,
@@ -822,6 +816,24 @@ struct RawRadixTree(Value = void)
     static assert(Node.typeBits <= IxsN!(7, 1, 8).typeBits);
 
     alias Sub = Tuple!(Ix, Node);
+
+    /** Mutable leaf node of 1-Ix leaves. */
+    alias Leaf = WordVariant!(HeptLeaf1,
+                              SparseLeaf1!Value*,
+                              DenseLeaf1!Value*);
+    static assert(Leaf.typeBits <= IxsN!(7, 1, 8).typeBits);
+
+    /** Convert `curr` to `Node`. */
+    pragma(inline) Node to(T:Node)(Leaf curr) inout
+    {
+        final switch (curr.typeIx) with (Leaf.Ix)
+        {
+        case undefined: return Node.init;
+        case ix_HeptLeaf1: return Node(curr.as!(HeptLeaf1));
+        case ix_SparseLeaf1Ptr: return Node(curr.as!(SparseLeaf1!Value*));
+        case ix_DenseLeaf1Ptr: return Node(curr.as!(DenseLeaf1!Value*));
+        }
+    }
 
     /** Constant node. */
     // TODO make work with indexNaming
@@ -1543,17 +1555,6 @@ struct RawRadixTree(Value = void)
             return Node.init;
         }
 
-        pragma(inline) Node toNode(Leaf curr) inout
-        {
-            final switch (curr.typeIx) with (Leaf.Ix)
-            {
-            case undefined: return Node.init;
-            case ix_HeptLeaf1: return Node(curr.as!(HeptLeaf1));
-            case ix_SparseLeaf1Ptr: return Node(curr.as!(SparseLeaf1!Value*));
-            case ix_DenseLeaf1Ptr: return Node(curr.as!(DenseLeaf1!Value*));
-            }
-        }
-
         /** Insert `key` into sub-tree under root `curr`. */
         pragma(inline) Node insertAt(Node curr, UKey key, out Node insertionNode)
         {
@@ -1777,7 +1778,7 @@ struct RawRadixTree(Value = void)
             assert(key.length);
             if (key.length == 1)
             {
-                return toNode(insertIxAtLeaftoLeaf(curr, key[0], insertionNode));
+                return insertIxAtLeaftoLeaf(curr, key[0], insertionNode).to!Node;
             }
             else
             {
@@ -1894,7 +1895,7 @@ struct RawRadixTree(Value = void)
                 assert(hasVariableKeyLength || curr.keyLength == key.length);
                 if (curr.keyLength == key.length)
                 {
-                    return toNode(insertAt(curr, key[0], insertionNode)); // use `Ix key`-overload
+                    return insertAt(curr, key[0], insertionNode).to!Node; // use `Ix key`-overload
                 }
                 return insertAt(Node(constructWithCapacity!(DefaultBranch)(1, Leaf(curr))), // current `key`
                                 key, insertionNode); // NOTE stay at same (depth)
@@ -2281,7 +2282,7 @@ struct RawRadixTree(Value = void)
             writeln(":");
             if (curr_.leaf)
             {
-                printAt(toNode(curr_.leaf), depth + 1);
+                printAt(curr_.leaf.to!Node, depth + 1);
             }
             foreach (const i, const subNode; curr_.subNodes)
             {
@@ -2295,7 +2296,7 @@ struct RawRadixTree(Value = void)
             writeln(":");
             if (curr_.leaf)
             {
-                printAt(toNode(curr_.leaf), depth + 1);
+                printAt(curr_.leaf.to!Node, depth + 1);
             }
             foreach (const i, const subNode; curr_.subNodes)
             {

@@ -82,6 +82,13 @@ size_t sortedIndexOf(R, V, SearchPolicy sp = SearchPolicy.binarySearch)(R range,
     return range.length - range.upperBound!sp(value).length; // always larger than zero
 }
 
+/** Same as `range.contains()` but also outputs `index` where last occurrence of
+    `key` is either currently stored (if `true` is returned) or should be stored
+    (if `false` is returned) in order to preserve sortedness of `range`.
+
+    TODO Move to member of `SortedRange` either as a new name or as an
+    `contains`-overload take an extra `index` as argument.
+ */
 bool containsStoreIndex(R, V, SearchPolicy sp = SearchPolicy.binarySearch)(R range, V value, out size_t index)
     if (is(typeof(ElementType!R.init == V.init))) // TODO SortedRange support
 {
@@ -92,10 +99,6 @@ bool containsStoreIndex(R, V, SearchPolicy sp = SearchPolicy.binarySearch)(R ran
     }
 
     index = range.length - range.upperBound!sp(value).length; // always larger than zero
-    if (index == 0 && range[index] == value)
-    {
-        return true;
-    }
     if (index >= 1 && range[index - 1] == value)
     {
         index = index - 1;

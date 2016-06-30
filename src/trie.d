@@ -543,7 +543,7 @@ struct HeptLeaf1
 /** Sparsely coded leaves with values of type `Value`. */
 static private struct SparseLeaf1(Value)
 {
-    import searching_ex : sortedIndexOf;
+    import searching_ex : containsStoreIndex;
     import std.algorithm.sorting : assumeSorted, isSorted;
 
     enum maxLength = radix;
@@ -629,23 +629,19 @@ static private struct SparseLeaf1(Value)
         }
         else                    // non-empty
         {
-            const ix = keys.assumeSorted.sortedIndexOf(key); // find index where insertion should be made
-
-            // check for existing key
-            if (ix >= 1 && _keys[ix - 1] == key) // if `key` already inserted
+            size_t index;
+            if (keys.assumeSorted.containsStoreIndex(key, index))
             {
-                debug assert(contains(key)); // extra checking
                 return radix.mod!(radix + 1);
             }
-            debug assert(!contains(key)); // extra checking
 
             // TODO if (full) { return ModificationStatus.none; }
 
             reserve(Capacity(_length + 1));
 
             // make room
-            debug assert(_length >= ix);
-            foreach (i; 0 .. _length - ix) // TODO functionize this loop or reuse memmove:
+            debug assert(_length >= index);
+            foreach (i; 0 .. _length - index) // TODO functionize this loop or reuse memmove:
             {
                 const iD = _length - i;
                 const iS = iD - 1;
@@ -653,9 +649,9 @@ static private struct SparseLeaf1(Value)
             }
             ++_length;
 
-            _keys[ix] = key;    // set new element
+            _keys[index] = key;    // set new element
 
-            return (cast(ushort)ix).mod!(radix + 1);
+            return (cast(ushort)index).mod!(radix + 1);
         }
     }
 
@@ -700,15 +696,16 @@ static private struct SparseLeaf1(Value)
 
         pragma(inline) void setValue(Ix key, in Value value) @trusted /* TODO @nogc */
         {
-            const ix = keys.assumeSorted.sortedIndexOf(key); // find index where insertion should be made
-            if (ix >= 1 && _keys[ix - 1] == key)
+            size_t index;
+            const hit = keys.assumeSorted.containsStoreIndex(key, index); // find index where insertion should be made
+            if (hit)
             {
-                _values[ix - 1] = value;
+                _values[index] = value;
             }
             else
             {
-                assert(ix < length);
-                _values[ix] = value;
+                assert(index < length);
+                _values[index] = value;
             }
         }
     }
@@ -1044,15 +1041,15 @@ struct RawRadixTree(Value = void)
             }
             else
             {
-                import searching_ex : sortedIndexOf;
-                const ix = subIxs.sortedIndexOf(sub[0]); // find index where insertion should be made
+                import searching_ex : containsStoreIndex;
+                size_t index;
+                const hit = subIxs.containsStoreIndex(sub[0], index);
 
-                // try update existing
-                if (ix >= 1 && subIxSlots[ix - 1] == sub[0]) // if `key` already inserted
+                if (hit)
                 {
                     debug assert(containsSubAt(sub[0]));
-                    subIxSlots[ix - 1] = sub[0];
-                    subNodeSlots[ix - 1] = sub[1];
+                    subIxSlots[index] = sub[0];
+                    subNodeSlots[index] = sub[1];
                     return ModificationStatus.updated;
                 }
                 debug assert(!containsSubAt(sub[0]));
@@ -1060,8 +1057,8 @@ struct RawRadixTree(Value = void)
                 // check if full
                 if (full) { return ModificationStatus.none; }
 
-                debug assert(subLength >= ix);
-                foreach (i; 0 .. subLength - ix) // TODO functionize this loop or reuse memmove:
+                debug assert(subLength >= index);
+                foreach (i; 0 .. subLength - index) // TODO functionize this loop or reuse memmove:
                 {
                     const iD = subLength - i;
                     const iS = iD - 1;
@@ -1070,8 +1067,8 @@ struct RawRadixTree(Value = void)
                 }
                 ++subLength;
 
-                subIxSlots[ix] = sub[0]; // set new element
-                subNodeSlots[ix] = sub[1]; // set new element
+                subIxSlots[index] = sub[0]; // set new element
+                subNodeSlots[index] = sub[1]; // set new element
 
                 return ModificationStatus.inserted;
             }

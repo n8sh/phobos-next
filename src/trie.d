@@ -1499,21 +1499,17 @@ struct RawRadixTree(Value = void)
         Node insertNew(UKey key, out Node insertionNode)
         {
             debug if (willFail) { dln("WILL FAIL: curr:", key); }
+            assert(key.length, "key must not be empty"); // return insertionNode = Node(construct!(OneLeafMax7)());
             static if (hasValue)
             {
-                switch (key.length)
-                {
-                case 0: assert(false, "key must not be empty"); // return insertionNode = Node(construct!(OneLeafMax7)());
-                default:
-                    import std.algorithm : min;
-                    const prefixLength = min(key.length - 1, // all but last Ix of key
-                                             DefaultBranch.prefixCapacity); // as much as possible of key in branch prefix
-                    auto prefix = key[0 .. prefixLength];
-                    auto next = toNode(insertAtBranchBelowPrefix(Branch(constructWithCapacity!(DefaultBranch)(1, prefix)),
-                                                                 key[prefix.length .. $], insertionNode));
-                    assert(insertionNode);
-                    return next;
-                }
+                import std.algorithm : min;
+                const prefixLength = min(key.length - 1, // all but last Ix of key
+                                         DefaultBranch.prefixCapacity); // as much as possible of key in branch prefix
+                auto prefix = key[0 .. prefixLength];
+                auto next = toNode(insertAtBranchBelowPrefix(Branch(constructWithCapacity!(DefaultBranch)(1, prefix)),
+                                                             key[prefix.length .. $], insertionNode));
+                assert(insertionNode);
+                return next;
             }
             else
             {

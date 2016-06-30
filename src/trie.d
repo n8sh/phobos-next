@@ -1238,18 +1238,8 @@ struct RawRadixTree(Value = void)
         pragma(msg, "SparseBranch.subIxs.sizeof:", SparseBranch.subIxs.sizeof, " SparseBranch.subIxs.alignof:", SparseBranch.subIxs.alignof);
     }
 
-    /** Set sub-`Node` of branch `Node curr` at index `ix` to `subNode`. */
-    pragma(inline) Node setSub(Node curr, Ix subIx, Node subNode) @safe pure nothrow
-    {
-        switch (curr.typeIx)
-        {
-        case Node.Ix.ix_SparseBranchPtr: return setSub(curr.as!(SparseBranch*), subIx, subNode);
-        case Node.Ix.ix_DenseBranchPtr: return setSub(curr.as!(DenseBranch*), subIx, subNode);
-        default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
-        }
-    }
     /// ditto
-    Node setSub(SparseBranch* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
+    Branch setSub(SparseBranch* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
         if (curr.updateOrInsert(Sub(subIx, subNode)) == curr.ModificationStatus.none) // try insert and if it fails
         {
@@ -1258,10 +1248,10 @@ struct RawRadixTree(Value = void)
             debug assert(getSub(next, subIx) == Node.init); // key slot should be unoccupied
             return setSub(next, subIx, subNode); // fast, because directly calls setSub(DenseBranch*, ...)
         }
-        return Node(curr);
+        return Branch(curr);
     }
     /// ditto
-    pragma(inline) Node setSub(DenseBranch* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
+    pragma(inline) Branch setSub(DenseBranch* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
         try
         {
@@ -1271,17 +1261,28 @@ struct RawRadixTree(Value = void)
         }
         catch (Exception e) {}
         curr.subNodes[subIx] = subNode;
-        return Node(curr);
+        return Branch(curr);
+    }
+
+    /** Set sub-`Node` of branch `Node curr` at index `ix` to `subNode`. */
+    pragma(inline) Branch setSub(Branch curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
+    {
+        final switch (curr.typeIx) with (Branch.Ix)
+        {
+        case ix_SparseBranchPtr: return setSub(curr.as!(SparseBranch*), subIx, subNode);
+        case ix_DenseBranchPtr: return setSub(curr.as!(DenseBranch*), subIx, subNode);
+        case undefined: assert(false);
+        }
     }
 
     /** Get sub-`Node` of branch `Node curr` at index `subIx`. */
-    pragma(inline) Node getSub(Node curr, Ix subIx) @safe pure nothrow
+    pragma(inline) Node getSub(Branch curr, Ix subIx) @safe pure nothrow
     {
-        switch (curr.typeIx)
+        final switch (curr.typeIx) with (Branch.Ix)
         {
-        case Node.Ix.ix_SparseBranchPtr: return getSub(curr.as!(SparseBranch*), subIx);
-        case Node.Ix.ix_DenseBranchPtr: return getSub(curr.as!(DenseBranch*), subIx);
-        default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
+        case ix_SparseBranchPtr: return getSub(curr.as!(SparseBranch*), subIx);
+        case ix_DenseBranchPtr: return getSub(curr.as!(DenseBranch*), subIx);
+        case undefined: assert(false);
         }
     }
     /// ditto
@@ -1302,57 +1303,57 @@ struct RawRadixTree(Value = void)
     }
 
     /** Get leaves of node `curr`. */
-    pragma(inline) inout(Leaf) getLeaf(inout Node curr) @safe pure nothrow
+    pragma(inline) inout(Leaf) getLeaf(inout Branch curr) @safe pure nothrow
     {
-        switch (curr.typeIx)
+        final switch (curr.typeIx) with (Branch.Ix)
         {
-        case Node.Ix.ix_SparseBranchPtr: return curr.as!(SparseBranch*).leaf;
-        case Node.Ix.ix_DenseBranchPtr: return curr.as!(DenseBranch*).leaf;
-        default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
+        case ix_SparseBranchPtr: return curr.as!(SparseBranch*).leaf;
+        case ix_DenseBranchPtr: return curr.as!(DenseBranch*).leaf;
+        case undefined: assert(false);
         }
     }
 
     /** Set leaves node of node `curr` to `leaf`. */
-    pragma(inline) Node setLeaf(Node curr, Leaf leaf) @safe pure nothrow
+    pragma(inline) void setLeaf(Branch curr, Leaf leaf) @safe pure nothrow
     {
-        switch (curr.typeIx)
+        final switch (curr.typeIx) with (Branch.Ix)
         {
-        case Node.Ix.ix_SparseBranchPtr: curr.as!(SparseBranch*).leaf = leaf; return curr;
-        case Node.Ix.ix_DenseBranchPtr: curr.as!(DenseBranch*).leaf = leaf; return curr;
-        default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
+        case ix_SparseBranchPtr: curr.as!(SparseBranch*).leaf = leaf; break;
+        case ix_DenseBranchPtr: curr.as!(DenseBranch*).leaf = leaf; break;
+        case undefined: assert(false);
         }
     }
 
     /** Get prefix of node `curr`. */
-    pragma(inline) auto getPrefix(inout Node curr) @safe pure nothrow
+    pragma(inline) auto getPrefix(inout Branch curr) @safe pure nothrow
     {
-        switch (curr.typeIx)
+        final switch (curr.typeIx) with (Branch.Ix)
         {
-        case Node.Ix.ix_SparseBranchPtr: return curr.as!(SparseBranch*).prefix[];
-        case Node.Ix.ix_DenseBranchPtr: return curr.as!(DenseBranch*).prefix[];
-        default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
+        case ix_SparseBranchPtr: return curr.as!(SparseBranch*).prefix[];
+        case ix_DenseBranchPtr: return curr.as!(DenseBranch*).prefix[];
+        case undefined: assert(false);
         }
     }
 
     /** Set prefix of branch node `curr` to `prefix`. */
-    pragma(inline) void setPrefix(Node curr, const Ix[] prefix) @safe pure nothrow
+    pragma(inline) void setPrefix(Branch curr, const Ix[] prefix) @safe pure nothrow
     {
-        switch (curr.typeIx)
+        final switch (curr.typeIx) with (Branch.Ix)
         {
-        case Node.Ix.ix_SparseBranchPtr: curr.as!(SparseBranch*).prefix = typeof(curr.as!(SparseBranch*).prefix)(prefix); break;
-        case Node.Ix.ix_DenseBranchPtr: curr.as!(DenseBranch*).prefix = typeof(curr.as!(DenseBranch*).prefix)(prefix); break;
-        default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
+        case ix_SparseBranchPtr: curr.as!(SparseBranch*).prefix = typeof(curr.as!(SparseBranch*).prefix)(prefix); break;
+        case ix_DenseBranchPtr: curr.as!(DenseBranch*).prefix = typeof(curr.as!(DenseBranch*).prefix)(prefix); break;
+        case undefined: assert(false);
         }
     }
 
-    /** Pop `n`  from prefix. */
-    pragma(inline) void popFrontNPrefix(Node curr, size_t n) @safe pure nothrow
+    /** Pop `n` from prefix. */
+    pragma(inline) void popFrontNPrefix(Branch curr, size_t n) @safe pure nothrow
     {
-        switch (curr.typeIx)
+        final switch (curr.typeIx) with (Branch.Ix)
         {
-        case Node.Ix.ix_SparseBranchPtr: curr.as!(SparseBranch*).prefix.popFrontN(n); break;
-        case Node.Ix.ix_DenseBranchPtr: curr.as!(DenseBranch*).prefix.popFrontN(n); break;
-        default: assert(false, "Unsupported Node type " ~ curr.typeIx.to!string);
+        case ix_SparseBranchPtr: curr.as!(SparseBranch*).prefix.popFrontN(n); break;
+        case ix_DenseBranchPtr: curr.as!(DenseBranch*).prefix.popFrontN(n); break;
+        case undefined: assert(false);
         }
     }
 
@@ -1508,8 +1509,8 @@ struct RawRadixTree(Value = void)
                     const prefixLength = min(key.length - 1, // all but last Ix of key
                                              DefaultBranch.prefixCapacity); // as much as possible of key in branch prefix
                     auto prefix = key[0 .. prefixLength];
-                    auto next = insertAtBranchBelowPrefix(Node(constructWithCapacity!(DefaultBranch)(1, prefix)),
-                                                          key[prefix.length .. $], insertionNode);
+                    auto next = toNode(insertAtBranchBelowPrefix(Branch(constructWithCapacity!(DefaultBranch)(1, prefix)),
+                                                                 key[prefix.length .. $], insertionNode));
                     assert(insertionNode);
                     return next;
                 }
@@ -1533,8 +1534,8 @@ struct RawRadixTree(Value = void)
                         const prefixLength = min(key.length - 1, // all but last Ix of key
                                                  DefaultBranch.prefixCapacity); // as much as possible of key in branch prefix
                         auto prefix = key[0 .. prefixLength];
-                        auto next = insertAtBranchBelowPrefix(Node(constructWithCapacity!(DefaultBranch)(1, prefix)),
-                                                              key[prefix.length .. $], insertionNode);
+                        auto next = toNode(insertAtBranchBelowPrefix(Branch(constructWithCapacity!(DefaultBranch)(1, prefix)),
+                                                                     key[prefix.length .. $], insertionNode));
                         assert(insertionNode);
                         return next;
                     }
@@ -1591,15 +1592,16 @@ struct RawRadixTree(Value = void)
                 case ix_DenseLeaf1Ptr:
                     return insertAtLeaf(Leaf(curr.as!(DenseLeaf1!Value*)), key, insertionNode); // TODO use toLeaf(curr)
                 case ix_SparseBranchPtr:
+                    return toNode(insertAtBranchAbovePrefix(Branch(curr.as!(SparseBranch*)), key, insertionNode));
                 case ix_DenseBranchPtr:
-                    return insertAtBranchAbovePrefix(curr, key, insertionNode);
+                    return toNode(insertAtBranchAbovePrefix(Branch(curr.as!(DenseBranch*)), key, insertionNode));
                 }
             }
         }
 
         /** Insert `key` into sub-tree under branch `curr` above prefix, that is
             the prefix of `curr` is stripped from `key` prior to insertion. */
-        Node insertAtBranchAbovePrefix(Node curr, UKey key, out Node insertionNode)
+        Branch insertAtBranchAbovePrefix(Branch curr, UKey key, out Node insertionNode)
         {
             assert(key.length);
 
@@ -1625,8 +1627,8 @@ struct RawRadixTree(Value = void)
                     auto currSubIx = currPrefix[0]; // subIx = 'a'
                     popFrontNPrefix(curr, 1);
                     auto next = constructWithCapacity!(DefaultBranch)(2, null,
-                                                                      Sub(currSubIx, curr));
-                    return insertAtBranchAbovePrefix(Node(next), key, insertionNode);
+                                                                      Sub(currSubIx, toNode(curr)));
+                    return insertAtBranchAbovePrefix(typeof(return)(next), key, insertionNode);
                 }
             }
             else if (matchedKeyPrefix.length < key.length)
@@ -1642,8 +1644,8 @@ struct RawRadixTree(Value = void)
                     auto currSubIx = currPrefix[matchedKeyPrefix.length]; // need index first before we modify curr.prefix
                     popFrontNPrefix(curr, matchedKeyPrefix.length + 1);
                     auto next = constructWithCapacity!(DefaultBranch)(2, matchedKeyPrefix,
-                                                                      Sub(currSubIx, curr));
-                    return insertAtBranchBelowPrefix(Node(next), key[matchedKeyPrefix.length .. $], insertionNode);
+                                                                      Sub(currSubIx, toNode(curr)));
+                    return insertAtBranchBelowPrefix(typeof(return)(next), key[matchedKeyPrefix.length .. $], insertionNode);
                 }
             }
             else // if (matchedKeyPrefix.length == key.length)
@@ -1656,8 +1658,8 @@ struct RawRadixTree(Value = void)
                     auto currSubIx = currPrefix[nextPrefixLength]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
                     auto next = constructWithCapacity!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
-                                                                      Sub(currSubIx, curr));
-                    return insertAtBranchBelowPrefix(Node(next), key[nextPrefixLength .. $], insertionNode);
+                                                                      Sub(currSubIx, toNode(curr)));
+                    return insertAtBranchBelowPrefix(typeof(return)(next), key[nextPrefixLength .. $], insertionNode);
                 }
                 else /* if (matchedKeyPrefix.length == currPrefix.length) and in turn
                         if (key.length == currPrefix.length */
@@ -1666,15 +1668,15 @@ struct RawRadixTree(Value = void)
                     auto currSubIx = currPrefix[matchedKeyPrefix.length - 1]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
                     auto next = constructWithCapacity!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
-                                                                      Sub(currSubIx, curr));
-                    return insertAtLeafOfBranch(Node(next), key[$ - 1], insertionNode);
+                                                                      Sub(currSubIx, toNode(curr)));
+                    return insertAtLeafOfBranch(typeof(return)(next), key[$ - 1], insertionNode);
                 }
             }
         }
 
         /** Like `insertAtBranchAbovePrefix` but also asserts that `key` is
             currently not stored under `curr`. */
-        pragma(inline) Node insertNewAtBranchAbovePrefix(Node curr, UKey key)
+        pragma(inline) Branch insertNewAtBranchAbovePrefix(Branch curr, UKey key)
         {
             Node insertionNode;
             auto next = insertAtBranchAbovePrefix(curr, key, insertionNode);
@@ -1685,7 +1687,7 @@ struct RawRadixTree(Value = void)
         /** Insert `key` into sub-tree under branch `curr` below prefix, that is
             the prefix of `curr` is not stripped from `key` prior to
             insertion. */
-        Node insertAtBranchBelowPrefix(Node curr, UKey key, out Node insertionNode)
+        Branch insertAtBranchBelowPrefix(Branch curr, UKey key, out Node insertionNode)
         {
             assert(key.length);
             debug if (willFail) { dln("WILL FAIL: key:", key,
@@ -1705,7 +1707,7 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        pragma(inline) Node insertNewAtBranchBelowPrefix(Node curr, UKey key)
+        pragma(inline) Branch insertNewAtBranchBelowPrefix(Branch curr, UKey key)
         {
             Node insertionNode;
             auto next = insertAtBranchBelowPrefix(curr, key, insertionNode);
@@ -1744,7 +1746,7 @@ struct RawRadixTree(Value = void)
             return curr;
         }
 
-        Node insertAtLeafOfBranch(Node curr, Ix key, out Node insertionNode)
+        Branch insertAtLeafOfBranch(Branch curr, Ix key, out Node insertionNode)
         {
             if (auto leaf = getLeaf(curr))
             {
@@ -1779,7 +1781,7 @@ struct RawRadixTree(Value = void)
                 const prefixLength = key.length - 2; // >= 0
                 const nextPrefix = key[0 .. prefixLength];
                 auto next = constructWithCapacity!(DefaultBranch)(1, nextPrefix, curr); // one sub-node and one leaf
-                return insertAtBranchBelowPrefix(Node(next), key[prefixLength .. $], insertionNode);
+                return toNode(insertAtBranchBelowPrefix(Branch(next), key[prefixLength .. $], insertionNode));
             }
         }
 
@@ -1816,10 +1818,11 @@ struct RawRadixTree(Value = void)
                             import std.algorithm : min;
                             const nextPrefix = matchedKeyPrefix[0 .. min(matchedKeyPrefix.length,
                                                                          DefaultBranch.prefixCapacity)]; // limit prefix branch capacity
-                            next = constructWithCapacity!(DefaultBranch)(1 + 1, // `curr` and `key`
-                                                                         nextPrefix);
-                            next = insertNewAtBranchBelowPrefix(next, curr.key[nextPrefix.length .. $]);
-                            next = insertAtBranchBelowPrefix(next, key[nextPrefix.length .. $], insertionNode);
+                            Branch nextBranch = constructWithCapacity!(DefaultBranch)(1 + 1, // `curr` and `key`
+                                                                                      nextPrefix);
+                            nextBranch = insertNewAtBranchBelowPrefix(nextBranch, curr.key[nextPrefix.length .. $]);
+                            nextBranch = insertAtBranchBelowPrefix(nextBranch, key[nextPrefix.length .. $], insertionNode);
+                            next = toNode(nextBranch);
                             break;
                         }
                         freeNode(curr);
@@ -1831,7 +1834,7 @@ struct RawRadixTree(Value = void)
                     }
                 }
 
-                return insertAtBranchAbovePrefix(expand(curr), key, insertionNode);
+                return toNode(insertAtBranchAbovePrefix(expand(curr), key, insertionNode));
             }
 
             Node insertAt(TwoLeaf3 curr, UKey key, out Node insertionNode)
@@ -1847,7 +1850,7 @@ struct RawRadixTree(Value = void)
                         return insertionNode = Node(curr);
                     }
                 }
-                return insertAt(expand(curr), key, insertionNode); // NOTE stay at same (depth)
+                return toNode(insertAtBranchAbovePrefix(expand(curr), key, insertionNode)); // NOTE stay at same (depth)
             }
 
             Node insertAt(TriLeaf2 curr, UKey key, out Node insertionNode)
@@ -1862,8 +1865,7 @@ struct RawRadixTree(Value = void)
                         return insertionNode = Node(curr);
                     }
                 }
-                return insertAt(expand(curr),
-                                key, insertionNode); // NOTE stay at same (depth)
+                return toNode(insertAtBranchAbovePrefix(expand(curr), key, insertionNode)); // NOTE stay at same (depth)
             }
 
             Leaf insertAt(HeptLeaf1 curr, Ix key, out Node insertionNode)
@@ -1923,16 +1925,15 @@ struct RawRadixTree(Value = void)
                 }
 
                 // default case
-                Node next = constructWithCapacity!(DefaultBranch)(1 + 1, prefix); // current plus one more
+                Branch next = constructWithCapacity!(DefaultBranch)(1 + 1, prefix); // current plus one more
                 next = insertNewAtBranchBelowPrefix(next, curr.key[prefix.length .. $]);
                 freeNode(curr);   // remove old current
 
-                return next;
+                return toNode(next);
             }
 
-            /** Destructively expand `curr` to make room for `capacityIncrement`
-                more keys and return it. */
-            Node expand(OneLeafMax7 curr, size_t capacityIncrement = 1)
+            /** Destructively expand `curr` to make room for `capacityIncrement` more keys and return it. */
+            Branch expand(OneLeafMax7 curr, size_t capacityIncrement = 1)
             {
                 assert(curr.key.length >= 2);
                 typeof(return) next;
@@ -1952,20 +1953,20 @@ struct RawRadixTree(Value = void)
                 return next;
             }
 
-            /** Destructively expand `curr` to make room for `capacityIncrement`
-                more keys and return it. */
-            Node expand(TwoLeaf3 curr, size_t capacityIncrement = 1)
+            /** Destructively expand `curr` to make room for `capacityIncrement` more keys and return it. */
+            Branch expand(TwoLeaf3 curr, size_t capacityIncrement = 1)
             {
-                Node next;
+                typeof(return) next;
                 if (curr.keys.length == 1) // only one key
                 {
-                    next = insertNewAtBranchAbovePrefix(Node(constructWithCapacity!(DefaultBranch)(1 + capacityIncrement)), // current keys plus one more
+                    next = constructWithCapacity!(DefaultBranch)(1 + capacityIncrement);
+                    next = insertNewAtBranchAbovePrefix(next, // current keys plus one more
                                                         curr.keys.at!0);
                 }
                 else
                 {
                     next = constructWithCapacity!(DefaultBranch)(curr.keys.length + capacityIncrement, curr.prefix);
-                    // TODO functionize to insertNewAtBranchAbovePrefix(next, curr.keys)
+                    // TODO functionize and optimize to insertNewAtBranchAbovePrefix(next, curr.keys)
                     foreach (key; curr.keys)
                     {
                         next = insertNewAtBranchBelowPrefix(next, key[curr.prefix.length .. $]);
@@ -1975,11 +1976,10 @@ struct RawRadixTree(Value = void)
                 return next;
             }
 
-            /** Destructively expand `curr` and return it. */
-            Node expand(TriLeaf2 curr, size_t capacityIncrement = 1)
+            /** Destructively expand `curr` to make room for `capacityIncrement` more keys and return it. */
+            Branch expand(TriLeaf2 curr, size_t capacityIncrement = 1)
             {
-                // TODO functionize:
-                Node next;
+                typeof(return) next;
                 if (curr.keys.length == 1) // only one key
                 {
                     next = constructWithCapacity!(DefaultBranch)(1 + capacityIncrement); // current keys plus one more
@@ -1988,7 +1988,7 @@ struct RawRadixTree(Value = void)
                 else
                 {
                     next = constructWithCapacity!(DefaultBranch)(curr.keys.length + capacityIncrement, curr.prefix);
-                    // TODO functionize to insertNewAtBranchAbovePrefix(next, curr.keys)
+                    // TODO functionize and optimize to insertNewAtBranchAbovePrefix(next, curr.keys)
                     foreach (key; curr.keys)
                     {
                         next = insertNewAtBranchBelowPrefix(next, key[curr.prefix.length .. $]);
@@ -2012,7 +2012,7 @@ struct RawRadixTree(Value = void)
         `capacityIncrement` more sub-nodes.
         TODO return `Branch` instead.
     */
-    Node expand(SparseBranch* curr, size_t capacityIncrement = 1)
+    Branch expand(SparseBranch* curr, size_t capacityIncrement = 1)
     {
         typeof(return) next;
         if (curr.empty)     // if curr also empty length capacity must be zero

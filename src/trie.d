@@ -807,10 +807,10 @@ struct RawRadixTree(Value = void)
                               TwoLeaf3,
                               TriLeaf2,
                               HeptLeaf1,
-                              DenseBranch*,
                               SparseBranch*,
-                              DenseLeaf1!Value*,
-                              SparseLeaf1!Value*);
+                              DenseBranch*,
+                              SparseLeaf1!Value*,
+                              DenseLeaf1!Value*);
     static assert(Node.typeBits <= IxsN!(7, 1, 8).typeBits);
 
     alias Sub = Tuple!(Ix, Node);
@@ -833,17 +833,19 @@ struct RawRadixTree(Value = void)
         }
     }
 
+    /** Mutable branch node. */
     alias Branch = WordVariant!(DenseBranch*,
                                 SparseBranch*);
 
-    // /** Convert `curr` to `Node`. */
-    // pragma(inline) Node to(T:Node)(Branch curr)
+    /** Convert `curr` to `Node`. */
+    // TODO why does this conflict with to(T:Node(Leaf curr))
+    // pragma(inline) Node to(T:Node)(Branch curr) inout
     // {
     //     final switch (curr.typeIx) with (Branch.Ix)
     //     {
     //     case undefined: return Node.init;
-    //     case ix_SparseBranch1Ptr: return Node(curr.as!(SparseBranch1!Value*));
-    //     case ix_DenseBranch1Ptr: return Node(curr.as!(DenseBranch1!Value*));
+    //     case ix_SparseBranchPtr: return Node(curr.as!(SparseBranch1!Value*));
+    //     case ix_DenseBranchPtr: return Node(curr.as!(DenseBranch1!Value*));
     //     }
     // }
 

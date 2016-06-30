@@ -157,13 +157,10 @@ pragma(inline):
     bool opCast(T : bool)() const { return !isNull; }
 
     private void initialize(T)(T that) @trusted
-    in
     {
-        assert(!((*(cast(S*)(&that))) & typeMask), `Top-most bits of parameter is already occupied`); // TODO use enforce instead?
-    }
-    body
-    {
-        _raw = ((*(cast(S*)(&that))) | // data in lower part
+        const thatRaw = (*(cast(S*)(&that)));
+        assert(!(thatRaw & typeMask), `Top-most bits of parameter is already occupied`); // TODO use enforce instead?
+        _raw = (thatRaw | // data in lower part
                 (cast(S)(indexOf!T + 1) << typeShift)); // use higher bits for type information
     }
 
@@ -402,13 +399,10 @@ struct VariantPointerTo(Types...)
     bool opCast(T : bool)() const { return ptr !is null; }
 
     private void init(T)(T* that)
-    in
     {
-        assert(!(cast(S)that & typeMask), `Top-most bits of pointer are already occupied`); // TODO use enforce instead?
-    }
-    body
-    {
-        _raw = (cast(S)that | // pointer in lower part
+        const thatRaw = cast(S)that;
+        assert(!(thatRaw & typeMask), `Top-most bits of pointer are already occupied`); // TODO use enforce instead?
+        _raw = (thatRaw | // pointer in lower part
                 (cast(S)(indexOf!T) << typeShift)); // use higher bits for type information
     }
 

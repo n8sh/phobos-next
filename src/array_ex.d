@@ -1,6 +1,6 @@
 /** Array container(s) with optional sortedness (`Ordering`).
 
-    TODO Use containsStoreIndex from searching_ex
+    TODO Use containsStoreIndex from searching_ex inplace of upperBound
 
     TODO Use std.array.insertInPlace in insert()?
 

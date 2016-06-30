@@ -28,8 +28,6 @@
 
     TODO Make array indexing/slicing as @trusted and use .ptr[] instead of [] when things are stable. Especially in IxsN
 
-    TODO Is std.algorithm.countUntil the most suitable function to use in setSub(SparseBranch*, ...)
-
     TODO Should opBinaryRight return void* instead of bool for set-case?
 
     TODO Add `struct Range`. Use same construct as in `containers-em/src/containers/ttree.d`.

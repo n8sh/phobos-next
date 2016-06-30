@@ -806,11 +806,13 @@ struct RawRadixTree(Value = void)
     alias Node = WordVariant!(OneLeafMax7,
                               TwoLeaf3,
                               TriLeaf2,
+
                               HeptLeaf1,
-                              SparseBranch*,
-                              DenseBranch*,
                               SparseLeaf1!Value*,
-                              DenseLeaf1!Value*);
+                              DenseLeaf1!Value*,
+
+                              SparseBranch*,
+                              DenseBranch*);
 
     /** Mutable leaf node of 1-Ix leaves. */
     alias Leaf = WordVariant!(HeptLeaf1,
@@ -818,8 +820,8 @@ struct RawRadixTree(Value = void)
                               DenseLeaf1!Value*);
 
     /** Mutable branch node. */
-    alias Branch = WordVariant!(DenseBranch*,
-                                SparseBranch*);
+    alias Branch = WordVariant!(SparseBranch*,
+                                DenseBranch*);
 
     static assert(Node.typeBits <= IxsN!(7, 1, 8).typeBits);
     static assert(Leaf.typeBits <= IxsN!(7, 1, 8).typeBits);

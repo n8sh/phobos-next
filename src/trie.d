@@ -811,23 +811,26 @@ struct RawRadixTree(Value = void)
                               DenseBranch*,
                               SparseLeaf1!Value*,
                               DenseLeaf1!Value*);
-    static assert(Node.typeBits <= IxsN!(7, 1, 8).typeBits);
-
-    alias Sub = Tuple!(Ix, Node);
 
     /** Mutable leaf node of 1-Ix leaves. */
     alias Leaf = WordVariant!(HeptLeaf1,
                               SparseLeaf1!Value*,
                               DenseLeaf1!Value*);
-    static assert(Leaf.typeBits <= IxsN!(7, 1, 8).typeBits);
 
     /** Mutable branch node. */
     alias Branch = WordVariant!(DenseBranch*,
                                 SparseBranch*);
 
+    static assert(Node.typeBits <= IxsN!(7, 1, 8).typeBits);
+    static assert(Leaf.typeBits <= IxsN!(7, 1, 8).typeBits);
+    static assert(Branch.typeBits <= IxsN!(7, 1, 8).typeBits);
+
+    alias Sub = Tuple!(Ix, Node);
+
     /** Convert `curr` to `Node`. */
-    pragma(inline) Node to(T:Node)(Leaf curr) inout
+    pragma(inline) Node toNode(Leaf curr) inout
     {
+        alias T = typeof(return);
         final switch (curr.typeIx) with (Leaf.Ix)
         {
         case undefined: return T.init;
@@ -836,18 +839,17 @@ struct RawRadixTree(Value = void)
         case ix_DenseLeaf1Ptr: return T(curr.as!(DenseLeaf1!Value*));
         }
     }
-
-    /** Convert `curr` to `Node`. */
-    // TODO Why can't this be named to(T:Node) ?
-    // pragma(inline) Node toNode(T:Node)(Branch curr) inout
-    // {
-    //     final switch (curr.typeIx) with (Branch.Ix)
-    //     {
-    //     case undefined: return Node.init;
-    //     case ix_SparseBranchPtr: return Node(curr.as!(SparseBranch1!Value*));
-    //     case ix_DenseBranchPtr: return Node(curr.as!(DenseBranch1!Value*));
-    //     }
-    // }
+    /// ditto
+    pragma(inline) Node toNode(T:Node)(Branch curr) inout
+    {
+        alias T = typeof(return);
+        final switch (curr.typeIx) with (Branch.Ix)
+        {
+        case undefined: return T.init;
+        case ix_SparseBranchPtr: return T(curr.as!(SparseBranch1!Value*));
+        case ix_DenseBranchPtr: return T(curr.as!(DenseBranch1!Value*));
+        }
+    }
 
     /** Constant node. */
     // TODO make work with indexNaming
@@ -1769,7 +1771,7 @@ struct RawRadixTree(Value = void)
             assert(key.length);
             if (key.length == 1)
             {
-                return insertIxAtLeaftoLeaf(curr, key[0], insertionNode).to!Node;
+                return toNode(insertIxAtLeaftoLeaf(curr, key[0], insertionNode));
             }
             else
             {
@@ -1886,7 +1888,7 @@ struct RawRadixTree(Value = void)
                 assert(hasVariableKeyLength || curr.keyLength == key.length);
                 if (curr.keyLength == key.length)
                 {
-                    return insertAt(curr, key[0], insertionNode).to!Node; // use `Ix key`-overload
+                    return toNode(insertAt(curr, key[0], insertionNode)); // use `Ix key`-overload
                 }
                 return insertAt(Node(constructWithCapacity!(DefaultBranch)(1, Leaf(curr))), // current `key`
                                 key, insertionNode); // NOTE stay at same (depth)
@@ -2301,7 +2303,7 @@ struct RawRadixTree(Value = void)
             writeln(":");
             if (curr_.leaf)
             {
-                printAt(curr_.leaf.to!Node, depth + 1);
+                printAt(toNode(curr_.leaf), depth + 1);
             }
             foreach (const i, const subNode; curr_.subNodes)
             {
@@ -2315,7 +2317,7 @@ struct RawRadixTree(Value = void)
             writeln(":");
             if (curr_.leaf)
             {
-                printAt(curr_.leaf.to!Node, depth + 1);
+                printAt(toNode(curr_.leaf), depth + 1);
             }
             foreach (const i, const subNode; curr_.subNodes)
             {

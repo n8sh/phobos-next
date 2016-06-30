@@ -1496,20 +1496,25 @@ struct RawRadixTree(Value = void)
             return _root = insertAt(_root, key, insertionNode);
         }
 
+        Branch insertNewBranch(UKey key, out Node insertionNode)
+        {
+            import std.algorithm : min;
+            const prefixLength = min(key.length - 1, // all but last Ix of key
+                                     DefaultBranch.prefixCapacity); // as much as possible of key in branch prefix
+            auto prefix = key[0 .. prefixLength];
+            typeof(return) next = insertAtBranchBelowPrefix(Branch(constructWithCapacity!(DefaultBranch)(1, prefix)),
+                                                            key[prefix.length .. $], insertionNode);
+            assert(insertionNode);
+            return next;
+        }
+
         Node insertNew(UKey key, out Node insertionNode)
         {
             debug if (willFail) { dln("WILL FAIL: curr:", key); }
             assert(key.length, "key must not be empty"); // return insertionNode = Node(construct!(OneLeafMax7)());
             static if (hasValue)
             {
-                import std.algorithm : min;
-                const prefixLength = min(key.length - 1, // all but last Ix of key
-                                         DefaultBranch.prefixCapacity); // as much as possible of key in branch prefix
-                auto prefix = key[0 .. prefixLength];
-                auto next = toNode(insertAtBranchBelowPrefix(Branch(constructWithCapacity!(DefaultBranch)(1, prefix)),
-                                                             key[prefix.length .. $], insertionNode));
-                assert(insertionNode);
-                return next;
+                return toNode(insertNewBranch(key, insertionNode));
             }
             else
             {
@@ -1526,14 +1531,7 @@ struct RawRadixTree(Value = void)
                     }
                     else                // key doesn't fit in a `OneLeafMax7`
                     {
-                        import std.algorithm : min;
-                        const prefixLength = min(key.length - 1, // all but last Ix of key
-                                                 DefaultBranch.prefixCapacity); // as much as possible of key in branch prefix
-                        auto prefix = key[0 .. prefixLength];
-                        auto next = toNode(insertAtBranchBelowPrefix(Branch(constructWithCapacity!(DefaultBranch)(1, prefix)),
-                                                                     key[prefix.length .. $], insertionNode));
-                        assert(insertionNode);
-                        return next;
+                        return toNode(insertNewBranch(key, insertionNode));
                     }
                 }
             }

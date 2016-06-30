@@ -167,24 +167,21 @@ pragma(inline):
                 (cast(S)(indexOf!T + 1) << typeShift)); // use higher bits for type information
     }
 
-    private void initializeFromSuper(SubTypes...)(WordVariant!(SubTypes) value) @trusted
+    private void initializeFromSuper(SubTypes...)(WordVariant!(SubTypes) that) @trusted
     {
-        pragma(msg, "Sup:" ~ Types.stringof);
-        pragma(msg, "Sub:" ~ SubTypes.stringof);
         import std.meta : staticIndexOf;
-        foreach (SubType; SubTypes)
+        final switch (that.typeIndex)
         {
-            static assert(staticIndexOf!(SubType, Types) != -1,
-                          "Subtype " ~ SubType.stringof ~ " must be part of the supertypes " ~ Types.stringof);
-        }
-        final switch (value.typeIndex)
-        {
-        case 0: this._raw = 0;
+        case 0:
+            this._raw = 0;      // propagate `undefined`/`null`
             foreach (const i, SubType; SubTypes)
             {
+                static assert(staticIndexOf!(SubType, Types) != -1,
+                              "Subtype " ~ SubType.stringof ~ " must be part of the supertypes " ~ Types.stringof);
             case i + 1:
-                this._raw = (value.rawValue | // raw value
+                this._raw = (that.rawValue | // raw value
                              (cast(S)(indexOf!SubType + 1) << typeShift)); // super type index
+                break;
             }
         }
     }
@@ -225,16 +222,18 @@ pure nothrow unittest
     import std.meta : AliasSeq;
 
     alias SubType = WordVariant!(byte*, short*);
-    alias SuperType = WordVariant!(byte*, short*, long*);
+    alias SuperType = WordVariant!(bool*, byte*, short*, long*);
 
     byte* byteValue = cast(byte*)(0x1);
     SubType sub = byteValue;
+    assert(sub.typeIndex == 1);
     assert(sub.peek!(byte*));
     assert(*(sub.peek!(byte*)) == byteValue);
 
     SuperType sup = sub;
-    // assert(sup.peek!(byte*));
-    // assert(*(sup.peek!(byte*)) == byteValue);
+    assert(sup.typeIndex == 2);
+    assert(sup.peek!(byte*));
+    assert(*(sup.peek!(byte*)) == byteValue);
 }
 
 ///

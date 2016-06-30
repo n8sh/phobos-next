@@ -1503,7 +1503,7 @@ struct RawRadixTree(Value = void)
                                      DefaultBranch.prefixCapacity); // as much as possible of key in branch prefix
             auto prefix = key[0 .. prefixLength];
             typeof(return) next = insertAtBranchBelowPrefix(Branch(constructWithCapacity!(DefaultBranch)(1, prefix)),
-                                                            key[prefix.length .. $], insertionNode);
+                                                            key[prefixLength .. $], insertionNode);
             assert(insertionNode);
             return next;
         }

@@ -578,7 +578,7 @@ static private struct SparseLeaf1(Value)
             // reserve and allocate
             _length = es.length;
             _capacity = _length == 1 ? 1 : nextPow2(_length - 1);
-            assert(_capacity >= _length);
+            debug assert(_capacity >= _length);
             _keys = cast(typeof(_keys))malloc(_capacity*Ix.sizeof);
             static if (hasValue)
             {
@@ -664,12 +664,11 @@ static private struct SparseLeaf1(Value)
     /** Reserve room for `newCapacity` number of elements. */
     void reserve(Capacity newCapacity) @trusted // TODO @nogc
     {
-        assert(!full);
         if (_capacity < newCapacity)
         {
             import std.math : nextPow2;
             _capacity = nextPow2(newCapacity - 1); // need minus one here
-            assert(_capacity >= newCapacity);
+            debug assert(_capacity >= newCapacity);
             _keys = cast(typeof(_keys))realloc(_keys, _capacity*Ix.sizeof);
             static if (hasValue)
             {
@@ -697,15 +696,9 @@ static private struct SparseLeaf1(Value)
         pragma(inline) void setValue(Ix key, in Value value) @trusted /* TODO @nogc */
         {
             size_t index;
-            if (keys.assumeSorted.containsStoreIndex(key, index))
-            {
-                _values[index] = value;
-            }
-            else
-            {
-                assert(index < length);
-                _values[index] = value;
-            }
+            const hit = keys.assumeSorted.containsStoreIndex(key, index);
+            assert(hit);
+            _values[index] = value;
         }
     }
 
@@ -1004,7 +997,7 @@ struct RawRadixTree(Value = void)
             this.subIxSlots[0 .. rhs.subLength] = rhs.subIxSlots[0 .. rhs.subLength];
             this.subNodeSlots[0 .. rhs.subLength] = rhs.subNodeSlots[0 .. rhs.subLength];
 
-            assert(this.subCapacity > rhs.subCapacity);
+            debug assert(this.subCapacity > rhs.subCapacity);
         }
 
         private void initialize(size_t subCapacity)
@@ -1148,7 +1141,7 @@ struct RawRadixTree(Value = void)
         Ix[0] _subIxSlots0;
     }
 
-    static if (!hasValue) static assert(SparseBranch.sizeof == 16);
+    static if (!hasValue) { static assert(SparseBranch.sizeof == 16); }
 
     /** Dense/Unpacked `radix`-branch with `radix` number of sub-nodes. */
     static private struct DenseBranch
@@ -1203,7 +1196,7 @@ struct RawRadixTree(Value = void)
             {
                 if (subNode) { ++count; }
             }
-            assert(count <= radix);
+            debug assert(count <= radix);
             return count;
         }
 
@@ -1219,7 +1212,7 @@ struct RawRadixTree(Value = void)
                     subNode.calculate!(Value)(stats);
                 }
             }
-            assert(count <= radix);
+            debug assert(count <= radix);
             ++stats.popHist_DenseBranch[count]; // TODO type-safe indexing
 
             if (leaf)
@@ -1646,7 +1639,7 @@ struct RawRadixTree(Value = void)
             }
             else // if (matchedKeyPrefix.length == key.length)
             {
-                assert(matchedKeyPrefix.length == key.length);
+                debug assert(matchedKeyPrefix.length == key.length);
                 if (matchedKeyPrefix.length < currPrefix.length)
                 {
                     // NOTE: prefix is an extension of key: prefix:"abcd", key:"ab"
@@ -1773,7 +1766,7 @@ struct RawRadixTree(Value = void)
             }
             else
             {
-                assert(key.length >= 2);
+                debug assert(key.length >= 2);
                 const prefixLength = key.length - 2; // >= 0
                 const nextPrefix = key[0 .. prefixLength];
                 auto next = constructWithCapacity!(DefaultBranch)(1, nextPrefix, curr); // one sub-node and one leaf
@@ -1835,7 +1828,7 @@ struct RawRadixTree(Value = void)
 
             Node insertAt(TwoLeaf3 curr, UKey key, out Node insertionNode)
             {
-                assert(hasVariableKeyLength || curr.keyLength == key.length);
+                debug assert(hasVariableKeyLength || curr.keyLength == key.length);
 
                 if (curr.keyLength == key.length)
                 {
@@ -1851,7 +1844,7 @@ struct RawRadixTree(Value = void)
 
             Node insertAt(TriLeaf2 curr, UKey key, out Node insertionNode)
             {
-                assert(hasVariableKeyLength || curr.keyLength == key.length);
+                debug assert(hasVariableKeyLength || curr.keyLength == key.length);
                 if (curr.keyLength == key.length)
                 {
                     if (curr.contains(key)) { return Node(curr); }
@@ -1883,7 +1876,7 @@ struct RawRadixTree(Value = void)
 
             Node insertAt(HeptLeaf1 curr, UKey key, out Node insertionNode)
             {
-                assert(hasVariableKeyLength || curr.keyLength == key.length);
+                debug assert(hasVariableKeyLength || curr.keyLength == key.length);
                 if (curr.keyLength == key.length)
                 {
                     return Node(insertAt(curr, key[0], insertionNode)); // use `Ix key`-overload
@@ -1896,7 +1889,7 @@ struct RawRadixTree(Value = void)
             Node split(OneLeafMax7 curr, UKey prefix, UKey key) // TODO key here is a bit malplaced
             {
                 if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); } assert(key.length);
-                assert(hasVariableKeyLength || curr.key.length == key.length);
+                debug assert(hasVariableKeyLength || curr.key.length == key.length);
 
                 if (curr.key.length == key.length) // balanced tree possible
                 {
@@ -2362,7 +2355,7 @@ static private void calculate(Value)(RawRadixTree!(Value).Node curr,
         auto curr_ = curr.as!(DenseLeaf1!Value*);
         ++stats.heapNodeCount;
         const count = curr_._keyBits.countOnes; // number of non-zero sub-nodes
-        assert(count <= curr_.maxCount);
+        debug assert(count <= curr_.maxCount);
         ++stats.popHist_DenseLeaf1[count - 1]; // TODO type-safe indexing
         break;
     case ix_SparseBranchPtr:
@@ -2400,7 +2393,7 @@ static private void calculate(Value)(RawRadixTree!(Value).Leaf curr,
             auto curr_ = curr.as!(DenseLeaf1!Value*);
             ++stats.heapNodeCount;
             const count = curr_._keyBits.countOnes; // number of non-zero curr-nodes
-            assert(count <= curr_.maxCount);
+            debug assert(count <= curr_.maxCount);
             ++stats.popHist_DenseLeaf1[count - 1]; // TODO type-safe indexing
             break;
         }

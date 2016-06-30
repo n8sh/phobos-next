@@ -833,7 +833,7 @@ struct RawRadixTree(Value = void)
         alias T = typeof(return);
         final switch (curr.typeIx) with (Leaf.Ix)
         {
-        case undefined: return T.init;
+        case undefined: return T.init; // propagate undefined/null
         case ix_HeptLeaf1: return T(curr.as!(HeptLeaf1));
         case ix_SparseLeaf1Ptr: return T(curr.as!(SparseLeaf1!Value*));
         case ix_DenseLeaf1Ptr: return T(curr.as!(DenseLeaf1!Value*));
@@ -845,7 +845,7 @@ struct RawRadixTree(Value = void)
         alias T = typeof(return);
         final switch (curr.typeIx) with (Branch.Ix)
         {
-        case undefined: return T.init;
+        case undefined: return T.init; // propagate undefined/null
         case ix_SparseBranchPtr: return T(curr.as!(SparseBranch*));
         case ix_DenseBranchPtr: return T(curr.as!(DenseBranch*));
         }

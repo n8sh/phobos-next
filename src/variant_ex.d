@@ -224,7 +224,9 @@ pure nothrow unittest
     alias SubType = WordVariant!(byte*, short*);
     alias SuperType = WordVariant!(bool*, byte*, short*, long*);
 
-    byte* byteValue = cast(byte*)(0x1);
+    byte* byteValue = cast(byte*)(0x11);
+    short* shortValue = cast(short*)(0x22);
+
     SubType sub = byteValue;
     assert(sub.typeIndex == 1);
     assert(sub.peek!(byte*));
@@ -234,6 +236,16 @@ pure nothrow unittest
     assert(sup.typeIndex == 2);
     assert(sup.peek!(byte*));
     assert(*(sup.peek!(byte*)) == byteValue);
+
+    sub = shortValue;
+    assert(sub.typeIndex == 2);
+    assert(sub.peek!(short*));
+    assert(*(sub.peek!(short*)) == shortValue);
+
+    sup = sub;
+    assert(sup.typeIndex == 3);
+    assert(sup.peek!(short*));
+    assert(*(sup.peek!(short*)) == shortValue);
 }
 
 ///

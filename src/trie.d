@@ -1508,16 +1508,12 @@ struct RawRadixTree(Value = void)
             return next;
         }
 
-        Node insertNew(UKey key, out Node insertionNode)
+        static if (!hasValue)
         {
-            debug if (willFail) { dln("WILL FAIL: curr:", key); }
-            assert(key.length, "key must not be empty"); // return insertionNode = Node(construct!(OneLeafMax7)());
-            static if (hasValue)
+            Node insertNew(UKey key, out Node insertionNode)
             {
-                return toNode(insertNewBranch(key, insertionNode));
-            }
-            else
-            {
+                debug if (willFail) { dln("WILL FAIL: curr:", key); }
+                assert(key.length, "key must not be empty"); // return insertionNode = Node(construct!(OneLeafMax7)());
                 switch (key.length)
                 {
                 case 0: assert(false, "key must not be empty"); // return insertionNode = Node(construct!(OneLeafMax7)());
@@ -1537,12 +1533,6 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        Node insertNewBranch(UKey key, out size_t skippedSuperBranchPrefixLength)
-        {
-            skippedSuperBranchPrefixLength = 0;
-            return Node.init;
-        }
-
         /** Insert `key` into sub-tree under root `curr`. */
         pragma(inline) Node insertAt(Node curr, UKey key, out Node insertionNode)
         {
@@ -1551,7 +1541,14 @@ struct RawRadixTree(Value = void)
 
             if (!curr)          // if no existing `Node` to insert at
             {
-                auto next = insertNew(key, insertionNode);
+                static if (hasValue)
+                {
+                    auto next = toNode(insertNewBranch(key, insertionNode));
+                }
+                else
+                {
+                    auto next = insertNew(key, insertionNode);
+                }
                 assert(insertionNode); // must be added to new Node
                 return next;
             }

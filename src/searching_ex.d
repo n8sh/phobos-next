@@ -73,10 +73,46 @@ import std.range : ElementType, SearchPolicy;
 
     Typically used by container modification/insertion algorithms.
 
-    TODO Move to the member of `SortedRange`.
+    TODO Move to the member of `SortedRange` perhaps as a Voldemort return
+    version of contains() or with an extra output index argument
 */
 size_t sortedIndexOf(R, V, SearchPolicy sp = SearchPolicy.binarySearch)(R range, V value)
     if (is(typeof(ElementType!R.init == V.init))) // TODO SortedRange support
 {
     return range.length - range.upperBound!sp(value).length; // always larger than zero
+}
+
+bool containsStoreIndex(R, V, SearchPolicy sp = SearchPolicy.binarySearch)(R range, V value, out size_t index)
+    if (is(typeof(ElementType!R.init == V.init))) // TODO SortedRange support
+{
+    if (range.empty)
+    {
+        index = size_t.max;     // indicate undefined
+        return false;           // no hit
+    }
+
+    index = range.length - range.upperBound!sp(value).length; // always larger than zero
+    if (index == 0 && range[index] == value)
+    {
+        return true;
+    }
+    if (index >= 1 && range[index - 1] == value)
+    {
+        index = index - 1;
+        return true;
+    }
+    return false;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    int[2] x = [1, 3];
+    size_t index;
+    import std.range : assumeSorted;
+    assert(!x[].assumeSorted.containsStoreIndex(0, index) && index == 0);
+    assert( x[].assumeSorted.containsStoreIndex(1, index) && index == 0);
+    assert(!x[].assumeSorted.containsStoreIndex(2, index) && index == 1);
+    assert( x[].assumeSorted.containsStoreIndex(3, index) && index == 1);
+    assert(!x[].assumeSorted.containsStoreIndex(4, index) && index == 2);
 }

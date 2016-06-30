@@ -190,6 +190,7 @@ pragma(inline):
 
     inout(T) as(T)() inout @trusted if (canStore!T)
     {
+        // only in debug mode because it's meant to be called in conjunction with `typeIndex`
         debug assert(isOfType!T);
         inout x = rawValue;
         return *(cast(typeof(return)*)(cast(void*)&x)); // reinterpret

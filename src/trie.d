@@ -723,9 +723,6 @@ private:
     Ix* _keys;
 }
 
-pragma(msg, (SparseLeaf1!void).sizeof);
-pragma(msg, (SparseLeaf1!int).sizeof);
-
 /** Densely coded leaves with values of type `Value`. */
 static private struct DenseLeaf1(Value)
 {

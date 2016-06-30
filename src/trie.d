@@ -543,11 +543,15 @@ struct HeptLeaf1
 /** Sparsely coded leaves with values of type `Value`. */
 static private struct SparseLeaf1(Value)
 {
+    import searching_ex : sortedIndexOf;
     import std.algorithm.sorting : assumeSorted, isSorted;
 
+    enum maxLength = radix;
+    enum maxCapacity = radix;
+
     enum hasValue = !is(Value == void);
-    alias Length = Mod!(radix + 1);
-    alias Capacity = Mod!(radix + 1);
+    alias Length =  Mod!(maxLength + 1);
+    alias Capacity = Mod!(maxCapacity + 1);
 
     /// Constructor Parameter Element type `E`.
     static if (hasValue) { alias E = Tuple!(Ix, Value); }
@@ -625,8 +629,7 @@ static private struct SparseLeaf1(Value)
         }
         else                    // non-empty
         {
-            import searching_ex : insertionIndexOf;
-            const ix = keys.assumeSorted.insertionIndexOf(key); // find index where insertion should be made
+            const ix = keys.assumeSorted.sortedIndexOf(key); // find index where insertion should be made
 
             // check for existing key
             if (ix >= 1 && _keys[ix - 1] == key) // if `key` already inserted
@@ -690,33 +693,38 @@ static private struct SparseLeaf1(Value)
     }
     static if (hasValue)
     {
-        pragma(inline) auto values() const @trusted @nogc
+        pragma(inline) auto values() inout @trusted @nogc
         {
             return _values[0 .. _length];
         }
 
-        pragma(inline) bool setValue(Ix key, in Value value) @trusted @nogc
+        pragma(inline) void setValue(Ix key, in Value value) @trusted /* TODO @nogc */
         {
-            import std.algorithm.searching : find;
-            const hit = (_keys[0 .. _length].find(key)); // TODO binarySearch
-            if (hit.length != 0)
+            const ix = keys.assumeSorted.sortedIndexOf(key); // find index where insertion should be made
+            if (ix >= 1 && _keys[ix - 1] == key)
             {
-                _values[hit.ptr - _keys] = value;
-                return true;
+                _values[ix - 1] = value;
             }
-            return false;
+            else
+            {
+                assert(ix < length);
+                _values[ix] = value;
+            }
         }
     }
 
 private:
     Length _length;
     Capacity _capacity;
-    Ix* _keys;
     static if (hasValue)
     {
         Value* _values;
     }
+    Ix* _keys;
 }
+
+pragma(msg, (SparseLeaf1!void).sizeof);
+pragma(msg, (SparseLeaf1!int).sizeof);
 
 /** Densely coded leaves with values of type `Value`. */
 static private struct DenseLeaf1(Value)
@@ -1039,8 +1047,8 @@ struct RawRadixTree(Value = void)
             }
             else
             {
-                import searching_ex : insertionIndexOf;
-                const ix = subIxs.insertionIndexOf(sub[0]); // find index where insertion should be made
+                import searching_ex : sortedIndexOf;
+                const ix = subIxs.sortedIndexOf(sub[0]); // find index where insertion should be made
 
                 // try update existing
                 if (ix >= 1 && subIxSlots[ix - 1] == sub[0]) // if `key` already inserted
@@ -2523,7 +2531,7 @@ struct RadixTree(Key, Value)
                 case ix_DenseBranchPtr:
                     assert(false);
                 case ix_SparseLeaf1Ptr:
-                    assert(insertionNode.as!(SparseLeaf1!Value*).setValue(rawKey[$ - 1], value));
+                    insertionNode.as!(SparseLeaf1!Value*).setValue(rawKey[$ - 1], value);
                     break;
                 case ix_DenseLeaf1Ptr:
                     insertionNode.as!(DenseLeaf1!Value*).setValue(rawKey[$ - 1], value);

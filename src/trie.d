@@ -840,14 +840,14 @@ struct RawRadixTree(Value = void)
         }
     }
     /// ditto
-    pragma(inline) Node toNode(T:Node)(Branch curr) inout @safe pure nothrow @nogc
+    pragma(inline) Node toNode(Branch curr) inout @safe pure nothrow @nogc
     {
         alias T = typeof(return);
         final switch (curr.typeIx) with (Branch.Ix)
         {
         case undefined: return T.init;
-        case ix_SparseBranchPtr: return T(curr.as!(SparseBranch1!Value*));
-        case ix_DenseBranchPtr: return T(curr.as!(DenseBranch1!Value*));
+        case ix_SparseBranchPtr: return T(curr.as!(SparseBranch*));
+        case ix_DenseBranchPtr: return T(curr.as!(DenseBranch*));
         }
     }
 

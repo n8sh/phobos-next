@@ -111,13 +111,13 @@ struct WordVariant(Types...)
     this(this) {}
 
     /// Assignment from `that`.
-    auto ref opAssign(typeof(this) value) { _raw = value._raw; }
+    auto ref opAssign(typeof(this) value) { _raw = value._raw; return this; }
     /// ditto
-    auto ref opAssign(T)(T that) if (canStore!T) { initialize(that); }
+    auto ref opAssign(T)(T that) if (canStore!T) { initialize(that); return this; }
     /// ditto
-    auto ref opAssign(typeof(null) that) { _raw = S.init; }
+    auto ref opAssign(typeof(null) that) { _raw = S.init; return this; }
     /// Assignment from sub-variant `value`.
-    auto ref opAssign(SubTypes...)(WordVariant!(SubTypes) value) { initializeFromSuper(value); }
+    auto ref opAssign(SubTypes...)(WordVariant!(SubTypes) value) { initializeFromSuper(value); return this; }
 
 pragma(inline):
 

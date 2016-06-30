@@ -833,6 +833,20 @@ struct RawRadixTree(Value = void)
         }
     }
 
+    alias Branch = WordVariant!(DenseBranch*,
+                                SparseBranch*);
+
+    // /** Convert `curr` to `Node`. */
+    // pragma(inline) Node to(T:Node)(Branch curr)
+    // {
+    //     final switch (curr.typeIx) with (Branch.Ix)
+    //     {
+    //     case undefined: return Node.init;
+    //     case ix_SparseBranch1Ptr: return Node(curr.as!(SparseBranch1!Value*));
+    //     case ix_DenseBranch1Ptr: return Node(curr.as!(DenseBranch1!Value*));
+    //     }
+    // }
+
     /** Constant node. */
     // TODO make work with indexNaming
     // alias ConstNodePtr = WordVariant!(staticMap!(ConstOf, Node));
@@ -1236,31 +1250,8 @@ struct RawRadixTree(Value = void)
         if (curr.updateOrInsert(Sub(subIx, subNode)) == curr.ModificationStatus.none) // try insert and if it fails
         {
             // we need to expand because `curr` is full
-
-            debug const previousHeapNodeAllocationBalance = heapNodeAllocationBalance;
-
-            // TODO functionize to: Node Node expand(SparseBranch* curr, size_t capacityIncrement = 1)
-            Node next;
-            if (curr.empty)     // if curr also empty length capacity must be zero
-            {
-                next = constructWithCapacity!(SparseBranch*)(1, curr); // so allocate one
-            }
-            else if (curr.subCapacity < DefaultBranch.subCapacityMax) // if we can expand to curr
-            {
-                import std.math : nextPow2;
-                import std.algorithm : min;
-                const nextSubCapacity = min(nextPow2(cast(uint)curr.subCapacity),
-                                            DefaultBranch.subCapacityMax);
-                debug assert(nextSubCapacity > curr.subCapacity);
-                next = constructWithCapacity!(SparseBranch*)(nextSubCapacity, curr);
-            }
-            else
-            {
-                next = construct!(DenseBranch*)(curr);
-            }
-            freeNode(curr);
+            auto next = expand(curr);
             debug assert(getSub(next, subIx) == Node.init); // key slot should be unoccupied
-            debug assert(previousHeapNodeAllocationBalance == heapNodeAllocationBalance);
             return setSub(next, subIx, subNode); // fast, because directly calls setSub(DenseBranch*, ...)
         }
         return Node(curr);
@@ -2011,6 +2002,34 @@ struct RawRadixTree(Value = void)
                 return Node(next);
             }
         }
+    }
+
+    /** Destructively expand `curr` to a branch node able to store
+        `capacityIncrement` more sub-nodes.
+        TODO return `Branch` instead.
+    */
+    Node expand(SparseBranch* curr, size_t capacityIncrement = 1)
+    {
+        typeof(return) next;
+        if (curr.empty)     // if curr also empty length capacity must be zero
+        {
+            next = constructWithCapacity!(SparseBranch*)(1, curr); // so allocate one
+        }
+        else if (curr.subCapacity < DefaultBranch.subCapacityMax) // if we can expand to curr
+        {
+            import std.math : nextPow2;
+            import std.algorithm : min;
+            const nextSubCapacity = min(nextPow2(cast(uint)curr.subCapacity),
+                                        DefaultBranch.subCapacityMax);
+            debug assert(nextSubCapacity > curr.subCapacity);
+            next = constructWithCapacity!(SparseBranch*)(nextSubCapacity, curr);
+        }
+        else
+        {
+            next = construct!(DenseBranch*)(curr);
+        }
+        freeNode(curr);
+        return next;
     }
 
     /** Returns: `true` iff tree is empty (no elements stored). */

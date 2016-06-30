@@ -104,11 +104,20 @@ struct WordVariant(Types...)
     this(T)(T value) if (canStore!T) { initialize(value); }
     /// ditto
     this(typeof(null) value) { _raw = S.init; }
+    /// Construction from sub-variant `value`.
+    this(SubTypes...)(WordVariant!(SubTypes) value) { initializeFromSuper(value); }
+
+    /// Copy construction.
+    this(this) {}
 
     /// Assignment from `that`.
-    auto ref opAssign(T)(T that) if (canStore!T) { initialize(that); return this; }
+    auto ref opAssign(typeof(this) value) { _raw = value._raw; }
     /// ditto
-    auto ref opAssign(typeof(null) that) { _raw = S.init; return this; }
+    auto ref opAssign(T)(T that) if (canStore!T) { initialize(that); }
+    /// ditto
+    auto ref opAssign(typeof(null) that) { _raw = S.init; }
+    /// Assignment from sub-variant `value`.
+    auto ref opAssign(SubTypes...)(WordVariant!(SubTypes) value) { initializeFromSuper(value); }
 
 pragma(inline):
 
@@ -158,6 +167,28 @@ pragma(inline):
                 (cast(S)(indexOf!T + 1) << typeShift)); // use higher bits for type information
     }
 
+    private void initializeFromSuper(SubTypes...)(WordVariant!(SubTypes) value) @trusted
+    {
+        pragma(msg, "Sup:" ~ Types.stringof);
+        pragma(msg, "Sub:" ~ SubTypes.stringof);
+        import std.meta : staticIndexOf;
+        foreach (SubType; SubTypes)
+        {
+            static assert(staticIndexOf!(SubType, Types) != -1,
+                          "Subtype " ~ SubType.stringof ~ " must be part of the supertypes " ~ Types.stringof);
+        }
+        final switch (value.typeIndex)
+        {
+        case 0: this._raw = 0;
+            foreach (const i, SubType; SubTypes)
+            {
+            case i + 1:
+                this._raw = (value.rawValue | // raw value
+                             (cast(S)(indexOf!SubType + 1) << typeShift)); // super type index
+            }
+        }
+    }
+
     private bool isOfType(T)() const if (canStore!T)
     {
         return !isNull && typeIndex == indexOf!T + 1;
@@ -193,13 +224,30 @@ pure nothrow unittest
 {
     import std.meta : AliasSeq;
 
+    alias SubType = WordVariant!(byte*, short*);
+    alias SuperType = WordVariant!(byte*, short*, long*);
+
+    byte* byteValue = cast(byte*)(0x1);
+    SubType sub = byteValue;
+    assert(sub.peek!(byte*));
+    assert(*(sub.peek!(byte*)) == byteValue);
+
+    SuperType sup = sub;
+    // assert(sup.peek!(byte*));
+    // assert(*(sup.peek!(byte*)) == byteValue);
+}
+
+///
+pure nothrow unittest
+{
+    import std.meta : AliasSeq;
+
     alias Types = AliasSeq!(byte*, short*, int*, long*,
                             ubyte*, ushort*, uint*, ulong*,
                             float*, double*, real*,
                             char*, wchar*, dchar*);
 
     alias V = WordVariant!Types;
-
     V v;
 
     try { assert(v.toString == "null"); } catch (Exception e) { }

@@ -1229,6 +1229,7 @@ struct RawRadixTree(Value = void)
 
             debug const previousHeapNodeAllocationBalance = heapNodeAllocationBalance;
 
+            // TODO functionize to: Node Node expand(SparseBranch* curr, size_t capacityIncrement = 1)
             Node next;
             if (curr.empty)     // if curr also empty length capacity must be zero
             {

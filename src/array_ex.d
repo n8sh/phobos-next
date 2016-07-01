@@ -1,7 +1,5 @@
 /** Array container(s) with optional sortedness (`Ordering`).
 
-    TODO Use containsStoreIndex from searching_ex inplace of upperBound
-
     TODO Use std.array.insertInPlace in insert()?
 
     TODO Split up `Array` into `Array`, `SortedArray`, `SetArray` and reuse
@@ -692,8 +690,12 @@ struct Array(E,
                 // TODO add optimization for values.length == 2
                 static if (values.length == 1)
                 {
-                    auto hit = slice.assumeSorted!comp.upperBound!sp(values); // faster than `completeSort` for single value
-                    linearInsertAtIndexHelper(length - hit.length, values);
+                    import searching_ex : containsStoreIndex;
+                    size_t index;
+                    if (!slice.assumeSorted!comp.containsStoreIndex!sp(values, index)) // faster than `completeSort` for single value
+                    {
+                        linearInsertAtIndexHelper(index, values);
+                    }
                 }
                 else
                 {

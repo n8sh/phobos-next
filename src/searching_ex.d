@@ -92,11 +92,12 @@ size_t sortedIndexOf(R, V, SearchPolicy sp = SearchPolicy.binarySearch)(R range,
 bool containsStoreIndex(R, V, SearchPolicy sp = SearchPolicy.binarySearch)(R range, V value, out size_t index)
     if (is(typeof(ElementType!R.init == V.init))) // TODO SortedRange support
 {
-    if (range.empty)
-    {
-        index = 0;
-        return false;           // no hit
-    }
+    // TODO should we optimize for this case?
+    // if (range.empty)
+    // {
+    //     index = 0;
+    //     return false;           // no hit
+    // }
     index = range.length - range.upperBound!sp(value).length; // always larger than zero
     if (index >= 1 && range[index - 1] == value)
     {

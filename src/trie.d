@@ -2825,63 +2825,6 @@ unittest
     }
 }
 
-/// Create a set of words from /usr/share/dict/words
-unittest
-{
-    immutable path = "/usr/share/dict/words";
-
-    auto set = radixTreeSet!(string);
-    assert(set.empty);
-
-    size_t count = 0;
-    enum debugPrint = false;
-
-    import std.datetime : StopWatch, AutoStart, Duration;
-    auto sw = StopWatch(AutoStart.yes);
-
-    import std.stdio : File;
-    string[] firsts = [];
-    import std.range : chain;
-    foreach (const word; chain(firsts, File(path).byLine))
-    {
-        import std.algorithm.searching : endsWith;
-        import std.range : empty;
-        if (!word.empty &&
-            !word.endsWith(`'s`)) // skip genitive forms
-        {
-            assert(!set.contains(word));
-
-            static if (debugPrint)
-            {
-                import std.string : representation;
-                dln(`word:"`, word, `" of length:`, word.length, ` of representation:`, word.representation);
-                debug set.willFail = word == `amiable`;
-                if (set.willFail)
-                {
-                    set.print();
-                }
-            }
-
-            assert(set.insert(word));
-
-            assert(set.contains(word));
-
-            assert(!set.insert(word));
-            assert(set.contains(word));
-
-            ++count;
-        }
-    }
-    sw.stop;
-    version(print)
-    {
-        import std.conv : to;
-        import std.stdio : writeln;
-        writeln("Added ", count, " words from ", path, " in ", sw.peek().to!Duration);
-        set.showStatistics();
-    }
-}
-
 /** Generate `count` number of random unique strings of minimum length 1 and
     maximum length of `maxLength`.
  */
@@ -2941,6 +2884,63 @@ auto checkString(Keys...)(size_t count, uint maxLength)
 unittest
 {
     checkString!(string)(2^^18, 2^7);
+}
+
+/// Create a set of words from /usr/share/dict/words
+unittest
+{
+    immutable path = "/usr/share/dict/words";
+
+    auto set = radixTreeSet!(string);
+    assert(set.empty);
+
+    size_t count = 0;
+    enum debugPrint = false;
+
+    import std.datetime : StopWatch, AutoStart, Duration;
+    auto sw = StopWatch(AutoStart.yes);
+
+    import std.stdio : File;
+    string[] firsts = [];
+    import std.range : chain;
+    foreach (const word; chain(firsts, File(path).byLine))
+    {
+        import std.algorithm.searching : endsWith;
+        import std.range : empty;
+        if (!word.empty &&
+            !word.endsWith(`'s`)) // skip genitive forms
+        {
+            assert(!set.contains(word));
+
+            static if (debugPrint)
+            {
+                import std.string : representation;
+                dln(`word:"`, word, `" of length:`, word.length, ` of representation:`, word.representation);
+                debug set.willFail = word == `amiable`;
+                if (set.willFail)
+                {
+                    set.print();
+                }
+            }
+
+            assert(set.insert(word));
+
+            assert(set.contains(word));
+
+            assert(!set.insert(word));
+            assert(set.contains(word));
+
+            ++count;
+        }
+    }
+    sw.stop;
+    version(print)
+    {
+        import std.conv : to;
+        import std.stdio : writeln;
+        writeln("Added ", count, " words from ", path, " in ", sw.peek().to!Duration);
+        set.showStatistics();
+    }
 }
 
 /// Check correctness when span is `span` and for each `Key` in `Keys`.

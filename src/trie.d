@@ -2588,7 +2588,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
         {
             final switch (ix)
             {
-            case undefined: break;
+            case undefined: continue; // ignore
             case ix_OneLeafMax7: bytesUsed = pop*OneLeafMax7.sizeof; break;
             case ix_TwoLeaf3: bytesUsed = pop*TwoLeaf3.sizeof; break;
             case ix_TriLeaf2: bytesUsed = pop*TriLeaf2.sizeof; break;
@@ -2611,10 +2611,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
                 break;
             }
         }
-        if (bytesUsed)
-        {
-            writeln(pop, " number of ", ix, " uses ", bytesUsed/1e6, " megabytes");
-        }
+        writeln(pop, " number of ", ix, " uses ", bytesUsed/1e6, " megabytes");
     }
 
     // Leaf-usage
@@ -2625,7 +2622,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
         {
             final switch (ix)
             {
-            case undefined: break;
+            case undefined: continue; // ignore
             case ix_HeptLeaf1: bytesUsed = pop*HeptLeaf1.sizeof; break;
             case ix_SparseLeaf1Ptr: bytesUsed = pop*SparseLeaf1!(RT.ValueType).sizeof; totalBytesUsed += bytesUsed; break;
             case ix_DenseLeaf1Ptr: bytesUsed = pop*DenseLeaf1!(RT.ValueType).sizeof; totalBytesUsed += bytesUsed; break;

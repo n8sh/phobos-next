@@ -2304,7 +2304,7 @@ private:
     immutable fixedKeyLength = fixedKeyLengthUndefined; ///< maximum length of key if fixed, otherwise 0
     enum fixedKeyLengthUndefined = 0;
 
-debug:                          // debug stuff
+    debug:                      // debug stuff
     long _heapNodeAllocationBalance = 0;
     size_t[string] nodeCountsByIx;
     bool willFail;

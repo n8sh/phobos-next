@@ -78,13 +78,13 @@ struct BitSet(uint len, Block = size_t)
         /// Get front.
         bool front() const
         {
-            debug assert(!empty); // only in debug mode since _store is range-checked
+            assert(!empty); // only in debug mode since _store is range-checked
             return _store[_i];
         }
         /// Get back.
         bool back() const
         {
-            debug assert(!empty);  // only in debug mode since _store is range-checked
+            assert(!empty);  // only in debug mode since _store is range-checked
             return _store[_j - 1];
         }
 

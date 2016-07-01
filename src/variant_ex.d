@@ -159,7 +159,7 @@ pragma(inline):
     private void initialize(T)(T that) @trusted
     {
         const thatRaw = (*(cast(S*)(&that)));
-        debug assert(!(thatRaw & typeMask), `Top-most bits of parameter is already occupied`); // TODO use enforce instead?
+        assert(!(thatRaw & typeMask), `Top-most bits of parameter is already occupied`); // TODO use enforce instead?
         _raw = (thatRaw | // data in lower part
                 (cast(S)(indexOf!T + 1) << typeShift)); // use higher bits for type information
     }
@@ -191,7 +191,7 @@ pragma(inline):
     inout(T) as(T)() inout @trusted if (canStore!T)
     {
         // only in debug mode because it's meant to be called in conjunction with `typeIndex`
-        debug assert(isOfType!T);
+        assert(isOfType!T);
         inout x = rawValue;
         return *(cast(typeof(return)*)(cast(void*)&x)); // reinterpret
     }
@@ -402,7 +402,7 @@ struct VariantPointerTo(Types...)
     private void init(T)(T* that)
     {
         const thatRaw = cast(S)that;
-        debug assert(!(thatRaw & typeMask), `Top-most bits of pointer are already occupied`); // TODO use enforce instead?
+        assert(!(thatRaw & typeMask), `Top-most bits of pointer are already occupied`); // TODO use enforce instead?
         _raw = (thatRaw | // pointer in lower part
                 (cast(S)(indexOf!T) << typeShift)); // use higher bits for type information
     }

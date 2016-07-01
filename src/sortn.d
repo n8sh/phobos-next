@@ -388,7 +388,7 @@ auto hybridSort(alias less = "a < b", Range)(Range r)
             if (n == r.length)
             {
                 auto s = r.networkSortUpTo!(n, less);
-                debug assert(s.isSorted!less);
+                assert(s.isSorted!less);
                 return s;
             }
         }

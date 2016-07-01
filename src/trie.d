@@ -1115,7 +1115,7 @@ struct RawRadixTree(Value = void)
 
         // variable-length part
         Node[0] _subNodeSlots0;
-        Ix[0] _subIxSlots0;
+        Ix[0] _subIxSlots0;     // needs to special alignment
     }
 
     static if (!hasValue) { static assert(SparseBranch.sizeof == 16); }

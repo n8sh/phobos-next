@@ -2305,8 +2305,8 @@ private:
     enum fixedKeyLengthUndefined = 0;
 
     debug:                      // debug stuff
-    long _heapNodeAllocationBalance = 0;
-    size_t[string] nodeCountsByIx;
+    ssize_t _heapNodeAllocationBalance = 0;
+    size_t[string] nodeCountsByIx; // TODO Index using Node.Ix instead
     bool willFail;
 }
 

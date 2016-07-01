@@ -635,18 +635,16 @@ struct Array(E,
                         // the end of this array
                     }
 
-                    auto hit = slice.assumeSorted!comp.upperBound!sp(values); // faster than `completeSort` for single value
-                    assert(length >= hit.length);
-                    const index = length - hit.length; // index after potential existing element
-                    if (index == 0 ||                // value must be put first
-                        ptr[index - 1] != values[0]) // or doesn't already exist
+                    import searching_ex : containsStoreIndex;
+                    size_t index;
+                    if (slice.assumeSorted!comp.containsStoreIndex!sp(values, index)) // faster than `completeSort` for single value
                     {
-                        linearInsertAtIndexHelper(index, values);
-                        return [true];
+                        return [false];
                     }
                     else
                     {
-                        return [false];
+                        linearInsertAtIndexHelper(index, values);
+                        return [true];
                     }
                 }
                 else

@@ -76,7 +76,8 @@ import std.range : ElementType, SearchPolicy;
     TODO Move to the member of `SortedRange` perhaps as a Voldemort return
     version of contains() or with an extra output index argument
 */
-size_t sortedIndexOf(R, V, SearchPolicy sp = SearchPolicy.binarySearch)(R range, V value)
+size_t sortedIndexOf(R, V, SearchPolicy sp = SearchPolicy.binarySearch)
+                    (R range, V value)
     if (is(typeof(ElementType!R.init == V.init))) // TODO SortedRange support
 {
     return range.length - range.upperBound!sp(value).length; // always larger than zero
@@ -89,7 +90,8 @@ size_t sortedIndexOf(R, V, SearchPolicy sp = SearchPolicy.binarySearch)(R range,
     TODO Move to member of `SortedRange` either as a new name or as an
     `contains`-overload take an extra `index` as argument.
  */
-bool containsStoreIndex(R, V, SearchPolicy sp = SearchPolicy.binarySearch)(R range, V value, out size_t index)
+bool containsStoreIndex(R, V, SearchPolicy sp = SearchPolicy.binarySearch)
+                       (R range, V value, out size_t index)
     if (is(typeof(ElementType!R.init == V.init))) // TODO SortedRange support
 {
     // TODO should we optimize for this case?
@@ -101,7 +103,7 @@ bool containsStoreIndex(R, V, SearchPolicy sp = SearchPolicy.binarySearch)(R ran
     index = range.length - range.upperBound!sp(value).length; // always larger than zero
     if (index >= 1 && range[index - 1] == value)
     {
-        --index;
+        --index;                             // make index point to last occurrence of `value`
         debug assert(range.contains(value)); // assert same behaviour as existing contains
         return true;
     }

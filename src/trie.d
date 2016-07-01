@@ -516,7 +516,7 @@ struct TriLeaf2
 }
 
 /// Hepa/7-Key Leaf with key-length 1.
-struct SevenLeaf1
+struct HeptLeaf1
 {
     enum keyLength = 1;
     enum capacity = 7; // maximum number of elements
@@ -827,7 +827,7 @@ struct RawRadixTree(Value = void)
                               TwoLeaf3,
                               TriLeaf2,
 
-                              SevenLeaf1,
+                              HeptLeaf1,
                               SparseLeaf1!Value*,
                               DenseLeaf1!Value*,
 
@@ -835,7 +835,7 @@ struct RawRadixTree(Value = void)
                               DenseBranch*);
 
     /** Mutable leaf node of 1-Ix leaves. */
-    alias Leaf = WordVariant!(SevenLeaf1,
+    alias Leaf = WordVariant!(HeptLeaf1,
                               SparseLeaf1!Value*,
                               DenseLeaf1!Value*);
 
@@ -1387,7 +1387,7 @@ struct RawRadixTree(Value = void)
             final switch (curr.typeIx) with (Leaf.Ix)
             {
             case undefined: return false;
-            case ix_SevenLeaf1: return curr.as!(SevenLeaf1).contains(key);
+            case ix_HeptLeaf1: return curr.as!(HeptLeaf1).contains(key);
             case ix_SparseLeaf1Ptr: return key.length == 1 && curr.as!(SparseLeaf1!Value*).contains(key[0]);
             case ix_DenseLeaf1Ptr:  return key.length == 1 && curr.as!(DenseLeaf1!Value*).contains(key[0]);
             }
@@ -1403,7 +1403,7 @@ struct RawRadixTree(Value = void)
             case ix_OneLeafMax7: return curr.as!(OneLeafMax7).contains(key);
             case ix_TwoLeaf3: return curr.as!(TwoLeaf3).contains(key);
             case ix_TriLeaf2: return curr.as!(TriLeaf2).contains(key);
-            case ix_SevenLeaf1: return curr.as!(SevenLeaf1).contains(key);
+            case ix_HeptLeaf1: return curr.as!(HeptLeaf1).contains(key);
             case ix_SparseLeaf1Ptr:
                 return key.length == 1 && curr.as!(SparseLeaf1!Value*).contains(key[0]);
             case ix_DenseLeaf1Ptr:
@@ -1435,7 +1435,7 @@ struct RawRadixTree(Value = void)
             case ix_OneLeafMax7: break;
             case ix_TwoLeaf3: break;
             case ix_TriLeaf2: break;
-            case ix_SevenLeaf1: break;
+            case ix_HeptLeaf1: break;
 
             case ix_SparseLeaf1Ptr:
             case ix_DenseLeaf1Ptr:
@@ -1494,7 +1494,7 @@ struct RawRadixTree(Value = void)
                 switch (key.length)
                 {
                 case 0: assert(false, "key must not be empty"); // return insertionNode = Node(construct!(OneLeafMax7)());
-                case 1: return insertionNode = Node(construct!(SevenLeaf1)(key[0]));
+                case 1: return insertionNode = Node(construct!(HeptLeaf1)(key[0]));
                 case 2: return insertionNode = Node(construct!(TriLeaf2)(key));
                 case 3: return insertionNode = Node(construct!(TwoLeaf3)(key));
                 default:
@@ -1550,11 +1550,11 @@ struct RawRadixTree(Value = void)
                         assert(false);
                     else
                         return insertAt(curr.as!(TriLeaf2), key, insertionNode);
-                case ix_SevenLeaf1:
+                case ix_HeptLeaf1:
                     static if (hasValue)
                         assert(false);
                     else
-                        return insertAt(curr.as!(SevenLeaf1), key, insertionNode);
+                        return insertAt(curr.as!(HeptLeaf1), key, insertionNode);
                 case ix_SparseLeaf1Ptr:
                     return insertAtLeaf(Leaf(curr.as!(SparseLeaf1!Value*)), key, insertionNode); // TODO use toLeaf(curr)
                 case ix_DenseLeaf1Ptr:
@@ -1691,11 +1691,11 @@ struct RawRadixTree(Value = void)
             {
             case undefined:
                 return typeof(return).init;
-            case ix_SevenLeaf1:
+            case ix_HeptLeaf1:
                 static if (hasValue)
                     assert(false);
                 else
-                    return insertAt(curr.as!(SevenLeaf1), key, insertionNode); // possibly expanded to other Leaf
+                    return insertAt(curr.as!(HeptLeaf1), key, insertionNode); // possibly expanded to other Leaf
             case ix_SparseLeaf1Ptr:
                 auto curr_ = curr.as!(SparseLeaf1!Value*);
                 size_t insertionIndex;
@@ -1731,7 +1731,7 @@ struct RawRadixTree(Value = void)
                 }
                 else
                 {
-                    auto leaf_ = construct!(SevenLeaf1)(key); // can pack more efficiently when no value
+                    auto leaf_ = construct!(HeptLeaf1)(key); // can pack more efficiently when no value
                 }
                 setLeaf(curr, Leaf(leaf_));
                 insertionNode = leaf_;
@@ -1777,7 +1777,7 @@ struct RawRadixTree(Value = void)
                         switch (matchedKeyPrefix.length)
                         {
                         case 0:
-                            next = construct!(SevenLeaf1)(curr.key[0], key[0]);
+                            next = construct!(HeptLeaf1)(curr.key[0], key[0]);
                             break;
                         case 1:
                             next = construct!(TriLeaf2)(curr.key, key);
@@ -1839,7 +1839,7 @@ struct RawRadixTree(Value = void)
                 return Node(insertAtBranchAbovePrefix(expand(curr), key, insertionNode)); // NOTE stay at same (depth)
             }
 
-            Leaf insertAt(SevenLeaf1 curr, Ix key, out Node insertionNode)
+            Leaf insertAt(HeptLeaf1 curr, Ix key, out Node insertionNode)
             {
                 if (curr.contains(key)) { return Leaf(curr); }
                 if (!curr.keys.full)
@@ -1857,7 +1857,7 @@ struct RawRadixTree(Value = void)
                 return Leaf(next);
             }
 
-            Node insertAt(SevenLeaf1 curr, UKey key, out Node insertionNode)
+            Node insertAt(HeptLeaf1 curr, UKey key, out Node insertionNode)
             {
                 debug assert(hasVariableKeyLength || curr.keyLength == key.length);
                 if (curr.keyLength == key.length)
@@ -1882,7 +1882,7 @@ struct RawRadixTree(Value = void)
                         if (prefix.length == 0)
                         {
                             freeNode(curr);
-                            return Node(construct!(SevenLeaf1)(curr.key)); // TODO removing parameter has no effect. why?
+                            return Node(construct!(HeptLeaf1)(curr.key)); // TODO removing parameter has no effect. why?
                         }
                         break;
                     case 2:
@@ -1913,7 +1913,7 @@ struct RawRadixTree(Value = void)
                 if (curr.key.length <= DefaultBranch.prefixCapacity + 1) // if `key` fits in `prefix` of `DefaultBranch`
                 {
                     next = constructWithCapacity!(DefaultBranch)(1 + capacityIncrement, curr.key[0 .. $ - 1], // all but last
-                                                                 Leaf(construct!(SevenLeaf1)(curr.key[$ - 1]))); // last as a leaf
+                                                                 Leaf(construct!(HeptLeaf1)(curr.key[$ - 1]))); // last as a leaf
                 }
                 else                // curr.key.length > DefaultBranch.prefixCapacity + 1
                 {
@@ -1971,7 +1971,7 @@ struct RawRadixTree(Value = void)
             }
 
             /** Destructively expand `curr` making room for `nextKey` and return it. */
-            Node expand(SevenLeaf1 curr, size_t capacityIncrement = 1)
+            Node expand(HeptLeaf1 curr, size_t capacityIncrement = 1)
             {
                 auto next = construct!(SparseLeaf1!Value*)(curr.keys);
                 freeNode(curr);
@@ -2101,7 +2101,7 @@ struct RawRadixTree(Value = void)
         void release(OneLeafMax7 curr) { freeNode(curr); }
         void release(TwoLeaf3 curr) { freeNode(curr); }
         void release(TriLeaf2 curr) { freeNode(curr); }
-        void release(SevenLeaf1 curr) { freeNode(curr); }
+        void release(HeptLeaf1 curr) { freeNode(curr); }
 
         /// Release `Leaf curr`.
         void release(Leaf curr)
@@ -2109,7 +2109,7 @@ struct RawRadixTree(Value = void)
             final switch (curr.typeIx) with (Leaf.Ix)
             {
             case undefined: break; // ignored
-            case ix_SevenLeaf1: return release(curr.as!(SevenLeaf1));
+            case ix_HeptLeaf1: return release(curr.as!(HeptLeaf1));
             case ix_SparseLeaf1Ptr: return release(curr.as!(SparseLeaf1!Value*));
             case ix_DenseLeaf1Ptr: return release(curr.as!(DenseLeaf1!Value*));
             }
@@ -2125,7 +2125,7 @@ struct RawRadixTree(Value = void)
             case ix_OneLeafMax7: return release(curr.as!(OneLeafMax7));
             case ix_TwoLeaf3: return release(curr.as!(TwoLeaf3));
             case ix_TriLeaf2: return release(curr.as!(TriLeaf2));
-            case ix_SevenLeaf1: return release(curr.as!(SevenLeaf1));
+            case ix_HeptLeaf1: return release(curr.as!(HeptLeaf1));
             case ix_SparseLeaf1Ptr: return release(curr.as!(SparseLeaf1!Value*));
             case ix_DenseLeaf1Ptr: return release(curr.as!(DenseLeaf1!Value*));
             case ix_SparseBranchPtr: return release(curr.as!(SparseBranch*));
@@ -2141,7 +2141,7 @@ struct RawRadixTree(Value = void)
             case ix_OneLeafMax7: return false;
             case ix_TwoLeaf3: return false;
             case ix_TriLeaf2: return false;
-            case ix_SevenLeaf1: return false;
+            case ix_HeptLeaf1: return false;
             case ix_SparseLeaf1Ptr: return true;
             case ix_DenseLeaf1Ptr: return true;
             case ix_SparseBranchPtr: return true;
@@ -2204,8 +2204,8 @@ struct RawRadixTree(Value = void)
             auto curr_ = curr.as!(TriLeaf2);
             writeln(typeof(curr_).stringof, " #", curr_.keys.length, ": ", curr_.keys);
             break;
-        case ix_SevenLeaf1:
-            auto curr_ = curr.as!(SevenLeaf1);
+        case ix_HeptLeaf1:
+            auto curr_ = curr.as!(HeptLeaf1);
             writeln(typeof(curr_).stringof, " #", curr_.keys.length, ": ", curr_.keys);
             break;
         case ix_SparseLeaf1Ptr:
@@ -2328,7 +2328,7 @@ static private void calculate(Value)(RawRadixTree!(Value).Node curr,
     case ix_OneLeafMax7: break; // TODO calculate()
     case ix_TwoLeaf3: break; // TODO calculate()
     case ix_TriLeaf2: break; // TODO calculate()
-    case ix_SevenLeaf1: break; // TODO calculate()
+    case ix_HeptLeaf1: break; // TODO calculate()
     case ix_SparseLeaf1Ptr:
         ++stats.heapNodeCount;
         auto curr_ = curr.as!(SparseLeaf1!Value*);
@@ -2367,7 +2367,7 @@ static private void calculate(Value)(RawRadixTree!(Value).Leaf curr,
         final switch (curr.typeIx)
         {
         case undefined: break;
-        case ix_SevenLeaf1: break; // TODO calculate()
+        case ix_HeptLeaf1: break; // TODO calculate()
         case ix_SparseLeaf1Ptr:
             ++stats.heapNodeCount;
             auto curr_ = curr.as!(SparseLeaf1!Value*);
@@ -2494,7 +2494,7 @@ struct RadixTree(Key, Value)
                 case ix_OneLeafMax7:
                 case ix_TwoLeaf3:
                 case ix_TriLeaf2:
-                case ix_SevenLeaf1:
+                case ix_HeptLeaf1:
                 case ix_SparseBranchPtr:
                 case ix_DenseBranchPtr:
                     assert(false);
@@ -2596,7 +2596,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
             case ix_OneLeafMax7: bytesUsed = pop*OneLeafMax7.sizeof; break;
             case ix_TwoLeaf3: bytesUsed = pop*TwoLeaf3.sizeof; break;
             case ix_TriLeaf2: bytesUsed = pop*TriLeaf2.sizeof; break;
-            case ix_SevenLeaf1: bytesUsed = pop*SevenLeaf1.sizeof; break;
+            case ix_HeptLeaf1: bytesUsed = pop*HeptLeaf1.sizeof; break;
             case ix_SparseLeaf1Ptr:
                 bytesUsed = pop*SparseLeaf1!(RT.ValueType).sizeof;
                 totalBytesUsed += bytesUsed;
@@ -2629,7 +2629,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
             final switch (ix)
             {
             case undefined: continue; // ignore
-            case ix_SevenLeaf1: bytesUsed = pop*SevenLeaf1.sizeof; break;
+            case ix_HeptLeaf1: bytesUsed = pop*HeptLeaf1.sizeof; break;
             case ix_SparseLeaf1Ptr: bytesUsed = pop*SparseLeaf1!(RT.ValueType).sizeof; totalBytesUsed += bytesUsed; break;
             case ix_DenseLeaf1Ptr: bytesUsed = pop*DenseLeaf1!(RT.ValueType).sizeof; totalBytesUsed += bytesUsed; break;
             }
@@ -2689,7 +2689,7 @@ unittest
 unittest
 {
     auto set = radixTreeSet!(ulong);
-    enum N = SevenLeaf1.capacity;
+    enum N = HeptLeaf1.capacity;
 
     foreach (const i; 0 .. N)
     {
@@ -2742,18 +2742,18 @@ unittest
     auto set = radixTreeSet!(ubyte);
     alias Set = typeof(set);
 
-    foreach (const i; 0 .. SevenLeaf1.capacity)
+    foreach (const i; 0 .. HeptLeaf1.capacity)
     {
         assert(!set.contains(i));
         assert(set.insert(i));
         assert(!set.insert(i));
         assert(set.contains(i));
         debug assert(set.heapNodeAllocationBalance == 0);
-        const rootRef = set._root.peek!(SevenLeaf1);
+        const rootRef = set._root.peek!(HeptLeaf1);
         assert(rootRef);
     }
 
-    foreach (const i; SevenLeaf1.capacity .. 256)
+    foreach (const i; HeptLeaf1.capacity .. 256)
     {
         assert(!set.contains(i));
         assert(set.insert(i));

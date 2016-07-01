@@ -616,9 +616,9 @@ static private struct SparseLeaf1(Value)
     /** Insert `key`.
         Returns: `true` if `key` was inserted, `false` otherwise if `key` was already stored.
      */
-    bool insert(Ix key, out size_t insertionIndex) @trusted /* TODO @nogc */
+    bool insert(Ix key, out size_t index) @trusted /* TODO @nogc */
     {
-        if (keys.assumeSorted.containsStoreIndex(key, insertionIndex))
+        if (keys.assumeSorted.containsStoreIndex(key, index))
         {
             return false;
         }
@@ -627,8 +627,8 @@ static private struct SparseLeaf1(Value)
 
         // make room
         reserve(Capacity(_length + 1));
-        debug assert(_length >= insertionIndex);
-        foreach (i; 0 .. _length - insertionIndex) // TODO functionize this loop or reuse memmove:
+        debug assert(_length >= index);
+        foreach (i; 0 .. _length - index) // TODO functionize this loop or reuse memmove:
         {
             const iD = _length - i;
             const iS = iD - 1;
@@ -636,7 +636,7 @@ static private struct SparseLeaf1(Value)
         }
         ++_length;
 
-        _keys[insertionIndex] = key;    // set new element
+        _keys[index] = key;    // set new element
 
         return true;
     }
@@ -1010,42 +1010,32 @@ struct RawRadixTree(Value = void)
          */
         ModificationStatus updateOrInsert(Sub sub)
         {
-            if (empty)
+            import searching_ex : containsStoreIndex;
+            size_t index;
+            if (subIxs.containsStoreIndex(sub[0], index))
             {
-                subIxSlots[0] = sub[0];
-                subNodeSlots[0] = sub[1];
-                subLength = 1;
-                return ModificationStatus.inserted;
+                subIxSlots[index] = sub[0];
+                subNodeSlots[index] = sub[1];
+                return ModificationStatus.updated;
             }
-            else
+
+            // check if full
+            if (full) { return ModificationStatus.none; }
+
+            debug assert(subLength >= index);
+            foreach (i; 0 .. subLength - index) // TODO functionize this loop or reuse memmove:
             {
-                import searching_ex : containsStoreIndex;
-                size_t index;
-                if (subIxs.containsStoreIndex(sub[0], index))
-                {
-                    subIxSlots[index] = sub[0];
-                    subNodeSlots[index] = sub[1];
-                    return ModificationStatus.updated;
-                }
-
-                // check if full
-                if (full) { return ModificationStatus.none; }
-
-                debug assert(subLength >= index);
-                foreach (i; 0 .. subLength - index) // TODO functionize this loop or reuse memmove:
-                {
-                    const iD = subLength - i;
-                    const iS = iD - 1;
-                    subIxSlots[iD] = subIxSlots[iS];
-                    subNodeSlots[iD] = subNodeSlots[iS];
-                }
-                ++subLength;
-
-                subIxSlots[index] = sub[0]; // set new element
-                subNodeSlots[index] = sub[1]; // set new element
-
-                return ModificationStatus.inserted;
+                const iD = subLength - i;
+                const iS = iD - 1;
+                subIxSlots[iD] = subIxSlots[iS];
+                subNodeSlots[iD] = subNodeSlots[iS];
             }
+            ++subLength;
+
+            subIxSlots[index] = sub[0]; // set new element
+            subNodeSlots[index] = sub[1]; // set new element
+
+            return ModificationStatus.inserted;
         }
 
         inout(Node) containsSubAt(Ix ix) inout

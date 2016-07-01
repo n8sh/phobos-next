@@ -97,6 +97,14 @@ alias KeyN(size_t span, size_t N) = Mod!(2^^span)[N];
 
 alias UKey = Key!span;
 
+/** Results of attempt at modification sub. */
+enum ModificationStatus
+{
+    none,               // no operation, because container is full
+    inserted,           // new element was inserted
+    updated,            // existing element was update/modified
+}
+
 /** Size of a CPU cache line in bytes.
 
     Container layouts should be adapted to make use of at least this many bytes
@@ -997,14 +1005,6 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        /** Results of attempt at modification sub. */
-        enum ModificationStatus
-        {
-            none,               // no operation, because container is full
-            inserted,           // new element was inserted
-            updated,            // existing element was update/modified
-        }
-
         /** Try update or inserte sub-node sub[1] at index sub[0].
             Returns: `true` upon updated or insertion, otherwise `false` when `this` is full.
          */
@@ -1215,7 +1215,7 @@ struct RawRadixTree(Value = void)
     /// ditto
     Branch setSub(SparseBranch* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
-        if (curr.updateOrInsert(Sub(subIx, subNode)) == curr.ModificationStatus.none) // try insert and if it fails
+        if (curr.updateOrInsert(Sub(subIx, subNode)) == ModificationStatus.none) // try insert and if it fails
         {
             // we need to expand because `curr` is full
             auto next = expand(curr);

@@ -2631,10 +2631,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
             case ix_DenseLeaf1Ptr: bytesUsed = pop*DenseLeaf1!(RT.ValueType).sizeof; totalBytesUsed += bytesUsed; break;
             }
         }
-        if (bytesUsed)
-        {
-            writeln(pop, " number of ", ix, " uses ", bytesUsed/1e6, " megabytes");
-        }
+        writeln(pop, " number of ", ix, " uses ", bytesUsed/1e6, " megabytes");
     }
 
     writeln("Tree uses ", totalBytesUsed/1e6, " megabytes");

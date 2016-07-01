@@ -105,6 +105,15 @@ enum ModificationStatus
     updated,            // existing element was update/modified
 }
 
+/** Check if type `T` is a variable-length aggregate (`struct`) type.
+    See also: https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html
+*/
+template hasVariableLength(T)
+{
+    import std.traits: hasMember;
+    enum hasVariableLength = hasMember!(T, "allocationSizeOfCapacity");
+}
+
 /** Size of a CPU cache line in bytes.
 
     Container layouts should be adapted to make use of at least this many bytes
@@ -920,7 +929,6 @@ struct RawRadixTree(Value = void)
 
     /** Sparse/Packed dynamically sized branch implemented as variable-length
         struct.
-        See also: https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html
     */
     static private struct SparseBranch
     {
@@ -1090,17 +1098,17 @@ struct RawRadixTree(Value = void)
 
         /** Get allocation size (in bytes) needed to hold `length` number of
             sub-indexes and sub-nodes. */
-        static size_t allocationSize(size_t subCapacity) @safe pure nothrow @nogc
+        static size_t allocationSizeOfCapacity(size_t capacity) @safe pure nothrow @nogc
         {
             return (this.sizeof + // base plus
-                    Node.sizeof*subCapacity + // actual size of `_subNodeSlots0`
-                    Ix.sizeof*subCapacity);   // actual size of `_subIxSlots0`
+                    Node.sizeof*capacity + // actual size of `_subNodeSlots0`
+                    Ix.sizeof*capacity);   // actual size of `_subIxSlots0`
         }
 
         /** Get allocated size (in bytes) of `this` including the variable-length part. */
         size_t allocatedSize() const @safe pure nothrow @nogc
         {
-            return allocationSize(subCapacity);
+            return allocationSizeOfCapacity(subCapacity);
         }
 
     private:
@@ -1118,6 +1126,8 @@ struct RawRadixTree(Value = void)
         Ix[0] _subIxSlots0;     // needs to special alignment
     }
 
+    static assert(hasVariableLength!SparseBranch);
+    static assert(hasVariableLength!(SparseBranch*));
     static if (!hasValue) { static assert(SparseBranch.sizeof == 16); }
 
     /** Dense/Unpacked `radix`-branch with `radix` number of sub-nodes. */
@@ -2019,7 +2029,7 @@ struct RawRadixTree(Value = void)
         using constructor arguments `args` of `Args`.
     */
     auto construct(NodeType, Args...)(Args args) @trusted
-        if (!is(NodeType == SparseBranch*))
+        if (!hasVariableLength!NodeType)
     {
         version(debugAllocations) { dln("constructing ", NodeType.stringof, " from ", args); }
         debug ++nodeCountsByIx[NodeType.stringof];
@@ -2037,7 +2047,8 @@ struct RawRadixTree(Value = void)
     }
 
     auto constructWithCapacity(NodeType, Args...)(size_t subCapacity, Args args) @trusted
-        if (is(NodeType == SparseBranch*))
+        if (isPointer!NodeType &&
+            hasVariableLength!NodeType)
     {
         version(debugAllocations) { dln("constructing ", NodeType.stringof, " from ", args); }
         debug ++nodeCountsByIx[NodeType.stringof];
@@ -2045,7 +2056,7 @@ struct RawRadixTree(Value = void)
         import std.conv : emplace;
         import std.algorithm : max;
         subCapacity = max(SparseBranch.subCapacityMin, subCapacity);
-        return emplace(cast(NodeType)malloc(NodeType.allocationSize(subCapacity)), subCapacity, args);
+        return emplace(cast(NodeType)malloc(NodeType.allocationSizeOfCapacity(subCapacity)), subCapacity, args);
         // TODO ensure alignment of node at least that of NodeType.alignof
     }
 

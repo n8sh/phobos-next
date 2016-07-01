@@ -18,8 +18,6 @@
     GC.addRange(_values, length * Value.sizeof);
     }
 
-    TODO Use variadic list of `Sub`s in constructors for SparseBranch and DenseBranch
-
     TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
     TODO Allow NodeType-constructors to take const and immutable prefixes
 

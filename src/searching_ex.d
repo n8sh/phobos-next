@@ -70,7 +70,7 @@ import std.range : ElementType, SearchPolicy;
     TODO Move to member of `SortedRange` either as a new name or as an
     `contains`-overload take an extra `index` as argument.
  */
-bool containsStoreIndex(R, V, SearchPolicy sp = SearchPolicy.binarySearch)
+bool containsStoreIndex(SearchPolicy sp = SearchPolicy.binarySearch, R, V)
                        (R range, V value, out size_t index)
     if (is(typeof(ElementType!R.init == V.init))) // TODO SortedRange support
 {

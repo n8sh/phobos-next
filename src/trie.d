@@ -2533,7 +2533,7 @@ alias PatriciaTrie = RadixTree;
 alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
 
-/// Instantiator of set-version of `RadixTree` where value-type is `void` (unused).
+/// Instantiator for the set-version of `RadixTree` where value-type is `void` (unused).
 auto radixTreeSet(Key)()
 {
     static if (is(Key == string))
@@ -2547,7 +2547,7 @@ auto radixTreeSet(Key)()
     return RadixTree!(MutableKey, void)(false);
 }
 
-/// Instantiator of map-version of `RadixTree` where value-type is `Value`.
+/// Instantiator for the map-version of `RadixTree` where value-type is `Value`.
 auto radixTreeMap(Key, Value)() { return RadixTree!(Key, Value)(false); }
 
 ///

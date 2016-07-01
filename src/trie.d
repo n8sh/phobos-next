@@ -3126,8 +3126,7 @@ auto testScalar(uint span, Keys...)()
     {
         foreach (Key; Keys)
         {
-            alias Tree = radixTreeSet!(Key);
-            auto set = Tree;
+            auto set = radixTreeSet!(Key);
 
             static if (isIntegral!Key)
             {

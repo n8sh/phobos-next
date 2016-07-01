@@ -2306,7 +2306,7 @@ private:
     size_t _length = 0; ///< number of elements (keys or key-value-pairs) currently stored under `_root`
 
     debug:                      // debug stuff
-    ssize_t _heapNodeAllocationBalance = 0;
+    long _heapNodeAllocationBalance = 0;
     size_t[string] nodeCountsByIx; // TODO Index using Node.Ix instead
     bool willFail;
 }

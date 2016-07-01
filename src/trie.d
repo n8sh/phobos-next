@@ -618,38 +618,27 @@ static private struct SparseLeaf1(Value)
      */
     bool insert(Ix key, out size_t insertionIndex) @trusted /* TODO @nogc */
     {
-        if (empty)
+        if (keys.assumeSorted.containsStoreIndex(key, insertionIndex))
         {
-            reserve(Capacity(1));
-            _keys[0] = key;
-            _length = 1;
-            insertionIndex = 0;
-            return true;
+            return false;
         }
-        else                    // non-empty
+
+        // TODO if (full) { return ModificationStatus.none; }
+
+        // make room
+        reserve(Capacity(_length + 1));
+        debug assert(_length >= insertionIndex);
+        foreach (i; 0 .. _length - insertionIndex) // TODO functionize this loop or reuse memmove:
         {
-            if (keys.assumeSorted.containsStoreIndex(key, insertionIndex))
-            {
-                return false;
-            }
-
-            // TODO if (full) { return ModificationStatus.none; }
-
-            // make room
-            reserve(Capacity(_length + 1));
-            debug assert(_length >= insertionIndex);
-            foreach (i; 0 .. _length - insertionIndex) // TODO functionize this loop or reuse memmove:
-            {
-                const iD = _length - i;
-                const iS = iD - 1;
-                _keys[iD] = _keys[iS];
-            }
-            ++_length;
-
-            _keys[insertionIndex] = key;    // set new element
-
-            return true;
+            const iD = _length - i;
+            const iS = iD - 1;
+            _keys[iD] = _keys[iS];
         }
+        ++_length;
+
+        _keys[insertionIndex] = key;    // set new element
+
+        return true;
     }
 
     pragma(inline) Length length() const @safe @nogc { return _length; }

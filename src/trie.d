@@ -3129,10 +3129,9 @@ auto testScalar(uint span, Keys...)()
             alias Tree = radixTreeSet!(Key);
             auto set = Tree;
 
-            import std.algorithm : min, max;
-
             static if (isIntegral!Key)
             {
+                import std.algorithm : min, max;
                 const low = max(Key.min, -100_000);
                 const high = min(Key.max, 100_000);
             }
@@ -3152,6 +3151,7 @@ auto testScalar(uint span, Keys...)()
     }
 }
 
+///
 @safe pure nothrow /* TODO @nogc */ unittest
 {
     testScalar!(8,

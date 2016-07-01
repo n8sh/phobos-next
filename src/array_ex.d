@@ -261,7 +261,8 @@ pure nothrow unittest
 import std.traits : isInstanceOf;
 enum isArray(C) = isInstanceOf!(Array, C);
 
-/** Small-size-optimized (SSO-packed) array of value types `E`.
+/** Small-size-optimized (SSO-packed) array of value types `E` with optional
+    ordering given by `ordering`.
  */
 struct Array(E,
              Ordering ordering = Ordering.unsorted,

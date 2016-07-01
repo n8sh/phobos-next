@@ -101,7 +101,7 @@ bool containsStoreIndex(R, V, SearchPolicy sp = SearchPolicy.binarySearch)(R ran
     index = range.length - range.upperBound!sp(value).length; // always larger than zero
     if (index >= 1 && range[index - 1] == value)
     {
-        index = index - 1;
+        --index;
         debug assert(range.contains(value)); // assert same behaviour as existing contains
         return true;
     }

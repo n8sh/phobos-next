@@ -70,39 +70,28 @@ struct BitSet(uint len, Block = size_t)
     {
         @safe pure @nogc:
 
-        bool empty() const nothrow
-        {
-            return _i == _j;
-        }
+        /// Returns: `true` iff `this` is empty.
+        bool   empty()  const nothrow { return _i == _j; }
+        /// Returns: `this` length.
+        size_t length() const nothrow { return _j - _i; }
 
-        size_t length() const nothrow
-        {
-            return _j - _i;
-        }
-
+        /// Get front.
         bool front() const
         {
             debug assert(!empty); // only in debug mode since _store is range-checked
             return _store[_i];
         }
-
+        /// Get back.
         bool back() const
         {
             debug assert(!empty);  // only in debug mode since _store is range-checked
             return _store[_j - 1];
         }
 
-        void popFront()
-        {
-            assert(!empty);
-            ++_i;
-        }
-
-        void popBack()
-        {
-            assert(!empty);
-            ++_i;
-        }
+        /// Pop front.
+        void popFront() { assert(!empty); ++_i; }
+        /// Pop back.
+        void popBack()  { assert(!empty); ++_i; }
 
     private:
         BitSet _store;          // copy of store

@@ -3118,7 +3118,7 @@ version(enterSingleInfiniteMemoryLeakTest)
                   ulong, uint, ushort, ubyte);
 }
 
-auto testPrint(uint span, Keys...)()
+auto testScalar(uint span, Keys...)()
     if (Keys.length >= 1)
 {
     import std.range : iota;
@@ -3126,7 +3126,6 @@ auto testPrint(uint span, Keys...)()
     {
         foreach (Key; Keys)
         {
-            dln("Key: ", Key.stringof);
             alias Tree = radixTreeSet!(Key);
             auto set = Tree;
 
@@ -3153,12 +3152,12 @@ auto testPrint(uint span, Keys...)()
     }
 }
 
-version(print) @safe unittest
+@safe pure nothrow /* TODO @nogc */ unittest
 {
-    testPrint!(8,
-               double, float,
-               long, int, short, byte,
-               ulong, uint, ushort, ubyte);
+    testScalar!(8,
+                double, float,
+                long, int, short, byte,
+                ulong, uint, ushort, ubyte);
 }
 
 /** Static Iota.

@@ -965,7 +965,7 @@ struct RawRadixTree(Value = void)
 
         this(size_t subCapacity, const Ix[] prefix, Sub sub)
         {
-            assert(subCapacity >= 1);
+            assert(subCapacity);
 
             initialize(subCapacity);
 
@@ -1496,6 +1496,7 @@ struct RawRadixTree(Value = void)
 
         Branch insertNewBranch(UKey key, out Node insertionNode)
         {
+            assert(key.length);
             import std.algorithm : min;
             const prefixLength = min(key.length - 1, // all but last Ix of key
                                      DefaultBranch.prefixCapacity); // as much as possible of key in branch prefix
@@ -1511,7 +1512,7 @@ struct RawRadixTree(Value = void)
             Node insertNew(UKey key, out Node insertionNode)
             {
                 debug if (willFail) { dln("WILL FAIL: curr:", key); }
-                assert(key.length, "key must not be empty"); // return insertionNode = Node(construct!(OneLeafMax7)());
+                assert(key.length);
                 switch (key.length)
                 {
                 case 0: assert(false, "key must not be empty"); // return insertionNode = Node(construct!(OneLeafMax7)());
@@ -1643,6 +1644,7 @@ struct RawRadixTree(Value = void)
                 if (matchedKeyPrefix.length < currPrefix.length)
                 {
                     // NOTE: prefix is an extension of key: prefix:"abcd", key:"ab"
+                    debug assert(matchedKeyPrefix.length);
                     const nextPrefixLength = matchedKeyPrefix.length - 1;
                     auto currSubIx = currPrefix[nextPrefixLength]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
@@ -1654,6 +1656,7 @@ struct RawRadixTree(Value = void)
                         if (key.length == currPrefix.length */
                 {
                     // NOTE: prefix equals key: prefix:"abcd", key:"abcd"
+                    debug assert(matchedKeyPrefix.length);
                     auto currSubIx = currPrefix[matchedKeyPrefix.length - 1]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
                     auto next = constructWithCapacity!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
@@ -2349,6 +2352,7 @@ static private void calculate(Value)(RawRadixTree!(Value).Node curr,
     case ix_SparseLeaf1Ptr:
         ++stats.heapNodeCount;
         auto curr_ = curr.as!(SparseLeaf1!Value*);
+        debug assert(curr_.length);
         ++stats.popHist_SparseLeaf1[curr_.length - 1]; // TODO type-safe indexing
         break;
     case ix_DenseLeaf1Ptr:
@@ -2387,6 +2391,7 @@ static private void calculate(Value)(RawRadixTree!(Value).Leaf curr,
         case ix_SparseLeaf1Ptr:
             ++stats.heapNodeCount;
             auto curr_ = curr.as!(SparseLeaf1!Value*);
+            debug assert(curr_.length);
             ++stats.popHist_SparseLeaf1[curr_.length - 1]; // TODO type-safe indexing
             break;
         case ix_DenseLeaf1Ptr:
@@ -2394,6 +2399,7 @@ static private void calculate(Value)(RawRadixTree!(Value).Leaf curr,
             ++stats.heapNodeCount;
             const count = curr_._keyBits.countOnes; // number of non-zero curr-nodes
             debug assert(count <= curr_.maxCount);
+            debug assert(count);
             ++stats.popHist_DenseLeaf1[count - 1]; // TODO type-safe indexing
             break;
         }

@@ -1383,12 +1383,12 @@ struct RawRadixTree(Value = void)
         {
             debug if (willFail) { dln("key:", key); }
             final switch (curr.typeIx) with (Leaf.Ix)
-            {
-            case undefined: return false;
-            case ix_HeptLeaf1: return curr.as!(HeptLeaf1).contains(key);
-            case ix_SparseLeaf1Ptr: return key.length == 1 && curr.as!(SparseLeaf1!Value*).contains(key[0]);
-            case ix_DenseLeaf1Ptr:  return key.length == 1 && curr.as!(DenseLeaf1!Value*).contains(key[0]);
-            }
+                                       {
+                                       case undefined: return false;
+                                       case ix_HeptLeaf1: return curr.as!(HeptLeaf1).contains(key);
+                                       case ix_SparseLeaf1Ptr: return key.length == 1 && curr.as!(SparseLeaf1!Value*).contains(key[0]);
+                                       case ix_DenseLeaf1Ptr:  return key.length == 1 && curr.as!(DenseLeaf1!Value*).contains(key[0]);
+                                       }
         }
         /// ditto
         pragma(inline) bool containsAt(Node curr, UKey key)
@@ -1396,27 +1396,27 @@ struct RawRadixTree(Value = void)
             debug if (willFail) { dln("key:", key); }
             import std.algorithm : skipOver;
             final switch (curr.typeIx) with (Node.Ix)
-            {
-            case undefined: return false;
-            case ix_OneLeafMax7: return curr.as!(OneLeafMax7).contains(key);
-            case ix_TwoLeaf3: return curr.as!(TwoLeaf3).contains(key);
-            case ix_TriLeaf2: return curr.as!(TriLeaf2).contains(key);
-            case ix_HeptLeaf1: return curr.as!(HeptLeaf1).contains(key);
-            case ix_SparseLeaf1Ptr:
-                return key.length == 1 && curr.as!(SparseLeaf1!Value*).contains(key[0]);
-            case ix_DenseLeaf1Ptr:
-                return key.length == 1 && curr.as!(DenseLeaf1!Value*).contains(key[0]);
-            case ix_SparseBranchPtr:
-                auto curr_ = curr.as!(SparseBranch*);
-                return (key.skipOver(curr_.prefix) &&        // matching prefix
-                        ((key.length == 1 && containsAt(curr_.leaf, key)) || // either in leaf
-                         (key.length >= 1 && containsAt(curr_.containsSubAt(key[0]), key[1 .. $])))); // or recurse
-            case ix_DenseBranchPtr:
-                auto curr_ = curr.as!(DenseBranch*);
-                return (key.skipOver(curr_.prefix) &&        // matching prefix
-                        ((key.length == 1 && containsAt(curr_.leaf, key)) || // either in leaf
-                         (key.length >= 1 && containsAt(curr_.subNodes[key[0]], key[1 .. $])))); // recurse
-            }
+                                       {
+                                       case undefined: return false;
+                                       case ix_OneLeafMax7: return curr.as!(OneLeafMax7).contains(key);
+                                       case ix_TwoLeaf3: return curr.as!(TwoLeaf3).contains(key);
+                                       case ix_TriLeaf2: return curr.as!(TriLeaf2).contains(key);
+                                       case ix_HeptLeaf1: return curr.as!(HeptLeaf1).contains(key);
+                                       case ix_SparseLeaf1Ptr:
+                                           return key.length == 1 && curr.as!(SparseLeaf1!Value*).contains(key[0]);
+                                       case ix_DenseLeaf1Ptr:
+                                           return key.length == 1 && curr.as!(DenseLeaf1!Value*).contains(key[0]);
+                                       case ix_SparseBranchPtr:
+                                           auto curr_ = curr.as!(SparseBranch*);
+                                           return (key.skipOver(curr_.prefix) &&        // matching prefix
+                                                   ((key.length == 1 && containsAt(curr_.leaf, key)) || // either in leaf
+                                                    (key.length >= 1 && containsAt(curr_.containsSubAt(key[0]), key[1 .. $])))); // or recurse
+                                       case ix_DenseBranchPtr:
+                                           auto curr_ = curr.as!(DenseBranch*);
+                                           return (key.skipOver(curr_.prefix) &&        // matching prefix
+                                                   ((key.length == 1 && containsAt(curr_.leaf, key)) || // either in leaf
+                                                    (key.length >= 1 && containsAt(curr_.subNodes[key[0]], key[1 .. $])))); // recurse
+                                       }
         }
 
         pragma(inline) size_t countHeapNodes()
@@ -1428,36 +1428,36 @@ struct RawRadixTree(Value = void)
         {
             size_t count = 0;
             final switch (curr.typeIx) with (Node.Ix)
-            {
-            case undefined: break;
-            case ix_OneLeafMax7: break;
-            case ix_TwoLeaf3: break;
-            case ix_TriLeaf2: break;
-            case ix_HeptLeaf1: break;
+                                       {
+                                       case undefined: break;
+                                       case ix_OneLeafMax7: break;
+                                       case ix_TwoLeaf3: break;
+                                       case ix_TriLeaf2: break;
+                                       case ix_HeptLeaf1: break;
 
-            case ix_SparseLeaf1Ptr:
-            case ix_DenseLeaf1Ptr:
-                ++count;
-                break;
+                                       case ix_SparseLeaf1Ptr:
+                                       case ix_DenseLeaf1Ptr:
+                                           ++count;
+                                           break;
 
-            case ix_SparseBranchPtr:
-                auto curr_ = curr.as!(SparseBranch*);
-                ++count;
-                foreach (subNode; curr_.subNodeSlots[0 .. curr_.subLength])
-                {
-                    if (subNode) { count += countHeapNodesAt(subNode); }
-                }
-                break;
+                                       case ix_SparseBranchPtr:
+                                           auto curr_ = curr.as!(SparseBranch*);
+                                           ++count;
+                                           foreach (subNode; curr_.subNodeSlots[0 .. curr_.subLength])
+                                           {
+                                               if (subNode) { count += countHeapNodesAt(subNode); }
+                                           }
+                                           break;
 
-            case ix_DenseBranchPtr:
-                ++count;
-                auto curr_ = curr.as!(DenseBranch*);
-                foreach (subNode; curr_.subNodes)
-                {
-                    if (subNode) { count += countHeapNodesAt(subNode); }
-                }
-                break;
-            }
+                                       case ix_DenseBranchPtr:
+                                           ++count;
+                                           auto curr_ = curr.as!(DenseBranch*);
+                                           foreach (subNode; curr_.subNodes)
+                                           {
+                                               if (subNode) { count += countHeapNodesAt(subNode); }
+                                           }
+                                           break;
+                                       }
             return count;
         }
     }
@@ -2298,17 +2298,16 @@ struct RawRadixTree(Value = void)
         }
     }
 
-    private:
+private:
     Node _root;                 ///< tree root node
     size_t _length = 0; ///< number of elements (keys or key-value-pairs) currently stored under `_root`
     immutable fixedKeyLength = fixedKeyLengthUndefined; ///< maximum length of key if fixed, otherwise 0
     enum fixedKeyLengthUndefined = 0;
 
-    // debug stuff
-    debug long _heapNodeAllocationBalance = 0;
-    debug size_t[string] nodeCountsByIx;
-    debug bool willFail;
-
+debug:                          // debug stuff
+    long _heapNodeAllocationBalance = 0;
+    size_t[string] nodeCountsByIx;
+    bool willFail;
 }
 
 /** Append statistics of tree under `Node` `curr.` into `stats`.

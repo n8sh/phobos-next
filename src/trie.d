@@ -2566,7 +2566,9 @@ auto radixTreeMap(Key, Value)() { return RadixTree!(Key, Value)(false); }
 /** Calculate and print statistics of `tree`. */
 void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a copy ctor here
 {
+    import std.conv : to;
     import std.stdio : writeln;
+
     auto stats = tree.usageHistograms;
 
     writeln("Population By Node Type: ", stats.popByNodeType);
@@ -2611,7 +2613,9 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
                 break;
             }
         }
-        writeln(pop, " number of ", ix, " uses ", bytesUsed/1e6, " megabytes");
+        writeln(pop, " number of ",
+                ix.to!string[3 .. $], // TODO Use RT.Node.indexTypeName(ix)
+                " uses ", bytesUsed/1e6, " megabytes");
     }
 
     // Leaf-usage
@@ -2628,7 +2632,9 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
             case ix_DenseLeaf1Ptr: bytesUsed = pop*DenseLeaf1!(RT.ValueType).sizeof; totalBytesUsed += bytesUsed; break;
             }
         }
-        writeln(pop, " number of ", ix, " uses ", bytesUsed/1e6, " megabytes");
+        writeln(pop, " number of ",
+                ix.to!string[3 .. $], // TODO Use RT.Node.indexTypeName(ix)
+                " uses ", bytesUsed/1e6, " megabytes");
     }
 
     writeln("Tree uses ", totalBytesUsed/1e6, " megabytes");

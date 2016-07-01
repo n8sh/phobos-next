@@ -2299,10 +2299,11 @@ struct RawRadixTree(Value = void)
     }
 
 private:
-    Node _root;                 ///< tree root node
-    size_t _length = 0; ///< number of elements (keys or key-value-pairs) currently stored under `_root`
     immutable fixedKeyLength = fixedKeyLengthUndefined; ///< maximum length of key if fixed, otherwise 0
     enum fixedKeyLengthUndefined = 0;
+
+    Node _root;                 ///< tree root node
+    size_t _length = 0; ///< number of elements (keys or key-value-pairs) currently stored under `_root`
 
     debug:                      // debug stuff
     ssize_t _heapNodeAllocationBalance = 0;

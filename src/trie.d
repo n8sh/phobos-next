@@ -2036,6 +2036,7 @@ struct RawRadixTree(Value = void)
         static if (isPointer!NodeType)
         {
             debug ++_heapNodeAllocationBalance;
+
             import std.conv : emplace;
             return emplace(cast(NodeType)malloc((*NodeType.init).sizeof), args);
             // TODO ensure alignment of node at least that of NodeType.alignof
@@ -2053,9 +2054,11 @@ struct RawRadixTree(Value = void)
         version(debugAllocations) { dln("constructing ", NodeType.stringof, " from ", args); }
         debug ++nodeCountsByIx[NodeType.stringof];
         debug ++_heapNodeAllocationBalance;
-        import std.conv : emplace;
+
         import std.algorithm : max;
-        capacity = max(NodeType.capacityMin, capacity);
+        capacity = max(NodeType.capacityMin, capacity); // limit capacity
+
+        import std.conv : emplace;
         return emplace(cast(NodeType)malloc(NodeType.allocationSizeOfCapacity(capacity)), capacity, args);
         // TODO ensure alignment of node at least that of NodeType.alignof
     }

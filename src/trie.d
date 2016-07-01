@@ -614,34 +614,31 @@ static private struct SparseLeaf1(Value)
     }
 
     /** Insert `key`.
-
-        Returns: index into `_keys` and `-values` where `key` was inserted or
-        `radix` if `key` was already stored.
+        Returns: `true` if `key` was inserted, `false` otherwise if `key` was already stored.
      */
-    Mod!(radix + 1) insert1(Ix key) @trusted /* TODO @nogc */
+    bool insert(Ix key, out size_t insertionIndex) @trusted /* TODO @nogc */
     {
         if (empty)
         {
             reserve(Capacity(1));
             _keys[0] = key;
             _length = 1;
-            return 0.mod!(radix + 1);
+            insertionIndex = 0;
+            return true;
         }
         else                    // non-empty
         {
-            size_t index;
-            if (keys.assumeSorted.containsStoreIndex(key, index))
+            if (keys.assumeSorted.containsStoreIndex(key, insertionIndex))
             {
-                return radix.mod!(radix + 1);
+                return false;
             }
 
             // TODO if (full) { return ModificationStatus.none; }
 
-            reserve(Capacity(_length + 1));
-
             // make room
-            debug assert(_length >= index);
-            foreach (i; 0 .. _length - index) // TODO functionize this loop or reuse memmove:
+            reserve(Capacity(_length + 1));
+            debug assert(_length >= insertionIndex);
+            foreach (i; 0 .. _length - insertionIndex) // TODO functionize this loop or reuse memmove:
             {
                 const iD = _length - i;
                 const iS = iD - 1;
@@ -649,9 +646,9 @@ static private struct SparseLeaf1(Value)
             }
             ++_length;
 
-            _keys[index] = key;    // set new element
+            _keys[insertionIndex] = key;    // set new element
 
-            return (cast(ushort)index).mod!(radix + 1);
+            return true;
         }
     }
 
@@ -1720,9 +1717,10 @@ struct RawRadixTree(Value = void)
                     return insertAt(curr.as!(HeptLeaf1), key, insertionNode); // possibly expanded to other Leaf
             case ix_SparseLeaf1Ptr:
                 auto curr_ = curr.as!(SparseLeaf1!Value*);
-                if (curr_.insert1(key) != radix) // if inserted
+                size_t insertionIndex;
+                if (curr_.insert(key, insertionIndex))
                 {
-                    insertionNode = Node(curr_);
+                    insertionNode = Node(curr_); // store node where insertion was performed
                 }
                 break;
             case ix_DenseLeaf1Ptr:
@@ -1871,7 +1869,8 @@ struct RawRadixTree(Value = void)
                 }
 
                 auto next = construct!(SparseLeaf1!Value*)(curr.keys); // TODO construct using (curr.keys, key[0])
-                next.insert1(key);
+                size_t insertionIndex;
+                next.insert(key, insertionIndex);
                 freeNode(curr);
                 insertionNode = Node(next);
                 return Leaf(next);

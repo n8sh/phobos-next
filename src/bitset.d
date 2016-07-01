@@ -82,13 +82,13 @@ struct BitSet(uint len, Block = size_t)
 
         bool front() const
         {
-            assert(!empty);     // TODO use enforce when it's @nogc
+            debug assert(!empty); // only in debug mode since _store is range-checked
             return _store[_i];
         }
 
         bool back() const
         {
-            assert(!empty);     // TODO use enforce when it's @nogc
+            debug assert(!empty);  // only in debug mode since _store is range-checked
             return _store[_j - 1];
         }
 

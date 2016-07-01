@@ -918,8 +918,9 @@ struct RawRadixTree(Value = void)
         size_t sparseBranchSizeSum;
     }
 
-    /** Sparse/Packed/Partial dynamically sized branch implemented as
-        variable-length struct.
+    /** Sparse/Packed dynamically sized branch implemented as variable-length
+        struct.
+        See also: https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html
     */
     static private struct SparseBranch
     {

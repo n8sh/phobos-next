@@ -2536,14 +2536,8 @@ alias CompactPrefixTree = RadixTree;
 /// Instantiator of set-version of `RadixTree` where value-type is `void` (unused).
 auto radixTreeSet(Key)()
 {
-    static if (is(Key == string))
-    {
-        alias MutableKey = const(char)[];
-    }
-    else
-    {
-        alias MutableKey = Key;
-    }
+    static if (is(Key == string)) { alias MutableKey = const(char)[]; }
+    else                          { alias MutableKey = Key; }
     return RadixTree!(MutableKey, void)(false);
 }
 

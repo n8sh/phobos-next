@@ -63,26 +63,6 @@ size_t binarySearch(R, E)(const R[] values, in E value)
 
 import std.range : ElementType, SearchPolicy;
 
-/** Index into `range` where element `e` either currently exists or should be
-    inserted in order to preserve sortedness of the union of `range` and `value`.
-
-    Returns:
-    - `0`, if `e` should be place at the beginning
-    - `range.length`, if `e` should be append at the end
-      returned.
-
-    Typically used by container modification/insertion algorithms.
-
-    TODO Move to the member of `SortedRange` perhaps as a Voldemort return
-    version of contains() or with an extra output index argument
-*/
-size_t sortedIndexOf(R, V, SearchPolicy sp = SearchPolicy.binarySearch)
-                    (R range, V value)
-    if (is(typeof(ElementType!R.init == V.init))) // TODO SortedRange support
-{
-    return range.length - range.upperBound!sp(value).length; // always larger than zero
-}
-
 /** Same as `range.contains()` but also outputs `index` where last occurrence of
     `key` is either currently stored (if `true` is returned) or should be stored
     (if `false` is returned) in order to preserve sortedness of `range`.

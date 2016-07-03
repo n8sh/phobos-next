@@ -2056,13 +2056,10 @@ struct RawRadixTree(Value = void)
         }
         else if (curr.subLength + capacityIncrement <= curr.maxCapacity) // if we can expand to curr
         {
-            // TODO functionize:
-            import std.math : nextPow2;
-            import std.algorithm : min;
-            const nextCapacity = min(nextPow2(cast(uint)curr.subCapacity + capacityIncrement - 1),
-                                     DefaultBranch.maxCapacity);
-            assert(nextCapacity >= curr.subCapacity + capacityIncrement);
-            next = constructVariableLength!(typeof(curr))(nextCapacity, curr);
+            const requestedCapacity = curr.subCapacity + capacityIncrement;
+            auto next_ = constructVariableLength!(typeof(curr))(requestedCapacity, curr);
+            assert(next_.subCapacity >= requestedCapacity);
+            next = next_;
         }
         else
         {
@@ -2085,20 +2082,17 @@ struct RawRadixTree(Value = void)
         }
         else if (curr.length + capacityIncrement <= curr.maxCapacity) // if we can expand to curr
         {
-            // TODO functionize:
-            import std.math : nextPow2;
-            import std.algorithm : min;
-            const nextCapacity = min(nextPow2(cast(uint)curr.capacity + capacityIncrement - 1),
-                                     curr.maxCapacity);
-            assert(nextCapacity >= curr.capacity + capacityIncrement);
+            const requestedCapacity = curr.capacity + capacityIncrement;
             static if (hasValue)
             {
-                next = constructVariableLength!(typeof(curr))(nextCapacity, curr.ixs, curr.values);
+                auto next_ = constructVariableLength!(typeof(curr))(requestedCapacity, curr.ixs, curr.values);
             }
             else
             {
-                next = constructVariableLength!(typeof(curr))(nextCapacity, curr.ixs);
+                auto next_ = constructVariableLength!(typeof(curr))(requestedCapacity, curr.ixs);
             }
+            assert(next_.capacity >= requestedCapacity);
+            next = next_;
         }
         else
         {
@@ -2138,7 +2132,7 @@ struct RawRadixTree(Value = void)
         }
     }
 
-    auto constructVariableLength(NodeType, Args...)(size_t capacity, Args args) @trusted
+    auto constructVariableLength(NodeType, Args...)(size_t requestedCapacity, Args args) @trusted
         if (isPointer!NodeType &&
             hasVariableLength!NodeType)
     {
@@ -2146,11 +2140,17 @@ struct RawRadixTree(Value = void)
         debug ++nodeCountsByIx[NodeType.stringof];
         debug ++_heapNodeAllocationBalance;
 
-        import std.algorithm : max;
-        capacity = max(NodeType.minCapacity, capacity); // limit capacity
+        import std.math : nextPow2;
+        import std.algorithm : clamp;
+        const paddedRequestedCapacity = (requestedCapacity == 1 ?
+                                         1 :
+                                         (nextPow2(requestedCapacity - 1).clamp(NodeType.minCapacity,
+                                                                                NodeType.maxCapacity)));
+        assert(paddedRequestedCapacity >= requestedCapacity);
 
         import std.conv : emplace;
-        return emplace(cast(NodeType)malloc(NodeType.allocationSizeOfCapacity(capacity)), capacity, args);
+        return emplace(cast(NodeType)malloc(NodeType.allocationSizeOfCapacity(paddedRequestedCapacity)),
+                       paddedRequestedCapacity, args);
         // TODO ensure alignment of node at least that of NodeType.alignof
     }
 

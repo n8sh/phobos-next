@@ -105,10 +105,10 @@ alias UKey = Key!span;
 /** Results of attempt at modification sub. */
 enum InsertionStatus
 {
-    full,               // no operation, because container is full
-    unchanged,          // no operation, element already stored
-    inserted,           // new element was inserted
-    updated,            // existing element was update/modified
+    maxCapacityReached,         // no operation, max capacity reached
+    unchanged,                  // no operation, element already stored
+    inserted,                   // new element was inserted
+    updated,                    // existing element was update/modified
 }
 
 /** Size of a CPU cache line in bytes.
@@ -656,7 +656,7 @@ static private struct SparseLeaf1(Value)
             {
                 import vla : constructVariableLength;
                 // make room for it
-                // TODO use expandVariableLength instead of that reuses `realloc`
+                // TODO use expandVariableLength instead of that reuses `realloc` of `this`
                 static if (hasValue)
                 {
                     next = constructVariableLength!(typeof(this))(length + 1, ixsSlots, valuesSlots);
@@ -672,7 +672,7 @@ static private struct SparseLeaf1(Value)
             }
             else
             {
-                insertionStatus = InsertionStatus.full; // TODO expand to `DenseBranch`
+                insertionStatus = InsertionStatus.maxCapacityReached; // TODO expand to `DenseBranch`
                 return next;
             }
         }
@@ -1104,7 +1104,7 @@ struct RawRadixTree(Value = void)
             }
 
             // check if full
-            if (full) { return InsertionStatus.full; }
+            if (full) { return InsertionStatus.maxCapacityReached; }
 
             assert(subLength >= index);
             foreach (i; 0 .. subLength - index) // TODO functionize this loop or reuse memmove:
@@ -1301,7 +1301,7 @@ struct RawRadixTree(Value = void)
     Branch setSub(SparseBranch* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
         size_t insertionIndex;
-        if (curr.updateOrInsert(Sub(subIx, subNode), insertionIndex) == InsertionStatus.full) // try insert and if it fails
+        if (curr.updateOrInsert(Sub(subIx, subNode), insertionIndex) == InsertionStatus.maxCapacityReached) // try insert and if it fails
         {
             // we need to expand because `curr` is full
             auto next = expand(curr);
@@ -1798,7 +1798,7 @@ struct RawRadixTree(Value = void)
                 case InsertionStatus.inserted:
                     insertionNode = Node(curr_); // store node where insertion was performed. TODO and index
                     return curr;
-                case InsertionStatus.full:
+                case InsertionStatus.maxCapacityReached:
                     auto next = insertIxAtLeaftoLeaf(expand(curr_, 1), // make room for one more
                                                      key, insertionNode, index);
                     assert(next.peek!(DenseLeaf1!Value*));

@@ -5,8 +5,6 @@
 
     TODO Assure that ~this() is run for argument `nt` in `freeNode`. Can we use `postblit()` for this?
 
-    TODO reuse insertionIndex in InsertionStatus.full case in function insertIxAtLeaftoLeaf
-
     TODO Replace insertionNode with NodeIx insertionNodeIx
 
     TODO Make Count SparseBranch.subCapacity

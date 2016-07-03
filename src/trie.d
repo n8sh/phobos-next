@@ -3038,7 +3038,6 @@ unittest
             }
 
             assert(set.insert(word));
-
             assert(set.contains(word));
 
             assert(!set.insert(word));

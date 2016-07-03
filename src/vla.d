@@ -1,4 +1,5 @@
-/** Managing of Variable Length Aggregates (Structs).
+/** Variable-Length Aggregates (Structs).
+    See also: https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html
  */
 module vla;
 
@@ -11,7 +12,6 @@ extern(C) pure nothrow @system @nogc
 
 /** Construct an instance of a variable-length aggregate (`struct`) type `T`.
     Construction is done using `malloc` plus `emplace`.
-    See also: https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html
 */
 T* constructVariableLength(T, Args...)(size_t requiredCapacity, Args args) @trusted
     if (is(T == struct) ||
@@ -30,7 +30,6 @@ T* constructVariableLength(T, Args...)(size_t requiredCapacity, Args args) @trus
 }
 
 /** Check if type `T` is a variable-length aggregate (`struct`) type.
-    See also: https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html
 */
 template hasVariableLength(T)
 {

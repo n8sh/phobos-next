@@ -3,20 +3,19 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
-    TODO Assure that no SparseBranch with no leaf can be converted to SparseLeaf
+    TODO reuse insertionIndex in InsertionStatus.full case in function insertIxAtLeaftoLeaf
+
+    TODO Replace insertionNode with NodeIx insertionNodeIx
+
+    TODO Make Count SparseBranch.subCapacity
+
+    TODO Assure that no SparseBranch with no leaf can be converted to SparseLeaf1
 
     TODO Search for "functionize this loop or reuse memmove" and use move()
 
     TODO Add Branch-hint allocation flag and re-benchmark construction of radixTreeSet with 10000000 uints
 
     TODO Add sortedness to `IxsN` and make `IxsN.contains()` use `binarySearch()`. Make use of `sortn`.
-
-    TODO Make the GC aware of all Value scalars and arrays:
-    static if (shouldAddGCRange!Value)
-    {
-    import core.memory : GC;
-    GC.addRange(_values, length * Value.sizeof);
-    }
 
     TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
     TODO Allow NodeType-constructors to take const and immutable prefixes
@@ -79,6 +78,11 @@ alias isFixedTrieableKeyType = isIntegralBijectableType;
 enum isTrieableKeyType(T) = (isFixedTrieableKeyType!T ||
                              (isInputRange!T &&
                               isFixedTrieableKeyType!(ElementType!T)));
+template shouldAddGCRange(T)
+{
+    import std.traits : isPointer, hasIndirections;
+    enum shouldAddGCRange = isPointer!T || hasIndirections!T || is (T == class);
+}
 
 extern(C) pure nothrow @system @nogc
 {
@@ -98,9 +102,10 @@ alias KeyN(size_t span, size_t N) = Mod!(2^^span)[N];
 alias UKey = Key!span;
 
 /** Results of attempt at modification sub. */
-enum ModificationStatus
+enum InsertionStatus
 {
-    none,               // no operation, because container is full
+    full,               // no operation, because container is full
+    unchanged,          // no operation, element already stored
     inserted,           // new element was inserted
     updated,            // existing element was update/modified
 }
@@ -563,172 +568,206 @@ static private struct SparseLeaf1(Value)
     import searching_ex : containsStoreIndex;
     import std.algorithm.sorting : assumeSorted, isSorted;
 
-    enum maxLength = radix;
-    enum maxCapacity = radix;
+    enum minCapacity = 0;       // minimum number of preallocated values
+    enum maxCapacity = radix;   // maximum number of preallocated values
+
+    alias Capacity = Mod!(maxCapacity + 1);
+    alias Length = Capacity;
 
     enum hasValue = !is(Value == void);
-    alias Length =  Mod!(maxLength + 1);
-    alias Capacity = Mod!(maxCapacity + 1);
-
-    /// Constructor Parameter Element type `E`.
-    static if (hasValue) { alias E = Tuple!(Ix, Value); }
-    else                 { alias E = Ix; }
 
     pure nothrow /* TODO @nogc */:
 
-    this(E[] es...) // @nogc
-    @trusted
-    in
+    /** Construct empty with `capacity`. */
+    this(size_t capacity)   /* TODO @nogc */
     {
-        assert(es.length <= radix);
-        static if (hasValue)
+        _capacity = capacity;
+        _length = 0;
+    }
+
+    static if (hasValue)
+    {
+        static if (shouldAddGCRange!Value)
         {
-            assert(es.isSorted!((a, b) => a[0] < b[0]));
+            import core.memory : GC;
+        }
+
+        /** Construct with capacity `capacity`. */
+        this(size_t capacity, Ix[] ixs, Value[] values) /* TODO @nogc */
+        {
+            assert(ixs.length == values.length);
+            assert(capacity >= ixs.length);
+            assert(values.length <= maxCapacity);
+            assert(ixs.isSorted);
+
+            _capacity = capacity;
+            _length = ixs.length;
+            foreach (const i, const ix; ixs) { ixsSlots[i] = ix; }
+            foreach (const i, const value; values) { valuesSlots[i] = value; }
+            static if (shouldAddGCRange!Value)
+            {
+                GC.addRange(valuesSlots.ptr, _capacity * Value.sizeof);
+            }
         }
     }
-    body
+    else
     {
-        if (es.length != 0)
+        this(size_t capacity, Ix[] ixs) /* TODO @nogc */
         {
-            import std.math : nextPow2;
 
-            // reserve and allocate
-            _length = es.length;
-            _capacity = _length == 1 ? 1 : nextPow2(_length - 1);
-            assert(_capacity >= _length);
-            _keys = cast(typeof(_keys))malloc(_capacity*Ix.sizeof);
-            static if (hasValue)
-            {
-                _values = cast(typeof(_values))malloc(_capacity*Value.sizeof);
-            }
+            assert(capacity >= ixs.length);
+            assert(ixs.length <= maxCapacity);
+            assert(ixs.isSorted);
 
-            // initialize
-            foreach (const i, const e; es)
-            {
-                static if (hasValue)
-                {
-                    _keys[i] = e[0];
-                    _values[i] = e[1];
-                }
-                else
-                {
-                    _keys[i] = e;
-                }
-            }
-
-            import std.algorithm.sorting : sort;
-            sort(keys);
+            _capacity = capacity;
+            _length = ixs.length;
+            foreach (const i, const ix; ixs) { ixsSlots[i] = ix; }
         }
     }
 
     ~this() @trusted
     {
-        free(_keys); debug _keys = null;
-        static if (hasValue)
+        static if (shouldAddGCRange!Value)
         {
-            free(_values); debug _values = null;
+            GC.removeRange(valuesSlots.ptr, _capacity * Value.sizeof);
         }
     }
 
     /** Insert `key`.
         Returns: `true` if `key` was inserted, `false` otherwise if `key` was already stored.
      */
-    bool insert(Ix key, out size_t index) @trusted /* TODO @nogc */
+    InsertionStatus insert(Ix key, out size_t index) @trusted /* TODO @nogc */
     {
-        if (keys.assumeSorted.containsStoreIndex(key, index))
+        if (ixs.assumeSorted.containsStoreIndex(key, index))
         {
-            return false;
+            return InsertionStatus.unchanged; // already stored
         }
 
-        // TODO if (full) { return ModificationStatus.none; }
-
         // make room
-        reserve(Capacity(_length + 1));
-        assert(_length >= index);
+        if (full) { return InsertionStatus.full; }
+
+        assert(index <= _length);
         foreach (i; 0 .. _length - index) // TODO functionize this loop or reuse memmove:
         {
             const iD = _length - i;
             const iS = iD - 1;
-            _keys[iD] = _keys[iS];
+            ixsSlots[iD] = ixsSlots[iS];
         }
         ++_length;
 
-        _keys[index] = key;    // set new element
-
-        return true;
+        ixsSlots[index] = key;     // set it
+        return InsertionStatus.inserted; // was inserted
     }
 
     pragma(inline) Length length() const @safe @nogc { return _length; }
     pragma(inline) Capacity capacity() const @safe @nogc { return _capacity; }
 
     pragma(inline) bool empty() const @safe @nogc { return _length == 0; }
-    pragma(inline) bool full() const @safe @nogc { return _length == radix; }
+    pragma(inline) bool full() const @safe @nogc { return _length == _capacity; }
 
-    /** Reserve room for `newCapacity` number of elements. */
-    void reserve(Capacity newCapacity) @trusted // TODO @nogc
+    pragma(inline) bool contains(Ix key) const @nogc
     {
-        if (_capacity < newCapacity)
+        return ixs.assumeSorted.contains(key);
+    }
+
+    /** Get all initialized keys. */
+    pragma(inline) auto ixs() inout @trusted @nogc { return ixsSlots[0 .. _length]; }
+
+    static if (hasValue)
+    {
+        /** Get all intialized values. */
+        pragma(inline) auto values() inout @trusted @nogc { return valuesSlots[0 .. _length]; }
+
+        pragma(inline) void setValue(Ix ix, in Value value) @trusted /* TODO @nogc */
         {
-            import std.math : nextPow2;
-            _capacity = nextPow2(newCapacity - 1); // need minus one here
-            assert(_capacity >= newCapacity);
-            _keys = cast(typeof(_keys))realloc(_keys, _capacity*Ix.sizeof);
-            static if (hasValue)
-            {
-                _values = cast(typeof(_values))realloc(_values, _capacity*Value.sizeof);
-            }
+            size_t index;
+            const hit = ixs.assumeSorted.containsStoreIndex(ix, index);
+            assert(hit);        // assert hit for now
+            assert(index < length);
+            values[index] = value;
         }
     }
 
-    pragma(inline) bool contains(Ix key) const @trusted @nogc
+    /** Get all reserved keys. */
+    private pragma(inline) auto ixsSlots() inout @trusted @nogc
     {
-        return keys.assumeSorted().contains(key);
-    }
-
-    pragma(inline) auto keys() inout @trusted @nogc
-    {
-        return _keys[0 .. _length];
+        static if (hasValue) return (cast(Ix*)(_values.ptr + _capacity))[0 .. _capacity];
+        else                 return _ixs.ptr[0 .. _capacity];
     }
     static if (hasValue)
     {
-        pragma(inline) auto values() inout @trusted @nogc
+        /** Get all reserved values. */
+        private pragma(inline) auto valuesSlots() inout @trusted @nogc
         {
-            return _values[0 .. _length];
+            return _values.ptr[0 .. _capacity];
         }
+    }
 
-        pragma(inline) void setValue(Ix key, in Value value) @trusted /* TODO @nogc */
+    /** Get allocation size (in bytes) needed to hold `length` number of
+        elements (keys and optionally values). */
+    static size_t allocationSizeOfCapacity(size_t capacity) @safe pure nothrow @nogc
+    {
+        static if (hasValue)
         {
-            size_t index;
-            const hit = keys.assumeSorted.containsStoreIndex(key, index);
-            assert(hit);
-            _values[index] = value;
+            return (this.sizeof + // base plus
+                    Value.sizeof*capacity + // actual size of `_values`
+                    Ix.sizeof*capacity);   // actual size of `_ixs`
         }
+        else
+        {
+            return (this.sizeof + // base plus
+                    Ix.sizeof*capacity);   // actual size of `_ixs`
+        }
+    }
+
+    /** Get allocated size (in bytes) of `this` including the variable-length part. */
+    size_t allocatedSize() const @safe pure nothrow @nogc
+    {
+        return allocationSizeOfCapacity(_capacity);
     }
 
 private:
     Length _length;
-    Capacity _capacity;
+    const Capacity _capacity;
     static if (hasValue)
     {
-        Value* _values;
+        Value[0] _values;
     }
-    Ix* _keys;
+    Ix[0] _ixs;
 }
 
 /** Densely coded leaves with values of type `Value`. */
 static private struct DenseLeaf1(Value)
 {
     enum hasValue = !is(Value == void);
-    enum maxCount = radix;
+    enum hasGCScannedValues = hasValue && !is(Value == bool) && shouldAddGCRange!Value;
+    static if (hasGCScannedValues)
+    {
+        import core.memory : GC;
+    }
+
+    enum capacity = radix;
 
     @safe pure nothrow:
 
-    this(Ixs...)(Ixs subIxs)
-    if (Ixs.length <= maxCount)
+    this(Ix[] ixs)
     {
-        foreach (subIx; subIxs)
+        assert(ixs.length <= capacity);
+        foreach (ix; ixs)
         {
-            _keyBits[subIx] = true;
+            _keyBits[ix] = true;
+        }
+        static if (hasGCScannedValues)
+        {
+            GC.addRange(_values.ptr, capacity * Value.size);
+        }
+    }
+
+    ~this()
+    {
+        static if (hasGCScannedValues)
+        {
+            GC.removeRange(_values.ptr, capacity * Value.size);
         }
     }
 
@@ -758,16 +797,16 @@ static private struct DenseLeaf1(Value)
 
 private:
     import bitset : BitSet;
-    BitSet!radix _keyBits;  // 32 bytes
+    BitSet!capacity _keyBits;  // 32 bytes
     static if (hasValue)
     {
         static if (is(Value == bool))
         {
-            BitSet!radix _values; // packed values
+            BitSet!capacity _values; // packed values
         }
         else
         {
-            Value[radix] _values;
+            Value[capacity] _values;
         }
     }
 }
@@ -890,7 +929,7 @@ struct RawRadixTree(Value = void)
     /** 4-Branch population histogram.
         Index maps to population with value range (0 .. 4).
     */
-    alias SparseBranch_PopHist = size_t[SparseBranch.subCapacityMax + 1];
+    alias SparseBranch_PopHist = size_t[SparseBranch.maxCapacity + 1];
 
     /** radix-Branch population histogram.
         Index maps to population with value range (0 .. `radix`).
@@ -934,11 +973,11 @@ struct RawRadixTree(Value = void)
     {
         import std.algorithm.sorting : isSorted;
 
-        enum capacityMin = 0; // minimum number of preallocated sub-indexes and sub-nodes
-        enum subCapacityMax = 48; // maximum number of preallocated sub-indexes and sub-nodes
+        enum minCapacity = 0; // minimum number of preallocated sub-indexes and sub-nodes
+        enum maxCapacity = 48; // maximum number of preallocated sub-indexes and sub-nodes
         enum prefixCapacity = 5; // 5, 13, 21, ...
 
-        alias Count = Mod!(subCapacityMax + 1);
+        alias Count = Mod!(maxCapacity + 1);
 
         @safe pure nothrow:
 
@@ -1017,7 +1056,7 @@ struct RawRadixTree(Value = void)
         /** Try update or inserte sub-node sub[1] at index sub[0].
             Returns: `true` upon updated or insertion, otherwise `false` when `this` is full.
          */
-        ModificationStatus updateOrInsert(Sub sub)
+        InsertionStatus updateOrInsert(Sub sub)
         {
             import searching_ex : containsStoreIndex;
             size_t index;
@@ -1025,11 +1064,11 @@ struct RawRadixTree(Value = void)
             {
                 subIxSlots[index] = sub[0];
                 subNodeSlots[index] = sub[1];
-                return ModificationStatus.updated;
+                return InsertionStatus.updated;
             }
 
             // check if full
-            if (full) { return ModificationStatus.none; }
+            if (full) { return InsertionStatus.full; }
 
             assert(subLength >= index);
             foreach (i; 0 .. subLength - index) // TODO functionize this loop or reuse memmove:
@@ -1044,7 +1083,7 @@ struct RawRadixTree(Value = void)
             subIxSlots[index] = sub[0]; // set new element
             subNodeSlots[index] = sub[1]; // set new element
 
-            return ModificationStatus.inserted;
+            return InsertionStatus.inserted;
         }
 
         inout(Node) containsSubAt(Ix ix) inout
@@ -1066,12 +1105,12 @@ struct RawRadixTree(Value = void)
         pragma(inline) auto ref subNodes() inout @nogc { return subNodeSlots[0 .. subLength]; }
 
         /** Get all sub-`Ix` slots, both initialized and uninitialized. */
-        auto ref subIxSlots() inout @trusted pure nothrow
+        private auto ref subIxSlots() inout @trusted pure nothrow
         {
             return (cast(Ix*)(_subNodeSlots0.ptr + subCapacity))[0 .. subCapacity];
         }
         /** Get all sub-`Node` slots, both initialized and uninitialized. */
-        auto ref subNodeSlots() inout @trusted pure nothrow
+        private auto ref subNodeSlots() inout @trusted pure nothrow
         {
             return _subNodeSlots0.ptr[0 .. subCapacity];
         }
@@ -1133,7 +1172,7 @@ struct RawRadixTree(Value = void)
     /** Dense/Unpacked `radix`-branch with `radix` number of sub-nodes. */
     static private struct DenseBranch
     {
-        enum subCapacityMax = 256;
+        enum maxCapacity = 256;
         enum prefixCapacity = 15; // 7, 15, 23, ..., we can afford larger prefix here because DenseBranch is so large
 
         @safe pure nothrow:
@@ -1168,7 +1207,7 @@ struct RawRadixTree(Value = void)
 
             foreach (const i; 0 .. rhs.subLength) // each sub node. TODO use iota!(Mod!N)
             {
-                const iN = (cast(ubyte)i).mod!(SparseBranch.subCapacityMax);
+                const iN = (cast(ubyte)i).mod!(SparseBranch.maxCapacity);
                 const subIx = rhs.subIxSlots[iN];
                 this.subNodes[subIx] = rhs.subNodes[iN];
                 debug rhs.subNodes[iN] = null; // make reference unique, to be on the safe side
@@ -1226,12 +1265,12 @@ struct RawRadixTree(Value = void)
     /// ditto
     Branch setSub(SparseBranch* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
-        if (curr.updateOrInsert(Sub(subIx, subNode)) == ModificationStatus.none) // try insert and if it fails
+        if (curr.updateOrInsert(Sub(subIx, subNode)) == InsertionStatus.full) // try insert and if it fails
         {
             // we need to expand because `curr` is full
             auto next = expand(curr);
             assert(getSub(next, subIx) == Node.init); // key slot should be unoccupied
-            return setSub(next, subIx, subNode); // fast, because directly calls setSub(DenseBranch*, ...)
+            return setSub(next, subIx, subNode); // fast, because directly calls set1Sub(DenseBranch*, ...)
         }
         return Branch(curr);
     }
@@ -1604,7 +1643,7 @@ struct RawRadixTree(Value = void)
                     auto currSubIx = currPrefix[0]; // subIx = 'a'
                     popFrontNPrefix(curr, 1);
                     auto next = constructVariableLength!(DefaultBranch)(2, null,
-                                                                      Sub(currSubIx, Node(curr)));
+                                                                        Sub(currSubIx, Node(curr)));
                     return insertAtBranchAbovePrefix(typeof(return)(next), key, insertionNode);
                 }
             }
@@ -1621,7 +1660,7 @@ struct RawRadixTree(Value = void)
                     auto currSubIx = currPrefix[matchedKeyPrefix.length]; // need index first before we modify curr.prefix
                     popFrontNPrefix(curr, matchedKeyPrefix.length + 1);
                     auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix,
-                                                                      Sub(currSubIx, Node(curr)));
+                                                                        Sub(currSubIx, Node(curr)));
                     return insertAtBranchBelowPrefix(typeof(return)(next), key[matchedKeyPrefix.length .. $], insertionNode);
                 }
             }
@@ -1636,7 +1675,7 @@ struct RawRadixTree(Value = void)
                     auto currSubIx = currPrefix[nextPrefixLength]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
                     auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
-                                                                      Sub(currSubIx, Node(curr)));
+                                                                        Sub(currSubIx, Node(curr)));
                     return insertAtBranchBelowPrefix(typeof(return)(next), key[nextPrefixLength .. $], insertionNode);
                 }
                 else /* if (matchedKeyPrefix.length == currPrefix.length) and in turn
@@ -1647,7 +1686,7 @@ struct RawRadixTree(Value = void)
                     auto currSubIx = currPrefix[matchedKeyPrefix.length - 1]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
                     auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
-                                                                      Sub(currSubIx, Node(curr)));
+                                                                        Sub(currSubIx, Node(curr)));
                     return insertAtLeafOfBranch(typeof(return)(next), key[$ - 1], insertionNode);
                 }
             }
@@ -1702,22 +1741,40 @@ struct RawRadixTree(Value = void)
                 return typeof(return).init;
             case ix_HeptLeaf1:
                 static if (hasValue)
+                {
                     assert(false);
+                }
                 else
+                {
                     return insertAt(curr.as!(HeptLeaf1), key, insertionNode); // possibly expanded to other Leaf
+                }
             case ix_SparseLeaf1Ptr:
                 auto curr_ = curr.as!(SparseLeaf1!Value*);
                 size_t insertionIndex;
-                if (curr_.insert(key, insertionIndex))
+                const insertionStatus = curr_.insert(key, insertionIndex);
+                if (insertionStatus == InsertionStatus.unchanged) // key already stored at `insertionIndex`
+                {
+                    return curr;
+                }
+                else if (insertionStatus == InsertionStatus.inserted) // key was inserted at `insertionIndex`
                 {
                     insertionNode = Node(curr_); // store node where insertion was performed
+                    return curr;
                 }
-                break;
-            case ix_DenseLeaf1Ptr:
-                auto curr_ = curr.as!(DenseLeaf1!Value*);
-                if (curr_.insert(key))
+                else if (insertionStatus == InsertionStatus.full)
                 {
-                    insertionNode = Node(curr_);
+                    // TODO reuse insertionIndex
+                    return insertIxAtLeaftoLeaf(expand(curr_, 1), key, insertionNode);
+                }
+                else
+                {
+                    assert(insertionStatus == InsertionStatus.unchanged);
+                    return Leaf(curr_);
+                }
+            case ix_DenseLeaf1Ptr:
+                if (curr.as!(DenseLeaf1!Value*).insert(key))
+                {
+                    insertionNode = Node(curr);
                 }
                 break;
             default:
@@ -1736,7 +1793,7 @@ struct RawRadixTree(Value = void)
             {
                 static if (hasValue) // TODO Add check if key + plus fit in 7 bytes (Value.sizeof <= 6) and use special node for that
                 {
-                    auto leaf_ = construct!(SparseLeaf1!Value*)(tuple(key, Value.init)); // needed for values
+                    auto leaf_ = constructVariableLength!(SparseLeaf1!Value*)(1, [key], [Value.init]); // needed for values
                 }
                 else
                 {
@@ -1858,7 +1915,10 @@ struct RawRadixTree(Value = void)
                     return Leaf(curr);
                 }
 
-                auto next = construct!(SparseLeaf1!Value*)(curr.keys); // TODO construct using (curr.keys, key[0])
+                import std.algorithm.sorting : sort;
+                sort(curr.keys[]); // TODO move this sorting elsewhere
+                auto next = constructVariableLength!(SparseLeaf1!Value*)(curr.keys.length + 1,
+                                                                         curr.keys); // TODO construct using (curr.keys, key[0])
                 size_t insertionIndex;
                 next.insert(key, insertionIndex);
                 freeNode(curr);
@@ -1982,7 +2042,7 @@ struct RawRadixTree(Value = void)
             /** Destructively expand `curr` making room for `nextKey` and return it. */
             Node expand(HeptLeaf1 curr, size_t capacityIncrement = 1)
             {
-                auto next = construct!(SparseLeaf1!Value*)(curr.keys);
+                auto next = constructVariableLength!(SparseLeaf1!Value*)(curr.keys.length + capacityIncrement, curr.keys);
                 freeNode(curr);
                 return Node(next);
             }
@@ -1998,20 +2058,59 @@ struct RawRadixTree(Value = void)
         typeof(return) next;
         if (curr.empty)     // if curr also empty length capacity must be zero
         {
-            next = constructVariableLength!(SparseBranch*)(1, curr); // so allocate one
+            next = constructVariableLength!(typeof(curr))(1, curr); // so allocate one
         }
-        else if (curr.subCapacity < DefaultBranch.subCapacityMax) // if we can expand to curr
+        else if (curr.subLength + capacityIncrement <= curr.maxCapacity) // if we can expand to curr
         {
+            // TODO functionize:
             import std.math : nextPow2;
             import std.algorithm : min;
-            const nextSubCapacity = min(nextPow2(cast(uint)curr.subCapacity),
-                                        DefaultBranch.subCapacityMax);
-            assert(nextSubCapacity > curr.subCapacity);
-            next = constructVariableLength!(SparseBranch*)(nextSubCapacity, curr);
+            const nextCapacity = min(nextPow2(cast(uint)curr.subCapacity + capacityIncrement - 1),
+                                     DefaultBranch.maxCapacity);
+            assert(nextCapacity >= curr.subCapacity + capacityIncrement);
+            next = constructVariableLength!(typeof(curr))(nextCapacity, curr);
         }
         else
         {
             next = construct!(DenseBranch*)(curr);
+        }
+        freeNode(curr);
+        return next;
+    }
+
+    /** Destructively expand `curr` to a leaf node able to store
+        `capacityIncrement` more sub-nodes.
+        TODO return `Leaf` instead.
+    */
+    Leaf expand(SparseLeaf1!Value* curr, size_t capacityIncrement = 1)
+    {
+        typeof(return) next;
+        if (curr.empty)     // if curr also empty length capacity must be zero
+        {
+            dln();
+            next = constructVariableLength!(typeof(curr))(capacityIncrement); // make room for at least one
+        }
+        else if (curr.length + capacityIncrement <= curr.maxCapacity) // if we can expand to curr
+        {
+            // TODO functionize:
+            import std.math : nextPow2;
+            import std.algorithm : min;
+            const nextCapacity = min(nextPow2(cast(uint)curr.capacity + capacityIncrement - 1),
+                                     curr.maxCapacity);
+            assert(nextCapacity >= curr.capacity + capacityIncrement);
+            static if (hasValue)
+            {
+                next = constructVariableLength!(typeof(curr))(nextCapacity, curr.ixs, curr.values);
+            }
+            else
+            {
+                next = constructVariableLength!(typeof(curr))(nextCapacity, curr.ixs);
+            }
+        }
+        else
+        {
+            dln();
+            next = construct!(DenseLeaf1!Value*)(curr.ixs); // TODO make use of sortedness of `curr.keys`?
         }
         freeNode(curr);
         return next;
@@ -2056,7 +2155,7 @@ struct RawRadixTree(Value = void)
         debug ++_heapNodeAllocationBalance;
 
         import std.algorithm : max;
-        capacity = max(NodeType.capacityMin, capacity); // limit capacity
+        capacity = max(NodeType.minCapacity, capacity); // limit capacity
 
         import std.conv : emplace;
         return emplace(cast(NodeType)malloc(NodeType.allocationSizeOfCapacity(capacity)), capacity, args);
@@ -2226,7 +2325,7 @@ struct RawRadixTree(Value = void)
             write(typeof(*curr_).stringof, " #", curr_.length, "/", curr_.capacity, " @", curr_);
             write(": ");
             bool other = false;
-            foreach (const i, const ix; curr_.keys)
+            foreach (const i, const ix; curr_.ixs)
             {
                 string s;
                 if (other)
@@ -2352,7 +2451,7 @@ static private void calculate(Value)(RawRadixTree!(Value).Node curr,
         auto curr_ = curr.as!(DenseLeaf1!Value*);
         ++stats.heapNodeCount;
         const count = curr_._keyBits.countOnes; // number of non-zero sub-nodes
-        assert(count <= curr_.maxCount);
+        assert(count <= curr_.capacity);
         ++stats.popHist_DenseLeaf1[count - 1]; // TODO type-safe indexing
         break;
     case ix_SparseBranchPtr:
@@ -2391,7 +2490,7 @@ static private void calculate(Value)(RawRadixTree!(Value).Leaf curr,
             auto curr_ = curr.as!(DenseLeaf1!Value*);
             ++stats.heapNodeCount;
             const count = curr_._keyBits.countOnes; // number of non-zero curr-nodes
-            assert(count <= curr_.maxCount);
+            assert(count <= curr_.capacity);
             assert(count);
             ++stats.popHist_DenseLeaf1[count - 1]; // TODO type-safe indexing
             break;
@@ -2750,7 +2849,8 @@ unittest
 }
 
 ///
-@safe pure nothrow /* TODO @nogc */ unittest
+// @safe pure nothrow /* TODO @nogc */
+unittest
 {
     auto set = radixTreeSet!(ubyte);
     alias Set = typeof(set);
@@ -2758,9 +2858,13 @@ unittest
     foreach (const i; 0 .. HeptLeaf1.capacity)
     {
         assert(!set.contains(i));
+
         assert(set.insert(i));
+        assert(set.contains(i));
+
         assert(!set.insert(i));
         assert(set.contains(i));
+
         debug assert(set.heapNodeAllocationBalance == 0);
         const rootRef = set._root.peek!(HeptLeaf1);
         assert(rootRef);
@@ -2769,9 +2873,13 @@ unittest
     foreach (const i; HeptLeaf1.capacity .. 256)
     {
         assert(!set.contains(i));
+
         assert(set.insert(i));
+        assert(set.contains(i));
+
         assert(!set.insert(i));
         assert(set.contains(i));
+
         debug assert(set.heapNodeAllocationBalance == 1);
         const rootRef = set._root.peek!(SparseLeaf1!void*);
         assert(rootRef);
@@ -2805,15 +2913,21 @@ unittest
             assert(set.contains(i));
         }
 
+        // 256
         assert(!set.contains(256));
+
         assert(set.insert(256));
         assert(set.contains(256));
+
         assert(!set.insert(256));
         assert(set.contains(256));
 
+        // 257
         assert(!set.contains(257));
+
         assert(set.insert(257));
         assert(set.contains(257));
+
         assert(!set.insert(257));
         assert(set.contains(257));
 

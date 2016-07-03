@@ -2045,7 +2045,6 @@ struct RawRadixTree(Value = void)
 
     /** Destructively expand `curr` to a branch node able to store
         `capacityIncrement` more sub-nodes.
-        TODO return `Branch` instead.
     */
     Branch expand(SparseBranch* curr, size_t capacityIncrement = 1)
     {
@@ -2075,7 +2074,6 @@ struct RawRadixTree(Value = void)
 
     /** Destructively expand `curr` to a leaf node able to store
         `capacityIncrement` more sub-nodes.
-        TODO return `Leaf` instead.
     */
     Leaf expand(SparseLeaf1!Value* curr, size_t capacityIncrement = 1)
     {

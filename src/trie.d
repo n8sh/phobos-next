@@ -3,6 +3,8 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO Assure that ~this() is run for argument `nt` in `freeNode`. Can we use `postblit()` for this?
+
     TODO reuse insertionIndex in InsertionStatus.full case in function insertIxAtLeaftoLeaf
 
     TODO Replace insertionNode with NodeIx insertionNodeIx
@@ -586,12 +588,15 @@ static private struct SparseLeaf1(Value)
 
         /** Construct with capacity `capacity`. */
         this(size_t capacity, Ix[] ixs, Value[] values) /* TODO @nogc */
+        in
         {
             assert(ixs.length == values.length);
             assert(capacity >= ixs.length);
             assert(values.length <= maxCapacity);
             assert(ixs.isSorted);
-
+        }
+        body
+        {
             _capacity = capacity;
             _length = ixs.length;
             foreach (const i, const ix; ixs) { ixsSlots[i] = ix; }
@@ -605,19 +610,26 @@ static private struct SparseLeaf1(Value)
     else
     {
         this(size_t capacity, Ix[] ixs) /* TODO @nogc */
+        in
         {
-
             assert(capacity >= ixs.length);
             assert(ixs.length <= maxCapacity);
             assert(ixs.isSorted);
-
+        }
+        body
+        {
             _capacity = capacity;
             _length = ixs.length;
             foreach (const i, const ix; ixs) { ixsSlots[i] = ix; }
         }
     }
 
-    ~this() @trusted
+    ~this()
+    {
+        deinit();
+    }
+
+    private void deinit() @trusted
     {
         static if (shouldAddGCRange!Value)
         {
@@ -625,19 +637,56 @@ static private struct SparseLeaf1(Value)
         }
     }
 
-    /** Insert `key`.
+    /** Insert `key`, possibly self-reallocating `this`.
         Returns: `true` if `key` was inserted, `false` otherwise if `key` was already stored.
      */
-    InsertionStatus insert(Ix key, out size_t index) @trusted /* TODO @nogc */
+    typeof(this)* reconstructingInsert(Ix key,
+                                       out InsertionStatus insertionStatus,
+                                       out size_t index) @trusted /* TODO @nogc */
     {
+        auto next = &this;
         if (ixs.assumeSorted.containsStoreIndex(key, index))
         {
-            return InsertionStatus.unchanged; // already stored
+            insertionStatus = InsertionStatus.unchanged; // already stored
+            return next;
         }
 
-        // make room
-        if (full) { return InsertionStatus.full; }
+        // key is not stored so make room for it, if possible
+        if (full)
+        {
+            if (length < maxCapacity) // if we can expand more
+            {
+                import vla : constructVariableLength;
+                // make room for it
+                // TODO use expandVariableLength instead of that reuses `realloc`
+                static if (hasValue)
+                {
+                    next = constructVariableLength!(typeof(this))(length + 1, ixsSlots, valuesSlots);
+                }
+                else
+                {
+                    next = constructVariableLength!(typeof(this))(length + 1, ixsSlots);
+                }
 
+                // clean up this
+                this.deinit();
+                free(&this);
+            }
+            else
+            {
+                insertionStatus = InsertionStatus.full; // TODO expand to `DenseBranch`
+                return next;
+            }
+        }
+
+        next.insertAt(index, key);
+
+        insertionStatus = InsertionStatus.inserted; // was inserted
+        return next;
+    }
+
+    private void insertAt(size_t index, Ix key)
+    {
         assert(index <= _length);
         foreach (i; 0 .. _length - index) // TODO functionize this loop or reuse memmove:
         {
@@ -646,9 +695,7 @@ static private struct SparseLeaf1(Value)
             ixsSlots[iD] = ixsSlots[iS];
         }
         ++_length;
-
         ixsSlots[index] = key;     // set it
-        return InsertionStatus.inserted; // was inserted
     }
 
     pragma(inline) Length length() const @safe @nogc { return _length; }
@@ -1743,7 +1790,10 @@ struct RawRadixTree(Value = void)
             case ix_SparseLeaf1Ptr:
                 auto curr_ = curr.as!(SparseLeaf1!Value*);
                 size_t index;
-                final switch (curr_.insert(key, index))
+                InsertionStatus insertionStatus;
+                curr_ = curr_.reconstructingInsert(key, insertionStatus, index);
+                curr = Leaf(curr_);
+                final switch (insertionStatus)
                 {
                 case InsertionStatus.unchanged: // key already stored at `index`
                     return curr;
@@ -1751,8 +1801,10 @@ struct RawRadixTree(Value = void)
                     insertionNode = Node(curr_); // store node where insertion was performed. TODO and index
                     return curr;
                 case InsertionStatus.full:
-                    return insertIxAtLeaftoLeaf(expand(curr_, 1), // make room for one more
-                                                key, insertionNode, index);
+                    auto next = insertIxAtLeaftoLeaf(expand(curr_, 1), // make room for one more
+                                                     key, insertionNode, index);
+                    assert(next.peek!(DenseLeaf1!Value*));
+                    return next;
                 case InsertionStatus.updated:
                     return curr;
                 }
@@ -1862,7 +1914,6 @@ struct RawRadixTree(Value = void)
             Node insertAt(TwoLeaf3 curr, UKey key, out Node insertionNode)
             {
                 assert(hasVariableKeyLength || curr.keyLength == key.length);
-
                 if (curr.keyLength == key.length)
                 {
                     if (curr.contains(key)) { return Node(curr); }
@@ -1899,16 +1950,24 @@ struct RawRadixTree(Value = void)
                     insertionNode = Node(curr);
                     return Leaf(curr);
                 }
+                else            // curr is full
+                {
+                    assert(curr.keys.length == curr.capacity);
 
-                import std.algorithm.sorting : sort;
-                sort(curr.keys[]); // TODO move this sorting elsewhere
-                auto next = constructVariableLength!(SparseLeaf1!Value*)(curr.keys.length + 1,
-                                                                         curr.keys); // TODO construct using (curr.keys, key[0])
-                size_t insertionIndex;
-                next.insert(key, insertionIndex);
-                freeNode(curr);
-                insertionNode = Node(next);
-                return Leaf(next);
+                    // pack `curr.keys` plus `key` into `nextKeys`
+                    Ix[curr.capacity + 1] nextKeys;
+                    nextKeys[0 .. curr.capacity] = curr.keys;
+                    nextKeys[curr.capacity] = key;
+
+                    import std.algorithm.sorting : sort;
+                    sort(nextKeys[]); // TODO move this sorting elsewhere
+
+                    auto next = constructVariableLength!(SparseLeaf1!Value*)(nextKeys.length, nextKeys[]);
+
+                    freeNode(curr);
+                    insertionNode = Node(next);
+                    return Leaf(next);
+                }
             }
 
             Node insertAt(HeptLeaf1 curr, UKey key, out Node insertionNode)

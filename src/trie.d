@@ -683,7 +683,7 @@ static private struct SparseLeaf1(Value)
         return next;
     }
 
-    private void insertAt(size_t index, Ix key)
+    pragma(inline) private void insertAt(size_t index, Ix key)
     {
         assert(index <= _length);
         foreach (i; 0 .. _length - index) // TODO functionize this loop or reuse memmove:
@@ -1079,7 +1079,7 @@ struct RawRadixTree(Value = void)
             assert(this.subCapacity > rhs.subCapacity);
         }
 
-        private void initialize(size_t subCapacity)
+        private pragma(inline) void initialize(size_t subCapacity)
         {
             this.subCapacity = subCapacity;
             debug
@@ -1090,9 +1090,37 @@ struct RawRadixTree(Value = void)
             }
         }
 
+        // typeof(this)* reconstructingInsert(Sub sub, out size_t index)
+        // {
+        //     import searching_ex : containsStoreIndex;
+        //     if (subIxs.containsStoreIndex(sub[0], index))
+        //     {
+        //         subIxSlots[index] = sub[0];
+        //         subNodeSlots[index] = sub[1];
+        //         return InsertionStatus.updated;
+        //     }
+
+        //     // check if full
+        //     if (full) { return InsertionStatus.maxCapacityReached; }
+
+        //     assert(subLength >= index);
+        //     foreach (i; 0 .. subLength - index) // TODO functionize this loop or reuse memmove:
+        //     {
+        //         const iD = subLength - i;
+        //         const iS = iD - 1;
+        //         subIxSlots[iD] = subIxSlots[iS];
+        //         subNodeSlots[iD] = subNodeSlots[iS];
+        //     }
+        //     ++subLength;
+
+        //     subIxSlots[index] = sub[0]; // set new element
+        //     subNodeSlots[index] = sub[1]; // set new element
+
+        //     return InsertionStatus.inserted;
+        // }
         /** Try update or inserte sub-node sub[1] at index sub[0].
             Returns: `true` upon updated or insertion, otherwise `false` when `this` is full.
-         */
+        */
         InsertionStatus updateOrInsert(Sub sub, out size_t index)
         {
             import searching_ex : containsStoreIndex;

@@ -1056,10 +1056,9 @@ struct RawRadixTree(Value = void)
         /** Try update or inserte sub-node sub[1] at index sub[0].
             Returns: `true` upon updated or insertion, otherwise `false` when `this` is full.
          */
-        InsertionStatus updateOrInsert(Sub sub)
+        InsertionStatus updateOrInsert(Sub sub, out size_t index)
         {
             import searching_ex : containsStoreIndex;
-            size_t index;
             if (subIxs.containsStoreIndex(sub[0], index))
             {
                 subIxSlots[index] = sub[0];
@@ -1265,7 +1264,8 @@ struct RawRadixTree(Value = void)
     /// ditto
     Branch setSub(SparseBranch* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
-        if (curr.updateOrInsert(Sub(subIx, subNode)) == InsertionStatus.full) // try insert and if it fails
+        size_t insertionIndex;
+        if (curr.updateOrInsert(Sub(subIx, subNode), insertionIndex) == InsertionStatus.full) // try insert and if it fails
         {
             // we need to expand because `curr` is full
             auto next = expand(curr);

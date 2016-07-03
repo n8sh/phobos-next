@@ -2056,9 +2056,9 @@ struct RawRadixTree(Value = void)
         }
         else if (curr.subLength + capacityIncrement <= curr.maxCapacity) // if we can expand to curr
         {
-            const requestedCapacity = curr.subCapacity + capacityIncrement;
-            auto next_ = constructVariableLength!(typeof(curr))(requestedCapacity, curr);
-            assert(next_.subCapacity >= requestedCapacity);
+            const requiredCapacity = curr.subCapacity + capacityIncrement;
+            auto next_ = constructVariableLength!(typeof(curr))(requiredCapacity, curr);
+            assert(next_.subCapacity >= requiredCapacity);
             next = next_;
         }
         else
@@ -2082,16 +2082,16 @@ struct RawRadixTree(Value = void)
         }
         else if (curr.length + capacityIncrement <= curr.maxCapacity) // if we can expand to curr
         {
-            const requestedCapacity = curr.capacity + capacityIncrement;
+            const requiredCapacity = curr.capacity + capacityIncrement;
             static if (hasValue)
             {
-                auto next_ = constructVariableLength!(typeof(curr))(requestedCapacity, curr.ixs, curr.values);
+                auto next_ = constructVariableLength!(typeof(curr))(requiredCapacity, curr.ixs, curr.values);
             }
             else
             {
-                auto next_ = constructVariableLength!(typeof(curr))(requestedCapacity, curr.ixs);
+                auto next_ = constructVariableLength!(typeof(curr))(requiredCapacity, curr.ixs);
             }
-            assert(next_.capacity >= requestedCapacity);
+            assert(next_.capacity >= requiredCapacity);
             next = next_;
         }
         else
@@ -2132,7 +2132,7 @@ struct RawRadixTree(Value = void)
         }
     }
 
-    auto constructVariableLength(NodeType, Args...)(size_t requestedCapacity, Args args) @trusted
+    auto constructVariableLength(NodeType, Args...)(size_t requiredCapacity, Args args) @trusted
         if (isPointer!NodeType &&
             hasVariableLength!NodeType)
     {
@@ -2142,11 +2142,11 @@ struct RawRadixTree(Value = void)
 
         import std.math : nextPow2;
         import std.algorithm : clamp;
-        const paddedRequestedCapacity = (requestedCapacity == 1 ?
+        const paddedRequestedCapacity = (requiredCapacity == 1 ?
                                          1 :
-                                         (nextPow2(requestedCapacity - 1).clamp(NodeType.minCapacity,
-                                                                                NodeType.maxCapacity)));
-        assert(paddedRequestedCapacity >= requestedCapacity);
+                                         (nextPow2(requiredCapacity - 1).clamp(NodeType.minCapacity,
+                                                                               NodeType.maxCapacity)));
+        assert(paddedRequestedCapacity >= requiredCapacity);
 
         import std.conv : emplace;
         return emplace(cast(NodeType)malloc(NodeType.allocationSizeOfCapacity(paddedRequestedCapacity)),

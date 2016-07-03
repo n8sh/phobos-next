@@ -65,6 +65,7 @@ import bijections : isIntegralBijectableType, bijectToUnsigned;
 import variant_ex : WordVariant;
 import typecons_ex : StrictlyIndexed;
 import modulo : Mod, mod;
+import vla : hasVariableLength;
 
 // version = enterSingleInfiniteMemoryLeakTest;
 // version = debugAllocations;
@@ -108,33 +109,6 @@ enum InsertionStatus
     unchanged,          // no operation, element already stored
     inserted,           // new element was inserted
     updated,            // existing element was update/modified
-}
-
-/** Construct an instance of a variable-length aggregate (`struct`) type `T`.
-    Construction is done using `malloc` plus `emplace`.
-    See also: https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html
-*/
-T* constructVariableLength(T, Args...)(size_t requiredCapacity, Args args) @trusted
-{
-    import std.math : nextPow2;
-    import std.algorithm : clamp;
-    import std.conv : emplace;
-    const paddedRequestedCapacity = (requiredCapacity == 1 ?
-                                     1 :
-                                     (nextPow2(requiredCapacity - 1).clamp(T.minCapacity,
-                                                                           T.maxCapacity)));
-    assert(paddedRequestedCapacity >= requiredCapacity);
-    return emplace(cast(typeof(return))malloc(T.allocationSizeOfCapacity(paddedRequestedCapacity)),
-                   paddedRequestedCapacity, args);
-}
-
-/** Check if type `T` is a variable-length aggregate (`struct`) type.
-    See also: https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html
-*/
-template hasVariableLength(T)
-{
-    import std.traits: hasMember;
-    enum hasVariableLength = hasMember!(T, "allocationSizeOfCapacity");
 }
 
 /** Size of a CPU cache line in bytes.
@@ -1183,7 +1157,6 @@ struct RawRadixTree(Value = void)
     }
 
     static assert(hasVariableLength!SparseBranch);
-    static assert(hasVariableLength!(SparseBranch*));
     static if (!hasValue) { static assert(SparseBranch.sizeof == 16); }
 
     /** Dense/Unpacked `radix`-branch with `radix` number of sub-nodes. */
@@ -2157,7 +2130,8 @@ struct RawRadixTree(Value = void)
         version(debugAllocations) { dln("constructing ", NodeType.stringof, " from ", args); }
         debug ++nodeCountsByIx[NodeType.stringof];
         debug ++_heapNodeAllocationBalance;
-        return trie.constructVariableLength!(typeof(*NodeType.init))(requiredCapacity, args);
+        import vla : constructVariableLength;
+        return constructVariableLength!(typeof(*NodeType.init))(requiredCapacity, args);
         // TODO ensure alignment of node at least that of NodeType.alignof
     }
 

@@ -2081,7 +2081,6 @@ struct RawRadixTree(Value = void)
         assert(curr.length < radix); // we shouldn't expand beyond radix
         if (curr.empty)     // if curr also empty length capacity must be zero
         {
-            dln();
             next = constructVariableLength!(typeof(curr))(capacityIncrement); // make room for at least one
         }
         else if (curr.length + capacityIncrement <= curr.maxCapacity) // if we can expand to curr
@@ -2103,7 +2102,6 @@ struct RawRadixTree(Value = void)
         }
         else
         {
-            dln();
             next = construct!(DenseLeaf1!Value*)(curr.ixs); // TODO make use of sortedness of `curr.keys`?
         }
         freeNode(curr);

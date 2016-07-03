@@ -1751,25 +1751,18 @@ struct RawRadixTree(Value = void)
             case ix_SparseLeaf1Ptr:
                 auto curr_ = curr.as!(SparseLeaf1!Value*);
                 size_t insertionIndex;
-                const insertionStatus = curr_.insert(key, insertionIndex);
-                if (insertionStatus == InsertionStatus.unchanged) // key already stored at `insertionIndex`
+                final switch (curr_.insert(key, insertionIndex))
                 {
+                case InsertionStatus.unchanged: // key already stored at `insertionIndex`
                     return curr;
-                }
-                else if (insertionStatus == InsertionStatus.inserted) // key was inserted at `insertionIndex`
-                {
-                    insertionNode = Node(curr_); // store node where insertion was performed
+                case InsertionStatus.inserted:
+                    insertionNode = Node(curr_); // store node where insertion was performed. TODO and insertionIndex
                     return curr;
-                }
-                else if (insertionStatus == InsertionStatus.full)
-                {
+                case InsertionStatus.full:
                     // TODO reuse insertionIndex
                     return insertIxAtLeaftoLeaf(expand(curr_, 1), key, insertionNode);
-                }
-                else
-                {
-                    assert(insertionStatus == InsertionStatus.unchanged);
-                    return Leaf(curr_);
+                case InsertionStatus.updated:
+                    return curr;
                 }
             case ix_DenseLeaf1Ptr:
                 if (curr.as!(DenseLeaf1!Value*).insert(key))

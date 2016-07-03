@@ -1733,7 +1733,8 @@ struct RawRadixTree(Value = void)
             return next;
         }
 
-        Leaf insertIxAtLeaftoLeaf(Leaf curr, Ix key, out Node insertionNode)
+        Leaf insertIxAtLeaftoLeaf(Leaf curr, Ix key, out Node insertionNode,
+                                  size_t forcedInsertionIndex = size_t.max)
         {
             switch (curr.typeIx) with (Leaf.Ix)
             {
@@ -1750,17 +1751,17 @@ struct RawRadixTree(Value = void)
                 }
             case ix_SparseLeaf1Ptr:
                 auto curr_ = curr.as!(SparseLeaf1!Value*);
-                size_t insertionIndex;
-                final switch (curr_.insert(key, insertionIndex))
+                size_t index;
+                final switch (curr_.insert(key, index))
                 {
-                case InsertionStatus.unchanged: // key already stored at `insertionIndex`
+                case InsertionStatus.unchanged: // key already stored at `index`
                     return curr;
                 case InsertionStatus.inserted:
-                    insertionNode = Node(curr_); // store node where insertion was performed. TODO and insertionIndex
+                    insertionNode = Node(curr_); // store node where insertion was performed. TODO and index
                     return curr;
                 case InsertionStatus.full:
-                    // TODO reuse insertionIndex
-                    return insertIxAtLeaftoLeaf(expand(curr_, 1), key, insertionNode);
+                    return insertIxAtLeaftoLeaf(expand(curr_, 1), // make room for one more
+                                                key, insertionNode, index);
                 case InsertionStatus.updated:
                     return curr;
                 }
@@ -2049,6 +2050,7 @@ struct RawRadixTree(Value = void)
     Branch expand(SparseBranch* curr, size_t capacityIncrement = 1)
     {
         typeof(return) next;
+        assert(curr.subLength < radix); // we shouldn't expand beyond radix
         if (curr.empty)     // if curr also empty length capacity must be zero
         {
             next = constructVariableLength!(typeof(curr))(1, curr); // so allocate one
@@ -2078,6 +2080,7 @@ struct RawRadixTree(Value = void)
     Leaf expand(SparseLeaf1!Value* curr, size_t capacityIncrement = 1)
     {
         typeof(return) next;
+        assert(curr.length < radix); // we shouldn't expand beyond radix
         if (curr.empty)     // if curr also empty length capacity must be zero
         {
             dln();

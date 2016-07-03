@@ -2140,6 +2140,7 @@ struct RawRadixTree(Value = void)
         debug ++nodeCountsByIx[NodeType.stringof];
         debug ++_heapNodeAllocationBalance;
 
+        // pad capacity
         import std.math : nextPow2;
         import std.algorithm : clamp;
         const paddedRequestedCapacity = (requiredCapacity == 1 ?

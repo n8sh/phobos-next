@@ -29,6 +29,13 @@ T* constructVariableLength(T, Args...)(size_t requiredCapacity, Args args) @trus
                    paddedRequestedCapacity, args);
 }
 
+T* expandVariableLength(T, Args...)(T* curr, size_t requiredCapacity, Args args) @trusted
+{
+    T* next;
+    free(cast(voidf*)(&this));
+    return next;
+}
+
 /** Check if type `T` is a variable-length aggregate (`struct`) type.
 */
 template hasVariableLength(T)

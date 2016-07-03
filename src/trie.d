@@ -1306,7 +1306,7 @@ struct RawRadixTree(Value = void)
             // we need to expand because `curr` is full
             auto next = expand(curr);
             assert(getSub(next, subIx) == Node.init); // key slot should be unoccupied
-            return setSub(next, subIx, subNode); // fast, because directly calls set1Sub(DenseBranch*, ...)
+            return setSub(next, subIx, subNode);
         }
         return Branch(curr);
     }

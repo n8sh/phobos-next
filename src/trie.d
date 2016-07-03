@@ -571,7 +571,7 @@ static private struct SparseLeaf1(Value)
     pure nothrow /* TODO @nogc */:
 
     /** Construct empty with `capacity`. */
-    this(size_t capacity)   /* TODO @nogc */
+    pragma(inline) this(size_t capacity)   /* TODO @nogc */
     {
         _capacity = capacity;
         _length = 0;
@@ -627,7 +627,7 @@ static private struct SparseLeaf1(Value)
         deinit();
     }
 
-    private void deinit() @trusted
+    private pragma(inline) void deinit() @trusted
     {
         static if (shouldAddGCRange!Value)
         {
@@ -1018,31 +1018,31 @@ struct RawRadixTree(Value = void)
 
         @safe pure nothrow:
 
-        this(size_t subCapacity)
+        pragma(inline) this(size_t subCapacity)
         {
             initialize(subCapacity);
         }
 
-        this(size_t subCapacity, const Ix[] prefix, Leaf leaf)
+        pragma(inline) this(size_t subCapacity, const Ix[] prefix, Leaf leaf)
         {
             initialize(subCapacity);
             this.prefix = prefix;
             this.leaf = leaf;
         }
 
-        this(size_t subCapacity, const Ix[] prefix)
+        pragma(inline) this(size_t subCapacity, const Ix[] prefix)
         {
             initialize(subCapacity);
             this.prefix = prefix;
         }
 
-        this(size_t subCapacity, Leaf leaf)
+        pragma(inline) this(size_t subCapacity, Leaf leaf)
         {
             initialize(subCapacity);
             this.leaf = leaf;
         }
 
-        this(size_t subCapacity, const Ix[] prefix, Sub sub)
+        pragma(inline) this(size_t subCapacity, const Ix[] prefix, Sub sub)
         {
             assert(subCapacity);
 
@@ -1054,7 +1054,7 @@ struct RawRadixTree(Value = void)
             this.subNodeSlots[0] = sub[1];
         }
 
-        this(size_t subCapacity, typeof(this)* rhs)
+        pragma(inline) this(size_t subCapacity, typeof(this)* rhs)
         in
         {
             assert(subCapacity > rhs.subCapacity);

@@ -110,6 +110,23 @@ enum InsertionStatus
     updated,            // existing element was update/modified
 }
 
+/** Allocate an instance of a variable-length aggregate (`struct`) type `T`.
+    See also: https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html
+*/
+T* constructVariableLength(T, Args...)(size_t requiredCapacity, Args args) @trusted
+{
+    import std.math : nextPow2;
+    import std.algorithm : clamp;
+    import std.conv : emplace;
+    const paddedRequestedCapacity = (requiredCapacity == 1 ?
+                                     1 :
+                                     (nextPow2(requiredCapacity - 1).clamp(T.minCapacity,
+                                                                           T.maxCapacity)));
+    assert(paddedRequestedCapacity >= requiredCapacity);
+    return emplace(cast(typeof(return))malloc(T.allocationSizeOfCapacity(paddedRequestedCapacity)),
+                   paddedRequestedCapacity, args);
+}
+
 /** Check if type `T` is a variable-length aggregate (`struct`) type.
     See also: https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html
 */
@@ -2139,19 +2156,7 @@ struct RawRadixTree(Value = void)
         version(debugAllocations) { dln("constructing ", NodeType.stringof, " from ", args); }
         debug ++nodeCountsByIx[NodeType.stringof];
         debug ++_heapNodeAllocationBalance;
-
-        // pad capacity
-        import std.math : nextPow2;
-        import std.algorithm : clamp;
-        const paddedRequestedCapacity = (requiredCapacity == 1 ?
-                                         1 :
-                                         (nextPow2(requiredCapacity - 1).clamp(NodeType.minCapacity,
-                                                                               NodeType.maxCapacity)));
-        assert(paddedRequestedCapacity >= requiredCapacity);
-
-        import std.conv : emplace;
-        return emplace(cast(NodeType)malloc(NodeType.allocationSizeOfCapacity(paddedRequestedCapacity)),
-                       paddedRequestedCapacity, args);
+        return trie.constructVariableLength!(typeof(*NodeType.init))(requiredCapacity, args);
         // TODO ensure alignment of node at least that of NodeType.alignof
     }
 

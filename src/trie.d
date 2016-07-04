@@ -998,6 +998,7 @@ struct RawRadixTree(Value = void)
         size_t heapLeafCount;
 
         size_t sparseBranchSizeSum;
+        size_t sparseLeaf1SizeSum;
     }
 
     /** Sparse/Packed dynamically sized branch implemented as variable-length
@@ -2499,6 +2500,7 @@ static private void calculate(Value)(RawRadixTree!(Value).Node curr,
         auto curr_ = curr.as!(SparseLeaf1!Value*);
         assert(curr_.length);
         ++stats.popHist_SparseLeaf1[curr_.length - 1]; // TODO type-safe indexing
+        stats.sparseLeaf1SizeSum += curr_.allocatedSize;
         break;
     case ix_DenseLeaf1Ptr:
         auto curr_ = curr.as!(DenseLeaf1!Value*);
@@ -2763,7 +2765,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
             case ix_TriLeaf2: bytesUsed = pop*TriLeaf2.sizeof; break;
             case ix_HeptLeaf1: bytesUsed = pop*HeptLeaf1.sizeof; break;
             case ix_SparseLeaf1Ptr:
-                bytesUsed = pop*SparseLeaf1!(RT.ValueType).sizeof;
+                bytesUsed = stats.sparseLeaf1SizeSum; // must be used because SparseLeaf1.sizeof cannot be used because it's a variable length struct
                 totalBytesUsed += bytesUsed;
                 break;
             case ix_DenseLeaf1Ptr:
@@ -3122,7 +3124,7 @@ auto checkNumeric(Keys...)()
         import std.meta : AliasSeq;
         foreach (Key; Keys)
         {
-            dln("Key: ", Key.stringof);
+            // dln("Key: ", Key.stringof);
             alias Tree = radixTreeSet!(Key);
             auto set = Tree;
             assert(set.hasFixedKeyLength == isFixedTrieableKeyType!Key);

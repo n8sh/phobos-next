@@ -843,6 +843,11 @@ private:
     }
 }
 
+/** Mutable leaf node of 1-Ix leaves. */
+alias Leaf(Value) = WordVariant!(HeptLeaf1,
+                                 SparseLeaf1!Value*,
+                                 DenseLeaf1!Value*);
+
 static assert((DenseLeaf1!void).sizeof == 32);
 
 /** Raw adaptive radix tree (ART) container storing untyped variable-length `Key`.
@@ -914,17 +919,12 @@ struct RawRadixTree(Value = void)
                               SparseBranch*,
                               DenseBranch*);
 
-    /** Mutable leaf node of 1-Ix leaves. */
-    alias Leaf = WordVariant!(HeptLeaf1,
-                              SparseLeaf1!Value*,
-                              DenseLeaf1!Value*);
-
     /** Mutable branch node. */
     alias Branch = WordVariant!(SparseBranch*,
                                 DenseBranch*);
 
     static assert(Node.typeBits <= IxsN!(7, 1, 8).typeBits);
-    static assert(Leaf.typeBits <= IxsN!(7, 1, 8).typeBits);
+    static assert(Leaf!Value.typeBits <= IxsN!(7, 1, 8).typeBits);
     static assert(Branch.typeBits <= IxsN!(7, 1, 8).typeBits);
 
     alias Sub = Tuple!(Ix, Node);
@@ -988,8 +988,8 @@ struct RawRadixTree(Value = void)
         IndexedArray!(size_t, Node.Ix) popByNodeType;
         static assert(is(typeof(popByNodeType).Index == Node.Ix));
 
-        IndexedArray!(size_t, Leaf.Ix) popByLeafType;
-        static assert(is(typeof(popByLeafType).Index == Leaf.Ix));
+        IndexedArray!(size_t, Leaf!Value.Ix) popByLeafType;
+        static assert(is(typeof(popByLeafType).Index == Leaf!Value.Ix));
 
         /// Number of heap-allocated `Node`s. Should always equal `heapNodeAllocationBalance`.
         size_t heapNodeCount;
@@ -1021,7 +1021,7 @@ struct RawRadixTree(Value = void)
             initialize(subCapacity);
         }
 
-        pragma(inline) this(size_t subCapacity, const Ix[] prefix, Leaf leaf)
+        pragma(inline) this(size_t subCapacity, const Ix[] prefix, Leaf!Value leaf)
         {
             initialize(subCapacity);
             this.prefix = prefix;
@@ -1034,7 +1034,7 @@ struct RawRadixTree(Value = void)
             this.prefix = prefix;
         }
 
-        pragma(inline) this(size_t subCapacity, Leaf leaf)
+        pragma(inline) this(size_t subCapacity, Leaf!Value leaf)
         {
             initialize(subCapacity);
             this.leaf = leaf;
@@ -1212,7 +1212,7 @@ struct RawRadixTree(Value = void)
     private:
 
         // members in order of decreasing `alignof`:
-        Leaf leaf;
+        Leaf!Value leaf;
 
         IxsN!prefixCapacity prefix; // prefix common to all `subNodes` (also called edge-label)
         Count subLength;
@@ -1261,7 +1261,7 @@ struct RawRadixTree(Value = void)
 
             // move leaf
             move(rhs.leaf, this.leaf);
-            debug rhs.leaf = Leaf.init; // make reference unique, to be on the safe side
+            debug rhs.leaf = Leaf!Value.init; // make reference unique, to be on the safe side
 
             foreach (const i; 0 .. rhs.subLength) // each sub node. TODO use iota!(Mod!N)
             {
@@ -1307,7 +1307,7 @@ struct RawRadixTree(Value = void)
 
     private:
         // members in order of decreasing `alignof`:
-        Leaf leaf;
+        Leaf!Value leaf;
         IxsN!prefixCapacity prefix; // prefix (edge-label) common to all `subNodes`
         StrictlyIndexed!(Node[radix]) subNodes;
     }
@@ -1388,7 +1388,7 @@ struct RawRadixTree(Value = void)
     }
 
     /** Get leaves of node `curr`. */
-    pragma(inline) inout(Leaf) getLeaf(inout Branch curr) @safe pure nothrow
+    pragma(inline) inout(Leaf!Value) getLeaf(inout Branch curr) @safe pure nothrow
     {
         final switch (curr.typeIx) with (Branch.Ix)
         {
@@ -1399,7 +1399,7 @@ struct RawRadixTree(Value = void)
     }
 
     /** Set leaves node of node `curr` to `leaf`. */
-    pragma(inline) void setLeaf(Branch curr, Leaf leaf) @safe pure nothrow
+    pragma(inline) void setLeaf(Branch curr, Leaf!Value leaf) @safe pure nothrow
     {
         final switch (curr.typeIx) with (Branch.Ix)
         {
@@ -1490,10 +1490,10 @@ struct RawRadixTree(Value = void)
         }
 
         /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
-        pragma(inline) bool containsAt(Leaf curr, UKey key)
+        pragma(inline) bool containsAt(Leaf!Value curr, UKey key)
         {
             debug if (willFail) { dln("key:", key); }
-            final switch (curr.typeIx) with (Leaf.Ix)
+            final switch (curr.typeIx) with (Leaf!Value.Ix)
             {
             case undefined: return false;
             case ix_HeptLeaf1: return curr.as!(HeptLeaf1).contains(key);
@@ -1665,9 +1665,9 @@ struct RawRadixTree(Value = void)
                     else
                         return insertAt(curr.as!(HeptLeaf1), key, insertionNode);
                 case ix_SparseLeaf1Ptr:
-                    return insertAtLeaf(Leaf(curr.as!(SparseLeaf1!Value*)), key, insertionNode); // TODO use toLeaf(curr)
+                    return insertAtLeaf(Leaf!Value(curr.as!(SparseLeaf1!Value*)), key, insertionNode); // TODO use toLeaf(curr)
                 case ix_DenseLeaf1Ptr:
-                    return insertAtLeaf(Leaf(curr.as!(DenseLeaf1!Value*)), key, insertionNode); // TODO use toLeaf(curr)
+                    return insertAtLeaf(Leaf!Value(curr.as!(DenseLeaf1!Value*)), key, insertionNode); // TODO use toLeaf(curr)
                 case ix_SparseBranchPtr:
                     return Node(insertAtBranchAbovePrefix(Branch(curr.as!(SparseBranch*)), key, insertionNode));
                 case ix_DenseBranchPtr:
@@ -1794,9 +1794,9 @@ struct RawRadixTree(Value = void)
             return next;
         }
 
-        Leaf insertIxAtLeaftoLeaf(Leaf curr, Ix key, out Node insertionNode)
+        Leaf!Value insertIxAtLeaftoLeaf(Leaf!Value curr, Ix key, out Node insertionNode)
         {
-            switch (curr.typeIx) with (Leaf.Ix)
+            switch (curr.typeIx) with (Leaf!Value.Ix)
             {
             case undefined:
                 return typeof(return).init;
@@ -1807,14 +1807,14 @@ struct RawRadixTree(Value = void)
                 }
                 else
                 {
-                    return insertAt(curr.as!(HeptLeaf1), key, insertionNode); // possibly expanded to other Leaf
+                    return insertAt(curr.as!(HeptLeaf1), key, insertionNode); // possibly expanded to other Leaf!Value
                 }
             case ix_SparseLeaf1Ptr:
                 auto curr_ = curr.as!(SparseLeaf1!Value*);
                 size_t index;
                 InsertionStatus insertionStatus;
                 curr_ = curr_.reconstructingInsert(key, insertionStatus, index);
-                curr = Leaf(curr_);
+                curr = Leaf!Value(curr_);
                 final switch (insertionStatus)
                 {
                 case InsertionStatus.unchanged: // key already stored at `index`
@@ -1837,7 +1837,7 @@ struct RawRadixTree(Value = void)
                 }
                 break;
             default:
-                assert(false, "Unsupported Leaf type " ~ curr.typeIx.to!string);
+                assert(false, "Unsupported Leaf!Value type " ~ curr.typeIx.to!string);
             }
             return curr;
         }
@@ -1858,13 +1858,13 @@ struct RawRadixTree(Value = void)
                 {
                     auto leaf_ = construct!(HeptLeaf1)(key); // can pack more efficiently when no value
                 }
-                setLeaf(curr, Leaf(leaf_));
+                setLeaf(curr, Leaf!Value(leaf_));
                 insertionNode = leaf_;
             }
             return curr;
         }
 
-        Node insertAtLeaf(Leaf curr, UKey key, out Node insertionNode)
+        Node insertAtLeaf(Leaf!Value curr, UKey key, out Node insertionNode)
         {
             assert(key.length);
             if (key.length == 1)
@@ -1963,14 +1963,14 @@ struct RawRadixTree(Value = void)
                 return Node(insertAtBranchAbovePrefix(expand(curr), key, insertionNode)); // NOTE stay at same (depth)
             }
 
-            Leaf insertAt(HeptLeaf1 curr, Ix key, out Node insertionNode)
+            Leaf!Value insertAt(HeptLeaf1 curr, Ix key, out Node insertionNode)
             {
-                if (curr.contains(key)) { return Leaf(curr); }
+                if (curr.contains(key)) { return Leaf!Value(curr); }
                 if (!curr.keys.full)
                 {
                     curr.keys.pushBack(key);
                     insertionNode = Node(curr);
-                    return Leaf(curr);
+                    return Leaf!Value(curr);
                 }
                 else            // curr is full
                 {
@@ -1988,7 +1988,7 @@ struct RawRadixTree(Value = void)
 
                     freeNode(curr);
                     insertionNode = Node(next);
-                    return Leaf(next);
+                    return Leaf!Value(next);
                 }
             }
 
@@ -1999,7 +1999,7 @@ struct RawRadixTree(Value = void)
                 {
                     return Node(insertAt(curr, key[0], insertionNode)); // use `Ix key`-overload
                 }
-                return insertAt(Node(constructVariableLength!(DefaultBranch)(1, Leaf(curr))), // current `key`
+                return insertAt(Node(constructVariableLength!(DefaultBranch)(1, Leaf!Value(curr))), // current `key`
                                 key, insertionNode); // NOTE stay at same (depth)
             }
 
@@ -2048,7 +2048,7 @@ struct RawRadixTree(Value = void)
                 if (curr.key.length <= DefaultBranch.prefixCapacity + 1) // if `key` fits in `prefix` of `DefaultBranch`
                 {
                     next = constructVariableLength!(DefaultBranch)(1 + capacityIncrement, curr.key[0 .. $ - 1], // all but last
-                                                                 Leaf(construct!(HeptLeaf1)(curr.key[$ - 1]))); // last as a leaf
+                                                                 Leaf!Value(construct!(HeptLeaf1)(curr.key[$ - 1]))); // last as a leaf
                 }
                 else                // curr.key.length > DefaultBranch.prefixCapacity + 1
                 {
@@ -2144,7 +2144,7 @@ struct RawRadixTree(Value = void)
     /** Destructively expand `curr` to a leaf node able to store
         `capacityIncrement` more sub-nodes.
     */
-    Leaf expand(SparseLeaf1!Value* curr, size_t capacityIncrement = 1)
+    Leaf!Value expand(SparseLeaf1!Value* curr, size_t capacityIncrement = 1)
     {
         typeof(return) next;
         assert(curr.length < radix); // we shouldn't expand beyond radix
@@ -2269,10 +2269,10 @@ struct RawRadixTree(Value = void)
         void release(TriLeaf2 curr) { freeNode(curr); }
         void release(HeptLeaf1 curr) { freeNode(curr); }
 
-        /// Release `Leaf curr`.
-        void release(Leaf curr)
+        /// Release `Leaf!Value curr`.
+        void release(Leaf!Value curr)
         {
-            final switch (curr.typeIx) with (Leaf.Ix)
+            final switch (curr.typeIx) with (Leaf!Value.Ix)
             {
             case undefined: break; // ignored
             case ix_HeptLeaf1: return release(curr.as!(HeptLeaf1));
@@ -2520,16 +2520,16 @@ static private void calculate(Value)(RawRadixTree!(Value).Node curr,
     }
 }
 
-/** Append statistics of tree under `Leaf` `curr.` into `stats`.
+/** Append statistics of tree under `Leaf!Value` `curr.` into `stats`.
  */
-static private void calculate(Value)(RawRadixTree!(Value).Leaf curr,
+static private void calculate(Value)(Leaf!Value curr,
                                      ref RawRadixTree!(Value).Stats stats)
     @safe pure nothrow /* TODO @nogc */
 {
     alias RT = RawRadixTree!(Value);
     ++stats.popByLeafType[curr.typeIx];
 
-    with (RT.Leaf.Ix)
+    with (Leaf!Value.Ix)
     {
         final switch (curr.typeIx)
         {
@@ -2741,7 +2741,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
     auto stats = tree.usageHistograms;
 
     writeln("Population By Node Type: ", stats.popByNodeType);
-    writeln("Population By Leaf Type: ", stats.popByLeafType);
+    writeln("Population By Leaf!Value Type: ", stats.popByLeafType);
 
     writeln("SparseBranch Population Histogram: ", stats.popHist_SparseBranch);
     writeln("DenseBranch Population Histogram: ", stats.popHist_DenseBranch);
@@ -2787,11 +2787,11 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
                 " uses ", bytesUsed/1e6, " megabytes");
     }
 
-    // Leaf-usage
-    foreach (RT.Leaf.Ix ix, pop; stats.popByLeafType) // TODO use stats.byPair when added to typecons_ex.d
+    // Leaf!Value-usage
+    foreach (Leaf!(RT.ValueType).Ix ix, pop; stats.popByLeafType) // TODO use stats.byPair when added to typecons_ex.d
     {
         size_t bytesUsed = 0;
-        with (RT.Leaf.Ix)
+        with (Leaf!(RT.ValueType).Ix)
         {
             final switch (ix)
             {

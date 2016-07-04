@@ -3,6 +3,10 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO use expandVariableLength in reconstructingInsert that uses x.realloc(2*n) instead of x.free(n)-malloc(2*n)
+
+    TODO Remove @trusted from members of vla and make their callers trusted instead.
+
     TODO Assure that ~this() is run for argument `nt` in `freeNode`. Can we use `postblit()` for this?
 
     TODO Replace insertionNode with NodeIx insertionNodeIx
@@ -65,10 +69,9 @@ import bijections : isIntegralBijectableType, bijectToUnsigned;
 import variant_ex : WordVariant;
 import typecons_ex : StrictlyIndexed;
 import modulo : Mod, mod;
-import vla : hasVariableLength;
 
 // version = enterSingleInfiniteMemoryLeakTest;
-// version = debugAllocations;
+// version = debugPrintAllocations;
 version = benchmark;
 version = print;
 
@@ -635,9 +638,7 @@ static private struct SparseLeaf1(Value)
         }
     }
 
-    /** Insert `key`, possibly self-reallocating `this`.
-        Returns: `true` if `key` was inserted, `false` otherwise if `key` was already stored.
-     */
+    /** Insert `key`, possibly self-reallocating `this` (into return). */
     typeof(this)* reconstructingInsert(Ix key,
                                        out InsertionStatus insertionStatus,
                                        out size_t index) @trusted /* TODO @nogc */
@@ -649,37 +650,31 @@ static private struct SparseLeaf1(Value)
             return next;
         }
 
-        // key is not stored so make room for it, if possible
         if (full)
         {
             if (length < maxCapacity) // if we can expand more
             {
                 import vla : constructVariableLength;
-                // make room for it
-                // TODO use expandVariableLength instead of that reuses `realloc` of `this`
                 static if (hasValue)
                 {
-                    next = constructVariableLength!(typeof(this))(length + 1, ixsSlots, valuesSlots);
+                    next = constructVariableLength!(typeof(this))(length + 1, ixsSlots, valuesSlots); // make room
                 }
                 else
                 {
-                    next = constructVariableLength!(typeof(this))(length + 1, ixsSlots);
+                    next = constructVariableLength!(typeof(this))(length + 1, ixsSlots); // make room
                 }
 
-                // clean up this
-                this.deinit();
-                free(&this);
+                this.deinit(); free(&this); // clear `this`. TODO reuse existing helper function in Phobos?
             }
             else
             {
-                insertionStatus = InsertionStatus.maxCapacityReached; // TODO expand to `DenseBranch`
+                insertionStatus = InsertionStatus.maxCapacityReached; // TODO expand to `DenseLeaf1`
                 return next;
             }
         }
 
         next.insertAt(index, key);
-
-        insertionStatus = InsertionStatus.inserted; // was inserted
+        insertionStatus = InsertionStatus.inserted;
         return next;
     }
 
@@ -692,8 +687,8 @@ static private struct SparseLeaf1(Value)
             const iS = iD - 1;
             ixsSlots[iD] = ixsSlots[iS];
         }
-        ++_length;
         ixsSlots[index] = key;     // set it
+        ++_length;
     }
 
     pragma(inline) Length length() const @safe @nogc { return _length; }
@@ -886,7 +881,9 @@ struct RawRadixTree(Value = void)
     import std.algorithm : filter;
     import std.meta : AliasSeq, staticMap;
     import std.typecons : ConstOf;
+
     import bitset : BitSet;
+    import vla : hasVariableLength;
 
     /** Is `true` if this tree stores values of type `Value` along with keys. In
         other words: `this` is a $(I map) rather than a $(I set).
@@ -1090,51 +1087,51 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        // typeof(this)* reconstructingInsert(Sub sub, out size_t index)
-        // {
-        //     import searching_ex : containsStoreIndex;
-        //     if (subIxs.containsStoreIndex(sub[0], index))
-        //     {
-        //         subIxSlots[index] = sub[0];
-        //         subNodeSlots[index] = sub[1];
-        //         return InsertionStatus.updated;
-        //     }
+        ~this() { deinit(); }
 
-        //     // check if full
-        //     if (full) { return InsertionStatus.maxCapacityReached; }
+        private pragma(inline) void deinit() { /* nothing for now */ }
 
-        //     assert(subLength >= index);
-        //     foreach (i; 0 .. subLength - index) // TODO functionize this loop or reuse memmove:
-        //     {
-        //         const iD = subLength - i;
-        //         const iS = iD - 1;
-        //         subIxSlots[iD] = subIxSlots[iS];
-        //         subNodeSlots[iD] = subNodeSlots[iS];
-        //     }
-        //     ++subLength;
-
-        //     subIxSlots[index] = sub[0]; // set new element
-        //     subNodeSlots[index] = sub[1]; // set new element
-
-        //     return InsertionStatus.inserted;
-        // }
-        /** Try update or inserte sub-node sub[1] at index sub[0].
-            Returns: `true` upon updated or insertion, otherwise `false` when `this` is full.
+        /** Insert `sub`, possibly self-reallocating `this` (into return).
         */
-        InsertionStatus updateOrInsert(Sub sub, out size_t index)
+        typeof(this)* reconstructingInsert(Sub sub,
+                                           out InsertionStatus insertionStatus,
+                                           out size_t index) @trusted /* TODO @nogc */
         {
+            auto next = &this;
+
             import searching_ex : containsStoreIndex;
             if (subIxs.containsStoreIndex(sub[0], index))
             {
-                subIxSlots[index] = sub[0];
+                assert(subIxSlots[index] == sub[0]); // subIxSlots[index] = sub[0];
                 subNodeSlots[index] = sub[1];
-                return InsertionStatus.updated;
+                insertionStatus = InsertionStatus.updated;
+                return next;
             }
 
-            // check if full
-            if (full) { return InsertionStatus.maxCapacityReached; }
+            if (full)
+            {
+                if (subLength < maxCapacity) // if we can expand more
+                {
+                    import vla : constructVariableLength;
+                    next = constructVariableLength!(typeof(this))(subLength + 1, &this);
 
-            assert(subLength >= index);
+                    this.deinit(); free(&this); // clear `this`. TODO reuse existing helper function in Phobos?
+                }
+                else
+                {
+                    insertionStatus = InsertionStatus.maxCapacityReached; // TODO expand to `DenseBranch`
+                    return next;
+                }
+            }
+
+            next.insertAt(index, sub);
+            insertionStatus = InsertionStatus.inserted;
+            return next;
+        }
+
+        pragma(inline) private void insertAt(size_t index, Sub sub)
+        {
+            assert(index <= subLength);
             foreach (i; 0 .. subLength - index) // TODO functionize this loop or reuse memmove:
             {
                 const iD = subLength - i;
@@ -1142,12 +1139,9 @@ struct RawRadixTree(Value = void)
                 subIxSlots[iD] = subIxSlots[iS];
                 subNodeSlots[iD] = subNodeSlots[iS];
             }
-            ++subLength;
-
             subIxSlots[index] = sub[0]; // set new element
             subNodeSlots[index] = sub[1]; // set new element
-
-            return InsertionStatus.inserted;
+            ++subLength;
         }
 
         inout(Node) containsSubAt(Ix ix) inout
@@ -1329,7 +1323,9 @@ struct RawRadixTree(Value = void)
     Branch setSub(SparseBranch* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
         size_t insertionIndex;
-        if (curr.updateOrInsert(Sub(subIx, subNode), insertionIndex) == InsertionStatus.maxCapacityReached) // try insert and if it fails
+        InsertionStatus insertionStatus;
+        curr = curr.reconstructingInsert(Sub(subIx, subNode), insertionStatus, insertionIndex);
+        if (insertionStatus == InsertionStatus.maxCapacityReached) // try insert and if it fails
         {
             // we need to expand because `curr` is full
             auto next = expand(curr);
@@ -1797,8 +1793,7 @@ struct RawRadixTree(Value = void)
             return next;
         }
 
-        Leaf insertIxAtLeaftoLeaf(Leaf curr, Ix key, out Node insertionNode,
-                                  size_t forcedInsertionIndex = size_t.max)
+        Leaf insertIxAtLeaftoLeaf(Leaf curr, Ix key, out Node insertionNode)
         {
             switch (curr.typeIx) with (Leaf.Ix)
             {
@@ -1828,7 +1823,7 @@ struct RawRadixTree(Value = void)
                     return curr;
                 case InsertionStatus.maxCapacityReached:
                     auto next = insertIxAtLeaftoLeaf(expand(curr_, 1), // make room for one more
-                                                     key, insertionNode, index);
+                                                     key, insertionNode);
                     assert(next.peek!(DenseLeaf1!Value*));
                     return next;
                 case InsertionStatus.updated:
@@ -2192,7 +2187,7 @@ struct RawRadixTree(Value = void)
     auto construct(NodeType, Args...)(Args args) @trusted
         if (!hasVariableLength!NodeType)
     {
-        version(debugAllocations) { dln("constructing ", NodeType.stringof, " from ", args); }
+        version(debugPrintAllocations) { dln("constructing ", NodeType.stringof, " from ", args); }
         debug ++nodeCountsByIx[NodeType.stringof];
         static if (isPointer!NodeType)
         {
@@ -2212,7 +2207,7 @@ struct RawRadixTree(Value = void)
         if (isPointer!NodeType &&
             hasVariableLength!NodeType)
     {
-        version(debugAllocations) { dln("constructing ", NodeType.stringof, " from ", args); }
+        version(debugPrintAllocations) { dln("constructing ", NodeType.stringof, " from ", args); }
         debug ++nodeCountsByIx[NodeType.stringof];
         debug ++_heapNodeAllocationBalance;
         import vla : constructVariableLength;
@@ -2222,7 +2217,7 @@ struct RawRadixTree(Value = void)
 
     void freeNode(NodeType)(NodeType nt) @trusted
     {
-        version(debugAllocations) { dln("freeing ", NodeType.stringof, " ", nt); }
+        version(debugPrintAllocations) { dln("freeing ", NodeType.stringof, " ", nt); }
         static if (isPointer!NodeType)
         {
             free(cast(void*)nt);  // TODO Allocator.free
@@ -2288,7 +2283,7 @@ struct RawRadixTree(Value = void)
         /// Release `Node curr`.
         void release(Node curr)
         {
-            version(debugAllocations) { dln("releasing Node ", curr); }
+            version(debugPrintAllocations) { dln("releasing Node ", curr); }
             final switch (curr.typeIx) with (Node.Ix)
             {
             case undefined: break; // ignored
@@ -3127,7 +3122,7 @@ auto checkNumeric(Keys...)()
         import std.meta : AliasSeq;
         foreach (Key; Keys)
         {
-            // dln("Key: ", Key.stringof);
+            dln("Key: ", Key.stringof);
             alias Tree = radixTreeSet!(Key);
             auto set = Tree;
             assert(set.hasFixedKeyLength == isFixedTrieableKeyType!Key);
@@ -3286,22 +3281,24 @@ void benchmark()()
     }
 }
 
-/// leak test
-version(enterSingleInfiniteMemoryLeakTest)
-@safe pure nothrow /* TODO @nogc */ unittest
-{
-    while (true)
-    {
-        checkNumeric!(float);
-    }
-}
-
 ///
 @safe pure nothrow /* TODO @nogc */ unittest
 {
-    checkNumeric!(float, double,
-                  long, int, short, byte,
-                  ulong, uint, ushort, ubyte);
+    version(enterSingleInfiniteMemoryLeakTest)
+    {
+        while (true)
+        {
+            checkNumeric!(float, double,
+                          long, int, short, byte,
+                          ulong, uint, ushort, ubyte);
+        }
+    }
+    else
+    {
+        checkNumeric!(float, double,
+                      long, int, short, byte,
+                      ulong, uint, ushort, ubyte);
+    }
 }
 
 auto testScalar(uint span, Keys...)()

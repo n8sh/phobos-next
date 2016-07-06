@@ -5,13 +5,11 @@
 
     TODO use expandVariableLength in reconstructingInsert that uses x.realloc(2*n) instead of x.free(n)-malloc(2*n)
 
-    TODO Remove @trusted from members of vla and make their callers trusted instead.
+    TODO Remove @trusted from members of vla and make their callers @trusted instead.
 
     TODO Assure that ~this() is run for argument `nt` in `freeNode`. Can we use `postblit()` for this?
 
-    TODO Replace insertionNode with NodeIx insertionNodeIx
-
-    TODO Make Count SparseBranch.subCapacity
+    TODO Replace insertionNode with ERef eref
 
     TODO Assure that no SparseBranch with no leaf can be converted to SparseLeaf1
 
@@ -930,15 +928,16 @@ struct RawRadixTree(Value = void)
 
     static assert(span <= 8*Ix.sizeof, "Need more precision in Ix");
 
-    /** Element (`Key` plus optional `Value`) Reference. */
-    struct ElementRef
+    /** Element (Search) Reference. */
+    struct ERef
     {
         Node node;
         Ix ix;
+        bool flag;
     }
 
     /** Tree Iterator. */
-    alias Iterator = ElementRef[];
+    alias Iterator = ERef[];
 
     /** Tree Range. Is `isBidirectionalRange`. */
     struct Range
@@ -2827,7 +2826,7 @@ unittest
     // TODO assert(map[key] == value);
 
     debug map.willFail = true;
-    // assert(!map.insert(key, value));
+    assert(!map.insert(key, value));
     // dln();
     // assert(map.contains(key));
     // TODO assert(map[key] == value);

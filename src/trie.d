@@ -1041,7 +1041,7 @@ struct RawRadixTree(Value = void)
             initialize(subCapacity);
 
             this.prefix = prefix;
-            this.subLength = 1;
+            this.subCount = 1;
             this.subIxSlots[0] = sub[0];
             this.subNodeSlots[0] = sub[1];
         }
@@ -1058,15 +1058,15 @@ struct RawRadixTree(Value = void)
             // 1.
             move(rhs.leaf, this.leaf);
             debug rhs.leaf = typeof(rhs.leaf).init;
-            this.subLength = rhs.subLength;
+            this.subCount = rhs.subCount;
             move(rhs.prefix, this.prefix);
 
             // 2.
             initialize(subCapacity);
 
             // copy variable length part. TODO optimize:
-            this.subIxSlots[0 .. rhs.subLength] = rhs.subIxSlots[0 .. rhs.subLength];
-            this.subNodeSlots[0 .. rhs.subLength] = rhs.subNodeSlots[0 .. rhs.subLength];
+            this.subIxSlots[0 .. rhs.subCount] = rhs.subIxSlots[0 .. rhs.subCount];
+            this.subNodeSlots[0 .. rhs.subCount] = rhs.subNodeSlots[0 .. rhs.subCount];
 
             assert(this.subCapacity > rhs.subCapacity);
         }
@@ -1105,10 +1105,10 @@ struct RawRadixTree(Value = void)
 
             if (full)
             {
-                if (subLength < maxCapacity) // if we can expand more
+                if (subCount < maxCapacity) // if we can expand more
                 {
                     import vla : constructVariableLength;
-                    next = constructVariableLength!(typeof(this))(subLength + 1, &this);
+                    next = constructVariableLength!(typeof(this))(subCount + 1, &this);
 
                     this.deinit(); free(&this); // clear `this`. TODO reuse existing helper function in Phobos?
                 }
@@ -1126,36 +1126,36 @@ struct RawRadixTree(Value = void)
 
         pragma(inline) private void insertAt(size_t index, Sub sub)
         {
-            assert(index <= subLength);
-            foreach (i; 0 .. subLength - index) // TODO functionize this loop or reuse memmove:
+            assert(index <= subCount);
+            foreach (i; 0 .. subCount - index) // TODO functionize this loop or reuse memmove:
             {
-                const iD = subLength - i;
+                const iD = subCount - i;
                 const iS = iD - 1;
                 subIxSlots[iD] = subIxSlots[iS];
                 subNodeSlots[iD] = subNodeSlots[iS];
             }
             subIxSlots[index] = sub[0]; // set new element
             subNodeSlots[index] = sub[1]; // set new element
-            ++subLength;
+            ++subCount;
         }
 
         inout(Node) containsSubAt(Ix ix) inout
         {
             import searching_ex : binarySearch; // need this instead of `SortedRange.contains` because we need the index
-            const hitIndex = subIxSlots[0 .. subLength].binarySearch(ix); // find index where insertion should be made
+            const hitIndex = subIxSlots[0 .. subCount].binarySearch(ix); // find index where insertion should be made
             return (hitIndex != typeof(hitIndex).max) ? subNodeSlots[hitIndex] : Node.init;
         }
 
-        pragma(inline) bool empty() const @nogc { return subLength == 0; }
-        pragma(inline) bool full()  const @nogc { return subLength == subCapacity; }
+        pragma(inline) bool empty() const @nogc { return subCount == 0; }
+        pragma(inline) bool full()  const @nogc { return subCount == subCapacity; }
 
         pragma(inline) auto ref subIxs()   inout @nogc
         {
             import std.algorithm.sorting : assumeSorted;
-            return subIxSlots[0 .. subLength].assumeSorted;
+            return subIxSlots[0 .. subCount].assumeSorted;
         }
 
-        pragma(inline) auto ref subNodes() inout @nogc { return subNodeSlots[0 .. subLength]; }
+        pragma(inline) auto ref subNodes() inout @nogc { return subNodeSlots[0 .. subCount]; }
 
         /** Get all sub-`Ix` slots, both initialized and uninitialized. */
         private auto ref subIxSlots() inout @trusted pure nothrow
@@ -1209,9 +1209,9 @@ struct RawRadixTree(Value = void)
         Leaf!Value leaf;
 
         IxsN!prefixCapacity prefix; // prefix common to all `subNodes` (also called edge-label)
-        Count subLength;
+        Count subCount;
         Count subCapacity;
-        static assert(prefix.sizeof + subLength.sizeof + subCapacity.sizeof == 8); // assert alignment
+        static assert(prefix.sizeof + subCount.sizeof + subCapacity.sizeof == 8); // assert alignment
 
         // variable-length part
         Node[0] _subNodeSlots0;
@@ -1257,7 +1257,7 @@ struct RawRadixTree(Value = void)
             move(rhs.leaf, this.leaf);
             debug rhs.leaf = Leaf!Value.init; // make reference unique, to be on the safe side
 
-            foreach (const i; 0 .. rhs.subLength) // each sub node. TODO use iota!(Mod!N)
+            foreach (const i; 0 .. rhs.subCount) // each sub node. TODO use iota!(Mod!N)
             {
                 const iN = (cast(ubyte)i).mod!(SparseBranch.maxCapacity);
                 const subIx = rhs.subIxSlots[iN];
@@ -1267,7 +1267,7 @@ struct RawRadixTree(Value = void)
         }
 
         /// Number of non-null sub-Nodes.
-        Mod!(radix + 1) subLength() const
+        Mod!(radix + 1) subCount() const
         {
             typeof(return) count = 0; // number of non-zero sub-nodes
             foreach (const subNode; subNodes) // TODO why can't we use std.algorithm.count here?
@@ -1548,7 +1548,7 @@ struct RawRadixTree(Value = void)
             case ix_SparseBranchPtr:
                 auto curr_ = curr.as!(SparseBranch*);
                 ++count;
-                foreach (subNode; curr_.subNodeSlots[0 .. curr_.subLength])
+                foreach (subNode; curr_.subNodeSlots[0 .. curr_.subCount])
                 {
                     if (subNode) { count += countHeapNodesAt(subNode); }
                 }
@@ -2115,12 +2115,12 @@ struct RawRadixTree(Value = void)
     Branch expand(SparseBranch* curr, size_t capacityIncrement = 1)
     {
         typeof(return) next;
-        assert(curr.subLength < radix); // we shouldn't expand beyond radix
+        assert(curr.subCount < radix); // we shouldn't expand beyond radix
         if (curr.empty)     // if curr also empty length capacity must be zero
         {
             next = constructVariableLength!(typeof(curr))(1, curr); // so allocate one
         }
-        else if (curr.subLength + capacityIncrement <= curr.maxCapacity) // if we can expand to curr
+        else if (curr.subCount + capacityIncrement <= curr.maxCapacity) // if we can expand to curr
         {
             const requiredCapacity = curr.subCapacity + capacityIncrement;
             auto next_ = constructVariableLength!(typeof(curr))(requiredCapacity, curr);
@@ -2234,7 +2234,7 @@ struct RawRadixTree(Value = void)
 
         void release(SparseBranch* curr)
         {
-            foreach (sub; curr.subNodes[0 .. curr.subLength])
+            foreach (sub; curr.subNodes[0 .. curr.subCount])
             {
                 release(sub); // recurse branch
             }
@@ -2430,7 +2430,7 @@ struct RawRadixTree(Value = void)
             break;
         case ix_SparseBranchPtr:
             auto curr_ = curr.as!(SparseBranch*);
-            write(typeof(*curr_).stringof, " #", curr_.subLength, "/", curr_.subCapacity, " @", curr_);
+            write(typeof(*curr_).stringof, " #", curr_.subCount, "/", curr_.subCapacity, " @", curr_);
             if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix); }
             writeln(":");
             if (curr_.leaf)
@@ -2444,7 +2444,7 @@ struct RawRadixTree(Value = void)
             break;
         case ix_DenseBranchPtr:
             auto curr_ = curr.as!(DenseBranch*);
-            write(typeof(*curr_).stringof, " #", curr_.subLength, "/", radix, " @", curr_);
+            write(typeof(*curr_).stringof, " #", curr_.subCount, "/", radix, " @", curr_);
             if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix); }
             writeln(":");
             if (curr_.leaf)

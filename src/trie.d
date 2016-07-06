@@ -104,7 +104,7 @@ alias KeyN(size_t span, size_t N) = Mod!(2^^span)[N];
 alias UKey = Key!span;
 
 /** Results of attempt at modification sub. */
-enum InsertionStatus
+enum ModStatus
 {
     maxCapacityReached,         // no operation, max capacity reached
     unchanged,                  // no operation, element already stored
@@ -638,13 +638,13 @@ static private struct SparseLeaf1(Value)
 
     /** Insert `key`, possibly self-reallocating `this` (into return). */
     typeof(this)* reconstructingInsert(Ix key,
-                                       out InsertionStatus insertionStatus,
+                                       out ModStatus modStatus,
                                        out size_t index) @trusted /* TODO @nogc */
     {
         auto next = &this;
         if (ixs.assumeSorted.containsStoreIndex(key, index))
         {
-            insertionStatus = InsertionStatus.unchanged; // already stored
+            modStatus = ModStatus.unchanged; // already stored
             return next;
         }
 
@@ -666,13 +666,13 @@ static private struct SparseLeaf1(Value)
             }
             else
             {
-                insertionStatus = InsertionStatus.maxCapacityReached; // TODO expand to `DenseLeaf1`
+                modStatus = ModStatus.maxCapacityReached; // TODO expand to `DenseLeaf1`
                 return next;
             }
         }
 
         next.insertAt(index, key);
-        insertionStatus = InsertionStatus.inserted;
+        modStatus = ModStatus.inserted;
         return next;
     }
 
@@ -933,7 +933,7 @@ struct RawRadixTree(Value = void)
     {
         Node node;
         Ix ix;
-        bool flag;
+        ModStatus modStatus;
     }
 
     /** Tree Iterator. */
@@ -1089,7 +1089,7 @@ struct RawRadixTree(Value = void)
         /** Insert `sub`, possibly self-reallocating `this` (into return).
         */
         typeof(this)* reconstructingInsert(Sub sub,
-                                           out InsertionStatus insertionStatus,
+                                           out ModStatus modStatus,
                                            out size_t index) @trusted /* TODO @nogc */
         {
             auto next = &this;
@@ -1099,7 +1099,7 @@ struct RawRadixTree(Value = void)
             {
                 assert(subIxSlots[index] == sub[0]); // subIxSlots[index] = sub[0];
                 subNodeSlots[index] = sub[1];
-                insertionStatus = InsertionStatus.updated;
+                modStatus = ModStatus.updated;
                 return next;
             }
 
@@ -1114,13 +1114,13 @@ struct RawRadixTree(Value = void)
                 }
                 else
                 {
-                    insertionStatus = InsertionStatus.maxCapacityReached; // TODO expand to `DenseBranch`
+                    modStatus = ModStatus.maxCapacityReached; // TODO expand to `DenseBranch`
                     return next;
                 }
             }
 
             next.insertAt(index, sub);
-            insertionStatus = InsertionStatus.inserted;
+            modStatus = ModStatus.inserted;
             return next;
         }
 
@@ -1318,9 +1318,9 @@ struct RawRadixTree(Value = void)
     Branch setSub(SparseBranch* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
         size_t insertionIndex;
-        InsertionStatus insertionStatus;
-        curr = curr.reconstructingInsert(Sub(subIx, subNode), insertionStatus, insertionIndex);
-        if (insertionStatus == InsertionStatus.maxCapacityReached) // try insert and if it fails
+        ModStatus modStatus;
+        curr = curr.reconstructingInsert(Sub(subIx, subNode), modStatus, insertionIndex);
+        if (modStatus == ModStatus.maxCapacityReached) // try insert and if it fails
         {
             // we need to expand because `curr` is full
             auto next = expand(curr);
@@ -1806,22 +1806,22 @@ struct RawRadixTree(Value = void)
             case ix_SparseLeaf1Ptr:
                 auto curr_ = curr.as!(SparseLeaf1!Value*);
                 size_t index;
-                InsertionStatus insertionStatus;
-                curr_ = curr_.reconstructingInsert(key, insertionStatus, index);
+                ModStatus modStatus;
+                curr_ = curr_.reconstructingInsert(key, modStatus, index);
                 curr = Leaf!Value(curr_);
-                final switch (insertionStatus)
+                final switch (modStatus)
                 {
-                case InsertionStatus.unchanged: // key already stored at `index`
+                case ModStatus.unchanged: // key already stored at `index`
                     return curr;
-                case InsertionStatus.inserted:
+                case ModStatus.inserted:
                     insertionNode = Node(curr_); // store node where insertion was performed. TODO and index
                     return curr;
-                case InsertionStatus.maxCapacityReached:
+                case ModStatus.maxCapacityReached:
                     auto next = insertIxAtLeaftoLeaf(expand(curr_, 1), // make room for one more
                                                      key, insertionNode);
                     assert(next.peek!(DenseLeaf1!Value*));
                     return next;
-                case InsertionStatus.updated:
+                case ModStatus.updated:
                     return curr;
                 }
             case ix_DenseLeaf1Ptr:
@@ -2826,7 +2826,7 @@ unittest
     // TODO assert(map[key] == value);
 
     debug map.willFail = true;
-    // assert(!map.insert(key, value));
+    assert(!map.insert(key, value));
     // dln();
     // assert(map.contains(key));
     // TODO assert(map[key] == value);

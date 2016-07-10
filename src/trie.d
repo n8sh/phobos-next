@@ -3019,7 +3019,7 @@ unittest
     maximum length of `maxLength`.
  */
 private static auto randomUniqueStrings(size_t count, uint maxLength)
-    @trusted nothrow
+    @trusted pure nothrow
 {
     import std.random : Random, uniform;
     auto gen = Random();
@@ -3049,7 +3049,7 @@ private static auto randomUniqueStrings(size_t count, uint maxLength)
 }
 
 /// Check string types in `Keys`.
-auto checkString(Keys...)(size_t count, uint maxLength) nothrow
+auto checkString(Keys...)(size_t count, uint maxLength)
     if (Keys.length >= 1)
 {
     void testContainsAndInsert(Set, Key)(ref Set set, Key key)

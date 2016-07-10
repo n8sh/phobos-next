@@ -3019,28 +3019,37 @@ unittest
     maximum length of `maxLength`.
  */
 private static auto randomUniqueStrings(size_t count, uint maxLength)
-    @trusted
+    @trusted nothrow
 {
     import std.random : Random, uniform;
     auto gen = Random();
 
     bool[string] stringSet;  // set of strings using D's builtin associative array
-    while (stringSet.length < count)
+
+    try
     {
-        const length = uniform(1, maxLength, gen);
-        auto key = new char[length];
-        foreach (ix; 0 .. length)
+        while (stringSet.length < count)
         {
-            key[ix] = cast(char)('a' + 0.uniform(26, gen));
+            const length = uniform(1, maxLength, gen);
+            auto key = new char[length];
+            foreach (ix; 0 .. length)
+            {
+                key[ix] = cast(char)('a' + 0.uniform(26, gen));
+            }
+            stringSet[key[].idup] = true;
         }
-        stringSet[key[].idup] = true;
     }
+    catch (Exception e)
+    {
+        dln("Couldn't randomize");
+    }
+
     import std.array : array;
     return stringSet.byKey.array;
 }
 
 /// Check string types in `Keys`.
-auto checkString(Keys...)(size_t count, uint maxLength)
+auto checkString(Keys...)(size_t count, uint maxLength) nothrow
     if (Keys.length >= 1)
 {
     void testContainsAndInsert(Set, Key)(ref Set set, Key key)
@@ -3070,7 +3079,7 @@ auto checkString(Keys...)(size_t count, uint maxLength)
 }
 
 ///
-@safe pure /* TODO @nogc */
+@safe pure nothrow /* TODO @nogc */
 unittest
 {
     checkString!(string)(2^^18, 2^7);

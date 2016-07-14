@@ -2851,13 +2851,9 @@ unittest
 
     assert(map.insert(key, value));
     assert(map.contains(key));
-    // assert(map[key] == value);
 
-    // debug map.willFail = true;
     assert(!map.insert(key, value));
-    // dln();
     assert(map.contains(key));
-    // TODO assert(map[key] == value);
 }
 
 /// test map to values of type `bool`

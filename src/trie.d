@@ -2647,6 +2647,7 @@ struct RadixTree(Key, Value)
     {
         _tree.ERef modRef; // indicates that key was added
         _tree.insert(key.remapKey, modRef);
+        if (willFail) { dln("WILL FAIL: modRef:", modRef, " key:", key); }
         const bool hit = modRef.node && modRef.modStatus == ModStatus.added;
         _length += hit;
         return hit;
@@ -2673,7 +2674,8 @@ struct RadixTree(Key, Value)
             _tree.ERef modRef; // indicates that key was added
             auto rawKey = key.remapKey;
             _tree.insert(rawKey, modRef);
-            if (modRef)  // if `key` was added at `modRef`
+            if (willFail) { dln("WILL FAIL: modRef:", modRef, " key:", key); }
+            if (modRef.node)  // if `key` was added at `modRef`
             {
                 // set value
                 final switch (modRef.node.typeIx) with (_tree.Node.Ix)
@@ -2694,7 +2696,7 @@ struct RadixTree(Key, Value)
                     break;
                 }
                 ++_length;
-                return true;
+                return modRef.modStatus == ModStatus.added;
             }
             else
             {
@@ -2848,14 +2850,13 @@ unittest
     assert(!map.contains(key));
 
     assert(map.insert(key, value));
-    // map.print;
     assert(map.contains(key));
-    // TODO assert(map[key] == value);
+    // assert(map[key] == value);
 
     // debug map.willFail = true;
-    // assert(!map.insert(key, value));
+    assert(!map.insert(key, value));
     // dln();
-    // assert(map.contains(key));
+    assert(map.contains(key));
     // TODO assert(map[key] == value);
 }
 

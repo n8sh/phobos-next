@@ -3082,7 +3082,7 @@ auto checkString(Keys...)(size_t count, uint maxLength)
 @safe pure nothrow /* TODO @nogc */
 unittest
 {
-    checkString!(string)(2^^18, 2^7);
+    checkString!(string)(2^^18, 2^^7);
 }
 
 /// Create a set of words from /usr/share/dict/words

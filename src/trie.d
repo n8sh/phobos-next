@@ -2743,6 +2743,15 @@ struct RadixTree(Key, Value)
 
     static if (_tree.hasValue)
     {
+        auto ref opIndexAssign(Key key, in Value value)
+        {
+            _tree.ERef modRef; // indicates that elt was added
+            _tree.insert(_tree.Element(key.remapKey, value), modRef);
+            const bool added = modRef.node && modRef.modStatus == ModStatus.added;
+            _length += added;
+            return value;       // TODO return reference to stored value at modRef instead
+        }
+
         /** Insert `key`.
             Returns: `false` if key was previously already added, `true` otherwise.
         */
@@ -2772,8 +2781,9 @@ struct RadixTree(Key, Value)
                     modRef.node.as!(DenseLeaf1!Value*).setValue(rawKey[$ - 1], value);
                     break;
                 }
-                ++_length;
-                return modRef.modStatus == ModStatus.added;
+                const bool hit = modRef.modStatus == ModStatus.added;
+                _length += hit;
+                return hit;
             }
             else
             {
@@ -2925,12 +2935,22 @@ unittest
     const Value value = 42;
 
     assert(!map.contains(key));
+    assert(map.length == 0);
 
     assert(map.insert(key, value));
     assert(map.contains(key));
+    assert(map.length == 1);
 
     assert(!map.insert(key, value));
     assert(map.contains(key));
+    assert(map.length == 1);
+
+    map[11] = 111;
+    assert(map.length == 2);
+    // assert(map.contains(11));
+
+    map[22] = 222;
+    assert(map.length == 3);
 }
 
 /// test map to values of type `bool`

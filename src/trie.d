@@ -2730,17 +2730,6 @@ struct RadixTree(Key, Value)
         return hit;
     }
 
-    static if (!_tree.hasValue)
-    {
-        const nothrow:
-
-        /** Returns: `true` if `key` is stored, `false` otherwise. */
-        bool contains(in Key key)
-        {
-            return _tree.contains(key.remapKey);
-        }
-    }
-
     static if (_tree.hasValue)
     {
         auto opIndexAssign(Key key, in Value value)
@@ -2797,6 +2786,16 @@ struct RadixTree(Key, Value)
 
         /** Returns: pointer to value if `key` is contained in set, null otherwise. */
         bool contains(in Key key) const
+        {
+            return _tree.contains(key.remapKey);
+        }
+    }
+    else
+    {
+        const nothrow:
+
+        /** Returns: `true` if `key` is stored, `false` otherwise. */
+        bool contains(in Key key)
         {
             return _tree.contains(key.remapKey);
         }

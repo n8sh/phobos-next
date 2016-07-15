@@ -2743,13 +2743,16 @@ struct RadixTree(Key, Value)
 
     static if (_tree.hasValue)
     {
-        auto ref opIndexAssign(Key key, in Value value)
+        auto opIndexAssign(Key key, in Value value)
         {
             _tree.ERef modRef; // indicates that elt was added
             _tree.insert(_tree.Element(key.remapKey, value), modRef);
             const bool added = modRef.node && modRef.modStatus == ModStatus.added;
             _length += added;
-            return value;       // TODO return reference to stored value at modRef instead
+            /* TODO return reference (via `auto ref` return typed) to stored
+               value at `modRef` instead, unless packed bitset storage is used
+               when Value is bool */
+            return value;
         }
 
         /** Insert `key`.

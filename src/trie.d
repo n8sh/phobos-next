@@ -2751,7 +2751,7 @@ struct RadixTree(Key, Value)
             _length += added;
             /* TODO return reference (via `auto ref` return typed) to stored
                value at `modRef` instead, unless packed bitset storage is used
-               when Value is bool */
+               when `Value is bool` */
             return value;
         }
 

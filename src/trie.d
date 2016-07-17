@@ -2924,7 +2924,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
     writeln("Tree uses ", totalBytesUsed/1e6, " megabytes");
 }
 
-/// test map to values of type `uint`
+/// test map from `uint` to values of type `double`
 @safe pure nothrow /* TODO @nogc */
 unittest
 {

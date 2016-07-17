@@ -2929,7 +2929,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
 unittest
 {
     alias Key = uint;
-    alias Value = uint;
+    alias Value = double;
 
     auto map = radixTreeMap!(Key, Value);
     assert(map.empty);

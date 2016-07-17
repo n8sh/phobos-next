@@ -2732,7 +2732,7 @@ struct RadixTree(Key, Value)
 
     static if (_tree.hasValue)
     {
-        auto opIndexAssign(Key key, in Value value)
+        auto opIndexAssign(in Value value, Key key)
         {
             _tree.ERef modRef; // indicates that elt was added
             _tree.insert(_tree.Element(key.remapKey, value), modRef);
@@ -2950,12 +2950,13 @@ unittest
     assert(map.contains(key));
     assert(map.length == 1);
 
-    map[11] = 111;
+    map[3] = 33;
     assert(map.length == 2);
-    // assert(map.contains(11));
+    assert(map.contains(3));
 
-    map[22] = 222;
+    map[4] = 44;
     assert(map.length == 3);
+    assert(map.contains(4));
 }
 
 /// test map to values of type `bool`

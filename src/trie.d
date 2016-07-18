@@ -2895,7 +2895,7 @@ struct RadixTree(Key, Value)
         nothrow:
 
         /** Returns: `true` if `key` is stored, `false` otherwise. */
-        inout(bool) contains(in Key key) inout
+        bool contains(in Key key) inout
         {
             return _tree.contains(key.remapKey);
         }

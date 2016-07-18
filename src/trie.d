@@ -1578,7 +1578,7 @@ struct RawRadixTree(Value = void)
                     {
                         return (key.length == 1 ?
                                 containsAt(curr_.leaf, key) : // in leaf
-                                containsAt(curr_.containsSubAt(key[0]), key[1 .. $])); // or in branch tree
+                                containsAt(curr_.containsSubAt(key[0]), key[1 .. $])); // recurse into branch tree
                     }
                     return null;
                 case ix_DenseBranchPtr:
@@ -1587,7 +1587,7 @@ struct RawRadixTree(Value = void)
                     {
                         return (key.length == 1 ?
                                 containsAt(curr_.leaf, key) : // in leaf
-                                containsAt(curr_.subNodes[key[0]], key[1 .. $])); // or in branch tree
+                                containsAt(curr_.subNodes[key[0]], key[1 .. $])); // recurse into branch tree
                     }
                     return null;
                 default: assert(false);
@@ -1637,14 +1637,14 @@ struct RawRadixTree(Value = void)
                     auto curr_ = curr.as!(SparseBranch*);
                     return (key.skipOver(curr_.prefix) &&        // matching prefix
                             (key.length == 1 ?
-                             containsAt(curr_.leaf, key) : // either in leaf
-                             containsAt(curr_.containsSubAt(key[0]), key[1 .. $]))); // or recurse
+                             containsAt(curr_.leaf, key) : // in leaf
+                             containsAt(curr_.containsSubAt(key[0]), key[1 .. $]))); // recurse into branch tree
                 case ix_DenseBranchPtr:
                     auto curr_ = curr.as!(DenseBranch*);
                     return (key.skipOver(curr_.prefix) &&        // matching prefix
                             (key.length == 1 ?
-                             containsAt(curr_.leaf, key) : // either in leaf
-                             containsAt(curr_.subNodes[key[0]], key[1 .. $]))); // recurse
+                             containsAt(curr_.leaf, key) : // in leaf
+                             containsAt(curr_.subNodes[key[0]], key[1 .. $]))); // recurse into branch tree
                 }
             }
         }

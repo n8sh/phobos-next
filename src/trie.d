@@ -3075,7 +3075,7 @@ unittest
     map.insert(Key.init, Value.init);
 }
 
-///
+/// test packing of set elements
 @safe pure nothrow /* TODO @nogc */
 unittest
 {

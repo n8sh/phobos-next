@@ -695,11 +695,6 @@ static private struct SparseLeaf1(Value)
     pragma(inline) bool empty() const @safe @nogc { return _length == 0; }
     pragma(inline) bool full() const @safe @nogc { return _length == _capacity; }
 
-    pragma(inline) bool contains(Ix key) const @nogc
-    {
-        return ixs.assumeSorted.contains(key);
-    }
-
     /** Get all initialized keys. */
     pragma(inline) auto ixs() inout @trusted @nogc { return ixsSlots[0 .. _length]; }
 
@@ -715,6 +710,26 @@ static private struct SparseLeaf1(Value)
             assert(hit);        // assert hit for now
             assert(index < length);
             values[index] = value;
+        }
+
+        pragma(inline) inout(Value*) contains(Ix key) inout @nogc
+        {
+            size_t index;
+            if (ixs.assumeSorted.containsStoreIndex(key, index))
+            {
+                return &(values[index]);
+            }
+            else
+            {
+                return null;
+            }
+        }
+    }
+    else
+    {
+        pragma(inline) bool contains(Ix key) const @nogc
+        {
+            return ixs.assumeSorted.contains(key);
         }
     }
 
@@ -785,7 +800,7 @@ static private struct DenseLeaf1(Value)
         assert(ixs.length <= capacity);
         foreach (ix; ixs)
         {
-            _keyBits[ix] = true;
+            _ixBits[ix] = true;
         }
         static if (hasGCScannedValues)
         {
@@ -803,15 +818,26 @@ static private struct DenseLeaf1(Value)
 
     @nogc:
 
-    pragma(inline) bool hasSubAt(Ix ix) const { return _keyBits[ix]; }
-    pragma(inline) bool empty() const { return _keyBits.empty; }
-    pragma(inline) bool full() const { return _keyBits.full; }
-    pragma(inline) size_t count() const { return _keyBits.countOnes; }
+    pragma(inline) bool hasSubAt(Ix ix) const { return _ixBits[ix]; }
+    pragma(inline) bool empty() const { return _ixBits.empty; }
+    pragma(inline) bool full() const { return _ixBits.full; }
+    pragma(inline) size_t count() const { return _ixBits.countOnes; }
 
-    pragma(inline) bool contains(Ix key) const { return _keyBits[key]; }
-    pragma(inline) bool insert(Ix key)
+    static if (hasValue)
     {
-        if (!contains(key)) { return _keyBits[key] = true; }
+        pragma(inline) inout(Value*) contains(Ix ix) inout @nogc
+        {
+            return _ixBits[ix] ? &(_values[ix]) : null;
+        }
+    }
+    else
+    {
+        pragma(inline) bool contains(Ix ix) const { return _ixBits[ix]; }
+    }
+
+    pragma(inline) bool insert(Ix ix)
+    {
+        if (!contains(ix)) { return _ixBits[ix] = true; }
         return false;
     }
 
@@ -827,17 +853,18 @@ static private struct DenseLeaf1(Value)
 
 private:
     import bitset : BitSet;
-    BitSet!capacity _keyBits;  // 32 bytes
+    BitSet!capacity _ixBits;  // 32 bytes
     static if (hasValue)
     {
-        static if (is(Value == bool))
-        {
-            BitSet!capacity _values; // packed values
-        }
-        else
-        {
-            Value[capacity] _values;
-        }
+        // static if (is(Value == bool))
+        // {
+        //     BitSet!capacity _values; // packed values
+        // }
+        // else
+        // {
+        //     Value[capacity] _values;
+        // }
+        Value[capacity] _values;
     }
 }
 
@@ -1511,52 +1538,114 @@ struct RawRadixTree(Value = void)
         }
     }
 
-    const @safe pure nothrow /* TODO @nogc */
+    @safe pure nothrow /* TODO @nogc */
     {
-        /** Returns: `true` if `key` is stored, `false` otherwise. */
-        pragma(inline) bool contains(UKey key)
+        static if (hasValue)
         {
-            return containsAt(_root, key);
-        }
-
-        /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
-        pragma(inline) bool containsAt(Leaf!Value curr, UKey key)
-        {
-            debug if (willFail) { dln("key:", key); }
-            final switch (curr.typeIx) with (Leaf!Value.Ix)
+            /** Returns: `true` if `key` is stored, `false` otherwise. */
+            pragma(inline) inout(Value*) contains(UKey key) inout
             {
-            case undefined: return false;
-            case ix_HeptLeaf1: return curr.as!(HeptLeaf1).contains(key);
-            case ix_SparseLeaf1Ptr: return key.length == 1 && curr.as!(SparseLeaf1!Value*).contains(key[0]);
-            case ix_DenseLeaf1Ptr:  return key.length == 1 && curr.as!(DenseLeaf1!Value*).contains(key[0]);
+                return containsAt(_root, key);
+            }
+
+            /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
+            pragma(inline) inout(Value*) containsAt(Leaf!Value curr, UKey key) inout
+            {
+                debug if (willFail) { dln("key:", key); }
+                switch (curr.typeIx) with (Leaf!Value.Ix)
+                {
+                case undefined: return null;
+                case ix_SparseLeaf1Ptr: return key.length == 1 ? curr.as!(SparseLeaf1!Value*).contains(key[0]) : null;
+                case ix_DenseLeaf1Ptr:  return key.length == 1 ? curr.as!(DenseLeaf1!Value*).contains(key[0]) : null;
+                default: assert(false);
+                }
+            }
+
+            /// ditto
+            pragma(inline) inout(Value*) containsAt(Node curr, UKey key) inout
+            {
+                assert(key.length);
+                debug if (willFail) { dln("key:", key); }
+                import std.algorithm : skipOver;
+                switch (curr.typeIx) with (Node.Ix)
+                {
+                case undefined: return null;
+                case ix_SparseLeaf1Ptr: return key.length == 1 ? curr.as!(SparseLeaf1!Value*).contains(key[0]) : null;
+                case ix_DenseLeaf1Ptr:  return key.length == 1 ? curr.as!(DenseLeaf1!Value*).contains(key[0]) : null;
+                case ix_SparseBranchPtr:
+                    auto curr_ = curr.as!(SparseBranch*);
+                    if (key.skipOver(curr_.prefix))
+                    {
+                        return (key.length == 1 ?
+                                containsAt(curr_.leaf, key) : // in leaf
+                                containsAt(curr_.containsSubAt(key[0]), key[1 .. $])); // or in branch tree
+                    }
+                    return null;
+                case ix_DenseBranchPtr:
+                    auto curr_ = curr.as!(DenseBranch*);
+                    if (key.skipOver(curr_.prefix))
+                    {
+                        return (key.length == 1 ?
+                                containsAt(curr_.leaf, key) : // in leaf
+                                containsAt(curr_.subNodes[key[0]], key[1 .. $])); // or in branch tree
+                    }
+                    return null;
+                default: assert(false);
+                }
             }
         }
-        /// ditto
-        pragma(inline) bool containsAt(Node curr, UKey key)
+        else
         {
-            debug if (willFail) { dln("key:", key); }
-            import std.algorithm : skipOver;
-            final switch (curr.typeIx) with (Node.Ix)
+            const:
+
+            /** Returns: `true` if `key` is stored, `false` otherwise. */
+            pragma(inline) bool contains(UKey key)
             {
-            case undefined: return false;
-            case ix_OneLeafMax7: return curr.as!(OneLeafMax7).contains(key);
-            case ix_TwoLeaf3: return curr.as!(TwoLeaf3).contains(key);
-            case ix_TriLeaf2: return curr.as!(TriLeaf2).contains(key);
-            case ix_HeptLeaf1: return curr.as!(HeptLeaf1).contains(key);
-            case ix_SparseLeaf1Ptr:
-                return key.length == 1 && curr.as!(SparseLeaf1!Value*).contains(key[0]);
-            case ix_DenseLeaf1Ptr:
-                return key.length == 1 && curr.as!(DenseLeaf1!Value*).contains(key[0]);
-            case ix_SparseBranchPtr:
-                auto curr_ = curr.as!(SparseBranch*);
-                return (key.skipOver(curr_.prefix) &&        // matching prefix
-                        ((key.length == 1 && containsAt(curr_.leaf, key)) || // either in leaf
-                         (key.length >= 1 && containsAt(curr_.containsSubAt(key[0]), key[1 .. $])))); // or recurse
-            case ix_DenseBranchPtr:
-                auto curr_ = curr.as!(DenseBranch*);
-                return (key.skipOver(curr_.prefix) &&        // matching prefix
-                        ((key.length == 1 && containsAt(curr_.leaf, key)) || // either in leaf
-                         (key.length >= 1 && containsAt(curr_.subNodes[key[0]], key[1 .. $])))); // recurse
+                return containsAt(_root, key);
+            }
+
+            /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
+            pragma(inline) bool containsAt(Leaf!Value curr, UKey key)
+            {
+                debug if (willFail) { dln("key:", key); }
+                final switch (curr.typeIx) with (Leaf!Value.Ix)
+                {
+                case undefined: return false;
+                case ix_HeptLeaf1: return curr.as!(HeptLeaf1).contains(key);
+                case ix_SparseLeaf1Ptr: return key.length == 1 && curr.as!(SparseLeaf1!Value*).contains(key[0]);
+                case ix_DenseLeaf1Ptr:  return key.length == 1 && curr.as!(DenseLeaf1!Value*).contains(key[0]);
+                }
+            }
+            /// ditto
+            pragma(inline) bool containsAt(Node curr, UKey key)
+            {
+                assert(key.length);
+                debug if (willFail) { dln("key:", key); }
+                import std.algorithm : skipOver;
+                final switch (curr.typeIx) with (Node.Ix)
+                {
+                case undefined: return false;
+                case ix_OneLeafMax7: return curr.as!(OneLeafMax7).contains(key);
+                case ix_TwoLeaf3: return curr.as!(TwoLeaf3).contains(key);
+                case ix_TriLeaf2: return curr.as!(TriLeaf2).contains(key);
+                case ix_HeptLeaf1: return curr.as!(HeptLeaf1).contains(key);
+                case ix_SparseLeaf1Ptr:
+                    return key.length == 1 && curr.as!(SparseLeaf1!Value*).contains(key[0]);
+                case ix_DenseLeaf1Ptr:
+                    return key.length == 1 && curr.as!(DenseLeaf1!Value*).contains(key[0]);
+                case ix_SparseBranchPtr:
+                    auto curr_ = curr.as!(SparseBranch*);
+                    return (key.skipOver(curr_.prefix) &&        // matching prefix
+                            (key.length == 1 ?
+                             containsAt(curr_.leaf, key) : // either in leaf
+                             containsAt(curr_.containsSubAt(key[0]), key[1 .. $]))); // or recurse
+                case ix_DenseBranchPtr:
+                    auto curr_ = curr.as!(DenseBranch*);
+                    return (key.skipOver(curr_.prefix) &&        // matching prefix
+                            (key.length == 1 ?
+                             containsAt(curr_.leaf, key) : // either in leaf
+                             containsAt(curr_.subNodes[key[0]], key[1 .. $]))); // recurse
+                }
             }
         }
 
@@ -2490,7 +2579,7 @@ struct RawRadixTree(Value = void)
             // keys
             size_t ix = 0;
             bool other = false;
-            foreach (const keyBit; curr_._keyBits[])
+            foreach (const keyBit; curr_._ixBits[])
             {
                 string s;
                 if (keyBit)
@@ -2587,7 +2676,7 @@ static private void calculate(Value)(RawRadixTree!(Value).Node curr,
     case ix_DenseLeaf1Ptr:
         auto curr_ = curr.as!(DenseLeaf1!Value*);
         ++stats.heapNodeCount;
-        const count = curr_._keyBits.countOnes; // number of non-zero sub-nodes
+        const count = curr_._ixBits.countOnes; // number of non-zero sub-nodes
         assert(count <= curr_.capacity);
         ++stats.popHist_DenseLeaf1[count - 1]; // TODO type-safe indexing
         break;
@@ -2626,7 +2715,7 @@ static private void calculate(Value)(Leaf!Value curr,
         case ix_DenseLeaf1Ptr:
             auto curr_ = curr.as!(DenseLeaf1!Value*);
             ++stats.heapNodeCount;
-            const count = curr_._keyBits.countOnes; // number of non-zero curr-nodes
+            const count = curr_._ixBits.countOnes; // number of non-zero curr-nodes
             assert(count <= curr_.capacity);
             assert(count);
             ++stats.popHist_DenseLeaf1[count - 1]; // TODO type-safe indexing
@@ -2732,6 +2821,17 @@ struct RadixTree(Key, Value)
 
     static if (_tree.hasValue)
     {
+        ref Value opIndex(Key key)
+        {
+            Value* value = contains(key);
+            if (value is null)
+            {
+                import core.exception : RangeError;
+                throw new RangeError("Range violation");
+            }
+            return *value;
+        }
+
         auto opIndexAssign(in Value value, Key key)
         {
             _tree.ERef modRef; // indicates that elt was added
@@ -2785,17 +2885,17 @@ struct RadixTree(Key, Value)
         }
 
         /** Returns: pointer to value if `key` is contained in set, null otherwise. */
-        bool contains(in Key key) const
+        inout(Value*) contains(in Key key) inout
         {
             return _tree.contains(key.remapKey);
         }
     }
     else
     {
-        const nothrow:
+        nothrow:
 
         /** Returns: `true` if `key` is stored, `false` otherwise. */
-        bool contains(in Key key)
+        inout(bool) contains(in Key key) inout
         {
             return _tree.contains(key.remapKey);
         }
@@ -2950,13 +3050,16 @@ unittest
     assert(map.contains(key));
     assert(map.length == 1);
 
-    map[3] = 33;
-    assert(map.length == 2);
+    map[3] = 33.3;
     assert(map.contains(3));
+    assert(map.length == 2);
 
-    map[4] = 44;
-    assert(map.length == 3);
+    map[4] = 44.4;
     assert(map.contains(4));
+    assert(map.length == 3);
+
+    // assert(*map.contains(3) == 33.3);
+    // assert(*map.contains(4) == 44.4);
 }
 
 /// test map to values of type `bool`

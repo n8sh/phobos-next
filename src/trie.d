@@ -3025,11 +3025,11 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
 }
 
 /// test map from `uint` to values of type `double`
-@safe pure nothrow /* TODO @nogc */
+// @safe pure nothrow /* TODO @nogc */
 unittest
 {
     alias Key = uint;
-    alias Value = double;
+    alias Value = ushort;
 
     auto map = radixTreeMap!(Key, Value);
     assert(map.empty);
@@ -3050,18 +3050,22 @@ unittest
     assert(map.contains(key));
     assert(map.length == 1);
 
-    map[3] = 33.3;
+    map[3] = 33;
     assert(map.contains(3));
     assert(3 in map);
     assert(map.length == 2);
 
-    map[4] = 44.4;
+    map[4] = 44;
     assert(map.contains(4));
     assert(4 in map);
     assert(map.length == 3);
 
-    // assert(*(3 in map) == 33.3);
-    // assert(*(4 in map) == 44.4);
+    auto x = *(3 in map);
+    auto y = *(4 in map);
+
+    // map.print;
+    // assert(*(3 in map) == 33);
+    // assert(*(4 in map) == 44);
 
     // assert(*map.contains(3) == 33.3);
     // assert(*map.contains(4) == 44.4);

@@ -2902,7 +2902,7 @@ struct RadixTree(Key, Value)
     }
 
     /** Supports $(B `Key` in `this`) syntax. */
-    auto opBinaryRight(string op)(in Key key) const if (op == "in")
+    auto opBinaryRight(string op)(in Key key) inout if (op == "in")
     {
         return contains(key);   // TODO return `_tree.ERef`
     }

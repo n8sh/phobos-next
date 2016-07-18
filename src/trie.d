@@ -3052,11 +3052,16 @@ unittest
 
     map[3] = 33.3;
     assert(map.contains(3));
+    assert(3 in map);
     assert(map.length == 2);
 
     map[4] = 44.4;
     assert(map.contains(4));
+    assert(4 in map);
     assert(map.length == 3);
+
+    // assert(*(3 in map) == 33.3);
+    // assert(*(4 in map) == 44.4);
 
     // assert(*map.contains(3) == 33.3);
     // assert(*map.contains(4) == 44.4);

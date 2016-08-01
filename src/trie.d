@@ -670,6 +670,7 @@ static private struct SparseLeaf1(Value)
                                        out ModStatus modStatus,
                                        out size_t index) @trusted /* TODO @nogc */
     {
+        // get index
         static if (hasValue)
         {
             const ix = elt.ix;
@@ -679,6 +680,7 @@ static private struct SparseLeaf1(Value)
             const ix = elt;
         }
 
+        // handle existing element
         if (ixs.assumeSorted.containsStoreIndex(ix, index))
         {
             static if (hasValue)
@@ -693,6 +695,7 @@ static private struct SparseLeaf1(Value)
             return &this;
         }
 
+        // try making room for new element
         auto next = makeRoom();
         if (next is null)
         {
@@ -700,6 +703,7 @@ static private struct SparseLeaf1(Value)
             return &this;
         }
 
+        // insert new element
         next.insertAt(index, elt);
         modStatus = ModStatus.added;
 

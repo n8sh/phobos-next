@@ -3112,19 +3112,12 @@ unittest
     assert(*map.contains(3) == 33);
     assert(*(3 in map) == 33);
 
-    map.print;
-    map.willFail = true;
     map[4] = 44;
-    import std.stdio;
-    writeln;
-    map.print;
     assert(map.contains(4));
     assert(4 in map);
     assert(map.length == 3);
     assert(*map.contains(4) == 44);
     assert(*(4 in map) == 44);
-
-    // map.print;
 }
 
 /// test map to values of type `bool`

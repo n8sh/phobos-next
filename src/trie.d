@@ -168,12 +168,12 @@ struct IxsN(uint capacity,
         }
     }
 
-    @property auto toString() const
+    @property auto toString(char separator = keySeparator) const
     {
         string s;
         foreach (const i, const ix; chunks)
         {
-            if (i != 0) { s ~= keySeparator; } // separator
+            if (i != 0) { s ~= separator; }
             import std.string : format;
             static if (elementLength == 1)
             {
@@ -1994,15 +1994,20 @@ struct RawRadixTree(Value = void)
 
         static if (hasValue)
         {
-            Branch insertAtLeafOfBranch(Branch curr, Ix key, in Value value, out ERef modRef)
+            Branch insertAtLeafOfBranch(Branch curr, Ix key, Value value, out ERef modRef)
             {
+                debug if (willFail) { dln("WILL FAIL: key:", key,
+                                          " value:", value,
+                                          " curr:", curr,
+                                          " currPrefix:", getPrefix(curr),
+                                          " modRef:", modRef); }
                 if (auto leaf = getLeaf(curr))
                 {
                     setLeaf(curr, insertIxAtLeaftoLeaf(leaf, IxElement(key, value), modRef));
                 }
                 else
                 {
-                    auto leaf_ = constructVariableLength!(SparseLeaf1!Value*)(1, [key], [Value.init]); // needed for values
+                    auto leaf_ = constructVariableLength!(SparseLeaf1!Value*)(1, [key], [value]); // needed for values
                     modRef = ERef(Node(leaf_), Ix(0), ModStatus.added);
                     setLeaf(curr, Leaf!Value(leaf_));
                 }
@@ -2013,6 +2018,10 @@ struct RawRadixTree(Value = void)
         {
             Branch insertAtLeafOfBranch(Branch curr, Ix key, out ERef modRef)
             {
+                debug if (willFail) { dln("WILL FAIL: key:", key,
+                                          " curr:", curr,
+                                          " currPrefix:", getPrefix(curr),
+                                          " modRef:", modRef); }
                 if (auto leaf = getLeaf(curr))
                 {
                     setLeaf(curr, insertIxAtLeaftoLeaf(leaf, key, modRef));
@@ -2608,7 +2617,7 @@ struct RawRadixTree(Value = void)
         case ix_SparseBranchPtr:
             auto curr_ = curr.as!(SparseBranch*);
             write(typeof(*curr_).stringof, " #", curr_.subCount, "/", curr_.subCapacity, " @", curr_);
-            if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix); }
+            if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix.toString('_')); }
             writeln(":");
             if (curr_.leaf)
             {
@@ -2622,7 +2631,7 @@ struct RawRadixTree(Value = void)
         case ix_DenseBranchPtr:
             auto curr_ = curr.as!(DenseBranch*);
             write(typeof(*curr_).stringof, " #", curr_.subCount, "/", radix, " @", curr_);
-            if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix); }
+            if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix.toString('_')); }
             writeln(":");
             if (curr_.leaf)
             {
@@ -3044,6 +3053,7 @@ unittest
 
     assert(map.insert(key, value));
     assert(map.contains(key));
+    assert(*map.contains(key) == value);
     assert(map.length == 1);
 
     assert(!map.insert(key, value));
@@ -3054,21 +3064,22 @@ unittest
     assert(map.contains(3));
     assert(3 in map);
     assert(map.length == 2);
+    assert(*map.contains(3) == 33);
+    assert(*(3 in map) == 33);
 
+    map.print;
+    map.willFail = true;
     map[4] = 44;
+    import std.stdio;
+    writeln;
+    map.print;
     assert(map.contains(4));
     assert(4 in map);
     assert(map.length == 3);
-
-    auto x = *(3 in map);
-    auto y = *(4 in map);
-
-    // map.print;
-    // assert(*(3 in map) == 33);
+    assert(*map.contains(4) == 44);
     // assert(*(4 in map) == 44);
 
-    // assert(*map.contains(3) == 33.3);
-    // assert(*map.contains(4) == 44.4);
+    // map.print;
 }
 
 /// test map to values of type `bool`

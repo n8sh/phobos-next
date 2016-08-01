@@ -3106,17 +3106,17 @@ unittest
     assert(map.length == 1);
 
     map[3] = 33;
-    assert(map.contains(3));
-    assert(3 in map);
     assert(map.length == 2);
+    assert(map.contains(3));
     assert(*map.contains(3) == 33);
+    assert(3 in map);
     assert(*(3 in map) == 33);
 
     map[4] = 44;
-    assert(map.contains(4));
-    assert(4 in map);
     assert(map.length == 3);
+    assert(map.contains(4));
     assert(*map.contains(4) == 44);
+    assert(4 in map);
     assert(*(4 in map) == 44);
 
     // map.print;

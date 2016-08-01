@@ -671,14 +671,8 @@ static private struct SparseLeaf1(Value)
                                        out size_t index) @trusted /* TODO @nogc */
     {
         // get index
-        static if (hasValue)
-        {
-            const ix = elt.ix;
-        }
-        else
-        {
-            const ix = elt;
-        }
+        static if (hasValue) { const ix = elt.ix; }
+        else { const ix = elt; }
 
         // handle existing element
         if (ixs.assumeSorted.containsStoreIndex(ix, index))
@@ -830,7 +824,12 @@ private:
 static private struct DenseLeaf1(Value)
 {
     enum hasValue = !is(Value == void);
+
+    static if (hasValue) alias IxElement = Tuple!(Ix, "ix", Value, "value");
+    else                 alias IxElement = Ix;
+
     enum hasGCScannedValues = hasValue && !is(Value == bool) && shouldAddGCRange!Value;
+
     static if (hasGCScannedValues)
     {
         import core.memory : GC;
@@ -880,10 +879,32 @@ static private struct DenseLeaf1(Value)
         pragma(inline) bool contains(Ix ix) const { return _ixBits[ix]; }
     }
 
-    pragma(inline) bool insert(Ix ix)
+    pragma(inline) ModStatus insert(IxElement elt)
     {
-        if (!contains(ix)) { return _ixBits[ix] = true; }
-        return false;
+        ModStatus modStatus;
+
+        static if (hasValue) { const ix = elt.ix; }
+        else { const ix = elt; }
+
+        // TODO this should be removed because it causes slow-down
+        if (!contains(ix))
+        {
+            modStatus = ModStatus.added;
+        }
+        else
+        {
+            modStatus = ModStatus.modified;
+        }
+
+        // set element
+        _ixBits[ix] = true;
+        static if (hasValue)
+        {
+            modStatus = _values[ix] != elt.value ? ModStatus.updated : ModStatus.unchanged;
+            _values[ix] = elt.value;
+        }
+
+        return modStatus;
     }
 
     static if (hasValue)
@@ -2023,15 +2044,7 @@ struct RawRadixTree(Value = void)
                     return curr;
                 }
             case ix_DenseLeaf1Ptr:
-                const inserted = curr.as!(DenseLeaf1!Value*).insert(key);
-                if (inserted)
-                {
-                    modRef = ERef(Node(curr), Ix(key), ModStatus.added);
-                }
-                else
-                {
-                    modRef = ERef(Node(curr), Ix(key), ModStatus.unchanged);
-                }
+                curr.as!(DenseLeaf1!Value*).insert(elt);
                 break;
             default:
                 assert(false, "Unsupported Leaf!Value type " ~ curr.typeIx.to!string);

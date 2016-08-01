@@ -109,7 +109,7 @@ enum ModStatus
     maxCapacityReached,         // no operation, max capacity reached
     unchanged,                  // no operation, element already stored
     added, inserted = added,    // new element was added (inserted)
-    updated,                    // existing element was update/modified
+    updated, modified = updated, // existing element was update/modified
 }
 
 /** Size of a CPU cache line in bytes.
@@ -569,6 +569,9 @@ static private struct SparseLeaf1(Value)
 
     enum hasValue = !is(Value == void);
 
+    static if (hasValue) alias IxElement = Tuple!(Ix, "ix", Value, "value");
+    else                 alias IxElement = Ix;
+
     pure nothrow /* TODO @nogc */:
 
     /** Construct empty with `capacity`. */
@@ -664,31 +667,62 @@ static private struct SparseLeaf1(Value)
     }
 
     /** Insert `key`, possibly self-reallocating `this` (into return). */
-    typeof(this)* reconstructingInsert(Ix key,
+    typeof(this)* reconstructingInsert(IxElement elt,
                                        out ModStatus modStatus,
                                        out size_t index) @trusted /* TODO @nogc */
     {
-        if (ixs.assumeSorted.containsStoreIndex(key, index))
+        static if (hasValue)
         {
-            modStatus = ModStatus.unchanged; // already stored
+            const ix = elt.ix;
+        }
+        else
+        {
+            const ix = elt;
+        }
+
+        if (ixs.assumeSorted.containsStoreIndex(ix, index))
+        {
+            static if (hasValue)
+            {
+                modStatus = values[index] == elt.value ? ModStatus.unchanged : ModStatus.updated;
+                values[index] = elt.value;
+            }
+            else
+            {
+                modStatus = ModStatus.unchanged;
+            }
             return &this;
         }
+
         auto next = makeRoom(modStatus);
-        next.insertAt(index, key);
+        next.insertAt(index, elt);
         modStatus = ModStatus.added;
+
         return next;
     }
 
-    pragma(inline) private void insertAt(size_t index, Ix key)
+    pragma(inline) private void insertAt(size_t index, IxElement elt)
     {
         assert(index <= _length);
+
         foreach (i; 0 .. _length - index) // TODO functionize this loop or reuse memmove:
         {
             const iD = _length - i;
             const iS = iD - 1;
             ixsSlots[iD] = ixsSlots[iS];
         }
-        ixsSlots[index] = key;     // set it
+
+        static if (hasValue)
+        {
+            const ix = elt.ix;
+        }
+        else
+        {
+            const ix = elt;
+        }
+
+        ixsSlots[index] = ix;
+
         ++_length;
     }
 
@@ -1961,7 +1995,7 @@ struct RawRadixTree(Value = void)
                 auto curr_ = curr.as!(SparseLeaf1!Value*);
                 size_t index;
                 ModStatus modStatus;
-                curr_ = curr_.reconstructingInsert(key, modStatus, index);
+                curr_ = curr_.reconstructingInsert(elt, modStatus, index);
                 curr = Leaf!Value(curr_);
                 final switch (modStatus)
                 {

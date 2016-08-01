@@ -639,7 +639,7 @@ static private struct SparseLeaf1(Value)
         }
     }
 
-    auto makeRoom(out ModStatus modStatus)
+    auto makeRoom()
     {
         auto next = &this;
         if (full)
@@ -659,8 +659,7 @@ static private struct SparseLeaf1(Value)
             }
             else
             {
-                modStatus = ModStatus.maxCapacityReached; // TODO expand to `DenseLeaf1`
-                return next;
+                return null;    // indicate that max capacity has been reached
             }
         }
         return next;
@@ -684,8 +683,8 @@ static private struct SparseLeaf1(Value)
         {
             static if (hasValue)
             {
-                modStatus = values[index] == elt.value ? ModStatus.unchanged : ModStatus.updated;
-                values[index] = elt.value;
+                modStatus = valuesSlots[index] != elt.value ? ModStatus.updated : ModStatus.unchanged;
+                valuesSlots[index] = elt.value;
             }
             else
             {
@@ -694,7 +693,13 @@ static private struct SparseLeaf1(Value)
             return &this;
         }
 
-        auto next = makeRoom(modStatus);
+        auto next = makeRoom();
+        if (next is null)
+        {
+            modStatus = ModStatus.maxCapacityReached; // TODO expand to `DenseLeaf1`
+            return &this;
+        }
+
         next.insertAt(index, elt);
         modStatus = ModStatus.added;
 
@@ -714,14 +719,13 @@ static private struct SparseLeaf1(Value)
 
         static if (hasValue)
         {
-            const ix = elt.ix;
+            ixsSlots[index] = elt.ix;
+            valuesSlots[index] = elt.value;
         }
         else
         {
-            const ix = elt;
+            ixsSlots[index] = elt;
         }
-
-        ixsSlots[index] = ix;
 
         ++_length;
     }
@@ -3117,8 +3121,8 @@ unittest
     assert(map.contains(4));
     assert(4 in map);
     assert(map.length == 3);
-    // assert(*map.contains(4) == 44);
-    // assert(*(4 in map) == 44);
+    assert(*map.contains(4) == 44);
+    assert(*(4 in map) == 44);
 
     // map.print;
 }

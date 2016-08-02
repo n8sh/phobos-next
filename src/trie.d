@@ -2921,7 +2921,7 @@ struct RadixTree(Key, Value)
             _tree.ERef eRef; // indicates that key was added
             auto rawKey = key.remapKey;
             _tree.insert(rawKey, value, eRef);
-            if (willFail) { dln("WILL FAIL: eRef:", eRef, " key:", key); }
+            debug if (willFail) { dln("WILL FAIL: eRef:", eRef, " key:", key); }
             if (eRef.node)  // if `key` was added at `eRef`
             {
                 // set value

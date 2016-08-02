@@ -3129,7 +3129,6 @@ unittest
 
     foreach (const i; SparseLeaf1!Value.maxCapacity .. radix)
     {
-        dln("i:", i);
         assert(!map.contains(i));
         assert(map.length == i);
         map[i] = i*radix;

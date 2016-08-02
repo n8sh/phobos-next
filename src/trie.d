@@ -2881,26 +2881,6 @@ struct RadixTree(Key, Value)
         alias Element = Key;
     }
 
-    /** Insert `key`.
-        Returns: `true` if `key` wasn't previously added, `false` otherwise.
-     */
-    bool insert(Element elt)
-        @safe pure nothrow /* TODO @nogc */
-    {
-        _tree.ERef modRef; // indicates that elt was added
-        static if (hasValue)
-        {
-            _tree.insert(_tree.Element(elt.key.remapKey, elt.value), modRef);
-        }
-        else
-        {
-            _tree.insert(elt.remapKey, modRef);
-        }
-        const bool hit = modRef.node && modRef.modStatus == ModStatus.added;
-        _length += hit;
-        return hit;
-    }
-
     static if (_tree.hasValue)
     {
         ref Value opIndex(Key key)
@@ -2974,6 +2954,19 @@ struct RadixTree(Key, Value)
     }
     else
     {
+        /** Insert `key`.
+            Returns: `true` if `key` wasn't previously added, `false` otherwise.
+        */
+        bool insert(Key key)
+        @safe pure nothrow /* TODO @nogc */
+        {
+            _tree.ERef modRef; // indicates that elt was added
+            _tree.insert(key.remapKey, modRef);
+            const bool hit = modRef.node && modRef.modStatus == ModStatus.added;
+            _length += hit;
+            return hit;
+        }
+
         nothrow:
 
         /** Returns: `true` if `key` is stored, `false` otherwise. */
@@ -3370,12 +3363,17 @@ unittest
 }
 
 /// Create a set of words from /usr/share/dict/words
-unittest
+void testWords(Value)()
 {
     immutable path = "/usr/share/dict/words";
 
-    auto set = radixTreeSet!(string);
-    assert(set.empty);
+    enum hasValue = !is(Value == void);
+
+    static if (hasValue)
+        auto rtr = radixTreeMap!(string, Value);
+    else
+        auto rtr = radixTreeSet!(string);
+    assert(rtr.empty);
 
     size_t count = 0;
     enum debugPrint = false;
@@ -3393,24 +3391,39 @@ unittest
         if (!word.empty &&
             !word.endsWith(`'s`)) // skip genitive forms
         {
-            assert(!set.contains(word));
+            static if (!hasValue)
+            {
+                assert(!rtr.contains(word));
+            }
 
             static if (debugPrint)
             {
                 import std.string : representation;
-                dln(`word:"`, word, `" of length:`, word.length, ` of representation:`, word.representation);
-                debug set.willFail = word == `amiable`;
-                if (set.willFail)
+                dln(`word:"`, word, `" of length:`, word.length,
+                    ` of representation:`, word.representation);
+                debug rtr.willFail = word == `amiable`;
+                if (rtr.willFail)
                 {
-                    set.print();
+                    rtr.print();
                 }
             }
 
-            assert(set.insert(word));
-            assert(set.contains(word));
+            static if (hasValue)
+            {
+                // assert(rtr.insert(word, Value.init));
+                // assert(rtr.contains(word));
 
-            assert(!set.insert(word));
-            assert(set.contains(word));
+                // assert(!rtr.insert(word, Value.init));
+                // assert(rtr.contains(word));
+            }
+            else
+            {
+                assert(rtr.insert(word));
+                assert(rtr.contains(word));
+
+                assert(!rtr.insert(word));
+                assert(rtr.contains(word));
+            }
 
             ++count;
         }
@@ -3421,8 +3434,14 @@ unittest
         import std.conv : to;
         import std.stdio : writeln;
         writeln("Added ", count, " words from ", path, " in ", sw.peek().to!Duration);
-        set.showStatistics();
+        rtr.showStatistics();
     }
+}
+
+unittest
+{
+    testWords!void;
+    testWords!uint;
 }
 
 /// Check correctness when span is `span` and for each `Key` in `Keys`.

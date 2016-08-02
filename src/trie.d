@@ -2994,26 +2994,30 @@ alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
 
 /** Keys are stored in a way that they can't be accessed by reference so we
-    allow strings keys to be of mutable type.
+    allow array (and string) keys to be of mutable type.
 */
-template MutableStringKey(Key)
+template MutableKey(Key)
 {
-    static      if (is(Key == string))  { alias MutableStringKey = const(char)[]; }
-    else static if (is(Key == wstring)) { alias MutableStringKey = const(wchar)[]; }
-    else static if (is(Key == dstring)) { alias MutableStringKey = const(dchar)[]; }
-    else                                { alias MutableStringKey = Key; }
+    static if (isArray!Key)
+    {
+        alias MutableKey = const(Unqual!(typeof(Key.init[0])))[];
+    }
+    else
+    {
+        alias MutableKey = Key;
+    }
 }
 
 /// Instantiator for the set-version of `RadixTree` where value-type is `void` (unused).
 auto radixTreeSet(Key)()
 {
-    return RadixTree!(MutableStringKey!Key, void)(false);
+    return RadixTree!(MutableKey!Key, void)(false);
 }
 
 /// Instantiator for the map-version of `RadixTree` where value-type is `Value`.
 auto radixTreeMap(Key, Value)()
 {
-    return RadixTree!(MutableStringKey!Key, Value)(false);
+    return RadixTree!(MutableKey!Key, Value)(false);
 }
 
 ///

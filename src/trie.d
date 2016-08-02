@@ -3423,8 +3423,6 @@ void testWords(Value)()
 
                 assert(!rtr.insert(word, count));
                 assert(rtr.contains(word));
-
-                ++count;
             }
             else
             {
@@ -3434,7 +3432,7 @@ void testWords(Value)()
                 assert(!rtr.insert(word));
                 assert(rtr.contains(word));
             }
-
+            ++count;
         }
     }
     sw.stop;

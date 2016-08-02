@@ -80,6 +80,7 @@ alias isFixedTrieableKeyType = isIntegralBijectableType;
 enum isTrieableKeyType(T) = (isFixedTrieableKeyType!T ||
                              (isInputRange!T &&
                               isFixedTrieableKeyType!(ElementType!T)));
+static assert(isTrieableKeyType!(const(char)[]));
 template shouldAddGCRange(T)
 {
     import std.traits : isPointer, hasIndirections;
@@ -2992,22 +2993,28 @@ alias PatriciaTrie = RadixTree;
 alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
 
+/** Keys are stored in a way that they can be accessed by reference so we allow
+    strings keys to be of mutable type for more flexiblity.
+*/
+template UnconstStringKey(Key)
+{
+    static      if (is(Key == string))  { alias UnconstStringKey = const(char)[]; }
+    else static if (is(Key == wstring)) { alias UnconstStringKey = const(wchar)[]; }
+    else static if (is(Key == dstring)) { alias UnconstStringKey = const(dchar)[]; }
+    else                                { alias UnconstStringKey = Key; }
+}
+
 /// Instantiator for the set-version of `RadixTree` where value-type is `void` (unused).
 auto radixTreeSet(Key)()
 {
-    static if (is(Key == string))
-    {
-        alias MutableKey = const(char)[];
-    }
-    else
-    {
-        alias MutableKey = Key;
-    }
-    return RadixTree!(MutableKey, void)(false);
+    return RadixTree!(UnconstStringKey!Key, void)(false);
 }
 
 /// Instantiator for the map-version of `RadixTree` where value-type is `Value`.
-auto radixTreeMap(Key, Value)() { return RadixTree!(Key, Value)(false); }
+auto radixTreeMap(Key, Value)()
+{
+    return RadixTree!(UnconstStringKey!Key, Value)(false);
+}
 
 ///
 @safe pure nothrow /* TODO @nogc */ unittest
@@ -3410,11 +3417,13 @@ void testWords(Value)()
 
             static if (hasValue)
             {
-                // assert(rtr.insert(word, Value.init));
+                assert(rtr.insert(word, count));
                 // assert(rtr.contains(word));
 
-                // assert(!rtr.insert(word, Value.init));
+                assert(!rtr.insert(word, count));
                 // assert(rtr.contains(word));
+
+                ++count;
             }
             else
             {
@@ -3423,8 +3432,6 @@ void testWords(Value)()
 
                 assert(!rtr.insert(word));
                 assert(rtr.contains(word));
-
-                ++count;
             }
 
         }
@@ -3442,7 +3449,7 @@ void testWords(Value)()
 unittest
 {
     testWords!void;
-    testWords!uint;
+    testWords!size_t;
 }
 
 /// Check correctness when span is `span` and for each `Key` in `Keys`.

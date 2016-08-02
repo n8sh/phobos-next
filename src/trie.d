@@ -3380,10 +3380,8 @@ void testWords(Value)()
 
     enum hasValue = !is(Value == void);
 
-    static if (hasValue)
-        auto rtr = radixTreeMap!(string, Value);
-    else
-        auto rtr = radixTreeSet!(string);
+    static if (hasValue) { auto rtr = radixTreeMap!(string, Value); }
+    else                 { auto rtr = radixTreeSet!(string); }
     assert(rtr.empty);
 
     size_t count = 0;

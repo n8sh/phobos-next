@@ -3402,10 +3402,7 @@ void testWords(Value)()
         if (!word.empty &&
             !word.endsWith(`'s`)) // skip genitive forms
         {
-            static if (!hasValue)
-            {
-                assert(!rtr.contains(word));
-            }
+            assert(!rtr.contains(word));
 
             static if (debugPrint)
             {
@@ -3422,10 +3419,10 @@ void testWords(Value)()
             static if (hasValue)
             {
                 assert(rtr.insert(word, count));
-                // assert(rtr.contains(word));
+                assert(rtr.contains(word));
 
                 assert(!rtr.insert(word, count));
-                // assert(rtr.contains(word));
+                assert(rtr.contains(word));
 
                 ++count;
             }

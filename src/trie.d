@@ -2993,8 +2993,8 @@ alias PatriciaTrie = RadixTree;
 alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
 
-/** Keys are stored in a way that they can be accessed by reference so we allow
-    strings keys to be of mutable type for more flexiblity.
+/** Keys are stored in a way that they can't be accessed by reference so we
+    allow strings keys to be of mutable type.
 */
 template MutableStringKey(Key)
 {

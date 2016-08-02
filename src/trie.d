@@ -2996,24 +2996,24 @@ alias CompactPrefixTree = RadixTree;
 /** Keys are stored in a way that they can be accessed by reference so we allow
     strings keys to be of mutable type for more flexiblity.
 */
-template UnconstStringKey(Key)
+template MutableStringKey(Key)
 {
-    static      if (is(Key == string))  { alias UnconstStringKey = const(char)[]; }
-    else static if (is(Key == wstring)) { alias UnconstStringKey = const(wchar)[]; }
-    else static if (is(Key == dstring)) { alias UnconstStringKey = const(dchar)[]; }
-    else                                { alias UnconstStringKey = Key; }
+    static      if (is(Key == string))  { alias MutableStringKey = const(char)[]; }
+    else static if (is(Key == wstring)) { alias MutableStringKey = const(wchar)[]; }
+    else static if (is(Key == dstring)) { alias MutableStringKey = const(dchar)[]; }
+    else                                { alias MutableStringKey = Key; }
 }
 
 /// Instantiator for the set-version of `RadixTree` where value-type is `void` (unused).
 auto radixTreeSet(Key)()
 {
-    return RadixTree!(UnconstStringKey!Key, void)(false);
+    return RadixTree!(MutableStringKey!Key, void)(false);
 }
 
 /// Instantiator for the map-version of `RadixTree` where value-type is `Value`.
 auto radixTreeMap(Key, Value)()
 {
-    return RadixTree!(UnconstStringKey!Key, Value)(false);
+    return RadixTree!(MutableStringKey!Key, Value)(false);
 }
 
 ///

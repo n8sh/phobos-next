@@ -561,13 +561,16 @@ static private struct SparseLeaf1(Value)
     import searching_ex : containsStoreIndex;
     import std.algorithm.sorting : assumeSorted, isSorted;
 
-    enum minCapacity = 0;       // minimum number of preallocated values
-    enum maxCapacity = 48;   // maximum number of preallocated values
+    enum hasValue = !is(Value == void);
+
+    enum minCapacity = 0;     // preferred minimum number of preallocated values
+
+    // preferred maximum number of preallocated values, if larger use a DenseLeaf1 instead
+    static if (hasValue) { enum maxCapacity = 128; }
+    else                 { enum maxCapacity = 48; }
 
     alias Capacity = Mod!(maxCapacity + 1);
     alias Length = Capacity;
-
-    enum hasValue = !is(Value == void);
 
     static if (hasValue) alias IxElement = Tuple!(Ix, "ix", Value, "value");
     else                 alias IxElement = Ix;

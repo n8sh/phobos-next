@@ -562,7 +562,7 @@ static private struct SparseLeaf1(Value)
     import std.algorithm.sorting : assumeSorted, isSorted;
 
     enum minCapacity = 0;       // minimum number of preallocated values
-    enum maxCapacity = radix;   // maximum number of preallocated values
+    enum maxCapacity = 48;   // maximum number of preallocated values
 
     alias Capacity = Mod!(maxCapacity + 1);
     alias Length = Capacity;
@@ -672,7 +672,7 @@ static private struct SparseLeaf1(Value)
     {
         // get index
         static if (hasValue) { const ix = elt.ix; }
-        else { const ix = elt; }
+        else                 { const ix = elt; }
 
         // handle existing element
         if (ixs.assumeSorted.containsStoreIndex(ix, index))
@@ -884,23 +884,28 @@ static private struct DenseLeaf1(Value)
         ModStatus modStatus;
 
         static if (hasValue) { const ix = elt.ix; }
-        else { const ix = elt; }
+        else                 { const ix = elt; }
 
-        // TODO this should be removed because it causes slow-down
-        if (!contains(ix))
+        if (contains(ix))
         {
-            modStatus = ModStatus.added;
+            static if (hasValue)
+            {
+                modStatus = _values[ix] != elt.value ? ModStatus.updated : ModStatus.unchanged;
+            }
+            else
+            {
+                modStatus = ModStatus.unchanged;
+            }
         }
         else
         {
-            modStatus = ModStatus.modified;
+            _ixBits[ix] = true;
+            modStatus = ModStatus.added;
         }
 
         // set element
-        _ixBits[ix] = true;
         static if (hasValue)
         {
-            modStatus = _values[ix] != elt.value ? ModStatus.updated : ModStatus.unchanged;
             _values[ix] = elt.value;
         }
 
@@ -2044,7 +2049,10 @@ struct RawRadixTree(Value = void)
                     return curr;
                 }
             case ix_DenseLeaf1Ptr:
-                curr.as!(DenseLeaf1!Value*).insert(elt);
+                const modStatus = curr.as!(DenseLeaf1!Value*).insert(elt);
+                static if (hasValue) { const ix = elt.ix; }
+                else                 { const ix = elt; }
+                modRef = ERef(Node(curr), ix, modStatus);
                 break;
             default:
                 assert(false, "Unsupported Leaf!Value type " ~ curr.typeIx.to!string);
@@ -3107,36 +3115,30 @@ unittest
 
     static assert(map.hasValue);
 
-    const Key key = 0x01020304;
-    const Value value = 42;
+    foreach (const i; 0 .. SparseLeaf1!Value.maxCapacity)
+    {
+        assert(!map.contains(i));
+        assert(map.length == i);
+        map[i] = i*radix;
+        assert(map.contains(i));
+        assert(*map.contains(i) == i*radix);
+        assert(i in map);
+        assert(*(i in map) == i*radix);
+        assert(map.length == i + 1);
+    }
 
-    assert(!map.contains(key));
-    assert(map.length == 0);
-
-    assert(map.insert(key, value));
-    assert(map.contains(key));
-    assert(*map.contains(key) == value);
-    assert(map.length == 1);
-
-    assert(!map.insert(key, value));
-    assert(map.contains(key));
-    assert(map.length == 1);
-
-    map[3] = 33;
-    assert(map.length == 2);
-    assert(map.contains(3));
-    assert(*map.contains(3) == 33);
-    assert(3 in map);
-    assert(*(3 in map) == 33);
-
-    map[4] = 44;
-    assert(map.length == 3);
-    assert(map.contains(4));
-    assert(*map.contains(4) == 44);
-    assert(4 in map);
-    assert(*(4 in map) == 44);
-
-    // map.print;
+    foreach (const i; SparseLeaf1!Value.maxCapacity .. radix)
+    {
+        dln("i:", i);
+        assert(!map.contains(i));
+        assert(map.length == i);
+        map[i] = i*radix;
+        assert(map.contains(i));
+        assert(*map.contains(i) == i*radix);
+        assert(i in map);
+        assert(*(i in map) == i*radix);
+        assert(map.length == i + 1);
+    }
 }
 
 /// test map to values of type `bool`
@@ -3237,16 +3239,16 @@ unittest
         assert(set.contains(i));
 
         debug assert(set.heapNodeAllocationBalance == 1);
-        const rootRef = set._root.peek!(SparseLeaf1!void*);
-        assert(rootRef);
+        // const rootRef = set._root.peek!(SparseLeaf1!void*);
+        // assert(rootRef);
     }
 
-    const rootRef = set._root.peek!(SparseLeaf1!void*);
-    assert(rootRef);
+    // const rootRef = set._root.peek!(SparseLeaf1!void*);
+    // assert(rootRef);
 
-    const root = *rootRef;
-    assert(!root.empty);
-    assert(root.full);
+    // const root = *rootRef;
+    // assert(!root.empty);
+    // assert(root.full);
 }
 
 ///

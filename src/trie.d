@@ -1831,7 +1831,6 @@ struct RawRadixTree(Value = void)
 
             if (!curr)          // if no existing `Node` to insert at
             {
-                debug if (willFail) { dln; }
                 static if (hasValue)
                 {
                     auto next = Node(insertNewBranch(elt, eRef));
@@ -1845,7 +1844,6 @@ struct RawRadixTree(Value = void)
             }
             else
             {
-                debug if (willFail) { dln; }
                 final switch (curr.typeIx) with (Node.Ix)
                 {
                 case undefined:

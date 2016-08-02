@@ -3417,10 +3417,14 @@ void testWords(Value)()
             static if (hasValue)
             {
                 assert(rtr.insert(word, count));
-                assert(rtr.contains(word));
+                auto hitA = rtr.contains(word);
+                assert(hitA);
+                assert(*hitA == count);
 
                 assert(!rtr.insert(word, count));
-                assert(rtr.contains(word));
+                auto hitB = rtr.contains(word);
+                assert(hitB);
+                assert(*hitB == count);
             }
             else
             {

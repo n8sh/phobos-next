@@ -1803,13 +1803,16 @@ struct RawRadixTree(Value = void)
                         return Node(insertNewBranch(key, eRef));
                     }
                 }
-                eRef = ERef(next, Ix(0), ModStatus.added);
+                eRef = ERef(next,
+                            Ix(0), // always first index
+                            ModStatus.added);
                 return next;
             }
         }
 
         Branch insertNewBranch(Element elt, out ERef eRef)
         {
+            debug if (willFail) { dln("WILL FAIL: elt:", elt); }
             auto key = elementKey(elt);
             assert(key);
             import std.algorithm : min;

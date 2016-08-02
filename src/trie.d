@@ -3376,6 +3376,10 @@ unittest
 /// Create a set of words from /usr/share/dict/words
 void testWords(Value)()
 {
+    import std.datetime : StopWatch, AutoStart, Duration;
+    import std.stdio : File;
+    import std.range : chain;
+
     immutable path = "/usr/share/dict/words";
 
     enum hasValue = !is(Value == void);
@@ -3384,15 +3388,11 @@ void testWords(Value)()
     else                 { auto rtr = radixTreeSet!(string); }
     assert(rtr.empty);
 
-    size_t count = 0;
     enum debugPrint = false;
 
-    import std.datetime : StopWatch, AutoStart, Duration;
-    auto sw = StopWatch(AutoStart.yes);
-
-    import std.stdio : File;
     string[] firsts = [];
-    import std.range : chain;
+    size_t count = 0;
+    auto sw = StopWatch(AutoStart.yes);
     foreach (const word; chain(firsts, File(path).byLine))
     {
         import std.algorithm.searching : endsWith;

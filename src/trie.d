@@ -1064,6 +1064,7 @@ struct RawRadixTree(Value = void)
         Node node;
         Ix ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
         ModStatus modStatus;
+        bool atLeaf;
 
         @safe pure nothrow:
 
@@ -1177,8 +1178,9 @@ struct RawRadixTree(Value = void)
                             break;
                         case ix_DenseBranchPtr:
                             Ix subIx; // index needs to searched
-                            curr = curr.as!(DenseBranch*).firstLeafOrSubNode(subIx);
-                            _front.put(EltRef(curr, subIx));
+                            bool atLeaf;
+                            curr = curr.as!(DenseBranch*).firstLeafOrSubNode(subIx, atLeaf);
+                            _front.put(EltRef(curr, subIx, ModStatus.init, atLeaf));
                             break;
                         }
                     }
@@ -1589,11 +1591,20 @@ struct RawRadixTree(Value = void)
             return count;
         }
 
-        pragma(inline) Node firstLeafOrSubNode(Ix ix) inout @nogc
+        pragma(inline) Node firstLeafOrSubNode(out Ix ix, out bool atLeaf) inout @nogc
         {
             import std.algorithm : countUntil;
-            ix = Ix(subNodes[].countUntil!(subNode => cast(bool)subNode)); // TODO move to DenseBranch.firstSubIx
-            return leaf ? typeof(return)(leaf) : subNodes[ix]; // TODO use first index set in
+            if (leaf)
+            {
+                ix = 0;
+                atLeaf = true;
+                return typeof(return)(leaf);
+            }
+            else
+            {
+                ix = Ix(subNodes[].countUntil!(subNode => cast(bool)subNode));
+                return subNodes[ix];
+            }
         }
 
         /** Append statistics of tree under `this` into `stats`. */

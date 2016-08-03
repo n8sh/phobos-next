@@ -1069,7 +1069,7 @@ struct RawRadixTree(Value = void)
     struct EltRef
     {
         Node node;
-        Ix ix;
+        Ix ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
         ModStatus modStatus;
 
         @safe pure nothrow:

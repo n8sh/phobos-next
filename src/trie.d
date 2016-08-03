@@ -1151,13 +1151,12 @@ struct RawRadixTree(Value = void)
         @safe pure nothrow /* @nogc */:
         pragma(inline):
 
-        this(Node root,
-             Iterator front,
-             Iterator back)
+        this(Node root)
         {
             this._root = root;
-            this._front = front;
-            this._back = back;
+
+            this._front = Iterator.init;
+            this._back = Iterator.init;
             popFront;
         }
 
@@ -1212,9 +1211,7 @@ struct RawRadixTree(Value = void)
 
     pragma(inline) Range opSlice() @trusted pure nothrow
     {
-        return Range(this._root,
-                     Iterator.init,
-                     Iterator.init);
+        return Range(this._root);
     }
 
     // static assert(isBidirectionalRange!Range);

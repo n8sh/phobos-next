@@ -1153,13 +1153,46 @@ struct RawRadixTree(Value = void)
 
         this(Node root)
         {
-            this._root = root;
+            Node curr = root;
 
-            // TODO calculate from `root`
-            this._front = Iterator.init;
-            this._back = Iterator.init;
+            while (true)
+            {
+                with (Node.Ix)
+                {
+                    final switch (curr.typeIx)
+                    {
+                    case undefined:
+                        assert(false);
 
-            popFront;
+                        // word-packed leaf
+                    case ix_OneLeafMax7:
+                        break;
+                    case ix_TwoLeaf3:
+                        break;
+                    case ix_TriLeaf2:
+                        break;
+                    case ix_HeptLeaf1:
+                        break;
+
+                        // heap-allocated leaf
+                    case ix_SparseLeaf1Ptr:
+                        break;
+                    case ix_DenseLeaf1Ptr:
+                        break;
+
+                        // heap-allocated branch branch
+                    case ix_SparseBranchPtr:
+                        auto node_ = curr.as!(SparseBranch*);
+                        break;
+                    case ix_DenseBranchPtr:
+                        auto node_ = curr.as!(DenseBranch*);
+                        break;
+                    }
+                }
+            }
+
+            copyFrontElement;
+            copyBackElement;
         }
 
         bool empty() const
@@ -1169,36 +1202,52 @@ struct RawRadixTree(Value = void)
                     _front == _back);  // iteration has been completed
         }
 
-        auto ref front() inout
-        {
-            return _frontKey;
-        }
+        auto ref front() inout @safe pure nothrow @nogc { return _frontKey; }
+        auto ref back() inout @safe pure nothrow @nogc { return _backKey; }
 
         void popFront()
         {
             assert(!empty);
+            dln("TODO Iterate _front");
+            copyFrontElement;
+        }
 
+        void popBack()
+        {
+            assert(!empty);
+            dln("TODO Iterate _back");
+            copyBackElement;
+        }
+
+        private void copyFrontElement()
+        {
             _frontKey.clear;
-            _backKey.clear;
-
             foreach (const ix; _front.data) { ix.appendToKey(_frontKey); }
-            foreach (const ix; _back.data)  { ix.appendToKey(_backKey); }
-
             // if (hasFixedKeyLength)
             // {
             //     assert(_frontKey.data.length == fixedKeyLength);
-            //     assert(_backKey.data.length == fixedKeyLength);
             // }
-
             static if (hasValue)
             {
                 _frontValue = _front.data[$ - 1].value; // last should be leaf containing value
+            }
+        }
+
+        private void copyBackElement()
+        {
+            _backKey.clear;
+            foreach (const ix; _back.data)  { ix.appendToKey(_backKey); }
+            // if (hasFixedKeyLength)
+            // {
+            //     assert(_backKey.data.length == fixedKeyLength);
+            // }
+            static if (hasValue)
+            {
                 _backValue = _back.data[$ - 1].value;   // last should be leaf containgin value
             }
         }
 
     private:
-        Node _root;
         Iterator _front;
         Iterator _back;
 

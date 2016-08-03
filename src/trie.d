@@ -28,13 +28,6 @@
 
     TODO Add `struct Range`. Use same construct as in `containers-em/src/containers/ttree.d`.
 
-    - Members:
-    - Iterator front()
-    - void popFront()
-    - bool empty()
-    - Iterator it; // Iterator is defined below
-    - Reuse RefCounted reference to _root. Add checks with `isSorted`.
-
     Prefix:
     - `set.prefix("alpha")`                           => `Range` of `Tuple!(string, Lang, PoT, Sense)`.
     - `set.prefix(tuple("alpha"))`                    => `Range` of `Tuple!(Lang, PoT, Sense)`.

@@ -1146,38 +1146,78 @@ struct RawRadixTree(Value = void)
 
         this(Node root)
         {
-            Node curr = root;
-
-            // calculate front
-            while (true)
+            if (root)
             {
-                _front.put(EltRef(curr, Ix(0)));
-                with (Node.Ix)
+                Node curr = root;
+
+                // calculate front
+                while (true)
                 {
-                    final switch (curr.typeIx)
+                    dln(curr);
+                    _front.put(EltRef(curr, Ix(0)));
+                    with (Node.Ix)
                     {
-                    case undefined:
-                        assert(false);
-                    case ix_OneLeafMax7:
-                    case ix_TwoLeaf3:
-                    case ix_TriLeaf2:
-                    case ix_HeptLeaf1:
-                    case ix_SparseLeaf1Ptr:
-                    case ix_DenseLeaf1Ptr:
-                        goto doneFront;
-                    case ix_SparseBranchPtr:
-                        curr = curr.as!(SparseBranch*).subNodes[Ix(0)]; // pick first
-                        break;
-                    case ix_DenseBranchPtr:
-                        curr = curr.as!(DenseBranch*).subNodes[Ix(0)]; // pick first
-                        break;
+                        final switch (curr.typeIx)
+                        {
+                        case undefined:
+                            assert(false);
+                        case ix_OneLeafMax7:
+                        case ix_TwoLeaf3:
+                        case ix_TriLeaf2:
+                        case ix_HeptLeaf1:
+                        case ix_SparseLeaf1Ptr:
+                        case ix_DenseLeaf1Ptr:
+                            goto doneFront;
+                        case ix_SparseBranchPtr:
+                            auto curr_ = curr.as!(SparseBranch*);
+                            if (curr_.leaf) // either leaf is defined
+                            {
+                                curr = curr_.leaf;
+                            }
+                            else // or
+                            {
+                                assert(!curr_.subNodes.length != 0); // at least one subNode must be defined
+                                curr = curr_.subNodes[Ix(0)]; // so pick first
+                            }
+                            break;
+                        case ix_DenseBranchPtr:
+                            curr = curr.as!(DenseBranch*).subNodes[Ix(0)]; // pick first
+                            break;
+                        }
                     }
                 }
-            }
             doneFront:
+                copyFrontElement;
 
-            copyFrontElement;
-            copyBackElement;
+                // calculate back
+                while (true)
+                {
+                    _back.put(EltRef(curr, Ix(0)));
+                    with (Node.Ix)
+                    {
+                        final switch (curr.typeIx)
+                        {
+                        case undefined:
+                            assert(false);
+                        case ix_OneLeafMax7:
+                        case ix_TwoLeaf3:
+                        case ix_TriLeaf2:
+                        case ix_HeptLeaf1:
+                        case ix_SparseLeaf1Ptr:
+                        case ix_DenseLeaf1Ptr:
+                            goto doneBack;
+                        case ix_SparseBranchPtr:
+                            curr = curr.as!(SparseBranch*).subNodes[Ix(0)]; // pick first
+                            break;
+                        case ix_DenseBranchPtr:
+                            curr = curr.as!(DenseBranch*).subNodes[Ix(0)]; // pick first
+                            break;
+                        }
+                    }
+                }
+            doneBack:
+                copyBackElement;
+            }
         }
 
         bool empty() const
@@ -3279,7 +3319,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
 }
 
 /// test map from `uint` to values of type `double`
-// @safe pure nothrow /* TODO @nogc */
+@safe pure nothrow /* TODO @nogc */
 unittest
 {
     alias Key = uint;
@@ -3313,6 +3353,8 @@ unittest
         assert(*(i in map) == i*radix);
         assert(map.length == i + 1);
     }
+
+    auto mapRange = map[];
 }
 
 /// test map to values of type `bool`

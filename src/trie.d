@@ -1063,6 +1063,8 @@ struct RawRadixTree(Value = void)
 
     static assert(span <= 8*Ix.sizeof, "Need more precision in Ix");
 
+    import std.array : Appender;
+
     /** Element (Search) Reference. */
     struct EltRef
     {
@@ -1074,7 +1076,7 @@ struct RawRadixTree(Value = void)
 
         pragma(inline) bool opCast(T : bool)() const @nogc { return cast(bool)node; }
 
-        inout(UKey) key() inout
+        void appendToKey(ref Appender!UKey key) const
         {
             with (Node.Ix)
             {
@@ -1084,25 +1086,33 @@ struct RawRadixTree(Value = void)
                     assert(false);
                 case ix_OneLeafMax7:
                     assert(ix == 0);
-                    return node.as!(OneLeafMax7).key[];
+                    key.put(node.as!(OneLeafMax7).key);
+                    break;
                 case ix_TwoLeaf3:
-                    return node.as!(TwoLeaf3).keys[ix][];
+                    key.put(node.as!(TwoLeaf3).keys[ix][]);
+                    break;
                 case ix_TriLeaf2:
-                    return node.as!(TriLeaf2).keys[ix][];
+                    key.put(node.as!(TriLeaf2).keys[ix][]);
+                    break;
                 case ix_HeptLeaf1:
-                    return [node.as!(HeptLeaf1).keys[ix]];
+                    key.put(node.as!(HeptLeaf1).keys[ix]);
+                    break;
 
                 case ix_SparseLeaf1Ptr:
-                    return [node.as!(SparseLeaf1!Value*).ixs[ix]];
+                    key.put(node.as!(SparseLeaf1!Value*).ixs[ix]);
+                    break;
                 case ix_DenseLeaf1Ptr:
                     import std.range : dropExactly;
-                    return [node.as!(DenseLeaf1!Value*)._ixBits.oneIndexes.dropExactly(ix).front];
+                    key.put(node.as!(DenseLeaf1!Value*)._ixBits.oneIndexes.dropExactly(ix).front);
+                    break;
 
                 case ix_SparseBranchPtr:
-                    return node.as!(SparseBranch*).prefix;
+                    key.put(node.as!(SparseBranch*).prefix);
+                    break;
                 case ix_DenseBranchPtr:
-                    return node.as!(DenseBranch*).prefix;
-                }
+                    key.put(node.as!(DenseBranch*).prefix);
+                    break;
+               }
             }
         }
     }
@@ -1115,38 +1125,64 @@ struct RawRadixTree(Value = void)
     */
     struct Range
     {
-        @safe pure nothrow // @nogc
-        :
+        @safe pure nothrow /* @nogc */:
         pragma(inline):
+
+        this(Node root,
+             Iterator front,
+             Iterator back)
+        {
+            this._root = root;
+            this._front = front;
+            this._back = back;
+            popFront;
+        }
 
         bool empty() const
         {
             return ((_front is null && // iteration has been emptied
                      _back is null) || // iteration has been emptied
-                    _front == _back);
+                    _front == _back);  // iteration has been completed
         }
 
-        inout(Element) front() inout
+        auto ref front() inout
         {
-            return _frontElement;
+            return _frontKey;
         }
 
         void popFront()
         {
+            assert(!empty);
+
+            _frontKey.clear;
+            foreach (const ix; _front)
+            {
+                ix.appendToKey(_frontKey);
+            }
+            foreach (const ix; _back)
+            {
+                ix.appendToKey(_backKey);
+            }
+
             static if (hasValue)
             {
-                _frontElement = Element(_front[$ - 1].key, Value.init);
-            }
-            else
-            {
-                _frontElement = _front[$ - 1].key;
+                dln("Lookup _frontValue from _front[$ - 1]");
+                dln("Lookup _backValue from _front[$ - 1]");
             }
         }
 
     private:
+        Node _root;
         Iterator _front;
         Iterator _back;
-        Element _frontElement;       // copy of element
+
+        Appender!UKey _frontKey; // copy of front key
+        Appender!UKey _backKey;  // copy of back key
+        static if (hasValue)
+        {
+            Value _frontValue;             // copy of front value
+            Value _backValue;             // copy of back value
+        }
     }
 
     // static assert(isBidirectionalRange!Range);

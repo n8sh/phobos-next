@@ -1148,41 +1148,32 @@ struct RawRadixTree(Value = void)
         {
             Node curr = root;
 
+            // calculate front
             while (true)
             {
+                _front.put(EltRef(curr, Ix(0)));
                 with (Node.Ix)
                 {
                     final switch (curr.typeIx)
                     {
-                    case undefined:
-                        assert(false);
-
-                        // word-packed leaf
+                    case undefined: assert(false);
                     case ix_OneLeafMax7:
-                        break;
                     case ix_TwoLeaf3:
-                        break;
                     case ix_TriLeaf2:
-                        break;
                     case ix_HeptLeaf1:
-                        break;
-
-                        // heap-allocated leaf
                     case ix_SparseLeaf1Ptr:
-                        break;
                     case ix_DenseLeaf1Ptr:
-                        break;
-
-                        // heap-allocated branch branch
+                        goto doneFront;
                     case ix_SparseBranchPtr:
-                        auto node_ = curr.as!(SparseBranch*);
+                        curr = curr.as!(SparseBranch*).subNodes[Ix(0)]; // pick first
                         break;
                     case ix_DenseBranchPtr:
-                        auto node_ = curr.as!(DenseBranch*);
+                        curr = curr.as!(DenseBranch*).subNodes[Ix(0)]; // pick first
                         break;
                     }
                 }
             }
+            doneFront:
 
             copyFrontElement;
             copyBackElement;

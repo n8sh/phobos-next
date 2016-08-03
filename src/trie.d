@@ -1076,7 +1076,7 @@ struct RawRadixTree(Value = void)
 
         pragma(inline) bool opCast(T : bool)() const @nogc { return cast(bool)node; }
 
-        void appendToKey(ref Appender!UKey key) const
+        void appendToKey(ref Appender!UKey key) const /* TODO @nogc */
         {
             with (Node.Ix)
             {
@@ -1120,6 +1120,22 @@ struct RawRadixTree(Value = void)
                     key.put(ix);
                     break;
                }
+            }
+        }
+
+        static if (hasValue)
+        {
+            auto ref value() inout
+            {
+                with (Node.Ix)
+                {
+                    switch (node.typeIx)
+                    {
+                    case ix_SparseLeaf1Ptr: return node.as!(SparseLeaf1!Value*).values[ix];
+                    case ix_DenseLeaf1Ptr: return node.as!(DenseLeaf1!Value*).values[ix];
+                    default: assert(false, "Incorrect Leaf-type");
+                    }
+                }
             }
         }
     }
@@ -1175,8 +1191,8 @@ struct RawRadixTree(Value = void)
 
             static if (hasValue)
             {
-                dln("Lookup _frontValue from _front[$ - 1]");
-                dln("Lookup _backValue from _front[$ - 1]");
+                _frontValue = _front.data[$ - 1].value; // last should be leaf containing value
+                _backValue = _back.data[$ - 1].value;   // last should be leaf containgin value
             }
         }
 

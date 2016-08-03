@@ -1155,14 +1155,16 @@ struct RawRadixTree(Value = void)
             assert(!empty);
 
             _frontKey.clear;
-            foreach (const ix; _front)
-            {
-                ix.appendToKey(_frontKey);
-            }
-            foreach (const ix; _back)
-            {
-                ix.appendToKey(_backKey);
-            }
+            _backKey.clear;
+
+            foreach (const ix; _front) { ix.appendToKey(_frontKey); }
+            foreach (const ix; _back)  { ix.appendToKey(_backKey); }
+
+            // if (hasFixedKeyLength)
+            // {
+            //     assert(_frontKey.data.length == fixedKeyLength);
+            //     assert(_backKey.data.length == fixedKeyLength);
+            // }
 
             static if (hasValue)
             {
@@ -1183,6 +1185,13 @@ struct RawRadixTree(Value = void)
             Value _frontValue;             // copy of front value
             Value _backValue;             // copy of back value
         }
+    }
+
+    pragma(inline) Range opSlice() @trusted pure nothrow
+    {
+        return Range(this._root,
+                     Iterator.init,
+                     Iterator.init);
     }
 
     // static assert(isBidirectionalRange!Range);

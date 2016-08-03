@@ -1102,15 +1102,18 @@ struct RawRadixTree(Value = void)
                     key.put(node.as!(SparseLeaf1!Value*).ixs[ix]);
                     break;
                 case ix_DenseLeaf1Ptr:
-                    import std.range : dropExactly;
-                    key.put(node.as!(DenseLeaf1!Value*)._ixBits.oneIndexes.dropExactly(ix).front);
+                    key.put(ix);
                     break;
 
                 case ix_SparseBranchPtr:
-                    key.put(node.as!(SparseBranch*).prefix);
+                    auto node_ = node.as!(SparseBranch*);
+                    key.put(node_.prefix);
+                    key.put(node_.subIxs[ix]);
                     break;
                 case ix_DenseBranchPtr:
-                    key.put(node.as!(DenseBranch*).prefix);
+                    auto node_ = node.as!(DenseBranch*);
+                    key.put(node_.prefix);
+                    key.put(ix);
                     break;
                }
             }

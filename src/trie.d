@@ -1197,7 +1197,7 @@ struct RawRadixTree(Value = void)
 
         bool empty() const
         {
-            return _front == _back;  // iteration has been completed
+            return _front == _back;
         }
 
         auto ref front() inout @safe pure nothrow @nogc { return _frontKey; }

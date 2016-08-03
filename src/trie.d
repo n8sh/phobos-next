@@ -1070,7 +1070,9 @@ struct RawRadixTree(Value = void)
         Ix ix;
         ModStatus modStatus;
 
-        pragma(inline) bool opCast(T : bool)() const { return cast(bool)node; }
+        @safe pure nothrow:
+
+        pragma(inline) bool opCast(T : bool)() const @nogc { return cast(bool)node; }
 
         inout(UKey) key() inout
         {

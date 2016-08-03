@@ -1084,6 +1084,8 @@ struct RawRadixTree(Value = void)
                 {
                 case undefined:
                     assert(false);
+
+                // word-packed leaf
                 case ix_OneLeafMax7:
                     assert(ix == 0);
                     key.put(node.as!(OneLeafMax7).key);
@@ -1098,6 +1100,7 @@ struct RawRadixTree(Value = void)
                     key.put(node.as!(HeptLeaf1).keys[ix]);
                     break;
 
+                // heap-allocated leaf
                 case ix_SparseLeaf1Ptr:
                     key.put(node.as!(SparseLeaf1!Value*).ixs[ix]);
                     break;
@@ -1105,6 +1108,7 @@ struct RawRadixTree(Value = void)
                     key.put(ix);
                     break;
 
+                // heap-allocated branch branch
                 case ix_SparseBranchPtr:
                     auto node_ = node.as!(SparseBranch*);
                     key.put(node_.prefix);

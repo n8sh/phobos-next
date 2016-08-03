@@ -1151,10 +1151,10 @@ struct RawRadixTree(Value = void)
                 Node curr = root;
 
                 // calculate front
+                // TODO functionize
                 while (true)
                 {
                     dln(curr);
-                    _front.put(EltRef(curr, Ix(0)));
                     with (Node.Ix)
                     {
                         final switch (curr.typeIx)
@@ -1166,57 +1166,25 @@ struct RawRadixTree(Value = void)
                         case ix_TriLeaf2:
                         case ix_HeptLeaf1:
                         case ix_SparseLeaf1Ptr:
+                            _front.put(EltRef(curr, Ix(0)));
+                            goto doneFront; // terminate recursion
                         case ix_DenseLeaf1Ptr:
-                            goto doneFront;
+                            _front.put(EltRef(curr, Ix(0)));
+                            goto doneFront; // terminate recursion
                         case ix_SparseBranchPtr:
-                            auto curr_ = curr.as!(SparseBranch*);
-                            if (curr_.leaf) // either leaf is defined
-                            {
-                                curr = curr_.leaf;
-                            }
-                            else // or
-                            {
-                                assert(!curr_.subNodes.length != 0); // at least one subNode must be defined
-                                curr = curr_.subNodes[Ix(0)]; // so pick first
-                            }
+                            curr = curr.as!(SparseBranch*).firstLeafOrSubNode;
+                            _front.put(EltRef(curr, Ix(0))); // just pick first packed index
                             break;
                         case ix_DenseBranchPtr:
-                            curr = curr.as!(DenseBranch*).subNodes[Ix(0)]; // pick first
+                            Ix subIx; // index needs to searched
+                            curr = curr.as!(DenseBranch*).firstLeafOrSubNode(subIx);
+                            _front.put(EltRef(curr, subIx));
                             break;
                         }
                     }
                 }
             doneFront:
                 copyFrontElement;
-
-                // calculate back
-                while (true)
-                {
-                    _back.put(EltRef(curr, Ix(0)));
-                    with (Node.Ix)
-                    {
-                        final switch (curr.typeIx)
-                        {
-                        case undefined:
-                            assert(false);
-                        case ix_OneLeafMax7:
-                        case ix_TwoLeaf3:
-                        case ix_TriLeaf2:
-                        case ix_HeptLeaf1:
-                        case ix_SparseLeaf1Ptr:
-                        case ix_DenseLeaf1Ptr:
-                            goto doneBack;
-                        case ix_SparseBranchPtr:
-                            curr = curr.as!(SparseBranch*).subNodes[Ix(0)]; // pick first
-                            break;
-                        case ix_DenseBranchPtr:
-                            curr = curr.as!(DenseBranch*).subNodes[Ix(0)]; // pick first
-                            break;
-                        }
-                    }
-                }
-            doneBack:
-                copyBackElement;
             }
         }
 
@@ -1495,6 +1463,11 @@ struct RawRadixTree(Value = void)
 
         pragma(inline) auto ref subNodes() inout @nogc { return subNodeSlots[0 .. subCount]; }
 
+        pragma(inline) Node firstLeafOrSubNode() inout @nogc
+        {
+            return leaf ? typeof(return)(leaf) : subNodes[Ix(0)];
+        }
+
         /** Get all sub-`Ix` slots, both initialized and uninitialized. */
         private auto ref subIxSlots() inout @trusted pure nothrow
         {
@@ -1614,6 +1587,13 @@ struct RawRadixTree(Value = void)
             }
             assert(count <= radix);
             return count;
+        }
+
+        pragma(inline) Node firstLeafOrSubNode(Ix ix) inout @nogc
+        {
+            import std.algorithm : countUntil;
+            ix = Ix(subNodes[].countUntil!(subNode => cast(bool)subNode)); // TODO move to DenseBranch.firstSubIx
+            return leaf ? typeof(return)(leaf) : subNodes[ix]; // TODO use first index set in
         }
 
         /** Append statistics of tree under `this` into `stats`. */

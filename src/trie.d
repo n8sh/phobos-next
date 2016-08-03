@@ -710,7 +710,7 @@ static private struct SparseLeaf1(Value)
     {
         assert(index <= _length);
 
-        foreach (i; 0 .. _length - index) // TODO functionize this loop or reuse memmove:
+        foreach (const i; 0 .. _length - index) // TODO functionize this loop or reuse memmove:
         {
             const iD = _length - i;
             const iS = iD - 1;
@@ -844,7 +844,7 @@ static private struct DenseLeaf1(Value)
     this(Ix[] ixs)
     {
         assert(ixs.length <= capacity);
-        foreach (ix; ixs)
+        foreach (const ix; ixs)
         {
             _ixBits[ix] = true;
         }
@@ -1440,7 +1440,7 @@ struct RawRadixTree(Value = void)
         pragma(inline) private void insertAt(size_t index, Sub sub)
         {
             assert(index <= subCount);
-            foreach (i; 0 .. subCount - index) // TODO functionize this loop or reuse memmove:
+            foreach (const i; 0 .. subCount - index) // TODO functionize this loop or reuse memmove:
             {
                 const iD = subCount - i;
                 const iS = iD - 1;
@@ -2677,7 +2677,7 @@ struct RawRadixTree(Value = void)
 
         void release(SparseBranch* curr)
         {
-            foreach (sub; curr.subNodes[0 .. curr.subCount])
+            foreach (const sub; curr.subNodes[0 .. curr.subCount])
             {
                 release(sub); // recurse branch
             }
@@ -2690,7 +2690,7 @@ struct RawRadixTree(Value = void)
 
         void release(DenseBranch* curr)
         {
-            foreach (sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
+            foreach (const sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
             {
                 release(sub); // recurse branch
             }
@@ -3011,7 +3011,7 @@ static private UKey remapKey(TypedKey)(in TypedKey typedKey)
 
         static if (span == 8)
         {
-            foreach (bix; 0 .. chunkCount)
+            foreach (const bix; 0 .. chunkCount)
             {
                 const bitShift = (chunkCount - 1 - bix)*span; // most significant bit chunk first (MSBCF)
                 key[bix] = (ukey >> bitShift) & (radix - 1); // part of value which is also an index
@@ -3236,7 +3236,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
     size_t totalBytesUsed = 0;
 
     // Node-usage
-    foreach (RT.Node.Ix ix, pop; stats.popByNodeType) // TODO use stats.byPair when added to typecons_ex.d
+    foreach (const RT.Node.Ix ix, pop; stats.popByNodeType) // TODO use stats.byPair when added to typecons_ex.d
     {
         size_t bytesUsed = 0;
         with (RT.Node.Ix)
@@ -3272,7 +3272,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
     }
 
     // Leaf!Value-usage
-    foreach (Leaf!(RT.ValueType).Ix ix, pop; stats.popByLeafType) // TODO use stats.byPair when added to typecons_ex.d
+    foreach (const Leaf!(RT.ValueType).Ix ix, pop; stats.popByLeafType) // TODO use stats.byPair when added to typecons_ex.d
     {
         size_t bytesUsed = 0;
         with (Leaf!(RT.ValueType).Ix)
@@ -3503,7 +3503,7 @@ private static auto randomUniqueStrings(size_t count, uint maxLength)
         {
             const length = uniform(1, maxLength, gen);
             auto key = new char[length];
-            foreach (ix; 0 .. length)
+            foreach (const ix; 0 .. length)
             {
                 key[ix] = cast(char)('a' + 0.uniform(26, gen));
             }
@@ -3765,7 +3765,7 @@ void benchmark()()
         {
             auto sw = StopWatch(AutoStart.yes);
 
-            foreach (Key k; randomSamples)
+            foreach (const Key k; randomSamples)
             {
                 if (useUniqueRandom)
                 {

@@ -1064,7 +1064,7 @@ struct RawRadixTree(Value = void)
         Node node;
         Ix ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
         ModStatus modStatus;
-        bool atLeaf;
+        bool atLeaf; // use sub-leaf instead of sub-Node if `node` is a branch, thereby ignoring `ix`
 
         @safe pure nothrow:
 

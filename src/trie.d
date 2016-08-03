@@ -1235,7 +1235,7 @@ struct RawRadixTree(Value = void)
             // if (hasFixedKeyLength) { assert(_backKey.data.length == fixedKeyLength); }
             static if (hasValue)
             {
-                _backValue = _back.data[$ - 1].value;   // last should be leaf containgin value
+                _backValue = _back.data[$ - 1].value;   // last should be leaf containing value
             }
         }
 

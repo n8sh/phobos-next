@@ -1156,7 +1156,8 @@ struct RawRadixTree(Value = void)
                 {
                     final switch (curr.typeIx)
                     {
-                    case undefined: assert(false);
+                    case undefined:
+                        assert(false);
                     case ix_OneLeafMax7:
                     case ix_TwoLeaf3:
                     case ix_TriLeaf2:

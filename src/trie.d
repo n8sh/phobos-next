@@ -58,7 +58,7 @@ module trie;
 import std.algorithm : move;
 import std.traits : isIntegral, isFloatingPoint, isSomeChar, isSomeString, isScalarType, isArray, allSatisfy, anySatisfy, isPointer;
 import std.typecons : tuple, Tuple, Unqual;
-import std.range : isInputRange, ElementType;
+import std.range : isInputRange, isBidirectionalRange, ElementType;
 import std.range.primitives : hasLength;
 
 import bijections : isIntegralBijectableType, bijectToUnsigned;
@@ -1069,18 +1069,85 @@ struct RawRadixTree(Value = void)
         Node node;
         Ix ix;
         ModStatus modStatus;
-        bool opCast(T : bool)() const { return cast(bool)node; }
+
+        pragma(inline) bool opCast(T : bool)() const { return cast(bool)node; }
+
+        inout(UKey) key() inout
+        {
+            with (Node.Ix)
+            {
+                final switch (node.typeIx)
+                {
+                case undefined:
+                    assert(false);
+                case ix_OneLeafMax7:
+                    assert(ix == 0);
+                    return node.as!(OneLeafMax7).key[];
+                case ix_TwoLeaf3:
+                    return node.as!(TwoLeaf3).keys[ix][];
+                case ix_TriLeaf2:
+                    return node.as!(TriLeaf2).keys[ix][];
+                case ix_HeptLeaf1:
+                    return [node.as!(HeptLeaf1).keys[ix]];
+
+                case ix_SparseLeaf1Ptr:
+                    return [node.as!(SparseLeaf1!Value*).ixs[ix]];
+                case ix_DenseLeaf1Ptr:
+                    import std.range : dropExactly;
+                    return [node.as!(DenseLeaf1!Value*)._ixBits.oneIndexes.dropExactly(ix).front];
+
+                case ix_SparseBranchPtr:
+                    return node.as!(SparseBranch*).prefix;
+                case ix_DenseBranchPtr:
+                    return node.as!(DenseBranch*).prefix;
+                }
+            }
+        }
     }
 
     /** Tree Iterator. */
     alias Iterator = EltRef[];
 
-    /** Tree Range. Is `isBidirectionalRange`. */
+    /** Range over the Elements in a Radix Tree.
+        Fulfills `isBidirectionalRange`.
+    */
     struct Range
     {
-        Iterator front;
-        Iterator back;
+        @safe pure nothrow // @nogc
+        :
+        pragma(inline):
+
+        bool empty() const
+        {
+            return ((_front is null && // iteration has been emptied
+                     _back is null) || // iteration has been emptied
+                    _front == _back);
+        }
+
+        inout(Element) front() inout
+        {
+            return _frontElement;
+        }
+
+        void popFront()
+        {
+            static if (hasValue)
+            {
+                _frontElement = Element(_front[$ - 1].key, Value.init);
+            }
+            else
+            {
+                _frontElement = _front[$ - 1].key;
+            }
+        }
+
+    private:
+        Iterator _front;
+        Iterator _back;
+        Element _frontElement;       // copy of element
     }
+
+    // static assert(isBidirectionalRange!Range);
 
     /** Sparse-Branch population histogram.
     */

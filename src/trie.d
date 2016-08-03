@@ -1155,8 +1155,10 @@ struct RawRadixTree(Value = void)
         {
             this._root = root;
 
+            // TODO calculate from `root`
             this._front = Iterator.init;
             this._back = Iterator.init;
+
             popFront;
         }
 

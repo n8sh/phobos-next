@@ -1175,12 +1175,12 @@ struct RawRadixTree(Value = void)
                             goto doneFront; // terminate recursion
                         case ix_SparseBranchPtr:
                             Ix subIx; bool atLeaf;
-                            next = curr.as!(SparseBranch*).firstLeafOrSubNode(subIx, atLeaf);
+                            next = curr.as!(SparseBranch*).leafOrFirstSubNode(subIx, atLeaf);
                             _front.put(EltRef(curr, subIx, ModStatus.init, atLeaf));
                             break;
                         case ix_DenseBranchPtr:
                             Ix subIx; bool atLeaf;
-                            next = curr.as!(DenseBranch*).firstLeafOrSubNode(subIx, atLeaf);
+                            next = curr.as!(DenseBranch*).leafOrFirstSubNode(subIx, atLeaf);
                             _front.put(EltRef(curr, subIx, ModStatus.init, atLeaf));
                             break;
                         }
@@ -1467,9 +1467,9 @@ struct RawRadixTree(Value = void)
 
         pragma(inline) auto ref subNodes() inout @nogc { return subNodeSlots[0 .. subCount]; }
 
-        pragma(inline) Node firstLeafOrSubNode(out Ix ix, out bool atLeaf) inout @nogc
+        pragma(inline) Node leafOrFirstSubNode(out Ix ix, out bool atLeaf) inout @nogc
         {
-            ix = 0;             // because of sparse packing
+            ix = 0;             // always zero, because of sparse packing
             if (leaf)
             {
                 atLeaf = true;
@@ -1602,7 +1602,7 @@ struct RawRadixTree(Value = void)
             return count;
         }
 
-        pragma(inline) Node firstLeafOrSubNode(out Ix ix, out bool atLeaf) inout @nogc
+        pragma(inline) Node leafOrFirstSubNode(out Ix ix, out bool atLeaf) inout @nogc
         {
             if (leaf)
             {

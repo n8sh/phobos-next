@@ -1222,11 +1222,8 @@ struct RawRadixTree(Value = void)
         private void copyFrontElement()
         {
             _frontKey.clear;
-            foreach (const ix; _front.data) { ix.appendToKey(_frontKey); }
-            // if (hasFixedKeyLength)
-            // {
-            //     assert(_frontKey.data.length == fixedKeyLength);
-            // }
+            foreach (const eltRef; _front.data) { eltRef.appendToKey(_frontKey); }
+            // if (hasFixedKeyLength) { assert(_frontKey.data.length == fixedKeyLength); }
             static if (hasValue)
             {
                 _frontValue = _front.data[$ - 1].value; // last should be leaf containing value
@@ -1236,11 +1233,8 @@ struct RawRadixTree(Value = void)
         private void copyBackElement()
         {
             _backKey.clear;
-            foreach (const ix; _back.data)  { ix.appendToKey(_backKey); }
-            // if (hasFixedKeyLength)
-            // {
-            //     assert(_backKey.data.length == fixedKeyLength);
-            // }
+            foreach (const eltRef; _back.data)  { eltRef.appendToKey(_backKey); }
+            // if (hasFixedKeyLength) { assert(_backKey.data.length == fixedKeyLength); }
             static if (hasValue)
             {
                 _backValue = _back.data[$ - 1].value;   // last should be leaf containgin value

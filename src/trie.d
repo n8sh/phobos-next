@@ -1158,6 +1158,7 @@ struct RawRadixTree(Value = void)
                     dln(curr);
                     with (Node.Ix)
                     {
+                        Node next;
                         final switch (curr.typeIx)
                         {
                         case undefined:
@@ -1173,16 +1174,19 @@ struct RawRadixTree(Value = void)
                             _front.put(EltRef(curr, Ix(0)));
                             goto doneFront; // terminate recursion
                         case ix_SparseBranchPtr:
-                            curr = curr.as!(SparseBranch*).firstLeafOrSubNode;
-                            _front.put(EltRef(curr, Ix(0))); // just pick first packed index
+                            Ix subIx; // index needs to searched
+                            bool atLeaf;
+                            next = curr.as!(SparseBranch*).firstLeafOrSubNode(subIx, atLeaf);
+                            _front.put(EltRef(curr, subIx, ModStatus.init, atLeaf));
                             break;
                         case ix_DenseBranchPtr:
                             Ix subIx; // index needs to searched
                             bool atLeaf;
-                            curr = curr.as!(DenseBranch*).firstLeafOrSubNode(subIx, atLeaf);
+                            next = curr.as!(DenseBranch*).firstLeafOrSubNode(subIx, atLeaf);
                             _front.put(EltRef(curr, subIx, ModStatus.init, atLeaf));
                             break;
                         }
+                        curr = next;
                     }
                 }
             doneFront:
@@ -1465,9 +1469,18 @@ struct RawRadixTree(Value = void)
 
         pragma(inline) auto ref subNodes() inout @nogc { return subNodeSlots[0 .. subCount]; }
 
-        pragma(inline) Node firstLeafOrSubNode() inout @nogc
+        pragma(inline) Node firstLeafOrSubNode(out Ix ix, out bool atLeaf) inout @nogc
         {
-            return leaf ? typeof(return)(leaf) : subNodes[Ix(0)];
+            ix = 0;             // because of sparse packing
+            if (leaf)
+            {
+                atLeaf = true;
+                return typeof(return)(leaf);
+            }
+            else
+            {
+                return subNodes[ix];
+            }
         }
 
         /** Get all sub-`Ix` slots, both initialized and uninitialized. */
@@ -1593,7 +1606,6 @@ struct RawRadixTree(Value = void)
 
         pragma(inline) Node firstLeafOrSubNode(out Ix ix, out bool atLeaf) inout @nogc
         {
-            import std.algorithm : countUntil;
             if (leaf)
             {
                 ix = 0;
@@ -1602,6 +1614,7 @@ struct RawRadixTree(Value = void)
             }
             else
             {
+                import std.algorithm : countUntil;
                 ix = Ix(subNodes[].countUntil!(subNode => cast(bool)subNode));
                 return subNodes[ix];
             }

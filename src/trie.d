@@ -1125,7 +1125,7 @@ struct RawRadixTree(Value = void)
     }
 
     /** Tree Iterator. */
-    alias Iterator = EltRef[];
+    alias Iterator = Appender!(EltRef[]);
 
     /** Range over the Elements in a Radix Tree.
         Fulfills `isBidirectionalRange`.
@@ -1147,8 +1147,8 @@ struct RawRadixTree(Value = void)
 
         bool empty() const
         {
-            return ((_front is null && // iteration has been emptied
-                     _back is null) || // iteration has been emptied
+            return ((_front.data.length == 0 && // iteration has been emptied
+                     _back.data.length == 0) || // iteration has been emptied
                     _front == _back);  // iteration has been completed
         }
 
@@ -1164,8 +1164,8 @@ struct RawRadixTree(Value = void)
             _frontKey.clear;
             _backKey.clear;
 
-            foreach (const ix; _front) { ix.appendToKey(_frontKey); }
-            foreach (const ix; _back)  { ix.appendToKey(_backKey); }
+            foreach (const ix; _front.data) { ix.appendToKey(_frontKey); }
+            foreach (const ix; _back.data)  { ix.appendToKey(_backKey); }
 
             // if (hasFixedKeyLength)
             // {

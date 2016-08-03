@@ -1174,14 +1174,12 @@ struct RawRadixTree(Value = void)
                             _front.put(EltRef(curr, Ix(0)));
                             goto doneFront; // terminate recursion
                         case ix_SparseBranchPtr:
-                            Ix subIx; // index needs to searched
-                            bool atLeaf;
+                            Ix subIx; bool atLeaf;
                             next = curr.as!(SparseBranch*).firstLeafOrSubNode(subIx, atLeaf);
                             _front.put(EltRef(curr, subIx, ModStatus.init, atLeaf));
                             break;
                         case ix_DenseBranchPtr:
-                            Ix subIx; // index needs to searched
-                            bool atLeaf;
+                            Ix subIx; bool atLeaf;
                             next = curr.as!(DenseBranch*).firstLeafOrSubNode(subIx, atLeaf);
                             _front.put(EltRef(curr, subIx, ModStatus.init, atLeaf));
                             break;

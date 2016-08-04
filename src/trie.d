@@ -1127,7 +1127,7 @@ struct RawRadixTree(Value = void)
         /** Try to iterated forward.
             Returns: `true` upon sucessful forward iteration, `false` otherwise (upon completion of iteration),
         */
-        bool tryForward() @nogc
+        bool tryForward() /* TODO @nogc */
         {
             assert(!completed);
             with (Node.Ix)
@@ -1160,8 +1160,22 @@ struct RawRadixTree(Value = void)
                     break;
                 case ix_DenseLeaf1Ptr:
                     auto node_ = node.as!(DenseLeaf1!Value*);
-                    assert(false, "TODO find next non-zero node starting at ix+1");
-                    // break;
+                    bool hit;
+                    assert(ix + 1 < radix);
+                    dln(ix);
+                    dln(node_._ixBits);
+                    foreach (const tryIx; ix + 1 .. radix)
+                    {
+                        if (node_._ixBits[tryIx])
+                        {
+                            ix = tryIx;
+                            dln(ix);
+                            hit = true;
+                            break;
+                        }
+                    }
+                    if (!hit) { _completed = true; }
+                    break;
 
                 case ix_SparseBranchPtr:
                     auto node_ = node.as!(SparseBranch*);

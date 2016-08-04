@@ -1125,10 +1125,11 @@ struct RawRadixTree(Value = void)
         bool completed() const @nogc { return _completed; }
 
         /** Try to iterated forward.
-            Returns: `true` upon sucessful forward iteration, `false` otherwise,
+            Returns: `true` upon sucessful forward iteration, `false` otherwise (upon completion of iteration),
         */
-        bool tryForward() const @nogc
+        bool forward() @nogc
         {
+            assert(!completed);
             with (Node.Ix)
             {
                 final switch (node.typeIx)
@@ -1137,44 +1138,55 @@ struct RawRadixTree(Value = void)
                     assert(false);
 
                 case ix_OneLeafMax7:
-                    _completed = true;
+                    _completed = true; // only one element so forward automatically completes
                     break;
                 case ix_TwoLeaf3:
-                    if (ix + 1 == 2) { _completed = true; }
+                    auto node_ = node.as!(TwoLeaf3);
+                    if (ix + 1 == node_.keys.length) { _completed = true; } else { ++ix; }
                     break;
                 case ix_TriLeaf2:
-                    if (ix + 1 == 3) { _completed = true; }
+                    auto node_ = node.as!(TriLeaf2);
+                    if (ix + 1 == node_.keys.length) { _completed = true; } else { ++ix; }
                     break;
                 case ix_HeptLeaf1:
-                    if (ix + 1 == 7) { _completed = true; }
+                    auto node_ = node.as!(HeptLeaf1);
+                    if (ix + 1 == node_.keys.length) { _completed = true; } else { ++ix; }
                     break;
 
                 case ix_SparseLeaf1Ptr:
-                    key.put(node.as!(SparseLeaf1!Value*).ixs[ix]);
+                    auto node_ = node.as!(SparseLeaf1!Value*);
+                    if (ix + 1 == node_.length) { _completed = true; } else { ++ix; }
                     break;
                 case ix_DenseLeaf1Ptr:
-                    key.put(ix);
-                    break;
+                    auto node_ = node.as!(DenseLeaf1!Value*);
+                    assert(false, "TODO find next non-zero node starting at ix+1");
+                    // break;
 
                 case ix_SparseBranchPtr:
                     auto node_ = node.as!(SparseBranch*);
-                    key.put(node_.prefix);
-                    if (!atLeaf)
+                    if (atLeaf)
                     {
-                        key.put(node_.subIxs[ix]);
+                        atLeaf = false;
+                    }
+                    else
+                    {
+                        if (ix + 1 == node_.subCount) { _completed = true; } else { ++ix; }
                     }
                     break;
                 case ix_DenseBranchPtr:
                     auto node_ = node.as!(DenseBranch*);
-                    key.put(node_.prefix);
-                    if (!atLeaf)
+                    if (atLeaf)
                     {
-                        assert(node_.subNodes[ix]);
-                        key.put(ix);
+                        atLeaf = false;
+                    }
+                    else
+                    {
+                        assert(false, "TODO find next non-zero leaf starting at ix+1");
                     }
                     break;
                 }
             }
+            return _completed;
         }
 
         static if (hasValue)

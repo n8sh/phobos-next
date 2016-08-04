@@ -1079,7 +1079,6 @@ struct RawRadixTree(Value = void)
                 case undefined:
                     assert(false);
 
-                // word-packed leaf
                 case ix_OneLeafMax7:
                     assert(ix == 0);
                     key.put(node.as!(OneLeafMax7).key);
@@ -1094,7 +1093,6 @@ struct RawRadixTree(Value = void)
                     key.put(node.as!(HeptLeaf1).keys[ix]);
                     break;
 
-                // heap-allocated leaf
                 case ix_SparseLeaf1Ptr:
                     key.put(node.as!(SparseLeaf1!Value*).ixs[ix]);
                     break;
@@ -1102,16 +1100,22 @@ struct RawRadixTree(Value = void)
                     key.put(ix);
                     break;
 
-                // heap-allocated branch branch
                 case ix_SparseBranchPtr:
                     auto node_ = node.as!(SparseBranch*);
                     key.put(node_.prefix);
-                    key.put(node_.subIxs[ix]);
+                    if (!atLeaf)
+                    {
+                        key.put(node_.subIxs[ix]);
+                    }
                     break;
                 case ix_DenseBranchPtr:
                     auto node_ = node.as!(DenseBranch*);
                     key.put(node_.prefix);
-                    key.put(ix);
+                    if (!atLeaf)
+                    {
+                        assert(node_.subNodes[ix]);
+                        key.put(ix);
+                    }
                     break;
                }
             }
@@ -1155,7 +1159,6 @@ struct RawRadixTree(Value = void)
                 // TODO functionize
                 while (true)
                 {
-                    dln(curr);
                     with (Node.Ix)
                     {
                         Node next;
@@ -1218,7 +1221,7 @@ struct RawRadixTree(Value = void)
         {
             _frontKey.clear;
             foreach (const eltRef; _front.data) { eltRef.appendToKey(_frontKey); }
-            // if (hasFixedKeyLength) { assert(_frontKey.data.length == fixedKeyLength); }
+            // TODO enable: if (hasFixedKeyLength) { assert(_frontKey.data.length == fixedKeyLength); }
             static if (hasValue)
             {
                 _frontValue = _front.data[$ - 1].value; // last should be leaf containing value
@@ -1229,7 +1232,7 @@ struct RawRadixTree(Value = void)
         {
             _backKey.clear;
             foreach (const eltRef; _back.data)  { eltRef.appendToKey(_backKey); }
-            // if (hasFixedKeyLength) { assert(_backKey.data.length == fixedKeyLength); }
+            // TODO enable: if (hasFixedKeyLength) { assert(_backKey.data.length == fixedKeyLength); }
             static if (hasValue)
             {
                 _backValue = _back.data[$ - 1].value;   // last should be leaf containing value

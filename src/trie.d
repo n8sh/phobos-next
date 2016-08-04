@@ -3028,8 +3028,8 @@ static private void calculate(Value)(Leaf!Value curr,
     }
 }
 
-/** Remap typed key `typedKey` to untype key of type `UKey`. */
-static private UKey remapKey(TypedKey)(in TypedKey typedKey)
+/** Remap typed key `typedKey` to untyped key of type `UKey`. */
+static private UKey toUKey(TypedKey)(in TypedKey typedKey)
     @trusted pure nothrow /* TODO @nogc */
     if (allSatisfy!(isTrieableKeyType, TypedKey))
 {
@@ -3119,7 +3119,7 @@ struct RadixTree(Key, Value)
         auto opIndexAssign(in Value value, Key key)
         {
             _tree.EltRef eltRef; // indicates that elt was added
-            _tree.insert(key.remapKey, value, eltRef);
+            _tree.insert(key.toUKey, value, eltRef);
             const bool added = eltRef.node && eltRef.modStatus == ModStatus.added;
             _length += added;
             /* TODO return reference (via `auto ref` return typed) to stored
@@ -3134,7 +3134,7 @@ struct RadixTree(Key, Value)
         bool insert(in Key key, in Value value)
         {
             _tree.EltRef eltRef; // indicates that key was added
-            auto rawKey = key.remapKey;
+            auto rawKey = key.toUKey;
             _tree.insert(rawKey, value, eltRef);
             debug if (willFail) { dln("WILL FAIL: eltRef:", eltRef, " key:", key); }
             if (eltRef.node)  // if `key` was added at `eltRef`
@@ -3171,7 +3171,7 @@ struct RadixTree(Key, Value)
         /** Returns: pointer to value if `key` is contained in set, null otherwise. */
         inout(Value*) contains(in Key key) inout
         {
-            return _tree.contains(key.remapKey);
+            return _tree.contains(key.toUKey);
         }
     }
     else
@@ -3183,7 +3183,7 @@ struct RadixTree(Key, Value)
         @safe pure nothrow /* TODO @nogc */
         {
             _tree.EltRef eltRef; // indicates that elt was added
-            _tree.insert(key.remapKey, eltRef);
+            _tree.insert(key.toUKey, eltRef);
             const bool hit = eltRef.node && eltRef.modStatus == ModStatus.added;
             _length += hit;
             return hit;
@@ -3194,7 +3194,7 @@ struct RadixTree(Key, Value)
         /** Returns: `true` if `key` is stored, `false` otherwise. */
         bool contains(in Key key) inout
         {
-            return _tree.contains(key.remapKey);
+            return _tree.contains(key.toUKey);
         }
     }
 
@@ -3371,6 +3371,7 @@ unittest
     assert(map.length == mapRange.length);
 
     import std.algorithm.comparison : equal;
+
     assert(mapRange.front.data == [0, 0, 0, 0]);
     mapRange.popFront;
 

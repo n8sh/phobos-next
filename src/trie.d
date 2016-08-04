@@ -3368,11 +3368,16 @@ unittest
     }
 
     auto mapRange = map[];
-    dln(mapRange.front);
-    foreach (elt; mapRange)
-    {
-        dln(elt);
-    }
+    assert(map.length == mapRange.length);
+
+    import std.algorithm.comparison : equal;
+    assert(mapRange.front.data == [0, 0, 0, 0]);
+    mapRange.popFront;
+
+    // foreach (elt; mapRange)
+    // {
+    //     dln(elt);
+    // }
 }
 
 /// test map to values of type `bool`

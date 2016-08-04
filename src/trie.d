@@ -1176,11 +1176,16 @@ struct RawRadixTree(Value = void)
                     break;
                 case ix_DenseBranchPtr:
                     auto node_ = node.as!(DenseBranch*);
-                    if (atLeaf)
+                    if (atLeaf) // if currently refers to leaf
                     {
-                        atLeaf = false;
+                        atLeaf = false; // skip it
+                        ix = 0;
                     }
-                    ix = node_.nextSubNodeIx(ix, _completed);
+                    else
+                    {
+                        if (ix + 1 == radix) { _completed = true; } else { ++ix; }
+                    }
+                    ix = node_.nextNonNullSubNodeIx(ix, _completed);
                     break;
                 }
             }
@@ -1711,14 +1716,14 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        pragma(inline) Ix nextSubNodeIx(const Ix ix, out bool completed) inout @nogc
+        pragma(inline) Ix nextNonNullSubNodeIx(const Ix ix, out bool completed) inout @nogc
         {
             import std.algorithm : countUntil;
-            const ix_ = subNodes[ix + 1 .. $].countUntil!(subNode => cast(bool)subNode); // find next non-zero leaf starting at ix+1
+            const ix_ = subNodes[ix .. $].countUntil!(subNode => cast(bool)subNode); // find next non-zero leaf starting at ix+1
             if (ix_ == -1)
             {
                 completed = true;
-                return ix;
+                return ix;      // return last unchanged index
             }
             else
             {

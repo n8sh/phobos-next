@@ -1127,7 +1127,7 @@ struct RawRadixTree(Value = void)
         /** Try to iterated forward.
             Returns: `true` upon sucessful forward iteration, `false` otherwise (upon completion of iteration),
         */
-        bool forward() @nogc
+        bool tryForward() @nogc
         {
             assert(!completed);
             with (Node.Ix)
@@ -1167,6 +1167,7 @@ struct RawRadixTree(Value = void)
                     if (atLeaf)
                     {
                         atLeaf = false;
+                        ix = 0;
                     }
                     else
                     {
@@ -1179,10 +1180,7 @@ struct RawRadixTree(Value = void)
                     {
                         atLeaf = false;
                     }
-                    else
-                    {
-                        assert(false, "TODO find next non-zero leaf starting at ix+1");
-                    }
+                    ix = node_.nextSubNodeIx(ix, _completed);
                     break;
                 }
             }
@@ -1279,11 +1277,19 @@ struct RawRadixTree(Value = void)
         void popFront()
         {
             assert(!empty);
-            dln("TODO Iterate _front");
 
-            if (!_front.data[$ - 1].completed)
+            bool done;
+            while (_front.data.length && !done)
             {
-                _front.data[$ - 1].forward;
+                if (_front.data[$ - 1].tryForward)
+                {
+                    done = true; // element left, so we're done
+                }
+                else
+                {
+                    // pop last element
+                    try { _front.shrinkTo(_front.data.length - 1); } catch (Exception e) { /* ignore */ }
+                }
             }
 
             copyFrontElement;
@@ -1702,6 +1708,23 @@ struct RawRadixTree(Value = void)
                 import std.algorithm : countUntil;
                 ix = Ix(subNodes[].countUntil!(subNode => cast(bool)subNode));
                 return subNodes[ix];
+            }
+        }
+
+        pragma(inline) Ix nextSubNodeIx(const Ix ix, out bool completed) inout @nogc
+        {
+            import std.algorithm : countUntil;
+            const ix_ = subNodes[ix + 1 .. $].countUntil!(subNode => cast(bool)subNode); // find next non-zero leaf starting at ix+1
+            if (ix_ == -1)
+            {
+                completed = true;
+                return ix;
+            }
+            else
+            {
+                const nextIx = ix + 1 + ix_;
+                assert(nextIx < radix);
+                return Ix(nextIx);
             }
         }
 
@@ -3450,6 +3473,7 @@ unittest
 
     assert(mapRange.front.data == [0, 0, 0, 0]);
     mapRange.popFront;
+    assert(mapRange.front.data == [0, 0, 0, 1]);
 
     // foreach (elt; mapRange)
     // {

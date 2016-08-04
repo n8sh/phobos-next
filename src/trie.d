@@ -1164,6 +1164,7 @@ struct RawRadixTree(Value = void)
                     assert(ix + 1 < radix);
                     dln(ix);
                     dln(node_._ixBits);
+                    // TODO functionize to member of BitSet
                     foreach (const tryIx; ix + 1 .. radix)
                     {
                         if (node_._ixBits[tryIx])

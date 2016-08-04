@@ -1149,8 +1149,10 @@ struct RawRadixTree(Value = void)
         @safe pure nothrow /* @nogc */:
         pragma(inline):
 
-        this(Node root)
+        this(Node root, size_t length)
         {
+            this._length = length;
+
             if (root)
             {
                 Node curr = root;
@@ -1195,19 +1197,22 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        bool empty() const
+        bool empty() const @nogc
         {
             return _front == _back;
         }
 
-        auto ref front() inout @safe pure nothrow @nogc { return _frontKey; }
-        auto ref back() inout @safe pure nothrow @nogc { return _backKey; }
+        size_t length() const @nogc { return _length; }
+
+        auto ref front() inout @nogc { return _frontKey; }
+        auto ref back() inout @nogc { return _backKey; }
 
         void popFront()
         {
             assert(!empty);
             dln("TODO Iterate _front");
             copyFrontElement;
+            --_length;
         }
 
         void popBack()
@@ -1215,6 +1220,7 @@ struct RawRadixTree(Value = void)
             assert(!empty);
             dln("TODO Iterate _back");
             copyBackElement;
+            --_length;
         }
 
         private void copyFrontElement()
@@ -1250,11 +1256,13 @@ struct RawRadixTree(Value = void)
             Value _frontValue;             // copy of front value
             Value _backValue;             // copy of back value
         }
+
+        size_t _length;
     }
 
     pragma(inline) Range opSlice() @trusted pure nothrow
     {
-        return Range(this._root);
+        return Range(this._root, this.length);
     }
 
     // static assert(isBidirectionalRange!Range);
@@ -3360,6 +3368,11 @@ unittest
     }
 
     auto mapRange = map[];
+    dln(mapRange.front);
+    foreach (elt; mapRange)
+    {
+        dln(elt);
+    }
 }
 
 /// test map to values of type `bool`

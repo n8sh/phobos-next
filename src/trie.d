@@ -1160,7 +1160,7 @@ struct RawRadixTree(Value = void)
                     break;
                 case ix_DenseLeaf1Ptr:
                     auto node_ = node.as!(DenseLeaf1!Value*);
-                    bool hit;
+                    bool nextFound;
                     assert(ix + 1 < radix);
                     dln(ix);
                     dln(node_._ixBits);
@@ -1172,12 +1172,12 @@ struct RawRadixTree(Value = void)
                         {
                             ix = tryIx;
                             dln(ix);
-                            hit = true;
+                            nextFound = true;
                             break;
                         }
                     }
 
-                    if (!hit)   // if no more set bits
+                    if (!nextFound)
                     {
                         _completed = true;
                     }

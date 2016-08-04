@@ -1273,12 +1273,14 @@ struct RawRadixTree(Value = void)
                             _front.put(EltRef(curr, Ix(0)));
                             goto doneFront; // terminate recursion
                         case ix_SparseBranchPtr:
-                            Ix subIx; bool atLeaf;
+                            Ix subIx;
+                            bool atLeaf = false;
                             next = curr.as!(SparseBranch*).leafOrFirstSubNode(subIx, atLeaf);
                             _front.put(EltRef(curr, subIx, ModStatus.init, atLeaf));
                             break;
                         case ix_DenseBranchPtr:
-                            Ix subIx; bool atLeaf;
+                            Ix subIx;
+                            bool atLeaf = false;
                             next = curr.as!(DenseBranch*).leafOrFirstSubNode(subIx, atLeaf);
                             _front.put(EltRef(curr, subIx, ModStatus.init, atLeaf));
                             break;
@@ -1305,7 +1307,7 @@ struct RawRadixTree(Value = void)
         {
             assert(!empty);
 
-            bool done;
+            bool done = false;
             while (_front.data.length && !done)
             {
                 if (_front.data[$ - 1].tryForward)

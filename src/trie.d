@@ -1132,6 +1132,7 @@ struct RawRadixTree(Value = void)
             assert(!completed);
             with (Node.Ix)
             {
+                // TODO move all calls to node-specific members tryForward()
                 final switch (node.typeIx)
                 {
                 case undefined:
@@ -1168,6 +1169,7 @@ struct RawRadixTree(Value = void)
                     {
                         atLeaf = false;
                         ix = 0;
+                        if (ix == node_.subCount) { _completed = true; }
                     }
                     else
                     {

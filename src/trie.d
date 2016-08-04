@@ -96,7 +96,7 @@ alias KeyN(size_t span, size_t N) = Mod!(2^^span)[N];
 alias UKey = Key!span;
 
 /** Results of attempt at modification sub. */
-enum ModStatus
+enum ModStatus:ubyte
 {
     maxCapacityReached,         // no operation, max capacity reached
     unchanged,                  // no operation, element already stored
@@ -1065,6 +1065,7 @@ struct RawRadixTree(Value = void)
         Ix ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
         ModStatus modStatus;
         bool atLeaf; // use sub-leaf instead of sub-Node if `node` is a branch, thereby ignoring `ix`
+        bool _completed;
 
         @safe pure nothrow:
 
@@ -1121,6 +1122,61 @@ struct RawRadixTree(Value = void)
             }
         }
 
+        bool completed() const @nogc { return _completed; }
+
+        /** Try to iterated forward.
+            Returns: `true` upon sucessful forward iteration, `false` otherwise,
+        */
+        bool tryForward() const @nogc
+        {
+            with (Node.Ix)
+            {
+                final switch (node.typeIx)
+                {
+                case undefined:
+                    assert(false);
+
+                case ix_OneLeafMax7:
+                    _completed = true;
+                    break;
+                case ix_TwoLeaf3:
+                    if (ix + 1 == 2) { _completed = true; }
+                    break;
+                case ix_TriLeaf2:
+                    if (ix + 1 == 3) { _completed = true; }
+                    break;
+                case ix_HeptLeaf1:
+                    if (ix + 1 == 7) { _completed = true; }
+                    break;
+
+                case ix_SparseLeaf1Ptr:
+                    key.put(node.as!(SparseLeaf1!Value*).ixs[ix]);
+                    break;
+                case ix_DenseLeaf1Ptr:
+                    key.put(ix);
+                    break;
+
+                case ix_SparseBranchPtr:
+                    auto node_ = node.as!(SparseBranch*);
+                    key.put(node_.prefix);
+                    if (!atLeaf)
+                    {
+                        key.put(node_.subIxs[ix]);
+                    }
+                    break;
+                case ix_DenseBranchPtr:
+                    auto node_ = node.as!(DenseBranch*);
+                    key.put(node_.prefix);
+                    if (!atLeaf)
+                    {
+                        assert(node_.subNodes[ix]);
+                        key.put(ix);
+                    }
+                    break;
+                }
+            }
+        }
+
         static if (hasValue)
         {
             auto ref value() inout
@@ -1136,6 +1192,7 @@ struct RawRadixTree(Value = void)
                 }
             }
         }
+
     }
 
     /** Tree Iterator. */
@@ -1211,6 +1268,12 @@ struct RawRadixTree(Value = void)
         {
             assert(!empty);
             dln("TODO Iterate _front");
+
+            if (!_front.data[$ - 1].completed)
+            {
+                _front.data[$ - 1].forward;
+            }
+
             copyFrontElement;
             --_length;
         }
@@ -1219,6 +1282,7 @@ struct RawRadixTree(Value = void)
         {
             assert(!empty);
             dln("TODO Iterate _back");
+
             copyBackElement;
             --_length;
         }

@@ -1160,7 +1160,7 @@ struct RawRadixTree(Value = void)
                     break;
                 case ix_DenseLeaf1Ptr:
                     auto node_ = node.as!(DenseLeaf1!Value*);
-                    bool nextFound;
+                    bool nextFound = false;
                     assert(ix + 1 < radix);
                     dln(ix);
                     dln(node_._ixBits);

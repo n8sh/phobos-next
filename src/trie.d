@@ -1164,6 +1164,7 @@ struct RawRadixTree(Value = void)
                     assert(ix + 1 < radix);
                     dln(ix);
                     dln(node_._ixBits);
+
                     // TODO functionize to member of BitSet
                     foreach (const tryIx; ix + 1 .. radix)
                     {
@@ -1175,7 +1176,11 @@ struct RawRadixTree(Value = void)
                             break;
                         }
                     }
-                    if (!hit) { _completed = true; }
+
+                    if (!hit)   // if no more set bits
+                    {
+                        _completed = true;
+                    }
                     break;
 
                 case ix_SparseBranchPtr:

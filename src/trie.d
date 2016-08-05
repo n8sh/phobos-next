@@ -3432,6 +3432,33 @@ struct RadixTree(Key, Value)
         return contains(key);   // TODO return `_tree.EltRef`
     }
 
+    struct Range
+    {
+        this(_tree.Node root) { rawRange = _tree.Range(root); }
+
+        // TODO activate these and return typed key instead
+        // auto ref front() const @nogc
+        // {
+        //     static if (hasValue) { return tuple(_frontKey, _frontValue); } // TODO create this at typed wrapper instead
+        //     else                 { return _frontKey; }
+
+        // }
+        // auto ref back() const @nogc
+        // {
+        //     static if (hasValue) { return tuple(_backKey, _backValue); } // TODO create this at typed wrapper instead
+        //     else                 { return _backKey; }
+        // }
+
+        _tree.Range rawRange;
+        alias rawRange this;
+    }
+
+    pragma(inline) Range opSlice() @trusted pure nothrow
+    {
+        dln;
+        return Range(_tree._root);
+    }
+
     /** Print `this` tree. */
     void print() @safe const { _tree.print(); }
 

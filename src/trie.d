@@ -3420,24 +3420,24 @@ struct RadixTree(Key, Value)
 
     struct Range
     {
-        this(RawTree.Node root) { rawRange = _rawTree.Range(root); }
+        this(RawTree.Node root) { _rawRange = _rawTree.Range(root); }
 
         /** Get copy of front element. */
         auto front() const @nogc
         {
-            static if (RawTree.hasValue) { return tuple(rawRange._frontKey, rawRange._frontValue); } // TODO typed key
-            else                     { return rawRange._frontKey; }
+            static if (RawTree.hasValue) { return tuple(_rawRange._frontKey, _rawRange._frontValue); } // TODO typed key
+            else                     { return _rawRange._frontKey; }
         }
 
         /** Get copy of front element. */
         auto back() const @nogc
         {
-            static if (RawTree.hasValue) { return tuple(rawRange._backKey, rawRange._backValue); } // TODO typed key
-            else                     { return rawRange._backKey; }
+            static if (RawTree.hasValue) { return tuple(_rawRange._backKey, _rawRange._backValue); } // TODO typed key
+            else                     { return _rawRange._backKey; }
         }
 
-        RawTree.Range rawRange;
-        alias rawRange this;
+        RawTree.Range _rawRange;
+        alias _rawRange this;
     }
 
     pragma(inline) Range opSlice() @trusted pure nothrow

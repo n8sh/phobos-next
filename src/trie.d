@@ -452,12 +452,12 @@ struct TwoLeaf3
     pragma(inline) bool contains(UKey key) const nothrow @nogc
     {
         assert(!keys.empty);
-        // final switch (keys.length)
-        // {
-        // case 1: return keys[0] == key;
-        // case 2: return keys[0] == key || keys[1] == key;
-        // }
-        return keys.contains(key);
+        final switch (keys.length)
+        {
+        case 1: return keys[0] == key;
+        case 2: return keys[0] == key || keys[1] == key;
+        }
+        // return keys.contains(key);
     }
 
     IxsN!(capacity, keyLength) keys; // should never be empty
@@ -498,13 +498,13 @@ struct TriLeaf2
     pragma(inline) bool contains(UKey key) const nothrow @nogc
     {
         assert(!keys.empty);
-        // final switch (keys.length)
-        // {
-        // case 1: return keys[0] == key;
-        // case 2: return keys[0] == key || keys[1] == key;
-        // case 3: return keys[0] == key || keys[1] == key || keys[2] == key;
-        // }
-        return keys.contains(key);
+        final switch (keys.length)
+        {
+        case 1: return keys[0] == key;
+        case 2: return keys[0] == key || keys[1] == key;
+        case 3: return keys[0] == key || keys[1] == key || keys[2] == key;
+        }
+        // return keys.contains(key);
     }
 
     IxsN!(capacity, keyLength) keys; // should never be empty

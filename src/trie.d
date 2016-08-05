@@ -460,7 +460,7 @@ struct TwoLeaf3
         return keys.contains(key);
     }
 
-    IxsN!(capacity, keyLength) keys;
+    IxsN!(capacity, keyLength) keys; // should never be empty
 }
 
 /// Ternary/3-Key Leaf with key-length 2.
@@ -507,7 +507,7 @@ struct TriLeaf2
         return keys.contains(key);
     }
 
-    IxsN!(capacity, keyLength) keys;
+    IxsN!(capacity, keyLength) keys; // should never be empty
 }
 
 /// Hepa/7-Key Leaf with key-length 1.
@@ -542,7 +542,7 @@ struct HeptLeaf1
     }
     pragma(inline) bool contains(UKey key) const nothrow @nogc { return key.length == 1 && keys.contains(key[0]); }
 
-    IxsN!(capacity, 1) keys;
+    IxsN!(capacity, 1) keys;    // should never be empty
 }
 
 /** Sparsely coded leaves with values of type `Value`. */

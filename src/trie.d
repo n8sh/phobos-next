@@ -1089,8 +1089,8 @@ struct RawRadixTree(Value = void)
         pragma(inline) bool opCast(T : bool)() const @nogc { return cast(bool)node; }
     }
 
-    /** Branch Iterator. */
-    struct BranchIterator
+    /** Branch Range (Iterator). */
+    struct BranchRange
     {
         Branch branch;
         Ix ix; // `Branch`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
@@ -1179,8 +1179,8 @@ struct RawRadixTree(Value = void)
         }
     }
 
-    /** Leaf Iterator. */
-    struct LeafIterator
+    /** Leaf Range (Iterator). */
+    struct LeafRange
     {
         Node leaf;              // TODO Use Leaf when it includes non-Value leaf types
         Ix ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
@@ -1316,8 +1316,8 @@ struct RawRadixTree(Value = void)
     /** Tree Iterator. */
     struct TreeIterator
     {
-        Appender!(BranchIterator[]) branches;
-        LeafIterator leaf;
+        Appender!(BranchRange[]) branches;
+        LeafRange leaf;
     }
 
     /** Range over the Elements in a Radix Tree.
@@ -1351,7 +1351,7 @@ struct RawRadixTree(Value = void)
                         case ix_HeptLeaf1:
                         case ix_SparseLeaf1Ptr:
                         case ix_DenseLeaf1Ptr:
-                            _front.leaf = LeafIterator(curr, Ix(0));
+                            _front.leaf = LeafRange(curr, Ix(0));
                             goto doneFront; // terminate recursion
 
                         case ix_SparseBranchPtr:
@@ -1359,14 +1359,14 @@ struct RawRadixTree(Value = void)
                             bool atLeaf = false;
                             auto curr_ = curr.as!(SparseBranch*);
                             next = curr_.leafOrFirstSubNode(subIx, atLeaf);
-                            _front.branches.put(BranchIterator(Branch(curr_), subIx, ModStatus.init, atLeaf));
+                            _front.branches.put(BranchRange(Branch(curr_), subIx, ModStatus.init, atLeaf));
                             break;
                         case ix_DenseBranchPtr:
                             Ix subIx;
                             bool atLeaf = false;
                             auto curr_ = curr.as!(DenseBranch*);
                             next = curr_.leafOrFirstSubNode(subIx, atLeaf);
-                            _front.branches.put(BranchIterator(Branch(curr_), subIx, ModStatus.init, atLeaf));
+                            _front.branches.put(BranchRange(Branch(curr_), subIx, ModStatus.init, atLeaf));
                             break;
                         }
                         curr = next;
@@ -1393,7 +1393,7 @@ struct RawRadixTree(Value = void)
             }
             else
             {
-                _front.leaf = LeafIterator.init;
+                _front.leaf = LeafRange.init;
             }
 
             copyFrontElement;

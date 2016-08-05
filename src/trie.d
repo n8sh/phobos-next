@@ -1330,10 +1330,8 @@ struct RawRadixTree(Value = void)
         @safe pure nothrow /* @nogc */:
         pragma(inline):
 
-        this(Node root, size_t length)
+        this(Node root)
         {
-            this._length = length;
-
             if (root)
             {
                 Node curr = root;
@@ -1386,8 +1384,6 @@ struct RawRadixTree(Value = void)
             return cast(bool)_front.leaf.leaf;
         }
 
-        size_t length() const @nogc { return _length; }
-
         auto ref front() const @nogc
         {
             static if (hasValue) { return tuple(_frontKey, _frontValue); } // TODO create this at typed wrapper instead
@@ -1415,7 +1411,6 @@ struct RawRadixTree(Value = void)
             }
 
             copyFrontElement;
-            --_length;
         }
 
         void popBack()
@@ -1424,7 +1419,6 @@ struct RawRadixTree(Value = void)
             dln("TODO Iterate _back");
 
             copyBackElement;
-            --_length;
         }
 
     private:
@@ -1468,13 +1462,11 @@ struct RawRadixTree(Value = void)
             Value _frontValue;             // copy of front value
             Value _backValue;             // copy of back value
         }
-
-        size_t _length;
     }
 
     pragma(inline) Range opSlice() @trusted pure nothrow
     {
-        return Range(this._root, this.length);
+        return Range(this._root);
     }
 
     // static assert(isBidirectionalRange!Range);

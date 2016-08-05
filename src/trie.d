@@ -1256,7 +1256,7 @@ struct RawRadixTree(Value = void)
     }
 
     /** Tree Iterator. */
-    alias Iterator = Appender!(EltRef[]);
+    alias TreeIterator = Appender!(EltRef[]);
 
     /** Range over the Elements in a Radix Tree.
         Fulfills `isBidirectionalRange`.
@@ -1339,13 +1339,12 @@ struct RawRadixTree(Value = void)
         {
             assert(!empty);
 
+            bool done;
             while (_front.data.length)
             {
-                dln;
                 if (_front.data[$ - 1].tryForward)
                 {
-                    dln;
-                    break;      // element left, so we're done
+                    done = true;
                 }
                 else
                 {
@@ -1353,6 +1352,8 @@ struct RawRadixTree(Value = void)
                     // pop last element
                     try { _front.shrinkTo(_front.data.length - 1); } catch (Exception e) { /* ignore */ }
                 }
+
+                if (done) { break; }
             }
 
             copyFrontElement;
@@ -1391,8 +1392,8 @@ struct RawRadixTree(Value = void)
         }
 
     private:
-        Iterator _front;
-        Iterator _back;
+        TreeIterator _front;
+        TreeIterator _back;
 
         Appender!UKey _frontKey; // copy of front key
         Appender!UKey _backKey;  // copy of back key

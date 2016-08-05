@@ -3317,6 +3317,8 @@ static private UKey toUKey(TypedKey)(in TypedKey typedKey)
 struct RadixTree(Key, Value)
     if (allSatisfy!(isTrieableKeyType, Key))
 {
+    alias Raw = RawRadixTree!(Value);
+
     this(bool unusedDummy)      // TODO how do we get rid of the need for `unusedDummy`?
     {
         this.fixedKeyLength = isFixedTrieableKeyType!Key ? Key.sizeof : fixedKeyLengthUndefined;
@@ -3434,7 +3436,7 @@ struct RadixTree(Key, Value)
 
     struct Range
     {
-        this(_tree.Node root) { rawRange = _tree.Range(root); }
+        this(Raw.Node root) { rawRange = _tree.Range(root); }
 
         // TODO activate these and return typed key instead
         // auto ref front() const @nogc
@@ -3449,20 +3451,19 @@ struct RadixTree(Key, Value)
         //     else                 { return _backKey; }
         // }
 
-        _tree.Range rawRange;
+        Raw.Range rawRange;
         alias rawRange this;
     }
 
     pragma(inline) Range opSlice() @trusted pure nothrow
     {
-        dln;
         return Range(_tree._root);
     }
 
     /** Print `this` tree. */
     void print() @safe const { _tree.print(); }
 
-    private RawRadixTree!(Value) _tree;
+    private Raw _tree;
     alias _tree this;
 }
 alias PatriciaTrie = RadixTree;

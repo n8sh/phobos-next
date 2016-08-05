@@ -1382,18 +1382,6 @@ struct RawRadixTree(Value = void)
             return cast(bool)_front.leaf.leaf;
         }
 
-        auto ref front() const @nogc
-        {
-            static if (hasValue) { return tuple(_frontKey, _frontValue); } // TODO create this at typed wrapper instead
-            else                 { return _frontKey; }
-
-        }
-        auto ref back() const @nogc
-        {
-            static if (hasValue) { return tuple(_backKey, _backValue); } // TODO create this at typed wrapper instead
-            else                 { return _backKey; }
-        }
-
         void popFront()
         {
             assert(!empty);
@@ -3320,7 +3308,7 @@ struct RadixTree(Key, Value)
         this.fixedKeyLength = isFixedTrieableKeyType!Key ? Key.sizeof : fixedKeyLengthUndefined;
     }
 
-    static if (_tree.hasValue)
+    static if (Raw.hasValue)
     {
         alias Element = Tuple!(Key, "key", Value, "value");
     }
@@ -3329,7 +3317,7 @@ struct RadixTree(Key, Value)
         alias Element = Key;
     }
 
-    static if (_tree.hasValue)
+    static if (Raw.hasValue)
     {
         ref Value opIndex(Key key)
         {
@@ -3434,20 +3422,17 @@ struct RadixTree(Key, Value)
     {
         this(Raw.Node root) { rawRange = _tree.Range(root); }
 
-        // TODO activate these and return typed key instead
-        // auto ref front() const @nogc
-        // {
-        //     if (hasFixedKeyLength) { assert(_frontKey.data.length == fixedKeyLength); }
-        //     static if (hasValue) { return tuple(_frontKey, _frontValue); } // TODO create this at typed wrapper instead
-        //     else                 { return _frontKey; }
+        auto ref front() const @nogc
+        {
+            static if (Raw.hasValue) { return tuple(rawRange._frontKey, rawRange._frontValue); } // TODO typed key
+            else                     { return rawRange._frontKey; }
+        }
 
-        // }
-        // auto ref back() const @nogc
-        // {
-        //     if (hasFixedKeyLength) { assert(_backKey.data.length == fixedKeyLength); }
-        //     static if (hasValue) { return tuple(_backKey, _backValue); } // TODO create this at typed wrapper instead
-        //     else                 { return _backKey; }
-        // }
+        auto ref back() const @nogc
+        {
+            static if (Raw.hasValue) { return tuple(rawRange._backKey, rawRange._backValue); } // TODO typed key
+            else                     { return rawRange._backKey; }
+        }
 
         Raw.Range rawRange;
         alias rawRange this;

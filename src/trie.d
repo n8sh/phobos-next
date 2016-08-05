@@ -834,16 +834,37 @@ static private struct DenseLeaf1(Value)
 
     @safe pure nothrow:
 
-    this(Ix[] ixs)
+    static if (hasValue)
     {
-        assert(ixs.length <= capacity);
-        foreach (const ix; ixs)
+        this(Ix[] ixs, Value[] values)
         {
-            _ixBits[ix] = true;
+            assert(ixs.length <= capacity);
+            assert(ixs.length == values.length);
+
+            foreach (const i, const ix; ixs)
+            {
+                _ixBits[ix] = true;
+                _values[ix] = values[i];
+            }
+            static if (hasGCScannedValues)
+            {
+                GC.addRange(_values.ptr, capacity * Value.size);
+            }
         }
-        static if (hasGCScannedValues)
+    }
+    else
+    {
+        this(Ix[] ixs)
         {
-            GC.addRange(_values.ptr, capacity * Value.size);
+            assert(ixs.length <= capacity);
+            foreach (const ix; ixs)
+            {
+                _ixBits[ix] = true;
+            }
+            static if (hasGCScannedValues)
+            {
+                GC.addRange(_values.ptr, capacity * Value.size);
+            }
         }
     }
 
@@ -1104,8 +1125,6 @@ struct RawRadixTree(Value = void)
                 case ix_SparseBranchPtr:
                     auto node_ = node.as!(SparseBranch*);
                     key.put(node_.prefix);
-                    dln(ix);
-                    dln(node_.subIxs.length);
                     if (!atLeaf)
                     {
                         key.put(node_.subIxs[ix]);
@@ -1163,9 +1182,7 @@ struct RawRadixTree(Value = void)
                 case ix_DenseLeaf1Ptr:
                     auto node_ = node.as!(DenseLeaf1!Value*);
                     bool nextFound = false;
-                    assert(ix + 1 < radix);
-                    dln(ix);
-                    dln(node_._ixBits);
+                    assert(ix + 1 <= radix);
 
                     // TODO functionize to member of BitSet
                     foreach (const tryIx; ix + 1 .. radix)
@@ -1173,7 +1190,6 @@ struct RawRadixTree(Value = void)
                         if (node_._ixBits[tryIx])
                         {
                             ix = tryIx;
-                            dln(ix);
                             nextFound = true;
                             break;
                         }
@@ -1323,7 +1339,6 @@ struct RawRadixTree(Value = void)
 
             while (_front.data.length)
             {
-                dln(_front.data[$ - 1]);
                 if (_front.data[$ - 1].tryForward)
                 {
                     break;      // element left, so we're done
@@ -2785,7 +2800,14 @@ struct RawRadixTree(Value = void)
         }
         else
         {
-            next = construct!(DenseLeaf1!Value*)(curr.ixs); // TODO make use of sortedness of `curr.keys`?
+            static if (hasValue)
+            {
+                next = construct!(DenseLeaf1!Value*)(curr.ixs, curr.values); // TODO make use of sortedness of `curr.keys`?
+            }
+            else
+            {
+                next = construct!(DenseLeaf1!Value*)(curr.ixs); // TODO make use of sortedness of `curr.keys`?
+            }
         }
         freeNode(curr);
         return next;
@@ -3509,12 +3531,20 @@ unittest
         assert(map.length == i + 1);
     }
 
-    size_t cnt = 0;
+    size_t i = 0;
     foreach (const elt; map[])
     {
-        pragma(msg, typeof(elt[0].data));
-        assert(elt[0].data == [0, 0, 0, cnt]);
-        ++cnt;
+        const key = elt[0].data;
+        const value = elt[1];
+
+        dln("i:", i);
+        dln("key:", elt[0].data);
+        dln("value:", value);
+
+        assert(key == [0, 0, 0, i]);
+        assert(value == i*radix);
+
+        ++i;
     }
 }
 

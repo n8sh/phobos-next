@@ -3590,22 +3590,24 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
 unittest
 {
     alias Key = uint;
-    alias Value = ushort;
+    alias Value = uint;
 
     auto map = radixTreeMap!(Key, Value);
     assert(map.empty);
 
     static assert(map.hasValue);
 
+    Value keyToValue(Key key) @safe pure nothrow @nogc { return cast(Value)(key*radix); }
+
     foreach (const i; 0 .. SparseLeaf1!Value.maxCapacity)
     {
         assert(!map.contains(i));
         assert(map.length == i);
-        map[i] = i*radix;
+        map[i] = keyToValue(i);
         assert(map.contains(i));
-        assert(*map.contains(i) == i*radix);
+        assert(*map.contains(i) == keyToValue(i));
         assert(i in map);
-        assert(*(i in map) == i*radix);
+        assert(*(i in map) == keyToValue(i));
         assert(map.length == i + 1);
     }
 
@@ -3613,11 +3615,11 @@ unittest
     {
         assert(!map.contains(i));
         assert(map.length == i);
-        map[i] = i*radix;
+        map[i] = keyToValue(i);
         assert(map.contains(i));
-        assert(*map.contains(i) == i*radix);
+        assert(*map.contains(i) == keyToValue(i));
         assert(i in map);
-        assert(*(i in map) == i*radix);
+        assert(*(i in map) == keyToValue(i));
         assert(map.length == i + 1);
     }
 
@@ -3630,7 +3632,7 @@ unittest
         dln("i:", i);
 
         assert(key == [0, 0, 0, i]);
-        assert(value == i*radix);
+        assert(value == keyToValue(cast(Key)i));
 
         dln("here");
 

@@ -1426,7 +1426,6 @@ struct RawRadixTree(Value = void)
             _frontKey.clear;
             foreach (const branchIterator; _front.branches.data) { branchIterator.appendToKey(_frontKey); }
             _front.leaf.appendToKey(_frontKey);
-            // TODO enable: if (hasFixedKeyLength) { assert(_frontKey.data.length == fixedKeyLength); }
 
             // value
             static if (hasValue)
@@ -1440,7 +1439,6 @@ struct RawRadixTree(Value = void)
             _backKey.clear;
             foreach (const branchIterator; _back.branches.data) { branchIterator.appendToKey(_backKey); }
             _back.leaf.appendToKey(_backKey);
-            // TODO enable: if (hasFixedKeyLength) { assert(_backKey.data.length == fixedKeyLength); }
 
             // value
             static if (hasValue)
@@ -3439,12 +3437,14 @@ struct RadixTree(Key, Value)
         // TODO activate these and return typed key instead
         // auto ref front() const @nogc
         // {
+        //     if (hasFixedKeyLength) { assert(_frontKey.data.length == fixedKeyLength); }
         //     static if (hasValue) { return tuple(_frontKey, _frontValue); } // TODO create this at typed wrapper instead
         //     else                 { return _frontKey; }
 
         // }
         // auto ref back() const @nogc
         // {
+        //     if (hasFixedKeyLength) { assert(_backKey.data.length == fixedKeyLength); }
         //     static if (hasValue) { return tuple(_backKey, _backValue); } // TODO create this at typed wrapper instead
         //     else                 { return _backKey; }
         // }

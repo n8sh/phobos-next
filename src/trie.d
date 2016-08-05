@@ -1182,22 +1182,27 @@ struct RawRadixTree(Value = void)
                 case ix_DenseLeaf1Ptr:
                     auto node_ = node.as!(DenseLeaf1!Value*);
                     bool nextFound = false;
-                    assert(ix + 1 <= radix);
-
-                    // TODO functionize to member of BitSet
-                    foreach (const tryIx; ix + 1 .. radix)
-                    {
-                        if (node_._ixBits[tryIx])
-                        {
-                            ix = tryIx;
-                            nextFound = true;
-                            break;
-                        }
-                    }
-
-                    if (!nextFound)
+                    if (ix + 1 == radix)
                     {
                         _completed = true;
+                    }
+                    else
+                    {
+                        // TODO functionize to member of BitSet
+                        foreach (const tryIx; ix + 1 .. radix)
+                        {
+                            if (node_._ixBits[tryIx])
+                            {
+                                dln("tryIx:", tryIx);
+                                ix = tryIx;
+                                nextFound = true;
+                                break;
+                            }
+                        }
+                        if (!nextFound)
+                        {
+                            _completed = true;
+                        }
                     }
                     break;
 
@@ -1333,18 +1338,23 @@ struct RawRadixTree(Value = void)
         void popFront()
         {
             assert(!empty);
+
             while (_front.data.length)
             {
+                dln;
                 if (_front.data[$ - 1].tryForward)
                 {
+                    dln;
                     break;      // element left, so we're done
                 }
                 else
                 {
+                    dln;
                     // pop last element
                     try { _front.shrinkTo(_front.data.length - 1); } catch (Exception e) { /* ignore */ }
                 }
             }
+
             copyFrontElement;
             --_length;
         }
@@ -3533,11 +3543,11 @@ unittest
         const value = elt[1];
 
         dln("i:", i);
-        dln("key:", elt[0].data);
-        dln("value:", value);
 
         assert(key == [0, 0, 0, i]);
         assert(value == i*radix);
+
+        dln("here");
 
         ++i;
     }

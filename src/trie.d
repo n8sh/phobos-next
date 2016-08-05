@@ -84,11 +84,11 @@ extern(C) pure nothrow @system @nogc
     void free(void* ptr);
 }
 
-/** Mutable Raw Key. */
+/** Mutable RawTree Key. */
 alias Key(size_t span) = Mod!(2^^span)[]; // TODO use bitset to more naturally support span != 8.
-/** Immutable Raw Key. */
+/** Immutable RawTree Key. */
 alias IKey(size_t span) = immutable(Mod!(2^^span))[]; // TODO use bitset to more naturally support span != 8.
-/** Fixed-Length Raw Key. */
+/** Fixed-Length RawTree Key. */
 alias KeyN(size_t span, size_t N) = Mod!(2^^span)[N];
 
 alias UKey = Key!span;
@@ -960,7 +960,7 @@ alias Leaf(Value) = WordVariant!(HeptLeaf1,
 
 static assert((DenseLeaf1!void).sizeof == 32);
 
-/** Raw adaptive radix tree (ART) container storing untyped variable-length `Key`.
+/** RawTree adaptive radix tree (ART) container storing untyped variable-length `Key`.
 
     In set-case (`Value` is `void`) this container is especially suitable for
     representing a set of 32 or 64 integers/pointers.
@@ -3301,14 +3301,14 @@ static private UKey toUKey(TypedKey)(in TypedKey typedKey)
 struct RadixTree(Key, Value)
     if (allSatisfy!(isTrieableKeyType, Key))
 {
-    alias Raw = RawRadixTree!(Value);
+    alias RawTree = RawRadixTree!(Value);
 
     this(bool unusedDummy)      // TODO how do we get rid of the need for `unusedDummy`?
     {
         this.fixedKeyLength = isFixedTrieableKeyType!Key ? Key.sizeof : fixedKeyLengthUndefined;
     }
 
-    static if (Raw.hasValue)
+    static if (RawTree.hasValue)
     {
         alias Element = Tuple!(Key, "key", Value, "value");
     }
@@ -3317,7 +3317,7 @@ struct RadixTree(Key, Value)
         alias Element = Key;
     }
 
-    static if (Raw.hasValue)
+    static if (RawTree.hasValue)
     {
         ref Value opIndex(Key key)
         {
@@ -3420,23 +3420,23 @@ struct RadixTree(Key, Value)
 
     struct Range
     {
-        this(Raw.Node root) { rawRange = _tree.Range(root); }
+        this(RawTree.Node root) { rawRange = _tree.Range(root); }
 
         /** Get copy of front element. */
         auto front() const @nogc
         {
-            static if (Raw.hasValue) { return tuple(rawRange._frontKey, rawRange._frontValue); } // TODO typed key
+            static if (RawTree.hasValue) { return tuple(rawRange._frontKey, rawRange._frontValue); } // TODO typed key
             else                     { return rawRange._frontKey; }
         }
 
         /** Get copy of front element. */
         auto back() const @nogc
         {
-            static if (Raw.hasValue) { return tuple(rawRange._backKey, rawRange._backValue); } // TODO typed key
+            static if (RawTree.hasValue) { return tuple(rawRange._backKey, rawRange._backValue); } // TODO typed key
             else                     { return rawRange._backKey; }
         }
 
-        Raw.Range rawRange;
+        RawTree.Range rawRange;
         alias rawRange this;
     }
 
@@ -3448,7 +3448,7 @@ struct RadixTree(Key, Value)
     /** Print `this` tree. */
     void print() @safe const { _tree.print(); }
 
-    private Raw _tree;
+    private RawTree _tree;
     alias _tree this;
 }
 alias PatriciaTrie = RadixTree;

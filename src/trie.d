@@ -3883,7 +3883,7 @@ void testWords(Value)()
 
     enum debugPrint = false;
 
-    string[] firsts = [];
+    string[] firsts = [];       // used to test various things
     size_t count = 0;
     auto sw = StopWatch(AutoStart.yes);
     foreach (const word; chain(firsts, File(path).byLine))

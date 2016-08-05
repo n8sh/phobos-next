@@ -3332,8 +3332,8 @@ struct RadixTree(Key, Value)
 
         auto opIndexAssign(in Value value, Key key)
         {
-            _tree.EltRef eltRef; // indicates that elt was added
-            _tree.insert(key.toUKey, value, eltRef);
+            _rawTree.EltRef eltRef; // indicates that elt was added
+            _rawTree.insert(key.toUKey, value, eltRef);
             const bool added = eltRef.node && eltRef.modStatus == ModStatus.added;
             _length += added;
             /* TODO return reference (via `auto ref` return typed) to stored
@@ -3347,14 +3347,14 @@ struct RadixTree(Key, Value)
         */
         bool insert(in Key key, in Value value)
         {
-            _tree.EltRef eltRef; // indicates that key was added
+            _rawTree.EltRef eltRef; // indicates that key was added
             auto rawKey = key.toUKey;
-            _tree.insert(rawKey, value, eltRef);
+            _rawTree.insert(rawKey, value, eltRef);
             debug if (willFail) { dln("WILL FAIL: eltRef:", eltRef, " key:", key); }
             if (eltRef.node)  // if `key` was added at `eltRef`
             {
                 // set value
-                final switch (eltRef.node.typeIx) with (_tree.Node.Ix)
+                final switch (eltRef.node.typeIx) with (_rawTree.Node.Ix)
                 {
                 case undefined:
                 case ix_OneLeafMax7:
@@ -3385,7 +3385,7 @@ struct RadixTree(Key, Value)
         /** Returns: pointer to value if `key` is contained in set, null otherwise. */
         inout(Value*) contains(in Key key) inout
         {
-            return _tree.contains(key.toUKey);
+            return _rawTree.contains(key.toUKey);
         }
     }
     else
@@ -3396,8 +3396,8 @@ struct RadixTree(Key, Value)
         bool insert(Key key)
         @safe pure nothrow /* TODO @nogc */
         {
-            _tree.EltRef eltRef; // indicates that elt was added
-            _tree.insert(key.toUKey, eltRef);
+            _rawTree.EltRef eltRef; // indicates that elt was added
+            _rawTree.insert(key.toUKey, eltRef);
             const bool hit = eltRef.node && eltRef.modStatus == ModStatus.added;
             _length += hit;
             return hit;
@@ -3408,19 +3408,19 @@ struct RadixTree(Key, Value)
         /** Returns: `true` if `key` is stored, `false` otherwise. */
         bool contains(in Key key) inout
         {
-            return _tree.contains(key.toUKey);
+            return _rawTree.contains(key.toUKey);
         }
     }
 
     /** Supports $(B `Key` in `this`) syntax. */
     auto opBinaryRight(string op)(in Key key) inout if (op == "in")
     {
-        return contains(key);   // TODO return `_tree.EltRef`
+        return contains(key);   // TODO return `_rawTree.EltRef`
     }
 
     struct Range
     {
-        this(RawTree.Node root) { rawRange = _tree.Range(root); }
+        this(RawTree.Node root) { rawRange = _rawTree.Range(root); }
 
         /** Get copy of front element. */
         auto front() const @nogc
@@ -3442,14 +3442,14 @@ struct RadixTree(Key, Value)
 
     pragma(inline) Range opSlice() @trusted pure nothrow
     {
-        return Range(_tree._root);
+        return Range(_rawTree._root);
     }
 
     /** Print `this` tree. */
-    void print() @safe const { _tree.print(); }
+    void print() @safe const { _rawTree.print(); }
 
-    private RawTree _tree;
-    alias _tree this;
+    private RawTree _rawTree;
+    alias _rawTree this;
 }
 alias PatriciaTrie = RadixTree;
 alias RadixTrie = RadixTree;

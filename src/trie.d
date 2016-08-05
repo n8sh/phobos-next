@@ -1079,13 +1079,115 @@ struct RawRadixTree(Value = void)
 
     import std.array : Appender;
 
-    /** Element (Search) Reference. */
+    /** Element Reference. */
     struct EltRef
     {
         Node node;
         Ix ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
         ModStatus modStatus;
+
+        @safe pure nothrow:
+
+        pragma(inline) bool opCast(T : bool)() const @nogc { return cast(bool)node; }
+    }
+
+    /** Branch Iterator. */
+    struct BranchIterator
+    {
+        Branch branch;
+        Ix ix; // `Branch`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
+        ModStatus modStatus;
+
         bool atLeaf; // use sub-leaf instead of sub-Node if `node` is a branch, thereby ignoring `ix`
+        bool _completed;
+
+        @safe pure nothrow:
+
+        pragma(inline) bool opCast(T : bool)() const @nogc { return cast(bool)branch; }
+
+        void appendToKey(ref Appender!UKey key) const /* TODO @nogc */
+        {
+            with (Branch.Ix)
+            {
+                final switch (branch.typeIx)
+                {
+                case undefined:
+                    assert(false);
+                case ix_SparseBranchPtr:
+                    auto branch_ = branch.as!(SparseBranch*);
+                    key.put(branch_.prefix);
+                    if (!atLeaf)
+                    {
+                        key.put(branch_.subIxs[ix]);
+                    }
+                    break;
+                case ix_DenseBranchPtr:
+                    auto branch_ = branch.as!(DenseBranch*);
+                    key.put(branch_.prefix);
+                    if (!atLeaf)
+                    {
+                        assert(branch_.subNodes[ix]);
+                        key.put(ix);
+                    }
+                    break;
+                }
+            }
+        }
+
+        bool completed() const @nogc { return _completed; }
+
+        /** Try to iterated forward.
+            Returns: `true` upon sucessful forward iteration, `false` otherwise (upon completion of iteration),
+        */
+        bool tryForward() /* TODO @nogc */
+        {
+            assert(!completed);
+            with (Branch.Ix)
+            {
+                // TODO move all calls to Branch-specific members tryForward()
+                switch (branch.typeIx)
+                {
+                case ix_SparseBranchPtr:
+                    auto branch_ = branch.as!(SparseBranch*);
+                    if (atLeaf)
+                    {
+                        atLeaf = false;
+                        ix = 0;
+                        if (ix == branch_.subCount) { _completed = true; }
+                    }
+                    else
+                    {
+                        if (ix + 1 == branch_.subCount) { _completed = true; } else { ++ix; }
+                    }
+                    break;
+                case ix_DenseBranchPtr:
+                    auto branch_ = branch.as!(DenseBranch*);
+                    if (atLeaf) // if currently refers to leaf
+                    {
+                        atLeaf = false; // skip it
+                        ix = 0;
+                    }
+                    else
+                    {
+                        if (ix + 1 == radix) { _completed = true; } else { ++ix; }
+                    }
+                    ix = branch_.nextNonNullSubNodeIx(ix, _completed);
+                    break;
+                default:
+                    assert(false);
+                }
+            }
+            return !_completed;
+        }
+    }
+
+    /** Leaf Iterator. */
+    struct LeafIterator
+    {
+        Node leaf;              // TODO Use Leaf when it includes non-Value leaf types
+        Ix ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
+        ModStatus modStatus;
+
         bool _completed;
 
         @safe pure nothrow:
@@ -1096,50 +1198,34 @@ struct RawRadixTree(Value = void)
         {
             with (Node.Ix)
             {
-                final switch (node.typeIx)
+                switch (leaf.typeIx)
                 {
                 case undefined:
                     assert(false);
 
                 case ix_OneLeafMax7:
                     assert(ix == 0);
-                    key.put(node.as!(OneLeafMax7).key);
+                    key.put(leaf.as!(OneLeafMax7).key);
                     break;
                 case ix_TwoLeaf3:
-                    key.put(node.as!(TwoLeaf3).keys[ix][]);
+                    key.put(leaf.as!(TwoLeaf3).keys[ix][]);
                     break;
                 case ix_TriLeaf2:
-                    key.put(node.as!(TriLeaf2).keys[ix][]);
+                    key.put(leaf.as!(TriLeaf2).keys[ix][]);
                     break;
                 case ix_HeptLeaf1:
-                    key.put(node.as!(HeptLeaf1).keys[ix]);
+                    key.put(leaf.as!(HeptLeaf1).keys[ix]);
                     break;
 
                 case ix_SparseLeaf1Ptr:
-                    key.put(node.as!(SparseLeaf1!Value*).ixs[ix]);
+                    key.put(leaf.as!(SparseLeaf1!Value*).ixs[ix]);
                     break;
                 case ix_DenseLeaf1Ptr:
                     key.put(ix);
                     break;
 
-                case ix_SparseBranchPtr:
-                    auto node_ = node.as!(SparseBranch*);
-                    key.put(node_.prefix);
-                    if (!atLeaf)
-                    {
-                        key.put(node_.subIxs[ix]);
-                    }
-                    break;
-                case ix_DenseBranchPtr:
-                    auto node_ = node.as!(DenseBranch*);
-                    key.put(node_.prefix);
-                    if (!atLeaf)
-                    {
-                        assert(node_.subNodes[ix]);
-                        key.put(ix);
-                    }
-                    break;
-               }
+                default: assert(false, "Unsupported Node type");
+                }
             }
         }
 
@@ -1153,8 +1239,8 @@ struct RawRadixTree(Value = void)
             assert(!completed);
             with (Node.Ix)
             {
-                // TODO move all calls to node-specific members tryForward()
-                final switch (node.typeIx)
+                // TODO move all calls to leaf-specific members tryForward()
+                switch (leaf.typeIx)
                 {
                 case undefined:
                     assert(false);
@@ -1163,24 +1249,24 @@ struct RawRadixTree(Value = void)
                     _completed = true; // only one element so forward automatically completes
                     break;
                 case ix_TwoLeaf3:
-                    auto node_ = node.as!(TwoLeaf3);
+                    auto node_ = leaf.as!(TwoLeaf3);
                     if (ix + 1 == node_.keys.length) { _completed = true; } else { ++ix; }
                     break;
                 case ix_TriLeaf2:
-                    auto node_ = node.as!(TriLeaf2);
+                    auto node_ = leaf.as!(TriLeaf2);
                     if (ix + 1 == node_.keys.length) { _completed = true; } else { ++ix; }
                     break;
                 case ix_HeptLeaf1:
-                    auto node_ = node.as!(HeptLeaf1);
+                    auto node_ = leaf.as!(HeptLeaf1);
                     if (ix + 1 == node_.keys.length) { _completed = true; } else { ++ix; }
                     break;
 
                 case ix_SparseLeaf1Ptr:
-                    auto node_ = node.as!(SparseLeaf1!Value*);
+                    auto node_ = leaf.as!(SparseLeaf1!Value*);
                     if (ix + 1 == node_.length) { _completed = true; } else { ++ix; }
                     break;
                 case ix_DenseLeaf1Ptr:
-                    auto node_ = node.as!(DenseLeaf1!Value*);
+                    auto node_ = leaf.as!(DenseLeaf1!Value*);
                     bool nextFound = false;
                     if (ix + 1 == radix)
                     {
@@ -1205,33 +1291,7 @@ struct RawRadixTree(Value = void)
                         }
                     }
                     break;
-
-                case ix_SparseBranchPtr:
-                    auto node_ = node.as!(SparseBranch*);
-                    if (atLeaf)
-                    {
-                        atLeaf = false;
-                        ix = 0;
-                        if (ix == node_.subCount) { _completed = true; }
-                    }
-                    else
-                    {
-                        if (ix + 1 == node_.subCount) { _completed = true; } else { ++ix; }
-                    }
-                    break;
-                case ix_DenseBranchPtr:
-                    auto node_ = node.as!(DenseBranch*);
-                    if (atLeaf) // if currently refers to leaf
-                    {
-                        atLeaf = false; // skip it
-                        ix = 0;
-                    }
-                    else
-                    {
-                        if (ix + 1 == radix) { _completed = true; } else { ++ix; }
-                    }
-                    ix = node_.nextNonNullSubNodeIx(ix, _completed);
-                    break;
+                default: assert(false, "Unsupported Node type");
                 }
             }
             return !_completed;
@@ -1243,10 +1303,10 @@ struct RawRadixTree(Value = void)
             {
                 with (Node.Ix)
                 {
-                    switch (node.typeIx)
+                    switch (leaf.typeIx)
                     {
-                    case ix_SparseLeaf1Ptr: return node.as!(SparseLeaf1!Value*).values[ix];
-                    case ix_DenseLeaf1Ptr: return node.as!(DenseLeaf1!Value*).values[ix];
+                    case ix_SparseLeaf1Ptr: return leaf.as!(SparseLeaf1!Value*).values[ix];
+                    case ix_DenseLeaf1Ptr: return leaf.as!(DenseLeaf1!Value*).values[ix];
                     default: assert(false, "Incorrect Leaf-type");
                     }
                 }
@@ -1256,7 +1316,11 @@ struct RawRadixTree(Value = void)
     }
 
     /** Tree Iterator. */
-    alias TreeIterator = Appender!(EltRef[]);
+    struct TreeIterator
+    {
+        Appender!(BranchIterator[]) branches;
+        LeafIterator leaf;
+    }
 
     /** Range over the Elements in a Radix Tree.
         Fulfills `isBidirectionalRange`.
@@ -1290,22 +1354,23 @@ struct RawRadixTree(Value = void)
                         case ix_TriLeaf2:
                         case ix_HeptLeaf1:
                         case ix_SparseLeaf1Ptr:
-                            _front.put(EltRef(curr, Ix(0)));
-                            goto doneFront; // terminate recursion
                         case ix_DenseLeaf1Ptr:
-                            _front.put(EltRef(curr, Ix(0)));
+                            _front.leaf = LeafIterator(curr, Ix(0));
                             goto doneFront; // terminate recursion
+
                         case ix_SparseBranchPtr:
                             Ix subIx;
                             bool atLeaf = false;
-                            next = curr.as!(SparseBranch*).leafOrFirstSubNode(subIx, atLeaf);
-                            _front.put(EltRef(curr, subIx, ModStatus.init, atLeaf));
+                            auto curr_ = curr.as!(SparseBranch*);
+                            next = curr_.leafOrFirstSubNode(subIx, atLeaf);
+                            _front.branches.put(BranchIterator(Branch(curr_), subIx, ModStatus.init, atLeaf));
                             break;
                         case ix_DenseBranchPtr:
                             Ix subIx;
                             bool atLeaf = false;
-                            next = curr.as!(DenseBranch*).leafOrFirstSubNode(subIx, atLeaf);
-                            _front.put(EltRef(curr, subIx, ModStatus.init, atLeaf));
+                            auto curr_ = curr.as!(DenseBranch*);
+                            next = curr_.leafOrFirstSubNode(subIx, atLeaf);
+                            _front.branches.put(BranchIterator(Branch(curr_), subIx, ModStatus.init, atLeaf));
                             break;
                         }
                         curr = next;
@@ -1318,7 +1383,7 @@ struct RawRadixTree(Value = void)
 
         bool empty() const @nogc
         {
-            return _front == _back;
+            return cast(bool)_front.leaf.leaf;
         }
 
         size_t length() const @nogc { return _length; }
@@ -1340,20 +1405,13 @@ struct RawRadixTree(Value = void)
             assert(!empty);
 
             bool done;
-            while (_front.data.length)
+            if (_front.leaf.tryForward)
             {
-                if (_front.data[$ - 1].tryForward)
-                {
-                    done = true;
-                }
-                else
-                {
-                    dln;
-                    // pop last element
-                    try { _front.shrinkTo(_front.data.length - 1); } catch (Exception e) { /* ignore */ }
-                }
-
-                if (done) { break; }
+                done = true;
+            }
+            else
+            {
+                _front.leaf = LeafIterator.init;
             }
 
             copyFrontElement;
@@ -1372,22 +1430,30 @@ struct RawRadixTree(Value = void)
     private:
         void copyFrontElement()
         {
+            // key
             _frontKey.clear;
-            foreach (const eltRef; _front.data) { eltRef.appendToKey(_frontKey); }
+            foreach (const branchIterator; _front.branches.data) { branchIterator.appendToKey(_frontKey); }
+            _front.leaf.appendToKey(_frontKey);
             // TODO enable: if (hasFixedKeyLength) { assert(_frontKey.data.length == fixedKeyLength); }
+
+            // value
             static if (hasValue)
             {
-                _frontValue = _front.data[$ - 1].value; // last should be leaf containing value
+                _frontValue = _front.leaf.value; // last should be leaf containing value
             }
         }
         void copyBackElement()
         {
+            // key
             _backKey.clear;
-            foreach (const eltRef; _back.data)  { eltRef.appendToKey(_backKey); }
+            foreach (const branchIterator; _back.branches.data) { branchIterator.appendToKey(_backKey); }
+            _back.leaf.appendToKey(_backKey);
             // TODO enable: if (hasFixedKeyLength) { assert(_backKey.data.length == fixedKeyLength); }
+
+            // value
             static if (hasValue)
             {
-                _backValue = _back.data[$ - 1].value;   // last should be leaf containing value
+                _backValue = _back.leaf.value; // last should be leaf containing value
             }
         }
 

@@ -3422,13 +3422,15 @@ struct RadixTree(Key, Value)
     {
         this(Raw.Node root) { rawRange = _tree.Range(root); }
 
-        auto ref front() const @nogc
+        /** Get copy of front key and value. */
+        auto front() const @nogc
         {
             static if (Raw.hasValue) { return tuple(rawRange._frontKey, rawRange._frontValue); } // TODO typed key
             else                     { return rawRange._frontKey; }
         }
 
-        auto ref back() const @nogc
+        /** Get copy of back key and value. */
+        auto back() const @nogc
         {
             static if (Raw.hasValue) { return tuple(rawRange._backKey, rawRange._backValue); } // TODO typed key
             else                     { return rawRange._backKey; }

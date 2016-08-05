@@ -1302,8 +1302,20 @@ struct RawRadixTree(Value = void)
 
         size_t length() const @nogc { return _length; }
 
-        auto ref front() inout @nogc { return _frontKey; }
-        auto ref back() inout @nogc { return _backKey; }
+        auto ref front() const @nogc
+        {
+            static if (hasValue)
+                return tuple(_frontKey, _frontValue);
+            else
+                return _frontKey;
+        }
+        auto ref back() const @nogc
+        {
+            static if (hasValue)
+                return tuple(_backKey, _backValue);
+            else
+                return _backKey;
+        }
 
         void popFront()
         {
@@ -3497,19 +3509,13 @@ unittest
         assert(map.length == i + 1);
     }
 
-    auto mapRange = map[];
-    assert(map.length == mapRange.length);
-
-    import std.algorithm.comparison : equal;
-
-    assert(mapRange.front.data == [0, 0, 0, 0]);
-    mapRange.popFront;
-    assert(mapRange.front.data == [0, 0, 0, 1]);
-
-    // foreach (elt; mapRange)
-    // {
-    //     dln(elt);
-    // }
+    size_t cnt = 0;
+    foreach (const elt; map[])
+    {
+        pragma(msg, typeof(elt[0].data));
+        assert(elt[0].data == [0, 0, 0, cnt]);
+        ++cnt;
+    }
 }
 
 /// test map to values of type `bool`

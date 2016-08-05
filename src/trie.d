@@ -3632,7 +3632,7 @@ unittest
         dln("i:", i);
 
         assert(key == [0, 0, 0, i]);
-        assert(value == keyToValue(cast(Key)i));
+        assert(value == keyToValue(cast(Key)i)); // TODO use typed key instead of cast(Key)
 
         dln("here");
 

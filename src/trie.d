@@ -3597,7 +3597,7 @@ unittest
 
     static assert(map.hasValue);
 
-    Value keyToValue(Key key) @safe pure nothrow @nogc { return cast(Value)(key*radix); }
+    Value keyToValue(Key key) @safe pure nothrow @nogc { return cast(Value)((key + 1)*radix); }
 
     foreach (const i; 0 .. SparseLeaf1!Value.maxCapacity)
     {

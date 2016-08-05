@@ -3,6 +3,9 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
+    TODO Allow NodeType-constructors to take const and immutable prefixes
+
     TODO use expandVariableLength in reconstructingInsert that uses x.realloc(2*n) instead of x.free(n)-malloc(2*n)
 
     TODO Remove @trusted from members of vla and make their callers @trusted instead.
@@ -17,18 +20,13 @@
 
     TODO Add sortedness to `IxsN` and make `IxsN.contains()` use `binarySearch()`. Make use of `sortn`.
 
-    TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
-    TODO Allow NodeType-constructors to take const and immutable prefixes
-
     TODO Check for case when expanding to bit-branch instead of SparseBranch in all `expand()` overloads
 
     TODO Make array indexing/slicing as @trusted and use .ptr[] instead of [] when things are stable. Especially in IxsN
 
     TODO Should opBinaryRight return void* instead of bool for set-case?
 
-    TODO Add `struct Range`. Use same construct as in `containers-em/src/containers/ttree.d`.
-
-    Prefix:
+    TODO Prefix:
     - `set.prefix("alpha")`                           => `Range` of `Tuple!(string, Lang, PoT, Sense)`.
     - `set.prefix(tuple("alpha"))`                    => `Range` of `Tuple!(Lang, PoT, Sense)`.
     - `set.prefix(tuple("alpha", Lang.en))`           => `Range` of `Tuple!(PoT, Sense)`.

@@ -1104,6 +1104,8 @@ struct RawRadixTree(Value = void)
                 case ix_SparseBranchPtr:
                     auto node_ = node.as!(SparseBranch*);
                     key.put(node_.prefix);
+                    dln(ix);
+                    dln(node_.subIxs.length);
                     if (!atLeaf)
                     {
                         key.put(node_.subIxs[ix]);
@@ -1211,7 +1213,7 @@ struct RawRadixTree(Value = void)
                     break;
                 }
             }
-            return _completed;
+            return !_completed;
         }
 
         static if (hasValue)
@@ -1307,12 +1309,12 @@ struct RawRadixTree(Value = void)
         {
             assert(!empty);
 
-            bool done = false;
-            while (_front.data.length && !done)
+            while (_front.data.length)
             {
+                dln(_front.data[$ - 1]);
                 if (_front.data[$ - 1].tryForward)
                 {
-                    done = true; // element left, so we're done
+                    break;      // element left, so we're done
                 }
                 else
                 {

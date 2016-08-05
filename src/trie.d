@@ -1320,23 +1320,19 @@ struct RawRadixTree(Value = void)
 
         auto ref front() const @nogc
         {
-            static if (hasValue)
-                return tuple(_frontKey, _frontValue);
-            else
-                return _frontKey;
+            static if (hasValue) { return tuple(_frontKey, _frontValue); } // TODO create this at typed wrapper instead
+            else                 { return _frontKey; }
+
         }
         auto ref back() const @nogc
         {
-            static if (hasValue)
-                return tuple(_backKey, _backValue);
-            else
-                return _backKey;
+            static if (hasValue) { return tuple(_backKey, _backValue); } // TODO create this at typed wrapper instead
+            else                 { return _backKey; }
         }
 
         void popFront()
         {
             assert(!empty);
-
             while (_front.data.length)
             {
                 if (_front.data[$ - 1].tryForward)
@@ -1349,7 +1345,6 @@ struct RawRadixTree(Value = void)
                     try { _front.shrinkTo(_front.data.length - 1); } catch (Exception e) { /* ignore */ }
                 }
             }
-
             copyFrontElement;
             --_length;
         }
@@ -1363,7 +1358,8 @@ struct RawRadixTree(Value = void)
             --_length;
         }
 
-        private void copyFrontElement()
+    private:
+        void copyFrontElement()
         {
             _frontKey.clear;
             foreach (const eltRef; _front.data) { eltRef.appendToKey(_frontKey); }
@@ -1373,8 +1369,7 @@ struct RawRadixTree(Value = void)
                 _frontValue = _front.data[$ - 1].value; // last should be leaf containing value
             }
         }
-
-        private void copyBackElement()
+        void copyBackElement()
         {
             _backKey.clear;
             foreach (const eltRef; _back.data)  { eltRef.appendToKey(_backKey); }

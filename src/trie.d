@@ -3692,16 +3692,20 @@ auto checkString(Keys...)(size_t count, uint maxLength)
         auto set = radixTreeSet!(Key);
         assert(set.empty);
 
-        foreach (const key; randomUniqueStrings(count,
-                                                maxLength))
+        const sortedKeys = randomUniqueSortedStrings(count, maxLength);
+        foreach (const key; sortedKeys)
         {
             testContainsAndInsert(set, key);
         }
 
+        // TODO: assert(set[].equal(sortedKeys));
         dln("set.length:", set.length);
+        import std.algorithm : equal;
+        size_t i = 0;
         foreach (const ukey; set[])
         {
             dln("ukey:", ukey);
+            ++i;
         }
     }
 }
@@ -3872,7 +3876,7 @@ unittest
 /** Generate `count` number of random unique strings of minimum length 1 and
     maximum length of `maxLength`.
  */
-private static auto randomUniqueStrings(size_t count, uint maxLength)
+private static auto randomUniqueSortedStrings(size_t count, uint maxLength)
     @trusted pure nothrow
 {
     import std.random : Random, uniform;
@@ -3899,7 +3903,10 @@ private static auto randomUniqueStrings(size_t count, uint maxLength)
     }
 
     import std.array : array;
-    return stringSet.byKey.array;
+    import std.algorithm.sorting : sort;
+    auto keys = stringSet.byKey.array;
+    sort(keys);
+    return keys;
 }
 
 /// Create a set of words from /usr/share/dict/words

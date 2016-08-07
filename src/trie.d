@@ -1272,13 +1272,12 @@ struct RawRadixTree(Value = void)
                     }
                     else
                     {
-                        // TODO functionize to member of BitSet
-                        foreach (const tryIx; ix + 1 .. radix)
+                        // TODO functionize to member curr_._ixBits.indexOfBit(ix + 1)
+                        foreach (const ix_; ix + 1 .. radix)
                         {
-                            if (node_._ixBits[tryIx])
+                            if (node_._ixBits[ix_])
                             {
-                                dln("tryIx:", tryIx);
-                                ix = tryIx;
+                                ix = ix_;
                                 nextFound = true;
                                 break;
                             }
@@ -1318,6 +1317,10 @@ struct RawRadixTree(Value = void)
     {
         Appender!(BranchRange[]) branches;
         LeafRange leaf;
+        bool empty() const @safe pure nothrow @nogc
+        {
+            return branches.data.length == 0 && cast(bool)(leaf.leaf);
+        }
     }
 
     /** Range over the Elements in a Radix Tree.
@@ -1350,8 +1353,25 @@ struct RawRadixTree(Value = void)
                         case ix_TriLeaf2:
                         case ix_HeptLeaf1:
                         case ix_SparseLeaf1Ptr:
+                            _front.leaf = LeafRange(curr, Ix(0)); // first index always zero
+                            goto doneFront; // terminate recursion
+
                         case ix_DenseLeaf1Ptr:
-                            _front.leaf = LeafRange(curr, Ix(0));
+                            auto curr_ = curr.as!(DenseLeaf1!Value*);
+
+                            // TODO functionize to member curr_._ixBits.indexOfBit(0)
+                            bool hit = false;
+                            foreach (const ix; 0 .. radix)
+                            {
+                                if (curr_._ixBits[ix])
+                                {
+                                    _front.leaf = LeafRange(curr, Ix(ix)); // first index always zero
+                                    hit = true;
+                                    break;
+                                }
+                            }
+                            assert(hit);
+
                             goto doneFront; // terminate recursion
 
                         case ix_SparseBranchPtr:
@@ -1386,15 +1406,37 @@ struct RawRadixTree(Value = void)
         {
             assert(!empty);
 
-            bool done;
+            // current leaf
+            bool allDone;
             if (_front.leaf.tryForward)
             {
-                done = true;
+                allDone = true;
             }
             else
             {
                 _front.leaf = LeafRange.init;
             }
+
+            // walk branches upwards
+            if (!allDone)
+            {
+                bool branchDone;
+                while (_front.branches.data.length)
+                {
+                    if (_front.branches.data[$ - 1].tryForward)
+                    {
+                    }
+                }
+            }
+
+            if (_front.branches.data.length == 0)
+            {
+                assert(false, "Move this logic to after copyFrontElement");
+            }
+
+            // iterate downwards
+
+            // set leaf
 
             copyFrontElement;
         }
@@ -3610,6 +3652,7 @@ unittest
         assert(map.length == i + 1);
     }
 
+    // test range
     size_t i = 0;
     foreach (const elt; map[])
     {
@@ -3625,6 +3668,49 @@ unittest
 
         ++i;
     }
+}
+
+/// Check string types in `Keys`.
+auto checkString(Keys...)(size_t count, uint maxLength)
+    if (Keys.length >= 1)
+{
+    void testContainsAndInsert(Set, Key)(ref Set set, Key key)
+    if (isSomeString!Key)
+    {
+        import std.conv : to;
+        immutable failMessage = `Failed for key: "` ~ key.to!string ~ `"`;
+        debug set.willFail = key == "utsuj";
+        assert(!set.contains(key), failMessage);
+        assert(set.insert(key), failMessage);
+        assert(set.contains(key), failMessage);
+        assert(!set.insert(key), failMessage);
+        assert(set.contains(key), failMessage);
+    }
+
+    foreach (Key; Keys)
+    {
+        auto set = radixTreeSet!(Key);
+        assert(set.empty);
+
+        foreach (const key; randomUniqueStrings(count,
+                                                maxLength))
+        {
+            testContainsAndInsert(set, key);
+        }
+
+        dln("set.length:", set.length);
+        foreach (const ukey; set[])
+        {
+            dln("ukey:", ukey);
+        }
+    }
+}
+
+///
+@safe pure nothrow /* TODO @nogc */
+unittest
+{
+    checkString!(string)(2^^18, 2^^7);
 }
 
 /// test map to values of type `bool`
@@ -3814,43 +3900,6 @@ private static auto randomUniqueStrings(size_t count, uint maxLength)
 
     import std.array : array;
     return stringSet.byKey.array;
-}
-
-/// Check string types in `Keys`.
-auto checkString(Keys...)(size_t count, uint maxLength)
-    if (Keys.length >= 1)
-{
-    void testContainsAndInsert(Set, Key)(ref Set set, Key key)
-        if (isSomeString!Key)
-    {
-        import std.conv : to;
-        immutable failMessage = `Failed for key: "` ~ key.to!string ~ `"`;
-        debug set.willFail = key == "utsuj";
-        assert(!set.contains(key), failMessage);
-        assert(set.insert(key), failMessage);
-        assert(set.contains(key), failMessage);
-        assert(!set.insert(key), failMessage);
-        assert(set.contains(key), failMessage);
-    }
-
-    foreach (Key; Keys)
-    {
-        auto set = radixTreeSet!(Key);
-        assert(set.empty);
-
-        foreach (const key; randomUniqueStrings(count,
-                                                maxLength))
-        {
-            testContainsAndInsert(set, key);
-        }
-    }
-}
-
-///
-@safe pure nothrow /* TODO @nogc */
-unittest
-{
-    checkString!(string)(2^^18, 2^^7);
 }
 
 /// Create a set of words from /usr/share/dict/words

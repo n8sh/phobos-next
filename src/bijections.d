@@ -61,16 +61,19 @@ auto bijectToUnsigned(T)(T a) @trusted pure nothrow
         return descending ? ua.max-ua : ua;
     }
 
-    /** Biject (Shift) Unsigned  $(D a) "back down" to Signed (after radix sorting). */
-    void bijectFromUnsigned(U)(U a, ref Signed!U b)
-        if (isUnsigned!T)
-    {
-        b = a - (cast(Unsigned!T)1 << (8*U.sizeof - 1)); // "add down""
-    }
     void bijectFromUnsigned(U)(U a, ref U b)
         if (isUnsigned!U)
     {
         b = a;                  ///< Identity.
+    }
+
+    /** Biject (Shift) Unsigned  $(D a) "back down" to Signed (after radix sorting). */
+    void bijectFromUnsigned(U, V)(U a, ref V b)
+        if (isUnsigned!U &&
+            isIntegral!V && isSigned!V &&
+            is(U == Unsigned!V))
+    {
+        b = a - (cast(Unsigned!U)1 << (8*U.sizeof - 1)); // "add down""
     }
 
     /** Map a Floating Point Number \p a Back from Radix Sorting
@@ -116,12 +119,13 @@ auto bijectToUnsigned(T)(T a) @trusted pure nothrow
     import std.range : iota;
     foreach (const i; 0.iota(n))
     {
-        foreach (T; AliasSeq!(char, wchar, dchar,
-                              ubyte, ushort, uint, ulong,
+        foreach (T; AliasSeq!(ubyte, ushort, uint, ulong,
+                              byte, short, int, long,
+                              char, wchar, dchar,
                               float, double))
         {
             const T x = cast(T)i;
-            const y = x.bijectToUnsigned;
+            auto y = x.bijectToUnsigned;
             // pragma(msg, "T:", T);
             // pragma(msg, "typeof(x):", typeof(x));
             // pragma(msg, "typeof(y):", typeof(y));

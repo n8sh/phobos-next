@@ -3966,7 +3966,8 @@ private static auto randomUniqueSortedStrings(size_t count, uint maxLength)
     import std.random : Random, uniform;
     auto gen = Random();
 
-    bool[string] stringSet;  // set of strings using D's builtin associative array
+    // store set of unique keys using a builtin D associative array (AA)
+    bool[string] stringSet;  // set of strings using D's AA
 
     try
     {

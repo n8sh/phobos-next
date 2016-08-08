@@ -3777,8 +3777,14 @@ auto checkString(Keys...)(size_t count, uint maxLength)
             testContainsAndInsert(set, key);
         }
 
+        import std.range : take;
+
+        set.print;
+        dln("result:", set[].take(10));
+        dln("expect:", sortedKeys.take(10));
+
         import std.algorithm : equal;
-        // TODO assert(set[].equal(sortedKeys));
+        assert(set[].equal(sortedKeys));
 
         foreach (const ukey; set[])
         {
@@ -3788,9 +3794,10 @@ auto checkString(Keys...)(size_t count, uint maxLength)
 }
 
 ///
-@safe pure nothrow /* TODO @nogc */
+// TODO @safe pure nothrow /* TODO @nogc */
 unittest
 {
+    checkString!(string)(8, 8);
     checkString!(string)(2^^18, 2^^7);
 }
 

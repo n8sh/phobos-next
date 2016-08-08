@@ -3780,11 +3780,9 @@ auto checkString(Keys...)(size_t count, uint maxLength)
         import std.algorithm : equal;
         // TODO assert(set[].equal(sortedKeys));
 
-        size_t i = 0;
         foreach (const ukey; set[])
         {
-            dln("ukey:", ukey);
-            ++i;
+            // dln("ukey:", ukey);
         }
     }
 }

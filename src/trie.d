@@ -3759,9 +3759,12 @@ auto checkString(Keys...)(size_t count, uint maxLength)
         import std.conv : to;
         immutable failMessage = `Failed for key: "` ~ key.to!string ~ `"`;
         debug set.willFail = key == "utsuj";
+
         assert(!set.contains(key), failMessage);
+
         assert(set.insert(key), failMessage);
         assert(set.contains(key), failMessage);
+
         assert(!set.insert(key), failMessage);
         assert(set.contains(key), failMessage);
     }

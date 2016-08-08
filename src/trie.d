@@ -1192,7 +1192,7 @@ struct RawRadixTree(Value = void)
 
         @safe pure nothrow:
 
-        pragma(inline) bool opCast(T : bool)() const @nogc { return cast(bool)node; }
+        pragma(inline) bool opCast(T : bool)() const @nogc { return cast(bool)leaf; }
 
         void appendToKey(ref Appender!UKey key) const /* TODO @nogc */
         {
@@ -1401,7 +1401,7 @@ struct RawRadixTree(Value = void)
 
         bool empty() const /* TODO @nogc */
         {
-            return !(_front.leaf.leaf);
+            return !cast(bool)_front.leaf;
         }
 
         void popFront()
@@ -1416,31 +1416,37 @@ struct RawRadixTree(Value = void)
             }
             else
             {
-                _front.leaf = LeafRange.init;
+                _front.leaf.leaf = null; // indicate that current leaf has been completed
             }
 
             // walk branches upwards
-            if (!allDone)
+            // if (!allDone)
+            // {
+            //     bool branchDone;
+            //     while (_front.branches.data.length)
+            //     {
+            //         if (_front.branches.data[$ - 1].tryForward)
+            //         {
+            //         }
+            //     }
+            // }
+
+            // TODO
+            // if (_front.branches.data.length == 0)
+            // {
+            //     assert(false, "Move this logic to after copyFrontElement");
+            // }
+
+            // iterate downwards.
+            // TODO
+
+            // set leaf.
+            // TODO
+
+            if (!empty)
             {
-                bool branchDone;
-                while (_front.branches.data.length)
-                {
-                    if (_front.branches.data[$ - 1].tryForward)
-                    {
-                    }
-                }
+                copyFrontElement;
             }
-
-            if (_front.branches.data.length == 0)
-            {
-                assert(false, "Move this logic to after copyFrontElement");
-            }
-
-            // iterate downwards
-
-            // set leaf
-
-            copyFrontElement;
         }
 
         void popBack()
@@ -3688,7 +3694,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
 }
 
 /// test map from `uint` to values of type `double`
-@safe pure nothrow /* TODO @nogc */
+// TODO @safe pure nothrow /* TODO @nogc */
 unittest
 {
     alias Key = uint;
@@ -3732,12 +3738,12 @@ unittest
         const key = elt[0];
         const value = elt[1];
 
-        dln("i:", i);
+        // dln("i:", i);
 
         assert(key == i);
         assert(value == keyToValue(cast(Key)i)); // TODO use typed key instead of cast(Key)
 
-        dln("here");
+        // dln("here");
 
         ++i;
     }

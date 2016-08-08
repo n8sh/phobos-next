@@ -3,7 +3,7 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
-    TODO Avoid GC-allocation in `toRawKey`
+    TODO Avoid GC-allocation (.dup) in `toRawKey`
 
     TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
     TODO Allow NodeType-constructors to take const and immutable prefixes
@@ -3360,26 +3360,26 @@ static private inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey)
         // TODO reuse existing trait UnsignedOf!TypedKey
         static if (TypedKey.sizeof == 1)
         {
-            ubyte bKey;
+            ubyte bKey = 0;
         }
         else static if (TypedKey.sizeof == 2)
         {
-            ushort bKey;
+            ushort bKey = 0;
         }
         else static if (TypedKey.sizeof == 4)
         {
-            uint bKey;
+            uint bKey = 0;
         }
         else static if (TypedKey.sizeof == 8)
         {
-            ulong bKey;
+            ulong bKey = 0;
         }
 
         foreach (const bix; 0 .. chunkCount)
         {
             const uix = ukey[bix];
             const bitShift = (chunkCount - 1 - bix)*span; // most significant bit chunk first (MSBCF)
-            bKey = (uix >> bitShift) & (radix - 1); // part of value which is also an index
+            bKey |= (uix >> bitShift) & (radix - 1); // part of value which is also an index
         }
 
         TypedKey typedKey;
@@ -3531,26 +3531,26 @@ struct RadixTree(Key, Value)
     {
         this(RawTree.Node root) { _rawRange = _rawTree.Range(root); }
 
-        auto ref front() const @nogc
+        auto ref front() const /* TODO @nogc */
         {
             const key = _rawRange._frontKey.data.toTypedKey!Key;
             static if (RawTree.hasValue) { return tuple(key, _rawRange._frontValue); }
             else                         { return key; }
         }
-        auto ref back() const @nogc
+        auto ref back() const /* TODO @nogc */
         {
             const key = _rawRange._backKey.data.toTypedKey!Key;
             static if (RawTree.hasValue) { return tuple(key, _rawRange._backValue); }
             else                         { return key; }
         }
 
-        auto rawFront() const @nogc
+        auto rawFront() const /* TODO @nogc */
         {
             const key = _rawRange._frontKey;
             static if (RawTree.hasValue) { return tuple(key, _rawRange._frontValue); }
             else                         { return key; }
         }
-        auto rawBack() const @nogc
+        auto rawBack() const /* TODO @nogc */
         {
             const key = _rawRange._backKey;
             static if (RawTree.hasValue) { return tuple(key, _rawRange._backValue); }

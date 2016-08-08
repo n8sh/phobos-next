@@ -3782,9 +3782,8 @@ auto checkString(Keys...)(size_t count, uint maxLength)
 
         import std.range : take;
 
-        set.print;
         dln("result:", set[].take(10));
-        dln("expect:", sortedKeys.take(10));
+        dln("expect:", sortedKeys);
 
         import std.algorithm : equal;
         assert(set[].equal(sortedKeys));
@@ -3800,7 +3799,7 @@ auto checkString(Keys...)(size_t count, uint maxLength)
 // TODO @safe pure nothrow /* TODO @nogc */
 unittest
 {
-    checkString!(string)(8, 8);
+    checkString!(string)(64, 8);
     checkString!(string)(2^^18, 2^^7);
 }
 

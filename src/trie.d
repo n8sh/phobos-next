@@ -3758,7 +3758,6 @@ auto checkString(Keys...)(size_t count, uint maxLength, bool show)
     {
         import std.conv : to;
         immutable failMessage = `Failed for key: "` ~ key.to!string ~ `"`;
-        debug set.willFail = key == "utsuj";
 
         assert(!set.contains(key), failMessage);
 
@@ -4117,7 +4116,6 @@ auto checkNumeric(Keys...)()
                 foreach (const uk; low.iota(high + 1))
                 {
                     const Key key = cast(Key)uk;
-                    // debug set.willFail = (key == -32639);
                     if (useContains)
                     {
                         debug if (set.willFail) dln("before check no contains yet");

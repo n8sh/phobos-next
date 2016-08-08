@@ -3,6 +3,8 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO Avoid GC-allocation in `toRawKey`
+
     TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
     TODO Allow NodeType-constructors to take const and immutable prefixes
 
@@ -52,7 +54,7 @@ import std.typecons : tuple, Tuple, Unqual;
 import std.range : isInputRange, isBidirectionalRange, ElementType;
 import std.range.primitives : hasLength;
 
-import bijections : isIntegralBijectableType, bijectToUnsigned;
+import bijections : isIntegralBijectableType, bijectToUnsigned, bijectFromUnsigned;
 import variant_ex : WordVariant;
 import typecons_ex : StrictlyIndexed;
 import modulo : Mod, mod;
@@ -3282,56 +3284,115 @@ static private void calculate(Value)(Leaf!Value curr,
     }
 }
 
-/** Remap typed key `typedKey` to untyped key of type `UKey`. */
-static private UKey toUKey(TypedKey)(in TypedKey typedKey)
+/** Remap typed key `typedKey` to raw (untyped) key of type `UKey`. */
+static private UKey toRawKey(TypedKey)(in TypedKey typedKey)
     @trusted pure nothrow /* TODO @nogc */
     if (allSatisfy!(isTrieableKeyType, TypedKey))
 {
-    import std.traits : isArray;
     enum radix = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
     alias Ix = Mod!radix;
 
     static if (isFixedTrieableKeyType!TypedKey)
     {
-        const ukey = typedKey.bijectToUnsigned;
+        const key_ = typedKey.bijectToUnsigned;
 
-        enum nbits = 8*ukey.sizeof; // bitsize of ukey
-        enum chunkCount = nbits/span; // number of chunks in ukey
+        enum nbits = 8*key_.sizeof; // number of bits in key
+        enum chunkCount = nbits/span; // number of chunks in key_
         static assert(chunkCount*span == nbits, "Bitsize of TypedKey must be a multiple of span:" ~ span.stringof);
 
-        KeyN!(span, TypedKey.sizeof) key;
+        KeyN!(span, TypedKey.sizeof) ukey;
 
-        static if (span == 8)
+        foreach (const bix; 0 .. chunkCount)
         {
-            foreach (const bix; 0 .. chunkCount)
-            {
-                const bitShift = (chunkCount - 1 - bix)*span; // most significant bit chunk first (MSBCF)
-                key[bix] = (ukey >> bitShift) & (radix - 1); // part of value which is also an index
-            }
+            const bitShift = (chunkCount - 1 - bix)*span; // most significant bit chunk first (MSBCF)
+            ukey[bix] = (key_ >> bitShift) & (radix - 1); // part of value which is also an index
         }
 
-        return key.dup; // TODO avoid this GC-allocation
+        return ukey.dup; // TODO avoid this GC-allocation
     }
     else static if (isArray!TypedKey &&
                     is(Unqual!(typeof(TypedKey.init[0])) == char))
     {
         import std.string : representation;
-        const ubyte[] key = typedKey.representation; // lexical byte-order
-        return cast(Ix[])key;
+        const ubyte[] ukey = typedKey.representation; // lexical byte-order
+        return cast(Ix[])ukey;                        // TODO needed?
     }
     else static if (is(Unqual!TypedKey == wstring))
     {
         const ushort[] rKey = typedKey.representation; // lexical byte-order.
         // TODO MSByte-order of elements in rKey for ordered access and good branching performance
-        const ubyte[] key = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
-        return key;
+        const ubyte[] ukey = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
+        return ukey;
     }
     else static if (is(Unqual!TypedKey == dstring))
     {
         const uint[] rKey = typedKey.representation; // lexical byte-order
         // TODO MSByte-order of elements in rKey for ordered access and good branching performance
         const ubyte[] key = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
-        return key;
+        return ukey;
+    }
+    else
+    {
+        static assert(false, "TODO Handle typed key " ~ TypedKey.stringof);
+    }
+}
+
+/** Remap raw untyped key `ukey` to typed key of type `TypedKey`. */
+static private inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey)
+    @trusted pure nothrow /* TODO @nogc */
+    if (allSatisfy!(isTrieableKeyType, TypedKey))
+{
+    enum radix = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
+    alias Ix = Mod!radix;
+
+    static if (isFixedTrieableKeyType!TypedKey)
+    {
+        enum nbits = 8*TypedKey.sizeof; // number of bits in key
+        enum chunkCount = nbits/span; // number of chunks in key_
+        static assert(chunkCount*span == nbits, "Bitsize of TypedKey must be a multiple of span:" ~ span.stringof);
+
+        // TODO reuse existing trait UnsignedOf!TypedKey
+        static if (TypedKey.sizeof == 1)
+        {
+            ubyte bKey;
+        }
+        else static if (TypedKey.sizeof == 2)
+        {
+            ushort bKey;
+        }
+        else static if (TypedKey.sizeof == 4)
+        {
+            uint bKey;
+        }
+        else static if (TypedKey.sizeof == 8)
+        {
+            ulong bKey;
+        }
+
+        foreach (const bix; 0 .. chunkCount)
+        {
+            const uix = ukey[bix];
+            const bitShift = (chunkCount - 1 - bix)*span; // most significant bit chunk first (MSBCF)
+            bKey = (uix >> bitShift) & (radix - 1); // part of value which is also an index
+        }
+
+        TypedKey typedKey;
+        bKey.bijectFromUnsigned(typedKey);
+        return typedKey;
+    }
+    else static if (isArray!TypedKey)
+    {
+        static if (isArray!TypedKey &&
+                   is(Unqual!(typeof(TypedKey.init[0])) == char))
+        {
+            static assert(char.sizeof == Ix.sizeof);
+            return cast(inout(char)[])ukey;
+        }
+        // TODO handle wchar and dchar
+        else
+        {
+            static assert(false, "TODO Handle typed key " ~ TypedKey.stringof);
+        }
     }
     else
     {
@@ -3375,7 +3436,7 @@ struct RadixTree(Key, Value)
         auto opIndexAssign(in Value value, Key key)
         {
             _rawTree.EltRef eltRef; // indicates that elt was added
-            _rawTree.insert(key.toUKey, value, eltRef);
+            _rawTree.insert(key.toRawKey, value, eltRef);
             const bool added = eltRef.node && eltRef.modStatus == ModStatus.added;
             _length += added;
             /* TODO return reference (via `auto ref` return typed) to stored
@@ -3390,7 +3451,7 @@ struct RadixTree(Key, Value)
         bool insert(in Key key, in Value value)
         {
             _rawTree.EltRef eltRef; // indicates that key was added
-            auto rawKey = key.toUKey;
+            auto rawKey = key.toRawKey;
             _rawTree.insert(rawKey, value, eltRef);
             debug if (willFail) { dln("WILL FAIL: eltRef:", eltRef, " key:", key); }
             if (eltRef.node)  // if `key` was added at `eltRef`
@@ -3427,7 +3488,7 @@ struct RadixTree(Key, Value)
         /** Returns: pointer to value if `key` is contained in set, null otherwise. */
         inout(Value*) contains(in Key key) inout
         {
-            return _rawTree.contains(key.toUKey);
+            return _rawTree.contains(key.toRawKey);
         }
     }
     else
@@ -3439,7 +3500,7 @@ struct RadixTree(Key, Value)
         @safe pure nothrow /* TODO @nogc */
         {
             _rawTree.EltRef eltRef; // indicates that elt was added
-            _rawTree.insert(key.toUKey, eltRef);
+            _rawTree.insert(key.toRawKey, eltRef);
             const bool hit = eltRef.node && eltRef.modStatus == ModStatus.added;
             _length += hit;
             return hit;
@@ -3450,7 +3511,7 @@ struct RadixTree(Key, Value)
         /** Returns: `true` if `key` is stored, `false` otherwise. */
         bool contains(in Key key) inout
         {
-            return _rawTree.contains(key.toUKey);
+            return _rawTree.contains(key.toRawKey);
         }
     }
 
@@ -3464,18 +3525,30 @@ struct RadixTree(Key, Value)
     {
         this(RawTree.Node root) { _rawRange = _rawTree.Range(root); }
 
-        /** Get copy of front element. */
-        auto front() const @nogc
+        auto ref front() const @nogc
         {
-            static if (RawTree.hasValue) { return tuple(_rawRange._frontKey, _rawRange._frontValue); } // TODO typed key
-            else                     { return _rawRange._frontKey; }
+            const key = _rawRange._frontKey.data.toTypedKey!Key;
+            static if (RawTree.hasValue) { return tuple(key, _rawRange._frontValue); }
+            else                         { return key; }
+        }
+        auto ref back() const @nogc
+        {
+            const key = _rawRange._backKey.data.toTypedKey!Key;
+            static if (RawTree.hasValue) { return tuple(key, _rawRange._backValue); }
+            else                         { return key; }
         }
 
-        /** Get copy of front element. */
-        auto back() const @nogc
+        auto rawFront() const @nogc
         {
-            static if (RawTree.hasValue) { return tuple(_rawRange._backKey, _rawRange._backValue); } // TODO typed key
-            else                     { return _rawRange._backKey; }
+            const key = _rawRange._frontKey;
+            static if (RawTree.hasValue) { return tuple(key, _rawRange._frontValue); }
+            else                         { return key; }
+        }
+        auto rawBack() const @nogc
+        {
+            const key = _rawRange._backKey;
+            static if (RawTree.hasValue) { return tuple(key, _rawRange._backValue); }
+            else                         { return key; }
         }
 
         RawTree.Range _rawRange;
@@ -3656,12 +3729,12 @@ unittest
     size_t i = 0;
     foreach (const elt; map[])
     {
-        const key = elt[0].data;
+        const key = elt[0];
         const value = elt[1];
 
         dln("i:", i);
 
-        assert(key == [0, 0, 0, i]);
+        assert(key == i);
         assert(value == keyToValue(cast(Key)i)); // TODO use typed key instead of cast(Key)
 
         dln("here");
@@ -3698,9 +3771,9 @@ auto checkString(Keys...)(size_t count, uint maxLength)
             testContainsAndInsert(set, key);
         }
 
-        // TODO: assert(set[].equal(sortedKeys));
-        dln("set.length:", set.length);
         import std.algorithm : equal;
+        // TODO assert(set[].equal(sortedKeys));
+
         size_t i = 0;
         foreach (const ukey; set[])
         {

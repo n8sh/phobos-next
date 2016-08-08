@@ -87,17 +87,17 @@ auto bijectToUnsigned(T)(T a) @trusted pure nothrow
      * - if it's 1 (negative float), it flips all bits.
      * - if it's 0 (positive float), it flips the sign only.
      */
-    @safe pure nothrow uint    ff(uint f) { return f ^ (-cast(int)  (f >> (32-1))      | 0x80000000); }
-    @safe pure nothrow uint   iff(uint f) { return f ^            (((f >> (32-1)) - 1) | 0x80000000); }
-    @safe pure nothrow ulong  ff(ulong f) { return f ^ (-cast(long) (f >> (64-1))      | 0x8000000000000000); }
-    @safe pure nothrow ulong iff(ulong f) { return f ^            (((f >> (64-1)) - 1) | 0x8000000000000000); }
+    uint    ff(uint f) { return f ^ (-cast(int)  (f >> (32-1))      | 0x80000000); }
+    uint   iff(uint f) { return f ^            (((f >> (32-1)) - 1) | 0x80000000); }
+    ulong  ff(ulong f) { return f ^ (-cast(long) (f >> (64-1))      | 0x8000000000000000); }
+    ulong iff(ulong f) { return f ^            (((f >> (64-1)) - 1) | 0x8000000000000000); }
 
-    @trusted pure nothrow void bijectFromUnsigned(ubyte a, ref char b) { b = *cast(typeof(b)*)(&a); }
-    @trusted pure nothrow void bijectFromUnsigned(ushort a, ref wchar b) { b = *cast(typeof(b)*)(&a); }
-    @trusted pure nothrow void bijectFromUnsigned(ulong a, ref dchar b) { b = *cast(typeof(b)*)(&a); }
+    @trusted void bijectFromUnsigned(ubyte a, ref char b) { b = *cast(typeof(b)*)(&a); }
+    @trusted void bijectFromUnsigned(ushort a, ref wchar b) { b = *cast(typeof(b)*)(&a); }
+    @trusted void bijectFromUnsigned(ulong a, ref dchar b) { b = *cast(typeof(b)*)(&a); }
 
-    @trusted pure nothrow void bijectFromUnsigned(uint a,  ref float  b) { uint  t = iff(a); b = *cast(float*)(&t); }
-    @trusted pure nothrow void bijectFromUnsigned(ulong a, ref double b) { ulong t = iff(a); b = *cast(double*)(&t); }
+    @trusted void bijectFromUnsigned(uint a,  ref float  b) { uint  t = iff(a); b = *cast(float*)(&t); }
+    @trusted void bijectFromUnsigned(ulong a, ref double b) { ulong t = iff(a); b = *cast(double*)(&t); }
 }
 
 @safe @nogc pure nothrow unittest

@@ -28,7 +28,6 @@ auto bijectToUnsigned(T)(T a) @trusted pure nothrow
     if (isIntegralBijectableType!T)
 {
     alias UT = Unqual!T;
-
     static      if (is(UT == char))  { return *(cast(ubyte*)&a); } // reinterpret
     else static if (is(UT == wchar)) { return *(cast(ushort*)&a); } // reinterpret
     else static if (is(UT == dchar)) { return *(cast(uint*)&a); } // reinterpret

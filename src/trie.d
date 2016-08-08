@@ -1399,9 +1399,9 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        bool empty() const @nogc
+        bool empty() const /* TODO @nogc */
         {
-            return cast(bool)_front.leaf.leaf;
+            return !(_front.leaf.leaf);
         }
 
         void popFront()

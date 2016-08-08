@@ -3787,7 +3787,7 @@ auto checkString(Keys...)(size_t count, uint maxLength, bool show)
         import std.algorithm : equal;
 
         auto keys1 = sort(sortedKeys.filter!(key => key.length == 1).array.dup);
-        assert(set[].equal(keys1));
+        assert(set[].take(keys1.length).equal(keys1));
     }
 }
 

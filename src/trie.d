@@ -1139,12 +1139,12 @@ struct RawRadixTree(Value = void)
         /** Try to iterated forward.
             Returns: `true` upon sucessful forward iteration, `false` otherwise (upon completion of iteration),
         */
-        bool tryForward() /* TODO @nogc */
+        bool popFront() /* TODO @nogc */
         {
             assert(!empty);
             with (Branch.Ix)
             {
-                // TODO move all calls to Branch-specific members tryForward()
+                // TODO move all calls to Branch-specific members popFront()
                 switch (branch.typeIx)
                 {
                 case ix_SparseBranchPtr:
@@ -1286,15 +1286,15 @@ struct RawRadixTree(Value = void)
 
         bool empty() const @nogc { return _empty; }
 
-        /** Try to iterated forward.
-            Returns: `true` upon sucessful forward iteration, `false` otherwise (upon completion of iteration),
+        /** Pop front element.
+            Returns: `true` upon sucessful forward iteration, `false` if range became empty.
         */
-        bool tryForward() /* TODO @nogc */
+        bool popFront() /* TODO @nogc */
         {
             assert(!empty);
             with (Node.Ix)
             {
-                // TODO move all calls to leaf-specific members tryForward()
+                // TODO move all calls to leaf-specific members popFront()
                 switch (leaf.typeIx)
                 {
                 case undefined:
@@ -1465,7 +1465,7 @@ struct RawRadixTree(Value = void)
 
             // current leaf
             bool allDone;
-            if (_front.leaf.tryForward)
+            if (_front.leaf.popFront)
             {
                 allDone = true;
             }
@@ -1480,7 +1480,7 @@ struct RawRadixTree(Value = void)
             //     bool branchDone;
             //     while (_front.branches.data.length)
             //     {
-            //         if (_front.branches.data[$ - 1].tryForward)
+            //         if (_front.branches.data[$ - 1].popFront)
             //         {
             //         }
             //     }

@@ -3732,7 +3732,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
             case ix_TriLeaf2: bytesUsed = pop*TriLeaf2.sizeof; break;
             case ix_HeptLeaf1: bytesUsed = pop*HeptLeaf1.sizeof; break;
             case ix_SparseLeaf1Ptr:
-                bytesUsed = stats.sparseLeaf1AllocatedSizeSum; // must be used because SparseLeaf1.sizeof cannot be used because it's a variable length struct
+                bytesUsed = stats.sparseLeaf1AllocatedSizeSum; // variable length struct
                 totalBytesUsed += bytesUsed;
                 break;
             case ix_DenseLeaf1Ptr:
@@ -3740,7 +3740,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
                 totalBytesUsed += bytesUsed;
                 break;
             case ix_SparseBranchPtr:
-                bytesUsed = stats.sparseBranchAllocatedSizeSum; // must be used because SparseBranch.sizeof cannot be used because it's a variable length struct
+                bytesUsed = stats.sparseBranchAllocatedSizeSum; // variable length struct
                 totalBytesUsed += bytesUsed;
                 break;
             case ix_DenseBranchPtr:
@@ -3763,9 +3763,17 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
             final switch (ix)
             {
             case undefined: continue; // ignore
-            case ix_HeptLeaf1: bytesUsed = pop*HeptLeaf1.sizeof; break;
-            case ix_SparseLeaf1Ptr: bytesUsed = stats.sparseLeaf1AllocatedSizeSum; totalBytesUsed += bytesUsed; break;
-            case ix_DenseLeaf1Ptr: bytesUsed = pop*DenseLeaf1!(RT.ValueType).sizeof; totalBytesUsed += bytesUsed; break;
+            case ix_HeptLeaf1:
+                bytesUsed = pop*HeptLeaf1.sizeof;
+                break;
+            case ix_SparseLeaf1Ptr:
+                bytesUsed = stats.sparseLeaf1AllocatedSizeSum; // variable length struct
+                totalBytesUsed += bytesUsed;
+                break;
+            case ix_DenseLeaf1Ptr:
+                bytesUsed = pop*DenseLeaf1!(RT.ValueType).sizeof;
+                totalBytesUsed += bytesUsed;
+                break;
             }
         }
         writeln(pop, " number of ",

@@ -3372,7 +3372,7 @@ static private void calculate(Value)(Leaf!Value curr,
 }
 
 /** Remap typed key `typedKey` to raw (untyped) key of type `UKey`. */
-static private UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey ukeyFixed)
+static private UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey)
     @trusted pure nothrow       /* TODO @nogc */
     if (allSatisfy!(isTrieableKeyType, TypedKey))
 {
@@ -3392,10 +3392,10 @@ static private UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey ukeyFixed)
         foreach (const bix; 0 .. chunkCount)
         {
             const bitShift = (chunkCount - 1 - bix)*span; // most significant bit chunk first (MSBCF)
-            ukeyFixed[bix] = (key_ >> bitShift) & (radix - 1); // part of value which is also an index
+            preallocatedFixedUKey[bix] = (key_ >> bitShift) & (radix - 1); // part of value which is also an index
         }
 
-        return ukeyFixed[];
+        return preallocatedFixedUKey[];
     }
     else static if (isArray!TypedKey &&
                     is(Unqual!(typeof(TypedKey.init[0])) == char))

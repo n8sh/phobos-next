@@ -362,7 +362,8 @@ static assert(IxsN!(2, 3, 8).sizeof == 8);
 
 /** Returns: `true` if `r` and all `ss` all have equal length.
  */
-bool equalLength(R, Ss...)(const R r, const Ss ss) @safe pure nothrow @nogc
+bool equalLength(R, Ss...)(const R r, const Ss ss)
+    @safe pure nothrow @nogc
     if (Ss.length >= 1 &&
         allSatisfy!(hasLength, R, Ss))
 {

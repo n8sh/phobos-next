@@ -1098,8 +1098,8 @@ struct RawRadixTree(Value = void)
         Ix ix; // `Branch`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
         ModStatus modStatus;
 
-        bool atLeaf; // use sub-leaf instead of sub-Node if `node` is a branch, thereby ignoring `ix`
-        bool _completed;
+        private bool atLeaf; // use sub-leaf instead of sub-Node if `node` is a branch, thereby ignoring `ix`
+        private bool _empty;
 
         @safe pure nothrow:
 
@@ -1134,14 +1134,14 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        bool completed() const @nogc { return _completed; }
+        bool empty() const @nogc { return _empty; }
 
         /** Try to iterated forward.
             Returns: `true` upon sucessful forward iteration, `false` otherwise (upon completion of iteration),
         */
         bool tryForward() /* TODO @nogc */
         {
-            assert(!completed);
+            assert(!empty);
             with (Branch.Ix)
             {
                 // TODO move all calls to Branch-specific members tryForward()
@@ -1153,11 +1153,11 @@ struct RawRadixTree(Value = void)
                     {
                         atLeaf = false;
                         ix = 0;
-                        if (ix == branch_.subCount) { _completed = true; }
+                        if (ix == branch_.subCount) { _empty = true; }
                     }
                     else
                     {
-                        if (ix + 1 == branch_.subCount) { _completed = true; } else { ++ix; }
+                        if (ix + 1 == branch_.subCount) { _empty = true; } else { ++ix; }
                     }
                     break;
                 case ix_DenseBranchPtr:
@@ -1169,15 +1169,15 @@ struct RawRadixTree(Value = void)
                     }
                     else
                     {
-                        if (ix + 1 == radix) { _completed = true; } else { ++ix; }
+                        if (ix + 1 == radix) { _empty = true; } else { ++ix; }
                     }
-                    ix = branch_.nextNonNullSubNodeIx(ix, _completed);
+                    ix = branch_.nextNonNullSubNodeIx(ix, _empty);
                     break;
                 default:
                     assert(false);
                 }
             }
-            return !_completed;
+            return !_empty;
         }
     }
 
@@ -1188,7 +1188,7 @@ struct RawRadixTree(Value = void)
         Ix ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
         ModStatus modStatus;
 
-        bool _completed;
+        private bool _empty;
 
         @safe pure nothrow:
 
@@ -1284,16 +1284,13 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        bool completed() const @nogc { return _completed; }
-
-        bool empty() const @nogc { return !cast(bool)leaf; }
+        bool empty() const @nogc { return _empty; }
 
         /** Try to iterated forward.
             Returns: `true` upon sucessful forward iteration, `false` otherwise (upon completion of iteration),
         */
         bool tryForward() /* TODO @nogc */
         {
-            assert(!completed);
             assert(!empty);
             with (Node.Ix)
             {
@@ -1304,31 +1301,31 @@ struct RawRadixTree(Value = void)
                     assert(false);
 
                 case ix_OneLeafMax7:
-                    _completed = true; // only one element so forward automatically completes
+                    _empty = true; // only one element so forward automatically completes
                     break;
                 case ix_TwoLeaf3:
                     auto node_ = leaf.as!(TwoLeaf3);
-                    if (ix + 1 == node_.keys.length) { _completed = true; } else { ++ix; }
+                    if (ix + 1 == node_.keys.length) { _empty = true; } else { ++ix; }
                     break;
                 case ix_TriLeaf2:
                     auto node_ = leaf.as!(TriLeaf2);
-                    if (ix + 1 == node_.keys.length) { _completed = true; } else { ++ix; }
+                    if (ix + 1 == node_.keys.length) { _empty = true; } else { ++ix; }
                     break;
                 case ix_HeptLeaf1:
                     auto node_ = leaf.as!(HeptLeaf1);
-                    if (ix + 1 == node_.keys.length) { _completed = true; } else { ++ix; }
+                    if (ix + 1 == node_.keys.length) { _empty = true; } else { ++ix; }
                     break;
 
                 case ix_SparseLeaf1Ptr:
                     auto node_ = leaf.as!(SparseLeaf1!Value*);
-                    if (ix + 1 == node_.length) { _completed = true; } else { ++ix; }
+                    if (ix + 1 == node_.length) { _empty = true; } else { ++ix; }
                     break;
                 case ix_DenseLeaf1Ptr:
                     auto node_ = leaf.as!(DenseLeaf1!Value*);
                     bool nextFound = false;
                     if (ix + 1 == radix)
                     {
-                        _completed = true;
+                        _empty = true;
                     }
                     else
                     {
@@ -1344,14 +1341,14 @@ struct RawRadixTree(Value = void)
                         }
                         if (!nextFound)
                         {
-                            _completed = true;
+                            _empty = true;
                         }
                     }
                     break;
                 default: assert(false, "Unsupported Node type");
                 }
             }
-            return !_completed;
+            return !_empty;
         }
 
         static if (hasValue)

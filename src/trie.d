@@ -4364,6 +4364,11 @@ auto testScalar(uint span, Keys...)()
                 const low = -100_000;
                 const high = 100_000;
             }
+            else static if (is(Key == bool))
+            {
+                const low = false;
+                const high = true;
+            }
 
             foreach (const uk; low.iota(high + 1))
             {
@@ -4379,6 +4384,7 @@ auto testScalar(uint span, Keys...)()
 @safe pure nothrow /* TODO @nogc */ unittest
 {
     testScalar!(8,
+                bool,
                 double, float,
                 long, int, short, byte,
                 ulong, uint, ushort, ubyte);

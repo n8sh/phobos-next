@@ -68,10 +68,33 @@ import dbg;
 
 alias isFixedTrieableKeyType = isIntegralBijectableType;
 
-enum isTrieableKeyType(T) = (isFixedTrieableKeyType!T ||
-                             (isInputRange!T &&
-                              isFixedTrieableKeyType!(ElementType!T)));
-static assert(isTrieableKeyType!(const(char)[]));
+/** Returns: `true` if `T` can a sclar trie key-type, ` false` otherwise.
+*/
+enum isScalarTrieableKeyType(T) = (isFixedTrieableKeyType!T ||
+                                   (isInputRange!T &&
+                                    isFixedTrieableKeyType!(ElementType!T)));
+
+/** Returns: `true` if `T` can a trie key-type, ` false` otherwise.
+*/
+template isTrieableKeyType(T)
+{
+    static if (is(T == struct))
+    {
+        enum isTrieableKeyType = allSatisfy!(isScalarTrieableKeyType, typeof(T.tupleof));
+    }
+    else
+    {
+        enum isTrieableKeyType = isScalarTrieableKeyType!T;
+    }
+}
+
+unittest
+{
+    struct S { int x, y; }
+    static assert(isTrieableKeyType!(const(char)[]));
+    static assert(isTrieableKeyType!(S));
+}
+
 template shouldAddGCRange(T)
 {
     import std.traits : isPointer, hasIndirections;

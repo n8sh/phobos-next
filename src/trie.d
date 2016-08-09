@@ -1633,7 +1633,8 @@ struct RawRadixTree(Value = void)
         size_t heapLeafCount;
 
         size_t sparseBranchSizeSum;
-        size_t sparseLeaf1SizeSum;
+
+        size_t sparseLeaf1AllocatedSizeSum;
     }
 
     /** Sparse/Packed dynamically sized branch implemented as variable-length
@@ -3319,7 +3320,7 @@ static private void calculate(Value)(RawRadixTree!(Value).Node curr,
         auto curr_ = curr.as!(SparseLeaf1!Value*);
         assert(curr_.length);
         ++stats.popHist_SparseLeaf1[curr_.length - 1]; // TODO type-safe indexing
-        stats.sparseLeaf1SizeSum += curr_.allocatedSize;
+        stats.sparseLeaf1AllocatedSizeSum += curr_.allocatedSize;
         break;
     case ix_DenseLeaf1Ptr:
         auto curr_ = curr.as!(DenseLeaf1!Value*);
@@ -3731,7 +3732,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
             case ix_TriLeaf2: bytesUsed = pop*TriLeaf2.sizeof; break;
             case ix_HeptLeaf1: bytesUsed = pop*HeptLeaf1.sizeof; break;
             case ix_SparseLeaf1Ptr:
-                bytesUsed = stats.sparseLeaf1SizeSum; // must be used because SparseLeaf1.sizeof cannot be used because it's a variable length struct
+                bytesUsed = stats.sparseLeaf1AllocatedSizeSum; // must be used because SparseLeaf1.sizeof cannot be used because it's a variable length struct
                 totalBytesUsed += bytesUsed;
                 break;
             case ix_DenseLeaf1Ptr:
@@ -3763,7 +3764,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
             {
             case undefined: continue; // ignore
             case ix_HeptLeaf1: bytesUsed = pop*HeptLeaf1.sizeof; break;
-            case ix_SparseLeaf1Ptr: bytesUsed = pop*SparseLeaf1!(RT.ValueType).sizeof; totalBytesUsed += bytesUsed; break;
+            case ix_SparseLeaf1Ptr: bytesUsed = stats.sparseLeaf1AllocatedSizeSum; totalBytesUsed += bytesUsed; break;
             case ix_DenseLeaf1Ptr: bytesUsed = pop*DenseLeaf1!(RT.ValueType).sizeof; totalBytesUsed += bytesUsed; break;
             }
         }

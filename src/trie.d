@@ -1105,7 +1105,7 @@ struct RawRadixTree(Value = void)
 
         pragma(inline) bool opCast(T : bool)() const @nogc { return cast(bool)branch; }
 
-        void appendToKey(ref Appender!UKey key) const /* TODO @nogc */
+        void appendFrontToKey(ref Appender!UKey key) const /* TODO @nogc */
         {
             with (Branch.Ix)
             {
@@ -1194,8 +1194,63 @@ struct RawRadixTree(Value = void)
 
         pragma(inline) bool opCast(T : bool)() const @nogc { return cast(bool)leaf; }
 
-        void appendToKey(ref Appender!UKey key) const /* TODO @nogc */
+        Ix[] front()
         {
+            assert(!empty);
+            switch (leaf.typeIx) with (Node.Ix)
+            {
+            case undefined:
+                assert(false);
+
+            case ix_OneLeafMax7:
+                assert(ix == 0);
+                return leaf.as!(OneLeafMax7).key;
+            case ix_TwoLeaf3:
+                return leaf.as!(TwoLeaf3).keys[ix][];
+            case ix_TriLeaf2:
+                return leaf.as!(TriLeaf2).keys[ix][];
+            case ix_HeptLeaf1:
+                return [leaf.as!(HeptLeaf1).keys[ix]];
+
+            case ix_SparseLeaf1Ptr:
+                return [leaf.as!(SparseLeaf1!Value*).ixs[ix]];
+            case ix_DenseLeaf1Ptr:
+                return [ix];
+
+            default: assert(false, "Unsupported Node type");
+            }
+        }
+
+        Ix frontIx()
+        {
+            assert(!empty);
+            switch (leaf.typeIx) with (Node.Ix)
+            {
+            case undefined:
+                assert(false);
+
+            case ix_OneLeafMax7:
+                assert(ix == 0);
+                return leaf.as!(OneLeafMax7).key[0];
+            case ix_TwoLeaf3:
+                return leaf.as!(TwoLeaf3).keys[ix][0];
+            case ix_TriLeaf2:
+                return leaf.as!(TriLeaf2).keys[ix][0];
+            case ix_HeptLeaf1:
+                return leaf.as!(HeptLeaf1).keys[ix];
+
+            case ix_SparseLeaf1Ptr:
+                return leaf.as!(SparseLeaf1!Value*).ixs[ix];
+            case ix_DenseLeaf1Ptr:
+                return ix;
+
+            default: assert(false, "Unsupported Node type");
+            }
+        }
+
+        void appendFrontToKey(ref Appender!UKey key) const /* TODO @nogc */
+        {
+            assert(!empty);
             with (Node.Ix)
             {
                 switch (leaf.typeIx)
@@ -1231,12 +1286,15 @@ struct RawRadixTree(Value = void)
 
         bool completed() const @nogc { return _completed; }
 
+        bool empty() const @nogc { return !cast(bool)leaf; }
+
         /** Try to iterated forward.
             Returns: `true` upon sucessful forward iteration, `false` otherwise (upon completion of iteration),
         */
         bool tryForward() /* TODO @nogc */
         {
             assert(!completed);
+            assert(!empty);
             with (Node.Ix)
             {
                 // TODO move all calls to leaf-specific members tryForward()
@@ -1462,8 +1520,8 @@ struct RawRadixTree(Value = void)
         {
             // key
             _frontKey.clear;
-            foreach (const branchIterator; _front.branches.data) { branchIterator.appendToKey(_frontKey); }
-            _front.leaf.appendToKey(_frontKey);
+            foreach (const branchIterator; _front.branches.data) { branchIterator.appendFrontToKey(_frontKey); }
+            _front.leaf.appendFrontToKey(_frontKey);
 
             // value
             static if (hasValue)
@@ -1475,8 +1533,8 @@ struct RawRadixTree(Value = void)
         {
             // key
             _backKey.clear;
-            foreach (const branchIterator; _back.branches.data) { branchIterator.appendToKey(_backKey); }
-            _back.leaf.appendToKey(_backKey);
+            foreach (const branchIterator; _back.branches.data) { branchIterator.appendFrontToKey(_backKey); }
+            _back.leaf.appendFrontToKey(_backKey);
 
             // value
             static if (hasValue)

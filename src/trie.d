@@ -4177,7 +4177,8 @@ auto checkNumeric(Keys...)()
 
             const useContains = true;
 
-            static if (isIntegral!Key ||
+            static if (is(Key == bool) ||
+                       isIntegral!Key ||
                        isFloatingPoint!Key)
             {
                 static if (isIntegral!Key)
@@ -4190,6 +4191,12 @@ auto checkNumeric(Keys...)()
                 {
                     const low = -100_000;
                     const high = 100_000;
+                    const length = high - low + 1;
+                }
+                else static if (is(Key == bool))
+                {
+                    const low = false;
+                    const high = true;
                     const length = high - low + 1;
                 }
 
@@ -4330,14 +4337,14 @@ void benchmark()()
     {
         while (true)
         {
-            checkNumeric!(float, double,
+            checkNumeric!(bool, float, double,
                           long, int, short, byte,
                           ulong, uint, ushort, ubyte);
         }
     }
     else
     {
-        checkNumeric!(float, double,
+        checkNumeric!(bool, float, double,
                       long, int, short, byte,
                       ulong, uint, ushort, ubyte);
     }

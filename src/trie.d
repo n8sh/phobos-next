@@ -1105,7 +1105,7 @@ struct RawRadixTree(Value = void)
 
         pragma(inline) bool opCast(T : bool)() const @nogc { return cast(bool)branch; }
 
-        void appendFrontToKey(ref Appender!UKey key) const /* TODO @nogc */
+        void appendFrontIxsToKey(ref Appender!UKey key) const /* TODO @nogc */
         {
             with (Branch.Ix)
             {
@@ -1248,7 +1248,7 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        void appendFrontToKey(ref Appender!UKey key) const /* TODO @nogc */
+        void appendFrontIxsToKey(ref Appender!UKey key) const /* TODO @nogc */
         {
             assert(!empty);
             with (Node.Ix)
@@ -1517,8 +1517,8 @@ struct RawRadixTree(Value = void)
         {
             // key
             _frontKey.clear;
-            foreach (const branchIterator; _front.branches.data) { branchIterator.appendFrontToKey(_frontKey); }
-            _front.leaf.appendFrontToKey(_frontKey);
+            foreach (const branchIterator; _front.branches.data) { branchIterator.appendFrontIxsToKey(_frontKey); }
+            _front.leaf.appendFrontIxsToKey(_frontKey);
 
             // value
             static if (hasValue)
@@ -1530,8 +1530,8 @@ struct RawRadixTree(Value = void)
         {
             // key
             _backKey.clear;
-            foreach (const branchIterator; _back.branches.data) { branchIterator.appendFrontToKey(_backKey); }
-            _back.leaf.appendFrontToKey(_backKey);
+            foreach (const branchIterator; _back.branches.data) { branchIterator.appendFrontIxsToKey(_backKey); }
+            _back.leaf.appendFrontIxsToKey(_backKey);
 
             // value
             static if (hasValue)

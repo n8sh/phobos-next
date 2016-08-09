@@ -1632,7 +1632,7 @@ struct RawRadixTree(Value = void)
         /// Number of heap-allocated `Leaf`s. Should always equal `heapLeafAllocationBalance`.
         size_t heapLeafCount;
 
-        size_t sparseBranchSizeSum;
+        size_t sparseBranchAllocatedSizeSum;
 
         size_t sparseLeaf1AllocatedSizeSum;
     }
@@ -1836,7 +1836,7 @@ struct RawRadixTree(Value = void)
             assert(count <= radix);
             ++stats.popHist_SparseBranch[count]; // TODO type-safe indexing
 
-            stats.sparseBranchSizeSum += allocatedSize;
+            stats.sparseBranchAllocatedSizeSum += allocatedSize;
 
             if (leaf)
             {
@@ -3740,7 +3740,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
                 totalBytesUsed += bytesUsed;
                 break;
             case ix_SparseBranchPtr:
-                bytesUsed = stats.sparseBranchSizeSum; // must be used because SparseBranch.sizeof cannot be used because it's a variable length struct
+                bytesUsed = stats.sparseBranchAllocatedSizeSum; // must be used because SparseBranch.sizeof cannot be used because it's a variable length struct
                 totalBytesUsed += bytesUsed;
                 break;
             case ix_DenseBranchPtr:

@@ -3876,6 +3876,12 @@ auto checkString(Keys...)(size_t count, uint maxLength, bool show)
         import std.algorithm : equal, startsWith;
 
         auto keys1 = sortedKeys.filter!(key => key.length == 1).array;
+        if (show)
+        {
+            dln("set[]:", set[]);
+            dln("keys1:", keys1);
+        }
+
         assert(set[].startsWith(keys1));
     }
 }

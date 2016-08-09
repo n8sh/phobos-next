@@ -3521,8 +3521,12 @@ struct RadixTree(Key, Value)
         auto opIndexAssign(in Value value, Key key)
         {
             _rawTree.EltRef eltRef; // indicates that elt was added
+
             KeyN!(span, Key.sizeof) ukey;
-            _rawTree.insert(key.toRawKey(ukey), value, eltRef);
+            auto rawKey = key.toRawKey(ukey);
+
+            _rawTree.insert(rawKey, value, eltRef);
+
             const bool added = eltRef.node && eltRef.modStatus == ModStatus.added;
             _length += added;
             /* TODO return reference (via `auto ref` return typed) to stored
@@ -3537,9 +3541,12 @@ struct RadixTree(Key, Value)
         bool insert(in Key key, in Value value)
         {
             _rawTree.EltRef eltRef; // indicates that key was added
+
             KeyN!(span, Key.sizeof) ukey;
             auto rawKey = key.toRawKey(ukey[]);
+
             _rawTree.insert(rawKey, value, eltRef);
+
             debug if (willFail) { dln("WILL FAIL: eltRef:", eltRef, " key:", key); }
             if (eltRef.node)  // if `key` was added at `eltRef`
             {
@@ -3576,7 +3583,8 @@ struct RadixTree(Key, Value)
         inout(Value*) contains(in Key key) inout
         {
             KeyN!(span, Key.sizeof) ukey;
-            return _rawTree.contains(key.toRawKey(ukey));
+            auto rawKey = key.toRawKey(ukey);
+            return _rawTree.contains(rawKey);
         }
     }
     else
@@ -3590,7 +3598,10 @@ struct RadixTree(Key, Value)
             _rawTree.EltRef eltRef; // indicates that elt was added
 
             KeyN!(span, Key.sizeof) ukey;
-            _rawTree.insert(key.toRawKey(ukey[]), eltRef);
+            auto rawKey = key.toRawKey(ukey[]);
+
+            _rawTree.insert(rawKey, eltRef);
+
             const bool hit = eltRef.node && eltRef.modStatus == ModStatus.added;
             _length += hit;
             return hit;
@@ -3602,7 +3613,8 @@ struct RadixTree(Key, Value)
         bool contains(in Key key) inout
         {
             KeyN!(span, Key.sizeof) ukey;
-            return _rawTree.contains(key.toRawKey(ukey[]));
+            auto rawKey = key.toRawKey(ukey[]);
+            return _rawTree.contains(rawKey);
         }
     }
 

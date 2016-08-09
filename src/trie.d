@@ -1195,7 +1195,8 @@ struct RawRadixTree(Value = void)
 
         pragma(inline) bool opCast(T : bool)() const @nogc { return cast(bool)leaf; }
 
-        Ix[] front()
+        /** Get current subkey. */
+        Ix[] frontIxs()
         {
             assert(!empty);
             switch (leaf.typeIx) with (Node.Ix)
@@ -1222,6 +1223,7 @@ struct RawRadixTree(Value = void)
             }
         }
 
+        /** Get first index in current subkey. */
         Ix frontIx()
         {
             assert(!empty);

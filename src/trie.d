@@ -275,17 +275,19 @@ struct IxsN(uint capacity,
     /** Returns: `true` if `key` is contained in `this`. */
     bool contains(const Ix[] key) const @nogc
     {
+        // TODO use binarySearch instead of canFind
         import std.algorithm.searching : canFind;
         if (key.length != L) { return false; }
-        return (chunks.canFind(key)); // TODO use binarySearch
+        return (chunks.canFind(key));
     }
     static if (L == 1)
     {
         /** Returns: `true` if `ix` is contained in `this`. */
         bool contains(const Ix ix) const @nogc
         {
+            // TODO use binarySearch instead of canFind
             import std.algorithm.searching : canFind;
-            return (chunks.canFind(ix)); // TODO use binarySearch
+            return (chunks.canFind(ix));
         }
     }
 

@@ -599,6 +599,13 @@ static private struct SparseLeaf1(Value)
 
     pure nothrow /* TODO @nogc */:
 
+    /** Construct empty with `capacity`. */
+    pragma(inline) this(size_t capacity)   /* TODO @nogc */
+    {
+        _capacity = capacity;
+        _length = 0;
+    }
+
     static if (hasValue)
     {
         static if (shouldAddGCRange!Value)

@@ -599,13 +599,6 @@ static private struct SparseLeaf1(Value)
 
     pure nothrow /* TODO @nogc */:
 
-    /** Construct empty with `capacity`. */
-    pragma(inline) this(size_t capacity)   /* TODO @nogc */
-    {
-        _capacity = capacity;
-        _length = 0;
-    }
-
     static if (hasValue)
     {
         static if (shouldAddGCRange!Value)
@@ -908,7 +901,6 @@ static private struct DenseLeaf1(Value)
 
     @nogc:
 
-    pragma(inline) bool hasSubAt(Ix ix) const { return _ixBits[ix]; }
     pragma(inline) bool empty() const { return _ixBits.empty; }
     pragma(inline) bool full() const { return _ixBits.full; }
     pragma(inline) size_t count() const { return _ixBits.countOnes; }

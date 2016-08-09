@@ -352,6 +352,13 @@ static assert(IxsN!(2, 3, 8).sizeof == 8);
     assert(x.length == 4);
     assert(!x.empty);
 
+    assert(!x.contains([10.mod!M]));
+    assert(x.contains([11.mod!M]));
+    assert(x.contains([22.mod!M]));
+    assert(x.contains([33.mod!M]));
+    assert(x.contains([44.mod!M]));
+    assert(!x.contains([45.mod!M]));
+
     assert(x.equal([11, 22, 33, 44]));
     assert(x.front == 11);
     assert(x.back == 44);

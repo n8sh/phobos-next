@@ -3383,6 +3383,8 @@ static private UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey ukeyFixed)
     {
         const key_ = typedKey.bijectToUnsigned;
 
+        static assert(key_.sizeof == TypedKey.sizeof);
+
         enum nbits = 8*key_.sizeof; // number of bits in key
         enum chunkCount = nbits/span; // number of chunks in key_
         static assert(chunkCount*span == nbits, "Bitsize of TypedKey must be a multiple of span:" ~ span.stringof);

@@ -1572,8 +1572,8 @@ struct RawRadixTree(Value = void)
         }
 
     private:
-        TreeIterator _front;
-        TreeIterator _back;
+        TreeIterator _front;    // front iterator
+        TreeIterator _back;     // back iterator
 
         Appender!UKey _frontKey; // copy of front key
         Appender!UKey _backKey;  // copy of back key

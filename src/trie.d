@@ -3743,10 +3743,18 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
             final switch (ix)
             {
             case undefined: continue; // ignore
-            case ix_OneLeafMax7: bytesUsed = pop*OneLeafMax7.sizeof; break;
-            case ix_TwoLeaf3: bytesUsed = pop*TwoLeaf3.sizeof; break;
-            case ix_TriLeaf2: bytesUsed = pop*TriLeaf2.sizeof; break;
-            case ix_HeptLeaf1: bytesUsed = pop*HeptLeaf1.sizeof; break;
+            case ix_OneLeafMax7:
+                bytesUsed = pop*OneLeafMax7.sizeof;
+                break;
+            case ix_TwoLeaf3:
+                bytesUsed = pop*TwoLeaf3.sizeof;
+                break;
+            case ix_TriLeaf2:
+                bytesUsed = pop*TriLeaf2.sizeof;
+                break;
+            case ix_HeptLeaf1:
+                bytesUsed = pop*HeptLeaf1.sizeof;
+                break;
             case ix_SparseLeaf1Ptr:
                 bytesUsed = stats.sparseLeaf1AllocatedSizeSum; // variable length struct
                 totalBytesUsed += bytesUsed;
@@ -3761,33 +3769,6 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
                 break;
             case ix_DenseBranchPtr:
                 bytesUsed = pop*RT.DenseBranch.sizeof;
-                totalBytesUsed += bytesUsed;
-                break;
-            }
-        }
-        writeln(pop, " number of ",
-                ix.to!string[3 .. $], // TODO Use RT.Node.indexTypeName(ix)
-                " uses ", bytesUsed/1e6, " megabytes");
-    }
-
-    // Leaf!Value-usage
-    foreach (const Leaf!(RT.ValueType).Ix ix, pop; stats.popByLeafType) // TODO use stats.byPair when added to typecons_ex.d
-    {
-        size_t bytesUsed = 0;
-        with (Leaf!(RT.ValueType).Ix)
-        {
-            final switch (ix)
-            {
-            case undefined: continue; // ignore
-            case ix_HeptLeaf1:
-                bytesUsed = pop*HeptLeaf1.sizeof;
-                break;
-            case ix_SparseLeaf1Ptr:
-                bytesUsed = stats.sparseLeaf1AllocatedSizeSum; // variable length struct
-                totalBytesUsed += bytesUsed;
-                break;
-            case ix_DenseLeaf1Ptr:
-                bytesUsed = pop*DenseLeaf1!(RT.ValueType).sizeof;
                 totalBytesUsed += bytesUsed;
                 break;
             }

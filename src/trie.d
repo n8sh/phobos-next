@@ -1121,7 +1121,7 @@ struct RawRadixTree(Value = void)
         Ix ix; // `Branch`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
         ModStatus modStatus;
 
-        private bool atLeaf; // use sub-leaf instead of sub-Node if `node` is a branch, thereby ignoring `ix`
+        private bool frontAtLeaf; // use sub-leaf instead of sub-Node if `node` is a branch, thereby ignoring `ix`
         private bool _empty;
 
         @safe pure nothrow:
@@ -1139,7 +1139,7 @@ struct RawRadixTree(Value = void)
                 case ix_SparseBranchPtr:
                     auto branch_ = branch.as!(SparseBranch*);
                     key.put(branch_.prefix);
-                    if (!atLeaf)
+                    if (!frontAtLeaf)
                     {
                         key.put(branch_.subIxs[ix]);
                     }
@@ -1147,7 +1147,7 @@ struct RawRadixTree(Value = void)
                 case ix_DenseBranchPtr:
                     auto branch_ = branch.as!(DenseBranch*);
                     key.put(branch_.prefix);
-                    if (!atLeaf)
+                    if (!frontAtLeaf)
                     {
                         assert(branch_.subNodes[ix]);
                         key.put(ix);
@@ -1172,9 +1172,9 @@ struct RawRadixTree(Value = void)
                 {
                 case ix_SparseBranchPtr:
                     auto branch_ = branch.as!(SparseBranch*);
-                    if (atLeaf)
+                    if (frontAtLeaf)
                     {
-                        atLeaf = false;
+                        frontAtLeaf = false;
                         ix = 0;
                         if (ix == branch_.subCount) { _empty = true; }
                     }
@@ -1185,9 +1185,9 @@ struct RawRadixTree(Value = void)
                     break;
                 case ix_DenseBranchPtr:
                     auto branch_ = branch.as!(DenseBranch*);
-                    if (atLeaf) // if currently refers to leaf
+                    if (frontAtLeaf) // if currently refers to leaf
                     {
-                        atLeaf = false; // skip it
+                        frontAtLeaf = false; // skip it
                         ix = 0;
                     }
                     else
@@ -1399,9 +1399,15 @@ struct RawRadixTree(Value = void)
     {
         Appender!(BranchRange[]) branches;
         LeafRange leaf;
+
         bool empty() const @safe pure nothrow @nogc
         {
-            return branches.data.length == 0 && cast(bool)(leaf.leaf);
+            const hasLeaf = cast(bool)(leaf.leaf);
+            if (!hasLeaf)
+            {
+                assert(branches.data.length == 0);
+            }
+            return !hasLeaf;
         }
     }
 
@@ -1458,17 +1464,17 @@ struct RawRadixTree(Value = void)
 
                         case ix_SparseBranchPtr:
                             Ix subIx;
-                            bool atLeaf = false;
+                            bool frontAtLeaf = false;
                             auto curr_ = curr.as!(SparseBranch*);
-                            next = curr_.leafOrFirstSubNode(subIx, atLeaf);
-                            _front.branches.put(BranchRange(Branch(curr_), subIx, ModStatus.init, atLeaf));
+                            next = curr_.leafOrFirstSubNode(subIx, frontAtLeaf);
+                            _front.branches.put(BranchRange(Branch(curr_), subIx, ModStatus.init, frontAtLeaf));
                             break;
                         case ix_DenseBranchPtr:
                             Ix subIx;
-                            bool atLeaf = false;
+                            bool frontAtLeaf = false;
                             auto curr_ = curr.as!(DenseBranch*);
-                            next = curr_.leafOrFirstSubNode(subIx, atLeaf);
-                            _front.branches.put(BranchRange(Branch(curr_), subIx, ModStatus.init, atLeaf));
+                            next = curr_.leafOrFirstSubNode(subIx, frontAtLeaf);
+                            _front.branches.put(BranchRange(Branch(curr_), subIx, ModStatus.init, frontAtLeaf));
                             break;
                         }
                         curr = next;
@@ -1797,12 +1803,12 @@ struct RawRadixTree(Value = void)
 
         pragma(inline) auto ref subNodes() inout @nogc { return subNodeSlots[0 .. subCount]; }
 
-        pragma(inline) Node leafOrFirstSubNode(out Ix ix, out bool atLeaf) inout @nogc
+        pragma(inline) Node leafOrFirstSubNode(out Ix ix, out bool frontAtLeaf) inout @nogc
         {
             ix = 0;             // always zero, because of sparse packing
             if (leaf)
             {
-                atLeaf = true;
+                frontAtLeaf = true;
                 return typeof(return)(leaf);
             }
             else
@@ -1932,12 +1938,12 @@ struct RawRadixTree(Value = void)
             return count;
         }
 
-        pragma(inline) Node leafOrFirstSubNode(out Ix ix, out bool atLeaf) inout @nogc
+        pragma(inline) Node leafOrFirstSubNode(out Ix ix, out bool frontAtLeaf) inout @nogc
         {
             if (leaf)
             {
                 ix = 0;
-                atLeaf = true;
+                frontAtLeaf = true;
                 return typeof(return)(leaf);
             }
             else

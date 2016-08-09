@@ -92,7 +92,7 @@ unittest
 {
     static assert(isTrieableKeyType!(const(char)[]));
 
-    struct S { int x, y, z; double w; }
+    struct S { int x, y, z; double w; bool b; }
     static assert(isTrieableKeyType!(S));
 }
 

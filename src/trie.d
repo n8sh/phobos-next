@@ -3,8 +3,6 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
-    TODO Avoid GC-allocation (.dup) in `toRawKey`
-
     TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
     TODO Allow NodeType-constructors to take const and immutable prefixes
 
@@ -3374,8 +3372,8 @@ static private void calculate(Value)(Leaf!Value curr,
 }
 
 /** Remap typed key `typedKey` to raw (untyped) key of type `UKey`. */
-static private UKey toRawKey(TypedKey)(in TypedKey typedKey)
-    @trusted pure nothrow /* TODO @nogc */
+static private UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey ukeyOut)
+    @trusted pure nothrow       /* TODO @nogc */
     if (allSatisfy!(isTrieableKeyType, TypedKey))
 {
     enum radix = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
@@ -3389,15 +3387,13 @@ static private UKey toRawKey(TypedKey)(in TypedKey typedKey)
         enum chunkCount = nbits/span; // number of chunks in key_
         static assert(chunkCount*span == nbits, "Bitsize of TypedKey must be a multiple of span:" ~ span.stringof);
 
-        KeyN!(span, TypedKey.sizeof) ukey;
-
         foreach (const bix; 0 .. chunkCount)
         {
             const bitShift = (chunkCount - 1 - bix)*span; // most significant bit chunk first (MSBCF)
-            ukey[bix] = (key_ >> bitShift) & (radix - 1); // part of value which is also an index
+            ukeyOut[bix] = (key_ >> bitShift) & (radix - 1); // part of value which is also an index
         }
 
-        return ukey.dup; // TODO avoid this GC-allocation
+        return ukeyOut[];
     }
     else static if (isArray!TypedKey &&
                     is(Unqual!(typeof(TypedKey.init[0])) == char))
@@ -3525,7 +3521,8 @@ struct RadixTree(Key, Value)
         auto opIndexAssign(in Value value, Key key)
         {
             _rawTree.EltRef eltRef; // indicates that elt was added
-            _rawTree.insert(key.toRawKey, value, eltRef);
+            KeyN!(span, Key.sizeof) ukey;
+            _rawTree.insert(key.toRawKey(ukey), value, eltRef);
             const bool added = eltRef.node && eltRef.modStatus == ModStatus.added;
             _length += added;
             /* TODO return reference (via `auto ref` return typed) to stored
@@ -3540,7 +3537,8 @@ struct RadixTree(Key, Value)
         bool insert(in Key key, in Value value)
         {
             _rawTree.EltRef eltRef; // indicates that key was added
-            auto rawKey = key.toRawKey;
+            KeyN!(span, Key.sizeof) ukey;
+            auto rawKey = key.toRawKey(ukey[]);
             _rawTree.insert(rawKey, value, eltRef);
             debug if (willFail) { dln("WILL FAIL: eltRef:", eltRef, " key:", key); }
             if (eltRef.node)  // if `key` was added at `eltRef`
@@ -3577,7 +3575,8 @@ struct RadixTree(Key, Value)
         /** Returns: pointer to value if `key` is contained in set, null otherwise. */
         inout(Value*) contains(in Key key) inout
         {
-            return _rawTree.contains(key.toRawKey);
+            KeyN!(span, Key.sizeof) ukey;
+            return _rawTree.contains(key.toRawKey(ukey));
         }
     }
     else
@@ -3589,7 +3588,9 @@ struct RadixTree(Key, Value)
         @safe pure nothrow /* TODO @nogc */
         {
             _rawTree.EltRef eltRef; // indicates that elt was added
-            _rawTree.insert(key.toRawKey, eltRef);
+
+            KeyN!(span, Key.sizeof) ukey;
+            _rawTree.insert(key.toRawKey(ukey[]), eltRef);
             const bool hit = eltRef.node && eltRef.modStatus == ModStatus.added;
             _length += hit;
             return hit;
@@ -3600,7 +3601,8 @@ struct RadixTree(Key, Value)
         /** Returns: `true` if `key` is stored, `false` otherwise. */
         bool contains(in Key key) inout
         {
-            return _rawTree.contains(key.toRawKey);
+            KeyN!(span, Key.sizeof) ukey;
+            return _rawTree.contains(key.toRawKey(ukey[]));
         }
     }
 

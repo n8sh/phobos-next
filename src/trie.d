@@ -90,8 +90,9 @@ template isTrieableKeyType(T)
 
 unittest
 {
-    struct S { int x, y; }
     static assert(isTrieableKeyType!(const(char)[]));
+
+    struct S { int x, y, z; double w; }
     static assert(isTrieableKeyType!(S));
 }
 

@@ -12,8 +12,6 @@
 
     TODO Assure that ~this() is run for argument `nt` in `freeNode`. Can we use `postblit()` for this?
 
-    TODO Assure that no SparseBranch with no leaf can be converted to SparseLeaf1
-
     TODO Search for "functionize this loop or reuse memmove" and use move()
 
     TODO Add Branch-hint allocation flag and re-benchmark construction of radixTreeSet with 10000000 uints

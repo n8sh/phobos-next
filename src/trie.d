@@ -1130,8 +1130,10 @@ struct RawRadixTree(Value = void)
     struct BranchRange
     {
         Branch branch;
-        Ix ix; // `Branch`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
-        ModStatus modStatus;
+        Leaf1!Value leaf1;
+
+        Ix leaf1Ix;
+        Ix branchIx; // `Branch`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
 
         private bool frontAtLeaf; // use sub-leaf instead of sub-Node if `node` is a branch, thereby ignoring `ix`
         private bool _empty;
@@ -1153,7 +1155,7 @@ struct RawRadixTree(Value = void)
                     key.put(branch_.prefix);
                     if (!frontAtLeaf)
                     {
-                        key.put(branch_.subIxs[ix]);
+                        key.put(branch_.subIxs[branchIx]);
                     }
                     break;
                 case ix_DenseBranchPtr:
@@ -1161,8 +1163,8 @@ struct RawRadixTree(Value = void)
                     key.put(branch_.prefix);
                     if (!frontAtLeaf)
                     {
-                        assert(branch_.subNodes[ix]);
-                        key.put(ix);
+                        assert(branch_.subNodes[branchIx]);
+                        key.put(branchIx);
                     }
                     break;
                 }
@@ -1188,12 +1190,12 @@ struct RawRadixTree(Value = void)
                     if (frontAtLeaf)
                     {
                         frontAtLeaf = false;
-                        ix = 0;
-                        if (ix == branch_.subCount) { _empty = true; }
+                        branchIx = 0;
+                        if (branchIx == branch_.subCount) { _empty = true; }
                     }
                     else
                     {
-                        if (ix + 1 == branch_.subCount) { _empty = true; } else { ++ix; }
+                        if (branchIx + 1 == branch_.subCount) { _empty = true; } else { ++branchIx; }
                     }
                     break;
                 case ix_DenseBranchPtr:
@@ -1201,13 +1203,13 @@ struct RawRadixTree(Value = void)
                     if (frontAtLeaf) // if currently refers to leaf
                     {
                         frontAtLeaf = false; // skip it
-                        ix = 0;
+                        branchIx = 0;
                     }
                     else
                     {
-                        if (ix + 1 == radix) { _empty = true; } else { ++ix; }
+                        if (branchIx + 1 == radix) { _empty = true; } else { ++branchIx; }
                     }
-                    ix = branch_.nextNonNullSubNodeIx(ix, _empty);
+                    branchIx = branch_.nextNonNullSubNodeIx(branchIx, _empty);
                     break;
                 default:
                     assert(false);
@@ -1222,7 +1224,6 @@ struct RawRadixTree(Value = void)
     {
         Node leaf;              // TODO Use Leaf when it includes non-Value leaf types
         Ix ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
-        ModStatus modStatus;
 
         private bool _empty;
 
@@ -1476,18 +1477,22 @@ struct RawRadixTree(Value = void)
                             goto doneFront; // terminate recursion
 
                         case ix_SparseBranchPtr:
-                            Ix subIx;
                             bool frontAtLeaf = false;
                             auto curr_ = curr.as!(SparseBranch*);
-                            next = curr_.leafOrFirstSubNode(subIx, frontAtLeaf);
-                            _front.branches.put(BranchRange(Branch(curr_), subIx, ModStatus.init, frontAtLeaf));
+                            Ix branchIx;
+                            Ix leafIx = 0;
+                            next = curr_.leafOrFirstSubNode(branchIx, frontAtLeaf);
+                            _front.branches.put(BranchRange(Branch(curr_), Leaf1!Value(curr_.leaf1),
+                                                            branchIx, leafIx, frontAtLeaf));
                             break;
                         case ix_DenseBranchPtr:
-                            Ix subIx;
                             bool frontAtLeaf = false;
                             auto curr_ = curr.as!(DenseBranch*);
-                            next = curr_.leafOrFirstSubNode(subIx, frontAtLeaf);
-                            _front.branches.put(BranchRange(Branch(curr_), subIx, ModStatus.init, frontAtLeaf));
+                            Ix branchIx;
+                            Ix leafIx = 0;
+                            next = curr_.leafOrFirstSubNode(branchIx, frontAtLeaf);
+                            _front.branches.put(BranchRange(Branch(curr_), Leaf1!Value(curr_.leaf1),
+                                                            branchIx, leafIx, frontAtLeaf));
                             break;
                         }
                         curr = next;

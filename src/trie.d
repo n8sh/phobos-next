@@ -984,6 +984,13 @@ private:
     }
 }
 
+/** Fixed-Length leaf Key-only Node.
+*/
+alias FixedKeyLeafN = WordVariant!(OneLeafMax7,
+                                   TwoLeaf3,
+                                   TriLeaf2,
+                                   HeptLeaf1);
+
 /** Mutable leaf node of 1-Ix leaves.
     Used by branch-leaf.
 */

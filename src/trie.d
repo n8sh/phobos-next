@@ -1461,8 +1461,7 @@ struct RawRadixTree(Value = void)
                     if (ix + 1 == leaf_.length) { _empty = true; } else { ++ix; }
                     break;
                 case ix_DenseLeaf1Ptr:
-                    auto leaf_ = leaf.as!(DenseLeaf1!Value*);
-                    _empty = ix + 1 == radix ? true : !leaf_.tryFindIx(ix, ix);
+                    _empty = !leaf.as!(DenseLeaf1!Value*).tryFindIx(ix, ix);
                     break;
                 default: assert(false, "Unsupported Node type");
                 }

@@ -957,6 +957,26 @@ static private struct DenseLeaf1(Value)
         return modStatus;
     }
 
+    /** Try to find index to first set bit in `_ixBits` starting at bit index `ix` and put the result in `nextIx`.
+        Returns: `true` upon find, `false` otherwise.
+        TODO move to BitSet
+     */
+    bool tryFindIx(Ix ix, out Ix nextIx)
+    {
+        assert(!_ixBits.empty);
+        bool hit = false;
+        foreach (const ix_; cast(uint)ix .. cast(uint)radix)
+        {
+            if (_ixBits[ix_])
+            {
+                nextIx = ix_;
+                hit = true;
+                break;
+            }
+        }
+        return hit;
+    }
+
     static if (hasValue)
     {
         /// Get value at index `ix`.
@@ -997,6 +1017,59 @@ alias FixedKeyLeafN = WordVariant!(OneLeafMax7,
 alias Leaf1(Value) = WordVariant!(HeptLeaf1, // TODO remove from case when Value is void
                                   SparseLeaf1!Value*,
                                   DenseLeaf1!Value*);
+
+/** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
+pragma(inline) Ix firstIx(Value)(Leaf1!Value curr)
+{
+    final switch (curr.typeIx) with (Leaf1!Value.Ix)
+    {
+    case undefined: assert(false);
+    case ix_HeptLeaf1:
+    case ix_SparseLeaf1Ptr:
+        return Ix(0);           // always first
+    case ix_DenseLeaf1Ptr:
+        auto curr_ = curr.as!(DenseLeaf1!Value*);
+        Ix nextIx;
+        const bool hit = curr_.tryFindIx(Ix(0), nextIx);
+        assert(hit);
+        return nextIx;
+    }
+}
+
+/** Try to iterate leaf index `ix` to index, either sparse or dense and put result in `nextIx`.
+    Returns: `true` if `nextIx` was set, `false` if no more indexes was available.
+ */
+pragma(inline) bool tryNextIx(Value)(Leaf1!Value curr, const Ix ix, out Ix nextIx)
+{
+    final switch (curr.typeIx) with (Leaf1!Value.Ix)
+    {
+    case undefined: assert(false);
+    case ix_HeptLeaf1:
+        auto curr_ = curr.as!(HeptLeaf1);
+        if (ix + 1 == curr_.keys.length)
+        {
+            return false;
+        }
+        else
+        {
+            nextIx = Ix(ix + 1);
+            return true;
+        }
+    case ix_SparseLeaf1Ptr:
+        auto curr_ = curr.as!(SparseLeaf1!Value*);
+        if (ix + 1 == curr_.length)
+        {
+            return false;
+        }
+        else
+        {
+            nextIx = Ix(ix + 1);
+            return true;
+        }
+    case ix_DenseLeaf1Ptr:
+        return curr.as!(DenseLeaf1!Value*).tryFindIx(Ix(ix + 1), nextIx);
+    }
+}
 
 static assert((DenseLeaf1!void).sizeof == 32);
 
@@ -1132,12 +1205,36 @@ struct RawRadixTree(Value = void)
         Branch branch;
 
         Ix leaf1Ix;
-        Ix branchIx; // `Branch`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
+        Ix _branchCounter; // `Branch`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
 
-        private bool frontAtLeaf; // use sub-leaf instead of sub-Node if `node` is a branch, thereby ignoring `ix`
+        private bool atLeaf1; // use sub-leaf instead of sub-Node if `node` is a branch, thereby ignoring `ix`
         private bool _empty;
 
+        private bool hasSubNodes;
+
         @safe pure nothrow:
+
+        this(SparseBranch* branch)
+        {
+            this.branch = Branch(branch);
+            this.atLeaf1 = false;
+            this._empty = false;
+
+            this._branchCounter = Ix(0); // always zero
+            this.leaf1Ix = branch.leaf1.firstIx!Value;
+        }
+
+        this(DenseBranch* branch, Ix branchIx, bool hasSubNodes)
+        {
+            this.branch = Branch(branch);
+            this.atLeaf1 = false;
+            this._empty = false;
+
+            this._branchCounter = branchIx;
+            this.hasSubNodes = hasSubNodes;
+
+            this.leaf1Ix = branch.leaf1.firstIx!Value;
+        }
 
         pragma(inline) bool opCast(T : bool)() const @nogc { return cast(bool)branch; }
 
@@ -1152,18 +1249,18 @@ struct RawRadixTree(Value = void)
                 case ix_SparseBranchPtr:
                     auto branch_ = branch.as!(SparseBranch*);
                     key.put(branch_.prefix);
-                    if (!frontAtLeaf)
+                    if (!atLeaf1)
                     {
-                        key.put(branch_.subIxs[branchIx]);
+                        key.put(branch_.subIxs[_branchCounter]);
                     }
                     break;
                 case ix_DenseBranchPtr:
                     auto branch_ = branch.as!(DenseBranch*);
                     key.put(branch_.prefix);
-                    if (!frontAtLeaf)
+                    if (!atLeaf1)
                     {
-                        assert(branch_.subNodes[branchIx]);
-                        key.put(branchIx);
+                        assert(branch_.subNodes[_branchCounter]);
+                        key.put(_branchCounter);
                     }
                     break;
                 }
@@ -1173,11 +1270,10 @@ struct RawRadixTree(Value = void)
         bool empty() const @nogc { return _empty; }
 
         /** Try to iterated forward.
-            Returns: `true` upon sucessful forward iteration, `false` otherwise (upon completion of iteration),
+            Returns: `true` upon successful forward iteration, `false` otherwise (upon completion of iteration),
         */
-        bool popFront(LeafRange* leafRange) /* TODO @nogc */
+        void popFront() /* TODO @nogc */
         {
-            dln("TODO use leafRange");
             assert(!empty);
             with (Branch.Ix)
             {
@@ -1186,42 +1282,49 @@ struct RawRadixTree(Value = void)
                 {
                 case ix_SparseBranchPtr:
                     auto branch_ = branch.as!(SparseBranch*);
-                    if (frontAtLeaf)
+                    if (atLeaf1)
                     {
-                        frontAtLeaf = false;
-                        branchIx = 0;
-                        if (branchIx == branch_.subCount) { _empty = true; }
+                        auto leaf1 = branch_.leaf1;
+                        const hit = leaf1.tryNextIx!Value(leaf1Ix, leaf1Ix);
+                        atLeaf1 = hit; // if no more index we are no longer in leaf
+                        if (!atLeaf1)
+                        {
+                            if (_branchCounter == branch_.subCount) { _empty = true; }
+                        }
                     }
                     else
                     {
-                        if (branchIx + 1 == branch_.subCount) { _empty = true; } else { ++branchIx; }
+                        if (_branchCounter + 1 == branch_.subCount) { _empty = true; } else { ++_branchCounter; }
                     }
                     break;
                 case ix_DenseBranchPtr:
                     auto branch_ = branch.as!(DenseBranch*);
-                    if (frontAtLeaf) // if currently refers to leaf
+                    if (atLeaf1)
                     {
-                        frontAtLeaf = false; // skip it
-                        branchIx = 0;
+                        auto leaf1 = branch_.leaf1;
+                        const hit = leaf1.tryNextIx!Value(leaf1Ix, leaf1Ix);
+                        atLeaf1 = hit; // if no more index we are no longer in leaf
+                        if (!atLeaf1)
+                        {
+                            _branchCounter = branch_.tryNextNonNullSubNodeIx(Ix(0), _empty);
+                        }
                     }
                     else
                     {
-                        if (branchIx + 1 == radix) { _empty = true; } else { ++branchIx; }
+                        _branchCounter = branch_.tryNextNonNullSubNodeIx(Ix(0), _empty);
                     }
-                    branchIx = branch_.nextNonNullSubNodeIx(branchIx, _empty);
                     break;
                 default:
                     assert(false);
                 }
             }
-            return !_empty;
         }
     }
 
     /** Leaf Range (Iterator). */
     struct LeafRange
     {
-        Node leaf;              // TODO Use Leaf when it includes non-Value leaf types
+        Node leaf;              // TODO Use Leaf-WordVariant when it includes non-Value leaf types
         Ix ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
 
         private bool _empty;
@@ -1325,9 +1428,8 @@ struct RawRadixTree(Value = void)
         bool empty() const @nogc { return _empty; }
 
         /** Pop front element.
-            Returns: `true` upon sucessful forward iteration, `false` if range became empty.
         */
-        bool popFront() /* TODO @nogc */
+        void popFront() /* TODO @nogc */
         {
             assert(!empty);
             with (Node.Ix)
@@ -1342,51 +1444,29 @@ struct RawRadixTree(Value = void)
                     _empty = true; // only one element so forward automatically completes
                     break;
                 case ix_TwoLeaf3:
-                    auto node_ = leaf.as!(TwoLeaf3);
-                    if (ix + 1 == node_.keys.length) { _empty = true; } else { ++ix; }
+                    auto leaf_ = leaf.as!(TwoLeaf3);
+                    if (ix + 1 == leaf_.keys.length) { _empty = true; } else { ++ix; }
                     break;
                 case ix_TriLeaf2:
-                    auto node_ = leaf.as!(TriLeaf2);
-                    if (ix + 1 == node_.keys.length) { _empty = true; } else { ++ix; }
+                    auto leaf_ = leaf.as!(TriLeaf2);
+                    if (ix + 1 == leaf_.keys.length) { _empty = true; } else { ++ix; }
                     break;
                 case ix_HeptLeaf1:
-                    auto node_ = leaf.as!(HeptLeaf1);
-                    if (ix + 1 == node_.keys.length) { _empty = true; } else { ++ix; }
+                    auto leaf_ = leaf.as!(HeptLeaf1);
+                    if (ix + 1 == leaf_.keys.length) { _empty = true; } else { ++ix; }
                     break;
 
                 case ix_SparseLeaf1Ptr:
-                    auto node_ = leaf.as!(SparseLeaf1!Value*);
-                    if (ix + 1 == node_.length) { _empty = true; } else { ++ix; }
+                    auto leaf_ = leaf.as!(SparseLeaf1!Value*);
+                    if (ix + 1 == leaf_.length) { _empty = true; } else { ++ix; }
                     break;
                 case ix_DenseLeaf1Ptr:
-                    auto node_ = leaf.as!(DenseLeaf1!Value*);
-                    bool nextFound = false;
-                    if (ix + 1 == radix)
-                    {
-                        _empty = true;
-                    }
-                    else
-                    {
-                        // TODO functionize to member curr_._ixBits.indexOfBit(ix + 1)
-                        foreach (const ix_; ix + 1 .. radix)
-                        {
-                            if (node_._ixBits[ix_])
-                            {
-                                ix = ix_;
-                                nextFound = true;
-                                break;
-                            }
-                        }
-                        if (!nextFound)
-                        {
-                            _empty = true;
-                        }
-                    }
+                    auto leaf_ = leaf.as!(DenseLeaf1!Value*);
+                    _empty = ix + 1 == radix ? true : !leaf_.tryFindIx(ix, ix);
                     break;
                 default: assert(false, "Unsupported Node type");
                 }
             }
-            return !_empty;
         }
 
         static if (hasValue)
@@ -1410,17 +1490,17 @@ struct RawRadixTree(Value = void)
     /** Tree Iterator. */
     struct TreeIterator
     {
-        Appender!(BranchRange[]) branches;
-        LeafRange leaf;
+        Appender!(BranchRange[]) branchRanges;
+        LeafRange leafRange;
 
         bool empty() const @safe pure nothrow @nogc
         {
-            const hasLeaf = cast(bool)(leaf.leaf);
-            if (!hasLeaf)
+            const hasLeaf1 = cast(bool)(leafRange.leaf);
+            if (!hasLeaf1)
             {
-                assert(branches.data.length == 0);
+                assert(branchRanges.data.length == 0);
             }
-            return !hasLeaf;
+            return !hasLeaf1;
         }
     }
 
@@ -1439,12 +1519,11 @@ struct RawRadixTree(Value = void)
                 Node curr = root;
 
                 // calculate front
-                // TODO functionize
-                while (true)
+                Node nextSubNode;
+                do
                 {
                     with (Node.Ix)
                     {
-                        Node next;
                         final switch (curr.typeIx)
                         {
                         case undefined:
@@ -1454,7 +1533,7 @@ struct RawRadixTree(Value = void)
                         case ix_TriLeaf2:
                         case ix_HeptLeaf1:
                         case ix_SparseLeaf1Ptr:
-                            _front.leaf = LeafRange(curr, Ix(0)); // first index always zero
+                            _front.leafRange = LeafRange(curr, Ix(0)); // first index always zero
                             goto doneFront; // terminate recursion
 
                         case ix_DenseLeaf1Ptr:
@@ -1466,7 +1545,7 @@ struct RawRadixTree(Value = void)
                             {
                                 if (curr_._ixBits[ix])
                                 {
-                                    _front.leaf = LeafRange(curr, Ix(ix)); // first index always zero
+                                    _front.leafRange = LeafRange(curr, Ix(ix)); // first index always zero
                                     hit = true;
                                     break;
                                 }
@@ -1476,25 +1555,22 @@ struct RawRadixTree(Value = void)
                             goto doneFront; // terminate recursion
 
                         case ix_SparseBranchPtr:
-                            bool frontAtLeaf = false;
                             auto curr_ = curr.as!(SparseBranch*);
-                            Ix branchIx;
-                            Ix leafIx = 0;
-                            next = curr_.leafOrFirstSubNode(branchIx, frontAtLeaf);
-                            _front.branches.put(BranchRange(Branch(curr_), branchIx, leafIx, frontAtLeaf));
+                            _front.branchRanges.put(BranchRange(curr_));
+                            nextSubNode = curr_.firstSubNode;
                             break;
                         case ix_DenseBranchPtr:
-                            bool frontAtLeaf = false;
                             auto curr_ = curr.as!(DenseBranch*);
                             Ix branchIx;
-                            Ix leafIx = 0;
-                            next = curr_.leafOrFirstSubNode(branchIx, frontAtLeaf);
-                            _front.branches.put(BranchRange(Branch(curr_), branchIx, leafIx, frontAtLeaf));
+                            bool hasSubNodes;
+                            nextSubNode = curr_.nextSubNodeAtIx(Ix(0), branchIx, hasSubNodes);
+                            _front.branchRanges.put(BranchRange(curr_, branchIx, hasSubNodes));
                             break;
                         }
-                        curr = next;
+                        curr = nextSubNode;
                     }
                 }
+                while (nextSubNode);
             doneFront:
                 copyFrontElement;
             }
@@ -1502,52 +1578,55 @@ struct RawRadixTree(Value = void)
 
         bool empty() const /* TODO @nogc */
         {
-            return !cast(bool)_front.leaf;
+            return !cast(bool)_front.leafRange;
         }
 
         void popFront()
         {
             assert(!empty);
 
-            // current leaf
-            bool allDone;
-            if (_front.leaf.popFront)
+            // try bottom-most leaf first
+            if (_front.leafRange)
             {
-                allDone = true;
+                _front.leafRange.popFront;
+                if (_front.leafRange.empty) // if we emptied current leaf range
+                {
+                    _front.leafRange = typeof(_front.leafRange).init; // indicate that
+                }
             }
-            else
+
+            if (!_front.leafRange)   // if leaf range was emptied
             {
-                _front.leaf.leaf = null; // indicate that current leaf has been completed
+                // walk branches from bottom upwards and iterate their leaf1-parts
+                while (_front.branchRanges.data.length) // TODO use reverse foreach
+                {
+                    _front.branchRanges.data[$ - 1].popFront; // last
+                    if (_front.branchRanges.data[$ - 1].empty) // last
+                    {
+                        try
+                        {
+                            _front.branchRanges.shrinkTo(_front.branchRanges.data.length - 1); // functionize to pop()
+                        }
+                        catch (Exception e)
+                        {
+                            assert(false, "shrinkTo threw an Exception");
+                        }
+                    }
+                    else
+                    {
+                        if (_front.branchRanges.data[$ - 1].atLeaf1) // we forwarded to a leaf
+                        {
+                            break; // so we're done
+                        }
+                        else
+                        {
+                            // iterate downwards under _front.branchRanges.data[$-1] until we're done
+                        }
+                    }
+                }
             }
 
-            // walk branches upwards
-            // if (!allDone)
-            // {
-            //     bool branchDone;
-            //     while (_front.branches.data.length)
-            //     {
-            //         if (_front.branches.data[$ - 1].popFront)
-            //         {
-            //         }
-            //     }
-            // }
-
-            // TODO
-            // if (_front.branches.data.length == 0)
-            // {
-            //     assert(false, "Move this logic to after copyFrontElement");
-            // }
-
-            // iterate downwards.
-            // TODO
-
-            // set leaf.
-            // TODO
-
-            if (!empty)
-            {
-                copyFrontElement;
-            }
+            if (!empty) { copyFrontElement; }
         }
 
         void popBack()
@@ -1563,26 +1642,26 @@ struct RawRadixTree(Value = void)
         {
             // key
             _frontKey.clear;
-            foreach (const branchIterator; _front.branches.data) { branchIterator.appendFrontIxsToKey(_frontKey); }
-            _front.leaf.appendFrontIxsToKey(_frontKey);
+            foreach (const branchRange; _front.branchRanges.data) { branchRange.appendFrontIxsToKey(_frontKey); }
+            _front.leafRange.appendFrontIxsToKey(_frontKey);
 
             // value
             static if (hasValue)
             {
-                _frontValue = _front.leaf.value; // last should be leaf containing value
+                _frontValue = _front.leafRange.value; // last should be leaf containing value
             }
         }
         void copyBackElement()
         {
             // key
             _backKey.clear;
-            foreach (const branchIterator; _back.branches.data) { branchIterator.appendFrontIxsToKey(_backKey); }
-            _back.leaf.appendFrontIxsToKey(_backKey);
+            foreach (const branchRange; _back.branchRanges.data) { branchRange.appendFrontIxsToKey(_backKey); }
+            _back.leafRange.appendFrontIxsToKey(_backKey);
 
             // value
             static if (hasValue)
             {
-                _backValue = _back.leaf.value; // last should be leaf containing value
+                _backValue = _back.leafRange.value; // last should be leaf containing value
             }
         }
 
@@ -1818,18 +1897,9 @@ struct RawRadixTree(Value = void)
 
         pragma(inline) auto ref subNodes() inout @nogc { return subNodeSlots[0 .. subCount]; }
 
-        pragma(inline) Node leafOrFirstSubNode(out Ix ix, out bool frontAtLeaf) inout @nogc
+        pragma(inline) Node firstSubNode() @nogc
         {
-            ix = 0;             // always zero, because of sparse packing
-            if (leaf1)
-            {
-                frontAtLeaf = true;
-                return typeof(return)(leaf1);
-            }
-            else
-            {
-                return subNodes[ix];
-            }
+            return subCount ? subNodeSlots[0] : typeof(return).init;
         }
 
         /** Get all sub-`Ix` slots, both initialized and uninitialized. */
@@ -1953,29 +2023,26 @@ struct RawRadixTree(Value = void)
             return count;
         }
 
-        pragma(inline) Node leafOrFirstSubNode(out Ix ix, out bool frontAtLeaf) inout @nogc
+        pragma(inline) Node nextSubNodeAtIx(Ix currIx, out Ix nextIx, out bool hit) inout @nogc
         {
-            if (leaf1)
+            import std.algorithm : countUntil;
+            const cnt = subNodes[currIx .. $].countUntil!(subNode => cast(bool)subNode);
+            hit = cnt >= 0;
+            if (hit)
             {
-                ix = 0;
-                frontAtLeaf = true;
-                return typeof(return)(leaf1);
+                nextIx = Ix(currIx + cnt);
+                return subNodes[nextIx];
             }
-            else
-            {
-                import std.algorithm : countUntil;
-                ix = Ix(subNodes[].countUntil!(subNode => cast(bool)subNode));
-                return subNodes[ix];
-            }
+            return typeof(return).init;
         }
 
-        pragma(inline) Ix nextNonNullSubNodeIx(const Ix ix, out bool completed) inout @nogc
+        pragma(inline) Ix tryNextNonNullSubNodeIx(const Ix ix, out bool emptied) inout @nogc
         {
             import std.algorithm : countUntil;
             const ix_ = subNodes[ix .. $].countUntil!(subNode => cast(bool)subNode); // find next non-zero leaf starting at ix+1
             if (ix_ == -1)
             {
-                completed = true;
+                emptied = true;
                 return ix;      // return last unchanged index
             }
             else
@@ -2196,6 +2263,7 @@ struct RawRadixTree(Value = void)
             /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
             pragma(inline) inout(Value*) containsAt(Leaf1!Value curr, UKey key) inout
             {
+                debug if (willFail) { dln("curr:", curr); }
                 debug if (willFail) { dln("key:", key); }
                 switch (curr.typeIx) with (Leaf1!Value.Ix)
                 {

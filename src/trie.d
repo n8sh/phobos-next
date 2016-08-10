@@ -1130,7 +1130,6 @@ struct RawRadixTree(Value = void)
     struct BranchRange
     {
         Branch branch;
-        Leaf1!Value leaf1;
 
         Ix leaf1Ix;
         Ix branchIx; // `Branch`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
@@ -1482,8 +1481,7 @@ struct RawRadixTree(Value = void)
                             Ix branchIx;
                             Ix leafIx = 0;
                             next = curr_.leafOrFirstSubNode(branchIx, frontAtLeaf);
-                            _front.branches.put(BranchRange(Branch(curr_), Leaf1!Value(curr_.leaf1),
-                                                            branchIx, leafIx, frontAtLeaf));
+                            _front.branches.put(BranchRange(Branch(curr_), branchIx, leafIx, frontAtLeaf));
                             break;
                         case ix_DenseBranchPtr:
                             bool frontAtLeaf = false;
@@ -1491,8 +1489,7 @@ struct RawRadixTree(Value = void)
                             Ix branchIx;
                             Ix leafIx = 0;
                             next = curr_.leafOrFirstSubNode(branchIx, frontAtLeaf);
-                            _front.branches.put(BranchRange(Branch(curr_), Leaf1!Value(curr_.leaf1),
-                                                            branchIx, leafIx, frontAtLeaf));
+                            _front.branches.put(BranchRange(Branch(curr_), branchIx, leafIx, frontAtLeaf));
                             break;
                         }
                         curr = next;

@@ -1080,9 +1080,6 @@ struct RawRadixTree(Value = void)
             return elt[n .. $];
     }
 
-    /// `true` if tree has binary branch.
-    enum isBinary = span == 2;
-
     // TODO make these run-time arguments at different key depths and map to statistics of typed-key
     alias DefaultBranch = SparseBranch*; // either SparseBranch*, DenseBranch*
     alias DefaultLeaf = SparseLeaf1!Value*; // either SparseLeaf1*, DenseLeaf1*

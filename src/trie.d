@@ -987,7 +987,7 @@ private:
 /** Mutable leaf node of 1-Ix leaves.
     Used by branch-leaf.
 */
-alias Leaf1(Value) = WordVariant!(HeptLeaf1,
+alias Leaf1(Value) = WordVariant!(HeptLeaf1, // TODO remove from case when Value is void
                                   SparseLeaf1!Value*,
                                   DenseLeaf1!Value*);
 

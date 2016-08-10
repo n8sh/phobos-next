@@ -989,10 +989,6 @@ alias Leaf1(Value) = WordVariant!(HeptLeaf1,
                                   SparseLeaf1!Value*,
                                   DenseLeaf1!Value*);
 
-/** Mutable leaf node of heap-allocated 1-Ix leaves. */
-alias BigLeaf1(Value) = WordVariant!(SparseLeaf1!Value*,
-                                     DenseLeaf1!Value*);
-
 static assert((DenseLeaf1!void).sizeof == 32);
 
 /** RawTree adaptive radix tree (ART) container storing untyped variable-length `Key`.

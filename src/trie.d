@@ -961,9 +961,10 @@ static private struct DenseLeaf1(Value)
         Returns: `true` upon find, `false` otherwise.
         TODO move to BitSet
      */
-    bool tryFindIx(Ix ix, out Ix nextIx)
+    bool tryFindBitIx(Ix ix, out Ix nextIx)
     {
         assert(!_ixBits.empty);
+        if (ix >= radix) { return false; }
         bool hit = false;
         foreach (const ix_; cast(uint)ix .. cast(uint)radix)
         {
@@ -975,6 +976,11 @@ static private struct DenseLeaf1(Value)
             }
         }
         return hit;
+    }
+
+    bool tryFindNextBitIx(Ix ix, out Ix nextIx)
+    {
+        return ix + 1 == radix || !tryFindBitIx(Ix(ix + 1), ix);
     }
 
     static if (hasValue)
@@ -1030,7 +1036,7 @@ pragma(inline) Ix firstIx(Value)(Leaf1!Value curr)
     case ix_DenseLeaf1Ptr:
         auto curr_ = curr.as!(DenseLeaf1!Value*);
         Ix nextIx;
-        const bool hit = curr_.tryFindIx(Ix(0), nextIx);
+        const bool hit = curr_.tryFindBitIx(Ix(0), nextIx);
         assert(hit);
         return nextIx;
     }
@@ -1067,7 +1073,7 @@ pragma(inline) bool tryNextIx(Value)(Leaf1!Value curr, const Ix ix, out Ix nextI
             return true;
         }
     case ix_DenseLeaf1Ptr:
-        return curr.as!(DenseLeaf1!Value*).tryFindIx(Ix(ix + 1), nextIx);
+        return curr.as!(DenseLeaf1!Value*).tryFindBitIx(Ix(ix + 1), nextIx);
     }
 }
 
@@ -1462,7 +1468,7 @@ struct RawRadixTree(Value = void)
                     break;
                 case ix_DenseLeaf1Ptr:
                     auto leaf_ = leaf.as!(DenseLeaf1!Value*);
-                    _empty = !leaf_.tryFindIx(ix, ix);
+                    _empty = !leaf_.tryFindNextBitIx(ix, ix);
                     break;
                 default: assert(false, "Unsupported Node type");
                 }

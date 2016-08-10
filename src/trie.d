@@ -980,7 +980,8 @@ static private struct DenseLeaf1(Value)
 
     bool tryFindNextBitIx(Ix ix, out Ix nextIx)
     {
-        return ix + 1 == radix || !tryFindBitIx(Ix(ix + 1), ix);
+        const ix1 = ix + 1;
+        return ix1 == radix || !tryFindBitIx(Ix(ix1), nextIx);
     }
 
     static if (hasValue)

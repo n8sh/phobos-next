@@ -414,7 +414,7 @@ bool equalLength(R, Ss...)(const R r, const Ss ss)
 
 /// Binary power of radix, typically either 1, 2, 4 or 8.
 private enum span = 8;
-/// Branch-multiplicity, typically either 2, 4, 16 or 256. Also called order.
+/// Branch-multiplicity. Also called order.
 private enum radix = 2^^span;
 
 static assert(span == 8, "Radix is currently limited to 8");

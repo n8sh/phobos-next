@@ -984,7 +984,9 @@ private:
     }
 }
 
-/** Mutable leaf node of 1-Ix leaves. */
+/** Mutable leaf node of 1-Ix leaves.
+    Used by branch-leaf.
+*/
 alias Leaf1(Value) = WordVariant!(HeptLeaf1,
                                   SparseLeaf1!Value*,
                                   DenseLeaf1!Value*);
@@ -1668,11 +1670,11 @@ struct RawRadixTree(Value = void)
             initialize(subCapacity);
         }
 
-        pragma(inline) this(size_t subCapacity, const Ix[] prefix, Leaf1!Value leaf)
+        pragma(inline) this(size_t subCapacity, const Ix[] prefix, Leaf1!Value leaf1)
         {
             initialize(subCapacity);
             this.prefix = prefix;
-            this.leaf = leaf;
+            this.leaf1 = leaf1;
         }
 
         pragma(inline) this(size_t subCapacity, const Ix[] prefix)
@@ -1681,10 +1683,10 @@ struct RawRadixTree(Value = void)
             this.prefix = prefix;
         }
 
-        pragma(inline) this(size_t subCapacity, Leaf1!Value leaf)
+        pragma(inline) this(size_t subCapacity, Leaf1!Value leaf1)
         {
             initialize(subCapacity);
-            this.leaf = leaf;
+            this.leaf1 = leaf1;
         }
 
         pragma(inline) this(size_t subCapacity, const Ix[] prefix, Sub sub)
@@ -1709,8 +1711,8 @@ struct RawRadixTree(Value = void)
         {
             // these two must be in this order:
             // 1.
-            move(rhs.leaf, this.leaf);
-            debug rhs.leaf = typeof(rhs.leaf).init;
+            move(rhs.leaf1, this.leaf1);
+            debug rhs.leaf1 = typeof(rhs.leaf1).init;
             this.subCount = rhs.subCount;
             move(rhs.prefix, this.prefix);
 
@@ -1813,10 +1815,10 @@ struct RawRadixTree(Value = void)
         pragma(inline) Node leafOrFirstSubNode(out Ix ix, out bool frontAtLeaf) inout @nogc
         {
             ix = 0;             // always zero, because of sparse packing
-            if (leaf)
+            if (leaf1)
             {
                 frontAtLeaf = true;
-                return typeof(return)(leaf);
+                return typeof(return)(leaf1);
             }
             else
             {
@@ -1849,9 +1851,9 @@ struct RawRadixTree(Value = void)
 
             stats.sparseBranchAllocatedSizeSum += allocatedSize;
 
-            if (leaf)
+            if (leaf1)
             {
-                leaf.calculate!(Value)(stats);
+                leaf1.calculate!(Value)(stats);
             }
         }
 
@@ -1873,7 +1875,7 @@ struct RawRadixTree(Value = void)
     private:
 
         // members in order of decreasing `alignof`:
-        Leaf1!Value leaf;
+        Leaf1!Value leaf1;
 
         IxsN!prefixCapacity prefix; // prefix common to all `subNodes` (also called edge-label)
         Count subCount;
@@ -1921,8 +1923,8 @@ struct RawRadixTree(Value = void)
             this.prefix = rhs.prefix;
 
             // move leaf
-            move(rhs.leaf, this.leaf);
-            debug rhs.leaf = Leaf1!Value.init; // make reference unique, to be on the safe side
+            move(rhs.leaf1, this.leaf1);
+            debug rhs.leaf1 = Leaf1!Value.init; // make reference unique, to be on the safe side
 
             foreach (const i; 0 .. rhs.subCount) // each sub node. TODO use iota!(Mod!N)
             {
@@ -1947,11 +1949,11 @@ struct RawRadixTree(Value = void)
 
         pragma(inline) Node leafOrFirstSubNode(out Ix ix, out bool frontAtLeaf) inout @nogc
         {
-            if (leaf)
+            if (leaf1)
             {
                 ix = 0;
                 frontAtLeaf = true;
-                return typeof(return)(leaf);
+                return typeof(return)(leaf1);
             }
             else
             {
@@ -1993,15 +1995,15 @@ struct RawRadixTree(Value = void)
             assert(count <= radix);
             ++stats.popHist_DenseBranch[count]; // TODO type-safe indexing
 
-            if (leaf)
+            if (leaf1)
             {
-                leaf.calculate!(Value)(stats);
+                leaf1.calculate!(Value)(stats);
             }
         }
 
     private:
         // members in order of decreasing `alignof`:
-        Leaf1!Value leaf;
+        Leaf1!Value leaf1;
         IxsN!prefixCapacity prefix; // prefix (edge-label) common to all `subNodes`
         StrictlyIndexed!(Node[radix]) subNodes;
     }
@@ -2082,23 +2084,23 @@ struct RawRadixTree(Value = void)
     }
 
     /** Get leaves of node `curr`. */
-    pragma(inline) inout(Leaf1!Value) getLeaf(inout Branch curr) @safe pure nothrow
+    pragma(inline) inout(Leaf1!Value) getLeaf1(inout Branch curr) @safe pure nothrow
     {
         final switch (curr.typeIx) with (Branch.Ix)
         {
-        case ix_SparseBranchPtr: return curr.as!(SparseBranch*).leaf;
-        case ix_DenseBranchPtr: return curr.as!(DenseBranch*).leaf;
+        case ix_SparseBranchPtr: return curr.as!(SparseBranch*).leaf1;
+        case ix_DenseBranchPtr: return curr.as!(DenseBranch*).leaf1;
         case undefined: assert(false);
         }
     }
 
-    /** Set leaves node of node `curr` to `leaf`. */
-    pragma(inline) void setLeaf(Branch curr, Leaf1!Value leaf) @safe pure nothrow
+    /** Set direct leaves node of node `curr` to `leaf1`. */
+    pragma(inline) void setLeaf1(Branch curr, Leaf1!Value leaf1) @safe pure nothrow
     {
         final switch (curr.typeIx) with (Branch.Ix)
         {
-        case ix_SparseBranchPtr: curr.as!(SparseBranch*).leaf = leaf; break;
-        case ix_DenseBranchPtr: curr.as!(DenseBranch*).leaf = leaf; break;
+        case ix_SparseBranchPtr: curr.as!(SparseBranch*).leaf1 = leaf1; break;
+        case ix_DenseBranchPtr: curr.as!(DenseBranch*).leaf1 = leaf1; break;
         case undefined: assert(false);
         }
     }
@@ -2214,7 +2216,7 @@ struct RawRadixTree(Value = void)
                     if (key.skipOver(curr_.prefix))
                     {
                         return (key.length == 1 ?
-                                containsAt(curr_.leaf, key) : // in leaf
+                                containsAt(curr_.leaf1, key) : // in leaf
                                 containsAt(curr_.containsSubAt(key[0]), key[1 .. $])); // recurse into branch tree
                     }
                     return null;
@@ -2223,7 +2225,7 @@ struct RawRadixTree(Value = void)
                     if (key.skipOver(curr_.prefix))
                     {
                         return (key.length == 1 ?
-                                containsAt(curr_.leaf, key) : // in leaf
+                                containsAt(curr_.leaf1, key) : // in leaf
                                 containsAt(curr_.subNodes[key[0]], key[1 .. $])); // recurse into branch tree
                     }
                     return null;
@@ -2274,13 +2276,13 @@ struct RawRadixTree(Value = void)
                     auto curr_ = curr.as!(SparseBranch*);
                     return (key.skipOver(curr_.prefix) &&        // matching prefix
                             (key.length == 1 ?
-                             containsAt(curr_.leaf, key) : // in leaf
+                             containsAt(curr_.leaf1, key) : // in leaf
                              containsAt(curr_.containsSubAt(key[0]), key[1 .. $]))); // recurse into branch tree
                 case ix_DenseBranchPtr:
                     auto curr_ = curr.as!(DenseBranch*);
                     return (key.skipOver(curr_.prefix) &&        // matching prefix
                             (key.length == 1 ?
-                             containsAt(curr_.leaf, key) : // in leaf
+                             containsAt(curr_.leaf1, key) : // in leaf
                              containsAt(curr_.subNodes[key[0]], key[1 .. $]))); // recurse into branch tree
                 }
             }
@@ -2643,15 +2645,15 @@ struct RawRadixTree(Value = void)
                                           " curr:", curr,
                                           " currPrefix:", getPrefix(curr),
                                           " eltRef:", eltRef); }
-                if (auto leaf = getLeaf(curr))
+                if (auto leaf = getLeaf1(curr))
                 {
-                    setLeaf(curr, insertIxAtLeaftoLeaf(leaf, IxElement(key, value), eltRef));
+                    setLeaf1(curr, insertIxAtLeaftoLeaf(leaf, IxElement(key, value), eltRef));
                 }
                 else
                 {
                     auto leaf_ = constructVariableLength!(SparseLeaf1!Value*)(1, [key], [value]); // needed for values
                     eltRef = EltRef(Node(leaf_), Ix(0), ModStatus.added);
-                    setLeaf(curr, Leaf1!Value(leaf_));
+                    setLeaf1(curr, Leaf1!Value(leaf_));
                 }
                 return curr;
             }
@@ -2664,15 +2666,15 @@ struct RawRadixTree(Value = void)
                                           " curr:", curr,
                                           " currPrefix:", getPrefix(curr),
                                           " eltRef:", eltRef); }
-                if (auto leaf = getLeaf(curr))
+                if (auto leaf = getLeaf1(curr))
                 {
-                    setLeaf(curr, insertIxAtLeaftoLeaf(leaf, key, eltRef));
+                    setLeaf1(curr, insertIxAtLeaftoLeaf(leaf, key, eltRef));
                 }
                 else
                 {
                     auto leaf_ = construct!(HeptLeaf1)(key); // can pack more efficiently when no value
                     eltRef = EltRef(Node(leaf_), Ix(0), ModStatus.added);
-                    setLeaf(curr, Leaf1!Value(leaf_));
+                    setLeaf1(curr, Leaf1!Value(leaf_));
                 }
                 return curr;
             }
@@ -3075,9 +3077,9 @@ struct RawRadixTree(Value = void)
             {
                 release(sub); // recurse branch
             }
-            if (curr.leaf)
+            if (curr.leaf1)
             {
-                release(curr.leaf); // recurse leaf
+                release(curr.leaf1); // recurse leaf
             }
             freeNode(curr);
         }
@@ -3088,9 +3090,9 @@ struct RawRadixTree(Value = void)
             {
                 release(sub); // recurse branch
             }
-            if (curr.leaf)
+            if (curr.leaf1)
             {
-                release(curr.leaf); // recurse leaf
+                release(curr.leaf1); // recurse leaf
             }
             freeNode(curr);
         }
@@ -3270,9 +3272,9 @@ struct RawRadixTree(Value = void)
             write(typeof(*curr_).stringof, " #", curr_.subCount, "/", curr_.subCapacity, " @", curr_);
             if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix.toString('_')); }
             writeln(":");
-            if (curr_.leaf)
+            if (curr_.leaf1)
             {
-                printAt(Node(curr_.leaf), depth + 1);
+                printAt(Node(curr_.leaf1), depth + 1);
             }
             foreach (const i, const subNode; curr_.subNodes)
             {
@@ -3284,9 +3286,9 @@ struct RawRadixTree(Value = void)
             write(typeof(*curr_).stringof, " #", curr_.subCount, "/", radix, " @", curr_);
             if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix.toString('_')); }
             writeln(":");
-            if (curr_.leaf)
+            if (curr_.leaf1)
             {
-                printAt(Node(curr_.leaf), depth + 1);
+                printAt(Node(curr_.leaf1), depth + 1);
             }
             foreach (const i, const subNode; curr_.subNodes)
             {

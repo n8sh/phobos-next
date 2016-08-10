@@ -415,7 +415,6 @@ bool equalLength(R, Ss...)(const R r, const Ss ss)
 /// Binary power of radix, typically either 1, 2, 4 or 8.
 private enum span = 8;
 private enum radix = 2^^span; // branch-multiplicity, typically either 2, 4, 16 or 256
-alias order = radix;          // tree order
 
 static assert(span == 8, "Radix is currently limited to 8");
 static assert(size_t.sizeof == 8, "Currently requires a 64-bit CPU (size_t.sizeof == 8)");

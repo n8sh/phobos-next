@@ -752,18 +752,18 @@ struct BitSet(uint len, Block = size_t)
         }
         alias full = allOne;
 
-        /** Find first index of first set bit starting at index `currIx`.
+        /** Find index (starting at `currIx`) of first bit that equals `value`.
             Returns: `true` if index was found (results is put into `nextIx`), `false` otherwise.
-            TODO shorter name
+            TODO block-optimize for large BitSets
          */
-        bool tryFindFirstSetBitIndexAtIx(Mod!len currIx, out Mod!len nextIx) const @safe @nogc pure nothrow
+        bool indexOf(bool value, Mod!len currIx, out Mod!len nextIx) const @safe @nogc pure nothrow
         {
             if (currIx >= length) { return false; }
             bool hit = false;
             foreach (const ix_; cast(uint)currIx .. cast(uint)length)
             {
-                const bit = this[ix_];
-                if (bit)
+                const bool bit = this[ix_];
+                if (value)
                 {
                     nextIx = typeof(nextIx)(ix_);
                     hit = true;
@@ -1181,22 +1181,22 @@ unittest
     alias Ix = b8.Index;
     Ix nextIx;
 
-    assert(b8.tryFindFirstSetBitIndexAtIx(Ix(0), nextIx));
+    assert(b8.indexOf(true, Ix(0), nextIx));
     assert(nextIx == 0);
 
-    assert(b8.tryFindFirstSetBitIndexAtIx(Ix(1), nextIx));
+    assert(b8.indexOf(true, Ix(1), nextIx));
     assert(nextIx == 1);
 
-    assert(b8.tryFindFirstSetBitIndexAtIx(Ix(2), nextIx));
+    assert(b8.indexOf(true, Ix(2), nextIx));
     assert(nextIx == 3);
 
-    assert(b8.tryFindFirstSetBitIndexAtIx(Ix(3), nextIx));
+    assert(b8.indexOf(true, Ix(3), nextIx));
     assert(nextIx == 3);
 
-    assert(b8.tryFindFirstSetBitIndexAtIx(Ix(4), nextIx));
+    assert(b8.indexOf(true, Ix(4), nextIx));
     assert(nextIx == 6);
 
-    assert(!b8.tryFindFirstSetBitIndexAtIx(Ix(7), nextIx));
+    assert(!b8.indexOf(true, Ix(7), nextIx));
 }
 
 /// ditto

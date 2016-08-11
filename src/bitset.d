@@ -749,6 +749,7 @@ struct BitSet(uint len, Block = size_t)
 
         /** Find first index of first set bit starting at index `ix`.
             Returns: `true` if index was found (results is put into `nextIx`), `false` otherwise.
+            TODO Move to BitSetIterator.member.next
          */
         bool tryFindFirstSetBitIndexAtIx(Mod!len ix, out Mod!len nextIx) const @safe @nogc pure nothrow
         {
@@ -828,9 +829,9 @@ struct BitSet(uint len, Block = size_t)
     nothrow unittest
     {
         debug(bitset) printf("BitSet.opAnd unittest\n");
-        auto a = BitSet!5([1,0,1,0,1]);
+        const a = BitSet!5([1,0,1,0,1]);
         auto b = BitSet!5([1,0,1,1,0]);
-        auto c = a & b;
+        const c = a & b;
         auto d = BitSet!5([1,0,1,0,0]);
         assert(c == d);
     }
@@ -847,9 +848,9 @@ struct BitSet(uint len, Block = size_t)
     nothrow unittest
     {
         debug(bitset) printf("BitSet.opOr unittest\n");
-        auto a = BitSet!5([1,0,1,0,1]);
+        const a = BitSet!5([1,0,1,0,1]);
         auto b = BitSet!5([1,0,1,1,0]);
-        auto c = a | b;
+        const c = a | b;
         auto d = BitSet!5([1,0,1,1,1]);
         assert(c == d);
     }
@@ -866,9 +867,9 @@ struct BitSet(uint len, Block = size_t)
     nothrow unittest
     {
         debug(bitset) printf("BitSet.opXor unittest\n");
-        auto a = BitSet!5([1,0,1,0,1]);
+        const a = BitSet!5([1,0,1,0,1]);
         auto b = BitSet!5([1,0,1,1,0]);
-        auto c = a ^ b;
+        const c = a ^ b;
         auto d = BitSet!5([0,0,0,1,1]);
         assert(c == d);
     }
@@ -888,9 +889,9 @@ struct BitSet(uint len, Block = size_t)
     nothrow unittest
     {
         debug(bitset) printf("BitSet.opSub unittest\n");
-        auto a = BitSet!5([1,0,1,0,1]);
+        const a = BitSet!5([1,0,1,0,1]);
         auto b = BitSet!5([1,0,1,1,0]);
-        auto c = a - b;
+        const c = a - b;
         auto d = BitSet!5([0,0,0,0,1]);
         assert(c == d);
     }
@@ -908,9 +909,9 @@ struct BitSet(uint len, Block = size_t)
     {
         debug(bitset) printf("BitSet.opAndAssign unittest\n");
         auto a = BitSet!5([1,0,1,0,1]);
-        auto b = BitSet!5([1,0,1,1,0]);
+        const b = BitSet!5([1,0,1,1,0]);
         a &= b;
-        auto c = BitSet!5([1,0,1,0,0]);
+        const c = BitSet!5([1,0,1,0,0]);
         assert(a == c);
     }
 
@@ -927,9 +928,9 @@ struct BitSet(uint len, Block = size_t)
     {
         debug(bitset) printf("BitSet.opOrAssign unittest\n");
         auto a = BitSet!5([1,0,1,0,1]);
-        auto b = BitSet!5([1,0,1,1,0]);
+        const b = BitSet!5([1,0,1,1,0]);
         a |= b;
-        auto c = BitSet!5([1,0,1,1,1]);
+        const c = BitSet!5([1,0,1,1,1]);
         assert(a == c);
     }
 
@@ -946,9 +947,9 @@ struct BitSet(uint len, Block = size_t)
     {
         debug(bitset) printf("BitSet.opXorAssign unittest\n");
         auto a = BitSet!5([1,0,1,0,1]);
-        auto b = BitSet!5([1,0,1,1,0]);
+        const b = BitSet!5([1,0,1,1,0]);
         a ^= b;
-        auto c = BitSet!5([0,0,0,1,1]);
+        const c = BitSet!5([0,0,0,1,1]);
         assert(a == c);
     }
 
@@ -968,9 +969,9 @@ struct BitSet(uint len, Block = size_t)
     {
         debug(bitset) printf("BitSet.opSubAssign unittest\n");
         auto a = BitSet!5([1,0,1,0,1]);
-        auto b = BitSet!5([1,0,1,1,0]);
+        const b = BitSet!5([1,0,1,1,0]);
         a -= b;
-        auto c = BitSet!5([0,0,0,0,1]);
+        const c = BitSet!5([0,0,0,0,1]);
         assert(a == c);
     }
 
@@ -997,12 +998,12 @@ struct BitSet(uint len, Block = size_t)
     ///
     unittest
     {
-        auto b = BitSet!16(([0, 0, 0, 0, 1, 1, 1, 1,
+        const b = BitSet!16(([0, 0, 0, 0, 1, 1, 1, 1,
                              0, 0, 0, 0, 1, 1, 1, 1]));
-        auto s1 = format("%s", b);
+        const s1 = format("%s", b);
         assert(s1 == "[0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1]");
 
-        auto s2 = format("%b", b);
+        const s2 = format("%b", b);
         assert(s2 == "00001111_00001111");
     }
 

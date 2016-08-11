@@ -27,6 +27,11 @@ struct BitSet(uint len, Block = size_t)
     import std.traits : isUnsigned;
     static assert(isUnsigned!Block, "Block must be a builtin unsigned integer");
 
+    static if (len >= 1)
+    {
+        alias Index = Mod!len;
+    }
+
     static if (Block.sizeof == 8)
     {
         import core.bitop : bt, bts, btr;
@@ -166,16 +171,16 @@ struct BitSet(uint len, Block = size_t)
 
     /** Sets the $(D i)'th bit in the $(D BitSet). */
     import std.traits: isIntegral;
-    pragma(inline) bool opIndexAssign(Index)(bool b, Index i) @trusted pure nothrow
-        if (isIntegral!Index)
+    pragma(inline) bool opIndexAssign(Index2)(bool b, Index2 i) @trusted pure nothrow
+        if (isIntegral!Index2)
     in
     {
         // import std.traits: isMutable;
         // See also: http://stackoverflow.com/questions/19906516/static-parameter-function-specialization-in-d
-        /* static if (!isMutable!Index) { */
+        /* static if (!isMutable!Index2) { */
         /*     import std.conv: to; */
         /*     static assert(i < len, */
-        /*                   "Index " ~ to!string(i) ~ " must be smaller than BitSet length " ~  to!string(len)); */
+        /*                   "Index2 " ~ to!string(i) ~ " must be smaller than BitSet length " ~  to!string(len)); */
         /* } */
         assert(i < len);
     }
@@ -1168,8 +1173,30 @@ unittest
     auto b8 = BitSet!(8, ubyte)();
     b8[0] = 1;
     b8[1] = 1;
-    b8[7] = 1;
-    assert(b8.ubytes == [128 + 2 + 1]);
+    b8[3] = 1;
+    b8[6] = 1;
+
+    assert(b8.ubytes == [64 + 8 + 2 + 1]);
+
+    alias Ix = b8.Index;
+    Ix nextIx;
+
+    assert(b8.tryFindFirstSetBitIndexAtIx(Ix(0), nextIx));
+    assert(nextIx == 0);
+
+    assert(b8.tryFindFirstSetBitIndexAtIx(Ix(1), nextIx));
+    assert(nextIx == 1);
+
+    assert(b8.tryFindFirstSetBitIndexAtIx(Ix(2), nextIx));
+    assert(nextIx == 3);
+
+    assert(b8.tryFindFirstSetBitIndexAtIx(Ix(3), nextIx));
+    assert(nextIx == 3);
+
+    assert(b8.tryFindFirstSetBitIndexAtIx(Ix(4), nextIx));
+    assert(nextIx == 6);
+
+    assert(!b8.tryFindFirstSetBitIndexAtIx(Ix(7), nextIx));
 }
 
 /// ditto

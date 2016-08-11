@@ -1792,7 +1792,7 @@ struct RawRadixTree(Value = void)
                         }
                         else
                         {
-                            // iterate downwards under _front.branchRanges.data[$-1] until we're done
+                            assert(false, "TODO Iterate downwards under _front.branchRanges.data[$-1] until we're done");
                         }
                     }
                 }

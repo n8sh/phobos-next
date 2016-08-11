@@ -964,7 +964,7 @@ static private struct DenseLeaf1(Value)
     bool tryFindBitIx(Ix ix, out Ix nextIx)
     {
         assert(!_ixBits.empty);
-        return _ixBits.tryFindFirstSetBitIndexAtIx(ix, nextIx);
+        return _ixBits.indexOf(true, ix, nextIx);
     }
 
     bool tryFindNextBitIx(Ix ix, out Ix nextIx)

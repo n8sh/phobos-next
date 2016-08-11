@@ -746,6 +746,27 @@ struct BitSet(uint len, Block = size_t)
             return countOnes == len;
         }
         alias full = allOne;
+
+        /** Find first index of first set bit starting at index `ix`.
+            Returns: `true` if index was found (results is put into `nextIx`), `false` otherwise.
+         */
+        bool tryFindFirstSetBitIndexAtIx(Mod!len ix, out Mod!len nextIx)
+        {
+            if (ix >= length) { return false; }
+            bool hit = false;
+            foreach (const ix_; cast(uint)ix .. cast(uint)length)
+            {
+                const bit = this[ix_];
+                if (bit)
+                {
+                    nextIx = ix_;
+                    hit = true;
+                    break;
+                }
+            }
+            return hit;
+        }
+
     }
 
     /**

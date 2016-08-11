@@ -1200,8 +1200,12 @@ struct RawRadixTree(Value = void)
         Branch branch;
         Leaf1Range leaf1Range;
         Ix _subCounter; // `Branch`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
+        Ix _front;
 
-        private bool _emptyBranch;
+        private bool _frontAtLeaf1;
+
+        // TODO merge these
+        private bool _emptySub;
         private bool hasSubNodes;
 
         @safe pure nothrow:
@@ -1209,7 +1213,7 @@ struct RawRadixTree(Value = void)
         this(SparseBranch* branch)
         {
             this.branch = Branch(branch);
-            this._emptyBranch = false;
+            this._emptySub = false;
 
             this._subCounter = Ix(0); // always zero
 
@@ -1219,7 +1223,7 @@ struct RawRadixTree(Value = void)
         this(DenseBranch* branch, Ix branchIx, bool hasSubNodes)
         {
             this.branch = Branch(branch);
-            this._emptyBranch = false;
+            this._emptySub = false;
 
             this._subCounter = branchIx;
             this.hasSubNodes = hasSubNodes;
@@ -1227,33 +1231,19 @@ struct RawRadixTree(Value = void)
             this.leaf1Range = Leaf1Range(branch.leaf1);
         }
 
-        Ix front()
+        Ix front() const @nogc
         {
             assert(!empty);
-            if (_emptyBranch)
-            {
-                return subIxFront;
-            }
-            else if (_emptyBranch)
-            {
-                return leaf1Range.front;
-            }
-            else                // both non-empty
-            {
-                assert(leaf1Range.front != subIxFront);
-                const leaf1Front = leaf1Range.front;
-                if (leaf1Front < subIxFront)
-                {
-                    return leaf1Front;
-                }
-                else
-                {
-                    return subIxFront;
-                }
-            }
+            return _front;
         }
 
-        private Ix subIxFront()
+        bool frontAtLeaf1() const @nogc
+        {
+            assert(!empty);
+            return _frontAtLeaf1;
+        }
+
+        private Ix subIxFront() const
         {
             final switch (branch.typeIx) with (Branch.Ix)
             {
@@ -1281,7 +1271,7 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        bool empty() const @nogc { return leaf1Range.empty && _emptyBranch; }
+        bool empty() const @nogc { return leaf1Range.empty && _emptySub; }
 
         /** Try to iterated forward.
             Returns: `true` upon successful forward iteration, `false` otherwise (upon completion of iteration),
@@ -1289,7 +1279,7 @@ struct RawRadixTree(Value = void)
         void popFront() /* TODO @nogc */
         {
             assert(!empty);
-            if (_emptyBranch)
+            if (_emptySub)
             {
                 leaf1Range.popFront;
             }
@@ -1310,6 +1300,36 @@ struct RawRadixTree(Value = void)
                     popBranchFront;
                 }
             }
+
+            // TODO merge with above logic
+            if (!empty)
+            {
+                if (_emptySub)
+                {
+                    _front = subIxFront;
+                    _frontAtLeaf1 = false;
+                }
+                else if (_emptySub)
+                {
+                    _front = leaf1Range.front;
+                    _frontAtLeaf1 = true;
+                }
+                else                // both non-empty
+                {
+                    assert(leaf1Range.front != subIxFront);
+                    const leaf1Front = leaf1Range.front;
+                    if (leaf1Front < subIxFront)
+                    {
+                        _front = leaf1Front;
+                        _frontAtLeaf1 = true;
+                    }
+                    else
+                    {
+                        _front = subIxFront;
+                        _frontAtLeaf1 = false;
+                    }
+                }
+            }
         }
 
         private void popBranchFront()
@@ -1320,11 +1340,11 @@ struct RawRadixTree(Value = void)
             case undefined: assert(false);
             case ix_SparseBranchPtr:
                 auto branch_ = branch.as!(SparseBranch*);
-                if (_subCounter + 1 == branch_.subCount) { _emptyBranch = true; } else { ++_subCounter; }
+                if (_subCounter + 1 == branch_.subCount) { _emptySub = true; } else { ++_subCounter; }
                 break;
             case ix_DenseBranchPtr:
                 auto branch_ = branch.as!(DenseBranch*);
-                _subCounter = branch_.tryNextNonNullSubNodeIx(Ix(0), _emptyBranch);
+                _subCounter = branch_.tryNextNonNullSubNodeIx(Ix(0), _emptySub);
                 break;
             }
         }
@@ -1347,7 +1367,7 @@ struct RawRadixTree(Value = void)
         @safe pure nothrow:
 
         /** Get first index in current subkey. */
-        Ix front()
+        Ix front() const
         {
             assert(!empty);
             final switch (leaf1.typeIx) with (Leaf1!Value.Ix)
@@ -1754,6 +1774,7 @@ struct RawRadixTree(Value = void)
                     _front.branchRanges.data[$ - 1].popFront; // last
                     if (_front.branchRanges.data[$ - 1].empty) // last
                     {
+                        // TODO wrap this try-catch in a stack.popBack() that asserts instead of throws
                         try
                         {
                             _front.branchRanges.shrinkTo(_front.branchRanges.data.length - 1); // functionize to pop()
@@ -1761,6 +1782,17 @@ struct RawRadixTree(Value = void)
                         catch (Exception e)
                         {
                             assert(false, "shrinkTo threw an Exception");
+                        }
+                    }
+                    else
+                    {
+                        if (_front.branchRanges.data[$ - 1].frontAtLeaf1) // front is at leaf
+                        {
+                            break; // so we're done
+                        }
+                        else
+                        {
+                            // iterate downwards under _front.branchRanges.data[$-1] until we're done
                         }
                     }
                 }

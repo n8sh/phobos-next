@@ -753,7 +753,7 @@ struct BitSet(uint len, Block = size_t)
         alias full = allOne;
 
         /** Find index (starting at `currIx`) of first bit that equals `value`.
-            Returns: `true` if index was found (results is put into `nextIx`), `false` otherwise.
+            Returns: `true` if index was found (hit index is put into `nextIx`), `false` otherwise.
             TODO block-optimize for large BitSets
          */
         bool indexOf(bool value, Mod!len currIx, out Mod!len nextIx) const @safe @nogc pure nothrow

@@ -759,7 +759,7 @@ struct BitSet(uint len, Block = size_t)
                 const bit = this[ix_];
                 if (bit)
                 {
-                    nextIx = ix_;
+                    nextIx = typeof(nextIx)(ix_);
                     hit = true;
                     break;
                 }

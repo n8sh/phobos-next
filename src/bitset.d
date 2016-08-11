@@ -750,7 +750,7 @@ struct BitSet(uint len, Block = size_t)
         /** Find first index of first set bit starting at index `ix`.
             Returns: `true` if index was found (results is put into `nextIx`), `false` otherwise.
          */
-        bool tryFindFirstSetBitIndexAtIx(Mod!len ix, out Mod!len nextIx)
+        bool tryFindFirstSetBitIndexAtIx(Mod!len ix, out Mod!len nextIx) const @safe @nogc pure nothrow
         {
             if (ix >= length) { return false; }
             bool hit = false;

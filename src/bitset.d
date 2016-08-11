@@ -752,15 +752,15 @@ struct BitSet(uint len, Block = size_t)
         }
         alias full = allOne;
 
-        /** Find first index of first set bit starting at index `ix`.
+        /** Find first index of first set bit starting at index `currIx`.
             Returns: `true` if index was found (results is put into `nextIx`), `false` otherwise.
-            TODO Move to BitSetIterator.member.next
+            TODO shorter name
          */
-        bool tryFindFirstSetBitIndexAtIx(Mod!len ix, out Mod!len nextIx) const @safe @nogc pure nothrow
+        bool tryFindFirstSetBitIndexAtIx(Mod!len currIx, out Mod!len nextIx) const @safe @nogc pure nothrow
         {
-            if (ix >= length) { return false; }
+            if (currIx >= length) { return false; }
             bool hit = false;
-            foreach (const ix_; cast(uint)ix .. cast(uint)length)
+            foreach (const ix_; cast(uint)currIx .. cast(uint)length)
             {
                 const bit = this[ix_];
                 if (bit)

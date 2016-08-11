@@ -964,18 +964,7 @@ static private struct DenseLeaf1(Value)
     bool tryFindBitIx(Ix ix, out Ix nextIx)
     {
         assert(!_ixBits.empty);
-        if (ix >= radix) { return false; }
-        bool hit = false;
-        foreach (const ix_; cast(uint)ix .. cast(uint)radix)
-        {
-            if (_ixBits[ix_])
-            {
-                nextIx = ix_;
-                hit = true;
-                break;
-            }
-        }
-        return hit;
+        return _ixBits.tryFindFirstSetBitIndexAtIx(ix, nextIx);
     }
 
     bool tryFindNextBitIx(Ix ix, out Ix nextIx)

@@ -1203,17 +1203,16 @@ struct RawRadixTree(Value = void)
         Ix _frontIx;
 
         private bool _frontAtLeaf1;
-
         // TODO merge these
-        private bool _emptySub;
+        private bool _subEmpty;
 
         @safe pure nothrow:
 
         this(SparseBranch* branch)
         {
             this.branch = Branch(branch);
-            this._emptySub = false;
 
+            this._subEmpty = false;
             this._subNodeCounter = Ix(0); // always zero
 
             this.leaf1Range = Leaf1Range(branch.leaf1);
@@ -1222,14 +1221,11 @@ struct RawRadixTree(Value = void)
         this(DenseBranch* branch)
         {
             this.branch = Branch(branch);
-            this._emptySub = false;
 
-            Ix branchIx;
-            const bool hasSubNodes = branch.tryNextSubNodeAtIx(Ix(0), branchIx);
-            this._subNodeCounter = branchIx;
+            this._subNodeCounter = 0; // TODO needed?
+            _subEmpty = !branch.tryNextSubNodeAtIx(Ix(0), this._subNodeCounter);
 
             this.leaf1Range = Leaf1Range(branch.leaf1);
-
         }
 
         Ix frontIx() const @nogc
@@ -1282,7 +1278,7 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        bool empty() const @nogc { return leaf1Range.empty && _emptySub; }
+        bool empty() const @nogc { return leaf1Range.empty && _subEmpty; }
 
         /** Try to iterated forward.
             Returns: `true` upon successful forward iteration, `false` otherwise (upon completion of iteration),
@@ -1290,7 +1286,7 @@ struct RawRadixTree(Value = void)
         void popFront() /* TODO @nogc */
         {
             assert(!empty);
-            if (_emptySub)
+            if (_subEmpty)
             {
                 leaf1Range.popFront;
             }
@@ -1315,12 +1311,12 @@ struct RawRadixTree(Value = void)
             // TODO merge with above logic
             if (!empty)
             {
-                if (_emptySub)
+                if (_subEmpty)
                 {
                     _frontIx = subFrontIx;
                     _frontAtLeaf1 = false;
                 }
-                else if (_emptySub)
+                else if (_subEmpty)
                 {
                     _frontIx = leaf1Range.front;
                     _frontAtLeaf1 = true;
@@ -1351,11 +1347,11 @@ struct RawRadixTree(Value = void)
             case undefined: assert(false);
             case ix_SparseBranchPtr:
                 auto branch_ = branch.as!(SparseBranch*);
-                if (_subNodeCounter + 1 == branch_.subCount) { _emptySub = true; } else { ++_subNodeCounter; }
+                if (_subNodeCounter + 1 == branch_.subCount) { _subEmpty = true; } else { ++_subNodeCounter; }
                 break;
             case ix_DenseBranchPtr:
                 auto branch_ = branch.as!(DenseBranch*);
-                _subNodeCounter = branch_.tryNextNonNullSubNodeIx(Ix(0), _emptySub);
+                _subNodeCounter = branch_.tryNextNonNullSubNodeIx(Ix(0), _subEmpty);
                 break;
             }
         }

@@ -1203,7 +1203,6 @@ struct RawRadixTree(Value = void)
         Ix _frontIx;
 
         private bool _frontAtLeaf1;
-        // TODO merge these
         private bool _subEmpty;
 
         @safe pure nothrow:

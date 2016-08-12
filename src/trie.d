@@ -1225,8 +1225,7 @@ struct RawRadixTree(Value = void)
             this._emptySub = false;
 
             Ix branchIx;
-            bool hasSubNodes;
-            auto nextSubNode_ = branch.nextSubNodeAtIx(Ix(0), branchIx, hasSubNodes);
+            const bool hasSubNodes = branch.tryNextSubNodeAtIx(Ix(0), branchIx);
             this._subNodeCounter = branchIx;
 
             this.leaf1Range = Leaf1Range(branch.leaf1);
@@ -2242,17 +2241,16 @@ struct RawRadixTree(Value = void)
             return count;
         }
 
-        pragma(inline) Node nextSubNodeAtIx(Ix currIx, out Ix nextIx, out bool hit) inout @nogc
+        pragma(inline) bool tryNextSubNodeAtIx(Ix currIx, out Ix nextIx) inout @nogc
         {
             import std.algorithm : countUntil;
             const cnt = subNodes[currIx .. $].countUntil!(subNode => cast(bool)subNode);
-            hit = cnt >= 0;
+            const bool hit = cnt >= 0;
             if (hit)
             {
                 nextIx = Ix(currIx + cnt);
-                return subNodes[nextIx];
             }
-            return typeof(return).init;
+            return hit;
         }
 
         pragma(inline) Ix tryNextNonNullSubNodeIx(const Ix ix, out bool emptied) inout @nogc

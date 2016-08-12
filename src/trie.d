@@ -1696,7 +1696,7 @@ struct RawRadixTree(Value = void)
                 Node curr = root;
 
                 // calculate front
-                Node nextSubNode;
+                Node subNode;
                 do
                 {
                     with (Node.Ix)
@@ -1710,7 +1710,7 @@ struct RawRadixTree(Value = void)
                         case ix_HeptLeaf1:
                         case ix_SparseLeaf1Ptr:
                             _front.leafNRange = LeafNRange(curr);
-                            goto doneFront; // terminate recursion
+                            goto doneDiving;
 
                         case ix_DenseLeaf1Ptr:
                             auto curr_ = curr.as!(DenseLeaf1!Value*);
@@ -1728,39 +1728,38 @@ struct RawRadixTree(Value = void)
                             }
                             assert(hit);
 
-                            goto doneFront; // terminate recursion
+                            goto doneDiving;
 
                         case ix_SparseBranchPtr:
                             auto curr_ = curr.as!(SparseBranch*);
-                            _front.branchRanges.put(BranchRange(curr_));
+                            _front.branchRanges.put(BranchRange(curr_)); // TODO stack push
                             if (_front.branchRanges.data[$ - 1].frontAtLeaf1)
                             {
-                                goto doneFront;
+                                goto doneDiving;
                             }
                             else
                             {
-                                nextSubNode = curr_.firstSubNode;
+                                subNode = curr_.firstSubNode;
                             }
                             break;
                         case ix_DenseBranchPtr:
                             auto curr_ = curr.as!(DenseBranch*);
-                            _front.branchRanges.put(BranchRange(curr_));
+                            _front.branchRanges.put(BranchRange(curr_)); // TODO stack push
                             if (_front.branchRanges.data[$ - 1].frontAtLeaf1)
                             {
-                                goto doneFront;
+                                goto doneDiving;
                             }
                             else
                             {
-                                nextSubNode = _front.branchRanges.data[$ - 1].subFrontNode;
+                                subNode = _front.branchRanges.data[$ - 1].subFrontNode;
                             }
-
                             break;
                         }
-                        curr = nextSubNode;
+                        curr = subNode;
                     }
                 }
-                while (nextSubNode);
-            doneFront:
+                while (subNode);
+            doneDiving:
                 copyFrontElement;
             }
         }
@@ -1811,10 +1810,10 @@ struct RawRadixTree(Value = void)
                         }
                         else
                         {
-                            while (!_front.branchRanges.data[$ - 1].empty)
+                            while (!(_front.branchRanges.data[$ - 1].empty && _front.leafNRange.leaf))
                             {
-                                Node currSubNode = _front.branchRanges.data[$ - 1].subFrontNode;
-                                final switch (currSubNode.typeIx) with (Node.Ix)
+                                Node curr = _front.branchRanges.data[$ - 1].subFrontNode;
+                                final switch (curr.typeIx) with (Node.Ix)
                                 {
                                 case undefined: assert(false);
                                 case ix_OneLeafMax7:
@@ -1824,16 +1823,34 @@ struct RawRadixTree(Value = void)
                                 case ix_SparseLeaf1Ptr:
                                 case ix_DenseLeaf1Ptr:
                                     dln("TODO Handle Leaf");
-                                    goto doneDownward; // we are done
+                                    goto doneDiving; // we are done
                                 case ix_SparseBranchPtr:
-                                    _front.branchRanges.put(BranchRange(currSubNode.as!(SparseBranch*))); // TODO stack.push
+                                    auto curr_ = curr.as!(SparseBranch*);
+                                    _front.branchRanges.put(BranchRange(curr_)); // TODO stack.push
+                                    if (_front.branchRanges.data[$ - 1].frontAtLeaf1)
+                                    {
+                                        goto doneDiving;
+                                    }
+                                    else
+                                    {
+                                        curr = curr_.firstSubNode;
+                                    }
                                     break;
                                 case ix_DenseBranchPtr:
-                                    _front.branchRanges.put(BranchRange(currSubNode.as!(DenseBranch*))); // TODO stack.push
+                                    auto curr_ = curr.as!(DenseBranch*);
+                                    _front.branchRanges.put(BranchRange(curr_)); // TODO stack push
+                                    if (_front.branchRanges.data[$ - 1].frontAtLeaf1)
+                                    {
+                                        goto doneDiving;
+                                    }
+                                    else
+                                    {
+                                        curr = _front.branchRanges.data[$ - 1].subFrontNode;
+                                    }
                                     break;
                                 }
                             }
-                            doneDownward:
+                            doneDiving:
                         }
                     }
                 }

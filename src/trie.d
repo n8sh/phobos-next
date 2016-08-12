@@ -1197,14 +1197,6 @@ struct RawRadixTree(Value = void)
     /** Branch Range (Iterator). */
     struct BranchRange
     {
-        Branch branch;
-        Leaf1Range leaf1Range;
-        Ix _subNodeCounter; // `Branch`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
-        Ix _frontIx;
-
-        private bool _frontAtLeaf1;
-        private bool _subEmpty;
-
         @safe pure nothrow:
 
         this(SparseBranch* branch)
@@ -1354,6 +1346,14 @@ struct RawRadixTree(Value = void)
                 break;
             }
         }
+
+    private:
+        Branch branch;
+        Leaf1Range leaf1Range;
+        Ix _subNodeCounter; // `Branch`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
+        Ix _frontIx;
+        bool _frontAtLeaf1;
+        bool _subEmpty;
     }
 
     /** Leaf1 Range (Iterator). */

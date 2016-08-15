@@ -1257,14 +1257,12 @@ struct RawRadixTree(Value = void)
             {
             case undefined: assert(false);
             case ix_SparseBranchPtr:
-                auto branch_ = branch.as!(SparseBranch*);
-                key.put(branch_.prefix);
-                key.put(branch_.subIxs[_subNodeCounter]);
+                key.put(branch.as!(SparseBranch*).prefix);
+                key.put(frontIx);
                 break;
             case ix_DenseBranchPtr:
-                auto branch_ = branch.as!(DenseBranch*);
-                key.put(branch_.prefix);
-                key.put(_subNodeCounter);
+                key.put(branch.as!(DenseBranch*).prefix);
+                key.put(frontIx);
                 break;
             }
         }
@@ -4144,12 +4142,10 @@ unittest
         const key = elt[0];
         const value = elt[1];
 
-        // dln("i:", i);
+        dln("i:", i);
 
         assert(key == i);
         assert(value == keyToValue(cast(Key)i)); // TODO use typed key instead of cast(Key)
-
-        // dln("here");
 
         ++i;
     }

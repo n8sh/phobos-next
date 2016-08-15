@@ -1867,28 +1867,36 @@ struct RawRadixTree(Value = void)
     private:
         void copyFrontElement()
         {
-            // key
+            // TODO functionize?
             _frontKey.clear;
-            foreach (const branchRange; _front.branchRanges.data) { branchRange.appendFrontIxsToKey(_frontKey); }
-            _front.leafNRange.appendFrontIxsToKey(_frontKey);
-
-            // value
-            static if (hasValue)
+            foreach (const branchRange; _front.branchRanges.data)
             {
-                _frontValue = _front.leafNRange.value; // last should be leaf containing value
+                branchRange.appendFrontIxsToKey(_frontKey);
+            }
+            if (_front.leafNRange.leaf)
+            {
+                _front.leafNRange.appendFrontIxsToKey(_frontKey);
+                static if (hasValue)
+                {
+                    _frontValue = _front.leafNRange.value; // last should be leaf containing value
+                }
             }
         }
         void copyBackElement()
         {
-            // key
+            // TODO functionize?
             _backKey.clear;
-            foreach (const branchRange; _back.branchRanges.data) { branchRange.appendFrontIxsToKey(_backKey); }
-            _back.leafNRange.appendFrontIxsToKey(_backKey);
-
-            // value
-            static if (hasValue)
+            foreach (const branchRange; _back.branchRanges.data)
             {
-                _backValue = _back.leafNRange.value; // last should be leaf containing value
+                branchRange.appendFrontIxsToKey(_backKey);
+            }
+            if (_back.leafNRange.leaf)
+            {
+                _back.leafNRange.appendFrontIxsToKey(_backKey);
+                static if (hasValue)
+                {
+                    _backValue = _back.leafNRange.value; // last should be leaf containing value
+                }
             }
         }
 
@@ -4180,19 +4188,15 @@ auto checkString(Keys...)(size_t count, uint maxLength, bool show)
             testContainsAndInsert(set, key);
         }
 
-        import std.range : take;
-        import std.algorithm : filter;
         import std.array : array;
-        import std.algorithm : equal, startsWith;
+        import std.algorithm : equal;
 
-        auto keys1 = sortedKeys.filter!(key => key.length == 1).array;
         if (show)
         {
             dln("set[]:", set[]);
-            dln("keys1:", keys1);
+            dln("sortedkeys:", sortedKeys);
         }
-
-        assert(set[].startsWith(keys1));
+        assert(set[].equal(sortedKeys));
     }
 }
 

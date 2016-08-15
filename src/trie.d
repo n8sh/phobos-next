@@ -1258,13 +1258,12 @@ struct RawRadixTree(Value = void)
             case undefined: assert(false);
             case ix_SparseBranchPtr:
                 key.put(branch.as!(SparseBranch*).prefix);
-                key.put(frontIx);
                 break;
             case ix_DenseBranchPtr:
                 key.put(branch.as!(DenseBranch*).prefix);
-                key.put(frontIx);
                 break;
             }
+            key.put(frontIx); // uses cached data so ok to not depend on branch type
         }
 
         bool empty() const @nogc { return leaf1Range.empty && _subEmpty; }

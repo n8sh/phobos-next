@@ -975,12 +975,10 @@ static private struct DenseLeaf1(Value)
 
     static if (hasValue)
     {
-        /// Get value at index `ix`.
-        auto ref getValue(Ix ix) inout { return _values[ix]; }
         /// Set value at index `ix` to `value`.
         void setValue(Ix ix, in Value value) { _values[ix] = value; }
 
-        auto values() const { return _values; }
+        auto ref values() inout { return _values; }
     }
 
 private:
@@ -1414,6 +1412,25 @@ struct RawRadixTree(Value = void)
             }
         }
 
+        static if (hasValue)
+        {
+            Value frontValue() const
+            {
+                assert(!empty);
+                final switch (leaf1.typeIx) with (Leaf1!Value.Ix)
+                {
+                case undefined:
+                    assert(false);
+                case ix_HeptLeaf1:
+                    assert(false, "HeptLeaf1 cannot store a value");
+                case ix_SparseLeaf1Ptr:
+                    return leaf1.as!(SparseLeaf1!Value*).values[_ix];
+                case ix_DenseLeaf1Ptr:
+                    return leaf1.as!(DenseLeaf1!Value*).values[_ix];
+                }
+            }
+        }
+
         bool empty() const @nogc { return leaf1.isNull; }
 
         /** Pop front element.
@@ -1719,6 +1736,14 @@ struct RawRadixTree(Value = void)
             foreach (const branchRange; branchRanges.data)
             {
                 branchRange.appendFrontIxsToKey(_cachedFrontKey);
+                static if (hasValue)
+                {
+                    if (branchRange.frontAtLeaf1)
+                    {
+                        _cachedFrontValue = branchRange.leaf1Range.frontValue;
+                        return; // we are done
+                    }
+                }
             }
 
             if (leafNRange)
@@ -1727,7 +1752,6 @@ struct RawRadixTree(Value = void)
                 static if (hasValue)
                 {
                     _cachedFrontValue = leafNRange.value; // last should be leaf containing value
-                    assert(false, "TODO handle case when value is store in Leaf1");
                 }
             }
         }
@@ -4089,8 +4113,6 @@ unittest
         assert(map.length == i + 1);
     }
 
-    map.print;
-
     // test range
     size_t i = 0;
     foreach (const elt; map[])
@@ -4098,12 +4120,8 @@ unittest
         const Key key = elt[0];
         const Value value = elt[1];
 
-        dln("i:", i);
-        dln("key:", key);
-        dln("value:", value);
-
         assert(key == i);
-        // TODO assert(value == keyToValue(cast(Key)i)); // TODO use typed key instead of cast(Key)
+        assert(value == keyToValue(cast(Key)i)); // TODO use typed key instead of cast(Key)
 
         ++i;
     }

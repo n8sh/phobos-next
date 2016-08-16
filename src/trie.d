@@ -3771,22 +3771,10 @@ static private inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey)
         static assert(chunkCount*span == nbits, "Bitsize of TypedKey must be a multiple of span:" ~ span.stringof);
 
         // TODO reuse existing trait UnsignedOf!TypedKey
-        static if (TypedKey.sizeof == 1)
-        {
-            ubyte bKey = 0;
-        }
-        else static if (TypedKey.sizeof == 2)
-        {
-            ushort bKey = 0;
-        }
-        else static if (TypedKey.sizeof == 4)
-        {
-            uint bKey = 0;
-        }
-        else static if (TypedKey.sizeof == 8)
-        {
-            ulong bKey = 0;
-        }
+        static      if (TypedKey.sizeof == 1) { ubyte bKey = 0; }
+        else static if (TypedKey.sizeof == 2) { ushort bKey = 0; }
+        else static if (TypedKey.sizeof == 4) { uint bKey = 0; }
+        else static if (TypedKey.sizeof == 8) { ulong bKey = 0; }
 
         foreach (const bix; 0 .. chunkCount)
         {

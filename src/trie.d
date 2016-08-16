@@ -1700,60 +1700,61 @@ struct RawRadixTree(Value = void)
     {
         this(Node root, bool isReversedFromBack = false)
         {
-            assert(root);
-
             this.isReversedFromBack = isReversedFromBack;
-
-            Node curr = root;
-            Node next;
-            do
+            if (root)
             {
-                final switch (curr.typeIx) with (Node.Ix)
+                Node curr = root;
+                Node next;
+                do
                 {
-                case undefined: assert(false);
-                case ix_OneLeafMax7:
-                case ix_TwoLeaf3:
-                case ix_TriLeaf2:
-                case ix_HeptLeaf1:
-                case ix_SparseLeaf1Ptr:
-                case ix_DenseLeaf1Ptr:
-                    leafNRange = LeafNRange(curr);
-                    goto bottomFound;
+                    final switch (curr.typeIx) with (Node.Ix)
+                    {
+                    case undefined: assert(false);
+                    case ix_OneLeafMax7:
+                    case ix_TwoLeaf3:
+                    case ix_TriLeaf2:
+                    case ix_HeptLeaf1:
+                    case ix_SparseLeaf1Ptr:
+                    case ix_DenseLeaf1Ptr:
+                        leafNRange = LeafNRange(curr);
+                        goto bottomFound;
 
-                case ix_SparseBranchPtr:
-                    auto curr_ = curr.as!(SparseBranch*);
-                    branchRanges.put(BranchRange(curr_)); // TODO stack push
-                    if (bottomBranchRange.frontAtLeaf1)
-                    {
-                        dln(bottomBranchRange);
-                        goto bottomFound;
+                    case ix_SparseBranchPtr:
+                        auto curr_ = curr.as!(SparseBranch*);
+                        branchRanges.put(BranchRange(curr_)); // TODO stack push
+                        if (bottomBranchRange.frontAtLeaf1)
+                        {
+                            dln(bottomBranchRange);
+                            goto bottomFound;
+                        }
+                        else
+                        {
+                            dln();
+                            next = curr_.firstSubNode;
+                        }
+                        break;
+                    case ix_DenseBranchPtr:
+                        auto curr_ = curr.as!(DenseBranch*);
+                        branchRanges.put(BranchRange(curr_)); // TODO stack push
+                        if (bottomBranchRange.frontAtLeaf1)
+                        {
+                            dln();
+                            goto bottomFound;
+                        }
+                        else
+                        {
+                            dln();
+                            next = bottomBranchRange.subFrontNode;
+                        }
+                        break;
                     }
-                    else
-                    {
-                        dln();
-                        next = curr_.firstSubNode;
-                    }
-                    break;
-                case ix_DenseBranchPtr:
-                    auto curr_ = curr.as!(DenseBranch*);
-                    branchRanges.put(BranchRange(curr_)); // TODO stack push
-                    if (bottomBranchRange.frontAtLeaf1)
-                    {
-                        dln();
-                        goto bottomFound;
-                    }
-                    else
-                    {
-                        dln();
-                        next = bottomBranchRange.subFrontNode;
-                    }
-                    break;
+                    curr = next;
                 }
-                curr = next;
+                while (next);
+
+            bottomFound:
+                cacheNext;
             }
-            while (next);
-        bottomFound:
-            cacheNext;
         }
 
         bool empty() const @safe pure nothrow @nogc

@@ -1331,9 +1331,8 @@ struct RawRadixTree(Value = void)
             }
             else                // both non-empty
             {
-                assert(leaf1Range.front != subFrontIx);
                 const leaf1Front = leaf1Range.front;
-                if (leaf1Front < subFrontIx)
+                if (leaf1Front <= subFrontIx) // `a` before `ab`
                 {
                     _frontIx = leaf1Front;
                     _frontAtLeaf1 = true;
@@ -1555,8 +1554,6 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        pragma(inline) bool opCast(T : bool)() const @nogc { return cast(bool)leaf; }
-
         /** Get current subkey. */
         Ix[] frontIxs()
         {
@@ -1746,7 +1743,7 @@ struct RawRadixTree(Value = void)
                 }
             }
 
-            if (leafNRange)
+            if (!leafNRange.empty)
             {
                 leafNRange.appendFrontIxsToKey(_cachedFrontKey);
                 static if (hasValue)
@@ -1759,17 +1756,13 @@ struct RawRadixTree(Value = void)
         void popFront()
         {
             // common case: try bottom-most leaf first
-            if (leafNRange)     // if it's defined
+            if (!leafNRange.empty)     // if it's defined
             {
                 assert(!leafNRange.empty); // must be non-empty
                 leafNRange.popFront;       // just pick here
-                if (leafNRange.empty) // if we emptied current leaf range
-                {
-                    leafNRange = typeof(leafNRange).init; // indicate it has been emptied
-                }
             }
 
-            if (!leafNRange)   // if leaf range was emptied
+            if (leafNRange.empty)   // if leaf range was emptied
             {
                 // walk branches from bottom upwards and iterate their leaf1-parts
                 while (branchRanges.data.length) // TODO use reverse foreach
@@ -1806,7 +1799,7 @@ struct RawRadixTree(Value = void)
         /** Find ranges of branches and leaf for all nodes under tree `root`. */
         private void diveAt(Node root)
         {
-            assert(!leafNRange); // should be defined yet or have been cleared upon completion
+            // TODO assert(leafNRange.empty); // should be defined yet or have been cleared upon completion
             Node curr = root;
             Node next;
             do

@@ -1269,12 +1269,15 @@ struct RawRadixTree(Value = void)
             {
             case undefined: assert(false);
             case ix_SparseBranchPtr:
+                dln("prefix:", branch.as!(SparseBranch*).prefix);
                 key.put(branch.as!(SparseBranch*).prefix);
                 break;
             case ix_DenseBranchPtr:
+                dln("prefix:", branch.as!(DenseBranch*).prefix);
                 key.put(branch.as!(DenseBranch*).prefix);
                 break;
             }
+            dln("frontIx:", frontIx);
             key.put(frontIx); // uses cached data so ok to not depend on branch type
         }
 
@@ -1794,19 +1797,16 @@ struct RawRadixTree(Value = void)
                 case ix_HeptLeaf1:
                 case ix_SparseLeaf1Ptr:
                 case ix_DenseLeaf1Ptr:
-                    dln;
                     leafNRange = LeafNRange(curr);
                     next = null; // we're done diving
                     break;
                 case ix_SparseBranchPtr:
                     auto curr_ = curr.as!(SparseBranch*);
-                    dln;
                     branchRanges.put(BranchRange(curr_)); // TODO stack push
                     next = (curr_.subCount) ? curr_.firstSubNode : Node.init;
                     break;
                 case ix_DenseBranchPtr:
                     auto curr_ = curr.as!(DenseBranch*);
-                    dln;
                     branchRanges.put(BranchRange(curr_)); // TODO stack push
                     next = bottomBranchRange.subsEmpty ? Node.init : bottomBranchRange.subFrontNode;
                     break;

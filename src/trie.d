@@ -1893,7 +1893,7 @@ struct RawRadixTree(Value = void)
             if (root)
             {
                 _frontRange = SingleDirRange(root, false);
-                _backRange = SingleDirRange(root, true);
+                // TODO _backRange = SingleDirRange(root, true);
             }
         }
 

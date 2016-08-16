@@ -3724,12 +3724,10 @@ static private inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey)
         else static if (TypedKey.sizeof == 4) { uint bKey = 0; }
         else static if (TypedKey.sizeof == 8) { ulong bKey = 0; }
 
-        foreach (const bix; 0 .. chunkCount)
+        foreach (const i; 0 .. chunkCount) // for each chunk index
         {
-            dln("bix:", bix);
-            dln("ukey:", ukey);
-            const uix = ukey[bix];
-            const bitShift = (chunkCount - 1 - bix)*span; // most significant bit chunk first (MSBCF)
+            const uix = ukey[i];
+            const bitShift = (chunkCount - 1 - i)*span; // most significant bit chunk first (MSBCF)
             bKey |= (uix >> bitShift) & (radix - 1); // part of value which is also an index
         }
 

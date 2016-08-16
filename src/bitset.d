@@ -1188,7 +1188,6 @@ unittest
     assert(nextIx == 1);
 
     assert(b8.canFindIndexOf(true, Ix(2), nextIx));
-    dln(nextIx);
     assert(nextIx == 3);
 
     assert(b8.canFindIndexOf(true, Ix(3), nextIx));

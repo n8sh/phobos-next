@@ -1695,7 +1695,7 @@ struct RawRadixTree(Value = void)
         private bool _empty;
     }
 
-    /** Tree Iterator. */
+    /** Single-Directional Tree Range. */
     struct SingleDirectionalRange
     {
         this(Node root, bool _isReversed = false)

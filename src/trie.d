@@ -1676,6 +1676,92 @@ struct RawRadixTree(Value = void)
             }
             return !hasLeaf1;
         }
+
+        void next()
+        {
+            // try bottom-most leaf first
+            if (leafNRange)
+            {
+                leafNRange.popFront;
+                if (leafNRange.empty) // if we emptied current leaf range
+                {
+                    leafNRange = typeof(leafNRange).init; // indicate that
+                }
+            }
+
+            if (!leafNRange)   // if leaf range was emptied
+            {
+                // walk branches from bottom upwards and iterate their leaf1-parts
+                while (branchRanges.data.length) // TODO use reverse foreach
+                {
+                    // TODO functionize to foo(ref BranchRange branchRange) called as foo(branchRanges.data[$ - 1])
+                    branchRanges.data[$ - 1].popFront; // last
+                    if (branchRanges.data[$ - 1].empty) // last
+                    {
+                        // TODO wrap this try-catch in a stack.popBack() that asserts instead of throws
+                        try
+                        {
+                            branchRanges.shrinkTo(branchRanges.data.length - 1); // functionize to pop()
+                        }
+                        catch (Exception e)
+                        {
+                            assert(false, "shrinkTo threw an Exception");
+                        }
+                    }
+                    else
+                    {
+                        if (branchRanges.data[$ - 1].frontAtLeaf1) // front is at leaf
+                        {
+                            break; // so we're done
+                        }
+                        else
+                        {
+                            while (!(branchRanges.data[$ - 1].empty && leafNRange.leaf))
+                            {
+                                Node curr = branchRanges.data[$ - 1].subFrontNode;
+                                final switch (curr.typeIx) with (Node.Ix)
+                                {
+                                case undefined: assert(false);
+                                case ix_OneLeafMax7:
+                                case ix_TwoLeaf3:
+                                case ix_TriLeaf2:
+                                case ix_HeptLeaf1:
+                                case ix_SparseLeaf1Ptr:
+                                case ix_DenseLeaf1Ptr:
+                                    dln("TODO Handle Leaf");
+                                    goto doneDiving; // we are done
+                                case ix_SparseBranchPtr:
+                                    auto curr_ = curr.as!(SparseBranch*);
+                                    branchRanges.put(BranchRange(curr_)); // TODO stack.push
+                                    if (branchRanges.data[$ - 1].frontAtLeaf1)
+                                    {
+                                        goto doneDiving;
+                                    }
+                                    else
+                                    {
+                                        curr = curr_.firstSubNode;
+                                    }
+                                    break;
+                                case ix_DenseBranchPtr:
+                                    auto curr_ = curr.as!(DenseBranch*);
+                                    branchRanges.put(BranchRange(curr_)); // TODO stack push
+                                    if (branchRanges.data[$ - 1].frontAtLeaf1)
+                                    {
+                                        goto doneDiving;
+                                    }
+                                    else
+                                    {
+                                        curr = branchRanges.data[$ - 1].subFrontNode;
+                                    }
+                                    break;
+                                }
+                            }
+                        doneDiving:
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /** Range over the Elements in a Radix Tree.
@@ -1769,99 +1855,15 @@ struct RawRadixTree(Value = void)
         void popFront()
         {
             assert(!empty);
-
-            // try bottom-most leaf first
-            if (_front.leafNRange)
-            {
-                _front.leafNRange.popFront;
-                if (_front.leafNRange.empty) // if we emptied current leaf range
-                {
-                    _front.leafNRange = typeof(_front.leafNRange).init; // indicate that
-                }
-            }
-
-            if (!_front.leafNRange)   // if leaf range was emptied
-            {
-                // walk branches from bottom upwards and iterate their leaf1-parts
-                while (_front.branchRanges.data.length) // TODO use reverse foreach
-                {
-                    // TODO functionize to foo(ref BranchRange branchRange) called as foo(_front.branchRanges.data[$ - 1])
-                    _front.branchRanges.data[$ - 1].popFront; // last
-                    if (_front.branchRanges.data[$ - 1].empty) // last
-                    {
-                        // TODO wrap this try-catch in a stack.popBack() that asserts instead of throws
-                        try
-                        {
-                            _front.branchRanges.shrinkTo(_front.branchRanges.data.length - 1); // functionize to pop()
-                        }
-                        catch (Exception e)
-                        {
-                            assert(false, "shrinkTo threw an Exception");
-                        }
-                    }
-                    else
-                    {
-                        if (_front.branchRanges.data[$ - 1].frontAtLeaf1) // front is at leaf
-                        {
-                            break; // so we're done
-                        }
-                        else
-                        {
-                            while (!(_front.branchRanges.data[$ - 1].empty && _front.leafNRange.leaf))
-                            {
-                                Node curr = _front.branchRanges.data[$ - 1].subFrontNode;
-                                final switch (curr.typeIx) with (Node.Ix)
-                                {
-                                case undefined: assert(false);
-                                case ix_OneLeafMax7:
-                                case ix_TwoLeaf3:
-                                case ix_TriLeaf2:
-                                case ix_HeptLeaf1:
-                                case ix_SparseLeaf1Ptr:
-                                case ix_DenseLeaf1Ptr:
-                                    dln("TODO Handle Leaf");
-                                    goto doneDiving; // we are done
-                                case ix_SparseBranchPtr:
-                                    auto curr_ = curr.as!(SparseBranch*);
-                                    _front.branchRanges.put(BranchRange(curr_)); // TODO stack.push
-                                    if (_front.branchRanges.data[$ - 1].frontAtLeaf1)
-                                    {
-                                        goto doneDiving;
-                                    }
-                                    else
-                                    {
-                                        curr = curr_.firstSubNode;
-                                    }
-                                    break;
-                                case ix_DenseBranchPtr:
-                                    auto curr_ = curr.as!(DenseBranch*);
-                                    _front.branchRanges.put(BranchRange(curr_)); // TODO stack push
-                                    if (_front.branchRanges.data[$ - 1].frontAtLeaf1)
-                                    {
-                                        goto doneDiving;
-                                    }
-                                    else
-                                    {
-                                        curr = _front.branchRanges.data[$ - 1].subFrontNode;
-                                    }
-                                    break;
-                                }
-                            }
-                            doneDiving:
-                        }
-                    }
-                }
-            }
-
+            _front.next;
             if (!empty) { copyFrontElement; }
         }
 
         void popBack()
         {
             assert(!empty);
-            dln("TODO Iterate _back");
-
-            copyBackElement;
+            _back.next;
+            if (!empty) { copyBackElement; }
         }
 
     private:

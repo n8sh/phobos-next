@@ -1292,7 +1292,6 @@ struct RawRadixTree(Value = void)
             }
             else                // both non-empty
             {
-                dln(leaf1Range);
                 assert(leaf1Range.front != subFrontIx);
                 const leafFront = leaf1Range.front;
                 if (leafFront < subFrontIx)
@@ -1370,12 +1369,15 @@ struct RawRadixTree(Value = void)
         this(Leaf1!Value leaf1)
         {
             this.leaf1 = leaf1;
-            this._ix = firstIx(this._empty);
+            bool empty;
+            this._ix = firstIx(empty);
+            if (empty)
+            {
+                this.leaf1 = null;
+            }
         }
 
         @safe pure nothrow:
-
-        pragma(inline) bool opCast(T : bool)() const @nogc { return cast(bool)leaf1; }
 
         /** Get first index in current subkey. */
         Ix front() const
@@ -1401,7 +1403,7 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        bool empty() const @nogc { return _empty; }
+        bool empty() const @nogc { return leaf1.isNull; }
 
         /** Pop front element.
          */
@@ -1420,16 +1422,20 @@ struct RawRadixTree(Value = void)
                 else
                 {
                     auto leaf_ = leaf1.as!(HeptLeaf1);
-                    if (_ix + 1 == leaf_.keys.length) { _empty = true; } else { ++_ix; }
+                    if (_ix + 1 == leaf_.keys.length) { leaf1 = null; } else { ++_ix; }
                     break;
                 }
             case ix_SparseLeaf1Ptr:
                 auto leaf_ = leaf1.as!(SparseLeaf1!Value*);
-                if (_ix + 1 == leaf_.length) { _empty = true; } else { ++_ix; }
+                if (_ix + 1 == leaf_.length) { leaf1 = null; } else { ++_ix; }
                 break;
             case ix_DenseLeaf1Ptr:
                 auto leaf_ = leaf1.as!(DenseLeaf1!Value*);
-                _empty = !leaf_.tryFindNextSetBitIx(_ix, _ix);
+                const bool empty = !leaf_.tryFindNextSetBitIx(_ix, _ix);
+                if (empty)
+                {
+                    leaf1 = null;
+                }
                 break;
             }
         }
@@ -1478,7 +1484,6 @@ struct RawRadixTree(Value = void)
     private:
         Leaf1!Value leaf1; // TODO Use Leaf1!Value-WordVariant when it includes non-Value leaf1 types
         Ix _ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
-        bool _empty;
     }
 
     /** Leaf Value Range (Iterator). */

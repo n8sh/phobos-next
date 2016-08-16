@@ -1752,7 +1752,7 @@ struct RawRadixTree(Value = void)
                 while (next);
 
             bottomFound:
-                cacheNext;
+                cacheFront;
             }
         }
 
@@ -1761,7 +1761,7 @@ struct RawRadixTree(Value = void)
             return leafNRange.empty && branchRanges.data.length == 0;
         }
 
-        void cacheNext()
+        void cacheFront()
         {
             _cachedKey.clear;
 
@@ -1781,7 +1781,7 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        void next()
+        void popFront()
         {
             // common case: try bottom-most leaf first
             if (leafNRange)     // if it's defined
@@ -1903,15 +1903,15 @@ struct RawRadixTree(Value = void)
         void popFront()
         {
             assert(!empty);
-            _frontRange.next;
-            if (!empty) { _frontRange.cacheNext; }
+            _frontRange.popFront;
+            if (!empty) { _frontRange.cacheFront; }
         }
 
         void popBack()
         {
             assert(!empty);
-            _backRange.next;
-            if (!empty) { _backRange.cacheNext; }
+            _backRange.popFront;
+            if (!empty) { _backRange.cacheFront; }
         }
 
     private:

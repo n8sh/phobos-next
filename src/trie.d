@@ -1203,7 +1203,7 @@ struct RawRadixTree(Value = void)
         {
             this.branch = Branch(branch);
 
-            this._subEmpty = false;
+            this._subEmpty = branch.subCount == 0;
             this._subNodeCounter = Ix(0); // always zero
 
             if (branch.leaf1)
@@ -1246,8 +1246,13 @@ struct RawRadixTree(Value = void)
             final switch (branch.typeIx) with (Branch.Ix)
             {
             case undefined: assert(false);
-            case ix_SparseBranchPtr: return branch.as!(SparseBranch*).subIxs[_subNodeCounter];
-            case ix_DenseBranchPtr: return _subNodeCounter;
+            case ix_SparseBranchPtr:
+                dln(branch.as!(SparseBranch*).subIxs);
+                dln(_subNodeCounter);
+                return branch.as!(SparseBranch*).subIxs[_subNodeCounter];
+            case ix_DenseBranchPtr:
+                dln(*branch.as!(DenseBranch*));
+                return _subNodeCounter;
             }
         }
 
@@ -1333,6 +1338,7 @@ struct RawRadixTree(Value = void)
             }
             else                // both non-empty
             {
+                dln("subFrontIx:", subFrontIx);
                 assert(leaf1Range.front != subFrontIx);
                 const leaf1Front = leaf1Range.front;
                 if (leaf1Front < subFrontIx)

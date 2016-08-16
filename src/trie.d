@@ -1210,6 +1210,8 @@ struct RawRadixTree(Value = void)
             {
                 this.leaf1Range = Leaf1Range(branch.leaf1);
             }
+
+            cacheFront;
         }
 
         this(DenseBranch* branch)
@@ -1223,6 +1225,8 @@ struct RawRadixTree(Value = void)
             {
                 this.leaf1Range = Leaf1Range(branch.leaf1);
             }
+
+            cacheFront;
         }
 
         Ix frontIx() const @nogc
@@ -1304,35 +1308,42 @@ struct RawRadixTree(Value = void)
                 }
             }
 
-            /* fill cached value and remember if we we next element is direct
-               (_frontAtLeaf1 is true) or under a sub-branch (_frontAtLeaf1 is
-               false) */
             if (!empty)
             {
-                if (_subEmpty)
+                cacheFront;
+            }
+        }
+
+        /** Fill cached value and remember if we we next element is direct
+           (_frontAtLeaf1 is true) or under a sub-branch (_frontAtLeaf1 is
+           false).
+        */
+        void cacheFront()
+        {
+            assert(!empty);
+            if (_subEmpty)
+            {
+                _frontIx = leaf1Range.front;
+                _frontAtLeaf1 = true;
+            }
+            else if (leaf1Range.empty)
+            {
+                _frontIx = subFrontIx;
+                _frontAtLeaf1 = false;
+            }
+            else                // both non-empty
+            {
+                assert(leaf1Range.front != subFrontIx);
+                const leaf1Front = leaf1Range.front;
+                if (leaf1Front < subFrontIx)
                 {
-                    _frontIx = leaf1Range.front;
+                    _frontIx = leaf1Front;
                     _frontAtLeaf1 = true;
                 }
-                else if (leaf1Range.empty)
+                else
                 {
                     _frontIx = subFrontIx;
                     _frontAtLeaf1 = false;
-                }
-                else                // both non-empty
-                {
-                    assert(leaf1Range.front != subFrontIx);
-                    const leaf1Front = leaf1Range.front;
-                    if (leaf1Front < subFrontIx)
-                    {
-                        _frontIx = leaf1Front;
-                        _frontAtLeaf1 = true;
-                    }
-                    else
-                    {
-                        _frontIx = subFrontIx;
-                        _frontAtLeaf1 = false;
-                    }
                 }
             }
         }
@@ -4229,9 +4240,16 @@ auto checkString(Keys...)(size_t count, uint maxLength, bool show)
             dln("sortedkeys:", sortedKeys);
         }
         import std.string : representation;
-        dln("set[].front:", set[].front.representation);
-        dln("sortedKeys[0]:", sortedKeys[0].representation);
-        assert(set[].front.equal(sortedKeys[0]));
+
+        const x = set[].front.representation;
+        const y = sortedKeys[0].representation;
+
+        import std.string : format;
+        import std.algorithm : map;
+        dln("set[].front:", x.map!(ix => format("%.2X", ix)));
+        dln("sortedKeys[0]:", y.map!(ix => format("%.2X", ix)));
+
+        assert(x.equal(y));
         assert(set[].equal(sortedKeys));
     }
 }
@@ -4240,7 +4258,7 @@ auto checkString(Keys...)(size_t count, uint maxLength, bool show)
 // TODO @safe pure nothrow /* TODO @nogc */
 unittest
 {
-    checkString!(string)(4, 8, true);
+    checkString!(string)(64, 8, true);
     checkString!(string)(2^^18, 2^^7, false);
 }
 

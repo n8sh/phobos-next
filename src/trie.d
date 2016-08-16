@@ -1367,11 +1367,6 @@ struct RawRadixTree(Value = void)
     /** Leaf1 Range (Iterator). */
     struct Leaf1Range
     {
-        Leaf1!Value leaf1; // TODO Use Leaf1!Value-WordVariant when it includes non-Value leaf1 types
-        Ix _ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
-
-        private bool _empty;
-
         this(Leaf1!Value leaf1)
         {
             this.leaf1 = leaf1;
@@ -1479,16 +1474,16 @@ struct RawRadixTree(Value = void)
                 return nextIx;
             }
         }
+
+    private:
+        Leaf1!Value leaf1; // TODO Use Leaf1!Value-WordVariant when it includes non-Value leaf1 types
+        Ix _ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
+        bool _empty;
     }
 
     /** Leaf Value Range (Iterator). */
     struct LeafNRange
     {
-        Node leaf;              // TODO Use Leaf-WordVariant when it includes non-Value leaf types
-        Ix ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
-
-        private bool _empty;
-
         this(Node leaf)
         {
             this.leaf = leaf;
@@ -1675,14 +1670,15 @@ struct RawRadixTree(Value = void)
             }
         }
 
+    private:
+        Node leaf;              // TODO Use Leaf-WordVariant when it includes non-Value leaf types
+        Ix ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
+        private bool _empty;
     }
 
     /** Tree Iterator. */
     struct TreeIterator
     {
-        Appender!(BranchRange[]) branchRanges;
-        LeafNRange leafNRange;
-
         bool empty() const @safe pure nothrow @nogc
         {
             const hasLeaf1 = cast(bool)(leafNRange.leaf);
@@ -1778,6 +1774,9 @@ struct RawRadixTree(Value = void)
                 }
             }
         }
+    private:
+        Appender!(BranchRange[]) branchRanges;
+        LeafNRange leafNRange;
     }
 
     /** Range over the Elements in a Radix Tree.

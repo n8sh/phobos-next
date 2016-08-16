@@ -1834,7 +1834,6 @@ struct RawRadixTree(Value = void)
                             auto curr_ = curr.as!(SparseBranch*);
                             debug dln("curr_:", curr_);
                             _frontIt.branchRanges.put(BranchRange(curr_)); // TODO stack push
-                            dln;
                             if (_frontIt.branchRanges.data[$ - 1].frontAtLeaf1)
                             {
                                 dln;

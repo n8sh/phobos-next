@@ -1703,43 +1703,6 @@ struct RawRadixTree(Value = void)
             if (root) { diveAt(root); }
         }
 
-        /** Find ranges of branches and leaf for all nodes under tree `root`. */
-        private void diveAt(Node root)
-        {
-            assert(!leafNRange); // should be defined yet or have been cleared upon completion
-            Node curr = root;
-            Node next;
-            do
-            {
-                final switch (curr.typeIx) with (Node.Ix)
-                {
-                case undefined: assert(false);
-                case ix_OneLeafMax7:
-                case ix_TwoLeaf3:
-                case ix_TriLeaf2:
-                case ix_HeptLeaf1:
-                case ix_SparseLeaf1Ptr:
-                case ix_DenseLeaf1Ptr:
-                    leafNRange = LeafNRange(curr);
-                    next = null; // we're done diving
-                    break;
-                case ix_SparseBranchPtr:
-                    auto curr_ = curr.as!(SparseBranch*);
-                    branchRanges.put(BranchRange(curr_)); // TODO stack push
-                    next = (curr_.subCount) ? curr_.firstSubNode : Node.init;
-                    break;
-                case ix_DenseBranchPtr:
-                    auto curr_ = curr.as!(DenseBranch*);
-                    branchRanges.put(BranchRange(curr_)); // TODO stack push
-                    next = bottomBranchRange.subsEmpty ? Node.init : bottomBranchRange.subFrontNode;
-                    break;
-                }
-                curr = next;
-            }
-            while (next);
-            cacheFront;
-        }
-
         bool empty() const @safe pure nothrow @nogc
         {
             return leafNRange.empty && branchRanges.data.length == 0;
@@ -1811,6 +1774,44 @@ struct RawRadixTree(Value = void)
                 }
             }
         }
+
+        /** Find ranges of branches and leaf for all nodes under tree `root`. */
+        private void diveAt(Node root)
+        {
+            assert(!leafNRange); // should be defined yet or have been cleared upon completion
+            Node curr = root;
+            Node next;
+            do
+            {
+                final switch (curr.typeIx) with (Node.Ix)
+                {
+                case undefined: assert(false);
+                case ix_OneLeafMax7:
+                case ix_TwoLeaf3:
+                case ix_TriLeaf2:
+                case ix_HeptLeaf1:
+                case ix_SparseLeaf1Ptr:
+                case ix_DenseLeaf1Ptr:
+                    leafNRange = LeafNRange(curr);
+                    next = null; // we're done diving
+                    break;
+                case ix_SparseBranchPtr:
+                    auto curr_ = curr.as!(SparseBranch*);
+                    branchRanges.put(BranchRange(curr_)); // TODO stack push
+                    next = (curr_.subCount) ? curr_.firstSubNode : Node.init;
+                    break;
+                case ix_DenseBranchPtr:
+                    auto curr_ = curr.as!(DenseBranch*);
+                    branchRanges.put(BranchRange(curr_)); // TODO stack push
+                    next = bottomBranchRange.subsEmpty ? Node.init : bottomBranchRange.subFrontNode;
+                    break;
+                }
+                curr = next;
+            }
+            while (next);
+            cacheFront;
+        }
+
     private:
         auto ref bottomBranchRange() @nogc { return branchRanges.data[$ - 1]; }
         Appender!(BranchRange[]) branchRanges;

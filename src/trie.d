@@ -1695,7 +1695,7 @@ struct RawRadixTree(Value = void)
         private bool _empty;
     }
 
-    /** Single-Directional Tree Range. */
+    /** Single-Directional Range over Tree. */
     struct SingleDirectionalRange
     {
         this(Node root, bool _isReversed = false)
@@ -1880,7 +1880,7 @@ struct RawRadixTree(Value = void)
         bool _isReversed; // iterator is reversed from back
     }
 
-    /** Range over the Elements in a Radix Tree.
+    /** Bi-Directional Range over Tree.
         Fulfills `isBidirectionalRange`.
     */
     struct Range

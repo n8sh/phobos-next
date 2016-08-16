@@ -1843,7 +1843,7 @@ struct RawRadixTree(Value = void)
                 }
                 while (subNode);
             doneDiving:
-                copyFrontElement;
+                cacheFrontElement;
             }
         }
 
@@ -1856,7 +1856,7 @@ struct RawRadixTree(Value = void)
         {
             assert(!empty);
             _front.next;
-            if (!empty) { copyFrontElement; }
+            if (!empty) { cacheFrontElement; }
         }
 
         void popBack()
@@ -1867,7 +1867,7 @@ struct RawRadixTree(Value = void)
         }
 
     private:
-        void copyFrontElement()
+        void cacheFrontElement()
         {
             // TODO functionize?
             _frontKey.clear;

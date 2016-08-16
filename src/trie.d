@@ -970,7 +970,7 @@ static private struct DenseLeaf1(Value)
     bool tryFindNextSetBitIx(Ix ix, out Ix nextIx) const
     {
         const ix1 = ix + 1;
-        return ix1 == radix || !tryFindSetBitIx(Ix(ix1), nextIx);
+        return ix1 != radix && tryFindSetBitIx(Ix(ix1), nextIx);
     }
 
     static if (hasValue)
@@ -1446,6 +1446,7 @@ struct RawRadixTree(Value = void)
         void popFront() /* TODO @nogc */
         {
             assert(!empty);
+
             // TODO move all calls to leaf1-specific members popFront()
             final switch (leaf1.typeIx) with (Leaf1!Value.Ix)
             {
@@ -1469,9 +1470,8 @@ struct RawRadixTree(Value = void)
                 break;
             case ix_DenseLeaf1Ptr:
                 auto leaf_ = leaf1.as!(DenseLeaf1!Value*);
-                dln(*leaf_);
-                const bool empty = !leaf_.tryFindNextSetBitIx(_ix, _ix);
-                if (empty)
+                const bool hit = !leaf_.tryFindNextSetBitIx(_ix, _ix);
+                if (!hit)
                 {
                     leaf1 = null;
                 }

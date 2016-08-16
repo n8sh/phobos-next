@@ -1530,12 +1530,18 @@ struct RawRadixTree(Value = void)
         this(Node leaf)
         {
             this.leaf = leaf;
-            this.ix = firstIx(_empty);
+
+            bool emptied;
+            this.ix = firstIx(emptied);
+            if (emptied)
+            {
+                this.leaf = null;
+            }
         }
 
         @safe pure nothrow:
 
-        private Ix firstIx(out bool empty) const
+        private Ix firstIx(out bool emptied) const
         {
             switch (leaf.typeIx) with (Node.Ix)
             {
@@ -1546,11 +1552,11 @@ struct RawRadixTree(Value = void)
             case ix_HeptLeaf1:
                 return Ix(0);           // always first
             case ix_SparseLeaf1Ptr:
-                auto leaf_ = leaf.as!(SparseLeaf1!Value*);
-                empty = leaf_.empty;
+                const leaf_ = leaf.as!(SparseLeaf1!Value*);
+                emptied = leaf_.empty;
                 return Ix(0);           // always first
             case ix_DenseLeaf1Ptr:
-                auto leaf_ = leaf.as!(DenseLeaf1!Value*);
+                const leaf_ = leaf.as!(DenseLeaf1!Value*);
                 Ix nextIx;
                 const bool hit = leaf_.tryFindSetBitIx(Ix(0), nextIx);
                 assert(hit);
@@ -1653,10 +1659,11 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        bool empty() const @nogc { return _empty; }
+        bool empty() const @nogc { return !leaf; }
 
-        /** Pop front element.
-        */
+        void makeEmpty() @nogc { leaf = null; }
+
+        /** Pop front element. */
         void popFront() /* TODO @nogc */
         {
             assert(!empty);
@@ -1669,28 +1676,29 @@ struct RawRadixTree(Value = void)
                     assert(false);
 
                 case ix_OneLeafMax7:
-                    _empty = true; // only one element so forward automatically completes
+                    makeEmpty; // only one element so forward automatically completes
                     break;
                 case ix_TwoLeaf3:
                     auto leaf_ = leaf.as!(TwoLeaf3);
-                    if (ix + 1 == leaf_.keys.length) { _empty = true; } else { ++ix; }
+                    if (ix + 1 == leaf_.keys.length) { makeEmpty; } else { ++ix; }
                     break;
                 case ix_TriLeaf2:
                     auto leaf_ = leaf.as!(TriLeaf2);
-                    if (ix + 1 == leaf_.keys.length) { _empty = true; } else { ++ix; }
+                    if (ix + 1 == leaf_.keys.length) { makeEmpty; } else { ++ix; }
                     break;
                 case ix_HeptLeaf1:
                     auto leaf_ = leaf.as!(HeptLeaf1);
-                    if (ix + 1 == leaf_.keys.length) { _empty = true; } else { ++ix; }
+                    if (ix + 1 == leaf_.keys.length) { makeEmpty; } else { ++ix; }
                     break;
 
                 case ix_SparseLeaf1Ptr:
                     auto leaf_ = leaf.as!(SparseLeaf1!Value*);
-                    if (ix + 1 == leaf_.length) { _empty = true; } else { ++ix; }
+                    if (ix + 1 == leaf_.length) { makeEmpty; } else { ++ix; }
                     break;
                 case ix_DenseLeaf1Ptr:
                     auto leaf_ = leaf.as!(DenseLeaf1!Value*);
-                    _empty = !leaf_.tryFindNextSetBitIx(ix, ix);
+                    const bool emptied = !leaf_.tryFindNextSetBitIx(ix, ix);
+                    if (emptied) { makeEmpty; }
                     break;
                 default: assert(false, "Unsupported Node type");
                 }
@@ -1716,7 +1724,6 @@ struct RawRadixTree(Value = void)
     private:
         Node leaf;              // TODO Use Leaf-WordVariant when it includes non-Value leaf types
         Ix ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
-        private bool _empty;
     }
 
     /** Forward Single-Directional Range over Tree. */
@@ -1727,8 +1734,10 @@ struct RawRadixTree(Value = void)
             if (root) { diveAt(root); }
         }
 
-        bool empty() const @safe pure nothrow @nogc
+        bool empty() const @safe pure nothrow // TODO @nogc
         {
+            dln(leafNRange);
+            dln(branchRanges.data.length);
             return leafNRange.empty && branchRanges.data.length == 0;
         }
 
@@ -3745,6 +3754,7 @@ static private inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey)
         else static if (TypedKey.sizeof == 4) { uint bKey = 0; }
         else static if (TypedKey.sizeof == 8) { ulong bKey = 0; }
 
+        dln("ukey:", ukey);
         foreach (const i; 0 .. chunkCount) // for each chunk index
         {
             const uix = ukey[i];
@@ -3922,7 +3932,6 @@ struct RadixTree(Key, Value)
         auto ref front() const /* TODO @nogc */
         {
             const ukey = _rawRange._frontRange._cachedFrontKey.data;
-            assert(ukey.length);
             const key = ukey.toTypedKey!Key;
             static if (RawTree.hasValue) { return tuple(key, _rawRange._frontRange._cachedFrontValue); }
             else                         { return key; }

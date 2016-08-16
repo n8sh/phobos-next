@@ -964,7 +964,7 @@ static private struct DenseLeaf1(Value)
     bool tryFindSetBitIx(Ix ix, out Ix nextIx) const
     {
         assert(!_ixBits.empty);
-        return _ixBits.indexOf(true, ix, nextIx);
+        return _ixBits.canFindIndexOf(true, ix, nextIx);
     }
 
     bool tryFindNextSetBitIx(Ix ix, out Ix nextIx) const
@@ -1247,11 +1247,8 @@ struct RawRadixTree(Value = void)
             {
             case undefined: assert(false);
             case ix_SparseBranchPtr:
-                dln(branch.as!(SparseBranch*).subIxs);
-                dln(_subNodeCounter);
                 return branch.as!(SparseBranch*).subIxs[_subNodeCounter];
             case ix_DenseBranchPtr:
-                dln(*branch.as!(DenseBranch*));
                 return _subNodeCounter;
             }
         }
@@ -1338,7 +1335,6 @@ struct RawRadixTree(Value = void)
             }
             else                // both non-empty
             {
-                dln("subFrontIx:", subFrontIx);
                 assert(leaf1Range.front != subFrontIx);
                 const leaf1Front = leaf1Range.front;
                 if (leaf1Front < subFrontIx)
@@ -1854,7 +1850,7 @@ struct RawRadixTree(Value = void)
 
                         case ix_SparseBranchPtr:
                             auto curr_ = curr.as!(SparseBranch*);
-                            debug dln("curr_:", curr_);
+                            debug dln("curr_:", *curr_);
                             _frontIt.branchRanges.put(BranchRange(curr_)); // TODO stack push
                             if (_frontIt.branchRanges.data[$ - 1].frontAtLeaf1)
                             {
@@ -1869,7 +1865,7 @@ struct RawRadixTree(Value = void)
                             break;
                         case ix_DenseBranchPtr:
                             auto curr_ = curr.as!(DenseBranch*);
-                            debug dln("curr_:", curr_);
+                            debug dln("curr_:", *curr_);
                             _frontIt.branchRanges.put(BranchRange(curr_)); // TODO stack push
                             if (_frontIt.branchRanges.data[$ - 1].frontAtLeaf1)
                             {
@@ -1894,7 +1890,7 @@ struct RawRadixTree(Value = void)
 
         bool empty() const /* TODO @nogc */
         {
-            return !cast(bool)_frontIt.leafNRange;
+            return _frontIt.empty; // TODO _frontIt == _backIt;
         }
 
         void popFront()
@@ -4242,20 +4238,21 @@ auto checkString(Keys...)(size_t count, uint maxLength, bool show)
 
         if (show)
         {
-            dln("set[]:", set[]);
             dln("sortedkeys:", sortedKeys);
         }
         import std.string : representation;
 
-        const x = set[].front.representation;
-        const y = sortedKeys[0].representation;
+        size_t i;
+        dln("set[].empty:", set[].empty);
+        foreach (const e; set[])
+        {
+            import std.string : format;
+            import std.algorithm : map;
+            dln("value:", e.representation.map!(ix => format("%.2X", ix)),
+                " expected:", sortedKeys[i].representation.map!(ix => format("%.2X", ix)));
+            ++i;
+        }
 
-        import std.string : format;
-        import std.algorithm : map;
-        dln("set[].front:", x.map!(ix => format("%.2X", ix)));
-        dln("sortedKeys[0]:", y.map!(ix => format("%.2X", ix)));
-
-        assert(x.equal(y));
         assert(set[].equal(sortedKeys));
     }
 }

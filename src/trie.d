@@ -1699,12 +1699,7 @@ struct RawRadixTree(Value = void)
     {
         bool empty() const @safe pure nothrow @nogc
         {
-            const hasLeaf1 = leafNRange;
-            if (!hasLeaf1)
-            {
-                assert(branchRanges.data.length == 0);
-            }
-            return !hasLeaf1;
+            return leafNRange.empty && branchRanges.data.length == 0;
         }
 
         void next()

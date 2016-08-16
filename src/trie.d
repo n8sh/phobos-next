@@ -1279,6 +1279,7 @@ struct RawRadixTree(Value = void)
             }
             dln("frontIx:", frontIx);
             key.put(frontIx); // uses cached data so ok to not depend on branch type
+            dln(key.data);
         }
 
         bool empty() const @nogc { return leaf1Range.empty && _subsEmpty; }
@@ -1295,18 +1296,22 @@ struct RawRadixTree(Value = void)
             if (_subsEmpty)
             {
                 leaf1Range.popFront;
+                dln(leaf1Range);
             }
             else if (leaf1Range.empty)
             {
+                dln;
                 popBranchFront;
             }
             else                // both non-empty
             {
+                dln;
                 assert(leaf1Range.front != subFrontIx);
                 const leafFront = leaf1Range.front;
                 if (leafFront < subFrontIx)
                 {
                     leaf1Range.popFront;
+                    dln(leaf1Range);
                 }
                 else
                 {
@@ -1314,6 +1319,7 @@ struct RawRadixTree(Value = void)
                 }
             }
 
+            dln(empty);
             if (!empty)
             {
                 cacheFront;
@@ -1331,25 +1337,35 @@ struct RawRadixTree(Value = void)
             {
                 _frontIx = leaf1Range.front;
                 _frontAtLeaf1 = true;
+                dln(_frontIx);
+                dln(_frontAtLeaf1);
             }
             else if (leaf1Range.empty)
             {
+                dln;
                 _frontIx = subFrontIx;
                 _frontAtLeaf1 = false;
+                dln(_frontIx);
+                dln(_frontAtLeaf1);
             }
             else                // both non-empty
             {
+                dln;
                 assert(leaf1Range.front != subFrontIx);
                 const leaf1Front = leaf1Range.front;
                 if (leaf1Front < subFrontIx)
                 {
                     _frontIx = leaf1Front;
                     _frontAtLeaf1 = true;
+                    dln(_frontIx);
+                    dln(_frontAtLeaf1);
                 }
                 else
                 {
                     _frontIx = subFrontIx;
                     _frontAtLeaf1 = false;
+                    dln(_frontIx);
+                    dln(_frontAtLeaf1);
                 }
             }
         }
@@ -1411,11 +1427,14 @@ struct RawRadixTree(Value = void)
                 }
                 else
                 {
+                    dln(leaf1.as!(HeptLeaf1).keys[_ix]);
                     return leaf1.as!(HeptLeaf1).keys[_ix];
                 }
             case ix_SparseLeaf1Ptr:
+                dln(_ix);
                 return leaf1.as!(SparseLeaf1!Value*).ixs[_ix];
             case ix_DenseLeaf1Ptr:
+                dln(_ix);
                 return _ix;
             }
         }
@@ -1439,15 +1458,18 @@ struct RawRadixTree(Value = void)
                 else
                 {
                     auto leaf_ = leaf1.as!(HeptLeaf1);
+                    dln(leaf_);
                     if (_ix + 1 == leaf_.keys.length) { leaf1 = null; } else { ++_ix; }
                     break;
                 }
             case ix_SparseLeaf1Ptr:
                 auto leaf_ = leaf1.as!(SparseLeaf1!Value*);
+                dln(*leaf_);
                 if (_ix + 1 == leaf_.length) { leaf1 = null; } else { ++_ix; }
                 break;
             case ix_DenseLeaf1Ptr:
                 auto leaf_ = leaf1.as!(DenseLeaf1!Value*);
+                dln(*leaf_);
                 const bool empty = !leaf_.tryFindNextSetBitIx(_ix, _ix);
                 if (empty)
                 {

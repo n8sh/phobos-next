@@ -1281,6 +1281,7 @@ struct RawRadixTree(Value = void)
         {
             assert(!empty);
 
+            // pop front element
             if (_subEmpty)
             {
                 leaf1Range.popFront;

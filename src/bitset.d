@@ -756,7 +756,7 @@ struct BitSet(uint len, Block = size_t)
             Returns: `true` if index was found (hit index is put into `nextIx`), `false` otherwise.
             TODO block-optimize for large BitSets
          */
-        bool indexOf(bool value, Mod!len currIx, out Mod!len nextIx) const @safe @nogc pure nothrow
+        bool canFindIndexOf(bool value, Mod!len currIx, out Mod!len nextIx) const @safe @nogc pure nothrow
         {
             if (currIx >= length) { return false; }
             bool hit = false;
@@ -1181,23 +1181,23 @@ unittest
     alias Ix = b8.Index;
     Ix nextIx;
 
-    assert(b8.indexOf(true, Ix(0), nextIx));
+    assert(b8.canFindIndexOf(true, Ix(0), nextIx));
     assert(nextIx == 0);
 
-    assert(b8.indexOf(true, Ix(1), nextIx));
+    assert(b8.canFindIndexOf(true, Ix(1), nextIx));
     assert(nextIx == 1);
 
-    assert(b8.indexOf(true, Ix(2), nextIx));
+    assert(b8.canFindIndexOf(true, Ix(2), nextIx));
     dln(nextIx);
     assert(nextIx == 3);
 
-    assert(b8.indexOf(true, Ix(3), nextIx));
+    assert(b8.canFindIndexOf(true, Ix(3), nextIx));
     assert(nextIx == 3);
 
-    assert(b8.indexOf(true, Ix(4), nextIx));
+    assert(b8.canFindIndexOf(true, Ix(4), nextIx));
     assert(nextIx == 6);
 
-    assert(!b8.indexOf(true, Ix(7), nextIx));
+    assert(!b8.canFindIndexOf(true, Ix(7), nextIx));
 }
 
 /// ditto

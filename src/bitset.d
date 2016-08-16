@@ -763,7 +763,7 @@ struct BitSet(uint len, Block = size_t)
             foreach (const ix_; cast(uint)currIx .. cast(uint)length)
             {
                 const bool bit = this[ix_];
-                if (value)
+                if (bit == value)
                 {
                     nextIx = typeof(nextIx)(ix_);
                     hit = true;
@@ -1188,6 +1188,7 @@ unittest
     assert(nextIx == 1);
 
     assert(b8.indexOf(true, Ix(2), nextIx));
+    dln(nextIx);
     assert(nextIx == 3);
 
     assert(b8.indexOf(true, Ix(3), nextIx));

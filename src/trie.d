@@ -1763,19 +1763,19 @@ struct RawRadixTree(Value = void)
 
         void cacheFront()
         {
-            _cachedKey.clear;
+            _cachedFrontKey.clear;
 
             foreach (const branchRange; branchRanges.data)
             {
-                branchRange.appendFrontIxsToKey(_cachedKey);
+                branchRange.appendFrontIxsToKey(_cachedFrontKey);
             }
 
             if (leafNRange)
             {
-                leafNRange.appendFrontIxsToKey(_cachedKey);
+                leafNRange.appendFrontIxsToKey(_cachedFrontKey);
                 static if (hasValue)
                 {
-                    _cachedValue = leafNRange.value; // last should be leaf containing value
+                    _cachedFrontValue = leafNRange.value; // last should be leaf containing value
                     assert(false, "TODO handle case when value is store in Leaf1");
                 }
             }
@@ -1871,10 +1871,10 @@ struct RawRadixTree(Value = void)
         auto ref bottomBranchRange() @nogc { return branchRanges.data[$ - 1]; }
         Appender!(BranchRange[]) branchRanges;
         LeafNRange leafNRange;
-        Appender!UKey _cachedKey; // copy of front key
+        Appender!UKey _cachedFrontKey; // copy of front key
         static if (hasValue)
         {
-            Value _cachedValue; // copy of front value
+            Value _cachedFrontValue; // copy of front value
         }
     }
 
@@ -3952,27 +3952,27 @@ struct RadixTree(Key, Value)
 
         auto ref front() const /* TODO @nogc */
         {
-            const key = _rawRange._frontRange._cachedKey.data.toTypedKey!Key;
-            static if (RawTree.hasValue) { return tuple(key, _rawRange._frontRange._cachedValue); }
+            const key = _rawRange._frontRange._cachedFrontKey.data.toTypedKey!Key;
+            static if (RawTree.hasValue) { return tuple(key, _rawRange._frontRange._cachedFrontValue); }
             else                         { return key; }
         }
         auto ref back() const /* TODO @nogc */
         {
-            const key = _rawRange._backRange._cachedKey.data.toTypedKey!Key;
-            static if (RawTree.hasValue) { return tuple(key, _rawRange._backRange._cachedValue); }
+            const key = _rawRange._backRange._cachedFrontKey.data.toTypedKey!Key;
+            static if (RawTree.hasValue) { return tuple(key, _rawRange._backRange._cachedFrontValue); }
             else                         { return key; }
         }
 
         auto ref rawFront() const /* TODO @nogc */
         {
-            const key = _rawRange._frontRange._cachedKey.data;
-            static if (RawTree.hasValue) { return tuple(key, _rawRange._frontRange._cachedValue); }
+            const key = _rawRange._frontRange._cachedFrontKey.data;
+            static if (RawTree.hasValue) { return tuple(key, _rawRange._frontRange._cachedFrontValue); }
             else                         { return key; }
         }
         auto ref rawBack() const /* TODO @nogc */
         {
-            const key = _rawRange._backRange._cachedKey.data;
-            static if (RawTree.hasValue) { return tuple(key, _rawRange._backRange._cachedValue); }
+            const key = _rawRange._backRange._cachedFrontKey.data;
+            static if (RawTree.hasValue) { return tuple(key, _rawRange._backRange._cachedFrontValue); }
             else                         { return key; }
         }
 

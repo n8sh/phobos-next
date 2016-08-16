@@ -1686,7 +1686,7 @@ struct RawRadixTree(Value = void)
     {
         bool empty() const @safe pure nothrow @nogc
         {
-            const hasLeaf1 = cast(bool)(leafNRange.leaf);
+            const hasLeaf1 = leafNRange;
             if (!hasLeaf1)
             {
                 assert(branchRanges.data.length == 0);
@@ -1733,7 +1733,7 @@ struct RawRadixTree(Value = void)
                         }
                         else
                         {
-                            while (!(branchRanges.data[$ - 1].empty && leafNRange.leaf))
+                            while (!(branchRanges.data[$ - 1].empty && leafNRange))
                             {
                                 Node curr = branchRanges.data[$ - 1].subFrontNode;
                                 final switch (curr.typeIx) with (Node.Ix)
@@ -1745,14 +1745,14 @@ struct RawRadixTree(Value = void)
                                 case ix_HeptLeaf1:
                                 case ix_SparseLeaf1Ptr:
                                 case ix_DenseLeaf1Ptr:
-                                    dln("TODO Handle Leaf");
-                                    goto doneDiving; // we are done
+                                    leafNRange = LeafNRange(curr);
+                                    goto bottomFound; // we are done
                                 case ix_SparseBranchPtr:
                                     auto curr_ = curr.as!(SparseBranch*);
                                     branchRanges.put(BranchRange(curr_)); // TODO stack.push
                                     if (branchRanges.data[$ - 1].frontAtLeaf1)
                                     {
-                                        goto doneDiving;
+                                        goto bottomFound;
                                     }
                                     else
                                     {
@@ -1764,7 +1764,7 @@ struct RawRadixTree(Value = void)
                                     branchRanges.put(BranchRange(curr_)); // TODO stack push
                                     if (branchRanges.data[$ - 1].frontAtLeaf1)
                                     {
-                                        goto doneDiving;
+                                        goto bottomFound;
                                     }
                                     else
                                     {
@@ -1773,7 +1773,7 @@ struct RawRadixTree(Value = void)
                                     break;
                                 }
                             }
-                        doneDiving:
+                        bottomFound:
                         }
                     }
                 }
@@ -1814,7 +1814,7 @@ struct RawRadixTree(Value = void)
                         case ix_SparseLeaf1Ptr:
                             debug dln("curr:", curr);
                             _frontIt.leafNRange = LeafNRange(curr);
-                            goto doneDiving;
+                            goto bottomFound;
 
                         case ix_DenseLeaf1Ptr:
                             auto curr_ = curr.as!(DenseLeaf1!Value*);
@@ -1833,7 +1833,7 @@ struct RawRadixTree(Value = void)
                             }
                             assert(hit);
 
-                            goto doneDiving;
+                            goto bottomFound;
 
                         case ix_SparseBranchPtr:
                             auto curr_ = curr.as!(SparseBranch*);
@@ -1842,7 +1842,7 @@ struct RawRadixTree(Value = void)
                             if (_frontIt.branchRanges.data[$ - 1].frontAtLeaf1)
                             {
                                 dln;
-                                goto doneDiving;
+                                goto bottomFound;
                             }
                             else
                             {
@@ -1857,7 +1857,7 @@ struct RawRadixTree(Value = void)
                             if (_frontIt.branchRanges.data[$ - 1].frontAtLeaf1)
                             {
                                 dln;
-                                goto doneDiving;
+                                goto bottomFound;
                             }
                             else
                             {
@@ -1870,7 +1870,7 @@ struct RawRadixTree(Value = void)
                     }
                 }
                 while (subNode);
-            doneDiving:
+            bottomFound:
                 cacheFrontElement;
             }
         }
@@ -1903,7 +1903,7 @@ struct RawRadixTree(Value = void)
             {
                 branchRange.appendFrontIxsToKey(_frontKey);
             }
-            if (_frontIt.leafNRange.leaf)
+            if (_frontIt.leafNRange)
             {
                 _frontIt.leafNRange.appendFrontIxsToKey(_frontKey);
                 static if (hasValue)
@@ -1920,7 +1920,7 @@ struct RawRadixTree(Value = void)
             {
                 branchRange.appendFrontIxsToKey(_backKey);
             }
-            if (_backIt.leafNRange.leaf)
+            if (_backIt.leafNRange)
             {
                 _backIt.leafNRange.appendFrontIxsToKey(_backKey);
                 static if (hasValue)

@@ -1714,11 +1714,13 @@ struct RawRadixTree(Value = void)
 
             foreach (const branchRange; branchRanges.data)
             {
+                dln;
                 branchRange.appendFrontIxsToKey(_cachedFrontKey);
             }
 
             if (leafNRange)
             {
+                dln;
                 leafNRange.appendFrontIxsToKey(_cachedFrontKey);
                 static if (hasValue)
                 {
@@ -1792,16 +1794,19 @@ struct RawRadixTree(Value = void)
                 case ix_HeptLeaf1:
                 case ix_SparseLeaf1Ptr:
                 case ix_DenseLeaf1Ptr:
+                    dln;
                     leafNRange = LeafNRange(curr);
                     next = null; // we're done diving
                     break;
                 case ix_SparseBranchPtr:
                     auto curr_ = curr.as!(SparseBranch*);
+                    dln;
                     branchRanges.put(BranchRange(curr_)); // TODO stack push
                     next = (curr_.subCount) ? curr_.firstSubNode : Node.init;
                     break;
                 case ix_DenseBranchPtr:
                     auto curr_ = curr.as!(DenseBranch*);
+                    dln;
                     branchRanges.put(BranchRange(curr_)); // TODO stack push
                     next = bottomBranchRange.subsEmpty ? Node.init : bottomBranchRange.subFrontNode;
                     break;

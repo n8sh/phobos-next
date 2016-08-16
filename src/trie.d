@@ -1703,7 +1703,8 @@ struct RawRadixTree(Value = void)
             if (root) { diveAt(root); }
         }
 
-        void diveAt(Node root)
+        /** Find ranges of branches and leaf for all nodes under tree `root`. */
+        private void diveAt(Node root)
         {
             assert(!leafNRange); // should be defined yet or have been cleared upon completion
             Node curr = root;

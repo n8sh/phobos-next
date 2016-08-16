@@ -4173,7 +4173,8 @@ auto checkString(Keys...)(size_t count, uint maxLength, bool show)
         {
             import std.string : format;
             import std.algorithm : map;
-            dln("value:", e.representation.map!(ix => format("%.2X", ix)),
+            dln("i:", i,
+                " value:", e.representation.map!(ix => format("%.2X", ix)),
                 " expected:", sortedKeys[i].representation.map!(ix => format("%.2X", ix)));
             ++i;
         }

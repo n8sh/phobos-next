@@ -1297,8 +1297,7 @@ struct RawRadixTree(Value = void)
             }
             else                // both non-empty
             {
-                const leafFront = leaf1Range.front;
-                if (leafFront <= subFrontIx) // `a` before `ab`
+                if (leaf1Range.front <= subFrontIx) // `a` before `ab`
                 {
                     leaf1Range.popFront;
                 }

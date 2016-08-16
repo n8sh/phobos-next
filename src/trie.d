@@ -1203,7 +1203,7 @@ struct RawRadixTree(Value = void)
         {
             this.branch = Branch(branch);
 
-            this._subEmpty = branch.subCount == 0;
+            this._subsEmpty = branch.subCount == 0;
             this._subNodeCounter = Ix(0); // always zero
 
             if (branch.leaf1)
@@ -1219,7 +1219,7 @@ struct RawRadixTree(Value = void)
             this.branch = Branch(branch);
 
             this._subNodeCounter = 0; // TODO needed?
-            _subEmpty = !branch.tryNextSubNodeAtIx(Ix(0), this._subNodeCounter);
+            _subsEmpty = !branch.tryNextSubNodeAtIx(Ix(0), this._subNodeCounter);
 
             if (branch.leaf1)
             {
@@ -1278,7 +1278,8 @@ struct RawRadixTree(Value = void)
             key.put(frontIx); // uses cached data so ok to not depend on branch type
         }
 
-        bool empty() const @nogc { return leaf1Range.empty && _subEmpty; }
+        bool empty() const @nogc { return leaf1Range.empty && _subsEmpty; }
+        bool subsEmpty() const @nogc { return _subsEmpty; }
 
         /** Try to iterated forward.
             Returns: `true` upon successful forward iteration, `false` otherwise (upon completion of iteration),
@@ -1288,7 +1289,7 @@ struct RawRadixTree(Value = void)
             assert(!empty);
 
             // pop front element
-            if (_subEmpty)
+            if (_subsEmpty)
             {
                 leaf1Range.popFront;
             }
@@ -1323,7 +1324,7 @@ struct RawRadixTree(Value = void)
         void cacheFront()
         {
             assert(!empty);
-            if (_subEmpty)
+            if (_subsEmpty)
             {
                 _frontIx = leaf1Range.front;
                 _frontAtLeaf1 = true;
@@ -1358,11 +1359,11 @@ struct RawRadixTree(Value = void)
             case undefined: assert(false);
             case ix_SparseBranchPtr:
                 auto branch_ = branch.as!(SparseBranch*);
-                if (_subNodeCounter + 1 == branch_.subCount) { _subEmpty = true; } else { ++_subNodeCounter; }
+                if (_subNodeCounter + 1 == branch_.subCount) { _subsEmpty = true; } else { ++_subNodeCounter; }
                 break;
             case ix_DenseBranchPtr:
                 auto branch_ = branch.as!(DenseBranch*);
-                _subNodeCounter = branch_.tryNextNonNullSubNodeIx(Ix(0), _subEmpty);
+                _subNodeCounter = branch_.tryNextNonNullSubNodeIx(Ix(0), _subsEmpty);
                 break;
             }
         }
@@ -1373,7 +1374,7 @@ struct RawRadixTree(Value = void)
         Ix _subNodeCounter; // `Branch`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
         Ix _frontIx;
         bool _frontAtLeaf1;
-        bool _subEmpty;
+        bool _subsEmpty;
     }
 
     /** Leaf1 Range (Iterator). */
@@ -1704,13 +1705,14 @@ struct RawRadixTree(Value = void)
 
         void next()
         {
-            // try bottom-most leaf first
-            if (leafNRange)
+            // common case: try bottom-most leaf first
+            if (leafNRange)     // if it's defined
             {
-                leafNRange.popFront;
+                assert(!leafNRange.empty); // must be non-empty
+                leafNRange.popFront;       // just pick here
                 if (leafNRange.empty) // if we emptied current leaf range
                 {
-                    leafNRange = typeof(leafNRange).init; // indicate that
+                    leafNRange = typeof(leafNRange).init; // indicate it has been emptied
                 }
             }
 
@@ -1719,9 +1721,9 @@ struct RawRadixTree(Value = void)
                 // walk branches from bottom upwards and iterate their leaf1-parts
                 while (branchRanges.data.length) // TODO use reverse foreach
                 {
-                    // TODO functionize to foo(ref BranchRange branchRange) called as foo(branchRanges.data[$ - 1])
-                    branchRanges.data[$ - 1].popFront; // last
-                    if (branchRanges.data[$ - 1].empty) // last
+                    // TODO functionize to foo(ref BranchRange branchRange) called as foo(bottomBranchRange)
+                    bottomBranchRange.popFront; // last
+                    if (bottomBranchRange.empty) // last
                     {
                         // TODO wrap this try-catch in a stack.popBack() that asserts instead of throws
                         try
@@ -1735,15 +1737,15 @@ struct RawRadixTree(Value = void)
                     }
                     else
                     {
-                        if (branchRanges.data[$ - 1].frontAtLeaf1) // front is at leaf
+                        if (bottomBranchRange.frontAtLeaf1) // front is at leaf
                         {
                             break; // so we're done
                         }
                         else
                         {
-                            while (!(branchRanges.data[$ - 1].empty && leafNRange))
+                            while (!(bottomBranchRange.empty && leafNRange))
                             {
-                                Node curr = branchRanges.data[$ - 1].subFrontNode;
+                                Node curr = bottomBranchRange.subFrontNode;
                                 final switch (curr.typeIx) with (Node.Ix)
                                 {
                                 case undefined: assert(false);
@@ -1758,7 +1760,7 @@ struct RawRadixTree(Value = void)
                                 case ix_SparseBranchPtr:
                                     auto curr_ = curr.as!(SparseBranch*);
                                     branchRanges.put(BranchRange(curr_)); // TODO stack.push
-                                    if (branchRanges.data[$ - 1].frontAtLeaf1)
+                                    if (curr_.subCount == 0)
                                     {
                                         goto bottomFound;
                                     }
@@ -1770,13 +1772,13 @@ struct RawRadixTree(Value = void)
                                 case ix_DenseBranchPtr:
                                     auto curr_ = curr.as!(DenseBranch*);
                                     branchRanges.put(BranchRange(curr_)); // TODO stack push
-                                    if (branchRanges.data[$ - 1].frontAtLeaf1)
+                                    if (bottomBranchRange.subsEmpty)
                                     {
                                         goto bottomFound;
                                     }
                                     else
                                     {
-                                        curr = branchRanges.data[$ - 1].subFrontNode;
+                                        curr = bottomBranchRange.subFrontNode;
                                     }
                                     break;
                                 }
@@ -1788,6 +1790,7 @@ struct RawRadixTree(Value = void)
             }
         }
     private:
+        auto ref bottomBranchRange() @nogc { return branchRanges.data[$ - 1]; }
         Appender!(BranchRange[]) branchRanges;
         LeafNRange leafNRange;
     }
@@ -1820,13 +1823,13 @@ struct RawRadixTree(Value = void)
                         case ix_TriLeaf2:
                         case ix_HeptLeaf1:
                         case ix_SparseLeaf1Ptr:
-                            debug dln("curr:", curr);
+                            dln();
                             _frontIt.leafNRange = LeafNRange(curr);
                             goto bottomFound;
 
                         case ix_DenseLeaf1Ptr:
                             auto curr_ = curr.as!(DenseLeaf1!Value*);
-                            debug dln("curr_:", curr_);
+                            dln();
 
                             // TODO functionize to member curr_._ixBits.indexOfBit(0)
                             bool hit = false;
@@ -1845,32 +1848,30 @@ struct RawRadixTree(Value = void)
 
                         case ix_SparseBranchPtr:
                             auto curr_ = curr.as!(SparseBranch*);
-                            debug dln("curr_:", *curr_);
                             _frontIt.branchRanges.put(BranchRange(curr_)); // TODO stack push
-                            if (_frontIt.branchRanges.data[$ - 1].frontAtLeaf1)
+                            if (_frontIt.bottomBranchRange.frontAtLeaf1)
                             {
-                                dln;
+                                dln(_frontIt.bottomBranchRange);
                                 goto bottomFound;
                             }
                             else
                             {
-                                dln;
+                                dln();
                                 subNode = curr_.firstSubNode;
                             }
                             break;
                         case ix_DenseBranchPtr:
                             auto curr_ = curr.as!(DenseBranch*);
-                            debug dln("curr_:", *curr_);
                             _frontIt.branchRanges.put(BranchRange(curr_)); // TODO stack push
-                            if (_frontIt.branchRanges.data[$ - 1].frontAtLeaf1)
+                            if (_frontIt.bottomBranchRange.frontAtLeaf1)
                             {
-                                dln;
+                                dln();
                                 goto bottomFound;
                             }
                             else
                             {
-                                dln;
-                                subNode = _frontIt.branchRanges.data[$ - 1].subFrontNode;
+                                dln();
+                                subNode = _frontIt.bottomBranchRange.subFrontNode;
                             }
                             break;
                         }
@@ -3819,6 +3820,8 @@ static private inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey)
 
         foreach (const bix; 0 .. chunkCount)
         {
+            dln("bix:", bix);
+            dln("ukey:", ukey);
             const uix = ukey[bix];
             const bitShift = (chunkCount - 1 - bix)*span; // most significant bit chunk first (MSBCF)
             bKey |= (uix >> bitShift) & (radix - 1); // part of value which is also an index
@@ -4143,7 +4146,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
 }
 
 /// test map from `uint` to values of type `double`
-@safe pure nothrow /* TODO @nogc */
+// TODO @safe pure nothrow /* TODO @nogc */
 unittest
 {
     alias Key = uint;
@@ -4180,6 +4183,8 @@ unittest
         assert(map.length == i + 1);
     }
 
+    map.print;
+
     // test range
     size_t i = 0;
     foreach (const elt; map[])
@@ -4192,7 +4197,7 @@ unittest
         dln("value:", value);
 
         assert(key == i);
-        assert(value == keyToValue(cast(Key)i)); // TODO use typed key instead of cast(Key)
+        // TODO assert(value == keyToValue(cast(Key)i)); // TODO use typed key instead of cast(Key)
 
         ++i;
     }

@@ -1269,17 +1269,13 @@ struct RawRadixTree(Value = void)
             {
             case undefined: assert(false);
             case ix_SparseBranchPtr:
-                dln("prefix:", branch.as!(SparseBranch*).prefix);
                 key.put(branch.as!(SparseBranch*).prefix);
                 break;
             case ix_DenseBranchPtr:
-                dln("prefix:", branch.as!(DenseBranch*).prefix);
                 key.put(branch.as!(DenseBranch*).prefix);
                 break;
             }
-            dln("frontIx:", frontIx);
             key.put(frontIx); // uses cached data so ok to not depend on branch type
-            dln(key.data);
         }
 
         bool empty() const @nogc { return leaf1Range.empty && _subsEmpty; }
@@ -1296,22 +1292,18 @@ struct RawRadixTree(Value = void)
             if (_subsEmpty)
             {
                 leaf1Range.popFront;
-                dln(leaf1Range);
             }
             else if (leaf1Range.empty)
             {
-                dln;
                 popBranchFront;
             }
             else                // both non-empty
             {
-                dln;
                 assert(leaf1Range.front != subFrontIx);
                 const leafFront = leaf1Range.front;
                 if (leafFront < subFrontIx)
                 {
                     leaf1Range.popFront;
-                    dln(leaf1Range);
                 }
                 else
                 {
@@ -1319,11 +1311,7 @@ struct RawRadixTree(Value = void)
                 }
             }
 
-            dln(empty);
-            if (!empty)
-            {
-                cacheFront;
-            }
+            if (!empty) { cacheFront; }
         }
 
         /** Fill cached value and remember if we we next element is direct
@@ -1337,35 +1325,25 @@ struct RawRadixTree(Value = void)
             {
                 _frontIx = leaf1Range.front;
                 _frontAtLeaf1 = true;
-                dln(_frontIx);
-                dln(_frontAtLeaf1);
             }
             else if (leaf1Range.empty)
             {
-                dln;
                 _frontIx = subFrontIx;
                 _frontAtLeaf1 = false;
-                dln(_frontIx);
-                dln(_frontAtLeaf1);
             }
             else                // both non-empty
             {
-                dln;
                 assert(leaf1Range.front != subFrontIx);
                 const leaf1Front = leaf1Range.front;
                 if (leaf1Front < subFrontIx)
                 {
                     _frontIx = leaf1Front;
                     _frontAtLeaf1 = true;
-                    dln(_frontIx);
-                    dln(_frontAtLeaf1);
                 }
                 else
                 {
                     _frontIx = subFrontIx;
                     _frontAtLeaf1 = false;
-                    dln(_frontIx);
-                    dln(_frontAtLeaf1);
                 }
             }
         }
@@ -1427,14 +1405,11 @@ struct RawRadixTree(Value = void)
                 }
                 else
                 {
-                    dln(leaf1.as!(HeptLeaf1).keys[_ix]);
                     return leaf1.as!(HeptLeaf1).keys[_ix];
                 }
             case ix_SparseLeaf1Ptr:
-                dln(_ix);
                 return leaf1.as!(SparseLeaf1!Value*).ixs[_ix];
             case ix_DenseLeaf1Ptr:
-                dln(_ix);
                 return _ix;
             }
         }
@@ -1459,13 +1434,11 @@ struct RawRadixTree(Value = void)
                 else
                 {
                     auto leaf_ = leaf1.as!(HeptLeaf1);
-                    dln(leaf_);
                     if (_ix + 1 == leaf_.keys.length) { leaf1 = null; } else { ++_ix; }
                     break;
                 }
             case ix_SparseLeaf1Ptr:
                 auto leaf_ = leaf1.as!(SparseLeaf1!Value*);
-                dln(*leaf_);
                 if (_ix + 1 == leaf_.length) { leaf1 = null; } else { ++_ix; }
                 break;
             case ix_DenseLeaf1Ptr:
@@ -1736,8 +1709,6 @@ struct RawRadixTree(Value = void)
 
         bool empty() const @safe pure nothrow // TODO @nogc
         {
-            dln(leafNRange);
-            dln(branchRanges.data.length);
             return leafNRange.empty && branchRanges.data.length == 0;
         }
 
@@ -1747,13 +1718,11 @@ struct RawRadixTree(Value = void)
 
             foreach (const branchRange; branchRanges.data)
             {
-                dln;
                 branchRange.appendFrontIxsToKey(_cachedFrontKey);
             }
 
             if (leafNRange)
             {
-                dln;
                 leafNRange.appendFrontIxsToKey(_cachedFrontKey);
                 static if (hasValue)
                 {
@@ -3754,7 +3723,6 @@ static private inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey)
         else static if (TypedKey.sizeof == 4) { uint bKey = 0; }
         else static if (TypedKey.sizeof == 8) { ulong bKey = 0; }
 
-        dln("ukey:", ukey);
         foreach (const i; 0 .. chunkCount) // for each chunk index
         {
             const uix = ukey[i];
@@ -4129,10 +4097,6 @@ unittest
     {
         const Key key = elt[0];
         const Value value = elt[1];
-
-        dln("i:", i);
-        dln("key:", key);
-        dln("value:", value);
 
         assert(key == i);
         // TODO assert(value == keyToValue(cast(Key)i)); // TODO use typed key instead of cast(Key)

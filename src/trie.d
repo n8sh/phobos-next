@@ -1700,9 +1700,9 @@ struct RawRadixTree(Value = void)
     {
         this(Node root, bool _isReversed = false)
         {
-            this._isReversed = _isReversed;
             if (root)
             {
+                this._isReversed = _isReversed;
                 Node curr = root;
                 Node next;
                 do

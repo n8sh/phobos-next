@@ -4113,7 +4113,7 @@ auto checkString(Keys...)(size_t count, uint maxLength, bool show)
     if (Keys.length >= 1)
 {
     void testContainsAndInsert(Set, Key)(ref Set set, Key key)
-    if (isSomeString!Key)
+        if (isSomeString!Key)
     {
         import std.conv : to;
         immutable failMessage = `Failed for key: "` ~ key.to!string ~ `"`;

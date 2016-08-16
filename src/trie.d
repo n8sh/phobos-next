@@ -1470,8 +1470,7 @@ struct RawRadixTree(Value = void)
                 break;
             case ix_DenseLeaf1Ptr:
                 auto leaf_ = leaf1.as!(DenseLeaf1!Value*);
-                const bool hit = leaf_.tryFindNextSetBitIx(_ix, _ix);
-                if (!hit)
+                if (!leaf_.tryFindNextSetBitIx(_ix, _ix))
                 {
                     leaf1 = null;
                 }

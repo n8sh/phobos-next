@@ -1782,6 +1782,7 @@ struct RawRadixTree(Value = void)
                 Node subNode;
                 do
                 {
+                    debug dln("curr:", curr);
                     with (Node.Ix)
                     {
                         final switch (curr.typeIx)
@@ -4198,6 +4199,7 @@ auto checkString(Keys...)(size_t count, uint maxLength, bool show)
             dln("set[]:", set[]);
             dln("sortedkeys:", sortedKeys);
         }
+        assert(set[].front.equal(sortedKeys[0]));
         assert(set[].equal(sortedKeys));
     }
 }

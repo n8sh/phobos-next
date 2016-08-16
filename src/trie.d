@@ -1206,7 +1206,10 @@ struct RawRadixTree(Value = void)
             this._subEmpty = false;
             this._subNodeCounter = Ix(0); // always zero
 
-            this.leaf1Range = Leaf1Range(branch.leaf1);
+            if (branch.leaf1)
+            {
+                this.leaf1Range = Leaf1Range(branch.leaf1);
+            }
         }
 
         this(DenseBranch* branch)
@@ -1216,7 +1219,10 @@ struct RawRadixTree(Value = void)
             this._subNodeCounter = 0; // TODO needed?
             _subEmpty = !branch.tryNextSubNodeAtIx(Ix(0), this._subNodeCounter);
 
-            this.leaf1Range = Leaf1Range(branch.leaf1);
+            if (branch.leaf1)
+            {
+                this.leaf1Range = Leaf1Range(branch.leaf1);
+            }
         }
 
         Ix frontIx() const @nogc
@@ -1274,6 +1280,7 @@ struct RawRadixTree(Value = void)
         void popFront() /* TODO @nogc */
         {
             assert(!empty);
+
             if (_subEmpty)
             {
                 leaf1Range.popFront;
@@ -1296,18 +1303,20 @@ struct RawRadixTree(Value = void)
                 }
             }
 
-            // TODO merge with above logic
+            /* fill cached value and remember if we we next element is direct
+               (_frontAtLeaf1 is true) or under a sub-branch (_frontAtLeaf1 is
+               false) */
             if (!empty)
             {
                 if (_subEmpty)
                 {
-                    _frontIx = subFrontIx;
-                    _frontAtLeaf1 = false;
-                }
-                else if (_subEmpty)
-                {
                     _frontIx = leaf1Range.front;
                     _frontAtLeaf1 = true;
+                }
+                else if (leaf1Range.empty)
+                {
+                    _frontIx = subFrontIx;
+                    _frontAtLeaf1 = false;
                 }
                 else                // both non-empty
                 {
@@ -1346,7 +1355,7 @@ struct RawRadixTree(Value = void)
 
     private:
         Branch branch;
-        Leaf1Range leaf1Range;
+        Leaf1Range leaf1Range;  // range of direct leaves
         Ix _subNodeCounter; // `Branch`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
         Ix _frontIx;
         bool _frontAtLeaf1;
@@ -1782,7 +1791,6 @@ struct RawRadixTree(Value = void)
                 Node subNode;
                 do
                 {
-                    debug dln("curr:", curr);
                     with (Node.Ix)
                     {
                         final switch (curr.typeIx)
@@ -1793,11 +1801,13 @@ struct RawRadixTree(Value = void)
                         case ix_TriLeaf2:
                         case ix_HeptLeaf1:
                         case ix_SparseLeaf1Ptr:
+                            debug dln("curr:", curr);
                             _frontIt.leafNRange = LeafNRange(curr);
                             goto doneDiving;
 
                         case ix_DenseLeaf1Ptr:
                             auto curr_ = curr.as!(DenseLeaf1!Value*);
+                            debug dln("curr_:", curr_);
 
                             // TODO functionize to member curr_._ixBits.indexOfBit(0)
                             bool hit = false;
@@ -1816,25 +1826,32 @@ struct RawRadixTree(Value = void)
 
                         case ix_SparseBranchPtr:
                             auto curr_ = curr.as!(SparseBranch*);
+                            debug dln("curr_:", curr_);
                             _frontIt.branchRanges.put(BranchRange(curr_)); // TODO stack push
+                            dln;
                             if (_frontIt.branchRanges.data[$ - 1].frontAtLeaf1)
                             {
+                                dln;
                                 goto doneDiving;
                             }
                             else
                             {
+                                dln;
                                 subNode = curr_.firstSubNode;
                             }
                             break;
                         case ix_DenseBranchPtr:
                             auto curr_ = curr.as!(DenseBranch*);
+                            debug dln("curr_:", curr_);
                             _frontIt.branchRanges.put(BranchRange(curr_)); // TODO stack push
                             if (_frontIt.branchRanges.data[$ - 1].frontAtLeaf1)
                             {
+                                dln;
                                 goto doneDiving;
                             }
                             else
                             {
+                                dln;
                                 subNode = _frontIt.branchRanges.data[$ - 1].subFrontNode;
                             }
                             break;
@@ -4191,6 +4208,8 @@ auto checkString(Keys...)(size_t count, uint maxLength, bool show)
             testContainsAndInsert(set, key);
         }
 
+        set.print;
+
         import std.array : array;
         import std.algorithm : equal;
 
@@ -4199,6 +4218,9 @@ auto checkString(Keys...)(size_t count, uint maxLength, bool show)
             dln("set[]:", set[]);
             dln("sortedkeys:", sortedKeys);
         }
+        import std.string : representation;
+        dln("set[].front:", set[].front.representation);
+        dln("sortedKeys[0]:", sortedKeys[0].representation);
         assert(set[].front.equal(sortedKeys[0]));
         assert(set[].equal(sortedKeys));
     }
@@ -4208,7 +4230,7 @@ auto checkString(Keys...)(size_t count, uint maxLength, bool show)
 // TODO @safe pure nothrow /* TODO @nogc */
 unittest
 {
-    checkString!(string)(64, 8, true);
+    checkString!(string)(4, 8, true);
     checkString!(string)(2^^18, 2^^7, false);
 }
 

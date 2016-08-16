@@ -1292,6 +1292,7 @@ struct RawRadixTree(Value = void)
             }
             else                // both non-empty
             {
+                dln(leaf1Range);
                 assert(leaf1Range.front != subFrontIx);
                 const leafFront = leaf1Range.front;
                 if (leafFront < subFrontIx)
@@ -1378,6 +1379,8 @@ struct RawRadixTree(Value = void)
         }
 
         @safe pure nothrow:
+
+        pragma(inline) bool opCast(T : bool)() const @nogc { return cast(bool)leaf1; }
 
         /** Get first index in current subkey. */
         Ix front() const
@@ -1496,9 +1499,12 @@ struct RawRadixTree(Value = void)
 
         private Ix firstIx(out bool empty) const
         {
-            switch (leaf.typeIx) with (Leaf1!Value.Ix)
+            switch (leaf.typeIx) with (Node.Ix)
             {
             case undefined: assert(false);
+            case ix_OneLeafMax7:
+            case ix_TwoLeaf3:
+            case ix_TriLeaf2:
             case ix_HeptLeaf1:
                 return Ix(0);           // always first
             case ix_SparseLeaf1Ptr:

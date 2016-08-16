@@ -4098,6 +4098,10 @@ unittest
         const Key key = elt[0];
         const Value value = elt[1];
 
+        dln("i:", i);
+        dln("key:", key);
+        dln("value:", value);
+
         assert(key == i);
         // TODO assert(value == keyToValue(cast(Key)i)); // TODO use typed key instead of cast(Key)
 
@@ -4147,7 +4151,6 @@ auto checkString(Keys...)(size_t count, uint maxLength, bool show)
         import std.string : representation;
 
         size_t i;
-        dln("set[].empty:", set[].empty);
         foreach (const e; set[])
         {
             import std.string : format;

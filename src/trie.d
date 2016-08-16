@@ -1698,9 +1698,87 @@ struct RawRadixTree(Value = void)
     /** Tree Iterator. */
     struct TreeIterator
     {
+        this(Node root, bool isReversedFromBack = false)
+        {
+            assert(root);
+
+            this.isReversedFromBack = isReversedFromBack;
+
+            Node curr = root;
+            Node next;
+            do
+            {
+                final switch (curr.typeIx) with (Node.Ix)
+                {
+                case undefined: assert(false);
+                case ix_OneLeafMax7:
+                case ix_TwoLeaf3:
+                case ix_TriLeaf2:
+                case ix_HeptLeaf1:
+                case ix_SparseLeaf1Ptr:
+                case ix_DenseLeaf1Ptr:
+                    leafNRange = LeafNRange(curr);
+                    goto bottomFound;
+
+                case ix_SparseBranchPtr:
+                    auto curr_ = curr.as!(SparseBranch*);
+                    branchRanges.put(BranchRange(curr_)); // TODO stack push
+                    if (bottomBranchRange.frontAtLeaf1)
+                    {
+                        dln(bottomBranchRange);
+                        goto bottomFound;
+                    }
+                    else
+                    {
+                        dln();
+                        next = curr_.firstSubNode;
+                    }
+                    break;
+                case ix_DenseBranchPtr:
+                    auto curr_ = curr.as!(DenseBranch*);
+                    branchRanges.put(BranchRange(curr_)); // TODO stack push
+                    if (bottomBranchRange.frontAtLeaf1)
+                    {
+                        dln();
+                        goto bottomFound;
+                    }
+                    else
+                    {
+                        dln();
+                        next = bottomBranchRange.subFrontNode;
+                    }
+                    break;
+                }
+                curr = next;
+            }
+            while (next);
+        bottomFound:
+            cacheNext;
+        }
+
         bool empty() const @safe pure nothrow @nogc
         {
             return leafNRange.empty && branchRanges.data.length == 0;
+        }
+
+        void cacheNext()
+        {
+            _cachedKey.clear;
+
+            foreach (const branchRange; branchRanges.data)
+            {
+                branchRange.appendFrontIxsToKey(_cachedKey);
+            }
+
+            if (leafNRange)
+            {
+                leafNRange.appendFrontIxsToKey(_cachedKey);
+                static if (hasValue)
+                {
+                    _cachedValue = leafNRange.value; // last should be leaf containing value
+                    assert(false, "TODO handle case when value is store in Leaf1");
+                }
+            }
         }
 
         void next()
@@ -1793,6 +1871,12 @@ struct RawRadixTree(Value = void)
         auto ref bottomBranchRange() @nogc { return branchRanges.data[$ - 1]; }
         Appender!(BranchRange[]) branchRanges;
         LeafNRange leafNRange;
+        Appender!UKey _cachedKey; // copy of front key
+        static if (hasValue)
+        {
+            Value _cachedValue; // copy of front value
+        }
+        bool isReversedFromBack; // iterator is reversed from back
     }
 
     /** Range over the Elements in a Radix Tree.
@@ -1807,80 +1891,8 @@ struct RawRadixTree(Value = void)
         {
             if (root)
             {
-                Node curr = root;
-
-                // calculate front
-                Node subNode;
-                do
-                {
-                    with (Node.Ix)
-                    {
-                        final switch (curr.typeIx)
-                        {
-                        case undefined: assert(false);
-                        case ix_OneLeafMax7:
-                        case ix_TwoLeaf3:
-                        case ix_TriLeaf2:
-                        case ix_HeptLeaf1:
-                        case ix_SparseLeaf1Ptr:
-                            dln();
-                            _frontIt.leafNRange = LeafNRange(curr);
-                            goto bottomFound;
-
-                        case ix_DenseLeaf1Ptr:
-                            auto curr_ = curr.as!(DenseLeaf1!Value*);
-                            dln();
-
-                            // TODO functionize to member curr_._ixBits.indexOfBit(0)
-                            bool hit = false;
-                            foreach (const ix; 0 .. radix)
-                            {
-                                if (curr_._ixBits[ix])
-                                {
-                                    _frontIt.leafNRange = LeafNRange(curr);
-                                    hit = true;
-                                    break;
-                                }
-                            }
-                            assert(hit);
-
-                            goto bottomFound;
-
-                        case ix_SparseBranchPtr:
-                            auto curr_ = curr.as!(SparseBranch*);
-                            _frontIt.branchRanges.put(BranchRange(curr_)); // TODO stack push
-                            if (_frontIt.bottomBranchRange.frontAtLeaf1)
-                            {
-                                dln(_frontIt.bottomBranchRange);
-                                goto bottomFound;
-                            }
-                            else
-                            {
-                                dln();
-                                subNode = curr_.firstSubNode;
-                            }
-                            break;
-                        case ix_DenseBranchPtr:
-                            auto curr_ = curr.as!(DenseBranch*);
-                            _frontIt.branchRanges.put(BranchRange(curr_)); // TODO stack push
-                            if (_frontIt.bottomBranchRange.frontAtLeaf1)
-                            {
-                                dln();
-                                goto bottomFound;
-                            }
-                            else
-                            {
-                                dln();
-                                subNode = _frontIt.bottomBranchRange.subFrontNode;
-                            }
-                            break;
-                        }
-                        curr = subNode;
-                    }
-                }
-                while (subNode);
-            bottomFound:
-                cacheFrontElement;
+                _frontIt = TreeIterator(root, false);
+                _backIt = TreeIterator(root, true);
             }
         }
 
@@ -1893,63 +1905,20 @@ struct RawRadixTree(Value = void)
         {
             assert(!empty);
             _frontIt.next;
-            if (!empty) { cacheFrontElement; }
+            if (!empty) { _frontIt.cacheNext; }
         }
 
         void popBack()
         {
             assert(!empty);
             _backIt.next;
-            if (!empty) { cacheBackElement; }
+            if (!empty) { _backIt.cacheNext; }
         }
 
     private:
-        void cacheFrontElement()
-        {
-            // TODO functionize?
-            _frontKey.clear;
-            foreach (const branchRange; _frontIt.branchRanges.data)
-            {
-                branchRange.appendFrontIxsToKey(_frontKey);
-            }
-            if (_frontIt.leafNRange)
-            {
-                _frontIt.leafNRange.appendFrontIxsToKey(_frontKey);
-                static if (hasValue)
-                {
-                    _frontValue = _frontIt.leafNRange.value; // last should be leaf containing value
-                }
-            }
-        }
-        void cacheBackElement()
-        {
-            // TODO functionize?
-            _backKey.clear;
-            foreach (const branchRange; _backIt.branchRanges.data)
-            {
-                branchRange.appendFrontIxsToKey(_backKey);
-            }
-            if (_backIt.leafNRange)
-            {
-                _backIt.leafNRange.appendFrontIxsToKey(_backKey);
-                static if (hasValue)
-                {
-                    _backValue = _backIt.leafNRange.value; // last should be leaf containing value
-                }
-            }
-        }
-
     private:
         TreeIterator _frontIt;  // front iterator
         TreeIterator _backIt;   // back iterator
-
-        Appender!UKey _frontKey; // copy of front key
-        Appender!UKey _backKey;  // copy of back key
-        static if (hasValue)
-        {
-            Value _frontValue;             // copy of front value
-            Value _backValue;             // copy of back value
-        }
     }
 
     pragma(inline) Range opSlice() @trusted pure nothrow
@@ -3996,27 +3965,27 @@ struct RadixTree(Key, Value)
 
         auto ref front() const /* TODO @nogc */
         {
-            const key = _rawRange._frontKey.data.toTypedKey!Key;
-            static if (RawTree.hasValue) { return tuple(key, _rawRange._frontValue); }
+            const key = _rawRange._frontIt._cachedKey.data.toTypedKey!Key;
+            static if (RawTree.hasValue) { return tuple(key, _rawRange._frontIt._cachedValue); }
             else                         { return key; }
         }
         auto ref back() const /* TODO @nogc */
         {
-            const key = _rawRange._backKey.data.toTypedKey!Key;
-            static if (RawTree.hasValue) { return tuple(key, _rawRange._backValue); }
+            const key = _rawRange._backIt._cachedKey.data.toTypedKey!Key;
+            static if (RawTree.hasValue) { return tuple(key, _rawRange._backIt._cachedValue); }
             else                         { return key; }
         }
 
-        auto rawFront() const /* TODO @nogc */
+        auto ref rawFront() const /* TODO @nogc */
         {
-            const key = _rawRange._frontKey;
-            static if (RawTree.hasValue) { return tuple(key, _rawRange._frontValue); }
+            const key = _rawRange._frontIt._cachedKey.data;
+            static if (RawTree.hasValue) { return tuple(key, _rawRange._frontIt._cachedValue); }
             else                         { return key; }
         }
-        auto rawBack() const /* TODO @nogc */
+        auto ref rawBack() const /* TODO @nogc */
         {
-            const key = _rawRange._backKey;
-            static if (RawTree.hasValue) { return tuple(key, _rawRange._backValue); }
+            const key = _rawRange._backIt._cachedKey.data;
+            static if (RawTree.hasValue) { return tuple(key, _rawRange._backIt._cachedValue); }
             else                         { return key; }
         }
 

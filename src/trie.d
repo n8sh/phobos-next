@@ -1792,7 +1792,7 @@ struct RawRadixTree(Value = void)
                         case ix_TriLeaf2:
                         case ix_HeptLeaf1:
                         case ix_SparseLeaf1Ptr:
-                            _front.leafNRange = LeafNRange(curr);
+                            _frontIt.leafNRange = LeafNRange(curr);
                             goto doneDiving;
 
                         case ix_DenseLeaf1Ptr:
@@ -1804,7 +1804,7 @@ struct RawRadixTree(Value = void)
                             {
                                 if (curr_._ixBits[ix])
                                 {
-                                    _front.leafNRange = LeafNRange(curr);
+                                    _frontIt.leafNRange = LeafNRange(curr);
                                     hit = true;
                                     break;
                                 }
@@ -1815,8 +1815,8 @@ struct RawRadixTree(Value = void)
 
                         case ix_SparseBranchPtr:
                             auto curr_ = curr.as!(SparseBranch*);
-                            _front.branchRanges.put(BranchRange(curr_)); // TODO stack push
-                            if (_front.branchRanges.data[$ - 1].frontAtLeaf1)
+                            _frontIt.branchRanges.put(BranchRange(curr_)); // TODO stack push
+                            if (_frontIt.branchRanges.data[$ - 1].frontAtLeaf1)
                             {
                                 goto doneDiving;
                             }
@@ -1827,14 +1827,14 @@ struct RawRadixTree(Value = void)
                             break;
                         case ix_DenseBranchPtr:
                             auto curr_ = curr.as!(DenseBranch*);
-                            _front.branchRanges.put(BranchRange(curr_)); // TODO stack push
-                            if (_front.branchRanges.data[$ - 1].frontAtLeaf1)
+                            _frontIt.branchRanges.put(BranchRange(curr_)); // TODO stack push
+                            if (_frontIt.branchRanges.data[$ - 1].frontAtLeaf1)
                             {
                                 goto doneDiving;
                             }
                             else
                             {
-                                subNode = _front.branchRanges.data[$ - 1].subFrontNode;
+                                subNode = _frontIt.branchRanges.data[$ - 1].subFrontNode;
                             }
                             break;
                         }
@@ -1849,20 +1849,20 @@ struct RawRadixTree(Value = void)
 
         bool empty() const /* TODO @nogc */
         {
-            return !cast(bool)_front.leafNRange;
+            return !cast(bool)_frontIt.leafNRange;
         }
 
         void popFront()
         {
             assert(!empty);
-            _front.next;
+            _frontIt.next;
             if (!empty) { cacheFrontElement; }
         }
 
         void popBack()
         {
             assert(!empty);
-            _back.next;
+            _backIt.next;
             if (!empty) { cacheBackElement; }
         }
 
@@ -1871,16 +1871,16 @@ struct RawRadixTree(Value = void)
         {
             // TODO functionize?
             _frontKey.clear;
-            foreach (const branchRange; _front.branchRanges.data)
+            foreach (const branchRange; _frontIt.branchRanges.data)
             {
                 branchRange.appendFrontIxsToKey(_frontKey);
             }
-            if (_front.leafNRange.leaf)
+            if (_frontIt.leafNRange.leaf)
             {
-                _front.leafNRange.appendFrontIxsToKey(_frontKey);
+                _frontIt.leafNRange.appendFrontIxsToKey(_frontKey);
                 static if (hasValue)
                 {
-                    _frontValue = _front.leafNRange.value; // last should be leaf containing value
+                    _frontValue = _frontIt.leafNRange.value; // last should be leaf containing value
                 }
             }
         }
@@ -1888,23 +1888,23 @@ struct RawRadixTree(Value = void)
         {
             // TODO functionize?
             _backKey.clear;
-            foreach (const branchRange; _back.branchRanges.data)
+            foreach (const branchRange; _backIt.branchRanges.data)
             {
                 branchRange.appendFrontIxsToKey(_backKey);
             }
-            if (_back.leafNRange.leaf)
+            if (_backIt.leafNRange.leaf)
             {
-                _back.leafNRange.appendFrontIxsToKey(_backKey);
+                _backIt.leafNRange.appendFrontIxsToKey(_backKey);
                 static if (hasValue)
                 {
-                    _backValue = _back.leafNRange.value; // last should be leaf containing value
+                    _backValue = _backIt.leafNRange.value; // last should be leaf containing value
                 }
             }
         }
 
     private:
-        TreeIterator _front;    // front iterator
-        TreeIterator _back;     // back iterator
+        TreeIterator _frontIt;  // front iterator
+        TreeIterator _backIt;   // back iterator
 
         Appender!UKey _frontKey; // copy of front key
         Appender!UKey _backKey;  // copy of back key

@@ -4188,6 +4188,8 @@ unittest
         const value = elt[1];
 
         dln("i:", i);
+        dln("key:", key);
+        dln("value:", value);
 
         assert(key == i);
         assert(value == keyToValue(cast(Key)i)); // TODO use typed key instead of cast(Key)

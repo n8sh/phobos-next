@@ -1700,60 +1700,43 @@ struct RawRadixTree(Value = void)
     {
         this(Node root)
         {
-            if (root)
+            if (root) { diveAt(root); }
+        }
+
+        void diveAt(Node root)
+        {
+            assert(!leafNRange); // should be defined yet or have been cleared upon completion
+            Node curr = root;
+            Node next;
+            do
             {
-                Node curr = root;
-                Node next;
-                do
+                final switch (curr.typeIx) with (Node.Ix)
                 {
-                    final switch (curr.typeIx) with (Node.Ix)
-                    {
-                    case undefined: assert(false);
-                    case ix_OneLeafMax7:
-                    case ix_TwoLeaf3:
-                    case ix_TriLeaf2:
-                    case ix_HeptLeaf1:
-                    case ix_SparseLeaf1Ptr:
-                    case ix_DenseLeaf1Ptr:
-                        leafNRange = LeafNRange(curr);
-                        goto bottomFound;
-
-                    case ix_SparseBranchPtr:
-                        auto curr_ = curr.as!(SparseBranch*);
-                        branchRanges.put(BranchRange(curr_)); // TODO stack push
-                        if (bottomBranchRange.frontAtLeaf1)
-                        {
-                            dln(bottomBranchRange);
-                            goto bottomFound;
-                        }
-                        else
-                        {
-                            dln();
-                            next = curr_.firstSubNode;
-                        }
-                        break;
-                    case ix_DenseBranchPtr:
-                        auto curr_ = curr.as!(DenseBranch*);
-                        branchRanges.put(BranchRange(curr_)); // TODO stack push
-                        if (bottomBranchRange.frontAtLeaf1)
-                        {
-                            dln();
-                            goto bottomFound;
-                        }
-                        else
-                        {
-                            dln();
-                            next = bottomBranchRange.subFrontNode;
-                        }
-                        break;
-                    }
-                    curr = next;
+                case undefined: assert(false);
+                case ix_OneLeafMax7:
+                case ix_TwoLeaf3:
+                case ix_TriLeaf2:
+                case ix_HeptLeaf1:
+                case ix_SparseLeaf1Ptr:
+                case ix_DenseLeaf1Ptr:
+                    leafNRange = LeafNRange(curr);
+                    next = null; // we're done diving
+                    break;
+                case ix_SparseBranchPtr:
+                    auto curr_ = curr.as!(SparseBranch*);
+                    branchRanges.put(BranchRange(curr_)); // TODO stack push
+                    next = (curr_.subCount) ? curr_.firstSubNode : Node.init;
+                    break;
+                case ix_DenseBranchPtr:
+                    auto curr_ = curr.as!(DenseBranch*);
+                    branchRanges.put(BranchRange(curr_)); // TODO stack push
+                    next = bottomBranchRange.subsEmpty ? Node.init : bottomBranchRange.subFrontNode;
+                    break;
                 }
-                while (next);
-
-            bottomFound:
-                cacheFront;
+                curr = next;
             }
+            while (next);
+            cacheFront;
         }
 
         bool empty() const @safe pure nothrow @nogc
@@ -1821,47 +1804,7 @@ struct RawRadixTree(Value = void)
                         }
                         else
                         {
-                            while (!(bottomBranchRange.empty && leafNRange))
-                            {
-                                Node curr = bottomBranchRange.subFrontNode;
-                                final switch (curr.typeIx) with (Node.Ix)
-                                {
-                                case undefined: assert(false);
-                                case ix_OneLeafMax7:
-                                case ix_TwoLeaf3:
-                                case ix_TriLeaf2:
-                                case ix_HeptLeaf1:
-                                case ix_SparseLeaf1Ptr:
-                                case ix_DenseLeaf1Ptr:
-                                    leafNRange = LeafNRange(curr);
-                                    goto bottomFound; // we are done
-                                case ix_SparseBranchPtr:
-                                    auto curr_ = curr.as!(SparseBranch*);
-                                    branchRanges.put(BranchRange(curr_)); // TODO stack.push
-                                    if (curr_.subCount == 0)
-                                    {
-                                        goto bottomFound;
-                                    }
-                                    else
-                                    {
-                                        curr = curr_.firstSubNode;
-                                    }
-                                    break;
-                                case ix_DenseBranchPtr:
-                                    auto curr_ = curr.as!(DenseBranch*);
-                                    branchRanges.put(BranchRange(curr_)); // TODO stack push
-                                    if (bottomBranchRange.subsEmpty)
-                                    {
-                                        goto bottomFound;
-                                    }
-                                    else
-                                    {
-                                        curr = bottomBranchRange.subFrontNode;
-                                    }
-                                    break;
-                                }
-                            }
-                        bottomFound:
+                            diveAt(bottomBranchRange.subFrontNode);
                         }
                     }
                 }

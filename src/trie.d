@@ -3897,13 +3897,17 @@ struct RadixTree(Key, Value)
 
         auto ref front() const /* TODO @nogc */
         {
-            const key = _rawRange._frontRange._cachedFrontKey.data.toTypedKey!Key;
+            const ukey = _rawRange._frontRange._cachedFrontKey.data;
+            assert(ukey.length);
+            const key = ukey.toTypedKey!Key;
             static if (RawTree.hasValue) { return tuple(key, _rawRange._frontRange._cachedFrontValue); }
             else                         { return key; }
         }
         auto ref back() const /* TODO @nogc */
         {
-            const key = _rawRange._backRange._cachedFrontKey.data.toTypedKey!Key;
+            const ukey = _rawRange._backRange._cachedFrontKey.data;
+            assert(ukey.length);
+            const key = ukey.toTypedKey!Key;
             static if (RawTree.hasValue) { return tuple(key, _rawRange._backRange._cachedFrontValue); }
             else                         { return key; }
         }
@@ -4090,8 +4094,8 @@ unittest
     size_t i = 0;
     foreach (const elt; map[])
     {
-        const key = elt[0];
-        const value = elt[1];
+        const Key key = elt[0];
+        const Value value = elt[1];
 
         dln("i:", i);
         dln("key:", key);

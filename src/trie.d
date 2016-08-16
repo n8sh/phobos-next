@@ -1696,11 +1696,11 @@ struct RawRadixTree(Value = void)
     }
 
     /** Tree Iterator. */
-    struct ForwardRange
+    struct SingleDirectionalRange
     {
-        this(Node root, bool isReversedFromBack = false)
+        this(Node root, bool _isReversed = false)
         {
-            this.isReversedFromBack = isReversedFromBack;
+            this._isReversed = _isReversed;
             if (root)
             {
                 Node curr = root;
@@ -1877,7 +1877,7 @@ struct RawRadixTree(Value = void)
         {
             Value _cachedValue; // copy of front value
         }
-        bool isReversedFromBack; // iterator is reversed from back
+        bool _isReversed; // iterator is reversed from back
     }
 
     /** Range over the Elements in a Radix Tree.
@@ -1892,8 +1892,8 @@ struct RawRadixTree(Value = void)
         {
             if (root)
             {
-                _frontForwardRange = ForwardRange(root, false);
-                _backForwardRange = ForwardRange(root, true);
+                _frontForwardRange = SingleDirectionalRange(root, false);
+                _backForwardRange = SingleDirectionalRange(root, true);
             }
         }
 
@@ -1918,8 +1918,8 @@ struct RawRadixTree(Value = void)
 
     private:
     private:
-        ForwardRange _frontForwardRange;  // front iterator
-        ForwardRange _backForwardRange;   // back iterator
+        SingleDirectionalRange _frontForwardRange;  // front iterator
+        SingleDirectionalRange _backForwardRange;   // back iterator
     }
 
     pragma(inline) Range opSlice() @trusted pure nothrow

@@ -1863,7 +1863,7 @@ struct RawRadixTree(Value = void)
         {
             assert(!empty);
             _back.next;
-            if (!empty) { copyBackElement; }
+            if (!empty) { cacheBackElement; }
         }
 
     private:
@@ -1884,7 +1884,7 @@ struct RawRadixTree(Value = void)
                 }
             }
         }
-        void copyBackElement()
+        void cacheBackElement()
         {
             // TODO functionize?
             _backKey.clear;

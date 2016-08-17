@@ -1858,14 +1858,6 @@ struct RawRadixTree(Value = void)
                     dln(*curr_);
                     branchRanges.put(BranchRange(curr_)); // TODO stack push or pushBack
                     next = (curr_.subCount) ? curr_.firstSubNode : Node.init;
-                    // if (bottomBranchRange.frontAtLeaf1)
-                    // {
-                    //     next = null; // we're done diving
-                    // }
-                    // else
-                    // {
-                    //     next = (curr_.subCount) ? curr_.firstSubNode : Node.init;
-                    // }
                     break;
                 case ix_DenseBranchPtr:
                     auto curr_ = curr.as!(DenseBranch*);

@@ -1761,25 +1761,25 @@ struct RawRadixTree(Value = void)
             try { branchRanges.shrinkTo(n); } catch (Exception e) { assert(false); }
         }
 
-        void popBackBranchRange() nothrow
-        {
-            shrinkBranchRangesTo(branchRanges.data.length - 1);
-        }
-
         // Go upwards and iterate forward in parents.
-        void popEmptyBranchRangesUpwards() nothrow
+        void popEmptyBranchRangesUpwardsAndDive() nothrow
         {
             while (branchRanges.data.length)
             {
                 bottomBranchRange.popFront;
                 if (bottomBranchRange.empty)
                 {
-                    popBackBranchRange();
+                    shrinkBranchRangesTo(branchRanges.data.length - 1);
                 }
                 else
                 {
                     break;      // bottomBranchRange is not empty so break
                 }
+            }
+            if (branchRanges.data.length &&
+                !bottomBranchRange.subsEmpty) // if any sub nodes
+            {
+                diveAndVisitTreeUnder(bottomBranchRange.subFrontNode); // visit them
             }
         }
 
@@ -1795,14 +1795,7 @@ struct RawRadixTree(Value = void)
                     if (branchRange.empty)
                     {
                         shrinkBranchRangesTo(branchDepth); // remove `branchRange` and all others below
-
-                        // TODO functionize:
-                        popEmptyBranchRangesUpwards;
-                        if (branchRanges.data.length &&
-                            !bottomBranchRange.subsEmpty) // if any sub nodes
-                        {
-                            diveAndVisitTreeUnder(bottomBranchRange.subFrontNode); // visit them
-                        }
+                        popEmptyBranchRangesUpwardsAndDive;
                     }
                     return;
                 }
@@ -1812,13 +1805,7 @@ struct RawRadixTree(Value = void)
             leafNRange.popFront;
             if (leafNRange.empty)
             {
-                // TODO functionize:
-                popEmptyBranchRangesUpwards;
-                if (branchRanges.data.length &&
-                    !bottomBranchRange.subsEmpty) // if any sub nodes
-                {
-                    diveAndVisitTreeUnder(bottomBranchRange.subFrontNode); // visit them
-                }
+                popEmptyBranchRangesUpwardsAndDive;
             }
         }
 

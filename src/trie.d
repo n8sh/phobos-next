@@ -1809,7 +1809,6 @@ struct RawRadixTree(Value = void)
                 ++branchDepth;
             }
 
-            assert(!leafNRange.empty);
             leafNRange.popFront;
             if (leafNRange.empty)
             {

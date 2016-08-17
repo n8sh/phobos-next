@@ -1718,6 +1718,7 @@ struct RawRadixTree(Value = void)
     {
         this(Node root)
         {
+            debug if (willFail) dln(root);
             if (root) { diveAt(root); }
         }
 
@@ -1799,6 +1800,7 @@ struct RawRadixTree(Value = void)
         /** Find ranges of branches and leaf for all nodes under tree `root`. */
         private void diveAt(Node root)
         {
+            debug if (willFail) dln(root);
             // TODO assert(leafNRange.empty); // should be defined yet or have been cleared upon completion
             Node curr = root;
             Node next;
@@ -1814,15 +1816,18 @@ struct RawRadixTree(Value = void)
                 case ix_SparseLeaf1Ptr:
                 case ix_DenseLeaf1Ptr:
                     leafNRange = LeafNRange(curr);
+                    debug if (willFail) dln(leafNRange);
                     next = null; // we're done diving
                     break;
                 case ix_SparseBranchPtr:
                     auto curr_ = curr.as!(SparseBranch*);
+                    debug if (willFail) dln(*curr_);
                     branchRanges.put(BranchRange(curr_)); // TODO stack push
                     next = (curr_.subCount) ? curr_.firstSubNode : Node.init;
                     break;
                 case ix_DenseBranchPtr:
                     auto curr_ = curr.as!(DenseBranch*);
+                    debug if (willFail) dln(*curr_);
                     branchRanges.put(BranchRange(curr_)); // TODO stack push
                     next = bottomBranchRange.subsEmpty ? Node.init : bottomBranchRange.subFrontNode;
                     break;
@@ -1842,6 +1847,7 @@ struct RawRadixTree(Value = void)
         {
             Value _cachedFrontValue; // copy of front value
         }
+        debug bool willFail;
     }
 
     /** Bi-Directional Range over Tree.
@@ -1857,6 +1863,7 @@ struct RawRadixTree(Value = void)
             if (root)
             {
                 _frontRange = FrontRange(root);
+                debug _frontRange.willFail = this.willFail;
                 // TODO _backRange = BackRange(root);
             }
         }
@@ -1884,6 +1891,7 @@ struct RawRadixTree(Value = void)
     private:
         FrontRange _frontRange;
         FrontRange _backRange;
+        debug bool willFail;
     }
 
     pragma(inline) Range opSlice() @trusted pure nothrow
@@ -3916,6 +3924,7 @@ struct RadixTree(Key, Value)
 
         auto ref front() const /* TODO @nogc */
         {
+            debug if (willFail) dln;
             const ukey = _rawRange._frontRange._cachedFrontKey.data;
             const key = ukey.toTypedKey!Key;
             static if (RawTree.hasValue) { return tuple(key, _rawRange._frontRange._cachedFrontValue); }
@@ -4159,13 +4168,20 @@ auto checkString(Keys...)(size_t count, uint maxLength, bool show)
         {
             dln("sortedkeys:", sortedKeys);
         }
+
         import std.string : representation;
+        import std.string : format;
+        import std.algorithm : map;
+
+        auto setRange = set[];
+        debug setRange.willFail = true;
+        dln("i:", 0,
+            " value:", setRange.front.representation.map!(ix => format("%.2X", ix)),
+            " expected:", sortedKeys[0].representation.map!(ix => format("%.2X", ix)));
 
         size_t i;
         foreach (const e; set[])
         {
-            import std.string : format;
-            import std.algorithm : map;
             dln("i:", i,
                 " value:", e.representation.map!(ix => format("%.2X", ix)),
                 " expected:", sortedKeys[i].representation.map!(ix => format("%.2X", ix)));

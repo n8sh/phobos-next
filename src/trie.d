@@ -1790,7 +1790,6 @@ struct RawRadixTree(Value = void)
             size_t branchDepth = 0; // number of branches stepped
             foreach (ref branchRange; branchRanges.data)
             {
-                dln;
                 if (branchRange.frontAtLeaf1)
                 {
                     dln;

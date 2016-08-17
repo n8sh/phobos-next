@@ -1791,20 +1791,16 @@ struct RawRadixTree(Value = void)
             {
                 if (branchRange.frontAtLeaf1)
                 {
-                    dln;
                     branchRange.popFront;
                     if (branchRange.empty)
                     {
-                        dln;
                         shrinkBranchRangesTo(branchDepth); // remove `branchRange` and all others below
 
+                        // TODO functionize:
                         popEmptyBranchRangesUpwards;
-
-                        // fill sub-nodes
                         if (branchRanges.data.length &&
                             !bottomBranchRange.subsEmpty) // if any sub nodes
                         {
-                            dln;
                             diveAndVisitTreeUnder(bottomBranchRange.subFrontNode); // visit them
                         }
                     }
@@ -1812,12 +1808,19 @@ struct RawRadixTree(Value = void)
                 }
                 ++branchDepth;
             }
-            if (branchRanges.data.length)
-            {
-                leafNRange = LeafNRange(bottomBranchRange.subFrontNode); // bottom-most branch must contain a leaf
-            }
 
+            assert(!leafNRange.empty);
             leafNRange.popFront;
+            if (leafNRange.empty)
+            {
+                // TODO functionize:
+                popEmptyBranchRangesUpwards;
+                if (branchRanges.data.length &&
+                    !bottomBranchRange.subsEmpty) // if any sub nodes
+                {
+                    diveAndVisitTreeUnder(bottomBranchRange.subFrontNode); // visit them
+                }
+            }
         }
 
         /** Find ranges of branches and leaf for all nodes under tree `root`. */
@@ -1839,18 +1842,15 @@ struct RawRadixTree(Value = void)
                     if (!leafNRange.empty) { dln("existing leafNRange:", leafNRange); }
                     assert(leafNRange.empty);
                     leafNRange = LeafNRange(curr);
-                    dln(leafNRange);
                     next = null; // we're done diving
                     break;
                 case ix_SparseBranchPtr:
                     auto curr_ = curr.as!(SparseBranch*);
-                    dln(*curr_);
                     branchRanges.put(BranchRange(curr_)); // TODO stack push or pushBack
                     next = (curr_.subCount) ? curr_.firstSubNode : Node.init;
                     break;
                 case ix_DenseBranchPtr:
                     auto curr_ = curr.as!(DenseBranch*);
-                    dln(*curr_);
                     branchRanges.put(BranchRange(curr_)); // TODO stack push or pushBack
                     next = bottomBranchRange.subsEmpty ? Node.init : bottomBranchRange.subFrontNode;
                     break;
@@ -1903,7 +1903,6 @@ struct RawRadixTree(Value = void)
                 debug if (willFail)
                 {
                     this.willFail = willFail;
-                    dln(root);
                 }
             }
         }
@@ -3980,7 +3979,6 @@ struct RadixTree(Key, Value)
 
         auto ref front() const /* TODO @nogc */
         {
-            debug if (willFail) dln;
             const ukey = _rawRange._frontRange.frontKey;
             const key = ukey.toTypedKey!Key;
             static if (RawTree.hasValue) { return tuple(key, _rawRange._frontRange._cachedFrontValue); }
@@ -4134,7 +4132,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
 }
 
 /// test map from `uint` to values of type `double`
-// TODO @safe pure nothrow /* TODO @nogc */
+@safe pure nothrow /* TODO @nogc */
 unittest
 {
     alias Key = uint;
@@ -4215,15 +4213,7 @@ auto checkString(Keys...)(size_t count, uint maxLength, bool show)
             testContainsAndInsert(set, key);
         }
 
-        set.print;
-
-        import std.array : array;
         import std.algorithm : equal;
-
-        if (show)
-        {
-            dln("sortedkeys:", sortedKeys);
-        }
 
         import std.string : representation;
         import std.string : format;
@@ -4231,20 +4221,12 @@ auto checkString(Keys...)(size_t count, uint maxLength, bool show)
 
         debug set.willFail = true; // propagates to range aswell
         size_t i;
-        foreach (const e; set[])
-        {
-            dln("i:", i,
-                " value:", e.representation.map!(ix => format("%.2X", ix)),
-                " expected:", sortedKeys[i].representation.map!(ix => format("%.2X", ix)));
-            ++i;
-        }
-
         assert(set[].equal(sortedKeys));
     }
 }
 
 ///
-// TODO @safe pure nothrow /* TODO @nogc */
+@safe pure nothrow /* TODO @nogc */
 unittest
 {
     checkString!(string)(512, 8, true);

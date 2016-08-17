@@ -1820,14 +1820,14 @@ struct RawRadixTree(Value = void)
                 }
                 ++branchDepth;
             }
+            if (branchRanges.data.length)
+            {
+                leafNRange = LeafNRange(bottomBranchRange.subFrontNode); // bottom-most branch must contain a leaf
+            }
 
         handleLeaf:
-            dln;
             if (!leaf1Popped) // if leaf1 was popped there must exist a leafNRange the we can popFront
             {
-                dln;
-                dln(leafNRange);
-                assert(!leafNRange.empty);
                 leafNRange.popFront;
             }
         }

@@ -1786,7 +1786,6 @@ struct RawRadixTree(Value = void)
         void popFront() nothrow
         {
             // top-down search for first branch currently iterating its leaf1
-            bool leaf1Popped;       // indicates that a leaf1 was popped
             size_t branchDepth = 0; // number of branches stepped
             foreach (ref branchRange; branchRanges.data)
             {
@@ -1794,13 +1793,7 @@ struct RawRadixTree(Value = void)
                 {
                     dln;
                     branchRange.popFront;
-                    leaf1Popped = true;
-                    if (!branchRange.empty)
-                    {
-                        dln;
-                        return; // there are elements left in branchRange so just leave as is
-                    }
-                    else
+                    if (branchRange.empty)
                     {
                         dln;
                         shrinkBranchRangesTo(branchDepth); // remove `branchRange` and all others below
@@ -1814,8 +1807,8 @@ struct RawRadixTree(Value = void)
                             dln;
                             diveAndVisitTreeUnder(bottomBranchRange.subFrontNode); // visit them
                         }
-                        return;
                     }
+                    return;
                 }
                 ++branchDepth;
             }
@@ -1824,10 +1817,7 @@ struct RawRadixTree(Value = void)
                 leafNRange = LeafNRange(bottomBranchRange.subFrontNode); // bottom-most branch must contain a leaf
             }
 
-            if (!leaf1Popped) // if leaf1 was popped there must exist a leafNRange the we can popFront
-            {
-                leafNRange.popFront;
-            }
+            leafNRange.popFront;
         }
 
         /** Find ranges of branches and leaf for all nodes under tree `root`. */

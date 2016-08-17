@@ -1716,15 +1716,19 @@ struct RawRadixTree(Value = void)
     /** Forward Single-Directional Range over Tree. */
     struct FrontRange
     {
+        debug
+        {
+            this(Node root, bool willFail)
+            {
+                this.willFail = willFail;
+                this(root);
+            }
+        }
         this(Node root)
         {
-            debug if (willFail) dln(root);
+            dln;
             if (root) { diveAt(root); }
-        }
-
-        bool empty() const @safe pure nothrow // TODO @nogc
-        {
-            return leafNRange.empty && branchRanges.data.length == 0;
+            dln;
         }
 
         void cacheFront()
@@ -1800,10 +1804,11 @@ struct RawRadixTree(Value = void)
         /** Find ranges of branches and leaf for all nodes under tree `root`. */
         private void diveAt(Node root)
         {
-            debug if (willFail) dln(root);
-            // TODO assert(leafNRange.empty); // should be defined yet or have been cleared upon completion
+            dln(root);
+
             Node curr = root;
             Node next;
+
             do
             {
                 final switch (curr.typeIx) with (Node.Ix)
@@ -1815,19 +1820,20 @@ struct RawRadixTree(Value = void)
                 case ix_HeptLeaf1:
                 case ix_SparseLeaf1Ptr:
                 case ix_DenseLeaf1Ptr:
+                    assert(leafNRange.empty);
                     leafNRange = LeafNRange(curr);
-                    debug if (willFail) dln(leafNRange);
+                    dln(leafNRange);
                     next = null; // we're done diving
                     break;
                 case ix_SparseBranchPtr:
                     auto curr_ = curr.as!(SparseBranch*);
-                    debug if (willFail) dln(*curr_);
+                    dln(*curr_);
                     branchRanges.put(BranchRange(curr_)); // TODO stack push
                     next = (curr_.subCount) ? curr_.firstSubNode : Node.init;
                     break;
                 case ix_DenseBranchPtr:
                     auto curr_ = curr.as!(DenseBranch*);
-                    debug if (willFail) dln(*curr_);
+                    dln(*curr_);
                     branchRanges.put(BranchRange(curr_)); // TODO stack push
                     next = bottomBranchRange.subsEmpty ? Node.init : bottomBranchRange.subFrontNode;
                     break;
@@ -1835,7 +1841,22 @@ struct RawRadixTree(Value = void)
                 curr = next;
             }
             while (next);
+
             cacheFront;
+            dln("_cachedFrontKey.data:", _cachedFrontKey.data);
+        }
+
+        pragma(inline) @safe pure nothrow:
+
+        bool empty() const // TODO @nogc
+        {
+            return leafNRange.empty && branchRanges.data.length == 0;
+        }
+
+        auto frontKey() const @nogc { return _cachedFrontKey.data; }
+        static if (hasValue)
+        {
+            auto frontValue() const @nogc { return _cachedFrontValue; }
         }
 
     private:
@@ -1858,14 +1879,26 @@ struct RawRadixTree(Value = void)
         @safe pure nothrow /* @nogc */:
         pragma(inline):
 
+        debug
+        {
+            this(Node root, bool willFail)
+            {
+                this(root);
+                debug if (willFail)
+                {
+                    this.willFail = willFail;
+                    dln(root);
+                }
+            }
+        }
+
         this(Node root)
         {
-            if (root)
-            {
-                _frontRange = FrontRange(root);
-                debug _frontRange.willFail = this.willFail;
-                // TODO _backRange = BackRange(root);
-            }
+            debug { _frontRange = FrontRange(root, this.willFail); }
+            else  { _frontRange = FrontRange(root); }
+
+            // debug { _backRange = BackRange(root, this.willFail); }
+            // else  { _backRange = BackRange(root); }
         }
 
         bool empty() const /* TODO @nogc */
@@ -1896,7 +1929,14 @@ struct RawRadixTree(Value = void)
 
     pragma(inline) Range opSlice() @trusted pure nothrow
     {
-        return Range(this._root);
+        debug
+        {
+            return Range(this._root, willFail);
+        }
+        else
+        {
+            return Range(this._root);
+        }
     }
 
     // static assert(isBidirectionalRange!Range);
@@ -3925,14 +3965,14 @@ struct RadixTree(Key, Value)
         auto ref front() const /* TODO @nogc */
         {
             debug if (willFail) dln;
-            const ukey = _rawRange._frontRange._cachedFrontKey.data;
+            const ukey = _rawRange._frontRange.frontKey;
             const key = ukey.toTypedKey!Key;
             static if (RawTree.hasValue) { return tuple(key, _rawRange._frontRange._cachedFrontValue); }
             else                         { return key; }
         }
         auto ref back() const /* TODO @nogc */
         {
-            const ukey = _rawRange._backRange._cachedFrontKey.data;
+            const ukey = _rawRange._backRange.frontKey;
             assert(ukey.length);
             const key = ukey.toTypedKey!Key;
             static if (RawTree.hasValue) { return tuple(key, _rawRange._backRange._cachedFrontValue); }
@@ -3941,13 +3981,13 @@ struct RadixTree(Key, Value)
 
         auto ref rawFront() const /* TODO @nogc */
         {
-            const key = _rawRange._frontRange._cachedFrontKey.data;
+            const key = _rawRange._frontRange.frontKey;
             static if (RawTree.hasValue) { return tuple(key, _rawRange._frontRange._cachedFrontValue); }
             else                         { return key; }
         }
         auto ref rawBack() const /* TODO @nogc */
         {
-            const key = _rawRange._backRange._cachedFrontKey.data;
+            const key = _rawRange._backRange.frontKey;
             static if (RawTree.hasValue) { return tuple(key, _rawRange._backRange._cachedFrontValue); }
             else                         { return key; }
         }
@@ -4173,12 +4213,7 @@ auto checkString(Keys...)(size_t count, uint maxLength, bool show)
         import std.string : format;
         import std.algorithm : map;
 
-        auto setRange = set[];
-        debug setRange.willFail = true;
-        dln("i:", 0,
-            " value:", setRange.front.representation.map!(ix => format("%.2X", ix)),
-            " expected:", sortedKeys[0].representation.map!(ix => format("%.2X", ix)));
-
+        debug set.willFail = true; // propagates to range aswell
         size_t i;
         foreach (const e; set[])
         {

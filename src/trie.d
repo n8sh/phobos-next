@@ -1816,6 +1816,7 @@ struct RawRadixTree(Value = void)
                 case ix_HeptLeaf1:
                 case ix_SparseLeaf1Ptr:
                 case ix_DenseLeaf1Ptr:
+                    if (!leafNRange.empty) { dln("existing leafNRange:", leafNRange); }
                     assert(leafNRange.empty);
                     leafNRange = LeafNRange(curr);
                     dln(leafNRange);

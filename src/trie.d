@@ -1726,9 +1726,7 @@ struct RawRadixTree(Value = void)
         }
         this(Node root)
         {
-            dln;
             if (root) { diveAt(root); }
-            dln;
         }
 
         void cacheFront()
@@ -1738,19 +1736,23 @@ struct RawRadixTree(Value = void)
             foreach (const branchRange; branchRanges.data)
             {
                 branchRange.appendFrontIxsToKey(_cachedFrontKey);
-                static if (hasValue)
+                dln(branchRange);
+                dln(_cachedFrontKey.data);
+                if (branchRange.frontAtLeaf1)
                 {
-                    if (branchRange.frontAtLeaf1)
+                    static if (hasValue)
                     {
                         _cachedFrontValue = branchRange.leaf1Range.frontValue;
-                        return; // we are done
                     }
+                    return; // we are done
                 }
             }
 
             if (!leafNRange.empty)
             {
                 leafNRange.appendFrontIxsToKey(_cachedFrontKey);
+                dln(leafNRange);
+                dln(_cachedFrontKey.data);
                 static if (hasValue)
                 {
                     _cachedFrontValue = leafNRange.value; // last should be leaf containing value
@@ -1843,7 +1845,7 @@ struct RawRadixTree(Value = void)
             while (next);
 
             cacheFront;
-            dln("_cachedFrontKey.data:", _cachedFrontKey.data);
+            dln("_cachedFrontKey.data:", frontKey);
         }
 
         pragma(inline) @safe pure nothrow:

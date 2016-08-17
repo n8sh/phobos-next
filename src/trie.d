@@ -3,6 +3,9 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO prevent loop in FrontRange.popFront() by storing index to first range
+    where frontAtLeaf1 is true if any, Index.max otherwise
+
     TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
     TODO Allow NodeType-constructors to take const and immutable prefixes
 
@@ -1787,7 +1790,7 @@ struct RawRadixTree(Value = void)
         {
             // top-down search for first branch currently iterating its leaf1
             size_t branchDepth = 0; // number of branches stepped
-            foreach (ref branchRange; branchRanges.data)
+            foreach (ref branchRange; branchRanges.data) // TODO prevent this loop by storing index to first range where frontAtLeaf1 is true if any, Index.max otherwise
             {
                 if (branchRange.frontAtLeaf1)
                 {

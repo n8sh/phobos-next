@@ -1813,8 +1813,8 @@ struct RawRadixTree(Value = void)
                         {
                             dln;
                             diveAndVisitTreeUnder(bottomBranchRange.subFrontNode); // visit them
-                            goto handleLeaf;
                         }
+                        return;
                     }
                 }
                 ++branchDepth;
@@ -1824,7 +1824,6 @@ struct RawRadixTree(Value = void)
                 leafNRange = LeafNRange(bottomBranchRange.subFrontNode); // bottom-most branch must contain a leaf
             }
 
-        handleLeaf:
             if (!leaf1Popped) // if leaf1 was popped there must exist a leafNRange the we can popFront
             {
                 leafNRange.popFront;

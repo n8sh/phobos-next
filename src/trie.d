@@ -1733,7 +1733,7 @@ struct RawRadixTree(Value = void)
         {
             _cachedFrontKey.clear;
 
-            foreach (const branchRange; branchRanges.data)
+            foreach (const ref branchRange; branchRanges.data)
             {
                 branchRange.appendFrontIxsToKey(_cachedFrontKey);
                 if (branchRange.frontAtLeaf1)
@@ -1756,46 +1756,79 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        void popFront()
+        void shrinkBranchRangesTo(size_t n)
         {
-            // common case: try bottom-most leaf first
-            if (!leafNRange.empty)     // if it's defined
-            {
-                assert(!leafNRange.empty); // must be non-empty
-                leafNRange.popFront;       // just pick here
-            }
+            try { branchRanges.shrinkTo(n); } catch (Exception e) { assert(false); }
+        }
 
-            if (leafNRange.empty)   // if leaf range was emptied
+        void popBackBranchRange() nothrow
+        {
+            shrinkBranchRangesTo(branchRanges.data.length - 1);
+        }
+
+        // Go upwards and iterate forward in parents.
+        void popEmptyBranchRangesUpwards() nothrow
+        {
+            while (branchRanges.data.length)
             {
-                // walk branches from bottom upwards and iterate their leaf1-parts
-                while (branchRanges.data.length) // TODO use reverse foreach
+                bottomBranchRange.popFront;
+                if (bottomBranchRange.empty)
                 {
-                    // TODO functionize to foo(ref BranchRange branchRange) called as foo(bottomBranchRange)
-                    bottomBranchRange.popFront; // last
-                    if (bottomBranchRange.empty) // last
+                    popBackBranchRange();
+                }
+                else
+                {
+                    break;      // bottomBranchRange is not empty so break
+                }
+            }
+        }
+
+        void popFront() nothrow
+        {
+            // top-down search for first branch currently iterating its leaf1
+            bool leaf1Popped;       // indicates that a leaf1 was popped
+            size_t branchDepth = 0; // number of branches stepped
+            foreach (ref branchRange; branchRanges.data)
+            {
+                dln;
+                if (branchRange.frontAtLeaf1)
+                {
+                    dln;
+                    branchRange.popFront;
+                    leaf1Popped = true;
+                    if (!branchRange.empty)
                     {
-                        // TODO wrap this try-catch in a stack.popBack() that asserts instead of throws
-                        try
-                        {
-                            branchRanges.shrinkTo(branchRanges.data.length - 1); // functionize to pop()
-                        }
-                        catch (Exception e)
-                        {
-                            assert(false, "shrinkTo threw an Exception");
-                        }
+                        dln;
+                        return; // there are elements left in branchRange so just leave as is
                     }
                     else
                     {
-                        if (bottomBranchRange.frontAtLeaf1) // front is at leaf
+                        dln;
+                        shrinkBranchRangesTo(branchDepth); // remove `branchRange` and all others below
+
+                        popEmptyBranchRangesUpwards;
+
+                        // fill sub-nodes
+                        if (branchRanges.data.length &&
+                            !bottomBranchRange.subsEmpty) // if any sub nodes
                         {
-                            break; // so we're done
-                        }
-                        else
-                        {
-                            diveAt(bottomBranchRange.subFrontNode);
+                            dln;
+                            diveAt(bottomBranchRange.subFrontNode); // visit them
+                            goto handleLeaf;
                         }
                     }
                 }
+                ++branchDepth;
+            }
+
+        handleLeaf:
+            dln;
+            if (!leaf1Popped) // if leaf1 was popped there must exist a leafNRange the we can popFront
+            {
+                dln;
+                dln(leafNRange);
+                assert(!leafNRange.empty);
+                leafNRange.popFront;
             }
         }
 
@@ -1804,7 +1837,6 @@ struct RawRadixTree(Value = void)
         {
             Node curr = root;
             Node next;
-
             do
             {
                 final switch (curr.typeIx) with (Node.Ix)
@@ -1825,13 +1857,21 @@ struct RawRadixTree(Value = void)
                 case ix_SparseBranchPtr:
                     auto curr_ = curr.as!(SparseBranch*);
                     dln(*curr_);
-                    branchRanges.put(BranchRange(curr_)); // TODO stack push
+                    branchRanges.put(BranchRange(curr_)); // TODO stack push or pushBack
                     next = (curr_.subCount) ? curr_.firstSubNode : Node.init;
+                    // if (bottomBranchRange.frontAtLeaf1)
+                    // {
+                    //     next = null; // we're done diving
+                    // }
+                    // else
+                    // {
+                    //     next = (curr_.subCount) ? curr_.firstSubNode : Node.init;
+                    // }
                     break;
                 case ix_DenseBranchPtr:
                     auto curr_ = curr.as!(DenseBranch*);
                     dln(*curr_);
-                    branchRanges.put(BranchRange(curr_)); // TODO stack push
+                    branchRanges.put(BranchRange(curr_)); // TODO stack push or pushBack
                     next = bottomBranchRange.subsEmpty ? Node.init : bottomBranchRange.subFrontNode;
                     break;
                 }

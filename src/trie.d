@@ -4178,7 +4178,7 @@ auto checkString(Keys...)(size_t count, uint maxLength, bool show)
 // TODO @safe pure nothrow /* TODO @nogc */
 unittest
 {
-    checkString!(string)(64, 8, true);
+    checkString!(string)(512, 8, true);
     checkString!(string)(2^^18, 2^^7, false);
 }
 

@@ -4,7 +4,7 @@
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
     TODO prevent loop in FrontRange.popFront() by storing index to first range
-    where frontAtLeaf1 is true if any, Index.max otherwise
+    where frontAtLeaf1 is true if any, Index.max otherwise and reuse for faster lookup
 
     TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
     TODO Allow NodeType-constructors to take const and immutable prefixes

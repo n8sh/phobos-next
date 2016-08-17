@@ -1726,7 +1726,7 @@ struct RawRadixTree(Value = void)
         }
         this(Node root)
         {
-            if (root) { diveAt(root); }
+            if (root) { diveAndVisitTreeUnder(root); }
         }
 
         void cacheFront()
@@ -1812,7 +1812,7 @@ struct RawRadixTree(Value = void)
                             !bottomBranchRange.subsEmpty) // if any sub nodes
                         {
                             dln;
-                            diveAt(bottomBranchRange.subFrontNode); // visit them
+                            diveAndVisitTreeUnder(bottomBranchRange.subFrontNode); // visit them
                             goto handleLeaf;
                         }
                     }
@@ -1832,7 +1832,7 @@ struct RawRadixTree(Value = void)
         }
 
         /** Find ranges of branches and leaf for all nodes under tree `root`. */
-        private void diveAt(Node root)
+        private void diveAndVisitTreeUnder(Node root)
         {
             Node curr = root;
             Node next;

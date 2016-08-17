@@ -1361,12 +1361,14 @@ struct RawRadixTree(Value = void)
         }
 
     private:
-        Branch branch;
+        Branch branch;          // branch part of range
         Leaf1Range leaf1Range;  // range of direct leaves
+
         Ix _subNodeCounter; // `Branch`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
         Ix _frontIx;
-        bool _frontAtLeaf1;
-        bool _subsEmpty;
+
+        bool _frontAtLeaf1;   // `true` iff front is currently at a leaf1 element
+        bool _subsEmpty;      // `true` iff no sub-nodes exists
     }
 
     /** Leaf1 Range (Iterator). */

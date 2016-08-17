@@ -1736,8 +1736,6 @@ struct RawRadixTree(Value = void)
             foreach (const branchRange; branchRanges.data)
             {
                 branchRange.appendFrontIxsToKey(_cachedFrontKey);
-                dln(branchRange);
-                dln(_cachedFrontKey.data);
                 if (branchRange.frontAtLeaf1)
                 {
                     static if (hasValue)
@@ -1751,8 +1749,6 @@ struct RawRadixTree(Value = void)
             if (!leafNRange.empty)
             {
                 leafNRange.appendFrontIxsToKey(_cachedFrontKey);
-                dln(leafNRange);
-                dln(_cachedFrontKey.data);
                 static if (hasValue)
                 {
                     _cachedFrontValue = leafNRange.value; // last should be leaf containing value
@@ -1806,8 +1802,6 @@ struct RawRadixTree(Value = void)
         /** Find ranges of branches and leaf for all nodes under tree `root`. */
         private void diveAt(Node root)
         {
-            dln(root);
-
             Node curr = root;
             Node next;
 
@@ -1845,7 +1839,6 @@ struct RawRadixTree(Value = void)
             while (next);
 
             cacheFront;
-            dln("_cachedFrontKey.data:", frontKey);
         }
 
         pragma(inline) @safe pure nothrow:

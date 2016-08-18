@@ -1739,14 +1739,15 @@ struct RawRadixTree(Value = void)
             if (branch1Depth != typeof(branch1Depth).max) // if should pop from leaf1 of branch
             {
                 popFrontInBranchLeaf1();
-                return;
             }
-
-            // leaf
-            leafNRange.popFront;
-            if (leafNRange.empty)
+            else
             {
-                forwardBranchRanges();
+                // leaf
+                leafNRange.popFront;
+                if (leafNRange.empty)
+                {
+                    forwardBranchRanges();
+                }
             }
         }
 

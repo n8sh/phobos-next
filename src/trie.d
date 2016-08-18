@@ -3806,7 +3806,7 @@ static private UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFi
 
 /** Remap raw untyped key `ukey` to typed key of type `TypedKey`. */
 static private inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey)
-    @trusted pure nothrow /* TODO @nogc */
+    @safe pure nothrow /* TODO @nogc */
     if (allSatisfy!(isTrieableKeyType, TypedKey))
 {
     enum radix = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
@@ -4031,10 +4031,17 @@ struct RadixTree(Key, Value)
         alias _rawRange this;
     }
 
-    pragma(inline) Range opSlice() @trusted pure nothrow
+    pragma(inline) Range opSlice() @safe pure nothrow
     {
         return Range(_rawTree._root);
     }
+
+    // pragma(inline) Range prefix(Key key) @safe pure nothrow
+    // {
+    //     KeyN!(span, Key.sizeof) ukey;
+    //     auto rawKey = key.toRawKey(ukey[]);
+    //     return Range(_rawTree.prefixNode(rawKey));
+    // }
 
     /** Print `this` tree. */
     void print() @safe const { _rawTree.print(); }

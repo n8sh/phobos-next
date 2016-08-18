@@ -1713,8 +1713,8 @@ struct RawRadixTree(Value = void)
         Ix ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
     }
 
-    /** Low (Left) Single-Directional Range over Tree. */
-    struct LowRange
+    /** Forward (Left) Single-Directional Range over Tree. */
+    struct FrontRange
     {
         @safe pure nothrow:
 
@@ -1933,8 +1933,8 @@ struct RawRadixTree(Value = void)
 
         this(Node root)
         {
-            _frontRange = LowRange(root);
-            // _backRange = LowRange(root);
+            _frontRange = FrontRange(root);
+            // _backRange = FrontRange(root);
         }
 
         bool empty() const /* TODO @nogc */
@@ -1958,8 +1958,8 @@ struct RawRadixTree(Value = void)
 
     private:
     private:
-        LowRange _frontRange;
-        LowRange _backRange;
+        FrontRange _frontRange;
+        FrontRange _backRange;
         debug bool willFail;
     }
 

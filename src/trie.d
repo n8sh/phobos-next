@@ -1723,17 +1723,13 @@ struct RawRadixTree(Value = void)
             if (root) { diveAndVisitTreeUnder(root, 0); }
         }
 
-        void updateBranch1Leaf()
+        size_t getBranch1Depth()
         {
             foreach (const i, ref branchRange; branchRanges.data)
             {
-                if (branchRange.atLeaf1)
-                {
-                    branch1Depth = cast(typeof(branch1Depth))i;
-                    return;
-                }
+                if (branchRange.atLeaf1) { return i; }
             }
-            branch1Depth = typeof(branch1Depth).max;
+            return typeof(branch1Depth).max;
         }
 
         void popFront()

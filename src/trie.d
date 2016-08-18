@@ -1745,7 +1745,7 @@ struct RawRadixTree(Value = void)
                 leafNRange.popFront;
                 if (leafNRange.empty)
                 {
-                    updateBranchRanges();
+                    updateTree();
                 }
             }
         }
@@ -1757,7 +1757,7 @@ struct RawRadixTree(Value = void)
             {
                 shrinkBranchRangesTo(branch1Depth); // remove `branchRange` and all others below
                 branch1Depth = typeof(branch1Depth).max; // undefine
-                updateBranchRanges();
+                updateTree();
             }
             else if (branchRanges.data[branch1Depth].atLeaf1) // if still at leaf
             {
@@ -1800,7 +1800,7 @@ struct RawRadixTree(Value = void)
         }
 
         // Go upwards and iterate forward in parents.
-        private void updateBranchRanges()
+        private void updateTree()
         {
             while (branchRanges.data.length)
             {

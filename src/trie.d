@@ -1734,27 +1734,11 @@ struct RawRadixTree(Value = void)
 
         void popFront()
         {
-            // top-down search for first branch currently iterating its leaf1
+            // if we
             assert(branch1Depth == getBranch1DepthAt(0));
-
-            if (branch1Depth != typeof(branch1Depth).max) // if front is currently at leaf1 of branch
+            if (branch1Depth != typeof(branch1Depth).max) // if should pop from leaf1 of branch
             {
-                branchRanges.data[branch1Depth].popFront;
-
-                if (branchRanges.data[branch1Depth].empty)
-                {
-                    shrinkBranchRangesTo(branch1Depth); // remove `branchRange` and all others below
-                    branch1Depth = typeof(branch1Depth).max; // undefine
-                    forwardBranchRanges();
-                }
-                else if (branchRanges.data[branch1Depth].atLeaf1) // if still at leaf
-                {
-                    // nothing needed
-                }
-                else
-                {
-                    branch1Depth = getBranch1DepthAt(branch1Depth + 1);
-                }
+                popFrontInBranchLeaf1();
                 return;
             }
 
@@ -1763,6 +1747,25 @@ struct RawRadixTree(Value = void)
             if (leafNRange.empty)
             {
                 forwardBranchRanges();
+            }
+        }
+
+        private void popFrontInBranchLeaf1()
+        {
+            branchRanges.data[branch1Depth].popFront;
+            if (branchRanges.data[branch1Depth].empty)
+            {
+                shrinkBranchRangesTo(branch1Depth); // remove `branchRange` and all others below
+                branch1Depth = typeof(branch1Depth).max; // undefine
+                forwardBranchRanges();
+            }
+            else if (branchRanges.data[branch1Depth].atLeaf1) // if still at leaf
+            {
+                // nothing needed
+            }
+            else
+            {
+                branch1Depth = getBranch1DepthAt(branch1Depth + 1);
             }
         }
 

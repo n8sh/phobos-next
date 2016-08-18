@@ -1741,6 +1741,7 @@ struct RawRadixTree(Value = void)
                     }
 
                     branchRange.popFront;
+
                     if (branchRange.empty)
                     {
                         branch1Depth = typeof(branch1Depth).max; // undefine

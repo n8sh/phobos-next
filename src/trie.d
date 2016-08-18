@@ -1723,11 +1723,11 @@ struct RawRadixTree(Value = void)
             if (root) { diveAndVisitTreeUnder(root, 0); }
         }
 
-        size_t getBranch1Depth()
+        size_t getBranch1DepthAt(size_t depth)
         {
-            foreach (const i, ref branchRange; branchRanges.data)
+            foreach (const i, ref branchRange; branchRanges.data[depth .. $])
             {
-                if (branchRange.atLeaf1) { return i; }
+                if (branchRange.atLeaf1) { return depth + i; }
             }
             return typeof(branch1Depth).max;
         }
@@ -1735,43 +1735,30 @@ struct RawRadixTree(Value = void)
         void popFront()
         {
             // top-down search for first branch currently iterating its leaf1
-            size_t depth = 0; // number of branches stepped
+            assert(branch1Depth == getBranch1DepthAt(0));
 
-            foreach (ref branchRange; branchRanges.data)
+            if (branch1Depth != typeof(branch1Depth).max) // if front is currently at leaf1 of branch
             {
-                if (branchRange.atLeaf1)
+                branchRanges.data[branch1Depth].popFront;
+
+                if (branchRanges.data[branch1Depth].empty)
                 {
-                    if (branch1Depth != typeof(branch1Depth).max) // if defined
-                    {
-                        assert(branch1Depth == depth); // it must equal
-                    }
-                    else        // undefined
-                    {
-                        dln("branch1Depth is undefined when leaf1-branch was found at depth:", depth);
-                    }
-
-                    branchRange.popFront;
-
-                    if (branchRange.empty)
-                    {
-                        branch1Depth = typeof(branch1Depth).max; // undefine
-                        shrinkBranchRangesTo(depth); // remove `branchRange` and all others below
-                        forwardBranchRanges();
-                    }
-                    else if (branchRange.atLeaf1) // if still at leaf
-                    {
-                        branch1Depth = min(depth, branch1Depth);
-                    }
-                    else
-                    {
-                        branch1Depth = typeof(branch1Depth).max; // undefine
-                    }
-
-                    return;
+                    shrinkBranchRangesTo(branch1Depth); // remove `branchRange` and all others below
+                    branch1Depth = typeof(branch1Depth).max; // undefine
+                    forwardBranchRanges();
                 }
-                ++depth;
+                else if (branchRanges.data[branch1Depth].atLeaf1) // if still at leaf
+                {
+                    // nothing needed
+                }
+                else
+                {
+                    branch1Depth = getBranch1DepthAt(branch1Depth + 1);
+                }
+                return;
             }
 
+            // leaf
             leafNRange.popFront;
             if (leafNRange.empty)
             {
@@ -1848,6 +1835,7 @@ struct RawRadixTree(Value = void)
                     branch1Depth = min(depth, branch1Depth);
                 }
             }
+            assert(branch1Depth == getBranch1DepthAt(0));
         }
 
         /** Find ranges of branches and leaf for all nodes under tree `root`. */

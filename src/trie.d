@@ -1804,9 +1804,23 @@ struct RawRadixTree(Value = void)
             }
         }
 
+        @safe pure nothrow:
+
+        void updateBranchRangeIndexAtLeaf1(uint depth)
+        {
+            if (bottomBranchRange.frontAtLeaf1)
+            {
+                if (branchRangeIndexAtLeaf1 != typeof(branchRangeIndexAtLeaf1).max) // if not yet defined
+                {
+                    branchRangeIndexAtLeaf1 = depth;
+                }
+            }
+        }
+
         /** Find ranges of branches and leaf for all nodes under tree `root`. */
         private void diveAndVisitTreeUnder(Node root)
         {
+            uint depth = 0;
             Node curr = root;
             Node next;
             do
@@ -1828,22 +1842,25 @@ struct RawRadixTree(Value = void)
                 case ix_SparseBranchPtr:
                     auto curr_ = curr.as!(SparseBranch*);
                     branchRanges.put(BranchRange(curr_)); // TODO stack push or pushBack
+                    updateBranchRangeIndexAtLeaf1(depth);
                     next = (curr_.subCount) ? curr_.firstSubNode : Node.init;
                     break;
                 case ix_DenseBranchPtr:
                     auto curr_ = curr.as!(DenseBranch*);
                     branchRanges.put(BranchRange(curr_)); // TODO stack push or pushBack
+                    updateBranchRangeIndexAtLeaf1(depth);
                     next = bottomBranchRange.subsEmpty ? Node.init : bottomBranchRange.subFrontNode;
                     break;
                 }
                 curr = next;
+                ++depth;
             }
             while (next);
 
             cacheFront;
         }
 
-        pragma(inline) @safe pure nothrow:
+        pragma(inline)
 
         bool empty() const // TODO @nogc
         {
@@ -1867,7 +1884,7 @@ struct RawRadixTree(Value = void)
         }
 
         // index to first branch in branchRanges that is currently on a leaf1 or typeof.max if undefined
-        uint branchRangesIndexAtLeaf1Index = uint.max;
+        uint branchRangeIndexAtLeaf1 = uint.max;
     }
 
     /** Bi-Directional Range over Tree.

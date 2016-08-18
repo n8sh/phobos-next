@@ -1740,9 +1740,8 @@ struct RawRadixTree(Value = void)
             {
                 popFrontInBranchLeaf1();
             }
-            else
+            else                // if bottommost leaf should be popped
             {
-                // leaf
                 leafNRange.popFront;
                 if (leafNRange.empty)
                 {

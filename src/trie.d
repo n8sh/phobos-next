@@ -1734,7 +1734,7 @@ struct RawRadixTree(Value = void)
 
         void popFront()
         {
-            // if we
+            // branch case
             assert(branch1Depth == getBranch1DepthAt(0));
             if (branch1Depth != typeof(branch1Depth).max) // if should pop from leaf1 of branch
             {

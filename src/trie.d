@@ -1719,14 +1719,6 @@ struct RawRadixTree(Value = void)
     /** Forward Single-Directional Range over Tree. */
     struct FrontRange
     {
-        debug
-        {
-            this(Node root, bool willFail)
-            {
-                this.willFail = willFail;
-                this(root);
-            }
-        }
         this(Node root)
         {
             if (root) { diveAndVisitTreeUnder(root); }
@@ -1873,7 +1865,9 @@ struct RawRadixTree(Value = void)
         {
             Value _cachedFrontValue; // copy of front value
         }
-        debug bool willFail;
+
+        // index to first branch in branchRanges that is currently on a leaf1 or typeof.max if undefined
+        uint branchRangesIndexAtLeaf1Index = uint.max;
     }
 
     /** Bi-Directional Range over Tree.
@@ -1898,11 +1892,8 @@ struct RawRadixTree(Value = void)
 
         this(Node root)
         {
-            debug { _frontRange = FrontRange(root, this.willFail); }
-            else  { _frontRange = FrontRange(root); }
-
-            // debug { _backRange = BackRange(root, this.willFail); }
-            // else  { _backRange = BackRange(root); }
+            _frontRange = FrontRange(root);
+            // _backRange = FrontRange(root);
         }
 
         bool empty() const /* TODO @nogc */

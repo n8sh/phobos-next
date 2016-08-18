@@ -1757,7 +1757,7 @@ struct RawRadixTree(Value = void)
         }
 
         // Go upwards and iterate forward in parents.
-        void popEmptyBranchRangesUpwardsAndDive() nothrow
+        void forwardBranchRanges() nothrow
         {
             while (branchRanges.data.length)
             {
@@ -1790,7 +1790,7 @@ struct RawRadixTree(Value = void)
                     if (branchRange.empty)
                     {
                         shrinkBranchRangesTo(branchDepth); // remove `branchRange` and all others below
-                        popEmptyBranchRangesUpwardsAndDive;
+                        forwardBranchRanges;
                     }
                     return;
                 }
@@ -1800,7 +1800,7 @@ struct RawRadixTree(Value = void)
             leafNRange.popFront;
             if (leafNRange.empty)
             {
-                popEmptyBranchRangesUpwardsAndDive;
+                forwardBranchRanges;
             }
         }
 

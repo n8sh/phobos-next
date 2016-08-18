@@ -1755,7 +1755,6 @@ struct RawRadixTree(Value = void)
         private void cacheFront()
         {
             _cachedFrontKey.clear;
-
             foreach (const ref branchRange; branchRanges.data)
             {
                 branchRange.appendFrontIxsToKey(_cachedFrontKey);
@@ -1768,7 +1767,6 @@ struct RawRadixTree(Value = void)
                     return; // we are done
                 }
             }
-
             if (!leafNRange.empty)
             {
                 leafNRange.appendFrontIxsToKey(_cachedFrontKey);

@@ -1790,7 +1790,7 @@ struct RawRadixTree(Value = void)
                     if (branchRange.empty)
                     {
                         shrinkBranchRangesTo(branchDepth); // remove `branchRange` and all others below
-                        forwardBranchRanges;
+                        forwardBranchRanges();
                     }
                     return;
                 }
@@ -1800,7 +1800,7 @@ struct RawRadixTree(Value = void)
             leafNRange.popFront;
             if (leafNRange.empty)
             {
-                forwardBranchRanges;
+                forwardBranchRanges();
             }
         }
 

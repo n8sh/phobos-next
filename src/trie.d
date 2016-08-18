@@ -1719,12 +1719,40 @@ struct RawRadixTree(Value = void)
     /** Forward Single-Directional Range over Tree. */
     struct FrontRange
     {
+        @safe pure nothrow:
+
         this(Node root)
         {
             if (root) { diveAndVisitTreeUnder(root); }
         }
 
-        void cacheFront()
+        void popFront()
+        {
+            // top-down search for first branch currently iterating its leaf1
+            size_t branchDepth = 0; // number of branches stepped
+            foreach (ref branchRange; branchRanges.data) // TODO prevent this loop by storing index to first range where frontAtLeaf1 is true if any, Index.max otherwise
+            {
+                if (branchRange.frontAtLeaf1)
+                {
+                    branchRange.popFront;
+                    if (branchRange.empty)
+                    {
+                        shrinkBranchRangesTo(branchDepth); // remove `branchRange` and all others below
+                        forwardBranchRanges();
+                    }
+                    return;
+                }
+                ++branchDepth;
+            }
+
+            leafNRange.popFront;
+            if (leafNRange.empty)
+            {
+                forwardBranchRanges();
+            }
+        }
+
+        private void cacheFront()
         {
             _cachedFrontKey.clear;
 
@@ -1751,13 +1779,13 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        void shrinkBranchRangesTo(size_t n)
+        private void shrinkBranchRangesTo(size_t n)
         {
             try { branchRanges.shrinkTo(n); } catch (Exception e) { assert(false); }
         }
 
         // Go upwards and iterate forward in parents.
-        void forwardBranchRanges() nothrow
+        private void forwardBranchRanges()
         {
             while (branchRanges.data.length)
             {
@@ -1778,35 +1806,7 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        void popFront() nothrow
-        {
-            // top-down search for first branch currently iterating its leaf1
-            size_t branchDepth = 0; // number of branches stepped
-            foreach (ref branchRange; branchRanges.data) // TODO prevent this loop by storing index to first range where frontAtLeaf1 is true if any, Index.max otherwise
-            {
-                if (branchRange.frontAtLeaf1)
-                {
-                    branchRange.popFront;
-                    if (branchRange.empty)
-                    {
-                        shrinkBranchRangesTo(branchDepth); // remove `branchRange` and all others below
-                        forwardBranchRanges();
-                    }
-                    return;
-                }
-                ++branchDepth;
-            }
-
-            leafNRange.popFront;
-            if (leafNRange.empty)
-            {
-                forwardBranchRanges();
-            }
-        }
-
-        @safe pure nothrow:
-
-        void updateBranchRangeIndexAtLeaf1(uint depth)
+        private void updateBranchRangeIndexAtLeaf1(uint depth)
         {
             if (bottomBranchRange.frontAtLeaf1)
             {

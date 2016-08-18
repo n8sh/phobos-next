@@ -1759,13 +1759,13 @@ struct RawRadixTree(Value = void)
                 branch1Depth = typeof(branch1Depth).max; // undefine
                 postPopTreeUpdate();
             }
-            else if (branchRanges.data[branch1Depth].atLeaf1) // if still at leaf
-            {
-                // nothing needed
-            }
-            else
+            else if (!branchRanges.data[branch1Depth].atLeaf1) // if not at leaf
             {
                 branch1Depth = getBranch1DepthAt(branch1Depth + 1);
+            }
+            else                // still at leaf
+            {
+                // nothing needed
             }
         }
 

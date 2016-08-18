@@ -44,7 +44,7 @@
 */
 module trie;
 
-import std.algorithm : move;
+import std.algorithm : move, min, max;
 import std.traits : isIntegral, isFloatingPoint, isSomeChar, isSomeString, isScalarType, isArray, allSatisfy, anySatisfy, isPointer;
 import std.typecons : tuple, Tuple, Unqual;
 import std.range : isInputRange, isBidirectionalRange, ElementType;
@@ -1723,10 +1723,23 @@ struct RawRadixTree(Value = void)
             if (root) { diveAndVisitTreeUnder(root, 0); }
         }
 
+        void updateBranch1Leaf()
+        {
+            foreach (const i, ref branchRange; branchRanges.data)
+            {
+                if (branchRange.atLeaf1)
+                {
+                    branch1Depth = cast(typeof(branch1Depth))i;
+                    return;
+                }
+            }
+            branch1Depth = typeof(branch1Depth).max;
+        }
+
         void popFront()
         {
             // top-down search for first branch currently iterating its leaf1
-            uint depth = 0; // number of branches stepped
+            size_t depth = 0; // number of branches stepped
 
             foreach (ref branchRange; branchRanges.data)
             {
@@ -1751,7 +1764,7 @@ struct RawRadixTree(Value = void)
                     }
                     else if (branchRange.atLeaf1) // if still at leaf
                     {
-                        branch1Depth = depth;
+                        branch1Depth = min(depth, branch1Depth);
                     }
                     else
                     {
@@ -1814,8 +1827,7 @@ struct RawRadixTree(Value = void)
                 {
                     if (bottomBranchRange.atLeaf1)
                     {
-                        import std.algorithm : min;
-                        branch1Depth = min(cast(uint)(branchRanges.data.length - 1),
+                        branch1Depth = min(branchRanges.data.length - 1,
                                            branch1Depth);
                     }
                     break;      // bottomBranchRange is not empty so break
@@ -1825,25 +1837,25 @@ struct RawRadixTree(Value = void)
                 !bottomBranchRange.subsEmpty) // if any sub nodes
             {
                 diveAndVisitTreeUnder(bottomBranchRange.subFrontNode,
-                                      cast(uint)branchRanges.data.length); // visit them
+                                      branchRanges.data.length); // visit them
             }
         }
 
         private auto ref bottomBranchRange() @nogc { return branchRanges.data[$ - 1]; }
 
-        private void updateBranchRangeIndexAtLeaf1(uint depth)
+        private void updateBranchRangeIndexAtLeaf1(size_t depth)
         {
             if (branchRanges.data[depth].atLeaf1)
             {
                 if (branch1Depth == typeof(branch1Depth).max) // if not yet defined
                 {
-                    branch1Depth = depth;
+                    branch1Depth = min(depth, branch1Depth);
                 }
             }
         }
 
         /** Find ranges of branches and leaf for all nodes under tree `root`. */
-        private void diveAndVisitTreeUnder(Node root, uint depth)
+        private void diveAndVisitTreeUnder(Node root, size_t depth)
         {
             Node curr = root;
             Node next;
@@ -1909,7 +1921,7 @@ struct RawRadixTree(Value = void)
         }
 
         // index to first branch in branchRanges that is currently on a leaf1 or typeof.max if undefined
-        uint branch1Depth = uint.max;
+        size_t branch1Depth = size_t.max;
     }
 
     /** Bi-Directional Range over Tree.
@@ -4549,8 +4561,6 @@ auto checkNumeric(Keys...)()
 
             static assert(!set.hasValue);
 
-            import std.algorithm : min, max;
-
             const useContains = true;
 
             static if (is(Key == bool) ||
@@ -4738,7 +4748,6 @@ auto testScalar(uint span, Keys...)()
 
             static if (isIntegral!Key)
             {
-                import std.algorithm : min, max;
                 const low = max(Key.min, -100_000);
                 const high = min(Key.max, 100_000);
             }

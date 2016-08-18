@@ -1727,6 +1727,7 @@ struct RawRadixTree(Value = void)
         {
             // top-down search for first branch currently iterating its leaf1
             uint depth = 0; // number of branches stepped
+
             foreach (ref branchRange; branchRanges.data)
             {
                 if (branchRange.atLeaf1)
@@ -1747,12 +1748,16 @@ struct RawRadixTree(Value = void)
                         branch1Depth = typeof(branch1Depth).max; // undefine
                         shrinkBranchRangesTo(depth); // remove `branchRange` and all others below
                         forwardBranchRanges();
-
                     }
-                    else if (!branchRange.atLeaf1) // if no longer at leaf
+                    else if (branchRange.atLeaf1) // if still at leaf
                     {
-                        branch1Depth = typeof(branch1Depth).max; // forget it
+                        branch1Depth = depth;
                     }
+                    else
+                    {
+                        branch1Depth = typeof(branch1Depth).max; // undefine
+                    }
+
                     return;
                 }
                 ++depth;

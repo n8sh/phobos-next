@@ -1804,6 +1804,8 @@ struct RawRadixTree(Value = void)
             }
         }
 
+        private auto ref bottomBranchRange() @nogc { return branchRanges.data[$ - 1]; }
+
         private void updateBranchRangeIndexAtLeaf1(uint depth)
         {
             if (bottomBranchRange.frontAtLeaf1)
@@ -1871,10 +1873,11 @@ struct RawRadixTree(Value = void)
             auto frontValue() const @nogc { return _cachedFrontValue; }
         }
 
-    private:
-        auto ref bottomBranchRange() @nogc { return branchRanges.data[$ - 1]; }
+    private:                    // data
         Appender!(BranchRange[]) branchRanges;
         LeafNRange leafNRange;
+
+        // cache
         Appender!UKey _cachedFrontKey; // copy of front key
         static if (hasValue)
         {

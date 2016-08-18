@@ -4235,13 +4235,6 @@ auto checkString(Keys...)(size_t count, uint maxLength, bool show)
         }
 
         import std.algorithm : equal;
-
-        import std.string : representation;
-        import std.string : format;
-        import std.algorithm : map;
-
-        debug set.willFail = true; // propagates to range aswell
-        size_t i;
         assert(set[].equal(sortedKeys));
     }
 }

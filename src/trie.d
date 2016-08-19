@@ -2171,7 +2171,7 @@ struct RawRadixTree(Value = void)
             ++subCount;
         }
 
-        inout(Node) containsSubAt(Ix ix) inout
+        inout(Node) subAt(Ix ix) inout
         {
             import searching_ex : binarySearch; // need this instead of `SortedRange.contains` because we need the index
             const hitIndex = subIxSlots[0 .. subCount].binarySearch(ix); // find index where insertion should be made
@@ -2433,7 +2433,7 @@ struct RawRadixTree(Value = void)
     /// ditto
     pragma(inline) Node getSub(SparseBranch* curr, Ix subIx) @safe pure nothrow
     {
-        if (auto subNode = curr.containsSubAt(subIx))
+        if (auto subNode = curr.subAt(subIx))
         {
             return subNode;
         }
@@ -2543,6 +2543,84 @@ struct RawRadixTree(Value = void)
 
     @safe pure nothrow /* TODO @nogc */
     {
+        /** Returns: `true` if `key` is stored, `false` otherwise. */
+        pragma(inline) inout(Node) prefix(UKey keyPrefix, out UKey keyPrefixRest) inout
+        {
+            return prefixAt(_root, keyPrefix, keyPrefixRest);
+        }
+
+        pragma(inline) inout(Node) prefixAt(Node curr, UKey keyPrefix, out UKey keyPrefixRest) inout
+        {
+            import std.algorithm : skipOver;
+            switch (curr.typeIx) with (Node.Ix)
+            {
+            case undefined: assert(false);
+            case ix_OneLeafMax7:
+                auto curr_ = curr.as!(OneLeafMax7);
+                auto currPrefix_ = curr_.key[];
+                if (currPrefix_.skipOver(keyPrefix))
+                {
+                    if (currPrefix_.length)
+                    {
+                        keyPrefixRest = currPrefix_.dup; // indicate that more ixes in curr remain
+                    }
+                    return curr;
+                }
+                break;
+            case ix_TwoLeaf3:
+                auto curr_ = curr.as!(TwoLeaf3);
+                auto currPrefix_ = curr_.prefix[];
+                if (currPrefix_.skipOver(keyPrefix))
+                {
+                    if (currPrefix_.length)
+                    {
+                        keyPrefixRest = currPrefix_.dup; // indicate that more ixes in curr remain
+                    }
+                    return curr;
+                }
+                break;
+            case ix_TriLeaf2:
+                auto curr_ = curr.as!(TriLeaf2);
+                auto currPrefix_ = curr_.prefix[];
+                if (currPrefix_.skipOver(keyPrefix))
+                {
+                    if (currPrefix_.length)
+                    {
+                        keyPrefixRest = currPrefix_.dup; // indicate that more ixes in curr remain
+                    }
+                    return curr;
+                }
+                break;
+            case ix_HeptLeaf1:
+                return keyPrefix.length == 0 ? curr : Node.init; // return value copy of `curr`
+            case ix_SparseLeaf1Ptr:
+            case ix_DenseLeaf1Ptr:
+                return keyPrefix.length == 0 ? curr : Node.init; // return ref copy of `curr`
+            case ix_SparseBranchPtr:
+                auto curr_ = curr.as!(SparseBranch*);
+                auto currPrefix_ = curr_.prefix[];
+                if (currPrefix_.skipOver(keyPrefix))
+                {
+                    return (currPrefix_.length == 0 ?
+                            Node(curr_.leaf1) :
+                            prefixAt(curr_.subAt(keyPrefix[0]), keyPrefix[1 .. $], keyPrefixRest));
+                }
+                break;
+            case ix_DenseBranchPtr:
+                auto curr_ = curr.as!(DenseBranch*);
+                auto currPrefix_ = curr_.prefix[];
+                if (currPrefix_.skipOver(keyPrefix))
+                {
+                    return (currPrefix_.length == 0 ?
+                            Node(curr_.leaf1) :
+                            prefixAt(curr_.subNodes[keyPrefix[0]], keyPrefix[1 .. $], keyPrefixRest)); // recurse into branch tree
+                }
+                break;
+            default: assert(false);
+            }
+            return typeof(return).init;
+        }
+
         static if (hasValue)
         {
             /** Returns: `true` if `key` is stored, `false` otherwise. */
@@ -2582,7 +2660,7 @@ struct RawRadixTree(Value = void)
                     {
                         return (key.length == 1 ?
                                 containsAt(curr_.leaf1, key) : // in leaf
-                                containsAt(curr_.containsSubAt(key[0]), key[1 .. $])); // recurse into branch tree
+                                containsAt(curr_.subAt(key[0]), key[1 .. $])); // recurse into branch tree
                     }
                     return null;
                 case ix_DenseBranchPtr:
@@ -2642,7 +2720,7 @@ struct RawRadixTree(Value = void)
                     return (key.skipOver(curr_.prefix) &&        // matching prefix
                             (key.length == 1 ?
                              containsAt(curr_.leaf1, key) : // in leaf
-                             containsAt(curr_.containsSubAt(key[0]), key[1 .. $]))); // recurse into branch tree
+                             containsAt(curr_.subAt(key[0]), key[1 .. $]))); // recurse into branch tree
                 case ix_DenseBranchPtr:
                     auto curr_ = curr.as!(DenseBranch*);
                     return (key.skipOver(curr_.prefix) &&        // matching prefix
@@ -4031,17 +4109,18 @@ struct RadixTree(Key, Value)
         alias _rawRange this;
     }
 
-    pragma(inline) Range opSlice() @safe pure nothrow
+    pragma(inline) inout(Range) opSlice() inout @safe pure nothrow
     {
         return Range(_rawTree._root);
     }
 
-    // pragma(inline) Range prefix(Key key) @safe pure nothrow
-    // {
-    //     KeyN!(span, Key.sizeof) ukey;
-    //     auto rawKey = key.toRawKey(ukey[]);
-    //     return Range(_rawTree.prefixNode(rawKey));
-    // }
+    pragma(inline) inout(Range) prefix(Key key) inout @safe pure nothrow
+    {
+        KeyN!(span, Key.sizeof) ukey;
+        auto rawKey = key.toRawKey(ukey[]);
+        UKey rawKeyRest;
+        return Range(_rawTree.prefix(rawKey, rawKeyRest));
+    }
 
     /** Print `this` tree. */
     void print() @safe const { _rawTree.print(); }

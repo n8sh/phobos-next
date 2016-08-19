@@ -4072,7 +4072,22 @@ struct RadixTree(Key, Value)
         return contains(key);   // TODO return `_rawTree.EltRef`
     }
 
-    struct Range
+    pragma(inline) inout(Range) opSlice() inout @safe pure nothrow
+    {
+        return Range(_rawTree._root);
+    }
+
+    pragma(inline) inout(Range) prefix(Key keyPrefix) inout @safe pure nothrow
+    {
+        KeyN!(span, Key.sizeof) ukey;
+        auto rawKeyPrefix = keyPrefix.toRawKey(ukey[]);
+        UKey rawKeyPrefixRest;
+        auto range = Range(_rawTree.prefix(rawKeyPrefix, rawKeyPrefixRest));
+        assert(false, "Add rawKeyPrefix[0 .. $ - rawKeyPrefixRest.length] to member of Range");
+        // return range;
+    }
+
+    private static struct Range
     {
         this(RawTree.Node root) { _rawRange = _rawTree.Range(root); }
 
@@ -4107,21 +4122,6 @@ struct RadixTree(Key, Value)
 
         RawTree.Range _rawRange;
         alias _rawRange this;
-    }
-
-    pragma(inline) inout(Range) opSlice() inout @safe pure nothrow
-    {
-        return Range(_rawTree._root);
-    }
-
-    pragma(inline) inout(Range) prefix(Key keyPrefix) inout @safe pure nothrow
-    {
-        KeyN!(span, Key.sizeof) ukey;
-        auto rawKeyPrefix = keyPrefix.toRawKey(ukey[]);
-        UKey rawKeyPrefixRest;
-        auto range = Range(_rawTree.prefix(rawKeyPrefix, rawKeyPrefixRest));
-        assert(false, "Add rawKeyPrefix[0 .. $ - rawKeyPrefixRest.length] to member of Range");
-        // return range;
     }
 
     /** Print `this` tree. */

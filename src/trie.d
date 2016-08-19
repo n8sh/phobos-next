@@ -1365,6 +1365,8 @@ struct RawRadixTree(Value = void)
         Branch branch;          // branch part of range
         Leaf1Range leaf1Range;  // range of direct leaves
 
+        UKey keyPrefix;         // sub-key prefix above `branch`
+
         Ix _subNodeCounter; // `Branch`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
         Ix _frontIx;
 

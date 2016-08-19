@@ -1901,7 +1901,7 @@ struct RawRadixTree(Value = void)
         Appender!(BranchRange[]) branchRanges;
         LeafNRange leafNRange;
 
-        Appender!UKey brancheskeyPrefix; // key prefix of branchRanges
+        Appender!UKey keyPrefixOfBranches; // key prefix of branchRanges
 
         // cache
         Appender!UKey _cachedFrontKey; // copy of front key

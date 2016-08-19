@@ -1182,7 +1182,7 @@ struct RawRadixTree(Value = void)
     import std.array : Appender;
 
     /** Element Reference. */
-    struct EltRef
+    private static struct EltRef
     {
         Node node;
         Ix ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
@@ -1194,7 +1194,7 @@ struct RawRadixTree(Value = void)
     }
 
     /** Branch Range (Iterator). */
-    struct BranchRange
+    private static struct BranchRange
     {
         @safe pure nothrow:
 
@@ -1373,7 +1373,7 @@ struct RawRadixTree(Value = void)
     }
 
     /** Leaf1 Range (Iterator). */
-    struct Leaf1Range
+    private static struct Leaf1Range
     {
         this(Leaf1!Value leaf1)
         {
@@ -1515,7 +1515,7 @@ struct RawRadixTree(Value = void)
     }
 
     /** Leaf Value Range (Iterator). */
-    struct LeafNRange
+    private static struct LeafNRange
     {
         this(Node leaf)
         {
@@ -1714,8 +1714,12 @@ struct RawRadixTree(Value = void)
         Ix ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
     }
 
+    private static struct BranchRanges
+    {
+    }
+
     /** Forward (Left) Single-Directional Range over Tree. */
-    struct FrontRange
+    private static struct FrontRange
     {
         @safe pure nothrow:
 
@@ -1917,7 +1921,7 @@ struct RawRadixTree(Value = void)
     /** Bi-Directional Range over Tree.
         Fulfills `isBidirectionalRange`.
     */
-    struct Range
+    private static struct Range
     {
         @safe pure nothrow /* @nogc */:
         pragma(inline):

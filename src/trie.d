@@ -1776,8 +1776,14 @@ struct RawRadixTree(Value = void)
             return get1DepthAt(_branch1Depth + 1);
         }
 
+        bool hasBranch1Front() const
+        {
+            return _branch1Depth != typeof(_branch1Depth).max;
+        }
+
         void popBranch1Front()
         {
+            // TODO _branchesKeyPrefix.popN(_ranges.data[$ - 1]);
             _ranges.data[_branch1Depth].popFront;
         }
 
@@ -1794,11 +1800,13 @@ struct RawRadixTree(Value = void)
         void shrinkTo(size_t length)
         {
             // turn emptyness exception into an assert like ranges do
+            // TODO Update _branchesKeyPrefix
             try { _ranges.shrinkTo(length); } catch (Exception e) { assert(false); }
         }
 
         void push(ref BranchRange branchRange)
         {
+            // TODO Update _branchesKeyPrefix
             _ranges.put(branchRange);
         }
 
@@ -1809,19 +1817,28 @@ struct RawRadixTree(Value = void)
 
         void pop()
         {
+            // TODO Update _branchesKeyPrefix
             shrinkTo(branchCount - 1);
         }
 
-        ref BranchRange bottom() { return _ranges.data[$ - 1]; }
+        ref BranchRange bottom()
+        {
+            return _ranges.data[$ - 1];
+        }
 
         private void verifyBranch1Depth()
         {
             assert(_branch1Depth == get1DepthAt(0));
         }
 
+        void resetBranch1Depth()
+        {
+            _branch1Depth = typeof(_branch1Depth).max;
+        }
+
     private:
         Appender!(BranchRange[]) _ranges;
-        Appender!UKey _branchesKeyPrefix;
+        Appender!UKey _branchesKeyPrefix; // TODO build
 
         // index to first branchrange in `_ranges` that is currently on a leaf1
         // or `typeof.max` if undefined
@@ -1842,7 +1859,7 @@ struct RawRadixTree(Value = void)
         {
             branchRanges.verifyBranch1Depth;
 
-            if (branchRanges._branch1Depth != typeof(branchRanges._branch1Depth).max) // if should pop from leaf1 of branch
+            if (branchRanges.hasBranch1Front)
             {
                 popFrontInBranchLeaf1();
             }
@@ -1856,14 +1873,14 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        private void popFrontInBranchLeaf1()
+        private void popFrontInBranchLeaf1() // TODO move to member of BranchRanges
         {
             branchRanges.popBranch1Front();
             if (branchRanges.emptyBranch1)
             {
                 // TODO functionize
                 branchRanges.shrinkTo(branchRanges._branch1Depth); // remove `branchRange` and all others below
-                branchRanges._branch1Depth = typeof(branchRanges._branch1Depth).max; // undefine
+                branchRanges.resetBranch1Depth;
 
                 postPopTreeUpdate();
             }

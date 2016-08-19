@@ -3832,7 +3832,7 @@ static private void calculate(Value)(Leaf1!Value curr,
 /** Remap typed key `typedKey` to raw (untyped) key of type `UKey`. */
 static private UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey)
     @trusted pure nothrow       /* TODO @nogc */
-    if (allSatisfy!(isTrieableKeyType, TypedKey))
+    if (isTrieableKeyType!TypedKey)
 {
     enum radix = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
     alias Ix = Mod!radix;
@@ -3885,7 +3885,7 @@ static private UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFi
 /** Remap raw untyped key `ukey` to typed key of type `TypedKey`. */
 static private inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey)
     @safe pure nothrow /* TODO @nogc */
-    if (allSatisfy!(isTrieableKeyType, TypedKey))
+    if (isTrieableKeyType!TypedKey)
 {
     enum radix = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
     alias Ix = Mod!radix;
@@ -4068,7 +4068,8 @@ struct RadixTree(Key, Value)
     }
 
     /** Supports $(B `Key` in `this`) syntax. */
-    auto opBinaryRight(string op)(in Key key) inout if (op == "in")
+    auto opBinaryRight(string op)(in Key key) inout
+        if (op == "in")
     {
         return contains(key);   // TODO return `_rawTree.EltRef`
     }

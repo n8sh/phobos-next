@@ -147,7 +147,11 @@ private:
             else                // large => small
             {
                 // large => tmp
-                typeof(small) tmp = void; // temporary storage for small
+
+                // temporary storage for small
+                debug { typeof(small) tmp; }
+                else  { typeof(return) tmp = void; }
+
                 tmp[0 .. n] = large.ptr[0 .. n]; // large to temporary
                 tmp[n .. $] = 0; // zero remaining
 
@@ -650,7 +654,8 @@ struct Array(E,
                 else
                 {
                     import std.algorithm.sorting : completeSort;
-                    typeof(return) hits = void;
+                    debug { typeof(return) hits; }
+                    else  { typeof(return) hits = void; }
                     size_t expandedLength = 0;
                     const initialLength = length;
                     foreach (const i, ref value; values)

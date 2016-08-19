@@ -61,18 +61,23 @@ size_t binarySearch(R, E)(const R[] values, in E value)
     assert(x.binarySearch(15) == 8);
 }
 
-import std.range : ElementType, SearchPolicy;
+import std.range : ElementType, SearchPolicy, SortedRange;
+import std.traits: isInstanceOf;
 
 /** Same as `range.contains()` but also outputs `index` where last occurrence of
     `key` is either currently stored (if `true` is returned) or should be stored
     (if `false` is returned) in order to preserve sortedness of `range`.
+
+    The elements of `range` are assumed to be sorted in default (ascending)
+    order.
 
     TODO Move to member of `SortedRange` either as a new name or as an
     `contains`-overload take an extra `index` as argument.
  */
 bool containsStoreIndex(SearchPolicy sp = SearchPolicy.binarySearch, R, V)
                        (R range, V value, out size_t index)
-    if (is(typeof(ElementType!R.init == V.init))) // TODO SortedRange support
+    if (is(typeof(ElementType!R.init == V.init)) &&
+        isInstanceOf!(SortedRange, R)) // TODO check for comparsion function
 {
     // TODO should we optimize for this case?
     // if (range.empty)

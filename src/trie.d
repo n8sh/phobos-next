@@ -4114,12 +4114,14 @@ struct RadixTree(Key, Value)
         return Range(_rawTree._root);
     }
 
-    pragma(inline) inout(Range) prefix(Key key) inout @safe pure nothrow
+    pragma(inline) inout(Range) prefix(Key keyPrefix) inout @safe pure nothrow
     {
         KeyN!(span, Key.sizeof) ukey;
-        auto rawKey = key.toRawKey(ukey[]);
-        UKey rawKeyRest;
-        return Range(_rawTree.prefix(rawKey, rawKeyRest));
+        auto rawKeyPrefix = keyPrefix.toRawKey(ukey[]);
+        UKey rawKeyPrefixRest;
+        auto range = Range(_rawTree.prefix(rawKeyPrefix, rawKeyPrefixRest));
+        assert(rawKeyPrefixRest.length == 0, "Add KeyPrefix[0 .. $ - rawKeyPrefixRest.length] to member of Range");
+        return range;
     }
 
     /** Print `this` tree. */

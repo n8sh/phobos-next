@@ -76,7 +76,8 @@ template isTrieableKeyType(T)
 {
     static if (is(T == struct))
     {
-        enum isTrieableKeyType = allSatisfy!(isScalarTrieableKeyType, typeof(T.tupleof));
+        enum isTrieableKeyType = allSatisfy!(isScalarTrieableKeyType, // recurse
+                                             typeof(T.tupleof));
     }
     else
     {

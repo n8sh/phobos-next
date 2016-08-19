@@ -4041,7 +4041,7 @@ struct RadixTree(Key, Value)
             Returns: `true` if `key` wasn't previously added, `false` otherwise.
         */
         bool insert(Key key)
-        @safe pure nothrow /* TODO @nogc */
+            @safe pure nothrow /* TODO @nogc */
         {
             _rawTree.EltRef eltRef; // indicates that elt was added
 
@@ -4059,6 +4059,7 @@ struct RadixTree(Key, Value)
 
         /** Returns: `true` if `key` is stored, `false` otherwise. */
         bool contains(in Key key) inout
+            @safe pure nothrow /* TODO @nogc */
         {
             KeyN!(span, Key.sizeof) ukey;
             auto rawKey = key.toRawKey(ukey[]);
@@ -4072,12 +4073,12 @@ struct RadixTree(Key, Value)
         return contains(key);   // TODO return `_rawTree.EltRef`
     }
 
-    pragma(inline) inout(Range) opSlice() inout @safe pure nothrow
+    pragma(inline) inout(Range) opSlice() inout
     {
         return Range(_rawTree._root);
     }
 
-    pragma(inline) inout(Range) prefix(Key keyPrefix) inout @safe pure nothrow
+    pragma(inline) inout(Range) prefix(Key keyPrefix) inout
     {
         KeyN!(span, Key.sizeof) ukey;
         auto rawKeyPrefix = keyPrefix.toRawKey(ukey[]);

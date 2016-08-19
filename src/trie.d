@@ -1716,6 +1716,110 @@ struct RawRadixTree(Value = void)
 
     private static struct BranchRanges
     {
+        static if (hasValue)
+        {
+            bool appendFrontIxsToKey(ref Appender!UKey key, ref Value value) const
+            {
+                foreach (const ref branchRange; _ranges.data)
+                {
+                    branchRange.appendFrontIxsToKey(key);
+                    if (branchRange.atLeaf1)
+                    {
+                        value = branchRange.leaf1Range.frontValue;
+                        return true; // key and value are both complete
+                    }
+                }
+                return false;   // only key is partially complete
+            }
+        }
+        else
+        {
+            bool appendFrontIxsToKey(ref Appender!UKey key) const
+            {
+                foreach (const ref branchRange; _ranges.data)
+                {
+                    branchRange.appendFrontIxsToKey(key);
+                    if (branchRange.atLeaf1)
+                    {
+                        return true; // key is complete
+                    }
+                }
+                return false;   // key is not complete
+            }
+        }
+        size_t get1DepthAt(size_t depth) const
+        {
+            foreach (const i, ref branchRange; _ranges.data[depth .. $])
+            {
+                if (branchRange.atLeaf1) { return depth + i; }
+            }
+            return typeof(_branch1Depth).max;
+        }
+
+        private void updateLeaf1AtDepth(size_t depth)
+        {
+            if (_ranges.data[depth].atLeaf1)
+            {
+                if (_branch1Depth == typeof(_branch1Depth).max) // if not yet defined
+                {
+                    _branch1Depth = min(depth, _branch1Depth);
+                }
+            }
+            assert(_branch1Depth == get1DepthAt(0));
+        }
+
+    pragma(inline):
+
+        size_t getNext1DepthAt() const
+        {
+            return get1DepthAt(_branch1Depth + 1);
+        }
+
+        void popBranch1Front()
+        {
+            _ranges.data[_branch1Depth].popFront;
+        }
+
+        bool emptyBranch1() const
+        {
+            return _ranges.data[_branch1Depth].empty;
+        }
+
+        bool atLeaf1() const
+        {
+            return _ranges.data[_branch1Depth].atLeaf1;
+        }
+
+        void shrinkTo(size_t length)
+        {
+            // turn emptyness exception into an assert like ranges do
+            try { _ranges.shrinkTo(length); } catch (Exception e) { assert(false); }
+        }
+
+        void push(ref BranchRange branchRange)
+        {
+            _ranges.put(branchRange);
+        }
+
+        size_t branchCount() const
+        {
+            return _ranges.data.length;
+        }
+
+        void pop()
+        {
+            shrinkTo(branchCount - 1);
+        }
+
+        ref BranchRange bottom() { return _ranges.data[$ - 1]; }
+
+    private:
+        Appender!(BranchRange[]) _ranges;
+        Appender!UKey _branchesKeyPrefix;
+
+        // index to first branchrange in `_ranges` that is currently on a leaf1
+        // or `typeof.max` if undefined
+        size_t _branch1Depth = size_t.max;
     }
 
     /** Forward (Left) Single-Directional Range over Tree. */
@@ -1728,20 +1832,10 @@ struct RawRadixTree(Value = void)
             if (root) { diveAndVisitTreeUnder(root, 0); }
         }
 
-        size_t getBranch1DepthAt(size_t depth)
-        {
-            foreach (const i, ref branchRange; branchRanges.data[depth .. $])
-            {
-                if (branchRange.atLeaf1) { return depth + i; }
-            }
-            return typeof(branch1Depth).max;
-        }
-
         void popFront()
         {
-            // branch case
-            assert(branch1Depth == getBranch1DepthAt(0));
-            if (branch1Depth != typeof(branch1Depth).max) // if should pop from leaf1 of branch
+            assert(branchRanges._branch1Depth == branchRanges.get1DepthAt(0));
+            if (branchRanges._branch1Depth != typeof(branchRanges._branch1Depth).max) // if should pop from leaf1 of branch
             {
                 popFrontInBranchLeaf1();
             }
@@ -1757,16 +1851,18 @@ struct RawRadixTree(Value = void)
 
         private void popFrontInBranchLeaf1()
         {
-            branchRanges.data[branch1Depth].popFront;
-            if (branchRanges.data[branch1Depth].empty)
+            branchRanges.popBranch1Front();
+            if (branchRanges.emptyBranch1)
             {
-                shrinkBranchRangesTo(branch1Depth); // remove `branchRange` and all others below
-                branch1Depth = typeof(branch1Depth).max; // undefine
+                // TODO functionize
+                branchRanges.shrinkTo(branchRanges._branch1Depth); // remove `branchRange` and all others below
+                branchRanges._branch1Depth = typeof(branchRanges._branch1Depth).max; // undefine
+
                 postPopTreeUpdate();
             }
-            else if (!branchRanges.data[branch1Depth].atLeaf1) // if not at leaf
+            else if (!branchRanges.atLeaf1) // if not at leaf
             {
-                branch1Depth = getBranch1DepthAt(branch1Depth + 1);
+                branchRanges._branch1Depth = branchRanges.getNext1DepthAt; // TODO functionize
             }
             else                // still at leaf
             {
@@ -1777,18 +1873,19 @@ struct RawRadixTree(Value = void)
         private void cacheFront()
         {
             _cachedFrontKey.clear;
-            foreach (const ref branchRange; branchRanges.data)
+
+            // branches
+            static if (hasValue)
             {
-                branchRange.appendFrontIxsToKey(_cachedFrontKey);
-                if (branchRange.atLeaf1)
-                {
-                    static if (hasValue)
-                    {
-                        _cachedFrontValue = branchRange.leaf1Range.frontValue;
-                    }
-                    return; // we are done
-                }
+                if (branchRanges.appendFrontIxsToKey(_cachedFrontKey,
+                                                     _cachedFrontValue)) { return; }
             }
+            else
+            {
+                if (branchRanges.appendFrontIxsToKey(_cachedFrontKey)) { return; }
+            }
+
+            // leaf
             if (!leafNRange.empty)
             {
                 leafNRange.appendFrontIxsToKey(_cachedFrontKey);
@@ -1799,51 +1896,32 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        private void shrinkBranchRangesTo(size_t n)
-        {
-            try { branchRanges.shrinkTo(n); } catch (Exception e) { assert(false); }
-        }
-
         // Go upwards and iterate forward in parents.
         private void postPopTreeUpdate()
         {
-            while (branchRanges.data.length)
+            while (branchRanges.branchCount)
             {
-                bottomBranchRange.popFront;
-                if (bottomBranchRange.empty)
+                branchRanges.bottom.popFront;
+                if (branchRanges.bottom.empty)
                 {
-                    shrinkBranchRangesTo(branchRanges.data.length - 1);
+                    branchRanges.pop();
                 }
                 else            // if not empty
                 {
-                    if (bottomBranchRange.atLeaf1)
+                    if (branchRanges.bottom.atLeaf1)
                     {
-                        branch1Depth = min(branchRanges.data.length - 1,
-                                           branch1Depth);
+                        branchRanges._branch1Depth = min(branchRanges.branchCount - 1,
+                                                         branchRanges._branch1Depth);
                     }
-                    break;      // bottomBranchRange is not empty so break
+                    break;      // branchRanges.bottom is not empty so break
                 }
             }
-            if (branchRanges.data.length &&
-                !bottomBranchRange.subsEmpty) // if any sub nodes
+            if (branchRanges.branchCount &&
+                !branchRanges.bottom.subsEmpty) // if any sub nodes
             {
-                diveAndVisitTreeUnder(bottomBranchRange.subFrontNode,
-                                      branchRanges.data.length); // visit them
+                diveAndVisitTreeUnder(branchRanges.bottom.subFrontNode,
+                                      branchRanges.branchCount); // visit them
             }
-        }
-
-        private auto ref bottomBranchRange() @nogc { return branchRanges.data[$ - 1]; }
-
-        private void updateBranchRangeIndexAtLeaf1(size_t depth)
-        {
-            if (branchRanges.data[depth].atLeaf1)
-            {
-                if (branch1Depth == typeof(branch1Depth).max) // if not yet defined
-                {
-                    branch1Depth = min(depth, branch1Depth);
-                }
-            }
-            assert(branch1Depth == getBranch1DepthAt(0));
         }
 
         /** Find ranges of branches and leaf for all nodes under tree `root`. */
@@ -1869,15 +1947,17 @@ struct RawRadixTree(Value = void)
                     break;
                 case ix_SparseBranchPtr:
                     auto curr_ = curr.as!(SparseBranch*);
-                    branchRanges.put(BranchRange(curr_)); // TODO stack push or pushBack
-                    updateBranchRangeIndexAtLeaf1(depth);
+                    auto currRange = BranchRange(curr_);
+                    branchRanges.push(currRange);
+                    branchRanges.updateLeaf1AtDepth(depth);
                     next = (curr_.subCount) ? curr_.firstSubNode : Node.init;
                     break;
                 case ix_DenseBranchPtr:
                     auto curr_ = curr.as!(DenseBranch*);
-                    branchRanges.put(BranchRange(curr_)); // TODO stack push or pushBack
-                    updateBranchRangeIndexAtLeaf1(depth);
-                    next = bottomBranchRange.subsEmpty ? Node.init : bottomBranchRange.subFrontNode;
+                    auto currRange = BranchRange(curr_);
+                    branchRanges.push(currRange);
+                    branchRanges.updateLeaf1AtDepth(depth);
+                    next = branchRanges.bottom.subsEmpty ? Node.init : branchRanges.bottom.subFrontNode;
                     break;
                 }
                 curr = next;
@@ -1892,7 +1972,8 @@ struct RawRadixTree(Value = void)
 
         bool empty() const // TODO @nogc
         {
-            return leafNRange.empty && branchRanges.data.length == 0;
+            return (leafNRange.empty &&
+                    branchRanges.branchCount == 0);
         }
 
         auto frontKey() const @nogc { return _cachedFrontKey.data; }
@@ -1902,10 +1983,8 @@ struct RawRadixTree(Value = void)
         }
 
     private:                    // data
-        Appender!(BranchRange[]) branchRanges;
         LeafNRange leafNRange;
-
-        Appender!UKey keyPrefixOfBranches; // key prefix of branchRanges
+        BranchRanges branchRanges;
 
         // cache
         Appender!UKey _cachedFrontKey; // copy of front key
@@ -1913,9 +1992,6 @@ struct RawRadixTree(Value = void)
         {
             Value _cachedFrontValue; // copy of front value
         }
-
-        // index to first branch in branchRanges that is currently on a leaf1 or typeof.max if undefined
-        size_t branch1Depth = size_t.max;
     }
 
     /** Bi-Directional Range over Tree.

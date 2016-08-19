@@ -1949,21 +1949,27 @@ struct RawRadixTree(Value = void)
                 case ix_DenseLeaf1Ptr:
                     if (!leafNRange.empty) { dln("existing leafNRange:", leafNRange); }
                     assert(leafNRange.empty);
+
                     leafNRange = LeafNRange(curr);
+
                     next = null; // we're done diving
                     break;
                 case ix_SparseBranchPtr:
                     auto curr_ = curr.as!(SparseBranch*);
                     auto currRange = BranchRange(curr_);
+
                     branchRanges.push(currRange);
                     branchRanges.updateLeaf1AtDepth(depth);
+
                     next = (curr_.subCount) ? curr_.firstSubNode : Node.init;
                     break;
                 case ix_DenseBranchPtr:
                     auto curr_ = curr.as!(DenseBranch*);
                     auto currRange = BranchRange(curr_);
+
                     branchRanges.push(currRange);
                     branchRanges.updateLeaf1AtDepth(depth);
+
                     next = branchRanges.bottom.subsEmpty ? Node.init : branchRanges.bottom.subFrontNode;
                     break;
                 }

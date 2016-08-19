@@ -4120,8 +4120,8 @@ struct RadixTree(Key, Value)
         auto rawKeyPrefix = keyPrefix.toRawKey(ukey[]);
         UKey rawKeyPrefixRest;
         auto range = Range(_rawTree.prefix(rawKeyPrefix, rawKeyPrefixRest));
-        assert(rawKeyPrefixRest.length == 0, "Add KeyPrefix[0 .. $ - rawKeyPrefixRest.length] to member of Range");
-        return range;
+        assert(false, "Add KeyPrefix[0 .. $ - rawKeyPrefixRest.length] to member of Range");
+        // return range;
     }
 
     /** Print `this` tree. */

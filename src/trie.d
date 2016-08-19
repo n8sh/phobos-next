@@ -1714,6 +1714,7 @@ struct RawRadixTree(Value = void)
         Ix ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
     }
 
+    /** Ordered Set of BranchRanges. */
     private static struct BranchRanges
     {
         static if (hasValue)
@@ -1813,6 +1814,11 @@ struct RawRadixTree(Value = void)
 
         ref BranchRange bottom() { return _ranges.data[$ - 1]; }
 
+        private void verifyBranch1Depth()
+        {
+            assert(_branch1Depth == get1DepthAt(0));
+        }
+
     private:
         Appender!(BranchRange[]) _ranges;
         Appender!UKey _branchesKeyPrefix;
@@ -1834,7 +1840,8 @@ struct RawRadixTree(Value = void)
 
         void popFront()
         {
-            assert(branchRanges._branch1Depth == branchRanges.get1DepthAt(0));
+            branchRanges.verifyBranch1Depth;
+
             if (branchRanges._branch1Depth != typeof(branchRanges._branch1Depth).max) // if should pop from leaf1 of branch
             {
                 popFrontInBranchLeaf1();

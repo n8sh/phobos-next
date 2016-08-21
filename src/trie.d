@@ -1838,7 +1838,7 @@ struct RawRadixTree(Value = void)
 
     private:
         Appender!(BranchRange[]) _ranges;
-        Appender!UKey _branchesKeyPrefix; // TODO build
+        Appender!UKey _branchesKeyPrefix;
 
         // index to first branchrange in `_ranges` that is currently on a leaf1
         // or `typeof.max` if undefined
@@ -4426,24 +4426,46 @@ auto checkString(Keys...)(size_t count, uint maxLength, bool show)
         assert(set.contains(key), failMessage);
     }
 
+    import std.algorithm : equal;
+    import std.datetime : StopWatch, AutoStart, Duration;
+
     foreach (Key; Keys)
     {
         auto set = radixTreeSet!(Key);
         assert(set.empty);
 
         const sortedKeys = randomUniqueSortedStrings(count, maxLength);
+
+        auto sw1 = StopWatch(AutoStart.yes);
         foreach (const key; sortedKeys)
         {
             testContainsAndInsert(set, key);
         }
+        sw1.stop;
 
-        import std.algorithm : equal;
+        version(print)
+        {
+            import std.conv : to;
+            import std.stdio : writeln;
+            writeln("Test for contains and insert took ", sw1.peek().to!Duration);
+        }
+
+        auto sw2 = StopWatch(AutoStart.yes);
+
         assert(set[].equal(sortedKeys));
+
+        sw2.stop;
+        version(print)
+        {
+            import std.conv : to;
+            import std.stdio : writeln;
+            writeln("Compare took ", sw2.peek().to!Duration);
+        }
     }
 }
 
 ///
-@safe pure nothrow /* TODO @nogc */
+@safe /* TODO pure nothrow @nogc */
 unittest
 {
     checkString!(string)(512, 8, true);

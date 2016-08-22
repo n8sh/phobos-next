@@ -450,47 +450,45 @@ struct Array(E,
     static if (useGC)
     {
         nothrow @trusted:
-        ~this()
-        {
-            static if (shouldAddGCRange!E)
-            {
-                import core.memory : GC;
-                GC.removeRange(ptr);
-            }
-            GC.free(_storePtr);
-        }
+
+        ~this() { release(); }
+
         void clear()
         {
+            release();
+            reset();
+        }
+
+        private void release()
+        {
             static if (shouldAddGCRange!E)
             {
                 import core.memory : GC;
                 GC.removeRange(ptr);
             }
             GC.free(_storePtr);
-            reset();
         }
     }
     else
     {
         nothrow @trusted @nogc:
-        ~this()
-        {
-            static if (shouldAddGCRange!E)
-            {
-                import core.memory : GC;
-                GC.removeRange(ptr);
-            }
-            _free(_storePtr);
-        }
+
+        ~this() { release(); }
+
         void clear()
         {
+            release();
+            reset();
+        }
+
+        private void release()
+        {
             static if (shouldAddGCRange!E)
             {
                 import core.memory : GC;
                 GC.removeRange(ptr);
             }
             _free(_storePtr);
-            reset();
         }
     }
 

@@ -520,14 +520,14 @@ struct Array(E,
     static if (!IsOrdered!ordering) // for unsorted arrays
     {
         /// Push back (append) `values`.
-        void pushBack(Us...)(Us values) nothrow @("complexity", "O(1)")
+        void pushBack(Us...)(Us values) @("complexity", "O(1)")
             if (values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
         {
             pushBackHelper(values);
         }
         /// ditto
-        void pushBack(R)(R values) nothrow @("complexity", "O(length)")
+        void pushBack(R)(R values) @("complexity", "O(length)")
             if (isInputRange!R &&
                 allSatisfy!(isElementAssignable, ElementType!R))
         {
@@ -539,7 +539,7 @@ struct Array(E,
             }
         }
         /// ditto.
-        void pushBack(A)(const ref A values) @trusted nothrow @("complexity", "O(values.length)") // TODO `in` parameter qualifier doesn't work here. Compiler bug?
+        void pushBack(A)(const ref A values) @trusted @("complexity", "O(values.length)") // TODO `in` parameter qualifier doesn't work here. Compiler bug?
             if (isArray!A &&
                 isElementAssignable!(ElementType!A))
         {
@@ -774,7 +774,7 @@ struct Array(E,
         _length += values.length;
     }
 
-    private void pushBackHelper(Us...)(Us values) nothrow @("complexity", "O(1)")
+    private void pushBackHelper(Us...)(Us values) @trusted nothrow @("complexity", "O(1)")
     {
         reserve(length + values.length);
         size_t i = 0;

@@ -251,4 +251,10 @@ auto mod(size_t m, T = TypeOfModulo!m)(T value)
 
     x -= 4;
     assert(x == 252);
+
+    const Mod!(256, ubyte) y = 55;
+
+    import std.traits : isAssignable;
+    static assert(isAssignable!(typeof(x), typeof(y)));
+    x = y;
 }

@@ -5,7 +5,7 @@
 import array_ex : Array, Ordering;
 alias Stack(T) = Array!(T, Ordering.unsorted, false);
 
-@safe pure nothrow /* TODO @nogc */ unittest
+@safe pure nothrow @nogc unittest
 {
     alias T = int;
 

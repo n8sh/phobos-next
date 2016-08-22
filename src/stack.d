@@ -42,6 +42,8 @@ private:
     Stack!T s;
     assert(s.empty);
 
+    // test pushBack:
+
     s.pushBack(13);
     assert(!s.empty);
     assert(s.back == 13);
@@ -53,6 +55,8 @@ private:
     s.pushBack(15);
     assert(!s.empty);
     assert(s.back == 15);
+
+    // test popBack:
 
     s.popBack();
     assert(!s.empty);
@@ -65,7 +69,7 @@ private:
     s.popBack();
     assert(s.empty);
 
-    // backPop
+    // test pushBack:
 
     s.pushBack(13);
     assert(!s.empty);
@@ -78,6 +82,8 @@ private:
     s.pushBack(15);
     assert(!s.empty);
     assert(s.back == 15);
+
+    // test backPop:
 
     assert(s.backPop() == 15);
     assert(s.backPop() == 14);

@@ -45,6 +45,14 @@ struct Stack(T)
     assert(!s.empty);
     assert(s.back == 14);
 
+    s.pushBack(15);
+    assert(!s.empty);
+    assert(s.back == 15);
+
+    s.popBack();
+    assert(!s.empty);
+    assert(s.back == 14);
+
     s.popBack();
     assert(!s.empty);
     assert(s.back == 13);

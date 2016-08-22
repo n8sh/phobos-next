@@ -840,10 +840,17 @@ struct Array(E,
     }
 
     /// Get front element.
-    E front() const @trusted
+    inout(E) front() inout @trusted
     {
         if (empty) { throw new RangeError(); }
         return ptr[0];
+    }
+
+    /// Get back element.
+    inout(E) back() inout @trusted
+    {
+        if (empty) { throw new RangeError(); }
+        return ptr[_length - 1];
     }
 
     pure nothrow @nogc:
@@ -1026,16 +1033,19 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ssA[].equal([1, 2, 1]));
             assert(!ssA.empty);
             assert(ssA.front == 1);
+            assert(ssA.back == 1);
 
             assertNotThrown(ssA.popBack);
             assert(ssA[].equal([1, 2]));
             assert(!ssA.empty);
             assert(ssA.front == 1);
+            assert(ssA.back == 2);
 
             assertNotThrown(ssA.popBack);
             assert(ssA[].equal([1]));
             assert(!ssA.empty);
             assert(ssA.front == 1);
+            assert(ssA.back == 1);
 
             assertNotThrown(ssA.popBack);
             assert(ssA.length == 0);

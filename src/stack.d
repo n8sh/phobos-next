@@ -15,9 +15,6 @@ struct Stack(T)
         return value;
     }
 
-    /** Returns: `true` if stack is empty `false` otherwise. */
-    bool empty() const @safe pure nothrow @nogc { return _store.empty; }
-
 private:
     Array!(T, Ordering.unsorted, false) _store;
     alias _store this;

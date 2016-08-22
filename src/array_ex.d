@@ -458,7 +458,6 @@ struct Array(E,
                 GC.removeRange(ptr);
             }
             GC.free(_storePtr);
-            debug _storePtr = null; // last clear only in debug mode
         }
         void clear()
         {
@@ -469,6 +468,8 @@ struct Array(E,
             }
             GC.free(_storePtr);
             _storePtr = null;
+            _length = 0;
+            _storeCapacity = 0;
         }
     }
     else
@@ -482,7 +483,6 @@ struct Array(E,
                 GC.removeRange(ptr);
             }
             _free(_storePtr);
-            debug _storePtr = null; // last clear only in debug mode
         }
         void clear()
         {
@@ -493,6 +493,8 @@ struct Array(E,
             }
             _free(_storePtr);
             _storePtr = null;
+            _length = 0;
+            _storeCapacity = 0;
         }
     }
 
@@ -1210,6 +1212,9 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 
             ssC.shrinkTo(1);
             assert(ssC[].equal([1]));
+
+            ssC.clear();
+            assert(ssC.empty);
         }
     }
 }

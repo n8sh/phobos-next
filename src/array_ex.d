@@ -268,7 +268,7 @@ pure nothrow unittest
 
 /// Returns: `true` iff C is an `Array`.
 import std.traits : isInstanceOf;
-enum isArray(C) = isInstanceOf!(Array, C);
+enum isThisArray(C) = isInstanceOf!(Array, C);
 
 /** Small-size-optimized (SSO-packed) array of value types `E` with optional
     ordering given by `ordering`.
@@ -279,7 +279,7 @@ struct Array(E,
              alias less = "a < b") // TODO move out of this definition and support only for the case when `ordering` is not `Ordering.unsorted`
 {
     import std.range : isInputRange, ElementType;
-    import std.traits : isAssignable, Unqual, isSomeChar;
+    import std.traits : isAssignable, Unqual, isSomeChar, isArray;
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
 
@@ -542,7 +542,9 @@ struct Array(E,
         /// ditto
         void pushBack(R)(R values) @("complexity", "O(length)")
             if (isInputRange!R &&
-                allSatisfy!(isElementAssignable, ElementType!R))
+                !(isArray!R) &&
+                !(isThisArray!R) &&
+                isElementAssignable!(ElementType!R))
         {
             import std.range : hasLength;
             static if (hasLength!R) { /* dln("Reuse logic in range constructor"); */ }
@@ -552,8 +554,35 @@ struct Array(E,
             }
         }
         /// ditto.
+        void pushBack(A)(A values) @trusted @("complexity", "O(values.length)")
+           if (isArray!A &&
+               isElementAssignable!(ElementType!A))
+        {
+            if (ptr == values.ptr) // called as: this ~= this
+            {
+                reserve(2*length);
+                // NOTE: this is not needed because we don't need range checking here?:
+                // ptr[length .. 2*length] = values.ptr[0 .. length];
+                foreach (const i; 0 .. length) { ptr[length + i] = values.ptr[i]; } // TODO move. reuse memcpy
+                _length *= 2;
+            }
+            else
+            {
+                reserve(length + values.length);
+                if (is(Unqual!E == Unqual!(ElementType!A)))
+                {
+                    // TODO reuse memcopy if ElementType!A is same as E)
+                }
+                foreach (const i, ref value; values)
+                {
+                    ptr[length + i] = value;
+                }
+                _length += values.length;
+            }
+        }
+        /// ditto.
         void pushBack(A)(const ref A values) @trusted @("complexity", "O(values.length)") // TODO `in` parameter qualifier doesn't work here. Compiler bug?
-            if (isArray!A &&
+            if (isThisArray!A &&
                 isElementAssignable!(ElementType!A))
         {
             if (ptr == values.ptr) // called as: this ~= this
@@ -596,7 +625,7 @@ struct Array(E,
             pushBack(values);
         }
 	void opOpAssign(string op, A)(const ref A values) if (op == "~" &&
-                                                              isArray!A &&
+                                                              isThisArray!A &&
                                                               isElementAssignable!(ElementType!A)) { pushBack(values); }
     }
 
@@ -1132,6 +1161,11 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
                 s1 ~= s2;
                 assert(s1[].equal(chain(s, s, s)));
             }
+
+            auto ssC = A!(E, ordering, supportGC, less)(0);
+            const i5 = [1, 2, 3, 4, 5];
+            ssC.pushBack(i5);
+            assert(ssC[].equal(i5));
         }
     }
 }

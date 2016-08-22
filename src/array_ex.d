@@ -467,9 +467,7 @@ struct Array(E,
                 GC.removeRange(ptr);
             }
             GC.free(_storePtr);
-            _storePtr = null;
-            _length = 0;
-            _storeCapacity = 0;
+            reset();
         }
     }
     else
@@ -492,10 +490,15 @@ struct Array(E,
                 GC.removeRange(ptr);
             }
             _free(_storePtr);
-            _storePtr = null;
-            _length = 0;
-            _storeCapacity = 0;
+            reset();
         }
+    }
+
+    private void reset()
+    {
+        _storePtr = null;
+        _length = 0;
+        _storeCapacity = 0;
     }
 
     enum isElementAssignable(U) = isAssignable!(E, U);

@@ -546,8 +546,8 @@ struct Array(E,
                 !(isThisArray!R) &&
                 isElementAssignable!(ElementType!R))
         {
-            import std.range : hasLength;
-            static if (hasLength!R) { /* dln("Reuse logic in range constructor"); */ }
+            // import std.range : hasLength;
+            // static if (hasLength!R) { dln("Reuse logic in range constructor"); }
             foreach (ref value; values)
             {
                 pushBackHelper(value);

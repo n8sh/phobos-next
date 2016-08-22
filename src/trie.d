@@ -1825,7 +1825,7 @@ struct RawRadixTree(Value = void)
 
         void push(ref BranchRange branchRange)
         {
-            branchRange.appendFrontIxsToKey(_branchesKeyPrefix);
+            // branchRange.appendFrontIxsToKey(_branchesKeyPrefix);
             _ranges.pushBack(branchRange);
         }
 
@@ -1836,17 +1836,10 @@ struct RawRadixTree(Value = void)
 
         void pop()
         {
-            try
-            {
-                // TODO Instead use _branchesKeyPrefix.popN((_ranges[$ - 1].prefixLength + 1))
-                _branchesKeyPrefix.shrinkTo(_branchesKeyPrefix.length -
-                                            (_ranges[$ - 1].prefixLength + 1));
-                _ranges.shrinkTo(branchCount - 1);
-            }
-            catch (Exception e)
-            {
-                assert(false);
-            }
+            // TODO Instead use _branchesKeyPrefix.popN((_ranges[$ - 1].prefixLength + 1))
+            // _branchesKeyPrefix.shrinkTo(_branchesKeyPrefix.length -
+            //                             (_ranges[$ - 1].prefixLength + 1));
+            _ranges.shrinkTo(branchCount - 1);
         }
 
         ref BranchRange bottom()
@@ -1866,7 +1859,7 @@ struct RawRadixTree(Value = void)
 
     private:
         Stack!BranchRange _ranges;
-        Stack!Ix _branchesKeyPrefix;
+        // Stack!Ix _branchesKeyPrefix;
 
         // index to first branchrange in `_ranges` that is currently on a leaf1
         // or `typeof.max` if undefined

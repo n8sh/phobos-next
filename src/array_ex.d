@@ -908,6 +908,14 @@ struct Array(E,
     }
     alias opDollar = length;    ///< ditto
 
+    /// Shrink length to `length`.
+    void shrinkTo(size_t length) const @safe
+    {
+        assert(length <= _length);
+        _length = length;
+    }
+    alias opDollar = length;    ///< ditto
+
     /// Get length of reserved store.
     size_t reservedLength() const @safe
     {

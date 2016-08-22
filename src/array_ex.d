@@ -540,7 +540,7 @@ struct Array(E,
             pushBackHelper(values);
         }
         /// ditto
-        void pushBack(R)(R values) @("complexity", "O(length)")
+        void pushBack(R)(R values) @("complexity", "O(values.length)")
             if (isInputRange!R &&
                 !(isArray!R) &&
                 !(isThisArray!R) &&
@@ -1163,7 +1163,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             }
 
             auto ssC = A!(E, ordering, supportGC, less)(0);
-            const i5 = [1, 2, 3, 4, 5];
+            const(int)[] i5 = [1, 2, 3, 4, 5];
             ssC.pushBack(i5);
             assert(ssC[].equal(i5));
         }

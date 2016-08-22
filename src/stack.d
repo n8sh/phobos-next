@@ -6,19 +6,6 @@ struct Stack(T)
 {
     import array_ex;
 
-    ref inout(T) back() inout { return _store[$ - 1]; };
-    alias top = back;
-
-    /** Push element `t` to stack. */
-    void pushBack(in T t) @safe { _store.pushBack(t); }
-
-    /** Pop element from stack. */
-    void popBack()
-    {
-        assert(!empty);
-        _store.popBack;
-    }
-
     /** Pop back element and return it. */
     T backPop()
     {
@@ -33,6 +20,7 @@ struct Stack(T)
 
 private:
     Array!(T, Ordering.unsorted, false) _store;
+    alias _store this;
 }
 
 @safe pure nothrow /* TODO @nogc */ unittest
@@ -71,15 +59,7 @@ private:
 
     // test pushBack:
 
-    s.pushBack(13);
-    assert(!s.empty);
-    assert(s.back == 13);
-
-    s.pushBack(14);
-    assert(!s.empty);
-    assert(s.back == 14);
-
-    s.pushBack(15);
+    s.pushBack(13, 14, 15);
     assert(!s.empty);
     assert(s.back == 15);
 

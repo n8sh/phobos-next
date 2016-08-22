@@ -909,7 +909,7 @@ struct Array(E,
     alias opDollar = length;    ///< ditto
 
     /// Shrink length to `length`.
-    void shrinkTo(size_t length) const @safe
+    void shrinkTo(size_t length) @safe
     {
         assert(length <= _length);
         _length = length;
@@ -1174,6 +1174,18 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             const(int)[] i5 = [1, 2, 3, 4, 5];
             ssC.pushBack(i5);
             assert(ssC[].equal(i5));
+
+            ssC.shrinkTo(4);
+            assert(ssC[].equal([1, 2, 3, 4]));
+
+            ssC.shrinkTo(3);
+            assert(ssC[].equal([1, 2, 3]));
+
+            ssC.shrinkTo(2);
+            assert(ssC[].equal([1, 2]));
+
+            ssC.shrinkTo(1);
+            assert(ssC[].equal([1]));
         }
     }
 }

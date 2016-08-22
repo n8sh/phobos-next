@@ -842,7 +842,7 @@ struct Array(E,
             return opSlice!(typeof(this))(0, _length);
         }
         /// ditto
-        auto opSlice(this This)(size_t i, size_t j) // const because mutation only via `op.*Assign`
+        auto opSlice(this This)(size_t i, size_t j) @trusted // const because mutation only via `op.*Assign`
         {
             alias ET = ContainerElementType!(This, E);
             import std.range : assumeSorted;
@@ -865,7 +865,7 @@ struct Array(E,
             return this.opSlice(0, _length);
         }
         /// ditto
-        auto opSlice(this This)(size_t i, size_t j)
+        auto opSlice(this This)(size_t i, size_t j) @trusted
         {
             alias ET = ContainerElementType!(This, E);
             return cast(inout(ET)[])slice[i .. j];
@@ -930,7 +930,7 @@ struct Array(E,
     }
 
     /// Get internal slice.
-    private auto ref slice() inout
+    private auto ref slice() inout @trusted
     {
         return ptr[0 .. length];
     }

@@ -1110,6 +1110,14 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             ssB.pushBack([1, 2, 3, 4, 5]);
             ssB.pushBack([6, 7]);
             assert(ssB[].equal([1, 2, 3, 4, 5, 6, 7]));
+            assert(ssB.backPop == 7);
+            assert(ssB.backPop == 6);
+            assert(ssB.backPop == 5);
+            assert(ssB.backPop == 4);
+            assert(ssB.backPop == 3);
+            assert(ssB.backPop == 2);
+            assert(ssB.backPop == 1);
+            assert(ssB.empty);
 
             // pushBack(Array)
             {

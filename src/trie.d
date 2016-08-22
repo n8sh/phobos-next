@@ -1884,7 +1884,11 @@ struct RawRadixTree(Value = void)
 
         this(Node root)
         {
-            if (root) { diveAndVisitTreeUnder(root, 0); }
+            if (root)
+            {
+                diveAndVisitTreeUnder(root, 0);
+                cacheFront();
+            }
         }
 
         void popFront()
@@ -1903,6 +1907,7 @@ struct RawRadixTree(Value = void)
                     postPopTreeUpdate();
                 }
             }
+            cacheFront();
         }
 
         private void popFrontInBranchLeaf1() // TODO move to member of BranchRanges
@@ -2026,8 +2031,6 @@ struct RawRadixTree(Value = void)
                 ++depth;
             }
             while (next);
-
-            cacheFront;
         }
 
         pragma(inline)

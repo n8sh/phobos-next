@@ -154,7 +154,7 @@ private:
 
                 // temporary storage for small
                 debug { typeof(small) tmp; }
-                else  { typeof(return) tmp = void; }
+                else  { typeof(small) tmp = void; }
 
                 tmp[0 .. n] = large.ptr[0 .. n]; // large to temporary
                 tmp[n .. $] = 0; // zero remaining

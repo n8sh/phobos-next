@@ -54,6 +54,7 @@ import bijections : isIntegralBijectableType, bijectToUnsigned, bijectFromUnsign
 import variant_ex : WordVariant;
 import typecons_ex : StrictlyIndexed;
 import modulo : Mod, mod;
+import stack : Stack;
 
 // version = enterSingleInfiniteMemoryLeakTest;
 // version = debugPrintAllocations;
@@ -1277,6 +1278,16 @@ struct RawRadixTree(Value = void)
             key.put(frontIx); // uses cached data so ok to not depend on branch type
         }
 
+        size_t prefixLength() const /* TODO @nogc */
+        {
+            final switch (branch.typeIx) with (Branch.Ix)
+            {
+            case undefined: assert(false);
+            case ix_SparseBranchPtr: return branch.as!(SparseBranch*).prefix.length;
+            case ix_DenseBranchPtr: return  branch.as!(DenseBranch*).prefix.length;
+            }
+        }
+
         bool empty() const @nogc { return leaf1Range.empty && _subsEmpty; }
         bool subsEmpty() const @nogc { return _subsEmpty; }
 
@@ -1800,13 +1811,25 @@ struct RawRadixTree(Value = void)
         void shrinkTo(size_t length)
         {
             // turn emptyness exception into an assert like ranges do
-            // TODO Update _branchesKeyPrefix
-            try { _ranges.shrinkTo(length); } catch (Exception e) { assert(false); }
+            try
+            {
+                // size_t suffixLength = 0;
+                // foreach (const ref branchRange; _ranges.data[$ - length .. $])
+                // {
+                //     suffixLength += branchRange.prefixLength + 1;
+                // }
+                // _branchesKeyPrefix.shrinkTo(_branchesKeyPrefix.data.length - suffixLength);
+                _ranges.shrinkTo(length);
+            }
+            catch (Exception e)
+            {
+                assert(false);
+            }
         }
 
         void push(ref BranchRange branchRange)
         {
-            // TODO Update _branchesKeyPrefix
+            branchRange.appendFrontIxsToKey(_branchesKeyPrefix);
             _ranges.put(branchRange);
         }
 
@@ -1817,8 +1840,17 @@ struct RawRadixTree(Value = void)
 
         void pop()
         {
-            // TODO Update _branchesKeyPrefix
-            shrinkTo(branchCount - 1);
+            try
+            {
+                // TODO Instead use _branchesKeyPrefix.popN((_ranges.data[$ - 1].prefixLength + 1))
+                _branchesKeyPrefix.shrinkTo(_branchesKeyPrefix.data.length -
+                                            (_ranges.data[$ - 1].prefixLength + 1));
+                _ranges.shrinkTo(branchCount - 1);
+            }
+            catch (Exception e)
+            {
+                assert(false);
+            }
         }
 
         ref BranchRange bottom()

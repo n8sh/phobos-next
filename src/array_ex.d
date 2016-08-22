@@ -792,45 +792,48 @@ struct Array(E,
     /// ditto
     static if (IsOrdered!ordering)
     {
+    const nothrow @nogc:                      // indexing and slicing must be `const` when ordered
+
         /// Slice operator must be const when ordered.
-        auto opSlice() const nothrow @nogc
+        auto opSlice()
         {
             return opSlice!(typeof(this))(0, _length);
         }
         /// ditto
-        auto opSlice(this This)(size_t i, size_t j) const nothrow @nogc // const because mutation only via `op.*Assign`
+        auto opSlice(this This)(size_t i, size_t j) // const because mutation only via `op.*Assign`
         {
             alias ET = ContainerElementType!(This, E);
             import std.range : assumeSorted;
-            return (cast(ET[])slice[i .. j]).assumeSorted!comp;
+            return (cast(const(ET)[])slice[i .. j]).assumeSorted!comp;
         }
 
-        /// Index operator must be const when ordered.
-        auto ref opIndex(size_t i) const nothrow @trusted @nogc // const because mutation only via `op.*Assign`
+        auto ref opIndex(size_t i) @trusted
         {
             alias ET = ContainerElementType!(typeof(this), E);
-            return cast(ET)slice[i];
+            return cast(const(ET))slice[i];
         }
     }
     else
     {
+    inout nothrow @nogc:                  // indexing and slicing can be mutable when ordered
+
         /// Slice operator overload is mutable when unordered.
-        auto opSlice() nothrow @nogc
+        auto opSlice()
         {
             return this.opSlice(0, _length);
         }
         /// ditto
-        auto opSlice(this This)(size_t i, size_t j) nothrow @nogc
+        auto opSlice(this This)(size_t i, size_t j)
         {
             alias ET = ContainerElementType!(This, E);
-            return cast(ET[])slice[i .. j];
+            return cast(inout(ET)[])slice[i .. j];
         }
 
-        /// Index operator overload mutable when unordered.
-        auto ref opIndex(size_t i) nothrow @trusted @nogc
+        /// Index operator can be const or mutable when unordered.
+        auto ref opIndex(size_t i) @trusted
         {
             alias ET = ContainerElementType!(typeof(this), E);
-            return cast(ET)slice[i];
+            return cast(inout(ET))slice[i];
         }
     }
 

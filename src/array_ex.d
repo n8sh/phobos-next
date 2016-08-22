@@ -1,5 +1,7 @@
 /** Array container(s) with optional sortedness (`Ordering`).
 
+    TODO Should checkEmptyPop() only be enabled in debug?
+
     TODO Use std.array.insertInPlace in insert()?
     TODO Use std.array.replaceInPlace?
 
@@ -474,7 +476,7 @@ struct Array(E,
     ContainerElementType!(typeof(this), E) linearPopAtIndex(size_t index) @trusted @("complexity", "O(length)")
     {
         if (index >= _length) { throw new RangeError(); }
-        checkEmptyPop;
+        checkEmptyPop();
         typeof(return) value = ptr[index]; // TODO move construct?
         // TODO functionize move
         foreach (const i; 0 .. length - (index + 1)) // each element index that needs to be moved
@@ -492,7 +494,7 @@ struct Array(E,
     /** Removal doesn't need to care about ordering. */
     ContainerElementType!(typeof(this), E) linearPopFront() @trusted @("complexity", "O(length)")
     {
-        checkEmptyPop;
+        checkEmptyPop();
         typeof(return) value = ptr[0]; // TODO move construct?
         // TODO functionize move
         foreach (const i; 0 .. length - 1) // each element index that needs to be moved
@@ -508,13 +510,13 @@ struct Array(E,
     /** Removal doesn't need to care about ordering. */
     ContainerElementType!(typeof(this), E) popBack() @trusted @("complexity", "O(1)")
     {
-        checkEmptyPop;
+        checkEmptyPop();
         return ptr[--_length]; // TODO move construct?
     }
 
     private void checkEmptyPop()
     {
-        if (empty) { throw new Exception(`Cannot pop value from an empty array`); }
+        if (empty) { assert(false, `Cannot pop value from an empty array`); }
     }
 
     static if (!IsOrdered!ordering) // for unsorted arrays

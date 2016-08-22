@@ -1,5 +1,7 @@
 /** Array container(s) with optional sortedness (`Ordering`).
 
+    TODO Support scope in auto ref returns when it DIP-1000 is ready
+
     TODO Should checkEmptyPop() only be enabled in debug?
 
     TODO Use std.array.insertInPlace in insert()?

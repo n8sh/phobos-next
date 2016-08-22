@@ -4,22 +4,21 @@
 */
 struct Stack(T)
 {
-    import std.array: Appender, appender;
+    import array_ex;
 
-    ref inout(T) top() inout { return _app.data[$ - 1]; };
-
-    bool empty() const { return _app.data.length == 0; }
+    ref inout(T) back() inout { return _app[$ - 1]; };
+    alias top = back;
 
     /** Push element `t`. */
-    void push(in T t) { _app.put(t); }
+    void pushBack(in T t) @safe { _app.pushBack(t); }
 
     /** Pop element. */
-    void pop()
+    void popBack()
     {
         assert(!empty);
         try
         {
-            _app.shrinkTo(_app.data.length - 1);
+            _app.popBack;
         }
         catch (Exception e)
         {
@@ -27,7 +26,7 @@ struct Stack(T)
         }
     }
 
-    private Appender!(T[]) _app; // TODO replace with array_ex.d
+    private Array!(T, Ordering.unsorted, false) _app;
     alias _app this;
 }
 
@@ -38,18 +37,18 @@ struct Stack(T)
     Stack!T s;
     assert(s.empty);
 
-    s.push(13);
+    s.pushBack(13);
     assert(!s.empty);
-    assert(s.top == 13);
+    assert(s.back == 13);
 
-    s.push(14);
+    s.pushBack(14);
     assert(!s.empty);
-    assert(s.top == 14);
+    assert(s.back == 14);
 
-    s.pop();
+    s.popBack();
     assert(!s.empty);
-    assert(s.top == 13);
+    assert(s.back == 13);
 
-    s.pop();
+    s.popBack();
     assert(s.empty);
 }

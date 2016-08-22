@@ -108,6 +108,17 @@ extern(C) pure nothrow @system @nogc
     void free(void* ptr);
 }
 
+/// Binary power of radix, typically either 1, 2, 4 or 8.
+private enum span = 8;
+/// Branch-multiplicity. Also called order.
+private enum radix = 2^^span;
+
+static assert(span == 8, "Radix is currently limited to 8");
+static assert(size_t.sizeof == 8, "Currently requires a 64-bit CPU (size_t.sizeof == 8)");
+
+/** Radix Modulo Index */
+alias Ix = Mod!radix; // restricted index type avoids range checking in array indexing below
+
 /** Mutable RawTree Key. */
 alias Key(size_t span) = Mod!(2^^span)[]; // TODO use bitset to more naturally support span != 8.
 /** Immutable RawTree Key. */
@@ -151,8 +162,6 @@ struct IxsN(uint capacity,
     if (capacity*elementLength >= 2) // no use storing less than 2 bytes
 {
     enum L = elementLength;
-    enum M = 2^^span;   // branch-multiplicity, typically either 2, 4, 16 or 256
-    alias Ix = Mod!M;
 
     /// ElementType type `Element`.
     static if (L == 1)
@@ -413,17 +422,6 @@ bool equalLength(R, Ss...)(const R r, const Ss ss)
     assert(!equalLength([1], [2, 2], [3]));
     assert(!equalLength([1], [2], [3, 3]));
 }
-
-/// Binary power of radix, typically either 1, 2, 4 or 8.
-private enum span = 8;
-/// Branch-multiplicity. Also called order.
-private enum radix = 2^^span;
-
-static assert(span == 8, "Radix is currently limited to 8");
-static assert(size_t.sizeof == 8, "Currently requires a 64-bit CPU (size_t.sizeof == 8)");
-
-/** Radix Modulo Index */
-alias Ix = Mod!radix; // restricted index type avoids range checking in array indexing below
 
 /// Single/1-Key Leaf with maximum key-length 7.
 struct OneLeafMax7
@@ -1180,8 +1178,6 @@ struct RawRadixTree(Value = void)
 
     static assert(span <= 8*Ix.sizeof, "Need more precision in Ix");
 
-    import std.array : Appender;
-
     /** Element Reference. */
     private static struct EltRef
     {
@@ -1263,19 +1259,19 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        void appendFrontIxsToKey(ref Appender!UKey key) const /* TODO @nogc */
+        void appendFrontIxsToKey(ref Stack!Ix key) const /* TODO @nogc */
         {
             final switch (branch.typeIx) with (Branch.Ix)
             {
             case undefined: assert(false);
             case ix_SparseBranchPtr:
-                key.put(branch.as!(SparseBranch*).prefix);
+                key.pushBack(branch.as!(SparseBranch*).prefix[]);
                 break;
             case ix_DenseBranchPtr:
-                key.put(branch.as!(DenseBranch*).prefix);
+                key.pushBack(branch.as!(DenseBranch*).prefix[]);
                 break;
             }
-            key.put(frontIx); // uses cached data so ok to not depend on branch type
+            key.pushBack(frontIx); // uses cached data so ok to not depend on branch type
         }
 
         size_t prefixLength() const /* TODO @nogc */
@@ -1622,7 +1618,7 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        void appendFrontIxsToKey(ref Appender!UKey key) const /* TODO @nogc */
+        void appendFrontIxsToKey(ref Stack!Ix key) const /* TODO @nogc */
         {
             assert(!empty);
             with (Node.Ix)
@@ -1634,23 +1630,23 @@ struct RawRadixTree(Value = void)
 
                 case ix_OneLeafMax7:
                     assert(ix == 0);
-                    key.put(leaf.as!(OneLeafMax7).key);
+                    key.pushBack(leaf.as!(OneLeafMax7).key[]);
                     break;
                 case ix_TwoLeaf3:
-                    key.put(leaf.as!(TwoLeaf3).keys[ix][]);
+                    key.pushBack(leaf.as!(TwoLeaf3).keys[ix][]);
                     break;
                 case ix_TriLeaf2:
-                    key.put(leaf.as!(TriLeaf2).keys[ix][]);
+                    key.pushBack(leaf.as!(TriLeaf2).keys[ix][]);
                     break;
                 case ix_HeptLeaf1:
-                    key.put(leaf.as!(HeptLeaf1).keys[ix]);
+                    key.pushBack(leaf.as!(HeptLeaf1).keys[ix]);
                     break;
 
                 case ix_SparseLeaf1Ptr:
-                    key.put(leaf.as!(SparseLeaf1!Value*).ixs[ix]);
+                    key.pushBack(leaf.as!(SparseLeaf1!Value*).ixs[ix]);
                     break;
                 case ix_DenseLeaf1Ptr:
-                    key.put(ix);
+                    key.pushBack(ix);
                     break;
 
                 default: assert(false, "Unsupported Node type");
@@ -1730,9 +1726,9 @@ struct RawRadixTree(Value = void)
     {
         static if (hasValue)
         {
-            bool appendFrontIxsToKey(ref Appender!UKey key, ref Value value) const
+            bool appendFrontIxsToKey(ref Stack!Ix key, ref Value value) const
             {
-                foreach (const ref branchRange; _ranges.data)
+                foreach (const ref branchRange; _ranges)
                 {
                     branchRange.appendFrontIxsToKey(key);
                     if (branchRange.atLeaf1)
@@ -1746,9 +1742,9 @@ struct RawRadixTree(Value = void)
         }
         else
         {
-            bool appendFrontIxsToKey(ref Appender!UKey key) const
+            bool appendFrontIxsToKey(ref Stack!Ix key) const
             {
-                foreach (const ref branchRange; _ranges.data)
+                foreach (const ref branchRange; _ranges)
                 {
                     branchRange.appendFrontIxsToKey(key);
                     if (branchRange.atLeaf1)
@@ -1761,7 +1757,7 @@ struct RawRadixTree(Value = void)
         }
         size_t get1DepthAt(size_t depth) const
         {
-            foreach (const i, ref branchRange; _ranges.data[depth .. $])
+            foreach (const i, ref branchRange; _ranges[depth .. $])
             {
                 if (branchRange.atLeaf1) { return depth + i; }
             }
@@ -1770,7 +1766,7 @@ struct RawRadixTree(Value = void)
 
         private void updateLeaf1AtDepth(size_t depth)
         {
-            if (_ranges.data[depth].atLeaf1)
+            if (_ranges[depth].atLeaf1)
             {
                 if (_branch1Depth == typeof(_branch1Depth).max) // if not yet defined
                 {
@@ -1795,17 +1791,17 @@ struct RawRadixTree(Value = void)
         void popBranch1Front()
         {
             // TODO _branchesKeyPrefix.popN(_ranges.data[$ - 1]);
-            _ranges.data[_branch1Depth].popFront;
+            _ranges[_branch1Depth].popFront;
         }
 
         bool emptyBranch1() const
         {
-            return _ranges.data[_branch1Depth].empty;
+            return _ranges[_branch1Depth].empty;
         }
 
         bool atLeaf1() const
         {
-            return _ranges.data[_branch1Depth].atLeaf1;
+            return _ranges[_branch1Depth].atLeaf1;
         }
 
         void shrinkTo(size_t length)
@@ -1830,21 +1826,21 @@ struct RawRadixTree(Value = void)
         void push(ref BranchRange branchRange)
         {
             branchRange.appendFrontIxsToKey(_branchesKeyPrefix);
-            _ranges.put(branchRange);
+            _ranges.pushBack(branchRange);
         }
 
         size_t branchCount() const
         {
-            return _ranges.data.length;
+            return _ranges.length;
         }
 
         void pop()
         {
             try
             {
-                // TODO Instead use _branchesKeyPrefix.popN((_ranges.data[$ - 1].prefixLength + 1))
-                _branchesKeyPrefix.shrinkTo(_branchesKeyPrefix.data.length -
-                                            (_ranges.data[$ - 1].prefixLength + 1));
+                // TODO Instead use _branchesKeyPrefix.popN((_ranges[$ - 1].prefixLength + 1))
+                _branchesKeyPrefix.shrinkTo(_branchesKeyPrefix.length -
+                                            (_ranges[$ - 1].prefixLength + 1));
                 _ranges.shrinkTo(branchCount - 1);
             }
             catch (Exception e)
@@ -1855,7 +1851,7 @@ struct RawRadixTree(Value = void)
 
         ref BranchRange bottom()
         {
-            return _ranges.data[$ - 1];
+            return _ranges[$ - 1];
         }
 
         private void verifyBranch1Depth()
@@ -1869,8 +1865,8 @@ struct RawRadixTree(Value = void)
         }
 
     private:
-        Appender!(BranchRange[]) _ranges;
-        Appender!UKey _branchesKeyPrefix;
+        Stack!BranchRange _ranges;
+        Stack!Ix _branchesKeyPrefix;
 
         // index to first branchrange in `_ranges` that is currently on a leaf1
         // or `typeof.max` if undefined
@@ -1887,7 +1883,7 @@ struct RawRadixTree(Value = void)
             if (root)
             {
                 diveAndVisitTreeUnder(root, 0);
-                cacheFront();
+                cacheFront;
             }
         }
 
@@ -1907,7 +1903,7 @@ struct RawRadixTree(Value = void)
                     postPopTreeUpdate();
                 }
             }
-            cacheFront();
+            cacheFront;
         }
 
         private void popFrontInBranchLeaf1() // TODO move to member of BranchRanges
@@ -1933,7 +1929,7 @@ struct RawRadixTree(Value = void)
 
         private void cacheFront()
         {
-            _cachedFrontKey.clear;
+            _cachedFrontKey.shrinkTo(0); // not clear() because we want to keep existing allocation
 
             // branches
             static if (hasValue)
@@ -2041,7 +2037,7 @@ struct RawRadixTree(Value = void)
                     branchRanges.branchCount == 0);
         }
 
-        auto frontKey() const @nogc { return _cachedFrontKey.data; }
+        auto frontKey() const @nogc { return _cachedFrontKey[]; }
         static if (hasValue)
         {
             auto frontValue() const @nogc { return _cachedFrontValue; }
@@ -2052,7 +2048,7 @@ struct RawRadixTree(Value = void)
         BranchRanges branchRanges;
 
         // cache
-        Appender!UKey _cachedFrontKey; // copy of front key
+        Stack!Ix _cachedFrontKey; // copy of front key
         static if (hasValue)
         {
             Value _cachedFrontValue; // copy of front value

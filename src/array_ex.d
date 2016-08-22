@@ -554,7 +554,7 @@ struct Array(E,
             }
         }
         /// ditto.
-        void pushBackArray(A)(A values) @trusted @("complexity", "O(values.length)")
+        void pushBack(A)(A values) @trusted @("complexity", "O(values.length)")
             if (isArray!A &&
                 isElementAssignable!(ElementType!A))
         {
@@ -1138,8 +1138,8 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 
             // pushBack and assignment from slice
             auto ssB = A!(E, ordering, supportGC, less)(0);
-            ssB.pushBackArray([1, 2, 3, 4, 5]);
-            ssB.pushBackArray([6, 7]);
+            ssB.pushBack([1, 2, 3, 4, 5]);
+            ssB.pushBack([6, 7]);
             assert(ssB[].equal([1, 2, 3, 4, 5, 6, 7]));
             assert(ssB.backPop == 7);
             assert(ssB.backPop == 6);
@@ -1164,7 +1164,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 
             auto ssC = A!(E, ordering, supportGC, less)(0);
             const(int)[] i5 = [1, 2, 3, 4, 5];
-            ssC.pushBackArray(i5);
+            ssC.pushBack(i5);
             assert(ssC[].equal(i5));
         }
     }

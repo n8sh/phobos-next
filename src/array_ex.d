@@ -449,26 +449,50 @@ struct Array(E,
     /// Destruct.
     static if (useGC)
     {
-        ~this() nothrow @trusted
+        nothrow @trusted:
+        ~this()
         {
             static if (shouldAddGCRange!E)
             {
                 import core.memory : GC;
                 GC.removeRange(ptr);
             }
-            GC.free(_storePtr); debug _storePtr = null;
+            GC.free(_storePtr);
+            debug _storePtr = null; // last clear only in debug mode
+        }
+        void clear()
+        {
+            static if (shouldAddGCRange!E)
+            {
+                import core.memory : GC;
+                GC.removeRange(ptr);
+            }
+            GC.free(_storePtr);
+            _storePtr = null;
         }
     }
     else
     {
-        ~this() nothrow @trusted @nogc
+        nothrow @trusted @nogc:
+        ~this()
         {
             static if (shouldAddGCRange!E)
             {
                 import core.memory : GC;
                 GC.removeRange(ptr);
             }
-            _free(_storePtr); debug _storePtr = null;
+            _free(_storePtr);
+            debug _storePtr = null; // last clear only in debug mode
+        }
+        void clear()
+        {
+            static if (shouldAddGCRange!E)
+            {
+                import core.memory : GC;
+                GC.removeRange(ptr);
+            }
+            _free(_storePtr);
+            _storePtr = null;
         }
     }
 

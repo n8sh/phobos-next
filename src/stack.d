@@ -7,7 +7,6 @@ struct Stack(T)
     import std.array: Appender, appender;
 
     ref inout(T) top() inout { return _app.data[$ - 1]; };
-    alias back = top;
 
     bool empty() const { return _app.data.length == 0; }
 
@@ -40,6 +39,14 @@ struct Stack(T)
     assert(s.empty);
 
     s.push(13);
+    assert(!s.empty);
+    assert(s.top == 13);
+
+    s.push(14);
+    assert(!s.empty);
+    assert(s.top == 14);
+
+    s.pop();
     assert(!s.empty);
     assert(s.top == 13);
 

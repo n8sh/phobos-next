@@ -514,6 +514,15 @@ struct Array(E,
         return ptr[--_length]; // TODO move construct?
     }
 
+    /** Pop back element and return it. */
+    E backPop()
+    {
+        assert(!empty);
+        E value = back;
+        popBack();
+        return value;
+    }
+
     private void checkEmptyPop()
     {
         if (empty) { assert(false, `Cannot pop value from an empty array`); }

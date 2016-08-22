@@ -6,15 +6,6 @@ struct Stack(T)
 {
     import array_ex;
 
-    /** Pop back element and return it. */
-    T backPop()
-    {
-        assert(!empty);
-        T value = back;
-        _store.popBack;
-        return value;
-    }
-
 private:
     Array!(T, Ordering.unsorted, false) _store;
     alias _store this;

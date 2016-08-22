@@ -1213,6 +1213,10 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             ssC.shrinkTo(1);
             assert(ssC[].equal([1]));
 
+            ssC.shrinkTo(0);
+            assert(ssC[].length == 0);
+            assert(ssC.empty);
+
             ssC.clear();
             assert(ssC.empty);
         }

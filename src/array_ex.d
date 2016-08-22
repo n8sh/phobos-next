@@ -1131,7 +1131,6 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ssA.length == 0);
             assert(ssA.reservedLength == 0);
             assert(ssA.empty);
-            assert(ssA.ptr is null);
 
             // linearInsertAt
             ssA ~= 1;
@@ -1160,7 +1159,6 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assertNotThrown(ssA.linearPopFront);
             assert(ssA.empty);
             ssA.compress;
-            assert(ssA.ptr is null);
 
             // linearPopAtIndex
             ssA ~= 1;

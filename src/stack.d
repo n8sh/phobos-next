@@ -2,14 +2,8 @@
 
     See also: http://forum.dlang.org/thread/wswbtzakdvpgaebuhbom@forum.dlang.org
 */
-struct Stack(T)
-{
-    import array_ex;
-
-private:
-    Array!(T, Ordering.unsorted, false) _store;
-    alias _store this;
-}
+import array_ex : Array, Ordering;
+alias Stack(T) = Array!(T, Ordering.unsorted, false);
 
 @safe pure nothrow /* TODO @nogc */ unittest
 {

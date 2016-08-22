@@ -6,11 +6,11 @@ struct Stack(T)
 {
     import array_ex;
 
-    ref inout(T) back() inout { return _app[$ - 1]; };
+    ref inout(T) back() inout { return _store[$ - 1]; };
     alias top = back;
 
     /** Push element `t`. */
-    void pushBack(in T t) @safe { _app.pushBack(t); }
+    void pushBack(in T t) @safe { _store.pushBack(t); }
 
     /** Pop element. */
     void popBack()
@@ -18,7 +18,7 @@ struct Stack(T)
         assert(!empty);
         try
         {
-            _app.popBack;
+            _store.popBack;
         }
         catch (Exception e)
         {
@@ -26,8 +26,8 @@ struct Stack(T)
         }
     }
 
-    private Array!(T, Ordering.unsorted, false) _app;
-    alias _app this;
+    private Array!(T, Ordering.unsorted, false) _store;
+    alias _store this;
 }
 
 @safe pure nothrow /* TODO @nogc */ unittest

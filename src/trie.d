@@ -1807,20 +1807,13 @@ struct RawRadixTree(Value = void)
         void shrinkTo(size_t length)
         {
             // turn emptyness exception into an assert like ranges do
-            try
-            {
-                // size_t suffixLength = 0;
-                // foreach (const ref branchRange; _ranges.data[$ - length .. $])
-                // {
-                //     suffixLength += branchRange.prefixLength + 1;
-                // }
-                // _branchesKeyPrefix.shrinkTo(_branchesKeyPrefix.data.length - suffixLength);
-                _ranges.shrinkTo(length);
-            }
-            catch (Exception e)
-            {
-                assert(false);
-            }
+            // size_t suffixLength = 0;
+            // foreach (const ref branchRange; _ranges.data[$ - length .. $])
+            // {
+            //     suffixLength += branchRange.prefixLength + 1;
+            // }
+            // _branchesKeyPrefix.shrinkTo(_branchesKeyPrefix.data.length - suffixLength);
+            _ranges.shrinkTo(length);
         }
 
         void push(ref BranchRange branchRange)

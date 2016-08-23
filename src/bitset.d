@@ -1203,7 +1203,7 @@ struct BitSet(uint len, Block = size_t)
     assert(!b8.canFindIndexOf(true, Ix(7), nextIx));
 }
 
-/// test predicates
+/// test all zero and all one predicates
 @safe pure nothrow unittest
 {
     enum n = 8*size_t.sizeof + 11;

@@ -20,7 +20,7 @@
 
     TODO Check for case when expanding to bit-branch instead of SparseBranch in all `expand()` overloads
 
-    TODO Make array indexing/slicing as @trusted and use .ptr[] instead of [] when things are stable. Especially in IxsN
+    TODO Make array indexing/slicing as @trusted and use .ptr[] instead of [] when things are stable.
 
     TODO Should opBinaryRight return void* instead of bool for set-case?
 

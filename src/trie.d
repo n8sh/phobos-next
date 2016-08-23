@@ -2563,10 +2563,7 @@ struct RawRadixTree(Value = void)
     /// ditto
     pragma(inline) Node getSub(SparseBranch* curr, Ix subIx) @safe pure nothrow
     {
-        if (auto subNode = curr.subAt(subIx))
-        {
-            return subNode;
-        }
+        if (auto subNode = curr.subAt(subIx)) { return subNode; }
         return Node.init;
     }
     /// ditto

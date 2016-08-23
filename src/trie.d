@@ -3811,28 +3811,35 @@ struct RawRadixTree(Value = void)
             // keys
             size_t ix = 0;
             bool other = false;
-            foreach (const keyBit; curr_._ixBits[])
+            if (curr_._ixBits.allOne)
             {
-                string s;
-                if (keyBit)
+                write("ALL");
+            }
+            else
+            {
+                foreach (const keyBit; curr_._ixBits[])
                 {
-                    if (other)
+                    string s;
+                    if (keyBit)
                     {
-                        s ~= keySeparator;
+                        if (other)
+                        {
+                            s ~= keySeparator;
+                        }
+                        else
+                        {
+                            other = true;
+                        }
+                        import std.string : format;
+                        s ~= format("%.2X", ix);
                     }
-                    else
+                    write(s);
+                    static if (hasValue)
                     {
-                        other = true;
+                        write("=>", curr_.values[ix]);
                     }
-                    import std.string : format;
-                    s ~= format("%.2X", ix);
+                    ++ix;
                 }
-                write(s);
-                static if (hasValue)
-                {
-                    write("=>", curr_.values[ix]);
-                }
-                ++ix;
             }
 
             writeln();

@@ -3957,7 +3957,7 @@ static private void calculate(Value)(Leaf1!Value curr,
 }
 
 /** Remap typed key `typedKey` to raw (untyped) key of type `UKey`. */
-static private UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey)
+UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey)
     @trusted pure nothrow       /* TODO @nogc */
     if (isTrieableKeyType!TypedKey)
 {

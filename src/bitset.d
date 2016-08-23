@@ -747,17 +747,18 @@ struct BitSet(uint len, Block = size_t)
 
         /** Check if this $(D BitSet) has only ones.
         */
-        bool allOne() const @safe @nogc pure nothrow
+        bool allOne() const @safe pure nothrow
         {
+            const restCount = len % bitsPerBlock;
+            const hasRest = restCount != 0;
             if (_blocks.length >= 1)
             {
-                foreach (const block; _blocks[0 .. $ - 1])
+                foreach (const block; _blocks[0 .. $ - hasRest])
                 {
                     if (block != Block.max) { return false; }
                 }
             }
-            const restCount = len % bitsPerBlock;
-            if (restCount)
+            if (hasRest)
             {
                 return _blocks[$ - 1] == 2^^restCount - 1;
             }
@@ -1218,23 +1219,31 @@ struct BitSet(uint len, Block = size_t)
 /// test all zero and all one predicates
 @safe pure nothrow unittest
 {
-    enum restCount = 37;
-    enum n = 8*size_t.sizeof + restCount;
-
-    auto bs = BitSet!(n, size_t)();
-
-    assert(bs.allZero);
-    assert(!bs.allOne);
-
-    foreach (const i; 0 .. n - 1)
+    static void test(size_t restCount)()
     {
-        bs[i] = true;
-        assert(!bs.allZero);
-        assert(!bs.allOne);
-    }
-    bs[n - 1] = true;
+        enum n = 8*size_t.sizeof + restCount;
 
-    assert(bs.allOne);
+        auto bs = BitSet!(n, size_t)();
+
+        assert(bs.allZero);
+        assert(!bs.allOne);
+
+        foreach (const i; 0 .. n - 1)
+        {
+            bs[i] = true;
+            assert(!bs.allZero);
+            assert(!bs.allOne);
+        }
+        bs[n - 1] = true;
+
+        assert(bs.allOne);
+    }
+    test!0;
+    test!1;
+    test!2;
+    test!37;
+    test!62;
+    test!63;
 }
 
 /// ditto

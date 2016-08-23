@@ -607,7 +607,7 @@ struct BitSet(uint len, Block = size_t)
         assert(a.empty);
     }
 
-    /** Check if this $(D BitSet) has only zeros. */
+    /** Check if this $(D BitSet) has only zeros (is empty). */
     bool allZero() const @safe @nogc pure nothrow
     {
         foreach (const block; _blocks)
@@ -745,8 +745,7 @@ struct BitSet(uint len, Block = size_t)
             return 1 - denseness(depth);
         }
 
-        /** Check if this $(D BitSet) has only ones.
-        */
+        /** Check if this $(D BitSet) has only ones (is full). */
         bool allOne() const @safe pure nothrow
         {
             const restCount = len % bitsPerBlock;

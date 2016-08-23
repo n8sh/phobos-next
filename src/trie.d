@@ -3974,7 +3974,7 @@ static private UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFi
         enum chunkCount = nbits/span; // number of chunks in key_
         static assert(chunkCount*span == nbits, "Bitsize of TypedKey must be a multiple of span:" ~ span.stringof);
 
-        // big-endian first storage
+        // big-endian storage
         foreach (const i; 0 .. chunkCount) // for each chunk index
         {
             const bitShift = (chunkCount - 1 - i)*span; // most significant bit chunk first (MSBCF)
@@ -4030,22 +4030,16 @@ static private inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey)
         else static if (TypedKey.sizeof == 4) { uint bKey = 0; }
         else static if (TypedKey.sizeof == 8) { ulong bKey = 0; }
 
+        // big-endian storage
         foreach (const i; 0 .. chunkCount) // for each chunk index
         {
             const uix = ukey[i];
             const bitShift = (chunkCount - 1 - i)*span; // most significant bit chunk first (MSBCF)
-            bKey |= (uix >> bitShift) & (radix - 1); // part of value which is also an index
+            bKey |= (uix << bitShift) & (radix - 1); // part of value which is also an index
         }
 
         TypedKey typedKey;
-        dln(bKey);
-        pragma(msg, typeof(bKey));
-        pragma(msg, typeof(typedKey));
-
         bKey.bijectFromUnsigned(typedKey);
-
-        dln(typedKey);
-
         return typedKey;
     }
     else static if (isArray!TypedKey)

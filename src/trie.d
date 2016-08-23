@@ -4220,29 +4220,28 @@ struct RadixTree(Key, Value)
     {
         this(RawTree.Node root) { _rawRange = _rawTree.Range(root); }
 
-        auto ref front() const /* TODO @nogc */
+        auto front() const /* TODO @nogc */
         {
             const ukey = _rawRange._frontRange.frontKey;
             const key = ukey.toTypedKey!Key;
             static if (RawTree.hasValue) { return tuple(key, _rawRange._frontRange._cachedFrontValue); }
             else                         { return key; }
         }
-        auto ref back() const /* TODO @nogc */
+        auto back() const /* TODO @nogc */
         {
             const ukey = _rawRange._backRange.frontKey;
-            assert(ukey.length);
             const key = ukey.toTypedKey!Key;
             static if (RawTree.hasValue) { return tuple(key, _rawRange._backRange._cachedFrontValue); }
             else                         { return key; }
         }
 
-        auto ref rawFront() const /* TODO @nogc */
+        auto rawFront() const /* TODO @nogc */
         {
             const key = _rawRange._frontRange.frontKey;
             static if (RawTree.hasValue) { return tuple(key, _rawRange._frontRange._cachedFrontValue); }
             else                         { return key; }
         }
-        auto ref rawBack() const /* TODO @nogc */
+        auto rawBack() const /* TODO @nogc */
         {
             const key = _rawRange._backRange.frontKey;
             static if (RawTree.hasValue) { return tuple(key, _rawRange._backRange._cachedFrontValue); }

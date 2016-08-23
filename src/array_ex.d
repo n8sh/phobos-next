@@ -87,7 +87,8 @@ static struct Large(E, bool useGC)
         }
         void clear()
         {
-            GC.free(ptr); debug ptr = null;
+            GC.free(ptr);
+            debug ptr = null;
         }
     }
     else
@@ -105,7 +106,8 @@ static struct Large(E, bool useGC)
         }
         void clear()
         {
-            _free(ptr); debug ptr = null;
+            _free(ptr);
+            debug ptr = null;
         }
     }
 }
@@ -424,7 +426,8 @@ struct Array(E,
             }
             else
             {
-                GC.free(_storePtr); debug _storePtr = null;
+                GC.free(_storePtr);
+                _storePtr = null;
             }
             _storeCapacity = _length;
         }
@@ -439,7 +442,8 @@ struct Array(E,
             }
             else
             {
-                _free(_storePtr); debug _storePtr = null;
+                _free(_storePtr);
+                _storePtr = null;
             }
             _storeCapacity = _length;
         }

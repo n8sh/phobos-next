@@ -892,14 +892,14 @@ struct Array(E,
             return cast(const(ET))slice[i];
         }
 
-        /// Get front element.
+        /// Get front element (as constant reference to preserve ordering).
         ref const(E) front() const @trusted
         {
             assert(!empty); // if (empty) { throw new RangeError(); }
             return ptr[0];
         }
 
-        /// Get back element.
+        /// Get back element (as constant reference to preserve ordering).
         ref const(E) back() const @trusted
         {
             assert(!empty); // if (empty) { throw new RangeError(); }
@@ -929,14 +929,14 @@ struct Array(E,
             return cast(inout(ET))slice[i];
         }
 
-        /// Get front element.
+        /// Get front element reference.
         ref inout(E) front() inout @trusted
         {
             assert(!empty); // if (empty) { throw new RangeError(); }
             return ptr[0];
         }
 
-        /// Get back element.
+        /// Get back element reference.
         ref inout(E) back() inout @trusted
         {
             assert(!empty); // if (empty) { throw new RangeError(); }

@@ -610,7 +610,6 @@ struct BitSet(uint len, Block = size_t)
     /** Check if this $(D BitSet) has only zeros. */
     bool allZero() const @safe @nogc pure nothrow
     {
-        // TODO optimize by iterating all full blocks and checking if they are all equal to 0
         foreach (const block; _blocks)
         {
             if (block != 0) { return false; }
@@ -746,10 +745,14 @@ struct BitSet(uint len, Block = size_t)
             return 1 - denseness(depth);
         }
 
-        /** Check if this $(D BitSet) has only ones. */
+        /** Check if this $(D BitSet) has only ones.
+
+            TODO optimize by iterating all full blocks except the last one like in `allZero` and
+            check if they are all equal to `Block.max`
+        */
         bool allOne() const @safe @nogc pure nothrow
         {
-            return countOnes == len; // TODO optimize by iterating all full blocks and checking if they are all equal to Block.max
+            return countOnes == len;
         }
         alias full = allOne;
 

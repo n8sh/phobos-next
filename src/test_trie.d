@@ -10,7 +10,7 @@ void main(string[] args)
     alias Key = long;
     auto set = radixTreeSet!(Key);
 
-    const Key top = 1_000_000;
+    const Key top = 100_000;
     foreach (i; 0 .. top)
     {
         assert(!set.contains(i));
@@ -26,15 +26,21 @@ void main(string[] args)
         assert(!set.insert(i));
     }
 
+    enum span = 8;
+
     size_t i = 0;
-    foreach (const ref e; set[])
+    foreach (const ref key; set[])
     {
-        dln("e:", e, " i:", i);
-        if (e != i)
-        {
-            assert(false, "Diff");
-        }
-        assert(e == i);
+        const ok = key == i;
+
+        KeyN!(span, Key.sizeof) ukey;
+        const rawKey = key.toRawKey(ukey);
+
+        dln("rawKey:", rawKey, " key:", key, " i:", i, " ok:", ok);
+        if (!ok) { break; }
+        assert(key == i);
         ++i;
     }
+
+    set.print;
 }

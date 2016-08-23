@@ -1172,7 +1172,7 @@ struct BitSet(uint len, Block = size_t)
 }
 
 /// test ubyte access
-unittest
+@safe pure nothrow unittest
 {
     auto b8 = BitSet!(8, ubyte)();
     b8[0] = 1;
@@ -1237,7 +1237,7 @@ unittest
 }
 
 /// test range
-pure nothrow unittest
+@safe pure nothrow unittest
 {
     static testRange(Block)()
     {

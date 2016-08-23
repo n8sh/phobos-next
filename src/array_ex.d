@@ -541,16 +541,10 @@ struct Array(E,
     }
 
     /** Removal doesn't need to care about ordering. */
-    ContainerElementType!(typeof(this), E) popBack() @trusted @("complexity", "O(1)")
+    void popBack() @safe @("complexity", "O(1)")
     {
         checkEmptyPop();
-        return ptr[--_length]; // TODO move construct?
-    }
-
-    /** Pop last `count` elements. */
-    void popBackN(size_t count)
-    {
-        shrinkTo(length - count);
+        --_length;
     }
 
     /** Pop back element and return it. */
@@ -560,6 +554,12 @@ struct Array(E,
         E value = back;
         popBack();
         return value;
+    }
+
+    /** Pop last `count` elements. */
+    pragma(inline) void popBackN(size_t count) @safe @("complexity", "O(1)")
+    {
+        shrinkTo(_length - count);
     }
 
     private void checkEmptyPop()

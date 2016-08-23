@@ -547,6 +547,12 @@ struct Array(E,
         return ptr[--_length]; // TODO move construct?
     }
 
+    /** Pop last `count` elements. */
+    void popBackN(size_t count)
+    {
+        shrinkTo(length - count);
+    }
+
     /** Pop back element and return it. */
     E backPop()
     {
@@ -1219,6 +1225,10 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             ssC.shrinkTo(0);
             assert(ssC[].length == 0);
             assert(ssC.empty);
+
+            ssC.pushBack(i5);
+            ssC.popBackN(3);
+            assert(ssC[].equal([1, 2]));
 
             ssC.clear();
             assert(ssC.empty);

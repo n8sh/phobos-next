@@ -4,6 +4,7 @@
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
     TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
+
     TODO Allow NodeType-constructors to take const and immutable prefixes
 
     TODO use expandVariableLength in reconstructingInsert that uses x.realloc(2*n) instead of x.free(n)-malloc(2*n)

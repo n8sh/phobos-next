@@ -1790,7 +1790,7 @@ struct RawRadixTree(Value = void)
 
         void popBranch1Front()
         {
-            // _branchesKeyPrefix.popBackN(_ranges.data[$ - 1]);
+            // _branchesKeyPrefix.popBackN(_ranges.back);
             _ranges[_branch1Depth].popFront();
         }
 
@@ -3364,7 +3364,7 @@ struct RawRadixTree(Value = void)
                 if (curr.contains(key)) { return Leaf1!Value(curr); }
                 if (!curr.keys.full)
                 {
-                    eltRef = EltRef(Node(curr), Ix(curr.keys[$ - 1]), ModStatus.added);
+                    eltRef = EltRef(Node(curr), Ix(curr.keys.back), ModStatus.added);
                     curr.keys.pushBack(key);
                     return Leaf1!Value(curr);
                 }
@@ -3444,7 +3444,7 @@ struct RawRadixTree(Value = void)
                 if (curr.key.length <= DefaultBranch.prefixCapacity + 1) // if `key` fits in `prefix` of `DefaultBranch`
                 {
                     next = constructVariableLength!(DefaultBranch)(1 + capacityIncrement, curr.key[0 .. $ - 1], // all but last
-                                                                 Leaf1!Value(construct!(HeptLeaf1)(curr.key[$ - 1]))); // last as a leaf
+                                                                 Leaf1!Value(construct!(HeptLeaf1)(curr.key.back))); // last as a leaf
                 }
                 else                // curr.key.length > DefaultBranch.prefixCapacity + 1
                 {

@@ -1209,11 +1209,13 @@ struct BitSet(uint len, Block = size_t)
     enum n = 8*size_t.sizeof + 11;
     auto bs = BitSet!(n, size_t)();
     assert(bs.allZero);
-    foreach (const i; 0 .. n)
+    foreach (const i; 0 .. n - 1)
     {
         bs[i] = true;
         assert(!bs.allZero);
+        assert(!bs.allOne);
     }
+    bs[n - 1] = true;
     assert(bs.allOne);
 }
 

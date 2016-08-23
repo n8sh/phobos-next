@@ -460,7 +460,7 @@ struct Array(E,
         void clear()
         {
             release();
-            reset();
+            resetInternalData();
         }
 
         private void release()
@@ -482,7 +482,7 @@ struct Array(E,
         void clear()
         {
             release();
-            reset();
+            resetInternalData();
         }
 
         private void release()
@@ -496,7 +496,7 @@ struct Array(E,
         }
     }
 
-    private void reset()
+    private void resetInternalData()
     {
         _storePtr = null;
         _length = 0;

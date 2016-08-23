@@ -1,16 +1,13 @@
 #!/usr/bin/env rdmd
 
-import std.algorithm, std.stdio;
+import std.algorithm;
 import trie;
+import dbg;
 
 void main(string[] args)
 {
-    alias Key = int;
-
+    alias Key = float;
     auto set = radixTreeSet!(Key);
-
-    set.insert(42);
-    assert(set.contains(42));
-
-    assert(set[].equal([42]));
+    set.insert(4.2f);
+    set[].equal([4.2f]);
 }

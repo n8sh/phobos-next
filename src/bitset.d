@@ -749,7 +749,7 @@ struct BitSet(uint len, Block = size_t)
         */
         bool allOne() const @safe @nogc pure nothrow
         {
-            if (_blocks.length >= 2)
+            if (_blocks.length >= 1)
             {
                 foreach (const block; _blocks[0 .. $ - 1])
                 {
@@ -1218,10 +1218,14 @@ struct BitSet(uint len, Block = size_t)
 /// test all zero and all one predicates
 @safe pure nothrow unittest
 {
-    enum n = 8*size_t.sizeof + 37;
+    enum restCount = 37;
+    enum n = 8*size_t.sizeof + restCount;
+
     auto bs = BitSet!(n, size_t)();
+
     assert(bs.allZero);
     assert(!bs.allOne);
+
     foreach (const i; 0 .. n - 1)
     {
         bs[i] = true;
@@ -1229,6 +1233,7 @@ struct BitSet(uint len, Block = size_t)
         assert(!bs.allOne);
     }
     bs[n - 1] = true;
+
     assert(bs.allOne);
 }
 

@@ -1206,7 +1206,7 @@ struct BitSet(uint len, Block = size_t)
 /// test all zero and all one predicates
 @safe pure nothrow unittest
 {
-    enum n = 8*size_t.sizeof + 11;
+    enum n = 8*size_t.sizeof + 37;
     auto bs = BitSet!(n, size_t)();
     assert(bs.allZero);
     foreach (const i; 0 .. n - 1)

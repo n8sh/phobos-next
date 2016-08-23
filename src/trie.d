@@ -15,7 +15,7 @@
 
     TODO Search for "functionize this loop or reuse memmove" and use move()
 
-    TODO Add Branch-hint allocation flag and re-benchmark construction of radixTreeSet with 10000000 uints
+    TODO Add Branch-hint allocation flag and re-benchmark construction of `radixTreeSet` with 10000000 uints
 
     TODO Add sortedness to `IxsN` and make `IxsN.contains()` use `binarySearch()`. Make use of `sortn`.
 

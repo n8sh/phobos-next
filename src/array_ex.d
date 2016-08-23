@@ -917,14 +917,14 @@ struct Array(E,
     }
 
     /// Get front element.
-    inout(E) front() inout @trusted
+    ref inout(E) front() inout @trusted
     {
         assert(!empty); // if (empty) { throw new RangeError(); }
         return ptr[0];
     }
 
     /// Get back element.
-    inout(E) back() inout @trusted
+    ref inout(E) back() inout @trusted
     {
         assert(!empty); // if (empty) { throw new RangeError(); }
         return ptr[_length - 1];

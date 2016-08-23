@@ -1790,7 +1790,7 @@ struct RawRadixTree(Value = void)
 
         void popBranch1Front()
         {
-            // TODO _branchesKeyPrefix.popN(_ranges.data[$ - 1]);
+            // _branchesKeyPrefix.popBackN(_ranges.data[$ - 1]);
             _ranges[_branch1Depth].popFront();
         }
 
@@ -1808,11 +1808,11 @@ struct RawRadixTree(Value = void)
         {
             // turn emptyness exception into an assert like ranges do
             // size_t suffixLength = 0;
-            // foreach (const ref branchRange; _ranges.data[$ - length .. $])
+            // foreach (const ref branchRange; _ranges[$ - length .. $]) // TODO reverse isearch
             // {
             //     suffixLength += branchRange.prefixLength + 1;
             // }
-            // _branchesKeyPrefix.shrinkTo(_branchesKeyPrefix.data.length - suffixLength);
+            // _branchesKeyPrefix.popBackN(suffixLength);
             _ranges.shrinkTo(length);
         }
 
@@ -1829,15 +1829,13 @@ struct RawRadixTree(Value = void)
 
         void pop()
         {
-            // TODO Instead use _branchesKeyPrefix.popN((_ranges[$ - 1].prefixLength + 1))
-            // _branchesKeyPrefix.shrinkTo(_branchesKeyPrefix.length -
-            //                             (_ranges[$ - 1].prefixLength + 1));
-            _ranges.shrinkTo(branchCount - 1);
+            // _branchesKeyPrefix.popBackN(_ranges.back.prefixLength + 1);
+            _ranges.popBack();
         }
 
         ref BranchRange bottom()
         {
-            return _ranges[$ - 1];
+            return _ranges.back;
         }
 
         private void verifyBranch1Depth()

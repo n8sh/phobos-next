@@ -1209,6 +1209,7 @@ struct BitSet(uint len, Block = size_t)
     enum n = 8*size_t.sizeof + 37;
     auto bs = BitSet!(n, size_t)();
     assert(bs.allZero);
+    assert(!bs.allOne);
     foreach (const i; 0 .. n - 1)
     {
         bs[i] = true;

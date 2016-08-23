@@ -374,7 +374,7 @@ static assert(IxsN!(2, 3, 8).sizeof == 8);
     assert(x.front == 11);
     assert(x.back == 44);
     assert(!x.full);
-    x.popFront;
+    x.popFront();
     assert(x.equal([22, 33, 44]));
     assert(x.front == 22);
     assert(x.back == 44);
@@ -384,12 +384,12 @@ static assert(IxsN!(2, 3, 8).sizeof == 8);
     assert(x.front == 22);
     assert(x.back == 33);
     assert(!x.full);
-    x.popFront;
+    x.popFront();
     assert(x.equal([33]));
     assert(x.front == 33);
     assert(x.back == 33);
     assert(!x.full);
-    x.popFront;
+    x.popFront();
     assert(x.empty);
     assert(!x.full);
     assert(x.length == 0);
@@ -1207,7 +1207,7 @@ struct RawRadixTree(Value = void)
                 this.leaf1Range = Leaf1Range(branch.leaf1);
             }
 
-            cacheFront;
+            cacheFront();
         }
 
         this(DenseBranch* branch)
@@ -1222,7 +1222,7 @@ struct RawRadixTree(Value = void)
                 this.leaf1Range = Leaf1Range(branch.leaf1);
             }
 
-            cacheFront;
+            cacheFront();
         }
 
         Ix frontIx() const @nogc
@@ -1297,25 +1297,25 @@ struct RawRadixTree(Value = void)
             // pop front element
             if (_subsEmpty)
             {
-                leaf1Range.popFront;
+                leaf1Range.popFront();
             }
             else if (leaf1Range.empty)
             {
-                popBranchFront;
+                popBranchFront();
             }
             else                // both non-empty
             {
                 if (leaf1Range.front <= subFrontIx) // `a` before `ab`
                 {
-                    leaf1Range.popFront;
+                    leaf1Range.popFront();
                 }
                 else
                 {
-                    popBranchFront;
+                    popBranchFront();
                 }
             }
 
-            if (!empty) { cacheFront; }
+            if (!empty) { cacheFront(); }
         }
 
         /** Fill cached value and remember if we we next element is direct
@@ -1791,7 +1791,7 @@ struct RawRadixTree(Value = void)
         void popBranch1Front()
         {
             // TODO _branchesKeyPrefix.popN(_ranges.data[$ - 1]);
-            _ranges[_branch1Depth].popFront;
+            _ranges[_branch1Depth].popFront();
         }
 
         bool emptyBranch1() const
@@ -1869,13 +1869,13 @@ struct RawRadixTree(Value = void)
             if (root)
             {
                 diveAndVisitTreeUnder(root, 0);
-                cacheFront;
+                cacheFront();
             }
         }
 
         void popFront()
         {
-            branchRanges.verifyBranch1Depth;
+            branchRanges.verifyBranch1Depth();
 
             if (branchRanges.hasBranch1Front)
             {
@@ -1883,13 +1883,14 @@ struct RawRadixTree(Value = void)
             }
             else                // if bottommost leaf should be popped
             {
-                leafNRange.popFront;
+                leafNRange.popFront();
                 if (leafNRange.empty)
                 {
                     postPopTreeUpdate();
                 }
             }
-            cacheFront;
+
+            if (!empty) { cacheFront(); }
         }
 
         private void popFrontInBranchLeaf1() // TODO move to member of BranchRanges
@@ -1899,7 +1900,7 @@ struct RawRadixTree(Value = void)
             {
                 // TODO functionize
                 branchRanges.shrinkTo(branchRanges._branch1Depth); // remove `branchRange` and all others below
-                branchRanges.resetBranch1Depth;
+                branchRanges.resetBranch1Depth();
 
                 postPopTreeUpdate();
             }
@@ -1944,7 +1945,7 @@ struct RawRadixTree(Value = void)
         {
             while (branchRanges.branchCount)
             {
-                branchRanges.bottom.popFront;
+                branchRanges.bottom.popFront();
                 if (branchRanges.bottom.empty)
                 {
                     branchRanges.pop();
@@ -2075,15 +2076,13 @@ struct RawRadixTree(Value = void)
         void popFront()
         {
             assert(!empty);
-            _frontRange.popFront;
-            if (!empty) { _frontRange.cacheFront; }
+            _frontRange.popFront();
         }
 
         void popBack()
         {
             assert(!empty);
-            _backRange.popFront;
-            if (!empty) { _backRange.cacheFront; }
+            _backRange.popFront();
         }
 
     private:

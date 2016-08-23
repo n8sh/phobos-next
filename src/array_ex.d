@@ -891,6 +891,20 @@ struct Array(E,
             alias ET = ContainerElementType!(typeof(this), E);
             return cast(const(ET))slice[i];
         }
+
+        /// Get front element.
+        ref const(E) front() const @trusted
+        {
+            assert(!empty); // if (empty) { throw new RangeError(); }
+            return ptr[0];
+        }
+
+        /// Get back element.
+        ref const(E) back() const @trusted
+        {
+            assert(!empty); // if (empty) { throw new RangeError(); }
+            return ptr[_length - 1];
+        }
     }
     else
     {
@@ -914,20 +928,20 @@ struct Array(E,
             alias ET = ContainerElementType!(typeof(this), E);
             return cast(inout(ET))slice[i];
         }
-    }
 
-    /// Get front element.
-    ref inout(E) front() inout @trusted
-    {
-        assert(!empty); // if (empty) { throw new RangeError(); }
-        return ptr[0];
-    }
+        /// Get front element.
+        ref inout(E) front() inout @trusted
+        {
+            assert(!empty); // if (empty) { throw new RangeError(); }
+            return ptr[0];
+        }
 
-    /// Get back element.
-    ref inout(E) back() inout @trusted
-    {
-        assert(!empty); // if (empty) { throw new RangeError(); }
-        return ptr[_length - 1];
+        /// Get back element.
+        ref inout(E) back() inout @trusted
+        {
+            assert(!empty); // if (empty) { throw new RangeError(); }
+            return ptr[_length - 1];
+        }
     }
 
     pure nothrow @nogc:
@@ -987,6 +1001,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     import std.algorithm.sorting : isSorted, sort;
     import std.exception : assertThrown, assertNotThrown;
     import std.traits : isInstanceOf;
+    import std.typecons : Unqual;
 
     alias comp = binaryFun!less; //< comparison
 
@@ -997,7 +1012,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     {
         alias Str = A!(Ch, ordering, supportGC, less);
         Str str;
-        static assert(is(ElementType!Str == Ch));
+        static assert(is(Unqual!(ElementType!Str) == Ch));
         static assert(str.isString);
     }
 
@@ -1025,7 +1040,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         auto bw = fw.array.radial;
 
         A!(E, ordering, supportGC, less) ss0 = bw; // reversed
-        static assert(is(ElementType!(typeof(ss0)) == E));
+        static assert(is(Unqual!(ElementType!(typeof(ss0))) == E));
         static assert(isInstanceOf!(Array, typeof(ss0)));
         assert(ss0.length == n);
 

@@ -4011,7 +4011,7 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey)
 }
 
 /** Remap raw untyped key `ukey` to typed key of type `TypedKey`. */
-static private inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey)
+inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey)
     @safe pure nothrow /* TODO @nogc */
     if (isTrieableKeyType!TypedKey)
 {

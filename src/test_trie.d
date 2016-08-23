@@ -12,10 +12,5 @@ void main(string[] args)
     set.insert(42);
     assert(set.contains(42));
 
-    foreach (e; set[])
-    {
-        writeln(e);
-    }
-
     assert(set[].equal([42]));
 }

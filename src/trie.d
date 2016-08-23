@@ -4025,17 +4025,19 @@ static private inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey)
         static assert(chunkCount*span == nbits, "Bitsize of TypedKey must be a multiple of span:" ~ span.stringof);
 
         // TODO reuse existing trait UnsignedOf!TypedKey
-        static      if (TypedKey.sizeof == 1) { ubyte bKey = 0; }
-        else static if (TypedKey.sizeof == 2) { ushort bKey = 0; }
-        else static if (TypedKey.sizeof == 4) { uint bKey = 0; }
-        else static if (TypedKey.sizeof == 8) { ulong bKey = 0; }
+        static      if (TypedKey.sizeof == 1) { alias RawKey = ubyte; }
+        else static if (TypedKey.sizeof == 2) { alias RawKey = ushort; }
+        else static if (TypedKey.sizeof == 4) { alias RawKey = uint; }
+        else static if (TypedKey.sizeof == 8) { alias RawKey = ulong; }
+
+        RawKey bKey = 0;
 
         // big-endian storage
         foreach (const i; 0 .. chunkCount) // for each chunk index
         {
-            const uix = ukey[i];
+            const RawKey uix = cast(RawKey)ukey[i];
             const bitShift = (chunkCount - 1 - i)*span; // most significant bit chunk first (MSBCF)
-            bKey |= (uix << bitShift) & (radix - 1); // part of value which is also an index
+            bKey |= uix << bitShift; // part of value which is also an index
         }
 
         TypedKey typedKey;

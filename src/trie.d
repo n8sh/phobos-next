@@ -3974,10 +3974,11 @@ static private UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFi
         enum chunkCount = nbits/span; // number of chunks in key_
         static assert(chunkCount*span == nbits, "Bitsize of TypedKey must be a multiple of span:" ~ span.stringof);
 
-        foreach (const bix; 0 .. chunkCount)
+        // big-endian first storage
+        foreach (const i; 0 .. chunkCount) // for each chunk index
         {
-            const bitShift = (chunkCount - 1 - bix)*span; // most significant bit chunk first (MSBCF)
-            preallocatedFixedUKey[bix] = (key_ >> bitShift) & (radix - 1); // part of value which is also an index
+            const bitShift = (chunkCount - 1 - i)*span; // most significant bit chunk first (MSBCF)
+            preallocatedFixedUKey[i] = (key_ >> bitShift) & (radix - 1); // part of value which is also an index
         }
 
         return preallocatedFixedUKey[];
@@ -4037,7 +4038,14 @@ static private inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey)
         }
 
         TypedKey typedKey;
+        dln(bKey);
+        pragma(msg, typeof(bKey));
+        pragma(msg, typeof(typedKey));
+
         bKey.bijectFromUnsigned(typedKey);
+
+        dln(typedKey);
+
         return typedKey;
     }
     else static if (isArray!TypedKey)
@@ -5015,7 +5023,7 @@ private template iotaImpl(size_t to, size_t now)
     else                  { alias iotaImpl = AliasSeq!(now, iotaImpl!(to, now + 1)); }
 }
 
-version(benchmark)
+version(unittest) version(benchmark)
 void main(string[] args)
 {
     benchmark;

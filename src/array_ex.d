@@ -285,8 +285,6 @@ struct Array(E,
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
 
-    // import core.exception : RangeError;
-
     alias ME = Unqual!E; // mutable E
     enum isString = isSomeChar!E;
 
@@ -508,7 +506,7 @@ struct Array(E,
     /** Removal doesn't need to care about ordering. */
     ContainerElementType!(typeof(this), E) linearPopAtIndex(size_t index) @trusted @("complexity", "O(length)")
     {
-        assert(index < _length); // if (index >= _length) { throw new RangeError(); }
+        assert(index < _length);
         checkEmptyPop();
         typeof(return) value = ptr[index]; // TODO move construct?
         // TODO functionize move
@@ -895,14 +893,14 @@ struct Array(E,
         /// Get front element (as constant reference to preserve ordering).
         ref const(E) front() const @trusted
         {
-            assert(!empty); // if (empty) { throw new RangeError(); }
+            assert(!empty);
             return ptr[0];
         }
 
         /// Get back element (as constant reference to preserve ordering).
         ref const(E) back() const @trusted
         {
-            assert(!empty); // if (empty) { throw new RangeError(); }
+            assert(!empty);
             return ptr[_length - 1];
         }
     }
@@ -932,14 +930,14 @@ struct Array(E,
         /// Get front element reference.
         ref inout(E) front() inout @trusted
         {
-            assert(!empty); // if (empty) { throw new RangeError(); }
+            assert(!empty);
             return ptr[0];
         }
 
         /// Get back element reference.
         ref inout(E) back() inout @trusted
         {
-            assert(!empty); // if (empty) { throw new RangeError(); }
+            assert(!empty);
             return ptr[_length - 1];
         }
     }

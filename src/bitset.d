@@ -748,7 +748,7 @@ struct BitSet(uint len, Block = size_t)
         /** Check if this $(D BitSet) has only ones. */
         bool allOne() const @safe @nogc pure nothrow
         {
-            return countOnes == len;
+            return countOnes == len; // TODO optimize by iterating all full blocks and checking if they are all equal to Block.max
         }
         alias full = allOne;
 

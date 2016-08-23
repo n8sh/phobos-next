@@ -4,6 +4,7 @@ import std.algorithm;
 import trie;
 import dbg;
 
+// TODO uncomment test code at trie.d:4329 when this works
 void main(string[] args)
 {
     alias Key = long;

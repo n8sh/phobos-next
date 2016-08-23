@@ -310,7 +310,7 @@ struct IxsN(uint capacity,
         if (ix < capacity)      // assert below memory allocation bound
     {
         assert(ix < _length);   // assert accessing initialized elements
-        return _ixs.ptr[ix];
+        return _ixs.ptr[ix];    // use .ptr because ix < is known at compile to be within bounds (< capacity)
     }
 
     /** Get length. */

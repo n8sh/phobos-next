@@ -610,7 +610,7 @@ struct BitSet(uint len, Block = size_t)
     /** Check if this $(D BitSet) has only zeros. */
     bool allZero() const @safe @nogc pure nothrow
     {
-        // TODO optimize by iterating all full blocks and checking if they are all equal to Block.max
+        // TODO optimize by iterating all full blocks and checking if they are all equal to 0
         foreach (const block; _blocks)
         {
             if (block != 0) { return false; }

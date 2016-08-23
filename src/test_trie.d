@@ -6,8 +6,24 @@ import dbg;
 
 void main(string[] args)
 {
-    alias Key = double;
+    alias Key = long;
     auto set = radixTreeSet!(Key);
-    set.insert(4.2);
-    set[].equal([4.2]);
+
+    const Key top = 1_000_000;
+    foreach (i; 0 .. top)
+    {
+        assert(set.insert(i));
+        assert(!set.insert(i));
+    }
+
+    size_t i = 0;
+    foreach (const e; set[])
+    {
+        if (e != i)
+        {
+            dln("e:", e, " i:", i);
+        }
+        assert(e == i);
+        ++i;
+    }
 }

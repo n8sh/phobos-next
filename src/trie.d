@@ -1225,13 +1225,13 @@ struct RawRadixTree(Value = void)
             cacheFront();
         }
 
-        Ix frontIx() const @nogc
+        pragma(inline) Ix frontIx() const @nogc
         {
             assert(!empty);
             return _frontIx;
         }
 
-        bool atLeaf1() const @nogc
+        pragma(inline) bool atLeaf1() const @nogc
         {
             assert(!empty);
             return _frontAtLeaf1;
@@ -1284,8 +1284,8 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        bool empty() const @nogc { return leaf1Range.empty && _subsEmpty; }
-        bool subsEmpty() const @nogc { return _subsEmpty; }
+        pragma(inline) bool empty() const @nogc { return leaf1Range.empty && _subsEmpty; }
+        pragma(inline) bool subsEmpty() const @nogc { return _subsEmpty; }
 
         /** Try to iterated forward.
             Returns: `true` upon successful forward iteration, `false` otherwise (upon completion of iteration),
@@ -1654,9 +1654,9 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        bool empty() const @nogc { return !leaf; }
+        pragma(inline) bool empty() const @nogc { return !leaf; }
 
-        void makeEmpty() @nogc { leaf = null; }
+        pragma(inline) void makeEmpty() @nogc { leaf = null; }
 
         /** Pop front element. */
         void popFront() /* TODO @nogc */

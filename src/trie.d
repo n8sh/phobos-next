@@ -1825,7 +1825,7 @@ struct RawRadixTree(Value = void)
             _ranges.pushBack(branchRange);
         }
 
-        size_t branchCount() const
+        size_t branchCount() const @safe pure nothrow @nogc
         {
             return _ranges.length;
         }

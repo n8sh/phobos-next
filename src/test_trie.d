@@ -6,8 +6,8 @@ import dbg;
 
 void main(string[] args)
 {
-    alias Key = float;
+    alias Key = double;
     auto set = radixTreeSet!(Key);
-    set.insert(4.2f);
-    set[].equal([4.2f]);
+    set.insert(4.2);
+    set[].equal([4.2]);
 }

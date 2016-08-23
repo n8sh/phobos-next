@@ -30,6 +30,8 @@
     - `set.prefix(tuple("alpha", Lang.en))`           => `Range` of `Tuple!(PoT, Sense)`.
     - `set.prefix(tuple("alpha", Lang.en, PoT.noun))` => `Range` of `Tuple!(Sense)`.
 
+    TODO Sorted Range Primitives
+
     Returns: a range of elements which are equivalent (though not necessarily equal) to value.
     auto equalRange(this This)(inout T value)
 

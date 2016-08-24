@@ -3,6 +3,13 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    SparseBranch #0/4
+    ---DenseLeaf1!void
+
+    should be stored as
+
+    DenseLeaf1!void
+
     TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
 
     TODO Allow NodeType-constructors to take const and immutable prefixes

@@ -38,7 +38,7 @@ void main(string[] args)
 
         if (!ok)
         {
-            dln("rawKey:", rawKey, " key:", key, " i:", i, " ok:", ok);
+            dln("Failed for rawKey:", rawKey, " key:", key, " i:", i, " ok:", ok);
             break;
         }
         assert(key == i);

@@ -10,11 +10,13 @@ void main(string[] args)
     alias Key = ulong;
     auto set = radixTreeSet!(Key);
 
-    const Key top = 256 + 1;    // TODO transformation from 256 to 256+1 is the problem
+    const Key top = 256;    // TODO transformation from 256 to 256+1 is the problem
     foreach (i; 0 .. top)
     {
         assert(!set.contains(i));
+
         assert(set.insert(i));
+
         assert(set.contains(i));
         assert(!set.insert(i));
         assert(set.contains(i));

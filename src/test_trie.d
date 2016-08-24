@@ -36,8 +36,11 @@ void main(string[] args)
         KeyN!(span, Key.sizeof) ukey;
         const rawKey = key.toRawKey(ukey);
 
-        dln("rawKey:", rawKey, " key:", key, " i:", i, " ok:", ok);
-        if (!ok) { break; }
+        if (!ok)
+        {
+            dln("rawKey:", rawKey, " key:", key, " i:", i, " ok:", ok);
+            break;
+        }
         assert(key == i);
         ++i;
     }

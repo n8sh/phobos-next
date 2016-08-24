@@ -1293,30 +1293,37 @@ struct RawRadixTree(Value = void)
         /** Try to iterated forward.
             Returns: `true` upon successful forward iteration, `false` otherwise (upon completion of iteration),
         */
-        void popFront() /* TODO @nogc */
+        void popFront(bool willFail = false) /* TODO @nogc */
         {
             assert(!empty);
+            if (willFail) { dln("HERE: this:", this); }
 
             // pop front element
             if (_subsEmpty)
             {
                 leaf1Range.popFront();
+                if (willFail) { dln("HERE:"); }
             }
             else if (leaf1Range.empty)
             {
-                popBranchFront();
+                popBranchFront(willFail);
+                if (willFail) { dln("HERE:"); }
             }
             else                // both non-empty
             {
                 if (leaf1Range.front <= subFrontIx) // `a` before `ab`
                 {
                     leaf1Range.popFront();
+                    if (willFail) { dln("HERE:"); }
                 }
                 else
                 {
-                    popBranchFront();
+                    popBranchFront(willFail);
+                    if (willFail) { dln("HERE:"); }
                 }
             }
+
+            if (willFail) { dln("HERE: empty:", empty); }
 
             if (!empty) { cacheFront(); }
         }
@@ -1354,7 +1361,7 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        private void popBranchFront()
+        private void popBranchFront(bool willFail)
         {
             // TODO move all calls to Branch-specific members popFront()
             final switch (branch.typeIx) with (Branch.Ix)
@@ -1366,7 +1373,9 @@ struct RawRadixTree(Value = void)
                 break;
             case ix_DenseBranchPtr:
                 auto branch_ = branch.as!(DenseBranch*);
-                _subNodeCounter = branch_.tryNextNonNullSubNodeIx(Ix(0), _subsEmpty);
+                if (willFail) { dln("HERE: _subNodeCounter:", _subNodeCounter, " _subsEmpty:", _subsEmpty); }
+                _subNodeCounter = branch_.tryNextNonNullSubNodeIx(_subNodeCounter, _subsEmpty);
+                if (willFail) { dln("HERE: _subNodeCounter:", _subNodeCounter, " _subsEmpty:", _subsEmpty); }
                 break;
             }
         }
@@ -1877,16 +1886,18 @@ struct RawRadixTree(Value = void)
         void popFront()
         {
             import std.algorithm.comparison : equal;
-            const willFail = _cachedFrontKey[].equal([128, 0, 0, 0, 0, 0, 1, 255]);
+            const willFail = _cachedFrontKey[].equal([128, 0, 0, 0, 0, 0, 255, 255]);
 
             if (willFail)
             {
-                foreach (br; branchRanges._ranges)
+                foreach (const i, const ref branchRange; branchRanges._ranges)
                 {
-                    dln("HERE: ", br);
+                    dln("HERE: i:", i,
+                        " branchRange:", branchRange,
+                        " _cachedFrontIx:", branchRange._cachedFrontIx,
+                        " _subNodeCounter: ", branchRange._subNodeCounter);
                 }
-                dln("HERE: ", branchRanges._ranges[]);
-                dln("HERE: ", *branchRanges._ranges.back.branch.as!(DenseBranch*));
+                // dln("HERE: ", *branchRanges._ranges.back.branch.as!(DenseBranch*));
             }
 
             branchRanges.verifyBranch1Depth();
@@ -1965,7 +1976,9 @@ struct RawRadixTree(Value = void)
             while (branchRanges.branchCount)
             {
                 if (willFail) { dln("HERE"); }
-                branchRanges.bottom.popFront();
+                if (willFail) dln("branchRanges.bottom:", branchRanges.bottom);
+                branchRanges.bottom.popFront(willFail);
+                if (willFail) dln("branchRanges.bottom:", branchRanges.bottom);
                 if (branchRanges.bottom.empty)
                 {
                     if (willFail) { dln("HERE"); }

@@ -3,8 +3,10 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODO
+
     SparseBranch #0/4
-    ---DenseLeaf1!void
+    - DenseLeaf1!void
 
     should be stored as
 

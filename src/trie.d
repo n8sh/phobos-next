@@ -1136,7 +1136,7 @@ struct RawRadixTree(Value = void)
         alias IxElement = Ix;
     }
 
-    auto elementIx(IxElement elt)
+    auto elementIx(inout IxElement elt)
     {
         static if (hasValue)
             return elt.ix;
@@ -1144,7 +1144,7 @@ struct RawRadixTree(Value = void)
             return elt;
     }
 
-    auto elementKey(Element elt)
+    auto elementKey(inout Element elt)
     {
         static if (hasValue)
             return elt.key;
@@ -2522,6 +2522,7 @@ struct RawRadixTree(Value = void)
     /// ditto
     Branch setSub(SparseBranch* curr, Ix subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
     {
+        debug if (willFail) { dln("WILL FAIL: subIx:", subIx); }
         size_t insertionIndex;
         ModStatus modStatus;
         curr = curr.reconstructingInsert(Sub(subIx, subNode), modStatus, insertionIndex);

@@ -3021,6 +3021,7 @@ struct RawRadixTree(Value = void)
                 case ix_DenseLeaf1Ptr:
                     return insertAtLeaf(Leaf1!Value(curr.as!(DenseLeaf1!Value*)), elt, eltRef); // TODO use toLeaf(curr)
                 case ix_SparseBranchPtr:
+                    debug if (willFail) { dln("WILL FAIL: currPrefix:", curr.as!(SparseBranch*).prefix); }
                     return Node(insertAtBranchAbovePrefix(Branch(curr.as!(SparseBranch*)), elt, eltRef));
                 case ix_DenseBranchPtr:
                     return Node(insertAtBranchAbovePrefix(Branch(curr.as!(DenseBranch*)), elt, eltRef));
@@ -4320,15 +4321,24 @@ unittest
     {
         assert(!set.contains(i));
 
-        if (i == 256) { set.willFail = true; }
+        if (i == 256)
+        {
+            set.willFail = true;
+            set.print;
+        }
         assert(set.insert(i));
-        set.willFail = false;
+        if (i == 256)
+        {
+            set.willFail = false;
+            set.print;
+        }
 
         assert(set.contains(i));
         assert(!set.insert(i));
         assert(set.contains(i));
     }
 
+    dln;
     set.print();
 }
 

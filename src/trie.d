@@ -1231,7 +1231,7 @@ struct RawRadixTree(Value = void)
         pragma(inline) Ix frontIx() const @nogc
         {
             assert(!empty);
-            return _frontIx;
+            return _cachedFrontIx;
         }
 
         pragma(inline) bool atLeaf1() const @nogc
@@ -1330,12 +1330,12 @@ struct RawRadixTree(Value = void)
             assert(!empty);
             if (_subsEmpty)
             {
-                _frontIx = leaf1Range.front;
+                _cachedFrontIx = leaf1Range.front;
                 _frontAtLeaf1 = true;
             }
             else if (leaf1Range.empty)
             {
-                _frontIx = subFrontIx;
+                _cachedFrontIx = subFrontIx;
                 _frontAtLeaf1 = false;
             }
             else                // both non-empty
@@ -1343,12 +1343,12 @@ struct RawRadixTree(Value = void)
                 const leaf1Front = leaf1Range.front;
                 if (leaf1Front <= subFrontIx) // `a` before `ab`
                 {
-                    _frontIx = leaf1Front;
+                    _cachedFrontIx = leaf1Front;
                     _frontAtLeaf1 = true;
                 }
                 else
                 {
-                    _frontIx = subFrontIx;
+                    _cachedFrontIx = subFrontIx;
                     _frontAtLeaf1 = false;
                 }
             }
@@ -1376,7 +1376,7 @@ struct RawRadixTree(Value = void)
         Leaf1Range leaf1Range;  // range of direct leaves
 
         Ix _subNodeCounter; // `Branch`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
-        Ix _frontIx;
+        Ix _cachedFrontIx;
 
         bool _frontAtLeaf1;   // `true` iff front is currently at a leaf1 element
         bool _subsEmpty;      // `true` iff no sub-nodes exists
@@ -1876,18 +1876,35 @@ struct RawRadixTree(Value = void)
 
         void popFront()
         {
+            import std.algorithm.comparison : equal;
+            const willFail = _cachedFrontKey[].equal([128, 0, 0, 0, 0, 0, 1, 255]);
+
+            if (willFail)
+            {
+                foreach (br; branchRanges._ranges)
+                {
+                    dln("HERE: ", br);
+                }
+                dln("HERE: ", branchRanges._ranges[]);
+                dln("HERE: ", *branchRanges._ranges.back.branch.as!(DenseBranch*));
+            }
+
             branchRanges.verifyBranch1Depth();
 
             if (branchRanges.hasBranch1Front)
             {
+                if (willFail) { dln("HERE"); }
                 popFrontInBranchLeaf1();
             }
             else                // if bottommost leaf should be popped
             {
+                if (willFail) { dln("leafNRange:", leafNRange); }
                 leafNRange.popFront();
+                if (willFail) { dln("leafNRange:", leafNRange); }
                 if (leafNRange.empty)
                 {
-                    postPopTreeUpdate();
+                    if (willFail) { dln("HERE"); }
+                    postPopTreeUpdate(willFail);
                 }
             }
 
@@ -1942,28 +1959,35 @@ struct RawRadixTree(Value = void)
         }
 
         // Go upwards and iterate forward in parents.
-        private void postPopTreeUpdate()
+        private void postPopTreeUpdate(bool willFail = false)
         {
+            if (willFail) { dln("HERE"); }
             while (branchRanges.branchCount)
             {
+                if (willFail) { dln("HERE"); }
                 branchRanges.bottom.popFront();
                 if (branchRanges.bottom.empty)
                 {
+                    if (willFail) { dln("HERE"); }
                     branchRanges.pop();
                 }
                 else            // if not empty
                 {
+                    if (willFail) { dln("HERE"); }
                     if (branchRanges.bottom.atLeaf1)
                     {
+                        if (willFail) { dln("HERE"); }
                         branchRanges._branch1Depth = min(branchRanges.branchCount - 1,
                                                          branchRanges._branch1Depth);
                     }
                     break;      // branchRanges.bottom is not empty so break
                 }
             }
+            if (willFail) { dln("HERE"); }
             if (branchRanges.branchCount &&
                 !branchRanges.bottom.subsEmpty) // if any sub nodes
             {
+                if (willFail) { dln("HERE"); }
                 diveAndVisitTreeUnder(branchRanges.bottom.subFrontNode,
                                       branchRanges.branchCount); // visit them
             }

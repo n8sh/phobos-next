@@ -1063,7 +1063,7 @@ pragma(inline) bool tryNextIx(Value)(Leaf1!Value curr, const Ix ix, out Ix nextI
             return true;
         }
     case ix_DenseLeaf1Ptr:
-        return curr.as!(DenseLeaf1!Value*).tryFindSetBitIx(Ix(ix + 1), nextIx);
+        return curr.as!(DenseLeaf1!Value*).tryFindNextSetBitIx(ix, nextIx);
     }
 }
 

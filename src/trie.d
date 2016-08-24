@@ -1218,7 +1218,7 @@ struct RawRadixTree(Value = void)
             this.branch = Branch(branch);
 
             this._subNodeCounter = 0; // TODO needed?
-            _subsEmpty = !branch.tryNextSubNodeAtIx(Ix(0), this._subNodeCounter);
+            _subsEmpty = !branch.findSubNodeAtIx(Ix(0), this._subNodeCounter);
 
             if (branch.leaf1)
             {
@@ -1374,7 +1374,7 @@ struct RawRadixTree(Value = void)
             case ix_DenseBranchPtr:
                 auto branch_ = branch.as!(DenseBranch*);
                 if (willFail) { dln("HERE: _subNodeCounter:", _subNodeCounter, " _subsEmpty:", _subsEmpty); }
-                _subNodeCounter = branch_.tryNextNonNullSubNodeIx(_subNodeCounter, _subsEmpty);
+                _subsEmpty = !branch_.findSubNodeAtIx(_subNodeCounter + 1, this._subNodeCounter);
                 if (willFail) { dln("HERE: _subNodeCounter:", _subNodeCounter, " _subsEmpty:", _subsEmpty); }
                 break;
             }
@@ -1886,7 +1886,7 @@ struct RawRadixTree(Value = void)
         void popFront()
         {
             import std.algorithm.comparison : equal;
-            const willFail = _cachedFrontKey[].equal([128, 0, 0, 0, 0, 0, 255, 255]);
+            const willFail = false; // _cachedFrontKey[].equal([128, 0, 0, 0, 0, 0, 255, 255]);
 
             if (willFail)
             {
@@ -2482,7 +2482,7 @@ struct RawRadixTree(Value = void)
             return count;
         }
 
-        pragma(inline) bool tryNextSubNodeAtIx(Ix currIx, out Ix nextIx) inout @nogc
+        pragma(inline) bool findSubNodeAtIx(size_t currIx, out Ix nextIx) inout @nogc
         {
             import std.algorithm : countUntil;
             const cnt = subNodes[currIx .. $].countUntil!(subNode => cast(bool)subNode);
@@ -2492,23 +2492,6 @@ struct RawRadixTree(Value = void)
                 nextIx = Ix(currIx + cnt);
             }
             return hit;
-        }
-
-        pragma(inline) Ix tryNextNonNullSubNodeIx(const Ix ix, out bool emptied) inout @nogc
-        {
-            import std.algorithm : countUntil;
-            const ix_ = subNodes[ix .. $].countUntil!(subNode => cast(bool)subNode); // find next non-zero leaf starting at ix+1
-            if (ix_ == -1)
-            {
-                emptied = true;
-                return ix;      // return last unchanged index
-            }
-            else
-            {
-                const nextIx = ix + 1 + ix_;
-                assert(nextIx < radix);
-                return Ix(nextIx);
-            }
         }
 
         /** Append statistics of tree under `this` into `stats`. */

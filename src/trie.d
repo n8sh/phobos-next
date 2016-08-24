@@ -12,6 +12,8 @@
 
     DenseLeaf1!void
 
+    Incorrect transformation radixTreeSet!ulong when going from 256 to 256+1 iota-elements. See test_trie for details
+
     TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
 
     TODO Allow NodeType-constructors to take const and immutable prefixes

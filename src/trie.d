@@ -3049,11 +3049,13 @@ struct RawRadixTree(Value = void)
             {
                 if (currPrefix.length == 0) // no current prefix
                 {
+                    debug if (willFail) { dln("WILL FAIL"); }
                     // NOTE: prefix:"", key:"cd"
                     return insertAtBranchBelowPrefix(curr, elt, eltRef);
                 }
                 else  // if (currPrefix.length >= 1) // non-empty current prefix
                 {
+                    debug if (willFail) { dln("WILL FAIL"); }
                     // NOTE: prefix:"ab", key:"cd"
                     auto currSubIx = currPrefix[0]; // subIx = 'a'
                     popFrontNPrefix(curr, 1);
@@ -3066,11 +3068,13 @@ struct RawRadixTree(Value = void)
             {
                 if (matchedKeyPrefix.length == currPrefix.length)
                 {
+                    debug if (willFail) { dln("WILL FAIL"); }
                     // NOTE: key is an extension of prefix: prefix:"ab", key:"abcd"
                     return insertAtBranchBelowPrefix(curr, elementKeyDropExactly(elt, currPrefix.length), eltRef);
                 }
                 else
                 {
+                    debug if (willFail) { dln("WILL FAIL"); }
                     // NOTE: prefix and key share beginning: prefix:"ab11", key:"ab22"
                     auto currSubIx = currPrefix[matchedKeyPrefix.length]; // need index first before we modify curr.prefix
                     popFrontNPrefix(curr, matchedKeyPrefix.length + 1);
@@ -3081,6 +3085,7 @@ struct RawRadixTree(Value = void)
             }
             else // if (matchedKeyPrefix.length == key.length)
             {
+                debug if (willFail) { dln("WILL FAIL"); }
                 assert(matchedKeyPrefix.length == key.length);
                 if (matchedKeyPrefix.length < currPrefix.length)
                 {
@@ -3133,13 +3138,15 @@ struct RawRadixTree(Value = void)
                                       " eltRef:", eltRef); }
             if (key.length == 1)
             {
+                debug if (willFail) { dln("WILL FAIL"); }
                 static if (hasValue)
                     return insertAtLeafOfBranch(curr, key[0], elt.value, eltRef);
                 else
                     return insertAtLeafOfBranch(curr, key[0], eltRef);
             }
-            else
+            else                // key.length >= 2
             {
+                debug if (willFail) { dln("WILL FAIL"); }
                 const subIx = key[0];
                 static if (hasValue)
                     return setSub(curr, subIx,

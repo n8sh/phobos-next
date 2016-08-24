@@ -4275,7 +4275,7 @@ struct RadixTree(Key, Value)
     /** Print `this` tree. */
     void print() @safe const { _rawTree.print(); }
 
-    private RawTree _rawTree;
+    RawTree _rawTree;
     alias _rawTree this;
 }
 alias PatriciaTrie = RadixTree;
@@ -4307,6 +4307,29 @@ auto radixTreeSet(Key)()
 auto radixTreeMap(Key, Value)()
 {
     return RadixTree!(MutableKey!Key, Value)(false);
+}
+
+// TODO @safe pure nothrow
+unittest
+{
+    alias Key = ulong;
+    auto set = radixTreeSet!(Key);
+
+    const Key top = 256 + 1;    // TODO transformation from 256 to 256+1 is the problem
+    foreach (i; 0 .. top)
+    {
+        assert(!set.contains(i));
+
+        if (i == 256) { set.willFail = true; }
+        assert(set.insert(i));
+        set.willFail = false;
+
+        assert(set.contains(i));
+        assert(!set.insert(i));
+        assert(set.contains(i));
+    }
+
+    set.print();
 }
 
 auto testScalar(uint span, Keys...)()

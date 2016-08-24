@@ -1296,34 +1296,27 @@ struct RawRadixTree(Value = void)
         void popFront(bool willFail = false) /* TODO @nogc */
         {
             assert(!empty);
-            if (willFail) { dln("HERE: this:", this); }
 
             // pop front element
             if (_subsEmpty)
             {
                 leaf1Range.popFront();
-                if (willFail) { dln("HERE:"); }
             }
             else if (leaf1Range.empty)
             {
                 popBranchFront(willFail);
-                if (willFail) { dln("HERE:"); }
             }
             else                // both non-empty
             {
                 if (leaf1Range.front <= subFrontIx) // `a` before `ab`
                 {
                     leaf1Range.popFront();
-                    if (willFail) { dln("HERE:"); }
                 }
                 else
                 {
                     popBranchFront(willFail);
-                    if (willFail) { dln("HERE:"); }
                 }
             }
-
-            if (willFail) { dln("HERE: empty:", empty); }
 
             if (!empty) { cacheFront(); }
         }
@@ -1373,9 +1366,7 @@ struct RawRadixTree(Value = void)
                 break;
             case ix_DenseBranchPtr:
                 auto branch_ = branch.as!(DenseBranch*);
-                if (willFail) { dln("HERE: _subNodeCounter:", _subNodeCounter, " _subsEmpty:", _subsEmpty); }
                 _subsEmpty = !branch_.findSubNodeAtIx(_subNodeCounter + 1, this._subNodeCounter);
-                if (willFail) { dln("HERE: _subNodeCounter:", _subNodeCounter, " _subsEmpty:", _subsEmpty); }
                 break;
             }
         }
@@ -1888,33 +1879,29 @@ struct RawRadixTree(Value = void)
             import std.algorithm.comparison : equal;
             const willFail = false; // _cachedFrontKey[].equal([128, 0, 0, 0, 0, 0, 255, 255]);
 
-            if (willFail)
-            {
-                foreach (const i, const ref branchRange; branchRanges._ranges)
-                {
-                    dln("HERE: i:", i,
-                        " branchRange:", branchRange,
-                        " _cachedFrontIx:", branchRange._cachedFrontIx,
-                        " _subNodeCounter: ", branchRange._subNodeCounter);
-                }
-                // dln("HERE: ", *branchRanges._ranges.back.branch.as!(DenseBranch*));
-            }
+            // if (willFail)
+            // {
+            //     foreach (const i, const ref branchRange; branchRanges._ranges)
+            //     {
+            //         dln("HERE: i:", i,
+            //             " branchRange:", branchRange,
+            //             " _cachedFrontIx:", branchRange._cachedFrontIx,
+            //             " _subNodeCounter: ", branchRange._subNodeCounter);
+            //     }
+            //     // dln("HERE: ", *branchRanges._ranges.back.branch.as!(DenseBranch*));
+            // }
 
             branchRanges.verifyBranch1Depth();
 
             if (branchRanges.hasBranch1Front)
             {
-                if (willFail) { dln("HERE"); }
                 popFrontInBranchLeaf1();
             }
             else                // if bottommost leaf should be popped
             {
-                if (willFail) { dln("leafNRange:", leafNRange); }
                 leafNRange.popFront();
-                if (willFail) { dln("leafNRange:", leafNRange); }
                 if (leafNRange.empty)
                 {
-                    if (willFail) { dln("HERE"); }
                     postPopTreeUpdate(willFail);
                 }
             }
@@ -1972,35 +1959,26 @@ struct RawRadixTree(Value = void)
         // Go upwards and iterate forward in parents.
         private void postPopTreeUpdate(bool willFail = false)
         {
-            if (willFail) { dln("HERE"); }
             while (branchRanges.branchCount)
             {
-                if (willFail) { dln("HERE"); }
-                if (willFail) dln("branchRanges.bottom:", branchRanges.bottom);
                 branchRanges.bottom.popFront(willFail);
-                if (willFail) dln("branchRanges.bottom:", branchRanges.bottom);
                 if (branchRanges.bottom.empty)
                 {
-                    if (willFail) { dln("HERE"); }
                     branchRanges.pop();
                 }
                 else            // if not empty
                 {
-                    if (willFail) { dln("HERE"); }
                     if (branchRanges.bottom.atLeaf1)
                     {
-                        if (willFail) { dln("HERE"); }
                         branchRanges._branch1Depth = min(branchRanges.branchCount - 1,
                                                          branchRanges._branch1Depth);
                     }
                     break;      // branchRanges.bottom is not empty so break
                 }
             }
-            if (willFail) { dln("HERE"); }
             if (branchRanges.branchCount &&
                 !branchRanges.bottom.subsEmpty) // if any sub nodes
             {
-                if (willFail) { dln("HERE"); }
                 diveAndVisitTreeUnder(branchRanges.bottom.subFrontNode,
                                       branchRanges.branchCount); // visit them
             }
@@ -4353,28 +4331,9 @@ auto testScalar(uint span, Keys...)()
                 assert(!set.insert(key)); // reinsert same value returns `false` (already in set)
             }
 
-            // static if (!is(Key == float) &&
-            //            !is(Key == double) &&
-            //            !is(Key == long))
-            // {
-            //     dln("Key:", Key.stringof);
-            //     size_t i = 0;
-            //     foreach (const e; set[])
-            //     {
-            //         import std.conv : to;
-            //         const expected = i + low;
-            //         if (e != expected)
-            //         {
-            //             dln("Failed: value:", e, " expected:", expected, " i:", i, " low:", low);
-            //         }
-            //         // assert(e == low + i, "Failed for " ~ i.to!string);
-            //         ++i;
-            //     }
-
-            //     // import std.algorithm.comparison : equal;
-            //     // import std.algorithm : map;
-            //     // assert(set[].equal(low.iota(high + 1).map!(uk => cast(Key)uk)));
-            // }
+            import std.algorithm.comparison : equal;
+            import std.algorithm : map;
+            assert(set[].equal(low.iota(high + 1).map!(uk => cast(Key)uk)));
         }
     }
 }

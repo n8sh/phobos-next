@@ -7,7 +7,7 @@ import dbg;
 // TODO uncomment test code at trie.d:4329 when this works
 void main(string[] args)
 {
-    alias Key = long;
+    alias Key = double;
     auto set = radixTreeSet!(Key);
 
     const Key top = 100_000;
@@ -44,6 +44,4 @@ void main(string[] args)
         assert(key == i);
         ++i;
     }
-
-    set.print;
 }

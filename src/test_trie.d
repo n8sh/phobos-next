@@ -2,7 +2,6 @@
 
 import std.algorithm;
 import trie;
-import dbg;
 
 // TODO uncomment test code at trie.d:4329 when this works
 void main(string[] args)
@@ -34,15 +33,9 @@ void main(string[] args)
     foreach (const ref key; set[])
     {
         const ok = key == i;
-
         KeyN!(span, Key.sizeof) ukey;
         const rawKey = key.toRawKey(ukey);
-
-        if (!ok)
-        {
-            dln("Failed for rawKey:", rawKey, " key:", key, " i:", i, " ok:", ok);
-            break;
-        }
+        // if (!ok) { dln("Failed for rawKey:", rawKey, " key:", key, " i:", i, " ok:", ok); break; }
         assert(key == i);
         ++i;
     }

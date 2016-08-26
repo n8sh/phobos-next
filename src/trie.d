@@ -19,7 +19,7 @@
 
     TODO Add sortedness to `IxsN` and make `IxsN.contains()` use `binarySearch()`. Make use of `sortn`.
 
-    TODO Check for case when expanding to bit-branch instead of SparseBranch in all `expand()` overloads
+    TODO Check for case when expanding to bit-branch instead of `SparseBranch` in all `expand()` overloads
 
     TODO Make array indexing/slicing as @trusted and use .ptr[] instead of [] when things are stable.
 

@@ -2758,6 +2758,7 @@ struct RawRadixTree(Value = void)
                     }
                     else
                     {
+                        keyPrefixRest = keyPrefix;
                         return curr;
                     }
                 }
@@ -2786,6 +2787,7 @@ struct RawRadixTree(Value = void)
                     }
                     else
                     {
+                        keyPrefixRest = keyPrefix;
                         return curr;
                     }
                 }
@@ -4325,28 +4327,32 @@ struct RadixTree(Key, Value)
         return Range(_rawTree._root);
     }
 
+    /** Get range over elements whose key starts with `keyPrefix`.
+        The element equal to `keyPrefix` is return as an empty instance of the type.
+     */
     pragma(inline) auto prefix(Key keyPrefix) const
     {
         KeyN!(span, Key.sizeof) ukey;
         auto rawKeyPrefix = keyPrefix.toRawKey(ukey[]);
 
         UKey rawKeyPrefixRest;
-        auto range = Range(_rawTree.prefix(rawKeyPrefix, rawKeyPrefixRest));
+        auto rawRange = RawRange(_rawTree.prefix(rawKeyPrefix, rawKeyPrefixRest));
         dln(rawKeyPrefixRest);
 
         static if (hasValue)
         {
-            return range;
+            assert(false, "TODO");
         }
         else
         {
-            // import std.algorithm.iteration : filter, map;
-            // import std.algorithm : startsWith;
-            // return range.filter!(k => startsWith(rawKeyPrefixRest)).map!(k => k.skipOver(rawKeyPrefixRest));
-            return range;
+            import std.algorithm.iteration : filter, map;
+            import std.algorithm : startsWith;
+            return rawRange.filter!(rawKey => rawKey.startsWith(rawKeyPrefixRest))
+                           .map!(rawKey => rawKey[rawKeyPrefixRest.length .. $].toTypedKey!Key);
         }
     }
 
+    /** Typed Range. */
     private static struct Range
     {
         this(RawTree.Node root) { _rawRange = _rawTree.Range(root); }
@@ -4366,17 +4372,24 @@ struct RadixTree(Key, Value)
             else                         { return key; }
         }
 
-        auto rawFront() const /* TODO @nogc */
+        RawTree.Range _rawRange;
+        alias _rawRange this;
+    }
+
+    /** Raw Range. */
+    private static struct RawRange
+    {
+        this(RawTree.Node root) { _rawRange = _rawTree.Range(root); }
+
+        static if (RawTree.hasValue)
         {
-            const key = _rawRange._frontRange.frontKey;
-            static if (RawTree.hasValue) { return tuple(key, _rawRange._frontRange._cachedFrontValue); }
-            else                         { return key; }
+            auto front() const /* TODO @nogc */ { return tuple(_rawRange._frontRange.frontKey, _rawRange._frontRange._cachedFrontValue); }
+            auto back() const /* TODO @nogc */ { return tuple(_rawRange._backRange.frontKey, _rawRange._backRange._cachedFrontValue);}
         }
-        auto rawBack() const /* TODO @nogc */
+        else
         {
-            const key = _rawRange._backRange.frontKey;
-            static if (RawTree.hasValue) { return tuple(key, _rawRange._backRange._cachedFrontValue); }
-            else                         { return key; }
+            auto front() const /* TODO @nogc */ { return _rawRange._frontRange.frontKey; }
+            auto back() const /* TODO @nogc */ { return _rawRange._backRange.frontKey; }
         }
 
         RawTree.Range _rawRange;

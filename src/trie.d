@@ -1032,11 +1032,11 @@ pragma(inline) UIx firstIx(Value)(Leaf1!Value curr)
     case undefined: assert(false);
     case ix_HeptLeaf1:
     case ix_SparseLeaf1Ptr:
-        return UIx(0);           // always first
+        return 0;           // always first
     case ix_DenseLeaf1Ptr:
         auto curr_ = curr.as!(DenseLeaf1!Value*);
         UIx nextIx;
-        const bool hit = curr_.tryFindSetBitIx(UIx(0), nextIx);
+        const bool hit = curr_.tryFindSetBitIx(0, nextIx);
         assert(hit);
         return nextIx;
     }
@@ -1213,7 +1213,7 @@ struct RawRadixTree(Value = void)
             this.branch = Branch(branch);
 
             this._subsEmpty = branch.subCount == 0;
-            this._subNodeCounter = Ix(0); // always zero
+            this._subNodeCounter = 0; // always zero
 
             if (branch.leaf1)
             {
@@ -1228,7 +1228,7 @@ struct RawRadixTree(Value = void)
             this.branch = Branch(branch);
 
             this._subNodeCounter = 0; // TODO needed?
-            _subsEmpty = !branch.findSubNodeAtIx(UIx(0), this._subNodeCounter);
+            _subsEmpty = !branch.findSubNodeAtIx(0, this._subNodeCounter);
 
             if (branch.leaf1)
             {

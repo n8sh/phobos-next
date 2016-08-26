@@ -15,6 +15,10 @@ void main(string[] args)
     set.insert("all");
 
     import dbg;
+    foreach (const e; set[])
+    {
+        dln(e);
+    }
     foreach (const e; set.prefix("a"))
     {
         dln(e);

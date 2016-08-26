@@ -4358,15 +4358,13 @@ struct RadixTree(Key, Value)
 
         auto front() const /* TODO @nogc */
         {
-            const ukey = _rawRange._frontRange.frontKey;
-            const key = ukey.toTypedKey!Key;
+            const key = _rawRange._frontRange.frontKey.toTypedKey!Key;
             static if (RawTree.hasValue) { return tuple(key, _rawRange._frontRange._cachedFrontValue); }
             else                         { return key; }
         }
         auto back() const /* TODO @nogc */
         {
-            const ukey = _rawRange._backRange.frontKey;
-            const key = ukey.toTypedKey!Key;
+            const key = _rawRange._backRange.frontKey.toTypedKey!Key;
             static if (RawTree.hasValue) { return tuple(key, _rawRange._backRange._cachedFrontValue); }
             else                         { return key; }
         }

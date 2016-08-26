@@ -3,8 +3,6 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
-    TODO Assert that iota!ubyte are stored in SparseLeaf1/DenseLeaf1
-
     TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
 
     TODO Allow NodeType-constructors to take const and immutable prefixes

@@ -13,6 +13,8 @@ void main(string[] args)
     set.insert("a");
     set.insert("al");
     set.insert("all");
+    set.insert("allies");
+    set.insert("ally");
 
     enum show = true;
     if (show)
@@ -35,6 +37,8 @@ void main(string[] args)
               .equal(["",
                       "l",
                       "ll",
+                      "llies",
+                      "lly",
                       "lpha",
                       "lphabet"]));
 }

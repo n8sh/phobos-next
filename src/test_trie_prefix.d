@@ -33,6 +33,4 @@ void main(string[] args)
                       "ll",
                       "lpha",
                       "lphabet"]));
-
-    set.print();
 }

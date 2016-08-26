@@ -7,10 +7,10 @@ import dbg;
 // TODO uncomment test code at trie.d:4329 when this works
 void main(string[] args)
 {
-    alias Key = ulong;
+    alias Key = ubyte;
     auto set = radixTreeSet!(Key);
 
-    const Key top = 65536;    // TODO transformation from 256 to 256+1 is the problem
+    const size_t top = 256;
     foreach (const i; 0 .. top)
     {
         assert(!set.contains(i));

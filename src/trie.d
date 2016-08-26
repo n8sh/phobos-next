@@ -4048,28 +4048,33 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey)
 
         return preallocatedFixedUKey[];
     }
-    else static if (isArray!TypedKey &&
-                    is(Unqual!(typeof(TypedKey.init[0])) == char)) // TODO extend to support isTrieableKeyType!TypedKey
+    else static if (isArray!TypedKey)
     {
-        import std.string : representation;
-        const ubyte[] ukey = typedKey.representation; // lexical byte-order
-        return cast(Ix[])ukey;                        // TODO needed?
-    }
-    else static if (isArray!TypedKey &&
-                    is(Unqual!(typeof(TypedKey.init[0])) == wchar))
-    {
-        const ushort[] rKey = typedKey.representation; // lexical byte-order.
-        // TODO MSByte-order of elements in rKey for ordered access and good branching performance
-        const ubyte[] ukey = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
-        return ukey;
-    }
-    else static if (isArray!TypedKey &&
-                    is(Unqual!(typeof(TypedKey.init[0])) == dchar))
-    {
-        const uint[] rKey = typedKey.representation; // lexical byte-order
-        // TODO MSByte-order of elements in rKey for ordered access and good branching performance
-        const ubyte[] key = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
-        return ukey;
+        alias E = Unqual!(typeof(TypedKey.init[0]));
+        static if (is(E == char)) // TODO extend to support isTrieableKeyType!TypedKey
+        {
+            import std.string : representation;
+            const ubyte[] ukey = typedKey.representation; // lexical byte-order
+            return cast(Ix[])ukey;                        // TODO needed?
+        }
+        else static if (is(E == wchar))
+        {
+            const ushort[] rKey = typedKey.representation; // lexical byte-order.
+            // TODO MSByte-order of elements in rKey for ordered access and good branching performance
+            const ubyte[] ukey = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
+            return ukey;
+        }
+        else static if (is(E == dchar))
+        {
+            const uint[] rKey = typedKey.representation; // lexical byte-order
+            // TODO MSByte-order of elements in rKey for ordered access and good branching performance
+            const ubyte[] key = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
+            return ukey;
+        }
+        else
+        {
+            static assert(false, "TODO Handle typed key " ~ TypedKey.stringof);
+        }
     }
     else
     {

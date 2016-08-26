@@ -107,7 +107,7 @@ struct WordVariant(Types...)
     /// Construction from sub-variant `value`.
     this(SubTypes...)(WordVariant!(SubTypes) value) { initializeFromSub(value); }
 
-    /// Copy construction.
+    /// Copy construction (postblit).
     this(this) {}
 
     /// Assignment from `that`.

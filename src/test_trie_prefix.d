@@ -20,13 +20,23 @@ void main(string[] args)
     if (show)
     {
         import dbg;
+        import std.stdio;
+
         foreach (const e; set[])
         {
             dln(`"`, e, `"`);
         }
-        import std.stdio;
+
         writeln();
+
         foreach (const e; set.prefix(`a`))
+        {
+            dln(`"`, e, `"`);
+        }
+
+        writeln();
+
+        foreach (const e; set.prefix(`all`))
         {
             dln(`"`, e, `"`);
         }

@@ -3087,7 +3087,7 @@ struct RawRadixTree(Value = void)
                         popFrontNPrefix(curr, 1);
                         auto next = constructVariableLength!(DefaultBranch)(2, null,
                                                                             Sub(currSubIx, Node(curr)));
-                        return insertAtBranchAbovePrefix(typeof(return)(next), elt, eltRef);
+                        return insertAtBranchAbovePrefix(Branch(next), elt, eltRef);
                     }
                 }
             }
@@ -3107,7 +3107,7 @@ struct RawRadixTree(Value = void)
                     popFrontNPrefix(curr, matchedKeyPrefix.length + 1);
                     auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix,
                                                                         Sub(currSubIx, Node(curr)));
-                    return insertAtBranchBelowPrefix(typeof(return)(next), elementKeyDropExactly(elt, matchedKeyPrefix.length), eltRef);
+                    return insertAtBranchBelowPrefix(Branch(next), elementKeyDropExactly(elt, matchedKeyPrefix.length), eltRef);
                 }
             }
             else // if (matchedKeyPrefix.length == key.length)
@@ -3123,7 +3123,7 @@ struct RawRadixTree(Value = void)
                     popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
                     auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
                                                                         Sub(currSubIx, Node(curr)));
-                    return insertAtBranchBelowPrefix(typeof(return)(next), elementKeyDropExactly(elt, nextPrefixLength), eltRef);
+                    return insertAtBranchBelowPrefix(Branch(next), elementKeyDropExactly(elt, nextPrefixLength), eltRef);
                 }
                 else /* if (matchedKeyPrefix.length == currPrefix.length) and in turn
                         if (key.length == currPrefix.length */
@@ -3135,9 +3135,9 @@ struct RawRadixTree(Value = void)
                     auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
                                                                         Sub(currSubIx, Node(curr)));
                     static if (hasValue)
-                        return insertAtBranchLeaf1(typeof(return)(next), key[$ - 1], elt.value, eltRef);
+                        return insertAtBranchLeaf1(Branch(next), key[$ - 1], elt.value, eltRef);
                     else
-                        return insertAtBranchLeaf1(typeof(return)(next), key[$ - 1], eltRef);
+                        return insertAtBranchLeaf1(Branch(next), key[$ - 1], eltRef);
                 }
             }
         }
@@ -3152,21 +3152,29 @@ struct RawRadixTree(Value = void)
             return next;
         }
 
-        Branch insertAtBranchSubNode(Branch curr, Element elt, out EltRef eltRef)
+        static if (hasValue)
         {
-            debug if (willFail) { dln("WILL FAIL"); }
-            auto key = elementKey(elt);
-            const subIx = key[0];
-            static if (hasValue)
+            pragma(inline) Branch insertAtBranchSubNode(Branch curr, UKey key, Value value, out EltRef eltRef)
+            {
+                debug if (willFail) { dln("WILL FAIL"); }
+                const subIx = key[0];
                 return setSub(curr, subIx,
                               insertAt(getSub(curr, subIx), // recurse
-                                       Element(key[1 .. $], elt.value),
+                                       Element(key[1 .. $], value),
                                        eltRef));
-            else
+            }
+        }
+        else
+        {
+            pragma(inline) Branch insertAtBranchSubNode(Branch curr, UKey key, out EltRef eltRef)
+            {
+                debug if (willFail) { dln("WILL FAIL"); }
+                const subIx = key[0];
                 return setSub(curr, subIx,
                               insertAt(getSub(curr, subIx), // recurse
                                        key[1 .. $],
                                        eltRef));
+            }
         }
 
         /** Insert `key` into sub-tree under branch `curr` below prefix, that is
@@ -3189,7 +3197,10 @@ struct RawRadixTree(Value = void)
             }
             else                // key.length >= 2
             {
-                return insertAtBranchSubNode(curr, elt, eltRef);
+                static if (hasValue)
+                    return insertAtBranchSubNode(curr, key, elt.value, eltRef);
+                else
+                    return insertAtBranchSubNode(curr, key, eltRef);
             }
         }
 

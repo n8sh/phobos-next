@@ -168,6 +168,23 @@ auto mod(size_t m, T = TypeOfModulo!m)(T value)
 ///
 @safe pure nothrow @nogc unittest
 {
+    enum m = 256;
+    Mod!(m, ubyte) ub = m - 1;
+    Mod!(m, uint) ui = m - 1;
+    assert(ub == ui);
+    --ub;
+    assert(ub != ui);
+    ui = ub;
+    assert(ub == ui);
+    --ui;
+    assert(ub != ui);
+    ub = ui;
+    assert(ub == ui);
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
     static assert(is(typeof(Mod!3(1)) ==
                      typeof(1.mod!3)));
 

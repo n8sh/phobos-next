@@ -124,7 +124,7 @@ mixin template genOps(I)
 }
 
 /** Generate `opIndex` and `opSlice`. */
-mixin template genTrustedUncheckedOps(I)
+mixin template genTrustedUncheckedOps(I, size_t length)
 {
     @trusted:
     auto ref at(size_t i)() inout
@@ -221,7 +221,7 @@ struct IndexedBy(R, string IndexTypeName)
         // dummy variable needed for symbol argument to `genTrustedUncheckedOps`
         mixin(`private static alias I__ = ` ~ IndexTypeName ~ `;`);
 
-        mixin genTrustedUncheckedOps!(I__); // no range checking needed because I is always < R.length
+        mixin genTrustedUncheckedOps!(I__, R.length); // no range checking needed because I is always < R.length
 
         /** Get index of element `E` wrapped in a bool-convertable struct. */
         auto findIndex(E)(E e) @safe pure nothrow @nogc

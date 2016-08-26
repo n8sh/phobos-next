@@ -140,7 +140,8 @@ struct BitSet(uint len, Block = size_t)
 
             Avoids range-checking because `i` of type is bound to (0 .. len-1).
         */
-        pragma(inline) bool opIndex(Mod!len i) const @trusted pure nothrow
+        pragma(inline) bool opIndex(ModUInt)(Mod!(len, ModUInt) i) const @trusted pure nothrow
+            if (isUnsigned!ModUInt)
         {
             static if (Block.sizeof == 8)
             {
@@ -193,7 +194,8 @@ struct BitSet(uint len, Block = size_t)
     static if (len >= 1)
     {
         /** Sets the $(D i)'th bit in the $(D BitSet). No range checking needed. */
-        pragma(inline) bool opIndexAssign(bool b, Mod!len i) @trusted pure nothrow
+        pragma(inline) bool opIndexAssign(ModUInt)(bool b, Mod!(len, ModUInt) i) @trusted pure nothrow
+            if (isUnsigned!ModUInt)
         {
             b ? bts(ptr, cast(size_t)i) : btr(ptr, cast(size_t)i);
             return b;

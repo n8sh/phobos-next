@@ -126,9 +126,11 @@ private enum radix = 2^^span;
 static assert(span == 8, "Radix is currently limited to 8");
 static assert(size_t.sizeof == 8, "Currently requires a 64-bit CPU (size_t.sizeof == 8)");
 
-/** Radix Modulo Index */
-alias Ix = Mod!(radix, ubyte); // restricted index type avoids range checking in array indexing below
-alias UIx = Mod!(radix, uint); // restricted index type avoids range checking in array indexing below
+/** Radix Modulo Index
+    Restricted index type avoids range checking in array indexing below.
+*/
+alias Ix = Mod!(radix, ubyte);
+alias UIx = Mod!(radix, uint);
 
 /** Mutable RawTree Key. */
 alias Key(size_t span) = Mod!(2^^span)[]; // TODO use bitset to more naturally support span != 8.

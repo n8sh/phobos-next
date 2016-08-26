@@ -3072,23 +3072,23 @@ struct RawRadixTree(Value = void)
                 {
                     debug if (willFail) { dln("WILL FAIL"); }
                     // NOTE: prefix:"ab", key:"cd"
-                    auto currSubIx = currPrefix[0]; // subIx = 'a'
+                    const currSubIx = currPrefix[0]; // subIx = 'a'
 
                     // TODO functionize
-                    DefaultBranch next;
                     debug if (willFail) { dln("WILL FAIL"); }
                     if (currPrefix.length == 1 && getSubCount(curr) == 0) // if `curr`-prefix become empty and only leaf pointer
                     {
-                        popFrontNPrefix(curr, 1); // `curr` prefix will become empty
-                        next = constructVariableLength!(DefaultBranch)(2, null,
-                                                                       Sub(currSubIx, Node(curr)));
-                        return insertAtBranchAbovePrefix(typeof(return)(next), elt, eltRef);
+                        popFrontNPrefix(curr, 1);
+                        setSub(curr, currSubIx, Node(getLeaf1(curr))); // move it to sub
+                        setLeaf1(curr, Leaf1!Value.init);
+
+                        return insertAtBranchBelowPrefix(curr, elt, eltRef); // directly call below because `curr`-prefix is now empty
                     }
                     else
                     {
                         popFrontNPrefix(curr, 1);
-                        next = constructVariableLength!(DefaultBranch)(2, null,
-                                                                       Sub(currSubIx, Node(curr)));
+                        auto next = constructVariableLength!(DefaultBranch)(2, null,
+                                                                            Sub(currSubIx, Node(curr)));
                         return insertAtBranchAbovePrefix(typeof(return)(next), elt, eltRef);
                     }
                 }
@@ -3105,7 +3105,7 @@ struct RawRadixTree(Value = void)
                 {
                     debug if (willFail) { dln("WILL FAIL"); }
                     // NOTE: prefix and key share beginning: prefix:"ab11", key:"ab22"
-                    auto currSubIx = currPrefix[matchedKeyPrefix.length]; // need index first before we modify curr.prefix
+                    const currSubIx = currPrefix[matchedKeyPrefix.length]; // need index first before we modify curr.prefix
                     popFrontNPrefix(curr, matchedKeyPrefix.length + 1);
                     auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix,
                                                                         Sub(currSubIx, Node(curr)));
@@ -3121,7 +3121,7 @@ struct RawRadixTree(Value = void)
                     // NOTE: prefix is an extension of key: prefix:"abcd", key:"ab"
                     assert(matchedKeyPrefix.length);
                     const nextPrefixLength = matchedKeyPrefix.length - 1;
-                    auto currSubIx = currPrefix[nextPrefixLength]; // need index first
+                    const currSubIx = currPrefix[nextPrefixLength]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
                     auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
                                                                         Sub(currSubIx, Node(curr)));
@@ -3132,14 +3132,14 @@ struct RawRadixTree(Value = void)
                 {
                     // NOTE: prefix equals key: prefix:"abcd", key:"abcd"
                     assert(matchedKeyPrefix.length);
-                    auto currSubIx = currPrefix[matchedKeyPrefix.length - 1]; // need index first
+                    const currSubIx = currPrefix[matchedKeyPrefix.length - 1]; // need index first
                     popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
                     auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
                                                                         Sub(currSubIx, Node(curr)));
                     static if (hasValue)
-                        return insertAtLeafOfBranch(typeof(return)(next), key[$ - 1], elt.value, eltRef);
+                        return insertAtBranchLeaf1(typeof(return)(next), key[$ - 1], elt.value, eltRef);
                     else
-                        return insertAtLeafOfBranch(typeof(return)(next), key[$ - 1], eltRef);
+                        return insertAtBranchLeaf1(typeof(return)(next), key[$ - 1], eltRef);
                 }
             }
         }
@@ -3152,6 +3152,23 @@ struct RawRadixTree(Value = void)
             auto next = insertAtBranchAbovePrefix(curr, elt, eltRef);
             assert(eltRef);
             return next;
+        }
+
+        Branch insertAtBranchSubNode(Branch curr, Element elt, out EltRef eltRef)
+        {
+            debug if (willFail) { dln("WILL FAIL"); }
+            auto key = elementKey(elt);
+            const subIx = key[0];
+            static if (hasValue)
+                return setSub(curr, subIx,
+                              insertAt(getSub(curr, subIx), // recurse
+                                       Element(key[1 .. $], elt.value),
+                                       eltRef));
+            else
+                return setSub(curr, subIx,
+                              insertAt(getSub(curr, subIx), // recurse
+                                       key[1 .. $],
+                                       eltRef));
         }
 
         /** Insert `key` into sub-tree under branch `curr` below prefix, that is
@@ -3167,26 +3184,14 @@ struct RawRadixTree(Value = void)
                                       " eltRef:", eltRef); }
             if (key.length == 1)
             {
-                debug if (willFail) { dln("WILL FAIL"); }
                 static if (hasValue)
-                    return insertAtLeafOfBranch(curr, key[0], elt.value, eltRef);
+                    return insertAtBranchLeaf1(curr, key[0], elt.value, eltRef);
                 else
-                    return insertAtLeafOfBranch(curr, key[0], eltRef);
+                    return insertAtBranchLeaf1(curr, key[0], eltRef);
             }
             else                // key.length >= 2
             {
-                debug if (willFail) { dln("WILL FAIL"); }
-                const subIx = key[0];
-                static if (hasValue)
-                    return setSub(curr, subIx,
-                                  insertAt(getSub(curr, subIx), // recurse
-                                           Element(key[1 .. $], elt.value),
-                                           eltRef));
-                else
-                    return setSub(curr, subIx,
-                                  insertAt(getSub(curr, subIx), // recurse
-                                           key[1 .. $],
-                                           eltRef));
+                return insertAtBranchSubNode(curr, elt, eltRef);
             }
         }
 
@@ -3254,7 +3259,7 @@ struct RawRadixTree(Value = void)
 
         static if (hasValue)
         {
-            Branch insertAtLeafOfBranch(Branch curr, Ix key, Value value, out EltRef eltRef)
+            Branch insertAtBranchLeaf1(Branch curr, Ix key, Value value, out EltRef eltRef)
             {
                 debug if (willFail) { dln("WILL FAIL: key:", key,
                                           " value:", value,
@@ -3276,7 +3281,7 @@ struct RawRadixTree(Value = void)
         }
         else
         {
-            Branch insertAtLeafOfBranch(Branch curr, Ix key, out EltRef eltRef)
+            Branch insertAtBranchLeaf1(Branch curr, Ix key, out EltRef eltRef)
             {
                 debug if (willFail) { dln("WILL FAIL: key:", key,
                                           " curr:", curr,
@@ -4344,38 +4349,6 @@ auto radixTreeSet(Key)()
 auto radixTreeMap(Key, Value)()
 {
     return RadixTree!(MutableKey!Key, Value)(false);
-}
-
-// TODO @safe pure nothrow
-unittest
-{
-    alias Key = ulong;
-    auto set = radixTreeSet!(Key);
-
-    const Key top = 256 + 1;    // TODO transformation from 256 to 256+1 is the problem
-    foreach (i; 0 .. top)
-    {
-        assert(!set.contains(i));
-
-        if (i == 256)
-        {
-            set.willFail = true;
-            set.print;
-        }
-        assert(set.insert(i));
-        if (i == 256)
-        {
-            set.willFail = false;
-            set.print;
-        }
-
-        assert(set.contains(i));
-        assert(!set.insert(i));
-        assert(set.contains(i));
-    }
-
-    dln;
-    set.print();
 }
 
 auto testScalar(uint span, Keys...)()

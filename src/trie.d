@@ -23,8 +23,6 @@
 
     TODO Make array indexing/slicing as @trusted and use .ptr[] instead of [] when things are stable.
 
-    TODO Should opBinaryRight return void* instead of bool for set-case?
-
     TODO Add various extra packings in MixLeaf1to4: number of
     - Ix  (0,1,2,3,4,5,6): 3-bits
     - Ix2 (0,1,2,3): 2-bits
@@ -51,6 +49,8 @@
 
     Returns: a range of elements which are greater than value.
     auto upperBound(this This)(inout T value)
+
+    TODO Should opBinaryRight return void* instead of bool for set-case?
 */
 module trie;
 

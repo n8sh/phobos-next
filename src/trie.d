@@ -3070,14 +3070,11 @@ struct RawRadixTree(Value = void)
                 }
                 else  // if (currPrefix.length >= 1) // non-empty current prefix
                 {
-                    debug if (willFail) { dln("WILL FAIL"); }
                     // NOTE: prefix:"ab", key:"cd"
                     const currSubIx = currPrefix[0]; // subIx = 'a'
-
-                    // TODO functionize
-                    debug if (willFail) { dln("WILL FAIL"); }
                     if (currPrefix.length == 1 && getSubCount(curr) == 0) // if `curr`-prefix become empty and only leaf pointer
                     {
+                        debug if (willFail) { dln("WILL FAIL"); }
                         popFrontNPrefix(curr, 1);
                         setSub(curr, currSubIx, Node(getLeaf1(curr))); // move it to sub
                         setLeaf1(curr, Leaf1!Value.init);
@@ -3086,6 +3083,7 @@ struct RawRadixTree(Value = void)
                     }
                     else
                     {
+                        debug if (willFail) { dln("WILL FAIL"); }
                         popFrontNPrefix(curr, 1);
                         auto next = constructVariableLength!(DefaultBranch)(2, null,
                                                                             Sub(currSubIx, Node(curr)));

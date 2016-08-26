@@ -366,11 +366,14 @@ struct Array(E,
     /// TODO deactivate when internal RC-logic is ready
     void opAssign(Array rhs) @trusted
     {
-        assert(_storePtr != rhs._storePtr); // if not self assignment
-        reserve(rhs.length);
-        foreach (const i; 0 .. _length)
+        // self-assignment may happen when assigning derefenced pointer
+        if (_storePtr != rhs._storePtr) // if not self assignment
         {
-            ptr[i] = rhs[i];
+            reserve(rhs.length);
+            foreach (const i; 0 .. _length)
+            {
+                ptr[i] = rhs[i];
+            }
         }
     }
 

@@ -4273,7 +4273,7 @@ struct RadixTree(Key, Value)
         return Range(_rawTree._root);
     }
 
-    pragma(inline) auto prefix(Key keyPrefix) inout
+    pragma(inline) auto prefix(Key keyPrefix) const
     {
         KeyN!(span, Key.sizeof) ukey;
         auto rawKeyPrefix = keyPrefix.toRawKey(ukey[]);
@@ -4281,6 +4281,7 @@ struct RadixTree(Key, Value)
         UKey rawKeyPrefixRest;
         auto range = Range(_rawTree.prefix(rawKeyPrefix, rawKeyPrefixRest));
 
+        dln("rawKeyPrefixRest:", rawKeyPrefixRest);
         // assert(false, "Add rawKeyPrefix[0 .. $ - rawKeyPrefixRest.length] to member of Range");
         static if (hasValue)
         {

@@ -107,9 +107,6 @@ struct WordVariant(Types...)
     /// Construction from sub-variant `value`.
     this(SubTypes...)(WordVariant!(SubTypes) value) { initializeFromSub(value); }
 
-    /// Copy construction (postblit).
-    this(this) {}
-
     /// Assignment from `that`.
     auto ref opAssign(typeof(this) value) { _raw = value._raw; return this; }
     /// ditto

@@ -352,7 +352,7 @@ struct Array(E,
         }
     }
 
-    /// TODO activate when internal RC-logic is ready
+    /// TODO deactivate when internal RC-logic is ready
     this(this) nothrow @trusted
     {
         auto rhs_storePtr = _storePtr;
@@ -360,6 +360,17 @@ struct Array(E,
         foreach (const i; 0 .. _length)
         {
             ptr[i] = rhs_storePtr[i];
+        }
+    }
+
+    /// TODO deactivate when internal RC-logic is ready
+    void opAssign(Array rhs) @trusted
+    {
+        assert(_storePtr != rhs._storePtr); // if not self assignment
+        reserve(rhs.length);
+        foreach (const i; 0 .. _length)
+        {
+            ptr[i] = rhs[i];
         }
     }
 
@@ -1274,6 +1285,8 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ssC.empty);
 
             assert(ssCc[].equal(i5));
+
+            ssCc = ssCc;   // self assignment
         }
     }
 }

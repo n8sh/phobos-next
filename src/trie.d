@@ -14,6 +14,10 @@
 
     Incorrect transformation radixTreeSet!ulong when going from 256 to 256+1 iota-elements. See test_trie for details
 
+    TODO
+    alias Ix = Mod!(radix, ubyte); // packed index
+    alias UIx = Mod!(radix, uint); // unpacked index
+
     TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
 
     TODO Allow NodeType-constructors to take const and immutable prefixes
@@ -2261,6 +2265,7 @@ struct RawRadixTree(Value = void)
 
         private pragma(inline) void initialize(size_t subCapacity)
         {
+            // assert(subCapacity != 4);
             this.subCapacity = subCapacity;
             debug
             {
@@ -2639,6 +2644,17 @@ struct RawRadixTree(Value = void)
         }
     }
 
+    /** Get number of sub-nodes of node `curr`. */
+    pragma(inline) Mod!(radix + 1) getSubCount(inout Branch curr) @safe pure nothrow
+    {
+        final switch (curr.typeIx) with (Branch.Ix)
+        {
+        case ix_SparseBranchPtr: return cast(typeof(return))curr.as!(SparseBranch*).subCount;
+        case ix_DenseBranchPtr: return cast(typeof(return))curr.as!(DenseBranch*).subCount;
+        case undefined: assert(false);
+        }
+    }
+
     Stats usageHistograms() const
     {
         typeof(return) stats;
@@ -2974,8 +2990,8 @@ struct RawRadixTree(Value = void)
         /** Insert `key` into sub-tree under root `curr`. */
         pragma(inline) Node insertAt(Node curr, Element elt, out EltRef eltRef)
         {
-            debug if (willFail) { dln("WILL FAIL: elt:", elt, " curr:", curr); }
             auto key = elementKey(elt);
+            debug if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr); }
             assert(key.length);
 
             if (!curr)          // if no existing `Node` to insert at
@@ -3059,10 +3075,24 @@ struct RawRadixTree(Value = void)
                     debug if (willFail) { dln("WILL FAIL"); }
                     // NOTE: prefix:"ab", key:"cd"
                     auto currSubIx = currPrefix[0]; // subIx = 'a'
-                    popFrontNPrefix(curr, 1);
-                    auto next = constructVariableLength!(DefaultBranch)(2, null,
-                                                                        Sub(currSubIx, Node(curr)));
-                    return insertAtBranchAbovePrefix(typeof(return)(next), elt, eltRef);
+
+                    // TODO functionize
+                    DefaultBranch next;
+                    debug if (willFail) { dln("WILL FAIL"); }
+                    if (currPrefix.length == 1 && getSubCount(curr) == 0) // if `curr`-prefix become empty and only leaf pointer
+                    {
+                        popFrontNPrefix(curr, 1); // `curr` prefix will become empty
+                        next = constructVariableLength!(DefaultBranch)(2, null,
+                                                                       Sub(currSubIx, Node(curr)));
+                        return insertAtBranchAbovePrefix(typeof(return)(next), elt, eltRef);
+                    }
+                    else
+                    {
+                        popFrontNPrefix(curr, 1);
+                        next = constructVariableLength!(DefaultBranch)(2, null,
+                                                                       Sub(currSubIx, Node(curr)));
+                        return insertAtBranchAbovePrefix(typeof(return)(next), elt, eltRef);
+                    }
                 }
             }
             else if (matchedKeyPrefix.length < key.length)

@@ -2749,6 +2749,7 @@ struct RawRadixTree(Value = void)
             case ix_SparseBranchPtr:
                 auto curr_ = curr.as!(SparseBranch*);
                 auto currPrefix = curr_.prefix[];
+                // TODO functionize
                 if (currPrefix.empty)
                 {
                     if (curr_.subCount == 0) // if only leaf1
@@ -2776,6 +2777,7 @@ struct RawRadixTree(Value = void)
             case ix_DenseBranchPtr:
                 auto curr_ = curr.as!(DenseBranch*);
                 auto currPrefix = curr_.prefix[];
+                // TODO functionize
                 if (currPrefix.empty)
                 {
                     if (curr_.subCount == 0) // if only leaf1

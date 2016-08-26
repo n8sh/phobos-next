@@ -279,7 +279,8 @@ auto mod(size_t m, T = TypeOfModulo!m)(T value)
 /// construct from other precision
 @safe pure nothrow @nogc unittest
 {
-    Mod!(256, ubyte) x = 55;
-    Mod!(256, uint) y = x;
-    Mod!(256, ubyte) z = y;
+    enum m = 256;
+    Mod!(m, ubyte) x = 55;
+    Mod!(m, uint) y = x;
+    Mod!(m, ubyte) z = y;
 }

@@ -4019,7 +4019,9 @@ static private void calculate(Value)(Leaf1!Value curr,
     }
 }
 
-/** Remap typed key `typedKey` to raw (untyped) key of type `UKey`. */
+/** Remap typed key `typedKey` to raw (untyped) key of type `UKey`.
+    TODO use DIP-1000
+ */
 UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey)
     @trusted pure nothrow       /* TODO @nogc */
     if (isTrieableKeyType!TypedKey)
@@ -4165,7 +4167,7 @@ struct RadixTree(Key, Value)
             _rawTree.ElementRef elementRef; // reference to where element was added
 
             KeyN!(span, Key.sizeof) ukey;
-            auto rawKey = key.toRawKey(ukey);
+            auto rawKey = key.toRawKey(ukey); // TODO use DIP-1000
 
             _rawTree.insert(rawKey, value, elementRef);
 
@@ -4185,7 +4187,7 @@ struct RadixTree(Key, Value)
             _rawTree.ElementRef elementRef; // indicates that key was added
 
             KeyN!(span, Key.sizeof) ukey;
-            auto rawKey = key.toRawKey(ukey[]);
+            auto rawKey = key.toRawKey(ukey[]); // TODO use DIP-1000
 
             _rawTree.insert(rawKey, value, elementRef);
 
@@ -4225,7 +4227,7 @@ struct RadixTree(Key, Value)
         inout(Value*) contains(in Key key) inout
         {
             KeyN!(span, Key.sizeof) ukey;
-            auto rawKey = key.toRawKey(ukey);
+            auto rawKey = key.toRawKey(ukey); // TODO use DIP-1000
             return _rawTree.contains(rawKey);
         }
     }
@@ -4240,7 +4242,7 @@ struct RadixTree(Key, Value)
             _rawTree.ElementRef elementRef; // indicates that elt was added
 
             KeyN!(span, Key.sizeof) ukey;
-            auto rawKey = key.toRawKey(ukey[]);
+            auto rawKey = key.toRawKey(ukey[]); // TODO use DIP-1000
 
             _rawTree.insert(rawKey, elementRef);
 
@@ -4256,7 +4258,7 @@ struct RadixTree(Key, Value)
             @safe pure nothrow /* TODO @nogc */
         {
             KeyN!(span, Key.sizeof) ukey;
-            auto rawKey = key.toRawKey(ukey[]);
+            auto rawKey = key.toRawKey(ukey[]); // TODO use DIP-1000
             return _rawTree.contains(rawKey);
         }
     }

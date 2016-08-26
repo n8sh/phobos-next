@@ -16,21 +16,18 @@ void main(string[] args)
     {
         assert(!set.contains(i));
         assert(set.insert(i));
-        assert(set._root.peek!HeptLeaf1);
     }
 
     foreach (const i; 7 .. 48)
     {
         assert(!set.contains(i));
         assert(set.insert(i));
-        assert(set._root.peek!(SparseLeaf1!void*));
     }
 
     foreach (const i; 48 .. 256)
     {
         assert(!set.contains(i));
         assert(set.insert(i));
-        assert(set._root.peek!(DenseLeaf1!void*));
     }
 
     set.print;

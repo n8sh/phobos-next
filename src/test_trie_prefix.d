@@ -9,9 +9,10 @@ void main(string[] args)
     auto set = radixTreeSet!(Key);
 
     set.insert("alpha");
-    set.insert("alphabeth");
+    set.insert("alphabet");
     set.insert("a");
     set.insert("al");
+    set.insert("all");
 
     import dbg;
     foreach (const e; set.prefix("a"))
@@ -20,7 +21,7 @@ void main(string[] args)
     }
 
     // import std.algorithm : equal;
-    // assert(set.prefix("a").equal(["", "l", "lpha", "lphabeth"]));
+    // assert(set.prefix("a").equal(["", "l", "ll", "lpha", "lphabeth"]));
 
     set.print();
 }

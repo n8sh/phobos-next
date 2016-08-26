@@ -1,9 +1,7 @@
 /** Array container(s) with optional sortedness (`Ordering`).
 
     TODO Make Array have reference semantics instead through via Automatic
-    Reference Counting when DIP-1000 has been implemented
-
-    TODO Support scope in auto ref returns when it DIP-1000 is ready
+    Reference Counting and scope keyword when DIP-1000 has been implemented
 
     TODO Should checkEmptyPop() only be enabled in debug?
 

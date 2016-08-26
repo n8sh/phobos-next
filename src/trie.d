@@ -35,7 +35,7 @@
     - Ix  (0,1,2,3,4,5,6): 3-bits
     - Ix2 (0,1,2,3): 2-bits
     - Ix3 (0,1,2): 2-bits
-    - Ix4 (0,1]: 1-bit
+    - Ix4 (0,1): 1-bit
     Total bits 8-bits
 
     TODO Prefix:

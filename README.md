@@ -14,5 +14,5 @@ See also: http://forum.dlang.org/post/tppptevxiygafzpicmgz@forum.dlang.org
   - Prefix Completion (via Range)
   - See `https://github.com/nordlow/phobos-next/blob/master/src/test_trie_prefix.d` for a descriptive usage of prefixed access.
 
-- array_ex.d:
+- array_ex.d: Array container(s) with optional sortedness (`Ordering`).
   - pushBack

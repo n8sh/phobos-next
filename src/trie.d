@@ -2076,18 +2076,6 @@ struct RawRadixTree(Value = void)
         @safe pure nothrow /* @nogc */:
         pragma(inline):
 
-        debug
-        {
-            this(Node root, bool willFail)
-            {
-                this(root);
-                debug if (willFail)
-                {
-                    this.willFail = willFail;
-                }
-            }
-        }
-
         this(Node root)
         {
             _frontRange = FrontRange(root);
@@ -2112,22 +2100,13 @@ struct RawRadixTree(Value = void)
         }
 
     private:
-    private:
         FrontRange _frontRange;
         FrontRange _backRange;
-        debug bool willFail;
     }
 
     pragma(inline) Range opSlice() @trusted pure nothrow
     {
-        debug
-        {
-            return Range(this._root, willFail);
-        }
-        else
-        {
-            return Range(this._root);
-        }
+        return Range(this._root);
     }
 
     // static assert(isBidirectionalRange!Range);
@@ -4274,14 +4253,26 @@ struct RadixTree(Key, Value)
         return Range(_rawTree._root);
     }
 
-    pragma(inline) inout(Range) prefix(Key keyPrefix) inout
+    pragma(inline) auto prefix(Key keyPrefix) inout
     {
         KeyN!(span, Key.sizeof) ukey;
         auto rawKeyPrefix = keyPrefix.toRawKey(ukey[]);
+
         UKey rawKeyPrefixRest;
         auto range = Range(_rawTree.prefix(rawKeyPrefix, rawKeyPrefixRest));
-        assert(false, "Add rawKeyPrefix[0 .. $ - rawKeyPrefixRest.length] to member of Range");
-        // return range;
+
+        // assert(false, "Add rawKeyPrefix[0 .. $ - rawKeyPrefixRest.length] to member of Range");
+        static if (hasValue)
+        {
+            return range;
+        }
+        else
+        {
+            import std.algorithm.iteration : filter, map;
+            import std.algorithm : startsWith;
+            // return range.filter!(k => startsWith(rawKeyPrefixRest)).map!(k => k.skipOver(rawKeyPrefixRest));
+            return range;
+        }
     }
 
     private static struct Range

@@ -2960,8 +2960,8 @@ struct RawRadixTree(Value = void)
                     }
                 }
                 elementRef = ElementRef(next,
-                                    UIx(0), // always first index
-                                    ModStatus.added);
+                                        UIx(0), // always first index
+                                        ModStatus.added);
                 return next;
             }
         }
@@ -4162,7 +4162,7 @@ struct RadixTree(Key, Value)
 
         auto opIndexAssign(in Value value, Key key)
         {
-            _rawTree.ElementRef elementRef; // indicates that elt was added
+            _rawTree.ElementRef elementRef; // reference to where element was added
 
             KeyN!(span, Key.sizeof) ukey;
             auto rawKey = key.toRawKey(ukey);

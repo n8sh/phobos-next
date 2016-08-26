@@ -12,7 +12,7 @@ See also: http://forum.dlang.org/post/tppptevxiygafzpicmgz@forum.dlang.org
   - `opIndex`
   - `opIndexAssign`
   - Prefix Completion (via Range)
-  - See `https://github.com/nordlow/phobos-next/blob/master/src/test_trie_prefix.d` for descriptive usage of prefixed access.
+  - See `https://github.com/nordlow/phobos-next/blob/master/src/test_trie_prefix.d` for a descriptive usage of prefixed access.
 
 - array_ex.d:
   - pushBack

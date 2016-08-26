@@ -4049,20 +4049,22 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey)
         return preallocatedFixedUKey[];
     }
     else static if (isArray!TypedKey &&
-                    is(Unqual!(typeof(TypedKey.init[0])) == char))
+                    is(Unqual!(typeof(TypedKey.init[0])) == char)) // TODO extend to support isTrieableKeyType!TypedKey
     {
         import std.string : representation;
         const ubyte[] ukey = typedKey.representation; // lexical byte-order
         return cast(Ix[])ukey;                        // TODO needed?
     }
-    else static if (is(Unqual!TypedKey == wstring))
+    else static if (isArray!TypedKey &&
+                    is(Unqual!(typeof(TypedKey.init[0])) == wchar))
     {
         const ushort[] rKey = typedKey.representation; // lexical byte-order.
         // TODO MSByte-order of elements in rKey for ordered access and good branching performance
         const ubyte[] ukey = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
         return ukey;
     }
-    else static if (is(Unqual!TypedKey == dstring))
+    else static if (isArray!TypedKey &&
+                    is(Unqual!(typeof(TypedKey.init[0])) == dchar))
     {
         const uint[] rKey = typedKey.representation; // lexical byte-order
         // TODO MSByte-order of elements in rKey for ordered access and good branching performance

@@ -1214,7 +1214,7 @@ struct RawRadixTree(Value = void)
             this.branch = Branch(branch);
 
             this._subsEmpty = branch.subCount == 0;
-            this._subNodeCounter = 0; // always zero
+            this._subCounter = 0; // always zero
 
             if (branch.leaf1)
             {
@@ -1228,8 +1228,8 @@ struct RawRadixTree(Value = void)
         {
             this.branch = Branch(branch);
 
-            this._subNodeCounter = 0; // TODO needed?
-            _subsEmpty = !branch.findSubNodeAtIx(0, this._subNodeCounter);
+            this._subCounter = 0; // TODO needed?
+            _subsEmpty = !branch.findSubNodeAtIx(0, this._subCounter);
 
             if (branch.leaf1)
             {
@@ -1257,9 +1257,9 @@ struct RawRadixTree(Value = void)
             {
             case undefined: assert(false);
             case ix_SparseBranchPtr:
-                return UIx(branch.as!(SparseBranch*).subIxs[_subNodeCounter]);
+                return UIx(branch.as!(SparseBranch*).subIxs[_subCounter]);
             case ix_DenseBranchPtr:
-                return _subNodeCounter;
+                return _subCounter;
             }
         }
 
@@ -1268,8 +1268,8 @@ struct RawRadixTree(Value = void)
             final switch (branch.typeIx) with (Branch.Ix)
             {
             case undefined: assert(false);
-            case ix_SparseBranchPtr: return branch.as!(SparseBranch*).subNodes[_subNodeCounter];
-            case ix_DenseBranchPtr: return branch.as!(DenseBranch*).subNodes[_subNodeCounter];
+            case ix_SparseBranchPtr: return branch.as!(SparseBranch*).subNodes[_subCounter];
+            case ix_DenseBranchPtr: return branch.as!(DenseBranch*).subNodes[_subCounter];
             }
         }
 
@@ -1373,11 +1373,11 @@ struct RawRadixTree(Value = void)
             case undefined: assert(false);
             case ix_SparseBranchPtr:
                 auto branch_ = branch.as!(SparseBranch*);
-                if (_subNodeCounter + 1 == branch_.subCount) { _subsEmpty = true; } else { ++_subNodeCounter; }
+                if (_subCounter + 1 == branch_.subCount) { _subsEmpty = true; } else { ++_subCounter; }
                 break;
             case ix_DenseBranchPtr:
                 auto branch_ = branch.as!(DenseBranch*);
-                _subsEmpty = !branch_.findSubNodeAtIx(_subNodeCounter + 1, this._subNodeCounter);
+                _subsEmpty = !branch_.findSubNodeAtIx(_subCounter + 1, this._subCounter);
                 break;
             }
         }
@@ -1386,7 +1386,7 @@ struct RawRadixTree(Value = void)
         Branch branch;          // branch part of range
         Leaf1Range leaf1Range;  // range of direct leaves
 
-        UIx _subNodeCounter; // `Branch`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
+        UIx _subCounter; // `Branch`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
         UIx _cachedFrontIx;
 
         bool _frontAtLeaf1;   // `true` iff front is currently at a leaf1 element
@@ -1897,7 +1897,7 @@ struct RawRadixTree(Value = void)
             //         dln("HERE: i:", i,
             //             " branchRange:", branchRange,
             //             " _cachedFrontIx:", branchRange._cachedFrontIx,
-            //             " _subNodeCounter: ", branchRange._subNodeCounter);
+            //             " _subCounter: ", branchRange._subCounter);
             //     }
             //     // dln("HERE: ", *branchRanges._ranges.back.branch.as!(DenseBranch*));
             // }
@@ -2699,8 +2699,6 @@ struct RawRadixTree(Value = void)
 
         pragma(inline) inout(Node) prefixAt(Node curr, UKey keyPrefix, out UKey keyPrefixRest) inout
         {
-            dln("curr:", curr, " keyPrefix:", keyPrefix, " keyPrefixRest:", keyPrefixRest);
-
             import std.algorithm : commonPrefix;
             import std.algorithm : skipOver;
             import std.algorithm : startsWith;
@@ -2751,7 +2749,18 @@ struct RawRadixTree(Value = void)
             case ix_SparseBranchPtr:
                 auto curr_ = curr.as!(SparseBranch*);
                 auto currPrefix = curr_.prefix[];
-                if (keyPrefix.skipOver(currPrefix))
+                if (currPrefix.empty)
+                {
+                    if (curr_.subCount == 0) // if only leaf1
+                    {
+                        if (keyPrefix.length <= 1) { return Node(curr_.leaf1); }
+                    }
+                    else
+                    {
+                        return curr;
+                    }
+                }
+                else if (keyPrefix.skipOver(currPrefix))
                 {
                     if (keyPrefix.empty)
                     {
@@ -2767,7 +2776,18 @@ struct RawRadixTree(Value = void)
             case ix_DenseBranchPtr:
                 auto curr_ = curr.as!(DenseBranch*);
                 auto currPrefix = curr_.prefix[];
-                if (keyPrefix.skipOver(currPrefix))
+                if (currPrefix.empty)
+                {
+                    if (curr_.subCount == 0) // if only leaf1
+                    {
+                        if (keyPrefix.length <= 1) { return Node(curr_.leaf1); }
+                    }
+                    else
+                    {
+                        return curr;
+                    }
+                }
+                else if (keyPrefix.skipOver(currPrefix))
                 {
                     if (keyPrefix.empty)
                     {
@@ -4310,17 +4330,16 @@ struct RadixTree(Key, Value)
 
         UKey rawKeyPrefixRest;
         auto range = Range(_rawTree.prefix(rawKeyPrefix, rawKeyPrefixRest));
+        dln(rawKeyPrefixRest);
 
-        dln("rawKeyPrefixRest:", rawKeyPrefixRest);
-        // assert(false, "Add rawKeyPrefix[0 .. $ - rawKeyPrefixRest.length] to member of Range");
         static if (hasValue)
         {
             return range;
         }
         else
         {
-            import std.algorithm.iteration : filter, map;
-            import std.algorithm : startsWith;
+            // import std.algorithm.iteration : filter, map;
+            // import std.algorithm : startsWith;
             // return range.filter!(k => startsWith(rawKeyPrefixRest)).map!(k => k.skipOver(rawKeyPrefixRest));
             return range;
         }

@@ -5,7 +5,7 @@
 
     TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
 
-    TODO Allow NodeType-constructors to take const and immutable prefixes
+    TODO Allow `Node`-constructors to take const and immutable prefixes
 
     TODO Use `expandVariableLength` in `reconstructingInsert` that uses x.realloc(2*n) instead of x.free(n)-malloc(2*n)
 

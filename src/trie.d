@@ -4050,26 +4050,30 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey)
     }
     else static if (isArray!TypedKey)
     {
-        alias E = Unqual!(typeof(TypedKey.init[0]));
-        static if (is(E == char)) // TODO extend to support isTrieableKeyType!TypedKey
+        alias EType = Unqual!(typeof(TypedKey.init[0]));
+        static if (is(EType == char)) // TODO extend to support isTrieableKeyType!TypedKey
         {
             import std.string : representation;
             const ubyte[] ukey = typedKey.representation; // lexical byte-order
             return cast(Ix[])ukey;                        // TODO needed?
         }
-        else static if (is(E == wchar))
+        else static if (is(EType == wchar))
         {
             const ushort[] rKey = typedKey.representation; // lexical byte-order.
             // TODO MSByte-order of elements in rKey for ordered access and good branching performance
             const ubyte[] ukey = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
             return ukey;
         }
-        else static if (is(E == dchar))
+        else static if (is(EType == dchar))
         {
             const uint[] rKey = typedKey.representation; // lexical byte-order
             // TODO MSByte-order of elements in rKey for ordered access and good branching performance
             const ubyte[] key = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
             return ukey;
+        }
+        else static if (isFixedTrieableKeyType!E)
+        {
+            static assert(false, "TODO Convert array of typed fixed keys");
         }
         else
         {

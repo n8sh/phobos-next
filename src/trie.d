@@ -1342,12 +1342,12 @@ struct RawRadixTree(Value = void)
         void cacheFront()
         {
             assert(!empty);
-            if (_subsEmpty)
+            if (_subsEmpty)     // no more sub-nodes
             {
                 _cachedFrontIx = leaf1Range.front;
                 _frontAtLeaf1 = true;
             }
-            else if (leaf1Range.empty)
+            else if (leaf1Range.empty) // no more in direct leaf node
             {
                 _cachedFrontIx = subFrontIx;
                 _frontAtLeaf1 = false;

@@ -5,9 +5,9 @@
 
     TODO Assert that iota!ubyte are stored in SparseLeaf1/DenseLeaf1
 
-    TODO
-    alias Ix = Mod!(radix, ubyte); // packed index
-    alias UIx = Mod!(radix, uint); // unpacked index
+    TODO Check if using UIx instead Ix-parameters improves performance:
+    - alias Ix = Mod!(radix, ubyte); // packed index
+    - alias UIx = Mod!(radix, uint); // unpacked index
 
     TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
 

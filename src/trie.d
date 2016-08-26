@@ -2076,6 +2076,18 @@ struct RawRadixTree(Value = void)
         @safe pure nothrow /* @nogc */:
         pragma(inline):
 
+        debug
+        {
+            this(Node root, bool willFail)
+            {
+                this(root);
+                debug if (willFail)
+                {
+                    this.willFail = willFail;
+                }
+            }
+        }
+
         this(Node root)
         {
             _frontRange = FrontRange(root);
@@ -2102,11 +2114,19 @@ struct RawRadixTree(Value = void)
     private:
         FrontRange _frontRange;
         FrontRange _backRange;
+        debug bool willFail;
     }
 
     pragma(inline) Range opSlice() @trusted pure nothrow
     {
-        return Range(this._root);
+        debug
+        {
+            return Range(this._root, willFail);
+        }
+        else
+        {
+            return Range(this._root);
+        }
     }
 
     // static assert(isBidirectionalRange!Range);

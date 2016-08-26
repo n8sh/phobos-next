@@ -10,22 +10,30 @@ void main(string[] args)
     auto set = radixTreeSet!(Key);
 
     const size_t top = 256;
-    foreach (const i; 0 .. top)
+    assert(!set._root);
+
+    foreach (const i; 0 .. 7)
     {
         assert(!set.contains(i));
-
         assert(set.insert(i));
-
-        assert(set.contains(i));
-        assert(!set.insert(i));
-        assert(set.contains(i));
+        assert(set._root.peek!HeptLeaf1);
     }
 
-    foreach (const i; 0 .. top)
+    foreach (const i; 7 .. 48)
     {
-        assert(set.contains(i));
-        assert(!set.insert(i));
+        assert(!set.contains(i));
+        assert(set.insert(i));
+        assert(set._root.peek!(SparseLeaf1!void*));
     }
+
+    foreach (const i; 48 .. 256)
+    {
+        assert(!set.contains(i));
+        assert(set.insert(i));
+        assert(set._root.peek!(DenseLeaf1!void*));
+    }
+
+    set.print;
 
     enum span = 8;
 
@@ -39,6 +47,4 @@ void main(string[] args)
         assert(key == i);
         ++i;
     }
-
-    set.print;
 }

@@ -3,16 +3,7 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
-    TODO
-
-    SparseBranch #0/4
-    - DenseLeaf1!void
-
-    should be stored as
-
-    DenseLeaf1!void
-
-    Incorrect transformation radixTreeSet!ulong when going from 256 to 256+1 iota-elements. See test_trie for details
+    TODO Assert that iota!ubyte are stored in SparseLeaf1/DenseLeaf1
 
     TODO
     alias Ix = Mod!(radix, ubyte); // packed index

@@ -310,7 +310,16 @@ struct Array(E,
     /// Construct with length `n`.
     static if (useGC)
     {
-        this(size_t n) @trusted nothrow
+        nothrow:
+
+        this(size_t n)
+        {
+            allocateStorePtr(n);
+            _length = _storeCapacity = n;
+            defaultInitialize;
+        }
+
+        private void allocateStorePtr(size_t n) @trusted
         {
             _storePtr = cast(E*)GC.malloc(E.sizeof * n);
             static if (shouldAddGCRange!E)
@@ -318,13 +327,20 @@ struct Array(E,
                 import core.memory : GC;
                 GC.addRange(ptr, length * E.sizeof);
             }
-            _length = _storeCapacity = n;
-            defaultInitialize;
         }
     }
     else
     {
-        this(size_t n) nothrow @trusted @nogc
+        nothrow @nogc:
+
+        this(size_t n)
+        {
+            allocateStorePtr(n);
+            _length = _storeCapacity = n;
+            defaultInitialize;
+        }
+
+        private void allocateStorePtr(size_t n) @trusted
         {
             _storePtr = cast(E*)_malloc(E.sizeof * n);
             static if (shouldAddGCRange!E)
@@ -332,12 +348,19 @@ struct Array(E,
                 import core.memory : GC;
                 GC.addRange(ptr, length * E.sizeof);
             }
-            _length = _storeCapacity = n;
-            defaultInitialize;
         }
     }
 
-    this(this) @disable;       /// TODO activate when internal RC-logic is ready
+    /// TODO activate when internal RC-logic is ready
+    this(this) nothrow @trusted
+    {
+        auto rhs_storePtr = _storePtr;
+        allocateStorePtr(_length);
+        foreach (const i; 0 .. _length)
+        {
+            ptr[i] = rhs_storePtr[i];
+        }
+    }
 
     /** Default-initialize all elements to `zeroValue`.. */
     void defaultInitialize(E zeroValue = E.init) @("complexity", "O(length)")
@@ -1223,6 +1246,9 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             ssC.pushBack(i5);
             assert(ssC[].equal(i5));
 
+            auto ssCc = ssC;    // copy it
+            assert(ssCc[].equal(i5));
+
             ssC.shrinkTo(4);
             assert(ssC[].equal([1, 2, 3, 4]));
 
@@ -1245,6 +1271,8 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 
             ssC.clear();
             assert(ssC.empty);
+
+            assert(ssCc[].equal(i5));
         }
     }
 }

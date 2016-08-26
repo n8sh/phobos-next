@@ -4337,16 +4337,15 @@ struct RadixTree(Key, Value)
 
         UKey rawKeyPrefixRest;
         auto rawRange = RawRange(_rawTree.prefix(rawKeyPrefix, rawKeyPrefixRest));
-        dln(rawKeyPrefixRest);
 
+        import std.algorithm.iteration : filter, map;
+        import std.algorithm : startsWith;
         static if (hasValue)
         {
             assert(false, "TODO");
         }
         else
         {
-            import std.algorithm.iteration : filter, map;
-            import std.algorithm : startsWith;
             return rawRange.filter!(rawKey => rawKey.startsWith(rawKeyPrefixRest))
                            .map!(rawKey => rawKey[rawKeyPrefixRest.length .. $].toTypedKey!Key);
         }

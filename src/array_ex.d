@@ -355,11 +355,11 @@ struct Array(E,
     /// TODO deactivate when internal RC-logic is ready
     this(this) nothrow @trusted
     {
-        auto rhs_storePtr = _storePtr;
-        allocateStorePtr(_length);
+        auto rhs_storePtr = _storePtr; // save store pointer
+        allocateStorePtr(_length);     // allocate new store pointer
         foreach (const i; 0 .. _length)
         {
-            ptr[i] = rhs_storePtr[i];
+            ptr[i] = rhs_storePtr[i]; // copy from old to new
         }
     }
 
@@ -372,7 +372,7 @@ struct Array(E,
             reserve(rhs.length);
             foreach (const i; 0 .. _length)
             {
-                ptr[i] = rhs[i];
+                ptr[i] = rhs.ptr[i]; // copy from old to new
             }
         }
     }

@@ -27,7 +27,12 @@ void main(string[] args)
     }
 
     import std.algorithm : equal;
-    assert(set.prefix("a").equal(["", "l", "ll", "lpha", "lphabet"]));
+    assert(set.prefix("a")
+              .equal(["",
+                      "l",
+                      "ll",
+                      "lpha",
+                      "lphabet"]));
 
     set.print();
 }

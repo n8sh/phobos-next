@@ -33,6 +33,7 @@ void main(string[] args)
     }
 
     import std.algorithm : equal;
+
     assert(set.prefix("a")
               .equal(["",
                       "l",
@@ -41,4 +42,10 @@ void main(string[] args)
                       "lly",
                       "lpha",
                       "lphabet"]));
+
+    assert(set.prefix("all")
+              .equal(["",
+                      "ies",
+                      "y"]));
+
 }

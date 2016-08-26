@@ -991,7 +991,7 @@ static private struct DenseLeaf1(Value)
         /// Set value at index `ix` to `value`.
         void setValue(UIx ix, in Value value) { _values[ix] = value; }
 
-        auto ref values() inout { return _values; }
+        auto values() inout { return _values; }
     }
 
 private:

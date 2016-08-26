@@ -1,10 +1,10 @@
 #!/usr/bin/env rdmd
 
-import trie;
-
 // TODO uncomment test code at trie.d:4329 when this works
 void main(string[] args)
 {
+    import trie : radixTreeSet;
+
     alias Key = string;
     auto set = radixTreeSet!(Key);
 

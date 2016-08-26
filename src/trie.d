@@ -3925,11 +3925,11 @@ struct RawRadixTree(Value = void)
         }
     }
 
+    public Node _root;                 ///< tree root node
 private:
     enum fixedKeyLengthUndefined = 0;
     immutable fixedKeyLength = fixedKeyLengthUndefined; ///< maximum length of key if fixed, otherwise 0
 
-    Node _root;                 ///< tree root node
     size_t _length = 0; ///< number of elements (keys or key-value-pairs) currently stored under `_root`
 
     debug:                      // debug stuff
@@ -4386,6 +4386,37 @@ auto testScalar(uint span, Keys...)()
             import std.algorithm : map;
             assert(set[].equal(low.iota(high + 1).map!(uk => cast(Key)uk)));
         }
+    }
+}
+
+///
+@safe pure nothrow /* TODO @nogc */ unittest
+{
+    alias Key = ubyte;
+    auto set = radixTreeSet!(Key);
+
+    const size_t top = 256;
+    assert(!set._root);
+
+    foreach (const i; 0 .. 7)
+    {
+        assert(!set.contains(i));
+        assert(set.insert(i));
+        assert(set._root.peek!HeptLeaf1);
+    }
+
+    foreach (const i; 7 .. 48)
+    {
+        assert(!set.contains(i));
+        assert(set.insert(i));
+        assert(set._root.peek!(SparseLeaf1!void*));
+    }
+
+    foreach (const i; 48 .. 256)
+    {
+        assert(!set.contains(i));
+        assert(set.insert(i));
+        assert(set._root.peek!(DenseLeaf1!void*));
     }
 }
 

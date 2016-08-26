@@ -271,7 +271,7 @@ pure nothrow unittest
 
 /// Returns: `true` iff C is an `Array`.
 import std.traits : isInstanceOf;
-enum isThisArray(C) = isInstanceOf!(Array, C);
+enum isMyArray(C) = isInstanceOf!(Array, C);
 
 /** Small-size-optimized (SSO-packed) array of value types `E` with optional
     ordering given by `ordering`.
@@ -616,7 +616,7 @@ struct Array(E,
         void pushBack(R)(R values) @("complexity", "O(values.length)")
             if (isInputRange!R &&
                 !(isArray!R) &&
-                !(isThisArray!R) &&
+                !(isMyArray!R) &&
                 isElementAssignable!(ElementType!R))
         {
             // import std.range : hasLength;
@@ -655,7 +655,7 @@ struct Array(E,
         }
         /// ditto.
         void pushBack(A)(const ref A values) @trusted @("complexity", "O(values.length)") // TODO `in` parameter qualifier doesn't work here. Compiler bug?
-            if (isThisArray!A &&
+            if (isMyArray!A &&
                 isElementAssignable!(ElementType!A))
         {
             if (ptr == values.ptr) // called as: this ~= this
@@ -698,7 +698,7 @@ struct Array(E,
             pushBack(values);
         }
 	void opOpAssign(string op, A)(const ref A values) if (op == "~" &&
-                                                              isThisArray!A &&
+                                                              isMyArray!A &&
                                                               isElementAssignable!(ElementType!A)) { pushBack(values); }
     }
 

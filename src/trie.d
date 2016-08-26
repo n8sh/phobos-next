@@ -4380,8 +4380,10 @@ struct RadixTree(Key, Value)
 
         static if (RawTree.hasValue)
         {
-            auto front() const /* TODO @nogc */ { return tuple(_rawRange._frontRange.frontKey, _rawRange._frontRange._cachedFrontValue); }
-            auto back() const /* TODO @nogc */ { return tuple(_rawRange._backRange.frontKey, _rawRange._backRange._cachedFrontValue);}
+            auto front() const /* TODO @nogc */ { return tuple(_rawRange._frontRange.frontKey,
+                                                               _rawRange._frontRange._cachedFrontValue); }
+            auto back() const /* TODO @nogc */ { return tuple(_rawRange._backRange.frontKey,
+                                                              _rawRange._backRange._cachedFrontValue);}
         }
         else
         {

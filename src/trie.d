@@ -140,6 +140,7 @@ alias IKey(size_t span) = immutable(Mod!(2^^span))[]; // TODO use bitset to more
 alias KeyN(size_t span, size_t N) = Mod!(2^^span)[N];
 
 alias UKey = Key!span;
+bool empty(UKey ukey) @safe pure nothrow @nogc { return ukey.length == 0; }
 
 /** Results of attempt at modification sub. */
 enum ModStatus:ubyte
@@ -2698,69 +2699,85 @@ struct RawRadixTree(Value = void)
 
         pragma(inline) inout(Node) prefixAt(Node curr, UKey keyPrefix, out UKey keyPrefixRest) inout
         {
+            dln("curr:", curr, " keyPrefix:", keyPrefix, " keyPrefixRest:", keyPrefixRest);
+
+            import std.algorithm : commonPrefix;
             import std.algorithm : skipOver;
+            import std.algorithm : startsWith;
+
             switch (curr.typeIx) with (Node.Ix)
             {
             case undefined: assert(false);
             case ix_OneLeafMax7:
                 auto curr_ = curr.as!(OneLeafMax7);
-                auto currPrefix_ = curr_.key[];
-                if (currPrefix_.skipOver(keyPrefix))
+                if (curr_.key[].startsWith(keyPrefix))
                 {
-                    if (currPrefix_.length)
-                    {
-                        keyPrefixRest = currPrefix_.dup; // indicate that more ixes in curr remain
-                    }
+                    keyPrefixRest = keyPrefix;
                     return curr;
                 }
                 break;
             case ix_TwoLeaf3:
                 auto curr_ = curr.as!(TwoLeaf3);
-                auto currPrefix_ = curr_.prefix[];
-                if (currPrefix_.skipOver(keyPrefix))
+                if (keyPrefix.length <= curr_.keyLength)
                 {
-                    if (currPrefix_.length)
-                    {
-                        keyPrefixRest = currPrefix_.dup; // indicate that more ixes in curr remain
-                    }
+                    keyPrefixRest = keyPrefix;
                     return curr;
                 }
                 break;
             case ix_TriLeaf2:
                 auto curr_ = curr.as!(TriLeaf2);
-                auto currPrefix_ = curr_.prefix[];
-                if (currPrefix_.skipOver(keyPrefix))
+                if (keyPrefix.length <= curr_.keyLength)
                 {
-                    if (currPrefix_.length)
-                    {
-                        keyPrefixRest = currPrefix_.dup; // indicate that more ixes in curr remain
-                    }
+                    keyPrefixRest = keyPrefix;
                     return curr;
                 }
                 break;
             case ix_HeptLeaf1:
-                return keyPrefix.length == 0 ? curr : Node.init; // return value copy of `curr`
+                auto curr_ = curr.as!(HeptLeaf1);
+                if (keyPrefix.length <= curr_.keyLength)
+                {
+                    keyPrefixRest = keyPrefix;
+                    return curr;
+                }
+                break;
             case ix_SparseLeaf1Ptr:
             case ix_DenseLeaf1Ptr:
-                return keyPrefix.length == 0 ? curr : Node.init; // return ref copy of `curr`
+                if (keyPrefix.length <= 1)
+                {
+                    keyPrefixRest = keyPrefix;
+                    return curr;
+                }
+                break;
             case ix_SparseBranchPtr:
                 auto curr_ = curr.as!(SparseBranch*);
-                auto currPrefix_ = curr_.prefix[];
-                if (currPrefix_.skipOver(keyPrefix))
+                auto currPrefix = curr_.prefix[];
+                if (keyPrefix.skipOver(currPrefix))
                 {
-                    return (currPrefix_.length == 0 ?
-                            Node(curr_.leaf1) :
-                            prefixAt(curr_.subAt(UIx(keyPrefix[0])), keyPrefix[1 .. $], keyPrefixRest));
+                    if (keyPrefix.empty)
+                    {
+                        keyPrefixRest = currPrefix;
+                        return curr;
+                    }
+                    else
+                    {
+                        return prefixAt(curr_.subAt(UIx(keyPrefix[0])), keyPrefix[1 .. $], keyPrefixRest);
+                    }
                 }
                 break;
             case ix_DenseBranchPtr:
                 auto curr_ = curr.as!(DenseBranch*);
-                auto currPrefix_ = curr_.prefix[];
-                if (currPrefix_.skipOver(keyPrefix))
+                auto currPrefix = curr_.prefix[];
+                if (keyPrefix.skipOver(currPrefix))
                 {
-                    return (currPrefix_.length == 0 ?
-                            Node(curr_.leaf1) :
-                            prefixAt(curr_.subNodes[UIx(keyPrefix[0])], keyPrefix[1 .. $], keyPrefixRest)); // recurse into branch tree
+                    if (keyPrefix.empty)
+                    {
+                        keyPrefixRest = currPrefix;
+                        return curr;
+                    }
+                    else
+                    {
+                        return prefixAt(curr_.subNodes[UIx(keyPrefix[0])], keyPrefix[1 .. $], keyPrefixRest);
+                    }
                 }
                 break;
             default: assert(false);

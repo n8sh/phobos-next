@@ -8,13 +8,13 @@ void main(string[] args)
     alias Key = string;
     auto set = radixTreeSet!(Key);
 
-    set.insert("alphabet");
-    set.insert("alpha");
-    set.insert("a");
-    set.insert("al");
-    set.insert("all");
-    set.insert("allies");
-    set.insert("ally");
+    set.insert(`alphabet`);
+    set.insert(`alpha`);
+    set.insert(`a`);
+    set.insert(`al`);
+    set.insert(`all`);
+    set.insert(`allies`);
+    set.insert(`ally`);
 
     enum show = true;
     if (show)
@@ -22,30 +22,30 @@ void main(string[] args)
         import dbg;
         foreach (const e; set[])
         {
-            dln(`"`, e, `"`);
+            dln(```, e, ```);
         }
         import std.stdio;
         writeln();
-        foreach (const e; set.prefix("a"))
+        foreach (const e; set.prefix(`a`))
         {
-            dln(`"`, e, `"`);
+            dln(```, e, ```);
         }
     }
 
     import std.algorithm : equal;
 
-    assert(set.prefix("a")
-              .equal(["",
-                      "l",
-                      "ll",
-                      "llies",
-                      "lly",
-                      "lpha",
-                      "lphabet"]));
+    assert(set.prefix(`a`)
+              .equal([``,
+                      `l`,
+                      `ll`,
+                      `llies`,
+                      `lly`,
+                      `lpha`,
+                      `lphabet`]));
 
-    assert(set.prefix("all")
-              .equal(["",
-                      "ies",
-                      "y"]));
+    assert(set.prefix(`all`)
+              .equal([``,
+                      `ies`,
+                      `y`]));
 
 }

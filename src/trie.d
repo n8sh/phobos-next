@@ -1068,8 +1068,8 @@ static assert((DenseLeaf1!void).sizeof == 32);
     large sets of long URLs with high probability of sharing a common prefix,
     typically a domain and path.
 
-    Branch packing of leaves is more efficiently when `Key.sizeof` is fixed,
-    that is `hasFixedKeyLength` returns `true`.
+    Branch packing of leaves is more efficient when `Key.sizeof` is fixed, that
+    is, the member `hasFixedKeyLength` returns `true`.
 
     For optimal performance, the individual bit-chunks should be arranged
     starting with most sparse chunks first. For integers this means most

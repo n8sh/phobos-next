@@ -3,9 +3,11 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
-    Implementation is layered; `RawRadixTree` stores its keys untyped (`UKey`)
-    as variable length byte-strings. On top of that `RadixTree` implements
-    typed-key access.
+    Implementation is layered; `RawRadixTree` stores its untyped keys as
+    variable length ubyte-strings (`UKey`). On top of that `RadixTree`
+    implements typed-key access via its template parameter `Key`. Both layers
+    must be parameterized on the `Value`-type in the map case (when `Value` is
+    non-`void`).
 
     TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
 

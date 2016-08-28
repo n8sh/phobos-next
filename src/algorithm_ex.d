@@ -2119,3 +2119,29 @@ bool countsAtMost(R)(R r, size_t maxCount) @("complexity", "O(maxCount)")
     test(3.iota.filter!(x => true));
     test(3.iota.array);
 }
+
+import std.traits : allSatisfy;
+import std.range.primitives : hasLength;
+
+/** Returns: `true` if `r` and all `ss` all have equal length.
+ */
+bool equalLength(R, Ss...)(const R r, const Ss ss)
+    @safe pure nothrow @nogc
+    if (Ss.length >= 1 &&
+        allSatisfy!(hasLength, R, Ss))
+{
+    foreach (const ref s; ss)
+    {
+        if (r.length != s.length) { return false; }
+    }
+    return true;
+}
+
+///
+@safe pure nothrow unittest
+{
+    assert(equalLength([1], [2], [3]));
+    assert(!equalLength([1, 1], [2], [3]));
+    assert(!equalLength([1], [2, 2], [3]));
+    assert(!equalLength([1], [2], [3, 3]));
+}

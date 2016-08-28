@@ -394,7 +394,7 @@ struct Array(E,
         _storeCapacity = 0;
 
         // append new data
-        import std.range : hasLength;
+        import std.range.primitives : hasLength;
         static if (hasLength!R)
         {
             reserve(values.length); // fast reserve
@@ -619,7 +619,7 @@ struct Array(E,
                 !(isMyArray!R) &&
                 isElementAssignable!(ElementType!R))
         {
-            // import std.range : hasLength;
+            // import std.range.primitives : hasLength;
             // static if (hasLength!R) { dln("Reuse logic in range constructor"); }
             foreach (ref value; values)
             {

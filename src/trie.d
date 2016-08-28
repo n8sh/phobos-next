@@ -1073,7 +1073,8 @@ static assert((DenseLeaf1!void).sizeof == 32);
 
     For optimal performance, the individual bit-chunks should be arranged
     starting with most sparse chunks first. For integers this means most
-    significant chunk (byte) first.
+    significant chunk (byte) first. This includes IEEE-compliant floating point
+    numbers.
 
     For a good introduction to adaptive radix trees (ART) see also:
     https://infosys.cs.uni-saarland.de/publications/ARCD15.pdf

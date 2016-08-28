@@ -1064,8 +1064,8 @@ static assert((DenseLeaf1!void).sizeof == 32);
 
     Radix-trees are suitable for storing variable-keys and provide completion of
     all keys matching a given key prefix. This enables, for instance, efficient
-    storage and retrieval of long URLs sharing a common prefix, typically a
-    domain and path.
+    storage and retrieval of large sets of long URLs with high probability of
+    sharing a common prefix, typically a domain and path.
 
     Branch packing of leaves is more efficiently when `Key.sizeof` is fixed,
     that is `hasFixedKeyLength` returns `true`.

@@ -3,6 +3,10 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    Implementation is layered; `RawRadixTree` stores its keys untyped (`UKey`)
+    as variable length byte-strings. On top of that `RadixTree` implements
+    typed-key access.
+
     TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
 
     TODO Allow `Node`-constructors to take const and immutable prefixes

@@ -38,16 +38,16 @@
 
     TODO Sorted Range Primitives
 
-    Returns: a range of elements which are equivalent (though not necessarily equal) to value.
+    Returns a range of elements which are equivalent (though not necessarily equal) to value.
     auto equalRange(this This)(inout T value)
 
-    Returns: a range of elements which are greater than low and smaller than highValue.
+    Returns a range of elements which are greater than low and smaller than highValue.
     auto bound(this This)(inout T lowValue, inout T highValue)
 
-    Returns: a range of elements which are less than value.
+    Returns a range of elements which are less than value.
     auto lowerBound(this This)(inout T value)
 
-    Returns: a range of elements which are greater than value.
+    Returns a range of elements which are greater than value.
     auto upperBound(this This)(inout T value)
 
     TODO Should opBinaryRight return void* instead of bool for set-case?
@@ -412,29 +412,6 @@ static assert(IxsN!(2, 3, 8).sizeof == 8);
     assert(x.equal([11, 22, 33, 44, 55, 66, 77]));
     assert(!x.empty);
     assert(x.full);
-}
-
-/** Returns: `true` if `r` and all `ss` all have equal length.
- */
-bool equalLength(R, Ss...)(const R r, const Ss ss)
-    @safe pure nothrow @nogc
-    if (Ss.length >= 1 &&
-        allSatisfy!(hasLength, R, Ss))
-{
-    foreach (const ref s; ss)
-    {
-        if (r.length != s.length) { return false; }
-    }
-    return true;
-}
-
-///
-@safe pure nothrow unittest
-{
-    assert(equalLength([1], [2], [3]));
-    assert(!equalLength([1, 1], [2], [3]));
-    assert(!equalLength([1], [2, 2], [3]));
-    assert(!equalLength([1], [2], [3, 3]));
 }
 
 /// Single/1-Key Leaf with maximum key-length 7.

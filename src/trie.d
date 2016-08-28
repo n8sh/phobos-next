@@ -9,6 +9,8 @@
     See also: https://en.wikipedia.org/wiki/Trie
     See also: https://en.wikipedia.org/wiki/Radix_tree
 
+    TODOs:
+
     TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
 
     TODO Allow `Node`-constructors to take const and immutable prefixes

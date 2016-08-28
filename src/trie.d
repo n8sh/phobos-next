@@ -1,13 +1,13 @@
 /** Tries and Prefix Trees.
 
-    See also: https://en.wikipedia.org/wiki/Trie
-    See also: https://en.wikipedia.org/wiki/Radix_tree
-
     Implementation is layered; `RawRadixTree` stores its untyped keys as
     variable length ubyte-strings (`UKey`). On top of that `RadixTree`
     implements typed-key access via its template parameter `Key`. Both layers
     must be parameterized on the `Value`-type in the map case (when `Value` is
     non-`void`).
+
+    See also: https://en.wikipedia.org/wiki/Trie
+    See also: https://en.wikipedia.org/wiki/Radix_tree
 
     TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
 

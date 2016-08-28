@@ -1755,7 +1755,7 @@ ref R append(R, Args...)(ref R data,
             foreach (arg; args)
             {
                 alias A = typeof(arg);
-                import std.range : hasLength;
+                import std.range.primitives : hasLength;
                 static if (isArray!A &&
                            is(E == ElementType!A) &&
                            hasLength!A)
@@ -2018,7 +2018,7 @@ bool hasHoles(R)(R r)
 bool countsExactly(R)(R r, size_t exactCount) @("complexity", "O(exactCount)")
     if (isInputRange!R)
 {
-    import std.range : hasLength;
+    import std.range.primitives : hasLength;
     static if (hasLength!R)
     {
         return r.length == exactCount;
@@ -2041,7 +2041,7 @@ bool countsExactly(R)(R r, size_t exactCount) @("complexity", "O(exactCount)")
 bool countsAtLeast(R)(R r, size_t minCount) @("complexity", "O(minCount)")
     if (isInputRange!R)
 {
-    import std.range : hasLength;
+    import std.range.primitives : hasLength;
     static if (hasLength!R)
     {
         return r.length >= minCount;
@@ -2064,7 +2064,7 @@ bool countsAtLeast(R)(R r, size_t minCount) @("complexity", "O(minCount)")
 bool countsAtMost(R)(R r, size_t maxCount) @("complexity", "O(maxCount)")
     if (isInputRange!R)
 {
-    import std.range : hasLength;
+    import std.range.primitives : hasLength;
     static if (hasLength!R)
     {
         return r.length <= maxCount;

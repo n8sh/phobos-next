@@ -1076,7 +1076,7 @@ static assert((DenseLeaf1!void).sizeof == 32);
     significant chunk (byte) first. This includes IEEE-compliant floating point
     numbers.
 
-    For a good introduction to adaptive radix trees (ART) see also:
+    For a good introduction to adaptive radix trees (ART) see
     https://infosys.cs.uni-saarland.de/publications/ARCD15.pdf
 
     See also: https://en.wikipedia.org/wiki/Trie

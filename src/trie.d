@@ -1057,7 +1057,7 @@ pragma(inline) bool tryNextIx(Value)(Leaf1!Value curr, const UIx ix, out Ix next
 
 static assert((DenseLeaf1!void).sizeof == 32);
 
-/** RawTree adaptive radix tree (ART) container storing untyped variable-length `Key`.
+/** Adaptive radix tree (ART) container storing untyped (raw) keys.
 
     In set-case (`Value` is `void`) this container is especially suitable for
     representing a set of 32 or 64 integers/pointers.

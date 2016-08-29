@@ -865,8 +865,6 @@ static assert((DenseLeaf1!void).sizeof == 32);
 
     For a good introduction to adaptive radix trees (ART) see $(HTTP infosys.cs.uni-saarland.de/publications/ARCD15.pdf)
 
-    See_Also: $(HTTP www.ietf.org/rfc/rfc2616.txt, RFC2616)
-
     See_Also: $(HTTP en.wikipedia.org/wiki/Trie)
     See_Also: $(HTTP en.wikipedia.org/wiki/Radix_tree)
     See_Also: $(HTTP github.com/npgall/concurrent-trees)

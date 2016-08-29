@@ -1,32 +1,32 @@
 /** Tries and Prefix Trees.
 
     Implementation is layered:
+    $(UL
+    $(LI `RawRadixTree` stores its untyped keys as variable length ubyte-strings (`UKey`))
+    $(LI On top of that `RadixTree` implements typed-key access via its template parameter `Key`.)
+    )
 
-    1. `RawRadixTree` stores its untyped keys as variable length ubyte-strings
-    (`UKey`).
-    2. On top of that `RadixTree` implements typed-key access via its template
-    parameter `Key`.
+    Both layers currently
 
-    Both layers currently are
+    $(UL
+    $(LI have template parameterization on the `Value`-type in the map case (when `Value` is non-`void`))
+    $(LI are completely `@nogc` and when possible `@safe pure nothrow` as it doesn't use the GC)
+    $(LI Insertion with new key detection: `auto newKeyWasInserted = set.insert(Key key)`)
+    $(LI Support AA-style `in`-operator)
+      $(UL
+      $(LI `key in set` is `bool` for set-case)
+      $(LI `key in map` returns non-`null` `value` pointer when `key` is stored in `map`)
+      )
+    $(LI AA-style iteration of map keys: `map.byKey()`)
+    $(LI AA-style iteration of map values: `map.byValue()`)
+    $(LI Containment checking: `contains()`)
+    $(LI Element indexing and element index assignment for map case via `opIndex` and `opIndexAssign`)
+    $(LI Key-Prefix Completion (returning a `Range` over all set/map-elements that match a key prefix): `prefix(Key keyPrefix)`)
+    )
 
-    - template parameterization on the `Value`-type in the map case (when
-    `Value` is non-`void`).
-    - is completely `@nogc` and when possible `@safe pure nothrow` as it doesn't use the GC
-    - Insertion: `set.insert(Key key)`
-    - Support for AA-style `in`-operator:
-    - `key in set` is `bool` for set-case
-      - `key in map` returns non-`null` `value` pointer when `key` is stored in `map`
-    - Map-case:
-      - AA-style iteration of keys: `tree.byKey()`
-      - AA-style iteration of values: `tree.byValue()`
-    - Containment checking: `contains()`
-    - Element Indexing: `opIndex`
-    - Element Index Assignment: `opIndexAssign`
-    - Key-Prefix Completion (returning a `Range` over all set/map-elements that match a key prefix): `prefix(Key keyPrefix)`
+    See_Also `https://github.com/nordlow/phobos-next/blob/master/src/test_trie_prefix.d` for a descriptive usage of prefixed access.
 
-    See `https://github.com/nordlow/phobos-next/blob/master/src/test_trie_prefix.d` for a descriptive usage of prefixed access.
-
-    See also: https://en.wikipedia.org/wiki/Trie
+    See_Also: https://en.wikipedia.org/wiki/Trie
     See_Also: https://en.wikipedia.org/wiki/Radix_tree
 
     TODOs:

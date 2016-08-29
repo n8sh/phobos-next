@@ -4175,6 +4175,18 @@ struct RadixTree(Key, Value)
         alias _rawRange this;
     }
 
+    static if (RawTree.hasValue)
+    {
+        import std.algorithm.iteration : map;
+        auto byKey() { return this[].map!(e => e[0]); }
+        auto byValue() { return this[].map!(e => e[1]); }
+    }
+    else
+    {
+        import std.algorithm.iteration : map;
+        auto byKey() const { return this[]; }
+    }
+
     /** Print `this` tree. */
     void print() @safe const { _rawTree.print(); }
 

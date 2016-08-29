@@ -4420,7 +4420,7 @@ unittest
 }
 
 /// Check string types in `Keys`.
-auto checkString(Keys...)(size_t count, uint maxLength, bool show)
+auto testString(Keys...)(size_t count, uint maxLength, bool show)
     if (Keys.length >= 1)
 {
     void testContainsAndInsert(Set, Key)(ref Set set, Key key)
@@ -4480,8 +4480,8 @@ auto checkString(Keys...)(size_t count, uint maxLength, bool show)
 @safe /* TODO pure nothrow @nogc */
 unittest
 {
-    checkString!(string)(512, 8, true);
-    checkString!(string)(2^^18, 2^^7, false);
+    testString!(string)(512, 8, true);
+    testString!(string)(2^^18, 2^^7, false);
 }
 
 /// test map to values of type `bool`

@@ -4110,7 +4110,9 @@ struct RadixTree(Key, Value)
         import std.algorithm : startsWith;
         static if (hasValue)
         {
-            assert(false, "TODO");
+            return rawRange.filter!(rawElement => rawElement[0].startsWith(rawKeyPrefixRest))
+                           .map!(rawElement => tuple(rawElement[0][rawKeyPrefixRest.length .. $].toTypedKey!Key,
+                                                     rawElement[1]));
         }
         else
         {

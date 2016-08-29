@@ -4465,6 +4465,9 @@ auto testString(Keys...)(size_t count, uint maxLength, bool show)
         auto sw2 = StopWatch(AutoStart.yes);
 
         assert(set[].equal(sortedKeys));
+        import std.algorithm : filter, map;
+        assert(set.prefix("a").equal(sortedKeys.filter!(x => x.length && x[0] == 'a')
+                                               .map!(x => x[1 .. $])));
 
         sw2.stop;
         version(print)
@@ -4481,7 +4484,7 @@ auto testString(Keys...)(size_t count, uint maxLength, bool show)
 unittest
 {
     testString!(string)(512, 8, true);
-    testString!(string)(2^^18, 2^^7, false);
+    testString!(string)(2^^18, 2^^5, false);
 }
 
 /// test map to values of type `bool`

@@ -1,12 +1,16 @@
 /** Tries and Prefix Trees.
 
-    Implementation is layered; `RawRadixTree` stores its untyped keys as
-    variable length ubyte-strings (`UKey`). On top of that `RadixTree`
-    implements typed-key access via its template parameter `Key`. Both layers
-    must be parameterized on the `Value`-type in the map case (when `Value` is
-    non-`void`).
+    Implementation is layered:
 
-    Both layers currently implements
+    1. `RawRadixTree` stores its untyped keys as variable length ubyte-strings
+    (`UKey`).
+    2. On top of that `RadixTree` implements typed-key access via its template
+    parameter `Key`.
+
+    Both layers currently are
+
+    - template parameterization on the `Value`-type in the map case (when
+    `Value` is non-`void`).
     - is completely `@nogc` and when possible `@safe pure nothrow` as it doesn't use the GC
     - Insertion: `set.insert(Key key)`
     - Support for AA-style `in`-operator:
@@ -20,8 +24,7 @@
     See `https://github.com/nordlow/phobos-next/blob/master/src/test_trie_prefix.d` for a descriptive usage of prefixed access.
 
     See also: https://en.wikipedia.org/wiki/Trie
-
-    See also: https://en.wikipedia.org/wiki/Radix_tree
+    See_Also: https://en.wikipedia.org/wiki/Radix_tree
 
     TODOs:
 
@@ -878,13 +881,13 @@ static assert((DenseLeaf1!void).sizeof == 32);
     For a good introduction to adaptive radix trees (ART) see
     https://infosys.cs.uni-saarland.de/publications/ARCD15.pdf
 
-    See also: https://en.wikipedia.org/wiki/Trie
-    See also: https://en.wikipedia.org/wiki/Radix_tree
-    See also: https://github.com/npgall/concurrent-trees
-    See also: http://code.dogmap.org/kart/
-    See also: http://cr.yp.to/critbit.html
-    See also: https://gcc.gnu.org/onlinedocs/libstdc++/ext/pb_ds/trie_based_containers.html
-    See also: https://github.com/npgall/concurrent-trees
+    See_Also: https://en.wikipedia.org/wiki/Trie
+    See_Also: https://en.wikipedia.org/wiki/Radix_tree
+    See_Also: https://github.com/npgall/concurrent-trees
+    See_Also: http://code.dogmap.org/kart/
+    See_Also: http://cr.yp.to/critbit.html
+    See_Also: https://gcc.gnu.org/onlinedocs/libstdc++/ext/pb_ds/trie_based_containers.html
+    See_Also: https://github.com/npgall/concurrent-trees
 */
 struct RawRadixTree(Value = void)
 {

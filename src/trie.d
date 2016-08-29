@@ -16,8 +16,11 @@
     - Support for AA-style `in`-operator:
     - `key in set` is `bool` for set-case
       - `key in map` returns non-`null` `value` pointer when `key` is stored in `map`
-    - `tree.byKey()` (AA)
-    - `tree.byValue()` (AA)
+
+    - Map-case:
+      - AA-style iteration of keys: `tree.byKey()`
+      - AA-style iteration of values: `tree.byValue()`
+
     - Containment checking: `contains()`
     - Element Indexing: `opIndex`
     - Element Index Assignment: `opIndexAssign`
@@ -4182,11 +4185,6 @@ struct RadixTree(Key, Value)
         import std.algorithm.iteration : map;
         auto byKey() { return this[].map!(e => e[0]); }
         auto byValue() { return this[].map!(e => e[1]); }
-    }
-    else
-    {
-        import std.algorithm.iteration : map;
-        auto byKey() const { return this[]; }
     }
 
     /** Print `this` tree. */

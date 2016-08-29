@@ -7,7 +7,6 @@
     )
 
     Both layers currently
-
     $(UL
     $(LI have template parameterization on the `Value`-type in the map case (when `Value` is non-`void`))
     $(LI are completely `@nogc` and when possible `@safe pure nothrow` as it doesn't use the GC)
@@ -24,10 +23,10 @@
     $(LI Key-Prefix Completion (returning a `Range` over all set/map-elements that match a key prefix): `prefix(Key keyPrefix)`)
     )
 
-    See_Also `https://github.com/nordlow/phobos-next/blob/master/src/test_trie_prefix.d` for a descriptive usage of prefixed access.
-
     See_Also: https://en.wikipedia.org/wiki/Trie
     See_Also: https://en.wikipedia.org/wiki/Radix_tree
+
+    See_Also `https://github.com/nordlow/phobos-next/blob/master/src/test_trie_prefix.d` for a descriptive usage of prefixed access.
 
     TODOs:
 

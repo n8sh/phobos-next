@@ -3963,14 +3963,7 @@ struct RadixTree(Key, Value)
     static if (RawTree.hasValue)
     {
         alias Element = Tuple!(Key, "key", Value, "value");
-    }
-    else
-    {
-        alias Element = Key;
-    }
 
-    static if (RawTree.hasValue)
-    {
         ref Value opIndex(Key key)
         {
             Value* value = contains(key);
@@ -4053,6 +4046,8 @@ struct RadixTree(Key, Value)
     }
     else
     {
+        alias Element = Key;
+
         /** Insert `key`.
             Returns: `true` if `key` wasn't previously added, `false` otherwise.
         */
@@ -4168,12 +4163,21 @@ struct RadixTree(Key, Value)
     static if (RawTree.hasValue)
     {
         import std.algorithm.iteration : map;
-        auto byKey() { return this[].map!(e => e[0]); }
-        auto byValue() { return this[].map!(e => e[1]); }
+        auto byKey()
+        {
+            return this[].map!(e => e[0]);
+        }
+        auto byValue()
+        {
+            return this[].map!(e => e[1]);
+        }
     }
 
     /** Print `this` tree. */
-    void print() @safe const { _rawTree.print(); }
+    void print() @safe const
+    {
+        _rawTree.print();
+    }
 
     RawTree _rawTree;
     alias _rawTree this;

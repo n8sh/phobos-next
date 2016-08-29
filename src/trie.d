@@ -6,6 +6,15 @@
     must be parameterized on the `Value`-type in the map case (when `Value` is
     non-`void`).
 
+    Both layers currently implements
+    - Insertion: `set.insert(Key key)`
+    - `contains()`
+    - Element Indexing: `opIndex`
+    - Element Index Assignment: `opIndexAssign`
+    - Prefix Completion (by reusing `Range`): `prefix(Keyk)`
+
+    See `https://github.com/nordlow/phobos-next/blob/master/src/test_trie_prefix.d` for a descriptive usage of prefixed access.
+
     See also: https://en.wikipedia.org/wiki/Trie
 
     See also: https://en.wikipedia.org/wiki/Radix_tree

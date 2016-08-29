@@ -6,10 +6,9 @@
     must be parameterized on the `Value`-type in the map case (when `Value` is
     non-`void`).
 
-    Implementation is always `@safe pure nothrow @nogc` when possible as it
-    doesn't depend on the GC.
 
     Both layers currently implements
+    - is completely `@nogc` and when possible `@safe pure nothrow` as it doesn't use the GC
     - Insertion: `set.insert(Key key)`
     - `contains()`
     - Element Indexing: `opIndex`

@@ -173,6 +173,8 @@ struct ModArrayN(uint capacity,
     /** Get length. */
     auto length() const { return _length; }
 
+    enum typeBits = 4;
+
 private:
     static if (L == 1)
     {
@@ -188,7 +190,6 @@ private:
         ubyte _padding;
     }
 
-    enum typeBits = 4;
     import std.bitmanip : bitfields;
     mixin(bitfields!(size_t, "_length", 4, // maximum length of 15
                      ubyte, "_mustBeIgnored", typeBits)); // must be here and ignored because it contains `WordVariant` type of `Node`

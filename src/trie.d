@@ -6,11 +6,13 @@
     must be parameterized on the `Value`-type in the map case (when `Value` is
     non-`void`).
 
-
     Both layers currently implements
     - is completely `@nogc` and when possible `@safe pure nothrow` as it doesn't use the GC
     - Insertion: `set.insert(Key key)`
-    - `contains()`
+    - Support for AA-style `in`-operator:
+    - `key in set` is `bool` for set-case
+      - `key in map` returns non-`null` `value` pointer when `key` is stored in `map`
+    - Containment checking: `contains()`
     - Element Indexing: `opIndex`
     - Element Index Assignment: `opIndexAssign`
     - Prefix Completion (by reusing `Range`): `prefix(Keyk)`

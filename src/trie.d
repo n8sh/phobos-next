@@ -5,7 +5,6 @@
     $(LI `RawRadixTree` stores its untyped keys as variable length ubyte-strings (`UKey`))
     $(LI On top of that `RadixTree` implements typed-key access via its template parameter `Key`.)
     )
-
     Both layers currently
     $(UL
     $(LI have template parameterization on the `Value`-type in the map case (when `Value` is non-`void`))
@@ -22,10 +21,8 @@
     $(LI Element indexing and element index assignment for map case via `opIndex` and `opIndexAssign`)
     $(LI Key-Prefix Completion (returning a `Range` over all set/map-elements that match a key prefix): `prefix(Key keyPrefix)`)
     )
-
     See_Also: https://en.wikipedia.org/wiki/Trie
     See_Also: https://en.wikipedia.org/wiki/Radix_tree
-
     See_Also `https://github.com/nordlow/phobos-next/blob/master/src/test_trie_prefix.d` for a descriptive usage of prefixed access.
 
     TODOs:

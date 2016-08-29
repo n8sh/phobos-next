@@ -4185,14 +4185,8 @@ alias CompactPrefixTree = RadixTree;
 */
 template MutableKey(Key)
 {
-    static if (isArray!Key)
-    {
-        alias MutableKey = const(Unqual!(typeof(Key.init[0])))[];
-    }
-    else
-    {
-        alias MutableKey = Key;
-    }
+    static if (isArray!Key) alias MutableKey = const(Unqual!(typeof(Key.init[0])))[];
+    else                    alias MutableKey = Key;
 }
 
 /// Instantiator for the set-version of `RadixTree` where value-type is `void` (unused).

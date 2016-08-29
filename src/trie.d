@@ -22,7 +22,7 @@
     - Containment checking: `contains()`
     - Element Indexing: `opIndex`
     - Element Index Assignment: `opIndexAssign`
-    - Prefix Completion (by reusing `Range`): `prefix(Key keyPrefix)`
+    - Key-Prefix Completion (returning a `Range` over all set/map-elements that match a key prefix): `prefix(Key keyPrefix)`
 
     See `https://github.com/nordlow/phobos-next/blob/master/src/test_trie_prefix.d` for a descriptive usage of prefixed access.
 

@@ -21,9 +21,9 @@
     $(LI Element indexing and element index assignment for map case via `opIndex` and `opIndexAssign`)
     $(LI Key-Prefix Completion (returning a `Range` over all set/map-elements that match a key prefix): `prefix(Key keyPrefix)`)
     )
-    See_Also: https://en.wikipedia.org/wiki/Trie
-    See_Also: https://en.wikipedia.org/wiki/Radix_tree
-    See_Also `https://github.com/nordlow/phobos-next/blob/master/src/test_trie_prefix.d` for a descriptive usage of prefixed access.
+    See_Also: $(HTTP en.wikipedia.org/wiki/Trie)
+    See_Also: $(HTTP en.wikipedia.org/wiki/Radix_tree)
+    See_Also: $(HTTP github.com/nordlow/phobos-next/blob/master/src/test_trie_prefix.d) for a descriptive usage of prefixed access.
 
     TODO:
     TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
@@ -863,16 +863,17 @@ static assert((DenseLeaf1!void).sizeof == 32);
     significant chunk (byte) first. This includes IEEE-compliant floating point
     numbers.
 
-    For a good introduction to adaptive radix trees (ART) see
-    https://infosys.cs.uni-saarland.de/publications/ARCD15.pdf
+    For a good introduction to adaptive radix trees (ART) see $(HTTP infosys.cs.uni-saarland.de/publications/ARCD15.pdf)
 
-    See_Also: https://en.wikipedia.org/wiki/Trie
-    See_Also: https://en.wikipedia.org/wiki/Radix_tree
-    See_Also: https://github.com/npgall/concurrent-trees
-    See_Also: http://code.dogmap.org/kart/
-    See_Also: http://cr.yp.to/critbit.html
-    See_Also: https://gcc.gnu.org/onlinedocs/libstdc++/ext/pb_ds/trie_based_containers.html
-    See_Also: https://github.com/npgall/concurrent-trees
+    See_Also: $(HTTP www.ietf.org/rfc/rfc2616.txt, RFC2616)
+
+    See_Also: $(HTTP en.wikipedia.org/wiki/Trie)
+    See_Also: $(HTTP en.wikipedia.org/wiki/Radix_tree)
+    See_Also: $(HTTP github.com/npgall/concurrent-trees)
+    See_Also: $(HTTP code.dogmap.org/kart/)
+    See_Also: $(HTTP cr.yp.to/critbit.html)
+    See_Also: $(HTTP gcc.gnu.org/onlinedocs/libstdc++/ext/pb_ds/trie_based_containers.html)
+    See_Also: $(HTTP github.com/npgall/concurrent-trees)
 */
 struct RawRadixTree(Value = void)
 {

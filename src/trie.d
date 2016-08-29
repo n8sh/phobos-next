@@ -55,7 +55,6 @@
     - Ix3 (0,1,2): 2-bits
     - Ix4 (0,1): 1-bit
     Total bits 8-bits
-
     Possible packings with 6 bytes
     - 4_
     - 4_2

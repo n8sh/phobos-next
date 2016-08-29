@@ -16,6 +16,8 @@
     - Support for AA-style `in`-operator:
     - `key in set` is `bool` for set-case
       - `key in map` returns non-`null` `value` pointer when `key` is stored in `map`
+    - `tree.byKey()` (AA)
+    - `tree.byValue()` (AA)
     - Containment checking: `contains()`
     - Element Indexing: `opIndex`
     - Element Index Assignment: `opIndexAssign`

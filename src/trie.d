@@ -72,17 +72,17 @@
 
     TODO Sorted Range Primitives over Keys
 
-    Returns a range of elements which are equivalent (though not necessarily equal) to value.
-    auto equalRange(this This)(inout T value)
+    - Returns a range of elements which are equivalent (though not necessarily equal) to value.
+      auto equalRange(this This)(inout T value)
 
-    Returns a range of elements which are greater than low and smaller than highValue.
-    auto bound(this This)(inout T lowValue, inout T highValue)
+    - Returns a range of elements which are greater than low and smaller than highValue.
+      auto bound(this This)(inout T lowValue, inout T highValue)
 
-    Returns a range of elements which are less than value.
-    auto lowerBound(this This)(inout T value)
+    - Returns a range of elements which are less than value.
+      auto lowerBound(this This)(inout T value)
 
-    Returns a range of elements which are greater than value.
-    auto upperBound(this This)(inout T value)
+    - Returns a range of elements which are greater than value.
+      auto upperBound(this This)(inout T value)
 
     TODO opBinaryRight shall return `_rawTree.ElementRef` instead of `bool`
 */

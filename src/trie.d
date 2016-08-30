@@ -247,7 +247,7 @@ struct TwoLeaf3
         this.keys = keys;
     }
 
-    inout(Ix)[] prefix() inout nothrow
+    inout(Ix)[] prefix() inout nothrow @nogc
     {
         assert(!keys.empty);
         final switch (keys.length)
@@ -289,7 +289,7 @@ struct TriLeaf2
         this.keys = keys;
     }
 
-    inout(Ix)[] prefix() inout nothrow
+    inout(Ix)[] prefix() inout nothrow @nogc
     {
         assert(!keys.empty);
         final switch (keys.length)
@@ -376,10 +376,10 @@ static private struct SparseLeaf1(Value)
     static if (hasValue) alias IxElement = Tuple!(UIx, "ix", Value, "value");
     else                 alias IxElement = UIx;
 
-    pure nothrow /* TODO @nogc */:
+    pure nothrow @nogc:
 
     /** Construct empty with `capacity`. */
-    pragma(inline) this(size_t capacity)   /* TODO @nogc */
+    pragma(inline) this(size_t capacity)
     {
         _capacity = capacity;
         _length = 0;
@@ -393,7 +393,7 @@ static private struct SparseLeaf1(Value)
         }
 
         /** Construct with capacity `capacity`. */
-        this(size_t capacity, Ix[] ixs, Value[] values) /* TODO @nogc */
+        this(size_t capacity, Ix[] ixs, Value[] values)
         in
         {
             assert(ixs.length == values.length);
@@ -415,7 +415,7 @@ static private struct SparseLeaf1(Value)
     }
     else
     {
-        this(size_t capacity, Ix[] ixs) /* TODO @nogc */
+        this(size_t capacity, Ix[] ixs)
         in
         {
             assert(capacity >= ixs.length);
@@ -472,7 +472,7 @@ static private struct SparseLeaf1(Value)
     /** Insert `key`, possibly self-reallocating `this` (into return). */
     typeof(this)* reconstructingInsert(IxElement elt,
                                        out ModStatus modStatus,
-                                       out size_t index) @trusted /* TODO @nogc */
+                                       out size_t index) @trusted
     {
         // get index
         static if (hasValue) { const ix = elt.ix; }
@@ -546,7 +546,7 @@ static private struct SparseLeaf1(Value)
         /** Get all intialized values. */
         pragma(inline) auto values() inout @trusted @nogc { return valuesSlots[0 .. _length]; }
 
-        pragma(inline) void setValue(UIx ix, in Value value) @trusted /* TODO @nogc */
+        pragma(inline) void setValue(UIx ix, in Value value) @trusted
         {
             size_t index;
             const hit = ixs.assumeSorted.containsStoreIndex(ix, index);
@@ -641,7 +641,7 @@ static private struct DenseLeaf1(Value)
 
     enum capacity = radix;
 
-    @safe pure nothrow:
+    @safe pure nothrow @nogc:
 
     static if (hasValue)
     {
@@ -685,15 +685,13 @@ static private struct DenseLeaf1(Value)
         }
     }
 
-    @nogc:
-
     pragma(inline) bool empty() const { return _ixBits.empty; }
     pragma(inline) bool full() const { return _ixBits.full; }
     pragma(inline) size_t count() const { return _ixBits.countOnes; }
 
     static if (hasValue)
     {
-        pragma(inline) inout(Value*) contains(UIx ix) inout @nogc
+        pragma(inline) inout(Value*) contains(UIx ix) inout
         {
             return _ixBits[ix] ? &(_values[ix]) : null;
         }
@@ -1850,7 +1848,7 @@ struct RawRadixTree(Value = void)
             this(Node root, bool willFail)
             {
                 this(root);
-                debug if (willFail)
+                // debug if (willFail)
                 {
                     this.willFail = willFail;
                 }
@@ -2038,9 +2036,9 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        ~this() { deinit(); }
+        ~this() @nogc { deinit(); }
 
-        private pragma(inline) void deinit() { /* nothing for now */ }
+        private pragma(inline) void deinit() @nogc { /* nothing for now */ }
 
         /** Insert `sub`, possibly self-reallocating `this` (into return).
         */
@@ -2288,9 +2286,9 @@ struct RawRadixTree(Value = void)
     }
 
     /// ditto
-    Branch setSub(SparseBranch* curr, UIx subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
+    Branch setSub(SparseBranch* curr, UIx subIx, Node subNode) @safe pure nothrow @nogc
     {
-        debug if (willFail) { dln("WILL FAIL: subIx:", subIx); }
+        // debug if (willFail) { dln("WILL FAIL: subIx:", subIx); }
         size_t insertionIndex;
         ModStatus modStatus;
         curr = curr.reconstructingInsert(Sub(subIx, subNode), modStatus, insertionIndex);
@@ -2304,13 +2302,13 @@ struct RawRadixTree(Value = void)
         return Branch(curr);
     }
     /// ditto
-    pragma(inline) Branch setSub(DenseBranch* curr, UIx subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
+    pragma(inline) Branch setSub(DenseBranch* curr, UIx subIx, Node subNode) @safe pure nothrow @nogc
     {
         try
         {
-            assert(!curr.subNodes[subIx],
-                   "sub-Node at index " ~ subIx.to!string ~
-                   " already set to " ~ subNode.to!string);
+            assert(!curr.subNodes[subIx], "sub-Node already set ");
+                   // "sub-Node at index " ~ subIx.to!string ~
+                   // " already set to " ~ subNode.to!string);
         }
         catch (Exception e) {}
         curr.subNodes[subIx] = subNode;
@@ -2439,7 +2437,7 @@ struct RawRadixTree(Value = void)
         assert(false, "TODO calculate tree by branches and leafs and make copies of them");
     }
 
-    ~this()
+    ~this() @nogc
     {
         if (_root) { release(_root); }
         debug
@@ -2448,9 +2446,10 @@ struct RawRadixTree(Value = void)
             {
                 if (_heapNodeAllocationBalance != 0)
                 {
-                    dln("warning: Memory leak, heap Node allocation balance is not zero, but " ~
-                        _heapNodeAllocationBalance.to!string ~
-                        ", nodeCountsByIx is " ~ nodeCountsByIx.to!string);
+                    assert(false, "warning: Memory leak, heap Node allocation balance is not zero, but "//  ~
+                           // _heapNodeAllocationBalance.to!string ~
+                           // ", nodeCountsByIx is " ~ nodeCountsByIx.to!string
+                        );
                 }
             }
             catch (Exception e) {}
@@ -2588,8 +2587,8 @@ struct RawRadixTree(Value = void)
             /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
             pragma(inline) inout(Value*) containsAt(Leaf1!Value curr, UKey key) inout
             {
-                debug if (willFail) { dln("curr:", curr); }
-                debug if (willFail) { dln("key:", key); }
+                // debug if (willFail) { dln("curr:", curr); }
+                // debug if (willFail) { dln("key:", key); }
                 switch (curr.typeIx) with (Leaf1!Value.Ix)
                 {
                 case undefined: return null;
@@ -2603,7 +2602,7 @@ struct RawRadixTree(Value = void)
             pragma(inline) inout(Value*) containsAt(Node curr, UKey key) inout
             {
                 assert(key.length);
-                debug if (willFail) { dln("key:", key); }
+                // debug if (willFail) { dln("key:", key); }
                 import std.algorithm : skipOver;
                 switch (curr.typeIx) with (Node.Ix)
                 {
@@ -2645,7 +2644,7 @@ struct RawRadixTree(Value = void)
             /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
             pragma(inline) bool containsAt(Leaf1!Value curr, UKey key)
             {
-                debug if (willFail) { dln("key:", key); }
+                // debug if (willFail) { dln("key:", key); }
                 final switch (curr.typeIx) with (Leaf1!Value.Ix)
                 {
                 case undefined: return false;
@@ -2658,7 +2657,7 @@ struct RawRadixTree(Value = void)
             pragma(inline) bool containsAt(Node curr, UKey key)
             {
                 assert(key.length);
-                debug if (willFail) { dln("key:", key); }
+                // debug if (willFail) { dln("key:", key); }
                 import std.algorithm : skipOver;
                 final switch (curr.typeIx) with (Node.Ix)
                 {
@@ -2730,7 +2729,7 @@ struct RawRadixTree(Value = void)
         }
     }
 
-    @safe pure nothrow /* TODO @nogc */
+    @safe pure nothrow @nogc
     {
         /** Insert `key` into `this` tree. */
         static if (hasValue)
@@ -2750,7 +2749,7 @@ struct RawRadixTree(Value = void)
             Node insertNew(UKey key, out ElementRef elementRef)
             {
                 Node next;
-                debug if (willFail) { dln("WILL FAIL: key:", key); }
+                // debug if (willFail) { dln("WILL FAIL: key:", key); }
                 switch (key.length)
                 {
                 case 0: assert(false, "key must not be empty"); // return elementRef = Node(construct!(OneLeafMax7)());
@@ -2777,7 +2776,7 @@ struct RawRadixTree(Value = void)
 
         Branch insertNewBranch(Element elt, out ElementRef elementRef)
         {
-            debug if (willFail) { dln("WILL FAIL: elt:", elt); }
+            // debug if (willFail) { dln("WILL FAIL: elt:", elt); }
             auto key = elementKey(elt);
             assert(key);
             import std.algorithm : min;
@@ -2794,7 +2793,7 @@ struct RawRadixTree(Value = void)
         pragma(inline) Node insertAt(Node curr, Element elt, out ElementRef elementRef)
         {
             auto key = elementKey(elt);
-            debug if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr); }
+            // debug if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr); }
             assert(key.length);
 
             if (!curr)          // if no existing `Node` to insert at
@@ -2841,7 +2840,7 @@ struct RawRadixTree(Value = void)
                 case ix_DenseLeaf1Ptr:
                     return insertAtLeaf(Leaf1!Value(curr.as!(DenseLeaf1!Value*)), elt, elementRef); // TODO use toLeaf(curr)
                 case ix_SparseBranchPtr:
-                    debug if (willFail) { dln("WILL FAIL: currPrefix:", curr.as!(SparseBranch*).prefix); }
+                    // debug if (willFail) { dln("WILL FAIL: currPrefix:", curr.as!(SparseBranch*).prefix); }
                     return Node(insertAtBranchAbovePrefix(Branch(curr.as!(SparseBranch*)), elt, elementRef));
                 case ix_DenseBranchPtr:
                     return Node(insertAtBranchAbovePrefix(Branch(curr.as!(DenseBranch*)), elt, elementRef));
@@ -2860,16 +2859,16 @@ struct RawRadixTree(Value = void)
             auto currPrefix = getPrefix(curr);
             auto matchedKeyPrefix = commonPrefix(key, currPrefix);
 
-            debug if (willFail) { dln("WILL FAIL: key:", key,
-                                " curr:", curr,
-                                " currPrefix:", getPrefix(curr),
-                                " matchedKeyPrefix:", matchedKeyPrefix); }
+            // debug if (willFail) { dln("WILL FAIL: key:", key,
+            //                     " curr:", curr,
+            //                     " currPrefix:", getPrefix(curr),
+            //                     " matchedKeyPrefix:", matchedKeyPrefix); }
 
             if (matchedKeyPrefix.length == 0) // no prefix key match
             {
                 if (currPrefix.length == 0) // no current prefix
                 {
-                    debug if (willFail) { dln("WILL FAIL"); }
+                    // debug if (willFail) { dln("WILL FAIL"); }
                     // NOTE: prefix:"", key:"cd"
                     return insertAtBranchBelowPrefix(curr, elt, elementRef);
                 }
@@ -2879,7 +2878,7 @@ struct RawRadixTree(Value = void)
                     const currSubIx = UIx(currPrefix[0]); // subIx = 'a'
                     if (currPrefix.length == 1 && getSubCount(curr) == 0) // if `curr`-prefix become empty and only leaf pointer
                     {
-                        debug if (willFail) { dln("WILL FAIL"); }
+                        // debug if (willFail) { dln("WILL FAIL"); }
                         popFrontNPrefix(curr, 1);
                         setSub(curr, currSubIx, Node(getLeaf1(curr))); // move it to sub
                         setLeaf1(curr, Leaf1!Value.init);
@@ -2888,7 +2887,7 @@ struct RawRadixTree(Value = void)
                     }
                     else
                     {
-                        debug if (willFail) { dln("WILL FAIL"); }
+                        // debug if (willFail) { dln("WILL FAIL"); }
                         popFrontNPrefix(curr, 1);
                         auto next = constructVariableLength!(DefaultBranch)(2, null,
                                                                             Sub(currSubIx, Node(curr)));
@@ -2900,13 +2899,13 @@ struct RawRadixTree(Value = void)
             {
                 if (matchedKeyPrefix.length == currPrefix.length)
                 {
-                    debug if (willFail) { dln("WILL FAIL"); }
+                    // debug if (willFail) { dln("WILL FAIL"); }
                     // NOTE: key is an extension of prefix: prefix:"ab", key:"abcd"
                     return insertAtBranchBelowPrefix(curr, elementKeyDropExactly(elt, currPrefix.length), elementRef);
                 }
                 else
                 {
-                    debug if (willFail) { dln("WILL FAIL"); }
+                    // debug if (willFail) { dln("WILL FAIL"); }
                     // NOTE: prefix and key share beginning: prefix:"ab11", key:"ab22"
                     const currSubIx = UIx(currPrefix[matchedKeyPrefix.length]); // need index first before we modify curr.prefix
                     popFrontNPrefix(curr, matchedKeyPrefix.length + 1);
@@ -2917,7 +2916,7 @@ struct RawRadixTree(Value = void)
             }
             else // if (matchedKeyPrefix.length == key.length)
             {
-                debug if (willFail) { dln("WILL FAIL"); }
+                // debug if (willFail) { dln("WILL FAIL"); }
                 assert(matchedKeyPrefix.length == key.length);
                 if (matchedKeyPrefix.length < currPrefix.length)
                 {
@@ -2961,7 +2960,7 @@ struct RawRadixTree(Value = void)
         {
             pragma(inline) Branch insertAtBranchSubNode(Branch curr, UKey key, Value value, out ElementRef elementRef)
             {
-                debug if (willFail) { dln("WILL FAIL"); }
+                // debug if (willFail) { dln("WILL FAIL"); }
                 const subIx = UIx(key[0]);
                 return setSub(curr, subIx,
                               insertAt(getSub(curr, subIx), // recurse
@@ -2973,7 +2972,7 @@ struct RawRadixTree(Value = void)
         {
             pragma(inline) Branch insertAtBranchSubNode(Branch curr, UKey key, out ElementRef elementRef)
             {
-                debug if (willFail) { dln("WILL FAIL"); }
+                // debug if (willFail) { dln("WILL FAIL"); }
                 const subIx = UIx(key[0]);
                 return setSub(curr, subIx,
                               insertAt(getSub(curr, subIx), // recurse
@@ -2989,10 +2988,10 @@ struct RawRadixTree(Value = void)
         {
             auto key = elementKey(elt);
             assert(key.length);
-            debug if (willFail) { dln("WILL FAIL: key:", key,
-                                      " curr:", curr,
-                                      " currPrefix:", getPrefix(curr),
-                                      " elementRef:", elementRef); }
+            // debug if (willFail) { dln("WILL FAIL: key:", key,
+            //                           " curr:", curr,
+            //                           " currPrefix:", getPrefix(curr),
+            //                           " elementRef:", elementRef); }
             if (key.length == 1)
             {
                 static if (hasValue)
@@ -3020,9 +3019,9 @@ struct RawRadixTree(Value = void)
         Leaf1!Value insertIxAtLeaftoLeaf(Leaf1!Value curr, IxElement elt, out ElementRef elementRef)
         {
             auto key = elementIx(elt);
-            debug if (willFail) { dln("WILL FAIL: elt:", elt,
-                                      " curr:", curr,
-                                      " elementRef:", elementRef); }
+            // debug if (willFail) { dln("WILL FAIL: elt:", elt,
+            //                           " curr:", curr,
+            //                           " elementRef:", elementRef); }
             switch (curr.typeIx) with (Leaf1!Value.Ix)
             {
             case undefined:
@@ -3066,7 +3065,8 @@ struct RawRadixTree(Value = void)
                 elementRef = ElementRef(Node(curr), ix, modStatus);
                 break;
             default:
-                assert(false, "Unsupported Leaf1!Value type " ~ curr.typeIx.to!string);
+                assert(false, "Unsupported Leaf1!Value type " // ~ curr.typeIx.to!string
+                    );
             }
             return curr;
         }
@@ -3075,18 +3075,20 @@ struct RawRadixTree(Value = void)
         {
             Branch insertAtBranchLeaf1(Branch curr, UIx key, Value value, out ElementRef elementRef)
             {
-                debug if (willFail) { dln("WILL FAIL: key:", key,
-                                          " value:", value,
-                                          " curr:", curr,
-                                          " currPrefix:", getPrefix(curr),
-                                          " elementRef:", elementRef); }
+                // debug if (willFail) { dln("WILL FAIL: key:", key,
+                //                           " value:", value,
+                //                           " curr:", curr,
+                //                           " currPrefix:", getPrefix(curr),
+                //                           " elementRef:", elementRef); }
                 if (auto leaf = getLeaf1(curr))
                 {
                     setLeaf1(curr, insertIxAtLeaftoLeaf(leaf, IxElement(key, value), elementRef));
                 }
                 else
                 {
-                    auto leaf_ = constructVariableLength!(SparseLeaf1!Value*)(1, [Ix(key)], [value]); // needed for values
+                    Ix[1] ixs = [Ix(key)]; // TODO scope
+                    Value[1] values = [value]; // TODO scope
+                    auto leaf_ = constructVariableLength!(SparseLeaf1!Value*)(1, ixs, values); // needed for values
                     elementRef = ElementRef(Node(leaf_), UIx(0), ModStatus.added);
                     setLeaf1(curr, Leaf1!Value(leaf_));
                 }
@@ -3097,10 +3099,10 @@ struct RawRadixTree(Value = void)
         {
             Branch insertAtBranchLeaf1(Branch curr, UIx key, out ElementRef elementRef)
             {
-                debug if (willFail) { dln("WILL FAIL: key:", key,
-                                          " curr:", curr,
-                                          " currPrefix:", getPrefix(curr),
-                                          " elementRef:", elementRef); }
+                // debug if (willFail) { dln("WILL FAIL: key:", key,
+                //                           " curr:", curr,
+                //                           " currPrefix:", getPrefix(curr),
+                //                           " elementRef:", elementRef); }
                 if (auto leaf = getLeaf1(curr))
                 {
                     setLeaf1(curr, insertIxAtLeaftoLeaf(leaf, key, elementRef));
@@ -3117,8 +3119,7 @@ struct RawRadixTree(Value = void)
 
         Node insertAtLeaf(Leaf1!Value curr, Element elt, out ElementRef elementRef)
         {
-            debug if (willFail) { dln("WILL FAIL: elt:", elt); }
-
+            // debug if (willFail) { dln("WILL FAIL: elt:", elt); }
             auto key = elementKey(elt);
             assert(key.length);
             if (key.length == 1)
@@ -3143,7 +3144,7 @@ struct RawRadixTree(Value = void)
             Node insertAt(OneLeafMax7 curr, UKey key, out ElementRef elementRef)
             {
                 assert(curr.key.length);
-                debug if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
+                // debug if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
 
                 import std.algorithm : commonPrefix;
                 auto matchedKeyPrefix = commonPrefix(key, curr.key);
@@ -3267,7 +3268,7 @@ struct RawRadixTree(Value = void)
             /** Split `curr` using `prefix`. */
             Node split(OneLeafMax7 curr, UKey prefix, UKey key) // TODO key here is a bit malplaced
             {
-                if (key.length == 0) { dln("TODO key shouldn't be empty when curr:", curr); } assert(key.length);
+                assert(key.length);
                 assert(hasVariableKeyLength || curr.key.length == key.length);
 
                 if (curr.key.length == key.length) // balanced tree possible
@@ -3457,7 +3458,7 @@ struct RawRadixTree(Value = void)
         if (!hasVariableLength!NodeType)
     {
         version(debugPrintAllocations) { dln("constructing ", NodeType.stringof, " from ", args); }
-        debug ++nodeCountsByIx[NodeType.stringof];
+        debug ++nodeCountsByIx[Node.indexOf!NodeType];
         static if (isPointer!NodeType)
         {
             debug ++_heapNodeAllocationBalance;
@@ -3477,14 +3478,14 @@ struct RawRadixTree(Value = void)
             hasVariableLength!NodeType)
     {
         version(debugPrintAllocations) { dln("constructing ", NodeType.stringof, " from ", args); }
-        debug ++nodeCountsByIx[NodeType.stringof];
+        debug ++nodeCountsByIx[Node.indexOf!NodeType];
         debug ++_heapNodeAllocationBalance;
         import vla : constructVariableLength;
         return constructVariableLength!(typeof(*NodeType.init))(requiredCapacity, args);
         // TODO ensure alignment of node at least that of NodeType.alignof
     }
 
-    void freeNode(NodeType)(NodeType nt) @trusted
+    void freeNode(NodeType)(NodeType nt) @trusted @nogc
     {
         version(debugPrintAllocations) { dln("freeing ", NodeType.stringof, " ", nt); }
         static if (isPointer!NodeType)
@@ -3492,10 +3493,10 @@ struct RawRadixTree(Value = void)
             free(cast(void*)nt);  // TODO Allocator.free
             debug --_heapNodeAllocationBalance;
         }
-        debug --nodeCountsByIx[NodeType.stringof];
+        debug --nodeCountsByIx[Node.indexOf!NodeType];
     }
 
-    @safe pure nothrow /* TODO @nogc */
+    @safe pure nothrow @nogc
     {
         pragma(inline) void release(SparseLeaf1!Value* curr)
         {
@@ -3750,7 +3751,7 @@ private:
 
     debug:                      // debug stuff
     long _heapNodeAllocationBalance = 0;
-    size_t[string] nodeCountsByIx; // TODO Index using Node.Ix instead
+    size_t[Node.Ix.max + 1] nodeCountsByIx;
     bool willFail;
 }
 
@@ -3758,6 +3759,7 @@ private:
  */
 static private void calculate(Value)(RawRadixTree!(Value).Node curr,
                                      ref RawRadixTree!(Value).Stats stats)
+    @safe pure nothrow /* TODO @nogc */
 {
     alias RT = RawRadixTree!(Value);
     ++stats.popByNodeType[curr.typeIx];
@@ -3798,6 +3800,7 @@ static private void calculate(Value)(RawRadixTree!(Value).Node curr,
  */
 static private void calculate(Value)(Leaf1!Value curr,
                                      ref RawRadixTree!(Value).Stats stats)
+    @safe pure nothrow /* TODO @nogc */
 {
     alias RT = RawRadixTree!(Value);
     ++stats.popByLeaf1Type[curr.typeIx];
@@ -3951,7 +3954,7 @@ struct RadixTree(Key, Value)
 {
     alias RawTree = RawRadixTree!(Value);
 
-    this(bool unusedDummy)      // TODO how do we get rid of the need for `unusedDummy`?
+    this(bool unusedDummy) @nogc      // TODO how do we get rid of the need for `unusedDummy`?
     {
         this.fixedKeyLength = isFixedTrieableKeyType!Key ? Key.sizeof : fixedKeyLengthUndefined;
     }
@@ -3991,7 +3994,7 @@ struct RadixTree(Key, Value)
         /** Insert `key`.
             Returns: `true` if `key` wasn't previously added, `false` otherwise.
         */
-        bool insert(in Key key, in Value value)
+        bool insert(in Key key, in Value value) @nogc
         {
             _rawTree.ElementRef elementRef; // indicates that key was added
 
@@ -4000,7 +4003,7 @@ struct RadixTree(Key, Value)
 
             _rawTree.insert(rawKey, value, elementRef);
 
-            debug if (willFail) { dln("WILL FAIL: elementRef:", elementRef, " key:", key); }
+            // debug if (willFail) { dln("WILL FAIL: elementRef:", elementRef, " key:", key); }
             if (elementRef.node)  // if `key` was added at `elementRef`
             {
                 // set value
@@ -4027,13 +4030,12 @@ struct RadixTree(Key, Value)
             }
             else
             {
-                dln("TODO warning no elementRef for key:", key, " rawKey:", rawKey);
-                assert(false);
+                assert(false, "TODO warning no elementRef for key:"/*, key, " rawKey:", rawKey*/);
             }
         }
 
         /** Returns: pointer to value if `key` is contained in set, null otherwise. */
-        inout(Value*) contains(in Key key) inout
+        inout(Value*) contains(in Key key) inout @nogc
         {
             KeyN!(span, Key.sizeof) ukey;
             auto rawKey = key.toRawKey(ukey); // TODO use DIP-1000
@@ -4042,6 +4044,7 @@ struct RadixTree(Key, Value)
     }
     else
     {
+        @nogc:
         alias Element = Key;
 
         /** Insert `key`.
@@ -4190,7 +4193,7 @@ template MutableKey(Key)
 }
 
 /// Instantiator for the set-version of `RadixTree` where value-type is `void` (unused).
-auto radixTreeSet(Key)()
+auto radixTreeSet(Key)() @nogc
 {
     return RadixTree!(MutableKey!Key, void)(false);
 }
@@ -4757,7 +4760,7 @@ unittest
 }
 
 /// Check correctness when span is `span` and for each `Key` in `Keys`.
-auto checkNumeric(Keys...)()
+auto checkNumeric(Keys...)() @nogc
     if (Keys.length >= 1)
 {
     import std.range : iota;
@@ -4770,8 +4773,7 @@ auto checkNumeric(Keys...)()
         foreach (Key; Keys)
         {
             // dln("Key: ", Key.stringof);
-            alias Tree = radixTreeSet!(Key);
-            auto set = Tree;
+            auto set = radixTreeSet!(Key);
             assert(set.hasFixedKeyLength == isFixedTrieableKeyType!Key);
             assert(set.empty);
 
@@ -4808,19 +4810,15 @@ auto checkNumeric(Keys...)()
                     const Key key = cast(Key)uk;
                     if (useContains)
                     {
-                        debug if (set.willFail) dln("before check no contains yet");
                         assert(!set.contains(key)); // key should not yet be in set
                         assert(key !in set);        // alternative syntax
                     }
 
-                    debug if (set.willFail) dln("before first insert()");
                     assert(set.insert(key));  // insert new value returns `true` (previously not in set)
                     if (useContains)
                     {
-                        debug if (set.willFail) dln("before check passing contains()");
                         assert(set.contains(key)); // key should now be in set
                     }
-                    debug if (set.willFail) dln("before second insert()");
                     assert(!set.insert(key)); // reinsert same value returns `false` (already in set)
 
                     if (useContains)
@@ -4933,7 +4931,7 @@ void benchmark()()
 }
 
 ///
-@safe pure nothrow /* TODO @nogc */ unittest
+@safe pure nothrow @nogc unittest
 {
     version(enterSingleInfiniteMemoryLeakTest)
     {

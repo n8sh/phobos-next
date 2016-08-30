@@ -4082,7 +4082,8 @@ struct RadixTree(Key, Value)
         auto rawKeyPrefix = keyPrefix.toRawKey(ukey[]);
 
         UKey rawKeyPrefixRest;
-        auto rawRange = RawRange(_rawTree.prefix(rawKeyPrefix, rawKeyPrefixRest));
+        auto prefixedRootNode = _rawTree.prefix(rawKeyPrefix, rawKeyPrefixRest);
+        auto rawRange = RawRange(prefixedRootNode, rawKeyPrefixRest);
 
         import std.algorithm.iteration : filter, map;
         import std.algorithm : startsWith;
@@ -4126,7 +4127,12 @@ struct RadixTree(Key, Value)
     /** Raw Range. */
     private static struct RawRange
     {
-        this(RawTree.Node root) { _rawRange = _rawTree.Range(root); }
+        this(RawTree.Node root,
+             UKey keyPrefixRest)
+        {
+            this._rawRange = _rawTree.Range(root);
+            this._keyPrefixRest = keyPrefixRest;
+        }
 
         static if (RawTree.hasValue)
         {
@@ -4143,6 +4149,8 @@ struct RadixTree(Key, Value)
 
         RawTree.Range _rawRange;
         alias _rawRange this;
+
+        UKey _keyPrefixRest;
     }
 
     static if (RawTree.hasValue)

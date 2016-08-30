@@ -1,4 +1,5 @@
-/** Array container(s) with optional sortedness (`Ordering`).
+/** Array container(s) with optional sortedness via template-parameter
+    `Ordering` and optional use of GC via `useGC`.
 
     TODO Make Array have reference semantics instead through via Automatic
     Reference Counting and scope keyword when DIP-1000 has been implemented
@@ -21,16 +22,6 @@
     https://forum.dlang.org/post/n3qq6e$2bis$1@digitalmars.com
  */
 module array_ex;
-
-// private import std.experimental.allocator.mallocator : Mallocator;
-
-// we handle these as pure to make containers using them pure
-extern(C) pure nothrow @system @nogc
-{
-    void* malloc(size_t size);
-    void* realloc(void* ptr, size_t size);
-    void free(void* ptr);
-}
 
 enum Ordering
 {
@@ -55,226 +46,14 @@ template shouldAddGCRange(T)
     enum shouldAddGCRange = isPointer!T || hasIndirections!T || is (T == class);
 }
 
-/// Large array storage.
-static struct Large(E, bool useGC)
-{
-    E* ptr;
-    size_t length;
-
-    static if (useGC)
-    {
-        import core.memory : GC;
-    }
-    else
-    {
-        alias _malloc = malloc;
-        alias _realloc = realloc;
-        alias _free = free;
-    }
-
-    pure nothrow:
-
-    static if (useGC)
-    {
-        this(size_t n)
-        {
-            length = n;
-            ptr = cast(E*)GC.malloc(E.sizeof * length);
-        }
-        void resize(size_t n)
-        {
-            length = n;
-            ptr = cast(E*)GC.realloc(ptr, E.sizeof * length);
-        }
-        void clear()
-        {
-            GC.free(ptr);
-            debug ptr = null;
-        }
-    }
-    else
-    {
-        @nogc:
-        this(size_t n)
-        {
-            length = n;
-            ptr = cast(E*)_malloc(E.sizeof * length);
-        }
-        void resize(size_t n)
-        {
-            length = n;
-            ptr = cast(E*)_realloc(ptr, E.sizeof * length);
-        }
-        void clear()
-        {
-            _free(ptr);
-            debug ptr = null;
-        }
-    }
-}
-
-/// Small array storage.
-alias Small(E, size_t n) = E[n];
-
-/// Small-size-optimized (SSO) array store.
-static struct Store(E, bool useGC = shouldAddGCRange!E)
-{
-    /** Fixed number elements that fit into small variant storage. */
-    enum smallLength = Large!(E, useGC).sizeof / E.sizeof;
-
-    /** Maximum number elements that fit into large variant storage. */
-    enum maxLargeLength = size_t.max >> 8;
-
-    /// Destruct.
-    ~this() nothrow @trusted
-    {
-        if (isLarge) { large.clear; }
-    }
-
-    /// Get currently length at `ptr`.
-    size_t length() const @trusted pure nothrow @nogc
-    {
-        return isLarge ? large.length : smallLength;
-    }
-
-    /// Returns: `true` iff is small packed.
-    bool isSmall() const @safe pure nothrow @nogc { return !isLarge; }
-
-private:
-
-    /// Reserve length to `n` elements starting at `ptr`.
-    void reserve(size_t n) pure nothrow @trusted
-    {
-        if (isLarge)        // currently large
-        {
-            if (n > smallLength) // large => large
-            {
-                large.resize(n);
-            }
-            else                // large => small
-            {
-                // large => tmp
-
-                // temporary storage for small
-                debug { typeof(small) tmp; }
-                else  { typeof(small) tmp = void; }
-
-                tmp[0 .. n] = large.ptr[0 .. n]; // large to temporary
-                tmp[n .. $] = 0; // zero remaining
-
-                // empty large
-                large.clear();
-
-                // tmp => small
-                small[] = tmp[0 .. smallLength];
-
-                isLarge = false;
-            }
-        }
-        else                    // currently small
-        {
-            if (n > smallLength) // small => large
-            {
-                typeof(small) tmp = small; // temporary storage for small
-
-                import std.conv : emplace;
-                emplace(&large, n);
-
-                large.ptr[0 .. length] = tmp[0 .. length]; // temporary to large
-
-                isLarge = true;                      // tag as large
-            }
-            else {}                // small => small
-        }
-    }
-
-    /// Get pointer.
-    auto ptr() pure nothrow @nogc
-    {
-        alias ET = ContainerElementType!(typeof(this), E);
-        return isLarge ? cast(ET*)large.ptr : cast(ET*)&small;
-    }
-
-    /// Get slice.
-    auto ref slice() pure nothrow @nogc
-    {
-        return ptr[0 .. length];
-    }
-
-    union
-    {
-        Small!(E, smallLength) small; // small variant
-        Large!(E, useGC) large;          // large variant
-    }
-    bool isLarge;               // TODO make part of union as in rcstring.d
-}
-
-/// Test `Store`.
-static void storeTester(E, bool useGC)()
-{
-    Store!(E, useGC) si;
-
-    assert(si.ptr !is null);
-    assert(si.slice.ptr !is null);
-    assert(si.slice.length != 0);
-    assert(si.length == si.smallLength);
-
-    si.reserve(si.smallLength);     // max small
-    assert(si.length == si.smallLength);
-    assert(si.isSmall);
-
-    si.reserve(si.smallLength + 1); // small to large
-    assert(si.length == si.smallLength + 1);
-    assert(si.isLarge);
-
-    si.reserve(si.smallLength * 8); // small to large
-    assert(si.length == si.smallLength * 8);
-    assert(si.isLarge);
-
-    si.reserve(si.smallLength);     // max small
-    assert(si.length == si.smallLength);
-    assert(si.isSmall);
-
-    si.reserve(0);
-    assert(si.length == si.smallLength);
-    assert(si.isSmall);
-
-    si.reserve(si.smallLength + 1);
-    assert(si.length == si.smallLength + 1);
-    assert(si.isLarge);
-
-    si.reserve(si.smallLength);
-    assert(si.length == si.smallLength);
-    assert(si.isSmall);
-
-    si.reserve(si.smallLength - 1);
-    assert(si.length == si.smallLength);
-    assert(si.isSmall);
-}
-
-
-pure nothrow @nogc unittest
-{
-    foreach (E; AliasSeq!(char, byte, short, int))
-    {
-        storeTester!(E, false);
-    }
-}
-
-pure nothrow unittest
-{
-    foreach (E; AliasSeq!(char, byte, short, int))
-    {
-        storeTester!(E, true);
-    }
-}
-
 /// Returns: `true` iff C is an `Array`.
 import std.traits : isInstanceOf;
 enum isMyArray(C) = isInstanceOf!(Array, C);
 
 /** Small-size-optimized (SSO-packed) array of value types `E` with optional
     ordering given by `ordering`.
+
+    Copy construct and assign does copying.
  */
 struct Array(E,
              Ordering ordering = Ordering.unsorted,
@@ -1042,11 +821,10 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     alias comp = binaryFun!less; //< comparison
 
     alias E = int;
-    alias A = Array;
 
     foreach (Ch; AliasSeq!(char, wchar, dchar))
     {
-        alias Str = A!(Ch, ordering, supportGC, less);
+        alias Str = Array!(Ch, ordering, supportGC, less);
         Str str;
         static assert(is(Unqual!(ElementType!Str) == Ch));
         static assert(str.isString);
@@ -1056,9 +834,9 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     {
         foreach (n; [0, 1, 2, 3, 4])
         {
-            assert(A!(E, ordering, supportGC, less)(n).isSmall);
+            assert(Array!(E, ordering, supportGC, less)(n).isSmall);
         }
-        assert(!(A!(E, ordering, supportGC, less)(5).isSmall));
+        assert(!(Array!(E, ordering, supportGC, less)(5).isSmall));
     }
 
     foreach (const n; chain(0.only,
@@ -1075,7 +853,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         // TODO use radial instead
         auto bw = fw.array.radial;
 
-        A!(E, ordering, supportGC, less) ss0 = bw; // reversed
+        Array!(E, ordering, supportGC, less) ss0 = bw; // reversed
         static assert(is(Unqual!(ElementType!(typeof(ss0))) == E));
         static assert(isInstanceOf!(Array, typeof(ss0)));
         assert(ss0.length == n);
@@ -1087,7 +865,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ss0[].isSorted!comp);
         }
 
-        A!(E, ordering, supportGC, less) ss1 = fw; // ordinary
+        Array!(E, ordering, supportGC, less) ss1 = fw; // ordinary
         assert(ss1.length == n);
 
         static if (IsOrdered!ordering)
@@ -1096,7 +874,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ss1[].isSorted!comp);
         }
 
-        A!(E, ordering, supportGC, less) ss2 = fw.filter!(x => x & 1);
+        Array!(E, ordering, supportGC, less) ss2 = fw.filter!(x => x & 1);
         assert(ss2.length == n/2);
 
         static if (IsOrdered!ordering)
@@ -1105,9 +883,9 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ss2[].isSorted!comp);
         }
 
-        auto ss32 = A!(E, ordering, supportGC, less)(32);
+        auto ss32 = Array!(E, ordering, supportGC, less)(32);
 
-        auto ssA = A!(E, ordering, supportGC, less)(0);
+        auto ssA = Array!(E, ordering, supportGC, less)(0);
         static if (IsOrdered!ordering)
         {
             foreach (i; bw)
@@ -1124,7 +902,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             }
             assert(ssA[].equal(sort!comp(fw.array)));
 
-            auto ssB = A!(E, ordering, supportGC, less)(0);
+            auto ssB = Array!(E, ordering, supportGC, less)(0);
             static if (ordering == Ordering.sortedUniqueSet)
             {
                 assert(ssB.linearInsert(1, 7, 4, 9)[].equal(true.repeat(4)));
@@ -1231,7 +1009,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ssA[].equal([1, 2, 4, 5]));
 
             // pushBack and assignment from slice
-            auto ssB = A!(E, ordering, supportGC, less)(0);
+            auto ssB = Array!(E, ordering, supportGC, less)(0);
             ssB.pushBack([1, 2, 3, 4, 5]);
             ssB.pushBack([6, 7]);
             assert(ssB[].equal([1, 2, 3, 4, 5, 6, 7]));
@@ -1247,8 +1025,8 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             // pushBack(Array)
             {
                 const s = [1, 2, 3];
-                A!(E, ordering, supportGC, less) s1 = s;
-                A!(E, ordering, supportGC, less) s2 = s1[];
+                Array!(E, ordering, supportGC, less) s1 = s;
+                Array!(E, ordering, supportGC, less) s2 = s1[];
                 assert(s1[].equal(s));
                 s1 ~= s1;
                 assert(s1[].equal(chain(s, s)));
@@ -1256,7 +1034,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
                 assert(s1[].equal(chain(s, s, s)));
             }
 
-            auto ssC = A!(E, ordering, supportGC, less)(0);
+            auto ssC = Array!(E, ordering, supportGC, less)(0);
             const(int)[] i5 = [1, 2, 3, 4, 5];
             ssC.pushBack(i5);
             assert(ssC[].equal(i5));
@@ -1369,4 +1147,12 @@ template ContainerElementType(ContainerType, ElementType)
         else
             alias ContainerElementType = ElementType;
     }
+}
+
+// we handle these as pure to make containers using them pure
+extern(C) pure nothrow @system @nogc
+{
+    void* malloc(size_t size);
+    void* realloc(void* ptr, size_t size);
+    void free(void* ptr);
 }

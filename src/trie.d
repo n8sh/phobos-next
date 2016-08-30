@@ -844,8 +844,9 @@ static assert((DenseLeaf1!void).sizeof == 32);
 
 /** Adaptive radix tree (ART) container storing untyped (raw) keys.
 
-    In set-case (`Value` is `void`) this container is especially suitable for
-    representing a set of 32 or 64 integers/pointers.
+    In set-case (`Value` is `void`) this container contains specific memory
+    optimizations for representing a set pointers or integral types (of fixed
+    length).
 
     Radix-trees are suitable for storing ordered sets/maps with variable-length
     keys and provide completion of all its keys matching a given

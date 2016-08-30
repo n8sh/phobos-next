@@ -1640,8 +1640,6 @@ struct RawRadixTree(Value = void)
 
         void popFront()
         {
-            import std.algorithm.comparison : equal;
-
             branchRanges.verifyBranch1Depth();
 
             if (branchRanges.hasBranch1Front)

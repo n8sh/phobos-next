@@ -430,7 +430,7 @@ static private struct SparseLeaf1(Value)
         }
     }
 
-    ~this()
+    pragma(inline) ~this()
     {
         deinit();
     }
@@ -2037,7 +2037,7 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        ~this() @nogc { deinit(); }
+        pragma(inline) ~this() @nogc { deinit(); }
 
         private pragma(inline) void deinit() @nogc { /* nothing for now */ }
 
@@ -2438,7 +2438,7 @@ struct RawRadixTree(Value = void)
         assert(false, "TODO calculate tree by branches and leafs and make copies of them");
     }
 
-    ~this() @nogc
+    pragma(inline) ~this() @nogc
     {
         if (_root) { release(_root); }
         debug

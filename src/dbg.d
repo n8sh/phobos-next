@@ -95,9 +95,9 @@ template show(Args...)
 
 version(show) unittest
 {
-    int x = 11;
-    int y = 12;
-    int z = 13;
+    const x = 11;
+    const y = 12;
+    const z = 13;
     show!x;
     show!y;
     show!z;
@@ -105,6 +105,6 @@ version(show) unittest
 
 version(show) unittest
 {
-    int x = 11, y = 12, z = 13;
+    const x = 11, y = 12, z = 13;
     show!(x, y, z);
 }

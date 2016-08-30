@@ -7,7 +7,7 @@
 */
 module dbg;
 
-version = show;
+// version = show;
 
 void assumeNogc(alias Func, T...)(T xs) @nogc
 {

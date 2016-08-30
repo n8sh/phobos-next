@@ -270,3 +270,20 @@ static assert(ModArrayN!(2, 3, 8).sizeof == 8);
     x.popFrontN(1);
     assert(x.empty);
 }
+
+///
+@safe pure unittest
+{
+    import std.algorithm : equal;
+    import modulo : Mod, mod;
+
+    enum span = 8;
+    enum M = 2^^span;
+
+    alias Ix = Mod!(M, ubyte);
+    Ix[] ixs = [11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M];
+    enum capacity = 7;
+    auto x = ModArrayN!(capacity, 1)(ixs);
+
+    assert(x.toString == `0B,16,21,2C`);
+}

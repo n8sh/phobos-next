@@ -1056,7 +1056,7 @@ struct RawRadixTree(Value = void)
         /** Try to iterated forward.
             Returns: `true` upon successful forward iteration, `false` otherwise (upon completion of iteration),
         */
-        void popFront(bool willFail = false) /* TODO @nogc */
+        void popFront() /* TODO @nogc */
         {
             assert(!empty);
 
@@ -1067,7 +1067,7 @@ struct RawRadixTree(Value = void)
             }
             else if (leaf1Range.empty)
             {
-                popBranchFront(willFail);
+                popBranchFront();
             }
             else                // both non-empty
             {
@@ -1077,7 +1077,7 @@ struct RawRadixTree(Value = void)
                 }
                 else
                 {
-                    popBranchFront(willFail);
+                    popBranchFront();
                 }
             }
 
@@ -1117,7 +1117,7 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        private void popBranchFront(bool willFail)
+        private void popBranchFront()
         {
             // TODO move all calls to Branch-specific members popFront()
             final switch (branch.typeIx) with (Branch.Ix)
@@ -1641,7 +1641,6 @@ struct RawRadixTree(Value = void)
         void popFront()
         {
             import std.algorithm.comparison : equal;
-            const willFail = false; // _cachedFrontKey[].equal([128, 0, 0, 0, 0, 0, 255, 255]);
 
             // if (willFail)
             // {
@@ -1666,7 +1665,7 @@ struct RawRadixTree(Value = void)
                 leafNRange.popFront();
                 if (leafNRange.empty)
                 {
-                    postPopTreeUpdate(willFail);
+                    postPopTreeUpdate();
                 }
             }
 
@@ -1721,11 +1720,11 @@ struct RawRadixTree(Value = void)
         }
 
         // Go upwards and iterate forward in parents.
-        private void postPopTreeUpdate(bool willFail = false)
+        private void postPopTreeUpdate()
         {
             while (branchRanges.branchCount)
             {
-                branchRanges.bottom.popFront(willFail);
+                branchRanges.bottom.popFront();
                 if (branchRanges.bottom.empty)
                 {
                     branchRanges.pop();

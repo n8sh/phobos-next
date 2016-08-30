@@ -123,6 +123,7 @@ struct ModArrayN(uint capacity,
     auto ref popBack()
     {
         assert(!empty);
+        // TODO destruct last element?
         _length = _length - 1;
         return this;
     }

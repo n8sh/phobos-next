@@ -274,7 +274,6 @@ static assert(ModArrayN!(2, 3, 8).sizeof == 8);
 ///
 @safe pure unittest
 {
-    import std.algorithm : equal;
     import modulo : Mod, mod;
 
     enum span = 8;

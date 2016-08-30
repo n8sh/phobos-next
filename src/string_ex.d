@@ -1,7 +1,7 @@
 module string_ex;
 
 import std.traits : isSomeString;
-import dbg;
+import dbgio;
 
 bool isCapitalizedEasy(S)(S s)
     if (isSomeString!S)

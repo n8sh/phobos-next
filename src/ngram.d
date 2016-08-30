@@ -18,7 +18,7 @@ import std.range: InputRange, ElementType, isInputRange;
 import std.traits: isSomeChar, isUnsigned, isIntegral, isFloatingPoint, Unqual, isStaticArray, isIterable, isAssociativeArray, CommonType;
 import std.stdint: uint64_t;
 import std.typecons: Tuple, tuple;
-import dbg: dln;
+import dbgio: dln;
 import predicates: allZero, allEqualTo;
 import nesses: denseness;
 import rational: Rational;

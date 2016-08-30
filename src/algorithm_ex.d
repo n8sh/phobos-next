@@ -16,7 +16,7 @@ import traits_ex : allSameType;
 import std.functional : unaryFun, binaryFun;
 import std.algorithm.searching : find;
 
-version(print) import dbg;
+version(print) import dbgio;
 
 import std.range : dropOne;
 alias tail = dropOne;

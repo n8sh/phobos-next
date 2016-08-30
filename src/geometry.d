@@ -55,7 +55,7 @@ import std.random: uniform;
 
 import mathml;
 alias wln = writeln;
-import dbg;
+import dbgio;
 import rational: Rational;
 import range_ex: iota;
 import traits_ex: isEquable, isNotEquable, haveCommonType;

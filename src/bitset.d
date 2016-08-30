@@ -9,7 +9,7 @@ module bitset;
 
 version(unittest)
 {
-    import dbg;
+    import dbgio;
 }
 
 /** BitSet, a statically sized `std.bitmanip.BitArray`.

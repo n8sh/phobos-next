@@ -40,7 +40,7 @@ unittest
     import core.exception: AssertError;
     import std.exception: assertThrown;
     import msgpack;
-    import dbg: dln;
+    import dbgio: dln;
 
     assertThrown!AssertError([1].dropOne.encodeForwardDifference_alt);
 

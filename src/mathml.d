@@ -111,7 +111,7 @@ string toMathML(T)(Rational!T x,
 
 unittest {
     alias Q = Rational;
-    import dbg: dln;
+    import dbgio: dln;
     auto x = Q!ulong(11, 22);
     /** dln(x.toMathML); */
     /** dln(x.toMathML(true)); */

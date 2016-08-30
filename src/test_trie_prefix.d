@@ -19,7 +19,7 @@ void main(string[] args)
     enum show = true;
     if (show)
     {
-        import dbg;
+        import dbgio;
         import std.stdio;
 
         foreach (const e; set[])

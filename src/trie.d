@@ -107,7 +107,7 @@ import stack : Stack;
 version = benchmark;
 version = print;
 
-import dbg;
+import dbgio;
 
 alias isFixedTrieableKeyType = isIntegralBijectableType;
 

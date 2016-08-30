@@ -399,7 +399,7 @@ private:
     Xoroshiro128plus gen;
     gen.seed(150078950, 1313143614);
     import std.random : uniform;
-    import dbg;
+    import dbgio;
     import std.range : generate, take;
     auto x = generate!(() => uniform!int(gen)).take(103);
     // dln(x);

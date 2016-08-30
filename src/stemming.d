@@ -522,7 +522,7 @@ unittest
     // TODO assert(stemmer.stem("false") == "false");
 }
 
-import dbg;
+import dbgio;
 
 /** Stem Swedish Word $(D s).
  */

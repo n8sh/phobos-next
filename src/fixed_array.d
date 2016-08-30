@@ -257,4 +257,7 @@ static assert(ModArrayN!(2, 3, 8).sizeof == 8);
     assert(x.equal([11, 22, 33, 44, 55, 66, 77]));
     assert(!x.empty);
     assert(x.full);
+
+    x.popFrontN(x.length);
+    assert(x.empty);
 }

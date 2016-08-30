@@ -34,38 +34,47 @@ mixin template dump(Names ... )
 @trusted:
 
 /* http://stackoverflow.com/questions/19413340/escaping-safety-with-debug-statements */
-debug auto trustedPureDebugCall(alias fn, Arg...) (Arg args) pure
+debug auto trustedPureDebugCall(alias fn, Args...) (Args args) pure
 {
     debug return fn(args);
 }
 
 nothrow:
 
-void contextual_writeln(string file = __FILE__, uint line = __LINE__, string fun = __FUNCTION__, Arg...)(Arg t)
+void contextual_writeln(string file = __FILE__, uint line = __LINE__, string fun = __FUNCTION__, Args...)(Args args)
 {
     import std.stdio: writeln;
-    try { writeln(file, ":",line, ":"/* , ": in ",fun */, " debug: ", t); }
+    try { writeln(file, ":",line, ":"/* , ": in ",fun */, " debug: ", args); }
     catch (Exception) { }
 }
 alias pln = contextual_writeln;
 
 pure:
 
-void debug_writeln(string file = __FILE__, uint line = __LINE__, string fun = __FUNCTION__, Arg...)(Arg t)
+void dln(string file = __FILE__, uint line = __LINE__, string fun = __FUNCTION__, Args...)(Args args)
 {
-    import std.stdio: writeln;
-    try { debug writeln(file, ":",line, ":"/* , ": in ",fun */, " debug: ", t); }
-    catch (Exception) { }
-}
-alias dln = debug_writeln;
+    // pretend that writeln is @nogc
 
-void debug_writefln(string file = __FILE__, uint line = __LINE__, string fun = __FUNCTION__, Arg...)(Arg t)
-{
-    import std.stdio: writefln;
-    try { debug writefln(file, ":",line, ":"/* , ": in ",fun */, " debug: ", t); }
+    import std.traits : isFunctionPointer, isDelegate, functionAttributes, FunctionAttribute, SetFunctionAttributes, functionLinkage;
+
+    static auto assumeNogc(T)(T f)
+        if (isFunctionPointer!T ||
+            isDelegate!T)
+    {
+    	return cast(SetFunctionAttributes!(T, functionLinkage!T,
+                                           functionAttributes!T | FunctionAttribute.nogc)) f;
+    } {}
+
+    import std.stdio : writeln;
+    try { debug assumeNogc((ref Args args) => writeln(file, ":", line, ":", " debug: ",
+                                                      args))(args); }
     catch (Exception) { }
 }
-alias dfln = debug_writefln;
+
+@safe pure nothrow @nogc unittest
+{
+    dln("x:", " ", 12);
+}
 
 /** Show the symbol name and variable of $(D Args).
     See also: http://forum.dlang.org/thread/yczwqrbkxdiqijtiynrh@forum.dlang.org?page=1
@@ -79,10 +88,10 @@ template show(Args...)
         try
         {
             debug write(file, ":",line, ":" /* , ": in ",fun */, " debug: ");
-            foreach (const i, Arg; Args)
+            foreach (const i, Args; Args)
             {
                 if (i) debug write(", "); // separator
-                debug write(Args[i].stringof, ":", Arg);
+                debug write(Args[i].stringof, ":", Args);
             }
             debug writeln();
         }

@@ -1640,7 +1640,7 @@ struct RawRadixTree(Value = void)
     /** Forward (Left) Single-Directional Range over Tree. */
     private static struct FrontRange
     {
-        @safe pure nothrow:
+        @safe pure nothrow @nogc:
 
         this(Node root)
         {
@@ -1777,7 +1777,7 @@ struct RawRadixTree(Value = void)
                 case ix_HeptLeaf1:
                 case ix_SparseLeaf1Ptr:
                 case ix_DenseLeaf1Ptr:
-                    if (!leafNRange.empty) { dln("existing leafNRange:", leafNRange); }
+                    // if (!leafNRange.empty) { dln("existing leafNRange:", leafNRange); }
                     assert(leafNRange.empty);
 
                     leafNRange = LeafNRange(curr);
@@ -1840,7 +1840,7 @@ struct RawRadixTree(Value = void)
     */
     private static struct Range
     {
-        @safe pure nothrow /* @nogc */:
+        @safe pure nothrow @nogc:
         pragma(inline):
 
         debug
@@ -4082,7 +4082,7 @@ struct RadixTree(Key, Value)
         return contains(key);   // TODO return `_rawTree.ElementRef`
     }
 
-    pragma(inline) inout(Range) opSlice() inout
+    pragma(inline) inout(Range) opSlice() inout @nogc
     {
         return Range(_rawTree._root);
     }
@@ -4090,7 +4090,7 @@ struct RadixTree(Key, Value)
     /** Get range over elements whose key starts with `keyPrefix`.
         The element equal to `keyPrefix` is return as an empty instance of the type.
      */
-    pragma(inline) auto prefix(Key keyPrefix) const
+    pragma(inline) auto prefix(Key keyPrefix) const // TODO @nogc
     {
         KeyN!(span, Key.sizeof) ukey;
         auto rawKeyPrefix = keyPrefix.toRawKey(ukey[]);
@@ -4116,15 +4116,17 @@ struct RadixTree(Key, Value)
     /** Typed Range. */
     private static struct Range
     {
+        @nogc:
+
         this(RawTree.Node root) { _rawRange = _rawTree.Range(root); }
 
-        auto front() const /* TODO @nogc */
+        auto front() const
         {
             const key = _rawRange._frontRange.frontKey.toTypedKey!Key;
             static if (RawTree.hasValue) { return tuple(key, _rawRange._frontRange._cachedFrontValue); }
             else                         { return key; }
         }
-        auto back() const /* TODO @nogc */
+        auto back() const
         {
             const key = _rawRange._backRange.frontKey.toTypedKey!Key;
             static if (RawTree.hasValue) { return tuple(key, _rawRange._backRange._cachedFrontValue); }
@@ -4365,7 +4367,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
 }
 
 /// test map from `uint` to values of type `double`
-@safe pure nothrow /* TODO @nogc */
+@safe pure nothrow @nogc
 unittest
 {
     alias Key = uint;

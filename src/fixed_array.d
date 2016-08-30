@@ -172,7 +172,7 @@ struct ModArrayN(uint capacity,
         if (ix < capacity)      // assert below memory allocation bound
     {
         assert(ix < _length);   // assert accessing initialized elements
-        return _ixs.ptr[ix];    // uses `.ptr` because `ix` known at compile to be within bounds; `ix < capacity`
+        return _ixs.ptr[ix];    // uses `.ptr` because `ix` known at compile-time to be within bounds; `ix < capacity`
     }
 
     /** Get length. */

@@ -1671,7 +1671,7 @@ struct RawRadixTree(Value = void)
             }
             else if (!branchRanges.atLeaf1) // if not at leaf
             {
-                branchRanges._branch1Depth = branchRanges.getNext1DepthAt; // TODO functionize
+                branchRanges._branch1Depth = branchRanges.getNext1DepthAt;
             }
             else                // still at leaf
             {

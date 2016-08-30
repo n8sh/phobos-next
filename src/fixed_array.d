@@ -174,7 +174,7 @@ struct ModArrayN(uint capacity,
     /** Get length. */
     auto length() const { return _length; }
 
-    enum typeBits = 4;
+    enum typeBits = 4; // number of bits in enclosing type used for representing type
 
 private:
     static if (L == 1)

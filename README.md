@@ -6,14 +6,8 @@ Most definitions are probably generic enough to be part of Phobos.
 See also: http://forum.dlang.org/post/tppptevxiygafzpicmgz@forum.dlang.org
 
 - trie.d: Tries and Prefix Trees Containers, both set and map case. API:
-  - ForwardRange access via `opSlice`: `foreach (e; tree[]) {}`
-  - Insertion: `set.insert(Key key)`
-  - `contains()`
-  - `opIndex`
-  - `opIndexAssign`
-  - Prefix Completion (via Range)
-  - See `https://github.com/nordlow/phobos-next/blob/master/src/test_trie_prefix.d` for a descriptive usage of prefixed access.
 
 - array_ex.d: Array container(s) with optional sortedness (`Ordering`). API:
+  - Always @safe pure nothrow @nogc when possible
   - Currently value copy semantics only
   - pushBack

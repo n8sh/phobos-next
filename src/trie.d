@@ -99,6 +99,7 @@ import variant_ex : WordVariant;
 import typecons_ex : IndexedBy;
 import modulo : Mod, mod;
 import fixed_array : ModArrayN;
+import container_traits : shouldAddGCRange;
 import stack : Stack;
 
 // version = enterSingleInfiniteMemoryLeakTest;
@@ -137,20 +138,6 @@ unittest
 
     struct S { int x, y, z; double w; bool b; }
     static assert(isTrieableKeyType!(S));
-}
-
-template shouldAddGCRange(T)
-{
-    import std.traits : isPointer, hasIndirections;
-    enum shouldAddGCRange = isPointer!T || hasIndirections!T || is (T == class);
-}
-
-extern(C) pure nothrow @system @nogc
-{
-    void* malloc(size_t size);
-    void* calloc(size_t nmemb, size_t size);
-    void* realloc(void* ptr, size_t size);
-    void free(void* ptr);
 }
 
 /// Binary power of radix, typically either 1, 2, 4 or 8.
@@ -4972,4 +4959,12 @@ version(unittest) version(benchmark)
 void main(string[] args)
 {
     benchmark;
+}
+
+extern(C) pure nothrow @system @nogc
+{
+    void* malloc(size_t size);
+    void* calloc(size_t nmemb, size_t size);
+    void* realloc(void* ptr, size_t size);
+    void free(void* ptr);
 }

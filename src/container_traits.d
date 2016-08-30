@@ -54,3 +54,9 @@ template ContainerElementType(ContainerType, ElementType)
             alias ContainerElementType = ElementType;
     }
 }
+
+template shouldAddGCRange(T)
+{
+    import std.traits : isPointer, hasIndirections;
+    enum shouldAddGCRange = isPointer!T || hasIndirections!T || is (T == class);
+}

@@ -1829,22 +1829,11 @@ struct RawRadixTree(Value = void)
         @safe pure nothrow @nogc:
         pragma(inline):
 
-        debug
-        {
-            this(Node root, bool willFail)
-            {
-                this(root);
-                // debug if (willFail)
-                {
-                    this.willFail = willFail;
-                }
-            }
-        }
-
-        this(Node root)
+        this(Node root, UKey keyPrefixRest)
         {
             _frontRange = FrontRange(root);
             // _backRange = FrontRange(root);
+            this._keyPrefixRest = keyPrefixRest;
         }
 
         bool empty() const /* TODO @nogc */
@@ -1867,19 +1856,12 @@ struct RawRadixTree(Value = void)
     private:
         FrontRange _frontRange;
         FrontRange _backRange;
-        debug bool willFail;
+        UKey _keyPrefixRest;
     }
 
     pragma(inline) Range opSlice() @trusted pure nothrow
     {
-        debug
-        {
-            return Range(this._root, willFail);
-        }
-        else
-        {
-            return Range(this._root);
-        }
+        return Range(this._root, []);
     }
 
     // static assert(isBidirectionalRange!Range);
@@ -4105,7 +4087,7 @@ struct RadixTree(Key, Value)
     {
         @nogc:
 
-        this(RawTree.Node root) { _rawRange = _rawTree.Range(root); }
+        this(RawTree.Node root) { _rawRange = _rawTree.Range(root, []); }
 
         auto front() const
         {
@@ -4127,11 +4109,9 @@ struct RadixTree(Key, Value)
     /** Raw Range. */
     private static struct RawRange
     {
-        this(RawTree.Node root,
-             UKey keyPrefixRest)
+        this(RawTree.Node root, UKey keyPrefixRest)
         {
-            this._rawRange = _rawTree.Range(root);
-            this._keyPrefixRest = keyPrefixRest;
+            this._rawRange = _rawTree.Range(root, keyPrefixRest);
         }
 
         static if (RawTree.hasValue)
@@ -4149,8 +4129,6 @@ struct RadixTree(Key, Value)
 
         RawTree.Range _rawRange;
         alias _rawRange this;
-
-        UKey _keyPrefixRest;
     }
 
     static if (RawTree.hasValue)

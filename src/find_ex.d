@@ -9,14 +9,14 @@ enum FindContext { inWord, inSymbol,
 
 /** Return true if $(D a) is a C-style Identifier symbol character. */
 bool isSymbol(T)(in T a)
-    @safe @nogc pure nothrow
+    @safe pure nothrow @nogc
 {
     import std.ascii: isAlpha;
     return a.isAlpha || a == '_';
 }
 
 bool isSymbolASCII(string rest, ptrdiff_t off, size_t end)
-    @safe @nogc pure nothrow
+    @safe pure nothrow @nogc
     in { assert(end <= rest.length); }
 body
 {
@@ -38,7 +38,7 @@ body
     assert(!isSymbolASCII("first_a_word", 6, 7));
 }
 
-bool isWordASCII(string rest, ptrdiff_t off, size_t end) @safe @nogc pure nothrow
+bool isWordASCII(string rest, ptrdiff_t off, size_t end) @safe pure nothrow @nogc
     in { assert(end <= rest.length); }
 body
 {

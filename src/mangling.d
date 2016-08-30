@@ -33,6 +33,7 @@ import std.functional : unaryFun, binaryFun;
 
 import algorithm_ex: either, tryEvery, split, splitBefore, findPopBefore, findPopAfter;
 import grammar;
+import languages : Lang;
 import dbgio;
 
 /** C++ Demangler. */

@@ -208,7 +208,7 @@ struct OneLeafMax7
     @safe pure:
     enum capacity = 7;
 
-    this(Ix[] key) nothrow @nogc
+    pragma(inline) this(Ix[] key) nothrow @nogc
     {
         assert(key.length != 0);
         this.key = key;
@@ -240,7 +240,7 @@ struct TwoLeaf3
 
     @safe pure nothrow @nogc:
 
-    this(Keys...)(Keys keys)
+    pragma(inline) this(Keys...)(Keys keys)
         if (Keys.length >= 1 &&
             Keys.length <= capacity)
     {
@@ -282,7 +282,7 @@ struct TriLeaf2
 
     @safe pure nothrow @nogc:
 
-    this(Keys...)(Keys keys)
+    pragma(inline) this(Keys...)(Keys keys)
         if (Keys.length >= 1 &&
             Keys.length <= capacity)
     {
@@ -329,7 +329,7 @@ struct HeptLeaf1
 
     @safe pure nothrow @nogc:
 
-    this(Keys...)(Keys keys)
+    pragma(inline) this(Keys...)(Keys keys)
         if (Keys.length >= 1 &&
             Keys.length <= capacity)
     {

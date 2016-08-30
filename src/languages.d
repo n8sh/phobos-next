@@ -498,7 +498,9 @@ string toSpoken(Language lang, Language spokenLang = Language.init)
     }
 }
 
-Language decodeLang(S)(S lang) @safe pure nothrow if (isSomeString!S)
+Language decodeLang(S)(S lang)
+    @safe pure nothrow
+    if (isSomeString!S)
 {
     if (lang == `is`)
     {
@@ -517,12 +519,12 @@ Language decodeLang(S)(S lang) @safe pure nothrow if (isSomeString!S)
     }
 }
 
-unittest
+@safe pure unittest
 {
     assert(`sv`.to!Language == Language.sv);
 }
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     with (Language)
     {
@@ -534,7 +536,7 @@ unittest
     }
 }
 
-unittest
+@safe unittest
 {
     import conv_ex : tolerantTo;
     assert("en".tolerantTo!Language == Language.en);

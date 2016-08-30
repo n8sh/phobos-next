@@ -163,7 +163,7 @@ struct ModArrayN(uint capacity,
         }
     }
 
-    /** Returns: elements as a slice */
+    /** Returns: elements as a slice. */
     auto chunks() inout { return _ixs[0 .. _length]; }
     alias chunks this;
 

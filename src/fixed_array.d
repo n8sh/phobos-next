@@ -131,15 +131,15 @@ struct ModArrayN(uint capacity,
     /** Push/Add elements `moreEs` at back. */
     auto ref pushBack(Es...)(Es moreEs)
         if (Es.length <= capacity)
+    {
+        assert(length + Es.length <= capacity);
+        foreach (const i, const ix; moreEs)
         {
-            assert(length + Es.length <= capacity);
-            foreach (const i, const ix; moreEs)
-            {
-                _ixs[_length + i] = ix;
-            }
-            _length = _length + Es.length;
-            return this;
+            _ixs[_length + i] = ix;
         }
+        _length = _length + Es.length;
+        return this;
+    }
 
     /** Returns: `true` if `key` is contained in `this`. */
     bool contains(const Ix[] key) const @nogc

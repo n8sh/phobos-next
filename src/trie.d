@@ -4487,7 +4487,7 @@ unittest
 }
 
 /// test map to values of type `bool`
-@safe pure nothrow /* TODO @nogc */ unittest
+@safe pure nothrow @nogc unittest
 {
     alias Key = uint;
     alias Value = bool;
@@ -4500,7 +4500,7 @@ unittest
 }
 
 /// test packing of set elements
-@safe pure nothrow /* TODO @nogc */
+@safe pure nothrow @nogc
 unittest
 {
     auto set = radixTreeSet!(ulong);
@@ -4552,7 +4552,7 @@ unittest
 }
 
 ///
-@safe pure nothrow /* TODO @nogc */
+@safe pure nothrow @nogc
 unittest
 {
     auto set = radixTreeSet!(ubyte);
@@ -4597,7 +4597,7 @@ unittest
 }
 
 ///
-@safe pure nothrow /* TODO @nogc */ unittest
+@safe pure nothrow @nogc unittest
 {
     import std.meta : AliasSeq;
     foreach (T; AliasSeq!(ushort, uint))

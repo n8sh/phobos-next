@@ -28,7 +28,8 @@ body
              !rest[end].isAlphaNum &&
              rest[end] != '_'));
 }
-unittest
+
+@safe pure nothrow @nogc unittest
 {
     assert(isSymbolASCII("alpha", 0, 5));
     assert(isSymbolASCII(" alpha ", 1, 6));
@@ -36,8 +37,6 @@ unittest
     assert(!isSymbolASCII("a_word", 0, 1));
     assert(!isSymbolASCII("first_a_word", 6, 7));
 }
-
-// ==============================================================================================
 
 bool isWordASCII(string rest, ptrdiff_t off, size_t end) @safe @nogc pure nothrow
     in { assert(end <= rest.length); }
@@ -49,7 +48,9 @@ body
             (end == rest.length || // either end of line
              !rest[end].isAlphaNum));
 }
-unittest {
+
+@safe pure nothrow @nogc unittest
+{
     assert(isSymbolASCII("alpha", 0, 5));
     assert(isSymbolASCII(" alpha ", 1, 6));
     assert(!isSymbolASCII("driver", 0, 5));
@@ -141,7 +142,7 @@ Tuple!(R, ptrdiff_t[]) findAcronymAt(alias pred = "a == b",
     return tuple(R.init, ptrdiff_t[].init); // no hit
 }
 
-unittest
+@safe pure unittest
 {
     assert("size_t".findAcronymAt("sz_t", FindContext.inWord)[0] == "size_t");
     assert("size_t".findAcronymAt("sz_t", FindContext.inSymbol)[0] == "size_t");

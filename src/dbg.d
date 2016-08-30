@@ -41,13 +41,12 @@ debug auto trustedPureDebugCall(alias fn, Args...) (Args args) pure
 
 nothrow:
 
-void contextual_writeln(string file = __FILE__, uint line = __LINE__, string fun = __FUNCTION__, Args...)(Args args)
+void pln(string file = __FILE__, uint line = __LINE__, string fun = __FUNCTION__, Args...)(Args args)
 {
     import std.stdio: writeln;
     try { writeln(file, ":",line, ":"/* , ": in ",fun */, " debug: ", args); }
     catch (Exception) { }
 }
-alias pln = contextual_writeln;
 
 pure:
 

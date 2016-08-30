@@ -3758,7 +3758,6 @@ private:
  */
 static private void calculate(Value)(RawRadixTree!(Value).Node curr,
                                      ref RawRadixTree!(Value).Stats stats)
-    @safe pure nothrow /* TODO @nogc */
 {
     alias RT = RawRadixTree!(Value);
     ++stats.popByNodeType[curr.typeIx];
@@ -3799,7 +3798,6 @@ static private void calculate(Value)(RawRadixTree!(Value).Node curr,
  */
 static private void calculate(Value)(Leaf1!Value curr,
                                      ref RawRadixTree!(Value).Stats stats)
-    @safe pure nothrow /* TODO @nogc */
 {
     alias RT = RawRadixTree!(Value);
     ++stats.popByLeaf1Type[curr.typeIx];

@@ -166,10 +166,10 @@ struct ModArrayN(uint capacity,
     /** Variant of `opIndex` with compile-time range checking. */
     auto ref at(uint ix)() inout @trusted
         if (ix < capacity)      // assert below memory allocation bound
-        {
-            assert(ix < _length);   // assert accessing initialized elements
-            return _ixs.ptr[ix];    // uses `.ptr` because `ix` known at compile to be within bounds; `ix < capacity`
-        }
+    {
+        assert(ix < _length);   // assert accessing initialized elements
+        return _ixs.ptr[ix];    // uses `.ptr` because `ix` known at compile to be within bounds; `ix < capacity`
+    }
 
     /** Get length. */
     auto length() const { return _length; }

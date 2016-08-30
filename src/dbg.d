@@ -7,6 +7,20 @@
 */
 module dbg;
 
+// version = show;
+
+void assumeNogc(alias Func, T...)(T xs) @nogc
+{
+    import std.traits : isFunctionPointer, isDelegate, functionAttributes, FunctionAttribute, SetFunctionAttributes, functionLinkage;
+    static auto assumeNogcPtr(T)(T f) if (isFunctionPointer!T ||
+                                          isDelegate!T)
+    {
+        enum attrs = functionAttributes!T | FunctionAttribute.nogc;
+        return cast(SetFunctionAttributes!(T, functionLinkage!T, attrs)) f;
+    };
+    assumeNogcPtr(&Func!T)(xs);
+};
+
 mixin template dump(Names ... )
 {
     auto _unused_dump =
@@ -39,16 +53,7 @@ debug auto trustedPureDebugCall(alias fn, Args...) (Args args) pure
     debug return fn(args);
 }
 
-nothrow:
-
-void pln(string file = __FILE__, uint line = __LINE__, string fun = __FUNCTION__, Args...)(Args args)
-{
-    import std.stdio: writeln;
-    try { writeln(file, ":",line, ":"/* , ": in ",fun */, " debug: ", args); }
-    catch (Exception) { }
-}
-
-pure:
+nothrow pure:
 
 void dln(string file = __FILE__, uint line = __LINE__, string fun = __FUNCTION__, Args...)(Args args)
 {
@@ -70,7 +75,7 @@ void dln(string file = __FILE__, uint line = __LINE__, string fun = __FUNCTION__
     catch (Exception) { }
 }
 
-@safe pure nothrow @nogc unittest
+version(show) @safe pure nothrow @nogc unittest
 {
     dln("x:", " ", 12);
 }
@@ -97,8 +102,6 @@ template show(Args...)
         catch (Exception) { }
     }
 }
-
-// version = show;
 
 version(show) unittest
 {

@@ -1,8 +1,8 @@
 module fixed_array;
 
-/** Statically allocated `Ix`-array of fixed pre-allocated length `capacity` of
-    Ix-elements in chunks of elementLength. `ElementType` is
-    `Ix[elementLength]`.
+/** Statically allocated `Mod`-array of fixed pre-allocated length `capacity` of
+    `Mod`-elements in chunks of `elementLength`. `ElementType` is
+    `Mod[elementLength]`.
 */
 struct ModArrayN(uint capacity,
                  uint elementLength = 1,

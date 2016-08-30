@@ -284,6 +284,7 @@ static assert(ModArrayN!(2, 3, 8).sizeof == 8);
     Ix[] ixs = [11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M];
     enum capacity = 7;
     auto x = ModArrayN!(capacity, 1)(ixs);
+    assert(x.sizeof == 8);
 
     assert(x.toString == `0B,16,21,2C`);
 }

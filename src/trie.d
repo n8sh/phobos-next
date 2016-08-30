@@ -216,7 +216,7 @@ struct OneLeafMax7
 
     pragma(inline) bool contains(UKey key) const nothrow @nogc { return this.key == key; }
 
-    @property string toString() const @safe pure
+    @property string toString() const
     {
         import std.string : format;
         string s;
@@ -238,7 +238,7 @@ struct TwoLeaf3
     enum keyLength = 3; // fixed length key
     enum capacity = 2; // maximum number of keys stored
 
-    @safe pure:
+    @safe pure nothrow @nogc:
 
     this(Keys...)(Keys keys)
         if (Keys.length >= 1 &&
@@ -247,7 +247,7 @@ struct TwoLeaf3
         this.keys = keys;
     }
 
-    inout(Ix)[] prefix() inout nothrow @nogc
+    inout(Ix)[] prefix() inout
     {
         assert(!keys.empty);
         final switch (keys.length)
@@ -260,7 +260,7 @@ struct TwoLeaf3
         }
     }
 
-    pragma(inline) bool contains(UKey key) const nothrow @nogc
+    pragma(inline) bool contains(UKey key) const
     {
         assert(!keys.empty);
         final switch (keys.length)
@@ -280,7 +280,7 @@ struct TriLeaf2
     enum keyLength = 2; // fixed length key
     enum capacity = 3; // maximum number of keys stored
 
-    @safe pure:
+    @safe pure nothrow @nogc:
 
     this(Keys...)(Keys keys)
         if (Keys.length >= 1 &&
@@ -289,7 +289,7 @@ struct TriLeaf2
         this.keys = keys;
     }
 
-    inout(Ix)[] prefix() inout nothrow @nogc
+    inout(Ix)[] prefix() inout
     {
         assert(!keys.empty);
         final switch (keys.length)
@@ -306,7 +306,7 @@ struct TriLeaf2
         }
     }
 
-    pragma(inline) bool contains(UKey key) const nothrow @nogc
+    pragma(inline) bool contains(UKey key) const
     {
         assert(!keys.empty);
         final switch (keys.length)
@@ -327,7 +327,7 @@ struct HeptLeaf1
     enum keyLength = 1;
     enum capacity = 7; // maximum number of elements
 
-    @safe pure:
+    @safe pure nothrow @nogc:
 
     this(Keys...)(Keys keys)
         if (Keys.length >= 1 &&
@@ -336,7 +336,7 @@ struct HeptLeaf1
         this.keys = keys;
     }
 
-    pragma(inline) bool contains(UIx key) const nothrow @nogc
+    pragma(inline) bool contains(UIx key) const
     {
         assert(!keys.empty);
         // final switch (keys.length)
@@ -351,7 +351,7 @@ struct HeptLeaf1
         // }
         return keys.contains(key);
     }
-    pragma(inline) bool contains(UKey key) const nothrow @nogc { return key.length == 1 && keys.contains(UIx(key[0])); }
+    pragma(inline) bool contains(UKey key) const { return key.length == 1 && keys.contains(UIx(key[0])); }
 
     IxsN!(capacity, 1) keys;    // should never be empty
 }

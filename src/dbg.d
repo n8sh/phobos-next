@@ -1,14 +1,15 @@
 #!/usr/bin/env rdmd-dev-module
 
-/** Various debug tools.
+/** Various debug printing tools.
     Copyright: Per Nordlöw 2014-.
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
     Authors: $(WEB Per Nordlöw)
 */
 module dbg;
 
-// version = show;
+version = show;
 
+/** See_Also: http://forum.dlang.org/post/nq4eol$2h34$1@digitalmars.com */
 void assumeNogc(alias Func, T...)(T xs) @nogc
 {
     import std.traits : isFunctionPointer, isDelegate, functionAttributes, FunctionAttribute, SetFunctionAttributes, functionLinkage;

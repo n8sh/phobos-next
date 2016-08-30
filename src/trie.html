@@ -84,23 +84,23 @@ Implementation is layered:
     TODO Sorted Range Primitives over Keys
 <br><br>
 
-    Returns a range of elements which are equivalent (though not necessarily equal) to value.
-    auto equalRange(this This)(inout T value)
+    - Returns a range of elements which are equivalent (though not necessarily equal) to value.
+      auto equalRange(this This)(inout T value)
 <br><br>
 
-    Returns a range of elements which are greater than low and smaller than highValue.
-    auto bound(this This)(inout T lowValue, inout T highValue)
+    - Returns a range of elements which are greater than low and smaller than highValue.
+      auto bound(this This)(inout T lowValue, inout T highValue)
 <br><br>
 
-    Returns a range of elements which are less than value.
-    auto lowerBound(this This)(inout T value)
+    - Returns a range of elements which are less than value.
+      auto lowerBound(this This)(inout T value)
 <br><br>
 
-    Returns a range of elements which are greater than value.
-    auto upperBound(this This)(inout T value)
+    - Returns a range of elements which are greater than value.
+      auto upperBound(this This)(inout T value)
 <br><br>
 
-    TODO Should opBinaryRight return void* instead of bool for set-case?<br><br>
+    TODO opBinaryRight shall return <pre style="display:inline;" class="d_inline_code">_rawTree.ElementRef</pre> instead of <pre style="display:inline;" class="d_inline_code">bool</pre><br><br>
 
 <dl><dt><big><a name="isScalarTrieableKeyType"></a>enum auto <u>isScalarTrieableKeyType</u>(T);
 </big></dt>

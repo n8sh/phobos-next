@@ -107,3 +107,16 @@ version(show) unittest
     int x = 11, y = 12, z = 13;
     show!(x, y, z);
 }
+
+// uint fwr(A...)(A a)
+// {
+//     import std.stdio : LockingTextWriter;
+//     import std.stdio : stdout;
+//     import std.format : formattedWrite;
+//     return formattedWrite!(stdout.lockingTextWriter)(a);
+// }
+
+// unittest
+// {
+//     fwr(42, " ", 43);
+// }

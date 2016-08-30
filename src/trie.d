@@ -84,7 +84,7 @@
     Returns a range of elements which are greater than value.
     auto upperBound(this This)(inout T value)
 
-    TODO Should opBinaryRight return void* instead of bool for set-case?
+    TODO opBinaryRight shall return `_rawTree.ElementRef` instead of `bool`
 */
 module trie;
 
@@ -111,14 +111,12 @@ import dbg;
 
 alias isFixedTrieableKeyType = isIntegralBijectableType;
 
-/** Returns: `true` if `T` can a sclar trie key-type, ` false` otherwise.
-*/
+/** Returns: `true` if `T` can a sclar trie key-type, ` false` otherwise. */
 enum isScalarTrieableKeyType(T) = (isFixedTrieableKeyType!T ||
                                    (isInputRange!T &&
                                     isFixedTrieableKeyType!(ElementType!T)));
 
-/** Returns: `true` if `T` can a trie key-type, ` false` otherwise.
-*/
+/** Returns: `true` if `T` can a trie key-type, ` false` otherwise. */
 template isTrieableKeyType(T)
 {
     static if (is(T == struct))

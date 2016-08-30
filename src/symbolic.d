@@ -42,8 +42,7 @@
    TODO Reuse return patterns from Lit
 
    TODO
-   const s = seq(`al.`.lit,
-   `pha`.lit);
+   const s = seq(`al.`.lit,`pha`.lit);
    const t = `al`.lit ~ `pha`.lit;
    assert(s !is t);
    assert(equal(s, t));
@@ -539,7 +538,7 @@ class Alt : SPatt
     {
         assert(!alts.empty);    // TODO Move to in contract?
 
-        import dbg;
+        import dbgio;
 
         switch (alts.length)
         {

@@ -1642,18 +1642,6 @@ struct RawRadixTree(Value = void)
         {
             import std.algorithm.comparison : equal;
 
-            // if (willFail)
-            // {
-            //     foreach (const i, const ref branchRange; branchRanges._ranges)
-            //     {
-            //         dln("HERE: i:", i,
-            //             " branchRange:", branchRange,
-            //             " _cachedFrontIx:", branchRange._cachedFrontIx,
-            //             " _subCounter: ", branchRange._subCounter);
-            //     }
-            //     // dln("HERE: ", *branchRanges._ranges.back.branch.as!(DenseBranch*));
-            // }
-
             branchRanges.verifyBranch1Depth();
 
             if (branchRanges.hasBranch1Front)

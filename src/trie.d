@@ -1628,8 +1628,9 @@ struct RawRadixTree(Value = void)
     {
         @safe pure nothrow @nogc:
 
-        this(Node root)
+        this(Node root, UKey keyPrefixRest)
         {
+            this._keyPrefixRest = keyPrefixRest;
             if (root)
             {
                 diveAndVisitTreeUnder(root, 0);
@@ -1815,6 +1816,7 @@ struct RawRadixTree(Value = void)
 
         // cache
         Stack!Ix _cachedFrontKey; // copy of front key
+        UKey _keyPrefixRest;
         static if (hasValue)
         {
             Value _cachedFrontValue; // copy of front value
@@ -1831,9 +1833,8 @@ struct RawRadixTree(Value = void)
 
         this(Node root, UKey keyPrefixRest)
         {
-            _frontRange = FrontRange(root);
-            // _backRange = FrontRange(root);
-            this._keyPrefixRest = keyPrefixRest;
+            _frontRange = FrontRange(root, keyPrefixRest);
+            // _backRange = FrontRange(root, keyPrefixRest);
         }
 
         bool empty() const /* TODO @nogc */
@@ -1856,7 +1857,6 @@ struct RawRadixTree(Value = void)
     private:
         FrontRange _frontRange;
         FrontRange _backRange;
-        UKey _keyPrefixRest;
     }
 
     pragma(inline) Range opSlice() @trusted pure nothrow

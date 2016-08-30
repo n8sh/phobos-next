@@ -9,7 +9,7 @@
     $(UL
     $(LI have template parameterization on the `Value`-type in the map case (when `Value` is non-`void`))
     $(LI are completely `@nogc` and when possible `@safe pure nothrow` as it doesn't use the GC)
-    $(LI Insertion with new key detection: `auto newKeyWasInserted = set.insert(Key key)`)
+    $(LI Insertion with returned modifications status: `auto newKeyWasInserted = set.insert(Key key)`)
     $(LI Support AA-style `in`-operator)
       $(UL
       $(LI `key in set` is `bool` for set-case)
@@ -3831,8 +3831,7 @@ static private void calculate(Value)(Leaf1!Value curr,
 /** Remap typed key `typedKey` to raw (untyped) key of type `UKey`.
     TODO use DIP-1000
  */
-UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey)
-    @trusted pure nothrow       /* TODO @nogc */
+UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @trusted
     if (isTrieableKeyType!TypedKey)
 {
     enum radix = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
@@ -3896,8 +3895,7 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey)
 }
 
 /** Remap raw untyped key `ukey` to typed key of type `TypedKey`. */
-inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey)
-    @safe pure nothrow /* TODO @nogc */
+inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey) @trusted
     if (isTrieableKeyType!TypedKey)
 {
     enum radix = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
@@ -3993,7 +3991,7 @@ struct RadixTree(Key, Value)
         }
 
         /** Insert `key`.
-            Returns: `false` if key was previously already added, `true` otherwise.
+            Returns: `true` if `key` wasn't previously added, `false` otherwise.
         */
         bool insert(in Key key, in Value value)
         {
@@ -4052,7 +4050,6 @@ struct RadixTree(Key, Value)
             Returns: `true` if `key` wasn't previously added, `false` otherwise.
         */
         bool insert(Key key)
-            @safe pure nothrow /* TODO @nogc */
         {
             _rawTree.ElementRef elementRef; // indicates that elt was added
 
@@ -4070,7 +4067,6 @@ struct RadixTree(Key, Value)
 
         /** Returns: `true` if `key` is stored, `false` otherwise. */
         bool contains(in Key key) inout
-            @safe pure nothrow /* TODO @nogc */
         {
             KeyN!(span, Key.sizeof) ukey;
             auto rawKey = key.toRawKey(ukey[]); // TODO use DIP-1000

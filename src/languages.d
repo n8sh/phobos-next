@@ -357,8 +357,9 @@ bool isFormal(Language lang) @safe pure @nogc nothrow
 alias forMachines = isFormal;
 alias isProgrammingLanguage = isFormal;
 
-/** TODO Remove when __traits(documentation is merged */
-string toSpoken(Language lang, Language spokenLang = Language.init) @safe pure @nogc nothrow
+/** TODO Remove when __traits(documentation) is merged */
+string toSpoken(Language lang, Language spokenLang = Language.init)
+    @safe pure @nogc nothrow
 {
     switch (lang) with (Language)
     {

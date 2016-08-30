@@ -151,8 +151,11 @@ struct ModArrayN(uint capacity,
     }
     static if (L == 1)
     {
+        import std.traits : isUnsigned;
+
         /** Returns: `true` if `ix` is contained in `this`. */
-        bool contains(const UIx ix) const @nogc
+        bool contains(ModUInt)(const Mod!(radix, ModUInt) ix) const @nogc
+            if (isUnsigned!ModUInt)
         {
             // TODO use binarySearch instead of canFind
             import std.algorithm.searching : canFind;
@@ -228,6 +231,13 @@ static assert(ModArrayN!(2, 3, 8).sizeof == 8);
     assert(x.contains([33.mod!M]));
     assert(x.contains([44.mod!M]));
     assert(!x.contains([45.mod!M]));
+
+    assert(!x.contains(10.mod!M));
+    assert(x.contains(11.mod!M));
+    assert(x.contains(22.mod!M));
+    assert(x.contains(33.mod!M));
+    assert(x.contains(44.mod!M));
+    assert(!x.contains(45.mod!M));
 
     assert(x.equal([11, 22, 33, 44]));
     assert(x.front == 11);

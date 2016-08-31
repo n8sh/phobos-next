@@ -4163,8 +4163,8 @@ struct RadixTree(Key, Value)
         }
         else
         {
-            auto front() const { return _rawRange._front.frontKey; }
-            auto back() const { return _rawRange._back.frontKey; }
+            auto front() const { return _rawRange.lowKey; }
+            auto back() const { return _rawRange.highKey; }
         }
 
         @property auto save() { return this; }

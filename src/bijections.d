@@ -97,7 +97,7 @@ auto bijectToUnsigned(T)(T a) @trusted pure nothrow
     @trusted void bijectFromUnsigned(ushort a, ref wchar b) { b = *cast(typeof(b)*)(&a); }
     @trusted void bijectFromUnsigned(ulong  a, ref dchar b) { b = *cast(typeof(b)*)(&a); }
 
-    @trusted void bijectFromUnsigned(uint a,  ref float  b) { uint  t = iff(a); b = *cast(float*)(&t); }
+    @trusted void bijectFromUnsigned(uint  a, ref float  b) { uint  t = iff(a); b = *cast(float*)(&t); }
     @trusted void bijectFromUnsigned(ulong a, ref double b) { ulong t = iff(a); b = *cast(double*)(&t); }
 }
 

@@ -2464,6 +2464,7 @@ struct RawRadixTree(Value = void)
             case undefined: assert(false);
             case ix_OneLeafMax7:
                 auto curr_ = curr.as!(OneLeafMax7);
+                dln(curr_);
                 if (curr_.key[].startsWith(keyPrefix))
                 {
                     keyPrefixRest = keyPrefix;
@@ -2472,6 +2473,7 @@ struct RawRadixTree(Value = void)
                 break;
             case ix_TwoLeaf3:
                 auto curr_ = curr.as!(TwoLeaf3);
+                dln(curr_);
                 if (keyPrefix.length <= curr_.keyLength)
                 {
                     keyPrefixRest = keyPrefix;
@@ -2480,6 +2482,7 @@ struct RawRadixTree(Value = void)
                 break;
             case ix_TriLeaf2:
                 auto curr_ = curr.as!(TriLeaf2);
+                dln(curr_);
                 if (keyPrefix.length <= curr_.keyLength)
                 {
                     keyPrefixRest = keyPrefix;
@@ -2488,6 +2491,7 @@ struct RawRadixTree(Value = void)
                 break;
             case ix_HeptLeaf1:
                 auto curr_ = curr.as!(HeptLeaf1);
+                dln(curr_);
                 if (keyPrefix.length <= curr_.keyLength)
                 {
                     keyPrefixRest = keyPrefix;
@@ -2505,6 +2509,8 @@ struct RawRadixTree(Value = void)
             case ix_SparseBranchPtr:
                 auto curr_ = curr.as!(SparseBranch*);
                 auto currPrefix = curr_.prefix[];
+                dln(curr_);
+                dln(currPrefix);
                 // TODO functionize
                 if (currPrefix.empty)
                 {
@@ -2534,6 +2540,8 @@ struct RawRadixTree(Value = void)
             case ix_DenseBranchPtr:
                 auto curr_ = curr.as!(DenseBranch*);
                 auto currPrefix = curr_.prefix[];
+                dln(curr_);
+                dln(currPrefix);
                 // TODO functionize
                 if (currPrefix.empty)
                 {

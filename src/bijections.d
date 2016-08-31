@@ -29,7 +29,6 @@ enum isIntegralBijectableType(T) = staticIndexOf!(Unqual!T, IntegralBijectableTy
     import std.random : Random, uniform;
     auto gen = Random();
 
-    const maxCount = 1e4;
     import std.algorithm : min;
 
     static int cmp(T)(T x, T y) { return x < y ? -1 : x > y ? 1 : 0; }
@@ -37,7 +36,8 @@ enum isIntegralBijectableType(T) = staticIndexOf!(Unqual!T, IntegralBijectableTy
     foreach (T; AliasSeq!(ubyte, ushort, uint, ulong,
                           byte, short, int, long))
     {
-        foreach (i; 0 .. min(maxCount, T.max - T.min))
+        const maxCountIntegral = 1e4;
+        foreach (i; 0 .. min(maxCountIntegral, T.max - T.min))
         {
             const x = uniform(T.min, T.max, gen);
             const y = uniform(T.min, T.max, gen);
@@ -53,7 +53,8 @@ enum isIntegralBijectableType(T) = staticIndexOf!(Unqual!T, IntegralBijectableTy
 
     foreach (T; AliasSeq!(float, double))
     {
-        foreach (i; 0 .. maxCount)
+        const maxCountFloatingPoint = 1e5;
+        foreach (i; 0 .. maxCountFloatingPoint)
         {
             const T x = uniform(-1e20, +1e20, gen);
             const T y = uniform(-1e20, +1e20, gen);

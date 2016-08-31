@@ -1827,7 +1827,7 @@ struct RawRadixTree(Value = void)
 
         this(Node root, uint* treeRangeCounter, UKey keyPrefixRest)
         {
-            assert(treeRangeCounter);
+            assert(treeRangeCounter, "Pointer to range counter is null");
 
             this._treeRangeCounter = treeRangeCounter;
             (*this._treeRangeCounter)++ ;
@@ -1838,13 +1838,13 @@ struct RawRadixTree(Value = void)
 
         this(this)
         {
-            assert(*_treeRangeCounter != (*_treeRangeCounter).max);
+            assert(*_treeRangeCounter != (*_treeRangeCounter).max, "Range counter has reached maximum");
             ++(*_treeRangeCounter);
         }
 
         ~this()
         {
-            assert(*_treeRangeCounter != 0);
+            assert(*_treeRangeCounter != 0, "Range counter cannot be decremented because it's zero");
             --(*_treeRangeCounter);
         }
 
@@ -2419,7 +2419,7 @@ struct RawRadixTree(Value = void)
 
     pragma(inline) ~this() @nogc
     {
-        assert(_rangeCounter == 0); // no `Range` must refer to `_root`
+        assert(_rangeCounter == 0, "Ranges still refer to this"); // no `Range` must refer to `_root`
         release(_root);
         debug
         {

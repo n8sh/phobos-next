@@ -1028,7 +1028,7 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        void appendFrontIxsToKey(ref UnsortedCopyingArray!Ix key) const /* TODO @nogc */
+        void appendFrontIxsToKey(ref UnsortedCopyingArray!Ix key) const @nogc
         {
             final switch (branch.typeIx) with (Branch.Ix)
             {
@@ -1043,7 +1043,7 @@ struct RawRadixTree(Value = void)
             key.pushBack(frontIx); // uses cached data so ok to not depend on branch type
         }
 
-        size_t prefixLength() const /* TODO @nogc */
+        size_t prefixLength() const @nogc
         {
             final switch (branch.typeIx) with (Branch.Ix)
             {
@@ -1059,7 +1059,7 @@ struct RawRadixTree(Value = void)
         /** Try to iterated forward.
             Returns: `true` upon successful forward iteration, `false` otherwise (upon completion of iteration),
         */
-        void popFront() /* TODO @nogc */
+        void popFront()
         {
             assert(!empty);
 
@@ -1211,7 +1211,7 @@ struct RawRadixTree(Value = void)
 
         /** Pop front element.
          */
-        void popFront() /* TODO @nogc */
+        void popFront()
         {
             assert(!empty);
 
@@ -1387,7 +1387,7 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        void appendFrontIxsToKey(ref UnsortedCopyingArray!Ix key) const /* TODO @nogc */
+        void appendFrontIxsToKey(ref UnsortedCopyingArray!Ix key) const @nogc
         {
             assert(!empty);
             with (Node.Ix)
@@ -1428,7 +1428,7 @@ struct RawRadixTree(Value = void)
         pragma(inline) void makeEmpty() @nogc { leaf = null; }
 
         /** Pop front element. */
-        void popFront() /* TODO @nogc */
+        void popFront()
         {
             assert(!empty);
             with (Node.Ix)
@@ -1784,18 +1784,22 @@ struct RawRadixTree(Value = void)
             while (next);
         }
 
-        pragma(inline)
+        pragma(inline):
 
-        bool empty() const // TODO @nogc
+        /** Check if empty. */
+        bool empty() const
         {
             return (leafNRange.empty &&
                     branchRanges.branchCount == 0);
         }
 
-        auto frontKey() const @nogc { return _cachedFrontKey[]; }
+        /** Get front key. */
+        auto frontKey() const { return _cachedFrontKey[]; }
+
         static if (hasValue)
         {
-            auto frontValue() const @nogc { return _cachedFrontValue; }
+            /** Get front value. */
+            auto frontValue() const { return _cachedFrontValue; }
         }
 
     private:

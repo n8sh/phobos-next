@@ -4156,10 +4156,8 @@ struct RadixTree(Key, Value)
 
         static if (RawTree.hasValue)
         {
-            auto front() const { return tuple(_rawRange.lowKey,
-                                              _rawRange._front._cachedFrontValue); }
-            auto back() const { return tuple(_rawRange.highKey,
-                                             _rawRange._back._cachedFrontValue);}
+            auto front() const { return tuple(_rawRange.lowKey, _rawRange._front._cachedFrontValue); }
+            auto back() const { return tuple(_rawRange.highKey, _rawRange._back._cachedFrontValue);}
         }
         else
         {

@@ -140,7 +140,7 @@ void bijectFromUnsigned(U, V)(U a, ref V b)
  * - if it's 1 (negative float), it flips all bits.
  * - if it's 0 (positive float), it flips the sign only.
  */
-uint    ff(uint f) { return f ^ (-cast(uint)  (f >> (32-1))      | 0x80000000); }
-uint   iff(uint f) { return f ^             (((f >> (32-1)) - 1) | 0x80000000); }
-ulong  ff(ulong f) { return f ^ (-cast(ulong) (f >> (64-1))      | 0x8000000000000000); }
-ulong iff(ulong f) { return f ^             (((f >> (64-1)) - 1) | 0x8000000000000000); }
+uint    ff(uint f) { return f ^ (-cast(uint)  (f >> (8*f.sizeof-1))      | 0x80000000); }
+uint   iff(uint f) { return f ^             (((f >> (8*f.sizeof-1)) - 1) | 0x80000000); }
+ulong  ff(ulong f) { return f ^ (-cast(ulong) (f >> (8*f.sizeof-1))      | 0x8000000000000000); }
+ulong iff(ulong f) { return f ^             (((f >> (8*f.sizeof-1)) - 1) | 0x8000000000000000); }

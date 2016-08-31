@@ -2512,31 +2512,23 @@ struct RawRadixTree(Value = void)
                 dln(curr_);
                 dln(currPrefix);
                 // TODO functionize
-                if (currPrefix.empty)
+                import std.algorithm : findSplitAfter;
+                if (auto split = keyPrefix.findSplitAfter(currPrefix[]))
                 {
-                    if (curr_.subCount == 0) // if only leaf1
+                    auto subKeyPrefix = split[1];
+                    if (curr_.leaf1 && // both leaf1
+                        curr_.subCount) // and sub-nodes
                     {
-                        dln();
-                        if (keyPrefix.length <= 1) { return Node(curr_.leaf1); }
-                    }
-                    else
-                    {
-                        dln();
                         keyPrefixRest = keyPrefix;
                         return curr;
                     }
-                }
-                else if (keyPrefix.skipOver(currPrefix))
-                {
-                    if (keyPrefix.empty)
+                    else if (curr_.subCount == 0) // only leaf1
                     {
-                        dln();
-                        return curr;               // no need to set keyPrefixRest because keyPrefix is empty
+                        return prefixAt(Node(curr_.leaf1), subKeyPrefix, keyPrefixRest);
                     }
-                    else
+                    else            // only sub-node(s)
                     {
-                        dln();
-                        return prefixAt(curr_.subAt(UIx(keyPrefix[0])), keyPrefix[1 .. $], keyPrefixRest);
+                        return prefixAt(curr_.subAt(UIx(subKeyPrefix[0])), subKeyPrefix[1 .. $], keyPrefixRest);
                     }
                 }
                 break;
@@ -2546,26 +2538,21 @@ struct RawRadixTree(Value = void)
                 dln(curr_);
                 dln(currPrefix);
                 // TODO functionize
-                if (currPrefix.empty)
+                import std.algorithm : findSplitAfter;
+                if (auto split = keyPrefix.findSplitAfter(currPrefix[]))
                 {
-                    if (curr_.subCount == 0) // if only leaf1
-                    {
-                        if (keyPrefix.length <= 1) { return Node(curr_.leaf1); }
-                    }
-                    else
+                    auto subKeyPrefix = split[1];
+                    if (curr_.leaf1 && // both leaf1
+                        curr_.subCount) // and sub-nodes
                     {
                         keyPrefixRest = keyPrefix;
                         return curr;
                     }
-                }
-                else if (keyPrefix.skipOver(currPrefix))
-                {
-                    if (keyPrefix.empty)
+                    else if (curr_.subCount == 0) // only leaf1
                     {
-                        dln();
-                        return curr;               // no need to set keyPrefixRest because keyPrefix is empty
+                        return prefixAt(Node(curr_.leaf1), subKeyPrefix, keyPrefixRest);
                     }
-                    else
+                    else            // only sub-node(s)
                     {
                         return prefixAt(curr_.subNodes[UIx(keyPrefix[0])], keyPrefix[1 .. $], keyPrefixRest);
                     }

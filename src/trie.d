@@ -2454,7 +2454,6 @@ struct RawRadixTree(Value = void)
 
         pragma(inline) inout(Node) prefixAt(Node curr, UKey keyPrefix, out UKey keyPrefixRest) inout
         {
-            import std.algorithm : commonPrefix;
             import std.algorithm : skipOver;
             import std.algorithm : startsWith;
 

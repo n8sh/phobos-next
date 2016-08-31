@@ -3735,10 +3735,10 @@ struct RawRadixTree(Value = void)
     /// Get number of `Range`-instances that currently refer to `_root` of `this` tree.
     auto rangeCount() const @safe pure nothrow @nogc { return _rangeCounter; }
 
-    public Node _root;                 ///< tree root node
-private:
-    enum fixedKeyLengthUndefined = 0;
+    private enum fixedKeyLengthUndefined = 0;
 
+private:
+    Node _root;                 ///< tree root node
     immutable fixedKeyLength = fixedKeyLengthUndefined; ///< maximum length of key if fixed, otherwise 0
     size_t _length = 0; ///< number of elements (keys or key-value-pairs) currently stored under `_root`
     uint _rangeCounter = 0;      // number of ranges that refer to `this` tree
@@ -3746,7 +3746,6 @@ private:
     debug:                      // debug stuff
     long _heapNodeAllocationBalance = 0;
     size_t[Node.Ix.max + 1] nodeCountsByIx;
-
     bool willFail;
 }
 

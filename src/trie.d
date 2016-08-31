@@ -1825,10 +1825,27 @@ struct RawRadixTree(Value = void)
         @safe pure nothrow @nogc:
         pragma(inline):
 
-        this(Node root, UKey keyPrefixRest)
+        this(Node root, uint* treeRangeCounter, UKey keyPrefixRest)
         {
-            _frontRange = FrontRange(root, keyPrefixRest);
-            // _backRange = FrontRange(root, keyPrefixRest);
+            assert(treeRangeCounter);
+
+            this._treeRangeCounter = treeRangeCounter;
+            (*this._treeRangeCounter)++ ;
+
+            this._frontRange = FrontRange(root, keyPrefixRest);
+            // this._backRange = FrontRange(root, keyPrefixRest);
+        }
+
+        this(this)
+        {
+            assert(*_treeRangeCounter != (*_treeRangeCounter).max);
+            ++(*_treeRangeCounter);
+        }
+
+        ~this()
+        {
+            assert(*_treeRangeCounter != 0);
+            --(*_treeRangeCounter);
         }
 
         bool empty() const /* TODO @nogc */
@@ -1851,11 +1868,12 @@ struct RawRadixTree(Value = void)
     private:
         FrontRange _frontRange;
         FrontRange _backRange;
+        uint* _treeRangeCounter;
     }
 
     pragma(inline) Range opSlice() @trusted pure nothrow
     {
-        return Range(this._root, []);
+        return Range(this._root, &this._rangeCounter, []);
     }
 
     // static assert(isBidirectionalRange!Range);
@@ -2438,6 +2456,8 @@ struct RawRadixTree(Value = void)
             import std.algorithm : commonPrefix;
             import std.algorithm : skipOver;
             import std.algorithm : startsWith;
+
+            dln(curr, " ", keyPrefix);
 
             switch (curr.typeIx) with (Node.Ix)
             {
@@ -3711,16 +3731,21 @@ struct RawRadixTree(Value = void)
         }
     }
 
+    /// Get number Range-instances that currently refer to `this` tree.
+    size_t rangeCount() const @safe pure nothrow @nogc { return _rangeCounter; }
+
     public Node _root;                 ///< tree root node
 private:
     enum fixedKeyLengthUndefined = 0;
-    immutable fixedKeyLength = fixedKeyLengthUndefined; ///< maximum length of key if fixed, otherwise 0
 
+    immutable fixedKeyLength = fixedKeyLengthUndefined; ///< maximum length of key if fixed, otherwise 0
     size_t _length = 0; ///< number of elements (keys or key-value-pairs) currently stored under `_root`
+    uint _rangeCounter = 0;      // number of ranges that refer to `this` tree
 
     debug:                      // debug stuff
     long _heapNodeAllocationBalance = 0;
     size_t[Node.Ix.max + 1] nodeCountsByIx;
+
     bool willFail;
 }
 
@@ -4051,22 +4076,25 @@ struct RadixTree(Key, Value)
         return contains(key);   // TODO return `_rawTree.ElementRef`
     }
 
-    pragma(inline) inout(Range) opSlice() inout @nogc
+    pragma(inline) Range opSlice() @nogc // TODO inout?
     {
-        return Range(_rawTree._root);
+        return Range(_rawTree._root,
+                     &_rawTree._rangeCounter);
     }
 
     /** Get range over elements whose key starts with `keyPrefix`.
         The element equal to `keyPrefix` is return as an empty instance of the type.
      */
-    pragma(inline) auto prefix(Key keyPrefix) const // TODO @nogc
+    pragma(inline) auto prefix(Key keyPrefix) // TODO @nogc
     {
         KeyN!(span, Key.sizeof) ukey;
         auto rawKeyPrefix = keyPrefix.toRawKey(ukey[]);
 
         UKey rawKeyPrefixRest;
         auto prefixedRootNode = _rawTree.prefix(rawKeyPrefix, rawKeyPrefixRest);
-        auto rawRange = RawRange(prefixedRootNode, rawKeyPrefixRest);
+        auto rawRange = RawRange(prefixedRootNode,
+                                 &_rawTree._rangeCounter,
+                                 rawKeyPrefixRest);
 
         import std.algorithm.iteration : filter, map;
         import std.algorithm : startsWith;
@@ -4088,7 +4116,8 @@ struct RadixTree(Key, Value)
     {
         @nogc:
 
-        this(RawTree.Node root) { _rawRange = _rawTree.Range(root, []); }
+        this(RawTree.Node root,
+             uint* treeRangeCounter) { _rawRange = _rawTree.Range(root, treeRangeCounter, []); }
 
         auto front() const
         {
@@ -4110,9 +4139,11 @@ struct RadixTree(Key, Value)
     /** Raw Range. */
     private static struct RawRange
     {
-        this(RawTree.Node root, UKey keyPrefixRest)
+        this(RawTree.Node root,
+             uint* treeRangeCounter,
+             UKey keyPrefixRest)
         {
-            this._rawRange = _rawTree.Range(root, keyPrefixRest);
+            this._rawRange = _rawTree.Range(root, treeRangeCounter, keyPrefixRest);
         }
 
         static if (RawTree.hasValue)
@@ -4377,10 +4408,14 @@ unittest
         assert(map.length == i + 1);
     }
 
+    assert(map.rangeCount == 0);
+
     // test range
     size_t i = 0;
     foreach (const elt; map[])
     {
+        assert(map.rangeCount == 1);
+
         const Key key = elt[0];
         const Value value = elt[1];
 
@@ -4389,6 +4424,8 @@ unittest
 
         ++i;
     }
+
+    assert(map.rangeCount == 0);
 }
 
 /// Check string types in `Keys`.

@@ -7,7 +7,7 @@ alias Stack(T) = Array!(T, Ordering.unsorted, false);
 
 @safe pure nothrow @nogc unittest
 {
-    alias T = int;
+    alias T = uint;
 
     Stack!T s;
     assert(s.empty);

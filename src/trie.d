@@ -17,7 +17,7 @@
       )
     $(LI AA-style iteration of map keys: `map.byKey()`)
     $(LI AA-style iteration of map values: `map.byValue()`)
-    $(LI `SortedRange`-style sorted key access: `assert(set[].isSorted)`)
+    $(LI `SortedRange`-style iteration over elements sorted by key: `assert(set[].isSorted)`)
     $(LI Containment checking: `bool contains(in Key key)`)
     $(LI Element indexing and element index assignment for map case via `opIndex` and `opIndexAssign`)
     $(LI Key-Prefix Completion (returning a `Range` over all set/map-elements that match a key prefix): `prefix(Key keyPrefix)`)

@@ -4214,8 +4214,10 @@ auto radixTreeMap(Key, Value)()
     set.insert(T.max);
     set.insert(-3.3);
     set.insert(-4.4);
+    set.insert(+4.4);
+    set.insert(+3.3);
 
-    const T[5] values = [-4.4, -3.3, -1.1, 2.2, T.max];
+    const T[7] values = [-4.4, -3.3, -1.1, 2.2, 3.3, 4.4, T.max];
     assert(set[].equal(values[]));
 }
 

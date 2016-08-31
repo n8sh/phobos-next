@@ -2508,7 +2508,7 @@ struct RawRadixTree(Value = void)
                 break;
             case ix_SparseBranchPtr:
                 auto curr_ = curr.as!(SparseBranch*);
-                auto currPrefix = curr_.prefix[];
+                auto currPrefix = curr_.prefix;
                 dln(curr_);
                 dln(currPrefix);
                 // TODO functionize
@@ -2516,10 +2516,12 @@ struct RawRadixTree(Value = void)
                 {
                     if (curr_.subCount == 0) // if only leaf1
                     {
+                        dln();
                         if (keyPrefix.length <= 1) { return Node(curr_.leaf1); }
                     }
                     else
                     {
+                        dln();
                         keyPrefixRest = keyPrefix;
                         return curr;
                     }
@@ -2528,18 +2530,19 @@ struct RawRadixTree(Value = void)
                 {
                     if (keyPrefix.empty)
                     {
-                        keyPrefixRest = currPrefix;
-                        return curr;
+                        dln();
+                        return curr;               // no need to set keyPrefixRest because keyPrefix is empty
                     }
                     else
                     {
+                        dln();
                         return prefixAt(curr_.subAt(UIx(keyPrefix[0])), keyPrefix[1 .. $], keyPrefixRest);
                     }
                 }
                 break;
             case ix_DenseBranchPtr:
                 auto curr_ = curr.as!(DenseBranch*);
-                auto currPrefix = curr_.prefix[];
+                auto currPrefix = curr_.prefix;
                 dln(curr_);
                 dln(currPrefix);
                 // TODO functionize

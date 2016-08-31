@@ -85,6 +85,8 @@
       auto upperBound(this This)(inout T value)
 
     TODO opBinaryRight shall return `_rawTree.ElementRef` instead of `bool`
+
+    TODO Use scope on members that return key and value reference when DIP-1000 has been implemented
 */
 module trie;
 

@@ -11,10 +11,10 @@ void main(string[] args)
     auto set = radixTreeSet!(Key);
 
     set.clear();
-    set.insert(`alphabet`);
-    set.insert(`alpha`);
+    set.insert(`____alphabet`);
+    set.insert(`____alpha`);
 
-    assert(set.prefix(`alpha`)
+    assert(set.prefix(`____alpha`)
               .equal([``,
                       `bet`]));
 
@@ -32,7 +32,6 @@ void main(string[] args)
     enum show = false;
     if (show)
     {
-        import dbgio : dln;
         import std.stdio : writeln;
 
         foreach (const e; set[])

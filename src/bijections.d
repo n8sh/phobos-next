@@ -92,11 +92,10 @@ auto bijectToUnsigned(T)(T a) @trusted pure nothrow
     ulong  ff(ulong f) { return f ^ (-cast(ulong) (f >> (64-1))      | 0x8000000000000000); }
     ulong iff(ulong f) { return f ^             (((f >> (64-1)) - 1) | 0x8000000000000000); }
 
-    @trusted void bijectFromUnsigned(ubyte a, ref bool b) { b = *cast(typeof(b)*)(&a); }
-
-    @trusted void bijectFromUnsigned(ubyte a, ref char b) { b = *cast(typeof(b)*)(&a); }
+    @trusted void bijectFromUnsigned(ubyte  a, ref  bool b) { b = *cast(typeof(b)*)(&a); }
+    @trusted void bijectFromUnsigned(ubyte  a, ref  char b) { b = *cast(typeof(b)*)(&a); }
     @trusted void bijectFromUnsigned(ushort a, ref wchar b) { b = *cast(typeof(b)*)(&a); }
-    @trusted void bijectFromUnsigned(ulong a, ref dchar b) { b = *cast(typeof(b)*)(&a); }
+    @trusted void bijectFromUnsigned(ulong  a, ref dchar b) { b = *cast(typeof(b)*)(&a); }
 
     @trusted void bijectFromUnsigned(uint a,  ref float  b) { uint  t = iff(a); b = *cast(float*)(&t); }
     @trusted void bijectFromUnsigned(ulong a, ref double b) { ulong t = iff(a); b = *cast(double*)(&t); }

@@ -1039,10 +1039,14 @@ struct RawRadixTree(Value = void)
             {
             case undefined: assert(false);
             case ix_SparseBranchPtr:
-                key.pushBack(branch.as!(SparseBranch*).prefix[]);
+                dln(branch.as!(SparseBranch*));
+                dln(_prefixSkipLength);
+                dln(branch.as!(SparseBranch*).prefix);
+                dln(*branch.as!(SparseBranch*));
+                key.pushBack(branch.as!(SparseBranch*).prefix[_prefixSkipLength .. $]);
                 break;
             case ix_DenseBranchPtr:
-                key.pushBack(branch.as!(DenseBranch*).prefix[]);
+                key.pushBack(branch.as!(DenseBranch*).prefix[_prefixSkipLength .. $]);
                 break;
             }
             key.pushBack(frontIx); // uses cached data so ok to not depend on branch type
@@ -1148,6 +1152,10 @@ struct RawRadixTree(Value = void)
 
         UIx _subCounter; // `Branch`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
         UIx _cachedFrontIx;
+
+        ubyte _prefixSkipLength; // cannot be larger than Sparse
+        static assert(_prefixSkipLength.max >= SparseBranch.prefixCapacity);
+        static assert(_prefixSkipLength.max >= DenseBranch.prefixCapacity);
 
         bool _frontAtLeaf1;   // `true` iff front is currently at a leaf1 element
         bool _subsEmpty;      // `true` iff no sub-nodes exists
@@ -1520,6 +1528,9 @@ struct RawRadixTree(Value = void)
             {
                 foreach (const ref branchRange; _bRanges)
                 {
+                    dln(branchRange);
+                    dln(branchRange.branch);
+                    dln(key);
                     branchRange.appendFrontIxsToKey(key);
                     if (branchRange.atLeaf1)
                     {
@@ -1636,21 +1647,20 @@ struct RawRadixTree(Value = void)
     {
         @safe pure nothrow @nogc:
 
-        this(Node root, UKey keyPrefixRest)
+        this(Node root, UKey keyPrefix)
         {
-            this._keyPrefixRest = keyPrefixRest;
             if (root)
             {
-                diveAndVisitTreeUnder(root, 0);
+                diveAndVisitTreeUnder(root, 0, keyPrefix);
                 cacheFront();
             }
         }
 
         void popFront()
         {
-            branchRanges.verifyBranch1Depth();
+            debug branchRanges.verifyBranch1Depth();
 
-            if (branchRanges.hasBranch1Front)
+            if (branchRanges.hasBranch1Front) // if we're currently at leaf1 of branch
             {
                 popFrontInBranchLeaf1();
             }
@@ -1671,10 +1681,8 @@ struct RawRadixTree(Value = void)
             branchRanges.popBranch1Front();
             if (branchRanges.emptyBranch1)
             {
-                // TODO functionize
                 branchRanges.shrinkTo(branchRanges._branch1Depth); // remove `branchRange` and all others below
                 branchRanges.resetBranch1Depth();
-
                 postPopTreeUpdate();
             }
             else if (!branchRanges.atLeaf1) // if not at leaf
@@ -1737,12 +1745,12 @@ struct RawRadixTree(Value = void)
                 !branchRanges.bottom.subsEmpty) // if any sub nodes
             {
                 diveAndVisitTreeUnder(branchRanges.bottom.subFrontNode,
-                                      branchRanges.branchCount); // visit them
+                                      branchRanges.branchCount, []); // visit them
             }
         }
 
         /** Find ranges of branches and leaf for all nodes under tree `root`. */
-        private void diveAndVisitTreeUnder(Node root, size_t depth)
+        private void diveAndVisitTreeUnder(Node root, size_t depth, UKey keyPrefix)
         {
             Node curr = root;
             Node next;
@@ -1757,7 +1765,6 @@ struct RawRadixTree(Value = void)
                 case ix_HeptLeaf1:
                 case ix_SparseLeaf1Ptr:
                 case ix_DenseLeaf1Ptr:
-                    // if (!leafNRange.empty) { dln("existing leafNRange:", leafNRange); }
                     assert(leafNRange.empty);
 
                     leafNRange = LeafNRange(curr);
@@ -1766,7 +1773,15 @@ struct RawRadixTree(Value = void)
                     break;
                 case ix_SparseBranchPtr:
                     auto curr_ = curr.as!(SparseBranch*);
+
                     auto currRange = BranchRange(curr_);
+                    if (depth == 0)
+                    {
+                        dln(depth);
+                        dln(keyPrefix);
+                        dln(curr_.prefix);
+                        currRange._prefixSkipLength = cast(ubyte)keyPrefix.length;
+                    }
 
                     branchRanges.push(currRange);
                     branchRanges.updateLeaf1AtDepth(depth);
@@ -1775,7 +1790,9 @@ struct RawRadixTree(Value = void)
                     break;
                 case ix_DenseBranchPtr:
                     auto curr_ = curr.as!(DenseBranch*);
+
                     auto currRange = BranchRange(curr_);
+                    if (depth == 0) { currRange._prefixSkipLength = cast(ubyte)keyPrefix.length; }
 
                     branchRanges.push(currRange);
                     branchRanges.updateLeaf1AtDepth(depth);
@@ -1813,7 +1830,6 @@ struct RawRadixTree(Value = void)
 
         // cache
         UnsortedCopyingArray!Ix _cachedFrontKey; // copy of front key
-        UKey _keyPrefixRest;
         static if (hasValue)
         {
             Value _cachedFrontValue; // copy of front value
@@ -1828,15 +1844,15 @@ struct RawRadixTree(Value = void)
         @safe pure nothrow @nogc:
         pragma(inline):
 
-        this(Node root, uint* treeRangeCounter, UKey keyPrefixRest)
+        this(Node root, uint* treeRangeCounter, UKey keyPrefix)
         {
             assert(treeRangeCounter, "Pointer to range counter is null");
 
             this._treeRangeCounter = treeRangeCounter;
             (*this._treeRangeCounter)++ ;
 
-            this._frontRange = FrontRange(root, keyPrefixRest);
-            // this._backRange = FrontRange(root, keyPrefixRest);
+            this._frontRange = FrontRange(root, keyPrefix);
+            // this._backRange = FrontRange(root);
         }
 
         this(this)
@@ -2507,12 +2523,11 @@ struct RawRadixTree(Value = void)
                 break;
             case ix_SparseBranchPtr:
                 auto curr_ = curr.as!(SparseBranch*);
-                auto currPrefix = curr_.prefix;
                 // TODO functionize
                 import std.algorithm.searching : findSplitAfter;
-                if (auto split = keyPrefix.findSplitAfter(currPrefix[]))
+                if (auto split = keyPrefix.findSplitAfter(curr_.prefix[]))
                 {
-                    auto subKeyPrefix = split[1];
+                    auto subKeySuffix = split[1];
                     if (curr_.leaf1 && // both leaf1
                         curr_.subCount) // and sub-nodes
                     {
@@ -2521,22 +2536,21 @@ struct RawRadixTree(Value = void)
                     }
                     else if (curr_.subCount == 0) // only leaf1
                     {
-                        return prefixAt(Node(curr_.leaf1), subKeyPrefix, keyPrefixRest);
+                        return prefixAt(Node(curr_.leaf1), subKeySuffix, keyPrefixRest);
                     }
                     else            // only sub-node(s)
                     {
-                        return prefixAt(curr_.subAt(UIx(subKeyPrefix[0])), subKeyPrefix[1 .. $], keyPrefixRest);
+                        return prefixAt(curr_.subAt(UIx(subKeySuffix[0])), subKeySuffix[1 .. $], keyPrefixRest);
                     }
                 }
                 break;
             case ix_DenseBranchPtr:
                 auto curr_ = curr.as!(DenseBranch*);
-                auto currPrefix = curr_.prefix;
                 // TODO functionize
                 import std.algorithm.searching : findSplitAfter;
-                if (auto split = keyPrefix.findSplitAfter(currPrefix[]))
+                if (auto split = keyPrefix.findSplitAfter(curr_.prefix[]))
                 {
-                    auto subKeyPrefix = split[1];
+                    auto subKeySuffix = split[1];
                     if (curr_.leaf1 && // both leaf1
                         curr_.subCount) // and sub-nodes
                     {
@@ -2545,7 +2559,7 @@ struct RawRadixTree(Value = void)
                     }
                     else if (curr_.subCount == 0) // only leaf1
                     {
-                        return prefixAt(Node(curr_.leaf1), subKeyPrefix, keyPrefixRest);
+                        return prefixAt(Node(curr_.leaf1), subKeySuffix, keyPrefixRest);
                     }
                     else            // only sub-node(s)
                     {
@@ -4086,6 +4100,10 @@ struct RadixTree(Key, Value)
 
         UKey rawKeyPrefixRest;
         auto prefixedRootNode = _rawTree.prefix(rawKeyPrefix, rawKeyPrefixRest);
+
+        _rawTree.print();
+        dln(`"`, cast(const(char)[])rawKeyPrefixRest, `"`);
+
         return Range(prefixedRootNode,
                      &_rawTree._rangeCounter,
                      rawKeyPrefixRest);

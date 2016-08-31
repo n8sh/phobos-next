@@ -58,7 +58,7 @@ auto bijectToUnsigned(T)(T a) @trusted
 /** Same as `bijectToUnsigned` with extra argument `descending` that reverses
     order. */
 auto bijectToUnsigned(T)(T a, bool descending)
-    if (isUnsigned!T)
+    if (isIntegralBijectableType!T)
 {
     immutable ua = a.bijectToUnsigned;
     return descending ? ua.max-ua : ua;

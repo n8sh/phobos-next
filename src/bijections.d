@@ -23,6 +23,44 @@ alias IntegralBijectableTypes = AliasSeq!(bool, char, wchar, dchar,
 
 enum isIntegralBijectableType(T) = staticIndexOf!(Unqual!T, IntegralBijectableTypes) >= 0;
 
+/// check that `bijectToUnsigned` preserves orderness, that is is a bijection
+unittest
+{
+    import std.random : Random, uniform;
+    auto gen = Random();
+
+    const count = 1e5;
+
+    foreach (T; AliasSeq!(ubyte, ushort, uint, ulong,
+                          byte, short, int, long))
+    {
+        foreach (i; 0 .. count)
+        {
+            const x = uniform(T.min, T.max, gen);
+            const y = uniform(T.min, T.max, gen);
+
+            const expected = x < y;
+            const result = x.bijectToUnsigned < y.bijectToUnsigned;
+
+            assert(result == expected);
+        }
+    }
+
+    foreach (T; AliasSeq!(float, double))
+    {
+        foreach (i; 0 .. count)
+        {
+            const x = uniform(-1e20, +1e20, gen);
+            const y = uniform(-1e20, +1e20, gen);
+
+            const expected = x < y;
+            const result = x.bijectToUnsigned < y.bijectToUnsigned;
+
+            assert(result == expected);
+        }
+    }
+}
+
 pragma(inline) @safe pure nothrow @nogc:
 
 /** Biject (Shift) Signed $(D a) "up" to Unsigned (before radix sorting). */

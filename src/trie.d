@@ -3732,7 +3732,7 @@ struct RawRadixTree(Value = void)
         }
     }
 
-    /// Get number of `Range`-instances that currently refer to `this` tree.
+    /// Get number of `Range`-instances that currently refer to `_root` of `this` tree.
     auto rangeCount() const @safe pure nothrow @nogc { return _rangeCounter; }
 
     public Node _root;                 ///< tree root node

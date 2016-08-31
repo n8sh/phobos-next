@@ -1647,11 +1647,11 @@ struct RawRadixTree(Value = void)
     {
         @safe pure nothrow @nogc:
 
-        this(Node root, UKey keyPrefix)
+        this(Node root)
         {
             if (root)
             {
-                diveAndVisitTreeUnder(root, 0, keyPrefix);
+                diveAndVisitTreeUnder(root, 0);
                 cacheFront();
             }
         }
@@ -1745,12 +1745,12 @@ struct RawRadixTree(Value = void)
                 !branchRanges.bottom.subsEmpty) // if any sub nodes
             {
                 diveAndVisitTreeUnder(branchRanges.bottom.subFrontNode,
-                                      branchRanges.branchCount, []); // visit them
+                                      branchRanges.branchCount); // visit them
             }
         }
 
         /** Find ranges of branches and leaf for all nodes under tree `root`. */
-        private void diveAndVisitTreeUnder(Node root, size_t depth, UKey keyPrefix)
+        private void diveAndVisitTreeUnder(Node root, size_t depth)
         {
             Node curr = root;
             Node next;
@@ -1775,14 +1775,6 @@ struct RawRadixTree(Value = void)
                     auto curr_ = curr.as!(SparseBranch*);
 
                     auto currRange = BranchRange(curr_);
-                    if (depth == 0)
-                    {
-                        dln(depth);
-                        dln(keyPrefix);
-                        dln(curr_.prefix);
-                        currRange._prefixSkipLength = cast(ubyte)keyPrefix.length;
-                    }
-
                     branchRanges.push(currRange);
                     branchRanges.updateLeaf1AtDepth(depth);
 
@@ -1792,8 +1784,6 @@ struct RawRadixTree(Value = void)
                     auto curr_ = curr.as!(DenseBranch*);
 
                     auto currRange = BranchRange(curr_);
-                    if (depth == 0) { currRange._prefixSkipLength = cast(ubyte)keyPrefix.length; }
-
                     branchRanges.push(currRange);
                     branchRanges.updateLeaf1AtDepth(depth);
 
@@ -1841,18 +1831,27 @@ struct RawRadixTree(Value = void)
     */
     private static struct Range
     {
+        import std.algorithm : startsWith;
+
         @safe pure nothrow @nogc:
         pragma(inline):
 
         this(Node root, uint* treeRangeCounter, UKey keyPrefix)
         {
+            this._keyPrefix = keyPrefix;
             assert(treeRangeCounter, "Pointer to range counter is null");
 
             this._treeRangeCounter = treeRangeCounter;
             (*this._treeRangeCounter)++ ;
 
-            this._frontRange = FrontRange(root, keyPrefix);
-            // this._backRange = FrontRange(root);
+            this._front = FrontRange(root);
+            // this._back = FrontRange(root);
+
+            if (!empty &&
+                !_front.frontKey.startsWith(_keyPrefix))
+            {
+                popFront();
+            }
         }
 
         this(this)
@@ -1871,24 +1870,32 @@ struct RawRadixTree(Value = void)
 
         bool empty() const
         {
-            return _frontRange.empty; // TODO _frontRange == _backRange;
+            return _front.empty; // TODO _front == _back;
         }
+
+        auto lowKey() const { return _front.frontKey[_keyPrefix.length .. $]; }
+        auto highKey() const { return _back.frontKey[_keyPrefix.length .. $]; }
 
         void popFront()
         {
             assert(!empty);
-            _frontRange.popFront();
+            do { _front.popFront(); }
+            while (!empty &&
+                   !_front.frontKey.startsWith(_keyPrefix));
         }
 
         void popBack()
         {
             assert(!empty);
-            _backRange.popFront();
+            do { _back.popFront(); }
+            while (!empty &&
+                   !_back.frontKey.startsWith(_keyPrefix));
         }
 
     private:
-        FrontRange _frontRange;
-        FrontRange _backRange;
+        FrontRange _front;
+        FrontRange _back;
+        UKey _keyPrefix;
         uint* _treeRangeCounter;
     }
 
@@ -4120,14 +4127,14 @@ struct RadixTree(Key, Value)
 
         auto front() const
         {
-            const key = _rawRange._frontRange.frontKey.toTypedKey!Key;
-            static if (RawTree.hasValue) { return tuple(key, _rawRange._frontRange._cachedFrontValue); }
+            const key = _rawRange.lowKey.toTypedKey!Key;
+            static if (RawTree.hasValue) { return tuple(key, _rawRange._front._cachedFrontValue); }
             else                         { return key; }
         }
         auto back() const
         {
-            const key = _rawRange._backRange.frontKey.toTypedKey!Key;
-            static if (RawTree.hasValue) { return tuple(key, _rawRange._backRange._cachedFrontValue); }
+            const key = _rawRange.highKey.toTypedKey!Key;
+            static if (RawTree.hasValue) { return tuple(key, _rawRange._back._cachedFrontValue); }
             else                         { return key; }
         }
 
@@ -4149,15 +4156,15 @@ struct RadixTree(Key, Value)
 
         static if (RawTree.hasValue)
         {
-            auto front() const { return tuple(_rawRange._frontRange.frontKey,
-                                              _rawRange._frontRange._cachedFrontValue); }
-            auto back() const { return tuple(_rawRange._backRange.frontKey,
-                                             _rawRange._backRange._cachedFrontValue);}
+            auto front() const { return tuple(_rawRange.lowKey,
+                                              _rawRange._front._cachedFrontValue); }
+            auto back() const { return tuple(_rawRange.highKey,
+                                             _rawRange._back._cachedFrontValue);}
         }
         else
         {
-            auto front() const { return _rawRange._frontRange.frontKey; }
-            auto back() const { return _rawRange._backRange.frontKey; }
+            auto front() const { return _rawRange._front.frontKey; }
+            auto back() const { return _rawRange._back.frontKey; }
         }
 
         @property auto save() { return this; }

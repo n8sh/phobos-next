@@ -4097,9 +4097,6 @@ struct RadixTree(Key, Value)
         UKey rawKeyPrefixRest;
         auto prefixedRootNode = _rawTree.prefix(rawKeyPrefix, rawKeyPrefixRest);
 
-        _rawTree.print();
-        dln(`"`, cast(const(char)[])rawKeyPrefixRest, `"`);
-
         return Range(prefixedRootNode,
                      &_rawTree._rangeCounter,
                      rawKeyPrefixRest);

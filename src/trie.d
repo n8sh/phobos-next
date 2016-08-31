@@ -4209,7 +4209,7 @@ auto radixTreeMap(Key, Value)()
 }
 
 /// test floating-point key range sortedness
-@safe pure nothrow // @nogc
+@safe pure nothrow @nogc
 unittest
 {
     alias T = double;

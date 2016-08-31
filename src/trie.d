@@ -4232,11 +4232,8 @@ unittest
     set.insert(+1.1e6);
     set.insert(+2.2e9);
 
-    // trie.d:4236: debug: [2.2, 3.3, 4.4, 1.1e+06, 2.2e+09, 3.40282e+38, -1.1, -3.3, -4.4, -1.1e+06, -2.2e+09, -3.40282e+38]
-    // trie.d:4238: debug: [-3.40282e+38, -2.2e+09, -1.1e+06, -3.3, -4.4, -1.1, 2.2, 3.3, 4.4, 1.1e+06, 2.2e+09, 3.40282e+38]
-
     import std.algorithm.sorting : isSorted;
-    dln(set[]);
+    // dln(set[]);
     assert(set[].isSorted);
 }
 

@@ -2418,6 +2418,7 @@ struct RawRadixTree(Value = void)
         }
     }
 
+    /// Removes all contents.
     pragma(inline) void clear() @nogc
     {
         release(_root);

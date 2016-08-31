@@ -80,7 +80,7 @@ auto radixSort(R,
     enum radix = cast(typeof(radixNBits))1 << radixNBits;    // Bin Count
     enum mask = radix-1;                              // radix bit mask
 
-    alias U = typeof(bijectToUnsigned(x.front)); // Get Unsigned Integer Type of same precision as \tparam E.
+    alias U = typeof(x.front.bijectToUnsigned); // Get Unsigned Integer Type of same precision as \tparam E.
 
     if (nDigits != 1)           // if more than one bucket sort pass (BSP)
     {
@@ -106,7 +106,7 @@ auto radixSort(R,
             U ands = ~ors;          // digits "and-product"
             for (size_t j = 0; j != n; ++j) // for each element index \c j in \p x
             {
-                const uint i = (bijectToUnsigned(x[j], descending) >> sh) & mask; // digit (index)
+                const uint i = (x[j].bijectToUnsigned(descending) >> sh) & mask; // digit (index)
                 ++bins[i].high();       // increase histogram bin counter
                 ors |= i; ands &= i; // accumulate bits statistics
             }
@@ -137,7 +137,7 @@ auto radixSort(R,
                     const E    e0 = x[i0]; // value of first/current element of permutation
                     while (true)
                     {
-                        const int rN = (bijectToUnsigned(e0, descending) >> sh) & mask; // next digit (index)
+                        const int rN = (e0.bijectToUnsigned(descending) >> sh) & mask; // next digit (index)
                         if (r == rN) // if permutation cycle closed (back to same digit)
                             break;
                         const ai = bins[rN].pop_back(); // array index
@@ -174,7 +174,7 @@ auto radixSort(R,
             }
             for (size_t j = 0; j != n; ++j) // for each element index \c j in \p x
             {
-                const uint i = (bijectToUnsigned(x[j], descending) >> sh) & mask; // digit (index)
+                const uint i = (x[j].bijectToUnsigned(descending) >> sh) & mask; // digit (index)
                 ++O[i];              // increase histogram bin counter
                 static if (fastDigitDiscardal)
                 {
@@ -201,7 +201,7 @@ auto radixSort(R,
             // \em Stable Reorder From \p x to \c y using Normal Counting Sort (see \c counting_sort above).
             for (size_t j = n - 1; j < n; --j) // for each element \c j in reverse order. when j wraps around j < n is no longer true
             {
-                const uint i = (bijectToUnsigned(x[j], descending) >> sh) & mask; // digit (index)
+                const uint i = (x[j].bijectToUnsigned(descending) >> sh) & mask; // digit (index)
                 y[--O[i]] = x[j]; // reorder into y
             }
 

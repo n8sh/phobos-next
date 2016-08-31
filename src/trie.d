@@ -2562,8 +2562,8 @@ struct RawRadixTree(Value = void)
                 {
                     if (keyPrefix.empty)
                     {
-                        keyPrefixRest = currPrefix;
-                        return curr;
+                        dln();
+                        return curr;               // no need to set keyPrefixRest because keyPrefix is empty
                     }
                     else
                     {

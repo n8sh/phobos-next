@@ -88,7 +88,7 @@
 
     TODO Use scope on members that return key and value reference when DIP-1000 has been implemented
 
-    TODO Make all Node-members insert.*At.*(Node|Branch) free functions to
+    TODO Make all RawRadixTree-members insert.*At.*(Node|Branch) free functions
 */
 module trie;
 

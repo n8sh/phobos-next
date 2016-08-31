@@ -4201,7 +4201,7 @@ auto radixTreeMap(Key, Value)()
     return RadixTree!(MutableKey!Key, Value)(false);
 }
 
-/// test floating-point sortedness
+/// test floating-point key sortedness
 @safe pure nothrow @nogc unittest
 {
     import std.algorithm.comparison : equal;
@@ -4209,9 +4209,9 @@ auto radixTreeMap(Key, Value)()
     alias T = double;
     auto set = radixTreeSet!(T);
 
-    set.insert(T.max);
     set.insert(-1.1);
     set.insert(+2.2);
+    set.insert(T.max);
     set.insert(-3.3);
     set.insert(-4.4);
 

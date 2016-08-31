@@ -129,18 +129,20 @@ void bijectFromUnsigned(U, V)(U a, ref V b)
     }
 }
 
-/** Map a Floating Point Number \p a Back from Radix Sorting
- * (Inverse of \c radix_flip_float()).
- * - if sign is 1 (negative), it flips the sign bit back
- * - if sign is 0 (positive), it flips all bits back
- */
-
 /** Map Bits of Floating Point Number \p a to Unsigned Integer that can be Radix Sorted.
  * Also finds \em sign of \p a.
  * - if it's 1 (negative float), it flips all bits.
  * - if it's 0 (positive float), it flips the sign only.
  */
 uint    ff(uint f) { return f ^ (-cast(uint)  (f >> (8*f.sizeof-1))      | 0x80000000); }
-uint   iff(uint f) { return f ^             (((f >> (8*f.sizeof-1)) - 1) | 0x80000000); }
+/// ditto
 ulong  ff(ulong f) { return f ^ (-cast(ulong) (f >> (8*f.sizeof-1))      | 0x8000000000000000); }
+
+/** Map a Floating Point Number \p a Back from Radix Sorting
+ * (Inverse of \c radix_flip_float()).
+ * - if sign is 1 (negative), it flips the sign bit back
+ * - if sign is 0 (positive), it flips all bits back
+ */
+uint   iff(uint f) { return f ^             (((f >> (8*f.sizeof-1)) - 1) | 0x80000000); }
+/// ditto
 ulong iff(ulong f) { return f ^             (((f >> (8*f.sizeof-1)) - 1) | 0x8000000000000000); }

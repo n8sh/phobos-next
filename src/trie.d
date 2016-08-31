@@ -4416,6 +4416,11 @@ unittest
     foreach (const elt; map[])
     {
         assert(map.rangeCount == 1);
+        {
+            auto mapRange = map[];
+            assert(map.rangeCount == 2);
+        }
+        assert(map.rangeCount == 1);
 
         const Key key = elt[0];
         const Value value = elt[1];

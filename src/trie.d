@@ -245,7 +245,7 @@ struct TwoLeaf3
         case 1:
             return keys.at!0[];
         case 2:
-            import std.algorithm : commonPrefix;
+            import std.algorithm.searching : commonPrefix;
             return commonPrefix(keys.at!0[], keys.at!1[]);
         }
     }
@@ -287,10 +287,10 @@ struct TriLeaf2
         case 1:
             return keys.at!0[];
         case 2:
-            import std.algorithm : commonPrefix;
+            import std.algorithm.searching : commonPrefix;
             return commonPrefix(keys.at!0[], keys.at!1[]);
         case 3:
-            import std.algorithm : commonPrefix;
+            import std.algorithm.searching : commonPrefix;
             return commonPrefix(keys.at!0[],
                                 commonPrefix(keys.at!1[], keys.at!2[])); // TODO make and reuse variadic commonPrefix
         }
@@ -3123,7 +3123,7 @@ struct RawRadixTree(Value = void)
                 assert(curr.key.length);
                 // debug if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
 
-                import std.algorithm : commonPrefix;
+                import std.algorithm.searching : commonPrefix;
                 auto matchedKeyPrefix = commonPrefix(key, curr.key);
                 if (curr.key.length == key.length)
                 {

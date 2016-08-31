@@ -2635,7 +2635,7 @@ struct RawRadixTree(Value = void)
             {
                 assert(key.length);
                 // debug if (willFail) { dln("key:", key); }
-                import std.algorithm : skipOver;
+                import std.algorithm.searching : skipOver;
                 final switch (curr.typeIx) with (Node.Ix)
                 {
                 case undefined: return false;

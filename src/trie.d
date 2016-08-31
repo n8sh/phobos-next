@@ -4204,14 +4204,17 @@ auto radixTreeMap(Key, Value)()
 /// test floating-point sortedness
 @safe pure nothrow @nogc unittest
 {
+    import std.algorithm.comparison : equal;
+
     alias T = double;
     auto set = radixTreeSet!(T);
+
     set.insert(T.max);
     set.insert(-1.1);
     set.insert(+2.2);
     set.insert(-3.3);
     set.insert(-4.4);
-    import std.algorithm.comparison : equal;
+
     const T[5] values = [-4.4, -3.3, -1.1, 2.2, T.max];
     assert(set[].equal(values[]));
 }

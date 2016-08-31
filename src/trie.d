@@ -2419,6 +2419,7 @@ struct RawRadixTree(Value = void)
 
     pragma(inline) ~this() @nogc
     {
+        assert(_rangeCounter == 0); // no `Range` must refer to `_root`
         release(_root);
         debug
         {

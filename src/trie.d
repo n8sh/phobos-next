@@ -4202,7 +4202,7 @@ auto radixTreeMap(Key, Value)()
 }
 
 /// test floating-point sortedness
-@safe pure nothrow unittest
+@safe pure nothrow @nogc unittest
 {
     alias T = double;
     auto set = radixTreeSet!(T);
@@ -4257,7 +4257,7 @@ auto testScalar(uint span, Keys...)()
 }
 
 ///
-@safe pure nothrow /* TODO @nogc */ unittest
+@safe pure nothrow @nogc unittest
 {
     alias Key = ubyte;
     auto set = radixTreeSet!(Key);
@@ -4288,7 +4288,7 @@ auto testScalar(uint span, Keys...)()
 }
 
 ///
-@safe pure nothrow /* TODO @nogc */ unittest
+@safe pure nothrow @nogc unittest
 {
     testScalar!(8,
                 bool,
@@ -4298,7 +4298,7 @@ auto testScalar(uint span, Keys...)()
 }
 
 ///
-@safe pure nothrow /* TODO @nogc */ unittest
+@safe pure nothrow @nogc unittest
 {
     alias Value = ulong;
     auto set = radixTreeSet!(Value);

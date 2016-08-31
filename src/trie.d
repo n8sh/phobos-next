@@ -4270,6 +4270,9 @@ auto testScalar(uint span, Keys...)()
             import std.algorithm.comparison : equal;
             import std.algorithm : map;
             assert(set[].equal(low.iota(high + 1).map!(uk => cast(Key)uk)));
+
+            import std.algorithm.sorting : isSorted;
+            assert(set[].isSorted);
         }
     }
 }

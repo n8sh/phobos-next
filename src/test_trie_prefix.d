@@ -15,9 +15,9 @@ void main(string[] args)
     set.insert(`alpha`);
     set.print;
     dln(set[]);
-    assert(set.prefix(`alpha`)
-              .equal([``,
-                      `bet`]));
+    // assert(set.prefix(`alpha`)
+    //           .equal([``,
+    //                   `bet`]));
 
     set.clear();
     set.insert(`alphabet`);
@@ -27,6 +27,8 @@ void main(string[] args)
     set.insert(`all`);
     set.insert(`allies`);
     set.insert(`ally`);
+    set.insert(`étude`);
+    set.insert(`études`);
 
     enum show = true;
     if (show)
@@ -67,5 +69,9 @@ void main(string[] args)
               .equal([``,
                       `ies`,
                       `y`]));
+
+    assert(set.prefix(`étude`)
+              .equal([``,
+                      `s`]));
 
 }

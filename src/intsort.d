@@ -13,16 +13,14 @@ import std.meta : AliasSeq;
 
 import bijections;
 
-/**
-   Non-Inplace Radix Sort $(D x).
+/** Non-Inplace Radix Sort $(D x).
 
    Note that this implementation of non-inplace radix sort only requires $(D x)
    to be a BidirectionalRange not a RandomAccessRange.
 
    Note that $(D x) can be a $(D BidirectionalRange) aswell as $(D RandomAccessRange).
 
-   Params:
-     radixNBits = Number of bits in Radix (Digit)
+   radixNBits = Number of bits in Radix (Digit)
 
    TODO x[] = y[] not needed when input is mutable
    TODO Restrict fun.

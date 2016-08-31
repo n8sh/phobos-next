@@ -1039,14 +1039,10 @@ struct RawRadixTree(Value = void)
             {
             case undefined: assert(false);
             case ix_SparseBranchPtr:
-                dln(branch.as!(SparseBranch*));
-                dln(_prefixSkipLength);
-                dln(branch.as!(SparseBranch*).prefix);
-                dln(*branch.as!(SparseBranch*));
-                key.pushBack(branch.as!(SparseBranch*).prefix[_prefixSkipLength .. $]);
+                key.pushBack(branch.as!(SparseBranch*).prefix[]);
                 break;
             case ix_DenseBranchPtr:
-                key.pushBack(branch.as!(DenseBranch*).prefix[_prefixSkipLength .. $]);
+                key.pushBack(branch.as!(DenseBranch*).prefix[]);
                 break;
             }
             key.pushBack(frontIx); // uses cached data so ok to not depend on branch type
@@ -1152,10 +1148,6 @@ struct RawRadixTree(Value = void)
 
         UIx _subCounter; // `Branch`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
         UIx _cachedFrontIx;
-
-        ubyte _prefixSkipLength; // cannot be larger than Sparse
-        static assert(_prefixSkipLength.max >= SparseBranch.prefixCapacity);
-        static assert(_prefixSkipLength.max >= DenseBranch.prefixCapacity);
 
         bool _frontAtLeaf1;   // `true` iff front is currently at a leaf1 element
         bool _subsEmpty;      // `true` iff no sub-nodes exists
@@ -1528,9 +1520,6 @@ struct RawRadixTree(Value = void)
             {
                 foreach (const ref branchRange; _bRanges)
                 {
-                    dln(branchRange);
-                    dln(branchRange.branch);
-                    dln(key);
                     branchRange.appendFrontIxsToKey(key);
                     if (branchRange.atLeaf1)
                     {

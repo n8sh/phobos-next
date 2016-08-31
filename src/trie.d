@@ -4233,7 +4233,7 @@ unittest
     set.insert(+2.2e9);
 
     import std.algorithm.sorting : isSorted;
-    // dln(set[]);
+    dln(set[]);
     assert(set[].isSorted);
 }
 
@@ -4283,6 +4283,16 @@ auto testScalar(uint span, Keys...)()
 ///
 @safe pure nothrow @nogc unittest
 {
+    testScalar!(8,
+                bool,
+                double, float,
+                long, int, short, byte,
+                ulong, uint, ushort, ubyte);
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
     alias Key = ubyte;
     auto set = radixTreeSet!(Key);
 
@@ -4309,16 +4319,6 @@ auto testScalar(uint span, Keys...)()
         assert(set.insert(i));
         assert(set._root.peek!(DenseLeaf1!void*));
     }
-}
-
-///
-@safe pure nothrow @nogc unittest
-{
-    testScalar!(8,
-                bool,
-                double, float,
-                long, int, short, byte,
-                ulong, uint, ushort, ubyte);
 }
 
 ///

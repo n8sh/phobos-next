@@ -2832,7 +2832,7 @@ struct RawRadixTree(Value = void)
             auto key = elementKey(elt);
             assert(key.length);
 
-            import std.algorithm : commonPrefix;
+            import std.algorithm.searching : commonPrefix;
             auto currPrefix = getPrefix(curr);
             auto matchedKeyPrefix = commonPrefix(key, currPrefix);
 

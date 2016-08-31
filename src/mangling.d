@@ -93,7 +93,8 @@ struct CxxType
     byte pointyness = 0;           // pointer level
     CXXCVQualifiers cvQ;
 
-    string toString() @safe pure nothrow const
+    string toString()
+        @safe pure nothrow const
     {
         typeof(return) str;
 
@@ -576,7 +577,8 @@ struct CxxBareFunctionType(R)
 {
     R[] types; // optional return and parameter types
     bool explicitVoidParameter = false; // set to true make void parameters explicit
-    R toString() @safe pure
+    R toString()
+        @safe pure
     {
         R value;
         if (!types.empty)
@@ -629,14 +631,16 @@ struct CXXCVQualifiers
     bool isVolatile; // volatile
     bool isConst; // const
 
-    auto opCast(T : bool)() @safe pure nothrow const
+    auto opCast(T : bool)()
+        @safe pure nothrow const
     {
         return (isRestrict ||
                 isVolatile ||
                 isConst);
     }
 
-    string toString() @safe pure nothrow const
+    string toString()
+        @safe pure nothrow const
     {
         typeof(return) value;
         if (isRestrict) value ~= `restrict `;
@@ -667,7 +671,8 @@ enum CxxRefQualifier
 }
 
 /* See also: http://forum.dlang.org/thread/cvhapzsrhjdnpkdspavg@forum.dlang.org#post-cvhapzsrhjdnpkdspavg:40forum.dlang.org */
-string toCxxString(CxxRefQualifier refQ) @safe pure nothrow
+string toCxxString(CxxRefQualifier refQ)
+    @safe pure nothrow
 {
     final switch (refQ)
     {
@@ -1218,7 +1223,8 @@ struct Demangling
 {
     Lang language;
     Expr unmangled;
-    auto opCast(T : bool)() @safe pure nothrow const
+    auto opCast(T : bool)()
+        @safe pure nothrow const
     {
         return !expr.empty;
     }
@@ -1229,7 +1235,8 @@ struct Demangling
     See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangling
     See also: https://gcc.gnu.org/onlinedocs/libstdc++/manual/ext_demangling.html
 */
-Demangling decodeSymbol(R)(Demangler!R x) /* @safe pure nothrow @nogc */ if (isInputRange!R)
+Demangling decodeSymbol(R)(Demangler!R x) /* @safe pure nothrow @nogc */
+    if (isInputRange!R)
 {
     if (x.r.empty)
     {

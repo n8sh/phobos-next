@@ -1794,7 +1794,7 @@ struct RawRadixTree(Value = void)
         }
 
         /** Get front key. */
-        auto frontKey() const { return _cachedFrontKey[]; }
+        auto frontKey() const { return _cachedFrontKey[]; } // TODO DIP-1000 scope
 
         static if (hasValue)
         {

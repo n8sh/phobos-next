@@ -1853,7 +1853,7 @@ struct RawRadixTree(Value = void)
 
         @property auto save() { return this; }
 
-        bool empty() const /* TODO @nogc */
+        bool empty() const
         {
             return _frontRange.empty; // TODO _frontRange == _backRange;
         }
@@ -2029,7 +2029,7 @@ struct RawRadixTree(Value = void)
         */
         typeof(this)* reconstructingInsert(Sub sub,
                                            out ModStatus modStatus,
-                                           out size_t index) @trusted /* TODO @nogc */
+                                           out size_t index) @trusted
         {
             auto next = &this;
 
@@ -2235,7 +2235,7 @@ struct RawRadixTree(Value = void)
         }
 
         /** Append statistics of tree under `this` into `stats`. */
-        void calculate(ref Stats stats)  /* TODO @nogc */ const
+        void calculate(ref Stats stats) const
         {
             size_t count = 0; // number of non-zero sub-nodes
             foreach (const subNode; subNodes)
@@ -2301,7 +2301,7 @@ struct RawRadixTree(Value = void)
     }
 
     /** Set sub-`Node` of branch `Node curr` at index `ix` to `subNode`. */
-    pragma(inline) Branch setSub(Branch curr, UIx subIx, Node subNode) @safe pure nothrow /* TODO @nogc */
+    pragma(inline) Branch setSub(Branch curr, UIx subIx, Node subNode) @safe pure nothrow @nogc
     {
         final switch (curr.typeIx) with (Branch.Ix)
         {
@@ -4073,7 +4073,7 @@ struct RadixTree(Key, Value)
     pragma(inline) Range opSlice() @nogc // TODO inout?
     {
         return Range(_rawTree._root,
-                     &_rawTree._rangeCounter);
+                     &_rawTree._rangeCounter, []);
     }
 
     /** Get range over elements whose key starts with `keyPrefix`.
@@ -4086,23 +4086,9 @@ struct RadixTree(Key, Value)
 
         UKey rawKeyPrefixRest;
         auto prefixedRootNode = _rawTree.prefix(rawKeyPrefix, rawKeyPrefixRest);
-        auto rawRange = RawRange(prefixedRootNode,
-                                 &_rawTree._rangeCounter,
-                                 rawKeyPrefixRest);
-
-        import std.algorithm.iteration : filter, map;
-        import std.algorithm : startsWith;
-        static if (hasValue)
-        {
-            return rawRange.filter!(rawElement => rawElement[0].startsWith(rawKeyPrefixRest))
-                           .map!(rawElement => tuple(rawElement[0][rawKeyPrefixRest.length .. $].toTypedKey!Key,
-                                                     rawElement[1]));
-        }
-        else
-        {
-            return rawRange.filter!(rawKey => rawKey.startsWith(rawKeyPrefixRest))
-                           .map!(rawKey => rawKey[rawKeyPrefixRest.length .. $].toTypedKey!Key);
-        }
+        return Range(prefixedRootNode,
+                     &_rawTree._rangeCounter,
+                     rawKeyPrefixRest);
     }
 
     /** Typed Range. */
@@ -4111,7 +4097,8 @@ struct RadixTree(Key, Value)
         @nogc:
 
         this(RawTree.Node root,
-             uint* treeRangeCounter) { _rawRange = _rawTree.Range(root, treeRangeCounter, []); }
+             uint* treeRangeCounter,
+             UKey keyPrefixRest) { _rawRange = _rawTree.Range(root, treeRangeCounter, keyPrefixRest); }
 
         auto front() const
         {
@@ -4144,15 +4131,15 @@ struct RadixTree(Key, Value)
 
         static if (RawTree.hasValue)
         {
-            auto front() const /* TODO @nogc */ { return tuple(_rawRange._frontRange.frontKey,
-                                                               _rawRange._frontRange._cachedFrontValue); }
-            auto back() const /* TODO @nogc */ { return tuple(_rawRange._backRange.frontKey,
-                                                              _rawRange._backRange._cachedFrontValue);}
+            auto front() const { return tuple(_rawRange._frontRange.frontKey,
+                                              _rawRange._frontRange._cachedFrontValue); }
+            auto back() const { return tuple(_rawRange._backRange.frontKey,
+                                             _rawRange._backRange._cachedFrontValue);}
         }
         else
         {
-            auto front() const /* TODO @nogc */ { return _rawRange._frontRange.frontKey; }
-            auto back() const /* TODO @nogc */ { return _rawRange._backRange.frontKey; }
+            auto front() const { return _rawRange._frontRange.frontKey; }
+            auto back() const { return _rawRange._backRange.frontKey; }
         }
 
         @property auto save() { return this; }

@@ -64,13 +64,14 @@ auto bijectToUnsigned(T)(T a, bool descending)
     return descending ? ua.max-ua : ua;
 }
 
+/** Biject (Shift) Unsigned  $(D a) "back down" to Signed (after radix sorting). */
 void bijectFromUnsigned(U)(U a, ref U b)
     if (isUnsigned!U)
 {
     b = a;                  ///< Identity.
 }
 
-/** Biject (Shift) Unsigned  $(D a) "back down" to Signed (after radix sorting). */
+/// ditto
 void bijectFromUnsigned(U, V)(U a, ref V b)
     if (isUnsigned!U &&
         isIntegral!V && isSigned!V &&
@@ -79,28 +80,17 @@ void bijectFromUnsigned(U, V)(U a, ref V b)
     b = a - (cast(Unsigned!U)1 << (8*U.sizeof - 1)); // "add down""
 }
 
-/** Map a Floating Point Number \p a Back from Radix Sorting
- * (Inverse of \c radix_flip_float()).
- * - if sign is 1 (negative), it flips the sign bit back
- * - if sign is 0 (positive), it flips all bits back
- */
-
-/** Map Bits of Floating Point Number \p a to Unsigned Integer that can be Radix Sorted.
- * Also finds \em sign of \p a.
- * - if it's 1 (negative float), it flips all bits.
- * - if it's 0 (positive float), it flips the sign only.
- */
-uint    ff(uint f) { return f ^ (-cast(uint)  (f >> (32-1))      | 0x80000000); }
-uint   iff(uint f) { return f ^             (((f >> (32-1)) - 1) | 0x80000000); }
-ulong  ff(ulong f) { return f ^ (-cast(ulong) (f >> (64-1))      | 0x8000000000000000); }
-ulong iff(ulong f) { return f ^             (((f >> (64-1)) - 1) | 0x8000000000000000); }
-
+/// ditto
 @trusted void bijectFromUnsigned(ubyte  a, ref  bool b) { b = *cast(typeof(b)*)(&a); }
+/// ditto
 @trusted void bijectFromUnsigned(ubyte  a, ref  char b) { b = *cast(typeof(b)*)(&a); }
+/// ditto
 @trusted void bijectFromUnsigned(ushort a, ref wchar b) { b = *cast(typeof(b)*)(&a); }
+/// ditto
 @trusted void bijectFromUnsigned(ulong  a, ref dchar b) { b = *cast(typeof(b)*)(&a); }
-
+/// ditto
 @trusted void bijectFromUnsigned(uint  a, ref float  b) { /* uint  t = iff(a); */ b = *cast(float*)(&a); }
+/// ditto
 @trusted void bijectFromUnsigned(ulong a, ref double b) { /* ulong t = iff(a); */ b = *cast(double*)(&a); }
 
 @safe pure nothrow @nogc unittest
@@ -138,3 +128,19 @@ ulong iff(ulong f) { return f ^             (((f >> (64-1)) - 1) | 0x80000000000
         }
     }
 }
+
+/** Map a Floating Point Number \p a Back from Radix Sorting
+ * (Inverse of \c radix_flip_float()).
+ * - if sign is 1 (negative), it flips the sign bit back
+ * - if sign is 0 (positive), it flips all bits back
+ */
+
+/** Map Bits of Floating Point Number \p a to Unsigned Integer that can be Radix Sorted.
+ * Also finds \em sign of \p a.
+ * - if it's 1 (negative float), it flips all bits.
+ * - if it's 0 (positive float), it flips the sign only.
+ */
+uint    ff(uint f) { return f ^ (-cast(uint)  (f >> (32-1))      | 0x80000000); }
+uint   iff(uint f) { return f ^             (((f >> (32-1)) - 1) | 0x80000000); }
+ulong  ff(ulong f) { return f ^ (-cast(ulong) (f >> (64-1))      | 0x8000000000000000); }
+ulong iff(ulong f) { return f ^             (((f >> (64-1)) - 1) | 0x8000000000000000); }

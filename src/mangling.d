@@ -97,21 +97,12 @@ struct CxxType
     {
         typeof(return) str;
 
-        if (cvQ.isVolatile)
-        {
-            str ~= "volatile ";
-        }
-        if (cvQ.isRestrict)
-        {
-            str ~= "restrict ";
-        }
+        if (cvQ.isVolatile) { str ~= "volatile "; }
+        if (cvQ.isRestrict) { str ~= "restrict "; }
 
         str ~= typeName;
 
-        if (cvQ.isConst)
-        {
-            str ~= " const";
-        }
+        if (cvQ.isConst) { str ~= " const"; }
 
         // suffix qualifiers
         str ~= '*'.repeat(pointyness).array; // str ~= "*".replicate(pointyness);

@@ -55,7 +55,10 @@ auto bijectToUnsigned(T)(T a) @trusted
     else static assert(false, "Unsupported input type " ~ UT.stringof);
 }
 
+/** Same as `bijectToUnsigned` with extra argument `descending` that reverses
+    order. */
 auto bijectToUnsigned(T)(T a, bool descending)
+    if (isUnsigned!T)
 {
     immutable ua = a.bijectToUnsigned;
     return descending ? ua.max-ua : ua;

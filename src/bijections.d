@@ -29,16 +29,19 @@ unittest
     import std.random : Random, uniform;
     auto gen = Random();
 
-    const count = 1e5;
+    const maxCount = 1e4;
+    import std.algorithm : min;
 
     foreach (T; AliasSeq!(ubyte, ushort, uint, ulong,
                           byte, short, int, long))
     {
-        foreach (i; 0 .. count)
+        foreach (i; 0 .. min(maxCount, T.max - T.min))
         {
             const x = uniform(T.min, T.max, gen);
             const y = uniform(T.min, T.max, gen);
 
+            import dbgio;
+            dln(x, " ", y);
             const expected = x < y;
             const result = x.bijectToUnsigned < y.bijectToUnsigned;
 
@@ -48,7 +51,7 @@ unittest
 
     foreach (T; AliasSeq!(float, double))
     {
-        foreach (i; 0 .. count)
+        foreach (i; 0 .. maxCount)
         {
             const x = uniform(-1e20, +1e20, gen);
             const y = uniform(-1e20, +1e20, gen);

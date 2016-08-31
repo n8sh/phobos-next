@@ -2401,7 +2401,7 @@ struct RawRadixTree(Value = void)
 
     pragma(inline) ~this() @nogc
     {
-        if (_root) { release(_root); }
+        release(_root);
         debug
         {
             try
@@ -2416,6 +2416,12 @@ struct RawRadixTree(Value = void)
             }
             catch (Exception e) {}
         }
+    }
+
+    pragma(inline) void clear() @nogc
+    {
+        release(_root);
+        _root = null;           // must null because because `_root` will be read again
     }
 
     @safe pure nothrow /* TODO @nogc */

@@ -13,7 +13,7 @@ alias Stack(T) = Array!(T, Ordering.unsorted, false);
     Stack!T s;
     assert(s.empty);
 
-    // test pushBack:
+    // pushBack:
 
     s.pushBack(13);
     assert(!s.empty);
@@ -27,7 +27,7 @@ alias Stack(T) = Array!(T, Ordering.unsorted, false);
     assert(!s.empty);
     assert(s.back == 15);
 
-    // test popBack:
+    // popBack:
 
     s.popBack();
     assert(!s.empty);
@@ -40,13 +40,13 @@ alias Stack(T) = Array!(T, Ordering.unsorted, false);
     s.popBack();
     assert(s.empty);
 
-    // test pushBack:
+    // pushBack:
 
     s.pushBack(13, 14, 15);
     assert(!s.empty);
     assert(s.back == 15);
 
-    // test backPop:
+    // backPop:
 
     assert(s.backPop() == 15);
     assert(s.backPop() == 14);

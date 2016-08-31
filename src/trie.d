@@ -2504,7 +2504,7 @@ struct RawRadixTree(Value = void)
                 auto curr_ = curr.as!(SparseBranch*);
                 auto currPrefix = curr_.prefix;
                 // TODO functionize
-                import std.algorithm : findSplitAfter;
+                import std.algorithm.searching : findSplitAfter;
                 if (auto split = keyPrefix.findSplitAfter(currPrefix[]))
                 {
                     auto subKeyPrefix = split[1];
@@ -2528,7 +2528,7 @@ struct RawRadixTree(Value = void)
                 auto curr_ = curr.as!(DenseBranch*);
                 auto currPrefix = curr_.prefix;
                 // TODO functionize
-                import std.algorithm : findSplitAfter;
+                import std.algorithm.searching : findSplitAfter;
                 if (auto split = keyPrefix.findSplitAfter(currPrefix[]))
                 {
                     auto subKeyPrefix = split[1];

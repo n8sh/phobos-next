@@ -1821,30 +1821,30 @@ struct RawRadixTree(Value = void)
 
         this(Node root, UKey keyPrefixRest)
         {
-            _frontRange = FrontRange(root, keyPrefixRest);
-            // _backRange = FrontRange(root, keyPrefixRest);
+            _front = FrontRange(root, keyPrefixRest);
+            // _back = FrontRange(root, keyPrefixRest);
         }
 
         bool empty() const /* TODO @nogc */
         {
-            return _frontRange.empty; // TODO _frontRange == _backRange;
+            return _front.empty; // TODO _front == _back;
         }
 
         void popFront()
         {
             assert(!empty);
-            _frontRange.popFront();
+            _front.popFront();
         }
 
         void popBack()
         {
             assert(!empty);
-            _backRange.popFront();
+            _back.popFront();
         }
 
     private:
-        FrontRange _frontRange;
-        FrontRange _backRange;
+        FrontRange _front;
+        FrontRange _back;
     }
 
     pragma(inline) Range opSlice() @trusted pure nothrow
@@ -4079,14 +4079,14 @@ struct RadixTree(Key, Value)
 
         auto front() const
         {
-            const key = _rawRange._frontRange.frontKey.toTypedKey!Key;
-            static if (RawTree.hasValue) { return tuple(key, _rawRange._frontRange._cachedFrontValue); }
+            const key = _rawRange._front.frontKey.toTypedKey!Key;
+            static if (RawTree.hasValue) { return tuple(key, _rawRange._front._cachedFrontValue); }
             else                         { return key; }
         }
         auto back() const
         {
-            const key = _rawRange._backRange.frontKey.toTypedKey!Key;
-            static if (RawTree.hasValue) { return tuple(key, _rawRange._backRange._cachedFrontValue); }
+            const key = _rawRange._back.frontKey.toTypedKey!Key;
+            static if (RawTree.hasValue) { return tuple(key, _rawRange._back._cachedFrontValue); }
             else                         { return key; }
         }
 
@@ -4104,15 +4104,15 @@ struct RadixTree(Key, Value)
 
         static if (RawTree.hasValue)
         {
-            auto front() const /* TODO @nogc */ { return tuple(_rawRange._frontRange.frontKey,
-                                                               _rawRange._frontRange._cachedFrontValue); }
-            auto back() const /* TODO @nogc */ { return tuple(_rawRange._backRange.frontKey,
-                                                              _rawRange._backRange._cachedFrontValue);}
+            auto front() const /* TODO @nogc */ { return tuple(_rawRange._front.frontKey,
+                                                               _rawRange._front._cachedFrontValue); }
+            auto back() const /* TODO @nogc */ { return tuple(_rawRange._back.frontKey,
+                                                              _rawRange._back._cachedFrontValue);}
         }
         else
         {
-            auto front() const /* TODO @nogc */ { return _rawRange._frontRange.frontKey; }
-            auto back() const /* TODO @nogc */ { return _rawRange._backRange.frontKey; }
+            auto front() const /* TODO @nogc */ { return _rawRange._front.frontKey; }
+            auto back() const /* TODO @nogc */ { return _rawRange._back.frontKey; }
         }
 
         RawTree.Range _rawRange;

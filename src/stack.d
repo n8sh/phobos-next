@@ -1,8 +1,9 @@
 /** Stack.
-
     See also: http://forum.dlang.org/thread/wswbtzakdvpgaebuhbom@forum.dlang.org
 */
+
 import array_ex : Array, Ordering;
+
 alias Stack(T) = Array!(T, Ordering.unsorted, false);
 
 @safe pure nothrow @nogc unittest

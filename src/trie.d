@@ -1850,6 +1850,8 @@ struct RawRadixTree(Value = void)
             --(*_treeRangeCounter);
         }
 
+        @property auto save() { return this; }
+
         bool empty() const /* TODO @nogc */
         {
             return _frontRange.empty; // TODO _frontRange == _backRange;
@@ -4123,6 +4125,8 @@ struct RadixTree(Key, Value)
             else                         { return key; }
         }
 
+        @property auto save() { return this; }
+
         RawTree.Range _rawRange;
         alias _rawRange this;
     }
@@ -4149,6 +4153,8 @@ struct RadixTree(Key, Value)
             auto front() const /* TODO @nogc */ { return _rawRange._frontRange.frontKey; }
             auto back() const /* TODO @nogc */ { return _rawRange._backRange.frontKey; }
         }
+
+        @property auto save() { return this; }
 
         RawTree.Range _rawRange;
         alias _rawRange this;
@@ -4201,13 +4207,16 @@ auto radixTreeMap(Key, Value)()
     return RadixTree!(MutableKey!Key, Value)(false);
 }
 
-/// test floating-point key sortedness
-@safe pure nothrow @nogc unittest
+/// test floating-point key range sortedness
+@safe pure nothrow // @nogc
+unittest
 {
-    import std.algorithm.comparison : equal;
-
     alias T = double;
+
     auto set = radixTreeSet!(T);
+
+    import std.range: isForwardRange;
+    static assert(isForwardRange!(typeof(set[])));
 
     set.insert(-1.1);
     set.insert(+2.2);
@@ -4217,8 +4226,10 @@ auto radixTreeMap(Key, Value)()
     set.insert(+4.4);
     set.insert(+3.3);
 
-    const T[7] values = [-4.4, -3.3, -1.1, 2.2, 3.3, 4.4, T.max];
-    assert(set[].equal(values[]));
+    dln(set[]);
+
+    import std.algorithm.sorting : isSorted;
+    assert(set[].isSorted);
 }
 
 auto testScalar(uint span, Keys...)()

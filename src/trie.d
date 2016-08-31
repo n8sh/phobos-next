@@ -100,7 +100,10 @@ import typecons_ex : IndexedBy;
 import modulo : Mod, mod;
 import fixed_array : ModArrayN;
 import container_traits : shouldAddGCRange;
-import stack : Stack;
+
+import array_ex : Array, Ordering;
+
+alias UnsortedCopyingArray(T) = Array!(T, Ordering.unsorted, false);
 
 // version = enterSingleInfiniteMemoryLeakTest;
 // version = debugPrintAllocations;
@@ -1025,7 +1028,7 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        void appendFrontIxsToKey(ref Stack!Ix key) const /* TODO @nogc */
+        void appendFrontIxsToKey(ref UnsortedCopyingArray!Ix key) const /* TODO @nogc */
         {
             final switch (branch.typeIx) with (Branch.Ix)
             {
@@ -1384,7 +1387,7 @@ struct RawRadixTree(Value = void)
             }
         }
 
-        void appendFrontIxsToKey(ref Stack!Ix key) const /* TODO @nogc */
+        void appendFrontIxsToKey(ref UnsortedCopyingArray!Ix key) const /* TODO @nogc */
         {
             assert(!empty);
             with (Node.Ix)
@@ -1492,7 +1495,7 @@ struct RawRadixTree(Value = void)
     {
         static if (hasValue)
         {
-            bool appendFrontIxsToKey(ref Stack!Ix key, ref Value value) const
+            bool appendFrontIxsToKey(ref UnsortedCopyingArray!Ix key, ref Value value) const
             {
                 foreach (const ref branchRange; _bRanges)
                 {
@@ -1508,7 +1511,7 @@ struct RawRadixTree(Value = void)
         }
         else
         {
-            bool appendFrontIxsToKey(ref Stack!Ix key) const
+            bool appendFrontIxsToKey(ref UnsortedCopyingArray!Ix key) const
             {
                 foreach (const ref branchRange; _bRanges)
                 {
@@ -1615,8 +1618,8 @@ struct RawRadixTree(Value = void)
         }
 
     private:
-        Stack!BranchRange _bRanges;
-        // Stack!Ix _branchesKeyPrefix;
+        UnsortedCopyingArray!BranchRange _bRanges;
+        // UnsortedCopyingArray!Ix _branchesKeyPrefix;
 
         // index to first branchrange in `_bRanges` that is currently on a leaf1
         // or `typeof.max` if undefined
@@ -1795,12 +1798,12 @@ struct RawRadixTree(Value = void)
             auto frontValue() const @nogc { return _cachedFrontValue; }
         }
 
-    private:                    // data
+    private:
         LeafNRange leafNRange;
         BranchRanges branchRanges;
 
         // cache
-        Stack!Ix _cachedFrontKey; // copy of front key
+        UnsortedCopyingArray!Ix _cachedFrontKey; // copy of front key
         UKey _keyPrefixRest;
         static if (hasValue)
         {

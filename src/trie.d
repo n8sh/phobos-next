@@ -4218,6 +4218,8 @@ unittest
     import std.range: isForwardRange;
     static assert(isForwardRange!(typeof(set[])));
 
+    set.insert(-1.1e6);
+    set.insert(-2.2e9);
     set.insert(-1.1);
     set.insert(+2.2);
     set.insert(T.max);
@@ -4225,8 +4227,8 @@ unittest
     set.insert(-4.4);
     set.insert(+4.4);
     set.insert(+3.3);
-
-    dln(set[]);
+    set.insert(+1.1e6);
+    set.insert(+2.2e9);
 
     import std.algorithm.sorting : isSorted;
     assert(set[].isSorted);

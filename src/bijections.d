@@ -24,7 +24,7 @@ alias IntegralBijectableTypes = AliasSeq!(bool, char, wchar, dchar,
 enum isIntegralBijectableType(T) = staticIndexOf!(Unqual!T, IntegralBijectableTypes) >= 0;
 
 /// check that `bijectToUnsigned` preserves orderness, that is is a bijection
-unittest
+@safe unittest
 {
     import std.random : Random, uniform;
     auto gen = Random();
@@ -40,8 +40,6 @@ unittest
             const x = uniform(T.min, T.max, gen);
             const y = uniform(T.min, T.max, gen);
 
-            import dbgio;
-            dln(x, " ", y);
             const expected = x < y;
             const result = x.bijectToUnsigned < y.bijectToUnsigned;
 
@@ -53,8 +51,11 @@ unittest
     {
         foreach (i; 0 .. maxCount)
         {
-            const x = uniform(-1e20, +1e20, gen);
-            const y = uniform(-1e20, +1e20, gen);
+            const T x = uniform(-1e20, +1e20, gen);
+            const T y = uniform(-1e20, +1e20, gen);
+
+            // import dbgio;
+            // dln(x, ",", y);
 
             const expected = x < y;
             const result = x.bijectToUnsigned < y.bijectToUnsigned;

@@ -30,7 +30,7 @@ void main(string[] args)
     set.insert(`étude`);
     set.insert(`études`);
 
-    enum show = true;
+    enum show = false;
     if (show)
     {
         import dbgio;

@@ -50,8 +50,8 @@ auto bijectToUnsigned(T)(T a) @trusted
             static assert(false, "Unsupported integral input type " ~ UT.stringof);
         }
     }
-    else static if (is(UT == float))  { return *cast(uint*)(&a); }
-    else static if (is(UT == double)) { return *cast(ulong*)(&a); }
+    else static if (is(UT == float))  { return ff(*cast(uint*)(&a)); }
+    else static if (is(UT == double)) { return ff(*cast(ulong*)(&a)); }
     else static assert(false, "Unsupported input type " ~ UT.stringof);
 }
 
@@ -89,9 +89,9 @@ void bijectFromUnsigned(U, V)(U a, ref V b)
 /// ditto
 @trusted void bijectFromUnsigned(ulong  a, ref dchar b) { b = *cast(typeof(b)*)(&a); }
 /// ditto
-@trusted void bijectFromUnsigned(uint  a, ref float  b) { /* uint  t = iff(a); */ b = *cast(float*)(&a); }
+@trusted void bijectFromUnsigned(uint  a, ref float  b) { uint  t = iff(a); b = *cast(float*)(&t); }
 /// ditto
-@trusted void bijectFromUnsigned(ulong a, ref double b) { /* ulong t = iff(a); */ b = *cast(double*)(&a); }
+@trusted void bijectFromUnsigned(ulong a, ref double b) { ulong t = iff(a); b = *cast(double*)(&t); }
 
 @safe pure nothrow @nogc unittest
 {

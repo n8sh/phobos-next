@@ -93,6 +93,7 @@ void bijectFromUnsigned(U, V)(U a, ref V b)
 /// ditto
 @trusted void bijectFromUnsigned(ulong a, ref double b) { ulong t = iff(a); b = *cast(double*)(&t); }
 
+/// check that `bijectToUnsigned` is the opposite of `bijectFromUnsigned`
 @safe pure nothrow @nogc unittest
 {
     foreach (T; AliasSeq!(ubyte, ushort, uint, ulong))

@@ -2713,6 +2713,7 @@ struct RawRadixTree(Value = void)
         {
             pragma(inline) Node insert(UKey key, in Value value, out ElementRef elementRef)
             {
+                assert(_rangeCounter == 0, "Cannot modify tree with Range references");
                 return _root = insertAt(_root, Element(key, value), elementRef);
             }
         }
@@ -2720,6 +2721,7 @@ struct RawRadixTree(Value = void)
         {
             pragma(inline) Node insert(UKey key, out ElementRef elementRef)
             {
+                assert(_rangeCounter == 0, "Cannot modify tree with Range references");
                 return _root = insertAt(_root, key, elementRef);
             }
 

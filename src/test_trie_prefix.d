@@ -13,11 +13,10 @@ void main(string[] args)
     set.clear();
     set.insert(`alphabet`);
     set.insert(`alpha`);
-    set.print;
-    dln(set[]);
-    // assert(set.prefix(`alpha`)
-    //           .equal([``,
-    //                   `bet`]));
+
+    assert(set.prefix(`alpha`)
+              .equal([``,
+                      `bet`]));
 
     set.clear();
     set.insert(`alphabet`);
@@ -33,8 +32,8 @@ void main(string[] args)
     enum show = false;
     if (show)
     {
-        import dbgio;
-        import std.stdio;
+        import dbgio : dln;
+        import std.stdio : writeln;
 
         foreach (const e; set[])
         {

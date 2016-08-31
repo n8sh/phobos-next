@@ -3,11 +3,23 @@
 // TODO uncomment test code at trie.d:4329 when this works
 void main(string[] args)
 {
+    import std.algorithm.comparison : equal;
     import trie : radixTreeSet;
+    import dbgio : dln;
 
     alias Key = string;
     auto set = radixTreeSet!(Key);
 
+    set.clear();
+    set.insert(`alphabet`);
+    set.insert(`alpha`);
+    set.print;
+    dln(set[]);
+    assert(set.prefix(`alpha`)
+              .equal([``,
+                      `bet`]));
+
+    set.clear();
     set.insert(`alphabet`);
     set.insert(`alpha`);
     set.insert(`a`);
@@ -41,8 +53,6 @@ void main(string[] args)
             dln(`"`, e, `"`);
         }
     }
-
-    import std.algorithm : equal;
 
     assert(set.prefix(`a`)
               .equal([``,

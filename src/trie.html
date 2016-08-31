@@ -100,7 +100,10 @@ Implementation is layered:
       auto upperBound(this This)(inout T value)
 <br><br>
 
-    TODO opBinaryRight shall return <pre style="display:inline;" class="d_inline_code">_rawTree.ElementRef</pre> instead of <pre style="display:inline;" class="d_inline_code">bool</pre><br><br>
+    TODO opBinaryRight shall return <pre style="display:inline;" class="d_inline_code">_rawTree.ElementRef</pre> instead of <pre style="display:inline;" class="d_inline_code">bool</pre>
+<br><br>
+
+    TODO Use scope on members that return key and value reference when DIP-1000 has been implemented<br><br>
 
 <dl><dt><big><a name="isScalarTrieableKeyType"></a>enum auto <u>isScalarTrieableKeyType</u>(T);
 </big></dt>
@@ -348,6 +351,11 @@ Used to calculate complete tree memory usage, excluding allocator
 <dd>Get number of sub-nodes of node <pre style="display:inline;" class="d_inline_code"><i>curr</i></pre>.<br><br>
 
 </dd>
+<dt><big><a name="RawRadixTree.clear"></a>@nogc void <u>clear</u>();
+</big></dt>
+<dd>Removes all contents (elements).<br><br>
+
+</dd>
 <dt><big><a name="RawRadixTree.prefix"></a>inout inout(Node) <u>prefix</u>(UKey <i>keyPrefix</i>, out UKey <i>keyPrefixRest</i>);
 </big></dt>
 <dd><b>Returns:</b><br>
@@ -486,7 +494,7 @@ pointer to value if <pre style="display:inline;" class="d_inline_code"><i>key</i
 <dd>Supports <b><pre style="display:inline;" class="d_inline_code">Key</pre> in <pre style="display:inline;" class="d_inline_code">this</pre></b> syntax.<br><br>
 
 </dd>
-<dt><big><a name="RadixTree.prefix"></a>const auto <u>prefix</u>(Key <i>keyPrefix</i>);
+<dt><big><a name="RadixTree.prefix"></a>auto <u>prefix</u>(Key <i>keyPrefix</i>);
 </big></dt>
 <dd>Get range over elements whose key starts with <pre style="display:inline;" class="d_inline_code"><i>keyPrefix</i></pre>.
         The element equal to <pre style="display:inline;" class="d_inline_code"><i>keyPrefix</i></pre> is return as an empty instance of the type.<br><br>
@@ -554,10 +562,14 @@ test map from <pre style="display:inline;" class="d_inline_code">uint</pre> to v
     <font color=blue>assert</font>(map.length == i + 1);
 }
 
+<font color=blue>assert</font>(map.rangeCount == 0);
+
 <font color=green>// test range
 </font>size_t i = 0;
 <font color=blue>foreach</font> (<font color=blue>const</font> elt; map[])
 {
+    <font color=blue>assert</font>(map.rangeCount == 1);
+
     <font color=blue>const</font> Key key = elt[0];
     <font color=blue>const</font> Value value = elt[1];
 
@@ -566,6 +578,8 @@ test map from <pre style="display:inline;" class="d_inline_code">uint</pre> to v
 </font>
     ++i;
 }
+
+<font color=blue>assert</font>(map.rangeCount == 0);
 </pre>
 <br><br>
 </dd>

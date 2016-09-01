@@ -4212,7 +4212,7 @@ auto radixTreeMap(Key, Value)()
     return RadixTree!(MutableKey!Key, Value)(false);
 }
 
-/// test prefix
+/// exercise all switch-cases in `RawRadixTree.prefixAt()`
 // @safe pure nothrow
 /*TODO:@nogc*/ unittest
 {

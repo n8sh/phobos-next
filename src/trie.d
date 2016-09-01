@@ -2476,40 +2476,35 @@ struct RawRadixTree(Value = void)
                 auto curr_ = curr.as!(OneLeafMax7);
                 if (curr_.key[].startsWith(keyPrefix))
                 {
-                    keyPrefixRest = keyPrefix;
-                    return curr;
+                    goto processHit;
                 }
                 break;
             case ix_TwoLeaf3:
                 auto curr_ = curr.as!(TwoLeaf3);
                 if (keyPrefix.length <= curr_.keyLength)
                 {
-                    keyPrefixRest = keyPrefix;
-                    return curr;
+                    goto processHit;
                 }
                 break;
             case ix_TriLeaf2:
                 auto curr_ = curr.as!(TriLeaf2);
                 if (keyPrefix.length <= curr_.keyLength)
                 {
-                    keyPrefixRest = keyPrefix;
-                    return curr;
+                    goto processHit;
                 }
                 break;
             case ix_HeptLeaf1:
                 auto curr_ = curr.as!(HeptLeaf1);
                 if (keyPrefix.length <= curr_.keyLength)
                 {
-                    keyPrefixRest = keyPrefix;
-                    return curr;
+                    goto processHit;
                 }
                 break;
             case ix_SparseLeaf1Ptr:
             case ix_DenseLeaf1Ptr:
                 if (keyPrefix.length <= 1)
                 {
-                    keyPrefixRest = keyPrefix;
-                    return curr;
+                    goto processHit;
                 }
                 break;
             case ix_SparseBranchPtr:
@@ -2522,8 +2517,7 @@ struct RawRadixTree(Value = void)
                         curr_.leaf1 && // both leaf1
                         curr_.subCount) // and sub-nodes
                     {
-                        keyPrefixRest = keyPrefix;
-                        return curr;
+                        goto processHit;
                     }
                     else if (curr_.subCount == 0) // only leaf1
                     {
@@ -2549,8 +2543,7 @@ struct RawRadixTree(Value = void)
                         curr_.leaf1 && // both leaf1
                         curr_.subCount) // and sub-nodes
                     {
-                        keyPrefixRest = keyPrefix;
-                        return curr;
+                        goto processHit;
                     }
                     else if (curr_.subCount == 0) // only leaf1
                     {
@@ -2570,6 +2563,9 @@ struct RawRadixTree(Value = void)
                 assert(false);
             }
             return typeof(return).init;
+        processHit:
+            keyPrefixRest = keyPrefix;
+            return curr;
         }
 
         static if (hasValue)

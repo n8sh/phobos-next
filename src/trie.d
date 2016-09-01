@@ -2474,7 +2474,8 @@ struct RawRadixTree(Value = void)
             import std.algorithm : startsWith;
             switch (curr.typeIx) with (Node.Ix)
             {
-            case undefined: assert(false);
+            case undefined:
+                return typeof(return).init; // terminate recursion
             case ix_OneLeafMax7:
                 auto curr_ = curr.as!(OneLeafMax7);
                 if (curr_.key[].startsWith(keyPrefix))
@@ -2569,7 +2570,8 @@ struct RawRadixTree(Value = void)
                     }
                 }
                 break;
-            default: assert(false);
+            default:
+                assert(false);
             }
             return typeof(return).init;
         }
@@ -4250,6 +4252,7 @@ auto radixTreeMap(Key, Value)()
     assert(set.prefix(`-----`).equal([`11`]));
     set.insert(`-----22`);
     assert(set.prefix(`-----`).equal([`11`, `22`]));
+    assert(set.prefix(`-----_`).empty);
 
     set.clear();
     set.insert(`-----111`);
@@ -4258,14 +4261,25 @@ auto radixTreeMap(Key, Value)()
     assert(set.prefix(`-----`).equal([`111`, `122`]));
     set.insert(`-----133`);
     assert(set.prefix(`-----`).equal([`111`, `122`, `133`]));
+    assert(set.prefix(`-----1`).equal([`11`, `22`, `33`]));
+    assert(set.prefix(`-----1_`).empty);
 
     set.clear();
     set.insert(`-----1111`);
     assert(set.prefix(`-----`).equal([`1111`]));
-    set.insert(`-----1222`);
-    assert(set.prefix(`-----`).equal([`1111`, `1222`]));
-    set.insert(`-----1333`);
-    assert(set.prefix(`-----`).equal([`1111`, `1222`, `1333`]));
+    assert(set.prefix(`-----_`).empty);
+
+    set.clear();
+    set.insert(`-----11111`);
+    assert(set.prefix(`-----`).equal([`11111`]));
+    assert(set.prefix(`-----_`).empty);
+    set.insert(`-----12222`);
+    assert(set.prefix(`-----`).equal([`11111`, `12222`]));
+    assert(set.prefix(`-----_`).empty);
+    assert(set.prefix(`-----12`).equal([`222`]));
+    assert(set.prefix(`-----12_`).empty);
+
+    assert(false);
 }
 
 /// test floating-point key range sortedness

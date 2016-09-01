@@ -4221,47 +4221,38 @@ auto radixTreeMap(Key, Value)()
     auto set = radixTreeSet!(Key);
 
     set.clear();
-
     set.insert(`-----1`);
     assert(set.prefix(`-----`).equal([`1`]));
     assert(set.prefix(`-----_`).empty);
     assert(set.prefix(`-----____`).empty);
-
     set.insert(`-----2`);
     assert(set.prefix(`-----`).equal([`1`, `2`]));
     assert(set.prefix(`-----_`).empty);
     assert(set.prefix(`-----____`).empty);
-
     set.insert(`-----3`);
     assert(set.prefix(`-----`).equal([`1`, `2`, `3`]));
     assert(set.prefix(`-----_`).empty);
     assert(set.prefix(`-----____`).empty);
-
     set.insert(`-----4`);
     assert(set.prefix(`-----`).equal([`1`, `2`, `3`, `4`]));
     assert(set.prefix(`-----_`).empty);
     assert(set.prefix(`-----____`).empty);
-
     set.insert(`-----5`);
     assert(set.prefix(`-----`).equal([`1`, `2`, `3`, `4`, `5`]));
     assert(set.prefix(`-----_`).empty);
     assert(set.prefix(`-----____`).empty);
-
     set.insert(`-----6`);
     assert(set.prefix(`-----`).equal([`1`, `2`, `3`, `4`, `5`, `6`]));
     assert(set.prefix(`-----_`).empty);
     assert(set.prefix(`-----____`).empty);
-
     set.insert(`-----7`);
     assert(set.prefix(`-----`).equal([`1`, `2`, `3`, `4`, `5`, `6`, `7`]));
     assert(set.prefix(`-----_`).empty);
     assert(set.prefix(`-----____`).empty);
-
     set.insert(`-----8`);
     assert(set.prefix(`-----`).equal([`1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`]));
     assert(set.prefix(`-----_`).empty);
     assert(set.prefix(`-----____`).empty);
-
     set.insert(`-----11`);
     assert(set.prefix(`-----`).equal([`1`, `11`, `2`, `3`, `4`, `5`, `6`, `7`, `8`]));
     set.insert(`-----22`);

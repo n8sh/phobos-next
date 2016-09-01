@@ -2301,13 +2301,9 @@ struct RawRadixTree(Value = void)
     /// ditto
     pragma(inline) Branch setSub(DenseBranch* curr, UIx subIx, Node subNode) @safe pure nothrow @nogc
     {
-        try
-        {
-            assert(!curr.subNodes[subIx], "sub-Node already set ");
-                   // "sub-Node at index " ~ subIx.to!string ~
-                   // " already set to " ~ subNode.to!string);
-        }
-        catch (Exception e) {}
+        assert(!curr.subNodes[subIx], "sub-Node already set ");
+        // "sub-Node at index " ~ subIx.to!string ~
+        // " already set to " ~ subNode.to!string);
         curr.subNodes[subIx] = subNode;
         return Branch(curr);
     }

@@ -2472,7 +2472,6 @@ struct RawRadixTree(Value = void)
         pragma(inline) inout(Node) prefixAt(Node curr, UKey keyPrefix, out UKey keyPrefixRest) inout
         {
             import std.algorithm : startsWith;
-
             switch (curr.typeIx) with (Node.Ix)
             {
             case undefined: assert(false);

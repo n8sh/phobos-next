@@ -4264,6 +4264,8 @@ auto radixTreeMap(Key, Value)()
     assert(set.prefix(`-----`).equal([`1111`]));
     set.insert(`-----1222`);
     assert(set.prefix(`-----`).equal([`1111`, `1222`]));
+    set.insert(`-----1333`);
+    assert(set.prefix(`-----`).equal([`1111`, `1222`, `1333`]));
 }
 
 /// test floating-point key range sortedness

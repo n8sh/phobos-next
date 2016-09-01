@@ -2471,7 +2471,6 @@ struct RawRadixTree(Value = void)
 
         pragma(inline) inout(Node) prefixAt(Node curr, UKey keyPrefix, out UKey keyPrefixRest) inout
         {
-            import std.algorithm.searching : skipOver;
             import std.algorithm : startsWith;
 
             switch (curr.typeIx) with (Node.Ix)
@@ -2520,31 +2519,35 @@ struct RawRadixTree(Value = void)
             case ix_SparseBranchPtr:
                 auto curr_ = curr.as!(SparseBranch*);
                 // TODO functionize
-                if (keyPrefix.skipOver(curr_.prefix[]))
+                const currPrefixLength = curr_.prefix.length;
+                if (keyPrefix.startsWith(curr_.prefix[]))
                 {
                     if (curr_.leaf1 && // both leaf1
                         curr_.subCount) // and sub-nodes
                     {
-                        dln();
                         keyPrefixRest = keyPrefix;
                         return curr;
                     }
                     else if (curr_.subCount == 0) // only leaf1
                     {
-                        dln();
-                        return prefixAt(Node(curr_.leaf1), keyPrefix, keyPrefixRest);
+                        return prefixAt(Node(curr_.leaf1),
+                                        keyPrefix[currPrefixLength .. $],
+                                        keyPrefixRest);
                     }
-                    else            // only sub-node(s)
+                    else        // only sub-node(s)
                     {
                         dln();
-                        return prefixAt(curr_.subAt(UIx(keyPrefix[0])), keyPrefix[1 .. $], keyPrefixRest);
+                        return prefixAt(curr_.subAt(UIx(keyPrefix[currPrefixLength])),
+                                        keyPrefix[currPrefixLength + 1 .. $],
+                                        keyPrefixRest);
                     }
                 }
                 break;
             case ix_DenseBranchPtr:
                 auto curr_ = curr.as!(DenseBranch*);
                 // TODO functionize
-                if (keyPrefix.skipOver(curr_.prefix[]))
+                const currPrefixLength = curr_.prefix.length;
+                if (keyPrefix.startsWith(curr_.prefix[]))
                 {
                     if (curr_.leaf1 && // both leaf1
                         curr_.subCount) // and sub-nodes
@@ -2554,11 +2557,16 @@ struct RawRadixTree(Value = void)
                     }
                     else if (curr_.subCount == 0) // only leaf1
                     {
-                        return prefixAt(Node(curr_.leaf1), keyPrefix, keyPrefixRest);
+                        return prefixAt(Node(curr_.leaf1),
+                                        keyPrefix[currPrefixLength .. $],
+                                        keyPrefixRest);
                     }
-                    else            // only sub-node(s)
+                    else        // only sub-node(s)
                     {
-                        return prefixAt(curr_.subNodes[UIx(keyPrefix[0])], keyPrefix[1 .. $], keyPrefixRest);
+                        dln();
+                        return prefixAt(curr_.subNodes[UIx(keyPrefix[currPrefixLength])],
+                                        keyPrefix[currPrefixLength + 1 .. $],
+                                        keyPrefixRest);
                     }
                 }
                 break;

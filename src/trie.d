@@ -4242,6 +4242,14 @@ auto radixTreeMap(Key, Value)()
     assert(set.prefix(`-----`).equal([`1`, `11`, `2`, `22`, `3`, `33`, `4`, `5`, `6`, `7`, `8`]));
     set.insert(`-----44`);
     assert(set.prefix(`-----`).equal([`1`, `11`, `2`, `22`, `3`, `33`, `4`, `44`, `5`, `6`, `7`, `8`]));
+
+    set.clear();
+    set.insert(`-----11`);
+    assert(set.prefix(`-----`).equal([`11`]));
+    set.insert(`-----22`);
+    assert(set.prefix(`-----`).equal([`11`, `22`]));
+    set.insert(`-----33`);
+    assert(set.prefix(`-----`).equal([`11`, `22`, `33`]));
 }
 
 /// test floating-point key range sortedness

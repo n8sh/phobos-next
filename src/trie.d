@@ -2301,7 +2301,7 @@ struct RawRadixTree(Value = void)
     /// ditto
     pragma(inline) Branch setSub(DenseBranch* curr, UIx subIx, Node subNode) @safe pure nothrow @nogc
     {
-        assert(!curr.subNodes[subIx], "sub-Node already set ");
+        debug assert(!curr.subNodes[subIx], "sub-Node already set ");
         // "sub-Node at index " ~ subIx.to!string ~
         // " already set to " ~ subNode.to!string);
         curr.subNodes[subIx] = subNode;
@@ -2339,7 +2339,7 @@ struct RawRadixTree(Value = void)
     pragma(inline) Node getSub(DenseBranch* curr, UIx subIx) @safe pure nothrow
     {
         auto sub = curr.subNodes[subIx];
-        curr.subNodes[subIx] = Node.init; // zero it to prevent multiple references
+        debug curr.subNodes[subIx] = Node.init; // zero it to prevent multiple references
         return sub;
     }
 

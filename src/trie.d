@@ -2486,10 +2486,7 @@ struct RawRadixTree(Value = void)
                 break;
             case ix_SparseLeaf1Ptr:
             case ix_DenseLeaf1Ptr:
-                if (keyPrefix.length <= 1)
-                {
-                    goto processHit;
-                }
+                if (keyPrefix.length <= 1) { goto processHit; }
                 break;
             case ix_SparseBranchPtr:
                 auto curr_ = curr.as!(SparseBranch*);

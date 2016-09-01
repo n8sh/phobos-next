@@ -4221,22 +4221,50 @@ auto radixTreeMap(Key, Value)()
     auto set = radixTreeSet!(Key);
 
     set.clear();
+
     set.insert(`-----1`);
     assert(set.prefix(`-----`).equal([`1`]));
+    assert(set.prefix(`-----_`).empty);
+    assert(set.prefix(`-----____`).empty);
+
     set.insert(`-----2`);
     assert(set.prefix(`-----`).equal([`1`, `2`]));
+    assert(set.prefix(`-----_`).empty);
+    assert(set.prefix(`-----____`).empty);
+
     set.insert(`-----3`);
     assert(set.prefix(`-----`).equal([`1`, `2`, `3`]));
+    assert(set.prefix(`-----_`).empty);
+    assert(set.prefix(`-----____`).empty);
+
     set.insert(`-----4`);
     assert(set.prefix(`-----`).equal([`1`, `2`, `3`, `4`]));
+    assert(set.prefix(`-----_`).empty);
+    assert(set.prefix(`-----____`).empty);
+
     set.insert(`-----5`);
     assert(set.prefix(`-----`).equal([`1`, `2`, `3`, `4`, `5`]));
+    assert(set.prefix(`-----_`).empty);
+    assert(set.prefix(`-----____`).empty);
+
     set.insert(`-----6`);
     assert(set.prefix(`-----`).equal([`1`, `2`, `3`, `4`, `5`, `6`]));
+    assert(set.prefix(`-----_`).empty);
+    assert(set.prefix(`-----____`).empty);
+
     set.insert(`-----7`);
     assert(set.prefix(`-----`).equal([`1`, `2`, `3`, `4`, `5`, `6`, `7`]));
+    assert(set.prefix(`-----_`).empty);
+    assert(set.prefix(`-----____`).empty);
+
+    set.print(); dln();
+
     set.insert(`-----8`);
     assert(set.prefix(`-----`).equal([`1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`]));
+    assert(set.prefix(`-----_`).empty);
+    assert(set.prefix(`-----____`).empty);
+
+    set.print(); dln();
 
     set.insert(`-----11`);
     assert(set.prefix(`-----`).equal([`1`, `11`, `2`, `3`, `4`, `5`, `6`, `7`, `8`]));
@@ -4252,6 +4280,7 @@ auto radixTreeMap(Key, Value)()
     assert(set.prefix(`-----`).equal([`11`]));
     set.insert(`-----22`);
     assert(set.prefix(`-----`).equal([`11`, `22`]));
+    assert(set.prefix(`-----_`).empty);
     assert(set.prefix(`-----___`).empty);
 
     set.clear();
@@ -4262,24 +4291,29 @@ auto radixTreeMap(Key, Value)()
     set.insert(`-----133`);
     assert(set.prefix(`-----`).equal([`111`, `122`, `133`]));
     assert(set.prefix(`-----1`).equal([`11`, `22`, `33`]));
+    assert(set.prefix(`-----1_`).empty);
     assert(set.prefix(`-----1___`).empty);
 
     set.clear();
     set.insert(`-----1111`);
     assert(set.prefix(`-----`).equal([`1111`]));
+    assert(set.prefix(`-----_`).empty);
     assert(set.prefix(`-----___`).empty);
 
     set.clear();
     set.insert(`-----11111`);
     assert(set.prefix(`-----`).equal([`11111`]));
+    assert(set.prefix(`-----_`).empty);
     assert(set.prefix(`-----___`).empty);
     set.insert(`-----12222`);
     assert(set.prefix(`-----`).equal([`11111`, `12222`]));
+    assert(set.prefix(`-----_`).empty);
     assert(set.prefix(`-----___`).empty);
     assert(set.prefix(`-----12`).equal([`222`]));
+    assert(set.prefix(`-----12_`).empty);
     assert(set.prefix(`-----12___`).empty);
 
-    // assert(false);
+    assert(false);
 }
 
 /// test floating-point key range sortedness

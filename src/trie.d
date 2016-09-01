@@ -4210,7 +4210,7 @@ auto radixTreeMap(Key, Value)()
     return RadixTree!(MutableKey!Key, Value)(false);
 }
 
-///
+/// test prefix
 // @safe pure nothrow
 /*TODO:@nogc*/ unittest
 {
@@ -4246,16 +4246,30 @@ auto radixTreeMap(Key, Value)()
     assert(set.prefix(`-----`).equal([`1`, `11`, `2`, `22`, `3`, `33`, `4`, `44`, `5`, `6`, `7`, `8`]));
 
     set.clear();
-
     set.insert(`-----11`);
-    set.print();
     assert(set.prefix(`-----`).equal([`11`]));
-
     set.insert(`-----22`);
-    set.print();
     assert(set.prefix(`-----`).equal([`11`, `22`]));
-    // set.insert(`-----33`);
-    // assert(set.prefix(`-----`).equal([`11`, `22`, `33`]));
+
+    set.clear();
+    set.insert(`-----111`);
+    assert(set.prefix(`-----`).equal([`111`]));
+    set.insert(`-----122`);
+    assert(set.prefix(`-----`).equal([`111`, `122`]));
+    set.insert(`-----133`);
+    assert(set.prefix(`-----`).equal([`111`, `122`, `133`]));
+
+    set.clear();
+    set.insert(`-----1111`);
+    assert(set.prefix(`-----`).equal([`1111`]));
+
+    set.clear();
+    set.insert(`-----11111`);
+    assert(set.prefix(`-----`).equal([`11111`]));
+
+    set.clear();
+    set.insert(`-----111111`);
+    assert(set.prefix(`-----`).equal([`11111`]));
 }
 
 /// test floating-point key range sortedness

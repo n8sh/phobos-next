@@ -4334,42 +4334,39 @@ auto testScalar(uint span, Keys...)()
     if (Keys.length >= 1)
 {
     import std.range : iota;
-    foreach (const it; 0.iota(1))
+    foreach (Key; Keys)
     {
-        foreach (Key; Keys)
+        auto set = radixTreeSet!(Key);
+
+        static if (isIntegral!Key)
         {
-            auto set = radixTreeSet!(Key);
-
-            static if (isIntegral!Key)
-            {
-                const low = max(Key.min, -100_000);
-                const high = min(Key.max, 100_000);
-            }
-            else static if (isFloatingPoint!Key)
-            {
-                const low = -100_000;
-                const high = 100_000;
-            }
-            else static if (is(Key == bool))
-            {
-                const low = false;
-                const high = true;
-            }
-
-            foreach (const uk; low.iota(high + 1))
-            {
-                const Key key = cast(Key)uk;
-                assert(set.insert(key));  // insert new value returns `true` (previously not in set)
-                assert(!set.insert(key)); // reinsert same value returns `false` (already in set)
-            }
-
-            import std.algorithm.comparison : equal;
-            import std.algorithm : map;
-            assert(set[].equal(low.iota(high + 1).map!(uk => cast(Key)uk)));
-
-            import std.algorithm.sorting : isSorted;
-            assert(set[].isSorted);
+            const low = max(Key.min, -100_000);
+            const high = min(Key.max, 100_000);
         }
+        else static if (isFloatingPoint!Key)
+        {
+            const low = -100_000;
+            const high = 100_000;
+        }
+        else static if (is(Key == bool))
+        {
+            const low = false;
+            const high = true;
+        }
+
+        foreach (const uk; low.iota(high + 1))
+        {
+            const Key key = cast(Key)uk;
+            assert(set.insert(key));  // insert new value returns `true` (previously not in set)
+            assert(!set.insert(key)); // reinsert same value returns `false` (already in set)
+        }
+
+        import std.algorithm.comparison : equal;
+        import std.algorithm : map;
+        assert(set[].equal(low.iota(high + 1).map!(uk => cast(Key)uk)));
+
+        import std.algorithm.sorting : isSorted;
+        assert(set[].isSorted);
     }
 }
 

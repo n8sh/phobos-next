@@ -4208,6 +4208,42 @@ auto radixTreeMap(Key, Value)()
     return RadixTree!(MutableKey!Key, Value)(false);
 }
 
+///
+// @safe pure nothrow
+/*TODO:@nogc*/ unittest
+{
+    import std.algorithm : equal;
+    alias Key = string;
+    auto set = radixTreeSet!(Key);
+
+    set.clear();
+    set.insert(`-----1`);
+    assert(set.prefix(`-----`).equal([`1`]));
+    set.insert(`-----2`);
+    assert(set.prefix(`-----`).equal([`1`, `2`]));
+    set.insert(`-----3`);
+    assert(set.prefix(`-----`).equal([`1`, `2`, `3`]));
+    set.insert(`-----4`);
+    assert(set.prefix(`-----`).equal([`1`, `2`, `3`, `4`]));
+    set.insert(`-----5`);
+    assert(set.prefix(`-----`).equal([`1`, `2`, `3`, `4`, `5`]));
+    set.insert(`-----6`);
+    assert(set.prefix(`-----`).equal([`1`, `2`, `3`, `4`, `5`, `6`]));
+    set.insert(`-----7`);
+    assert(set.prefix(`-----`).equal([`1`, `2`, `3`, `4`, `5`, `6`, `7`]));
+    set.insert(`-----8`);
+    assert(set.prefix(`-----`).equal([`1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`]));
+
+    set.insert(`-----11`);
+    assert(set.prefix(`-----`).equal([`1`, `11`, `2`, `3`, `4`, `5`, `6`, `7`, `8`]));
+    set.insert(`-----22`);
+    assert(set.prefix(`-----`).equal([`1`, `11`, `2`, `22`, `3`, `4`, `5`, `6`, `7`, `8`]));
+    set.insert(`-----33`);
+    assert(set.prefix(`-----`).equal([`1`, `11`, `2`, `22`, `3`, `33`, `4`, `5`, `6`, `7`, `8`]));
+    set.insert(`-----44`);
+    assert(set.prefix(`-----`).equal([`1`, `11`, `2`, `22`, `3`, `33`, `4`, `44`, `5`, `6`, `7`, `8`]));
+}
+
 /// test floating-point key range sortedness
 @safe pure nothrow @nogc
 unittest
@@ -4895,32 +4931,6 @@ auto checkNumeric(Keys...)() @nogc
             map.insert(Key.init, Value.init);
         }
     }
-}
-
-///
-@safe pure nothrow /*TODO:@nogc*/ unittest
-{
-    import std.algorithm : equal;
-    alias Key = string;
-    auto set = radixTreeSet!(Key);
-
-    set.clear();
-    set.insert(`-----1`);
-    assert(set.prefix(`-----`).equal(["1"]));
-    set.insert(`-----2`);
-    assert(set.prefix(`-----`).equal(["1", "2"]));
-    set.insert(`-----3`);
-    assert(set.prefix(`-----`).equal(["1", "2", "3"]));
-    set.insert(`-----4`);
-    assert(set.prefix(`-----`).equal(["1", "2", "3", "4"]));
-    set.insert(`-----5`);
-    assert(set.prefix(`-----`).equal(["1", "2", "3", "4", "5"]));
-    set.insert(`-----6`);
-    assert(set.prefix(`-----`).equal(["1", "2", "3", "4", "5", "6"]));
-    set.insert(`-----7`);
-    assert(set.prefix(`-----`).equal(["1", "2", "3", "4", "5", "6", "7"]));
-    set.insert(`-----8`);
-    assert(set.prefix(`-----`).equal(["1", "2", "3", "4", "5", "6", "7", "8"]));
 }
 
 /// Benchmark performance and memory usage when span is `span`.

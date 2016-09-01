@@ -2519,9 +2519,9 @@ struct RawRadixTree(Value = void)
             case ix_SparseBranchPtr:
                 auto curr_ = curr.as!(SparseBranch*);
                 // TODO functionize
-                const currPrefixLength = curr_.prefix.length;
                 if (keyPrefix.startsWith(curr_.prefix[]))
                 {
+                    const currPrefixLength = curr_.prefix.length;
                     if (curr_.leaf1 && // both leaf1
                         curr_.subCount) // and sub-nodes
                     {
@@ -2545,9 +2545,9 @@ struct RawRadixTree(Value = void)
             case ix_DenseBranchPtr:
                 auto curr_ = curr.as!(DenseBranch*);
                 // TODO functionize
-                const currPrefixLength = curr_.prefix.length;
                 if (keyPrefix.startsWith(curr_.prefix[]))
                 {
+                    const currPrefixLength = curr_.prefix.length;
                     if (curr_.leaf1 && // both leaf1
                         curr_.subCount) // and sub-nodes
                     {

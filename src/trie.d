@@ -4213,7 +4213,7 @@ auto radixTreeMap(Key, Value)()
 }
 
 /// exercise all switch-cases in `RawRadixTree.prefixAt()`
-// @safe pure nothrow
+@safe pure nothrow
 /*TODO:@nogc*/ unittest
 {
     import std.algorithm : equal;
@@ -4326,7 +4326,7 @@ unittest
     set.insert(+2.2e9);
 
     import std.algorithm.sorting : isSorted;
-    dln(set[]);
+    // dln(set[]);
     assert(set[].isSorted);
 }
 

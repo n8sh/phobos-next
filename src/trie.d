@@ -4892,7 +4892,7 @@ auto checkNumeric(Keys...)() @nogc
     }
 }
 
-/// check prefix
+///
 @safe pure nothrow @nogc unittest
 {
     import std.algorithm : equal;

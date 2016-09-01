@@ -2521,7 +2521,8 @@ struct RawRadixTree(Value = void)
                 if (keyPrefix.startsWith(curr_.prefix[]))
                 {
                     const currPrefixLength = curr_.prefix.length;
-                    if (curr_.leaf1 && // both leaf1
+                    if (keyPrefix.length == currPrefixLength || // if no more prefix
+                        curr_.leaf1 && // both leaf1
                         curr_.subCount) // and sub-nodes
                     {
                         keyPrefixRest = keyPrefix;
@@ -2547,7 +2548,8 @@ struct RawRadixTree(Value = void)
                 if (keyPrefix.startsWith(curr_.prefix[]))
                 {
                     const currPrefixLength = curr_.prefix.length;
-                    if (curr_.leaf1 && // both leaf1
+                    if (keyPrefix.length == currPrefixLength || // if no more prefix
+                        curr_.leaf1 && // both leaf1
                         curr_.subCount) // and sub-nodes
                     {
                         keyPrefixRest = keyPrefix;
@@ -4244,12 +4246,16 @@ auto radixTreeMap(Key, Value)()
     assert(set.prefix(`-----`).equal([`1`, `11`, `2`, `22`, `3`, `33`, `4`, `44`, `5`, `6`, `7`, `8`]));
 
     set.clear();
+
     set.insert(`-----11`);
+    set.print();
     assert(set.prefix(`-----`).equal([`11`]));
+
     set.insert(`-----22`);
+    set.print();
     assert(set.prefix(`-----`).equal([`11`, `22`]));
-    set.insert(`-----33`);
-    assert(set.prefix(`-----`).equal([`11`, `22`, `33`]));
+    // set.insert(`-----33`);
+    // assert(set.prefix(`-----`).equal([`11`, `22`, `33`]));
 }
 
 /// test floating-point key range sortedness

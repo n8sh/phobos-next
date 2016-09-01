@@ -4898,7 +4898,7 @@ auto checkNumeric(Keys...)() @nogc
 }
 
 ///
-@safe pure nothrow @nogc unittest
+@safe pure nothrow /*TODO:@nogc*/ unittest
 {
     import std.algorithm : equal;
     alias Key = string;
@@ -4906,12 +4906,21 @@ auto checkNumeric(Keys...)() @nogc
 
     set.clear();
     set.insert(`-----1`);
+    assert(set.prefix(`-----`).equal(["1"]));
     set.insert(`-----2`);
+    assert(set.prefix(`-----`).equal(["1", "2"]));
     set.insert(`-----3`);
-
-    const string[3] expected = ["1", "2", "3"];
-    assert(set.prefix(`-----`)
-              .equal(expected[]));
+    assert(set.prefix(`-----`).equal(["1", "2", "3"]));
+    set.insert(`-----4`);
+    assert(set.prefix(`-----`).equal(["1", "2", "3", "4"]));
+    set.insert(`-----5`);
+    assert(set.prefix(`-----`).equal(["1", "2", "3", "4", "5"]));
+    set.insert(`-----6`);
+    assert(set.prefix(`-----`).equal(["1", "2", "3", "4", "5", "6"]));
+    set.insert(`-----7`);
+    assert(set.prefix(`-----`).equal(["1", "2", "3", "4", "5", "6", "7"]));
+    set.insert(`-----8`);
+    assert(set.prefix(`-----`).equal(["1", "2", "3", "4", "5", "6", "7", "8"]));
 }
 
 /// Benchmark performance and memory usage when span is `span`.

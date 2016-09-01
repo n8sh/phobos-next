@@ -2536,7 +2536,6 @@ struct RawRadixTree(Value = void)
                     }
                     else        // only sub-node(s)
                     {
-                        dln();
                         return prefixAt(curr_.subAt(UIx(keyPrefix[currPrefixLength])),
                                         keyPrefix[currPrefixLength + 1 .. $],
                                         keyPrefixRest);
@@ -2563,7 +2562,6 @@ struct RawRadixTree(Value = void)
                     }
                     else        // only sub-node(s)
                     {
-                        dln();
                         return prefixAt(curr_.subNodes[UIx(keyPrefix[currPrefixLength])],
                                         keyPrefix[currPrefixLength + 1 .. $],
                                         keyPrefixRest);

@@ -2473,32 +2473,16 @@ struct RawRadixTree(Value = void)
             case undefined:
                 return typeof(return).init; // terminate recursion
             case ix_OneLeafMax7:
-                auto curr_ = curr.as!(OneLeafMax7);
-                if (curr_.key[].startsWith(keyPrefix))
-                {
-                    goto processHit;
-                }
+                if (curr.as!(OneLeafMax7).key[].startsWith(keyPrefix)) { goto processHit; }
                 break;
             case ix_TwoLeaf3:
-                auto curr_ = curr.as!(TwoLeaf3);
-                if (keyPrefix.length <= curr_.keyLength)
-                {
-                    goto processHit;
-                }
+                if (curr.as!(TwoLeaf3).keyLength >= keyPrefix.length) { goto processHit; }
                 break;
             case ix_TriLeaf2:
-                auto curr_ = curr.as!(TriLeaf2);
-                if (keyPrefix.length <= curr_.keyLength)
-                {
-                    goto processHit;
-                }
+                if (curr.as!(TriLeaf2).keyLength >= keyPrefix.length) { goto processHit; }
                 break;
             case ix_HeptLeaf1:
-                auto curr_ = curr.as!(HeptLeaf1);
-                if (keyPrefix.length <= curr_.keyLength)
-                {
-                    goto processHit;
-                }
+                if (curr.as!(HeptLeaf1).keyLength >= keyPrefix.length) { goto processHit; }
                 break;
             case ix_SparseLeaf1Ptr:
             case ix_DenseLeaf1Ptr:

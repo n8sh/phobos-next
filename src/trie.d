@@ -2471,7 +2471,7 @@ struct RawRadixTree(Value = void)
 
         pragma(inline) inout(Node) prefixAt(Node curr, UKey keyPrefix, out UKey keyPrefixRest) inout
         {
-            import std.algorithm : skipOver;
+            import std.algorithm.searching : skipOver;
             import std.algorithm : startsWith;
 
             switch (curr.typeIx) with (Node.Ix)
@@ -2520,33 +2520,32 @@ struct RawRadixTree(Value = void)
             case ix_SparseBranchPtr:
                 auto curr_ = curr.as!(SparseBranch*);
                 // TODO functionize
-                import std.algorithm.searching : findSplitAfter;
-                if (auto split = keyPrefix.findSplitAfter(curr_.prefix[]))
+                if (keyPrefix.skipOver(curr_.prefix[]))
                 {
-                    auto subKeySuffix = split[1];
                     if (curr_.leaf1 && // both leaf1
                         curr_.subCount) // and sub-nodes
                     {
+                        dln();
                         keyPrefixRest = keyPrefix;
                         return curr;
                     }
                     else if (curr_.subCount == 0) // only leaf1
                     {
-                        return prefixAt(Node(curr_.leaf1), subKeySuffix, keyPrefixRest);
+                        dln();
+                        return prefixAt(Node(curr_.leaf1), keyPrefix, keyPrefixRest);
                     }
                     else            // only sub-node(s)
                     {
-                        return prefixAt(curr_.subAt(UIx(subKeySuffix[0])), subKeySuffix[1 .. $], keyPrefixRest);
+                        dln();
+                        return prefixAt(curr_.subAt(UIx(keyPrefix[0])), keyPrefix[1 .. $], keyPrefixRest);
                     }
                 }
                 break;
             case ix_DenseBranchPtr:
                 auto curr_ = curr.as!(DenseBranch*);
                 // TODO functionize
-                import std.algorithm.searching : findSplitAfter;
-                if (auto split = keyPrefix.findSplitAfter(curr_.prefix[]))
+                if (keyPrefix.skipOver(curr_.prefix[]))
                 {
-                    auto subKeySuffix = split[1];
                     if (curr_.leaf1 && // both leaf1
                         curr_.subCount) // and sub-nodes
                     {
@@ -2555,7 +2554,7 @@ struct RawRadixTree(Value = void)
                     }
                     else if (curr_.subCount == 0) // only leaf1
                     {
-                        return prefixAt(Node(curr_.leaf1), subKeySuffix, keyPrefixRest);
+                        return prefixAt(Node(curr_.leaf1), keyPrefix, keyPrefixRest);
                     }
                     else            // only sub-node(s)
                     {
@@ -4891,6 +4890,23 @@ auto checkNumeric(Keys...)() @nogc
             map.insert(Key.init, Value.init);
         }
     }
+}
+
+/// check prefix
+@safe pure nothrow @nogc unittest
+{
+    import std.algorithm : equal;
+    alias Key = string;
+    auto set = radixTreeSet!(Key);
+
+    set.clear();
+    set.insert(`-----1`);
+    set.insert(`-----2`);
+    set.insert(`-----3`);
+
+    const string[3] expected = ["1", "2", "3"];
+    assert(set.prefix(`-----`)
+              .equal(expected[]));
 }
 
 /// Benchmark performance and memory usage when span is `span`.

@@ -4257,14 +4257,10 @@ auto radixTreeMap(Key, Value)()
     assert(set.prefix(`-----_`).empty);
     assert(set.prefix(`-----____`).empty);
 
-    set.print(); dln();
-
     set.insert(`-----8`);
     assert(set.prefix(`-----`).equal([`1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`]));
     assert(set.prefix(`-----_`).empty);
     assert(set.prefix(`-----____`).empty);
-
-    set.print(); dln();
 
     set.insert(`-----11`);
     assert(set.prefix(`-----`).equal([`1`, `11`, `2`, `3`, `4`, `5`, `6`, `7`, `8`]));

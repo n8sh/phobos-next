@@ -2012,7 +2012,7 @@ template RawRadixTree(Value = void)
             {
                 // assert(subCapacity != 4);
                 this.subCapacity = subCapacity;
-                debug
+                debug           // only zero-initialize in debug mode
                 {
                     // zero-initialize variable-length part
                     subIxSlots[] = Ix.init;
@@ -2204,6 +2204,7 @@ template RawRadixTree(Value = void)
                 {
                     const iN = (cast(ubyte)i).mod!(SparseBranch.maxCapacity);
                     const subIx = UIx(rhs.subIxSlots[iN]);
+
                     this.subNodes[subIx] = rhs.subNodes[iN];
                     debug rhs.subNodes[iN] = null; // make reference unique, to be on the safe side
                 }

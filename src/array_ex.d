@@ -1,8 +1,6 @@
 /** Array container(s) with optional sortedness via template-parameter
     `Ordering` and optional use of GC via `useGC`.
 
-    TODO Add move construction for CopyingArray
-
     TODO Make Array have reference semantics instead through via Automatic
     Reference Counting and scope keyword when DIP-1000 has been implemented
 
@@ -22,6 +20,8 @@
     previously extracted from `c`, and `x` is a value convertible to
     collection's element type. See also:
     https://forum.dlang.org/post/n3qq6e$2bis$1@digitalmars.com
+
+    TODO Add move construction for CopyingArray
  */
 module array_ex;
 

@@ -2194,7 +2194,6 @@ template RawRadixTree(Value = void)
 
             this(SparseBranch* rhs)
             {
-                // TODO use move construction by adding move construction to `UnsortedCopyingArray`
                 this.prefix = rhs.prefix;
 
                 // move leaf

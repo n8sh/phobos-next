@@ -1939,8 +1939,6 @@ template RawRadixTree(Value = void)
         */
         static private struct SparseBranch
         {
-            import std.algorithm.sorting : isSorted;
-
             enum minCapacity = 0; // minimum number of preallocated sub-indexes and sub-nodes
             enum maxCapacity = 48; // maximum number of preallocated sub-indexes and sub-nodes
             enum prefixCapacity = 5; // 5, 13, 21, ...

@@ -869,6 +869,43 @@ static assert((DenseLeaf1!void).sizeof == 32);
 */
 template RawRadixTree(Value = void)
 {
+    enum isValue = !is(Value == void);
+
+    static if (isValue)
+    {
+        alias Element = Tuple!(UKey, "key", Value, "value");
+        alias IxElement = Tuple!(UIx, "ix", Value, "value");
+    }
+    else
+    {
+        alias Element = UKey;
+        alias IxElement = UIx;
+    }
+
+    auto elementIx(inout IxElement elt)
+    {
+        static if (isValue)
+            return elt.ix;
+        else
+            return elt;
+    }
+
+    auto elementKey(inout Element elt)
+    {
+        static if (isValue)
+            return elt.key;
+        else
+            return elt;
+    }
+
+    auto elementKeyDropExactly(Element elt, size_t n)
+    {
+        static if (isValue)
+            return Element(elt.key[n .. $], elt.value);
+        else
+            return elt[n .. $];
+    }
+
     struct RawRadixTree
     {
         alias ValueType = Value;
@@ -885,42 +922,7 @@ template RawRadixTree(Value = void)
         /** Is `true` if this tree stores values of type `Value` along with keys. In
             other words: `this` is a $(I map) rather than a $(I set).
         */
-        enum hasValue = !is(Value == void);
-
-        static if (hasValue)
-        {
-            alias Element = Tuple!(UKey, "key", Value, "value");
-            alias IxElement = Tuple!(UIx, "ix", Value, "value");
-        }
-        else
-        {
-            alias Element = UKey;
-            alias IxElement = UIx;
-        }
-
-        auto elementIx(inout IxElement elt)
-        {
-            static if (hasValue)
-                return elt.ix;
-            else
-                return elt;
-        }
-
-        auto elementKey(inout Element elt)
-        {
-            static if (hasValue)
-                return elt.key;
-            else
-                return elt;
-        }
-
-        auto elementKeyDropExactly(Element elt, size_t n)
-        {
-            static if (hasValue)
-                return Element(elt.key[n .. $], elt.value);
-            else
-                return elt[n .. $];
-        }
+        alias hasValue = isValue;
 
         // TODO make these run-time arguments at different key depths and map to statistics of typed-key
         alias DefaultBranch = SparseBranch*; // either SparseBranch*, DenseBranch*

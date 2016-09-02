@@ -20,7 +20,8 @@ Implementation is layered:
       </ul>
     <li>AA-style iteration of map keys: <pre style="display:inline;" class="d_inline_code">map.byKey()</pre></li>
     <li>AA-style iteration of map values: <pre style="display:inline;" class="d_inline_code">map.byValue()</pre></li>
-    <li>Containment checking: <pre style="display:inline;" class="d_inline_code">contains()</pre></li>
+    <li><pre style="display:inline;" class="d_inline_code">SortedRange</pre>-style iteration over elements sorted by key: <pre style="display:inline;" class="d_inline_code">assert(set[].isSorted)</pre></li>
+    <li>Containment checking: <pre style="display:inline;" class="d_inline_code">bool contains(in Key key)</pre></li>
     <li>Element indexing and element index assignment for map case via <pre style="display:inline;" class="d_inline_code">opIndex</pre> and <pre style="display:inline;" class="d_inline_code">opIndexAssign</pre></li>
     <li>Key-Prefix Completion (returning a <pre style="display:inline;" class="d_inline_code">Range</pre> over all set/map-elements that match a key prefix): <pre style="display:inline;" class="d_inline_code">prefix(Key keyPrefix)</pre></li>
     </ul>
@@ -103,7 +104,10 @@ Implementation is layered:
     TODO opBinaryRight shall return <pre style="display:inline;" class="d_inline_code">_rawTree.ElementRef</pre> instead of <pre style="display:inline;" class="d_inline_code">bool</pre>
 <br><br>
 
-    TODO Use scope on members that return key and value reference when DIP-1000 has been implemented<br><br>
+    TODO Use scope on members that return key and value reference when DIP-1000 has been implemented
+<br><br>
+
+    TODO Make all RawRadixTree-members (insert|contains|prefix).*At.*(Node|Branch) free functions<br><br>
 
 <dl><dt><big><a name="isScalarTrieableKeyType"></a>enum auto <u>isScalarTrieableKeyType</u>(T);
 </big></dt>
@@ -245,10 +249,10 @@ In set-case (<pre style="display:inline;" class="d_inline_code">Value</pre> is <
 <b>See Also:</b><br>
 <br><br>
 
-<dl><dt><big><a name="RawRadixTree.hasValue"></a>enum auto <u>hasValue</u>;
+<dl><dt><big><a name="RawRadixTree.hasValue"></a>alias <u>hasValue</u> = isValue;
 </big></dt>
 <dd>Is <pre style="display:inline;" class="d_inline_code">true</pre> if this tree stores values of type <pre style="display:inline;" class="d_inline_code">Value</pre> along with keys. In
-        other words: <pre style="display:inline;" class="d_inline_code">this</pre> is a <i>map</i> rather than a <i>set</i>.<br><br>
+            other words: <pre style="display:inline;" class="d_inline_code">this</pre> is a <i>map</i> rather than a <i>set</i>.<br><br>
 
 </dd>
 <dt><big><a name="RawRadixTree.Node"></a>alias <u>Node</u> = WordVariant!(OneLeafMax7, TwoLeaf3, TriLeaf2, HeptLeaf1, SparseLeaf1!Value*, DenseLeaf1!Value*, SparseBranch*, DenseBranch*);
@@ -274,13 +278,13 @@ In set-case (<pre style="display:inline;" class="d_inline_code">Value</pre> is <
 <dt><big><a name="RawRadixTree.SparseBranch_PopHist"></a>alias <u>SparseBranch_PopHist</u> = size_t[SparseBranch.maxCapacity + 1];
 </big></dt>
 <dd>4-Branch population histogram.
-        Index maps to population with value range (0 .. 4).<br><br>
+            Index maps to population with value range (0 .. 4).<br><br>
 
 </dd>
 <dt><big><a name="RawRadixTree.DenseBranch_PopHist"></a>alias <u>DenseBranch_PopHist</u> = size_t[radix + 1];
 </big></dt>
 <dd>radix-Branch population histogram.
-        Index maps to population with value range (0 .. <pre style="display:inline;" class="d_inline_code">radix</pre>).<br><br>
+            Index maps to population with value range (0 .. <pre style="display:inline;" class="d_inline_code">radix</pre>).<br><br>
 
 </dd>
 <dt><big><a name="RawRadixTree.Stats"></a>struct <u>Stats</u>;
@@ -294,7 +298,7 @@ In set-case (<pre style="display:inline;" class="d_inline_code">Value</pre> is <
 <dd>Maps <pre style="display:inline;" class="d_inline_code">Node</pre> type/index <pre style="display:inline;" class="d_inline_code">Ix</pre> to population.
 <br><br>
 Used to calculate complete tree memory usage, excluding allocator
-            overhead typically via <pre style="display:inline;" class="d_inline_code">malloc</pre> and <pre style="display:inline;" class="d_inline_code">calloc</pre>.<br><br>
+                overhead typically via <pre style="display:inline;" class="d_inline_code">malloc</pre> and <pre style="display:inline;" class="d_inline_code">calloc</pre>.<br><br>
 
 </dd>
 <dt><big><a name="RawRadixTree.Stats.heapNodeCount"></a>size_t <u>heapNodeCount</u>;
@@ -309,7 +313,7 @@ Used to calculate complete tree memory usage, excluding allocator
 </dd>
 </dl>
 </dd>
-<dt><big><a name="RawRadixTree.setSub.2"></a>pure nothrow @safe Branch <u>setSub</u>(Branch <i>curr</i>, UIx <i>subIx</i>, Node <i>subNode</i>);
+<dt><big><a name="RawRadixTree.setSub.2"></a>pure nothrow @nogc @safe Branch <u>setSub</u>(Branch <i>curr</i>, UIx <i>subIx</i>, Node <i>subNode</i>);
 </big></dt>
 <dd>Set sub-<pre style="display:inline;" class="d_inline_code">Node</pre> of branch <pre style="display:inline;" class="d_inline_code">Node <i>curr</i></pre> at index <pre style="display:inline;" class="d_inline_code">ix</pre> to <pre style="display:inline;" class="d_inline_code"><i>subNode</i></pre>.<br><br>
 
@@ -385,23 +389,23 @@ Used to calculate complete tree memory usage, excluding allocator
 <dd>Insert <pre style="display:inline;" class="d_inline_code">key</pre> into sub-tree under root <pre style="display:inline;" class="d_inline_code"><i>curr</i></pre>.<br><br>
 
 </dd>
-<dt><big><a name="RawRadixTree.insertAtBranchAbovePrefix"></a>Branch <u>insertAtBranchAbovePrefix</u>(Branch <i>curr</i>, Element <i>elt</i>, out ElementRef <i>elementRef</i>);
+<dt><big><a name="RawRadixTree.insertAtAbovePrefix"></a>Branch <u>insertAtAbovePrefix</u>(Branch <i>curr</i>, Element <i>elt</i>, out ElementRef <i>elementRef</i>);
 </big></dt>
 <dd>Insert <pre style="display:inline;" class="d_inline_code">key</pre> into sub-tree under branch <pre style="display:inline;" class="d_inline_code"><i>curr</i></pre> above prefix, that is
-            the prefix of <pre style="display:inline;" class="d_inline_code"><i>curr</i></pre> is stripped from <pre style="display:inline;" class="d_inline_code">key</pre> prior to insertion.<br><br>
+                the prefix of <pre style="display:inline;" class="d_inline_code"><i>curr</i></pre> is stripped from <pre style="display:inline;" class="d_inline_code">key</pre> prior to insertion.<br><br>
 
 </dd>
-<dt><big><a name="RawRadixTree.insertNewAtBranchAbovePrefix"></a>Branch <u>insertNewAtBranchAbovePrefix</u>(Branch <i>curr</i>, Element <i>elt</i>);
+<dt><big><a name="RawRadixTree.insertNewAtAbovePrefix"></a>Branch <u>insertNewAtAbovePrefix</u>(Branch <i>curr</i>, Element <i>elt</i>);
 </big></dt>
-<dd>Like <pre style="display:inline;" class="d_inline_code">insertAtBranchAbovePrefix</pre> but also asserts that <pre style="display:inline;" class="d_inline_code">key</pre> is
-            currently not stored under <pre style="display:inline;" class="d_inline_code"><i>curr</i></pre>.<br><br>
+<dd>Like <pre style="display:inline;" class="d_inline_code">insertAtAbovePrefix</pre> but also asserts that <pre style="display:inline;" class="d_inline_code">key</pre> is
+                currently not stored under <pre style="display:inline;" class="d_inline_code"><i>curr</i></pre>.<br><br>
 
 </dd>
-<dt><big><a name="RawRadixTree.insertAtBranchBelowPrefix"></a>Branch <u>insertAtBranchBelowPrefix</u>(Branch <i>curr</i>, Element <i>elt</i>, out ElementRef <i>elementRef</i>);
+<dt><big><a name="RawRadixTree.insertAtBelowPrefix"></a>Branch <u>insertAtBelowPrefix</u>(Branch <i>curr</i>, Element <i>elt</i>, out ElementRef <i>elementRef</i>);
 </big></dt>
 <dd>Insert <pre style="display:inline;" class="d_inline_code">key</pre> into sub-tree under branch <pre style="display:inline;" class="d_inline_code"><i>curr</i></pre> below prefix, that is
-            the prefix of <pre style="display:inline;" class="d_inline_code"><i>curr</i></pre> is not stripped from <pre style="display:inline;" class="d_inline_code">key</pre> prior to
-            insertion.<br><br>
+                the prefix of <pre style="display:inline;" class="d_inline_code"><i>curr</i></pre> is not stripped from <pre style="display:inline;" class="d_inline_code">key</pre> prior to
+                insertion.<br><br>
 
 </dd>
 <dt><big><a name="RawRadixTree.split"></a>Node <u>split</u>(OneLeafMax7 <i>curr</i>, UKey <i>prefix</i>, UKey <i>key</i>);
@@ -432,13 +436,13 @@ Used to calculate complete tree memory usage, excluding allocator
 <dt><big><a name="RawRadixTree.expand.5"></a>Branch <u>expand</u>(SparseBranch* <i>curr</i>, size_t <i>capacityIncrement</i> = 1);
 </big></dt>
 <dd>Destructively <u>expand</u> <pre style="display:inline;" class="d_inline_code"><i>curr</i></pre> to a branch node able to store
-        <pre style="display:inline;" class="d_inline_code"><i>capacityIncrement</i></pre> more sub-nodes.<br><br>
+            <pre style="display:inline;" class="d_inline_code"><i>capacityIncrement</i></pre> more sub-nodes.<br><br>
 
 </dd>
 <dt><big><a name="RawRadixTree.expand.6"></a>Leaf1!Value <u>expand</u>(SparseLeaf1!Value* <i>curr</i>, size_t <i>capacityIncrement</i> = 1);
 </big></dt>
 <dd>Destructively <u>expand</u> <pre style="display:inline;" class="d_inline_code"><i>curr</i></pre> to a leaf node able to store
-        <pre style="display:inline;" class="d_inline_code"><i>capacityIncrement</i></pre> more sub-nodes.<br><br>
+            <pre style="display:inline;" class="d_inline_code"><i>capacityIncrement</i></pre> more sub-nodes.<br><br>
 
 </dd>
 <dt><big><a name="RawRadixTree.empty"></a>const pure nothrow @safe bool <u>empty</u>();
@@ -515,7 +519,121 @@ pointer to value if <pre style="display:inline;" class="d_inline_code"><i>key</i
 <dt><big><a name="radixTreeMap"></a>auto <u>radixTreeMap</u>(Key, Value)();
 </big></dt>
 <dd>Instantiator for the map-version of <pre style="display:inline;" class="d_inline_code">RadixTree</pre> where value-type is <pre style="display:inline;" class="d_inline_code">Value</pre>.<br><br>
+<b>Examples:</b><br>
+exercise all switch-cases in <pre style="display:inline;" class="d_inline_code">RawRadixTree.prefixAt()</pre>
+<pre class="d_code">
+<font color=blue>import</font> std.algorithm : equal;
+<font color=blue>alias</font> Key = string;
+<font color=blue>auto</font> set = radixTreeSet!(Key);
 
+set.clear();
+set.insert(<font color=red>`-----1`</font>);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----`</font>).equal([<font color=red>`1`</font>]));
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----_`</font>).empty);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----____`</font>).empty);
+set.insert(<font color=red>`-----2`</font>);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----`</font>).equal([<font color=red>`1`</font>, <font color=red>`2`</font>]));
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----_`</font>).empty);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----____`</font>).empty);
+set.insert(<font color=red>`-----3`</font>);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----`</font>).equal([<font color=red>`1`</font>, <font color=red>`2`</font>, <font color=red>`3`</font>]));
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----_`</font>).empty);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----____`</font>).empty);
+set.insert(<font color=red>`-----4`</font>);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----`</font>).equal([<font color=red>`1`</font>, <font color=red>`2`</font>, <font color=red>`3`</font>, <font color=red>`4`</font>]));
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----_`</font>).empty);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----____`</font>).empty);
+set.insert(<font color=red>`-----5`</font>);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----`</font>).equal([<font color=red>`1`</font>, <font color=red>`2`</font>, <font color=red>`3`</font>, <font color=red>`4`</font>, <font color=red>`5`</font>]));
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----_`</font>).empty);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----____`</font>).empty);
+set.insert(<font color=red>`-----6`</font>);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----`</font>).equal([<font color=red>`1`</font>, <font color=red>`2`</font>, <font color=red>`3`</font>, <font color=red>`4`</font>, <font color=red>`5`</font>, <font color=red>`6`</font>]));
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----_`</font>).empty);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----____`</font>).empty);
+set.insert(<font color=red>`-----7`</font>);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----`</font>).equal([<font color=red>`1`</font>, <font color=red>`2`</font>, <font color=red>`3`</font>, <font color=red>`4`</font>, <font color=red>`5`</font>, <font color=red>`6`</font>, <font color=red>`7`</font>]));
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----_`</font>).empty);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----____`</font>).empty);
+set.insert(<font color=red>`-----8`</font>);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----`</font>).equal([<font color=red>`1`</font>, <font color=red>`2`</font>, <font color=red>`3`</font>, <font color=red>`4`</font>, <font color=red>`5`</font>, <font color=red>`6`</font>, <font color=red>`7`</font>, <font color=red>`8`</font>]));
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----_`</font>).empty);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----____`</font>).empty);
+set.insert(<font color=red>`-----11`</font>);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----`</font>).equal([<font color=red>`1`</font>, <font color=red>`11`</font>, <font color=red>`2`</font>, <font color=red>`3`</font>, <font color=red>`4`</font>, <font color=red>`5`</font>, <font color=red>`6`</font>, <font color=red>`7`</font>, <font color=red>`8`</font>]));
+set.insert(<font color=red>`-----22`</font>);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----`</font>).equal([<font color=red>`1`</font>, <font color=red>`11`</font>, <font color=red>`2`</font>, <font color=red>`22`</font>, <font color=red>`3`</font>, <font color=red>`4`</font>, <font color=red>`5`</font>, <font color=red>`6`</font>, <font color=red>`7`</font>, <font color=red>`8`</font>]));
+set.insert(<font color=red>`-----33`</font>);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----`</font>).equal([<font color=red>`1`</font>, <font color=red>`11`</font>, <font color=red>`2`</font>, <font color=red>`22`</font>, <font color=red>`3`</font>, <font color=red>`33`</font>, <font color=red>`4`</font>, <font color=red>`5`</font>, <font color=red>`6`</font>, <font color=red>`7`</font>, <font color=red>`8`</font>]));
+set.insert(<font color=red>`-----44`</font>);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----`</font>).equal([<font color=red>`1`</font>, <font color=red>`11`</font>, <font color=red>`2`</font>, <font color=red>`22`</font>, <font color=red>`3`</font>, <font color=red>`33`</font>, <font color=red>`4`</font>, <font color=red>`44`</font>, <font color=red>`5`</font>, <font color=red>`6`</font>, <font color=red>`7`</font>, <font color=red>`8`</font>]));
+
+set.clear();
+set.insert(<font color=red>`-----11`</font>);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----`</font>).equal([<font color=red>`11`</font>]));
+set.insert(<font color=red>`-----22`</font>);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----`</font>).equal([<font color=red>`11`</font>, <font color=red>`22`</font>]));
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----_`</font>).empty);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----___`</font>).empty);
+
+set.clear();
+set.insert(<font color=red>`-----111`</font>);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----`</font>).equal([<font color=red>`111`</font>]));
+set.insert(<font color=red>`-----122`</font>);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----`</font>).equal([<font color=red>`111`</font>, <font color=red>`122`</font>]));
+set.insert(<font color=red>`-----133`</font>);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----`</font>).equal([<font color=red>`111`</font>, <font color=red>`122`</font>, <font color=red>`133`</font>]));
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----1`</font>).equal([<font color=red>`11`</font>, <font color=red>`22`</font>, <font color=red>`33`</font>]));
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----1_`</font>).empty);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----1___`</font>).empty);
+
+set.clear();
+set.insert(<font color=red>`-----1111`</font>);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----`</font>).equal([<font color=red>`1111`</font>]));
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----_`</font>).empty);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----___`</font>).empty);
+
+set.clear();
+set.insert(<font color=red>`-----11111`</font>);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----`</font>).equal([<font color=red>`11111`</font>]));
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----_`</font>).empty);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----___`</font>).empty);
+set.insert(<font color=red>`-----12222`</font>);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----`</font>).equal([<font color=red>`11111`</font>, <font color=red>`12222`</font>]));
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----_`</font>).empty);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----___`</font>).empty);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----12`</font>).equal([<font color=red>`222`</font>]));
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----12_`</font>).empty);
+<font color=blue>assert</font>(set.prefix(<font color=red>`-----12____`</font>).empty);
+</pre>
+<br><br><b>Examples:</b><br>
+test floating-point key range sortedness
+<pre class="d_code">
+<font color=blue>alias</font> T = <font color=blue>double</font>;
+
+<font color=blue>auto</font> set = radixTreeSet!(T);
+
+<font color=blue>import</font> std.range: isForwardRange;
+<font color=blue>static</font> <font color=blue>assert</font>(isForwardRange!(<font color=blue>typeof</font>(set[])));
+
+set.insert(-1.1e6);
+set.insert(-2.2e9);
+set.insert(-1.1);
+set.insert(+2.2);
+set.insert(T.max);
+set.insert(-T.max);
+set.insert(-3.3);
+set.insert(-4.4);
+set.insert(+4.4);
+set.insert(+3.3);
+set.insert(+1.1e6);
+set.insert(+2.2e9);
+
+<font color=blue>import</font> std.algorithm.sorting : isSorted;
+<font color=green>// dln(set[]);
+</font><font color=blue>assert</font>(set[].isSorted);
+</pre>
+<br><br>
 </dd>
 <dt><big><a name="showStatistics"></a>void <u>showStatistics</u>(RT)(ref const RT <i>tree</i>);
 </big></dt>

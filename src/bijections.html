@@ -12,27 +12,81 @@ TOOD extract reinterpret!T(x)
 <dd>List of types that are bijectable to builtin integral types.<br><br>
 
 </dd>
-<dt><big><a name="bijectToUnsigned"></a>pure nothrow @trusted auto <u>bijectToUnsigned</u>(T)(T <i>a</i>) if (isIntegralBijectableType!T);
+<dt><big><a name="bijectToUnsigned"></a>@trusted auto <u>bijectToUnsigned</u>(T)(T <i>a</i>) if (isIntegralBijectableType!T);
 </big></dt>
 <dd>Biject (Shift) Signed  "up" to Unsigned (before radix sorting).<br><br>
 
 </dd>
-<dt><big><a name="bijectFromUnsigned"></a>void <u>bijectFromUnsigned</u>(U, V)(U <i>a</i>, ref V <i>b</i>) if (isUnsigned!U &amp;&amp; isIntegral!V &amp;&amp; isSigned!V &amp;&amp; is(U == Unsigned!V));
+<dt><big><a name="bijectToUnsigned.2"></a>auto <u>bijectToUnsigned</u>(T)(T <i>a</i>, bool <i>descending</i>) if (isIntegralBijectableType!T);
 </big></dt>
-<dd>Biject (Shift) Unsigned   "back down" to Signed (after radix sorting).<br><br>
+<dd>Same as <pre style="display:inline;" class="d_inline_code"><u>bijectToUnsigned</u></pre> with extra argument <pre style="display:inline;" class="d_inline_code"><i>descending</i></pre> that reverses
+    order.<br><br>
 
 </dd>
+<dt><big><a name="bijectFromUnsigned"></a>void <u>bijectFromUnsigned</u>(U)(U <i>a</i>, ref U <i>b</i>) if (isUnsigned!U);
+<br>void <u>bijectFromUnsigned</u>(U, V)(U <i>a</i>, ref V <i>b</i>) if (isUnsigned!U &amp;&amp; isIntegral!V &amp;&amp; isSigned!V &amp;&amp; is(U == Unsigned!V));
+<br>pure nothrow @nogc @trusted void <u>bijectFromUnsigned</u>(ubyte <i>a</i>, ref bool <i>b</i>);
+<br>pure nothrow @nogc @trusted void <u>bijectFromUnsigned</u>(ubyte <i>a</i>, ref char <i>b</i>);
+<br>pure nothrow @nogc @trusted void <u>bijectFromUnsigned</u>(ushort <i>a</i>, ref wchar <i>b</i>);
+<br>pure nothrow @nogc @trusted void <u>bijectFromUnsigned</u>(ulong <i>a</i>, ref dchar <i>b</i>);
+<br>pure nothrow @nogc @trusted void <u>bijectFromUnsigned</u>(uint <i>a</i>, ref float <i>b</i>);
+<br>pure nothrow @nogc @trusted void <u>bijectFromUnsigned</u>(ulong <i>a</i>, ref double <i>b</i>);
+</big></dt>
+<dd>Biject (Shift) Unsigned   "back down" to Signed (after radix sorting).<br><br>
+<b>Examples:</b><br>
+check that <pre style="display:inline;" class="d_inline_code">bijectToUnsigned</pre> is the opposite of <pre style="display:inline;" class="d_inline_code"><u>bijectFromUnsigned</u></pre>
+<pre class="d_code">
+<font color=blue>foreach</font> (T; AliasSeq!(<font color=blue>ubyte</font>, <font color=blue>ushort</font>, <font color=blue>uint</font>, <font color=blue>ulong</font>))
+{
+    <font color=blue>static</font> <font color=blue>assert</font>(<font color=blue>is</font>(<font color=blue>typeof</font>(T.init.bijectToUnsigned) == T));
+}
+<font color=blue>foreach</font> (T; AliasSeq!(<font color=blue>byte</font>, <font color=blue>short</font>, <font color=blue>int</font>, <font color=blue>long</font>))
+{
+    <font color=blue>static</font> <font color=blue>assert</font>(<font color=blue>is</font>(<font color=blue>typeof</font>(T.init.bijectToUnsigned) == Unsigned!T));
+}
+
+<font color=blue>static</font> <font color=blue>assert</font>(<font color=blue>is</font>(<font color=blue>typeof</font>(<font color=blue>char</font>.init.bijectToUnsigned) == <font color=blue>ubyte</font>));
+<font color=blue>static</font> <font color=blue>assert</font>(<font color=blue>is</font>(<font color=blue>typeof</font>(<font color=blue>wchar</font>.init.bijectToUnsigned) == <font color=blue>ushort</font>));
+<font color=blue>static</font> <font color=blue>assert</font>(<font color=blue>is</font>(<font color=blue>typeof</font>(<font color=blue>dchar</font>.init.bijectToUnsigned) == <font color=blue>uint</font>));
+
+<font color=blue>const</font> n = 1_000_000;
+<font color=blue>import</font> std.range : iota;
+<font color=blue>foreach</font> (<font color=blue>const</font> i; 0.iota(n))
+{
+    <font color=blue>foreach</font> (T; AliasSeq!(<font color=blue>bool</font>,
+                          <font color=blue>ubyte</font>, <font color=blue>ushort</font>, <font color=blue>uint</font>, <font color=blue>ulong</font>,
+                          <font color=blue>byte</font>, <font color=blue>short</font>, <font color=blue>int</font>, <font color=blue>long</font>,
+                          <font color=blue>char</font>, <font color=blue>wchar</font>, <font color=blue>dchar</font>,
+                          <font color=blue>float</font>, <font color=blue>double</font>))
+    {
+        <font color=blue>const</font> T x = <font color=blue>cast</font>(T)i;
+        <font color=blue>auto</font> y = x.bijectToUnsigned;
+        <font color=green>// pragma(msg, "T:", T);
+</font>        <font color=green>// pragma(msg, "typeof(x):", typeof(x));
+</font>        <font color=green>// pragma(msg, "typeof(y):", typeof(y));
+</font>        T z; y.<u>bijectFromUnsigned</u>(z);
+        <font color=blue>assert</font>(x == z);
+    }
+}
+</pre>
+<br><br>
+</dd>
 <dt><big><a name="ff"></a>pure nothrow @nogc @safe uint <u>ff</u>(uint <i>f</i>);
+<br>pure nothrow @nogc @safe ulong <u>ff</u>(ulong <i>f</i>);
+</big></dt>
+<dd> Map Bits of Floating Point Number \p a to Unsigned Integer that can be Radix Sorted.
+ Also finds \em sign of \p a.
+ - if it's 1 (negative float), it flips all bits.
+ - if it's 0 (positive float), it flips the sign only.<br><br>
+
+</dd>
+<dt><big><a name="iff"></a>pure nothrow @nogc @safe uint <u>iff</u>(uint <i>f</i>);
+<br>pure nothrow @nogc @safe ulong <u>iff</u>(ulong <i>f</i>);
 </big></dt>
 <dd> Map a Floating Point Number \p a Back from Radix Sorting
  (Inverse of \c radix_flip_float()).
  - if sign is 1 (negative), it flips the sign bit back
- - if sign is 0 (positive), it flips all bits back
-<br><br>
- Map Bits of Floating Point Number \p a to Unsigned Integer that can be Radix Sorted.
- Also finds \em sign of \p a.
- - if it's 1 (negative float), it flips all bits.
- - if it's 0 (positive float), it flips the sign only.<br><br>
+ - if sign is 0 (positive), it flips all bits back<br><br>
 
 </dd>
 </dl>

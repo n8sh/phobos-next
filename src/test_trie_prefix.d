@@ -1,19 +1,30 @@
 #!/usr/bin/env rdmd
 
+import std.algorithm.comparison : equal;
+import trie : radixTreeSet;
+import dbgio : dln;
+
 // TODO uncomment test code at trie.d:4329 when this works
 void main(string[] args)
 {
-    import std.algorithm.comparison : equal;
-    import trie : radixTreeSet;
-    import dbgio : dln;
-
     alias Key = string;
     auto set = radixTreeSet!(Key);
 
     set.clear();
+    set.insert(`-----1`);
+    set.insert(`-----2`);
+    const string[2] expected2 = ["1", "2"];
+    assert(set.prefix(`-----`)
+              .equal(expected2[]));
+
+    set.insert(`-----3`);
+    const string[3] expected3 = ["1", "2", "3"];
+    assert(set.prefix(`-----`)
+              .equal(expected3[]));
+
+    set.clear();
     set.insert(`____alphabet`);
     set.insert(`____alpha`);
-
     assert(set.prefix(`____alpha`)
               .equal([``,
                       `bet`]));
@@ -26,6 +37,7 @@ void main(string[] args)
     set.insert(`all`);
     set.insert(`allies`);
     set.insert(`ally`);
+
     set.insert(`étude`);
     set.insert(`études`);
 
@@ -71,5 +83,4 @@ void main(string[] args)
     assert(set.prefix(`étude`)
               .equal([``,
                       `s`]));
-
 }

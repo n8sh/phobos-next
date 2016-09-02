@@ -869,6 +869,15 @@ static assert((DenseLeaf1!void).sizeof == 32);
 */
 template RawRadixTree(Value = void)
 {
+    import std.bitmanip : bitfields;
+    import std.conv : to;
+    import std.algorithm : filter;
+    import std.meta : AliasSeq, staticMap;
+    import std.typecons : ConstOf;
+
+    import bitset : BitSet;
+    import vla : hasVariableLength;
+
     enum isValue = !is(Value == void);
 
     static if (isValue)
@@ -909,15 +918,6 @@ template RawRadixTree(Value = void)
     struct RawRadixTree
     {
         alias ValueType = Value;
-
-        import std.bitmanip : bitfields;
-        import std.conv : to;
-        import std.algorithm : filter;
-        import std.meta : AliasSeq, staticMap;
-        import std.typecons : ConstOf;
-
-        import bitset : BitSet;
-        import vla : hasVariableLength;
 
         /** Is `true` if this tree stores values of type `Value` along with keys. In
             other words: `this` is a $(I map) rather than a $(I set).

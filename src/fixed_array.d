@@ -24,13 +24,25 @@ struct ModArrayN(uint capacity,
     else
         alias Element = Ix[L];
 
+    this(uint rhsCapacity)(in ModArrayN!(rhsCapacity, elementLength, span) rhs)
+    {
+        static if (capacity < rhsCapacity)
+        {
+            assert(rhs.length <= capacity);
+        }
+        foreach (const i, const ix; rhs)
+        {
+            _ixs[i] = ix;
+        }
+        _length = rhs.length;
+    }
+
     this(Es...)(Es ixs)
         if (Es.length >= 1 &&
             Es.length <= capacity)
     {
         foreach (const i, const ix; ixs)
         {
-            static assert(!is(typeof(ix) == int));
             _ixs[i] = ix;
         }
         _length = ixs.length;

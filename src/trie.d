@@ -893,26 +893,20 @@ template RawRadixTree(Value = void)
 
     private static auto elementIx(inout IxElement elt)
     {
-        static if (isValue)
-            return elt.ix;
-        else
-            return elt;
+        static if (isValue) return elt.ix;
+        else                return elt;
     }
 
     private static auto elementKey(inout Element elt)
     {
-        static if (isValue)
-            return elt.key;
-        else
-            return elt;
+        static if (isValue) return elt.key;
+        else                return elt;
     }
 
     private static auto elementKeyDropExactly(Element elt, size_t n)
     {
-        static if (isValue)
-            return Element(elt.key[n .. $], elt.value);
-        else
-            return elt[n .. $];
+        static if (isValue) return Element(elt.key[n .. $], elt.value);
+        else                return elt[n .. $];
     }
 
     struct RawRadixTree

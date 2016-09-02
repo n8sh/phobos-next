@@ -1,6 +1,8 @@
 /** Array container(s) with optional sortedness via template-parameter
     `Ordering` and optional use of GC via `useGC`.
 
+    TODO Add move construction for CopyingArray
+
     TODO Make Array have reference semantics instead through via Automatic
     Reference Counting and scope keyword when DIP-1000 has been implemented
 

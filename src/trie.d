@@ -891,7 +891,7 @@ template RawRadixTree(Value = void)
         alias IxElement = UIx;
     }
 
-    auto elementIx(inout IxElement elt)
+    private static auto elementIx(inout IxElement elt)
     {
         static if (isValue)
             return elt.ix;
@@ -899,7 +899,7 @@ template RawRadixTree(Value = void)
             return elt;
     }
 
-    auto elementKey(inout Element elt)
+    private static auto elementKey(inout Element elt)
     {
         static if (isValue)
             return elt.key;
@@ -907,7 +907,7 @@ template RawRadixTree(Value = void)
             return elt;
     }
 
-    auto elementKeyDropExactly(Element elt, size_t n)
+    private static auto elementKeyDropExactly(Element elt, size_t n)
     {
         static if (isValue)
             return Element(elt.key[n .. $], elt.value);

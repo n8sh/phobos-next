@@ -867,335 +867,312 @@ static assert((DenseLeaf1!void).sizeof == 32);
     See_Also: $(HTTP gcc.gnu.org/onlinedocs/libstdc++/ext/pb_ds/trie_based_containers.html)
     See_Also: $(HTTP github.com/npgall/concurrent-trees)
 */
-struct RawRadixTree(Value = void)
+template RawRadixTree(Value = void)
 {
-    alias ValueType = Value;
-
-    import std.bitmanip : bitfields;
-    import std.conv : to;
-    import std.algorithm : filter;
-    import std.meta : AliasSeq, staticMap;
-    import std.typecons : ConstOf;
-
-    import bitset : BitSet;
-    import vla : hasVariableLength;
-
-    /** Is `true` if this tree stores values of type `Value` along with keys. In
-        other words: `this` is a $(I map) rather than a $(I set).
-    */
-    enum hasValue = !is(Value == void);
-
-    static if (hasValue)
+    struct RawRadixTree
     {
-        alias Element = Tuple!(UKey, "key", Value, "value");
-        alias IxElement = Tuple!(UIx, "ix", Value, "value");
-    }
-    else
-    {
-        alias Element = UKey;
-        alias IxElement = UIx;
-    }
+        alias ValueType = Value;
 
-    auto elementIx(inout IxElement elt)
-    {
-        static if (hasValue)
-            return elt.ix;
-        else
-            return elt;
-    }
+        import std.bitmanip : bitfields;
+        import std.conv : to;
+        import std.algorithm : filter;
+        import std.meta : AliasSeq, staticMap;
+        import std.typecons : ConstOf;
 
-    auto elementKey(inout Element elt)
-    {
-        static if (hasValue)
-            return elt.key;
-        else
-            return elt;
-    }
+        import bitset : BitSet;
+        import vla : hasVariableLength;
 
-    auto elementKeyDropExactly(Element elt, size_t n)
-    {
-        static if (hasValue)
-            return Element(elt.key[n .. $], elt.value);
-        else
-            return elt[n .. $];
-    }
-
-    // TODO make these run-time arguments at different key depths and map to statistics of typed-key
-    alias DefaultBranch = SparseBranch*; // either SparseBranch*, DenseBranch*
-    alias DefaultLeaf = SparseLeaf1!Value*; // either SparseLeaf1*, DenseLeaf1*
-
-    /** Mutable node. */
-    alias Node = WordVariant!(OneLeafMax7,
-                              TwoLeaf3,
-                              TriLeaf2,
-
-                              HeptLeaf1,
-                              SparseLeaf1!Value*,
-                              DenseLeaf1!Value*,
-
-                              SparseBranch*,
-                              DenseBranch*);
-
-    /** Mutable branch node. */
-    alias Branch = WordVariant!(SparseBranch*,
-                                DenseBranch*);
-
-    static assert(Node.typeBits <= IxsN!(7, 1, 8).typeBits);
-    static assert(Leaf1!Value.typeBits <= IxsN!(7, 1, 8).typeBits);
-    static assert(Branch.typeBits <= IxsN!(7, 1, 8).typeBits);
-
-    alias Sub = Tuple!(UIx, Node);
-
-    /** Constant node. */
-    // TODO make work with indexNaming
-    // alias ConstNodePtr = WordVariant!(staticMap!(ConstOf, Node));
-
-    static assert(span <= 8*Ix.sizeof, "Need more precision in Ix");
-
-    /** Element Reference. */
-    private static struct ElementRef
-    {
-        Node node;
-        UIx ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
-        ModStatus modStatus;
-
-        @safe pure nothrow:
-
-        pragma(inline) bool opCast(T : bool)() const @nogc { return cast(bool)node; }
-    }
-
-    /** Branch Range (Iterator). */
-    private static struct BranchRange
-    {
-        @safe pure nothrow:
-
-        this(SparseBranch* branch)
-        {
-            this.branch = Branch(branch);
-
-            this._subsEmpty = branch.subCount == 0;
-            this._subCounter = 0; // always zero
-
-            if (branch.leaf1)
-            {
-                this.leaf1Range = Leaf1Range(branch.leaf1);
-            }
-
-            cacheFront();
-        }
-
-        this(DenseBranch* branch)
-        {
-            this.branch = Branch(branch);
-
-            this._subCounter = 0; // TODO needed?
-            _subsEmpty = !branch.findSubNodeAtIx(0, this._subCounter);
-
-            if (branch.leaf1)
-            {
-                this.leaf1Range = Leaf1Range(branch.leaf1);
-            }
-
-            cacheFront();
-        }
-
-        pragma(inline) UIx frontIx() const @nogc
-        {
-            assert(!empty);
-            return _cachedFrontIx;
-        }
-
-        pragma(inline) bool atLeaf1() const @nogc
-        {
-            assert(!empty);
-            return _frontAtLeaf1;
-        }
-
-        private UIx subFrontIx() const
-        {
-            final switch (branch.typeIx) with (Branch.Ix)
-            {
-            case undefined: assert(false);
-            case ix_SparseBranchPtr:
-                return UIx(branch.as!(SparseBranch*).subIxs[_subCounter]);
-            case ix_DenseBranchPtr:
-                return _subCounter;
-            }
-        }
-
-        private Node subFrontNode() const
-        {
-            final switch (branch.typeIx) with (Branch.Ix)
-            {
-            case undefined: assert(false);
-            case ix_SparseBranchPtr: return branch.as!(SparseBranch*).subNodes[_subCounter];
-            case ix_DenseBranchPtr: return branch.as!(DenseBranch*).subNodes[_subCounter];
-            }
-        }
-
-        void appendFrontIxsToKey(ref UnsortedCopyingArray!Ix key) const @nogc
-        {
-            final switch (branch.typeIx) with (Branch.Ix)
-            {
-            case undefined: assert(false);
-            case ix_SparseBranchPtr:
-                key.pushBack(branch.as!(SparseBranch*).prefix[]);
-                break;
-            case ix_DenseBranchPtr:
-                key.pushBack(branch.as!(DenseBranch*).prefix[]);
-                break;
-            }
-            key.pushBack(frontIx); // uses cached data so ok to not depend on branch type
-        }
-
-        size_t prefixLength() const @nogc
-        {
-            final switch (branch.typeIx) with (Branch.Ix)
-            {
-            case undefined: assert(false);
-            case ix_SparseBranchPtr: return branch.as!(SparseBranch*).prefix.length;
-            case ix_DenseBranchPtr: return  branch.as!(DenseBranch*).prefix.length;
-            }
-        }
-
-        pragma(inline) bool empty() const @nogc { return leaf1Range.empty && _subsEmpty; }
-        pragma(inline) bool subsEmpty() const @nogc { return _subsEmpty; }
-
-        /** Try to iterated forward.
-            Returns: `true` upon successful forward iteration, `false` otherwise (upon completion of iteration),
+        /** Is `true` if this tree stores values of type `Value` along with keys. In
+            other words: `this` is a $(I map) rather than a $(I set).
         */
-        void popFront()
-        {
-            assert(!empty);
+        enum hasValue = !is(Value == void);
 
-            // pop front element
-            if (_subsEmpty)
+        static if (hasValue)
+        {
+            alias Element = Tuple!(UKey, "key", Value, "value");
+            alias IxElement = Tuple!(UIx, "ix", Value, "value");
+        }
+        else
+        {
+            alias Element = UKey;
+            alias IxElement = UIx;
+        }
+
+        auto elementIx(inout IxElement elt)
+        {
+            static if (hasValue)
+                return elt.ix;
+            else
+                return elt;
+        }
+
+        auto elementKey(inout Element elt)
+        {
+            static if (hasValue)
+                return elt.key;
+            else
+                return elt;
+        }
+
+        auto elementKeyDropExactly(Element elt, size_t n)
+        {
+            static if (hasValue)
+                return Element(elt.key[n .. $], elt.value);
+            else
+                return elt[n .. $];
+        }
+
+        // TODO make these run-time arguments at different key depths and map to statistics of typed-key
+        alias DefaultBranch = SparseBranch*; // either SparseBranch*, DenseBranch*
+        alias DefaultLeaf = SparseLeaf1!Value*; // either SparseLeaf1*, DenseLeaf1*
+
+        /** Mutable node. */
+        alias Node = WordVariant!(OneLeafMax7,
+                                  TwoLeaf3,
+                                  TriLeaf2,
+
+                                  HeptLeaf1,
+                                  SparseLeaf1!Value*,
+                                  DenseLeaf1!Value*,
+
+                                  SparseBranch*,
+                                  DenseBranch*);
+
+        /** Mutable branch node. */
+        alias Branch = WordVariant!(SparseBranch*,
+                                    DenseBranch*);
+
+        static assert(Node.typeBits <= IxsN!(7, 1, 8).typeBits);
+        static assert(Leaf1!Value.typeBits <= IxsN!(7, 1, 8).typeBits);
+        static assert(Branch.typeBits <= IxsN!(7, 1, 8).typeBits);
+
+        alias Sub = Tuple!(UIx, Node);
+
+        /** Constant node. */
+        // TODO make work with indexNaming
+        // alias ConstNodePtr = WordVariant!(staticMap!(ConstOf, Node));
+
+        static assert(span <= 8*Ix.sizeof, "Need more precision in Ix");
+
+        /** Element Reference. */
+        private static struct ElementRef
+        {
+            Node node;
+            UIx ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
+            ModStatus modStatus;
+
+            @safe pure nothrow:
+
+            pragma(inline) bool opCast(T : bool)() const @nogc { return cast(bool)node; }
+        }
+
+        /** Branch Range (Iterator). */
+        private static struct BranchRange
+        {
+            @safe pure nothrow:
+
+            this(SparseBranch* branch)
             {
-                leaf1Range.popFront();
+                this.branch = Branch(branch);
+
+                this._subsEmpty = branch.subCount == 0;
+                this._subCounter = 0; // always zero
+
+                if (branch.leaf1)
+                {
+                    this.leaf1Range = Leaf1Range(branch.leaf1);
+                }
+
+                cacheFront();
             }
-            else if (leaf1Range.empty)
+
+            this(DenseBranch* branch)
             {
-                popBranchFront();
+                this.branch = Branch(branch);
+
+                this._subCounter = 0; // TODO needed?
+                _subsEmpty = !branch.findSubNodeAtIx(0, this._subCounter);
+
+                if (branch.leaf1)
+                {
+                    this.leaf1Range = Leaf1Range(branch.leaf1);
+                }
+
+                cacheFront();
             }
-            else                // both non-empty
+
+            pragma(inline) UIx frontIx() const @nogc
             {
-                if (leaf1Range.front <= subFrontIx) // `a` before `ab`
+                assert(!empty);
+                return _cachedFrontIx;
+            }
+
+            pragma(inline) bool atLeaf1() const @nogc
+            {
+                assert(!empty);
+                return _frontAtLeaf1;
+            }
+
+            private UIx subFrontIx() const
+            {
+                final switch (branch.typeIx) with (Branch.Ix)
+                {
+                case undefined: assert(false);
+                case ix_SparseBranchPtr:
+                    return UIx(branch.as!(SparseBranch*).subIxs[_subCounter]);
+                case ix_DenseBranchPtr:
+                    return _subCounter;
+                }
+            }
+
+            private Node subFrontNode() const
+            {
+                final switch (branch.typeIx) with (Branch.Ix)
+                {
+                case undefined: assert(false);
+                case ix_SparseBranchPtr: return branch.as!(SparseBranch*).subNodes[_subCounter];
+                case ix_DenseBranchPtr: return branch.as!(DenseBranch*).subNodes[_subCounter];
+                }
+            }
+
+            void appendFrontIxsToKey(ref UnsortedCopyingArray!Ix key) const @nogc
+            {
+                final switch (branch.typeIx) with (Branch.Ix)
+                {
+                case undefined: assert(false);
+                case ix_SparseBranchPtr:
+                    key.pushBack(branch.as!(SparseBranch*).prefix[]);
+                    break;
+                case ix_DenseBranchPtr:
+                    key.pushBack(branch.as!(DenseBranch*).prefix[]);
+                    break;
+                }
+                key.pushBack(frontIx); // uses cached data so ok to not depend on branch type
+            }
+
+            size_t prefixLength() const @nogc
+            {
+                final switch (branch.typeIx) with (Branch.Ix)
+                {
+                case undefined: assert(false);
+                case ix_SparseBranchPtr: return branch.as!(SparseBranch*).prefix.length;
+                case ix_DenseBranchPtr: return  branch.as!(DenseBranch*).prefix.length;
+                }
+            }
+
+            pragma(inline) bool empty() const @nogc { return leaf1Range.empty && _subsEmpty; }
+            pragma(inline) bool subsEmpty() const @nogc { return _subsEmpty; }
+
+            /** Try to iterated forward.
+                Returns: `true` upon successful forward iteration, `false` otherwise (upon completion of iteration),
+            */
+            void popFront()
+            {
+                assert(!empty);
+
+                // pop front element
+                if (_subsEmpty)
                 {
                     leaf1Range.popFront();
                 }
-                else
+                else if (leaf1Range.empty)
                 {
                     popBranchFront();
                 }
-            }
-
-            if (!empty) { cacheFront(); }
-        }
-
-        /** Fill cached value and remember if we we next element is direct
-           (_frontAtLeaf1 is true) or under a sub-branch (_frontAtLeaf1 is
-           false).
-        */
-        void cacheFront()
-        {
-            assert(!empty);
-            if (_subsEmpty)     // no more sub-nodes
-            {
-                _cachedFrontIx = leaf1Range.front;
-                _frontAtLeaf1 = true;
-            }
-            else if (leaf1Range.empty) // no more in direct leaf node
-            {
-                _cachedFrontIx = subFrontIx;
-                _frontAtLeaf1 = false;
-            }
-            else                // both non-empty
-            {
-                const leaf1Front = leaf1Range.front;
-                if (leaf1Front <= subFrontIx) // `a` before `ab`
+                else                // both non-empty
                 {
-                    _cachedFrontIx = leaf1Front;
+                    if (leaf1Range.front <= subFrontIx) // `a` before `ab`
+                    {
+                        leaf1Range.popFront();
+                    }
+                    else
+                    {
+                        popBranchFront();
+                    }
+                }
+
+                if (!empty) { cacheFront(); }
+            }
+
+            /** Fill cached value and remember if we we next element is direct
+                (_frontAtLeaf1 is true) or under a sub-branch (_frontAtLeaf1 is
+                false).
+            */
+            void cacheFront()
+            {
+                assert(!empty);
+                if (_subsEmpty)     // no more sub-nodes
+                {
+                    _cachedFrontIx = leaf1Range.front;
                     _frontAtLeaf1 = true;
                 }
-                else
+                else if (leaf1Range.empty) // no more in direct leaf node
                 {
                     _cachedFrontIx = subFrontIx;
                     _frontAtLeaf1 = false;
                 }
-            }
-        }
-
-        private void popBranchFront()
-        {
-            // TODO move all calls to Branch-specific members popFront()
-            final switch (branch.typeIx) with (Branch.Ix)
-            {
-            case undefined: assert(false);
-            case ix_SparseBranchPtr:
-                auto branch_ = branch.as!(SparseBranch*);
-                if (_subCounter + 1 == branch_.subCount) { _subsEmpty = true; } else { ++_subCounter; }
-                break;
-            case ix_DenseBranchPtr:
-                auto branch_ = branch.as!(DenseBranch*);
-                _subsEmpty = !branch_.findSubNodeAtIx(_subCounter + 1, this._subCounter);
-                break;
-            }
-        }
-
-    private:
-        Branch branch;          // branch part of range
-        Leaf1Range leaf1Range;  // range of direct leaves
-
-        UIx _subCounter; // `Branch`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
-        UIx _cachedFrontIx;
-
-        bool _frontAtLeaf1;   // `true` iff front is currently at a leaf1 element
-        bool _subsEmpty;      // `true` iff no sub-nodes exists
-    }
-
-    /** Leaf1 Range (Iterator). */
-    private static struct Leaf1Range
-    {
-        this(Leaf1!Value leaf1)
-        {
-            this.leaf1 = leaf1;
-            bool empty;
-            this._ix = firstIx(empty);
-            if (empty)
-            {
-                this.leaf1 = null;
-            }
-        }
-
-        @safe pure nothrow:
-
-        /** Get first index in current subkey. */
-        UIx front() const
-        {
-            assert(!empty);
-            final switch (leaf1.typeIx) with (Leaf1!Value.Ix)
-            {
-            case undefined:
-                assert(false);
-            case ix_HeptLeaf1:
-                static if (hasValue)
+                else                // both non-empty
                 {
-                    assert(false, "HeptLeaf1 cannot store a value");
+                    const leaf1Front = leaf1Range.front;
+                    if (leaf1Front <= subFrontIx) // `a` before `ab`
+                    {
+                        _cachedFrontIx = leaf1Front;
+                        _frontAtLeaf1 = true;
+                    }
+                    else
+                    {
+                        _cachedFrontIx = subFrontIx;
+                        _frontAtLeaf1 = false;
+                    }
                 }
-                else
-                {
-                    return UIx(leaf1.as!(HeptLeaf1).keys[_ix]);
-                }
-            case ix_SparseLeaf1Ptr:
-                return UIx(leaf1.as!(SparseLeaf1!Value*).ixs[_ix]);
-            case ix_DenseLeaf1Ptr:
-                return _ix;
             }
+
+            private void popBranchFront()
+            {
+                // TODO move all calls to Branch-specific members popFront()
+                final switch (branch.typeIx) with (Branch.Ix)
+                {
+                case undefined: assert(false);
+                case ix_SparseBranchPtr:
+                    auto branch_ = branch.as!(SparseBranch*);
+                    if (_subCounter + 1 == branch_.subCount) { _subsEmpty = true; } else { ++_subCounter; }
+                    break;
+                case ix_DenseBranchPtr:
+                    auto branch_ = branch.as!(DenseBranch*);
+                    _subsEmpty = !branch_.findSubNodeAtIx(_subCounter + 1, this._subCounter);
+                    break;
+                }
+            }
+
+        private:
+            Branch branch;          // branch part of range
+            Leaf1Range leaf1Range;  // range of direct leaves
+
+            UIx _subCounter; // `Branch`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
+            UIx _cachedFrontIx;
+
+            bool _frontAtLeaf1;   // `true` iff front is currently at a leaf1 element
+            bool _subsEmpty;      // `true` iff no sub-nodes exists
         }
 
-        static if (hasValue)
+        /** Leaf1 Range (Iterator). */
+        private static struct Leaf1Range
         {
-            Value frontValue() const
+            this(Leaf1!Value leaf1)
+            {
+                this.leaf1 = leaf1;
+                bool empty;
+                this._ix = firstIx(empty);
+                if (empty)
+                {
+                    this.leaf1 = null;
+                }
+            }
+
+            @safe pure nothrow:
+
+            /** Get first index in current subkey. */
+            UIx front() const
             {
                 assert(!empty);
                 final switch (leaf1.typeIx) with (Leaf1!Value.Ix)
@@ -1203,201 +1180,224 @@ struct RawRadixTree(Value = void)
                 case undefined:
                     assert(false);
                 case ix_HeptLeaf1:
-                    assert(false, "HeptLeaf1 cannot store a value");
+                    static if (hasValue)
+                    {
+                        assert(false, "HeptLeaf1 cannot store a value");
+                    }
+                    else
+                    {
+                        return UIx(leaf1.as!(HeptLeaf1).keys[_ix]);
+                    }
                 case ix_SparseLeaf1Ptr:
-                    return leaf1.as!(SparseLeaf1!Value*).values[_ix];
+                    return UIx(leaf1.as!(SparseLeaf1!Value*).ixs[_ix]);
                 case ix_DenseLeaf1Ptr:
-                    return leaf1.as!(DenseLeaf1!Value*).values[_ix];
+                    return _ix;
                 }
             }
-        }
 
-        bool empty() const @nogc { return leaf1.isNull; }
-
-        /** Pop front element.
-         */
-        void popFront()
-        {
-            assert(!empty);
-
-            // TODO move all calls to leaf1-specific members popFront()
-            final switch (leaf1.typeIx) with (Leaf1!Value.Ix)
+            static if (hasValue)
             {
-            case undefined: assert(false);
-            case ix_HeptLeaf1:
-                static if (hasValue)
+                Value frontValue() const
                 {
-                    assert(false, "HeptLeaf1 cannot store a value");
+                    assert(!empty);
+                    final switch (leaf1.typeIx) with (Leaf1!Value.Ix)
+                    {
+                    case undefined:
+                        assert(false);
+                    case ix_HeptLeaf1:
+                        assert(false, "HeptLeaf1 cannot store a value");
+                    case ix_SparseLeaf1Ptr:
+                        return leaf1.as!(SparseLeaf1!Value*).values[_ix];
+                    case ix_DenseLeaf1Ptr:
+                        return leaf1.as!(DenseLeaf1!Value*).values[_ix];
+                    }
                 }
-                else
+            }
+
+            bool empty() const @nogc { return leaf1.isNull; }
+
+            /** Pop front element.
+             */
+            void popFront()
+            {
+                assert(!empty);
+
+                // TODO move all calls to leaf1-specific members popFront()
+                final switch (leaf1.typeIx) with (Leaf1!Value.Ix)
                 {
-                    auto leaf_ = leaf1.as!(HeptLeaf1);
-                    if (_ix + 1 == leaf_.keys.length) { leaf1 = null; } else { ++_ix; }
+                case undefined: assert(false);
+                case ix_HeptLeaf1:
+                    static if (hasValue)
+                    {
+                        assert(false, "HeptLeaf1 cannot store a value");
+                    }
+                    else
+                    {
+                        auto leaf_ = leaf1.as!(HeptLeaf1);
+                        if (_ix + 1 == leaf_.keys.length) { leaf1 = null; } else { ++_ix; }
+                        break;
+                    }
+                case ix_SparseLeaf1Ptr:
+                    auto leaf_ = leaf1.as!(SparseLeaf1!Value*);
+                    if (_ix + 1 == leaf_.length) { leaf1 = null; } else { ++_ix; }
+                    break;
+                case ix_DenseLeaf1Ptr:
+                    auto leaf_ = leaf1.as!(DenseLeaf1!Value*);
+                    if (!leaf_.tryFindNextSetBitIx(_ix, _ix))
+                    {
+                        leaf1 = null;
+                    }
                     break;
                 }
-            case ix_SparseLeaf1Ptr:
-                auto leaf_ = leaf1.as!(SparseLeaf1!Value*);
-                if (_ix + 1 == leaf_.length) { leaf1 = null; } else { ++_ix; }
-                break;
-            case ix_DenseLeaf1Ptr:
-                auto leaf_ = leaf1.as!(DenseLeaf1!Value*);
-                if (!leaf_.tryFindNextSetBitIx(_ix, _ix))
-                {
-                    leaf1 = null;
-                }
-                break;
             }
-        }
 
-        static if (hasValue)
-        {
-            auto ref value() inout
+            static if (hasValue)
+            {
+                auto ref value() inout
+                {
+                    final switch (leaf1.typeIx) with (Leaf1!Value.Ix)
+                    {
+                    case undefined: assert(false);
+                    case ix_HeptLeaf1: assert(false, "HeptLeaf1 cannot store a value");
+                    case ix_SparseLeaf1Ptr: return leaf1.as!(SparseLeaf1!Value*).values[_ix];
+                    case ix_DenseLeaf1Ptr: return leaf1.as!(DenseLeaf1!Value*).values[_ix];
+                    }
+                }
+            }
+
+            private UIx firstIx(out bool empty) const
             {
                 final switch (leaf1.typeIx) with (Leaf1!Value.Ix)
                 {
                 case undefined: assert(false);
-                case ix_HeptLeaf1: assert(false, "HeptLeaf1 cannot store a value");
-                case ix_SparseLeaf1Ptr: return leaf1.as!(SparseLeaf1!Value*).values[_ix];
-                case ix_DenseLeaf1Ptr: return leaf1.as!(DenseLeaf1!Value*).values[_ix];
-                }
-            }
-        }
-
-        private UIx firstIx(out bool empty) const
-        {
-            final switch (leaf1.typeIx) with (Leaf1!Value.Ix)
-            {
-            case undefined: assert(false);
-            case ix_HeptLeaf1:
-                static if (hasValue)
-                {
-                    assert(false, "HeptLeaf1 cannot store a value");
-                }
-                else
-                {
+                case ix_HeptLeaf1:
+                    static if (hasValue)
+                    {
+                        assert(false, "HeptLeaf1 cannot store a value");
+                    }
+                    else
+                    {
+                        return UIx(0);           // always first
+                    }
+                case ix_SparseLeaf1Ptr:
+                    auto leaf_ = leaf1.as!(SparseLeaf1!Value*);
+                    empty = leaf_.empty;
                     return UIx(0);           // always first
+                case ix_DenseLeaf1Ptr:
+                    auto leaf_ = leaf1.as!(DenseLeaf1!Value*);
+                    UIx nextIx;
+                    const bool hit = leaf_.tryFindSetBitIx(UIx(0), nextIx);
+                    assert(hit);
+                    return nextIx;
                 }
-            case ix_SparseLeaf1Ptr:
-                auto leaf_ = leaf1.as!(SparseLeaf1!Value*);
-                empty = leaf_.empty;
-                return UIx(0);           // always first
-            case ix_DenseLeaf1Ptr:
-                auto leaf_ = leaf1.as!(DenseLeaf1!Value*);
-                UIx nextIx;
-                const bool hit = leaf_.tryFindSetBitIx(UIx(0), nextIx);
-                assert(hit);
-                return nextIx;
             }
+
+        private:
+            Leaf1!Value leaf1; // TODO Use Leaf1!Value-WordVariant when it includes non-Value leaf1 types
+            UIx _ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
         }
 
-    private:
-        Leaf1!Value leaf1; // TODO Use Leaf1!Value-WordVariant when it includes non-Value leaf1 types
-        UIx _ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
-    }
-
-    /** Leaf Value Range (Iterator). */
-    private static struct LeafNRange
-    {
-        this(Node leaf)
+        /** Leaf Value Range (Iterator). */
+        private static struct LeafNRange
         {
-            this.leaf = leaf;
-
-            bool emptied;
-            this.ix = firstIx(emptied);
-            if (emptied)
+            this(Node leaf)
             {
-                this.leaf = null;
+                this.leaf = leaf;
+
+                bool emptied;
+                this.ix = firstIx(emptied);
+                if (emptied)
+                {
+                    this.leaf = null;
+                }
             }
-        }
 
-        @safe pure nothrow:
+            @safe pure nothrow:
 
-        private UIx firstIx(out bool emptied) const
-        {
-            switch (leaf.typeIx) with (Node.Ix)
+            private UIx firstIx(out bool emptied) const
             {
-            case undefined: assert(false);
-            case ix_OneLeafMax7:
-            case ix_TwoLeaf3:
-            case ix_TriLeaf2:
-            case ix_HeptLeaf1:
-                return UIx(0);           // always first
-            case ix_SparseLeaf1Ptr:
-                const leaf_ = leaf.as!(SparseLeaf1!Value*);
-                emptied = leaf_.empty;
-                return UIx(0);           // always first
-            case ix_DenseLeaf1Ptr:
-                const leaf_ = leaf.as!(DenseLeaf1!Value*);
-                UIx nextIx;
-                const bool hit = leaf_.tryFindSetBitIx(UIx(0), nextIx);
-                assert(hit);
-                return nextIx;
-            default: assert(false, "Unsupported Node type");
+                switch (leaf.typeIx) with (Node.Ix)
+                {
+                case undefined: assert(false);
+                case ix_OneLeafMax7:
+                case ix_TwoLeaf3:
+                case ix_TriLeaf2:
+                case ix_HeptLeaf1:
+                    return UIx(0);           // always first
+                case ix_SparseLeaf1Ptr:
+                    const leaf_ = leaf.as!(SparseLeaf1!Value*);
+                    emptied = leaf_.empty;
+                    return UIx(0);           // always first
+                case ix_DenseLeaf1Ptr:
+                    const leaf_ = leaf.as!(DenseLeaf1!Value*);
+                    UIx nextIx;
+                    const bool hit = leaf_.tryFindSetBitIx(UIx(0), nextIx);
+                    assert(hit);
+                    return nextIx;
+                default: assert(false, "Unsupported Node type");
+                }
             }
-        }
 
-        /** Get current subkey. */
-        Ix[] frontIxs()
-        {
-            assert(!empty);
-            switch (leaf.typeIx) with (Node.Ix)
+            /** Get current subkey. */
+            Ix[] frontIxs()
             {
-            case undefined:
-                assert(false);
+                assert(!empty);
+                switch (leaf.typeIx) with (Node.Ix)
+                {
+                case undefined:
+                    assert(false);
 
-            case ix_OneLeafMax7:
-                assert(ix == 0);
-                return leaf.as!(OneLeafMax7).key;
-            case ix_TwoLeaf3:
-                return leaf.as!(TwoLeaf3).keys[ix][];
-            case ix_TriLeaf2:
-                return leaf.as!(TriLeaf2).keys[ix][];
-            case ix_HeptLeaf1:
-                return [leaf.as!(HeptLeaf1).keys[ix]];
+                case ix_OneLeafMax7:
+                    assert(ix == 0);
+                    return leaf.as!(OneLeafMax7).key;
+                case ix_TwoLeaf3:
+                    return leaf.as!(TwoLeaf3).keys[ix][];
+                case ix_TriLeaf2:
+                    return leaf.as!(TriLeaf2).keys[ix][];
+                case ix_HeptLeaf1:
+                    return [leaf.as!(HeptLeaf1).keys[ix]];
 
-            case ix_SparseLeaf1Ptr:
-                return [leaf.as!(SparseLeaf1!Value*).ixs[ix]];
-            case ix_DenseLeaf1Ptr:
-                return [Ix(ix)];
+                case ix_SparseLeaf1Ptr:
+                    return [leaf.as!(SparseLeaf1!Value*).ixs[ix]];
+                case ix_DenseLeaf1Ptr:
+                    return [Ix(ix)];
 
-            default: assert(false, "Unsupported Node type");
+                default: assert(false, "Unsupported Node type");
+                }
             }
-        }
 
-        /** Get first index in current subkey. */
-        UIx frontIx()
-        {
-            assert(!empty);
-            switch (leaf.typeIx) with (Node.Ix)
+            /** Get first index in current subkey. */
+            UIx frontIx()
             {
-            case undefined:
-                assert(false);
+                assert(!empty);
+                switch (leaf.typeIx) with (Node.Ix)
+                {
+                case undefined:
+                    assert(false);
 
-            case ix_OneLeafMax7:
-                assert(ix == 0);
-                return UIx(leaf.as!(OneLeafMax7).key[0]);
-            case ix_TwoLeaf3:
-                return UIx(leaf.as!(TwoLeaf3).keys[ix][0]);
-            case ix_TriLeaf2:
-                return UIx(leaf.as!(TriLeaf2).keys[ix][0]);
-            case ix_HeptLeaf1:
-                return UIx(leaf.as!(HeptLeaf1).keys[ix]);
+                case ix_OneLeafMax7:
+                    assert(ix == 0);
+                    return UIx(leaf.as!(OneLeafMax7).key[0]);
+                case ix_TwoLeaf3:
+                    return UIx(leaf.as!(TwoLeaf3).keys[ix][0]);
+                case ix_TriLeaf2:
+                    return UIx(leaf.as!(TriLeaf2).keys[ix][0]);
+                case ix_HeptLeaf1:
+                    return UIx(leaf.as!(HeptLeaf1).keys[ix]);
 
-            case ix_SparseLeaf1Ptr:
-                return UIx(leaf.as!(SparseLeaf1!Value*).ixs[ix]);
-            case ix_DenseLeaf1Ptr:
-                return ix;
+                case ix_SparseLeaf1Ptr:
+                    return UIx(leaf.as!(SparseLeaf1!Value*).ixs[ix]);
+                case ix_DenseLeaf1Ptr:
+                    return ix;
 
-            default: assert(false, "Unsupported Node type");
+                default: assert(false, "Unsupported Node type");
+                }
             }
-        }
 
-        void appendFrontIxsToKey(ref UnsortedCopyingArray!Ix key) const @nogc
-        {
-            assert(!empty);
-            with (Node.Ix)
+            void appendFrontIxsToKey(ref UnsortedCopyingArray!Ix key) const @nogc
             {
-                switch (leaf.typeIx)
+                assert(!empty);
+                switch (leaf.typeIx) with (Node.Ix)
                 {
                 case undefined:
                     assert(false);
@@ -1426,20 +1426,17 @@ struct RawRadixTree(Value = void)
                 default: assert(false, "Unsupported Node type");
                 }
             }
-        }
 
-        pragma(inline) bool empty() const @nogc { return !leaf; }
+            pragma(inline) bool empty() const @nogc { return !leaf; }
 
-        pragma(inline) void makeEmpty() @nogc { leaf = null; }
+            pragma(inline) void makeEmpty() @nogc { leaf = null; }
 
-        /** Pop front element. */
-        void popFront()
-        {
-            assert(!empty);
-            with (Node.Ix)
+            /** Pop front element. */
+            void popFront()
             {
+                assert(!empty);
                 // TODO move all calls to leaf-specific members popFront()
-                switch (leaf.typeIx)
+                switch (leaf.typeIx) with (Node.Ix)
                 {
                 case undefined:
                     assert(false);
@@ -1472,15 +1469,12 @@ struct RawRadixTree(Value = void)
                 default: assert(false, "Unsupported Node type");
                 }
             }
-        }
 
-        static if (hasValue)
-        {
-            auto ref value() inout
+            static if (hasValue)
             {
-                with (Node.Ix)
+                auto ref value() inout
                 {
-                    switch (leaf.typeIx)
+                    switch (leaf.typeIx) with (Node.Ix)
                     {
                     case ix_SparseLeaf1Ptr: return leaf.as!(SparseLeaf1!Value*).values[ix];
                     case ix_DenseLeaf1Ptr: return leaf.as!(DenseLeaf1!Value*).values[ix];
@@ -1488,2248 +1482,2248 @@ struct RawRadixTree(Value = void)
                     }
                 }
             }
+
+        private:
+            Node leaf;              // TODO Use Leaf-WordVariant when it includes non-Value leaf types
+            UIx ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
         }
 
-    private:
-        Node leaf;              // TODO Use Leaf-WordVariant when it includes non-Value leaf types
-        UIx ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
-    }
-
-    /** Ordered Set of BranchRanges. */
-    private static struct BranchRanges
-    {
-        static if (hasValue)
+        /** Ordered Set of BranchRanges. */
+        private static struct BranchRanges
         {
-            bool appendFrontIxsToKey(ref UnsortedCopyingArray!Ix key, ref Value value) const
-            {
-                foreach (const ref branchRange; _bRanges)
-                {
-                    branchRange.appendFrontIxsToKey(key);
-                    if (branchRange.atLeaf1)
-                    {
-                        value = branchRange.leaf1Range.frontValue;
-                        return true; // key and value are both complete
-                    }
-                }
-                return false;   // only key is partially complete
-            }
-        }
-        else
-        {
-            bool appendFrontIxsToKey(ref UnsortedCopyingArray!Ix key) const
-            {
-                foreach (const ref branchRange; _bRanges)
-                {
-                    branchRange.appendFrontIxsToKey(key);
-                    if (branchRange.atLeaf1)
-                    {
-                        return true; // key is complete
-                    }
-                }
-                return false;   // key is not complete
-            }
-        }
-        size_t get1DepthAt(size_t depth) const
-        {
-            foreach (const i, ref branchRange; _bRanges[depth .. $])
-            {
-                if (branchRange.atLeaf1) { return depth + i; }
-            }
-            return typeof(_branch1Depth).max;
-        }
-
-        private void updateLeaf1AtDepth(size_t depth)
-        {
-            if (_bRanges[depth].atLeaf1)
-            {
-                if (_branch1Depth == typeof(_branch1Depth).max) // if not yet defined
-                {
-                    _branch1Depth = min(depth, _branch1Depth);
-                }
-            }
-            assert(_branch1Depth == get1DepthAt(0));
-        }
-
-    pragma(inline):
-
-        size_t getNext1DepthAt() const
-        {
-            return get1DepthAt(_branch1Depth + 1);
-        }
-
-        bool hasBranch1Front() const
-        {
-            return _branch1Depth != typeof(_branch1Depth).max;
-        }
-
-        void popBranch1Front()
-        {
-            // _branchesKeyPrefix.popBackN(_bRanges.back);
-            _bRanges[_branch1Depth].popFront();
-        }
-
-        bool emptyBranch1() const
-        {
-            return _bRanges[_branch1Depth].empty;
-        }
-
-        bool atLeaf1() const
-        {
-            return _bRanges[_branch1Depth].atLeaf1;
-        }
-
-        void shrinkTo(size_t length)
-        {
-            // turn emptyness exception into an assert like ranges do
-            // size_t suffixLength = 0;
-            // foreach (const ref branchRange; _bRanges[$ - length .. $]) // TODO reverse isearch
-            // {
-            //     suffixLength += branchRange.prefixLength + 1;
-            // }
-            // _branchesKeyPrefix.popBackN(suffixLength);
-            _bRanges.shrinkTo(length);
-        }
-
-        void push(ref BranchRange branchRange)
-        {
-            // branchRange.appendFrontIxsToKey(_branchesKeyPrefix);
-            _bRanges.pushBack(branchRange);
-        }
-
-        size_t branchCount() const @safe pure nothrow @nogc
-        {
-            return _bRanges.length;
-        }
-
-        void pop()
-        {
-            // _branchesKeyPrefix.popBackN(_bRanges.back.prefixLength + 1);
-            _bRanges.popBack();
-        }
-
-        ref BranchRange bottom()
-        {
-            return _bRanges.back;
-        }
-
-        private void verifyBranch1Depth()
-        {
-            assert(_branch1Depth == get1DepthAt(0));
-        }
-
-        void resetBranch1Depth()
-        {
-            _branch1Depth = typeof(_branch1Depth).max;
-        }
-
-    private:
-        UnsortedCopyingArray!BranchRange _bRanges;
-        // UnsortedCopyingArray!Ix _branchesKeyPrefix;
-
-        // index to first branchrange in `_bRanges` that is currently on a leaf1
-        // or `typeof.max` if undefined
-        size_t _branch1Depth = size_t.max;
-    }
-
-    /** Forward (Left) Single-Directional Range over Tree. */
-    private static struct FrontRange
-    {
-        @safe pure nothrow @nogc:
-
-        this(Node root)
-        {
-            if (root)
-            {
-                diveAndVisitTreeUnder(root, 0);
-                cacheFront();
-            }
-        }
-
-        void popFront()
-        {
-            debug branchRanges.verifyBranch1Depth();
-
-            if (branchRanges.hasBranch1Front) // if we're currently at leaf1 of branch
-            {
-                popFrontInBranchLeaf1();
-            }
-            else                // if bottommost leaf should be popped
-            {
-                leafNRange.popFront();
-                if (leafNRange.empty)
-                {
-                    postPopTreeUpdate();
-                }
-            }
-
-            if (!empty) { cacheFront(); }
-        }
-
-        private void popFrontInBranchLeaf1() // TODO move to member of BranchRanges
-        {
-            branchRanges.popBranch1Front();
-            if (branchRanges.emptyBranch1)
-            {
-                branchRanges.shrinkTo(branchRanges._branch1Depth); // remove `branchRange` and all others below
-                branchRanges.resetBranch1Depth();
-                postPopTreeUpdate();
-            }
-            else if (!branchRanges.atLeaf1) // if not at leaf
-            {
-                branchRanges._branch1Depth = branchRanges.getNext1DepthAt;
-            }
-            else                // still at leaf
-            {
-                // nothing needed
-            }
-        }
-
-        private void cacheFront()
-        {
-            _cachedFrontKey.shrinkTo(0); // not clear() because we want to keep existing allocation
-
-            // branches
             static if (hasValue)
             {
-                if (branchRanges.appendFrontIxsToKey(_cachedFrontKey,
-                                                     _cachedFrontValue)) { return; }
+                bool appendFrontIxsToKey(ref UnsortedCopyingArray!Ix key, ref Value value) const
+                {
+                    foreach (const ref branchRange; _bRanges)
+                    {
+                        branchRange.appendFrontIxsToKey(key);
+                        if (branchRange.atLeaf1)
+                        {
+                            value = branchRange.leaf1Range.frontValue;
+                            return true; // key and value are both complete
+                        }
+                    }
+                    return false;   // only key is partially complete
+                }
             }
             else
             {
-                if (branchRanges.appendFrontIxsToKey(_cachedFrontKey)) { return; }
+                bool appendFrontIxsToKey(ref UnsortedCopyingArray!Ix key) const
+                {
+                    foreach (const ref branchRange; _bRanges)
+                    {
+                        branchRange.appendFrontIxsToKey(key);
+                        if (branchRange.atLeaf1)
+                        {
+                            return true; // key is complete
+                        }
+                    }
+                    return false;   // key is not complete
+                }
+            }
+            size_t get1DepthAt(size_t depth) const
+            {
+                foreach (const i, ref branchRange; _bRanges[depth .. $])
+                {
+                    if (branchRange.atLeaf1) { return depth + i; }
+                }
+                return typeof(_branch1Depth).max;
             }
 
-            // leaf
-            if (!leafNRange.empty)
+            private void updateLeaf1AtDepth(size_t depth)
             {
-                leafNRange.appendFrontIxsToKey(_cachedFrontKey);
+                if (_bRanges[depth].atLeaf1)
+                {
+                    if (_branch1Depth == typeof(_branch1Depth).max) // if not yet defined
+                    {
+                        _branch1Depth = min(depth, _branch1Depth);
+                    }
+                }
+                assert(_branch1Depth == get1DepthAt(0));
+            }
+
+        pragma(inline):
+
+            size_t getNext1DepthAt() const
+            {
+                return get1DepthAt(_branch1Depth + 1);
+            }
+
+            bool hasBranch1Front() const
+            {
+                return _branch1Depth != typeof(_branch1Depth).max;
+            }
+
+            void popBranch1Front()
+            {
+                // _branchesKeyPrefix.popBackN(_bRanges.back);
+                _bRanges[_branch1Depth].popFront();
+            }
+
+            bool emptyBranch1() const
+            {
+                return _bRanges[_branch1Depth].empty;
+            }
+
+            bool atLeaf1() const
+            {
+                return _bRanges[_branch1Depth].atLeaf1;
+            }
+
+            void shrinkTo(size_t length)
+            {
+                // turn emptyness exception into an assert like ranges do
+                // size_t suffixLength = 0;
+                // foreach (const ref branchRange; _bRanges[$ - length .. $]) // TODO reverse isearch
+                // {
+                //     suffixLength += branchRange.prefixLength + 1;
+                // }
+                // _branchesKeyPrefix.popBackN(suffixLength);
+                _bRanges.shrinkTo(length);
+            }
+
+            void push(ref BranchRange branchRange)
+            {
+                // branchRange.appendFrontIxsToKey(_branchesKeyPrefix);
+                _bRanges.pushBack(branchRange);
+            }
+
+            size_t branchCount() const @safe pure nothrow @nogc
+            {
+                return _bRanges.length;
+            }
+
+            void pop()
+            {
+                // _branchesKeyPrefix.popBackN(_bRanges.back.prefixLength + 1);
+                _bRanges.popBack();
+            }
+
+            ref BranchRange bottom()
+            {
+                return _bRanges.back;
+            }
+
+            private void verifyBranch1Depth()
+            {
+                assert(_branch1Depth == get1DepthAt(0));
+            }
+
+            void resetBranch1Depth()
+            {
+                _branch1Depth = typeof(_branch1Depth).max;
+            }
+
+        private:
+            UnsortedCopyingArray!BranchRange _bRanges;
+            // UnsortedCopyingArray!Ix _branchesKeyPrefix;
+
+            // index to first branchrange in `_bRanges` that is currently on a leaf1
+            // or `typeof.max` if undefined
+            size_t _branch1Depth = size_t.max;
+        }
+
+        /** Forward (Left) Single-Directional Range over Tree. */
+        private static struct FrontRange
+        {
+            @safe pure nothrow @nogc:
+
+            this(Node root)
+            {
+                if (root)
+                {
+                    diveAndVisitTreeUnder(root, 0);
+                    cacheFront();
+                }
+            }
+
+            void popFront()
+            {
+                debug branchRanges.verifyBranch1Depth();
+
+                if (branchRanges.hasBranch1Front) // if we're currently at leaf1 of branch
+                {
+                    popFrontInBranchLeaf1();
+                }
+                else                // if bottommost leaf should be popped
+                {
+                    leafNRange.popFront();
+                    if (leafNRange.empty)
+                    {
+                        postPopTreeUpdate();
+                    }
+                }
+
+                if (!empty) { cacheFront(); }
+            }
+
+            private void popFrontInBranchLeaf1() // TODO move to member of BranchRanges
+            {
+                branchRanges.popBranch1Front();
+                if (branchRanges.emptyBranch1)
+                {
+                    branchRanges.shrinkTo(branchRanges._branch1Depth); // remove `branchRange` and all others below
+                    branchRanges.resetBranch1Depth();
+                    postPopTreeUpdate();
+                }
+                else if (!branchRanges.atLeaf1) // if not at leaf
+                {
+                    branchRanges._branch1Depth = branchRanges.getNext1DepthAt;
+                }
+                else                // still at leaf
+                {
+                    // nothing needed
+                }
+            }
+
+            private void cacheFront()
+            {
+                _cachedFrontKey.shrinkTo(0); // not clear() because we want to keep existing allocation
+
+                // branches
                 static if (hasValue)
                 {
-                    _cachedFrontValue = leafNRange.value; // last should be leaf containing value
-                }
-            }
-        }
-
-        // Go upwards and iterate forward in parents.
-        private void postPopTreeUpdate()
-        {
-            while (branchRanges.branchCount)
-            {
-                branchRanges.bottom.popFront();
-                if (branchRanges.bottom.empty)
-                {
-                    branchRanges.pop();
-                }
-                else            // if not empty
-                {
-                    if (branchRanges.bottom.atLeaf1)
-                    {
-                        branchRanges._branch1Depth = min(branchRanges.branchCount - 1,
-                                                         branchRanges._branch1Depth);
-                    }
-                    break;      // branchRanges.bottom is not empty so break
-                }
-            }
-            if (branchRanges.branchCount &&
-                !branchRanges.bottom.subsEmpty) // if any sub nodes
-            {
-                diveAndVisitTreeUnder(branchRanges.bottom.subFrontNode,
-                                      branchRanges.branchCount); // visit them
-            }
-        }
-
-        /** Find ranges of branches and leaf for all nodes under tree `root`. */
-        private void diveAndVisitTreeUnder(Node root, size_t depth)
-        {
-            Node curr = root;
-            Node next;
-            do
-            {
-                final switch (curr.typeIx) with (Node.Ix)
-                {
-                case undefined: assert(false);
-                case ix_OneLeafMax7:
-                case ix_TwoLeaf3:
-                case ix_TriLeaf2:
-                case ix_HeptLeaf1:
-                case ix_SparseLeaf1Ptr:
-                case ix_DenseLeaf1Ptr:
-                    assert(leafNRange.empty);
-
-                    leafNRange = LeafNRange(curr);
-
-                    next = null; // we're done diving
-                    break;
-                case ix_SparseBranchPtr:
-                    auto curr_ = curr.as!(SparseBranch*);
-
-                    auto currRange = BranchRange(curr_);
-                    branchRanges.push(currRange);
-                    branchRanges.updateLeaf1AtDepth(depth);
-
-                    next = (curr_.subCount) ? curr_.firstSubNode : Node.init;
-                    break;
-                case ix_DenseBranchPtr:
-                    auto curr_ = curr.as!(DenseBranch*);
-
-                    auto currRange = BranchRange(curr_);
-                    branchRanges.push(currRange);
-                    branchRanges.updateLeaf1AtDepth(depth);
-
-                    next = branchRanges.bottom.subsEmpty ? Node.init : branchRanges.bottom.subFrontNode;
-                    break;
-                }
-                curr = next;
-                ++depth;
-            }
-            while (next);
-        }
-
-        pragma(inline):
-
-        /** Check if empty. */
-        bool empty() const
-        {
-            return (leafNRange.empty &&
-                    branchRanges.branchCount == 0);
-        }
-
-        /** Get front key. */
-        auto frontKey() const { return _cachedFrontKey[]; } // TODO DIP-1000 scope
-
-        static if (hasValue)
-        {
-            /** Get front value. */
-            auto frontValue() const { return _cachedFrontValue; }
-        }
-
-    private:
-        LeafNRange leafNRange;
-        BranchRanges branchRanges;
-
-        // cache
-        UnsortedCopyingArray!Ix _cachedFrontKey; // copy of front key
-        static if (hasValue)
-        {
-            Value _cachedFrontValue; // copy of front value
-        }
-    }
-
-    /** Bi-Directional Range over Tree.
-        Fulfills `isBidirectionalRange`.
-    */
-    private static struct Range
-    {
-        import std.algorithm : startsWith;
-
-        @safe pure nothrow @nogc:
-        pragma(inline):
-
-        this(Node root, uint* treeRangeCounter, UKey keyPrefix)
-        {
-            this._keyPrefix = keyPrefix;
-            assert(treeRangeCounter, "Pointer to range counter is null");
-
-            this._treeRangeCounter = treeRangeCounter;
-            (*this._treeRangeCounter)++ ;
-
-            this._front = FrontRange(root);
-            // this._back = FrontRange(root);
-
-            if (!empty &&
-                !_front.frontKey.startsWith(_keyPrefix))
-            {
-                popFront();
-            }
-        }
-
-        this(this)
-        {
-            assert(*_treeRangeCounter != (*_treeRangeCounter).max, "Range counter has reached maximum");
-            ++(*_treeRangeCounter);
-        }
-
-        ~this()
-        {
-            assert(*_treeRangeCounter != 0, "Range counter cannot be decremented because it's zero");
-            --(*_treeRangeCounter);
-        }
-
-        @property auto save() { return this; }
-
-        bool empty() const
-        {
-            return _front.empty; // TODO _front == _back;
-        }
-
-        auto lowKey() const { return _front.frontKey[_keyPrefix.length .. $]; }
-        auto highKey() const { return _back.frontKey[_keyPrefix.length .. $]; }
-
-        void popFront()
-        {
-            assert(!empty);
-            do { _front.popFront(); }
-            while (!empty &&
-                   !_front.frontKey.startsWith(_keyPrefix));
-        }
-
-        void popBack()
-        {
-            assert(!empty);
-            do { _back.popFront(); }
-            while (!empty &&
-                   !_back.frontKey.startsWith(_keyPrefix));
-        }
-
-    private:
-        FrontRange _front;
-        FrontRange _back;
-        UKey _keyPrefix;
-        uint* _treeRangeCounter;
-    }
-
-    pragma(inline) Range opSlice() @trusted pure nothrow
-    {
-        return Range(this._root, &this._rangeCounter, []);
-    }
-
-    // static assert(isBidirectionalRange!Range);
-
-    /** Sparse-Branch population histogram.
-    */
-    alias SparseLeaf1_PopHist = size_t[radix];
-
-    /** 256-Branch population histogram.
-     */
-    alias DenseLeaf1_PopHist = size_t[radix];
-
-    /** 4-Branch population histogram.
-        Index maps to population with value range (0 .. 4).
-    */
-    alias SparseBranch_PopHist = size_t[SparseBranch.maxCapacity + 1];
-
-    /** radix-Branch population histogram.
-        Index maps to population with value range (0 .. `radix`).
-    */
-    alias DenseBranch_PopHist = size_t[radix + 1];
-
-    /** Tree Population and Memory-Usage Statistics. */
-    struct Stats
-    {
-        SparseLeaf1_PopHist popHist_SparseLeaf1;
-        DenseLeaf1_PopHist popHist_DenseLeaf1;
-        SparseBranch_PopHist popHist_SparseBranch; // packed branch population histogram
-        DenseBranch_PopHist popHist_DenseBranch; // full branch population histogram
-
-        import typecons_ex : IndexedArray;
-
-        /** Maps `Node` type/index `Ix` to population.
-
-            Used to calculate complete tree memory usage, excluding allocator
-            overhead typically via `malloc` and `calloc`.
-         */
-        IndexedArray!(size_t, Node.Ix) popByNodeType;
-        static assert(is(typeof(popByNodeType).Index == Node.Ix));
-
-        IndexedArray!(size_t, Leaf1!Value.Ix) popByLeaf1Type;
-        static assert(is(typeof(popByLeaf1Type).Index == Leaf1!Value.Ix));
-
-        /// Number of heap-allocated `Node`s. Should always equal `heapNodeAllocationBalance`.
-        size_t heapNodeCount;
-
-        /// Number of heap-allocated `Leaf`s. Should always equal `heapLeafAllocationBalance`.
-        size_t heapLeafCount;
-
-        size_t sparseBranchAllocatedSizeSum;
-
-        size_t sparseLeaf1AllocatedSizeSum;
-    }
-
-    /** Sparse/Packed dynamically sized branch implemented as variable-length
-        struct.
-    */
-    static private struct SparseBranch
-    {
-        import std.algorithm.sorting : isSorted;
-
-        enum minCapacity = 0; // minimum number of preallocated sub-indexes and sub-nodes
-        enum maxCapacity = 48; // maximum number of preallocated sub-indexes and sub-nodes
-        enum prefixCapacity = 5; // 5, 13, 21, ...
-
-        alias Count = Mod!(maxCapacity + 1);
-
-        @safe pure nothrow:
-
-        pragma(inline) this(size_t subCapacity)
-        {
-            initialize(subCapacity);
-        }
-
-        pragma(inline) this(size_t subCapacity, const Ix[] prefix, Leaf1!Value leaf1)
-        {
-            initialize(subCapacity);
-            this.prefix = prefix;
-            this.leaf1 = leaf1;
-        }
-
-        pragma(inline) this(size_t subCapacity, const Ix[] prefix)
-        {
-            initialize(subCapacity);
-            this.prefix = prefix;
-        }
-
-        pragma(inline) this(size_t subCapacity, Leaf1!Value leaf1)
-        {
-            initialize(subCapacity);
-            this.leaf1 = leaf1;
-        }
-
-        pragma(inline) this(size_t subCapacity, const Ix[] prefix, Sub sub)
-        {
-            assert(subCapacity);
-
-            initialize(subCapacity);
-
-            this.prefix = prefix;
-            this.subCount = 1;
-            this.subIxSlots[0] = sub[0];
-            this.subNodeSlots[0] = sub[1];
-        }
-
-        pragma(inline) this(size_t subCapacity, typeof(this)* rhs)
-        in
-        {
-            assert(subCapacity > rhs.subCapacity);
-            assert(rhs);
-        }
-        body
-        {
-            // these two must be in this order:
-            // 1.
-            move(rhs.leaf1, this.leaf1);
-            debug rhs.leaf1 = typeof(rhs.leaf1).init;
-            this.subCount = rhs.subCount;
-            move(rhs.prefix, this.prefix);
-
-            // 2.
-            initialize(subCapacity);
-
-            // copy variable length part. TODO optimize:
-            this.subIxSlots[0 .. rhs.subCount] = rhs.subIxSlots[0 .. rhs.subCount];
-            this.subNodeSlots[0 .. rhs.subCount] = rhs.subNodeSlots[0 .. rhs.subCount];
-
-            assert(this.subCapacity > rhs.subCapacity);
-        }
-
-        private pragma(inline) void initialize(size_t subCapacity)
-        {
-            // assert(subCapacity != 4);
-            this.subCapacity = subCapacity;
-            debug
-            {
-                // zero-initialize variable-length part
-                subIxSlots[] = Ix.init;
-                subNodeSlots[] = Node.init;
-            }
-        }
-
-        pragma(inline) ~this() @nogc { deinit(); }
-
-        private pragma(inline) void deinit() @nogc { /* nothing for now */ }
-
-        /** Insert `sub`, possibly self-reallocating `this` (into return).
-        */
-        typeof(this)* reconstructingInsert(Sub sub,
-                                           out ModStatus modStatus,
-                                           out size_t index) @trusted
-        {
-            auto next = &this;
-
-            import searching_ex : containsStoreIndex;
-            if (subIxs.containsStoreIndex(sub[0], index))
-            {
-                assert(subIxSlots[index] == sub[0]); // subIxSlots[index] = sub[0];
-                subNodeSlots[index] = sub[1];
-                modStatus = ModStatus.updated;
-                return next;
-            }
-
-            if (full)
-            {
-                if (subCount < maxCapacity) // if we can expand more
-                {
-                    import vla : constructVariableLength;
-                    next = constructVariableLength!(typeof(this))(subCount + 1, &this);
-
-                    this.deinit(); free(&this); // clear `this`. TODO reuse existing helper function in Phobos?
+                    if (branchRanges.appendFrontIxsToKey(_cachedFrontKey,
+                                                         _cachedFrontValue)) { return; }
                 }
                 else
                 {
-                    modStatus = ModStatus.maxCapacityReached; // TODO expand to `DenseBranch`
-                    return next;
+                    if (branchRanges.appendFrontIxsToKey(_cachedFrontKey)) { return; }
                 }
-            }
 
-            next.insertAt(index, sub);
-            modStatus = ModStatus.added;
-            return next;
-        }
-
-        pragma(inline) private void insertAt(size_t index, Sub sub)
-        {
-            assert(index <= subCount);
-            foreach (const i; 0 .. subCount - index) // TODO functionize this loop or reuse memmove:
-            {
-                const iD = subCount - i;
-                const iS = iD - 1;
-                subIxSlots[iD] = subIxSlots[iS];
-                subNodeSlots[iD] = subNodeSlots[iS];
-            }
-            subIxSlots[index] = sub[0]; // set new element
-            subNodeSlots[index] = sub[1]; // set new element
-            ++subCount;
-        }
-
-        inout(Node) subAt(UIx ix) inout
-        {
-            import searching_ex : binarySearch; // need this instead of `SortedRange.contains` because we need the index
-            const hitIndex = subIxSlots[0 .. subCount].binarySearch(ix); // find index where insertion should be made
-            return (hitIndex != typeof(hitIndex).max) ? subNodeSlots[hitIndex] : Node.init;
-        }
-
-        pragma(inline) bool empty() const @nogc { return subCount == 0; }
-        pragma(inline) bool full()  const @nogc { return subCount == subCapacity; }
-
-        pragma(inline) auto ref subIxs()   inout @nogc
-        {
-            import std.algorithm.sorting : assumeSorted;
-            return subIxSlots[0 .. subCount].assumeSorted;
-        }
-
-        pragma(inline) auto ref subNodes() inout @nogc { return subNodeSlots[0 .. subCount]; }
-
-        pragma(inline) Node firstSubNode() @nogc
-        {
-            return subCount ? subNodeSlots[0] : typeof(return).init;
-        }
-
-        /** Get all sub-`Ix` slots, both initialized and uninitialized. */
-        private auto ref subIxSlots() inout @trusted pure nothrow
-        {
-            return (cast(Ix*)(_subNodeSlots0.ptr + subCapacity))[0 .. subCapacity];
-        }
-        /** Get all sub-`Node` slots, both initialized and uninitialized. */
-        private auto ref subNodeSlots() inout @trusted pure nothrow
-        {
-            return _subNodeSlots0.ptr[0 .. subCapacity];
-        }
-
-        /** Append statistics of tree under `this` into `stats`. */
-        void calculate(ref Stats stats) const
-        {
-            size_t count = 0; // number of non-zero sub-nodes
-            foreach (const sub; subNodes)
-            {
-                ++count;
-                sub.calculate!(Value)(stats);
-            }
-            assert(count <= radix);
-            ++stats.popHist_SparseBranch[count]; // TODO type-safe indexing
-
-            stats.sparseBranchAllocatedSizeSum += allocatedSize;
-
-            if (leaf1)
-            {
-                leaf1.calculate!(Value)(stats);
-            }
-        }
-
-        /** Get allocation size (in bytes) needed to hold `length` number of
-            sub-indexes and sub-nodes. */
-        static size_t allocationSizeOfCapacity(size_t capacity) @safe pure nothrow @nogc
-        {
-            return (this.sizeof + // base plus
-                    Node.sizeof*capacity + // actual size of `_subNodeSlots0`
-                    Ix.sizeof*capacity);   // actual size of `_subIxSlots0`
-        }
-
-        /** Get allocated size (in bytes) of `this` including the variable-length part. */
-        size_t allocatedSize() const @safe pure nothrow @nogc
-        {
-            return allocationSizeOfCapacity(subCapacity);
-        }
-
-    private:
-
-        // members in order of decreasing `alignof`:
-        Leaf1!Value leaf1;
-
-        IxsN!prefixCapacity prefix; // prefix common to all `subNodes` (also called edge-label)
-        Count subCount;
-        Count subCapacity;
-        static assert(prefix.sizeof + subCount.sizeof + subCapacity.sizeof == 8); // assert alignment
-
-        // variable-length part
-        Node[0] _subNodeSlots0;
-        Ix[0] _subIxSlots0;     // needs to special alignment
-    }
-
-    static assert(hasVariableLength!SparseBranch);
-    static if (!hasValue) { static assert(SparseBranch.sizeof == 16); }
-
-    /** Dense/Unpacked `radix`-branch with `radix` number of sub-nodes. */
-    static private struct DenseBranch
-    {
-        enum maxCapacity = 256;
-        enum prefixCapacity = 15; // 7, 15, 23, ..., we can afford larger prefix here because DenseBranch is so large
-
-        @safe pure nothrow:
-
-        this(const Ix[] prefix)
-        {
-            this.prefix = prefix;
-        }
-
-        this(const Ix[] prefix, Sub sub)
-        {
-            this(prefix);
-            this.subNodes[sub[0]] = sub[1];
-        }
-
-        this(const Ix[] prefix, Sub subA, Sub subB)
-        {
-            assert(subA[0] != subB[0]); // disjunct indexes
-            assert(subA[1] != subB[1]); // disjunct nodes
-
-            this.subNodes[subA[0]] = subA[1];
-            this.subNodes[subB[0]] = subB[1];
-        }
-
-        this(SparseBranch* rhs)
-        {
-            this.prefix = rhs.prefix;
-
-            // move leaf
-            move(rhs.leaf1, this.leaf1);
-            debug rhs.leaf1 = Leaf1!Value.init; // make reference unique, to be on the safe side
-
-            foreach (const i; 0 .. rhs.subCount) // each sub node. TODO use iota!(Mod!N)
-            {
-                const iN = (cast(ubyte)i).mod!(SparseBranch.maxCapacity);
-                const subIx = UIx(rhs.subIxSlots[iN]);
-                this.subNodes[subIx] = rhs.subNodes[iN];
-                debug rhs.subNodes[iN] = null; // make reference unique, to be on the safe side
-            }
-        }
-
-        /// Number of non-null sub-Nodes.
-        Mod!(radix + 1) subCount() const
-        {
-            typeof(return) count = 0; // number of non-zero sub-nodes
-            foreach (const subNode; subNodes) // TODO why can't we use std.algorithm.count here?
-            {
-                if (subNode) { ++count; }
-            }
-            assert(count <= radix);
-            return count;
-        }
-
-        pragma(inline) bool findSubNodeAtIx(size_t currIx, out UIx nextIx) inout @nogc
-        {
-            import std.algorithm : countUntil;
-            const cnt = subNodes[currIx .. $].countUntil!(subNode => cast(bool)subNode);
-            const bool hit = cnt >= 0;
-            if (hit)
-            {
-                nextIx = Ix(currIx + cnt);
-            }
-            return hit;
-        }
-
-        /** Append statistics of tree under `this` into `stats`. */
-        void calculate(ref Stats stats) const
-        {
-            size_t count = 0; // number of non-zero sub-nodes
-            foreach (const subNode; subNodes)
-            {
-                if (subNode)
+                // leaf
+                if (!leafNRange.empty)
                 {
-                    ++count;
-                    subNode.calculate!(Value)(stats);
-                }
-            }
-            assert(count <= radix);
-            ++stats.popHist_DenseBranch[count]; // TODO type-safe indexing
-
-            if (leaf1)
-            {
-                leaf1.calculate!(Value)(stats);
-            }
-        }
-
-    private:
-        // members in order of decreasing `alignof`:
-        Leaf1!Value leaf1;
-        IxsN!prefixCapacity prefix; // prefix (edge-label) common to all `subNodes`
-        IndexedBy!(Node[radix], UIx) subNodes;
-    }
-
-    static if (false)
-    {
-        pragma(msg, "SparseBranch.sizeof:", SparseBranch.sizeof, " SparseBranch.alignof:", SparseBranch.alignof);
-        pragma(msg, "SparseBranch.subNodes.sizeof:", SparseBranch.subNodes.sizeof, " SparseBranch.subNodes.alignof:", SparseBranch.subNodes.alignof);
-        pragma(msg, "SparseBranch.prefix.sizeof:", SparseBranch.prefix.sizeof, " SparseBranch.prefix.alignof:", SparseBranch.prefix.alignof);
-        pragma(msg, "SparseBranch.subIxs.sizeof:", SparseBranch.subIxs.sizeof, " SparseBranch.subIxs.alignof:", SparseBranch.subIxs.alignof);
-    }
-
-    /// ditto
-    Branch setSub(SparseBranch* curr, UIx subIx, Node subNode) @safe pure nothrow @nogc
-    {
-        // debug if (willFail) { dln("WILL FAIL: subIx:", subIx); }
-        size_t insertionIndex;
-        ModStatus modStatus;
-        curr = curr.reconstructingInsert(Sub(subIx, subNode), modStatus, insertionIndex);
-        if (modStatus == ModStatus.maxCapacityReached) // try insert and if it fails
-        {
-            // we need to expand because `curr` is full
-            auto next = expand(curr);
-            assert(getSub(next, subIx) == Node.init); // key slot should be unoccupied
-            return setSub(next, subIx, subNode);
-        }
-        return Branch(curr);
-    }
-    /// ditto
-    pragma(inline) Branch setSub(DenseBranch* curr, UIx subIx, Node subNode) @safe pure nothrow @nogc
-    {
-        debug assert(!curr.subNodes[subIx], "sub-Node already set ");
-        // "sub-Node at index " ~ subIx.to!string ~
-        // " already set to " ~ subNode.to!string);
-        curr.subNodes[subIx] = subNode;
-        return Branch(curr);
-    }
-
-    /** Set sub-`Node` of branch `Node curr` at index `ix` to `subNode`. */
-    pragma(inline) Branch setSub(Branch curr, UIx subIx, Node subNode) @safe pure nothrow @nogc
-    {
-        final switch (curr.typeIx) with (Branch.Ix)
-        {
-        case ix_SparseBranchPtr: return setSub(curr.as!(SparseBranch*), subIx, subNode);
-        case ix_DenseBranchPtr: return setSub(curr.as!(DenseBranch*), subIx, subNode);
-        case undefined: assert(false);
-        }
-    }
-
-    /** Get sub-`Node` of branch `Node curr` at index `subIx`. */
-    pragma(inline) Node getSub(Branch curr, UIx subIx) @safe pure nothrow
-    {
-        final switch (curr.typeIx) with (Branch.Ix)
-        {
-        case ix_SparseBranchPtr: return getSub(curr.as!(SparseBranch*), subIx);
-        case ix_DenseBranchPtr: return getSub(curr.as!(DenseBranch*), subIx);
-        case undefined: assert(false);
-        }
-    }
-    /// ditto
-    pragma(inline) Node getSub(SparseBranch* curr, UIx subIx) @safe pure nothrow
-    {
-        if (auto subNode = curr.subAt(subIx)) { return subNode; }
-        return Node.init;
-    }
-    /// ditto
-    pragma(inline) Node getSub(DenseBranch* curr, UIx subIx) @safe pure nothrow
-    {
-        auto sub = curr.subNodes[subIx];
-        debug curr.subNodes[subIx] = Node.init; // zero it to prevent multiple references
-        return sub;
-    }
-
-    /** Get leaves of node `curr`. */
-    pragma(inline) inout(Leaf1!Value) getLeaf1(inout Branch curr) @safe pure nothrow
-    {
-        final switch (curr.typeIx) with (Branch.Ix)
-        {
-        case ix_SparseBranchPtr: return curr.as!(SparseBranch*).leaf1;
-        case ix_DenseBranchPtr: return curr.as!(DenseBranch*).leaf1;
-        case undefined: assert(false);
-        }
-    }
-
-    /** Set direct leaves node of node `curr` to `leaf1`. */
-    pragma(inline) void setLeaf1(Branch curr, Leaf1!Value leaf1) @safe pure nothrow
-    {
-        final switch (curr.typeIx) with (Branch.Ix)
-        {
-        case ix_SparseBranchPtr: curr.as!(SparseBranch*).leaf1 = leaf1; break;
-        case ix_DenseBranchPtr: curr.as!(DenseBranch*).leaf1 = leaf1; break;
-        case undefined: assert(false);
-        }
-    }
-
-    /** Get prefix of node `curr`. */
-    pragma(inline) auto getPrefix(inout Branch curr) @safe pure nothrow
-    {
-        final switch (curr.typeIx) with (Branch.Ix)
-        {
-        case ix_SparseBranchPtr: return curr.as!(SparseBranch*).prefix[];
-        case ix_DenseBranchPtr: return curr.as!(DenseBranch*).prefix[];
-        case undefined: assert(false);
-        }
-    }
-
-    /** Set prefix of branch node `curr` to `prefix`. */
-    pragma(inline) void setPrefix(Branch curr, const Ix[] prefix) @safe pure nothrow
-    {
-        final switch (curr.typeIx) with (Branch.Ix)
-        {
-        case ix_SparseBranchPtr: curr.as!(SparseBranch*).prefix = typeof(curr.as!(SparseBranch*).prefix)(prefix); break;
-        case ix_DenseBranchPtr: curr.as!(DenseBranch*).prefix = typeof(curr.as!(DenseBranch*).prefix)(prefix); break;
-        case undefined: assert(false);
-        }
-    }
-
-    /** Pop `n` from prefix. */
-    pragma(inline) void popFrontNPrefix(Branch curr, size_t n) @safe pure nothrow
-    {
-        final switch (curr.typeIx) with (Branch.Ix)
-        {
-        case ix_SparseBranchPtr: curr.as!(SparseBranch*).prefix.popFrontN(n); break;
-        case ix_DenseBranchPtr: curr.as!(DenseBranch*).prefix.popFrontN(n); break;
-        case undefined: assert(false);
-        }
-    }
-
-    /** Get number of sub-nodes of node `curr`. */
-    pragma(inline) Mod!(radix + 1) getSubCount(inout Branch curr) @safe pure nothrow
-    {
-        final switch (curr.typeIx) with (Branch.Ix)
-        {
-        case ix_SparseBranchPtr: return cast(typeof(return))curr.as!(SparseBranch*).subCount;
-        case ix_DenseBranchPtr: return cast(typeof(return))curr.as!(DenseBranch*).subCount;
-        case undefined: assert(false);
-        }
-    }
-
-    Stats usageHistograms() const
-    {
-        typeof(return) stats;
-        _root.calculate!(Value)(stats);
-        return stats;
-    }
-
-    this(this)
-    {
-        if (!_root) return;
-        auto rhsRoot = _root;
-        debug const oldLength = _length;
-        if (rhsRoot)
-        {
-            _root = null;       // reset
-            _length = 0;        // needs reset because insert updates
-            // TODO insert(rhsRoot[]);
-        }
-        assert(false, "TODO calculate tree by branches and leafs and make copies of them");
-    }
-
-    pragma(inline) ~this() @nogc
-    {
-        assert(_rangeCounter == 0, "Ranges still refer to this"); // no `Range` must refer to `_root`
-        release(_root);
-        debug
-        {
-            try
-            {
-                if (_heapNodeAllocationBalance != 0)
-                {
-                    assert(false, "warning: Memory leak, heap Node allocation balance is not zero, but "//  ~
-                           // _heapNodeAllocationBalance.to!string ~
-                           // ", nodeCountsByIx is " ~ nodeCountsByIx.to!string
-                        );
-                }
-            }
-            catch (Exception e) {}
-        }
-    }
-
-    /// Removes all contents (elements).
-    pragma(inline) void clear() @nogc
-    {
-        release(_root);
-        _root = null;           // must null because because `_root` will be read again
-    }
-
-    @safe pure nothrow /* TODO @nogc */
-    {
-        /** Returns: `true` if `key` is stored, `false` otherwise. */
-        pragma(inline) inout(Node) prefix(UKey keyPrefix, out UKey keyPrefixRest) inout
-        {
-            return prefixAt(_root, keyPrefix, keyPrefixRest);
-        }
-
-        pragma(inline) inout(Node) prefixAt(Node curr, UKey keyPrefix, out UKey keyPrefixRest) inout
-        {
-            import std.algorithm : startsWith;
-            final switch (curr.typeIx) with (Node.Ix)
-            {
-            case undefined:
-                return typeof(return).init; // terminate recursion
-            case ix_OneLeafMax7:
-                if (curr.as!(OneLeafMax7).key[].startsWith(keyPrefix)) { goto processHit; }
-                break;
-            case ix_TwoLeaf3:
-                if (curr.as!(TwoLeaf3).keyLength >= keyPrefix.length) { goto processHit; }
-                break;
-            case ix_TriLeaf2:
-                if (curr.as!(TriLeaf2).keyLength >= keyPrefix.length) { goto processHit; }
-                break;
-            case ix_HeptLeaf1:
-                if (curr.as!(HeptLeaf1).keyLength >= keyPrefix.length) { goto processHit; }
-                break;
-            case ix_SparseLeaf1Ptr:
-            case ix_DenseLeaf1Ptr:
-                if (keyPrefix.length <= 1) { goto processHit; }
-                break;
-            case ix_SparseBranchPtr:
-                auto curr_ = curr.as!(SparseBranch*);
-                // TODO functionize
-                if (keyPrefix.startsWith(curr_.prefix[]))
-                {
-                    const currPrefixLength = curr_.prefix.length;
-                    if (keyPrefix.length == currPrefixLength || // if no more prefix
-                        curr_.leaf1 && // both leaf1
-                        curr_.subCount) // and sub-nodes
+                    leafNRange.appendFrontIxsToKey(_cachedFrontKey);
+                    static if (hasValue)
                     {
-                        goto processHit;
-                    }
-                    else if (curr_.subCount == 0) // only leaf1
-                    {
-                        return prefixAt(Node(curr_.leaf1),
-                                        keyPrefix[currPrefixLength .. $],
-                                        keyPrefixRest);
-                    }
-                    else        // only sub-node(s)
-                    {
-                        return prefixAt(curr_.subAt(UIx(keyPrefix[currPrefixLength])),
-                                        keyPrefix[currPrefixLength + 1 .. $],
-                                        keyPrefixRest);
+                        _cachedFrontValue = leafNRange.value; // last should be leaf containing value
                     }
                 }
-                break;
-            case ix_DenseBranchPtr:
-                auto curr_ = curr.as!(DenseBranch*);
-                // TODO functionize
-                if (keyPrefix.startsWith(curr_.prefix[]))
+            }
+
+            // Go upwards and iterate forward in parents.
+            private void postPopTreeUpdate()
+            {
+                while (branchRanges.branchCount)
                 {
-                    const currPrefixLength = curr_.prefix.length;
-                    if (keyPrefix.length == currPrefixLength || // if no more prefix
-                        curr_.leaf1 && // both leaf1
-                        curr_.subCount) // and sub-nodes
+                    branchRanges.bottom.popFront();
+                    if (branchRanges.bottom.empty)
                     {
-                        goto processHit;
+                        branchRanges.pop();
                     }
-                    else if (curr_.subCount == 0) // only leaf1
+                    else            // if not empty
                     {
-                        return prefixAt(Node(curr_.leaf1),
-                                        keyPrefix[currPrefixLength .. $],
-                                        keyPrefixRest);
-                    }
-                    else        // only sub-node(s)
-                    {
-                        return prefixAt(curr_.subNodes[UIx(keyPrefix[currPrefixLength])],
-                                        keyPrefix[currPrefixLength + 1 .. $],
-                                        keyPrefixRest);
+                        if (branchRanges.bottom.atLeaf1)
+                        {
+                            branchRanges._branch1Depth = min(branchRanges.branchCount - 1,
+                                                             branchRanges._branch1Depth);
+                        }
+                        break;      // branchRanges.bottom is not empty so break
                     }
                 }
-                break;
-            }
-            return typeof(return).init;
-        processHit:
-            keyPrefixRest = keyPrefix;
-            return curr;
-        }
-
-        static if (hasValue)
-        {
-            /** Returns: `true` if `key` is stored, `false` otherwise. */
-            pragma(inline) inout(Value*) contains(UKey key) inout
-            {
-                return containsAt(_root, key);
-            }
-
-            /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
-            pragma(inline) inout(Value*) containsAt(Leaf1!Value curr, UKey key) inout
-            {
-                // debug if (willFail) { dln("curr:", curr); }
-                // debug if (willFail) { dln("key:", key); }
-                switch (curr.typeIx) with (Leaf1!Value.Ix)
+                if (branchRanges.branchCount &&
+                    !branchRanges.bottom.subsEmpty) // if any sub nodes
                 {
-                case undefined: return null;
-                case ix_SparseLeaf1Ptr: return key.length == 1 ? curr.as!(SparseLeaf1!Value*).contains(UIx(key[0])) : null;
-                case ix_DenseLeaf1Ptr:  return key.length == 1 ? curr.as!(DenseLeaf1!Value*).contains(UIx(key[0])) : null;
-                default: assert(false);
+                    diveAndVisitTreeUnder(branchRanges.bottom.subFrontNode,
+                                          branchRanges.branchCount); // visit them
                 }
             }
 
-            /// ditto
-            pragma(inline) inout(Value*) containsAt(Node curr, UKey key) inout
+            /** Find ranges of branches and leaf for all nodes under tree `root`. */
+            private void diveAndVisitTreeUnder(Node root, size_t depth)
             {
-                assert(key.length);
-                // debug if (willFail) { dln("key:", key); }
-                import std.algorithm.searching : skipOver;
-                switch (curr.typeIx) with (Node.Ix)
-                {
-                case undefined: return null;
-                case ix_SparseLeaf1Ptr: return key.length == 1 ? curr.as!(SparseLeaf1!Value*).contains(UIx(key[0])) : null;
-                case ix_DenseLeaf1Ptr:  return key.length == 1 ? curr.as!(DenseLeaf1!Value*).contains(UIx(key[0])) : null;
-                case ix_SparseBranchPtr:
-                    auto curr_ = curr.as!(SparseBranch*);
-                    if (key.skipOver(curr_.prefix))
-                    {
-                        return (key.length == 1 ?
-                                containsAt(curr_.leaf1, key) : // in leaf
-                                containsAt(curr_.subAt(UIx(key[0])), key[1 .. $])); // recurse into branch tree
-                    }
-                    return null;
-                case ix_DenseBranchPtr:
-                    auto curr_ = curr.as!(DenseBranch*);
-                    if (key.skipOver(curr_.prefix))
-                    {
-                        return (key.length == 1 ?
-                                containsAt(curr_.leaf1, key) : // in leaf
-                                containsAt(curr_.subNodes[UIx(key[0])], key[1 .. $])); // recurse into branch tree
-                    }
-                    return null;
-                default: assert(false);
-                }
-            }
-        }
-        else
-        {
-            const:
-
-            /** Returns: `true` if `key` is stored, `false` otherwise. */
-            pragma(inline) bool contains(UKey key)
-            {
-                return containsAt(_root, key);
-            }
-
-            /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
-            pragma(inline) bool containsAt(Leaf1!Value curr, UKey key)
-            {
-                // debug if (willFail) { dln("key:", key); }
-                final switch (curr.typeIx) with (Leaf1!Value.Ix)
-                {
-                case undefined: return false;
-                case ix_HeptLeaf1: return curr.as!(HeptLeaf1).contains(key);
-                case ix_SparseLeaf1Ptr: return key.length == 1 && curr.as!(SparseLeaf1!Value*).contains(UIx(key[0]));
-                case ix_DenseLeaf1Ptr:  return key.length == 1 && curr.as!(DenseLeaf1!Value*).contains(UIx(key[0]));
-                }
-            }
-            /// ditto
-            pragma(inline) bool containsAt(Node curr, UKey key)
-            {
-                assert(key.length);
-                // debug if (willFail) { dln("key:", key); }
-                import std.algorithm.searching : skipOver;
-                final switch (curr.typeIx) with (Node.Ix)
-                {
-                case undefined: return false;
-                case ix_OneLeafMax7: return curr.as!(OneLeafMax7).contains(key);
-                case ix_TwoLeaf3: return curr.as!(TwoLeaf3).contains(key);
-                case ix_TriLeaf2: return curr.as!(TriLeaf2).contains(key);
-                case ix_HeptLeaf1: return curr.as!(HeptLeaf1).contains(key);
-                case ix_SparseLeaf1Ptr:
-                    return key.length == 1 && curr.as!(SparseLeaf1!Value*).contains(UIx(key[0]));
-                case ix_DenseLeaf1Ptr:
-                    return key.length == 1 && curr.as!(DenseLeaf1!Value*).contains(UIx(key[0]));
-                case ix_SparseBranchPtr:
-                    auto curr_ = curr.as!(SparseBranch*);
-                    return (key.skipOver(curr_.prefix) &&        // matching prefix
-                            (key.length == 1 ?
-                             containsAt(curr_.leaf1, key) : // in leaf
-                             containsAt(curr_.subAt(UIx(key[0])), key[1 .. $]))); // recurse into branch tree
-                case ix_DenseBranchPtr:
-                    auto curr_ = curr.as!(DenseBranch*);
-                    return (key.skipOver(curr_.prefix) &&        // matching prefix
-                            (key.length == 1 ?
-                             containsAt(curr_.leaf1, key) : // in leaf
-                             containsAt(curr_.subNodes[UIx(key[0])], key[1 .. $]))); // recurse into branch tree
-                }
-            }
-        }
-
-        pragma(inline) size_t countHeapNodes()
-        {
-            return countHeapNodesAt(_root);
-        }
-
-        pragma(inline) size_t countHeapNodesAt(Node curr)
-        {
-            size_t count = 0;
-            final switch (curr.typeIx) with (Node.Ix)
-            {
-            case undefined: break;
-            case ix_OneLeafMax7: break;
-            case ix_TwoLeaf3: break;
-            case ix_TriLeaf2: break;
-            case ix_HeptLeaf1: break;
-
-            case ix_SparseLeaf1Ptr:
-            case ix_DenseLeaf1Ptr:
-                ++count;
-                break;
-
-            case ix_SparseBranchPtr:
-                auto curr_ = curr.as!(SparseBranch*);
-                ++count;
-                foreach (subNode; curr_.subNodeSlots[0 .. curr_.subCount])
-                {
-                    if (subNode) { count += countHeapNodesAt(subNode); }
-                }
-                break;
-
-            case ix_DenseBranchPtr:
-                ++count;
-                auto curr_ = curr.as!(DenseBranch*);
-                foreach (subNode; curr_.subNodes)
-                {
-                    if (subNode) { count += countHeapNodesAt(subNode); }
-                }
-                break;
-            }
-            return count;
-        }
-    }
-
-    @safe pure nothrow @nogc
-    {
-        /** Insert `key` into `this` tree. */
-        static if (hasValue)
-        {
-            pragma(inline) Node insert(UKey key, in Value value, out ElementRef elementRef)
-            {
-                assert(_rangeCounter == 0, "Cannot modify tree with Range references");
-                return _root = insertAt(_root, Element(key, value), elementRef);
-            }
-        }
-        else
-        {
-            pragma(inline) Node insert(UKey key, out ElementRef elementRef)
-            {
-                assert(_rangeCounter == 0, "Cannot modify tree with Range references");
-                return _root = insertAt(_root, key, elementRef);
-            }
-
-            Node insertNew(UKey key, out ElementRef elementRef)
-            {
+                Node curr = root;
                 Node next;
-                // debug if (willFail) { dln("WILL FAIL: key:", key); }
-                switch (key.length)
+                do
                 {
-                case 0: assert(false, "key must not be empty"); // return elementRef = Node(construct!(OneLeafMax7)());
-                case 1: next = Node(construct!(HeptLeaf1)(key[0])); break;
-                case 2: next = Node(construct!(TriLeaf2)(key)); break;
-                case 3: next = Node(construct!(TwoLeaf3)(key)); break;
-                default:
-                    if (key.length <= OneLeafMax7.capacity)
+                    final switch (curr.typeIx) with (Node.Ix)
                     {
-                        next = Node(construct!(OneLeafMax7)(key));
+                    case undefined: assert(false);
+                    case ix_OneLeafMax7:
+                    case ix_TwoLeaf3:
+                    case ix_TriLeaf2:
+                    case ix_HeptLeaf1:
+                    case ix_SparseLeaf1Ptr:
+                    case ix_DenseLeaf1Ptr:
+                        assert(leafNRange.empty);
+
+                        leafNRange = LeafNRange(curr);
+
+                        next = null; // we're done diving
+                        break;
+                    case ix_SparseBranchPtr:
+                        auto curr_ = curr.as!(SparseBranch*);
+
+                        auto currRange = BranchRange(curr_);
+                        branchRanges.push(currRange);
+                        branchRanges.updateLeaf1AtDepth(depth);
+
+                        next = (curr_.subCount) ? curr_.firstSubNode : Node.init;
+                        break;
+                    case ix_DenseBranchPtr:
+                        auto curr_ = curr.as!(DenseBranch*);
+
+                        auto currRange = BranchRange(curr_);
+                        branchRanges.push(currRange);
+                        branchRanges.updateLeaf1AtDepth(depth);
+
+                        next = branchRanges.bottom.subsEmpty ? Node.init : branchRanges.bottom.subFrontNode;
                         break;
                     }
-                    else                // key doesn't fit in a `OneLeafMax7`
-                    {
-                        return Node(insertNewBranch(key, elementRef));
-                    }
+                    curr = next;
+                    ++depth;
                 }
-                elementRef = ElementRef(next,
-                                        UIx(0), // always first index
-                                        ModStatus.added);
-                return next;
+                while (next);
+            }
+
+        pragma(inline):
+
+            /** Check if empty. */
+            bool empty() const
+            {
+                return (leafNRange.empty &&
+                        branchRanges.branchCount == 0);
+            }
+
+            /** Get front key. */
+            auto frontKey() const { return _cachedFrontKey[]; } // TODO DIP-1000 scope
+
+            static if (hasValue)
+            {
+                /** Get front value. */
+                auto frontValue() const { return _cachedFrontValue; }
+            }
+
+        private:
+            LeafNRange leafNRange;
+            BranchRanges branchRanges;
+
+            // cache
+            UnsortedCopyingArray!Ix _cachedFrontKey; // copy of front key
+            static if (hasValue)
+            {
+                Value _cachedFrontValue; // copy of front value
             }
         }
 
-        Branch insertNewBranch(Element elt, out ElementRef elementRef)
+        /** Bi-Directional Range over Tree.
+            Fulfills `isBidirectionalRange`.
+        */
+        private static struct Range
         {
-            // debug if (willFail) { dln("WILL FAIL: elt:", elt); }
-            auto key = elementKey(elt);
-            assert(key);
-            import std.algorithm : min;
-            const prefixLength = min(key.length - 1, // all but last Ix of key
-                                     DefaultBranch.prefixCapacity); // as much as possible of key in branch prefix
-            auto prefix = key[0 .. prefixLength];
-            typeof(return) next = insertAtBelowPrefix(Branch(constructVariableLength!(DefaultBranch)(1, prefix)),
-                                                      elementKeyDropExactly(elt, prefixLength), elementRef);
-            assert(elementRef);
-            return next;
+            import std.algorithm : startsWith;
+
+            @safe pure nothrow @nogc:
+            pragma(inline):
+
+            this(Node root, uint* treeRangeCounter, UKey keyPrefix)
+            {
+                this._keyPrefix = keyPrefix;
+                assert(treeRangeCounter, "Pointer to range counter is null");
+
+                this._treeRangeCounter = treeRangeCounter;
+                (*this._treeRangeCounter)++ ;
+
+                this._front = FrontRange(root);
+                // this._back = FrontRange(root);
+
+                if (!empty &&
+                    !_front.frontKey.startsWith(_keyPrefix))
+                {
+                    popFront();
+                }
+            }
+
+            this(this)
+            {
+                assert(*_treeRangeCounter != (*_treeRangeCounter).max, "Range counter has reached maximum");
+                ++(*_treeRangeCounter);
+            }
+
+            ~this()
+            {
+                assert(*_treeRangeCounter != 0, "Range counter cannot be decremented because it's zero");
+                --(*_treeRangeCounter);
+            }
+
+            @property auto save() { return this; }
+
+            bool empty() const
+            {
+                return _front.empty; // TODO _front == _back;
+            }
+
+            auto lowKey() const { return _front.frontKey[_keyPrefix.length .. $]; }
+            auto highKey() const { return _back.frontKey[_keyPrefix.length .. $]; }
+
+            void popFront()
+            {
+                assert(!empty);
+                do { _front.popFront(); }
+                while (!empty &&
+                       !_front.frontKey.startsWith(_keyPrefix));
+            }
+
+            void popBack()
+            {
+                assert(!empty);
+                do { _back.popFront(); }
+                while (!empty &&
+                       !_back.frontKey.startsWith(_keyPrefix));
+            }
+
+        private:
+            FrontRange _front;
+            FrontRange _back;
+            UKey _keyPrefix;
+            uint* _treeRangeCounter;
         }
 
-        /** Insert `key` into sub-tree under root `curr`. */
-        pragma(inline) Node insertAt(Node curr, Element elt, out ElementRef elementRef)
+        pragma(inline) Range opSlice() @trusted pure nothrow
         {
-            auto key = elementKey(elt);
-            // debug if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr); }
-            assert(key.length);
-
-            if (!curr)          // if no existing `Node` to insert at
-            {
-                static if (hasValue)
-                {
-                    auto next = Node(insertNewBranch(elt, elementRef));
-                }
-                else
-                {
-                    auto next = insertNew(key, elementRef);
-                }
-                assert(elementRef); // must be added to new Node
-                return next;
-            }
-            else
-            {
-                final switch (curr.typeIx) with (Node.Ix)
-                {
-                case undefined:
-                    return typeof(return).init;
-                case ix_OneLeafMax7:
-                    static if (hasValue)
-                        assert(false);
-                    else
-                        return insertAt(curr.as!(OneLeafMax7), key, elementRef);
-                case ix_TwoLeaf3:
-                    static if (hasValue)
-                        assert(false);
-                    else
-                        return insertAt(curr.as!(TwoLeaf3), key, elementRef);
-                case ix_TriLeaf2:
-                    static if (hasValue)
-                        assert(false);
-                    else
-                        return insertAt(curr.as!(TriLeaf2), key, elementRef);
-                case ix_HeptLeaf1:
-                    static if (hasValue)
-                        assert(false);
-                    else
-                        return insertAt(curr.as!(HeptLeaf1), key, elementRef);
-                case ix_SparseLeaf1Ptr:
-                    return insertAtLeaf(Leaf1!Value(curr.as!(SparseLeaf1!Value*)), elt, elementRef); // TODO use toLeaf(curr)
-                case ix_DenseLeaf1Ptr:
-                    return insertAtLeaf(Leaf1!Value(curr.as!(DenseLeaf1!Value*)), elt, elementRef); // TODO use toLeaf(curr)
-                case ix_SparseBranchPtr:
-                    // debug if (willFail) { dln("WILL FAIL: currPrefix:", curr.as!(SparseBranch*).prefix); }
-                    return Node(insertAtAbovePrefix(Branch(curr.as!(SparseBranch*)), elt, elementRef));
-                case ix_DenseBranchPtr:
-                    return Node(insertAtAbovePrefix(Branch(curr.as!(DenseBranch*)), elt, elementRef));
-                }
-            }
+            return Range(this._root, &this._rangeCounter, []);
         }
 
-        /** Insert `key` into sub-tree under branch `curr` above prefix, that is
-            the prefix of `curr` is stripped from `key` prior to insertion. */
-        Branch insertAtAbovePrefix(Branch curr, Element elt, out ElementRef elementRef)
+        // static assert(isBidirectionalRange!Range);
+
+        /** Sparse-Branch population histogram.
+         */
+        alias SparseLeaf1_PopHist = size_t[radix];
+
+        /** 256-Branch population histogram.
+         */
+        alias DenseLeaf1_PopHist = size_t[radix];
+
+        /** 4-Branch population histogram.
+            Index maps to population with value range (0 .. 4).
+        */
+        alias SparseBranch_PopHist = size_t[SparseBranch.maxCapacity + 1];
+
+        /** radix-Branch population histogram.
+            Index maps to population with value range (0 .. `radix`).
+        */
+        alias DenseBranch_PopHist = size_t[radix + 1];
+
+        /** Tree Population and Memory-Usage Statistics. */
+        struct Stats
         {
-            auto key = elementKey(elt);
-            assert(key.length);
+            SparseLeaf1_PopHist popHist_SparseLeaf1;
+            DenseLeaf1_PopHist popHist_DenseLeaf1;
+            SparseBranch_PopHist popHist_SparseBranch; // packed branch population histogram
+            DenseBranch_PopHist popHist_DenseBranch; // full branch population histogram
 
-            import std.algorithm.searching : commonPrefix;
-            auto currPrefix = getPrefix(curr);
-            auto matchedKeyPrefix = commonPrefix(key, currPrefix);
+            import typecons_ex : IndexedArray;
 
-            // debug if (willFail) { dln("WILL FAIL: key:", key,
-            //                     " curr:", curr,
-            //                     " currPrefix:", getPrefix(curr),
-            //                     " matchedKeyPrefix:", matchedKeyPrefix); }
+            /** Maps `Node` type/index `Ix` to population.
 
-            if (matchedKeyPrefix.length == 0) // no prefix key match
-            {
-                if (currPrefix.length == 0) // no current prefix
-                {
-                    // debug if (willFail) { dln("WILL FAIL"); }
-                    // NOTE: prefix:"", key:"cd"
-                    return insertAtBelowPrefix(curr, elt, elementRef);
-                }
-                else  // if (currPrefix.length >= 1) // non-empty current prefix
-                {
-                    // NOTE: prefix:"ab", key:"cd"
-                    const currSubIx = UIx(currPrefix[0]); // subIx = 'a'
-                    if (currPrefix.length == 1 && getSubCount(curr) == 0) // if `curr`-prefix become empty and only leaf pointer
-                    {
-                        // debug if (willFail) { dln("WILL FAIL"); }
-                        popFrontNPrefix(curr, 1);
-                        setSub(curr, currSubIx, Node(getLeaf1(curr))); // move it to sub
-                        setLeaf1(curr, Leaf1!Value.init);
+                Used to calculate complete tree memory usage, excluding allocator
+                overhead typically via `malloc` and `calloc`.
+            */
+            IndexedArray!(size_t, Node.Ix) popByNodeType;
+            static assert(is(typeof(popByNodeType).Index == Node.Ix));
 
-                        return insertAtBelowPrefix(curr, elt, elementRef); // directly call below because `curr`-prefix is now empty
-                    }
-                    else
-                    {
-                        // debug if (willFail) { dln("WILL FAIL"); }
-                        popFrontNPrefix(curr, 1);
-                        auto next = constructVariableLength!(DefaultBranch)(2, null,
-                                                                            Sub(currSubIx, Node(curr)));
-                        return insertAtAbovePrefix(Branch(next), elt, elementRef);
-                    }
-                }
-            }
-            else if (matchedKeyPrefix.length < key.length)
-            {
-                if (matchedKeyPrefix.length == currPrefix.length)
-                {
-                    // debug if (willFail) { dln("WILL FAIL"); }
-                    // NOTE: key is an extension of prefix: prefix:"ab", key:"abcd"
-                    return insertAtBelowPrefix(curr, elementKeyDropExactly(elt, currPrefix.length), elementRef);
-                }
-                else
-                {
-                    // debug if (willFail) { dln("WILL FAIL"); }
-                    // NOTE: prefix and key share beginning: prefix:"ab11", key:"ab22"
-                    const currSubIx = UIx(currPrefix[matchedKeyPrefix.length]); // need index first before we modify curr.prefix
-                    popFrontNPrefix(curr, matchedKeyPrefix.length + 1);
-                    auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix,
-                                                                        Sub(currSubIx, Node(curr)));
-                    return insertAtBelowPrefix(Branch(next), elementKeyDropExactly(elt, matchedKeyPrefix.length), elementRef);
-                }
-            }
-            else // if (matchedKeyPrefix.length == key.length)
-            {
-                // debug if (willFail) { dln("WILL FAIL"); }
-                assert(matchedKeyPrefix.length == key.length);
-                if (matchedKeyPrefix.length < currPrefix.length)
-                {
-                    // NOTE: prefix is an extension of key: prefix:"abcd", key:"ab"
-                    assert(matchedKeyPrefix.length);
-                    const nextPrefixLength = matchedKeyPrefix.length - 1;
-                    const currSubIx = UIx(currPrefix[nextPrefixLength]); // need index first
-                    popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
-                    auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
-                                                                        Sub(currSubIx, Node(curr)));
-                    return insertAtBelowPrefix(Branch(next), elementKeyDropExactly(elt, nextPrefixLength), elementRef);
-                }
-                else /* if (matchedKeyPrefix.length == currPrefix.length) and in turn
-                        if (key.length == currPrefix.length */
-                {
-                    // NOTE: prefix equals key: prefix:"abcd", key:"abcd"
-                    assert(matchedKeyPrefix.length);
-                    const currSubIx = UIx(currPrefix[matchedKeyPrefix.length - 1]); // need index first
-                    popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
-                    auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
-                                                                        Sub(currSubIx, Node(curr)));
-                    static if (hasValue)
-                        return insertAtLeaf1(Branch(next), UIx(key[$ - 1]), elt.value, elementRef);
-                    else
-                        return insertAtLeaf1(Branch(next), UIx(key[$ - 1]), elementRef);
-                }
-            }
+            IndexedArray!(size_t, Leaf1!Value.Ix) popByLeaf1Type;
+            static assert(is(typeof(popByLeaf1Type).Index == Leaf1!Value.Ix));
+
+            /// Number of heap-allocated `Node`s. Should always equal `heapNodeAllocationBalance`.
+            size_t heapNodeCount;
+
+            /// Number of heap-allocated `Leaf`s. Should always equal `heapLeafAllocationBalance`.
+            size_t heapLeafCount;
+
+            size_t sparseBranchAllocatedSizeSum;
+
+            size_t sparseLeaf1AllocatedSizeSum;
         }
 
-        /** Like `insertAtAbovePrefix` but also asserts that `key` is
-            currently not stored under `curr`. */
-        pragma(inline) Branch insertNewAtAbovePrefix(Branch curr, Element elt)
+        /** Sparse/Packed dynamically sized branch implemented as variable-length
+            struct.
+        */
+        static private struct SparseBranch
         {
-            ElementRef elementRef;
-            auto next = insertAtAbovePrefix(curr, elt, elementRef);
-            assert(elementRef);
-            return next;
-        }
+            import std.algorithm.sorting : isSorted;
 
-        static if (hasValue)
-        {
-            pragma(inline) Branch insertAtSubNode(Branch curr, UKey key, Value value, out ElementRef elementRef)
-            {
-                // debug if (willFail) { dln("WILL FAIL"); }
-                const subIx = UIx(key[0]);
-                return setSub(curr, subIx,
-                              insertAt(getSub(curr, subIx), // recurse
-                                       Element(key[1 .. $], value),
-                                       elementRef));
-            }
-        }
-        else
-        {
-            pragma(inline) Branch insertAtSubNode(Branch curr, UKey key, out ElementRef elementRef)
-            {
-                // debug if (willFail) { dln("WILL FAIL"); }
-                const subIx = UIx(key[0]);
-                return setSub(curr, subIx,
-                              insertAt(getSub(curr, subIx), // recurse
-                                       key[1 .. $],
-                                       elementRef));
-            }
-        }
+            enum minCapacity = 0; // minimum number of preallocated sub-indexes and sub-nodes
+            enum maxCapacity = 48; // maximum number of preallocated sub-indexes and sub-nodes
+            enum prefixCapacity = 5; // 5, 13, 21, ...
 
-        /** Insert `key` into sub-tree under branch `curr` below prefix, that is
-            the prefix of `curr` is not stripped from `key` prior to
-            insertion. */
-        Branch insertAtBelowPrefix(Branch curr, Element elt, out ElementRef elementRef)
-        {
-            auto key = elementKey(elt);
-            assert(key.length);
-            // debug if (willFail) { dln("WILL FAIL: key:", key,
-            //                           " curr:", curr,
-            //                           " currPrefix:", getPrefix(curr),
-            //                           " elementRef:", elementRef); }
-            if (key.length == 1)
-            {
-                static if (hasValue)
-                    return insertAtLeaf1(curr, UIx(key[0]), elt.value, elementRef);
-                else
-                    return insertAtLeaf1(curr, UIx(key[0]), elementRef);
-            }
-            else                // key.length >= 2
-            {
-                static if (hasValue)
-                    return insertAtSubNode(curr, key, elt.value, elementRef);
-                else
-                    return insertAtSubNode(curr, key, elementRef);
-            }
-        }
+            alias Count = Mod!(maxCapacity + 1);
 
-        pragma(inline) Branch insertNewAtBelowPrefix(Branch curr, Element elt)
-        {
-            ElementRef elementRef;
-            auto next = insertAtBelowPrefix(curr, elt, elementRef);
-            assert(elementRef);
-            return next;
-        }
+            @safe pure nothrow:
 
-        Leaf1!Value insertIxAtLeaftoLeaf(Leaf1!Value curr, IxElement elt, out ElementRef elementRef)
-        {
-            auto key = elementIx(elt);
-            // debug if (willFail) { dln("WILL FAIL: elt:", elt,
-            //                           " curr:", curr,
-            //                           " elementRef:", elementRef); }
-            switch (curr.typeIx) with (Leaf1!Value.Ix)
+            pragma(inline) this(size_t subCapacity)
             {
-            case undefined:
-                return typeof(return).init;
-            case ix_HeptLeaf1:
-                static if (hasValue)
+                initialize(subCapacity);
+            }
+
+            pragma(inline) this(size_t subCapacity, const Ix[] prefix, Leaf1!Value leaf1)
+            {
+                initialize(subCapacity);
+                this.prefix = prefix;
+                this.leaf1 = leaf1;
+            }
+
+            pragma(inline) this(size_t subCapacity, const Ix[] prefix)
+            {
+                initialize(subCapacity);
+                this.prefix = prefix;
+            }
+
+            pragma(inline) this(size_t subCapacity, Leaf1!Value leaf1)
+            {
+                initialize(subCapacity);
+                this.leaf1 = leaf1;
+            }
+
+            pragma(inline) this(size_t subCapacity, const Ix[] prefix, Sub sub)
+            {
+                assert(subCapacity);
+
+                initialize(subCapacity);
+
+                this.prefix = prefix;
+                this.subCount = 1;
+                this.subIxSlots[0] = sub[0];
+                this.subNodeSlots[0] = sub[1];
+            }
+
+            pragma(inline) this(size_t subCapacity, typeof(this)* rhs)
+            in
+            {
+                assert(subCapacity > rhs.subCapacity);
+                assert(rhs);
+            }
+            body
+            {
+                // these two must be in this order:
+                // 1.
+                move(rhs.leaf1, this.leaf1);
+                debug rhs.leaf1 = typeof(rhs.leaf1).init;
+                this.subCount = rhs.subCount;
+                move(rhs.prefix, this.prefix);
+
+                // 2.
+                initialize(subCapacity);
+
+                // copy variable length part. TODO optimize:
+                this.subIxSlots[0 .. rhs.subCount] = rhs.subIxSlots[0 .. rhs.subCount];
+                this.subNodeSlots[0 .. rhs.subCount] = rhs.subNodeSlots[0 .. rhs.subCount];
+
+                assert(this.subCapacity > rhs.subCapacity);
+            }
+
+            private pragma(inline) void initialize(size_t subCapacity)
+            {
+                // assert(subCapacity != 4);
+                this.subCapacity = subCapacity;
+                debug
                 {
-                    assert(false);
+                    // zero-initialize variable-length part
+                    subIxSlots[] = Ix.init;
+                    subNodeSlots[] = Node.init;
                 }
-                else
+            }
+
+            pragma(inline) ~this() @nogc { deinit(); }
+
+            private pragma(inline) void deinit() @nogc { /* nothing for now */ }
+
+            /** Insert `sub`, possibly self-reallocating `this` (into return).
+             */
+            typeof(this)* reconstructingInsert(Sub sub,
+                                               out ModStatus modStatus,
+                                               out size_t index) @trusted
+            {
+                auto next = &this;
+
+                import searching_ex : containsStoreIndex;
+                if (subIxs.containsStoreIndex(sub[0], index))
                 {
-                    return insertAt(curr.as!(HeptLeaf1), key, elementRef); // possibly expanded to other Leaf1!Value
-                }
-            case ix_SparseLeaf1Ptr:
-                auto curr_ = curr.as!(SparseLeaf1!Value*);
-                size_t index;
-                ModStatus modStatus;
-                curr_ = curr_.reconstructingInsert(elt, modStatus, index);
-                curr = Leaf1!Value(curr_);
-                final switch (modStatus)
-                {
-                case ModStatus.unchanged: // already stored at `index`
-                    elementRef = ElementRef(Node(curr_), UIx(index), modStatus);
-                    return curr;
-                case ModStatus.added:
-                    elementRef = ElementRef(Node(curr_), UIx(index), modStatus);
-                    return curr;
-                case ModStatus.maxCapacityReached:
-                    auto next = insertIxAtLeaftoLeaf(expand(curr_, 1), // make room for one more
-                                                     elt, elementRef);
-                    assert(next.peek!(DenseLeaf1!Value*));
+                    assert(subIxSlots[index] == sub[0]); // subIxSlots[index] = sub[0];
+                    subNodeSlots[index] = sub[1];
+                    modStatus = ModStatus.updated;
                     return next;
-                case ModStatus.updated:
-                    elementRef = ElementRef(Node(curr_), UIx(index), modStatus);
-                    return curr;
                 }
-            case ix_DenseLeaf1Ptr:
-                const modStatus = curr.as!(DenseLeaf1!Value*).insert(elt);
-                static if (hasValue) { const ix = elt.ix; }
-                else                 { const ix = elt; }
-                elementRef = ElementRef(Node(curr), ix, modStatus);
-                break;
-            default:
-                assert(false, "Unsupported Leaf1!Value type " // ~ curr.typeIx.to!string
-                    );
-            }
-            return curr;
-        }
 
-        static if (hasValue)
-        {
-            Branch insertAtLeaf1(Branch curr, UIx key, Value value, out ElementRef elementRef)
-            {
-                // debug if (willFail) { dln("WILL FAIL: key:", key,
-                //                           " value:", value,
-                //                           " curr:", curr,
-                //                           " currPrefix:", getPrefix(curr),
-                //                           " elementRef:", elementRef); }
-                if (auto leaf = getLeaf1(curr))
+                if (full)
                 {
-                    setLeaf1(curr, insertIxAtLeaftoLeaf(leaf, IxElement(key, value), elementRef));
-                }
-                else
-                {
-                    Ix[1] ixs = [Ix(key)]; // TODO scope
-                    Value[1] values = [value]; // TODO scope
-                    auto leaf_ = constructVariableLength!(SparseLeaf1!Value*)(1, ixs, values); // needed for values
-                    elementRef = ElementRef(Node(leaf_), UIx(0), ModStatus.added);
-                    setLeaf1(curr, Leaf1!Value(leaf_));
-                }
-                return curr;
-            }
-        }
-        else
-        {
-            Branch insertAtLeaf1(Branch curr, UIx key, out ElementRef elementRef)
-            {
-                // debug if (willFail) { dln("WILL FAIL: key:", key,
-                //                           " curr:", curr,
-                //                           " currPrefix:", getPrefix(curr),
-                //                           " elementRef:", elementRef); }
-                if (auto leaf = getLeaf1(curr))
-                {
-                    setLeaf1(curr, insertIxAtLeaftoLeaf(leaf, key, elementRef));
-                }
-                else
-                {
-                    auto leaf_ = construct!(HeptLeaf1)(key); // can pack more efficiently when no value
-                    elementRef = ElementRef(Node(leaf_), UIx(0), ModStatus.added);
-                    setLeaf1(curr, Leaf1!Value(leaf_));
-                }
-                return curr;
-            }
-        }
-
-        Node insertAtLeaf(Leaf1!Value curr, Element elt, out ElementRef elementRef)
-        {
-            // debug if (willFail) { dln("WILL FAIL: elt:", elt); }
-            auto key = elementKey(elt);
-            assert(key.length);
-            if (key.length == 1)
-            {
-                static if (hasValue)
-                    return Node(insertIxAtLeaftoLeaf(curr, IxElement(UIx(key[0]), elt.value), elementRef));
-                else
-                    return Node(insertIxAtLeaftoLeaf(curr, UIx(key[0]), elementRef));
-            }
-            else
-            {
-                assert(key.length >= 2);
-                const prefixLength = key.length - 2; // >= 0
-                const nextPrefix = key[0 .. prefixLength];
-                auto next = constructVariableLength!(DefaultBranch)(1, nextPrefix, curr); // one sub-node and one leaf
-                return Node(insertAtBelowPrefix(Branch(next), elementKeyDropExactly(elt, prefixLength), elementRef));
-            }
-        }
-
-        static if (!hasValue)
-        {
-            Node insertAt(OneLeafMax7 curr, UKey key, out ElementRef elementRef)
-            {
-                assert(curr.key.length);
-                // debug if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
-
-                import std.algorithm.searching : commonPrefix;
-                auto matchedKeyPrefix = commonPrefix(key, curr.key);
-                if (curr.key.length == key.length)
-                {
-                    if (matchedKeyPrefix.length == key.length) // curr.key, key and matchedKeyPrefix all equal
+                    if (subCount < maxCapacity) // if we can expand more
                     {
-                        return Node(curr); // already stored in `curr`
+                        import vla : constructVariableLength;
+                        next = constructVariableLength!(typeof(this))(subCount + 1, &this);
+
+                        this.deinit(); free(&this); // clear `this`. TODO reuse existing helper function in Phobos?
                     }
-                    else if (matchedKeyPrefix.length + 1 == key.length) // key and curr.key are both matchedKeyPrefix plus one extra
+                    else
                     {
-                        // TODO functionize:
-                        Node next;
-                        switch (matchedKeyPrefix.length)
-                        {
-                        case 0:
-                            next = construct!(HeptLeaf1)(curr.key[0], key[0]);
-                            elementRef = ElementRef(next, UIx(1), ModStatus.added);
-                            break;
-                        case 1:
-                            next = construct!(TriLeaf2)(curr.key, key);
-                            elementRef = ElementRef(next, UIx(1), ModStatus.added);
-                            break;
-                        case 2:
-                            next = construct!(TwoLeaf3)(curr.key, key);
-                            elementRef = ElementRef(next, UIx(1), ModStatus.added);
-                            break;
-                        default:
-                            import std.algorithm : min;
-                            const nextPrefix = matchedKeyPrefix[0 .. min(matchedKeyPrefix.length,
-                                                                         DefaultBranch.prefixCapacity)]; // limit prefix branch capacity
-                            Branch nextBranch = constructVariableLength!(DefaultBranch)(1 + 1, // `curr` and `key`
-                                                                                      nextPrefix);
-                            nextBranch = insertNewAtBelowPrefix(nextBranch, curr.key[nextPrefix.length .. $]);
-                            nextBranch = insertAtBelowPrefix(nextBranch, key[nextPrefix.length .. $], elementRef);
-                            assert(elementRef);
-                            next = Node(nextBranch);
-                            break;
-                        }
-                        freeNode(curr);
+                        modStatus = ModStatus.maxCapacityReached; // TODO expand to `DenseBranch`
                         return next;
                     }
                 }
 
-                return Node(insertAtAbovePrefix(expand(curr), key, elementRef));
+                next.insertAt(index, sub);
+                modStatus = ModStatus.added;
+                return next;
             }
 
-            Node insertAt(TwoLeaf3 curr, UKey key, out ElementRef elementRef)
+            pragma(inline) private void insertAt(size_t index, Sub sub)
             {
-                assert(hasVariableKeyLength || curr.keyLength == key.length);
-                if (curr.keyLength == key.length)
+                assert(index <= subCount);
+                foreach (const i; 0 .. subCount - index) // TODO functionize this loop or reuse memmove:
                 {
-                    if (curr.contains(key)) { return Node(curr); }
-                    if (!curr.keys.full)
+                    const iD = subCount - i;
+                    const iS = iD - 1;
+                    subIxSlots[iD] = subIxSlots[iS];
+                    subNodeSlots[iD] = subNodeSlots[iS];
+                }
+                subIxSlots[index] = sub[0]; // set new element
+                subNodeSlots[index] = sub[1]; // set new element
+                ++subCount;
+            }
+
+            inout(Node) subAt(UIx ix) inout
+            {
+                import searching_ex : binarySearch; // need this instead of `SortedRange.contains` because we need the index
+                const hitIndex = subIxSlots[0 .. subCount].binarySearch(ix); // find index where insertion should be made
+                return (hitIndex != typeof(hitIndex).max) ? subNodeSlots[hitIndex] : Node.init;
+            }
+
+            pragma(inline) bool empty() const @nogc { return subCount == 0; }
+            pragma(inline) bool full()  const @nogc { return subCount == subCapacity; }
+
+            pragma(inline) auto ref subIxs()   inout @nogc
+            {
+                import std.algorithm.sorting : assumeSorted;
+                return subIxSlots[0 .. subCount].assumeSorted;
+            }
+
+            pragma(inline) auto ref subNodes() inout @nogc { return subNodeSlots[0 .. subCount]; }
+
+            pragma(inline) Node firstSubNode() @nogc
+            {
+                return subCount ? subNodeSlots[0] : typeof(return).init;
+            }
+
+            /** Get all sub-`Ix` slots, both initialized and uninitialized. */
+            private auto ref subIxSlots() inout @trusted pure nothrow
+            {
+                return (cast(Ix*)(_subNodeSlots0.ptr + subCapacity))[0 .. subCapacity];
+            }
+            /** Get all sub-`Node` slots, both initialized and uninitialized. */
+            private auto ref subNodeSlots() inout @trusted pure nothrow
+            {
+                return _subNodeSlots0.ptr[0 .. subCapacity];
+            }
+
+            /** Append statistics of tree under `this` into `stats`. */
+            void calculate(ref Stats stats) const
+            {
+                size_t count = 0; // number of non-zero sub-nodes
+                foreach (const sub; subNodes)
+                {
+                    ++count;
+                    sub.calculate!(Value)(stats);
+                }
+                assert(count <= radix);
+                ++stats.popHist_SparseBranch[count]; // TODO type-safe indexing
+
+                stats.sparseBranchAllocatedSizeSum += allocatedSize;
+
+                if (leaf1)
+                {
+                    leaf1.calculate!(Value)(stats);
+                }
+            }
+
+            /** Get allocation size (in bytes) needed to hold `length` number of
+                sub-indexes and sub-nodes. */
+            static size_t allocationSizeOfCapacity(size_t capacity) @safe pure nothrow @nogc
+            {
+                return (this.sizeof + // base plus
+                        Node.sizeof*capacity + // actual size of `_subNodeSlots0`
+                        Ix.sizeof*capacity);   // actual size of `_subIxSlots0`
+            }
+
+            /** Get allocated size (in bytes) of `this` including the variable-length part. */
+            size_t allocatedSize() const @safe pure nothrow @nogc
+            {
+                return allocationSizeOfCapacity(subCapacity);
+            }
+
+        private:
+
+            // members in order of decreasing `alignof`:
+            Leaf1!Value leaf1;
+
+            IxsN!prefixCapacity prefix; // prefix common to all `subNodes` (also called edge-label)
+            Count subCount;
+            Count subCapacity;
+            static assert(prefix.sizeof + subCount.sizeof + subCapacity.sizeof == 8); // assert alignment
+
+            // variable-length part
+            Node[0] _subNodeSlots0;
+            Ix[0] _subIxSlots0;     // needs to special alignment
+        }
+
+        static assert(hasVariableLength!SparseBranch);
+        static if (!hasValue) { static assert(SparseBranch.sizeof == 16); }
+
+        /** Dense/Unpacked `radix`-branch with `radix` number of sub-nodes. */
+        static private struct DenseBranch
+        {
+            enum maxCapacity = 256;
+            enum prefixCapacity = 15; // 7, 15, 23, ..., we can afford larger prefix here because DenseBranch is so large
+
+            @safe pure nothrow:
+
+            this(const Ix[] prefix)
+            {
+                this.prefix = prefix;
+            }
+
+            this(const Ix[] prefix, Sub sub)
+            {
+                this(prefix);
+                this.subNodes[sub[0]] = sub[1];
+            }
+
+            this(const Ix[] prefix, Sub subA, Sub subB)
+            {
+                assert(subA[0] != subB[0]); // disjunct indexes
+                assert(subA[1] != subB[1]); // disjunct nodes
+
+                this.subNodes[subA[0]] = subA[1];
+                this.subNodes[subB[0]] = subB[1];
+            }
+
+            this(SparseBranch* rhs)
+            {
+                this.prefix = rhs.prefix;
+
+                // move leaf
+                move(rhs.leaf1, this.leaf1);
+                debug rhs.leaf1 = Leaf1!Value.init; // make reference unique, to be on the safe side
+
+                foreach (const i; 0 .. rhs.subCount) // each sub node. TODO use iota!(Mod!N)
+                {
+                    const iN = (cast(ubyte)i).mod!(SparseBranch.maxCapacity);
+                    const subIx = UIx(rhs.subIxSlots[iN]);
+                    this.subNodes[subIx] = rhs.subNodes[iN];
+                    debug rhs.subNodes[iN] = null; // make reference unique, to be on the safe side
+                }
+            }
+
+            /// Number of non-null sub-Nodes.
+            Mod!(radix + 1) subCount() const
+            {
+                typeof(return) count = 0; // number of non-zero sub-nodes
+                foreach (const subNode; subNodes) // TODO why can't we use std.algorithm.count here?
+                {
+                    if (subNode) { ++count; }
+                }
+                assert(count <= radix);
+                return count;
+            }
+
+            pragma(inline) bool findSubNodeAtIx(size_t currIx, out UIx nextIx) inout @nogc
+            {
+                import std.algorithm : countUntil;
+                const cnt = subNodes[currIx .. $].countUntil!(subNode => cast(bool)subNode);
+                const bool hit = cnt >= 0;
+                if (hit)
+                {
+                    nextIx = Ix(currIx + cnt);
+                }
+                return hit;
+            }
+
+            /** Append statistics of tree under `this` into `stats`. */
+            void calculate(ref Stats stats) const
+            {
+                size_t count = 0; // number of non-zero sub-nodes
+                foreach (const subNode; subNodes)
+                {
+                    if (subNode)
                     {
-                        assert(curr.keys.length == 1);
-                        elementRef = ElementRef(Node(curr), UIx(curr.keys.length), ModStatus.added);
-                        curr.keys.pushBack(key);
-                        return Node(curr);
+                        ++count;
+                        subNode.calculate!(Value)(stats);
                     }
                 }
-                return Node(insertAtAbovePrefix(expand(curr), key, elementRef)); // NOTE stay at same (depth)
+                assert(count <= radix);
+                ++stats.popHist_DenseBranch[count]; // TODO type-safe indexing
+
+                if (leaf1)
+                {
+                    leaf1.calculate!(Value)(stats);
+                }
             }
 
-            Node insertAt(TriLeaf2 curr, UKey key, out ElementRef elementRef)
+        private:
+            // members in order of decreasing `alignof`:
+            Leaf1!Value leaf1;
+            IxsN!prefixCapacity prefix; // prefix (edge-label) common to all `subNodes`
+            IndexedBy!(Node[radix], UIx) subNodes;
+        }
+
+        static if (false)
+        {
+            pragma(msg, "SparseBranch.sizeof:", SparseBranch.sizeof, " SparseBranch.alignof:", SparseBranch.alignof);
+            pragma(msg, "SparseBranch.subNodes.sizeof:", SparseBranch.subNodes.sizeof, " SparseBranch.subNodes.alignof:", SparseBranch.subNodes.alignof);
+            pragma(msg, "SparseBranch.prefix.sizeof:", SparseBranch.prefix.sizeof, " SparseBranch.prefix.alignof:", SparseBranch.prefix.alignof);
+            pragma(msg, "SparseBranch.subIxs.sizeof:", SparseBranch.subIxs.sizeof, " SparseBranch.subIxs.alignof:", SparseBranch.subIxs.alignof);
+        }
+
+        /// ditto
+        Branch setSub(SparseBranch* curr, UIx subIx, Node subNode) @safe pure nothrow @nogc
+        {
+            // debug if (willFail) { dln("WILL FAIL: subIx:", subIx); }
+            size_t insertionIndex;
+            ModStatus modStatus;
+            curr = curr.reconstructingInsert(Sub(subIx, subNode), modStatus, insertionIndex);
+            if (modStatus == ModStatus.maxCapacityReached) // try insert and if it fails
             {
-                assert(hasVariableKeyLength || curr.keyLength == key.length);
-                if (curr.keyLength == key.length)
+                // we need to expand because `curr` is full
+                auto next = expand(curr);
+                assert(getSub(next, subIx) == Node.init); // key slot should be unoccupied
+                return setSub(next, subIx, subNode);
+            }
+            return Branch(curr);
+        }
+        /// ditto
+        pragma(inline) Branch setSub(DenseBranch* curr, UIx subIx, Node subNode) @safe pure nothrow @nogc
+        {
+            debug assert(!curr.subNodes[subIx], "sub-Node already set ");
+            // "sub-Node at index " ~ subIx.to!string ~
+            // " already set to " ~ subNode.to!string);
+            curr.subNodes[subIx] = subNode;
+            return Branch(curr);
+        }
+
+        /** Set sub-`Node` of branch `Node curr` at index `ix` to `subNode`. */
+        pragma(inline) Branch setSub(Branch curr, UIx subIx, Node subNode) @safe pure nothrow @nogc
+        {
+            final switch (curr.typeIx) with (Branch.Ix)
+            {
+            case ix_SparseBranchPtr: return setSub(curr.as!(SparseBranch*), subIx, subNode);
+            case ix_DenseBranchPtr: return setSub(curr.as!(DenseBranch*), subIx, subNode);
+            case undefined: assert(false);
+            }
+        }
+
+        /** Get sub-`Node` of branch `Node curr` at index `subIx`. */
+        pragma(inline) Node getSub(Branch curr, UIx subIx) @safe pure nothrow
+        {
+            final switch (curr.typeIx) with (Branch.Ix)
+            {
+            case ix_SparseBranchPtr: return getSub(curr.as!(SparseBranch*), subIx);
+            case ix_DenseBranchPtr: return getSub(curr.as!(DenseBranch*), subIx);
+            case undefined: assert(false);
+            }
+        }
+        /// ditto
+        pragma(inline) Node getSub(SparseBranch* curr, UIx subIx) @safe pure nothrow
+        {
+            if (auto subNode = curr.subAt(subIx)) { return subNode; }
+            return Node.init;
+        }
+        /// ditto
+        pragma(inline) Node getSub(DenseBranch* curr, UIx subIx) @safe pure nothrow
+        {
+            auto sub = curr.subNodes[subIx];
+            debug curr.subNodes[subIx] = Node.init; // zero it to prevent multiple references
+            return sub;
+        }
+
+        /** Get leaves of node `curr`. */
+        pragma(inline) inout(Leaf1!Value) getLeaf1(inout Branch curr) @safe pure nothrow
+        {
+            final switch (curr.typeIx) with (Branch.Ix)
+            {
+            case ix_SparseBranchPtr: return curr.as!(SparseBranch*).leaf1;
+            case ix_DenseBranchPtr: return curr.as!(DenseBranch*).leaf1;
+            case undefined: assert(false);
+            }
+        }
+
+        /** Set direct leaves node of node `curr` to `leaf1`. */
+        pragma(inline) void setLeaf1(Branch curr, Leaf1!Value leaf1) @safe pure nothrow
+        {
+            final switch (curr.typeIx) with (Branch.Ix)
+            {
+            case ix_SparseBranchPtr: curr.as!(SparseBranch*).leaf1 = leaf1; break;
+            case ix_DenseBranchPtr: curr.as!(DenseBranch*).leaf1 = leaf1; break;
+            case undefined: assert(false);
+            }
+        }
+
+        /** Get prefix of node `curr`. */
+        pragma(inline) auto getPrefix(inout Branch curr) @safe pure nothrow
+        {
+            final switch (curr.typeIx) with (Branch.Ix)
+            {
+            case ix_SparseBranchPtr: return curr.as!(SparseBranch*).prefix[];
+            case ix_DenseBranchPtr: return curr.as!(DenseBranch*).prefix[];
+            case undefined: assert(false);
+            }
+        }
+
+        /** Set prefix of branch node `curr` to `prefix`. */
+        pragma(inline) void setPrefix(Branch curr, const Ix[] prefix) @safe pure nothrow
+        {
+            final switch (curr.typeIx) with (Branch.Ix)
+            {
+            case ix_SparseBranchPtr: curr.as!(SparseBranch*).prefix = typeof(curr.as!(SparseBranch*).prefix)(prefix); break;
+            case ix_DenseBranchPtr: curr.as!(DenseBranch*).prefix = typeof(curr.as!(DenseBranch*).prefix)(prefix); break;
+            case undefined: assert(false);
+            }
+        }
+
+        /** Pop `n` from prefix. */
+        pragma(inline) void popFrontNPrefix(Branch curr, size_t n) @safe pure nothrow
+        {
+            final switch (curr.typeIx) with (Branch.Ix)
+            {
+            case ix_SparseBranchPtr: curr.as!(SparseBranch*).prefix.popFrontN(n); break;
+            case ix_DenseBranchPtr: curr.as!(DenseBranch*).prefix.popFrontN(n); break;
+            case undefined: assert(false);
+            }
+        }
+
+        /** Get number of sub-nodes of node `curr`. */
+        pragma(inline) Mod!(radix + 1) getSubCount(inout Branch curr) @safe pure nothrow
+        {
+            final switch (curr.typeIx) with (Branch.Ix)
+            {
+            case ix_SparseBranchPtr: return cast(typeof(return))curr.as!(SparseBranch*).subCount;
+            case ix_DenseBranchPtr: return cast(typeof(return))curr.as!(DenseBranch*).subCount;
+            case undefined: assert(false);
+            }
+        }
+
+        Stats usageHistograms() const
+        {
+            typeof(return) stats;
+            _root.calculate!(Value)(stats);
+            return stats;
+        }
+
+        this(this)
+        {
+            if (!_root) return;
+            auto rhsRoot = _root;
+            debug const oldLength = _length;
+            if (rhsRoot)
+            {
+                _root = null;       // reset
+                _length = 0;        // needs reset because insert updates
+                // TODO insert(rhsRoot[]);
+            }
+            assert(false, "TODO calculate tree by branches and leafs and make copies of them");
+        }
+
+        pragma(inline) ~this() @nogc
+        {
+            assert(_rangeCounter == 0, "Ranges still refer to this"); // no `Range` must refer to `_root`
+            release(_root);
+            debug
+            {
+                try
                 {
-                    if (curr.contains(key)) { return Node(curr); }
-                    if (!curr.keys.full)
+                    if (_heapNodeAllocationBalance != 0)
                     {
-                        elementRef = ElementRef(Node(curr), UIx(curr.keys.length), ModStatus.added);
-                        curr.keys.pushBack(key);
-                        return Node(curr);
+                        assert(false, "warning: Memory leak, heap Node allocation balance is not zero, but "//  ~
+                               // _heapNodeAllocationBalance.to!string ~
+                               // ", nodeCountsByIx is " ~ nodeCountsByIx.to!string
+                            );
                     }
                 }
-                return Node(insertAtAbovePrefix(expand(curr), key, elementRef)); // NOTE stay at same (depth)
+                catch (Exception e) {}
+            }
+        }
+
+        /// Removes all contents (elements).
+        pragma(inline) void clear() @nogc
+        {
+            release(_root);
+            _root = null;           // must null because because `_root` will be read again
+        }
+
+        @safe pure nothrow /* TODO @nogc */
+        {
+            /** Returns: `true` if `key` is stored, `false` otherwise. */
+            pragma(inline) inout(Node) prefix(UKey keyPrefix, out UKey keyPrefixRest) inout
+            {
+                return prefixAt(_root, keyPrefix, keyPrefixRest);
             }
 
-            Leaf1!Value insertAt(HeptLeaf1 curr, UIx key, out ElementRef elementRef)
+            pragma(inline) inout(Node) prefixAt(Node curr, UKey keyPrefix, out UKey keyPrefixRest) inout
             {
-                if (curr.contains(key)) { return Leaf1!Value(curr); }
-                if (!curr.keys.full)
+                import std.algorithm : startsWith;
+                final switch (curr.typeIx) with (Node.Ix)
                 {
-                    elementRef = ElementRef(Node(curr), UIx(curr.keys.back), ModStatus.added);
-                    curr.keys.pushBack(key);
-                    return Leaf1!Value(curr);
-                }
-                else            // curr is full
-                {
-                    assert(curr.keys.length == curr.capacity);
-
-                    // pack `curr.keys` plus `key` into `nextKeys`
-                    Ix[curr.capacity + 1] nextKeys;
-                    nextKeys[0 .. curr.capacity] = curr.keys;
-                    nextKeys[curr.capacity] = key;
-
-                    import std.algorithm.sorting : sort;
-                    sort(nextKeys[]); // TODO move this sorting elsewhere
-
-                    auto next = constructVariableLength!(SparseLeaf1!Value*)(nextKeys.length, nextKeys[]);
-                    elementRef = ElementRef(Node(next), UIx(curr.capacity), ModStatus.added);
-
-                    freeNode(curr);
-                    return Leaf1!Value(next);
-                }
-            }
-
-            Node insertAt(HeptLeaf1 curr, UKey key, out ElementRef elementRef)
-            {
-                assert(hasVariableKeyLength || curr.keyLength == key.length);
-                if (curr.keyLength == key.length)
-                {
-                    return Node(insertAt(curr, UIx(key[0]), elementRef)); // use `Ix key`-overload
-                }
-                return insertAt(Node(constructVariableLength!(DefaultBranch)(1, Leaf1!Value(curr))), // current `key`
-                                key, elementRef); // NOTE stay at same (depth)
-            }
-
-            /** Split `curr` using `prefix`. */
-            Node split(OneLeafMax7 curr, UKey prefix, UKey key) // TODO key here is a bit malplaced
-            {
-                assert(key.length);
-                assert(hasVariableKeyLength || curr.key.length == key.length);
-
-                if (curr.key.length == key.length) // balanced tree possible
-                {
-                    switch (curr.key.length)
+                case undefined:
+                    return typeof(return).init; // terminate recursion
+                case ix_OneLeafMax7:
+                    if (curr.as!(OneLeafMax7).key[].startsWith(keyPrefix)) { goto processHit; }
+                    break;
+                case ix_TwoLeaf3:
+                    if (curr.as!(TwoLeaf3).keyLength >= keyPrefix.length) { goto processHit; }
+                    break;
+                case ix_TriLeaf2:
+                    if (curr.as!(TriLeaf2).keyLength >= keyPrefix.length) { goto processHit; }
+                    break;
+                case ix_HeptLeaf1:
+                    if (curr.as!(HeptLeaf1).keyLength >= keyPrefix.length) { goto processHit; }
+                    break;
+                case ix_SparseLeaf1Ptr:
+                case ix_DenseLeaf1Ptr:
+                    if (keyPrefix.length <= 1) { goto processHit; }
+                    break;
+                case ix_SparseBranchPtr:
+                    auto curr_ = curr.as!(SparseBranch*);
+                    // TODO functionize
+                    if (keyPrefix.startsWith(curr_.prefix[]))
                     {
-                    case 1:
-                        if (prefix.length == 0)
+                        const currPrefixLength = curr_.prefix.length;
+                        if (keyPrefix.length == currPrefixLength || // if no more prefix
+                            curr_.leaf1 && // both leaf1
+                            curr_.subCount) // and sub-nodes
                         {
-                            freeNode(curr);
-                            return Node(construct!(HeptLeaf1)(curr.key)); // TODO removing parameter has no effect. why?
+                            goto processHit;
                         }
-                        break;
-                    case 2:
-                        freeNode(curr);
-                        return Node(construct!(TriLeaf2)(curr.key));
-                    case 3:
-                        freeNode(curr);
-                        return Node(construct!(TwoLeaf3)(curr.key));
-                    default:
-                        break;
-                    }
-                }
-
-                // default case
-                Branch next = constructVariableLength!(DefaultBranch)(1 + 1, prefix); // current plus one more
-                next = insertNewAtBelowPrefix(next, curr.key[prefix.length .. $]);
-                freeNode(curr);   // remove old current
-
-                return Node(next);
-            }
-
-            /** Destructively expand `curr` to make room for `capacityIncrement` more keys and return it. */
-            Branch expand(OneLeafMax7 curr, size_t capacityIncrement = 1)
-            {
-                assert(curr.key.length >= 2);
-                typeof(return) next;
-
-                if (curr.key.length <= DefaultBranch.prefixCapacity + 1) // if `key` fits in `prefix` of `DefaultBranch`
-                {
-                    next = constructVariableLength!(DefaultBranch)(1 + capacityIncrement, curr.key[0 .. $ - 1], // all but last
-                                                                 Leaf1!Value(construct!(HeptLeaf1)(curr.key.back))); // last as a leaf
-                }
-                else                // curr.key.length > DefaultBranch.prefixCapacity + 1
-                {
-                    next = constructVariableLength!(DefaultBranch)(1 + capacityIncrement, curr.key[0 .. DefaultBranch.prefixCapacity]);
-                    next = insertNewAtBelowPrefix(next, curr.key[DefaultBranch.prefixCapacity .. $]);
-                }
-
-                freeNode(curr);
-                return next;
-            }
-
-            /** Destructively expand `curr` to make room for `capacityIncrement` more keys and return it. */
-            Branch expand(TwoLeaf3 curr, size_t capacityIncrement = 1)
-            {
-                typeof(return) next;
-                if (curr.keys.length == 1) // only one key
-                {
-                    next = constructVariableLength!(DefaultBranch)(1 + capacityIncrement);
-                    next = insertNewAtAbovePrefix(next, // current keys plus one more
-                                                        curr.keys.at!0);
-                }
-                else
-                {
-                    next = constructVariableLength!(DefaultBranch)(curr.keys.length + capacityIncrement, curr.prefix);
-                    // TODO functionize and optimize to insertNewAtAbovePrefix(next, curr.keys)
-                    foreach (key; curr.keys)
-                    {
-                        next = insertNewAtBelowPrefix(next, key[curr.prefix.length .. $]);
-                    }
-                }
-                freeNode(curr);
-                return next;
-            }
-
-            /** Destructively expand `curr` to make room for `capacityIncrement` more keys and return it. */
-            Branch expand(TriLeaf2 curr, size_t capacityIncrement = 1)
-            {
-                typeof(return) next;
-                if (curr.keys.length == 1) // only one key
-                {
-                    next = constructVariableLength!(DefaultBranch)(1 + capacityIncrement); // current keys plus one more
-                    next = insertNewAtAbovePrefix(next, curr.keys.at!0);
-                }
-                else
-                {
-                    next = constructVariableLength!(DefaultBranch)(curr.keys.length + capacityIncrement, curr.prefix);
-                    // TODO functionize and optimize to insertNewAtAbovePrefix(next, curr.keys)
-                    foreach (key; curr.keys)
-                    {
-                        next = insertNewAtBelowPrefix(next, key[curr.prefix.length .. $]);
-                    }
-                }
-                freeNode(curr);
-                return next;
-            }
-
-            /** Destructively expand `curr` making room for `nextKey` and return it. */
-            Node expand(HeptLeaf1 curr, size_t capacityIncrement = 1)
-            {
-                auto next = constructVariableLength!(SparseLeaf1!Value*)(curr.keys.length + capacityIncrement, curr.keys);
-                freeNode(curr);
-                return Node(next);
-            }
-        }
-    }
-
-    /** Destructively expand `curr` to a branch node able to store
-        `capacityIncrement` more sub-nodes.
-    */
-    Branch expand(SparseBranch* curr, size_t capacityIncrement = 1)
-    {
-        typeof(return) next;
-        assert(curr.subCount < radix); // we shouldn't expand beyond radix
-        if (curr.empty)     // if curr also empty length capacity must be zero
-        {
-            next = constructVariableLength!(typeof(curr))(1, curr); // so allocate one
-        }
-        else if (curr.subCount + capacityIncrement <= curr.maxCapacity) // if we can expand to curr
-        {
-            const requiredCapacity = curr.subCapacity + capacityIncrement;
-            auto next_ = constructVariableLength!(typeof(curr))(requiredCapacity, curr);
-            assert(next_.subCapacity >= requiredCapacity);
-            next = next_;
-        }
-        else
-        {
-            next = construct!(DenseBranch*)(curr);
-        }
-        freeNode(curr);
-        return next;
-    }
-
-    /** Destructively expand `curr` to a leaf node able to store
-        `capacityIncrement` more sub-nodes.
-    */
-    Leaf1!Value expand(SparseLeaf1!Value* curr, size_t capacityIncrement = 1)
-    {
-        typeof(return) next;
-        assert(curr.length < radix); // we shouldn't expand beyond radix
-        if (curr.empty)     // if curr also empty length capacity must be zero
-        {
-            next = constructVariableLength!(typeof(curr))(capacityIncrement); // make room for at least one
-        }
-        else if (curr.length + capacityIncrement <= curr.maxCapacity) // if we can expand to curr
-        {
-            const requiredCapacity = curr.capacity + capacityIncrement;
-            static if (hasValue)
-            {
-                auto next_ = constructVariableLength!(typeof(curr))(requiredCapacity, curr.ixs, curr.values);
-            }
-            else
-            {
-                auto next_ = constructVariableLength!(typeof(curr))(requiredCapacity, curr.ixs);
-            }
-            assert(next_.capacity >= requiredCapacity);
-            next = next_;
-        }
-        else
-        {
-            static if (hasValue)
-            {
-                next = construct!(DenseLeaf1!Value*)(curr.ixs, curr.values); // TODO make use of sortedness of `curr.keys`?
-            }
-            else
-            {
-                next = construct!(DenseLeaf1!Value*)(curr.ixs); // TODO make use of sortedness of `curr.keys`?
-            }
-        }
-        freeNode(curr);
-        return next;
-    }
-
-    /** Returns: `true` iff tree is empty (no elements stored). */
-    pragma(inline) bool empty() const @safe pure nothrow /* TODO @nogc */ { return !_root; }
-
-    /** Returns: number of elements store. */
-    pragma(inline) size_t length() const @safe pure nothrow /* TODO @nogc */ { return _length; }
-
-    private:
-
-    /** Allocate (if pointer) and Construct a `Node`-type of value type `NodeType`
-        using constructor arguments `args` of `Args`.
-    */
-    auto construct(NodeType, Args...)(Args args) @trusted
-        if (!hasVariableLength!NodeType)
-    {
-        version(debugPrintAllocations) { dln("constructing ", NodeType.stringof, " from ", args); }
-        debug ++nodeCountsByIx[Node.indexOf!NodeType];
-        static if (isPointer!NodeType)
-        {
-            debug ++_heapNodeAllocationBalance;
-
-            import std.conv : emplace;
-            return emplace(cast(NodeType)malloc((*NodeType.init).sizeof), args);
-            // TODO ensure alignment of node at least that of NodeType.alignof
-        }
-        else
-        {
-            return NodeType(args);
-        }
-    }
-
-    auto constructVariableLength(NodeType, Args...)(size_t requiredCapacity, Args args) @trusted
-        if (isPointer!NodeType &&
-            hasVariableLength!NodeType)
-    {
-        version(debugPrintAllocations) { dln("constructing ", NodeType.stringof, " from ", args); }
-        debug ++nodeCountsByIx[Node.indexOf!NodeType];
-        debug ++_heapNodeAllocationBalance;
-        import vla : constructVariableLength;
-        return constructVariableLength!(typeof(*NodeType.init))(requiredCapacity, args);
-        // TODO ensure alignment of node at least that of NodeType.alignof
-    }
-
-    void freeNode(NodeType)(NodeType nt) @trusted @nogc
-    {
-        version(debugPrintAllocations) { dln("freeing ", NodeType.stringof, " ", nt); }
-        static if (isPointer!NodeType)
-        {
-            free(cast(void*)nt);  // TODO Allocator.free
-            debug --_heapNodeAllocationBalance;
-        }
-        debug --nodeCountsByIx[Node.indexOf!NodeType];
-    }
-
-    @safe pure nothrow @nogc
-    {
-        pragma(inline) void release(SparseLeaf1!Value* curr)
-        {
-            freeNode(curr);
-        }
-        pragma(inline) void release(DenseLeaf1!Value* curr)
-        {
-            freeNode(curr);
-        }
-
-        void release(SparseBranch* curr)
-        {
-            foreach (const sub; curr.subNodes[0 .. curr.subCount])
-            {
-                release(sub); // recurse branch
-            }
-            if (curr.leaf1)
-            {
-                release(curr.leaf1); // recurse leaf
-            }
-            freeNode(curr);
-        }
-
-        void release(DenseBranch* curr)
-        {
-            foreach (const sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
-            {
-                release(sub); // recurse branch
-            }
-            if (curr.leaf1)
-            {
-                release(curr.leaf1); // recurse leaf
-            }
-            freeNode(curr);
-        }
-
-        void release(OneLeafMax7 curr) { freeNode(curr); }
-        void release(TwoLeaf3 curr) { freeNode(curr); }
-        void release(TriLeaf2 curr) { freeNode(curr); }
-        void release(HeptLeaf1 curr) { freeNode(curr); }
-
-        /// Release `Leaf1!Value curr`.
-        void release(Leaf1!Value curr)
-        {
-            final switch (curr.typeIx) with (Leaf1!Value.Ix)
-            {
-            case undefined: break; // ignored
-            case ix_HeptLeaf1: return release(curr.as!(HeptLeaf1));
-            case ix_SparseLeaf1Ptr: return release(curr.as!(SparseLeaf1!Value*));
-            case ix_DenseLeaf1Ptr: return release(curr.as!(DenseLeaf1!Value*));
-            }
-        }
-
-        /// Release `Node curr`.
-        void release(Node curr)
-        {
-            version(debugPrintAllocations) { dln("releasing Node ", curr); }
-            final switch (curr.typeIx) with (Node.Ix)
-            {
-            case undefined: break; // ignored
-            case ix_OneLeafMax7: return release(curr.as!(OneLeafMax7));
-            case ix_TwoLeaf3: return release(curr.as!(TwoLeaf3));
-            case ix_TriLeaf2: return release(curr.as!(TriLeaf2));
-            case ix_HeptLeaf1: return release(curr.as!(HeptLeaf1));
-            case ix_SparseLeaf1Ptr: return release(curr.as!(SparseLeaf1!Value*));
-            case ix_DenseLeaf1Ptr: return release(curr.as!(DenseLeaf1!Value*));
-            case ix_SparseBranchPtr: return release(curr.as!(SparseBranch*));
-            case ix_DenseBranchPtr: return release(curr.as!(DenseBranch*));
-            }
-        }
-
-        bool isHeapAllocatedNode(Node curr) const
-        {
-            final switch (curr.typeIx) with (Node.Ix)
-            {
-            case undefined: return false;
-            case ix_OneLeafMax7: return false;
-            case ix_TwoLeaf3: return false;
-            case ix_TriLeaf2: return false;
-            case ix_HeptLeaf1: return false;
-            case ix_SparseLeaf1Ptr: return true;
-            case ix_DenseLeaf1Ptr: return true;
-            case ix_SparseBranchPtr: return true;
-            case ix_DenseBranchPtr: return true;
-            }
-        }
-    }
-
-    /** Returns: `true` if all keys in tree are of fixed length/size, `false` otherwise. */
-    pragma(inline) bool hasFixedKeyLength() const @safe pure nothrow @nogc
-    {
-        return (fixedKeyLength !=
-                fixedKeyLengthUndefined);
-    }
-    /** Returns: `true` if keys in tree may be of variable length/size, `false` otherwise. */
-    pragma(inline) bool hasVariableKeyLength() const @safe pure nothrow @nogc
-    {
-        return !hasFixedKeyLength;
-    }
-
-    /// Returns: number of nodes used in `this` tree. Should always equal `Stats.heapNodeCount`.
-    pragma(inline) debug size_t heapNodeAllocationBalance() @safe pure nothrow /* TODO @nogc */
-    {
-        return _heapNodeAllocationBalance;
-    }
-
-    pragma(inline) void print() @safe const
-    {
-        printAt(_root, 0);
-    }
-
-    void printAt(Node curr, size_t depth, uint subIx = uint.max) @safe const
-    {
-        import std.range : repeat;
-        import std.stdio : write, writeln;
-
-        if (!curr) { return; }
-
-        foreach (const i; 0 .. depth) { write('-'); } // prefix
-        if (subIx != uint.max)
-        {
-            import std.string : format;
-            write(format("%.2X ", subIx));
-        }
-
-        final switch (curr.typeIx) with (Node.Ix)
-        {
-        case undefined:
-            dln("TODO: Trying to print undefined Node");
-            break;
-        case ix_OneLeafMax7:
-            auto curr_ = curr.as!(OneLeafMax7);
-            writeln(typeof(curr_).stringof, " #", curr_.key.length, ": ", curr_.to!string);
-            break;
-        case ix_TwoLeaf3:
-            auto curr_ = curr.as!(TwoLeaf3);
-            writeln(typeof(curr_).stringof, " #", curr_.keys.length, ": ", curr_.keys);
-            break;
-        case ix_TriLeaf2:
-            auto curr_ = curr.as!(TriLeaf2);
-            writeln(typeof(curr_).stringof, " #", curr_.keys.length, ": ", curr_.keys);
-            break;
-        case ix_HeptLeaf1:
-            auto curr_ = curr.as!(HeptLeaf1);
-            writeln(typeof(curr_).stringof, " #", curr_.keys.length, ": ", curr_.keys);
-            break;
-        case ix_SparseLeaf1Ptr:
-            auto curr_ = curr.as!(SparseLeaf1!Value*);
-            write(typeof(*curr_).stringof, " #", curr_.length, "/", curr_.capacity, " @", curr_);
-            write(": ");
-            bool other = false;
-            foreach (const i, const ix; curr_.ixs)
-            {
-                string s;
-                if (other)
-                {
-                    s ~= keySeparator;
-                }
-                else
-                {
-                    other = true;
-                }
-                import std.string : format;
-                s ~= format("%.2X", ix);
-                write(s);
-                static if (hasValue)
-                {
-                    write("=>", curr_.values[i]);
-                }
-            }
-            writeln();
-            break;
-        case ix_DenseLeaf1Ptr:
-            auto curr_ = curr.as!(DenseLeaf1!Value*);
-            write(typeof(*curr_).stringof, " #", curr_.count, " @", curr_);
-            write(": ");
-
-            // keys
-            size_t ix = 0;
-            bool other = false;
-            if (curr_._ixBits.allOne)
-            {
-                write("ALL");
-            }
-            else
-            {
-                foreach (const keyBit; curr_._ixBits[])
-                {
-                    string s;
-                    if (keyBit)
-                    {
-                        if (other)
+                        else if (curr_.subCount == 0) // only leaf1
                         {
-                            s ~= keySeparator;
+                            return prefixAt(Node(curr_.leaf1),
+                                            keyPrefix[currPrefixLength .. $],
+                                            keyPrefixRest);
+                        }
+                        else        // only sub-node(s)
+                        {
+                            return prefixAt(curr_.subAt(UIx(keyPrefix[currPrefixLength])),
+                                            keyPrefix[currPrefixLength + 1 .. $],
+                                            keyPrefixRest);
+                        }
+                    }
+                    break;
+                case ix_DenseBranchPtr:
+                    auto curr_ = curr.as!(DenseBranch*);
+                    // TODO functionize
+                    if (keyPrefix.startsWith(curr_.prefix[]))
+                    {
+                        const currPrefixLength = curr_.prefix.length;
+                        if (keyPrefix.length == currPrefixLength || // if no more prefix
+                            curr_.leaf1 && // both leaf1
+                            curr_.subCount) // and sub-nodes
+                        {
+                            goto processHit;
+                        }
+                        else if (curr_.subCount == 0) // only leaf1
+                        {
+                            return prefixAt(Node(curr_.leaf1),
+                                            keyPrefix[currPrefixLength .. $],
+                                            keyPrefixRest);
+                        }
+                        else        // only sub-node(s)
+                        {
+                            return prefixAt(curr_.subNodes[UIx(keyPrefix[currPrefixLength])],
+                                            keyPrefix[currPrefixLength + 1 .. $],
+                                            keyPrefixRest);
+                        }
+                    }
+                    break;
+                }
+                return typeof(return).init;
+            processHit:
+                keyPrefixRest = keyPrefix;
+                return curr;
+            }
+
+            static if (hasValue)
+            {
+                /** Returns: `true` if `key` is stored, `false` otherwise. */
+                pragma(inline) inout(Value*) contains(UKey key) inout
+                {
+                    return containsAt(_root, key);
+                }
+
+                /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
+                pragma(inline) inout(Value*) containsAt(Leaf1!Value curr, UKey key) inout
+                {
+                    // debug if (willFail) { dln("curr:", curr); }
+                    // debug if (willFail) { dln("key:", key); }
+                    switch (curr.typeIx) with (Leaf1!Value.Ix)
+                    {
+                    case undefined: return null;
+                    case ix_SparseLeaf1Ptr: return key.length == 1 ? curr.as!(SparseLeaf1!Value*).contains(UIx(key[0])) : null;
+                    case ix_DenseLeaf1Ptr:  return key.length == 1 ? curr.as!(DenseLeaf1!Value*).contains(UIx(key[0])) : null;
+                    default: assert(false);
+                    }
+                }
+
+                /// ditto
+                pragma(inline) inout(Value*) containsAt(Node curr, UKey key) inout
+                {
+                    assert(key.length);
+                    // debug if (willFail) { dln("key:", key); }
+                    import std.algorithm.searching : skipOver;
+                    switch (curr.typeIx) with (Node.Ix)
+                    {
+                    case undefined: return null;
+                    case ix_SparseLeaf1Ptr: return key.length == 1 ? curr.as!(SparseLeaf1!Value*).contains(UIx(key[0])) : null;
+                    case ix_DenseLeaf1Ptr:  return key.length == 1 ? curr.as!(DenseLeaf1!Value*).contains(UIx(key[0])) : null;
+                    case ix_SparseBranchPtr:
+                        auto curr_ = curr.as!(SparseBranch*);
+                        if (key.skipOver(curr_.prefix))
+                        {
+                            return (key.length == 1 ?
+                                    containsAt(curr_.leaf1, key) : // in leaf
+                                    containsAt(curr_.subAt(UIx(key[0])), key[1 .. $])); // recurse into branch tree
+                        }
+                        return null;
+                    case ix_DenseBranchPtr:
+                        auto curr_ = curr.as!(DenseBranch*);
+                        if (key.skipOver(curr_.prefix))
+                        {
+                            return (key.length == 1 ?
+                                    containsAt(curr_.leaf1, key) : // in leaf
+                                    containsAt(curr_.subNodes[UIx(key[0])], key[1 .. $])); // recurse into branch tree
+                        }
+                        return null;
+                    default: assert(false);
+                    }
+                }
+            }
+            else
+            {
+            const:
+
+                /** Returns: `true` if `key` is stored, `false` otherwise. */
+                pragma(inline) bool contains(UKey key)
+                {
+                    return containsAt(_root, key);
+                }
+
+                /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
+                pragma(inline) bool containsAt(Leaf1!Value curr, UKey key)
+                {
+                    // debug if (willFail) { dln("key:", key); }
+                    final switch (curr.typeIx) with (Leaf1!Value.Ix)
+                    {
+                    case undefined: return false;
+                    case ix_HeptLeaf1: return curr.as!(HeptLeaf1).contains(key);
+                    case ix_SparseLeaf1Ptr: return key.length == 1 && curr.as!(SparseLeaf1!Value*).contains(UIx(key[0]));
+                    case ix_DenseLeaf1Ptr:  return key.length == 1 && curr.as!(DenseLeaf1!Value*).contains(UIx(key[0]));
+                    }
+                }
+                /// ditto
+                pragma(inline) bool containsAt(Node curr, UKey key)
+                {
+                    assert(key.length);
+                    // debug if (willFail) { dln("key:", key); }
+                    import std.algorithm.searching : skipOver;
+                    final switch (curr.typeIx) with (Node.Ix)
+                    {
+                    case undefined: return false;
+                    case ix_OneLeafMax7: return curr.as!(OneLeafMax7).contains(key);
+                    case ix_TwoLeaf3: return curr.as!(TwoLeaf3).contains(key);
+                    case ix_TriLeaf2: return curr.as!(TriLeaf2).contains(key);
+                    case ix_HeptLeaf1: return curr.as!(HeptLeaf1).contains(key);
+                    case ix_SparseLeaf1Ptr:
+                        return key.length == 1 && curr.as!(SparseLeaf1!Value*).contains(UIx(key[0]));
+                    case ix_DenseLeaf1Ptr:
+                        return key.length == 1 && curr.as!(DenseLeaf1!Value*).contains(UIx(key[0]));
+                    case ix_SparseBranchPtr:
+                        auto curr_ = curr.as!(SparseBranch*);
+                        return (key.skipOver(curr_.prefix) &&        // matching prefix
+                                (key.length == 1 ?
+                                 containsAt(curr_.leaf1, key) : // in leaf
+                                 containsAt(curr_.subAt(UIx(key[0])), key[1 .. $]))); // recurse into branch tree
+                    case ix_DenseBranchPtr:
+                        auto curr_ = curr.as!(DenseBranch*);
+                        return (key.skipOver(curr_.prefix) &&        // matching prefix
+                                (key.length == 1 ?
+                                 containsAt(curr_.leaf1, key) : // in leaf
+                                 containsAt(curr_.subNodes[UIx(key[0])], key[1 .. $]))); // recurse into branch tree
+                    }
+                }
+            }
+
+            pragma(inline) size_t countHeapNodes()
+            {
+                return countHeapNodesAt(_root);
+            }
+
+            pragma(inline) size_t countHeapNodesAt(Node curr)
+            {
+                size_t count = 0;
+                final switch (curr.typeIx) with (Node.Ix)
+                {
+                case undefined: break;
+                case ix_OneLeafMax7: break;
+                case ix_TwoLeaf3: break;
+                case ix_TriLeaf2: break;
+                case ix_HeptLeaf1: break;
+
+                case ix_SparseLeaf1Ptr:
+                case ix_DenseLeaf1Ptr:
+                    ++count;
+                    break;
+
+                case ix_SparseBranchPtr:
+                    auto curr_ = curr.as!(SparseBranch*);
+                    ++count;
+                    foreach (subNode; curr_.subNodeSlots[0 .. curr_.subCount])
+                    {
+                        if (subNode) { count += countHeapNodesAt(subNode); }
+                    }
+                    break;
+
+                case ix_DenseBranchPtr:
+                    ++count;
+                    auto curr_ = curr.as!(DenseBranch*);
+                    foreach (subNode; curr_.subNodes)
+                    {
+                        if (subNode) { count += countHeapNodesAt(subNode); }
+                    }
+                    break;
+                }
+                return count;
+            }
+        }
+
+        @safe pure nothrow @nogc
+        {
+            /** Insert `key` into `this` tree. */
+            static if (hasValue)
+            {
+                pragma(inline) Node insert(UKey key, in Value value, out ElementRef elementRef)
+                {
+                    assert(_rangeCounter == 0, "Cannot modify tree with Range references");
+                    return _root = insertAt(_root, Element(key, value), elementRef);
+                }
+            }
+            else
+            {
+                pragma(inline) Node insert(UKey key, out ElementRef elementRef)
+                {
+                    assert(_rangeCounter == 0, "Cannot modify tree with Range references");
+                    return _root = insertAt(_root, key, elementRef);
+                }
+
+                Node insertNew(UKey key, out ElementRef elementRef)
+                {
+                    Node next;
+                    // debug if (willFail) { dln("WILL FAIL: key:", key); }
+                    switch (key.length)
+                    {
+                    case 0: assert(false, "key must not be empty"); // return elementRef = Node(construct!(OneLeafMax7)());
+                    case 1: next = Node(construct!(HeptLeaf1)(key[0])); break;
+                    case 2: next = Node(construct!(TriLeaf2)(key)); break;
+                    case 3: next = Node(construct!(TwoLeaf3)(key)); break;
+                    default:
+                        if (key.length <= OneLeafMax7.capacity)
+                        {
+                            next = Node(construct!(OneLeafMax7)(key));
+                            break;
+                        }
+                        else                // key doesn't fit in a `OneLeafMax7`
+                        {
+                            return Node(insertNewBranch(key, elementRef));
+                        }
+                    }
+                    elementRef = ElementRef(next,
+                                            UIx(0), // always first index
+                                            ModStatus.added);
+                    return next;
+                }
+            }
+
+            Branch insertNewBranch(Element elt, out ElementRef elementRef)
+            {
+                // debug if (willFail) { dln("WILL FAIL: elt:", elt); }
+                auto key = elementKey(elt);
+                assert(key);
+                import std.algorithm : min;
+                const prefixLength = min(key.length - 1, // all but last Ix of key
+                                         DefaultBranch.prefixCapacity); // as much as possible of key in branch prefix
+                auto prefix = key[0 .. prefixLength];
+                typeof(return) next = insertAtBelowPrefix(Branch(constructVariableLength!(DefaultBranch)(1, prefix)),
+                                                          elementKeyDropExactly(elt, prefixLength), elementRef);
+                assert(elementRef);
+                return next;
+            }
+
+            /** Insert `key` into sub-tree under root `curr`. */
+            pragma(inline) Node insertAt(Node curr, Element elt, out ElementRef elementRef)
+            {
+                auto key = elementKey(elt);
+                // debug if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr); }
+                assert(key.length);
+
+                if (!curr)          // if no existing `Node` to insert at
+                {
+                    static if (hasValue)
+                    {
+                        auto next = Node(insertNewBranch(elt, elementRef));
+                    }
+                    else
+                    {
+                        auto next = insertNew(key, elementRef);
+                    }
+                    assert(elementRef); // must be added to new Node
+                    return next;
+                }
+                else
+                {
+                    final switch (curr.typeIx) with (Node.Ix)
+                    {
+                    case undefined:
+                        return typeof(return).init;
+                    case ix_OneLeafMax7:
+                        static if (hasValue)
+                            assert(false);
+                        else
+                            return insertAt(curr.as!(OneLeafMax7), key, elementRef);
+                    case ix_TwoLeaf3:
+                        static if (hasValue)
+                            assert(false);
+                        else
+                            return insertAt(curr.as!(TwoLeaf3), key, elementRef);
+                    case ix_TriLeaf2:
+                        static if (hasValue)
+                            assert(false);
+                        else
+                            return insertAt(curr.as!(TriLeaf2), key, elementRef);
+                    case ix_HeptLeaf1:
+                        static if (hasValue)
+                            assert(false);
+                        else
+                            return insertAt(curr.as!(HeptLeaf1), key, elementRef);
+                    case ix_SparseLeaf1Ptr:
+                        return insertAtLeaf(Leaf1!Value(curr.as!(SparseLeaf1!Value*)), elt, elementRef); // TODO use toLeaf(curr)
+                    case ix_DenseLeaf1Ptr:
+                        return insertAtLeaf(Leaf1!Value(curr.as!(DenseLeaf1!Value*)), elt, elementRef); // TODO use toLeaf(curr)
+                    case ix_SparseBranchPtr:
+                        // debug if (willFail) { dln("WILL FAIL: currPrefix:", curr.as!(SparseBranch*).prefix); }
+                        return Node(insertAtAbovePrefix(Branch(curr.as!(SparseBranch*)), elt, elementRef));
+                    case ix_DenseBranchPtr:
+                        return Node(insertAtAbovePrefix(Branch(curr.as!(DenseBranch*)), elt, elementRef));
+                    }
+                }
+            }
+
+            /** Insert `key` into sub-tree under branch `curr` above prefix, that is
+                the prefix of `curr` is stripped from `key` prior to insertion. */
+            Branch insertAtAbovePrefix(Branch curr, Element elt, out ElementRef elementRef)
+            {
+                auto key = elementKey(elt);
+                assert(key.length);
+
+                import std.algorithm.searching : commonPrefix;
+                auto currPrefix = getPrefix(curr);
+                auto matchedKeyPrefix = commonPrefix(key, currPrefix);
+
+                // debug if (willFail) { dln("WILL FAIL: key:", key,
+                //                     " curr:", curr,
+                //                     " currPrefix:", getPrefix(curr),
+                //                     " matchedKeyPrefix:", matchedKeyPrefix); }
+
+                if (matchedKeyPrefix.length == 0) // no prefix key match
+                {
+                    if (currPrefix.length == 0) // no current prefix
+                    {
+                        // debug if (willFail) { dln("WILL FAIL"); }
+                        // NOTE: prefix:"", key:"cd"
+                        return insertAtBelowPrefix(curr, elt, elementRef);
+                    }
+                    else  // if (currPrefix.length >= 1) // non-empty current prefix
+                    {
+                        // NOTE: prefix:"ab", key:"cd"
+                        const currSubIx = UIx(currPrefix[0]); // subIx = 'a'
+                        if (currPrefix.length == 1 && getSubCount(curr) == 0) // if `curr`-prefix become empty and only leaf pointer
+                        {
+                            // debug if (willFail) { dln("WILL FAIL"); }
+                            popFrontNPrefix(curr, 1);
+                            setSub(curr, currSubIx, Node(getLeaf1(curr))); // move it to sub
+                            setLeaf1(curr, Leaf1!Value.init);
+
+                            return insertAtBelowPrefix(curr, elt, elementRef); // directly call below because `curr`-prefix is now empty
                         }
                         else
                         {
-                            other = true;
+                            // debug if (willFail) { dln("WILL FAIL"); }
+                            popFrontNPrefix(curr, 1);
+                            auto next = constructVariableLength!(DefaultBranch)(2, null,
+                                                                                Sub(currSubIx, Node(curr)));
+                            return insertAtAbovePrefix(Branch(next), elt, elementRef);
                         }
-                        import std.string : format;
-                        s ~= format("%.2X", ix);
                     }
-                    write(s);
-                    static if (hasValue)
+                }
+                else if (matchedKeyPrefix.length < key.length)
+                {
+                    if (matchedKeyPrefix.length == currPrefix.length)
                     {
-                        write("=>", curr_.values[ix]);
+                        // debug if (willFail) { dln("WILL FAIL"); }
+                        // NOTE: key is an extension of prefix: prefix:"ab", key:"abcd"
+                        return insertAtBelowPrefix(curr, elementKeyDropExactly(elt, currPrefix.length), elementRef);
                     }
-                    ++ix;
+                    else
+                    {
+                        // debug if (willFail) { dln("WILL FAIL"); }
+                        // NOTE: prefix and key share beginning: prefix:"ab11", key:"ab22"
+                        const currSubIx = UIx(currPrefix[matchedKeyPrefix.length]); // need index first before we modify curr.prefix
+                        popFrontNPrefix(curr, matchedKeyPrefix.length + 1);
+                        auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix,
+                                                                            Sub(currSubIx, Node(curr)));
+                        return insertAtBelowPrefix(Branch(next), elementKeyDropExactly(elt, matchedKeyPrefix.length), elementRef);
+                    }
+                }
+                else // if (matchedKeyPrefix.length == key.length)
+                {
+                    // debug if (willFail) { dln("WILL FAIL"); }
+                    assert(matchedKeyPrefix.length == key.length);
+                    if (matchedKeyPrefix.length < currPrefix.length)
+                    {
+                        // NOTE: prefix is an extension of key: prefix:"abcd", key:"ab"
+                        assert(matchedKeyPrefix.length);
+                        const nextPrefixLength = matchedKeyPrefix.length - 1;
+                        const currSubIx = UIx(currPrefix[nextPrefixLength]); // need index first
+                        popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
+                        auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
+                                                                            Sub(currSubIx, Node(curr)));
+                        return insertAtBelowPrefix(Branch(next), elementKeyDropExactly(elt, nextPrefixLength), elementRef);
+                    }
+                    else /* if (matchedKeyPrefix.length == currPrefix.length) and in turn
+                            if (key.length == currPrefix.length */
+                    {
+                        // NOTE: prefix equals key: prefix:"abcd", key:"abcd"
+                        assert(matchedKeyPrefix.length);
+                        const currSubIx = UIx(currPrefix[matchedKeyPrefix.length - 1]); // need index first
+                        popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
+                        auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
+                                                                            Sub(currSubIx, Node(curr)));
+                        static if (hasValue)
+                            return insertAtLeaf1(Branch(next), UIx(key[$ - 1]), elt.value, elementRef);
+                        else
+                            return insertAtLeaf1(Branch(next), UIx(key[$ - 1]), elementRef);
+                    }
                 }
             }
 
-            writeln();
-            break;
-        case ix_SparseBranchPtr:
-            auto curr_ = curr.as!(SparseBranch*);
-            write(typeof(*curr_).stringof, " #", curr_.subCount, "/", curr_.subCapacity, " @", curr_);
-            if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix.toString('_')); }
-            writeln(":");
-            if (curr_.leaf1)
+            /** Like `insertAtAbovePrefix` but also asserts that `key` is
+                currently not stored under `curr`. */
+            pragma(inline) Branch insertNewAtAbovePrefix(Branch curr, Element elt)
             {
-                printAt(Node(curr_.leaf1), depth + 1);
-            }
-            foreach (const i, const subNode; curr_.subNodes)
-            {
-                printAt(subNode, depth + 1, cast(uint)curr_.subIxs[i]);
-            }
-            break;
-        case ix_DenseBranchPtr:
-            auto curr_ = curr.as!(DenseBranch*);
-            write(typeof(*curr_).stringof, " #", curr_.subCount, "/", radix, " @", curr_);
-            if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix.toString('_')); }
-            writeln(":");
-            if (curr_.leaf1)
-            {
-                printAt(Node(curr_.leaf1), depth + 1);
-            }
-            foreach (const i, const subNode; curr_.subNodes)
-            {
-                printAt(subNode, depth + 1, cast(uint)i);
+                ElementRef elementRef;
+                auto next = insertAtAbovePrefix(curr, elt, elementRef);
+                assert(elementRef);
+                return next;
             }
 
-            break;
+            static if (hasValue)
+            {
+                pragma(inline) Branch insertAtSubNode(Branch curr, UKey key, Value value, out ElementRef elementRef)
+                {
+                    // debug if (willFail) { dln("WILL FAIL"); }
+                    const subIx = UIx(key[0]);
+                    return setSub(curr, subIx,
+                                  insertAt(getSub(curr, subIx), // recurse
+                                           Element(key[1 .. $], value),
+                                           elementRef));
+                }
+            }
+            else
+            {
+                pragma(inline) Branch insertAtSubNode(Branch curr, UKey key, out ElementRef elementRef)
+                {
+                    // debug if (willFail) { dln("WILL FAIL"); }
+                    const subIx = UIx(key[0]);
+                    return setSub(curr, subIx,
+                                  insertAt(getSub(curr, subIx), // recurse
+                                           key[1 .. $],
+                                           elementRef));
+                }
+            }
+
+            /** Insert `key` into sub-tree under branch `curr` below prefix, that is
+                the prefix of `curr` is not stripped from `key` prior to
+                insertion. */
+            Branch insertAtBelowPrefix(Branch curr, Element elt, out ElementRef elementRef)
+            {
+                auto key = elementKey(elt);
+                assert(key.length);
+                // debug if (willFail) { dln("WILL FAIL: key:", key,
+                //                           " curr:", curr,
+                //                           " currPrefix:", getPrefix(curr),
+                //                           " elementRef:", elementRef); }
+                if (key.length == 1)
+                {
+                    static if (hasValue)
+                        return insertAtLeaf1(curr, UIx(key[0]), elt.value, elementRef);
+                    else
+                        return insertAtLeaf1(curr, UIx(key[0]), elementRef);
+                }
+                else                // key.length >= 2
+                {
+                    static if (hasValue)
+                        return insertAtSubNode(curr, key, elt.value, elementRef);
+                    else
+                        return insertAtSubNode(curr, key, elementRef);
+                }
+            }
+
+            pragma(inline) Branch insertNewAtBelowPrefix(Branch curr, Element elt)
+            {
+                ElementRef elementRef;
+                auto next = insertAtBelowPrefix(curr, elt, elementRef);
+                assert(elementRef);
+                return next;
+            }
+
+            Leaf1!Value insertIxAtLeaftoLeaf(Leaf1!Value curr, IxElement elt, out ElementRef elementRef)
+            {
+                auto key = elementIx(elt);
+                // debug if (willFail) { dln("WILL FAIL: elt:", elt,
+                //                           " curr:", curr,
+                //                           " elementRef:", elementRef); }
+                switch (curr.typeIx) with (Leaf1!Value.Ix)
+                {
+                case undefined:
+                    return typeof(return).init;
+                case ix_HeptLeaf1:
+                    static if (hasValue)
+                    {
+                        assert(false);
+                    }
+                    else
+                    {
+                        return insertAt(curr.as!(HeptLeaf1), key, elementRef); // possibly expanded to other Leaf1!Value
+                    }
+                case ix_SparseLeaf1Ptr:
+                    auto curr_ = curr.as!(SparseLeaf1!Value*);
+                    size_t index;
+                    ModStatus modStatus;
+                    curr_ = curr_.reconstructingInsert(elt, modStatus, index);
+                    curr = Leaf1!Value(curr_);
+                    final switch (modStatus)
+                    {
+                    case ModStatus.unchanged: // already stored at `index`
+                        elementRef = ElementRef(Node(curr_), UIx(index), modStatus);
+                        return curr;
+                    case ModStatus.added:
+                        elementRef = ElementRef(Node(curr_), UIx(index), modStatus);
+                        return curr;
+                    case ModStatus.maxCapacityReached:
+                        auto next = insertIxAtLeaftoLeaf(expand(curr_, 1), // make room for one more
+                                                         elt, elementRef);
+                        assert(next.peek!(DenseLeaf1!Value*));
+                        return next;
+                    case ModStatus.updated:
+                        elementRef = ElementRef(Node(curr_), UIx(index), modStatus);
+                        return curr;
+                    }
+                case ix_DenseLeaf1Ptr:
+                    const modStatus = curr.as!(DenseLeaf1!Value*).insert(elt);
+                    static if (hasValue) { const ix = elt.ix; }
+                    else                 { const ix = elt; }
+                    elementRef = ElementRef(Node(curr), ix, modStatus);
+                    break;
+                default:
+                    assert(false, "Unsupported Leaf1!Value type " // ~ curr.typeIx.to!string
+                        );
+                }
+                return curr;
+            }
+
+            static if (hasValue)
+            {
+                Branch insertAtLeaf1(Branch curr, UIx key, Value value, out ElementRef elementRef)
+                {
+                    // debug if (willFail) { dln("WILL FAIL: key:", key,
+                    //                           " value:", value,
+                    //                           " curr:", curr,
+                    //                           " currPrefix:", getPrefix(curr),
+                    //                           " elementRef:", elementRef); }
+                    if (auto leaf = getLeaf1(curr))
+                    {
+                        setLeaf1(curr, insertIxAtLeaftoLeaf(leaf, IxElement(key, value), elementRef));
+                    }
+                    else
+                    {
+                        Ix[1] ixs = [Ix(key)]; // TODO scope
+                        Value[1] values = [value]; // TODO scope
+                        auto leaf_ = constructVariableLength!(SparseLeaf1!Value*)(1, ixs, values); // needed for values
+                        elementRef = ElementRef(Node(leaf_), UIx(0), ModStatus.added);
+                        setLeaf1(curr, Leaf1!Value(leaf_));
+                    }
+                    return curr;
+                }
+            }
+            else
+            {
+                Branch insertAtLeaf1(Branch curr, UIx key, out ElementRef elementRef)
+                {
+                    // debug if (willFail) { dln("WILL FAIL: key:", key,
+                    //                           " curr:", curr,
+                    //                           " currPrefix:", getPrefix(curr),
+                    //                           " elementRef:", elementRef); }
+                    if (auto leaf = getLeaf1(curr))
+                    {
+                        setLeaf1(curr, insertIxAtLeaftoLeaf(leaf, key, elementRef));
+                    }
+                    else
+                    {
+                        auto leaf_ = construct!(HeptLeaf1)(key); // can pack more efficiently when no value
+                        elementRef = ElementRef(Node(leaf_), UIx(0), ModStatus.added);
+                        setLeaf1(curr, Leaf1!Value(leaf_));
+                    }
+                    return curr;
+                }
+            }
+
+            Node insertAtLeaf(Leaf1!Value curr, Element elt, out ElementRef elementRef)
+            {
+                // debug if (willFail) { dln("WILL FAIL: elt:", elt); }
+                auto key = elementKey(elt);
+                assert(key.length);
+                if (key.length == 1)
+                {
+                    static if (hasValue)
+                        return Node(insertIxAtLeaftoLeaf(curr, IxElement(UIx(key[0]), elt.value), elementRef));
+                    else
+                        return Node(insertIxAtLeaftoLeaf(curr, UIx(key[0]), elementRef));
+                }
+                else
+                {
+                    assert(key.length >= 2);
+                    const prefixLength = key.length - 2; // >= 0
+                    const nextPrefix = key[0 .. prefixLength];
+                    auto next = constructVariableLength!(DefaultBranch)(1, nextPrefix, curr); // one sub-node and one leaf
+                    return Node(insertAtBelowPrefix(Branch(next), elementKeyDropExactly(elt, prefixLength), elementRef));
+                }
+            }
+
+            static if (!hasValue)
+            {
+                Node insertAt(OneLeafMax7 curr, UKey key, out ElementRef elementRef)
+                {
+                    assert(curr.key.length);
+                    // debug if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
+
+                    import std.algorithm.searching : commonPrefix;
+                    auto matchedKeyPrefix = commonPrefix(key, curr.key);
+                    if (curr.key.length == key.length)
+                    {
+                        if (matchedKeyPrefix.length == key.length) // curr.key, key and matchedKeyPrefix all equal
+                        {
+                            return Node(curr); // already stored in `curr`
+                        }
+                        else if (matchedKeyPrefix.length + 1 == key.length) // key and curr.key are both matchedKeyPrefix plus one extra
+                        {
+                            // TODO functionize:
+                            Node next;
+                            switch (matchedKeyPrefix.length)
+                            {
+                            case 0:
+                                next = construct!(HeptLeaf1)(curr.key[0], key[0]);
+                                elementRef = ElementRef(next, UIx(1), ModStatus.added);
+                                break;
+                            case 1:
+                                next = construct!(TriLeaf2)(curr.key, key);
+                                elementRef = ElementRef(next, UIx(1), ModStatus.added);
+                                break;
+                            case 2:
+                                next = construct!(TwoLeaf3)(curr.key, key);
+                                elementRef = ElementRef(next, UIx(1), ModStatus.added);
+                                break;
+                            default:
+                                import std.algorithm : min;
+                                const nextPrefix = matchedKeyPrefix[0 .. min(matchedKeyPrefix.length,
+                                                                             DefaultBranch.prefixCapacity)]; // limit prefix branch capacity
+                                Branch nextBranch = constructVariableLength!(DefaultBranch)(1 + 1, // `curr` and `key`
+                                                                                            nextPrefix);
+                                nextBranch = insertNewAtBelowPrefix(nextBranch, curr.key[nextPrefix.length .. $]);
+                                nextBranch = insertAtBelowPrefix(nextBranch, key[nextPrefix.length .. $], elementRef);
+                                assert(elementRef);
+                                next = Node(nextBranch);
+                                break;
+                            }
+                            freeNode(curr);
+                            return next;
+                        }
+                    }
+
+                    return Node(insertAtAbovePrefix(expand(curr), key, elementRef));
+                }
+
+                Node insertAt(TwoLeaf3 curr, UKey key, out ElementRef elementRef)
+                {
+                    assert(hasVariableKeyLength || curr.keyLength == key.length);
+                    if (curr.keyLength == key.length)
+                    {
+                        if (curr.contains(key)) { return Node(curr); }
+                        if (!curr.keys.full)
+                        {
+                            assert(curr.keys.length == 1);
+                            elementRef = ElementRef(Node(curr), UIx(curr.keys.length), ModStatus.added);
+                            curr.keys.pushBack(key);
+                            return Node(curr);
+                        }
+                    }
+                    return Node(insertAtAbovePrefix(expand(curr), key, elementRef)); // NOTE stay at same (depth)
+                }
+
+                Node insertAt(TriLeaf2 curr, UKey key, out ElementRef elementRef)
+                {
+                    assert(hasVariableKeyLength || curr.keyLength == key.length);
+                    if (curr.keyLength == key.length)
+                    {
+                        if (curr.contains(key)) { return Node(curr); }
+                        if (!curr.keys.full)
+                        {
+                            elementRef = ElementRef(Node(curr), UIx(curr.keys.length), ModStatus.added);
+                            curr.keys.pushBack(key);
+                            return Node(curr);
+                        }
+                    }
+                    return Node(insertAtAbovePrefix(expand(curr), key, elementRef)); // NOTE stay at same (depth)
+                }
+
+                Leaf1!Value insertAt(HeptLeaf1 curr, UIx key, out ElementRef elementRef)
+                {
+                    if (curr.contains(key)) { return Leaf1!Value(curr); }
+                    if (!curr.keys.full)
+                    {
+                        elementRef = ElementRef(Node(curr), UIx(curr.keys.back), ModStatus.added);
+                        curr.keys.pushBack(key);
+                        return Leaf1!Value(curr);
+                    }
+                    else            // curr is full
+                    {
+                        assert(curr.keys.length == curr.capacity);
+
+                        // pack `curr.keys` plus `key` into `nextKeys`
+                        Ix[curr.capacity + 1] nextKeys;
+                        nextKeys[0 .. curr.capacity] = curr.keys;
+                        nextKeys[curr.capacity] = key;
+
+                        import std.algorithm.sorting : sort;
+                        sort(nextKeys[]); // TODO move this sorting elsewhere
+
+                        auto next = constructVariableLength!(SparseLeaf1!Value*)(nextKeys.length, nextKeys[]);
+                        elementRef = ElementRef(Node(next), UIx(curr.capacity), ModStatus.added);
+
+                        freeNode(curr);
+                        return Leaf1!Value(next);
+                    }
+                }
+
+                Node insertAt(HeptLeaf1 curr, UKey key, out ElementRef elementRef)
+                {
+                    assert(hasVariableKeyLength || curr.keyLength == key.length);
+                    if (curr.keyLength == key.length)
+                    {
+                        return Node(insertAt(curr, UIx(key[0]), elementRef)); // use `Ix key`-overload
+                    }
+                    return insertAt(Node(constructVariableLength!(DefaultBranch)(1, Leaf1!Value(curr))), // current `key`
+                                    key, elementRef); // NOTE stay at same (depth)
+                }
+
+                /** Split `curr` using `prefix`. */
+                Node split(OneLeafMax7 curr, UKey prefix, UKey key) // TODO key here is a bit malplaced
+                {
+                    assert(key.length);
+                    assert(hasVariableKeyLength || curr.key.length == key.length);
+
+                    if (curr.key.length == key.length) // balanced tree possible
+                    {
+                        switch (curr.key.length)
+                        {
+                        case 1:
+                            if (prefix.length == 0)
+                            {
+                                freeNode(curr);
+                                return Node(construct!(HeptLeaf1)(curr.key)); // TODO removing parameter has no effect. why?
+                            }
+                            break;
+                        case 2:
+                            freeNode(curr);
+                            return Node(construct!(TriLeaf2)(curr.key));
+                        case 3:
+                            freeNode(curr);
+                            return Node(construct!(TwoLeaf3)(curr.key));
+                        default:
+                            break;
+                        }
+                    }
+
+                    // default case
+                    Branch next = constructVariableLength!(DefaultBranch)(1 + 1, prefix); // current plus one more
+                    next = insertNewAtBelowPrefix(next, curr.key[prefix.length .. $]);
+                    freeNode(curr);   // remove old current
+
+                    return Node(next);
+                }
+
+                /** Destructively expand `curr` to make room for `capacityIncrement` more keys and return it. */
+                Branch expand(OneLeafMax7 curr, size_t capacityIncrement = 1)
+                {
+                    assert(curr.key.length >= 2);
+                    typeof(return) next;
+
+                    if (curr.key.length <= DefaultBranch.prefixCapacity + 1) // if `key` fits in `prefix` of `DefaultBranch`
+                    {
+                        next = constructVariableLength!(DefaultBranch)(1 + capacityIncrement, curr.key[0 .. $ - 1], // all but last
+                                                                       Leaf1!Value(construct!(HeptLeaf1)(curr.key.back))); // last as a leaf
+                    }
+                    else                // curr.key.length > DefaultBranch.prefixCapacity + 1
+                    {
+                        next = constructVariableLength!(DefaultBranch)(1 + capacityIncrement, curr.key[0 .. DefaultBranch.prefixCapacity]);
+                        next = insertNewAtBelowPrefix(next, curr.key[DefaultBranch.prefixCapacity .. $]);
+                    }
+
+                    freeNode(curr);
+                    return next;
+                }
+
+                /** Destructively expand `curr` to make room for `capacityIncrement` more keys and return it. */
+                Branch expand(TwoLeaf3 curr, size_t capacityIncrement = 1)
+                {
+                    typeof(return) next;
+                    if (curr.keys.length == 1) // only one key
+                    {
+                        next = constructVariableLength!(DefaultBranch)(1 + capacityIncrement);
+                        next = insertNewAtAbovePrefix(next, // current keys plus one more
+                                                      curr.keys.at!0);
+                    }
+                    else
+                    {
+                        next = constructVariableLength!(DefaultBranch)(curr.keys.length + capacityIncrement, curr.prefix);
+                        // TODO functionize and optimize to insertNewAtAbovePrefix(next, curr.keys)
+                        foreach (key; curr.keys)
+                        {
+                            next = insertNewAtBelowPrefix(next, key[curr.prefix.length .. $]);
+                        }
+                    }
+                    freeNode(curr);
+                    return next;
+                }
+
+                /** Destructively expand `curr` to make room for `capacityIncrement` more keys and return it. */
+                Branch expand(TriLeaf2 curr, size_t capacityIncrement = 1)
+                {
+                    typeof(return) next;
+                    if (curr.keys.length == 1) // only one key
+                    {
+                        next = constructVariableLength!(DefaultBranch)(1 + capacityIncrement); // current keys plus one more
+                        next = insertNewAtAbovePrefix(next, curr.keys.at!0);
+                    }
+                    else
+                    {
+                        next = constructVariableLength!(DefaultBranch)(curr.keys.length + capacityIncrement, curr.prefix);
+                        // TODO functionize and optimize to insertNewAtAbovePrefix(next, curr.keys)
+                        foreach (key; curr.keys)
+                        {
+                            next = insertNewAtBelowPrefix(next, key[curr.prefix.length .. $]);
+                        }
+                    }
+                    freeNode(curr);
+                    return next;
+                }
+
+                /** Destructively expand `curr` making room for `nextKey` and return it. */
+                Node expand(HeptLeaf1 curr, size_t capacityIncrement = 1)
+                {
+                    auto next = constructVariableLength!(SparseLeaf1!Value*)(curr.keys.length + capacityIncrement, curr.keys);
+                    freeNode(curr);
+                    return Node(next);
+                }
+            }
         }
+
+        /** Destructively expand `curr` to a branch node able to store
+            `capacityIncrement` more sub-nodes.
+        */
+        Branch expand(SparseBranch* curr, size_t capacityIncrement = 1)
+        {
+            typeof(return) next;
+            assert(curr.subCount < radix); // we shouldn't expand beyond radix
+            if (curr.empty)     // if curr also empty length capacity must be zero
+            {
+                next = constructVariableLength!(typeof(curr))(1, curr); // so allocate one
+            }
+            else if (curr.subCount + capacityIncrement <= curr.maxCapacity) // if we can expand to curr
+            {
+                const requiredCapacity = curr.subCapacity + capacityIncrement;
+                auto next_ = constructVariableLength!(typeof(curr))(requiredCapacity, curr);
+                assert(next_.subCapacity >= requiredCapacity);
+                next = next_;
+            }
+            else
+            {
+                next = construct!(DenseBranch*)(curr);
+            }
+            freeNode(curr);
+            return next;
+        }
+
+        /** Destructively expand `curr` to a leaf node able to store
+            `capacityIncrement` more sub-nodes.
+        */
+        Leaf1!Value expand(SparseLeaf1!Value* curr, size_t capacityIncrement = 1)
+        {
+            typeof(return) next;
+            assert(curr.length < radix); // we shouldn't expand beyond radix
+            if (curr.empty)     // if curr also empty length capacity must be zero
+            {
+                next = constructVariableLength!(typeof(curr))(capacityIncrement); // make room for at least one
+            }
+            else if (curr.length + capacityIncrement <= curr.maxCapacity) // if we can expand to curr
+            {
+                const requiredCapacity = curr.capacity + capacityIncrement;
+                static if (hasValue)
+                {
+                    auto next_ = constructVariableLength!(typeof(curr))(requiredCapacity, curr.ixs, curr.values);
+                }
+                else
+                {
+                    auto next_ = constructVariableLength!(typeof(curr))(requiredCapacity, curr.ixs);
+                }
+                assert(next_.capacity >= requiredCapacity);
+                next = next_;
+            }
+            else
+            {
+                static if (hasValue)
+                {
+                    next = construct!(DenseLeaf1!Value*)(curr.ixs, curr.values); // TODO make use of sortedness of `curr.keys`?
+                }
+                else
+                {
+                    next = construct!(DenseLeaf1!Value*)(curr.ixs); // TODO make use of sortedness of `curr.keys`?
+                }
+            }
+            freeNode(curr);
+            return next;
+        }
+
+        /** Returns: `true` iff tree is empty (no elements stored). */
+        pragma(inline) bool empty() const @safe pure nothrow /* TODO @nogc */ { return !_root; }
+
+        /** Returns: number of elements store. */
+        pragma(inline) size_t length() const @safe pure nothrow /* TODO @nogc */ { return _length; }
+
+    private:
+
+        /** Allocate (if pointer) and Construct a `Node`-type of value type `NodeType`
+            using constructor arguments `args` of `Args`.
+        */
+        auto construct(NodeType, Args...)(Args args) @trusted
+            if (!hasVariableLength!NodeType)
+            {
+                version(debugPrintAllocations) { dln("constructing ", NodeType.stringof, " from ", args); }
+                debug ++nodeCountsByIx[Node.indexOf!NodeType];
+                static if (isPointer!NodeType)
+                {
+                    debug ++_heapNodeAllocationBalance;
+
+                    import std.conv : emplace;
+                    return emplace(cast(NodeType)malloc((*NodeType.init).sizeof), args);
+                    // TODO ensure alignment of node at least that of NodeType.alignof
+                }
+                else
+                {
+                    return NodeType(args);
+                }
+            }
+
+        auto constructVariableLength(NodeType, Args...)(size_t requiredCapacity, Args args) @trusted
+            if (isPointer!NodeType &&
+                hasVariableLength!NodeType)
+            {
+                version(debugPrintAllocations) { dln("constructing ", NodeType.stringof, " from ", args); }
+                debug ++nodeCountsByIx[Node.indexOf!NodeType];
+                debug ++_heapNodeAllocationBalance;
+                import vla : constructVariableLength;
+                return constructVariableLength!(typeof(*NodeType.init))(requiredCapacity, args);
+                // TODO ensure alignment of node at least that of NodeType.alignof
+            }
+
+        void freeNode(NodeType)(NodeType nt) @trusted @nogc
+        {
+            version(debugPrintAllocations) { dln("freeing ", NodeType.stringof, " ", nt); }
+            static if (isPointer!NodeType)
+            {
+                free(cast(void*)nt);  // TODO Allocator.free
+                debug --_heapNodeAllocationBalance;
+            }
+            debug --nodeCountsByIx[Node.indexOf!NodeType];
+        }
+
+        @safe pure nothrow @nogc
+        {
+            pragma(inline) void release(SparseLeaf1!Value* curr)
+            {
+                freeNode(curr);
+            }
+            pragma(inline) void release(DenseLeaf1!Value* curr)
+            {
+                freeNode(curr);
+            }
+
+            void release(SparseBranch* curr)
+            {
+                foreach (const sub; curr.subNodes[0 .. curr.subCount])
+                {
+                    release(sub); // recurse branch
+                }
+                if (curr.leaf1)
+                {
+                    release(curr.leaf1); // recurse leaf
+                }
+                freeNode(curr);
+            }
+
+            void release(DenseBranch* curr)
+            {
+                foreach (const sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
+                {
+                    release(sub); // recurse branch
+                }
+                if (curr.leaf1)
+                {
+                    release(curr.leaf1); // recurse leaf
+                }
+                freeNode(curr);
+            }
+
+            void release(OneLeafMax7 curr) { freeNode(curr); }
+            void release(TwoLeaf3 curr) { freeNode(curr); }
+            void release(TriLeaf2 curr) { freeNode(curr); }
+            void release(HeptLeaf1 curr) { freeNode(curr); }
+
+            /// Release `Leaf1!Value curr`.
+            void release(Leaf1!Value curr)
+            {
+                final switch (curr.typeIx) with (Leaf1!Value.Ix)
+                {
+                case undefined: break; // ignored
+                case ix_HeptLeaf1: return release(curr.as!(HeptLeaf1));
+                case ix_SparseLeaf1Ptr: return release(curr.as!(SparseLeaf1!Value*));
+                case ix_DenseLeaf1Ptr: return release(curr.as!(DenseLeaf1!Value*));
+                }
+            }
+
+            /// Release `Node curr`.
+            void release(Node curr)
+            {
+                version(debugPrintAllocations) { dln("releasing Node ", curr); }
+                final switch (curr.typeIx) with (Node.Ix)
+                {
+                case undefined: break; // ignored
+                case ix_OneLeafMax7: return release(curr.as!(OneLeafMax7));
+                case ix_TwoLeaf3: return release(curr.as!(TwoLeaf3));
+                case ix_TriLeaf2: return release(curr.as!(TriLeaf2));
+                case ix_HeptLeaf1: return release(curr.as!(HeptLeaf1));
+                case ix_SparseLeaf1Ptr: return release(curr.as!(SparseLeaf1!Value*));
+                case ix_DenseLeaf1Ptr: return release(curr.as!(DenseLeaf1!Value*));
+                case ix_SparseBranchPtr: return release(curr.as!(SparseBranch*));
+                case ix_DenseBranchPtr: return release(curr.as!(DenseBranch*));
+                }
+            }
+
+            bool isHeapAllocatedNode(Node curr) const
+            {
+                final switch (curr.typeIx) with (Node.Ix)
+                {
+                case undefined: return false;
+                case ix_OneLeafMax7: return false;
+                case ix_TwoLeaf3: return false;
+                case ix_TriLeaf2: return false;
+                case ix_HeptLeaf1: return false;
+                case ix_SparseLeaf1Ptr: return true;
+                case ix_DenseLeaf1Ptr: return true;
+                case ix_SparseBranchPtr: return true;
+                case ix_DenseBranchPtr: return true;
+                }
+            }
+        }
+
+        /** Returns: `true` if all keys in tree are of fixed length/size, `false` otherwise. */
+        pragma(inline) bool hasFixedKeyLength() const @safe pure nothrow @nogc
+        {
+            return (fixedKeyLength !=
+                    fixedKeyLengthUndefined);
+        }
+        /** Returns: `true` if keys in tree may be of variable length/size, `false` otherwise. */
+        pragma(inline) bool hasVariableKeyLength() const @safe pure nothrow @nogc
+        {
+            return !hasFixedKeyLength;
+        }
+
+        /// Returns: number of nodes used in `this` tree. Should always equal `Stats.heapNodeCount`.
+        pragma(inline) debug size_t heapNodeAllocationBalance() @safe pure nothrow /* TODO @nogc */
+        {
+            return _heapNodeAllocationBalance;
+        }
+
+        pragma(inline) void print() @safe const
+        {
+            printAt(_root, 0);
+        }
+
+        void printAt(Node curr, size_t depth, uint subIx = uint.max) @safe const
+        {
+            import std.range : repeat;
+            import std.stdio : write, writeln;
+
+            if (!curr) { return; }
+
+            foreach (const i; 0 .. depth) { write('-'); } // prefix
+            if (subIx != uint.max)
+            {
+                import std.string : format;
+                write(format("%.2X ", subIx));
+            }
+
+            final switch (curr.typeIx) with (Node.Ix)
+            {
+            case undefined:
+                dln("TODO: Trying to print undefined Node");
+                break;
+            case ix_OneLeafMax7:
+                auto curr_ = curr.as!(OneLeafMax7);
+                writeln(typeof(curr_).stringof, " #", curr_.key.length, ": ", curr_.to!string);
+                break;
+            case ix_TwoLeaf3:
+                auto curr_ = curr.as!(TwoLeaf3);
+                writeln(typeof(curr_).stringof, " #", curr_.keys.length, ": ", curr_.keys);
+                break;
+            case ix_TriLeaf2:
+                auto curr_ = curr.as!(TriLeaf2);
+                writeln(typeof(curr_).stringof, " #", curr_.keys.length, ": ", curr_.keys);
+                break;
+            case ix_HeptLeaf1:
+                auto curr_ = curr.as!(HeptLeaf1);
+                writeln(typeof(curr_).stringof, " #", curr_.keys.length, ": ", curr_.keys);
+                break;
+            case ix_SparseLeaf1Ptr:
+                auto curr_ = curr.as!(SparseLeaf1!Value*);
+                write(typeof(*curr_).stringof, " #", curr_.length, "/", curr_.capacity, " @", curr_);
+                write(": ");
+                bool other = false;
+                foreach (const i, const ix; curr_.ixs)
+                {
+                    string s;
+                    if (other)
+                    {
+                        s ~= keySeparator;
+                    }
+                    else
+                    {
+                        other = true;
+                    }
+                    import std.string : format;
+                    s ~= format("%.2X", ix);
+                    write(s);
+                    static if (hasValue)
+                    {
+                        write("=>", curr_.values[i]);
+                    }
+                }
+                writeln();
+                break;
+            case ix_DenseLeaf1Ptr:
+                auto curr_ = curr.as!(DenseLeaf1!Value*);
+                write(typeof(*curr_).stringof, " #", curr_.count, " @", curr_);
+                write(": ");
+
+                // keys
+                size_t ix = 0;
+                bool other = false;
+                if (curr_._ixBits.allOne)
+                {
+                    write("ALL");
+                }
+                else
+                {
+                    foreach (const keyBit; curr_._ixBits[])
+                    {
+                        string s;
+                        if (keyBit)
+                        {
+                            if (other)
+                            {
+                                s ~= keySeparator;
+                            }
+                            else
+                            {
+                                other = true;
+                            }
+                            import std.string : format;
+                            s ~= format("%.2X", ix);
+                        }
+                        write(s);
+                        static if (hasValue)
+                        {
+                            write("=>", curr_.values[ix]);
+                        }
+                        ++ix;
+                    }
+                }
+
+                writeln();
+                break;
+            case ix_SparseBranchPtr:
+                auto curr_ = curr.as!(SparseBranch*);
+                write(typeof(*curr_).stringof, " #", curr_.subCount, "/", curr_.subCapacity, " @", curr_);
+                if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix.toString('_')); }
+                writeln(":");
+                if (curr_.leaf1)
+                {
+                    printAt(Node(curr_.leaf1), depth + 1);
+                }
+                foreach (const i, const subNode; curr_.subNodes)
+                {
+                    printAt(subNode, depth + 1, cast(uint)curr_.subIxs[i]);
+                }
+                break;
+            case ix_DenseBranchPtr:
+                auto curr_ = curr.as!(DenseBranch*);
+                write(typeof(*curr_).stringof, " #", curr_.subCount, "/", radix, " @", curr_);
+                if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix.toString('_')); }
+                writeln(":");
+                if (curr_.leaf1)
+                {
+                    printAt(Node(curr_.leaf1), depth + 1);
+                }
+                foreach (const i, const subNode; curr_.subNodes)
+                {
+                    printAt(subNode, depth + 1, cast(uint)i);
+                }
+
+                break;
+            }
+        }
+
+        /// Get number of `Range`-instances that currently refer to `_root` of `this` tree.
+        auto rangeCount() const @safe pure nothrow @nogc { return _rangeCounter; }
+
+        private enum fixedKeyLengthUndefined = 0;
+
+    private:
+        Node _root;                 ///< tree root node
+        immutable fixedKeyLength = fixedKeyLengthUndefined; ///< maximum length of key if fixed, otherwise 0
+        size_t _length = 0; ///< number of elements (keys or key-value-pairs) currently stored under `_root`
+        uint _rangeCounter = 0;      // number of ranges that refer to `this` tree
+
+        debug:                      // debug stuff
+        long _heapNodeAllocationBalance = 0;
+        size_t[Node.Ix.max + 1] nodeCountsByIx;
+        bool willFail;
     }
-
-    /// Get number of `Range`-instances that currently refer to `_root` of `this` tree.
-    auto rangeCount() const @safe pure nothrow @nogc { return _rangeCounter; }
-
-    private enum fixedKeyLengthUndefined = 0;
-
-private:
-    Node _root;                 ///< tree root node
-    immutable fixedKeyLength = fixedKeyLengthUndefined; ///< maximum length of key if fixed, otherwise 0
-    size_t _length = 0; ///< number of elements (keys or key-value-pairs) currently stored under `_root`
-    uint _rangeCounter = 0;      // number of ranges that refer to `this` tree
-
-    debug:                      // debug stuff
-    long _heapNodeAllocationBalance = 0;
-    size_t[Node.Ix.max + 1] nodeCountsByIx;
-    bool willFail;
 }
 
 /** Append statistics of tree under `Node` `curr.` into `stats`.
@@ -3782,27 +3776,24 @@ static private void calculate(Value)(Leaf1!Value curr,
     alias RT = RawRadixTree!(Value);
     ++stats.popByLeaf1Type[curr.typeIx];
 
-    with (Leaf1!Value.Ix)
+    final switch (curr.typeIx) with (Leaf1!Value.Ix)
     {
-        final switch (curr.typeIx)
-        {
-        case undefined: break;
-        case ix_HeptLeaf1: break; // TODO calculate()
-        case ix_SparseLeaf1Ptr:
-            ++stats.heapNodeCount;
-            auto curr_ = curr.as!(SparseLeaf1!Value*);
-            assert(curr_.length);
-            ++stats.popHist_SparseLeaf1[curr_.length - 1]; // TODO type-safe indexing
-            break;
-        case ix_DenseLeaf1Ptr:
-            auto curr_ = curr.as!(DenseLeaf1!Value*);
-            ++stats.heapNodeCount;
-            const count = curr_._ixBits.countOnes; // number of non-zero curr-nodes
-            assert(count <= curr_.capacity);
-            assert(count);
-            ++stats.popHist_DenseLeaf1[count - 1]; // TODO type-safe indexing
-            break;
-        }
+    case undefined: break;
+    case ix_HeptLeaf1: break; // TODO calculate()
+    case ix_SparseLeaf1Ptr:
+        ++stats.heapNodeCount;
+        auto curr_ = curr.as!(SparseLeaf1!Value*);
+        assert(curr_.length);
+        ++stats.popHist_SparseLeaf1[curr_.length - 1]; // TODO type-safe indexing
+        break;
+    case ix_DenseLeaf1Ptr:
+        auto curr_ = curr.as!(DenseLeaf1!Value*);
+        ++stats.heapNodeCount;
+        const count = curr_._ixBits.countOnes; // number of non-zero curr-nodes
+        assert(count <= curr_.capacity);
+        assert(count);
+        ++stats.popHist_DenseLeaf1[count - 1]; // TODO type-safe indexing
+        break;
     }
 }
 
@@ -4418,40 +4409,37 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
     foreach (const RT.Node.Ix ix, pop; stats.popByNodeType) // TODO use stats.byPair when added to typecons_ex.d
     {
         size_t bytesUsed = 0;
-        with (RT.Node.Ix)
+        final switch (ix) with (RT.Node.Ix)
         {
-            final switch (ix)
-            {
-            case undefined: continue; // ignore
-            case ix_OneLeafMax7:
-                bytesUsed = pop*OneLeafMax7.sizeof;
-                break;
-            case ix_TwoLeaf3:
-                bytesUsed = pop*TwoLeaf3.sizeof;
-                break;
-            case ix_TriLeaf2:
-                bytesUsed = pop*TriLeaf2.sizeof;
-                break;
-            case ix_HeptLeaf1:
-                bytesUsed = pop*HeptLeaf1.sizeof;
-                break;
-            case ix_SparseLeaf1Ptr:
-                bytesUsed = stats.sparseLeaf1AllocatedSizeSum; // variable length struct
-                totalBytesUsed += bytesUsed;
-                break;
-            case ix_DenseLeaf1Ptr:
-                bytesUsed = pop*DenseLeaf1!(RT.ValueType).sizeof;
-                totalBytesUsed += bytesUsed;
-                break;
-            case ix_SparseBranchPtr:
-                bytesUsed = stats.sparseBranchAllocatedSizeSum; // variable length struct
-                totalBytesUsed += bytesUsed;
-                break;
-            case ix_DenseBranchPtr:
-                bytesUsed = pop*RT.DenseBranch.sizeof;
-                totalBytesUsed += bytesUsed;
-                break;
-            }
+        case undefined: continue; // ignore
+        case ix_OneLeafMax7:
+            bytesUsed = pop*OneLeafMax7.sizeof;
+            break;
+        case ix_TwoLeaf3:
+            bytesUsed = pop*TwoLeaf3.sizeof;
+            break;
+        case ix_TriLeaf2:
+            bytesUsed = pop*TriLeaf2.sizeof;
+            break;
+        case ix_HeptLeaf1:
+            bytesUsed = pop*HeptLeaf1.sizeof;
+            break;
+        case ix_SparseLeaf1Ptr:
+            bytesUsed = stats.sparseLeaf1AllocatedSizeSum; // variable length struct
+            totalBytesUsed += bytesUsed;
+            break;
+        case ix_DenseLeaf1Ptr:
+            bytesUsed = pop*DenseLeaf1!(RT.ValueType).sizeof;
+            totalBytesUsed += bytesUsed;
+            break;
+        case ix_SparseBranchPtr:
+            bytesUsed = stats.sparseBranchAllocatedSizeSum; // variable length struct
+            totalBytesUsed += bytesUsed;
+            break;
+        case ix_DenseBranchPtr:
+            bytesUsed = pop*RT.DenseBranch.sizeof;
+            totalBytesUsed += bytesUsed;
+            break;
         }
         writeln(pop, " number of ",
                 ix.to!string[3 .. $], // TODO Use RT.Node.indexTypeName(ix)

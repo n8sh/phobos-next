@@ -357,6 +357,8 @@ static private struct SparseLeaf1(Value)
 
     enum hasValue = !is(Value == void);
 
+    enum minCapacity = 0;     // preferred minimum number of preallocated values
+
     // preferred maximum number of preallocated values, if larger use a DenseLeaf1 instead
     static if (hasValue) { enum maxCapacity = 128; }
     else                 { enum maxCapacity = 48; }
@@ -1937,6 +1939,7 @@ template RawRadixTree(Value = void)
         */
         static private struct SparseBranch
         {
+            enum minCapacity = 0; // minimum number of preallocated sub-indexes and sub-nodes
             enum maxCapacity = 48; // maximum number of preallocated sub-indexes and sub-nodes
             enum prefixCapacity = 5; // 5, 13, 21, ...
 

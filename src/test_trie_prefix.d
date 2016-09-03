@@ -13,12 +13,12 @@ void main(string[] args)
     set.clear();
     set.insert(`-----1`);
     set.insert(`-----2`);
-    const string[2] expected2 = ["1", "2"];
+    const string[2] expected2 = [`1`, `2`];
     assert(set.prefix(`-----`)
               .equal(expected2[]));
 
     set.insert(`-----3`);
-    const string[3] expected3 = ["1", "2", "3"];
+    const string[3] expected3 = [`1`, `2`, `3`];
     assert(set.prefix(`-----`)
               .equal(expected3[]));
 
@@ -48,21 +48,21 @@ void main(string[] args)
 
         foreach (const e; set[])
         {
-            dln(`"`, e, `"`);
+            dln(```, e, ```);
         }
 
         writeln();
 
         foreach (const e; set.prefix(`a`))
         {
-            dln(`"`, e, `"`);
+            dln(```, e, ```);
         }
 
         writeln();
 
         foreach (const e; set.prefix(`all`))
         {
-            dln(`"`, e, `"`);
+            dln(```, e, ```);
         }
     }
 

@@ -4,7 +4,6 @@ import std.algorithm.comparison : equal;
 import trie : radixTreeSet;
 import dbgio : dln;
 
-// TODO uncomment test code at trie.d:4329 when this works
 void main(string[] args)
 {
     alias Key = string;

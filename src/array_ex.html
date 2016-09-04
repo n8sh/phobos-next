@@ -33,17 +33,18 @@ TODO Make Array have reference semantics instead through via Automatic
     collection's element type. See also:
 <br><br>
 <b>https:</b><br>
-//forum.dlang.org/post/n3qq6ebis@digitalmars.com
-<br><br>
-
-    TODO Add move construction for CopyingArray<br><br>
+//forum.dlang.org/post/n3qq6ebis@digitalmars.com<br><br>
 
 <dl><dt><big><a name="Array"></a>struct <u>Array</u>(E, Ordering ordering = Ordering.unsorted, bool useGC = shouldAddGCRange!E, alias less = "a &lt; b");
 </big></dt>
 <dd>Small-size-optimized (SSO-packed) array of value types <pre style="display:inline;" class="d_inline_code">E</pre> with optional
     ordering given by <pre style="display:inline;" class="d_inline_code">ordering</pre>.
 <br><br>
-Copy construction and assignment currently does copying.<br><br>
+Copy construction and assignment currently does copying.
+<br><br>
+
+    For move construction use <pre style="display:inline;" class="d_inline_code">std.algorithm.mutation.move(source, target)</pre>
+    where both arguments are instances of <pre style="display:inline;" class="d_inline_code"><u>Array</u></pre>.<br><br>
 
 <dl><dt><big><a name="Array.smallLength"></a>enum auto <u>smallLength</u>;
 </big></dt>
@@ -157,14 +158,14 @@ Copy construction and assignment currently does copying.<br><br>
 ditto<br><br>
 
 </dd>
-<dt><big><a name="Array.front"></a>const ref @trusted const(E) <u>front</u>();
+<dt><big><a name="Array.front"></a>ref @trusted const(E) <u>front</u>();
 </big></dt>
 <dd>Get <u>front</u> element (as constant reference to preserve ordering).
 <br><br>
 ditto<br><br>
 
 </dd>
-<dt><big><a name="Array.back"></a>const ref @trusted const(E) <u>back</u>();
+<dt><big><a name="Array.back"></a>ref @trusted const(E) <u>back</u>();
 </big></dt>
 <dd>Get <u>back</u> element (as constant reference to preserve ordering).
 <br><br>

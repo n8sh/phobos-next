@@ -132,7 +132,7 @@ template isTrieableKeyType(T)
         enum isTrieableKeyType = allSatisfy!(isScalarTrieableKeyType, // recurse
                                              typeof(T.tupleof));
     }
-    static if (is(T == class))
+    else static if (is(T == class))
     {
         static assert("Class types cannot be stored in a radix tree because classes in D has reference semantics");
     }

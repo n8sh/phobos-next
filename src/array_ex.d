@@ -20,8 +20,6 @@
     previously extracted from `c`, and `x` is a value convertible to
     collection's element type. See also:
     https://forum.dlang.org/post/n3qq6e$2bis$1@digitalmars.com
-
-    TODO Add move construction for CopyingArray
  */
 module array_ex;
 
@@ -57,6 +55,8 @@ enum isMyArray(C) = isInstanceOf!(Array, C);
     ordering given by `ordering`.
 
     Copy construction and assignment currently does copying.
+
+    For move construction use `std.algorithm.mutation.move(source, target)`.
  */
 struct Array(E,
              Ordering ordering = Ordering.unsorted,

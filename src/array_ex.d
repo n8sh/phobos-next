@@ -735,14 +735,14 @@ struct Array(E,
             return this.opSlice(0, _length);
         }
         /// ditto
-        auto opSlice(this This)(size_t i, size_t j) @trusted
+        auto opSlice(this This)(size_t i, size_t j)
         {
             alias ET = ContainerElementType!(This, E);
             return cast(inout(ET)[])slice[i .. j];
         }
 
         /// Index operator can be const or mutable when unordered.
-        auto ref opIndex(size_t i) @trusted
+        auto ref opIndex(size_t i)
         {
             alias ET = ContainerElementType!(typeof(this), E);
             return cast(inout(ET))slice[i];

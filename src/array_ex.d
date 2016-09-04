@@ -712,14 +712,14 @@ struct Array(E,
         }
 
         /// Get front element (as constant reference to preserve ordering).
-        ref const(E) front() const @trusted
+        ref const(E) front() @trusted
         {
             assert(!empty);
             return ptr[0];
         }
 
         /// Get back element (as constant reference to preserve ordering).
-        ref const(E) back() const @trusted
+        ref const(E) back() @trusted
         {
             assert(!empty);
             return ptr[_length - 1];

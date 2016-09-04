@@ -56,7 +56,8 @@ enum isMyArray(C) = isInstanceOf!(Array, C);
 
     Copy construction and assignment currently does copying.
 
-    For move construction use `std.algorithm.mutation.move(source, target)`.
+    For move construction use `std.algorithm.mutation.move(source, target)`
+    where both arguments are instances of `Array`.
  */
 struct Array(E,
              Ordering ordering = Ordering.unsorted,

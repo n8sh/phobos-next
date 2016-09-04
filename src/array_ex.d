@@ -844,6 +844,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         assert(!(Array!(E, ordering, supportGC, less)(5).isSmall));
     }
 
+    // test move construction
     {
         const maxLength = 1024;
         foreach (const n; 0 .. maxLength)

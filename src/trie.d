@@ -119,12 +119,12 @@ import dbgio;
 
 alias isFixedTrieableKeyType = isIntegralBijectableType;
 
-/** Returns: `true` if `T` is a scalar trie key-type, ` false` otherwise. */
+/** Returns: `true` if `T` is a scalar trie key-type, `false` otherwise. */
 enum isScalarTrieableKeyType(T) = (isFixedTrieableKeyType!T ||
                                    (isInputRange!T &&
                                     isFixedTrieableKeyType!(ElementType!T)));
 
-/** Returns: `true` if `T` is a trie key-type, ` false` otherwise. */
+/** Returns: `true` if `T` is a type that can be stored as a key in a trie, ` false` otherwise. */
 template isTrieableKeyType(T)
 {
     static if (is(T == struct))
@@ -138,7 +138,7 @@ template isTrieableKeyType(T)
     }
 }
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     static assert(isTrieableKeyType!(const(char)[]));
 

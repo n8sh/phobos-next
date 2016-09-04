@@ -791,6 +791,7 @@ struct Array(E,
     {
         return _storeCapacity;
     }
+    alias capacity = reservedLength;
 
     /// Get internal pointer.
     private inout(E*) ptr() inout
@@ -849,6 +850,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         {
             auto ss32 = Array!(E, ordering, supportGC, less)(n);
             const ptr = ss32.ptr;
+            const capacity = ss32.capacity;
             assert(ss32.length == n);
 
             import std.algorithm.mutation : move;
@@ -856,9 +858,13 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             move(ss32, ss32copy);
 
             assert(ss32.length == 0);
-            assert(ss32copy.length == n);
-            assert(ss32copy.ptr == ptr);
+            assert(ss32.capacity == 0);
             assert(ss32.ptr == null);
+
+            assert(ss32copy.length == n);
+            assert(ss32copy.capacity == capacity);
+            assert(ss32copy.ptr == ptr);
+
         }
     }
 

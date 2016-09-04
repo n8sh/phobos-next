@@ -836,7 +836,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 
     static if (E.sizeof == 4)
     {
-        foreach (n; [0, 1, 2, 3, 4])
+        foreach (const n; [0, 1, 2, 3, 4])
         {
             assert(Array!(E, ordering, supportGC, less)(n).isSmall);
         }
@@ -844,18 +844,22 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     }
 
     {
-        const n = 32;
-        auto ss32 = Array!(E, ordering, supportGC, less)(n);
-        const ptr = ss32.ptr;
-        assert(ss32.length == n);
+        const maxLength = 1024;
+        foreach (const n; 0 .. maxLength)
+        {
+            auto ss32 = Array!(E, ordering, supportGC, less)(n);
+            const ptr = ss32.ptr;
+            assert(ss32.length == n);
 
-        import std.algorithm.mutation : move;
-        auto ss32copy = Array!(E, ordering, supportGC, less)();
-        move(ss32, ss32copy);
+            import std.algorithm.mutation : move;
+            auto ss32copy = Array!(E, ordering, supportGC, less)();
+            move(ss32, ss32copy);
 
-        assert(ss32.length == 0);
-        assert(ss32copy.length == n);
-        assert(ss32copy.ptr == ptr);
+            assert(ss32.length == 0);
+            assert(ss32copy.length == n);
+            assert(ss32copy.ptr == ptr);
+            assert(ss32.ptr == null);
+        }
     }
 
     foreach (const n; chain(0.only,

@@ -843,6 +843,21 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         assert(!(Array!(E, ordering, supportGC, less)(5).isSmall));
     }
 
+    {
+        const n = 32;
+        auto ss32 = Array!(E, ordering, supportGC, less)(n);
+        const ptr = ss32.ptr;
+        assert(ss32.length == n);
+
+        import std.algorithm.mutation : move;
+        auto ss32copy = Array!(E, ordering, supportGC, less)();
+        move(ss32, ss32copy);
+
+        assert(ss32.length == 0);
+        assert(ss32copy.length == n);
+        assert(ss32copy.ptr == ptr);
+    }
+
     foreach (const n; chain(0.only,
                             iota(0, 10).map!(x => 2^^x)))
     {
@@ -886,8 +901,6 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ss2[].equal(fw.filter!(x => x & 1).array.sort!comp));
             assert(ss2[].isSorted!comp);
         }
-
-        auto ss32 = Array!(E, ordering, supportGC, less)(32);
 
         auto ssA = Array!(E, ordering, supportGC, less)(0);
         static if (IsOrdered!ordering)

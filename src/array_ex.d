@@ -698,14 +698,14 @@ struct Array(E,
             return opSlice!(typeof(this))(0, _length);
         }
         /// ditto
-        auto opSlice(this This)(size_t i, size_t j) // const because mutation only via `op.*Assign`
+        auto opSlice(this This)(size_t i, size_t j) @trusted // const because mutation only via `op.*Assign`
         {
             alias ET = ContainerElementType!(This, E);
             import std.range : assumeSorted;
             return (cast(const(ET)[])slice[i .. j]).assumeSorted!comp;
         }
 
-        auto ref opIndex(size_t i)
+        auto ref opIndex(size_t i) @trusted
         {
             alias ET = ContainerElementType!(typeof(this), E);
             return cast(const(ET))slice[i];
@@ -735,14 +735,14 @@ struct Array(E,
             return this.opSlice(0, _length);
         }
         /// ditto
-        auto opSlice(this This)(size_t i, size_t j)
+        auto opSlice(this This)(size_t i, size_t j) @trusted
         {
             alias ET = ContainerElementType!(This, E);
             return cast(inout(ET)[])slice[i .. j];
         }
 
         /// Index operator can be const or mutable when unordered.
-        auto ref opIndex(size_t i)
+        auto ref opIndex(size_t i) @trusted
         {
             alias ET = ContainerElementType!(typeof(this), E);
             return cast(inout(ET))slice[i];

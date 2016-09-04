@@ -848,22 +848,22 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         const maxLength = 1024;
         foreach (const n; 0 .. maxLength)
         {
-            auto ss32 = Array!(E, ordering, supportGC, less)(n);
-            const ptr = ss32.ptr;
-            const capacity = ss32.capacity;
-            assert(ss32.length == n);
+            auto x = Array!(E, ordering, supportGC, less)(n);
+            const ptr = x.ptr;
+            const capacity = x.capacity;
+            assert(x.length == n);
 
             import std.algorithm.mutation : move;
-            auto ss32copy = Array!(E, ordering, supportGC, less)();
-            move(ss32, ss32copy);
+            auto y = Array!(E, ordering, supportGC, less)();
+            move(x, y);
 
-            assert(ss32.length == 0);
-            assert(ss32.capacity == 0);
-            assert(ss32.ptr == null);
+            assert(x.length == 0);
+            assert(x.capacity == 0);
+            assert(x.ptr == null);
 
-            assert(ss32copy.length == n);
-            assert(ss32copy.capacity == capacity);
-            assert(ss32copy.ptr == ptr);
+            assert(y.length == n);
+            assert(y.capacity == capacity);
+            assert(y.ptr == ptr);
 
         }
     }

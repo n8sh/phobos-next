@@ -2323,6 +2323,7 @@ template RawRadixTree(Value = void)
     }
 
     /// ditto
+
     Branch setSub(SparseBranch* curr, UIx subIx, Node subNode) @safe pure nothrow @nogc
     {
         // debug if (willFail) { dln("WILL FAIL: subIx:", subIx); }
@@ -2805,7 +2806,7 @@ template RawRadixTree(Value = void)
                 {
                     // debug if (willFail) { dln("WILL FAIL"); }
                     popFrontNPrefix(curr, 1);
-                    setSub(curr, currSubIx, Node(getLeaf1(curr))); // move it to sub
+                    curr = setSub(curr, currSubIx, Node(getLeaf1(curr))); // move it to sub
                     setLeaf1(curr, Leaf1!Value.init);
 
                     return insertAtBelowPrefix(curr, elt, elementRef); // directly call below because `curr`-prefix is now empty
@@ -3309,10 +3310,10 @@ template RawRadixTree(Value = void)
         if (!hasVariableLength!NodeType)
     {
         version(debugPrintAllocations) { dln("constructing ", NodeType.stringof, " from ", args); }
-        debug ++nodeCountsByIx[Node.indexOf!NodeType];
+        // debug ++nodeCountsByIx[Node.indexOf!NodeType];
         static if (isPointer!NodeType)
         {
-            debug ++_heapNodeAllocationBalance;
+            // debug ++_heapNodeAllocationBalance;
 
             import std.conv : emplace;
             return emplace(cast(NodeType)malloc((*NodeType.init).sizeof), args);
@@ -3329,8 +3330,8 @@ template RawRadixTree(Value = void)
             hasVariableLength!NodeType)
     {
         version(debugPrintAllocations) { dln("constructing ", NodeType.stringof, " from ", args); }
-        debug ++nodeCountsByIx[Node.indexOf!NodeType];
-        debug ++_heapNodeAllocationBalance;
+        // debug ++nodeCountsByIx[Node.indexOf!NodeType];
+        // debug ++_heapNodeAllocationBalance;
         import vla : constructVariableLength;
         return constructVariableLength!(typeof(*NodeType.init))(requiredCapacity, args);
         // TODO ensure alignment of node at least that of NodeType.alignof
@@ -3342,9 +3343,9 @@ template RawRadixTree(Value = void)
         static if (isPointer!NodeType)
         {
             free(cast(void*)nt);  // TODO Allocator.free
-            debug --_heapNodeAllocationBalance;
+            // debug --_heapNodeAllocationBalance;
         }
-        debug --nodeCountsByIx[Node.indexOf!NodeType];
+        // debug --nodeCountsByIx[Node.indexOf!NodeType];
     }
 
     @safe pure nothrow @nogc
@@ -4680,7 +4681,7 @@ unittest
         assert(!set.insert(i));
         assert(set.contains(i));
 
-        debug assert(set.heapNodeAllocationBalance == 0);
+        // debug assert(set.heapNodeAllocationBalance == 0);
         const rootRef = set._root.peek!(HeptLeaf1);
         assert(rootRef);
     }
@@ -4695,7 +4696,7 @@ unittest
         assert(!set.insert(i));
         assert(set.contains(i));
 
-        debug assert(set.heapNodeAllocationBalance == 1);
+        // debug assert(set.heapNodeAllocationBalance == 1);
         // const rootRef = set._root.peek!(SparseLeaf1!void*);
         // assert(rootRef);
     }

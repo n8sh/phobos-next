@@ -3872,6 +3872,14 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @trust
             static assert(false, "TODO Handle typed key " ~ TypedKey.stringof);
         }
     }
+    else static if (is(TypedKey == struct))
+    {
+        foreach (Member; typeof(TypedKey.tupleof))
+        {
+            pragma(msg, Member);
+        }
+        static assert(false, "TODO ");
+    }
     else
     {
         static assert(false, "TODO Handle typed key " ~ TypedKey.stringof);
@@ -3924,6 +3932,14 @@ inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey) @trusted
         {
             static assert(false, "TODO Handle typed key " ~ TypedKey.stringof);
         }
+    }
+    else static if (is(TypedKey == struct))
+    {
+        foreach (Member; typeof(TypedKey.tupleof))
+        {
+            pragma(msg, Member);
+        }
+        static assert(false, "TODO ");
     }
     else
     {

@@ -3883,6 +3883,7 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @trust
 
             const member = __traits(getMember, typedKey, memberName);
             alias MemberType = typeof(member);
+            static assert(isFixedTrieableKeyType!MemberType, "MemberType must be fixed length");
             pragma(msg, MemberType);
 
             KeyN!(span, MemberType.sizeof) ukey;

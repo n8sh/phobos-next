@@ -3874,9 +3874,16 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @trust
     }
     else static if (is(TypedKey == struct))
     {
-        foreach (Member; typeof(TypedKey.tupleof))
+        foreach (memberName; __traits(allMembers, TypedKey))
         {
-            pragma(msg, Member);
+            pragma(msg, memberName);
+
+            const member = __traits(getMember, typedKey, memberName);
+            alias MemberType = typeof(member);
+            pragma(msg, MemberType);
+
+            KeyN!(span, MemberType.sizeof) ukey;
+            auto rawKey = member.toRawKey(ukey); // TODO use DIP-1000
         }
         static assert(false, "TODO ");
     }

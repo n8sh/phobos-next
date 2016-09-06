@@ -71,6 +71,8 @@
     - 1_1_1_1_1
     - 1_1_1_1_1_1
 
+    TODO replace all UnsortedCopyingArray.pushBack with ~=
+
     TODO Sorted Range Primitives over Keys
 
     - Returns a range of elements which are equivalent (though not necessarily equal) to value.
@@ -3874,6 +3876,7 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @trust
     }
     else static if (is(TypedKey == struct))
     {
+        UnsortedCopyingArray!Ix wholeUKey;
         foreach (memberName; __traits(allMembers, TypedKey))
         {
             pragma(msg, memberName);
@@ -3884,8 +3887,11 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @trust
 
             KeyN!(span, MemberType.sizeof) ukey;
             auto rawKey = member.toRawKey(ukey); // TODO use DIP-1000
+
+            wholeUKey.pushBack(rawKey);
+            return wholeUKey[];
         }
-        static assert(false, "TODO ");
+        // static assert(false, "TODO ");
     }
     else
     {

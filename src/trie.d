@@ -4213,10 +4213,14 @@ struct RadixTree(Key, Value)
     static if (RawTree.hasValue)
     {
         import std.algorithm.iteration : map;
+
+        /** Get range of map keys. */
         auto byKey()
         {
             return this[].map!(e => e[0]);
         }
+
+        /** Get range of map values. */
         auto byValue()
         {
             return this[].map!(e => e[1]);

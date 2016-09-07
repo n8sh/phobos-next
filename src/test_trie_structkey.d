@@ -28,4 +28,6 @@ void main(string[] args)
     assert(set.contains(s));
 
     assert(!set.empty);
+    set.clear();
+    assert(set.empty);
 }

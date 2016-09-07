@@ -27,6 +27,8 @@ void main(string[] args)
     assert(!set.insert(s));
     assert(set.contains(s));
 
+    dln(set[]);
+    assert(set[].equal([S(42, 42, 42, 42, 42, "42")]));
     assert(!set.empty);
     set.clear();
     assert(set.empty);

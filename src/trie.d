@@ -3891,14 +3891,17 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @trust
     else static if (is(TypedKey == struct))
     {
         alias Ix = Mod!radix;
-        auto wholeUKey = CopyingArray!Ix(TypedKey.sizeof); // TODO Use `bitsNeeded`
-        enum memberCount = __traits(allMembers, TypedKey).length;
-        foreach (const i, const memberName; __traits(allMembers, TypedKey)) // for each member name in `struct TypedKey`
+
+        auto wholeUKey = CopyingArray!Ix(); // TODO Use `bitsNeeded`
+        wholeUKey.reserve(TypedKey.sizeof);
+
+        enum members = __traits(allMembers, TypedKey);
+        foreach (const i, const memberName; members) // for each member name in `struct TypedKey`
         {
             const member = __traits(getMember, typedKey, memberName); // member
             alias MemberType = typeof(member);
 
-            static if (i + 1 == memberCount) // last member is allowed to be an array of fixed length
+            static if (i + 1 == members.length) // last member is allowed to be an array of fixed length
             {
                 KeyN!(span, MemberType.sizeof) ukey;
                 auto rawKey = member.toRawKey(ukey); // TODO use DIP-1000
@@ -3972,12 +3975,12 @@ inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey) @trusted
     {
         TypedKey typedKey;
         size_t ix = 0;
-        enum memberCount = __traits(allMembers, TypedKey).length;
-        foreach (const i, const memberName; __traits(allMembers, TypedKey)) // for each member name in `struct TypedKey`
+        enum members = __traits(allMembers, TypedKey);
+        foreach (const i, const memberName; members) // for each member name in `struct TypedKey`
         {
             alias MemberType = typeof(__traits(getMember, typedKey, memberName));
 
-            static if (i + 1 != memberCount) // last member is allowed to be an array of fixed length
+            static if (i + 1 != members.length) // last member is allowed to be an array of fixed length
             {
                 static assert(isFixedTrieableKeyType!MemberType,
                               "Non-last MemberType must be fixed length");

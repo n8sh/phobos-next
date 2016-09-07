@@ -934,11 +934,12 @@ template EntropyBitsOf(T)
         // {
         //     const member = __traits(getMember, T.init, memberName); // member
         // }
+        enum EntropyBitsOf = 8*T.sizeof;
     }
     else
     {
+        enum EntropyBitsOf = 8*T.sizeof;
     }
-    enum EntropyBitsOf = 8*T.sizeof;
 }
 
 @safe pure nothrow @nogc unittest

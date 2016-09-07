@@ -9,6 +9,7 @@ void main(string[] args)
 {
     struct S
     {
+        // string x;
         byte byte_;
         short short_;
         int int_;

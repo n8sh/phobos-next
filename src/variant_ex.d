@@ -22,8 +22,6 @@
 */
 module variant_ex;
 
-import std.meta : staticIndexOf;
-
 static private template bitsNeeded(size_t length)
 {
     static      if (length <= 2)   { enum bitsNeeded = 1; }
@@ -60,6 +58,7 @@ struct WordVariant(Types...)
     enum typeShift = 8*S.sizeof - typeBits;
     enum typeMask = cast(S)(2^^typeBits - 1) << typeShift;
 
+    import std.meta : staticIndexOf;
     enum indexOf(T) = staticIndexOf!(T, Types); // TODO cast to ubyte if Types.length is <= 256
 
     /// Is `true` iff a `T` can be stored.
@@ -338,6 +337,7 @@ struct VariantPointerTo(Types...)
     enum typeShift = 8*S.sizeof - typeBits;
     enum typeMask = cast(S)(2^^typeBits - 1) << typeShift;
 
+    import std.meta : staticIndexOf;
     enum indexOf(T) = staticIndexOf!(T, Types); // TODO cast to ubyte if Types.length is <= 256
 
     /// Is `true` iff a pointer to a `T` can be stored.

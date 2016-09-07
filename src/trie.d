@@ -3894,7 +3894,6 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @trust
             wholeUKey.pushBack(rawKey);
             return wholeUKey[]; // TODO return const slice
         }
-        // static assert(false, "TODO ");
     }
     else
     {

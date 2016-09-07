@@ -22,19 +22,6 @@
 */
 module variant_ex;
 
-static private template bitsNeeded(size_t length)
-{
-    static      if (length <= 2)   { enum bitsNeeded = 1; }
-    else static if (length <= 4)   { enum bitsNeeded = 2; }
-    else static if (length <= 8)   { enum bitsNeeded = 3; }
-    else static if (length <= 16)  { enum bitsNeeded = 4; }
-    else static if (length <= 32)  { enum bitsNeeded = 5; }
-    else static if (length <= 64)  { enum bitsNeeded = 6; }
-    else static if (length <= 128) { enum bitsNeeded = 7; }
-    else static if (length <= 256) { enum bitsNeeded = 8; }
-    else                           { static assert(false, `Too large length`); }
-}
-
 /** A variant of `Types` packed into a word (`size_t`).
 
     Suitable for use in tree-data containers, such as radix trees (tries), where
@@ -54,6 +41,7 @@ struct WordVariant(Types...)
     alias Ix = makeEnumFromSymbolNames!(`ix_`, ``, true, useMangleOf, Types);
     static assert(Ix.undefined == 0);
 
+    import traits_ex : bitsNeeded;
     enum typeBits = bitsNeeded!(1 + Types.length); // number of bits needed to represent variant type, plus one for undefined state
     enum typeShift = 8*S.sizeof - typeBits;
     enum typeMask = cast(S)(2^^typeBits - 1) << typeShift;

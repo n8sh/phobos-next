@@ -3,17 +3,18 @@
 import std.algorithm.comparison : equal;
 import trie : radixTreeSet;
 import dbgio : dln;
+import std.stdio : writeln;
 
 void main(string[] args)
 {
     struct S
     {
         byte byte_;
-        short short_;
-        int int_;
-        long long_;
-        float float_;
-        string string_;
+        // short short_;
+        // int int_;
+        // long long_;
+        // float float_;
+        // string string_;
     }
 
     alias Key = S;
@@ -21,15 +22,21 @@ void main(string[] args)
     auto set = radixTreeSet!(Key);
     assert(set.empty);
 
-    const s = S(42, 42, 42, 42, 42, "42");
-    assert(!set.contains(s));
-    assert(set.insert(s));
-    assert(!set.insert(s));
-    assert(set.contains(s));
+    const n = 100;
+    foreach (const byte i; 0 .. n)
+    {
+        const s = Key(i//, i, i, i, i// , "i"
+            );
 
-    dln(set[]);
-    assert(set[].equal([S(42, 42, 42, 42, 42, "42")]));
+        assert(!set.contains(s));
+        assert(set.insert(s));
+
+        assert(!set.insert(s));
+        assert(set.contains(s));
+    }
+
     assert(!set.empty);
+
     set.clear();
     assert(set.empty);
 }

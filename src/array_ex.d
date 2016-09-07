@@ -767,7 +767,15 @@ struct Array(E,
         }
     }
 
-    pure nothrow @nogc:
+    pure nothrow:
+
+    void resize(size_t length) @safe
+    {
+        reserve(length);
+        _length = length;
+    }
+
+    @nogc:
 
     /// Check if empty.
     bool empty() const @safe

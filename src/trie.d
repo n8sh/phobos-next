@@ -3846,14 +3846,15 @@ UKey toFixedRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @
 /** Remap typed key `typedKey` to raw (untyped) key of type `UKey`.
     TODO use DIP-1000
  */
-UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @trusted
+UKey toRawKey(TypedKey)(in TypedKey typedKey, ref CopyingArray!Ix rawUKey) @trusted
     if (isTrieableKeyType!TypedKey)
 {
     enum radix = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
 
     static if (isFixedTrieableKeyType!TypedKey)
     {
-        return typedKey.toFixedRawKey(preallocatedFixedUKey);
+        rawUKey.resize(TypedKey.sizeof);
+        return typedKey.toFixedRawKey(rawUKey[]);
     }
     else static if (isArray!TypedKey)
     {
@@ -3892,31 +3893,28 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @trust
     {
         alias Ix = Mod!radix;
 
-        auto wholeUKey = CopyingArray!Ix(); // TODO Use `bitsNeeded`
-        wholeUKey.reserve(TypedKey.sizeof);
-
         enum members = __traits(allMembers, TypedKey);
         foreach (const i, const memberName; members) // for each member name in `struct TypedKey`
         {
             const member = __traits(getMember, typedKey, memberName); // member
             alias MemberType = typeof(member);
 
+            CopyingArray!Ix memberRawUKey;
             static if (i + 1 == members.length) // last member is allowed to be an array of fixed length
             {
-                KeyN!(span, MemberType.sizeof) ukey;
-                auto rawKey = member.toRawKey(ukey); // TODO use DIP-1000
+                auto memberRawKey = member.toRawKey(memberRawUKey); // TODO use DIP-1000
             }
             else                // non-last member must be fixed
             {
                 static assert(isFixedTrieableKeyType!MemberType,
                               "Non-last MemberType must be fixed length");
-                KeyN!(span, MemberType.sizeof) ukey;
-                auto rawKey = member.toFixedRawKey(ukey); // TODO use DIP-1000
+                memberRawUKey.resize(MemberType.sizeof);
+                auto memberRawKey = member.toFixedRawKey(memberRawUKey[]); // TODO use DIP-1000
             }
 
-            wholeUKey.pushBack(rawKey);
+            rawUKey.pushBack(memberRawUKey);
         }
-        return wholeUKey[]; // TODO return const slice
+        return rawUKey[]; // TODO return const slice
     }
     else
     {
@@ -4026,8 +4024,8 @@ struct RadixTree(Key, Value)
         {
             _rawTree.ElementRefType elementRef; // reference to where element was added
 
-            KeyN!(span, Key.sizeof) ukey;
-            auto rawKey = key.toRawKey(ukey); // TODO use DIP-1000
+            CopyingArray!Ix rawUKey;
+            auto rawKey = key.toRawKey(rawUKey); // TODO use DIP-1000
 
             _rawTree.insert(rawKey, value, elementRef);
 
@@ -4046,8 +4044,8 @@ struct RadixTree(Key, Value)
         {
             _rawTree.ElementRefType elementRef; // indicates that key was added
 
-            KeyN!(span, Key.sizeof) ukey;
-            auto rawKey = key.toRawKey(ukey[]); // TODO use DIP-1000
+            CopyingArray!Ix rawUKey;
+            auto rawKey = key.toRawKey(rawUKey); // TODO use DIP-1000
 
             _rawTree.insert(rawKey, value, elementRef);
 
@@ -4085,8 +4083,8 @@ struct RadixTree(Key, Value)
         /** Returns: pointer to value if `key` is contained in set, null otherwise. */
         inout(Value*) contains(in Key key) inout @nogc
         {
-            KeyN!(span, Key.sizeof) ukey;
-            auto rawKey = key.toRawKey(ukey); // TODO use DIP-1000
+            CopyingArray!Ix rawUKey;
+            auto rawKey = key.toRawKey(rawUKey); // TODO use DIP-1000
             return _rawTree.contains(rawKey);
         }
     }
@@ -4102,8 +4100,8 @@ struct RadixTree(Key, Value)
         {
             _rawTree.ElementRefType elementRef; // indicates that elt was added
 
-            KeyN!(span, Key.sizeof) ukey;
-            auto rawKey = key.toRawKey(ukey[]); // TODO use DIP-1000
+            CopyingArray!Ix rawUKey;
+            auto rawKey = key.toRawKey(rawUKey); // TODO use DIP-1000
 
             _rawTree.insert(rawKey, elementRef);
 
@@ -4117,8 +4115,8 @@ struct RadixTree(Key, Value)
         /** Returns: `true` if `key` is stored, `false` otherwise. */
         bool contains(in Key key) inout
         {
-            KeyN!(span, Key.sizeof) ukey;
-            auto rawKey = key.toRawKey(ukey[]); // TODO use DIP-1000
+            CopyingArray!Ix rawUKey;
+            auto rawKey = key.toRawKey(rawUKey); // TODO use DIP-1000
             return _rawTree.contains(rawKey);
         }
     }
@@ -4141,8 +4139,8 @@ struct RadixTree(Key, Value)
      */
     pragma(inline) auto prefix(Key keyPrefix) // TODO @nogc
     {
-        KeyN!(span, Key.sizeof) ukey;
-        auto rawKeyPrefix = keyPrefix.toRawKey(ukey[]);
+        CopyingArray!Ix rawUKey;
+        auto rawKeyPrefix = keyPrefix.toRawKey(rawUKey);
 
         UKey rawKeyPrefixRest;
         auto prefixedRootNode = _rawTree.prefix(rawKeyPrefix, rawKeyPrefixRest);
@@ -4368,7 +4366,6 @@ unittest
     set.insert(+2.2e9);
 
     import std.algorithm.sorting : isSorted;
-    // dln(set[]);
     assert(set[].isSorted);
 }
 

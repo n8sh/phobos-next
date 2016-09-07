@@ -96,6 +96,7 @@ struct Array(E,
     {
         nothrow:
 
+        /// Create a empty array of length `n`.
         this(size_t n)
         {
             allocateStorePtr(n);
@@ -103,6 +104,7 @@ struct Array(E,
             defaultInitialize;
         }
 
+        /// Allocate a store pointer of length `n`.
         private void allocateStorePtr(size_t n) @trusted
         {
             _storePtr = cast(E*)GC.malloc(E.sizeof * n);

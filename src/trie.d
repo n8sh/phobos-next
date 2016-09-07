@@ -3886,7 +3886,9 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @trust
         {
             const member = __traits(getMember, typedKey, memberName); // member
             alias MemberType = typeof(member);
-            static assert(isFixedTrieableKeyType!MemberType, "MemberType must be fixed length");
+
+            static assert(isFixedTrieableKeyType!MemberType,
+                          "Array-type element MemberType must be fixed length");
 
             KeyN!(span, MemberType.sizeof) ukey;
             auto rawKey = member.toRawKey(ukey); // TODO use DIP-1000
@@ -3950,11 +3952,17 @@ inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey) @trusted
     }
     else static if (is(TypedKey == struct))
     {
-        foreach (Member; typeof(TypedKey.tupleof))
+        TypedKey typedKey;
+        size_t ix = 0;
+        foreach (memberName; __traits(allMembers, TypedKey)) // for each member name in `struct TypedKey`
         {
-            pragma(msg, Member);
+            alias MemberType = typeof(__traits(getMember, typedKey, memberName));
+            __traits(getMember, typedKey, memberName) = ukey[ix .. ix + MemberType.sizeof].toTypedKey!MemberType;
+            static assert(isFixedTrieableKeyType!MemberType,
+                          "MemberType must be fixed length");
+            ix += MemberType.sizeof;
         }
-        static assert(false, "TODO ");
+        return typedKey;
     }
     else
     {

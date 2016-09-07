@@ -10,10 +10,10 @@ void main(string[] args)
     struct S
     {
         byte byte_;
-        // short short_;
-        // int int_;
-        // long long_;
-        // float float_;
+        short short_;
+        int int_;
+        long long_;
+        float float_;
         // string string_;
     }
 
@@ -25,7 +25,7 @@ void main(string[] args)
     const n = 100;
     foreach (const byte i; 0 .. n)
     {
-        const s = Key(i//, i, i, i, i// , "i"
+        const s = Key(i, i, i, i, i// , "i"
             );
 
         assert(!set.contains(s));
@@ -35,6 +35,7 @@ void main(string[] args)
         assert(set.contains(s));
     }
 
+    dln(set[]);
     assert(!set.empty);
 
     set.clear();

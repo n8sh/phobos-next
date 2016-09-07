@@ -14,6 +14,17 @@ void main(string[] args)
         long long_;
         float float_;
     }
+
     alias Key = S;
+
     auto set = radixTreeSet!(Key);
+    assert(set.empty);
+
+    const s = S.init;
+    assert(!set.contains(s));
+    assert(set.insert(s));
+    assert(!set.insert(s));
+    assert(set.contains(s));
+
+    assert(!set.empty);
 }

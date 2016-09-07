@@ -910,7 +910,8 @@ alias templateNameOf = templateIdentifierOf;
     static assert(templateIdentifierOf!(int) == null);
 }
 
-static private template bitsNeeded(size_t length)
+/** Get number of bits needed to represent the range (0 .. `length`-1). */
+template bitsNeeded(size_t length)
 {
     static      if (length <= 2)   { enum bitsNeeded = 1; }
     else static if (length <= 4)   { enum bitsNeeded = 2; }
@@ -921,4 +922,26 @@ static private template bitsNeeded(size_t length)
     else static if (length <= 128) { enum bitsNeeded = 7; }
     else static if (length <= 256) { enum bitsNeeded = 8; }
     else                           { static assert(false, `Too large length`); }
+}
+
+/** Get entropy in number of bits of `T`. */
+template EntropyBitsOf(T)
+{
+    import std.traits : isAggregateType, isArray;
+    static if (isAggregateType!T)
+    {
+        // foreach (memberName; __traits(allMembers, T)) // for each member name in `struct TypedKey`
+        // {
+        //     const member = __traits(getMember, T.init, memberName); // member
+        // }
+    }
+    else
+    {
+    }
+    enum EntropyBitsOf = 8*T.sizeof;
+}
+
+@safe pure nothrow @nogc unittest
+{
+    static assert(EntropyBitsOf!int == 8*int.sizeof);
 }

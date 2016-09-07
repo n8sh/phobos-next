@@ -76,7 +76,7 @@
     - 1_1_1_1_1
     - 1_1_1_1_1_1
 
-    TODO replace all UnsortedCopyingArray.pushBack with ~=
+    TODO replace all CopyingArray.pushBack with ~=
 
     TODO Sorted Range Primitives over Keys
 
@@ -115,7 +115,7 @@ import container_traits : shouldAddGCRange;
 
 import array_ex : Array, Ordering;
 
-alias UnsortedCopyingArray(T) = Array!(T, Ordering.unsorted, false);
+alias CopyingArray(T) = Array!(T, Ordering.unsorted, false);
 
 // version = enterSingleInfiniteMemoryLeakTest;
 // version = debugPrintAllocations;
@@ -1369,7 +1369,7 @@ template RawRadixTree(Value = void)
             }
         }
 
-        void appendFrontIxsToKey(ref UnsortedCopyingArray!Ix key) const @nogc
+        void appendFrontIxsToKey(ref CopyingArray!Ix key) const @nogc
         {
             final switch (branch.typeIx) with (Branch.Ix)
             {
@@ -1728,7 +1728,7 @@ template RawRadixTree(Value = void)
             }
         }
 
-        void appendFrontIxsToKey(ref UnsortedCopyingArray!Ix key) const @nogc
+        void appendFrontIxsToKey(ref CopyingArray!Ix key) const @nogc
         {
             assert(!empty);
             switch (leaf.typeIx) with (Node.Ix)
@@ -1827,7 +1827,7 @@ template RawRadixTree(Value = void)
     {
         static if (isValue)
         {
-            bool appendFrontIxsToKey(ref UnsortedCopyingArray!Ix key, ref Value value) const
+            bool appendFrontIxsToKey(ref CopyingArray!Ix key, ref Value value) const
             {
                 foreach (const ref branchRange; _bRanges)
                 {
@@ -1843,7 +1843,7 @@ template RawRadixTree(Value = void)
         }
         else
         {
-            bool appendFrontIxsToKey(ref UnsortedCopyingArray!Ix key) const
+            bool appendFrontIxsToKey(ref CopyingArray!Ix key) const
             {
                 foreach (const ref branchRange; _bRanges)
                 {
@@ -1950,8 +1950,8 @@ template RawRadixTree(Value = void)
         }
 
     private:
-        UnsortedCopyingArray!BranchRange _bRanges;
-        // UnsortedCopyingArray!Ix _branchesKeyPrefix;
+        CopyingArray!BranchRange _bRanges;
+        // CopyingArray!Ix _branchesKeyPrefix;
 
         // index to first branchrange in `_bRanges` that is currently on a leaf1
         // or `typeof.max` if undefined
@@ -2135,7 +2135,7 @@ template RawRadixTree(Value = void)
         BranchRanges branchRanges;
 
         // cache
-        UnsortedCopyingArray!Ix _cachedFrontKey; // copy of front key
+        CopyingArray!Ix _cachedFrontKey; // copy of front key
         static if (isValue)
         {
             Value _cachedFrontValue; // copy of front value
@@ -3891,17 +3891,25 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @trust
     else static if (is(TypedKey == struct))
     {
         alias Ix = Mod!radix;
-        auto wholeUKey = UnsortedCopyingArray!Ix(TypedKey.sizeof); // TODO Use `bitsNeeded`
-        foreach (memberName; __traits(allMembers, TypedKey)) // for each member name in `struct TypedKey`
+        auto wholeUKey = CopyingArray!Ix(TypedKey.sizeof); // TODO Use `bitsNeeded`
+        enum memberCount = __traits(allMembers, TypedKey).length;
+        foreach (const i, const memberName; __traits(allMembers, TypedKey)) // for each member name in `struct TypedKey`
         {
             const member = __traits(getMember, typedKey, memberName); // member
             alias MemberType = typeof(member);
 
-            static assert(isFixedTrieableKeyType!MemberType,
-                          "Array-type element MemberType must be fixed length");
-
-            KeyN!(span, MemberType.sizeof) ukey;
-            auto rawKey = member.toFixedRawKey(ukey); // TODO use DIP-1000
+            static if (i + 1 == memberCount) // last member is allowed to be an array of fixed length
+            {
+                KeyN!(span, MemberType.sizeof) ukey;
+                auto rawKey = member.toRawKey(ukey); // TODO use DIP-1000
+            }
+            else                // non-last member must be fixed
+            {
+                static assert(isFixedTrieableKeyType!MemberType,
+                              "Non-last MemberType must be fixed length");
+                KeyN!(span, MemberType.sizeof) ukey;
+                auto rawKey = member.toFixedRawKey(ukey); // TODO use DIP-1000
+            }
 
             wholeUKey.pushBack(rawKey);
         }
@@ -3964,12 +3972,17 @@ inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey) @trusted
     {
         TypedKey typedKey;
         size_t ix = 0;
-        foreach (memberName; __traits(allMembers, TypedKey)) // for each member name in `struct TypedKey`
+        enum memberCount = __traits(allMembers, TypedKey).length;
+        foreach (const i, const memberName; __traits(allMembers, TypedKey)) // for each member name in `struct TypedKey`
         {
             alias MemberType = typeof(__traits(getMember, typedKey, memberName));
+
+            static if (i + 1 != memberCount) // last member is allowed to be an array of fixed length
+            {
+                static assert(isFixedTrieableKeyType!MemberType,
+                              "Non-last MemberType must be fixed length");
+            }
             __traits(getMember, typedKey, memberName) = ukey[ix .. ix + MemberType.sizeof].toTypedKey!MemberType;
-            static assert(isFixedTrieableKeyType!MemberType,
-                          "MemberType must be fixed length");
             ix += MemberType.sizeof;
         }
         return typedKey;

@@ -3907,7 +3907,7 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, ref CopyingArray!Ix rawUKey) @trus
             else                // non-last member must be fixed
             {
                 static assert(isFixedTrieableKeyType!MemberType,
-                              "Non-last MemberType must be fixed length");
+                              "Non-last " ~ i.stringof ~ ":th member of type " ~ MemberType.stringof ~ " must be of fixed length");
                 memberRawUKey.resize(MemberType.sizeof);
                 auto memberRawKey = member.toFixedRawKey(memberRawUKey[]); // TODO use DIP-1000
             }

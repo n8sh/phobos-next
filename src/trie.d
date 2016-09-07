@@ -3881,7 +3881,7 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @trust
     }
     else static if (is(TypedKey == struct))
     {
-        auto wholeUKey = UnsortedCopyingArray!Ix(TypedKey.sizeof);
+        auto wholeUKey = UnsortedCopyingArray!Ix(TypedKey.sizeof); // TODO Use `bitsNeeded`
         foreach (memberName; __traits(allMembers, TypedKey)) // for each member name in `struct TypedKey`
         {
             const member = __traits(getMember, typedKey, memberName); // member

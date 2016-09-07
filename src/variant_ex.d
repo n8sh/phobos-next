@@ -24,16 +24,16 @@ module variant_ex;
 
 import std.meta : staticIndexOf;
 
-static private template bitsNeeeded(size_t length)
+static private template bitsNeeded(size_t length)
 {
-    static      if (length <= 2)   { enum bitsNeeeded = 1; }
-    else static if (length <= 4)   { enum bitsNeeeded = 2; }
-    else static if (length <= 8)   { enum bitsNeeeded = 3; }
-    else static if (length <= 16)  { enum bitsNeeeded = 4; }
-    else static if (length <= 32)  { enum bitsNeeeded = 5; }
-    else static if (length <= 64)  { enum bitsNeeeded = 6; }
-    else static if (length <= 128) { enum bitsNeeeded = 7; }
-    else static if (length <= 256) { enum bitsNeeeded = 8; }
+    static      if (length <= 2)   { enum bitsNeeded = 1; }
+    else static if (length <= 4)   { enum bitsNeeded = 2; }
+    else static if (length <= 8)   { enum bitsNeeded = 3; }
+    else static if (length <= 16)  { enum bitsNeeded = 4; }
+    else static if (length <= 32)  { enum bitsNeeded = 5; }
+    else static if (length <= 64)  { enum bitsNeeded = 6; }
+    else static if (length <= 128) { enum bitsNeeded = 7; }
+    else static if (length <= 256) { enum bitsNeeded = 8; }
     else                           { static assert(false, `Too large length`); }
 }
 
@@ -56,7 +56,7 @@ struct WordVariant(Types...)
     alias Ix = makeEnumFromSymbolNames!(`ix_`, ``, true, useMangleOf, Types);
     static assert(Ix.undefined == 0);
 
-    enum typeBits = bitsNeeeded!(1 + Types.length); // number of bits needed to represent variant type, plus one for undefined state
+    enum typeBits = bitsNeeded!(1 + Types.length); // number of bits needed to represent variant type, plus one for undefined state
     enum typeShift = 8*S.sizeof - typeBits;
     enum typeMask = cast(S)(2^^typeBits - 1) << typeShift;
 
@@ -334,7 +334,7 @@ struct VariantPointerTo(Types...)
 
     alias S = size_t; // TODO templatize?
 
-    enum typeBits = bitsNeeeded!(Types.length); // number of bits needed to represent variant type
+    enum typeBits = bitsNeeded!(Types.length); // number of bits needed to represent variant type
     enum typeShift = 8*S.sizeof - typeBits;
     enum typeMask = cast(S)(2^^typeBits - 1) << typeShift;
 

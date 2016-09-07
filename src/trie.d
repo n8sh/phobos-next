@@ -24,7 +24,7 @@
     )
     Typed layer supports
     $(UL
-    $(ordered access of aggregate types)
+    $(LI ordered access of aggregate types)
     )
 
     See_Also: $(HTTP en.wikipedia.org/wiki/Trie)

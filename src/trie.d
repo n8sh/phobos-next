@@ -3819,6 +3819,30 @@ static private void calculate(Value)(Leaf1!Value curr,
     }
 }
 
+/** Remap fixed-length typed key `typedKey` to raw (untyped) key of type `UKey`.
+    TODO use DIP-1000
+*/
+UKey toFixedRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @trusted
+{
+    enum radix = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
+    const key_ = typedKey.bijectToUnsigned;
+
+    static assert(key_.sizeof == TypedKey.sizeof);
+
+    enum nbits = 8*key_.sizeof; // number of bits in key
+    enum chunkCount = nbits/span; // number of chunks in key_
+    static assert(chunkCount*span == nbits, "Bitsize of TypedKey must be a multiple of span:" ~ span.stringof);
+
+    // big-endian storage
+    foreach (const i; 0 .. chunkCount) // for each chunk index
+    {
+        const bitShift = (chunkCount - 1 - i)*span; // most significant bit chunk first (MSBCF)
+        preallocatedFixedUKey[i] = (key_ >> bitShift) & (radix - 1); // part of value which is also an index
+    }
+
+    return preallocatedFixedUKey[];
+}
+
 /** Remap typed key `typedKey` to raw (untyped) key of type `UKey`.
     TODO use DIP-1000
  */
@@ -3826,29 +3850,14 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @trust
     if (isTrieableKeyType!TypedKey)
 {
     enum radix = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
-    alias Ix = Mod!radix;
 
     static if (isFixedTrieableKeyType!TypedKey)
     {
-        const key_ = typedKey.bijectToUnsigned;
-
-        static assert(key_.sizeof == TypedKey.sizeof);
-
-        enum nbits = 8*key_.sizeof; // number of bits in key
-        enum chunkCount = nbits/span; // number of chunks in key_
-        static assert(chunkCount*span == nbits, "Bitsize of TypedKey must be a multiple of span:" ~ span.stringof);
-
-        // big-endian storage
-        foreach (const i; 0 .. chunkCount) // for each chunk index
-        {
-            const bitShift = (chunkCount - 1 - i)*span; // most significant bit chunk first (MSBCF)
-            preallocatedFixedUKey[i] = (key_ >> bitShift) & (radix - 1); // part of value which is also an index
-        }
-
-        return preallocatedFixedUKey[];
+        return typedKey.toFixedRawKey(preallocatedFixedUKey);
     }
     else static if (isArray!TypedKey)
     {
+        alias Ix = Mod!radix;
         alias EType = Unqual!(typeof(TypedKey.init[0]));
         static if (is(EType == char)) // TODO extend to support isTrieableKeyType!TypedKey
         {
@@ -3881,6 +3890,7 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @trust
     }
     else static if (is(TypedKey == struct))
     {
+        alias Ix = Mod!radix;
         auto wholeUKey = UnsortedCopyingArray!Ix(TypedKey.sizeof); // TODO Use `bitsNeeded`
         foreach (memberName; __traits(allMembers, TypedKey)) // for each member name in `struct TypedKey`
         {
@@ -3891,7 +3901,7 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @trust
                           "Array-type element MemberType must be fixed length");
 
             KeyN!(span, MemberType.sizeof) ukey;
-            auto rawKey = member.toRawKey(ukey); // TODO use DIP-1000
+            auto rawKey = member.toFixedRawKey(ukey); // TODO use DIP-1000
 
             wholeUKey.pushBack(rawKey);
         }

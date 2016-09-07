@@ -13,7 +13,7 @@ void main(string[] args)
         int int_;
         long long_;
         float float_;
-        // string string_;
+        string string_;
     }
 
     alias Key = S;
@@ -21,7 +21,7 @@ void main(string[] args)
     auto set = radixTreeSet!(Key);
     assert(set.empty);
 
-    const s = S.init;
+    const s = S(42, 42, 42, 42, 42, "42");
     assert(!set.contains(s));
     assert(set.insert(s));
     assert(!set.insert(s));

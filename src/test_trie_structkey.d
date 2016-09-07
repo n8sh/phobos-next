@@ -13,6 +13,7 @@ void main(string[] args)
         int int_;
         long long_;
         float float_;
+        // string string_;
     }
 
     alias Key = S;

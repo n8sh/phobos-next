@@ -28,7 +28,10 @@
 
     TODO:
     TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
-    TODO Allow `Node`-constructors to take const and immutable prefixes
+
+    TODO Allow `Node`-constructors to take const and immutable prefixes and then
+    make `toRawKey` and `toTypedKey` accept return const-slices
+
     TODO Use `expandVariableLength` in `reconstructingInsert` that uses x.realloc(2*n) instead of x.free(n)-malloc(2*n)
     TODO Remove @trusted from VLA (variable length array)-members of SparseBranch/SparseLeaf and make their callers @trusted instead.
     TODO Assure that ~this() is run for argument `nt` in `freeNode`. Can we use `postblit()` for this?
@@ -3877,20 +3880,17 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @trust
     else static if (is(TypedKey == struct))
     {
         auto wholeUKey = UnsortedCopyingArray!Ix(TypedKey.sizeof);
-        foreach (memberName; __traits(allMembers, TypedKey))
+        foreach (memberName; __traits(allMembers, TypedKey)) // for each member name in `struct TypedKey`
         {
-            pragma(msg, memberName);
-
-            const member = __traits(getMember, typedKey, memberName);
+            const member = __traits(getMember, typedKey, memberName); // member
             alias MemberType = typeof(member);
             static assert(isFixedTrieableKeyType!MemberType, "MemberType must be fixed length");
-            pragma(msg, MemberType);
 
             KeyN!(span, MemberType.sizeof) ukey;
             auto rawKey = member.toRawKey(ukey); // TODO use DIP-1000
 
             wholeUKey.pushBack(rawKey);
-            return wholeUKey[];
+            return wholeUKey[]; // TODO return const slice
         }
         // static assert(false, "TODO ");
     }

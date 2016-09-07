@@ -35,7 +35,7 @@ void main(string[] args)
         assert(set.contains(s));
     }
 
-    dln(set[]);
+    // dln(set[]);
     assert(!set.empty);
 
     set.clear();

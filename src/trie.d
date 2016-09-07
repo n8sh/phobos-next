@@ -32,7 +32,9 @@
     TODO Allow `Node`-constructors to take const and immutable prefixes and then
     make `toRawKey` and `toTypedKey` accept return const-slices
 
-    TODO Use `expandVariableLength` in `reconstructingInsert` that uses x.realloc(2*n) instead of x.free(n)-malloc(2*n)
+    TODO Use `expandVariableLength` in `reconstructingInsert` that uses
+    x.realloc(2*n) instead of x.free(n)-malloc(2*n)
+
     TODO Remove @trusted from VLA (variable length array)-members of SparseBranch/SparseLeaf and make their callers @trusted instead.
     TODO Assure that ~this() is run for argument `nt` in `freeNode`. Can we use `postblit()` for this?
     TODO Search for "functionize this loop or reuse memmove" and use move()

@@ -3876,7 +3876,7 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @trust
     }
     else static if (is(TypedKey == struct))
     {
-        UnsortedCopyingArray!Ix wholeUKey;
+        auto wholeUKey = UnsortedCopyingArray!Ix(TypedKey.sizeof);
         foreach (memberName; __traits(allMembers, TypedKey))
         {
             pragma(msg, memberName);

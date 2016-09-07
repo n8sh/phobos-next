@@ -321,6 +321,7 @@ struct VariantPointerTo(Types...)
 
     alias S = size_t; // TODO templatize?
 
+    import traits_ex : bitsNeeded;
     enum typeBits = bitsNeeded!(Types.length); // number of bits needed to represent variant type
     enum typeShift = 8*S.sizeof - typeBits;
     enum typeMask = cast(S)(2^^typeBits - 1) << typeShift;

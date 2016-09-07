@@ -22,6 +22,11 @@
     $(LI Element indexing and element index assignment for map case via `opIndex` and `opIndexAssign`)
     $(LI Key-Prefix Completion (returning a `Range` over all set/map-elements that match a key prefix): `prefix(Key keyPrefix)`)
     )
+    Typed layer supports
+    $(UL
+    $(ordered access of aggregate types)
+    )
+
     See_Also: $(HTTP en.wikipedia.org/wiki/Trie)
     See_Also: $(HTTP en.wikipedia.org/wiki/Radix_tree)
     See_Also: $(HTTP github.com/nordlow/phobos-next/blob/master/src/test_trie_prefix.d) for a descriptive usage of prefixed access.

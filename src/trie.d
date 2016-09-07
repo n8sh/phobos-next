@@ -3884,7 +3884,6 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @trust
         auto wholeUKey = UnsortedCopyingArray!Ix(TypedKey.sizeof); // TODO Use `bitsNeeded`
         foreach (memberName; __traits(allMembers, TypedKey)) // for each member name in `struct TypedKey`
         {
-            pragma(msg, "toRawKey:", memberName);
             const member = __traits(getMember, typedKey, memberName); // member
             alias MemberType = typeof(member);
 
@@ -3957,7 +3956,6 @@ inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey) @trusted
         size_t ix = 0;
         foreach (memberName; __traits(allMembers, TypedKey)) // for each member name in `struct TypedKey`
         {
-            pragma(msg, "toTypedKey:", memberName);
             alias MemberType = typeof(__traits(getMember, typedKey, memberName));
             __traits(getMember, typedKey, memberName) = ukey[ix .. ix + MemberType.sizeof].toTypedKey!MemberType;
             static assert(isFixedTrieableKeyType!MemberType,

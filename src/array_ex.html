@@ -142,6 +142,16 @@ Construct with length <pre style="display:inline;" class="d_inline_code"><i>n</i
 <pre style="display:inline;" class="d_inline_code">true</pre> iff this <u>contains</u> <pre style="display:inline;" class="d_inline_code"><i>value</i></pre>.<br><br>
 
 </dd>
+<dt><big><a name="Array.lowerBound"></a>inout auto <u>lowerBound</u>(SearchPolicy sp = SearchPolicy.binarySearch, U)(U <i>e</i>);
+</big></dt>
+<dd>Wrapper for <pre style="display:inline;" class="d_inline_code">std.range.SortedRange.<u>lowerBound</u></pre> when this <pre style="display:inline;" class="d_inline_code">ordering</pre> is sorted.<br><br>
+
+</dd>
+<dt><big><a name="Array.upperBound"></a>inout auto <u>upperBound</u>(SearchPolicy sp = SearchPolicy.binarySearch, U)(U <i>e</i>);
+</big></dt>
+<dd>Wrapper for <pre style="display:inline;" class="d_inline_code">std.range.SortedRange.<u>upperBound</u></pre> when this <pre style="display:inline;" class="d_inline_code">ordering</pre> is sorted.<br><br>
+
+</dd>
 <dt><big><a name="Array.linearInsert"></a>bool[Us.length] <u>linearInsert</u>(SearchPolicy sp = SearchPolicy.binarySearch, Us...)(Us <i>values</i>) if (<i>values</i>.length &gt;= 1 &amp;&amp; allSatisfy!(isElementAssignable, Us));
 </big></dt>
 <dd>Inserts <pre style="display:inline;" class="d_inline_code"><i>values</i></pre> into <pre style="display:inline;" class="d_inline_code">this</pre> ordered set.

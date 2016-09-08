@@ -14,7 +14,7 @@
 
     TODO Use `std.algorithm.mutation.move` and `std.range.primitives.moveAt`
 
-    TODO copy assignment, struct Store, Notify andralex of packed array
+    TODO struct Store, Notify andralex of packed array
 
     TODO Add `c.insertAfter(r, x)` where `c` is a collection, `r` is a range
     previously extracted from `c`, and `x` is a value convertible to

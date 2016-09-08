@@ -101,7 +101,10 @@
 
     TODO Use scope on members that return key and value reference when DIP-1000 has been implemented
 
-    TODO Make all RawRadixTree-members (insert|contains|prefix).*At.*(Node|Branch) free functions
+    TODO Fix vla-allocations in constructVariableLength according
+    C11-recommendations. For reference set commit
+    d2f1971dd570439da4198fa76603b53b072060f8 at
+    https://github.com/emacs-mirror/emacs.git
 */
 module trie;
 
@@ -3907,6 +3910,7 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, ref CopyingArray!Ix rawUKey) @trus
             CopyingArray!Ix memberRawUKey;
             static if (i + 1 == members.length) // last member is allowed to be an array of fixed length
             {
+                // Use [] instead
                 auto memberRawKey = member.toRawKey(memberRawUKey); // TODO use DIP-1000
             }
             else                // non-last member must be fixed

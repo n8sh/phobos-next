@@ -824,7 +824,7 @@ pragma(inline) bool tryNextIx(Value)(Leaf1!Value curr, const UIx ix, out Ix next
     {
     case undefined: assert(false);
     case ix_HeptLeaf1:
-        auto curr_ = curr.as!(HeptLeaf1);
+        const curr_ = curr.as!(HeptLeaf1);
         if (ix + 1 == curr_.keys.length)
         {
             return false;
@@ -835,7 +835,7 @@ pragma(inline) bool tryNextIx(Value)(Leaf1!Value curr, const UIx ix, out Ix next
             return true;
         }
     case ix_SparseLeaf1Ptr:
-        auto curr_ = curr.as!(SparseLeaf1!Value*);
+        const curr_ = curr.as!(SparseLeaf1!Value*);
         if (ix + 1 == curr_.length)
         {
             return false;
@@ -1573,16 +1573,16 @@ template RawRadixTree(Value = void)
                 }
                 else
                 {
-                    auto leaf_ = leaf1.as!(HeptLeaf1);
+                    const leaf_ = leaf1.as!(HeptLeaf1);
                     if (_ix + 1 == leaf_.keys.length) { leaf1 = null; } else { ++_ix; }
                     break;
                 }
             case ix_SparseLeaf1Ptr:
-                auto leaf_ = leaf1.as!(SparseLeaf1!Value*);
+                const leaf_ = leaf1.as!(SparseLeaf1!Value*);
                 if (_ix + 1 == leaf_.length) { leaf1 = null; } else { ++_ix; }
                 break;
             case ix_DenseLeaf1Ptr:
-                auto leaf_ = leaf1.as!(DenseLeaf1!Value*);
+                const leaf_ = leaf1.as!(DenseLeaf1!Value*);
                 if (!leaf_.tryFindNextSetBitIx(_ix, _ix))
                 {
                     leaf1 = null;
@@ -3617,7 +3617,7 @@ template RawRadixTree(Value = void)
         this(this)
         {
             if (!_root) return;
-            auto rhsRoot = _root;
+            const rhsRoot = _root;
             debug const oldLength = _length;
             if (rhsRoot)
             {
@@ -3772,13 +3772,13 @@ static private void calculate(Value)(RawRadixTree!(Value).NodeType curr,
     case ix_HeptLeaf1: break; // TODO calculate()
     case ix_SparseLeaf1Ptr:
         ++stats.heapNodeCount;
-        auto curr_ = curr.as!(SparseLeaf1!Value*);
+        const curr_ = curr.as!(SparseLeaf1!Value*);
         assert(curr_.length);
         ++stats.popHist_SparseLeaf1[curr_.length - 1]; // TODO type-safe indexing
         stats.sparseLeaf1AllocatedSizeSum += curr_.allocatedSize;
         break;
     case ix_DenseLeaf1Ptr:
-        auto curr_ = curr.as!(DenseLeaf1!Value*);
+        const curr_ = curr.as!(DenseLeaf1!Value*);
         ++stats.heapNodeCount;
         const count = curr_._ixBits.countOnes; // number of non-zero sub-nodes
         assert(count <= curr_.capacity);
@@ -3810,12 +3810,12 @@ static private void calculate(Value)(Leaf1!Value curr,
     case ix_HeptLeaf1: break; // TODO calculate()
     case ix_SparseLeaf1Ptr:
         ++stats.heapNodeCount;
-        auto curr_ = curr.as!(SparseLeaf1!Value*);
+        const curr_ = curr.as!(SparseLeaf1!Value*);
         assert(curr_.length);
         ++stats.popHist_SparseLeaf1[curr_.length - 1]; // TODO type-safe indexing
         break;
     case ix_DenseLeaf1Ptr:
-        auto curr_ = curr.as!(DenseLeaf1!Value*);
+        const curr_ = curr.as!(DenseLeaf1!Value*);
         ++stats.heapNodeCount;
         const count = curr_._ixBits.countOnes; // number of non-zero curr-nodes
         assert(count <= curr_.capacity);
@@ -3883,7 +3883,7 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, ref CopyingArray!Ix rawUKey) @trus
         {
             const uint[] rKey = typedKey.representation; // lexical byte-order
             // TODO MSByte-order of elements in rKey for ordered access and good branching performance
-            const ubyte[] key = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
+            const ubyte[] ukey = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
             return ukey;
         }
         else static if (isFixedTrieableKeyType!E)
@@ -3908,7 +3908,7 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, ref CopyingArray!Ix rawUKey) @trus
             static if (i + 1 == members.length) // last member is allowed to be an array of fixed length
             {
                 CopyingArray!Ix memberRawUKey;
-                auto memberRawKey = member.toRawKey(memberRawUKey); // TODO use DIP-1000
+                const memberRawKey = member.toRawKey(memberRawUKey); // TODO use DIP-1000
                 rawUKey ~= memberRawUKey;
             }
             else                // non-last member must be fixed
@@ -3916,7 +3916,7 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, ref CopyingArray!Ix rawUKey) @trus
                 static assert(isFixedTrieableKeyType!MemberType,
                               "Non-last " ~ i.stringof ~ ":th member of type " ~ MemberType.stringof ~ " must be of fixed length");
                 Ix[MemberType.sizeof] memberRawUKey;
-                auto memberRawKey = member.toFixedRawKey(memberRawUKey); // TODO use DIP-1000
+                const memberRawKey = member.toFixedRawKey(memberRawUKey); // TODO use DIP-1000
                 rawUKey ~= memberRawUKey[];
             }
         }
@@ -4460,19 +4460,6 @@ auto testScalar(uint span, Keys...)()
     }
 }
 
-///
-@safe pure nothrow @nogc unittest
-{
-    alias Value = ulong;
-    auto set = radixTreeSet!(Value);
-
-    alias NodeType = SparseLeaf1!Value*;
-    NodeType sl = null;
-    // set.NodeType node = set.NodeType(sl);
-    // static assert(node.canStore!(NodeType));
-    // assert(!node.isNull);
-}
-
 /** Calculate and print statistics of `tree`. */
 void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a copy ctor here
 {
@@ -4582,7 +4569,7 @@ unittest
     {
         assert(map.rangeCount == 1);
         {
-            auto mapRange = map[];
+            const mapRange = map[];
             assert(map.rangeCount == 2);
         }
         assert(map.rangeCount == 1);
@@ -4908,12 +4895,12 @@ void testWords(Value)()
             static if (hasValue)
             {
                 assert(rtr.insert(word, count));
-                auto hitA = rtr.contains(word);
+                const hitA = rtr.contains(word);
                 assert(hitA);
                 assert(*hitA == count);
 
                 assert(!rtr.insert(word, count));
-                auto hitB = rtr.contains(word);
+                const hitB = rtr.contains(word);
                 assert(hitB);
                 assert(*hitB == count);
             }
@@ -4989,7 +4976,6 @@ auto checkNumeric(Keys...)() @nogc
                     const length = high - low + 1;
                 }
 
-                size_t cnt = 0;
                 foreach (const uk; low.iota(high + 1))
                 {
                     const Key key = cast(Key)uk;
@@ -5015,7 +5001,6 @@ auto checkNumeric(Keys...)() @nogc
                             assert(!set.contains(cast(Key)(key + 1))); // next key is not yet in set
                         }
                     }
-                    ++cnt;
                 }
                 assert(set.length == length);
             }
@@ -5037,7 +5022,6 @@ auto checkNumeric(Keys...)() @nogc
 void benchmark()()
 {
     import core.thread : sleep;
-    import std.range : iota;
     import std.stdio : writeln;
 
     import std.algorithm : equal;
@@ -5057,13 +5041,7 @@ void benchmark()()
 
         enum n = 1_000_000;
 
-        import std.array : array;
-        import std.random : randomShuffle;
-
         const useUniqueRandom = false;
-
-        // TODO functionize to randomIota in range_ex.d
-        auto randomIotaSamples = 0.iota(n).array; randomIotaSamples.randomShuffle;
 
         import std.range : generate, take;
         import std.random : uniform;

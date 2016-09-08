@@ -501,13 +501,13 @@ struct Array(E,
         }
 
         /** Wrapper for `std.range.SortedRange.lowerBound` when this `ordering` is sorted. */
-        auto lowerBound(SearchPolicy sp = SearchPolicy.binarySearch, U)(U e) @("complexity", "O(log(length))")
+        auto lowerBound(SearchPolicy sp = SearchPolicy.binarySearch, U)(U e) inout @("complexity", "O(log(length))")
         {
             return this[].lowerBound!sp(e);
         }
 
         /** Wrapper for `std.range.SortedRange.upperBound` when this `ordering` is sorted. */
-        auto upperBound(SearchPolicy sp = SearchPolicy.binarySearch, U)(U e) @("complexity", "O(log(length))")
+        auto upperBound(SearchPolicy sp = SearchPolicy.binarySearch, U)(U e) inout @("complexity", "O(log(length))")
         {
             return this[].upperBound!sp(e);
         }
@@ -943,7 +943,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             static if (less == "a < b")
             {
                 alias A = Array!(E, ordering, supportGC, less);
-                A x = [1, 2, 3, 4, 5, 6];
+                const A x = [1, 2, 3, 4, 5, 6];
                 assert(x.lowerBound(3).equal([1, 2]));
                 assert(x.upperBound(3).equal([4, 5, 6]));
             }

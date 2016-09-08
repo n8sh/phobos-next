@@ -90,18 +90,18 @@ struct Array(E,
         alias _free = free;
     }
 
+    /// Create a empty array of length `n`.
+    this(size_t n) nothrow
+    {
+        allocateStorePtr(n);
+        _length = _storeCapacity = n;
+        defaultInitialize();
+    }
+
     /// Construct with length `n`.
     static if (useGC)
     {
         nothrow:
-
-        /// Create a empty array of length `n`.
-        this(size_t n)
-        {
-            allocateStorePtr(n);
-            _length = _storeCapacity = n;
-            defaultInitialize;
-        }
 
         /// Allocate a store pointer of length `n`.
         private void allocateStorePtr(size_t n) @trusted
@@ -117,14 +117,6 @@ struct Array(E,
     else
     {
         nothrow @nogc:
-
-        /// Create a empty array of length `n`.
-        this(size_t n)
-        {
-            allocateStorePtr(n);
-            _length = _storeCapacity = n;
-            defaultInitialize;
-        }
 
         /// Allocate a store pointer of length `n`.
         private void allocateStorePtr(size_t n) @trusted
@@ -737,7 +729,15 @@ struct Array(E,
     }
     else
     {
-    inout nothrow @nogc:                  // indexing and slicing can be mutable when ordered
+        nothrow:
+
+        void resize(size_t length) @safe
+        {
+            reserve(length);
+            _length = length;
+        }
+
+        inout:               // indexing and slicing can be mutable when ordered
 
         /// Slice operator overload is mutable when unordered.
         auto opSlice()
@@ -774,12 +774,6 @@ struct Array(E,
     }
 
     pure nothrow:
-
-    void resize(size_t length) @safe
-    {
-        reserve(length);
-        _length = length;
-    }
 
     @nogc:
 
@@ -868,6 +862,16 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         foreach (const n; 0 .. maxLength)
         {
             auto x = Array!(E, ordering, supportGC, less)(n);
+
+            // test resize
+            static if (!IsOrdered!ordering)
+            {
+                assert(x.length == n);
+                x.resize(n + 1);
+                assert(x.length == n + 1);
+                x.resize(n);
+            }
+
             const ptr = x.ptr;
             const capacity = x.capacity;
             assert(x.length == n);

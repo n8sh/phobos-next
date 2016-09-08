@@ -19,8 +19,8 @@ void main(string[] args)
     }
 
     alias Key = S;
-
     auto set = radixTreeSet!(Key);
+
     assert(set.empty);
 
     const n = 100;

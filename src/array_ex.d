@@ -500,6 +500,18 @@ struct Array(E,
             return this[].contains(value);
         }
 
+        /** Wrapper for `std.range.SortedRange.lowerBound` when this `ordering` is sorted. */
+        auto lowerBound(SearchPolicy sp = SearchPolicy.binarySearch, U)(U e) @("complexity", "O(log(length))")
+        {
+            return this[].lowerBound!sp(e);
+        }
+
+        /** Wrapper for `std.range.SortedRange.upperBound` when this `ordering` is sorted. */
+        auto upperBound(SearchPolicy sp = SearchPolicy.binarySearch, U)(U e) @("complexity", "O(log(length))")
+        {
+            return this[].upperBound!sp(e);
+        }
+
         static if (ordering == Ordering.sortedUniqueSet)
         {
             /** Inserts `values` into `this` ordered set.
@@ -928,6 +940,14 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         auto ssA = Array!(E, ordering, supportGC, less)(0);
         static if (IsOrdered!ordering)
         {
+            static if (less == "a < b")
+            {
+                alias A = Array!(E, ordering, supportGC, less);
+                A x = [1, 2, 3, 4, 5, 6];
+                assert(x.lowerBound(3).equal([1, 2]));
+                assert(x.upperBound(3).equal([4, 5, 6]));
+            }
+
             foreach (i; bw)
             {
                 static if (ordering == Ordering.sortedUniqueSet)

@@ -3907,21 +3907,20 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, ref CopyingArray!Ix rawUKey) @trus
             const member = __traits(getMember, typedKey, memberName); // member
             alias MemberType = typeof(member);
 
-            CopyingArray!Ix memberRawUKey;
             static if (i + 1 == members.length) // last member is allowed to be an array of fixed length
             {
-                // Use [] instead
+                CopyingArray!Ix memberRawUKey;
                 auto memberRawKey = member.toRawKey(memberRawUKey); // TODO use DIP-1000
+                rawUKey.pushBack(memberRawUKey);
             }
             else                // non-last member must be fixed
             {
                 static assert(isFixedTrieableKeyType!MemberType,
                               "Non-last " ~ i.stringof ~ ":th member of type " ~ MemberType.stringof ~ " must be of fixed length");
-                memberRawUKey.resize(MemberType.sizeof);
+                Ix[MemberType.sizeof] memberRawUKey;
                 auto memberRawKey = member.toFixedRawKey(memberRawUKey[]); // TODO use DIP-1000
+                rawUKey.pushBack(memberRawUKey);
             }
-
-            rawUKey.pushBack(memberRawUKey);
         }
         return rawUKey[]; // TODO return const slice
     }

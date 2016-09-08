@@ -407,9 +407,10 @@ struct Array(E,
             if (ptr == values.ptr) // called as: this ~= this
             {
                 reserve(2*length);
-                // NOTE: this is not needed because we don't need range checking here?:
-                // ptr[length .. 2*length] = values.ptr[0 .. length];
-                foreach (const i; 0 .. length) { ptr[length + i] = values.ptr[i]; } // TODO move. reuse memcpy
+                foreach (const i; 0 .. length)
+                {
+                    ptr[length + i] = ptr[i]; // TODO move. reuse memcpy
+                }
                 _length *= 2;
             }
             else
@@ -992,6 +993,17 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         }
         else
         {
+            {
+                alias A = Array!(E, ordering, supportGC);
+                A x = [1, 2, 3];
+                x ~= x;
+                assert(x[].equal([1, 2, 3,
+                                  1, 2, 3]));
+                x ~= x[];
+                assert(x[].equal([1, 2, 3, 1, 2, 3,
+                                  1, 2, 3, 1, 2, 3]));
+            }
+
             ssA ~= 3;
             ssA ~= 2;
             ssA ~= 1;

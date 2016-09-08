@@ -13,6 +13,7 @@
     logic in `Array` via `alias this` or free functions.
 
     TODO Use `std.algorithm.mutation.move` and `std.range.primitives.moveAt`
+    when moving internal sub-slices
 
     TODO struct Store, Notify andralex of packed array
 

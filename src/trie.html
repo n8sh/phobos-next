@@ -547,7 +547,7 @@ test map from <pre style="display:inline;" class="d_inline_code">uint</pre> to v
 {
     <font color=blue>assert</font>(map.rangeCount == 1);
     {
-        <font color=blue>auto</font> mapRange = map[];
+        <font color=blue>const</font> mapRange = map[];
         <font color=blue>assert</font>(map.rangeCount == 2);
     }
     <font color=blue>assert</font>(map.rangeCount == 1);

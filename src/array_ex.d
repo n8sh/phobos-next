@@ -4,8 +4,6 @@
     TODO Make Array have reference semantics instead through via Automatic
     Reference Counting and scope keyword when DIP-1000 has been implemented
 
-    TODO Should checkEmptyPop() only be enabled in debug?
-
     TODO Use std.array.insertInPlace in insert()?
     TODO Use std.array.replaceInPlace?
 
@@ -333,7 +331,7 @@ struct Array(E,
     ContainerElementType!(typeof(this), E) linearPopAtIndex(size_t index) @trusted @("complexity", "O(length)")
     {
         assert(index < _length);
-        checkEmptyPop();
+        assert(!empty);
         typeof(return) value = ptr[index]; // TODO move construct?
         // TODO functionize move
         foreach (const i; 0 .. length - (index + 1)) // each element index that needs to be moved
@@ -351,7 +349,7 @@ struct Array(E,
     /** Removal doesn't need to care about ordering. */
     ContainerElementType!(typeof(this), E) linearPopFront() @trusted @("complexity", "O(length)")
     {
-        checkEmptyPop();
+        assert(!empty);
         typeof(return) value = ptr[0]; // TODO move construct?
         // TODO functionize move
         foreach (const i; 0 .. length - 1) // each element index that needs to be moved
@@ -367,7 +365,7 @@ struct Array(E,
     /** Removal doesn't need to care about ordering. */
     void popBack() @safe @("complexity", "O(1)")
     {
-        checkEmptyPop();
+        assert(!empty);
         --_length;
     }
 
@@ -384,11 +382,6 @@ struct Array(E,
     pragma(inline) void popBackN(size_t count) @safe @("complexity", "O(1)")
     {
         shrinkTo(_length - count);
-    }
-
-    private void checkEmptyPop()
-    {
-        if (empty) { assert(false, `Cannot pop value from an empty array`); }
     }
 
     static if (!IsOrdered!ordering) // for unsorted arrays

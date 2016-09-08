@@ -81,8 +81,6 @@
     - 1_1_1_1_1
     - 1_1_1_1_1_1
 
-    TODO replace all CopyingArray.pushBack with ~=
-
     TODO Sorted Range Primitives over Keys
 
     - Returns a range of elements which are equivalent (though not necessarily equal) to value.
@@ -1383,13 +1381,13 @@ template RawRadixTree(Value = void)
             {
             case undefined: assert(false);
             case ix_SparseBranchPtr:
-                key.pushBack(branch.as!(SparseBranch*).prefix[]);
+                key ~= branch.as!(SparseBranch*).prefix[];
                 break;
             case ix_DenseBranchPtr:
-                key.pushBack(branch.as!(DenseBranch*).prefix[]);
+                key ~= branch.as!(DenseBranch*).prefix[];
                 break;
             }
-            key.pushBack(frontIx); // uses cached data so ok to not depend on branch type
+            key ~= frontIx; // uses cached data so ok to not depend on branch type
         }
 
         size_t prefixLength() const @nogc
@@ -1746,23 +1744,23 @@ template RawRadixTree(Value = void)
 
             case ix_OneLeafMax7:
                 assert(ix == 0);
-                key.pushBack(leaf.as!(OneLeafMax7).key[]);
+                key ~= leaf.as!(OneLeafMax7).key[];
                 break;
             case ix_TwoLeaf3:
-                key.pushBack(leaf.as!(TwoLeaf3).keys[ix][]);
+                key ~= leaf.as!(TwoLeaf3).keys[ix][];
                 break;
             case ix_TriLeaf2:
-                key.pushBack(leaf.as!(TriLeaf2).keys[ix][]);
+                key ~= leaf.as!(TriLeaf2).keys[ix][];
                 break;
             case ix_HeptLeaf1:
-                key.pushBack(leaf.as!(HeptLeaf1).keys[ix]);
+                key ~= leaf.as!(HeptLeaf1).keys[ix];
                 break;
 
             case ix_SparseLeaf1Ptr:
-                key.pushBack(leaf.as!(SparseLeaf1!Value*).ixs[ix]);
+                key ~= leaf.as!(SparseLeaf1!Value*).ixs[ix];
                 break;
             case ix_DenseLeaf1Ptr:
-                key.pushBack(ix);
+                key ~= ix;
                 break;
 
             default: assert(false, "Unsupported Node type");
@@ -1928,7 +1926,7 @@ template RawRadixTree(Value = void)
         void push(ref BranchRange branchRange)
         {
             // branchRange.appendFrontIxsToKey(_branchesKeyPrefix);
-            _bRanges.pushBack(branchRange);
+            _bRanges ~= branchRange;
         }
 
         size_t branchCount() const @safe pure nothrow @nogc
@@ -3911,15 +3909,15 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, ref CopyingArray!Ix rawUKey) @trus
             {
                 CopyingArray!Ix memberRawUKey;
                 auto memberRawKey = member.toRawKey(memberRawUKey); // TODO use DIP-1000
-                rawUKey.pushBack(memberRawUKey);
+                rawUKey ~= memberRawUKey;
             }
             else                // non-last member must be fixed
             {
                 static assert(isFixedTrieableKeyType!MemberType,
                               "Non-last " ~ i.stringof ~ ":th member of type " ~ MemberType.stringof ~ " must be of fixed length");
                 Ix[MemberType.sizeof] memberRawUKey;
-                auto memberRawKey = member.toFixedRawKey(memberRawUKey[]); // TODO use DIP-1000
-                rawUKey.pushBack(memberRawUKey);
+                auto memberRawKey = member.toFixedRawKey(memberRawUKey); // TODO use DIP-1000
+                rawUKey ~= memberRawUKey[];
             }
         }
         return rawUKey[]; // TODO return const slice

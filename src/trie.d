@@ -388,8 +388,7 @@ static private struct SparseLeaf1(Value)
 
     pure nothrow @nogc:
 
-    /** Construct empty with `capacity`. */
-    pragma(inline) this(size_t capacity)
+    this(size_t capacity)
     {
         _capacity = capacity;
         _length = 0;

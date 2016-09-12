@@ -3613,19 +3613,19 @@ template RawRadixTree(Value = void)
             return stats;
         }
 
-        this(this)
-        {
-            if (!_root) return;
-            const rhsRoot = _root;
-            debug const oldLength = _length;
-            if (rhsRoot)
-            {
-                _root = null;       // reset
-                _length = 0;        // needs reset because insert updates
-                // TODO insert(rhsRoot[]);
-            }
-            assert(false, "TODO calculate tree by branches and leafs and make copies of them");
-        }
+        // this(this)
+        // {
+        //     if (!_root) return;
+        //     const rhsRoot = _root;
+        //     debug const oldLength = _length;
+        //     if (rhsRoot)
+        //     {
+        //         _root = null;       // reset
+        //         _length = 0;        // needs reset because insert updates
+        //         // TODO insert(rhsRoot[]);
+        //     }
+        //     assert(false, "TODO calculate tree by branches and leafs and make copies of them");
+        // }
 
         pragma(inline) ~this() @nogc
         {

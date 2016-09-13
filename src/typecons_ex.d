@@ -460,7 +460,6 @@ auto strictlyIndexed(R)(R range)
     auto x = [1, 2, 3];
     struct I(T = size_t)
     {
-        this(T ix) { this._ix = ix; }
         private T _ix = 0;
     }
     alias J = I!size_t;

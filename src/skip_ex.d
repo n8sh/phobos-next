@@ -63,6 +63,7 @@ size_t skipOverEither(alias pred = "a == b", Range, Ranges...)(ref Range haystac
 {
     auto x = "beta version";
     assert(x.skipOverEither("beta", "be") == 1);
+    assert(x.skipOverEither("x", "y") == 0);
     assert(x == " version");
 }
 

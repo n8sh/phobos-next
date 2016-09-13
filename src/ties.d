@@ -61,13 +61,11 @@ auto tie(Ts...)(ref Ts vars)
             {
                 static if (hasLength!R)
                 {
-                    enforce(xs.length >= Ts.length,
-                            `tie(...) = ...: range must have at least ` ~ Ts.length.text ~ ` elements.`);
+                    enforce(xs.length >= Ts.length, `tie(...) = ...: range must have at least ` ~ Ts.length.text ~ ` elements.`);
                 }
                 foreach (i, t; Ts)
                 {
-                    enforce(!xs.empty,
-                            `tie(...) = ...: range must have at least ` ~ Ts.length.text ~ ` elements.`);
+                    enforce(!xs.empty, `tie(...) = ...: range must have at least ` ~ Ts.length.text ~ ` elements.`);
                     *pnts[i] = xs.front;
                     xs.popFront();
                 }

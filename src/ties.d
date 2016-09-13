@@ -6,14 +6,13 @@ import std.exception: enforce, assertThrown;
 
 //version = chatty; // print stuff on stdout in unittests. comment this out to make them silent
 version(chatty) import std.stdio;
-
 alias pointerOf(T) = T*;
 template sameTypes(Ts...)
 {
     static if (Ts.length <= 1)
         enum sameTypes = true;
     else
-        enum sameTypes = is(Ts[0] == Ts[1]) && sameTypes!(Ts[1..$]);
+        enum sameTypes = is(Ts[0] == Ts[1]) && sameTypes!(Ts[1 .. $]);
 }
 
 static assert(sameTypes!(int, int, int));
@@ -29,13 +28,17 @@ auto tie(Ts...)(ref Ts vars)
         this(ref Ts vars)
         {
             foreach (i, t; Ts)
+            {
                 pnts[i] = &vars[i];
+            }
         }
 
         void opAssign( Tuple!Ts xs )
         {
             foreach (i, t; Ts)
+            {
                 *pnts[i] = xs[i];
+            }
         }
 
         static if (sameTypes!Ts)
@@ -48,7 +51,9 @@ auto tie(Ts...)(ref Ts vars)
                 enforce(xs.length == Ts.length,
                         `tie(...) = ...: array must have ` ~ Ts.length.text ~ ` elements.`);
                 foreach (i, t; Ts)
+                {
                     *pnts[i] = xs[i];
+                }
             }
 
             void opAssign(R)(R xs) if (isInputRange!R &&
@@ -73,8 +78,7 @@ auto tie(Ts...)(ref Ts vars)
             {
                 foreach (i, t; Ts)
                 {
-                    if (xs.empty)
-                        return;
+                    if (xs.empty) { return; }
                     *pnts[i] = xs.front;
                     xs.popFront();
                 }

@@ -30,8 +30,7 @@ auto byNTriple(File rdfFile)
                   .map!(line => line.nTriple);
 }
 
-/**
-   RDF N-Triple.
+/** RDF N-Triple.
 
    Parameterized on element type $(D ElementType). Use NTriple!(char[]) to avoid
    GC-allocations when parsing files using File.byLine which returns a volatile

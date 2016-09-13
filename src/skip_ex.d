@@ -162,6 +162,7 @@ Tuple!(bool, size_t) skipOverLongestOf(alias pred = "a == b", Range, Ranges...)(
     return haystack.skipOverShortestOf(needles);
 }
 
+/** Skip Over Back Shortest Match of `needles` in `haystack`. */
 size_t skipOverBackShortestOf(alias pred = "a == b", Range, Ranges...)(ref Range haystack, Ranges needles)
 // TODO We cannot prove that cast(ubyte[]) of a type that have no directions is safe
     @trusted

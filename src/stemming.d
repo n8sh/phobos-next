@@ -470,8 +470,6 @@ private:
     }
 }
 
-import assert_ex;
-
 unittest
 {
     auto stemmer = new Stemmer!string();

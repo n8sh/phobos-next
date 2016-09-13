@@ -23,7 +23,7 @@ Rational!ulong sparseness(T)(in T x, int depth = -1) @safe @nogc pure nothrow
             ulong nums, denoms;
             foreach (const ref elt; x)
             {
-                auto sub = elt.sparseness(nextDepth);
+                const sub = elt.sparseness(nextDepth);
                 nums += sub.numerator;
                 denoms += sub.denominator;
             }

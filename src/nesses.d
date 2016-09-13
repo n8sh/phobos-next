@@ -6,7 +6,7 @@ import std.traits : isIterable, isFloatingPoint;
 /** Returns: Number of Default-Initialized (Zero) Elements in $(D x) at
     recursion depth $(D depth) defaulting infinite depth (-1).
 */
-Rational!ulong sparseness(T)(in T x, int depth = -1) @safe @nogc pure nothrow
+Rational!ulong sparseness(T)(in T x, int depth = -1)
 {
     alias R = typeof(return); // rational shorthand
     static if (isIterable!T)
@@ -39,7 +39,9 @@ Rational!ulong sparseness(T)(in T x, int depth = -1) @safe @nogc pure nothrow
         return R(x == T.init, 1);
     }
 }
-unittest {
+
+@safe pure nothrow unittest
+{
     assert(1.sparseness == 0);
     assert(0.sparseness == 1);
     assert(0.0.sparseness == 1);
@@ -57,11 +59,13 @@ unittest {
 
 /** Returns: Number of Non-Zero Elements in $(D range) at recursion depth $(D
     depth) defaulting infinite depth (-1). */
-auto denseness(T)(in T x, int depth = -1) @safe @nogc pure nothrow
+auto denseness(T)(in T x, int depth = -1)
 {
     return 1 - x.sparseness(depth);
 }
-unittest {
+
+@safe @nogc pure nothrow unittest
+{
     immutable float[3] f = [1, 2, 3];
     alias Q = Rational!ulong;
     assert(f[].denseness == Q(3, 3));

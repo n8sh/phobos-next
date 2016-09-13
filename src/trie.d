@@ -5127,10 +5127,13 @@ private template iotaImpl(size_t to, size_t now)
     else                  { alias iotaImpl = AliasSeq!(now, iotaImpl!(to, now + 1)); }
 }
 
-version(unittest) version(benchmark)
-void main(string[] args)
+version(unittest) {}
+else
 {
-    benchmark;
+    void main(string[] args)
+    {
+        version(benchmark) benchmark();
+    }
 }
 
 extern(C) pure nothrow @system @nogc

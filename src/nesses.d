@@ -36,8 +36,7 @@ Rational!ulong sparseness(T)(in T x, int depth = -1) @safe @nogc pure nothrow
     }
     else
     {
-        import predicates: isDefaulted;
-        return R(x.isDefaulted, 1);
+        return R(x == T.init, 1);
     }
 }
 unittest {

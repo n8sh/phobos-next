@@ -711,19 +711,19 @@ if (isIntegerLike!Int)
     }
 
     ///Returns the numerator.
-    @property Int numerator()
+    @property inout(Int) numerator() inout
     {
         return num;
     }
 
     ///Returns the denominator.
-    @property Int denominator()
+    @property inout(Int) denominator() inout
     {
         return den;
     }
 
     /// Returns the integer part of this rational, with any remainder truncated.
-    @property Int integerPart()
+    @property inout(Int) integerPart() inout
     {
         return this.numerator / this.denominator;
     }

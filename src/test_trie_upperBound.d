@@ -20,6 +20,7 @@ void main(string[] args)
     set.insert(7);
 
     const Key[4] expected = [4, 5, 6, 7];
+
     assert(set.upperBound(3)
               .equal(expected[]));
 }

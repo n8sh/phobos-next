@@ -2590,7 +2590,6 @@ template RawRadixTree(Value = void)
             break;
         case ix_SparseBranchPtr:
             auto curr_ = curr.as!(SparseBranch*);
-            // TODO functionize
             if (keyPrefix.startsWith(curr_.prefix[]))
             {
                 const currPrefixLength = curr_.prefix.length;
@@ -2616,7 +2615,6 @@ template RawRadixTree(Value = void)
             break;
         case ix_DenseBranchPtr:
             auto curr_ = curr.as!(DenseBranch*);
-            // TODO functionize
             if (keyPrefix.startsWith(curr_.prefix[]))
             {
                 const currPrefixLength = curr_.prefix.length;
@@ -2647,7 +2645,7 @@ template RawRadixTree(Value = void)
         return curr;
     }
 
-    inout(Node) matchCommonPrefixAt(inout Node curr, UKey keyPrefix) @safe pure nothrow @nogc
+    inout(Node) matchCommonPrefixAt(inout Node curr, UKey key, out UKey keyRest) @safe pure nothrow @nogc
     {
         import std.algorithm : startsWith;
         final switch (curr.typeIx) with (Node.Ix)
@@ -2655,28 +2653,18 @@ template RawRadixTree(Value = void)
         case undefined:
             return typeof(return).init; // terminate recursion
         case ix_OneLeafMax7:
-            if (curr.as!(OneLeafMax7).key[].startsWith(keyPrefix)) { goto processHit; }
-            break;
         case ix_TwoLeaf3:
-            if (curr.as!(TwoLeaf3).keyLength >= keyPrefix.length) { goto processHit; }
-            break;
         case ix_TriLeaf2:
-            if (curr.as!(TriLeaf2).keyLength >= keyPrefix.length) { goto processHit; }
-            break;
         case ix_HeptLeaf1:
-            if (curr.as!(HeptLeaf1).keyLength >= keyPrefix.length) { goto processHit; }
-            break;
         case ix_SparseLeaf1Ptr:
         case ix_DenseLeaf1Ptr:
-            if (keyPrefix.length <= 1) { goto processHit; }
-            break;
+            goto processHit;
         case ix_SparseBranchPtr:
             auto curr_ = curr.as!(SparseBranch*);
-            // TODO functionize
-            if (keyPrefix.startsWith(curr_.prefix[]))
+            if (key.startsWith(curr_.prefix[]))
             {
                 const currPrefixLength = curr_.prefix.length;
-                if (keyPrefix.length == currPrefixLength || // if no more prefix
+                if (key.length == currPrefixLength || // if no more prefix
                     curr_.leaf1 && // both leaf1
                     curr_.subCount) // and sub-nodes
                 {
@@ -2685,22 +2673,23 @@ template RawRadixTree(Value = void)
                 else if (curr_.subCount == 0) // only leaf1
                 {
                     return matchCommonPrefixAt(Node(curr_.leaf1),
-                                         keyPrefix[currPrefixLength .. $]);
+                                               key[currPrefixLength .. $],
+                                               keyRest);
                 }
                 else        // only sub-node(s)
                 {
-                    return matchCommonPrefixAt(curr_.subAt(UIx(keyPrefix[currPrefixLength])),
-                                         keyPrefix[currPrefixLength + 1 .. $]);
+                    return matchCommonPrefixAt(curr_.subAt(UIx(key[currPrefixLength])),
+                                               key[currPrefixLength + 1 .. $],
+                                               keyRest);
                 }
             }
             break;
         case ix_DenseBranchPtr:
             auto curr_ = curr.as!(DenseBranch*);
-            // TODO functionize
-            if (keyPrefix.startsWith(curr_.prefix[]))
+            if (key.startsWith(curr_.prefix[]))
             {
                 const currPrefixLength = curr_.prefix.length;
-                if (keyPrefix.length == currPrefixLength || // if no more prefix
+                if (key.length == currPrefixLength || // if no more prefix
                     curr_.leaf1 && // both leaf1
                     curr_.subCount) // and sub-nodes
                 {
@@ -2709,18 +2698,21 @@ template RawRadixTree(Value = void)
                 else if (curr_.subCount == 0) // only leaf1
                 {
                     return matchCommonPrefixAt(Node(curr_.leaf1),
-                                         keyPrefix[currPrefixLength .. $]);
+                                               key[currPrefixLength .. $],
+                                               keyRest);
                 }
                 else        // only sub-node(s)
                 {
-                    return matchCommonPrefixAt(curr_.subNodes[UIx(keyPrefix[currPrefixLength])],
-                                         keyPrefix[currPrefixLength + 1 .. $]);
+                    return matchCommonPrefixAt(curr_.subNodes[UIx(key[currPrefixLength])],
+                                               key[currPrefixLength + 1 .. $],
+                                               keyRest);
                 }
             }
             break;
         }
         return typeof(return).init;
     processHit:
+        keyRest = key;
         return curr;
     }
 
@@ -3740,9 +3732,9 @@ template RawRadixTree(Value = void)
             }
 
             /** Lookup deepest node having whose key starts with `key`. */
-            pragma(inline) inout(Node) matchCommonPrefix(UKey key) inout
+            pragma(inline) inout(Node) matchCommonPrefix(UKey key, out UKey keyRest) inout
             {
-                return matchCommonPrefixAt(_root, key);
+                return matchCommonPrefixAt(_root, key, keyRest);
             }
 
             static if (isValue)
@@ -4250,7 +4242,9 @@ struct RadixTree(Key, Value)
         auto rawKey = key.toRawKey(rawUKey);
 
         UKey rawKeyRest;
-        auto prefixedRootNode = _rawTree.matchCommonPrefix(rawKey);
+        dln(rawKey);
+        auto prefixedRootNode = _rawTree.matchCommonPrefix(rawKey, rawKeyRest);
+        dln(prefixedRootNode);
 
         return Range(prefixedRootNode,
                      &_rawTree._rangeCounter,

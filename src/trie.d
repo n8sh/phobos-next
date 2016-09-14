@@ -2647,6 +2647,83 @@ template RawRadixTree(Value = void)
         return curr;
     }
 
+    inout(Node) matchCommonPrefixAt(inout Node curr, UKey keyPrefix) @safe pure nothrow @nogc
+    {
+        import std.algorithm : startsWith;
+        final switch (curr.typeIx) with (Node.Ix)
+        {
+        case undefined:
+            return typeof(return).init; // terminate recursion
+        case ix_OneLeafMax7:
+            if (curr.as!(OneLeafMax7).key[].startsWith(keyPrefix)) { goto processHit; }
+            break;
+        case ix_TwoLeaf3:
+            if (curr.as!(TwoLeaf3).keyLength >= keyPrefix.length) { goto processHit; }
+            break;
+        case ix_TriLeaf2:
+            if (curr.as!(TriLeaf2).keyLength >= keyPrefix.length) { goto processHit; }
+            break;
+        case ix_HeptLeaf1:
+            if (curr.as!(HeptLeaf1).keyLength >= keyPrefix.length) { goto processHit; }
+            break;
+        case ix_SparseLeaf1Ptr:
+        case ix_DenseLeaf1Ptr:
+            if (keyPrefix.length <= 1) { goto processHit; }
+            break;
+        case ix_SparseBranchPtr:
+            auto curr_ = curr.as!(SparseBranch*);
+            // TODO functionize
+            if (keyPrefix.startsWith(curr_.prefix[]))
+            {
+                const currPrefixLength = curr_.prefix.length;
+                if (keyPrefix.length == currPrefixLength || // if no more prefix
+                    curr_.leaf1 && // both leaf1
+                    curr_.subCount) // and sub-nodes
+                {
+                    goto processHit;
+                }
+                else if (curr_.subCount == 0) // only leaf1
+                {
+                    return matchCommonPrefixAt(Node(curr_.leaf1),
+                                         keyPrefix[currPrefixLength .. $]);
+                }
+                else        // only sub-node(s)
+                {
+                    return matchCommonPrefixAt(curr_.subAt(UIx(keyPrefix[currPrefixLength])),
+                                         keyPrefix[currPrefixLength + 1 .. $]);
+                }
+            }
+            break;
+        case ix_DenseBranchPtr:
+            auto curr_ = curr.as!(DenseBranch*);
+            // TODO functionize
+            if (keyPrefix.startsWith(curr_.prefix[]))
+            {
+                const currPrefixLength = curr_.prefix.length;
+                if (keyPrefix.length == currPrefixLength || // if no more prefix
+                    curr_.leaf1 && // both leaf1
+                    curr_.subCount) // and sub-nodes
+                {
+                    goto processHit;
+                }
+                else if (curr_.subCount == 0) // only leaf1
+                {
+                    return matchCommonPrefixAt(Node(curr_.leaf1),
+                                         keyPrefix[currPrefixLength .. $]);
+                }
+                else        // only sub-node(s)
+                {
+                    return matchCommonPrefixAt(curr_.subNodes[UIx(keyPrefix[currPrefixLength])],
+                                         keyPrefix[currPrefixLength + 1 .. $]);
+                }
+            }
+            break;
+        }
+        return typeof(return).init;
+    processHit:
+        return curr;
+    }
+
     size_t countHeapNodesAt(Node curr) @safe pure nothrow @nogc
     {
         size_t count = 0;
@@ -3662,6 +3739,12 @@ template RawRadixTree(Value = void)
                 return prefixAt(_root, keyPrefix, keyPrefixRest);
             }
 
+            /** Lookup deepest node having whose key starts with `key`. */
+            pragma(inline) inout(Node) matchCommonPrefix(UKey key) inout
+            {
+                return matchCommonPrefixAt(_root, key);
+            }
+
             static if (isValue)
             {
                 /** Returns: `true` if `key` is stored, `false` otherwise. */
@@ -4142,7 +4225,7 @@ struct RadixTree(Key, Value)
     /** Get range over elements whose key starts with `keyPrefix`.
         The element equal to `keyPrefix` is return as an empty instance of the type.
      */
-    pragma(inline) auto prefix(Key keyPrefix) // TODO @nogc
+    pragma(inline) auto prefix(Key keyPrefix)
     {
         CopyingArray!Ix rawUKey;
         auto rawKeyPrefix = keyPrefix.toRawKey(rawUKey);
@@ -4153,6 +4236,25 @@ struct RadixTree(Key, Value)
         return Range(prefixedRootNode,
                      &_rawTree._rangeCounter,
                      rawKeyPrefixRest);
+    }
+
+    /** This function searches with policy `sp` to find the largest right subrange
+        on which pred(value, x) is true for all x (e.g., if pred is "less than",
+        returns the portion of the range with elements strictly greater than
+        value).
+        TODO Add template param (SearchPolicy sp)
+    */
+    pragma(inline) auto upperBound(Key key)
+    {
+        CopyingArray!Ix rawUKey;
+        auto rawKey = key.toRawKey(rawUKey);
+
+        UKey rawKeyRest;
+        auto prefixedRootNode = _rawTree.matchCommonPrefix(rawKey);
+
+        return Range(prefixedRootNode,
+                     &_rawTree._rangeCounter,
+                     rawKeyRest);
     }
 
     /** Typed Range. */

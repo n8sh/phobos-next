@@ -1,11 +1,11 @@
 #!/usr/bin/env rdmd
 
-import std.algorithm.comparison : equal;
-import trie : radixTreeSet;
-import dbgio : dln;
-
 void main(string[] args)
 {
+    import std.algorithm.comparison : equal;
+    import trie : radixTreeSet;
+    import dbgio : dln;
+
     alias Key = int;
     auto set = radixTreeSet!(Key);
 
@@ -15,7 +15,7 @@ void main(string[] args)
     set.insert(3);
     set.insert(4);
     set.insert(5);
-    const string[2] expected = [4, 5];
+    const Key[2] expected = [4, 5];
     assert(set.upperBound(3)
               .equal(expected[]));
 }

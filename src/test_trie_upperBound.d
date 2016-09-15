@@ -13,12 +13,14 @@ void main()
 
     set.clear();
 
-    enum n = 29;
+    enum n = 200;
     foreach (const e; iota(0, n))
     {
         set.insert(e);
     }
     set.insert(n*2);
+
+    set.print();
 
     enum limit = 3;
     dln(set.upperBound(limit));

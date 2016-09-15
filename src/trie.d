@@ -2159,7 +2159,7 @@ template RawRadixTree(Value = void)
 
         this(Node root, uint* treeRangeCounter, UKey keyPrefix)
         {
-            this._keyPrefix = keyPrefix;
+            this._rawKeyPrefix = keyPrefix;
             assert(treeRangeCounter, "Pointer to range counter is null");
 
             this._treeRangeCounter = treeRangeCounter;
@@ -2169,7 +2169,7 @@ template RawRadixTree(Value = void)
             // this._back = FrontRange(root);
 
             if (!empty &&
-                !_front.frontKey.startsWith(_keyPrefix))
+                !_front.frontKey.startsWith(_rawKeyPrefix))
             {
                 popFront();
             }
@@ -2194,15 +2194,15 @@ template RawRadixTree(Value = void)
             return _front.empty; // TODO _front == _back;
         }
 
-        auto lowKey() const { return _front.frontKey[_keyPrefix.length .. $]; }
-        auto highKey() const { return _back.frontKey[_keyPrefix.length .. $]; }
+        auto lowKey() const { return _front.frontKey[_rawKeyPrefix.length .. $]; }
+        auto highKey() const { return _back.frontKey[_rawKeyPrefix.length .. $]; }
 
         void popFront()
         {
             assert(!empty);
             do { _front.popFront(); }
             while (!empty &&
-                   !_front.frontKey.startsWith(_keyPrefix));
+                   !_front.frontKey.startsWith(_rawKeyPrefix));
         }
 
         void popBack()
@@ -2210,13 +2210,13 @@ template RawRadixTree(Value = void)
             assert(!empty);
             do { _back.popFront(); }
             while (!empty &&
-                   !_back.frontKey.startsWith(_keyPrefix));
+                   !_back.frontKey.startsWith(_rawKeyPrefix));
         }
 
     private:
         FrontRange _front;
         FrontRange _back;
-        UKey _keyPrefix;
+        UKey _rawKeyPrefix;
         uint* _treeRangeCounter;
     }
 
@@ -2594,8 +2594,8 @@ template RawRadixTree(Value = void)
             {
                 const currPrefixLength = curr_.prefix.length;
                 if (keyPrefix.length == currPrefixLength || // if no more prefix
-                    curr_.leaf1 && // both leaf1
-                    curr_.subCount) // and sub-nodes
+                    (curr_.leaf1 && // both leaf1
+                     curr_.subCount)) // and sub-nodes
                 {
                     goto processHit;
                 }
@@ -2619,8 +2619,8 @@ template RawRadixTree(Value = void)
             {
                 const currPrefixLength = curr_.prefix.length;
                 if (keyPrefix.length == currPrefixLength || // if no more prefix
-                    curr_.leaf1 && // both leaf1
-                    curr_.subCount) // and sub-nodes
+                    (curr_.leaf1 && // both leaf1
+                     curr_.subCount)) // and sub-nodes
                 {
                     goto processHit;
                 }
@@ -2665,8 +2665,8 @@ template RawRadixTree(Value = void)
             {
                 const currPrefixLength = curr_.prefix.length;
                 if (key.length == currPrefixLength || // if no more prefix
-                    curr_.leaf1 && // both leaf1
-                    curr_.subCount) // and sub-nodes
+                    (curr_.leaf1 && // both leaf1
+                     curr_.subCount)) // and sub-nodes
                 {
                     goto processHit;
                 }
@@ -2690,8 +2690,8 @@ template RawRadixTree(Value = void)
             {
                 const currPrefixLength = curr_.prefix.length;
                 if (key.length == currPrefixLength || // if no more prefix
-                    curr_.leaf1 && // both leaf1
-                    curr_.subCount) // and sub-nodes
+                    (curr_.leaf1 && // both leaf1
+                     curr_.subCount)) // and sub-nodes
                 {
                     goto processHit;
                 }
@@ -2782,10 +2782,10 @@ template RawRadixTree(Value = void)
 
     Branch insertNewBranch(Element elt, out ElementRef elementRef) @safe pure nothrow @nogc
     {
+        import std.algorithm : min;
         // debug if (willFail) { dln("WILL FAIL: elt:", elt); }
         auto key = elementKey(elt);
-        assert(key);
-        import std.algorithm : min;
+        assert(key.length);
         const prefixLength = min(key.length - 1, // all but last Ix of key
                                  DefaultBranch.prefixCapacity); // as much as possible of key in branch prefix
         auto prefix = key[0 .. prefixLength];
@@ -4230,27 +4230,6 @@ struct RadixTree(Key, Value)
                      rawKeyPrefixRest);
     }
 
-    /** This function searches with policy `sp` to find the largest right subrange
-        on which pred(value, x) is true for all x (e.g., if pred is "less than",
-        returns the portion of the range with elements strictly greater than
-        value).
-        TODO Add template param (SearchPolicy sp)
-    */
-    pragma(inline) auto upperBound(Key key)
-    {
-        CopyingArray!Ix rawUKey;
-        auto rawKey = key.toRawKey(rawUKey);
-
-        UKey rawKeyRest;
-        dln(rawKey);
-        auto prefixedRootNode = _rawTree.matchCommonPrefix(rawKey, rawKeyRest);
-        dln(prefixedRootNode);
-
-        return Range(prefixedRootNode,
-                     &_rawTree._rangeCounter,
-                     rawKeyRest);
-    }
-
     /** Typed Range. */
     private static struct Range
     {
@@ -4258,7 +4237,10 @@ struct RadixTree(Key, Value)
 
         this(RawTree.NodeType root,
              uint* treeRangeCounter,
-             UKey keyPrefixRest) { _rawRange = _rawTree.RangeType(root, treeRangeCounter, keyPrefixRest); }
+             UKey keyPrefixRest)
+        {
+            _rawRange = _rawTree.RangeType(root, treeRangeCounter, keyPrefixRest);
+        }
 
         auto front() const
         {
@@ -4304,6 +4286,58 @@ struct RadixTree(Key, Value)
 
         RawTree.RangeType _rawRange;
         alias _rawRange this;
+    }
+
+    /** This function searches with policy `sp` to find the largest right subrange
+        on which pred(value, x) is true for all x (e.g., if pred is "less than",
+        returns the portion of the range with elements strictly greater than
+        value).
+        TODO Add template param (SearchPolicy sp)
+    */
+    pragma(inline) auto upperBound(Key key)
+    {
+        CopyingArray!Ix rawUKey;
+        auto rawKey = key.toRawKey(rawUKey);
+
+        UKey rawKeyRest;
+        // dln(rawKey);
+        auto prefixedRootNode = _rawTree.matchCommonPrefix(rawKey, rawKeyRest);
+        // dln("rawKeyPrefixMatch:", rawKey[0 .. $ - rawKeyRest.length]);
+        // dln(rawKeyRest);
+        // dln(prefixedRootNode);
+
+        return UpperBoundRange(prefixedRootNode,
+                               &_rawTree._rangeCounter,
+                               rawKey[0 .. $ - rawKeyRest.length]);
+    }
+
+    /** Typed Upper Bound Range. */
+    private static struct UpperBoundRange
+    {
+        @nogc:
+
+        this(RawTree.NodeType root,
+             uint* treeRangeCounter,
+             UKey rawKeyPrefix)
+        {
+            _rawRange = _rawTree.RangeType(root, treeRangeCounter, []);
+            _rawKeyPrefix = rawKeyPrefix;
+        }
+
+        auto front()
+        {
+            CopyingArray!Ix wholeRawKey = _rawKeyPrefix;
+            wholeRawKey ~= _rawRange.lowKey;
+            const wholeTypedKey = wholeRawKey[].toTypedKey!Key;
+            static if (RawTree.hasValue) { return tuple(wholeTypedKey, _rawRange._front._cachedFrontValue); }
+            else                         { return wholeTypedKey; }
+        }
+
+        @property auto save() { return this; }
+
+        RawTree.RangeType _rawRange;
+        alias _rawRange this;
+        CopyingArray!Ix _rawKeyPrefix;
     }
 
     static if (RawTree.hasValue)
@@ -4530,7 +4564,6 @@ auto testScalar(uint span, Keys...)()
     alias Key = ubyte;
     auto set = radixTreeSet!(Key);
 
-    const size_t top = 256;
     assert(!set._root);
 
     foreach (const i; 0 .. 7)
@@ -4664,7 +4697,6 @@ unittest
     {
         assert(map.rangeCount == 1);
         {
-            const mapRange = map[];
             assert(map.rangeCount == 2);
         }
         assert(map.rangeCount == 1);
@@ -4682,7 +4714,7 @@ unittest
 }
 
 /// Check string types in `Keys`.
-auto testString(Keys...)(size_t count, uint maxLength, bool show)
+auto testString(Keys...)(size_t count, uint maxLength)
     if (Keys.length >= 1)
 {
     void testContainsAndInsert(Set, Key)(ref Set set, Key key)
@@ -4749,8 +4781,8 @@ auto testString(Keys...)(size_t count, uint maxLength, bool show)
 @safe /* TODO pure nothrow @nogc */
 unittest
 {
-    testString!(string)(512, 8, true);
-    testString!(string)(2^^18, 2^^5, false);
+    testString!(string)(512, 8);
+    testString!(string)(2^^18, 2^^5);
 }
 
 /// test map to values of type `bool`
@@ -5054,7 +5086,7 @@ auto checkNumeric(Keys...)() @nogc
             {
                 static if (isIntegral!Key)
                 {
-                    const low = max(Key.min, -98900); // chosen to minimize number of lines of debug output before bug in contains happens
+                    const low = max(Key.min, -98_900); // chosen to minimize number of lines of debug output before bug in contains happens
                     const high = min(Key.max, 100_000);
                     const length = high - low + 1;
                 }

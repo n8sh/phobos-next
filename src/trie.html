@@ -561,7 +561,6 @@ test map from <pre style="display:inline;" class="d_inline_code">uint</pre> to v
 {
     <font color=blue>assert</font>(map.rangeCount == 1);
     {
-        <font color=blue>const</font> mapRange = map[];
         <font color=blue>assert</font>(map.rangeCount == 2);
     }
     <font color=blue>assert</font>(map.rangeCount == 1);
@@ -579,13 +578,13 @@ test map from <pre style="display:inline;" class="d_inline_code">uint</pre> to v
 </pre>
 <br><br>
 </dd>
-<dt><big><a name="testString"></a>auto <u>testString</u>(Keys...)(size_t <i>count</i>, uint <i>maxLength</i>, bool <i>show</i>) if (Keys.length &gt;= 1);
+<dt><big><a name="testString"></a>auto <u>testString</u>(Keys...)(size_t <i>count</i>, uint <i>maxLength</i>) if (Keys.length &gt;= 1);
 </big></dt>
 <dd>Check string types in <pre style="display:inline;" class="d_inline_code">Keys</pre>.<br><br>
 <b>Examples:</b><br>
 <pre class="d_code">
-<u>testString</u>!(string)(512, 8, <font color=blue>true</font>);
-<u>testString</u>!(string)(2^^18, 2^^5, <font color=blue>false</font>);
+<u>testString</u>!(string)(512, 8);
+<u>testString</u>!(string)(2^^18, 2^^5);
 </pre>
 <br><br><b>Examples:</b><br>
 test map to values of type <pre style="display:inline;" class="d_inline_code">bool</pre>

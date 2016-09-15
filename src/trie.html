@@ -365,7 +365,10 @@ pointer to value if <pre style="display:inline;" class="d_inline_code"><i>key</i
         on which pred(value, x) is <b>true</b> for all x (e.g., if pred is "less than",
         returns the portion of the range with elements strictly greater than
         value).
-        TODO Add template param (SearchPolicy sp)<br><br>
+        TODO Add template param (SearchPolicy sp)
+<br><br>
+TODO replace <pre style="display:inline;" class="d_inline_code">matchCommonPrefix</pre> with something more clever directly
+        finds the next element after rawKey and returns a TreeRange at that point<br><br>
 
 </dd>
 <dt><big><a name="RadixTree.byKey"></a>auto <u>byKey</u>();

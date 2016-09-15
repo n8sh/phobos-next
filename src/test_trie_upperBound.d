@@ -18,13 +18,18 @@ void main()
     {
         set.insert(e);
     }
+
     set.insert(n*2);
+    foreach (const e; iota(n*3, n*3 + n))
+    {
+        set.insert(e);
+    }
 
-    set.print();
+    // set.print();
 
-    enum limit = 3;
-    dln(set.upperBound(limit));
-    dln(set[].filter!(_ => _ > limit));
+    enum limit = n*2;
+    // dln(set.upperBound(limit));
+    // dln(set[].filter!(_ => _ > limit));
 
     assert(set.upperBound(limit)
            .equal(set[].filter!(_ => _ > limit)));

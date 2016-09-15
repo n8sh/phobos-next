@@ -1069,7 +1069,7 @@ template RawRadixTree(Value = void)
             ++subCount;
         }
 
-        inout(Node) subAt(UIx ix) inout
+        inout(Node) subNodeAt(UIx ix) inout
         {
             import searching_ex : binarySearch; // need this instead of `SortedRange.contains` because we need the index
             const hitIndex = subIxSlots[0 .. subCount].binarySearch(ix); // find index where insertion should be made
@@ -2387,7 +2387,7 @@ template RawRadixTree(Value = void)
     /// ditto
     pragma(inline) Node getSub(SparseBranch* curr, UIx subIx) @safe pure nothrow @nogc
     {
-        if (auto subNode = curr.subAt(subIx)) { return subNode; }
+        if (auto subNode = curr.subNodeAt(subIx)) { return subNode; }
         return Node.init;
     }
     /// ditto
@@ -2499,7 +2499,7 @@ template RawRadixTree(Value = void)
                 {
                     return (key.length == 1 ?
                             containsAt(curr_.leaf1, key) : // in leaf
-                            containsAt(curr_.subAt(UIx(key[0])), key[1 .. $])); // recurse into branch tree
+                            containsAt(curr_.subNodeAt(UIx(key[0])), key[1 .. $])); // recurse into branch tree
                 }
                 return null;
             case ix_DenseBranchPtr:
@@ -2554,7 +2554,7 @@ template RawRadixTree(Value = void)
                 return (key.skipOver(curr_.prefix) &&        // matching prefix
                         (key.length == 1 ?
                          containsAt(curr_.leaf1, key) : // in leaf
-                         containsAt(curr_.subAt(UIx(key[0])), key[1 .. $]))); // recurse into branch tree
+                         containsAt(curr_.subNodeAt(UIx(key[0])), key[1 .. $]))); // recurse into branch tree
             case ix_DenseBranchPtr:
                 auto curr_ = curr.as!(DenseBranch*);
                 return (key.skipOver(curr_.prefix) &&        // matching prefix
@@ -2607,7 +2607,7 @@ template RawRadixTree(Value = void)
                 }
                 else        // only sub-node(s)
                 {
-                    return prefixAt(curr_.subAt(UIx(keyPrefix[currPrefixLength])),
+                    return prefixAt(curr_.subNodeAt(UIx(keyPrefix[currPrefixLength])),
                                     keyPrefix[currPrefixLength + 1 .. $],
                                     keyPrefixRest);
                 }
@@ -2647,6 +2647,7 @@ template RawRadixTree(Value = void)
 
     inout(Node) matchCommonPrefixAt(inout Node curr, UKey key, out UKey keyRest) @safe pure nothrow @nogc
     {
+        // dln(curr.typeIx);
         import std.algorithm : startsWith;
         final switch (curr.typeIx) with (Node.Ix)
         {
@@ -2661,6 +2662,8 @@ template RawRadixTree(Value = void)
             goto processHit;
         case ix_SparseBranchPtr:
             auto curr_ = curr.as!(SparseBranch*);
+            // dln(key);
+            // dln(curr_.prefix[]);
             if (key.startsWith(curr_.prefix[]))
             {
                 const currPrefixLength = curr_.prefix.length;
@@ -2668,19 +2671,26 @@ template RawRadixTree(Value = void)
                     (curr_.leaf1 && // both leaf1
                      curr_.subCount)) // and sub-nodes
                 {
+                    // dln();
                     goto processHit;
                 }
                 else if (curr_.subCount == 0) // only leaf1
                 {
+                    // dln();
                     return matchCommonPrefixAt(Node(curr_.leaf1),
                                                key[currPrefixLength .. $],
                                                keyRest);
                 }
-                else        // only sub-node(s)
+                else if (curr_.subCount == 1) // only one sub node
                 {
-                    return matchCommonPrefixAt(curr_.subAt(UIx(key[currPrefixLength])),
+                    // dln();
+                    return matchCommonPrefixAt(curr_.subNodeAt(UIx(key[currPrefixLength])),
                                                key[currPrefixLength + 1 .. $],
                                                keyRest);
+                }
+                else
+                {
+                    goto processHit;
                 }
             }
             break;
@@ -2701,11 +2711,15 @@ template RawRadixTree(Value = void)
                                                key[currPrefixLength .. $],
                                                keyRest);
                 }
-                else        // only sub-node(s)
+                else if (curr_.subCount == 1) // only one sub node
                 {
                     return matchCommonPrefixAt(curr_.subNodes[UIx(key[currPrefixLength])],
                                                key[currPrefixLength + 1 .. $],
                                                keyRest);
+                }
+                else
+                {
+                    goto processHit;
                 }
             }
             break;
@@ -4300,11 +4314,12 @@ struct RadixTree(Key, Value)
         auto rawKey = key.toRawKey(rawUKey);
 
         UKey rawKeyRest;
-        dln(rawKey);
+        // dln(rawKey);
         auto prefixedRootNode = _rawTree.matchCommonPrefix(rawKey, rawKeyRest);
-        dln("rawKeyPrefixMatch:", rawKey[0 .. $ - rawKeyRest.length]);
-        dln(rawKeyRest);
-        dln(prefixedRootNode);
+        // dln(prefixedRootNode);
+        // dln("rawKeyPrefixMatch:", rawKey[0 .. $ - rawKeyRest.length]);
+        // dln(rawKeyRest);
+        // dln(prefixedRootNode);
 
         return UpperBoundRange(prefixedRootNode,
                                &_rawTree._rangeRefCounter,

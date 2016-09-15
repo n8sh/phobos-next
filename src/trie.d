@@ -4307,6 +4307,9 @@ struct RadixTree(Key, Value)
         returns the portion of the range with elements strictly greater than
         value).
         TODO Add template param (SearchPolicy sp)
+
+        TODO replace `matchCommonPrefix` with something more clever directly
+        finds the next element after rawKey and returns a TreeRange at that point
     */
     pragma(inline) auto upperBound(Key key)
     {
@@ -4327,7 +4330,8 @@ struct RadixTree(Key, Value)
                                rawKeyRest);
     }
 
-    /** Typed Upper Bound Range. */
+    /** Typed Upper Bound Range.
+     */
     private static struct UpperBoundRange
     {
         @nogc:

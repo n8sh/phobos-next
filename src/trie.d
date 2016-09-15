@@ -3672,7 +3672,7 @@ template RawRadixTree(Value = void)
 
         pragma(inline) Range opSlice() @trusted pure nothrow
         {
-            return Range(this._root, &this._rangeCounter, []);
+            return Range(this._root, &this._rangeRefCounter, []);
         }
 
         Stats usageHistograms() const
@@ -3698,7 +3698,7 @@ template RawRadixTree(Value = void)
 
         pragma(inline) ~this() @nogc
         {
-            assert(_rangeCounter == 0, "Ranges still refer to this"); // no `Range` must refer to `_root`
+            assert(_rangeRefCounter == 0, "Ranges still refer to this"); // no `Range` must refer to `_root`
             release(_root);
             debug
             {
@@ -3764,7 +3764,7 @@ template RawRadixTree(Value = void)
             {
                 pragma(inline) Node insert(UKey key, in Value value, out ElementRef elementRef)
                 {
-                    assert(_rangeCounter == 0, "Cannot modify tree with Range references");
+                    assert(_rangeRefCounter == 0, "Cannot modify tree with Range references");
                     return _root = insertAt(_root, Element(key, value), elementRef);
                 }
             }
@@ -3772,7 +3772,7 @@ template RawRadixTree(Value = void)
             {
                 pragma(inline) Node insert(UKey key, out ElementRef elementRef)
                 {
-                    assert(_rangeCounter == 0, "Cannot modify tree with Range references");
+                    assert(_rangeRefCounter == 0, "Cannot modify tree with Range references");
                     return _root = insertAt(_root, key, elementRef);
                 }
             }
@@ -3811,7 +3811,7 @@ template RawRadixTree(Value = void)
         }
 
         /// Get number of `Range`-instances that currently refer to `_root` of `this` tree.
-        auto rangeCount() const @safe pure nothrow @nogc { return _rangeCounter; }
+        auto rangeCount() const @safe pure nothrow @nogc { return _rangeRefCounter; }
 
         private enum fixedKeyLengthUndefined = 0;
 
@@ -3819,7 +3819,7 @@ template RawRadixTree(Value = void)
         Node _root;                 ///< tree root node
         immutable fixedKeyLength = fixedKeyLengthUndefined; ///< maximum length of key if fixed, otherwise 0
         size_t _length = 0; ///< number of elements (keys or key-value-pairs) currently stored under `_root`
-        uint _rangeCounter = 0;      // number of ranges that refer to `this` tree
+        uint _rangeRefCounter = 0;      // number of ranges that refer to `this` tree
 
         debug:                      // debug stuff
         long _heapNodeAllocationBalance = 0;
@@ -4211,7 +4211,7 @@ struct RadixTree(Key, Value)
     pragma(inline) Range opSlice() @nogc // TODO inout?
     {
         return Range(_rawTree._root,
-                     &_rawTree._rangeCounter, []);
+                     &_rawTree._rangeRefCounter, []);
     }
 
     /** Get range over elements whose key starts with `keyPrefix`.
@@ -4226,7 +4226,7 @@ struct RadixTree(Key, Value)
         auto prefixedRootNode = _rawTree.prefix(rawKeyPrefix, rawKeyPrefixRest);
 
         return Range(prefixedRootNode,
-                     &_rawTree._rangeCounter,
+                     &_rawTree._rangeRefCounter,
                      rawKeyPrefixRest);
     }
 
@@ -4307,8 +4307,9 @@ struct RadixTree(Key, Value)
         // dln(prefixedRootNode);
 
         return UpperBoundRange(prefixedRootNode,
-                               &_rawTree._rangeCounter,
-                               rawKey[0 .. $ - rawKeyRest.length]);
+                               &_rawTree._rangeRefCounter,
+                               rawKey[0 .. $ - rawKeyRest.length],
+                               key);
     }
 
     /** Typed Upper Bound Range. */
@@ -4318,10 +4319,16 @@ struct RadixTree(Key, Value)
 
         this(RawTree.NodeType root,
              uint* treeRangeCounter,
-             UKey rawKeyPrefix)
+             UKey rawKeyPrefix, Key key)
         {
             _rawRange = _rawTree.RangeType(root, treeRangeCounter, []);
             _rawKeyPrefix = rawKeyPrefix;
+
+            while (!_rawRange.empty &&
+                   front <= key)
+            {
+                popFront();
+            }
         }
 
         auto front()

@@ -4,6 +4,7 @@ void main()
 {
     import std.algorithm.comparison : equal;
     import std.range : iota;
+    import std.algorithm : filter;
     import trie : radixTreeSet;
     import dbgio : dln;
 
@@ -12,15 +13,17 @@ void main()
 
     set.clear();
 
-    auto expected = iota(0, 10);
-    foreach (const e; expected)
+    enum n = 29;
+    foreach (const e; iota(0, n))
     {
         set.insert(e);
     }
+    set.insert(n*2);
 
-    const limit = 3;
+    enum limit = 3;
     dln(set.upperBound(limit));
+    dln(set[].filter!(_ => _ > limit));
 
     assert(set.upperBound(limit)
-           .equal(iota(limit + 4, 10)));
+           .equal(set[].filter!(_ => _ > limit)));
 }

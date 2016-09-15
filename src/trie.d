@@ -4309,7 +4309,7 @@ struct RadixTree(Key, Value)
         return UpperBoundRange(prefixedRootNode,
                                &_rawTree._rangeRefCounter,
                                rawKey[0 .. $ - rawKeyRest.length],
-                               key);
+                               rawKeyRest);
     }
 
     /** Typed Upper Bound Range. */
@@ -4319,15 +4319,17 @@ struct RadixTree(Key, Value)
 
         this(RawTree.NodeType root,
              uint* treeRangeCounter,
-             UKey rawKeyPrefix, Key key)
+             UKey rawKeyPrefix, UKey rawKeyRest)
         {
             _rawRange = _rawTree.RangeType(root, treeRangeCounter, []);
             _rawKeyPrefix = rawKeyPrefix;
 
+            // skip values
+            import std.algorithm.comparison : cmp;
             while (!_rawRange.empty &&
-                   front <= key)
+                   cmp(_rawRange._front.frontKey, rawKeyRest) <= 0)
             {
-                popFront();
+                _rawRange.popFront();
             }
         }
 

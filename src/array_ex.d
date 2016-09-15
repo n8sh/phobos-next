@@ -850,6 +850,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         Str str;
         static assert(is(Unqual!(ElementType!Str) == Ch));
         static assert(str.isString);
+        str = Str.init;         // inhibit Dscanner warning
     }
 
     static if (E.sizeof == 4)

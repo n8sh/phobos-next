@@ -40,6 +40,8 @@ version(unittest)
 import std.math : nextPow2;
 import container_traits : ContainerElementType;
 
+/** Is `true` iff `T` is a type whose instances need to be scanned by the garbage
+    collector (GC). */
 template shouldAddGCRange(T)
 {
     import std.traits : isPointer, hasIndirections;
@@ -69,6 +71,8 @@ struct Array(E,
     import std.meta : allSatisfy;
 
     alias ME = Unqual!E; // mutable E
+
+    /// Is `true` iff array can be interpreted as a D `string`, `wstring` or `dstring`.
     enum isString = isSomeChar!E;
 
     alias comp = binaryFun!less; //< comparison

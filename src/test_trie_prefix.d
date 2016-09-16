@@ -12,7 +12,7 @@ void main(string[] args)
     set.clear();
     set.insert(`-----1`);
     set.insert(`-----2`);
-    const string[2] expected2 = [`1`, `2`];
+    const string[] expected2 = [`1`, `2`];
     assert(set.prefix(`-----`)
               .equal(expected2[]));
 

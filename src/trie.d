@@ -4725,6 +4725,7 @@ unittest
     {
         assert(map.rangeCount == 1);
         {
+            auto mapRange = map[];
             assert(map.rangeCount == 2);
         }
         assert(map.rangeCount == 1);

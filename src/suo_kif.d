@@ -9,6 +9,7 @@ void parseSUOKIF(R)(R source)
     import std.algorithm : among;
     import dbgio;
 
+    /// Skip comment.
     void skipComment()
     {
         dln();
@@ -19,6 +20,7 @@ void parseSUOKIF(R)(R source)
         }
     }
 
+    /// Skip whitespace.
     void skipWhite()
     {
         dln();

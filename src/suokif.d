@@ -1,13 +1,16 @@
 /** SUO-KIF File Format. */
 module suokif;
 
+import std.range : isInputRange;
+
 /** Parse SUO-KIF from `source`. */
 void parseSUOKIF(R)(R source)
+    if (isInputRange!R)
 {
     import std.range : empty, front, popFront;
     import std.uni : isWhite;
     import std.algorithm : among;
-    import dbgio;
+    import dbgio : dln;
 
     /// Skip comment.
     void skipComment()
@@ -47,5 +50,5 @@ unittest
 {
     import std.path : expandTilde;
     import std.file : readText;
-    readText("~/Work/phobos-next/src/emotion.kif".expandTilde).parseSUOKIF();
+    "~/Work/phobos-next/src/emotion.kif".expandTilde.readText.parseSUOKIF();
 }

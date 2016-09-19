@@ -1362,7 +1362,6 @@ template RawRadixTree(Value = void)
 
     // TODO make these run-time arguments at different key depths and map to statistics of typed-key
     alias DefaultBranch = SparseBranch; // either `SparseBranch`, `DenseBranch`
-    alias DefaultLeaf = SparseLeaf1!Value*; // either `SparseLeaf1*`, `DenseLeaf1*`
 
     /** Mutable node. */
     alias Node = WordVariant!(OneLeafMax7,
@@ -3712,7 +3711,6 @@ template RawRadixTree(Value = void)
         alias NodeType = Node;
         alias BranchType = Branch;
         alias DefaultBranchType = DefaultBranch;
-        alias DefaultLeafType = DefaultLeaf;
         alias ValueType = Value;
         alias RangeType = Range;
         alias StatsType = Stats;

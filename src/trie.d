@@ -5260,7 +5260,10 @@ auto checkNumeric(Keys...)() @nogc
             }
 
             auto setDup = set.dup;
-            assert(set._root != setDup._root);
+            if (set.length > 256)
+            {
+                assert(set._root != setDup._root);
+            }
             assert(set.length == setDup.length);
             assert(set[].equal(setDup[]));
 
@@ -5271,7 +5274,10 @@ auto checkNumeric(Keys...)() @nogc
             map.insert(Key.init, Value.init);
 
             auto mapDup = map.dup;
-            assert(map._root != mapDup._root);
+            if (map.length > 256)
+            {
+                assert(map._root != mapDup._root);
+            }
             assert(map.length == mapDup.length);
             // assert(map[].equal(mapDup[]));
         }

@@ -4429,10 +4429,22 @@ auto radixTreeSet(Key)() @nogc
     return RadixTree!(MutableKey!Key, void)(false);
 }
 
+/// Wrapper for a grow-only variant of `radixTreeSet`.
+auto radixTreeSetGrowOnly(Key)() @nogc
+{
+    return radixTreeSet!(Key);
+}
+
 /// Instantiator for the map-version of `RadixTree` where value-type is `Value`.
 auto radixTreeMap(Key, Value)()
 {
     return RadixTree!(MutableKey!Key, Value)(false);
+}
+
+/// Wrapper for a grow-only variant of `radixTreeMap`.
+auto radixTreeMapGrowOnly(Key, Value)()
+{
+    return radixTreeMap!(Key, Value);
 }
 
 /// exercise all switch-cases in `RawRadixTree.prefixAt()`

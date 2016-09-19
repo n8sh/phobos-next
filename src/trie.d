@@ -372,7 +372,7 @@ struct HeptLeaf1
     IxsN!(capacity, 1) keys;    // should never be empty
 }
 
-import vla : hasVariableLength;
+import vla : hasVariableLength, constructVariableLength;
 
 /** Allocate (if pointer) and Construct a `Node`-type of value type `NodeType`
     using constructor arguments `args` of `Args`.
@@ -394,16 +394,17 @@ auto construct(NodeType, Args...)(Args args) @trusted pure nothrow @nogc
     }
 }
 
-auto constructVariableLength(NodeType, Args...)(size_t requiredCapacity, Args args) @trusted pure nothrow @nogc
-    if (isPointer!NodeType &&
-        hasVariableLength!NodeType)
-{
-    // debug ++nodeCountsByIx[Node.indexOf!NodeType];
-    // debug ++_heapNodeAllocationBalance;
-    import vla : constructVariableLength;
-    return constructVariableLength!(typeof(*NodeType.init))(requiredCapacity, args);
-    // TODO ensure alignment of node at least that of NodeType.alignof
-}
+// auto constructVariableLength(NodeType, Args...)(size_t requiredCapacity, Args args)
+//     @trusted pure nothrow @nogc
+//     if (isPointer!NodeType &&
+//         hasVariableLength!NodeType)
+// {
+//     // debug ++nodeCountsByIx[Node.indexOf!NodeType];
+//     // debug ++_heapNodeAllocationBalance;
+//     import vla : constructVariableLength;
+//     return constructVariableLength!(typeof(*NodeType.init))(requiredCapacity, args);
+//     // TODO ensure alignment of node at least that of NodeType.alignof
+// }
 
 void freeNode(NodeType)(NodeType nt) @trusted pure nothrow @nogc
 {
@@ -418,7 +419,6 @@ void freeNode(NodeType)(NodeType nt) @trusted pure nothrow @nogc
 /** Sparsely coded leaves with values of type `Value`. */
 static private struct SparseLeaf1(Value)
 {
-    import vla : constructVariableLength;
     import searching_ex : containsStoreIndex;
     import std.algorithm.sorting : assumeSorted, isSorted;
 
@@ -1093,6 +1093,14 @@ template RawRadixTree(Value = void)
             }
         }
 
+        typeof(this)* dup() @safe pure nothrow @nogc
+        {
+            auto copy = constructVariableLength!(typeof(this))(subCapacity);
+            copy.leaf1 = dupAt(leaf1);
+            copy.prefix = prefix;
+            return copy;
+        }
+
         pragma(inline) ~this() @nogc { deinit(); }
 
         private pragma(inline) void deinit() @nogc { /* nothing for now */ }
@@ -1353,8 +1361,8 @@ template RawRadixTree(Value = void)
     }
 
     // TODO make these run-time arguments at different key depths and map to statistics of typed-key
-    alias DefaultBranch = SparseBranch*; // either SparseBranch*, DenseBranch*
-    alias DefaultLeaf = SparseLeaf1!Value*; // either SparseLeaf1*, DenseLeaf1*
+    alias DefaultBranch = SparseBranch; // either `SparseBranch`, `DenseBranch`
+    alias DefaultLeaf = SparseLeaf1!Value*; // either `SparseLeaf1*`, `DenseLeaf1*`
 
     /** Mutable node. */
     alias Node = WordVariant!(OneLeafMax7,
@@ -2328,12 +2336,12 @@ template RawRadixTree(Value = void)
         assert(curr.subCount < radix); // we shouldn't expand beyond radix
         if (curr.empty)     // if curr also empty length capacity must be zero
         {
-            next = constructVariableLength!(typeof(curr))(1, curr); // so allocate one
+            next = constructVariableLength!(typeof(*curr))(1, curr); // so allocate one
         }
         else if (curr.subCount + capacityIncrement <= curr.maxCapacity) // if we can expand to curr
         {
             const requiredCapacity = curr.subCapacity + capacityIncrement;
-            auto next_ = constructVariableLength!(typeof(curr))(requiredCapacity, curr);
+            auto next_ = constructVariableLength!(typeof(*curr))(requiredCapacity, curr);
             assert(next_.subCapacity >= requiredCapacity);
             next = next_;
         }
@@ -2354,18 +2362,18 @@ template RawRadixTree(Value = void)
         assert(curr.length < radix); // we shouldn't expand beyond radix
         if (curr.empty)     // if curr also empty length capacity must be zero
         {
-            next = constructVariableLength!(typeof(curr))(capacityIncrement); // make room for at least one
+            next = constructVariableLength!(typeof(*curr))(capacityIncrement); // make room for at least one
         }
         else if (curr.length + capacityIncrement <= curr.maxCapacity) // if we can expand to curr
         {
             const requiredCapacity = curr.capacity + capacityIncrement;
             static if (isValue)
             {
-                auto next_ = constructVariableLength!(typeof(curr))(requiredCapacity, curr.ixs, curr.values);
+                auto next_ = constructVariableLength!(typeof(*curr))(requiredCapacity, curr.ixs, curr.values);
             }
             else
             {
-                auto next_ = constructVariableLength!(typeof(curr))(requiredCapacity, curr.ixs);
+                auto next_ = constructVariableLength!(typeof(*curr))(requiredCapacity, curr.ixs);
             }
             assert(next_.capacity >= requiredCapacity);
             next = next_;
@@ -2841,7 +2849,7 @@ template RawRadixTree(Value = void)
         case ix_HeptLeaf1: return curr; // value semantics so just copy
         case ix_SparseLeaf1Ptr: return typeof(return)(curr.as!(SparseLeaf1!Value*).dup);
         case ix_DenseLeaf1Ptr: return typeof(return)(curr.as!(DenseLeaf1!Value*).dup);
-        case ix_SparseBranchPtr: return curr;
+        case ix_SparseBranchPtr: return typeof(return)(curr.as!(DenseBranch*).dup);
         case ix_DenseBranchPtr: return typeof(return)(curr.as!(DenseBranch*).dup);
         }
     }
@@ -2991,8 +2999,7 @@ template RawRadixTree(Value = void)
                 {
                     // debug if (willFail) { dln("WILL FAIL"); }
                     popFrontNPrefix(curr, 1);
-                    auto next = constructVariableLength!(DefaultBranch)(2, null,
-                                                                        Sub(currSubIx, Node(curr)));
+                    auto next = constructVariableLength!(DefaultBranch)(2, null, Sub(currSubIx, Node(curr)));
                     return insertAtAbovePrefix(Branch(next), elt, elementRef);
                 }
             }
@@ -3011,8 +3018,7 @@ template RawRadixTree(Value = void)
                 // NOTE: prefix and key share beginning: prefix:"ab11", key:"ab22"
                 const currSubIx = UIx(currPrefix[matchedKeyPrefix.length]); // need index first before we modify curr.prefix
                 popFrontNPrefix(curr, matchedKeyPrefix.length + 1);
-                auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix,
-                                                                    Sub(currSubIx, Node(curr)));
+                auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix, Sub(currSubIx, Node(curr)));
                 return insertAtBelowPrefix(Branch(next), elementKeyDropExactly(elt, matchedKeyPrefix.length), elementRef);
             }
         }
@@ -3028,7 +3034,7 @@ template RawRadixTree(Value = void)
                 const currSubIx = UIx(currPrefix[nextPrefixLength]); // need index first
                 popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
                 auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
-                                                                    Sub(currSubIx, Node(curr)));
+                                                                                  Sub(currSubIx, Node(curr)));
                 return insertAtBelowPrefix(Branch(next), elementKeyDropExactly(elt, nextPrefixLength), elementRef);
             }
             else /* if (matchedKeyPrefix.length == currPrefix.length) and in turn
@@ -3039,7 +3045,7 @@ template RawRadixTree(Value = void)
                 const currSubIx = UIx(currPrefix[matchedKeyPrefix.length - 1]); // need index first
                 popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
                 auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
-                                                                    Sub(currSubIx, Node(curr)));
+                                                                                  Sub(currSubIx, Node(curr)));
                 static if (isValue)
                     return insertAtLeaf1(Branch(next), UIx(key[$ - 1]), elt.value, elementRef);
                 else
@@ -3190,7 +3196,7 @@ template RawRadixTree(Value = void)
             {
                 Ix[1] ixs = [Ix(key)]; // TODO scope
                 Value[1] values = [value]; // TODO scope
-                auto leaf_ = constructVariableLength!(SparseLeaf1!Value*)(1, ixs, values); // needed for values
+                auto leaf_ = constructVariableLength!(SparseLeaf1!Value)(1, ixs, values); // needed for values
                 elementRef = ElementRef(Node(leaf_), UIx(0), ModStatus.added);
                 setLeaf1(curr, Leaf1!Value(leaf_));
             }
@@ -3346,7 +3352,7 @@ template RawRadixTree(Value = void)
                 import std.algorithm.sorting : sort;
                 sort(nextKeys[]); // TODO move this sorting elsewhere
 
-                auto next = constructVariableLength!(SparseLeaf1!Value*)(nextKeys.length, nextKeys[]);
+                auto next = constructVariableLength!(SparseLeaf1!Value)(nextKeys.length, nextKeys[]);
                 elementRef = ElementRef(Node(next), UIx(curr.capacity), ModStatus.added);
 
                 freeNode(curr);
@@ -3411,7 +3417,7 @@ template RawRadixTree(Value = void)
             if (curr.key.length <= DefaultBranch.prefixCapacity + 1) // if `key` fits in `prefix` of `DefaultBranch`
             {
                 next = constructVariableLength!(DefaultBranch)(1 + capacityIncrement, curr.key[0 .. $ - 1], // all but last
-                                                               Leaf1!Value(construct!(HeptLeaf1)(curr.key.back))); // last as a leaf
+                                                                             Leaf1!Value(construct!(HeptLeaf1)(curr.key.back))); // last as a leaf
             }
             else                // curr.key.length > DefaultBranch.prefixCapacity + 1
             {
@@ -3473,7 +3479,7 @@ template RawRadixTree(Value = void)
         /** Destructively expand `curr` making room for `nextKey` and return it. */
         Node expand(HeptLeaf1 curr, size_t capacityIncrement = 1)
         {
-            auto next = constructVariableLength!(SparseLeaf1!Value*)(curr.keys.length + capacityIncrement, curr.keys);
+            auto next = constructVariableLength!(SparseLeaf1!Value)(curr.keys.length + capacityIncrement, curr.keys);
             freeNode(curr);
             return Node(next);
         }
@@ -5037,7 +5043,7 @@ unittest
         assert(!set.insert(257));
         assert(set.contains(257));
 
-        const rootRef = set._root.peek!(Set.DefaultBranchType);
+        const rootRef = set._root.peek!(Set.DefaultBranchType*);
         assert(rootRef);
         const root = *rootRef;
         assert(root.prefix.length == T.sizeof - 2);

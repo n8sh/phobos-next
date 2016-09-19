@@ -3698,7 +3698,7 @@ template RawRadixTree(Value = void)
         typeof(this) dup()
         {
             typeof(return) copy = this;
-            this._rangeRefCounter = 0; // no refs yet
+            copy._rangeRefCounter = 0; // copy has no refs yet
             copy._root = dupAt(this._root);
             return copy;
         }

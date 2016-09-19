@@ -4045,7 +4045,6 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, ref CopyingArray!Ix rawUKey) @trus
             alias Ix = Mod!radix;
 
             enum members = __traits(allMembers, TypedKey);
-            pragma(msg, members);
             foreach (const i, const memberName; members) // for each member name in `struct TypedKey`
             {
                 const member = __traits(getMember, typedKey, memberName); // member

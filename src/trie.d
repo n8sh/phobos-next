@@ -2826,7 +2826,7 @@ template RawRadixTree(Value = void)
         return count;
     }
 
-    /** Returns a duplicate of the tree with root at `curr`.
+    /** Returns a duplicate of this tree with root at `curr`.
         Shallowly duplicates the values in the map case.
     */
     Leaf1!Value dupAt(Leaf1!Value curr) @safe pure nothrow @nogc
@@ -2840,7 +2840,7 @@ template RawRadixTree(Value = void)
         }
     }
 
-    /** Returns a duplicate of the tree with root at `curr`.
+    /** Returns a duplicate of this tree with root at `curr`.
         Shallowly duplicates the values in the map case.
     */
     Node dupAt(Node curr) @safe pure nothrow @nogc
@@ -3742,7 +3742,7 @@ template RawRadixTree(Value = void)
         }
 
 
-        /** Returns a duplicate of the tree.
+        /** Returns a duplicate of this tree.
             Shallowly duplicates the values in the map case.
         */
         typeof(this) dup()
@@ -4457,7 +4457,7 @@ struct RadixTree(Key, Value)
         }
     }
 
-    /** Returns a duplicate of the tree.
+    /** Returns a duplicate of this tree.
         Shallowly duplicates the values in the map case.
     */
     typeof(this) dup()

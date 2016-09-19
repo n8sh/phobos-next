@@ -1093,11 +1093,12 @@ template RawRadixTree(Value = void)
             }
         }
 
-        typeof(this)* dup() @safe pure nothrow @nogc
+        typeof(this)* dup()
         {
             auto copy = constructVariableLength!(typeof(this))(this.subCapacity);
             copy.leaf1 = dupAt(this.leaf1);
             copy.prefix = this.prefix;
+            copy.subCount = this.subCount;
             copy.subIxSlots[] = this.subIxSlots[];
             foreach (const i, subNode; this.subNodeSlots)
             {
@@ -1297,7 +1298,7 @@ template RawRadixTree(Value = void)
             }
         }
 
-        typeof(this)* dup() @trusted pure nothrow @nogc // TODO remove @trusted qualifier when .ptr problem has been fixed
+        typeof(this)* dup() @trusted // TODO remove @trusted qualifier when .ptr problem has been fixed
         {
             auto copy = construct!(typeof(this)*);
             copy.leaf1 = dupAt(leaf1);

@@ -369,6 +369,7 @@ struct HeptLeaf1
 /** Sparsely coded leaves with values of type `Value`. */
 static private struct SparseLeaf1(Value)
 {
+    import vla : constructVariableLength;
     import searching_ex : containsStoreIndex;
     import std.algorithm.sorting : assumeSorted, isSorted;
 
@@ -392,6 +393,18 @@ static private struct SparseLeaf1(Value)
     {
         _capacity = capacity;
         _length = 0;
+    }
+
+    /** Returns a an allocated duplicate of this.
+        Shallowly duplicates the values in the map case.
+    */
+    typeof(this)* dup()
+    {
+        // TODO faster to use memcpy?
+        static if (hasValue)
+            return constructVariableLength!(typeof(this))(this._capacity, ixsSlots, valuesSlots);
+        else
+            return constructVariableLength!(typeof(this))(this._capacity, ixsSlots);
     }
 
     static if (hasValue)
@@ -459,15 +472,11 @@ static private struct SparseLeaf1(Value)
         {
             if (length < maxCapacity) // if we can expand more
             {
-                import vla : constructVariableLength;
+                // make room
                 static if (hasValue)
-                {
-                    next = constructVariableLength!(typeof(this))(length + 1, ixsSlots, valuesSlots); // make room
-                }
+                    next = constructVariableLength!(typeof(this))(length + 1, ixsSlots, valuesSlots);
                 else
-                {
-                    next = constructVariableLength!(typeof(this))(length + 1, ixsSlots); // make room
-                }
+                    next = constructVariableLength!(typeof(this))(length + 1, ixsSlots);
                 this.deinit(); free(&this); // clear `this`. TODO reuse existing helper function in Phobos?
             }
             else
@@ -2764,6 +2773,33 @@ template RawRadixTree(Value = void)
         return count;
     }
 
+    /** Returns a duplicate of the tree with root at `curr`.
+        Shallowly duplicates the values in the map case.
+    */
+    Node dupAt(Node curr) @safe pure nothrow @nogc
+    {
+        final switch (curr.typeIx) with (Node.Ix)
+        {
+        case undefined:
+        case ix_OneLeafMax7:
+        case ix_TwoLeaf3:
+        case ix_TriLeaf2:
+        case ix_HeptLeaf1:
+            return curr;        // value semantics so just copy
+        case ix_SparseLeaf1Ptr:
+            return Node(curr.as!(SparseLeaf1!Value*).dup);
+        case ix_DenseLeaf1Ptr:
+            return curr;
+            // return Node(curr.as!(DenseLeaf1!Value*).dup);
+        case ix_SparseBranchPtr:
+            auto curr_ = curr.as!(SparseBranch*);
+            return curr;
+        case ix_DenseBranchPtr:
+            auto curr_ = curr.as!(DenseBranch*);
+            return curr;
+        }
+    }
+
     static if (!isValue)
     {
         Node insertNew(UKey key, out ElementRef elementRef) @safe pure nothrow @nogc
@@ -3694,6 +3730,16 @@ template RawRadixTree(Value = void)
             typeof(return) stats;
             _root.calculate!(Value)(stats);
             return stats;
+        }
+
+
+        /** Returns a duplicate of the tree.
+            Shallowly duplicates the leaf values in the map case. */
+        typeof(this) dup()
+        {
+            typeof(return) copy = this;
+            copy._root = dupAt(this._root);
+            return copy;
         }
 
         // this(this)

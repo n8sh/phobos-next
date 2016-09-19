@@ -31,6 +31,13 @@
     See_Also: $(HTTP en.wikipedia.org/wiki/Radix_tree)
     See_Also: $(HTTP github.com/nordlow/phobos-next/blob/master/src/test_trie_prefix.d) for a descriptive usage of prefixed access.
 
+    TODO
+
+    Replace
+    case undefined: return typeof(return).init; // terminate recursion
+    with
+    case undefined: return curr;
+
     TODO:
     TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
 
@@ -1277,6 +1284,18 @@ template RawRadixTree(Value = void)
             }
         }
 
+        typeof(this)* dup() @trusted pure nothrow @nogc
+        {
+            auto copy = construct!(typeof(this)*);
+            copy.leaf1 = dupAt(leaf1);
+            copy.prefix = prefix;
+            foreach (const i, subNode; subNodes)
+            {
+                copy.subNodes.ptr[i] = dupAt(subNode); // TODO remove .ptr access when I inout problem is solved
+            }
+            return copy;
+        }
+
         /// Number of non-null sub-Nodes.
         Mod!(radix + 1) subCount() const
         {
@@ -1315,11 +1334,7 @@ template RawRadixTree(Value = void)
             }
             assert(count <= radix);
             ++stats.popHist_DenseBranch[count]; // TODO type-safe indexing
-
-            if (leaf1)
-            {
-                leaf1.calculate!(Value)(stats);
-            }
+            if (leaf1) { leaf1.calculate!(Value)(stats); }
         }
 
     private:
@@ -2769,7 +2784,7 @@ template RawRadixTree(Value = void)
         size_t count = 0;
         final switch (curr.typeIx) with (Node.Ix)
         {
-        case undefined: break;
+        case undefined: break;  // propagate undefined
         case ix_OneLeafMax7: break;
         case ix_TwoLeaf3: break;
         case ix_TriLeaf2: break;
@@ -2801,26 +2816,33 @@ template RawRadixTree(Value = void)
     /** Returns a duplicate of the tree with root at `curr`.
         Shallowly duplicates the values in the map case.
     */
+    Leaf1!Value dupAt(Leaf1!Value curr) @safe pure nothrow @nogc
+    {
+        final switch (curr.typeIx) with (Leaf1!Value.Ix)
+        {
+        case undefined:         // propagate undefined
+        case ix_HeptLeaf1: return curr; // value semantics so just copy
+        case ix_SparseLeaf1Ptr: return typeof(return)(curr.as!(SparseLeaf1!Value*).dup);
+        case ix_DenseLeaf1Ptr: return typeof(return)(curr.as!(DenseLeaf1!Value*).dup);
+        }
+    }
+
+    /** Returns a duplicate of the tree with root at `curr`.
+        Shallowly duplicates the values in the map case.
+    */
     Node dupAt(Node curr) @safe pure nothrow @nogc
     {
         final switch (curr.typeIx) with (Node.Ix)
         {
-        case undefined:
+        case undefined:         // propagate undefined
         case ix_OneLeafMax7:
         case ix_TwoLeaf3:
         case ix_TriLeaf2:
-        case ix_HeptLeaf1:
-            return curr;        // value semantics so just copy
-        case ix_SparseLeaf1Ptr:
-            return Node(curr.as!(SparseLeaf1!Value*).dup);
-        case ix_DenseLeaf1Ptr:
-            return Node(curr.as!(DenseLeaf1!Value*).dup);
-        case ix_SparseBranchPtr:
-            auto curr_ = curr.as!(SparseBranch*);
-            return curr;
-        case ix_DenseBranchPtr:
-            auto curr_ = curr.as!(DenseBranch*);
-            return curr;
+        case ix_HeptLeaf1: return curr; // value semantics so just copy
+        case ix_SparseLeaf1Ptr: return typeof(return)(curr.as!(SparseLeaf1!Value*).dup);
+        case ix_DenseLeaf1Ptr: return typeof(return)(curr.as!(DenseLeaf1!Value*).dup);
+        case ix_SparseBranchPtr: return curr;
+        case ix_DenseBranchPtr: return typeof(return)(curr.as!(DenseBranch*).dup);
         }
     }
 

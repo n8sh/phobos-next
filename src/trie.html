@@ -272,6 +272,12 @@ In set-case (<pre style="display:inline;" class="d_inline_code">Value</pre> is <
             other words: <pre style="display:inline;" class="d_inline_code">this</pre> is a <i>map</i> rather than a <i>set</i>.<br><br>
 
 </dd>
+<dt><big><a name="RawRadixTree.dup"></a>typeof(this) <u>dup</u>();
+</big></dt>
+<dd>Returns a duplicate of the tree.
+            Shallowly duplicates the leaf values in the map case.<br><br>
+
+</dd>
 <dt><big><a name="RawRadixTree.clear"></a>@nogc void <u>clear</u>();
 </big></dt>
 <dd>Removes all contents (elements).<br><br>
@@ -398,9 +404,19 @@ TODO replace <pre style="display:inline;" class="d_inline_code">matchCommonPrefi
 <dd>Instantiator for the set-version of <pre style="display:inline;" class="d_inline_code">RadixTree</pre> where value-type is <pre style="display:inline;" class="d_inline_code">void</pre> (unused).<br><br>
 
 </dd>
+<dt><big><a name="radixTreeSetGrowOnly"></a>@nogc auto <u>radixTreeSetGrowOnly</u>(Key)();
+</big></dt>
+<dd>Wrapper for a grow-only variant of <pre style="display:inline;" class="d_inline_code">radixTreeSet</pre>.<br><br>
+
+</dd>
 <dt><big><a name="radixTreeMap"></a>auto <u>radixTreeMap</u>(Key, Value)();
 </big></dt>
 <dd>Instantiator for the map-version of <pre style="display:inline;" class="d_inline_code">RadixTree</pre> where value-type is <pre style="display:inline;" class="d_inline_code">Value</pre>.<br><br>
+
+</dd>
+<dt><big><a name="radixTreeMapGrowOnly"></a>auto <u>radixTreeMapGrowOnly</u>(Key, Value)();
+</big></dt>
+<dd>Wrapper for a grow-only variant of <pre style="display:inline;" class="d_inline_code">radixTreeMap</pre>.<br><br>
 <b>Examples:</b><br>
 exercise all switch-cases in <pre style="display:inline;" class="d_inline_code">RawRadixTree.prefixAt()</pre>
 <pre class="d_code">

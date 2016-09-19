@@ -1093,7 +1093,7 @@ template RawRadixTree(Value = void)
             }
         }
 
-        typeof(this)* dup()
+        typeof(this)* dup() @nogc
         {
             auto copy = constructVariableLength!(typeof(this))(this.subCapacity);
             copy.leaf1 = dupAt(this.leaf1);
@@ -2854,7 +2854,7 @@ template RawRadixTree(Value = void)
         case ix_HeptLeaf1: return curr; // value semantics so just copy
         case ix_SparseLeaf1Ptr: return typeof(return)(curr.as!(SparseLeaf1!Value*).dup);
         case ix_DenseLeaf1Ptr: return typeof(return)(curr.as!(DenseLeaf1!Value*).dup);
-        case ix_SparseBranchPtr: return typeof(return)(curr.as!(DenseBranch*).dup);
+        case ix_SparseBranchPtr: return typeof(return)(curr.as!(SparseBranch*).dup);
         case ix_DenseBranchPtr: return typeof(return)(curr.as!(DenseBranch*).dup);
         }
     }
@@ -3894,7 +3894,7 @@ template RawRadixTree(Value = void)
 
         debug:                      // debug stuff
         long _heapNodeAllocationBalance = 0;
-        size_t[Node.Ix.max + 1] nodeCountsByIx;
+        // size_t[Node.Ix.max + 1] nodeCountsByIx;
         bool willFail;
     }
 }
@@ -5249,11 +5249,15 @@ auto checkNumeric(Keys...)() @nogc
                 static assert(false, `Handle type: "` ~ Key.stringof ~ `"`);
             }
 
+            auto setDup = set.dup;
+
             auto map = radixTreeMap!(Key, Value);
             assert(map.hasFixedKeyLength == isFixedTrieableKeyType!Key);
             static assert(map.hasValue);
 
             map.insert(Key.init, Value.init);
+
+            auto mapDup = map.dup;
         }
     }
 }

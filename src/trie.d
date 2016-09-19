@@ -5250,6 +5250,7 @@ auto checkNumeric(Keys...)() @nogc
             }
 
             auto setDup = set.dup;
+            assert(set.length == setDup.length);
 
             auto map = radixTreeMap!(Key, Value);
             assert(map.hasFixedKeyLength == isFixedTrieableKeyType!Key);
@@ -5258,6 +5259,7 @@ auto checkNumeric(Keys...)() @nogc
             map.insert(Key.init, Value.init);
 
             auto mapDup = map.dup;
+            assert(map.length == mapDup.length);
         }
     }
 }

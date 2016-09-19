@@ -2814,8 +2814,7 @@ template RawRadixTree(Value = void)
         case ix_SparseLeaf1Ptr:
             return Node(curr.as!(SparseLeaf1!Value*).dup);
         case ix_DenseLeaf1Ptr:
-            return curr;
-            // return Node(curr.as!(DenseLeaf1!Value*).dup);
+            return Node(curr.as!(DenseLeaf1!Value*).dup);
         case ix_SparseBranchPtr:
             auto curr_ = curr.as!(SparseBranch*);
             return curr;

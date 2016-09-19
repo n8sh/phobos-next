@@ -124,7 +124,6 @@ import array_ex : Array, Ordering;
 alias CopyingArray(T) = Array!(T, Ordering.unsorted, false);
 
 // version = enterSingleInfiniteMemoryLeakTest;
-// version = debugPrintAllocations;
 version = benchmark;
 version = print;
 
@@ -364,6 +363,49 @@ struct HeptLeaf1
     pragma(inline) bool contains(UKey key) const { return key.length == 1 && keys.contains(UIx(key[0])); }
 
     IxsN!(capacity, 1) keys;    // should never be empty
+}
+
+import vla : hasVariableLength;
+
+/** Allocate (if pointer) and Construct a `Node`-type of value type `NodeType`
+    using constructor arguments `args` of `Args`.
+*/
+auto construct(NodeType, Args...)(Args args) @trusted pure nothrow @nogc
+    if (!hasVariableLength!NodeType)
+{
+    // debug ++nodeCountsByIx[Node.indexOf!NodeType];
+    static if (isPointer!NodeType)
+    {
+        // debug ++_heapNodeAllocationBalance;
+        import std.conv : emplace;
+        return emplace(cast(NodeType)malloc((*NodeType.init).sizeof), args);
+        // TODO ensure alignment of node at least that of NodeType.alignof
+    }
+    else
+    {
+        return NodeType(args);
+    }
+}
+
+auto constructVariableLength(NodeType, Args...)(size_t requiredCapacity, Args args) @trusted pure nothrow @nogc
+    if (isPointer!NodeType &&
+        hasVariableLength!NodeType)
+{
+    // debug ++nodeCountsByIx[Node.indexOf!NodeType];
+    // debug ++_heapNodeAllocationBalance;
+    import vla : constructVariableLength;
+    return constructVariableLength!(typeof(*NodeType.init))(requiredCapacity, args);
+    // TODO ensure alignment of node at least that of NodeType.alignof
+}
+
+void freeNode(NodeType)(NodeType nt) @trusted pure nothrow @nogc
+{
+    static if (isPointer!NodeType)
+    {
+        free(cast(void*)nt);  // TODO Allocator.free
+        // debug --_heapNodeAllocationBalance;
+    }
+    // debug --nodeCountsByIx[Node.indexOf!NodeType];
 }
 
 /** Sparsely coded leaves with values of type `Value`. */
@@ -645,6 +687,8 @@ private:
 /** Densely coded leaves with values of type `Value`. */
 static private struct DenseLeaf1(Value)
 {
+    import bitset : BitSet;
+
     enum hasValue = !is(Value == void);
 
     static if (hasValue) alias IxElement = Tuple!(UIx, "ix", Value, "value");
@@ -667,12 +711,22 @@ static private struct DenseLeaf1(Value)
         {
             assert(ixs.length <= capacity);
             assert(ixs.length == values.length);
-
             foreach (const i, const ix; ixs)
             {
                 _ixBits[ix] = true;
                 _values[ix] = values[i];
             }
+            static if (hasGCScannedValues)
+            {
+                GC.addRange(_values.ptr, capacity * Value.size);
+            }
+        }
+
+        this(ref BitSet!capacity ixBits, Value[] values)
+        {
+            assert(ixBits.length == values.length);
+            _ixBits = ixBits;
+            _values[] = values[];
             static if (hasGCScannedValues)
             {
                 GC.addRange(_values.ptr, capacity * Value.size);
@@ -688,11 +742,24 @@ static private struct DenseLeaf1(Value)
             {
                 _ixBits[ix] = true;
             }
-            static if (hasGCScannedValues)
-            {
-                GC.addRange(_values.ptr, capacity * Value.size);
-            }
         }
+
+        this(const ref BitSet!capacity ixBits)
+        {
+            _ixBits = ixBits;
+        }
+    }
+
+
+    /** Returns a an allocated duplicate of this.
+        Shallowly duplicates the values in the map case.
+    */
+    typeof(this)* dup()
+    {
+        static if (hasValue)
+            return construct!(typeof(this)*)(_ixBits, _values);
+        else
+            return construct!(typeof(this)*)(_ixBits);
     }
 
     ~this()
@@ -777,7 +844,6 @@ static private struct DenseLeaf1(Value)
     }
 
 private:
-    import bitset : BitSet;
     BitSet!capacity _ixBits;  // 32 bytes
     static if (hasValue)
     {
@@ -901,7 +967,6 @@ template RawRadixTree(Value = void)
     import std.typecons : ConstOf;
 
     import bitset : BitSet;
-    import vla : hasVariableLength;
 
     enum isValue = !is(Value == void);
 
@@ -3393,51 +3458,6 @@ template RawRadixTree(Value = void)
         }
     }
 
-    /** Allocate (if pointer) and Construct a `Node`-type of value type `NodeType`
-        using constructor arguments `args` of `Args`.
-    */
-    auto construct(NodeType, Args...)(Args args) @trusted pure nothrow @nogc
-        if (!hasVariableLength!NodeType)
-    {
-        version(debugPrintAllocations) { dln("constructing ", NodeType.stringof, " from ", args); }
-        // debug ++nodeCountsByIx[Node.indexOf!NodeType];
-        static if (isPointer!NodeType)
-        {
-            // debug ++_heapNodeAllocationBalance;
-
-            import std.conv : emplace;
-            return emplace(cast(NodeType)malloc((*NodeType.init).sizeof), args);
-            // TODO ensure alignment of node at least that of NodeType.alignof
-        }
-        else
-        {
-            return NodeType(args);
-        }
-    }
-
-    auto constructVariableLength(NodeType, Args...)(size_t requiredCapacity, Args args) @trusted pure nothrow @nogc
-        if (isPointer!NodeType &&
-            hasVariableLength!NodeType)
-    {
-        version(debugPrintAllocations) { dln("constructing ", NodeType.stringof, " from ", args); }
-        // debug ++nodeCountsByIx[Node.indexOf!NodeType];
-        // debug ++_heapNodeAllocationBalance;
-        import vla : constructVariableLength;
-        return constructVariableLength!(typeof(*NodeType.init))(requiredCapacity, args);
-        // TODO ensure alignment of node at least that of NodeType.alignof
-    }
-
-    void freeNode(NodeType)(NodeType nt) @trusted pure nothrow @nogc
-    {
-        version(debugPrintAllocations) { dln("freeing ", NodeType.stringof, " ", nt); }
-        static if (isPointer!NodeType)
-        {
-            free(cast(void*)nt);  // TODO Allocator.free
-            // debug --_heapNodeAllocationBalance;
-        }
-        // debug --nodeCountsByIx[Node.indexOf!NodeType];
-    }
-
     @safe pure nothrow @nogc
     {
         pragma(inline) void release(SparseLeaf1!Value* curr)
@@ -3495,7 +3515,6 @@ template RawRadixTree(Value = void)
         /// Release `Node curr`.
         void release(Node curr)
         {
-            version(debugPrintAllocations) { dln("releasing Node ", curr); }
             final switch (curr.typeIx) with (Node.Ix)
             {
             case undefined: break; // ignored

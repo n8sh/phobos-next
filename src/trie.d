@@ -4457,6 +4457,16 @@ struct RadixTree(Key, Value)
         }
     }
 
+    /** Returns a duplicate of the tree.
+        Shallowly duplicates the values in the map case.
+    */
+    typeof(this) dup()
+    {
+        typeof(this) copy;
+        copy._rawTree = this._rawTree.dup;
+        return copy;
+    }
+
     /** Print `this` tree. */
     void print() @safe const
     {
@@ -5251,6 +5261,7 @@ auto checkNumeric(Keys...)() @nogc
 
             auto setDup = set.dup;
             assert(set.length == setDup.length);
+            assert(setDup[].equal(set[]));
 
             auto map = radixTreeMap!(Key, Value);
             assert(map.hasFixedKeyLength == isFixedTrieableKeyType!Key);
@@ -5260,6 +5271,7 @@ auto checkNumeric(Keys...)() @nogc
 
             auto mapDup = map.dup;
             assert(map.length == mapDup.length);
+            // assert(mapDup[].equal(map[]));
         }
     }
 }

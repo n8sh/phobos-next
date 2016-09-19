@@ -1284,7 +1284,7 @@ template RawRadixTree(Value = void)
             }
         }
 
-        typeof(this)* dup() @trusted pure nothrow @nogc
+        typeof(this)* dup() @trusted pure nothrow @nogc // TODO remove @trusted qualifier when .ptr problem has been fixed
         {
             auto copy = construct!(typeof(this)*);
             copy.leaf1 = dupAt(leaf1);

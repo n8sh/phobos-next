@@ -1095,9 +1095,14 @@ template RawRadixTree(Value = void)
 
         typeof(this)* dup() @safe pure nothrow @nogc
         {
-            auto copy = constructVariableLength!(typeof(this))(subCapacity);
-            copy.leaf1 = dupAt(leaf1);
-            copy.prefix = prefix;
+            auto copy = constructVariableLength!(typeof(this))(this.subCapacity);
+            copy.leaf1 = dupAt(this.leaf1);
+            copy.prefix = this.prefix;
+            copy.subIxSlots[] = this.subIxSlots[];
+            foreach (const i, subNode; this.subNodeSlots)
+            {
+                copy.subNodeSlots[i] = dupAt(subNode);
+            }
             return copy;
         }
 

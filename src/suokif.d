@@ -109,9 +109,37 @@ void parseSUOKIF(R)(R src)
     }
 }
 
+void lexSUOKIF(R)(R src)
+{
+    import std.experimental.lexer;
+
+    enum TokOperators = [ "(", ")", "=>" ];
+    enum TokDynamic = [ "stringLiteral", "comment", "identifier", "numberLiteral", "whitespace" ];
+    enum TokKeywords = [ "and", "exists", "or", "not" ];
+    import std.meta : AliasSeq;
+
+    alias Toks = AliasSeq!(TokOperators, TokDynamic, TokKeywords);
+    alias TokID = TokenIdType!Toks;
+    alias tokToString = tokenStringRepresentation!(TokID, Toks);
+    alias tok(string symbol) = TokenId!(TokID, LuaTokens, symbol);
+
+    enum tokenHandlers = [
+        "\"", "lexStringLiteral",
+        ";", "lexComment",
+        " ",  "lexWhitespace",
+        "\t", "lexWhitespace",
+        "\r", "lexWhitespace",
+        "\n", "lexWhitespace",
+        ];
+
+}
+
 unittest
 {
     import std.path : expandTilde;
+    const file = "~/Work/justd/phobos-next/src/emotion.kif".expandTilde;
+
     import std.file : readText;
-    "~/Work/phobos-next/src/emotion.kif".expandTilde.readText.parseSUOKIF();
+    file.readText.lexSUOKIF();
+    // file.readText.parseSUOKIF();
 }

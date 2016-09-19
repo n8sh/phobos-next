@@ -3985,30 +3985,38 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, ref CopyingArray!Ix rawUKey) @trus
     }
     else static if (is(TypedKey == struct))
     {
-        alias Ix = Mod!radix;
-
-        enum members = __traits(allMembers, TypedKey);
-        foreach (const i, const memberName; members) // for each member name in `struct TypedKey`
+        static if (TypedKey.tupleof.length == 1) // TypedKey is a wrapper type
         {
-            const member = __traits(getMember, typedKey, memberName); // member
-            alias MemberType = typeof(member);
-
-            static if (i + 1 == members.length) // last member is allowed to be an array of fixed length
-            {
-                CopyingArray!Ix memberRawUKey;
-                const memberRawKey = member.toRawKey(memberRawUKey); // TODO use DIP-1000
-                rawUKey ~= memberRawUKey;
-            }
-            else                // non-last member must be fixed
-            {
-                static assert(isFixedTrieableKeyType!MemberType,
-                              "Non-last " ~ i.stringof ~ ":th member of type " ~ MemberType.stringof ~ " must be of fixed length");
-                Ix[MemberType.sizeof] memberRawUKey;
-                const memberRawKey = member.toFixedRawKey(memberRawUKey); // TODO use DIP-1000
-                rawUKey ~= memberRawUKey[];
-            }
+            return typedKey.tupleof[0].toRawKey(rawUKey);
         }
-        return rawUKey[]; // TODO return const slice
+        else
+        {
+            alias Ix = Mod!radix;
+
+            enum members = __traits(allMembers, TypedKey);
+            pragma(msg, members);
+            foreach (const i, const memberName; members) // for each member name in `struct TypedKey`
+            {
+                const member = __traits(getMember, typedKey, memberName); // member
+                alias MemberType = typeof(member);
+
+                static if (i + 1 == members.length) // last member is allowed to be an array of fixed length
+                {
+                    CopyingArray!Ix memberRawUKey;
+                    const memberRawKey = member.toRawKey(memberRawUKey); // TODO use DIP-1000
+                    rawUKey ~= memberRawUKey;
+                }
+                else                // non-last member must be fixed
+                {
+                    static assert(isFixedTrieableKeyType!MemberType,
+                                  "Non-last " ~ i.stringof ~ ":th member of type " ~ MemberType.stringof ~ " must be of fixed length");
+                    Ix[MemberType.sizeof] memberRawUKey;
+                    const memberRawKey = member.toFixedRawKey(memberRawUKey); // TODO use DIP-1000
+                    rawUKey ~= memberRawUKey[];
+                }
+            }
+            return rawUKey[]; // TODO return const slice
+        }
     }
     else
     {
@@ -4065,22 +4073,30 @@ inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey) @trusted
     }
     else static if (is(TypedKey == struct))
     {
-        TypedKey typedKey;
-        size_t ix = 0;
-        enum members = __traits(allMembers, TypedKey);
-        foreach (const i, const memberName; members) // for each member name in `struct TypedKey`
+        static if (TypedKey.tupleof.length == 1) // TypedKey is a wrapper type
         {
-            alias MemberType = typeof(__traits(getMember, typedKey, memberName));
-
-            static if (i + 1 != members.length) // last member is allowed to be an array of fixed length
-            {
-                static assert(isFixedTrieableKeyType!MemberType,
-                              "Non-last MemberType must be fixed length");
-            }
-            __traits(getMember, typedKey, memberName) = ukey[ix .. ix + MemberType.sizeof].toTypedKey!MemberType;
-            ix += MemberType.sizeof;
+            alias WrappedTypedKey = typeof(TypedKey.tupleof[0]);
+            return TypedKey(ukey.toTypedKey!(WrappedTypedKey));
         }
-        return typedKey;
+        else
+        {
+            TypedKey typedKey;
+            size_t ix = 0;
+            enum members = __traits(allMembers, TypedKey);
+            foreach (const i, const memberName; members) // for each member name in `struct TypedKey`
+            {
+                alias MemberType = typeof(__traits(getMember, typedKey, memberName));
+
+                static if (i + 1 != members.length) // last member is allowed to be an array of fixed length
+                {
+                    static assert(isFixedTrieableKeyType!MemberType,
+                                  "Non-last MemberType must be fixed length");
+                }
+                __traits(getMember, typedKey, memberName) = ukey[ix .. ix + MemberType.sizeof].toTypedKey!MemberType;
+                ix += MemberType.sizeof;
+            }
+            return typedKey;
+        }
     }
     else
     {
@@ -5267,6 +5283,23 @@ void benchmark()()
                       long, int, short, byte,
                       ulong, uint, ushort, ubyte);
     }
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    struct S { int x; }
+
+    alias Key = S;
+    auto set = radixTreeSet!(Key);
+
+    assert(!set.contains(S(43)));
+
+    assert(set.insert(S(43)));
+    assert(set.contains(S(43)));
+
+    assert(!set.insert(S(43)));
+    assert(set.contains(S(43)));
 }
 
 /** Static Iota.

@@ -771,6 +771,21 @@ test packing of set elements
                   <font color=blue>ulong</font>, <font color=blue>uint</font>, <font color=blue>ushort</font>, <font color=blue>ubyte</font>);
 }
 </pre>
+<br><br><b>Examples:</b><br>
+<pre class="d_code">
+<font color=blue>struct</font> S { <font color=blue>int</font> x; }
+
+<font color=blue>alias</font> Key = S;
+<font color=blue>auto</font> set = radixTreeSet!(Key);
+
+<font color=blue>assert</font>(!set.contains(S(43)));
+
+<font color=blue>assert</font>(set.insert(S(43)));
+<font color=blue>assert</font>(set.contains(S(43)));
+
+<font color=blue>assert</font>(!set.insert(S(43)));
+<font color=blue>assert</font>(set.contains(S(43)));
+</pre>
 <br><br>
 </dd>
 <dt><big><a name="iota"></a>template <u>iota</u>(size_t from, size_t to) if (from &lt;= to)</big></dt>

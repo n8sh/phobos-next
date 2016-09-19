@@ -3693,10 +3693,12 @@ template RawRadixTree(Value = void)
 
 
         /** Returns a duplicate of the tree.
-            Shallowly duplicates the leaf values in the map case. */
+            Shallowly duplicates the values in the map case.
+        */
         typeof(this) dup()
         {
             typeof(return) copy = this;
+            this._rangeRefCounter = 0; // no refs yet
             copy._root = dupAt(this._root);
             return copy;
         }

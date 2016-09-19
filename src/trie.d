@@ -1525,17 +1525,10 @@ template RawRadixTree(Value = void)
             assert(!empty);
             final switch (leaf1.typeIx) with (Leaf1!Value.Ix)
             {
-            case undefined:
-                assert(false);
+            case undefined: assert(false);
             case ix_HeptLeaf1:
-                static if (isValue)
-                {
-                    assert(false, "HeptLeaf1 cannot store a value");
-                }
-                else
-                {
-                    return UIx(leaf1.as!(HeptLeaf1).keys[_ix]);
-                }
+                static if (isValue) assert(false, "HeptLeaf1 cannot store a value");
+                else                return UIx(leaf1.as!(HeptLeaf1).keys[_ix]);
             case ix_SparseLeaf1Ptr:
                 return UIx(leaf1.as!(SparseLeaf1!Value*).ixs[_ix]);
             case ix_DenseLeaf1Ptr:
@@ -1549,16 +1542,14 @@ template RawRadixTree(Value = void)
             {
                 assert(!empty);
                 final switch (leaf1.typeIx) with (Leaf1!Value.Ix)
-                                            {
-                                            case undefined:
-                                                assert(false);
-                                            case ix_HeptLeaf1:
-                                                assert(false, "HeptLeaf1 cannot store a value");
-                                            case ix_SparseLeaf1Ptr:
-                                                return leaf1.as!(SparseLeaf1!Value*).values[_ix];
-                                            case ix_DenseLeaf1Ptr:
-                                                return leaf1.as!(DenseLeaf1!Value*).values[_ix];
-                                            }
+                {
+                case undefined: assert(false);
+                case ix_HeptLeaf1: assert(false, "HeptLeaf1 cannot store a value");
+                case ix_SparseLeaf1Ptr:
+                    return leaf1.as!(SparseLeaf1!Value*).values[_ix];
+                case ix_DenseLeaf1Ptr:
+                    return leaf1.as!(DenseLeaf1!Value*).values[_ix];
+                }
             }
         }
 
@@ -1620,13 +1611,9 @@ template RawRadixTree(Value = void)
             case undefined: assert(false);
             case ix_HeptLeaf1:
                 static if (isValue)
-                {
                     assert(false, "HeptLeaf1 cannot store a value");
-                }
                 else
-                {
                     return UIx(0);           // always first
-                }
             case ix_SparseLeaf1Ptr:
                 auto leaf_ = leaf1.as!(SparseLeaf1!Value*);
                 empty = leaf_.empty;
@@ -1651,13 +1638,9 @@ template RawRadixTree(Value = void)
         this(Node leaf)
         {
             this.leaf = leaf;
-
             bool emptied;
             this.ix = firstIx(emptied);
-            if (emptied)
-            {
-                this.leaf = null;
-            }
+            if (emptied) { this.leaf = null; }
         }
 
         @safe pure nothrow:
@@ -1692,9 +1675,7 @@ template RawRadixTree(Value = void)
             assert(!empty);
             switch (leaf.typeIx) with (Node.Ix)
             {
-            case undefined:
-                assert(false);
-
+            case undefined: assert(false);
             case ix_OneLeafMax7:
                 assert(ix == 0);
                 return leaf.as!(OneLeafMax7).key;
@@ -1704,12 +1685,10 @@ template RawRadixTree(Value = void)
                 return leaf.as!(TriLeaf2).keys[ix][];
             case ix_HeptLeaf1:
                 return [leaf.as!(HeptLeaf1).keys[ix]];
-
             case ix_SparseLeaf1Ptr:
                 return [leaf.as!(SparseLeaf1!Value*).ixs[ix]];
             case ix_DenseLeaf1Ptr:
                 return [Ix(ix)];
-
             default: assert(false, "Unsupported Node type");
             }
         }
@@ -1720,9 +1699,7 @@ template RawRadixTree(Value = void)
             assert(!empty);
             switch (leaf.typeIx) with (Node.Ix)
             {
-            case undefined:
-                assert(false);
-
+            case undefined: assert(false);
             case ix_OneLeafMax7:
                 assert(ix == 0);
                 return UIx(leaf.as!(OneLeafMax7).key[0]);
@@ -1732,12 +1709,10 @@ template RawRadixTree(Value = void)
                 return UIx(leaf.as!(TriLeaf2).keys[ix][0]);
             case ix_HeptLeaf1:
                 return UIx(leaf.as!(HeptLeaf1).keys[ix]);
-
             case ix_SparseLeaf1Ptr:
                 return UIx(leaf.as!(SparseLeaf1!Value*).ixs[ix]);
             case ix_DenseLeaf1Ptr:
                 return ix;
-
             default: assert(false, "Unsupported Node type");
             }
         }
@@ -1747,9 +1722,7 @@ template RawRadixTree(Value = void)
             assert(!empty);
             switch (leaf.typeIx) with (Node.Ix)
             {
-            case undefined:
-                assert(false);
-
+            case undefined: assert(false);
             case ix_OneLeafMax7:
                 assert(ix == 0);
                 key ~= leaf.as!(OneLeafMax7).key[];
@@ -1763,14 +1736,12 @@ template RawRadixTree(Value = void)
             case ix_HeptLeaf1:
                 key ~= leaf.as!(HeptLeaf1).keys[ix];
                 break;
-
             case ix_SparseLeaf1Ptr:
                 key ~= leaf.as!(SparseLeaf1!Value*).ixs[ix];
                 break;
             case ix_DenseLeaf1Ptr:
                 key ~= ix;
                 break;
-
             default: assert(false, "Unsupported Node type");
             }
         }
@@ -1786,9 +1757,7 @@ template RawRadixTree(Value = void)
             // TODO move all calls to leaf-specific members popFront()
             switch (leaf.typeIx) with (Node.Ix)
             {
-            case undefined:
-                assert(false);
-
+            case undefined: assert(false);
             case ix_OneLeafMax7:
                 makeEmpty; // only one element so forward automatically completes
                 break;
@@ -1804,7 +1773,6 @@ template RawRadixTree(Value = void)
                 auto leaf_ = leaf.as!(HeptLeaf1);
                 if (ix + 1 == leaf_.keys.length) { makeEmpty; } else { ++ix; }
                 break;
-
             case ix_SparseLeaf1Ptr:
                 auto leaf_ = leaf.as!(SparseLeaf1!Value*);
                 if (ix + 1 == leaf_.length) { makeEmpty; } else { ++ix; }
@@ -2096,27 +2064,21 @@ template RawRadixTree(Value = void)
                 case ix_SparseLeaf1Ptr:
                 case ix_DenseLeaf1Ptr:
                     assert(leafNRange.empty);
-
                     leafNRange = LeafNRange(curr);
-
                     next = null; // we're done diving
                     break;
                 case ix_SparseBranchPtr:
                     auto curr_ = curr.as!(SparseBranch*);
-
                     auto currRange = BranchRange(curr_);
                     branchRanges.push(currRange);
                     branchRanges.updateLeaf1AtDepth(depth);
-
                     next = (curr_.subCount) ? curr_.firstSubNode : Node.init;
                     break;
                 case ix_DenseBranchPtr:
                     auto curr_ = curr.as!(DenseBranch*);
-
                     auto currRange = BranchRange(curr_);
                     branchRanges.push(currRange);
                     branchRanges.updateLeaf1AtDepth(depth);
-
                     next = branchRanges.bottom.subsEmpty ? Node.init : branchRanges.bottom.subFrontNode;
                     break;
                 }
@@ -2579,8 +2541,7 @@ template RawRadixTree(Value = void)
         import std.algorithm : startsWith;
         final switch (curr.typeIx) with (Node.Ix)
         {
-        case undefined:
-            return typeof(return).init; // terminate recursion
+        case undefined: return typeof(return).init; // terminate recursion
         case ix_OneLeafMax7:
             if (curr.as!(OneLeafMax7).key[].startsWith(keyPrefix)) { goto processHit; }
             break;
@@ -2660,8 +2621,7 @@ template RawRadixTree(Value = void)
         import std.algorithm : startsWith;
         final switch (curr.typeIx) with (Node.Ix)
         {
-        case undefined:
-            return typeof(return).init; // terminate recursion
+        case undefined: return typeof(return).init; // terminate recursion
         case ix_OneLeafMax7:
         case ix_TwoLeaf3:
         case ix_TriLeaf2:
@@ -2869,8 +2829,7 @@ template RawRadixTree(Value = void)
         {
             final switch (curr.typeIx) with (Node.Ix)
             {
-            case undefined:
-                return typeof(return).init;
+            case undefined: return typeof(return).init;
             case ix_OneLeafMax7:
                 static if (isValue)
                     assert(false);

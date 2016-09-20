@@ -4187,7 +4187,6 @@ struct RadixTree(Key, Value)
     this(RawTree rawTree) @nogc      // TODO how do we get rid of the need for `unusedDummy`?
     {
         _rawTree = rawTree;
-        this.fixedKeyLength = isFixedTrieableKeyType!Key ? Key.sizeof : fixedKeyLengthUndefined;
     }
 
     this(bool unusedDummy) @nogc      // TODO how do we get rid of the need for `unusedDummy`?

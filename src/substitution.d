@@ -209,7 +209,7 @@ private auto substituteSplitter(alias pred = `a == b`, R, Rs...)(R haystack, Rs 
                 return _skip.empty && _hit.empty && _rest.empty;
             }
 
-        void popFront()
+        void popFront() @trusted
         {
             import std.range : empty;
             if (!_skip.empty)

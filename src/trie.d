@@ -451,9 +451,9 @@ static private struct SparseLeaf1(Value)
     {
         // TODO faster to use memcpy?
         static if (hasValue)
-            return constructVariableLength!(typeof(this))(this._capacity, ixsSlots, valuesSlots);
+            return constructVariableLength!(typeof(this))(this._capacity, ixs, values);
         else
-            return constructVariableLength!(typeof(this))(this._capacity, ixsSlots);
+            return constructVariableLength!(typeof(this))(this._capacity, ixs);
     }
 
     static if (hasValue)
@@ -5215,14 +5215,17 @@ auto checkNumeric(Keys...)()
         import std.meta : AliasSeq;
         foreach (Key; Keys)
         {
-            // dln("Key: ", Key.stringof);
             auto set = radixTreeSet!(Key);
+            auto map = radixTreeMap!(Key, Value);
+
             assert(set.hasFixedKeyLength == isFixedTrieableKeyType!Key);
+            assert(map.hasFixedKeyLength == isFixedTrieableKeyType!Key);
+
             assert(set.empty);
+            assert(map.empty);
 
             static assert(!set.hasValue);
-
-            const useContains = true;
+            static assert(map.hasValue);
 
             static if (is(Key == bool) ||
                        isIntegral!Key ||
@@ -5250,27 +5253,31 @@ auto checkNumeric(Keys...)()
                 foreach (const uk; low.iota(high + 1))
                 {
                     const Key key = cast(Key)uk;
-                    if (useContains)
-                    {
-                        assert(!set.contains(key)); // key should not yet be in set
-                        assert(key !in set);        // alternative syntax
-                    }
 
-                    assert(set.insert(key));  // insert new value returns `true` (previously not in set)
-                    if (useContains)
-                    {
-                        assert(set.contains(key)); // key should now be in set
-                    }
-                    assert(!set.insert(key)); // reinsert same value returns `false` (already in set)
+                    assert(!set.contains(key)); // key should not yet be in set
+                    assert(key !in set);        // alternative syntax
 
-                    if (useContains)
+                    // insert new value returns `true` (previously not stored)
+                    assert(set.insert(key));
+                    assert(map.insert(key, Value.init));
+
+                    // key should now be in set and map
+                    assert(set.contains(key));
+                    assert(map.contains(key));
+
+                    // reinsert same value returns `false` (already in stored)
+                    assert(!set.insert(key));
+                    assert(!map.insert(key, Value.init));
+
+                    // key should now be stored
+                    assert(set.contains(key));
+                    assert(map.contains(key));
+
+                    // alternative syntax
+                    assert(key in set);
+                    if (key != Key.max)        // except last value
                     {
-                        assert(set.contains(key)); // key should now be in set
-                        assert(key in set);        // alternative syntax
-                        if (key != Key.max)        // except last value
-                        {
-                            assert(!set.contains(cast(Key)(key + 1))); // next key is not yet in set
-                        }
+                        assert(!set.contains(cast(Key)(key + 1))); // next key is not yet in set
                     }
                 }
                 assert(set.length == length);
@@ -5288,14 +5295,15 @@ auto checkNumeric(Keys...)()
             assert(set.length == setDup.length);
             assert(set[].equal(setDup[]));
 
-            auto map = radixTreeMap!(Key, Value);
             assert(map.hasFixedKeyLength == isFixedTrieableKeyType!Key);
             static assert(map.hasValue);
 
             map.insert(Key(0), Value.init);
             map.insert(Key(1), Value.init);
 
+            dln(Key.stringof, " before");
             auto mapDup = map.dup;
+            dln(Key.stringof, " after");
             if (map.length > 256)
             {
                 assert(map._root != mapDup._root);

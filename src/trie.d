@@ -383,7 +383,7 @@ auto construct(NodeType, Args...)(Args args) @trusted pure nothrow @nogc
     // debug ++nodeCountsByIx[Node.indexOf!NodeType];
     static if (isPointer!NodeType)
     {
-        // debug ++_heapNodeAllocationBalance;
+        // debug ++_heapAllocBalance;
         import std.conv : emplace;
         return emplace(cast(NodeType)malloc((*NodeType.init).sizeof), args);
         // TODO ensure alignment of node at least that of NodeType.alignof
@@ -400,7 +400,7 @@ auto construct(NodeType, Args...)(Args args) @trusted pure nothrow @nogc
 //         hasVariableLength!NodeType)
 // {
 //     // debug ++nodeCountsByIx[Node.indexOf!NodeType];
-//     // debug ++_heapNodeAllocationBalance;
+//     // debug ++_heapAllocBalance;
 //     import vla : constructVariableLength;
 //     return constructVariableLength!(typeof(*NodeType.init))(requiredCapacity, args);
 //     // TODO ensure alignment of node at least that of NodeType.alignof
@@ -411,7 +411,7 @@ void freeNode(NodeType)(NodeType nt) @trusted pure nothrow @nogc
     static if (isPointer!NodeType)
     {
         free(cast(void*)nt);  // TODO Allocator.free
-        // debug --_heapNodeAllocationBalance;
+        // debug --_heapAllocBalance;
     }
     // debug --nodeCountsByIx[Node.indexOf!NodeType];
 }
@@ -2322,7 +2322,7 @@ template RawRadixTree(Value = void)
         IndexedArray!(size_t, Leaf1!Value.Ix) popByLeaf1Type;
         static assert(is(typeof(popByLeaf1Type).Index == Leaf1!Value.Ix));
 
-        /// Number of heap-allocated `Node`s. Should always equal `heapNodeAllocationBalance`.
+        /// Number of heap-allocated `Node`s. Should always equal `heapAllocationBalance`.
         size_t heapNodeCount;
 
         /// Number of heap-allocated `Leaf`s. Should always equal `heapLeafAllocationBalance`.
@@ -3713,6 +3713,8 @@ template RawRadixTree(Value = void)
         }
     }
 
+    alias RefCount = uint;
+
     struct RawRadixTree
     {
         alias NodeType = Node;
@@ -3725,6 +3727,8 @@ template RawRadixTree(Value = void)
         alias DenseBranchType = DenseBranch;
         alias ElementRefType = ElementRef;
 
+        import std.conv : emplace;
+
         /** Is `true` if this tree stores values of type `Value` along with keys. In
             other words: `this` is a $(I map) rather than a $(I set).
         */
@@ -3732,171 +3736,184 @@ template RawRadixTree(Value = void)
 
         pragma(inline) Range opSlice() @trusted pure nothrow
         {
-            return Range(this._root, &this._rangeRefCounter, []);
+            return Range(_rcStore.root,
+                         &_rcStore.rangeRefCount, []);
         }
 
         Stats usageHistograms() const
         {
             typeof(return) stats;
-            _root.calculate!(Value)(stats);
+            _rcStore.root.calculate!(Value)(stats);
             return stats;
         }
 
+        @disable this();
+
+        this(RCStore* rcStore, uint fixedKeyLength) @trusted
+        {
+            _rcStore = rcStore ? rcStore : emplace(cast(RCStore*)malloc(RCStore.sizeof),
+                                                   Node.init, 0, 0);
+        }
 
         /** Returns a duplicate of this tree.
             Shallowly duplicates the values in the map case.
         */
-        typeof(this) dup()
+        typeof(this) dup() @trusted
         {
-            return typeof(return)(dupAt(this._root),
-                                  this._length,
-                                  0,
-                                  this.fixedKeyLength);
+            auto copiedRCStore = emplace(cast(RCStore*)malloc(RCStore.sizeof),
+                                         dupAt(_rcStore.root), _rcStore.length, 0);
+            return typeof(return)(copiedRCStore, fixedKeyLength);
         }
 
-        @disable this(this)
+        this(this)
         {
-            // if (!_root) return;
-            // const rhsRoot = _root;
-            // debug const oldLength = _length;
-            // if (rhsRoot)
-            // {
-            //     _root = null;       // reset
-            //     _length = 0;        // needs reset because insert updates
-            //     // TODO insert(rhsRoot[]);
-            // }
-            // assert(false, "TODO calculate tree by branches and leafs and make copies of them");
+            ++_rcStore.refCount; // simply one more reference
         }
 
         pragma(inline) ~this() @nogc
         {
-            assert(_rangeRefCounter == 0, "Ranges still refer to this"); // no `Range` must refer to `_root`
-            release(_root);
-            debug
+            assert(_rcStore);
+            assert(_rcStore.refCount, "Reference counter already zero!");
+            --_rcStore.refCount;
+            if (_rcStore.refCount == 0) // if `this` is the last reference
             {
-                try
-                {
-                    if (_heapNodeAllocationBalance != 0)
-                    {
-                        assert(false, "warning: Memory leak, heap Node allocation balance is not zero, but "//  ~
-                               // _heapNodeAllocationBalance.to!string ~
-                               // ", nodeCountsByIx is " ~ nodeCountsByIx.to!string
-                            );
-                    }
-                }
-                catch (Exception e) {}
+                // we can safely release allocation
+                release(_rcStore.root); debug _rcStore.root = Node.init;
+                free(_rcStore); debug _rcStore = null;
+                // debug
+                // {
+                //     try
+                //     {
+                //         if (_heapAllocBalance != 0)
+                //         {
+                //             assert(false, "warning: Memory leak, heap Node allocation balance is not zero, but "//  ~
+                //                    // _heapAllocBalance.to!string ~
+                //                    // ", nodeCountsByIx is " ~ nodeCountsByIx.to!string
+                //                 );
+                //         }
+                //     }
+                //     catch (Exception e) {}
+                // }
             }
         }
 
         /// Removes all contents (elements).
         pragma(inline) void clear() @nogc
         {
-            release(_root);
-            _root = null;           // must null because because `_root` will be read again
+            assert(_rcStore);
+            release(_rcStore.root);
+            _rcStore.root = null;           // must null because because `_rcStore.root` will be read again
+            _rcStore.length = 0;
         }
 
-        @safe pure nothrow @nogc
+        @safe pure nothrow @nogc pragma(inline)
         {
             /** Returns: `true` if `key` is stored, `false` otherwise. */
-            pragma(inline) inout(Node) prefix(UKey keyPrefix, out UKey keyPrefixRest) inout
+            inout(Node) prefix(UKey keyPrefix, out UKey keyPrefixRest) inout
             {
-                return prefixAt(_root, keyPrefix, keyPrefixRest);
+                return prefixAt(_rcStore.root, keyPrefix, keyPrefixRest);
             }
 
             /** Lookup deepest node having whose key starts with `key`. */
-            pragma(inline) inout(Node) matchCommonPrefix(UKey key, out UKey keyRest) inout
+            inout(Node) matchCommonPrefix(UKey key, out UKey keyRest) inout
             {
-                return matchCommonPrefixAt(_root, key, keyRest);
+                return matchCommonPrefixAt(_rcStore.root, key, keyRest);
             }
 
             static if (isValue)
             {
                 /** Returns: `true` if `key` is stored, `false` otherwise. */
-                pragma(inline) inout(Value*) contains(UKey key) inout
+                inout(Value*) contains(UKey key) inout
                 {
-                    return containsAt(_root, key);
+                    return containsAt(_rcStore.root, key);
                 }
             }
             else
             {
                 /** Returns: `true` if `key` is stored, `false` otherwise. */
-                pragma(inline) bool contains(UKey key) const
+                bool contains(UKey key) const
                 {
-                    return containsAt(_root, key);
+                    return containsAt(_rcStore.root, key);
                 }
-            }
-
-            pragma(inline) size_t countHeapNodes()
-            {
-                return countHeapNodesAt(_root);
             }
 
             /** Insert `key` into `this` tree. */
             static if (isValue)
             {
-                pragma(inline) Node insert(UKey key, in Value value, out ElementRef elementRef)
+                Node insert(UKey key, in Value value, out ElementRef elementRef)
                 {
-                    assert(_rangeRefCounter == 0, "Cannot modify tree with Range references");
-                    return _root = insertAt(_root, Element(key, value), elementRef);
+                    assert(rangeRefCount == 0, "Cannot modify tree with Range references");
+                    return _rcStore.root = insertAt(_rcStore.root, Element(key, value), elementRef);
                 }
             }
             else
             {
-                pragma(inline) Node insert(UKey key, out ElementRef elementRef)
+                Node insert(UKey key, out ElementRef elementRef)
                 {
-                    assert(_rangeRefCounter == 0, "Cannot modify tree with Range references");
-                    return _root = insertAt(_root, key, elementRef);
+                    assert(rangeRefCount == 0, "Cannot modify tree with Range references");
+                    return _rcStore.root = insertAt(_rcStore.root, key, elementRef);
                 }
             }
 
-        }
+            size_t countHeapNodes()
+            {
+                return countHeapNodesAt(_rcStore.root);
+            }
 
-        /** Returns: `true` iff tree is empty (no elements stored). */
-        pragma(inline) bool empty() const @safe pure nothrow @nogc { return !_root; }
+            /** Returns: `true` iff tree is empty (no elements stored). */
+            bool empty() const { assert(_rcStore); return !_rcStore.root; }
 
-        /** Returns: number of elements stored. */
-        pragma(inline) size_t length() const @safe pure nothrow @nogc { return _length; }
+            /** Returns: number of elements stored. */
+            size_t length() const { assert(_rcStore); return _rcStore.length; }
 
-    private:
+            Node rootNode() const { assert(_rcStore); return _rcStore.root; }
 
-        /** Returns: `true` if all keys in tree are of fixed length/size, `false` otherwise. */
-        pragma(inline) bool hasFixedKeyLength() const @safe pure nothrow @nogc
-        {
-            return (fixedKeyLength !=
-                    fixedKeyLengthUndefined);
-        }
-        /** Returns: `true` if keys in tree may be of variable length/size, `false` otherwise. */
-        pragma(inline) bool hasVariableKeyLength() const @safe pure nothrow @nogc
-        {
-            return !hasFixedKeyLength;
-        }
+            /// Get number of `Range`-instances that currently refer to `_rcStore.root` of `this` tree.
+            RefCount rangeRefCount() const { assert(_rcStore); return _rcStore.rangeRefCount; }
 
-        /// Returns: number of nodes used in `this` tree. Should always equal `Stats.heapNodeCount`.
-        pragma(inline) debug size_t heapNodeAllocationBalance() @safe pure nothrow /* TODO @nogc */
-        {
-            return _heapNodeAllocationBalance;
+            /// Reference count.
+            RefCount refCount() const { assert(_rcStore); return _rcStore.refCount; }
+
+        private:
+
+            /** Returns: `true` if all keys in tree are of fixed length/size, `false` otherwise. */
+            bool hasFixedKeyLength() const
+            {
+                return (fixedKeyLength != fixedKeyLengthUndefined);
+            }
+            /** Returns: `true` if keys in tree may be of variable length/size, `false` otherwise. */
+            bool hasVariableKeyLength() const { return !hasFixedKeyLength; }
+
+            /// Returns: number of nodes used in `this` tree. Should always equal `Stats.heapNodeCount`.
+            // debug size_t heapAllocationBalance() { return _heapAllocBalance; }
         }
 
         pragma(inline) void print() @safe const
         {
-            printAt(_root, 0);
+            printAt(_rcStore.root, 0);
         }
-
-        /// Get number of `Range`-instances that currently refer to `_root` of `this` tree.
-        auto rangeCount() const @safe pure nothrow @nogc { return _rangeRefCounter; }
 
         private enum fixedKeyLengthUndefined = 0;
 
     private:
-        Node _root;                 ///< tree root node
-        size_t _length = 0; ///< number of elements (keys or key-value-pairs) currently stored under `_root`
-        uint _rangeRefCounter = 0;      // number of ranges that refer to `this` tree
-        uint fixedKeyLength = fixedKeyLengthUndefined; ///< maximum length of key if fixed, otherwise 0
+        /** Reference counted store.
+            Need until Issue 13983 is fixed: https://issues.dlang.org/show_bug.cgi?id=13983 */
+        struct RCStore
+        {
+            Node root;
+            size_t length; ///< Number of elements (keys or key-value-pairs) currently stored under `root`
+            RefCount refCount;    ///< Number of references.
+            RefCount rangeRefCount; ///< Number of range references.
+        }
+        RCStore* _rcStore;
+        invariant { assert(_rcStore); } // must always be present after construction
+
+        uint fixedKeyLength = fixedKeyLengthUndefined; ///< maximum length of key if fixed, otherwise 0. TODO make const
 
         debug:                      // debug stuff
-        long _heapNodeAllocationBalance = 0;
+        // long _heapAllocBalance;
         // size_t[Node.Ix.max + 1] nodeCountsByIx;
-        bool willFail;
+        // bool willFail;
     }
 }
 
@@ -4197,7 +4214,7 @@ struct RadixTree(Key, Value)
             _rawTree.insert(rawKey, value, elementRef);
 
             const bool added = elementRef.node && elementRef.modStatus == ModStatus.added;
-            _length += added;
+            _rcStore.length += added;
             /* TODO return reference (via `auto ref` return typed) to stored
                value at `elementRef` instead, unless packed bitset storage is used
                when `Value is bool` */
@@ -4238,7 +4255,7 @@ struct RadixTree(Key, Value)
                     break;
                 }
                 const bool hit = elementRef.modStatus == ModStatus.added;
-                _length += hit;
+                _rcStore.length += hit;
                 return hit;
             }
             else
@@ -4273,7 +4290,7 @@ struct RadixTree(Key, Value)
             _rawTree.insert(rawKey, elementRef);
 
             const bool hit = elementRef.node && elementRef.modStatus == ModStatus.added;
-            _length += hit;
+            _rcStore.length += hit;
             return hit;
         }
 
@@ -4297,8 +4314,8 @@ struct RadixTree(Key, Value)
 
     pragma(inline) Range opSlice() @nogc // TODO inout?
     {
-        return Range(_rawTree._root,
-                     &_rawTree._rangeRefCounter, []);
+        return Range(_rawTree._rcStore.root,
+                     &_rawTree._rcStore.rangeRefCount, []);
     }
 
     /** Get range over elements whose key starts with `keyPrefix`.
@@ -4313,7 +4330,7 @@ struct RadixTree(Key, Value)
         auto prefixedRootNode = _rawTree.prefix(rawKeyPrefix, rawKeyPrefixRest);
 
         return Range(prefixedRootNode,
-                     &_rawTree._rangeRefCounter,
+                     &_rawTree._rcStore.rangeRefCount,
                      rawKeyPrefixRest);
     }
 
@@ -4398,7 +4415,7 @@ struct RadixTree(Key, Value)
         // dln(prefixedRootNode);
 
         return UpperBoundRange(prefixedRootNode,
-                               &_rawTree._rangeRefCounter,
+                               &_rawTree._rcStore.rangeRefCount,
                                rawKey[0 .. $ - rawKeyRest.length],
                                rawKeyRest);
     }
@@ -4463,9 +4480,7 @@ struct RadixTree(Key, Value)
     */
     typeof(this) dup()
     {
-        typeof(this) copy;
-        copy._rawTree = this._rawTree.dup;
-        return copy;
+        return typeof(this)(this._rawTree.dup);
     }
 
     /** Print `this` tree. */
@@ -4711,27 +4726,27 @@ auto testScalar(uint span, Keys...)()
     alias Key = ubyte;
     auto set = radixTreeSet!(Key);
 
-    assert(!set._root);
+    assert(!set._rcStore.root);
 
     foreach (const i; 0 .. 7)
     {
         assert(!set.contains(i));
         assert(set.insert(i));
-        assert(set._root.peek!HeptLeaf1);
+        assert(set._rcStore.root.peek!HeptLeaf1);
     }
 
     foreach (const i; 7 .. 48)
     {
         assert(!set.contains(i));
         assert(set.insert(i));
-        assert(set._root.peek!(SparseLeaf1!void*));
+        assert(set._rcStore.root.peek!(SparseLeaf1!void*));
     }
 
     foreach (const i; 48 .. 256)
     {
         assert(!set.contains(i));
         assert(set.insert(i));
-        assert(set._root.peek!(DenseLeaf1!void*));
+        assert(set._rcStore.root.peek!(DenseLeaf1!void*));
     }
 }
 
@@ -4836,18 +4851,18 @@ unittest
         assert(map.length == i + 1);
     }
 
-    assert(map.rangeCount == 0);
+    assert(map.rangeRefCount == 0);
 
     // test range
     size_t i = 0;
     foreach (const elt; map[])
     {
-        assert(map.rangeCount == 1);
+        assert(map.rangeRefCount == 1);
         {
             auto mapRange = map[];
-            assert(map.rangeCount == 2);
+            assert(map.rangeRefCount == 2);
         }
-        assert(map.rangeCount == 1);
+        assert(map.rangeRefCount == 1);
 
         const Key key = elt[0];
         const Value value = elt[1];
@@ -4858,7 +4873,7 @@ unittest
         ++i;
     }
 
-    assert(map.rangeCount == 0);
+    assert(map.rangeRefCount == 0);
 }
 
 /// Check string types in `Keys`.
@@ -5015,8 +5030,8 @@ unittest
         assert(!set.insert(i));
         assert(set.contains(i));
 
-        // debug assert(set.heapNodeAllocationBalance == 0);
-        const rootRef = set._root.peek!(HeptLeaf1);
+        // debug assert(set.heapAllocationBalance == 0);
+        const rootRef = set._rcStore.root.peek!(HeptLeaf1);
         assert(rootRef);
     }
 
@@ -5030,12 +5045,12 @@ unittest
         assert(!set.insert(i));
         assert(set.contains(i));
 
-        // debug assert(set.heapNodeAllocationBalance == 1);
-        // const rootRef = set._root.peek!(SparseLeaf1!void*);
+        // debug assert(set.heapAllocationBalance == 1);
+        // const rootRef = set._rcStore.root.peek!(SparseLeaf1!void*);
         // assert(rootRef);
     }
 
-    // const rootRef = set._root.peek!(SparseLeaf1!void*);
+    // const rootRef = set._rcStore.root.peek!(SparseLeaf1!void*);
     // assert(rootRef);
 
     // const root = *rootRef;
@@ -5081,7 +5096,7 @@ unittest
         assert(!set.insert(257));
         assert(set.contains(257));
 
-        const rootRef = set._root.peek!(Set.DefaultBranchType*);
+        const rootRef = set._rcStore.root.peek!(Set.DefaultBranchType*);
         assert(rootRef);
         const root = *rootRef;
         assert(root.prefix.length == T.sizeof - 2);
@@ -5160,11 +5175,11 @@ void testWords(Value)()
                 import std.string : representation;
                 // dln(`word:"`, word, `" of length:`, word.length,
                 //     ` of representation:`, word.representation);
-                debug rtr.willFail = word == `amiable`;
-                if (rtr.willFail)
-                {
-                    rtr.print();
-                }
+                // debug rtr.willFail = word == `amiable`;
+                // if (rtr.willFail)
+                // {
+                //     rtr.print();
+                // }
             }
 
             static if (hasValue)
@@ -5294,7 +5309,7 @@ auto checkNumeric(Keys...)()
             auto setDup = set.dup;
             if (set.length > 256)
             {
-                assert(set._root != setDup._root);
+                assert(set.rootNode != setDup.rootNode);
             }
             assert(set.length == setDup.length);
             assert(set[].equal(setDup[]));
@@ -5305,7 +5320,7 @@ auto checkNumeric(Keys...)()
             auto mapDup = map.dup;
             if (map.length > 256)
             {
-                assert(map._root != mapDup._root);
+                assert(map.rootNode != mapDup.rootNode);
             }
             assert(map.length == mapDup.length);
             assert(map[].equal(mapDup[]));

@@ -51,7 +51,7 @@ auto wgs84Coordinate(T)(T latitude,
 }
 
 auto wgs84Coordinate(T = double, S, Separator)(S s, Separator separator = ` `)
-    if (isSomeString!S,
+    if (isSomeString!S &&
         isSomeString!Separator)
 {
     return WGS84Coordinate!T(s, separator);

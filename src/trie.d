@@ -2242,12 +2242,14 @@ template RawRadixTree(Value = void)
         {
             assert(*_treeRangeCounter != (*_treeRangeCounter).max, "Range counter has reached maximum");
             ++(*_treeRangeCounter);
+            // dln("Range counter increased to ", _treeRangeCounter);
         }
 
         ~this()
         {
             assert(*_treeRangeCounter != 0, "Range counter cannot be decremented because it's zero");
             --(*_treeRangeCounter);
+            // dln("Range counter decreased to ", _treeRangeCounter);
         }
 
         @property auto save() { return this; }
@@ -3746,25 +3748,25 @@ template RawRadixTree(Value = void)
         */
         typeof(this) dup()
         {
-            typeof(return) copy = this;
-            copy._rangeRefCounter = 0; // copy has no refs yet
-            copy._root = dupAt(this._root);
-            return copy;
+            return typeof(return)(dupAt(this._root),
+                                  this._length,
+                                  0,
+                                  this.fixedKeyLength);
         }
 
-        // this(this)
-        // {
-        //     if (!_root) return;
-        //     const rhsRoot = _root;
-        //     debug const oldLength = _length;
-        //     if (rhsRoot)
-        //     {
-        //         _root = null;       // reset
-        //         _length = 0;        // needs reset because insert updates
-        //         // TODO insert(rhsRoot[]);
-        //     }
-        //     assert(false, "TODO calculate tree by branches and leafs and make copies of them");
-        // }
+        @disable this(this)
+        {
+            // if (!_root) return;
+            // const rhsRoot = _root;
+            // debug const oldLength = _length;
+            // if (rhsRoot)
+            // {
+            //     _root = null;       // reset
+            //     _length = 0;        // needs reset because insert updates
+            //     // TODO insert(rhsRoot[]);
+            // }
+            // assert(false, "TODO calculate tree by branches and leafs and make copies of them");
+        }
 
         pragma(inline) ~this() @nogc
         {
@@ -5156,8 +5158,8 @@ void testWords(Value)()
             static if (debugPrint)
             {
                 import std.string : representation;
-                dln(`word:"`, word, `" of length:`, word.length,
-                    ` of representation:`, word.representation);
+                // dln(`word:"`, word, `" of length:`, word.length,
+                //     ` of representation:`, word.representation);
                 debug rtr.willFail = word == `amiable`;
                 if (rtr.willFail)
                 {

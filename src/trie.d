@@ -3765,12 +3765,12 @@ template RawRadixTree(Value = void)
             return typeof(return)(copiedRCStore, fixedKeyLength);
         }
 
-        this(this)
+        this(this) @trusted
         {
             ++_rcStore.refCount; // simply one more reference
         }
 
-        pragma(inline) ~this() @nogc
+        pragma(inline) ~this() @trusted @nogc
         {
             assert(_rcStore);
             assert(_rcStore.refCount, "Reference counter already zero!");
@@ -4183,6 +4183,12 @@ struct RadixTree(Key, Value)
     if (allSatisfy!(isTrieableKeyType, Key))
 {
     alias RawTree = RawRadixTree!(Value);
+
+    this(RawTree rawTree) @nogc      // TODO how do we get rid of the need for `unusedDummy`?
+    {
+        _rawTree = rawTree;
+        this.fixedKeyLength = isFixedTrieableKeyType!Key ? Key.sizeof : fixedKeyLengthUndefined;
+    }
 
     this(bool unusedDummy) @nogc      // TODO how do we get rid of the need for `unusedDummy`?
     {

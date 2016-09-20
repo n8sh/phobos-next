@@ -449,7 +449,6 @@ static private struct SparseLeaf1(Value)
     */
     typeof(this)* dup()
     {
-        // TODO faster to use memcpy?
         static if (hasValue)
             return constructVariableLength!(typeof(this))(this._capacity, ixs, values);
         else

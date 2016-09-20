@@ -18,7 +18,7 @@ struct WGS84Coordinate(T = double)
     }
 
     this(S, Separator)(S s, Separator separator = ` `)
-        if (isSomeString!S,
+        if (isSomeString!S &&
             isSomeString!Separator)
     {
         import std.algorithm : findSplit;

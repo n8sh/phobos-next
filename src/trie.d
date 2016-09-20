@@ -4513,6 +4513,27 @@ auto radixTreeMapGrowOnly(Key, Value)()
     return radixTreeMap!(Key, Value);
 }
 
+///
+// @safe pure nothrow @nogc
+unittest
+{
+    version(enterSingleInfiniteMemoryLeakTest)
+    {
+        while (true)
+        {
+            checkNumeric!(bool, float, double,
+                          long, int, short, byte,
+                          ulong, uint, ushort, ubyte);
+        }
+    }
+    else
+    {
+        checkNumeric!(bool, float, double,
+                      long, int, short, byte,
+                      ulong, uint, ushort, ubyte);
+    }
+}
+
 /// exercise all switch-cases in `RawRadixTree.prefixAt()`
 @safe pure nothrow
 /*TODO:@nogc*/ unittest
@@ -5182,14 +5203,14 @@ unittest
 }
 
 /// Check correctness when span is `span` and for each `Key` in `Keys`.
-auto checkNumeric(Keys...)() @nogc
+auto checkNumeric(Keys...)()
     if (Keys.length >= 1)
 {
     import std.range : iota;
     foreach (const it; 0.iota(1))
     {
         import std.algorithm : equal;
-        struct TestValueType { int i; float f; char ch; }
+        struct TestValueType { int i = 42; float f = 43; char ch = 'a'; }
         alias Value = TestValueType;
         import std.meta : AliasSeq;
         foreach (Key; Keys)
@@ -5271,7 +5292,8 @@ auto checkNumeric(Keys...)() @nogc
             assert(map.hasFixedKeyLength == isFixedTrieableKeyType!Key);
             static assert(map.hasValue);
 
-            map.insert(Key.init, Value.init);
+            map.insert(Key(0), Value.init);
+            map.insert(Key(1), Value.init);
 
             auto mapDup = map.dup;
             if (map.length > 256)
@@ -5279,7 +5301,7 @@ auto checkNumeric(Keys...)() @nogc
                 assert(map._root != mapDup._root);
             }
             assert(map.length == mapDup.length);
-            // assert(map[].equal(mapDup[]));
+            assert(map[].equal(mapDup[]));
         }
     }
 }
@@ -5291,7 +5313,7 @@ void benchmark()()
     import std.stdio : writeln;
 
     import std.algorithm : equal;
-    struct TestValueType { int i; float f; char ch; }
+    struct TestValueType { int i = 42; float f = 43; char ch = 'a'; }
     alias Value = TestValueType;
     import std.meta : AliasSeq;
     foreach (Key; AliasSeq!(uint)) // just benchmark uint for now
@@ -5356,26 +5378,6 @@ void benchmark()()
         static assert(map.hasValue);
 
         map.insert(Key.init, Value.init);
-    }
-}
-
-///
-@safe pure nothrow @nogc unittest
-{
-    version(enterSingleInfiniteMemoryLeakTest)
-    {
-        while (true)
-        {
-            checkNumeric!(bool, float, double,
-                          long, int, short, byte,
-                          ulong, uint, ushort, ubyte);
-        }
-    }
-    else
-    {
-        checkNumeric!(bool, float, double,
-                      long, int, short, byte,
-                      ulong, uint, ushort, ubyte);
     }
 }
 

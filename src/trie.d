@@ -4184,8 +4184,6 @@ struct RadixTree(Key, Value)
 {
     alias RawTree = RawRadixTree!(Value);
 
-    @disable this();
-
     this(RawTree rawTree) @nogc      // TODO how do we get rid of the need for `unusedDummy`?
     {
         _rawTree = rawTree;

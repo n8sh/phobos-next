@@ -3887,7 +3887,7 @@ template RawRadixTree(Value = void)
 
     private:
         Node _root;                 ///< tree root node
-        immutable fixedKeyLength = fixedKeyLengthUndefined; ///< maximum length of key if fixed, otherwise 0
+        bool fixedKeyLength = fixedKeyLengthUndefined; ///< maximum length of key if fixed, otherwise 0
         size_t _length = 0; ///< number of elements (keys or key-value-pairs) currently stored under `_root`
         uint _rangeRefCounter = 0;      // number of ranges that refer to `this` tree
 

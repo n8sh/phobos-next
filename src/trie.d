@@ -5297,12 +5297,7 @@ auto checkNumeric(Keys...)()
             assert(map.hasFixedKeyLength == isFixedTrieableKeyType!Key);
             static assert(map.hasValue);
 
-            map.insert(Key(0), Value.init);
-            map.insert(Key(1), Value.init);
-
-            dln(Key.stringof, " before");
             auto mapDup = map.dup;
-            dln(Key.stringof, " after");
             if (map.length > 256)
             {
                 assert(map._root != mapDup._root);

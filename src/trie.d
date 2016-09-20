@@ -3887,9 +3887,9 @@ template RawRadixTree(Value = void)
 
     private:
         Node _root;                 ///< tree root node
-        bool fixedKeyLength = fixedKeyLengthUndefined; ///< maximum length of key if fixed, otherwise 0
         size_t _length = 0; ///< number of elements (keys or key-value-pairs) currently stored under `_root`
         uint _rangeRefCounter = 0;      // number of ranges that refer to `this` tree
+        uint fixedKeyLength = fixedKeyLengthUndefined; ///< maximum length of key if fixed, otherwise 0
 
         debug:                      // debug stuff
         long _heapNodeAllocationBalance = 0;
@@ -4488,6 +4488,9 @@ template MutableKey(Key)
     else                    alias MutableKey = Key;
 }
 
+alias RadixTreeSetGrowOnly(Key) = RadixTree!(Key, void);
+alias RadixTreeMapGrowOnly(Key, Value) = RadixTree!(Key, Value);
+
 /// Instantiator for the set-version of `RadixTree` where value-type is `void` (unused).
 auto radixTreeSet(Key)() @nogc
 {
@@ -4497,7 +4500,7 @@ auto radixTreeSet(Key)() @nogc
 /// Wrapper for a grow-only variant of `radixTreeSet`.
 auto radixTreeSetGrowOnly(Key)() @nogc
 {
-    return radixTreeSet!(Key);
+    return radixTreeSetGrowOnly!(Key);
 }
 
 /// Instantiator for the map-version of `RadixTree` where value-type is `Value`.
@@ -4509,7 +4512,7 @@ auto radixTreeMap(Key, Value)()
 /// Wrapper for a grow-only variant of `radixTreeMap`.
 auto radixTreeMapGrowOnly(Key, Value)()
 {
-    return radixTreeMap!(Key, Value);
+    return radixTreeMapGrowOnly!(Key, Value);
 }
 
 ///

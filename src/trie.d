@@ -3742,11 +3742,9 @@ template RawRadixTree(Value = void)
 
         Stats usageHistograms() const
         {
+            if (!_rcStore) { return typeof(return).init; }
             typeof(return) stats;
-            if (_rcStore)
-            {
-                _rcStore.root.calculate!(Value)(stats);
-            }
+            _rcStore.root.calculate!(Value)(stats);
             return stats;
         }
 
@@ -3762,13 +3760,9 @@ template RawRadixTree(Value = void)
         typeof(this) dup() @trusted
         {
             if (!_rcStore) { return this; }
-            return typeof(return)(emplace(cast(RCStore*)malloc(RCStore.sizeof),
-                                          dupAt(_rcStore.root), _rcStore.length, 0));
-        }
-
-        private this(RCStore* rcStore)
-        {
-            _rcStore = rcStore;
+            _rcStore = emplace(cast(RCStore*)malloc(RCStore.sizeof),
+                               dupAt(_rcStore.root), _rcStore.length, 1, 0, _rcStore.fixedKeyLength);
+            return this;
         }
 
         this(this) @trusted
@@ -3853,7 +3847,7 @@ template RawRadixTree(Value = void)
             {
                 Node insert(UKey key, in Value value, out ElementRef elementRef)
                 {
-                    allocateRCStore();
+                    assureRCStore();
                     assert(_rcStore.rangeRefCount == 0, "Cannot modify tree with Range references");
                     return _rcStore.root = insertAt(_rcStore.root, Element(key, value), elementRef);
                 }
@@ -3862,7 +3856,7 @@ template RawRadixTree(Value = void)
             {
                 Node insert(UKey key, out ElementRef elementRef)
                 {
-                    allocateRCStore();
+                    assureRCStore();
                     assert(_rcStore.rangeRefCount == 0, "Cannot modify tree with Range references");
                     return _rcStore.root = insertAt(_rcStore.root, key, elementRef);
                 }
@@ -3877,8 +3871,8 @@ template RawRadixTree(Value = void)
             /** Returns: `true` iff tree is empty (no elements stored). */
             bool empty() const
             {
-                return (!_rcStore ||
-                        !_rcStore.root);
+                if (!_rcStore) { return typeof(return).init; }
+                return !_rcStore.root;
             }
 
             /** Returns: number of elements stored. */
@@ -3925,6 +3919,7 @@ template RawRadixTree(Value = void)
 
         pragma(inline) void print() @safe const
         {
+            if (!_rcStore) { return; }
             printAt(_rcStore.root, 0);
         }
 
@@ -3947,8 +3942,7 @@ template RawRadixTree(Value = void)
 
         private void allocateRCStore() @trusted
         {
-            _rcStore = emplace(cast(RCStore*)malloc(RCStore.sizeof),
-                               Node.init, 0, 0);
+            _rcStore = emplace(cast(RCStore*)malloc(RCStore.sizeof), Node.init, 1, 0);
         }
 
         private void assureRCStore()

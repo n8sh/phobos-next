@@ -3800,7 +3800,7 @@ template RawRadixTree(Value = void)
         {
             assert(_rcStore.rangeRefCount == 0, "Cannot modify tree with Range references");
             release(_rcStore.root);
-            _rcStore.root = null;           // must null because because `_rcStore.root` will be read again
+            _rcStore.root = null;
             _rcStore.length = 0;
         }
 

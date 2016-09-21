@@ -3751,6 +3751,7 @@ template RawRadixTree(Value = void)
         */
         typeof(this) dup() @trusted
         {
+            if (!_rcStore) { return typeof(return).init; }
             auto rcStoreCopy = emplace(cast(RCStore*)malloc(RCStore.sizeof),
                                        dupAt(_rcStore.root), _rcStore.length, 1,0);
             return typeof(return)(rcStoreCopy);

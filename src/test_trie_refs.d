@@ -15,7 +15,8 @@ alias Tree = RadixTreeSetGrowOnly!string;
 void main(string[] args)
 {
     Tree t;
-    auto t2 = t;
-    auto t3 = t2.dup;
+    dln("1");
+    auto t2 = t.dup;
+    dln("2");
     // recursiveTest();
 }

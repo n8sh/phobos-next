@@ -2241,7 +2241,6 @@ template RawRadixTree(Value = void)
         this(this)
         {
             if (!_treeRangeRefCount) { return; }
-            assert(_treeRangeRefCount, "Pointer to range counter is null");
             assert(*_treeRangeRefCount != (*_treeRangeRefCount).max, "Range counter has reached maximum");
             ++(*_treeRangeRefCount);
         }
@@ -2249,7 +2248,6 @@ template RawRadixTree(Value = void)
         ~this()
         {
             if (!_treeRangeRefCount) { return; }
-            assert(_treeRangeRefCount, "Pointer to range counter is null");
             assert(*_treeRangeRefCount != 0, "Range counter cannot be decremented because it's zero");
             --(*_treeRangeRefCount);
         }

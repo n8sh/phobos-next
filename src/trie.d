@@ -8,7 +8,7 @@
     Both layers currently
     $(UL
     $(LI have template parameterization on the `Value`-type in the map case (when `Value` is non-`void`))
-    $(LI are completely `@nogc` and when possible `@safe pure nothrow` as it doesn't use the GC)
+    $(LI are completely `@nogc` and, when possible, `@safe pure nothrow`
     $(LI Insertion with returned modifications status: `auto newKeyWasInserted = set.insert(Key key)`)
     $(LI Support AA-style `in`-operator)
       $(UL

@@ -2220,12 +2220,12 @@ template RawRadixTree(Value = void)
         @safe pure nothrow @nogc:
         pragma(inline):
 
-        this(Node root, uint* treeRangeCounter, UKey keyPrefix)
+        this(Node root, uint* treeRangeRefCount, UKey keyPrefix)
         {
             this._rawKeyPrefix = keyPrefix;
-            assert(treeRangeCounter, "Pointer to range counter is null");
+            assert(treeRangeRefCount, "Pointer to range counter is null");
 
-            this._treeRangeCounter = treeRangeCounter;
+            this._treeRangeCounter = treeRangeRefCount;
             (*this._treeRangeCounter)++ ;
 
             this._front = FrontRange(root);
@@ -3736,43 +3736,50 @@ template RawRadixTree(Value = void)
 
         pragma(inline) Range opSlice() @trusted pure nothrow
         {
-            return Range(_rcStore.root,
-                         &_rcStore.rangeRefCount, []);
+            if (!_rcStore) { return typeof(return).init; }
+            return Range(_rcStore.root, &_rcStore.rangeRefCount, []);
         }
 
         Stats usageHistograms() const
         {
             typeof(return) stats;
-            _rcStore.root.calculate!(Value)(stats);
+            if (_rcStore)
+            {
+                _rcStore.root.calculate!(Value)(stats);
+            }
             return stats;
         }
 
-        @disable this();
-
-        this(RCStore* rcStore, uint fixedKeyLength) @trusted
+        this(uint fixedKeyLength)
         {
-            _rcStore = rcStore ? rcStore : emplace(cast(RCStore*)malloc(RCStore.sizeof),
-                                                   Node.init, 0, 0);
+            allocateRCStore();
+            _rcStore.fixedKeyLength = fixedKeyLength;
         }
 
-        /** Returns a duplicate of this tree.
+        /** Returns a duplicate of this tree if present.
             Shallowly duplicates the values in the map case.
         */
         typeof(this) dup() @trusted
         {
-            auto copiedRCStore = emplace(cast(RCStore*)malloc(RCStore.sizeof),
-                                         dupAt(_rcStore.root), _rcStore.length, 0);
-            return typeof(return)(copiedRCStore, fixedKeyLength);
+            if (!_rcStore) { return this; }
+            return typeof(return)(emplace(cast(RCStore*)malloc(RCStore.sizeof),
+                                          dupAt(_rcStore.root), _rcStore.length, 0));
+        }
+
+        private this(RCStore* rcStore)
+        {
+            _rcStore = rcStore;
         }
 
         this(this) @trusted
         {
+            if (!_rcStore) { return; }
             ++_rcStore.refCount; // simply one more reference
         }
 
         pragma(inline) ~this() @trusted @nogc
         {
-            assert(_rcStore);
+            if (!_rcStore) { return; }
             assert(_rcStore.refCount, "Reference counter already zero!");
             --_rcStore.refCount;
             if (_rcStore.refCount == 0) // if `this` is the last reference
@@ -3800,7 +3807,7 @@ template RawRadixTree(Value = void)
         /// Removes all contents (elements).
         pragma(inline) void clear() @nogc
         {
-            assert(_rcStore);
+            if (!_rcStore) { return; }
             release(_rcStore.root);
             _rcStore.root = null;           // must null because because `_rcStore.root` will be read again
             _rcStore.length = 0;
@@ -3811,12 +3818,14 @@ template RawRadixTree(Value = void)
             /** Returns: `true` if `key` is stored, `false` otherwise. */
             inout(Node) prefix(UKey keyPrefix, out UKey keyPrefixRest) inout
             {
+                if (!_rcStore) { return typeof(return).init; }
                 return prefixAt(_rcStore.root, keyPrefix, keyPrefixRest);
             }
 
             /** Lookup deepest node having whose key starts with `key`. */
             inout(Node) matchCommonPrefix(UKey key, out UKey keyRest) inout
             {
+                if (!_rcStore) { return typeof(return).init; }
                 return matchCommonPrefixAt(_rcStore.root, key, keyRest);
             }
 
@@ -3825,6 +3834,7 @@ template RawRadixTree(Value = void)
                 /** Returns: `true` if `key` is stored, `false` otherwise. */
                 inout(Value*) contains(UKey key) inout
                 {
+                    if (!_rcStore) { return typeof(return).init; }
                     return containsAt(_rcStore.root, key);
                 }
             }
@@ -3833,6 +3843,7 @@ template RawRadixTree(Value = void)
                 /** Returns: `true` if `key` is stored, `false` otherwise. */
                 bool contains(UKey key) const
                 {
+                    if (!_rcStore) { return typeof(return).init; }
                     return containsAt(_rcStore.root, key);
                 }
             }
@@ -3842,7 +3853,8 @@ template RawRadixTree(Value = void)
             {
                 Node insert(UKey key, in Value value, out ElementRef elementRef)
                 {
-                    assert(rangeRefCount == 0, "Cannot modify tree with Range references");
+                    allocateRCStore();
+                    assert(_rcStore.rangeRefCount == 0, "Cannot modify tree with Range references");
                     return _rcStore.root = insertAt(_rcStore.root, Element(key, value), elementRef);
                 }
             }
@@ -3850,36 +3862,59 @@ template RawRadixTree(Value = void)
             {
                 Node insert(UKey key, out ElementRef elementRef)
                 {
-                    assert(rangeRefCount == 0, "Cannot modify tree with Range references");
+                    allocateRCStore();
+                    assert(_rcStore.rangeRefCount == 0, "Cannot modify tree with Range references");
                     return _rcStore.root = insertAt(_rcStore.root, key, elementRef);
                 }
             }
 
             size_t countHeapNodes()
             {
+                if (!_rcStore) { return typeof(return).init; }
                 return countHeapNodesAt(_rcStore.root);
             }
 
             /** Returns: `true` iff tree is empty (no elements stored). */
-            bool empty() const { assert(_rcStore); return !_rcStore.root; }
+            bool empty() const
+            {
+                return (!_rcStore ||
+                        !_rcStore.root);
+            }
 
             /** Returns: number of elements stored. */
-            size_t length() const { assert(_rcStore); return _rcStore.length; }
+            size_t length() const
+            {
+                if (!_rcStore) { return typeof(return).init; }
+                return _rcStore.length;
+            }
 
-            Node rootNode() const { assert(_rcStore); return _rcStore.root; }
+            Node rootNode() const
+            {
+                if (!_rcStore) { return typeof(return).init; }
+                return _rcStore.root;
+            }
 
             /// Get number of `Range`-instances that currently refer to `_rcStore.root` of `this` tree.
-            RefCount rangeRefCount() const { assert(_rcStore); return _rcStore.rangeRefCount; }
+            RefCount rangeRefCount() const
+            {
+                if (!_rcStore) { return typeof(return).init; }
+                return _rcStore.rangeRefCount;
+            }
 
             /// Reference count.
-            RefCount refCount() const { assert(_rcStore); return _rcStore.refCount; }
+            RefCount refCount() const
+            {
+                if (!_rcStore) { return typeof(return).init; }
+                return _rcStore.refCount;
+            }
 
         private:
 
             /** Returns: `true` if all keys in tree are of fixed length/size, `false` otherwise. */
             bool hasFixedKeyLength() const
             {
-                return (fixedKeyLength != fixedKeyLengthUndefined);
+                if (!_rcStore) { return typeof(return).init; }
+                return (_rcStore.fixedKeyLength != fixedKeyLengthUndefined);
             }
             /** Returns: `true` if keys in tree may be of variable length/size, `false` otherwise. */
             bool hasVariableKeyLength() const { return !hasFixedKeyLength; }
@@ -3902,13 +3937,24 @@ template RawRadixTree(Value = void)
         {
             Node root;
             size_t length; ///< Number of elements (keys or key-value-pairs) currently stored under `root`
+
+            // TODO make these 3 fit in a size_t for the 64-bit case
             RefCount refCount;    ///< Number of references.
             RefCount rangeRefCount; ///< Number of range references.
+            uint fixedKeyLength = fixedKeyLengthUndefined; ///< maximum length of key if fixed, otherwise 0. TODO make const
         }
         RCStore* _rcStore;
-        invariant { assert(_rcStore); } // must always be present after construction
 
-        uint fixedKeyLength = fixedKeyLengthUndefined; ///< maximum length of key if fixed, otherwise 0. TODO make const
+        private void allocateRCStore() @trusted
+        {
+            _rcStore = emplace(cast(RCStore*)malloc(RCStore.sizeof),
+                               Node.init, 0, 0);
+        }
+
+        private void assureRCStore()
+        {
+            if (!_rcStore) { allocateRCStore(); }
+        }
 
         debug:                      // debug stuff
         // long _heapAllocBalance;
@@ -4191,7 +4237,8 @@ struct RadixTree(Key, Value)
 
     this(bool unusedDummy) @nogc      // TODO how do we get rid of the need for `unusedDummy`?
     {
-        this.fixedKeyLength = isFixedTrieableKeyType!Key ? Key.sizeof : fixedKeyLengthUndefined;
+        _rawTree = RawTree();
+        this._rawTree._rcStore.fixedKeyLength = isFixedTrieableKeyType!Key ? Key.sizeof : fixedKeyLengthUndefined;
     }
 
     static if (RawTree.hasValue)
@@ -4345,10 +4392,10 @@ struct RadixTree(Key, Value)
         @nogc:
 
         this(RawTree.NodeType root,
-             uint* treeRangeCounter,
+             uint* treeRangeRefCount,
              UKey keyPrefixRest)
         {
-            _rawRange = _rawTree.RangeType(root, treeRangeCounter, keyPrefixRest);
+            _rawRange = _rawTree.RangeType(root, treeRangeRefCount, keyPrefixRest);
         }
 
         auto front() const
@@ -4374,10 +4421,10 @@ struct RadixTree(Key, Value)
     private static struct RawRange
     {
         this(RawTree.NodeType root,
-             uint* treeRangeCounter,
+             uint* treeRangeRefCount,
              UKey keyPrefixRest)
         {
-            this._rawRange = _rawTree.RangeType(root, treeRangeCounter, keyPrefixRest);
+            this._rawRange = _rawTree.RangeType(root, treeRangeRefCount, keyPrefixRest);
         }
 
         static if (RawTree.hasValue)
@@ -4432,10 +4479,10 @@ struct RadixTree(Key, Value)
         @nogc:
 
         this(RawTree.NodeType root,
-             uint* treeRangeCounter,
+             uint* treeRangeRefCount,
              UKey rawKeyPrefix, UKey rawKeyRest)
         {
-            _rawRange = _rawTree.RangeType(root, treeRangeCounter, []);
+            _rawRange = _rawTree.RangeType(root, treeRangeRefCount, []);
             _rawKeyPrefix = rawKeyPrefix;
 
             // skip values
@@ -5242,9 +5289,6 @@ auto checkNumeric(Keys...)()
             auto set = radixTreeSet!(Key);
             auto map = radixTreeMap!(Key, Value);
 
-            assert(set.hasFixedKeyLength == isFixedTrieableKeyType!Key);
-            assert(map.hasFixedKeyLength == isFixedTrieableKeyType!Key);
-
             assert(set.empty);
             assert(map.empty);
 
@@ -5319,7 +5363,6 @@ auto checkNumeric(Keys...)()
             assert(set.length == setDup.length);
             assert(set[].equal(setDup[]));
 
-            assert(map.hasFixedKeyLength == isFixedTrieableKeyType!Key);
             static assert(map.hasValue);
 
             auto mapDup = map.dup;

@@ -5337,15 +5337,13 @@ auto checkNumeric(Keys...)()
 
             static assert(map.hasValue);
 
+            auto mapDup = map.dup;
+            if (map.length > 256)
             {
-                auto mapDup = map.dup;
-                if (map.length > 256)
-                {
-                    assert(map.rootNode != mapDup.rootNode);
-                }
-                assert(map.length == mapDup.length);
-                assert(map[].equal(mapDup[]));
+                assert(map.rootNode != mapDup.rootNode);
             }
+            assert(map.length == mapDup.length);
+            assert(map[].equal(mapDup[]));
         }
     }
 }

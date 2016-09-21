@@ -5327,6 +5327,7 @@ auto checkNumeric(Keys...)()
                 static assert(false, `Handle type: "` ~ Key.stringof ~ `"`);
             }
 
+            // set dup checking
             auto setDup = set.dup;
             if (set.length > 256)
             {
@@ -5335,8 +5336,17 @@ auto checkNumeric(Keys...)()
             assert(set.length == setDup.length);
             assert(set[].equal(setDup[]));
 
-            static assert(map.hasValue);
+            // set ref checking
+            auto set2 = set;
+            assert(!set2.empty);
+            assert(set.length == set2.length);
+            assert(set[].equal(set2[]));
+            set.clear();
+            assert(set2.empty);
+            assert(set.length == set2.length);
 
+            // map dup checking
+            static assert(map.hasValue);
             auto mapDup = map.dup;
             if (map.length > 256)
             {
@@ -5344,6 +5354,15 @@ auto checkNumeric(Keys...)()
             }
             assert(map.length == mapDup.length);
             assert(map[].equal(mapDup[]));
+
+            // map ref checking
+            auto map2 = map;
+            assert(!map2.empty);
+            assert(map.length == map2.length);
+            assert(map[].equal(map2[]));
+            map.clear();
+            assert(map2.empty);
+            assert(map.length == map2.length);
         }
     }
 }

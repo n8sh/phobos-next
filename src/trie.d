@@ -3751,7 +3751,7 @@ template RawRadixTree(Value = void)
         this(uint fixedKeyLength) @trusted
         {
             _rcStore = emplace(cast(RCStore*)malloc(RCStore.sizeof),
-                               Node.init, 0, 0,0, fixedKeyLength);
+                               Node.init, 0, 1,0, fixedKeyLength);
         }
 
         /** Returns a duplicate of this tree if present.
@@ -3759,9 +3759,14 @@ template RawRadixTree(Value = void)
         */
         typeof(this) dup() @trusted
         {
-            _rcStore = emplace(cast(RCStore*)malloc(RCStore.sizeof),
-                               dupAt(_rcStore.root), _rcStore.length, 1,0, _rcStore.fixedKeyLength);
-            return this;
+            auto rcStoreCopy = emplace(cast(RCStore*)malloc(RCStore.sizeof),
+                                       dupAt(_rcStore.root), _rcStore.length, 1,0, _rcStore.fixedKeyLength);
+            return typeof(return)(rcStoreCopy);
+        }
+
+        private this(RCStore* rcStore)
+        {
+            _rcStore = rcStore;
         }
 
         this(this) @trusted
@@ -3909,10 +3914,9 @@ template RawRadixTree(Value = void)
 
         private enum fixedKeyLengthUndefined = 0;
 
-    private:
         /** Reference counted store.
             Need until Issue 13983 is fixed: https://issues.dlang.org/show_bug.cgi?id=13983 */
-        struct RCStore
+        private static struct RCStore
         {
             Node root;
             size_t length; ///< Number of elements (keys or key-value-pairs) currently stored under `root`
@@ -3922,10 +3926,12 @@ template RawRadixTree(Value = void)
             RefCount rangeRefCount; ///< Number of range references.
             uint fixedKeyLength = fixedKeyLengthUndefined; ///< maximum length of key if fixed, otherwise 0. TODO make const
         }
+
+    private:
         RCStore* _rcStore;
         invariant { assert(_rcStore); } // must always be present
 
-        debug:                      // debug stuff
+        // debug:                      // debug stuff
         // long _heapAllocBalance;
         // size_t[Node.Ix.max + 1] nodeCountsByIx;
         // bool willFail;
@@ -5324,26 +5330,22 @@ auto checkNumeric(Keys...)()
             auto setDup = set.dup;
             if (set.length > 256)
             {
-                // assert(set.rootNode != setDup.rootNode);
-            }
-            dln("Key:", Key.stringof);
-            if (set.length != setDup.length)
-            {
-                dln(set.length);
-                dln(setDup.length);
+                assert(set.rootNode != setDup.rootNode);
             }
             assert(set.length == setDup.length);
             assert(set[].equal(setDup[]));
 
             static assert(map.hasValue);
 
-            auto mapDup = map.dup;
-            if (map.length > 256)
             {
-                // assert(map.rootNode != mapDup.rootNode);
+                auto mapDup = map.dup;
+                if (map.length > 256)
+                {
+                    assert(map.rootNode != mapDup.rootNode);
+                }
+                assert(map.length == mapDup.length);
+                assert(map[].equal(mapDup[]));
             }
-            assert(map.length == mapDup.length);
-            assert(map[].equal(mapDup[]));
         }
     }
 }

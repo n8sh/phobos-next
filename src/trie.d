@@ -3748,10 +3748,10 @@ template RawRadixTree(Value = void)
 
         @disable this();        // force RCStore to be allocated
 
-        this(uint fixedKeyLength)
+        this(uint fixedKeyLength) @trusted
         {
-            allocateRCStore();
-            _rcStore.fixedKeyLength = fixedKeyLength;
+            _rcStore = emplace(cast(RCStore*)malloc(RCStore.sizeof),
+                               Node.init, 0, 0,0, fixedKeyLength);
         }
 
         /** Returns a duplicate of this tree if present.
@@ -3760,7 +3760,7 @@ template RawRadixTree(Value = void)
         typeof(this) dup() @trusted
         {
             _rcStore = emplace(cast(RCStore*)malloc(RCStore.sizeof),
-                               dupAt(_rcStore.root), _rcStore.length, 1, 0, _rcStore.fixedKeyLength);
+                               dupAt(_rcStore.root), _rcStore.length, 1,0, _rcStore.fixedKeyLength);
             return this;
         }
 
@@ -3840,7 +3840,6 @@ template RawRadixTree(Value = void)
             {
                 Node insert(UKey key, in Value value, out ElementRef elementRef)
                 {
-                    assureRCStore();
                     assert(_rcStore.rangeRefCount == 0, "Cannot modify tree with Range references");
                     return _rcStore.root = insertAt(_rcStore.root, Element(key, value), elementRef);
                 }
@@ -3849,7 +3848,6 @@ template RawRadixTree(Value = void)
             {
                 Node insert(UKey key, out ElementRef elementRef)
                 {
-                    assureRCStore();
                     assert(_rcStore.rangeRefCount == 0, "Cannot modify tree with Range references");
                     return _rcStore.root = insertAt(_rcStore.root, key, elementRef);
                 }
@@ -3926,16 +3924,6 @@ template RawRadixTree(Value = void)
         }
         RCStore* _rcStore;
         invariant { assert(_rcStore); } // must always be present
-
-        private void allocateRCStore() @trusted
-        {
-            _rcStore = emplace(cast(RCStore*)malloc(RCStore.sizeof), Node.init, 1, 0);
-        }
-
-        private void assureRCStore()
-        {
-            if (!_rcStore) { allocateRCStore(); }
-        }
 
         debug:                      // debug stuff
         // long _heapAllocBalance;
@@ -5264,9 +5252,7 @@ auto checkNumeric(Keys...)()
         import std.meta : AliasSeq;
         foreach (Key; Keys)
         {
-            dln("xxxxxxxxxxxx");
             auto set = radixTreeSet!(Key);
-            dln("yyyyyyyyyyyyy");
             auto map = radixTreeMap!(Key, Value);
 
             assert(set.empty);
@@ -5328,8 +5314,6 @@ auto checkNumeric(Keys...)()
                         assert(!set.contains(cast(Key)(key + 1))); // next key is not yet in set
                     }
                 }
-                dln(set.length);
-                dln(length);
                 assert(set.length == length);
             }
             else

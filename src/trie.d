@@ -2225,11 +2225,11 @@ template RawRadixTree(Value = void)
             this._rawKeyPrefix = keyPrefix;
             assert(treeRangeRefCount, "Pointer to range counter is null");
 
-            this._treeRangeCounter = treeRangeRefCount;
-            (*this._treeRangeCounter)++ ;
+            _treeRangeRefCount = treeRangeRefCount;
+            (*_treeRangeRefCount)++ ;
 
             this._front = FrontRange(root);
-            // this._back = FrontRange(root);
+            // TODO this._back = FrontRange(root);
 
             if (!empty &&
                 !_front.frontKey.startsWith(_rawKeyPrefix))
@@ -2240,16 +2240,16 @@ template RawRadixTree(Value = void)
 
         this(this)
         {
-            assert(*_treeRangeCounter != (*_treeRangeCounter).max, "Range counter has reached maximum");
-            ++(*_treeRangeCounter);
-            // dln("Range counter increased to ", _treeRangeCounter);
+            assert(_treeRangeRefCount, "Pointer to range counter is null");
+            assert(*_treeRangeRefCount != (*_treeRangeRefCount).max, "Range counter has reached maximum");
+            ++(*_treeRangeRefCount);
         }
 
         ~this()
         {
-            assert(*_treeRangeCounter != 0, "Range counter cannot be decremented because it's zero");
-            --(*_treeRangeCounter);
-            // dln("Range counter decreased to ", _treeRangeCounter);
+            assert(_treeRangeRefCount, "Pointer to range counter is null");
+            assert(*_treeRangeRefCount != 0, "Range counter cannot be decremented because it's zero");
+            --(*_treeRangeRefCount);
         }
 
         @property auto save() { return this; }
@@ -2282,7 +2282,7 @@ template RawRadixTree(Value = void)
         FrontRange _front;
         FrontRange _back;
         UKey _rawKeyPrefix;
-        uint* _treeRangeCounter;
+        uint* _treeRangeRefCount;
     }
 
     /** Sparse-Branch population histogram. */
@@ -2734,19 +2734,16 @@ template RawRadixTree(Value = void)
                     (curr_.leaf1 && // both leaf1
                      curr_.subCount)) // and sub-nodes
                 {
-                    // dln();
                     goto processHit;
                 }
                 else if (curr_.subCount == 0) // only leaf1
                 {
-                    // dln();
                     return matchCommonPrefixAt(Node(curr_.leaf1),
                                                key[currPrefixLength .. $],
                                                keyRest);
                 }
                 else if (curr_.subCount == 1) // only one sub node
                 {
-                    // dln();
                     return matchCommonPrefixAt(curr_.subNodeAt(UIx(key[currPrefixLength])),
                                                key[currPrefixLength + 1 .. $],
                                                keyRest);
@@ -3736,11 +3733,13 @@ template RawRadixTree(Value = void)
 
         pragma(inline) Range opSlice() @trusted pure nothrow
         {
+            if (!_rcStore) { return typeof(return).init; }
             return Range(_rcStore.root, &_rcStore.rangeRefCount, []);
         }
 
         Stats usageHistograms() const
         {
+            if (!_rcStore) { return typeof(return).init; }
             typeof(return) stats;
             _rcStore.root.calculate!(Value)(stats);
             return stats;
@@ -4346,6 +4345,10 @@ struct RadixTree(Key, Value)
 
     pragma(inline) Range opSlice() @nogc // TODO inout?
     {
+        if (!_rawTree._rcStore)
+        {
+            return typeof(return).init;
+        }
         return Range(_rawTree._rcStore.root,
                      &_rawTree._rcStore.rangeRefCount, []);
     }
@@ -5267,6 +5270,12 @@ auto checkNumeric(Keys...)()
             assert(set.empty);
             assert(map.empty);
 
+            auto setRange = set[];
+            auto mapRange = map[];
+
+            assert(setRange.empty);
+            assert(mapRange.empty);
+
             static assert(!set.hasValue);
             static assert(map.hasValue);
 
@@ -5275,6 +5284,9 @@ auto checkNumeric(Keys...)()
 
             assert(setDupEmpty.empty);
             assert(mapDupEmpty.empty);
+
+            assert(setDupEmpty[].empty);
+            assert(mapDupEmpty[].empty);
 
             static if (is(Key == bool) ||
                        isIntegral!Key ||

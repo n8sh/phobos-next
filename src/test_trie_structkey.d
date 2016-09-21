@@ -1,12 +1,12 @@
 #!/usr/bin/env rdmd
 
-import std.algorithm.comparison : equal;
-import trie : radixTreeSet;
-import dbgio : dln;
-import std.stdio : writeln;
-
 void main(string[] args)
 {
+    import std.algorithm.comparison : equal;
+    import trie : RadixTreeSetGrowOnly;
+    import dbgio : dln;
+    import std.stdio : writeln;
+
     struct S
     {
         // string x;
@@ -19,7 +19,7 @@ void main(string[] args)
     }
 
     alias Key = S;
-    auto set = radixTreeSet!(Key);
+    RadixTreeSetGrowOnly!(Key) set;
 
     assert(set.empty);
 

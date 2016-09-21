@@ -287,9 +287,9 @@ In set-case (<pre style="display:inline;" class="d_inline_code">Value</pre> is <
             other words: <pre style="display:inline;" class="d_inline_code">this</pre> is a <i>map</i> rather than a <i>set</i>.<br><br>
 
 </dd>
-<dt><big><a name="RawRadixTree.dup"></a>typeof(this) <u>dup</u>();
+<dt><big><a name="RawRadixTree.dup"></a>@trusted typeof(this) <u>dup</u>();
 </big></dt>
-<dd>Returns a duplicate of this tree.
+<dd>Returns a duplicate of this tree if present.
             Shallowly duplicates the values in the map case.<br><br>
 
 </dd>
@@ -320,16 +320,26 @@ In set-case (<pre style="display:inline;" class="d_inline_code">Value</pre> is <
 <dd>Insert <pre style="display:inline;" class="d_inline_code"><i>key</i></pre> into <pre style="display:inline;" class="d_inline_code">this</pre> tree.<br><br>
 
 </dd>
-<dt><big><a name="RawRadixTree.empty"></a>const pure nothrow @nogc @safe bool <u>empty</u>();
+<dt><big><a name="RawRadixTree.empty"></a>const bool <u>empty</u>();
 </big></dt>
 <dd><b>Returns:</b><br>
 <pre style="display:inline;" class="d_inline_code">true</pre> iff tree is <u>empty</u> (no elements stored).<br><br>
 
 </dd>
-<dt><big><a name="RawRadixTree.length"></a>const pure nothrow @nogc @safe size_t <u>length</u>();
+<dt><big><a name="RawRadixTree.length"></a>const size_t <u>length</u>();
 </big></dt>
 <dd><b>Returns:</b><br>
 number of elements stored.<br><br>
+
+</dd>
+<dt><big><a name="RawRadixTree.rangeRefCount"></a>const RefCount <u>rangeRefCount</u>();
+</big></dt>
+<dd>Get number of <pre style="display:inline;" class="d_inline_code">Range</pre>-instances that currently refer to <pre style="display:inline;" class="d_inline_code">_rcStore.root</pre> of <pre style="display:inline;" class="d_inline_code">this</pre> tree.<br><br>
+
+</dd>
+<dt><big><a name="RawRadixTree.refCount"></a>const RefCount <u>refCount</u>();
+</big></dt>
+<dd>Reference count.<br><br>
 
 </dd>
 </dl>
@@ -355,7 +365,13 @@ number of elements stored.<br><br>
 </big></dt>
 <dd>Radix-Tree with key of type <pre style="display:inline;" class="d_inline_code">Key</pre> and value of type <pre style="display:inline;" class="d_inline_code">Value</pre> (if non-<pre style="display:inline;" class="d_inline_code">void</pre>).<br><br>
 
-<dl><dt><big><a name="RadixTree.insert"></a>@nogc bool <u>insert</u>(in Key <i>key</i>, in Value <i>value</i>);
+<dl><dt><big><a name="RadixTree.this"></a>this(bool <i>unusedDummy</i>);
+</big></dt>
+<dd>Parameter <pre style="display:inline;" class="d_inline_code"><i>unusedDummy</i></pre> currently needed to forbid use of RawTree
+        default constructor.<br><br>
+
+</dd>
+<dt><big><a name="RadixTree.insert"></a>@nogc bool <u>insert</u>(in Key <i>key</i>, in Value <i>value</i>);
 </big></dt>
 <dd>Insert <pre style="display:inline;" class="d_inline_code"><i>key</i></pre>.
 <br><br>
@@ -611,18 +627,18 @@ test map from <pre style="display:inline;" class="d_inline_code">uint</pre> to v
     <font color=blue>assert</font>(map.length == i + 1);
 }
 
-<font color=blue>assert</font>(map.rangeCount == 0);
+<font color=blue>assert</font>(map.rangeRefCount == 0);
 
 <font color=green>// test range
 </font>size_t i = 0;
 <font color=blue>foreach</font> (<font color=blue>const</font> elt; map[])
 {
-    <font color=blue>assert</font>(map.rangeCount == 1);
+    <font color=blue>assert</font>(map.rangeRefCount == 1);
     {
         <font color=blue>auto</font> mapRange = map[];
-        <font color=blue>assert</font>(map.rangeCount == 2);
+        <font color=blue>assert</font>(map.rangeRefCount == 2);
     }
-    <font color=blue>assert</font>(map.rangeCount == 1);
+    <font color=blue>assert</font>(map.rangeRefCount == 1);
 
     <font color=blue>const</font> Key key = elt[0];
     <font color=blue>const</font> Value value = elt[1];
@@ -633,7 +649,7 @@ test map from <pre style="display:inline;" class="d_inline_code">uint</pre> to v
     ++i;
 }
 
-<font color=blue>assert</font>(map.rangeCount == 0);
+<font color=blue>assert</font>(map.rangeRefCount == 0);
 </pre>
 <br><br>
 </dd>
@@ -722,8 +738,8 @@ test packing of set elements
     <font color=blue>assert</font>(!set.insert(i));
     <font color=blue>assert</font>(set.contains(i));
 
-    <font color=green>// debug assert(set.heapNodeAllocationBalance == 0);
-</font>    <font color=blue>const</font> rootRef = set._root.peek!(HeptLeaf1);
+    <font color=green>// debug assert(set.heapAllocationBalance == 0);
+</font>    <font color=blue>const</font> rootRef = set._rcStore.root.peek!(HeptLeaf1);
     <font color=blue>assert</font>(rootRef);
 }
 
@@ -737,12 +753,12 @@ test packing of set elements
     <font color=blue>assert</font>(!set.insert(i));
     <font color=blue>assert</font>(set.contains(i));
 
-    <font color=green>// debug assert(set.heapNodeAllocationBalance == 1);
-</font>    <font color=green>// const rootRef = set._root.peek!(SparseLeaf1!void*);
+    <font color=green>// debug assert(set.heapAllocationBalance == 1);
+</font>    <font color=green>// const rootRef = set._rcStore.root.peek!(SparseLeaf1!void*);
 </font>    <font color=green>// assert(rootRef);
 </font>}
 
-<font color=green>// const rootRef = set._root.peek!(SparseLeaf1!void*);
+<font color=green>// const rootRef = set._rcStore.root.peek!(SparseLeaf1!void*);
 </font><font color=green>// assert(rootRef);
 </font>
 <font color=green>// const root = *rootRef;
@@ -786,7 +802,7 @@ test packing of set elements
     <font color=blue>assert</font>(!set.insert(257));
     <font color=blue>assert</font>(set.contains(257));
 
-    <font color=blue>const</font> rootRef = set._root.peek!(Set.DefaultBranchType*);
+    <font color=blue>const</font> rootRef = set._rcStore.root.peek!(Set.DefaultBranchType*);
     <font color=blue>assert</font>(rootRef);
     <font color=blue>const</font> root = *rootRef;
     <font color=blue>assert</font>(root.prefix.length == T.sizeof - 2);

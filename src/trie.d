@@ -5270,6 +5270,12 @@ auto checkNumeric(Keys...)()
             static assert(!set.hasValue);
             static assert(map.hasValue);
 
+            auto setDupEmpty = set.dup;
+            auto mapDupEmpty = map.dup;
+
+            assert(setDupEmpty.empty);
+            assert(mapDupEmpty.empty);
+
             static if (is(Key == bool) ||
                        isIntegral!Key ||
                        isFloatingPoint!Key)

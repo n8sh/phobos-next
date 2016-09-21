@@ -12,7 +12,7 @@ Implementation is layered:
     </ul>
     Both layers currently
     <ul>    <li>have template parameterization on the <pre style="display:inline;" class="d_inline_code">Value</pre>-type in the map case (when <pre style="display:inline;" class="d_inline_code">Value</pre> is non-<pre style="display:inline;" class="d_inline_code">void</pre>)</li>
-    <li>are completely <pre style="display:inline;" class="d_inline_code">@nogc</pre> and when possible <pre style="display:inline;" class="d_inline_code">@safe pure nothrow</pre> as it doesn't use the GC</li>
+    <li>are completely <pre style="display:inline;" class="d_inline_code">@nogc</pre> and, when possible, <pre style="display:inline;" class="d_inline_code">@safe pure nothrow</pre></li>
     <li>Insertion with returned modifications status: <pre style="display:inline;" class="d_inline_code">auto newKeyWasInserted = set.insert(Key key)</pre></li>
     <li>Support AA-style <pre style="display:inline;" class="d_inline_code">in</pre>-operator</li>
       <ul>      <li><pre style="display:inline;" class="d_inline_code">key in set</pre> is <pre style="display:inline;" class="d_inline_code">bool</pre> for set-case</li>

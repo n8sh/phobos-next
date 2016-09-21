@@ -4208,7 +4208,7 @@ struct RadixTree(Key, Value)
     /** Parameter `unusedDummy` currently needed to forbid use of RawTree
         default constructor.
     */
-    this(bool unusedDummy = false)
+    this(bool unusedDummy)
     {
         _rawTree = RawTree(isFixedTrieableKeyType!Key ? Key.sizeof : fixedKeyLengthUndefined);
     }

@@ -1108,9 +1108,9 @@ template RawRadixTree(Value = void)
             copy.subIxSlots[0 .. subCount] = this.subIxSlots[0 .. subCount]; // copy initialized
             debug copy.subIxSlots[subCount .. $] = Ix.init;                  // zero rest in debug
 
-            foreach (const i, subNode; this.subNodes)
+            foreach (const i; 0 .. subCount)
             {
-                copy.subNodes[i] = dupAt(subNode);
+                copy.subNodeSlots[i] = dupAt(subNodeSlots[i]);
             }
             return copy;
         }
@@ -1301,8 +1301,8 @@ template RawRadixTree(Value = void)
                 const iN = (cast(ubyte)i).mod!(SparseBranch.maxCapacity);
                 const subIx = UIx(rhs.subIxSlots[iN]);
 
-                this.subNodes[subIx] = rhs.subNodes[iN];
-                debug rhs.subNodes[iN] = null; // make reference unique, to be on the safe side
+                this.subNodes[subIx] = rhs.subNodeSlots[iN];
+                debug rhs.subNodeSlots[iN] = null; // make reference unique, to be on the safe side
             }
         }
 
@@ -1479,7 +1479,7 @@ template RawRadixTree(Value = void)
             final switch (branch.typeIx) with (Branch.Ix)
             {
             case undefined: assert(false);
-            case ix_SparseBranchPtr: return branch.as!(SparseBranch*).subNodes[_subCounter];
+            case ix_SparseBranchPtr: return branch.as!(SparseBranch*).subNodeSlots[_subCounter];
             case ix_DenseBranchPtr: return branch.as!(DenseBranch*).subNodes[_subCounter];
             }
         }

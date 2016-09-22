@@ -165,6 +165,7 @@ unittest
 {
     import etc.linux.memoryerror : registerMemoryErrorHandler;
     registerMemoryErrorHandler();
+    writeln("registerMemoryErrorHandler done");
 }
 
 @safe pure nothrow @nogc unittest

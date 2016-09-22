@@ -161,6 +161,12 @@ template isTrieableKeyType(T)
     }
 }
 
+unittest
+{
+    import etc.linux.memoryerror : registerMemoryErrorHandler;
+    registerMemoryErrorHandler();
+}
+
 @safe pure nothrow @nogc unittest
 {
     static assert(isTrieableKeyType!(const(char)[]));
@@ -1098,10 +1104,13 @@ template RawRadixTree(Value = void)
             copy.leaf1 = dupAt(this.leaf1);
             copy.prefix = this.prefix;
             copy.subCount = this.subCount;
-            copy.subIxSlots[] = this.subIxSlots[];
-            foreach (const i, subNode; this.subNodeSlots)
+
+            copy.subIxSlots[0 .. subCount] = this.subIxSlots[0 .. subCount]; // copy initialized
+            debug copy.subIxSlots[subCount .. $] = Ix.init;                  // zero rest in debug
+
+            foreach (const i, subNode; this.subNodes)
             {
-                copy.subNodeSlots[i] = dupAt(subNode);
+                copy.subNodes[i] = dupAt(subNode);
             }
             return copy;
         }
@@ -1173,13 +1182,13 @@ template RawRadixTree(Value = void)
         pragma(inline) bool empty() const @nogc { return subCount == 0; }
         pragma(inline) bool full()  const @nogc { return subCount == subCapacity; }
 
-        pragma(inline) auto ref subIxs()   inout @nogc
+        pragma(inline) auto subIxs() inout @nogc
         {
             import std.algorithm.sorting : assumeSorted;
             return subIxSlots[0 .. subCount].assumeSorted;
         }
 
-        pragma(inline) auto ref subNodes() inout @nogc { return subNodeSlots[0 .. subCount]; }
+        pragma(inline) auto subNodes() inout @nogc { return subNodeSlots[0 .. subCount]; }
 
         pragma(inline) Node firstSubNode() @nogc
         {
@@ -1187,12 +1196,12 @@ template RawRadixTree(Value = void)
         }
 
         /** Get all sub-`Ix` slots, both initialized and uninitialized. */
-        private auto ref subIxSlots() inout @trusted pure nothrow
+        private auto subIxSlots() inout @trusted pure nothrow
         {
             return (cast(Ix*)(_subNodeSlots0.ptr + subCapacity))[0 .. subCapacity];
         }
         /** Get all sub-`Node` slots, both initialized and uninitialized. */
-        private auto ref subNodeSlots() inout @trusted pure nothrow
+        private auto subNodeSlots() inout @trusted pure nothrow
         {
             return _subNodeSlots0.ptr[0 .. subCapacity];
         }

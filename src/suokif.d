@@ -38,7 +38,7 @@ Array!Token lexSUOKIF(string src) @safe pure
     src.skipOver(x"EFBBBF");    // skip magic? header for some files
 
     /// Skip comment.
-    void skipComment()
+    static void skipComment(ref string src)
     {
         while (!src.empty && !src.front.among('\r', '\n')) // until end of line
         {
@@ -46,7 +46,7 @@ Array!Token lexSUOKIF(string src) @safe pure
         }
     }
 
-    string skipN(size_t n)
+    static string skipN(ref string src, size_t n)
     {
         const part = src[0 .. n];
         src = src[n .. $];
@@ -54,23 +54,23 @@ Array!Token lexSUOKIF(string src) @safe pure
     }
 
     /// Get symbol.
-    string getSymbol()
+    static string getSymbol(ref string src)
     {
         size_t i = 0;
         while (i != src.length && src[i].isAlpha) { ++i; }
-        return skipN(i);
+        return skipN(src, i);
     }
 
     /// Get numeric literal (number).
-    string getNumber()
+    static string getNumber(ref string src)
     {
         size_t i = 0;
         while (i != src.length && src[i].isDigit) { ++i; }
-        return skipN(i);
+        return skipN(src, i);
     }
 
     /// Get string literal.
-    string getStringLiteral()
+    static string getStringLiteral(ref string src)
     {
         src.popFront();         // pop leading double quote
         size_t i = 0;
@@ -81,11 +81,11 @@ Array!Token lexSUOKIF(string src) @safe pure
     }
 
     /// Skip whitespace.
-    string getWhitespace()
+    static string getWhitespace(ref string src)
     {
         size_t i = 0;
         while (i != src.length && src[i].isWhite) { ++i; }
-        return skipN(i);
+        return skipN(src, i);
     }
 
     while (!src.empty)
@@ -93,7 +93,7 @@ Array!Token lexSUOKIF(string src) @safe pure
         // dlnl("front:'", src.front, "'");
         if (src.front == ';')
         {
-            skipComment();
+            skipComment(src);
             tokens ~= Token.comment;
         }
         else if (src.front == '(')
@@ -108,7 +108,7 @@ Array!Token lexSUOKIF(string src) @safe pure
         }
         else if (src.front == '"')
         {
-            const stringLiteral = getStringLiteral(); // TODO tokenize
+            const stringLiteral = getStringLiteral(src); // TODO tokenize
             tokens ~= Token.stringLiteral;
         }
         else if (src.front == '=')
@@ -127,22 +127,22 @@ Array!Token lexSUOKIF(string src) @safe pure
         else if (src.front == '?')
         {
             src.popFront();
-            const variableSymbol = getSymbol(); // TODO tokenize
+            const variableSymbol = getSymbol(src); // TODO tokenize
             tokens ~= Token.variable;
         }
         else if (src.front.isWhite)
         {
-            getWhitespace();
+            getWhitespace(src);
             tokens ~= Token.whitespace;
         }
         else if (src.front.isAlpha)
         {
-            const symbol = getSymbol(); // TODO tokenize
+            const symbol = getSymbol(src); // TODO tokenize
             tokens ~= Token.symbol;
         }
         else if (src.front.isDigit)
         {
-            const number = getNumber(); // TODO tokenize
+            const number = getNumber(src); // TODO tokenize
             tokens ~= Token.number;
         }
         else if (src.skipOver(`and`)) { tokens ~= Token.and_; }

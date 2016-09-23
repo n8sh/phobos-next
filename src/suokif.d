@@ -24,6 +24,7 @@ Array!Token parseSUOKIF(string src) @safe pure
 {
     import std.range : empty, front, popFront;
     import std.uni : isWhite, isAlpha;
+    import std.ascii : isDigit;
     import std.algorithm : among, skipOver;
     import dbgio : dln;
 
@@ -47,6 +48,16 @@ Array!Token parseSUOKIF(string src) @safe pure
     {
         size_t i = 0;
         while (i != src.length && src[i].isAlpha) { ++i; }
+        const symbol = src[0 .. i];
+        src = src[i .. $];
+        return symbol;
+    }
+
+    /// Get numeric literal (number).
+    string getNumber()
+    {
+        size_t i = 0;
+        while (i != src.length && src[i].isDigit) { ++i; }
         const symbol = src[0 .. i];
         src = src[i .. $];
         return symbol;
@@ -123,6 +134,11 @@ Array!Token parseSUOKIF(string src) @safe pure
         {
             const symbol = getSymbol(); // TODO tokenize
             dln("symbol:", symbol[]);
+        }
+        else if (src.front.isDigit)
+        {
+            const number = getNumber(); // TODO tokenize
+            dln("number:", number[]);
         }
         else if (src.skipOver(`and`)) { tokens ~= Token.and_; }
         else if (src.skipOver(`or`)) { tokens ~= Token.or_; }

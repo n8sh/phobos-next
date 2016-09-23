@@ -9,6 +9,12 @@ enum Token
     rightParen,
     symbol,
     stringLiteral,
+    infers,
+    and_,
+    or_,
+    exists_,
+    not_,
+    variable,
 }
 
 import array_ex : Array;
@@ -73,8 +79,10 @@ Array!Token parseSUOKIF(string src) @safe pure
     while (!src.empty)
     {
         dln("front:'", src.front, "'");
-        if      (src.front.isWhite) { skipWhite(); }
-        else if (src.front == ';') { skipComment(); }
+        if (src.front == ';')
+        {
+            skipComment();
+        }
         else if (src.front == '(')
         {
             tokens ~= Token.leftParen;
@@ -85,20 +93,42 @@ Array!Token parseSUOKIF(string src) @safe pure
             tokens ~= Token.rightParen;
             src.popFront();
         }
-        else if (src.front.isAlpha)
-        {
-            const symbol = getSymbol();
-            dln("symbol:", symbol[]);
-        }
         else if (src.front == '"')
         {
-            const stringLiteral = getStringLiteral();
-            dln("stringLiteral:", stringLiteral[]);
+            const stringLiteral = getStringLiteral(); // TODO tokenize
         }
-        else
+        else if (src.front == '=')
         {
-            assert(false);
+            src.popFront();
+            if (src.front == '>')
+            {
+                tokens ~= Token.infers;
+                src.popFront();
+            }
+            else
+            {
+                assert(false);
+            }
         }
+        else if (src.front == '?')
+        {
+            src.popFront();
+            const variableSymbol = getSymbol(); // TODO tokenize
+        }
+        else if (src.front.isWhite)
+        {
+            skipWhite();
+        }
+        else if (src.front.isAlpha)
+        {
+            const symbol = getSymbol(); // TODO tokenize
+            dln("symbol:", symbol[]);
+        }
+        else if (src.skipOver(`and`)) { tokens ~= Token.and_; }
+        else if (src.skipOver(`or`)) { tokens ~= Token.or_; }
+        else if (src.skipOver(`exists`)) { tokens ~= Token.exists_; }
+        else if (src.skipOver(`not`)) { tokens ~= Token.not_; }
+        else { assert(false); }
     }
 
     return tokens;

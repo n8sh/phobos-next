@@ -14,8 +14,7 @@ enum Token
 import array_ex : Array;
 
 /** Parse SUO-KIF from `src`. */
-Array!Token parseSUOKIF(R)(R whole) @safe pure
-    if (isInputRange!R)
+Array!Token parseSUOKIF(string whole) @safe pure
 {
     import std.range : empty, front, popFront;
     import std.uni : isWhite, isAlpha;

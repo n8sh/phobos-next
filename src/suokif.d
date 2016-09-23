@@ -129,7 +129,7 @@ void lexSUOKIF(R)(R src)
     alias tokToString = tokenStringRepresentation!(TokID, Toks);
     alias tok(string symbol) = TokenId!(TokID, LuaTokens, symbol);
 
-    enum tokenHandlers = [
+    static immutable tokenHandlers = [
         "\"", "lexStringLiteral",
         ";", "lexComment",
         " ",  "lexWhitespace",
@@ -137,7 +137,6 @@ void lexSUOKIF(R)(R src)
         "\r", "lexWhitespace",
         "\n", "lexWhitespace",
         ];
-
 }
 
 unittest

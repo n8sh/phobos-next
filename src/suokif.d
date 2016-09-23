@@ -37,32 +37,28 @@ Array!Token parseSUOKIF(string whole) @safe pure
     }
 
     /// Get Symbol.
-    Array!dchar getSymbol()
+    string getSymbol()
     {
-        typeof(return) symbol;
-        while (!rest.empty && rest.front.isAlpha)
-        {
-            symbol ~= rest.front;
-            rest.popFront();
-        }
+        size_t i = 0;
+        while (i != rest.length && rest[i].isAlpha) { ++i; }
+        const symbol = rest[0 .. i];
+        rest = rest[i .. $];
         return symbol;
     }
 
     /// Get string literal.
-    Array!dchar getStringLiteral()
+    string getStringLiteral()
     {
         rest.popFront();         // pop leading double quote
 
-        typeof(return) stringLiteral;
-        while (!rest.empty && rest.front != '"')
-        {
-            stringLiteral ~= rest.front;
-            rest.popFront();
-        }
+        size_t i = 0;
+        while (i != rest.length && rest[i] != '"') { ++i; }
+        const literal = rest[0 .. i];
+        rest = rest[i .. $];
 
         rest.popFront();         // pop ending double quote
 
-        return stringLiteral;
+        return literal;
     }
 
     /// Skip whitespace.

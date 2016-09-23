@@ -43,13 +43,19 @@ Array!Token parseSUOKIF(string src) @safe pure
         }
     }
 
+    string skipN(size_t n)
+    {
+        const part = src[0 .. n];
+        src = src[n .. $];
+        return part;
+    }
+
     /// Get symbol.
     string getSymbol()
     {
         size_t i = 0;
         while (i != src.length && src[i].isAlpha) { ++i; }
-        const symbol = src[0 .. i]; src = src[i .. $]; // TODO functionize
-        return symbol;
+        return skipN(i);
     }
 
     /// Get numeric literal (number).
@@ -57,8 +63,7 @@ Array!Token parseSUOKIF(string src) @safe pure
     {
         size_t i = 0;
         while (i != src.length && src[i].isDigit) { ++i; }
-        const number = src[0 .. i]; src = src[i .. $]; // TODO functionize
-        return number;
+        return skipN(i);
     }
 
     /// Get string literal.
@@ -77,8 +82,7 @@ Array!Token parseSUOKIF(string src) @safe pure
     {
         size_t i = 0;
         while (i != src.length && src[i].isWhite) { ++i; }
-        const whitespace = src[0 .. i]; src = src[i .. $]; // TODO functionize
-        return whitespace;
+        return skipN(i);
     }
 
     while (!src.empty)

@@ -133,8 +133,9 @@ alias CopyingArray(T) = Array!(T, Ordering.unsorted, false);
 // version = enterSingleInfiniteMemoryLeakTest;
 version = benchmark;
 version = print;
+// version = useMemoryErrorHandler;
 
-import dbgio;
+import dbgio : dln;
 
 alias isFixedTrieableKeyType = isIntegralBijectableType;
 
@@ -161,11 +162,11 @@ template isTrieableKeyType(T)
     }
 }
 
-unittest
+version(useMemoryErrorHandler) unittest
 {
     import etc.linux.memoryerror : registerMemoryErrorHandler;
     registerMemoryErrorHandler();
-    writeln("registerMemoryErrorHandler done");
+    dln("registerMemoryErrorHandler done");
 }
 
 @safe pure nothrow @nogc unittest
@@ -4223,6 +4224,7 @@ inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey) @trusted
 struct RadixTree(Key, Value)
     if (allSatisfy!(isTrieableKeyType, Key))
 {
+    pragma(msg, Key.stringof ~ " " ~ Value.stringof);
     alias RawTree = RawRadixTree!(Value);
 
     private this(RawTree rawTree)

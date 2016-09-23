@@ -81,10 +81,9 @@ Array!Token parseSUOKIF(string src) @safe pure
     /// Skip whitespace.
     void skipWhite()
     {
-        while (!src.empty && src.front.isWhite)
-        {
-            src.popFront();
-        }
+        size_t i = 0;
+        while (i != src.length && src[i].isWhite) { ++i; }
+        src = src[i .. $];
     }
 
     while (!src.empty)

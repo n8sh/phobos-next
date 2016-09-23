@@ -119,9 +119,9 @@ void lexSUOKIF(R)(R src)
 {
     import std.experimental.lexer;
 
-    enum TokOperators = [ "(", ")", "=>" ];
-    enum TokDynamic = [ "stringLiteral", "comment", "identifier", "numberLiteral", "whitespace" ];
-    enum TokKeywords = [ "and", "exists", "or", "not" ];
+    static immutable TokOperators = [ "(", ")", "=>" ];
+    static immutable TokDynamic = [ "stringLiteral", "comment", "identifier", "numberLiteral", "whitespace" ];
+    static immutable TokKeywords = [ "and", "exists", "or", "not" ];
     import std.meta : AliasSeq;
 
     alias Toks = AliasSeq!(TokOperators, TokDynamic, TokKeywords);

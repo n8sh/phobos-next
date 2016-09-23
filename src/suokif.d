@@ -4,7 +4,7 @@ module suokif;
 import std.range : isInputRange;
 
 /** Parse SUO-KIF from `src`. */
-void parseSUOKIF(R)(R src)
+void parseSUOKIF(R)(R whole)
     if (isInputRange!R)
 {
     import std.range : empty, front, popFront;
@@ -22,14 +22,16 @@ void parseSUOKIF(R)(R src)
     }
     Array!Token tokens;
 
-    src.skipOver(x"EFBBBF");    // skip magic? header for some files
+    rest = whole;
+
+    rest.skipOver(x"EFBBBF");    // skip magic? header for some files
 
     /// Skip comment.
     void skipComment()
     {
-        while (!src.empty && !src.front.among('\r', '\n')) // until end of line
+        while (!rest.empty && !rest.front.among('\r', '\n')) // until end of line
         {
-            src.popFront();
+            rest.popFront();
         }
     }
 
@@ -37,10 +39,10 @@ void parseSUOKIF(R)(R src)
     Array!dchar getSymbol()
     {
         typeof(return) symbol;
-        while (!src.empty && src.front.isAlpha)
+        while (!rest.empty && rest.front.isAlpha)
         {
-            symbol ~= src.front;
-            src.popFront();
+            symbol ~= rest.front;
+            rest.popFront();
         }
         return symbol;
     }
@@ -48,16 +50,16 @@ void parseSUOKIF(R)(R src)
     /// Get string literal.
     Array!dchar getStringLiteral()
     {
-        src.popFront();         // pop leading double quote
+        rest.popFront();         // pop leading double quote
 
         typeof(return) stringLiteral;
-        while (!src.empty && src.front != '"')
+        while (!rest.empty && rest.front != '"')
         {
-            stringLiteral ~= src.front;
-            src.popFront();
+            stringLiteral ~= rest.front;
+            rest.popFront();
         }
 
-        src.popFront();         // pop ending double quote
+        rest.popFront();         // pop ending double quote
 
         return stringLiteral;
     }
@@ -65,39 +67,39 @@ void parseSUOKIF(R)(R src)
     /// Skip whitespace.
     void skipWhite()
     {
-        while (!src.empty && src.front.isWhite)
+        while (!rest.empty && rest.front.isWhite)
         {
-            src.popFront();
+            rest.popFront();
         }
     }
 
-    while (!src.empty)
+    while (!rest.empty)
     {
-        dln("front:'", src.front, "'");
-        if (src.front.isWhite)
+        dln("front:'", rest.front, "'");
+        if (rest.front.isWhite)
         {
             skipWhite();
         }
-        else if (src.front == ';')
+        else if (rest.front == ';')
         {
             skipComment();
         }
-        else if (src.front == '(')
+        else if (rest.front == '(')
         {
             tokens ~= Token.leftParen;
-            src.popFront();
+            rest.popFront();
         }
-        else if (src.front == ')')
+        else if (rest.front == ')')
         {
             tokens ~= Token.rightParen;
-            src.popFront();
+            rest.popFront();
         }
-        else if (src.front.isAlpha)
+        else if (rest.front.isAlpha)
         {
             const symbol = getSymbol();
             dln("symbol:", symbol[]);
         }
-        else if (src.front == '"')
+        else if (rest.front == '"')
         {
             const stringLiteral = getStringLiteral();
             dln("stringLiteral:", stringLiteral[]);

@@ -104,29 +104,29 @@ Array!Token parseSUOKIF(string whole) @safe pure
     return tokens;
 }
 
-void lexSUOKIF(R)(R src)
-{
-    import std.experimental.lexer;
+// void lexSUOKIF(R)(R src)
+// {
+//     import std.experimental.lexer;
 
-    static immutable TokOperators = [ "(", ")", "=>" ];
-    static immutable TokDynamic = [ "stringLiteral", "comment", "identifier", "numberLiteral", "whitespace" ];
-    static immutable TokKeywords = [ "and", "exists", "or", "not" ];
-    import std.meta : AliasSeq;
+//     static immutable TokOperators = [ "(", ")", "=>" ];
+//     static immutable TokDynamic = [ "stringLiteral", "comment", "identifier", "numberLiteral", "whitespace" ];
+//     static immutable TokKeywords = [ "and", "exists", "or", "not" ];
+//     import std.meta : AliasSeq;
 
-    alias Toks = AliasSeq!(TokOperators, TokDynamic, TokKeywords);
-    alias TokID = TokenIdType!Toks;
-    alias tokToString = tokenStringRepresentation!(TokID, Toks);
-    alias tok(string symbol) = TokenId!(TokID, LuaTokens, symbol);
+//     alias Toks = AliasSeq!(TokOperators, TokDynamic, TokKeywords);
+//     alias TokID = TokenIdType!Toks;
+//     alias tokToString = tokenStringRepresentation!(TokID, Toks);
+//     alias tok(string symbol) = TokenId!(TokID, LuaTokens, symbol);
 
-    static immutable tokenHandlers = [
-        "\"", "lexStringLiteral",
-        ";", "lexComment",
-        " ",  "lexWhitespace",
-        "\t", "lexWhitespace",
-        "\r", "lexWhitespace",
-        "\n", "lexWhitespace",
-        ];
-}
+//     static immutable tokenHandlers = [
+//         "\"", "lexStringLiteral",
+//         ";", "lexComment",
+//         " ",  "lexWhitespace",
+//         "\t", "lexWhitespace",
+//         "\r", "lexWhitespace",
+//         "\n", "lexWhitespace",
+//         ];
+// }
 
 unittest
 {

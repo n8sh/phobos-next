@@ -48,8 +48,7 @@ Array!Token parseSUOKIF(string src) @safe pure
     {
         size_t i = 0;
         while (i != src.length && src[i].isAlpha) { ++i; }
-        const symbol = src[0 .. i];
-        src = src[i .. $];
+        const symbol = src[0 .. i]; src = src[i .. $]; // TODO functionize
         return symbol;
     }
 
@@ -58,8 +57,7 @@ Array!Token parseSUOKIF(string src) @safe pure
     {
         size_t i = 0;
         while (i != src.length && src[i].isDigit) { ++i; }
-        const number = src[0 .. i];
-        src = src[i .. $];
+        const number = src[0 .. i]; src = src[i .. $]; // TODO functionize
         return number;
     }
 
@@ -69,8 +67,7 @@ Array!Token parseSUOKIF(string src) @safe pure
         src.popFront();         // pop leading double quote
         size_t i = 0;
         while (i != src.length && src[i] != '"') { ++i; }
-        const literal = src[0 .. i];
-        src = src[i .. $];
+        const literal = src[0 .. i]; src = src[i .. $]; // TODO functionize
         src.popFront();         // pop ending double quote
         return literal;
     }
@@ -80,8 +77,7 @@ Array!Token parseSUOKIF(string src) @safe pure
     {
         size_t i = 0;
         while (i != src.length && src[i].isWhite) { ++i; }
-        const whitespace = src[0 .. i];
-        src = src[i .. $];
+        const whitespace = src[0 .. i]; src = src[i .. $]; // TODO functionize
         return whitespace;
     }
 

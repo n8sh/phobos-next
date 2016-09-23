@@ -24,7 +24,7 @@ enum Token
 import array_ex : Array;
 
 /** Parse SUO-KIF from `src`. */
-Array!Token parseSUOKIF(string src) @safe pure
+Array!Token lexSUOKIF(string src) @safe pure
 {
     import std.range : empty, front, popFront;
     import std.uni : isWhite, isAlpha;
@@ -155,7 +155,7 @@ Array!Token parseSUOKIF(string src) @safe pure
     return tokens;
 }
 
-// void lexSUOKIF(R)(R src)
+// void lexSUOKIF2(R)(R src)
 // {
 //     import std.experimental.lexer;
 
@@ -185,7 +185,7 @@ unittest
     const file = "~/Work/justd/phobos-next/src/emotion.kif".expandTilde;
 
     import std.file : readText;
-    // file.readText.lexSUOKIF();
-    const tokens = file.readText.parseSUOKIF();
+    // file.readText.lexSUOKIF2();
+    const tokens = file.readText.lexSUOKIF();
     // dln(tokens[]);
 }

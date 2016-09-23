@@ -1,6 +1,7 @@
 /** SUO-KIF File Format. */
 module suokif;
 
+import dbgio : dln;
 // import std.range : isInputRange;
 
 enum Token
@@ -15,6 +16,9 @@ enum Token
     exists_,
     not_,
     variable,
+    whitespace,
+    number,
+    comment,
 }
 
 import array_ex : Array;
@@ -26,7 +30,6 @@ Array!Token parseSUOKIF(string src) @safe pure
     import std.uni : isWhite, isAlpha;
     import std.ascii : isDigit;
     import std.algorithm : among, skipOver;
-    import dbgio : dln;
 
     typeof(return) tokens;
 
@@ -91,6 +94,7 @@ Array!Token parseSUOKIF(string src) @safe pure
         if (src.front == ';')
         {
             skipComment();
+            tokens ~= Token.comment;
         }
         else if (src.front == '(')
         {
@@ -105,6 +109,7 @@ Array!Token parseSUOKIF(string src) @safe pure
         else if (src.front == '"')
         {
             const stringLiteral = getStringLiteral(); // TODO tokenize
+            tokens ~= Token.stringLiteral;
         }
         else if (src.front == '=')
         {
@@ -123,18 +128,22 @@ Array!Token parseSUOKIF(string src) @safe pure
         {
             src.popFront();
             const variableSymbol = getSymbol(); // TODO tokenize
+            tokens ~= Token.variable;
         }
         else if (src.front.isWhite)
         {
             getWhitespace();
+            tokens ~= Token.whitespace;
         }
         else if (src.front.isAlpha)
         {
             const symbol = getSymbol(); // TODO tokenize
+            tokens ~= Token.symbol;
         }
         else if (src.front.isDigit)
         {
             const number = getNumber(); // TODO tokenize
+            tokens ~= Token.number;
         }
         else if (src.skipOver(`and`)) { tokens ~= Token.and_; }
         else if (src.skipOver(`or`)) { tokens ~= Token.or_; }
@@ -177,5 +186,6 @@ unittest
 
     import std.file : readText;
     // file.readText.lexSUOKIF();
-    file.readText.parseSUOKIF();
+    const tokens = file.readText.parseSUOKIF();
+    // dln(tokens[]);
 }

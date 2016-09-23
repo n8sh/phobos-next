@@ -89,7 +89,7 @@ Array!Token parseSUOKIF(string src) @safe pure
 
     while (!src.empty)
     {
-        dln("front:'", src.front, "'");
+        // dln("front:'", src.front, "'");
         if (src.front == ';')
         {
             skipComment();
@@ -133,12 +133,10 @@ Array!Token parseSUOKIF(string src) @safe pure
         else if (src.front.isAlpha)
         {
             const symbol = getSymbol(); // TODO tokenize
-            dln("symbol:", symbol[]);
         }
         else if (src.front.isDigit)
         {
             const number = getNumber(); // TODO tokenize
-            dln("number:", number[]);
         }
         else if (src.skipOver(`and`)) { tokens ~= Token.and_; }
         else if (src.skipOver(`or`)) { tokens ~= Token.or_; }

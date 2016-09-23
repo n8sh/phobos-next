@@ -43,7 +43,7 @@ Array!Token parseSUOKIF(string src) @safe pure
         }
     }
 
-    /// Get Symbol.
+    /// Get symbol.
     string getSymbol()
     {
         size_t i = 0;

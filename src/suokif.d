@@ -78,14 +78,8 @@ Array!Token parseSUOKIF(R)(R whole) @safe pure
     while (!rest.empty)
     {
         dln("front:'", rest.front, "'");
-        if (rest.front.isWhite)
-        {
-            skipWhite();
-        }
-        else if (rest.front == ';')
-        {
-            skipComment();
-        }
+        if      (rest.front.isWhite) { skipWhite(); }
+        else if (rest.front == ';') { skipComment(); }
         else if (rest.front == '(')
         {
             tokens ~= Token.leftParen;

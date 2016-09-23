@@ -58,9 +58,9 @@ Array!Token parseSUOKIF(string src) @safe pure
     {
         size_t i = 0;
         while (i != src.length && src[i].isDigit) { ++i; }
-        const symbol = src[0 .. i];
+        const number = src[0 .. i];
         src = src[i .. $];
-        return symbol;
+        return number;
     }
 
     /// Get string literal.

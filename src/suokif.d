@@ -1,7 +1,7 @@
 /** SUO-KIF File Format. */
 module suokif;
 
-import std.range : isInputRange;
+// import std.range : isInputRange;
 
 enum Token
 {

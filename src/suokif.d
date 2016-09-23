@@ -3,26 +3,28 @@ module suokif;
 
 import std.range : isInputRange;
 
+enum Token
+{
+    leftParen,
+    rightParen,
+    symbol,
+    stringLiteral,
+}
+
+import array_ex : Array;
+
 /** Parse SUO-KIF from `src`. */
-void parseSUOKIF(R)(R whole)
+Array!Token parseSUOKIF(R)(R whole) @safe pure
     if (isInputRange!R)
 {
     import std.range : empty, front, popFront;
     import std.uni : isWhite, isAlpha;
     import std.algorithm : among, skipOver;
-    import array_ex : Array;
     import dbgio : dln;
 
-    enum Token
-    {
-        leftParen,
-        rightParen,
-        symbol,
-        stringLiteral,
-    }
-    Array!Token tokens;
+    typeof(return) tokens;
 
-    rest = whole;
+    auto rest = whole;
 
     rest.skipOver(x"EFBBBF");    // skip magic? header for some files
 
@@ -109,6 +111,8 @@ void parseSUOKIF(R)(R whole)
             assert(false);
         }
     }
+
+    return tokens;
 }
 
 void lexSUOKIF(R)(R src)
@@ -142,6 +146,6 @@ unittest
     const file = "~/Work/justd/phobos-next/src/emotion.kif".expandTilde;
 
     import std.file : readText;
-    file.readText.lexSUOKIF();
-    // file.readText.parseSUOKIF();
+    // file.readText.lexSUOKIF();
+    file.readText.parseSUOKIF();
 }

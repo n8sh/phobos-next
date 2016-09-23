@@ -67,23 +67,22 @@ Array!Token parseSUOKIF(string src) @safe pure
     string getStringLiteral()
     {
         src.popFront();         // pop leading double quote
-
         size_t i = 0;
         while (i != src.length && src[i] != '"') { ++i; }
         const literal = src[0 .. i];
         src = src[i .. $];
-
         src.popFront();         // pop ending double quote
-
         return literal;
     }
 
     /// Skip whitespace.
-    void skipWhite()
+    string getWhitespace()
     {
         size_t i = 0;
         while (i != src.length && src[i].isWhite) { ++i; }
+        const whitespace = src[0 .. i];
         src = src[i .. $];
+        return whitespace;
     }
 
     while (!src.empty)
@@ -127,7 +126,7 @@ Array!Token parseSUOKIF(string src) @safe pure
         }
         else if (src.front.isWhite)
         {
-            skipWhite();
+            getWhitespace();
         }
         else if (src.front.isAlpha)
         {

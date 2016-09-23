@@ -130,6 +130,12 @@ Array!Token lexSUOKIF(string src) @safe pure
             const variableSymbol = getSymbol(src); // TODO tokenize
             tokens ~= Token.variable;
         }
+        // keywords
+        else if (src.skipOver(`and`)) { tokens ~= Token.and_; }
+        else if (src.skipOver(`or`)) { tokens ~= Token.or_; }
+        else if (src.skipOver(`exists`)) { tokens ~= Token.exists_; }
+        else if (src.skipOver(`not`)) { tokens ~= Token.not_; }
+        // other
         else if (src.front.isWhite)
         {
             getWhitespace(src);
@@ -145,10 +151,6 @@ Array!Token lexSUOKIF(string src) @safe pure
             const number = getNumber(src); // TODO tokenize
             tokens ~= Token.number;
         }
-        else if (src.skipOver(`and`)) { tokens ~= Token.and_; }
-        else if (src.skipOver(`or`)) { tokens ~= Token.or_; }
-        else if (src.skipOver(`exists`)) { tokens ~= Token.exists_; }
-        else if (src.skipOver(`not`)) { tokens ~= Token.not_; }
         else { assert(false); }
     }
 

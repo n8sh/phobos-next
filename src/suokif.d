@@ -34,8 +34,6 @@ Array!Token lexSUOKIF(string src) @safe pure
 
     typeof(return) tokens;
 
-    const whole = src;
-
     src.skipOver(x"EFBBBF");    // skip magic? header for some files
 
     /// Skip comment.

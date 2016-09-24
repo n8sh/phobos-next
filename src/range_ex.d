@@ -941,16 +941,12 @@ auto rangify(T)(T range)
 {
     struct Range
     {
+        bool empty() { return _counter == range.length; }
+        auto front() { return range[_counter]; }
+        auto popFront() { _counter++; }
         T range;
         ulong _counter;
-
-        bool empty() { return _counter == range.length; }
-
-        auto front() { return range[_counter]; }
-
-        auto popFront() { _counter++; }
     }
-
     return Range(range);
 }
 

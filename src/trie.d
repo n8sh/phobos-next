@@ -31,6 +31,8 @@
     See_Also: $(HTTP en.wikipedia.org/wiki/Radix_tree)
     See_Also: $(HTTP github.com/nordlow/phobos-next/blob/master/src/test_trie_prefix.d) for a descriptive usage of prefixed access.
 
+    TODO Encode and `string` with zero-terminating 0 byte
+
     TODO
 
     Replace

@@ -11,6 +11,7 @@ enum Token
     symbol,
     stringLiteral,
     infers,
+    equivalence,
     and_,
     or_,
     exists_,
@@ -121,7 +122,7 @@ Array!Token lexSUOKIF(string src) @safe pure
             }
             else
             {
-                assert(false);
+                tokens ~= Token.equivalence;
             }
         }
         else if (src.front == '?')
@@ -157,6 +158,16 @@ Array!Token lexSUOKIF(string src) @safe pure
     return tokens;
 }
 
+unittest
+{
+    import std.path : expandTilde;
+    const file = "~/Work/justd/phobos-next/src/emotion.kif".expandTilde;
+    import std.file : readText;
+    // file.readText.lexSUOKIF2();
+    const tokens = file.readText.lexSUOKIF();
+    // dln(tokens[]);
+}
+
 // void lexSUOKIF2(R)(R src)
 // {
 //     import std.experimental.lexer;
@@ -180,14 +191,3 @@ Array!Token lexSUOKIF(string src) @safe pure
 //         "\n", "lexWhitespace",
 //         ];
 // }
-
-unittest
-{
-    import std.path : expandTilde;
-    const file = "~/Work/justd/phobos-next/src/emotion.kif".expandTilde;
-
-    import std.file : readText;
-    // file.readText.lexSUOKIF2();
-    const tokens = file.readText.lexSUOKIF();
-    // dln(tokens[]);
-}

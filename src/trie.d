@@ -31,7 +31,7 @@
     See_Also: $(HTTP en.wikipedia.org/wiki/Radix_tree)
     See_Also: $(HTTP github.com/nordlow/phobos-next/blob/master/src/test_trie_prefix.d) for a descriptive usage of prefixed access.
 
-    TODO Use scope on Range and members that return key and value reference when DIP-1000 has been implemented
+    TODO Use scope on `Range`, `RawRange` and members that return key and value reference when DIP-1000 has been implemented
 
     TODO Encode and `string` with zero-terminating 0 byte
 

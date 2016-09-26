@@ -407,8 +407,6 @@ auto hybridSort(alias less = "a < b", Range)(Range r)
 
     Random random;
 
-    import dbgio : dln;
-
     alias T = uint;
 
     const maxFullPermutationTestLength = 8;

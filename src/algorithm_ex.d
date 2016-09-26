@@ -22,9 +22,9 @@ import std.range : dropOne;
 alias tail = dropOne;
 
 /** Returns: First Argument (element of $(D a)) whose implicit conversion to
-    bool is true.
+    `bool` is `true`.
 
-    Similar to behaviour of or operator in dynamic languages such as Lisp's (or
+    Similar to behaviour of `or` operator in dynamic languages such as Lisp's (or
     a...) and Python's a or ....
 
     TODO Is inout Conversion!T the correct return value?
@@ -60,7 +60,7 @@ CommonType!(A, Bs) either_r(A, Bs...)(lazy A a, lazy Bs bs)
 }
 
 /** This overload enables, when possible, lvalue return.
-    TODO should we limit this template to a.length >= 2
+    TODO should we limit this template to `a.length >= 2`.
  */
 auto ref either(Ts...)(ref Ts a)
     if (a.length >= 1 && allSameType!Ts)
@@ -102,11 +102,11 @@ auto ref either(Ts...)(ref Ts a)
     assert(y == 2);
 }
 
-/** Returns: Last Argument if all arguments implicitly bool-convert to true
-    otherwise CommonType!T.init.
+/** Returns: Last Argument if all arguments implicitly bool-convert to `true`
+    otherwise `CommonType!T.init`.
 
-    Similar to behaviour and operator in dynamic languages such as of Lisp's
-    (and a...) and Python's a and ....
+    Similar to behaviour of `and` operator in dynamic languages such as of
+    Lisp's `(and a...)` and Python's `a and ....`.
 
     TODO Is inout Conversion!T the correct return value?
 */

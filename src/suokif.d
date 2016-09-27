@@ -29,10 +29,11 @@ enum Token
     comment,
 }
 
-bool isLispSymbolChar(char x) @safe pure nothrow @nogc
+bool isLispSymbolChar(char x)
+    @safe pure nothrow @nogc
 {
-    import std.uni : isAlpha;
-    return x.isAlpha || x == '-';
+    import std.uni : isAlphaNum;
+    return x.isAlphaNum || x == '-';
 }
 
 /** Parse SUO-KIF from `src`. */
@@ -44,6 +45,8 @@ Array!Token lexSUOKIF(string src) @safe pure
     import std.algorithm : among, skipOver;
 
     typeof(return) tokens;
+
+    const whole = src;
 
     src.skipOver(x"EFBBBF");    // skip magic? header for some files
 
@@ -71,11 +74,12 @@ Array!Token lexSUOKIF(string src) @safe pure
         return skipN(src, i);
     }
 
-    /// Get numeric literal (number).
+    /// Get numeric literal (number) in integer or decimal forma.
     static string getNumber(ref string src)
     {
         size_t i = 0;
-        while (i != src.length && src[i].isDigit) { ++i; }
+        while (i != src.length && (src[i].isDigit ||
+                                   src[i] == '.')) { ++i; }
         return skipN(src, i);
     }
 
@@ -100,7 +104,6 @@ Array!Token lexSUOKIF(string src) @safe pure
 
     while (!src.empty)
     {
-        // dlnl(`front:'`, src.front, `'`);
         switch (src.front)
         {
         case ';':
@@ -172,7 +175,9 @@ Array!Token lexSUOKIF(string src) @safe pure
             }
             else
             {
-                dln(`Cannot handle character '`, src.front, `'`);
+
+                dln(`Cannot handle character '`, src.front, `' at index:`, &src[0] - &whole[0]);
+                dln(tokens[]);
                 assert(false);
             }
             break;

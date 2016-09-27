@@ -1,9 +1,15 @@
-/** SUO-KIF File Format. */
+/** SUO-KIF File Format.
+
+    See: https://en.wikipedia.org/wiki/Knowledge_Interchange_Format
+    See: http://sigmakee.cvs.sourceforge.net/viewvc/sigmakee/sigma/suo-kif.pdf
+*/
 module suokif;
 
-import dbgio : dln;
 // import std.range : isInputRange;
+import dbgio : dln;
+import array_ex : Array;
 
+/** SUO-KIF Token. */
 enum Token
 {
     leftParen,
@@ -22,8 +28,6 @@ enum Token
     number,
     comment,
 }
-
-import array_ex : Array;
 
 /** Parse SUO-KIF from `src`. */
 Array!Token lexSUOKIF(string src) @safe pure

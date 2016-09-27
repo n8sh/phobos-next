@@ -304,7 +304,7 @@ Array!Token lexSUOKIF(string src) @safe pure
         }
     }
 
-    dln(lowerSymbols);
+    // dln(lowerSymbols);
     return tokens;
 }
 

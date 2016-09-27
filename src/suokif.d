@@ -19,15 +19,29 @@ enum Token
     oneDirInference,            // one-directional inference
     biDirInference,             // bi-directional inference
     equivalence,
-    and_,
-    or_,
-    exists_,
-    not_,
+
     variable,
     varParams,                  // one or more parameter
     whitespace,
     number,
     comment,
+
+    // keywords
+    and_,
+    or_,
+    not_,
+    exists_,
+    instance_,
+    domain_,
+    lexicon_,
+    range_,
+    subrelation_,
+    models_,
+    format_,
+    subclass_,
+    documentation_,
+    meronym_,
+    property_,
 }
 
 bool isLispSymbolChar(char x)
@@ -197,7 +211,21 @@ Array!Token lexSUOKIF(string src) @safe pure
                 case `or`: tokens ~= Token.or_; break;
                 case `not`: tokens ~= Token.not_; break;
                 case `exists`: tokens ~= Token.exists_; break;
-                default: tokens ~= Token.symbol; break;
+                case `instance`: tokens ~= Token.instance_; break;
+                case `domain`: tokens ~= Token.domain_; break;
+                case `lexicon`: tokens ~= Token.lexicon_; break;
+                case `range`: tokens ~= Token.range_; break;
+                case `subrelation`: tokens ~= Token.subrelation_; break;
+                case `models`: tokens ~= Token.models_; break;
+                case `format`: tokens ~= Token.format_; break;
+                case `subclass`: tokens ~= Token.subclass_; break;
+                case `documentation`: tokens ~= Token.documentation_; break;
+                case `meronym`: tokens ~= Token.meronym_; break;
+                case `property`: tokens ~= Token.property_; break;
+                default:
+                    dln(symbol);
+                    tokens ~= Token.symbol;
+                    break;
                 }
             }
             else

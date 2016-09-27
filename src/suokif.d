@@ -173,22 +173,32 @@ Array!Token lexSUOKIF(string src) @safe pure
             const number = getNumber(src); // TODO tokenize
             tokens ~= Token.number;
             break;
+            // std.ascii.isWhite
+        case ' ':
+        case 0x09:
+        case 0x10:
+        case 0x0A:
+        case 0x0B:
+        case 0x0C:
+        case 0x0D:
+            assert(src.front.isWhite);
+            getWhitespace(src);
+            tokens ~= Token.whitespace;
+            break;
         default:
-            // keywords
-            if      (src.skipOver(`and`)) { tokens ~= Token.and_; }
-            else if (src.skipOver(`or`)) { tokens ~= Token.or_; }
-            else if (src.skipOver(`exists`)) { tokens ~= Token.exists_; }
-            else if (src.skipOver(`not`)) { tokens ~= Token.not_; }
             // other
-            else if (src.front.isWhite)
+            if (src.front.isAlpha)
             {
-                getWhitespace(src);
-                tokens ~= Token.whitespace;
-            }
-            else if (src.front.isAlpha)
-            {
-                const symbol = getSymbol(src); // TODO tokenize
-                tokens ~= Token.symbol;
+                // keywords
+                if      (src.skipOver(`and`)) { tokens ~= Token.and_; }
+                else if (src.skipOver(`or`)) { tokens ~= Token.or_; }
+                else if (src.skipOver(`exists`)) { tokens ~= Token.exists_; }
+                else if (src.skipOver(`not`)) { tokens ~= Token.not_; }
+                else
+                {
+                    const symbol = getSymbol(src); // TODO tokenize
+                    tokens ~= Token.symbol;
+                }
             }
             else
             {
@@ -217,18 +227,32 @@ unittest
     {
         const filePath = dent.name;
         import std.algorithm : endsWith;
-        if (filePath.endsWith(`.kif`))
-        {
-            import std.file : readText;
-            // file.readText.lexSUOKIF2();
-            write(`Lexing SUO-KIF file `, filePath, `... `);
 
-            import std.datetime : StopWatch, AutoStart, Duration;
-            auto sw = StopWatch(AutoStart.yes);
-            const tokens = filePath.readText.lexSUOKIF();
-            sw.stop;
-            import std.conv : to;
-            writeln(`took `, sw.peek().to!Duration);
+        import std.path : baseName;
+        immutable basename = dent.name.baseName;
+
+        import std.utf;
+        import std.algorithm : among;
+        try
+        {
+            if (filePath.endsWith(`.kif`)) // invalid UTF-8 encodings
+            {
+                write(`Lexing SUO-KIF file `, filePath, `... `);
+
+                import std.file : readText;
+                // file.readText.lexSUOKIF2();
+
+                import std.datetime : StopWatch, AutoStart, Duration;
+                auto sw = StopWatch(AutoStart.yes);
+                const tokens = filePath.readText.lexSUOKIF();
+                sw.stop;
+                import std.conv : to;
+                writeln(`took `, sw.peek().to!Duration);
+            }
+        }
+        catch (std.utf.UTFException e)
+        {
+            writeln(" failed because of invalid UTF-8 encoding");
         }
     }
 

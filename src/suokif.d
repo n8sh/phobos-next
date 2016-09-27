@@ -113,12 +113,12 @@ Array!Token lexSUOKIF(string src) @safe pure
             tokens ~= Token.comment;
             break;
         case '(':
-            tokens ~= Token.leftParen;
             src.popFront();
+            tokens ~= Token.leftParen;
             break;
         case ')':
-            tokens ~= Token.rightParen;
             src.popFront();
+            tokens ~= Token.rightParen;
             break;
         case '"':
             const stringLiteral = getStringLiteral(src); // TODO tokenize
@@ -128,8 +128,8 @@ Array!Token lexSUOKIF(string src) @safe pure
             src.popFront();
             if (src.front == '>')
             {
-                tokens ~= Token.oneDirInference;
                 src.popFront();
+                tokens ~= Token.oneDirInference;
             }
             else
             {
@@ -143,8 +143,8 @@ Array!Token lexSUOKIF(string src) @safe pure
                 src.popFront();
                 if (src.front == '>')
                 {
-                    tokens ~= Token.biDirInference;
                     src.popFront();
+                    tokens ~= Token.biDirInference;
                 }
             }
             break;

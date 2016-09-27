@@ -78,7 +78,8 @@ Array!Token lexSUOKIF(string src) @safe pure
     static string getNumber(ref string src)
     {
         size_t i = 0;
-        while (i != src.length && (src[i].isDigit || src[i] == '.')) { ++i; }
+        while (i != src.length && (src[i].isDigit ||
+                                   src[i].among!('+', '-', '.'))) { ++i; }
         return skipN(src, i);
     }
 
@@ -150,6 +151,21 @@ Array!Token lexSUOKIF(string src) @safe pure
             const variableSymbol = getSymbol(src); // TODO tokenize
             tokens ~= Token.variable;
             break;
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+        case '-':
+        case '+':
+            const number = getNumber(src); // TODO tokenize
+            tokens ~= Token.number;
+            break;
         default:
             // keywords
             if      (src.skipOver(`and`)) { tokens ~= Token.and_; }
@@ -166,11 +182,6 @@ Array!Token lexSUOKIF(string src) @safe pure
             {
                 const symbol = getSymbol(src); // TODO tokenize
                 tokens ~= Token.symbol;
-            }
-            else if (src.front.isDigit)
-            {
-                const number = getNumber(src); // TODO tokenize
-                tokens ~= Token.number;
             }
             else
             {

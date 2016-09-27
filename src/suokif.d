@@ -90,29 +90,26 @@ Array!Token lexSUOKIF(string src) @safe pure
 
     while (!src.empty)
     {
-        // dlnl("front:'", src.front, "'");
-        if (src.front == ';')
+        // dlnl(`front:'`, src.front, `'`);
+        switch (src.front)
         {
+        case ';':
             skipComment(src);
             tokens ~= Token.comment;
-        }
-        else if (src.front == '(')
-        {
+            break;
+        case '(':
             tokens ~= Token.leftParen;
             src.popFront();
-        }
-        else if (src.front == ')')
-        {
+            break;
+        case ')':
             tokens ~= Token.rightParen;
             src.popFront();
-        }
-        else if (src.front == '"')
-        {
+            break;
+        case '"':
             const stringLiteral = getStringLiteral(src); // TODO tokenize
             tokens ~= Token.stringLiteral;
-        }
-        else if (src.front == '=')
-        {
+            break;
+        case '=':
             src.popFront();
             if (src.front == '>')
             {
@@ -123,9 +120,8 @@ Array!Token lexSUOKIF(string src) @safe pure
             {
                 tokens ~= Token.equivalence;
             }
-        }
-        else if (src.front == '<')
-        {
+            break;
+        case '<':
             src.popFront();
             if (src.front == '=')
             {
@@ -136,35 +132,41 @@ Array!Token lexSUOKIF(string src) @safe pure
                     src.popFront();
                 }
             }
-        }
-        else if (src.front == '?')
-        {
+            break;
+        case '?':
             src.popFront();
             const variableSymbol = getSymbol(src); // TODO tokenize
             tokens ~= Token.variable;
+            break;
+        default:
+            // keywords
+            if      (src.skipOver(`and`)) { tokens ~= Token.and_; }
+            else if (src.skipOver(`or`)) { tokens ~= Token.or_; }
+            else if (src.skipOver(`exists`)) { tokens ~= Token.exists_; }
+            else if (src.skipOver(`not`)) { tokens ~= Token.not_; }
+            // other
+            else if (src.front.isWhite)
+            {
+                getWhitespace(src);
+                tokens ~= Token.whitespace;
+            }
+            else if (src.front.isAlpha)
+            {
+                const symbol = getSymbol(src); // TODO tokenize
+                tokens ~= Token.symbol;
+            }
+            else if (src.front.isDigit)
+            {
+                const number = getNumber(src); // TODO tokenize
+                tokens ~= Token.number;
+            }
+            else
+            {
+                dln(`Cannot handle character '`, src.front, `'`);
+                assert(false);
+            }
+            break;
         }
-        // keywords
-        else if (src.skipOver(`and`)) { tokens ~= Token.and_; }
-        else if (src.skipOver(`or`)) { tokens ~= Token.or_; }
-        else if (src.skipOver(`exists`)) { tokens ~= Token.exists_; }
-        else if (src.skipOver(`not`)) { tokens ~= Token.not_; }
-        // other
-        else if (src.front.isWhite)
-        {
-            getWhitespace(src);
-            tokens ~= Token.whitespace;
-        }
-        else if (src.front.isAlpha)
-        {
-            const symbol = getSymbol(src); // TODO tokenize
-            tokens ~= Token.symbol;
-        }
-        else if (src.front.isDigit)
-        {
-            const number = getNumber(src); // TODO tokenize
-            tokens ~= Token.number;
-        }
-        else { assert(false); }
     }
 
     return tokens;
@@ -173,10 +175,23 @@ Array!Token lexSUOKIF(string src) @safe pure
 unittest
 {
     import std.path : expandTilde;
-    const file = "~/Work/justd/phobos-next/src/emotion.kif".expandTilde;
-    import std.file : readText;
-    // file.readText.lexSUOKIF2();
-    const tokens = file.readText.lexSUOKIF();
+    const rootDirPath = `~/Work/justd/sumo`;
+    import std.file: dirEntries, SpanMode;
+    auto entries = dirEntries(rootDirPath.expandTilde, SpanMode.shallow, false); // false: skip symlinks
+    foreach (dent; entries)
+    {
+        const filePath = dent.name;
+        import std.algorithm : endsWith;
+        if (filePath.endsWith(`.kif`))
+        {
+            import std.file : readText;
+            // file.readText.lexSUOKIF2();
+            dln(`Lexing SUO-KIF file `, filePath);
+            const tokens = filePath.readText.lexSUOKIF();
+        }
+    }
+
+    // const file = `~/Work/justd/phobos-next/src/emotion.kif`.expandTilde;
     // dln(tokens[]);
 }
 
@@ -184,9 +199,9 @@ unittest
 // {
 //     import std.experimental.lexer;
 
-//     static immutable TokOperators = [ "(", ")", "=>" ];
-//     static immutable TokDynamic = [ "stringLiteral", "comment", "identifier", "numberLiteral", "whitespace" ];
-//     static immutable TokKeywords = [ "and", "exists", "or", "not" ];
+//     static immutable TokOperators = [ `(`, `)`, `=>` ];
+//     static immutable TokDynamic = [ `stringLiteral`, `comment`, `identifier`, `numberLiteral`, `whitespace` ];
+//     static immutable TokKeywords = [ `and`, `exists`, `or`, `not` ];
 //     import std.meta : AliasSeq;
 
 //     alias Toks = AliasSeq!(TokOperators, TokDynamic, TokKeywords);

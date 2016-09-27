@@ -16,10 +16,10 @@ Extensions to std.algorithm.
 </big></dt>
 <dd><b>Returns:</b><br>
 First Argument (element of ) whose implicit conversion to
-    bool is <b>true</b>.
+    <pre style="display:inline;" class="d_inline_code">bool</pre> is <pre style="display:inline;" class="d_inline_code">true</pre>.
 <br><br>
 
-    Similar to behaviour of or operator in dynamic languages such as Lisp's (or
+    Similar to behaviour of <pre style="display:inline;" class="d_inline_code">or</pre> operator in dynamic languages such as Lisp's (or
     <i>a</i>...) and Python's <i>a</i> or ....
 <br><br>
 
@@ -37,7 +37,7 @@ Lazy parameters are currently marked as throw which makes it
 <dt><big><a name="either.2"></a>ref auto <u>either</u>(Ts...)(ref Ts <i>a</i>) if (<i>a</i>.length &gt;= 1 &amp;&amp; allSameType!Ts);
 </big></dt>
 <dd>This overload enables, when possible, lvalue return.
-    TODO should we limit this template to <i>a</i>.length &gt;= 2<br><br>
+    TODO should we limit this template to <pre style="display:inline;" class="d_inline_code"><i>a</i>.length &gt;= 2</pre>.<br><br>
 <b>Examples:</b><br>
 <pre class="d_code">
 <font color=blue>immutable</font> p = 1, q = 2;
@@ -68,12 +68,12 @@ string s = <font color=blue>null</font>;
 <dt><big><a name="every"></a>CommonType!T <u>every</u>(T...)(lazy T <i>a</i>) if (T.length &gt;= 1);
 </big></dt>
 <dd><b>Returns:</b><br>
-Last Argument if all arguments implicitly bool-convert to <b>true</b>
-    otherwise CommonType!T.init.
+Last Argument if all arguments implicitly bool-convert to <pre style="display:inline;" class="d_inline_code">true</pre>
+    otherwise <pre style="display:inline;" class="d_inline_code">CommonType!T.init</pre>.
 <br><br>
 
-    Similar to behaviour and operator in dynamic languages such as of Lisp's
-    (and <i>a</i>...) and Python's <i>a</i> and ....
+    Similar to behaviour of <pre style="display:inline;" class="d_inline_code">and</pre> operator in dynamic languages such as of
+    Lisp's <pre style="display:inline;" class="d_inline_code">(and <i>a</i>...)</pre> and Python's <pre style="display:inline;" class="d_inline_code"><i>a</i> and ....</pre>.
 <br><br>
 
     TODO Is inout Conversion!T the correct return value?<br><br>

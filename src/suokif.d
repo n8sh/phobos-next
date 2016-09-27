@@ -184,8 +184,11 @@ Array!Token lexSUOKIF(string src) @safe pure
 
 unittest
 {
+    import std.stdio : write, writeln;
     import std.path : expandTilde;
+
     const rootDirPath = `~/Work/justd/sumo`;
+
     import std.file: dirEntries, SpanMode;
     auto entries = dirEntries(rootDirPath.expandTilde, SpanMode.shallow, false); // false: skip symlinks
     foreach (dent; entries)
@@ -196,8 +199,14 @@ unittest
         {
             import std.file : readText;
             // file.readText.lexSUOKIF2();
-            dln(`Lexing SUO-KIF file `, filePath);
+            write(`Lexing SUO-KIF file `, filePath, `... `);
+
+            import std.datetime : StopWatch, AutoStart, Duration;
+            auto sw = StopWatch(AutoStart.yes);
             const tokens = filePath.readText.lexSUOKIF();
+            sw.stop;
+            import std.conv : to;
+            writeln(`took `, sw.peek().to!Duration);
         }
     }
 

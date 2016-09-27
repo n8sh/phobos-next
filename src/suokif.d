@@ -16,15 +16,15 @@ enum Token
     rightParen,
     symbol,
     stringLiteral,
-    oneDirInference,                  // one-directional inference
-    biDirInference,                 // bi-directional inference
+    oneDirInference,            // one-directional inference
+    biDirInference,             // bi-directional inference
     equivalence,
     and_,
     or_,
     exists_,
     not_,
     variable,
-    params,
+    varParams,                  // one or more parameter
     whitespace,
     number,
     comment,
@@ -156,7 +156,7 @@ Array!Token lexSUOKIF(string src) @safe pure
         case '@':
             src.popFront();
             const variableSymbol = getSymbol(src); // TODO tokenize
-            tokens ~= Token.params;
+            tokens ~= Token.varParams;
             break;
         case '0':
         case '1':

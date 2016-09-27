@@ -42,6 +42,7 @@ enum Token
     documentation_,
     meronym_,
     property_,
+    equal_,
 }
 
 bool isLispSymbolChar(char x)
@@ -222,8 +223,13 @@ Array!Token lexSUOKIF(string src) @safe pure
                 case `documentation`: tokens ~= Token.documentation_; break;
                 case `meronym`: tokens ~= Token.meronym_; break;
                 case `property`: tokens ~= Token.property_; break;
+                case `equal`: tokens ~= Token.equal_; break;
                 default:
-                    dln(symbol);
+                    import std.uni : isLower;
+                    if (symbol.front.isLower)
+                    {
+                        dln(symbol);
+                    }
                     tokens ~= Token.symbol;
                     break;
                 }

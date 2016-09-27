@@ -68,6 +68,11 @@ enum Token
     disjoint_,
     mother_,
     father_,
+    son_,
+    daughter_,
+    brother_,
+    sister_,
+    sibling_,
 }
 
 bool isLispSymbolChar(char x)
@@ -273,6 +278,11 @@ Array!Token lexSUOKIF(string src) @safe pure
                 case `disjoint`: tokens ~= Token.disjoint_; break;
                 case `mother`: tokens ~= Token.mother_; break;
                 case `father`: tokens ~= Token.father_; break;
+                case `son_`: tokens ~= Token.son_; break;
+                case `daughter_`: tokens ~= Token.daughter_; break;
+                case `brother_`: tokens ~= Token.brother_; break;
+                case `sister_`: tokens ~= Token.sister_; break;
+                case `sibling_`: tokens ~= Token.sibling_; break;
                 default:
                     import std.uni : isLower;
                     import std.algorithm : endsWith;
@@ -304,7 +314,7 @@ Array!Token lexSUOKIF(string src) @safe pure
         }
     }
 
-    // dln(lowerSymbols);
+    dln(lowerSymbols);
     return tokens;
 }
 

@@ -78,8 +78,7 @@ Array!Token lexSUOKIF(string src) @safe pure
     static string getNumber(ref string src)
     {
         size_t i = 0;
-        while (i != src.length && (src[i].isDigit ||
-                                   src[i] == '.')) { ++i; }
+        while (i != src.length && (src[i].isDigit || src[i] == '.')) { ++i; }
         return skipN(src, i);
     }
 

@@ -190,15 +190,14 @@ Array!Token lexSUOKIF(string src) @safe pure
             // other
             if (src.front.isAlpha)
             {
-                // keywords
-                if      (src.skipOver(`and`)) { tokens ~= Token.and_; }
-                else if (src.skipOver(`or`)) { tokens ~= Token.or_; }
-                else if (src.skipOver(`exists`)) { tokens ~= Token.exists_; }
-                else if (src.skipOver(`not`)) { tokens ~= Token.not_; }
-                else
+                const symbol = getSymbol(src); // TODO tokenize
+                switch (symbol)
                 {
-                    const symbol = getSymbol(src); // TODO tokenize
-                    tokens ~= Token.symbol;
+                case `and`: tokens ~= Token.and_; break;
+                case `or`: tokens ~= Token.or_; break;
+                case `not`: tokens ~= Token.not_; break;
+                case `exists`: tokens ~= Token.exists_; break;
+                default: tokens ~= Token.symbol; break;
                 }
             }
             else

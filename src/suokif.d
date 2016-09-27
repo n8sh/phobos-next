@@ -29,6 +29,12 @@ enum Token
     comment,
 }
 
+bool isLispSymbolChar(char x) @safe pure nothrow @nogc
+{
+    import std.uni : isAlpha;
+    return x.isAlpha || x == '-';
+}
+
 /** Parse SUO-KIF from `src`. */
 Array!Token lexSUOKIF(string src) @safe pure
 {
@@ -61,7 +67,7 @@ Array!Token lexSUOKIF(string src) @safe pure
     static string getSymbol(ref string src)
     {
         size_t i = 0;
-        while (i != src.length && src[i].isAlpha) { ++i; }
+        while (i != src.length && src[i].isLispSymbolChar) { ++i; }
         return skipN(src, i);
     }
 

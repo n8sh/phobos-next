@@ -202,9 +202,8 @@ Array!Token lexSUOKIF(string src) @safe pure
             }
             else
             {
-
                 dln(`Cannot handle character '`, src.front, `' at index:`, &src[0] - &whole[0]);
-                dln(tokens[]);
+                // dln(tokens[]);
                 assert(false);
             }
             break;
@@ -237,7 +236,7 @@ unittest
         {
             if (filePath.endsWith(`.kif`)) // invalid UTF-8 encodings
             {
-                write(`Lexing SUO-KIF file `, filePath, `... `);
+                write(`Lexing SUO-KIF `, filePath, ` ... `);
 
                 import std.file : readText;
                 // file.readText.lexSUOKIF2();

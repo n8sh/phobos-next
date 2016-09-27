@@ -170,6 +170,7 @@ Array!Token lexSUOKIF(string src) @safe pure
         case '9':
         case '-':
         case '+':
+        case '.':
             const number = getNumber(src); // TODO tokenize
             tokens ~= Token.number;
             break;
@@ -251,7 +252,8 @@ unittest
         }
         catch (std.utf.UTFException e)
         {
-            writeln(" failed because of invalid UTF-8 encoding");
+            import std.file : read;
+            writeln(" failed because of invalid UTF-8 encoding starting with ", filePath.read(16));
         }
     }
 

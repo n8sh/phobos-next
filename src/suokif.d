@@ -7,7 +7,7 @@ module suokif;
 
 // import std.range : isInputRange;
 import dbgio : dln;
-import array_ex : Array;
+import array_ex : Array, Ordering;
 
 /** SUO-KIF Token. */
 enum Token
@@ -26,6 +26,9 @@ enum Token
     number,
     comment,
 
+    className,
+    functionName,
+
     // keywords
     and_,
     or_,
@@ -42,7 +45,22 @@ enum Token
     documentation_,
     meronym_,
     property_,
+    attribute_,
+    subAttribute_,
     equal_,
+    abbreviation_,
+    result_,
+    duration_,
+    agent_,
+    member_,
+    hasPurpose_,
+    finishes_,
+    earlier_,
+    yield_,
+    instrument_,
+    destination_,
+    material_,
+    causes_,
 }
 
 bool isLispSymbolChar(char x)
@@ -118,6 +136,8 @@ Array!Token lexSUOKIF(string src) @safe pure
         while (i != src.length && src[i].isWhite) { ++i; }
         return skipN(src, i);
     }
+
+    bool[string] lowerSymbols;
 
     while (!src.empty)
     {
@@ -223,14 +243,40 @@ Array!Token lexSUOKIF(string src) @safe pure
                 case `documentation`: tokens ~= Token.documentation_; break;
                 case `meronym`: tokens ~= Token.meronym_; break;
                 case `property`: tokens ~= Token.property_; break;
+                case `attribute`: tokens ~= Token.attribute_; break;
+                case `subAttribute`: tokens ~= Token.subAttribute_; break;
                 case `equal`: tokens ~= Token.equal_; break;
+                case `abbreviation`: tokens ~= Token.abbreviation_; break;
+                case `result`: tokens ~= Token.result_; break;
+                case `duration`: tokens ~= Token.duration_; break;
+                case `agent`: tokens ~= Token.agent_; break;
+                case `member`: tokens ~= Token.member_; break;
+                case `hasPurpose`: tokens ~= Token.hasPurpose_; break;
+                case `finishes`: tokens ~= Token.finishes_; break;
+                case `earlier`: tokens ~= Token.earlier_; break;
+                case `yield`: tokens ~= Token.yield_; break;
+                case `instrument`: tokens ~= Token.instrument_; break;
+                case `destination`: tokens ~= Token.destination_; break;
+                case `material`: tokens ~= Token.material_; break;
+                case `causes`: tokens ~= Token.causes_; break;
                 default:
                     import std.uni : isLower;
+                    import std.algorithm : endsWith;
                     if (symbol.front.isLower)
                     {
-                        dln(symbol);
+                        if (symbol !in lowerSymbols)
+                        {
+                            lowerSymbols[symbol] = true;
+                        }
                     }
-                    tokens ~= Token.symbol;
+                    else if (symbol.endsWith(`Fn`))
+                    {
+                        tokens ~= Token.functionName;
+                    }
+                    else
+                    {
+                        tokens ~= Token.symbol;
+                    }
                     break;
                 }
             }
@@ -244,6 +290,7 @@ Array!Token lexSUOKIF(string src) @safe pure
         }
     }
 
+    dln(lowerSymbols);
     return tokens;
 }
 

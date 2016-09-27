@@ -24,6 +24,7 @@ enum Token
     exists_,
     not_,
     variable,
+    params,
     whitespace,
     number,
     comment,
@@ -33,7 +34,8 @@ bool isLispSymbolChar(char x)
     @safe pure nothrow @nogc
 {
     import std.uni : isAlphaNum;
-    return x.isAlphaNum || x == '-';
+    import std.algorithm : among;
+    return x.isAlphaNum || x.among!('_', '-');
 }
 
 /** Parse SUO-KIF from `src`. */
@@ -151,6 +153,11 @@ Array!Token lexSUOKIF(string src) @safe pure
             const variableSymbol = getSymbol(src); // TODO tokenize
             tokens ~= Token.variable;
             break;
+        case '@':
+            src.popFront();
+            const variableSymbol = getSymbol(src); // TODO tokenize
+            tokens ~= Token.params;
+            break;
         case '0':
         case '1':
         case '2':
@@ -205,7 +212,7 @@ unittest
     const rootDirPath = `~/Work/justd/sumo`;
 
     import std.file: dirEntries, SpanMode;
-    auto entries = dirEntries(rootDirPath.expandTilde, SpanMode.shallow, false); // false: skip symlinks
+    auto entries = dirEntries(rootDirPath.expandTilde, SpanMode.breadth, false); // false: skip symlinks
     foreach (dent; entries)
     {
         const filePath = dent.name;

@@ -10,7 +10,8 @@ enum Token
     rightParen,
     symbol,
     stringLiteral,
-    infers,
+    oneDirInference,                  // one-directional inference
+    biDirInference,                 // bi-directional inference
     equivalence,
     and_,
     or_,
@@ -115,12 +116,25 @@ Array!Token lexSUOKIF(string src) @safe pure
             src.popFront();
             if (src.front == '>')
             {
-                tokens ~= Token.infers;
+                tokens ~= Token.oneDirInference;
                 src.popFront();
             }
             else
             {
                 tokens ~= Token.equivalence;
+            }
+        }
+        else if (src.front == '<')
+        {
+            src.popFront();
+            if (src.front == '=')
+            {
+                src.popFront();
+                if (src.front == '>')
+                {
+                    tokens ~= Token.biDirInference;
+                    src.popFront();
+                }
             }
         }
         else if (src.front == '?')

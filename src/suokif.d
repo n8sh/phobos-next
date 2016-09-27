@@ -61,6 +61,13 @@ enum Token
     destination_,
     material_,
     causes_,
+    origin_,
+    located_,
+    employs_,
+    possesses_,
+    disjoint_,
+    mother_,
+    father_,
 }
 
 bool isLispSymbolChar(char x)
@@ -259,6 +266,13 @@ Array!Token lexSUOKIF(string src) @safe pure
                 case `destination`: tokens ~= Token.destination_; break;
                 case `material`: tokens ~= Token.material_; break;
                 case `causes`: tokens ~= Token.causes_; break;
+                case `origin`: tokens ~= Token.origin_; break;
+                case `located`: tokens ~= Token.located_; break;
+                case `employs`: tokens ~= Token.employs_; break;
+                case `possesses`: tokens ~= Token.possesses_; break;
+                case `disjoint`: tokens ~= Token.disjoint_; break;
+                case `mother`: tokens ~= Token.mother_; break;
+                case `father`: tokens ~= Token.father_; break;
                 default:
                     import std.uni : isLower;
                     import std.algorithm : endsWith;

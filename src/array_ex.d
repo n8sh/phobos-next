@@ -52,6 +52,12 @@ template shouldAddGCRange(T)
 import std.traits : isInstanceOf;
 enum isMyArray(C) = isInstanceOf!(Array, C);
 
+enum Semantics
+{
+    move,
+    copy
+}
+
 /** Small-size-optimized (SSO-packed) array of value types `E` with optional
     ordering given by `ordering`.
 
@@ -61,6 +67,7 @@ enum isMyArray(C) = isInstanceOf!(Array, C);
     where both arguments are instances of `Array`.
  */
 struct Array(E,
+             Semantics semantics = Semantics.move,
              Ordering ordering = Ordering.unsorted,
              bool useGC = shouldAddGCRange!E,
              alias less = "a < b") // TODO move out of this definition and support only for the case when `ordering` is not `Ordering.unsorted`
@@ -141,26 +148,29 @@ struct Array(E,
     }
 
     /// TODO deactivate when internal RC-logic is ready
-    this(this) nothrow @trusted
+    static if (semantics == Semantics.copy)
     {
-        auto rhs_storePtr = _storePtr; // save store pointer
-        allocateStorePtr(_length);     // allocate new store pointer
-        foreach (const i; 0 .. _length)
+        this(this) nothrow @trusted
         {
-            ptr[i] = rhs_storePtr[i]; // copy from old to new
-        }
-    }
-
-    /// TODO deactivate when internal RC-logic is ready
-    void opAssign(Array rhs) @trusted
-    {
-        // self-assignment may happen when assigning derefenced pointer
-        if (_storePtr != rhs._storePtr) // if not self assignment
-        {
-            reserve(rhs.length);
+            auto rhs_storePtr = _storePtr; // save store pointer
+            allocateStorePtr(_length);     // allocate new store pointer
             foreach (const i; 0 .. _length)
             {
-                ptr[i] = rhs.ptr[i]; // copy from old to new
+                ptr[i] = rhs_storePtr[i]; // copy from old to new
+            }
+        }
+
+        /// TODO deactivate when internal RC-logic is ready
+        void opAssign(Array rhs) @trusted
+        {
+            // self-assignment may happen when assigning derefenced pointer
+            if (_storePtr != rhs._storePtr) // if not self assignment
+            {
+                reserve(rhs.length);
+                foreach (const i; 0 .. _length)
+                {
+                    ptr[i] = rhs.ptr[i]; // copy from old to new
+                }
             }
         }
     }
@@ -851,13 +861,14 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     import std.traits : isInstanceOf;
     import std.typecons : Unqual;
 
+    enum semantics = Semantics.copy;
     alias comp = binaryFun!less; //< comparison
 
     alias E = int;
 
     foreach (Ch; AliasSeq!(char, wchar, dchar))
     {
-        alias Str = Array!(Ch, ordering, supportGC, less);
+        alias Str = Array!(Ch, semantics, ordering, supportGC, less);
         Str str;
         static assert(is(Unqual!(ElementType!Str) == Ch));
         static assert(str.isString);
@@ -868,9 +879,9 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     {
         foreach (const n; [0, 1, 2, 3, 4])
         {
-            assert(Array!(E, ordering, supportGC, less)(n).isSmall);
+            assert(Array!(E, semantics, ordering, supportGC, less)(n).isSmall);
         }
-        assert(!(Array!(E, ordering, supportGC, less)(5).isSmall));
+        assert(!(Array!(E, semantics, ordering, supportGC, less)(5).isSmall));
     }
 
     // test move construction
@@ -878,7 +889,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         const maxLength = 1024;
         foreach (const n; 0 .. maxLength)
         {
-            auto x = Array!(E, ordering, supportGC, less)(n);
+            auto x = Array!(E, semantics, ordering, supportGC, less)(n);
 
             // test resize
             static if (!IsOrdered!ordering)
@@ -894,7 +905,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(x.length == n);
 
             import std.algorithm.mutation : move;
-            auto y = Array!(E, ordering, supportGC, less)();
+            auto y = Array!(E, semantics, ordering, supportGC, less)();
             move(x, y);
 
             assert(x.length == 0);
@@ -922,7 +933,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         // TODO use radial instead
         auto bw = fw.array.radial;
 
-        Array!(E, ordering, supportGC, less) ss0 = bw; // reversed
+        Array!(E, semantics, ordering, supportGC, less) ss0 = bw; // reversed
         static assert(is(Unqual!(ElementType!(typeof(ss0))) == E));
         static assert(isInstanceOf!(Array, typeof(ss0)));
         assert(ss0.length == n);
@@ -934,7 +945,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ss0[].isSorted!comp);
         }
 
-        Array!(E, ordering, supportGC, less) ss1 = fw; // ordinary
+        Array!(E, semantics, ordering, supportGC, less) ss1 = fw; // ordinary
         assert(ss1.length == n);
 
         static if (IsOrdered!ordering)
@@ -943,7 +954,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ss1[].isSorted!comp);
         }
 
-        Array!(E, ordering, supportGC, less) ss2 = fw.filter!(x => x & 1);
+        Array!(E, semantics, ordering, supportGC, less) ss2 = fw.filter!(x => x & 1);
         assert(ss2.length == n/2);
 
         static if (IsOrdered!ordering)
@@ -952,12 +963,12 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ss2[].isSorted!comp);
         }
 
-        auto ssA = Array!(E, ordering, supportGC, less)(0);
+        auto ssA = Array!(E, semantics, ordering, supportGC, less)(0);
         static if (IsOrdered!ordering)
         {
             static if (less == "a < b")
             {
-                alias A = Array!(E, ordering, supportGC, less);
+                alias A = Array!(E, semantics, ordering, supportGC, less);
                 const A x = [1, 2, 3, 4, 5, 6];
                 assert(x.front == 1);
                 assert(x.back == 6);
@@ -979,7 +990,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             }
             assert(ssA[].equal(sort!comp(fw.array)));
 
-            auto ssB = Array!(E, ordering, supportGC, less)(0);
+            auto ssB = Array!(E, semantics, ordering, supportGC, less)(0);
             static if (ordering == Ordering.sortedUniqueSet)
             {
                 assert(ssB.linearInsert(1, 7, 4, 9)[].equal(true.repeat(4)));
@@ -1010,7 +1021,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         else
         {
             {
-                alias A = Array!(E, ordering, supportGC);
+                alias A = Array!(E, semantics, ordering, supportGC);
                 A x = [1, 2, 3];
                 x ~= x;
                 assert(x[].equal([1, 2, 3,
@@ -1097,7 +1108,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ssA[].equal([1, 2, 4, 5]));
 
             // pushBack and assignment from slice
-            auto ssB = Array!(E, ordering, supportGC, less)(0);
+            auto ssB = Array!(E, semantics, ordering, supportGC, less)(0);
             ssB.pushBack([1, 2, 3, 4, 5]);
             ssB.pushBack([6, 7]);
             assert(ssB[].equal([1, 2, 3, 4, 5, 6, 7]));
@@ -1113,8 +1124,8 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             // pushBack(Array)
             {
                 const s = [1, 2, 3];
-                Array!(E, ordering, supportGC, less) s1 = s;
-                Array!(E, ordering, supportGC, less) s2 = s1[];
+                Array!(E, semantics, ordering, supportGC, less) s1 = s;
+                Array!(E, semantics, ordering, supportGC, less) s2 = s1[];
                 assert(s1[].equal(s));
                 s1 ~= s1;
                 assert(s1[].equal(chain(s, s)));
@@ -1122,10 +1133,10 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
                 assert(s1[].equal(chain(s, s, s)));
             }
 
-            const ss_ = Array!(E, ordering, supportGC, less)(null);
+            const ss_ = Array!(E, semantics, ordering, supportGC, less)(null);
             assert(ss_.empty);
 
-            auto ssC = Array!(E, ordering, supportGC, less)(0);
+            auto ssC = Array!(E, semantics, ordering, supportGC, less)(0);
             const(int)[] i5 = [1, 2, 3, 4, 5];
             ssC.pushBack(i5);
             assert(ssC[].equal(i5));

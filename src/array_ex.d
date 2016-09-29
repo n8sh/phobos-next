@@ -165,6 +165,11 @@ struct Array(E,
         }
     }
 
+    void opAssign(typeof(null))
+    {
+        clear();
+    }
+
     /** Default-initialize all elements to `zeroValue`.. */
     void defaultInitialize(E zeroValue = E.init) @("complexity", "O(length)")
     {
@@ -1117,6 +1122,9 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
                 assert(s1[].equal(chain(s, s, s)));
             }
 
+            const ss_ = Array!(E, ordering, supportGC, less)(null);
+            assert(ss_.empty);
+
             auto ssC = Array!(E, ordering, supportGC, less)(0);
             const(int)[] i5 = [1, 2, 3, 4, 5];
             ssC.pushBack(i5);
@@ -1145,8 +1153,13 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             ssC.popBackN(3);
             assert(ssC[].equal([1, 2]));
 
+            auto ssD = ssC;
             ssC.clear();
             assert(ssC.empty);
+
+            assert(!ssD.empty);
+            ssD = null;
+            assert(ssD.empty);
 
             assert(ssCc[].equal(i5));
 

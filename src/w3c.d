@@ -91,8 +91,10 @@ else
 
 unittest
 {
-    import std.stdio;
-    writeln(`<!-- --><script>/* */</script>`.encodeHTML);
+    import std.algorithm : equal;
+    assert(`<!-- --><script>/* */</script>`
+           .encodeHTML
+           .equal(`&lt;!--&nbsp;--&gt;&lt;script&gt;/*&nbsp;*/&lt;/script&gt;`));
 }
 
 // See also: https://en.wikipedia.org/wiki/Character_entity_reference#Predefined_entities_in_XML

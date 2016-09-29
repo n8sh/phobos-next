@@ -40,7 +40,7 @@ static if (__VERSION__ >= 2066L)
     {
         import std.utf : byDchar;
         import std.algorithm : joiner, map;
-        return s.byDchar.map!toHTML.joiner("");
+        return s.byDchar.map!toHTML.joiner(``);
     }
 }
 else
@@ -89,7 +89,7 @@ else
     }
 }
 
-unittest
+@safe pure unittest
 {
     import std.algorithm : equal;
     assert(`<!-- --><script>/* */</script>`

@@ -52,7 +52,7 @@ template shouldAddGCRange(T)
 import std.traits : isInstanceOf;
 enum isMyArray(C) = isInstanceOf!(Array, C);
 
-enum Semantics
+enum AssignSemantics
 {
     move,
     copy
@@ -67,7 +67,7 @@ enum Semantics
     where both arguments are instances of `Array`.
  */
 struct Array(E,
-             Semantics semantics = Semantics.move,
+             AssignSemantics semantics = AssignSemantics.move,
              Ordering ordering = Ordering.unsorted,
              bool useGC = shouldAddGCRange!E,
              alias less = "a < b") // TODO move out of this definition and support only for the case when `ordering` is not `Ordering.unsorted`
@@ -148,7 +148,7 @@ struct Array(E,
     }
 
     /// TODO deactivate when internal RC-logic is ready
-    static if (semantics == Semantics.copy)
+    static if (semantics == AssignSemantics.copy)
     {
         this(this) nothrow @trusted
         {
@@ -861,7 +861,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     import std.traits : isInstanceOf;
     import std.typecons : Unqual;
 
-    enum semantics = Semantics.copy;
+    enum semantics = AssignSemantics.copy;
     alias comp = binaryFun!less; //< comparison
 
     alias E = int;

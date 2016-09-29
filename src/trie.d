@@ -128,9 +128,9 @@ import modulo : Mod, mod;
 import fixed_array : ModArrayN;
 import container_traits : shouldAddGCRange;
 
-import array_ex : Array, Semantics, Ordering;
+import array_ex : Array, AssignSemantics, Ordering;
 
-alias CopyingArray(T) = Array!(T, Semantics.copy, Ordering.unsorted, false);
+alias CopyingArray(T) = Array!(T, AssignSemantics.copy, Ordering.unsorted, false);
 
 // version = enterSingleInfiniteMemoryLeakTest;
 version = benchmark;

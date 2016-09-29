@@ -94,6 +94,12 @@ struct Array(E,
         alias _free = free;
     }
 
+    /// Create a empty array.
+    this(typeof(null)) nothrow
+    {
+        this(0);
+    }
+
     /// Create a empty array of length `n`.
     this(size_t n) nothrow
     {

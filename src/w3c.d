@@ -12,14 +12,15 @@ module w3c;
 import std.traits: isSomeChar, isSomeString;
 
 /** Convert character $(D c) to HTML representation. */
-string toHTML(C)(C c, bool nbsp = true) @safe pure if (isSomeChar!C)
+string toHTML(C)(C c, bool nbsp = true) @safe pure
+    if (isSomeChar!C)
 {
-    import std.conv: to;
+    import std.conv : to;
     if      (nbsp && c == ' ') return "&nbsp;"; // non breaking space
-    else if (c == '&')  return "&amp;"; // ampersand
-    else if (c == '<')  return "&lt;"; // less than
-    else if (c == '>')  return "&gt;"; // greater than
-    else if (c == '\"') return "&quot;"; // double quote
+    else if (c == '&')         return "&amp;";  // ampersand
+    else if (c == '<')         return "&lt;";   // less than
+    else if (c == '>')         return "&gt;";   // greater than
+    else if (c == '\"')        return "&quot;"; // double quote
 //		else if (c == '\'')
 //			return ("&#39;"); // if you are in an attribute, it might be important to encode for the same reason as double quotes
     // FIXME: should I encode apostrophes too? as &#39;... I could also do space but if your html is so bad that it doesn't
@@ -37,14 +38,14 @@ static if (__VERSION__ >= 2066L)
     /** Convert string $(D s) to HTML representation. */
     auto encodeHTML(string s, bool nbsp = true) @safe pure
     {
-        import std.utf: byDchar;
-        import std.algorithm: joiner, map;
+        import std.utf : byDchar;
+        import std.algorithm : joiner, map;
         return s.byDchar.map!toHTML.joiner("");
     }
 }
 else
 {
-    import std.array: appender, Appender;
+    import std.array : appender, Appender;
 
     /** Copied from arsd.dom */
     string encodeHTML(string data,
@@ -104,7 +105,7 @@ shared static this()
     initTables();
 }
 
-void initTables()
+void initTables() nothrow @nogc
 {
     convLatin1ToXML['"'] = "&quot";
     convLatin1ToXML['.'] = "&amp";

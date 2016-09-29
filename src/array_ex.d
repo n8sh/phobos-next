@@ -54,6 +54,7 @@ enum isMyArray(C) = isInstanceOf!(Array, C);
 
 enum AssignSemantics
 {
+    none,
     move,
     copy
 }
@@ -67,7 +68,7 @@ enum AssignSemantics
     where both arguments are instances of `Array`.
  */
 struct Array(E,
-             AssignSemantics semantics = AssignSemantics.move,
+             AssignSemantics semantics = AssignSemantics.none,
              Ordering ordering = Ordering.unsorted,
              bool useGC = shouldAddGCRange!E,
              alias less = "a < b") // TODO move out of this definition and support only for the case when `ordering` is not `Ordering.unsorted`
@@ -173,6 +174,10 @@ struct Array(E,
                 }
             }
         }
+    }
+    else static if (semantics == AssignSemantics.none)
+    {
+        @disable this(this);
     }
 
     void opAssign(typeof(null))

@@ -27,8 +27,6 @@ import std.conv: to;
 import std.path: dirSeparator;
 import std.string: empty;
 
-import w3c : encodeHTML;
-
 /* TODO Move logic (toHTML) to these deps and remove these imports */
 import digest_ex: Digest;
 import csunits: Bytes;
@@ -359,9 +357,14 @@ class Viz
         else
         {
             if (form == VizForm.HTML)
+            {
+                import w3c : encodeHTML;
                 outFile.write(arg.encodeHTML(nbsp));
+            }
             else
-            outFile.write(arg);
+            {
+                outFile.write(arg);
+            }
         }
     }
 

@@ -400,7 +400,7 @@ struct Array(E,
         return value;
     }
 
-    /** Pop last `count` elements. */
+    /** Pop last `count` back elements. */
     pragma(inline) void popBackN(size_t count) @safe @("complexity", "O(1)")
     {
         shrinkTo(_length - count);

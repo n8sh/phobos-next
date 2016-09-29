@@ -489,21 +489,27 @@ struct Array(E,
         // NOTE these separate overloads of opOpAssign are needed because one
         // `const ref`-parameter-overload doesn't work because of compiler bug
         // with: `this(this) @disable`
-        void opOpAssign(string op, Us...)(Us values) if (op == "~" &&
-                                                         values.length >= 1 &&
-                                                         allSatisfy!(isElementAssignable, Us))
+        void opOpAssign(string op, Us...)(Us values)
+            if (op == "~" &&
+                values.length >= 1 &&
+                allSatisfy!(isElementAssignable, Us))
         {
             pushBack(values);
         }
-	void opOpAssign(string op, R)(R values) if (op == "~" &&
-                                                    isInputRange!R &&
-                                                    allSatisfy!(isElementAssignable, ElementType!R))
+	void opOpAssign(string op, R)(R values)
+            if (op == "~" &&
+                isInputRange!R &&
+                allSatisfy!(isElementAssignable, ElementType!R))
         {
             pushBack(values);
         }
-	void opOpAssign(string op, A)(const ref A values) if (op == "~" &&
-                                                              isMyArray!A &&
-                                                              isElementAssignable!(ElementType!A)) { pushBack(values); }
+	void opOpAssign(string op, A)(const ref A values)
+            if (op == "~" &&
+                isMyArray!A &&
+                isElementAssignable!(ElementType!A))
+        {
+            pushBack(values);
+        }
     }
 
     static if (IsOrdered!ordering)

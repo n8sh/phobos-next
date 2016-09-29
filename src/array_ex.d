@@ -355,12 +355,13 @@ struct Array(E,
         assert(index < _length);
         assert(!empty);
         typeof(return) value = ptr[index]; // TODO move construct?
-        // TODO functionize move
+        // TODO use memmove instead?
         foreach (const i; 0 .. length - (index + 1)) // each element index that needs to be moved
         {
             const si = index + i + 1; // source index
             const ti = index + i; // target index
-            ptr[ti] = ptr[si]; // TODO move construct?
+            import std.algorithm : move;
+            move(ptr[si], ptr[ti]); // ptr[ti] = ptr[si]; // TODO move construct?
         }
         --_length;
         return value;
@@ -373,12 +374,13 @@ struct Array(E,
     {
         assert(!empty);
         typeof(return) value = ptr[0]; // TODO move construct?
-        // TODO functionize move
+        // TODO use memmove instead?
         foreach (const i; 0 .. length - 1) // each element index that needs to be moved
         {
             const si = i + 1; // source index
             const ti = i; // target index
-            ptr[ti] = ptr[si]; // TODO move construct?
+            import std.algorithm : move;
+            move(ptr[si], ptr[ti]); // ptr[ti] = ptr[si]; // TODO move construct?
         }
         --_length;
         return value;
@@ -439,7 +441,7 @@ struct Array(E,
                 reserve(2*length);
                 foreach (const i; 0 .. length)
                 {
-                    ptr[length + i] = ptr[i]; // TODO move. reuse memcpy
+                    ptr[length + i] = ptr[i];
                 }
                 _length *= 2;
             }
@@ -467,7 +469,10 @@ struct Array(E,
                 reserve(2*length);
                 // NOTE: this is not needed because we don't need range checking here?:
                 // ptr[length .. 2*length] = values.ptr[0 .. length];
-                foreach (const i; 0 .. length) { ptr[length + i] = values.ptr[i]; } // TODO move. reuse memcpy
+                foreach (const i; 0 .. length)
+                {
+                    ptr[length + i] = values.ptr[i];
+                }
                 _length *= 2;
             }
             else

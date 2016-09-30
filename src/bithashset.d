@@ -23,16 +23,22 @@ struct BitHashSet(E)
     import core.bitop : bts, btr, bt;
 
     @property:
-    void insert(E ix) { assert(ix < _length); bts(_bits, cast(size_t)ix); }
-    void remove(E ix) { assert(ix < _length); btr(_bits, cast(size_t)ix); }
-    bool contains(E ix) const { assert(ix < _length); return bt(_bits, cast(size_t)ix) != 0; }
+
+    /// Insert element `e`.
+    void insert(E e) { assert(e < _length); bts(_bits, cast(size_t)e); }
+
+    /// Remove element `e`.
+    void remove(E e) { assert(e < _length); btr(_bits, cast(size_t)e); }
+
+    /// Check if element `e` is contained in the set.
+    bool contains(E e) const { assert(e < _length); return bt(_bits, cast(size_t)e) != 0; }
 
 private:
     size_t _length;
     size_t* _bits;
 }
 
-@safe pure unittest
+@safe pure nothrow @nogc unittest
 {
     const length = 64;
     auto set = BitHashSet!uint(length);

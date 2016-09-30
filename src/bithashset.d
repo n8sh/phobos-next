@@ -114,7 +114,7 @@ unittest
         assert(!x.contains(ix));
         assert(ix !in x);
 
-        x.complement(ix);
+        assert(!x.complement(ix));
         assert(x.contains(ix));
         assert(ix in x);
     }

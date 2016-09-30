@@ -170,7 +170,9 @@ struct Array(E,
             }
         }
     }
-    else static if (semantics == AssignSemantics.none)
+
+    static if (semantics == AssignSemantics.none ||
+               semantics == AssignSemantics.move) // TODO include move?
     {
         @disable this(this);
 

@@ -12,7 +12,7 @@ unittest
     static assert(!isBitHashable!string);
 }
 
-import dbgio : dln;
+// import dbgio : dln;
 
 /** Store presence of elements of type `E` in a set in the range `0 .. length`. */
 struct BitHashSet(E, Growable growable = Growable.no)
@@ -56,7 +56,7 @@ struct BitHashSet(E, Growable growable = Growable.no)
                 const oldBlockCount = blockCount;
                 import std.math : nextPow2;
                 this._length = newLength.nextPow2;
-                dln("nextPow2:", this._length);
+                // dln("nextPow2:", this._length);
                 _bits = cast(Block*)realloc(_bits, blockCount * Block.sizeof);
                 _bits[oldBlockCount .. blockCount] = 0;
             }
@@ -66,7 +66,7 @@ struct BitHashSet(E, Growable growable = Growable.no)
     /// Insert element `e`.
     void insert(E e) @trusted
     {
-        dln(e);
+        // dln(e);
         const ix = cast(size_t)e;
         static if (growable == Growable.yes) { expandTo(ix + 1); } else { assert(ix < _length); }
         bts(_bits, ix);
@@ -75,7 +75,7 @@ struct BitHashSet(E, Growable growable = Growable.no)
     /// Remove element `e`.
     void remove(E e) @trusted
     {
-        dln(e);
+        // dln(e);
         const ix = cast(size_t)e;
         static if (growable == Growable.yes) { expandTo(ix + 1); } else { assert(ix < _length); }
         btr(_bits, ix);
@@ -86,7 +86,7 @@ struct BitHashSet(E, Growable growable = Growable.no)
      */
     bool complement(E e) @trusted
     {
-        dln(e);
+        // dln(e);
         const ix = cast(size_t)e;
         static if (growable == Growable.yes) { expandTo(ix + 1); } else { assert(ix < _length); }
         return btc(_bits, ix) != 0;
@@ -95,7 +95,7 @@ struct BitHashSet(E, Growable growable = Growable.no)
     /// Check if element `e` is stored.
     bool contains(E e) @trusted // TODO const
     {
-        dln(e);
+        // dln(e);
         const ix = cast(size_t)e;
         return ix < length && bt(_bits, ix) != 0;
     }

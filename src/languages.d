@@ -543,19 +543,19 @@ Language decodeLang(S)(S lang)
     assert("EnglisH".tolerantTo!Language == Language.en);
 }
 
-string toHTML(Language lang) @safe @nogc pure nothrow
+string toHTML(Language lang) @safe pure nothrow @nogc
 {
     return lang.toSpoken;
 }
 
 string toMathML(Language lang)
-    @safe @nogc pure nothrow
+    @safe pure nothrow @nogc
 {
     return lang.toHTML;
 }
 
 Language language(string name)
-    @safe @nogc pure nothrow
+    @safe pure nothrow @nogc
 {
     switch (name)
     {

@@ -34,7 +34,7 @@ auto commonPrefixLength(alias pred = "a == b", Rs...)(Rs rs)
 @safe pure nothrow unittest
 {
     const x = [1, 2, 3, 10], y = [1, 2, 4, 10];
-    void f() @safe @nogc pure nothrow
+    void f() @safe pure nothrow @nogc
     {
         assert(commonPrefixLength(x, y) == 2);
     }
@@ -72,7 +72,7 @@ auto commonSuffixLength(Rs...)(Rs rs)
 {
     const x = [1, 2, 3, 10, 11, 12];
     const y = [1, 2, 4, 10, 11, 12];
-    void f() @safe @nogc pure nothrow
+    void f() @safe pure nothrow @nogc
     {
         assert(commonPrefixLength(x, y) == 2);
     }

@@ -27,7 +27,7 @@ bool of(S, T...)(in S x, in T ys) pure if (ys.length >= 1 &&
     return false;
 }
 
-@safe @nogc pure nothrow unittest
+@safe pure nothrow @nogc unittest
 {
     assert(1.of(1, 2, 3));
     assert(!4.of(1, 2, 3));
@@ -118,7 +118,7 @@ import traits_ex: isStruct, isClass;
 import std.traits: isStaticArray;
 
 /** Check if all Elements of $(D x) are zero. */
-bool allZero(T, bool useStatic = true)(in T x) @safe @nogc pure nothrow
+bool allZero(T, bool useStatic = true)(in T x) @safe pure nothrow @nogc
 {
     static if (isStruct!T || isClass!T)
     {

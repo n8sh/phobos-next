@@ -229,7 +229,7 @@ import std.typecons : Nullable;
 
 /** Returns: true iff $(D a) has a value containing meaningful information.
  */
-bool hasContents(T)(in T a) // @safe @nogc pure nothrow
+bool hasContents(T)(in T a) // @safe pure nothrow @nogc
 {
     static if (isInstanceOf!(Nullable, T))
         return !a.isNull;

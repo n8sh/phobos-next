@@ -4,10 +4,19 @@ enum Growable { no, yes }
 
 @safe pure nothrow @nogc:
 
+enum isBitHashable(T) = is(typeof(cast(size_t)T.init));
+
+unittest
+{
+    static assert(isBitHashable!size_t);
+    static assert(!isBitHashable!string);
+}
+
 /** Store presence of elements of type `E` in a set in the range `0 .. length`. */
 struct BitHashSet(E, Growable growable = Growable.no)
+    if (isBitHashable!E)
 {
-    /// Construct to store `length` number of bits.
+    /// Construct set to store at most `length` number of bits.
     this(size_t length) @trusted
     {
         _length = length;

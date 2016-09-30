@@ -1,6 +1,6 @@
 module bithashset;
 
-/** Store precense of elements of type `E` in a set in the range `0 .. length`. */
+/** Store presence of elements of type `E` in a set in the range `0 .. length`. */
 struct BitHashSet(E)
 {
     @trusted pure nothrow @nogc:

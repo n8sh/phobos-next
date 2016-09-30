@@ -91,6 +91,7 @@ private:
     const length = 64;
     auto x = BitHashSet!E(2*length);
     const y = x.dup;
+    assert(y.length == 2*length);
 
     foreach (ix; 0 .. length)
     {
@@ -111,6 +112,12 @@ private:
     }
 
     auto z = x.dup;
+    foreach (ix; 0 .. length)
+    {
+        assert(z.contains(ix));
+        assert(ix in z);
+    }
+
     foreach (ix; 0 .. length)
     {
         assert(x.contains(ix));

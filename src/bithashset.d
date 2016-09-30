@@ -2,10 +2,11 @@ module bithashset;
 
 enum Growable { no, yes }
 
+@safe pure nothrow @nogc:
+
 /** Store presence of elements of type `E` in a set in the range `0 .. length`. */
 struct BitHashSet(E, Growable growable = Growable.no)
 {
-    @safe pure nothrow @nogc:
 
     /// Construct to store `length` number of bits.
     this(size_t length) @trusted
@@ -87,7 +88,7 @@ private:
     Block* _bits;               ///< bits
 }
 
-@safe pure nothrow @nogc unittest
+unittest
 {
     alias E = uint;
 
@@ -139,7 +140,7 @@ private:
 }
 
 /// qualify memory allocations
-extern(C) pure nothrow @system @nogc
+extern(C)
 {
     void* malloc(size_t size);
     void* calloc(size_t nmemb, size_t size);

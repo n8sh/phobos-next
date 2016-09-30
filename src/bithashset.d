@@ -89,7 +89,7 @@ private:
 {
     const length = 64;
     auto x = BitHashSet!uint(2*length);
-    auto y = x.dup;
+    const y = x.dup;
 
     foreach (ix; 0 .. length)
     {

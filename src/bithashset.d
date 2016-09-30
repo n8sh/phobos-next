@@ -102,7 +102,7 @@ unittest
 {
     alias E = uint;
 
-    auto w = BitHashSet!E();    // construct empty
+    const w = BitHashSet!E();    // construct empty
     assert(w.length == 0);
 
     const length = 64;

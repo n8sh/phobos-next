@@ -176,7 +176,7 @@ struct Array(E,
     {
         @disable this(this);
 
-        /// Return shallow duplicate of `this`.
+        /// Returns: shallow duplicate of `this`.
         typeof(this) dup() nothrow @trusted
         {
             typeof(return) copy = this;

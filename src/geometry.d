@@ -1085,7 +1085,7 @@ struct Matrix(E,
 
     this()(E value) { clear(value); }
 
-    /// Returns true if all values are not nan and finite, otherwise false.
+    /// Returns: true if all values are not nan and finite, otherwise false.
     @property bool ok() const
     {
         static if (isFloatingPoint!E)
@@ -1172,7 +1172,7 @@ struct Matrix(E,
 
     }
 
-    /// Returns a transposed copy of the matrix.
+    /// Returns: a transposed copy of the matrix.
     @property Matrix!(E, cols, rows) transposed() const
     {
         typeof(return) ret;

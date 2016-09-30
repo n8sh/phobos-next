@@ -5,31 +5,36 @@
         </head><body>
         <h1>bithashset</h1>
 <br><br>
-<dl><dt><big><a name="BitHashSet"></a>struct <u>BitHashSet</u>(E);
+<dl><dt><big><a name="BitHashSet"></a>struct <u>BitHashSet</u>(E, Growable growable = Growable.no);
 </big></dt>
-<dd>Store precense of elements of type <pre style="display:inline;" class="d_inline_code">E</pre> in a set in the range <pre style="display:inline;" class="d_inline_code">0 .. length</pre>.<br><br>
+<dd>Store presence of elements of type <pre style="display:inline;" class="d_inline_code">E</pre> in a set in the range <pre style="display:inline;" class="d_inline_code">0 .. length</pre>.<br><br>
 
-<dl><dt><big><a name="BitHashSet.this"></a>this(size_t <i>length</i>);
+<dl><dt><big><a name="BitHashSet.this"></a>@trusted this(size_t <i>length</i>);
 </big></dt>
 <dd>Construct to store <pre style="display:inline;" class="d_inline_code"><i>length</i></pre> number of bits.<br><br>
 
 </dd>
-<dt><big><a name="BitHashSet.insert"></a>void <u>insert</u>(E <i>e</i>);
+<dt><big><a name="BitHashSet.dup"></a>@trusted typeof(this) <u>dup</u>();
+</big></dt>
+<dd>Return deep duplicate of <pre style="display:inline;" class="d_inline_code">this</pre>.<br><br>
+
+</dd>
+<dt><big><a name="BitHashSet.insert"></a>@trusted void <u>insert</u>(E <i>e</i>);
 </big></dt>
 <dd>Insert element <pre style="display:inline;" class="d_inline_code"><i>e</i></pre>.<br><br>
 
 </dd>
-<dt><big><a name="BitHashSet.remove"></a>void <u>remove</u>(E <i>e</i>);
+<dt><big><a name="BitHashSet.remove"></a>@trusted void <u>remove</u>(E <i>e</i>);
 </big></dt>
 <dd>Remove element <pre style="display:inline;" class="d_inline_code"><i>e</i></pre>.<br><br>
 
 </dd>
-<dt><big><a name="BitHashSet.complement"></a>bool <u>complement</u>(E <i>e</i>);
+<dt><big><a name="BitHashSet.complement"></a>@trusted bool <u>complement</u>(E <i>e</i>);
 </big></dt>
 <dd>Insert element <pre style="display:inline;" class="d_inline_code"><i>e</i></pre> if it's present otherwise remove it.<br><br>
 
 </dd>
-<dt><big><a name="BitHashSet.contains"></a>const bool <u>contains</u>(E <i>e</i>);
+<dt><big><a name="BitHashSet.contains"></a>const @trusted bool <u>contains</u>(E <i>e</i>);
 <br><a name="BitHashSet.opBinaryRight"></a>const auto <u>opBinaryRight</u>(string op)(E <i>e</i>) if (op == "in");
 </big></dt>
 <dd>Check if element <pre style="display:inline;" class="d_inline_code"><i>e</i></pre> is contained in the set.<br><br>
@@ -37,22 +42,22 @@
 </dd>
 </dl>
 </dd>
-<dt><big><a name="malloc"></a>pure nothrow @nogc @system void* <u>malloc</u>(size_t <i>size</i>);
+<dt><big><a name="malloc"></a>pure nothrow @nogc @safe void* <u>malloc</u>(size_t <i>size</i>);
 </big></dt>
 <dd>qualify memory allocations<br><br>
 
 </dd>
-<dt><big><a name="calloc"></a>pure nothrow @nogc @system void* <u>calloc</u>(size_t <i>nmemb</i>, size_t <i>size</i>);
+<dt><big><a name="calloc"></a>pure nothrow @nogc @safe void* <u>calloc</u>(size_t <i>nmemb</i>, size_t <i>size</i>);
 </big></dt>
 <dd>qualify memory allocations<br><br>
 
 </dd>
-<dt><big><a name="realloc"></a>pure nothrow @nogc @system void* <u>realloc</u>(void* <i>ptr</i>, size_t <i>size</i>);
+<dt><big><a name="realloc"></a>pure nothrow @nogc @safe void* <u>realloc</u>(void* <i>ptr</i>, size_t <i>size</i>);
 </big></dt>
 <dd>qualify memory allocations<br><br>
 
 </dd>
-<dt><big><a name="free"></a>pure nothrow @nogc @system void <u>free</u>(void* <i>ptr</i>);
+<dt><big><a name="free"></a>pure nothrow @nogc @safe void <u>free</u>(void* <i>ptr</i>);
 </big></dt>
 <dd>qualify memory allocations<br><br>
 

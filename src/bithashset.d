@@ -51,7 +51,9 @@ struct BitHashSet(E, Growable growable = Growable.no)
         btr(_bits, ix);
     }
 
-    /// Insert element `e` if it's present otherwise remove it.
+    /** Insert element `e` if it's present otherwise remove it.
+        Returns: `true` if elements was zeroed, `false` otherwise.
+     */
     bool complement(E e) @trusted
     {
         const ix = cast(size_t)e;
@@ -59,7 +61,7 @@ struct BitHashSet(E, Growable growable = Growable.no)
         return btc(_bits, ix) != 0;
     }
 
-    /// Check if element `e` is contained in the set.
+    /// Check if element `e` is stored.
     bool contains(E e) const @trusted
     {
         const ix = cast(size_t)e;
@@ -108,7 +110,7 @@ unittest
         assert(x.contains(ix));
         assert(ix in x);
 
-        x.complement(ix);
+        assert(x.complement(ix));
         assert(!x.contains(ix));
         assert(ix !in x);
 

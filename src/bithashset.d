@@ -7,7 +7,6 @@ enum Growable { no, yes }
 /** Store presence of elements of type `E` in a set in the range `0 .. length`. */
 struct BitHashSet(E, Growable growable = Growable.no)
 {
-
     /// Construct to store `length` number of bits.
     this(size_t length) @trusted
     {

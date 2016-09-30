@@ -173,11 +173,14 @@ struct Array(E,
     else static if (semantics == AssignSemantics.none)
     {
         @disable this(this);
-        // typeof(this) dup() nothrow @trusted
-        // {
-        //     postblit();
-        //     return this;
-        // }
+
+        /// Return shallow duplicate of `this`.
+        typeof(this) dup() nothrow @trusted
+        {
+            typeof(return) copy = this;
+            copy.postblit();
+            return copy;
+        }
     }
 
     /// Called either automatically or explicitly depending on `semantics`.

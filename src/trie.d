@@ -4226,7 +4226,7 @@ inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey) @trusted
 struct RadixTree(Key, Value)
     if (allSatisfy!(isTrieableKeyType, Key))
 {
-    pragma(msg, Key.stringof ~ " " ~ Value.stringof);
+    // pragma(msg, Key.stringof ~ " " ~ Value.stringof);
     alias RawTree = RawRadixTree!(Value);
 
     private this(RawTree rawTree)

@@ -87,8 +87,9 @@ private:
 
 @safe pure nothrow @nogc unittest
 {
+    alias E = uint;
     const length = 64;
-    auto x = BitHashSet!uint(2*length);
+    auto x = BitHashSet!E(2*length);
     const y = x.dup;
 
     foreach (ix; 0 .. length)

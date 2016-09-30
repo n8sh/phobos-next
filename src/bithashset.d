@@ -3,8 +3,6 @@ module bithashset;
 /** Store precense of elements of type `E` in a set in the range `0 .. length`. */
 struct BitHashSet(E)
 {
-    alias Block = size_t;
-
     @trusted pure nothrow @nogc:
 
     @disable this();            // need length so no default construction
@@ -37,6 +35,7 @@ struct BitHashSet(E)
     bool contains(E e) const { assert(e < _length); return bt(_bits, cast(size_t)e) != 0; }
 
 private:
+    alias Block = size_t;       // allocate block type
     size_t _length;
     Block* _bits;
 }

@@ -21,7 +21,7 @@ struct BitHashSet(E)
     }
 
 
-    import core.bitop : bts, btr, bt;
+    import core.bitop : bts, btr, btc, bt;
 
     @property:
 
@@ -30,6 +30,9 @@ struct BitHashSet(E)
 
     /// Remove element `e`.
     void remove(E e) { assert(e < _length); btr(_bits, cast(size_t)e); }
+
+    /// Insert element `e` if it's present otherwise remove it.
+    bool complement(E e) { assert(e < _length); return btc(_bits, cast(size_t)e) != 0; }
 
     /// Check if element `e` is contained in the set.
     bool contains(E e) const { assert(e < _length); return bt(_bits, cast(size_t)e) != 0; }

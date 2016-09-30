@@ -10,7 +10,7 @@ struct BitHashSet(E, Growable growable = Growable.no)
     /// Construct to store `length` number of bits.
     this(size_t length) @trusted
     {
-        _bitCount = length;
+        _length = length;
         _bits = cast(Block*)calloc(blockCount, Block.sizeof);
     }
 
@@ -24,7 +24,9 @@ struct BitHashSet(E, Growable growable = Growable.no)
     /// Return deep duplicate of `this`.
     typeof(this) dup() @trusted
     {
-        auto copy = typeof(this)(_bitCount);
+        typeof(this) copy;
+        copy._length = _length;
+        copy._bits = cast(Block*)malloc(blockCount * Block.sizeof);
         copy._bits[0 .. blockCount] = this._bits[0 .. blockCount];
         return copy;
     }
@@ -37,7 +39,7 @@ struct BitHashSet(E, Growable growable = Growable.no)
     void insert(E e) @trusted
     {
         const ix = cast(size_t)e;
-        assert(ix < _bitCount);
+        assert(ix < _length);
         bts(_bits, ix);
     }
 
@@ -45,7 +47,7 @@ struct BitHashSet(E, Growable growable = Growable.no)
     void remove(E e) @trusted
     {
         const ix = cast(size_t)e;
-        assert(ix < _bitCount);
+        assert(ix < _length);
         btr(_bits, ix);
     }
 
@@ -53,7 +55,7 @@ struct BitHashSet(E, Growable growable = Growable.no)
     bool complement(E e) @trusted
     {
         const ix = cast(size_t)e;
-        assert(ix < _bitCount);
+        assert(ix < _length);
         return btc(_bits, ix) != 0;
     }
 
@@ -61,7 +63,7 @@ struct BitHashSet(E, Growable growable = Growable.no)
     bool contains(E e) const @trusted
     {
         const ix = cast(size_t)e;
-        assert(ix < _bitCount);
+        assert(ix < _length);
         return bt(_bits, ix) != 0;
     }
 
@@ -73,7 +75,7 @@ struct BitHashSet(E, Growable growable = Growable.no)
     }
 
 private:
-    size_t length() const { return _bitCount; }
+    size_t length() const { return _length; }
 
     size_t blockCount() const
     {
@@ -81,7 +83,7 @@ private:
     }
 
     alias Block = size_t;       ///< allocate block type
-    size_t _bitCount;           ///< number of bits stored
+    size_t _length;             ///< number of bits stored
     Block* _bits;               ///< bits
 }
 
@@ -89,7 +91,7 @@ private:
 {
     alias E = uint;
 
-    auto w = BitHashSet!E();
+    auto w = BitHashSet!E();    // construct empty
     assert(w.length == 0);
 
     const length = 64;

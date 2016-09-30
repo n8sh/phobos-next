@@ -5,8 +5,6 @@ struct BitHashSet(E)
 {
     @trusted pure nothrow @nogc:
 
-    @disable this();            // need length so no default construction
-
     /// Construct to store `length` number of bits.
     this(size_t length)
     {
@@ -15,6 +13,8 @@ struct BitHashSet(E)
                                    (length % Block.max ? 1 : 0),
                                    Block.sizeof);
     }
+
+    @disable this();            // need length so no default construction
 
     ~this() { free(_bits); }
 
@@ -41,8 +41,8 @@ struct BitHashSet(E)
 
 private:
     alias Block = size_t;       // allocate block type
-    size_t _length;
-    Block* _bits;
+    size_t _length;             // length
+    Block* _bits;               // bits
 }
 
 @safe pure nothrow @nogc unittest

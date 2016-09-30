@@ -44,11 +44,27 @@ struct BitHashSet(E, Growable growable = Growable.no)
 
     @property:
 
+    static if (growable == Growable.yes)
+    {
+        /// Expand to `newLength`.
+        void expandTo(size_t newLength) @trusted
+        {
+            if (length < newLength)
+            {
+                const oldBlockCount = blockCount;
+                import std.math : nextPow2;
+                this._length = newLength.nextPow2;
+                _bits = cast(Block*)realloc(_bits, blockCount * Block.sizeof);
+                _bits[oldBlockCount .. blockCount] = 0;
+            }
+        }
+    }
+
     /// Insert element `e`.
     void insert(E e) @trusted
     {
         const ix = cast(size_t)e;
-        assert(ix < _length);
+        static if (growable == Growable.yes) expandTo(ix + 1); else assert(ix < _length);
         bts(_bits, ix);
     }
 
@@ -56,7 +72,7 @@ struct BitHashSet(E, Growable growable = Growable.no)
     void remove(E e) @trusted
     {
         const ix = cast(size_t)e;
-        assert(ix < _length);
+        static if (growable == Growable.yes) expandTo(ix + 1); else assert(ix < _length);
         btr(_bits, ix);
     }
 
@@ -66,20 +82,19 @@ struct BitHashSet(E, Growable growable = Growable.no)
     bool complement(E e) @trusted
     {
         const ix = cast(size_t)e;
-        assert(ix < _length);
+        static if (growable == Growable.yes) expandTo(ix + 1); else assert(ix < _length);
         return btc(_bits, ix) != 0;
     }
 
     /// Check if element `e` is stored.
-    bool contains(E e) const @trusted
+    bool contains(E e) @trusted // TODO const
     {
         const ix = cast(size_t)e;
-        assert(ix < _length);
-        return bt(_bits, ix) != 0;
+        return ix < length && bt(_bits, ix) != 0;
     }
 
     /// ditto
-    auto opBinaryRight(string op)(E e) const
+    auto opBinaryRight(string op)(E e) // TODO const
         if (op == "in")
     {
         return contains(e);
@@ -102,7 +117,7 @@ unittest
 {
     alias E = uint;
 
-    const w = BitHashSet!E();    // construct empty
+    const w = BitHashSet!(E, Growable.no)();
     assert(w.length == 0);
 
     const length = 64;
@@ -146,6 +161,33 @@ unittest
         assert(x.contains(ix));
         x.remove(ix);
         assert(!x.contains(ix));
+    }
+}
+
+unittest
+{
+    alias E = uint;
+
+    auto x = BitHashSet!(E, Growable.yes)();
+    assert(x.length == 0);
+
+    const length = 64;
+    foreach (ix; 0 .. length)
+    {
+        assert(!x.contains(ix));
+        assert(ix !in x);
+
+        x.insert(ix);
+        assert(x.contains(ix));
+        assert(ix in x);
+
+        assert(x.complement(ix));
+        assert(!x.contains(ix));
+        assert(ix !in x);
+
+        assert(!x.complement(ix));
+        assert(x.contains(ix));
+        assert(ix in x);
     }
 }
 

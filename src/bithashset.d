@@ -26,16 +26,16 @@ struct BitHashSet(E)
     @property:
 
     /// Insert element `e`.
-    void insert(E e) { assert(e < _length); bts(_bits, cast(size_t)e); }
+    void insert(E e) { const ix = cast(size_t)e; assert(ix < _length); bts(_bits, ix); }
 
     /// Remove element `e`.
-    void remove(E e) { assert(e < _length); btr(_bits, cast(size_t)e); }
+    void remove(E e) { const ix = cast(size_t)e; assert(ix < _length); btr(_bits, ix); }
 
     /// Insert element `e` if it's present otherwise remove it.
-    bool complement(E e) { assert(e < _length); return btc(_bits, cast(size_t)e) != 0; }
+    bool complement(E e) { const ix = cast(size_t)e; assert(ix < _length); return btc(_bits, ix) != 0; }
 
     /// Check if element `e` is contained in the set.
-    bool contains(E e) const { assert(e < _length); return bt(_bits, cast(size_t)e) != 0; }
+    bool contains(E e) const { const ix = cast(size_t)e; assert(ix < _length); return bt(_bits, ix) != 0; }
 
 private:
     alias Block = size_t;       // allocate block type
@@ -52,6 +52,10 @@ private:
     {
         assert(!set.contains(ix));
         set.insert(ix);
+        assert(set.contains(ix));
+        set.complement(ix);
+        assert(!set.contains(ix));
+        set.complement(ix);
         assert(set.contains(ix));
     }
 

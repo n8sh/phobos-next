@@ -153,12 +153,7 @@ struct Array(E,
     {
         this(this) nothrow @trusted
         {
-            auto rhs_storePtr = _storePtr; // save store pointer
-            allocateStorePtr(_length);     // allocate new store pointer
-            foreach (const i; 0 .. _length)
-            {
-                ptr[i] = rhs_storePtr[i]; // copy from old to new
-            }
+            postblit();
         }
 
         /// TODO deactivate when internal RC-logic is ready
@@ -178,6 +173,22 @@ struct Array(E,
     else static if (semantics == AssignSemantics.none)
     {
         @disable this(this);
+        // typeof(this) dup() nothrow @trusted
+        // {
+        //     postblit();
+        //     return this;
+        // }
+    }
+
+    /// Called either automatically or explicitly depending on `semantics`.
+    private void postblit() nothrow @trusted
+    {
+        auto rhs_storePtr = _storePtr; // save store pointer
+        allocateStorePtr(_length);     // allocate new store pointer
+        foreach (const i; 0 .. _length)
+        {
+            ptr[i] = rhs_storePtr[i]; // copy from old to new
+        }
     }
 
     void opAssign(typeof(null))

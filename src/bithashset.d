@@ -7,6 +7,7 @@ struct BitHashSet(E)
 
     @disable this();            // need length so no default construction
 
+    /// Construct to store `length` number of bits.
     this(size_t length)
     {
         _length = length;
@@ -15,11 +16,9 @@ struct BitHashSet(E)
                                    Block.sizeof);
     }
 
-    ~this()
-    {
-        free(_bits);
-    }
+    ~this() { free(_bits); }
 
+    @disable this(this);        // no copy ctor for now
 
     import core.bitop : bts, btr, btc, bt;
 
@@ -37,6 +36,9 @@ struct BitHashSet(E)
     /// Check if element `e` is contained in the set.
     bool contains(E e) const { const ix = cast(size_t)e; assert(ix < _length); return bt(_bits, ix) != 0; }
 
+    /// ditto
+    auto opBinaryRight(string op)(E e) const if (op == "in") { return contains(e); }
+
 private:
     alias Block = size_t;       // allocate block type
     size_t _length;
@@ -51,12 +53,19 @@ private:
     foreach (ix; 0 .. length)
     {
         assert(!set.contains(ix));
+        assert(ix !in set);
+
         set.insert(ix);
         assert(set.contains(ix));
+        assert(ix in set);
+
         set.complement(ix);
         assert(!set.contains(ix));
+        assert(ix !in set);
+
         set.complement(ix);
         assert(set.contains(ix));
+        assert(ix in set);
     }
 
     foreach (ix; 0 .. length)
@@ -67,6 +76,7 @@ private:
     }
 }
 
+/// qualify memory allocations
 extern(C) pure nothrow @system @nogc
 {
     void* malloc(size_t size);

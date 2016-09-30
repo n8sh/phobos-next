@@ -3,6 +3,8 @@ module bithashset;
 /** Store precense of elements of type `E` in a set in the range `0 .. length`. */
 struct BitHashSet(E)
 {
+    alias Block = size_t;
+
     @trusted pure nothrow @nogc:
 
     @disable this();            // need length so no default construction
@@ -10,8 +12,9 @@ struct BitHashSet(E)
     this(size_t length)
     {
         _length = length;
-        _bits = cast(size_t*)calloc(length / size_t.max +
-                                    (length % size_t.max ? 1 : 0), size_t.sizeof);
+        _bits = cast(Block*)calloc(length / Block.max +
+                                    (length % Block.max ? 1 : 0),
+                                    Block.sizeof);
     }
 
     ~this()
@@ -35,7 +38,7 @@ struct BitHashSet(E)
 
 private:
     size_t _length;
-    size_t* _bits;
+    Block* _bits;
 }
 
 @safe pure nothrow @nogc unittest

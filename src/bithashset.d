@@ -72,14 +72,14 @@ struct BitHashSet(E, Growable growable = Growable.no)
         return contains(e);
     }
 
-    private size_t length() const { return _bitCount; }
+private:
+    size_t length() const { return _bitCount; }
 
-    private size_t blockCount() const
+    size_t blockCount() const
     {
         return length / Block.max + (length % Block.max ? 1 : 0);
     }
 
-private:
     alias Block = size_t;       ///< allocate block type
     size_t _bitCount;           ///< number of bits stored
     Block* _bits;               ///< bits
@@ -88,6 +88,10 @@ private:
 @safe pure nothrow @nogc unittest
 {
     alias E = uint;
+
+    auto w = BitHashSet!E();
+    assert(w.length == 0);
+
     const length = 64;
     auto x = BitHashSet!E(2*length);
     const y = x.dup;

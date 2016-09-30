@@ -23,9 +23,9 @@ struct BitHashSet(E)
     import core.bitop : bts, btr, bt;
 
     @property:
-    void insert(E ix) { assert(ix < _length); bts(_bits, ix); }
-    void remove(E ix) { assert(ix < _length); btr(_bits, ix); }
-    bool contains(E ix) const { assert(ix < _length); return bt(_bits, ix) != 0; }
+    void insert(E ix) { assert(ix < _length); bts(_bits, cast(size_t)ix); }
+    void remove(E ix) { assert(ix < _length); btr(_bits, cast(size_t)ix); }
+    bool contains(E ix) const { assert(ix < _length); return bt(_bits, cast(size_t)ix) != 0; }
 
 private:
     size_t _length;
@@ -36,11 +36,19 @@ private:
 {
     const length = 64;
     auto set = BitHashSet!uint(length);
+
     foreach (ix; 0 .. length)
     {
         assert(!set.contains(ix));
         set.insert(ix);
         assert(set.contains(ix));
+    }
+
+    foreach (ix; 0 .. length)
+    {
+        assert(set.contains(ix));
+        set.remove(ix);
+        assert(!set.contains(ix));
     }
 }
 

@@ -11,8 +11,8 @@ struct BitHashSet(E)
     {
         _length = length;
         _bits = cast(Block*)calloc(length / Block.max +
-                                    (length % Block.max ? 1 : 0),
-                                    Block.sizeof);
+                                   (length % Block.max ? 1 : 0),
+                                   Block.sizeof);
     }
 
     ~this()

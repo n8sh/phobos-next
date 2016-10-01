@@ -113,9 +113,9 @@ struct BitHashSet(E, Growable growable = Growable.no)
     }
 
 private:
-    size_t length() const { return _length; }
+    @property size_t length() const { return _length; }
 
-    size_t blockCount() const
+    @property size_t blockCount() const
     {
         return length / Block.sizeof + (length % Block.sizeof ? 1 : 0);
     }

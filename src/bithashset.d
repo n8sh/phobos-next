@@ -13,9 +13,8 @@ unittest
 }
 
 // version = show;
-
-version(show)
-import dbgio : dln;
+// version(show)
+// import dbgio : dln;
 
 /** Store presence of elements of type `E` in a set in the range `0 .. length`. */
 struct BitHashSet(E, Growable growable = Growable.no)
@@ -59,11 +58,8 @@ struct BitHashSet(E, Growable growable = Growable.no)
                 const oldBlockCount = blockCount;
                 import std.math : nextPow2;
                 this._length = newLength.nextPow2;
-                version(show) dln("newLength:", this._length);
-                version(show) dln("blockCount:", blockCount);
                 _bits = cast(Block*)realloc(_bits, blockCount * Block.sizeof);
                 _bits[oldBlockCount .. blockCount] = 0;
-                version(show) dln("_bits:", _bits[0 .. blockCount]);
             }
         }
     }
@@ -71,7 +67,6 @@ struct BitHashSet(E, Growable growable = Growable.no)
     /// Insert element `e`.
     void insert(E e) @trusted
     {
-        version(show) dln("insert:", e);
         const ix = cast(size_t)e;
         static if (growable == Growable.yes) { assureCapacity(ix + 1); } else { assert(ix < _length); }
         bts(_bits, ix);
@@ -80,7 +75,6 @@ struct BitHashSet(E, Growable growable = Growable.no)
     /// Remove element `e`.
     void remove(E e) @trusted
     {
-        version(show) dln("remove:", e);
         const ix = cast(size_t)e;
         static if (growable == Growable.yes) { assureCapacity(ix + 1); } else { assert(ix < _length); }
         btr(_bits, ix);
@@ -91,7 +85,6 @@ struct BitHashSet(E, Growable growable = Growable.no)
      */
     bool complement(E e) @trusted
     {
-        version(show) dln("complement:", e);
         const ix = cast(size_t)e;
         static if (growable == Growable.yes) { assureCapacity(ix + 1); } else { assert(ix < _length); }
         return btc(_bits, ix) != 0;
@@ -100,7 +93,6 @@ struct BitHashSet(E, Growable growable = Growable.no)
     /// Check if element `e` is stored.
     bool contains(E e) @trusted // TODO const
     {
-        version(show) dln("contains:", e);
         const ix = cast(size_t)e;
         return ix < length && bt(_bits, ix) != 0;
     }
@@ -139,7 +131,6 @@ unittest
 
     foreach (ix; 0 .. length)
     {
-        version(show) dln("ix:", ix);
         assert(!x.contains(ix));
         assert(ix !in x);
 

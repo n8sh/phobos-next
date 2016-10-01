@@ -12,7 +12,10 @@ unittest
     static assert(!isBitHashable!string);
 }
 
-// import dbgio : dln;
+// version = show;
+
+version(show)
+import dbgio : dln;
 
 /** Store presence of elements of type `E` in a set in the range `0 .. length`. */
 struct BitHashSet(E, Growable growable = Growable.no)
@@ -49,16 +52,18 @@ struct BitHashSet(E, Growable growable = Growable.no)
     static if (growable == Growable.yes)
     {
         /// Expand to `newLength`.
-        void expandTo(size_t newLength) @trusted
+        void assureCapacity(size_t newLength) @trusted
         {
             if (length < newLength)
             {
                 const oldBlockCount = blockCount;
                 import std.math : nextPow2;
                 this._length = newLength.nextPow2;
-                // dln("nextPow2:", this._length);
+                version(show) dln("newLength:", this._length);
+                version(show) dln("blockCount:", blockCount);
                 _bits = cast(Block*)realloc(_bits, blockCount * Block.sizeof);
                 _bits[oldBlockCount .. blockCount] = 0;
+                version(show) dln("_bits:", _bits[0 .. blockCount]);
             }
         }
     }
@@ -66,18 +71,18 @@ struct BitHashSet(E, Growable growable = Growable.no)
     /// Insert element `e`.
     void insert(E e) @trusted
     {
-        // dln(e);
+        version(show) dln("insert:", e);
         const ix = cast(size_t)e;
-        static if (growable == Growable.yes) { expandTo(ix + 1); } else { assert(ix < _length); }
+        static if (growable == Growable.yes) { assureCapacity(ix + 1); } else { assert(ix < _length); }
         bts(_bits, ix);
     }
 
     /// Remove element `e`.
     void remove(E e) @trusted
     {
-        // dln(e);
+        version(show) dln("remove:", e);
         const ix = cast(size_t)e;
-        static if (growable == Growable.yes) { expandTo(ix + 1); } else { assert(ix < _length); }
+        static if (growable == Growable.yes) { assureCapacity(ix + 1); } else { assert(ix < _length); }
         btr(_bits, ix);
     }
 
@@ -86,16 +91,16 @@ struct BitHashSet(E, Growable growable = Growable.no)
      */
     bool complement(E e) @trusted
     {
-        // dln(e);
+        version(show) dln("complement:", e);
         const ix = cast(size_t)e;
-        static if (growable == Growable.yes) { expandTo(ix + 1); } else { assert(ix < _length); }
+        static if (growable == Growable.yes) { assureCapacity(ix + 1); } else { assert(ix < _length); }
         return btc(_bits, ix) != 0;
     }
 
     /// Check if element `e` is stored.
     bool contains(E e) @trusted // TODO const
     {
-        // dln(e);
+        version(show) dln("contains:", e);
         const ix = cast(size_t)e;
         return ix < length && bt(_bits, ix) != 0;
     }
@@ -112,7 +117,7 @@ private:
 
     size_t blockCount() const
     {
-        return length / Block.max + (length % Block.max ? 1 : 0);
+        return length / Block.sizeof + (length % Block.sizeof ? 1 : 0);
     }
 
     alias Block = size_t;       ///< allocate block type
@@ -127,13 +132,14 @@ unittest
     const w = BitHashSet!(E, Growable.no)();
     assert(w.length == 0);
 
-    const length = 64;
+    const length = 2^^6;
     auto x = BitHashSet!E(2*length);
     const y = x.dup;
     assert(y.length == 2*length);
 
     foreach (ix; 0 .. length)
     {
+        version(show) dln("ix:", ix);
         assert(!x.contains(ix));
         assert(ix !in x);
 
@@ -178,7 +184,7 @@ unittest
     auto x = BitHashSet!(E, Growable.yes)();
     assert(x.length == 0);
 
-    const length = 64;
+    const length = 2^^16;
     foreach (ix; 0 .. length)
     {
         assert(!x.contains(ix));

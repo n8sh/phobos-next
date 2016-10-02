@@ -46,7 +46,7 @@ struct BitHashSet(E, Growable growable = Growable.no)
 
     @disable this(this);        // no copy ctor for now
 
-    /// Returns: deep duplicate of `this`.
+    /// Returns: shallow (and deep) duplicate of `this`.
     typeof(this) dup() @trusted
     {
         typeof(this) copy;

@@ -149,7 +149,6 @@ struct Array(E,
         }
     }
 
-    /// TODO deactivate when internal RC-logic is ready
     static if (semantics == AssignmentSemantics.copy)
     {
         this(this) nothrow @trusted

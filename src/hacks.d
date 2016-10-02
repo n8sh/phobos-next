@@ -2,7 +2,9 @@ module hacks;
 
 import std.traits : isFunctionPointer, isDelegate, functionAttributes, FunctionAttribute, SetFunctionAttributes, functionLinkage;
 
-/// Return `T` assumed to be `pure`.
+/** Return `T` assumed to be `pure`.
+    Copied from https://dlang.org/phobos/std_traits.html#SetFunctionAttributes.
+    */
 auto assumePure(T)(T t)
     if (isFunctionPointer!T || isDelegate!T)
 {

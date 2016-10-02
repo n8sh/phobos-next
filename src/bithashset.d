@@ -27,12 +27,12 @@ struct BitHashSet(E, Growable growable = Growable.no)
     this(size_t length) @trusted
     {
         _length = length;
-        _bits = cast(Block*)calloc(blockCount, Block.sizeof);
+        _blocksPtr = cast(Block*)calloc(blockCount, Block.sizeof);
     }
 
     ~this() @trusted
     {
-        free(_bits);
+        free(_blocksPtr);
     }
 
     @disable this(this);        // no copy ctor for now
@@ -42,8 +42,8 @@ struct BitHashSet(E, Growable growable = Growable.no)
     {
         typeof(this) copy;
         copy._length = _length;
-        copy._bits = cast(Block*)malloc(blockCount * Block.sizeof);
-        copy._bits[0 .. blockCount] = this._bits[0 .. blockCount];
+        copy._blocksPtr = cast(Block*)malloc(blockCount * Block.sizeof);
+        copy._blocksPtr[0 .. blockCount] = this._blocksPtr[0 .. blockCount];
         return copy;
     }
 
@@ -60,8 +60,8 @@ struct BitHashSet(E, Growable growable = Growable.no)
                 const oldBlockCount = blockCount;
                 import std.math : nextPow2;
                 this._length = newLength.nextPow2;
-                _bits = cast(Block*)realloc(_bits, blockCount * Block.sizeof);
-                _bits[oldBlockCount .. blockCount] = 0;
+                _blocksPtr = cast(Block*)realloc(_blocksPtr, blockCount * Block.sizeof);
+                _blocksPtr[oldBlockCount .. blockCount] = 0;
             }
         }
     }
@@ -71,7 +71,7 @@ struct BitHashSet(E, Growable growable = Growable.no)
     {
         const ix = cast(size_t)e;
         static if (growable == Growable.yes) { assureCapacity(ix + 1); _length = ix + 1; } else { assert(ix < _length); }
-        bts(_bits, ix);
+        bts(_blocksPtr, ix);
     }
 
     /// Remove element `e`.
@@ -79,7 +79,7 @@ struct BitHashSet(E, Growable growable = Growable.no)
     {
         const ix = cast(size_t)e;
         static if (growable == Growable.yes) { assureCapacity(ix + 1); _length = ix + 1; } else { assert(ix < _length); }
-        btr(_bits, ix);
+        btr(_blocksPtr, ix);
     }
 
     /** Insert element `e` if it's present otherwise remove it.
@@ -89,14 +89,14 @@ struct BitHashSet(E, Growable growable = Growable.no)
     {
         const ix = cast(size_t)e;
         static if (growable == Growable.yes) { assureCapacity(ix + 1); _length = ix + 1; } else { assert(ix < _length); }
-        return btc(_bits, ix) != 0;
+        return btc(_blocksPtr, ix) != 0;
     }
 
     /// Check if element `e` is stored/contained.
     bool contains(E e) @trusted const
     {
         const ix = cast(size_t)e;
-        return ix < length && bt(_bits, ix) != 0;
+        return ix < length && bt(_blocksPtr, ix) != 0;
     }
 
     /// ditto
@@ -116,7 +116,7 @@ private:
 
     alias Block = size_t;       ///< allocate block type
     size_t _length;             ///< number of bits stored
-    Block* _bits;               ///< bits
+    Block* _blocksPtr;          ///< pointer to blocks of bits
 }
 
 ///

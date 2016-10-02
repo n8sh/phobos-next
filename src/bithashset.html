@@ -12,33 +12,35 @@
 <pre class="d_code">
 <font color=blue>alias</font> E = <font color=blue>uint</font>;
 
-<font color=blue>const</font> w = <u>BitHashSet</u>!(E, Growable.no)();
-<font color=blue>assert</font>(w.length == 0);
+<font color=blue>const</font> set0 = <u>BitHashSet</u>!(E, Growable.no)();
+<font color=blue>assert</font>(set0.length == 0);
 
 <font color=blue>const</font> length = 2^^6;
-<font color=blue>auto</font> x = <u>BitHashSet</u>!E(2*length);
-<font color=blue>const</font> y = x.dup;
+<font color=blue>auto</font> set = <u>BitHashSet</u>!E(2*length);
+<font color=blue>const</font> y = set.dup;
 <font color=blue>assert</font>(y.length == 2*length);
 
 <font color=blue>foreach</font> (ix; 0 .. length)
 {
-    <font color=blue>assert</font>(!x.contains(ix));
-    <font color=blue>assert</font>(ix !<font color=blue>in</font> x);
+    <font color=blue>assert</font>(!set.contains(ix));
+    <font color=blue>assert</font>(ix !<font color=blue>in</font> set);
 
-    x.insert(ix);
-    <font color=blue>assert</font>(x.contains(ix));
-    <font color=blue>assert</font>(ix <font color=blue>in</font> x);
+    set.insert(ix);
+    <font color=blue>assert</font>(set.contains(ix));
+    <font color=blue>assert</font>(ix <font color=blue>in</font> set);
 
-    <font color=blue>assert</font>(x.complement(ix));
-    <font color=blue>assert</font>(!x.contains(ix));
-    <font color=blue>assert</font>(ix !<font color=blue>in</font> x);
+    <font color=blue>assert</font>(set.complement(ix));
+    <font color=blue>assert</font>(!set.contains(ix));
+    <font color=blue>assert</font>(ix !<font color=blue>in</font> set);
 
-    <font color=blue>assert</font>(!x.complement(ix));
-    <font color=blue>assert</font>(x.contains(ix));
-    <font color=blue>assert</font>(ix <font color=blue>in</font> x);
+    <font color=blue>assert</font>(!set.complement(ix));
+    <font color=blue>assert</font>(set.contains(ix));
+    <font color=blue>assert</font>(ix <font color=blue>in</font> set);
+
+    <font color=blue>assert</font>(!set.contains(ix + 1));
 }
 
-<font color=blue>auto</font> z = x.dup;
+<font color=blue>auto</font> z = set.dup;
 <font color=blue>foreach</font> (ix; 0 .. length)
 {
     <font color=blue>assert</font>(z.contains(ix));
@@ -47,41 +49,43 @@
 
 <font color=blue>foreach</font> (ix; 0 .. length)
 {
-    <font color=blue>assert</font>(x.contains(ix));
-    <font color=blue>assert</font>(ix <font color=blue>in</font> x);
+    <font color=blue>assert</font>(set.contains(ix));
+    <font color=blue>assert</font>(ix <font color=blue>in</font> set);
 }
 
 <font color=blue>foreach</font> (ix; 0 .. length)
 {
-    <font color=blue>assert</font>(x.contains(ix));
-    x.remove(ix);
-    <font color=blue>assert</font>(!x.contains(ix));
+    <font color=blue>assert</font>(set.contains(ix));
+    set.remove(ix);
+    <font color=blue>assert</font>(!set.contains(ix));
 }
 </pre>
 <br><br><b>Examples:</b><br>
 <pre class="d_code">
 <font color=blue>alias</font> E = <font color=blue>uint</font>;
 
-<font color=blue>auto</font> x = <u>BitHashSet</u>!(E, Growable.yes)();
-<font color=blue>assert</font>(x.length == 0);
+<font color=blue>auto</font> set = <u>BitHashSet</u>!(E, Growable.yes)();
+<font color=blue>assert</font>(set.length == 0);
 
 <font color=blue>const</font> length = 2^^16;
 <font color=blue>foreach</font> (ix; 0 .. length)
 {
-    <font color=blue>assert</font>(!x.contains(ix));
-    <font color=blue>assert</font>(ix !<font color=blue>in</font> x);
+    <font color=blue>assert</font>(!set.contains(ix));
+    <font color=blue>assert</font>(ix !<font color=blue>in</font> set);
 
-    x.insert(ix);
-    <font color=blue>assert</font>(x.contains(ix));
-    <font color=blue>assert</font>(ix <font color=blue>in</font> x);
+    set.insert(ix);
+    <font color=blue>assert</font>(set.contains(ix));
+    <font color=blue>assert</font>(ix <font color=blue>in</font> set);
 
-    <font color=blue>assert</font>(x.complement(ix));
-    <font color=blue>assert</font>(!x.contains(ix));
-    <font color=blue>assert</font>(ix !<font color=blue>in</font> x);
+    <font color=blue>assert</font>(set.complement(ix));
+    <font color=blue>assert</font>(!set.contains(ix));
+    <font color=blue>assert</font>(ix !<font color=blue>in</font> set);
 
-    <font color=blue>assert</font>(!x.complement(ix));
-    <font color=blue>assert</font>(x.contains(ix));
-    <font color=blue>assert</font>(ix <font color=blue>in</font> x);
+    <font color=blue>assert</font>(!set.complement(ix));
+    <font color=blue>assert</font>(set.contains(ix));
+    <font color=blue>assert</font>(ix <font color=blue>in</font> set);
+
+    <font color=blue>assert</font>(!set.contains(ix + 1));
 }
 </pre>
 <br><br><b>Examples:</b><br>
@@ -89,21 +93,27 @@ test <pre style="display:inline;" class="d_inline_code">RefCounted</pre> storage
 <pre class="d_code">
 <font color=blue>import</font> std.typecons : RefCounted;
 <font color=blue>alias</font> E = <font color=blue>int</font>;
-RefCounted!(<u>BitHashSet</u>!(E, Growable.yes)) x;
+RefCounted!(<u>BitHashSet</u>!(E, Growable.yes)) set;
 
-<font color=blue>assert</font>(x.length == 0);
+<font color=blue>assert</font>(set.length == 0);
+<font color=blue>assert</font>(set.capacity == 0);
 
-x.insert(0);
-<font color=blue>assert</font>(x.length == 1);
+set.insert(0);
+<font color=blue>assert</font>(set.length == 1);
+<font color=blue>assert</font>(set.capacity == 2);
 
-<font color=blue>auto</font> y = x;
+<font color=blue>auto</font> y = set;
 
 <font color=blue>foreach</font> (<font color=blue>const</font> e; 1 .. 1000)
 {
-    x.insert(e);
-    <font color=blue>assert</font>(x.length == e + 1);
+    set.insert(e);
+    <font color=blue>assert</font>(set.length == e + 1);
     <font color=blue>assert</font>(y.length == e + 1);
 }
+
+<font color=blue>auto</font> set1 = RefCounted!(<u>BitHashSet</u>!(E, Growable.yes))(42);
+<font color=blue>assert</font>(set1.length == 42);
+<font color=blue>assert</font>(set1.capacity == 64);
 </pre>
 <br><br>
 <dl><dt><big><a name="BitHashSet.this"></a>@trusted this(size_t <i>length</i>);
@@ -115,11 +125,6 @@ x.insert(0);
 </big></dt>
 <dd><b>Returns:</b><br>
 deep duplicate of <pre style="display:inline;" class="d_inline_code">this</pre>.<br><br>
-
-</dd>
-<dt><big><a name="BitHashSet.assureCapacity"></a>@trusted void <u>assureCapacity</u>(size_t <i>newLength</i>);
-</big></dt>
-<dd>Expand to <pre style="display:inline;" class="d_inline_code"><i>newLength</i></pre>.<br><br>
 
 </dd>
 <dt><big><a name="BitHashSet.insert"></a>@trusted void <u>insert</u>(E <i>e</i>);

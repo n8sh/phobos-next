@@ -523,7 +523,7 @@ struct Bound(V,
         return this;
     }
 
-    private V _value;                      ///< Payload.
+    private V _value;           /// Payload.
 }
 
 /** Instantiate \c Bound from a single expression $(D expr).

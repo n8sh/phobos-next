@@ -114,9 +114,9 @@ private:
         return length / Block.sizeof + (length % Block.sizeof ? 1 : 0);
     }
 
-    alias Block = size_t;       ///< allocate block type
-    size_t _length;             ///< number of bits stored
-    Block* _blocksPtr;          ///< pointer to blocks of bits
+    alias Block = size_t;       /// Allocated block type.
+    size_t _length;             /// Number of bits stored.
+    Block* _blocksPtr;          /// Pointer to blocks of bits.
 }
 
 ///

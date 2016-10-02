@@ -55,9 +55,9 @@ enum isMyArray(C) = isInstanceOf!(Array, C);
 /// Semantics of copy construction and assignment.
 enum AssignmentSemantics
 {
-    none,              ///< for reference counting use `std.typecons.RefCounted`
-    move,              ///< only move construction allowed
-    copy               ///< always copy (often not the desirable)
+    none,              /// for reference counting use `std.typecons.RefCounted`
+    move,              /// only move construction allowed
+    copy               /// always copy (often not the desirable)
 }
 
 /** Small-size-optimized (SSO-packed) array of value types `E` with optional
@@ -846,7 +846,7 @@ struct Array(E,
     {
         return _length;
     }
-    alias opDollar = length;    ///< ditto
+    alias opDollar = length;    /// ditto
 
     /// Shrink length to `length`.
     void shrinkTo(size_t length) @safe
@@ -854,7 +854,7 @@ struct Array(E,
         assert(length <= _length);
         _length = length;
     }
-    alias opDollar = length;    ///< ditto
+    alias opDollar = length;    /// ditto
 
     /// Get length of reserved store.
     size_t reservedLength() const @safe

@@ -116,7 +116,7 @@ auto bijectToUnsigned(T)(T a, bool descending)
 void bijectFromUnsigned(U)(U a, ref U b)
     if (isUnsigned!U)
 {
-    b = a;                  ///< Identity.
+    b = a;                  /// Identity.
 }
 
 /// ditto

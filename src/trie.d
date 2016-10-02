@@ -3933,11 +3933,11 @@ template RawRadixTree(Value = void)
         static struct RCStore
         {
             Node root;
-            size_t length; ///< Number of elements (keys or key-value-pairs) currently stored under `root`
+            size_t length; /// Number of elements (keys or key-value-pairs) currently stored under `root`
 
             // TODO make these 3 fit in a size_t for the 64-bit case
-            RefCount refCount;    ///< Number of references.
-            RefCount rangeRefCount; ///< Number of range references.
+            RefCount refCount;    /// Number of references.
+            RefCount rangeRefCount; /// Number of range references.
         }
 
         void assureRCStore()

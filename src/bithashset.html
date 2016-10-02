@@ -102,7 +102,7 @@ set.insert(0);
 <font color=blue>assert</font>(set.length == 1);
 <font color=blue>assert</font>(set.capacity == 2);
 
-<font color=blue>auto</font> y = set;
+<font color=blue>const</font> y = set;
 
 <font color=blue>foreach</font> (<font color=blue>const</font> e; 1 .. 1000)
 {
@@ -111,7 +111,7 @@ set.insert(0);
     <font color=blue>assert</font>(y.length == e + 1);
 }
 
-<font color=blue>auto</font> set1 = RefCounted!(<u>BitHashSet</u>!(E, Growable.yes))(42);
+<font color=blue>const</font> set1 = RefCounted!(<u>BitHashSet</u>!(E, Growable.yes))(42);
 <font color=blue>assert</font>(set1.length == 42);
 <font color=blue>assert</font>(set1.capacity == 64);
 </pre>
@@ -149,6 +149,11 @@ deep duplicate of <pre style="display:inline;" class="d_inline_code">this</pre>.
 <br><a name="BitHashSet.opBinaryRight"></a>const auto <u>opBinaryRight</u>(string op)(E <i>e</i>) if (op == "in");
 </big></dt>
 <dd>Check if element <pre style="display:inline;" class="d_inline_code"><i>e</i></pre> is stored/contained.<br><br>
+
+</dd>
+<dt><big><a name="BitHashSet.length"></a>const @property size_t <u>length</u>();
+</big></dt>
+<dd>Get <u>length</u>.<br><br>
 
 </dd>
 </dl>

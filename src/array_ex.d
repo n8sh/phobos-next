@@ -52,6 +52,7 @@ template shouldAddGCRange(T)
 import std.traits : isInstanceOf;
 enum isMyArray(C) = isInstanceOf!(Array, C);
 
+/// Semantics of copy construction and assignment.
 enum AssignmentSemantics
 {
     none,              ///< for reference counting use `std.typecons.RefCounted`

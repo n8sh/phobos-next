@@ -90,7 +90,7 @@ struct BitHashSet(E, Growable growable = Growable.no)
         return btc(_bits, ix) != 0;
     }
 
-    /// Check if element `e` is stored.
+    /// Check if element `e` is stored/contained.
     bool contains(E e) @trusted // TODO const
     {
         const ix = cast(size_t)e;

@@ -5,18 +5,24 @@
         </head><body>
         <h1>bithashset</h1>
 <br><br>
-<dl><dt><big><a name="BitHashSet"></a>struct <u>BitHashSet</u>(E, Growable growable = Growable.no);
+<dl><dt><big><a name="BitHashSet"></a>struct <u>BitHashSet</u>(E, Growable growable = Growable.no) if (isBitHashable!E);
 </big></dt>
 <dd>Store presence of elements of type <pre style="display:inline;" class="d_inline_code">E</pre> in a set in the range <pre style="display:inline;" class="d_inline_code">0 .. length</pre>.<br><br>
 
 <dl><dt><big><a name="BitHashSet.this"></a>@trusted this(size_t <i>length</i>);
 </big></dt>
-<dd>Construct to store <pre style="display:inline;" class="d_inline_code"><i>length</i></pre> number of bits.<br><br>
+<dd>Construct set to store at most <pre style="display:inline;" class="d_inline_code"><i>length</i></pre> number of bits.<br><br>
 
 </dd>
 <dt><big><a name="BitHashSet.dup"></a>@trusted typeof(this) <u>dup</u>();
 </big></dt>
-<dd>Return deep duplicate of <pre style="display:inline;" class="d_inline_code">this</pre>.<br><br>
+<dd><b>Returns:</b><br>
+deep duplicate of <pre style="display:inline;" class="d_inline_code">this</pre>.<br><br>
+
+</dd>
+<dt><big><a name="BitHashSet.assureCapacity"></a>@trusted void <u>assureCapacity</u>(size_t <i>newLength</i>);
+</big></dt>
+<dd>Expand to <pre style="display:inline;" class="d_inline_code"><i>newLength</i></pre>.<br><br>
 
 </dd>
 <dt><big><a name="BitHashSet.insert"></a>@trusted void <u>insert</u>(E <i>e</i>);
@@ -31,13 +37,16 @@
 </dd>
 <dt><big><a name="BitHashSet.complement"></a>@trusted bool <u>complement</u>(E <i>e</i>);
 </big></dt>
-<dd>Insert element <pre style="display:inline;" class="d_inline_code"><i>e</i></pre> if it's present otherwise remove it.<br><br>
+<dd>Insert element <pre style="display:inline;" class="d_inline_code"><i>e</i></pre> if it's present otherwise remove it.
+<br><br>
+<b>Returns:</b><br>
+<pre style="display:inline;" class="d_inline_code">true</pre> if elements was zeroed, <pre style="display:inline;" class="d_inline_code">false</pre> otherwise.<br><br>
 
 </dd>
-<dt><big><a name="BitHashSet.contains"></a>const @trusted bool <u>contains</u>(E <i>e</i>);
-<br><a name="BitHashSet.opBinaryRight"></a>const auto <u>opBinaryRight</u>(string op)(E <i>e</i>) if (op == "in");
+<dt><big><a name="BitHashSet.contains"></a>@trusted bool <u>contains</u>(E <i>e</i>);
+<br><a name="BitHashSet.opBinaryRight"></a>auto <u>opBinaryRight</u>(string op)(E <i>e</i>) if (op == "in");
 </big></dt>
-<dd>Check if element <pre style="display:inline;" class="d_inline_code"><i>e</i></pre> is contained in the set.<br><br>
+<dd>Check if element <pre style="display:inline;" class="d_inline_code"><i>e</i></pre> is stored/contained.<br><br>
 
 </dd>
 </dl>

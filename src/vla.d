@@ -3,13 +3,6 @@
  */
 module vla;
 
-extern(C) pure nothrow @system @nogc
-{
-    void* malloc(size_t size);
-    void* realloc(void* ptr, size_t size);
-    void free(void* ptr);
-}
-
 /** Construct an instance of a variable-length aggregate (`struct`) type `T`.
     Construction is done using `malloc` plus `emplace`.
 */
@@ -43,3 +36,5 @@ template hasVariableLength(T)
     import std.traits: hasMember;
     enum hasVariableLength = hasMember!(T, "allocationSizeOfCapacity");
 }
+
+import qcmeman;

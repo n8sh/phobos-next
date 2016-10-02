@@ -156,7 +156,6 @@ struct Array(E,
             postblit();
         }
 
-        /// TODO deactivate when internal RC-logic is ready
         void opAssign(Array rhs) @trusted
         {
             // self-assignment may happen when assigning derefenced pointer

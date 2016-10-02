@@ -10,9 +10,9 @@ unittest
     static assert(!isBitHashable!string);
 }
 
-// version = show;
-// version(show)
-// import dbgio : dln;
+version = show;
+version(show)
+import dbgio : dln;
 
 /** Store presence of elements of type `E` in a set in the range `0 .. length`. */
 struct BitHashSet(E, Growable growable = Growable.no)
@@ -55,11 +55,12 @@ struct BitHashSet(E, Growable growable = Growable.no)
         /// Expand to `newLength`.
         void assureCapacity(size_t newLength) @trusted
         {
-            if (length < newLength)
+            if (_length < newLength)
             {
                 const oldBlockCount = blockCount;
                 import std.math : nextPow2;
                 this._length = newLength.nextPow2;
+                dln("Expanded to new ", this._length);
                 _blocksPtr = cast(Block*)realloc(_blocksPtr, blockCount * Block.sizeof);
                 _blocksPtr[oldBlockCount .. blockCount] = 0;
             }
@@ -96,7 +97,7 @@ struct BitHashSet(E, Growable growable = Growable.no)
     bool contains(E e) @trusted const
     {
         const ix = cast(size_t)e;
-        return ix < length && bt(_blocksPtr, ix) != 0;
+        return ix < _length && bt(_blocksPtr, ix) != 0;
     }
 
     /// ditto
@@ -115,7 +116,7 @@ private:
     }
 
     alias Block = size_t;       /// Allocated block type.
-    size_t _length;             /// Number of bits stored.
+    size_t _length;             /// Number of bits stored. Note that capacity is not needed here.
     Block* _blocksPtr;          /// Pointer to blocks of bits.
 }
 

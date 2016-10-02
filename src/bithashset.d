@@ -128,29 +128,29 @@ private:
     assert(w.length == 0);
 
     const length = 2^^6;
-    auto x = BitHashSet!E(2*length);
-    const y = x.dup;
+    auto set = BitHashSet!E(2*length);
+    const y = set.dup;
     assert(y.length == 2*length);
 
     foreach (ix; 0 .. length)
     {
-        assert(!x.contains(ix));
-        assert(ix !in x);
+        assert(!set.contains(ix));
+        assert(ix !in set);
 
-        x.insert(ix);
-        assert(x.contains(ix));
-        assert(ix in x);
+        set.insert(ix);
+        assert(set.contains(ix));
+        assert(ix in set);
 
-        assert(x.complement(ix));
-        assert(!x.contains(ix));
-        assert(ix !in x);
+        assert(set.complement(ix));
+        assert(!set.contains(ix));
+        assert(ix !in set);
 
-        assert(!x.complement(ix));
-        assert(x.contains(ix));
-        assert(ix in x);
+        assert(!set.complement(ix));
+        assert(set.contains(ix));
+        assert(ix in set);
     }
 
-    auto z = x.dup;
+    auto z = set.dup;
     foreach (ix; 0 .. length)
     {
         assert(z.contains(ix));
@@ -159,15 +159,15 @@ private:
 
     foreach (ix; 0 .. length)
     {
-        assert(x.contains(ix));
-        assert(ix in x);
+        assert(set.contains(ix));
+        assert(ix in set);
     }
 
     foreach (ix; 0 .. length)
     {
-        assert(x.contains(ix));
-        x.remove(ix);
-        assert(!x.contains(ix));
+        assert(set.contains(ix));
+        set.remove(ix);
+        assert(!set.contains(ix));
     }
 }
 
@@ -176,26 +176,26 @@ private:
 {
     alias E = uint;
 
-    auto x = BitHashSet!(E, Growable.yes)();
-    assert(x.length == 0);
+    auto set = BitHashSet!(E, Growable.yes)();
+    assert(set.length == 0);
 
     const length = 2^^16;
     foreach (ix; 0 .. length)
     {
-        assert(!x.contains(ix));
-        assert(ix !in x);
+        assert(!set.contains(ix));
+        assert(ix !in set);
 
-        x.insert(ix);
-        assert(x.contains(ix));
-        assert(ix in x);
+        set.insert(ix);
+        assert(set.contains(ix));
+        assert(ix in set);
 
-        assert(x.complement(ix));
-        assert(!x.contains(ix));
-        assert(ix !in x);
+        assert(set.complement(ix));
+        assert(!set.contains(ix));
+        assert(ix !in set);
 
-        assert(!x.complement(ix));
-        assert(x.contains(ix));
-        assert(ix in x);
+        assert(!set.complement(ix));
+        assert(set.contains(ix));
+        assert(ix in set);
     }
 }
 
@@ -204,19 +204,19 @@ nothrow @nogc unittest          // TODO @safe pure when https://github.com/dlang
 {
     import std.typecons : RefCounted;
     alias E = int;
-    RefCounted!(BitHashSet!(E, Growable.yes)) x;
+    RefCounted!(BitHashSet!(E, Growable.yes)) set;
 
-    assert(x.length == 0);
+    assert(set.length == 0);
 
-    x.insert(0);
-    assert(x.length == 1);
+    set.insert(0);
+    assert(set.length == 1);
 
-    auto y = x;
+    auto y = set;
 
     foreach (const e; 1 .. 1000)
     {
-        x.insert(e);
-        assert(x.length == e + 1);
+        set.insert(e);
+        assert(set.length == e + 1);
         assert(y.length == e + 1);
     }
 }

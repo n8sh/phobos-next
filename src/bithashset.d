@@ -116,6 +116,7 @@ struct BitHashSet(E, Growable growable = Growable.no)
         return contains(e);
     }
 
+    /// Get length.
     @property size_t length() const { return _length; }
 private:
     static if (growable == Growable.yes)
@@ -242,7 +243,7 @@ nothrow @nogc unittest          // TODO @safe pure when https://github.com/dlang
     assert(set.length == 1);
     assert(set.capacity == 2);
 
-    auto y = set;
+    const y = set;
 
     foreach (const e; 1 .. 1000)
     {
@@ -250,4 +251,8 @@ nothrow @nogc unittest          // TODO @safe pure when https://github.com/dlang
         assert(set.length == e + 1);
         assert(y.length == e + 1);
     }
+
+    const set1 = RefCounted!(BitHashSet!(E, Growable.yes))(42);
+    assert(set1.length == 42);
+    assert(set1.capacity == 64);
 }

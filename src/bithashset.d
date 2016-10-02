@@ -1,10 +1,10 @@
 module bithashset;
 
-enum Growable { no, yes }
-
 @safe pure nothrow @nogc:
 
-enum isBitHashable(T) = is(typeof(cast(size_t)T.init));
+enum Growable { no, yes }
+
+enum isBitHashable(T) = is(typeof(cast(size_t)T.init)); // TODO use `isIntegral` instead?
 
 unittest
 {

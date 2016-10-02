@@ -27,7 +27,16 @@ struct BitHashSet(E, Growable growable = Growable.no)
     this(size_t length) @trusted
     {
         _length = length;
-        _blocksPtr = cast(Block*)calloc(blockCount, Block.sizeof);
+        _blocksPtr = null;
+        static if (growable == Growable.yes)
+        {
+            _capacity = 0;
+            assureCapacity(length);
+        }
+        else
+        {
+            _blocksPtr = cast(Block*)calloc(blockCount, Block.sizeof);
+        }
     }
 
     ~this() @trusted
@@ -52,14 +61,14 @@ struct BitHashSet(E, Growable growable = Growable.no)
 
     static if (growable == Growable.yes)
     {
-        /// Expand to `newLength`.
+        /// Expand to capacity to make room for at least `newLength`.
         void assureCapacity(size_t newLength) @trusted
         {
-            if (_length < newLength)
+            if (_capacity < newLength)
             {
                 const oldBlockCount = blockCount;
                 import std.math : nextPow2;
-                this._length = newLength.nextPow2;
+                this._capacity = newLength.nextPow2;
                 dln("Expanded to new ", this._length);
                 _blocksPtr = cast(Block*)realloc(_blocksPtr, blockCount * Block.sizeof);
                 _blocksPtr[oldBlockCount .. blockCount] = 0;
@@ -107,17 +116,32 @@ struct BitHashSet(E, Growable growable = Growable.no)
         return contains(e);
     }
 
-private:
     @property size_t length() const { return _length; }
+private:
+    static if (growable == Growable.yes)
+    {
+        @property size_t capacity() const { return _capacity; }
+    }
 
     @property size_t blockCount() const
     {
-        return length / Block.sizeof + (length % Block.sizeof ? 1 : 0);
+        static if (growable == Growable.yes)
+        {
+            return _capacity / Block.sizeof + (_capacity % Block.sizeof ? 1 : 0);
+        }
+        else
+        {
+            return _length / Block.sizeof + (_length % Block.sizeof ? 1 : 0);
+        }
     }
 
     alias Block = size_t;       /// Allocated block type.
-    size_t _length;             /// Number of bits stored. Note that capacity is not needed here.
     Block* _blocksPtr;          /// Pointer to blocks of bits.
+    size_t _length;             /// Number of bits stored.
+    static if (growable == Growable.yes)
+    {
+        size_t _capacity;           /// Number of bits allocated.
+    }
 }
 
 ///

@@ -124,8 +124,8 @@ private:
 {
     alias E = uint;
 
-    const w = BitHashSet!(E, Growable.no)();
-    assert(w.length == 0);
+    const set0 = BitHashSet!(E, Growable.no)();
+    assert(set0.length == 0);
 
     const length = 2^^6;
     auto set = BitHashSet!E(2*length);

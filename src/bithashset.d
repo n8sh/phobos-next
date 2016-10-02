@@ -18,6 +18,9 @@ unittest
 struct BitHashSet(E, Growable growable = Growable.no)
     if (isBitHashable!E)
 {
+    import qcmeman;
+    import core.bitop : bts, btr, btc, bt;
+
     @safe pure nothrow @nogc pragma(inline):
 
     /// Construct set to store at most `length` number of bits.
@@ -44,7 +47,6 @@ struct BitHashSet(E, Growable growable = Growable.no)
         return copy;
     }
 
-    import core.bitop : bts, btr, btc, bt;
 
     @property:
 
@@ -217,14 +219,4 @@ nothrow @nogc unittest          // TODO @safe pure when https://github.com/dlang
         assert(x.length == e + 1);
         assert(y.length == e + 1);
     }
-}
-
-/// qualify memory allocations
-extern(C)
-{
-    @safe pure nothrow @nogc:
-    void* malloc(size_t size);
-    void* calloc(size_t nmemb, size_t size);
-    void* realloc(void* ptr, size_t size);
-    void free(void* ptr);
 }

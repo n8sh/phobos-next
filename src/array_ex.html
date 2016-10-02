@@ -39,6 +39,24 @@ TODO Make Array have reference semantics instead through via Automatic
     collector (GC).<br><br>
 
 </dd>
+<dt><big><a name="AssignmentSemantics"></a>enum <u>AssignmentSemantics</u>: int;
+</big></dt>
+<dd>Semantics of copy construction and assignment.<br><br>
+
+<dl><dt><big><a name="AssignmentSemantics.none"></a><u>none</u></big></dt>
+<dd>&lt; for reference counting use <pre style="display:inline;" class="d_inline_code">std.typecons.RefCounted</pre><br><br>
+
+</dd>
+<dt><big><a name="AssignmentSemantics.move"></a><u>move</u></big></dt>
+<dd>&lt; only <u>move</u> construction allowed<br><br>
+
+</dd>
+<dt><big><a name="AssignmentSemantics.copy"></a><u>copy</u></big></dt>
+<dd>&lt; always <u>copy</u> (often not the desirable)<br><br>
+
+</dd>
+</dl>
+</dd>
 <dt><big><a name="Array"></a>struct <u>Array</u>(E, AssignmentSemantics semantics = AssignmentSemantics.none, Ordering ordering = Ordering.unsorted, bool useGC = shouldAddGCRange!E, alias less = "a &lt; b");
 </big></dt>
 <dd>Small-size-optimized (SSO-packed) array of value types <pre style="display:inline;" class="d_inline_code">E</pre> with optional
@@ -74,11 +92,6 @@ Copy construction and assignment currently does copying.
 <dt><big><a name="Array.this.2"></a>nothrow this(size_t <i>n</i>);
 </big></dt>
 <dd>Create a empty array of length <pre style="display:inline;" class="d_inline_code"><i>n</i></pre>.<br><br>
-
-</dd>
-<dt><big><a name="Array.opAssign"></a>@trusted void <u>opAssign</u>(Array <i>rhs</i>);
-</big></dt>
-<dd>TODO deactivate when internal RC-logic is ready<br><br>
 
 </dd>
 <dt><big><a name="Array.dup"></a>nothrow @trusted typeof(this) <u>dup</u>();

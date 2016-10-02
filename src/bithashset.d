@@ -18,7 +18,7 @@ import dbgio : dln;
 struct BitHashSet(E, Growable growable = Growable.no)
     if (isBitHashable!E)
 {
-    import qcmeman;
+    import qcmeman : malloc, calloc, realloc, free;
     import core.bitop : bts, btr, btc, bt;
 
     @safe pure nothrow @nogc pragma(inline):
@@ -62,14 +62,14 @@ struct BitHashSet(E, Growable growable = Growable.no)
     static if (growable == Growable.yes)
     {
         /// Expand to capacity to make room for at least `newLength`.
-        void assureCapacity(size_t newLength) @trusted
+        private void assureCapacity(size_t newLength) @trusted
         {
             if (_capacity < newLength)
             {
                 const oldBlockCount = blockCount;
                 import std.math : nextPow2;
                 this._capacity = newLength.nextPow2;
-                dln("Expanded to new ", this._length);
+                // dln("Expanded to new ", this._length);
                 _blocksPtr = cast(Block*)realloc(_blocksPtr, blockCount * Block.sizeof);
                 _blocksPtr[oldBlockCount .. blockCount] = 0;
             }
@@ -236,9 +236,11 @@ nothrow @nogc unittest          // TODO @safe pure when https://github.com/dlang
     RefCounted!(BitHashSet!(E, Growable.yes)) set;
 
     assert(set.length == 0);
+    assert(set.capacity == 0);
 
     set.insert(0);
     assert(set.length == 1);
+    assert(set.capacity == 2);
 
     auto y = set;
 

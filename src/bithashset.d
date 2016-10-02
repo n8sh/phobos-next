@@ -173,6 +173,8 @@ private:
         assert(!set.complement(ix));
         assert(set.contains(ix));
         assert(ix in set);
+
+        assert(!set.contains(ix + 1));
     }
 
     auto z = set.dup;
@@ -221,6 +223,8 @@ private:
         assert(!set.complement(ix));
         assert(set.contains(ix));
         assert(ix in set);
+
+        assert(!set.contains(ix + 1));
     }
 }
 

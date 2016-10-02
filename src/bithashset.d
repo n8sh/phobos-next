@@ -75,20 +75,24 @@ struct BitHashSet(E, Growable growable = Growable.no)
         }
     }
 
-    /// Insert element `e`.
-    void insert(E e) @trusted
+    /** Insert element `e`.
+        Returns: precense status of element before insertion.
+    */
+    bool insert(E e) @trusted
     {
         const ix = cast(size_t)e;
         static if (growable == Growable.yes) { assureCapacity(ix + 1); _length = ix + 1; } else { assert(ix < _length); }
-        bts(_blocksPtr, ix);
+        return bts(_blocksPtr, ix) != 0;
     }
 
-    /// Remove element `e`.
-    void remove(E e) @trusted
+    /** Remove element `e`.
+        Returns: precense status of element before removal.
+     */
+    bool remove(E e) @trusted
     {
         const ix = cast(size_t)e;
         static if (growable == Growable.yes) { assureCapacity(ix + 1); _length = ix + 1; } else { assert(ix < _length); }
-        btr(_blocksPtr, ix);
+        return btr(_blocksPtr, ix) != 0;
     }
 
     /** Insert element `e` if it's present otherwise remove it.
@@ -162,7 +166,7 @@ private:
         assert(!set.contains(ix));
         assert(ix !in set);
 
-        set.insert(ix);
+        assert(!set.insert(ix));
         assert(set.contains(ix));
         assert(ix in set);
 
@@ -212,7 +216,7 @@ private:
         assert(!set.contains(ix));
         assert(ix !in set);
 
-        set.insert(ix);
+        assert(!set.insert(ix));
         assert(set.contains(ix));
         assert(ix in set);
 
@@ -239,7 +243,7 @@ nothrow @nogc unittest          // TODO @safe pure when https://github.com/dlang
     assert(set.length == 0);
     assert(set.capacity == 0);
 
-    set.insert(0);
+    assert(!set.insert(0));
     assert(set.length == 1);
     assert(set.capacity == 2);
 
@@ -247,7 +251,7 @@ nothrow @nogc unittest          // TODO @safe pure when https://github.com/dlang
 
     foreach (const e; 1 .. 1000)
     {
-        set.insert(e);
+        assert(!set.insert(e));
         assert(set.length == e + 1);
         assert(y.length == e + 1);
     }

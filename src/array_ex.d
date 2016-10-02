@@ -54,9 +54,9 @@ enum isMyArray(C) = isInstanceOf!(Array, C);
 
 enum AssignmentSemantics
 {
-    none,
-    move,
-    copy
+    none,              ///< for reference counting use `std.typecons.RefCounted`
+    move,              ///< only move construction allowed
+    copy               ///< always copy (often not the desirable)
 }
 
 /** Small-size-optimized (SSO-packed) array of value types `E` with optional

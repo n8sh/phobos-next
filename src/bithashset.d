@@ -233,8 +233,8 @@ private:
 nothrow @nogc unittest          // TODO @safe pure when https://github.com/dlang/phobos/pull/4692/files has been merged
 {
     import std.typecons : RefCounted;
-
     alias E = int;
+
     RefCounted!(BitHashSet!(E, Growable.yes)) set;
 
     assert(set.length == 0);

@@ -17,7 +17,7 @@
 
 <font color=blue>const</font> length = 2^^6;
 <font color=blue>auto</font> set = <u>BitHashSet</u>!E(2*length);
-<font color=blue>const</font> y = set.dupf;
+<font color=blue>const</font> y = set.dup;
 <font color=blue>assert</font>(y.length == 2*length);
 
 <font color=blue>foreach</font> (ix; 0 .. length)
@@ -25,7 +25,7 @@
     <font color=blue>assert</font>(!set.contains(ix));
     <font color=blue>assert</font>(ix !<font color=blue>in</font> set);
 
-    set.insert(ix);
+    <font color=blue>assert</font>(!set.insert(ix));
     <font color=blue>assert</font>(set.contains(ix));
     <font color=blue>assert</font>(ix <font color=blue>in</font> set);
 
@@ -40,7 +40,7 @@
     <font color=blue>assert</font>(!set.contains(ix + 1));
 }
 
-<font color=blue>auto</font> z = set.dupf;
+<font color=blue>auto</font> z = set.dup;
 <font color=blue>foreach</font> (ix; 0 .. length)
 {
     <font color=blue>assert</font>(z.contains(ix));
@@ -73,7 +73,7 @@
     <font color=blue>assert</font>(!set.contains(ix));
     <font color=blue>assert</font>(ix !<font color=blue>in</font> set);
 
-    set.insert(ix);
+    <font color=blue>assert</font>(!set.insert(ix));
     <font color=blue>assert</font>(set.contains(ix));
     <font color=blue>assert</font>(ix <font color=blue>in</font> set);
 
@@ -99,7 +99,7 @@ RefCounted!(<u>BitHashSet</u>!(E, Growable.yes)) set;
 <font color=blue>assert</font>(set.length == 0);
 <font color=blue>assert</font>(set.capacity == 0);
 
-set.insert(0);
+<font color=blue>assert</font>(!set.insert(0));
 <font color=blue>assert</font>(set.length == 1);
 <font color=blue>assert</font>(set.capacity == 2);
 
@@ -107,7 +107,7 @@ set.insert(0);
 
 <font color=blue>foreach</font> (<font color=blue>const</font> e; 1 .. 1000)
 {
-    set.insert(e);
+    <font color=blue>assert</font>(!set.insert(e));
     <font color=blue>assert</font>(set.length == e + 1);
     <font color=blue>assert</font>(y.length == e + 1);
 }
@@ -122,20 +122,26 @@ set.insert(0);
 <dd>Construct set to store at most <pre style="display:inline;" class="d_inline_code"><i>length</i></pre> number of bits.<br><br>
 
 </dd>
-<dt><big><a name="BitHashSet.dupf"></a>@trusted typeof(this) <u>dupf</u>();
+<dt><big><a name="BitHashSet.dup"></a>@trusted typeof(this) <u>dup</u>();
 </big></dt>
 <dd><b>Returns:</b><br>
-deep duplicate of <pre style="display:inline;" class="d_inline_code">this</pre>.<br><br>
+shallow (and deep) duplicate of <pre style="display:inline;" class="d_inline_code">this</pre>.<br><br>
 
 </dd>
-<dt><big><a name="BitHashSet.insert"></a>@trusted void <u>insert</u>(E <i>e</i>);
+<dt><big><a name="BitHashSet.insert"></a>@trusted bool <u>insert</u>(E <i>e</i>);
 </big></dt>
-<dd>Insert element <pre style="display:inline;" class="d_inline_code"><i>e</i></pre>.<br><br>
+<dd>Insert element <pre style="display:inline;" class="d_inline_code"><i>e</i></pre>.
+<br><br>
+<b>Returns:</b><br>
+precense status of element before insertion.<br><br>
 
 </dd>
-<dt><big><a name="BitHashSet.remove"></a>@trusted void <u>remove</u>(E <i>e</i>);
+<dt><big><a name="BitHashSet.remove"></a>@trusted bool <u>remove</u>(E <i>e</i>);
 </big></dt>
-<dd>Remove element <pre style="display:inline;" class="d_inline_code"><i>e</i></pre>.<br><br>
+<dd>Remove element <pre style="display:inline;" class="d_inline_code"><i>e</i></pre>.
+<br><br>
+<b>Returns:</b><br>
+precense status of element before removal.<br><br>
 
 </dd>
 <dt><big><a name="BitHashSet.complement"></a>@trusted bool <u>complement</u>(E <i>e</i>);

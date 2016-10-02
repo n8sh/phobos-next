@@ -17,7 +17,7 @@
 
 <font color=blue>const</font> length = 2^^6;
 <font color=blue>auto</font> set = <u>BitHashSet</u>!E(2*length);
-<font color=blue>const</font> y = set.dup;
+<font color=blue>const</font> y = set.dupf;
 <font color=blue>assert</font>(y.length == 2*length);
 
 <font color=blue>foreach</font> (ix; 0 .. length)
@@ -40,7 +40,7 @@
     <font color=blue>assert</font>(!set.contains(ix + 1));
 }
 
-<font color=blue>auto</font> z = set.dup;
+<font color=blue>auto</font> z = set.dupf;
 <font color=blue>foreach</font> (ix; 0 .. length)
 {
     <font color=blue>assert</font>(z.contains(ix));
@@ -93,6 +93,7 @@ test <pre style="display:inline;" class="d_inline_code">RefCounted</pre> storage
 <pre class="d_code">
 <font color=blue>import</font> std.typecons : RefCounted;
 <font color=blue>alias</font> E = <font color=blue>int</font>;
+
 RefCounted!(<u>BitHashSet</u>!(E, Growable.yes)) set;
 
 <font color=blue>assert</font>(set.length == 0);
@@ -121,7 +122,7 @@ set.insert(0);
 <dd>Construct set to store at most <pre style="display:inline;" class="d_inline_code"><i>length</i></pre> number of bits.<br><br>
 
 </dd>
-<dt><big><a name="BitHashSet.dup"></a>@trusted typeof(this) <u>dup</u>();
+<dt><big><a name="BitHashSet.dupf"></a>@trusted typeof(this) <u>dupf</u>();
 </big></dt>
 <dd><b>Returns:</b><br>
 deep duplicate of <pre style="display:inline;" class="d_inline_code">this</pre>.<br><br>

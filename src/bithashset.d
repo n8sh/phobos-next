@@ -56,7 +56,6 @@ struct BitHashSet(E, Growable growable = Growable.no)
         return copy;
     }
 
-
     @property:
 
     static if (growable == Growable.yes)

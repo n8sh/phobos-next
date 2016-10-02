@@ -152,11 +152,13 @@ struct Array(E,
 
     static if (semantics == AssignmentSemantics.copy)
     {
+        /// Copy construction.
         this(this) nothrow @trusted
         {
             postblit();
         }
 
+        /// Copy assignment.
         void opAssign(Array rhs) @trusted
         {
             // self-assignment may happen when assigning derefenced pointer

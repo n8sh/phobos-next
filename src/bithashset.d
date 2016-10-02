@@ -117,6 +117,7 @@ private:
     Block* _bits;               ///< bits
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     alias E = uint;
@@ -168,6 +169,7 @@ private:
     }
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     alias E = uint;
@@ -195,7 +197,8 @@ private:
     }
 }
 
-nothrow @nogc unittest
+/// test `RefCounted` storage
+nothrow @nogc unittest          // TODO @safe pure when https://github.com/dlang/phobos/pull/4692/files has been merged
 {
     import std.typecons : RefCounted;
     alias E = int;

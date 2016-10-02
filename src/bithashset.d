@@ -93,14 +93,14 @@ struct BitHashSet(E, Growable growable = Growable.no)
     }
 
     /// Check if element `e` is stored/contained.
-    bool contains(E e) @trusted // TODO const
+    bool contains(E e) @trusted const
     {
         const ix = cast(size_t)e;
         return ix < length && bt(_bits, ix) != 0;
     }
 
     /// ditto
-    auto opBinaryRight(string op)(E e) // TODO const
+    auto opBinaryRight(string op)(E e) const
         if (op == "in")
     {
         return contains(e);

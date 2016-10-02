@@ -1,7 +1,5 @@
 module bithashset;
 
-@safe pure nothrow @nogc:
-
 enum Growable { no, yes }
 
 enum isBitHashable(T) = is(typeof(cast(size_t)T.init)); // TODO use `isIntegral` instead?
@@ -20,6 +18,8 @@ unittest
 struct BitHashSet(E, Growable growable = Growable.no)
     if (isBitHashable!E)
 {
+    @safe pure nothrow @nogc pragma(inline):
+
     /// Construct set to store at most `length` number of bits.
     this(size_t length) @trusted
     {
@@ -68,7 +68,7 @@ struct BitHashSet(E, Growable growable = Growable.no)
     void insert(E e) @trusted
     {
         const ix = cast(size_t)e;
-        static if (growable == Growable.yes) { assureCapacity(ix + 1); } else { assert(ix < _length); }
+        static if (growable == Growable.yes) { assureCapacity(ix + 1); _length = ix + 1; } else { assert(ix < _length); }
         bts(_bits, ix);
     }
 
@@ -76,7 +76,7 @@ struct BitHashSet(E, Growable growable = Growable.no)
     void remove(E e) @trusted
     {
         const ix = cast(size_t)e;
-        static if (growable == Growable.yes) { assureCapacity(ix + 1); } else { assert(ix < _length); }
+        static if (growable == Growable.yes) { assureCapacity(ix + 1); _length = ix + 1; } else { assert(ix < _length); }
         btr(_bits, ix);
     }
 
@@ -86,7 +86,7 @@ struct BitHashSet(E, Growable growable = Growable.no)
     bool complement(E e) @trusted
     {
         const ix = cast(size_t)e;
-        static if (growable == Growable.yes) { assureCapacity(ix + 1); } else { assert(ix < _length); }
+        static if (growable == Growable.yes) { assureCapacity(ix + 1); _length = ix + 1; } else { assert(ix < _length); }
         return btc(_bits, ix) != 0;
     }
 
@@ -117,7 +117,7 @@ private:
     Block* _bits;               ///< bits
 }
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     alias E = uint;
 
@@ -168,7 +168,7 @@ unittest
     }
 }
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     alias E = uint;
 
@@ -195,9 +195,31 @@ unittest
     }
 }
 
+nothrow @nogc unittest
+{
+    import std.typecons : RefCounted;
+    alias E = int;
+    RefCounted!(BitHashSet!(E, Growable.yes)) x;
+
+    assert(x.length == 0);
+
+    x.insert(0);
+    assert(x.length == 1);
+
+    auto y = x;
+
+    foreach (const e; 1 .. 1000)
+    {
+        x.insert(e);
+        assert(x.length == e + 1);
+        assert(y.length == e + 1);
+    }
+}
+
 /// qualify memory allocations
 extern(C)
 {
+    @safe pure nothrow @nogc:
     void* malloc(size_t size);
     void* calloc(size_t nmemb, size_t size);
     void* realloc(void* ptr, size_t size);

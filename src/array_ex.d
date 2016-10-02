@@ -77,6 +77,7 @@ struct Array(E,
     import std.traits : isAssignable, Unqual, isSomeChar, isArray;
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
+    import qcmeman;
 
     alias ME = Unqual!E; // mutable E
 
@@ -1231,12 +1232,4 @@ pure nothrow /+TODO @nogc+/ unittest
         tester!(ordering, false, "a < b"); // don't use GC
         tester!(ordering, false, "a > b"); // don't use GC
     }
-}
-
-// we handle these as pure to make containers using them pure
-extern(C) pure nothrow @system @nogc
-{
-    void* malloc(size_t size);
-    void* realloc(void* ptr, size_t size);
-    void free(void* ptr);
 }

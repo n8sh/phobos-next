@@ -3929,7 +3929,9 @@ template RawRadixTree(Value = void)
 
     private:
         /** Reference counted store.
-            Need until Issue 13983 is fixed: https://issues.dlang.org/show_bug.cgi?id=13983 */
+            TODO Use `std.typecons.RefCounted` instead to reduce complexity of this implementation
+            Need until Issue 13983 is fixed: https://issues.dlang.org/show_bug.cgi?id=13983
+        */
         static struct RCStore
         {
             Node root;

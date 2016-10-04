@@ -3503,14 +3503,8 @@ template RawRadixTree(Value = void)
 
     @safe pure nothrow @nogc
     {
-        pragma(inline) void release(SparseLeaf1!Value* curr)
-        {
-            freeNode(curr);
-        }
-        pragma(inline) void release(DenseLeaf1!Value* curr)
-        {
-            freeNode(curr);
-        }
+        pragma(inline) void release(SparseLeaf1!Value* curr) { freeNode(curr); }
+        pragma(inline) void release(DenseLeaf1!Value* curr) { freeNode(curr); }
 
         void release(SparseBranch* curr)
         {

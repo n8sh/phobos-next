@@ -55,7 +55,7 @@ enum isMyArray(C) = isInstanceOf!(Array, C);
 /// Semantics of copy construction and assignment.
 enum AssignmentSemantics
 {
-    none,              /// for reference counting use `std.typecons.RefCounted`
+    disabled,              /// for reference counting use `std.typecons.RefCounted`
     move,              /// only move construction allowed
     copy               /// always copy (often not the desirable)
 }
@@ -69,7 +69,7 @@ enum AssignmentSemantics
     where both arguments are instances of `Array`.
  */
 struct Array(E,
-             AssignmentSemantics semantics = AssignmentSemantics.none,
+             AssignmentSemantics semantics = AssignmentSemantics.disabled,
              Ordering ordering = Ordering.unsorted,
              bool useGC = shouldAddGCRange!E,
              alias less = "a < b") // TODO move out of this definition and support only for the case when `ordering` is not `Ordering.unsorted`
@@ -173,7 +173,7 @@ struct Array(E,
         }
     }
 
-    static if (semantics == AssignmentSemantics.none ||
+    static if (semantics == AssignmentSemantics.disabled ||
                semantics == AssignmentSemantics.move) // TODO include move?
     {
         @disable this(this);

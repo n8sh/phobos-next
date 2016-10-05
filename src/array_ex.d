@@ -184,6 +184,7 @@ struct Array(E,
             typeof(return) copy;
             copy._storeCapacity = this._storeCapacity;
             copy._length = this._length;
+            copy._storePtr = this._storePtr;
             copy.postblit();
             return copy;
         }
@@ -576,7 +577,7 @@ struct Array(E,
                 import std.algorithm.searching : findAdjacent;
                 import std.algorithm.sorting : sort;
 
-                // functionize or use other interface in pushing `values`
+                // TODO functionize or use other interface in pushing `values`
                 import std.traits : CommonType;
                 CommonType!Us[Us.length] valuesArray;
                 foreach (const i, const ref value; values)
@@ -1231,6 +1232,18 @@ unittest
     alias comp = binaryFun!less; //< comparison
     alias E = int;
     alias A = Array!(E, AssignmentSemantics.disabled, Ordering.unsorted, false, less);
+    A a;
+    const n = 100_000;
+    size_t i = 0;
+    foreach (const ref e; 0 .. n)
+    {
+        a ~= e;
+        assert(a.length == i + 1);
+        ++i;
+    }
+    const b = a.dup;
+    assert(b.length == a.length);
+    assert(a[] == b[]);
 }
 
 /// use GC

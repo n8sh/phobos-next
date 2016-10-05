@@ -181,7 +181,9 @@ struct Array(E,
         /// Returns: shallow duplicate of `this`.
         typeof(this) dup() nothrow @trusted
         {
-            typeof(return) copy = this;
+            typeof(return) copy;
+            copy._storeCapacity = this._storeCapacity;
+            copy._length = this._length;
             copy.postblit();
             return copy;
         }
@@ -573,7 +575,15 @@ struct Array(E,
                 import std.range : empty;
                 import std.algorithm.searching : findAdjacent;
                 import std.algorithm.sorting : sort;
-                assert(sort([values]).findAdjacent.empty, "Parameter `values` must not contain duplicate elements");
+
+                // functionize or use other interface in pushing `values`
+                import std.traits : CommonType;
+                CommonType!Us[Us.length] valuesArray;
+                foreach (const i, const ref value; values)
+                {
+                    valuesArray[i] = value;
+                }
+                assert(sort(valuesArray[]).findAdjacent.empty, "Parameter `values` must not contain duplicate elements");
             }
             body
             {
@@ -1211,6 +1221,16 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             ssCc = ssCc;   // self assignment
         }
     }
+}
+
+///
+unittest
+{
+    import std.functional : binaryFun;
+    enum less = "a < b";
+    alias comp = binaryFun!less; //< comparison
+    alias E = int;
+    alias A = Array!(E, AssignmentSemantics.disabled, Ordering.unsorted, false, less);
 }
 
 /// use GC

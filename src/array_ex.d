@@ -907,6 +907,14 @@ private:
     size_t _length;             // length
 }
 
+alias SortedArray(E, AssignmentSemantics semantics = AssignmentSemantics.disabled,
+                  bool useGC = shouldAddGCRange!E,
+                  alias less = "a < b") = Array!(E, semantics, Ordering.sortedValues, useGC, less);
+
+alias SortedSetArray(E, AssignmentSemantics semantics = AssignmentSemantics.disabled,
+                     bool useGC = shouldAddGCRange!E,
+                     alias less = "a < b") = Array!(E, semantics, Ordering.sortedUniqueSet, useGC, less);
+
 static void tester(Ordering ordering, bool supportGC, alias less)()
 {
     import std.functional : binaryFun;

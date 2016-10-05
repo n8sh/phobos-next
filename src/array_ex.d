@@ -378,16 +378,22 @@ struct Array(E,
     /** Removal doesn't need to care about ordering. */
     ContainerElementType!(typeof(this), E) linearPopAtIndex(size_t index) @trusted @("complexity", "O(length)")
     {
+        import std.algorithm : move;
+
         assert(index < _length);
         assert(!empty);
-        typeof(return) value = ptr[index]; // TODO move construct?
+
+        typeof(return) value;
+        move(ptr[index], value);
+        debug ptr[index] = typeof(ptr[index]).init;
+
         // TODO use memmove instead?
         foreach (const i; 0 .. length - (index + 1)) // each element index that needs to be moved
         {
             const si = index + i + 1; // source index
             const ti = index + i; // target index
-            import std.algorithm : move;
             move(ptr[si], ptr[ti]); // ptr[ti] = ptr[si]; // TODO move construct?
+            debug ptr[si] = typeof(ptr[si]).init;
         }
         --_length;
         return value;

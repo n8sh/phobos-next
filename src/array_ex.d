@@ -173,11 +173,6 @@ struct Array(E,
         }
     }
 
-    bool opEquals(const ref typeof(this) rhs) const @trusted
-    {
-        return this[] == rhs[];
-    }
-
     static if (semantics == AssignmentSemantics.disabled ||
                semantics == AssignmentSemantics.move) // TODO include move?
     {
@@ -209,6 +204,11 @@ struct Array(E,
     void opAssign(typeof(null))
     {
         clear();
+    }
+
+    bool opEquals(const ref typeof(this) rhs) const @trusted
+    {
+        return this[] == rhs[];
     }
 
     /** Default-initialize all elements to `zeroValue`.. */

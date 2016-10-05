@@ -50,11 +50,10 @@ enum hasStealableElements(R) = (hasPureCopy!(ElementType!R)); // TODO recurse
 /*     } */
 /* } */
 
-@safe @nogc pure nothrow unittest
+@safe pure nothrow @nogc unittest
 {
     static assert(hasStealableElements!(int[]));
-
-    import std.stdio: File;
+    import std.stdio : File;
     alias BL = File.ByLine!(char, char);
     static assert(!hasStealableElements!BL);
 }

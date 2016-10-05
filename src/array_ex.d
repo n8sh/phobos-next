@@ -52,6 +52,14 @@ template shouldAddGCRange(T)
 import std.traits : isInstanceOf;
 enum isMyArray(C) = isInstanceOf!(Array, C);
 
+/// Semantics of copy construction and assignment.
+enum AssignmentSemantics
+{
+    disabled,              /// for reference counting use `std.typecons.RefCounted`
+    move,              /// only move construction allowed
+    copy               /// always copy (often not the desirable)
+}
+
 /** Small-size-optimized (SSO-packed) array of value types `E` with optional
     ordering given by `ordering`.
 
@@ -61,6 +69,7 @@ enum isMyArray(C) = isInstanceOf!(Array, C);
     where both arguments are instances of `Array`.
  */
 struct Array(E,
+             AssignmentSemantics semantics = AssignmentSemantics.disabled,
              Ordering ordering = Ordering.unsorted,
              bool useGC = shouldAddGCRange!E,
              alias less = "a < b") // TODO move out of this definition and support only for the case when `ordering` is not `Ordering.unsorted`
@@ -69,6 +78,7 @@ struct Array(E,
     import std.traits : isAssignable, Unqual, isSomeChar, isArray;
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
+    import qcmeman;
 
     alias ME = Unqual!E; // mutable E
 
@@ -92,6 +102,12 @@ struct Array(E,
         alias _malloc = malloc;
         alias _realloc = realloc;
         alias _free = free;
+    }
+
+    /// Create a empty array.
+    this(typeof(null)) nothrow
+    {
+        this(0);
     }
 
     /// Create a empty array of length `n`.
@@ -134,8 +150,45 @@ struct Array(E,
         }
     }
 
-    /// TODO deactivate when internal RC-logic is ready
-    this(this) nothrow @trusted
+    static if (semantics == AssignmentSemantics.copy)
+    {
+        /// Copy construction.
+        this(this) nothrow @trusted
+        {
+            postblit();
+        }
+
+        /// Copy assignment.
+        void opAssign(Array rhs) @trusted
+        {
+            // self-assignment may happen when assigning derefenced pointer
+            if (_storePtr != rhs._storePtr) // if not self assignment
+            {
+                reserve(rhs.length);
+                foreach (const i; 0 .. _length)
+                {
+                    ptr[i] = rhs.ptr[i]; // copy from old to new
+                }
+            }
+        }
+    }
+
+    static if (semantics == AssignmentSemantics.disabled ||
+               semantics == AssignmentSemantics.move) // TODO include move?
+    {
+        @disable this(this);
+
+        /// Returns: shallow duplicate of `this`.
+        typeof(this) dup() nothrow @trusted
+        {
+            typeof(return) copy = this;
+            copy.postblit();
+            return copy;
+        }
+    }
+
+    /// Called either automatically or explicitly depending on `semantics`.
+    private void postblit() nothrow @trusted
     {
         auto rhs_storePtr = _storePtr; // save store pointer
         allocateStorePtr(_length);     // allocate new store pointer
@@ -145,18 +198,9 @@ struct Array(E,
         }
     }
 
-    /// TODO deactivate when internal RC-logic is ready
-    void opAssign(Array rhs) @trusted
+    void opAssign(typeof(null))
     {
-        // self-assignment may happen when assigning derefenced pointer
-        if (_storePtr != rhs._storePtr) // if not self assignment
-        {
-            reserve(rhs.length);
-            foreach (const i; 0 .. _length)
-            {
-                ptr[i] = rhs.ptr[i]; // copy from old to new
-            }
-        }
+        clear();
     }
 
     /** Default-initialize all elements to `zeroValue`.. */
@@ -329,12 +373,13 @@ struct Array(E,
         assert(index < _length);
         assert(!empty);
         typeof(return) value = ptr[index]; // TODO move construct?
-        // TODO functionize move
+        // TODO use memmove instead?
         foreach (const i; 0 .. length - (index + 1)) // each element index that needs to be moved
         {
             const si = index + i + 1; // source index
             const ti = index + i; // target index
-            ptr[ti] = ptr[si]; // TODO move construct?
+            import std.algorithm : move;
+            move(ptr[si], ptr[ti]); // ptr[ti] = ptr[si]; // TODO move construct?
         }
         --_length;
         return value;
@@ -347,12 +392,13 @@ struct Array(E,
     {
         assert(!empty);
         typeof(return) value = ptr[0]; // TODO move construct?
-        // TODO functionize move
+        // TODO use memmove instead?
         foreach (const i; 0 .. length - 1) // each element index that needs to be moved
         {
             const si = i + 1; // source index
             const ti = i; // target index
-            ptr[ti] = ptr[si]; // TODO move construct?
+            import std.algorithm : move;
+            move(ptr[si], ptr[ti]); // ptr[ti] = ptr[si]; // TODO move construct?
         }
         --_length;
         return value;
@@ -374,7 +420,7 @@ struct Array(E,
         return value;
     }
 
-    /** Pop last `count` elements. */
+    /** Pop last `count` back elements. */
     pragma(inline) void popBackN(size_t count) @safe @("complexity", "O(1)")
     {
         shrinkTo(_length - count);
@@ -413,7 +459,7 @@ struct Array(E,
                 reserve(2*length);
                 foreach (const i; 0 .. length)
                 {
-                    ptr[length + i] = ptr[i]; // TODO move. reuse memcpy
+                    ptr[length + i] = ptr[i];
                 }
                 _length *= 2;
             }
@@ -441,7 +487,10 @@ struct Array(E,
                 reserve(2*length);
                 // NOTE: this is not needed because we don't need range checking here?:
                 // ptr[length .. 2*length] = values.ptr[0 .. length];
-                foreach (const i; 0 .. length) { ptr[length + i] = values.ptr[i]; } // TODO move. reuse memcpy
+                foreach (const i; 0 .. length)
+                {
+                    ptr[length + i] = values.ptr[i];
+                }
                 _length *= 2;
             }
             else
@@ -463,21 +512,27 @@ struct Array(E,
         // NOTE these separate overloads of opOpAssign are needed because one
         // `const ref`-parameter-overload doesn't work because of compiler bug
         // with: `this(this) @disable`
-        void opOpAssign(string op, Us...)(Us values) if (op == "~" &&
-                                                         values.length >= 1 &&
-                                                         allSatisfy!(isElementAssignable, Us))
+        void opOpAssign(string op, Us...)(Us values)
+            if (op == "~" &&
+                values.length >= 1 &&
+                allSatisfy!(isElementAssignable, Us))
         {
             pushBack(values);
         }
-	void opOpAssign(string op, R)(R values) if (op == "~" &&
-                                                    isInputRange!R &&
-                                                    allSatisfy!(isElementAssignable, ElementType!R))
+	void opOpAssign(string op, R)(R values)
+            if (op == "~" &&
+                isInputRange!R &&
+                allSatisfy!(isElementAssignable, ElementType!R))
         {
             pushBack(values);
         }
-	void opOpAssign(string op, A)(const ref A values) if (op == "~" &&
-                                                              isMyArray!A &&
-                                                              isElementAssignable!(ElementType!A)) { pushBack(values); }
+	void opOpAssign(string op, A)(const ref A values)
+            if (op == "~" &&
+                isMyArray!A &&
+                isElementAssignable!(ElementType!A))
+        {
+            pushBack(values);
+        }
     }
 
     static if (IsOrdered!ordering)
@@ -793,7 +848,7 @@ struct Array(E,
     {
         return _length;
     }
-    alias opDollar = length;    ///< ditto
+    alias opDollar = length;    /// ditto
 
     /// Shrink length to `length`.
     void shrinkTo(size_t length) @safe
@@ -801,7 +856,7 @@ struct Array(E,
         assert(length <= _length);
         _length = length;
     }
-    alias opDollar = length;    ///< ditto
+    alias opDollar = length;    /// ditto
 
     /// Get length of reserved store.
     size_t reservedLength() const @safe
@@ -840,13 +895,14 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     import std.traits : isInstanceOf;
     import std.typecons : Unqual;
 
+    enum semantics = AssignmentSemantics.copy;
     alias comp = binaryFun!less; //< comparison
 
     alias E = int;
 
     foreach (Ch; AliasSeq!(char, wchar, dchar))
     {
-        alias Str = Array!(Ch, ordering, supportGC, less);
+        alias Str = Array!(Ch, semantics, ordering, supportGC, less);
         Str str;
         static assert(is(Unqual!(ElementType!Str) == Ch));
         static assert(str.isString);
@@ -857,9 +913,9 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     {
         foreach (const n; [0, 1, 2, 3, 4])
         {
-            assert(Array!(E, ordering, supportGC, less)(n).isSmall);
+            assert(Array!(E, semantics, ordering, supportGC, less)(n).isSmall);
         }
-        assert(!(Array!(E, ordering, supportGC, less)(5).isSmall));
+        assert(!(Array!(E, semantics, ordering, supportGC, less)(5).isSmall));
     }
 
     // test move construction
@@ -867,7 +923,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         const maxLength = 1024;
         foreach (const n; 0 .. maxLength)
         {
-            auto x = Array!(E, ordering, supportGC, less)(n);
+            auto x = Array!(E, semantics, ordering, supportGC, less)(n);
 
             // test resize
             static if (!IsOrdered!ordering)
@@ -883,7 +939,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(x.length == n);
 
             import std.algorithm.mutation : move;
-            auto y = Array!(E, ordering, supportGC, less)();
+            auto y = Array!(E, semantics, ordering, supportGC, less)();
             move(x, y);
 
             assert(x.length == 0);
@@ -911,7 +967,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         // TODO use radial instead
         auto bw = fw.array.radial;
 
-        Array!(E, ordering, supportGC, less) ss0 = bw; // reversed
+        Array!(E, semantics, ordering, supportGC, less) ss0 = bw; // reversed
         static assert(is(Unqual!(ElementType!(typeof(ss0))) == E));
         static assert(isInstanceOf!(Array, typeof(ss0)));
         assert(ss0.length == n);
@@ -923,7 +979,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ss0[].isSorted!comp);
         }
 
-        Array!(E, ordering, supportGC, less) ss1 = fw; // ordinary
+        Array!(E, semantics, ordering, supportGC, less) ss1 = fw; // ordinary
         assert(ss1.length == n);
 
         static if (IsOrdered!ordering)
@@ -932,7 +988,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ss1[].isSorted!comp);
         }
 
-        Array!(E, ordering, supportGC, less) ss2 = fw.filter!(x => x & 1);
+        Array!(E, semantics, ordering, supportGC, less) ss2 = fw.filter!(x => x & 1);
         assert(ss2.length == n/2);
 
         static if (IsOrdered!ordering)
@@ -941,12 +997,12 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ss2[].isSorted!comp);
         }
 
-        auto ssA = Array!(E, ordering, supportGC, less)(0);
+        auto ssA = Array!(E, semantics, ordering, supportGC, less)(0);
         static if (IsOrdered!ordering)
         {
             static if (less == "a < b")
             {
-                alias A = Array!(E, ordering, supportGC, less);
+                alias A = Array!(E, semantics, ordering, supportGC, less);
                 const A x = [1, 2, 3, 4, 5, 6];
                 assert(x.front == 1);
                 assert(x.back == 6);
@@ -968,7 +1024,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             }
             assert(ssA[].equal(sort!comp(fw.array)));
 
-            auto ssB = Array!(E, ordering, supportGC, less)(0);
+            auto ssB = Array!(E, semantics, ordering, supportGC, less)(0);
             static if (ordering == Ordering.sortedUniqueSet)
             {
                 assert(ssB.linearInsert(1, 7, 4, 9)[].equal(true.repeat(4)));
@@ -999,7 +1055,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         else
         {
             {
-                alias A = Array!(E, ordering, supportGC);
+                alias A = Array!(E, semantics, ordering, supportGC);
                 A x = [1, 2, 3];
                 x ~= x;
                 assert(x[].equal([1, 2, 3,
@@ -1086,7 +1142,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ssA[].equal([1, 2, 4, 5]));
 
             // pushBack and assignment from slice
-            auto ssB = Array!(E, ordering, supportGC, less)(0);
+            auto ssB = Array!(E, semantics, ordering, supportGC, less)(0);
             ssB.pushBack([1, 2, 3, 4, 5]);
             ssB.pushBack([6, 7]);
             assert(ssB[].equal([1, 2, 3, 4, 5, 6, 7]));
@@ -1102,8 +1158,8 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             // pushBack(Array)
             {
                 const s = [1, 2, 3];
-                Array!(E, ordering, supportGC, less) s1 = s;
-                Array!(E, ordering, supportGC, less) s2 = s1[];
+                Array!(E, semantics, ordering, supportGC, less) s1 = s;
+                Array!(E, semantics, ordering, supportGC, less) s2 = s1[];
                 assert(s1[].equal(s));
                 s1 ~= s1;
                 assert(s1[].equal(chain(s, s)));
@@ -1111,7 +1167,10 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
                 assert(s1[].equal(chain(s, s, s)));
             }
 
-            auto ssC = Array!(E, ordering, supportGC, less)(0);
+            const ss_ = Array!(E, semantics, ordering, supportGC, less)(null);
+            assert(ss_.empty);
+
+            auto ssC = Array!(E, semantics, ordering, supportGC, less)(0);
             const(int)[] i5 = [1, 2, 3, 4, 5];
             ssC.pushBack(i5);
             assert(ssC[].equal(i5));
@@ -1139,8 +1198,13 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             ssC.popBackN(3);
             assert(ssC[].equal([1, 2]));
 
+            auto ssD = ssC;
             ssC.clear();
             assert(ssC.empty);
+
+            assert(!ssD.empty);
+            ssD = null;
+            assert(ssD.empty);
 
             assert(ssCc[].equal(i5));
 
@@ -1169,12 +1233,4 @@ pure nothrow /+TODO @nogc+/ unittest
         tester!(ordering, false, "a < b"); // don't use GC
         tester!(ordering, false, "a > b"); // don't use GC
     }
-}
-
-// we handle these as pure to make containers using them pure
-extern(C) pure nothrow @system @nogc
-{
-    void* malloc(size_t size);
-    void* realloc(void* ptr, size_t size);
-    void free(void* ptr);
 }

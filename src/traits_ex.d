@@ -457,9 +457,9 @@ unittest
     See also: http://forum.dlang.org/thread/jrqiiicmtpenzokfxvlz@forum.dlang.org */
 enum isOpBinary(T, string op, U) = is(typeof(mixin("T.init" ~ op ~ "U.init")));
 
-enum isComparable(T) = is(typeof({ return T.init <  T.init; })); ///< TODO Move to Phobos' std.traits
-enum isEquable   (T) = is(typeof({ return T.init == T.init; })); ///< TODO Move to Phobos' std.traits
-enum isNotEquable(T) = is(typeof({ return T.init != T.init; })); ///< TODO Move to Phobos' std.traits
+enum isComparable(T) = is(typeof({ return T.init <  T.init; })); /// TODO Move to Phobos' std.traits
+enum isEquable   (T) = is(typeof({ return T.init == T.init; })); /// TODO Move to Phobos' std.traits
+enum isNotEquable(T) = is(typeof({ return T.init != T.init; })); /// TODO Move to Phobos' std.traits
 
 unittest
 {
@@ -473,9 +473,9 @@ unittest
 }
 
 // TODO  variadic
-enum areComparable(T, U) = is(typeof({ return T.init <  U.init; })); ///< TODO Move to Phobos' std.traits
-enum areEquable   (T, U) = is(typeof({ return T.init == U.init; })); ///< TODO Move to Phobos' std.traits
-enum areNotEquable(T, U) = is(typeof({ return T.init != U.init; })); ///< TODO Move to Phobos' std.traits
+enum areComparable(T, U) = is(typeof({ return T.init <  U.init; })); /// TODO Move to Phobos' std.traits
+enum areEquable   (T, U) = is(typeof({ return T.init == U.init; })); /// TODO Move to Phobos' std.traits
+enum areNotEquable(T, U) = is(typeof({ return T.init != U.init; })); /// TODO Move to Phobos' std.traits
 
 unittest
 {

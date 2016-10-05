@@ -13,7 +13,7 @@ import std.conv: to;
 
 @trusted:
 
-/// Returns true if the expression throws.
+/// Returns: true if the expression throws.
 bool assertThrows(T:Throwable = Exception, E)(lazy E expression,
                                               string msg = T.stringof,
                                               string file = __FILE__,

@@ -276,7 +276,7 @@ enum Tense:ubyte
 }
 alias Tempus = Tense;
 
-@safe @nogc pure nothrow
+@safe pure nothrow @nogc
 {
     bool isPast(Tense tense)
     {

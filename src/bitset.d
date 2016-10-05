@@ -59,7 +59,7 @@ struct BitSet(uint len, Block = size_t)
     void reset() @safe nothrow { _blocks[] = 0; }
 
     /** Gets the amount of native words backing this $(D BitSet). */
-    @property static uint dim() @safe @nogc pure nothrow { return blockCount; }
+    @property static uint dim() @safe pure nothrow @nogc { return blockCount; }
 
     /** Number of bits in the $(D BitSet). */
     enum length = len;
@@ -211,7 +211,7 @@ struct BitSet(uint len, Block = size_t)
     }
 
     /** Duplicates the $(D BitSet) and its contents. */
-    @property BitSet dup() const @safe @nogc pure nothrow { return this; }
+    @property BitSet dup() const @safe pure nothrow @nogc { return this; }
 
     /** Support for $(D foreach) loops for $(D BitSet). */
     int opApply(scope int delegate(ref bool) dg)
@@ -582,7 +582,7 @@ struct BitSet(uint len, Block = size_t)
         foreach (const i, const b; ba) { this[i] = b; }
     }
 
-    bool opCast(T : bool)() const @safe @nogc pure nothrow { return !this.empty ; }
+    bool opCast(T : bool)() const @safe pure nothrow @nogc { return !this.empty ; }
 
     /// construct from dynamic array
     @safe nothrow @nogc unittest
@@ -610,7 +610,7 @@ struct BitSet(uint len, Block = size_t)
     }
 
     /** Check if this $(D BitSet) has only zeros (is empty). */
-    bool allZero() const @safe @nogc pure nothrow
+    bool allZero() const @safe pure nothrow @nogc
     {
         foreach (const block; _blocks)
         {
@@ -622,7 +622,7 @@ struct BitSet(uint len, Block = size_t)
 
     /** Check if this $(D BitSet) has only ones in range [ $(d low), $(d high) [. */
     bool allOneBetween(size_t low, size_t high)
-        const @safe @nogc pure nothrow
+        const @safe pure nothrow @nogc
     in
     {
         assert(low + 1 <= len && high <= len);
@@ -711,7 +711,7 @@ struct BitSet(uint len, Block = size_t)
         }
 
         /** Get number of bits set in $(D this). */
-        Mod!(len + 1) countOnes() const @safe @nogc pure nothrow
+        Mod!(len + 1) countOnes() const @safe pure nothrow @nogc
         {
             typeof(return) n = 0;
             foreach (const ix, const block; _blocks)
@@ -736,13 +736,13 @@ struct BitSet(uint len, Block = size_t)
         alias Q = Rational!ulong;
 
         /** Get number of bits set in $(D this). */
-        pragma(inline) Q denseness(int depth = -1) const @safe @nogc pure nothrow
+        pragma(inline) Q denseness(int depth = -1) const @safe pure nothrow @nogc
         {
             return Q(countOnes, length);
         }
 
         /** Get number of Bits Unset in $(D this). */
-        pragma(inline) Q sparseness(int depth = -1) const @safe @nogc pure nothrow
+        pragma(inline) Q sparseness(int depth = -1) const @safe pure nothrow @nogc
         {
             return 1 - denseness(depth);
         }
@@ -774,7 +774,7 @@ struct BitSet(uint len, Block = size_t)
             Returns: `true` if index was found (hit index is put into `nextIx`), `false` otherwise.
             TODO block-optimize for large BitSets
          */
-        bool canFindIndexOf(ModUInt)(bool value, Mod!(len, ModUInt) currIx, out Mod!(len, ModUInt) nextIx) const @safe @nogc pure nothrow
+        bool canFindIndexOf(ModUInt)(bool value, Mod!(len, ModUInt) currIx, out Mod!(len, ModUInt) nextIx) const @safe pure nothrow @nogc
             if (isUnsigned!ModUInt)
         {
             if (currIx >= length) { return false; }

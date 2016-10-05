@@ -128,9 +128,9 @@ import modulo : Mod, mod;
 import fixed_array : ModArrayN;
 import container_traits : shouldAddGCRange;
 
-import array_ex : Array, Ordering;
+import array_ex : Array, AssignmentSemantics, Ordering;
 
-alias CopyingArray(T) = Array!(T, Ordering.unsorted, false);
+alias CopyingArray(T) = Array!(T, AssignmentSemantics.copy, Ordering.unsorted, false);
 
 // version = enterSingleInfiniteMemoryLeakTest;
 version = benchmark;
@@ -3503,14 +3503,8 @@ template RawRadixTree(Value = void)
 
     @safe pure nothrow @nogc
     {
-        pragma(inline) void release(SparseLeaf1!Value* curr)
-        {
-            freeNode(curr);
-        }
-        pragma(inline) void release(DenseLeaf1!Value* curr)
-        {
-            freeNode(curr);
-        }
+        pragma(inline) void release(SparseLeaf1!Value* curr) { freeNode(curr); }
+        pragma(inline) void release(DenseLeaf1!Value* curr) { freeNode(curr); }
 
         void release(SparseBranch* curr)
         {
@@ -3929,15 +3923,17 @@ template RawRadixTree(Value = void)
 
     private:
         /** Reference counted store.
-            Need until Issue 13983 is fixed: https://issues.dlang.org/show_bug.cgi?id=13983 */
+            TODO Use `std.typecons.RefCounted` instead to reduce complexity of this implementation
+            Need until Issue 13983 is fixed: https://issues.dlang.org/show_bug.cgi?id=13983
+        */
         static struct RCStore
         {
             Node root;
-            size_t length; ///< Number of elements (keys or key-value-pairs) currently stored under `root`
+            size_t length; /// Number of elements (keys or key-value-pairs) currently stored under `root`
 
             // TODO make these 3 fit in a size_t for the 64-bit case
-            RefCount refCount;    ///< Number of references.
-            RefCount rangeRefCount; ///< Number of range references.
+            RefCount refCount;    /// Number of references.
+            RefCount rangeRefCount; /// Number of range references.
         }
 
         void assureRCStore()
@@ -4226,7 +4222,7 @@ inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey) @trusted
 struct RadixTree(Key, Value)
     if (allSatisfy!(isTrieableKeyType, Key))
 {
-    pragma(msg, Key.stringof ~ " " ~ Value.stringof);
+    // pragma(msg, Key.stringof ~ " " ~ Value.stringof);
     alias RawTree = RawRadixTree!(Value);
 
     private this(RawTree rawTree)
@@ -5509,10 +5505,4 @@ unittest
     version(benchmark) benchmark();
 }
 
-extern(C) pure nothrow @system @nogc
-{
-    void* malloc(size_t size);
-    void* calloc(size_t nmemb, size_t size);
-    void* realloc(void* ptr, size_t size);
-    void free(void* ptr);
-}
+import qcmeman;

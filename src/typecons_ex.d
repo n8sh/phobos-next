@@ -231,7 +231,7 @@ struct IndexedBy(R, string IndexTypeName)
             {
                 Index index;    // index if exists is `true', 0 otherwise
                 bool exists;  // `true` if `index` is defined, `false` otherwise
-                bool opCast(T : bool)() const @safe @nogc pure nothrow { return exists; }
+                bool opCast(T : bool)() const @safe pure nothrow @nogc { return exists; }
             }
             import std.algorithm : countUntil;
             const ix = _r[].countUntil(e); // is safe

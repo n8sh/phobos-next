@@ -3,6 +3,8 @@ module storage;
 /// Large array storage.
 static struct Large(E, bool useGC)
 {
+    import qcmeman;
+
     E* ptr;
     size_t length;
 
@@ -217,12 +219,4 @@ pure nothrow unittest
     {
         storeTester!(E, true);
     }
-}
-
-// we handle these as pure to make containers using them pure
-extern(C) pure nothrow @system @nogc
-{
-    void* malloc(size_t size);
-    void* realloc(void* ptr, size_t size);
-    void free(void* ptr);
 }

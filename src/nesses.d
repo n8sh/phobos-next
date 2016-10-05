@@ -64,7 +64,7 @@ auto denseness(T)(in T x, int depth = -1)
     return 1 - x.sparseness(depth);
 }
 
-@safe @nogc pure nothrow unittest
+@safe pure nothrow @nogc unittest
 {
     immutable float[3] f = [1, 2, 3];
     alias Q = Rational!ulong;

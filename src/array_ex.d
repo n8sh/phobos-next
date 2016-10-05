@@ -1239,16 +1239,17 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 unittest
 {
     import std.functional : binaryFun;
+    import std.conv : to;
     enum less = "a < b";
     alias comp = binaryFun!less; //< comparison
-    alias E = int;
+    alias E = string;
     alias A = Array!(E, AssignmentSemantics.disabled, Ordering.unsorted, false, less);
     A a;
     const n = 100_000;
     size_t i = 0;
     foreach (const ref e; 0 .. n)
     {
-        a ~= e;
+        a ~= e.to!E;
         assert(a.length == i + 1);
         ++i;
     }

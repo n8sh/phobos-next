@@ -901,7 +901,7 @@ struct Array(E,
     }
 
 private:
-    // TODO reuse Store store
+    // TODO reuse module `storage` for small size/array optimization (SSO)
     E* _storePtr;               // store pointer
     size_t _storeCapacity;      // store capacity
     size_t _length;             // length

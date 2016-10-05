@@ -159,7 +159,7 @@ struct Array(E,
         }
 
         /// Copy assignment.
-        void opAssign(Array rhs) @trusted
+        void opAssign(typeof(this) rhs) @trusted
         {
             // self-assignment may happen when assigning derefenced pointer
             if (_storePtr != rhs._storePtr) // if not self assignment
@@ -171,6 +171,11 @@ struct Array(E,
                 }
             }
         }
+    }
+
+    bool opEquals(const ref typeof(this) rhs) const @trusted
+    {
+        return this[] == rhs[];
     }
 
     static if (semantics == AssignmentSemantics.disabled ||
@@ -1243,6 +1248,8 @@ unittest
     }
     const b = a.dup;
     assert(b.length == a.length);
+    assert(a !is b);
+    assert(a == b);
     assert(a[] == b[]);
 }
 

@@ -174,7 +174,7 @@ struct Array(E,
     }
 
     static if (semantics == AssignmentSemantics.disabled ||
-               semantics == AssignmentSemantics.move) // TODO include move?
+               semantics == AssignmentSemantics.move)
     {
         @disable this(this);
 

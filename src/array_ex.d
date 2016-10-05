@@ -1229,7 +1229,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     }
 }
 
-///
+/// disabled copying
 unittest
 {
     import std.functional : binaryFun;

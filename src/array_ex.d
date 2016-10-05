@@ -53,7 +53,7 @@ import std.traits : isInstanceOf;
 enum isMyArray(C) = isInstanceOf!(Array, C);
 
 /// Semantics of copy construction and assignment.
-enum AssignmentSemantics
+enum Assignment
 {
     disabled,              /// for reference counting use `std.typecons.RefCounted`
     move,              /// only move construction allowed
@@ -69,7 +69,7 @@ enum AssignmentSemantics
     where both arguments are instances of `Array`.
  */
 struct Array(E,
-             AssignmentSemantics semantics = AssignmentSemantics.disabled,
+             Assignment semantics = Assignment.disabled,
              Ordering ordering = Ordering.unsorted,
              bool useGC = shouldAddGCRange!E,
              alias less = "a < b") // TODO move out of this definition and support only for the case when `ordering` is not `Ordering.unsorted`
@@ -150,7 +150,7 @@ struct Array(E,
         }
     }
 
-    static if (semantics == AssignmentSemantics.copy)
+    static if (semantics == Assignment.copy)
     {
         /// Copy construction.
         this(this) nothrow @trusted
@@ -173,8 +173,8 @@ struct Array(E,
         }
     }
 
-    static if (semantics == AssignmentSemantics.disabled ||
-               semantics == AssignmentSemantics.move)
+    static if (semantics == Assignment.disabled ||
+               semantics == Assignment.move)
     {
         @disable this(this);
 
@@ -907,11 +907,11 @@ private:
     size_t _length;             // length
 }
 
-alias SortedArray(E, AssignmentSemantics semantics = AssignmentSemantics.disabled,
+alias SortedArray(E, Assignment semantics = Assignment.disabled,
                   bool useGC = shouldAddGCRange!E,
                   alias less = "a < b") = Array!(E, semantics, Ordering.sortedValues, useGC, less);
 
-alias SortedSetArray(E, AssignmentSemantics semantics = AssignmentSemantics.disabled,
+alias SortedSetArray(E, Assignment semantics = Assignment.disabled,
                      bool useGC = shouldAddGCRange!E,
                      alias less = "a < b") = Array!(E, semantics, Ordering.sortedUniqueSet, useGC, less);
 
@@ -925,7 +925,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     import std.traits : isInstanceOf;
     import std.typecons : Unqual;
 
-    enum semantics = AssignmentSemantics.copy;
+    enum semantics = Assignment.copy;
     alias comp = binaryFun!less; //< comparison
 
     alias E = int;
@@ -1251,7 +1251,7 @@ unittest
     enum less = "a < b";
     alias comp = binaryFun!less; //< comparison
     alias E = string;
-    alias A = Array!(E, AssignmentSemantics.disabled, Ordering.unsorted, false, less);
+    alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, less);
     A a;
     const n = 100_000;
     size_t i = 0;

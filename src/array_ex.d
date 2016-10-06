@@ -206,10 +206,8 @@ struct Array(E,
         clear();
     }
 
-    bool opEquals(const ref typeof(this) rhs) const @trusted
-    {
-        return this[] == rhs[];
-    }
+    bool opEquals(const ref typeof(this) rhs) const @trusted { return this[] == rhs[]; }
+    bool opEquals(in typeof(this) rhs) const @trusted { return this[] == rhs[]; }
 
     /** Default-initialize all elements to `zeroValue`.. */
     void defaultInitialize(E zeroValue = E.init) @("complexity", "O(length)")
@@ -1305,4 +1303,16 @@ pure nothrow /+TODO @nogc+/ unittest
         tester!(ordering, false, "a < b"); // don't use GC
         tester!(ordering, false, "a > b"); // don't use GC
     }
+}
+
+unittest
+{
+    alias E = int;
+    alias A = Array!(E);
+    A[string] map;
+    map["a"] = A.init;
+    auto valuePtr = "a" in map;
+    assert(valuePtr);
+    assert(A.init == *valuePtr);
+    assert(*valuePtr == A.init);
 }

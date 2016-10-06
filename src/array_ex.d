@@ -522,6 +522,7 @@ struct Array(E,
             }
         }
         alias append = pushBack;
+        alias put = pushBack;
 
         // NOTE these separate overloads of opOpAssign are needed because one
         // `const ref`-parameter-overload doesn't work because of compiler bug
@@ -813,10 +814,15 @@ struct Array(E,
     {
         nothrow:
 
-        void resize(size_t length) @safe
+        void resize(size_t length) @safe // TODO make this private?
         {
             reserve(length);
             _length = length;
+        }
+
+        @property void length(size_t length) @safe
+        {
+            resize(length);
         }
 
         inout:               // indexing and slicing can be mutable when ordered
@@ -959,9 +965,9 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             static if (!IsOrdered!ordering)
             {
                 assert(x.length == n);
-                x.resize(n + 1);
+                x.length = n + 1;
                 assert(x.length == n + 1);
-                x.resize(n);
+                x.length = n;
             }
 
             const ptr = x.ptr;
@@ -1244,14 +1250,11 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 }
 
 /// disabled copying
-unittest
+@safe nothrow unittest
 {
-    import std.functional : binaryFun;
     import std.conv : to;
-    enum less = "a < b";
-    alias comp = binaryFun!less; //< comparison
     alias E = string;
-    alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, less);
+    alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, "a < b");
     A a;
     const n = 100_000;
     size_t i = 0;
@@ -1268,10 +1271,31 @@ unittest
     assert(a[] == b[]);
 }
 
+/// collection
+@safe pure nothrow @nogc unittest
+{
+    alias E = int;
+    alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, "a < b");
+
+    const n = 100;
+    import std.range : iota;
+    import algorithm_ex : collect;
+
+    import std.range : isOutputRange;
+    static assert(isOutputRange!(A, E));
+
+    import std.algorithm.comparison : equal;
+    assert((0.iota(n).collect!A)[].equal(0.iota(n)));
+}
+
+version(unittest)
+{
+    import std.traits : EnumMembers;
+}
+
 /// use GC
 pure nothrow unittest
 {
-    import std.traits : EnumMembers;
     foreach (ordering; EnumMembers!Ordering)
     {
         tester!(ordering, true, "a < b"); // use GC
@@ -1282,7 +1306,6 @@ pure nothrow unittest
 /// don't use GC
 pure nothrow /+TODO @nogc+/ unittest
 {
-    import std.traits : EnumMembers;
     foreach (ordering; EnumMembers!Ordering)
     {
         tester!(ordering, false, "a < b"); // don't use GC

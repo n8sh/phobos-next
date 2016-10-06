@@ -2170,7 +2170,7 @@ Container collect(Container, Range) (Range r)
             output.length = r.length;
         }
         import std.algorithm : copy;
-        r.copy(output[]);
+        r.copy(output[]);       // slicing is @trusted
         return output;
     }
     else

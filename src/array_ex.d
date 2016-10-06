@@ -404,6 +404,7 @@ struct Array(E,
     /** Removal doesn't need to care about ordering. */
     ContainerElementType!(typeof(this), E) linearPopFront() @trusted @("complexity", "O(length)")
     {
+        import std.algorithm : move;
         assert(!empty);
         typeof(return) value = ptr[0]; // TODO move construct?
         // TODO use memmove instead?
@@ -411,7 +412,6 @@ struct Array(E,
         {
             const si = i + 1; // source index
             const ti = i; // target index
-            import std.algorithm : move;
             move(ptr[si], ptr[ti]); // ptr[ti] = ptr[si]; // TODO move construct?
         }
         --_length;
@@ -552,8 +552,7 @@ struct Array(E,
 
     static if (IsOrdered!ordering)
     {
-        import std.range : SearchPolicy;
-        import std.range : assumeSorted;
+        import std.range : SearchPolicy, assumeSorted;
 
         /// Returns: `true` iff this contains `value`.
         bool contains(U)(U value) const nothrow @nogc @("complexity", "O(log(length))")

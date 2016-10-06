@@ -11,7 +11,7 @@ module algorithm_ex;
 
 import std.algorithm : min, max;
 import std.traits : isArray, Unqual, isIntegral, CommonType, isIterable, isStaticArray, isFloatingPoint, arity, isSomeString, isSomeChar, isExpressionTuple;
-import std.range : ElementType, isInputRange, isForwardRange, isBidirectionalRange, isRandomAccessRange, front;
+import std.range : ElementType, isInputRange, isForwardRange, isBidirectionalRange, isRandomAccessRange, isOutputRange, front;
 import traits_ex : allSameType;
 import std.functional : unaryFun, binaryFun;
 import std.algorithm.searching : find;
@@ -2144,4 +2144,61 @@ bool equalLength(R, Ss...)(const R r, const Ss ss)
     assert(!equalLength([1, 1], [2], [3]));
     assert(!equalLength([1], [2, 2], [3]));
     assert(!equalLength([1], [2], [3, 3]));
+}
+
+import std.range : isOutputRange;
+
+/** Collect/Gather the elements of `r` into a `Container` and return it.
+    TODO Rename `container` to `output`?
+    TODO Support Set-containers via `insert` aswell, or add `alias put = insert` to them?
+    TODO What about Appender?
+    TODO Rename to `collect` to `gather`.
+ */
+Container collect(Container, Range) (Range r)
+    if (isInputRange!Range &&
+        isOutputRange!(Container, ElementType!Range))
+{
+    static if (hasLength!Range)
+    {
+        static if (isArray!Container)
+        {
+            import std.array : uninitializedArray;
+            auto output = uninitializedArray!(Container)(r.length);
+        }
+        else
+        {
+            Container output;
+            output.length = r.length;
+        }
+        import std.algorithm : copy;
+        r.copy(output);
+    }
+    else
+    {
+        Container output;
+        foreach (const ref e; r)
+        {
+            output ~= e;
+        }
+    }
+    return output;
+}
+
+///
+@safe pure nothrow unittest
+{
+    import std.range : iota;
+    import std.algorithm.iteration : map;
+    import std.algorithm : filter;
+    import std.algorithm.comparison : equal;
+    import algorithm_ex : collect;
+
+    alias E = int;
+    alias V = E[];
+    const n = 1000;
+
+    auto x = 0.iota(n).collect!V;
+
+    assert([0, 1, 2].map!(_ => _^^2).collect!V.equal([0, 1, 4]));
+    assert([0, 1, 2, 3].filter!(_ => _ & 1).collect!V.equal([1, 3]));
 }

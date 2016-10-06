@@ -2149,6 +2149,7 @@ bool equalLength(R, Ss...)(const R r, const Ss ss)
 import std.range : isOutputRange;
 
 /** Collect/Gather the elements of `r` into a `Container` and return it.
+    TODO Use std.container.util.make instead?: https://dlang.org/phobos/std_container_util.html#.make
     TODO Rename `container` to `output`?
     TODO Support Set-containers via `insert` aswell, or add `alias put = insert` to them?
     TODO What about Appender?
@@ -2172,16 +2173,30 @@ Container collect(Container, Range) (Range r)
         }
         import std.algorithm : copy;
         r.copy(output);
+        return output;
     }
     else
     {
-        Container output;
-        foreach (const ref e; r)
+        static if (isArray!Container)
         {
-            output ~= e;
+            import std.array : Appender;
+            Appender!Container output;
+            foreach (const ref e; r)
+            {
+                output.put(e);
+            }
+            return output.data;
+        }
+        else
+        {
+            Container output;
+            foreach (const ref e; r)
+            {
+                output ~= e; // TODO use Appender or remove because too GC.intensive inefficient, or reuse `.array`?
+            }
+            return output;
         }
     }
-    return output;
 }
 
 ///

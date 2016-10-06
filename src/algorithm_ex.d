@@ -2146,8 +2146,6 @@ bool equalLength(R, Ss...)(const R r, const Ss ss)
     assert(!equalLength([1], [2], [3, 3]));
 }
 
-import std.range : isOutputRange;
-
 /** Collect/Gather the elements of `r` into a `Container` and return it.
     TODO Use std.container.util.make instead?: https://dlang.org/phobos/std_container_util.html#.make
     TODO Rename `container` to `output`?
@@ -2156,8 +2154,8 @@ import std.range : isOutputRange;
     TODO Rename to `collect` to `gather`.
  */
 Container collect(Container, Range) (Range r)
-    if (isInputRange!Range &&
-        isOutputRange!(Container, ElementType!Range))
+    // if (isInputRange!Range &&
+    //     isOutputRange!(Container, ElementType!Range))
 {
     static if (hasLength!Range)
     {
@@ -2172,7 +2170,7 @@ Container collect(Container, Range) (Range r)
             output.length = r.length;
         }
         import std.algorithm : copy;
-        r.copy(output);
+        r.copy(output[]);
         return output;
     }
     else

@@ -813,15 +813,10 @@ struct Array(E,
     {
         nothrow:
 
-        void resize(size_t length) @safe // TODO make this private?
+        @property void length(size_t length) @safe
         {
             reserve(length);
             _length = length;
-        }
-
-        @property void length(size_t length) @safe
-        {
-            resize(length);
         }
 
         inout:               // indexing and slicing can be mutable when ordered

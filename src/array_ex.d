@@ -110,8 +110,14 @@ struct Array(E,
         this(0);
     }
 
-    /// Create a empty array of length `n`.
-    this(size_t n) nothrow
+    /// Returns: an array of length `n` with all elements default-initialized.
+    static typeof(this) withLength(size_t n) nothrow
+    {
+        return typeof(return)(n);
+    }
+
+    /// Create an array of length `n` with all elements default-initialized.
+    private this(size_t n) nothrow
     {
         allocateStorePtr(n);
         _length = _storeCapacity = n;
@@ -1311,6 +1317,7 @@ unittest
     alias A = Array!(E);
     A[string] map;
     map["a"] = A.init;
+    map["B"] = A.withLength(42);
     auto valuePtr = "a" in map;
     assert(valuePtr);
     assert(A.init == *valuePtr);

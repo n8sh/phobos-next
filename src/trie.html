@@ -138,7 +138,11 @@ Implementation is layered:
 <b>https:</b><br>
 //github.com/emacs-mirror/emacs.git<br><br>
 
-<dl><dt><big><a name="isScalarTrieableKeyType"></a>enum auto <u>isScalarTrieableKeyType</u>(T);
+<dl><dt><big><a name="CxxArray"></a>template <u>CxxArray</u>(T)</big></dt>
+<dd>C++-style Array container.<br><br>
+
+</dd>
+<dt><big><a name="isScalarTrieableKeyType"></a>enum auto <u>isScalarTrieableKeyType</u>(T);
 </big></dt>
 <dd><b>Returns:</b><br>
 <pre style="display:inline;" class="d_inline_code">true</pre> if <pre style="display:inline;" class="d_inline_code">T</pre> is a scalar trie key-type, <pre style="display:inline;" class="d_inline_code">false</pre> otherwise.<br><br>
@@ -353,7 +357,7 @@ number of elements stored.<br><br>
     TODO use DIP-1000<br><br>
 
 </dd>
-<dt><big><a name="toRawKey"></a>@trusted UKey <u>toRawKey</u>(TypedKey)(in TypedKey <i>typedKey</i>, ref CopyingArray!Ix <i>rawUKey</i>) if (isTrieableKeyType!TypedKey);
+<dt><big><a name="toRawKey"></a>@trusted UKey <u>toRawKey</u>(TypedKey)(in TypedKey <i>typedKey</i>, ref CxxArray!Ix <i>rawUKey</i>) if (isTrieableKeyType!TypedKey);
 </big></dt>
 <dd>Remap typed key <pre style="display:inline;" class="d_inline_code"><i>typedKey</i></pre> to raw (untyped) key of type <pre style="display:inline;" class="d_inline_code">UKey</pre>.
     TODO use DIP-1000<br><br>
@@ -403,16 +407,6 @@ pointer to value if <pre style="display:inline;" class="d_inline_code"><i>key</i
 <br><br>
 TODO replace <pre style="display:inline;" class="d_inline_code">matchCommonPrefix</pre> with something more clever directly
         finds the next element after rawKey and returns a TreeRange at that point<br><br>
-
-</dd>
-<dt><big><a name="RadixTree.byKey"></a>auto <u>byKey</u>();
-</big></dt>
-<dd>Get range of map keys.<br><br>
-
-</dd>
-<dt><big><a name="RadixTree.byValue"></a>auto <u>byValue</u>();
-</big></dt>
-<dd>Get range of map values.<br><br>
 
 </dd>
 <dt><big><a name="RadixTree.dup"></a>typeof(this) <u>dup</u>();

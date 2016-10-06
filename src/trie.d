@@ -130,7 +130,7 @@ import container_traits : shouldAddGCRange;
 
 import array_ex : Array, Assignment, Ordering;
 
-alias CopyingArray(T) = Array!(T, Assignment.copy, Ordering.unsorted, false);
+alias CopyableArray(T) = Array!(T, Assignment.copy, Ordering.unsorted, false);
 
 // version = enterSingleInfiniteMemoryLeakTest;
 version = benchmark;
@@ -1488,7 +1488,7 @@ template RawRadixTree(Value = void)
             }
         }
 
-        void appendFrontIxsToKey(ref CopyingArray!Ix key) const @nogc
+        void appendFrontIxsToKey(ref CopyableArray!Ix key) const @nogc
         {
             final switch (branch.typeIx) with (Branch.Ix)
             {
@@ -1822,7 +1822,7 @@ template RawRadixTree(Value = void)
             }
         }
 
-        void appendFrontIxsToKey(ref CopyingArray!Ix key) const @nogc
+        void appendFrontIxsToKey(ref CopyableArray!Ix key) const @nogc
         {
             assert(!empty);
             switch (leaf.typeIx) with (Node.Ix)
@@ -1914,7 +1914,7 @@ template RawRadixTree(Value = void)
     {
         static if (isValue)
         {
-            bool appendFrontIxsToKey(ref CopyingArray!Ix key, ref Value value) const
+            bool appendFrontIxsToKey(ref CopyableArray!Ix key, ref Value value) const
             {
                 foreach (const ref branchRange; _bRanges)
                 {
@@ -1930,7 +1930,7 @@ template RawRadixTree(Value = void)
         }
         else
         {
-            bool appendFrontIxsToKey(ref CopyingArray!Ix key) const
+            bool appendFrontIxsToKey(ref CopyableArray!Ix key) const
             {
                 foreach (const ref branchRange; _bRanges)
                 {
@@ -2037,8 +2037,8 @@ template RawRadixTree(Value = void)
         }
 
     private:
-        CopyingArray!BranchRange _bRanges;
-        // CopyingArray!Ix _branchesKeyPrefix;
+        CopyableArray!BranchRange _bRanges;
+        // CopyableArray!Ix _branchesKeyPrefix;
 
         // index to first branchrange in `_bRanges` that is currently on a leaf1
         // or `typeof.max` if undefined
@@ -2216,7 +2216,7 @@ template RawRadixTree(Value = void)
         BranchRanges branchRanges;
 
         // cache
-        CopyingArray!Ix _cachedFrontKey; // copy of front key
+        CopyableArray!Ix _cachedFrontKey; // copy of front key
         static if (isValue)
         {
             Value _cachedFrontValue; // copy of front value
@@ -4055,7 +4055,7 @@ UKey toFixedRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @
 /** Remap typed key `typedKey` to raw (untyped) key of type `UKey`.
     TODO use DIP-1000
  */
-UKey toRawKey(TypedKey)(in TypedKey typedKey, ref CopyingArray!Ix rawUKey) @trusted
+UKey toRawKey(TypedKey)(in TypedKey typedKey, ref CopyableArray!Ix rawUKey) @trusted
     if (isTrieableKeyType!TypedKey)
 {
     enum radix = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
@@ -4116,7 +4116,7 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, ref CopyingArray!Ix rawUKey) @trus
 
                 static if (i + 1 == members.length) // last member is allowed to be an array of fixed length
                 {
-                    CopyingArray!Ix memberRawUKey;
+                    CopyableArray!Ix memberRawUKey;
                     const memberRawKey = member.toRawKey(memberRawUKey); // TODO use DIP-1000
                     rawUKey ~= memberRawUKey;
                 }
@@ -4249,7 +4249,7 @@ struct RadixTree(Key, Value)
         {
             _rawTree.ElementRefType elementRef; // reference to where element was added
 
-            CopyingArray!Ix rawUKey;
+            CopyableArray!Ix rawUKey;
             auto rawKey = key.toRawKey(rawUKey); // TODO use DIP-1000
 
             _rawTree.insert(rawKey, value, elementRef);
@@ -4269,7 +4269,7 @@ struct RadixTree(Key, Value)
         {
             _rawTree.ElementRefType elementRef; // indicates that key was added
 
-            CopyingArray!Ix rawUKey;
+            CopyableArray!Ix rawUKey;
             auto rawKey = key.toRawKey(rawUKey); // TODO use DIP-1000
 
             _rawTree.insert(rawKey, value, elementRef);
@@ -4308,7 +4308,7 @@ struct RadixTree(Key, Value)
         /** Returns: pointer to value if `key` is contained in set, null otherwise. */
         inout(Value*) contains(in Key key) inout @nogc
         {
-            CopyingArray!Ix rawUKey;
+            CopyableArray!Ix rawUKey;
             auto rawKey = key.toRawKey(rawUKey); // TODO use DIP-1000
             return _rawTree.contains(rawKey);
         }
@@ -4325,7 +4325,7 @@ struct RadixTree(Key, Value)
         {
             _rawTree.ElementRefType elementRef; // indicates that elt was added
 
-            CopyingArray!Ix rawUKey;
+            CopyableArray!Ix rawUKey;
             auto rawKey = key.toRawKey(rawUKey); // TODO use DIP-1000
 
             _rawTree.insert(rawKey, elementRef);
@@ -4340,7 +4340,7 @@ struct RadixTree(Key, Value)
         /** Returns: `true` if `key` is stored, `false` otherwise. */
         bool contains(in Key key) inout
         {
-            CopyingArray!Ix rawUKey;
+            CopyableArray!Ix rawUKey;
             auto rawKey = key.toRawKey(rawUKey); // TODO use DIP-1000
             return _rawTree.contains(rawKey);
         }
@@ -4368,7 +4368,7 @@ struct RadixTree(Key, Value)
      */
     pragma(inline) auto prefix(Key keyPrefix)
     {
-        CopyingArray!Ix rawUKey;
+        CopyableArray!Ix rawUKey;
         auto rawKeyPrefix = keyPrefix.toRawKey(rawUKey);
 
         UKey rawKeyPrefixRest;
@@ -4448,7 +4448,7 @@ struct RadixTree(Key, Value)
     */
     pragma(inline) auto upperBound(Key key)
     {
-        CopyingArray!Ix rawUKey;
+        CopyableArray!Ix rawUKey;
         auto rawKey = key.toRawKey(rawUKey);
 
         UKey rawKeyRest;
@@ -4484,7 +4484,7 @@ struct RadixTree(Key, Value)
 
         auto front()
         {
-            CopyingArray!Ix wholeRawKey = _rawKeyPrefix;
+            CopyableArray!Ix wholeRawKey = _rawKeyPrefix;
             wholeRawKey ~= _rawRange.lowKey;
             const wholeTypedKey = wholeRawKey[].toTypedKey!Key;
             static if (RawTree.hasValue) { return tuple(wholeTypedKey, _rawRange._front._cachedFrontValue); }
@@ -4495,7 +4495,7 @@ struct RadixTree(Key, Value)
 
         RawTree.RangeType _rawRange;
         alias _rawRange this;
-        CopyingArray!Ix _rawKeyPrefix;
+        CopyableArray!Ix _rawKeyPrefix;
     }
 
     static if (RawTree.hasValue)

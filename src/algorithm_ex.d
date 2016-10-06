@@ -2201,8 +2201,7 @@ Container collect(Container, Range) (Range r)
 @safe pure nothrow unittest
 {
     import std.range : iota;
-    import std.algorithm.iteration : map;
-    import std.algorithm : filter;
+    import std.algorithm.iteration : map, filter;
     import std.algorithm.comparison : equal;
     import algorithm_ex : collect;
 

@@ -507,18 +507,6 @@ auto iotaOfExceptional(T, B, E, S)(B begin = T.min, E end = T.max, S step = 1)
 //     assertThrown!ConvOverflowException(iotaOfExceptional!T(0, T.max + 1 + 1).array);
 // }
 
-public import std.array: byPair;
-alias byItem = byPair; // TODO Is this Python-style naming better?
-
-unittest
-{
-    string[int] x;
-    x[0] = "a";
-    import std.algorithm: equal;
-    import std.typecons : tuple;
-    assert(x.byPair.equal([tuple(0, "a")]));
-}
-
 /** Return Array of Key-Value Pairs of Associative Array $(D aa).
     See also: https://github.com/D-Programming-Language/druntime/pull/574
     See also: http://forum.dlang.org/thread/dxotcrutrlmszlidufcr@forum.dlang.org?page=2#post-fhkgitmifgnompkqiscd:40forum.dlang.org

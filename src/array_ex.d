@@ -170,7 +170,12 @@ struct Array(E,
         /// Copy construction.
         this(this) nothrow @trusted
         {
-            postblit();
+            auto rhs_storePtr = _storePtr; // save store pointer
+            allocateStorePtr(_length);     // allocate new store pointer
+            foreach (const i; 0 .. _length)
+            {
+                ptr[i] = rhs_storePtr[i]; // copy from old to new
+            }
         }
 
         /// Copy assignment.
@@ -194,25 +199,19 @@ struct Array(E,
         @disable this(this);
 
         /// Returns: shallow duplicate of `this`.
-        typeof(this) dup() nothrow @trusted
+        typeof(this) dup() nothrow @trusted const
         {
             typeof(return) copy;
             copy._storeCapacity = this._storeCapacity;
             copy._length = this._length;
-            copy._storePtr = this._storePtr;
-            copy.postblit();
-            return copy;
-        }
-    }
 
-    /// Called either automatically or explicitly depending on `assignment`.
-    private void postblit() nothrow @trusted
-    {
-        auto rhs_storePtr = _storePtr; // save store pointer
-        allocateStorePtr(_length);     // allocate new store pointer
-        foreach (const i; 0 .. _length)
-        {
-            ptr[i] = rhs_storePtr[i]; // copy from old to new
+            copy.allocateStorePtr(_length);     // allocate new store pointer
+            foreach (const i; 0 .. _length)
+            {
+                copy.ptr[i] = this.ptr[i]; // copy from old to new
+            }
+
+            return copy;
         }
     }
 

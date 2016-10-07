@@ -2214,3 +2214,19 @@ Container collect(Container, Range) (Range r)
     assert([0, 1, 2].map!(_ => _^^2).collect!V.equal([0, 1, 4]));
     assert([0, 1, 2, 3].filter!(_ => _ & 1).collect!V.equal([1, 3]));
 }
+
+/// collection
+@safe pure nothrow @nogc unittest
+{
+    import std.range : iota, isOutputRange;
+    import std.algorithm.comparison : equal;
+    import array_ex : Array;
+
+    alias E = int;
+    alias A = Array!(E);
+
+    const n = 100;
+    static assert(isOutputRange!(A, E));
+
+    assert((0.iota(n).collect!A)[].equal(0.iota(n)));
+}

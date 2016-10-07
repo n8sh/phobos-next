@@ -1278,23 +1278,6 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     assert(a[] == b[]);
 }
 
-/// collection
-@safe pure nothrow @nogc unittest
-{
-    alias E = int;
-    alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, "a < b");
-
-    const n = 100;
-    import std.range : iota;
-    import algorithm_ex : collect;
-
-    import std.range : isOutputRange;
-    static assert(isOutputRange!(A, E));
-
-    import std.algorithm.comparison : equal;
-    assert((0.iota(n).collect!A)[].equal(0.iota(n)));
-}
-
 version(unittest)
 {
     import std.traits : EnumMembers;

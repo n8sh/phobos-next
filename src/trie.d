@@ -5544,13 +5544,13 @@ void benchmark()()
     assert(set.contains(S(43)));
 }
 
-// ///
-// @safe pure nothrow @nogc unittest
-// {
-//     alias Key = string;
-//     alias Value = UniqueArray!int;
-//     auto map = radixTreeMap!(Key, Value);
-// }
+/// TODO activate
+@safe pure nothrow @nogc unittest
+{
+    // alias Key = string;
+    // alias Value = UniqueArray!int;
+    // RadixTreeMapGrowOnly!(Key, Value) map;
+}
 
 /** Static Iota.
     TODO Move to Phobos std.range.

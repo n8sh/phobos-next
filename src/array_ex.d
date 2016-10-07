@@ -60,8 +60,7 @@ enum Assignment
     copy               /// always copy (often not the desirable)
 }
 
-/** Small-size-optimized (SSO-packed) array of value types `E` with optional
-    ordering given by `ordering`.
+/** Array of value types `E` with optional ordering given by `ordering`.
 
     Copy construction and assignment currently does copying.
 
@@ -114,6 +113,16 @@ struct Array(E,
     static typeof(this) withLength(size_t n) nothrow
     {
         return typeof(return)(n);
+    }
+
+    /// Returns: an array of length 1 with first element set to `e`.
+    static typeof(this) withElement(E e) nothrow
+    {
+        typeof(return) x;
+        x.allocateStorePtr(1);
+        x._length = x._storeCapacity = 1;
+        x.ptr[0] = e;
+        return x;
     }
 
     /// Create an array of length `n` with all elements default-initialized.

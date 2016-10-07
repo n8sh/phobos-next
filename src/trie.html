@@ -138,8 +138,8 @@ Implementation is layered:
 <b>https:</b><br>
 //github.com/emacs-mirror/emacs.git<br><br>
 
-<dl><dt><big><a name="CxxArray"></a>template <u>CxxArray</u>(T)</big></dt>
-<dd>C++-style Array container.<br><br>
+<dl><dt><big><a name="UniqueArray"></a>template <u>UniqueArray</u>(T)</big></dt>
+<dd>C++-style Array container but with assignment disabled, that is no move nor copy construction.<br><br>
 
 </dd>
 <dt><big><a name="isScalarTrieableKeyType"></a>enum auto <u>isScalarTrieableKeyType</u>(T);
@@ -357,7 +357,7 @@ number of elements stored.<br><br>
     TODO use DIP-1000<br><br>
 
 </dd>
-<dt><big><a name="toRawKey"></a>@trusted UKey <u>toRawKey</u>(TypedKey)(in TypedKey <i>typedKey</i>, ref CxxArray!Ix <i>rawUKey</i>) if (isTrieableKeyType!TypedKey);
+<dt><big><a name="toRawKey"></a>@trusted UKey <u>toRawKey</u>(TypedKey)(in TypedKey <i>typedKey</i>, ref UniqueArray!Ix <i>rawUKey</i>) if (isTrieableKeyType!TypedKey);
 </big></dt>
 <dd>Remap typed key <pre style="display:inline;" class="d_inline_code"><i>typedKey</i></pre> to raw (untyped) key of type <pre style="display:inline;" class="d_inline_code">UKey</pre>.
     TODO use DIP-1000<br><br>
@@ -384,6 +384,11 @@ number of elements stored.<br><br>
 </big></dt>
 <dd><b>Returns:</b><br>
 pointer to value if <pre style="display:inline;" class="d_inline_code"><i>key</i></pre> is contained in set, <b>null</b> otherwise.<br><br>
+
+</dd>
+<dt><big><a name="RadixTree.byKeyValue"></a>@nogc Range <u>byKeyValue</u>();
+</big></dt>
+<dd>AA-style key-value range.<br><br>
 
 </dd>
 <dt><big><a name="RadixTree.opBinaryRight"></a>inout auto <u>opBinaryRight</u>(string op)(in Key <i>key</i>) if (op == "in");

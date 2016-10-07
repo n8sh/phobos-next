@@ -1,14 +1,14 @@
 module storage;
 
 /// Large array storage.
-static struct Large(E, bool useGC)
+static struct Large(E, bool useGCallocation)
 {
     import qcmeman;
 
     E* ptr;
     size_t length;
 
-    static if (useGC)
+    static if (useGCallocation)
     {
         import core.memory : GC;
     }
@@ -21,7 +21,7 @@ static struct Large(E, bool useGC)
 
     pure nothrow:
 
-    static if (useGC)
+    static if (useGCallocation)
     {
         this(size_t n)
         {
@@ -64,10 +64,10 @@ static struct Large(E, bool useGC)
 alias Small(E, size_t n) = E[n];
 
 /// Small-size-optimized (SSO) array store.
-static struct Store(E, bool useGC = shouldAddGCRange!E)
+static struct Store(E, bool useGCallocation = false)
 {
     /** Fixed number elements that fit into small variant storage. */
-    enum smallLength = Large!(E, useGC).sizeof / E.sizeof;
+    enum smallLength = Large!(E, useGCallocation).sizeof / E.sizeof;
 
     /** Maximum number elements that fit into large variant storage. */
     enum maxLargeLength = size_t.max >> 8;
@@ -152,15 +152,15 @@ private:
     union
     {
         Small!(E, smallLength) small; // small variant
-        Large!(E, useGC) large;          // large variant
+        Large!(E, useGCallocation) large;          // large variant
     }
     bool isLarge;               // TODO make part of union as in rcstring.d
 }
 
 /// Test `Store`.
-static void storeTester(E, bool useGC)()
+static void storeTester(E, bool useGCallocation)()
 {
-    Store!(E, useGC) si;
+    Store!(E, useGCallocation) si;
 
     assert(si.ptr !is null);
     assert(si.slice.ptr !is null);

@@ -5,7 +5,7 @@
         </head><body>
         <h1>storage</h1>
 <br><br>
-<dl><dt><big><a name="Large"></a>struct <u>Large</u>(E, bool useGC);
+<dl><dt><big><a name="Large"></a>struct <u>Large</u>(E, bool useGCallocation);
 </big></dt>
 <dd><u>Large</u> array storage.<br><br>
 
@@ -14,7 +14,7 @@
 <dd><u>Small</u> array storage.<br><br>
 
 </dd>
-<dt><big><a name="Store"></a>struct <u>Store</u>(E, bool useGC = shouldAddGCRange!E);
+<dt><big><a name="Store"></a>struct <u>Store</u>(E, bool useGCallocation = false);
 </big></dt>
 <dd>Small-size-optimized (SSO) array store.<br><br>
 
@@ -41,7 +41,7 @@
 </dd>
 </dl>
 </dd>
-<dt><big><a name="storeTester"></a>void <u>storeTester</u>(E, bool useGC)();
+<dt><big><a name="storeTester"></a>void <u>storeTester</u>(E, bool useGCallocation)();
 </big></dt>
 <dd>Test <pre style="display:inline;" class="d_inline_code">Store</pre>.<br><br>
 

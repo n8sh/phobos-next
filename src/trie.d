@@ -131,7 +131,7 @@ import container_traits : shouldAddGCRange;
 import array_ex : Array, Assignment, Ordering;
 
 /// C++-style Array container but with assignment disabled, that is no move nor copy construction.
-alias UniqueArray(T) = Array!(T, Assignment.disabled, Ordering.unsorted, false);
+alias UniqueArray(T) = Array!(T);
 
 // version = enterSingleInfiniteMemoryLeakTest;
 version = benchmark;
@@ -1915,7 +1915,7 @@ template RawRadixTree(Value = void)
     {
         static if (isValue)
         {
-            bool appendFrontIxsToKey(ref UniqueArray!Ix key, ref Value value) const
+            bool appendFrontIxsToKey(ref UniqueArray!Ix key, ref Value value) const @trusted
             {
                 foreach (const ref branchRange; _bRanges)
                 {
@@ -1931,7 +1931,7 @@ template RawRadixTree(Value = void)
         }
         else
         {
-            bool appendFrontIxsToKey(ref UniqueArray!Ix key) const
+            bool appendFrontIxsToKey(ref UniqueArray!Ix key) const @trusted
             {
                 foreach (const ref branchRange; _bRanges)
                 {
@@ -1944,7 +1944,7 @@ template RawRadixTree(Value = void)
                 return false;   // key is not complete
             }
         }
-        size_t get1DepthAt(size_t depth) const
+        size_t get1DepthAt(size_t depth) const @trusted
         {
             foreach (const i, ref branchRange; _bRanges[depth .. $])
             {
@@ -1953,7 +1953,7 @@ template RawRadixTree(Value = void)
             return typeof(_branch1Depth).max;
         }
 
-        private void updateLeaf1AtDepth(size_t depth)
+        private void updateLeaf1AtDepth(size_t depth) @trusted
         {
             if (_bRanges[depth].atLeaf1)
             {
@@ -5543,6 +5543,14 @@ void benchmark()()
     assert(!set.insert(S(43)));
     assert(set.contains(S(43)));
 }
+
+// ///
+// @safe pure nothrow @nogc unittest
+// {
+//     alias Key = string;
+//     alias Value = UniqueArray!int;
+//     auto map = radixTreeMap!(Key, Value);
+// }
 
 /** Static Iota.
     TODO Move to Phobos std.range.

@@ -121,7 +121,11 @@ struct BitHashSet(E, Growable growable = Growable.no)
     }
 
     /// Get length.
-    @property size_t length() const { return _length; }
+    @property size_t length() const // TODO should we count number of elements here instead?
+    {
+        return _length;
+    }
+
 private:
     static if (growable == Growable.yes)
     {
@@ -142,10 +146,14 @@ private:
 
     alias Block = size_t;       /// Allocated block type.
     Block* _blocksPtr;          /// Pointer to blocks of bits.
-    size_t _length;             /// Number of bits stored.
     static if (growable == Growable.yes)
     {
+        size_t _length;             /// Offset + 1 of highest set bit.
         size_t _capacity;           /// Number of bits allocated.
+    }
+    else
+    {
+        size_t _length;             /// Number of bits stored.
     }
 }
 

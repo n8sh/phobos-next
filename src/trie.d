@@ -4093,7 +4093,7 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, ref UniqueArray!Ix rawUKey) @trust
 
     static if (isFixedTrieableKeyType!TypedKey)
     {
-        rawUKey.resize(TypedKey.sizeof);
+        rawUKey.length = TypedKey.sizeof;
         return typedKey.toFixedRawKey(rawUKey[]);
     }
     else static if (isArray!TypedKey)
@@ -4343,6 +4343,12 @@ struct RadixTree(Key, Value)
             auto rawKey = key.toRawKey(rawUKey); // TODO use DIP-1000
             return _rawTree.contains(rawKey);
         }
+
+        /// AA-style key-value range.
+        pragma(inline) Range byKeyValue() @nogc // TODO inout?
+        {
+            return this.opSlice;
+        }
     }
     else
     {
@@ -4374,6 +4380,12 @@ struct RadixTree(Key, Value)
             UniqueArray!Ix rawUKey;
             auto rawKey = key.toRawKey(rawUKey); // TODO use DIP-1000
             return _rawTree.contains(rawKey);
+        }
+
+        /// AA-style key range.
+        pragma(inline) Range byKey() @nogc // TODO inout?
+        {
+            return this.opSlice;
         }
     }
 

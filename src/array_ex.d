@@ -789,7 +789,7 @@ struct Array(E,
     const nothrow @nogc:                      // indexing and slicing must be `const` when ordered
 
         /// Slice operator must be const when ordered.
-        auto opSlice()
+        auto opSlice()          // unsafe!
         {
             return opSlice!(typeof(this))(0, _length);
         }
@@ -834,12 +834,12 @@ struct Array(E,
         inout:               // indexing and slicing can be mutable when ordered
 
         /// Slice operator overload is mutable when unordered.
-        auto opSlice()
+        auto opSlice()          // unsafe!
         {
             return this.opSlice(0, _length);
         }
         /// ditto
-        auto opSlice(this This)(size_t i, size_t j)
+        auto opSlice(this This)(size_t i, size_t j) // unsafe!
         {
             alias ET = ContainerElementType!(This, E);
             return cast(inout(ET)[])slice[i .. j];

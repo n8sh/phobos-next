@@ -1,5 +1,5 @@
 /** Array container(s) with optional sortedness via template-parameter
-    `Ordering` and optional use of GC via `useGC`.
+    `Ordering` and optional use of GC via `useGCAllocation`.
 
     TODO Make Array have reference assignment instead through via Automatic
     Reference Counting and scope keyword when DIP-1000 has been implemented
@@ -70,7 +70,7 @@ enum Assignment
 struct Array(E,
              Assignment assignment = Assignment.disabled,
              Ordering ordering = Ordering.unsorted,
-             bool useGC = shouldAddGCRange!E,
+             bool useGCAllocation = false,
              alias less = "a < b") // TODO move out of this definition and support only for the case when `ordering` is not `Ordering.unsorted`
 {
     import std.range : isInputRange, ElementType;
@@ -92,7 +92,7 @@ struct Array(E,
     /// Returns: `true` iff is SSO-packed.
     bool isSmall() const @safe pure nothrow @nogc { return length <= smallLength; }
 
-    static if (useGC)
+    static if (useGCAllocation)
     {
         import core.memory : GC;
     }
@@ -134,7 +134,7 @@ struct Array(E,
     }
 
     /// Construct with length `n`.
-    static if (useGC)
+    static if (useGCAllocation)
     {
         nothrow:
 
@@ -274,7 +274,7 @@ struct Array(E,
     }
 
     /// Reserve room for `n` elements at store `_storePtr`.
-    static if (useGC)
+    static if (useGCAllocation)
     {
         void reserve(size_t n) pure nothrow @trusted
         {
@@ -299,7 +299,7 @@ struct Array(E,
     }
 
     /// Pack/Compress storage.
-    static if (useGC)
+    static if (useGCAllocation)
     {
         void compress() pure nothrow @trusted
         {
@@ -334,7 +334,7 @@ struct Array(E,
     alias pack = compress;
 
     /// Destruct.
-    static if (useGC)
+    static if (useGCAllocation)
     {
         nothrow @trusted:
 
@@ -921,12 +921,12 @@ private:
 }
 
 alias SortedArray(E, Assignment assignment = Assignment.disabled,
-                  bool useGC = shouldAddGCRange!E,
-                  alias less = "a < b") = Array!(E, assignment, Ordering.sortedValues, useGC, less);
+                  bool useGCAllocation = false,
+                  alias less = "a < b") = Array!(E, assignment, Ordering.sortedValues, useGCAllocation, less);
 
 alias SortedSetArray(E, Assignment assignment = Assignment.disabled,
-                     bool useGC = shouldAddGCRange!E,
-                     alias less = "a < b") = Array!(E, assignment, Ordering.sortedUniqueSet, useGC, less);
+                     bool useGCAllocation = false,
+                     alias less = "a < b") = Array!(E, assignment, Ordering.sortedUniqueSet, useGCAllocation, less);
 
 static void tester(Ordering ordering, bool supportGC, alias less)()
 {

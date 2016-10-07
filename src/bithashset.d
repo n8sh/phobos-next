@@ -84,6 +84,7 @@ struct BitHashSet(E, Growable growable = Growable.no)
         static if (growable == Growable.yes) { assureCapacity(ix + 1); _length = ix + 1; } else { assert(ix < _length); }
         return bts(_blocksPtr, ix) != 0;
     }
+    alias put = insert;         // OutputRange compatibility
 
     /** Remove element `e`.
         Returns: precense status of element before removal.
@@ -153,7 +154,11 @@ private:
 {
     alias E = uint;
 
-    const set0 = BitHashSet!(E, Growable.no)();
+    import std.range : isOutputRange;
+    alias Set = BitHashSet!(E, Growable.no);
+    static assert(isOutputRange!(Set, E));
+
+    const set0 = Set();
     assert(set0.length == 0);
 
     const length = 2^^6;

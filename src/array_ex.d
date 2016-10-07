@@ -794,7 +794,7 @@ struct Array(E,
             return opSlice!(typeof(this))(0, _length);
         }
         /// ditto
-        auto opSlice(this This)(size_t i, size_t j) @trusted // const because mutation only via `op.*Assign`
+        auto opSlice(this This)(size_t i, size_t j) // const because mutation only via `op.*Assign`
         {
             alias ET = ContainerElementType!(This, E);
             import std.range : assumeSorted;
@@ -839,7 +839,7 @@ struct Array(E,
             return this.opSlice(0, _length);
         }
         /// ditto
-        auto opSlice(this This)(size_t i, size_t j) @trusted
+        auto opSlice(this This)(size_t i, size_t j)
         {
             alias ET = ContainerElementType!(This, E);
             return cast(inout(ET)[])slice[i .. j];
@@ -1274,6 +1274,24 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     assert(b.length == a.length);
     assert(a !is b);
     assert(a == b);
+}
+
+/// disabled copying
+nothrow unittest
+{
+    import std.conv : to;
+    alias E = string;
+    alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, "a < b");
+    A a;
+    const n = 100_000;
+    size_t i = 0;
+    foreach (const ref e; 0 .. n)
+    {
+        a ~= e.to!E;
+        assert(a.length == i + 1);
+        ++i;
+    }
+    const b = a.dup;
     assert(a[] == b[]);
 }
 

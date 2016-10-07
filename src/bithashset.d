@@ -132,21 +132,12 @@ struct BitHashSet(E, Growable growable = Growable.no)
         return contains(e);
     }
 
-    static if (growable == Growable.yes)
+    /** Get current capacity in number of elements (bits).
+        If `growable` is `Growable.yes` then capacity is variable, otherwise it's constant.
+    */
+    @property size_t capacity() const
     {
-        /// Get current capacity in number of elements (bits).
-        @property size_t capacity() const
-        {
-            return _capacity;
-        }
-    }
-    else
-    {
-        /// Get fixed capacity in number of elements (bits).
-        @property size_t capacity() const
-        {
-            return _capacity;
-        }
+        return _capacity;
     }
 
 private:

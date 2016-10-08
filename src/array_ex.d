@@ -242,8 +242,38 @@ struct Array(E,
         clear();
     }
 
-    bool opEquals(const ref typeof(this) rhs) const @trusted { return this[] == rhs[]; }
-    bool opEquals(in typeof(this) rhs) const @trusted { return this[] == rhs[]; }
+    bool opEquals(const ref typeof(this) rhs) const @trusted
+    {
+        static if (isCopyable!E)
+        {
+            return this[] == rhs[]; // TODO fix DMD to make this work for non-copyable aswell
+        }
+        else
+        {
+            if (this._length != rhs._length) { return false; }
+            foreach (const i; 0 .. _length)
+            {
+                if (this.ptr[i] != rhs.ptr[i]) { return false; }
+            }
+            return true;
+        }
+    }
+    bool opEquals(in        typeof(this) rhs) const @trusted
+    {
+        static if (isCopyable!E)
+        {
+            return this[] == rhs[]; // TODO fix DMD to make this work for non-copyable aswell
+        }
+        else
+        {
+            if (this._length != rhs._length) { return false; }
+            foreach (const i; 0 .. _length)
+            {
+                if (this.ptr[i] != rhs.ptr[i]) { return false; }
+            }
+            return true;
+        }
+    }
 
     /** Default-initialize all elements. */
     void defaultInitialize() @("complexity", "O(length)")
@@ -252,13 +282,16 @@ struct Array(E,
     }
 
     /** Default-initialize all elements to `zeroValue`. */
-    void defaultInitializeWithElement(E zeroValue) @("complexity", "O(length)")
+    static if (isCopyable!E)
     {
-        ptr[0 .. length] = zeroValue; // NOTE should we zero [0 .. _storeCapacity] instead?
-        static if (shouldAddGCRange!E)
+        void defaultInitializeWithElement(E zeroValue) @("complexity", "O(length)")
         {
-            // TODO call only if zeroValue is contains pointers with non-zero indirections
-            GC.addRange(ptr, length * E.sizeof);
+            ptr[0 .. length] = zeroValue; // NOTE should we zero [0 .. _storeCapacity] instead?
+            static if (shouldAddGCRange!E)
+            {
+                // TODO call only if zeroValue contains pointers with non-zero indirections
+                GC.addRange(ptr, length * E.sizeof);
+            }
         }
     }
 
@@ -454,7 +487,8 @@ struct Array(E,
     {
         import std.algorithm : move;
         assert(!empty);
-        typeof(return) value = ptr[0]; // TODO move construct?
+        typeof(return) value;
+        move(ptr[0], value);
         // TODO use memmove instead?
         foreach (const i; 0 .. length - 1) // each element index that needs to be moved
         {
@@ -463,6 +497,11 @@ struct Array(E,
             move(ptr[si], ptr[ti]); // ptr[ti] = ptr[si]; // TODO move construct?
         }
         --_length;
+        // TODO
+        // static if (shouldAddGCRange!E)
+        // {
+        //     GC.removeRange(ptr);
+        // }
         return value;
     }
 
@@ -476,9 +515,16 @@ struct Array(E,
     /** Pop back element and return it. */
     E backPop()
     {
+        import std.algorithm : move;
         assert(!empty);
-        E value = back;
-        popBack();
+        typeof(return) value;
+        move(ptr[_length - 1], value);
+        --_length;
+        // TODO
+        // static if (shouldAddGCRange!E)
+        // {
+        //     GC.removeRange(ptr);
+        // }
         return value;
     }
 
@@ -1344,7 +1390,7 @@ nothrow unittest
     static assert(isRvalueAssignable!(A));
     // static assert(!isLvalueAssignable!(A));
     // static assert(!isAssignable!(E));
-    // TODO alias A2 = Array!A;
+    alias A2 = Array!A;
 }
 
 version(unittest)

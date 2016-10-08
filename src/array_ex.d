@@ -1344,7 +1344,7 @@ nothrow unittest
     static assert(isRvalueAssignable!(A));
     // static assert(!isLvalueAssignable!(A));
     // static assert(!isAssignable!(E));
-    // alias A2 = Array!A;
+    // TODO alias A2 = Array!A;
 }
 
 version(unittest)

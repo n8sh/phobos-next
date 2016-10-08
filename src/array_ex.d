@@ -55,9 +55,9 @@ enum isMyArray(C) = isInstanceOf!(Array, C);
 /// Semantics of copy construction and assignment.
 enum Assignment
 {
-    disabled,              /// for reference counting use `std.typecons.RefCounted`
-    move,              /// only move construction allowed
-    copy               /// always copy (often not the desirable)
+    disabled,           /// for reference counting use `std.typecons.RefCounted`
+    move,               /// only move construction allowed
+    copy                /// always copy (often not the desirable)
 }
 
 /** Array of value types `E` with optional ordering given by `ordering`.

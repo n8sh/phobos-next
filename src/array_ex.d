@@ -124,12 +124,12 @@ struct Array(E,
     static typeof(this) withElement(E e) nothrow
     {
         typeof(return) that;
-        that.allocateStorePtr(1);
-        that._length = that._storeCapacity = 1;
+        that.allocateStoreWithCapacity(1);
 
         import std.traits : hasIndirections;
         /* TODO is there a better trait to check for copy ctor (postblit)?
            should `hasElaborateCopyConstructor` be used? */
+        that._length = 1;
         static if (is(E == struct) && hasIndirections!E)
         {
             import std.algorithm.mutation : move;
@@ -150,24 +150,26 @@ struct Array(E,
     /// Create an array of length `n` with all elements default-initialized.
     private this(size_t n) nothrow
     {
-        allocateStorePtr(n);
-        _length = _storeCapacity = n;
+        allocateStoreWithCapacity(n);
+        _length = n;
         defaultInitialize();
     }
 
     static if (useGCAllocation)
     {
         /// Allocate a store pointer of length `capacity`.
-        private void allocateStorePtr(size_t capacity) @trusted nothrow
+        private void allocateStoreWithCapacity(size_t capacity) @trusted nothrow
         {
+            _storeCapacity = capacity;
             _storePtr = cast(E*)GC.malloc(E.sizeof * capacity);
         }
     }
     else
     {
         /// Allocate a store pointer of length `capacity`.
-        private void allocateStorePtr(size_t capacity) @trusted nothrow @nogc
+        private void allocateStoreWithCapacity(size_t capacity) @trusted nothrow @nogc
         {
+            _storeCapacity = capacity;
             _storePtr = cast(E*)_malloc(E.sizeof * capacity);
         }
     }
@@ -178,7 +180,7 @@ struct Array(E,
         this(this) nothrow @trusted
         {
             auto rhs_storePtr = _storePtr; // save store pointer
-            allocateStorePtr(_length);     // allocate new store pointer
+            allocateStoreWithCapacity(_length);     // allocate new store pointer
             foreach (const i; 0 .. _length)
             {
                 ptr[i] = rhs_storePtr[i]; // copy from old to new
@@ -219,8 +221,7 @@ struct Array(E,
             typeof(return) copy;
             copy._storeCapacity = this._storeCapacity;
             copy._length = this._length;
-
-            copy.allocateStorePtr(_length);     // allocate new store pointer
+            copy.allocateStoreWithCapacity(_length);     // allocate new store pointer
             foreach (const i; 0 .. _length)
             {
                 copy.ptr[i] = this.ptr[i]; // copy from old to new
@@ -229,7 +230,6 @@ struct Array(E,
             {
                 GC.addRange(copy.ptr, _length * E.sizeof);
             }
-
             return copy;
         }
     }

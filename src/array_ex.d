@@ -79,6 +79,11 @@ struct Array(E,
     import std.meta : allSatisfy;
     import qcmeman;
 
+    static if (shouldAddGCRange!E)
+    {
+        import core.memory : GC;
+    }
+
     alias ME = Unqual!E; // mutable E
 
     /// Is `true` iff array can be interpreted as a D `string`, `wstring` or `dstring`.
@@ -118,11 +123,28 @@ struct Array(E,
     /// Returns: an array of length 1 with first element set to `e`.
     static typeof(this) withElement(E e) nothrow
     {
-        typeof(return) x;
-        x.allocateStorePtr(1);
-        x._length = x._storeCapacity = 1;
-        x.ptr[0] = e;
-        return x;
+        typeof(return) that;
+        that.allocateStorePtr(1);
+        that._length = that._storeCapacity = 1;
+
+        import std.traits : hasIndirections;
+        /* TODO is there a better trait to check for copy ctor (postblit)?
+           should `hasElaborateCopyConstructor` be used? */
+        static if (is(E == struct) && hasIndirections!E)
+        {
+            import std.algorithm.mutation : move;
+            move(e, that.ptr[0]);  // avoid copy ctor
+        }
+        else
+        {
+            that.ptr[0] = e;
+        }
+        static if (shouldAddGCRange!E)
+        {
+            GC.addRange(that.ptr, 1 * E.sizeof);
+        }
+
+        return that;
     }
 
     /// Create an array of length `n` with all elements default-initialized.
@@ -133,35 +155,20 @@ struct Array(E,
         defaultInitialize();
     }
 
-    /// Construct with length `n`.
     static if (useGCAllocation)
     {
-        nothrow:
-
-        /// Allocate a store pointer of length `n`.
-        private void allocateStorePtr(size_t n) @trusted
+        /// Allocate a store pointer of length `capacity`.
+        private void allocateStorePtr(size_t capacity) @trusted nothrow
         {
-            _storePtr = cast(E*)GC.malloc(E.sizeof * n);
-            static if (shouldAddGCRange!E)
-            {
-                import core.memory : GC;
-                GC.addRange(ptr, length * E.sizeof);
-            }
+            _storePtr = cast(E*)GC.malloc(E.sizeof * capacity);
         }
     }
     else
     {
-        nothrow @nogc:
-
-        /// Allocate a store pointer of length `n`.
-        private void allocateStorePtr(size_t n) @trusted
+        /// Allocate a store pointer of length `capacity`.
+        private void allocateStorePtr(size_t capacity) @trusted nothrow @nogc
         {
-            _storePtr = cast(E*)_malloc(E.sizeof * n);
-            static if (shouldAddGCRange!E)
-            {
-                import core.memory : GC;
-                GC.addRange(ptr, length * E.sizeof);
-            }
+            _storePtr = cast(E*)_malloc(E.sizeof * capacity);
         }
     }
 
@@ -176,6 +183,10 @@ struct Array(E,
             {
                 ptr[i] = rhs_storePtr[i]; // copy from old to new
             }
+            static if (shouldAddGCRange!E)
+            {
+                GC.addRange(ptr, _length * E.sizeof);
+            }
         }
 
         /// Copy assignment.
@@ -188,6 +199,10 @@ struct Array(E,
                 foreach (const i; 0 .. _length)
                 {
                     ptr[i] = rhs.ptr[i]; // copy from old to new
+                }
+                static if (shouldAddGCRange!E)
+                {
+                    GC.addRange(ptr, _length * E.sizeof);
                 }
             }
         }
@@ -210,6 +225,10 @@ struct Array(E,
             {
                 copy.ptr[i] = this.ptr[i]; // copy from old to new
             }
+            static if (shouldAddGCRange!E)
+            {
+                GC.addRange(copy.ptr, _length * E.sizeof);
+            }
 
             return copy;
         }
@@ -223,10 +242,21 @@ struct Array(E,
     bool opEquals(const ref typeof(this) rhs) const @trusted { return this[] == rhs[]; }
     bool opEquals(in typeof(this) rhs) const @trusted { return this[] == rhs[]; }
 
-    /** Default-initialize all elements to `zeroValue`.. */
-    void defaultInitialize(E zeroValue = E.init) @("complexity", "O(length)")
+    /** Default-initialize all elements. */
+    void defaultInitialize() @("complexity", "O(length)")
+    {
+        ptr[0 .. length] = E.init; // NOTE should we zero [0 .. _storeCapacity] instead?
+    }
+
+    /** Default-initialize all elements to `zeroValue`. */
+    void defaultInitializeWithElement(E zeroValue) @("complexity", "O(length)")
     {
         ptr[0 .. length] = zeroValue; // NOTE should we zero [0 .. _storeCapacity] instead?
+        static if (shouldAddGCRange!E)
+        {
+            // TODO call only if zeroValue is contains pointers with non-zero indirections
+            GC.addRange(ptr, length * E.sizeof);
+        }
     }
 
     /** Construct from InputRange `values`.
@@ -305,9 +335,14 @@ struct Array(E,
             if (length)
             {
                 _storePtr = cast(E*)GC.realloc(_storePtr, E.sizeof * _length);
+                // TODO GC.removeRange with what arguments?
             }
             else
             {
+                static if (shouldAddGCRange!E)
+                {
+                    GC.removeRange(_storePtr);
+                }
                 GC.free(_storePtr);
                 _storePtr = null;
             }
@@ -349,7 +384,6 @@ struct Array(E,
         {
             static if (shouldAddGCRange!E)
             {
-                import core.memory : GC;
                 GC.removeRange(ptr);
             }
             GC.free(_storePtr);
@@ -371,7 +405,6 @@ struct Array(E,
         {
             static if (shouldAddGCRange!E)
             {
-                import core.memory : GC;
                 GC.removeRange(ptr);
             }
             _free(_storePtr);
@@ -1293,6 +1326,14 @@ nothrow unittest
     }
     const b = a.dup;
     assert(a[] == b[]);
+}
+
+/// disabled copying
+nothrow unittest
+{
+    alias E = string;
+    alias A = Array!(E);
+    // alias A2 = Array!A;
 }
 
 version(unittest)

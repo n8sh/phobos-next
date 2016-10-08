@@ -74,7 +74,7 @@ struct Array(E,
              alias less = "a < b") // TODO move out of this definition and support only for the case when `ordering` is not `Ordering.unsorted`
 {
     import std.range : isInputRange, ElementType;
-    import std.traits : isAssignable, Unqual, isSomeChar, isArray;
+    import std.traits : isAssignable, isCopyable, Unqual, isSomeChar, isArray;
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
     import qcmeman;
@@ -215,22 +215,25 @@ struct Array(E,
     {
         @disable this(this);
 
-        /// Returns: shallow duplicate of `this`.
-        typeof(this) dup() nothrow @trusted const
+        static if (isCopyable!E)
         {
-            typeof(return) copy;
-            copy._storeCapacity = this._storeCapacity;
-            copy._length = this._length;
-            copy.allocateStoreWithCapacity(_length);     // allocate new store pointer
-            foreach (const i; 0 .. _length)
+            /// Returns: shallow duplicate of `this`.
+            typeof(this) dup() nothrow @trusted const
             {
-                copy.ptr[i] = this.ptr[i]; // copy from old to new
+                typeof(return) copy;
+                copy._storeCapacity = this._storeCapacity;
+                copy._length = this._length;
+                copy.allocateStoreWithCapacity(_length);     // allocate new store pointer
+                foreach (const i; 0 .. _length)
+                {
+                    copy.ptr[i] = this.ptr[i]; // copy from old to new
+                }
+                static if (shouldAddGCRange!E)
+                {
+                    GC.addRange(copy.ptr, _length * E.sizeof);
+                }
+                return copy;
             }
-            static if (shouldAddGCRange!E)
-            {
-                GC.addRange(copy.ptr, _length * E.sizeof);
-            }
-            return copy;
         }
     }
 
@@ -875,14 +878,17 @@ struct Array(E,
         auto opSlice(this This)(size_t i, size_t j) // unsafe!
         {
             alias ET = ContainerElementType!(This, E);
-            return cast(inout(ET)[])slice[i .. j];
+            assert(i <= j);
+            assert(j <= length);
+            return ptr[i .. j];
         }
 
         /// Index operator can be const or mutable when unordered.
         auto ref opIndex(size_t i) @trusted
         {
             alias ET = ContainerElementType!(typeof(this), E);
-            return cast(inout(ET))slice[i];
+            assert(i < length);
+            return ptr[i];
         }
 
         /// Get front element reference.
@@ -1333,6 +1339,11 @@ nothrow unittest
 {
     alias E = string;
     alias A = Array!(E);
+    import std.traits : isCopyable, isAssignable, isRvalueAssignable, isLvalueAssignable;
+    static assert(!isCopyable!(A));
+    static assert(isRvalueAssignable!(A));
+    // static assert(!isLvalueAssignable!(A));
+    // static assert(!isAssignable!(E));
     // alias A2 = Array!A;
 }
 

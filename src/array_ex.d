@@ -1432,7 +1432,7 @@ pure nothrow /+TODO @nogc+/ unittest
     }
 }
 
-unittest
+pure nothrow unittest
 {
     alias E = int;
     alias A = Array!(E);

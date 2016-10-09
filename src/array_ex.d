@@ -135,17 +135,19 @@ struct Array(E,
     }
 
     // /// Returns: an array of length `Us.length` with elements set to `elements`.
-    // static typeof(this) withElements(Us...)(Us elements) @trusted nothrow
-    // {
-    //     import std.algorithm.mutation : move;
-    //     auto that = withCapacity(Us.length);
-    //     foreach (const i, const ref element; elements)
-    //     {
-    //         move(element, that.ptr[i]);
-    //     }
-    //     that._length = Us.length;
-    //     return that;
-    // }
+    static typeof(this) withElements(Us...)(Us elements) @trusted nothrow
+    {
+        import std.algorithm.mutation : move;
+        auto that = withCapacity(Us.length);
+        foreach (const i, const ref element; elements)
+        {
+            pragma(msg, i);
+            pragma(msg, i);
+            move(element, that.ptr[i]);
+        }
+        that._length = Us.length;
+        return that;
+    }
 
     static if (useGCAllocation)
     {
@@ -1456,9 +1458,11 @@ pure nothrow unittest
     alias E = int;
     alias A = Array!(E);
     alias AA = Array!A;
-    import dbgio : dln;
-    const AA aa1 = AA.withElement(A.init);
+
+    AA aa1 = AA.withElement(A.init);
+    // aa1 ~= A.withElement(42);
+
     AA aa1_;
     aa1_ ~= A.init;
-    // const AA aa2 = AA.withElements(A.init, A.init);
+    // const AA aa2 = AA.withElements(A.withElement(17), A.withElement(18));
 }

@@ -1002,6 +1002,18 @@ alias SortedSetArray(E, Assignment assignment = Assignment.disabled,
                      bool useGCAllocation = false,
                      alias less = "a < b") = Array!(E, assignment, Ordering.sortedUniqueSet, useGCAllocation, less);
 
+unittest
+{
+    import std.conv : to;
+    foreach (Ch; AliasSeq!(char, wchar, dchar))
+    {
+        alias Str = Array!(Ch, Assignment.copy);
+        Str str_as = Str.withElement('a');
+        str_as ~= 'a'.to!Ch;
+        assert(str_as[].equal("ab"));
+    }
+}
+
 static void tester(Ordering ordering, bool supportGC, alias less)()
 {
     import std.functional : binaryFun;

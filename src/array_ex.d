@@ -267,20 +267,6 @@ struct Array(E,
         ptr[0 .. length] = E.init; // NOTE should we zero [0 .. _storeCapacity] instead?
     }
 
-    /** Default-initialize all elements to `zeroValue`. */
-    static if (isCopyable!E)
-    {
-        void defaultInitializeWithElement(E zeroValue) @("complexity", "O(length)")
-        {
-            ptr[0 .. length] = zeroValue; // NOTE should we zero [0 .. _storeCapacity] instead?
-            static if (shouldAddGCRange!E)
-            {
-                // TODO call only if zeroValue contains pointers with non-zero indirections
-                GC.addRange(ptr, length * E.sizeof);
-            }
-        }
-    }
-
     /** Construct from InputRange `values`.
         If `values` are sorted `assumeSortedParameter` is true.
      */

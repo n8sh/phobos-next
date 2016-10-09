@@ -1,6 +1,8 @@
 /** Array container(s) with optional sortedness via template-parameter
     `Ordering` and optional use of GC via `useGCAllocation`.
 
+    TODO Add test for std.container.util.make!Array
+
     TODO Make Array have reference assignment instead through via Automatic
     Reference Counting and scope keyword when DIP-1000 has been implemented
 
@@ -113,38 +115,36 @@ struct Array(E,
     /// Create a empty array.
     this(typeof(null)) nothrow
     {
-        this(0);
+        // nothing needed, rely on default initialization of data members
     }
 
-    /// Returns: an array of length `n` with all elements default-initialized to `ElementType.init`.
-    static typeof(this) withLength(size_t n) nothrow
+    /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
+    static typeof(this) withLength(size_t initialLength) nothrow
     {
-        return typeof(return)(n);
+        typeof(return) that;
+        that.allocateStoreWithCapacity(initialLength);
+        that._length = initialLength;
+        that.defaultInitialize();
+        return that;
+    }
+
+    static typeof(this) withCapacity(size_t initialCapacity) nothrow
+    {
+        typeof(return) that;
+        that.allocateStoreWithCapacity(initialCapacity);
+        that._length = 0;
+        return that;
     }
 
     /// Returns: an array of length 1 with first element set to `e`.
     static typeof(this) withElement(E e) nothrow
     {
+        enum initialLength = 1;
         import std.algorithm.mutation : move;
-
-        typeof(return) that;
-        that._length = 1;
-        that.allocateStoreWithCapacity(1);
-        that.defaultInitialize();
+        auto that = withCapacity(initialLength);
         move(e, that.ptr[0]);
-        static if (shouldAddGCRange!E)
-        {
-            GC.addRange(that.ptr, 1 * E.sizeof);
-        }
+        that._length = initialLength;
         return that;
-    }
-
-    /// Create an array of length `n` with all elements default-initialized.
-    private this(size_t n) nothrow
-    {
-        allocateStoreWithCapacity(n);
-        _length = n;
-        defaultInitialize();
     }
 
     static if (useGCAllocation)
@@ -992,6 +992,7 @@ private:
     E* _storePtr;               // store pointer
     size_t _storeCapacity;      // store capacity
     size_t _length;             // length
+    debug bool willFail = false;
 }
 
 alias SortedArray(E, Assignment assignment = Assignment.disabled,
@@ -1045,9 +1046,9 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     {
         foreach (const n; [0, 1, 2, 3, 4])
         {
-            assert(Array!(E, assignment, ordering, supportGC, less)(n).isSmall);
+            assert(Array!(E, assignment, ordering, supportGC, less).withLength(n).isSmall);
         }
-        assert(!(Array!(E, assignment, ordering, supportGC, less)(5).isSmall));
+        assert(!(Array!(E, assignment, ordering, supportGC, less).withLength(5).isSmall));
     }
 
     // test move construction
@@ -1055,7 +1056,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         const maxLength = 1024;
         foreach (const n; 0 .. maxLength)
         {
-            auto x = Array!(E, assignment, ordering, supportGC, less)(n);
+            auto x = Array!(E, assignment, ordering, supportGC, less).withLength(n);
 
             // test resize
             static if (!IsOrdered!ordering)
@@ -1129,7 +1130,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ss2[].isSorted!comp);
         }
 
-        auto ssA = Array!(E, assignment, ordering, supportGC, less)(0);
+        auto ssA = Array!(E, assignment, ordering, supportGC, less).withLength(0);
         static if (IsOrdered!ordering)
         {
             static if (less == "a < b")
@@ -1156,7 +1157,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             }
             assert(ssA[].equal(sort!comp(fw.array)));
 
-            auto ssB = Array!(E, assignment, ordering, supportGC, less)(0);
+            auto ssB = Array!(E, assignment, ordering, supportGC, less).withLength(0);
             static if (ordering == Ordering.sortedUniqueSet)
             {
                 assert(ssB.linearInsert(1, 7, 4, 9)[].equal(true.repeat(4)));
@@ -1274,7 +1275,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ssA[].equal([1, 2, 4, 5]));
 
             // pushBack and assignment from slice
-            auto ssB = Array!(E, assignment, ordering, supportGC, less)(0);
+            auto ssB = Array!(E, assignment, ordering, supportGC, less).withLength(0);
             ssB.pushBack([1, 2, 3, 4, 5]);
             ssB.pushBack([6, 7]);
             assert(ssB[].equal([1, 2, 3, 4, 5, 6, 7]));
@@ -1302,7 +1303,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             const ss_ = Array!(E, assignment, ordering, supportGC, less)(null);
             assert(ss_.empty);
 
-            auto ssC = Array!(E, assignment, ordering, supportGC, less)(0);
+            auto ssC = Array!(E, assignment, ordering, supportGC, less).withLength(0);
             const(int)[] i5 = [1, 2, 3, 4, 5];
             ssC.pushBack(i5);
             assert(ssC[].equal(i5));
@@ -1336,7 +1337,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 
             assert(!ssD.empty);
             ssD = null;
-            assert(ssD.empty);
+            assert(ssD == typeof(ssD).init);
 
             assert(ssCc[].equal(i5));
 
@@ -1415,8 +1416,8 @@ nothrow unittest
     import dbgio : dln;
     dln("");
     // const AA aa = AA.withElement(A.init);
-    AA aa;
-    aa ~= A.init;
+    AA aa2;
+    // aa2 ~= A.init;
     dln("");
 }
 

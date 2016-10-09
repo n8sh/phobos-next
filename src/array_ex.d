@@ -1386,11 +1386,10 @@ nothrow unittest
 {
     alias E = string;
     alias A = Array!(E);
-    import std.traits : isCopyable, isAssignable, isRvalueAssignable, isLvalueAssignable;
+    import std.traits : isCopyable, isRvalueAssignable, isLvalueAssignable;
     static assert(!isCopyable!(A));
     static assert(isRvalueAssignable!(A));
-    // static assert(!isLvalueAssignable!(A));
-    // static assert(!isAssignable!(E));
+    static assert(isLvalueAssignable!(A));
     alias AA = Array!A;
     AA aa;
     A a;

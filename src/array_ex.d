@@ -1,9 +1,6 @@
 /** Array container(s) with optional sortedness via template-parameter
     `Ordering` and optional use of GC via `useGCAllocation`.
 
-    TODO Make Array have reference assignment instead through via Automatic
-    Reference Counting and scope keyword when DIP-1000 has been implemented
-
     TODO Use std.array.insertInPlace in insert()?
     TODO Use std.array.replaceInPlace?
 

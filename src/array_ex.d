@@ -1385,6 +1385,9 @@ nothrow unittest
     a ~= "string";
     aa ~= A.init;
 
+    assert(aa == aa);
+    assert(AA.withLength(3) == AA.withLength(3));
+    assert(aa != AA.init);
     // const AA aa0 = AA.withElement(A.init);
 }
 

@@ -91,7 +91,7 @@ struct Array(E,
     alias comp = binaryFun!less; //< comparison
 
     /// Maximum number of elements that fits in SSO-packed
-    enum smallLength = (_storeCapacity.sizeof + _length.sizeof) / E.sizeof;
+    enum smallLength = (_capacity.sizeof + _length.sizeof) / E.sizeof;
 
     /// Returns: `true` iff is SSO-packed.
     bool isSmall() const @safe pure nothrow @nogc { return length <= smallLength; }
@@ -131,13 +131,27 @@ struct Array(E,
         return that;
     }
 
-    /// Returns: an array of length 1 with first element set to `e`.
-    static typeof(this) withElement(E e) nothrow
+    /// Returns: an array of length 1 with first element set to `element`.
+    static typeof(this) withElement(E element) nothrow
     {
-        enum initialLength = 1;
         import std.algorithm.mutation : move;
+        enum initialLength = 1;
         auto that = withCapacity(initialLength);
-        move(e, that.ptr[0]);
+        move(element, that.ptr[0]);
+        that._length = initialLength;
+        return that;
+    }
+
+    /// Returns: an array of length `Us.length` with elements set to `elements`.
+    static typeof(this) withElements(Us...)(Us elements) nothrow
+    {
+        import std.algorithm.mutation : move;
+        enum initialLength = Us.length;
+        auto that = withCapacity(initialLength);
+        foreach (const i, const ref e; elements)
+        {
+            move(elements, that.ptr[i]);
+        }
         that._length = initialLength;
         return that;
     }
@@ -148,7 +162,7 @@ struct Array(E,
         private void allocateStoreWithCapacity(size_t capacity) @trusted nothrow
         {
             _ptr = cast(E*)GC.malloc(E.sizeof * capacity);
-            _storeCapacity = capacity;
+            _capacity = capacity;
         }
     }
     else
@@ -157,7 +171,7 @@ struct Array(E,
         private void allocateStoreWithCapacity(size_t capacity) @trusted nothrow @nogc
         {
             _ptr = cast(E*)_malloc(E.sizeof * capacity);
-            _storeCapacity = capacity;
+            _capacity = capacity;
         }
     }
 
@@ -264,7 +278,7 @@ struct Array(E,
     /** Default-initialize all elements. */
     void defaultInitialize() @("complexity", "O(length)")
     {
-        ptr[0 .. _length] = E.init; // NOTE should we zero [0 .. _storeCapacity] instead?
+        ptr[0 .. _length] = E.init; // NOTE should we zero [0 .. _capacity] instead?
     }
 
     /** Construct from InputRange `values`.
@@ -275,7 +289,7 @@ struct Array(E,
     {
         // init
         _ptr = null;
-        _storeCapacity = 0;
+        _capacity = 0;
 
         // append new data
         import std.range.primitives : hasLength;
@@ -317,7 +331,7 @@ struct Array(E,
         {
             makeReservedLengthAtLeast(n);
             static if (shouldAddGCRange!E) { gc_removeRange(_ptr); } // TODO move somewhere else?
-            _ptr = cast(E*)GC.realloc(_ptr, E.sizeof * _storeCapacity);
+            _ptr = cast(E*)GC.realloc(_ptr, E.sizeof * _capacity);
             static if (shouldAddGCRange!E) { gc_addRange(_ptr, _length * E.sizeof); } // TODO move somewhere else?
         }
     }
@@ -327,7 +341,7 @@ struct Array(E,
         {
             makeReservedLengthAtLeast(n);
             static if (shouldAddGCRange!E) { gc_removeRange(_ptr); } // TODO move somewhere else?
-            _ptr = cast(E*)_realloc(_ptr, E.sizeof * _storeCapacity);
+            _ptr = cast(E*)_realloc(_ptr, E.sizeof * _capacity);
             static if (shouldAddGCRange!E) { gc_addRange(_ptr, _length * E.sizeof); } // TODO move somewhere else?
         }
     }
@@ -335,7 +349,7 @@ struct Array(E,
     /// Helper for `reserve`.
     private void makeReservedLengthAtLeast(size_t n) pure nothrow @safe @nogc
     {
-        if (_storeCapacity < n) { _storeCapacity = n.nextPow2; }
+        if (_capacity < n) { _capacity = n.nextPow2; }
     }
 
     /// Pack/Compress storage.
@@ -357,7 +371,7 @@ struct Array(E,
                 GC.free(_ptr);
                 _ptr = null;
             }
-            _storeCapacity = _length;
+            _capacity = _length;
         }
     }
     else
@@ -366,14 +380,14 @@ struct Array(E,
         {
             if (length)
             {
-                _ptr = cast(E*)_realloc(_ptr, E.sizeof * _storeCapacity);
+                _ptr = cast(E*)_realloc(_ptr, E.sizeof * _capacity);
             }
             else
             {
                 _free(_ptr);
                 _ptr = null;
             }
-            _storeCapacity = _length;
+            _capacity = _length;
         }
     }
     alias pack = compress;
@@ -426,7 +440,7 @@ struct Array(E,
     {
         _ptr = null;
         _length = 0;
-        _storeCapacity = 0;
+        _capacity = 0;
     }
 
     enum isElementAssignable(U) = isAssignable!(E, U);
@@ -537,7 +551,7 @@ struct Array(E,
             if (isArray!A &&
                 isElementAssignable!(ElementType!A))
         {
-            if (ptr == values.ptr) // called as: this ~= this. TODO extend to check if `values` overlaps ptr[0 .. _storeCapacity]
+            if (ptr == values.ptr) // called as: this ~= this. TODO extend to check if `values` overlaps ptr[0 .. _capacity]
             {
                 reserve(2*length);
                 foreach (const i; 0 .. length)
@@ -954,7 +968,7 @@ struct Array(E,
     /// Get length of reserved store.
     size_t reservedLength() const @safe
     {
-        return _storeCapacity;
+        return _capacity;
     }
     alias capacity = reservedLength;
 
@@ -974,7 +988,7 @@ struct Array(E,
 private:
     // TODO reuse module `storage` for small size/array optimization (SSO)
     E* _ptr;               // store pointer
-    size_t _storeCapacity;      // store capacity
+    size_t _capacity;      // store capacity
     size_t _length;             // length
     debug bool willFail = false;
 }

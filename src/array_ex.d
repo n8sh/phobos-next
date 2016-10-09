@@ -1,8 +1,6 @@
 /** Array container(s) with optional sortedness via template-parameter
     `Ordering` and optional use of GC via `useGCAllocation`.
 
-    TODO Add test for std.container.util.make!Array
-
     TODO Make Array have reference assignment instead through via Automatic
     Reference Counting and scope keyword when DIP-1000 has been implemented
 
@@ -1420,6 +1418,21 @@ nothrow unittest
     AA aa2;
     // aa2 ~= A.init;
     dln("");
+}
+
+///
+nothrow unittest
+{
+    alias E = int;
+    alias A = Array!(E);
+    A a;
+    import std.range : iota;
+    import std.container.util : make;
+    foreach (n; 0 .. 100)
+    {
+        const e = iota(0, n).make!Array;
+        assert(e[].equal(iota(0, n)));
+    }
 }
 
 version(unittest)

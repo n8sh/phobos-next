@@ -64,10 +64,10 @@ enum Assignment
 
 /** Array of value types `E` with optional ordering given by `ordering`.
 
-    Copy construction and assignment currently does copying.
+    Params:
 
-    For move construction use `std.algorithm.mutation.move(source, target)`
-    where both arguments are instances of `Array`.
+        useGCAllocation = `true` iff `GC.malloc` is used for store allocation,
+                          otherwise C's `{m,ce,re}alloc()` is used.
  */
 struct Array(E,
              Assignment assignment = Assignment.disabled,
@@ -86,9 +86,10 @@ struct Array(E,
         import core.memory : GC;
     }
 
-    alias ME = Unqual!E; // mutable E
+    /// Type of element stored.
+    alias ElementType = E;
 
-    /// Is `true` iff array can be interpreted as a D `string`, `wstring` or `dstring`.
+    /// Is `true` iff `Array` can be interpreted as a D `string`, `wstring` or `dstring`.
     enum isString = isSomeChar!E;
 
     alias comp = binaryFun!less; //< comparison
@@ -116,7 +117,7 @@ struct Array(E,
         this(0);
     }
 
-    /// Returns: an array of length `n` with all elements default-initialized.
+    /// Returns: an array of length `n` with all elements default-initialized to `ElementType.init`.
     static typeof(this) withLength(size_t n) nothrow
     {
         return typeof(return)(n);

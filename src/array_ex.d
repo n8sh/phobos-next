@@ -126,12 +126,12 @@ struct Array(E,
     static typeof(this) withElement(E e) nothrow
     {
         import std.algorithm.mutation : move;
-        import std.traits : hasIndirections;
 
         typeof(return) that;
-        that.allocateStoreWithCapacity(1);
         that._length = 1;
-        move(e, that.ptr[0]);  // avoid copy ctor
+        that.allocateStoreWithCapacity(1);
+        that.defaultInitialize();
+        move(e, that.ptr[0]);
         static if (shouldAddGCRange!E)
         {
             GC.addRange(that.ptr, 1 * E.sizeof);
@@ -1402,8 +1402,22 @@ nothrow unittest
 
     assert(aa == aa);
     assert(AA.withLength(3) == AA.withLength(3));
+    assert(AA.withLength(3).length == 3);
     assert(aa != AA.init);
-    // const AA aa0 = AA.withElement(A.init);
+}
+
+///
+nothrow unittest
+{
+    alias E = int;
+    alias A = Array!(E);
+    alias AA = Array!A;
+    import dbgio : dln;
+    dln("");
+    // const AA aa = AA.withElement(A.init);
+    AA aa;
+    aa ~= A.init;
+    dln("");
 }
 
 version(unittest)

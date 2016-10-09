@@ -104,16 +104,10 @@ an array of length <pre style="display:inline;" class="d_inline_code"><i>initial
 an array with initial capacity <pre style="display:inline;" class="d_inline_code"><i>initialCapacity</i></pre>.<br><br>
 
 </dd>
-<dt><big><a name="Array.withElement"></a>static nothrow typeof(this) <u>withElement</u>(E <i>element</i>);
+<dt><big><a name="Array.withElement"></a>static nothrow @trusted typeof(this) <u>withElement</u>(E <i>element</i>);
 </big></dt>
 <dd><b>Returns:</b><br>
 an array of length 1 with first <i>element</i> set to <pre style="display:inline;" class="d_inline_code"><i>element</i></pre>.<br><br>
-
-</dd>
-<dt><big><a name="Array.withElements"></a>nothrow typeof(this) <u>withElements</u>(Us...)(Us <i>elements</i>);
-</big></dt>
-<dd><b>Returns:</b><br>
-an array of length <pre style="display:inline;" class="d_inline_code">Us.length</pre> with <i>elements</i> set to <pre style="display:inline;" class="d_inline_code"><i>elements</i></pre>.<br><br>
 
 </dd>
 <dt><big><a name="Array.opAssign"></a>@trusted void <u>opAssign</u>(typeof(this) <i>rhs</i>);

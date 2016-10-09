@@ -147,7 +147,7 @@ struct Array(E,
         /// Allocate a store pointer of length `capacity`.
         private void allocateStoreWithCapacity(size_t capacity) @trusted nothrow
         {
-            _storePtr = cast(E*)GC.malloc(E.sizeof * capacity);
+            _ptr = cast(E*)GC.malloc(E.sizeof * capacity);
             _storeCapacity = capacity;
         }
     }
@@ -156,7 +156,7 @@ struct Array(E,
         /// Allocate a store pointer of length `capacity`.
         private void allocateStoreWithCapacity(size_t capacity) @trusted nothrow @nogc
         {
-            _storePtr = cast(E*)_malloc(E.sizeof * capacity);
+            _ptr = cast(E*)_malloc(E.sizeof * capacity);
             _storeCapacity = capacity;
         }
     }
@@ -166,15 +166,15 @@ struct Array(E,
         /// Copy construction.
         this(this) nothrow @trusted
         {
-            auto rhs_storePtr = _storePtr; // save store pointer
+            auto rhs_storePtr = _ptr; // save store pointer
             allocateStoreWithCapacity(_length);     // allocate new store pointer
             foreach (const i; 0 .. _length)
             {
-                ptr[i] = rhs_storePtr[i]; // copy from old to new
+                _ptr[i] = rhs_storePtr[i]; // copy from old to new
             }
             static if (shouldAddGCRange!E)
             {
-                GC.addRange(ptr, _length * E.sizeof);
+                gc_addRange(_ptr, _length * E.sizeof);
             }
         }
 
@@ -182,16 +182,16 @@ struct Array(E,
         void opAssign(typeof(this) rhs) @trusted
         {
             // self-assignment may happen when assigning derefenced pointer
-            if (_storePtr != rhs._storePtr) // if not self assignment
+            if (_ptr != rhs._ptr) // if not self assignment
             {
-                reserve(rhs.length);
+                reserve(rhs._length);
                 foreach (const i; 0 .. _length)
                 {
-                    ptr[i] = rhs.ptr[i]; // copy from old to new
+                    _ptr[i] = rhs._ptr[i]; // copy from old to new
                 }
                 static if (shouldAddGCRange!E)
                 {
-                    GC.addRange(ptr, _length * E.sizeof);
+                    gc_addRange(_ptr, _length * E.sizeof);
                 }
             }
         }
@@ -212,11 +212,11 @@ struct Array(E,
                 copy.allocateStoreWithCapacity(this._length);     // allocate new store pointer
                 foreach (const i; 0 .. _length)
                 {
-                    copy.ptr[i] = this.ptr[i]; // copy from old to new
+                    copy._ptr[i] = this._ptr[i]; // copy from old to new
                 }
                 static if (shouldAddGCRange!E)
                 {
-                    GC.addRange(copy.ptr, _length * E.sizeof);
+                    GC.addRange(copy._ptr, _length * E.sizeof);
                 }
                 return copy;
             }
@@ -239,7 +239,7 @@ struct Array(E,
             if (this._length != rhs._length) { return false; }
             foreach (const i; 0 .. _length)
             {
-                if (this.ptr[i] != rhs.ptr[i]) { return false; }
+                if (this._ptr[i] != rhs._ptr[i]) { return false; }
             }
             return true;
         }
@@ -255,7 +255,7 @@ struct Array(E,
             if (this._length != rhs._length) { return false; }
             foreach (const i; 0 .. _length)
             {
-                if (this.ptr[i] != rhs.ptr[i]) { return false; }
+                if (this._ptr[i] != rhs._ptr[i]) { return false; }
             }
             return true;
         }
@@ -264,7 +264,7 @@ struct Array(E,
     /** Default-initialize all elements. */
     void defaultInitialize() @("complexity", "O(length)")
     {
-        ptr[0 .. length] = E.init; // NOTE should we zero [0 .. _storeCapacity] instead?
+        ptr[0 .. _length] = E.init; // NOTE should we zero [0 .. _storeCapacity] instead?
     }
 
     /** Construct from InputRange `values`.
@@ -274,7 +274,7 @@ struct Array(E,
         if (isInputRange!R)
     {
         // init
-        _storePtr = null;
+        _ptr = null;
         _storeCapacity = 0;
 
         // append new data
@@ -310,14 +310,15 @@ struct Array(E,
         }
     }
 
-    /// Reserve room for `n` elements at store `_storePtr`.
+    /// Reserve room for `n` elements at store `_ptr`.
     static if (useGCAllocation)
     {
         void reserve(size_t n) pure nothrow @trusted
         {
             makeReservedLengthAtLeast(n);
-            _storePtr = cast(E*)GC.realloc(_storePtr, E.sizeof * _storeCapacity);
-            static if (shouldAddGCRange!E) { GC.addRange(ptr, length * E.sizeof); }
+            static if (shouldAddGCRange!E) { gc_removeRange(_ptr); } // TODO move somewhere else?
+            _ptr = cast(E*)GC.realloc(_ptr, E.sizeof * _storeCapacity);
+            static if (shouldAddGCRange!E) { gc_addRange(_ptr, _length * E.sizeof); } // TODO move somewhere else?
         }
     }
     else
@@ -325,7 +326,9 @@ struct Array(E,
         void reserve(size_t n) pure nothrow @trusted @nogc
         {
             makeReservedLengthAtLeast(n);
-            _storePtr = cast(E*)_realloc(_storePtr, E.sizeof * _storeCapacity);
+            static if (shouldAddGCRange!E) { gc_removeRange(_ptr); } // TODO move somewhere else?
+            _ptr = cast(E*)_realloc(_ptr, E.sizeof * _storeCapacity);
+            static if (shouldAddGCRange!E) { gc_addRange(_ptr, _length * E.sizeof); } // TODO move somewhere else?
         }
     }
 
@@ -342,17 +345,17 @@ struct Array(E,
         {
             if (length)
             {
-                _storePtr = cast(E*)GC.realloc(_storePtr, E.sizeof * _length);
-                // TODO GC.removeRange with what arguments?
+                _ptr = cast(E*)GC.realloc(_ptr, E.sizeof * _length);
+                // TODO gc_removeRange with what arguments?
             }
             else
             {
                 static if (shouldAddGCRange!E)
                 {
-                    GC.removeRange(_storePtr);
+                    gc_removeRange(_ptr);
                 }
-                GC.free(_storePtr);
-                _storePtr = null;
+                GC.free(_ptr);
+                _ptr = null;
             }
             _storeCapacity = _length;
         }
@@ -363,12 +366,12 @@ struct Array(E,
         {
             if (length)
             {
-                _storePtr = cast(E*)_realloc(_storePtr, E.sizeof * _storeCapacity);
+                _ptr = cast(E*)_realloc(_ptr, E.sizeof * _storeCapacity);
             }
             else
             {
-                _free(_storePtr);
-                _storePtr = null;
+                _free(_ptr);
+                _ptr = null;
             }
             _storeCapacity = _length;
         }
@@ -392,9 +395,9 @@ struct Array(E,
         {
             static if (shouldAddGCRange!E)
             {
-                GC.removeRange(ptr);
+                gc_removeRange(_ptr);
             }
-            GC.free(_storePtr);
+            GC.free(_ptr);
         }
     }
     else
@@ -413,15 +416,15 @@ struct Array(E,
         {
             static if (shouldAddGCRange!E)
             {
-                GC.removeRange(ptr);
+                gc_removeRange(_ptr);
             }
-            _free(_storePtr);
+            _free(_ptr);
         }
     }
 
     private void resetInternalData()
     {
-        _storePtr = null;
+        _ptr = null;
         _length = 0;
         _storeCapacity = 0;
     }
@@ -472,7 +475,7 @@ struct Array(E,
         // TODO
         // static if (shouldAddGCRange!E)
         // {
-        //     GC.removeRange(ptr);
+        //     gc_removeRange(_ptr);
         // }
         return value;
     }
@@ -495,7 +498,7 @@ struct Array(E,
         // TODO
         // static if (shouldAddGCRange!E)
         // {
-        //     GC.removeRange(ptr);
+        //     gc_removeRange(storePtr);
         // }
         return value;
     }
@@ -959,7 +962,7 @@ struct Array(E,
     private inout(E*) ptr() inout
     {
         // TODO Use cast(ET[])?: alias ET = ContainerElementType!(typeof(this), E);
-        return _storePtr;
+        return _ptr;
     }
 
     /// Get internal slice.
@@ -970,7 +973,7 @@ struct Array(E,
 
 private:
     // TODO reuse module `storage` for small size/array optimization (SSO)
-    E* _storePtr;               // store pointer
+    E* _ptr;               // store pointer
     size_t _storeCapacity;      // store capacity
     size_t _length;             // length
     debug bool willFail = false;

@@ -7,11 +7,7 @@
 Array container(s) with optional sortedness via template-parameter
     <pre style="display:inline;" class="d_inline_code">Ordering</pre> and optional use of GC via <pre style="display:inline;" class="d_inline_code">useGCAllocation</pre>.
 <br><br>
-TODO Make Array have reference assignment instead through via Automatic
-    Reference Counting and scope keyword when DIP-1000 has been implemented
-<br><br>
-
-    TODO Use std.array.insertInPlace in insert()?
+TODO Use std.array.insertInPlace in insert()?
     TODO Use std.array.replaceInPlace?
 <br><br>
 
@@ -124,11 +120,6 @@ shallow duplicate of <pre style="display:inline;" class="d_inline_code">this</pr
 <dd>Default-initialize all elements.<br><br>
 
 </dd>
-<dt><big><a name="Array.defaultInitializeWithElement"></a>void <u>defaultInitializeWithElement</u>(E <i>zeroValue</i>);
-</big></dt>
-<dd>Default-initialize all elements to <pre style="display:inline;" class="d_inline_code"><i>zeroValue</i></pre>.<br><br>
-
-</dd>
 <dt><big><a name="Array.this.2"></a>nothrow @trusted this(R)(R <i>values</i>, bool <i>assumeSortedParameter</i> = false) if (isInputRange!R);
 </big></dt>
 <dd>Construct from InputRange <pre style="display:inline;" class="d_inline_code"><i>values</i></pre>.
@@ -137,7 +128,7 @@ shallow duplicate of <pre style="display:inline;" class="d_inline_code">this</pr
 </dd>
 <dt><big><a name="Array.reserve"></a>pure nothrow @trusted void <u>reserve</u>(size_t <i>n</i>);
 </big></dt>
-<dd>Reserve room for <pre style="display:inline;" class="d_inline_code"><i>n</i></pre> elements at store <pre style="display:inline;" class="d_inline_code">_storePtr</pre>.<br><br>
+<dd>Reserve room for <pre style="display:inline;" class="d_inline_code"><i>n</i></pre> elements at store <pre style="display:inline;" class="d_inline_code">_ptr</pre>.<br><br>
 
 </dd>
 <dt><big><a name="Array.compress"></a>pure nothrow @trusted void <u>compress</u>();

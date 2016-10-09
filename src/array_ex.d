@@ -65,7 +65,6 @@ enum Assignment
 /** Array of value types `E` with optional ordering given by `ordering`.
 
     Params:
-
         useGCAllocation = `true` iff `GC.malloc` is used for store allocation,
                           otherwise C's `{m,ce,re}alloc()` is used.
  */

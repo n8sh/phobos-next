@@ -76,7 +76,10 @@ struct Array(E,
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
     import qcmeman;
-
+    static if (useGCAllocation)
+    {
+        import core.memory : GC;
+    }
     static if (shouldAddGCRange!E)
     {
         import core.memory : GC;
@@ -96,17 +99,6 @@ struct Array(E,
     /// Returns: `true` iff is SSO-packed.
     bool isSmall() const @safe pure nothrow @nogc { return length <= smallLength; }
 
-    static if (useGCAllocation)
-    {
-        import core.memory : GC;
-    }
-    else
-    {
-        alias _malloc = malloc;
-        alias _realloc = realloc;
-        alias _free = free;
-    }
-
     /// Create a empty array.
     this(typeof(null)) nothrow
     {
@@ -123,6 +115,7 @@ struct Array(E,
         return that;
     }
 
+    /// Returns: an array with initial capacity `initialCapacity`.
     static typeof(this) withCapacity(size_t initialCapacity) nothrow
     {
         typeof(return) that;
@@ -170,7 +163,7 @@ struct Array(E,
         /// Allocate a store pointer of length `capacity`.
         private void allocateStoreWithCapacity(size_t capacity) @trusted nothrow @nogc
         {
-            _ptr = cast(E*)_malloc(E.sizeof * capacity);
+            _ptr = cast(E*)malloc(E.sizeof * capacity);
             _capacity = capacity;
         }
     }
@@ -341,7 +334,7 @@ struct Array(E,
         {
             makeReservedLengthAtLeast(n);
             static if (shouldAddGCRange!E) { gc_removeRange(_ptr); } // TODO move somewhere else?
-            _ptr = cast(E*)_realloc(_ptr, E.sizeof * _capacity);
+            _ptr = cast(E*)realloc(_ptr, E.sizeof * _capacity);
             static if (shouldAddGCRange!E) { gc_addRange(_ptr, _length * E.sizeof); } // TODO move somewhere else?
         }
     }
@@ -380,11 +373,11 @@ struct Array(E,
         {
             if (length)
             {
-                _ptr = cast(E*)_realloc(_ptr, E.sizeof * _capacity);
+                _ptr = cast(E*)realloc(_ptr, E.sizeof * _capacity);
             }
             else
             {
-                _free(_ptr);
+                free(_ptr);
                 _ptr = null;
             }
             _capacity = _length;
@@ -432,7 +425,7 @@ struct Array(E,
             {
                 gc_removeRange(_ptr);
             }
-            _free(_ptr);
+            free(_ptr);
         }
     }
 

@@ -125,27 +125,17 @@ struct Array(E,
     /// Returns: an array of length 1 with first element set to `e`.
     static typeof(this) withElement(E e) nothrow
     {
+        import std.algorithm.mutation : move;
+        import std.traits : hasIndirections;
+
         typeof(return) that;
         that.allocateStoreWithCapacity(1);
-
-        import std.traits : hasIndirections;
-        /* TODO is there a better trait to check for copy ctor (postblit)?
-           should `hasElaborateCopyConstructor` be used? */
         that._length = 1;
-        static if (is(E == struct) && hasIndirections!E)
-        {
-            import std.algorithm.mutation : move;
-            move(e, that.ptr[0]);  // avoid copy ctor
-        }
-        else
-        {
-            that.ptr[0] = e;
-        }
+        move(e, that.ptr[0]);  // avoid copy ctor
         static if (shouldAddGCRange!E)
         {
             GC.addRange(that.ptr, 1 * E.sizeof);
         }
-
         return that;
     }
 
@@ -162,8 +152,8 @@ struct Array(E,
         /// Allocate a store pointer of length `capacity`.
         private void allocateStoreWithCapacity(size_t capacity) @trusted nothrow
         {
-            _storeCapacity = capacity;
             _storePtr = cast(E*)GC.malloc(E.sizeof * capacity);
+            _storeCapacity = capacity;
         }
     }
     else
@@ -171,8 +161,8 @@ struct Array(E,
         /// Allocate a store pointer of length `capacity`.
         private void allocateStoreWithCapacity(size_t capacity) @trusted nothrow @nogc
         {
-            _storeCapacity = capacity;
             _storePtr = cast(E*)_malloc(E.sizeof * capacity);
+            _storeCapacity = capacity;
         }
     }
 
@@ -223,9 +213,8 @@ struct Array(E,
             typeof(this) dup() nothrow @trusted const
             {
                 typeof(return) copy;
-                copy._storeCapacity = this._storeCapacity;
                 copy._length = this._length;
-                copy.allocateStoreWithCapacity(_length);     // allocate new store pointer
+                copy.allocateStoreWithCapacity(this._length);     // allocate new store pointer
                 foreach (const i; 0 .. _length)
                 {
                     copy.ptr[i] = this.ptr[i]; // copy from old to new
@@ -1395,6 +1384,8 @@ nothrow unittest
     A a;
     a ~= "string";
     aa ~= A.init;
+
+    // const AA aa0 = AA.withElement(A.init);
 }
 
 version(unittest)

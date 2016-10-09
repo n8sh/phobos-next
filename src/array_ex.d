@@ -1337,6 +1337,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 
             assert(!ssD.empty);
             ssD = null;
+            assert(ssD.empty);
             assert(ssD == typeof(ssD).init);
 
             assert(ssCc[].equal(i5));

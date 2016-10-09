@@ -1393,20 +1393,6 @@ nothrow unittest
 }
 
 ///
-@safe nothrow @nogc unittest
-{
-    alias E = int;
-    alias A = Array!(E);
-    alias AA = Array!A;
-    import dbgio : dln;
-    dln("");
-    // const AA aa = AA.withElement(A.init);
-    AA aa2;
-    // aa2 ~= A.init;
-    dln("");
-}
-
-///
 nothrow @nogc unittest
 {
     alias E = int;
@@ -1457,4 +1443,16 @@ unittest
     assert(valuePtr);
     assert(A.init == *valuePtr);
     assert(*valuePtr == A.init);
+}
+
+///
+@safe nothrow @nogc unittest
+{
+    alias E = int;
+    alias A = Array!(E);
+    alias AA = Array!A;
+    import dbgio : dln;
+    const AA aa = AA.withElement(A.init);
+    AA aa2;
+    aa2 ~= A.init;
 }

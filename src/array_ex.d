@@ -19,6 +19,8 @@
     previously extracted from `c`, and `x` is a value convertible to
     collection's element type. See also:
     https://forum.dlang.org/post/n3qq6e$2bis$1@digitalmars.com
+
+    TODO Document `isCopyable` in Phobos.
  */
 module array_ex;
 
@@ -537,7 +539,7 @@ struct Array(E,
     static if (!IsOrdered!ordering) // for unsorted arrays
     {
         /// Push back (append) `values`.
-        void pushBack(Us...)(Us values) @("complexity", "O(1)")
+        void pushBack(Us...)(ref Us values) @("complexity", "O(1)")
             if (values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
         {
@@ -562,7 +564,7 @@ struct Array(E,
             if (isArray!A &&
                 isElementAssignable!(ElementType!A))
         {
-            if (ptr == values.ptr) // called as: this ~= this
+            if (ptr == values.ptr) // called as: this ~= this. TODO extend to check if `values` overlaps ptr[0 .. _storeCapacity]
             {
                 reserve(2*length);
                 foreach (const i; 0 .. length)
@@ -850,14 +852,13 @@ struct Array(E,
         _length += values.length;
     }
 
-    private void pushBackHelper(Us...)(Us values) @trusted nothrow @("complexity", "O(1)")
+    private void pushBackHelper(Us...)(ref Us values) @trusted nothrow @("complexity", "O(1)")
     {
+        import std.algorithm : move;
         reserve(length + values.length);
-        size_t i = 0;
-        foreach (ref value; values)
+        foreach (const i, ref value; values)
         {
-            ptr[length + i] = value;
-            ++i;
+            move(value, ptr[length + i]);
         }
         _length += values.length;
     }
@@ -1390,7 +1391,11 @@ nothrow unittest
     static assert(isRvalueAssignable!(A));
     // static assert(!isLvalueAssignable!(A));
     // static assert(!isAssignable!(E));
-    alias A2 = Array!A;
+    alias AA = Array!A;
+    AA aa;
+    A a;
+    a ~= "string";
+    aa ~= A.init;
 }
 
 version(unittest)

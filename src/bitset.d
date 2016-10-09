@@ -774,7 +774,9 @@ struct BitSet(uint len, Block = size_t)
             Returns: `true` if index was found (hit index is put into `nextIx`), `false` otherwise.
             TODO block-optimize for large BitSets
          */
-        bool canFindIndexOf(ModUInt)(bool value, Mod!(len, ModUInt) currIx, out Mod!(len, ModUInt) nextIx) const @safe pure nothrow @nogc
+        bool canFindIndexOf(ModUInt)(bool value,
+                                     Mod!(len, ModUInt) currIx,
+                                     out Mod!(len, ModUInt) nextIx) const @safe pure nothrow @nogc
             if (isUnsigned!ModUInt)
         {
             if (currIx >= length) { return false; }

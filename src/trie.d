@@ -124,7 +124,6 @@ import std.range.primitives : hasLength;
 import bijections : isIntegralBijectableType, bijectToUnsigned, bijectFromUnsigned;
 import variant_ex : WordVariant;
 import typecons_ex : IndexedBy;
-import modulo : Mod, mod;
 import fixed_array : ModArrayN;
 import container_traits : shouldAddGCRange;
 
@@ -191,16 +190,32 @@ static assert(size_t.sizeof == 8, "Currently requires a 64-bit CPU (size_t.sizeo
 /** Radix Modulo Index
     Restricted index type avoids range checking in array indexing below.
 */
-alias Ix = Mod!(radix, ubyte);
-alias UIx = Mod!(radix, uint);
-alias IxsN = ModArrayN;
+static if (true) // TODO debug
+{
+    import modulo : Mod, mod;
+    alias Ix = Mod!(radix, ubyte);
+    alias UIx = Mod!(radix, uint);
 
-/** Mutable RawTree Key. */
-alias Key(size_t span) = Mod!(2^^span)[]; // TODO use bitset to more naturally support span != 8.
-/** Immutable RawTree Key. */
-alias IKey(size_t span) = immutable(Mod!(2^^span))[]; // TODO use bitset to more naturally support span != 8.
-/** Fixed-Length RawTree Key. */
-alias KeyN(size_t span, size_t N) = Mod!(2^^span)[N];
+    /** Mutable RawTree Key. */
+    alias Key(size_t span) = Mod!(2^^span)[]; // TODO use bitset to more naturally support span != 8.
+    /** Immutable RawTree Key. */
+    alias IKey(size_t span) = immutable(Mod!(2^^span))[]; // TODO use bitset to more naturally support span != 8.
+    /** Fixed-Length RawTree Key. */
+    alias KeyN(size_t span, size_t N) = Mod!(2^^span)[N];
+}
+else
+{
+    alias Ix = ubyte;
+    alias UIx = uint;
+
+    /** Mutable RawTree Key. */
+    alias Key(size_t span) = ubyte[]; // TODO use bitset to more naturally support span != 8.
+    /** Immutable RawTree Key. */
+    alias IKey(size_t span) = immutable(ubyte)[]; // TODO use bitset to more naturally support span != 8.
+    /** Fixed-Length RawTree Key. */
+    alias KeyN(size_t span, size_t N) = ubyte[N];
+}
+alias IxsN = ModArrayN;
 
 alias UKey = Key!span;
 bool empty(UKey ukey) @safe pure nothrow @nogc { return ukey.length == 0; }
@@ -441,7 +456,14 @@ static private struct SparseLeaf1(Value)
     static if (hasValue) { enum maxCapacity = 128; }
     else                { enum maxCapacity = 48; }
 
-    alias Capacity = Mod!(maxCapacity + 1);
+    static if (true) // TODO debug
+    {
+        alias Capacity = Mod!(maxCapacity + 1);
+    }
+    else
+    {
+        alias Capacity = ubyte;
+    }
     alias Length = Capacity;
 
     static if (hasValue) alias IxElement = Tuple!(UIx, "ix", Value, "value");
@@ -987,6 +1009,15 @@ template RawRadixTree(Value = void)
 
     enum isValue = !is(Value == void);
 
+    static if (true) // TODO debug
+    {
+        alias SubCount = Mod!(radix + 1);
+    }
+    else
+    {
+        alias SubCount = uint; // needed because for inclusive range 0 .. 256
+    }
+
     static if (isValue)
     {
         alias Element = Tuple!(UKey, "key", Value, "value");
@@ -1025,7 +1056,15 @@ template RawRadixTree(Value = void)
         enum maxCapacity = 48; // maximum number of preallocated sub-indexes and sub-nodes
         enum prefixCapacity = 5; // 5, 13, 21, ...
 
-        alias Count = Mod!(maxCapacity + 1);
+        static if (true) // TODO debug
+        {
+            alias Count = Mod!(maxCapacity + 1);
+        }
+        else
+        {
+            alias Count = ubyte;
+        }
+
         alias Sub = Tuple!(UIx, Node);
 
         @safe pure nothrow:
@@ -1324,7 +1363,7 @@ template RawRadixTree(Value = void)
         }
 
         /// Number of non-null sub-Nodes.
-        Mod!(radix + 1) subCount() const
+        SubCount subCount() const
         {
             typeof(return) count = 0; // number of non-zero sub-nodes
             foreach (const subNode; subNodes) // TODO why can't we use std.algorithm.count here?
@@ -2563,7 +2602,7 @@ template RawRadixTree(Value = void)
     }
 
     /** Get number of sub-nodes of node `curr`. */
-    pragma(inline) Mod!(radix + 1) getSubCount(inout Branch curr) @safe pure nothrow @nogc
+    pragma(inline) SubCount getSubCount(inout Branch curr) @safe pure nothrow @nogc
     {
         final switch (curr.typeIx) with (Branch.Ix)
         {

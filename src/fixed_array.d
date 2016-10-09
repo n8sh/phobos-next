@@ -10,11 +10,19 @@ struct ModArrayN(uint capacity,
     if (capacity*elementLength >= 2) // no use storing less than 2 bytes
 {
     private enum radix = 2^^span;
-    import modulo : Mod;
     import std.algorithm : move;
 
-    alias Ix = Mod!(radix, ubyte);
-    alias UIx = Mod!(radix, uint);
+    static if (true) // TODO debug
+    {
+        import modulo : Mod;
+        alias Ix = Mod!(radix, ubyte);
+        alias UIx = Mod!(radix, uint);
+    }
+    else
+    {
+        alias Ix = ubyte;
+        alias UIx = uint;
+    }
 
     enum L = elementLength;
 
@@ -166,12 +174,25 @@ struct ModArrayN(uint capacity,
         import std.traits : isUnsigned;
 
         /** Returns: `true` if `ix` is contained in `this`. */
-        bool contains(ModUInt)(const Mod!(radix, ModUInt) ix) const @nogc
-            if (isUnsigned!ModUInt)
+        static if (true) // TODO debug
         {
-            // TODO use binarySearch instead of canFind
-            import std.algorithm.searching : canFind;
-            return (chunks.canFind(ix));
+            bool contains(ModUInt)(const Mod!(radix, ModUInt) ix) const @nogc
+                if (isUnsigned!ModUInt)
+            {
+                // TODO use binarySearch instead of canFind
+                import std.algorithm.searching : canFind;
+                return (chunks.canFind(ix));
+            }
+        }
+        else
+        {
+            bool contains(UInt)(const UInt ix) const @nogc
+                if (isUnsigned!UInt)
+            {
+                // TODO use binarySearch instead of canFind
+                import std.algorithm.searching : canFind;
+                return (chunks.canFind(ix));
+            }
         }
     }
 

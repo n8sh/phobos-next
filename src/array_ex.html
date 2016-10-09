@@ -31,7 +31,10 @@ TODO Make Array have reference assignment instead through via Automatic
     collection's element type. See also:
 <br><br>
 <b>https:</b><br>
-//forum.dlang.org/post/n3qq6ebis@digitalmars.com<br><br>
+//forum.dlang.org/post/n3qq6ebis@digitalmars.com
+<br><br>
+
+    TODO Document <pre style="display:inline;" class="d_inline_code">isCopyable</pre> in Phobos.<br><br>
 
 <dl><dt><big><a name="shouldAddGCRange"></a>enum auto <u>shouldAddGCRange</u>(T);
 </big></dt>
@@ -61,15 +64,20 @@ TODO Make Array have reference assignment instead through via Automatic
 </big></dt>
 <dd><u>Array</u> of value types <pre style="display:inline;" class="d_inline_code">E</pre> with optional ordering given by <pre style="display:inline;" class="d_inline_code">ordering</pre>.
 <br><br>
-Copy construction and assignment currently does copying.
-<br><br>
+<b>Params:</b><br>
+<table><tr><td>useGCAllocation</td>
+<td><pre style="display:inline;" class="d_inline_code">true</pre> iff <pre style="display:inline;" class="d_inline_code">GC.malloc</pre> is used for store allocation,
+                          otherwise C's <pre style="display:inline;" class="d_inline_code">{m,ce,re}alloc()</pre> is used.</td></tr>
+</table><br>
 
-    For move construction use <pre style="display:inline;" class="d_inline_code">std.algorithm.mutation.move(source, target)</pre>
-    where both arguments are instances of <pre style="display:inline;" class="d_inline_code"><u>Array</u></pre>.<br><br>
-
-<dl><dt><big><a name="Array.isString"></a>enum auto <u>isString</u>;
+<dl><dt><big><a name="Array.ElementType"></a>alias <u>ElementType</u> = E;
 </big></dt>
-<dd>Is <pre style="display:inline;" class="d_inline_code">true</pre> iff array can be interpreted as a D <pre style="display:inline;" class="d_inline_code">string</pre>, <pre style="display:inline;" class="d_inline_code">wstring</pre> or <pre style="display:inline;" class="d_inline_code">dstring</pre>.<br><br>
+<dd>Type of element stored.<br><br>
+
+</dd>
+<dt><big><a name="Array.isString"></a>enum auto <u>isString</u>;
+</big></dt>
+<dd>Is <pre style="display:inline;" class="d_inline_code">true</pre> iff <pre style="display:inline;" class="d_inline_code">Array</pre> can be interpreted as a D <pre style="display:inline;" class="d_inline_code">string</pre>, <pre style="display:inline;" class="d_inline_code">wstring</pre> or <pre style="display:inline;" class="d_inline_code">dstring</pre>.<br><br>
 
 </dd>
 <dt><big><a name="Array.smallLength"></a>enum auto <u>smallLength</u>;
@@ -91,7 +99,7 @@ Copy construction and assignment currently does copying.
 <dt><big><a name="Array.withLength"></a>static nothrow typeof(this) <u>withLength</u>(size_t <i>n</i>);
 </big></dt>
 <dd><b>Returns:</b><br>
-an array of length <pre style="display:inline;" class="d_inline_code"><i>n</i></pre> with all elements default-initialized.<br><br>
+an array of length <pre style="display:inline;" class="d_inline_code"><i>n</i></pre> with all elements default-initialized to <pre style="display:inline;" class="d_inline_code">ElementType.init</pre>.<br><br>
 
 </dd>
 <dt><big><a name="Array.withElement"></a>static nothrow typeof(this) <u>withElement</u>(E <i>e</i>);
@@ -111,9 +119,14 @@ an array of length 1 with first element set to <pre style="display:inline;" clas
 shallow duplicate of <pre style="display:inline;" class="d_inline_code">this</pre>.<br><br>
 
 </dd>
-<dt><big><a name="Array.defaultInitialize"></a>void <u>defaultInitialize</u>(E <i>zeroValue</i> = E.init);
+<dt><big><a name="Array.defaultInitialize"></a>void <u>defaultInitialize</u>();
 </big></dt>
-<dd>Default-initialize all elements to <pre style="display:inline;" class="d_inline_code"><i>zeroValue</i></pre>..<br><br>
+<dd>Default-initialize all elements.<br><br>
+
+</dd>
+<dt><big><a name="Array.defaultInitializeWithElement"></a>void <u>defaultInitializeWithElement</u>(E <i>zeroValue</i>);
+</big></dt>
+<dd>Default-initialize all elements to <pre style="display:inline;" class="d_inline_code"><i>zeroValue</i></pre>.<br><br>
 
 </dd>
 <dt><big><a name="Array.this.2"></a>nothrow @trusted this(R)(R <i>values</i>, bool <i>assumeSortedParameter</i> = false) if (isInputRange!R);
@@ -162,7 +175,7 @@ shallow duplicate of <pre style="display:inline;" class="d_inline_code">this</pr
 <dd>Pop last <pre style="display:inline;" class="d_inline_code"><i>count</i></pre> back elements.<br><br>
 
 </dd>
-<dt><big><a name="Array.pushBack"></a>void <u>pushBack</u>(Us...)(Us <i>values</i>) if (<i>values</i>.length &gt;= 1 &amp;&amp; allSatisfy!(isElementAssignable, Us));
+<dt><big><a name="Array.pushBack"></a>void <u>pushBack</u>(Us...)(ref Us <i>values</i>) if (<i>values</i>.length &gt;= 1 &amp;&amp; allSatisfy!(isElementAssignable, Us));
 <br>void <u>pushBack</u>(R)(R <i>values</i>) if (isInputRange!R &amp;&amp; !isArray!R &amp;&amp; !isMyArray!R &amp;&amp; isElementAssignable!(ElementType!R));
 </big></dt>
 <dd>Push back (append) <pre style="display:inline;" class="d_inline_code"><i>values</i></pre>.<br><br>

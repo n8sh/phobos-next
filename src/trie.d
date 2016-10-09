@@ -1501,7 +1501,7 @@ template RawRadixTree(Value = void)
                 key ~= branch.as!(DenseBranch*).prefix[];
                 break;
             }
-            key ~= frontIx; // uses cached data so ok to not depend on branch type
+            key ~= frontIx.to!Ix; // uses cached data so ok to not depend on branch type
         }
 
         size_t prefixLength() const @nogc
@@ -1840,13 +1840,13 @@ template RawRadixTree(Value = void)
                 key ~= leaf.as!(TriLeaf2).keys[ix][];
                 break;
             case ix_HeptLeaf1:
-                key ~= leaf.as!(HeptLeaf1).keys[ix];
+                key ~= leaf.as!(HeptLeaf1).keys[ix].to!Ix;
                 break;
             case ix_SparseLeaf1Ptr:
-                key ~= leaf.as!(SparseLeaf1!Value*).ixs[ix];
+                key ~= leaf.as!(SparseLeaf1!Value*).ixs[ix].to!Ix;
                 break;
             case ix_DenseLeaf1Ptr:
-                key ~= ix;
+                key ~= ix.to!Ix;
                 break;
             default: assert(false, "Unsupported Node type");
             }
@@ -2225,7 +2225,7 @@ template RawRadixTree(Value = void)
         }
 
         /** Get front key. */
-        auto frontKey() const { return _cachedFrontKey[]; } // TODO DIP-1000 scope
+        auto frontKey() const @trusted { return _cachedFrontKey[]; } // TODO replace @trusted with DIP-1000 scope
 
         static if (isValue)
         {

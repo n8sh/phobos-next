@@ -125,29 +125,27 @@ struct Array(E,
     }
 
     /// Returns: an array of length 1 with first element set to `element`.
-    static typeof(this) withElement(E element) nothrow
+    static typeof(this) withElement(E element) @trusted nothrow
     {
         import std.algorithm.mutation : move;
-        enum initialLength = 1;
-        auto that = withCapacity(initialLength);
+        auto that = withCapacity(1);
         move(element, that.ptr[0]);
-        that._length = initialLength;
+        that._length = 1;
         return that;
     }
 
-    /// Returns: an array of length `Us.length` with elements set to `elements`.
-    static typeof(this) withElements(Us...)(Us elements) nothrow
-    {
-        import std.algorithm.mutation : move;
-        enum initialLength = Us.length;
-        auto that = withCapacity(initialLength);
-        foreach (const i, const ref e; elements)
-        {
-            move(elements, that.ptr[i]);
-        }
-        that._length = initialLength;
-        return that;
-    }
+    // /// Returns: an array of length `Us.length` with elements set to `elements`.
+    // static typeof(this) withElements(Us...)(Us elements) @trusted nothrow
+    // {
+    //     import std.algorithm.mutation : move;
+    //     auto that = withCapacity(Us.length);
+    //     foreach (const i, const ref element; elements)
+    //     {
+    //         move(element, that.ptr[i]);
+    //     }
+    //     that._length = Us.length;
+    //     return that;
+    // }
 
     static if (useGCAllocation)
     {
@@ -1003,8 +1001,8 @@ unittest
         {
             alias Str = Array!(Ch, assignment);
             Str str_as = Str.withElement('a');
-            str_as ~= 'b'.to!Ch;
-            assert(str_as[].equal("ab"));
+            str_as ~= '_'.to!Ch;
+            assert(str_as[].equal("a_"));
         }
     }
 }
@@ -1459,7 +1457,8 @@ pure nothrow unittest
     alias A = Array!(E);
     alias AA = Array!A;
     import dbgio : dln;
-    const AA aa = AA.withElement(A.init);
-    AA aa2;
-    aa2 ~= A.init;
+    const AA aa1 = AA.withElement(A.init);
+    AA aa1_;
+    aa1_ ~= A.init;
+    // const AA aa2 = AA.withElements(A.init, A.init);
 }

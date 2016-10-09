@@ -1404,7 +1404,7 @@ nothrow unittest
 }
 
 ///
-nothrow unittest
+@safe nothrow @nogc unittest
 {
     alias E = int;
     alias A = Array!(E);
@@ -1418,7 +1418,7 @@ nothrow unittest
 }
 
 ///
-nothrow unittest
+nothrow @nogc unittest
 {
     alias E = int;
     alias A = Array!(E);

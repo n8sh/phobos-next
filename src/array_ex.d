@@ -919,9 +919,9 @@ struct Array(E,
             return this.opSlice(0, _length);
         }
         /// ditto
-        auto opSlice(this This)(size_t i, size_t j) // unsafe!
+        auto opSlice(size_t i, size_t j) // unsafe!
         {
-            alias ET = ContainerElementType!(This, E);
+            // alias ET = ContainerElementType!(typeof(this), E);
             assert(i <= j);
             assert(j <= length);
             return ptr[i .. j];
@@ -930,7 +930,7 @@ struct Array(E,
         /// Index operator can be const or mutable when unordered.
         auto ref opIndex(size_t i) @trusted
         {
-            alias ET = ContainerElementType!(typeof(this), E);
+            // alias ET = ContainerElementType!(typeof(this), E);
             assert(i < length);
             return ptr[i];
         }

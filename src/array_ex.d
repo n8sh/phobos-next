@@ -91,7 +91,7 @@ struct Array(E,
     }
 
     /// Type of element stored.
-    alias ElementType = E;
+    // alias ElementType = E;
 
     /// Is `true` iff `Array` can be interpreted as a D `string`, `wstring` or `dstring`.
     enum isString = isSomeChar!E;
@@ -1008,7 +1008,6 @@ private:
     E* _ptr;               // store pointer
     size_t _capacity;      // store capacity
     size_t _length;             // length
-    debug bool willFail = false;
 }
 
 alias SortedArray(E, Assignment assignment = Assignment.disabled,
@@ -1480,24 +1479,22 @@ pure nothrow unittest
 ///
 @safe nothrow @nogc unittest
 {
-    alias E = int;
-    alias A = Array!E;
+    import std.range : ElementType;
+
+    alias A = Array!int;
     alias AA = Array!A;
+    alias AAA = Array!AA;
 
-    AA aa1_;
-    aa1_ ~= A.init;
-    const AA aa2 = AA.withElements(A.init, A.init, A.init, A.init, A.init, A.init);
-    const AA aa3 = AA.withElements(A.withElement(17),
-                                   A.withElement(18),
-                                   A.withElement(19),
-                                   A.withElement(20),
-                                   A.withElement(21),
-                                   A.withElement(22));
-
-    AA aa4 = AA.withElement(A.init);
-    aa4.willFail = true;
-    foreach (_; 0 .. 1000)
+    foreach (A_; AliasSeq!(A, AA, AA))
     {
-        aa4 ~= A.init;
+        alias E = ElementType!A_;
+        A_ x = A_.withElement(E.init);
+        A_ y = A_.withElements(E.init, E.init);
+        foreach (_; 0 .. 1000)
+        {
+            x ~= E.init;
+            y ~= E.init;
+        }
     }
+
 }

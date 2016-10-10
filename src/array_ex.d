@@ -101,7 +101,7 @@ struct Array(E,
     enum smallLength = (_capacity.sizeof + _length.sizeof) / E.sizeof;
 
     /// Returns: `true` iff is SSO-packed.
-    bool isSmall() const @safe pure nothrow @nogc { return length <= smallLength; }
+    bool isSmall() const @safe pure nothrow @nogc { return _length <= smallLength; }
 
     /// Create a empty array.
     this(typeof(null)) nothrow
@@ -353,7 +353,7 @@ struct Array(E,
     {
         void compress() pure nothrow @trusted
         {
-            if (length)
+            if (_length)
             {
                 _ptr = cast(E*)GC.realloc(_ptr, E.sizeof * _length);
                 // TODO gc_removeRange with what arguments?
@@ -374,7 +374,7 @@ struct Array(E,
     {
         void compress() pure nothrow @trusted @nogc
         {
-            if (length)
+            if (_length)
             {
                 _ptr = cast(E*)realloc(_ptr, E.sizeof * _capacity);
             }
@@ -468,7 +468,7 @@ struct Array(E,
         debug ptr[index] = typeof(ptr[index]).init;
 
         // TODO use memmove instead?
-        foreach (const i; 0 .. length - (index + 1)) // each element index that needs to be moved
+        foreach (const i; 0 .. _length - (index + 1)) // each element index that needs to be moved
         {
             const si = index + i + 1; // source index
             const ti = index + i; // target index
@@ -489,7 +489,7 @@ struct Array(E,
         typeof(return) value;
         move(ptr[0], value);
         // TODO use memmove instead?
-        foreach (const i; 0 .. length - 1) // each element index that needs to be moved
+        foreach (const i; 0 .. _length - 1) // each element index that needs to be moved
         {
             const si = i + 1; // source index
             const ti = i; // target index
@@ -563,23 +563,23 @@ struct Array(E,
         {
             if (_ptr == values.ptr) // called as: this ~= this. TODO extend to check if `values` overlaps ptr[0 .. _capacity]
             {
-                reserve(2*length);
-                foreach (const i; 0 .. length)
+                reserve(2*_length);
+                foreach (const i; 0 .. _length)
                 {
-                    _ptr[length + i] = _ptr[i];
+                    _ptr[_length + i] = _ptr[i];
                 }
                 _length *= 2;
             }
             else
             {
-                reserve(length + values.length);
+                reserve(_length + values.length);
                 if (is(Unqual!E == Unqual!(ElementType!A)))
                 {
                     // TODO reuse memcopy if ElementType!A is same as E)
                 }
                 foreach (const i, ref value; values)
                 {
-                    _ptr[length + i] = value;
+                    _ptr[_length + i] = value;
                 }
                 _length += values.length;
             }
@@ -591,25 +591,25 @@ struct Array(E,
         {
             if (_ptr == values._ptr) // called as: this ~= this
             {
-                reserve(2*length);
+                reserve(2*_length);
                 // NOTE: this is not needed because we don't need range checking here?:
                 // _ptr[length .. 2*length] = values._ptr[0 .. length];
-                foreach (const i; 0 .. length)
+                foreach (const i; 0 .. _length)
                 {
-                    _ptr[length + i] = values._ptr[i];
+                    _ptr[_length + i] = values._ptr[i];
                 }
                 _length *= 2;
             }
             else
             {
-                reserve(length + values.length);
+                reserve(_length + values.length);
                 if (is(Unqual!E == Unqual!(ElementType!A)))
                 {
                     // TODO reuse memcopy if ElementType!A is same as E)
                 }
                 foreach (const i, ref value; values.slice)
                 {
-                    _ptr[length + i] = value;
+                    _ptr[_length + i] = value;
                 }
                 _length += values.length;
             }
@@ -732,7 +732,7 @@ struct Array(E,
                     debug { typeof(return) hits; }
                     else  { typeof(return) hits = void; }
                     size_t expandedLength = 0;
-                    const initialLength = length;
+                    const initialLength = _length;
                     foreach (const i, ref value; values)
                     {
                         // TODO reuse completeSort with uniqueness handling?
@@ -754,9 +754,9 @@ struct Array(E,
 
                     if (expandedLength != 0)
                     {
-                        const ix = length - expandedLength;
+                        const ix = _length - expandedLength;
                         completeSort!comp(_ptr[0 .. ix].assumeSorted!comp,
-                                          _ptr[ix .. length]);
+                                          _ptr[ix .. _length]);
                     }
                     return hits;
                 }
@@ -783,9 +783,9 @@ struct Array(E,
                 {
                     import std.algorithm.sorting : completeSort;
                     pushBackHelper(values); // simpler because duplicates are allowed
-                    const ix = length - values.length;
+                    const ix = _length - values.length;
                     completeSort!comp(_ptr[0 .. ix].assumeSorted!comp,
-                                      _ptr[ix .. length]);
+                                      _ptr[ix .. _length]);
                 }
             }
         }
@@ -815,7 +815,7 @@ struct Array(E,
     /** Helper function used externally for unsorted and internally for sorted. */
     private void linearInsertAtIndexHelper(Us...)(size_t index, Us values) nothrow @("complexity", "O(length)")
     {
-        reserve(length + values.length);
+        reserve(_length + values.length);
 
         // TODO factor this to robustCopy. It uses copy when no overlaps (my algorithm_em), iteration otherwise
         enum usePhobosCopy = false;
@@ -824,17 +824,17 @@ struct Array(E,
             // TODO why does this fail?
             import std.algorithm.mutation : copy;
             copy(_ptr[index ..
-                     length],        // source
+                     _length],        // source
                  _ptr[index + values.length ..
-                     length + values.length]); // target
+                     _length + values.length]); // target
         }
         else
         {
             // move second part in reverse
             // TODO functionize move
-            foreach (const i; 0 .. length - index) // each element index that needs to be moved
+            foreach (const i; 0 .. _length - index) // each element index that needs to be moved
             {
-                const si = length - 1 - i; // source index
+                const si = _length - 1 - i; // source index
                 const ti = si + values.length; // target index
                 _ptr[ti] = _ptr[si]; // TODO move construct?
             }
@@ -852,10 +852,10 @@ struct Array(E,
     private void pushBackHelper(Us...)(ref Us values) @trusted nothrow @("complexity", "O(1)")
     {
         import std.algorithm : move;
-        reserve(length + values.length);
+        reserve(_length + values.length);
         foreach (const i, ref value; values)
         {
-            move(value, _ptr[length + i]);
+            move(value, _ptr[_length + i]);
         }
         _length += values.length;
     }
@@ -906,10 +906,10 @@ struct Array(E,
     {
         nothrow:
 
-        @property void length(size_t length) @safe
+        @property void length(size_t newLength) @safe
         {
-            reserve(length);
-            _length = length;
+            reserve(newLength);
+            _length = newLength;
         }
 
         inout:               // indexing and slicing can be mutable when ordered
@@ -969,10 +969,10 @@ struct Array(E,
     alias opDollar = length;    /// ditto
 
     /// Shrink length to `length`.
-    void shrinkTo(size_t length) @safe
+    void shrinkTo(size_t newLength) @safe
     {
-        assert(length <= _length);
-        _length = length;
+        assert(newLength <= _length);
+        _length = newLength;
     }
     alias opDollar = length;    /// ditto
 
@@ -993,7 +993,7 @@ struct Array(E,
     /// Get internal slice.
     private auto ref slice() inout @trusted
     {
-        return _ptr[0 .. length];
+        return _ptr[0 .. _length];
     }
 
 private:

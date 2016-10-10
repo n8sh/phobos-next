@@ -860,6 +860,8 @@ struct Array(E,
         reserve(_length + values.length);
         foreach (const i, ref value; values)
         {
+            // TODO functionize these two lines
+            memset(&_ptr[_length + i], 0, E.sizeof);
             move(value, _ptr[_length + i]);
         }
         _length += values.length;
@@ -1492,5 +1494,5 @@ pure nothrow unittest
 
     AA aa4 = AA.withElement(A.init);
     aa4.willFail = true;
-    // aa4 ~= A.init;
+    aa4 ~= A.init;
 }

@@ -71,7 +71,6 @@ struct Array(E,
     import std.algorithm.mutation : move;
 
     import qcmeman;
-    import moval : movedToRvalue;
 
     static if (useGCAllocation)
     {
@@ -474,7 +473,7 @@ struct Array(E,
     {
         assert(index < _length);
 
-        auto value = movedToRvalue(ptr[index]);
+        auto value = move(ptr[index]);
 
         // TODO use moveAll or memmove instead?
         foreach (const i; 0 .. _length - (index + 1)) // each element index that needs to be moved
@@ -495,7 +494,7 @@ struct Array(E,
     {
         assert(!empty);
 
-        auto value = movedToRvalue(ptr[0]);
+        auto value = move(ptr[0]);
 
         // TODO use moveAll or memmove instead?
         foreach (const i; 0 .. _length - 1) // each element index that needs to be moved
@@ -520,7 +519,7 @@ struct Array(E,
     E backPop() @trusted
     {
         assert(!empty);
-        return movedToRvalue(ptr[--_length]); // TODO optimize by not clearing `ptr[--_length]` after move
+        return move(ptr[--_length]); // TODO optimize by not clearing `ptr[--_length]` after move
         // TODO gc_removeRange
     }
 
@@ -1470,6 +1469,7 @@ pure nothrow unittest
 /// test withElement and withElements
 @safe pure nothrow @nogc unittest
 {
+    import std.algorithm.mutation : move;
     import std.range : ElementType;
 
     alias A = Array!int;
@@ -1486,8 +1486,7 @@ pure nothrow unittest
         foreach (_; 0 .. 1000)
         {
             auto e = E.init;
-            import moval : movedToRvalue;
-            x ~= movedToRvalue(e);
+            x ~= move(e);
             y ~= E.init;
         }
         foreach (_; 0 .. 1000)

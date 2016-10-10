@@ -1438,10 +1438,15 @@ pure nothrow unittest
     A[string] map;
     map["a"] = A.init;
     map["B"] = A.withLength(42);
-    auto valuePtr = "a" in map;
-    assert(valuePtr);
-    assert(A.init == *valuePtr);
-    assert(*valuePtr == A.init);
+
+    auto aPtr = "a" in map;
+    assert(aPtr);
+    assert(A.init == *aPtr);
+    assert(*aPtr == A.init);
+
+    assert("z" !in map);
+    auto zPtr = "z" in map;
+    assert(!zPtr);
 }
 
 /// test withElement and withElements

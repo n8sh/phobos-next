@@ -82,7 +82,7 @@ struct Array(E,
     template shouldAddGCRange(T)
     {
         import std.traits : isPointer, hasIndirections, isInstanceOf;
-        pragma(msg, isInstanceOf!(Array, E)); // TODO why doesn't ever become true?
+        // pragma(msg, isInstanceOf!(Array, E)); // TODO why doesn't ever become true?
         enum shouldAddGCRange = (!isInstanceOf!(Array, E) &&
                                  (isPointer!T ||
                                   hasIndirections!T ||
@@ -145,8 +145,6 @@ struct Array(E,
         auto that = withCapacity(Us.length);
         foreach (const i, const ref element; elements)
         {
-            pragma(msg, i);
-            pragma(msg, i);
             move(element, that.ptr[i]);
         }
         that._length = Us.length;
@@ -1478,10 +1476,12 @@ pure nothrow unittest
     alias A = Array!(E);
     alias AA = Array!A;
 
-    AA aa1 = AA.withElement(A.init);
-    // aa1 ~= A.withElement(42);
-
     AA aa1_;
     aa1_ ~= A.init;
-    // TODO const AA aa2 = AA.withElements(A.withElement(17), A.withElement(18));
+    // const AA aa2 = AA.withElements(A.withElement(17),
+    //                                A.withElement(18));
+
+    AA aa1 = AA.withElement(A.init);
+    aa1.willFail = true;
+    // aa1 ~= A.withElement(42);
 }

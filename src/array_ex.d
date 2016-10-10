@@ -462,9 +462,14 @@ struct Array(E,
     ContainerElementType!(typeof(this), E) linearPopAtIndex(size_t index) @trusted @("complexity", "O(length)")
     {
         assert(index < _length);
-
         auto value = move(ptr[index]);
-        // TODO use `std.algorithm.mutation.moveEmplaceAll` or memmove instead?
+        // TODO use this instead:
+        // const si = index + 1;   // source index
+        // const ti = index;       // target index
+        // const restLength = _length - (index + 1);
+        // import std.algorithm.mutation : moveEmplaceAll;
+        // moveEmplaceAll(ptr[si .. si + restLength],
+        //                ptr[ti .. ti + restLength]);
         foreach (const i; 0 .. _length - (index + 1)) // each element index that needs to be moved
         {
             const si = index + i + 1; // source index
@@ -480,19 +485,7 @@ struct Array(E,
     /** Removal doesn't need to care about ordering. */
     ContainerElementType!(typeof(this), E) linearPopFront() @trusted @("complexity", "O(length)")
     {
-        import std.algorithm.mutation : moveEmplaceAll;
-        assert(!empty);
-
-        auto value = move(ptr[0]);
-        // TODO use `std.algorithm.mutation.moveEmplaceAll` or memmove instead?
-        foreach (const i; 0 .. _length - 1) // each element index that needs to be moved
-        {
-            const si = i + 1; // source index
-            const ti = i; // target index
-            moveEmplace(ptr[si], ptr[ti]);
-        }
-        --_length;
-        return value;
+        return linearPopAtIndex(0);
     }
 
     /** Removal doesn't need to care about ordering. */

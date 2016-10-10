@@ -563,7 +563,7 @@ struct Array(E,
                 reserve(2*_length);
                 foreach (const i; 0 .. _length)
                 {
-                    _ptr[_length + i] = _ptr[i];
+                    _ptr[_length + i] = _ptr[i]; // needs copying
                 }
                 _length *= 2;
             }
@@ -1485,7 +1485,9 @@ pure nothrow unittest
         assert(y.length == 2);
         foreach (_; 0 .. 1000)
         {
-            x ~= E.init;
+            auto e = E.init;
+            import moval : movedToRvalue;
+            x ~= movedToRvalue(e);
             y ~= E.init;
         }
         foreach (_; 0 .. 1000)

@@ -67,8 +67,8 @@ struct Array(E,
     import std.traits : isAssignable, isCopyable, Unqual, isSomeChar, isArray;
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
-    import core.stdc.string : memset;
-    import std.algorithm.mutation : move;
+    // import core.stdc.string : memset;
+    import std.algorithm.mutation : move, moveEmplace;
 
     import qcmeman;
 
@@ -135,15 +135,9 @@ struct Array(E,
     /// Returns: an array of length 1 with first element set to `element`.
     static typeof(this) withElement(E element) @trusted nothrow
     {
-
         auto that = withCapacity(1);
-
-        // TODO functionize these two lines
-        memset(&that._ptr[0], 0, E.sizeof); // TODO doesn't work: that._ptr[0] = E.init;
-        move(element, that._ptr[0]);
-
+        moveEmplace(element, that._ptr[0]);
         that._length = 1;
-
         return that;
     }
 
@@ -151,16 +145,11 @@ struct Array(E,
     static typeof(this) withElements(Us...)(Us elements) @trusted nothrow
     {
         auto that = withCapacity(Us.length);
-
         foreach (const i, ref element; elements)
         {
-            // TODO functionize these two lines
-            memset(&that._ptr[i], 0, E.sizeof); // TODO doesn't work: that._ptr[i] = E.init;
-            move(element, that._ptr[i]);
+            moveEmplace(element, that._ptr[i]);
         }
-
         that._length = Us.length;
-
         return that;
     }
 
@@ -850,9 +839,7 @@ struct Array(E,
         reserve(_length + values.length);
         foreach (const i, ref value; values)
         {
-            // TODO functionize these two lines
-            memset(&_ptr[_length + i], 0, E.sizeof);
-            move(value, _ptr[_length + i]);
+            moveEmplace(value, _ptr[_length + i]);
         }
         _length += values.length;
     }

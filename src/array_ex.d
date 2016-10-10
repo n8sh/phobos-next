@@ -1485,7 +1485,7 @@ pure nothrow unittest
     alias AA = Array!A;
     alias AAA = Array!AA;
 
-    foreach (A_; AliasSeq!(A, AA, AA))
+    foreach (A_; AliasSeq!(A, AA, AAA))
     {
         alias E = ElementType!A_;
         A_ x = A_.withElement(E.init);

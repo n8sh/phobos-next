@@ -1476,7 +1476,7 @@ pure nothrow unittest
     assert(*valuePtr == A.init);
 }
 
-///
+/// test withElement and withElements
 @safe pure nothrow @nogc unittest
 {
     import std.range : ElementType;

@@ -68,7 +68,11 @@ struct Array(E,
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
     import core.stdc.string : memset;
+    import std.algorithm.mutation : move;
+
     import qcmeman;
+    import moval : movedToRvalue;
+
     static if (useGCAllocation)
     {
         import core.memory : GC;
@@ -132,7 +136,6 @@ struct Array(E,
     /// Returns: an array of length 1 with first element set to `element`.
     static typeof(this) withElement(E element) @trusted nothrow
     {
-        import std.algorithm.mutation : move;
 
         auto that = withCapacity(1);
 
@@ -148,8 +151,6 @@ struct Array(E,
     // /// Returns: an array of length `Us.length` with elements set to `elements`.
     static typeof(this) withElements(Us...)(Us elements) @trusted nothrow
     {
-        import std.algorithm.mutation : move;
-
         auto that = withCapacity(Us.length);
 
         foreach (const i, ref element; elements)
@@ -471,12 +472,9 @@ struct Array(E,
     /** Removal doesn't need to care about ordering. */
     ContainerElementType!(typeof(this), E) linearPopAtIndex(size_t index) @trusted @("complexity", "O(length)")
     {
-        import std.algorithm : move;
         assert(index < _length);
 
-        // TODO functionize these two lines to const value = moved(ptr[index]);
-        typeof(return) value;
-        move(ptr[index], value);
+        auto value = movedToRvalue(ptr[index]);
 
         // TODO use memmove instead?
         foreach (const i; 0 .. _length - (index + 1)) // each element index that needs to be moved
@@ -495,12 +493,9 @@ struct Array(E,
     /** Removal doesn't need to care about ordering. */
     ContainerElementType!(typeof(this), E) linearPopFront() @trusted @("complexity", "O(length)")
     {
-        import std.algorithm : move;
         assert(!empty);
 
-        // TODO functionize these two lines to const value = moved(ptr[index]);
-        typeof(return) value;
-        move(ptr[0], value);
+        auto value = movedToRvalue(ptr[0]);
 
         // TODO use memmove instead?
         foreach (const i; 0 .. _length - 1) // each element index that needs to be moved
@@ -522,14 +517,11 @@ struct Array(E,
     }
 
     /** Pop back element and return it. */
-    E backPop()
+    E backPop() @trusted
     {
-        import std.algorithm : move;
         assert(!empty);
-        // TODO use return moved(ptr[--_length]);
-        typeof(return) value;
-        move(ptr[--_length], value);
-        return value;
+        return movedToRvalue(ptr[--_length]); // TODO optimize by not clearing `ptr[--_length]` after move
+        // TODO gc_removeRange
     }
 
     /** Pop last `count` back elements. */
@@ -856,7 +848,6 @@ struct Array(E,
 
     private void pushBackHelper(Us...)(ref Us values) @trusted nothrow @("complexity", "O(1)")
     {
-        import std.algorithm : move;
         reserve(_length + values.length);
         foreach (const i, ref value; values)
         {
@@ -1490,11 +1481,20 @@ pure nothrow unittest
         alias E = ElementType!A_;
         A_ x = A_.withElement(E.init);
         A_ y = A_.withElements(E.init, E.init);
+        assert(x.length == 1);
+        assert(y.length == 2);
         foreach (_; 0 .. 1000)
         {
             x ~= E.init;
             y ~= E.init;
         }
+        foreach (_; 0 .. 1000)
+        {
+            assert(x.backPop == E.init);
+            assert(y.backPop == E.init);
+        }
+        assert(x.length == 1);
+        assert(y.length == 2);
     }
 
 }

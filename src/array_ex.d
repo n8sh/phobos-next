@@ -67,6 +67,7 @@ struct Array(E,
     import std.traits : isAssignable, isCopyable, Unqual, isSomeChar, isArray;
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
+    import core.stdc.string : memset;
     import qcmeman;
     static if (useGCAllocation)
     {
@@ -132,9 +133,15 @@ struct Array(E,
     static typeof(this) withElement(E element) @trusted nothrow
     {
         import std.algorithm.mutation : move;
+
         auto that = withCapacity(1);
+
+        // TODO functionize these two lines
+        memset(&that._ptr[0], 0, E.sizeof); // TODO doesn't work: that._ptr[0] = E.init;
         move(element, that._ptr[0]);
+
         that._length = 1;
+
         return that;
     }
 
@@ -142,12 +149,18 @@ struct Array(E,
     static typeof(this) withElements(Us...)(Us elements) @trusted nothrow
     {
         import std.algorithm.mutation : move;
+
         auto that = withCapacity(Us.length);
-        foreach (const i, const ref element; elements)
+
+        foreach (const i, ref element; elements)
         {
+            // TODO functionize these two lines
+            memset(&that._ptr[i], 0, E.sizeof); // TODO doesn't work: that._ptr[i] = E.init;
             move(element, that._ptr[i]);
         }
+
         that._length = Us.length;
+
         return that;
     }
 
@@ -463,17 +476,17 @@ struct Array(E,
         assert(index < _length);
         assert(!empty);
 
+        // TODO functionize these two lines
         typeof(return) value;
         move(ptr[index], value);
-        debug ptr[index] = typeof(ptr[index]).init;
 
         // TODO use memmove instead?
         foreach (const i; 0 .. _length - (index + 1)) // each element index that needs to be moved
         {
+            // TODO functionize these three lines
             const si = index + i + 1; // source index
             const ti = index + i; // target index
             move(ptr[si], ptr[ti]); // ptr[ti] = ptr[si]; // TODO move construct?
-            debug ptr[si] = typeof(ptr[si]).init;
         }
         --_length;
         return value;
@@ -486,21 +499,20 @@ struct Array(E,
     {
         import std.algorithm : move;
         assert(!empty);
+
+        // TODO functionize these two lines
         typeof(return) value;
         move(ptr[0], value);
+
         // TODO use memmove instead?
         foreach (const i; 0 .. _length - 1) // each element index that needs to be moved
         {
+            // TODO functionize these three lines
             const si = i + 1; // source index
             const ti = i; // target index
             move(ptr[si], ptr[ti]); // ptr[ti] = ptr[si]; // TODO move construct?
         }
         --_length;
-        // TODO
-        // static if (shouldAddGCRange!E)
-        // {
-        //     gc_removeRange(_ptr);
-        // }
         return value;
     }
 
@@ -516,14 +528,10 @@ struct Array(E,
     {
         import std.algorithm : move;
         assert(!empty);
+
+        // TODO functionize these two lines
         typeof(return) value;
-        move(ptr[_length - 1], value);
-        --_length;
-        // TODO
-        // static if (shouldAddGCRange!E)
-        // {
-        //     gc_removeRange(storePtr);
-        // }
+        move(ptr[--_length], value);
         return value;
     }
 
@@ -1479,10 +1487,13 @@ pure nothrow unittest
 
     AA aa1_;
     aa1_ ~= A.init;
-    // const AA aa2 = AA.withElements(A.withElement(17),
-    //                                A.withElement(18));
+    const AA aa2 = AA.withElements(A.init,
+                                   A.init);
 
-    AA aa1 = AA.withElement(A.init);
-    aa1.willFail = true;
-    // aa1 ~= A.withElement(42);
+    const AA aa3 = AA.withElements(A.withElement(17),
+                                   A.withElement(18));
+
+    AA aa4 = AA.withElement(A.init);
+    aa4.willFail = true;
+    // aa4 ~= A.init;
 }

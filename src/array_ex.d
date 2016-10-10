@@ -32,20 +32,12 @@ enum IsOrdered(Ordering ordering) = ordering != Ordering.unsorted;
 
 version(unittest)
 {
+    import dbgio : dln;
     import std.algorithm.comparison : equal;
     import std.meta : AliasSeq;
 }
 
-import std.math : nextPow2;
 import container_traits : ContainerElementType;
-
-/** Is `true` iff `T` is a type whose instances need to be scanned by the garbage
-    collector (GC). */
-template shouldAddGCRange(T)
-{
-    import std.traits : isPointer, hasIndirections;
-    enum shouldAddGCRange = isPointer!T || hasIndirections!T || is (T == class);
-}
 
 /// Returns: `true` iff C is an `Array`.
 import std.traits : isInstanceOf;
@@ -83,6 +75,14 @@ struct Array(E,
     static if (shouldAddGCRange!E)
     {
         import core.memory : GC;
+    }
+
+    /** Is `true` iff `T` is a type whose instances need to be scanned by the garbage
+    collector (GC). */
+    template shouldAddGCRange(T)
+    {
+        import std.traits : isPointer, hasIndirections;
+        enum shouldAddGCRange = isPointer!T || hasIndirections!T || is (T == class);
     }
 
     /// Type of element stored.
@@ -342,6 +342,7 @@ struct Array(E,
     /// Helper for `reserve`.
     private void makeReservedLengthAtLeast(size_t n) pure nothrow @safe @nogc
     {
+        import std.math : nextPow2;
         if (_capacity < n) { _capacity = n.nextPow2; }
     }
 
@@ -400,6 +401,7 @@ struct Array(E,
 
         private void release()
         {
+            destroyElements();
             static if (shouldAddGCRange!E)
             {
                 gc_removeRange(_ptr);
@@ -421,11 +423,24 @@ struct Array(E,
 
         private void release()
         {
+            destroyElements();
             static if (shouldAddGCRange!E)
             {
                 gc_removeRange(_ptr);
             }
             free(_ptr);
+        }
+    }
+
+    private void destroyElements()
+    {
+        import std.traits : hasElaborateDestructor;
+        static if (hasElaborateDestructor!E)
+        {
+            foreach (const i; 0 .. _length)
+            {
+                .destroy(_ptr[i]);
+            }
         }
     }
 
@@ -1464,5 +1479,5 @@ pure nothrow unittest
 
     AA aa1_;
     aa1_ ~= A.init;
-    // const AA aa2 = AA.withElements(A.withElement(17), A.withElement(18));
+    // TODO const AA aa2 = AA.withElements(A.withElement(17), A.withElement(18));
 }

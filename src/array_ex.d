@@ -465,7 +465,7 @@ struct Array(E,
 
         auto value = move(ptr[index]);
 
-        // TODO use moveAll or memmove instead?
+        // TODO use `moveEmplaceAll` or memmove instead?
         foreach (const i; 0 .. _length - (index + 1)) // each element index that needs to be moved
         {
             // TODO functionize these three lines
@@ -486,7 +486,7 @@ struct Array(E,
 
         auto value = move(ptr[0]);
 
-        // TODO use moveAll or memmove instead?
+        // TODO use `moveEmplaceAll` or memmove instead?
         foreach (const i; 0 .. _length - 1) // each element index that needs to be moved
         {
             // TODO functionize these three lines

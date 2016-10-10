@@ -526,11 +526,10 @@ struct Array(E,
     /** Pop back element and return it. */
     E backPop()
     {
-        import std.algorithm : move;
         assert(!empty);
-
-        // TODO functionize these two lines
+        // TODO use return moveOutAt(--_length);
         typeof(return) value;
+        import std.algorithm : move;
         move(ptr[--_length], value);
         return value;
     }

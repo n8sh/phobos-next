@@ -472,11 +472,9 @@ struct Array(E,
     ContainerElementType!(typeof(this), E) linearPopAtIndex(size_t index) @trusted @("complexity", "O(length)")
     {
         import std.algorithm : move;
-
         assert(index < _length);
-        assert(!empty);
 
-        // TODO functionize these two lines
+        // TODO functionize these two lines to const value = moved(ptr[index]);
         typeof(return) value;
         move(ptr[index], value);
 
@@ -500,7 +498,7 @@ struct Array(E,
         import std.algorithm : move;
         assert(!empty);
 
-        // TODO functionize these two lines
+        // TODO functionize these two lines to const value = moved(ptr[index]);
         typeof(return) value;
         move(ptr[0], value);
 
@@ -526,10 +524,10 @@ struct Array(E,
     /** Pop back element and return it. */
     E backPop()
     {
-        assert(!empty);
-        // TODO use return moveOutAt(--_length);
-        typeof(return) value;
         import std.algorithm : move;
+        assert(!empty);
+        // TODO use return moved(ptr[--_length]);
+        typeof(return) value;
         move(ptr[--_length], value);
         return value;
     }

@@ -81,8 +81,9 @@ struct Array(E,
         import core.memory : GC;
     }
 
-    /** Is `true` iff `T` is a type whose instances need to be scanned by the garbage
-    collector (GC). */
+    /** Is `true` iff `T` is a type whose instances need to be scanned by the
+        garbage collector (GC).
+    */
     template shouldAddGCRange(T)
     {
         import std.traits : isPointer, hasIndirections, isInstanceOf;

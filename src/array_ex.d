@@ -81,8 +81,12 @@ struct Array(E,
     collector (GC). */
     template shouldAddGCRange(T)
     {
-        import std.traits : isPointer, hasIndirections;
-        enum shouldAddGCRange = isPointer!T || hasIndirections!T || is (T == class);
+        import std.traits : isPointer, hasIndirections, isInstanceOf;
+        pragma(msg, isInstanceOf!(Array, E)); // TODO why doesn't ever become true?
+        enum shouldAddGCRange = (!isInstanceOf!(Array, E) &&
+                                 (isPointer!T ||
+                                  hasIndirections!T ||
+                                  is (T == class)));
     }
 
     /// Type of element stored.

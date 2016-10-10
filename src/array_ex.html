@@ -32,13 +32,7 @@ TODO Use std.array.insertInPlace in insert()?
 
     TODO Document <pre style="display:inline;" class="d_inline_code">isCopyable</pre> in Phobos.<br><br>
 
-<dl><dt><big><a name="shouldAddGCRange"></a>enum auto <u>shouldAddGCRange</u>(T);
-</big></dt>
-<dd>Is <pre style="display:inline;" class="d_inline_code">true</pre> iff <pre style="display:inline;" class="d_inline_code">T</pre> is a type whose instances need to be scanned by the garbage
-    collector (GC).<br><br>
-
-</dd>
-<dt><big><a name="Assignment"></a>enum <u>Assignment</u>: int;
+<dl><dt><big><a name="Assignment"></a>enum <u>Assignment</u>: int;
 </big></dt>
 <dd>Semantics of copy construction and assignment.<br><br>
 
@@ -66,7 +60,13 @@ TODO Use std.array.insertInPlace in insert()?
                           otherwise C's <pre style="display:inline;" class="d_inline_code">{m,ce,re}alloc()</pre> is used.</td></tr>
 </table><br>
 
-<dl><dt><big><a name="Array.ElementType"></a>alias <u>ElementType</u> = E;
+<dl><dt><big><a name="Array.shouldAddGCRange"></a>enum auto <u>shouldAddGCRange</u>(T);
+</big></dt>
+<dd>Is <pre style="display:inline;" class="d_inline_code">true</pre> iff <pre style="display:inline;" class="d_inline_code">T</pre> is a type whose instances need to be scanned by the garbage
+    collector (GC).<br><br>
+
+</dd>
+<dt><big><a name="Array.ElementType"></a>alias <u>ElementType</u> = E;
 </big></dt>
 <dd>Type of element stored.<br><br>
 

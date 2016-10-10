@@ -1486,13 +1486,18 @@ pure nothrow unittest
 
     AA aa1_;
     aa1_ ~= A.init;
-    const AA aa2 = AA.withElements(A.init,
-                                   A.init);
-
+    const AA aa2 = AA.withElements(A.init, A.init, A.init, A.init, A.init, A.init);
     const AA aa3 = AA.withElements(A.withElement(17),
-                                   A.withElement(18));
+                                   A.withElement(18),
+                                   A.withElement(19),
+                                   A.withElement(20),
+                                   A.withElement(21),
+                                   A.withElement(22));
 
     AA aa4 = AA.withElement(A.init);
     aa4.willFail = true;
-    aa4 ~= A.init;
+    foreach (_; 0 .. 1000)
+    {
+        aa4 ~= A.init;
+    }
 }

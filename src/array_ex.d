@@ -1407,7 +1407,7 @@ nothrow unittest
 nothrow unittest
 {
     alias E = string;
-    alias A = Array!(E);
+    alias A = Array!E;
     import std.traits : isCopyable, isRvalueAssignable, isLvalueAssignable;
     static assert(!isCopyable!(A));
     static assert(isRvalueAssignable!(A));
@@ -1428,7 +1428,7 @@ nothrow unittest
 nothrow @nogc unittest
 {
     alias E = int;
-    alias A = Array!(E);
+    alias A = Array!E;
     A a;
     import std.range : iota;
     import std.container.util : make;
@@ -1467,7 +1467,7 @@ pure nothrow /+TODO @nogc+/ unittest
 pure nothrow unittest
 {
     alias E = int;
-    alias A = Array!(E);
+    alias A = Array!E;
     A[string] map;
     map["a"] = A.init;
     map["B"] = A.withLength(42);
@@ -1481,7 +1481,7 @@ pure nothrow unittest
 @safe nothrow @nogc unittest
 {
     alias E = int;
-    alias A = Array!(E);
+    alias A = Array!E;
     alias AA = Array!A;
 
     AA aa1_;

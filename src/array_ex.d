@@ -133,7 +133,7 @@ struct Array(E,
     {
         import std.algorithm.mutation : move;
         auto that = withCapacity(1);
-        move(element, that.ptr[0]);
+        move(element, that._ptr[0]);
         that._length = 1;
         return that;
     }
@@ -145,7 +145,7 @@ struct Array(E,
         auto that = withCapacity(Us.length);
         foreach (const i, const ref element; elements)
         {
-            move(element, that.ptr[i]);
+            move(element, that._ptr[i]);
         }
         that._length = Us.length;
         return that;
@@ -561,12 +561,12 @@ struct Array(E,
             if (isArray!A &&
                 isElementAssignable!(ElementType!A))
         {
-            if (ptr == values.ptr) // called as: this ~= this. TODO extend to check if `values` overlaps ptr[0 .. _capacity]
+            if (_ptr == values.ptr) // called as: this ~= this. TODO extend to check if `values` overlaps ptr[0 .. _capacity]
             {
                 reserve(2*length);
                 foreach (const i; 0 .. length)
                 {
-                    ptr[length + i] = ptr[i];
+                    _ptr[length + i] = _ptr[i];
                 }
                 _length *= 2;
             }
@@ -579,7 +579,7 @@ struct Array(E,
                 }
                 foreach (const i, ref value; values)
                 {
-                    ptr[length + i] = value;
+                    _ptr[length + i] = value;
                 }
                 _length += values.length;
             }
@@ -589,14 +589,14 @@ struct Array(E,
             if (isMyArray!A &&
                 isElementAssignable!(ElementType!A))
         {
-            if (ptr == values.ptr) // called as: this ~= this
+            if (_ptr == values._ptr) // called as: this ~= this
             {
                 reserve(2*length);
                 // NOTE: this is not needed because we don't need range checking here?:
-                // ptr[length .. 2*length] = values.ptr[0 .. length];
+                // _ptr[length .. 2*length] = values._ptr[0 .. length];
                 foreach (const i; 0 .. length)
                 {
-                    ptr[length + i] = values.ptr[i];
+                    _ptr[length + i] = values._ptr[i];
                 }
                 _length *= 2;
             }
@@ -609,7 +609,7 @@ struct Array(E,
                 }
                 foreach (const i, ref value; values.slice)
                 {
-                    ptr[length + i] = value;
+                    _ptr[length + i] = value;
                 }
                 _length += values.length;
             }
@@ -755,8 +755,8 @@ struct Array(E,
                     if (expandedLength != 0)
                     {
                         const ix = length - expandedLength;
-                        completeSort!comp(ptr[0 .. ix].assumeSorted!comp,
-                                          ptr[ix .. length]);
+                        completeSort!comp(_ptr[0 .. ix].assumeSorted!comp,
+                                          _ptr[ix .. length]);
                     }
                     return hits;
                 }
@@ -784,8 +784,8 @@ struct Array(E,
                     import std.algorithm.sorting : completeSort;
                     pushBackHelper(values); // simpler because duplicates are allowed
                     const ix = length - values.length;
-                    completeSort!comp(ptr[0 .. ix].assumeSorted!comp,
-                                      ptr[ix .. length]);
+                    completeSort!comp(_ptr[0 .. ix].assumeSorted!comp,
+                                      _ptr[ix .. length]);
                 }
             }
         }
@@ -823,9 +823,9 @@ struct Array(E,
         {
             // TODO why does this fail?
             import std.algorithm.mutation : copy;
-            copy(ptr[index ..
+            copy(_ptr[index ..
                      length],        // source
-                 ptr[index + values.length ..
+                 _ptr[index + values.length ..
                      length + values.length]); // target
         }
         else
@@ -836,14 +836,14 @@ struct Array(E,
             {
                 const si = length - 1 - i; // source index
                 const ti = si + values.length; // target index
-                ptr[ti] = ptr[si]; // TODO move construct?
+                _ptr[ti] = _ptr[si]; // TODO move construct?
             }
         }
 
         // set new values
         foreach (const i, ref value; values)
         {
-            ptr[index + i] = value; // TODO use range algorithm instead?
+            _ptr[index + i] = value; // TODO use range algorithm instead?
         }
 
         _length += values.length;
@@ -855,7 +855,7 @@ struct Array(E,
         reserve(length + values.length);
         foreach (const i, ref value; values)
         {
-            move(value, ptr[length + i]);
+            move(value, _ptr[length + i]);
         }
         _length += values.length;
     }
@@ -876,29 +876,30 @@ struct Array(E,
         /// ditto
         auto opSlice(this This)(size_t i, size_t j) // const because mutation only via `op.*Assign`
         {
-            alias ET = ContainerElementType!(This, E);
+            // alias ET = ContainerElementType!(This, E);
             import std.range : assumeSorted;
-            return (cast(const(ET)[])slice[i .. j]).assumeSorted!comp;
+            return (cast(const(E)[])slice[i .. j]).assumeSorted!comp;
         }
 
         auto ref opIndex(size_t i) @trusted
         {
-            alias ET = ContainerElementType!(typeof(this), E);
-            return cast(const(ET))slice[i];
+            // alias ET = ContainerElementType!(typeof(this), E);
+            assert(i < _length);
+            return _ptr[i];
         }
 
         /// Get front element (as constant reference to preserve ordering).
         ref const(E) front() @trusted
         {
             assert(!empty);
-            return ptr[0];
+            return _ptr[0];
         }
 
         /// Get back element (as constant reference to preserve ordering).
         ref const(E) back() @trusted
         {
             assert(!empty);
-            return ptr[_length - 1];
+            return _ptr[_length - 1];
         }
     }
     else
@@ -923,30 +924,30 @@ struct Array(E,
         {
             // alias ET = ContainerElementType!(typeof(this), E);
             assert(i <= j);
-            assert(j <= length);
-            return ptr[i .. j];
+            assert(j <= _length);
+            return _ptr[i .. j];
         }
 
         /// Index operator can be const or mutable when unordered.
         auto ref opIndex(size_t i) @trusted
         {
             // alias ET = ContainerElementType!(typeof(this), E);
-            assert(i < length);
-            return ptr[i];
+            assert(i < _length);
+            return _ptr[i];
         }
 
         /// Get front element reference.
         ref inout(E) front() inout @trusted
         {
             assert(!empty);
-            return ptr[0];
+            return _ptr[0];
         }
 
         /// Get back element reference.
         ref inout(E) back() inout @trusted
         {
             assert(!empty);
-            return ptr[_length - 1];
+            return _ptr[_length - 1];
         }
     }
 
@@ -992,7 +993,7 @@ struct Array(E,
     /// Get internal slice.
     private auto ref slice() inout @trusted
     {
-        return ptr[0 .. length];
+        return _ptr[0 .. length];
     }
 
 private:

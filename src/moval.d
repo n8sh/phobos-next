@@ -16,13 +16,12 @@ struct S
     int x;
 }
 
-void consume(S x)
+void consume(S)
 {
 }
 
 unittest
 {
-
     auto s = S(13);
     static assert(!__traits(compiles, { consume(s); }));
     static assert(__traits(compiles, { consume(S(14)); })); // TODO optimize

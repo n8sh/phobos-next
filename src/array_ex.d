@@ -1477,7 +1477,7 @@ pure nothrow unittest
 }
 
 ///
-@safe nothrow @nogc unittest
+@safe pure nothrow @nogc unittest
 {
     import std.range : ElementType;
 

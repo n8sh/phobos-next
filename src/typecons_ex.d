@@ -127,6 +127,7 @@ static private mixin template genIndexAndSliceOps(I)
         assert(cast(size_t)i < _r.length, "Range violation with index type " ~ I.stringof);
         import std.algorithm.mutation : move;
         move(value, _r[cast(size_t)i]);
+        return _r[cast(size_t)i];
     }
     static if (hasSlicing!R)
     {

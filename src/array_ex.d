@@ -988,6 +988,7 @@ alias SortedSetArray(E, Assignment assignment = Assignment.disabled,
 
 unittest
 {
+    dln("");
     import std.conv : to;
     foreach (assignment; AliasSeq!(Assignment.disabled, Assignment.copy))
     {
@@ -1003,6 +1004,7 @@ unittest
 
 static void tester(Ordering ordering, bool supportGC, alias less)()
 {
+    dln("");
     import std.functional : binaryFun;
     import std.range : iota, retro, chain, repeat, only, ElementType;
     import std.algorithm : filter, map;
@@ -1333,6 +1335,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 /// disabled copying
 @safe nothrow unittest
 {
+    dln("");
     import std.conv : to;
     alias E = string;
     alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, "a < b");
@@ -1354,6 +1357,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 /// disabled copying
 nothrow unittest
 {
+    dln("");
     import std.conv : to;
     alias E = string;
     alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, "a < b");
@@ -1373,6 +1377,7 @@ nothrow unittest
 /// disabled copying
 nothrow unittest
 {
+    dln("");
     alias E = string;
     alias A = Array!E;
     import std.traits : isCopyable, isRvalueAssignable, isLvalueAssignable;
@@ -1394,6 +1399,7 @@ nothrow unittest
 ///
 nothrow @nogc unittest
 {
+    dln("");
     alias E = int;
     alias A = Array!E;
     A a;
@@ -1414,6 +1420,7 @@ version(unittest)
 /// use GC
 pure nothrow unittest
 {
+    dln("");
     foreach (ordering; EnumMembers!Ordering)
     {
         tester!(ordering, true, "a < b"); // use GC
@@ -1424,6 +1431,7 @@ pure nothrow unittest
 /// don't use GC
 pure nothrow /+TODO @nogc+/ unittest
 {
+    dln("");
     foreach (ordering; EnumMembers!Ordering)
     {
         tester!(ordering, false, "a < b"); // don't use GC
@@ -1433,6 +1441,7 @@ pure nothrow /+TODO @nogc+/ unittest
 
 pure nothrow unittest
 {
+    dln("");
     alias E = int;
     alias A = Array!E;
     A[string] map;
@@ -1452,6 +1461,7 @@ pure nothrow unittest
 /// test withElement and withElements
 @safe pure nothrow @nogc unittest
 {
+    dln("");
     import std.algorithm.mutation : move;
     import std.range : ElementType;
 

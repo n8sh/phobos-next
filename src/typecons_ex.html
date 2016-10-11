@@ -32,7 +32,8 @@
 <dt><big><a name="hasIndexing"></a>enum auto <u>hasIndexing</u>(T, I = size_t);
 </big></dt>
 <dd>Check if <pre style="display:inline;" class="d_inline_code">T</pre> can be indexed by an instance of <pre style="display:inline;" class="d_inline_code">I</pre>.
-    See also: http://forum.dlang.org/post/ajxtksnsxqmeulsedmae@forum.dlang.org<br><br>
+    See also: http://forum.dlang.org/post/ajxtksnsxqmeulsedmae@forum.dlang.org
+    TODO Add to Phobos<br><br>
 
 </dd>
 <dt><big><a name="isIndexableBy"></a>enum auto <u>isIndexableBy</u>(R, I);
@@ -43,10 +44,6 @@
 <dt><big><a name="isIndexableBy.2"></a>enum auto <u>isIndexableBy</u>(R, alias I);
 </big></dt>
 <dd>Check if <pre style="display:inline;" class="d_inline_code">R</pre> is indexable by a automatically <pre style="display:inline;" class="d_inline_code">R</pre>-local defined integer type named <pre style="display:inline;" class="d_inline_code">I</pre>.<br><br>
-
-</dd>
-<dt><big><a name="genOps"></a>template <u>genOps</u>(I)</big></dt>
-<dd>Generate <pre style="display:inline;" class="d_inline_code">opIndex</pre> and <pre style="display:inline;" class="d_inline_code">opSlice</pre>.<br><br>
 
 </dd>
 <dt><big><a name="genTrustedUncheckedOps"></a>template <u>genTrustedUncheckedOps</u>(I)</big></dt>
@@ -330,6 +327,12 @@ I i;
 
 <font color=blue>alias</font> IA = IndexedBy!(A, I);
 IA ia;
+ia ~= S.init;
+<font color=blue>assert</font>(ia.length == 1);
+<font color=blue>auto</font> s = S(Lang.en, <font color=red>"alpha"</font>);
+<font color=blue>import</font> std.algorithm.mutation : move;
+ia ~= move(s);
+<font color=blue>assert</font>(ia.length == 2);
 </pre>
 <br><br>
 </dd>

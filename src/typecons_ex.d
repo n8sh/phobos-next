@@ -89,6 +89,7 @@ enum hasIndexing(T, I = size_t) = __traits(compiles,
 unittest
 {
     static assert(hasIndexing!(byte[]));
+    static assert(hasIndexing!(byte[], uint));
 }
 
 /** Check if `R` is indexable by `I`. */
@@ -109,7 +110,7 @@ unittest
 }
 
 /** Generate `opIndex` and `opSlice`. */
-mixin template genOps(I)
+static private mixin template genIndexAndSliceOps(I)
 {
     auto ref at(size_t i)() inout
     {
@@ -181,7 +182,7 @@ struct IndexedBy(R, I)
     if (isIndexableBy!(R, I))
 {
     alias Index = I;        /// indexing type
-    mixin genOps!I;
+    mixin genIndexAndSliceOps!I;
     R _r;
     alias _r this; // TODO Use opDispatch instead; to override only opSlice and opIndex
 }
@@ -194,7 +195,7 @@ struct IndexedArray(E, I)
 {
     static assert(I.min == 0, "Index type I is currently limited to start at 0 and be continuous");
     alias Index = I;            /// indexing type
-    mixin genOps!I;
+    mixin genIndexAndSliceOps!I;
     alias R = E[I.max + 1];     // needed by mixins
     R _r;                       // static array
     alias _r this; // TODO Use opDispatch instead; to override only opSlice and opIndex
@@ -264,7 +265,7 @@ struct IndexedBy(R, string IndexTypeName)
                       private T _ix = 0;
                   }
               });
-        mixin genOps!(mixin(IndexTypeName));
+        mixin genIndexAndSliceOps!(mixin(IndexTypeName));
     }
     R _r;
     alias _r this; // TODO Use opDispatch instead; to override only opSlice and opIndex
@@ -517,6 +518,12 @@ auto strictlyIndexed(R)(R range)
 
     alias IA = IndexedBy!(A, I);
     IA ia;
+    ia ~= S.init;
+    assert(ia.length == 1);
+    auto s = S(Lang.en, "alpha");
+    import std.algorithm.mutation : move;
+    ia ~= move(s);
+    assert(ia.length == 2);
 }
 
 /** Returns: a `string` containing the definition of an `enum` named `name` and

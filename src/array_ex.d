@@ -279,7 +279,7 @@ struct Array(E,
     }
 
     /** Construct from InputRange `values`.
-        If `values` are sorted `assumeSortedParameter` is true.
+        If `values` are sorted `assumeSortedParameter` is `true`.
      */
     this(R)(R values, bool assumeSortedParameter = false) @trusted @("complexity", "O(n*log(n))")
         if (isInputRange!R)
@@ -511,11 +511,16 @@ struct Array(E,
     static if (!IsOrdered!ordering) // for unsorted arrays
     {
         /// Push back (append) `values`.
-        pragma(inline) void pushBack(Us...)(ref Us values) @("complexity", "O(1)")
+        pragma(inline) void pushBack(Us...)(Us values) @("complexity", "O(1)") @trusted
             if (values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
         {
-            pushBackHelper(values);
+            reserve(_length + values.length);
+            foreach (const i, ref value; values) // `ref` so we can `move`
+            {
+                moveEmplace(value, _ptr[_length + i]);
+            }
+            _length += values.length;
         }
         /// ditto
         void pushBack(R)(R values) @("complexity", "O(values.length)")
@@ -524,12 +529,12 @@ struct Array(E,
                 !(isMyArray!R) &&
                 isElementAssignable!(ElementType!R))
         {
-            // import std.range.primitives : hasLength;
-            // static if (hasLength!R) { dln("Reuse logic in range constructor"); }
-            foreach (ref value; values)
+            reserve(_length + values.length);
+            foreach (const i, ref value; values) // `ref` so we can `move`
             {
-                pushBackHelper(value);
+                moveEmplace(value, _ptr[_length + i]);
             }
+            _length += values.length;
         }
         /// ditto.
         void pushBack(A)(A values) @trusted @("complexity", "O(values.length)")
@@ -600,14 +605,14 @@ struct Array(E,
                 values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
         {
-            pushBack(values);
+            pushBack(move(values));
         }
 	pragma(inline) void opOpAssign(string op, R)(R values)
             if (op == "~" &&
                 isInputRange!R &&
                 allSatisfy!(isElementAssignable, ElementType!R))
         {
-            pushBack(values);
+            pushBack(move(values));
         }
 	pragma(inline) void opOpAssign(string op, A)(const ref A values)
             if (op == "~" &&
@@ -824,7 +829,7 @@ struct Array(E,
         _length += values.length;
     }
 
-    private void pushBackHelper(Us...)(ref Us values) @trusted nothrow @("complexity", "O(1)")
+    private void pushBackHelper(Us...)(Us values) @trusted nothrow @("complexity", "O(1)")
     {
         reserve(_length + values.length);
         foreach (const i, ref value; values)

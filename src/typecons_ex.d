@@ -500,10 +500,13 @@ auto strictlyIndexed(R)(R range)
 
     enum Lang { en, sv, fr }
 
+    alias Ixs = Array!int;
+
     struct S
     {
         Lang lang;
         string data;
+        Ixs ixs;
     }
 
     alias A = Array!S;
@@ -523,7 +526,7 @@ auto strictlyIndexed(R)(R range)
     IA ia;
     ia ~= S.init;
     assert(ia.length == 1);
-    auto s = S(Lang.en, "alpha");
+    auto s = S(Lang.en, "alpha", Ixs.withLength(42));
     import std.algorithm.mutation : move;
     ia ~= move(s);
     assert(ia.length == 2);

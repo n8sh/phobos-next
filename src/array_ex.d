@@ -118,7 +118,7 @@ struct Array(E,
     pragma(inline) static typeof(this) withLength(size_t initialLength) nothrow
     {
         typeof(return) that = void;
-        that.allocateStoreWithCapacity(initialLength, true);
+        that.allocateStoreWithCapacity(initialLength, true); // `true` here means zero initialize
         that._length = initialLength;
         // that.defaultInitialize();
         return that;
@@ -286,7 +286,7 @@ struct Array(E,
     /** Construct from InputRange `values`.
         If `values` are sorted `assumeSortedParameter` is true.
      */
-    this(R)(R values, bool assumeSortedParameter = false) @trusted nothrow @("complexity", "O(n*log(n))")
+    this(R)(R values, bool assumeSortedParameter = false) @trusted pure nothrow @("complexity", "O(n*log(n))")
         if (isInputRange!R)
     {
         // init

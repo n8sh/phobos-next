@@ -190,7 +190,9 @@ public:
     {
         alias U = Unqual!T;
         static if (!is(U == void))
+        {
             static assert(allowsAssignmentFrom!U, "Cannot store a " ~ U.stringof ~ " in a " ~ name);
+        }
         if (!isOfType!U) return null;
         return cast(inout U*)&_data; // TODO alignment
     }

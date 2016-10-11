@@ -18,6 +18,8 @@
     https://forum.dlang.org/post/n3qq6e$2bis$1@digitalmars.com
 
     TODO Document `isCopyable` in Phobos.
+
+    TODO All Array with const members and movals
  */
 module array_ex;
 
@@ -1477,6 +1479,11 @@ pure nothrow unittest
         }
         assert(x.length == 1);
         assert(y.length == 2);
+
+        import std.algorithm : swap;
+        swap(x, y);
+        assert(x.length == 2);
+        assert(y.length == 1);
     }
 
 }

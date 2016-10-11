@@ -303,10 +303,13 @@ B b;
 
 <font color=blue>enum</font> Lang { en, sv, fr }
 
+<font color=blue>alias</font> Ixs = Array!<font color=blue>int</font>;
+
 <font color=blue>struct</font> S
 {
     Lang lang;
     string data;
+    Ixs ixs;
 }
 
 <font color=blue>alias</font> A = Array!S;
@@ -326,7 +329,7 @@ I i;
 IA ia;
 ia ~= S.init;
 <font color=blue>assert</font>(ia.length == 1);
-<font color=blue>auto</font> s = S(Lang.en, <font color=red>"alpha"</font>);
+<font color=blue>auto</font> s = S(Lang.en, <font color=red>"alpha"</font>, Ixs.withLength(42));
 <font color=blue>import</font> std.algorithm.mutation : move;
 ia ~= move(s);
 <font color=blue>assert</font>(ia.length == 2);

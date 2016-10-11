@@ -125,14 +125,19 @@ static private mixin template genIndexAndSliceOps(I)
     auto ref opIndexAssign(V)(V value, I i)
     {
         assert(cast(size_t)i < _r.length, "Range violation with index type " ~ I.stringof);
-        return _r[cast(size_t)i] = value;
+        import std.algorithm.mutation : move;
+        move(value, _r[cast(size_t)i]);
     }
     static if (hasSlicing!R)
     {
-        auto ref opSlice(I i, I j) inout             { return _r[cast(size_t)i ..
-                                                                 cast(size_t)j]; }
-        auto ref opSliceAssign(V)(V value, I i, I j) { return _r[cast(size_t)i ..
-                                                                 cast(size_t)j] = value; }
+        auto ref opSlice(I i, I j) inout
+        {
+            return _r[cast(size_t)i .. cast(size_t)j];
+        }
+        auto ref opSliceAssign(V)(V value, I i, I j)
+        {
+            return _r[cast(size_t)i .. cast(size_t)j] = value; // TODO use `move()`
+        }
     }
 }
 
@@ -202,13 +207,14 @@ struct IndexedArray(E, I)
 @safe pure nothrow unittest
 {
     enum N = 7;
-    enum E { x = 0, y = 1, z = 2}
-    alias A = IndexedArray!(size_t, E);
-    static assert(A.sizeof == 3*size_t.sizeof);
+    enum I { x = 0, y = 1, z = 2}
+    alias E = int;
+    alias A = IndexedArray!(E, I);
+    static assert(A.sizeof == 3*int.sizeof);
     A x;
-    x[E.x] = 1;
-    x[E.y] = 2;
-    x[E.z] = 3;
+    x[I.x] = 1;
+    x[I.y] = 2;
+    x[I.z] = 3;
     static assert(!__traits(compiles, { x[1] = 3; })); // no integer indexing
 }
 

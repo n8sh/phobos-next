@@ -117,7 +117,7 @@ struct Array(E,
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
     static typeof(this) withLength(size_t initialLength) nothrow
     {
-        typeof(return) that;
+        typeof(return) that = void;
         that.allocateStoreWithCapacity(initialLength);
         that._length = initialLength;
         that.defaultInitialize();
@@ -127,7 +127,7 @@ struct Array(E,
     /// Returns: an array with initial capacity `initialCapacity`.
     static typeof(this) withCapacity(size_t initialCapacity) nothrow
     {
-        typeof(return) that;
+        typeof(return) that = void;
         that.allocateStoreWithCapacity(initialCapacity);
         that._length = 0;
         return that;
@@ -136,7 +136,8 @@ struct Array(E,
     /// Returns: an array of length 1 with first element set to `element`.
     static typeof(this) withElement(E element) @trusted nothrow
     {
-        auto that = withCapacity(1);
+        typeof(return) that = void;
+        that.allocateStoreWithCapacity(1);
         moveEmplace(element, that._ptr[0]);
         that._length = 1;
         return that;
@@ -145,7 +146,8 @@ struct Array(E,
     // /// Returns: an array of length `Us.length` with elements set to `elements`.
     static typeof(this) withElements(Us...)(Us elements) @trusted nothrow
     {
-        auto that = withCapacity(Us.length);
+        typeof(return) that = void;
+        that.allocateStoreWithCapacity(Us.length);
         foreach (const i, ref element; elements)
         {
             moveEmplace(element, that._ptr[i]);
@@ -1385,15 +1387,25 @@ nothrow unittest
     static assert(isRvalueAssignable!(A));
     static assert(isLvalueAssignable!(A));
     alias AA = Array!A;
+    dln("");
     AA aa;
+    dln("");
     A a;
+    dln("");
     a ~= "string";
+    dln("");
     aa ~= A.init;
+    dln("");
 
     assert(aa == aa);
+    dln("");
     assert(AA.withLength(3) == AA.withLength(3));
+    dln("");
     assert(AA.withLength(3).length == 3);
+    dln("");
     assert(aa != AA.init);
+
+    dln("");
 }
 
 ///

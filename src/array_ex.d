@@ -286,7 +286,7 @@ struct Array(E,
     /** Construct from InputRange `values`.
         If `values` are sorted `assumeSortedParameter` is true.
      */
-    this(R)(R values, bool assumeSortedParameter = false) @trusted pure nothrow @("complexity", "O(n*log(n))")
+    this(R)(R values, bool assumeSortedParameter = false) @trusted @("complexity", "O(n*log(n))")
         if (isInputRange!R)
     {
         // init
@@ -301,7 +301,7 @@ struct Array(E,
             size_t i = 0;
             foreach (ref value; values)
             {
-                ptr[i++] = value;
+                _ptr[i++] = value;
             }
             _length = values.length;
         }
@@ -311,7 +311,7 @@ struct Array(E,
             foreach (ref value; values)
             {
                 reserve(i + 1); // slower reserve
-                ptr[i++] = value;
+                _ptr[i++] = value;
             }
             _length = i;
         }
@@ -321,7 +321,7 @@ struct Array(E,
             if (!assumeSortedParameter)
             {
                 import std.algorithm.sorting : sort;
-                sort!comp(ptr[0 .. _length]);
+                sort!comp(_ptr[0 .. _length]);
             }
         }
     }
@@ -466,19 +466,19 @@ struct Array(E,
     ContainerElementType!(typeof(this), E) linearPopAtIndex(size_t index) @trusted @("complexity", "O(length)")
     {
         assert(index < _length);
-        auto value = move(ptr[index]);
+        auto value = move(_ptr[index]);
         // TODO use this instead:
         // const si = index + 1;   // source index
         // const ti = index;       // target index
         // const restLength = _length - (index + 1);
         // import std.algorithm.mutation : moveEmplaceAll;
-        // moveEmplaceAll(ptr[si .. si + restLength],
-        //                ptr[ti .. ti + restLength]);
+        // moveEmplaceAll(_ptr[si .. si + restLength],
+        //                _ptr[ti .. ti + restLength]);
         foreach (const i; 0 .. _length - (index + 1)) // each element index that needs to be moved
         {
             const si = index + i + 1; // source index
             const ti = index + i; // target index
-            moveEmplace(ptr[si], ptr[ti]);
+            moveEmplace(_ptr[si], _ptr[ti]);
         }
         --_length;
         return value;
@@ -503,7 +503,7 @@ struct Array(E,
     pragma(inline) E backPop() @trusted
     {
         assert(!empty);
-        return move(ptr[--_length]); // TODO optimize by not clearing `ptr[--_length]` after move
+        return move(_ptr[--_length]); // TODO optimize by not clearing `_ptr[--_length]` after move
         // TODO gc_removeRange
     }
 

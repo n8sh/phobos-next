@@ -2216,7 +2216,7 @@ Container collect(Container, Range) (Range r)
 }
 
 /// collection
-@safe pure nothrow @nogc unittest
+/*@safe*/ pure nothrow @nogc unittest // TODO make @safe when DIP-1000 has been added
 {
     import std.range : iota, isOutputRange;
     import std.algorithm.comparison : equal;

@@ -853,15 +853,16 @@ test(3.iota.array);
 <br><br><b>Examples:</b><br>
 collection
 <pre class="d_code">
-<font color=blue>alias</font> E = <font color=blue>int</font>;
+<font color=blue>import</font> std.range : iota, isOutputRange;
+<font color=blue>import</font> std.algorithm.comparison : equal;
 <font color=blue>import</font> array_ex : Array;
+
+<font color=blue>alias</font> E = <font color=blue>int</font>;
 <font color=blue>alias</font> A = Array!(E);
 
 <font color=blue>const</font> n = 100;
-<font color=blue>import</font> std.range : iota, isOutputRange;
 <font color=blue>static</font> <font color=blue>assert</font>(isOutputRange!(A, E));
 
-<font color=blue>import</font> std.algorithm.comparison : equal;
 <font color=blue>assert</font>((0.iota(n).<u>collect</u>!A)[].equal(0.iota(n)));
 </pre>
 <br><br>

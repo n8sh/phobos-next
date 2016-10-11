@@ -600,24 +600,19 @@ struct Array(E,
         // NOTE these separate overloads of opOpAssign are needed because one
         // `const ref`-parameter-overload doesn't work because of compiler bug
         // with: `this(this) @disable`
-        pragma(inline) void opOpAssign(string op, Us...)(Us values) @trusted
+        pragma(inline) void opOpAssign(string op, Us...)(Us values)
             if (op == "~" &&
                 values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
         {
-            reserve(_length + values.length);
-            foreach (const i, ref value; values) // `ref` so we can `move`
-            {
-                moveEmplace(value, _ptr[_length + i]);
-            }
-            _length += values.length;
+            pushBack(values.move());
         }
 	pragma(inline) void opOpAssign(string op, R)(R values)
             if (op == "~" &&
                 isInputRange!R &&
                 allSatisfy!(isElementAssignable, ElementType!R))
         {
-            pushBack(move(values));
+            pushBack(values.move());
         }
 	pragma(inline) void opOpAssign(string op, A)(const ref A values)
             if (op == "~" &&

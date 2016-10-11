@@ -198,9 +198,9 @@ void resetBit(T, I...)(T* a, I bixs) @safe
     if (isIntegral!T &&
         !is(T == size_t) && // avoid stealing core.bitop.bt
         allSatisfy!(isIntegral, I))
-    {
-        *a &= ~makeBit!T(bixs);
-    }
+{
+    *a &= ~makeBit!T(bixs);
+}
 
 /** Reset bits `I` of `a` (to zero). */
 void resetBit(T, I...)(ref T a, I bixs)

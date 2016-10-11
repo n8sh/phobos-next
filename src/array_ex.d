@@ -67,7 +67,7 @@ struct Array(E,
     import std.traits : isAssignable, isCopyable, Unqual, isSomeChar, isArray;
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
-    // import core.stdc.string : memset;
+    import core.stdc.string : memset;
     import std.algorithm.mutation : move, moveEmplace;
 
     import qcmeman;
@@ -106,7 +106,7 @@ struct Array(E,
     enum smallLength = (_capacity.sizeof + _length.sizeof) / E.sizeof;
 
     /// Returns: `true` iff is SSO-packed.
-    bool isSmall() const @safe pure nothrow @nogc { return _length <= smallLength; }
+    pragma(inline) bool isSmall() const @safe pure nothrow @nogc { return _length <= smallLength; }
 
     /// Create a empty array.
     this(typeof(null)) nothrow
@@ -115,17 +115,17 @@ struct Array(E,
     }
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
-    static typeof(this) withLength(size_t initialLength) nothrow
+    pragma(inline) static typeof(this) withLength(size_t initialLength) nothrow
     {
         typeof(return) that = void;
-        that.allocateStoreWithCapacity(initialLength);
+        that.allocateStoreWithCapacity(initialLength, true);
         that._length = initialLength;
-        that.defaultInitialize();
+        // that.defaultInitialize();
         return that;
     }
 
     /// Returns: an array with initial capacity `initialCapacity`.
-    static typeof(this) withCapacity(size_t initialCapacity) nothrow
+    pragma(inline) static typeof(this) withCapacity(size_t initialCapacity) nothrow
     {
         typeof(return) that = void;
         that.allocateStoreWithCapacity(initialCapacity);
@@ -134,7 +134,7 @@ struct Array(E,
     }
 
     /// Returns: an array of length 1 with first element set to `element`.
-    static typeof(this) withElement(E element) @trusted nothrow
+    pragma(inline) static typeof(this) withElement(E element) @trusted nothrow
     {
         typeof(return) that = void;
         that.allocateStoreWithCapacity(1);
@@ -159,18 +159,20 @@ struct Array(E,
     static if (useGCAllocation)
     {
         /// Allocate a store pointer of length `capacity`.
-        private void allocateStoreWithCapacity(size_t capacity) @trusted nothrow
+        pragma(inline) private void allocateStoreWithCapacity(size_t capacity, bool zero = false) @trusted nothrow
         {
-            _ptr = cast(E*)GC.malloc(E.sizeof * capacity);
+            if (zero) { _ptr = cast(E*)GC.calloc(capacity, E.sizeof); }
+            else      { _ptr = cast(E*)GC.malloc(capacity * E.sizeof); }
             _capacity = capacity;
         }
     }
     else
     {
         /// Allocate a store pointer of length `capacity`.
-        private void allocateStoreWithCapacity(size_t capacity) @trusted nothrow @nogc
+        pragma(inline) private void allocateStoreWithCapacity(size_t capacity, bool zero = false) @trusted nothrow @nogc
         {
-            _ptr = cast(E*)malloc(E.sizeof * capacity);
+            if (zero) { _ptr = cast(E*)calloc(capacity, E.sizeof); }
+            else      { _ptr = cast(E*)malloc(capacity * E.sizeof); }
             _capacity = capacity;
         }
     }
@@ -237,7 +239,7 @@ struct Array(E,
         }
     }
 
-    void opAssign(typeof(null))
+    pragma(inline) void opAssign(typeof(null))
     {
         clear();
     }
@@ -276,9 +278,9 @@ struct Array(E,
     }
 
     /** Default-initialize all elements. */
-    void defaultInitialize() @("complexity", "O(length)")
+    pragma(inline) void defaultInitialize() @trusted pure nothrow @nogc @("complexity", "O(length)")
     {
-        ptr[0 .. _length] = E.init; // NOTE should we zero [0 .. _capacity] instead?
+        memset(_ptr, 0, _length);
     }
 
     /** Construct from InputRange `values`.
@@ -485,20 +487,20 @@ struct Array(E,
     alias linearDeleteAt = linearPopAtIndex;
 
     /** Removal doesn't need to care about ordering. */
-    ContainerElementType!(typeof(this), E) linearPopFront() @trusted @("complexity", "O(length)")
+    pragma(inline) ContainerElementType!(typeof(this), E) linearPopFront() @trusted @("complexity", "O(length)")
     {
         return linearPopAtIndex(0);
     }
 
     /** Removal doesn't need to care about ordering. */
-    void popBack() @safe @("complexity", "O(1)")
+    pragma(inline) void popBack() @safe @("complexity", "O(1)")
     {
         assert(!empty);
         --_length;
     }
 
     /** Pop back element and return it. */
-    E backPop() @trusted
+    pragma(inline) E backPop() @trusted
     {
         assert(!empty);
         return move(ptr[--_length]); // TODO optimize by not clearing `ptr[--_length]` after move
@@ -514,7 +516,7 @@ struct Array(E,
     static if (!IsOrdered!ordering) // for unsorted arrays
     {
         /// Push back (append) `values`.
-        void pushBack(Us...)(ref Us values) @("complexity", "O(1)")
+        pragma(inline) void pushBack(Us...)(ref Us values) @("complexity", "O(1)")
             if (values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
         {
@@ -598,21 +600,21 @@ struct Array(E,
         // NOTE these separate overloads of opOpAssign are needed because one
         // `const ref`-parameter-overload doesn't work because of compiler bug
         // with: `this(this) @disable`
-        void opOpAssign(string op, Us...)(Us values)
+        pragma(inline) void opOpAssign(string op, Us...)(Us values)
             if (op == "~" &&
                 values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
         {
             pushBack(values);
         }
-	void opOpAssign(string op, R)(R values)
+	pragma(inline) void opOpAssign(string op, R)(R values)
             if (op == "~" &&
                 isInputRange!R &&
                 allSatisfy!(isElementAssignable, ElementType!R))
         {
             pushBack(values);
         }
-	void opOpAssign(string op, A)(const ref A values)
+	pragma(inline) void opOpAssign(string op, A)(const ref A values)
             if (op == "~" &&
                 isMyArray!A &&
                 isElementAssignable!(ElementType!A))
@@ -626,19 +628,19 @@ struct Array(E,
         import std.range : SearchPolicy, assumeSorted;
 
         /// Returns: `true` iff this contains `value`.
-        bool contains(U)(U value) const nothrow @nogc @("complexity", "O(log(length))")
+        pragma(inline) bool contains(U)(U value) const nothrow @nogc @("complexity", "O(log(length))")
         {
             return this[].contains(value);
         }
 
         /** Wrapper for `std.range.SortedRange.lowerBound` when this `ordering` is sorted. */
-        auto lowerBound(SearchPolicy sp = SearchPolicy.binarySearch, U)(U e) inout @("complexity", "O(log(length))")
+        pragma(inline) auto lowerBound(SearchPolicy sp = SearchPolicy.binarySearch, U)(U e) inout @("complexity", "O(log(length))")
         {
             return this[].lowerBound!sp(e);
         }
 
         /** Wrapper for `std.range.SortedRange.upperBound` when this `ordering` is sorted. */
-        auto upperBound(SearchPolicy sp = SearchPolicy.binarySearch, U)(U e) inout @("complexity", "O(log(length))")
+        pragma(inline) auto upperBound(SearchPolicy sp = SearchPolicy.binarySearch, U)(U e) inout @("complexity", "O(log(length))")
         {
             return this[].upperBound!sp(e);
         }
@@ -772,7 +774,7 @@ struct Array(E,
     else
     {
         /** Insert element(s) `values` at array offset `index`. */
-        void linearInsertAtIndex(Us...)(size_t index, Us values) nothrow @("complexity", "O(length)")
+        pragma(inline) void linearInsertAtIndex(Us...)(size_t index, Us values) nothrow @("complexity", "O(length)")
             if (values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
         {
@@ -780,7 +782,7 @@ struct Array(E,
         }
 
         /** Insert element(s) `values` at the beginning. */
-        void linearPushFront(Us...)(Us values) nothrow @("complexity", "O(length)")
+        pragma(inline) void linearPushFront(Us...)(Us values) nothrow @("complexity", "O(length)")
             if (values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
         {
@@ -990,7 +992,6 @@ alias SortedSetArray(E, Assignment assignment = Assignment.disabled,
 
 unittest
 {
-    dln("");
     import std.conv : to;
     foreach (assignment; AliasSeq!(Assignment.disabled, Assignment.copy))
     {
@@ -1006,7 +1007,6 @@ unittest
 
 static void tester(Ordering ordering, bool supportGC, alias less)()
 {
-    dln("");
     import std.functional : binaryFun;
     import std.range : iota, retro, chain, repeat, only, ElementType;
     import std.algorithm : filter, map;
@@ -1337,7 +1337,6 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 /// disabled copying
 @safe nothrow unittest
 {
-    dln("");
     import std.conv : to;
     alias E = string;
     alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, "a < b");
@@ -1359,7 +1358,6 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 /// disabled copying
 nothrow unittest
 {
-    dln("");
     import std.conv : to;
     alias E = string;
     alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, "a < b");
@@ -1379,7 +1377,6 @@ nothrow unittest
 /// disabled copying
 nothrow unittest
 {
-    dln("");
     alias E = string;
     alias A = Array!E;
     import std.traits : isCopyable, isRvalueAssignable, isLvalueAssignable;
@@ -1387,31 +1384,21 @@ nothrow unittest
     static assert(isRvalueAssignable!(A));
     static assert(isLvalueAssignable!(A));
     alias AA = Array!A;
-    dln("");
     AA aa;
-    dln("");
     A a;
-    dln("");
     a ~= "string";
-    dln("");
     aa ~= A.init;
-    dln("");
 
     assert(aa == aa);
-    dln("");
     assert(AA.withLength(3) == AA.withLength(3));
-    dln("");
+    assert(AA.withCapacity(3) == AA.withCapacity(3));
     assert(AA.withLength(3).length == 3);
-    dln("");
     assert(aa != AA.init);
-
-    dln("");
 }
 
 ///
 nothrow @nogc unittest
 {
-    dln("");
     alias E = int;
     alias A = Array!E;
     A a;
@@ -1432,7 +1419,6 @@ version(unittest)
 /// use GC
 pure nothrow unittest
 {
-    dln("");
     foreach (ordering; EnumMembers!Ordering)
     {
         tester!(ordering, true, "a < b"); // use GC
@@ -1443,7 +1429,6 @@ pure nothrow unittest
 /// don't use GC
 pure nothrow /+TODO @nogc+/ unittest
 {
-    dln("");
     foreach (ordering; EnumMembers!Ordering)
     {
         tester!(ordering, false, "a < b"); // don't use GC
@@ -1453,7 +1438,6 @@ pure nothrow /+TODO @nogc+/ unittest
 
 pure nothrow unittest
 {
-    dln("");
     alias E = int;
     alias A = Array!E;
     A[string] map;
@@ -1473,7 +1457,6 @@ pure nothrow unittest
 /// test withElement and withElements
 @safe pure nothrow @nogc unittest
 {
-    dln("");
     import std.algorithm.mutation : move;
     import std.range : ElementType;
 

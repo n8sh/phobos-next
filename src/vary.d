@@ -143,21 +143,21 @@ public:
     }
 
     /** Copy Construct. */
-    this(VaryN that) @safe @nogc nothrow
+    this(VaryN that) @safe nothrow @nogc
     {
         _data = that._data;
         _tix = that._tix;
         // TODO run postblits
     }
 
-    this(T)(T value) @safe @nogc nothrow
+    this(T)(T value) @safe nothrow @nogc
         if (allowsAssignmentFrom!T)
     {
         // static assert(allowsAssignmentFrom!T, "Cannot store a " ~ T.stringof ~ " in a " ~ name ~ ", valid types are " ~ Types.stringof);
         init(value);
     }
 
-    VaryN opAssign(T)(T that) @trusted @nogc nothrow
+    VaryN opAssign(T)(T that) @trusted nothrow @nogc
         if (allowsAssignmentFrom!T)
     {
         // static assert(allowsAssignmentFrom!T, "Cannot store a " ~ T.stringof ~ " in a " ~ name ~ ", valid types are " ~ Types.stringof);
@@ -168,7 +168,7 @@ public:
 
     /** Initialize without checking for clearing.
      */
-    private void init(T)(T that) @trusted @nogc nothrow
+    private void init(T)(T that) @trusted nothrow @nogc
     {
         alias U = Unqual!T;
         static if (_data.alignof >= T.alignof)
@@ -186,7 +186,7 @@ public:
         returns a pointer to that value. Otherwise, returns $(D null). In cases
         where $(D T) is statically disallowed, $(D peek) will not compile.
     */
-    @property inout(T)* peek(T)() inout @trusted @nogc nothrow
+    @property inout(T)* peek(T)() inout @trusted nothrow @nogc
     {
         alias U = Unqual!T;
         static if (!is(U == void))
@@ -212,7 +212,7 @@ public:
     }
 
     /// Interpret data as type $(D T).
-    private @property auto ref inout(T) interpretAs(T)() inout @trusted @nogc nothrow
+    private @property auto ref inout(T) interpretAs(T)() inout @trusted nothrow @nogc
     {
         static if (_data.alignof >= T.alignof)
         {
@@ -233,7 +233,7 @@ public:
     }
 
     /// Force $(D this) to the null (undefined) state.
-    void clear() @safe @nogc nothrow
+    void clear() @safe nothrow @nogc
     {
         clearDataIndirections;
         _tix = Ix.max;
@@ -241,18 +241,18 @@ public:
     alias nullify = clear; // compatible with std.typecons.Nullable
 
     /// Clear indirections stored in $(D _data).
-    private void clearDataIndirections() @safe @nogc nothrow
+    private void clearDataIndirections() @safe nothrow @nogc
     {
         // TODO don't call if all types satisfy traits_ex.isValueType
         _data[] = 0; // slightly faster than: memset(&_data, 0, _data.sizeof);
     }
 
     /// Returns: $(D true) if this has a defined value (is defined).
-    bool hasValue() const @safe @nogc nothrow { return _tix != Ix.max; }
+    bool hasValue() const @safe nothrow @nogc { return _tix != Ix.max; }
     alias defined = hasValue;
     alias isDefined = hasValue;
 
-    size_t currentSize() const @safe @nogc nothrow
+    size_t currentSize() const @safe nothrow @nogc
     {
         if (hasValue)
         {
@@ -443,12 +443,12 @@ unittest
 
 pure:
 
-@nogc nothrow unittest
+nothrow @nogc unittest
 {
     static assert(FastVariant!(float, float, double).typeCount == 2);
 }
 
-@nogc nothrow unittest
+nothrow @nogc unittest
 {
     FastVariant!(float, double) a = 1.0;
 
@@ -464,7 +464,7 @@ pure:
     assert(a.currentSize == 0);
 }
 
-@nogc nothrow unittest
+nothrow @nogc unittest
 {
     const a = FastVariant!(long, double)(1.0);
 
@@ -516,7 +516,7 @@ nothrow unittest
 }
 
 /// verify nothrow comparisons
-nothrow unittest
+nothrow @nogc unittest
 {
     alias C = FastVariant!(int, float, double);
     assert(C(1.0) < 2);
@@ -527,7 +527,7 @@ nothrow unittest
 }
 
 /// TODO
-nothrow unittest
+nothrow @nogc unittest
 {
     // alias C = FastVariant!(int, float, double);
     // alias D = FastVariant!(float, double);

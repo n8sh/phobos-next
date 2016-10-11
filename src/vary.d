@@ -227,7 +227,7 @@ public:
     }
 
     /// Returns: $(D true) iff $(D this) $(D VaryN) can store an instance of $(D T).
-    bool isOfType(T)() const @safe nothrow @nogc
+    bool isOfType(T)() const @safe nothrow @nogc // TODO shorter name such `isA`, `ofType`
     {
         return _tix == indexOf!T;
     }
@@ -470,6 +470,7 @@ pure:
 
     static assert(a.hasFixedSize);
 
+    assert(a.isOfType!double);
     assert(a.peek!long is null);
     assert(a.peek!double !is null);
 
@@ -583,7 +584,9 @@ unittest
     d = 1.0f;
     assertThrown!VaryNException(d.get!double);
     assert(d.hasValue);
+    assert(d.isOfType!float);
     assert(d.peek!float !is null);
+    assert(!d.isOfType!double);
     assert(d.peek!double is null);
     assert(d.get!float == 1.0f);
     assert(d == 1.0f);
@@ -597,6 +600,7 @@ unittest
     d = 2;
     assert(d.hasValue);
     assert(d.peek!int !is null);
+    assert(!d.isOfType!float);
     assert(d.peek!float is null);
     assert(d.get!int == 2);
     assert(d == 2);
@@ -610,6 +614,7 @@ unittest
     assert(d.hasValue);
     assert(d.get!0 == "abc");
     assert(d.get!string == "abc");
+    assert(d.isOfType!string);
     assert(d.peek!string !is null);
     assert(d == "abc");
     assert(d != "abcd");
@@ -621,6 +626,7 @@ unittest
     d = 2.0;
     assert(d.hasValue);
     assert(d.get!double == 2.0);
+    assert(d.isOfType!double);
     assert(d.peek!double !is null);
     assert(d == 2.0);
     assert(d != 3.0);

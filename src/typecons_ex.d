@@ -184,7 +184,7 @@ struct IndexedBy(R, I)
     alias _r this; // TODO Use opDispatch instead; to override only opSlice and opIndex
 }
 
-/** Static Array of ElementType `E` indexed by `I`.
+/** Statically-Sized Array of ElementType `E` indexed by `I`.
     TODO assert that `I` is continuous if it is a `enum`.
 */
 struct IndexedArray(E, I)

@@ -117,7 +117,7 @@ struct Array(E,
     }
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
-    pragma(inline) static typeof(this) withLength(size_t initialLength) nothrow
+    pragma(inline) static typeof(this) withLength(size_t initialLength) @trusted nothrow
     {
         typeof(return) that = void;
         that.allocateStoreWithCapacity(initialLength, true); // `true` here means zero initialize
@@ -126,7 +126,7 @@ struct Array(E,
     }
 
     /// Returns: an array with initial capacity `initialCapacity`.
-    pragma(inline) static typeof(this) withCapacity(size_t initialCapacity) nothrow
+    pragma(inline) static typeof(this) withCapacity(size_t initialCapacity) @trusted nothrow
     {
         typeof(return) that = void;
         that.allocateStoreWithCapacity(initialCapacity);

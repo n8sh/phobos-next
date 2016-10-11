@@ -174,9 +174,6 @@ mixin template genTrustedUncheckedOps(I)
     TODO Rename to something more concise such as [Bb]y.
 
     TODO Allow `I` to be a string and if so derive `Index` to be that string.
-
-    TODO Support R being a static array:
-         - If I is an enum its number of elements should match R.length
    */
 struct IndexedBy(R, I)
     if (isIndexableBy!(R, I))

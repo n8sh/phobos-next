@@ -65,31 +65,43 @@ template New(T) if (is(T == class))
     }
 }
 
-import std.traits : isArray, isStaticArray, isUnsigned, isInstanceOf, isSomeString;
+import std.traits : isArray, isStaticArray, isUnsigned, isInstanceOf;
 import std.range.primitives : hasSlicing;
 
 /** Check if `T` is castable to `U`.
  */
-enum isCastableTo(T, U) = __traits(compiles, { T i = 0; cast(U)i; });
+enum isCastableTo(T, U) = __traits(compiles, { cast(U)(T.init); });
 
 enum isIndex(I) = (is(I == enum) ||
                    isUnsigned!I || // TODO should we allow isUnsigned here?
                    isCastableTo!(I, size_t));
 
+/** Check if `T` can be indexed by an instance of `I`.
+    See also: http://forum.dlang.org/post/ajxtksnsxqmeulsedmae@forum.dlang.org
+    TODO Add to Phobos
+ */
+enum hasIndexing(T, I = size_t) = __traits(compiles,
+                                           {
+                                               void f(E)(ref E t) {}
+                                               f(T.init[I.init]);
+                                           }); // TODO better to use `auto _ = (T.init[I.init]);`
+
+unittest
+{
+    static assert(hasIndexing!(byte[]));
+}
+
 /** Check if `R` is indexable by `I`. */
-enum isIndexableBy(R, I) = (isArray!R && // TODO generalize to RandomAccessContainers. Ask on forum for hasIndexing!R.
-                            isIndex!I);
+enum isIndexableBy(R, I) = (hasIndexing!R && isIndex!I);
 
 unittest
 {
     static assert(isIndexableBy!(int[3], ubyte));
 }
 
-/**
-   Check if `R` is indexable by `I`.
+/** Check if `R` is indexable by a automatically `R`-local defined integer type named `I`.
  */
-enum isIndexableBy(R, alias I) = (isArray!R && // TODO generalize to RandomAccessContainers. Ask on forum for hasIndexing!R.
-                                  (isSomeString!(typeof(I))));
+enum isIndexableBy(R, alias I) = (hasIndexing!R && is(string == typeof(I))); // TODO extend to isSomeString?
 
 unittest
 {
@@ -475,6 +487,36 @@ auto strictlyIndexed(R)(R range)
     B b;
     auto c = cast(size_t)b;
     auto y = x.indexedBy!B;
+}
+
+///
+@safe pure nothrow unittest
+{
+    import array_ex : Array;
+
+    enum Lang { en, sv, fr }
+
+    struct S
+    {
+        Lang lang;
+        string data;
+    }
+
+    alias A = Array!S;
+
+    struct I
+    {
+        size_t opCast(U : size_t)() const @safe pure nothrow @nogc { return _ix; }
+        uint _ix;
+        alias _ix this;
+    }
+
+    I i;
+    static assert(isCastableTo!(I, size_t));
+    static assert(isIndexableBy!(A, I));
+
+    alias IA = IndexedBy!(A, I);
+    IA ia;
 }
 
 /** Returns: a `string` containing the definition of an `enum` named `name` and

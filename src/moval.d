@@ -21,7 +21,7 @@ unittest
 }
 
 /** Move contents of `e` into an r-value and return it.
-    See also http://forum.dlang.org/post/lxfwyxtgfosdtsdjwgwz@forum.dlang.org
+    See also: http://forum.dlang.org/post/lxfwyxtgfosdtsdjwgwz@forum.dlang.org
 */
 E movedToRvalue(E)(ref E e)
 {

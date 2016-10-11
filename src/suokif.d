@@ -8,6 +8,7 @@ module suokif;
 // import std.range : isInputRange;
 import dbgio : dln;
 import array_ex : Array, Ordering;
+import vary : VaryN;
 
 /** SUO-KIF Token. */
 enum Token
@@ -341,7 +342,7 @@ unittest
     import std.stdio : write, writeln;
     import std.path : expandTilde;
 
-    const rootDirPath = `~/Work/justd/sumo`;
+    const rootDirPath = `~/Work/sumo`;
 
     import std.file: dirEntries, SpanMode;
     auto entries = dirEntries(rootDirPath.expandTilde, SpanMode.breadth, false); // false: skip symlinks

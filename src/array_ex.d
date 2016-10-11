@@ -1466,13 +1466,14 @@ pure nothrow unittest
         A_ y = A_.withElements(E.init, E.init);
         assert(x.length == 1);
         assert(y.length == 2);
-        foreach (_; 0 .. 1000)
+        const n = 100;
+        foreach (_; 0 .. n)
         {
             auto e = E.init;
             x ~= move(e);
             y ~= E.init;
         }
-        foreach (_; 0 .. 1000)
+        foreach (_; 0 .. n)
         {
             assert(x.backPop == E.init);
             assert(y.backPop == E.init);
@@ -1484,6 +1485,8 @@ pure nothrow unittest
         swap(x, y);
         assert(x.length == 2);
         assert(y.length == 1);
+
+        swap(x[0], y[0]);
     }
 
 }

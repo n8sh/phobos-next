@@ -120,7 +120,6 @@ struct Array(E,
         typeof(return) that = void;
         that.allocateStoreWithCapacity(initialLength, true); // `true` here means zero initialize
         that._length = initialLength;
-        // that.defaultInitialize();
         return that;
     }
 
@@ -275,12 +274,6 @@ struct Array(E,
             }
             return true;
         }
-    }
-
-    /** Default-initialize all elements. */
-    pragma(inline) void defaultInitialize() @trusted pure nothrow @nogc @("complexity", "O(length)")
-    {
-        memset(_ptr, 0, _length);
     }
 
     /** Construct from InputRange `values`.

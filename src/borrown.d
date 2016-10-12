@@ -1,5 +1,6 @@
 /** Ownership and borrwoing á lá Rust.
     TODO Move to typecons_ex.
+    TODO Perhaps disable all checking (and unittests) in release mode (when debug is not active)
  */
 module borrown;
 
@@ -60,6 +61,8 @@ struct Owned(Container)
         return typeof(return)(_range.opSlice, &this);
     }
 
+    alias opSlice = readOnlySlice; // TODO default to read or write?
+
     WriteBorrowedRange!(Range, Owned) writableSlice() @trusted // TODO shorted name?
     {
         assert(!_writeBorrowed, "This is already write-borrowed!");
@@ -67,8 +70,6 @@ struct Owned(Container)
         _writeBorrowed = true;  // TODO move to ctor
         return typeof(return)(_range.opSlice, &this);
     }
-
-    alias opSlice = writableSlice; // TODO default to read or write?
 
     @safe pure nothrow @nogc:
 
@@ -170,7 +171,7 @@ pure unittest
     assert(oa.readerCount == 0);
 
     {
-        auto wb = oa.opSlice;      // write borrow
+        auto wb = oa.writableSlice;      // write borrow
         static assert(!__traits(compiles, { auto wc = wb; })); // write borrows cannot be copied
         assert(oa.writerBorrowed);
         assert(oa.readerCount == 0);
@@ -179,7 +180,7 @@ pure unittest
 
     // ok to write borrow again in separate scope
     {
-        auto wb = oa.opSlice;      // write borrow
+        auto wb = oa.writableSlice;      // write borrow
         assert(oa.writerBorrowed);
         assert(oa.readerCount == 0);
     }
@@ -193,22 +194,32 @@ pure unittest
         assert(oa.readerCount == 3);
         auto rb_ = rb3;
         assert(oa.readerCount == 4);
-        assertThrown!AssertError(oa.opSlice); // one more write borrow is not allowed
+        assertThrown!AssertError(oa.writableSlice); // one more write borrow is not allowed
     }
 
     // ok to write borrow again in separate scope
     {
-        auto wb = oa.opSlice;      // write borrow
+        auto wb = oa.writableSlice;      // write borrow
         assert(oa.writerBorrowed);
         assert(oa.readerCount == 0);
         assertThrown!AssertError(oa.readOnlySlice);
     }
 
-    auto oaMove1 = oa.move();
-    auto oaMove2 = oaMove1.move();
+    // test writeable slice
+    foreach (ref e; oa.writableSlice)
+    {
+        assertThrown!AssertError(oa.readOnlySlice); // one more write borrow is not allowed
+        assertThrown!AssertError(oa.writableSlice); // one more write borrow is not allowed
+        assertThrown!AssertError(oa[]); // one more write borrow is not allowed
+    }
 
-    // test range access
+    // test readable slice
     foreach (const ref e; oa[])
     {
+        assert(oa.readOnlySlice.length == oa.length);
+        assertThrown!AssertError(oa.writableSlice); // write borrow during iteration is not allowed
     }
+
+    auto oaMove1 = oa.move();
+    auto oaMove2 = oaMove1.move();
 }

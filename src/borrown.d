@@ -75,13 +75,16 @@ struct Owned(Container)
 
     @property:
 
+    /// Returns: `true` iff currently is write borrowed.
     bool writerBorrowed() const { return _writeBorrowed; }
+
+    /// Returns: number of read-only borrowers.
     uint readerCount() const { return _readerCount; }
 
 private:
     Container _range;            /// wrapped container
     bool _writeBorrowed = false; /// `true' if _range is currently referred to
-    uint _readerCount = 0;       /// number of readable borrowers
+    uint _readerCount = 0;       /// number of readable borrowers. TODO use `size_t` minus one bit instead in `size_t _stats`
     alias _range this;
 }
 
@@ -168,6 +171,7 @@ pure unittest
     alias A = Array!int;
 
     Owned!A oa;
+
     oa ~= 1;
     oa ~= 2;
     assert(oa[] == [1, 2]);

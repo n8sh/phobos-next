@@ -846,24 +846,23 @@ struct Array(E,
     /// ditto
     static if (IsOrdered!ordering)
     {
-    const nothrow @nogc:                      // indexing and slicing must be `const` when ordered
+        const nothrow @nogc: // indexing and slicing must be `const` when ordered
 
         /// Slice operator must be const when ordered.
-        auto opSlice()          // unsafe!
+        auto opSlice()          // WARNING unsafe
         {
-            return opSlice!(typeof(this))(0, _length);
+            return (cast(const(E)[])slice).assumeSorted!comp;
         }
         /// ditto
         auto opSlice(this This)(size_t i, size_t j) // const because mutation only via `op.*Assign`
         {
-            // alias ET = ContainerElementType!(This, E);
             import std.range : assumeSorted;
             return (cast(const(E)[])slice[i .. j]).assumeSorted!comp;
         }
 
-        auto ref opIndex(size_t i) @trusted
+        /// Index operator must be const to preserve ordering.
+        ref const(E) opIndex(size_t i) @trusted
         {
-            // alias ET = ContainerElementType!(typeof(this), E);
             assert(i < _length);
             return _ptr[i];
         }
@@ -886,6 +885,7 @@ struct Array(E,
     {
         nothrow:
 
+        /// Set length to `newLength`.
         @property void length(size_t newLength) @safe
         {
             reserve(newLength);
@@ -895,23 +895,21 @@ struct Array(E,
         inout:               // indexing and slicing can be mutable when ordered
 
         /// Slice operator overload is mutable when unordered.
-        auto opSlice()
+        auto opSlice()          // WARNING unsafe
         {
             return this.opSlice(0, _length);
         }
         /// ditto
         auto opSlice(size_t i, size_t j) // WARNING unsafe
         {
-            // alias ET = ContainerElementType!(typeof(this), E);
             assert(i <= j);
             assert(j <= _length);
             return _ptr[i .. j]; // WARNING unsafe
         }
 
         /// Index operator can be const or mutable when unordered.
-        auto ref opIndex(size_t i) @trusted
+        ref inout(E) opIndex(size_t i) inout @trusted
         {
-            // alias ET = ContainerElementType!(typeof(this), E);
             assert(i < _length);
             return _ptr[i];
         }
@@ -980,7 +978,7 @@ private:
     // TODO reuse module `storage` for small size/array optimization (SSO)
     E* _ptr;               // store pointer
     size_t _capacity;      // store capacity
-    size_t _length;             // length
+    size_t _length;        // length
 }
 
 alias SortedArray(E, Assignment assignment = Assignment.disabled,

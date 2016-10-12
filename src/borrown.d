@@ -29,22 +29,20 @@ struct Owned(Container)
     /// Type of range of `Container`.
     alias Range = typeof(Container.init[]);
 
-    // TODO can we somehow disallow move construction for Owned?
+    // TODO can we somehow disallow move construction for Owned by checking if a  is run?
 
     ~this()
     {
-        dln(writeBorrowed);
-        dln(readBorrowCount);
         assert(!_writeBorrowed, "Container is still write-borrowed, cannot release!");
         assert(_readBorrowCount == 0, "Container is still read-borrowed, cannot release!");
     }
 
-    WriteBorrowedRange!(Range, Owned) opSlice() @trusted
+    typeof(this) move()
     {
-        assert(!_writeBorrowed, "Container is already write-borrowed!");
-        assert(_readBorrowCount == 0, "Container is already read-borrowed!");
-        _writeBorrowed = true;  // TODO move to ctor
-        return typeof(return)(_range.opSlice, &this);
+        assert(!_writeBorrowed, "Container is still write-borrowed, cannot move!");
+        assert(_readBorrowCount == 0, "Container is still read-borrowed, cannot move!");
+        import std.algorithm.mutation : move;
+        return move(this);
     }
 
     ReadBorrowedRange!(Range, Owned) readOnlySlice() @trusted
@@ -53,6 +51,16 @@ struct Owned(Container)
         _readBorrowCount += 1;  // TODO move to ctor
         return typeof(return)(_range.opSlice, &this);
     }
+
+    WriteBorrowedRange!(Range, Owned) writableSlice() @trusted
+    {
+        assert(!_writeBorrowed, "Container is already write-borrowed!");
+        assert(_readBorrowCount == 0, "Container is already read-borrowed!");
+        _writeBorrowed = true;  // TODO move to ctor
+        return typeof(return)(_range.opSlice, &this);
+    }
+
+    alias opSlice = writableSlice; // TODO default to read or write?
 
     @safe pure nothrow @nogc pragma(inline):
 
@@ -79,6 +87,12 @@ struct WriteBorrowedRange(Range, Owner)
         _owner._writeBorrowed = false; // release borrow
     }
 
+    pragma(msg, "Active copy ctor!");
+    // this(this)
+    // {
+    //     static assert(false, "Cannot have more than one writable borrow!");
+    // }
+
 private:
     Range _range;                   /// range
     Owner* _owner = null;           /// pointer to container owner
@@ -103,7 +117,6 @@ private:
 
 pure unittest
 {
-    import std.algorithm : move;
     import std.exception: assertThrown;
     import core.exception;
 
@@ -138,6 +151,6 @@ pure unittest
         assertThrown!AssertError(oa.readOnlySlice);
     }
 
-    // TODO this will fail
-    // auto oaMove1 = move(oa);
+    auto oaMove1 = oa.move();
+    auto oaMove2 = oaMove1.move();
 }

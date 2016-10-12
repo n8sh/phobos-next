@@ -40,6 +40,19 @@ struct Owned(Container)
         return move(this);
     }
 
+    /** Checked overload for move. */
+    void move(ref typeof(this) dst) @safe pure nothrow @nogc
+    {
+        assert(!this._writeBorrowed, "Source is still write-borrowed, cannot move!");
+        assert(this._readerCount == 0, "Source is still read-borrowed, cannot move!");
+
+        assert(!dst._writeBorrowed, "Destination is still write-borrowed, cannot move!");
+        assert(dst._readerCount == 0, "Destination is still read-borrowed, cannot move!");
+
+        import std.algorithm.mutation : move;
+        move(this, dst);
+    }
+
     ReadBorrowedRange!(Range, Owned) readOnlySlice() @trusted // TODO shorter name?
     {
         assert(!_writeBorrowed, "This is write-borrowed!");
@@ -75,14 +88,7 @@ private:
 void move(Owner)(ref Owner src, ref Owner dst) @safe pure nothrow @nogc
     if (isInstanceOf!(Owned, Owner))
 {
-    assert(!src._writeBorrowed, "Source is still write-borrowed, cannot move!");
-    assert(src._readerCount == 0, "Source is still read-borrowed, cannot move!");
-
-    assert(!dst._writeBorrowed, "Destination is still write-borrowed, cannot move!");
-    assert(dst._readerCount == 0, "Destination is still read-borrowed, cannot move!");
-
-    import std.algorithm.mutation : move;
-    move(src, dst);
+    src.move(dst);
 }
 
 import std.traits : isInstanceOf;

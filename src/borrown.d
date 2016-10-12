@@ -29,6 +29,8 @@ struct Owned(Container)
     /// Type of range of `Container`.
     alias Range = typeof(Container.init[]);
 
+    // TODO can we somehow disallow move construction for Owned?
+
     ~this()
     {
         dln(writeBorrowed);
@@ -41,14 +43,14 @@ struct Owned(Container)
     {
         assert(!_writeBorrowed, "Container is already write-borrowed!");
         assert(_readBorrowCount == 0, "Container is already read-borrowed!");
-        _writeBorrowed = true;
+        _writeBorrowed = true;  // TODO move to ctor
         return typeof(return)(_range.opSlice, &this);
     }
 
     ReadBorrowedRange!(Range, Owned) readOnlySlice() @trusted
     {
         assert(!_writeBorrowed, "Container is write-borrowed!");
-        _readBorrowCount += 1;
+        _readBorrowCount += 1;  // TODO move to ctor
         return typeof(return)(_range.opSlice, &this);
     }
 

@@ -1567,8 +1567,6 @@ void <code class="code">pushBack</code>(R)(R <code class="code">values</code>) i
             <span class="ddoc_anchor" id="Array.opSlice"></span>auto <code class="code">opSlice</code>();
 <br>
 auto <code class="code">opSlice</code>(this This)(size_t <code class="code">i</code>, size_t <code class="code">j</code>);
-<br>
-<span class="ddoc_anchor" id="Array.opIndex"></span>ref @trusted auto <code class="code">opIndex</code>(size_t <code class="code">i</code>);
 
           </code>
         </p>
@@ -1581,6 +1579,45 @@ auto <code class="code">opSlice</code>(this This)(size_t <code class="code">i</c
   <div class="ddoc_summary">
   <p class="para">
     Slice operator must be const when ordered.
+
+  </p>
+</div>
+<div class="ddoc_description">
+  <h4>Discussion</h4>
+  <p class="para">
+    ditto
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#Array.opIndex" id="Array.opIndex"><code class="code">opIndex</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="Array.opIndex"></span>ref @trusted const(E) <code class="code">opIndex</code>(size_t <code class="code">i</code>);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Index operator must be const to preserve ordering.
 
   </p>
 </div>

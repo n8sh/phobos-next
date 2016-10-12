@@ -468,8 +468,15 @@
   <div class="ddoc_summary">
   <p class="para">
     Ownership and borrwoing á lá Rust.
+
+  </p>
+</div>
+<div class="ddoc_description">
+  <h4>Discussion</h4>
+  <p class="para">
     TODO Move to typecons_ex.
     TODO Perhaps disable all checking (and unittests) in release mode (when debug is not active)
+    TODO Implement and use trait <code class="code">hasUnsafeSlicing</code>
   </p>
 </div>
 
@@ -513,6 +520,10 @@
         Only relevant when <code class="code">Container</code> implements referenced access over
     - <code class="code">opSlice</code> and
     - <code class="code">opIndex</code>
+
+
+    TODO Iterate and wrap all @unsafe accessors () and wrapped borrow
+    checks for all modifying members of <code class="code">Container</code>?
   </p>
 </div>
 
@@ -562,7 +573,39 @@
       <div class="dlang">
         <p class="para">
           <code class="code">
-            <span class="ddoc_anchor" id="Owned.move"></span>pure nothrow @nogc @safe void <code class="code">move</code>(ref typeof(this) <code class="code">dst</code>);
+            <span class="ddoc_anchor" id="Owned.move"></span>typeof(this) <code class="code">move</code>();
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Move <code class="code">this</code> into a return r-value.
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#Owned.move" id="Owned.move"><code class="code">move</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="Owned.move.2"></span>pure nothrow @nogc @safe void <code class="code">move</code>(ref typeof(this) <code class="code">dst</code>);
 
           </code>
         </p>
@@ -575,6 +618,70 @@
   <div class="ddoc_summary">
   <p class="para">
     Checked overload for <code class="code">move</code>.
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#Owned.readOnlySlice" id="Owned.readOnlySlice"><code class="code">readOnlySlice</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="Owned.readOnlySlice"></span>@trusted ReadBorrowedSlice!(Range, Owned) <code class="code">readOnlySlice</code>();
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Get read-only slice.
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#Owned.writableSlice" id="Owned.writableSlice"><code class="code">writableSlice</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="Owned.writableSlice"></span>@trusted WriteBorrowedSlice!(Range, Owned) <code class="code">writableSlice</code>();
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Get read-write slice.
   </p>
 </div>
 

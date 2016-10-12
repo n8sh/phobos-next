@@ -1,6 +1,8 @@
 /** Ownership and borrwoing á lá Rust.
+
     TODO Move to typecons_ex.
     TODO Perhaps disable all checking (and unittests) in release mode (when debug is not active)
+    TODO Implement and use trait `hasUnsafeSlicing`
  */
 module borrown;
 
@@ -17,8 +19,8 @@ version(unittest)
     - `opSlice` and
     - `opIndex`
 
-    TODO Can we iterate and wrap all @unsafe accessors (front, back) and wrapped borrow checks for all
-    modifying members of `Container`?
+    TODO Iterate and wrap all @unsafe accessors () and wrapped borrow
+    checks for all modifying members of `Container`?
 */
 struct Owned(Container)
     if (needsOwnership!Container)
@@ -60,31 +62,21 @@ pragma(inline):
         move(this, dst);
     }
 
-    static if (true/*TODO hasSlicing!Container*/)
+    static if (true/*TODO hasUnsafeSlicing!Container*/)
     {
         /// Get read-only slice.
-        ReadBorrowedRange!(Range, Owned) readOnlySlice() @trusted // TODO shorter name?
+        ReadBorrowedSlice!(Range, Owned) readOnlySlice() @trusted // TODO shorter name?
         {
             assert(!_writeBorrowed, "This is already write-borrowed!");
-            _readerCount += 1;  // TODO move to ctor
             return typeof(return)(_range.opSlice, &this);
         }
 
         /// Get read-write slice.
-        WriteBorrowedRange!(Range, Owned) writableSlice() @trusted // TODO shorted name?
+        WriteBorrowedSlice!(Range, Owned) writableSlice() @trusted // TODO shorted name?
         {
             assert(!_writeBorrowed, "This is already write-borrowed!");
             assert(_readerCount == 0, "This is already read-borrowed!");
-            _writeBorrowed = true;  // TODO move to ctor
             return typeof(return)(_range.opSlice, &this);
-        }
-
-        /// ditto
-        auto opSliceAssign(this This)(size_t i, size_t j) // const because mutation only via `op.*Assign`
-        {
-            // alias ET = ContainerElementType!(This, E);
-            import std.range : assumeSorted;
-            return (cast(const(E)[])slice[i .. j]).assumeSorted!comp;
         }
 
         alias opSlice = readOnlySlice; // TODO default to read or write?
@@ -121,7 +113,7 @@ void move(Owner)(ref Owner src, ref Owner dst) @safe pure nothrow @nogc
 import std.traits : isInstanceOf;
 
 /** Write-borrowed access to range `Range`. */
-private static struct WriteBorrowedRange(Range, Owner)
+private static struct WriteBorrowedSlice(Range, Owner)
     if (isInstanceOf!(Owned, Owner))
 {
     this(Range range, Owner* owner)
@@ -129,6 +121,7 @@ private static struct WriteBorrowedRange(Range, Owner)
         assert(owner);          // always non-null
         _range = range;
         _owner = owner;
+        owner._writeBorrowed = true;
     }
 
     @disable this(this);        // cannot be copied
@@ -145,7 +138,7 @@ private:
 }
 
 /** Read-borrowed access to range `Range`. */
-private static struct ReadBorrowedRange(Range, Owner)
+private static struct ReadBorrowedSlice(Range, Owner)
     if (isInstanceOf!(Owned, Owner))
 {
     this(const Range range, Owner* owner)
@@ -153,6 +146,7 @@ private static struct ReadBorrowedRange(Range, Owner)
         assert(owner);          // always non-null
         _range = range;
         _owner = owner;
+        _owner._readerCount += 1;  // TODO move to ctor
     }
 
     this(this)

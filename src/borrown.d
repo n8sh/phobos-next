@@ -10,35 +10,54 @@ template needsOwnership(C)
     enum needsOwnership = true;
 }
 
-/** Write-borrowed access to range `R`. */
-struct WriteBorrowed(R, C)
-{
-    R _r;
-    C* _c = null;                      // container
-}
+/** Return wrapper around container `Container` that can be safely sliced, by
+    tracking number of read borrowed ranges and whether it's currently write
+    borrowed.
 
-/** Return wrapper around container `C` that can be safely sliced, by tracking if
-    write and read borrowed ranges.
-
-    Only relevant when container `C` implements reference access over
+    Only relevant when `Container` implements referenced access over
     - `opSlice` and
     - `opIndex`
- */
-struct Owned(C)
-    if (needsOwnership!C)
+*/
+struct Owned(Container)
+    if (needsOwnership!Container)
 {
-    alias SliceType = typeof(C.init[]);
-    WriteBorrowed!(SliceType, C) opSlice() @trusted
+    /// Type of range of `Container`.
+    alias Range = typeof(Container.init[]);
+
+    ~this()
     {
-        assert(!writeBorrowed, "Container already sliced!"); // exlusive writes
-        writeBorrowed = true;
-        return typeof(return)(_r.opSlice, &_r);
+        assert(!writeBorrowed, "Container is still write-borrowed, cannot release!");
     }
+
+    WriteBorrowedRange!(Range, Owned) opSlice() @trusted
+    {
+        assert(!writeBorrowed, "Container is already write-borrowed!"); // exlusive writes
+        writeBorrowed = true;
+        return typeof(return)(_range.opSlice, &this);
+    }
+
 private:
-    C _r;                       /// wrapped container
-    bool writeBorrowed = 0;     /// `true' if _r is currently referred to
+    Container _range;               /// wrapped container
+    bool writeBorrowed = 0;     /// `true' if _range is currently referred to
     uint readRangeCount = 0;    /// number of readable borrowers
-    alias _r this;
+    alias _range this;
+}
+
+import std.traits : isInstanceOf;
+
+/** Write-borrowed access to range `Range`. */
+struct WriteBorrowedRange(Range, Owner)
+    if (isInstanceOf!(Owned, Owner))
+{
+    ~this()
+    {
+        _owner.writeBorrowed = false; // release borrow
+    }
+
+private:
+    Range _range;                   /// range
+    Owner* _owner = null;           /// pointer to container owner
+    alias _range this;              /// behave like range
 }
 
 pure unittest
@@ -51,7 +70,16 @@ pure unittest
     alias A = Array!int;
 
     Owned!A oa;
+    oa ~= 1;
+    oa ~= 2;
+    assert(oa[] == [1, 2]);
 
-    auto wb1 = oa.opSlice;
-    assertThrown!AssertError(oa.opSlice);
+    {
+        auto wb1 = oa.opSlice;      // write borrow
+        assertThrown!AssertError(oa.opSlice); // one more write borrow is not allowed
+    }
+    {
+        auto wb1 = oa.opSlice;      // write borrow
+        assertThrown!AssertError(oa.opSlice); // one more write borrow is not allowed
+    }
 }

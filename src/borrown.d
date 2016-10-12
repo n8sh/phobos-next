@@ -16,16 +16,21 @@ version(unittest)
     Only relevant when `Container` implements referenced access over
     - `opSlice` and
     - `opIndex`
+
+    TODO Can we iterate and wrap all @unsafe accessors (front, back) and wrapped borrow checks for all
+    modifying members of `Container`?
 */
 struct Owned(Container)
     if (needsOwnership!Container)
 {
-    pragma(inline):
+    import std.range.primitives : hasSlicing;
+
+pragma(inline):
 
     /// Type of range of `Container`.
     alias Range = typeof(Container.init[]);
 
-    // TODO can we somehow disallow move construction for Owned by checking if a  is run?
+    // TODO can we somehow disallow move construction for `this`?
 
     ~this()
     {
@@ -33,6 +38,7 @@ struct Owned(Container)
         assert(_readerCount == 0, "This is still read-borrowed, cannot release!");
     }
 
+    /// Move `this` into a return r-value.
     typeof(this) move()
     {
         assert(!_writeBorrowed, "This is still write-borrowed, cannot move!");
@@ -54,21 +60,34 @@ struct Owned(Container)
         move(this, dst);
     }
 
-    ReadBorrowedRange!(Range, Owned) readOnlySlice() @trusted // TODO shorter name?
+    static if (true/*TODO hasSlicing!Container*/)
     {
-        assert(!_writeBorrowed, "This is already write-borrowed!");
-        _readerCount += 1;  // TODO move to ctor
-        return typeof(return)(_range.opSlice, &this);
-    }
+        /// Get read-only slice.
+        ReadBorrowedRange!(Range, Owned) readOnlySlice() @trusted // TODO shorter name?
+        {
+            assert(!_writeBorrowed, "This is already write-borrowed!");
+            _readerCount += 1;  // TODO move to ctor
+            return typeof(return)(_range.opSlice, &this);
+        }
 
-    alias opSlice = readOnlySlice; // TODO default to read or write?
+        /// Get read-write slice.
+        WriteBorrowedRange!(Range, Owned) writableSlice() @trusted // TODO shorted name?
+        {
+            assert(!_writeBorrowed, "This is already write-borrowed!");
+            assert(_readerCount == 0, "This is already read-borrowed!");
+            _writeBorrowed = true;  // TODO move to ctor
+            return typeof(return)(_range.opSlice, &this);
+        }
 
-    WriteBorrowedRange!(Range, Owned) writableSlice() @trusted // TODO shorted name?
-    {
-        assert(!_writeBorrowed, "This is already write-borrowed!");
-        assert(_readerCount == 0, "This is already read-borrowed!");
-        _writeBorrowed = true;  // TODO move to ctor
-        return typeof(return)(_range.opSlice, &this);
+        /// ditto
+        auto opSliceAssign(this This)(size_t i, size_t j) // const because mutation only via `op.*Assign`
+        {
+            // alias ET = ContainerElementType!(This, E);
+            import std.range : assumeSorted;
+            return (cast(const(E)[])slice[i .. j]).assumeSorted!comp;
+        }
+
+        alias opSlice = readOnlySlice; // TODO default to read or write?
     }
 
     @safe pure nothrow @nogc:
@@ -244,4 +263,5 @@ pure unittest
 
     auto oaMove1 = oa.move();
     auto oaMove2 = oaMove1.move();
+    assert(oaMove2[] == [11, 12]);
 }

@@ -66,7 +66,7 @@ struct Owned(Container)
 
     @property:
 
-    bool writeBorrowed() const { return _writeBorrowed; }
+    bool writerBorrowed() const { return _writeBorrowed; }
     uint readerCount() const { return _readerCount; }
 
 private:
@@ -140,18 +140,21 @@ pure unittest
     oa ~= 1;
     oa ~= 2;
     assert(oa[] == [1, 2]);
-    assert(!oa.writeBorrowed);
+    assert(!oa.writerBorrowed);
     assert(oa.readerCount == 0);
 
     {
         auto wb = oa.opSlice;      // write borrow
-        assert(oa.writeBorrowed);
+        assert(oa.writerBorrowed);
+        assert(oa.readerCount == 0);
         assertThrown!AssertError(oa.opSlice); // one more write borrow is not allowed
     }
 
     // ok to write borrow again in separate scope
     {
         auto wb = oa.opSlice;      // write borrow
+        assert(oa.writerBorrowed);
+        assert(oa.readerCount == 0);
     }
 
     {
@@ -169,6 +172,8 @@ pure unittest
     // ok to write borrow again in separate scope
     {
         auto wb = oa.opSlice;      // write borrow
+        assert(oa.writerBorrowed);
+        assert(oa.readerCount == 0);
         assertThrown!AssertError(oa.readOnlySlice);
     }
 

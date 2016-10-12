@@ -8,13 +8,6 @@ version(unittest)
     import dbgio;
 }
 
-template needsOwnership(C)
-{
-    import std.range.primitives : hasSlicing;
-    // enum needsOwnership = hasSlicing!C; // TODO extend to check if it's not @safe
-    enum needsOwnership = true;
-}
-
 /** Return wrapper around container `Container` that can be safely sliced, by
     tracking number of read borrowed ranges and whether it's currently write
     borrowed.
@@ -26,6 +19,8 @@ template needsOwnership(C)
 struct Owned(Container)
     if (needsOwnership!Container)
 {
+    pragma(inline):
+
     /// Type of range of `Container`.
     alias Range = typeof(Container.init[]);
 
@@ -33,36 +28,36 @@ struct Owned(Container)
 
     ~this()
     {
-        assert(!_writeBorrowed, "Container is still write-borrowed, cannot release!");
-        assert(_readerCount == 0, "Container is still read-borrowed, cannot release!");
+        assert(!_writeBorrowed, "This is still write-borrowed, cannot release!");
+        assert(_readerCount == 0, "This is still read-borrowed, cannot release!");
     }
 
     typeof(this) move()
     {
-        assert(!_writeBorrowed, "Container is still write-borrowed, cannot move!");
-        assert(_readerCount == 0, "Container is still read-borrowed, cannot move!");
+        assert(!_writeBorrowed, "This is still write-borrowed, cannot move!");
+        assert(_readerCount == 0, "This is still read-borrowed, cannot move!");
         import std.algorithm.mutation : move;
         return move(this);
     }
 
     ReadBorrowedRange!(Range, Owned) readOnlySlice() @trusted // TODO shorter name?
     {
-        assert(!_writeBorrowed, "Container is write-borrowed!");
+        assert(!_writeBorrowed, "This is write-borrowed!");
         _readerCount += 1;  // TODO move to ctor
         return typeof(return)(_range.opSlice, &this);
     }
 
     WriteBorrowedRange!(Range, Owned) writableSlice() @trusted // TODO shorted name?
     {
-        assert(!_writeBorrowed, "Container is already write-borrowed!");
-        assert(_readerCount == 0, "Container is already read-borrowed!");
+        assert(!_writeBorrowed, "This is already write-borrowed!");
+        assert(_readerCount == 0, "This is already read-borrowed!");
         _writeBorrowed = true;  // TODO move to ctor
         return typeof(return)(_range.opSlice, &this);
     }
 
     alias opSlice = writableSlice; // TODO default to read or write?
 
-    @safe pure nothrow @nogc pragma(inline):
+    @safe pure nothrow @nogc:
 
     @property:
 
@@ -70,10 +65,24 @@ struct Owned(Container)
     uint readerCount() const { return _readerCount; }
 
 private:
-    Container _range;           /// wrapped container
-    bool _writeBorrowed = false;     /// `true' if _range is currently referred to
-    uint _readerCount = 0;   /// number of readable borrowers
+    Container _range;            /// wrapped container
+    bool _writeBorrowed = false; /// `true' if _range is currently referred to
+    uint _readerCount = 0;       /// number of readable borrowers
     alias _range this;
+}
+
+/** Checked overload for move. */
+void move(Owner)(ref Owner src, ref Owner dst) @safe pure nothrow @nogc
+    if (isInstanceOf!(Owned, Owner))
+{
+    assert(!src._writeBorrowed, "Source is still write-borrowed, cannot move!");
+    assert(src._readerCount == 0, "Source is still read-borrowed, cannot move!");
+
+    assert(!dst._writeBorrowed, "Destination is still write-borrowed, cannot move!");
+    assert(dst._readerCount == 0, "Destination is still read-borrowed, cannot move!");
+
+    import std.algorithm.mutation : move;
+    move(src, dst);
 }
 
 import std.traits : isInstanceOf;
@@ -128,6 +137,14 @@ private:
     const Range _range;         /// constant range
     Owner* _owner = null;       /// pointer to container owner
     alias _range this;          /// behave like range
+}
+
+template needsOwnership(C)
+{
+    import std.range.primitives : hasSlicing;
+    // TODO activate when array_ex : Array
+    // enum needsOwnership = hasSlicing!C; // TODO extend to check if it's not @safe
+    enum needsOwnership = true;
 }
 
 pure unittest

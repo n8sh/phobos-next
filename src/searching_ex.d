@@ -42,7 +42,7 @@ size_t binarySearch(R, E)(const R[] values, in E value)
 ///
 @safe pure nothrow @nogc unittest
 {
-    int[9] x = [1, 3, 5, 6, 8, 9, 10, 13, 15];
+    const int[9] x = [1, 3, 5, 6, 8, 9, 10, 13, 15];
     assert(x.binarySearch(0) == size_t.max);
     assert(x.binarySearch(1) == 0);
     assert(x.binarySearch(2) == size_t.max);
@@ -99,7 +99,7 @@ bool containsStoreIndex(SearchPolicy sp = SearchPolicy.binarySearch, R, V)
 ///
 @safe pure nothrow @nogc unittest
 {
-    int[0] x;
+    const int[0] x;
     size_t index;
     import std.range : assumeSorted;
     assert(!x[].assumeSorted.containsStoreIndex(int.min, index) && index == 0);
@@ -112,7 +112,7 @@ bool containsStoreIndex(SearchPolicy sp = SearchPolicy.binarySearch, R, V)
 ///
 @safe pure nothrow @nogc unittest
 {
-    int[2] x = [1, 3];
+    const int[2] x = [1, 3];
     size_t index;
     import std.range : assumeSorted;
     assert(!x[].assumeSorted.containsStoreIndex(int.min, index) && index == 0);

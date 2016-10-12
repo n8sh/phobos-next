@@ -3,6 +3,8 @@ module fixed_array;
 /** Statically allocated `Mod`-array of fixed pre-allocated length `capacity` of
     `Mod`-elements in chunks of `elementLength`. `ElementType` is
     `Mod[elementLength]`.
+
+    TODO Move to std.array in Phobos.
 */
 struct ModArrayN(uint capacity,
                  uint elementLength = 1,

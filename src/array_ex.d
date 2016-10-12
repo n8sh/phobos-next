@@ -22,6 +22,7 @@
     TODO All Array with const members and movals
  */
 module array_ex;
+import searching_ex;
 
 enum Ordering
 {
@@ -894,17 +895,17 @@ struct Array(E,
         inout:               // indexing and slicing can be mutable when ordered
 
         /// Slice operator overload is mutable when unordered.
-        auto opSlice()          // unsafe!
+        auto opSlice()
         {
             return this.opSlice(0, _length);
         }
         /// ditto
-        auto opSlice(size_t i, size_t j) // unsafe!
+        auto opSlice(size_t i, size_t j) // WARNING unsafe
         {
             // alias ET = ContainerElementType!(typeof(this), E);
             assert(i <= j);
             assert(j <= _length);
-            return _ptr[i .. j];
+            return _ptr[i .. j]; // WARNING unsafe
         }
 
         /// Index operator can be const or mutable when unordered.
@@ -1377,13 +1378,19 @@ nothrow unittest
 /// disabled copying
 nothrow unittest
 {
+    import std.traits : isCopyable, isRvalueAssignable, isLvalueAssignable;
+    import std.range.primitives : hasSlicing;
+
     alias E = string;
     alias A = Array!E;
-    import std.traits : isCopyable, isRvalueAssignable, isLvalueAssignable;
     static assert(!isCopyable!(A));
+
     static assert(isRvalueAssignable!(A));
     static assert(isLvalueAssignable!(A));
+    // static assert(hasSlicing!A); // TODO make this work
+
     alias AA = Array!A;
+
     AA aa;
     A a;
     a ~= "string";

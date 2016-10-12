@@ -133,7 +133,7 @@ private:
 pure unittest
 {
     import std.exception: assertThrown;
-    import core.exception;
+    import core.exception : AssertError;
 
     import array_ex : Array;
 

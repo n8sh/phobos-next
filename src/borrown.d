@@ -171,7 +171,7 @@ pure unittest
     assert(oa.readerCount == 0);
 
     {
-        auto wb = oa.writableSlice;      // write borrow
+        auto wb = oa.writableSlice;
         static assert(!__traits(compiles, { auto wc = wb; })); // write borrows cannot be copied
         assert(oa.writerBorrowed);
         assert(oa.readerCount == 0);
@@ -180,7 +180,7 @@ pure unittest
 
     // ok to write borrow again in separate scope
     {
-        auto wb = oa.writableSlice;      // write borrow
+        auto wb = oa.writableSlice;
         assert(oa.writerBorrowed);
         assert(oa.readerCount == 0);
     }
@@ -199,7 +199,7 @@ pure unittest
 
     // ok to write borrow again in separate scope
     {
-        auto wb = oa.writableSlice;      // write borrow
+        auto wb = oa.writableSlice;
         assert(oa.writerBorrowed);
         assert(oa.readerCount == 0);
         assertThrown!AssertError(oa.readOnlySlice);

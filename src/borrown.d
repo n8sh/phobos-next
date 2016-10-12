@@ -56,7 +56,7 @@ struct Owned(Container)
 
     ReadBorrowedRange!(Range, Owned) readOnlySlice() @trusted // TODO shorter name?
     {
-        assert(!_writeBorrowed, "This is write-borrowed!");
+        assert(!_writeBorrowed, "This is already write-borrowed!");
         _readerCount += 1;  // TODO move to ctor
         return typeof(return)(_range.opSlice, &this);
     }
@@ -85,11 +85,15 @@ private:
     alias _range this;
 }
 
-/** Checked overload for move. */
+/** Checked overload for `std.algorithm.mutation.move`.
+
+    TODO Can we somehow prevent users of Owned from accidentally using
+    `std.algorithm.mutation.move` instead of this wrapper?
+ */
 void move(Owner)(ref Owner src, ref Owner dst) @safe pure nothrow @nogc
     if (isInstanceOf!(Owned, Owner))
 {
-    src.move(dst);
+    src.move(dst);              // reuse member function
 }
 
 import std.traits : isInstanceOf;
@@ -171,7 +175,8 @@ pure unittest
     assert(oa.readerCount == 0);
 
     {
-        auto wb = oa.writableSlice;
+        const wb = oa.writableSlice;
+        assert(wb.length == 2);
         static assert(!__traits(compiles, { auto wc = wb; })); // write borrows cannot be copied
         assert(oa.writerBorrowed);
         assert(oa.readerCount == 0);
@@ -180,19 +185,27 @@ pure unittest
 
     // ok to write borrow again in separate scope
     {
-        auto wb = oa.writableSlice;
+        const wb = oa.writableSlice;
+        assert(wb.length == 2);
         assert(oa.writerBorrowed);
         assert(oa.readerCount == 0);
     }
 
     {
-        auto rb1 = oa.readOnlySlice;
+        const rb1 = oa.readOnlySlice;
+        assert(rb1.length == oa.length);
         assert(oa.readerCount == 1);
-        auto rb2 = oa.readOnlySlice;
+
+        const rb2 = oa.readOnlySlice;
+        assert(rb2.length == oa.length);
         assert(oa.readerCount == 2);
-        auto rb3 = oa.readOnlySlice;
+
+        const rb3 = oa.readOnlySlice;
+        assert(rb3.length == oa.length);
         assert(oa.readerCount == 3);
-        auto rb_ = rb3;
+
+        const rb_ = rb3;
+        assert(rb_.length == oa.length);
         assert(oa.readerCount == 4);
         assertThrown!AssertError(oa.writableSlice); // one more write borrow is not allowed
     }
@@ -200,10 +213,15 @@ pure unittest
     // ok to write borrow again in separate scope
     {
         auto wb = oa.writableSlice;
+        wb[0] = 11;
+        wb[1] = 12;
+        assert(wb.length == oa.length);
         assert(oa.writerBorrowed);
         assert(oa.readerCount == 0);
         assertThrown!AssertError(oa.readOnlySlice);
     }
+
+    assert(oa[] == [11, 12]);
 
     // test writeable slice
     foreach (ref e; oa.writableSlice)

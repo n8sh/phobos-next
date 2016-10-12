@@ -895,12 +895,12 @@ struct Array(E,
         inout:               // indexing and slicing can be mutable when ordered
 
         /// Slice operator overload is mutable when unordered.
-        auto opSlice()          // WARNING unsafe
+        inout(E)[] opSlice()          // WARNING unsafe
         {
             return this.opSlice(0, _length);
         }
         /// ditto
-        auto opSlice(size_t i, size_t j) // WARNING unsafe
+        inout(E)[] opSlice(size_t i, size_t j) // WARNING unsafe
         {
             assert(i <= j);
             assert(j <= _length);

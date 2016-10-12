@@ -45,6 +45,13 @@ struct Owned(Container)
         return typeof(return)(_range.opSlice, &this);
     }
 
+    ReadBorrowedRange!(Range, Owned) readOnlySlice() @trusted
+    {
+        assert(!_writeBorrowed, "Container is write-borrowed!");
+        _readBorrowCount += 1;
+        return typeof(return)(_range.opSlice, &this);
+    }
+
     @safe pure nothrow @nogc pragma(inline):
 
     @property:
@@ -76,6 +83,22 @@ private:
     alias _range this;              /// behave like range
 }
 
+/** Read-borrowed access to range `Range`. */
+struct ReadBorrowedRange(Range, Owner)
+    if (isInstanceOf!(Owned, Owner))
+{
+    ~this()
+    {
+        assert(_owner._readBorrowCount != 0);
+        _owner._readBorrowCount -= 1;
+    }
+
+private:
+    Range _range;                   /// range
+    Owner* _owner = null;           /// pointer to container owner
+    alias _range this;              /// behave like range
+}
+
 pure unittest
 {
     import std.algorithm : move;
@@ -92,13 +115,25 @@ pure unittest
     assert(oa[] == [1, 2]);
 
     {
-        auto wb1 = oa.opSlice;      // write borrow
+        auto wb = oa.opSlice;      // write borrow
         assertThrown!AssertError(oa.opSlice); // one more write borrow is not allowed
     }
 
-    // ok to borrow in separate
+    // ok to write borrow again in separate scope
     {
-        auto wb1 = oa.opSlice;      // write borrow
+        auto wb = oa.opSlice;      // write borrow
+    }
+
+    {
+        auto rb1 = oa.readOnlySlice;
+        auto rb2 = oa.readOnlySlice;
+        assertThrown!AssertError(oa.opSlice); // one more write borrow is not allowed
+    }
+
+    // ok to write borrow again in separate scope
+    {
+        auto wb = oa.opSlice;      // write borrow
+        assertThrown!AssertError(oa.readOnlySlice);
     }
 
     // TODO this will fail

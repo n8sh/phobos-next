@@ -3,6 +3,11 @@
  */
 module borrown;
 
+version(unittest)
+{
+    import dbgio;
+}
+
 template needsOwnership(C)
 {
     import std.range.primitives : hasSlicing;
@@ -26,20 +31,31 @@ struct Owned(Container)
 
     ~this()
     {
-        assert(!writeBorrowed, "Container is still write-borrowed, cannot release!");
+        dln(writeBorrowed);
+        dln(readBorrowCount);
+        assert(!_writeBorrowed, "Container is still write-borrowed, cannot release!");
+        assert(_readBorrowCount == 0, "Container is still read-borrowed, cannot release!");
     }
 
     WriteBorrowedRange!(Range, Owned) opSlice() @trusted
     {
-        assert(!writeBorrowed, "Container is already write-borrowed!"); // exlusive writes
-        writeBorrowed = true;
+        assert(!_writeBorrowed, "Container is already write-borrowed!");
+        assert(_readBorrowCount == 0, "Container is already read-borrowed!");
+        _writeBorrowed = true;
         return typeof(return)(_range.opSlice, &this);
     }
 
+    @safe pure nothrow @nogc pragma(inline):
+
+    @property:
+
+    bool writeBorrowed() const { return _writeBorrowed; }
+    uint readBorrowCount() const { return _readBorrowCount; }
+
 private:
-    Container _range;               /// wrapped container
-    bool writeBorrowed = 0;     /// `true' if _range is currently referred to
-    uint readRangeCount = 0;    /// number of readable borrowers
+    Container _range;           /// wrapped container
+    bool _writeBorrowed = false;     /// `true' if _range is currently referred to
+    uint _readBorrowCount = 0;   /// number of readable borrowers
     alias _range this;
 }
 
@@ -51,7 +67,7 @@ struct WriteBorrowedRange(Range, Owner)
 {
     ~this()
     {
-        _owner.writeBorrowed = false; // release borrow
+        _owner._writeBorrowed = false; // release borrow
     }
 
 private:
@@ -62,6 +78,7 @@ private:
 
 pure unittest
 {
+    import std.algorithm : move;
     import std.exception: assertThrown;
     import core.exception;
 
@@ -78,8 +95,12 @@ pure unittest
         auto wb1 = oa.opSlice;      // write borrow
         assertThrown!AssertError(oa.opSlice); // one more write borrow is not allowed
     }
+
+    // ok to borrow in separate
     {
         auto wb1 = oa.opSlice;      // write borrow
-        assertThrown!AssertError(oa.opSlice); // one more write borrow is not allowed
     }
+
+    // TODO this will fail
+    // auto oaMove1 = move(oa);
 }

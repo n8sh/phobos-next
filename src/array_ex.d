@@ -1379,7 +1379,6 @@ nothrow unittest
 nothrow unittest
 {
     import std.traits : isCopyable, isRvalueAssignable, isLvalueAssignable;
-    import std.range.primitives : hasSlicing;
 
     alias E = string;
     alias A = Array!E;
@@ -1387,7 +1386,10 @@ nothrow unittest
 
     static assert(isRvalueAssignable!(A));
     static assert(isLvalueAssignable!(A));
-    // static assert(hasSlicing!A); // TODO make this work
+
+    // import std.range.primitives : hasSlicing;
+    // TODO make this evaluate to `true`
+    // static assert(hasSlicing!A);
 
     alias AA = Array!A;
 

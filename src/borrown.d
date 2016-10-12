@@ -45,14 +45,14 @@ struct Owned(Container)
         return move(this);
     }
 
-    ReadBorrowedRange!(Range, Owned) readOnlySlice() @trusted
+    ReadBorrowedRange!(Range, Owned) readOnlySlice() @trusted // TODO shorter name?
     {
         assert(!_writeBorrowed, "Container is write-borrowed!");
         _readerCount += 1;  // TODO move to ctor
         return typeof(return)(_range.opSlice, &this);
     }
 
-    WriteBorrowedRange!(Range, Owned) writableSlice() @trusted
+    WriteBorrowedRange!(Range, Owned) writableSlice() @trusted // TODO shorted name?
     {
         assert(!_writeBorrowed, "Container is already write-borrowed!");
         assert(_readerCount == 0, "Container is already read-borrowed!");
@@ -89,16 +89,12 @@ private static struct WriteBorrowedRange(Range, Owner)
         _owner = owner;
     }
 
+    @disable this(this);        // cannot be copied
+
     ~this()
     {
         _owner._writeBorrowed = false; // release borrow
     }
-
-    pragma(msg, "Active copy ctor!");
-    // this(this)
-    // {
-    //     static assert(false, "Cannot have more than one writable borrow!");
-    // }
 
 private:
     Range _range;                   /// range
@@ -110,11 +106,16 @@ private:
 private static struct ReadBorrowedRange(Range, Owner)
     if (isInstanceOf!(Owned, Owner))
 {
-    this(Range range, Owner* owner)
+    this(const Range range, Owner* owner)
     {
         assert(owner);          // always non-null
         _range = range;
         _owner = owner;
+    }
+
+    this(this)
+    {
+        _owner._readerCount += 1;
     }
 
     ~this()
@@ -123,15 +124,10 @@ private static struct ReadBorrowedRange(Range, Owner)
         _owner._readerCount -= 1;
     }
 
-    this(this)
-    {
-        _owner._readerCount += 1;
-    }
-
 private:
-    Range _range;                   /// range
-    Owner* _owner = null;           /// pointer to container owner
-    alias _range this;              /// behave like range
+    const Range _range;         /// constant range
+    Owner* _owner = null;       /// pointer to container owner
+    alias _range this;          /// behave like range
 }
 
 pure unittest
@@ -152,6 +148,7 @@ pure unittest
 
     {
         auto wb = oa.opSlice;      // write borrow
+        static assert(!__traits(compiles, { auto wc = wb; })); // write borrows cannot be copied
         assert(oa.writerBorrowed);
         assert(oa.readerCount == 0);
         assertThrown!AssertError(oa.opSlice); // one more write borrow is not allowed
@@ -186,4 +183,9 @@ pure unittest
 
     auto oaMove1 = oa.move();
     auto oaMove2 = oaMove1.move();
+
+    // test range access
+    foreach (const ref e; oa[])
+    {
+    }
 }

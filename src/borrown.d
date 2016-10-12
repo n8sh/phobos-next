@@ -79,7 +79,7 @@ private:
 import std.traits : isInstanceOf;
 
 /** Write-borrowed access to range `Range`. */
-struct WriteBorrowedRange(Range, Owner)
+private static struct WriteBorrowedRange(Range, Owner)
     if (isInstanceOf!(Owned, Owner))
 {
     this(Range range, Owner* owner)
@@ -107,9 +107,16 @@ private:
 }
 
 /** Read-borrowed access to range `Range`. */
-struct ReadBorrowedRange(Range, Owner)
+private static struct ReadBorrowedRange(Range, Owner)
     if (isInstanceOf!(Owned, Owner))
 {
+    this(Range range, Owner* owner)
+    {
+        assert(owner);          // always non-null
+        _range = range;
+        _owner = owner;
+    }
+
     ~this()
     {
         assert(_owner._readerCount != 0);

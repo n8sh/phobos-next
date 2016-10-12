@@ -34,13 +34,13 @@ struct Owned(Container)
     ~this()
     {
         assert(!_writeBorrowed, "Container is still write-borrowed, cannot release!");
-        assert(_readBorrowCount == 0, "Container is still read-borrowed, cannot release!");
+        assert(_readerCount == 0, "Container is still read-borrowed, cannot release!");
     }
 
     typeof(this) move()
     {
         assert(!_writeBorrowed, "Container is still write-borrowed, cannot move!");
-        assert(_readBorrowCount == 0, "Container is still read-borrowed, cannot move!");
+        assert(_readerCount == 0, "Container is still read-borrowed, cannot move!");
         import std.algorithm.mutation : move;
         return move(this);
     }
@@ -48,14 +48,14 @@ struct Owned(Container)
     ReadBorrowedRange!(Range, Owned) readOnlySlice() @trusted
     {
         assert(!_writeBorrowed, "Container is write-borrowed!");
-        _readBorrowCount += 1;  // TODO move to ctor
+        _readerCount += 1;  // TODO move to ctor
         return typeof(return)(_range.opSlice, &this);
     }
 
     WriteBorrowedRange!(Range, Owned) writableSlice() @trusted
     {
         assert(!_writeBorrowed, "Container is already write-borrowed!");
-        assert(_readBorrowCount == 0, "Container is already read-borrowed!");
+        assert(_readerCount == 0, "Container is already read-borrowed!");
         _writeBorrowed = true;  // TODO move to ctor
         return typeof(return)(_range.opSlice, &this);
     }
@@ -67,12 +67,12 @@ struct Owned(Container)
     @property:
 
     bool writeBorrowed() const { return _writeBorrowed; }
-    uint readBorrowCount() const { return _readBorrowCount; }
+    uint readerCount() const { return _readerCount; }
 
 private:
     Container _range;           /// wrapped container
     bool _writeBorrowed = false;     /// `true' if _range is currently referred to
-    uint _readBorrowCount = 0;   /// number of readable borrowers
+    uint _readerCount = 0;   /// number of readable borrowers
     alias _range this;
 }
 
@@ -82,6 +82,13 @@ import std.traits : isInstanceOf;
 struct WriteBorrowedRange(Range, Owner)
     if (isInstanceOf!(Owned, Owner))
 {
+    this(Range range, Owner* owner)
+    {
+        assert(owner);          // always non-null
+        _range = range;
+        _owner = owner;
+    }
+
     ~this()
     {
         _owner._writeBorrowed = false; // release borrow
@@ -105,8 +112,13 @@ struct ReadBorrowedRange(Range, Owner)
 {
     ~this()
     {
-        assert(_owner._readBorrowCount != 0);
-        _owner._readBorrowCount -= 1;
+        assert(_owner._readerCount != 0);
+        _owner._readerCount -= 1;
+    }
+
+    this(this)
+    {
+        _owner._readerCount += 1;
     }
 
 private:
@@ -128,9 +140,12 @@ pure unittest
     oa ~= 1;
     oa ~= 2;
     assert(oa[] == [1, 2]);
+    assert(!oa.writeBorrowed);
+    assert(oa.readerCount == 0);
 
     {
         auto wb = oa.opSlice;      // write borrow
+        assert(oa.writeBorrowed);
         assertThrown!AssertError(oa.opSlice); // one more write borrow is not allowed
     }
 
@@ -141,7 +156,13 @@ pure unittest
 
     {
         auto rb1 = oa.readOnlySlice;
+        assert(oa.readerCount == 1);
         auto rb2 = oa.readOnlySlice;
+        assert(oa.readerCount == 2);
+        auto rb3 = oa.readOnlySlice;
+        assert(oa.readerCount == 3);
+        auto rb_ = rb3;
+        assert(oa.readerCount == 4);
         assertThrown!AssertError(oa.opSlice); // one more write borrow is not allowed
     }
 

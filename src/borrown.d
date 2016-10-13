@@ -207,6 +207,9 @@ pure unittest
     oa ~= 1;
     oa ~= 2;
     assert(oa[] == [1, 2]);
+    assert(oa[0 .. 1] == [1]);
+    assert(oa[1 .. 2] == [2]);
+    assert(oa[0 .. 2] == [1, 2]);
     assert(!oa.writerBorrowed);
     assert(oa.readerCount == 0);
 
@@ -222,6 +225,14 @@ pure unittest
     // ok to write borrow again in separate scope
     {
         const wb = oa.writableSlice;
+        assert(wb.length == 2);
+        assert(oa.writerBorrowed);
+        assert(oa.readerCount == 0);
+    }
+
+    // ok to write borrow again in separate scope
+    {
+        const wb = oa.writableSlice(0, 2);
         assert(wb.length == 2);
         assert(oa.writerBorrowed);
         assert(oa.readerCount == 0);
@@ -271,6 +282,9 @@ pure unittest
     foreach (const ref e; oa[])
     {
         assert(oa.readOnlySlice.length == oa.length);
+        assert(oa.readOnlySlice[0 .. 0].length == 0);
+        assert(oa.readOnlySlice[0 .. 1].length == 1);
+        assert(oa.readOnlySlice[0 .. 2].length == oa.length);
         assertThrown!AssertError(oa.writableSlice); // write borrow during iteration is not allowed
     }
 

@@ -208,6 +208,7 @@ pure unittest
         assert(oa.readerCount == 0);
     }
 
+    // multiple read-only borrows are allowed
     {
         const rb1 = oa.readOnlySlice;
         assert(rb1.length == oa.length);
@@ -224,10 +225,10 @@ pure unittest
         const rb_ = rb3;
         assert(rb_.length == oa.length);
         assert(oa.readerCount == 4);
-        assertThrown!AssertError(oa.writableSlice); // one more write borrow is not allowed
+        assertThrown!AssertError(oa.writableSlice); // single write borrow is not allowed
     }
 
-    // ok to write borrow again in separate scope
+    // test modification via write borrow
     {
         auto wb = oa.writableSlice;
         wb[0] = 11;
@@ -237,7 +238,6 @@ pure unittest
         assert(oa.readerCount == 0);
         assertThrown!AssertError(oa.readOnlySlice);
     }
-
     assert(oa[] == [11, 12]);
 
     // test writeable slice
@@ -255,6 +255,7 @@ pure unittest
         assertThrown!AssertError(oa.writableSlice); // write borrow during iteration is not allowed
     }
 
+    // test moves
     auto oaMove1 = oa.move();
     auto oaMove2 = oaMove1.move();
     assert(oaMove2[] == [11, 12]);

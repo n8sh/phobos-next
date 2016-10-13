@@ -26,6 +26,7 @@ struct Owned(Container)
     if (needsOwnership!Container)
 {
     import std.range.primitives : hasSlicing;
+    import std.traits : isMutable;
 
 pragma(inline):
 
@@ -64,22 +65,40 @@ pragma(inline):
 
     static if (true/*TODO hasUnsafeSlicing!Container*/)
     {
-        /// Get read-only slice.
+        /// Get full read-only slice.
         ReadBorrowedSlice!(Range, Owned) readOnlySlice() @trusted // TODO shorter name?
         {
             assert(!_writeBorrowed, "This is already write-borrowed!");
             return typeof(return)(_range.opSlice, &this);
         }
 
-        /// Get read-write slice.
-        WriteBorrowedSlice!(Range, Owned) writableSlice() @trusted // TODO shorted name?
+        /// Get read-only slice in range i .. j.
+        ReadBorrowedSlice!(Range, Owned) readOnlySlice(size_t i, size_t j) @trusted // TODO shorter name?
         {
             assert(!_writeBorrowed, "This is already write-borrowed!");
-            assert(_readerCount == 0, "This is already read-borrowed!");
-            return typeof(return)(_range.opSlice, &this);
+            return typeof(return)(_range.opSlice[i .. j], &this);
         }
 
         alias opSlice = readOnlySlice; // TODO default to read or write?
+
+        static if (isMutable!Container)
+        {
+            /// Get full read-write slice.
+            WriteBorrowedSlice!(Range, Owned) writableSlice() @trusted // TODO shorted name?
+            {
+                assert(!_writeBorrowed, "This is already write-borrowed!");
+                assert(_readerCount == 0, "This is already read-borrowed!");
+                return typeof(return)(_range.opSlice, &this);
+            }
+
+            /// Get read-write slice in range i .. j.
+            WriteBorrowedSlice!(Range, Owned) writableSlice(size_t i, size_t j) @trusted // TODO shorted name?
+            {
+                assert(!_writeBorrowed, "This is already write-borrowed!");
+                assert(_readerCount == 0, "This is already read-borrowed!");
+                return typeof(return)(_range.opSlice[i .. j], &this);
+            }
+        }
     }
 
     @safe pure nothrow @nogc:
@@ -110,15 +129,15 @@ void move(Owner)(ref Owner src, ref Owner dst) @safe pure nothrow @nogc
     src.move(dst);              // reuse member function
 }
 
-import std.traits : isInstanceOf;
+// import std.traits : isInstanceOf;
 
 /** Write-borrowed access to range `Range`. */
 private static struct WriteBorrowedSlice(Range, Owner)
-    if (isInstanceOf!(Owned, Owner))
+    // if (isInstanceOf!(Owned, Owner))
 {
     this(Range range, Owner* owner)
     {
-        assert(owner);          // always non-null
+        assert(owner);
         _range = range;
         _owner = owner;
         owner._writeBorrowed = true;
@@ -128,7 +147,7 @@ private static struct WriteBorrowedSlice(Range, Owner)
 
     ~this()
     {
-        _owner._writeBorrowed = false; // release borrow
+        _owner._writeBorrowed = false;
     }
 
 private:
@@ -139,14 +158,14 @@ private:
 
 /** Read-borrowed access to range `Range`. */
 private static struct ReadBorrowedSlice(Range, Owner)
-    if (isInstanceOf!(Owned, Owner))
+    // if (isInstanceOf!(Owned, Owner))
 {
     this(const Range range, Owner* owner)
     {
-        assert(owner);          // always non-null
+        assert(owner);
         _range = range;
         _owner = owner;
-        _owner._readerCount += 1;  // TODO move to ctor
+        _owner._readerCount += 1;
     }
 
     this(this)
@@ -171,7 +190,7 @@ template needsOwnership(C)
     import std.range.primitives : hasSlicing;
     // TODO activate when array_ex : Array
     // enum needsOwnership = hasSlicing!C; // TODO extend to check if it's not @safe
-    enum needsOwnership = true;
+    enum needsOwnership = is(C == struct);
 }
 
 pure unittest

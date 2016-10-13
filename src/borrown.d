@@ -41,7 +41,7 @@ pragma(inline):
         assert(_readerCount == 0, "This is still read-borrowed, cannot release!");
     }
 
-    /// Move `this` into a return r-value.
+    /// Move `this` into a returned r-value.
     typeof(this) move()
     {
         assert(!_writeBorrowed, "This is still write-borrowed, cannot move!");
@@ -79,8 +79,6 @@ pragma(inline):
             return typeof(return)(_range.opSlice[i .. j], &this);
         }
 
-        alias opSlice = readOnlySlice; // TODO default to read or write?
-
         static if (isMutable!Container)
         {
             /// Get full read-write slice.
@@ -98,6 +96,12 @@ pragma(inline):
                 assert(_readerCount == 0, "This is already read-borrowed!");
                 return typeof(return)(_range.opSlice[i .. j], &this);
             }
+
+            alias opSlice = readOnlySlice; // TODO default to read or write?
+        }
+        else
+        {
+            alias opSlice = readOnlySlice; // slice must be read-only here
         }
     }
 

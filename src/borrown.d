@@ -1,7 +1,10 @@
 /** Ownership and borrwoing á lá Rust.
 
     TODO Move to typecons_ex.
-    TODO Perhaps disable all checking (and unittests) in release mode (when debug is not active)
+
+    TODO Perhaps disable all checking (and unittests) in release mode (when
+    debug is not active), but preserve overloads readOnlySlice and writableSlice
+
     TODO Implement and use trait `hasUnsafeSlicing`
  */
 module borrown;

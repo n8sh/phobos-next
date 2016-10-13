@@ -17,9 +17,10 @@
     collection's element type. See also:
     https://forum.dlang.org/post/n3qq6e$2bis$1@digitalmars.com
 
-    TODO Document `isCopyable` in Phobos.
-
     TODO All Array with const members and movals
+
+    TODO replace qcmeman with std.experimental.allocator parameter defaulting to
+    `Mallocator`
  */
 module array_ex;
 import searching_ex;
@@ -46,6 +47,11 @@ import container_traits : ContainerElementType;
 import std.traits : isInstanceOf;
 enum isMyArray(C) = isInstanceOf!(Array, C);
 
+static if (__VERSION__ >= 2072)
+    import std.traits : isCopyable;
+else                            // LDC2 1.1.0-beta3
+    enum isCopyable(S) = is(typeof({ S foo = S.init; S copy = foo; }));
+
 /// Semantics of copy construction and assignment.
 enum Assignment
 {
@@ -67,7 +73,7 @@ struct Array(E,
              alias less = "a < b") // TODO move out of this definition and support only for the case when `ordering` is not `Ordering.unsorted`
 {
     import std.range : isInputRange, ElementType;
-    import std.traits : isAssignable, isCopyable, Unqual, isSomeChar, isArray;
+    import std.traits : isAssignable, Unqual, isSomeChar, isArray;
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
     import core.stdc.string : memset;
@@ -1370,7 +1376,7 @@ nothrow unittest
 /// disabled copying
 nothrow unittest
 {
-    import std.traits : isCopyable, isRvalueAssignable, isLvalueAssignable;
+    import std.traits : isRvalueAssignable, isLvalueAssignable;
 
     alias E = string;
     alias A = Array!E;

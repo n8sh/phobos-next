@@ -116,10 +116,13 @@ pragma(inline):
 
     @property:
 
-    /// Returns: `true` iff currently is write borrowed.
+    /// Returns: `true` iff owned container is borrowed.
+    bool isBorrowed() const { return _writeBorrowed || _readerCount != 0; }
+
+    /// Returns: `true` iff owned container is write borrowed.
     bool writerBorrowed() const { return _writeBorrowed; }
 
-    /// Returns: number of read-only borrowers.
+    /// Returns: number of read-only borrowers of owned container.
     uint readerCount() const { return _readerCount; }
 
 private:
@@ -220,12 +223,14 @@ pure unittest
     assert(oa[1 .. 2] == [2]);
     assert(oa[0 .. 2] == [1, 2]);
     assert(!oa.writerBorrowed);
+    assert(!oa.isBorrowed);
     assert(oa.readerCount == 0);
 
     {
         const wb = oa.sliceWR;
         assert(wb.length == 2);
         static assert(!__traits(compiles, { auto wc = wb; })); // write borrows cannot be copied
+        assert(oa.isBorrowed);
         assert(oa.writerBorrowed);
         assert(oa.readerCount == 0);
         assertThrown!AssertError(oa.opSlice); // one more write borrow is not allowed
@@ -235,6 +240,7 @@ pure unittest
     {
         const wb = oa.sliceWR;
         assert(wb.length == 2);
+        assert(oa.isBorrowed);
         assert(oa.writerBorrowed);
         assert(oa.readerCount == 0);
     }
@@ -243,6 +249,7 @@ pure unittest
     {
         const wb = oa.sliceWR(0, 2);
         assert(wb.length == 2);
+        assert(oa.isBorrowed);
         assert(oa.writerBorrowed);
         assert(oa.readerCount == 0);
     }

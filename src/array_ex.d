@@ -934,47 +934,37 @@ struct Array(E,
     @nogc:
 
     /// Check if empty.
-    bool empty() const @safe
-    {
-        return _length == 0;
-    }
+    bool empty() const @safe { return _length == 0; }
 
     /// Get length.
-    size_t length() const @safe
-    {
-        return _length;
-    }
+    size_t length() const @safe { return _length; }
     alias opDollar = length;    /// ditto
 
-    /// Shrink length to `length`.
+    /// Get length of reserved store.
+    size_t reservedLength() const @safe { return _capacity; }
+    alias capacity = reservedLength;
+
+    /// Shrink length to `newLength`.
     void shrinkTo(size_t newLength) @safe
     {
         assert(newLength <= _length);
         _length = newLength;
     }
-    alias opDollar = length;    /// ditto
 
-    /// Get length of reserved store.
-    size_t reservedLength() const @safe
-    {
-        return _capacity;
-    }
-    alias capacity = reservedLength;
-
+private:
     /// Get internal pointer.
-    private inout(E*) ptr() inout
+    inout(E*) ptr() inout
     {
         // TODO Use cast(ET[])?: alias ET = ContainerElementType!(typeof(this), E);
         return _ptr;
     }
 
     /// Get internal slice.
-    private auto ref slice() inout @trusted
+    auto ref slice() inout @trusted
     {
         return _ptr[0 .. _length];
     }
 
-private:
     // TODO reuse module `storage` for small size/array optimization (SSO)
     E* _ptr;               // store pointer
     size_t _capacity;      // store capacity

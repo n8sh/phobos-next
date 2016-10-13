@@ -961,13 +961,14 @@ struct Array(E,
         _length = newLength;
     }
 
-private:
     /// Get internal pointer.
     inout(E*) ptr() inout
     {
         // TODO Use cast(ET[])?: alias ET = ContainerElementType!(typeof(this), E);
         return _ptr;
     }
+
+private:
 
     /// Get internal slice.
     auto ref slice() inout @trusted

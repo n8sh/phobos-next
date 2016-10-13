@@ -475,7 +475,12 @@
   <h4>Discussion</h4>
   <p class="para">
     TODO Move to typecons_ex.
-    TODO Perhaps disable all checking (and unittests) in release mode (when debug is not active), but preserve overloads readOnlySlice and writableSlice
+
+
+    TODO Perhaps disable all checking (and unittests) in release mode (when
+    debug is not active), but preserve overloads sliceRO and sliceWR
+
+
     TODO Implement and use trait <code class="code">hasUnsafeSlicing</code>
   </p>
 </div>
@@ -628,7 +633,7 @@
 </li><li class="ddoc_member">
   <div class="ddoc_member_header">
   <div class="ddoc_header_anchor">
-  <a href="#Owned.readOnlySlice" id="Owned.readOnlySlice"><code class="code">readOnlySlice</code></a>
+  <a href="#Owned.sliceRO" id="Owned.sliceRO"><code class="code">sliceRO</code></a>
 </div>
 </div><div class="ddoc_decl">
   <section class="section">
@@ -637,7 +642,7 @@
       <div class="dlang">
         <p class="para">
           <code class="code">
-            <span class="ddoc_anchor" id="Owned.readOnlySlice"></span>@trusted ReadBorrowedSlice!(Range, Owned) <code class="code">readOnlySlice</code>();
+            <span class="ddoc_anchor" id="Owned.sliceRO"></span>const @trusted ReadBorrowedSlice!(Range, Owned) <code class="code">sliceRO</code>();
 
           </code>
         </p>
@@ -660,7 +665,7 @@
 </li><li class="ddoc_member">
   <div class="ddoc_member_header">
   <div class="ddoc_header_anchor">
-  <a href="#Owned.readOnlySlice" id="Owned.readOnlySlice"><code class="code">readOnlySlice</code></a>
+  <a href="#Owned.sliceRO" id="Owned.sliceRO"><code class="code">sliceRO</code></a>
 </div>
 </div><div class="ddoc_decl">
   <section class="section">
@@ -669,7 +674,7 @@
       <div class="dlang">
         <p class="para">
           <code class="code">
-            <span class="ddoc_anchor" id="Owned.readOnlySlice.2"></span>@trusted ReadBorrowedSlice!(Range, Owned) <code class="code">readOnlySlice</code>(size_t <code class="code">i</code>, size_t <code class="code">j</code>);
+            <span class="ddoc_anchor" id="Owned.sliceRO.2"></span>const @trusted ReadBorrowedSlice!(Range, Owned) <code class="code">sliceRO</code>(size_t <code class="code">i</code>, size_t <code class="code">j</code>);
 
           </code>
         </p>
@@ -692,7 +697,7 @@
 </li><li class="ddoc_member">
   <div class="ddoc_member_header">
   <div class="ddoc_header_anchor">
-  <a href="#Owned.writableSlice" id="Owned.writableSlice"><code class="code">writableSlice</code></a>
+  <a href="#Owned.sliceWR" id="Owned.sliceWR"><code class="code">sliceWR</code></a>
 </div>
 </div><div class="ddoc_decl">
   <section class="section">
@@ -701,7 +706,7 @@
       <div class="dlang">
         <p class="para">
           <code class="code">
-            <span class="ddoc_anchor" id="Owned.writableSlice"></span>@trusted WriteBorrowedSlice!(Range, Owned) <code class="code">writableSlice</code>();
+            <span class="ddoc_anchor" id="Owned.sliceWR"></span>@trusted WriteBorrowedSlice!(Range, Owned) <code class="code">sliceWR</code>();
 
           </code>
         </p>
@@ -724,7 +729,7 @@
 </li><li class="ddoc_member">
   <div class="ddoc_member_header">
   <div class="ddoc_header_anchor">
-  <a href="#Owned.writableSlice" id="Owned.writableSlice"><code class="code">writableSlice</code></a>
+  <a href="#Owned.sliceWR" id="Owned.sliceWR"><code class="code">sliceWR</code></a>
 </div>
 </div><div class="ddoc_decl">
   <section class="section">
@@ -733,7 +738,7 @@
       <div class="dlang">
         <p class="para">
           <code class="code">
-            <span class="ddoc_anchor" id="Owned.writableSlice.2"></span>@trusted WriteBorrowedSlice!(Range, Owned) <code class="code">writableSlice</code>(size_t <code class="code">i</code>, size_t <code class="code">j</code>);
+            <span class="ddoc_anchor" id="Owned.sliceWR.2"></span>@trusted WriteBorrowedSlice!(Range, Owned) <code class="code">sliceWR</code>(size_t <code class="code">i</code>, size_t <code class="code">j</code>);
 
           </code>
         </p>

@@ -31,10 +31,10 @@ struct Owned(Container)
     import std.range.primitives : hasSlicing;
     import std.traits : isMutable;
 
-pragma(inline):
-
     /// Type of range of `Container`.
     alias Range = typeof(Container.init[]);
+
+pragma(inline):
 
     // TODO can we somehow disallow move construction for `this`?
 
@@ -68,18 +68,22 @@ pragma(inline):
 
     static if (true/*TODO hasUnsafeSlicing!Container*/)
     {
+        import std.typecons : Unqual;
+
         /// Get full read-only slice.
-        ReadBorrowedSlice!(Range, Owned) sliceRO() @trusted // TODO shorter name?
+        ReadBorrowedSlice!(Range, Owned) sliceRO() const @trusted // TODO shorter name?
         {
             assert(!_writeBorrowed, "This is already write-borrowed!");
-            return typeof(return)(_range.opSlice, &this);
+            return typeof(return)(_range.opSlice,
+                                  cast(Unqual!(typeof(this))*)(&this)); // trusted unconst casta
         }
 
         /// Get read-only slice in range i .. j.
-        ReadBorrowedSlice!(Range, Owned) sliceRO(size_t i, size_t j) @trusted // TODO shorter name?
+        ReadBorrowedSlice!(Range, Owned) sliceRO(size_t i, size_t j) const @trusted // TODO shorter name?
         {
             assert(!_writeBorrowed, "This is already write-borrowed!");
-            return typeof(return)(_range.opSlice[i .. j], &this);
+            return typeof(return)(_range.opSlice[i .. j],
+                                  cast(Unqual!(typeof(this))*)(&this)); // trusted unconst casta
         }
 
         static if (isMutable!Container)
@@ -135,8 +139,6 @@ void move(Owner)(ref Owner src, ref Owner dst) @safe pure nothrow @nogc
 {
     src.move(dst);              // reuse member function
 }
-
-// import std.traits : isInstanceOf;
 
 /** Write-borrowed access to range `Range`. */
 private static struct WriteBorrowedSlice(Range, Owner)
@@ -293,10 +295,19 @@ pure unittest
         assert(oa.sliceRO[0 .. 1].length == 1);
         assert(oa.sliceRO[0 .. 2].length == oa.length);
         assertThrown!AssertError(oa.sliceWR); // write borrow during iteration is not allowed
+        assertThrown!AssertError(oa.move());  // move not allowed when borrowed
     }
 
-    // test moves
+    // move semantics
     auto oaMove1 = oa.move();
     auto oaMove2 = oaMove1.move();
     assert(oaMove2[] == [11, 12]);
+
+    // constness propagation from owner to borrower
+    import std.traits : isInstanceOf;
+    const Owned!A mo;          // mutable owner
+    // static assert(isInstanceOf!(WriteBorrowedSlice, typeof(mo[])));
+    const Owned!A co;          // const owner
+    static assert(isInstanceOf!(ReadBorrowedSlice, typeof(co[])));
+    assert(co[].ptr == co.ptr);
 }

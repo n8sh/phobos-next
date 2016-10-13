@@ -502,10 +502,11 @@
 //forum.dlang.org/post/n3qq6ebis@digitalmars.com
 
 
-    TODO Document <code class="code">isCopyable</code> in Phobos.
-
-
     TODO All Array with const members and movals
+
+
+    TODO replace qcmeman with std.experimental.allocator parameter defaulting to
+    <code class="code">Mallocator</code>
   </p>
 </div>
 
@@ -1833,6 +1834,38 @@ auto <code class="code">opSlice</code>(this This)(size_t <code class="code">i</c
   <div class="ddoc_summary">
   <p class="para">
     Shrink length to <code class="code"><code class="code">newLength</code></code>.
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#Array.ptr" id="Array.ptr"><code class="code">ptr</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="Array.ptr"></span>inout inout(E*) <code class="code">ptr</code>();
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Get internal pointer.
   </p>
 </div>
 

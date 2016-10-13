@@ -860,22 +860,24 @@ struct Array(E,
             return (cast(const(E)[])slice[i .. j]).assumeSorted!comp;
         }
 
+        @trusted:
+
         /// Index operator must be const to preserve ordering.
-        ref const(E) opIndex(size_t i) @trusted
+        ref const(E) opIndex(size_t i)
         {
             assert(i < _length);
             return _ptr[i];
         }
 
         /// Get front element (as constant reference to preserve ordering).
-        ref const(E) front() @trusted
+        ref const(E) front()
         {
             assert(!empty);
             return _ptr[0];
         }
 
         /// Get back element (as constant reference to preserve ordering).
-        ref const(E) back() @trusted
+        ref const(E) back()
         {
             assert(!empty);
             return _ptr[_length - 1];
@@ -894,7 +896,7 @@ struct Array(E,
 
         inout:               // indexing and slicing can be mutable when ordered
 
-        /// Slice operator overload is mutable when unordered.
+        /// Slice operator.
         inout(E)[] opSlice()          // WARNING unsafe
         {
             return this.opSlice(0, _length);
@@ -907,22 +909,24 @@ struct Array(E,
             return _ptr[i .. j]; // WARNING unsafe
         }
 
-        /// Index operator can be const or mutable when unordered.
-        ref inout(E) opIndex(size_t i) inout @trusted
+        @trusted:
+
+        /// Index operator.
+        ref inout(E) opIndex(size_t i)
         {
             assert(i < _length);
             return _ptr[i];
         }
 
         /// Get front element reference.
-        ref inout(E) front() inout @trusted
+        ref inout(E) front()
         {
             assert(!empty);
             return _ptr[0];
         }
 
         /// Get back element reference.
-        ref inout(E) back() inout @trusted
+        ref inout(E) back()
         {
             assert(!empty);
             return _ptr[_length - 1];

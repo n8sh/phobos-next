@@ -41,14 +41,14 @@ pragma(inline):
     ~this()
     {
         assert(!_writeBorrowed, "This is still write-borrowed, cannot release!");
-        assert(_readerCount == 0, "This is still read-borrowed, cannot release!");
+        assert(_readBorrowCount == 0, "This is still read-borrowed, cannot release!");
     }
 
     /// Move `this` into a returned r-value.
     typeof(this) move()
     {
         assert(!_writeBorrowed, "This is still write-borrowed, cannot move!");
-        assert(_readerCount == 0, "This is still read-borrowed, cannot move!");
+        assert(_readBorrowCount == 0, "This is still read-borrowed, cannot move!");
         import std.algorithm.mutation : move;
         return move(this);
     }
@@ -57,10 +57,10 @@ pragma(inline):
     void move(ref typeof(this) dst) @safe pure nothrow @nogc
     {
         assert(!this._writeBorrowed, "Source is still write-borrowed, cannot move!");
-        assert(this._readerCount == 0, "Source is still read-borrowed, cannot move!");
+        assert(this._readBorrowCount == 0, "Source is still read-borrowed, cannot move!");
 
         assert(!dst._writeBorrowed, "Destination is still write-borrowed, cannot move!");
-        assert(dst._readerCount == 0, "Destination is still read-borrowed, cannot move!");
+        assert(dst._readBorrowCount == 0, "Destination is still read-borrowed, cannot move!");
 
         import std.algorithm.mutation : move;
         move(this, dst);
@@ -92,7 +92,7 @@ pragma(inline):
             WriteBorrowedSlice!(Range, Owned) sliceWR() @trusted // TODO shorted name?
             {
                 assert(!_writeBorrowed, "This is already write-borrowed!");
-                assert(_readerCount == 0, "This is already read-borrowed!");
+                assert(_readBorrowCount == 0, "This is already read-borrowed!");
                 return typeof(return)(_range.opSlice, &this);
             }
 
@@ -100,7 +100,7 @@ pragma(inline):
             WriteBorrowedSlice!(Range, Owned) sliceWR(size_t i, size_t j) @trusted // TODO shorted name?
             {
                 assert(!_writeBorrowed, "This is already write-borrowed!");
-                assert(_readerCount == 0, "This is already read-borrowed!");
+                assert(_readBorrowCount == 0, "This is already read-borrowed!");
                 return typeof(return)(_range.opSlice[i .. j], &this);
             }
 
@@ -117,18 +117,18 @@ pragma(inline):
     @property:
 
     /// Returns: `true` iff owned container is borrowed.
-    bool isBorrowed() const { return _writeBorrowed || _readerCount != 0; }
+    bool isBorrowed() const { return _writeBorrowed || _readBorrowCount != 0; }
 
     /// Returns: `true` iff owned container is write borrowed.
-    bool writerBorrowed() const { return _writeBorrowed; }
+    bool isWriterBorrowed() const { return _writeBorrowed; }
 
     /// Returns: number of read-only borrowers of owned container.
-    uint readerCount() const { return _readerCount; }
+    uint readBorrowCount() const { return _readBorrowCount; }
 
 private:
     Container _range;            /// wrapped container
     bool _writeBorrowed = false; /// `true' if _range is currently referred to
-    uint _readerCount = 0;       /// number of readable borrowers. TODO use `size_t` minus one bit instead in `size_t _stats`
+    uint _readBorrowCount = 0;       /// number of readable borrowers. TODO use `size_t` minus one bit instead in `size_t _stats`
     alias _range this;
 }
 
@@ -177,18 +177,18 @@ private static struct ReadBorrowedSlice(Range, Owner)
         assert(owner);
         _range = range;
         _owner = owner;
-        _owner._readerCount += 1;
+        _owner._readBorrowCount += 1;
     }
 
     this(this)
     {
-        _owner._readerCount += 1;
+        _owner._readBorrowCount += 1;
     }
 
     ~this()
     {
-        assert(_owner._readerCount != 0);
-        _owner._readerCount -= 1;
+        assert(_owner._readBorrowCount != 0);
+        _owner._readBorrowCount -= 1;
     }
 
 private:
@@ -222,17 +222,17 @@ pure unittest
     assert(oa[0 .. 1] == [1]);
     assert(oa[1 .. 2] == [2]);
     assert(oa[0 .. 2] == [1, 2]);
-    assert(!oa.writerBorrowed);
+    assert(!oa.isWriterBorrowed);
     assert(!oa.isBorrowed);
-    assert(oa.readerCount == 0);
+    assert(oa.readBorrowCount == 0);
 
     {
         const wb = oa.sliceWR;
         assert(wb.length == 2);
         static assert(!__traits(compiles, { auto wc = wb; })); // write borrows cannot be copied
         assert(oa.isBorrowed);
-        assert(oa.writerBorrowed);
-        assert(oa.readerCount == 0);
+        assert(oa.isWriterBorrowed);
+        assert(oa.readBorrowCount == 0);
         assertThrown!AssertError(oa.opSlice); // one more write borrow is not allowed
     }
 
@@ -241,8 +241,8 @@ pure unittest
         const wb = oa.sliceWR;
         assert(wb.length == 2);
         assert(oa.isBorrowed);
-        assert(oa.writerBorrowed);
-        assert(oa.readerCount == 0);
+        assert(oa.isWriterBorrowed);
+        assert(oa.readBorrowCount == 0);
     }
 
     // ok to write borrow again in separate scope
@@ -250,27 +250,27 @@ pure unittest
         const wb = oa.sliceWR(0, 2);
         assert(wb.length == 2);
         assert(oa.isBorrowed);
-        assert(oa.writerBorrowed);
-        assert(oa.readerCount == 0);
+        assert(oa.isWriterBorrowed);
+        assert(oa.readBorrowCount == 0);
     }
 
     // multiple read-only borrows are allowed
     {
         const rb1 = oa.sliceRO;
         assert(rb1.length == oa.length);
-        assert(oa.readerCount == 1);
+        assert(oa.readBorrowCount == 1);
 
         const rb2 = oa.sliceRO;
         assert(rb2.length == oa.length);
-        assert(oa.readerCount == 2);
+        assert(oa.readBorrowCount == 2);
 
         const rb3 = oa.sliceRO;
         assert(rb3.length == oa.length);
-        assert(oa.readerCount == 3);
+        assert(oa.readBorrowCount == 3);
 
         const rb_ = rb3;
         assert(rb_.length == oa.length);
-        assert(oa.readerCount == 4);
+        assert(oa.readBorrowCount == 4);
         assertThrown!AssertError(oa.sliceWR); // single write borrow is not allowed
     }
 
@@ -280,8 +280,8 @@ pure unittest
         wb[0] = 11;
         wb[1] = 12;
         assert(wb.length == oa.length);
-        assert(oa.writerBorrowed);
-        assert(oa.readerCount == 0);
+        assert(oa.isWriterBorrowed);
+        assert(oa.readBorrowCount == 0);
         assertThrown!AssertError(oa.sliceRO);
     }
     assert(oa[] == [11, 12]);

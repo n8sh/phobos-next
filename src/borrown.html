@@ -601,39 +601,6 @@
 </li><li class="ddoc_member">
   <div class="ddoc_member_header">
   <div class="ddoc_header_anchor">
-  <a href="#Owned.isBorrowed" id="Owned.isBorrowed"><code class="code">isBorrowed</code></a>
-</div>
-</div><div class="ddoc_decl">
-  <section class="section">
-    <div class="declaration">
-      <h4>Declaration</h4>
-      <div class="dlang">
-        <p class="para">
-          <code class="code">
-            <span class="ddoc_anchor" id="Owned.isBorrowed"></span>const pure nothrow @nogc @safe bool <code class="code">isBorrowed</code>();
-
-          </code>
-        </p>
-      </div>
-    </div>
-  </section>
-</div>
-<div class="ddoc_decl">
-  <section class="section ddoc_sections">
-  <div class="ddoc_returns">
-  <h4>Return Value</h4>
-  <p class="para">
-    <code class="code">true</code> if owned container has been borrowed.
-  </p>
-</div>
-
-</section>
-
-</div>
-
-</li><li class="ddoc_member">
-  <div class="ddoc_member_header">
-  <div class="ddoc_header_anchor">
   <a href="#Owned.move" id="Owned.move"><code class="code">move</code></a>
 </div>
 </div><div class="ddoc_decl">
@@ -794,7 +761,7 @@
 </li><li class="ddoc_member">
   <div class="ddoc_member_header">
   <div class="ddoc_header_anchor">
-  <a href="#Owned.writerBorrowed" id="Owned.writerBorrowed"><code class="code">writerBorrowed</code></a>
+  <a href="#Owned.isBorrowed" id="Owned.isBorrowed"><code class="code">isBorrowed</code></a>
 </div>
 </div><div class="ddoc_decl">
   <section class="section">
@@ -803,7 +770,7 @@
       <div class="dlang">
         <p class="para">
           <code class="code">
-            <span class="ddoc_anchor" id="Owned.writerBorrowed"></span>const bool <code class="code">writerBorrowed</code>();
+            <span class="ddoc_anchor" id="Owned.isBorrowed"></span>const bool <code class="code">isBorrowed</code>();
 
           </code>
         </p>
@@ -816,7 +783,7 @@
   <div class="ddoc_returns">
   <h4>Return Value</h4>
   <p class="para">
-    <code class="code">true</code> iff currently is write borrowed.
+    <code class="code">true</code> iff owned container is borrowed.
   </p>
 </div>
 
@@ -827,7 +794,7 @@
 </li><li class="ddoc_member">
   <div class="ddoc_member_header">
   <div class="ddoc_header_anchor">
-  <a href="#Owned.readerCount" id="Owned.readerCount"><code class="code">readerCount</code></a>
+  <a href="#Owned.isWriterBorrowed" id="Owned.isWriterBorrowed"><code class="code">isWriterBorrowed</code></a>
 </div>
 </div><div class="ddoc_decl">
   <section class="section">
@@ -836,7 +803,7 @@
       <div class="dlang">
         <p class="para">
           <code class="code">
-            <span class="ddoc_anchor" id="Owned.readerCount"></span>const uint <code class="code">readerCount</code>();
+            <span class="ddoc_anchor" id="Owned.isWriterBorrowed"></span>const bool <code class="code">isWriterBorrowed</code>();
 
           </code>
         </p>
@@ -849,7 +816,40 @@
   <div class="ddoc_returns">
   <h4>Return Value</h4>
   <p class="para">
-    number of read-only borrowers.
+    <code class="code">true</code> iff owned container is write borrowed.
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#Owned.readBorrowCount" id="Owned.readBorrowCount"><code class="code">readBorrowCount</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="Owned.readBorrowCount"></span>const uint <code class="code">readBorrowCount</code>();
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_returns">
+  <h4>Return Value</h4>
+  <p class="para">
+    number of read-only borrowers of owned container.
   </p>
 </div>
 

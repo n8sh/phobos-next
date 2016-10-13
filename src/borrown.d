@@ -104,7 +104,7 @@ pragma(inline):
                 return typeof(return)(_range.opSlice[i .. j], &this);
             }
 
-            alias opSlice = sliceRO; // TODO default to read or write?
+            alias opSlice = sliceWR; // TODO default to read or write?
         }
         else
         {
@@ -207,6 +207,7 @@ template needsOwnership(C)
 
 pure unittest
 {
+    import std.traits : isInstanceOf;
     import std.exception: assertThrown;
     import core.exception : AssertError;
 
@@ -215,6 +216,8 @@ pure unittest
     alias A = Array!int;
 
     Owned!A oa;
+
+    static assert(oa.sizeof == 4*size_t.sizeof);
 
     oa ~= 1;
     oa ~= 2;
@@ -286,7 +289,9 @@ pure unittest
     }
     assert(oa[] == [11, 12]);
 
-    // test writeable slice
+    // test mutable slice
+    static assert(isInstanceOf!(WriteBorrowedSlice, typeof(oa.sliceWR())));
+    static assert(isInstanceOf!(WriteBorrowedSlice, typeof(oa[])));
     foreach (ref e; oa.sliceWR)
     {
         assertThrown!AssertError(oa.sliceRO); // one more write borrow is not allowed
@@ -295,7 +300,8 @@ pure unittest
     }
 
     // test readable slice
-    foreach (const ref e; oa[])
+    static assert(isInstanceOf!(ReadBorrowedSlice, typeof(oa.sliceRO())));
+    foreach (const ref e; oa.sliceRO)
     {
         assert(oa.sliceRO.length == oa.length);
         assert(oa.sliceRO[0 .. 0].length == 0);
@@ -311,10 +317,11 @@ pure unittest
     assert(oaMove2[] == [11, 12]);
 
     // constness propagation from owner to borrower
-    import std.traits : isInstanceOf;
-    const Owned!A mo;          // mutable owner
-    // static assert(isInstanceOf!(WriteBorrowedSlice, typeof(mo[])));
+    Owned!A mo;          // mutable owner
+    assert(mo.sliceRO.ptr == mo.ptr);
+    static assert(isInstanceOf!(ReadBorrowedSlice, typeof(mo.sliceRO())));
+
     const Owned!A co;          // const owner
-    static assert(isInstanceOf!(ReadBorrowedSlice, typeof(co[])));
-    assert(co[].ptr == co.ptr);
+    assert(co.sliceRO.ptr == co.ptr);
+    static assert(isInstanceOf!(ReadBorrowedSlice, typeof(co.sliceRO())));
 }

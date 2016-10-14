@@ -288,6 +288,7 @@ pure unittest
         assertThrown!AssertError(oa.sliceRO);
     }
     assert(oa[] == [11, 12]);
+    assert(oa.sliceRO(0, 2) == [11, 12]);
 
     // test mutable slice
     static assert(isInstanceOf!(WriteBorrowedSlice, typeof(oa.sliceWR())));
@@ -319,6 +320,7 @@ pure unittest
     // constness propagation from owner to borrower
     Owned!A mo;          // mutable owner
     assert(mo.sliceRO.ptr == mo.ptr);
+    assert(mo.sliceRO(0, 0).ptr == mo.ptr);
     static assert(isInstanceOf!(ReadBorrowedSlice, typeof(mo.sliceRO())));
 
     const Owned!A co;          // const owner

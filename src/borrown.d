@@ -1,16 +1,21 @@
 /** Ownership and borrwoing á lá Rust.
 
-    TODO Move to typecons_ex.
+    TODO:
 
-    TODO Perhaps disable all checking (and unittests) in release mode (when
+    <ul>
+    <li> TODO Move to typecons_ex.
+
+    <li> TODO Perhaps disable all checking (and unittests) in release mode (when
     debug is not active), but preserve overloads sliceRO and sliceWR. If not use
     `enforce` instead.
 
-    TODO Implement and use trait `hasUnsafeSlicing`
+    <li> TODO Implement and use trait `hasUnsafeSlicing`
 
-    TODO Add WriteBorrowedPointer, ReadBorrowedPointer to wrap `ptr` access to Container
+    <li> TODO Add WriteBorrowedPointer, ReadBorrowedPointer to wrap `ptr` access to Container
 
-    TODO Is sliceWR and sliceRO good names?
+    <li> TODO Is sliceWR and sliceRO good names?
+
+    </ul>
  */
 module borrown;
 
@@ -24,8 +29,10 @@ version(unittest)
     borrowed.
 
     Only relevant when `Container` implements referenced access over
-    - `opSlice` and
-    - `opIndex`
+    <ul>
+    <li> `opSlice` and
+    <li> `opIndex`
+    </ul>
 
     TODO Iterate and wrap all @unsafe accessors () and wrapped borrow
     checks for all modifying members of `Container`?

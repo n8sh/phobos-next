@@ -471,24 +471,28 @@
 
   </p>
 </div>
-<div class="ddoc_description">
-  <h4>Discussion</h4>
+<div class="ddoc_section">
   <p class="para">
-    TODO Move to typecons_ex.
+    <span class="ddoc_section_h">TODO:</span>
+<ul>
+    <li> TODO Move to typecons_ex.
 
 
-    TODO Perhaps disable all checking (and unittests) in release mode (when
+    <li> TODO Perhaps disable all checking (and unittests) in release mode (when
     debug is not active), but preserve overloads sliceRO and sliceWR. If not use
     <code class="code">enforce</code> instead.
 
 
-    TODO Implement and use trait <code class="code">hasUnsafeSlicing</code>
+    <li> TODO Implement and use trait <code class="code">hasUnsafeSlicing</code>
 
 
-    TODO Add WriteBorrowedPointer, ReadBorrowedPointer to wrap <code class="code">ptr</code> access to Container
+    <li> TODO Add WriteBorrowedPointer, ReadBorrowedPointer to wrap <code class="code">ptr</code> access to Container
 
 
-    TODO Is sliceWR and sliceRO good names?
+    <li> TODO Is sliceWR and sliceRO good names?
+
+
+    </ul>
   </p>
 </div>
 
@@ -529,9 +533,11 @@
 <div class="ddoc_description">
   <h4>Discussion</h4>
   <p class="para">
-        Only relevant when <code class="code">Container</code> implements referenced access over
-    - <code class="code">opSlice</code> and
-    - <code class="code">opIndex</code>
+    Only relevant when <code class="code">Container</code> implements referenced access over
+    <ul>
+    <li> <code class="code">opSlice</code> and
+    <li> <code class="code">opIndex</code>
+    </ul>
 
 
     TODO Iterate and wrap all @unsafe accessors () and wrapped borrow

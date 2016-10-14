@@ -226,6 +226,9 @@ pure unittest
 
     Owned!A oa;
 
+    Owned!A ob;
+    oa.move(ob);
+
     static assert(oa.sizeof == 4*size_t.sizeof);
 
     oa ~= 1;
@@ -240,6 +243,10 @@ pure unittest
 
     {
         const wb = oa.sliceWR;
+
+        Owned!A oc;
+        assertThrown!AssertError(oa.move()); // cannot move write borrowed
+
         assert(wb.length == 2);
         static assert(!__traits(compiles, { auto wc = wb; })); // write borrows cannot be copied
         assert(oa.isBorrowed);
@@ -251,6 +258,7 @@ pure unittest
     // ok to write borrow again in separate scope
     {
         const wb = oa.sliceWR;
+
         assert(wb.length == 2);
         assert(oa.isBorrowed);
         assert(oa.isWriteBorrowed);
@@ -269,6 +277,10 @@ pure unittest
     // multiple read-only borrows are allowed
     {
         const rb1 = oa.sliceRO;
+
+        Owned!A oc;
+        assertThrown!AssertError(oa.move(oc)); // cannot move read borrowed
+
         assert(rb1.length == oa.length);
         assert(oa.readBorrowCount == 1);
 

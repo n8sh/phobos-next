@@ -502,7 +502,7 @@
       <div class="dlang">
         <p class="para">
           <code class="code">
-            <span class="ddoc_anchor" id="isGCPointer"></span>bool <code class="code">isGCPointer</code>(void* <code class="code">ptr</code>);
+            <span class="ddoc_anchor" id="isGCPointer"></span>nothrow bool <code class="code">isGCPointer</code>(const void* <code class="code">ptr</code>);
 
           </code>
         </p>
@@ -550,6 +550,68 @@
     <code class="code">true</code> iff all values  are the same.
     See also: http://forum.dlang.org/post/iflpslqgrixdjwrlqqvn@forum.dlang.org
     See also: http://forum.dlang.org/post/mheumktihihfsxxxapff@forum.dlang.org
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#allSameIterative" id="allSameIterative"><code class="code">allSameIterative</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="allSameIterative"></span>template <code class="code">allSameIterative</code>(V...) if (isExpressions!V)
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Iterative <code class="code">allSame</code>.
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#allSameRecursive" id="allSameRecursive"><code class="code">allSameRecursive</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="allSameRecursive"></span>template <code class="code">allSameRecursive</code>(V...) if (isExpressions!V)
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Recursive <code class="code">allSame</code>.
   </p>
 </div>
 

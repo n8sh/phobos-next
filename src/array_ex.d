@@ -1,6 +1,8 @@
 /** Array container(s) with optional sortedness via template-parameter
     `Ordering` and optional use of GC via `useGCAllocation`.
 
+    TODO Allow y = sort(x.move()), where x and y are instances of unsorted Array
+
     TODO Use std.array.insertInPlace in insert()?
     TODO Use std.array.replaceInPlace?
 

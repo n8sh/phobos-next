@@ -13,13 +13,22 @@ import std.range: ElementType, isForwardRange, isRandomAccessRange, isInputRange
 import std.typecons : Tuple;
 
 /** Returns: true iff $(D ptr) is handled by the garbage collector (GC). */
-bool isGCPointer(void* ptr)
+bool isGCPointer(const void* ptr) nothrow
 {
-    import core.memory;
+    import core.memory : GC;
     return !!GC.addrOf(ptr);
 }
 alias inGC = isGCPointer;
 alias isGCed = isGCPointer;
+
+nothrow unittest
+{
+    int s;
+    int* sp = &s;
+    assert(!sp.isGCPointer);
+    int* ip = new int;
+    assert(ip.isGCPointer);
+}
 
 /** Returns: true iff all values $(D V) are the same.
     See also: http://forum.dlang.org/post/iflpslqgrixdjwrlqqvn@forum.dlang.org
@@ -47,6 +56,7 @@ unittest
     static assert(!allSame!(42, 43, 42));
 }
 
+/** Iterative `allSame`. */
 template allSameIterative(V...)
     if (isExpressions!V)
 {
@@ -79,6 +89,7 @@ unittest
     static assert(!allSameIterative!(42, 43, 42));
 }
 
+/** Recursive `allSame`. */
 template allSameRecursive(V...)
     if (isExpressions!(V))
 {
@@ -173,19 +184,19 @@ template allSameTypesInTuple(T)
     alias HOTUP = Tuple!(int, int, int);
     static assert(allSameTypesInTuple!HOTUP);
 
-    HOTUP hotup = HOTUP(1, 2, 3);
+    const HOTUP hotup = HOTUP(1, 2, 3);
     static assert(allSameTypesInTuple!(typeof(hotup)));
 
     alias HETUP = Tuple!(string, bool, float);
     static assert(!allSameTypesInTuple!(HETUP));
 
-    HETUP hetup = HETUP("test", false, 2.345);
+    const HETUP hetup = HETUP("test", false, 2.345);
     static assert(!allSameTypesInTuple!(typeof(hetup)));
 
     alias ZTUP = Tuple!();
     static assert(allSameTypesInTuple!ZTUP);
 
-    ZTUP ztup = ZTUP();
+    const ZTUP ztup = ZTUP();
     static assert(allSameTypesInTuple!(typeof(ztup)));
 }
 
@@ -201,8 +212,8 @@ inout (T.Types[0])[T.length] asStaticArray(T)(inout T tup)
 pure nothrow @nogc unittest
 {
     import std.typecons: tuple;
-    auto tup = tuple("a", "b", "c", "d");
-    string[4] arr = ["a", "b", "c", "d"];
+    const auto tup = tuple("a", "b", "c", "d");
+    const string[4] arr = ["a", "b", "c", "d"];
     static assert(is(typeof(tup.asStaticArray()) == typeof(arr)));
     assert(tup.asStaticArray() == arr);
 }
@@ -215,7 +226,7 @@ auto asDynamicArray(T)(inout T tup)
     alias E = T.Types[0];
     E[] a = new E[T.length];
     a.length = T.length;
-    foreach (i, e; tup)
+    foreach (const i, e; tup)
     {
         a[i] = e;
     }
@@ -741,7 +752,7 @@ auto uniqueEnumMembersHashed(T)()
 {
     import std.traits : EnumMembers;
     bool[T] uniquifier;
-    foreach (member; EnumMembers!T)
+    foreach (const member; EnumMembers!T)
     {
         uniquifier[member] = true;
     }
@@ -770,8 +781,8 @@ template sizesOf(T...)          // TODO Add to Phobos
     enum sizesOf = staticMap!(sizeOf, T);
 }
 
-enum stringOf(T) = T.stringof;      // TODO Add to Phobos
-template stringsOf(T...)          // TODO Add to Phobos
+enum stringOf(T) = T.stringof;  // TODO Add to Phobos
+template stringsOf(T...)        // TODO Add to Phobos
 {
     import std.meta : staticMap;
     enum stringsOf = staticMap!(stringOf, T);

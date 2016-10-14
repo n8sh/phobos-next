@@ -197,12 +197,12 @@ private:
     alias _range this;          /// behave like range
 }
 
-template needsOwnership(C)
+template needsOwnership(Container)
 {
     import std.range.primitives : hasSlicing;
     // TODO activate when array_ex : Array
-    // enum needsOwnership = hasSlicing!C; // TODO extend to check if it's not @safe
-    enum needsOwnership = is(C == struct);
+    // enum needsOwnership = hasSlicing!Container; // TODO extend to check if it's not @safe
+    enum needsOwnership = is(Container == struct);
 }
 
 pure unittest

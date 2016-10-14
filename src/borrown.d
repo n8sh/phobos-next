@@ -164,6 +164,7 @@ private static struct WriteBorrowedSlice(Range, Owner)
 
     ~this()
     {
+        debug assert(_owner._writeBorrowed, "Write borrow flag is already false, something is wrong with borrowing logic.");
         _owner._writeBorrowed = false;
     }
 
@@ -182,17 +183,20 @@ private static struct ReadBorrowedSlice(Range, Owner)
         assert(owner);
         _range = range;
         _owner = owner;
+
+        assert(_owner._readBorrowCount != typeof(_owner._readBorrowCount).max, "Cannot have more borrowers.");
         _owner._readBorrowCount += 1;
     }
 
     this(this)
     {
+        assert(_owner._readBorrowCount != typeof(_owner._readBorrowCount).max, "Cannot have more borrowers.");
         _owner._readBorrowCount += 1;
     }
 
     ~this()
     {
-        assert(_owner._readBorrowCount != 0);
+        debug assert(_owner._readBorrowCount != 0, "Read borrow counter is already zero, something is wrong with borrowing logic.");
         _owner._readBorrowCount -= 1;
     }
 

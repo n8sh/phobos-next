@@ -478,10 +478,17 @@
 
 
     TODO Perhaps disable all checking (and unittests) in release mode (when
-    debug is not active), but preserve overloads sliceRO and sliceWR
+    debug is not active), but preserve overloads sliceRO and sliceWR. If not use
+    <code class="code">enforce</code> instead.
 
 
     TODO Implement and use trait <code class="code">hasUnsafeSlicing</code>
+
+
+    TODO Add WriteBorrowedPointer, ReadBorrowedPointer to wrap <code class="code">ptr</code> access to Container
+
+
+    TODO Is sliceWR and sliceRO good names?
   </p>
 </div>
 

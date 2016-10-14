@@ -227,7 +227,7 @@ pure unittest
     Owned!A oa;
 
     Owned!A ob;
-    oa.move(ob);
+    oa.move(ob);                // ok to move unborrowed
 
     static assert(oa.sizeof == 4*size_t.sizeof);
 

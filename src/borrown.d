@@ -147,11 +147,11 @@ pragma(inline):
     /// Returns: number of read-only borrowers of owned container.
     uint readBorrowCount() const { return _readBorrowCount; }
 
-private:
     Container _range;            /// wrapped container
+    alias _range this;
+private:
     bool _writeBorrowed = false; /// `true' if _range is currently referred to
     uint _readBorrowCount = 0; /// number of readable borrowers. TODO use `size_t` minus one bit instead in `size_t _stats`
-    alias _range this;
 }
 
 /** Checked overload for `std.algorithm.mutation.move`.

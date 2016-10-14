@@ -15,6 +15,9 @@
 
     <li> TODO Is sliceWR and sliceRO good names?
 
+    <li> TODO can we make the `_range` member non-visible but the alias this
+    public in ReadBorrowedSlice and WriteBorrowedSlice
+
     </ul>
  */
 module borrown;
@@ -96,7 +99,7 @@ pragma(inline):
         ReadBorrowedSlice!(Range, Owned) sliceRO() const @trusted
         {
             assert(!_writeBorrowed, "This is already write-borrowed!");
-            return typeof(return)(_range.opSlice,
+            return typeof(return)(_container.opSlice,
                                   cast(Unqual!(typeof(this))*)(&this)); // trusted unconst casta
         }
 
@@ -104,7 +107,7 @@ pragma(inline):
         ReadBorrowedSlice!(Range, Owned) sliceRO(size_t i, size_t j) const @trusted
         {
             assert(!_writeBorrowed, "This is already write-borrowed!");
-            return typeof(return)(_range.opSlice[i .. j],
+            return typeof(return)(_container.opSlice[i .. j],
                                   cast(Unqual!(typeof(this))*)(&this)); // trusted unconst cast
         }
 
@@ -115,7 +118,7 @@ pragma(inline):
             {
                 assert(!_writeBorrowed, "This is already write-borrowed!");
                 assert(_readBorrowCount == 0, "This is already read-borrowed!");
-                return typeof(return)(_range.opSlice, &this);
+                return typeof(return)(_container.opSlice, &this);
             }
 
             /// Get read-write slice in range i .. j.
@@ -123,7 +126,7 @@ pragma(inline):
             {
                 assert(!_writeBorrowed, "This is already write-borrowed!");
                 assert(_readBorrowCount == 0, "This is already read-borrowed!");
-                return typeof(return)(_range.opSlice[i .. j], &this);
+                return typeof(return)(_container.opSlice[i .. j], &this);
             }
 
             alias opSlice = sliceWR; // TODO default to read or write?
@@ -147,10 +150,10 @@ pragma(inline):
     /// Returns: number of read-only borrowers of owned container.
     uint readBorrowCount() const { return _readBorrowCount; }
 
-    Container _range;            /// wrapped container
-    alias _range this;
+    Container _container;            /// wrapped container
+    alias _container this;
 private:
-    bool _writeBorrowed = false; /// `true' if _range is currently referred to
+    bool _writeBorrowed = false; /// `true' if _container is currently referred to
     uint _readBorrowCount = 0; /// number of readable borrowers. TODO use `size_t` minus one bit instead in `size_t _stats`
 }
 
@@ -196,10 +199,11 @@ private static struct WriteBorrowedSlice(Range, Owner)
         _owner._writeBorrowed = false;
     }
 
-private:
     Range _range;                   /// range
-    Owner* _owner = null;           /// pointer to container owner
     alias _range this;              /// behave like range
+
+private:
+    Owner* _owner = null;           /// pointer to container owner
 }
 
 /** Read-borrowed access to range `Range`. */
@@ -228,10 +232,11 @@ private static struct ReadBorrowedSlice(Range, Owner)
         _owner._readBorrowCount -= 1;
     }
 
-private:
     const Range _range;         /// constant range
-    Owner* _owner = null;       /// pointer to container owner
     alias _range this;          /// behave like range
+
+private:
+    Owner* _owner = null;       /// pointer to container owner
 }
 
 template needsOwnership(Container)

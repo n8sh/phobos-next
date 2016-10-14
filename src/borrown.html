@@ -617,7 +617,7 @@
       <div class="dlang">
         <p class="para">
           <code class="code">
-            <span class="ddoc_anchor" id="Owned.move.2"></span>pure nothrow @nogc @safe void <code class="code">move</code>(ref typeof(this) <code class="code">dst</code>);
+            <span class="ddoc_anchor" id="Owned.move.2"></span>pure nothrow @nogc void <code class="code">move</code>(ref typeof(this) <code class="code">dst</code>);
 
           </code>
         </p>
@@ -629,7 +629,39 @@
   <section class="section ddoc_sections">
   <div class="ddoc_summary">
   <p class="para">
-    Checked overload for <code class="code">move</code>.
+    Checked overload for <code class="code">std.algorithm.mutation.<code class="code">move</code></code>.
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#Owned.moveEmplace" id="Owned.moveEmplace"><code class="code">moveEmplace</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="Owned.moveEmplace"></span>pure nothrow @nogc void <code class="code">moveEmplace</code>(ref typeof(this) <code class="code">dst</code>);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Checked overload for <code class="code">std.algorithm.mutation.<code class="code">moveEmplace</code></code>.
   </p>
 </div>
 
@@ -902,6 +934,46 @@
   <p class="para">
     TODO Can we somehow prevent users of Owned from accidentally using
     <code class="code">std.algorithm.mutation.<code class="code">move</code></code> instead of this wrapper?
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#moveEmplace" id="moveEmplace"><code class="code">moveEmplace</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="moveEmplace"></span>pure nothrow @nogc @safe void <code class="code">moveEmplace</code>(Owner)(ref Owner <code class="code">src</code>, ref Owner <code class="code">dst</code>) if (isInstanceOf!(Owned, Owner));
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Checked overload for <code class="code">std.algorithm.mutation.<code class="code">moveEmplace</code></code>.
+
+  </p>
+</div>
+<div class="ddoc_description">
+  <h4>Discussion</h4>
+  <p class="para">
+    TODO Can we somehow prevent users of Owned from accidentally using
+    <code class="code">std.algorithm.mutation.<code class="code">moveEmplace</code></code> instead of this wrapper?
   </p>
 </div>
 

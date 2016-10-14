@@ -58,8 +58,8 @@ pragma(inline):
         return move(this);
     }
 
-    /** Checked overload for move. */
-    void move(ref typeof(this) dst) @safe pure nothrow @nogc
+    /** Checked overload for `std.algorithm.mutation.move`. */
+    void move(ref typeof(this) dst) pure nothrow @nogc
     {
         assert(!this._writeBorrowed, "Source is still write-borrowed, cannot move!");
         assert(this._readBorrowCount == 0, "Source is still read-borrowed, cannot move!");
@@ -69,6 +69,16 @@ pragma(inline):
 
         import std.algorithm.mutation : move;
         move(this, dst);
+    }
+
+    /** Checked overload for `std.algorithm.mutation.moveEmplace`. */
+    void moveEmplace(ref typeof(this) dst) pure nothrow @nogc
+    {
+        assert(!this._writeBorrowed, "Source is still write-borrowed, cannot moveEmplace!");
+        assert(this._readBorrowCount == 0, "Source is still read-borrowed, cannot moveEmplace!");
+
+        import std.algorithm.mutation : moveEmplace;
+        moveEmplace(this, dst);
     }
 
     static if (true/*TODO hasUnsafeSlicing!Container*/)
@@ -146,6 +156,17 @@ void move(Owner)(ref Owner src, ref Owner dst) @safe pure nothrow @nogc
     if (isInstanceOf!(Owned, Owner))
 {
     src.move(dst);              // reuse member function
+}
+
+/** Checked overload for `std.algorithm.mutation.moveEmplace`.
+
+    TODO Can we somehow prevent users of Owned from accidentally using
+    `std.algorithm.mutation.moveEmplace` instead of this wrapper?
+*/
+void moveEmplace(Owner)(ref Owner src, ref Owner dst) @safe pure nothrow @nogc
+    if (isInstanceOf!(Owned, Owner))
+{
+    src.moveEmplace(dst);   // reuse member function
 }
 
 /** Write-borrowed access to range `Range`. */
@@ -228,6 +249,9 @@ pure unittest
 
     Owned!A ob;
     oa.move(ob);                // ok to move unborrowed
+
+    Owned!A od = void;
+    oa.moveEmplace(od);         // ok to moveEmplace unborrowed
 
     static assert(oa.sizeof == 4*size_t.sizeof);
 

@@ -3,9 +3,14 @@
     TODO Move to typecons_ex.
 
     TODO Perhaps disable all checking (and unittests) in release mode (when
-    debug is not active), but preserve overloads sliceRO and sliceWR
+    debug is not active), but preserve overloads sliceRO and sliceWR. If not use
+    `enforce` instead.
 
     TODO Implement and use trait `hasUnsafeSlicing`
+
+    TODO Add WriteBorrowedPointer, ReadBorrowedPointer to wrap `ptr` access to Container
+
+    TODO Is sliceWR and sliceRO good names?
  */
 module borrown;
 
@@ -71,7 +76,7 @@ pragma(inline):
         import std.typecons : Unqual;
 
         /// Get full read-only slice.
-        ReadBorrowedSlice!(Range, Owned) sliceRO() const @trusted // TODO shorter name?
+        ReadBorrowedSlice!(Range, Owned) sliceRO() const @trusted
         {
             assert(!_writeBorrowed, "This is already write-borrowed!");
             return typeof(return)(_range.opSlice,
@@ -79,17 +84,17 @@ pragma(inline):
         }
 
         /// Get read-only slice in range i .. j.
-        ReadBorrowedSlice!(Range, Owned) sliceRO(size_t i, size_t j) const @trusted // TODO shorter name?
+        ReadBorrowedSlice!(Range, Owned) sliceRO(size_t i, size_t j) const @trusted
         {
             assert(!_writeBorrowed, "This is already write-borrowed!");
             return typeof(return)(_range.opSlice[i .. j],
-                                  cast(Unqual!(typeof(this))*)(&this)); // trusted unconst casta
+                                  cast(Unqual!(typeof(this))*)(&this)); // trusted unconst cast
         }
 
         static if (isMutable!Container)
         {
             /// Get full read-write slice.
-            WriteBorrowedSlice!(Range, Owned) sliceWR() @trusted // TODO shorted name?
+            WriteBorrowedSlice!(Range, Owned) sliceWR() @trusted
             {
                 assert(!_writeBorrowed, "This is already write-borrowed!");
                 assert(_readBorrowCount == 0, "This is already read-borrowed!");
@@ -97,7 +102,7 @@ pragma(inline):
             }
 
             /// Get read-write slice in range i .. j.
-            WriteBorrowedSlice!(Range, Owned) sliceWR(size_t i, size_t j) @trusted // TODO shorted name?
+            WriteBorrowedSlice!(Range, Owned) sliceWR(size_t i, size_t j) @trusted
             {
                 assert(!_writeBorrowed, "This is already write-borrowed!");
                 assert(_readBorrowCount == 0, "This is already read-borrowed!");

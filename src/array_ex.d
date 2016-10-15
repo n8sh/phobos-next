@@ -995,9 +995,9 @@ private:
 
     // TODO reuse module `storage` for small size/array optimization (SSO)
     static if (useGCAllocation)
-        E* _ptr;                // non-GC-allocated store pointer
+        E* _ptr;                // GC-allocated store pointer. See also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
     else
-        @nogc E* _ptr;          // GC-allocated store pointer. See also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
+        @nogc E* _ptr;          // non-GC-allocated store pointer
     size_t _capacity;           // store capacity
     size_t _length;             // length
 }
@@ -1014,7 +1014,7 @@ alias SortedSetArray(E, Assignment assignment = Assignment.disabled,
 template shouldAddGCRange(T)
 {
     import std.traits : isPointer, isInstanceOf, hasIndirections;
-    enum shouldAddGCRange = (hasIndirections!T && // TODO should we use `hasAliasing` instead?
+    enum shouldAddGCRange = (hasIndirections!T && // TODO should we use `hasAliasing` instead?. See: http://forum.dlang.org/post/gblmkrsqrpgdlwyfwxld@forum.dlang.org
                              !isInstanceOf!(Array, T) // TODO generalize to `isContainer`
                              );
 }

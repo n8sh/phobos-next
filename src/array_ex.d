@@ -75,7 +75,7 @@ struct Array(E,
              alias less = "a < b") // TODO move out of this definition and support only for the case when `ordering` is not `Ordering.unsorted`
 {
     import std.range : isInputRange, ElementType;
-    import std.traits : isAssignable, Unqual, isSomeChar, isArray, hasIndirections;
+    import std.traits : isAssignable, Unqual, isSomeChar, isArray;
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
     import core.stdc.string : memset;
@@ -92,19 +92,6 @@ struct Array(E,
     static if (shouldAddGCRange!E)
     {
         import core.memory : GC;
-    }
-
-    /** Is `true` iff `T` is a type whose instances need to be scanned by the
-        garbage collector (GC).
-    */
-    template shouldAddGCRange(T)
-    {
-        import std.traits : isPointer, isInstanceOf;
-        // pragma(msg, isInstanceOf!(Array, E)); // TODO why doesn't ever become true?
-        enum shouldAddGCRange = (!isInstanceOf!(Array, E) && // TODO generalize to `isContainer`
-                                 (isPointer!T ||
-                                  hasIndirections!T ||
-                                  is (T == class)));
     }
 
     /// Type of element stored.
@@ -152,7 +139,7 @@ struct Array(E,
         typeof(return) that = void;
         that.allocateStoreWithCapacity(1);
         // TODO gc_removeRange(element) needed or does `moveEmplace` handle this for us?
-        static if (!hasIndirections!E)
+        static if (!shouldAddGCRange!E)
             moveEmplace(*(cast(ME*)(&element)), that._mptr[0]); // safe to cast away constness when no indirections
         else
             moveEmplace(element, that._ptr[0]);
@@ -169,7 +156,7 @@ struct Array(E,
         // TODO gc_removeRange(elements)
         foreach (const i, ref element; elements)
         {
-            static if (!hasIndirections!E)
+            static if (!shouldAddGCRange!E)
                 moveEmplace(*(cast(ME*)(&element)), that._mptr[i]); // safe to cast away constness when no indirections
             else
                 moveEmplace(element, that._ptr[i]);
@@ -257,7 +244,7 @@ struct Array(E,
         static if (isCopyable!E)
         {
             /// Return type of `dup`, that mimics behaviour of D's builtin `dup`.
-            static if (!hasIndirections!E)
+            static if (!shouldAddGCRange!E)
                 alias DupedType = Array!(Unqual!E); // safe to cast away constness when no indirections
             else
                 alias DupedType = Array!E;
@@ -273,7 +260,7 @@ struct Array(E,
                     // copy from old to new
                     copy._ptr[i] = this._ptr[i];
                 }
-                __addMRange(copy);
+                __addMRange(copy); //check more of these...;
                 return copy;
             }
         }
@@ -462,7 +449,7 @@ struct Array(E,
         {
             destroyElements();
             static if (shouldAddGCRange!E) { gc_removeRange(_ptr); }
-            static if (!hasIndirections!E)
+            static if (!shouldAddGCRange!E)
                 free(cast(Unqual!(E)*)_ptr); // safe to case away constness
             else
                 free(_ptr);
@@ -1007,9 +994,12 @@ private:
     }
 
     // TODO reuse module `storage` for small size/array optimization (SSO)
-    E* _ptr;               // store pointer
-    size_t _capacity;      // store capacity
-    size_t _length;        // length
+    static if (useGCAllocation)
+        E* _ptr;                // non-GC-allocated store pointer
+    else
+        @nogc E* _ptr;          // GC-allocated store pointer. See also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
+    size_t _capacity;           // store capacity
+    size_t _length;             // length
 }
 
 alias SortedArray(E, Assignment assignment = Assignment.disabled,
@@ -1019,6 +1009,15 @@ alias SortedArray(E, Assignment assignment = Assignment.disabled,
 alias SortedSetArray(E, Assignment assignment = Assignment.disabled,
                      bool useGCAllocation = false,
                      alias less = "a < b") = Array!(E, assignment, Ordering.sortedUniqueSet, useGCAllocation, less);
+
+/** Is `true` iff instances of `T` needs to be scanned by the GC. */
+template shouldAddGCRange(T)
+{
+    import std.traits : isPointer, isInstanceOf, hasIndirections;
+    enum shouldAddGCRange = (hasIndirections!T && // TODO should we use `hasAliasing` instead?
+                             !isInstanceOf!(Array, T) // TODO generalize to `isContainer`
+                             );
+}
 
 unittest
 {
@@ -1542,8 +1541,8 @@ unittest
     alias DA = E[];             // builtin D array/slice
     alias CA = Array!E;         // container array
 
-    CA ca = [1];
-    DA da = [1];
+    const CA ca = [1];
+    const DA da = [1];
 
     auto daCopy = da.dup;
     auto caCopy = ca.dup;

@@ -702,39 +702,6 @@
   <li class="ddoc_member">
   <div class="ddoc_member_header">
   <div class="ddoc_header_anchor">
-  <a href="#Array.shouldAddGCRange" id="Array.shouldAddGCRange"><code class="code">shouldAddGCRange</code></a>
-</div>
-</div><div class="ddoc_decl">
-  <section class="section">
-    <div class="declaration">
-      <h4>Declaration</h4>
-      <div class="dlang">
-        <p class="para">
-          <code class="code">
-            <span class="ddoc_anchor" id="Array.shouldAddGCRange"></span>enum auto <code class="code">shouldAddGCRange</code>(T);
-
-          </code>
-        </p>
-      </div>
-    </div>
-  </section>
-</div>
-<div class="ddoc_decl">
-  <section class="section ddoc_sections">
-  <div class="ddoc_summary">
-  <p class="para">
-    Is <code class="code">true</code> iff <code class="code">T</code> is a type whose instances need to be scanned by the
-        garbage collector (GC).
-  </p>
-</div>
-
-</section>
-
-</div>
-
-</li><li class="ddoc_member">
-  <div class="ddoc_member_header">
-  <div class="ddoc_header_anchor">
   <a href="#Array.isString" id="Array.isString"><code class="code">isString</code></a>
 </div>
 </div><div class="ddoc_decl">
@@ -1910,6 +1877,38 @@ auto <code class="code">opSlice</code>(this This)(size_t <code class="code">i</c
 
 </li>
 </ul>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#shouldAddGCRange" id="shouldAddGCRange"><code class="code">shouldAddGCRange</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="shouldAddGCRange"></span>enum auto <code class="code">shouldAddGCRange</code>(T);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Is <code class="code">true</code> iff instances of <code class="code">T</code> needs to be scanned by the GC.
+  </p>
+</div>
+
+</section>
 
 </div>
 

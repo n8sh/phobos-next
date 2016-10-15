@@ -85,11 +85,14 @@ struct Array(E,
 
     alias ME = Unqual!E;        // mutable element type
 
-    static if (useGCAllocation)
+    template shouldAddGCRange(T)
     {
-        import core.memory : GC;
+        import std.traits : hasIndirections, isInstanceOf;
+        enum shouldAddGCRange = hasIndirections!T && !isInstanceOf!(Array, T); // TODO unify to container_traits.shouldAddGCRange
     }
-    static if (shouldAddGCRange!E)
+
+    static if (useGCAllocation ||
+               shouldAddGCRange!E)
     {
         import core.memory : GC;
     }
@@ -1013,13 +1016,6 @@ alias SortedArray(E, Assignment assignment = Assignment.disabled,
 alias SortedSetArray(E, Assignment assignment = Assignment.disabled,
                      bool useGCAllocation = false,
                      alias less = "a < b") = Array!(E, assignment, Ordering.sortedUniqueSet, useGCAllocation, less);
-
-
-template shouldAddGCRange(T)
-{
-    import std.traits : hasIndirections, isInstanceOf;
-    enum shouldAddGCRange = hasIndirections!T && !isInstanceOf!(Array, T);
-}
 
 unittest
 {

@@ -55,6 +55,12 @@ template ContainerElementType(ContainerType, ElementType)
     }
 }
 
+template shouldAddGCRange(T)
+{
+    import std.traits : hasIndirections;
+    enum shouldAddGCRange = hasIndirections!T;
+}
+
 /**
  * This enum must be used as an UDA to mark a variable of a type that looks
  * like GC-managed but that is actually not GC-managed.

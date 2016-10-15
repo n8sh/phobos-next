@@ -75,13 +75,15 @@ struct Array(E,
              alias less = "a < b") // TODO move out of this definition and support only for the case when `ordering` is not `Ordering.unsorted`
 {
     import std.range : isInputRange, ElementType;
-    import std.traits : isAssignable, Unqual, isSomeChar, isArray;
+    import std.traits : isAssignable, Unqual, isSomeChar, isArray, hasIndirections;
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
     import core.stdc.string : memset;
     import std.algorithm.mutation : move, moveEmplace;
 
     import qcmeman;
+
+    alias ME = Unqual!E;        // mutable element type
 
     static if (useGCAllocation)
     {
@@ -97,9 +99,9 @@ struct Array(E,
     */
     template shouldAddGCRange(T)
     {
-        import std.traits : isPointer, hasIndirections, isInstanceOf;
+        import std.traits : isPointer, isInstanceOf;
         // pragma(msg, isInstanceOf!(Array, E)); // TODO why doesn't ever become true?
-        enum shouldAddGCRange = (!isInstanceOf!(Array, E) &&
+        enum shouldAddGCRange = (!isInstanceOf!(Array, E) && // TODO generalize to `isContainer`
                                  (isPointer!T ||
                                   hasIndirections!T ||
                                   is (T == class)));
@@ -131,6 +133,7 @@ struct Array(E,
         typeof(return) that = void;
         that.allocateStoreWithCapacity(initialLength, true); // `true` here means zero initialize
         that._length = initialLength;
+        __addRange(that);
         return that;
     }
 
@@ -148,22 +151,40 @@ struct Array(E,
     {
         typeof(return) that = void;
         that.allocateStoreWithCapacity(1);
-        moveEmplace(element, that._ptr[0]);
+        // TODO gc_removeRange(element) needed or does `moveEmplace` handle this for us?
+        static if (!hasIndirections!E)
+            moveEmplace(*(cast(ME*)(&element)), that._mptr[0]); // safe to cast away constness when no indirections
+        else
+            moveEmplace(element, that._ptr[0]);
         that._length = 1;
+        __addRange(that);   // TODO needed? or does `moveEmplace` handle this for us?
         return that;
     }
 
     // /// Returns: an array of length `Us.length` with elements set to `elements`.
-    static typeof(this) withElements(Us...)(Us elements) @trusted nothrow
+    pragma(inline) static typeof(this) withElements(Us...)(Us elements) @trusted nothrow
     {
         typeof(return) that = void;
         that.allocateStoreWithCapacity(Us.length);
+        // TODO gc_removeRange(elements)
         foreach (const i, ref element; elements)
         {
-            moveEmplace(element, that._ptr[i]);
+            static if (!hasIndirections!E)
+                moveEmplace(*(cast(ME*)(&element)), that._mptr[i]); // safe to cast away constness when no indirections
+            else
+                moveEmplace(element, that._ptr[i]);
         }
         that._length = Us.length;
+        __addRange(that);
         return that;
+    }
+
+    pragma(inline) private static void __addRange(ref typeof(this) that)
+    {
+        static if (shouldAddGCRange!E)
+        {
+            gc_addRange(that._ptr, that._length * E.sizeof);
+        }
     }
 
     static if (useGCAllocation)
@@ -230,19 +251,26 @@ struct Array(E,
 
         static if (isCopyable!E)
         {
+            /// Return type of `dup`, that mimics behaviour of D's builtin `dup`.
+            static if (!hasIndirections!E)
+                alias DupedType = Array!(Unqual!E); // safe to cast away constness when no indirections
+            else
+                alias DupedType = Array!E;
+
             /// Returns: shallow duplicate of `this`.
-            typeof(this) dup() nothrow @trusted const
+            DupedType dup() @trusted const
             {
                 typeof(return) copy;
                 copy._length = this._length;
                 copy.allocateStoreWithCapacity(this._length);     // allocate new store pointer
                 foreach (const i; 0 .. _length)
                 {
-                    copy._ptr[i] = this._ptr[i]; // copy from old to new
+                    // copy from old to new
+                    copy._ptr[i] = this._ptr[i];
                 }
                 static if (shouldAddGCRange!E)
                 {
-                    GC.addRange(copy._ptr, _length * E.sizeof);
+                    GC.addRange(copy._ptr, copy._length * E.sizeof);
                 }
                 return copy;
             }
@@ -305,7 +333,7 @@ struct Array(E,
             size_t i = 0;
             foreach (ref value; values)
             {
-                _ptr[i++] = value;
+                _mptr[i++] = value;
             }
             _length = values.length;
         }
@@ -330,33 +358,33 @@ struct Array(E,
         }
     }
 
-    /// Reserve room for `n` elements at store `_ptr`.
+    /// Reserve room for `newCapacity` elements at store `_ptr`.
     static if (useGCAllocation)
     {
-        void reserve(size_t n) pure nothrow @trusted
+        void reserve(size_t newCapacity) pure nothrow @trusted
         {
-            makeReservedLengthAtLeast(n);
+            makeCapacityAtLeast(newCapacity);
             static if (shouldAddGCRange!E) { gc_removeRange(_ptr); } // TODO move somewhere else?
-            _ptr = cast(E*)GC.realloc(_ptr, E.sizeof * _capacity);
-            static if (shouldAddGCRange!E) { gc_addRange(_ptr, _length * E.sizeof); } // TODO move somewhere else?
+            _ptr = cast(E*)GC.realloc(_mptr, E.sizeof * _capacity);
+            __addRange(this);
         }
     }
     else
     {
-        void reserve(size_t n) pure nothrow @trusted @nogc
+        void reserve(size_t newCapacity) pure nothrow @trusted @nogc
         {
-            makeReservedLengthAtLeast(n);
+            makeCapacityAtLeast(newCapacity);
             static if (shouldAddGCRange!E) { gc_removeRange(_ptr); } // TODO move somewhere else?
-            _ptr = cast(E*)realloc(_ptr, E.sizeof * _capacity);
-            static if (shouldAddGCRange!E) { gc_addRange(_ptr, _length * E.sizeof); } // TODO move somewhere else?
+            _ptr = cast(E*)realloc(_mptr, E.sizeof * _capacity);
+            __addRange(this);
         }
     }
 
     /// Helper for `reserve`.
-    private void makeReservedLengthAtLeast(size_t n) pure nothrow @safe @nogc
+    private void makeCapacityAtLeast(size_t newCapacity) pure nothrow @safe @nogc
     {
         import std.math : nextPow2;
-        if (_capacity < n) { _capacity = n.nextPow2; }
+        if (_capacity < newCapacity) { _capacity = newCapacity.nextPow2; }
     }
 
     /// Pack/Compress storage.
@@ -366,16 +394,13 @@ struct Array(E,
         {
             if (_length)
             {
-                _ptr = cast(E*)GC.realloc(_ptr, E.sizeof * _length);
+                _ptr = cast(E*)GC.realloc(_mptr, E.sizeof * _length);
                 // TODO gc_removeRange with what arguments?
             }
             else
             {
-                static if (shouldAddGCRange!E)
-                {
-                    gc_removeRange(_ptr);
-                }
-                GC.free(_ptr);
+                static if (shouldAddGCRange!E) { gc_removeRange(_ptr); }
+                GC.free(_mptr);
                 _ptr = null;
             }
             _capacity = _length;
@@ -387,11 +412,11 @@ struct Array(E,
         {
             if (_length)
             {
-                _ptr = cast(E*)realloc(_ptr, E.sizeof * _capacity);
+                _ptr = cast(E*)realloc(_mptr, E.sizeof * _capacity);
             }
             else
             {
-                free(_ptr);
+                free(_mptr);
                 _ptr = null;
             }
             _capacity = _length;
@@ -415,10 +440,7 @@ struct Array(E,
         private void release()
         {
             destroyElements();
-            static if (shouldAddGCRange!E)
-            {
-                gc_removeRange(_ptr);
-            }
+            static if (shouldAddGCRange!E) { gc_removeRange(_ptr); }
             GC.free(_ptr);
         }
     }
@@ -437,11 +459,11 @@ struct Array(E,
         private void release()
         {
             destroyElements();
-            static if (shouldAddGCRange!E)
-            {
-                gc_removeRange(_ptr);
-            }
-            free(_ptr);
+            static if (shouldAddGCRange!E) { gc_removeRange(_ptr); }
+            static if (!hasIndirections!E)
+                free(cast(Unqual!(E)*)_ptr); // safe to case away constness
+            else
+                free(_ptr);
         }
     }
 
@@ -470,19 +492,20 @@ struct Array(E,
     ContainerElementType!(typeof(this), E) linearPopAtIndex(size_t index) @trusted @("complexity", "O(length)")
     {
         assert(index < _length);
-        auto value = move(_ptr[index]);
+        auto value = move(_mptr[index]);
         // TODO use this instead:
         // const si = index + 1;   // source index
         // const ti = index;       // target index
         // const restLength = _length - (index + 1);
         // import std.algorithm.mutation : moveEmplaceAll;
-        // moveEmplaceAll(_ptr[si .. si + restLength],
-        //                _ptr[ti .. ti + restLength]);
+        // moveEmplaceAll(_mptr[si .. si + restLength],
+        //                _mptr[ti .. ti + restLength]);
         foreach (const i; 0 .. _length - (index + 1)) // each element index that needs to be moved
         {
             const si = index + i + 1; // source index
             const ti = index + i; // target index
-            moveEmplace(_ptr[si], _ptr[ti]);
+            moveEmplace(_mptr[si],
+                        _mptr[ti]);
         }
         --_length;
         return value;
@@ -507,7 +530,7 @@ struct Array(E,
     pragma(inline) E backPop() @trusted
     {
         assert(!empty);
-        return move(_ptr[--_length]); // TODO optimize by not clearing `_ptr[--_length]` after move
+        return move(_mptr[--_length]); // TODO optimize by not clearing `_ptr[--_length]` after move
         // TODO gc_removeRange
     }
 
@@ -971,6 +994,9 @@ struct Array(E,
     }
 
 private:
+
+    /// Get internal pointer to mutable content.
+    ME* _mptr() { return cast(typeof(return))_ptr; }
 
     /// Get internal slice.
     auto ref slice() inout @trusted
@@ -1504,4 +1530,23 @@ pure nothrow unittest
         swap(x[0], y[0]);
     }
 
+}
+
+/// assert same behaviour of `dup` as for builtin arrays
+unittest
+{
+    alias E = const(int);
+
+    alias DA = E[];             // builtin D array/slice
+    alias CA = Array!E;         // container array
+
+    CA ca = [1];
+    DA da = [1];
+
+    auto daCopy = da.dup;
+    auto caCopy = ca.dup;
+
+    // should have same element type
+    static assert(is(typeof(caCopy[0]) ==
+                     typeof(daCopy[0])));
 }

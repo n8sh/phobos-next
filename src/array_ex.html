@@ -1002,7 +1002,7 @@
 </li><li class="ddoc_member">
   <div class="ddoc_member_header">
   <div class="ddoc_header_anchor">
-  <a href="#Array.dup" id="Array.dup"><code class="code">dup</code></a>
+  <a href="#Array.DupedType" id="Array.DupedType"><code class="code">DupedType</code></a>
 </div>
 </div><div class="ddoc_decl">
   <section class="section">
@@ -1011,7 +1011,7 @@
       <div class="dlang">
         <p class="para">
           <code class="code">
-            <span class="ddoc_anchor" id="Array.dup"></span>const nothrow @trusted typeof(this) <code class="code">dup</code>();
+            <span class="ddoc_anchor" id="Array.DupedType"></span>alias <code class="code">DupedType</code> = Array!(Unqual!E);
 
           </code>
         </p>
@@ -1077,7 +1077,7 @@
       <div class="dlang">
         <p class="para">
           <code class="code">
-            <span class="ddoc_anchor" id="Array.reserve"></span>pure nothrow @trusted void <code class="code">reserve</code>(size_t <code class="code">n</code>);
+            <span class="ddoc_anchor" id="Array.reserve"></span>pure nothrow @trusted void <code class="code">reserve</code>(size_t <code class="code">newCapacity</code>);
 
           </code>
         </p>
@@ -1089,7 +1089,7 @@
   <section class="section ddoc_sections">
   <div class="ddoc_summary">
   <p class="para">
-    Reserve room for <code class="code"><code class="code">n</code></code> elements at store <code class="code">_ptr</code>.
+    Reserve room for <code class="code"><code class="code">newCapacity</code></code> elements at store <code class="code">_ptr</code>.
   </p>
 </div>
 

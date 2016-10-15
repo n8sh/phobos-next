@@ -1534,14 +1534,14 @@ pure nothrow unittest
 }
 
 /// assert same behaviour of `dup` as for builtin arrays
-unittest
+@safe pure nothrow unittest
 {
     alias E = const(int);
 
     alias DA = E[];             // builtin D array/slice
     alias CA = Array!E;         // container array
 
-    const CA ca = [1];
+    const ca = CA.withElement(1);
     const DA da = [1];
 
     auto daCopy = da.dup;

@@ -465,6 +465,180 @@
       <article class="module">
         <h1 class="module_name">container_traits</h1>
         <section id="module_content">
+<section class="section ddoc_module_members_section">
+  <div class="ddoc_module_members">
+    <ul class="ddoc_members">
+  <li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#NoGc" id="NoGc"><code class="code">NoGc</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="NoGc"></span>enum <code class="code">NoGc</code>;
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    This enum must be used as an UDA to mark a variable of a type that looks
+ like GC-managed but that is actually not GC-managed.
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#TellRangeAdded" id="TellRangeAdded"><code class="code">TellRangeAdded</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="TellRangeAdded"></span>enum <code class="code">TellRangeAdded</code>;
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    When this enum is used as UDA on aggregate types whose instances are
+ created with construct() a compile time message indicates if a GC range
+ will be added for the members.
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#NoInit" id="NoInit"><code class="code">NoInit</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="NoInit"></span>enum <code class="code">NoInit</code>;
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    When this enum is used as UDA on aggregate types whose instances are
+ created with construct() they won't be initialized, i.e the
+ static layout representing the initial value of the members is not copied.
+
+  </p>
+</div>
+<div class="ddoc_description">
+  <h4>Discussion</h4>
+  <p class="para">
+    For example it can be used on a struct that has a <code class="code">@disable this()</code> and
+ when the others constructor are supposed to do the initialization job.
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#mustAddGCRange" id="mustAddGCRange"><code class="code">mustAddGCRange</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="mustAddGCRange"></span>template <code class="code">mustAddGCRange</code>(T = void) if (is(T == struct) || is(T == union) || is(T == class))
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Indicates if an aggregate contains members that might be collected by the
+ garbage collector. This is used in <code class="code">construct</code> to determine if the content of
+ a manually allocated aggregate must be declared to the GC.
+  </p>
+</div>
+<div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="comment">// 'a' will be managed with expand/Shrink
+</span><span class="keyword">class</span> Foo{@NoGc <span class="keyword">int</span>[] a; @NoGc <span class="keyword">void</span>* b;}
+<span class="keyword">static</span> <span class="keyword">assert</span>(!<span class="psymbol">mustAddGCRange</span>!Foo);
+<span class="comment">// 'a' will be managed with '.length' so druntime.
+</span><span class="keyword">class</span> Bar{<span class="keyword">int</span>[] a; @NoGc <span class="keyword">void</span>* b;}
+<span class="comment">// b's annotation is canceled by a type.
+</span><span class="keyword">static</span> <span class="keyword">assert</span>(<span class="psymbol">mustAddGCRange</span>!Bar);
+<span class="comment">// Baz base is not @NoGc
+</span><span class="keyword">class</span> Baz: Bar{@NoGc <span class="keyword">void</span>* c;}
+<span class="keyword">static</span> <span class="keyword">assert</span>(<span class="psymbol">mustAddGCRange</span>!Baz);
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div>
+</section>
+
+</div>
+
+</li>
+</ul>
+  </div>
+</section>
 </section>
       </article>
     </div>

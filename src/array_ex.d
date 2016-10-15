@@ -1010,13 +1010,11 @@ alias SortedSetArray(E, Assignment assignment = Assignment.disabled,
                      bool useGCAllocation = false,
                      alias less = "a < b") = Array!(E, assignment, Ordering.sortedUniqueSet, useGCAllocation, less);
 
-/** Is `true` iff instances of `T` needs to be scanned by the GC. */
+
 template shouldAddGCRange(T)
 {
-    import std.traits : isPointer, isInstanceOf, hasIndirections;
-    enum shouldAddGCRange = (hasIndirections!T && // TODO should we use `hasAliasing` instead?. See: http://forum.dlang.org/post/gblmkrsqrpgdlwyfwxld@forum.dlang.org
-                             !isInstanceOf!(Array, T) // TODO generalize to `isContainer`
-                             );
+    import std.traits : hasIndirections, isInstanceOf;
+    enum shouldAddGCRange = hasIndirections!T && !isInstanceOf!(Array, T);
 }
 
 unittest

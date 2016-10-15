@@ -138,13 +138,17 @@ struct Array(E,
     {
         typeof(return) that = void;
         that.allocateStoreWithCapacity(1);
-        // TODO gc_removeRange(element) needed or does `moveEmplace` handle this for us?
         static if (!shouldAddGCRange!E)
+        {
             moveEmplace(*(cast(ME*)(&element)), that._mptr[0]); // safe to cast away constness when no indirections
+        }
         else
+        {
+            // TODO Call `gc_removeRange(element)` here or does `moveEmplace` handle this?
             moveEmplace(element, that._ptr[0]);
+            __addRange(that);   // TODO needed? or does `moveEmplace` handle this for us?
+        }
         that._length = 1;
-        __addRange(that);   // TODO needed? or does `moveEmplace` handle this for us?
         return that;
     }
 

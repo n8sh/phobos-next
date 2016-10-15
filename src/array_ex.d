@@ -187,6 +187,14 @@ struct Array(E,
         }
     }
 
+    pragma(inline) private static void __addMRange(ref Array!(ME) that)
+    {
+        static if (shouldAddGCRange!E)
+        {
+            gc_addRange(that._ptr, that._length * E.sizeof);
+        }
+    }
+
     static if (useGCAllocation)
     {
         /// Allocate a store pointer of length `capacity`.
@@ -236,10 +244,7 @@ struct Array(E,
                 {
                     _ptr[i] = rhs._ptr[i]; // copy from old to new
                 }
-                static if (shouldAddGCRange!E)
-                {
-                    gc_addRange(_ptr, _length * E.sizeof);
-                }
+                __addRange(this);
             }
         }
     }
@@ -268,10 +273,7 @@ struct Array(E,
                     // copy from old to new
                     copy._ptr[i] = this._ptr[i];
                 }
-                static if (shouldAddGCRange!E)
-                {
-                    GC.addRange(copy._ptr, copy._length * E.sizeof);
-                }
+                __addMRange(copy);
                 return copy;
             }
         }

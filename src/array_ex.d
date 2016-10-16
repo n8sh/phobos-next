@@ -216,10 +216,10 @@ struct Array(E,
         this(this) nothrow @trusted
         {
             auto rhs_storePtr = _ptr; // save store pointer
-            allocateStoreWithCapacity(_length);     // allocate new store pointer
+            allocateStoreWithCapacity(_length);
             foreach (const i; 0 .. _length)
             {
-                _ptr[i] = rhs_storePtr[i]; // copy from old to new
+                _ptr[i] = rhs_storePtr[i];
             }
             static if (shouldAddGCRange!E)
             {
@@ -236,7 +236,7 @@ struct Array(E,
                 reserve(rhs._length);
                 foreach (const i; 0 .. _length)
                 {
-                    _ptr[i] = rhs._ptr[i]; // copy from old to new
+                    _ptr[i] = rhs._ptr[i];
                 }
                 __addRange(this);
             }
@@ -260,12 +260,12 @@ struct Array(E,
             DupedType dup() @trusted const
             {
                 typeof(return) copy;
-                copy._length = this._length;
-                copy.allocateStoreWithCapacity(this._length);     // allocate new store pointer
+                copy._length = _length;
+                copy.allocateStoreWithCapacity(_length);
                 foreach (const i; 0 .. _length)
                 {
-                    // copy from old to new
-                    copy._ptr[i] = this._ptr[i];
+                    alias T = ContainerElementType!(typeof(this), E);
+                    copy._ptr[i] = _ptr[i];
                 }
                 __addMRange(copy); //check more of these...;
                 return copy;
@@ -286,10 +286,10 @@ struct Array(E,
         }
         else
         {
-            if (this._length != rhs._length) { return false; }
+            if (_length != rhs._length) { return false; }
             foreach (const i; 0 .. _length)
             {
-                if (this._ptr[i] != rhs._ptr[i]) { return false; }
+                if (_ptr[i] != rhs._ptr[i]) { return false; }
             }
             return true;
         }
@@ -302,10 +302,10 @@ struct Array(E,
         }
         else
         {
-            if (this._length != rhs._length) { return false; }
+            if (_length != rhs._length) { return false; }
             foreach (const i; 0 .. _length)
             {
-                if (this._ptr[i] != rhs._ptr[i]) { return false; }
+                if (_ptr[i] != rhs._ptr[i]) { return false; }
             }
             return true;
         }
@@ -1534,18 +1534,24 @@ pure nothrow unittest
 /// assert same behaviour of `dup` as for builtin arrays
 @safe pure nothrow unittest
 {
-    alias E = const(int);
+    struct Vec { int x, y; }
+    class Db { int* _ptr; }
+    struct Node { int x; class Db; }
+    // struct Node1 { const(int) x; class Db; }
+    foreach (E; AliasSeq!(int, const(int), Vec, Node))
+    {
+        alias DA = E[];             // builtin D array/slice
+        alias CA = Array!E;         // container array
 
-    alias DA = E[];             // builtin D array/slice
-    alias CA = Array!E;         // container array
+        const ca = CA.withElement(E.init);
+        const DA da = [E.init];
 
-    const ca = CA.withElement(1);
-    const DA da = [1];
+        auto daCopy = da.dup;
 
-    auto daCopy = da.dup;
-    auto caCopy = ca.dup;
+        auto caCopy = ca.dup;
 
-    // should have same element type
-    static assert(is(typeof(caCopy[0]) ==
-                     typeof(daCopy[0])));
+        // should have same element type
+        static assert(is(typeof(caCopy[0]) ==
+                         typeof(daCopy[0])));
+    }
 }

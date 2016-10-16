@@ -76,7 +76,7 @@ Tuple!(R, ptrdiff_t[]) findAcronymAt(alias pred = "a == b",
     import std.algorithm: find;
     import std.range: empty;
 
-    auto aOffs = new ptrdiff_t[needle.length]; // acronym hit offsets
+    scope auto aOffs = new ptrdiff_t[needle.length]; // acronym hit offsets
 
     auto rest = haystack[haystackOffset..$];
     while (needle.length <= rest.length) // for each new try at finding the needle at remainding part of haystack

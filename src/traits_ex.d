@@ -275,6 +275,7 @@ unittest
 
 alias isSource = isInputRange;
 alias isRange = isInputRange;
+
 alias isSourceOf = isInputRangeOf;
 alias isSink = isOutputRange;
 alias isSinkOf = isOutputRangeOf;

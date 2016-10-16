@@ -969,38 +969,6 @@
 </li><li class="ddoc_member">
   <div class="ddoc_member_header">
   <div class="ddoc_header_anchor">
-  <a href="#Array.DupedType" id="Array.DupedType"><code class="code">DupedType</code></a>
-</div>
-</div><div class="ddoc_decl">
-  <section class="section">
-    <div class="declaration">
-      <h4>Declaration</h4>
-      <div class="dlang">
-        <p class="para">
-          <code class="code">
-            <span class="ddoc_anchor" id="Array.DupedType"></span>alias <code class="code">DupedType</code> = Array!(Unqual!E);
-
-          </code>
-        </p>
-      </div>
-    </div>
-  </section>
-</div>
-<div class="ddoc_decl">
-  <section class="section ddoc_sections">
-  <div class="ddoc_summary">
-  <p class="para">
-    Return type of <code class="code">dup</code>, that mimics behaviour of D's builtin <code class="code">dup</code>.
-  </p>
-</div>
-
-</section>
-
-</div>
-
-</li><li class="ddoc_member">
-  <div class="ddoc_member_header">
-  <div class="ddoc_header_anchor">
   <a href="#Array.dup" id="Array.dup"><code class="code">dup</code></a>
 </div>
 </div><div class="ddoc_decl">
@@ -1010,7 +978,7 @@
       <div class="dlang">
         <p class="para">
           <code class="code">
-            <span class="ddoc_anchor" id="Array.dup"></span>const @trusted DupedType <code class="code">dup</code>();
+            <span class="ddoc_anchor" id="Array.dup"></span>const @trusted Array!(Unqual!E) <code class="code">dup</code>();
 
           </code>
         </p>

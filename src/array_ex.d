@@ -250,23 +250,16 @@ struct Array(E,
 
         static if (isCopyable!E)
         {
-            /// Return type of `dup`, that mimics behaviour of D's builtin `dup`.
-            static if (!shouldAddGCRange!E)
-                alias DupedType = Array!(Unqual!E); // safe to cast away constness when no indirections
-            else
-                alias DupedType = Array!E;
-
             /// Returns: shallow duplicate of `this`.
-            DupedType dup() @trusted const
+            Array!(Unqual!E) dup() const @trusted // `Unqual` mimics behaviour of `dup` for builtin D arrays
             {
                 typeof(return) copy;
-                copy._length = _length;
                 copy.allocateStoreWithCapacity(_length);
                 foreach (const i; 0 .. _length)
                 {
-                    alias T = ContainerElementType!(typeof(this), E);
-                    copy._ptr[i] = _ptr[i];
+                    copy._ptr[i] = _mptr[i]; // TODO is using _mptr ok here?
                 }
+                copy._length = _length;
                 __addMRange(copy); //check more of these...;
                 return copy;
             }
@@ -992,7 +985,7 @@ struct Array(E,
 private:
 
     /// Get internal pointer to mutable content.
-    ME* _mptr() { return cast(typeof(return))_ptr; }
+    ME* _mptr() const { return cast(typeof(return))_ptr; }
 
     /// Get internal slice.
     auto ref slice() inout @trusted
@@ -1100,8 +1093,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         }
     }
 
-    foreach (const n; chain(0.only,
-                            iota(0, 10).map!(x => 2^^x)))
+    foreach (const n; chain(0.only, iota(0, 10).map!(x => 2^^x)))
     {
         import std.array : array;
         import std.range : radial, retro;
@@ -1538,15 +1530,17 @@ pure nothrow unittest
     class Db { int* _ptr; }
     struct Node { int x; class Db; }
     // struct Node1 { const(int) x; class Db; }
-    foreach (E; AliasSeq!(int, const(int), Vec, Node))
+    foreach (E; AliasSeq!(int, const(int), Vec, Node// , Node1
+                 ))
     {
         alias DA = E[];             // builtin D array/slice
-        alias CA = Array!E;         // container array
-
-        const ca = CA.withElement(E.init);
         const DA da = [E.init];
-
         auto daCopy = da.dup;
+        // pragma(msg, "typeof(da): ", typeof(da));
+        // pragma(msg, "typeof(daCopy): ", typeof(daCopy));
+
+        alias CA = Array!E;         // container array
+        const ca = CA.withElement(E.init);
 
         auto caCopy = ca.dup;
 

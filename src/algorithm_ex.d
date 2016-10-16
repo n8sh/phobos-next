@@ -2085,7 +2085,8 @@ bool countsAtMost(R)(R r, size_t maxCount) @("complexity", "O(maxCount)")
 ///
 @safe pure nothrow unittest
 {
-    static void test(R)(R x) if (isInputRange!R)
+    static void test(R)(R x)
+        if (isInputRange!R)
     {
         import std.algorithm : count;
         const n = x.count;

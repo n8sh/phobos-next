@@ -5,6 +5,8 @@ module fixed_array;
     `Mod[elementLength]`.
 
     TODO Move to std.array in Phobos.
+
+    Similar to Rust's `fixedvec`: https://docs.rs/fixedvec/0.2.3/fixedvec/
 */
 struct ModArrayN(uint capacity,
                  uint elementLength = 1,
@@ -213,6 +215,11 @@ struct ModArrayN(uint capacity,
     /** Get length. */
     auto length() const { return _length; }
 
+    /** Get remaining space available.
+        Name taken from the same member of https://docs.rs/fixedvec/0.2.3/fixedvec/
+     */
+    auto available() const { return capacity - _length; }
+
     enum typeBits = 4; // number of bits in enclosing type used for representing type
 
 private:
@@ -259,6 +266,7 @@ static assert(ModArrayN!(2, 3, 8).sizeof == 8);
     assert(x == y);
 
     assert(x.length == 4);
+    assert(x.available == 3);
     assert(!x.empty);
 
     assert(!x.contains([10.mod!M]));

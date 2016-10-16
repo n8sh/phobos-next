@@ -871,12 +871,12 @@ struct Array(E,
         const nothrow @nogc: // indexing and slicing must be `const` when ordered
 
         /// Slice operator must be const when ordered.
-        auto opSlice()          // WARNING unsafe
+        auto opSlice()          // TODO scope
         {
             return (cast(const(E)[])slice).assumeSorted!comp;
         }
         /// ditto
-        auto opSlice(this This)(size_t i, size_t j) // const because mutation only via `op.*Assign`
+        auto opSlice(this This)(size_t i, size_t j) // const because mutation only via `op.*Assign`. TODO scope
         {
             import std.range : assumeSorted;
             return (cast(const(E)[])slice[i .. j]).assumeSorted!comp;
@@ -885,21 +885,21 @@ struct Array(E,
         @trusted:
 
         /// Index operator must be const to preserve ordering.
-        ref const(E) opIndex(size_t i)
+        ref const(E) opIndex(size_t i) // TODO scope
         {
             assert(i < _length);
             return _ptr[i];
         }
 
         /// Get front element (as constant reference to preserve ordering).
-        ref const(E) front()
+        ref const(E) front()    // TODO scope
         {
             assert(!empty);
             return _ptr[0];
         }
 
         /// Get back element (as constant reference to preserve ordering).
-        ref const(E) back()
+        ref const(E) back()     // TODO scope
         {
             assert(!empty);
             return _ptr[_length - 1];
@@ -916,39 +916,48 @@ struct Array(E,
             _length = newLength;
         }
 
+        /// Index assign operator.
+        ref E opIndexAssign(E value, size_t i) @trusted // TODO scope
+        {
+            assert(i < _length);
+            import std.algorithm.mutation : move;
+            (*(cast(Unqual!E*)(&value))).move(_mptr[i]); // TODO is this correct?
+            return _ptr[i];
+        }
+
         inout:               // indexing and slicing can be mutable when ordered
 
         /// Slice operator.
-        inout(E)[] opSlice()          // WARNING unsafe
+        inout(E)[] opSlice()    // TODO scope
         {
             return this.opSlice(0, _length);
         }
         /// ditto
-        inout(E)[] opSlice(size_t i, size_t j) // WARNING unsafe
+        inout(E)[] opSlice(size_t i, size_t j) // TODO scope
         {
             assert(i <= j);
             assert(j <= _length);
-            return _ptr[i .. j]; // WARNING unsafe
+            return _ptr[i .. j]; // TODO scope
         }
 
         @trusted:
 
         /// Index operator.
-        ref inout(E) opIndex(size_t i)
+        ref inout(E) opIndex(size_t i) // TODO scope
         {
             assert(i < _length);
             return _ptr[i];
         }
 
         /// Get front element reference.
-        ref inout(E) front()
+        ref inout(E) front()    // TODO scope
         {
             assert(!empty);
             return _ptr[0];
         }
 
         /// Get back element reference.
-        ref inout(E) back()
+        ref inout(E) back()     // TODO scope
         {
             assert(!empty);
             return _ptr[_length - 1];
@@ -1496,6 +1505,7 @@ pure nothrow unittest
     foreach (A_; AliasSeq!(A, AA, AAA))
     {
         alias E = ElementType!A_;
+        pragma(msg, "E:", E);
         A_ x = A_.withElement(E.init);
         A_ y = A_.withElements(E.init, E.init);
         assert(x.length == 1);

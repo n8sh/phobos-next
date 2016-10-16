@@ -1,6 +1,8 @@
 module bithashset;
 
+// merge these using Flags?
 enum Growable { no, yes }
+enum Copyable { no, yes }
 
 enum isBitHashable(T) = is(typeof(cast(size_t)T.init)); // TODO use `isIntegral` instead?
 
@@ -15,7 +17,7 @@ version(show)
 import dbgio : dln;
 
 /** Store presence of elements of type `E` in a set in the range `0 .. length`. */
-struct BitHashSet(E, Growable growable = Growable.no)
+struct BitHashSet(E, Growable growable = Growable.no, Copyable copyable = Copyable.no)
     if (isBitHashable!E)
 {
     import qcmeman : malloc, calloc, realloc, free;
@@ -45,20 +47,32 @@ struct BitHashSet(E, Growable growable = Growable.no)
         free(_blocksPtr);
     }
 
-    @disable this(this);        // no copy ctor for now
-
-    /// Returns: shallow (and deep) duplicate of `this`.
-    typeof(this) dup() @trusted
+    static if (copyable)
     {
-        typeof(this) copy;
-        static if (growable == Growable.yes)
+        this(this)
         {
-            copy._length = this._length;
+            Block* oldPtr = _blocksPtr;
+            _blocksPtr = cast(Block*)malloc(blockCount * Block.sizeof);
+            _blocksPtr[0 .. blockCount] = oldPtr[0 .. blockCount];
         }
-        copy._capacity = this._capacity;
-        copy._blocksPtr = cast(Block*)malloc(blockCount * Block.sizeof);
-        copy._blocksPtr[0 .. blockCount] = this._blocksPtr[0 .. blockCount];
-        return copy;
+    }
+    else
+    {
+        @disable this(this);
+
+        /// Returns: shallow (and deep) duplicate of `this`.
+        typeof(this) dup() @trusted
+        {
+            typeof(this) copy;
+            static if (growable == Growable.yes)
+            {
+                copy._length = this._length;
+            }
+            copy._capacity = this._capacity;
+            copy._blocksPtr = cast(Block*)malloc(blockCount * Block.sizeof);
+            copy._blocksPtr[0 .. blockCount] = this._blocksPtr[0 .. blockCount];
+            return copy;
+        }
     }
 
     @property:

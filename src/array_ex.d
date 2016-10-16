@@ -1560,11 +1560,10 @@ pure nothrow unittest
     foreach (E; AliasSeq!(int, const(int), Vec, Node// , Node1
                  ))
     {
-        alias DA = E[];             // builtin D array/slice
-        const DA da = [E.init];
-        auto daCopy = da.dup;
-        // pragma(msg, "typeof(da): ", typeof(da));
-        // pragma(msg, "typeof(daCopy): ", typeof(daCopy));
+        alias DA = E[];         // builtin D array/slice
+        const DA da = [E.init]; // construct from array
+        auto daCopy = da.dup;   // duplicate
+        daCopy[] = E.init;   // opSliceAssign
 
         alias CA = Array!E;         // container array
         const ca = CA.withElement(E.init);
@@ -1574,5 +1573,6 @@ pure nothrow unittest
         // should have same element type
         static assert(is(typeof(caCopy[0]) ==
                          typeof(daCopy[0])));
+
     }
 }

@@ -87,7 +87,7 @@ Tuple!(R, ptrdiff_t[]) findAcronymAt(alias pred = "a == b",
         size_t nIx = 0;         // needle index
         rest = rest.find!pred(needle[nIx]); // reuse std.algorithm: find!
         if (rest.empty) { return tuple(rest, ptrdiff_t[].init); } // degenerate case
-        aOffs[nIx++] = rest.ptr - haystack.ptr; // store hit offset and advance acronym
+        aOffs[nIx++] = &rest[0] - &haystack[0]; // store hit offset and advance acronym
         rest = rest[1 .. $];
         const ix0 = aOffs[0];
 
@@ -129,7 +129,7 @@ Tuple!(R, ptrdiff_t[]) findAcronymAt(alias pred = "a == b",
                 goto miss;      // no hit this time
             }
 
-            aOffs[nIx++] = (rest.ptr - haystack.ptr) + hit; // store hit offset and advance acronym
+            aOffs[nIx++] = (&rest[0] - &haystack[0]) + hit; // store hit offset and advance acronym
             if (nIx == needle.length) // if complete acronym found
             {
                 return tuple(haystack[aOffs[0] .. aOffs[$-1] + 1], aOffs) ; // return its length

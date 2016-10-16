@@ -1,7 +1,7 @@
 /** Array container(s) with optional sortedness via template-parameter
     `Ordering` and optional use of GC via `useGCAllocation`.
 
-    TODO Implement opSliceAssign and opIndexAssign and make opSlice and opIndex return const refs
+    TODO Remove explicit moves when DMD has been fixed to do that for us
 
     TODO Allow y = sort(x.move()), where x and y are instances of unsorted Array
 
@@ -871,12 +871,12 @@ struct Array(E,
         const nothrow @nogc: // indexing and slicing must be `const` when ordered
 
         /// Slice operator must be const when ordered.
-        auto opSlice()          // TODO scope
+        auto opSlice()          // TODO DIP-1000 scope
         {
             return (cast(const(E)[])slice).assumeSorted!comp;
         }
         /// ditto
-        auto opSlice(this This)(size_t i, size_t j) // const because mutation only via `op.*Assign`. TODO scope
+        auto opSlice(this This)(size_t i, size_t j) // const because mutation only via `op.*Assign`. TODO DIP-1000 scope
         {
             import std.range : assumeSorted;
             return (cast(const(E)[])slice[i .. j]).assumeSorted!comp;
@@ -885,21 +885,21 @@ struct Array(E,
         @trusted:
 
         /// Index operator must be const to preserve ordering.
-        ref const(E) opIndex(size_t i) // TODO scope
+        ref const(E) opIndex(size_t i) // TODO DIP-1000 scope
         {
             assert(i < _length);
             return _ptr[i];
         }
 
         /// Get front element (as constant reference to preserve ordering).
-        ref const(E) front()    // TODO scope
+        ref const(E) front()    // TODO DIP-1000 scope
         {
             assert(!empty);
             return _ptr[0];
         }
 
         /// Get back element (as constant reference to preserve ordering).
-        ref const(E) back()     // TODO scope
+        ref const(E) back()     // TODO DIP-1000 scope
         {
             assert(!empty);
             return _ptr[_length - 1];
@@ -916,8 +916,10 @@ struct Array(E,
             _length = newLength;
         }
 
+        @nogc:
+
         /// Index assign operator.
-        ref E opIndexAssign(E value, size_t i) @trusted // TODO scope
+        ref E opIndexAssign(V)(V value, size_t i) @trusted // TODO DIP-1000 scope
         {
             assert(i < _length);
             import std.algorithm.mutation : move;
@@ -925,39 +927,53 @@ struct Array(E,
             return _ptr[i];
         }
 
-        inout:               // indexing and slicing can be mutable when ordered
+        /// Slice assign operator.
+        static if (isCopyable!E)
+        {
+            void opSliceAssign(V)(V value, size_t i, size_t j) @trusted // TODO DIP-1000 scope
+            {
+                assert(i <= j);
+                assert(j <= _length);
+                foreach (const i; 0 .. _length)
+                {
+                    _ptr[i] = value;
+                }
+            }
+        }
+
+        inout:             // indexing and slicing can be mutable when unordered
 
         /// Slice operator.
-        inout(E)[] opSlice()    // TODO scope
+        inout(E)[] opSlice()    // TODO DIP-1000 scope
         {
             return this.opSlice(0, _length);
         }
         /// ditto
-        inout(E)[] opSlice(size_t i, size_t j) // TODO scope
+        inout(E)[] opSlice(size_t i, size_t j) // TODO DIP-1000 scope
         {
             assert(i <= j);
             assert(j <= _length);
-            return _ptr[i .. j]; // TODO scope
+            return _ptr[i .. j]; // TODO DIP-1000 scope
         }
 
         @trusted:
 
         /// Index operator.
-        ref inout(E) opIndex(size_t i) // TODO scope
+        ref inout(E) opIndex(size_t i) // TODO DIP-1000 scope
         {
             assert(i < _length);
             return _ptr[i];
         }
 
         /// Get front element reference.
-        ref inout(E) front()    // TODO scope
+        ref inout(E) front()    // TODO DIP-1000 scope
         {
             assert(!empty);
             return _ptr[0];
         }
 
         /// Get back element reference.
-        ref inout(E) back()     // TODO scope
+        ref inout(E) back()     // TODO DIP-1000 scope
         {
             assert(!empty);
             return _ptr[_length - 1];
@@ -999,7 +1015,7 @@ private:
     ME* _mptr() const { return cast(typeof(return))_ptr; }
 
     /// Get internal slice.
-    auto ref slice() inout @trusted
+    auto ref slice() inout @trusted // TODO DIP-1000 scope
     {
         return _ptr[0 .. _length];
     }
@@ -1505,7 +1521,6 @@ pure nothrow unittest
     foreach (A_; AliasSeq!(A, AA, AAA))
     {
         alias E = ElementType!A_;
-        pragma(msg, "E:", E);
         A_ x = A_.withElement(E.init);
         A_ y = A_.withElements(E.init, E.init);
         assert(x.length == 1);

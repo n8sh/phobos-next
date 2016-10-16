@@ -1569,6 +1569,10 @@ pure nothrow unittest
         const ca = CA.withElement(E.init);
 
         auto caCopy = ca.dup;
+        // TODO
+        // pragma(msg, typeof(caCopy));
+        // pragma(msg, E);
+        // caCopy ~= const(E).init;
 
         // should have same element type
         static assert(is(typeof(caCopy[0]) ==

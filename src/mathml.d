@@ -63,7 +63,7 @@ string toML(T)(T x,
                 return (`<math>` ~ mant ~ `&middot;` ~
                         `<msup>` ~
                         `<mn>10</mn>` ~
-                        `<mn mathsize="80%">` ~ zexp ~ `</mn>`
+                        `<mn mathsize="80%">` ~ zexp ~ `</mn>` ~
                         `</msup>` ~
                         `</math>`);
         }

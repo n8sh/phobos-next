@@ -66,7 +66,14 @@ enum Assignment
     copy                /// always copy (often not the desirable)
 }
 
-/** Array of value types `E` with optional ordering given by `ordering`.
+/** Array of value types `E` with optional sortedness/ordering.
+
+    Always `@safe pure nothrow @nogc` when possible.
+
+    `Assignment` either
+    - is disabled
+    - does Rust-style move, or
+    - does C++-style copying
 
     Params:
         useGCAllocation = `true` iff `GC.malloc` is used for store allocation,
@@ -1622,8 +1629,13 @@ pure nothrow unittest
     foreach (const i; 0 .. n)
     {
         assert(x.length == i);
+
+        assert(A.withElement(i) !in x);
         x[A.withElement(i)] = 42;
+
+        assert(A.withElement(i) in x);
         assert(x[A.withElement(i)] == 42);
+
         assert(x.length == i + 1);
     }
 }

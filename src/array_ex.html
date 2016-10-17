@@ -675,7 +675,21 @@
   <section class="section ddoc_sections">
   <div class="ddoc_summary">
   <p class="para">
-    <code class="code">Array</code> of value types <code class="code">E</code> with optional ordering given by <code class="code">ordering</code>.
+    <code class="code">Array</code> of value types <code class="code">E</code> with optional sortedness/ordering.
+
+  </p>
+</div>
+<div class="ddoc_description">
+  <h4>Discussion</h4>
+  <p class="para">
+        Always <code class="code">@safe pure nothrow @nogc</code> when possible.
+
+
+    <code class="code">Assignment</code> either
+    - is disabled
+    - does Rust-style move, or
+    - does C++-style copying
+
 
   </p>
 </div>

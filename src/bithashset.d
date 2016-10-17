@@ -251,7 +251,7 @@ private:
 }
 
 /// test `RefCounted` storage
-nothrow @nogc unittest          // TODO @safe pure when https://github.com/dlang/phobos/pull/4692/files has been merged
+nothrow @nogc unittest          // TODO pure when https://github.com/dlang/phobos/pull/4692/files has been merged
 {
     import std.typecons : RefCounted;
     alias E = int;

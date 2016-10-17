@@ -14,7 +14,6 @@ unittest
 
 version = show;
 version(show)
-import dbgio : dln;
 
 /** Store presence of elements of type `E` in a set in the range `0 .. length`. */
 struct BitHashSet(E, Growable growable = Growable.no, Copyable copyable = Copyable.no)
@@ -87,7 +86,6 @@ struct BitHashSet(E, Growable growable = Growable.no, Copyable copyable = Copyab
                 const oldBlockCount = blockCount;
                 import std.math : nextPow2;
                 this._capacity = newLength.nextPow2;
-                // dln("Expanded to new ", this._length);
                 _blocksPtr = cast(Block*)realloc(_blocksPtr, blockCount * Block.sizeof);
                 _blocksPtr[oldBlockCount .. blockCount] = 0;
             }

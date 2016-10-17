@@ -320,6 +320,13 @@ struct Array(E,
         }
     }
 
+    /// Compare with range `R` with comparable element type.
+    bool opEquals(R)(R rhs) const
+        // TODO do we need to restrict this?: if (isInputRange!R)
+    {
+        return opSlice.equal(rhs);
+    }
+
     /** Construct from InputRange `values`.
         If `values` are sorted `assumeSortedParameter` is `true`.
      */

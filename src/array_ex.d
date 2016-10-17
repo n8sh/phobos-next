@@ -1633,9 +1633,7 @@ pure nothrow unittest
 {
     alias A = Array!int;
     A[string] x;
-
     // x["a"] ~= 42;               // TODO make this work
-
     assert("a" !in x);
     x["a"] = A.init;
     x["a"] ~= 42;

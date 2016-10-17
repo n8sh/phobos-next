@@ -13,7 +13,7 @@
     TODO How should std.typecons.Tuple be pretty printed?
     TODO Add visited member to keeps track of what objects that have been visited
     TODO Add asGCCMessage pretty prints
-          seq($PATH, ':', $ROW, ':', $COL, ':', message, '[', $TYPE, ']'
+          seq $PATH, ':', $ROW, ':', $COL, ':', message, '[', $TYPE, ']'
 
     TODO Support VizForm.D3js
 */
@@ -172,7 +172,7 @@ enum SolarizedLightColorTheme
 /** HTML tags with no side-effect when its arguments is empty.
     See also: http://www.w3schools.com/html/html_formatting.asp
 */
-enum nonStateHTMLTags = [`b`, `i`, `strong`, `em`, `sub`, `sup`, `small`, `ins`, `del`, `mark`
+enum nonStateHTMLTags = [`b`, `i`, `strong`, `em`, `sub`, `sup`, `small`, `ins`, `del`, `mark`,
                          `code`, `kbd`, `samp`, `samp`, `var`, `pre`];
 
 enum htmlHeader = `<!DOCTYPE html>

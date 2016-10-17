@@ -244,9 +244,7 @@ struct Array(E,
             }
         }
     }
-
-    static if (assignment == Assignment.disabled ||
-               assignment == Assignment.move)
+    else static if (assignment == Assignment.disabled)
     {
         @disable this(this);
 
@@ -266,6 +264,11 @@ struct Array(E,
                 return copy;
             }
         }
+    }
+    else static if (assignment == Assignment.move)
+    {
+        // TODO is it possible to make operator `=` to move?
+        @disable this(this);
     }
 
     pragma(inline) void opAssign(typeof(null))

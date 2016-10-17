@@ -267,8 +267,19 @@ struct Array(E,
     }
     else static if (assignment == Assignment.move)
     {
-        // TODO is it possible to make operator `=` to move?
-        @disable this(this);
+        /// Copy ctor moves.
+        this(typeof(this) rhs) @trusted
+        {
+            import std.algorith.mutation : moveEmplace;
+            moveEmplace(rhs, this);
+        }
+
+        /// Assignment moves.
+        void opAssign(typeof(this) rhs) @trusted
+        {
+            import std.algorith.mutation : move;
+            move(rhs, this);
+        }
     }
 
     pragma(inline) void opAssign(typeof(null))

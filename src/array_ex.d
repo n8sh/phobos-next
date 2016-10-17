@@ -329,6 +329,19 @@ struct Array(E,
         return opSlice.equal(rhs);
     }
 
+    /// Calculate AA hash.
+    size_t toHash() const @trusted pure nothrow
+    {
+        import core.internal.hash : hashOf;
+        // TODO make this work: return this.slice.hashOf;
+        typeof(return) hash;
+        foreach (const i; 0 .. _length)
+        {
+            hash ^= _ptr[i].hashOf;
+        }
+        return hash;
+    }
+
     /** Construct from InputRange `values`.
         If `values` are sorted `assumeSortedParameter` is `true`.
      */
@@ -1598,4 +1611,27 @@ pure nothrow unittest
                          typeof(daCopy[0])));
 
     }
+}
+
+/// array as AA key type
+@safe pure nothrow unittest
+{
+    alias A = Array!int;
+    int[A] x;
+    const n = 100;
+    foreach (const i; 0 .. n)
+    {
+        assert(x.length == i);
+        x[A.withElement(i)] = 42;
+        assert(x[A.withElement(i)] == 42);
+        assert(x.length == i + 1);
+    }
+}
+
+/// append to empty array
+@safe pure nothrow unittest
+{
+    alias A = Array!int;
+    A[string] x;
+    x["a"] ~= 42;
 }

@@ -7,18 +7,19 @@
 */
 module mathml;
 
-import rational: Rational; // TODO Can we turn this dep into a duck type dep?
-import std.traits: isScalarType, isFloatingPoint;
-import languages: MarkupLang;
+import rational : Rational; // TODO Can we turn this dep into a duck type dep?
+import std.traits : isScalarType, isFloatingPoint;
+import languages : MarkupLang;
 
 /** Horizontal Alignment. */
 enum HAlign { left, center, right }
 
 /** Generic case. */
-string toMathML(T)(T x) @trusted /* pure nothrow */ if (isScalarType!T &&
-                                                        !isFloatingPoint!T)
+string toMathML(T)(T x) @trusted /* pure nothrow */
+    if (isScalarType!T &&
+        !isFloatingPoint!T)
 {
-    import std.conv: to;
+    import std.conv : to;
     return to!string(x);
 }
 
@@ -30,10 +31,11 @@ string toMathML(T)(T x) @trusted /* pure nothrow */ if (isScalarType!T &&
 string toML(T)(T x,
                bool usePowPlus = false,
                bool useLeadZeros = false,
-               MarkupLang mlang = MarkupLang.HTML) @trusted /* pure nothrow */ if (isFloatingPoint!T)
+               MarkupLang mlang = MarkupLang.HTML) @trusted /* pure nothrow */
+    if (isFloatingPoint!T)
 {
-    import std.conv: to;
-    import std.algorithm: findSplit;
+    import std.conv : to;
+    import std.algorithm : findSplit;
     const parts = to!string(x).findSplit("e"); // TODO Use std.bitmanip.FloatRep instead
     if (parts[2].length >= 1)
     {
@@ -48,7 +50,7 @@ string toML(T)(T x,
                       parts[2][0] == '+') ? // if leading plus
                      parts[2][1..$] : // skip plus
                      parts[2]); // otherwise whole
-        import algorithm_ex: dropWhile;
+        import algorithm_ex : dropWhile;
         auto zexp = useLeadZeros ? exp : exp.dropWhile('0');
 
         final switch (mlang)
@@ -78,12 +80,14 @@ string toML(T)(T x,
     }
 }
 
-auto toMathML(T)(T x, bool usePowPlus = false, bool useLeadZeros = false) @trusted /* pure nothrow */ if (isFloatingPoint!T)
+auto toMathML(T)(T x, bool usePowPlus = false, bool useLeadZeros = false) @trusted /* pure nothrow */
+    if (isFloatingPoint!T)
 {
     return toML(x, usePowPlus, useLeadZeros, MarkupLang.MathML);
 }
 
-auto toHTML(T)(T x, bool usePowPlus = false, bool useLeadZeros = false) @trusted /* pure nothrow */ if (isFloatingPoint!T)
+auto toHTML(T)(T x, bool usePowPlus = false, bool useLeadZeros = false) @trusted /* pure nothrow */
+    if (isFloatingPoint!T)
 {
     return toML(x, usePowPlus, useLeadZeros, MarkupLang.HTML);
 }
@@ -98,7 +102,7 @@ string toMathML(T)(Rational!T x,
                    HAlign denomalign = HAlign.center,
                    string href = null) @safe pure
 {
-    import std.conv: to;
+    import std.conv : to;
     return (`<math><mfrac` ~
             (bevelled ? ` bevelled="true"` : ``) ~
             (numalign != HAlign.center ? ` numalign="` ~ to!string(numalign) ~ `"` : ``) ~
@@ -109,10 +113,11 @@ string toMathML(T)(Rational!T x,
             `</mi></mfrac></math>`);
 }
 
-unittest {
+unittest
+{
     alias Q = Rational;
-    import dbgio: dln;
     auto x = Q!ulong(11, 22);
+    // import dbgio : dln;
     /** dln(x.toMathML); */
     /** dln(x.toMathML(true)); */
     /** dln(x.toMathML(true, HAlign.left, HAlign.left)); */

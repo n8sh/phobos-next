@@ -1023,6 +1023,23 @@ struct Array(E,
         }
     }
 
+    static if (isCopyable!E)
+    {
+        string toString() const @property @trusted pure
+        {
+            import std.array : Appender;
+            import std.conv : to;
+            Appender!string s = "[";
+            foreach (const i; 0 .. _length)
+            {
+                if (i) { s.put(','); }
+                s.put(_ptr[i].to!string);
+            }
+            s.put("]");
+            return s.data;
+        }
+    }
+
     pure nothrow:
 
     @nogc:
@@ -1629,14 +1646,13 @@ pure nothrow unittest
     foreach (const i; 0 .. n)
     {
         assert(x.length == i);
-
         assert(A.withElement(i) !in x);
         x[A.withElement(i)] = 42;
-
+        assert(x.length == i + 1);
+        auto a = A.withElement(i);
+        assert(a in x);
         assert(A.withElement(i) in x);
         assert(x[A.withElement(i)] == 42);
-
-        assert(x.length == i + 1);
     }
 }
 
@@ -1651,6 +1667,7 @@ pure nothrow unittest
     x["a"] ~= 42;
     assert(x["a"] == A.withElement(42));
 }
+
 
 /// append to empty array
 pure unittest

@@ -1032,17 +1032,9 @@ private:
     size_t _length;             // length
 }
 
-alias CopyableArray(E,
-                    bool useGCAllocation = false) = Array!(E, Assignment.copy, Ordering.unsorted, useGCAllocation, "a < b");
-
-alias SortedArray(E,
-                  Assignment assignment = Assignment.disabled,
-                  bool useGCAllocation = false,
-                  alias less = "a < b") = Array!(E, assignment, Ordering.sortedValues, useGCAllocation, less);
-
-alias SortedSetArray(E, Assignment assignment = Assignment.disabled,
-                     bool useGCAllocation = false,
-                     alias less = "a < b") = Array!(E, assignment, Ordering.sortedUniqueSet, useGCAllocation, less);
+alias CopyableArray(E, bool useGCAllocation = false) = Array!(E, Assignment.copy, Ordering.unsorted, useGCAllocation, "a < b");
+alias SortedArray(E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.disabled, Ordering.sortedValues, useGCAllocation, less);
+alias SortedSetArray(E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.disabled, Ordering.sortedUniqueSet, useGCAllocation, less);
 
 unittest
 {

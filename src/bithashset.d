@@ -49,7 +49,7 @@ struct BitHashSet(E, Growable growable = Growable.no, Copyable copyable = Copyab
 
     static if (copyable)
     {
-        this(this)
+        this(this) @trusted
         {
             Block* oldPtr = _blocksPtr;
             _blocksPtr = cast(Block*)malloc(blockCount * Block.sizeof);

@@ -41,9 +41,9 @@ struct BitHashSet(E,
     {
         this(this) @trusted
         {
-            Block* oldPtr = _blocksPtr;
+            Block* srcBlocksPtr = _blocksPtr;
             _blocksPtr = cast(Block*)malloc(blockCount * Block.sizeof);
-            _blocksPtr[0 .. blockCount] = oldPtr[0 .. blockCount];
+            _blocksPtr[0 .. blockCount] = srcBlocksPtr[0 .. blockCount];
         }
     }
     else

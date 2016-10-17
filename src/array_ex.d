@@ -49,8 +49,8 @@ version(unittest)
 
 import container_traits : ContainerElementType;
 
-/// Returns: `true` iff C is an `Array`.
 import std.traits : isInstanceOf;
+/// Returns: `true` iff `C` is an `Array`.
 enum isMyArray(C) = isInstanceOf!(Array, C);
 
 static if (__VERSION__ >= 2072)

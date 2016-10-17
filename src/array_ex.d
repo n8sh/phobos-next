@@ -1641,10 +1641,12 @@ pure nothrow unittest
 }
 
 /// append to empty array
-@safe pure nothrow unittest
+pure unittest
 {
+    import std.exception: assertThrown;
+    import core.exception : RangeError;
     alias Key = string;
     alias A = Array!int;
     A[Key] x;
-    x["a"] ~= 42;               // TODO make this work
+    // assertThrown!RangeError({ x["a"] ~= 42; }); // TODO make this work
 }

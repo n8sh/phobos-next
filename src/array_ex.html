@@ -475,6 +475,9 @@
 <div class="ddoc_description">
   <h4>Discussion</h4>
   <p class="para">
+    TODO Breakout common logic into <code class="code">RawArray</code> and reuse with <code class="code">alias this</code>
+
+
     TODO Remove explicit moves when DMD has been fixed to do that for us
 
 
@@ -981,7 +984,7 @@
       <div class="dlang">
         <p class="para">
           <code class="code">
-            <span class="ddoc_anchor" id="Array.opEquals"></span>const bool <code class="code">opEquals</code>(R)(R <code class="code">rhs</code>) if (isInputRange!R &amp;&amp; is(typeof(front == <code class="code">rhs</code>.front)));
+            <span class="ddoc_anchor" id="Array.opEquals"></span>const bool <code class="code">opEquals</code>(R)(R <code class="code">rhs</code>);
 
           </code>
         </p>
@@ -993,7 +996,39 @@
   <section class="section ddoc_sections">
   <div class="ddoc_summary">
   <p class="para">
-    Compare with range <code class="code">R</code>.
+    Compare with range <code class="code">R</code> with comparable element type.
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#Array.toHash" id="Array.toHash"><code class="code">toHash</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="Array.toHash"></span>const pure nothrow @trusted size_t <code class="code">toHash</code>();
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Calculate AA hash.
   </p>
 </div>
 

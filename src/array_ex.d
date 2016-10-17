@@ -333,7 +333,7 @@ struct Array(E,
     size_t toHash() const @trusted pure nothrow
     {
         import core.internal.hash : hashOf;
-        // TODO make this work: return this.slice.hashOf;
+        // TODO this doesn't work when element type is non-copyable: return this.slice.hashOf;
         typeof(return) hash;
         foreach (const i; 0 .. _length)
         {
@@ -1633,5 +1633,11 @@ pure nothrow unittest
 {
     alias A = Array!int;
     A[string] x;
+
+    // x["a"] ~= 42;               // TODO make this work
+
+    assert("a" !in x);
+    x["a"] = A.init;
     x["a"] ~= 42;
+    assert(x["a"] == A.withElement(42));
 }

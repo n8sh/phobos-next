@@ -1,6 +1,8 @@
 /** Array container(s) with optional sortedness via template-parameter
     `Ordering` and optional use of GC via `useGCAllocation`.
 
+    TODO Breakout common logic into `RawArray` and reuse with `alias this`
+
     TODO Remove explicit moves when DMD has been fixed to do that for us
 
     TODO Allow y = sort(x.move()), where x and y are instances of unsorted Array

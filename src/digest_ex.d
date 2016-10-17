@@ -6,7 +6,7 @@ module digest_ex;
 
     Zeros contents means uninitialized digest.
 
-    Copyright: Per Nordlöw 2014-.
+    Copyright: Per Nordlöw 2016-.
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
     Authors: $(WEB Per Nordlöw)
 
@@ -119,10 +119,14 @@ alias SHA256Digest = Digest!(32, "SHA-256");
 alias SHA384Digest = Digest!(48, "SHA-384");
 alias SHA512Digest = Digest!(64, "SHA-512");
 
-unittest {
+@safe pure nothrow @nogc unittest
+{
+    import dbgio : dln;
     SHA1Digest a, b;
+    dln(a);
     assert(a.empty);
     assert(b.empty);
+    assert(a == b);
     /* a[0] = 1; */
     /* b[0] = 1; */
     /* b[1] = 1; */

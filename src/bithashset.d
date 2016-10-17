@@ -12,9 +12,6 @@ unittest
     static assert(!isBitHashable!string);
 }
 
-version = show;
-version(show)
-
 /** Store presence of elements of type `E` in a set in the range `0 .. length`. */
 struct BitHashSet(E, Growable growable = Growable.no, Copyable copyable = Copyable.no)
     if (isBitHashable!E)

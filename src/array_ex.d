@@ -1032,7 +1032,11 @@ private:
     size_t _length;             // length
 }
 
-alias SortedArray(E, Assignment assignment = Assignment.disabled,
+alias CopyableArray(E,
+                    bool useGCAllocation = false) = Array!(E, Assignment.copy, Ordering.unsorted, useGCAllocation, "a < b");
+
+alias SortedArray(E,
+                  Assignment assignment = Assignment.disabled,
                   bool useGCAllocation = false,
                   alias less = "a < b") = Array!(E, assignment, Ordering.sortedValues, useGCAllocation, less);
 

@@ -1631,11 +1631,20 @@ pure nothrow unittest
 /// append to empty array
 @safe pure nothrow unittest
 {
+    alias Key = string;
     alias A = Array!int;
-    A[string] x;
-    // x["a"] ~= 42;               // TODO make this work
+    A[Key] x;
     assert("a" !in x);
     x["a"] = A.init;
     x["a"] ~= 42;
     assert(x["a"] == A.withElement(42));
+}
+
+/// append to empty array
+@safe pure nothrow unittest
+{
+    alias Key = string;
+    alias A = Array!int;
+    A[Key] x;
+    x["a"] ~= 42;               // TODO make this work
 }

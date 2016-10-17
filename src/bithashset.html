@@ -480,7 +480,7 @@
       <div class="dlang">
         <p class="para">
           <code class="code">
-            <span class="ddoc_anchor" id="BitHashSet"></span>struct <code class="code">BitHashSet</code>(E, Growable growable = Growable.no, Copyable copyable = Copyable.no) if (isBitHashable!E);
+            <span class="ddoc_anchor" id="BitHashSet"></span>struct <code class="code">BitHashSet</code>(E, Growable growable = Growable.no, Copyable copyable = Copyable.no) if (is(typeof(cast(size_t)E.init)));
 
           </code>
         </p>

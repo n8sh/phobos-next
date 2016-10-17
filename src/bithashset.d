@@ -4,17 +4,11 @@ module bithashset;
 enum Growable { no, yes }
 enum Copyable { no, yes }
 
-enum isBitHashable(T) = is(typeof(cast(size_t)T.init)); // TODO use `isIntegral` instead?
-
-unittest
-{
-    static assert(isBitHashable!size_t);
-    static assert(!isBitHashable!string);
-}
-
 /** Store presence of elements of type `E` in a set in the range `0 .. length`. */
-struct BitHashSet(E, Growable growable = Growable.no, Copyable copyable = Copyable.no)
-    if (isBitHashable!E)
+struct BitHashSet(E,
+                  Growable growable = Growable.no,
+                  Copyable copyable = Copyable.no)
+    if (is(typeof(cast(size_t)E.init))) // is castable to size_t
 {
     import qcmeman : malloc, calloc, realloc, free;
     import core.bitop : bts, btr, btc, bt;

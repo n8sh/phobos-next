@@ -7,8 +7,9 @@
 */
 module mathml;
 
-import rational : Rational; // TODO Can we turn this dep into a duck type dep?
 import std.traits : isScalarType, isFloatingPoint;
+
+import rational : Rational; // TODO Can we turn this dep into a duck type dep?
 import languages : MarkupLang;
 
 /** Horizontal Alignment. */

@@ -41,6 +41,8 @@ import searching_ex;
     auto x = [1, 2, 3].s;
 
     TODO Useful alternative names are `a{as,to}{Static,Fixed}`, `fix`, `fixed` , `statically`, `onStack`.
+
+    TODO Add to Phobos `std.array`.
 */
 auto asStatic(T, size_t length)(T[length] arr)
 {
@@ -52,6 +54,7 @@ auto asStatic(T, size_t length)(T[length] arr)
 {
     auto x = [1, 2, 3].asStatic;
     static assert(is(typeof(x) == int[x.length]));
+    static assert(is(typeof([1, 2, 3].asStatic) == int[x.length]));
 }
 
 enum Ordering

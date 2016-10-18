@@ -1690,20 +1690,19 @@ pure nothrow unittest
     }
 }
 
-/// append to empty array
+/// init and append to empty to array as AA value type
 @safe pure nothrow unittest
 {
     alias Key = string;
     alias A = Array!int;
     A[Key] x;
     assert("a" !in x);
-    x["a"] = A.init;
-    x["a"] ~= 42;
+    x["a"] = A.init;            // if this init is removed..
+    x["a"] ~= 42;               // ..then this fails
     assert(x["a"] == A.withElement(42));
 }
 
-
-/// append to empty array
+/// append to empty to array as AA value type
 pure unittest
 {
     import std.exception: assertThrown;

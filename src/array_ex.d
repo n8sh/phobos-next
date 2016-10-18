@@ -40,7 +40,7 @@ import searching_ex;
 
     auto x = [1, 2, 3].s;
 
-    TODO Useful alternative names are `fix`, `fixed` , `statically` , `asFixed`, `onStack`
+    TODO Useful alternative names are `a{as,to}{Static,Fixed}`, `fix`, `fixed` , `statically`, `onStack`.
 */
 auto asStatic(T, size_t length)(T[length] arr)
 {

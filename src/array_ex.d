@@ -32,7 +32,6 @@
     `Mallocator`
  */
 module array_ex;
-import searching_ex;
 
 // version = useMemoryErrorHandler;
 version(useMemoryErrorHandler) unittest
@@ -171,7 +170,6 @@ struct Array(E,
         typeof(return) that = void;
         that.allocateStoreWithCapacity(initialLength, true); // `true` here means zero initialize
         that._length = initialLength;
-        __addRange(that);
         return that;
     }
 
@@ -189,15 +187,17 @@ struct Array(E,
     {
         typeof(return) that = void;
         that.allocateStoreWithCapacity(1);
-        static if (!shouldAddGCRange!E)
+        static if (isCopyable!E)
+        {
+            that._mptr[0] = element;
+        }
+        else static if (!shouldAddGCRange!E)
         {
             moveEmplace(*(cast(ME*)(&element)), that._mptr[0]); // safe to cast away constness when no indirections
         }
         else
         {
-            // TODO Call `gc_removeRange(element)` here or does `moveEmplace` handle this?
             moveEmplace(element, that._ptr[0]);
-            __addRange(that);   // TODO needed? or does `moveEmplace` handle this for us?
         }
         that._length = 1;
         return that;
@@ -208,7 +208,6 @@ struct Array(E,
     {
         typeof(return) that = void;
         that.allocateStoreWithCapacity(Us.length);
-        // TODO gc_removeRange(elements)
         foreach (const i, ref element; elements)
         {
             static if (!shouldAddGCRange!E)
@@ -217,44 +216,35 @@ struct Array(E,
                 moveEmplace(element, that._ptr[i]);
         }
         that._length = Us.length;
-        __addRange(that);
         return that;
-    }
-
-    pragma(inline) private static void __addRange(ref typeof(this) that)
-    {
-        static if (shouldAddGCRange!E)
-        {
-            gc_addRange(that._ptr, that._length * E.sizeof);
-        }
-    }
-
-    pragma(inline) private static void __addMRange(ref Array!(ME) that)
-    {
-        static if (shouldAddGCRange!E)
-        {
-            gc_addRange(that._ptr, that._length * E.sizeof);
-        }
     }
 
     static if (useGCAllocation)
     {
-        /// Allocate a store pointer of length `capacity`.
-        pragma(inline) private void allocateStoreWithCapacity(size_t capacity, bool zero = false) @trusted nothrow
+        /// Allocate a store with capacity `newCapacity`.
+        pragma(inline) private void allocateStoreWithCapacity(size_t newCapacity, bool zero = false) @trusted nothrow
         {
-            if (zero) { _ptr = cast(E*)GC.calloc(capacity, E.sizeof); }
-            else      { _ptr = cast(E*)GC.malloc(capacity * E.sizeof); }
-            _capacity = capacity;
+            if (zero) { _ptr = cast(E*)GC.calloc(newCapacity, E.sizeof); }
+            else      { _ptr = cast(E*)GC.malloc(newCapacity * E.sizeof); }
+            _capacity = newCapacity;
+            static if (shouldAddGCRange!E)
+            {
+                gc_addRange(_ptr, _capacity * E.sizeof);
+            }
         }
     }
     else
     {
-        /// Allocate a store pointer of length `capacity`.
-        pragma(inline) private void allocateStoreWithCapacity(size_t capacity, bool zero = false) @trusted nothrow @nogc
+        /// Allocate a store with capacity `newCapacity`.
+        pragma(inline) private void allocateStoreWithCapacity(size_t newCapacity, bool zero = false) @trusted nothrow @nogc
         {
-            if (zero) { _ptr = cast(E*)calloc(capacity, E.sizeof); }
-            else      { _ptr = cast(E*)malloc(capacity * E.sizeof); }
-            _capacity = capacity;
+            if (zero) { _ptr = cast(E*)calloc(newCapacity, E.sizeof); }
+            else      { _ptr = cast(E*)malloc(newCapacity * E.sizeof); }
+            _capacity = newCapacity;
+            static if (shouldAddGCRange!E)
+            {
+                gc_addRange(_ptr, _capacity * E.sizeof);
+            }
         }
     }
 
@@ -269,10 +259,6 @@ struct Array(E,
             {
                 _ptr[i] = rhs_storePtr[i];
             }
-            static if (shouldAddGCRange!E)
-            {
-                gc_addRange(_ptr, _length * E.sizeof);
-            }
         }
 
         /// Copy assignment.
@@ -286,7 +272,6 @@ struct Array(E,
                 {
                     _ptr[i] = rhs._ptr[i];
                 }
-                __addRange(this);
             }
         }
     }
@@ -306,7 +291,6 @@ struct Array(E,
                     copy._ptr[i] = _mptr[i]; // TODO is using _mptr ok here?
                 }
                 copy._length = _length;
-                __addMRange(copy); //check more of these...;
                 return copy;
             }
         }
@@ -373,12 +357,12 @@ struct Array(E,
         return opSlice.equal(rhs);
     }
 
-    /// Calculate AA hash.
+    /// Calculate D associative array (AA) key hash.
     size_t toHash() const @trusted pure nothrow
     {
         import core.internal.hash : hashOf;
         // TODO this doesn't work when element type is non-copyable: return this.slice.hashOf;
-        typeof(return) hash;
+        typeof(return) hash = _length;
         foreach (const i; 0 .. _length)
         {
             hash ^= _ptr[i].hashOf;
@@ -434,10 +418,16 @@ struct Array(E,
     {
         void reserve(size_t newCapacity) pure nothrow @trusted
         {
+            static if (shouldAddGCRange!E)
+            {
+                gc_removeRange(_ptr);
+            }
             makeCapacityAtLeast(newCapacity);
-            static if (shouldAddGCRange!E) { gc_removeRange(_ptr); } // TODO move somewhere else?
             _ptr = cast(E*)GC.realloc(_mptr, E.sizeof * _capacity);
-            __addRange(this);
+            static if (shouldAddGCRange!E)
+            {
+                gc_addRange(_ptr, _capacity * E.sizeof);
+            }
         }
     }
     else
@@ -445,9 +435,15 @@ struct Array(E,
         void reserve(size_t newCapacity) pure nothrow @trusted @nogc
         {
             makeCapacityAtLeast(newCapacity);
-            static if (shouldAddGCRange!E) { gc_removeRange(_ptr); } // TODO move somewhere else?
+            static if (shouldAddGCRange!E)
+            {
+                gc_removeRange(_ptr);
+            }
             _ptr = cast(E*)realloc(_mptr, E.sizeof * _capacity);
-            __addRange(this);
+            static if (shouldAddGCRange!E)
+            {
+                gc_addRange(_ptr, _capacity * E.sizeof);
+            }
         }
     }
 
@@ -463,34 +459,50 @@ struct Array(E,
     {
         void compress() pure nothrow @trusted
         {
+            static if (shouldAddGCRange!E)
+            {
+                gc_removeRange(_ptr);
+            }
             if (_length)
             {
-                _ptr = cast(E*)GC.realloc(_mptr, E.sizeof * _length);
-                // TODO gc_removeRange with what arguments?
+                _capacity = _length;
+                _ptr = cast(E*)GC.realloc(_mptr, E.sizeof * _capacity);
+                static if (shouldAddGCRange!E)
+                {
+                    gc_addRange(_ptr, _capacity * E.sizeof);
+                }
             }
             else
             {
-                static if (shouldAddGCRange!E) { gc_removeRange(_ptr); }
                 GC.free(_mptr);
+                _capacity = 0;
                 _ptr = null;
             }
-            _capacity = _length;
         }
     }
     else
     {
         void compress() pure nothrow @trusted @nogc
         {
+            static if (shouldAddGCRange!E)
+            {
+                gc_removeRange(_ptr);
+            }
             if (_length)
             {
+                _capacity = _length;
                 _ptr = cast(E*)realloc(_mptr, E.sizeof * _capacity);
+                static if (shouldAddGCRange!E)
+                {
+                    gc_addRange(_ptr, _capacity * E.sizeof);
+                }
             }
             else
             {
                 free(_mptr);
+                _capacity = 0;
                 _ptr = null;
             }
-            _capacity = _length;
         }
     }
     alias pack = compress;
@@ -511,7 +523,10 @@ struct Array(E,
         private void release()
         {
             destroyElements();
-            static if (shouldAddGCRange!E) { gc_removeRange(_ptr); }
+            static if (shouldAddGCRange!E)
+            {
+                gc_removeRange(_ptr);
+            }
             GC.free(_ptr);
         }
     }
@@ -530,7 +545,10 @@ struct Array(E,
         private void release()
         {
             destroyElements();
-            static if (shouldAddGCRange!E) { gc_removeRange(_ptr); }
+            static if (shouldAddGCRange!E)
+            {
+                gc_removeRange(_ptr);
+            }
             static if (!shouldAddGCRange!E)
                 free(cast(Unqual!(E)*)_ptr); // safe to case away constness
             else
@@ -602,7 +620,6 @@ struct Array(E,
     {
         assert(!empty);
         return move(_mptr[--_length]); // TODO optimize by not clearing `_ptr[--_length]` after move
-        // TODO gc_removeRange
     }
 
     /** Pop last `count` back elements. */
@@ -1677,25 +1694,25 @@ pure nothrow unittest
 /// array as AA key type
 @safe pure nothrow unittest
 {
-    alias E = int;
-    foreach (A; AliasSeq!(Array!int,
-                          CopyableArray!int))
+    struct E { int x, y; }
+    foreach (A; AliasSeq!(Array!E,
+                          CopyableArray!E))
     {
         int[A] x;
         const n = 100;
         foreach (const i; 0 .. n)
         {
             assert(x.length == i);
-            assert(A.withElement(i) !in x);
-            x[A.withElement(i)] = 42;
+            assert(A.withElement(E(i, 2*i)) !in x);
+            x[A.withElement(E(i, 2*i))] = 42;
             assert(x.length == i + 1);
-            auto a = A.withElement(i);
+            auto a = A.withElement(E(i, 2*i));
             static if (isCopyable!A)
             {
                 // TODO why do these fail when `A` is not copyable?
                 assert(a in x);
-                assert(A.withElement(i) in x);
-                assert(x[A.withElement(i)] == 42);
+                assert(A.withElement(E(i, 2*i)) in x);
+                assert(x[A.withElement(E(i, 2*i))] == 42);
             }
         }
     }

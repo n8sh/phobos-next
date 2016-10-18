@@ -1,6 +1,8 @@
 /** Array container(s) with optional sortedness via template-parameter
     `Ordering` and optional use of GC via `useGCAllocation`.
 
+    BUG OUT=`mktemp` && dmd -vcolumns -wi -dip25 -debug -g -gs -unittest -main -of${OUT} array_ex.d searching_ex.d container_traits.d && ${OUT}
+
     TODO Breakout common logic into `RawArray` and reuse with `alias this`
 
     TODO Remove explicit moves when DMD std.algorithm.mutation.move calls these

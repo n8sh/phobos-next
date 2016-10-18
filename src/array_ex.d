@@ -34,6 +34,15 @@
 module array_ex;
 import searching_ex;
 
+// version = useMemoryErrorHandler;
+version(useMemoryErrorHandler) unittest
+{
+    import etc.linux.memoryerror : registerMemoryErrorHandler;
+    registerMemoryErrorHandler();
+    import std.stdio : writeln;
+    writeln("registerMemoryErrorHandler done");
+}
+
 /** Returns: statically (stack) allocated array with elements of type `T` of
     length `n`.
 
@@ -175,7 +184,7 @@ struct Array(E,
         return that;
     }
 
-    /// Returns: an array of length 1 with first element set to `element`.
+    /// Returns: an array of one element `element`.
     pragma(inline) static typeof(this) withElement(E element) @trusted nothrow
     {
         typeof(return) that = void;
@@ -194,7 +203,7 @@ struct Array(E,
         return that;
     }
 
-    // /// Returns: an array of length `Us.length` with elements set to `elements`.
+    // /// Returns: an array of `Us.length` number of elements set to `elements`.
     pragma(inline) static typeof(this) withElements(Us...)(Us elements) @trusted nothrow
     {
         typeof(return) that = void;

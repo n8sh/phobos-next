@@ -10,7 +10,8 @@ Array container(s) with optional sortedness via template-parameter
 TODO Breakout common logic into <pre style="display:inline;" class="d_inline_code">RawArray</pre> and reuse with <pre style="display:inline;" class="d_inline_code">alias this</pre>
 <br><br>
 
-    TODO Remove explicit moves when DMD has been fixed to do that for us
+    TODO Remove explicit moves when DMD std.algorithm.mutation.move calls these
+    members for us (if they exist)
 <br><br>
 
     TODO Allow y = sort(x.move()), where x and y are instances of unsorted Array
@@ -56,7 +57,10 @@ statically (stack) allocated array with elements of type <pre style="display:inl
     following convenient notation:
 <br><br>
 
-    auto x = [1, 2, 3].<u>asStatic</u>;<br><br>
+    auto x = [1, 2, 3].s;
+<br><br>
+
+    TODO Useful alternative names are <pre style="display:inline;" class="d_inline_code">fix</pre>, <pre style="display:inline;" class="d_inline_code">fixed</pre> , <pre style="display:inline;" class="d_inline_code">statically</pre> , <pre style="display:inline;" class="d_inline_code">asFixed</pre>, <pre style="display:inline;" class="d_inline_code">onStack</pre><br><br>
 <b>Examples:</b><br>
 <pre class="d_code">
 <font color=blue>auto</font> x = [1, 2, 3].<u>asStatic</u>;

@@ -1023,22 +1023,22 @@ struct Array(E,
         }
     }
 
-    static if (isCopyable!E)
-    {
-        string toString() const @property @trusted pure
-        {
-            import std.array : Appender;
-            import std.conv : to;
-            Appender!string s = "[";
-            foreach (const i; 0 .. _length)
-            {
-                if (i) { s.put(','); }
-                s.put(_ptr[i].to!string);
-            }
-            s.put("]");
-            return s.data;
-        }
-    }
+    // static if (isCopyable!E)
+    // {
+    //     string toString() const @property @trusted pure
+    //     {
+    //         import std.array : Appender;
+    //         import std.conv : to;
+    //         Appender!string s = "[";
+    //         foreach (const i; 0 .. _length)
+    //         {
+    //             if (i) { s.put(','); }
+    //             s.put(_ptr[i].to!string);
+    //         }
+    //         s.put("]");
+    //         return s.data;
+    //     }
+    // }
 
     pure nothrow:
 

@@ -3,7 +3,8 @@
 
     TODO Breakout common logic into `RawArray` and reuse with `alias this`
 
-    TODO Remove explicit moves when DMD has been fixed to do that for us
+    TODO Remove explicit moves when DMD std.algorithm.mutation.move calls these
+    members for us (if they exist)
 
     TODO Allow y = sort(x.move()), where x and y are instances of unsorted Array
 
@@ -30,6 +31,28 @@
  */
 module array_ex;
 import searching_ex;
+
+/** Returns: statically (stack) allocated array with elements of type `T` of
+    length `n`.
+
+    For more convenient usage alias it as `s' together with UFCS for the
+    following convenient notation:
+
+    auto x = [1, 2, 3].s;
+
+    TODO Useful alternative names are `a{as,to}{Static,Fixed}`, `fix`, `fixed` , `statically`, `onStack`.
+*/
+auto asStatic(T, size_t length)(T[length] arr)
+{
+    return arr;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    auto x = [1, 2, 3].asStatic;
+    static assert(is(typeof(x) == int[x.length]));
+}
 
 enum Ordering
 {

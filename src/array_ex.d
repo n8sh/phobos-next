@@ -31,6 +31,26 @@
 module array_ex;
 import searching_ex;
 
+/** Returns: statically (stack) allocated array with elements of type `T` of
+    length `n`.
+
+    For more convenient usage alias it as `s' together with UFCS for the
+    following convenient notation:
+
+    auto x = [1, 2, 3].asStatic;
+*/
+auto asStatic(T, size_t length)(T[length] arr)
+{
+    return arr;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    auto x = [1, 2, 3].asStatic;
+    static assert(is(typeof(x) == int[x.length]));
+}
+
 enum Ordering
 {
     unsorted, // unsorted array

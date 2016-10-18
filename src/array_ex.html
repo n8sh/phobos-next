@@ -475,6 +475,9 @@
 <div class="ddoc_description">
   <h4>Discussion</h4>
   <p class="para">
+    BUG OUT=<code class="code">mktemp</code> &amp;&amp; dmd -vcolumns -wi -dip25 -debug -g -gs -unittest -main -of${OUT} <code class="code">array_ex</code>.d searching_ex.d container_traits.d &amp;&amp; ${OUT}
+
+
     TODO Breakout common logic into <code class="code">RawArray</code> and reuse with <code class="code">alias this</code>
 
 

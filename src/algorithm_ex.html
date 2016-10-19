@@ -501,64 +501,7 @@
       <div class="dlang">
         <p class="para">
           <code class="code">
-            <span class="ddoc_anchor" id="either"></span>CommonType!Ts <code class="code">either</code>(Ts...)(lazy Ts <code class="code">a</code>) if (<code class="code">a</code>.length &gt;= 1);
-
-          </code>
-        </p>
-      </div>
-    </div>
-  </section>
-</div>
-<div class="ddoc_decl">
-  <section class="section ddoc_sections">
-  <div class="ddoc_returns">
-  <h4>Return Value</h4>
-  <p class="para">
-    First Argument (element of ) whose implicit conversion to
-    <code class="code">bool</code> is <code class="code">true</code>.
-
-
-    Similar to behaviour of <code class="code">or</code> operator in dynamic languages such as Lisp's (or
-    <code class="code">a</code>...) and Python's <code class="code">a</code> or ....
-
-
-    TODO Is inout Conversion!T the correct return value?
-
-
-  </p>
-</div>
-<div class="ddoc_section">
-  <p class="para">
-    <span class="ddoc_section_h">NOTE:</span>
-Lazy parameters are currently marked as throw which makes it
-    impossible to mark <code class="code">either</code>() as nothrow. Issue at
-
-  </p>
-</div>
-<div class="ddoc_section">
-  <p class="para">
-    <span class="ddoc_section_h">https:</span>
-//issues.dlang.org/show_bug.cgi?id=12647
-  </p>
-</div>
-
-</section>
-
-</div>
-
-</li><li class="ddoc_member">
-  <div class="ddoc_member_header">
-  <div class="ddoc_header_anchor">
-  <a href="#either" id="either"><code class="code">either</code></a>
-</div>
-</div><div class="ddoc_decl">
-  <section class="section">
-    <div class="declaration">
-      <h4>Declaration</h4>
-      <div class="dlang">
-        <p class="para">
-          <code class="code">
-            <span class="ddoc_anchor" id="either.2"></span>ref auto <code class="code">either</code>(Ts...)(ref Ts <code class="code">a</code>) if (<code class="code">a</code>.length &gt;= 1 &amp;&amp; allSameType!Ts);
+            <span class="ddoc_anchor" id="either"></span>ref auto <code class="code">either</code>(Ts...)(ref Ts <code class="code">a</code>) if (<code class="code">a</code>.length &gt;= 1 &amp;&amp; allSameType!Ts);
 
           </code>
         </p>
@@ -586,7 +529,6 @@ Lazy parameters are currently marked as throw which makes it
 <span class="keyword">auto</span> pq = <span class="psymbol">either</span>(p, q);
 <span class="keyword">assert</span>(pq == 1);
 
-<span class="keyword">assert</span>(<span class="psymbol">either</span>(3) == 3);
 <span class="keyword">assert</span>(<span class="psymbol">either</span>(3, 4) == 3);
 <span class="keyword">assert</span>(<span class="psymbol">either</span>(0, 4) == 4);
 <span class="keyword">assert</span>(<span class="psymbol">either</span>(0, 0) == 0);
@@ -600,11 +542,11 @@ string s = <span class="keyword">null</span>;
 <span class="keyword">assert</span>(<span class="psymbol">either</span>([0, 1], [1]) == [0, 1]);
 <span class="keyword">assert</span>(<span class="psymbol">either</span>(<span class="string_literal">`a`</span>, <span class="string_literal">`b`</span>) == <span class="string_literal">`a`</span>);
 
-<span class="keyword">int</span> x = 1, y = 2;
-<span class="psymbol">either</span>(x, y) = 3;
-<span class="keyword">assert</span>(x == 3);
-<span class="keyword">assert</span>(y == 2);
-</code></li>
+<span class="comment">// int x = 1, y = 2;
+</span><span class="comment">// either(x, y) = 3;
+</span><span class="comment">// assert(x == 3);
+</span><span class="comment">// assert(y == 2);
+</span></code></li>
       </ol>
     </div>
   </div>

@@ -21,48 +21,15 @@ version(unittest)
     import std.algorithm.comparison : equal;
 }
 
-version(print) import dbgio;
+version(print)
+{
+    import dbgio : dln;
+}
 
 import std.range : dropOne;
 alias tail = dropOne;
 
-/** Returns: First Argument (element of $(D a)) whose implicit conversion to
-    `bool` is `true`.
-
-    Similar to behaviour of `or` operator in dynamic languages such as Lisp's (or
-    a...) and Python's a or ....
-
-    TODO Is inout Conversion!T the correct return value?
-
-    NOTE: Lazy parameters are currently marked as throw which makes it
-    impossible to mark either() as nothrow. Issue at
-    https://issues.dlang.org/show_bug.cgi?id=12647
-*/
-CommonType!Ts either(Ts...)(lazy Ts a)
-    if (a.length >= 1)
-{
-    auto a0 = a[0]();           // evaluate only once
-    static if (Ts.length == 1)
-    {
-        return a0;
-    }
-    else
-    {
-        return a0 ? a0 : either(a[1 .. $]); // recurse
-    }
-}
-
-T either_r(T)(lazy T a)
-{
-    return a;
-}
-
-CommonType!(A, Bs) either_r(A, Bs...)(lazy A a, lazy Bs bs)
-    if (bs.length >= 1)
-{
-    auto a_ = a();
-    return a_ ? a_ : either_r(bs);
-}
+import std.algorithm : either;
 
 /** This overload enables, when possible, lvalue return.
     TODO should we limit this template to `a.length >= 2`.
@@ -87,7 +54,6 @@ auto ref either(Ts...)(ref Ts a)
     auto pq = either(p, q);
     assert(pq == 1);
 
-    assert(either(3) == 3);
     assert(either(3, 4) == 3);
     assert(either(0, 4) == 4);
     assert(either(0, 0) == 0);
@@ -101,10 +67,10 @@ auto ref either(Ts...)(ref Ts a)
     assert(either([0, 1], [1]) == [0, 1]);
     assert(either(`a`, `b`) == `a`);
 
-    int x = 1, y = 2;
-    either(x, y) = 3;
-    assert(x == 3);
-    assert(y == 2);
+    // int x = 1, y = 2;
+    // either(x, y) = 3;
+    // assert(x == 3);
+    // assert(y == 2);
 }
 
 /** Returns: Last Argument if all arguments implicitly bool-convert to `true`

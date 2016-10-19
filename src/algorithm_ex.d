@@ -143,8 +143,7 @@ version(none) // WARNING disabled because I don't see any use of this for.
     If all values of $(D parts) implicitly convert to bool true return the
     values as an array, otherwise restore whole and return null.
 */
-CommonType!T[] tryEvery(S, T...)(ref S whole,
-                                 lazy T parts)
+CommonType!T[] tryEvery(S, T...)(ref S whole, lazy T parts)
     if (T.length >= 1)
 {
     auto wholeBackup = whole;

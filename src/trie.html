@@ -2134,10 +2134,15 @@
 
 </div>
 
+</li>
+</ul>
+
+</div>
+
 </li><li class="ddoc_member">
   <div class="ddoc_member_header">
   <div class="ddoc_header_anchor">
-  <a href="#RadixTree.print" id="RadixTree.print"><code class="code">print</code></a>
+  <a href="#print" id="print"><code class="code">print</code></a>
 </div>
 </div><div class="ddoc_decl">
   <section class="section">
@@ -2146,7 +2151,7 @@
       <div class="dlang">
         <p class="para">
           <code class="code">
-            <span class="ddoc_anchor" id="RadixTree.print"></span>const @safe void <code class="code">print</code>();
+            <span class="ddoc_anchor" id="print"></span>@safe void <code class="code">print</code>(Key, Value)(ref RadixTree!(Key, Value) <code class="code">tree</code>) if (allSatisfy!(isTrieableKeyType, Key));
 
           </code>
         </p>
@@ -2158,16 +2163,11 @@
   <section class="section ddoc_sections">
   <div class="ddoc_summary">
   <p class="para">
-    Print <code class="code">this</code> tree.
+    Print <code class="code"><code class="code">tree</code></code>.
   </p>
 </div>
 
 </section>
-
-</div>
-
-</li>
-</ul>
 
 </div>
 

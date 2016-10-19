@@ -4621,18 +4621,19 @@ struct RadixTree(Key, Value)
         return typeof(this)(this._rawTree.dup);
     }
 
-    /** Print `this` tree. */
-    void print() @safe const
-    {
-        _rawTree.print();
-    }
-
     RawTree _rawTree;
     alias _rawTree this;
 }
 alias PatriciaTrie = RadixTree;
 alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
+
+/** Print `tree`. */
+void print(Key, Value)(const ref RadixTree!(Key, Value) tree) @safe
+    if (allSatisfy!(isTrieableKeyType, Key))
+{
+    print(tree._rawTree);
+}
 
 /** Keys are stored in a way that they can't be accessed by reference so we
     allow array (and string) keys to be of mutable type.

@@ -2231,12 +2231,12 @@ Container collect(Container, Range) (Range r)
 /** Static array overload for `std.algorithm.iteration.map`.
     See also: http://forum.dlang.org/thread/rqlittlysttwxwphlnmh@forum.dlang.org
  */
-typeof(fn(E.init))[n] map(alias fn, E, size_t n)(in E[n] src)
+typeof(fun(E.init))[n] map(alias fun, E, size_t n)(in E[n] src)
 {
     import std.algorithm.iteration : map;
     import std.algorithm.mutation : copy;
     typeof(return) dst;
-    src[].map!fn.copy(dst[]);
+    src[].map!fun.copy(dst[]);
     return dst;
 }
 

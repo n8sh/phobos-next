@@ -2023,7 +2023,7 @@ bool countsExactly(R)(R r, size_t exactCount) @("complexity", "O(exactCount)")
     }
     else
     {
-        size_t n;
+        size_t n = 0;
         import std.range : empty;
         while (!r.empty)
         {
@@ -2231,7 +2231,7 @@ Container collect(Container, Range) (Range r)
 /** Static array overload for `std.algorithm.iteration.map`.
     See also: http://forum.dlang.org/thread/rqlittlysttwxwphlnmh@forum.dlang.org
  */
-typeof(fun(E.init))[n] map(alias fun, E, size_t n)(in E[n] src)
+typeof(fun(E.init))[n] map(alias fun, E, size_t n)(const E[n] src)
 {
     import std.algorithm.iteration : map;
     import std.algorithm.mutation : copy;

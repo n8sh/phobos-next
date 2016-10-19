@@ -4019,7 +4019,6 @@ template RawRadixTree(Value = void)
 
     private:
         RCStore* _rcStore;
-
         // debug:                      // debug stuff
         // long _heapAllocBalance;
         // size_t[Node.Ix.max + 1] nodeCountsByIx;

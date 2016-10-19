@@ -3371,7 +3371,7 @@ test(3.iota.array);
 <span class="keyword">import</span> array_ex : Array;
 
 <span class="keyword">alias</span> E = <span class="keyword">int</span>;
-<span class="keyword">alias</span> A = Array!(E);
+<span class="keyword">alias</span> A = Array!E;
 
 <span class="keyword">const</span> n = 100;
 <span class="keyword">static</span> <span class="keyword">assert</span>(isOutputRange!(A, E));
@@ -3401,7 +3401,7 @@ test(3.iota.array);
       <div class="dlang">
         <p class="para">
           <code class="code">
-            <span class="ddoc_anchor" id="map"></span>typeof(fun(E.init))[n] <code class="code">map</code>(alias fun, E, size_t n)(in E[n] <code class="code">src</code>);
+            <span class="ddoc_anchor" id="map"></span>typeof(fun(E.init))[n] <code class="code">map</code>(alias fun, E, size_t n)(const E[n] <code class="code">src</code>);
 
           </code>
         </p>

@@ -2231,3 +2231,19 @@ Container collect(Container, Range) (Range r)
 
     assert((0.iota(n).collect!A)[].equal(0.iota(n)));
 }
+
+/** Static array overload for `std.algorithm.iteration.map`.
+    See also: http://forum.dlang.org/thread/rqlittlysttwxwphlnmh@forum.dlang.org
+ */
+typeof(fn(E.init))[] map(alias fn, E, size_t n)(in E[n] container)
+{
+    import std.algorithm.iteration : map;
+    import std.array : array;
+    return container[].map!fn.array;
+}
+
+@safe pure nothrow unittest
+{
+    int[42] c;
+    auto g = map!(_ => _^2)(c);
+}

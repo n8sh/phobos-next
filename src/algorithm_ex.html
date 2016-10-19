@@ -3205,7 +3205,8 @@ f(<span class="param">c</span>);
   <div class="code_sample">
     <div class="dlang">
       <ol class="code_lines">
-        <li><code class="code"><span class="keyword">static</span> <span class="keyword">void</span> test(R)(R x) <span class="keyword">if</span> (isInputRange!R)
+        <li><code class="code"><span class="keyword">static</span> <span class="keyword">void</span> test(R)(R x)
+    <span class="keyword">if</span> (isInputRange!R)
 {
     <span class="keyword">import</span> std.algorithm : count;
     <span class="keyword">const</span> n = x.count;
@@ -3390,6 +3391,39 @@ test(3.iota.array);
 
   </p>
 </div>
+</section>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#map" id="map"><code class="code">map</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="map"></span>typeof(fn(E.init))[] <code class="code">map</code>(alias fn, E, size_t n)(in E[n] <code class="code">container</code>);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Static array overload for <code class="code">std.algorithm.iteration.<code class="code">map</code></code>.
+    See also: http://forum.dlang.org/thread/rqlittlysttwxwphlnmh@forum.dlang.org
+  </p>
+</div>
+
 </section>
 
 </div>

@@ -2220,7 +2220,7 @@ Container collect(Container, Range) (Range r)
     import array_ex : Array;
 
     alias E = int;
-    alias A = Array!(E);
+    alias A = Array!E;
 
     const n = 100;
     static assert(isOutputRange!(A, E));

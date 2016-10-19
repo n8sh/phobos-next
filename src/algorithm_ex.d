@@ -2231,7 +2231,7 @@ Container collect(Container, Range) (Range r)
 /** Static array overload for `std.algorithm.iteration.map`.
     See also: http://forum.dlang.org/thread/rqlittlysttwxwphlnmh@forum.dlang.org
  */
-typeof(fn(E.init))[n] map1(alias fn, E, size_t n)(in E[n] src)
+typeof(fn(E.init))[n] map(alias fn, E, size_t n)(in E[n] src)
 {
     import std.algorithm.iteration : map;
     import std.algorithm.mutation : copy;
@@ -2243,9 +2243,8 @@ typeof(fn(E.init))[n] map1(alias fn, E, size_t n)(in E[n] src)
 @safe pure nothrow unittest
 {
     import std.range : iota;
-    import std.algorithm.iteration : map;
     const n = 42;
     int[n] c;
-    auto result = map1!(_ => _^^2)(c);
+    auto result = map!(_ => _^^2)(c);
     // assert(result[].equal(0.iota(n).map!(_ => _^^2)));
 }

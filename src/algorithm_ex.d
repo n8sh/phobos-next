@@ -2242,9 +2242,12 @@ typeof(fn(E.init))[n] map(alias fn, E, size_t n)(in E[n] src)
 
 @safe pure nothrow unittest
 {
-    import std.range : iota;
-    const n = 42;
-    int[n] c;
-    auto result = map!(_ => _^^2)(c);
-    // assert(result[].equal(0.iota(n).map!(_ => _^^2)));
+    import std.meta : AliasSeq;
+    foreach (E; AliasSeq!(int, double))
+    {
+        enum n = 42;
+        E[n] c;
+        const result = map!(_ => _^^2)(c);
+        static assert(is(typeof(result) == const(E)[n]));
+    }
 }

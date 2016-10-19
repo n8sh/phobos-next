@@ -1217,7 +1217,6 @@ SysTime[] times;
     <div class="dlang">
       <ol class="code_lines">
         <li><code class="code"><span class="keyword">immutable</span> i = [1, 4, 9, 17];
-<span class="keyword">import</span> std.algorithm: equal;
 <span class="keyword">assert</span>(i.<span class="psymbol">windowedReduce</span>!(Reduction.forwardDifference).equal ([+3, +5, +8]));
 <span class="keyword">assert</span>(i.<span class="psymbol">windowedReduce</span>!(Reduction.backwardDifference).equal([-3, -5, -8]));
 <span class="keyword">assert</span>(i.<span class="psymbol">windowedReduce</span>!(Reduction.sum).equal ([+5, +13, +26]));
@@ -2075,7 +2074,6 @@ Decide on either Span, MinMax or <code class="code">Limits</code>
     <div class="dlang">
       <ol class="code_lines">
         <li><code class="code"><span class="keyword">import</span> std.range: take;
-<span class="keyword">import</span> std.algorithm: equal;
 <span class="keyword">assert</span>(<span class="psymbol">fibonacci</span>.take(10).equal([1, 1, 2, 3, 5, 8, 13, 21, 34, 55]));
 <span class="keyword">assert</span>(1.<span class="psymbol">fibonacci</span>.take(9).equal([1, 2, 3, 5, 8, 13, 21, 34, 55]));
 </code></li>
@@ -2313,8 +2311,7 @@ foo(<span class="psymbol">expand</span>!arr);
   <div class="code_sample">
     <div class="dlang">
       <ol class="code_lines">
-        <li><code class="code"><span class="keyword">import</span> std.algorithm: equal;
-<span class="keyword">import</span> std.ascii: isDigit;
+        <li><code class="code"><span class="keyword">import</span> std.ascii: isDigit;
 <span class="keyword">assert</span>(<span class="string_literal">`aa1bb`</span>.<span class="psymbol">split</span>!(a =&gt; a.isDigit) == tuple(<span class="string_literal">`aa`</span>, <span class="string_literal">`1`</span>, <span class="string_literal">`bb`</span>));
 <span class="keyword">assert</span>(<span class="string_literal">`aa1`</span>.<span class="psymbol">split</span>!(a =&gt; a.isDigit) == tuple(<span class="string_literal">`aa`</span>, <span class="string_literal">`1`</span>, <span class="string_literal">``</span>));
 <span class="keyword">assert</span>(<span class="string_literal">`1bb`</span>.<span class="psymbol">split</span>!(a =&gt; a.isDigit) == tuple(<span class="string_literal">``</span>, <span class="string_literal">`1`</span>, <span class="string_literal">`bb`</span>));
@@ -2777,7 +2774,6 @@ CT-variant
     <div class="dlang">
       <ol class="code_lines">
         <li><code class="code"><span class="keyword">import</span> std.container: Array;
-<span class="keyword">import</span> std.algorithm: equal;
 
 Array!<span class="keyword">int</span> <span class="param">data</span>;
 
@@ -3345,7 +3341,6 @@ test(3.iota.array);
       <ol class="code_lines">
         <li><code class="code"><span class="keyword">import</span> std.range : iota;
 <span class="keyword">import</span> std.algorithm.iteration : map, filter;
-<span class="keyword">import</span> std.algorithm.comparison : equal;
 <span class="keyword">import</span> algorithm_ex : <span class="psymbol">collect</span>;
 
 <span class="keyword">alias</span> E = <span class="keyword">int</span>;
@@ -3373,7 +3368,6 @@ test(3.iota.array);
     <div class="dlang">
       <ol class="code_lines">
         <li><code class="code"><span class="keyword">import</span> std.range : iota, isOutputRange;
-<span class="keyword">import</span> std.algorithm.comparison : equal;
 <span class="keyword">import</span> array_ex : Array;
 
 <span class="keyword">alias</span> E = <span class="keyword">int</span>;
@@ -3398,7 +3392,7 @@ test(3.iota.array);
 </li><li class="ddoc_member">
   <div class="ddoc_member_header">
   <div class="ddoc_header_anchor">
-  <a href="#map" id="map"><code class="code">map</code></a>
+  <a href="#map1" id="map1"><code class="code">map1</code></a>
 </div>
 </div><div class="ddoc_decl">
   <section class="section">
@@ -3407,7 +3401,7 @@ test(3.iota.array);
       <div class="dlang">
         <p class="para">
           <code class="code">
-            <span class="ddoc_anchor" id="map"></span>typeof(fn(E.init))[] <code class="code">map</code>(alias fn, E, size_t n)(in E[n] <code class="code">container</code>);
+            <span class="ddoc_anchor" id="map1"></span>typeof(fn(E.init))[] <code class="code">map1</code>(alias fn, E, size_t n)(in E[n] <code class="code">container</code>);
 
           </code>
         </p>
@@ -3419,7 +3413,7 @@ test(3.iota.array);
   <section class="section ddoc_sections">
   <div class="ddoc_summary">
   <p class="para">
-    Static array overload for <code class="code">std.algorithm.iteration.<code class="code">map</code></code>.
+    Static array overload for <code class="code">std.algorithm.iteration.map</code>.
     See also: http://forum.dlang.org/thread/rqlittlysttwxwphlnmh@forum.dlang.org
   </p>
 </div>

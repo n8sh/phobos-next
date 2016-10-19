@@ -16,6 +16,11 @@ import traits_ex : allSameType;
 import std.functional : unaryFun, binaryFun;
 import std.algorithm.searching : find;
 
+version(unittest)
+{
+    import std.algorithm.comparison : equal;
+}
+
 version(print) import dbgio;
 
 import std.range : dropOne;
@@ -641,7 +646,6 @@ unittest
 @safe pure unittest
 {
     immutable i = [1, 4, 9, 17];
-    import std.algorithm: equal;
     assert(i.windowedReduce!(Reduction.forwardDifference).equal ([+3, +5, +8]));
     assert(i.windowedReduce!(Reduction.backwardDifference).equal([-3, -5, -8]));
     assert(i.windowedReduce!(Reduction.sum).equal ([+5, +13, +26]));
@@ -1164,7 +1168,6 @@ auto fibonacci(T = int)(T nth = 0)
 unittest
 {
     import std.range: take;
-    import std.algorithm: equal;
     assert(fibonacci.take(10).equal([1, 1, 2, 3, 5, 8, 13, 21, 34, 55]));
     assert(1.fibonacci.take(9).equal([1, 2, 3, 5, 8, 13, 21, 34, 55]));
 }
@@ -1308,7 +1311,6 @@ alias takeAllOf = takeWhile;
 ///
 unittest
 {
-    import std.algorithm: equal;
     assert(equal([1, 1, 2, 3].takeWhile(1),
                  [1, 1]));
 }
@@ -1356,7 +1358,6 @@ auto split(alias pred, R)(R haystack)
 ///
 unittest
 {
-    import std.algorithm: equal;
     import std.ascii: isDigit;
     assert(`aa1bb`.split!(a => a.isDigit) == tuple(`aa`, `1`, `bb`));
     assert(`aa1`.split!(a => a.isDigit) == tuple(`aa`, `1`, ``));
@@ -1453,7 +1454,6 @@ auto splitAfter(alias pred, R)(R haystack)
 ///
 unittest
 {
-    import std.algorithm: equal;
     import std.ascii: isDigit;
     assert(`aa1bb`.splitAfter!(a => a.isDigit) == tuple(`aa1`, `bb`));
     assert(`aa1`.splitAfter!(a => a.isDigit) == tuple(`aa1`, ``));
@@ -1812,7 +1812,6 @@ unittest
 unittest
 {
     import std.container: Array;
-    import std.algorithm: equal;
 
     Array!int data;
 
@@ -1846,7 +1845,6 @@ auto distinct(R)(R r)
 // {
 //     immutable first = [1, 0, 2, 1, 3];
 //     immutable second = [1,5,6];
-//     import std.algorithm.comparison: equal;
 //     import std.range: chain, take;
 //     assert(equal(first.chain(second).distinct.take(5),
 //                  [1, 0, 2, 3, 5]));
@@ -2203,7 +2201,6 @@ Container collect(Container, Range) (Range r)
 {
     import std.range : iota;
     import std.algorithm.iteration : map, filter;
-    import std.algorithm.comparison : equal;
     import algorithm_ex : collect;
 
     alias E = int;
@@ -2220,7 +2217,6 @@ Container collect(Container, Range) (Range r)
 /*@safe*/ pure nothrow @nogc unittest // TODO make @safe when DIP-1000 has been added
 {
     import std.range : iota, isOutputRange;
-    import std.algorithm.comparison : equal;
     import array_ex : Array;
 
     alias E = int;
@@ -2235,7 +2231,7 @@ Container collect(Container, Range) (Range r)
 /** Static array overload for `std.algorithm.iteration.map`.
     See also: http://forum.dlang.org/thread/rqlittlysttwxwphlnmh@forum.dlang.org
  */
-typeof(fn(E.init))[] map(alias fn, E, size_t n)(in E[n] container)
+typeof(fn(E.init))[] map1(alias fn, E, size_t n)(in E[n] container)
 {
     import std.algorithm.iteration : map;
     import std.array : array;
@@ -2244,6 +2240,10 @@ typeof(fn(E.init))[] map(alias fn, E, size_t n)(in E[n] container)
 
 @safe pure nothrow unittest
 {
-    int[42] c;
-    auto g = map!(_ => _^2)(c);
+    import std.range : iota;
+    import std.algorithm.iteration : map;
+    const n = 42;
+    int[n] c;
+    auto result = map1!(_ => _^^2)(c);
+    // assert(result[].equal(0.iota(n).map!(_ => _^^2)));
 }

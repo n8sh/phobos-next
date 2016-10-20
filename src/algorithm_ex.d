@@ -2193,16 +2193,26 @@ Container collect(Container, Range) (Range r)
     assert((0.iota(n).collect!A)[].equal(0.iota(n)));
 }
 
+/** Overload of `std.array.array` that creates a static array of length `n`.
+    TODO Better name: {make,array}{N,Exactly}
+    TODO could we find a way to propagate length at compile-time?
+ */
+ElementType!R[n] arrayN(size_t n, R)(R r)
+{
+    assert(r.length == n);
+    typeof(return) dst;
+    import std.algorithm.mutation : copy;
+    r.copy(dst[]);
+    return dst;
+}
+
 /** Static array overload for `std.algorithm.iteration.map`.
     See also: http://forum.dlang.org/thread/rqlittlysttwxwphlnmh@forum.dlang.org
  */
 typeof(fun(E.init))[n] map(alias fun, E, size_t n)(const E[n] src)
 {
     import std.algorithm.iteration : map;
-    import std.algorithm.mutation : copy;
-    typeof(return) dst;
-    src[].map!fun.copy(dst[]);
-    return dst;
+    return src[].map!fun.arrayN!n;
 }
 
 @safe pure nothrow unittest
@@ -2213,6 +2223,7 @@ typeof(fun(E.init))[n] map(alias fun, E, size_t n)(const E[n] src)
         enum n = 42;
         E[n] c;
         const result = map!(_ => _^^2)(c);
+        static assert(c.length == result.length);
         static assert(is(typeof(result) == const(E)[n]));
     }
 }

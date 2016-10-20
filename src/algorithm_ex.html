@@ -3334,6 +3334,40 @@ test(3.iota.array);
 </li><li class="ddoc_member">
   <div class="ddoc_member_header">
   <div class="ddoc_header_anchor">
+  <a href="#arrayN" id="arrayN"><code class="code">arrayN</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="arrayN"></span>ElementType!R[n] <code class="code">arrayN</code>(size_t n, R)(R <code class="code">r</code>);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Overload of <code class="code">std.array.array</code> that creates a static array of length <code class="code">n</code>.
+    TODO Better name: {make,array}{N,Exactly}
+    TODO could we find a way to propagate length at compile-time?
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
   <a href="#map" id="map"><code class="code">map</code></a>
 </div>
 </div><div class="ddoc_decl">
@@ -3357,6 +3391,7 @@ test(3.iota.array);
   <p class="para">
     Static array overload for <code class="code">std.algorithm.iteration.<code class="code">map</code></code>.
     See also: http://forum.dlang.org/thread/rqlittlysttwxwphlnmh@forum.dlang.org
+    TODO Express parts of logic in array!N
   </p>
 </div>
 

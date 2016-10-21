@@ -1,7 +1,8 @@
 /** Array container(s) with optional sortedness via template-parameter
     `Ordering` and optional use of GC via `useGCAllocation`.
 
-    BUG OUT=`mktemp` && dmd -vcolumns -wi -dip25 -debug -g -gs -unittest -main -of${OUT} array_ex.d searching_ex.d container_traits.d && ${OUT}
+    BUG rdmd -main -unittest -g -debug array_ex
+    dustmite --strip-comments --no-redirect src "show-segfault rdmd -main -unittest -g -debug array_ex | grep double-linked"
 
     TODO Breakout common logic into `RawArray` and reuse with `alias this`
 

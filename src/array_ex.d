@@ -116,11 +116,11 @@ enum Assignment
         useGCAllocation = `true` iff `GC.malloc` is used for store allocation,
                           otherwise C's `{m,ce,re}alloc()` is used.
  */
-struct Array(E,
-             Assignment assignment = Assignment.disabled,
-             Ordering ordering = Ordering.unsorted,
-             bool useGCAllocation = false,
-             alias less = "a < b") // TODO move out of this definition and support only for the case when `ordering` is not `Ordering.unsorted`
+private struct Array(E,
+                     Assignment assignment = Assignment.disabled,
+                     Ordering ordering = Ordering.unsorted,
+                     bool useGCAllocation = false,
+                     alias less = "a < b") // TODO move out of this definition and support only for the case when `ordering` is not `Ordering.unsorted`
 {
     import std.range : isInputRange, ElementType;
     import std.traits : isAssignable, Unqual, isSomeChar, isArray;
@@ -1144,6 +1144,7 @@ private:
     size_t _length;             // length
 }
 
+alias UncopyableArray(E, bool useGCAllocation = false) = Array!(E, Assignment.disabled, Ordering.unsorted, useGCAllocation, "a < b");
 alias CopyableArray(E, bool useGCAllocation = false) = Array!(E, Assignment.copy, Ordering.unsorted, useGCAllocation, "a < b");
 alias SortedArray(E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.disabled, Ordering.sortedValues, useGCAllocation, less);
 alias SortedSetArray(E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.disabled, Ordering.sortedUniqueSet, useGCAllocation, less);

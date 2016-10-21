@@ -638,37 +638,6 @@
   <li class="ddoc_member">
   <div class="ddoc_member_header">
   <div class="ddoc_header_anchor">
-  <a href="#UniqueArray" id="UniqueArray"><code class="code">UniqueArray</code></a>
-</div>
-</div><div class="ddoc_decl">
-  <section class="section">
-    <div class="declaration">
-      <h4>Declaration</h4>
-      <div class="dlang">
-        <p class="para">
-          <code class="code">
-            <span class="ddoc_anchor" id="UniqueArray"></span>template <code class="code">UniqueArray</code>(T)
-          </code>
-        </p>
-      </div>
-    </div>
-  </section>
-</div>
-<div class="ddoc_decl">
-  <section class="section ddoc_sections">
-  <div class="ddoc_summary">
-  <p class="para">
-    C++-style Array container but with assignment disabled, that is no move nor copy construction.
-  </p>
-</div>
-
-</section>
-
-</div>
-
-</li><li class="ddoc_member">
-  <div class="ddoc_member_header">
-  <div class="ddoc_header_anchor">
   <a href="#isScalarTrieableKeyType" id="isScalarTrieableKeyType"><code class="code">isScalarTrieableKeyType</code></a>
 </div>
 </div><div class="ddoc_decl">
@@ -1808,7 +1777,7 @@
       <div class="dlang">
         <p class="para">
           <code class="code">
-            <span class="ddoc_anchor" id="toRawKey"></span>@trusted UKey <code class="code">toRawKey</code>(TypedKey)(in TypedKey <code class="code">typedKey</code>, ref UniqueArray!Ix <code class="code">rawUKey</code>) if (isTrieableKeyType!TypedKey);
+            <span class="ddoc_anchor" id="toRawKey"></span>@trusted UKey <code class="code">toRawKey</code>(TypedKey)(in TypedKey <code class="code">typedKey</code>, ref UncopyableArray!Ix <code class="code">rawUKey</code>) if (isTrieableKeyType!TypedKey);
 
           </code>
         </p>
@@ -2979,7 +2948,7 @@ map.insert(Key.init, Value.init);
     <div class="dlang">
       <ol class="code_lines">
         <li><code class="code"><span class="comment">// alias Key = string;
-</span><span class="comment">// alias Value = UniqueArray!int;
+</span><span class="comment">// alias Value = UncopyableArray!int;
 </span><span class="comment">// RadixTreeMapGrowOnly!(Key, Value) map;
 </span></code></li>
       </ol>

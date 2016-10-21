@@ -1537,8 +1537,10 @@ nothrow unittest
     import std.traits : isRvalueAssignable, isLvalueAssignable;
 
     alias E = string;
+
     alias A = Array!E;
     static assert(!isCopyable!(A));
+
     alias CA = CopyableArray!E;
     static assert(isCopyable!(CA));
 

@@ -1539,6 +1539,8 @@ nothrow unittest
     alias E = string;
     alias A = Array!E;
     static assert(!isCopyable!(A));
+    alias CA = CopyableArray!E;
+    static assert(isCopyable!(CA));
 
     static assert(isRvalueAssignable!(A));
     static assert(isLvalueAssignable!(A));

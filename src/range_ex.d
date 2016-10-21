@@ -6,7 +6,7 @@
 
 module range_ex;
 
-import std.range: hasSlicing, isSomeString, isNarrowString, isInfinite, isInputRange, isBidirectionalRange, ElementType;
+import std.range: hasSlicing, hasLength, isSomeString, isNarrowString, isInfinite, isInputRange, isBidirectionalRange, ElementType;
 import std.traits: hasUnsharedAliasing, hasElaborateDestructor, isScalarType;
 
 public import slicing;
@@ -49,14 +49,6 @@ enum hasStealableElements(R) = (hasPureCopy!(ElementType!R)); // TODO recurse
 /*         hasStealableElements!(T[1..$]); */
 /*     } */
 /* } */
-
-@safe pure nothrow @nogc unittest
-{
-    static assert(hasStealableElements!(int[]));
-    import std.stdio : File;
-    alias BL = File.ByLine!(char, char);
-    static assert(!hasStealableElements!BL);
-}
 
 /** Steal front from $(D r) destructively and return it.
    See also: http://forum.dlang.org/thread/jkbhlezbcrufowxtthmy@forum.dlang.org#post-konhvblwbmpdrbeqhyuv:40forum.dlang.org
@@ -950,4 +942,43 @@ unittest
     auto s = S();
     s.arr = [1, 2, 3];
     assert(s.rangify.equal([1, 2, 3]));
+}
+
+/** Overload has questionable memory safety.  Would be quite cool if DIP-1000
+    could support this use case
+    See also: http://forum.dlang.org/post/qgrbmkqxffgeiqaigdic@forum.dlang.org
+*/
+auto staticLengthRange(T, size_t n)(ref T[n] arr)
+{
+    return .staticLengthRange!(n, T[])(arr[]); // TODO DIP-1000 scope
+}
+
+import std.range.primitives : hasLength, isInputRange;
+
+auto staticLengthRange(size_t n, R)(R range)
+    if (isInputRange!R && hasLength!R)
+{
+    struct Result
+    {
+        enum size_t length = n;
+        R _range;
+        alias _range this;
+    }
+    assert (range.length == n);
+    return Result(range);
+}
+
+
+unittest
+{
+    import std.algorithm.iteration : map;
+
+    int[3] sarr = [1, 2, 3];
+    auto r1 = sarr.staticLengthRange;
+    static assert (isInputRange!(typeof(r1)));
+    static assert (r1.length == 3);
+
+    auto arr = [1, 2, 3, 4];
+    auto r2 = arr.map!(a => a * 2).staticLengthRange!4;
+    static assert (r2.length == 4);
 }

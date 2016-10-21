@@ -279,22 +279,6 @@ private struct Array(E,
     else static if (assignment == Assignment.disabled)
     {
         @disable this(this);
-
-        static if (isCopyable!E)
-        {
-            /// Returns: shallow duplicate of `this`.
-            Array!(Unqual!E) dup() const @trusted // `Unqual` mimics behaviour of `dup` for builtin D arrays
-            {
-                typeof(return) copy;
-                copy.allocateStoreWithCapacity(_length);
-                foreach (const i; 0 .. _length)
-                {
-                    copy._ptr[i] = _mptr[i]; // TODO is using _mptr ok here?
-                }
-                copy._length = _length;
-                return copy;
-            }
-        }
     }
     else static if (assignment == Assignment.move)
     {
@@ -310,6 +294,22 @@ private struct Array(E,
         {
             import std.algorith.mutation : move;
             move(rhs, this);
+        }
+    }
+
+    static if (isCopyable!E)
+    {
+        /// Returns: shallow duplicate of `this`.
+        Array!(Unqual!E) dup() const @trusted // `Unqual` mimics behaviour of `dup` for builtin D arrays
+        {
+            typeof(return) copy;
+            copy.allocateStoreWithCapacity(_length);
+            foreach (const i; 0 .. _length)
+            {
+                copy._ptr[i] = _mptr[i]; // TODO is using _mptr ok here?
+            }
+            copy._length = _length;
+            return copy;
         }
     }
 

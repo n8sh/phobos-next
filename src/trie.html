@@ -2555,11 +2555,8 @@ set.insert(+2.2e9);
     }
     <span class="keyword">assert</span>(map.rangeRefCount == 1);
 
-    <span class="keyword">const</span> Key key = elt[0];
-    <span class="keyword">const</span> Value value = elt[1];
-
-    <span class="keyword">assert</span>(key == i);
-    <span class="keyword">assert</span>(value == keyToValue(<span class="keyword">cast</span>(Key)i)); <span class="comment">// TODO use typed key instead of cast(Key)
+    <span class="keyword">assert</span>(elt.key == i);
+    <span class="keyword">assert</span>(elt.value == keyToValue(<span class="keyword">cast</span>(Key)i)); <span class="comment">// TODO use typed key instead of cast(Key)
 </span>
     ++i;
 }

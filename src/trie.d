@@ -4479,17 +4479,25 @@ struct RadixTree(Key, Value)
             _rawRange = _rawTree.RangeType(root, treeRangeRefCount, keyPrefixRest);
         }
 
-
-        auto front() const
+        /// Typed Element.
+        private static template TypedElt(Value)
         {
-            const key = _rawRange.lowKey.toTypedKey!Key;
-            static if (RawTree.hasValue) { return tuple(key, _rawRange._front._cachedFrontValue); }
+            static if (is(Value == void)) // set case
+                alias TypedElt = Key;
+            else                        // map case
+                struct TypedElt { Key key; Value value; }
+        }
+
+        TypedElt!Value front() const
+        {
+            auto key = _rawRange.lowKey.toTypedKey!Key;
+            static if (RawTree.hasValue) { return typeof(return)(key, _rawRange._front._cachedFrontValue); }
             else                         { return key; }
         }
-        auto back() const
+        TypedElt!Value back() const
         {
-            const key = _rawRange.highKey.toTypedKey!Key;
-            static if (RawTree.hasValue) { return tuple(key, _rawRange._back._cachedFrontValue); }
+            auto key = _rawRange.highKey.toTypedKey!Key;
+            static if (RawTree.hasValue) { return typeof(return)(key, _rawRange._back._cachedFrontValue); }
             else                         { return key; }
         }
 
@@ -5007,11 +5015,8 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
         }
         assert(map.rangeRefCount == 1);
 
-        const Key key = elt[0];
-        const Value value = elt[1];
-
-        assert(key == i);
-        assert(value == keyToValue(cast(Key)i)); // TODO use typed key instead of cast(Key)
+        assert(elt.key == i);
+        assert(elt.value == keyToValue(cast(Key)i)); // TODO use typed key instead of cast(Key)
 
         ++i;
     }

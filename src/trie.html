@@ -520,7 +520,9 @@
      for a descriptive usage of prefixed access.
 
 
-    TODO Make member functions such as lowerBound free-functions to reduce compilation times.
+    TODO 1. Replace all uses of Tuple/tuple with structs, especially <code class="code">alias Element</code>
+    TODO 2. Make as many members as possible free functionss, such as lowerBound, free-functions to reduce compilation times.
+    TODO 3. Remove refcounting
 
 
     TODO Use scope on <code class="code">Range</code>, <code class="code">RawRange</code> and members that return key and value reference when DIP-1000 has been implemented

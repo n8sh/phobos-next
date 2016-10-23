@@ -1736,6 +1736,40 @@ pure nothrow unittest
     assert(x["a"] == A.withElement(42));
 }
 
+@safe pure nothrow @nogc unittest
+{
+    alias Key = UncopyableArray!char;
+    alias Value = UncopyableArray!int;
+    struct E
+    {
+        Key key;
+        Value value;
+        E dup() @safe pure nothrow @nogc
+        {
+            return E(key.dup, value.dup);
+        }
+    }
+    E e;
+    e.key = Key.withElement('a');
+    e.value = Value.withElement(42);
+
+    auto f = e.dup;
+    assert(e == f);
+
+    e.key = Key.withElement('b');
+    assert(e != f);
+
+    e.key = Key.withElement('a');
+    assert(e == f);
+
+    e.value = Value.withElement(43);
+    assert(e != f);
+
+    e.value = Value.withElement(42);
+    assert(e == f);
+
+}
+
 /// append to empty to array as AA value type
 pure unittest
 {

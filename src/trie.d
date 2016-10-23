@@ -121,7 +121,7 @@ module trie;
 
 import std.algorithm : move, min, max;
 import std.traits : isIntegral, isFloatingPoint, isSomeChar, isSomeString, isScalarType, isArray, allSatisfy, anySatisfy, isPointer;
-import std.typecons : Unqual, tuple;
+import std.typecons : Unqual;
 import std.range : isInputRange, isBidirectionalRange, ElementType;
 import std.range.primitives : hasLength;
 
@@ -4304,7 +4304,7 @@ struct RadixTree(Key, Value)
 
     static if (RawTree.hasValue)
     {
-        struct Elt
+        struct TypedElt
         {
             Key key;
             Value value;
@@ -4398,7 +4398,7 @@ struct RadixTree(Key, Value)
     else
     {
         @nogc:
-        alias Elt = Key;
+        alias TypedElt = Key;
 
         /** Insert `key`.
             Returns: `true` if `key` wasn't previously added, `false` otherwise.
@@ -4479,13 +4479,13 @@ struct RadixTree(Key, Value)
             _rawRange = _rawTree.RangeType(root, treeRangeRefCount, keyPrefixRest);
         }
 
-        Elt front() const
+        TypedElt front() const
         {
             static if (RawTree.hasValue) { return typeof(return)(_rawRange.lowKey.toTypedKey!Key,
                                                                  _rawRange._front._cachedFrontValue); }
             else                         { return _rawRange.lowKey.toTypedKey!Key; }
         }
-        Elt back() const
+        TypedElt back() const
         {
             static if (RawTree.hasValue) { return typeof(return)(_rawRange.highKey.toTypedKey!Key,
                                                                  _rawRange._back._cachedFrontValue); }
@@ -4515,13 +4515,13 @@ struct RadixTree(Key, Value)
 
         static if (RawTree.hasValue)
         {
-            auto front() const { return tuple(_rawRange.lowKey, _rawRange._front._cachedFrontValue); }
-            auto back() const { return tuple(_rawRange.highKey, _rawRange._back._cachedFrontValue);}
+            const(Elt!Value) front() const { return typeof(return)(_rawRange.lowKey, _rawRange._front._cachedFrontValue); }
+            const(Elt!Value) back() const { return typeof(return)(_rawRange.highKey, _rawRange._back._cachedFrontValue);}
         }
         else
         {
-            auto front() const { return _rawRange.lowKey; }
-            auto back() const { return _rawRange.highKey; }
+            const(Elt!Value) front() const { return _rawRange.lowKey; }
+            const(Elt!Value) back() const { return _rawRange.highKey; }
         }
 
         @property typeof(this) save()
@@ -4580,13 +4580,13 @@ struct RadixTree(Key, Value)
             }
         }
 
-        auto front()
+        TypedElt front()
         {
             UncopyableArray!Ix wholeRawKey = _rawKeyPrefix.dup;
             wholeRawKey ~= _rawRange.lowKey;
-            const wholeTypedKey = wholeRawKey[].toTypedKey!Key;
-            static if (RawTree.hasValue) { return tuple(wholeTypedKey, _rawRange._front._cachedFrontValue); }
-            else                         { return wholeTypedKey; }
+            static if (RawTree.hasValue) { return typeof(return)(wholeRawKey[].toTypedKey!Key,
+                                                                 _rawRange._front._cachedFrontValue); }
+            else                         { return wholeRawKey[].toTypedKey!Key; }
         }
 
         @property typeof(this) save()

@@ -19,7 +19,7 @@
     $(LI AA-style iteration of map values: `map.byValue()`)
     $(LI `SortedRange`-style iteration over elements sorted by key: `assert(set[].isSorted)`)
     $(LI Containment checking: `bool contains(in Key key)`)
-    $(LI Element indexing and element index assignment for map case via `opIndex` and `opIndexAssign`)
+    $(LI Elt indexing and element index assignment for map case via `opIndex` and `opIndexAssign`)
     $(LI Key-Prefix Completion (returning a `Range` over all set/map-elements that match a key prefix): `prefix(Key keyPrefix)`)
     )
     Typed layer supports
@@ -31,7 +31,7 @@
     See_Also: $(HTTP en.wikipedia.org/wiki/Radix_tree)
     See_Also: $(HTTP github.com/nordlow/phobos-next/blob/master/src/test_trie_prefix.d) for a descriptive usage of prefixed access.
 
-    TODO 1. Replace all uses of Tuple/tuple with structs, especially `alias Element`
+    TODO 1. Replace all uses of Tuple/tuple with structs, especially `alias Elt`
     TODO 2. Make as many members as possible free functionss, such as lowerBound, free-functions to reduce compilation times.
     TODO 3. Remove refcounting
 
@@ -121,7 +121,7 @@ module trie;
 
 import std.algorithm : move, min, max;
 import std.traits : isIntegral, isFloatingPoint, isSomeChar, isSomeString, isScalarType, isArray, allSatisfy, anySatisfy, isPointer;
-import std.typecons : tuple, Tuple, Unqual;
+import std.typecons : Unqual, tuple;
 import std.range : isInputRange, isBidirectionalRange, ElementType;
 import std.range.primitives : hasLength;
 
@@ -220,6 +220,46 @@ alias IxsN = ModArrayN;
 
 alias UKey = Key!span;
 bool empty(UKey ukey) @safe pure nothrow @nogc { return ukey.length == 0; }
+
+private template IxElt(Value)
+{
+    static if (is(Value == void)) // set case
+        alias IxElt = UIx;
+    else                        // map case
+        struct IxElt { UIx ix; Value value; }
+}
+
+private static auto eltIx(Value)(inout IxElt!Value elt)
+{
+    static if (is(Value == void)) // set case
+        return elt;
+    else                        // map case
+        return elt.ix;
+}
+
+private template Elt(Value)
+{
+    static if (is(Value == void)) // set case
+        alias Elt = UKey;
+    else                        // map case
+        struct Elt { UKey key; Value value; }
+}
+
+private auto eltKey(Value)(inout Elt!Value elt)
+{
+    static if (is(Value == void)) // set case
+        return elt;
+    else                        // map case
+        return elt.key;
+}
+
+private auto eltKeyDropExactly(Value)(Elt!Value elt, size_t n)
+{
+    static if (is(Value == void)) // set case
+        return elt[n .. $];
+    else                        // map case
+        return Elt!Value(elt.key[n .. $], elt.value);
+}
 
 /** Results of attempt at modification sub. */
 enum ModStatus:ubyte
@@ -467,9 +507,6 @@ static private struct SparseLeaf1(Value)
     }
     alias Length = Capacity;
 
-    static if (hasValue) alias IxElement = Tuple!(UIx, "ix", Value, "value");
-    else                alias IxElement = UIx;
-
     pure nothrow @nogc:
 
     this(size_t capacity)
@@ -570,7 +607,7 @@ static private struct SparseLeaf1(Value)
     }
 
     /** Insert `key`, possibly self-reallocating `this` (into return). */
-    typeof(this)* reconstructingInsert(IxElement elt,
+    typeof(this)* reconstructingInsert(IxElt!Value elt,
                                        out ModStatus modStatus,
                                        out size_t index) @trusted
     {
@@ -608,7 +645,7 @@ static private struct SparseLeaf1(Value)
         return next;
     }
 
-    pragma(inline) private void insertAt(size_t index, IxElement elt)
+    pragma(inline) private void insertAt(size_t index, IxElt!Value elt)
     {
         assert(index <= _length);
 
@@ -731,9 +768,6 @@ static private struct DenseLeaf1(Value)
 
     enum hasValue = !is(Value == void);
 
-    static if (hasValue) alias IxElement = Tuple!(UIx, "ix", Value, "value");
-    else                 alias IxElement = UIx;
-
     enum hasGCScannedValues = hasValue && !is(Value == bool) && shouldAddGCRange!Value;
 
     static if (hasGCScannedValues)
@@ -826,7 +860,7 @@ static private struct DenseLeaf1(Value)
         pragma(inline) bool contains(UIx ix) const { return _ixBits[ix]; }
     }
 
-    pragma(inline) ModStatus insert(IxElement elt)
+    pragma(inline) ModStatus insert(IxElt!Value elt)
     {
         ModStatus modStatus;
 
@@ -1019,34 +1053,7 @@ template RawRadixTree(Value = void)
         alias SubCount = uint; // needed because for inclusive range 0 .. 256
     }
 
-    static if (isValue)
-    {
-        alias Element = Tuple!(UKey, "key", Value, "value");
-        alias IxElement = Tuple!(UIx, "ix", Value, "value");
-    }
-    else
-    {
-        alias Element = UKey;
-        alias IxElement = UIx;
-    }
-
-    private static auto elementIx(inout IxElement elt)
-    {
-        static if (isValue) return elt.ix;
-        else                return elt;
-    }
-
-    private static auto elementKey(inout Element elt)
-    {
-        static if (isValue) return elt.key;
-        else                return elt;
-    }
-
-    private static auto elementKeyDropExactly(Element elt, size_t n)
-    {
-        static if (isValue) return Element(elt.key[n .. $], elt.value);
-        else                return elt[n .. $];
-    }
+    struct IxSub { UIx ix; Node node; }
 
     /** Sparse/Packed dynamically sized branch implemented as variable-length
         struct.
@@ -1065,8 +1072,6 @@ template RawRadixTree(Value = void)
         {
             alias Count = ubyte;
         }
-
-        alias Sub = Tuple!(UIx, Node);
 
         @safe pure nothrow:
 
@@ -1094,7 +1099,7 @@ template RawRadixTree(Value = void)
             this.leaf1 = leaf1;
         }
 
-        pragma(inline) this(size_t subCapacity, const Ix[] prefix, Sub sub)
+        pragma(inline) this(size_t subCapacity, const Ix[] prefix, IxSub sub)
         {
             assert(subCapacity);
 
@@ -1102,8 +1107,8 @@ template RawRadixTree(Value = void)
 
             this.prefix = prefix;
             this.subCount = 1;
-            this.subIxSlots[0] = sub[0];
-            this.subNodeSlots[0] = sub[1];
+            this.subIxSlots[0] = sub.ix;
+            this.subNodeSlots[0] = sub.node;
         }
 
         pragma(inline) this(size_t subCapacity, typeof(this)* rhs)
@@ -1166,17 +1171,17 @@ template RawRadixTree(Value = void)
 
         /** Insert `sub`, possibly self-reallocating `this` (into return).
          */
-        typeof(this)* reconstructingInsert(Sub sub,
+        typeof(this)* reconstructingInsert(IxSub sub,
                                            out ModStatus modStatus,
                                            out size_t index) @trusted
         {
             auto next = &this;
 
             import searching_ex : containsStoreIndex;
-            if (subIxs.containsStoreIndex(sub[0], index))
+            if (subIxs.containsStoreIndex(sub.ix, index))
             {
-                assert(subIxSlots[index] == sub[0]); // subIxSlots[index] = sub[0];
-                subNodeSlots[index] = sub[1];
+                assert(subIxSlots[index] == sub.ix); // subIxSlots[index] = sub[0];
+                subNodeSlots[index] = sub.node;
                 modStatus = ModStatus.updated;
                 return next;
             }
@@ -1202,7 +1207,7 @@ template RawRadixTree(Value = void)
             return next;
         }
 
-        pragma(inline) private void insertAt(size_t index, Sub sub)
+        pragma(inline) private void insertAt(size_t index, IxSub sub)
         {
             assert(index <= subCount);
             foreach (const i; 0 .. subCount - index) // TODO functionize this loop or reuse memmove:
@@ -1212,8 +1217,8 @@ template RawRadixTree(Value = void)
                 subIxSlots[iD] = subIxSlots[iS];
                 subNodeSlots[iD] = subNodeSlots[iS];
             }
-            subIxSlots[index] = sub[0]; // set new element
-            subNodeSlots[index] = sub[1]; // set new element
+            subIxSlots[index] = sub.ix; // set new element
+            subNodeSlots[index] = sub.node; // set new element
             ++subCount;
         }
 
@@ -1309,7 +1314,6 @@ template RawRadixTree(Value = void)
     {
         enum maxCapacity = 256;
         enum prefixCapacity = 15; // 7, 15, 23, ..., we can afford larger prefix here because DenseBranch is so large
-        alias Sub = Tuple!(UIx, Node);
 
         @safe pure nothrow:
 
@@ -1318,19 +1322,19 @@ template RawRadixTree(Value = void)
             this.prefix = prefix;
         }
 
-        this(const Ix[] prefix, Sub sub)
+        this(const Ix[] prefix, IxSub sub)
         {
             this(prefix);
-            this.subNodes[sub[0]] = sub[1];
+            this.subNodes[sub.ix] = sub.node;
         }
 
-        this(const Ix[] prefix, Sub subA, Sub subB)
+        this(const Ix[] prefix, IxSub subA, IxSub subB)
         {
-            assert(subA[0] != subB[0]); // disjunct indexes
-            assert(subA[1] != subB[1]); // disjunct nodes
+            assert(subA.ix != subB.ix); // disjunct indexes
+            assert(subA.node != subB.node); // disjunct nodes
 
-            this.subNodes[subA[0]] = subA[1];
-            this.subNodes[subB[0]] = subB[1];
+            this.subNodes[subA.ix] = subA.node;
+            this.subNodes[subB.ix] = subB.node;
         }
 
         this(SparseBranch* rhs)
@@ -1448,7 +1452,7 @@ template RawRadixTree(Value = void)
 
     static assert(span <= 8*Ix.sizeof, "Need more precision in Ix");
 
-    /** Element Reference. */
+    /** Elt Reference. */
     private static struct ElementRef
     {
         Node node;
@@ -2292,7 +2296,7 @@ template RawRadixTree(Value = void)
     {
         import std.algorithm : startsWith;
 
-        @safe pure nothrow @nogc:
+        pure nothrow @nogc:
         pragma(inline):
 
         this(Node root, uint* treeRangeRefCount, UKey keyPrefix)
@@ -2490,8 +2494,7 @@ template RawRadixTree(Value = void)
         // debug if (willFail) { dln("WILL FAIL: subIx:", subIx); }
         size_t insertionIndex;
         ModStatus modStatus;
-        alias Sub = Tuple!(UIx, Node);
-        curr = curr.reconstructingInsert(Sub(subIx, subNode), modStatus, insertionIndex);
+        curr = curr.reconstructingInsert(IxSub(subIx, subNode), modStatus, insertionIndex);
         if (modStatus == ModStatus.maxCapacityReached) // try insert and if it fails
         {
             // we need to expand because `curr` is full
@@ -2971,25 +2974,25 @@ template RawRadixTree(Value = void)
         }
     }
 
-    Branch insertNewBranch(Element elt, out ElementRef elementRef) @safe pure nothrow @nogc
+    Branch insertNewBranch(Elt!Value elt, out ElementRef elementRef) @safe pure nothrow @nogc
     {
         import std.algorithm : min;
         // debug if (willFail) { dln("WILL FAIL: elt:", elt); }
-        auto key = elementKey(elt);
+        auto key = eltKey!Value(elt);
         assert(key.length);
         const prefixLength = min(key.length - 1, // all but last Ix of key
                                  DefaultBranch.prefixCapacity); // as much as possible of key in branch prefix
         auto prefix = key[0 .. prefixLength];
         typeof(return) next = insertAtBelowPrefix(Branch(constructVariableLength!(DefaultBranch)(1, prefix)),
-                                                  elementKeyDropExactly(elt, prefixLength), elementRef);
+                                                  eltKeyDropExactly!Value(elt, prefixLength), elementRef);
         assert(elementRef);
         return next;
     }
 
     /** Insert `key` into sub-tree under root `curr`. */
-    pragma(inline) Node insertAt(Node curr, Element elt, out ElementRef elementRef) @safe pure nothrow @nogc
+    pragma(inline) Node insertAt(Node curr, Elt!Value elt, out ElementRef elementRef) @safe pure nothrow @nogc
     {
-        auto key = elementKey(elt);
+        auto key = eltKey!Value(elt);
         // debug if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr); }
         assert(key.length);
 
@@ -3046,10 +3049,9 @@ template RawRadixTree(Value = void)
 
     /** Insert `key` into sub-tree under branch `curr` above prefix, that is
         the prefix of `curr` is stripped from `key` prior to insertion. */
-    Branch insertAtAbovePrefix(Branch curr, Element elt, out ElementRef elementRef) @safe pure nothrow @nogc
+    Branch insertAtAbovePrefix(Branch curr, Elt!Value elt, out ElementRef elementRef) @safe pure nothrow @nogc
     {
-        alias Sub = Tuple!(UIx, Node);
-        auto key = elementKey(elt);
+        auto key = eltKey!Value(elt);
         assert(key.length);
 
         import std.algorithm.searching : commonPrefix;
@@ -3086,7 +3088,7 @@ template RawRadixTree(Value = void)
                 {
                     // debug if (willFail) { dln("WILL FAIL"); }
                     popFrontNPrefix(curr, 1);
-                    auto next = constructVariableLength!(DefaultBranch)(2, null, Sub(currSubIx, Node(curr)));
+                    auto next = constructVariableLength!(DefaultBranch)(2, null, IxSub(currSubIx, Node(curr)));
                     return insertAtAbovePrefix(Branch(next), elt, elementRef);
                 }
             }
@@ -3097,7 +3099,7 @@ template RawRadixTree(Value = void)
             {
                 // debug if (willFail) { dln("WILL FAIL"); }
                 // NOTE: key is an extension of prefix: prefix:"ab", key:"abcd"
-                return insertAtBelowPrefix(curr, elementKeyDropExactly(elt, currPrefix.length), elementRef);
+                return insertAtBelowPrefix(curr, eltKeyDropExactly!Value(elt, currPrefix.length), elementRef);
             }
             else
             {
@@ -3105,8 +3107,8 @@ template RawRadixTree(Value = void)
                 // NOTE: prefix and key share beginning: prefix:"ab11", key:"ab22"
                 const currSubIx = UIx(currPrefix[matchedKeyPrefix.length]); // need index first before we modify curr.prefix
                 popFrontNPrefix(curr, matchedKeyPrefix.length + 1);
-                auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix, Sub(currSubIx, Node(curr)));
-                return insertAtBelowPrefix(Branch(next), elementKeyDropExactly(elt, matchedKeyPrefix.length), elementRef);
+                auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix, IxSub(currSubIx, Node(curr)));
+                return insertAtBelowPrefix(Branch(next), eltKeyDropExactly!Value(elt, matchedKeyPrefix.length), elementRef);
             }
         }
         else // if (matchedKeyPrefix.length == key.length)
@@ -3121,8 +3123,8 @@ template RawRadixTree(Value = void)
                 const currSubIx = UIx(currPrefix[nextPrefixLength]); // need index first
                 popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
                 auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
-                                                                                  Sub(currSubIx, Node(curr)));
-                return insertAtBelowPrefix(Branch(next), elementKeyDropExactly(elt, nextPrefixLength), elementRef);
+                                                                    IxSub(currSubIx, Node(curr)));
+                return insertAtBelowPrefix(Branch(next), eltKeyDropExactly!Value(elt, nextPrefixLength), elementRef);
             }
             else /* if (matchedKeyPrefix.length == currPrefix.length) and in turn
                     if (key.length == currPrefix.length */
@@ -3132,7 +3134,7 @@ template RawRadixTree(Value = void)
                 const currSubIx = UIx(currPrefix[matchedKeyPrefix.length - 1]); // need index first
                 popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
                 auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
-                                                                                  Sub(currSubIx, Node(curr)));
+                                                                    IxSub(currSubIx, Node(curr)));
                 static if (isValue)
                     return insertAtLeaf1(Branch(next), UIx(key[$ - 1]), elt.value, elementRef);
                 else
@@ -3143,7 +3145,7 @@ template RawRadixTree(Value = void)
 
     /** Like `insertAtAbovePrefix` but also asserts that `key` is
         currently not stored under `curr`. */
-    pragma(inline) Branch insertNewAtAbovePrefix(Branch curr, Element elt) @safe pure nothrow @nogc
+    pragma(inline) Branch insertNewAtAbovePrefix(Branch curr, Elt!Value elt) @safe pure nothrow @nogc
     {
         ElementRef elementRef;
         auto next = insertAtAbovePrefix(curr, elt, elementRef);
@@ -3159,7 +3161,7 @@ template RawRadixTree(Value = void)
             const subIx = UIx(key[0]);
             return setSub(curr, subIx,
                           insertAt(getSub(curr, subIx), // recurse
-                                   Element(key[1 .. $], value),
+                                   Elt!Value(key[1 .. $], value),
                                    elementRef));
         }
     }
@@ -3179,9 +3181,9 @@ template RawRadixTree(Value = void)
     /** Insert `key` into sub-tree under branch `curr` below prefix, that is
         the prefix of `curr` is not stripped from `key` prior to
         insertion. */
-    Branch insertAtBelowPrefix(Branch curr, Element elt, out ElementRef elementRef) @safe pure nothrow @nogc
+    Branch insertAtBelowPrefix(Branch curr, Elt!Value elt, out ElementRef elementRef) @safe pure nothrow @nogc
     {
-        auto key = elementKey(elt);
+        auto key = eltKey!Value(elt);
         assert(key.length);
         // debug if (willFail) { dln("WILL FAIL: key:", key,
         //                           " curr:", curr,
@@ -3203,7 +3205,7 @@ template RawRadixTree(Value = void)
         }
     }
 
-    pragma(inline) Branch insertNewAtBelowPrefix(Branch curr, Element elt) @safe pure nothrow @nogc
+    pragma(inline) Branch insertNewAtBelowPrefix(Branch curr, Elt!Value elt) @safe pure nothrow @nogc
     {
         ElementRef elementRef;
         auto next = insertAtBelowPrefix(curr, elt, elementRef);
@@ -3211,9 +3213,9 @@ template RawRadixTree(Value = void)
         return next;
     }
 
-    Leaf1!Value insertIxAtLeaftoLeaf(Leaf1!Value curr, IxElement elt, out ElementRef elementRef) @safe pure nothrow @nogc
+    Leaf1!Value insertIxAtLeaftoLeaf(Leaf1!Value curr, IxElt!Value elt, out ElementRef elementRef) @safe pure nothrow @nogc
     {
-        auto key = elementIx(elt);
+        auto key = eltIx!Value(elt);
         // debug if (willFail) { dln("WILL FAIL: elt:", elt,
         //                           " curr:", curr,
         //                           " elementRef:", elementRef); }
@@ -3231,7 +3233,7 @@ template RawRadixTree(Value = void)
                 return insertAt(curr.as!(HeptLeaf1), key, elementRef); // possibly expanded to other Leaf1!Value
             }
         case ix_SparseLeaf1Ptr:
-            auto curr_ = curr.as!(SparseLeaf1!Value*);
+            SparseLeaf1!Value* curr_ = curr.as!(SparseLeaf1!Value*);
             size_t index;
             ModStatus modStatus;
             curr_ = curr_.reconstructingInsert(elt, modStatus, index);
@@ -3277,7 +3279,7 @@ template RawRadixTree(Value = void)
             //                           " elementRef:", elementRef); }
             if (auto leaf = getLeaf1(curr))
             {
-                setLeaf1(curr, insertIxAtLeaftoLeaf(leaf, IxElement(key, value), elementRef));
+                setLeaf1(curr, insertIxAtLeaftoLeaf(leaf, IxElt!Value(key, value), elementRef));
             }
             else
             {
@@ -3312,15 +3314,15 @@ template RawRadixTree(Value = void)
         }
     }
 
-    Node insertAtLeaf(Leaf1!Value curr, Element elt, out ElementRef elementRef) @safe pure nothrow @nogc
+    Node insertAtLeaf(Leaf1!Value curr, Elt!Value elt, out ElementRef elementRef) @safe pure nothrow @nogc
     {
         // debug if (willFail) { dln("WILL FAIL: elt:", elt); }
-        auto key = elementKey(elt);
+        auto key = eltKey!Value(elt);
         assert(key.length);
         if (key.length == 1)
         {
             static if (isValue)
-                return Node(insertIxAtLeaftoLeaf(curr, IxElement(UIx(key[0]), elt.value), elementRef));
+                return Node(insertIxAtLeaftoLeaf(curr, IxElt!Value(UIx(key[0]), elt.value), elementRef));
             else
                 return Node(insertIxAtLeaftoLeaf(curr, UIx(key[0]), elementRef));
         }
@@ -3330,7 +3332,7 @@ template RawRadixTree(Value = void)
             const prefixLength = key.length - 2; // >= 0
             const nextPrefix = key[0 .. prefixLength];
             auto next = constructVariableLength!(DefaultBranch)(1, nextPrefix, curr); // one sub-node and one leaf
-            return Node(insertAtBelowPrefix(Branch(next), elementKeyDropExactly(elt, prefixLength), elementRef));
+            return Node(insertAtBelowPrefix(Branch(next), eltKeyDropExactly!Value(elt, prefixLength), elementRef));
         }
     }
 
@@ -3927,7 +3929,7 @@ template RawRadixTree(Value = void)
                 {
                     assureRCStore();
                     assert(_rcStore.rangeRefCount == 0, "Cannot modify tree with Range references");
-                    return _rcStore.root = insertAt(_rcStore.root, Element(key, value), elementRef);
+                    return _rcStore.root = insertAt(_rcStore.root, Elt!Value(key, value), elementRef);
                 }
             }
             else
@@ -4302,7 +4304,7 @@ struct RadixTree(Key, Value)
 
     static if (RawTree.hasValue)
     {
-        struct Element
+        struct Elt
         {
             Key key;
             Value value;
@@ -4396,7 +4398,7 @@ struct RadixTree(Key, Value)
     else
     {
         @nogc:
-        alias Element = Key;
+        alias Elt = Key;
 
         /** Insert `key`.
             Returns: `true` if `key` wasn't previously added, `false` otherwise.
@@ -4476,6 +4478,7 @@ struct RadixTree(Key, Value)
         {
             _rawRange = _rawTree.RangeType(root, treeRangeRefCount, keyPrefixRest);
         }
+
 
         auto front() const
         {
@@ -4785,7 +4788,7 @@ auto radixTreeMapGrowOnly(Key, Value)()
 }
 
 /// test floating-point key range sortedness
-@safe pure nothrow @nogc unittest
+/*@ TODO safe */ pure nothrow @nogc unittest
 {
     alias T = double;
 
@@ -4852,7 +4855,7 @@ auto testScalar(uint span, Keys...)()
 }
 
 ///
-@safe pure nothrow @nogc unittest
+/* TODO @safe */ pure nothrow @nogc unittest
 {
     testScalar!(8,
                 bool,

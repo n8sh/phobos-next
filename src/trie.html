@@ -490,7 +490,7 @@
     <li>AA-style iteration of map values: <code class="code">map.byValue()</code></li>
     <li><code class="code">SortedRange</code>-style iteration over elements sorted by key: <code class="code">assert(set[].isSorted)</code></li>
     <li>Containment checking: <code class="code">bool contains(in Key key)</code></li>
-    <li>Element indexing and element index assignment for map case via <code class="code">opIndex</code> and <code class="code">opIndexAssign</code></li>
+    <li>Elt indexing and element index assignment for map case via <code class="code">opIndex</code> and <code class="code">opIndexAssign</code></li>
     <li>Key-Prefix Completion (returning a <code class="code">Range</code> over all set/map-elements that match a key prefix): <code class="code">prefix(Key keyPrefix)</code></li>
     </ul>
     Typed layer supports
@@ -520,7 +520,7 @@
      for a descriptive usage of prefixed access.
 
 
-    TODO 1. Replace all uses of Tuple/tuple with structs, especially <code class="code">alias Element</code>
+    TODO 1. Replace all uses of Tuple/tuple with structs, especially <code class="code">alias Elt</code>
     TODO 2. Make as many members as possible free functionss, such as lowerBound, free-functions to reduce compilation times.
     TODO 3. Remove refcounting
 

@@ -4479,26 +4479,17 @@ struct RadixTree(Key, Value)
             _rawRange = _rawTree.RangeType(root, treeRangeRefCount, keyPrefixRest);
         }
 
-        /// Typed Element.
-        private static template TypedElt(Value)
+        Elt front() const
         {
-            static if (is(Value == void)) // set case
-                alias TypedElt = Key;
-            else                        // map case
-                struct TypedElt { Key key; Value value; }
+            static if (RawTree.hasValue) { return typeof(return)(_rawRange.lowKey.toTypedKey!Key,
+                                                                 _rawRange._front._cachedFrontValue); }
+            else                         { return _rawRange.lowKey.toTypedKey!Key; }
         }
-
-        TypedElt!Value front() const
+        Elt back() const
         {
-            auto key = _rawRange.lowKey.toTypedKey!Key;
-            static if (RawTree.hasValue) { return typeof(return)(key, _rawRange._front._cachedFrontValue); }
-            else                         { return key; }
-        }
-        TypedElt!Value back() const
-        {
-            auto key = _rawRange.highKey.toTypedKey!Key;
-            static if (RawTree.hasValue) { return typeof(return)(key, _rawRange._back._cachedFrontValue); }
-            else                         { return key; }
+            static if (RawTree.hasValue) { return typeof(return)(_rawRange.highKey.toTypedKey!Key,
+                                                                 _rawRange._back._cachedFrontValue); }
+            else                         { return _rawRange.highKey.toTypedKey!Key; }
         }
 
         @property typeof(this) save()

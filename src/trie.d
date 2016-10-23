@@ -31,7 +31,9 @@
     See_Also: $(HTTP en.wikipedia.org/wiki/Radix_tree)
     See_Also: $(HTTP github.com/nordlow/phobos-next/blob/master/src/test_trie_prefix.d) for a descriptive usage of prefixed access.
 
-    TODO Make member functions such as lowerBound free-functions to reduce compilation times.
+    TODO 1. Replace all uses of Tuple/tuple with structs, especially `alias Element`
+    TODO 2. Make as many members as possible free functionss, such as lowerBound, free-functions to reduce compilation times.
+    TODO 3. Remove refcounting
 
     TODO Use scope on `Range`, `RawRange` and members that return key and value reference when DIP-1000 has been implemented
 
@@ -4300,7 +4302,11 @@ struct RadixTree(Key, Value)
 
     static if (RawTree.hasValue)
     {
-        alias Element = Tuple!(Key, "key", Value, "value");
+        struct Element
+        {
+            Key key;
+            Value value;
+        }
 
         ref Value opIndex(Key key)
         {

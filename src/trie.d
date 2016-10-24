@@ -138,8 +138,6 @@ version = benchmark;
 version = print;
 // version = useMemoryErrorHandler;
 
-import dbgio : dln;
-
 alias isFixedTrieableKeyType = isIntegralBijectableType;
 
 /** Returns: `true` if `T` is a scalar trie key-type, `false` otherwise. */
@@ -3673,8 +3671,7 @@ template RawRadixTree(Value = void)
         final switch (curr.typeIx) with (Node.Ix)
         {
         case undefined:
-            dln("TODO: Trying to print undefined Node");
-            break;
+            assert(false, "Trying to print Node.undefined");
         case ix_OneLeafMax7:
             auto curr_ = curr.as!(OneLeafMax7);
             writeln(typeof(curr_).stringof, " #", curr_.key.length, ": ", curr_.to!string);
@@ -5269,6 +5266,7 @@ private static auto randomUniqueSortedStrings(size_t count, uint maxLength)
     }
     catch (Exception e)
     {
+        import dbgio : dln;
         dln("Couldn't randomize");
     }
 

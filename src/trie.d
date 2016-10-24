@@ -120,7 +120,7 @@
 module trie;
 
 import std.algorithm : move, min, max;
-import std.traits : isIntegral, isFloatingPoint, isSomeChar, isSomeString, isScalarType, isArray, allSatisfy, anySatisfy, isPointer;
+import std.traits : isSomeString, isArray, allSatisfy, isPointer;
 import std.typecons : Unqual;
 import std.range : isInputRange, isBidirectionalRange, ElementType;
 import std.range.primitives : hasLength;
@@ -4813,9 +4813,10 @@ auto radixTreeMapGrowOnly(Key, Value)()
     assert(set[].isSorted);
 }
 
-auto testScalar(uint span, Keys...)()
+version(unittest) auto testScalar(uint span, Keys...)()
     if (Keys.length >= 1)
 {
+    import std.traits : isIntegral, isFloatingPoint;
     import std.range : iota;
     foreach (Key; Keys)
     {
@@ -5362,6 +5363,7 @@ unittest
 auto checkNumeric(Keys...)()
     if (Keys.length >= 1)
 {
+    import std.traits : isIntegral, isFloatingPoint;
     import std.range : iota;
     foreach (const it; 0.iota(1))
     {

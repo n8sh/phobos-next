@@ -142,7 +142,7 @@ pragma(inline):
     @property:
 
     /// Returns: `true` iff owned container is borrowed.
-    bool isBorrowed() const { return _writeBorrowed || _readBorrowCount != 0; }
+    bool isBorrowed() const { return _writeBorrowed || _readBorrowCount >= 1; }
 
     /// Returns: `true` iff owned container is write borrowed.
     bool isWriteBorrowed() const { return _writeBorrowed; }

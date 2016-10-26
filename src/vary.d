@@ -292,8 +292,22 @@ public:
         {
             bool opEquals(in VaryN that) const @trusted nothrow @nogc // opEquals is nothrow @nogc
             {
-                return (this.convertTo!commonType ==
-                        that.convertTo!commonType);
+                if (_tix != that._tix)
+                {
+                    return (this.convertTo!commonType ==
+                            that.convertTo!commonType);
+                }
+                else
+                {
+                    final switch (_tix)
+                    {
+                        foreach (const i, T; Types)
+                        {
+                        case i:
+                            return this.as!T == that.as!T;
+                        }
+                    }
+                }
             }
         }
         else

@@ -109,7 +109,7 @@ public:
             import std.conv : to;
             foreach (const i, T; Types)
             {
-            case i: return this.interpretAs!T.to!U;
+            case i: return this.as!T.to!U;
             }
         }
     }
@@ -122,7 +122,7 @@ public:
         {
             foreach (const i, T; Types)
             {
-            case i: return this.interpretAs!T.to!(typeof(return));
+            case i: return this.as!T.to!(typeof(return));
             }
         }
     }
@@ -201,7 +201,7 @@ public:
     @property auto ref inout(T) get(T)() inout @trusted
     {
         if (!isOfType!T) throw new VaryNException("VaryN doesn't contain type");
-        return interpretAs!T;
+        return as!T;
     }
 
     /// ditto
@@ -212,7 +212,7 @@ public:
     }
 
     /// Interpret data as type $(D T).
-    private @property auto ref inout(T) interpretAs(T)() inout @trusted nothrow @nogc
+    private @property auto ref inout(T) as(T)() inout @trusted nothrow @nogc
     {
         static if (_data.alignof >= T.alignof)
         {
@@ -278,7 +278,7 @@ public:
             foreach (const i, T; Types)
             {
             case i:
-                return this.interpretAs!T;
+                return this.as!T;
             }
         }
     }
@@ -316,8 +316,8 @@ public:
                         }
                         else
                         {
-                            return (this.interpretAs!T ==
-                                    that.interpretAs!T);
+                            return (this.as!T ==
+                                    that.as!T);
                         }
                     }
                 }
@@ -341,7 +341,7 @@ public:
             }
             else
             {
-                return (this.interpretAs!T == that);
+                return (this.as!T == that);
             }
         }
     }
@@ -364,8 +364,8 @@ public:
                 foreach (const i, T; Types)
                 {
                 case i:
-                    const a = this.interpretAs!T;
-                    const b = that.interpretAs!T;
+                    const a = this.as!T;
+                    const b = that.as!T;
                     return a < b ? -1 : a > b ? 1 : 0; // TODO functionize to defaultOpCmp
                 }
             }
@@ -380,7 +380,7 @@ public:
                     foreach (const i, T; Types)
                     {
                     case i:
-                        const a = this.interpretAs!T;
+                        const a = this.as!T;
                         return a < that ? -1 : a > that ? 1 : 0; // TODO functionize to defaultOpCmp
                     }
                 }
@@ -393,7 +393,7 @@ public:
                 {
                     throw new VaryNException("Cannot compare " ~ VaryN.stringof ~ " with " ~ U.stringof);
                 }
-                const a = this.interpretAs!U;
+                const a = this.as!U;
                 return a < that ? -1 : a > that ? 1 : 0; // TODO functionize to defaultOpCmp
             }
         }
@@ -407,7 +407,7 @@ public:
         {
             foreach (const i, T; Types)
             {
-            case i: return this.interpretAs!T.hashOf(hash);
+            case i: return this.as!T.hashOf(hash);
             }
         }
     }

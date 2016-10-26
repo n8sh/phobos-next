@@ -521,6 +521,8 @@ unittest
 {
     FastVariant!(float, double, string) a, b;
 
+    static assert(!a.hasFixedSize);
+
     a = 1.0f;
     b = 1.0f;
     assert(a == b);
@@ -546,6 +548,7 @@ unittest
 nothrow unittest
 {
     alias C = FastVariant!(float, double);
+    static assert(!C.hasFixedSize);
     string[C] a;
     a[C(1.0f)] = "1.0f";
     a[C(2.0)] = "2.0";
@@ -557,6 +560,7 @@ nothrow unittest
 nothrow @nogc unittest
 {
     alias C = FastVariant!(int, float, double);
+    static assert(!C.hasFixedSize);
     assert(C(1.0) < 2);
     assert(C(1.0) < 2.0);
     assert(C(1.0) < 2.0);
@@ -578,6 +582,7 @@ nothrow @nogc unittest
 nothrow @nogc unittest
 {
     alias C = FastVariant!(short, int, long, float, double);
+    static assert(!C.hasFixedSize);
     assert(C(1) != C(2.0));
     assert(C(1) == C(1.0));
 }
@@ -600,6 +605,7 @@ unittest
                         // fixed length strings: small string optimizations (SSOs)
                         int, float,
                         long, double, Date, TimeOfDay);
+    static assert(!C.hasFixedSize);
 
     static assert(C.allowsAssignmentFrom!int);
     static assert(!C.allowsAssignmentFrom!(int[2]));

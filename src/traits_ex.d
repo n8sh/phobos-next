@@ -627,6 +627,7 @@ unittest
 
 import std.traits : CommonType;
 
+/// Is `true` iff `Types` all share a common type.
 enum bool haveCommonType(Types...) = !is(CommonType!Types == void);
 unittest
 {

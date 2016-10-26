@@ -257,16 +257,19 @@ public:
     {
         if (hasValue)
         {
-            // TODO move calculation to cstor using staticArrayOf
-            size_t[N] szs;
-            foreach (const i, const typeSize; typeSizes)
+            final switch (_tix)
             {
-                szs[i] = typeSize;
+                foreach (const i, const typeSize; typeSizes)
+                {
+                case i:
+                    return typeSize;
+                }
             }
-            return szs[_tix];
         }
         else
+        {
             return 0;
+        }
     }
 
     import std.traits : CommonType;
@@ -484,7 +487,6 @@ nothrow @nogc unittest
     assert(a.peek!float is null);
     assert(a.peek!double is null);
     assert(a.currentSize == 0);
-
 }
 
 nothrow @nogc unittest

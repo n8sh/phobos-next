@@ -431,7 +431,7 @@ public:
     extern (D) size_t toHash() const @trusted pure nothrow
     {
         import core.internal.hash : hashOf;
-        size_t hash = _tix.hashOf;
+        const size_t hash = _tix.hashOf;
         final switch (_tix)
         {
             foreach (const i, T; Types)

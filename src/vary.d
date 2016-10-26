@@ -47,6 +47,7 @@ public:
     enum name = VaryN.stringof;
     alias Types = NoDuplicates!TypesParam;
     alias commonType = CommonType!Types;
+    enum thisHaveCommonType = !is(commonType == void);
 
     enum typeSizes = sizesOf!Types;
     enum typeNames = stringsOf!Types;
@@ -285,7 +286,7 @@ public:
 
     static if (allSatisfy!(isEquable, Types))
     {
-        static if (!is(commonType == void)) // if Types have a CommonType
+        static if (thisHaveCommonType) // if Types have a CommonType
         {
             bool opEquals(in VaryN that) const @trusted nothrow @nogc // opEquals is nothrow @nogc
             {
@@ -350,23 +351,34 @@ public:
     {
         int opCmp(in VaryN that) const @trusted // TODO extend to VaryN!(ThatTypes)
         {
-            static if (haveCommonType!Types) // TODO extend to haveCommonType!(Types, ThatTypes)
+            static if (thisHaveCommonType) // TODO extend to haveCommonType!(Types, ThatTypes)
             {
-                pragma(msg, "TODO nothrow opCmp is possible for ", VaryN.stringof);
+                if (_tix != that._tix)
+                {
+                    // TODO functionize to defaultOpCmp to avoid postblits:
+                    const a = this.convertTo!commonType;
+                    const b = that.convertTo!commonType;
+                    return a < b ? -1 : a > b ? 1 : 0;
+                }
             }
-            if (_tix != that._tix)
+            else
             {
-                throw new VaryNException("Cannot compare VaryN of type " ~ typeNamesRT[_tix] ~
-                                         " with VaryN of type " ~ typeNamesRT[that._tix]);
+                if (_tix != that._tix)
+                {
+                    throw new VaryNException("Cannot compare VaryN of type " ~ typeNamesRT[_tix] ~
+                                             " with VaryN of type " ~ typeNamesRT[that._tix]);
+                }
             }
+
             final switch (_tix)
             {
                 foreach (const i, T; Types)
                 {
                 case i:
+                    // TODO functionize to defaultOpCmp to avoid postblits:
                     const a = this.as!T;
                     const b = that.as!T;
-                    return a < b ? -1 : a > b ? 1 : 0; // TODO functionize to defaultOpCmp
+                    return a < b ? -1 : a > b ? 1 : 0;
                 }
             }
         }
@@ -393,8 +405,9 @@ public:
                 {
                     throw new VaryNException("Cannot compare " ~ VaryN.stringof ~ " with " ~ U.stringof);
                 }
+                // TODO functionize to defaultOpCmp to avoid postblits:
                 const a = this.as!U;
-                return a < that ? -1 : a > that ? 1 : 0; // TODO functionize to defaultOpCmp
+                return a < that ? -1 : a > that ? 1 : 0;
             }
         }
     }
@@ -450,18 +463,28 @@ nothrow @nogc unittest
 
 nothrow @nogc unittest
 {
-    FastVariant!(float, double) a = 1.0;
+    alias C = FastVariant!(float, double);
+    C a = 1.0;
+    const C b = 2.0;
+    const C c = 2.0f;
+    const C d = 1.0f;
+
+    // nothrow comparison possible
+    assert(a < b);
+    assert(a < c);
+    assert(a == d);
 
     static assert(!a.hasFixedSize);
     static assert(a.allowsAssignmentFrom!float);
     static assert(a.allowsAssignmentFrom!double);
     static assert(!a.allowsAssignmentFrom!string);
 
-    a.clear;
+    a.clear();
     assert(!a.hasValue);
     assert(a.peek!float is null);
     assert(a.peek!double is null);
     assert(a.currentSize == 0);
+
 }
 
 nothrow @nogc unittest

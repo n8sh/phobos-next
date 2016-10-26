@@ -39,8 +39,9 @@ private struct VaryN(bool memoryPacked = false,
     import std.typecons : Unqual;
     import std.meta : allSatisfy, staticIndexOf, staticMap, NoDuplicates;
     import core.stdc.string : memcpy, memset, memcmp;
-    import std.traits : isIntegral, hasIndirections;
+    import std.traits : CommonType, isIntegral, hasIndirections;
     import traits_ex : isComparable, isEquable, sizesOf, stringsOf, allSame;
+
 
 public:
 
@@ -271,8 +272,6 @@ public:
             return 0;
         }
     }
-
-    import std.traits : CommonType;
 
     /// Blindly Implicitly Convert Stored Value in $(D U).
     private U convertTo(U)() const @safe nothrow

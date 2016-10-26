@@ -1715,7 +1715,7 @@ pure nothrow unittest
             auto a = A.withElement(E(i, 2*i));
             static if (isCopyable!A)
             {
-                // TODO why do these fail when `A` is not copyable?
+                // TODO why do these fail when `A` is uncopyable?
                 assert(a in x);
                 assert(A.withElement(E(i, 2*i)) in x);
                 assert(x[A.withElement(E(i, 2*i))] == 42);

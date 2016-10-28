@@ -486,16 +486,21 @@ private struct Array(E,
     alias pack = compress;
 
     /// Destruct.
-    ~this() nothrow @trusted { release(); }
+    ~this() nothrow @trusted
+    {
+        debug assert(_ptr != _ptrMagic, "Double free."); // trigger fault for double frees
+        release();
+        debug _ptr = _ptrMagic; // tag as freed
+    }
 
-    /// Clear.
-    void clear() nothrow @trusted
+    /// Clear store.
+    void clear() nothrow
     {
         release();
         resetInternalData();
     }
 
-    /// Release.
+    /// Release store.
     private void release() nothrow @trusted
     {
         destroyElements();
@@ -1105,6 +1110,14 @@ private:
         E* _ptr;                // GC-allocated store pointer. See also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
     else
         @nogc E* _ptr;          // non-GC-allocated store pointer
+
+    /** Magic pointer value used to detect double calls to `free`.
+
+        Cannot conflict with return value from `malloc` because the least
+        significant bit is set (when the value ends with a one).
+    */
+    debug private enum _ptrMagic = cast(E*)0x0C6F3C6c0f3a8471;
+
     size_t _capacity;           // store capacity
     size_t _length;             // length
 }

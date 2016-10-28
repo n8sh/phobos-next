@@ -221,32 +221,24 @@ private struct Array(E,
         return that;
     }
 
-    static if (useGCAllocation)
+    /// Allocate a store with capacity `newCapacity`.
+    pragma(inline) private void allocateStoreWithCapacity(size_t newCapacity, bool zero = false) @trusted nothrow
     {
-        /// Allocate a store with capacity `newCapacity`.
-        pragma(inline) private void allocateStoreWithCapacity(size_t newCapacity, bool zero = false) @trusted nothrow
+        static if (useGCAllocation)
         {
             if (zero) { _ptr = cast(E*)GC.calloc(newCapacity, E.sizeof); }
             else      { _ptr = cast(E*)GC.malloc(newCapacity * E.sizeof); }
-            _capacity = newCapacity;
-            static if (shouldAddGCRange!E)
-            {
-                gc_addRange(_ptr, _capacity * E.sizeof);
-            }
         }
-    }
-    else
-    {
-        /// Allocate a store with capacity `newCapacity`.
-        pragma(inline) private void allocateStoreWithCapacity(size_t newCapacity, bool zero = false) @trusted nothrow @nogc
+        else                    // @nogc
         {
             if (zero) { _ptr = cast(E*)calloc(newCapacity, E.sizeof); }
             else      { _ptr = cast(E*)malloc(newCapacity * E.sizeof); }
-            _capacity = newCapacity;
-            static if (shouldAddGCRange!E)
-            {
-                gc_addRange(_ptr, _capacity * E.sizeof);
-            }
+            assert(_ptr, "Allocation failed");
+        }
+        _capacity = newCapacity;
+        static if (shouldAddGCRange!E)
+        {
+            gc_addRange(_ptr, _capacity * E.sizeof);
         }
     }
 
@@ -416,36 +408,28 @@ private struct Array(E,
     }
 
     /// Reserve room for `newCapacity` elements at store `_ptr`.
-    static if (useGCAllocation)
+    void reserve(size_t newCapacity) pure nothrow @trusted
     {
-        void reserve(size_t newCapacity) pure nothrow @trusted
+        static if (shouldAddGCRange!E)
         {
-            static if (shouldAddGCRange!E)
-            {
-                gc_removeRange(_ptr);
-            }
-            makeCapacityAtLeast(newCapacity);
-            _ptr = cast(E*)GC.realloc(_mptr, E.sizeof * _capacity);
-            static if (shouldAddGCRange!E)
-            {
-                gc_addRange(_ptr, _capacity * E.sizeof);
-            }
+            gc_removeRange(_ptr);
         }
-    }
-    else
-    {
-        void reserve(size_t newCapacity) pure nothrow @trusted @nogc
+
+        makeCapacityAtLeast(newCapacity);
+
+        static if (useGCAllocation)
         {
-            makeCapacityAtLeast(newCapacity);
-            static if (shouldAddGCRange!E)
-            {
-                gc_removeRange(_ptr);
-            }
+            _ptr = cast(E*)GC.realloc(_mptr, E.sizeof * _capacity);
+        }
+        else                    // @nogc
+        {
             _ptr = cast(E*)realloc(_mptr, E.sizeof * _capacity);
-            static if (shouldAddGCRange!E)
-            {
-                gc_addRange(_ptr, _capacity * E.sizeof);
-            }
+            assert(_ptr, "Reallocation failed");
+        }
+
+        static if (shouldAddGCRange!E)
+        {
+            gc_addRange(_ptr, _capacity * E.sizeof);
         }
     }
 
@@ -457,107 +441,86 @@ private struct Array(E,
     }
 
     /// Pack/Compress storage.
-    static if (useGCAllocation)
+    void compress() pure nothrow @trusted
     {
-        void compress() pure nothrow @trusted
+        static if (shouldAddGCRange!E)
         {
+            gc_removeRange(_ptr);
+        }
+        if (_length)
+        {
+            _capacity = _length;
+
+            static if (useGCAllocation)
+            {
+                _ptr = cast(E*)GC.realloc(_mptr, E.sizeof * _capacity);
+            }
+            else                // @nogc
+            {
+                _ptr = cast(E*)realloc(_mptr, E.sizeof * _capacity);
+                assert(_ptr, "Reallocation failed");
+            }
+
             static if (shouldAddGCRange!E)
             {
-                gc_removeRange(_ptr);
-            }
-            if (_length)
-            {
-                _capacity = _length;
-                _ptr = cast(E*)GC.realloc(_mptr, E.sizeof * _capacity);
-                static if (shouldAddGCRange!E)
-                {
-                    gc_addRange(_ptr, _capacity * E.sizeof);
-                }
-            }
-            else
-            {
-                GC.free(_mptr);
-                _capacity = 0;
-                _ptr = null;
+                gc_addRange(_ptr, _capacity * E.sizeof);
             }
         }
-    }
-    else
-    {
-        void compress() pure nothrow @trusted @nogc
+        else
         {
-            static if (shouldAddGCRange!E)
+            static if (useGCAllocation)
             {
-                gc_removeRange(_ptr);
-            }
-            if (_length)
-            {
-                _capacity = _length;
-                _ptr = cast(E*)realloc(_mptr, E.sizeof * _capacity);
-                static if (shouldAddGCRange!E)
-                {
-                    gc_addRange(_ptr, _capacity * E.sizeof);
-                }
+                GC.free(_mptr);
             }
             else
             {
                 free(_mptr);
-                _capacity = 0;
-                _ptr = null;
+                assert(_ptr, "Deallocation failed");
             }
+
+            _capacity = 0;
+            _ptr = null;
         }
     }
+
     alias pack = compress;
 
     /// Destruct.
-    static if (useGCAllocation)
+    ~this() nothrow @trusted { release(); }
+
+    /// Clear.
+    void clear() nothrow @trusted
     {
-        nothrow @trusted:
+        release();
+        resetInternalData();
+    }
 
-        ~this() { release(); }
-
-        void clear()
+    /// Release.
+    private void release() nothrow @trusted
+    {
+        destroyElements();
+        static if (shouldAddGCRange!E)
         {
-            release();
-            resetInternalData();
+            gc_removeRange(_ptr);
         }
-
-        private void release()
+        static if (useGCAllocation)
         {
-            destroyElements();
-            static if (shouldAddGCRange!E)
-            {
-                gc_removeRange(_ptr);
-            }
             GC.free(_ptr);
         }
-    }
-    else
-    {
-        nothrow @trusted @nogc:
-
-        ~this() { release(); }
-
-        void clear()
+        else                // @nogc
         {
-            release();
-            resetInternalData();
-        }
-
-        private void release()
-        {
-            destroyElements();
-            static if (shouldAddGCRange!E)
-            {
-                gc_removeRange(_ptr);
-            }
             static if (!shouldAddGCRange!E)
+            {
                 free(cast(Unqual!(E)*)_ptr); // safe to case away constness
+            }
             else
+            {
                 free(_ptr);
+            }
         }
     }
 
+    /// Destroy elements.
     private void destroyElements()
     {
         import std.traits : hasElaborateDestructor;
@@ -570,6 +533,7 @@ private struct Array(E,
         }
     }
 
+    /// Reset internal data.
     private void resetInternalData()
     {
         _ptr = null;

@@ -93,7 +93,8 @@ enum isMyArray(C) = isInstanceOf!(Array, C);
 static if (__VERSION__ >= 2072)
     import std.traits : isCopyable;
 else                            // LDC2 1.1.0-beta3
-    enum isCopyable(S) = is(typeof({ S foo = S.init; S copy = foo; }));
+    /// Is `true` if `T` is assignable.
+    enum isCopyable(T) = is(typeof({ T foo = T.init; T copy = foo; }));
 
 /// Semantics of copy construction and assignment.
 enum Assignment

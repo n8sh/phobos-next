@@ -1123,41 +1123,34 @@ private:
     size_t _length;             // length
 }
 
+import std.traits : hasMember, isDynamicArray;
+
 /** Return an instance of `R` of length `length`. */
 R withLengthMake(R)(size_t length)
+    if (hasMember!(R, "withLength"))
 {
-    static if (hasMember!(R, "withLength"))
-    {
-        return R.withLength(length);
-    }
-    else static if (isDynamicArray!R)
-    {
-        R r;
-        r.length = length;
-        return r;
-    }
-    else
-    {
-        static assert(false, "Unsupported type");
-    }
+    return R.withLength(length);
+}
+/// ditto
+R withLengthMake(R)(size_t length)
+    if (isDynamicArray!R)
+{
+    R r;
+    r.length = length;
+    return r;
 }
 
-/** Return an instance of `R` of containing with a single element `e`. */
+/** Return an instance of `R` containing a single element `e`. */
 R withElementMake(R)(typeof(R.init[0]) e)
+    if (hasMember!(R, "withElement"))
 {
-    import std.traits : hasMember, isDynamicArray;
-    static if (hasMember!(R, "withElement"))
-    {
-        return R.withElement(e);
-    }
-    else static if (isDynamicArray!R)
-    {
-        return [e];
-    }
-    else
-    {
-        static assert(false, "Unsupported type");
-    }
+    return R.withElement(e);
+}
+/// ditto
+R withElementMake(R)(typeof(R.init[0]) e)
+    if (isDynamicArray!R)
+{
+    return [e];
 }
 
 alias UncopyableArray(E, bool useGCAllocation = false) = Array!(E, Assignment.disabled, Ordering.unsorted, useGCAllocation, "a < b");

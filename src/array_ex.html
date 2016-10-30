@@ -766,7 +766,9 @@
       <div class="dlang">
         <p class="para">
           <code class="code">
-            <span class="ddoc_anchor" id="withLengthMake"></span>R <code class="code">withLengthMake</code>(R)(size_t <code class="code">length</code>);
+            <span class="ddoc_anchor" id="withLengthMake"></span>R <code class="code">withLengthMake</code>(R)(size_t <code class="code">length</code>) if (hasMember!(R, "withLength"));
+<br>
+R <code class="code">withLengthMake</code>(R)(size_t <code class="code">length</code>) if (isDynamicArray!R);
 
           </code>
         </p>
@@ -798,7 +800,9 @@
       <div class="dlang">
         <p class="para">
           <code class="code">
-            <span class="ddoc_anchor" id="withElementMake"></span>R <code class="code">withElementMake</code>(R)(typeof(R.init[0]) <code class="code">e</code>);
+            <span class="ddoc_anchor" id="withElementMake"></span>R <code class="code">withElementMake</code>(R)(typeof(R.init[0]) <code class="code">e</code>) if (hasMember!(R, "withElement"));
+<br>
+R <code class="code">withElementMake</code>(R)(typeof(R.init[0]) <code class="code">e</code>) if (isDynamicArray!R);
 
           </code>
         </p>
@@ -810,7 +814,7 @@
   <section class="section ddoc_sections">
   <div class="ddoc_summary">
   <p class="para">
-    Return an instance of <code class="code">R</code> of containing with a single element <code class="code"><code class="code">e</code></code>.
+    Return an instance of <code class="code">R</code> containing a single element <code class="code"><code class="code">e</code></code>.
   </p>
 </div>
 

@@ -42,6 +42,7 @@ version(useMemoryErrorHandler) unittest
     import std.stdio : writeln;
     writeln("registerMemoryErrorHandler done");
 }
+// version = showCtors;
 
 /** Returns: statically (stack) allocated array with elements of type `T` of
     length `n`.
@@ -164,12 +165,14 @@ private struct Array(E,
     /// Create a empty array.
     this(typeof(null)) nothrow
     {
+        version(showCtors) dln("HERE: ", typeof(this).stringof);
         // nothing needed, rely on default initialization of data members
     }
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
     pragma(inline) static typeof(this) withLength(size_t initialLength) @trusted nothrow
     {
+        version(showCtors) dln("HERE: ", typeof(this).stringof);
         typeof(return) that = void;
         that.allocateStoreWithCapacity(initialLength, true); // `true` here means zero initialize
         that._length = initialLength;
@@ -179,6 +182,7 @@ private struct Array(E,
     /// Returns: an array with initial capacity `initialCapacity`.
     pragma(inline) static typeof(this) withCapacity(size_t initialCapacity) @trusted nothrow
     {
+        version(showCtors) dln("HERE: ", typeof(this).stringof);
         typeof(return) that = void;
         that.allocateStoreWithCapacity(initialCapacity);
         that._length = 0;
@@ -188,6 +192,7 @@ private struct Array(E,
     /// Returns: an array of one element `element`.
     pragma(inline) static typeof(this) withElement(E element) @trusted nothrow
     {
+        version(showCtors) dln("HERE: ", typeof(this).stringof);
         typeof(return) that = void;
         that.allocateStoreWithCapacity(1);
         static if (isCopyable!E)
@@ -209,6 +214,7 @@ private struct Array(E,
     // /// Returns: an array of `Us.length` number of elements set to `elements`.
     pragma(inline) static typeof(this) withElements(Us...)(Us elements) @trusted nothrow
     {
+        version(showCtors) dln("HERE: ", typeof(this).stringof);
         typeof(return) that = void;
         that.allocateStoreWithCapacity(Us.length);
         foreach (const i, ref element; elements)
@@ -248,6 +254,7 @@ private struct Array(E,
         /// Copy construction.
         this(this) nothrow @trusted
         {
+            version(showCtors) dln("Copy ctor: ", typeof(this).stringof);
             auto rhs_storePtr = _ptr; // save store pointer
             allocateStoreWithCapacity(_length);
             foreach (const i; 0 .. _length)
@@ -259,6 +266,7 @@ private struct Array(E,
         /// Copy assignment.
         void opAssign(typeof(this) rhs) @trusted
         {
+            version(showCtors) dln("Copy assign: ", typeof(this).stringof);
             // self-assignment may happen when assigning derefenced pointer
             if (_ptr != rhs._ptr) // if not self assignment
             {
@@ -279,6 +287,7 @@ private struct Array(E,
         /// Copy ctor moves.
         this(typeof(this) rhs) @trusted
         {
+            version(showCtors) dln("Copying: ", typeof(this).stringof);
             import std.algorith.mutation : moveEmplace;
             moveEmplace(rhs, this);
         }
@@ -371,6 +380,7 @@ private struct Array(E,
     this(R)(R values, bool assumeSortedParameter = false) @trusted @("complexity", "O(n*log(n))")
         if (isInputRange!R)
     {
+        version(showCtors) dln("HERE: ", typeof(this).stringof);
         // init
         _ptr = null;
         _capacity = 0;

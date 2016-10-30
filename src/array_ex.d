@@ -1125,6 +1125,21 @@ private:
 
 import std.traits : hasMember, isDynamicArray;
 
+/** Return an instance of `R` with capacity `capacity`. */
+R withCapacityMake(R)(size_t capacity)
+    if (hasMember!(R, "withCapacity"))
+{
+    return R.withCapacity(capacity);
+}
+/// ditto
+R withCapacityMake(R)(size_t capacity)
+    if (isDynamicArray!R)
+{
+    R r;
+    r.capacity = capacity;
+    return r;
+}
+
 /** Return an instance of `R` of length `length`. */
 R withLengthMake(R)(size_t length)
     if (hasMember!(R, "withLength"))

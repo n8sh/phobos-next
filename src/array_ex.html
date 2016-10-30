@@ -757,6 +757,40 @@
 </li><li class="ddoc_member">
   <div class="ddoc_member_header">
   <div class="ddoc_header_anchor">
+  <a href="#withCapacityMake" id="withCapacityMake"><code class="code">withCapacityMake</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="withCapacityMake"></span>R <code class="code">withCapacityMake</code>(R)(size_t <code class="code">capacity</code>) if (hasMember!(R, "withCapacity"));
+<br>
+R <code class="code">withCapacityMake</code>(R)(size_t <code class="code">capacity</code>) if (isDynamicArray!R);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Return an instance of <code class="code">R</code> of <code class="code">capacity</code> <code class="code"><code class="code">capacity</code></code>.
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
   <a href="#withLengthMake" id="withLengthMake"><code class="code">withLengthMake</code></a>
 </div>
 </div><div class="ddoc_decl">

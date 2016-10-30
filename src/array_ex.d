@@ -1077,9 +1077,8 @@ private struct Array(E,
     size_t length() const @safe { return _length; }
     alias opDollar = length;    /// ditto
 
-    /// Get length of reserved store.
-    size_t reservedLength() const @safe { return _capacity; }
-    alias capacity = reservedLength;
+    /// Get reserved capacity of store.
+    size_t capacity() const @safe { return _capacity; }
 
     /// Shrink length to `newLength`.
     void shrinkTo(size_t newLength) @safe
@@ -1136,8 +1135,16 @@ R withCapacityMake(R)(size_t capacity)
     if (isDynamicArray!R)
 {
     R r;
-    r.capacity = capacity;
+    // A hack. See http://forum.dlang.org/post/nupffaitocqjlamffuqi@forum.dlang.org
+    // r.length = capacity;
+    // r.length = 0;
     return r;
+}
+
+@safe pure nothrow unittest
+{
+    const capacity = 10;
+    auto x = 10.withCapacityMake!(int[]);
 }
 
 /** Return an instance of `R` of length `length`. */
@@ -1337,14 +1344,14 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
                 assert(ssB.linearInsert(3, 6, 8, 5, 1, 9)[].equal([true, true, true, true, false, false]));
                 assert(ssB.linearInsert(3, 0, 2, 10, 11, 5)[].equal([false, true, true, true, true, false]));
                 assert(ssB.linearInsert(0, 2, 10, 11)[].equal(false.repeat(4))); // false becuse already inserted
-                assert(ssB.reservedLength == 16);
+                assert(ssB.capacity == 16);
             }
             else
             {
                 ssB.linearInsert(1, 7, 4, 9);
                 ssB.linearInsert(3, 6, 8, 5);
                 ssB.linearInsert(0, 2, 10, 11);
-                assert(ssB.reservedLength == 16);
+                assert(ssB.capacity == 16);
             }
 
             auto ssI = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].sort!comp; // values
@@ -1356,7 +1363,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             foreach (s; ssO) { assert(!ssB.contains(s)); }
 
             ssB.compress;
-            assert(ssB.reservedLength == 12);
+            assert(ssB.capacity == 12);
         }
         else
         {
@@ -1375,10 +1382,10 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             ssA ~= 2;
             ssA ~= 1;
             assert(ssA[].equal([3, 2, 1]));
-            assert(ssA.reservedLength == 4);
+            assert(ssA.capacity == 4);
 
             ssA.compress;
-            assert(ssA.reservedLength == 3);
+            assert(ssA.capacity == 3);
 
             // popBack
             ssA[0] = 1;
@@ -1403,11 +1410,11 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assertNotThrown(ssA.popBack);
             assert(ssA.length == 0);
             assert(ssA.empty);
-            assert(ssA.reservedLength != 0);
+            assert(ssA.capacity != 0);
 
             ssA.compress;
             assert(ssA.length == 0);
-            assert(ssA.reservedLength == 0);
+            assert(ssA.capacity == 0);
             assert(ssA.empty);
 
             // linearInsertAt

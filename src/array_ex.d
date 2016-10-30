@@ -84,6 +84,7 @@ version(unittest)
     import std.meta : AliasSeq;
 }
 
+import std.range : ElementType;
 import container_traits : ContainerElementType;
 
 import std.traits : isInstanceOf;
@@ -1122,12 +1123,47 @@ private:
     size_t _length;             // length
 }
 
+R withLengthMake(R)(size_t length)
+{
+    static if (hasMember!(R, "withLength"))
+    {
+        return R.withLength(length);
+    }
+    else static if (isDynamicArray!R)
+    {
+        R r;
+        r.length = length;
+        return r;
+    }
+    else
+    {
+        static assert(false, "Unsupported type");
+    }
+}
+
+R withElementMake(R)(typeof(R.init[0]) e)
+{
+    import std.traits : hasMember, isDynamicArray;
+    static if (hasMember!(R, "withElement"))
+    {
+        return R.withElement(e);
+    }
+    else static if (isDynamicArray!R)
+    {
+        return [e];
+    }
+    else
+    {
+        static assert(false, "Unsupported type");
+    }
+}
+
 alias UncopyableArray(E, bool useGCAllocation = false) = Array!(E, Assignment.disabled, Ordering.unsorted, useGCAllocation, "a < b");
 alias CopyableArray(E, bool useGCAllocation = false) = Array!(E, Assignment.copy, Ordering.unsorted, useGCAllocation, "a < b");
 alias SortedArray(E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.disabled, Ordering.sortedValues, useGCAllocation, less);
 alias SortedSetArray(E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.disabled, Ordering.sortedUniqueSet, useGCAllocation, less);
 
-unittest
+pure unittest
 {
     import std.conv : to;
     foreach (assignment; AliasSeq!(Assignment.disabled, Assignment.copy))
@@ -1136,6 +1172,10 @@ unittest
         {
             alias Str = Array!(Ch, assignment);
             Str str_as = Str.withElement('a');
+            Str str_as2 = 'a'.withElementMake!Str;
+            Str str_as3 = 'a'.withElementMake!(Ch[]);
+            assert(str_as == str_as2);
+            assert(str_as2 == str_as3);
             str_as ~= '_'.to!Ch;
             assert(str_as[].equal("a_"));
         }

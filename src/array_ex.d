@@ -1190,6 +1190,35 @@ alias CopyableArray(E, bool useGCAllocation = false) = Array!(E, Assignment.copy
 alias SortedArray(E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.disabled, Ordering.sortedValues, useGCAllocation, less);
 alias SortedSetArray(E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.disabled, Ordering.sortedUniqueSet, useGCAllocation, less);
 
+/// benchmark
+unittest
+{
+    import std.array : Appender;
+    import std.stdio : writeln;
+    import std.datetime : StopWatch;
+
+    alias E = uint;
+    const n = 1_000_000;
+
+    foreach (A; AliasSeq!(Array!E,
+                          E[],
+                          Appender!(E[])))
+    {
+        A a;
+
+        StopWatch watch;
+        watch.start;
+
+        foreach (uint i; 0 .. n)
+        {
+            a ~= i;
+        }
+
+        watch.stop;
+        writeln("Added ", n, " integer nodes into ", A.stringof, " in ", watch.peek.msecs, " ms.");
+    }
+}
+
 pure unittest
 {
     import std.conv : to;

@@ -1135,16 +1135,16 @@ R withCapacityMake(R)(size_t capacity)
     if (isDynamicArray!R)
 {
     R r;
-    // A hack. See http://forum.dlang.org/post/nupffaitocqjlamffuqi@forum.dlang.org
-    // r.length = capacity;
-    // r.length = 0;
+    // See http://forum.dlang.org/post/nupffaitocqjlamffuqi@forum.dlang.org
+    r.reserve(capacity);
     return r;
 }
 
 @safe pure nothrow unittest
 {
     const capacity = 10;
-    auto x = 10.withCapacityMake!(int[]);
+    auto x = capacity.withCapacityMake!(int[]);
+    assert(x.capacity >= capacity);
 }
 
 /** Return an instance of `R` of length `length`. */

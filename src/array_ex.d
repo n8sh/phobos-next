@@ -1123,6 +1123,7 @@ private:
     size_t _length;             // length
 }
 
+/** Return an instance of `R` of length `length`. */
 R withLengthMake(R)(size_t length)
 {
     static if (hasMember!(R, "withLength"))
@@ -1141,6 +1142,7 @@ R withLengthMake(R)(size_t length)
     }
 }
 
+/** Return an instance of `R` of containing with a single element `e`. */
 R withElementMake(R)(typeof(R.init[0]) e)
 {
     import std.traits : hasMember, isDynamicArray;

@@ -34,7 +34,6 @@
  */
 module array_ex;
 
-version = benchmark;
 // version = useMemoryErrorHandler;
 version(useMemoryErrorHandler) unittest
 {
@@ -206,7 +205,7 @@ private struct Array(E,
         }
         else
         {
-            moveEmplace(element, that._ptr[0]);
+            moveEmplace(element, that._ptr[0]); // TODO remove `move` when compiler does it for us
         }
         that._length = 1;
         return that;
@@ -226,7 +225,7 @@ private struct Array(E,
             }
             else
             {
-                moveEmplace(element, that._ptr[i]);
+                moveEmplace(element, that._ptr[i]); // TODO remove `move` when compiler does it for us
             }
         }
         that._length = Us.length;
@@ -294,14 +293,14 @@ private struct Array(E,
         {
             version(showCtors) dln("Copying: ", typeof(this).stringof);
             import std.algorith.mutation : moveEmplace;
-            moveEmplace(rhs, this);
+            moveEmplace(rhs, this); // TODO remove `move` when compiler does it for us
         }
 
         /// Assignment moves.
         void opAssign(typeof(this) rhs) @trusted
         {
             import std.algorith.mutation : move;
-            move(rhs, this);
+            move(rhs, this);  // TODO remove `move` when compiler does it for us
         }
     }
 
@@ -568,7 +567,7 @@ private struct Array(E,
     ContainerElementType!(typeof(this), E) linearPopAtIndex(size_t index) @trusted @("complexity", "O(length)")
     {
         assert(index < _length);
-        auto value = move(_mptr[index]);
+        auto value = move(_mptr[index]); // TODO remove `move` when compiler does it for us
         // TODO use this instead:
         // const si = index + 1;   // source index
         // const ti = index;       // target index
@@ -580,7 +579,7 @@ private struct Array(E,
         {
             const si = index + i + 1; // source index
             const ti = index + i; // target index
-            moveEmplace(_mptr[si],
+            moveEmplace(_mptr[si], // TODO remove `move` when compiler does it for us
                         _mptr[ti]);
         }
         --_length;
@@ -627,13 +626,9 @@ private struct Array(E,
             foreach (const i, ref value; values) // `ref` so we can `move`
             {
                 static if (isScalarType!(typeof(value)))
-                {
                     _ptr[_length + i] = value;
-                }
                 else
-                {
-                    moveEmplace(value, _ptr[_length + i]);
-                }
+                    moveEmplace(value, _ptr[_length + i]); // TODO remove `move` when compiler does it for us
             }
             _length += values.length;
         }
@@ -649,13 +644,9 @@ private struct Array(E,
             foreach (const i, ref value; values) // `ref` so we can `move`
             {
                 static if (isScalarType!(typeof(value)))
-                {
                     _ptr[_length + i] = value;
-                }
                 else
-                {
-                    moveEmplace(value, _ptr[_length + i]);
-                }
+                    moveEmplace(value, _ptr[_length + i]); // TODO remove `moveEmplace` when compiler does it for us
             }
             _length += values.length;
         }
@@ -723,19 +714,29 @@ private struct Array(E,
         // NOTE these separate overloads of opOpAssign are needed because one
         // `const ref`-parameter-overload doesn't work because of compiler bug
         // with: `this(this) @disable`
+        pragma(inline) void opOpAssign(string op, U)(U value)
+            if (op == "~" &&
+                allSatisfy!(isElementAssignable, U))
+        {
+            import std.traits : isScalarType;
+            static if (isScalarType!U)
+                pushBack(value);
+            else
+                pushBack(move(value)); // TODO remove `move` when compiler does it for us
+        }
         pragma(inline) void opOpAssign(string op, Us...)(Us values)
             if (op == "~" &&
-                values.length >= 1 &&
+                values.length >= 2 &&
                 allSatisfy!(isElementAssignable, Us))
         {
-            pushBack(values.move());
+            pushBack(move(values)); // TODO remove `move` when compiler does it for us
         }
 	pragma(inline) void opOpAssign(string op, R)(R values)
             if (op == "~" &&
                 isInputRange!R &&
                 allSatisfy!(isElementAssignable, ElementType!R))
         {
-            pushBack(values.move());
+            pushBack(move(values)); // TODO remove `move` when compiler does it for us
         }
 	pragma(inline) void opOpAssign(string op, A)(const ref A values)
             if (op == "~" &&
@@ -957,7 +958,7 @@ private struct Array(E,
         reserve(_length + values.length);
         foreach (const i, ref value; values)
         {
-            moveEmplace(value, _ptr[_length + i]);
+            moveEmplace(value, _ptr[_length + i]); // TODO remove `move` when compiler does it for us
         }
         _length += values.length;
     }
@@ -1024,14 +1025,9 @@ private struct Array(E,
             assert(i < _length);
             import std.traits : isScalarType;
             static if (isScalarType!E)
-            {
                 _ptr[i] = value;
-            }
             else
-            {
-                import std.algorithm.mutation : move;
-                (*(cast(Unqual!E*)(&value))).move(_mptr[i]); // TODO is this correct?
-            }
+                move(*(cast(Unqual!E*)(&value)), _mptr[i]); // TODO is this correct?
             return _ptr[i];
         }
 
@@ -1218,37 +1214,6 @@ alias UncopyableArray(E, bool useGCAllocation = false) = Array!(E, Assignment.di
 alias CopyableArray(E, bool useGCAllocation = false) = Array!(E, Assignment.copy, Ordering.unsorted, useGCAllocation, "a < b");
 alias SortedArray(E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.disabled, Ordering.sortedValues, useGCAllocation, less);
 alias SortedSetArray(E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.disabled, Ordering.sortedUniqueSet, useGCAllocation, less);
-
-/// benchmark
-version(benchmark) unittest
-{
-    import std.container.array : CArray = Array;
-    import std.array : Appender;
-    import std.stdio : writeln;
-    import std.datetime : StopWatch;
-
-    alias E = uint;
-    const n = 5_000_000;
-
-    foreach (A; AliasSeq!(Array!E,
-                          E[],
-                          Appender!(E[]),
-                          CArray!E))
-    {
-        A a;
-
-        StopWatch watch;
-        watch.start;
-
-        foreach (uint i; 0 .. n)
-        {
-            a ~= i;
-        }
-
-        watch.stop;
-        writeln("Added ", n, " integer nodes into ", A.stringof, " in ", watch.peek.msecs, " ms.");
-    }
-}
 
 pure unittest
 {

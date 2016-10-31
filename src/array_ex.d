@@ -4,6 +4,9 @@
     BUG rdmd -main -unittest -g -debug array_ex
     dustmite --strip-comments --no-redirect src "show-segfault rdmd -main -unittest -g -debug array_ex | grep double-linked"
 
+    TODO Why is pushBack of 5_000_000 uints in this `Array` slower (44 ms) than
+         both `Appender` (24 ms) and `std.container.array.Array` (17 ms)?
+
     TODO Breakout common logic into `RawArray` and reuse with `alias this`
 
     TODO Remove explicit moves when DMD std.algorithm.mutation.move calls these

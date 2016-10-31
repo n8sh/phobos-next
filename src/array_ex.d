@@ -458,31 +458,36 @@ private struct Array(E,
     /// Pack/Compress storage.
     void compress() pure nothrow @trusted
     {
-        static if (shouldAddGCRange!E)
-        {
-            gc_removeRange(_ptr);
-        }
         if (_length)
         {
-            _capacity = _length;
-
-            static if (useGCAllocation)
+            if (_capacity != _length)
             {
-                _ptr = cast(E*)GC.realloc(_mptr, E.sizeof * _capacity);
-            }
-            else                // @nogc
-            {
-                _ptr = cast(E*)realloc(_mptr, E.sizeof * _capacity);
-                assert(_ptr, "Reallocation failed");
-            }
-
-            static if (shouldAddGCRange!E)
-            {
-                gc_addRange(_ptr, _capacity * E.sizeof);
+                _capacity = _length;
+                static if (shouldAddGCRange!E)
+                {
+                    gc_removeRange(_ptr);
+                }
+                static if (useGCAllocation)
+                {
+                    _ptr = cast(E*)GC.realloc(_mptr, E.sizeof * _capacity);
+                }
+                else                // @nogc
+                {
+                    _ptr = cast(E*)realloc(_mptr, E.sizeof * _capacity);
+                    assert(_ptr, "Reallocation failed");
+                }
+                static if (shouldAddGCRange!E)
+                {
+                    gc_addRange(_ptr, _capacity * E.sizeof);
+                }
             }
         }
         else
         {
+            static if (shouldAddGCRange!E)
+            {
+                gc_removeRange(_ptr);
+            }
             static if (useGCAllocation)
             {
                 GC.free(_mptr);
@@ -492,7 +497,6 @@ private struct Array(E,
                 free(_mptr);
                 assert(_ptr, "Deallocation failed");
             }
-
             _capacity = 0;
             _ptr = null;
         }

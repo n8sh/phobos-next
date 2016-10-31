@@ -221,9 +221,13 @@ private struct Array(E,
         foreach (const i, ref element; elements)
         {
             static if (!shouldAddGCRange!E)
+            {
                 moveEmplace(*(cast(ME*)(&element)), that._mptr[i]); // safe to cast away constness when no indirections
+            }
             else
+            {
                 moveEmplace(element, that._ptr[i]);
+            }
         }
         that._length = Us.length;
         return that;
@@ -618,10 +622,18 @@ private struct Array(E,
             if (values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
         {
+            import std.traits : isScalarType;
             reserve(_length + values.length);
             foreach (const i, ref value; values) // `ref` so we can `move`
             {
-                moveEmplace(value, _ptr[_length + i]);
+                static if (isScalarType!(typeof(value)))
+                {
+                    _ptr[_length + i] = value;
+                }
+                else
+                {
+                    moveEmplace(value, _ptr[_length + i]);
+                }
             }
             _length += values.length;
         }
@@ -632,10 +644,18 @@ private struct Array(E,
                 !(isMyArray!R) &&
                 isElementAssignable!(ElementType!R))
         {
+            import std.traits : isScalarType;
             reserve(_length + values.length);
             foreach (const i, ref value; values) // `ref` so we can `move`
             {
-                moveEmplace(value, _ptr[_length + i]);
+                static if (isScalarType!(typeof(value)))
+                {
+                    _ptr[_length + i] = value;
+                }
+                else
+                {
+                    moveEmplace(value, _ptr[_length + i]);
+                }
             }
             _length += values.length;
         }
@@ -733,19 +753,19 @@ private struct Array(E,
         /// Returns: `true` iff this contains `value`.
         pragma(inline) bool contains(U)(U value) const nothrow @nogc @("complexity", "O(log(length))")
         {
-            return this[].contains(value);
+            return this[].contains(value); // reuse `SortedRange.contains`
         }
 
         /** Wrapper for `std.range.SortedRange.lowerBound` when this `ordering` is sorted. */
         pragma(inline) auto lowerBound(SearchPolicy sp = SearchPolicy.binarySearch, U)(U e) inout @("complexity", "O(log(length))")
         {
-            return this[].lowerBound!sp(e);
+            return this[].lowerBound!sp(e); // reuse `SortedRange.lowerBound`
         }
 
         /** Wrapper for `std.range.SortedRange.upperBound` when this `ordering` is sorted. */
         pragma(inline) auto upperBound(SearchPolicy sp = SearchPolicy.binarySearch, U)(U e) inout @("complexity", "O(log(length))")
         {
-            return this[].upperBound!sp(e);
+            return this[].upperBound!sp(e); // reuse `SortedRange.upperBound`
         }
 
         static if (ordering == Ordering.sortedUniqueSet)
@@ -1002,8 +1022,16 @@ private struct Array(E,
         ref E opIndexAssign(V)(V value, size_t i) @trusted // TODO DIP-1000 scope
         {
             assert(i < _length);
-            import std.algorithm.mutation : move;
-            (*(cast(Unqual!E*)(&value))).move(_mptr[i]); // TODO is this correct?
+            import std.traits : isScalarType;
+            static if (isScalarType!E)
+            {
+                _ptr[i] = value;
+            }
+            else
+            {
+                import std.algorithm.mutation : move;
+                (*(cast(Unqual!E*)(&value))).move(_mptr[i]); // TODO is this correct?
+            }
             return _ptr[i];
         }
 
@@ -1194,6 +1222,7 @@ alias SortedSetArray(E, bool useGCAllocation = false, alias less = "a < b") = Ar
 /// benchmark
 version(benchmark) unittest
 {
+    import std.container.array : CArray = Array;
     import std.array : Appender;
     import std.stdio : writeln;
     import std.datetime : StopWatch;
@@ -1203,7 +1232,8 @@ version(benchmark) unittest
 
     foreach (A; AliasSeq!(Array!E,
                           E[],
-                          Appender!(E[])))
+                          Appender!(E[]),
+                          CArray!E))
     {
         A a;
 

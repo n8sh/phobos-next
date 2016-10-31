@@ -126,7 +126,7 @@ private struct Array(E,
                      alias less = "a < b") // TODO move out of this definition and support only for the case when `ordering` is not `Ordering.unsorted`
 {
     import std.range : isInputRange, ElementType;
-    import std.traits : isAssignable, Unqual, isSomeChar, isArray;
+    import std.traits : isAssignable, Unqual, isSomeChar, isArray, isScalarType;
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
     import core.stdc.string : memset;
@@ -621,7 +621,6 @@ private struct Array(E,
             if (values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
         {
-            import std.traits : isScalarType;
             reserve(_length + values.length);
             foreach (const i, ref value; values) // `ref` so we can `move`
             {
@@ -639,7 +638,6 @@ private struct Array(E,
                 !(isMyArray!R) &&
                 isElementAssignable!(ElementType!R))
         {
-            import std.traits : isScalarType;
             reserve(_length + values.length);
             foreach (const i, ref value; values) // `ref` so we can `move`
             {
@@ -714,19 +712,9 @@ private struct Array(E,
         // NOTE these separate overloads of opOpAssign are needed because one
         // `const ref`-parameter-overload doesn't work because of compiler bug
         // with: `this(this) @disable`
-        pragma(inline) void opOpAssign(string op, U)(U value)
-            if (op == "~" &&
-                allSatisfy!(isElementAssignable, U))
-        {
-            import std.traits : isScalarType;
-            static if (isScalarType!U)
-                pushBack(value);
-            else
-                pushBack(move(value)); // TODO remove `move` when compiler does it for us
-        }
         pragma(inline) void opOpAssign(string op, Us...)(Us values)
             if (op == "~" &&
-                values.length >= 2 &&
+                values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
         {
             pushBack(move(values)); // TODO remove `move` when compiler does it for us
@@ -1023,7 +1011,6 @@ private struct Array(E,
         ref E opIndexAssign(V)(V value, size_t i) @trusted // TODO DIP-1000 scope
         {
             assert(i < _length);
-            import std.traits : isScalarType;
             static if (isScalarType!E)
                 _ptr[i] = value;
             else

@@ -428,34 +428,31 @@ private struct Array(E,
     /// Reserve room for `newCapacity` elements at store `_ptr`.
     void reserve(size_t newCapacity) pure nothrow @trusted
     {
-        static if (shouldAddGCRange!E)
-        {
-            gc_removeRange(_ptr);
-        }
-
-        makeCapacityAtLeast(newCapacity);
-
-        static if (useGCAllocation)
-        {
-            _ptr = cast(E*)GC.realloc(_mptr, E.sizeof * _capacity);
-        }
-        else                    // @nogc
-        {
-            _ptr = cast(E*)realloc(_mptr, E.sizeof * _capacity);
-            assert(_ptr, "Reallocation failed");
-        }
-
-        static if (shouldAddGCRange!E)
-        {
-            gc_addRange(_ptr, _capacity * E.sizeof);
-        }
-    }
-
-    /// Helper for `reserve`.
-    pragma(inline) private void makeCapacityAtLeast(size_t newCapacity) pure nothrow @safe @nogc
-    {
         import std.math : nextPow2;
-        if (_capacity < newCapacity) { _capacity = newCapacity.nextPow2; }
+        if (_capacity < newCapacity)
+        {
+            _capacity = newCapacity.nextPow2;
+
+            static if (shouldAddGCRange!E)
+            {
+                gc_removeRange(_ptr);
+            }
+
+            static if (useGCAllocation)
+            {
+                _ptr = cast(E*)GC.realloc(_mptr, E.sizeof * _capacity);
+            }
+            else                    // @nogc
+            {
+                _ptr = cast(E*)realloc(_mptr, E.sizeof * _capacity);
+                assert(_ptr, "Reallocation failed");
+            }
+
+            static if (shouldAddGCRange!E)
+            {
+                gc_addRange(_ptr, _capacity * E.sizeof);
+            }
+        }
     }
 
     /// Pack/Compress storage.

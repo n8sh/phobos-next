@@ -34,6 +34,7 @@
  */
 module array_ex;
 
+version = benchmark;
 // version = useMemoryErrorHandler;
 version(useMemoryErrorHandler) unittest
 {
@@ -1150,7 +1151,7 @@ R withCapacityMake(R)(size_t capacity)
     return r;
 }
 
-@safe pure nothrow unittest
+pure nothrow unittest
 {
     const capacity = 10;
     auto x = capacity.withCapacityMake!(int[]);
@@ -1191,14 +1192,14 @@ alias SortedArray(E, bool useGCAllocation = false, alias less = "a < b") = Array
 alias SortedSetArray(E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.disabled, Ordering.sortedUniqueSet, useGCAllocation, less);
 
 /// benchmark
-unittest
+version(benchmark) unittest
 {
     import std.array : Appender;
     import std.stdio : writeln;
     import std.datetime : StopWatch;
 
     alias E = uint;
-    const n = 1_000_000;
+    const n = 5_000_000;
 
     foreach (A; AliasSeq!(Array!E,
                           E[],
@@ -1209,7 +1210,7 @@ unittest
         StopWatch watch;
         watch.start;
 
-        foreach (uint i; 0 .. n)
+        foreach (const uint i; 0 .. n)
         {
             a ~= i;
         }

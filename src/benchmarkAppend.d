@@ -6,6 +6,7 @@ void main()
     import std.datetime : StopWatch;
     import std.meta : AliasSeq;
     import array_ex : Array;
+    import std.stdio : writeln;
 
     alias E = uint;
     const n = 5_000_000;

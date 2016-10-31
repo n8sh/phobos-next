@@ -1210,7 +1210,7 @@ version(benchmark) unittest
         StopWatch watch;
         watch.start;
 
-        foreach (const uint i; 0 .. n)
+        foreach (uint i; 0 .. n)
         {
             a ~= i;
         }

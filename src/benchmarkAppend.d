@@ -5,6 +5,8 @@ void main()
     import std.stdio : writeln;
     import std.datetime : StopWatch;
     import std.meta : AliasSeq;
+    import std.algorithm.comparison : equal;
+    import std.range : iota;
     import array_ex : Array;
     import std.stdio : writeln;
 
@@ -19,6 +21,7 @@ void main()
         A a;
 
         StopWatch watch;
+
         watch.start;
 
         foreach (uint i; 0 .. n)
@@ -27,6 +30,7 @@ void main()
         }
 
         watch.stop;
+
         writeln("Added ", n, " integer nodes into ", A.stringof, " in ", watch.peek.msecs, " ms.");
     }
 }

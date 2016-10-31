@@ -359,7 +359,7 @@ private struct Array(E,
     }
 
     /// Compare with range `R` with comparable element type.
-    bool opEquals(R)(R rhs) const
+    pragma(inline) bool opEquals(R)(R rhs) const
         // TODO do we need to restrict this?: if (isInputRange!R)
     {
         return opSlice.equal(rhs);
@@ -449,7 +449,7 @@ private struct Array(E,
     }
 
     /// Helper for `reserve`.
-    private void makeCapacityAtLeast(size_t newCapacity) pure nothrow @safe @nogc
+    pragma(inline) private void makeCapacityAtLeast(size_t newCapacity) pure nothrow @safe @nogc
     {
         import std.math : nextPow2;
         if (_capacity < newCapacity) { _capacity = newCapacity.nextPow2; }
@@ -501,7 +501,7 @@ private struct Array(E,
     alias pack = compress;
 
     /// Destruct.
-    ~this() nothrow @trusted
+    pragma(inline) ~this() nothrow @trusted
     {
         debug assert(_ptr != _ptrMagic, "Double free."); // trigger fault for double frees
         release();
@@ -509,7 +509,7 @@ private struct Array(E,
     }
 
     /// Clear store.
-    void clear() nothrow
+    pragma(inline) void clear() nothrow
     {
         release();
         resetInternalData();
@@ -554,7 +554,7 @@ private struct Array(E,
     }
 
     /// Reset internal data.
-    private void resetInternalData()
+    pragma(inline) private void resetInternalData()
     {
         _ptr = null;
         _length = 0;

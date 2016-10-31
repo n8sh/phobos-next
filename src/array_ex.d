@@ -431,23 +431,11 @@ private struct Array(E,
         import std.math : nextPow2;
         if (_capacity < newCapacity)
         {
-            _capacity = newCapacity.nextPow2;
-
             static if (shouldAddGCRange!E)
             {
                 gc_removeRange(_ptr);
             }
-
-            static if (useGCAllocation)
-            {
-                _ptr = cast(E*)GC.realloc(_mptr, E.sizeof * _capacity);
-            }
-            else                    // @nogc
-            {
-                _ptr = cast(E*)realloc(_mptr, E.sizeof * _capacity);
-                assert(_ptr, "Reallocation failed");
-            }
-
+            reallocateStore(newCapacity.nextPow2);
             static if (shouldAddGCRange!E)
             {
                 gc_addRange(_ptr, _capacity * E.sizeof);
@@ -462,20 +450,11 @@ private struct Array(E,
         {
             if (_capacity != _length)
             {
-                _capacity = _length;
                 static if (shouldAddGCRange!E)
                 {
                     gc_removeRange(_ptr);
                 }
-                static if (useGCAllocation)
-                {
-                    _ptr = cast(E*)GC.realloc(_mptr, E.sizeof * _capacity);
-                }
-                else                // @nogc
-                {
-                    _ptr = cast(E*)realloc(_mptr, E.sizeof * _capacity);
-                    assert(_ptr, "Reallocation failed");
-                }
+                reallocateStore(_length);
                 static if (shouldAddGCRange!E)
                 {
                     gc_addRange(_ptr, _capacity * E.sizeof);
@@ -503,6 +482,21 @@ private struct Array(E,
     }
 
     alias pack = compress;
+
+    /// Reallocate storage.
+    pragma(inline) private void reallocateStore(size_t newCapacity) pure nothrow @trusted
+    {
+        _capacity = newCapacity;
+        static if (useGCAllocation)
+        {
+            _ptr = cast(E*)GC.realloc(_mptr, E.sizeof * _capacity);
+        }
+        else                    // @nogc
+        {
+            _ptr = cast(E*)realloc(_mptr, E.sizeof * _capacity);
+            assert(_ptr, "Reallocation failed");
+        }
+    }
 
     /// Destruct.
     pragma(inline) ~this() nothrow @trusted

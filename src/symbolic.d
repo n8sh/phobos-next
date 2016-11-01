@@ -685,11 +685,11 @@ auto alt(Args...)(Args args) @safe pure nothrow { return new Alt(args); } // ins
 
     const string _aa = `_aa`;
     assert(aa_bb.findAt(_aa) == cast(immutable ubyte[])`aa`);
-    assert(aa_bb.findAt(_aa).ptr - (cast(immutable ubyte[])_aa).ptr == 1);
+    assert(&aa_bb.findAt(_aa)[0] - &(cast(immutable ubyte[])_aa)[0] == 1);
 
     const string _bb = `_bb`;
     assert(aa_bb.findAt(_bb) == cast(immutable ubyte[])`bb`);
-    assert(aa_bb.findAt(_bb).ptr - (cast(immutable ubyte[])_bb).ptr == 1);
+    assert(&aa_bb.findAt(_bb)[0] - &(cast(immutable ubyte[])_bb)[0] == 1);
 
     assert(a.findAt(`b`) == []);
     assert(aa.findAt(`cc`) == []);

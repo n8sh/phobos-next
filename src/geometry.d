@@ -895,7 +895,7 @@ enum Layout { columnMajor, rowMajor }; // Matrix Storage Major Dimension.
 
 /// Base template for all matrix-types.
 /// Params:
-///  type = all values get stored as this type
+///  E = all values get stored as this type
 ///  rows_ = rows of the matrix
 ///  cols_ = columns of the matrix
 ///  layout = matrix layout

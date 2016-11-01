@@ -36,7 +36,7 @@ struct UTCOffset
             code.skipOver(" ");
             code.skipOverEither("+", "±", `\u00B1`, "\u00B1");
             // try in order of probability
-            const sign = code.skipOverEither(`-`,
+            immutable sign = code.skipOverEither(`-`,
                                              "\u2212", "\u2011", "\u2013", // quoting
                                              `\u2212`, `\u2011`, `\u2013`,  // UTF-8
                                              `&minus;`, `&dash;`, `&ndash;`) ? -1 : +1; // HTML
@@ -46,13 +46,13 @@ struct UTCOffset
 
             if (code.length == 4 && code[1].among!(':', '.')) // H:MM
             {
-                const hour = sign*(code[0 .. 1].to!byte);
+                immutable hour = sign*(code[0 .. 1].to!byte);
                 this(cast(byte)hour,
                      code[2 .. $].to!ubyte);
             }
             else if (code.length == 5 && code[2].among!(':', '.')) // HH:MM
             {
-                const hour = sign*(code[0 .. 2].to!byte);
+                immutable hour = sign*(code[0 .. 2].to!byte);
                 this(cast(byte)hour,
                      code[3 .. $].to!ubyte);
             }
@@ -60,7 +60,7 @@ struct UTCOffset
             {
                 try
                 {
-                    const hour = sign*code.to!byte;
+                    immutable hour = sign*code.to!byte;
                     this(cast(byte)hour, 0);
                 }
                 catch (Exception E)
@@ -107,8 +107,8 @@ struct UTCOffset
     bool opCast(U : bool)() const { return isDefined(); }
     int opCmp(in UTCOffset that) const @trusted
     {
-        const a = *cast(ubyte*)&this;
-        const b = *cast(ubyte*)&that;
+        immutable a = *cast(ubyte*)&this;
+        immutable b = *cast(ubyte*)&that;
         return a < b ? -1 : a > b ? 1 : 0;
     }
 
@@ -117,10 +117,10 @@ struct UTCOffset
         if (isDefined)
         {
             import std.conv : to;
-            const sign     = _hour > 0 ? `+` : _hour == 0 ? `±`: ``;
-            const hour     = _hour.to!(typeof(return));
-            const hourZPad = hour.length == 1 ? `0` : ``;
-            const minute   = quarterNames[_quarter];
+            immutable sign     = _hour > 0 ? `+` : _hour == 0 ? `±`: ``;
+            immutable hour     = _hour.to!(typeof(return));
+            immutable hourZPad = hour.length == 1 ? `0` : ``;
+            immutable minute   = quarterNames[_quarter];
             return `UTC` ~ sign ~ hourZPad ~ hour ~ `:` ~ minute;
         }
         else

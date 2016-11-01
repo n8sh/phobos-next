@@ -889,7 +889,7 @@ unittest
 {
     import std.typecons : t = tuple;
     import std.algorithm : equal;
-    const x = [1, 2, 3, 4];
+    immutable x = [1, 2, 3, 4];
     auto y = x.adjacentPairs;
     assert(y.equal([t(1, 2), t(2, 3), t(3, 4)]));
 }
@@ -909,7 +909,7 @@ unittest
 {
     import std.typecons : t = tuple;
     import std.algorithm : equal;
-    const x = ["1", "2", "3", "4"];
+    immutable x = ["1", "2", "3", "4"];
     auto y = x.adjacentPairs;
     assert(y.equal([t("1", "2"), t("2", "3"), t("3", "4")]));
 }

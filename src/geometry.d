@@ -385,7 +385,7 @@ struct Vector(E, uint D,
     bool opCast(T : bool)() const { return all!"a" (vector_[]) ; }
 
     /// Returns: Pointer to the coordinates.
-    @property auto value_ptr() { return vector_.ptr; }
+    // @property auto value_ptr() { return vector_.ptr; }
 
     /// Sets all values to $(D value).
     void clear(E value) { foreach (i; iota!(0, D)) { vector_[i] = value; } }
@@ -841,7 +841,7 @@ alias dot = dotProduct;
 /// Returns: Outer-Product of Two Vectors $(D a) and $(D b).
 @safe pure nothrow auto outerProduct(Ta, Tb, uint Da, uint Db)(in Vector!(Ta, Da) a,
                                                                in Vector!(Tb, Db) b)
-    if (Da >= 1,
+    if (Da >= 1 &&
         Db >= 1)
 {
     Matrix!(CommonType!(Ta, Tb), Da, Db) y = void;
@@ -933,7 +933,7 @@ struct Matrix(E,
     /// // 3rd argument = GL_TRUE
     /// glUniformMatrix4fv(programs.main.model, 1, GL_TRUE, mat4.translation(-0.5f, -0.5f, 1.0f).value_ptr);
     /// ---
-    @property auto value_ptr() { return matrix_[0].ptr; }
+    // @property auto value_ptr() { return matrix_[0].ptr; }
 
     /// Returns: The current matrix_ formatted as flat string.
     @property @trusted string toString() { return format("%s", matrix_); }

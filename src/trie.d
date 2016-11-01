@@ -4185,7 +4185,7 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, ref UncopyableArray!Ix rawUKey) @t
                 static if (i + 1 == members.length) // last member is allowed to be an array of fixed length
                 {
                     UncopyableArray!Ix memberRawUKey;
-                    immutable memberRawKey = member.toRawKey(memberRawUKey); // TODO use DIP-1000
+                    const memberRawKey = member.toRawKey(memberRawUKey); // TODO use DIP-1000
                     rawUKey ~= memberRawUKey;
                 }
                 else                // non-last member must be fixed
@@ -4193,7 +4193,7 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, ref UncopyableArray!Ix rawUKey) @t
                     static assert(isFixedTrieableKeyType!MemberType,
                                   "Non-last " ~ i.stringof ~ ":th member of type " ~ MemberType.stringof ~ " must be of fixed length");
                     Ix[MemberType.sizeof] memberRawUKey;
-                    immutable memberRawKey = member.toFixedRawKey(memberRawUKey); // TODO use DIP-1000
+                    const memberRawKey = member.toFixedRawKey(memberRawUKey); // TODO use DIP-1000
                     rawUKey ~= memberRawUKey[];
                 }
             }

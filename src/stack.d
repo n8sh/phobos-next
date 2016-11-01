@@ -4,7 +4,7 @@
 
 import array_ex : Array, Ordering;
 
-alias Stack(T) = Array!(T, Ordering.unsorted, false);
+alias Stack = Array;
 
 @safe pure nothrow @nogc unittest
 {

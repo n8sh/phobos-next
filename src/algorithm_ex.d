@@ -282,7 +282,7 @@ inout(T[]) overlapInOrder(T)(inout(T[]) a,
         b.ptr < a.ptr + a.length) // if b-start lies before b-end
     {
         import std.algorithm: min, max;
-        const low = max(a.ptr, b.ptr) - a.ptr;
+        immutable low = max(a.ptr, b.ptr) - a.ptr;
         const n = min(b.length,
                       (b.ptr - a.ptr + 1)); // overlap length
         return a[low..low + n];
@@ -412,7 +412,7 @@ auto isAnagramOf(R1, R2)(R1 r1, R2 r2) // TODO nothrow
         areEquable!(ElementType!R1,
                     ElementType!R2))
 {
-    const sortLimit = 0;
+    immutable sortLimit = 0;
     import std.range : empty;
     if (r1.empty || r2.empty) { return false; }
     if (r1.length + r2.length < sortLimit)
@@ -523,7 +523,7 @@ alias isPermutationOf = isAnagramOf; // TODO Only define isAnagramOf for strings
     auto y = sort(x);
     alias Y = typeof(y);
 
-    const z = `åäö`;
+    immutable z = `åäö`;
 
     assert(y.isAnagramOf(z));
     assert(z.isAnagramOf(y));
@@ -597,7 +597,7 @@ unittest
     import std.datetime: Clock, SysTime, Duration;
     import std.algorithm.iteration: map;
     SysTime[] times;
-    const n = 4;
+    immutable n = 4;
     foreach (i; 0..n)
         times ~= Clock.currTime;
     version(print) dln(times);
@@ -666,8 +666,8 @@ pure unittest
     /* import backtrace.backtrace; */
     /* import std.stdio: stderr; */
     /* backtrace.backtrace.install(stderr); */
-    const x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    const xPacked = x.packBitParallelRunLengths;
+    immutable x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    immutable xPacked = x.packBitParallelRunLengths;
     version(print) dln(xPacked);
 }
 
@@ -779,7 +779,7 @@ unittest
     import std.datetime: Clock, SysTime, Duration;
     import std.algorithm.iteration: map;
     import std.array: array;
-    const n = 3;
+    immutable n = 3;
     auto times = n.apply!(Clock.currTime).array;
     version(print) dln(times);
     auto spans = times.forwardDifference;
@@ -879,7 +879,7 @@ auto ref stableSort(T)(auto ref T a) pure
 unittest
 {
     import random_ex: randInPlace;
-    const n = 2^^16;
+    immutable n = 2^^16;
     auto a = new int[n];
     a.randInPlace;
     auto b = a.dup;
@@ -2052,10 +2052,10 @@ bool countsAtMost(R)(R r, size_t maxCount) @("complexity", "O(maxCount)")
         if (isInputRange!R)
     {
         import std.algorithm : count;
-        const n = x.count;
+        immutable n = x.count;
 
         // below
-        foreach (const i; 0 .. n)
+        foreach (immutable i; 0 .. n)
         {
             assert(x.countsAtLeast(i));
             assert(!x.countsExactly(i));
@@ -2068,7 +2068,7 @@ bool countsAtMost(R)(R r, size_t maxCount) @("complexity", "O(maxCount)")
         assert(x.countsAtMost(n));
 
         // above
-        foreach (const i; n + 1 .. n + 10)
+        foreach (immutable i; n + 1 .. n + 10)
         {
             assert(!x.countsAtLeast(i));
             assert(!x.countsExactly(i));
@@ -2170,7 +2170,7 @@ Container collect(Container, Range) (Range r)
 
     alias E = int;
     alias V = E[];
-    const n = 1000;
+    immutable n = 1000;
 
     auto x = 0.iota(n).collect!V;
 
@@ -2187,7 +2187,7 @@ Container collect(Container, Range) (Range r)
     alias E = int;
     alias A = Array!E;
 
-    const n = 100;
+    immutable n = 100;
     static assert(isOutputRange!(A, E));
 
     assert((0.iota(n).collect!A)[].equal(0.iota(n)));

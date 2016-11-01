@@ -3,7 +3,7 @@ void main()
     import std.container.array : CArray = Array;
     import std.array : Appender;
     import std.stdio : writeln;
-    import std.datetime : StopWatch;
+    import std.datetime : MonoTime;
     import std.meta : AliasSeq;
     import std.algorithm.comparison : equal;
     import std.range : iota;
@@ -11,7 +11,7 @@ void main()
     import std.stdio : writeln;
 
     alias E = uint;
-    const n = 5_000_000;
+    immutable n = 5_000_000;
 
     foreach (A; AliasSeq!(Array!E,
                           E[],
@@ -20,17 +20,15 @@ void main()
     {
         A a;
 
-        StopWatch watch;
-
-        watch.start;
+        immutable before = MonoTime.currTime();
 
         foreach (uint i; 0 .. n)
         {
             a ~= i;
         }
 
-        watch.stop;
+        immutable after = MonoTime.currTime();
 
-        writeln("Added ", n, " integer nodes into ", A.stringof, " in ", watch.peek.msecs, " ms.");
+        writeln("Added ", n, " integer nodes into ", A.stringof, " in ", after - before);
     }
 }

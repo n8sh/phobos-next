@@ -300,9 +300,9 @@ struct OneLeafMax7
     {
         import std.string : format;
         string s;
-        foreach (const i, const ix; key)
+        foreach (immutable i, immutable ix; key)
         {
-            const first = i == 0; // first iteration
+            immutable first = i == 0; // first iteration
             if (!first) { s ~= '_'; }
             s ~= format("%.2X", ix); // in hexadecimal
         }
@@ -543,8 +543,8 @@ static private struct SparseLeaf1(Value)
         {
             _capacity = capacity;
             _length = ixs.length;
-            foreach (const i, const ix; ixs) { ixsSlots[i] = ix; }
-            foreach (const i, const value; values) { valuesSlots[i] = value; }
+            foreach (immutable i, immutable ix; ixs) { ixsSlots[i] = ix; }
+            foreach (immutable i, immutable value; values) { valuesSlots[i] = value; }
             static if (shouldAddGCRange!Value)
             {
                 GC.addRange(valuesSlots.ptr, _capacity * Value.sizeof);
@@ -564,7 +564,7 @@ static private struct SparseLeaf1(Value)
         {
             _capacity = capacity;
             _length = ixs.length;
-            foreach (const i, const ix; ixs) { ixsSlots[i] = ix; }
+            foreach (immutable i, immutable ix; ixs) { ixsSlots[i] = ix; }
         }
     }
 
@@ -609,8 +609,8 @@ static private struct SparseLeaf1(Value)
                                        out size_t index) @trusted
     {
         // get index
-        static if (hasValue) { const ix = elt.ix; }
-        else                 { const ix = elt; }
+        static if (hasValue) { immutable ix = elt.ix; }
+        else                 { immutable ix = elt; }
 
         // handle existing element
         if (ixs.assumeSorted.containsStoreIndex(ix, index))
@@ -646,10 +646,10 @@ static private struct SparseLeaf1(Value)
     {
         assert(index <= _length);
 
-        foreach (const i; 0 .. _length - index) // TODO functionize this loop or reuse memmove:
+        foreach (immutable i; 0 .. _length - index) // TODO functionize this loop or reuse memmove:
         {
-            const iD = _length - i;
-            const iS = iD - 1;
+            immutable iD = _length - i;
+            immutable iS = iD - 1;
             ixsSlots[iD] = ixsSlots[iS];
         }
 
@@ -683,7 +683,7 @@ static private struct SparseLeaf1(Value)
         pragma(inline) void setValue(UIx ix, in Value value) @trusted
         {
             size_t index;
-            const hit = ixs.assumeSorted.containsStoreIndex(ix, index);
+            immutable hit = ixs.assumeSorted.containsStoreIndex(ix, index);
             assert(hit);        // assert hit for now
             assert(index < length);
             values[index] = value;
@@ -782,7 +782,7 @@ static private struct DenseLeaf1(Value)
         {
             assert(ixs.length <= capacity);
             assert(ixs.length == values.length);
-            foreach (const i, const ix; ixs)
+            foreach (immutable i, immutable ix; ixs)
             {
                 _ixBits[ix] = true;
                 _values[ix] = values[i];
@@ -809,7 +809,7 @@ static private struct DenseLeaf1(Value)
         this(Ix[] ixs)
         {
             assert(ixs.length <= capacity);
-            foreach (const ix; ixs)
+            foreach (immutable ix; ixs)
             {
                 _ixBits[ix] = true;
             }
@@ -861,8 +861,8 @@ static private struct DenseLeaf1(Value)
     {
         ModStatus modStatus;
 
-        static if (hasValue) { const ix = elt.ix; }
-        else                 { const ix = elt; }
+        static if (hasValue) { immutable ix = elt.ix; }
+        else                 { immutable ix = elt; }
 
         if (contains(ix))
         {
@@ -902,7 +902,7 @@ static private struct DenseLeaf1(Value)
 
     bool tryFindNextSetBitIx(UIx ix, out UIx nextIx) const
     {
-        const ix1 = cast(uint)(ix + 1);
+        immutable ix1 = cast(uint)(ix + 1);
         return ix1 != radix && tryFindSetBitIx(UIx(ix1), nextIx);
     }
 
@@ -954,7 +954,7 @@ pragma(inline) UIx firstIx(Value)(Leaf1!Value curr)
     case ix_DenseLeaf1Ptr:
         auto curr_ = curr.as!(DenseLeaf1!Value*);
         UIx nextIx;
-        const bool hit = curr_.tryFindSetBitIx(0, nextIx);
+        immutable bool hit = curr_.tryFindSetBitIx(0, nextIx);
         assert(hit);
         return nextIx;
     }
@@ -969,7 +969,7 @@ pragma(inline) bool tryNextIx(Value)(Leaf1!Value curr, const UIx ix, out Ix next
     {
     case undefined: assert(false);
     case ix_HeptLeaf1:
-        const curr_ = curr.as!(HeptLeaf1);
+        immutable curr_ = curr.as!(HeptLeaf1);
         if (ix + 1 == curr_.keys.length)
         {
             return false;
@@ -980,7 +980,7 @@ pragma(inline) bool tryNextIx(Value)(Leaf1!Value curr, const UIx ix, out Ix next
             return true;
         }
     case ix_SparseLeaf1Ptr:
-        const curr_ = curr.as!(SparseLeaf1!Value*);
+        immutable curr_ = curr.as!(SparseLeaf1!Value*);
         if (ix + 1 == curr_.length)
         {
             return false;
@@ -1155,7 +1155,7 @@ template RawRadixTree(Value = void)
             copy.subIxSlots[0 .. subCount] = this.subIxSlots[0 .. subCount]; // copy initialized
             debug copy.subIxSlots[subCount .. $] = Ix.init;                  // zero rest in debug
 
-            foreach (const i; 0 .. subCount)
+            foreach (immutable i; 0 .. subCount)
             {
                 copy.subNodeSlots[i] = dupAt(subNodeSlots[i]);
             }
@@ -1207,10 +1207,10 @@ template RawRadixTree(Value = void)
         pragma(inline) private void insertAt(size_t index, IxSub sub)
         {
             assert(index <= subCount);
-            foreach (const i; 0 .. subCount - index) // TODO functionize this loop or reuse memmove:
+            foreach (immutable i; 0 .. subCount - index) // TODO functionize this loop or reuse memmove:
             {
-                const iD = subCount - i;
-                const iS = iD - 1;
+                immutable iD = subCount - i;
+                immutable iS = iD - 1;
                 subIxSlots[iD] = subIxSlots[iS];
                 subNodeSlots[iD] = subNodeSlots[iS];
             }
@@ -1222,7 +1222,7 @@ template RawRadixTree(Value = void)
         inout(Node) subNodeAt(UIx ix) inout
         {
             import searching_ex : binarySearch; // need this instead of `SortedRange.contains` because we need the index
-            const hitIndex = subIxSlots[0 .. subCount].binarySearch(ix); // find index where insertion should be made
+            immutable hitIndex = subIxSlots[0 .. subCount].binarySearch(ix); // find index where insertion should be made
             return (hitIndex != typeof(hitIndex).max) ? subNodeSlots[hitIndex] : Node.init;
         }
 
@@ -1257,7 +1257,7 @@ template RawRadixTree(Value = void)
         void calculate(ref Stats stats) const
         {
             size_t count = 0; // number of non-zero sub-nodes
-            foreach (const sub; subNodes)
+            foreach (immutable sub; subNodes)
             {
                 ++count;
                 sub.calculate!(Value)(stats);
@@ -1342,10 +1342,10 @@ template RawRadixTree(Value = void)
             move(rhs.leaf1, this.leaf1);
             debug rhs.leaf1 = Leaf1!Value.init; // make reference unique, to be on the safe side
 
-            foreach (const i; 0 .. rhs.subCount) // each sub node. TODO use iota!(Mod!N)
+            foreach (immutable i; 0 .. rhs.subCount) // each sub node. TODO use iota!(Mod!N)
             {
-                const iN = (cast(ubyte)i).mod!(SparseBranch.maxCapacity);
-                const subIx = UIx(rhs.subIxSlots[iN]);
+                immutable iN = (cast(ubyte)i).mod!(SparseBranch.maxCapacity);
+                immutable subIx = UIx(rhs.subIxSlots[iN]);
 
                 this.subNodes[subIx] = rhs.subNodeSlots[iN];
                 debug rhs.subNodeSlots[iN] = null; // make reference unique, to be on the safe side
@@ -1357,7 +1357,7 @@ template RawRadixTree(Value = void)
             auto copy = construct!(typeof(this)*);
             copy.leaf1 = dupAt(leaf1);
             copy.prefix = prefix;
-            foreach (const i, subNode; subNodes)
+            foreach (immutable i, subNode; subNodes)
             {
                 copy.subNodes.ptr[i] = dupAt(subNode); // TODO remove .ptr access when I inout problem is solved
             }
@@ -1368,7 +1368,7 @@ template RawRadixTree(Value = void)
         SubCount subCount() const
         {
             typeof(return) count = 0; // number of non-zero sub-nodes
-            foreach (const subNode; subNodes) // TODO why can't we use std.algorithm.count here?
+            foreach (immutable subNode; subNodes) // TODO why can't we use std.algorithm.count here?
             {
                 if (subNode) { ++count; }
             }
@@ -1379,8 +1379,8 @@ template RawRadixTree(Value = void)
         pragma(inline) bool findSubNodeAtIx(size_t currIx, out UIx nextIx) inout @nogc
         {
             import std.algorithm : countUntil;
-            const cnt = subNodes[currIx .. $].countUntil!(subNode => cast(bool)subNode);
-            const bool hit = cnt >= 0;
+            immutable cnt = subNodes[currIx .. $].countUntil!(subNode => cast(bool)subNode);
+            immutable bool hit = cnt >= 0;
             if (hit)
             {
                 nextIx = Ix(currIx + cnt);
@@ -1392,7 +1392,7 @@ template RawRadixTree(Value = void)
         void calculate(ref Stats stats) const
         {
             size_t count = 0; // number of non-zero sub-nodes
-            foreach (const subNode; subNodes)
+            foreach (immutable subNode; subNodes)
             {
                 if (subNode)
                 {
@@ -1608,7 +1608,7 @@ template RawRadixTree(Value = void)
             }
             else                // both non-empty
             {
-                const leaf1Front = leaf1Range.front;
+                immutable leaf1Front = leaf1Range.front;
                 if (leaf1Front <= subFrontIx) // `a` before `ab`
                 {
                     _cachedFrontIx = leaf1Front;
@@ -1719,7 +1719,7 @@ template RawRadixTree(Value = void)
                 }
                 else
                 {
-                    const leaf_ = leaf1.as!(HeptLeaf1);
+                    immutable leaf_ = leaf1.as!(HeptLeaf1);
                     if (_ix + 1 == leaf_.keys.length) { leaf1 = null; } else { ++_ix; }
                     break;
                 }
@@ -1768,7 +1768,7 @@ template RawRadixTree(Value = void)
             case ix_DenseLeaf1Ptr:
                 auto leaf_ = leaf1.as!(DenseLeaf1!Value*);
                 UIx nextIx;
-                const bool hit = leaf_.tryFindSetBitIx(UIx(0), nextIx);
+                immutable bool hit = leaf_.tryFindSetBitIx(UIx(0), nextIx);
                 assert(hit);
                 return nextIx;
             }
@@ -1809,7 +1809,7 @@ template RawRadixTree(Value = void)
             case ix_DenseLeaf1Ptr:
                 const leaf_ = leaf.as!(DenseLeaf1!Value*);
                 UIx nextIx;
-                const bool hit = leaf_.tryFindSetBitIx(UIx(0), nextIx);
+                immutable bool hit = leaf_.tryFindSetBitIx(UIx(0), nextIx);
                 assert(hit);
                 return nextIx;
             default: assert(false, "Unsupported Node type");
@@ -1926,7 +1926,7 @@ template RawRadixTree(Value = void)
                 break;
             case ix_DenseLeaf1Ptr:
                 auto leaf_ = leaf.as!(DenseLeaf1!Value*);
-                const bool emptied = !leaf_.tryFindNextSetBitIx(ix, ix);
+                immutable bool emptied = !leaf_.tryFindNextSetBitIx(ix, ix);
                 if (emptied) { makeEmpty; }
                 break;
             default: assert(false, "Unsupported Node type");
@@ -1987,7 +1987,7 @@ template RawRadixTree(Value = void)
         }
         size_t get1DepthAt(size_t depth) const @trusted
         {
-            foreach (const i, ref branchRange; _bRanges[depth .. $])
+            foreach (immutable i, ref branchRange; _bRanges[depth .. $])
             {
                 if (branchRange.atLeaf1) { return depth + i; }
             }
@@ -2431,7 +2431,7 @@ template RawRadixTree(Value = void)
         }
         else if (curr.subCount + capacityIncrement <= curr.maxCapacity) // if we can expand to curr
         {
-            const requiredCapacity = curr.subCapacity + capacityIncrement;
+            immutable requiredCapacity = curr.subCapacity + capacityIncrement;
             auto next_ = constructVariableLength!(typeof(*curr))(requiredCapacity, curr);
             assert(next_.subCapacity >= requiredCapacity);
             next = next_;
@@ -2457,7 +2457,7 @@ template RawRadixTree(Value = void)
         }
         else if (curr.length + capacityIncrement <= curr.maxCapacity) // if we can expand to curr
         {
-            const requiredCapacity = curr.capacity + capacityIncrement;
+            immutable requiredCapacity = curr.capacity + capacityIncrement;
             static if (isValue)
             {
                 auto next_ = constructVariableLength!(typeof(*curr))(requiredCapacity, curr.ixs, curr.values);
@@ -2740,7 +2740,7 @@ template RawRadixTree(Value = void)
             auto curr_ = curr.as!(SparseBranch*);
             if (keyPrefix.startsWith(curr_.prefix[]))
             {
-                const currPrefixLength = curr_.prefix.length;
+                immutable currPrefixLength = curr_.prefix.length;
                 if (keyPrefix.length == currPrefixLength || // if no more prefix
                     (curr_.leaf1 && // both leaf1
                      curr_.subCount)) // and sub-nodes
@@ -2765,7 +2765,7 @@ template RawRadixTree(Value = void)
             auto curr_ = curr.as!(DenseBranch*);
             if (keyPrefix.startsWith(curr_.prefix[]))
             {
-                const currPrefixLength = curr_.prefix.length;
+                immutable currPrefixLength = curr_.prefix.length;
                 if (keyPrefix.length == currPrefixLength || // if no more prefix
                     (curr_.leaf1 && // both leaf1
                      curr_.subCount)) // and sub-nodes
@@ -2813,7 +2813,7 @@ template RawRadixTree(Value = void)
             // dln(curr_.prefix[]);
             if (key.startsWith(curr_.prefix[]))
             {
-                const currPrefixLength = curr_.prefix.length;
+                immutable currPrefixLength = curr_.prefix.length;
                 if (key.length == currPrefixLength || // if no more prefix
                     (curr_.leaf1 && // both leaf1
                      curr_.subCount)) // and sub-nodes
@@ -2842,7 +2842,7 @@ template RawRadixTree(Value = void)
             auto curr_ = curr.as!(DenseBranch*);
             if (key.startsWith(curr_.prefix[]))
             {
-                const currPrefixLength = curr_.prefix.length;
+                immutable currPrefixLength = curr_.prefix.length;
                 if (key.length == currPrefixLength || // if no more prefix
                     (curr_.leaf1 && // both leaf1
                      curr_.subCount)) // and sub-nodes
@@ -2977,7 +2977,7 @@ template RawRadixTree(Value = void)
         // debug if (willFail) { dln("WILL FAIL: elt:", elt); }
         auto key = eltKey!Value(elt);
         assert(key.length);
-        const prefixLength = min(key.length - 1, // all but last Ix of key
+        immutable prefixLength = min(key.length - 1, // all but last Ix of key
                                  DefaultBranch.prefixCapacity); // as much as possible of key in branch prefix
         auto prefix = key[0 .. prefixLength];
         typeof(return) next = insertAtBelowPrefix(Branch(constructVariableLength!(DefaultBranch)(1, prefix)),
@@ -3071,7 +3071,7 @@ template RawRadixTree(Value = void)
             else  // if (currPrefix.length >= 1) // non-empty current prefix
             {
                 // NOTE: prefix:"ab", key:"cd"
-                const currSubIx = UIx(currPrefix[0]); // subIx = 'a'
+                immutable currSubIx = UIx(currPrefix[0]); // subIx = 'a'
                 if (currPrefix.length == 1 && getSubCount(curr) == 0) // if `curr`-prefix become empty and only leaf pointer
                 {
                     // debug if (willFail) { dln("WILL FAIL"); }
@@ -3102,7 +3102,7 @@ template RawRadixTree(Value = void)
             {
                 // debug if (willFail) { dln("WILL FAIL"); }
                 // NOTE: prefix and key share beginning: prefix:"ab11", key:"ab22"
-                const currSubIx = UIx(currPrefix[matchedKeyPrefix.length]); // need index first before we modify curr.prefix
+                immutable currSubIx = UIx(currPrefix[matchedKeyPrefix.length]); // need index first before we modify curr.prefix
                 popFrontNPrefix(curr, matchedKeyPrefix.length + 1);
                 auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix, IxSub(currSubIx, Node(curr)));
                 return insertAtBelowPrefix(Branch(next), eltKeyDropExactly!Value(elt, matchedKeyPrefix.length), elementRef);
@@ -3116,8 +3116,8 @@ template RawRadixTree(Value = void)
             {
                 // NOTE: prefix is an extension of key: prefix:"abcd", key:"ab"
                 assert(matchedKeyPrefix.length);
-                const nextPrefixLength = matchedKeyPrefix.length - 1;
-                const currSubIx = UIx(currPrefix[nextPrefixLength]); // need index first
+                immutable nextPrefixLength = matchedKeyPrefix.length - 1;
+                immutable currSubIx = UIx(currPrefix[nextPrefixLength]); // need index first
                 popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
                 auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
                                                                     IxSub(currSubIx, Node(curr)));
@@ -3128,7 +3128,7 @@ template RawRadixTree(Value = void)
             {
                 // NOTE: prefix equals key: prefix:"abcd", key:"abcd"
                 assert(matchedKeyPrefix.length);
-                const currSubIx = UIx(currPrefix[matchedKeyPrefix.length - 1]); // need index first
+                immutable currSubIx = UIx(currPrefix[matchedKeyPrefix.length - 1]); // need index first
                 popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
                 auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
                                                                     IxSub(currSubIx, Node(curr)));
@@ -3155,7 +3155,7 @@ template RawRadixTree(Value = void)
         pragma(inline) Branch insertAtSubNode(Branch curr, UKey key, Value value, out ElementRef elementRef) @safe pure nothrow @nogc
         {
             // debug if (willFail) { dln("WILL FAIL"); }
-            const subIx = UIx(key[0]);
+            immutable subIx = UIx(key[0]);
             return setSub(curr, subIx,
                           insertAt(getSub(curr, subIx), // recurse
                                    Elt!Value(key[1 .. $], value),
@@ -3167,7 +3167,7 @@ template RawRadixTree(Value = void)
         pragma(inline) Branch insertAtSubNode(Branch curr, UKey key, out ElementRef elementRef) @safe pure nothrow @nogc
         {
             // debug if (willFail) { dln("WILL FAIL"); }
-            const subIx = UIx(key[0]);
+            immutable subIx = UIx(key[0]);
             return setSub(curr, subIx,
                           insertAt(getSub(curr, subIx), // recurse
                                    key[1 .. $],
@@ -3253,9 +3253,9 @@ template RawRadixTree(Value = void)
                 return curr;
             }
         case ix_DenseLeaf1Ptr:
-            const modStatus = curr.as!(DenseLeaf1!Value*).insert(elt);
-            static if (isValue) { const ix = elt.ix; }
-            else                 { const ix = elt; }
+            immutable modStatus = curr.as!(DenseLeaf1!Value*).insert(elt);
+            static if (isValue) { immutable ix = elt.ix; }
+            else                 { immutable ix = elt; }
             elementRef = ElementRef(Node(curr), ix, modStatus);
             break;
         default:
@@ -3326,7 +3326,7 @@ template RawRadixTree(Value = void)
         else
         {
             assert(key.length >= 2);
-            const prefixLength = key.length - 2; // >= 0
+            immutable prefixLength = key.length - 2; // >= 0
             const nextPrefix = key[0 .. prefixLength];
             auto next = constructVariableLength!(DefaultBranch)(1, nextPrefix, curr); // one sub-node and one leaf
             return Node(insertAtBelowPrefix(Branch(next), eltKeyDropExactly!Value(elt, prefixLength), elementRef));
@@ -3578,7 +3578,7 @@ template RawRadixTree(Value = void)
 
         void release(SparseBranch* curr)
         {
-            foreach (const sub; curr.subNodes[0 .. curr.subCount])
+            foreach (immutable sub; curr.subNodes[0 .. curr.subCount])
             {
                 release(sub); // recurse branch
             }
@@ -3591,7 +3591,7 @@ template RawRadixTree(Value = void)
 
         void release(DenseBranch* curr)
         {
-            foreach (const sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
+            foreach (immutable sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
             {
                 release(sub); // recurse branch
             }
@@ -3660,7 +3660,7 @@ template RawRadixTree(Value = void)
 
         if (!curr) { return; }
 
-        foreach (const i; 0 .. depth) { write('-'); } // prefix
+        foreach (immutable i; 0 .. depth) { write('-'); } // prefix
         if (subIx != uint.max)
         {
             import std.string : format;
@@ -3692,7 +3692,7 @@ template RawRadixTree(Value = void)
             write(typeof(*curr_).stringof, " #", curr_.length, "/", curr_.capacity, " @", curr_);
             write(": ");
             bool other = false;
-            foreach (const i, const ix; curr_.ixs)
+            foreach (immutable i, immutable ix; curr_.ixs)
             {
                 string s;
                 if (other)
@@ -3727,7 +3727,7 @@ template RawRadixTree(Value = void)
             }
             else
             {
-                foreach (const keyBit; curr_._ixBits[])
+                foreach (immutable keyBit; curr_._ixBits[])
                 {
                     string s;
                     if (keyBit)
@@ -3763,7 +3763,7 @@ template RawRadixTree(Value = void)
             {
                 printAt(Node(curr_.leaf1), depth + 1);
             }
-            foreach (const i, const subNode; curr_.subNodes)
+            foreach (immutable i, immutable subNode; curr_.subNodes)
             {
                 printAt(subNode, depth + 1, cast(uint)curr_.subIxs[i]);
             }
@@ -3777,7 +3777,7 @@ template RawRadixTree(Value = void)
             {
                 printAt(Node(curr_.leaf1), depth + 1);
             }
-            foreach (const i, const subNode; curr_.subNodes)
+            foreach (immutable i, immutable subNode; curr_.subNodes)
             {
                 printAt(subNode, depth + 1, cast(uint)i);
             }
@@ -4051,7 +4051,7 @@ static private void calculate(Value)(RawRadixTree!(Value).NodeType curr,
     case ix_DenseLeaf1Ptr:
         const curr_ = curr.as!(DenseLeaf1!Value*);
         ++stats.heapNodeCount;
-        const count = curr_._ixBits.countOnes; // number of non-zero sub-nodes
+        immutable count = curr_._ixBits.countOnes; // number of non-zero sub-nodes
         assert(count <= curr_.capacity);
         ++stats.popHist_DenseLeaf1[count - 1]; // TODO type-safe indexing
         break;
@@ -4088,7 +4088,7 @@ static private void calculate(Value)(Leaf1!Value curr,
     case ix_DenseLeaf1Ptr:
         const curr_ = curr.as!(DenseLeaf1!Value*);
         ++stats.heapNodeCount;
-        const count = curr_._ixBits.countOnes; // number of non-zero curr-nodes
+        immutable count = curr_._ixBits.countOnes; // number of non-zero curr-nodes
         assert(count <= curr_.capacity);
         assert(count);
         ++stats.popHist_DenseLeaf1[count - 1]; // TODO type-safe indexing
@@ -4102,7 +4102,7 @@ static private void calculate(Value)(Leaf1!Value curr,
 UKey toFixedRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @trusted
 {
     enum radix = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
-    const key_ = typedKey.bijectToUnsigned;
+    immutable key_ = typedKey.bijectToUnsigned;
 
     static assert(key_.sizeof == TypedKey.sizeof);
 
@@ -4111,9 +4111,9 @@ UKey toFixedRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @
     static assert(chunkCount*span == nbits, "Bitsize of TypedKey must be a multiple of span:" ~ span.stringof);
 
     // big-endian storage
-    foreach (const i; 0 .. chunkCount) // for each chunk index
+    foreach (immutable i; 0 .. chunkCount) // for each chunk index
     {
-        const bitShift = (chunkCount - 1 - i)*span; // most significant bit chunk first (MSBCF)
+        immutable bitShift = (chunkCount - 1 - i)*span; // most significant bit chunk first (MSBCF)
         preallocatedFixedUKey[i] = (key_ >> bitShift) & (radix - 1); // part of value which is also an index
     }
 
@@ -4140,21 +4140,21 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, ref UncopyableArray!Ix rawUKey) @t
         static if (is(EType == char)) // TODO extend to support isTrieableKeyType!TypedKey
         {
             import std.string : representation;
-            const ubyte[] ukey = typedKey.representation; // lexical byte-order
+            immutable ubyte[] ukey = typedKey.representation; // lexical byte-order
             return cast(Ix[])ukey;                        // TODO needed?
         }
         else static if (is(EType == wchar))
         {
-            const ushort[] rKey = typedKey.representation; // lexical byte-order.
+            immutable ushort[] rKey = typedKey.representation; // lexical byte-order.
             // TODO MSByte-order of elements in rKey for ordered access and good branching performance
-            const ubyte[] ukey = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
+            immutable ubyte[] ukey = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
             return ukey;
         }
         else static if (is(EType == dchar))
         {
-            const uint[] rKey = typedKey.representation; // lexical byte-order
+            immutable uint[] rKey = typedKey.representation; // lexical byte-order
             // TODO MSByte-order of elements in rKey for ordered access and good branching performance
-            const ubyte[] ukey = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
+            immutable ubyte[] ukey = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
             return ukey;
         }
         else static if (isFixedTrieableKeyType!E)
@@ -4177,15 +4177,15 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, ref UncopyableArray!Ix rawUKey) @t
             alias Ix = Mod!radix;
 
             enum members = __traits(allMembers, TypedKey);
-            foreach (const i, const memberName; members) // for each member name in `struct TypedKey`
+            foreach (immutable i, immutable memberName; members) // for each member name in `struct TypedKey`
             {
-                const member = __traits(getMember, typedKey, memberName); // member
+                immutable member = __traits(getMember, typedKey, memberName); // member
                 alias MemberType = typeof(member);
 
                 static if (i + 1 == members.length) // last member is allowed to be an array of fixed length
                 {
                     UncopyableArray!Ix memberRawUKey;
-                    const memberRawKey = member.toRawKey(memberRawUKey); // TODO use DIP-1000
+                    immutable memberRawKey = member.toRawKey(memberRawUKey); // TODO use DIP-1000
                     rawUKey ~= memberRawUKey;
                 }
                 else                // non-last member must be fixed
@@ -4193,11 +4193,11 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, ref UncopyableArray!Ix rawUKey) @t
                     static assert(isFixedTrieableKeyType!MemberType,
                                   "Non-last " ~ i.stringof ~ ":th member of type " ~ MemberType.stringof ~ " must be of fixed length");
                     Ix[MemberType.sizeof] memberRawUKey;
-                    const memberRawKey = member.toFixedRawKey(memberRawUKey); // TODO use DIP-1000
+                    immutable memberRawKey = member.toFixedRawKey(memberRawUKey); // TODO use DIP-1000
                     rawUKey ~= memberRawUKey[];
                 }
             }
-            return rawUKey[]; // TODO return const slice
+            return rawUKey[]; // TODO return immutable slice
         }
     }
     else
@@ -4228,10 +4228,10 @@ inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey) @trusted
         RawKey bKey = 0;
 
         // big-endian storage
-        foreach (const i; 0 .. chunkCount) // for each chunk index
+        foreach (immutable i; 0 .. chunkCount) // for each chunk index
         {
-            const RawKey uix = cast(RawKey)ukey[i];
-            const bitShift = (chunkCount - 1 - i)*span; // most significant bit chunk first (MSBCF)
+            immutable RawKey uix = cast(RawKey)ukey[i];
+            immutable bitShift = (chunkCount - 1 - i)*span; // most significant bit chunk first (MSBCF)
             bKey |= uix << bitShift; // part of value which is also an index
         }
 
@@ -4265,7 +4265,7 @@ inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey) @trusted
             TypedKey typedKey;
             size_t ix = 0;
             enum members = __traits(allMembers, TypedKey);
-            foreach (const i, const memberName; members) // for each member name in `struct TypedKey`
+            foreach (immutable i, immutable memberName; members) // for each member name in `struct TypedKey`
             {
                 alias MemberType = typeof(__traits(getMember, typedKey, memberName));
 
@@ -4326,7 +4326,7 @@ struct RadixTree(Key, Value)
 
             _rawTree.insert(rawKey, value, elementRef);
 
-            const bool added = elementRef.node && elementRef.modStatus == ModStatus.added;
+            immutable bool added = elementRef.node && elementRef.modStatus == ModStatus.added;
             _rcStore.length += added;
             /* TODO return reference (via `auto ref` return typed) to stored
                value at `elementRef` instead, unless packed bitset storage is used
@@ -4367,7 +4367,7 @@ struct RadixTree(Key, Value)
                     elementRef.node.as!(DenseLeaf1!Value*).setValue(UIx(rawKey[$ - 1]), value);
                     break;
                 }
-                const bool hit = elementRef.modStatus == ModStatus.added;
+                immutable bool hit = elementRef.modStatus == ModStatus.added;
                 _rcStore.length += hit;
                 return hit;
             }
@@ -4408,7 +4408,7 @@ struct RadixTree(Key, Value)
 
             _rawTree.insert(rawKey, elementRef);
 
-            const bool hit = elementRef.node && elementRef.modStatus == ModStatus.added;
+            immutable bool hit = elementRef.node && elementRef.modStatus == ModStatus.added;
             _rcStore.length += hit;
             return hit;
         }
@@ -4820,23 +4820,23 @@ version(unittest) auto testScalar(uint span, Keys...)()
 
         static if (isIntegral!Key)
         {
-            const low = max(Key.min, -100_000);
-            const high = min(Key.max, 100_000);
+            immutable low = max(Key.min, -100_000);
+            immutable high = min(Key.max, 100_000);
         }
         else static if (isFloatingPoint!Key)
         {
-            const low = -100_000;
-            const high = 100_000;
+            immutable low = -100_000;
+            immutable high = 100_000;
         }
         else static if (is(Key == bool))
         {
-            const low = false;
-            const high = true;
+            immutable low = false;
+            immutable high = true;
         }
 
-        foreach (const uk; low.iota(high + 1))
+        foreach (immutable uk; low.iota(high + 1))
         {
-            const Key key = cast(Key)uk;
+            immutable Key key = cast(Key)uk;
             assert(set.insert(key));  // insert new value returns `true` (previously not in set)
             assert(!set.insert(key)); // reinsert same value returns `false` (already in set)
         }
@@ -4868,21 +4868,21 @@ version(unittest) auto testScalar(uint span, Keys...)()
 
     assert(!set.getRoot);
 
-    foreach (const i; 0 .. 7)
+    foreach (immutable i; 0 .. 7)
     {
         assert(!set.contains(i));
         assert(set.insert(i));
         assert(set.getRoot.peek!HeptLeaf1);
     }
 
-    foreach (const i; 7 .. 48)
+    foreach (immutable i; 7 .. 48)
     {
         assert(!set.contains(i));
         assert(set.insert(i));
         assert(set.getRoot.peek!(SparseLeaf1!void*));
     }
 
-    foreach (const i; 48 .. 256)
+    foreach (immutable i; 48 .. 256)
     {
         assert(!set.contains(i));
         assert(set.insert(i));
@@ -4910,7 +4910,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
     size_t totalBytesUsed = 0;
 
     // Node-usage
-    foreach (const RT.NodeType.Ix ix, pop; stats.popByNodeType) // TODO use stats.byPair when added to typecons_ex.d
+    foreach (immutable RT.NodeType.Ix ix, pop; stats.popByNodeType) // TODO use stats.byPair when added to typecons_ex.d
     {
         size_t bytesUsed = 0;
         final switch (ix) with (RT.NodeType.Ix)
@@ -4966,7 +4966,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
 
     static Value keyToValue(Key key) @safe pure nothrow @nogc { return cast(Value)((key + 1)*radix); }
 
-    foreach (const i; 0 .. SparseLeaf1!Value.maxCapacity)
+    foreach (immutable i; 0 .. SparseLeaf1!Value.maxCapacity)
     {
         assert(!map.contains(i));
         assert(map.length == i);
@@ -4978,7 +4978,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
         assert(map.length == i + 1);
     }
 
-    foreach (const i; SparseLeaf1!Value.maxCapacity .. radix)
+    foreach (immutable i; SparseLeaf1!Value.maxCapacity .. radix)
     {
         assert(!map.contains(i));
         assert(map.length == i);
@@ -4994,7 +4994,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
 
     // test range
     size_t i = 0;
-    foreach (const elt; map[])
+    foreach (immutable elt; map[])
     {
         assert(map.rangeRefCount == 1);
         {
@@ -5039,10 +5039,10 @@ auto testString(Keys...)(size_t count, uint maxLength)
         auto set = radixTreeSet!(Key);
         assert(set.empty);
 
-        const sortedKeys = randomUniqueSortedStrings(count, maxLength);
+        immutable sortedKeys = randomUniqueSortedStrings(count, maxLength);
 
         auto sw1 = StopWatch(AutoStart.yes);
-        foreach (const key; sortedKeys)
+        foreach (immutable key; sortedKeys)
         {
             testContainsAndInsert(set, key);
         }
@@ -5103,7 +5103,7 @@ unittest
     auto set = radixTreeSet!(ulong);
     enum N = HeptLeaf1.capacity;
 
-    foreach (const i; 0 .. N)
+    foreach (immutable i; 0 .. N)
     {
         assert(!set.contains(i));
 
@@ -5114,7 +5114,7 @@ unittest
         assert(set.contains(i));
     }
 
-    foreach (const i; N .. 256)
+    foreach (immutable i; N .. 256)
     {
         assert(!set.contains(i));
 
@@ -5125,7 +5125,7 @@ unittest
         assert(set.contains(i));
     }
 
-    foreach (const i; 256 .. 256 + N)
+    foreach (immutable i; 256 .. 256 + N)
     {
         assert(!set.contains(i));
 
@@ -5136,7 +5136,7 @@ unittest
         assert(set.contains(i));
     }
 
-    foreach (const i; 256 + N .. 256 + 256)
+    foreach (immutable i; 256 + N .. 256 + 256)
     {
         assert(!set.contains(i));
 
@@ -5154,7 +5154,7 @@ unittest
     auto set = radixTreeSet!(ubyte);
     alias Set = typeof(set);
 
-    foreach (const i; 0 .. HeptLeaf1.capacity)
+    foreach (immutable i; 0 .. HeptLeaf1.capacity)
     {
         assert(!set.contains(i));
 
@@ -5165,11 +5165,11 @@ unittest
         assert(set.contains(i));
 
         // debug assert(set.heapAllocationBalance == 0);
-        const rootRef = set.getRoot.peek!(HeptLeaf1);
+        immutable rootRef = set.getRoot.peek!(HeptLeaf1);
         assert(rootRef);
     }
 
-    foreach (const i; HeptLeaf1.capacity .. 256)
+    foreach (immutable i; HeptLeaf1.capacity .. 256)
     {
         assert(!set.contains(i));
 
@@ -5180,14 +5180,14 @@ unittest
         assert(set.contains(i));
 
         // debug assert(set.heapAllocationBalance == 1);
-        // const rootRef = set.getRoot.peek!(SparseLeaf1!void*);
+        // immutable rootRef = set.getRoot.peek!(SparseLeaf1!void*);
         // assert(rootRef);
     }
 
-    // const rootRef = set.getRoot.peek!(SparseLeaf1!void*);
+    // immutable rootRef = set.getRoot.peek!(SparseLeaf1!void*);
     // assert(rootRef);
 
-    // const root = *rootRef;
+    // immutable root = *rootRef;
     // assert(!root.empty);
     // assert(root.full);
 }
@@ -5201,7 +5201,7 @@ unittest
         auto set = radixTreeSet!(T);
         alias Set = typeof(set);
 
-        foreach (const i; 0 .. 256)
+        foreach (immutable i; 0 .. 256)
         {
             assert(!set.contains(i));
 
@@ -5230,9 +5230,9 @@ unittest
         assert(!set.insert(257));
         assert(set.contains(257));
 
-        const rootRef = set.getRoot.peek!(Set.DefaultBranchType*);
+        immutable rootRef = set.getRoot.peek!(Set.DefaultBranchType*);
         assert(rootRef);
-        const root = *rootRef;
+        immutable root = *rootRef;
         assert(root.prefix.length == T.sizeof - 2);
 
     }
@@ -5256,7 +5256,7 @@ private static auto randomUniqueSortedStrings(size_t count, uint maxLength)
         {
             const length = uniform(1, maxLength, gen);
             auto key = new char[length];
-            foreach (const ix; 0 .. length)
+            foreach (immutable ix; 0 .. length)
             {
                 key[ix] = cast(char)('a' + 0.uniform(26, gen));
             }
@@ -5362,7 +5362,7 @@ auto checkNumeric(Keys...)()
 {
     import std.traits : isIntegral, isFloatingPoint;
     import std.range : iota;
-    foreach (const it; 0.iota(1))
+    foreach (immutable it; 0.iota(1))
     {
         import std.algorithm : equal;
         struct TestValueType { int i = 42; float f = 43; char ch = 'a'; }
@@ -5400,26 +5400,26 @@ auto checkNumeric(Keys...)()
             {
                 static if (isIntegral!Key)
                 {
-                    const low = max(Key.min, -98_900); // chosen to minimize number of lines of debug output before bug in contains happens
-                    const high = min(Key.max, 100_000);
-                    const length = high - low + 1;
+                    immutable low = max(Key.min, -98_900); // chosen to minimize number of lines of debug output before bug in contains happens
+                    immutable high = min(Key.max, 100_000);
+                    immutable length = high - low + 1;
                 }
                 else static if (isFloatingPoint!Key)
                 {
-                    const low = -100_000;
-                    const high = 100_000;
-                    const length = high - low + 1;
+                    immutable low = -100_000;
+                    immutable high = 100_000;
+                    immutable length = high - low + 1;
                 }
                 else static if (is(Key == bool))
                 {
-                    const low = false;
-                    const high = true;
-                    const length = high - low + 1;
+                    immutable low = false;
+                    immutable high = true;
+                    immutable length = high - low + 1;
                 }
 
-                foreach (const uk; low.iota(high + 1))
+                foreach (immutable uk; low.iota(high + 1))
                 {
-                    const Key key = cast(Key)uk;
+                    immutable Key key = cast(Key)uk;
 
                     assert(!set.contains(key)); // key should not yet be in set
                     assert(key !in set);        // alternative syntax
@@ -5517,7 +5517,7 @@ void benchmark()()
 
         enum n = 1_000_000;
 
-        const useUniqueRandom = false;
+        immutable useUniqueRandom = false;
 
         import std.range : generate, take;
         import std.random : uniform;
@@ -5526,7 +5526,7 @@ void benchmark()()
         {
             auto sw = StopWatch(AutoStart.yes);
 
-            foreach (const Key k; randomSamples)
+            foreach (immutable Key k; randomSamples)
             {
                 if (useUniqueRandom)
                 {

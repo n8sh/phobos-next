@@ -1268,10 +1268,7 @@ Demangling decodeSymbol(R)(Demangler!R x) /* @safe pure nothrow @nogc */
 
 unittest
 {
-    import backtrace.backtrace;
     import assert_ex;
-
-    backtrace.backtrace.install(stderr);
 
     assertEqual(demangler(`memcpy`).decodeSymbol(),
                 Demangling(Lang.c, `memcpy`));

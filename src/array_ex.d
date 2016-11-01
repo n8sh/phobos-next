@@ -220,7 +220,7 @@ private struct Array(E,
         version(showCtors) dln("HERE: ", typeof(this).stringof);
         typeof(return) that = void;
         that.allocateStoreWithCapacity(Us.length);
-        foreach (const i, ref element; elements)
+        foreach (immutable i, ref element; elements)
         {
             static if (!shouldAddGCRange!E)
             {
@@ -264,7 +264,7 @@ private struct Array(E,
             version(showCtors) dln("Copy ctor: ", typeof(this).stringof);
             auto rhs_storePtr = _ptr; // save store pointer
             allocateStoreWithCapacity(_length);
-            foreach (const i; 0 .. _length)
+            foreach (immutable i; 0 .. _length)
             {
                 _ptr[i] = rhs_storePtr[i];
             }
@@ -278,7 +278,7 @@ private struct Array(E,
             if (_ptr != rhs._ptr) // if not self assignment
             {
                 reserve(rhs._length);
-                foreach (const i; 0 .. _length)
+                foreach (immutable i; 0 .. _length)
                 {
                     _ptr[i] = rhs._ptr[i];
                 }
@@ -314,7 +314,7 @@ private struct Array(E,
         {
             typeof(return) copy;
             copy.allocateStoreWithCapacity(_length);
-            foreach (const i; 0 .. _length)
+            foreach (immutable i; 0 .. _length)
             {
                 copy._ptr[i] = _mptr[i]; // TODO is using _mptr ok here?
             }
@@ -337,7 +337,7 @@ private struct Array(E,
         else
         {
             if (_length != rhs._length) { return false; }
-            foreach (const i; 0 .. _length)
+            foreach (immutable i; 0 .. _length)
             {
                 if (_ptr[i] != rhs._ptr[i]) { return false; }
             }
@@ -353,7 +353,7 @@ private struct Array(E,
         else
         {
             if (_length != rhs._length) { return false; }
-            foreach (const i; 0 .. _length)
+            foreach (immutable i; 0 .. _length)
             {
                 if (_ptr[i] != rhs._ptr[i]) { return false; }
             }
@@ -374,7 +374,7 @@ private struct Array(E,
         import core.internal.hash : hashOf;
         // TODO this doesn't work when element type is non-copyable: return this.slice.hashOf;
         typeof(return) hash = _length;
-        foreach (const i; 0 .. _length)
+        foreach (immutable i; 0 .. _length)
         {
             hash ^= _ptr[i].hashOf;
         }
@@ -544,7 +544,7 @@ private struct Array(E,
         import std.traits : hasElaborateDestructor;
         static if (hasElaborateDestructor!E)
         {
-            foreach (const i; 0 .. _length)
+            foreach (immutable i; 0 .. _length)
             {
                 .destroy(_ptr[i]);
             }
@@ -567,16 +567,16 @@ private struct Array(E,
         assert(index < _length);
         auto value = move(_mptr[index]); // TODO remove `move` when compiler does it for us
         // TODO use this instead:
-        // const si = index + 1;   // source index
-        // const ti = index;       // target index
-        // const restLength = _length - (index + 1);
+        // immutable si = index + 1;   // source index
+        // immutable ti = index;       // target index
+        // immutable restLength = _length - (index + 1);
         // import std.algorithm.mutation : moveEmplaceAll;
         // moveEmplaceAll(_mptr[si .. si + restLength],
         //                _mptr[ti .. ti + restLength]);
-        foreach (const i; 0 .. _length - (index + 1)) // each element index that needs to be moved
+        foreach (immutable i; 0 .. _length - (index + 1)) // each element index that needs to be moved
         {
-            const si = index + i + 1; // source index
-            const ti = index + i; // target index
+            immutable si = index + i + 1; // source index
+            immutable ti = index + i; // target index
             moveEmplace(_mptr[si], // TODO remove `move` when compiler does it for us
                         _mptr[ti]);
         }
@@ -620,7 +620,7 @@ private struct Array(E,
                 allSatisfy!(isElementAssignable, Us))
         {
             reserve(_length + values.length);
-            foreach (const i, ref value; values) // `ref` so we can `move`
+            foreach (immutable i, ref value; values) // `ref` so we can `move`
             {
                 static if (isScalarType!(typeof(value)))
                     _ptr[_length + i] = value;
@@ -637,7 +637,7 @@ private struct Array(E,
                 isElementAssignable!(ElementType!R))
         {
             reserve(_length + values.length);
-            foreach (const i, ref value; values) // `ref` so we can `move`
+            foreach (immutable i, ref value; values) // `ref` so we can `move`
             {
                 static if (isScalarType!(typeof(value)))
                     _ptr[_length + i] = value;
@@ -654,7 +654,7 @@ private struct Array(E,
             if (_ptr == values.ptr) // called as: this ~= this. TODO extend to check if `values` overlaps ptr[0 .. _capacity]
             {
                 reserve(2*_length);
-                foreach (const i; 0 .. _length)
+                foreach (immutable i; 0 .. _length)
                 {
                     _ptr[_length + i] = _ptr[i]; // needs copying
                 }
@@ -667,7 +667,7 @@ private struct Array(E,
                 {
                     // TODO reuse memcopy if ElementType!A is same as E)
                 }
-                foreach (const i, ref value; values)
+                foreach (immutable i, ref value; values)
                 {
                     _ptr[_length + i] = value;
                 }
@@ -684,7 +684,7 @@ private struct Array(E,
                 reserve(2*_length);
                 // NOTE: this is not needed because we don't need range checking here?:
                 // _ptr[length .. 2*length] = values._ptr[0 .. length];
-                foreach (const i; 0 .. _length)
+                foreach (immutable i; 0 .. _length)
                 {
                     _ptr[_length + i] = values._ptr[i];
                 }
@@ -697,7 +697,7 @@ private struct Array(E,
                 {
                     // TODO reuse memcopy if ElementType!A is same as E)
                 }
-                foreach (const i, ref value; values.slice)
+                foreach (immutable i, ref value; values.slice)
                 {
                     _ptr[_length + i] = value;
                 }
@@ -774,7 +774,7 @@ private struct Array(E,
                 // TODO functionize or use other interface in pushing `values`
                 import std.traits : CommonType;
                 CommonType!Us[Us.length] valuesArray;
-                foreach (const i, const ref value; values)
+                foreach (immutable i, const ref value; values)
                 {
                     valuesArray[i] = value;
                 }
@@ -792,7 +792,7 @@ private struct Array(E,
                         size_t i = 0;
                         foreach (const ref value; sort([values]))
                         {
-                            const index = indexOf(value);
+                            immutable index = indexOf(value);
                             if (index != size_t.max)
                             {
                                 ixs[i] = index;
@@ -822,8 +822,8 @@ private struct Array(E,
                     debug { typeof(return) hits; }
                     else  { typeof(return) hits = void; }
                     size_t expandedLength = 0;
-                    const initialLength = _length;
-                    foreach (const i, ref value; values)
+                    immutable initialLength = _length;
+                    foreach (immutable i, ref value; values)
                     {
                         // TODO reuse completeSort with uniqueness handling?
                         static if (values.length == 1)
@@ -844,7 +844,7 @@ private struct Array(E,
 
                     if (expandedLength != 0)
                     {
-                        const ix = _length - expandedLength;
+                        immutable ix = _length - expandedLength;
                         completeSort!comp(_ptr[0 .. ix].assumeSorted!comp,
                                           _ptr[ix .. _length]);
                     }
@@ -873,7 +873,7 @@ private struct Array(E,
                 {
                     import std.algorithm.sorting : completeSort;
                     pushBackHelper(values); // simpler because duplicates are allowed
-                    const ix = _length - values.length;
+                    immutable ix = _length - values.length;
                     completeSort!comp(_ptr[0 .. ix].assumeSorted!comp,
                                       _ptr[ix .. _length]);
                 }
@@ -922,16 +922,16 @@ private struct Array(E,
         {
             // move second part in reverse
             // TODO functionize move
-            foreach (const i; 0 .. _length - index) // each element index that needs to be moved
+            foreach (immutable i; 0 .. _length - index) // each element index that needs to be moved
             {
-                const si = _length - 1 - i; // source index
-                const ti = si + values.length; // target index
+                immutable si = _length - 1 - i; // source index
+                immutable ti = si + values.length; // target index
                 _ptr[ti] = _ptr[si]; // TODO move construct?
             }
         }
 
         // set new values
-        foreach (const i, ref value; values)
+        foreach (immutable i, ref value; values)
         {
             _ptr[index + i] = value; // TODO use range algorithm instead?
         }
@@ -942,7 +942,7 @@ private struct Array(E,
     private void pushBackHelper(Us...)(Us values) @trusted nothrow @("complexity", "O(1)")
     {
         reserve(_length + values.length);
-        foreach (const i, ref value; values)
+        foreach (immutable i, ref value; values)
         {
             moveEmplace(value, _ptr[_length + i]); // TODO remove `move` when compiler does it for us
         }
@@ -1023,7 +1023,7 @@ private struct Array(E,
             {
                 assert(i <= j);
                 assert(j <= _length);
-                foreach (const i; 0 .. _length)
+                foreach (immutable i; 0 .. _length)
                 {
                     _ptr[i] = value;
                 }
@@ -1076,7 +1076,7 @@ private struct Array(E,
     //         import std.array : Appender;
     //         import std.conv : to;
     //         Appender!string s = "[";
-    //         foreach (const i; 0 .. _length)
+    //         foreach (immutable i; 0 .. _length)
     //         {
     //             if (i) { s.put(','); }
     //             s.put(_ptr[i].to!string);
@@ -1162,7 +1162,7 @@ R withCapacityMake(R)(size_t capacity)
 
 pure nothrow unittest
 {
-    const capacity = 10;
+    immutable capacity = 10;
     auto x = capacity.withCapacityMake!(int[]);
     assert(x.capacity >= capacity);
 }
@@ -1245,7 +1245,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 
     static if (E.sizeof == 4)
     {
-        foreach (const n; [0, 1, 2, 3, 4])
+        foreach (immutable n; [0, 1, 2, 3, 4])
         {
             assert(Array!(E, assignment, ordering, supportGC, less).withLength(n).isSmall);
         }
@@ -1254,8 +1254,8 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 
     // test move construction
     {
-        const maxLength = 1024;
-        foreach (const n; 0 .. maxLength)
+        immutable maxLength = 1024;
+        foreach (immutable n; 0 .. maxLength)
         {
             auto x = Array!(E, assignment, ordering, supportGC, less).withLength(n);
 
@@ -1269,7 +1269,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             }
 
             const ptr = x.ptr;
-            const capacity = x.capacity;
+            immutable capacity = x.capacity;
             assert(x.length == n);
 
             import std.algorithm.mutation : move;
@@ -1287,13 +1287,13 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         }
     }
 
-    foreach (const n; chain(0.only, iota(0, 10).map!(x => 2^^x)))
+    foreach (immutable n; chain(0.only, iota(0, 10).map!(x => 2^^x)))
     {
         import std.array : array;
         import std.range : radial, retro;
 
-        const zi = cast(int)0;
-        const ni = cast(int)n;
+        immutable zi = cast(int)0;
+        immutable ni = cast(int)n;
 
         auto fw = iota(zi, ni); // 0, 1, 2, ..., n-1
 
@@ -1375,7 +1375,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             }
 
             auto ssI = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].sort!comp; // values
-            const ssO = [12, 13]; // values not range
+            immutable ssO = [12, 13]; // values not range
 
             assert(ssB[].equal(ssI));
 
@@ -1490,7 +1490,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 
             // pushBack(Array)
             {
-                const s = [1, 2, 3];
+                immutable s = [1, 2, 3];
                 Array!(E, assignment, ordering, supportGC, less) s1 = s;
                 Array!(E, assignment, ordering, supportGC, less) s2 = s1[];
                 assert(s1[].equal(s));
@@ -1500,11 +1500,11 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
                 assert(s1[].equal(chain(s, s, s)));
             }
 
-            const ss_ = Array!(E, assignment, ordering, supportGC, less)(null);
+            immutable ss_ = Array!(E, assignment, ordering, supportGC, less)(null);
             assert(ss_.empty);
 
             auto ssC = Array!(E, assignment, ordering, supportGC, less).withLength(0);
-            const(int)[] i5 = [1, 2, 3, 4, 5];
+            immutable(int)[] i5 = [1, 2, 3, 4, 5];
             ssC.pushBack(i5);
             assert(ssC[].equal(i5));
 
@@ -1554,7 +1554,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     alias E = string;
     alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, "a < b");
     A a;
-    const n = 100_000;
+    immutable n = 100_000;
     size_t i = 0;
     foreach (const ref e; 0 .. n)
     {
@@ -1575,7 +1575,7 @@ nothrow unittest
     alias E = string;
     alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, "a < b");
     A a;
-    const n = 100_000;
+    immutable n = 100_000;
     size_t i = 0;
     foreach (const ref e; 0 .. n)
     {
@@ -1696,7 +1696,7 @@ pure nothrow unittest
         A_ y = A_.withElements(E.init, E.init);
         assert(x.length == 1);
         assert(y.length == 2);
-        const n = 100;
+        immutable n = 100;
         foreach (_; 0 .. n)
         {
             auto e = E.init;
@@ -1732,12 +1732,12 @@ pure nothrow unittest
                  ))
     {
         alias DA = E[];         // builtin D array/slice
-        const DA da = [E.init]; // construct from array
+        immutable DA da = [E.init]; // construct from array
         auto daCopy = da.dup;   // duplicate
         daCopy[] = E.init;   // opSliceAssign
 
         alias CA = Array!E;         // container array
-        const ca = CA.withElement(E.init);
+        immutable ca = CA.withElement(E.init);
 
         auto caCopy = ca.dup;
         // TODO
@@ -1760,8 +1760,8 @@ pure nothrow unittest
                           CopyableArray!E))
     {
         int[A] x;
-        const n = 100;
-        foreach (const i; 0 .. n)
+        immutable n = 100;
+        foreach (immutable i; 0 .. n)
         {
             assert(x.length == i);
             assert(A.withElement(E(i, 2*i)) !in x);

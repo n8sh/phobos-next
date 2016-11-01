@@ -10,6 +10,7 @@ struct WGS84Coordinate(T = double)
 {
     @safe: // TODO nothrow @nogc
 
+    /// Construct from `latitude` and `longitude`.
     this(T latitude,
          T longitude) pure
     {
@@ -17,6 +18,7 @@ struct WGS84Coordinate(T = double)
         this.longitude = longitude;
     }
 
+    /// Construct from string `s` and separator `separator`.
     this(S, Separator)(S s, Separator separator = ` `)
         if (isSomeString!S &&
             isSomeString!Separator)
@@ -33,6 +35,7 @@ struct WGS84Coordinate(T = double)
         }
     }
 
+    /// Convert to `string`.
     auto toString() const
     {
         import std.conv : to;

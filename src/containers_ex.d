@@ -47,15 +47,15 @@ auto hashSet(Allocator = Mallocator, R)(R r)
     return set; // make it const to indicate fixed
 }
 
-unittest
-{
-    const x = [1, 2, 3, 2, 1];
-    auto hx = x.hashSet;
-    assert(1 in hx);
-    assert(2 in hx);
-    assert(3 in hx);
-    static assert(is(typeof(3 in hx) == const(int)*));
-}
+// unittest
+// {
+//     const x = [1, 2, 3, 2, 1];
+//     auto hx = x.hashSet;
+//     assert(1 in hx);
+//     assert(2 in hx);
+//     assert(3 in hx);
+//     static assert(is(typeof(3 in hx) == const(int)*));
+// }
 
 version(none) unittest
 {

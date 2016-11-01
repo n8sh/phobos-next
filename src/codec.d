@@ -7,12 +7,12 @@
 */
 module codec;
 
-import std.typecons: Tuple;
-import std.range: front, isInputRange, ElementType;
-import std.array: array;
-import algorithm_ex: forwardDifference;
+import std.typecons : Tuple;
+import std.range : front, isInputRange, ElementType;
+import std.array : array;
+import algorithm_ex : forwardDifference;
 
-/** Packing of $(D r) using a forwardDifference.
+/** Packing of $(D r) using a `forwardDifference`.
     Used to pack elements of type ptrdiff, times, etc.
  */
 struct ForwardDifferenceCode(R) if (isInputRange!R)
@@ -34,30 +34,35 @@ auto encodeForwardDifference(R)(R r) if (isInputRange!R)
     return ForwardDifferenceCode!R(r); // TODO Use named parts?
 }
 
+// version = use_msgpack;
+
 unittest
 {
     import std.range: dropOne;
     import core.exception: AssertError;
     import std.exception: assertThrown;
-    import msgpack;
-    import dbgio: dln;
+    version(use_msgpack) import msgpack;
 
     assertThrown!AssertError([1].dropOne.encodeForwardDifference_alt);
 
     auto x = [1, int.min, 22, 0, int.max, -1100];
 
     auto fdp = x.encodeForwardDifference;
-    alias FDP = typeof(fdp);
-    auto raw = fdp.pack;
-    auto raw2 = raw.dup;
-    /* dln(raw); */
 
-    FDP fdp_;                   // restored
-    raw.unpack(fdp_);           // restore it
-    assert(fdp == fdp_);
+    version(use_msgpack)
+    {
+        alias FDP = typeof(fdp);
 
-    auto fdp__ = raw2.unpack!FDP; // restore it (alternatively)
-    assert(fdp == fdp__);
+        auto raw = fdp.pack;
+        auto raw2 = raw.dup;
+
+        FDP fdp_;                   // restored
+        aw.unpack(fdp_);           // restore it
+        assert(fdp == fdp_);
+
+        auto fdp__ = raw2.unpack!FDP; // restore it (alternatively)
+        assert(fdp == fdp__);
+    }
 }
 
 /** Alternative. */
@@ -88,6 +93,5 @@ unittest
     auto x = [1, int.min, 22, 0, int.max, -1100];
     // in memory pack and unpack
     auto pfd = x.encodeForwardDifference_alt;
-    /* dln(pfd.pack); */
     assert(x == pfd.decodeForwardDifference_alt);
 }

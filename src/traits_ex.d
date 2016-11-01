@@ -56,6 +56,8 @@ unittest
     static assert(!allSame!(42, 43, 42));
 }
 
+version(none)                   // disable for now
+{
 /** Iterative `allSame`. */
 template allSameIterative(V...)
     if (isExpressions!V)
@@ -87,6 +89,7 @@ unittest
     static assert( allSameIterative!(42));
     static assert( allSameIterative!(42, 42, 42));
     static assert(!allSameIterative!(42, 43, 42));
+}
 }
 
 /** Recursive `allSame`. */

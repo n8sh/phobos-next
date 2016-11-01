@@ -960,7 +960,8 @@ unittest
 {
     const x = "abcdef";
     const h = x.bistogramOverRepresentation;
-    foreach (ix, bin; h)
+    size_t ix = 0;
+    foreach (const bin; h)
     {
         if (ix >= cast(ubyte)'a' &&
             ix <= cast(ubyte)'f')
@@ -971,6 +972,7 @@ unittest
         {
             assert(!bin);
         }
+        ++ix;
     }
     version(print) dln(h);
 }

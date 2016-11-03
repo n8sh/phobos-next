@@ -72,12 +72,12 @@ version(unittest)
 {
     alias Map = string[int];
 
-    Map a = [0 : "a", 1 : "b"];
-    Map b = [2 : "c"];
+    Map x = [0 : "a", 1 : "b"];
+    Map y = [2 : "c"];
 
     Map c = [0 : "a", 1 : "b", 2 : "c"];
 
     // test associativity
-    assert(setUnionUpdate(a, b) == c);
-    assert(setUnionUpdate(b, a) == c);
+    assert(setUnionUpdate(x, y) == c);
+    assert(setUnionUpdate(y, x) == c);
 }

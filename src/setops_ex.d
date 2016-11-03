@@ -59,6 +59,7 @@ template isAA(Map)
 version(unittest)
 {
     import std.algorithm.comparison : equal;
+    import dbgio : dln;
 }
 
 /// union of associative array (via keys)
@@ -71,7 +72,6 @@ version(unittest)
 
     Map c = [0 : "a", 1 : "b", 2 : "c"];
 
-    import dbgio : dln;
     // test associativity
     assert(setUnionUpdate(a, b) == c);
     assert(setUnionUpdate(b, a) == c);

@@ -111,30 +111,38 @@ pragma(inline):
                                   cast(Unqual!(typeof(this))*)(&this)); // trusted unconst cast
         }
 
-        static if (isMutable!Container)
+        /// Get full read-write slice.
+        WriteBorrowedSlice!(Range, Owned) sliceRW() @trusted
         {
-            /// Get full read-write slice.
-            WriteBorrowedSlice!(Range, Owned) sliceRW() @trusted
-            {
-                assert(!_writeBorrowed, "This is already write-borrowed!");
-                assert(_readBorrowCount == 0, "This is already read-borrowed!");
-                return typeof(return)(_container.opSlice, &this);
-            }
-
-            /// Get read-write slice in range i .. j.
-            WriteBorrowedSlice!(Range, Owned) sliceRW(size_t i, size_t j) @trusted
-            {
-                assert(!_writeBorrowed, "This is already write-borrowed!");
-                assert(_readBorrowCount == 0, "This is already read-borrowed!");
-                return typeof(return)(_container.opSlice[i .. j], &this);
-            }
-
-            alias opSlice = sliceRW; // TODO default to read or write?
+            assert(!_writeBorrowed, "This is already write-borrowed!");
+            assert(_readBorrowCount == 0, "This is already read-borrowed!");
+            return typeof(return)(_container.opSlice, &this);
         }
-        else
+
+        /// Get read-write slice in range i .. j.
+        WriteBorrowedSlice!(Range, Owned) sliceRW(size_t i, size_t j) @trusted
         {
-            pragma(msg, typeof(this));
-            alias opSlice = sliceRO; // slice must be read-only here
+            assert(!_writeBorrowed, "This is already write-borrowed!");
+            assert(_readBorrowCount == 0, "This is already read-borrowed!");
+            return typeof(return)(_container.opSlice[i .. j], &this);
+        }
+
+        auto opSlice(size_t i, size_t j) const
+        {
+            return sliceRO(i, j);
+        }
+        auto opSlice(size_t i, size_t j)
+        {
+            return sliceRW(i, j);
+        }
+
+        auto opSlice() const
+        {
+            return sliceRO();
+        }
+        auto opSlice()
+        {
+            return sliceRW();
         }
     }
 
@@ -261,7 +269,7 @@ pure unittest
     import std.traits : isMutable;
     static assert(!isMutable!(typeof(co)));
 
-    // TODO const cos = co[];
+    const cos = co[];
 }
 
 @safe pure unittest

@@ -127,19 +127,23 @@ pragma(inline):
             return typeof(return)(_container.opSlice[i .. j], &this);
         }
 
+        /// Get read-only slice in range i .. j.
         auto opSlice(size_t i, size_t j) const
         {
             return sliceRO(i, j);
         }
+        /// Get read-write slice in range i .. j.
         auto opSlice(size_t i, size_t j)
         {
             return sliceRW(i, j);
         }
 
+        /// Get read-only slice.
         auto opSlice() const
         {
             return sliceRO();
         }
+        /// Get read-write slice.
         auto opSlice()
         {
             return sliceRW();

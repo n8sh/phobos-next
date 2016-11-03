@@ -32,7 +32,7 @@ auto setUnion(T1, T2)(T1 a, T2 b)
 /** Helper function for `setUnion` that assumes `small` has shorter length than
     `large` .
 */
-private static auto setUnionHelper(Small, Large)(Small small, Large large)
+private static auto setUnionHelper(Small, Large)(const Small small, Large large)
 {
     Large united = large.dup;
     foreach (const ref e; small.byKeyValue)

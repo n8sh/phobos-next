@@ -10,16 +10,16 @@ auto setUnion(T1, T2)(T1 a, T2 b)
     import std.traits : hasMember;
     alias E = CommonType!(ElementType!T1,
                           ElementType!T2);
-    static if (isMapLike!T1 &&
-               isMapLike!T2)
+    static if (isAA!T1 &&
+               isAA!T2)
     {
         if (a.length < b.length)
         {
-            return setUnionhelper(a, b);
+            return setUnionHelper(a, b);
         }
         else
         {
-            return setUnionhelper(b, a);
+            return setUnionHelper(b, a);
         }
     }
     else
@@ -29,10 +29,12 @@ auto setUnion(T1, T2)(T1 a, T2 b)
     }
 }
 
-/** Helper function for `setUnion` that assumes `small` has shorter length than `large` . */
-private static auto setUnionhelper(Small, Large)(Small small, Large large)
+/** Helper function for `setUnion` that assumes `small` has shorter length than
+    `large` .
+*/
+private static auto setUnionHelper(Small, Large)(Small small, Large large)
 {
-    Large united = large;
+    Large united = large.dup;
     foreach (const ref e; small.byKeyValue)
     {
         if (auto hitPtr = e.key in large)
@@ -41,7 +43,7 @@ private static auto setUnionhelper(Small, Large)(Small small, Large large)
         }
         else
         {
-            large[e.key] = e.value;
+            united[e.key] = e.value;
         }
     }
     return united;
@@ -49,20 +51,22 @@ private static auto setUnionhelper(Small, Large)(Small small, Large large)
 
 /** Is `true` if `Set` is set-like container, that is provides membership
     checking via the `in` operator or `contains`.
+    TODO Move to Phobos std.traits
 */
-template isSetLike(Set)
+template hasContains(Set)
 {
     import std.traits : hasMember;
-    enum isSetLike = hasMember!(Set, "contains"); // TODO extend to check `in` operator aswell
+    enum isSetOf = hasMember!(Set, "contains"); // TODO extend to check `in` operator aswell
 }
 
 /** Is `true` if `Map` is map-like container, that is provides membership
     checking via the `in` operator or `contains`.
+    TODO Move to Phobos std.traits
 */
-template isMapLike(Map)
+template isAA(Map)
 {
     import std.traits : isAssociativeArray;
-    enum isMapLike = isAssociativeArray!Map; // TODO check if in operator returns reference to value
+    enum isAA = isAssociativeArray!Map; // TODO check if in operator returns reference to value
 }
 
 version(unittest)
@@ -86,6 +90,7 @@ version(unittest)
 
     Map c = [0 : "a", 1 : "b", 2 : "c"];
 
+    import dbgio : dln;
     // test associativity
     assert(setUnion(a, b) == c);
     assert(setUnion(b, a) == c);

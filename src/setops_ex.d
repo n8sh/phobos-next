@@ -1,35 +1,22 @@
 module setops_ex;
 
-/** Generalization for `std.algorithm.setopts.setUnion` with optimized
-    special-handling of hash-set/map support.
- */
-auto setUnion(T1, T2)(T1 a, T2 b)
+/** Specialization for `std.algorithm.setopts.setUnion` for AA. */
+auto setUnionUpdate(T1, T2)(T1 a, T2 b)
     @trusted
+    if (isAA!T1 &&
+        isAA!T2)
 {
-    import std.range : CommonType, ElementType;
-    import std.traits : hasMember;
-    alias E = CommonType!(ElementType!T1,
-                          ElementType!T2);
-    static if (isAA!T1 &&
-               isAA!T2)
+    if (a.length < b.length)
     {
-        if (a.length < b.length)
-        {
-            return setUnionHelper(a, b);
-        }
-        else
-        {
-            return setUnionHelper(b, a);
-        }
+        return setUnionHelper(a, b);
     }
     else
     {
-        import std.algorithm.sorting : merge;
-        return merge(a, b);
+        return setUnionHelper(b, a);
     }
 }
 
-/** Helper function for `setUnion` that assumes `small` has shorter length than
+/** Helper function for `setUnionUpdate` that assumes `small` has shorter length than
     `large` .
 */
 private static auto setUnionHelper(Small, Large)(const Small small, Large large)
@@ -39,7 +26,7 @@ private static auto setUnionHelper(Small, Large)(const Small small, Large large)
     {
         if (auto hitPtr = e.key in large)
         {
-            (*hitPtr) = e.value;
+            (*hitPtr) = e.value; // TODO this potentially changes the value of
         }
         else
         {
@@ -74,12 +61,6 @@ version(unittest)
     import std.algorithm.comparison : equal;
 }
 
-/// union of arrays
-@safe pure unittest
-{
-    assert(setUnion([1, 2], [2, 3]).equal([1, 2, 2, 3]));
-}
-
 /// union of associative array (via keys)
 @safe pure unittest
 {
@@ -92,6 +73,6 @@ version(unittest)
 
     import dbgio : dln;
     // test associativity
-    assert(setUnion(a, b) == c);
-    assert(setUnion(b, a) == c);
+    assert(setUnionUpdate(a, b) == c);
+    assert(setUnionUpdate(b, a) == c);
 }

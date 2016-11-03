@@ -1,3 +1,5 @@
+/** Extend std.algorithm.setopts to also operate on set- and map-like
+    containers/ranges. */
 module setops_ex;
 
 /** Specialization for `std.algorithm.setopts.setUnion` for AA. */

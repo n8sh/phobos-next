@@ -7,7 +7,7 @@
     TODO Why is pushBack of 5_000_000 uints in this `Array` slower (44 ms) than
          both `Appender` (24 ms) and `std.container.array.Array` (17 ms)?
 
-    TODO Breakout common logic into `RawArray` and reuse with `alias this`
+    TODO Breakout common logic into private `BasicArray` and reuse with `alias this` to express StandardArray, SortedArray, SortedSetArray
 
     TODO Remove explicit moves when DMD std.algorithm.mutation.move calls these
     members for us (if they exist)
@@ -16,9 +16,6 @@
 
     TODO Use std.array.insertInPlace in insert()?
     TODO Use std.array.replaceInPlace?
-
-    TODO Split up `Array` into `Array`, `SortedArray`, `SetArray` and reuse
-    logic in `Array` via `alias this` or free functions.
 
     TODO Use `std.algorithm.mutation.move` and `std.range.primitives.moveAt`
     when moving internal sub-slices

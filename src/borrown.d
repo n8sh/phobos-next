@@ -250,7 +250,7 @@ template needsOwnership(Container)
 
 version(unittest)
 {
-    import array_ex : Array;
+    import array_ex : Array, CopyableArray;
 }
 
 pure unittest
@@ -262,6 +262,23 @@ pure unittest
     static assert(!isMutable!(typeof(co)));
 
     // auto cos = co[];
+}
+
+@safe pure unittest
+{
+    alias A = Array!int;
+    A a = A.init;
+    a = A.init;
+    // TODO a ~= A.init;
+}
+
+@safe pure unittest
+{
+    alias A = CopyableArray!int;
+    A a = A.init;
+    A b = A.init;
+    a = b;
+    a ~= b;
 }
 
 pure unittest

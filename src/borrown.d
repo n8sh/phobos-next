@@ -6,14 +6,14 @@
     <li> TODO Move to typecons_ex.
 
     <li> TODO Perhaps disable all checking (and unittests) in release mode (when
-    debug is not active), but preserve overloads sliceRO and sliceWR. If not use
+    debug is not active), but preserve overloads sliceRO and sliceRW. If not use
     `enforce` instead.
 
     <li> TODO Implement and use trait `hasUnsafeSlicing`
 
     <li> TODO Add WriteBorrowedPointer, ReadBorrowedPointer to wrap `ptr` access to Container
 
-    <li> TODO Is sliceWR and sliceRO good names?
+    <li> TODO Is sliceRW and sliceRO good names?
 
     <li> TODO can we make the `_range` member non-visible but the alias this
     public in ReadBorrowedSlice and WriteBorrowedSlice
@@ -114,7 +114,7 @@ pragma(inline):
         static if (isMutable!Container)
         {
             /// Get full read-write slice.
-            WriteBorrowedSlice!(Range, Owned) sliceWR() @trusted
+            WriteBorrowedSlice!(Range, Owned) sliceRW() @trusted
             {
                 assert(!_writeBorrowed, "This is already write-borrowed!");
                 assert(_readBorrowCount == 0, "This is already read-borrowed!");
@@ -122,17 +122,18 @@ pragma(inline):
             }
 
             /// Get read-write slice in range i .. j.
-            WriteBorrowedSlice!(Range, Owned) sliceWR(size_t i, size_t j) @trusted
+            WriteBorrowedSlice!(Range, Owned) sliceRW(size_t i, size_t j) @trusted
             {
                 assert(!_writeBorrowed, "This is already write-borrowed!");
                 assert(_readBorrowCount == 0, "This is already read-borrowed!");
                 return typeof(return)(_container.opSlice[i .. j], &this);
             }
 
-            alias opSlice = sliceWR; // TODO default to read or write?
+            alias opSlice = sliceRW; // TODO default to read or write?
         }
         else
         {
+            pragma(msg, typeof(this));
             alias opSlice = sliceRO; // slice must be read-only here
         }
     }
@@ -247,13 +248,27 @@ template needsOwnership(Container)
     enum needsOwnership = is(Container == struct);
 }
 
+version(unittest)
+{
+    import array_ex : Array;
+}
+
+pure unittest
+{
+    alias A = Array!int;
+    const Owned!A co;          // const owner
+
+    import std.traits : isMutable;
+    static assert(!isMutable!(typeof(co)));
+
+    // auto cos = co[];
+}
+
 pure unittest
 {
     import std.traits : isInstanceOf;
     import std.exception: assertThrown;
     import core.exception : AssertError;
-
-    import array_ex : Array;
 
     alias A = Array!int;
 
@@ -278,7 +293,7 @@ pure unittest
     assert(oa.readBorrowCount == 0);
 
     {
-        const wb = oa.sliceWR;
+        const wb = oa.sliceRW;
 
         Owned!A oc;
         assertThrown!AssertError(oa.move()); // cannot move write borrowed
@@ -293,7 +308,7 @@ pure unittest
 
     // ok to write borrow again in separate scope
     {
-        const wb = oa.sliceWR;
+        const wb = oa.sliceRW;
 
         assert(wb.length == 2);
         assert(oa.isBorrowed);
@@ -303,7 +318,7 @@ pure unittest
 
     // ok to write borrow again in separate scope
     {
-        const wb = oa.sliceWR(0, 2);
+        const wb = oa.sliceRW(0, 2);
         assert(wb.length == 2);
         assert(oa.isBorrowed);
         assert(oa.isWriteBorrowed);
@@ -331,12 +346,12 @@ pure unittest
         const rb_ = rb3;
         assert(rb_.length == oa.length);
         assert(oa.readBorrowCount == 4);
-        assertThrown!AssertError(oa.sliceWR); // single write borrow is not allowed
+        assertThrown!AssertError(oa.sliceRW); // single write borrow is not allowed
     }
 
     // test modification via write borrow
     {
-        auto wb = oa.sliceWR;
+        auto wb = oa.sliceRW;
         wb[0] = 11;
         wb[1] = 12;
         assert(wb.length == oa.length);
@@ -348,12 +363,12 @@ pure unittest
     assert(oa.sliceRO(0, 2) == [11, 12]);
 
     // test mutable slice
-    static assert(isInstanceOf!(WriteBorrowedSlice, typeof(oa.sliceWR())));
+    static assert(isInstanceOf!(WriteBorrowedSlice, typeof(oa.sliceRW())));
     static assert(isInstanceOf!(WriteBorrowedSlice, typeof(oa[])));
-    foreach (ref e; oa.sliceWR)
+    foreach (ref e; oa.sliceRW)
     {
         assertThrown!AssertError(oa.sliceRO); // one more write borrow is not allowed
-        assertThrown!AssertError(oa.sliceWR); // one more write borrow is not allowed
+        assertThrown!AssertError(oa.sliceRW); // one more write borrow is not allowed
         assertThrown!AssertError(oa[]); // one more write borrow is not allowed
     }
 
@@ -365,7 +380,7 @@ pure unittest
         assert(oa.sliceRO[0 .. 0].length == 0);
         assert(oa.sliceRO[0 .. 1].length == 1);
         assert(oa.sliceRO[0 .. 2].length == oa.length);
-        assertThrown!AssertError(oa.sliceWR); // write borrow during iteration is not allowed
+        assertThrown!AssertError(oa.sliceRW); // write borrow during iteration is not allowed
         assertThrown!AssertError(oa.move());  // move not allowed when borrowed
     }
 

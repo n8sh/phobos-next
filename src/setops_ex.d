@@ -21,7 +21,7 @@ auto setUnionUpdate(T1, T2)(T1 a, T2 b)
 */
 private static auto setUnionHelper(Small, Large)(const Small small, Large large)
 {
-    Large united = large.dup;
+    Large united = large.dup;   // TODO this shallow copy prevents large from being `const`
     foreach (const ref e; small.byKeyValue)
     {
         if (auto hitPtr = e.key in large)

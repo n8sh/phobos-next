@@ -261,7 +261,7 @@ pure unittest
     import std.traits : isMutable;
     static assert(!isMutable!(typeof(co)));
 
-    // auto cos = co[];
+    // TODO const cos = co[];
 }
 
 @safe pure unittest

@@ -255,19 +255,19 @@ private:
 template needsOwnership(Container)
 {
     import std.range.primitives : hasSlicing;
-    // TODO activate when array_ex : Array
+    // TODO activate when array_ex : UncopyableArray
     // enum needsOwnership = hasSlicing!Container; // TODO extend to check if it's not @safe
     enum needsOwnership = is(Container == struct);
 }
 
 version(unittest)
 {
-    import array_ex : Array, CopyableArray;
+    import array_ex : UncopyableArray, CopyableArray;
 }
 
 pure unittest
 {
-    alias A = Array!int;
+    alias A = UncopyableArray!int;
     const Owned!A co;          // const owner
 
     import std.traits : isMutable;
@@ -278,7 +278,7 @@ pure unittest
 
 @safe pure unittest
 {
-    alias A = Array!int;
+    alias A = UncopyableArray!int;
     A a = A.init;
     a = A.init;
     // TODO a ~= A.init;
@@ -299,7 +299,7 @@ pure unittest
     import std.exception: assertThrown;
     import core.exception : AssertError;
 
-    alias A = Array!int;
+    alias A = UncopyableArray!int;
 
     Owned!A oa;
 

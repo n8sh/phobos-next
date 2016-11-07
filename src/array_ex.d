@@ -9,8 +9,6 @@
     TODO Remove explicit moves when DMD std.algorithm.mutation.move calls these
     members for us (if they exist)
 
-    TODO Allow y = sort(x.move()), where x and y are instances of unsorted Array
-
     TODO Use std.array.insertInPlace in insert()?
     TODO Use std.array.replaceInPlace?
 

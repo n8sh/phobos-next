@@ -98,7 +98,7 @@ pragma(inline):
         /// Get full read-only slice.
         ReadBorrowedSlice!(Range, Owned) sliceRO() const @trusted
         {
-            assert(!_writeBorrowed, "This is already write-borrowed!");
+            assert(!_writeBorrowed, "This is already write-borrowed");
             return typeof(return)(_container.opSlice,
                                   cast(Unqual!(typeof(this))*)(&this)); // trusted unconst casta
         }
@@ -106,7 +106,7 @@ pragma(inline):
         /// Get read-only slice in range i .. j.
         ReadBorrowedSlice!(Range, Owned) sliceRO(size_t i, size_t j) const @trusted
         {
-            assert(!_writeBorrowed, "This is already write-borrowed!");
+            assert(!_writeBorrowed, "This is already write-borrowed");
             return typeof(return)(_container.opSlice[i .. j],
                                   cast(Unqual!(typeof(this))*)(&this)); // trusted unconst cast
         }
@@ -114,16 +114,16 @@ pragma(inline):
         /// Get full read-write slice.
         WriteBorrowedSlice!(Range, Owned) sliceRW() @trusted
         {
-            assert(!_writeBorrowed, "This is already write-borrowed!");
-            assert(_readBorrowCount == 0, "This is already read-borrowed!");
+            assert(!_writeBorrowed, "This is already write-borrowed");
+            assert(_readBorrowCount == 0, "This is already read-borrowed");
             return typeof(return)(_container.opSlice, &this);
         }
 
         /// Get read-write slice in range i .. j.
         WriteBorrowedSlice!(Range, Owned) sliceRW(size_t i, size_t j) @trusted
         {
-            assert(!_writeBorrowed, "This is already write-borrowed!");
-            assert(_readBorrowCount == 0, "This is already read-borrowed!");
+            assert(!_writeBorrowed, "This is already write-borrowed");
+            assert(_readBorrowCount == 0, "This is already read-borrowed");
             return typeof(return)(_container.opSlice[i .. j], &this);
         }
 
@@ -427,4 +427,43 @@ pure unittest
     const Owned!A co;          // const owner
     assert(co.sliceRO.ptr == co.ptr);
     static assert(isInstanceOf!(ReadBorrowedSlice, typeof(co.sliceRO())));
+}
+
+nothrow unittest
+{
+    import std.algorithm.sorting : sort;
+    alias E = int;
+    alias A = UncopyableArray!E;
+    A a;
+    sort(a[]);         // TODO make this work
+}
+
+// y = sort(x.move()), where x and y are instances of unsorted Array
+@safe nothrow unittest
+{
+    import std.algorithm.sorting : sort;
+
+    alias E = int;
+    alias A = UncopyableArray!E;
+    alias O = Owned!A;
+
+    O o;
+
+    foreach (e; o[])
+    {
+    }
+
+    alias S = typeof(o[]);      // slice
+
+    version(none)               // TODO make these work
+    {
+        import std.range : isRandomAccessRange, hasSlicing, hasLength;
+
+        static assert(isRandomAccessRange!S);
+        static assert(hasSlicing!S);
+        static assert(hasLength!S);
+
+        import std.algorithm.sorting : sort;
+        sort(a[]);
+    }
 }

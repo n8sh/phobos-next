@@ -103,7 +103,7 @@ pragma(inline):
                                   cast(Unqual!(typeof(this))*)(&this)); // trusted unconst casta
         }
 
-        /// Get read-only slice in range i .. j.
+        /// Get read-only slice in range `i` .. `j`.
         ReadBorrowedSlice!(Range, Owned) sliceRO(size_t i, size_t j) const @trusted
         {
             assert(!_writeBorrowed, "This is already write-borrowed");
@@ -119,7 +119,7 @@ pragma(inline):
             return typeof(return)(_container.opSlice, &this);
         }
 
-        /// Get read-write slice in range i .. j.
+        /// Get read-write slice in range `i` .. `j`.
         WriteBorrowedSlice!(Range, Owned) sliceRW(size_t i, size_t j) @trusted
         {
             assert(!_writeBorrowed, "This is already write-borrowed");
@@ -127,12 +127,12 @@ pragma(inline):
             return typeof(return)(_container.opSlice[i .. j], &this);
         }
 
-        /// Get read-only slice in range i .. j.
+        /// Get read-only slice in range `i` .. `j`.
         auto opSlice(size_t i, size_t j) const
         {
             return sliceRO(i, j);
         }
-        /// Get read-write slice in range i .. j.
+        /// Get read-write slice in range `i` .. `j`.
         auto opSlice(size_t i, size_t j)
         {
             return sliceRW(i, j);
@@ -243,6 +243,18 @@ private static struct ReadBorrowedSlice(Range, Owner)
     {
         debug assert(_owner._readBorrowCount != 0, "Read borrow counter is already zero, something is wrong with borrowing logic.");
         _owner._readBorrowCount -= 1;
+    }
+
+    /// Get read-only slice in range `i` .. `j`.
+    auto opSlice(size_t i, size_t j)
+    {
+        return typeof(this)(_range[i .. j], _owner);
+    }
+
+    /// Get read-only slice.
+    auto opSlice() inout
+    {
+        return this;            // same as copy
     }
 
     const Range _range;         /// constant range
@@ -442,27 +454,22 @@ nothrow unittest
 @safe nothrow unittest
 {
     import std.algorithm.sorting : sort;
+    import std.range : isRandomAccessRange, hasSlicing;
 
     alias E = int;
     alias A = UncopyableArray!E;
     alias O = Owned!A;
 
-    O o;
+    const O o;
+    auto os = o[];
+    auto oss = os[];            // no op
 
-    foreach (e; o[])
+    static assert(is(typeof(os) == typeof(oss)));
+    // static assert(hasSlicing!(typeof(os)));
+    // TODO make these work:
+    version(none)
     {
-    }
-
-    alias S = typeof(o[]);      // slice
-
-    version(none)               // TODO make these work
-    {
-        import std.range : isRandomAccessRange, hasSlicing, hasLength;
-
         static assert(isRandomAccessRange!S);
-        static assert(hasSlicing!S);
-        static assert(hasLength!S);
-
         import std.algorithm.sorting : sort;
         sort(a[]);
     }

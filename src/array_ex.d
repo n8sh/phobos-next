@@ -4,9 +4,6 @@
     BUG rdmd -main -unittest -g -debug array_ex
     dustmite --strip-comments --no-redirect src "show-segfault rdmd -main -unittest -g -debug array_ex | grep double-linked"
 
-    TODO Why is pushBack of 5_000_000 uints in this `Array` slower (44 ms) than
-         both `Appender` (24 ms) and `std.container.array.Array` (17 ms)?
-
     TODO Breakout common logic into private `BasicArray` and reuse with `alias this` to express StandardArray, SortedArray, SortedSetArray
 
     TODO Remove explicit moves when DMD std.algorithm.mutation.move calls these
@@ -90,6 +87,7 @@ import container_traits : ContainerElementType;
 
 import std.traits : isInstanceOf;
 /// Returns: `true` iff `C` is an `Array`.
+
 enum isMyArray(C) = isInstanceOf!(Array, C);
 
 static if (__VERSION__ >= 2072)

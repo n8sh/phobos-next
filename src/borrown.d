@@ -16,7 +16,7 @@
     <li> TODO Is sliceRW and sliceRO good names?
 
     <li> TODO can we make the `_range` member non-visible but the alias this
-    public in ReadBorrowedSlice and WriteBorrowedSlice
+    public in ReadBorrowed and WriteBorrowed
 
     </ul>
  */
@@ -96,7 +96,7 @@ pragma(inline):
         import std.typecons : Unqual;
 
         /// Get full read-only slice.
-        ReadBorrowedSlice!(Range, Owned) sliceRO() const @trusted
+        ReadBorrowed!(Range, Owned) sliceRO() const @trusted
         {
             assert(!_writeBorrowed, "This is already write-borrowed");
             return typeof(return)(_container.opSlice,
@@ -104,7 +104,7 @@ pragma(inline):
         }
 
         /// Get read-only slice in range `i` .. `j`.
-        ReadBorrowedSlice!(Range, Owned) sliceRO(size_t i, size_t j) const @trusted
+        ReadBorrowed!(Range, Owned) sliceRO(size_t i, size_t j) const @trusted
         {
             assert(!_writeBorrowed, "This is already write-borrowed");
             return typeof(return)(_container.opSlice[i .. j],
@@ -112,7 +112,7 @@ pragma(inline):
         }
 
         /// Get full read-write slice.
-        WriteBorrowedSlice!(Range, Owned) sliceRW() @trusted
+        WriteBorrowed!(Range, Owned) sliceRW() @trusted
         {
             assert(!_writeBorrowed, "This is already write-borrowed");
             assert(_readBorrowCount == 0, "This is already read-borrowed");
@@ -120,7 +120,7 @@ pragma(inline):
         }
 
         /// Get read-write slice in range `i` .. `j`.
-        WriteBorrowedSlice!(Range, Owned) sliceRW(size_t i, size_t j) @trusted
+        WriteBorrowed!(Range, Owned) sliceRW(size_t i, size_t j) @trusted
         {
             assert(!_writeBorrowed, "This is already write-borrowed");
             assert(_readBorrowCount == 0, "This is already read-borrowed");
@@ -193,7 +193,7 @@ void moveEmplace(Owner)(ref Owner src, ref Owner dst) @safe pure nothrow @nogc
 }
 
 /** Write-borrowed access to range `Range`. */
-private static struct WriteBorrowedSlice(Range, Owner)
+private static struct WriteBorrowed(Range, Owner)
     // if (isInstanceOf!(Owned, Owner))
 {
     this(Range range, Owner* owner)
@@ -220,7 +220,7 @@ private:
 }
 
 /** Read-borrowed access to range `Range`. */
-private static struct ReadBorrowedSlice(Range, Owner)
+private static struct ReadBorrowed(Range, Owner)
     // if (isInstanceOf!(Owned, Owner))
 {
     this(const Range range, Owner* owner)
@@ -404,8 +404,8 @@ pure unittest
     assert(oa.sliceRO(0, 2) == [11, 12]);
 
     // test mutable slice
-    static assert(isInstanceOf!(WriteBorrowedSlice, typeof(oa.sliceRW())));
-    static assert(isInstanceOf!(WriteBorrowedSlice, typeof(oa[])));
+    static assert(isInstanceOf!(WriteBorrowed, typeof(oa.sliceRW())));
+    static assert(isInstanceOf!(WriteBorrowed, typeof(oa[])));
     foreach (ref e; oa.sliceRW)
     {
         assertThrown!AssertError(oa.sliceRO); // one more write borrow is not allowed
@@ -414,7 +414,7 @@ pure unittest
     }
 
     // test readable slice
-    static assert(isInstanceOf!(ReadBorrowedSlice, typeof(oa.sliceRO())));
+    static assert(isInstanceOf!(ReadBorrowed, typeof(oa.sliceRO())));
     foreach (const ref e; oa.sliceRO)
     {
         assert(oa.sliceRO.length == oa.length);
@@ -434,11 +434,11 @@ pure unittest
     Owned!A mo;          // mutable owner
     assert(mo.sliceRO.ptr == mo.ptr);
     assert(mo.sliceRO(0, 0).ptr == mo.ptr);
-    static assert(isInstanceOf!(ReadBorrowedSlice, typeof(mo.sliceRO())));
+    static assert(isInstanceOf!(ReadBorrowed, typeof(mo.sliceRO())));
 
     const Owned!A co;          // const owner
     assert(co.sliceRO.ptr == co.ptr);
-    static assert(isInstanceOf!(ReadBorrowedSlice, typeof(co.sliceRO())));
+    static assert(isInstanceOf!(ReadBorrowed, typeof(co.sliceRO())));
 }
 
 nothrow unittest

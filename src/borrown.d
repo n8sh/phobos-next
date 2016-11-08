@@ -493,10 +493,15 @@ nothrow unittest
     O o;
 
     o ~= 42;
-    assert(!o.empty);
+    o ~= 43;
+    assert(o.length == 2);
 
     auto os = o.sliceRO;
     assert(!os.empty);
+    assert(os.length == 2);
+    os.popFront();
+    assert(!os.empty);
+    assert(os.length == 1);
     os.popFront();
     assert(os.empty);
 
@@ -504,17 +509,6 @@ nothrow unittest
     assert(oss.empty);
 
     alias OS = typeof(os);
-
-    static assert(is(OS == typeof(oss)));
-    {
-        alias R = OS;
-        R r = R.init;     // can define a range object
-        if (r.empty) {}   // can test for empty
-        // r.popFront();     // can invoke popFront()
-        // auto h = r.front; // can get the front of the range
-        // auto s1 = r.save;
-        // static assert (is(typeof(s) == R));
-    }
 
     static assert(isInputRange!(OS));
     static assert(isForwardRange!(OS));

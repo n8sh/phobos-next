@@ -270,7 +270,18 @@ private static struct ReadBorrowed(Range, Owner)
         return _range.length == 0;
     }
 
-    @property popFront() @safe
+    @property front() @safe pure nothrow @nogc
+    {
+        assert(!empty);
+        return _range[0];
+    }
+
+    typeof(this) save()         // forward range
+    {
+        return this;
+    }
+
+    void popFront() @safe
     {
         import std.range : popFront;
         _range.popFront;
@@ -492,9 +503,11 @@ nothrow unittest
     auto oss = os[];            // no op
     assert(oss.empty);
 
-    static assert(is(typeof(os) == typeof(oss)));
+    alias OS = typeof(os);
+
+    static assert(is(OS == typeof(oss)));
     {
-        alias R = typeof(os);
+        alias R = OS;
         R r = R.init;     // can define a range object
         if (r.empty) {}   // can test for empty
         // r.popFront();     // can invoke popFront()
@@ -503,13 +516,14 @@ nothrow unittest
         // static assert (is(typeof(s) == R));
     }
 
-    // static assert(isInputRange!(typeof(os)));
-    // static assert(isForwardRange!(typeof(os)));
-    // static assert(hasSlicing!(typeof(os)));
+    static assert(isInputRange!(OS));
+    static assert(isForwardRange!(OS));
+    static assert(hasSlicing!(OS));
+    static assert(isRandomAccessRange!OS);
+
     // TODO make these work:
     version(none)
     {
-        static assert(isRandomAccessRange!S);
         import std.algorithm.sorting : sort;
         sort(a[]);
     }

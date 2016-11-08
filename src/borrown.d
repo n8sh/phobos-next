@@ -225,25 +225,34 @@ private static struct ReadBorrowed(Range, Owner)
 {
     this(const Range range, Owner* owner)
     {
-        assert(owner);
         _range = range;
         _owner = owner;
-
-        assert(_owner._readBorrowCount != typeof(_owner._readBorrowCount).max, "Cannot have more borrowers.");
-        _owner._readBorrowCount += 1;
+        if (_owner)
+        {
+            assert(_owner._readBorrowCount != typeof(_owner._readBorrowCount).max, "Cannot have more borrowers.");
+            _owner._readBorrowCount += 1;
+        }
     }
 
     this(this)
     {
-        assert(_owner._readBorrowCount != typeof(_owner._readBorrowCount).max, "Cannot have more borrowers.");
-        _owner._readBorrowCount += 1;
+        if (_owner)
+        {
+            assert(_owner._readBorrowCount != typeof(_owner._readBorrowCount).max, "Cannot have more borrowers.");
+            _owner._readBorrowCount += 1;
+        }
     }
 
     ~this()
     {
-        debug assert(_owner._readBorrowCount != 0, "Read borrow counter is already zero, something is wrong with borrowing logic.");
-        _owner._readBorrowCount -= 1;
+        if (_owner)
+        {
+            debug assert(_owner._readBorrowCount != 0, "Read borrow counter is already zero, something is wrong with borrowing logic.");
+            _owner._readBorrowCount -= 1;
+        }
     }
+
+    @property empty() const @safe pure nothrow @nogc { return _range.length == 0; }
 
     /// Get read-only slice in range `i` .. `j`.
     auto opSlice(size_t i, size_t j)
@@ -454,17 +463,33 @@ nothrow unittest
 @safe nothrow unittest
 {
     import std.algorithm.sorting : sort;
-    import std.range : isRandomAccessRange, hasSlicing;
+    import std.range : isInputRange, isForwardRange, isRandomAccessRange, hasSlicing;
 
     alias E = int;
     alias A = UncopyableArray!E;
     alias O = Owned!A;
 
     const O o;
+    assert(o.empty);
     auto os = o[];
+    assert(os.empty);
     auto oss = os[];            // no op
+    assert(oss.empty);
 
     static assert(is(typeof(os) == typeof(oss)));
+    {
+        alias R = typeof(os);
+        pragma(msg, R);
+        R r = R.init;     // can define a range object
+        if (r.empty) {}   // can test for empty
+        // r.popFront();     // can invoke popFront()
+        // auto h = r.front; // can get the front of the range
+        // auto s1 = r.save;
+        // static assert (is(typeof(s) == R));
+    }
+
+    // static assert(isInputRange!(typeof(os)));
+    // static assert(isForwardRange!(typeof(os)));
     // static assert(hasSlicing!(typeof(os)));
     // TODO make these work:
     version(none)

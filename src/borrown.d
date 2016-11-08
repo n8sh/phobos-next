@@ -225,7 +225,8 @@ private static struct ReadBorrowed(Range, Owner)
 {
     this(const Range range, Owner* owner)
     {
-        _range = range;
+        import std.typecons : Unqual;
+        _range = *(cast(Unqual!Range*)&range);
         _owner = owner;
         if (_owner)
         {
@@ -252,8 +253,6 @@ private static struct ReadBorrowed(Range, Owner)
         }
     }
 
-    @property empty() const @safe pure nothrow @nogc { return _range.length == 0; }
-
     /// Get read-only slice in range `i` .. `j`.
     auto opSlice(size_t i, size_t j)
     {
@@ -266,7 +265,18 @@ private static struct ReadBorrowed(Range, Owner)
         return this;            // same as copy
     }
 
-    const Range _range;         /// constant range
+    @property empty() const @safe pure nothrow @nogc
+    {
+        return _range.length == 0;
+    }
+
+    @property popFront() @safe
+    {
+        import std.range : popFront;
+        _range.popFront;
+    }
+
+    Range _range;         /// constant range
     alias _range this;          /// behave like range
 
 private:
@@ -469,17 +479,22 @@ nothrow unittest
     alias A = UncopyableArray!E;
     alias O = Owned!A;
 
-    const O o;
-    assert(o.empty);
-    auto os = o[];
+    O o;
+
+    o ~= 42;
+    assert(!o.empty);
+
+    auto os = o.sliceRO;
+    assert(!os.empty);
+    os.popFront();
     assert(os.empty);
+
     auto oss = os[];            // no op
     assert(oss.empty);
 
     static assert(is(typeof(os) == typeof(oss)));
     {
         alias R = typeof(os);
-        pragma(msg, R);
         R r = R.init;     // can define a range object
         if (r.empty) {}   // can test for empty
         // r.popFront();     // can invoke popFront()

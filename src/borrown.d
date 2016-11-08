@@ -492,8 +492,8 @@ nothrow unittest
 
     O o;
 
-    o ~= 42;
-    o ~= 43;
+    o.pushBack(42, 43);
+
     assert(o.length == 2);
 
     auto os = o.sliceRO;

@@ -492,7 +492,7 @@ nothrow unittest
 
     O o;
 
-    o.pushBack(42, 43);
+    o ~= [42, 43];
 
     assert(o.length == 2);
 

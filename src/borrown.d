@@ -287,7 +287,7 @@ private static struct ReadBorrowed(Range, Owner)
         _range.popFront;
     }
 
-    Range _range;         /// constant range
+    Range _range;               /// constant range
     alias _range this;          /// behave like range
 
 private:
@@ -491,12 +491,18 @@ nothrow unittest
     alias O = Owned!A;
 
     O o;
-
     o ~= [42, 43];
 
     assert(o.length == 2);
 
     auto os = o.sliceRO;
+
+    alias OS = typeof(os);
+    static assert(isInputRange!(OS));
+    static assert(isForwardRange!(OS));
+    static assert(hasSlicing!(OS));
+    static assert(isRandomAccessRange!OS);
+
     assert(!os.empty);
     assert(os.length == 2);
     os.popFront();
@@ -507,18 +513,28 @@ nothrow unittest
 
     auto oss = os[];            // no op
     assert(oss.empty);
+}
 
+// check write-borrow
+@safe nothrow unittest
+{
+    import std.algorithm.sorting : sort;
+    import std.range : isInputRange, isForwardRange, isRandomAccessRange, hasSlicing;
+
+    alias E = int;
+    alias A = UncopyableArray!E;
+    alias O = Owned!A;
+
+    O o;
+    o ~= [42, 43];
+
+    auto os = o.sliceRW;
     alias OS = typeof(os);
-
     static assert(isInputRange!(OS));
-    static assert(isForwardRange!(OS));
-    static assert(hasSlicing!(OS));
-    static assert(isRandomAccessRange!OS);
 
-    // TODO make these work:
-    version(none)
-    {
-        import std.algorithm.sorting : sort;
-        sort(a[]);
-    }
+    // static assert(isForwardRange!(OS));
+    // static assert(hasSlicing!(OS));
+    // static assert(isRandomAccessRange!OS);
+    // import std.algorithm.sorting : sort;
+    // sort(o[]);
 }

@@ -283,10 +283,13 @@ struct Call
 
     OpCount execute(const ref Datas ins, ref Datas outs) @trusted
     {
+        assert(ins.length != 0); // no use having empty input
+
         typeof(return) opCount = 0;
-        assert(ins.length);
+
         import std.algorithm.iteration : fold, sum;
         import std.algorithm.comparison : min, max;
+
         final switch (lop)
         {
         case LOp.sum:
@@ -323,9 +326,9 @@ alias Calls = UCA!Call;
 
 struct Graph
 {
-    Calls calls;
-    Datas datas;
-    Pipes pipes;
+    Calls calls;                // operation/function calls
+    Datas temps;                // temporary outputs from calls
+    Pipes pipes;                // input to output pipes
 }
 
 /// Scalar Operation Count.
@@ -336,13 +339,21 @@ struct Task
 {
     @safe pure nothrow:
 
-    /// Step forward `n` steps.
-    OpCount step(size_t n) @trusted
+    this(size_t callCount, size_t pipeCount)
+    {
+        graph.calls.reserve(callCount);
+        graph.temps.reserve(callCount);
+
+        graph.temps.reserve(pipeCount);
+    }
+
+    /// Step forward one step.
+    OpCount step() @trusted
     {
         typeof(return) opCount = 0;
-        foreach (const i, ref call; gr.calls)
+        foreach (immutable i, ref call; graph.calls)
         {
-            Datas ins;            // copy from datas[pipes[].inIx]
+            Datas ins;            // copy from temps[pipes[].inIx]
             Datas outs;
             opCount += call.execute(ins, outs);
             // copy from outs to data[pipes[].outIx]
@@ -351,12 +362,18 @@ struct Task
     }
 
 private:
-    Graph gr;
+    Graph graph;
 }
 
 unittest
 {
-    const n = 1_000;
-    Task task;
-    task.step(n);
+    immutable callCount = 10_000;
+    immutable pipeCount = 10_000;
+    auto task = Task(callCount, pipeCount);
+
+    immutable stepCount = 1_000;
+    foreach (immutable i; 0 .. stepCount)
+    {
+        task.step();
+    }
 }

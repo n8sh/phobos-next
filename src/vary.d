@@ -39,7 +39,7 @@ private struct VaryN(bool memoryPacked = false,
     import std.typecons : Unqual;
     import std.meta : allSatisfy, staticIndexOf, staticMap, NoDuplicates;
     import core.stdc.string : memcpy, memset, memcmp;
-    import std.traits : CommonType, isIntegral, hasIndirections;
+    import std.traits : StdCommonType = CommonType, isIntegral, hasIndirections;
     import traits_ex : isComparable, isEquable, sizesOf, stringsOf, allSame;
 
 
@@ -47,8 +47,8 @@ public:
 
     enum name = VaryN.stringof;
     alias Types = NoDuplicates!TypesParam;
-    alias commonType = CommonType!Types;
-    enum thisHaveCommonType = !is(commonType == void);
+    alias CommonType = StdCommonType!Types;
+    enum hasCommonType = !is(CommonType == void);
 
     enum typeSizes = sizesOf!Types;
     enum typeNames = stringsOf!Types;
@@ -288,14 +288,14 @@ public:
 
     static if (allSatisfy!(isEquable, Types))
     {
-        static if (thisHaveCommonType) // if Types have a CommonType
+        static if (hasCommonType) // if Types have a CommonType
         {
             bool opEquals(in VaryN that) const @trusted nothrow @nogc // opEquals is nothrow @nogc
             {
                 if (_tix != that._tix)
                 {
-                    return (this.convertTo!commonType ==
-                            that.convertTo!commonType);
+                    return (this.convertTo!CommonType ==
+                            that.convertTo!CommonType);
                 }
                 else
                 {
@@ -367,13 +367,13 @@ public:
     {
         int opCmp(in VaryN that) const @trusted // TODO extend to VaryN!(ThatTypes)
         {
-            static if (thisHaveCommonType) // TODO extend to haveCommonType!(Types, ThatTypes)
+            static if (hasCommonType) // TODO extend to haveCommonType!(Types, ThatTypes)
             {
                 if (_tix != that._tix)
                 {
                     // TODO functionize to defaultOpCmp to avoid postblits:
-                    const a = this.convertTo!commonType;
-                    const b = that.convertTo!commonType;
+                    const a = this.convertTo!CommonType;
+                    const b = that.convertTo!CommonType;
                     return a < b ? -1 : a > b ? 1 : 0;
                 }
             }

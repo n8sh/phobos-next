@@ -294,6 +294,7 @@ struct Call
 
         import std.algorithm.iteration : map, fold, sum;
         import std.algorithm.comparison : min, max;
+        import std.algorithm : minElement, maxElement;
 
         final switch (lop)
         {
@@ -312,13 +313,13 @@ struct Call
         case LOp.min:
             outs.length = 1;
             outs[0] = ins[].map!(_ => _.commonValue)
-                           .fold!((a, b) => min(a, b))(Data.CommonType.max);
+                           .minElement(+Data.CommonType.max);
             opCount += ins.length;
             break;
         case LOp.max:
             outs.length = 1;
             outs[0] = ins[].map!(_ => _.commonValue)
-                           .fold!((a, b) => min(a, b))(-Data.CommonType.max);
+                           .maxElement(-Data.CommonType.max);
             opCount += ins.length;
             break;
         }

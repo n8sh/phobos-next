@@ -336,12 +336,19 @@ struct Network
 {
     @safe pure /*TODO nothrow @nogc*/:
 
-    this(size_t callCount, size_t linkCount)
+    this(size_t callCount, size_t linkCount) @trusted
     {
         import std.random : Random, uniform;
         auto gen = Random();
+
         calls.reserve(callCount);
         temps.reserve(callCount);
+
+        foreach (immutable i; 0 .. callCount)
+        {
+            calls ~= Call(gen.uniform!LOp);
+            temps ~= Data(gen.uniform!long);
+        }
 
         links.reserve(linkCount);
         foreach (immutable i; 0 .. linkCount)
@@ -353,6 +360,7 @@ struct Network
 
     Calls calls;                /// operation/function calls
     Datas temps;                /// temporary outputs from calls
+
     Links links;                /// input-to-output links
 }
 

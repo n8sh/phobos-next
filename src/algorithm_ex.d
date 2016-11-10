@@ -2231,7 +2231,7 @@ typeof(fun(E.init))[n] map(alias fun, E, size_t n)(const E[n] src)
 /// Split `x` in two parts.
 auto split2(T)(T[] x) @trusted
 {
-    struct Result
+    static struct Result        // Voldemort type
     {
         T[] first;              // first half
         T[] second;             // second half
@@ -2254,7 +2254,7 @@ alias halve = split2;
 /// Split `x` in three parts.
 auto split3(T)(T[] x) @trusted
 {
-    struct Result
+    static struct Result        // Voldemort type
     {
         T[] first;              // first half
         T[] second;             // second half

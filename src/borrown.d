@@ -265,12 +265,12 @@ private static struct ReadBorrowed(Range, Owner)
         return this;            // same as copy
     }
 
-    @property empty() const @safe pure nothrow @nogc
+    @property bool empty() const @safe pure nothrow @nogc
     {
         return _range.length == 0;
     }
 
-    @property front() @safe pure nothrow @nogc
+    @property auto ref front() @safe pure nothrow @nogc
     {
         assert(!empty);
         return _range[0];

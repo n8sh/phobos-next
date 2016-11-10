@@ -2227,3 +2227,49 @@ typeof(fun(E.init))[n] map(alias fun, E, size_t n)(const E[n] src)
         static assert(is(typeof(result) == const(E)[n]));
     }
 }
+
+/// Split `x` in two parts.
+auto split2(T)(T[] x) @trusted
+{
+    struct Result
+    {
+        T[] first;              // first half
+        T[] second;             // second half
+    }
+    immutable m = x.length / 2;
+    return Result(x.ptr[0 .. m],
+                  x.ptr[m .. x.length]);
+}
+
+@safe pure nothrow @nogc unittest
+{
+    const int[6] x = [0, 1, 2, 3, 4, 5];
+    const y = x.split2;
+    assert(y.first.equal(x[0 .. 3]));
+    assert(y.second.equal(x[3 .. $]));
+}
+
+/// Split `x` in three parts.
+auto split3(T)(T[] x) @trusted
+{
+    struct Result
+    {
+        T[] first;              // first half
+        T[] second;             // second half
+        T[] third;              // third half
+    }
+    immutable m = 1*x.length/3;
+    immutable n = 2*x.length/3;
+    return Result(x.ptr[0 .. m],
+                  x.ptr[m .. n],
+                  x.ptr[n .. x.length]);
+}
+
+@safe pure nothrow @nogc unittest
+{
+    const int[6] x = [0, 1, 2, 3, 4, 5];
+    const y = x.split3;
+    assert(y.first.equal(x[0 .. 2]));
+    assert(y.second.equal(x[2 .. 4]));
+    assert(y.third.equal(x[4 .. 6]));
+}

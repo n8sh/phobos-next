@@ -286,9 +286,24 @@ public:
         }
     }
 
+    static if (hasCommonType)
+    {
+        CommonType commonValue() const @safe pure nothrow @nogc
+        {
+            final switch (_tix)
+            {
+                foreach (const i, T; Types)
+                {
+                case i:
+                    return cast(CommonType)this.as!T;
+                }
+            }
+        }
+    }
+
     static if (allSatisfy!(isEquable, Types))
     {
-        static if (hasCommonType) // if Types have a CommonType
+        static if (hasCommonType)
         {
             bool opEquals(in VaryN that) const @trusted nothrow @nogc // opEquals is nothrow @nogc
             {
@@ -484,6 +499,11 @@ nothrow @nogc unittest
     const C b = 2.0;
     const C c = 2.0f;
     const C d = 1.0f;
+
+    assert(a.commonValue == 1);
+    assert(b.commonValue == 2);
+    assert(c.commonValue == 2);
+    assert(d.commonValue == 1);
 
     // nothrow comparison possible
     assert(a < b);

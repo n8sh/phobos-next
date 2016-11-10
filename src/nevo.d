@@ -11,6 +11,11 @@ module evo;
 
 import std.stdio, std.algorithm;
 
+version(unittest)
+{
+    import dbgio : dln;
+}
+
 @safe pure:
 
 /** Low-Level (Genetic Programming) Operation Network Node Types often implemented
@@ -270,13 +275,13 @@ import vary : FastVariant;
 alias Data = FastVariant!(long, double);
 alias Datas = UCA!Data;
 
-/// Parameter Pipe.
-struct Pipe
+/// Parameter Link.
+struct Link
 {
     size_t inIx;                // input `Call` index
     size_t outIx;               // output `Call` index
 }
-alias Pipes = UCA!Pipe;
+alias Links = UCA!Link;
 
 /// Operation Call
 struct Call
@@ -331,24 +336,24 @@ struct Network
 {
     @safe pure /*TODO nothrow @nogc*/:
 
-    this(size_t callCount, size_t pipeCount)
+    this(size_t callCount, size_t linkCount)
     {
         import std.random : Random, uniform;
         auto gen = Random();
         calls.reserve(callCount);
         temps.reserve(callCount);
 
-        pipes.reserve(pipeCount);
-        foreach (immutable i; 0 .. pipeCount)
+        links.reserve(linkCount);
+        foreach (immutable i; 0 .. linkCount)
         {
-            pipes ~= Pipe(uniform(0, callCount, gen),
+            links ~= Link(uniform(0, callCount, gen),
                           uniform(0, callCount, gen));
         }
     }
 
     Calls calls;                /// operation/function calls
     Datas temps;                /// temporary outputs from calls
-    Pipes pipes;                /// input to output pipes
+    Links links;                /// input-to-output links
 }
 
 /// Scalar Operation Count.
@@ -359,9 +364,9 @@ struct Task
 {
     @safe pure /*TODO nothrow*/:
 
-    this(size_t callCount, size_t pipeCount)
+    this(size_t callCount, size_t linkCount)
     {
-        network = Network(callCount, pipeCount);
+        network = Network(callCount, linkCount);
     }
 
     /// Step forward one step.
@@ -370,10 +375,10 @@ struct Task
         typeof(return) opCount = 0;
         foreach (immutable i, ref call; network.calls)
         {
-            Datas ins;            // copy from temps[pipes[].inIx]
+            Datas ins;          // copy from temps[links[].inIx]
             Datas outs;
             opCount += call.execute(ins, outs);
-            // copy from outs to data[pipes[].outIx]
+            // copy from outs to data[links[].outIx]
         }
         return opCount;
     }
@@ -385,8 +390,8 @@ private:
 unittest
 {
     immutable callCount = 10_000;
-    immutable pipeCount = 10_000;
-    auto task = Task(callCount, pipeCount);
+    immutable linkCount = 10_000;
+    auto task = Task(callCount, linkCount);
 
     immutable stepCount = 1_000;
     foreach (immutable i; 0 .. stepCount)

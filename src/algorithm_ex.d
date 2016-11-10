@@ -2237,6 +2237,7 @@ auto split2(T)(T[] x) @trusted
         T[] second;             // second half
     }
     immutable m = x.length / 2;
+    // range checking is not needed
     return Result(x.ptr[0 .. m],
                   x.ptr[m .. x.length]);
 }
@@ -2258,6 +2259,7 @@ auto split3(T)(T[] x) @trusted
         T[] second;             // second half
         T[] third;              // third half
     }
+    // range checking is not needed
     immutable m = 1*x.length/3;
     immutable n = 2*x.length/3;
     return Result(x.ptr[0 .. m],

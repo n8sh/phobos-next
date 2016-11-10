@@ -271,7 +271,7 @@ private static struct ReadBorrowed(Range, Owner)
         return _range.empty;
     }
 
-    @property auto ref front() @safe pure nothrow @nogc
+    @property auto ref front() inout @safe pure nothrow @nogc
     {
         assert(!empty);
         import std.range : front;

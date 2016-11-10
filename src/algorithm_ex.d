@@ -2241,6 +2241,7 @@ auto split2(T)(T[] x) @trusted
     return Result(x.ptr[0 .. m],
                   x.ptr[m .. x.length]);
 }
+alias halve = split2;
 
 @safe pure nothrow @nogc unittest
 {

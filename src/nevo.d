@@ -18,7 +18,7 @@ enum LOp
     sum, prod, min, max
 }
 
-/** Low-Level (Genetic Programming) Operation Graph Node Types often implemented
+/** Low-Level (Genetic Programming) Operation Network Node Types often implemented
     in a modern hardware (CPU/GPU).
 
     See also: http://llvm.org/docs/LangRef.html#typesystem
@@ -194,7 +194,7 @@ bool isPermutation(LOp lop)
 }
 }
 
-/**m Graph (Transformation) Operation Type Code.
+/**m Network (Transformation) Operation Type Code.
  *
  * Instructions for a Program that builds \em Computing Networks (for
  * example Artificial Nerual Networks ANN).
@@ -324,8 +324,18 @@ struct Call
 }
 alias Calls = UCA!Call;
 
-struct Graph
+/// Network of calls.
+struct Network
 {
+    @safe pure nothrow @nogc:
+
+    this(size_t callCount, size_t pipeCount)
+    {
+        calls.reserve(callCount);
+        temps.reserve(callCount);
+        temps.reserve(pipeCount);
+    }
+
     Calls calls;                // operation/function calls
     Datas temps;                // temporary outputs from calls
     Pipes pipes;                // input to output pipes
@@ -334,24 +344,21 @@ struct Graph
 /// Scalar Operation Count.
 alias OpCount = size_t;
 
-/// Task/Process.
+/// Task/Process executing a network.
 struct Task
 {
     @safe pure nothrow:
 
     this(size_t callCount, size_t pipeCount)
     {
-        graph.calls.reserve(callCount);
-        graph.temps.reserve(callCount);
-
-        graph.temps.reserve(pipeCount);
+        network = Network(callCount, pipeCount);
     }
 
     /// Step forward one step.
     OpCount step() @trusted
     {
         typeof(return) opCount = 0;
-        foreach (immutable i, ref call; graph.calls)
+        foreach (immutable i, ref call; network.calls)
         {
             Datas ins;            // copy from temps[pipes[].inIx]
             Datas outs;
@@ -362,7 +369,7 @@ struct Task
     }
 
 private:
-    Graph graph;
+    Network network;
 }
 
 unittest

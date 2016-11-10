@@ -267,13 +267,15 @@ private static struct ReadBorrowed(Range, Owner)
 
     @property bool empty() const @safe pure nothrow @nogc
     {
-        return _range.length == 0;
+        import std.range : empty;
+        return _range.empty;
     }
 
     @property auto ref front() @safe pure nothrow @nogc
     {
         assert(!empty);
-        return _range[0];
+        import std.range : front;
+        return _range.front;
     }
 
     typeof(this) save()         // forward range

@@ -11,7 +11,12 @@ module evo;
 
 import std.stdio, std.algorithm;
 
-@safe pure nothrow @nogc:
+@safe pure nothrow:
+
+enum LOp
+{
+    sum, prod
+}
 
 /** Low-Level (Genetic Programming) Operation Graph Node Types often implemented
     in a modern hardware (CPU/GPU).
@@ -19,7 +24,7 @@ import std.stdio, std.algorithm;
     See also: http://llvm.org/docs/LangRef.html#typesystem
     See also: http://llvm.org/docs/LangRef.html#instref
 */
-enum LOp
+enum LOp_
 {
     id, /**< Identity. */
 
@@ -259,29 +264,9 @@ enum GOp
 import array_ex : UCA = UncopyableArray;
 
 import vary : FastVariant;
+
 alias Data = FastVariant!(long, double);
-
-/// Operation Call
-struct Call
-{
-    @safe pure nothrow:
-
-    Data execute(Data[] ins)
-    {
-        assert(ins.length);
-        import std.algorithm.iteration : sum;
-        switch (lop)
-        {
-        case LOp.add: return Data(ins.map!(_ => _.commonValue).sum);
-        case LOp.mul: return Data(ins.map!(_ => _.commonValue).fold!((a, b) => a * b));
-        default: return typeof(return)();
-        }
-    }
-
-    LOp lop;
-}
-
-alias Calls = UCA!Call;
+alias Datas = UCA!Data;
 
 /// Parameter Pipe.
 struct Pipe
@@ -289,30 +274,66 @@ struct Pipe
     size_t inIx;                // input `Call` index
     size_t outIx;               // output `Call` index
 }
-
 alias Pipes = UCA!Pipe;
 
-alias Datas = UCA!Data;
+/// Operation Call
+struct Call
+{
+    pure nothrow:
+
+    OpCount execute(const ref Datas ins, ref Datas outs) @trusted
+    {
+        typeof(return) opCount = 0;
+        assert(ins.length);
+        import std.algorithm.iteration : fold, sum;
+        final switch (lop)
+        {
+        case LOp.sum:
+            outs.length = 1;
+            outs[0] = ins[].map!(_ => _.commonValue)
+                           .sum();
+            opCount += ins.length;
+            break;
+        case LOp.prod:
+            outs.length = 1;
+            outs[0] = ins[].map!(_ => _.commonValue)
+                           .fold!((a, b) => a * b)(cast(Data.CommonType)1.0);
+            opCount += ins.length;
+            break;
+        }
+        return opCount;
+    }
+
+    LOp lop;
+}
+alias Calls = UCA!Call;
 
 struct Graph
 {
     Calls calls;
-    Datas outs;                  // call outputs
+    Datas datas;
     Pipes pipes;
 }
+
+/// Scalar Operation Count.
+alias OpCount = size_t;
 
 /// Task/Process.
 struct Task
 {
-    @safe pure nothrow @nogc:
+    @safe pure nothrow:
 
-    void step(size_t n) @trusted
+    OpCount step(size_t n) @trusted
     {
-        foreach (const i, ref call; gr.calls[])
+        typeof(return) opCount = 0;
+        foreach (const i, ref call; gr.calls)
         {
-            Datas ins;
-            gr.outs[i] = call.execute(ins[]);
+            Datas ins;            // copy from datas[pipes[].inIx]
+            Datas outs;
+            opCount += call.execute(ins, outs);
+            // copy from outs to data[pipes[].outIx]
         }
+        return opCount;
     }
 
 private:
@@ -321,6 +342,7 @@ private:
 
 unittest
 {
+    const n = 1_000;
     Task task;
-    task.step(1);
+    task.step(n);
 }

@@ -9,8 +9,6 @@
 */
 module evo;
 
-import std.stdio, std.algorithm;
-
 version(unittest)
 {
     import dbgio : dln;
@@ -294,7 +292,7 @@ struct Call
 
         typeof(return) opCount = 0;
 
-        import std.algorithm.iteration : fold, sum;
+        import std.algorithm.iteration : map, fold, sum;
         import std.algorithm.comparison : min, max;
 
         final switch (lop)

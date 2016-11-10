@@ -30,8 +30,7 @@ static class VaryNException : Exception
     See also: http://forum.dlang.org/post/osfrjcuabwscvrecuvre@forum.dlang.org
     See also: https://issues.dlang.org/show_bug.cgi?id=15399
  */
-private struct VaryN(bool memoryPacked = false,
-                     TypesParam...)
+private struct VaryN(bool memoryPacked = false, TypesParam...)
 {
     alias Ix = ubyte; // type index type
     enum maxParamCount = 2^^(Ix.sizeof * 8) - 1; // maximum number of allowed type parameters

@@ -726,6 +726,8 @@ private struct Array(E,
         }
     }
 
+    import searching_ex : containsStoreIndex; // TODO this is redundant but elides rdmd dependency error from array_ex.d
+
     static if (IsOrdered!ordering)
     {
         import std.range : SearchPolicy, assumeSorted;

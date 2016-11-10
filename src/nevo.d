@@ -11,18 +11,20 @@ module evo;
 
 import std.stdio, std.algorithm;
 
-@safe pure nothrow:
-
-enum LOp
-{
-    sum, prod, min, max
-}
+@safe pure:
 
 /** Low-Level (Genetic Programming) Operation Network Node Types often implemented
     in a modern hardware (CPU/GPU).
 
     See also: http://llvm.org/docs/LangRef.html#typesystem
     See also: http://llvm.org/docs/LangRef.html#instref
+*/
+enum LOp
+{
+    sum, prod, min, max
+}
+
+/** Obselete.
 */
 enum LOp_
 {
@@ -320,25 +322,33 @@ struct Call
         return opCount;
     }
 
-    LOp lop;
+    LOp lop;                    /// operation
 }
 alias Calls = UCA!Call;
 
 /// Network of calls.
 struct Network
 {
-    @safe pure nothrow @nogc:
+    @safe pure /*TODO nothrow @nogc*/:
 
     this(size_t callCount, size_t pipeCount)
     {
+        import std.random : Random, uniform;
+        auto gen = Random();
         calls.reserve(callCount);
         temps.reserve(callCount);
-        temps.reserve(pipeCount);
+
+        pipes.reserve(pipeCount);
+        foreach (immutable i; 0 .. pipeCount)
+        {
+            pipes ~= Pipe(uniform(0, callCount, gen),
+                          uniform(0, callCount, gen));
+        }
     }
 
-    Calls calls;                // operation/function calls
-    Datas temps;                // temporary outputs from calls
-    Pipes pipes;                // input to output pipes
+    Calls calls;                /// operation/function calls
+    Datas temps;                /// temporary outputs from calls
+    Pipes pipes;                /// input to output pipes
 }
 
 /// Scalar Operation Count.
@@ -347,7 +357,7 @@ alias OpCount = size_t;
 /// Task/Process executing a network.
 struct Task
 {
-    @safe pure nothrow:
+    @safe pure /*TODO nothrow*/:
 
     this(size_t callCount, size_t pipeCount)
     {

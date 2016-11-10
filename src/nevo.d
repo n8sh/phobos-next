@@ -15,7 +15,7 @@ import std.stdio, std.algorithm;
 
 enum LOp
 {
-    sum, prod
+    sum, prod, min, max
 }
 
 /** Low-Level (Genetic Programming) Operation Graph Node Types often implemented
@@ -286,6 +286,7 @@ struct Call
         typeof(return) opCount = 0;
         assert(ins.length);
         import std.algorithm.iteration : fold, sum;
+        import std.algorithm.comparison : min, max;
         final switch (lop)
         {
         case LOp.sum:
@@ -298,6 +299,18 @@ struct Call
             outs.length = 1;
             outs[0] = ins[].map!(_ => _.commonValue)
                            .fold!((a, b) => a * b)(cast(Data.CommonType)1.0);
+            opCount += ins.length;
+            break;
+        case LOp.min:
+            outs.length = 1;
+            outs[0] = ins[].map!(_ => _.commonValue)
+                           .fold!((a, b) => min(a, b))(Data.CommonType.max);
+            opCount += ins.length;
+            break;
+        case LOp.max:
+            outs.length = 1;
+            outs[0] = ins[].map!(_ => _.commonValue)
+                           .fold!((a, b) => min(a, b))(-Data.CommonType.max);
             opCount += ins.length;
             break;
         }
@@ -323,6 +336,7 @@ struct Task
 {
     @safe pure nothrow:
 
+    /// Step forward `n` steps.
     OpCount step(size_t n) @trusted
     {
         typeof(return) opCount = 0;

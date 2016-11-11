@@ -309,7 +309,8 @@ struct Cell
     {
         import std.algorithm.iteration : sum;
         outs.length = 1;
-        outs[0] = ins[].map!(_ => _.commonValue)
+        outs[0] = ins[].filter!(_ => _.hasValue)
+                       .map!(_ => _.commonValue)
                        .sum();
         return ins.length - 1;
     }

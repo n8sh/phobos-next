@@ -24,7 +24,7 @@ version(unittest)
 */
 enum LOp : ubyte
 {
-    sum, prod, min, max
+    sum, prod, emin, emax
 }
 
 /** Obselete.
@@ -299,8 +299,8 @@ struct Cell
         {
         case LOp.sum: return summation(ins, outs);
         case LOp.prod: return product(ins, outs);
-        case LOp.min: return emin(ins, outs);
-        case LOp.max: return emax(ins, outs);
+        case LOp.emin: return emin(ins, outs);
+        case LOp.emax: return emax(ins, outs);
         }
     }
 

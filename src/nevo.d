@@ -285,7 +285,7 @@ alias Links = UncopyableArray!Link;
 /// Scalar Operation Count.
 alias OpCount = size_t;
 
-/// Calculating Cell
+/// Calculating Cell.
 struct Cell
 {
     import std.algorithm.iteration : map, filter, fold;
@@ -360,7 +360,7 @@ struct Cell
 }
 alias Cells = UncopyableArray!Cell;
 
-/// Network of cells.
+/// Network/Graph of `Cells` implicity connected by `Links`.
 struct Network
 {
     @safe pure /*TODO nothrow @nogc*/:

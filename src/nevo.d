@@ -204,7 +204,7 @@ bool isPermutation(LOp lop)
  * Instructions for a Program that builds \em Computing Networks (for
  * example Artificial Nerual Networks ANN).
  *
- * TODO What does \em nature call this information bearer: Closest I
+ * TODO What does \em nature cell this information bearer: Closest I
  * have found is http://en.wikipedia.org/wiki/Allele.
  */
 enum GOp
@@ -266,23 +266,27 @@ enum GOp
 //     return wc;
 // }
 
-import array_ex : UCA = UncopyableArray;
+import array_ex : UncopyableArray;
+import std.bitmanip : BitArray;
 
 import vary : FastVariant;
 
 alias Data = FastVariant!(long, double);
-alias Datas = UCA!Data;
+alias Datas = UncopyableArray!Data;
 
 /// Parameter Link.
 struct Link
 {
-    size_t inIx;                // input `Call` index
-    size_t outIx;               // output `Call` index
+    size_t inIx;                // input `Cell` index, relative to current
+    size_t outIx;               // output `Cell` index, relative to current
 }
-alias Links = UCA!Link;
+alias Links = UncopyableArray!Link;
 
-/// Operation Call
-struct Call
+/// Scalar Operation Count.
+alias OpCount = size_t;
+
+/// Calculating Cell
+struct Cell
 {
     pure nothrow:
 
@@ -328,77 +332,90 @@ struct Call
 
     LOp lop;                    /// operation
 }
-alias Calls = UCA!Call;
+alias Cells = UncopyableArray!Cell;
 
-/// Network of calls.
+/// Network of cells.
 struct Network
 {
     @safe pure /*TODO nothrow @nogc*/:
 
-    this(size_t callCount, size_t linkCount) @trusted
+    this(size_t cellCount, size_t linkCount) @trusted
     {
         import std.random : Random, uniform;
         auto gen = Random();
 
-        calls.reserve(callCount);
-        temps.reserve(callCount);
+        cells.reserve(cellCount);
+        temps.reserve(cellCount);
 
-        foreach (immutable i; 0 .. callCount)
+        foreach (immutable i; 0 .. cellCount)
         {
-            calls ~= Call(gen.uniform!LOp);
+            cells ~= Cell(gen.uniform!LOp);
             temps ~= Data(gen.uniform!long);
         }
 
         links.reserve(linkCount);
         foreach (immutable i; 0 .. linkCount)
         {
-            links ~= Link(uniform(0, callCount, gen),
-                          uniform(0, callCount, gen));
+            links ~= Link(uniform(0, cellCount, gen),
+                          uniform(0, cellCount, gen));
         }
     }
 
-    Calls calls;                /// operation/function calls
-    Datas temps;                /// temporary outputs from calls
-
+    Cells cells;                /// operation/function cells
+    Datas temps;                /// temporary outputs from cells
     Links links;                /// input-to-output links
-}
 
-/// Scalar Operation Count.
-alias OpCount = size_t;
-
-/// Task/Process executing a network.
-struct Task
-{
-    @safe pure /*TODO nothrow*/:
-
-    this(size_t callCount, size_t linkCount)
+    Datas[] getIns() @trusted
     {
-        network = Network(callCount, linkCount);
+        typeof(return) ins;
+        ins.length = cells.length;
+        foreach (immutable link; links[])
+        {
+            ins[link.inIx] ~= temps[link.inIx];
+        }
+        return ins;
     }
 
-    /// Step forward one step.
+    /// One step forward.
     OpCount step() @trusted
     {
         typeof(return) opCount = 0;
-        foreach (immutable i, ref call; network.calls)
+
+        const ins = getIns();
+
+        foreach (immutable i, ref cell; cells)
         {
-            Datas ins;          // copy from temps[links[].inIx]
-            Datas outs;
-            opCount += call.execute(ins, outs);
-            // copy from outs to data[links[].outIx]
+            import std.algorithm.iteration : map;
+            import std.range : indexed;
+
+            Datas outs;         // data to be filled
+            opCount += cell.execute(ins[i],
+                                    outs);
+            // temps[i] = outs;
+
+            // copy from outs to data[[].outIx]
         }
         return opCount;
     }
 
-private:
-    Network network;
+    BitArray pack() nothrow @nogc
+    {
+        typeof(return) bits;
+        return bits;
+    }
+
+    static typeof(this) unpack(in BitArray bits) nothrow @nogc
+    {
+        typeof(this) that;
+        return that;
+    }
 }
 
 unittest
 {
-    immutable callCount = 10_000;
+    immutable cellCount = 10_000;
     immutable linkCount = 10_000;
-    auto task = Task(callCount, linkCount);
+    auto task = Network(cellCount, linkCount);
 
     immutable stepCount = 1_000;
     foreach (immutable i; 0 .. stepCount)

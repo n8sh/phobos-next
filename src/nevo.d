@@ -288,41 +288,69 @@ alias OpCount = size_t;
 /// Calculating Cell
 struct Cell
 {
-    pure nothrow:
+    import std.algorithm.iteration : map, filter, fold;
 
-    OpCount execute(const ref Datas ins, ref Datas outs) @trusted
+    @safe pure nothrow:
+
+    OpCount sum(const ref Datas ins, ref Datas outs) const @trusted
+    {
+        import std.algorithm.iteration : sum;
+        outs.length = 1;
+        outs[0] = ins[].map!(_ => _.commonValue)
+                       .sum();
+        return ins.length - 1;
+    }
+
+    OpCount prod(const ref Datas ins, ref Datas outs) const @trusted
+    {
+        outs.length = 1;
+        outs[0] = ins[].filter!(_ => _.hasValue)
+                       .map!(_ => _.commonValue)
+                       .fold!((a, b) => a * b)(cast(Data.CommonType)1.0);
+        return ins.length - 1;
+    }
+
+    OpCount emin(const ref Datas ins, ref Datas outs) const @trusted
+    {
+        import std.algorithm : minElement;
+        outs.length = 1;
+        outs[0] = ins[].filter!(_ => _.hasValue)
+                       .map!(_ => _.commonValue)
+                       .minElement(+Data.CommonType.max);
+        return ins.length - 1;
+    }
+
+    OpCount emax(const ref Datas ins, ref Datas outs) const @trusted
+    {
+        import std.algorithm : maxElement;
+        outs.length = 1;
+        outs[0] = ins[].filter!(_ => _.hasValue)
+                       .map!(_ => _.commonValue)
+                       .maxElement(-Data.CommonType.max);
+        return ins.length - 1;
+    }
+
+    OpCount execute(const ref Datas ins, ref Datas outs) const
     {
         typeof(return) opCount = 0;
 
-        import std.algorithm.iteration : map, fold, sum;
+        if (ins.empty) { return opCount; }
+
         import std.algorithm.comparison : min, max;
-        import std.algorithm : minElement, maxElement;
 
         final switch (lop)
         {
         case LOp.sum:
-            outs.length = 1;
-            outs[0] = ins[].map!(_ => _.commonValue)
-                           .sum();
-            opCount += ins.length;
+            opCount += sum(ins, outs);
             break;
         case LOp.prod:
-            outs.length = 1;
-            outs[0] = ins[].map!(_ => _.commonValue)
-                           .fold!((a, b) => a * b)(cast(Data.CommonType)1.0);
-            opCount += ins.length;
+            opCount += prod(ins, outs);
             break;
         case LOp.min:
-            outs.length = 1;
-            outs[0] = ins[].map!(_ => _.commonValue)
-                           .minElement(+Data.CommonType.max);
-            opCount += ins.length;
+            opCount += emin(ins, outs);
             break;
         case LOp.max:
-            outs.length = 1;
-            outs[0] = ins[].map!(_ => _.commonValue)
-                           .maxElement(-Data.CommonType.max);
-            opCount += ins.length;
+            opCount += emax(ins, outs);
             break;
         }
         return opCount;
@@ -337,7 +365,7 @@ struct Network
 {
     @safe pure /*TODO nothrow @nogc*/:
 
-    this(size_t cellCount, size_t linkCount) @trusted
+    this(size_t cellCount, size_t linkCount)
     {
         import std.random : Random, uniform;
         auto gen = Random();
@@ -379,15 +407,12 @@ struct Network
 
         foreach (immutable i, ref cell; cells)
         {
-            import std.algorithm.iteration : map;
-            import std.range : indexed;
-
-            Datas outs;         // data to be filled
-            opCount += cell.execute(ins[i],
-                                    outs);
-            temps[i] = outs[0];
-
-            // copy from outs to data[[].outIx]
+            Datas tempOuts;         // data to be filled
+            if (immutable opCount_ = cell.execute(ins[i], tempOuts))
+            {
+                opCount += opCount_;
+                temps[i] = tempOuts[0];
+            }
         }
         return opCount;
     }

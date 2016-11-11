@@ -292,48 +292,6 @@ struct Cell
 
     @safe pure nothrow:
 
-    /// Sum of `ins`.
-    OpCount summation(const ref Datas ins, ref Datas outs) const @trusted
-    {
-        import std.algorithm.iteration : sum;
-        outs.length = 1;
-        outs[0] = ins[].map!(_ => _.commonValue)
-                       .sum();
-        return ins.length - 1;
-    }
-
-    /// Product of `ins`.
-    OpCount product(const ref Datas ins, ref Datas outs) const @trusted
-    {
-        outs.length = 1;
-        outs[0] = ins[].filter!(_ => _.hasValue)
-                       .map!(_ => _.commonValue)
-                       .fold!((a, b) => a * b)(cast(Data.CommonType)1.0);
-        return ins.length - 1;
-    }
-
-    /// Minimum of `ins`.
-    OpCount emin(const ref Datas ins, ref Datas outs) const @trusted
-    {
-        import std.algorithm : minElement;
-        outs.length = 1;
-        outs[0] = ins[].filter!(_ => _.hasValue)
-                       .map!(_ => _.commonValue)
-                       .minElement(+Data.CommonType.max);
-        return ins.length - 1;
-    }
-
-    /// Maximum of `ins`.
-    OpCount emax(const ref Datas ins, ref Datas outs) const @trusted
-    {
-        import std.algorithm : maxElement;
-        outs.length = 1;
-        outs[0] = ins[].filter!(_ => _.hasValue)
-                       .map!(_ => _.commonValue)
-                       .maxElement(-Data.CommonType.max);
-        return ins.length - 1;
-    }
-
     OpCount execute(const ref Datas ins, ref Datas outs) const
     {
         typeof(return) opCount = 0;
@@ -358,6 +316,50 @@ struct Cell
             break;
         }
         return opCount;
+    }
+
+    @trusted:
+
+    /// Sum of `ins`.
+    OpCount summation(const ref Datas ins, ref Datas outs) const
+    {
+        import std.algorithm.iteration : sum;
+        outs.length = 1;
+        outs[0] = ins[].map!(_ => _.commonValue)
+                       .sum();
+        return ins.length - 1;
+    }
+
+    /// Product of `ins`.
+    OpCount product(const ref Datas ins, ref Datas outs) const
+    {
+        outs.length = 1;
+        outs[0] = ins[].filter!(_ => _.hasValue)
+                       .map!(_ => _.commonValue)
+                       .fold!((a, b) => a * b)(cast(Data.CommonType)1.0);
+        return ins.length - 1;
+    }
+
+    /// Minimum of `ins`.
+    OpCount emin(const ref Datas ins, ref Datas outs) const
+    {
+        import std.algorithm : minElement;
+        outs.length = 1;
+        outs[0] = ins[].filter!(_ => _.hasValue)
+                       .map!(_ => _.commonValue)
+                       .minElement(+Data.CommonType.max);
+        return ins.length - 1;
+    }
+
+    /// Maximum of `ins`.
+    OpCount emax(const ref Datas ins, ref Datas outs) const
+    {
+        import std.algorithm : maxElement;
+        outs.length = 1;
+        outs[0] = ins[].filter!(_ => _.hasValue)
+                       .map!(_ => _.commonValue)
+                       .maxElement(-Data.CommonType.max);
+        return ins.length - 1;
     }
 
     LOp lop;                    /// operation

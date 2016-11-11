@@ -292,7 +292,8 @@ struct Cell
 
     @safe pure nothrow:
 
-    OpCount sum(const ref Datas ins, ref Datas outs) const @trusted
+    /// Sum of `ins`.
+    OpCount summation(const ref Datas ins, ref Datas outs) const @trusted
     {
         import std.algorithm.iteration : sum;
         outs.length = 1;
@@ -301,7 +302,8 @@ struct Cell
         return ins.length - 1;
     }
 
-    OpCount prod(const ref Datas ins, ref Datas outs) const @trusted
+    /// Product of `ins`.
+    OpCount product(const ref Datas ins, ref Datas outs) const @trusted
     {
         outs.length = 1;
         outs[0] = ins[].filter!(_ => _.hasValue)
@@ -310,6 +312,7 @@ struct Cell
         return ins.length - 1;
     }
 
+    /// Minimum of `ins`.
     OpCount emin(const ref Datas ins, ref Datas outs) const @trusted
     {
         import std.algorithm : minElement;
@@ -320,6 +323,7 @@ struct Cell
         return ins.length - 1;
     }
 
+    /// Maximum of `ins`.
     OpCount emax(const ref Datas ins, ref Datas outs) const @trusted
     {
         import std.algorithm : maxElement;
@@ -341,10 +345,10 @@ struct Cell
         final switch (lop)
         {
         case LOp.sum:
-            opCount += sum(ins, outs);
+            opCount += summation(ins, outs);
             break;
         case LOp.prod:
-            opCount += prod(ins, outs);
+            opCount += product(ins, outs);
             break;
         case LOp.min:
             opCount += emin(ins, outs);

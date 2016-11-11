@@ -295,25 +295,13 @@ struct Cell
     OpCount execute(const ref Datas ins, ref Datas outs) const
     {
         typeof(return) opCount = 0;
-
         if (ins.empty) { return opCount; }
-
-        import std.algorithm.comparison : min, max;
-
         final switch (lop)
         {
-        case LOp.sum:
-            opCount += summation(ins, outs);
-            break;
-        case LOp.prod:
-            opCount += product(ins, outs);
-            break;
-        case LOp.min:
-            opCount += emin(ins, outs);
-            break;
-        case LOp.max:
-            opCount += emax(ins, outs);
-            break;
+        case LOp.sum: opCount += summation(ins, outs); break;
+        case LOp.prod: opCount += product(ins, outs); break;
+        case LOp.min: opCount += emin(ins, outs); break;
+        case LOp.max: opCount += emax(ins, outs); break;
         }
         return opCount;
     }

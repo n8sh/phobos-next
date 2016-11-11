@@ -318,10 +318,8 @@ struct Cell
         return opCount;
     }
 
-    @trusted:
-
     /// Sum of `ins`.
-    OpCount summation(const ref Datas ins, ref Datas outs) const
+    OpCount summation(const ref Datas ins, ref Datas outs) const @trusted
     {
         import std.algorithm.iteration : sum;
         outs.length = 1;
@@ -331,7 +329,7 @@ struct Cell
     }
 
     /// Product of `ins`.
-    OpCount product(const ref Datas ins, ref Datas outs) const
+    OpCount product(const ref Datas ins, ref Datas outs) const @trusted
     {
         outs.length = 1;
         outs[0] = ins[].filter!(_ => _.hasValue)
@@ -341,7 +339,7 @@ struct Cell
     }
 
     /// Minimum of `ins`.
-    OpCount emin(const ref Datas ins, ref Datas outs) const
+    OpCount emin(const ref Datas ins, ref Datas outs) const @trusted
     {
         import std.algorithm : minElement;
         outs.length = 1;
@@ -352,7 +350,7 @@ struct Cell
     }
 
     /// Maximum of `ins`.
-    OpCount emax(const ref Datas ins, ref Datas outs) const
+    OpCount emax(const ref Datas ins, ref Datas outs) const @trusted
     {
         import std.algorithm : maxElement;
         outs.length = 1;

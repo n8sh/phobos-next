@@ -24,7 +24,7 @@ version(unittest)
 */
 enum LOp : ubyte
 {
-    sum, prod, emin, emax
+    summ, prod, emin, emax
 }
 
 /** Obselete.
@@ -297,15 +297,15 @@ struct Cell
         if (ins.empty) { return typeof(return).init; }
         final switch (lop)
         {
-        case LOp.sum: return summation(ins, outs);
-        case LOp.prod: return product(ins, outs);
+        case LOp.summ: return summ(ins, outs);
+        case LOp.prod: return prod(ins, outs);
         case LOp.emin: return emin(ins, outs);
         case LOp.emax: return emax(ins, outs);
         }
     }
 
     /// Sum of `ins`.
-    OpCount summation(const ref Datas ins, ref Datas outs) const @trusted
+    OpCount summ(const ref Datas ins, ref Datas outs) const @trusted
     {
         import std.algorithm.iteration : sum;
         outs.length = 1;
@@ -315,7 +315,7 @@ struct Cell
     }
 
     /// Product of `ins`.
-    OpCount product(const ref Datas ins, ref Datas outs) const @trusted
+    OpCount prod(const ref Datas ins, ref Datas outs) const @trusted
     {
         outs.length = 1;
         outs[0] = ins[].filter!(_ => _.hasValue)

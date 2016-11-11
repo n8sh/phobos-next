@@ -407,7 +407,7 @@ struct Network
     {
         typeof(return) opCount = 0;
 
-        const ins = getIns(); // this separate packing of inputs enables parallelization of calls to execute
+        const ins = getIns(); // separate packing of inputs enables parallelization of calls to execute
         foreach (immutable i, ref cell; cells)
         {
             Datas tempOuts;         // data to be filled
@@ -449,5 +449,5 @@ unittest
         task.step();
     }
 
-    dln("done");
+    dln("DONE");
 }

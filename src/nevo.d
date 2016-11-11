@@ -22,14 +22,14 @@ version(unittest)
     See also: http://llvm.org/docs/LangRef.html#typesystem
     See also: http://llvm.org/docs/LangRef.html#instref
 */
-enum LOp
+enum LOp : ubyte
 {
     sum, prod, min, max
 }
 
 /** Obselete.
 */
-enum LOp_
+enum LOp_ : ubyte
 {
     id, /**< Identity. */
 
@@ -207,7 +207,7 @@ bool isPermutation(LOp lop)
  * TODO What does \em nature cell this information bearer: Closest I
  * have found is http://en.wikipedia.org/wiki/Allele.
  */
-enum GOp
+enum GOp : ubyte
 {
     /* \name Structural: Inter-Node */
     /* @{ */
@@ -292,8 +292,6 @@ struct Cell
 
     OpCount execute(const ref Datas ins, ref Datas outs) @trusted
     {
-        assert(ins.length != 0); // no use having empty input
-
         typeof(return) opCount = 0;
 
         import std.algorithm.iteration : map, fold, sum;
@@ -361,10 +359,6 @@ struct Network
         }
     }
 
-    Cells cells;                /// operation/function cells
-    Datas temps;                /// temporary outputs from cells
-    Links links;                /// input-to-output links
-
     Datas[] getIns() @trusted
     {
         typeof(return) ins;
@@ -391,7 +385,7 @@ struct Network
             Datas outs;         // data to be filled
             opCount += cell.execute(ins[i],
                                     outs);
-            // temps[i] = outs;
+            temps[i] = outs[0];
 
             // copy from outs to data[[].outIx]
         }
@@ -409,17 +403,23 @@ struct Network
         typeof(this) that;
         return that;
     }
+
+    Cells cells;                /// operation/function cells
+    Datas temps;                /// temporary outputs from cells
+    Links links;                /// input-to-output links
 }
 
 unittest
 {
-    immutable cellCount = 10_000;
-    immutable linkCount = 10_000;
+    immutable cellCount = 1_000;
+    immutable linkCount = 1_000;
     auto task = Network(cellCount, linkCount);
 
-    immutable stepCount = 1_000;
+    immutable stepCount = 1_0;
     foreach (immutable i; 0 .. stepCount)
     {
         task.step();
     }
+
+    dln("done");
 }

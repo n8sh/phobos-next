@@ -24,7 +24,10 @@ version(unittest)
 */
 enum LOp : ubyte
 {
-    summ, prod, emin, emax
+    summ,                       /// Sum.
+    prod,                       /// Product.
+    emin,                       /// Mininum.
+    emax                        /// Maximum.
 }
 
 /** Obselete.

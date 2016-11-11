@@ -294,16 +294,14 @@ struct Cell
 
     OpCount execute(const ref Datas ins, ref Datas outs) const
     {
-        typeof(return) opCount = 0;
-        if (ins.empty) { return opCount; }
+        if (ins.empty) { return typeof(return).init; }
         final switch (lop)
         {
-        case LOp.sum: opCount += summation(ins, outs); break;
-        case LOp.prod: opCount += product(ins, outs); break;
-        case LOp.min: opCount += emin(ins, outs); break;
-        case LOp.max: opCount += emax(ins, outs); break;
+        case LOp.sum: return summation(ins, outs);
+        case LOp.prod: return product(ins, outs);
+        case LOp.min: return emin(ins, outs);
+        case LOp.max: return emax(ins, outs);
         }
-        return opCount;
     }
 
     /// Sum of `ins`.

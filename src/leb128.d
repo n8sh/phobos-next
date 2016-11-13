@@ -5,69 +5,141 @@ module leb128;
 
 import std.traits : isUnsigned, isSigned;
 
-auto encode(T)(T x)
-    if (isUnsigned!T)
+/// Encode a SLEB128 value to `os`.
+void encodeSLEB128(Output)(ref Output os, long value)
 {
-//     do {
-//   byte = low order 7 bits of value;
-//   value >>= 7;
-//   if (value != 0) /* more bytes to come */
-//     set high order bit of byte;
-//   emit byte;
-// } while (value != 0);
+    bool more;
+    do
+    {
+        ubyte byte_ = value & 0x7f;
+        // assumes that this signed shift is an arithmetic right shift
+        value >>= 7;
+        more = !(((value == 0 ) && ((byte_ & 0x40) == 0)) ||
+                  ((value == -1) && ((byte_ & 0x40) != 0)));
+        if (more)
+            byte_ |= 0x80; // mark this byte to show that more bytes will follow
+        os.put(byte_);
+    }
+    while (more);
 }
 
-auto encode(T)(T x)
-    if (isSigned!T)
+version(unittest)
 {
-// more = 1;
-// negative = (value < 0);
-// size = no. of bits in signed integer;
-// while(more) {
-//   byte = low order 7 bits of value;
-//   value >>= 7;
-//   /* the following is unnecessary if the implementation of >>= uses an
-//      arithmetic rather than logical shift for a signed left operand */
-//   if (negative)
-//     value |= - (1 <<(size - 7)); /* sign extend */1
-
-//   /* sign bit of byte is second high order bit (0x40) */
-//   if ((value == 0 && sign bit of byte is clear) || (value == -1 && sign bit of byte is set))
-//     more = 0;
-//   else
-//     set high order bit of byte;
-//   emit byte;
-// }
+    import dbgio : dln;
+    import std.algorithm.comparison : equal;
+    import std.array : Appender;
 }
 
-auto decode(T)(T x)
-    if (isUnsigned!T)
+@safe pure nothrow unittest
 {
-//     result = 0;
-// shift = 0;
-// while(true) {
-//   byte = next byte in input;
-//   result |= (low order 7 bits of byte << shift);
-//   if (high order bit of byte == 0)
-//     break;
-//   shift += 7;
-// }
+    foreach (immutable i; 0 .. 64)
+    {
+        Appender!(ubyte[]) os;
+        os.encodeSLEB128(i);
+        assert(os.data.equal([i]));
+    }
+    foreach (immutable i; 64 .. 128)
+    {
+        Appender!(ubyte[]) os;
+        os.encodeSLEB128(i);
+        assert(os.data.equal([128 + i, 0]));
+    }
 }
 
-auto decode(T)(T x)
-    if (isSigned!T)
+/// Encode a ULEB128 value to `os`.
+void encodeULEB128(Output)(ulong value, Output os,
+                           uint Padding = 0)
 {
-//     result = 0;
-// shift = 0;
-// size = number of bits in signed integer;
-// do{
-//   byte = next byte in input;
-//   result |= (low order 7 bits of byte << shift);
-//   shift += 7;
-// }while(high order bit of byte != 0);
+    do
+    {
+        ubyte byte_ = value & 0x7f;
+        value >>= 7;
+        if (value != 0 || Padding != 0)
+            byte_ |= 0x80; // mark this byte to show that more bytes will follow
+        os << char(byte_);
+    }
+    while (value != 0);
 
-// /* sign bit of byte is second high order bit (0x40) */
-// if ((shift <size) && (sign bit of byte is set))
-//   /* sign extend */
-//   result |= - (1 << shift);
+    // pad with 0x80 and emit a null byte at the end
+    if (Padding != 0)
+    {
+        for (; Padding != 1; --Padding)
+            os << '\x80';
+        os << '\x00';
+    }
+}
+
+@safe pure nothrow @nogc unittest
+{
+
+}
+
+/** Encode a ULEB128 value to a buffer.
+    Returns: length in bytes of the encoded value.
+*/
+uint encodeULEB128(ulong value, ubyte *p,
+                   uint Padding = 0)
+{
+    ubyte *orig_p = p;
+    do
+    {
+        ubyte byte_ = value & 0x7f;
+        value >>= 7;
+        if (value != 0 || Padding != 0)
+            byte_ |= 0x80; // mark this byte to show that more bytes will follow
+        *p++ = byte_;
+    }
+    while (value != 0);
+
+    // pad with 0x80 and emit a null byte at the end
+    if (Padding != 0)
+    {
+        for (; Padding != 1; --Padding)
+            *p++ = '\x80';
+        *p++ = '\x00';
+    }
+    return cast(uint)(p - orig_p);
+}
+
+@safe pure nothrow @nogc unittest
+{
+
+}
+
+/// Decode a ULEB128 value.
+ulong decodeULEB128(ubyte *p, uint *n = null)
+{
+    const ubyte *orig_p = p;
+    ulong value = 0;
+    uint shift = 0;
+    do
+    {
+        value += ulong(*p & 0x7f) << shift;
+        shift += 7;
+    }
+    while (*p++ >= 128);
+    if (n)
+        *n = cast(uint)(p - orig_p);
+    return value;
+}
+
+/// Decode a SLEB128 value.
+long decodeSLEB128(ubyte *p, uint *n = null)
+{
+    const ubyte *orig_p = p;
+    long value = 0;
+    uint shift = 0;
+    ubyte byte_;
+    do
+    {
+        byte_ = *p++;
+        value |= ((byte_ & 0x7f) << shift);
+        shift += 7;
+    } while (byte_ >= 128);
+    // sign extend negative numbers
+    if (byte_ & 0x40)
+        value |= (cast(ulong)-1) << shift; // value |= (-1ULL) << shift;
+    if (n)
+        *n = cast(uint)(p - orig_p);
+    return value;
 }

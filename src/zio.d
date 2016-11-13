@@ -167,7 +167,7 @@ version(none) unittest
 
     writeln(new GzipByLine(fileName).count);
 
-    foreach (line; new GzipByLine(fileName).take(5))
+    foreach (immutable line; new GzipByLine(fileName).take(5))
     {
         writeln(line);
     }

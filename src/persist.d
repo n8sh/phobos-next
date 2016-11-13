@@ -5,13 +5,11 @@
 */
 module persist;
 
-import std.stdio, std.algorithm;
-
 // Do not declare two of these on the same line or they'll get mixed up
 struct persistent(Type, string file = __FILE__, size_t line = __LINE__)
 {
-    Type info;
-    alias info this;
+    Type _store;
+    alias _store this;
 
     @disable this();    // require an initializer
 
@@ -20,14 +18,15 @@ struct persistent(Type, string file = __FILE__, size_t line = __LINE__)
     {
         // if it is in the file, we should load it here
         // else...
-        info = t;
+        _store = t;
     }
 
     ~this()
     {
+        import std.stdio : writeln;
         // you should actually save it to the file. TODO Import file and
         // calculate its sha1 all at compile-time!
-        writeln("Saving ", info, " as key ",
+        writeln("Saving ", _store, " as key ",
                 file,":",line);
     }
 }

@@ -5,16 +5,16 @@
 */
 module persist;
 
-/// Persistent storage of variables of type `Type`.
-struct persistent(Type, string file = __FILE__, size_t line = __LINE__)
+/// Persistent storage of variables of type `T`.
+struct persistent(T, string file = __FILE__, size_t line = __LINE__)
 {
-    Type store;
+    T store;
     alias store this;
 
     @disable this();    // require an initializer
 
     // with the initializer
-    this(Type t)
+    this(T t)
     {
         // if it is in the file, we should load it here
         // else...

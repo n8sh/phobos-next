@@ -12,17 +12,13 @@
 
 module lcs;
 
-import std.algorithm.comparison : max;
-import std.range : empty;
-import std.algorithm : reverse;
-import std.traits : Unqual;
-
 /** Longest Common Subsequence (LCS).
     See also: http://rosettacode.org/wiki/Longest_common_subsequence#Recursive_version
 */
 T[] lcsR(T)(in T[] a,
             in T[] b) pure nothrow
 {
+    import std.range : empty;
     if (a.empty || b.empty)
     {
         return null;            // undefined
@@ -44,6 +40,8 @@ T[] lcsR(T)(in T[] a,
 T[] lcsDP(T)(in T[] a,
              in T[] b) pure /* nothrow */
 {
+    import std.algorithm.comparison : max;
+
     auto L = new uint[][](a.length + 1, b.length + 1);
 
     foreach (immutable i; 0 .. a.length)
@@ -55,7 +53,9 @@ T[] lcsDP(T)(in T[] a,
         }
     }
 
+    import std.traits : Unqual;
     Unqual!T[] result;
+
     for (auto i = a.length, j = b.length; i > 0 && j > 0; )
     {
         if (a[i - 1] == b[j - 1])
@@ -73,7 +73,8 @@ T[] lcsDP(T)(in T[] a,
         }
     }
 
-    result.reverse(); // Not nothrow.
+    import std.algorithm : reverse;
+    result.reverse();           // not nothrow
     return result;
 }
 
@@ -81,6 +82,8 @@ T[] lcsDP(T)(in T[] a,
 uint[] lcsLengths(R)(R xs,
                      R ys) pure nothrow
 {
+    import std.algorithm.comparison : max;
+
     auto prev = new typeof(return)(1 + ys.length);
     auto curr = new typeof(return)(1 + ys.length);
 
@@ -127,6 +130,7 @@ void lcsDo(T)(in T[] xs,
         const ll_e = lcsLengths(xe.retro,
                                 ys.retro); // retro is slow with DMD
 
+        // import std.algorithm.comparison : max;
         //immutable k = iota(ny + 1)
         //              .reduce!(max!(j => ll_b[j] + ll_e[ny - j]));
         import std.range: iota;
@@ -205,16 +209,22 @@ unittest
 
 unittest
 {
-    import std.algorithm: levenshteinDistance, levenshteinDistanceAndPath;
-    import std.stdio: writeln;
+    alias T = int;
+    size_t n = 300;
+    auto x = new T[n];
+    auto y = new T[n];
+    assert(lcs(x, y).length == n);
+}
+
+version(benchmark) unittest
+{
+    import std.algorithm : levenshteinDistance, levenshteinDistanceAndPath;
     import random_ex: randInPlaceBlockwise;
 
     alias T = int;
-    size_t n = 3_000;
+    size_t n = 300;
     auto x = new T[n];
     auto y = new T[n];
-
-    assert(lcs(x, y).length == n);
 
     x.randInPlaceBlockwise;
     y.randInPlaceBlockwise;
@@ -230,5 +240,6 @@ unittest
     auto r = benchmark!(bLCS, bLD, bLDAP)(1);
     auto q = r.array.map!(a => a.msecs);
 
+    import std.stdio: writeln;
     writeln(q, " milliseconds");
 }

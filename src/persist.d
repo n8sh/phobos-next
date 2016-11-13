@@ -5,7 +5,7 @@
 */
 module persist;
 
-// Do not declare two of these on the same line or they'll get mixed up
+/// Persistent storage of variables of type `Type`.
 struct persistent(Type, string file = __FILE__, size_t line = __LINE__)
 {
     Type store;

@@ -7,8 +7,9 @@ import std.range : isOutputRange;
 import std.traits : isUnsigned, isSigned;
 
 /// Encode a SLEB128 value to `os`.
-void encodeSLEB128(Output)(ref Output os, long value)
-    if (isOutputRange!(Output, ubyte))
+void encodeSLEB128(Output, SInt)(ref Output os, SInt value)
+    if (isOutputRange!(Output, ubyte) &&
+        isSigned!SInt)
 {
     bool more = false;
     do
@@ -23,6 +24,27 @@ void encodeSLEB128(Output)(ref Output os, long value)
         os.put(byte_);
     }
     while (more);
+}
+
+/// Decode a SLEB128 value.
+long decodeSLEB128(ubyte *p, uint *n = null)
+{
+    const ubyte *orig_p = p;
+    long value = 0;
+    uint shift = 0;
+    ubyte byte_;
+    do
+    {
+        byte_ = *p++;
+        value |= ((byte_ & 0x7f) << shift);
+        shift += 7;
+    } while (byte_ >= 128);
+    // sign extend negative numbers
+    if (byte_ & 0x40)
+        value |= (cast(ulong)-1) << shift; // value |= (-1ULL) << shift;
+    if (n)
+        *n = cast(uint)(p - orig_p);
+    return value;
 }
 
 version(unittest)
@@ -53,8 +75,9 @@ version(unittest)
 }
 
 /// Encode a ULEB128 value to `os`.
-void encodeULEB128(Output)(ref Output os, ulong value)
-    if (isOutputRange!(Output, ubyte))
+void encodeULEB128(Output, UInt)(ref Output os, UInt value)
+    if (isOutputRange!(Output, ubyte) &&
+        isUnsigned!UInt)
 {
     do
     {
@@ -65,6 +88,23 @@ void encodeULEB128(Output)(ref Output os, ulong value)
         os.put(char(byte_));
     }
     while (value != 0);
+}
+
+/// Decode a ULEB128 value.
+ulong decodeULEB128(ubyte *p, uint *n = null)
+{
+    const ubyte *orig_p = p;
+    ulong value = 0;
+    uint shift = 0;
+    do
+    {
+        value += ulong(*p & 0x7f) << shift;
+        shift += 7;
+    }
+    while (*p++ >= 128);
+    if (n)
+        *n = cast(uint)(p - orig_p);
+    return value;
 }
 
 @safe pure nothrow unittest
@@ -111,42 +151,4 @@ uint encodeULEB128(ulong value, ubyte *p)
     }
     while (value != 0);
     return cast(uint)(p - orig_p);
-}
-
-/// Decode a ULEB128 value.
-ulong decodeULEB128(ubyte *p, uint *n = null)
-{
-    const ubyte *orig_p = p;
-    ulong value = 0;
-    uint shift = 0;
-    do
-    {
-        value += ulong(*p & 0x7f) << shift;
-        shift += 7;
-    }
-    while (*p++ >= 128);
-    if (n)
-        *n = cast(uint)(p - orig_p);
-    return value;
-}
-
-/// Decode a SLEB128 value.
-long decodeSLEB128(ubyte *p, uint *n = null)
-{
-    const ubyte *orig_p = p;
-    long value = 0;
-    uint shift = 0;
-    ubyte byte_;
-    do
-    {
-        byte_ = *p++;
-        value |= ((byte_ & 0x7f) << shift);
-        shift += 7;
-    } while (byte_ >= 128);
-    // sign extend negative numbers
-    if (byte_ & 0x40)
-        value |= (cast(ulong)-1) << shift; // value |= (-1ULL) << shift;
-    if (n)
-        *n = cast(uint)(p - orig_p);
-    return value;
 }

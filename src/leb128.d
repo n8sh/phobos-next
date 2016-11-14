@@ -29,20 +29,25 @@ version(unittest)
 {
     import dbgio : dln;
     import std.algorithm.comparison : equal;
+
     import std.array : Appender;
+    alias Raw = Appender!(ubyte[]);
+
+    // import array_ex : UncopyableArray;
+    // alias Raw = UncopyableArray!ubyte;
 }
 
 @safe pure nothrow unittest
 {
     foreach (immutable i; 0 .. 64)
     {
-        Appender!(ubyte[]) os;
+        Raw os;
         os.encodeSLEB128(i);
         assert(os.data.equal([i]));
     }
     foreach (immutable i; 64 .. 128)
     {
-        Appender!(ubyte[]) os;
+        Raw os;
         os.encodeSLEB128(i);
         assert(os.data.equal([128 + i, 0]));
     }
@@ -67,25 +72,25 @@ void encodeULEB128(Output)(ref Output os, ulong value)
 {
     foreach (immutable i; 0 .. 128)
     {
-        Appender!(ubyte[]) os;
+        Raw os;
         os.encodeULEB128(i);
         assert(os.data.equal([i]));
     }
     foreach (immutable i; 128 .. 256)
     {
-        Appender!(ubyte[]) os;
+        Raw os;
         os.encodeULEB128(i);
         assert(os.data.equal([i, 1]));
     }
     foreach (immutable i; 256 .. 256 + 128)
     {
-        Appender!(ubyte[]) os;
+        Raw os;
         os.encodeULEB128(i);
         assert(os.data.equal([i - 128, 2]));
     }
     foreach (immutable i; 256 + 128 .. 512)
     {
-        Appender!(ubyte[]) os;
+        Raw os;
         os.encodeULEB128(i);
         assert(os.data.equal([i - 256, 3]));
     }

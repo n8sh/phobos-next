@@ -10,7 +10,7 @@ import std.traits : isUnsigned, isSigned;
 void encodeSLEB128(Output)(ref Output os, long value)
     if (isOutputRange!(Output, ubyte))
 {
-    bool more;
+    bool more = false;
     do
     {
         ubyte byte_ = value & 0x7f;

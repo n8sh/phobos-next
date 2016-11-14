@@ -1064,6 +1064,8 @@ private struct Array(E,
         }
     }
 
+    alias data = opSlice;   // `std.array.Appender` compatibility
+
     // static if (isCopyable!E)
     // {
     //     string toString() const @property @trusted pure

@@ -98,33 +98,19 @@ void encodeULEB128(Output)(ref Output os, ulong value)
 /** Encode a ULEB128 value to a buffer.
     Returns: length in bytes of the encoded value.
 */
-uint encodeULEB128(ulong value, ubyte *p,
-                   uint padding = 0)
+uint encodeULEB128(ulong value, ubyte *p)
 {
     ubyte *orig_p = p;
     do
     {
         ubyte byte_ = value & 0x7f;
         value >>= 7;
-        if (value != 0 || padding != 0)
+        if (value != 0)
             byte_ |= 0x80; // mark this byte to show that more bytes will follow
         *p++ = byte_;
     }
     while (value != 0);
-
-    // pad with 0x80 and emit a null byte at the end
-    if (padding != 0)
-    {
-        for (; padding != 1; --padding)
-            *p++ = '\x80';
-        *p++ = '\x00';
-    }
     return cast(uint)(p - orig_p);
-}
-
-@safe pure nothrow @nogc unittest
-{
-
 }
 
 /// Decode a ULEB128 value.

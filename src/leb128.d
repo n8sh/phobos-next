@@ -3,10 +3,12 @@
 */
 module leb128;
 
+import std.range : isOutputRange;
 import std.traits : isUnsigned, isSigned;
 
 /// Encode a SLEB128 value to `os`.
 void encodeSLEB128(Output)(ref Output os, long value)
+    if (isOutputRange!(Output, ubyte))
 {
     bool more;
     do
@@ -47,54 +49,57 @@ version(unittest)
 }
 
 /// Encode a ULEB128 value to `os`.
-void encodeULEB128(Output)(ulong value, Output os,
-                           uint Padding = 0)
+void encodeULEB128(Output)(ref Output os, ulong value)
+    if (isOutputRange!(Output, ubyte))
 {
     do
     {
         ubyte byte_ = value & 0x7f;
         value >>= 7;
-        if (value != 0 || Padding != 0)
+        if (value != 0)
             byte_ |= 0x80; // mark this byte to show that more bytes will follow
-        os << char(byte_);
+        os.put(char(byte_));
     }
     while (value != 0);
-
-    // pad with 0x80 and emit a null byte at the end
-    if (Padding != 0)
-    {
-        for (; Padding != 1; --Padding)
-            os << '\x80';
-        os << '\x00';
-    }
 }
 
-@safe pure nothrow @nogc unittest
+@safe pure nothrow unittest
 {
-
+    foreach (immutable i; 0 .. 128)
+    {
+        Appender!(ubyte[]) os;
+        os.encodeULEB128(i);
+        assert(os.data.equal([i]));
+    }
+    foreach (immutable i; 128 .. 256)
+    {
+        Appender!(ubyte[]) os;
+        os.encodeULEB128(i);
+        assert(os.data.equal([i, 1]));
+    }
 }
 
 /** Encode a ULEB128 value to a buffer.
     Returns: length in bytes of the encoded value.
 */
 uint encodeULEB128(ulong value, ubyte *p,
-                   uint Padding = 0)
+                   uint padding = 0)
 {
     ubyte *orig_p = p;
     do
     {
         ubyte byte_ = value & 0x7f;
         value >>= 7;
-        if (value != 0 || Padding != 0)
+        if (value != 0 || padding != 0)
             byte_ |= 0x80; // mark this byte to show that more bytes will follow
         *p++ = byte_;
     }
     while (value != 0);
 
     // pad with 0x80 and emit a null byte at the end
-    if (Padding != 0)
+    if (padding != 0)
     {
-        for (; Padding != 1; --Padding)
+        for (; padding != 1; --padding)
             *p++ = '\x80';
         *p++ = '\x00';
     }

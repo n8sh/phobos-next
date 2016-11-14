@@ -32,7 +32,6 @@ version(unittest)
 
     import std.array : Appender;
     alias Raw = Appender!(ubyte[]);
-
     // import array_ex : UncopyableArray;
     // alias Raw = UncopyableArray!ubyte;
 }

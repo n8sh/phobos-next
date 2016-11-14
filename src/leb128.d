@@ -77,6 +77,18 @@ void encodeULEB128(Output)(ref Output os, ulong value)
         os.encodeULEB128(i);
         assert(os.data.equal([i, 1]));
     }
+    foreach (immutable i; 256 .. 256 + 128)
+    {
+        Appender!(ubyte[]) os;
+        os.encodeULEB128(i);
+        assert(os.data.equal([i - 128, 2]));
+    }
+    foreach (immutable i; 256 + 128 .. 512)
+    {
+        Appender!(ubyte[]) os;
+        os.encodeULEB128(i);
+        assert(os.data.equal([i - 256, 3]));
+    }
 }
 
 /** Encode a ULEB128 value to a buffer.

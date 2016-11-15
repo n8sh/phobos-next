@@ -6,6 +6,9 @@
 
    TODO Profile use of cellops and logops in a specific domain or pattern och
    and use roulette wheel sampling based on these in future patterns.
+
+   TODO Use std.numeric.sumOfLog2s when calculating bitEntropy. Ask on
+   StackExchange Computer Science for the correct terminology.
 */
 module evo;
 

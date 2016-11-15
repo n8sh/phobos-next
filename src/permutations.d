@@ -4,7 +4,7 @@ module permutations;
 
 import std.range.primitives: isInputRange;
 
-/**
+/** Cartesian power.
    See also: http://forum.dlang.org/thread/mailman.1434.1339436657.24740.digitalmars-d-learn@puremagic.com#post-uftixibnvfffugjwsdbl:40forum.dlang.org
  */
 struct CartesianPower(bool doCopy = true, T)
@@ -14,7 +14,7 @@ struct CartesianPower(bool doCopy = true, T)
     T[] row;
     ulong i, maxN;
 
-    this(T[] items_, in uint repeat_, T[] buffer) pure nothrow @safe @nogc
+    this(T[] items_, in uint repeat_, T[] buffer)
     {
         this.items = items_;
         this.repeat = repeat_;
@@ -25,29 +25,28 @@ struct CartesianPower(bool doCopy = true, T)
 
     static if (doCopy)
     {
-        @property T[] front() pure nothrow @safe @nogc
+        @property T[] front()
         {
             return row.dup;
         }
     }
     else
     {
-        @property T[] front() pure nothrow @safe @nogc
+        @property T[] front()
         {
             return row;
         }
     }
 
-    @property bool empty() pure nothrow @safe @nogc
+    @property bool empty() const @safe pure nothrow @nogc
     {
         return i >= maxN;
     }
 
-    void popFront() pure nothrow @safe @nogc
+    void popFront()
     {
         i++;
-        if (empty)
-            return;
+        if (empty) { return; }
         ulong n = i;
         size_t count = repeat - 1;
         while (n)
@@ -62,7 +61,8 @@ struct CartesianPower(bool doCopy = true, T)
 static assert(isInputRange!(typeof([1, 2].cartesianPower!false(4))));
 
 auto cartesianPower(bool doCopy = true, T)(T[] items, in uint repeat)
-    pure nothrow @safe {
+    pure nothrow @safe
+{
     return CartesianPower!(doCopy, T)(items, repeat, new T[repeat]);
 }
 

@@ -1349,9 +1349,8 @@ unittest
     auto term = Terminal(ConsoleOutputType.linear);
     auto viz = new Viz(outFile, &term, VizForm.HTML);
 
-    viz.pp(`Pretty Printing`.asH!1);
-
-    viz.pp(horizontalRuler);
+    viz.pp(`Pretty Printing`.asH!1,
+           horizontalRuler);
 
     viz.pp(`First Heading`.asH!2);
     viz.ppln(`Something first.`);

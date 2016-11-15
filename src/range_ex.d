@@ -59,10 +59,10 @@ auto stealFront(R)(ref R r)
         hasStealableElements!R)
 {
     import std.range: moveFront, popFront;
-    /* scope(success) r.popFront; */
+    /* scope(success) r.popFront(); */
     /* return r.moveFront; */
     auto e = r.moveFront;
-    r.popFront;
+    r.popFront();
     return e;
 }
 alias pullFront = stealFront;
@@ -99,10 +99,10 @@ auto stealBack(R)(ref R r)
         hasStealableElements!R)
 {
     import std.range: moveBack, popBack;
-    /* scope(success) r.popBack; */
+    /* scope(success) r.popBack(); */
     /* return r.moveBack; */
     auto e = r.moveBack;
-    r.popBack;
+    r.popBack();
     return e;
 }
 alias pullBack = stealBack;
@@ -334,11 +334,11 @@ auto slidingSplitter(R)(R data, size_t lower, size_t upper)
     assert(!y.empty);
     assert(x.length + 1 == y.length);
 
-    assert(!y.empty); assert(y.front == tuple(x[0 .. 0], x[0 .. 3])); y.popFront;
-    assert(!y.empty); assert(y.front == tuple(x[0 .. 1], x[1 .. 3])); y.popFront;
-    assert(!y.empty); assert(y.front == tuple(x[0 .. 2], x[2 .. 3])); y.popFront;
-    assert(!y.empty); assert(y.front == tuple(x[0 .. 3], x[3 .. 3])); y.popFront;
-    y.popFront; assert(y.empty);
+    assert(!y.empty); assert(y.front == tuple(x[0 .. 0], x[0 .. 3])); y.popFront();
+    assert(!y.empty); assert(y.front == tuple(x[0 .. 1], x[1 .. 3])); y.popFront();
+    assert(!y.empty); assert(y.front == tuple(x[0 .. 2], x[2 .. 3])); y.popFront();
+    assert(!y.empty); assert(y.front == tuple(x[0 .. 3], x[3 .. 3])); y.popFront();
+    y.popFront(); assert(y.empty);
 }
 
 @safe pure unittest                        // forwards
@@ -365,8 +365,8 @@ auto slidingSplitter(R)(R data, size_t lower, size_t upper)
             assert(ch[ix].equal(name32.front[ix]));
 
         }
-        name16.popFront;
-        name32.popFront;
+        name16.popFront();
+        name32.popFront();
     }
 }
 
@@ -390,8 +390,8 @@ auto slidingSplitter(R)(R data, size_t lower, size_t upper)
             assert(ch[ix].equal(name16.front[ix]));
             assert(ch[ix].equal(name32.front[ix]));
         }
-        name16.popFront;
-        name32.popFront;
+        name16.popFront();
+        name32.popFront();
     }
 }
 
@@ -402,10 +402,10 @@ auto slidingSplitter(R)(R data, size_t lower, size_t upper)
     import std.typecons : tuple;
     auto s = x.slidingSplitter;
     auto r = s.radial;
-    assert(!r.empty); assert(r.front == tuple(x[0 .. 1], x[1 .. 3])); r.popFront;
-    assert(!r.empty); assert(r.front == tuple(x[0 .. 2], x[2 .. 3])); r.popFront;
-    assert(!r.empty); assert(r.front == tuple(x[0 .. 0], x[0 .. 3])); r.popFront;
-    assert(!r.empty); assert(r.front == tuple(x[0 .. 3], x[3 .. 3])); r.popFront;
+    assert(!r.empty); assert(r.front == tuple(x[0 .. 1], x[1 .. 3])); r.popFront();
+    assert(!r.empty); assert(r.front == tuple(x[0 .. 2], x[2 .. 3])); r.popFront();
+    assert(!r.empty); assert(r.front == tuple(x[0 .. 0], x[0 .. 3])); r.popFront();
+    assert(!r.empty); assert(r.front == tuple(x[0 .. 3], x[3 .. 3])); r.popFront();
     assert(r.empty);
 }
 
@@ -745,23 +745,23 @@ auto merge(alias less = "a < b", Rs...)(Rs rs) if (Rs.length > 1 &&
     assert(r.equal([1, 2, 3, 10, 20, 30, 40, 50, 60]));
     assert(r.retro.equal([60, 50, 40, 30, 20, 10, 3, 2, 1]));
 
-    r.popFront;
+    r.popFront();
     assert(r.equal([2, 3, 10, 20, 30, 40, 50, 60]));
-    r.popBack;
+    r.popBack();
     assert(r.equal([2, 3, 10, 20, 30, 40, 50]));
-    r.popFront;
+    r.popFront();
     assert(r.equal([3, 10, 20, 30, 40, 50]));
-    r.popBack;
+    r.popBack();
     assert(r.equal([3, 10, 20, 30, 40]));
-    r.popFront;
+    r.popFront();
     assert(r.equal([10, 20, 30, 40]));
-    r.popBack;
+    r.popBack();
     assert(r.equal([10, 20, 30]));
-    r.popFront;
+    r.popFront();
     assert(r.equal([20, 30]));
-    r.popBack;
+    r.popBack();
     assert(r.equal([20]));
-    r.popFront;
+    r.popFront();
     assert(r.empty);
 }
 
@@ -849,7 +849,7 @@ auto adjacentTuples(size_t N, R)(R r)
 
             import std.range : front, popFront;
             _prevs[M - 1] = _source.front;
-            _source.popFront;
+            _source.popFront();
         }
 
         private:

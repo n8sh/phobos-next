@@ -1992,7 +1992,7 @@ bool countsExactly(R)(R r, size_t exactCount) @("complexity", "O(exactCount)")
         import std.range : empty;
         while (!r.empty)
         {
-            r.popFront;
+            r.popFront();
             if (++n > exactCount) { return false; }
         }
         return n == exactCount;
@@ -2015,7 +2015,7 @@ bool countsAtLeast(R)(R r, size_t minCount) @("complexity", "O(minCount)")
         import std.range : empty;
         while (!r.empty)
         {
-            r.popFront;
+            r.popFront();
             if (++n >= minCount) { return true; }
         }
         return false;
@@ -2038,7 +2038,7 @@ bool countsAtMost(R)(R r, size_t maxCount) @("complexity", "O(maxCount)")
         import std.range : empty;
         while (!r.empty)
         {
-            r.popFront;
+            r.popFront();
             if (++n > maxCount) { return false; }
         }
         return true;

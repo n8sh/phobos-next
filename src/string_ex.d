@@ -12,7 +12,7 @@ bool isCapitalizedEasy(S)(S s)
     if (s.empty) { return false; }
     const firstUpper = s.front.isUpper;
     if (!firstUpper) return false;
-    s.popFront;
+    s.popFront();
 
     if (s.empty) { return false; }
     return s.front.isLower;
@@ -46,7 +46,7 @@ bool isCapitalized(S)(S s)
           firstUpper))
         return false;
 
-    s.popFront;
+    s.popFront();
 
     import std.algorithm.searching : all;
 

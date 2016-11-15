@@ -286,7 +286,7 @@ unittest
     assert(t.front.objectDataTypeURI is null);
     assert(t.front.objectType == ObjectType.literal);
 
-    t.popFront;
+    t.popFront();
 
     assert(t.front.subjectType == SubjectType.URI);
     assert(t.front.predicate == `http://xmlns.com/foaf/0.1/homepage`);

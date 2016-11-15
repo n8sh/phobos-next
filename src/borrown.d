@@ -286,7 +286,7 @@ private static struct ReadBorrowed(Range, Owner)
     void popFront() @safe
     {
         import std.range : popFront;
-        _range.popFront;
+        _range.popFront();
     }
 
     Range _range;               /// constant range

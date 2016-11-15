@@ -236,13 +236,13 @@ auto decodeEscapes(Source)(Source s)
             {
                 if (_remainingSource.front == '\\') // TODO nothrow
                 {
-                    _remainingSource.popFront;
+                    _remainingSource.popFront();
                     _decodedFront = _remainingSource.parseEscape;
                 }
                 else
                 {
                     _decodedFront = _remainingSource.front;
-                    _remainingSource.popFront;
+                    _remainingSource.popFront();
                 }
             }
             else

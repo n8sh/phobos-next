@@ -26,7 +26,7 @@ version(unittest)
 {
     auto x = "doThis".camelCasedToLower;
     assert(equal(x.front, "do"));
-    x.popFront;
+    x.popFront();
     assert(equal(x.front, "this"));
 }
 

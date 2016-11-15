@@ -1316,16 +1316,16 @@ unittest
         assert(rs.front == 1);
         assert(rs.back == 1);
 
-        rs.popFront;
+        rs.popFront();
         assert(rs.front == 0);
         assert(rs.back == 1);
 
-        rs.popBack;
+        rs.popBack();
         assert(rs.front == 1);
         assert(rs.back == 1);
 
-        rs.popFront;
-        rs.popBack;
+        rs.popFront();
+        rs.popBack();
 
         assert(rs.length == 0);
         assert(rs.empty);

@@ -1,5 +1,9 @@
 /** LEB128 (Little Endian Base 128).
-   See also: https://en.wikipedia.org/wiki/LEB128
+
+    See also: https://en.wikipedia.org/wiki/LEB128
+    See also: http://forum.dlang.org/post/ykskvwqdsxlyjispappj@forum.dlang.org
+
+    TODO Move to Phobos at std/experimental/codings/leb128.d
 */
 module leb128;
 
@@ -68,7 +72,7 @@ version(unittest)
         Raw os;
         os.encodeLEB128!SInt(i);
         assert(os.data.equal([i]));
-        // const value = os.data.decodeLEB128!SInt();
+        const value = os.data.decodeLEB128!SInt();
     }
     foreach (immutable i; 64 .. 128)
     {

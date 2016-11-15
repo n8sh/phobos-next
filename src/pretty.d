@@ -1221,7 +1221,7 @@ class Viz
 
 }
 
-/// Face.
+/// Face with color of type `Color`.
 struct Face(Color)
 {
     this(Color fg, Color bg, bool bright, bool italic, string[] tagsHTML)

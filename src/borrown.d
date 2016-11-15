@@ -1,9 +1,9 @@
 /** Ownership and borrwoing á lá Rust.
 
-    TODO:
-
     <ul>
     <li> TODO Move to typecons_ex.
+
+    <li> TODO Override all members with write checks. See http://forum.dlang.org/post/mailman.63.1478697690.3405.digitalmars-d-learn@puremagic.com
 
     <li> TODO Perhaps disable all checking (and unittests) in release mode (when
     debug is not active), but preserve overloads sliceRO and sliceRW. If not use

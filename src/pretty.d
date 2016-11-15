@@ -403,6 +403,7 @@ class Viz
         ppPut(arg, nbsp);
     }
 
+    /** Print `args` tagged as `tag`. */
     void ppTaggedN(Tag, Args...)(in Tag tag, Args args)
         if (isSomeString!Tag)
     {
@@ -422,6 +423,7 @@ class Viz
         if (form == VizForm.HTML) { ppRaw(`</` ~ tag ~ `>`); }
     }
 
+    /** Print `args` tagged as `tag` on a separate line. */
     void pplnTaggedN(Tag, Args...)(in Tag tag, Args args)
         if (isSomeString!Tag)
     {

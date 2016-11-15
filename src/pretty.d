@@ -1323,6 +1323,16 @@ auto getFace(Arg)(in Arg arg) @safe pure nothrow
     }
 }
 
+/** Show `viz`.
+ */
+void show(Viz viz)
+{
+    viz.outFile.flush();
+    import std.process : spawnProcess, wait;
+    auto chromePid = spawnProcess(["google-chrome", viz.outFile.name]);
+    assert(chromePid.wait() == 0);
+}
+
 unittest
 {
     import dbgio : dln;
@@ -1343,13 +1353,5 @@ unittest
     viz.pp("Second Heading".asH!1);
     viz.ppln("Something else.");
 
-    import std.process : spawnProcess, wait;
-
-    outFile.flush();
-
-    auto chromePid = spawnProcess(["google-chrome", outPath]);
-    if (chromePid.wait() != 0)
-    {
-        dln("Compilation failed!");
-    }
+    viz.show();
 }

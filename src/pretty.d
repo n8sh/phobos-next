@@ -1337,8 +1337,11 @@ unittest
     auto term = Terminal(ConsoleOutputType.linear);
     auto viz = new Viz(outFile, &term, VizForm.HTML);
 
-    viz.pp("Heading".asH!1);
-    viz.ppln("This is the first line.");
+    viz.pp("First Heading".asH!1);
+    viz.ppln("Something first.");
+
+    viz.pp("Second Heading".asH!1);
+    viz.ppln("Something else.");
 
     import std.process : spawnProcess, wait;
 

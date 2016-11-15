@@ -14,8 +14,6 @@
     TODO Add visited member to keeps track of what objects that have been visited
     TODO Add asGCCMessage pretty prints
           seq $PATH, ':', $ROW, ':', $COL, ':', message, '[', $TYPE, ']'
-
-    TODO Support VizForm.D3js
 */
 module pretty;
 
@@ -135,13 +133,13 @@ string shortDurationString(in Duration dur)
 /** Visual Form(at). */
 enum VizForm
 {
-    textAsciiDoc,
-    textAsciiDocUTF8,
+    textAsciiDoc,               // TODO.
+    textAsciiDocUTF8,           // TODO.
     HTML,
-    D3js,                       // See also: http://d3js.org/
-    LaTeX,
-    jiraWikiMarkup, // See also: https://jira.atlassiana.com/secure/WikiRendererHelpAction.jspa?section=all
-    Markdown,
+    D3js,                       // TODO. See also: http://d3js.org/
+    LaTeX,                      // TODO.
+    jiraWikiMarkup, // TODO. See also: https://jira.atlassiana.com/secure/WikiRendererHelpAction.jspa?section=all
+    Markdown,       // TODO.
 }
 
 /** See also: http://ethanschoonover.com/solarized */

@@ -11,7 +11,7 @@
    StackExchange Computer Science for the correct terminology.
    See: http://dlang.org/phobos/std_numeric.html#.sumOfLog2s
 */
-module evo;
+module nevo;
 
 version(unittest)
 {

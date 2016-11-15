@@ -72,7 +72,7 @@ version(unittest)
         Raw os;
         os.encodeLEB128!SInt(i);
         assert(os.data.equal([i]));
-        const value = os.data.decodeLEB128!SInt();
+        // const value = os.data.decodeLEB128!SInt();
     }
     foreach (immutable i; 64 .. 128)
     {

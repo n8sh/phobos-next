@@ -30,8 +30,6 @@ import std.string: empty;
 /* TODO Move logic (toHTML) to these deps and remove these imports */
 import digest_ex: Digest;
 import csunits: Bytes;
-// import fs: FKind, isSymlink, isDir;
-import notnull: NotNull;
 import mathml;
 import grammar;
 import attributes;
@@ -1075,7 +1073,7 @@ class Viz
             if (form == VizForm.HTML)
             {
                 // static      if (isSymlink!Arg) { ppTagOpen(`i`); }
-                static if (isDir!Arg) { ppTagOpen(`b`); }
+                // static if (isDir!Arg) { ppTagOpen(`b`); }
             }
 
             ppPut(arg.getFace(), name);
@@ -1083,7 +1081,7 @@ class Viz
             if (form == VizForm.HTML)
             {
                 // static      if (isSymlink!Arg) { ppTagClose(`i`); }
-                static if (isDir!Arg) { ppTagClose(`b`); }
+                // static if (isDir!Arg) { ppTagClose(`b`); }
             }
 
             if (form == VizForm.HTML) { ppTagClose(`a`); }
@@ -1294,11 +1292,6 @@ auto getFace(Arg)(in Arg arg) @safe pure nothrow
     {
         return ctxFaces.cycle[arg.ix];
     }
-    // else static if (isInstanceOf!(FKind, Arg) ||
-    //                 isInstanceOf!(NotNull!FKind, Arg))
-    // {
-    //     return kindFace;
-    // }
     else
     {
         return stdFace;

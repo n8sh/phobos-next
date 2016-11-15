@@ -49,14 +49,14 @@ template Concise(Tuple)
             string toString() const
             {
                 auto app = appender!string(); // TODO use array_ex.Array instead
-                app.put("(");
+                app.put(`(`);
                 app.put(to!string(concise(tuple[0])));
                 foreach (t; tuple.expand[1 .. $])
                 {
-                    app.put(", ");
+                    app.put(`, `);
                     app.put(to!string(concise(t)));
                 }
-                app.put(")");
+                app.put(`)`);
                 return app.data;
             }
         }
@@ -78,29 +78,29 @@ string shortDurationString(in Duration dur)
     import std.conv: to;
     static if (__VERSION__ >= 2066L)
     {
-        immutable weeks = dur.total!"weeks";
+        immutable weeks = dur.total!`weeks`;
         if (weeks)
         {
             if (weeks < 52)
             {
-                return to!string(weeks) ~ " week" ~ (weeks >= 2 ? "s" : "");
+                return to!string(weeks) ~ ` week` ~ (weeks >= 2 ? `s` : ``);
             }
             else
             {
                 immutable years = weeks / 52;
                 immutable weeks_rest = weeks % 52;
-                return to!string(years) ~ " year" ~ (years >= 2 ? "s" : "") ~
-                    " and " ~
-                    to!string(weeks_rest) ~ " week" ~ (weeks_rest >= 2 ? "s" : "");
+                return to!string(years) ~ ` year` ~ (years >= 2 ? `s` : ``) ~
+                    ` and ` ~
+                    to!string(weeks_rest) ~ ` week` ~ (weeks_rest >= 2 ? `s` : ``);
             }
         }
-        immutable days = dur.total!"days";       if (days)    return to!string(days) ~ " day" ~ (days >= 2 ? "s" : "");
-        immutable hours = dur.total!"hours";     if (hours)   return to!string(hours) ~ " hour" ~ (hours >= 2 ? "s" : "");
-        immutable minutes = dur.total!"minutes"; if (minutes) return to!string(minutes) ~ " minute" ~ (minutes >= 2 ? "s" : "");
-        immutable seconds = dur.total!"seconds"; if (seconds) return to!string(seconds) ~ " second" ~ (seconds >= 2 ? "s" : "");
-        immutable msecs = dur.total!"msecs";     if (msecs) return to!string(msecs) ~ " millisecond" ~ (msecs >= 2 ? "s" : "");
-        immutable usecs = dur.total!"usecs";     if (usecs) return to!string(usecs) ~ " microsecond" ~ (msecs >= 2 ? "s" : "");
-        immutable nsecs = dur.total!"nsecs";     return to!string(nsecs) ~ " nanosecond" ~ (msecs >= 2 ? "s" : "");
+        immutable days = dur.total!`days`;       if (days)    return to!string(days) ~ ` day` ~ (days >= 2 ? `s` : ``);
+        immutable hours = dur.total!`hours`;     if (hours)   return to!string(hours) ~ ` hour` ~ (hours >= 2 ? `s` : ``);
+        immutable minutes = dur.total!`minutes`; if (minutes) return to!string(minutes) ~ ` minute` ~ (minutes >= 2 ? `s` : ``);
+        immutable seconds = dur.total!`seconds`; if (seconds) return to!string(seconds) ~ ` second` ~ (seconds >= 2 ? `s` : ``);
+        immutable msecs = dur.total!`msecs`;     if (msecs) return to!string(msecs) ~ ` millisecond` ~ (msecs >= 2 ? `s` : ``);
+        immutable usecs = dur.total!`usecs`;     if (usecs) return to!string(usecs) ~ ` microsecond` ~ (msecs >= 2 ? `s` : ``);
+        immutable nsecs = dur.total!`nsecs`;     return to!string(nsecs) ~ ` nanosecond` ~ (msecs >= 2 ? `s` : ``);
     }
     else
     {
@@ -109,24 +109,24 @@ string shortDurationString(in Duration dur)
         {
             if (weeks < 52)
             {
-                return to!string(weeks) ~ " week" ~ (weeks >= 2 ? "s" : "");
+                return to!string(weeks) ~ ` week` ~ (weeks >= 2 ? `s` : ``);
             }
             else
             {
                 immutable years = weeks / 52;
                 immutable weeks_rest = weeks % 52;
-                return to!string(years) ~ " year" ~ (years >= 2 ? "s" : "") ~
-                    " and " ~
-                    to!string(weeks_rest) ~ " week" ~ (weeks_rest >= 2 ? "s" : "");
+                return to!string(years) ~ ` year` ~ (years >= 2 ? `s` : ``) ~
+                    ` and ` ~
+                    to!string(weeks_rest) ~ ` week` ~ (weeks_rest >= 2 ? `s` : ``);
             }
         }
-        immutable days = dur.days;       if (days)    return to!string(days) ~ " day" ~ (days >= 2 ? "s" : "");
-        immutable hours = dur.hours;     if (hours)   return to!string(hours) ~ " hour" ~ (hours >= 2 ? "s" : "");
-        immutable minutes = dur.minutes; if (minutes) return to!string(minutes) ~ " minute" ~ (minutes >= 2 ? "s" : "");
-        immutable seconds = dur.seconds; if (seconds) return to!string(seconds) ~ " second" ~ (seconds >= 2 ? "s" : "");
-        immutable msecs = dur.msecs;     if (msecs) return to!string(msecs) ~ " millisecond" ~ (msecs >= 2 ? "s" : "");
-        immutable usecs = dur.usecs;     if (usecs) return to!string(usecs) ~ " microsecond" ~ (msecs >= 2 ? "s" : "");
-        immutable nsecs = dur.nsecs;     return to!string(nsecs) ~ " nanosecond" ~ (msecs >= 2 ? "s" : "");
+        immutable days = dur.days;       if (days)    return to!string(days) ~ ` day` ~ (days >= 2 ? `s` : ``);
+        immutable hours = dur.hours;     if (hours)   return to!string(hours) ~ ` hour` ~ (hours >= 2 ? `s` : ``);
+        immutable minutes = dur.minutes; if (minutes) return to!string(minutes) ~ ` minute` ~ (minutes >= 2 ? `s` : ``);
+        immutable seconds = dur.seconds; if (seconds) return to!string(seconds) ~ ` second` ~ (seconds >= 2 ? `s` : ``);
+        immutable msecs = dur.msecs;     if (msecs) return to!string(msecs) ~ ` millisecond` ~ (msecs >= 2 ? `s` : ``);
+        immutable usecs = dur.usecs;     if (usecs) return to!string(usecs) ~ ` microsecond` ~ (msecs >= 2 ? `s` : ``);
+        immutable nsecs = dur.nsecs;     return to!string(nsecs) ~ ` nanosecond` ~ (msecs >= 2 ? `s` : ``);
     }
 }
 
@@ -145,24 +145,24 @@ enum VizForm
 /** See also: http://ethanschoonover.com/solarized */
 enum SolarizedLightColorTheme
 {
-    base00  = "657b83",
-    base01  = "586e75",
-    base02  = "073642",
-    base03  = "002b36",
+    base00  = `657b83`,
+    base01  = `586e75`,
+    base02  = `073642`,
+    base03  = `002b36`,
 
-    base0   = "839496",
-    base1   = "93a1a1",
-    base2   = "eee8d5",
-    base3   = "fdf6e3",
+    base0   = `839496`,
+    base1   = `93a1a1`,
+    base2   = `eee8d5`,
+    base3   = `fdf6e3`,
 
-    yellow  = "b58900",
-    orange  = "cb4b16",
-    red     = "dc322f",
-    magenta = "d33682",
-    viole   = "6c71c4",
-    blue    = "268bd2",
-    cya     = "2aa198",
-    gree    = "859900"
+    yellow  = `b58900`,
+    orange  = `cb4b16`,
+    red     = `dc322f`,
+    magenta = `d33682`,
+    viole   = `6c71c4`,
+    blue    = `268bd2`,
+    cya     = `2aa198`,
+    gree    = `859900`
 }
 
 /** HTML tags with no side-effect when its arguments is empty.
@@ -273,7 +273,7 @@ class Viz
     {
         if (form == VizForm.HTML)
         {
-            ppRaw("</body>\n</html>");
+            ppRaw(`</body>\n</html>`);
         }
     }
 
@@ -866,15 +866,15 @@ class Viz
                 if (form == VizForm.HTML) { pplnTagOpen(`tr`); } // TODO Functionize
 
                 // index column
-                if      (arg.rowNr == RowNr.offsetZero) pplnTaggedN(`td`, "0-Offset");
-                else if (arg.rowNr == RowNr.offsetOne)  pplnTaggedN(`td`, "1-Offset");
+                if      (arg.rowNr == RowNr.offsetZero) pplnTaggedN(`td`, `0-Offset`);
+                else if (arg.rowNr == RowNr.offsetOne)  pplnTaggedN(`td`, `1-Offset`);
                 foreach (ix, Member; typeof(Front.tupleof))
                 {
                     import std.ascii: isUpper; // D symbols cannot have unicode
                     import std.string: capitalize;
                     import std.algorithm: joiner;
 
-                    enum idName = __traits(identifier, Front.tupleof[ix]).preSlicer!isUpper.map!capitalize.joiner(" ");
+                    enum idName = __traits(identifier, Front.tupleof[ix]).preSlicer!isUpper.map!capitalize.joiner(` `);
                     enum typeName = Unqual!(Member).stringof; // constness of no interest hee
 
                     static      if (is(Memb == struct))    enum qual = `struct `;
@@ -1068,7 +1068,7 @@ class Viz
                 pp1(depth + 1, subArg);
             }
         }
-        else static if (__traits(hasMember, arg, "parent")) // TODO Use isFile = File or NonNull!File
+        else static if (__traits(hasMember, arg, `parent`)) // TODO Use isFile = File or NonNull!File
         {
             if (form == VizForm.HTML)
             {
@@ -1091,7 +1091,7 @@ class Viz
             }
 
             // write name
-            static if (__traits(hasMember, arg, "isRoot")) // TODO Use isDir = Dir or NonNull!Dir
+            static if (__traits(hasMember, arg, `isRoot`)) // TODO Use isDir = Dir or NonNull!Dir
             {
                 immutable name = arg.isRoot ? dirSeparator : arg.name ~ dirSeparator;
             }
@@ -1118,7 +1118,7 @@ class Viz
         }
         else
         {
-            static if (__traits(hasMember, arg, "path"))
+            static if (__traits(hasMember, arg, `path`))
             {
                 const arg_string = arg.path;
             }
@@ -1127,8 +1127,8 @@ class Viz
                 const arg_string = to!string(arg);
             }
 
-            static if (__traits(hasMember, arg, "face") &&
-                       __traits(hasMember, arg.face, "tagsHTML"))
+            static if (__traits(hasMember, arg, `face`) &&
+                       __traits(hasMember, arg.face, `tagsHTML`))
             {
                 if (form == VizForm.HTML)
                 {
@@ -1150,8 +1150,8 @@ class Viz
                 ppPut(arg.getFace(), arg_string);
             }
 
-            static if (__traits(hasMember, arg, "face") &&
-                       __traits(hasMember, arg.face, "tagsHTML"))
+            static if (__traits(hasMember, arg, `face`) &&
+                       __traits(hasMember, arg.face, `tagsHTML`))
             {
                 if (form == VizForm.HTML)
                 {
@@ -1329,29 +1329,30 @@ void show(Viz viz)
 {
     viz.outFile.flush();
     import std.process : spawnProcess, wait;
-    auto chromePid = spawnProcess(["google-chrome", viz.outFile.name]);
+    auto chromePid = spawnProcess([`google-chrome`, viz.outFile.name]);
     assert(chromePid.wait() == 0);
+}
+
+version(unittest)
+{
+    import dbgio : dln;
 }
 
 unittest
 {
-    import dbgio : dln;
-
-    immutable ext = "html";
+    // TODO hide these stuff  in constructor for Viz
     import std.uuid: randomUUID;
     import std.stdio: File;
-
-    immutable outPath = "/tmp/fs-" ~ randomUUID.toString() ~ "." ~ ext;
-
-    File outFile = File(outPath, "w");
+    immutable outPath = `/tmp/fs-` ~ randomUUID.toString() ~ `.` ~ `html`;
+    File outFile = File(outPath, `w`);
     auto term = Terminal(ConsoleOutputType.linear);
     auto viz = new Viz(outFile, &term, VizForm.HTML);
 
-    viz.pp("First Heading".asH!1);
-    viz.ppln("Something first.");
+    viz.pp(`First Heading`.asH!1);
+    viz.ppln(`Something first.`);
 
-    viz.pp("Second Heading".asH!1);
-    viz.ppln("Something else.");
+    viz.pp(`Second Heading`.asH!1);
+    viz.ppln(`Something else.`);
 
     viz.show();
 }

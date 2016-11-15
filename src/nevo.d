@@ -9,6 +9,7 @@
 
    TODO Use std.numeric.sumOfLog2s when calculating bitEntropy. Ask on
    StackExchange Computer Science for the correct terminology.
+   See: http://dlang.org/phobos/std_numeric.html#.sumOfLog2s
 */
 module evo;
 

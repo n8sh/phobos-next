@@ -1348,11 +1348,25 @@ unittest
     auto term = Terminal(ConsoleOutputType.linear);
     auto viz = new Viz(outFile, &term, VizForm.HTML);
 
-    viz.pp(`First Heading`.asH!1);
+    viz.pp(`Pretty Printing`.asH!1);
+
+    viz.pp(`First Heading`.asH!2);
     viz.ppln(`Something first.`);
 
-    viz.pp(`Second Heading`.asH!1);
+    viz.pp(`Second Heading`.asH!2);
     viz.ppln(`Something else.`);
+
+    struct S
+    {
+        string theUnit;
+        int theSuperValue;
+    }
+
+    S[] s = [S("meter", 42),
+             S("second", 43)];
+
+    viz.pp("Tables Sample".asH!2,
+           s.asTable);
 
     viz.show();
 }

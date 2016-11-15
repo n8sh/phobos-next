@@ -227,9 +227,8 @@ tr:nth-child(2n+1) { background: #` ~ SolarizedLightColorTheme.base3 ~ `; }
 <body>
 `;
 
-/**
-   Visual Backend.
-*/
+/** Visual Backend.
+ */
 class Viz
 {
     import std.stdio: ioFile = File;
@@ -242,6 +241,7 @@ class Viz
 
     bool colorFlag;
     bool flushNewlines = true;
+
     /* If any (HTML) tags should be ended with a newline.
        This increases the readability of generated HTML code.
      */
@@ -323,6 +323,7 @@ class Viz
         }
     }
 
+    /// Print opening of tag `tag`.
     void ppTagOpen(T, P...)(T tag, P params)
     {
         if (form == VizForm.HTML)
@@ -336,12 +337,14 @@ class Viz
         }
     }
 
+    /// Print closing of tag `tag`.
     void ppTagClose(T)(T tag)
     {
         immutable arg = (form == VizForm.HTML) ? `</` ~ tag ~ `>` : tag;
         ppRaw(arg);
     }
 
+    /// Print opening of tag `tag` on a separate line.
     void pplnTagOpen(T)(T tag)
     {
         immutable arg = (form == VizForm.HTML) ? `<` ~ tag ~ `>` : tag;
@@ -355,6 +358,7 @@ class Viz
         }
     }
 
+    /// Print closing of tag `tag` on a separate line.
     void pplnTagClose(T)(T tag)
     {
         immutable arg = (form == VizForm.HTML) ? `</` ~ tag ~ `>` : tag;
@@ -1215,6 +1219,7 @@ class Viz
 
 }
 
+/// Face.
 struct Face(Color)
 {
     this(Color fg, Color bg, bool bright, bool italic, string[] tagsHTML)
@@ -1231,6 +1236,7 @@ struct Face(Color)
     bool italic;
 }
 
+/// Instantiator for `Face`.
 Face!Color face(Color)(Color fg, Color bg,
                        bool bright = false,
                        bool italic = false,

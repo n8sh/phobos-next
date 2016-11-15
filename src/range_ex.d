@@ -60,8 +60,8 @@ auto stealFront(R)(ref R r)
 {
     import std.range: moveFront, popFront;
     /* scope(success) r.popFront(); */
-    /* return r.moveFront; */
-    auto e = r.moveFront;
+    /* return r.moveFront(); */
+    auto e = r.moveFront();
     r.popFront();
     return e;
 }

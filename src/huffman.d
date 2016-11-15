@@ -16,8 +16,8 @@ auto encode(T)(Group!("a == b", T[]) sf)
 
     while (heap.length > 1)
     {
-        auto lo = heap.front; heap.removeFront;
-        auto hi = heap.front; heap.removeFront;
+        auto lo = heap.front; heap.removeFront();
+        auto hi = heap.front; heap.removeFront();
 
         foreach (ref pair; lo[1]) pair[1] = '0' ~ pair[1];
         foreach (ref pair; hi[1]) pair[1] = '1' ~ pair[1];

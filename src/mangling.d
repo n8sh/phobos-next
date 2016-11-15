@@ -1076,7 +1076,7 @@ R decodeCxxDescriminator(R)(Demangler!R x)
              */
             /* descriminator = r[0..1]; // single digit */
             /* x.r.popFront(); */
-            descriminator = x.r.moveFront.to!R;
+            descriminator = x.r.moveFront().to!R;
         }
     }
     return descriminator;

@@ -28,8 +28,6 @@ import std.path: dirSeparator;
 import std.string: empty;
 
 /* TODO Move logic (toHTML) to these deps and remove these imports */
-import digest_ex: Digest;
-import csunits: Bytes;
 import mathml;
 import grammar;
 import attributes;
@@ -280,36 +278,52 @@ class Viz
     }
 
     /** Put $(D arg) to $(D this) without any conversion nor coloring. */
-    void ppRaw(T...)(T args) @trusted
+    void ppRaw(T...)(T args)
     {
         foreach (arg; args)
         {
             if (outFile == stdout)
+            {
                 (*term).write(arg);
+            }
             else
-            outFile.write(arg);
+            {
+                outFile.write(arg);
+            }
         }
     }
 
     /** Put $(D arg) to $(D this) without any conversion nor coloring. */
-    void pplnRaw(T...)(T args) @trusted
+    void pplnRaw(T...)(T args)
     {
         foreach (arg; args)
         {
             if (outFile == stdout)
+            {
                 if (flushNewlines)
+                {
                     (*term).writeln(arg);
+                }
                 else
+                {
                     (*term).write(arg, '\n');
+                }
+            }
             else
-            if (flushNewlines)
-                outFile.writeln(arg);
-            else
-            outFile.write(arg, '\n');
+            {
+                if (flushNewlines)
+                {
+                    outFile.writeln(arg);
+                }
+                else
+                {
+                    outFile.write(arg, '\n');
+                }
+            }
         }
     }
 
-    void ppTagOpen(T, P...)(T tag, P params) @trusted
+    void ppTagOpen(T, P...)(T tag, P params)
     {
         if (form == VizForm.HTML)
         {
@@ -322,13 +336,13 @@ class Viz
         }
     }
 
-    void ppTagClose(T)(T tag) @trusted
+    void ppTagClose(T)(T tag)
     {
         immutable arg = (form == VizForm.HTML) ? `</` ~ tag ~ `>` : tag;
         ppRaw(arg);
     }
 
-    void pplnTagOpen(T)(T tag) @trusted
+    void pplnTagOpen(T)(T tag)
     {
         immutable arg = (form == VizForm.HTML) ? `<` ~ tag ~ `>` : tag;
         if (newlinedTags)
@@ -337,7 +351,7 @@ class Viz
             ppRaw(arg);
     }
 
-    void pplnTagClose(T)(T tag) @trusted
+    void pplnTagClose(T)(T tag)
     {
         immutable arg = (form == VizForm.HTML) ? `</` ~ tag ~ `>` : tag;
         if (newlinedTags)
@@ -348,10 +362,12 @@ class Viz
 
     /** Put $(D arg) to $(D viz) possibly with conversion. */
     void ppPut(T)(T arg,
-                  bool nbsp = true) @trusted
+                  bool nbsp = true)
     {
         if (outFile == stdout)
+        {
             (*term).write(arg);
+        }
         else
         {
             if (form == VizForm.HTML)
@@ -369,14 +385,14 @@ class Viz
     /** Put $(D arg) to $(D viz) possibly with conversion. */
     void ppPut(T)(Face!Color face,
                   T arg,
-                  bool nbsp = true) @trusted
+                  bool nbsp = true)
     {
         (*term).setFace(face, colorFlag);
         ppPut(arg, nbsp);
     }
 
     void ppTaggedN(Tag, Args...)(in Tag tag, Args args)
-        @trusted if (isSomeString!Tag)
+        if (isSomeString!Tag)
     {
         import std.algorithm: find;
         static if (args.length == 1 &&
@@ -395,7 +411,7 @@ class Viz
     }
 
     void pplnTaggedN(Tag, Args...)(in Tag tag, Args args)
-        @trusted if (isSomeString!Tag)
+        if (isSomeString!Tag)
     {
         ppTaggedN(tag, args);
         if (newlinedTags)
@@ -403,7 +419,7 @@ class Viz
     }
 
     // TODO Check for MathML support on backend
-    @property @trusted void ppMathML(T)(Rational!T arg)
+    @property void ppMathML(T)(Rational!T arg)
     {
         ppTagOpen(`math`);
         ppTagOpen(`mfrac`);
@@ -416,7 +432,7 @@ class Viz
     /** Pretty-Print Single Argument $(D arg) to Terminal $(D term). */
     void pp1(Arg)(int depth,
                   Arg arg)
-        @trusted
+
     {
         static if (is(typeof(ppMathML(arg))))
         {
@@ -1006,19 +1022,19 @@ class Viz
             vizArg.treeFlag = true;
             pp1(term, vizArg, depth + 1, arg.arg);
         }
-        else static if (isInstanceOf!(AsHit, Arg))
-        {
-            const ixs = to!string(arg.ix);
-            if (form == VizForm.HTML) { ppTagOpen(`hit` ~ ixs); }
-            pp1(depth + 1, arg.args);
-            if (form == VizForm.HTML) { ppTagClose(`hit` ~ ixs); }
-        }
-        else static if (isInstanceOf!(AsCtx, Arg))
-        {
-            if (form == VizForm.HTML) { ppTagOpen(`hit_context`); }
-            pp1(depth + 1, arg.args);
-            if (form == VizForm.HTML) { ppTagClose(`hit_context`); }
-        }
+        // else static if (isInstanceOf!(AsHit, Arg))
+        // {
+        //     const ixs = to!string(arg.ix);
+        //     if (form == VizForm.HTML) { ppTagOpen(`hit` ~ ixs); }
+        //     pp1(depth + 1, arg.args);
+        //     if (form == VizForm.HTML) { ppTagClose(`hit` ~ ixs); }
+        // }
+        // else static if (isInstanceOf!(AsCtx, Arg))
+        // {
+        //     if (form == VizForm.HTML) { ppTagOpen(`hit_context`); }
+        //     pp1(depth + 1, arg.args);
+        //     if (form == VizForm.HTML) { ppTagClose(`hit_context`); }
+        // }
         else static if (isArray!Arg &&
                         !isSomeString!Arg)
         {
@@ -1135,7 +1151,7 @@ class Viz
     }
 
     /** Pretty-Print Multiple Arguments $(D args) to Terminal $(D term). */
-    void ppN(Args...)(Args args) @trusted
+    void ppN(Args...)(Args args)
     {
         foreach (arg; args)
         {
@@ -1144,7 +1160,7 @@ class Viz
     }
 
     /** Pretty-Print Arguments $(D args) to Terminal $(D term) without Line Termination. */
-    void pp(Args...)(Args args) @trusted
+    void pp(Args...)(Args args)
     {
         ppN(args);
         if (outFile == stdout)
@@ -1154,7 +1170,7 @@ class Viz
     }
 
     /** Pretty-Print Arguments $(D args) including final line termination. */
-    void ppln(Args...)(Args args) @trusted
+    void ppln(Args...)(Args args)
     {
         ppN(args);
         if (outFile == stdout)
@@ -1169,7 +1185,7 @@ class Viz
     }
 
     /** Pretty-Print Arguments $(D args) each including a final line termination. */
-    void pplns(Args...)(Args args) @trusted
+    void pplns(Args...)(Args args)
     {
         foreach (arg; args)
         {
@@ -1178,7 +1194,7 @@ class Viz
     }
 
     /** Print End of Line to Terminal $(D term). */
-    void ppendl() @trusted
+    void ppendl()
     {
         ppln(``);
     }
@@ -1226,7 +1242,6 @@ enum contextFace = face(arsd.terminal.Color.green, arsd.terminal.Color.black);
 
 enum timeFace = face(arsd.terminal.Color.magenta, arsd.terminal.Color.black);
 enum digestFace = face(arsd.terminal.Color.yellow, arsd.terminal.Color.black);
-enum bytesFace = face(arsd.terminal.Color.yellow, arsd.terminal.Color.black);
 
 enum infoFace = face(arsd.terminal.Color.white, arsd.terminal.Color.black, true);
 enum warnFace = face(arsd.terminal.Color.yellow, arsd.terminal.Color.black);
@@ -1249,7 +1264,7 @@ enum ctxFaces = [face(Color.red, Color.black),
 /** Key (Hit) Faces. */
 enum keyFaces = ctxFaces.map!(a => face(a.fg, a.bg, true));
 
-void setFace(Term, Face)(ref Term term, Face face, bool colorFlag) @trusted
+void setFace(Term, Face)(ref Term term, Face face, bool colorFlag)
 {
     if (colorFlag)
         term.color(face.fg | (face.bright ? Bright : 0) ,
@@ -1261,7 +1276,7 @@ struct Fazed(T)
 {
     T text;
     const Face!Color face;
-    string toString() const @property @trusted pure nothrow { return to!string(text); }
+    string toString() const @property pure nothrow { return to!string(text); }
 }
 auto faze(T)(T text,
              in Face!Color face = stdFace) @safe pure nothrow
@@ -1276,22 +1291,18 @@ auto getFace(Arg)(in Arg arg) @safe pure nothrow
     {
         return arg.face;
     }
-    else static if (isInstanceOf!(Digest, Arg)) // instead of is(Unqual!(Arg) == SHA1Digest)
-    {
-        return digestFace;
-    }
-    else static if (isInstanceOf!(Bytes, Arg))
-    {
-        return bytesFace;
-    }
-    else static if (isInstanceOf!(AsHit, Arg))
-    {
-        return keyFaces.cycle[arg.ix];
-    }
-    else static if (isInstanceOf!(AsCtx, Arg))
-    {
-        return ctxFaces.cycle[arg.ix];
-    }
+    // else static if (isInstanceOf!(Digest, Arg)) // instead of is(Unqual!(Arg) == SHA1Digest)
+    // {
+    //     return digestFace;
+    // }
+    // else static if (isInstanceOf!(AsHit, Arg))
+    // {
+    //     return keyFaces.cycle[arg.ix];
+    // }
+    // else static if (isInstanceOf!(AsCtx, Arg))
+    // {
+    //     return ctxFaces.cycle[arg.ix];
+    // }
     else
     {
         return stdFace;

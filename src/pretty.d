@@ -273,7 +273,7 @@ class Viz
     {
         if (form == VizForm.HTML)
         {
-            ppRaw(`</body>\n</html>`);
+            ppRaw("</body>\n</html>");
         }
     }
 
@@ -1336,12 +1336,12 @@ void show(Viz viz)
 version(unittest)
 {
     import dbgio : dln;
+    import std.algorithm : map;
 }
 
 unittest
 {
-    // TODO hide these stuff  in constructor for Viz
-    import std.algorithm : map;
+    // TODO hide these stuff in constructor for Viz
     import std.uuid: randomUUID;
     import std.stdio: File;
     immutable outPath = `/tmp/fs-` ~ randomUUID.toString() ~ `.` ~ `html`;

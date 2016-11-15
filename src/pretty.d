@@ -1341,6 +1341,7 @@ version(unittest)
 unittest
 {
     // TODO hide these stuff  in constructor for Viz
+    import std.algorithm : map;
     import std.uuid: randomUUID;
     import std.stdio: File;
     immutable outPath = `/tmp/fs-` ~ randomUUID.toString() ~ `.` ~ `html`;
@@ -1349,6 +1350,8 @@ unittest
     auto viz = new Viz(outFile, &term, VizForm.HTML);
 
     viz.pp(`Pretty Printing`.asH!1);
+
+    viz.pp(horizontalRuler);
 
     viz.pp(`First Heading`.asH!2);
     viz.ppln(`Something first.`);
@@ -1365,8 +1368,12 @@ unittest
     S[] s = [S("meter", 42),
              S("second", 43)];
 
-    viz.pp("Tables Sample".asH!2,
+    viz.pp("Struct Array".asH!2,
            s.asTable);
+
+    viz.pp("Map Struct Array".asH!2,
+           s.map!(_ => S(_.theUnit,
+                         _.theSuperValue^^2)).asTable);
 
     viz.show();
 }

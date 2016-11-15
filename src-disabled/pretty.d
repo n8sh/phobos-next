@@ -64,7 +64,9 @@ template Concise(Tuple)
         }
     }
     else
-    alias Concise = Tuple;
+    {
+        alias Concise = Tuple;
+    }
 }
 
 auto concise(T)(T t) { return Concise!T(t); }
@@ -346,18 +348,26 @@ class Viz
     {
         immutable arg = (form == VizForm.HTML) ? `<` ~ tag ~ `>` : tag;
         if (newlinedTags)
+        {
             pplnRaw(arg);
+        }
         else
+        {
             ppRaw(arg);
+        }
     }
 
     void pplnTagClose(T)(T tag)
     {
         immutable arg = (form == VizForm.HTML) ? `</` ~ tag ~ `>` : tag;
         if (newlinedTags)
+        {
             pplnRaw(arg);
+        }
         else
+        {
             ppRaw(arg);
+        }
     }
 
     /** Put $(D arg) to $(D viz) possibly with conversion. */
@@ -481,7 +491,9 @@ class Viz
             foreach (ix, subArg; arg.args)
             {
                 static if (ix >= 1)
+                {
                     pp1(depth + 1, `,`); // separator
+                }
                 static if (isInputRange!(typeof(subArg)))
                 {
                     foreach (subsubArg; subArg)
@@ -904,9 +916,13 @@ class Viz
                     /* if (args0.length >= 1) { ppRaw(`|`); } */
                 }
                 if      (arg.rowNr == RowNr.offsetZero)
+                {
                     pplnTaggedN(`td`, arg.rowIx + 0);
+                }
                 else if (arg.rowNr == RowNr.offsetOne)
+                {
                     pplnTaggedN(`td`, arg.rowIx + 1);
+                }
                 foreach (subArg; args0.tupleof) // for each table column
                 {
                     if (form == VizForm.HTML)

@@ -6,10 +6,10 @@ import std.algorithm.iteration : Group;
 auto encode(T)(Group!("a == b", T[]) sf)
 {
     import std.algorithm.iteration : map;
+    import std.algorithm.sorting : schwartzSort;
     import std.typecons : tuple;
     import std.array : array;
     import std.container.binaryheap : heapify;
-    import std.algorithm.sorting : schwartzSort;
 
     auto heap = sf.map!(s => tuple(s[1], [tuple(s[0], "")]))
                   .array.heapify!q{b < a};

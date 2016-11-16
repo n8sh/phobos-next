@@ -48,7 +48,7 @@ template allSame(V ...)
                         allSame!(V[0 .. $/2]));
 }
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     static assert( allSame!());
     static assert( allSame!(42));
@@ -83,7 +83,7 @@ template allSameIterative(V...)
     enum allSameIterative = impl_!V();
 }
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     static assert( allSameIterative!());
     static assert( allSameIterative!(42));
@@ -102,7 +102,7 @@ template allSameRecursive(V...)
         enum allSameRecursive = V[0] == V[1] && allSameRecursive!(V[1..$]);
 }
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     static assert(allSameRecursive!());
     static assert(allSameRecursive!(42));
@@ -121,7 +121,7 @@ template allSameType(T...)
 
 enum allSameType1(T...) = !T.length || (is(T[0] == T[T.length > 1]) && allSameType1!(T[1 .. $]));
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     static assert(allSameType!(int, int));
     static assert(!allSameType!(int, double));
@@ -133,7 +133,7 @@ alias allTypesSame = allSameType;
 alias isHomogeneous = allSameType;
 enum isHomogeneousTuple(T) = isHomogeneous!(T.Types);
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     static assert(isHomogeneousTuple!(Tuple!(int, int, int)));
     static assert(isHomogeneousTuple!(Tuple!(float, float, float)));
@@ -143,7 +143,7 @@ unittest
 enum isHomogeneousTupleOf(T, E) = (isHomogeneous!(T.Types) &&
                                    is(Unqual!(T.Types[0]) == Unqual!E));
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     import std.typecons : Tuple;
     static assert(isHomogeneousTupleOf!(Tuple!(int, int, int), int));
@@ -786,7 +786,7 @@ template sizesOf(T...)          // TODO Add to Phobos
     enum sizesOf = staticMap!(sizeOf, T);
 }
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     enum sizes = sizesOf!(bool, short, int, long);
 
@@ -846,7 +846,7 @@ template packedBitSizeOf(T)
     }
 }
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     static assert(packedBitSizeOf!ubyte == 8);
     static assert(!__traits(compiles, { enum E1 { x } static assert(packedBitSizeOf!E1 == 1);}));
@@ -894,7 +894,7 @@ template dimensionality (T)
     alias dimensionality = count_dim!();
 }
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     static assert(dimensionality!(int[]) == 1);
 }
@@ -985,7 +985,7 @@ enum isLvalue(alias A) = is(typeof((ref _){}(A)));
  */
 enum isRvalue(alias A) = !isLvalue!A;
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     int i;
     string s;

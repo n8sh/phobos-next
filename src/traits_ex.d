@@ -786,13 +786,6 @@ template sizesOf(T...)          // TODO Add to Phobos
     enum sizesOf = staticMap!(sizeOf, T);
 }
 
-enum stringOf(T) = T.stringof;  // TODO Add to Phobos
-template stringsOf(T...)        // TODO Add to Phobos
-{
-    import std.meta : staticMap;
-    enum stringsOf = staticMap!(stringOf, T);
-}
-
 unittest
 {
     enum sizes = sizesOf!(bool, short, int, long);
@@ -806,6 +799,18 @@ unittest
     // dynamic use
     const i = 0;
     assert([sizes][i] == 1);
+}
+
+enum stringOf(T) = T.stringof;  // TODO Add to Phobos
+template stringsOf(T...)        // TODO Add to Phobos
+{
+    import std.meta : staticMap;
+    enum stringsOf = staticMap!(stringOf, T);
+}
+
+unittest
+{
+    enum strings = stringsOf!(bool, short, int, long);
 }
 
 /** Number of bits required to store a packed instance of $(D T).

@@ -808,8 +808,15 @@ unittest
     assert([sizes][i] == 1);
 }
 
-/** Get Number of Bits Required to store an instance of $(D T).
+/** Number of bits required to store a packed instance of $(D T).
     See also: http://forum.dlang.org/thread/okonqhnxzqlqtxijxsfg@forum.dlang.org
+
+    TODO Extend to continuous version; use std.numeric.sumOfLog2s. Ask on
+    StackExchange Computer Science for the correct terminology.
+
+    See: http://dlang.org/phobos/std_numeric.html#.sumOfLog2s
+
+    TODO merge with `UsageOf`
    */
 template packedBitSizeOf(T)
 {

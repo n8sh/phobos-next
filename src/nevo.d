@@ -7,9 +7,7 @@
    TODO Profile use of cellops and logops in a specific domain or pattern och
    and use roulette wheel sampling based on these in future patterns.
 
-   TODO Use std.numeric.sumOfLog2s when calculating bitEntropy. Ask on
-   StackExchange Computer Science for the correct terminology.
-   See: http://dlang.org/phobos/std_numeric.html#.sumOfLog2s
+   TODO reuse traits_ex.packedBitSizeOf
 */
 module nevo;
 
@@ -26,7 +24,7 @@ version(unittest)
     See also: http://llvm.org/docs/LangRef.html#typesystem
     See also: http://llvm.org/docs/LangRef.html#instref
 */
-enum LOp : ubyte
+enum LOP : ubyte
 {
     summ,                       /// Sum.
     prod,                       /// Product.
@@ -36,7 +34,7 @@ enum LOp : ubyte
 
 /** Obselete.
 */
-enum LOp_ : ubyte
+enum LOP_ : ubyte
 {
     id, /**< Identity. */
 
@@ -123,86 +121,86 @@ enum LOp_ : ubyte
 version(none)
 {
 /** Return non-zero if \p lop is an \em Arithmetical \em Additive Operation. */
-bool isAdd(LOp lop)
+bool isAdd(LOP lop)
 {
-    return (lop == LOp.add ||
-            lop == LOp.sub ||
-            lop == LOp.neg);
+    return (lop == LOP.add ||
+            lop == LOP.sub ||
+            lop == LOP.neg);
 }
 
 /** Return non-zero if \p lop is an \em Arithmetical \em Additive Operation. */
-bool isMul(LOp lop)
+bool isMul(LOP lop)
 {
-    return (lop == LOp.mul ||
-            lop == LOp.div ||
-            lop == LOp.pow ||
-            lop == LOp.inv);
+    return (lop == LOP.mul ||
+            lop == LOP.div ||
+            lop == LOP.pow ||
+            lop == LOP.inv);
 }
 
-bool isArithmetic(LOp lop)
+bool isArithmetic(LOP lop)
 {
     return isAdd(lop) && isArithmetic(lop);
 }
 
 /** Return non-zero if \p lop is an \em Trigonometric Operation. */
-bool isTrigonometric(LOp lop)
+bool isTrigonometric(LOP lop)
 {
-    return (lop == LOp.cos ||
-            lop == LOp.sin ||
-            lop == LOp.tan ||
-            lop == LOp.cot ||
-            lop == LOp.csc ||
-            lop == LOp.acos ||
-            lop == LOp.asin ||
-            lop == LOp.atan ||
-            lop == LOp.acot ||
-            lop == LOp.acsc
+    return (lop == LOP.cos ||
+            lop == LOP.sin ||
+            lop == LOP.tan ||
+            lop == LOP.cot ||
+            lop == LOP.csc ||
+            lop == LOP.acos ||
+            lop == LOP.asin ||
+            lop == LOP.atan ||
+            lop == LOP.acot ||
+            lop == LOP.acsc
         );
 }
 
 /** Return non-zero if \p lop is an \em Hyperbolic Operation. */
-bool isHyperbolic(LOp lop)
+bool isHyperbolic(LOP lop)
 {
-    return (lop == LOp.cosh ||
-            lop == LOp.sinh ||
-            lop == LOp.tanh ||
-            lop == LOp.coth ||
-            lop == LOp.csch ||
-            lop == LOp.acosh ||
-            lop == LOp.asinh ||
-            lop == LOp.atanh ||
-            lop == LOp.acoth ||
-            lop == LOp.acsch);
+    return (lop == LOP.cosh ||
+            lop == LOP.sinh ||
+            lop == LOP.tanh ||
+            lop == LOP.coth ||
+            lop == LOP.csch ||
+            lop == LOP.acosh ||
+            lop == LOP.asinh ||
+            lop == LOP.atanh ||
+            lop == LOP.acoth ||
+            lop == LOP.acsch);
 }
 
 /** Return non-zero if \p lop is a \em Generator Operation. */
-bool isGen(LOp lop)
+bool isGen(LOP lop)
 {
-    return (lop == LOp.ramp ||
-            lop == LOp.zeros ||
-            lop == LOp.ones ||
-            lop == LOp.rand);
+    return (lop == LOP.ramp ||
+            lop == LOP.zeros ||
+            lop == LOP.ones ||
+            lop == LOP.rand);
 }
 
 /** Return non-zero if \p lop is a \em Comparison Operation. */
-bool isCmp(LOp lop)
+bool isCmp(LOP lop)
 {
-    return (lop == LOp.eq ||
-            lop == LOp.neq ||
-            lop == LOp.lt ||
-            lop == LOp.lte ||
-            lop == LOp.gt ||
-            lop == LOp.gte);
+    return (lop == LOP.eq ||
+            lop == LOP.neq ||
+            lop == LOP.lt ||
+            lop == LOP.lte ||
+            lop == LOP.gt ||
+            lop == LOP.gte);
 }
 
 /** Return non-zero if \p lop is a \em Permutation/Reordering Operation. */
-bool isPermutation(LOp lop)
+bool isPermutation(LOP lop)
 {
-    return (lop == LOp.identity ||
-            lop == LOp.interleave ||
-            lop == LOp.flip ||
-            lop == LOp.mirror ||
-            lop == LOp.shuffle);
+    return (lop == LOP.identity ||
+            lop == LOP.interleave ||
+            lop == LOP.flip ||
+            lop == LOP.mirror ||
+            lop == LOP.shuffle);
 }
 }
 
@@ -214,7 +212,7 @@ bool isPermutation(LOp lop)
  * TODO What does \em nature cell this information bearer: Closest I
  * have found is http://en.wikipedia.org/wiki/Allele.
  */
-enum GOp : ubyte
+enum GOP : ubyte
 {
     /* \name Structural: Inter-Node */
     /* @{ */
@@ -226,20 +224,20 @@ enum GOp : ubyte
 
     /* \name Local: Intra-Node */
     /* @{ */
-    set_lop,                /**< Set Node Logic Operation (see \c LOp). */
+    setLOp,                /**< Set Node Logic Operation (see \c LOP). */
 
-    set_otype, /**< Set Out-Type. Either \c int, \c float or \c double for now. */
+    setOType, /**< Set Out-Type. Either \c int, \c float or \c double for now. */
 
-    inc_bias,               /**< Increase Threshold */
-    dec_bias,               /**< Decrease Threshold */
+    incBias,               /**< Increase Threshold */
+    decBias,               /**< Decrease Threshold */
 
     /* There is \em no need for "in-precision", since these are the same
        as in-precision the "previous" nodes in the network. */
-    inc_oprec,              /**< Increase Out-Precision */
-    dec_oprec,              /**< Decrease Out-Precision */
+    incOpRec,              /**< Increase Out-Precision */
+    decOpRec,              /**< Decrease Out-Precision */
 
-    inc_linkreg,            /**< Increase In-Link-Register */
-    dec_linkreg,            /**< Decrease In-Link-Register */
+    incLinkreg,            /**< Increase In-Link-Register */
+    decLinkreg,            /**< Decrease In-Link-Register */
 
     on,                     /**< \em Activate Current In-Link. */
     off,                    /**< \em Deactivate Current In-Link. */
@@ -257,29 +255,32 @@ enum GOp : ubyte
 }
 
 // wchar
-// wchar_from_LOP(LOp lop)
+// wchar_from_LOP(LOP lop)
 // {
 //     wchar_t wc = UNICODE_UNKNOWN;
 //     switch (lop) {
-//     case LOp.add: wc = UNICODE_CIRCLED_PLUS; break;
-//     case LOp.sub: wc = UNICODE_CIRCLED_MINUS; break;
-//     case LOp.neg: wc = UNICODE_SQUARED_MINUS; break;
-//     case LOp.mul: wc = UNICODE_CIRCLED_TIMES; break;
-//     case LOp.div: wc = UNICODE_CIRCLED_DIVISION_SLASH; break;
-//     case LOp.pow: wc = UNICODE_UNKNOWN; break;
-//     case LOp.inv: wc = UNICODE_CIRCLED_DIVISION_SLASH; break;
+//     case LOP.add: wc = UNICODE_CIRCLED_PLUS; break;
+//     case LOP.sub: wc = UNICODE_CIRCLED_MINUS; break;
+//     case LOP.neg: wc = UNICODE_SQUARED_MINUS; break;
+//     case LOP.mul: wc = UNICODE_CIRCLED_TIMES; break;
+//     case LOP.div: wc = UNICODE_CIRCLED_DIVISION_SLASH; break;
+//     case LOP.pow: wc = UNICODE_UNKNOWN; break;
+//     case LOP.inv: wc = UNICODE_CIRCLED_DIVISION_SLASH; break;
 //     default: break;
 //     }
 //     return wc;
 // }
 
-import array_ex : UncopyableArray;
 import std.bitmanip : BitArray;
+import std.random : Random, uniform;
+import array_ex : UncopyableArray, CopyableArray;
+import traits_ex : packedBitSizeOf;
+import borrown : Owned;
 
 import vary : FastVariant;
 
 alias Data = FastVariant!(long, double);
-alias Datas = UncopyableArray!Data;
+alias Datas = Owned!(UncopyableArray!Data);
 
 /// Parameter Link.
 struct Link
@@ -287,27 +288,51 @@ struct Link
     size_t inIx;                // input `Cell` index, relative to current
     size_t outIx;               // output `Cell` index, relative to current
 }
-alias Links = UncopyableArray!Link;
+alias Links = Owned!(UncopyableArray!Link);
 
 /// Scalar Operation Count.
 alias OpCount = size_t;
+
+/// Relative Cell index.
+alias CellRIx = ptrdiff_t;
+
+/// Relative Cell indexs.
+alias CellRIxs = Owned!(CopyableArray!CellRIx);
 
 /// Calculating Cell.
 struct Cell
 {
     import std.algorithm.iteration : map, filter, fold;
 
-    @safe pure nothrow:
+    @safe pure:
+
+    this(LOP lop, size_t inputRIxsLength, size_t cellCount)
+    {
+    }
+
+    /// Randomize a cell.
+    void randomize(LOP lop, size_t inputRIxsLength, size_t cellCount) @trusted
+    {
+        auto gen = Random();
+        this.lop = lop;
+        inputCellRIxs.length = inputRIxsLength;
+        foreach (ref rix; inputCellRIxs[])
+        {
+            rix = uniform(cast(CellRIx)0, cast(CellRIx)cellCount/10, gen);
+        }
+    }
+
+    nothrow:
 
     OpCount execute(const ref Datas ins, ref Datas outs) const
     {
         if (ins.empty) { return typeof(return).init; }
         final switch (lop)
         {
-        case LOp.summ: return summ(ins, outs);
-        case LOp.prod: return prod(ins, outs);
-        case LOp.emin: return emin(ins, outs);
-        case LOp.emax: return emax(ins, outs);
+        case LOP.summ: return summ(ins, outs);
+        case LOP.prod: return prod(ins, outs);
+        case LOP.emin: return emin(ins, outs);
+        case LOP.emax: return emax(ins, outs);
         }
     }
 
@@ -354,18 +379,18 @@ struct Cell
         return ins.length - 1;
     }
 
-    LOp lop;                    /// operation
+    LOP lop;                  /// operation
+    CellRIxs inputCellRIxs;   /// relative indexes to (neighbouring) input cells
 }
-alias Cells = UncopyableArray!Cell;
+alias Cells = Owned!(UncopyableArray!Cell);
 
 /// Network/Graph of `Cells` implicity connected by `Links`.
 struct Network
 {
     @safe pure /*TODO nothrow @nogc*/:
 
-    this(size_t cellCount, size_t linkCount)
+    this(size_t cellCount)
     {
-        import std.random : Random, uniform;
         auto gen = Random();
 
         cells.reserve(cellCount);
@@ -373,27 +398,9 @@ struct Network
 
         foreach (immutable i; 0 .. cellCount)
         {
-            cells ~= Cell(gen.uniform!LOp);
+            cells ~= Cell(gen.uniform!LOP, 10, cellCount);
             temps ~= Data(gen.uniform!long);
         }
-
-        links.reserve(linkCount);
-        foreach (immutable i; 0 .. linkCount)
-        {
-            links ~= Link(uniform(0, cellCount, gen),
-                          uniform(0, cellCount, gen));
-        }
-    }
-
-    Datas[] getIns() @trusted
-    {
-        typeof(return) ins;
-        ins.length = cells.length;
-        foreach (immutable link; links[])
-        {
-            ins[link.inIx] ~= temps[link.inIx];
-        }
-        return ins;
     }
 
     /// One step forward.
@@ -401,11 +408,17 @@ struct Network
     {
         typeof(return) opCount = 0;
 
-        const ins = getIns(); // separate packing of inputs enables parallelization of calls to execute
         foreach (immutable i, ref cell; cells)
         {
+            Datas ins;
+            ins.reserve(cell.inputCellRIxs.length);
+            foreach (immutable rix; cell.inputCellRIxs)
+            {
+                ins ~= temps[(i + rix) % cells.length]; // relative index
+            }
+
             Datas tempOuts;         // data to be filled
-            if (immutable opCount_ = cell.execute(ins[i], tempOuts))
+            if (immutable opCount_ = cell.execute(ins, tempOuts))
             {
                 opCount += opCount_;
                 temps[i] = tempOuts[0];
@@ -428,14 +441,38 @@ struct Network
 
     Cells cells;                /// operation/function cells
     Datas temps;                /// temporary outputs from cells
-    Links links;                /// input-to-output links
+}
+
+/// Cell Operation.
+enum CellOp : ubyte
+{
+    seqClone,                   /// sequential clone
+    parClone,                   /// parallel clone
+}
+alias COps = Owned!(UncopyableArray!CellOp);
+
+/// Generative Code.
+struct Code
+{
+    @safe pure nothrow:
+
+    COps cOps; // cell operations, an indirect generative network encoding
+    alias cOps this;
+
+    Network generate() const
+    {
+        typeof(return) network;
+        foreach (immutable cOp; cOps[])
+        {
+        }
+        return network;
+    }
 }
 
 unittest
 {
     immutable cellCount = 1_000;
-    immutable linkCount = 1_000;
-    auto task = Network(cellCount, linkCount);
+    auto task = Network(cellCount);
 
     immutable stepCount = 1_0;
     foreach (immutable i; 0 .. stepCount)

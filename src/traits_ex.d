@@ -808,7 +808,7 @@ template stringsOf(T...)        // TODO Add to Phobos
     enum stringsOf = staticMap!(stringOf, T);
 }
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     enum strings = stringsOf!(bool, short, int, long);
 }

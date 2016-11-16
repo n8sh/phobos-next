@@ -8,6 +8,8 @@
    and use roulette wheel sampling based on these in future patterns.
 
    TODO reuse traits_ex.packedBitSizeOf
+
+   TODO reuse `IndexedBy` `Cells` and `CellIx`
 */
 module nevo;
 
@@ -296,6 +298,12 @@ alias OpCount = size_t;
 /// Relative Cell index.
 alias CellRIx = ptrdiff_t;
 
+/// Cell index.
+alias CellIx = size_t;
+
+/// Absolute Cell indexs.
+alias CellIxs = Owned!(CopyableArray!CellIx);
+
 /// Relative Cell indexs.
 alias CellRIxs = Owned!(CopyableArray!CellRIx);
 
@@ -458,6 +466,8 @@ struct Code
 
     COps cOps; // cell operations, an indirect generative network encoding
     alias cOps this;
+
+    CellIxs writerIxs;          /// index to writers
 
     Network generate() const
     {

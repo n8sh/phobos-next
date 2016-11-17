@@ -31,7 +31,6 @@
     See_Also: $(HTTP en.wikipedia.org/wiki/Radix_tree)
     See_Also: $(HTTP github.com/nordlow/phobos-next/blob/master/src/test_trie_prefix.d) for a descriptive usage of prefixed access.
 
-    TODO 1. Remove refcounting
     TODO 2. Make as many members as possible free functionss, such as lowerBound, free-functions to reduce compilation times.
 
     TODO Use scope on `Range`, `RawRange` and members that return key and value reference when DIP-1000 has been implemented
@@ -4018,10 +4017,6 @@ template RawRadixTree(Value = void)
 
     private:
         RCStore* _rcStore;
-        // debug:                      // debug stuff
-        // long _heapAllocBalance;
-        // size_t[Node.Ix.max + 1] nodeCountsByIx;
-        // bool willFail;
     }
 }
 

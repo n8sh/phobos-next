@@ -271,11 +271,10 @@ struct BitSet(uint len, Block = size_t)
     ///
     unittest
     {
-        debug(bitset) printf("BitSet.opApply unittest\n");
         static bool[] ba = [1,0,1];
         auto a = BitSet!3(ba);
         size_t i;
-        foreach (b; a)
+        foreach (immutable b; a[]) // TODO is `opSlice` the right thing?
         {
             switch (i)
             {
@@ -286,7 +285,7 @@ struct BitSet(uint len, Block = size_t)
             }
             i++;
         }
-        foreach (j, b; a)
+        foreach (j, b; a)       // TODO is `opSlice` the right thing?
         {
             switch (j)
             {
@@ -463,7 +462,6 @@ struct BitSet(uint len, Block = size_t)
 
     /* unittest */
     /*     { */
-    /*         debug(bitset) printf("BitSet.sort.unittest\n"); */
     /*         __gshared size_t x = 0b1100011000; */
     /*         __gshared BitSet ba = { 10, &x }; */
     /*         ba.sort(); */
@@ -497,7 +495,6 @@ struct BitSet(uint len, Block = size_t)
     ///
     nothrow unittest
     {
-        debug(bitset) printf("BitSet.opEquals unittest\n");
         auto a = BitSet!(5, ubyte)([1,0,1,0,1]);
         auto b = BitSet!(5, ushort)([1,0,1,1,1]);
         auto c = BitSet!(5, uint)([1,0,1,0,1]);
@@ -534,7 +531,6 @@ struct BitSet(uint len, Block = size_t)
     ///
     nothrow unittest
     {
-        debug(bitset) printf("BitSet.opCmp unittest\n");
         auto a = BitSet!(5, ubyte)([1,0,1,0,1]);
         auto b = BitSet!(5, ushort)([1,0,1,1,1]);
         auto c = BitSet!(5, uint)([1,0,1,0,1]);
@@ -823,7 +819,6 @@ struct BitSet(uint len, Block = size_t)
     ///
     nothrow unittest
     {
-        debug(bitset) printf("BitSet.opCast unittest\n");
         static bool[] ba = [1,0,1,0,1];
         auto a = BitSet!5(ba);
         void[] v = cast(void[])a;
@@ -854,7 +849,6 @@ struct BitSet(uint len, Block = size_t)
     ///
     nothrow unittest
     {
-        debug(bitset) printf("BitSet.opAnd unittest\n");
         const a = BitSet!5([1,0,1,0,1]);
         auto b = BitSet!5([1,0,1,1,0]);
         const c = a & b;
@@ -873,7 +867,6 @@ struct BitSet(uint len, Block = size_t)
     ///
     nothrow unittest
     {
-        debug(bitset) printf("BitSet.opOr unittest\n");
         const a = BitSet!5([1,0,1,0,1]);
         auto b = BitSet!5([1,0,1,1,0]);
         const c = a | b;
@@ -892,7 +885,6 @@ struct BitSet(uint len, Block = size_t)
     ///
     nothrow unittest
     {
-        debug(bitset) printf("BitSet.opXor unittest\n");
         const a = BitSet!5([1,0,1,0,1]);
         auto b = BitSet!5([1,0,1,1,0]);
         const c = a ^ b;
@@ -914,7 +906,6 @@ struct BitSet(uint len, Block = size_t)
     ///
     nothrow unittest
     {
-        debug(bitset) printf("BitSet.opSub unittest\n");
         const a = BitSet!5([1,0,1,0,1]);
         auto b = BitSet!5([1,0,1,1,0]);
         const c = a - b;
@@ -933,7 +924,6 @@ struct BitSet(uint len, Block = size_t)
     ///
     nothrow unittest
     {
-        debug(bitset) printf("BitSet.opAndAssign unittest\n");
         auto a = BitSet!5([1,0,1,0,1]);
         const b = BitSet!5([1,0,1,1,0]);
         a &= b;
@@ -952,7 +942,6 @@ struct BitSet(uint len, Block = size_t)
     ///
     nothrow unittest
     {
-        debug(bitset) printf("BitSet.opOrAssign unittest\n");
         auto a = BitSet!5([1,0,1,0,1]);
         const b = BitSet!5([1,0,1,1,0]);
         a |= b;
@@ -971,7 +960,6 @@ struct BitSet(uint len, Block = size_t)
     ///
     nothrow unittest
     {
-        debug(bitset) printf("BitSet.opXorAssign unittest\n");
         auto a = BitSet!5([1,0,1,0,1]);
         const b = BitSet!5([1,0,1,1,0]);
         a ^= b;
@@ -993,7 +981,6 @@ struct BitSet(uint len, Block = size_t)
     ///
     nothrow unittest
     {
-        debug(bitset) printf("BitSet.opSubAssign unittest\n");
         auto a = BitSet!5([1,0,1,0,1]);
         const b = BitSet!5([1,0,1,1,0]);
         a -= b;

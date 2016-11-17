@@ -391,7 +391,7 @@ struct Cell
     LOP lop;                  /// operation
     CellRIxs inputCellRIxs;   /// relative indexes to (neighbouring) input cells
 }
-alias Cells = Owned!(UncopyableArray!Cell);
+alias Cells = IndexedBy!(Owned!(UncopyableArray!Cell), CellIx);
 
 /// Network/Graph of `Cells` implicity connected by `Links`.
 struct Network

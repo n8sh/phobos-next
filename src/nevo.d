@@ -36,7 +36,7 @@ enum LOP : ubyte
 
 /** Obselete.
 */
-enum LOP_ : ubyte
+enum LOPobseleted : ubyte
 {
     id, /**< Identity. */
 

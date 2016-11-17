@@ -277,6 +277,7 @@ import std.bitmanip : BitArray;
 import std.random : Random, uniform;
 import array_ex : UncopyableArray, CopyableArray;
 import traits_ex : packedBitSizeOf;
+import typecons_ex : IndexedBy;
 import borrown : Owned;
 
 import vary : FastVariant;

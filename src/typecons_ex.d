@@ -248,7 +248,7 @@ struct IndexedBy(R, string IndexTypeName)
 
         mixin genTrustedUncheckedOps!(I__); // no range checking needed because I is always < R.length
 
-        /** Get index of element `E` wrapped in a bool-convertable struct. */
+        /** Get index of element `E` wrapped in a `bool`-convertable struct. */
         auto findIndex(E)(E e) @safe pure nothrow @nogc
         {
             static struct Result
@@ -282,8 +282,7 @@ struct IndexedBy(R, string IndexTypeName)
     alias _r this; // TODO Use opDispatch instead; to override only opSlice and opIndex
 }
 
-/** Construct wrapper type for `R' which is strictly indexed with type
-    `R.Index`. */
+/* Wrapper type for `R' indexable/sliceable only with type `R.Index`. */
 template TypesafelyIndexed(R)
     if (isArray!R) // prevent name lookup failure
 {

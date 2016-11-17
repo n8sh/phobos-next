@@ -119,16 +119,23 @@ enum isIndexableBy(R, alias I) = (hasIndexing!R && is(string == typeof(I))); // 
 /** Generate `opIndex` and `opSlice`. */
 static private mixin template genIndexAndSliceOps(I)
 {
+    // indexing
+
+    /// Get element at compile-time index `i`.
     auto ref at(size_t i)() inout
     {
         assert(cast(size_t)i < _r.length, "Index " ~ i ~ " must be smaller than array length" ~ _r.length.stringof);
         return _r[i];
     }
+
+    /// Get element at index `i`.
     auto ref opIndex(I i) inout
     {
         assert(cast(size_t)i < _r.length, "Range violation with index type " ~ I.stringof);
         return _r[cast(size_t)i];
     }
+
+    /// Set element at index `i` to `value`.
     auto ref opIndexAssign(V)(V value, I i)
     {
         assert(cast(size_t)i < _r.length, "Range violation with index type " ~ I.stringof);
@@ -136,6 +143,8 @@ static private mixin template genIndexAndSliceOps(I)
         move(value, _r[cast(size_t)i]);
         return _r[cast(size_t)i];
     }
+
+    // slicing
     static if (hasSlicing!R)
     {
         auto ref opSlice(I i, I j) inout
@@ -154,19 +163,29 @@ static private mixin template genIndexAndSliceOps(I)
 mixin template genTrustedUncheckedOps(I)
 {
     @trusted:
+
+    // indexing
+
+    /// Get element at compile-time index `i`.
     auto ref at(size_t i)() inout
     {
         static assert(i < _r.length, "Index " ~ i.stringof ~ " must be smaller than array length " ~ _r.length.stringof);
         return _r.ptr[i];
     }
+
+    /// Get element at index `i`.
     auto ref opIndex(I i) inout
     {
         return _r.ptr[cast(size_t)i]; // safe to avoid range checking
     }
-    auto ref opIndexAssign(V)(V value, I i)
+
+    /// Set element at index `i` to `value`.
+        auto ref opIndexAssign(V)(V value, I i)
     {
         return _r.ptr[cast(size_t)i] = value;
     }
+
+    // slicing
     static if (hasSlicing!R)
     {
         auto ref opSlice(I i, I j) inout             { return _r.ptr[cast(size_t)i ..

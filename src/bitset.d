@@ -15,7 +15,8 @@ version(unittest)
 /** BitSet, a statically sized `std.bitmanip.BitArray`.
 
     TODO Infer `Block` from `len` as is done for `Bound` and `Mod`.
-    TODO Optimize `allOnes`, `allZeros` using intrinsic?
+
+    TODO Optimize `allOne`, `allZero` using intrinsic?
  */
 struct BitSet(uint len, Block = size_t)
 {
@@ -578,7 +579,7 @@ struct BitSet(uint len, Block = size_t)
         foreach (const i, const b; ba) { this[i] = b; }
     }
 
-    bool opCast(T : bool)() const @safe pure nothrow @nogc { return !this.empty ; }
+    bool opCast(T : bool)() const @safe pure nothrow @nogc { return !this.allZero ; }
 
     /// construct from dynamic array
     @safe nothrow @nogc unittest
@@ -586,7 +587,7 @@ struct BitSet(uint len, Block = size_t)
         static bool[] ba = [1,0,1,0,1];
         auto a = BitSet!5(ba);
         assert(a);
-        assert(!a.empty);
+        assert(!a.allZero);
     }
     /// ditto
     @safe nothrow @nogc unittest
@@ -594,7 +595,7 @@ struct BitSet(uint len, Block = size_t)
         static bool[] ba = [0,0,0];
         auto a = BitSet!3(ba);
         assert(!a);
-        assert(a.empty);
+        assert(a.allZero);
     }
     /// construct from static array
     @safe nothrow @nogc unittest
@@ -602,7 +603,7 @@ struct BitSet(uint len, Block = size_t)
         static bool[3] ba = [0,0,0];
         auto a = BitSet!3(ba);
         assert(!a);
-        assert(a.empty);
+        assert(a.allZero);
     }
 
     /** Check if this $(D BitSet) has only zeros (is empty). */
@@ -614,7 +615,6 @@ struct BitSet(uint len, Block = size_t)
         }
         return true;
     }
-    alias empty = allZero;
 
     /** Check if this $(D BitSet) has only ones in range [ $(d low), $(d high) [. */
     bool allOneBetween(size_t low, size_t high)
@@ -743,7 +743,7 @@ struct BitSet(uint len, Block = size_t)
             return 1 - denseness(depth);
         }
 
-        /** Check if this $(D BitSet) has only ones (is full). */
+        /** Check if this $(D BitSet) has only ones. */
         bool allOne() const @safe pure nothrow
         {
             const restCount = len % bitsPerBlock;
@@ -764,7 +764,6 @@ struct BitSet(uint len, Block = size_t)
                 return true;
             }
         }
-        alias full = allOne;
 
         /** Find index (starting at `currIx`) of first bit that equals `value`.
             Returns: `true` if index was found (hit index is put into `nextIx`), `false` otherwise.

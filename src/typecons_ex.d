@@ -235,7 +235,7 @@ auto indexedBy(I, R)(R range)
 }
 
 struct IndexedBy(R, string IndexTypeName)
-    if (isArray!R &&
+    if (hasIndexing!R &&
         IndexTypeName != "IndexTypeName") // prevent name lookup failure
 {
     static if (isStaticArray!R) // if length is known at compile-time
@@ -284,7 +284,7 @@ struct IndexedBy(R, string IndexTypeName)
 
 /* Wrapper type for `R' indexable/sliceable only with type `R.Index`. */
 template TypesafelyIndexed(R)
-    if (isArray!R) // prevent name lookup failure
+    if (hasIndexing!R) // prevent name lookup failure
 {
     alias TypesafelyIndexed = IndexedBy!(R, "Index");
 }
@@ -301,7 +301,7 @@ auto indexedBy(string I, R)(R range)
 /** Instantiator for `TypesafelyIndexed`.
  */
 auto strictlyIndexed(R)(R range)
-    if (isArray!R)
+    if (hasIndexing!(R))
 {
     return TypesafelyIndexed!(R)(range);
 }

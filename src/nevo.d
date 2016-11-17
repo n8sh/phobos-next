@@ -285,25 +285,11 @@ import vary : FastVariant;
 alias Data = FastVariant!(long, double);
 alias Datas = Owned!(UncopyableArray!Data);
 
-/// Parameter Link.
-struct Link
-{
-    size_t inIx;                // input `Cell` index, relative to current
-    size_t outIx;               // output `Cell` index, relative to current
-}
-alias Links = Owned!(UncopyableArray!Link);
-
 /// Scalar Operation Count.
 alias OpCount = size_t;
 
 /// Relative Cell index.
 alias CellRIx = ptrdiff_t;
-
-/// Cell index.
-alias CellIx = size_t;
-
-/// Absolute Cell indexs.
-alias CellIxs = Owned!(CopyableArray!CellIx);
 
 /// Relative Cell indexs.
 alias CellRIxs = Owned!(CopyableArray!CellRIx);
@@ -391,9 +377,9 @@ struct Cell
     LOP lop;                  /// operation
     CellRIxs inputCellRIxs;   /// relative indexes to (neighbouring) input cells
 }
-alias Cells = IndexedBy!(Owned!(UncopyableArray!Cell), CellIx);
+alias Cells = IndexedBy!(Owned!(UncopyableArray!Cell), `Ix`);
 
-/// Network/Graph of `Cells` implicity connected by `Links`.
+/// Network/Graph of `Cells`.
 struct Network
 {
     @safe pure /*TODO nothrow @nogc*/:
@@ -468,7 +454,7 @@ struct Code
     COps cOps; // cell operations, an indirect generative network encoding
     alias cOps this;
 
-    CellIxs writerIxs;          /// index to writers
+    Cells.Ix writerIxs;          /// index to writers
 
     Network generate() const
     {

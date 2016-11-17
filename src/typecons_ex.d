@@ -12,8 +12,6 @@ module typecons_ex;
 /*     return typeof(return)(value); */
 /* } */
 
-public import ties;
-
 import std.typecons : Nullable, NullableRef;
 
 /** Instantiator for `Nullable`.
@@ -22,7 +20,9 @@ auto nullable(T)(T a)
 {
     return Nullable!T(a);
 }
-unittest
+
+///
+@safe pure nothrow @nogc unittest
 {
     auto x = 42.5.nullable;
     assert(is(typeof(x) == Nullable!double));
@@ -35,7 +35,9 @@ auto nullable(alias nullValue, T)(T value)
 {
     return Nullable!(T, nullValue)(value);
 }
-unittest
+
+///
+@safe pure nothrow @nogc unittest
 {
     auto x = 3.nullable!(int.max);
     assert(is (typeof(x) == Nullable!(int, int.max)));
@@ -47,7 +49,9 @@ auto nullableRef(T)(T* a) @safe pure nothrow
 {
     return NullableRef!T(a);
 }
-unittest
+
+///
+/*TODO @safe*/ pure nothrow @nogc unittest
 {
     auto x = 42.5;
     auto xr = nullableRef(&x);
@@ -86,7 +90,8 @@ enum hasIndexing(T, I = size_t) = __traits(compiles,
                                                f(T.init[I.init]);
                                            }); // TODO better to use `auto _ = (T.init[I.init]);`
 
-unittest
+///
+@safe pure nothrow @nogc unittest
 {
     static assert(hasIndexing!(byte[]));
     static assert(hasIndexing!(byte[], uint));
@@ -95,7 +100,8 @@ unittest
 /** Check if `R` is indexable by `I`. */
 enum isIndexableBy(R, I) = (hasIndexing!R && isIndex!I);
 
-unittest
+///
+@safe pure nothrow @nogc unittest
 {
     static assert(isIndexableBy!(int[3], ubyte));
 }
@@ -104,7 +110,8 @@ unittest
  */
 enum isIndexableBy(R, alias I) = (hasIndexing!R && is(string == typeof(I))); // TODO extend to isSomeString?
 
-unittest
+///
+@safe pure nothrow @nogc unittest
 {
     static assert(isIndexableBy!(int[], "I"));
 }
@@ -277,10 +284,10 @@ struct IndexedBy(R, string IndexTypeName)
 
 /** Construct wrapper type for `R' which is strictly indexed with type
     `R.Index`. */
-template StrictlyIndexed(R)
+template TypesafelyIndexed(R)
     if (isArray!R) // prevent name lookup failure
 {
-    alias StrictlyIndexed = IndexedBy!(R, "Index");
+    alias TypesafelyIndexed = IndexedBy!(R, "Index");
 }
 
 /** Instantiator for `IndexedBy`.
@@ -292,12 +299,12 @@ auto indexedBy(string I, R)(R range)
     return IndexedBy!(R, I)(range);
 }
 
-/** Instantiator for `StrictlyIndexed`.
+/** Instantiator for `TypesafelyIndexed`.
  */
 auto strictlyIndexed(R)(R range)
     if (isArray!R)
 {
-    return StrictlyIndexed!(R)(range);
+    return TypesafelyIndexed!(R)(range);
 }
 
 ///
@@ -330,7 +337,7 @@ auto strictlyIndexed(R)(R range)
 @safe pure nothrow unittest
 {
     enum N = 7;
-    alias T = StrictlyIndexed!(size_t[N]); // static array
+    alias T = TypesafelyIndexed!(size_t[N]); // static array
     static assert(T.sizeof == N*size_t.sizeof);
     import modulo : Mod, mod;
 
@@ -584,6 +591,7 @@ template makeEnumFromSymbolNames(string prefix = `__`,
     mixin("enum makeEnumFromSymbolNames : ubyte {" ~ members ~ "}");
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     import std.meta : AliasSeq;
@@ -598,6 +606,7 @@ template makeEnumFromSymbolNames(string prefix = `__`,
     static assert(Type._EPtr_.stringof == `_EPtr_`);
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     import std.meta : AliasSeq;

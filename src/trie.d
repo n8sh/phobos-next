@@ -4859,10 +4859,10 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
     void testRange() @trusted
     {
         size_t i = 0;
-        foreach (immutable elt; map[])
+        foreach (immutable keyValue; map[])
         {
-            assert(elt.key == i);
-            assert(elt.value == keyToValue(cast(Key)i)); // TODO use typed key instead of cast(Key)
+            assert(keyValue.key == i);
+            assert(keyValue.value == keyToValue(cast(Key)i)); // TODO use typed key instead of cast(Key)
             ++i;
         }
     }
@@ -4915,7 +4915,7 @@ auto testString(Keys...)(size_t count, uint maxLength) @safe
 
         auto sw2 = StopWatch(AutoStart.yes);
 
-        void testRange()
+        void testPrefix()
             @trusted
         {
             assert(set[].equal(sortedKeys));
@@ -4928,7 +4928,7 @@ auto testString(Keys...)(size_t count, uint maxLength) @safe
                                        .map!(x => x[2 .. $])));
         }
 
-        testRange();
+        testPrefix();
 
         sw2.stop;
         version(print)

@@ -4172,13 +4172,7 @@ inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey) @trusted
 struct RadixTree(Key, Value)
     if (allSatisfy!(isTrieableKeyType, Key))
 {
-    // pragma(msg, Key.stringof ~ " " ~ Value.stringof);
     alias RawTree = RawRadixTree!(Value);
-
-    // private this(RawTree rawTree)
-    // {
-    //     _rawTree = rawTree;
-    // }
 
     static if (RawTree.hasValue)
     {
@@ -4319,7 +4313,7 @@ struct RadixTree(Key, Value)
         return contains(key);   // TODO return `_rawTree.ElementRefType`
     }
 
-    pragma(inline) Range opSlice() @nogc // TODO inout?
+    pragma(inline) Range opSlice() @system @nogc // TODO inout?
     {
         return Range(_root, []);
     }
@@ -4327,7 +4321,7 @@ struct RadixTree(Key, Value)
     /** Get range over elements whose key starts with `keyPrefix`.
         The element equal to `keyPrefix` is return as an empty instance of the type.
      */
-    pragma(inline) auto prefix(Key keyPrefix)
+    pragma(inline) auto prefix(Key keyPrefix) @system
     {
         UncopyableArray!Ix rawUKey;
         auto rawKeyPrefix = keyPrefix.toRawKey(rawUKey);
@@ -4414,7 +4408,7 @@ struct RadixTree(Key, Value)
         TODO replace `matchCommonPrefix` with something more clever directly
         finds the next element after rawKey and returns a TreeRange at that point
     */
-    pragma(inline) auto upperBound(Key key)
+    pragma(inline) auto upperBound(Key key) @system
     {
         UncopyableArray!Ix rawUKey;
         auto rawKey = key.toRawKey(rawUKey);
@@ -4566,7 +4560,7 @@ auto radixTreeMapGrowOnly(Key, Value)()
 }
 
 /// exercise all switch-cases in `RawRadixTree.prefixAt()`
-@safe pure nothrow
+/*TODO @safe*/ pure nothrow
 /*TODO:@nogc*/ unittest
 {
     import std.algorithm : equal;
@@ -4862,19 +4856,22 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
         assert(map.length == i + 1);
     }
 
-    // test range
-    size_t i = 0;
-    foreach (immutable elt; map[])
+    void testRange() @trusted
     {
-        assert(elt.key == i);
-        assert(elt.value == keyToValue(cast(Key)i)); // TODO use typed key instead of cast(Key)
-
-        ++i;
+        size_t i = 0;
+        foreach (immutable elt; map[])
+        {
+            assert(elt.key == i);
+            assert(elt.value == keyToValue(cast(Key)i)); // TODO use typed key instead of cast(Key)
+            ++i;
+        }
     }
+
+    testRange();
 }
 
 /// Check string types in `Keys`.
-auto testString(Keys...)(size_t count, uint maxLength)
+auto testString(Keys...)(size_t count, uint maxLength) @safe
     if (Keys.length >= 1)
 {
     void testContainsAndInsert(Set, Key)(ref Set set, Key key)
@@ -4918,14 +4915,20 @@ auto testString(Keys...)(size_t count, uint maxLength)
 
         auto sw2 = StopWatch(AutoStart.yes);
 
-        assert(set[].equal(sortedKeys));
-        import std.algorithm : filter, map;
-        assert(set.prefix("a")
-                  .equal(sortedKeys.filter!(x => x.length && x[0] == 'a')
-                                   .map!(x => x[1 .. $])));
-        assert(set.prefix("aa")
-                  .equal(sortedKeys.filter!(x => x.length >= 2 && x[0] == 'a' && x[1] == 'a')
-                                   .map!(x => x[2 .. $])));
+        void testRange()
+            @trusted
+        {
+            assert(set[].equal(sortedKeys));
+            import std.algorithm : filter, map;
+            assert(set.prefix("a")
+                      .equal(sortedKeys.filter!(x => x.length && x[0] == 'a')
+                                       .map!(x => x[1 .. $])));
+            assert(set.prefix("aa")
+                      .equal(sortedKeys.filter!(x => x.length >= 2 && x[0] == 'a' && x[1] == 'a')
+                                       .map!(x => x[2 .. $])));
+        }
+
+        testRange();
 
         sw2.stop;
         version(print)
@@ -5205,8 +5208,21 @@ unittest
     testWords!size_t;
 }
 
+static private void testSlice(T)(ref T x)
+    @trusted
+{
+    auto xr = x[];
+}
+
+bool testEqual(T, U)(ref T x, ref U y)
+    @trusted
+{
+    import std.algorithm : equal;
+    return equal(x[], y[]);
+}
+
 /// Check correctness when span is `span` and for each `Key` in `Keys`.
-auto checkNumeric(Keys...)()
+auto checkNumeric(Keys...)() @safe
     if (Keys.length >= 1)
 {
     import std.traits : isIntegral, isFloatingPoint;
@@ -5225,11 +5241,8 @@ auto checkNumeric(Keys...)()
             assert(set.empty);
             assert(map.empty);
 
-            auto setRange = set[];
-            auto mapRange = map[];
-
-            assert(setRange.empty);
-            assert(mapRange.empty);
+            testSlice(set);
+            testSlice(map);
 
             static assert(!set.hasValue);
             static assert(map.hasValue);
@@ -5297,8 +5310,8 @@ auto checkNumeric(Keys...)()
             auto setDup = set.dup();
             auto mapDup = map.dup();
 
-            assert(set[].equal(setDup[]));
-            assert(map[].equal(mapDup[]));
+            assert(testEqual(set, setDup));
+            assert(testEqual(map, mapDup));
 
             set.clear();
 

@@ -93,7 +93,7 @@ mixin template RvalueRef()
     static assert (is(T == struct));
 
     @nogc @safe
-    ref const(T) byRef() const pure nothrow return
+    ref const(T) byRef() const return
     {
         return this;
     }

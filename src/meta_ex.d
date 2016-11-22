@@ -83,3 +83,34 @@ template Merge(A...)
                                     string, "def",
                                     "ghi")));
 }
+
+/** Mixin for generating `struct` member `byRef`.
+    See also: http://forum.dlang.org/post/o0vk14$2j89$1@digitalmars.com
+ */
+mixin template RvalueRef()
+{
+    alias T = typeof(this);
+    static assert (is(T == struct));
+
+    @nogc @safe
+    ref const(T) byRef() const pure nothrow return
+    {
+        return this;
+    }
+}
+
+@safe pure nothrow @nogc unittest
+{
+    struct Vector
+    {
+        float x, y;
+        mixin RvalueRef;
+    }
+
+    void useVector(ref const Vector pos) {}
+
+    Vector v = Vector(42, 23);
+
+    useVector(v);                     // works
+    useVector(Vector(42, 23).byRef);  // works as well, and use the same function
+}

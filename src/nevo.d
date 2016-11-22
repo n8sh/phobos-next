@@ -451,7 +451,7 @@ struct Code
 {
     @safe pure nothrow:
 
-    CellOps cellOps;       // cell operations, an indirect generative network encoding
+    CellOps cellOps; // cell operations, an indirect generative network encoding
     alias cellOps this;
 
     Cells.Ix writerIxs;         /// index to writers

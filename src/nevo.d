@@ -26,7 +26,7 @@ version(unittest)
     See also: http://llvm.org/docs/LangRef.html#typesystem
     See also: http://llvm.org/docs/LangRef.html#instref
 */
-enum LOP : ubyte
+enum Lop : ubyte
 {
     summ,                       /// Sum.
     prod,                       /// Product.
@@ -123,86 +123,86 @@ enum LOPobseleted : ubyte
 version(none)
 {
 /** Return non-zero if \p lop is an \em Arithmetical \em Additive Operation. */
-bool isAdd(LOP lop)
+bool isAdd(Lop lop)
 {
-    return (lop == LOP.add ||
-            lop == LOP.sub ||
-            lop == LOP.neg);
+    return (lop == Lop.add ||
+            lop == Lop.sub ||
+            lop == Lop.neg);
 }
 
 /** Return non-zero if \p lop is an \em Arithmetical \em Additive Operation. */
-bool isMul(LOP lop)
+bool isMul(Lop lop)
 {
-    return (lop == LOP.mul ||
-            lop == LOP.div ||
-            lop == LOP.pow ||
-            lop == LOP.inv);
+    return (lop == Lop.mul ||
+            lop == Lop.div ||
+            lop == Lop.pow ||
+            lop == Lop.inv);
 }
 
-bool isArithmetic(LOP lop)
+bool isArithmetic(Lop lop)
 {
     return isAdd(lop) && isArithmetic(lop);
 }
 
 /** Return non-zero if \p lop is an \em Trigonometric Operation. */
-bool isTrigonometric(LOP lop)
+bool isTrigonometric(Lop lop)
 {
-    return (lop == LOP.cos ||
-            lop == LOP.sin ||
-            lop == LOP.tan ||
-            lop == LOP.cot ||
-            lop == LOP.csc ||
-            lop == LOP.acos ||
-            lop == LOP.asin ||
-            lop == LOP.atan ||
-            lop == LOP.acot ||
-            lop == LOP.acsc
+    return (lop == Lop.cos ||
+            lop == Lop.sin ||
+            lop == Lop.tan ||
+            lop == Lop.cot ||
+            lop == Lop.csc ||
+            lop == Lop.acos ||
+            lop == Lop.asin ||
+            lop == Lop.atan ||
+            lop == Lop.acot ||
+            lop == Lop.acsc
         );
 }
 
 /** Return non-zero if \p lop is an \em Hyperbolic Operation. */
-bool isHyperbolic(LOP lop)
+bool isHyperbolic(Lop lop)
 {
-    return (lop == LOP.cosh ||
-            lop == LOP.sinh ||
-            lop == LOP.tanh ||
-            lop == LOP.coth ||
-            lop == LOP.csch ||
-            lop == LOP.acosh ||
-            lop == LOP.asinh ||
-            lop == LOP.atanh ||
-            lop == LOP.acoth ||
-            lop == LOP.acsch);
+    return (lop == Lop.cosh ||
+            lop == Lop.sinh ||
+            lop == Lop.tanh ||
+            lop == Lop.coth ||
+            lop == Lop.csch ||
+            lop == Lop.acosh ||
+            lop == Lop.asinh ||
+            lop == Lop.atanh ||
+            lop == Lop.acoth ||
+            lop == Lop.acsch);
 }
 
 /** Return non-zero if \p lop is a \em Generator Operation. */
-bool isGen(LOP lop)
+bool isGen(Lop lop)
 {
-    return (lop == LOP.ramp ||
-            lop == LOP.zeros ||
-            lop == LOP.ones ||
-            lop == LOP.rand);
+    return (lop == Lop.ramp ||
+            lop == Lop.zeros ||
+            lop == Lop.ones ||
+            lop == Lop.rand);
 }
 
 /** Return non-zero if \p lop is a \em Comparison Operation. */
-bool isCmp(LOP lop)
+bool isCmp(Lop lop)
 {
-    return (lop == LOP.eq ||
-            lop == LOP.neq ||
-            lop == LOP.lt ||
-            lop == LOP.lte ||
-            lop == LOP.gt ||
-            lop == LOP.gte);
+    return (lop == Lop.eq ||
+            lop == Lop.neq ||
+            lop == Lop.lt ||
+            lop == Lop.lte ||
+            lop == Lop.gt ||
+            lop == Lop.gte);
 }
 
 /** Return non-zero if \p lop is a \em Permutation/Reordering Operation. */
-bool isPermutation(LOP lop)
+bool isPermutation(Lop lop)
 {
-    return (lop == LOP.identity ||
-            lop == LOP.interleave ||
-            lop == LOP.flip ||
-            lop == LOP.mirror ||
-            lop == LOP.shuffle);
+    return (lop == Lop.identity ||
+            lop == Lop.interleave ||
+            lop == Lop.flip ||
+            lop == Lop.mirror ||
+            lop == Lop.shuffle);
 }
 }
 
@@ -226,7 +226,7 @@ enum GOP : ubyte
 
     /* \name Local: Intra-Node */
     /* @{ */
-    setLOp,                /**< Set Node Logic Operation (see \c LOP). */
+    setLOp,                /**< Set Node Logic Operation (see \c Lop). */
 
     setOType, /**< Set Out-Type. Either \c int, \c float or \c double for now. */
 
@@ -257,17 +257,17 @@ enum GOP : ubyte
 }
 
 // wchar
-// wchar_from_LOP(LOP lop)
+// wchar_from_LOP(Lop lop)
 // {
 //     wchar_t wc = UNICODE_UNKNOWN;
 //     switch (lop) {
-//     case LOP.add: wc = UNICODE_CIRCLED_PLUS; break;
-//     case LOP.sub: wc = UNICODE_CIRCLED_MINUS; break;
-//     case LOP.neg: wc = UNICODE_SQUARED_MINUS; break;
-//     case LOP.mul: wc = UNICODE_CIRCLED_TIMES; break;
-//     case LOP.div: wc = UNICODE_CIRCLED_DIVISION_SLASH; break;
-//     case LOP.pow: wc = UNICODE_UNKNOWN; break;
-//     case LOP.inv: wc = UNICODE_CIRCLED_DIVISION_SLASH; break;
+//     case Lop.add: wc = UNICODE_CIRCLED_PLUS; break;
+//     case Lop.sub: wc = UNICODE_CIRCLED_MINUS; break;
+//     case Lop.neg: wc = UNICODE_SQUARED_MINUS; break;
+//     case Lop.mul: wc = UNICODE_CIRCLED_TIMES; break;
+//     case Lop.div: wc = UNICODE_CIRCLED_DIVISION_SLASH; break;
+//     case Lop.pow: wc = UNICODE_UNKNOWN; break;
+//     case Lop.inv: wc = UNICODE_CIRCLED_DIVISION_SLASH; break;
 //     default: break;
 //     }
 //     return wc;
@@ -301,12 +301,12 @@ struct Cell
 
     @safe pure:
 
-    this(LOP lop, size_t inputRIxsLength, size_t cellCount)
+    this(Lop lop, size_t inputRIxsLength, size_t cellCount)
     {
     }
 
     /// Randomize a cell.
-    void randomize(LOP lop, size_t inputRIxsLength, size_t cellCount) @trusted
+    void randomize(Lop lop, size_t inputRIxsLength, size_t cellCount) @trusted
     {
         auto gen = Random();
         this.lop = lop;
@@ -324,10 +324,10 @@ struct Cell
         if (ins.empty) { return typeof(return).init; }
         final switch (lop)
         {
-        case LOP.summ: return summ(ins, outs);
-        case LOP.prod: return prod(ins, outs);
-        case LOP.emin: return emin(ins, outs);
-        case LOP.emax: return emax(ins, outs);
+        case Lop.summ: return summ(ins, outs);
+        case Lop.prod: return prod(ins, outs);
+        case Lop.emin: return emin(ins, outs);
+        case Lop.emax: return emax(ins, outs);
         }
     }
 
@@ -374,7 +374,7 @@ struct Cell
         return ins.length - 1;
     }
 
-    LOP lop;                  /// operation
+    Lop lop;                  /// operation
     CellRIxs inputCellRIxs;   /// relative indexes to (neighbouring) input cells
 }
 alias Cells = IndexedBy!(Owned!(UncopyableArray!Cell), `Ix`);
@@ -393,7 +393,7 @@ struct Network
 
         foreach (immutable i; 0 .. cellCount)
         {
-            cells ~= Cell(gen.uniform!LOP, 10, cellCount);
+            cells ~= Cell(gen.uniform!Lop, 10, cellCount);
             temps ~= Data(gen.uniform!long);
         }
     }

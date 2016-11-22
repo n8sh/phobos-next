@@ -206,6 +206,14 @@ bool isPermutation(Lop lop)
 }
 }
 
+/// Cell Operation.
+enum CellOp : ubyte
+{
+    seqClone,                   /// sequential clone
+    parClone,                   /// parallel clone
+}
+alias CellOps = Owned!(UncopyableArray!CellOp);
+
 /**m Network (Transformation) Operation Type Code.
  *
  * Instructions for a Program that builds \em Computing Networks (for
@@ -214,7 +222,7 @@ bool isPermutation(Lop lop)
  * TODO What does \em nature cell this information bearer: Closest I
  * have found is http://en.wikipedia.org/wiki/Allele.
  */
-enum GOP : ubyte
+enum Gop : ubyte
 {
     /* \name Structural: Inter-Node */
     /* @{ */
@@ -438,28 +446,20 @@ struct Network
     Datas temps;                /// temporary outputs from cells
 }
 
-/// Cell Operation.
-enum CellOp : ubyte
-{
-    seqClone,                   /// sequential clone
-    parClone,                   /// parallel clone
-}
-alias COps = Owned!(UncopyableArray!CellOp);
-
 /// Generative Code.
 struct Code
 {
     @safe pure nothrow:
 
-    COps cOps; // cell operations, an indirect generative network encoding
-    alias cOps this;
+    CellOps cellOps;       // cell operations, an indirect generative network encoding
+    alias cellOps this;
 
-    Cells.Ix writerIxs;          /// index to writers
+    Cells.Ix writerIxs;         /// index to writers
 
     Network generate() const
     {
         typeof(return) network;
-        foreach (immutable cOp; cOps[])
+        foreach (immutable cellOp; cellOps[])
         {
         }
         return network;

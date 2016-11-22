@@ -3,39 +3,7 @@ module meta_ex;
 import std.range : isInputRange;
 import std.meta : NoDuplicates, AliasSeq;
 
-static if (__VERSION__ >= 2070)
-{
-    import std.meta : aliasSeqOf;
-}
-else
-{
-    /** Create $(D AliasSeq) from Static Array.
-        See also: http://forum.dlang.org/thread/cxahuyvnygtpsaseieeh@forum.dlang.org
-        See also: https://github.com/D-Programming-Language/phobos/pull/3785
-    */
-    template aliasSeqOf(TL...)
-        if (TL.length == 1 &&
-            isInputRange!(typeof(TL[0])))
-    {
-        import std.range: front, empty, popFront;
-        alias TT = AliasSeq;
-        enum r = TL[0];
-        static if (r.empty)
-        {
-            alias aliasSeqOf = TT!();
-        }
-        else
-        {
-            enum f = r.front;
-            alias aliasSeqOf = TT!(
-                f,
-                aliasSeqOf!(
-                    { auto tmp = r; tmp.popFront(); return tmp; }()
-                    )
-                                   );
-        }
-    }
-}
+import std.meta : aliasSeqOf;
 
 alias toAliasSeq = aliasSeqOf;
 

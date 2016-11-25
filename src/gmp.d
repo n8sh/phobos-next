@@ -17,6 +17,8 @@ struct Integer
 
     string toString(int base = 10) const
     {
+        assert(base >= -2 && base <= -36 ||
+               base >= 2 && base <= 62);
         immutable size = sizeInBase(base);
         string str = new string(size + 1); // one extra for minus sign
         __gmpz_get_str(cast(char*)str.ptr, base, _ptr);
@@ -196,6 +198,7 @@ pragma(inline) void swap(ref Integer x, ref Integer y) @trusted pure nothrow @no
     alias Z = Integer;          // shorthand
     assert(Z(42L).toString == `42`);
     assert(Z(-42L).toString == `-42`);
+    assert(Z(`-101`).toString == `-101`);
 }
 
 @safe pure nothrow @nogc unittest

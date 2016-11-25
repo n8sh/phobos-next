@@ -103,6 +103,7 @@ struct Integer
     __mpz_struct _z;
 }
 
+/// Returns: absolute value of `x`.
 Integer abs(const ref Integer x) @trusted pure nothrow @nogc
 {
     typeof(return) y = null;
@@ -147,6 +148,7 @@ Integer abs(const ref Integer x) @trusted pure nothrow @nogc
 
     // absolute value
     assert(abs(a) == a);
+    assert(a.abs == a);         // UFCS
 
     // addition
     assert(a + b == b + a);

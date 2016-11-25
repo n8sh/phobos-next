@@ -48,6 +48,12 @@ struct Integer
 
     @disable this(this);
 
+    /// Swap content of `this` with `rhs`.
+    void swap(ref Integer rhs)
+    {
+        __gmpz_swap(_ptr, rhs._ptr);
+    }
+
     /// Returns: deep copy (duplicate) of `this`.
     Integer dup() const
     {
@@ -251,6 +257,17 @@ Integer abs(const ref Integer x) @trusted pure nothrow @nogc
     assert(six - one == 5L);
     assert(six - 1UL == 5L);
     assert(six - 1L == 5L);
+
+    Z x = 42L;
+    Z y = 43L;
+
+    assert(x == 42L);
+    assert(y == 43L);
+
+    x.swap(y);
+
+    assert(y == 42L);
+    assert(x == 43L);
 }
 
 // C API
@@ -298,6 +315,8 @@ extern(C)
     void __gmpz_mul_ui (mpz_ptr, mpz_srcptr, ulong);
 
     void __gmpz_mod (mpz_ptr, mpz_srcptr, mpz_srcptr);
+
+    void __gmpz_swap (mpz_ptr, mpz_ptr); // TODO: __GMP_NOTHROW;
 
     int __gmpz_cmp (mpz_srcptr, mpz_srcptr); // TODO: __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
     int __gmpz_cmp_d (mpz_srcptr, double); // TODO: __GMP_ATTRIBUTE_PURE

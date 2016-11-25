@@ -115,7 +115,11 @@ Integer abs(const ref Integer x) @trusted pure nothrow @nogc
     alias Z = Integer;
     const Z a = 42;
     const Z b = 43;
-    const aDup = a.dup;
+
+    immutable Z c = 101;
+
+    assert(a == a.dup);
+    assert(c == c.dup);
 
     // equality
     assert(a == a);

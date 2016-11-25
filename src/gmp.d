@@ -170,6 +170,15 @@ struct Integer
         return y;
     }
 
+    /// Returns: `this` raised to the power of `exp`.
+    Integer opBinary(string s)(ulong exp) const
+        if (s == "^^")
+    {
+        typeof(return) y = null;
+        __gmpz_pow_ui(y._ptr, this._ptr, exp);
+        return y;
+    }
+
     /// Returns: negation of `this`.
     Integer opUnary(string s)() const
         if (s == "-")
@@ -315,7 +324,12 @@ Integer opBinary(string s)(ulong rhs, const auto ref Integer x)
     assert(six - one == 5L);
     assert(six - 1UL == 5L);
     assert(six - 1L == 5L);
-    // assert(1UL - six == -5L);
+    // TODO assert(1UL - six == -5L);
+
+    // exponentiation
+    assert(Z(0L)^^0L == 1L);
+    assert(Z(3L)^^3L == 27L);
+    assert(Z(2L)^^8L == 256L);
 
     // swap
     Z x = 42L;
@@ -377,6 +391,8 @@ extern(C)
     void __gmpz_mul_ui (mpz_ptr, mpz_srcptr, ulong);
 
     void __gmpz_mod (mpz_ptr, mpz_srcptr, mpz_srcptr);
+
+    void __gmpz_pow_ui (mpz_ptr, mpz_srcptr, ulong);
 
     void __gmpz_swap (mpz_ptr, mpz_ptr); // TODO: __GMP_NOTHROW;
 

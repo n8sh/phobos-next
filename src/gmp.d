@@ -72,7 +72,7 @@ struct Integer
     int opCmp(long rhs) const { return __gmpz_cmp_si(_ptr, rhs); }
     int opCmp(ulong rhs) const { return __gmpz_cmp_ui(_ptr, rhs); }
 
-    /// Add with `rhs`.
+    /// Add `this` with `rhs`.
     Unqual!(typeof(this)) opBinary(string s)(const auto ref typeof(this) rhs) const
         if (s == "+")
     {
@@ -86,6 +86,23 @@ struct Integer
     {
         typeof(return) y = null;
         __gmpz_add_ui(y._ptr, this._ptr, rhs);
+        return y;
+    }
+
+    /// Subtract `rhs` from `this`.
+    Unqual!(typeof(this)) opBinary(string s)(const auto ref typeof(this) rhs) const
+        if (s == "-")
+    {
+        typeof(return) y = null;
+        __gmpz_sub(y._ptr, this._ptr, rhs._ptr);
+        return y;
+    }
+    /// ditto
+    Unqual!(typeof(this)) opBinary(string s)(ulong rhs) const
+        if (s == "-")
+    {
+        typeof(return) y = null;
+        __gmpz_sub_ui(y._ptr, this._ptr, rhs);
         return y;
     }
 
@@ -206,6 +223,10 @@ Integer abs(const ref Integer x) @trusted pure nothrow @nogc
     assert(six % four == 2L);
     assert(six % five == 1L);
     assert(six % six == 0L);
+
+    assert(six - one == 5L);
+    assert(six - 1UL == 5L);
+    assert(six - 1L == 5L);
 }
 
 // C API
@@ -243,6 +264,9 @@ extern(C)
     void __gmpz_add_ui (mpz_ptr, mpz_srcptr, ulong);
     void __gmpz_addmul (mpz_ptr, mpz_srcptr, mpz_srcptr);
     void __gmpz_addmul_ui (mpz_ptr, mpz_srcptr, ulong);
+
+    void __gmpz_sub (mpz_ptr, mpz_srcptr, mpz_srcptr);
+    void __gmpz_sub_ui (mpz_ptr, mpz_srcptr, ulong);
 
     void __gmpz_mul (mpz_ptr, mpz_srcptr, mpz_srcptr);
     void __gmpz_mul_2exp (mpz_ptr, mpz_srcptr, mp_bitcnt_t);

@@ -35,7 +35,7 @@ struct Integer
     this(typeof(null))
     {
         __gmpz_init(_ptr);      // TODO remove if this is same as zero bitblit
-        assert(this == Integer.init);
+        assert(this == Integer.init); // if this is same as default
     }
 
     /// Construct from `value`.

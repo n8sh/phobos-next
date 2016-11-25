@@ -104,21 +104,28 @@ Integer abs(const ref Integer x) @trusted pure nothrow @nogc
 
 @safe pure nothrow @nogc unittest
 {
-    const Integer a = 42;
-    Integer b = 43;
-    Integer c = null;
+    alias Z = Integer;
+    const Z a = 42;
+    const Z b = 43;
 
+    // equality
     assert(a == a);
+    assert(a == Z(42));
     assert(a == 42.0);
     assert(a == 42L);
     assert(a == 42UL);
+
+    // non-equality
     assert(a != b);
+
+    // less-than
     assert(a < b);
+    assert(a < Z(43));
     assert(a < 43L);
     assert(a < 43UL);
     assert(a < 43.0);
     assert(b > a);
-    // assert(abs(a) == a);
+    assert(abs(a) == a);
 
     // addition
     assert(a + b == b + a);

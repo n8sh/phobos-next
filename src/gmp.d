@@ -13,7 +13,17 @@ struct Integer
 {
     import std.typecons : Unqual;
 
-    pragma(inline) @trusted pure nothrow @nogc:
+    pragma(inline) @trusted pure nothrow:
+
+    string toString(int base = 10) const
+    {
+        immutable size = sizeInBase(base);
+        string str = new string(size + 1); // one extra for minus sign
+        __gmpz_get_str(cast(char*)str.ptr, base, _ptr);
+        return str[0] == '-' ? str : str.ptr[0 .. size];
+    }
+
+    @nogc:
 
     /// No copying be default.
     @disable this();
@@ -155,6 +165,12 @@ struct Integer
         return y;
     }
 
+    /// Returns: number of digits in base `base`.
+    size_t sizeInBase(int base) const
+    {
+        return __gmpz_sizeinbase(_ptr, base);
+    }
+
     private:
 
     inout(__mpz_struct)* _ptr() inout { return &_z; }
@@ -173,6 +189,13 @@ pragma(inline) Integer abs(const ref Integer x) @trusted pure nothrow @nogc
 pragma(inline) void swap(ref Integer x, ref Integer y) @trusted pure nothrow @nogc
 {
     x.swap(y);
+}
+
+@safe pure nothrow unittest
+{
+    alias Z = Integer;          // shorthand
+    assert(Z(42L).toString == `42`);
+    assert(Z(-42L).toString == `-42`);
 }
 
 @safe pure nothrow @nogc unittest
@@ -328,6 +351,9 @@ extern(C)
     int __gmpz_cmp_d (mpz_srcptr, double); // TODO: __GMP_ATTRIBUTE_PURE
     int __gmpz_cmp_si (mpz_srcptr, long); // TODO: __GMP_NOTHROW __GMP_ATTRIBUTE_PURE
     int __gmpz_cmp_ui (mpz_srcptr, ulong); // TODO: __GMP_NOTHROW __GMP_ATTRIBUTE_PURE
+
+    char *__gmpz_get_str (char*, int, mpz_srcptr);
+    size_t __gmpz_sizeinbase (mpz_srcptr, int); // TODO __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
 }
 
 pragma(lib, "gmp");

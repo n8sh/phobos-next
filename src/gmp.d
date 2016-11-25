@@ -24,6 +24,8 @@ struct Integer
         __gmpz_init_set_ui(_ptr, value);
     }
 
+    @disable this(this);
+
     /// Destruct.
     ~this()
     {
@@ -107,8 +109,14 @@ Integer abs(const ref Integer x) @trusted pure nothrow @nogc
     Integer c = null;
 
     assert(a == a);
+    assert(a == 42.0);
+    assert(a == 42L);
+    assert(a == 42UL);
     assert(a != b);
     assert(a < b);
+    assert(a < 43L);
+    assert(a < 43UL);
+    assert(a < 43.0);
     assert(b > a);
     // assert(abs(a) == a);
 

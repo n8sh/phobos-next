@@ -4,30 +4,68 @@ module gmp;
 
 struct Z
 {
-    pure nothrow @nogc:
+    @trusted pure nothrow @nogc:
 
-    this(ulong value) @trusted
+    @disable this();
+    // {
+    //     __gmpz_init(_z);
+    // }
+
+    this(ulong value)
     {
-        __gmpz_init_set_ui(_z, value);
+        __gmpz_init_set_ui(_ptr, value);
     }
 
-    ~this() @trusted
+    ~this()
     {
-        if (_z) { __gmpz_clear(_z); }
+        if (_ptr) { __gmpz_clear(_ptr); }
     }
 
-    private __mpz_struct* _z;
+    // comparison
+    int opCmp(const ref Z rhs) const { return __gmpz_cmp(_ptr, rhs._ptr); }
+    int opCmp(in Z rhs) const { return __gmpz_cmp(_ptr, rhs._ptr); }
+    int opCmp(double rhs) const { return __gmpz_cmp_d(_ptr, rhs); }
+    int opCmp(uint rhs) const { return __gmpz_cmp_ui(_ptr, rhs); }
+    int opCmp(int rhs) const { return __gmpz_cmp_si(_ptr, rhs); }
+
+    private:
+
+    inout(__mpz_struct)* _ptr() inout
+    {
+        return &_z;
+    }
+
+    __mpz_struct _z;
 }
 
 @safe pure nothrow @nogc unittest
 {
-    Z z;
+    const Z a = 42;
+    Z b = 43;
+
+    assert(a == a);
+    assert(a != b);
+    assert(a < b);
+    assert(b > a);
+
+    // Z a_plus_b = a + b;
+    // Z a_times_b = a * b;
+    // assert(a == 42);
 }
 
 // C API
 extern(C)
 {
-    struct __mpz_struct;
+    struct __mpz_struct
+    {
+        int _mp_alloc;		/* Number of *limbs* allocated and pointed to by
+                                   the _mp_d field.  */
+        int _mp_size;           /* abs(_mp_size) is the number of limbs the last
+                                   field points to.  If _mp_size is negative
+                                   this is a negative number.  */
+        void* _mp_d;            /* Pointer to the limbs.  */
+    }
+
     alias mpz_srcptr = const(__mpz_struct)*;
     alias mpz_ptr = __mpz_struct*;
 
@@ -37,6 +75,11 @@ extern(C)
     void __gmpz_init_set_ui(mpz_ptr, ulong);
 
     void __gmpz_clear(mpz_ptr);
+
+    int __gmpz_cmp(mpz_srcptr, mpz_srcptr); // TODO: __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+    int __gmpz_cmp_d(mpz_srcptr, double); // TODO: __GMP_ATTRIBUTE_PURE
+    int __gmpz_cmp_si(mpz_srcptr, long); // TODO: __GMP_NOTHROW __GMP_ATTRIBUTE_PURE
+    int __gmpz_cmp_ui(mpz_srcptr, ulong); // TODO: __GMP_NOTHROW __GMP_ATTRIBUTE_PURE
 }
 
 pragma(lib, "gmp");

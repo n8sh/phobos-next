@@ -163,14 +163,14 @@ struct Integer
 }
 
 /// Returns: absolute value of `x`.
-Integer abs(const ref Integer x) @trusted pure nothrow @nogc
+pragma(inline) Integer abs(const ref Integer x) @trusted pure nothrow @nogc
 {
     typeof(return) y = null;
     __gmpz_abs(y._ptr, x._ptr);
     return y;
 }
 
-void swap(ref Integer x, ref Integer y) @trusted pure nothrow @nogc
+pragma(inline) void swap(ref Integer x, ref Integer y) @trusted pure nothrow @nogc
 {
     x.swap(y);
 }

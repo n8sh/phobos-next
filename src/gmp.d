@@ -31,8 +31,9 @@ struct Integer
     this(double value) { __gmpz_init_set_d(_ptr, value); }
 
     /// Construct from `value` in base `base`.
-    this(const string value, int base = 10)
+    this(const string value, int base = 0)
     {
+        assert(base == 0 || base >= 2 && base <= 62);
         import qcmeman : malloc, free;
 
         char* stringz = cast(char*)malloc(value.length + 1);
@@ -169,8 +170,22 @@ Integer abs(const ref Integer x) @trusted pure nothrow @nogc
     const Z a = 42L;
     const Z b = 43UL;
     const Z c = 43.0;
-    const Z d = `101`;
-    assert(d == 101L);
+
+    // binary
+    assert(Z(`0b11`) == 3L);
+    assert(Z(`0B11`) == 3L);
+
+    // octal
+    assert(Z(`07`) == 7L);
+    assert(Z(`010`) == 8L);
+
+    // hexadecimal
+    assert(Z(`0x10`) == 16L);
+    assert(Z(`0X10`) == 16L);
+
+    // decimal
+    assert(Z(`101`) == 101L);
+    assert(Z(`101`, 10) == 101L);
 
     immutable Z ic = 101UL;
 

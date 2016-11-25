@@ -1,4 +1,5 @@
 /** High-level wrapper for GNU Multiple Precision (MP) library.
+    See also: http://www.dsource.org/projects/bindings/browser/trunk/gmp
  */
 module gmp;
 

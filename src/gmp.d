@@ -197,11 +197,11 @@ Integer abs(const ref Integer x) @trusted pure nothrow @nogc
     assert(a * b == 42UL * 43UL);
 
     // modulo/remainder
-    const Z one = 1UL;
+    immutable Z one = 1UL;
     const Z two = 2UL;
-    const Z three = 3UL;
+    immutable Z three = 3UL;
     const Z four = 4UL;
-    const Z five = 5UL;
+    immutable Z five = 5UL;
     const Z six = 6UL;
     assert(six % one == 0L);
     assert(six % two == 0L);

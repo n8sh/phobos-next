@@ -193,6 +193,7 @@ pragma(inline) void swap(ref Integer x, ref Integer y) @trusted pure nothrow @no
     x.swap(y);
 }
 
+/// convert to string
 @safe pure nothrow unittest
 {
     alias Z = Integer;          // shorthand
@@ -201,6 +202,7 @@ pragma(inline) void swap(ref Integer x, ref Integer y) @trusted pure nothrow @no
     assert(Z(`-101`).toString == `-101`);
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     alias Z = Integer;          // shorthand

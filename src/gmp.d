@@ -54,8 +54,16 @@ struct Integer
     }
 
     // comparison
-    bool opEquals(const ref typeof(this) rhs) const { return __gmpz_cmp(_ptr, rhs._ptr) == 0; }
-    bool opEquals(in typeof(this) rhs) const { return __gmpz_cmp(_ptr, rhs._ptr) == 0; }
+    bool opEquals(const ref typeof(this) rhs) const
+    {
+        return (_ptr == rhs._ptr || // fast compare
+                __gmpz_cmp(_ptr, rhs._ptr) == 0);
+    }
+    bool opEquals(in typeof(this) rhs) const
+    {
+        return (_ptr == rhs._ptr || // fast compare
+                __gmpz_cmp(_ptr, rhs._ptr) == 0);
+    }
     bool opEquals(double rhs) const { return __gmpz_cmp_d(_ptr, rhs) == 0; }
     bool opEquals(long rhs) const { return __gmpz_cmp_si(_ptr, rhs) == 0; }
     bool opEquals(ulong rhs) const { return __gmpz_cmp_ui(_ptr, rhs) == 0; }

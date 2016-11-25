@@ -49,7 +49,6 @@ struct Integer
     this(const string value, int base = 0)
     {
         assert(base == 0 || base >= 2 && base <= 62);
-        import qcmeman : malloc, free;
 
         char* stringz = cast(char*)malloc(value.length + 1);
         stringz[0 .. value.length] = value[];
@@ -403,6 +402,13 @@ extern(C)
 
     char *__gmpz_get_str (char*, int, mpz_srcptr);
     size_t __gmpz_sizeinbase (mpz_srcptr, int); // TODO __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+
+    // qualified C memory allocations
+    @safe pure nothrow @nogc:
+    void* malloc(size_t size);
+    void* calloc(size_t nmemb, size_t size);
+    void* realloc(void* ptr, size_t size);
+    void free(void* ptr);
 }
 
 pragma(lib, "gmp");

@@ -167,6 +167,15 @@ struct Integer
         return y;
     }
 
+    /// Returns: negation of `this`.
+    Integer opUnary(string s)() const
+        if (s == "-")
+    {
+        typeof(return) y = null;
+        __gmpz_neg(y._ptr, this._ptr);
+        return y;
+    }
+
     /// Returns: number of digits in base `base`.
     size_t sizeInBase(int base) const
     {
@@ -260,6 +269,10 @@ pragma(inline) void swap(ref Integer x, ref Integer y) @trusted pure nothrow @no
     assert(abs(a) == a);
     assert(a.abs == a);         // UFCS
 
+    // negated value
+    assert(-a == -42L);
+    assert(-(-a) == a);
+
     // addition
     assert(a + b == b + a);
     assert(a + Z(43UL) == b + a);
@@ -335,6 +348,7 @@ extern(C)
     void __gmpz_clear (mpz_ptr);
 
     void __gmpz_abs (mpz_ptr, mpz_srcptr);
+    void __gmpz_neg (mpz_ptr, mpz_srcptr);
 
     void __gmpz_add (mpz_ptr, mpz_srcptr, mpz_srcptr);
     void __gmpz_add_ui (mpz_ptr, mpz_srcptr, ulong);

@@ -6,6 +6,8 @@ module gmp;
  */
 struct Integer
 {
+    import std.typecons : Unqual;
+
     @trusted pure nothrow @nogc:
 
     @disable this();
@@ -29,11 +31,60 @@ struct Integer
     }
 
     // comparison
+    bool opEquals(const ref typeof(this) rhs) const { return __gmpz_cmp(_ptr, rhs._ptr) == 0; }
+    bool opEquals(in typeof(this) rhs) const { return __gmpz_cmp(_ptr, rhs._ptr) == 0; }
+    bool opEquals(double rhs) const { return __gmpz_cmp_d(_ptr, rhs) == 0; }
+    bool opEquals(long rhs) const { return __gmpz_cmp_si(_ptr, rhs) == 0; }
+    bool opEquals(ulong rhs) const { return __gmpz_cmp_ui(_ptr, rhs) == 0; }
+
+    // comparison
     int opCmp(const ref typeof(this) rhs) const { return __gmpz_cmp(_ptr, rhs._ptr); }
     int opCmp(in typeof(this) rhs) const { return __gmpz_cmp(_ptr, rhs._ptr); }
     int opCmp(double rhs) const { return __gmpz_cmp_d(_ptr, rhs); }
-    int opCmp(uint rhs) const { return __gmpz_cmp_ui(_ptr, rhs); }
-    int opCmp(int rhs) const { return __gmpz_cmp_si(_ptr, rhs); }
+    int opCmp(long rhs) const { return __gmpz_cmp_si(_ptr, rhs); }
+    int opCmp(ulong rhs) const { return __gmpz_cmp_ui(_ptr, rhs); }
+
+    /// Add with `rhs`.
+    Unqual!(typeof(this)) opBinary(string s)(const ref typeof(this) rhs) const
+        if (s == "+")
+    {
+        typeof(return) y = null;
+        __gmpz_add(y._ptr, this._ptr, rhs._ptr);
+        return y;
+    }
+    /// ditto
+    Unqual!(typeof(this)) opBinary(string s)(ulong rhs) const
+        if (s == "+")
+    {
+        typeof(return) y = null;
+        __gmpz_add_ui(y._ptr, this._ptr, rhs);
+        return y;
+    }
+
+    /// Multiply with `rhs`.
+    Unqual!(typeof(this)) opBinary(string s)(const ref typeof(this) rhs) const
+        if (s == "*")
+    {
+        typeof(return) y = null;
+        __gmpz_mul(y._ptr, this._ptr, rhs._ptr);
+        return y;
+    }
+    /// ditto
+    Unqual!(typeof(this)) opBinary(string s)(long rhs) const
+        if (s == "*")
+    {
+        typeof(return) y = null;
+        __gmpz_mul_si(y._ptr, this._ptr, rhs);
+        return y;
+    }
+    /// ditto
+    Unqual!(typeof(this)) opBinary(string s)(ulong rhs) const
+        if (s == "*")
+    {
+        typeof(return) y = null;
+        __gmpz_mul_ui(y._ptr, this._ptr, rhs);
+        return y;
+    }
 
     private:
 
@@ -59,11 +110,20 @@ Integer abs(const ref Integer x) @trusted pure nothrow @nogc
     assert(a != b);
     assert(a < b);
     assert(b > a);
-    assert(abs(a) == a);
+    // assert(abs(a) == a);
 
-    // Integer a_plus_b = a + b;
-    // Integer a_times_b = a * b;
-    // assert(a == 42);
+    // addition
+    assert(a + b == b + a);
+    assert(a + 0UL == a);
+    assert(a + 1UL != a);
+    assert(a + b == 42UL + 43UL);
+
+    // multiplication
+    assert(a * 1UL == a);
+    assert(a * 1L == a);
+    assert(a * 2L != a);
+    assert(a * b == b * a);
+    assert(a * b == 42UL * 43UL);
 }
 
 // C API
@@ -81,6 +141,7 @@ extern(C)
 
     alias mpz_srcptr = const(__mpz_struct)*;
     alias mpz_ptr = __mpz_struct*;
+    alias mp_bitcnt_t = ulong;
 
     pure nothrow @nogc:
 
@@ -90,6 +151,16 @@ extern(C)
     void __gmpz_clear(mpz_ptr);
 
     void __gmpz_abs(mpz_ptr, mpz_srcptr);
+
+    void __gmpz_add(mpz_ptr, mpz_srcptr, mpz_srcptr);
+    void __gmpz_add_ui(mpz_ptr, mpz_srcptr, ulong);
+    void __gmpz_addmul(mpz_ptr, mpz_srcptr, mpz_srcptr);
+    void __gmpz_addmul_ui(mpz_ptr, mpz_srcptr, ulong);
+
+    void __gmpz_mul (mpz_ptr, mpz_srcptr, mpz_srcptr);
+    void __gmpz_mul_2exp (mpz_ptr, mpz_srcptr, mp_bitcnt_t);
+    void __gmpz_mul_si (mpz_ptr, mpz_srcptr, long);
+    void __gmpz_mul_ui (mpz_ptr, mpz_srcptr, ulong);
 
     int __gmpz_cmp(mpz_srcptr, mpz_srcptr); // TODO: __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
     int __gmpz_cmp_d(mpz_srcptr, double); // TODO: __GMP_ATTRIBUTE_PURE

@@ -10,9 +10,10 @@ struct Integer
 
     @trusted pure nothrow @nogc:
 
+    /// No copying be default.
     @disable this();
 
-    /// Empty (undefined) construction.
+    /// Construct empty (undefined) from explicit `null`.
     this(typeof(null))
     {
         __gmpz_init(_ptr);
@@ -34,7 +35,7 @@ struct Integer
         return y;
     }
 
-    /// Destruct.
+    /// Destruct `this`.
     ~this()
     {
         if (_ptr) { __gmpz_clear(_ptr); }

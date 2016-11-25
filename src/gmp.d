@@ -48,10 +48,7 @@ struct Integer
     }
 
     /// Destruct `this`.
-    ~this()
-    {
-        if (_ptr) { __gmpz_clear(_ptr); }
-    }
+    ~this() { if (_ptr) { __gmpz_clear(_ptr); } }
 
     // comparison
     bool opEquals(const ref typeof(this) rhs) const

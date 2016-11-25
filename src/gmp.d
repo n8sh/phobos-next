@@ -31,7 +31,10 @@ struct Integer
     @disable this();
 
     /// Construct empty (undefined) from explicit `null`.
-    this(typeof(null)) { __gmpz_init(_ptr); }
+    this(typeof(null))
+    {
+        __gmpz_init(_ptr);      // TODO remove if this is same as zero bitblit
+    }
 
     /// Construct from `value`.
     this(long value) { __gmpz_init_set_si(_ptr, value); }
@@ -212,6 +215,14 @@ pragma(inline) void swap(ref Integer x, ref Integer y) @trusted pure nothrow @no
     assert(Z(`-101`).toString == `-101`);
 }
 
+Integer opBinary(string s)(ulong rhs, const auto ref Integer x)
+    if (s == "-")
+{
+    typeof(return) y = null;
+    __gmpz_ui_sub(y._ptr, rhs, x);
+    return y;
+}
+
 ///
 @safe pure nothrow @nogc unittest
 {
@@ -304,6 +315,7 @@ pragma(inline) void swap(ref Integer x, ref Integer y) @trusted pure nothrow @no
     assert(six - one == 5L);
     assert(six - 1UL == 5L);
     assert(six - 1L == 5L);
+    // assert(1UL - six == -5L);
 
     // swap
     Z x = 42L;
@@ -357,6 +369,7 @@ extern(C)
 
     void __gmpz_sub (mpz_ptr, mpz_srcptr, mpz_srcptr);
     void __gmpz_sub_ui (mpz_ptr, mpz_srcptr, ulong);
+    void __gmpz_ui_sub (mpz_ptr, ulong, mpz_srcptr);
 
     void __gmpz_mul (mpz_ptr, mpz_srcptr, mpz_srcptr);
     void __gmpz_mul_2exp (mpz_ptr, mpz_srcptr, mp_bitcnt_t);

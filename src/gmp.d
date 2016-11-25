@@ -127,7 +127,7 @@ Integer abs(const ref Integer x) @trusted pure nothrow @nogc
 @safe pure nothrow @nogc unittest
 {
     alias Z = Integer;          // shorthand
-    const Z a = 42UL;
+    const Z a = 42L;
     const Z b = 43UL;
     const Z c = 43.0;
     const Z d = `101`;

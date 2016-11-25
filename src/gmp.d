@@ -26,6 +26,14 @@ struct Integer
 
     @disable this(this);
 
+    /// Returns: deep copy (duplicate) of `this`.
+    typeof(this) dup() const
+    {
+        typeof(return) y = void;
+        __gmpz_init_set(y._ptr, _ptr);
+        return y;
+    }
+
     /// Destruct.
     ~this()
     {
@@ -107,6 +115,7 @@ Integer abs(const ref Integer x) @trusted pure nothrow @nogc
     alias Z = Integer;
     const Z a = 42;
     const Z b = 43;
+    const aDup = a.dup;
 
     // equality
     assert(a == a);
@@ -161,6 +170,7 @@ extern(C)
     pure nothrow @nogc:
 
     void __gmpz_init(mpz_ptr);
+    void __gmpz_init_set (mpz_ptr, mpz_srcptr);
     void __gmpz_init_set_ui(mpz_ptr, ulong);
 
     void __gmpz_clear(mpz_ptr);

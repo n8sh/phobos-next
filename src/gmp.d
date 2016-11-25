@@ -13,7 +13,7 @@ struct Integer
 {
     import std.typecons : Unqual;
 
-    @trusted pure nothrow @nogc:
+    pragma(inline) @trusted pure nothrow @nogc:
 
     /// No copying be default.
     @disable this();

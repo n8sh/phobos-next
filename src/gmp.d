@@ -68,7 +68,7 @@ struct Integer
     int opCmp(ulong rhs) const { return __gmpz_cmp_ui(_ptr, rhs); }
 
     /// Add with `rhs`.
-    Unqual!(typeof(this)) opBinary(string s)(const ref typeof(this) rhs) const
+    Unqual!(typeof(this)) opBinary(string s)(const auto ref typeof(this) rhs) const
         if (s == "+")
     {
         typeof(return) y = null;
@@ -85,7 +85,7 @@ struct Integer
     }
 
     /// Multiply with `rhs`.
-    Unqual!(typeof(this)) opBinary(string s)(const ref typeof(this) rhs) const
+    Unqual!(typeof(this)) opBinary(string s)(const auto ref typeof(this) rhs) const
         if (s == "*")
     {
         typeof(return) y = null;
@@ -110,7 +110,7 @@ struct Integer
     }
 
     /// Returns: division remainder between `this` and `rhs`.
-    Unqual!(typeof(this)) opBinary(string s)(const ref Integer rhs) const
+    Unqual!(typeof(this)) opBinary(string s)(const auto ref Integer rhs) const
         if (s == "%")
     {
         typeof(return) y = null;
@@ -176,6 +176,7 @@ Integer abs(const ref Integer x) @trusted pure nothrow @nogc
 
     // addition
     assert(a + b == b + a);
+    assert(a + Z(43UL) == b + a);
     assert(a + 0UL == a);
     assert(a + 1UL != a);
     assert(a + b == 42UL + 43UL);

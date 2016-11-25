@@ -2,28 +2,35 @@
  */
 module gmp;
 
-struct Z
+/** Arbitrary precision signed integer.
+ */
+struct Integer
 {
     @trusted pure nothrow @nogc:
 
     @disable this();
-    // {
-    //     __gmpz_init(_z);
-    // }
 
+    /// Empty (undefined) construction.
+    this(typeof(null))
+    {
+        __gmpz_init(_ptr);
+    }
+
+    /// Construct from `value`.
     this(ulong value)
     {
         __gmpz_init_set_ui(_ptr, value);
     }
 
+    /// Destruct.
     ~this()
     {
         if (_ptr) { __gmpz_clear(_ptr); }
     }
 
     // comparison
-    int opCmp(const ref Z rhs) const { return __gmpz_cmp(_ptr, rhs._ptr); }
-    int opCmp(in Z rhs) const { return __gmpz_cmp(_ptr, rhs._ptr); }
+    int opCmp(const ref typeof(this) rhs) const { return __gmpz_cmp(_ptr, rhs._ptr); }
+    int opCmp(in typeof(this) rhs) const { return __gmpz_cmp(_ptr, rhs._ptr); }
     int opCmp(double rhs) const { return __gmpz_cmp_d(_ptr, rhs); }
     int opCmp(uint rhs) const { return __gmpz_cmp_ui(_ptr, rhs); }
     int opCmp(int rhs) const { return __gmpz_cmp_si(_ptr, rhs); }
@@ -38,18 +45,27 @@ struct Z
     __mpz_struct _z;
 }
 
+Integer abs(const ref Integer x) @trusted pure nothrow @nogc
+{
+    typeof(return) y = null;
+    __gmpz_abs(y._ptr, x._ptr);
+    return y;
+}
+
 @safe pure nothrow @nogc unittest
 {
-    const Z a = 42;
-    Z b = 43;
+    const Integer a = 42;
+    Integer b = 43;
+    Integer c = null;
 
     assert(a == a);
     assert(a != b);
     assert(a < b);
     assert(b > a);
+    // assert(abs(a) == a);
 
-    // Z a_plus_b = a + b;
-    // Z a_times_b = a * b;
+    // Integer a_plus_b = a + b;
+    // Integer a_times_b = a * b;
     // assert(a == 42);
 }
 
@@ -75,6 +91,8 @@ extern(C)
     void __gmpz_init_set_ui(mpz_ptr, ulong);
 
     void __gmpz_clear(mpz_ptr);
+
+    void __gmpz_abs(mpz_ptr, mpz_srcptr);
 
     int __gmpz_cmp(mpz_srcptr, mpz_srcptr); // TODO: __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
     int __gmpz_cmp_d(mpz_srcptr, double); // TODO: __GMP_ATTRIBUTE_PURE

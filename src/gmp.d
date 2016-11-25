@@ -131,13 +131,21 @@ Integer abs(const ref Integer x) @trusted pure nothrow @nogc
     // non-equality
     assert(a != b);
 
-    // less-than
+    // less than
     assert(a < b);
     assert(a < Z(43));
     assert(a < 43L);
     assert(a < 43UL);
     assert(a < 43.0);
+
+    // greater than
     assert(b > a);
+    assert(b > Z(42));
+    assert(b > 42L);
+    assert(b > 42UL);
+    assert(b > 42.0);
+
+    // absolute value
     assert(abs(a) == a);
 
     // addition

@@ -30,17 +30,25 @@ struct Integer
     /// Construct from `value`.
     this(double value) { __gmpz_init_set_d(_ptr, value); }
 
-    /// Construct from `value`.
-    this(const string value)
+    /// Construct from `value` in base `base`.
+    this(const string value, int base = 10)
     {
-        const int status = __gmpz_init_set_str(_ptr, value.ptr, cast(int)value.length);
+        import qcmeman : malloc, free;
+
+        char* stringz = cast(char*)malloc(value.length + 1);
+        stringz[0 .. value.length] = value[];
+        stringz[value.length] = '\0'; // set C null terminator
+
+        const int status = __gmpz_init_set_str(_ptr, stringz, base);
+
+        free(stringz);
         assert(status == 0, "Parameter `value` does not contain an integer");
     }
 
     @disable this(this);
 
     /// Returns: deep copy (duplicate) of `this`.
-    typeof(this) dup() const
+    Integer dup() const
     {
         typeof(return) y = void;
         __gmpz_init_set(y._ptr, _ptr);
@@ -51,12 +59,12 @@ struct Integer
     ~this() { if (_ptr) { __gmpz_clear(_ptr); } }
 
     // comparison
-    bool opEquals(const ref typeof(this) rhs) const
+    bool opEquals(const ref Integer rhs) const
     {
         return (_ptr == rhs._ptr || // fast compare
                 __gmpz_cmp(_ptr, rhs._ptr) == 0);
     }
-    bool opEquals(in typeof(this) rhs) const
+    bool opEquals(in Integer rhs) const
     {
         return (_ptr == rhs._ptr || // fast compare
                 __gmpz_cmp(_ptr, rhs._ptr) == 0);
@@ -66,14 +74,14 @@ struct Integer
     bool opEquals(ulong rhs) const { return __gmpz_cmp_ui(_ptr, rhs) == 0; }
 
     // comparison
-    int opCmp(const ref typeof(this) rhs) const { return __gmpz_cmp(_ptr, rhs._ptr); }
-    int opCmp(in typeof(this) rhs) const { return __gmpz_cmp(_ptr, rhs._ptr); }
+    int opCmp(const ref Integer rhs) const { return __gmpz_cmp(_ptr, rhs._ptr); }
+    int opCmp(in Integer rhs) const { return __gmpz_cmp(_ptr, rhs._ptr); }
     int opCmp(double rhs) const { return __gmpz_cmp_d(_ptr, rhs); }
     int opCmp(long rhs) const { return __gmpz_cmp_si(_ptr, rhs); }
     int opCmp(ulong rhs) const { return __gmpz_cmp_ui(_ptr, rhs); }
 
     /// Add `this` with `rhs`.
-    Unqual!(typeof(this)) opBinary(string s)(const auto ref typeof(this) rhs) const
+    Integer opBinary(string s)(const auto ref Integer rhs) const
         if (s == "+")
     {
         typeof(return) y = null;
@@ -81,7 +89,7 @@ struct Integer
         return y;
     }
     /// ditto
-    Unqual!(typeof(this)) opBinary(string s)(ulong rhs) const
+    Integer opBinary(string s)(ulong rhs) const
         if (s == "+")
     {
         typeof(return) y = null;
@@ -90,7 +98,7 @@ struct Integer
     }
 
     /// Subtract `rhs` from `this`.
-    Unqual!(typeof(this)) opBinary(string s)(const auto ref typeof(this) rhs) const
+    Integer opBinary(string s)(const auto ref Integer rhs) const
         if (s == "-")
     {
         typeof(return) y = null;
@@ -98,7 +106,7 @@ struct Integer
         return y;
     }
     /// ditto
-    Unqual!(typeof(this)) opBinary(string s)(ulong rhs) const
+    Integer opBinary(string s)(ulong rhs) const
         if (s == "-")
     {
         typeof(return) y = null;
@@ -107,7 +115,7 @@ struct Integer
     }
 
     /// Multiply with `rhs`.
-    Unqual!(typeof(this)) opBinary(string s)(const auto ref typeof(this) rhs) const
+    Integer opBinary(string s)(const auto ref Integer rhs) const
         if (s == "*")
     {
         typeof(return) y = null;
@@ -115,7 +123,7 @@ struct Integer
         return y;
     }
     /// ditto
-    Unqual!(typeof(this)) opBinary(string s)(long rhs) const
+    Integer opBinary(string s)(long rhs) const
         if (s == "*")
     {
         typeof(return) y = null;
@@ -123,7 +131,7 @@ struct Integer
         return y;
     }
     /// ditto
-    Unqual!(typeof(this)) opBinary(string s)(ulong rhs) const
+    Integer opBinary(string s)(ulong rhs) const
         if (s == "*")
     {
         typeof(return) y = null;
@@ -132,7 +140,7 @@ struct Integer
     }
 
     /// Returns: division remainder between `this` and `rhs`.
-    Unqual!(typeof(this)) opBinary(string s)(const auto ref Integer rhs) const
+    Integer opBinary(string s)(const auto ref Integer rhs) const
         if (s == "%")
     {
         typeof(return) y = null;
@@ -162,6 +170,7 @@ Integer abs(const ref Integer x) @trusted pure nothrow @nogc
     const Z b = 43UL;
     const Z c = 43.0;
     const Z d = `101`;
+    assert(d == 101L);
 
     immutable Z ic = 101UL;
 

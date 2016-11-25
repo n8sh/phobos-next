@@ -170,6 +170,11 @@ Integer abs(const ref Integer x) @trusted pure nothrow @nogc
     return y;
 }
 
+void swap(ref Integer x, ref Integer y) @trusted pure nothrow @nogc
+{
+    x.swap(y);
+}
+
 @safe pure nothrow @nogc unittest
 {
     alias Z = Integer;          // shorthand
@@ -258,16 +263,17 @@ Integer abs(const ref Integer x) @trusted pure nothrow @nogc
     assert(six - 1UL == 5L);
     assert(six - 1L == 5L);
 
+    // swap
     Z x = 42L;
     Z y = 43L;
-
     assert(x == 42L);
     assert(y == 43L);
-
     x.swap(y);
-
     assert(y == 42L);
     assert(x == 43L);
+    swap(x, y);
+    assert(x == 42L);
+    assert(y == 43L);
 }
 
 // C API

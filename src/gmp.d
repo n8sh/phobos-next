@@ -28,13 +28,14 @@ struct Integer
 
     @nogc:
 
-    /// No copying be default.
+    /// No default construction.
     @disable this();
 
     /// Construct empty (undefined) from explicit `null`.
     this(typeof(null))
     {
         __gmpz_init(_ptr);      // TODO remove if this is same as zero bitblit
+        assert(this == Integer.init);
     }
 
     /// Construct from `value`.
@@ -61,6 +62,7 @@ struct Integer
         assert(status == 0, "Parameter `value` does not contain an integer");
     }
 
+    /// No implicit copy construction.
     @disable this(this);
 
     /// Swap content of `this` with `rhs`.

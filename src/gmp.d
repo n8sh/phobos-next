@@ -109,6 +109,15 @@ struct Integer
         return y;
     }
 
+    /// Returns: division remainder between `this` and `rhs`.
+    Unqual!(typeof(this)) opBinary(string s)(const ref Integer rhs) const
+        if (s == "%")
+    {
+        typeof(return) y = null;
+        __gmpz_mod(y._ptr, this._ptr, rhs._ptr);
+        return y;
+    }
+
     private:
 
     inout(__mpz_struct)* _ptr() inout { return &_z; }
@@ -177,6 +186,20 @@ Integer abs(const ref Integer x) @trusted pure nothrow @nogc
     assert(a * 2L != a);
     assert(a * b == b * a);
     assert(a * b == 42UL * 43UL);
+
+    // modulo/remainder
+    const Z one = 1UL;
+    const Z two = 2UL;
+    const Z three = 3UL;
+    const Z four = 4UL;
+    const Z five = 5UL;
+    const Z six = 6UL;
+    assert(six % one == 0L);
+    assert(six % two == 0L);
+    assert(six % three == 0L);
+    assert(six % four == 2L);
+    assert(six % five == 1L);
+    assert(six % six == 0L);
 }
 
 // C API
@@ -219,6 +242,8 @@ extern(C)
     void __gmpz_mul_2exp (mpz_ptr, mpz_srcptr, mp_bitcnt_t);
     void __gmpz_mul_si (mpz_ptr, mpz_srcptr, long);
     void __gmpz_mul_ui (mpz_ptr, mpz_srcptr, ulong);
+
+    void __gmpz_mod (mpz_ptr, mpz_srcptr, mpz_srcptr);
 
     int __gmpz_cmp (mpz_srcptr, mpz_srcptr); // TODO: __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
     int __gmpz_cmp_d (mpz_srcptr, double); // TODO: __GMP_ATTRIBUTE_PURE

@@ -37,10 +37,7 @@ struct Integer
 
     private:
 
-    inout(__mpz_struct)* _ptr() inout
-    {
-        return &_z;
-    }
+    inout(__mpz_struct)* _ptr() inout { return &_z; }
 
     __mpz_struct _z;
 }
@@ -62,7 +59,7 @@ Integer abs(const ref Integer x) @trusted pure nothrow @nogc
     assert(a != b);
     assert(a < b);
     assert(b > a);
-    // assert(abs(a) == a);
+    assert(abs(a) == a);
 
     // Integer a_plus_b = a + b;
     // Integer a_times_b = a * b;

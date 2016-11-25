@@ -188,6 +188,7 @@ pragma(inline) Integer abs(const ref Integer x) @trusted pure nothrow @nogc
     return y;
 }
 
+/// Swap contents of `x` with contents of `y`.
 pragma(inline) void swap(ref Integer x, ref Integer y) @trusted pure nothrow @nogc
 {
     x.swap(y);

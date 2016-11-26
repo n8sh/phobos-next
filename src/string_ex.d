@@ -3,6 +3,8 @@ module string_ex;
 import std.traits : isSomeString;
 import dbgio;
 
+/** Check if $(D s) starts with a capital letter followed by a lower
+    letter. */
 bool isCapitalizedEasy(S)(S s)
     if (isSomeString!S)
 {
@@ -10,6 +12,7 @@ bool isCapitalizedEasy(S)(S s)
     import std.uni : isUpper, isLower;
 
     if (s.empty) { return false; }
+
     const firstUpper = s.front.isUpper;
     if (!firstUpper) return false;
     s.popFront();
@@ -28,9 +31,8 @@ bool isCapitalizedEasy(S)(S s)
     assert(`Alpha`.isCapitalizedEasy);
 }
 
-/** Check if $(D s) starts with a capital letter.
-    TODO make nothrow by not using front
- */
+/** Check if $(D s) starts with a capital letter followed by only lower
+    letters. */
 bool isCapitalized(S)(S s)
     if (isSomeString!S)
 {

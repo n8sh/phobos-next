@@ -1113,7 +1113,7 @@ private struct Array(E,
 
 private:
 
-    /// Get internal pointer to mutable content.
+    /// Get internal pointer to mutable content. Doesn't need to be qualified with `scope`.
     ME* _mptr() const { return cast(typeof(return))_ptr; }
 
     /// Get internal slice.
@@ -1832,4 +1832,13 @@ pure unittest
     alias A = Array!int;
     A[Key] x;
     // assertThrown!RangeError({ x["a"] ~= 42; }); // TODO make this work
+}
+
+unittest
+{
+    import std.range : isInputRange;
+    import std.array : array;
+    import std.algorithm.iteration : map;
+    alias A = UncopyableArray!int;
+    auto y = A.init[].map!(_ => _^^2).array;
 }

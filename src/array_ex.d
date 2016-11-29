@@ -470,7 +470,6 @@ private struct Array(E,
             else
             {
                 free(_mptr);
-                assert(_ptr, "Deallocation failed");
             }
             _capacity = 0;
             _ptr = null;
@@ -1797,13 +1796,38 @@ pure nothrow unittest
 {
     alias Key = string;
     alias A = Array!int;
+
     A[Key] x;
+
     assert("a" !in x);
+
     x["a"] = A.init;            // if this init is removed..
     x["a"] ~= 42;               // ..then this fails
+
     assert(x["a"] == A.withElement(42));
 }
 
+/// compress
+@safe pure nothrow @nogc unittest
+{
+    alias A = Array!string;
+    A a;
+
+    a.compress();
+
+    a ~= "a";
+    a ~= "b";
+    a ~= "c";
+
+    assert(a.length == 3);
+    assert(a.capacity == 4);
+
+    a.compress();
+
+    assert(a.capacity == a.length);
+}
+
+///
 @safe pure nothrow @nogc unittest
 {
     alias Key = UncopyableArray!char;

@@ -4,6 +4,8 @@
     BUG rdmd -main -unittest -g -debug array_ex
     dustmite --strip-comments --no-redirect src "show-segfault rdmd -main -unittest -g -debug array_ex | grep double-linked"
 
+    TODO Add small array/string optimization (SSA/SSO)
+
     TODO Breakout common logic into private `BasicArray` and reuse with `alias this` to express StandardArray, SortedArray, SortedSetArray
 
     TODO Remove explicit moves when DMD std.algorithm.mutation.move calls these

@@ -1111,16 +1111,16 @@ private struct Array(E,
         return _ptr;
     }
 
-private:
-
     /// Get internal pointer to mutable content. Doesn't need to be qualified with `scope`.
-    ME* _mptr() const { return cast(typeof(return))_ptr; }
+    private ME* _mptr() const { return cast(typeof(return))_ptr; }
 
     /// Get internal slice.
-    auto ref slice() inout @trusted // TODO DIP-1000 scope
+    private auto ref slice() inout @trusted // TODO DIP-1000 scope
     {
         return _ptr[0 .. _length];
     }
+
+private:                        // data
 
     // TODO reuse module `storage` for small size/array optimization (SSO)
     static if (useGCAllocation)
@@ -1128,15 +1128,15 @@ private:
     else
         @nogc E* _ptr;          // non-GC-allocated store pointer
 
+    size_t _capacity;           // store capacity
+    size_t _length;             // length
+
     /** Magic pointer value used to detect double calls to `free`.
 
         Cannot conflict with return value from `malloc` because the least
         significant bit is set (when the value ends with a one).
     */
     debug private enum _ptrMagic = cast(E*)0x0C6F3C6c0f3a8471;
-
-    size_t _capacity;           // store capacity
-    size_t _length;             // length
 }
 
 import std.traits : hasMember, isDynamicArray;

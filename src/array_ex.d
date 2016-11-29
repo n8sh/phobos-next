@@ -1237,10 +1237,23 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     foreach (Ch; AliasSeq!(char, wchar, dchar))
     {
         alias Str = Array!(Ch, assignment, ordering, supportGC, less);
-        Str str;
+        auto str = Str.withElements('a', 'b', 'c');
         static assert(is(Unqual!(ElementType!Str) == Ch));
         static assert(str.isString);
-        str = Str.init;         // inhibit Dscanner warning
+        // TODO this causes segfault: str = Str.init;         // inhibit Dscanner warning
+    }
+
+    foreach (Ch; AliasSeq!(char))
+    {
+        alias Str = Array!(Ch, assignment, ordering, supportGC, less);
+        auto str = Str.withElements('a', 'b', 'c');
+        static assert(is(Unqual!(ElementType!Str) == Ch));
+        static assert(str.isString);
+        static if (!IsOrdered!ordering)
+        {
+            // dln(str[]);
+            assert(str[] == `abc`);
+        }
     }
 
     static if (E.sizeof == 4)

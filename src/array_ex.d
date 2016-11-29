@@ -1,8 +1,6 @@
 /** Array container(s) with optional sortedness via template-parameter
     `Ordering` and optional use of GC via `useGCAllocation`.
 
-    BUG-123 Search for `str = Str.init;`, copy assignment segfaults
-
     BUG rdmd -main -unittest -g -debug array_ex
     dustmite --strip-comments --no-redirect src "show-segfault rdmd -main -unittest -g -debug array_ex | grep double-linked"
 
@@ -41,7 +39,7 @@ version(useMemoryErrorHandler) unittest
     import std.stdio : writeln;
     writeln("registerMemoryErrorHandler done");
 }
-version = showCtors;
+// version = showCtors;
 
 /** Returns: statically (stack) allocated array with elements of type `T` of
     length `n`.
@@ -1243,7 +1241,6 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         auto str = Str.withElements('a', 'b', 'c');
         static assert(is(Unqual!(ElementType!Str) == Ch));
         static assert(str.isString);
-        // BUG-123, this segfaults:
         str = Str.init;
     }
 

@@ -1252,7 +1252,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         static if (!IsOrdered!ordering)
         {
             // dln(str[]);
-            assert(str[] == `abc`);
+            assert(str[] == `abc`); // TODO this fails for wchar and dchar
         }
     }
 

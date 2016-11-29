@@ -1,14 +1,20 @@
 module faulty;
 
+auto identity(T)(T x)
+{
+    return x;
+}
+
 auto square(T)(T x)
 {
+    const y = identity(x);
     if (x == 4)
     {
-        return x*x - 1;         // bug
+        return y*y - 1;         // bug
     }
     else
     {
-        return x*x;
+        return y*y;
     }
 }
 
@@ -25,5 +31,5 @@ auto m() {}
 {
     assert(square(2) == 4);
     assert(square(3) == 9);
-    assert(square(4) == 16, "Some specific failure");
+    assert(square(4) == 16, "Some specific failure in " ~ square.stringof);
 }

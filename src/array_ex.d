@@ -17,8 +17,6 @@
     TODO Use `std.algorithm.mutation.move` and `std.range.primitives.moveAt`
     when moving internal sub-slices
 
-    TODO struct Store, Notify andralex of packed array
-
     TODO Add `c.insertAfter(r, x)` where `c` is a collection, `r` is a range
     previously extracted from `c`, and `x` is a value convertible to
     collection's element type. See also:
@@ -1247,10 +1245,16 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     {
         alias Str = Array!(Ch, assignment, ordering, supportGC, less);
         auto str = Str.withElements('a', 'b', 'c');
-        static assert(is(Unqual!(ElementType!Str) == Ch));
+
         static assert(str.isString);
-        static if (!IsOrdered!ordering)
+
+        static if (IsOrdered!ordering)
         {
+            static assert(is(Unqual!(ElementType!Str) == Ch));
+        }
+        else
+        {
+            static assert(is(ElementType!Str == Ch));
             // dln(str[]);
             assert(str[] == `abc`); // TODO this fails for wchar and dchar
         }

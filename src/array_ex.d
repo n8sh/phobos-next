@@ -1129,7 +1129,7 @@ private struct Array(E,
 
 private:                        // data
 
-    // TODO reuse module `storage` for small size/array optimization (SSO)
+    // TODO reuse andralex's module `storage` for small size/array optimization (SSO)
     static if (useGCAllocation)
         E* _ptr;                // GC-allocated store pointer. See also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
     else

@@ -1,6 +1,8 @@
 /** Array container(s) with optional sortedness via template-parameter
     `Ordering` and optional use of GC via `useGCAllocation`.
 
+    BUG-123 Search for `str = Str.init;`, copy assignment segfaults
+
     BUG rdmd -main -unittest -g -debug array_ex
     dustmite --strip-comments --no-redirect src "show-segfault rdmd -main -unittest -g -debug array_ex | grep double-linked"
 
@@ -1240,7 +1242,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         auto str = Str.withElements('a', 'b', 'c');
         static assert(is(Unqual!(ElementType!Str) == Ch));
         static assert(str.isString);
-        // TODO this causes segfault: str = Str.init;         // inhibit Dscanner warning
+        // BUG-123 this segfault: str = Str.init;
     }
 
     foreach (Ch; AliasSeq!(char))

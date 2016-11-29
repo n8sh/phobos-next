@@ -1120,6 +1120,13 @@ private struct Array(E,
         return _ptr[0 .. _length];
     }
 
+    /** Magic pointer value used to detect double calls to `free`.
+
+        Cannot conflict with return value from `malloc` because the least
+        significant bit is set (when the value ends with a one).
+    */
+    debug private enum _ptrMagic = cast(E*)0x0C6F3C6c0f3a8471;
+
 private:                        // data
 
     // TODO reuse module `storage` for small size/array optimization (SSO)
@@ -1130,13 +1137,6 @@ private:                        // data
 
     size_t _capacity;           // store capacity
     size_t _length;             // length
-
-    /** Magic pointer value used to detect double calls to `free`.
-
-        Cannot conflict with return value from `malloc` because the least
-        significant bit is set (when the value ends with a one).
-    */
-    debug private enum _ptrMagic = cast(E*)0x0C6F3C6c0f3a8471;
 }
 
 import std.traits : hasMember, isDynamicArray;

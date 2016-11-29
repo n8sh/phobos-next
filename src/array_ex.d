@@ -41,7 +41,7 @@ version(useMemoryErrorHandler) unittest
     import std.stdio : writeln;
     writeln("registerMemoryErrorHandler done");
 }
-// version = showCtors;
+version = showCtors;
 
 /** Returns: statically (stack) allocated array with elements of type `T` of
     length `n`.
@@ -274,7 +274,8 @@ private struct Array(E,
             // self-assignment may happen when assigning derefenced pointer
             if (_ptr != rhs._ptr) // if not self assignment
             {
-                reserve(rhs._length);
+                _length = rhs._length;
+                reserve(rhs._length); // TODO should we reserve length or capacity here?
                 foreach (immutable i; 0 .. _length)
                 {
                     _ptr[i] = rhs._ptr[i];
@@ -1242,7 +1243,8 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         auto str = Str.withElements('a', 'b', 'c');
         static assert(is(Unqual!(ElementType!Str) == Ch));
         static assert(str.isString);
-        // BUG-123 this segfault: str = Str.init;
+        // BUG-123, this segfaults:
+        str = Str.init;
     }
 
     foreach (Ch; AliasSeq!(char))

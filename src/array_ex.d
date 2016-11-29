@@ -1791,7 +1791,7 @@ pure nothrow unittest
     }
 }
 
-/// init and append to empty to array as AA value type
+/// init and append to empty array as AA value type
 @safe pure nothrow unittest
 {
     alias Key = string;

@@ -1222,7 +1222,7 @@ pure unittest
 static void tester(Ordering ordering, bool supportGC, alias less)()
 {
     import std.functional : binaryFun;
-    import std.range : iota, retro, chain, repeat, only, ElementType;
+    import std.range : iota, chain, repeat, only, ElementType;
     import std.algorithm : filter, map;
     import std.algorithm.sorting : isSorted, sort;
     import std.exception : assertThrown, assertNotThrown;
@@ -1303,14 +1303,13 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     foreach (immutable n; chain(0.only, iota(0, 10).map!(x => 2^^x)))
     {
         import std.array : array;
-        import std.range : radial, retro;
+        import std.range : radial;
 
         immutable zi = cast(int)0;
         immutable ni = cast(int)n;
 
         auto fw = iota(zi, ni); // 0, 1, 2, ..., n-1
 
-        // TODO use radial instead
         auto bw = fw.array.radial;
 
         Array!(E, assignment, ordering, supportGC, less) ss0 = bw; // reversed

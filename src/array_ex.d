@@ -37,7 +37,7 @@ version(useMemoryErrorHandler) unittest
     import std.stdio : writeln;
     writeln("registerMemoryErrorHandler done");
 }
-// version = showCtors;
+version = showCtors;
 
 /** Returns: statically (stack) allocated array with elements of type `T` of
     length `n`.
@@ -155,14 +155,14 @@ private struct Array(E,
     /// Create a empty array.
     this(typeof(null)) nothrow
     {
-        version(showCtors) dln("HERE: ", typeof(this).stringof);
+        version(showCtors) dln("ENTERING: ", typeof(this).stringof);
         // nothing needed, rely on default initialization of data members
     }
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
     pragma(inline) static typeof(this) withLength(size_t initialLength) @trusted nothrow
     {
-        version(showCtors) dln("HERE: ", typeof(this).stringof);
+        version(showCtors) dln("ENTERING: ", typeof(this).stringof);
 
         debug typeof(return) that;
         else typeof(return) that = void;
@@ -177,7 +177,7 @@ private struct Array(E,
     /// Returns: an array with initial capacity `initialCapacity`.
     pragma(inline) static typeof(this) withCapacity(size_t initialCapacity) @trusted nothrow
     {
-        version(showCtors) dln("HERE: ", typeof(this).stringof);
+        version(showCtors) dln("ENTERING: ", typeof(this).stringof);
 
         debug typeof(return) that;
         else typeof(return) that = void;
@@ -192,7 +192,7 @@ private struct Array(E,
     /// Returns: an array of one element `element`.
     pragma(inline) static typeof(this) withElement(E element) @trusted nothrow
     {
-        version(showCtors) dln("HERE: ", typeof(this).stringof);
+        version(showCtors) dln("ENTERING: ", typeof(this).stringof);
 
         debug typeof(return) that;
         else typeof(return) that = void;
@@ -219,7 +219,7 @@ private struct Array(E,
     // /// Returns: an array of `Us.length` number of elements set to `elements`.
     pragma(inline) static typeof(this) withElements(Us...)(Us elements) @trusted nothrow
     {
-        version(showCtors) dln("HERE: ", typeof(this).stringof);
+        version(showCtors) dln("ENTERING: ", typeof(this).stringof);
 
         debug typeof(return) that;
         else typeof(return) that = void;
@@ -336,8 +336,8 @@ private struct Array(E,
     {
         setOnlyCapacityAndTag(newCapacity);
 
-        dln("isLarge:", isLarge);
-        dln("newCapacity:", newCapacity);
+        version(showCtors) dln("isLarge:", isLarge);
+        version(showCtors) dln("newCapacity:", newCapacity);
 
         if (isLarge)
         {
@@ -423,7 +423,8 @@ private struct Array(E,
     this(R)(R values, bool assumeSortedParameter = false) @trusted @("complexity", "O(n*log(n))")
         if (isInputRange!R)
     {
-        version(showCtors) dln("HERE: ", typeof(this).stringof);
+        version(showCtors) dln("ENTERING: ", typeof(this).stringof);
+
         // init
         _store.large.ptr = null;
         _store.large.capacity = 0;
@@ -459,6 +460,8 @@ private struct Array(E,
                 sort!comp(_store.large.ptr[0 .. this.length]);
             }
         }
+
+        version(showCtors) dln("EXITING: ", typeof(this).stringof);
     }
 
     /// Reserve room for `newCapacity` elements at store `_store.large.ptr`.

@@ -155,7 +155,7 @@ void setHighestBit(T)(ref T a) @safe
 alias setTopBit = setHighestBit;
 
 /** Get lowest bit of `a`. */
-bool getLowBit(T)(T a) @safe
+bool getLowBit(T)(in T a) @safe
     if (isIntegral!T)
 {
     return (a & (1 << 0)) != 0;
@@ -163,9 +163,10 @@ bool getLowBit(T)(T a) @safe
 alias getBottomBit = getLowBit;
 
 /** Get highest bit of `a`. */
-bool getHighBit(T)(T a) @safe
+bool getHighBit(T)(in T a) @safe
     if (isIntegral!T)
 {
+    // TODO use core.bitop.bt when T is a size_t
     return (a & (1 << 8*T.sizeof - 1)) != 0;
 }
 alias getTopBit = getHighBit;

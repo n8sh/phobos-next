@@ -2178,21 +2178,6 @@ Container collect(Container, Range) (Range r)
     assert([0, 1, 2, 3].filter!(_ => _ & 1).collect!V.equal([1, 3]));
 }
 
-/// collection
-/*@safe*/ pure nothrow @nogc unittest // TODO make @safe when DIP-1000 has been added
-{
-    import std.range : iota, isOutputRange;
-    import array_ex : Array;
-
-    alias E = int;
-    alias A = Array!E;
-
-    immutable n = 100;
-    static assert(isOutputRange!(A, E));
-
-    assert((0.iota(n).collect!A)[].equal(0.iota(n)));
-}
-
 /** Overload of `std.array.array` that creates a static array of length `n`.
     TODO Better name: {make,array}{N,Exactly}
     TODO could we find a way to propagate length at compile-time?

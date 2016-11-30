@@ -163,9 +163,14 @@ private struct Array(E,
     pragma(inline) static typeof(this) withLength(size_t initialLength) @trusted nothrow
     {
         version(showCtors) dln("HERE: ", typeof(this).stringof);
-        typeof(return) that = void;
+
+        debug typeof(return) that;
+        else typeof(return) that = void;
+
+        that._isLarge = false;
         that.allocateStoreWithCapacity(initialLength, true); // `true` here means zero initialize
         that.setOnlyLength(initialLength);
+
         return that;
     }
 
@@ -173,9 +178,14 @@ private struct Array(E,
     pragma(inline) static typeof(this) withCapacity(size_t initialCapacity) @trusted nothrow
     {
         version(showCtors) dln("HERE: ", typeof(this).stringof);
-        typeof(return) that = void;
+
+        debug typeof(return) that;
+        else typeof(return) that = void;
+
+        that._isLarge = false;
         that.allocateStoreWithCapacity(initialCapacity);
         that.setOnlyLength(0);
+
         return that;
     }
 
@@ -183,8 +193,13 @@ private struct Array(E,
     pragma(inline) static typeof(this) withElement(E element) @trusted nothrow
     {
         version(showCtors) dln("HERE: ", typeof(this).stringof);
-        typeof(return) that = void;
+
+        debug typeof(return) that;
+        else typeof(return) that = void;
+
+        that._isLarge = false;
         that.allocateStoreWithCapacity(1);
+
         static if (isCopyable!E)
         {
             that._mptr[0] = element;
@@ -195,7 +210,7 @@ private struct Array(E,
         }
         else
         {
-            moveEmplace(element, that._store.large.ptr[0]); // TODO remove `move` when compiler does it for us
+            moveEmplace(element, that._mptr[0]); // TODO remove `move` when compiler does it for us
         }
         that.setOnlyLength(1);
         return that;
@@ -205,8 +220,13 @@ private struct Array(E,
     pragma(inline) static typeof(this) withElements(Us...)(Us elements) @trusted nothrow
     {
         version(showCtors) dln("HERE: ", typeof(this).stringof);
-        typeof(return) that = void;
+
+        debug typeof(return) that;
+        else typeof(return) that = void;
+
+        that._isLarge = false;
         that.allocateStoreWithCapacity(Us.length);
+
         foreach (immutable i, ref element; elements)
         {
             static if (!shouldAddGCRange!E)
@@ -215,32 +235,11 @@ private struct Array(E,
             }
             else
             {
-                moveEmplace(element, that._store.large.ptr[i]); // TODO remove `move` when compiler does it for us
+                moveEmplace(element, that._mptr[i]); // TODO remove `move` when compiler does it for us
             }
         }
         that.setOnlyLength(Us.length);
         return that;
-    }
-
-    /// Allocate a store with capacity `newCapacity`.
-    pragma(inline) private void allocateStoreWithCapacity(size_t newCapacity, bool zero = false) @trusted nothrow
-    {
-        static if (useGCAllocation)
-        {
-            if (zero) { _store.large.ptr = cast(E*)GC.calloc(newCapacity, E.sizeof); }
-            else      { _store.large.ptr = cast(E*)GC.malloc(newCapacity * E.sizeof); }
-        }
-        else                    // @nogc
-        {
-            if (zero) { _store.large.ptr = cast(E*)calloc(newCapacity, E.sizeof); }
-            else      { _store.large.ptr = cast(E*)malloc(newCapacity * E.sizeof); }
-            assert(_store.large.ptr, "Allocation failed");
-        }
-        setOnlyCapacity(newCapacity);
-        static if (shouldAddGCRange!E)
-        {
-            gc_addRange(_store.large.ptr, _store.large.capacity * E.sizeof);
-        }
     }
 
     static if (assignment == Assignment.copy)
@@ -249,8 +248,12 @@ private struct Array(E,
         this(this) nothrow @trusted
         {
             version(showCtors) dln("Copy ctor: ", typeof(this).stringof);
+
             auto rhs_storePtr = _store.large.ptr; // save store pointer
-            allocateStoreWithCapacity(this.length);
+
+            this._isLarge = false;
+            this.allocateStoreWithCapacity(this.length);
+
             foreach (immutable i; 0 .. this.length)
             {
                 _store.large.ptr[i] = rhs_storePtr[i];
@@ -300,14 +303,48 @@ private struct Array(E,
         /// Returns: shallow duplicate of `this`.
         Array!(Unqual!E) dup() const @trusted // `Unqual` mimics behaviour of `dup` for builtin D arrays
         {
-            typeof(return) copy;
+            debug typeof(return) copy;
+            else typeof(return) copy = void;
+
+            copy._isLarge = false;
             copy.allocateStoreWithCapacity(this.length);
+
             foreach (immutable i; 0 .. this.length)
             {
                 copy._store.large.ptr[i] = _mptr[i]; // TODO is using _mptr ok here?
             }
-            copy.length = this.length;
+
+            copy.setOnlyLength(this.length);
+
             return copy;
+        }
+    }
+
+    /// Allocate a store with capacity `newCapacity`.
+    pragma(inline) private void allocateStoreWithCapacity(size_t newCapacity, bool zero = false) @trusted nothrow
+    {
+        setOnlyCapacityAndTag(newCapacity);
+
+        dln("isLarge:", isLarge);
+        dln("newCapacity:", newCapacity);
+
+        if (isLarge)
+        {
+            static if (useGCAllocation)
+            {
+                if (zero) { _store.large.ptr = cast(E*)GC.calloc(newCapacity, E.sizeof); }
+                else      { _store.large.ptr = cast(E*)GC.malloc(newCapacity * E.sizeof); }
+            }
+            else                    // @nogc
+            {
+                if (zero) { _store.large.ptr = cast(E*)calloc(newCapacity, E.sizeof); }
+                else      { _store.large.ptr = cast(E*)malloc(newCapacity * E.sizeof); }
+                assert(_store.large.ptr, "Allocation failed");
+            }
+        }
+        static if (shouldAddGCRange!E)
+        {
+            gc_addRange(this._mptr, this.capacity * E.sizeof);
         }
     }
 
@@ -816,8 +853,10 @@ private struct Array(E,
                 else
                 {
                     import std.algorithm.sorting : completeSort;
+
                     debug { typeof(return) hits; }
                     else  { typeof(return) hits = void; }
+
                     size_t expandedLength = 0;
                     immutable initialLength = this.length;
                     foreach (immutable i, ref value; values)
@@ -1135,19 +1174,21 @@ private struct Array(E,
         }
     }
 
-    /// Set only capacity.
-    void setOnlyCapacity(size_t newCapacity) @trusted
+    /** Set only capacity and _isLarge tag.
+        Returns: `true` if capacity changed from large to small or vice versa.
+     */
+    bool setOnlyCapacityAndTag(size_t newCapacity) @trusted
     {
+        _store.large.capacity = newCapacity;
         if (isLarge)
         {
-            assert(newCapacity <= smallCapacity,            // isSmallCapacity
-                   "Cannot shrink capacity from large to small");
-            _store.large.capacity = newCapacity;
+            _isLarge = newCapacity > smallCapacity;
+            return !isLarge;    // changed from large to small
         }
         else
         {
-            assert(newCapacity > smallCapacity, // isLargeCapacity
-                   "Cannot grow capacity from small to large");
+            _isLarge = newCapacity > smallCapacity;
+            return isLarge;     // changed from small to large
         }
     }
 
@@ -1244,8 +1285,8 @@ private:                        // data
         ubyte length;
     }
 
-    static if (is(E == char) &&
-               size_t.sizeof == 8)
+    static if (is(E == char) &&    // this can be interpreted as a string
+               size_t.sizeof == 8) // 64-bit
     {
         static assert(Large.sizeof == 24);
         static assert(Small.sizeof == 24);

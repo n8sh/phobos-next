@@ -2056,6 +2056,7 @@ pure unittest
     // assertThrown!RangeError({ x["a"] ~= 42; }); // TODO make this work
 }
 
+/// map array of uncopyable
 unittest
 {
     import std.range : isInputRange;
@@ -2063,4 +2064,19 @@ unittest
     import std.algorithm.iteration : map;
     alias A = UncopyableArray!int;
     auto y = A.init[].map!(_ => _^^2).array;
+}
+
+/// collection
+/*@safe*/ pure nothrow @nogc unittest // TODO make @safe when DIP-1000 has been added
+{
+    import std.range : iota, isOutputRange;
+    import algorithm_ex : collect;
+
+    alias E = int;
+    alias A = Array!E;
+
+    immutable n = 100;
+    static assert(isOutputRange!(A, E));
+
+    assert((0.iota(n).collect!A)[].equal(0.iota(n)));
 }

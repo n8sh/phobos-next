@@ -158,7 +158,7 @@ alias setTopBit = setHighestBit;
 bool getLowBit(T)(in T a) @safe
     if (isIntegral!T)
 {
-    return (a & (1 << 0)) != 0;
+    return (a & 1) != 0;
 }
 alias getBottomBit = getLowBit;
 
@@ -167,7 +167,7 @@ bool getHighBit(T)(in T a) @safe
     if (isIntegral!T)
 {
     // TODO use core.bitop.bt when T is a size_t
-    return (a & (1 << 8*T.sizeof - 1)) != 0;
+    return (a & (cast(T)1 << 8*T.sizeof - 1)) != 0;
 }
 alias getTopBit = getHighBit;
 

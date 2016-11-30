@@ -248,15 +248,17 @@ private struct Array(E,
         this(this) nothrow @trusted
         {
             version(showCtors) dln("Copy ctor: ", typeof(this).stringof);
-
-            auto rhs_storePtr = _store.large.ptr; // save store pointer
-
-            this._isLarge = false;
-            this.allocateStoreWithCapacity(this.length);
-
-            foreach (immutable i; 0 .. this.length)
+            if (isLarge)
             {
-                _store.large.ptr[i] = rhs_storePtr[i];
+                auto rhs_storePtr = _store.large.ptr; // save store pointer
+
+                this._isLarge = false;
+                this.allocateStoreWithCapacity(this.length);
+
+                foreach (immutable i; 0 .. this.length)
+                {
+                    _store.large.ptr[i] = rhs_storePtr[i];
+                }
             }
         }
 
@@ -265,6 +267,7 @@ private struct Array(E,
         {
             version(showCtors) dln("Copy assign: ", typeof(this).stringof);
             // self-assignment may happen when assigning derefenced pointer
+            dln("TODO: this is complicated!");
             if (_store.large.ptr != rhs._store.large.ptr) // if not self assignment
             {
                 this.setOnlyLength(rhs.length);
@@ -306,15 +309,23 @@ private struct Array(E,
             debug typeof(return) copy;
             else typeof(return) copy = void;
 
-            copy._isLarge = false;
-            copy.allocateStoreWithCapacity(this.length);
-
-            foreach (immutable i; 0 .. this.length)
+            if (isLarge)
             {
-                copy._store.large.ptr[i] = _mptr[i]; // TODO is using _mptr ok here?
-            }
+                copy._isLarge = false;
+                copy.allocateStoreWithCapacity(this.length);
 
-            copy.setOnlyLength(this.length);
+                foreach (immutable i; 0 .. this.length)
+                {
+                    copy._store.large.ptr[i] = this._store.large.ptr[i];
+                }
+
+                copy.setOnlyLength(this.length);
+            }
+            else
+            {
+                copy._isLarge = false;
+                copy._store.small.elms = this._store.small.elms;
+            }
 
             return copy;
         }
@@ -364,7 +375,7 @@ private struct Array(E,
             if (this.length != rhs.length) { return false; }
             foreach (immutable i; 0 .. this.length)
             {
-                if (_store.large.ptr[i] != rhs._store.large.ptr[i]) { return false; }
+                if (this.ptr[i] != rhs.ptr[i]) { return false; }
             }
             return true;
         }
@@ -380,7 +391,7 @@ private struct Array(E,
             if (this.length != rhs.length) { return false; }
             foreach (immutable i; 0 .. this.length)
             {
-                if (_store.large.ptr[i] != rhs._store.large.ptr[i]) { return false; }
+                if (this.ptr[i] != rhs.ptr[i]) { return false; }
             }
             return true;
         }
@@ -401,7 +412,7 @@ private struct Array(E,
         typeof(return) hash = this.length;
         foreach (immutable i; 0 .. this.length)
         {
-            hash ^= _store.large.ptr[i].hashOf;
+            hash ^= this.ptr[i].hashOf;
         }
         return hash;
     }
@@ -1301,7 +1312,7 @@ private:                        // data
     }
 
     Store _store;
-    bool _isLarge;              // pack this into top-bit of length
+    bool _isLarge;              // TODO pack this into top-bit of _length
 }
 
 import std.traits : hasMember, isDynamicArray;

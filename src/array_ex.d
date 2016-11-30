@@ -426,8 +426,8 @@ private struct Array(E,
         version(showCtors) dln("ENTERING: ", typeof(this).stringof);
 
         // init
-        _store.large.ptr = null;
-        _store.large.capacity = 0;
+        _isLarge = false;
+        _store.small = Small.init;
 
         // append new data
         import std.range.primitives : hasLength;
@@ -437,8 +437,9 @@ private struct Array(E,
             size_t i = 0;
             foreach (ref value; values)
             {
-                _mptr[i++] = value;
+                _mptr[i++] = value; // TODO use std.algorithm.copy instead?
             }
+
             this.setOnlyLength(values.length);
         }
         else
@@ -447,7 +448,7 @@ private struct Array(E,
             foreach (ref value; values)
             {
                 reserve(i + 1); // slower reserve
-                _store.large.ptr[i++] = value;
+                _mptr[i++] = value; // TODO use std.algorithm.copy instead?
             }
             this.setOnlyLength(i);
         }
@@ -457,7 +458,7 @@ private struct Array(E,
             if (!assumeSortedParameter)
             {
                 import std.algorithm.sorting : sort;
-                sort!comp(_store.large.ptr[0 .. this.length]);
+                sort!comp(_mptr[0 .. this.length]);
             }
         }
 
@@ -468,7 +469,7 @@ private struct Array(E,
     void reserve(size_t newCapacity) pure nothrow @trusted
     {
         import std.math : nextPow2;
-        if (_store.large.capacity < newCapacity)
+        if (newCapacity > capacity)
         {
             static if (shouldAddGCRange!E)
             {

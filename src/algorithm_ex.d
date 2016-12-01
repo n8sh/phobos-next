@@ -2114,8 +2114,8 @@ bool equalLength(R, Ss...)(const R r, const Ss ss)
     TODO Use std.container.util.make instead?: https://dlang.org/phobos/std_container_util.html#.make
     TODO Rename `container` to `output`?
     TODO Support Set-containers via `insert` aswell, or add `alias put = insert` to them?
-    TODO What about Appender?
-    TODO Rename to `collect` to `gather`.
+    TODO What about `Appender`?
+    TODO Rename from `collect` to `gather`.
  */
 Container collect(Container, Range) (Range r)
     // if (isInputRange!Range &&

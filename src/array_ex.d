@@ -307,14 +307,52 @@ private struct Array(E,
         {
             version(showCtors) dln("Copy assign: ", typeof(this).stringof);
             // self-assignment may happen when assigning derefenced pointer
-            dln("TODO: this is complicated!");
-            if (_store.large.ptr != rhs._store.large.ptr) // if not self assignment
+            if (isLarge)        // large = ...
             {
-                this.setOnlyLength(rhs.length);
-                reserve(rhs.length); // TODO should we reserve length or capacity here?
-                foreach (immutable i; 0 .. this.length)
+                if (rhs.isLarge) // large = large
                 {
-                    _store.large.ptr[i] = rhs._store.large.ptr[i];
+                    // TODO functionize to Large.opAssign(Large rhs):
+                    if (_store.large.ptr != rhs._store.large.ptr) // if not self assignment
+                    {
+                        _store.large.length = rhs._store.large.length;
+                        reserve(rhs._store.large.length);
+                        foreach (immutable i; 0 .. rhs._store.large.length)
+                        {
+                            _store.large.ptr[i] = rhs._store.large.ptr[i];
+                        }
+                    }
+                }
+                else            // large = small
+                {
+                    {            // make it small
+                        clear();    // clear large storage
+                        _isLarge = false;
+                    }
+                    _store.small = rhs._store.small; // small
+                }
+            }
+            else                // small = ...
+            {
+                if (rhs.isLarge) // small = large
+                {
+                    {            // make it large
+                        clear(); // clear small storage
+                        _isLarge = true;
+                    }
+                    // TODO functionize to Large.opAssign(Large rhs):
+                    if (_store.large.ptr != rhs._store.large.ptr) // if not self assignment
+                    {
+                        _store.large.length = rhs._store.large.length;
+                        reserve(rhs._store.large.length);
+                        foreach (immutable i; 0 .. rhs._store.large.length)
+                        {
+                            _store.large.ptr[i] = rhs._store.large.ptr[i];
+                        }
+                    }
+                }
+                else            // small = small
+                {
+                    _store.small = rhs._store.small;
                 }
             }
         }
@@ -628,23 +666,26 @@ private struct Array(E,
     private void release() nothrow @trusted
     {
         destroyElements();
-        static if (shouldAddGCRange!E)
+        if (isLarge)
         {
-            gc_removeRange(_store.large.ptr);
-        }
-        static if (useGCAllocation)
-        {
-            GC.free(_store.large.ptr);
-        }
-        else                // @nogc
-        {
-            static if (!shouldAddGCRange!E)
+            static if (shouldAddGCRange!E)
             {
-                free(cast(Unqual!(E)*)_store.large.ptr); // safe to case away constness
+                gc_removeRange(_store.large.ptr);
             }
-            else
+            static if (useGCAllocation)
             {
-                free(_store.large.ptr);
+                GC.free(_store.large.ptr);
+            }
+            else                // @nogc
+            {
+                static if (!shouldAddGCRange!E)
+                {
+                    free(cast(Unqual!(E)*)_store.large.ptr); // safe to case away constness
+                }
+                else
+                {
+                    free(_store.large.ptr);
+                }
             }
         }
     }

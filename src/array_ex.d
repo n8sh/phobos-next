@@ -160,31 +160,49 @@ private struct Array(E,
     }
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
-    pragma(inline) static typeof(this) withLength(size_t initialLength) @trusted nothrow
+    pragma(inline) static typeof(this) withLength(size_t initialLength) nothrow
     {
         version(showCtors) dln("ENTERING: ", typeof(this).stringof);
 
         debug typeof(return) that;
         else typeof(return) that = void;
 
-        that._isLarge = false;
-        that.allocateStoreWithCapacity(initialLength, true); // `true` here means zero initialize
-        that.setOnlyLength(initialLength);
+        // TODO functionize:
+        that._isLarge = initialLength > smallCapacity;
+        if (that.isLarge)
+        {
+            that._store.large.capacity = initialLength;
+            that._store.large.allocateFirst(initialLength, false);
+            that._store.large.length = initialLength;
+        }
+        else
+        {
+            that._store.small.length = cast(ubyte)initialLength;
+        }
 
         return that;
     }
 
     /// Returns: an array with initial capacity `initialCapacity`.
-    pragma(inline) static typeof(this) withCapacity(size_t initialCapacity) @trusted nothrow
+    pragma(inline) static typeof(this) withCapacity(size_t initialCapacity) nothrow
     {
         version(showCtors) dln("ENTERING: ", typeof(this).stringof);
 
         debug typeof(return) that;
         else typeof(return) that = void;
 
-        that._isLarge = false;
-        that.allocateStoreWithCapacity(initialCapacity);
-        that.setOnlyLength(0);
+        // TODO functionize:
+        that._isLarge = initialCapacity > smallCapacity;
+        if (that.isLarge)
+        {
+            that._store.large.capacity = initialCapacity;
+            that._store.large.allocateFirst(initialCapacity, false);
+            that._store.large.length = 0;
+        }
+        else
+        {
+            that._store.small.length = 0;
+        }
 
         return that;
     }
@@ -197,9 +215,21 @@ private struct Array(E,
         debug typeof(return) that;
         else typeof(return) that = void;
 
-        that._isLarge = false;
-        that.allocateStoreWithCapacity(1);
+        // TODO functionize:
+        enum initialLength = 1;
+        that._isLarge = initialLength > smallCapacity;
+        if (that.isLarge)
+        {
+            that._store.large.capacity = initialLength;
+            that._store.large.allocateFirst(initialLength, false);
+            that._store.large.length = initialLength;
+        }
+        else
+        {
+            that._store.small.length = cast(ubyte)initialLength;
+        }
 
+        // move element
         static if (isCopyable!E)
         {
             that._mptr[0] = element;
@@ -212,7 +242,7 @@ private struct Array(E,
         {
             moveEmplace(element, that._mptr[0]); // TODO remove `move` when compiler does it for us
         }
-        that.setOnlyLength(1);
+
         return that;
     }
 
@@ -224,9 +254,21 @@ private struct Array(E,
         debug typeof(return) that;
         else typeof(return) that = void;
 
-        that._isLarge = false;
-        that.allocateStoreWithCapacity(Us.length);
+        // TODO functionize:
+        enum initialLength = Us.length;
+        that._isLarge = initialLength > smallCapacity;
+        if (that.isLarge)
+        {
+            that._store.large.capacity = initialLength;
+            that._store.large.allocateFirst(initialLength, false);
+            that._store.large.length = initialLength;
+        }
+        else
+        {
+            that._store.small.length = cast(ubyte)initialLength;
+        }
 
+        // move elements
         foreach (immutable i, ref element; elements)
         {
             static if (!shouldAddGCRange!E)
@@ -238,7 +280,7 @@ private struct Array(E,
                 moveEmplace(element, that._mptr[i]); // TODO remove `move` when compiler does it for us
             }
         }
-        that.setOnlyLength(Us.length);
+
         return that;
     }
 
@@ -248,13 +290,11 @@ private struct Array(E,
         this(this) nothrow @trusted
         {
             version(showCtors) dln("Copy ctor: ", typeof(this).stringof);
-            if (isLarge)
+            if (isLarge)        // only large case needs special treatment
             {
                 auto rhs_storePtr = _store.large.ptr; // save store pointer
-
-                this._isLarge = false;
-                this.allocateStoreWithCapacity(this.length);
-
+                _store.large.capacity = this.length;  // pack by default
+                _store.large.allocateFirst(this.length, false);
                 foreach (immutable i; 0 .. this.length)
                 {
                     _store.large.ptr[i] = rhs_storePtr[i];
@@ -308,54 +348,25 @@ private struct Array(E,
         {
             debug typeof(return) copy;
             else typeof(return) copy = void;
-
+            copy._isLarge = isLarge;
             if (isLarge)
             {
-                copy._isLarge = false;
-                copy.allocateStoreWithCapacity(this.length);
-
+                // TODO move to Large ctor and use emplace
+                copy._store.large.capacity = length;
+                copy._store.large.length = length;
+                copy._store.large.allocateFirst(this.length, false);
                 foreach (immutable i; 0 .. this.length)
                 {
-                    copy._store.large.ptr[i] = this._store.large.ptr[i];
+                    copy._store.large.ptr[i] = _store.large.ptr[i];
                 }
-
-                copy.setOnlyLength(this.length);
             }
             else
             {
-                copy._isLarge = false;
-                copy._store.small.elms = this._store.small.elms;
+                // TODO move to Small ctor and use emplace
+                copy._store.small.length = _store.small.length;
+                copy._store.small.elms = _store.small.elms;
             }
-
             return copy;
-        }
-    }
-
-    /// Allocate a store with capacity `newCapacity`.
-    pragma(inline) private void allocateStoreWithCapacity(size_t newCapacity, bool zero = false) @trusted nothrow
-    {
-        setOnlyCapacityAndTag(newCapacity);
-
-        version(showCtors) dln("isLarge:", isLarge);
-        version(showCtors) dln("newCapacity:", newCapacity);
-
-        if (isLarge)
-        {
-            static if (useGCAllocation)
-            {
-                if (zero) { _store.large.ptr = cast(E*)GC.calloc(newCapacity, E.sizeof); }
-                else      { _store.large.ptr = cast(E*)GC.malloc(newCapacity * E.sizeof); }
-            }
-            else                    // @nogc
-            {
-                if (zero) { _store.large.ptr = cast(E*)calloc(newCapacity, E.sizeof); }
-                else      { _store.large.ptr = cast(E*)malloc(newCapacity * E.sizeof); }
-                assert(_store.large.ptr, "Allocation failed");
-            }
-        }
-        static if (shouldAddGCRange!E)
-        {
-            gc_addRange(this._mptr, this.capacity * E.sizeof);
         }
     }
 
@@ -448,7 +459,7 @@ private struct Array(E,
             foreach (ref value; values)
             {
                 reserve(i + 1); // slower reserve
-                _mptr[i++] = value; // TODO use std.algorithm.copy instead?
+                _mptr[i++] = value;
             }
             this.setOnlyLength(i);
         }
@@ -465,20 +476,39 @@ private struct Array(E,
         version(showCtors) dln("EXITING: ", typeof(this).stringof);
     }
 
-    /// Reserve room for `newCapacity` elements at store `_store.large.ptr`.
-    void reserve(size_t newCapacity) pure nothrow @trusted
+    /// Reserve room for `newCapacity`.
+    pragma(inline) void reserve(size_t newCapacity) pure nothrow @trusted
+    {
+        if (newCapacity > capacity)
+        {
+            expand(newCapacity);
+        }
+    }
+
+    /// Expand room for `newCapacity`.
+    private void expand(size_t newCapacity) pure nothrow @trusted
     {
         import std.math : nextPow2;
-        if (newCapacity > capacity)
+        if (isLarge)
         {
             static if (shouldAddGCRange!E)
             {
-                gc_removeRange(_store.large.ptr);
+                gc_removeRange(_mptr);
             }
-            reallocateStore(newCapacity.nextPow2);
+            reallocateLargeStoreAndSetCapacity(newCapacity.nextPow2);
             static if (shouldAddGCRange!E)
             {
-                gc_addRange(_store.large.ptr, _store.large.capacity * E.sizeof);
+                gc_addRange(_mptr, _store.large.capacity * E.sizeof);
+            }
+        }
+        else
+        {
+            if (newCapacity > smallCapacity) // to large
+            {
+                Large tempLarge; // temporary large storage
+
+                tempLarge.length = length;
+                tempLarge.capacity = newCapacity;
             }
         }
     }
@@ -486,44 +516,86 @@ private struct Array(E,
     /// Pack/Compress storage.
     void compress() pure nothrow @trusted
     {
-        if (this.length)
+        if (isLarge)
         {
-            if (_store.large.capacity != this.length)
+            if (this.length)
             {
+                if (this.length <= smallCapacity)
+                {
+                    Small tempSmall; // temporary small storage
+                    tempSmall.length = cast(ubyte)length;
+
+                    // move to temporary small
+                    foreach (immutable i; 0 .. tempSmall.length)
+                    {
+                        moveEmplace(_store.large._mptr[i],
+                                    tempSmall._mptr[i]);
+                    }
+
+                    // free existing large data
+                    static if (shouldAddGCRange!E)
+                    {
+                        gc_removeRange(_mptr);
+                    }
+                    static if (useGCAllocation)
+                    {
+                        GC.free(_mptr);
+                    }
+                    else
+                    {
+                        free(_mptr);
+                    }
+
+                    // move to new small
+                    foreach (immutable i; 0 .. tempSmall.length)
+                    {
+                        moveEmplace(tempSmall._mptr[i],
+                                    _store.small._mptr[i]);
+                    }
+                    _store.small.length = tempSmall.length;
+                    _isLarge = false; // now small
+                }
+                else
+                {
+                    if (_store.large.capacity != this.length)
+                    {
+                        static if (shouldAddGCRange!E)
+                        {
+                            gc_removeRange(_mptr);
+                        }
+                        reallocateLargeStoreAndSetCapacity(this.length);
+                        static if (shouldAddGCRange!E)
+                        {
+                            gc_addRange(_mptr, _store.large.capacity * E.sizeof);
+                        }
+                    }
+                }
+            }
+            else                // if empty
+            {
+                // free data
                 static if (shouldAddGCRange!E)
                 {
-                    gc_removeRange(_store.large.ptr);
+                    gc_removeRange(_mptr);
                 }
-                reallocateStore(this.length);
-                static if (shouldAddGCRange!E)
+                static if (useGCAllocation)
                 {
-                    gc_addRange(_store.large.ptr, _store.large.capacity * E.sizeof);
+                    GC.free(_mptr);
                 }
+                else
+                {
+                    free(_mptr);
+                }
+                _store.large.capacity = 0;
+                _store.large.ptr = null;
             }
-        }
-        else
-        {
-            static if (shouldAddGCRange!E)
-            {
-                gc_removeRange(_store.large.ptr);
-            }
-            static if (useGCAllocation)
-            {
-                GC.free(_mptr);
-            }
-            else
-            {
-                free(_mptr);
-            }
-            _store.large.capacity = 0;
-            _store.large.ptr = null;
         }
     }
-
+    /// ditto
     alias pack = compress;
 
     /// Reallocate storage.
-    pragma(inline) private void reallocateStore(size_t newCapacity) pure nothrow @trusted
+    pragma(inline) private void reallocateLargeStoreAndSetCapacity(size_t newCapacity) pure nothrow @trusted
     {
         _store.large.capacity = newCapacity;
         static if (useGCAllocation)
@@ -1189,24 +1261,6 @@ private struct Array(E,
         }
     }
 
-    /** Set only capacity and _isLarge tag.
-        Returns: `true` if capacity changed from large to small or vice versa.
-     */
-    bool setOnlyCapacityAndTag(size_t newCapacity) @trusted
-    {
-        _store.large.capacity = newCapacity;
-        if (isLarge)
-        {
-            _isLarge = newCapacity > smallCapacity;
-            return !isLarge;    // changed from large to small
-        }
-        else
-        {
-            _isLarge = newCapacity > smallCapacity;
-            return isLarge;     // changed from small to large
-        }
-    }
-
     /// Get reserved capacity of store.
     size_t capacity() const @trusted
     {
@@ -1246,11 +1300,11 @@ private struct Array(E,
     {
         if (isLarge)
         {
-            return cast(typeof(return))_store.large.ptr;
+            return _store.large._mptr;
         }
         else
         {
-            return cast(typeof(return))(&(_store.small.elms[0]));
+            return _store.small._mptr;
         }
     }
 
@@ -1281,7 +1335,7 @@ private struct Array(E,
     enum smallCapacity = Large.sizeof - 1;
 
 private:                        // data
-    struct Large
+    static struct Large
     {
         // TODO reuse andralex's module `storage` for small size/array optimization (SSO)
         static if (useGCAllocation)
@@ -1290,14 +1344,45 @@ private:                        // data
             @nogc E* ptr;       // non-GC-allocated store pointer
         size_t capacity;        // store capacity
         size_t length;          // length, TODO assert little-endian byte first
+
+        pragma(inline):
+
+        ME* _mptr() const @trusted
+        {
+            return cast(typeof(return))ptr;
+        }
+
+        void allocateFirst(size_t newCapacity, bool zero = false)
+        {
+            static if (useGCAllocation)
+            {
+                if (zero) { ptr = cast(E*)GC.calloc(newCapacity, E.sizeof); }
+                else      { ptr = cast(E*)GC.malloc(newCapacity * E.sizeof); }
+            }
+            else                    // @nogc
+            {
+                if (zero) { ptr = cast(E*)calloc(newCapacity, E.sizeof); }
+                else      { ptr = cast(E*)malloc(newCapacity * E.sizeof); }
+                assert(ptr, "Allocation failed");
+            }
+            static if (shouldAddGCRange!E)
+            {
+                gc_addRange(ptr, this.capacity * E.sizeof);
+            }
+        }
+
     }
 
     /// Small string storage.
-    struct Small
+    static struct Small
     {
         enum capacity = smallCapacity;
         E[capacity] elms;
         ubyte length;
+        ME* _mptr() const @trusted
+        {
+            return cast(typeof(return))(&(elms[0]));
+        }
     }
 
     static if (is(E == char) &&    // this can be interpreted as a string

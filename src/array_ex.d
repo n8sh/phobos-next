@@ -1740,7 +1740,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ssA[].equal([3, 2, 1]));
             assert(ssA.capacity == 4);
 
-            ssA.compress;
+            ssA.compress();
             assert(ssA.capacity == 3);
 
             // popBack
@@ -1751,24 +1751,24 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ssA.front == 1);
             assert(ssA.back == 1);
 
-            assertNotThrown(ssA.popBack);
+            assertNotThrown(ssA.popBack());
             assert(ssA[].equal([1, 2]));
             assert(!ssA.empty);
             assert(ssA.front == 1);
             assert(ssA.back == 2);
 
-            assertNotThrown(ssA.popBack);
+            assertNotThrown(ssA.popBack());
             assert(ssA[].equal([1]));
             assert(!ssA.empty);
             assert(ssA.front == 1);
             assert(ssA.back == 1);
 
-            assertNotThrown(ssA.popBack);
+            assertNotThrown(ssA.popBack());
             assert(ssA.length == 0);
             assert(ssA.empty);
             assert(ssA.capacity != 0);
 
-            ssA.compress;
+            ssA.compress();
             assert(ssA.length == 0);
             assert(ssA.capacity == 0);
             assert(ssA.empty);
@@ -1785,21 +1785,21 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ssA[].equal([1, 2, 3, 4, 5, 6, 7, 8]));
             ssA.linearInsertAtIndex(3, 100, 101);
             assert(ssA[].equal([1, 2, 3, 100, 101, 4, 5, 6, 7, 8]));
-            assertNotThrown(ssA.linearPopFront);
+            assertNotThrown(ssA.linearPopFront());
             assert(ssA[].equal([2, 3, 100, 101, 4, 5, 6, 7, 8]));
-            assertNotThrown(ssA.linearPopFront);
+            assertNotThrown(ssA.linearPopFront());
             assert(ssA[].equal([3, 100, 101, 4, 5, 6, 7, 8]));
-            assertNotThrown(ssA.linearPopFront);
+            assertNotThrown(ssA.linearPopFront());
             assert(ssA[].equal([100, 101, 4, 5, 6, 7, 8]));
-            assertNotThrown(ssA.linearPopFront);
-            assertNotThrown(ssA.linearPopFront);
-            assertNotThrown(ssA.linearPopFront);
-            assertNotThrown(ssA.linearPopFront);
-            assertNotThrown(ssA.linearPopFront);
-            assertNotThrown(ssA.linearPopFront);
-            assertNotThrown(ssA.linearPopFront);
+            assertNotThrown(ssA.linearPopFront());
+            assertNotThrown(ssA.linearPopFront());
+            assertNotThrown(ssA.linearPopFront());
+            assertNotThrown(ssA.linearPopFront());
+            assertNotThrown(ssA.linearPopFront());
+            assertNotThrown(ssA.linearPopFront());
+            assertNotThrown(ssA.linearPopFront());
             assert(ssA.empty);
-            ssA.compress;
+            ssA.compress();
 
             // linearPopAtIndex
             ssA ~= 1;
@@ -1815,13 +1815,13 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             ssB.pushBack([1, 2, 3, 4, 5]);
             ssB.pushBack([6, 7]);
             assert(ssB[].equal([1, 2, 3, 4, 5, 6, 7]));
-            assert(ssB.backPop == 7);
-            assert(ssB.backPop == 6);
-            assert(ssB.backPop == 5);
-            assert(ssB.backPop == 4);
-            assert(ssB.backPop == 3);
-            assert(ssB.backPop == 2);
-            assert(ssB.backPop == 1);
+            assert(ssB.backPop() == 7);
+            assert(ssB.backPop() == 6);
+            assert(ssB.backPop() == 5);
+            assert(ssB.backPop() == 4);
+            assert(ssB.backPop() == 3);
+            assert(ssB.backPop() == 2);
+            assert(ssB.backPop() == 1);
             assert(ssB.empty);
 
             // pushBack(Array)
@@ -2041,8 +2041,8 @@ pure nothrow unittest
         }
         foreach (_; 0 .. n)
         {
-            assert(x.backPop == E.init);
-            assert(y.backPop == E.init);
+            assert(x.backPop() == E.init);
+            assert(y.backPop() == E.init);
         }
         assert(x.length == 1);
         assert(y.length == 2);

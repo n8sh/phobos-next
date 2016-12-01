@@ -387,13 +387,13 @@ private struct Array(E,
             debug typeof(return) copy;
             else typeof(return) copy = void;
             copy._isLarge = isLarge;
-            if (isLarge)
+            if (copy.isLarge)
             {
                 // TODO move to Large ctor and use emplace
-                copy._store.large.capacity = length;
-                copy._store.large.length = length;
-                copy._store.large.allocateFirst(this.length, false);
-                foreach (immutable i; 0 .. this.length)
+                copy._store.large.capacity = _store.large.length;
+                copy._store.large.length = _store.large.length;
+                copy._store.large.allocateFirst(_store.large.length, false);
+                foreach (immutable i; 0 .. _store.large.length)
                 {
                     copy._store.large.ptr[i] = _store.large.ptr[i];
                 }
@@ -632,7 +632,7 @@ private struct Array(E,
     /// ditto
     alias pack = compress;
 
-    /// Reallocate storage.
+    /// Reallocate storage. TODO move to Large.reallocateAndSetCapacity
     pragma(inline) private void reallocateLargeStoreAndSetCapacity(size_t newCapacity) pure nothrow @trusted
     {
         _store.large.capacity = newCapacity;
@@ -650,9 +650,15 @@ private struct Array(E,
     /// Destruct.
     pragma(inline) ~this() nothrow @trusted
     {
-        debug assert(_store.large.ptr != _ptrMagic, "Double free."); // trigger fault for double frees
+        if (isLarge)
+        {
+            debug assert(_store.large.ptr != _ptrMagic, "Double free."); // trigger fault for double frees
+        }
         release();
-        debug _store.large.ptr = _ptrMagic; // tag as freed
+        if (isLarge)
+        {
+            debug _store.large.ptr = _ptrMagic; // tag as freed
+        }
     }
 
     /// Clear store.
@@ -698,7 +704,7 @@ private struct Array(E,
         {
             foreach (immutable i; 0 .. this.length)
             {
-                .destroy(_store.large.ptr[i]);
+                .destroy(_mptr[i]);
             }
         }
     }
@@ -783,9 +789,13 @@ private struct Array(E,
             foreach (immutable i, ref value; values) // `ref` so we can `move`
             {
                 static if (isScalarType!(typeof(value)))
-                    _store.large.ptr[this.length + i] = value;
+                {
+                    _mptr[this.length + i] = value;
+                }
                 else
-                    moveEmplace(value, _store.large.ptr[this.length + i]); // TODO remove `move` when compiler does it for us
+                {
+                    moveEmplace(value, _mptr[this.length + i]); // TODO remove `move` when compiler does it for us
+                }
             }
             this.setOnlyLength(this.length + values.length);
         }
@@ -800,9 +810,13 @@ private struct Array(E,
             foreach (immutable i, ref value; values) // `ref` so we can `move`
             {
                 static if (isScalarType!(typeof(value)))
-                    _store.large.ptr[this.length + i] = value;
+                {
+                    _mptr[this.length + i] = value;
+                }
                 else
-                    moveEmplace(value, _store.large.ptr[this.length + i]); // TODO remove `moveEmplace` when compiler does it for us
+                {
+                    moveEmplace(value, _mptr[this.length + i]); // TODO remove `moveEmplace` when compiler does it for us
+                }
             }
             this.setOnlyLength(this.length + values.length);
         }
@@ -811,12 +825,12 @@ private struct Array(E,
             if (isArray!A &&
                 isElementAssignable!(ElementType!A))
         {
-            if (_store.large.ptr == values.ptr) // called as: this ~= this. TODO extend to check if `values` overlaps ptr[0 .. _store.large.capacity]
+            if (ptr == values.ptr) // called as: this ~= this. TODO extend to check if `values` overlaps ptr[0 .. _store.large.capacity]
             {
                 reserve(2*this.length);
                 foreach (immutable i; 0 .. this.length)
                 {
-                    _store.large.ptr[this.length + i] = _store.large.ptr[i]; // needs copying
+                    _mptr[this.length + i] = ptr[i]; // needs copying
                 }
                 this.setOnlyLength(2 * this.length);
             }
@@ -829,7 +843,7 @@ private struct Array(E,
                 }
                 foreach (immutable i, ref value; values)
                 {
-                    _store.large.ptr[this.length + i] = value;
+                    _mptr[this.length + i] = value;
                 }
                 this.setOnlyLength(this.length + values.length);
             }
@@ -839,14 +853,14 @@ private struct Array(E,
             if (isMyArray!A &&
                 isElementAssignable!(ElementType!A))
         {
-            if (_store.large.ptr == values._store.large.ptr) // called as: this ~= this
+            if (ptr == values.ptr) // called as: this ~= this
             {
                 reserve(2*this.length);
                 // NOTE: this is not needed because we don't need range checking here?:
-                // _store.large.ptr[length .. 2*length] = values._store.large.ptr[0 .. length];
+                // _mptr[length .. 2*length] = values.ptr[0 .. length];
                 foreach (immutable i; 0 .. this.length)
                 {
-                    _store.large.ptr[this.length + i] = values._store.large.ptr[i];
+                    _mptr[this.length + i] = values.ptr[i];
                 }
                 this.setOnlyLength(2 * this.length);
             }
@@ -859,7 +873,7 @@ private struct Array(E,
                 }
                 foreach (immutable i, ref value; values.slice)
                 {
-                    _store.large.ptr[this.length + i] = value;
+                    _mptr[this.length + i] = value;
                 }
                 this.setOnlyLength(this.length + values.length);
             }
@@ -1009,8 +1023,8 @@ private struct Array(E,
                     if (expandedLength != 0)
                     {
                         immutable ix = this.length - expandedLength;
-                        completeSort!comp(_store.large.ptr[0 .. ix].assumeSorted!comp,
-                                          _store.large.ptr[ix .. this.length]);
+                        completeSort!comp(_mptr[0 .. ix].assumeSorted!comp,
+                                          _mptr[ix .. this.length]);
                     }
                     return hits;
                 }
@@ -1038,8 +1052,8 @@ private struct Array(E,
                     import std.algorithm.sorting : completeSort;
                     pushBackHelper(values); // simpler because duplicates are allowed
                     immutable ix = this.length - values.length;
-                    completeSort!comp(_store.large.ptr[0 .. ix].assumeSorted!comp,
-                                      _store.large.ptr[ix .. this.length]);
+                    completeSort!comp(_mptr[0 .. ix].assumeSorted!comp,
+                                      _mptr[ix .. this.length]);
                 }
             }
         }
@@ -1077,10 +1091,10 @@ private struct Array(E,
         {
             // TODO why does this fail?
             import std.algorithm.mutation : copy;
-            copy(_store.large.ptr[index ..
+            copy(ptr[index ..
                      this.length],        // source
-                 _store.large.ptr[index + values.length ..
-                     this.length + values.length]); // target
+                 _mptr[index + values.length ..
+                       this.length + values.length]); // target
         }
         else
         {
@@ -1090,14 +1104,14 @@ private struct Array(E,
             {
                 immutable si = this.length - 1 - i; // source index
                 immutable ti = si + values.length; // target index
-                _store.large.ptr[ti] = _store.large.ptr[si]; // TODO move construct?
+                _mptr[ti] = ptr[si]; // TODO move construct?
             }
         }
 
         // set new values
         foreach (immutable i, ref value; values)
         {
-            _store.large.ptr[index + i] = value; // TODO use range algorithm instead?
+            ptr[index + i] = value; // TODO use range algorithm instead?
         }
 
         this.setOnlyLength(this.length + values.length);
@@ -1108,7 +1122,7 @@ private struct Array(E,
         reserve(this.length + values.length);
         foreach (immutable i, ref value; values)
         {
-            moveEmplace(value, _store.large.ptr[this.length + i]); // TODO remove `move` when compiler does it for us
+            moveEmplace(value, _mptr[this.length + i]); // TODO remove `move` when compiler does it for us
         }
         this.setOnlyLength(this.length + values.length);
     }
@@ -1139,21 +1153,21 @@ private struct Array(E,
         ref const(E) opIndex(size_t i) // TODO DIP-1000 scope
         {
             assert(i < this.length);
-            return _store.large.ptr[i];
+            return ptr[i];
         }
 
         /// Get front element (as constant reference to preserve ordering).
         ref const(E) front()    // TODO DIP-1000 scope
         {
             assert(!empty);
-            return _store.large.ptr[0];
+            return ptr[0];
         }
 
         /// Get back element (as constant reference to preserve ordering).
         ref const(E) back()     // TODO DIP-1000 scope
         {
             assert(!empty);
-            return _store.large.ptr[this.length - 1];
+            return ptr[this.length - 1];
         }
     }
     else
@@ -1174,10 +1188,10 @@ private struct Array(E,
         {
             assert(i < this.length);
             static if (isScalarType!E)
-                _store.large.ptr[i] = value;
+                ptr[i] = value;
             else
                 move(*(cast(Unqual!E*)(&value)), _mptr[i]); // TODO is this correct?
-            return _store.large.ptr[i];
+            return ptr[i];
         }
 
         /// Slice assign operator.
@@ -1189,7 +1203,7 @@ private struct Array(E,
                 assert(j <= this.length);
                 foreach (immutable i; 0 .. this.length)
                 {
-                    _store.large.ptr[i] = value;
+                    ptr[i] = value;
                 }
             }
         }
@@ -1206,7 +1220,7 @@ private struct Array(E,
         {
             assert(i <= j);
             assert(j <= this.length);
-            return _store.large.ptr[i .. j]; // TODO DIP-1000 scope
+            return ptr[i .. j]; // TODO DIP-1000 scope
         }
 
         @trusted:
@@ -1215,21 +1229,21 @@ private struct Array(E,
         ref inout(E) opIndex(size_t i) // TODO DIP-1000 scope
         {
             assert(i < this.length);
-            return _store.large.ptr[i];
+            return ptr[i];
         }
 
         /// Get front element reference.
         ref inout(E) front()    // TODO DIP-1000 scope
         {
             assert(!empty);
-            return _store.large.ptr[0];
+            return ptr[0];
         }
 
         /// Get back element reference.
         ref inout(E) back()     // TODO DIP-1000 scope
         {
             assert(!empty);
-            return _store.large.ptr[this.length - 1];
+            return ptr[this.length - 1];
         }
     }
 
@@ -1245,7 +1259,7 @@ private struct Array(E,
     //         foreach (immutable i; 0 .. this.length)
     //         {
     //             if (i) { s.put(','); }
-    //             s.put(_store.large.ptr[i].to!string);
+    //             s.put(ptr[i].to!string);
     //         }
     //         s.put("]");
     //         return s.data;
@@ -1293,7 +1307,7 @@ private struct Array(E,
     {
         if (isLarge)
         {
-            _store.large.length = newLength;
+            _store.large.length = newLength; // TODO compress?
         }
         else
         {
@@ -1323,7 +1337,7 @@ private struct Array(E,
     }
 
     /// Get internal pointer.
-    inout(E*) ptr() inout @trusted
+    inout(E*) ptr() inout       // TODO @trusted?
     {
         // TODO Use cast(ET[])?: alias ET = ContainerElementType!(typeof(this), E);
         if (isLarge)
@@ -1337,7 +1351,7 @@ private struct Array(E,
     }
 
     /// Get internal pointer to mutable content. Doesn't need to be qualified with `scope`.
-    private ME* _mptr() const @trusted
+    private ME* _mptr() const   // TODO @trusted?
     {
         if (isLarge)
         {
@@ -1352,7 +1366,7 @@ private struct Array(E,
     /// Get internal slice.
     private auto ref slice() inout @trusted // TODO DIP-1000 scope
     {
-        return _store.large.ptr[0 .. this.length];
+        return ptr[0 .. this.length];
     }
 
     /** Magic pointer value used to detect double calls to `free`.

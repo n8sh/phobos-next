@@ -5,6 +5,7 @@
     dustmite --strip-comments --no-redirect src "show-segfault rdmd -main -unittest -g -debug array_ex | grep double-linked"
 
     TODO Make `Large.allocateFirst` a static pure Array-member `heapAllocate` that returns a pointer
+    TODO Make `heapAllocate` only be called inside Large if possible
     TODO Use Large.ctor() instead of explicit initialization
 
     TODO Replace ` = void` with construction or emplace

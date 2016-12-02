@@ -4,6 +4,9 @@
     BUG rdmd -main -unittest -g -debug array_ex
     dustmite --strip-comments --no-redirect src "show-segfault rdmd -main -unittest -g -debug array_ex | grep double-linked"
 
+    TODO Make `Large.allocateFirst` a static pure Array-member `heapAllocate` that returns a pointer
+    TODO Use Large.ctor() instead of explicit initialization
+
     TODO Replace ` = void` with construction or emplace
 
     TODO Breakout common logic into private `BasicArray` and reuse with `alias this` to express StandardArray, SortedArray, SortedSetArray

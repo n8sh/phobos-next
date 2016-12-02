@@ -4,7 +4,7 @@
     BUG rdmd -main -unittest -g -debug array_ex
     dustmite --strip-comments --no-redirect src "show-segfault rdmd -main -unittest -g -debug array_ex | grep double-linked"
 
-    TODO Make `Large.allocateFirst` a static pure Array-member `heapAllocate` that returns a pointer
+    TODO Make `Large.allocate` a static pure Array-member `allocate` that returns a pointer
     TODO Make `heapAllocate` only be called inside Large if possible
     TODO Use Large.ctor() instead of explicit initialization
 
@@ -176,7 +176,7 @@ private struct Array(E,
         if (that.isLarge)
         {
             that._store.large.capacity = initialLength;
-            that._store.large.allocateFirst(initialLength, false);
+            that._store.large.ptr = allocate(initialLength, false);
             that._store.large.length = initialLength;
         }
         else
@@ -200,7 +200,7 @@ private struct Array(E,
         if (that.isLarge)
         {
             that._store.large.capacity = initialCapacity;
-            that._store.large.allocateFirst(initialCapacity, false);
+            that._store.large.ptr = allocate(initialCapacity, false);
             that._store.large.length = 0;
         }
         else
@@ -225,7 +225,7 @@ private struct Array(E,
         if (that.isLarge)
         {
             that._store.large.capacity = initialLength;
-            that._store.large.allocateFirst(initialLength, false);
+            that._store.large.ptr = allocate(initialLength, false);
             that._store.large.length = initialLength;
         }
         else
@@ -264,7 +264,7 @@ private struct Array(E,
         if (that.isLarge)
         {
             that._store.large.capacity = initialLength;
-            that._store.large.allocateFirst(initialLength, false);
+            that._store.large.ptr = allocate(initialLength, false);
             that._store.large.length = initialLength;
         }
         else
@@ -298,7 +298,7 @@ private struct Array(E,
             {
                 auto rhs_storePtr = _store.large.ptr; // save store pointer
                 _store.large.capacity = this.length;  // pack by default
-                _store.large.allocateFirst(this.length, false);
+                _store.large.ptr = allocate(this.length, false);
                 foreach (immutable i; 0 .. this.length)
                 {
                     _store.large.ptr[i] = rhs_storePtr[i];
@@ -396,7 +396,7 @@ private struct Array(E,
                 // TODO move to Large ctor and use emplace
                 copy._store.large.capacity = _store.large.length;
                 copy._store.large.length = _store.large.length;
-                copy._store.large.allocateFirst(_store.large.length, false);
+                copy._store.large.ptr = allocate(_store.large.length, false);
                 foreach (immutable i; 0 .. _store.large.length)
                 {
                     copy._store.large.ptr[i] = _store.large.ptr[i];
@@ -1285,6 +1285,30 @@ private struct Array(E,
 
     pure nothrow:
 
+    /** Allocate heap regionwith `newCapacity` number of elements of type `E`.
+        If `zero` is `true` they will be zero-initialized.
+    */
+    private static ME* allocate(size_t newCapacity, bool zero = false)
+    {
+        typeof(return) ptr = null;
+        static if (useGCAllocation)
+        {
+            if (zero) { ptr = cast(typeof(return))GC.calloc(newCapacity, E.sizeof); }
+            else      { ptr = cast(typeof(return))GC.malloc(newCapacity * E.sizeof); }
+        }
+        else                    // @nogc
+        {
+            if (zero) { ptr = cast(typeof(return))calloc(newCapacity, E.sizeof); }
+            else      { ptr = cast(typeof(return))malloc(newCapacity * E.sizeof); }
+            assert(ptr, "Allocation failed");
+        }
+        static if (shouldAddGCRange!E)
+        {
+            gc_addRange(ptr, newCapacity * E.sizeof);
+        }
+        return ptr;
+    }
+
     @nogc:
 
     /// Check if empty.
@@ -1404,7 +1428,9 @@ private struct Array(E,
     /// Returns: `true` if `this` currently uses small (packed) array storage.
     bool isSmall() const @safe { return !isLarge; }
 
-    enum smallCapacity = Large.sizeof - 1;
+    enum smallCapacity = (Large.sizeof - SmallLength.sizeof) / E.sizeof;
+
+    alias SmallLength = ubyte;
 
 private:                        // data
     static struct Large
@@ -1423,49 +1449,26 @@ private:                        // data
         {
             this.capacity = initialCapacity;
             this.length = initialLength;
-            allocateFirst(initialCapacity, zero);
+            this.ptr = allocate(initialCapacity, zero);
         }
 
         ME* _mptr() const @trusted
         {
             return cast(typeof(return))ptr;
         }
-
-        void allocateFirst(size_t newCapacity, bool zero = false)
-        {
-            static if (useGCAllocation)
-            {
-                if (zero) { ptr = cast(E*)GC.calloc(newCapacity, E.sizeof); }
-                else      { ptr = cast(E*)GC.malloc(newCapacity * E.sizeof); }
-            }
-            else                    // @nogc
-            {
-                if (zero) { ptr = cast(E*)calloc(newCapacity, E.sizeof); }
-                else      { ptr = cast(E*)malloc(newCapacity * E.sizeof); }
-                assert(ptr, "Allocation failed");
-            }
-            static if (shouldAddGCRange!E)
-            {
-                gc_addRange(ptr, newCapacity * E.sizeof);
-            }
-        }
     }
-
-    alias LargeLength = typeof(Large.length);
 
     /// Small string storage.
     static struct Small
     {
         enum capacity = smallCapacity;
         E[capacity] elms;
-        ubyte length;
+        SmallLength length;
         ME* _mptr() const @trusted
         {
             return cast(typeof(return))(&(elms[0]));
         }
     }
-
-    alias SmallLength = typeof(Small.length);
 
     static if (is(E == char) &&    // this can be interpreted as a string
                size_t.sizeof == 8) // 64-bit
@@ -1607,13 +1610,13 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         }
     }
 
-    static if (E.sizeof == 4)
     {
+        alias A = Array!(int, assignment, ordering, supportGC, less);
         foreach (immutable n; [0, 1, 2, 3, 4])
         {
-            assert(Array!(E, assignment, ordering, supportGC, less).withLength(n).isSmall);
+            assert(A.withLength(n).isSmall);
         }
-        assert(!(Array!(E, assignment, ordering, supportGC, less).withLength(5).isSmall));
+        assert((A.withLength(5).isLarge));
     }
 
     // test move construction

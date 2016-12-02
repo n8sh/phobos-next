@@ -1311,8 +1311,8 @@ private struct Array(E,
         }
         else
         {
-            assert(newLength <= smallCapacity);
-            _store.small.length = cast(ubyte)newLength;
+            assert(newLength <= SmallLength.max);
+            _store.small.length = cast(SmallLength)newLength;
         }
     }
 
@@ -1425,8 +1425,9 @@ private:                        // data
                 gc_addRange(ptr, this.capacity * E.sizeof);
             }
         }
-
     }
+
+    alias LargeLength = typeof(Large.length);
 
     /// Small string storage.
     static struct Small
@@ -1439,6 +1440,8 @@ private:                        // data
             return cast(typeof(return))(&(elms[0]));
         }
     }
+
+    alias SmallLength = typeof(Small.length);
 
     static if (is(E == char) &&    // this can be interpreted as a string
                size_t.sizeof == 8) // 64-bit
@@ -1887,6 +1890,29 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 @safe nothrow unittest
 {
     import std.conv : to;
+    alias E = ubyte;
+    alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, "a < b");
+    A a;
+    immutable n = ubyte.max;
+    size_t i = 0;
+    foreach (ubyte e; 0 .. n)
+    {
+        dln("i:", i);
+        a ~= e;
+        // assert(a.back == e.to!E);
+        assert(a.length == i + 1);
+        ++i;
+    }
+    const b = a.dup;
+    assert(b.length == a.length);
+    assert(a !is b);
+    assert(a == b);
+}
+
+/// disabled copying
+@safe nothrow unittest
+{
+    import std.conv : to;
     alias E = string;
     alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, "a < b");
     A a;
@@ -1894,7 +1920,9 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     size_t i = 0;
     foreach (const ref e; 0 .. n)
     {
+        dln("i:", i);
         a ~= e.to!E;
+        // assert(a.back == e.to!E);
         assert(a.length == i + 1);
         ++i;
     }

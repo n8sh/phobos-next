@@ -4,7 +4,7 @@
     BUG rdmd -main -unittest -g -debug array_ex
     dustmite --strip-comments --no-redirect src "show-segfault rdmd -main -unittest -g -debug array_ex | grep double-linked"
 
-    TODO Add small array/string optimization (SSA/SSO)
+    TODO Replace ` = void` with construction or emplace
 
     TODO Breakout common logic into private `BasicArray` and reuse with `alias this` to express StandardArray, SortedArray, SortedSetArray
 
@@ -526,13 +526,13 @@ private struct Array(E,
     /// Expand room for `newCapacity`.
     private void expand(size_t newCapacity) pure nothrow @trusted
     {
-        import std.math : nextPow2;
         if (isLarge)
         {
             static if (shouldAddGCRange!E)
             {
                 gc_removeRange(_mptr);
             }
+            import std.math : nextPow2;
             reallocateLargeStoreAndSetCapacity(newCapacity.nextPow2);
             static if (shouldAddGCRange!E)
             {
@@ -541,12 +541,24 @@ private struct Array(E,
         }
         else
         {
-            if (newCapacity > smallCapacity) // to large
+            if (newCapacity > smallCapacity) // convert to large
             {
-                Large tempLarge; // temporary large storage
+                auto tempLarge = Large(newCapacity, length, false);
 
-                tempLarge.length = length;
-                tempLarge.capacity = newCapacity;
+                // move small to temporary large
+                foreach (immutable i; 0 .. length)
+                {
+                    moveEmplace(_store.small._mptr[i],
+                                tempLarge._mptr[i]);
+                }
+
+                // small storage doesn't need to be cleared
+
+                // TODO functionize:
+                {               // make this large
+                    _store.large = tempLarge.move();
+                    _isLarge = true;
+                }
             }
         }
     }
@@ -785,7 +797,8 @@ private struct Array(E,
             if (values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
         {
-            reserve(this.length + values.length);
+            immutable newLength = this.length + values.length;
+            reserve(newLength);
             foreach (immutable i, ref value; values) // `ref` so we can `move`
             {
                 static if (isScalarType!(typeof(value)))
@@ -1402,6 +1415,13 @@ private:                        // data
 
         pragma(inline):
 
+        this(size_t initialCapacity, size_t initialLength, bool zero)
+        {
+            this.capacity = initialCapacity;
+            this.length = initialLength;
+            allocateFirst(initialCapacity, zero);
+        }
+
         ME* _mptr() const @trusted
         {
             return cast(typeof(return))ptr;
@@ -1422,7 +1442,7 @@ private:                        // data
             }
             static if (shouldAddGCRange!E)
             {
-                gc_addRange(ptr, this.capacity * E.sizeof);
+                gc_addRange(ptr, newCapacity * E.sizeof);
             }
         }
     }
@@ -1897,7 +1917,6 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     size_t i = 0;
     foreach (ubyte e; 0 .. n)
     {
-        dln("i:", i);
         a ~= e;
         // assert(a.back == e.to!E);
         assert(a.length == i + 1);
@@ -1920,7 +1939,6 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     size_t i = 0;
     foreach (const ref e; 0 .. n)
     {
-        dln("i:", i);
         a ~= e.to!E;
         // assert(a.back == e.to!E);
         assert(a.length == i + 1);

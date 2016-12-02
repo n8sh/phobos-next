@@ -1545,8 +1545,11 @@ R withElementMake(R)(typeof(R.init[0]) e)
 alias UncopyableArray(E, bool useGCAllocation = false) = Array!(E, Assignment.disabled, Ordering.unsorted, useGCAllocation, "a < b");
 alias CopyableArray  (E, bool useGCAllocation = false) = Array!(E, Assignment.copy, Ordering.unsorted, useGCAllocation, "a < b");
 
-alias SortedArray    (E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.disabled, Ordering.sortedValues, useGCAllocation, less);
-alias SortedSetArray (E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.disabled, Ordering.sortedUniqueSet, useGCAllocation, less);
+alias SortedCopyableArray    (E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.copy, Ordering.sortedValues, useGCAllocation, less);
+alias SortedSetCopyableArray (E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.copy, Ordering.sortedUniqueSet, useGCAllocation, less);
+
+alias SortedUncopyableArray    (E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.disabled, Ordering.sortedValues, useGCAllocation, less);
+alias SortedSetUncopyableArray (E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.disabled, Ordering.sortedUniqueSet, useGCAllocation, less);
 
 pure unittest
 {

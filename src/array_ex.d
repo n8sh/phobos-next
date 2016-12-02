@@ -159,14 +159,14 @@ private struct Array(E,
     /// Create a empty array.
     this(typeof(null)) nothrow
     {
-        version(showCtors) dln("ENTERING: ", typeof(this).stringof);
+        version(showCtors) dln("ENTERING: ", __PRETTY_FUNCTION__);
         // nothing needed, rely on default initialization of data members
     }
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
     pragma(inline) static typeof(this) withLength(size_t initialLength) nothrow
     {
-        version(showCtors) dln("ENTERING: ", typeof(this).stringof);
+        version(showCtors) dln("ENTERING: ", __PRETTY_FUNCTION__);
 
         debug typeof(return) that;
         else typeof(return) that = void;
@@ -184,13 +184,14 @@ private struct Array(E,
             that._store.small.length = cast(ubyte)initialLength;
         }
 
+        version(showCtors) dln("EXITING: ", __PRETTY_FUNCTION__);
         return that;
     }
 
     /// Returns: an array with initial capacity `initialCapacity`.
     pragma(inline) static typeof(this) withCapacity(size_t initialCapacity) nothrow
     {
-        version(showCtors) dln("ENTERING: ", typeof(this).stringof);
+        version(showCtors) dln("ENTERING: ", __PRETTY_FUNCTION__);
 
         debug typeof(return) that;
         else typeof(return) that = void;
@@ -208,13 +209,14 @@ private struct Array(E,
             that._store.small.length = 0;
         }
 
+        version(showCtors) dln("EXITING: ", __PRETTY_FUNCTION__);
         return that;
     }
 
     /// Returns: an array of one element `element`.
     pragma(inline) static typeof(this) withElement(E element) @trusted nothrow
     {
-        version(showCtors) dln("ENTERING: ", typeof(this).stringof);
+        version(showCtors) dln("ENTERING: ", __PRETTY_FUNCTION__);
 
         debug typeof(return) that;
         else typeof(return) that = void;
@@ -253,7 +255,7 @@ private struct Array(E,
     // /// Returns: an array of `Us.length` number of elements set to `elements`.
     pragma(inline) static typeof(this) withElements(Us...)(Us elements) @trusted nothrow
     {
-        version(showCtors) dln("ENTERING: ", typeof(this).stringof);
+        version(showCtors) dln("ENTERING: ", __PRETTY_FUNCTION__);
 
         debug typeof(return) that;
         else typeof(return) that = void;
@@ -476,7 +478,7 @@ private struct Array(E,
     this(R)(R values, bool assumeSortedParameter = false) @trusted @("complexity", "O(n*log(n))")
         if (isInputRange!R)
     {
-        version(showCtors) dln("ENTERING: ", typeof(this).stringof);
+        version(showCtors) dln("ENTERING: ", __PRETTY_FUNCTION__);
 
         // init
         _isLarge = false;
@@ -515,7 +517,7 @@ private struct Array(E,
             }
         }
 
-        version(showCtors) dln("EXITING: ", typeof(this).stringof);
+        version(showCtors) dln("EXITING: ", __PRETTY_FUNCTION__);
     }
 
     /// Reserve room for `newCapacity`.

@@ -18,18 +18,9 @@ auto square(T)(T x)
     }
 }
 
-auto f() {}
-auto g() {}
-auto h() {}
-auto i() {}
-auto j() {}
-auto k() {}
-auto l() {}
-auto m() {}
-
 @safe pure nothrow unittest
 {
-    assert(square(2) == 4);
-    assert(square(3) == 9);
-    assert(square(4) == 16, "Some specific failure in " ~ square.stringof);
+    assert(square(2) == 4);     // ok
+    assert(square(3) == 9);     // ok
+    assert(square(4) == 16, "Some specific failure in " ~ square.stringof); // triggers bug
 }

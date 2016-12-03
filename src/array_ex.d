@@ -485,14 +485,14 @@ private struct Array(E,
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
-        // init
-        _isLarge = false;
-        _store.small = Small.init;
-
         // append new data
         import std.range.primitives : hasLength;
         static if (hasLength!R)
         {
+            // TODO choose large or small depending on values.length
+            _isLarge = false;
+            _store.small.length = 0;
+
             dln("hasLength:", values.length);
             reserve(values.length); // fast reserve
             size_t i = 0;
@@ -504,6 +504,10 @@ private struct Array(E,
         }
         else
         {
+            // always start small
+            _isLarge = false;
+            _store.small.length = 0;
+
             size_t i = 0;
             foreach (ref value; values)
             {

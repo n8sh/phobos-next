@@ -165,7 +165,7 @@ private struct Array(E,
     }
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
-    pragma(inline) static typeof(this) withLength(size_t initialLength) nothrow
+    pragma(inline) static typeof(this) withLength(size_t initialLength) @trusted nothrow
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
@@ -188,7 +188,7 @@ private struct Array(E,
     }
 
     /// Returns: an array with initial capacity `initialCapacity`.
-    pragma(inline) static typeof(this) withCapacity(size_t initialCapacity) nothrow
+    pragma(inline) static typeof(this) withCapacity(size_t initialCapacity) @trusted nothrow
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
@@ -259,10 +259,7 @@ private struct Array(E,
         that._isLarge = initialLength > smallCapacity;
         if (that.isLarge)
         {
-            // TODO use emplace!Large(that._store.large, initialLength, initialLength, false)
-            that._store.large.capacity = initialLength;
-            that._store.large.ptr = allocate(initialLength, false);
-            that._store.large.length = initialLength;
+            emplace!Large(&that._store.large, initialLength, initialLength, false);
         }
         else
         {

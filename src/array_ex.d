@@ -1459,7 +1459,7 @@ private:                        // data
         SmallLength length;
         ME* _mptr() const @trusted
         {
-            return cast(typeof(return))(&(elms[0]));
+            return cast(typeof(return))(elms.ptr);
         }
     }
 

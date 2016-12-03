@@ -507,11 +507,13 @@ private struct Array(E,
             size_t i = 0;
             foreach (ref value; values)
             {
+                dln(value);
                 reserve(i + 1); // slower reserve
                 _mptr[i++] = value.move();
             }
             this.setOnlyLength(i);
             dln("got length:", i);
+            dln("isLarge:", isLarge);
         }
 
         static if (IsOrdered!ordering)
@@ -529,15 +531,7 @@ private struct Array(E,
     /// Reserve room for `newCapacity`.
     pragma(inline) void reserve(size_t newCapacity) pure nothrow @trusted
     {
-        if (newCapacity > capacity)
-        {
-            expand(newCapacity);
-        }
-    }
-
-    /// Expand room for `newCapacity`.
-    private void expand(size_t newCapacity) pure nothrow @trusted
-    {
+        if (newCapacity <= capacity) { return; }
         if (isLarge)
         {
             static if (shouldAddGCRange!E)
@@ -555,6 +549,7 @@ private struct Array(E,
         {
             if (newCapacity > smallCapacity) // convert to large
             {
+                dln("newCapacity:", newCapacity);
                 auto tempLarge = Large(newCapacity, length, false);
 
                 // move small to temporary large
@@ -568,9 +563,13 @@ private struct Array(E,
 
                 // TODO functionize:
                 {               // make this large
-                    _store.large = tempLarge.move();
+                    moveEmplace(tempLarge, _store.large);
                     _isLarge = true;
                 }
+            }
+            else
+            {
+                dln("staying small");
             }
         }
     }

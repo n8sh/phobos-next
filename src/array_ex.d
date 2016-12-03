@@ -1579,6 +1579,9 @@ pure unittest
 
 static void tester(Ordering ordering, bool supportGC, alias less)()
 {
+    dln("ordering:", ordering);
+    dln("supportGC:", supportGC);
+    dln("less:", less);
     import std.functional : binaryFun;
     import std.range : iota, chain, repeat, only, ElementType;
     import std.algorithm : filter, map;
@@ -1664,11 +1667,12 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 
     foreach (immutable n; chain(0.only, iota(0, 10).map!(x => 2^^x)))
     {
+        dln("n:", n);
         import std.array : array;
         import std.range : radial;
 
-        immutable zi = cast(int)0;
-        immutable ni = cast(int)n;
+        immutable zi = cast(int)0; // zero index
+        immutable ni = cast(int)n; // number index
 
         auto fw = iota(zi, ni); // 0, 1, 2, ..., n-1
 
@@ -1682,7 +1686,8 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         static if (IsOrdered!ordering)
         {
             if (!ss0.empty) { assert(ss0[0] == ss0[0]); } // trigger use of opindex
-            assert(ss0[].equal(fw.array.sort!comp));
+            assert(ss0[].equal(fw.array
+                                 .sort!comp));
             assert(ss0[].isSorted!comp);
         }
 
@@ -1691,7 +1696,9 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 
         static if (IsOrdered!ordering)
         {
-            assert(ss1[].equal(fw.array.sort!comp));
+            dln("E:", E.stringof);
+            assert(ss1[].equal(fw.array
+                                 .sort!comp));
             assert(ss1[].isSorted!comp);
         }
 
@@ -1700,7 +1707,10 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 
         static if (IsOrdered!ordering)
         {
-            assert(ss2[].equal(fw.filter!(x => x & 1).array.sort!comp));
+            dln(ss2[]);
+            assert(ss2[].equal(fw.filter!(x => x & 1)
+                                 .array
+                                 .sort!comp));
             assert(ss2[].isSorted!comp);
         }
 

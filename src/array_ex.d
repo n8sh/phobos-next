@@ -125,6 +125,7 @@ private struct Array(E,
                      bool useGCAllocation = false,
                      alias less = "a < b") // TODO move out of this definition and support only for the case when `ordering` is not `Ordering.unsorted`
 {
+    import std.conv : emplace;
     import std.range : isInputRange, ElementType;
     import std.traits : isAssignable, Unqual, isSomeChar, isArray, isScalarType;
     import std.functional : binaryFun;
@@ -159,14 +160,14 @@ private struct Array(E,
     /// Create a empty array.
     this(typeof(null)) nothrow
     {
-        version(showCtors) dln("ENTERING: ", __PRETTY_FUNCTION__);
+        version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
         // nothing needed, rely on default initialization of data members
     }
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
     pragma(inline) static typeof(this) withLength(size_t initialLength) nothrow
     {
-        version(showCtors) dln("ENTERING: ", __PRETTY_FUNCTION__);
+        version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
         debug typeof(return) that;
         else typeof(return) that = void;
@@ -175,8 +176,9 @@ private struct Array(E,
         that._isLarge = initialLength > smallCapacity;
         if (that.isLarge)
         {
+            // TODO use emplace!Large(that._store.large, initialLength, initialLength, true)
             that._store.large.capacity = initialLength;
-            that._store.large.ptr = allocate(initialLength, false);
+            that._store.large.ptr = allocate(initialLength, true); // no elements so we need to zero
             that._store.large.length = initialLength;
         }
         else
@@ -191,17 +193,18 @@ private struct Array(E,
     /// Returns: an array with initial capacity `initialCapacity`.
     pragma(inline) static typeof(this) withCapacity(size_t initialCapacity) nothrow
     {
-        version(showCtors) dln("ENTERING: ", __PRETTY_FUNCTION__);
+        version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
         debug typeof(return) that;
         else typeof(return) that = void;
 
-        // TODO functionize:
         that._isLarge = initialCapacity > smallCapacity;
         if (that.isLarge)
         {
+            // TODO use emplace!Large(that._store.large, initialCapacity, 0, false)
             that._store.large.capacity = initialCapacity;
-            that._store.large.ptr = allocate(initialCapacity, false);
+            that._store.large.ptr = allocate(initialCapacity,
+                                             false); // zero length so no zeroing
             that._store.large.length = 0;
         }
         else
@@ -216,7 +219,7 @@ private struct Array(E,
     /// Returns: an array of one element `element`.
     pragma(inline) static typeof(this) withElement(E element) @trusted nothrow
     {
-        version(showCtors) dln("ENTERING: ", __PRETTY_FUNCTION__);
+        version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
         debug typeof(return) that;
         else typeof(return) that = void;
@@ -226,6 +229,7 @@ private struct Array(E,
         that._isLarge = initialLength > smallCapacity;
         if (that.isLarge)
         {
+            // TODO use emplace!Large(that._store.large, initialLength, initialLength, false)
             that._store.large.capacity = initialLength;
             that._store.large.ptr = allocate(initialLength, false);
             that._store.large.length = initialLength;
@@ -255,7 +259,7 @@ private struct Array(E,
     // /// Returns: an array of `Us.length` number of elements set to `elements`.
     pragma(inline) static typeof(this) withElements(Us...)(Us elements) @trusted nothrow
     {
-        version(showCtors) dln("ENTERING: ", __PRETTY_FUNCTION__);
+        version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
         debug typeof(return) that;
         else typeof(return) that = void;
@@ -265,6 +269,7 @@ private struct Array(E,
         that._isLarge = initialLength > smallCapacity;
         if (that.isLarge)
         {
+            // TODO use emplace!Large(that._store.large, initialLength, initialLength, false)
             that._store.large.capacity = initialLength;
             that._store.large.ptr = allocate(initialLength, false);
             that._store.large.length = initialLength;
@@ -478,7 +483,7 @@ private struct Array(E,
     this(R)(R values, bool assumeSortedParameter = false) @trusted @("complexity", "O(n*log(n))")
         if (isInputRange!R)
     {
-        version(showCtors) dln("ENTERING: ", __PRETTY_FUNCTION__);
+        version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
         // init
         _isLarge = false;
@@ -1617,11 +1622,12 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 
     {
         alias A = Array!(int, assignment, ordering, supportGC, less);
-        foreach (immutable n; [0, 1, 2, 3, 4])
+        foreach (immutable n; [0, 1, 2, 3, 4, 5])
         {
             assert(A.withLength(n).isSmall);
         }
-        assert((A.withLength(5).isLarge));
+        assert(!(A.withLength(6).isSmall));
+        assert((A.withLength(6).isLarge));
     }
 
     // test move construction
@@ -1649,13 +1655,10 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             move(x, y);
 
             assert(x.length == 0);
-            assert(x.capacity == 0);
-            assert(x.ptr == null);
+            assert(x.capacity == x.smallCapacity);
 
             assert(y.length == n);
             assert(y.capacity == capacity);
-            assert(y.ptr == ptr);
-
         }
     }
 
@@ -1773,10 +1776,8 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             ssA ~= 2;
             ssA ~= 1;
             assert(ssA[].equal([3, 2, 1]));
-            assert(ssA.capacity == 4);
 
             ssA.compress();
-            assert(ssA.capacity == 3);
 
             // popBack
             ssA[0] = 1;
@@ -1805,7 +1806,6 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 
             ssA.compress();
             assert(ssA.length == 0);
-            assert(ssA.capacity == 0);
             assert(ssA.empty);
 
             // linearInsertAt
@@ -1945,6 +1945,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 {
     import std.conv : to;
     alias E = string;
+
     alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, "a < b");
     A a;
     immutable n = 100_000;
@@ -2009,10 +2010,15 @@ nothrow unittest
     aa ~= A.init;
 
     assert(aa == aa);
+    dln("1");
     assert(AA.withLength(3) == AA.withLength(3));
+    dln("2");
     assert(AA.withCapacity(3) == AA.withCapacity(3));
+    dln("3");
     assert(AA.withLength(3).length == 3);
+    dln("4");
     assert(aa != AA.init);
+    dln("5");
 }
 
 ///
@@ -2176,6 +2182,7 @@ pure nothrow unittest
 /// init and append to empty array as AA value type
 @safe pure nothrow unittest
 {
+    dln("ENTERING");
     alias Key = string;
     alias A = Array!int;
 
@@ -2187,11 +2194,13 @@ pure nothrow unittest
     x["a"] ~= 42;               // ..then this fails
 
     assert(x["a"] == A.withElement(42));
+    dln("EXITING");
 }
 
 /// compress
 @safe pure nothrow @nogc unittest
 {
+    dln("ENTERING");
     alias A = Array!string;
     A a;
 
@@ -2207,6 +2216,7 @@ pure nothrow unittest
     a.compress();
 
     assert(a.capacity == a.length);
+    dln("EXITING");
 }
 
 ///

@@ -41,7 +41,7 @@ version(useMemoryErrorHandler) unittest
     import std.stdio : writeln;
     writeln("registerMemoryErrorHandler done");
 }
-version = showCtors;
+// version = showCtors;
 
 /** Returns: statically (stack) allocated array with elements of type `T` of
     length `n`.
@@ -2010,15 +2010,10 @@ nothrow unittest
     aa ~= A.init;
 
     assert(aa == aa);
-    dln("1");
     assert(AA.withLength(3) == AA.withLength(3));
-    dln("2");
     assert(AA.withCapacity(3) == AA.withCapacity(3));
-    dln("3");
     assert(AA.withLength(3).length == 3);
-    dln("4");
     assert(aa != AA.init);
-    dln("5");
 }
 
 ///

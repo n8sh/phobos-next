@@ -493,7 +493,6 @@ private struct Array(E,
             _isLarge = false;
             _store.small.length = 0;
 
-            dln("hasLength:", values.length);
             reserve(values.length); // fast reserve
             size_t i = 0;
             foreach (ref value; values)
@@ -511,13 +510,10 @@ private struct Array(E,
             size_t i = 0;
             foreach (ref value; values)
             {
-                dln(value);
                 reserve(i + 1); // slower reserve
                 _mptr[i++] = value.move();
+                this.setOnlyLength(i); // must be set here because correct length is needed in reserve call above in this same scope
             }
-            this.setOnlyLength(i);
-            dln("got length:", i);
-            dln("isLarge:", isLarge);
         }
 
         static if (IsOrdered!ordering)
@@ -553,7 +549,6 @@ private struct Array(E,
         {
             if (newCapacity > smallCapacity) // convert to large
             {
-                dln("newCapacity:", newCapacity);
                 auto tempLarge = Large(newCapacity, length, false);
 
                 // move small to temporary large
@@ -573,7 +568,7 @@ private struct Array(E,
             }
             else
             {
-                dln("staying small");
+                // staying small
             }
         }
     }
@@ -1583,9 +1578,10 @@ pure unittest
 
 static void tester(Ordering ordering, bool supportGC, alias less)()
 {
-    dln("ordering:", ordering);
-    dln("supportGC:", supportGC);
-    dln("less:", less);
+    // dln("ordering:", ordering);
+    // dln("supportGC:", supportGC);
+    // dln("less:", less);
+
     import std.functional : binaryFun;
     import std.range : iota, chain, repeat, only, ElementType;
     import std.algorithm : filter, map;
@@ -1622,7 +1618,6 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         else
         {
             static assert(is(ElementType!Str == Ch));
-            // dln(str[]);
             assert(str[] == `abc`); // TODO this fails for wchar and dchar
         }
     }
@@ -1671,7 +1666,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 
     foreach (immutable n; chain(0.only, iota(0, 10).map!(x => 2^^x)))
     {
-        dln("n:", n);
+        // dln("n:", n);
         import std.array : array;
         import std.range : radial;
 
@@ -1700,7 +1695,6 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 
         static if (IsOrdered!ordering)
         {
-            dln("E:", E.stringof);
             assert(ss1[].equal(fw.array
                                  .sort!comp));
             assert(ss1[].isSorted!comp);
@@ -1711,7 +1705,6 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 
         static if (IsOrdered!ordering)
         {
-            dln(ss2[]);
             assert(ss2[].equal(fw.filter!(x => x & 1)
                                  .array
                                  .sort!comp));
@@ -2191,7 +2184,6 @@ pure nothrow unittest
 /// init and append to empty array as AA value type
 @safe pure nothrow unittest
 {
-    dln("ENTERING");
     alias Key = string;
     alias A = Array!int;
 
@@ -2203,13 +2195,11 @@ pure nothrow unittest
     x["a"] ~= 42;               // ..then this fails
 
     assert(x["a"] == A.withElement(42));
-    dln("EXITING");
 }
 
 /// compress
 @safe pure nothrow @nogc unittest
 {
-    dln("ENTERING");
     alias A = Array!string;
     A a;
 
@@ -2225,7 +2215,6 @@ pure nothrow unittest
     a.compress();
 
     assert(a.capacity == a.length);
-    dln("EXITING");
 }
 
 ///

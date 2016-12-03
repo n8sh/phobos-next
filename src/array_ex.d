@@ -176,10 +176,7 @@ private struct Array(E,
         that._isLarge = initialLength > smallCapacity;
         if (that.isLarge)
         {
-            // TODO use emplace!Large(that._store.large, initialLength, initialLength, true)
-            that._store.large.capacity = initialLength;
-            that._store.large.ptr = allocate(initialLength, true); // no elements so we need to zero
-            that._store.large.length = initialLength;
+            emplace!Large(&that._store.large, initialLength, initialLength, true); // no elements so we need to zero
         }
         else
         {
@@ -201,11 +198,7 @@ private struct Array(E,
         that._isLarge = initialCapacity > smallCapacity;
         if (that.isLarge)
         {
-            // TODO use emplace!Large(that._store.large, initialCapacity, 0, false)
-            that._store.large.capacity = initialCapacity;
-            that._store.large.ptr = allocate(initialCapacity,
-                                             false); // zero length so no zeroing
-            that._store.large.length = 0;
+            emplace!Large(&that._store.large, initialCapacity, 0, false);
         }
         else
         {
@@ -229,10 +222,7 @@ private struct Array(E,
         that._isLarge = initialLength > smallCapacity;
         if (that.isLarge)
         {
-            // TODO use emplace!Large(that._store.large, initialLength, initialLength, false)
-            that._store.large.capacity = initialLength;
-            that._store.large.ptr = allocate(initialLength, false);
-            that._store.large.length = initialLength;
+            emplace!Large(&that._store.large, initialLength, initialLength, false);
         }
         else
         {

@@ -1380,7 +1380,7 @@ private struct Array(E,
         }
         else
         {
-            return &(_store.small.elms[0]);
+            return _store.small.elms.ptr;
         }
     }
 

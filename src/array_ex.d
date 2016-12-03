@@ -493,13 +493,13 @@ private struct Array(E,
         import std.range.primitives : hasLength;
         static if (hasLength!R)
         {
+            dln("hasLength:", values.length);
             reserve(values.length); // fast reserve
             size_t i = 0;
             foreach (ref value; values)
             {
-                _mptr[i++] = value; // TODO use std.algorithm.copy instead?
+                _mptr[i++] = value; // TODO do moveMany when possible
             }
-
             this.setOnlyLength(values.length);
         }
         else
@@ -508,9 +508,10 @@ private struct Array(E,
             foreach (ref value; values)
             {
                 reserve(i + 1); // slower reserve
-                _mptr[i++] = value;
+                _mptr[i++] = value.move();
             }
             this.setOnlyLength(i);
+            dln("got length:", i);
         }
 
         static if (IsOrdered!ordering)

@@ -1703,12 +1703,14 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         {
             static if (less == "a < b")
             {
+                pragma(msg, ordering);
                 alias A = Array!(E, assignment, ordering, supportGC, less);
                 const A x = [1, 2, 3, 4, 5, 6];
                 assert(x.front == 1);
                 assert(x.back == 6);
                 assert(x.lowerBound(3).equal([1, 2]));
                 assert(x.upperBound(3).equal([4, 5, 6]));
+                assert(x[].equal(x[]));
             }
 
             foreach (i; bw)

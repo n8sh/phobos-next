@@ -1710,7 +1710,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
                 assert(x.back == 6);
                 assert(x.lowerBound(3).equal([1, 2]));
                 assert(x.upperBound(3).equal([4, 5, 6]));
-                assert(x[].equal(x[]));
+                assert(x[].equal(x[])); // already sorted
             }
 
             foreach (i; bw)

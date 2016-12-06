@@ -71,8 +71,8 @@ pragma(inline):
     /** Checked overload for `std.algorithm.mutation.move`. */
     void move(ref typeof(this) dst) pure nothrow @nogc
     {
-        assert(!this._writeBorrowed, "Source is still write-borrowed, cannot move!");
-        assert(this._readBorrowCount == 0, "Source is still read-borrowed, cannot move!");
+        assert(!_writeBorrowed, "Source is still write-borrowed, cannot move!");
+        assert(_readBorrowCount == 0, "Source is still read-borrowed, cannot move!");
 
         assert(!dst._writeBorrowed, "Destination is still write-borrowed, cannot move!");
         assert(dst._readBorrowCount == 0, "Destination is still read-borrowed, cannot move!");
@@ -84,8 +84,8 @@ pragma(inline):
     /** Checked overload for `std.algorithm.mutation.moveEmplace`. */
     void moveEmplace(ref typeof(this) dst) pure nothrow @nogc
     {
-        assert(!this._writeBorrowed, "Source is still write-borrowed, cannot moveEmplace!");
-        assert(this._readBorrowCount == 0, "Source is still read-borrowed, cannot moveEmplace!");
+        assert(!_writeBorrowed, "Source is still write-borrowed, cannot moveEmplace!");
+        assert(_readBorrowCount == 0, "Source is still read-borrowed, cannot moveEmplace!");
 
         import std.algorithm.mutation : moveEmplace;
         moveEmplace(this, dst);

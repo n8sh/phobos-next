@@ -365,6 +365,7 @@ private struct Array(E,
         this(typeof(this) rhs) @trusted
         {
             version(showCtors) dln("Copying: ", typeof(this).stringof);
+            assert(!isBorrowed);
             import std.algorith.mutation : moveEmplace;
             moveEmplace(rhs, this); // TODO remove `move` when compiler does it for us
         }
@@ -372,6 +373,7 @@ private struct Array(E,
         /// Assignment moves.
         void opAssign(typeof(this) rhs) @trusted
         {
+            assert(!isBorrowed);
             import std.algorith.mutation : move;
             move(rhs, this);  // TODO remove `move` when compiler does it for us
         }
@@ -486,7 +488,7 @@ private struct Array(E,
             {
                 _mptr[i++] = value; // TODO do moveMany when possible
             }
-            this.setOnlyLength(values.length);
+            setOnlyLength(values.length);
         }
         else
         {
@@ -499,7 +501,7 @@ private struct Array(E,
             {
                 reserve(i + 1); // slower reserve
                 _mptr[i++] = value.move();
-                this.setOnlyLength(i); // must be set here because correct length is needed in reserve call above in this same scope
+                setOnlyLength(i); // must be set here because correct length is needed in reserve call above in this same scope
             }
         }
 
@@ -516,8 +518,9 @@ private struct Array(E,
     }
 
     /// Reserve room for `newCapacity`.
-    pragma(inline) void reserve(size_t newCapacity) pure nothrow @trusted
+    void reserve(size_t newCapacity) pure nothrow @trusted
     {
+        assert(!isBorrowed);
         if (newCapacity <= capacity) { return; }
         if (isLarge)
         {
@@ -563,6 +566,7 @@ private struct Array(E,
     /// Pack/Compress storage.
     void compress() pure nothrow @trusted
     {
+        assert(!isBorrowed);
         if (isLarge)
         {
             if (this.length)
@@ -659,6 +663,7 @@ private struct Array(E,
     /// Destruct.
     pragma(inline) ~this() nothrow @trusted
     {
+        assert(!isBorrowed);
         if (isLarge)
         {
             debug assert(_store.large.ptr != _ptrMagic, "Double free."); // trigger fault for double frees
@@ -673,6 +678,7 @@ private struct Array(E,
     /// Clear store.
     pragma(inline) void clear() nothrow
     {
+        assert(!isBorrowed);
         release();
         resetInternalData();
     }
@@ -738,6 +744,7 @@ private struct Array(E,
     /** Removal doesn't need to care about ordering. */
     ContainerElementType!(typeof(this), E) linearPopAtIndex(size_t index) @trusted @("complexity", "O(length)")
     {
+        assert(!isBorrowed);
         assert(index < this.length);
         auto value = move(_mptr[index]); // TODO remove `move` when compiler does it for us
         // TODO use this instead:
@@ -769,6 +776,7 @@ private struct Array(E,
     /** Removal doesn't need to care about ordering. */
     pragma(inline) void popBack() @safe @("complexity", "O(1)")
     {
+        assert(!isBorrowed);
         assert(!empty);
         decOnlyLength();
     }
@@ -776,6 +784,7 @@ private struct Array(E,
     /** Pop back element and return it. */
     pragma(inline) E backPop() @trusted
     {
+        assert(!isBorrowed);
         assert(!empty);
         decOnlyLength();
         return move(_mptr[this.length]); // TODO optimize by not clearing `_store.large.ptr[--this.length]` after move
@@ -784,6 +793,7 @@ private struct Array(E,
     /** Pop last `count` back elements. */
     pragma(inline) void popBackN(size_t count) @safe @("complexity", "O(1)")
     {
+        assert(!isBorrowed);
         shrinkTo(this.length - count);
     }
 
@@ -794,6 +804,7 @@ private struct Array(E,
             if (values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
         {
+            assert(!isBorrowed);
             immutable newLength = this.length + values.length;
             reserve(newLength);
             foreach (immutable i, ref value; values) // `ref` so we can `move`
@@ -807,7 +818,7 @@ private struct Array(E,
                     moveEmplace(value, _mptr[this.length + i]); // TODO remove `move` when compiler does it for us
                 }
             }
-            this.setOnlyLength(this.length + values.length);
+            setOnlyLength(this.length + values.length);
         }
         /// ditto
         void pushBack(R)(R values) @("complexity", "O(values.length)")
@@ -816,6 +827,7 @@ private struct Array(E,
                 !(isMyArray!R) &&
                 isElementAssignable!(ElementType!R))
         {
+            assert(!isBorrowed);
             reserve(this.length + values.length);
             foreach (immutable i, ref value; values) // `ref` so we can `move`
             {
@@ -828,13 +840,14 @@ private struct Array(E,
                     moveEmplace(value, _mptr[this.length + i]); // TODO remove `moveEmplace` when compiler does it for us
                 }
             }
-            this.setOnlyLength(this.length + values.length);
+            setOnlyLength(this.length + values.length);
         }
         /// ditto.
         void pushBack(A)(A values) @trusted @("complexity", "O(values.length)")
             if (isArray!A &&
                 isElementAssignable!(ElementType!A))
         {
+            assert(!isBorrowed);
             if (ptr == values.ptr) // called as: this ~= this. TODO extend to check if `values` overlaps ptr[0 .. _store.large.capacity]
             {
                 reserve(2*this.length);
@@ -842,7 +855,7 @@ private struct Array(E,
                 {
                     _mptr[this.length + i] = ptr[i]; // needs copying
                 }
-                this.setOnlyLength(2 * this.length);
+                setOnlyLength(2 * this.length);
             }
             else
             {
@@ -855,7 +868,7 @@ private struct Array(E,
                 {
                     _mptr[this.length + i] = value;
                 }
-                this.setOnlyLength(this.length + values.length);
+                setOnlyLength(this.length + values.length);
             }
         }
         /// ditto.
@@ -863,6 +876,7 @@ private struct Array(E,
             if (isMyArray!A &&
                 isElementAssignable!(ElementType!A))
         {
+            assert(!isBorrowed);
             if (ptr == values.ptr) // called as: this ~= this
             {
                 reserve(2*this.length);
@@ -872,7 +886,7 @@ private struct Array(E,
                 {
                     _mptr[this.length + i] = values.ptr[i];
                 }
-                this.setOnlyLength(2 * this.length);
+                setOnlyLength(2 * this.length);
             }
             else
             {
@@ -885,7 +899,7 @@ private struct Array(E,
                 {
                     _mptr[this.length + i] = value;
                 }
-                this.setOnlyLength(this.length + values.length);
+                setOnlyLength(this.length + values.length);
             }
         }
         alias append = pushBack;
@@ -899,6 +913,7 @@ private struct Array(E,
                 values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
         {
+            assert(!isBorrowed);
             pushBack(move(values)); // TODO remove `move` when compiler does it for us
         }
 	pragma(inline) void opOpAssign(string op, R)(R values)
@@ -906,6 +921,7 @@ private struct Array(E,
                 isInputRange!R &&
                 allSatisfy!(isElementAssignable, ElementType!R))
         {
+            assert(!isBorrowed);
             pushBack(move(values)); // TODO remove `move` when compiler does it for us
         }
 	pragma(inline) void opOpAssign(string op, A)(const ref A values)
@@ -913,6 +929,7 @@ private struct Array(E,
                 isMyArray!A &&
                 isElementAssignable!(ElementType!A))
         {
+            assert(!isBorrowed);
             pushBack(values);
         }
     }
@@ -952,6 +969,8 @@ private struct Array(E,
                     allSatisfy!(isElementAssignable, Us))
             in
             {
+                assert(!isBorrowed);
+
                 // assert no duplicates in `values`
                 import std.range : empty;
                 import std.algorithm.searching : findAdjacent;
@@ -1047,6 +1066,8 @@ private struct Array(E,
                 if (values.length >= 1 &&
                     allSatisfy!(isElementAssignable, Us))
             {
+                assert(!isBorrowed);
+
                 // TODO add optimization for values.length == 2
                 static if (values.length == 1)
                 {
@@ -1076,6 +1097,7 @@ private struct Array(E,
             if (values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
         {
+            assert(!isBorrowed);
             linearInsertAtIndexHelper(index, values);
         }
 
@@ -1124,7 +1146,7 @@ private struct Array(E,
             ptr[index + i] = value; // TODO use range algorithm instead?
         }
 
-        this.setOnlyLength(this.length + values.length);
+        setOnlyLength(this.length + values.length);
     }
 
     private void pushBackHelper(Us...)(Us values) @trusted nothrow @("complexity", "O(1)")
@@ -1134,7 +1156,7 @@ private struct Array(E,
         {
             moveEmplace(value, _mptr[this.length + i]); // TODO remove `move` when compiler does it for us
         }
-        this.setOnlyLength(this.length + values.length);
+        setOnlyLength(this.length + values.length);
     }
 
     @property @("complexity", "O(1)")
@@ -1188,7 +1210,7 @@ private struct Array(E,
         @property void length(size_t newLength) @trusted
         {
             reserve(newLength);
-            this.setOnlyLength(newLength);
+            setOnlyLength(newLength);
         }
 
         @nogc:
@@ -1196,6 +1218,7 @@ private struct Array(E,
         /// Index assign operator.
         ref E opIndexAssign(V)(V value, size_t i) @trusted // TODO DIP-1000 scope
         {
+            assert(!isBorrowed);
             assert(i < this.length);
             static if (isScalarType!E)
                 ptr[i] = value;
@@ -1209,6 +1232,7 @@ private struct Array(E,
         {
             void opSliceAssign(V)(V value, size_t i, size_t j) @trusted // TODO DIP-1000 scope
             {
+                assert(!isBorrowed);
                 assert(i <= j);
                 assert(j <= this.length);
                 foreach (immutable i; 0 .. this.length)
@@ -1322,7 +1346,7 @@ private struct Array(E,
     alias opDollar = length;    /// ditto
 
     /// Decrease only length.
-    void decOnlyLength() @trusted
+    private void decOnlyLength() @trusted
     {
         if (isLarge)
         {
@@ -1337,7 +1361,7 @@ private struct Array(E,
     }
 
     /// Set only length.
-    void setOnlyLength(size_t newLength) @trusted
+    private void setOnlyLength(size_t newLength) @trusted
     {
         if (isLarge)
         {
@@ -1366,8 +1390,9 @@ private struct Array(E,
     /// Shrink length to `newLength`.
     void shrinkTo(size_t newLength) @safe
     {
+        assert(!isBorrowed);
         assert(newLength <= length());
-        this.setOnlyLength(newLength);
+        setOnlyLength(newLength);
     }
 
     /// Get internal pointer.
@@ -1428,12 +1453,12 @@ private struct Array(E,
     /** Tag `this` borrowed.
         Used by wrapper logic in borrown.d
     */
-    void borrow() @safe { _isBorrowed = true; }
+    void tagAsBorrowed() @safe { _isBorrowed = true; }
 
     /** Tag `this` as not borrowed.
         Used by wrapper logic in borrown.d
     */
-    void unborrow() @safe { _isBorrowed = false; }
+    void untagAsNotBorrowed() @safe { _isBorrowed = false; }
 
     /// Returns: `true` if this is borrowed
     bool isBorrowed() @safe { return _isBorrowed; }

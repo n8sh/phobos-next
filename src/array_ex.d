@@ -1425,6 +1425,19 @@ private struct Array(E,
 
     alias SmallLength = ubyte;
 
+    /** Tag `this` borrowed.
+        Used by wrapper logic in borrown.d
+    */
+    void borrow() @safe { _isBorrowed = true; }
+
+    /** Tag `this` as not borrowed.
+        Used by wrapper logic in borrown.d
+    */
+    void unborrow() @safe { _isBorrowed = false; }
+
+    /// Returns: `true` if this is borrowed
+    bool isBorrowed() @safe { return _isBorrowed; }
+
 private:                        // data
     static struct Large
     {
@@ -1479,7 +1492,8 @@ private:                        // data
     }
 
     Store _store;
-    bool _isLarge;              // TODO pack this into top-bit of _length
+    bool _isLarge;              // TODO pack into bit 7 of _length
+    bool _isBorrowed;           // TODO pack into bit 6 of _length
 }
 
 import std.traits : hasMember, isDynamicArray;
@@ -1703,7 +1717,6 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         {
             static if (less == "a < b")
             {
-                pragma(msg, ordering);
                 alias A = Array!(E, assignment, ordering, supportGC, less);
                 const A x = [1, 2, 3, 4, 5, 6];
                 assert(x.front == 1);

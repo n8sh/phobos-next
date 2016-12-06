@@ -4,9 +4,9 @@
     BUG rdmd -main -unittest -g -debug array_ex
     dustmite --strip-comments --no-redirect src "show-segfault rdmd -main -unittest -g -debug array_ex | grep double-linked"
 
-    TODO Make `Large.allocate` a static pure Array-member `allocate` that returns a pointer
-    TODO Make `heapAllocate` only be called inside Large if possible
-    TODO Use Large.ctor() instead of explicit initialization
+    TODO Remoev _isLarge and code it into top-most bit of length instead
+
+    TODO Use Large.ctor() or emplace!Large instead of explicit initialization
 
     TODO Replace ` = void` with construction or emplace
 
@@ -387,10 +387,10 @@ private struct Array(E,
             copy._isLarge = isLarge;
             if (copy.isLarge)
             {
-                // TODO move to Large ctor and use emplace
-                copy._store.large.capacity = _store.large.length;
-                copy._store.large.length = _store.large.length;
-                copy._store.large.ptr = allocate(_store.large.length, false);
+                emplace!Large(&copy._store.large, _store.large.length, _store.large.length, false);
+                // copy._store.large.capacity = _store.large.length;
+                // copy._store.large.length = _store.large.length;
+                // copy._store.large.ptr = allocate(_store.large.length, false);
                 foreach (immutable i; 0 .. _store.large.length)
                 {
                     copy._store.large.ptr[i] = _store.large.ptr[i];
@@ -1477,8 +1477,8 @@ private:                        // data
         this(size_t initialCapacity, size_t initialLength, bool zero)
         {
             this.capacity = initialCapacity;
-            this.length = initialLength;
             this.ptr = allocate(initialCapacity, zero);
+            this.length = initialLength;
         }
 
         ME* _mptr() const @trusted

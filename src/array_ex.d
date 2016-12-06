@@ -387,10 +387,10 @@ private struct Array(E,
             copy._isLarge = isLarge;
             if (copy.isLarge)
             {
-                emplace!Large(&copy._store.large, _store.large.length, _store.large.length, false);
-                // copy._store.large.capacity = _store.large.length;
-                // copy._store.large.length = _store.large.length;
-                // copy._store.large.ptr = allocate(_store.large.length, false);
+                // TODO: emplace!Large(&copy._store.large, _store.large.length, _store.large.length, false);
+                copy._store.large.capacity = _store.large.length;
+                copy._store.large.length = _store.large.length;
+                copy._store.large.ptr = allocate(_store.large.length, false);
                 foreach (immutable i; 0 .. _store.large.length)
                 {
                     copy._store.large.ptr[i] = _store.large.ptr[i];

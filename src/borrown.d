@@ -527,9 +527,14 @@ nothrow unittest
     alias A = UncopyableArray!E;
     alias O = Owned!A;
 
+    const O co;
+    auto cos = co[0 .. 0];
+    const ccos = co[0 .. 0];
+
+    const coc = co[].save();
+
     O o;
     o ~= [42, 43];
-
     auto os = o.sliceRW;
     alias OS = typeof(os);
     static assert(isInputRange!(OS));

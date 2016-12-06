@@ -132,8 +132,7 @@ private struct Array(E,
     import std.meta : allSatisfy;
     import core.stdc.string : memset;
     import std.algorithm.mutation : move, moveEmplace;
-
-    import qcmeman;
+    import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
 
     alias ME = Unqual!E;        // mutable element type
 

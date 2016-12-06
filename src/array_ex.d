@@ -84,7 +84,6 @@ version(unittest)
     import std.meta : AliasSeq;
 }
 
-import std.range : ElementType;
 import container_traits : ContainerElementType;
 
 import std.traits : isInstanceOf;

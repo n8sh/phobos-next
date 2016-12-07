@@ -254,7 +254,7 @@ auto radixSort(R,
 
         // Generate Random
         auto a = new E[n];
-        a[].randInPlace;
+        a[].randInPlace();
         if (show) writeln("original random: ", a[0 .. min(nMax, $)]);
 
         // Quick Sort

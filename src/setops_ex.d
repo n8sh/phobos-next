@@ -245,10 +245,10 @@ unittest
     assert(s1.equal(a1[]));
 
     immutable smallTestLength = 10;
-    immutable factor = 10;
+    immutable factor = 20;
     immutable largeTestLength = factor*smallTestLength;
     E elementLow = 0;
-    E elementHigh = 1_000_000;
+    E elementHigh = 10_000_000;
     auto x = A.withLength(smallTestLength);
     auto y = A.withLength(largeTestLength);
 

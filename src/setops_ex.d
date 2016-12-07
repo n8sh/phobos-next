@@ -110,12 +110,15 @@ private:
 
                 if (comp(next.front, r.front))
                 {
+                    size_t popCount = 0;
                     do
                     {
                         next.popFront();
+                        popCount += 1;
                         if (next.empty) return;
                     }
                     while (comp(next.front, r.front));
+                    dln(popCount);
                     done = Rs.length;
                 }
                 if (--done == 0) return;
@@ -200,15 +203,39 @@ SetIntersection2!(less, Rs) setIntersection2(alias less = "a < b", Rs...)(Rs ran
 @safe unittest
 {
     import std.algorithm.setops : setIntersection;
-    import random_ex : randInPlace;
+    import random_ex : randInPlaceWithElementRange;
 
-    immutable n = 1_00;
+    alias E = uint;
 
-    scope auto x = new uint[n];
-    scope auto y = new uint[n];
+    immutable testLength = 1000;
+    immutable testCount = 10;
+    E elementLow = 0;
+    E elementHigh = 10_000_000;
 
-    x.randInPlace();
-    y.randInPlace();
+    scope auto x = new E[testLength];
+    scope auto y = new E[testLength];
+
+    x.randInPlaceWithElementRange(elementLow, elementHigh);
+    y.randInPlaceWithElementRange(elementLow, elementHigh);
     assert(setIntersection2(x, y)
            .equal(setIntersection(y, x)));
+
+    void testSetIntersection()
+    {
+        auto z = setIntersection(x, y);
+    }
+
+    void testSetIntersection2()
+    {
+        auto z = setIntersection2(x, y);
+    }
+
+    import std.datetime : benchmark, Duration;
+    auto r = benchmark!(testSetIntersection,
+                        testSetIntersection2)(testCount);
+    import std.stdio : writeln;
+    import std.conv : to;
+    writeln("testSetIntersection: ", to!Duration(r[0]));
+    writeln("testSetIntersection2:     ", to!Duration(r[1]));
+
 }

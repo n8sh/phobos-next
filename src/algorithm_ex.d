@@ -878,10 +878,10 @@ auto ref stableSort(T)(auto ref T a) pure
 ///
 unittest
 {
-    import random_ex: randInPlace;
+    import random_ex : randInPlace;
     immutable n = 2^^16;
     auto a = new int[n];
-    a.randInPlace;
+    a.randInPlace();
     auto b = a.dup;
     a[].stableSort;
     import std.algorithm: sort;

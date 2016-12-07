@@ -360,13 +360,13 @@ struct Vector(E, uint D,
             }
             else
             {
-                vector_.randInPlace;
+                vector_.randInPlace();
                 normalize(); // TODO Turn this into D data restriction instead?
             }
         }
         else
         {
-            vector_.randInPlace;
+            vector_.randInPlace();
         }
     }
 

@@ -88,8 +88,11 @@ import std.traits : CommonType;
 import std.range.primitives;
 import std.meta : allSatisfy, staticMap;
 import std.functional : binaryFun;
+import std.algorithm.sorting : SearchPolicy;
 
-struct SetIntersection2(alias less = "a < b", Rs...)
+struct SetIntersection2(alias less = "a < b",
+                        SearchPolicy searchPolicy = SearchPolicy.gallop,
+                        Rs...)
     if (Rs.length >= 2 && allSatisfy!(isInputRange, Rs) &&
         !is(CommonType!(staticMap!(ElementType, Rs)) == void))
 {
@@ -113,12 +116,12 @@ private:
                 import std.range : isRandomAccessRange;
                 static if (allSatisfy!(isRandomAccessRange, typeof(next)))
                 {
-                    import std.algorithm.sorting : assumeSorted, SearchPolicy;
+                    import std.algorithm.sorting : assumeSorted;
                     version (show) dln("next:", next);
                     version (show) dln("r.front:", r.front);
 
                     // TODO can we merge thsse two lines two one single assignment from nextUpperBound to next
-                    auto nextUpperBound = next.assumeSorted!"a <= b".upperBound!(SearchPolicy.gallop)(r.front); // TODO make `SearchPolicy` a template parameter
+                    auto nextUpperBound = next.assumeSorted!"a <= b".upperBound!searchPolicy(r.front);
                     next = next[$ - nextUpperBound.length .. $];
 
                     version (show) dln("nextUpperBound:", nextUpperBound);
@@ -211,7 +214,9 @@ public:
 }
 
 /// Ditto
-SetIntersection2!(less, Rs) setIntersection2(alias less = "a < b", Rs...)(Rs ranges)
+SetIntersection2!(less, searchPolicy, Rs) setIntersection2(alias less = "a < b",
+                                                           SearchPolicy searchPolicy = SearchPolicy.gallop,
+                                                           Rs...)(Rs ranges)
     if (Rs.length >= 2 && allSatisfy!(isInputRange, Rs) &&
         !is(CommonType!(staticMap!(ElementType, Rs)) == void))
 {

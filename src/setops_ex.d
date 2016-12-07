@@ -91,7 +91,7 @@ import std.functional : binaryFun;
 import std.algorithm.sorting : SearchPolicy;
 
 struct SetIntersection2(alias less = "a < b",
-                        SearchPolicy searchPolicy = SearchPolicy.gallop,
+                        SearchPolicy preferredSearchPolicy = SearchPolicy.gallop,
                         Rs...)
     if (Rs.length >= 2 && allSatisfy!(isInputRange, Rs) &&
         !is(CommonType!(staticMap!(ElementType, Rs)) == void))
@@ -121,7 +121,7 @@ private:
                     version (show) dln("r.front:", r.front);
 
                     // TODO can we merge thsse two lines two one single assignment from nextUpperBound to next
-                    auto nextUpperBound = next.assumeSorted!"a <= b".upperBound!searchPolicy(r.front);
+                    auto nextUpperBound = next.assumeSorted!"a <= b".upperBound!preferredSearchPolicy(r.front);
                     next = next[$ - nextUpperBound.length .. $];
 
                     version (show) dln("nextUpperBound:", nextUpperBound);
@@ -214,8 +214,8 @@ public:
 }
 
 /// Ditto
-SetIntersection2!(less, searchPolicy, Rs) setIntersection2(alias less = "a < b",
-                                                           SearchPolicy searchPolicy = SearchPolicy.gallop,
+SetIntersection2!(less, preferredSearchPolicy, Rs) setIntersection2(alias less = "a < b",
+                                                           SearchPolicy preferredSearchPolicy = SearchPolicy.gallop,
                                                            Rs...)(Rs ranges)
     if (Rs.length >= 2 && allSatisfy!(isInputRange, Rs) &&
         !is(CommonType!(staticMap!(ElementType, Rs)) == void))
@@ -250,7 +250,7 @@ unittest
     assert(s1.equal(a1[]));
 
     immutable smallTestLength = 10;
-    immutable factor = 20;
+    immutable factor = 10;
     immutable largeTestLength = factor*smallTestLength;
     E elementLow = 0;
     E elementHigh = 10_000_000;

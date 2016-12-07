@@ -2143,7 +2143,7 @@ Container collect(Container, Range) (Range r)
         {
             import std.array : Appender;
             Appender!Container output;
-            foreach (ref e; r)
+            foreach (ref e; r)  // TODO make const when this works with array_ex
             {
                 output.put(e);
             }
@@ -2152,7 +2152,7 @@ Container collect(Container, Range) (Range r)
         else
         {
             Container output;
-            foreach (ref e; r)
+            foreach (ref e; r)  // TODO make const when this works with array_ex
             {
                 output ~= e; // TODO use Appender or remove because too GC.intensive inefficient, or reuse `.array`?
             }

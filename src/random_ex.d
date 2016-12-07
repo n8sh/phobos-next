@@ -64,7 +64,7 @@ auto ref randInPlace(Rational, E)(ref Rational!E x) @trusted
 unittest
 {
     Rational!int x;
-    x.randInPlace;
+    x.randInPlace();
 }
 
 /** Generate Random Contents of $(D x).
@@ -120,7 +120,7 @@ auto ref randInPlace(R)(R x)
 {
     foreach (ref e; x)
     {
-        e.randInPlace;
+        e.randInPlace();
     }
     return x;
 }
@@ -131,8 +131,8 @@ unittest
     {
         auto x = new T[testLength];
         auto y = x.dup;
-        x.randInPlace;
-        y.randInPlace;
+        x.randInPlace();
+        y.randInPlace();
         assert(y != x);
     }
     testDynamic!bool;
@@ -147,7 +147,7 @@ auto ref randInPlace(T)(ref T x)
 {
     foreach (ref e; x)
     {
-        e.randInPlace;
+        e.randInPlace();
     }
     return x;
 }
@@ -158,8 +158,8 @@ unittest
     {
         T[testLength] x;
         auto y = x;
-        x.randInPlace;
-        y.randInPlace;
+        x.randInPlace();
+        y.randInPlace();
         assert(y != x);
     }
     testStatic!bool;
@@ -194,7 +194,7 @@ auto ref randInPlaceBlockwise(B = size_t, A)(ref A x)
         k = min(n, mult - r); // at first aligned B-block
         foreach (i, ref e; x[0 .. k])
         {
-            e.randInPlace;
+            e.randInPlace();
         }
     }
 
@@ -203,13 +203,13 @@ auto ref randInPlaceBlockwise(B = size_t, A)(ref A x)
     immutable nB = (n - k) / mult; // number of B-blocks
     foreach (ref b; 0 .. nB) // for each block index
     {
-        bp[b].randInPlace;
+        bp[b].randInPlace();
     }
 
     // ending unaligned bytes
     foreach (i, ref e; x[k + nB*mult .. $])
     {
-        e.randInPlace;
+        e.randInPlace();
     }
 }
 
@@ -248,7 +248,7 @@ auto ref randInPlace(T)(ref T x)
 {
     foreach (ref e; x.tupleof)
     {
-        e.randInPlace;
+        e.randInPlace();
     }
     return x;
 }
@@ -258,8 +258,8 @@ unittest
     struct T { ubyte a, b, c, d; }
     T[testLength] x;
     auto y = x;
-    x.randInPlace;
-    y.randInPlace;
+    x.randInPlace();
+    y.randInPlace();
     assert(y != x);
 }
 
@@ -270,7 +270,7 @@ auto ref randInPlace(T)(T x)
 {
     foreach (ref e; x.tupleof)
     {
-        e.randInPlace;
+        e.randInPlace();
     }
     return x;
 }
@@ -284,8 +284,8 @@ unittest
         class T { E a, b; }
         auto x = new T;
         auto y = new T;
-        x.randInPlace;
-        y.randInPlace;
+        x.randInPlace();
+        y.randInPlace();
         assert(y != x);
     }
     testClass!bool;
@@ -304,7 +304,7 @@ T randomInstanceOf(T)()
     else
         /* don't init - randInPlace below fills in everything safely */
         T x = void;
-    return x.randInPlace;
+    return x.randInPlace();
 }
 
 /** Get New Randomized Instance of Type $(D T).

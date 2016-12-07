@@ -82,6 +82,8 @@ version(unittest)
     assert(setUnionUpdate(y, x) == c);
 }
 
+// version = show;
+
 import std.traits : CommonType;
 import std.range.primitives;
 import std.meta : allSatisfy, staticMap;
@@ -106,20 +108,44 @@ private:
         {
             foreach (i, ref r; _input)
             {
-                alias next = _input[(i + 1) % Rs.length];
+                alias next = _input[(i + 1) % Rs.length]; // requires copying of range
 
-                if (comp(next.front, r.front))
+                import std.range : isRandomAccessRange;
+                static if (allSatisfy!(isRandomAccessRange, typeof(next)))
                 {
-                    size_t popCount = 0;
-                    do
+                    import std.algorithm.sorting : assumeSorted, SearchPolicy;
+                    version (show) dln("next:", next);
+                    version (show) dln("r.front:", r.front);
+
+                    // TODO can we merge thsse two lines two one single assignment from nextUpperBound to next
+                    auto nextUpperBound = next.assumeSorted!"a <= b".upperBound!(SearchPolicy.gallop)(r.front); // TODO make `SearchPolicy` a template parameter
+                    next = next[$ - nextUpperBound.length .. $];
+
+                    version (show) dln("nextUpperBound:", nextUpperBound);
+
+                    if (next.empty)
                     {
-                        next.popFront();
-                        popCount += 1;
-                        if (next.empty) return;
+                        return; // we became empty
                     }
-                    while (comp(next.front, r.front));
-                    dln(popCount);
-                    done = Rs.length;
+                    else if (next.front != r.front)
+                    {
+                        done = Rs.length;
+                    }
+                }
+                else
+                {
+                    if (comp(next.front, r.front))
+                    {
+                        size_t popCount = 0;
+                        do
+                        {
+                            next.popFront();
+                            popCount += 1;
+                            if (next.empty) return;
+                        }
+                        while (comp(next.front, r.front));
+                        done = Rs.length;
+                    }
                 }
                 if (--done == 0) return;
             }
@@ -189,19 +215,16 @@ SetIntersection2!(less, Rs) setIntersection2(alias less = "a < b", Rs...)(Rs ran
     if (Rs.length >= 2 && allSatisfy!(isInputRange, Rs) &&
         !is(CommonType!(staticMap!(ElementType, Rs)) == void))
 {
+    foreach (r; ranges)
+    {
+        version(show) dln("r:", r);
+    }
     return typeof(return)(ranges);
-}
-
-@safe pure nothrow unittest
-{
-    auto si = setIntersection2([1, 2, 3],
-                               [1, 2, 3]);
-    const sic = si.save();
-    assert(si.equal([1, 2, 3]));
 }
 
 unittest
 {
+    import std.algorithm.sorting : sort;
     import std.algorithm.setops : setIntersection;
     import random_ex : randInPlaceWithElementRange;
     import array_ex : UncopyableArray;
@@ -210,19 +233,30 @@ unittest
     alias E = uint;
     alias A = UncopyableArray!E;
 
-    immutable testLength = 10_000;
-    immutable testCount = 10;
-    E elementLow = 0;
-    E elementHigh = 10_000_000;
+    auto a0 = A();
+    auto a1 = A.withElements(1);
 
-    auto x = A.withLength(testLength);
-    auto y = A.withLength(testLength);
+    auto s0 = setIntersection2(a0[], a0[]);
+    dln("s0=", s0);
+    assert(s0.equal(a0[]));
+
+    auto s1 = setIntersection2(a1[], a1[]);
+    dln("s1=", s1);
+    assert(s1.equal(a1[]));
+
+    immutable smallTestLength = 10;
+    immutable factor = 10;
+    immutable largeTestLength = factor*smallTestLength;
+    E elementLow = 0;
+    E elementHigh = 1_000_000;
+    auto x = A.withLength(smallTestLength);
+    auto y = A.withLength(largeTestLength);
 
     x[].randInPlaceWithElementRange(elementLow, elementHigh);
     y[].randInPlaceWithElementRange(elementLow, elementHigh);
 
-    assert(setIntersection2(x[], y[])
-           .equal(setIntersection(y[], x[])));
+    sort(x[]);
+    sort(y[]);
 
     void testSetIntersection()
     {
@@ -235,6 +269,7 @@ unittest
     }
 
     import std.datetime : benchmark, Duration;
+    immutable testCount = 10;
     auto r = benchmark!(testSetIntersection,
                         testSetIntersection2)(testCount);
     import std.stdio : writeln;
@@ -242,4 +277,12 @@ unittest
     writeln("old testSetIntersection: ", to!Duration(r[0]));
     writeln("new testSetIntersection: ", to!Duration(r[1]));
 
+}
+
+@safe pure nothrow unittest
+{
+    auto si = setIntersection2([1, 2, 3],
+                               [1, 2, 3]);
+    const sic = si.save();
+    assert(si.equal([1, 2, 3]));
 }

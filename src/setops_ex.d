@@ -204,11 +204,11 @@ unittest
 {
     import std.algorithm.setops : setIntersection;
     import random_ex : randInPlaceWithElementRange;
-    import array_ex : CopyableArray;
+    import array_ex : UncopyableArray;
     import algorithm_ex : collect;
 
     alias E = uint;
-    alias A = CopyableArray!E;
+    alias A = UncopyableArray!E;
 
     immutable testLength = 10_000;
     immutable testCount = 10;

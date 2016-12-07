@@ -400,7 +400,7 @@ private struct Array(E,
             {
                 // TODO move to Small ctor and use emplace
                 copy._store.small.length = _store.small.length;
-                copy._store.small.elms = _store.small.elms;
+                copy._store.small.elms[0 .. _store.small.length] = _store.small.elms[0 .. _store.small.length];
             }
             return copy;
         }

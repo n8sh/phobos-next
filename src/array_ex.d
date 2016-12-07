@@ -385,7 +385,7 @@ private struct Array(E,
             debug typeof(return) copy;
             else typeof(return) copy = void;
             copy._isLarge = isLarge;
-            if (copy.isLarge)
+            if (isLarge)
             {
                 // TODO: emplace!Large(&copy._store.large, _store.large.length, _store.large.length, false);
                 copy._store.large.capacity = _store.large.length;

@@ -318,7 +318,7 @@ T randomInstanceOf(T)(T low = T.min,
     static if (hasIndirections!T)
         T x;
     else
-        /* don't init - randInPlace below fills in everything safely */
+        /* don't init - `randInPlace()` below fills in everything safely */
         T x = void;
     return x.randInPlace(low, high);
 }

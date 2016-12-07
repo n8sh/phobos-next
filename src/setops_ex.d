@@ -113,6 +113,8 @@ private:
             {
                 alias next = _input[(i + 1) % Rs.length]; // requires copying of range
 
+                // TODO Use upperBound only when next.length / r.length > 12
+
                 import std.range : isRandomAccessRange;
                 static if (allSatisfy!(isRandomAccessRange, typeof(next)))
                 {
@@ -245,7 +247,7 @@ unittest
     import array_ex : UncopyableArray;
     import algorithm_ex : collect;
 
-    alias E = uint;
+    alias E = ulong;
     alias A = UncopyableArray!E;
 
     auto a0 = A();
@@ -259,8 +261,8 @@ unittest
     dln("s1=", s1);
     assert(s1.equal(a1[]));
 
-    immutable smallTestLength = 10;
-    immutable factor = 10;
+    immutable smallTestLength = 1000;
+    immutable factor = 12;
     immutable largeTestLength = factor*smallTestLength;
     E elementLow = 0;
     E elementHigh = 10_000_000;
@@ -286,7 +288,7 @@ unittest
         auto z = setIntersection(x[], y[]).collect!A;
     }
 
-    void testSetIntersection2()
+    void testSetIntersectionNew()
     {
         auto z = setIntersection2(x[], y[]).collect!A;
     }
@@ -294,7 +296,7 @@ unittest
     import std.datetime : benchmark, Duration;
     immutable testCount = 10;
     auto r = benchmark!(testSetIntersection,
-                        testSetIntersection2)(testCount);
+                        testSetIntersectionNew)(testCount);
     import std.stdio : writeln;
     import std.conv : to;
     writeln("old testSetIntersection: ", to!Duration(r[0]));

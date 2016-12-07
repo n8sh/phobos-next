@@ -207,7 +207,7 @@ SetIntersection2!(less, Rs) setIntersection2(alias less = "a < b", Rs...)(Rs ran
 
     alias E = uint;
 
-    immutable testLength = 1000;
+    immutable testLength = 10_000;
     immutable testCount = 10;
     E elementLow = 0;
     E elementHigh = 10_000_000;

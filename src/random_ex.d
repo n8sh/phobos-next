@@ -31,18 +31,32 @@ auto ref randInPlace(E)(ref E x) @trusted
 }
 
 /** Randomize Contents of $(D x), optionally in range [$(D low), $(D high)]. */
-auto ref randInPlace(E)(ref E x,
-                        E low = E.min,
-                        E high = E.max) @trusted
+auto ref randInPlace(E)(ref E x) @trusted
+    if (isIntegral!E)
+{
+    return x = uniform(E.min, E.max);    // BUG: Never assigns the value E.max
+}
+
+/** Randomize Contents of $(D x), optional in range [$(D low), $(D high)]. */
+auto ref randInPlace(E)(ref E x) @trusted
+    if (isFloatingPoint!E)
+{
+    return x = uniform(cast(E)0, cast(E)1);
+}
+
+/** Randomize Contents of $(D x), optionally in range [$(D low), $(D high)]. */
+auto ref randInPlaceWithRange(E)(ref E x,
+                                 E low,
+                                 E high) @trusted
     if (isIntegral!E)
 {
     return x = uniform(low, high);    // BUG: Never assigns the value E.max
 }
 
 /** Randomize Contents of $(D x), optional in range [$(D low), $(D high)]. */
-auto ref randInPlace(E)(ref E x,
-                        E low = 0 /* E.min_normal */,
-                        E high = 1 /* E.max */) @trusted
+auto ref randInPlaceWithRange(E)(ref E x,
+                                 E low /* E.min_normal */,
+                                 E high /* E.max */) @trusted
     if (isFloatingPoint!E)
 {
     return x = uniform(low, high);
@@ -125,6 +139,22 @@ auto ref randInPlace(R)(R x)
     return x;
 }
 
+/** Randomize Contents of $(D x).
+    Each element is randomized within range `[elementLow, elementHigh]`.
+ */
+auto ref randInPlaceWithElementRange(R, E)(R x,
+                                           E elementLow,
+                                           E elementHigh)
+    if (hasAssignableElements!R &&
+        is(ElementType!R == E))
+{
+    foreach (ref e; x)
+    {
+        e.randInPlaceWithRange(elementLow, elementHigh);
+    }
+    return x;
+}
+
 unittest
 {
     void testDynamic(T)()
@@ -135,9 +165,9 @@ unittest
         y.randInPlace();
         assert(y != x);
     }
-    testDynamic!bool;
     testDynamic!int;
     testDynamic!float;
+    testDynamic!bool;
 }
 
 /** Randomize Contents of $(D x).
@@ -320,7 +350,7 @@ T randomInstanceOf(T)(T low = T.min,
     else
         /* don't init - `randInPlace()` below fills in everything safely */
         T x = void;
-    return x.randInPlace(low, high);
+    return x.randInPlaceWithRange(low, high);
 }
 
 alias randomized = randomInstanceOf;

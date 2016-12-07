@@ -200,34 +200,38 @@ SetIntersection2!(less, Rs) setIntersection2(alias less = "a < b", Rs...)(Rs ran
     assert(si.equal([1, 2, 3]));
 }
 
-@safe unittest
+unittest
 {
     import std.algorithm.setops : setIntersection;
     import random_ex : randInPlaceWithElementRange;
+    import array_ex : CopyableArray;
+    import algorithm_ex : collect;
 
     alias E = uint;
+    alias A = CopyableArray!E;
 
     immutable testLength = 10_000;
     immutable testCount = 10;
     E elementLow = 0;
     E elementHigh = 10_000_000;
 
-    scope auto x = new E[testLength];
-    scope auto y = new E[testLength];
+    auto x = A.withLength(testLength);
+    auto y = A.withLength(testLength);
 
-    x.randInPlaceWithElementRange(elementLow, elementHigh);
-    y.randInPlaceWithElementRange(elementLow, elementHigh);
-    assert(setIntersection2(x, y)
-           .equal(setIntersection(y, x)));
+    x[].randInPlaceWithElementRange(elementLow, elementHigh);
+    y[].randInPlaceWithElementRange(elementLow, elementHigh);
+
+    assert(setIntersection2(x[], y[])
+           .equal(setIntersection(y[], x[])));
 
     void testSetIntersection()
     {
-        auto z = setIntersection(x, y);
+        auto z = setIntersection(x[], y[]).collect!A;
     }
 
     void testSetIntersection2()
     {
-        auto z = setIntersection2(x, y);
+        auto z = setIntersection2(x[], y[]).collect!A;
     }
 
     import std.datetime : benchmark, Duration;
@@ -235,7 +239,7 @@ SetIntersection2!(less, Rs) setIntersection2(alias less = "a < b", Rs...)(Rs ran
                         testSetIntersection2)(testCount);
     import std.stdio : writeln;
     import std.conv : to;
-    writeln("testSetIntersection: ", to!Duration(r[0]));
-    writeln("testSetIntersection2:     ", to!Duration(r[1]));
+    writeln("old testSetIntersection: ", to!Duration(r[0]));
+    writeln("new testSetIntersection: ", to!Duration(r[1]));
 
 }

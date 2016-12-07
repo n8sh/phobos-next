@@ -196,3 +196,19 @@ SetIntersection2!(less, Rs) setIntersection2(alias less = "a < b", Rs...)(Rs ran
     const sic = si.save();
     assert(si.equal([1, 2, 3]));
 }
+
+@safe unittest
+{
+    import std.algorithm.setops : setIntersection;
+    import random_ex : randInPlace;
+
+    immutable n = 1_00;
+
+    scope auto x = new uint[n];
+    scope auto y = new uint[n];
+
+    x.randInPlace();
+    y.randInPlace();
+    assert(setIntersection2(x, y)
+           .equal(setIntersection(y, x)));
+}

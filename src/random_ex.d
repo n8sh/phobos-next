@@ -275,6 +275,8 @@ auto ref randInPlace(T)(T x)
     return x;
 }
 
+alias randomize = randInPlace;
+
 unittest
 {
     void testClass(E)()
@@ -321,7 +323,6 @@ T randomInstanceOf(T)(T low = T.min,
     return x.randInPlace(low, high);
 }
 
-alias randomize = randInPlace;
 alias randomized = randomInstanceOf;
 
 /** Random Number Generator xoroshiro128+

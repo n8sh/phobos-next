@@ -120,8 +120,18 @@ private:
                     version (show) dln("next:", next);
                     version (show) dln("r.front:", r.front);
 
+                    // TODO remove need for this hack
+                    static if (less == "a < b")
+                    {
+                        enum lessEq = "a <= b";
+                    }
+                    else static if (less == "a > b")
+                    {
+                        enum lessEq = "a >= b";
+                    }
+
                     // TODO can we merge thsse two lines two one single assignment from nextUpperBound to next
-                    auto nextUpperBound = next.assumeSorted!"a <= b".upperBound!preferredSearchPolicy(r.front);
+                    auto nextUpperBound = next.assumeSorted!lessEq.upperBound!preferredSearchPolicy(r.front);
                     next = next[$ - nextUpperBound.length .. $];
 
                     version (show) dln("nextUpperBound:", nextUpperBound);
@@ -262,6 +272,14 @@ unittest
 
     sort(x[]);
     sort(y[]);
+
+    // associative
+    assert(equal(setIntersection2(x[], y[]),
+                 setIntersection2(y[], x[])));
+
+    // same as current
+    assert(equal(setIntersection(x[], y[]),
+                 setIntersection2(x[], y[])));
 
     void testSetIntersection()
     {

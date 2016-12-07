@@ -256,11 +256,9 @@ unittest
     enum less = "a < b";
 
     auto s0 = setIntersection2!(less)(a0[], a0[]);
-    dln("s0=", s0);
     assert(s0.equal(a0[]));
 
     auto s1 = setIntersection2!(less)(a1[], a1[]);
-    dln("s1=", s1);
     assert(s1.equal(a1[]));
 
     immutable smallTestLength = 1000;

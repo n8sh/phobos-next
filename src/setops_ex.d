@@ -253,11 +253,13 @@ unittest
     auto a0 = A();
     auto a1 = A.withElements(1);
 
-    auto s0 = setIntersection2(a0[], a0[]);
+    enum less = "a < b";
+
+    auto s0 = setIntersection2!(less)(a0[], a0[]);
     dln("s0=", s0);
     assert(s0.equal(a0[]));
 
-    auto s1 = setIntersection2(a1[], a1[]);
+    auto s1 = setIntersection2!(less)(a1[], a1[]);
     dln("s1=", s1);
     assert(s1.equal(a1[]));
 
@@ -276,21 +278,21 @@ unittest
     sort(y[]);
 
     // associative
-    assert(equal(setIntersection2(x[], y[]),
-                 setIntersection2(y[], x[])));
+    assert(equal(setIntersection2!(less)(x[], y[]),
+                 setIntersection2!(less)(y[], x[])));
 
     // same as current
-    assert(equal(setIntersection(x[], y[]),
-                 setIntersection2(x[], y[])));
+    assert(equal(setIntersection!(less)(x[], y[]),
+                 setIntersection2!(less)(x[], y[])));
 
     void testSetIntersection()
     {
-        auto z = setIntersection(x[], y[]).collect!A;
+        auto z = setIntersection!(less)(x[], y[]).collect!A;
     }
 
     void testSetIntersectionNew()
     {
-        auto z = setIntersection2(x[], y[]).collect!A;
+        auto z = setIntersection2!(less)(x[], y[]).collect!A;
     }
 
     import std.datetime : benchmark, Duration;
@@ -306,8 +308,9 @@ unittest
 
 @safe pure nothrow unittest
 {
-    auto si = setIntersection2([1, 2, 3],
-                               [1, 2, 3]);
+    enum less = "a < b";
+    auto si = setIntersection2!(less)([1, 2, 3],
+                                      [1, 2, 3]);
     const sic = si.save();
     assert(si.equal([1, 2, 3]));
 }

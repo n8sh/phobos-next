@@ -81,3 +81,118 @@ version(unittest)
     assert(setUnionUpdate(x, y) == c);
     assert(setUnionUpdate(y, x) == c);
 }
+
+import std.traits : CommonType;
+import std.range.primitives;
+import std.meta : allSatisfy, staticMap;
+import std.functional : binaryFun;
+
+struct SetIntersection2(alias less = "a < b", Rs...)
+    if (Rs.length >= 2 && allSatisfy!(isInputRange, Rs) &&
+        !is(CommonType!(staticMap!(ElementType, Rs)) == void))
+{
+private:
+    Rs _input;
+    alias comp = binaryFun!less;
+    alias ElementType = CommonType!(staticMap!(.ElementType, Rs));
+
+    // Positions to the first elements that are all equal
+    void adjustPosition()
+    {
+        if (empty) return;
+
+        size_t done = Rs.length;
+        static if (Rs.length > 1) while (true)
+        {
+            foreach (i, ref r; _input)
+            {
+                alias next = _input[(i + 1) % Rs.length];
+
+                if (comp(next.front, r.front))
+                {
+                    do
+                    {
+                        next.popFront();
+                        if (next.empty) return;
+                    }
+                    while (comp(next.front, r.front));
+                    done = Rs.length;
+                }
+                if (--done == 0) return;
+            }
+        }
+    }
+
+public:
+    ///
+    this(Rs input)
+    {
+        this._input = input;
+        // position to the first element
+        adjustPosition();
+    }
+
+    ///
+    @property bool empty()
+    {
+        foreach (ref r; _input)
+        {
+            if (r.empty) return true;
+        }
+        return false;
+    }
+
+    ///
+    void popFront()
+    {
+        assert(!empty);
+        static if (Rs.length > 1) foreach (i, ref r; _input)
+        {
+            alias next = _input[(i + 1) % Rs.length];
+            assert(!comp(r.front, next.front));
+        }
+
+        foreach (ref r; _input)
+        {
+            r.popFront();
+        }
+        adjustPosition();
+    }
+
+    ///
+    @property ElementType front()
+    {
+        assert(!empty);
+        return _input[0].front;
+    }
+
+    static if (allSatisfy!(isForwardRange, Rs))
+    {
+        ///
+        @property SetIntersection2 save()
+        {
+            auto ret = this;
+            foreach (i, ref r; _input)
+            {
+                ret._input[i] = r.save;
+            }
+            return ret;
+        }
+    }
+}
+
+/// Ditto
+SetIntersection2!(less, Rs) setIntersection2(alias less = "a < b", Rs...)(Rs ranges)
+    if (Rs.length >= 2 && allSatisfy!(isInputRange, Rs) &&
+        !is(CommonType!(staticMap!(ElementType, Rs)) == void))
+{
+    return typeof(return)(ranges);
+}
+
+@safe pure nothrow unittest
+{
+    auto si = setIntersection2([1, 2, 3],
+                               [1, 2, 3]);
+    const sic = si.save();
+    assert(si.equal([1, 2, 3]));
+}

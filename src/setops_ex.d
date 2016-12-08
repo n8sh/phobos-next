@@ -144,7 +144,7 @@ private:
                     }
                     else if (next.front != r.front)
                     {
-                        done = Rs.length;
+                        done = Rs.length; // we need to start counting comparing again starting with next.front
                     }
                 }
                 else
@@ -162,7 +162,7 @@ private:
                         done = Rs.length;
                     }
                 }
-                if (--done == 0) return;
+                if (--done == 0) return; // count down, and if we have made Rs.length iterations we are done finding a common front element
             }
         }
     }

@@ -140,7 +140,7 @@ private:
 
                     if (next.empty)
                     {
-                        return; // we became empty
+                        return; // next became empty, so everything becomes empty
                     }
                     else if (next.front != r.front)
                     {

@@ -223,6 +223,7 @@ enum Language:ushort
     ie, interlingue = ie,/// Interlingue	 	Pace
     ig, igbo = ig,/// Igbo (Ibo)	Nigeria	Udo
     ii, sichuan_yi = ii,/// Sichuan Yi	China	ꄮꐽ (te-njo)
+    in_,
     ik, /// Iñupiaq	Alaska	Kiñuiñak, Tutqiun
     ilo, ilocano = ilo,/// Ilocano	Philippines	Kappia
     inh, ingush = inh,/// Ingush	Ingutia (Caucasus)	Машар (mashar)
@@ -505,6 +506,10 @@ Language decodeLang(S)(S lang)
     if (lang == `is`)
     {
         return Language.is_;
+    }
+    else if (lang == `in`)
+    {
+        return Language.in_;
     }
     else
     {

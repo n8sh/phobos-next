@@ -106,7 +106,7 @@ private:
     {
         if (empty) return;
 
-        size_t done = Rs.length;
+        size_t compsLeft = Rs.length; // number of compares left
         static if (Rs.length > 1) while (true)
         {
             foreach (i, ref r; _input)
@@ -144,7 +144,7 @@ private:
                     }
                     else if (next.front != r.front)
                     {
-                        done = Rs.length; // we need to start counting comparing again starting with next.front
+                        compsLeft = Rs.length; // we need to start counting comparing again starting with next.front
                     }
                 }
                 else
@@ -159,10 +159,10 @@ private:
                             if (next.empty) return;
                         }
                         while (comp(next.front, r.front));
-                        done = Rs.length;
+                        compsLeft = Rs.length;
                     }
                 }
-                if (--done == 0) return; // count down, and if we have made Rs.length iterations we are done finding a common front element
+                if (--compsLeft == 0) return; // count down, and if we have made Rs.length iterations we are compsLeft finding a common front element
             }
         }
     }

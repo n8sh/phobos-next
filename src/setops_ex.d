@@ -106,7 +106,7 @@ private:
     {
         if (empty) return;
 
-        size_t compsLeft = Rs.length; // number of compares left
+        auto compsLeft = Rs.length; // number of compares left
         static if (Rs.length > 1) while (true)
         {
             foreach (i, ref r; _input)
@@ -151,11 +151,9 @@ private:
                 {
                     if (comp(next.front, r.front))
                     {
-                        size_t popCount = 0;
                         do
                         {
                             next.popFront();
-                            popCount += 1;
                             if (next.empty) return;
                         }
                         while (comp(next.front, r.front));

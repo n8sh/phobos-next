@@ -526,6 +526,7 @@ Language decodeLang(S)(S lang)
 
 @safe pure unittest
 {
+    assert(`sv`.decodeLang == Language.sv);
     assert(`sv`.to!Language == Language.sv);
 }
 

@@ -6,6 +6,7 @@ module static_array;
 struct ArrayN(E, uint capacity)
 {
     import std.traits : isSomeChar, hasElaborateDestructor;
+    import qcmeman : gc_addRange, gc_removeRange;
 
     E[capacity] _store = void;  /// stored elements
 
@@ -15,6 +16,12 @@ struct ArrayN(E, uint capacity)
     else static assert("Too large capacity " ~ capacity);
 
     alias ElementType = E;
+
+    template shouldAddGCRange(T)
+    {
+        import std.traits : hasIndirections, isInstanceOf;
+        enum shouldAddGCRange = hasIndirections!T;
+    }
 
     @safe pure nothrow @nogc:
 
@@ -28,6 +35,10 @@ struct ArrayN(E, uint capacity)
             import std.algorithm.mutation : move;
             _store[i] = ix.move(); // move
         }
+        static if (shouldAddGCRange!E)
+        {
+            gc_addRange(_store.ptr);
+        }
         _length = es.length;
     }
 
@@ -36,6 +47,10 @@ struct ArrayN(E, uint capacity)
     {
         assert(es.length <= capacity);
         _store[0 .. es.length] = es; // copy
+        static if (shouldAddGCRange!E)
+        {
+            gc_addRange(_store.ptr);
+        }
         _length = cast(ubyte)es.length;
     }
 
@@ -45,6 +60,10 @@ struct ArrayN(E, uint capacity)
         ~this() nothrow @safe
         {
             destroyElements();
+            static if (shouldAddGCRange!E)
+            {
+                gc_removeRange(_store.ptr);
+            }
         }
 
         /// Destroy elements.

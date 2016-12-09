@@ -153,43 +153,30 @@ public:
     this(T)(T that) @trusted nothrow @nogc
         if (allowsAssignmentFrom!T)
     {
+        import std.conv : emplace;
+        import std.algorithm.mutation : move;
+
         alias U = Unqual!T;
-        static if (_store.alignof >= T.alignof)
-        {
-            import std.conv : emplace;
-            import std.algorithm.mutation : move;
-            static if (isCopyable!T)
-                emplace!U(cast(U*)(&_store), that);
-            else
-                emplace!U(cast(U*)(&_store), that.move());
-        }
-        else
-        {
-            (cast(ubyte*)&_store)[0 .. T.sizeof] = (cast(ubyte*)&that)[0 .. T.sizeof]; // TODO highly unsafe
-        }
+        emplace!U(cast(U*)(&_store),
+                  (*cast(U*)&that).move()); // TODO ok when `that` has indirections?
+
         _tix = cast(Ix)indexOf!U; // set type tag
     }
 
     VaryN opAssign(T)(T that) @trusted nothrow @nogc
         if (allowsAssignmentFrom!T)
     {
+        import std.conv : emplace;
+        import std.algorithm.mutation : move;
+
         if (hasValue) { release(); }
 
         alias U = Unqual!T;
-        static if (_store.alignof >= T.alignof)
-        {
-            import std.conv : emplace;
-            import std.algorithm.mutation : move;
-            static if (isCopyable!T)
-                emplace!U(cast(U*)(&_store), that);
-            else
-                emplace!U(cast(U*)(&_store), that.move());
-        }
-        else
-        {
-            (cast(ubyte*)&_store)[0 .. T.sizeof] = (cast(ubyte*)&that)[0 .. T.sizeof]; // TODO highly unsafe
-        }
+        emplace!U(cast(U*)(&_store),
+                  (*cast(U*)&that).move()); // TODO ok when `that` has indirections?
+
         _tix = cast(Ix)indexOf!U; // set type tag
+
         return this;
     }
 

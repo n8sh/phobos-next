@@ -84,6 +84,10 @@ struct StaticArrayN(E, uint capacity)
     }
 }
 
+alias StringN(uint capacity) = StaticArrayN!(char, capacity);
+alias WStringN(uint capacity) = StaticArrayN!(wchar, capacity);
+alias DStringN(uint capacity) = StaticArrayN!(dchar, capacity);
+
 ///
 @safe pure unittest
 {

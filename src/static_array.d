@@ -48,7 +48,7 @@ struct ArrayN(E, uint capacity)
         }
 
         /// Destroy elements.
-        private void destroyElements() @trusted
+        private void destroyElements() @truste
         {
             static if (hasElaborateDestructor!E)
             {
@@ -190,18 +190,4 @@ pure unittest
     {
         testAsSomeString!E();
     }
-}
-
-///
-pure unittest
-{
-    alias S15 = StringN!15;
-
-    S15 s;
-    S15 t = s;
-
-    // import vary : FastVariant;
-    // FastVariant!(S15, string) v = S15("first");
-    // // v = S15("second");
-    // v = "third";
 }

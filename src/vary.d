@@ -734,13 +734,13 @@ pure unittest
     S15 t = s;
     assert(t == s);
 
-    import vary : FastVariant;
     FastVariant!(S15, string) v = S15("first");
     assert(v.peek!S15);
+    assert(!v.peek!string);
 
     v = S15("second");
-    assert(!v.peek!string);
     assert(v.peek!S15);
+    assert(!v.peek!string);
 
     v = "third";
     assert(!v.peek!S15);

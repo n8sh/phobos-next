@@ -136,10 +136,12 @@ alias DStringN(uint capacity) = StaticArrayN!(immutable(dchar), capacity);
     static assert(!__traits(compiles, { const xyzw = A('x', 'y', 'z', 'w'); }));
 }
 
-///
+/// strings
 @safe pure unittest
 {
     enum capacity = 15;
     alias A = StringN!(capacity);
     static assert(A.sizeof == 16);
+    const a = A("abc");
+    assert(a[] == "abc");
 }

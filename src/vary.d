@@ -151,11 +151,24 @@ public:
         // TODO run postblits
     }
 
-    this(T)(T value) @safe nothrow @nogc
+    this(T)(T that) @trusted nothrow @nogc
         if (allowsAssignmentFrom!T)
     {
         // static assert(allowsAssignmentFrom!T, "Cannot store a " ~ T.stringof ~ " in a " ~ name ~ ", valid types are " ~ Types.stringof);
-        init(value);
+
+        alias U = Unqual!T;
+        static if (_data.alignof >= T.alignof)
+        {
+            import std.algorithm.mutation : move;
+            pragma(msg, typeof(*(cast(U*)&_data)));
+            pragma(msg, typeof(that));
+            *(cast(U*)&_data) = that.move();
+        }
+        else
+        {
+            (cast(ubyte*)&_data)[0 .. T.sizeof] = (cast(ubyte*)&that)[0 .. T.sizeof];
+        }
+        _tix = cast(Ix)indexOf!U; // set type tag
     }
 
     VaryN opAssign(T)(T that) @trusted nothrow @nogc
@@ -163,24 +176,20 @@ public:
     {
         // static assert(allowsAssignmentFrom!T, "Cannot store a " ~ T.stringof ~ " in a " ~ name ~ ", valid types are " ~ Types.stringof);
         if (hasValue) clearDataIndirections;
-        init(that);
-        return this;
-    }
 
-    /** Initialize without checking for clearing.
-     */
-    private void init(T)(T that) @trusted nothrow @nogc
-    {
         alias U = Unqual!T;
         static if (_data.alignof >= T.alignof)
         {
-            *(cast(U*)&_data) = that;
+            import std.algorithm.mutation : move;
+            *(cast(U*)&_data) = that.move();
         }
         else
         {
             (cast(ubyte*)&_data)[0 .. T.sizeof] = (cast(ubyte*)&that)[0 .. T.sizeof];
         }
         _tix = cast(Ix)indexOf!U; // set type tag
+
+        return this;
     }
 
     /** If the $(D VaryN) object holds a value of the $(I exact) type $(D T),

@@ -152,7 +152,7 @@ pure unittest
     static assert(!__traits(compiles, { const xyzw = A('x', 'y', 'z', 'w'); }));
 }
 
-/// strings
+///
 pure unittest
 {
     static void testAsSomeString(E)()
@@ -169,4 +169,18 @@ pure unittest
     {
         testAsSomeString!E();
     }
+}
+
+///
+pure unittest
+{
+    import vary : FastVariant;
+    alias S15 = StringN!15;
+
+    S15 s;
+    S15 t = s;
+
+    // FastVariant!(S15, string) v = S15("first");
+    // v = S15("second");
+    // v = "third";
 }

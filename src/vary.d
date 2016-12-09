@@ -251,7 +251,7 @@ public:
     /// ditto
     pragma(inline) void opAssign(typeof(null)) { clear(); }
 
-    /// Release `_store`.
+    /// Release internal store.
     private void release() @safe nothrow @nogc
     {
         final switch (_tix)
@@ -267,7 +267,7 @@ public:
         }
 
         // TODO don't call if all types satisfy traits_ex.isValueType
-        _store[] = 0; // slightly faster than: memset(&_store, 0, _store.sizeof);
+        // _store[] = 0; // slightly faster than: memset(&_store, 0, _store.sizeof);
     }
 
     /// Returns: $(D true) if this has a defined value (is defined).

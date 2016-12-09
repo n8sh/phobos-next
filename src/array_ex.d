@@ -680,7 +680,7 @@ private struct Array(E,
     /// ditto
     pragma(inline) void opAssign(typeof(null)) { clear(); }
 
-    /// Release store.
+    /// Release internal store.
     private void release() nothrow @trusted
     {
         destroyElements();

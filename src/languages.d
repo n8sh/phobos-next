@@ -500,7 +500,7 @@ string toSpoken(Language lang, Language spokenLang = Language.init)
 }
 
 Language decodeLang(S)(S lang)
-    @safe pure nothrow
+    @safe pure
     if (isSomeString!S)
 {
     if (lang == `is`)
@@ -513,14 +513,7 @@ Language decodeLang(S)(S lang)
     }
     else
     {
-        try
-        {
-            return lang.to!Language;
-        }
-        catch (Exception a)
-        {
-            return Language.unknown;
-        }
+        return lang.to!Language;
     }
 }
 

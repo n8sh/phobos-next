@@ -16,10 +16,10 @@ struct ArrayN(E, uint capacity)
 
     alias ElementType = E;
 
-    @safe pure nothrow @nogc pragma(inline):
+    @safe pure nothrow @nogc:
 
     /** Construct with elements `es`. */
-    this(Es...)(Es es)
+    pragma(inline) this(Es...)(Es es)
         if (Es.length >= 1 &&
             Es.length <= capacity)
     {
@@ -32,7 +32,7 @@ struct ArrayN(E, uint capacity)
     }
 
     /** Construct with elements in `es`. */
-    this(const E[] es)
+    pragma(inline) this(const E[] es)
     {
         assert(es.length <= capacity);
         _store[0 .. es.length] = es; // copy
@@ -42,7 +42,7 @@ struct ArrayN(E, uint capacity)
     static if (hasElaborateDestructor!E)
     {
         /** Destruct. */
-        pragma(inline) ~this() nothrow @safe
+        ~this() nothrow @safe
         {
             destroyElements();
         }
@@ -59,6 +59,8 @@ struct ArrayN(E, uint capacity)
             }
         }
     }
+
+pragma(inline):
 
     /** Returns: `true` if `this` is empty, `false` otherwise. */
     @property bool empty() const { return _length == 0; }

@@ -30,13 +30,13 @@ struct StaticArrayN(E, uint capacity)
     }
 
     /** Returns: `true` if `this` is empty, `false` otherwise. */
-    bool empty() const { return _length == 0; }
+    @property bool empty() const { return _length == 0; }
 
     /** Returns: `true` if `this` is full, `false` otherwise. */
-    bool full() const { return _length == capacity; }
+    @property bool full() const { return _length == capacity; }
 
     /** Get length. */
-    auto length() const { return _length; }
+    @property auto length() const { return _length; }
     alias opDollar = length;    /// ditto
 
     inout @trusted:

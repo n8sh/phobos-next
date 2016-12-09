@@ -9,6 +9,8 @@ struct StaticArrayN(E, uint capacity)
 
     alias ElementType = E;
 
+    @safe pure nothrow @nogc:
+
     this(Es...)(Es ixs)
         if (Es.length >= 1 &&
             Es.length <= capacity)
@@ -19,6 +21,9 @@ struct StaticArrayN(E, uint capacity)
         }
         _length = ixs.length;
     }
+
+    /** Get length. */
+    auto length() const { return _length; }
 
     static if (capacity < ubyte.max + 1)
     {
@@ -40,6 +45,10 @@ struct StaticArrayN(E, uint capacity)
     static assert(A.sizeof == E.sizeof*capacity + 1);
 
     auto ab = A('a', 'b');
+    assert(ab.length == 2);
+
     const abc = A('a', 'b', 'c');
+    assert(abc.length == 3);
+
     static assert(!__traits(compiles, { const abc = A('a', 'b', 'c', 'd'); }));
 }

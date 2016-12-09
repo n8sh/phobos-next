@@ -5,7 +5,7 @@ module static_array;
 */
 struct ArrayN(E, uint capacity)
 {
-    E[capacity] _store;         /// stored elements
+    E[capacity] _store = void;  /// stored elements
 
     /// number of elements in `_store`
     static      if (capacity < ubyte.max + 1)  ubyte _length;
@@ -144,4 +144,6 @@ alias DStringN(uint capacity) = ArrayN!(immutable(dchar), capacity);
     static assert(A.sizeof == 16);
     const a = A("abc");
     assert(a[] == "abc");
+    // import dbgio : dln;
+    // dln(a[]);
 }

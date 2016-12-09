@@ -1,7 +1,7 @@
 /** Array container(s) with optional sortedness via template-parameter
     `Ordering` and optional use of GC via `useGCAllocation`.
 
-    TODO Remoev _isLarge and code it into top-most bit of length instead
+    TODO Remove _isLarge and code it into top-most bit of length instead
 
     TODO Use Large.ctor() or emplace!Large instead of explicit initialization
 
@@ -955,6 +955,7 @@ private struct Array(E,
         static if (ordering == Ordering.sortedUniqueSet)
         {
             /** Inserts `values` into `this` ordered set.
+
                 Returns: `bool`-array with same length as `values`, where i:th
                 `bool` value is set if `value[i]` wasn't previously in `this`.
             */
@@ -1784,7 +1785,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             foreach (s; ssI) { assert(ssB.contains(s)); }
             foreach (s; ssO) { assert(!ssB.contains(s)); }
 
-            ssB.compress;
+            ssB.compress();
             assert(ssB.capacity == 12);
         }
         else

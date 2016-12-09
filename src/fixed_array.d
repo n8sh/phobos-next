@@ -225,11 +225,11 @@ struct ModArrayN(uint capacity,
 private:
     static if (L == 1)
     {
-        Ix[capacity] _ixs;     // byte indexes
+        Ix[capacity] _ixs = void; // byte indexes
     }
     else
     {
-        Ix[L][capacity] _ixs;  // byte indexes
+        Ix[L][capacity] _ixs = void; // byte indexes
     }
 
     static if (_ixs.sizeof == 6)

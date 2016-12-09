@@ -201,9 +201,12 @@ pure unittest
     {
         enum capacity = 15;
         alias A = ArrayN!(immutable(E), capacity);
-        const a = A("abc");
+        auto a = A("abc");
         assert(a[] == "abc");
         assert(a[].equal("abc"));
+
+        import std.conv : to;
+        const x = "a".to!(E[]);
     }
 
     import std.typecons : AliasSeq;

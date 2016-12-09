@@ -723,3 +723,19 @@ unittest
     assertThrown!VaryNException(C(1.0f) <  C(1.0));
     // assertThrown!VaryNException(C(1.0f) == C(1.0));
 }
+
+///
+pure unittest
+{
+    import static_array : StringN;
+    alias S15 = StringN!15;
+
+    S15 s;
+    S15 t = s;
+    assert(t == s);
+
+    import vary : FastVariant;
+    FastVariant!(S15, string) v = S15("first");
+    v = S15("second");
+    v = "third";
+}

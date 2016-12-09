@@ -5,8 +5,9 @@ module static_array;
 */
 struct StaticArrayN(E, uint capacity)
 {
-    E[capacity] _store;
+    E[capacity] _store;         /// stored elements
 
+    /// number of elements in `_store`
     static      if (capacity < ubyte.max + 1)  ubyte _length;
     else static if (capacity < ushort.max + 1) ushort _length;
     else static assert("Too large capacity " ~ capacity);
@@ -37,18 +38,21 @@ struct StaticArrayN(E, uint capacity)
 
     inout @trusted:
 
+    /// Index operator.
     ref inout(E) opIndex(size_t i) // TODO DIP-1000 scope
     {
         assert(i < _length);
         return _store[i];
     }
 
+    /// Returns: front element.
     ref inout(E) front()        // TODO DIP-1000 scope
     {
         assert(!empty);
         return _store[0];
     }
 
+    /// Returns: back element.
     ref inout(E) back()         // TODO DIP-1000 scope
     {
         assert(!empty);

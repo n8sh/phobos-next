@@ -173,12 +173,17 @@ public:
         if (allowsAssignmentFrom!T)
     {
         // static assert(allowsAssignmentFrom!T, "Cannot store a " ~ T.stringof ~ " in a " ~ name ~ ", valid types are " ~ Types.stringof);
-        if (hasValue) clearDataIndirections;
+        if (hasValue) clearDataIndirections();
         alias U = Unqual!T;
         static if (_data.alignof >= T.alignof)
         {
+            static if (hasElaborateDestructor!U)
+            {
+                .destroy(cast(U*)(&_data));
+            }
+            import std.conv : emplace;
             import std.algorithm.mutation : move;
-            *(cast(U*)&_data) = that.move();
+            emplace!U(cast(U*)(&_data), that.move());
         }
         else
         {
@@ -241,7 +246,7 @@ public:
     /// Force $(D this) to the null (undefined) state.
     void clear() @safe nothrow @nogc
     {
-        clearDataIndirections;
+        clearDataIndirections();
         _tix = Ix.max;
     }
     alias nullify = clear; // compatible with std.typecons.Nullable
@@ -703,7 +708,7 @@ unittest
     assertThrown!VaryNException(d < "2.0");
     assert(d.currentSize == double.sizeof);
 
-    d.clear;
+    d.clear();
     assert(d.peek!int is null);
     assert(d.peek!float is null);
     assert(d.peek!double is null);

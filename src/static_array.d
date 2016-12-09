@@ -110,7 +110,26 @@ struct StaticArrayN(E, uint capacity)
     assert(abc[] == "abc");
     assert(ab[0 .. 2] == "ab");
     assert(abc.full);
-    static assert(!__traits(compiles, { const abc = A('a', 'b', 'c', 'd'); }));
+    static assert(!__traits(compiles, { const abcd = A('a', 'b', 'c', 'd'); }));
+
+    const xy = A("xy");
+    assert(!xy.empty);
+    assert(xy[0] == 'x');
+    assert(xy.front == 'x');
+    assert(xy.back == 'y');
+    assert(xy.length == 2);
+    assert(xy[] == "xy");
+    assert(xy[0 .. 1] == "x");
+
+    const xyz = A('x', 'y', 'z');
+    assert(!xyz.empty);
+    assert(xyz.front == 'x');
+    assert(xyz.back == 'z');
+    assert(xyz.length == 3);
+    assert(xyz[] == "xyz");
+    assert(ab[0 .. 2] == "ab");
+    assert(xyz.full);
+    static assert(!__traits(compiles, { const xyzw = A('x', 'y', 'z', 'w'); }));
 }
 
 ///

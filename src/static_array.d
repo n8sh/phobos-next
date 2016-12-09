@@ -29,8 +29,11 @@ struct StaticArrayN(E, uint capacity)
         _length = ixs.length;
     }
 
-    /** Check if empty. */
-    bool empty() const @safe { return _length == 0; }
+    /** Returns: `true` if `this` is empty, `false` otherwise. */
+    bool empty() const { return _length == 0; }
+
+    /** Returns: `true` if `this` is full, `false` otherwise. */
+    bool full() const { return _length == capacity; }
 
     /** Get length. */
     auto length() const { return _length; }
@@ -45,14 +48,14 @@ struct StaticArrayN(E, uint capacity)
         return _store[i];
     }
 
-    /// Returns: front element.
+    /** First (front) element. */
     ref inout(E) front()        // TODO DIP-1000 scope
     {
         assert(!empty);
         return _store[0];
     }
 
-    /// Returns: back element.
+    /** Last (back) element. */
     ref inout(E) back()         // TODO DIP-1000 scope
     {
         assert(!empty);
@@ -83,6 +86,7 @@ struct StaticArrayN(E, uint capacity)
     static assert(A.sizeof == E.sizeof*capacity + 1);
 
     auto ab = A('a', 'b');
+    assert(!ab.empty);
     assert(ab[0] == 'a');
     assert(ab.front == 'a');
     assert(ab.back == 'b');
@@ -91,11 +95,23 @@ struct StaticArrayN(E, uint capacity)
     assert(ab[0 .. 1] == "a");
 
     const abc = A('a', 'b', 'c');
+    assert(!abc.empty);
     assert(abc.front == 'a');
     assert(abc.back == 'c');
     assert(abc.length == 3);
     assert(abc[] == "abc");
     assert(ab[0 .. 2] == "ab");
-
+    assert(abc.full);
     static assert(!__traits(compiles, { const abc = A('a', 'b', 'c', 'd'); }));
+}
+
+///
+@safe pure unittest
+{
+    alias E = char;
+    enum capacity = 15;
+
+    alias A = StaticArrayN!(E, capacity);
+    static assert(A.sizeof == E.sizeof*capacity + 1);
+    static assert(A.sizeof == 16);
 }

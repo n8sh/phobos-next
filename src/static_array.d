@@ -26,7 +26,7 @@ struct ArrayN(E, uint capacity)
     @safe pure nothrow @nogc:
 
     /** Construct with elements `es`. */
-    pragma(inline) this(Es...)(Es es)
+    pragma(inline) this(Es...)(Es es) @trusted
         if (Es.length >= 1 &&
             Es.length <= capacity)
     {
@@ -37,19 +37,19 @@ struct ArrayN(E, uint capacity)
         }
         static if (shouldAddGCRange!E)
         {
-            gc_addRange(_store.ptr);
+            gc_addRange(_store.ptr, capacity * E.sizeof);
         }
         _length = es.length;
     }
 
     /** Construct with elements in `es`. */
-    pragma(inline) this(const E[] es)
+    pragma(inline) this(const E[] es) @trusted
     {
         assert(es.length <= capacity);
         _store[0 .. es.length] = es; // copy
         static if (shouldAddGCRange!E)
         {
-            gc_addRange(_store.ptr);
+            gc_addRange(_store.ptr, capacity * E.sizeof);
         }
         _length = cast(ubyte)es.length;
     }
@@ -211,4 +211,11 @@ pure unittest
     {
         testAsSomeString!E();
     }
+}
+
+///
+pure unittest
+{
+    enum capacity = 4;
+    alias A = ArrayN!(string, capacity);
 }

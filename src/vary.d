@@ -103,7 +103,7 @@ public:
     import std.variant : maxSize, VariantException;
     enum dataMaxSize = maxSize!Types;
 
-    auto ref to(U)() const @safe // TODO pure @nogc
+    auto ref to(U)() const // TODO pure @nogc
     {
         final switch (_tix)
         {
@@ -115,7 +115,7 @@ public:
         }
     }
 
-    @property string toString() const @trusted // TODO pure
+    @property string toString() const // TODO pure
     {
         if (!hasValue) { return "<Uninitialized VaryN>"; }
         import std.conv : to;

@@ -16,17 +16,25 @@ struct StaticArrayN(E, uint capacity)
 
     @safe pure nothrow @nogc:
 
-    /** Construct with elements `ixs`. */
-    this(Es...)(Es ixs)
+    /** Construct with elements `es`. */
+    this(Es...)(Es es)
         if (Es.length >= 1 &&
             Es.length <= capacity)
     {
-        foreach (const i, const ix; ixs)
+        foreach (const i, const ix; es)
         {
             import std.algorithm.mutation : move;
-            _store[i] = ix.move();
+            _store[i] = ix.move(); // move
         }
-        _length = ixs.length;
+        _length = es.length;
+    }
+
+    /** Construct with elements in `es`. */
+    this(const E[] es)
+    {
+        assert(es.length <= capacity);
+        _store[0 .. es.length] = es; // copy
+        _length = cast(ubyte)es.length;
     }
 
     /** Returns: `true` if `this` is empty, `false` otherwise. */
@@ -65,7 +73,7 @@ struct StaticArrayN(E, uint capacity)
     /// Slice operator.
     inout(E)[] opSlice()    // TODO DIP-1000 scope
     {
-        return this.opSlice(0, _length);
+        return opSlice(0, _length);
     }
     /// ditto
     inout(E)[] opSlice(size_t i, size_t j) // TODO DIP-1000 scope

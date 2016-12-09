@@ -14,7 +14,7 @@ struct ArrayN(E, uint capacity)
 
     alias ElementType = E;
 
-    @safe pure nothrow @nogc:
+    @safe pure nothrow @nogc pragma(inline):
 
     /** Construct with elements `es`. */
     this(Es...)(Es es)
@@ -47,9 +47,9 @@ struct ArrayN(E, uint capacity)
     @property auto length() const { return _length; }
     alias opDollar = length;    /// ditto
 
-    inout @trusted:
+inout:
 
-    /// Index operator.
+    /** Index operator. */
     ref inout(E) opIndex(size_t i) // TODO DIP-1000 scope
     {
         assert(i < _length);
@@ -70,17 +70,17 @@ struct ArrayN(E, uint capacity)
         return _store[_length - 1];
     }
 
-    /// Slice operator.
-    inout(E)[] opSlice()    // TODO DIP-1000 scope
+    /** Slice operator. */
+    inout(E)[] opSlice() @system    // TODO DIP-1000 scope
     {
         return opSlice(0, _length);
     }
-    /// ditto
-    inout(E)[] opSlice(size_t i, size_t j) // TODO DIP-1000 scope
+    /** ditto */
+    inout(E)[] opSlice(size_t i, size_t j) @system // TODO DIP-1000 scope
     {
         assert(i <= j);
         assert(j <= _length);
-        return _store.ptr[i .. j]; // TODO DIP-1000 scope
+        return _store.ptr[i .. j];
     }
 }
 
@@ -89,7 +89,7 @@ alias WStringN(uint capacity) = ArrayN!(immutable(wchar), capacity);
 alias DStringN(uint capacity) = ArrayN!(immutable(dchar), capacity);
 
 ///
-@safe pure unittest
+pure unittest
 {
     alias E = char;
     enum capacity = 3;
@@ -137,7 +137,7 @@ alias DStringN(uint capacity) = ArrayN!(immutable(dchar), capacity);
 }
 
 /// strings
-@safe pure unittest
+pure unittest
 {
     enum capacity = 15;
     alias A = StringN!(capacity);

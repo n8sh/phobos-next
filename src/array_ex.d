@@ -1,9 +1,6 @@
 /** Array container(s) with optional sortedness via template-parameter
     `Ordering` and optional use of GC via `useGCAllocation`.
 
-    BUG rdmd -main -unittest -g -debug array_ex
-    dustmite --strip-comments --no-redirect src "show-segfault rdmd -main -unittest -g -debug array_ex | grep double-linked"
-
     TODO Remoev _isLarge and code it into top-most bit of length instead
 
     TODO Use Large.ctor() or emplace!Large instead of explicit initialization

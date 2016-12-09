@@ -143,10 +143,10 @@ public:
         return hasValue ? typeNamesRT[_tix] : null;
     }
 
-    /** Copy Construct. */
-    this(VaryN that) @safe nothrow @nogc
+    /** Copy construct from `that`. */
+    this(in VaryN that) @safe nothrow @nogc
     {
-        _data = that._data;
+        _store = that._store;
         _tix = that._tix;
         // TODO run postblits
     }
@@ -154,17 +154,16 @@ public:
     this(T)(T that) @trusted nothrow @nogc
         if (allowsAssignmentFrom!T)
     {
-        // static assert(allowsAssignmentFrom!T, "Cannot store a " ~ T.stringof ~ " in a " ~ name ~ ", valid types are " ~ Types.stringof);
         alias U = Unqual!T;
-        static if (_data.alignof >= T.alignof)
+        static if (_store.alignof >= T.alignof)
         {
             import std.conv : emplace;
             import std.algorithm.mutation : move;
-            emplace!U(cast(U*)(&_data), that.move());
+            emplace!U(cast(U*)(&_store), that.move());
         }
         else
         {
-            (cast(ubyte*)&_data)[0 .. T.sizeof] = (cast(ubyte*)&that)[0 .. T.sizeof]; // TODO highly unsafe
+            (cast(ubyte*)&_store)[0 .. T.sizeof] = (cast(ubyte*)&that)[0 .. T.sizeof]; // TODO highly unsafe
         }
         _tix = cast(Ix)indexOf!U; // set type tag
     }
@@ -172,22 +171,18 @@ public:
     VaryN opAssign(T)(T that) @trusted nothrow @nogc
         if (allowsAssignmentFrom!T)
     {
-        // static assert(allowsAssignmentFrom!T, "Cannot store a " ~ T.stringof ~ " in a " ~ name ~ ", valid types are " ~ Types.stringof);
-        if (hasValue) clearDataIndirections();
+        if (hasValue) { releaseStore(); }
+
         alias U = Unqual!T;
-        static if (_data.alignof >= T.alignof)
+        static if (_store.alignof >= T.alignof)
         {
-            static if (hasElaborateDestructor!U)
-            {
-                .destroy(cast(U*)(&_data));
-            }
             import std.conv : emplace;
             import std.algorithm.mutation : move;
-            emplace!U(cast(U*)(&_data), that.move());
+            emplace!U(cast(U*)(&_store), that.move());
         }
         else
         {
-            (cast(ubyte*)&_data)[0 .. T.sizeof] = (cast(ubyte*)&that)[0 .. T.sizeof]; // TODO highly unsafe
+            (cast(ubyte*)&_store)[0 .. T.sizeof] = (cast(ubyte*)&that)[0 .. T.sizeof]; // TODO highly unsafe
         }
         _tix = cast(Ix)indexOf!U; // set type tag
         return this;
@@ -205,7 +200,7 @@ public:
             static assert(allowsAssignmentFrom!U, "Cannot store a " ~ U.stringof ~ " in a " ~ name);
         }
         if (!isOfType!U) return null;
-        return cast(inout U*)&_data; // TODO alignment
+        return cast(inout U*)&_store; // TODO alignment
     }
 
     /// Get Value of type $(D T).
@@ -225,14 +220,14 @@ public:
     /// Interpret data as type $(D T).
     private @property auto ref inout(T) as(T)() inout @trusted nothrow @nogc
     {
-        static if (_data.alignof >= T.alignof)
+        static if (_store.alignof >= T.alignof)
         {
-            return *(cast(T*)&_data);
+            return *(cast(T*)&_store);
         }
         else
         {
             T result;
-            (cast(ubyte*)&result)[0 .. T.sizeof] = _data[0 .. T.sizeof];
+            (cast(ubyte*)&result)[0 .. T.sizeof] = _store[0 .. T.sizeof];
             return result;
         }
     }
@@ -246,16 +241,28 @@ public:
     /// Force $(D this) to the null (undefined) state.
     void clear() @safe nothrow @nogc
     {
-        clearDataIndirections();
+        if (hasValue) { releaseStore(); }
         _tix = Ix.max;
     }
     alias nullify = clear; // compatible with std.typecons.Nullable
 
-    /// Clear indirections stored in $(D _data).
-    private void clearDataIndirections() @safe nothrow @nogc
+    /// Release `_store`.
+    private void releaseStore() @safe nothrow @nogc
     {
+        final switch (_tix)
+        {
+            foreach (const i, T; Types)
+            {
+            case i:
+                static if (hasElaborateDestructor!T)
+                {
+                    .destroy(cast(T*)(&_store));
+                }
+            }
+        }
+
         // TODO don't call if all types satisfy traits_ex.isValueType
-        _data[] = 0; // slightly faster than: memset(&_data, 0, _data.sizeof);
+        _store[] = 0; // slightly faster than: memset(&_store, 0, _store.sizeof);
     }
 
     /// Returns: $(D true) if this has a defined value (is defined).
@@ -352,8 +359,8 @@ public:
                     case i:
                         static if (isIntegral!T) // TODO extend by reusing some generic trait, say isBitwiseComparable
                         {
-                            return memcmp(cast(void*)&this._data,
-                                          cast(void*)&that._data, currentSize) == 0; // this is faster than final switch
+                            return memcmp(cast(void*)&this._store,
+                                          cast(void*)&that._store, currentSize) == 0; // this is faster than final switch
                         }
                         else
                         {
@@ -377,7 +384,7 @@ public:
 
             static if (isIntegral!T) // TODO extend by reusing some generic trait, say isBitwiseComparable
             {
-                return memcmp(cast(void*)&this._data,
+                return memcmp(cast(void*)&this._store,
                               cast(void*)&that, T.sizeof) == 0; // this is faster than final switch
             }
             else
@@ -468,13 +475,13 @@ public:
 private:
     static if (memoryPacked)
     {
-        ubyte[dataMaxSize] _data;
+        ubyte[dataMaxSize] _store;
     }
     else
     {
         union
         {
-            ubyte[dataMaxSize] _data;
+            ubyte[dataMaxSize] _store;
             void* alignDummy; // non-packed means good alignment. TODO check for maximum alignof of Types
         }
     }

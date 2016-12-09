@@ -7,10 +7,15 @@ struct StaticArrayN(E, uint capacity)
 {
     E[capacity] _store;
 
+    static      if (capacity < ubyte.max + 1)  ubyte _length;
+    else static if (capacity < ushort.max + 1) ushort _length;
+    else static assert("Too large capacity " ~ capacity);
+
     alias ElementType = E;
 
     @safe pure nothrow @nogc:
 
+    /// Construct with elements `ixs`.
     this(Es...)(Es ixs)
         if (Es.length >= 1 &&
             Es.length <= capacity)
@@ -24,15 +29,6 @@ struct StaticArrayN(E, uint capacity)
 
     /** Get length. */
     auto length() const { return _length; }
-
-    static if (capacity < ubyte.max + 1)
-    {
-        ubyte _length;
-    }
-    else static if (capacity < ushort.max + 1)
-    {
-        ushort _length;
-    }
 }
 
 ///

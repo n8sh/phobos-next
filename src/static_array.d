@@ -84,9 +84,9 @@ struct StaticArrayN(E, uint capacity)
     }
 }
 
-alias StringN(uint capacity) = StaticArrayN!(char, capacity);
-alias WStringN(uint capacity) = StaticArrayN!(wchar, capacity);
-alias DStringN(uint capacity) = StaticArrayN!(dchar, capacity);
+alias StringN(uint capacity) = StaticArrayN!(immutable(char), capacity);
+alias WStringN(uint capacity) = StaticArrayN!(immutable(wchar), capacity);
+alias DStringN(uint capacity) = StaticArrayN!(immutable(dchar), capacity);
 
 ///
 @safe pure unittest
@@ -139,10 +139,7 @@ alias DStringN(uint capacity) = StaticArrayN!(dchar, capacity);
 ///
 @safe pure unittest
 {
-    alias E = char;
     enum capacity = 15;
-
-    alias A = StaticArrayN!(E, capacity);
-    static assert(A.sizeof == E.sizeof*capacity + 1);
+    alias A = StringN!(capacity);
     static assert(A.sizeof == 16);
 }

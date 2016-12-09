@@ -15,7 +15,7 @@ struct StaticArrayN(E, uint capacity)
 
     @safe pure nothrow @nogc:
 
-    /// Construct with elements `ixs`.
+    /** Construct with elements `ixs`. */
     this(Es...)(Es ixs)
         if (Es.length >= 1 &&
             Es.length <= capacity)
@@ -28,8 +28,45 @@ struct StaticArrayN(E, uint capacity)
         _length = ixs.length;
     }
 
+    /** Check if empty. */
+    bool empty() const @safe { return _length == 0; }
+
     /** Get length. */
     auto length() const { return _length; }
+    alias opDollar = length;    /// ditto
+
+    inout @trusted:
+
+    ref inout(E) opIndex(size_t i) // TODO DIP-1000 scope
+    {
+        assert(i < _length);
+        return _store[i];
+    }
+
+    ref inout(E) front()        // TODO DIP-1000 scope
+    {
+        assert(!empty);
+        return _store[0];
+    }
+
+    ref inout(E) back()         // TODO DIP-1000 scope
+    {
+        assert(!empty);
+        return _store[_length - 1];
+    }
+
+    /// Slice operator.
+    inout(E)[] opSlice()    // TODO DIP-1000 scope
+    {
+        return this.opSlice(0, _length);
+    }
+    /// ditto
+    inout(E)[] opSlice(size_t i, size_t j) // TODO DIP-1000 scope
+    {
+        assert(i <= j);
+        assert(j <= _length);
+        return _store.ptr[i .. j]; // TODO DIP-1000 scope
+    }
 }
 
 ///
@@ -42,10 +79,19 @@ struct StaticArrayN(E, uint capacity)
     static assert(A.sizeof == E.sizeof*capacity + 1);
 
     auto ab = A('a', 'b');
+    assert(ab[0] == 'a');
+    assert(ab.front == 'a');
+    assert(ab.back == 'b');
     assert(ab.length == 2);
+    assert(ab[] == "ab");
+    assert(ab[0 .. 1] == "a");
 
     const abc = A('a', 'b', 'c');
+    assert(abc.front == 'a');
+    assert(abc.back == 'c');
     assert(abc.length == 3);
+    assert(abc[] == "abc");
+    assert(ab[0 .. 2] == "ab");
 
     static assert(!__traits(compiles, { const abc = A('a', 'b', 'c', 'd'); }));
 }

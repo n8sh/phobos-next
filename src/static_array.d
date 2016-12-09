@@ -39,6 +39,25 @@ struct ArrayN(E, uint capacity)
         _length = cast(ubyte)es.length;
     }
 
+    /** Destruct. */
+    pragma(inline) ~this() nothrow @trusted
+    {
+        destroyElements();
+    }
+
+    /// Destroy elements.
+    private void destroyElements()
+    {
+        import std.traits : hasElaborateDestructor;
+        static if (hasElaborateDestructor!E)
+        {
+            foreach (immutable i; 0 .. length)
+            {
+                .destroy(_store.ptr[i]);
+            }
+        }
+    }
+
     /** Returns: `true` if `this` is empty, `false` otherwise. */
     @property bool empty() const { return _length == 0; }
 
@@ -58,24 +77,24 @@ struct ArrayN(E, uint capacity)
 inout:
 
     /** Index operator. */
-    ref inout(E) opIndex(size_t i) // TODO DIP-1000 scope
+    ref inout(E) opIndex(size_t i) @trusted // TODO DIP-1000 scope
     {
         assert(i < _length);
-        return _store[i];
+        return _store.ptr[i];
     }
 
     /** First (front) element. */
-    ref inout(E) front()        // TODO DIP-1000 scope
+    ref inout(E) front() @trusted // TODO DIP-1000 scope
     {
         assert(!empty);
-        return _store[0];
+        return _store.ptr[0];
     }
 
     /** Last (back) element. */
-    ref inout(E) back()         // TODO DIP-1000 scope
+    ref inout(E) back() @trusted // TODO DIP-1000 scope
     {
         assert(!empty);
-        return _store[_length - 1];
+        return _store.ptr[_length - 1];
     }
 
     /** Slice operator. */
@@ -174,13 +193,13 @@ pure unittest
 ///
 pure unittest
 {
-    import vary : FastVariant;
     alias S15 = StringN!15;
 
     S15 s;
     S15 t = s;
 
-    FastVariant!(S15, string) v = S15("first");
-    // v = S15("second");
-    v = "third";
+    // import vary : FastVariant;
+    // FastVariant!(S15, string) v = S15("first");
+    // // v = S15("second");
+    // v = "third";
 }

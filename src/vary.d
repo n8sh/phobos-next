@@ -38,9 +38,8 @@ private struct VaryN(bool memoryPacked = false, TypesParam...)
     import std.typecons : Unqual;
     import std.meta : allSatisfy, staticIndexOf, staticMap, NoDuplicates;
     import core.stdc.string : memcpy, memset, memcmp;
-    import std.traits : StdCommonType = CommonType, isIntegral, hasIndirections;
+    import std.traits : StdCommonType = CommonType, isIntegral, hasIndirections, isCopyable;
     import traits_ex : isComparable, isEquable, sizesOf, stringsOf, allSame;
-
 
 public:
 
@@ -159,7 +158,10 @@ public:
         {
             import std.conv : emplace;
             import std.algorithm.mutation : move;
-            emplace!U(cast(U*)(&_store), that.move());
+            static if (isCopyable!T)
+                emplace!U(cast(U*)(&_store), that);
+            else
+                emplace!U(cast(U*)(&_store), that.move());
         }
         else
         {
@@ -178,7 +180,10 @@ public:
         {
             import std.conv : emplace;
             import std.algorithm.mutation : move;
-            emplace!U(cast(U*)(&_store), that.move());
+            static if (isCopyable!T)
+                emplace!U(cast(U*)(&_store), that);
+            else
+                emplace!U(cast(U*)(&_store), that.move());
         }
         else
         {

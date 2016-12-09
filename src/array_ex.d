@@ -406,11 +406,6 @@ private struct Array(E,
         }
     }
 
-    pragma(inline) void opAssign(typeof(null))
-    {
-        clear();
-    }
-
     bool opEquals(const ref typeof(this) rhs) const @trusted
     {
         static if (isCopyable!E)
@@ -673,13 +668,17 @@ private struct Array(E,
         }
     }
 
-    /// Clear store.
+    /// Empty.
     pragma(inline) void clear() nothrow
     {
         assert(!isBorrowed);
         release();
         resetInternalData();
     }
+    /// ditto
+    alias makeEmpty = clear;
+    /// ditto
+    pragma(inline) void opAssign(typeof(null)) { clear(); }
 
     /// Release store.
     private void release() nothrow @trusted

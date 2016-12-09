@@ -238,13 +238,18 @@ public:
         return _tix == indexOf!T;
     }
 
-    /// Force $(D this) to the null (undefined) state.
+    /// Force $(D this) to the null/uninitialized/unset/undefined state.
     void clear() @safe nothrow @nogc
     {
         if (hasValue) { release(); }
         _tix = Ix.max; // this is enough to indicate undefined, no need to zero `_store`
     }
+    /// ditto
     alias nullify = clear; // compatible with std.typecons.Nullable
+    /// ditto
+    alias makeUndefined = clear;
+    /// ditto
+    pragma(inline) void opAssign(typeof(null)) { clear(); }
 
     /// Release `_store`.
     private void release() @safe nothrow @nogc

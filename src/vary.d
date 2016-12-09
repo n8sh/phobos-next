@@ -171,7 +171,7 @@ public:
     VaryN opAssign(T)(T that) @trusted nothrow @nogc
         if (allowsAssignmentFrom!T)
     {
-        if (hasValue) { releaseStore(); }
+        if (hasValue) { release(); }
 
         alias U = Unqual!T;
         static if (_store.alignof >= T.alignof)
@@ -241,13 +241,13 @@ public:
     /// Force $(D this) to the null (undefined) state.
     void clear() @safe nothrow @nogc
     {
-        if (hasValue) { releaseStore(); }
+        if (hasValue) { release(); }
         _tix = Ix.max;
     }
     alias nullify = clear; // compatible with std.typecons.Nullable
 
     /// Release `_store`.
-    private void releaseStore() @safe nothrow @nogc
+    private void release() @safe nothrow @nogc
     {
         final switch (_tix)
         {

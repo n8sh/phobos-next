@@ -242,7 +242,7 @@ public:
     void clear() @safe nothrow @nogc
     {
         if (hasValue) { release(); }
-        _tix = Ix.max;
+        _tix = Ix.max; // this is enough to indicate undefined, no need to zero `_store`
     }
     alias nullify = clear; // compatible with std.typecons.Nullable
 

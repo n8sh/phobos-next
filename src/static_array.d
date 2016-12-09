@@ -84,8 +84,11 @@ inout:
     }
 }
 
+/** Stack-allocated string of maximum length of `capacity.` */
 alias StringN(uint capacity) = ArrayN!(immutable(char), capacity);
+/** Stack-allocated wstring of maximum length of `capacity.` */
 alias WStringN(uint capacity) = ArrayN!(immutable(wchar), capacity);
+/** Stack-allocated dstring of maximum length of `capacity.` */
 alias DStringN(uint capacity) = ArrayN!(immutable(dchar), capacity);
 
 ///

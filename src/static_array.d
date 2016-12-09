@@ -22,7 +22,8 @@ struct StaticArrayN(E, uint capacity)
     {
         foreach (const i, const ix; ixs)
         {
-            _store[i] = ix;
+            import std.algorithm.mutation : move;
+            _store[i] = ix.move();
         }
         _length = ixs.length;
     }

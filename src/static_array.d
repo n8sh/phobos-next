@@ -5,6 +5,8 @@ module static_array;
 */
 struct ArrayN(E, uint capacity)
 {
+    import std.traits : isSomeChar;
+
     E[capacity] _store = void;  /// stored elements
 
     /// number of elements in `_store`
@@ -46,6 +48,12 @@ struct ArrayN(E, uint capacity)
     /** Get length. */
     @property auto length() const { return _length; }
     alias opDollar = length;    /// ditto
+
+    /** Get as `string`. */
+    @property auto toString() const @system // TODO DIP-1000 scope
+    {
+        static if (isSomeChar!E) { return opSlice(); }
+    }
 
 inout:
 
@@ -90,6 +98,11 @@ alias StringN(uint capacity) = ArrayN!(immutable(char), capacity);
 alias WStringN(uint capacity) = ArrayN!(immutable(wchar), capacity);
 /** Stack-allocated dstring of maximum length of `capacity.` */
 alias DStringN(uint capacity) = ArrayN!(immutable(dchar), capacity);
+
+version(unittest)
+{
+    import std.algorithm.comparison : equal;
+}
 
 ///
 pure unittest
@@ -139,14 +152,21 @@ pure unittest
     static assert(!__traits(compiles, { const xyzw = A('x', 'y', 'z', 'w'); }));
 }
 
+void testAsSomeString(E)()
+{
+    enum capacity = 15;
+    alias A = ArrayN!(immutable(E), capacity);
+    const a = A("abc");
+    assert(a[] == "abc");
+    assert(a[].equal("abc"));
+}
+
 /// strings
 pure unittest
 {
-    enum capacity = 15;
-    alias A = StringN!(capacity);
-    static assert(A.sizeof == 16);
-    const a = A("abc");
-    assert(a[] == "abc");
-    // import dbgio : dln;
-    // dln(a[]);
+    import std.typecons : AliasSeq;
+    foreach (E; AliasSeq!(char, wchar, dchar))
+    {
+        testAsSomeString!E();
+    }
 }

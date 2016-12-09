@@ -5,7 +5,7 @@ module static_array;
 */
 struct ArrayN(E, uint capacity)
 {
-    import std.traits : isSomeChar;
+    import std.traits : isSomeChar, hasElaborateDestructor;
 
     E[capacity] _store = void;  /// stored elements
 
@@ -39,21 +39,23 @@ struct ArrayN(E, uint capacity)
         _length = cast(ubyte)es.length;
     }
 
-    /** Destruct. */
-    pragma(inline) ~this() nothrow @trusted
+    static if (hasElaborateDestructor!E)
     {
-        destroyElements();
-    }
-
-    /// Destroy elements.
-    private void destroyElements()
-    {
-        import std.traits : hasElaborateDestructor;
-        static if (hasElaborateDestructor!E)
+        /** Destruct. */
+        pragma(inline) ~this() nothrow @safe
         {
-            foreach (immutable i; 0 .. length)
+            destroyElements();
+        }
+
+        /// Destroy elements.
+        private void destroyElements() @trusted
+        {
+            static if (hasElaborateDestructor!E)
             {
-                .destroy(_store.ptr[i]);
+                foreach (immutable i; 0 .. length)
+                {
+                    .destroy(_store.ptr[i]);
+                }
             }
         }
     }

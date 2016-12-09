@@ -736,6 +736,13 @@ pure unittest
 
     import vary : FastVariant;
     FastVariant!(S15, string) v = S15("first");
+    assert(v.peek!S15);
+
     v = S15("second");
+    assert(!v.peek!string);
+    assert(v.peek!S15);
+
     v = "third";
+    assert(!v.peek!S15);
+    assert(v.peek!string);
 }

@@ -155,18 +155,16 @@ public:
         if (allowsAssignmentFrom!T)
     {
         // static assert(allowsAssignmentFrom!T, "Cannot store a " ~ T.stringof ~ " in a " ~ name ~ ", valid types are " ~ Types.stringof);
-
         alias U = Unqual!T;
         static if (_data.alignof >= T.alignof)
         {
+            import std.conv : emplace;
             import std.algorithm.mutation : move;
-            pragma(msg, typeof(*(cast(U*)&_data)));
-            pragma(msg, typeof(that));
-            *(cast(U*)&_data) = that.move();
+            emplace!U(cast(U*)(&_data), that.move());
         }
         else
         {
-            (cast(ubyte*)&_data)[0 .. T.sizeof] = (cast(ubyte*)&that)[0 .. T.sizeof];
+            (cast(ubyte*)&_data)[0 .. T.sizeof] = (cast(ubyte*)&that)[0 .. T.sizeof]; // TODO highly unsafe
         }
         _tix = cast(Ix)indexOf!U; // set type tag
     }
@@ -176,7 +174,6 @@ public:
     {
         // static assert(allowsAssignmentFrom!T, "Cannot store a " ~ T.stringof ~ " in a " ~ name ~ ", valid types are " ~ Types.stringof);
         if (hasValue) clearDataIndirections;
-
         alias U = Unqual!T;
         static if (_data.alignof >= T.alignof)
         {
@@ -185,10 +182,9 @@ public:
         }
         else
         {
-            (cast(ubyte*)&_data)[0 .. T.sizeof] = (cast(ubyte*)&that)[0 .. T.sizeof];
+            (cast(ubyte*)&_data)[0 .. T.sizeof] = (cast(ubyte*)&that)[0 .. T.sizeof]; // TODO highly unsafe
         }
         _tix = cast(Ix)indexOf!U; // set type tag
-
         return this;
     }
 

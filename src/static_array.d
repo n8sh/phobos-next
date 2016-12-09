@@ -180,7 +180,7 @@ pure unittest
     S15 s;
     S15 t = s;
 
-    // FastVariant!(S15, string) v = S15("first");
+    FastVariant!(S15, string) v = S15("first");
     // v = S15("second");
-    // v = "third";
+    v = "third";
 }

@@ -152,18 +152,18 @@ pure unittest
     static assert(!__traits(compiles, { const xyzw = A('x', 'y', 'z', 'w'); }));
 }
 
-void testAsSomeString(E)()
-{
-    enum capacity = 15;
-    alias A = ArrayN!(immutable(E), capacity);
-    const a = A("abc");
-    assert(a[] == "abc");
-    assert(a[].equal("abc"));
-}
-
 /// strings
 pure unittest
 {
+    static void testAsSomeString(E)()
+    {
+        enum capacity = 15;
+        alias A = ArrayN!(immutable(E), capacity);
+        const a = A("abc");
+        assert(a[] == "abc");
+        assert(a[].equal("abc"));
+    }
+
     import std.typecons : AliasSeq;
     foreach (E; AliasSeq!(char, wchar, dchar))
     {

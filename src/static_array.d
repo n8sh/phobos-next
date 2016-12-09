@@ -3,7 +3,7 @@ module static_array;
 /** Statically allocated `E`-array of fixed pre-allocated length.
     Similar to Rust's `fixedvec`: https://docs.rs/fixedvec/0.2.3/fixedvec/
 */
-struct StaticArrayN(E, uint capacity)
+struct ArrayN(E, uint capacity)
 {
     E[capacity] _store;         /// stored elements
 
@@ -84,9 +84,9 @@ struct StaticArrayN(E, uint capacity)
     }
 }
 
-alias StringN(uint capacity) = StaticArrayN!(immutable(char), capacity);
-alias WStringN(uint capacity) = StaticArrayN!(immutable(wchar), capacity);
-alias DStringN(uint capacity) = StaticArrayN!(immutable(dchar), capacity);
+alias StringN(uint capacity) = ArrayN!(immutable(char), capacity);
+alias WStringN(uint capacity) = ArrayN!(immutable(wchar), capacity);
+alias DStringN(uint capacity) = ArrayN!(immutable(dchar), capacity);
 
 ///
 @safe pure unittest
@@ -94,7 +94,7 @@ alias DStringN(uint capacity) = StaticArrayN!(immutable(dchar), capacity);
     alias E = char;
     enum capacity = 3;
 
-    alias A = StaticArrayN!(E, capacity);
+    alias A = ArrayN!(E, capacity);
     static assert(A.sizeof == E.sizeof*capacity + 1);
 
     auto ab = A('a', 'b');

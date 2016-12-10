@@ -3,10 +3,6 @@ module fixed_array;
 /** Statically allocated `Mod`-array of fixed pre-allocated length `capacity` of
     `Mod`-elements in chunks of `elementLength`. `ElementType` is
     `Mod[elementLength]`.
-
-    TODO Move to std.array in Phobos.
-
-    Similar to Rust's `fixedvec`: https://docs.rs/fixedvec/0.2.3/fixedvec/
 */
 struct ModArrayN(uint capacity,
                  uint elementLength = 1,
@@ -44,7 +40,7 @@ struct ModArrayN(uint capacity,
         }
         foreach (const i, const ix; rhs)
         {
-            _ixs[i] = ix;
+            _store[i] = ix;
         }
         _length = rhs.length;
     }
@@ -55,7 +51,7 @@ struct ModArrayN(uint capacity,
     {
         foreach (const i, const ix; ixs)
         {
-            _ixs[i] = ix;
+            _store[i] = ix;
         }
         _length = ixs.length;
     }
@@ -65,7 +61,7 @@ struct ModArrayN(uint capacity,
         this(const Ix[] ixs)
         {
             assert(ixs.length <= capacity);
-            _ixs[0 .. ixs.length] = ixs;
+            _store[0 .. ixs.length] = ixs;
             _length = ixs.length;
         }
     }
@@ -101,14 +97,14 @@ struct ModArrayN(uint capacity,
     auto front() inout          // TODO should throw?
     {
         assert(!empty);
-        return _ixs[0];
+        return _store[0];
     }
 
     /** Get last element. */
     auto back() inout           // TODO should throw?
     {
         assert(!empty);
-        return _ixs[_length - 1];
+        return _store[_length - 1];
     }
 
     /** Returns: `true` if `this` is empty, `false` otherwise. */
@@ -124,7 +120,7 @@ struct ModArrayN(uint capacity,
         // TODO is there a reusable Phobos function for this?
         foreach (const i; 0 .. _length - 1)
         {
-            move(_ixs[i + 1], _ixs[i]); // like `_ixs[i] = _ixs[i + 1];` but more generic
+            move(_store[i + 1], _store[i]); // like `_store[i] = _store[i + 1];` but more generic
         }
         _length = _length - 1;
         return this;
@@ -137,7 +133,7 @@ struct ModArrayN(uint capacity,
         // TODO is there a reusable Phobos function for this?
         foreach (const i; 0 .. _length - n)
         {
-            move(_ixs[i + n], _ixs[i]); // like `_ixs[i] = _ixs[i + n];` but more generic
+            move(_store[i + n], _store[i]); // like `_store[i] = _store[i + n];` but more generic
         }
         _length = _length - n;
         return this;
@@ -159,7 +155,7 @@ struct ModArrayN(uint capacity,
         assert(length + Es.length <= capacity);
         foreach (const i, const ix; moreEs)
         {
-            _ixs[_length + i] = ix;
+            _store[_length + i] = ix;
         }
         _length = _length + Es.length;
         return this;
@@ -201,7 +197,7 @@ struct ModArrayN(uint capacity,
     }
 
     /** Returns: elements as a slice. */
-    auto chunks() inout { return _ixs[0 .. _length]; }
+    auto chunks() inout { return _store[0 .. _length]; }
     alias chunks this;
 
     /** Variant of `opIndex` with compile-time range checking. */
@@ -209,7 +205,7 @@ struct ModArrayN(uint capacity,
         if (ix < capacity)      // assert below memory allocation bound
     {
         assert(ix < _length);   // assert accessing initialized elements
-        return _ixs.ptr[ix];    // uses `.ptr` because `ix` known at compile-time to be within bounds; `ix < capacity`
+        return _store.ptr[ix];    // uses `.ptr` because `ix` known at compile-time to be within bounds; `ix < capacity`
     }
 
     /** Get length. */
@@ -225,14 +221,14 @@ struct ModArrayN(uint capacity,
 private:
     static if (L == 1)
     {
-        Ix[capacity] _ixs = void; // byte indexes
+        Ix[capacity] _store = void; // byte indexes
     }
     else
     {
-        Ix[L][capacity] _ixs = void; // byte indexes
+        Ix[L][capacity] _store = void; // byte indexes
     }
 
-    static if (_ixs.sizeof == 6)
+    static if (_store.sizeof == 6)
     {
         ubyte _padding;
     }
@@ -323,6 +319,10 @@ static assert(ModArrayN!(2, 3, 8).sizeof == 8);
 
     x.popFrontN(1);
     assert(x.empty);
+
+    x.pushBack(1).pushBack(2).equal([1, 2]);
+    assert(x.equal([1, 2]));
+    assert(x.length == 2);
 }
 
 ///

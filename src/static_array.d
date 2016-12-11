@@ -247,6 +247,7 @@ pure unittest
 pure unittest
 {
     enum capacity = 15;
-    auto x = StringN!15("alpha");
+    alias String15 = StringN!15;
+    auto x = String15("alpha");
     static assert(is(typeof(x[]) == string));
 }

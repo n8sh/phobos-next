@@ -15,8 +15,14 @@ struct ArrayN(E, uint capacity)
     E[capacity] _store = void;  /// stored elements
 
     /// number of elements in `_store`
-    static      if (capacity < ubyte.max + 1)  ubyte _length;
-    else static if (capacity < ushort.max + 1) ushort _length;
+    static      if (capacity <= ubyte.max)
+    {
+        ubyte _length;
+    }
+    else static if (capacity <= ushort.max)
+    {
+        ushort _length;
+    }
     else static assert("Too large capacity " ~ capacity);
 
     alias ElementType = E;

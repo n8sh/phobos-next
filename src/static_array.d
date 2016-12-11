@@ -237,14 +237,14 @@ pure unittest
 }
 
 ///
-pure unittest
+@safe pure nothrow @nogc unittest
 {
     enum capacity = 4;
     alias A = ArrayN!(string, capacity);
 }
 
 ///
-pure unittest
+@safe pure nothrow @nogc unittest
 {
     enum capacity = 15;
     alias String15 = StringN!capacity;

@@ -3,9 +3,7 @@ module static_array;
 /** Statically allocated `E`-array of fixed pre-allocated length.
     Similar to Rust's `fixedvec`: https://docs.rs/fixedvec/0.2.3/fixedvec/
 
-    Borrow:
-    Support write and read borrow count.
-    append/pushBack does not invalidate borrows
+    TODO append/pushBack does not invalidate borrows
 */
 struct ArrayN(E, uint capacity)
 {

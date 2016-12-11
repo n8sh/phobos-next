@@ -154,6 +154,13 @@ alias WStringN(uint capacity) = ArrayN!(immutable(wchar), capacity);
 /** Stack-allocated dstring of maximum length of `capacity.` */
 alias DStringN(uint capacity) = ArrayN!(immutable(dchar), capacity);
 
+/** Stack-allocated mutable string of maximum length of `capacity.` */
+alias MutableStringN(uint capacity) = ArrayN!(char, capacity);
+/** Stack-allocated mutable wstring of maximum length of `capacity.` */
+alias MutableWStringN(uint capacity) = ArrayN!(char, capacity);
+/** Stack-allocated mutable dstring of maximum length of `capacity.` */
+alias MutableDStringN(uint capacity) = ArrayN!(char, capacity);
+
 version(unittest)
 {
     import std.algorithm.comparison : equal;
@@ -234,4 +241,12 @@ pure unittest
 {
     enum capacity = 4;
     alias A = ArrayN!(string, capacity);
+}
+
+///
+pure unittest
+{
+    enum capacity = 15;
+    auto x = StringN!15("alpha");
+    static assert(is(typeof(x[]) == string));
 }

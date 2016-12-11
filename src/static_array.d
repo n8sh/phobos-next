@@ -104,7 +104,10 @@ pragma(inline):
     /** Get as `string`. */
     @property auto toString() const @system // TODO DIP-1000 scope
     {
-        static if (isSomeChar!E) { return opSlice(); }
+        static if (isSomeChar!E)
+        {
+            return opSlice();
+        }
     }
 
 inout:

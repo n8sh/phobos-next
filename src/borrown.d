@@ -51,8 +51,6 @@ struct Owned(Container)
 
 pragma(inline):
 
-    // TODO can we somehow disallow move construction for `this`?
-
     ~this()
     {
         assert(!_writeBorrowed, "This is still write-borrowed, cannot release!");

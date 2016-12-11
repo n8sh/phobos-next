@@ -101,10 +101,10 @@ pragma(inline):
     @property auto length() const { return _length; }
     alias opDollar = length;    /// ditto
 
-    /** Get as `string`. */
-    @property auto toString() const @system // TODO DIP-1000 scope
+    static if (isSomeChar!E)
     {
-        static if (isSomeChar!E)
+        /** Get as `string`. */
+        @property const(E)[] toString() const @system // TODO DIP-1000 scope
         {
             return opSlice();
         }

@@ -19,18 +19,34 @@ struct ArrayN(E, uint capacity)
     static      if (capacity <= 2^^(8*ubyte.sizeof - 2) - 1)
     {
         mixin(bitfields!(ubyte, "_length", 6,
-                         bool, "_readBorrowed", 1, // TODO make private
-                         bool, "_writeBorrowed", 1 // TODO make private
+                         bool, "_writeBorrowed", 1, // TODO make private
+                         uint, "_readBorrowCount", 1, // TODO make private
                   ));
+        /// Maximum value possible for `_readBorrowCount`.
+        enum readBorrowCountMax = 1;
     }
     else static if (capacity <= 2^^(8*ushort.sizeof - 2) - 1)
     {
         mixin(bitfields!(ushort, "_length", 14,
-                         bool, "_readBorrowed", 1, // TODO make private
-                         bool, "_writeBorrowed", 1 // TODO make private
+                         bool, "_writeBorrowed", 1, // TODO make private
+                         uint, "_readBorrowCount", 1, // TODO make private
                   ));
+        /// Maximum value possible for `_readBorrowCount`.
+        enum readBorrowCountMax = 1;
     }
     else static assert("Too large capacity " ~ capacity);
+
+    @safe pure nothrow @nogc @property
+    {
+        /// Returns: `true` iff `this` is borrowed.
+        bool isBorrowed() const { return _writeBorrowed || _readBorrowCount >= 1; }
+
+        /// Returns: `true` iff `this` is write borrowed.
+        bool isWriteBorrowed() const { return _writeBorrowed; }
+
+        /// Returns: number of read-only borrowers of `this`.
+        uint readBorrowCount() const { return _readBorrowCount; }
+    }
 
     alias ElementType = E;
 

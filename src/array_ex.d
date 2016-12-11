@@ -1446,12 +1446,12 @@ private struct Array(E,
     alias SmallLength = ubyte;
 
     /** Tag `this` borrowed.
-        Used by wrapper logic in borrown.d
+        Used by wrapper logic in owned.d and borrowed.d
     */
     void tagAsBorrowed() @safe { _isBorrowed = true; }
 
     /** Tag `this` as not borrowed.
-        Used by wrapper logic in borrown.d
+        Used by wrapper logic in owned.d and borrowed.d
     */
     void untagAsNotBorrowed() @safe { _isBorrowed = false; }
 

@@ -20,7 +20,7 @@
 
     </ul>
  */
-module borrown;
+module owned;
 
 version(unittest)
 {

@@ -9,6 +9,7 @@ module static_array;
 */
 struct ArrayN(E, uint capacity)
 {
+    import std.bitmanip : bitfields;
     import std.traits : isSomeChar, hasElaborateDestructor;
     import qcmeman : gc_addRange, gc_removeRange;
 
@@ -17,11 +18,13 @@ struct ArrayN(E, uint capacity)
     /// number of elements in `_store`
     static      if (capacity <= ubyte.max)
     {
-        ubyte _length;
+        mixin(bitfields!(ubyte, "_length", 7,
+                         bool, "_borrowed", 1));
     }
     else static if (capacity <= ushort.max)
     {
-        ushort _length;
+        mixin(bitfields!(ubyte, "_length", 15,
+                         bool, "_borrowed", 1));
     }
     else static assert("Too large capacity " ~ capacity);
 

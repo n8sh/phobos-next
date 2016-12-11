@@ -45,7 +45,7 @@ struct ModArrayN(uint capacity,
         _length = rhs.length;
     }
 
-    this(Es...)(Es ixs)
+    pragma(inline) this(Es...)(Es ixs)
         if (Es.length >= 1 &&
             Es.length <= capacity)
     {
@@ -58,7 +58,7 @@ struct ModArrayN(uint capacity,
 
     static if (L == 1)
     {
-        this(const Ix[] ixs)
+        pragma(inline) this(const Ix[] ixs)
         {
             assert(ixs.length <= capacity);
             _store[0 .. ixs.length] = ixs;
@@ -91,17 +91,17 @@ struct ModArrayN(uint capacity,
         return s;
     }
 
-    @safe pure nothrow @nogc:
+    pragma(inline) @safe pure nothrow @nogc:
 
     /** Get first element. */
-    auto front() inout          // TODO should throw?
+    auto front() inout
     {
         assert(!empty);
         return _store[0];
     }
 
     /** Get last element. */
-    auto back() inout           // TODO should throw?
+    auto back() inout
     {
         assert(!empty);
         return _store[_length - 1];
@@ -169,6 +169,7 @@ struct ModArrayN(uint capacity,
         if (key.length != L) { return false; }
         return (chunks.canFind(key));
     }
+
     static if (L == 1)
     {
         import std.traits : isUnsigned;

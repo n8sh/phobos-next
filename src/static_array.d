@@ -36,18 +36,6 @@ struct ArrayN(E, uint capacity)
     }
     else static assert("Too large capacity " ~ capacity);
 
-    @safe pure nothrow @nogc @property
-    {
-        /// Returns: `true` iff `this` is borrowed.
-        bool isBorrowed() const { return _writeBorrowed || _readBorrowCount >= 1; }
-
-        /// Returns: `true` iff `this` is write borrowed.
-        bool isWriteBorrowed() const { return _writeBorrowed; }
-
-        /// Returns: number of read-only borrowers of `this`.
-        uint readBorrowCount() const { return _readBorrowCount; }
-    }
-
     alias ElementType = E;
 
     template shouldAddGCRange(T)
@@ -114,22 +102,34 @@ struct ArrayN(E, uint capacity)
 
 pragma(inline):
 
-    /** Returns: `true` if `this` is empty, `false` otherwise. */
-    @property bool empty() const { return _length == 0; }
-
-    /** Returns: `true` if `this` is full, `false` otherwise. */
-    @property bool full() const { return _length == capacity; }
-
-    /** Get length. */
-    @property auto length() const { return _length; }
-    alias opDollar = length;    /// ditto
-
-    static if (isSomeChar!E)
+    @safe pure nothrow @nogc @property
     {
-        /** Get as `string`. */
-        @property const(E)[] toString() const @system // TODO DIP-1000 scope
+        /// Returns: `true` iff `this` is either write or read borrowed.
+        bool isBorrowed() const { return _writeBorrowed || _readBorrowCount >= 1; }
+
+        /// Returns: `true` iff `this` is write borrowed.
+        bool isWriteBorrowed() const { return _writeBorrowed; }
+
+        /// Returns: number of read-only borrowers of `this`.
+        uint readBorrowCount() const { return _readBorrowCount; }
+
+        /** Returns: `true` if `this` is empty, `false` otherwise. */
+        bool empty() const { return _length == 0; }
+
+        /** Returns: `true` if `this` is full, `false` otherwise. */
+        bool full() const { return _length == capacity; }
+
+        /** Get length. */
+        auto length() const { return _length; }
+        alias opDollar = length;    /// ditto
+
+        static if (isSomeChar!E)
         {
-            return opSlice();
+            /** Get as `string`. */
+            const(E)[] toString() const @system // TODO DIP-1000 scope
+            {
+                return opSlice();
+            }
         }
     }
 

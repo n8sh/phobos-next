@@ -16,15 +16,17 @@ struct ArrayN(E, uint capacity)
     E[capacity] _store = void;  /// stored elements
 
     /// number of elements in `_store`
-    static      if (capacity <= ubyte.max)
+    static      if (capacity <= 2^^(8*ubyte.sizeof - 2) - 1)
     {
-        mixin(bitfields!(ubyte, "_length", 7,
-                         bool, "_borrowed", 1));
+        mixin(bitfields!(ubyte, "_length", 6,
+                         bool, "_readBorrowed", 1,
+                         bool, "_writeBorrowed", 1));
     }
-    else static if (capacity <= ushort.max)
+    else static if (capacity <= 2^^(8*ushort.sizeof - 2) - 1)
     {
-        mixin(bitfields!(ubyte, "_length", 15,
-                         bool, "_borrowed", 1));
+        mixin(bitfields!(ushort, "_length", 14,
+                         bool, "_readBorrowed", 1,
+                         bool, "_writeBorrowed", 1));
     }
     else static assert("Too large capacity " ~ capacity);
 

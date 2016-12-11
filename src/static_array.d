@@ -29,8 +29,8 @@ struct ArrayN(E, uint capacity)
 
     template shouldAddGCRange(T)
     {
-        import std.traits : hasIndirections, isInstanceOf;
-        enum shouldAddGCRange = hasIndirections!T;
+        import std.traits : hasIndirections;
+        enum shouldAddGCRange = hasIndirections!T; // TODO and only if T's indirections are handled by the GC (not tagged with @nogc)
     }
 
     @safe pure nothrow @nogc:
@@ -67,7 +67,7 @@ struct ArrayN(E, uint capacity)
     static if (hasElaborateDestructor!E)
     {
         /** Destruct. */
-        ~this() nothrow @safe
+        pragma(inline) ~this() nothrow @safe
         {
             destroyElements();
             static if (shouldAddGCRange!E)

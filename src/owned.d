@@ -91,11 +91,12 @@ pragma(inline):
 
     static if (true/*TODO hasUnsafeSlicing!Container*/)
     {
-        import std.typecons : Unqual;
+        import borrowed : ReadBorrowed, WriteBorrowed;
 
         /// Get full read-only slice.
         ReadBorrowed!(Range, Owned) sliceRO() const @trusted
         {
+            import std.typecons : Unqual;
             assert(!_writeBorrowed, "This is already write-borrowed");
             return typeof(return)(_container.opSlice,
                                   cast(Unqual!(typeof(this))*)(&this)); // trusted unconst casta
@@ -104,6 +105,7 @@ pragma(inline):
         /// Get read-only slice in range `i` .. `j`.
         ReadBorrowed!(Range, Owned) sliceRO(size_t i, size_t j) const @trusted
         {
+            import std.typecons : Unqual;
             assert(!_writeBorrowed, "This is already write-borrowed");
             return typeof(return)(_container.opSlice[i .. j],
                                   cast(Unqual!(typeof(this))*)(&this)); // trusted unconst cast
@@ -163,8 +165,9 @@ pragma(inline):
 
     Container _container;            /// wrapped container
     alias _container this;
-private:
-    bool _writeBorrowed = false; /// `true' if _container is currently referred to
+
+public:
+    bool _writeBorrowed = false; /// `true` if `_container` is currently referred to
     uint _readBorrowCount = 0; /// number of readable borrowers. TODO use `size_t` minus one bit instead in `size_t _stats`
 }
 
@@ -188,110 +191,6 @@ void moveEmplace(Owner)(ref Owner src, ref Owner dst) @safe pure nothrow @nogc
     if (isInstanceOf!(Owned, Owner))
 {
     src.moveEmplace(dst);   // reuse member function
-}
-
-/** Write-borrowed access to range `Range`. */
-private static struct WriteBorrowed(Range, Owner)
-    // if (isInstanceOf!(Owned, Owner))
-{
-    this(Range range, Owner* owner)
-    {
-        assert(owner);
-        _range = range;
-        _owner = owner;
-        owner._writeBorrowed = true;
-    }
-
-    @disable this(this);        // cannot be copied
-
-    ~this()
-    {
-        debug assert(_owner._writeBorrowed, "Write borrow flag is already false, something is wrong with borrowing logic.");
-        _owner._writeBorrowed = false;
-    }
-
-    Range _range;                   /// range
-    alias _range this;              /// behave like range
-
-private:
-    Owner* _owner = null;           /// pointer to container owner
-}
-
-/** Read-borrowed access to range `Range`. */
-private static struct ReadBorrowed(Range, Owner)
-    // if (isInstanceOf!(Owned, Owner))
-{
-    this(const Range range, Owner* owner)
-    {
-        import std.typecons : Unqual;
-        _range = *(cast(Unqual!Range*)&range);
-        _owner = owner;
-        if (_owner)
-        {
-            assert(_owner._readBorrowCount != typeof(_owner._readBorrowCount).max, "Cannot have more borrowers.");
-            _owner._readBorrowCount += 1;
-        }
-    }
-
-    this(this)
-    {
-        if (_owner)
-        {
-            assert(_owner._readBorrowCount != typeof(_owner._readBorrowCount).max, "Cannot have more borrowers.");
-            _owner._readBorrowCount += 1;
-        }
-    }
-
-    ~this()
-    {
-        if (_owner)
-        {
-            debug assert(_owner._readBorrowCount != 0, "Read borrow counter is already zero, something is wrong with borrowing logic.");
-            _owner._readBorrowCount -= 1;
-        }
-    }
-
-    /// Get read-only slice in range `i` .. `j`.
-    auto opSlice(size_t i, size_t j)
-    {
-        return typeof(this)(_range[i .. j], _owner);
-    }
-
-    /// Get read-only slice.
-    auto opSlice() inout
-    {
-        return this;            // same as copy
-    }
-
-    @property bool empty() const @safe pure nothrow @nogc
-    {
-        import std.range : empty;
-        return _range.empty;
-    }
-
-    @property auto ref front() inout @safe pure nothrow @nogc
-    {
-        assert(!empty);
-        import std.range : front;
-        return _range.front;
-    }
-
-    typeof(this) save()         // forward range
-    {
-        return this;
-    }
-
-    void popFront() @safe
-    {
-        import std.range : popFront;
-        _range.popFront();
-    }
-
-    Range _range;               /// constant range
-    alias _range this;          /// behave like range
-
-private:
-    Owner* _owner = null;       /// pointer to container owner
 }
 
 template needsOwnership(Container)
@@ -340,6 +239,8 @@ pure unittest
     import std.traits : isInstanceOf;
     import std.exception: assertThrown;
     import core.exception : AssertError;
+
+    import borrowed : ReadBorrowed, WriteBorrowed;
 
     alias A = UncopyableArray!int;
 

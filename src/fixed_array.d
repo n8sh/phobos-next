@@ -144,18 +144,21 @@ struct ModArrayN(uint capacity,
     {
         assert(!empty);
         // TODO destruct last element?
-        _length = _length - 1;
+        _length = cast(typeof(_length))(_length - 1); // TODO better?
         return this;
     }
 
-    /** Push/Add elements `moreEs` at back. */
-    auto ref pushBack(Es...)(Es moreEs)
+    /** Push/Add elements `es` at back.
+        NOTE Doesn't invalidate any borrow.
+    */
+    auto ref pushBack(Es...)(Es es)
         if (Es.length <= capacity)
     {
         assert(length + Es.length <= capacity);
-        foreach (const i, const ix; moreEs)
+        foreach (const i, ref e; es)
         {
-            _store[_length + i] = ix;
+            import std.algorithm.mutation : move;
+            _store[_length + i] = e.move();
         }
         _length = _length + Es.length;
         return this;

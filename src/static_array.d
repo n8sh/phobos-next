@@ -115,11 +115,24 @@ struct ArrayN(E, uint capacity)
         if (Es.length <= capacity)
     {
         assert(_length + Es.length <= capacity);
-        foreach (const i, const e; es)
+        foreach (const i, ref e; es)
         {
-            _store[_length + i] = e;
+            import std.algorithm.mutation : move;
+            _store[_length + i] = e.move();
         }
-        _length = cast(typeof(_length))(_length + Es.length);
+        _length = cast(typeof(_length))(_length + Es.length); // TODO better?
+        return this;
+    }
+    /// ditto
+    alias append = pushBack;
+
+    /** Pop last (back) element. */
+    auto ref popBack()
+    {
+        assert(!empty);
+        assert(!isBorrowed);
+        // TODO destruct last element?
+        _length = cast(typeof(_length))(_length - 1); // TODO better?
         return this;
     }
 

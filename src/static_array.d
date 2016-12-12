@@ -17,7 +17,6 @@ struct ArrayN(E, uint capacity)
     /// number of elements in `_store`
     static      if (capacity <= 2^^4 - 1)
     {
-        /// Maximum value possible for `_readBorrowCount`.
         enum readBorrowCountBits = 3;
         mixin(bitfields!(ubyte, "_length", 4,
                          bool, "_writeBorrowed", 1, // TODO make private
@@ -31,10 +30,10 @@ struct ArrayN(E, uint capacity)
                          bool, "_writeBorrowed", 1, // TODO make private
                          uint, "_readBorrowCount", readBorrowCountBits, // TODO make private
                   ));
-        /// Maximum value possible for `_readBorrowCount`.
     }
     else static assert("Too large capacity " ~ capacity);
 
+    /// Maximum value possible for `_readBorrowCount`.
     enum readBorrowCountMax = 2^^readBorrowCountBits - 1;
 
     alias ElementType = E;

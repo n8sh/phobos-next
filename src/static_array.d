@@ -109,7 +109,7 @@ struct ArrayN(E, uint capacity)
     }
 
     /** Push/Add elements `es` at back.
-        Doesn't invalidate any borrow.
+        NOTE Doesn't invalidate any borrow.
      */
     auto ref pushBack(Es...)(Es es)
         if (Es.length <= capacity)

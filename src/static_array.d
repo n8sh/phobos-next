@@ -126,6 +126,25 @@ struct ArrayN(E, uint capacity)
     /// ditto
     alias append = pushBack;
 
+    import std.traits : isMutable;
+    static if (isMutable!E)
+    {
+        /** Pop first (front) element. */
+        auto ref popFront()
+        {
+            assert(!empty);
+            assert(!isBorrowed);
+            // TODO is there a reusable Phobos function for this?
+            foreach (const i; 0 .. _length - 1)
+            {
+                import std.algorithm.mutation : move;
+                move(_store[i + 1], _store[i]); // like `_store[i] = _store[i + 1];` but more generic
+            }
+            _length = cast(typeof(_length))(_length - 1); // TODO better?
+            return this;
+        }
+    }
+
     /** Pop last (back) element. */
     auto ref popBack()
     {
@@ -261,6 +280,10 @@ pure unittest                   // TODO @safe
     assert(abc.full);
     static assert(!__traits(compiles, { const abcd = A('a', 'b', 'c', 'd'); })); // too many elements
 
+    assert(ab[] == "ab");
+    ab.popFront();
+    assert(ab[] == "b");
+
     const xy = A("xy");
     assert(!xy.empty);
     assert(xy[0] == 'x');
@@ -276,7 +299,6 @@ pure unittest                   // TODO @safe
     assert(xyz.back == 'z');
     assert(xyz.length == 3);
     assert(xyz[] == "xyz");
-    assert(ab[0 .. 2] == "ab");
     assert(xyz.full);
     static assert(!__traits(compiles, { const xyzw = A('x', 'y', 'z', 'w'); })); // too many elements
 }

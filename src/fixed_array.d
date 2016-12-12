@@ -45,24 +45,24 @@ struct ModArrayN(uint capacity,
         _length = rhs.length;
     }
 
-    pragma(inline) this(Es...)(Es ixs)
+    pragma(inline) this(Es...)(Es es)
         if (Es.length >= 1 &&
             Es.length <= capacity)
     {
-        foreach (const i, const ix; ixs)
+        foreach (const i, const ix; es)
         {
             _store[i] = ix;
         }
-        _length = ixs.length;
+        _length = es.length;
     }
 
     static if (L == 1)
     {
-        pragma(inline) this(const Ix[] ixs)
+        pragma(inline) this(const Ix[] es)
         {
-            assert(ixs.length <= capacity);
-            _store[0 .. ixs.length] = ixs;
-            _length = ixs.length;
+            assert(es.length <= capacity);
+            _store[0 .. es.length] = es;
+            _length = es.length;
         }
     }
 

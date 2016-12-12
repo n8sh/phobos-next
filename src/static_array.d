@@ -75,28 +75,28 @@ struct ArrayN(E, uint capacity)
         _length = cast(ubyte)es.length;
     }
 
+    /** Destruct. */
+    pragma(inline) ~this() nothrow @trusted
+    {
+        assert(!isBorrowed);
+        static if (hasElaborateDestructor!E)
+        {
+            destroyElements();
+        }
+        static if (shouldAddGCRange!E)
+        {
+            gc_removeRange(_store.ptr);
+        }
+    }
+
     static if (hasElaborateDestructor!E)
     {
-        /** Destruct. */
-        pragma(inline) ~this() nothrow @safe
-        {
-            assert(!isBorrowed);
-            destroyElements();
-            static if (shouldAddGCRange!E)
-            {
-                gc_removeRange(_store.ptr);
-            }
-        }
-
         /// Destroy elements.
         private void destroyElements() @truste
         {
-            static if (hasElaborateDestructor!E)
+            foreach (immutable i; 0 .. length)
             {
-                foreach (immutable i; 0 .. length)
-                {
-                    .destroy(_store.ptr[i]);
-                }
+                .destroy(_store.ptr[i]);
             }
         }
     }

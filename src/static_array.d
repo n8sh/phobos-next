@@ -14,7 +14,7 @@ struct ArrayN(E, uint capacity)
     E[capacity] _store = void;  /// stored elements
 
     /// number of elements in `_store`
-    static      if (capacity <= 2^^(8*ubyte.sizeof - 2) - 1)
+    static      if (capacity <= 2^^6 - 1)
     {
         mixin(bitfields!(ubyte, "_length", 6,
                          bool, "_writeBorrowed", 1, // TODO make private
@@ -23,7 +23,7 @@ struct ArrayN(E, uint capacity)
         /// Maximum value possible for `_readBorrowCount`.
         enum readBorrowCountMax = 1;
     }
-    else static if (capacity <= 2^^(8*ushort.sizeof - 2) - 1)
+    else static if (capacity <= 2^^14 - 1)
     {
         mixin(bitfields!(ushort, "_length", 14,
                          bool, "_writeBorrowed", 1, // TODO make private
@@ -78,6 +78,7 @@ struct ArrayN(E, uint capacity)
         /** Destruct. */
         pragma(inline) ~this() nothrow @safe
         {
+            assert(!isBorrowed);
             destroyElements();
             static if (shouldAddGCRange!E)
             {
@@ -96,6 +97,13 @@ struct ArrayN(E, uint capacity)
                 }
             }
         }
+    }
+
+    /** Returns: `true` if `key` is contained in `this`. */
+    bool canFind(const E[] key) const @nogc @trusted
+    {
+        import std.algorithm.searching : canFind;
+        return _store[].canFind(key);
     }
 
 pragma(inline):
@@ -270,5 +278,9 @@ pure unittest
     enum capacity = 15;
     alias String15 = StringN!capacity;
     auto x = String15("alpha");
+    assert(x.canFind("alpha"));
+    assert(x.canFind("al"));
+    assert(x.canFind("ph"));
+    assert(!x.canFind("ala"));
     static assert(is(typeof(x[]) == string));
 }

@@ -4,6 +4,7 @@ module static_array;
     Similar to Rust's `fixedvec`: https://docs.rs/fixedvec/0.2.3/fixedvec/
 
     TODO append/pushBack does not invalidate borrows
+    TODO prepend/pushFront
 */
 struct ArrayN(E, uint capacity)
 {

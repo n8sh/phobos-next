@@ -1,4 +1,4 @@
 module borrown;
 
 public import owned;
-public import borrowed;;
+public import borrowed;

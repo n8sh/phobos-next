@@ -131,8 +131,11 @@ struct ArrayN(E, uint capacity)
     {
         assert(!empty);
         assert(!isBorrowed);
-        // TODO destruct last element?
         _length = cast(typeof(_length))(_length - 1); // TODO better?
+        static if (hasElaborateDestructor!E)
+        {
+            .destroy(_store.ptr[_length]);
+        }
         return this;
     }
 
@@ -244,6 +247,8 @@ pure unittest
     assert(ab[0 .. 1] == "a");
     ab.pushBack('_');
     assert(ab[] == "ab_");
+    ab.popBack();
+    assert(ab[] == "ab");
 
     const abc = A('a', 'b', 'c');
     assert(!abc.empty);

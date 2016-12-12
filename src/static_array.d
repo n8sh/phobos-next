@@ -103,7 +103,7 @@ struct ArrayN(E, uint capacity)
     bool canFind(const E[] key) const @nogc @trusted
     {
         import std.algorithm.searching : canFind;
-        return _store[].canFind(key);
+        return _store.ptr[0 .. _length].canFind(key);
     }
 
 pragma(inline):

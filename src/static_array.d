@@ -51,10 +51,10 @@ struct ArrayN(E, uint capacity)
         if (Es.length >= 1 &&
             Es.length <= capacity)
     {
-        foreach (const i, const ix; es)
+        foreach (const i, const e; es)
         {
             import std.algorithm.mutation : move;
-            _store[i] = ix.move(); // move
+            _store[i] = e.move(); // move
         }
         static if (shouldAddGCRange!E)
         {
@@ -106,6 +106,21 @@ struct ArrayN(E, uint capacity)
     {
         import std.algorithm.searching : canFind;
         return _store.ptr[0 .. _length].canFind(key);
+    }
+
+    /** Push/Add elements `es` at back.
+        Doesn't invalidate any borrow.
+     */
+    auto ref pushBack(Es...)(Es es)
+        if (Es.length <= capacity)
+    {
+        assert(_length + Es.length <= capacity);
+        foreach (const i, const e; es)
+        {
+            _store[_length + i] = e;
+        }
+        _length = cast(typeof(_length))(_length + Es.length);
+        return this;
     }
 
 pragma(inline):
@@ -214,6 +229,8 @@ pure unittest
     assert(ab.length == 2);
     assert(ab[] == "ab");
     assert(ab[0 .. 1] == "a");
+    ab.pushBack('_');
+    assert(ab[] == "ab_");
 
     const abc = A('a', 'b', 'c');
     assert(!abc.empty);
@@ -223,7 +240,7 @@ pure unittest
     assert(abc[] == "abc");
     assert(ab[0 .. 2] == "ab");
     assert(abc.full);
-    static assert(!__traits(compiles, { const abcd = A('a', 'b', 'c', 'd'); }));
+    static assert(!__traits(compiles, { const abcd = A('a', 'b', 'c', 'd'); })); // too many elements
 
     const xy = A("xy");
     assert(!xy.empty);
@@ -242,7 +259,7 @@ pure unittest
     assert(xyz[] == "xyz");
     assert(ab[0 .. 2] == "ab");
     assert(xyz.full);
-    static assert(!__traits(compiles, { const xyzw = A('x', 'y', 'z', 'w'); }));
+    static assert(!__traits(compiles, { const xyzw = A('x', 'y', 'z', 'w'); })); // too many elements
 }
 
 ///

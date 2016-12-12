@@ -23,9 +23,9 @@ struct ArrayN(E, uint capacity)
                          uint, "_readBorrowCount", readBorrowCountBits, // TODO make private
                   ));
     }
-    else static if (capacity <= 2^^14 - 1)
+    else static if (capacity <= 2^^12 - 1)
     {
-        enum readBorrowCountBits = 1;
+        enum readBorrowCountBits = 3;
         mixin(bitfields!(ushort, "_length", 14,
                          bool, "_writeBorrowed", 1, // TODO make private
                          uint, "_readBorrowCount", readBorrowCountBits, // TODO make private

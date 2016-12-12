@@ -280,10 +280,12 @@ pure unittest
     enum capacity = 15;
     alias String15 = StringN!capacity;
     static assert(String15.readBorrowCountMax == 7);
+
     auto x = String15("alpha");
+    static assert(is(typeof(x[]) == string));
+
     assert(x.canFind("alpha"));
     assert(x.canFind("al"));
     assert(x.canFind("ph"));
     assert(!x.canFind("ala"));
-    static assert(is(typeof(x[]) == string));
 }

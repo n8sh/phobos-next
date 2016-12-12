@@ -229,7 +229,7 @@ version(unittest)
 }
 
 ///
-pure unittest
+pure unittest                   // TODO @safe
 {
     alias E = char;
     enum capacity = 3;
@@ -249,6 +249,7 @@ pure unittest
     assert(ab[] == "ab_");
     ab.popBack();
     assert(ab[] == "ab");
+    assert(ab.toString == "ab");
 
     const abc = A('a', 'b', 'c');
     assert(!abc.empty);
@@ -281,7 +282,7 @@ pure unittest
 }
 
 ///
-pure unittest
+pure unittest                   // TODO @safe
 {
     static void testAsSomeString(E)()
     {

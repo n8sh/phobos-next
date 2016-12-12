@@ -15,25 +15,27 @@ struct ArrayN(E, uint capacity)
     E[capacity] _store = void;  /// stored elements
 
     /// number of elements in `_store`
-    static      if (capacity <= 2^^6 - 1)
+    static      if (capacity <= 2^^4 - 1)
     {
-        mixin(bitfields!(ubyte, "_length", 6,
-                         bool, "_writeBorrowed", 1, // TODO make private
-                         uint, "_readBorrowCount", 1, // TODO make private
-                  ));
         /// Maximum value possible for `_readBorrowCount`.
-        enum readBorrowCountMax = 1;
+        enum readBorrowCountBits = 3;
+        mixin(bitfields!(ubyte, "_length", 4,
+                         bool, "_writeBorrowed", 1, // TODO make private
+                         uint, "_readBorrowCount", readBorrowCountBits, // TODO make private
+                  ));
     }
     else static if (capacity <= 2^^14 - 1)
     {
+        enum readBorrowCountBits = 1;
         mixin(bitfields!(ushort, "_length", 14,
                          bool, "_writeBorrowed", 1, // TODO make private
-                         uint, "_readBorrowCount", 1, // TODO make private
+                         uint, "_readBorrowCount", readBorrowCountBits, // TODO make private
                   ));
         /// Maximum value possible for `_readBorrowCount`.
-        enum readBorrowCountMax = 1;
     }
     else static assert("Too large capacity " ~ capacity);
+
+    enum readBorrowCountMax = 2^^readBorrowCountBits - 1;
 
     alias ElementType = E;
 
@@ -278,6 +280,7 @@ pure unittest
 {
     enum capacity = 15;
     alias String15 = StringN!capacity;
+    static assert(String15.readBorrowCountMax == 7);
     auto x = String15("alpha");
     assert(x.canFind("alpha"));
     assert(x.canFind("al"));

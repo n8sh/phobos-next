@@ -149,35 +149,26 @@ struct ArrayN(E, uint capacity)
 
 pragma(inline):
 
-    @safe pure nothrow @nogc @property
+    /// Get read-only slice in range `i` .. `j`.
+    auto opSlice(size_t i, size_t j) const
     {
-        /// Returns: `true` iff `this` is either write or read borrowed.
-        bool isBorrowed() const { return _writeBorrowed || _readBorrowCount >= 1; }
+        return sliceRO(i, j);
+    }
+    /// Get read-write slice in range `i` .. `j`.
+    auto opSlice(size_t i, size_t j)
+    {
+        return sliceRW(i, j);
+    }
 
-        /// Returns: `true` iff `this` is write borrowed.
-        bool isWriteBorrowed() const { return _writeBorrowed; }
-
-        /// Returns: number of read-only borrowers of `this`.
-        uint readBorrowCount() const { return _readBorrowCount; }
-
-        /** Returns: `true` if `this` is empty, `false` otherwise. */
-        bool empty() const { return _length == 0; }
-
-        /** Returns: `true` if `this` is full, `false` otherwise. */
-        bool full() const { return _length == capacity; }
-
-        /** Get length. */
-        auto length() const { return _length; }
-        alias opDollar = length;    /// ditto
-
-        static if (isSomeChar!E)
-        {
-            /** Get as `string`. */
-            const(E)[] toString() const @system // TODO DIP-1000 scope
-            {
-                return opSlice();
-            }
-        }
+    /// Get read-only full slice.
+    auto opSlice() const
+    {
+        return sliceRO();
+    }
+    /// Get read-write full slice.
+    auto opSlice()
+    {
+        return sliceRW();
     }
 
     /** Index operator. */
@@ -237,26 +228,35 @@ pragma(inline):
         return typeof(return)(_store.ptr[0 .. j], &this);
     }
 
-    /// Get read-only slice in range `i` .. `j`.
-    auto opSlice(size_t i, size_t j) const
+    @safe pure nothrow @nogc @property
     {
-        return sliceRO(i, j);
-    }
-    /// Get read-write slice in range `i` .. `j`.
-    auto opSlice(size_t i, size_t j)
-    {
-        return sliceRW(i, j);
-    }
+        /// Returns: `true` iff `this` is either write or read borrowed.
+        bool isBorrowed() const { return _writeBorrowed || _readBorrowCount >= 1; }
 
-    /// Get read-only full slice.
-    auto opSlice() const
-    {
-        return sliceRO();
-    }
-    /// Get read-write full slice.
-    auto opSlice()
-    {
-        return sliceRW();
+        /// Returns: `true` iff `this` is write borrowed.
+        bool isWriteBorrowed() const { return _writeBorrowed; }
+
+        /// Returns: number of read-only borrowers of `this`.
+        uint readBorrowCount() const { return _readBorrowCount; }
+
+        /** Returns: `true` if `this` is empty, `false` otherwise. */
+        bool empty() const { return _length == 0; }
+
+        /** Returns: `true` if `this` is full, `false` otherwise. */
+        bool full() const { return _length == capacity; }
+
+        /** Get length. */
+        auto length() const { return _length; }
+        alias opDollar = length;    /// ditto
+
+        static if (isSomeChar!E)
+        {
+            /** Get as `string`. */
+            const(E)[] toString() const @system // TODO DIP-1000 scope
+            {
+                return opSlice();
+            }
+        }
     }
 }
 

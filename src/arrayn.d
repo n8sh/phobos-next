@@ -377,4 +377,20 @@ pure unittest                   // TODO @safe
     assert(x.canFind("al"));
     assert(x.canFind("ph"));
     assert(!x.canFind("ala"));
+
+}
+
+///
+@safe pure unittest
+{
+    enum capacity = 15;
+    alias String15 = StringN!capacity;
+
+    auto x = String15("alpha");
+
+    assert(x[].equal("alpha") &&
+           x[].equal("alpha"));
+
+    auto xs1 = (cast(const)x)[];
+    auto xs2 = (cast(const)x)[];
 }

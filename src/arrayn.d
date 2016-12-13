@@ -3,7 +3,7 @@ module arrayn;
 /** Statically allocated `E`-array of fixed pre-allocated length.  Similar to
     Rust's `fixedvec`: https://docs.rs/fixedvec/0.2.3/fixedvec/
 
-    TODO prepend/pushFront
+    TODO Merge with array_ex.d to enable reuse of push and pop algorithms
 */
 struct ArrayN(E, uint capacity)
 {
@@ -98,7 +98,7 @@ struct ArrayN(E, uint capacity)
     }
 
     /** Push/Add elements `es` at back.
-        NOTE Doesn't invalidate any borrow.
+        NOTE doesn't invalidate any borrow
      */
     auto ref pushBack(Es...)(Es es) @trusted
         if (Es.length <= capacity)

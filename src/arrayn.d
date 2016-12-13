@@ -51,8 +51,8 @@ struct ArrayN(E, uint capacity)
     {
         foreach (const i, const e; es)
         {
-            import std.algorithm.mutation : move;
-            _store[i] = e.move(); // move
+            import std.algorithm.mutation : moveEmplace;
+            moveEmplace(e, _store[i]);
         }
         static if (shouldAddGCRange!E)
         {
@@ -100,14 +100,14 @@ struct ArrayN(E, uint capacity)
     /** Push/Add elements `es` at back.
         NOTE Doesn't invalidate any borrow.
      */
-    auto ref pushBack(Es...)(Es es)
+    auto ref pushBack(Es...)(Es es) @trusted
         if (Es.length <= capacity)
     {
         assert(_length + Es.length <= capacity);
         foreach (const i, ref e; es)
         {
-            import std.algorithm.mutation : move;
-            _store[_length + i] = e.move();
+            import std.algorithm.mutation : moveEmplace;
+            moveEmplace(e, _store[_length + i]);
         }
         _length = cast(typeof(_length))(_length + Es.length); // TODO better?
         return this;

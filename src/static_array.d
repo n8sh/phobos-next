@@ -1,9 +1,8 @@
 module static_array;
 
-/** Statically allocated `E`-array of fixed pre-allocated length.
-    Similar to Rust's `fixedvec`: https://docs.rs/fixedvec/0.2.3/fixedvec/
+/** Statically allocated `E`-array of fixed pre-allocated length.  Similar to
+    Rust's `fixedvec`: https://docs.rs/fixedvec/0.2.3/fixedvec/
 
-    TODO append/pushBack does not invalidate borrows
     TODO prepend/pushFront
 */
 struct ArrayN(E, uint capacity)

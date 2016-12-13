@@ -1,9 +1,8 @@
-module static_array;
+module arrayn;
 
-/** Statically allocated `E`-array of fixed pre-allocated length.
-    Similar to Rust's `fixedvec`: https://docs.rs/fixedvec/0.2.3/fixedvec/
+/** Statically allocated `E`-array of fixed pre-allocated length.  Similar to
+    Rust's `fixedvec`: https://docs.rs/fixedvec/0.2.3/fixedvec/
 
-    TODO append/pushBack does not invalidate borrows
     TODO prepend/pushFront
 */
 struct ArrayN(E, uint capacity)
@@ -14,27 +13,26 @@ struct ArrayN(E, uint capacity)
 
     E[capacity] _store = void;  /// stored elements
 
-    /// number of elements in `_store`
-    static      if (capacity <= 2^^4 - 1)
+    /// Number of bits needed to store number of read borrows.
+    enum readBorrowCountBits = 3;
+    /// Maximum value possible for `_readBorrowCount`.
+    enum readBorrowCountMax = 2^^readBorrowCountBits - 1;
+
+    static      if (capacity <= 2^^(8*ubyte.sizeof - 1 - readBorrowCountBits) - 1)
     {
-        enum readBorrowCountBits = 3;
-        mixin(bitfields!(ubyte, "_length", 4,
+        mixin(bitfields!(ubyte, "_length", 4, /// number of defined elements in `_store`
                          bool, "_writeBorrowed", 1, // TODO make private
                          uint, "_readBorrowCount", readBorrowCountBits, // TODO make private
                   ));
     }
-    else static if (capacity <= 2^^12 - 1)
+    else static if (capacity <= 2^^(8*ushort.sizeof - 1 - readBorrowCountBits) - 1)
     {
-        enum readBorrowCountBits = 3;
-        mixin(bitfields!(ushort, "_length", 14,
+        mixin(bitfields!(ushort, "_length", 14, /// number of defined elements in `_store`
                          bool, "_writeBorrowed", 1, // TODO make private
                          uint, "_readBorrowCount", readBorrowCountBits, // TODO make private
                   ));
     }
     else static assert("Too large capacity " ~ capacity);
-
-    /// Maximum value possible for `_readBorrowCount`.
-    enum readBorrowCountMax = 2^^readBorrowCountBits - 1;
 
     alias ElementType = E;
 
@@ -53,8 +51,8 @@ struct ArrayN(E, uint capacity)
     {
         foreach (const i, const e; es)
         {
-            import std.algorithm.mutation : move;
-            _store[i] = e.move(); // move
+            import std.algorithm.mutation : moveEmplace;
+            moveEmplace(e, _store[i]);
         }
         static if (shouldAddGCRange!E)
         {
@@ -81,23 +79,14 @@ struct ArrayN(E, uint capacity)
         assert(!isBorrowed);
         static if (hasElaborateDestructor!E)
         {
-            destroyElements();
-        }
-        static if (shouldAddGCRange!E)
-        {
-            gc_removeRange(_store.ptr);
-        }
-    }
-
-    static if (hasElaborateDestructor!E)
-    {
-        /// Destroy elements.
-        private void destroyElements() @truste
-        {
             foreach (immutable i; 0 .. length)
             {
                 .destroy(_store.ptr[i]);
             }
+        }
+        static if (shouldAddGCRange!E)
+        {
+            gc_removeRange(_store.ptr);
         }
     }
 
@@ -111,14 +100,14 @@ struct ArrayN(E, uint capacity)
     /** Push/Add elements `es` at back.
         NOTE Doesn't invalidate any borrow.
      */
-    auto ref pushBack(Es...)(Es es)
+    auto ref pushBack(Es...)(Es es) @trusted
         if (Es.length <= capacity)
     {
         assert(_length + Es.length <= capacity);
         foreach (const i, ref e; es)
         {
-            import std.algorithm.mutation : move;
-            _store[_length + i] = e.move();
+            import std.algorithm.mutation : moveEmplace;
+            moveEmplace(e, _store[_length + i]);
         }
         _length = cast(typeof(_length))(_length + Es.length); // TODO better?
         return this;

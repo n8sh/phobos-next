@@ -79,23 +79,14 @@ struct ArrayN(E, uint capacity)
         assert(!isBorrowed);
         static if (hasElaborateDestructor!E)
         {
-            destroyElements();
-        }
-        static if (shouldAddGCRange!E)
-        {
-            gc_removeRange(_store.ptr);
-        }
-    }
-
-    static if (hasElaborateDestructor!E)
-    {
-        /// Destroy elements.
-        private void destroyElements() @truste
-        {
             foreach (immutable i; 0 .. length)
             {
                 .destroy(_store.ptr[i]);
             }
+        }
+        static if (shouldAddGCRange!E)
+        {
+            gc_removeRange(_store.ptr);
         }
     }
 

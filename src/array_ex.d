@@ -123,7 +123,7 @@ private struct Array(E,
 {
     import std.conv : emplace;
     import std.range : isInputRange, ElementType;
-    import std.traits : isAssignable, Unqual, isSomeChar, isArray, isScalarType;
+    import std.traits : isAssignable, Unqual, isSomeChar, isArray, isScalarType, hasElaborateDestructor;
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
     import core.stdc.string : memset;
@@ -680,7 +680,14 @@ private struct Array(E,
     /// Release internal store.
     private void release() nothrow @trusted
     {
-        destroyElements();
+        static if (hasElaborateDestructor!E)
+        {
+            import std.traits : hasElaborateDestructor;
+            foreach (immutable i; 0 .. this.length)
+            {
+                .destroy(_mptr[i]);
+            }
+        }
         if (isLarge)
         {
             static if (shouldAddGCRange!E)
@@ -701,19 +708,6 @@ private struct Array(E,
                 {
                     free(_store.large.ptr);
                 }
-            }
-        }
-    }
-
-    /// Destroy elements.
-    private void destroyElements()
-    {
-        import std.traits : hasElaborateDestructor;
-        static if (hasElaborateDestructor!E)
-        {
-            foreach (immutable i; 0 .. this.length)
-            {
-                .destroy(_mptr[i]);
             }
         }
     }

@@ -49,14 +49,14 @@ struct ArrayN(E, uint capacity)
         if (Es.length >= 1 &&
             Es.length <= capacity)
     {
+        static if (shouldAddGCRange!E)
+        {
+            gc_addRange(_store.ptr, capacity * E.sizeof);
+        }
         foreach (const i, const e; es)
         {
             import std.algorithm.mutation : moveEmplace;
             moveEmplace(e, _store[i]);
-        }
-        static if (shouldAddGCRange!E)
-        {
-            gc_addRange(_store.ptr, capacity * E.sizeof);
         }
         _length = es.length;
     }
@@ -65,11 +65,11 @@ struct ArrayN(E, uint capacity)
     pragma(inline) this(const E[] es) @trusted
     {
         assert(es.length <= capacity);
-        _store[0 .. es.length] = es; // copy
         static if (shouldAddGCRange!E)
         {
             gc_addRange(_store.ptr, capacity * E.sizeof);
         }
+        _store[0 .. es.length] = es; // copy
         _length = cast(ubyte)es.length;
     }
 

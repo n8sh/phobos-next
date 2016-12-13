@@ -204,39 +204,38 @@ pragma(inline):
     import borrowed : ReadBorrowed, WriteBorrowed;
 
     alias Range = E[];
-    alias Owned = typeof(this);
 
     /// Get full read-only slice.
-    ReadBorrowed!(Range, Owned) sliceRO() const @trusted
+    ReadBorrowed!(Range, typeof(this)) sliceRO() const @trusted
     {
         import std.typecons : Unqual;
-        assert(!_writeBorrowed, "This is already write-borrowed");
+        assert(!_writeBorrowed, "typeof(this) is already write-borrowed");
         return typeof(return)(_store.ptr[0 .. _length],
                               cast(Unqual!(typeof(this))*)(&this)); // trusted unconst casta
     }
 
     /// Get read-only slice in range `i` .. `j`.
-    ReadBorrowed!(Range, Owned) sliceRO(size_t i, size_t j) const @trusted
+    ReadBorrowed!(Range, typeof(this)) sliceRO(size_t i, size_t j) const @trusted
     {
         import std.typecons : Unqual;
-        assert(!_writeBorrowed, "This is already write-borrowed");
+        assert(!_writeBorrowed, "typeof(this) is already write-borrowed");
         return typeof(return)(_store.ptr[i .. j],
                               cast(Unqual!(typeof(this))*)(&this)); // trusted unconst cast
     }
 
     /// Get full read-write slice.
-    WriteBorrowed!(Range, Owned) sliceRW() @trusted
+    WriteBorrowed!(Range, typeof(this)) sliceRW() @trusted
     {
-        assert(!_writeBorrowed, "This is already write-borrowed");
-        assert(_readBorrowCount == 0, "This is already read-borrowed");
+        assert(!_writeBorrowed, "typeof(this) is already write-borrowed");
+        assert(_readBorrowCount == 0, "typeof(this) is already read-borrowed");
         return typeof(return)(_store.ptr[0 .. _length], &this);
     }
 
     /// Get read-write slice in range `i` .. `j`.
-    WriteBorrowed!(Range, Owned) sliceRW(size_t i, size_t j) @trusted
+    WriteBorrowed!(Range, typeof(this)) sliceRW(size_t i, size_t j) @trusted
     {
-        assert(!_writeBorrowed, "This is already write-borrowed");
-        assert(_readBorrowCount == 0, "This is already read-borrowed");
+        assert(!_writeBorrowed, "typeof(this) is already write-borrowed");
+        assert(_readBorrowCount == 0, "typeof(this) is already read-borrowed");
         return typeof(return)(_store.ptr[0 .. j], &this);
     }
 

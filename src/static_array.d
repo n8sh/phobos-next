@@ -13,27 +13,26 @@ struct ArrayN(E, uint capacity)
 
     E[capacity] _store = void;  /// stored elements
 
-    /// number of elements in `_store`
-    static      if (capacity <= 2^^4 - 1)
+    /// Number of bits needed to store number of read borrows.
+    enum readBorrowCountBits = 3;
+    /// Maximum value possible for `_readBorrowCount`.
+    enum readBorrowCountMax = 2^^readBorrowCountBits - 1;
+
+    static      if (capacity <= 2^^(8*ubyte.sizeof - 1 - readBorrowCountBits) - 1)
     {
-        enum readBorrowCountBits = 3;
-        mixin(bitfields!(ubyte, "_length", 4,
+        mixin(bitfields!(ubyte, "_length", 4, /// number of defined elements in `_store`
                          bool, "_writeBorrowed", 1, // TODO make private
                          uint, "_readBorrowCount", readBorrowCountBits, // TODO make private
                   ));
     }
-    else static if (capacity <= 2^^12 - 1)
+    else static if (capacity <= 2^^(8*ushort.sizeof - 1 - readBorrowCountBits) - 1)
     {
-        enum readBorrowCountBits = 3;
-        mixin(bitfields!(ushort, "_length", 14,
+        mixin(bitfields!(ushort, "_length", 14, /// number of defined elements in `_store`
                          bool, "_writeBorrowed", 1, // TODO make private
                          uint, "_readBorrowCount", readBorrowCountBits, // TODO make private
                   ));
     }
     else static assert("Too large capacity " ~ capacity);
-
-    /// Maximum value possible for `_readBorrowCount`.
-    enum readBorrowCountMax = 2^^readBorrowCountBits - 1;
 
     alias ElementType = E;
 
@@ -306,6 +305,13 @@ pure unittest                   // TODO @safe
 @safe pure nothrow @nogc unittest
 {
     enum capacity = 4;
+    alias A = ArrayN!(string, capacity);
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    enum capacity = 2^20;
     alias A = ArrayN!(string, capacity);
 }
 

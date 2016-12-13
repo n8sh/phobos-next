@@ -365,7 +365,6 @@ pure unittest                   // TODO @safe
     assert(x.canFind("al"));
     assert(x.canFind("ph"));
     assert(!x.canFind("ala"));
-
 }
 
 ///

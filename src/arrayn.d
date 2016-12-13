@@ -370,7 +370,7 @@ pure unittest                   // TODO @safe
 }
 
 ///
-@safe pure unittest
+pure unittest
 {
     enum capacity = 15;
     alias String15 = StringN!capacity;
@@ -407,9 +407,7 @@ pure unittest                   // TODO @safe
     auto xr7 = (cast(const)x)[];
     assert(x.readBorrowCount == 7);
 
-    // auto xr8 = (cast(const)x)[];
-
     import std.exception : assertThrown;
     import core.exception : AssertError;
-    // assertThrown!AssertError({ auto xr8 = (cast(const)x)[]; });
+    assertThrown!AssertError((cast(const)x)[]);
 }

@@ -171,6 +171,7 @@ pragma(inline):
 public:
     bool _writeBorrowed = false; /// `true` if `_container` is currently referred to
     uint _readBorrowCount = 0; /// number of readable borrowers. TODO use `size_t` minus one bit instead in `size_t _stats`
+    enum readBorrowCountMax = typeof(_readBorrowCount).max;
 }
 
 /** Checked overload for `std.algorithm.mutation.move`.

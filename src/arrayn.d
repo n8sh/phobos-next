@@ -393,4 +393,13 @@ pure unittest                   // TODO @safe
 
     auto xs1 = (cast(const)x)[];
     auto xs2 = (cast(const)x)[];
+    auto xs3 = (cast(const)x)[];
+    auto xs4 = (cast(const)x)[];
+    auto xs5 = (cast(const)x)[];
+    auto xs6 = (cast(const)x)[];
+    auto xs7 = (cast(const)x)[];
+
+    import std.exception : assertThrown;
+    import core.exception : AssertError;
+    // assertThrown!AssertError({ auto xs8 = (cast(const)x)[]; });
 }

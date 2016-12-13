@@ -149,28 +149,6 @@ struct ArrayN(E, uint capacity)
 
 pragma(inline):
 
-    /// Get read-only slice in range `i` .. `j`.
-    auto opSlice(size_t i, size_t j) const
-    {
-        return sliceRO(i, j);
-    }
-    /// Get read-write slice in range `i` .. `j`.
-    auto opSlice(size_t i, size_t j)
-    {
-        return sliceRW(i, j);
-    }
-
-    /// Get read-only full slice.
-    auto opSlice() const
-    {
-        return sliceRO();
-    }
-    /// Get read-write full slice.
-    auto opSlice()
-    {
-        return sliceRW();
-    }
-
     /** Index operator. */
     ref inout(E) opIndex(size_t i) inout @trusted // TODO DIP-1000 scope
     {
@@ -191,6 +169,16 @@ pragma(inline):
         assert(!empty);
         return _store.ptr[_length - 1];
     }
+
+    /// Get read-only slice in range `i` .. `j`.
+    auto opSlice(size_t i, size_t j) const { return sliceRO(i, j); }
+    /// Get read-write slice in range `i` .. `j`.
+    auto opSlice(size_t i, size_t j) { return sliceRW(i, j); }
+
+    /// Get read-only full slice.
+    auto opSlice() const { return sliceRO(); }
+    /// Get read-write full slice.
+    auto opSlice() { return sliceRW(); }
 
     import borrowed : ReadBorrowed, WriteBorrowed;
 
@@ -392,12 +380,27 @@ pure unittest                   // TODO @safe
            x[].equal("alpha"));
 
     auto xs1 = (cast(const)x)[];
+    assert(x.readBorrowCount == 1);
+
     auto xs2 = (cast(const)x)[];
+    assert(x.readBorrowCount == 2);
+
     auto xs3 = (cast(const)x)[];
+    assert(x.readBorrowCount == 3);
+
     auto xs4 = (cast(const)x)[];
+    assert(x.readBorrowCount == 4);
+
     auto xs5 = (cast(const)x)[];
+    assert(x.readBorrowCount == 5);
+
     auto xs6 = (cast(const)x)[];
+    assert(x.readBorrowCount == 6);
+
     auto xs7 = (cast(const)x)[];
+    assert(x.readBorrowCount == 7);
+
+    // auto xs8 = (cast(const)x)[];
 
     import std.exception : assertThrown;
     import core.exception : AssertError;

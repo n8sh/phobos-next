@@ -311,13 +311,6 @@ pure unittest                   // TODO @safe
 ///
 @safe pure nothrow @nogc unittest
 {
-    enum capacity = 2^20;
-    alias A = ArrayN!(string, capacity);
-}
-
-///
-@safe pure nothrow @nogc unittest
-{
     enum capacity = 15;
     alias String15 = StringN!capacity;
     static assert(String15.readBorrowCountMax == 7);

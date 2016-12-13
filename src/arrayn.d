@@ -180,40 +180,86 @@ pragma(inline):
         }
     }
 
-inout:
-
     /** Index operator. */
-    ref inout(E) opIndex(size_t i) @trusted // TODO DIP-1000 scope
+    ref inout(E) opIndex(size_t i) inout @trusted // TODO DIP-1000 scope
     {
         assert(i < _length);
         return _store.ptr[i];
     }
 
     /** First (front) element. */
-    ref inout(E) front() @trusted // TODO DIP-1000 scope
+    ref inout(E) front() inout @trusted // TODO DIP-1000 scope
     {
         assert(!empty);
         return _store.ptr[0];
     }
 
     /** Last (back) element. */
-    ref inout(E) back() @trusted // TODO DIP-1000 scope
+    ref inout(E) back() inout @trusted // TODO DIP-1000 scope
     {
         assert(!empty);
         return _store.ptr[_length - 1];
     }
 
-    /** Slice operator. */
-    inout(E)[] opSlice() @system    // TODO DIP-1000 scope
+    import borrowed : ReadBorrowed, WriteBorrowed;
+
+    alias Range = E[];
+    alias Owned = typeof(this);
+
+    /// Get full read-only slice.
+    ReadBorrowed!(Range, Owned) sliceRO() const @trusted
     {
-        return opSlice(0, _length);
+        import std.typecons : Unqual;
+        assert(!_writeBorrowed, "This is already write-borrowed");
+        return typeof(return)(_store.ptr[0 .. _length],
+                              cast(Unqual!(typeof(this))*)(&this)); // trusted unconst casta
     }
-    /** ditto */
-    inout(E)[] opSlice(size_t i, size_t j) @system // TODO DIP-1000 scope
+
+    /// Get read-only slice in range `i` .. `j`.
+    ReadBorrowed!(Range, Owned) sliceRO(size_t i, size_t j) const @trusted
     {
-        assert(i <= j);
-        assert(j <= _length);
-        return _store.ptr[i .. j];
+        import std.typecons : Unqual;
+        assert(!_writeBorrowed, "This is already write-borrowed");
+        return typeof(return)(_store.ptr[i .. j],
+                              cast(Unqual!(typeof(this))*)(&this)); // trusted unconst cast
+    }
+
+    /// Get full read-write slice.
+    WriteBorrowed!(Range, Owned) sliceRW() @trusted
+    {
+        assert(!_writeBorrowed, "This is already write-borrowed");
+        assert(_readBorrowCount == 0, "This is already read-borrowed");
+        return typeof(return)(_store.ptr[0 .. _length], &this);
+    }
+
+    /// Get read-write slice in range `i` .. `j`.
+    WriteBorrowed!(Range, Owned) sliceRW(size_t i, size_t j) @trusted
+    {
+        assert(!_writeBorrowed, "This is already write-borrowed");
+        assert(_readBorrowCount == 0, "This is already read-borrowed");
+        return typeof(return)(_store.ptr[0 .. j], &this);
+    }
+
+    /// Get read-only slice in range `i` .. `j`.
+    auto opSlice(size_t i, size_t j) const
+    {
+        return sliceRO(i, j);
+    }
+    /// Get read-write slice in range `i` .. `j`.
+    auto opSlice(size_t i, size_t j)
+    {
+        return sliceRW(i, j);
+    }
+
+    /// Get read-only full slice.
+    auto opSlice() const
+    {
+        return sliceRO();
+    }
+    /// Get read-write full slice.
+    auto opSlice()
+    {
+        return sliceRW();
     }
 }
 
@@ -329,7 +375,6 @@ pure unittest                   // TODO @safe
     static assert(String15.readBorrowCountMax == 7);
 
     auto x = String15("alpha");
-    static assert(is(typeof(x[]) == string));
 
     assert(x.canFind("alpha"));
     assert(x.canFind("al"));

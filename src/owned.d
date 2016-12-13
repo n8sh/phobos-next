@@ -93,6 +93,8 @@ pragma(inline):
     {
         import borrowed : ReadBorrowed, WriteBorrowed;
 
+        // TODO can all these definitions be reduce somehow?
+
         /// Get full read-only slice.
         ReadBorrowed!(Range, Owned) sliceRO() const @trusted
         {
@@ -138,12 +140,12 @@ pragma(inline):
             return sliceRW(i, j);
         }
 
-        /// Get read-only slice.
+        /// Get read-only full slice.
         auto opSlice() const
         {
             return sliceRO();
         }
-        /// Get read-write slice.
+        /// Get read-write full slice.
         auto opSlice()
         {
             return sliceRW();

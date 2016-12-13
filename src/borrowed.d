@@ -39,7 +39,7 @@ struct ReadBorrowed(Range, Owner)
         if (_owner)
         {
             assert(_owner._readBorrowCount != typeof(_owner._readBorrowCount).max, "Cannot have more borrowers.");
-            _owner._readBorrowCount += 1;
+            _owner._readBorrowCount = _owner._readBorrowCount + 1;
         }
     }
 
@@ -48,7 +48,7 @@ struct ReadBorrowed(Range, Owner)
         if (_owner)
         {
             assert(_owner._readBorrowCount != typeof(_owner._readBorrowCount).max, "Cannot have more borrowers.");
-            _owner._readBorrowCount += 1;
+            _owner._readBorrowCount = _owner._readBorrowCount + 1;
         }
     }
 
@@ -56,8 +56,8 @@ struct ReadBorrowed(Range, Owner)
     {
         if (_owner)
         {
-            debug assert(_owner._readBorrowCount != 0, "Read borrow counter is already zero, something is wrong with borrowing logic.");
-            _owner._readBorrowCount -= 1;
+            assert(_owner._readBorrowCount != 0, "Read borrow counter is already zero, something is wrong with borrowing logic.");
+            _owner._readBorrowCount = _owner._readBorrowCount - 1;
         }
     }
 
@@ -79,7 +79,7 @@ struct ReadBorrowed(Range, Owner)
         return _range.empty;
     }
 
-    @property auto ref front() inout @safe pure nothrow @nogc
+    @property auto ref front() inout @safe pure
     {
         assert(!empty);
         import std.range : front; // pick this if `_range` doesn't have it

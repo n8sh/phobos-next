@@ -244,7 +244,7 @@ public:
     pragma(inline) void opAssign(typeof(null)) { clear(); }
 
     /// Release internal store.
-    private void release() @safe nothrow @nogc
+    private void release() @trusted nothrow @nogc
     {
         final switch (_tix)
         {
@@ -253,7 +253,7 @@ public:
             case i:
                 static if (hasElaborateDestructor!T)
                 {
-                    .destroy(*cast(T*)&_store);
+                    .destroy(*cast(T*)&_store); // reinterpret
                 }
             }
         }

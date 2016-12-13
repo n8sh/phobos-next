@@ -203,10 +203,8 @@ pragma(inline):
 
     import borrowed : ReadBorrowed, WriteBorrowed;
 
-    alias Range = E[];
-
     /// Get full read-only slice.
-    ReadBorrowed!(Range, typeof(this)) sliceRO() const @trusted
+    ReadBorrowed!(E[], typeof(this)) sliceRO() const @trusted
     {
         import std.typecons : Unqual;
         assert(!_writeBorrowed, "typeof(this) is already write-borrowed");
@@ -215,7 +213,7 @@ pragma(inline):
     }
 
     /// Get read-only slice in range `i` .. `j`.
-    ReadBorrowed!(Range, typeof(this)) sliceRO(size_t i, size_t j) const @trusted
+    ReadBorrowed!(E[], typeof(this)) sliceRO(size_t i, size_t j) const @trusted
     {
         import std.typecons : Unqual;
         assert(!_writeBorrowed, "typeof(this) is already write-borrowed");
@@ -224,7 +222,7 @@ pragma(inline):
     }
 
     /// Get full read-write slice.
-    WriteBorrowed!(Range, typeof(this)) sliceRW() @trusted
+    WriteBorrowed!(E[], typeof(this)) sliceRW() @trusted
     {
         assert(!_writeBorrowed, "typeof(this) is already write-borrowed");
         assert(_readBorrowCount == 0, "typeof(this) is already read-borrowed");
@@ -232,7 +230,7 @@ pragma(inline):
     }
 
     /// Get read-write slice in range `i` .. `j`.
-    WriteBorrowed!(Range, typeof(this)) sliceRW(size_t i, size_t j) @trusted
+    WriteBorrowed!(E[], typeof(this)) sliceRW(size_t i, size_t j) @trusted
     {
         assert(!_writeBorrowed, "typeof(this) is already write-borrowed");
         assert(_readBorrowCount == 0, "typeof(this) is already read-borrowed");

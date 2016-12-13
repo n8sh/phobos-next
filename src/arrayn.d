@@ -381,6 +381,7 @@ pure unittest                   // TODO @safe
     {
         auto xw1 = x[];
         assert(x.isWriteBorrowed);
+        assert(x.isBorrowed);
     }
 
     auto xr1 = (cast(const)x)[];

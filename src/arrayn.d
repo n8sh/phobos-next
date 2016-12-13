@@ -378,30 +378,35 @@ pure unittest                   // TODO @safe
     assert(x[].equal("alpha") &&
            x[].equal("alpha"));
 
-    auto xs1 = (cast(const)x)[];
+    {
+        auto xw1 = x[];
+        assert(x.isWriteBorrowed);
+    }
+
+    auto xr1 = (cast(const)x)[];
     assert(x.readBorrowCount == 1);
 
-    auto xs2 = (cast(const)x)[];
+    auto xr2 = (cast(const)x)[];
     assert(x.readBorrowCount == 2);
 
-    auto xs3 = (cast(const)x)[];
+    auto xr3 = (cast(const)x)[];
     assert(x.readBorrowCount == 3);
 
-    auto xs4 = (cast(const)x)[];
+    auto xr4 = (cast(const)x)[];
     assert(x.readBorrowCount == 4);
 
-    auto xs5 = (cast(const)x)[];
+    auto xr5 = (cast(const)x)[];
     assert(x.readBorrowCount == 5);
 
-    auto xs6 = (cast(const)x)[];
+    auto xr6 = (cast(const)x)[];
     assert(x.readBorrowCount == 6);
 
-    auto xs7 = (cast(const)x)[];
+    auto xr7 = (cast(const)x)[];
     assert(x.readBorrowCount == 7);
 
-    // auto xs8 = (cast(const)x)[];
+    // auto xr8 = (cast(const)x)[];
 
     import std.exception : assertThrown;
     import core.exception : AssertError;
-    // assertThrown!AssertError({ auto xs8 = (cast(const)x)[]; });
+    // assertThrown!AssertError({ auto xr8 = (cast(const)x)[]; });
 }

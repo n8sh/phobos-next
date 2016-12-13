@@ -731,7 +731,7 @@ unittest
 ///
 pure unittest
 {
-    import static_array : StringN;
+    import arrayn : StringN;
     alias S15 = StringN!15;
 
     S15 s;

@@ -1,4 +1,4 @@
-module static_array;
+module arrayn;
 
 /** Statically allocated `E`-array of fixed pre-allocated length.  Similar to
     Rust's `fixedvec`: https://docs.rs/fixedvec/0.2.3/fixedvec/

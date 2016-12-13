@@ -3,9 +3,6 @@ module vary;
 import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor;;
 import traits_ex : haveCommonType;
 
-enum isAllowedVaryType(T) = (!hasElaborateCopyConstructor!T &&
-                             !hasElaborateDestructor!T);
-
 static class VaryNException : Exception
 {
     this(string s) pure @nogc
@@ -66,8 +63,6 @@ public:
                   "No use storing only one type in a " ~ name);
     static assert(N < maxParamCount,
                   "Cannot store more than " ~ maxParamCount.stringof ~ " Types in a " ~ name);
-    static assert(allSatisfy!(isAllowedVaryType, Types),
-                  "Cannot store some of the types " ~ Types.stringof ~ " in a " ~ name);
 
     /** `true` if `U` is allowed to be assigned to `this` */
     enum bool allowsAssignmentFrom(U) = ((N == 0 ||
@@ -148,6 +143,11 @@ public:
         _store = that._store;
         _tix = that._tix;
         // TODO run postblits
+    }
+
+    ~this()
+    {
+        if (hasValue) { release(); }
     }
 
     this(T)(T that) @trusted nothrow @nogc
@@ -253,7 +253,7 @@ public:
             case i:
                 static if (hasElaborateDestructor!T)
                 {
-                    .destroy(cast(T*)(&_store));
+                    .destroy(*cast(T*)&_store);
                 }
             }
         }
@@ -732,21 +732,21 @@ unittest
 pure unittest
 {
     import arrayn : StringN;
-    alias S15 = StringN!15;
+    alias String15 = StringN!15;
 
-    S15 s;
-    S15 t = s;
+    String15 s;
+    String15 t = s;
     assert(t == s);
 
-    FastVariant!(S15, string) v = S15("first");
-    assert(v.peek!S15);
+    FastVariant!(String15, string) v = String15("first");
+    assert(v.peek!String15);
     assert(!v.peek!string);
 
-    v = S15("second");
-    assert(v.peek!S15);
+    v = String15("second");
+    assert(v.peek!String15);
     assert(!v.peek!string);
 
     v = "third";
-    assert(!v.peek!S15);
+    assert(!v.peek!String15);
     assert(v.peek!string);
 }

@@ -16,7 +16,7 @@ struct WriteBorrowed(Range, Owner)
 
     ~this()
     {
-        debug assert(_owner._writeBorrowed, "Write borrow flag is already false, something is wrong with borrowing logic.");
+        debug assert(_owner._writeBorrowed, "Write borrow flag is already false, something is wrong with borrowing logic");
         _owner._writeBorrowed = false;
     }
 
@@ -38,7 +38,7 @@ struct ReadBorrowed(Range, Owner)
         _owner = owner;
         if (_owner)
         {
-            assert(_owner._readBorrowCount != typeof(_owner._readBorrowCount).max, "Cannot have more borrowers.");
+            assert(_owner._readBorrowCount != _owner.readBorrowCountMax, "Cannot have more borrowers");
             _owner._readBorrowCount = _owner._readBorrowCount + 1;
         }
     }
@@ -47,7 +47,7 @@ struct ReadBorrowed(Range, Owner)
     {
         if (_owner)
         {
-            assert(_owner._readBorrowCount != typeof(_owner._readBorrowCount).max, "Cannot have more borrowers.");
+            assert(_owner._readBorrowCount != _owner.readBorrowCountMax, "Cannot have more borrowers");
             _owner._readBorrowCount = _owner._readBorrowCount + 1;
         }
     }
@@ -56,7 +56,7 @@ struct ReadBorrowed(Range, Owner)
     {
         if (_owner)
         {
-            assert(_owner._readBorrowCount != 0, "Read borrow counter is already zero, something is wrong with borrowing logic.");
+            assert(_owner._readBorrowCount != 0, "Read borrow counter is already zero, something is wrong with borrowing logic");
             _owner._readBorrowCount = _owner._readBorrowCount - 1;
         }
     }

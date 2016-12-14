@@ -6,7 +6,9 @@
     "authors": [
         "Per Nordlöw"
     ],
-
+    "dependencies": {
+	"arsd": "~master"
+    },
     "sourcePaths": [ "src" ],
     "importPaths": [ "src" ]
 }

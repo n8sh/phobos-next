@@ -1312,16 +1312,14 @@ void show(Viz viz)
     assert(chromePid.wait() == 0);
 }
 
-version(unittest)
-{
-    import std.algorithm : map;
-}
-
 unittest
 {
+    import std.algorithm : map;
+
     // TODO hide these stuff in constructor for Viz
     import std.uuid: randomUUID;
     import std.stdio: File;
+
     immutable outPath = `/tmp/fs-` ~ randomUUID.toString() ~ `.` ~ `html`;
     File outFile = File(outPath, `w`);
     auto term = Terminal(ConsoleOutputType.linear);

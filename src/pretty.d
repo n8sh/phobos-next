@@ -1314,7 +1314,6 @@ void show(Viz viz)
 
 version(unittest)
 {
-    import dbgio : dln;
     import std.algorithm : map;
 }
 

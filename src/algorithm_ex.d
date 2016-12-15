@@ -2232,8 +2232,8 @@ alias halve = split2;
 ///
 @safe pure nothrow @nogc unittest
 {
-    const int[6] x = [0, 1, 2, 3, 4, 5];
-    const y = x.split2;
+    immutable int[6] x = [0, 1, 2, 3, 4, 5];
+    immutable y = x.split2;
     assert(y.first.equal(x[0 .. 3]));
     assert(y.second.equal(x[3 .. $]));
 }
@@ -2261,8 +2261,8 @@ auto split3(T)(T[] x) @trusted
 
 @safe pure nothrow @nogc unittest
 {
-    const int[6] x = [0, 1, 2, 3, 4, 5];
-    const y = x.split3;
+    immutable int[6] x = [0, 1, 2, 3, 4, 5];
+    immutable y = x.split3;
     assert(y.first.equal(x[0 .. 2]));
     assert(y.second.equal(x[2 .. 4]));
     assert(y.third.equal(x[4 .. 6]));

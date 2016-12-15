@@ -100,14 +100,6 @@ struct UTCOffset
         }
     }
 
-    bool opCast(U : bool)() const { return isDefined(); }
-    int opCmp(in UTCOffset that) const @trusted
-    {
-        immutable a = *cast(ubyte*)&this;
-        immutable b = *cast(ubyte*)&that;
-        return a < b ? -1 : a > b ? 1 : 0;
-    }
-
     string toString() const
     {
         if (isDefined)
@@ -125,7 +117,18 @@ struct UTCOffset
         }
     }
 
+    pragma(inline):
+
+    bool opCast(U : bool)() const { return isDefined(); }
+    int opCmp(in typeof(this) that) const @trusted
+    {
+        immutable a = *cast(ubyte*)&this;
+        immutable b = *cast(ubyte*)&that;
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+
     @property:
+
     auto hour()      const { return _hour; }
     auto minute()    const { return _quarter * 15; }
     bool isDefined() const { return _initializedFlag; }
@@ -140,7 +143,7 @@ private:
 @safe pure // nothrow
 unittest
 {
-    static assert(UTCOffset.sizeof == 1);
+    static assert(UTCOffset.sizeof == 1); // assert packet storage
 
     assert(UTCOffset(-12, 0));
 
@@ -210,7 +213,7 @@ struct YearMonth
     mixin(bitfields!(ushort, "year", 12, // Year: 0 .. 2^12-1 (4095)
                      Month, "month", 4));
 
-    this(ushort year, Month month) @safe pure nothrow @nogc
+    pragma(inline) this(ushort year, Month month) @safe pure nothrow @nogc
     {
         this.year = year;
         this.month = month;
@@ -237,10 +240,41 @@ struct YearMonth
         throw new std.conv.ConvException("Couldn't decode year and month from string");
     }
 
-    @property string toString() const @safe pure
+    @safe pure:
+
+    @property string toString() const
     {
         import std.conv : to;
         return year.to!string ~ `-` ~ (cast(ubyte)month).to!string; // TODO avoid GC allocation
+    }
+
+pragma(inline):
+
+    int opCmp(in typeof(this) that) const nothrow @nogc
+    {
+        if (this.year < that.year)
+        {
+            return -1;
+        }
+        else if (this.year > that.year)
+        {
+            return +1;
+        }
+        else
+        {
+            if (this.month < that.month)
+            {
+                return -1;
+            }
+            else if (this.month > that.month)
+            {
+                return +1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
     }
 }
 
@@ -249,7 +283,7 @@ struct YearMonth
     import std.datetime : Month;
     Month month;
 
-    static assert(YearMonth.sizeof == 2);
+    static assert(YearMonth.sizeof == 2); // assert packed storage
 
     const a = YearMonth(`April 2016`);
 
@@ -262,15 +296,17 @@ struct YearMonth
     assert(a.year == 2016);
     assert(a.month == Month.apr);
 
-    const b = YearMonth(`april 2016`);
-    assert(b.year == 2016);
-    assert(b.month == Month.apr);
+    assert(YearMonth(`April 1900`) == YearMonth(1900, Month.apr));
+    assert(YearMonth(`april 1900`) == YearMonth(1900, Month.apr));
+    assert(YearMonth(`apr 1900`) == YearMonth(1900, Month.apr));
+    assert(YearMonth(`Apr 1900`) == YearMonth(1900, Month.apr));
 
-    const c = YearMonth(`apr 2016`);
-    assert(c.year == 2016);
-    assert(c.month == Month.apr);
+    assert(YearMonth(`Apr 1900`) != YearMonth(1901, Month.apr));
+    assert(YearMonth(`Apr 1900`) < YearMonth(1901, Month.apr));
+    assert(YearMonth(`Apr 1901`) > YearMonth(1900, Month.apr));
 
-    const d = YearMonth(`Apr 2016`);
-    assert(d.year == 2016);
-    assert(d.month == Month.apr);
+    assert(YearMonth(`Apr 1900`) < YearMonth(1901, Month.may));
+
+    assert(YearMonth(`Apr 1900`) < YearMonth(1901, Month.may));
+    assert(YearMonth(`May 1900`) < YearMonth(1901, Month.apr));
 }

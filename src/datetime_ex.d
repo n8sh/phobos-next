@@ -211,6 +211,7 @@ struct YearMonth
 {
     import std.traits : isSomeString;
     import std.datetime : Month;
+
     import std.bitmanip : bitfields;
     mixin(bitfields!(ushort, "year", 12,
                      Month, "month", 4));

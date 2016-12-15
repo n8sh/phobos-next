@@ -75,10 +75,6 @@ struct UTCOffset
     nothrow:
 
     this(byte hour, ubyte minute)
-    in
-    {
-    }
-    body
     {
         if (hour >= minHour &&
             hour <= maxHour &&

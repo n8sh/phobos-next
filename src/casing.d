@@ -2,9 +2,44 @@ module casing;
 
 import std.traits : isSomeString;
 
+version(unittest)
+{
+    import std.algorithm : equal;
+    import std.conv : to;
+}
+
+/** Convert string $(S s) to lower-case.
+    String may contain only ASCII letters.
+ */
+auto toLowerASCII(S)(S s)
+    if (isSomeString!S)
+{
+    import std.algorithm.iteration : map;
+    import std.ascii : toLower;
+    return s.map!(ch => ch.toLower);
+}
+
+/** Convert string $(S s) to lower-case.
+    String may contain unicode letters.
+ */
+auto toLowerUnicode(S)(S s)
+    if (isSomeString!S)
+{
+    import std.algorithm.iteration : map;
+    import std.uni : toLower;
+    return s.map!(ch => ch.toLower);
+}
+
+///
+@safe pure /*TODO nothrow @nogc*/ unittest
+{
+    assert("Alpha".toLowerASCII.equal("alpha"));
+    assert("Alpha".toLowerUnicode.equal("alpha"));
+}
+
 /** Convert D-style camel-cased string $(S s) to lower-cased words.
  */
-auto camelCasedToLower(S)(const S s)
+auto camelCasedToLower(S)(S s)
     if (isSomeString!S)
 {
     import std.algorithm.iteration : map;
@@ -15,24 +50,18 @@ auto camelCasedToLower(S)(const S s)
     return s.preSlicer!isUpper.map!asLowerCase;
 }
 
-version(unittest)
-{
-    import std.algorithm : equal;
-    import std.conv : to;
-}
-
 ///
 @safe pure unittest
 {
     auto x = "doThis".camelCasedToLower;
-    assert(equal(x.front, "do"));
+    assert(x.front.equal("do"));
     x.popFront();
-    assert(equal(x.front, "this"));
+    assert(x.front.equal("this"));
 }
 
 /** Convert D-Style camel-cased string $(S s) to space-separated lower-cased words.
  */
-auto camelCasedToLowerSpaced(S, Separator)(const S s, const Separator separator = " ")
+auto camelCasedToLowerSpaced(S, Separator)(S s, const Separator separator = " ")
     if (isSomeString!S)
 {
     import std.algorithm.iteration : joiner;
@@ -60,8 +89,8 @@ auto toLowerSpacedChars(T, Separator)(const T t, const Separator separator = " "
 @safe pure unittest
 {
     enum Things { isURI, isLink }
-    assert(equal(Things.isURI.toLowerSpacedChars, "is uri"));
-    assert(equal(Things.isLink.toLowerSpacedChars, "is link"));
+    assert(Things.isURI.toLowerSpacedChars.equal("is uri"));
+    assert(Things.isLink.toLowerSpacedChars.equal("is link"));
 }
 
 ///

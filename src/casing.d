@@ -19,6 +19,13 @@ auto toLowerASCII(S)(S s)
     return s.map!(ch => ch.toLower);
 }
 
+///
+@safe pure /*TODO nothrow @nogc*/ unittest
+{
+    assert("Lasse".toLowerASCII.equal("lasse"));
+    assert("Åberg".toLowerASCII.equal("Åberg")); // ignores unicode letters
+}
+
 /** Convert string $(S s) to lower-case.
     String may contain Unicode characters.
  */
@@ -33,8 +40,6 @@ auto toLowerUnicode(S)(S s)
 ///
 @safe pure /*TODO nothrow @nogc*/ unittest
 {
-    assert("Lasse".toLowerASCII.equal("lasse"));
-    assert("Åberg".toLowerASCII.equal("Åberg")); // ignores unicode letters
     assert("Åberg".toLowerUnicode.equal("åberg"));
 }
 

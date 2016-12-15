@@ -435,15 +435,11 @@ auto isAnagramOf(R1, R2)(R1 r1, R2 r2) // TODO nothrow
         import std.utf : byUTF;
 
         // TODO functionize
-        static if (isNarrowString!R1)
-            auto s1 = r1.byUTF!dchar;
-        else
-            auto s1 = r1;
+        static if (isNarrowString!R1) auto s1 = r1.byUTF!dchar;
+        else                          auto s1 = r1; // TODO avoid copying
 
-        static if (isNarrowString!R2)
-            auto s2 = r2.byUTF!dchar;
-        else
-            auto s2 = r2;
+        static if (isNarrowString!R2) auto s2 = r2.byUTF!dchar;
+        else                          auto s2 = r2; // TODO avoid copying
 
         // histogram
         T[C] hist;              // TODO use non-GC-allocating AA

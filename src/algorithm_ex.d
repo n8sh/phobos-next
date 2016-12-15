@@ -2210,7 +2210,9 @@ typeof(fun(E.init))[n] map(alias fun, E, size_t n)(const E[n] src)
     }
 }
 
-/// Returns: `x` split in two parts, all as equal in length as possible.
+/** Returns: `x` split in two parts, all as equal in length as possible.
+    Safely avoids range checking thanks to D's builtin slice expressions.
+ */
 auto split2(T)(T[] x) @trusted
 {
     static struct Result        // Voldemort type
@@ -2234,7 +2236,9 @@ alias halve = split2;
     assert(y.second.equal(x[3 .. $]));
 }
 
-/// Returns: `x` split in three parts, all as equal in length as possible.
+/** Returns: `x` split in three parts, all as equal in length as possible.
+    Safely avoids range checking thanks to D's builtin slice expressions.
+ */
 auto split3(T)(T[] x) @trusted
 {
     static struct Result        // Voldemort type

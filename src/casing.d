@@ -16,7 +16,12 @@ auto toLowerASCII(S)(S s)
 {
     import std.algorithm.iteration : map;
     import std.ascii : toLower;
-    return s.map!(ch => ch.toLower);
+    import std.traits : isNarrowString;
+    import std.utf : byUTF;
+
+    // TODO functionize
+    static if (isNarrowString!S) return s.byUTF!dchar.map!(ch => ch.toLower);
+    else                         return t.map!(ch => ch.toLower);
 }
 
 ///
@@ -34,7 +39,12 @@ auto toLowerUnicode(S)(S s)
 {
     import std.algorithm.iteration : map;
     import std.uni : toLower;
-    return s.map!(ch => ch.toLower);
+    import std.traits : isNarrowString;
+    import std.utf : byUTF;
+
+    // TODO functionize
+    static if (isNarrowString!S) return s.byUTF!dchar.map!(ch => ch.toLower);
+    else                         return t.map!(ch => ch.toLower);
 }
 
 ///

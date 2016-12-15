@@ -6,14 +6,14 @@ import datetime_ex;
 */
 struct UTCOffset
 {
+    import std.traits : isSomeString;
+
     enum minHour = -12, maxHour = +14;
     enum minMinute = 0, maxMinute = 45;
     enum quarterValues = [00, 15, 30, 45];
     enum quarterNames = ["00", "15", "30", "45"];
 
     @safe pure:
-
-    import std.traits : isSomeString;
 
     this(S)(S code, bool strictFormat = false)
         if (isSomeString!S)
@@ -197,4 +197,80 @@ unittest
 
     assert(!UTCOffset("+14:00", true)); // strict faiure
     assert(UTCOffset("UTC+14:00", true)); // strict pass
+}
+
+/** Year and Month.
+    If month is specified we probably aren't interested in years before 0.
+ */
+struct YearMonth
+{
+    import std.traits : isSomeString;
+    import std.datetime : Month;
+    import std.bitmanip : bitfields;
+    mixin(bitfields!(ushort, "year", 12, // Year: 0 .. 2^12-1 (4095)
+                     Month, "month", 4));
+
+    this(ushort year, Month month) @safe pure nothrow @nogc
+    {
+        this.year = year;
+        this.month = month;
+    }
+
+    this(S)(S s)
+        if (isSomeString!S)
+    {
+        import std.algorithm.searching : findSplit;
+        auto parts = s.findSplit(` `); // TODO s.findSplitAtElement(' ')
+        if (parts &&
+            parts[0].length >= 3) // at least three letters in month
+        {
+            import std.conv : to;
+            import casing : toLowerASCII;
+            month = parts[0][0 .. 3].toLowerASCII
+                                    .to!string // TODO remove need for this temporary GC allocation
+                                    .to!Month;
+            year = parts[2].to!(typeof(year));
+            return;
+        }
+
+        import std.conv;
+        throw new std.conv.ConvException("Couldn't decode year and month from string");
+    }
+
+    @property string toString() const @safe pure
+    {
+        import std.conv : to;
+        return year.to!string ~ `-` ~ (cast(ubyte)month).to!string; // TODO avoid GC allocation
+    }
+}
+
+@safe pure unittest
+{
+    import std.datetime : Month;
+    Month month;
+
+    static assert(YearMonth.sizeof == 2);
+
+    const a = YearMonth(`April 2016`);
+
+    assert(a != YearMonth.init);
+
+    assert(a == YearMonth(2016, Month.apr));
+    assert(a != YearMonth(2016, Month.may));
+    assert(a != YearMonth(2015, Month.apr));
+
+    assert(a.year == 2016);
+    assert(a.month == Month.apr);
+
+    const b = YearMonth(`april 2016`);
+    assert(b.year == 2016);
+    assert(b.month == Month.apr);
+
+    const c = YearMonth(`apr 2016`);
+    assert(c.year == 2016);
+    assert(c.month == Month.apr);
+
+    const d = YearMonth(`Apr 2016`);
+    assert(d.year == 2016);
+    assert(d.month == Month.apr);
 }

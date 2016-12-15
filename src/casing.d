@@ -34,6 +34,7 @@ auto toLowerUnicode(S)(S s)
 @safe pure /*TODO nothrow @nogc*/ unittest
 {
     assert("Lasse".toLowerASCII.equal("lasse"));
+    assert("Åberg".toLowerASCII.equal("Åberg")); // ignores unicode letters
     assert("Åberg".toLowerUnicode.equal("åberg"));
 }
 

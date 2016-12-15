@@ -418,7 +418,7 @@ auto isAnagramOf(R1, R2)(R1 r1, R2 r2) // TODO nothrow
     if (r1.length + r2.length < sortLimit)
     {
         import std.algorithm.comparison : equal;
-        import sort_ex : sorted;
+        import sort_ex : sorted; // NOTE allocates
         return equal(r1.sorted,
                      r2.sorted);
     }
@@ -2200,6 +2200,7 @@ typeof(fun(E.init))[n] map(alias fun, E, size_t n)(const E[n] src)
     return src[].map!fun.arrayN!n;
 }
 
+///
 @safe pure nothrow unittest
 {
     import std.meta : AliasSeq;
@@ -2228,6 +2229,7 @@ auto split2(T)(T[] x) @trusted
 }
 alias halve = split2;
 
+///
 @safe pure nothrow @nogc unittest
 {
     const int[6] x = [0, 1, 2, 3, 4, 5];

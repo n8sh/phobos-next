@@ -40,6 +40,7 @@ auto toLowerUnicode(S)(S s)
 ///
 @safe pure /*TODO nothrow @nogc*/ unittest
 {
+    assert("Lasse".toLowerUnicode.equal("lasse"));
     assert("Åberg".toLowerUnicode.equal("åberg"));
 }
 

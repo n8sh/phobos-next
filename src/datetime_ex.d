@@ -234,11 +234,18 @@ struct YearMonth
             parts[0].length >= 3) // at least three letters in month
         {
             import std.conv : to;
+
+            // decode month
+            import std.typecons : Unqual;
             import casing : toLowerASCII;
-            month = parts[0][0 .. 3].toLowerASCII
-                                    .to!string // TODO remove need for this temporary GC allocation
-                                    .to!Month;
+            Unqual!(typeof(S.init[0])[3]) tmp = parts[0][0 .. 3];
+            import std.ascii : toLower;
+            tmp[0] = tmp[0].toLower;
+            month = tmp.to!Month;
+
+            // decode year
             year = parts[2].to!(typeof(year));
+
             return;
         }
 

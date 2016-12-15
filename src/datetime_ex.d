@@ -203,14 +203,16 @@ unittest
 }
 
 /** Year and Month.
-    If month is specified we probably aren't interested in years before 0.
+
+    If month is specified we probably aren't interested in years before 0 so
+    store only years 0 .. 2^12-1 (4095). This makes this struct fit in 2 bytes.
  */
 struct YearMonth
 {
     import std.traits : isSomeString;
     import std.datetime : Month;
     import std.bitmanip : bitfields;
-    mixin(bitfields!(ushort, "year", 12, // Year: 0 .. 2^12-1 (4095)
+    mixin(bitfields!(ushort, "year", 12,
                      Month, "month", 4));
 
     pragma(inline) this(ushort year, Month month) @safe pure nothrow @nogc
@@ -219,7 +221,8 @@ struct YearMonth
         this.month = month;
     }
 
-    ~this() @safe pure nothrow @nogc {}
+    /// No explicit destruction needed.
+    ~this() @safe pure nothrow @nogc {} // needed for @nogc use
 
     this(S)(S s)
         if (isSomeString!S)

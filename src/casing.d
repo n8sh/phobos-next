@@ -33,8 +33,8 @@ auto toLowerUnicode(S)(S s)
 ///
 @safe pure /*TODO nothrow @nogc*/ unittest
 {
-    assert("Alpha".toLowerASCII.equal("alpha"));
-    assert("Alpha".toLowerUnicode.equal("alpha"));
+    assert("Lasse".toLowerASCII.equal("lasse"));
+    assert("Åberg".toLowerUnicode.equal("åberg"));
 }
 
 /** Convert D-style camel-cased string $(S s) to lower-cased words.

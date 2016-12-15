@@ -219,6 +219,8 @@ struct YearMonth
         this.month = month;
     }
 
+    ~this() @safe pure nothrow @nogc {}
+
     this(S)(S s)
         if (isSomeString!S)
     {
@@ -278,7 +280,7 @@ pragma(inline):
     }
 }
 
-@safe pure unittest
+@safe pure /*TODO @nogc*/ unittest
 {
     import std.datetime : Month;
     Month month;

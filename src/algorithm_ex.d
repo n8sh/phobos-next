@@ -2210,7 +2210,7 @@ typeof(fun(E.init))[n] map(alias fun, E, size_t n)(const E[n] src)
     }
 }
 
-/// Split `x` in two parts.
+/// Returns: `x` split in two parts, all as equal in length as possible.
 auto split2(T)(T[] x) @trusted
 {
     static struct Result        // Voldemort type
@@ -2234,7 +2234,7 @@ alias halve = split2;
     assert(y.second.equal(x[3 .. $]));
 }
 
-/// Split `x` in three parts.
+/// Returns: `x` split in three parts, all as equal in length as possible.
 auto split3(T)(T[] x) @trusted
 {
     static struct Result        // Voldemort type

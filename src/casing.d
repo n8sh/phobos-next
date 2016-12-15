@@ -9,7 +9,7 @@ version(unittest)
 }
 
 /** Convert string $(S s) to lower-case.
-    String may contain only ASCII letters.
+    String must contain ASCII characters only.
  */
 auto toLowerASCII(S)(S s)
     if (isSomeString!S)
@@ -20,7 +20,7 @@ auto toLowerASCII(S)(S s)
 }
 
 /** Convert string $(S s) to lower-case.
-    String may contain unicode letters.
+    String may contain Unicode characters.
  */
 auto toLowerUnicode(S)(S s)
     if (isSomeString!S)

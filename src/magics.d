@@ -11,7 +11,7 @@ struct Magic
     size_t byteOffset;
 }
 
-import backtrace.backtrace;
+// import backtrace.backtrace;
 
 /** Scan Directory $(D dir) for file magic. */
 void scanMagicFiles(string dir)
@@ -22,8 +22,8 @@ void scanMagicFiles(string dir)
     import std.range: front, empty;
     import std.algorithm: startsWith, find, strip;
     import std.ascii: isDigit;
-    import std.uni: isAlpha;
-    import std.range: splitter;
+    import std.uni: isAlpha, isWhite;
+    import std.algorithm.iteration : splitter;
     import std.array: replace, replaceInPlace;
 
     size_t baseCount = 0;
@@ -37,7 +37,7 @@ void scanMagicFiles(string dir)
         foreach (line; File(file).byLine)
         {
             // auto parts = line.splitter("\t");
-            auto parts = line.splitter!(std.uni.isWhite);
+            auto parts = line.splitter!(isWhite);
             if (!parts.empty) // line contains something
             {
                 if (parts.front.startsWith('#')) // if comment
@@ -61,7 +61,7 @@ void scanMagicFiles(string dir)
                             {
                                 case `string`:
                                     parts.popFront;
-                                    auto rest = parts.find!(a => !a.empty); // skip empty strings
+                                    auto rest = find!(a => !a.empty)(parts); // skip empty strings
                                     if (!rest.empty)
                                     {
                                         auto magic = rest.front;
@@ -78,22 +78,22 @@ void scanMagicFiles(string dir)
                                     break;
                                 case `regex`:
                                     parts.popFront;
-                                    auto rest = parts.find!(a => !a.empty); // skip empty strings
+                                    auto rest = find!(a => !a.empty)(parts); // skip empty strings
                                     writeln(kind, `: `, parts);
                                     break;
                                 case `belong`: // big-endian 64-bit
                                     parts.popFront;
-                                    auto rest = parts.find!(a => !a.empty); // skip empty strings
+                                    auto rest = find!(a => !a.empty)(parts); // skip empty strings
                                     writeln(kind, `: `, parts);
                                     break;
                                 case `lelong`: // little-endian 64-bit
                                     parts.popFront;
-                                    auto rest = parts.find!(a => !a.empty); // skip empty strings
+                                    auto rest = find!(a => !a.empty)(parts); // skip empty strings
                                     writeln(kind, `: `, parts);
                                     break;
                                 default:
                                     parts.popFront;
-                                    auto rest = parts.find!(a => !a.empty); // skip empty strings
+                                    auto rest = find!(a => !a.empty)(parts); // skip empty strings
                                     writeln(kind, `: `, parts);
                                     break;
                             }
@@ -122,5 +122,5 @@ void scanMagicFiles(string dir)
 
 unittest
 {
-    scanMagicFiles(`/home/per/ware/file/magic/Magdir/`);
+    scanMagicFiles(`/home/per/justd/file/magic/Magdir/`);
 }

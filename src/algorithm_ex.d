@@ -2270,6 +2270,7 @@ auto spliced3(T)(T[] x) @trusted
 }
 
 /** Lazy variant of `spliced2`.
+    Generalize to N >= 2 and add `at!N`.
  */
 auto splicer2(T)(T[] x) @trusted
 {
@@ -2286,16 +2287,8 @@ auto splicer2(T)(T[] x) @trusted
     return Result(x);
 }
 
-///
-@safe pure nothrow @nogc unittest
-{
-    immutable int[6] x = [0, 1, 2, 3, 4, 5];
-    immutable y = x.splicer2;
-    assert(y.first.equal(x[0 .. 3]));
-    assert(y.second.equal(x[3 .. $]));
-}
-
 /** Lazy variant of `spliced3`.
+    Generalize to N >= 3 and add `at!N`.
  */
 auto splicer3(T)(T[] x) @trusted
 {
@@ -2312,6 +2305,15 @@ auto splicer3(T)(T[] x) @trusted
         T[] _;
     }
     return Result(x);
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    immutable int[6] x = [0, 1, 2, 3, 4, 5];
+    immutable y = x.splicer2;
+    assert(y.first.equal(x[0 .. 3]));
+    assert(y.second.equal(x[3 .. $]));
 }
 
 ///

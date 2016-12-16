@@ -1624,7 +1624,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             immutable x = Str.withElements('a', 'b', 'c');
             static if (!IsOrdered!ordering)
             {
-                xs = x[]; // TODO should fail with DIP-1000 scope
+                xs = x[];       // TODO should fail with DIP-1000 scope
             }
         }
     }

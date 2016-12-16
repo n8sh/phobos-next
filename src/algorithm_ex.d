@@ -2269,6 +2269,41 @@ auto spliced3(T)(T[] x) @trusted
     assert(y.third.equal(x[4 .. 6]));
 }
 
+/** Splice `x` in `count` parts, all as equal in lengths as possible.
+ */
+auto splicerN(uint count, T)(T[] x) @trusted
+{
+    static struct Result        // Voldemort type
+    {
+        pragma(inline) @trusted pure nothrow @nogc:
+        inout(T)[] at(uint i)() inout
+        {
+            static assert(i < count, "Index " ~ i ~ " to large");
+            static if (i == 0)
+                return _.ptr[0 .. (i + 1)*_.length/count];
+            else static if (i + 1 == count)
+                return _.ptr[i * _.length/count .. _.length];
+            else
+                return _.ptr[i * _.length/count .. (i + 1)*_.length/count];
+        }
+        private T[] _;
+    }
+    return Result(x);
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    enum count = 6;
+    immutable int[count] x = [0, 1, 3, 3, 4, 5];
+    immutable y = x.splicerN!count;
+    import range_ex : iota;
+    foreach (i; iota!(0, count))
+    {
+        assert(y.at!i.equal(x[i .. i + 1]));
+    }
+}
+
 /** Lazy variant of `spliced2`.
     Generalize to N >= 2 and add `at!N`.
  */
@@ -2277,19 +2312,24 @@ auto splicer2(T)(T[] x) @trusted
     static struct Result        // Voldemort type
     {
         enum count = 2;
+
         pragma(inline) @trusted pure nothrow @nogc:
+
         /// Returns: first part of splice.
         @property inout(T)[] first() inout { return _.ptr[0 .. _.length/count]; }
+
         /// Returns: second part of splice.
         @property inout(T)[] second() inout { return _.ptr[_.length/count .. _.length]; }
+
         inout(T)[] at(uint i)() inout
         {
-            static assert(i < count, "Index to large");
+            static assert(i < count, "Index " ~ i ~ " to large");
             static      if (i == 0)
                 return first;
             else static if (i == 1)
                 return second;
         }
+
         private T[] _;
     }
     return Result(x);
@@ -2303,13 +2343,18 @@ auto splicer3(T)(T[] x) @trusted
     static struct Result        // Voldemort type
     {
         enum count = 3;
+
         pragma(inline) @trusted pure nothrow @nogc:
+
         /// Returns: first part of splice.
         @property inout(T)[] first() inout { return _.ptr[0 .. _.length/count]; }
+
         /// Returns: second part of splice.
         @property inout(T)[] second() inout { return _.ptr[_.length/count .. 2*_.length/count]; }
+
         /// Returns: third part of splice.
         @property inout(T)[] third() inout { return _.ptr[2*_.length/count .. _.length]; }
+
         private T[] _;
     }
     return Result(x);

@@ -24,7 +24,6 @@ void scanMagicFiles(string dir)
     import std.ascii: isDigit;
     import std.uni: isAlpha, isWhite;
     import std.algorithm.iteration : splitter;
-    import std.array: replace, replaceInPlace;
 
     size_t baseCount = 0;
     size_t attrCount = 0;
@@ -66,6 +65,7 @@ void scanMagicFiles(string dir)
                                     {
                                         auto magic = rest.front;
                                         // TODO Merge these?
+                                        // import std.array: replaceInPlace;
                                         /* magic = magic.replace(`\ `, ` `); */
                                         /* magic = magic.replace(`\r`, "\r"); */
                                         /* magic = magic.replace(`\n`, "\n"); */

@@ -180,13 +180,13 @@ private
    )
 
 */
-@safe void parseDelimited(DATA)(const string input,
+@safe void parseDelimited(Data)(const string input,
                                 const char delimiter,
-                                ref DATA arg)
+                                ref Data arg)
 {
     string remainingInput = input;
 
-    foreach (i, T; DATA.Types)
+    foreach (i, T; Data.Types)
     {
         //TODO: Handle other types (for now, only numeric or strings)
         static if (isNumeric!T)
@@ -211,12 +211,12 @@ private
                                          " (remaining text is '",quotemeta(remainingInput),"')"));
         }
 
-        static if (i<DATA.length-1)
+        static if (i<Data.length-1)
         {
             //Not the last field - require more input
             if (remainingInput.empty)
                 throw new Exception(text("input terminated too soon (expecting ",
-                                         DATA.length," fields, got ", i+1, ")"));
+                                         Data.length," fields, got ", i+1, ")"));
 
             //Following the converted value of this field,
             //require a delimiter (to prevent extra characters, even whitespace)
@@ -350,16 +350,16 @@ $(LO
 TODO Make this an InputRange
 
 */
-void tabular(MEMBERS, alias STORE_FUNCTION, char delimiter='\t')(const string filename)
+void tabular(Members, alias storeFunction, char delimiter='\t')(const string filename)
 {
-    static assert (isTuple!MEMBERS,"tabular: 1st template parameter must be a Tuple with the expected columns in the file");
+    static assert (isTuple!Members,"tabular: 1st template parameter must be a Tuple with the expected columns in the file");
 
     auto f = File(filename);
     scope(exit) f.close();
     auto lines=0;
 
-    alias unaryFun!STORE_FUNCTION _Fun;
-    MEMBERS data;
+    alias unaryFun!storeFunction _Fun;
+    Members data;
 
     import bylinefast: byLineFast;
     foreach (origline; f.byLineFast())
@@ -440,9 +440,9 @@ tabularArray(char delimiter, Types...)(string filename)
 
     RetT result;
     Appender!RetT app;
-    alias MEMBERS = ElementType!RetT;
+    alias Members = ElementType!RetT;
 
-    tabular! ( MEMBERS, x => app.put(x) , delimiter ) (filename);
+    tabular! ( Members, x => app.put(x) , delimiter ) (filename);
 
     return app.data;
 }

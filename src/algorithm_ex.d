@@ -2238,16 +2238,50 @@ alias halved = spliced2;
     assert(y.second.equal(x[3 .. $]));
 }
 
+/** Returns: `x` split in three parts, all as equal in length as possible.
+
+    Safely avoids range checking thanks to D's builtin slice expressions.
+    Use in divide-and-conquer algorithms such as quicksort and binary search.
+ */
+auto spliced3(T)(T[] x) @trusted
+{
+    enum count = 3;
+    static struct Result        // Voldemort type
+    {
+        T[] first;              // first half
+        T[] second;             // second half
+        T[] third;              // third half
+    }
+    // range checking is not needed
+    immutable m = 1*x.length/count;
+    immutable n = 2*x.length/count;
+    return Result(x.ptr[0 .. m],
+                  x.ptr[m .. n],
+                  x.ptr[n .. x.length]);
+}
+
+@safe pure nothrow @nogc unittest
+{
+    immutable int[6] x = [0, 1, 2, 3, 4, 5];
+    immutable y = x.spliced3;
+    assert(y.first.equal(x[0 .. 2]));
+    assert(y.second.equal(x[2 .. 4]));
+    assert(y.third.equal(x[4 .. 6]));
+}
+
 /** Lazy variant of `spliced2`.
  */
 auto splicer2(T)(T[] x) @trusted
 {
     static struct Result        // Voldemort type
     {
-        T[] _;
+        enum count = 2;
         pragma(inline) @trusted pure nothrow @nogc:
-        inout(T)[] first() inout { return _.ptr[0 .. _.length/2]; }
-        inout(T)[] second() inout { return _.ptr[_.length/2 .. _.length]; }
+        /// Returns: first part of splice.
+        inout(T)[] first() inout { return _.ptr[0 .. _.length/count]; }
+        /// Returns: second part of splice.
+        inout(T)[] second() inout { return _.ptr[_.length/count .. _.length]; }
+        T[] _;
     }
     return Result(x);
 }
@@ -2261,32 +2295,31 @@ auto splicer2(T)(T[] x) @trusted
     assert(y.second.equal(x[3 .. $]));
 }
 
-/** Returns: `x` split in three parts, all as equal in length as possible.
-
-    Safely avoids range checking thanks to D's builtin slice expressions.
-    Use in divide-and-conquer algorithms such as quicksort and binary search.
+/** Lazy variant of `spliced3`.
  */
-auto spliced3(T)(T[] x) @trusted
+auto splicer3(T)(T[] x) @trusted
 {
     static struct Result        // Voldemort type
     {
-        T[] first;              // first half
-        T[] second;             // second half
-        T[] third;              // third half
+        enum count = 3;
+        pragma(inline) @trusted pure nothrow @nogc:
+        /// Returns: first part of splice.
+        inout(T)[] first() inout { return _.ptr[0 .. _.length/count]; }
+        /// Returns: second part of splice.
+        inout(T)[] second() inout { return _.ptr[_.length/count .. 2*_.length/count]; }
+        /// Returns: third part of splice.
+        inout(T)[] third() inout { return _.ptr[2*_.length/count .. _.length]; }
+        T[] _;
     }
-    // range checking is not needed
-    immutable m = 1*x.length/3;
-    immutable n = 2*x.length/3;
-    return Result(x.ptr[0 .. m],
-                  x.ptr[m .. n],
-                  x.ptr[n .. x.length]);
+    return Result(x);
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
-    immutable int[6] x = [0, 1, 2, 3, 4, 5];
-    immutable y = x.spliced3;
+    immutable int[6] x = [0, 1, 3, 3, 4, 5];
+    immutable y = x.splicer3;
     assert(y.first.equal(x[0 .. 2]));
     assert(y.second.equal(x[2 .. 4]));
-    assert(y.third.equal(x[4 .. 6]));
+    assert(y.third.equal(x[4 .. $]));
 }

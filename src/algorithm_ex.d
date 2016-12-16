@@ -2215,7 +2215,7 @@ typeof(fun(E.init))[n] map(alias fun, E, size_t n)(const E[n] src)
     Safely avoids range checking thanks to D's builtin slice expressions.
     Use in divide-and-conquer algorithms such as quicksort and binary search.
  */
-auto split2(T)(T[] x) @trusted
+auto spliced2(T)(T[] x) @trusted
 {
     static struct Result        // Voldemort type
     {
@@ -2227,13 +2227,36 @@ auto split2(T)(T[] x) @trusted
     return Result(x.ptr[0 .. m],
                   x.ptr[m .. x.length]);
 }
-alias halve = split2;
+alias halved = spliced2;
 
 ///
 @safe pure nothrow @nogc unittest
 {
     immutable int[6] x = [0, 1, 2, 3, 4, 5];
-    immutable y = x.split2;
+    immutable y = x.spliced2;
+    assert(y.first.equal(x[0 .. 3]));
+    assert(y.second.equal(x[3 .. $]));
+}
+
+/** Lazy variant of `spliced2`.
+ */
+auto splicer2(T)(T[] x) @trusted
+{
+    static struct Result        // Voldemort type
+    {
+        T[] _;
+        pragma(inline) @trusted pure nothrow @nogc:
+        inout(T)[] first() inout { return _.ptr[0 .. _.length/2]; }
+        inout(T)[] second() inout { return _.ptr[_.length/2 .. _.length]; }
+    }
+    return Result(x);
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    immutable int[6] x = [0, 1, 2, 3, 4, 5];
+    immutable y = x.splicer2;
     assert(y.first.equal(x[0 .. 3]));
     assert(y.second.equal(x[3 .. $]));
 }
@@ -2243,7 +2266,7 @@ alias halve = split2;
     Safely avoids range checking thanks to D's builtin slice expressions.
     Use in divide-and-conquer algorithms such as quicksort and binary search.
  */
-auto split3(T)(T[] x) @trusted
+auto spliced3(T)(T[] x) @trusted
 {
     static struct Result        // Voldemort type
     {
@@ -2262,7 +2285,7 @@ auto split3(T)(T[] x) @trusted
 @safe pure nothrow @nogc unittest
 {
     immutable int[6] x = [0, 1, 2, 3, 4, 5];
-    immutable y = x.split3;
+    immutable y = x.spliced3;
     assert(y.first.equal(x[0 .. 2]));
     assert(y.second.equal(x[2 .. 4]));
     assert(y.third.equal(x[4 .. 6]));

@@ -2297,10 +2297,13 @@ auto splicerN(uint count, T)(T[] x) @trusted
 ///
 @safe pure nothrow @nogc unittest
 {
+    import range_ex : iota;
+
     enum count = 6;
+
     immutable int[count] x = [0, 1, 3, 3, 4, 5];
     immutable y = x.splicerN!count;
-    import range_ex : iota;
+
     foreach (i; iota!(0, count))
     {
         assert(y.at!i.equal(x[i .. i + 1]));

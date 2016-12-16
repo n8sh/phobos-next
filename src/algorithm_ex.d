@@ -2276,6 +2276,8 @@ auto splicerN(uint count, T)(T[] x) @trusted
     static struct Result        // Voldemort type
     {
         pragma(inline) @trusted pure nothrow @nogc:
+
+        /// Returns: `i`:th slice.
         inout(T)[] at(uint i)() inout
         {
             static assert(i < count, "Index " ~ i ~ " to large");
@@ -2286,6 +2288,7 @@ auto splicerN(uint count, T)(T[] x) @trusted
             else
                 return _.ptr[i * _.length/count .. (i + 1)*_.length/count];
         }
+
         private T[] _;
     }
     return Result(x);

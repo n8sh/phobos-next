@@ -1613,10 +1613,20 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     foreach (Ch; AliasSeq!(char, wchar, dchar))
     {
         alias Str = Array!(Ch, assignment, ordering, supportGC, less);
-        auto str = Str.withElements('a', 'b', 'c');
+        auto y = Str.withElements('a', 'b', 'c');
         static assert(is(Unqual!(ElementType!Str) == Ch));
-        static assert(str.isString);
-        str = Str.init;
+        static assert(y.isString);
+        y = Str.init;
+
+        const(Ch)[] xs;
+        {
+            // immutable
+            immutable x = Str.withElements('a', 'b', 'c');
+            static if (!IsOrdered!ordering)
+            {
+                xs = x[];       // TODO this should be forbidden and fail when DIP-1000 scope has been merged
+            }
+        }
     }
 
     foreach (Ch; AliasSeq!(char))

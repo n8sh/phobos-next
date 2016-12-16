@@ -1569,6 +1569,12 @@ alias CopyableArray  (E, bool useGCAllocation = false) = Array!(E, Assignment.co
 alias UncopyableString(bool useGCAllocation = false) = Array!(char, Assignment.disabled, Ordering.unsorted, useGCAllocation, "a < b");
 alias CopyableString  (bool useGCAllocation = false) = Array!(char, Assignment.copy, Ordering.unsorted, useGCAllocation, "a < b");
 
+alias UncopyableWString(bool useGCAllocation = false) = Array!(wchar, Assignment.disabled, Ordering.unsorted, useGCAllocation, "a < b");
+alias CopyableWString  (bool useGCAllocation = false) = Array!(wchar, Assignment.copy, Ordering.unsorted, useGCAllocation, "a < b");
+
+alias UncopyableDString(bool useGCAllocation = false) = Array!(dchar, Assignment.disabled, Ordering.unsorted, useGCAllocation, "a < b");
+alias CopyableDString  (bool useGCAllocation = false) = Array!(dchar, Assignment.copy, Ordering.unsorted, useGCAllocation, "a < b");
+
 alias SortedCopyableArray    (E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.copy, Ordering.sortedValues, useGCAllocation, less);
 alias SortedSetCopyableArray (E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.copy, Ordering.sortedUniqueSet, useGCAllocation, less);
 

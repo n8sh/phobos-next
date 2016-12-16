@@ -2279,10 +2279,18 @@ auto splicer2(T)(T[] x) @trusted
         enum count = 2;
         pragma(inline) @trusted pure nothrow @nogc:
         /// Returns: first part of splice.
-        inout(T)[] first() inout { return _.ptr[0 .. _.length/count]; }
+        @property inout(T)[] first() inout { return _.ptr[0 .. _.length/count]; }
         /// Returns: second part of splice.
-        inout(T)[] second() inout { return _.ptr[_.length/count .. _.length]; }
-        T[] _;
+        @property inout(T)[] second() inout { return _.ptr[_.length/count .. _.length]; }
+        inout(T)[] at(uint i)() inout
+        {
+            static assert(i < count, "Index to large");
+            static      if (i == 0)
+                return first;
+            else static if (i == 1)
+                return second;
+        }
+        private T[] _;
     }
     return Result(x);
 }
@@ -2297,12 +2305,12 @@ auto splicer3(T)(T[] x) @trusted
         enum count = 3;
         pragma(inline) @trusted pure nothrow @nogc:
         /// Returns: first part of splice.
-        inout(T)[] first() inout { return _.ptr[0 .. _.length/count]; }
+        @property inout(T)[] first() inout { return _.ptr[0 .. _.length/count]; }
         /// Returns: second part of splice.
-        inout(T)[] second() inout { return _.ptr[_.length/count .. 2*_.length/count]; }
+        @property inout(T)[] second() inout { return _.ptr[_.length/count .. 2*_.length/count]; }
         /// Returns: third part of splice.
-        inout(T)[] third() inout { return _.ptr[2*_.length/count .. _.length]; }
-        T[] _;
+        @property inout(T)[] third() inout { return _.ptr[2*_.length/count .. _.length]; }
+        private T[] _;
     }
     return Result(x);
 }
@@ -2314,6 +2322,8 @@ auto splicer3(T)(T[] x) @trusted
     immutable y = x.splicer2;
     assert(y.first.equal(x[0 .. 3]));
     assert(y.second.equal(x[3 .. $]));
+    assert(y.at!0.equal(x[0 .. 3]));
+    assert(y.at!1.equal(x[3 .. $]));
 }
 
 ///

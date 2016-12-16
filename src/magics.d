@@ -55,12 +55,12 @@ void scanMagicFiles(string dir)
                         {
                             offset = 0;
                             write(offset, `-offset-`);
-                            parts.popFront;
+                            parts.popFront();
                             auto kind = parts.front;
                             switch (kind.strip(' '))
                             {
                                 case `string`:
-                                    parts.popFront;
+                                    parts.popFront();
                                     auto rest = find!(a => !a.empty)(parts); // skip empty strings
                                     if (!rest.empty)
                                     {
@@ -77,22 +77,22 @@ void scanMagicFiles(string dir)
                                     }
                                     break;
                                 case `regex`:
-                                    parts.popFront;
+                                    parts.popFront();
                                     auto rest = find!(a => !a.empty)(parts); // skip empty strings
                                     writeln(kind, `: `, parts);
                                     break;
                                 case `belong`: // big-endian 64-bit
-                                    parts.popFront;
+                                    parts.popFront();
                                     auto rest = find!(a => !a.empty)(parts); // skip empty strings
                                     writeln(kind, `: `, parts);
                                     break;
                                 case `lelong`: // little-endian 64-bit
-                                    parts.popFront;
+                                    parts.popFront();
                                     auto rest = find!(a => !a.empty)(parts); // skip empty strings
                                     writeln(kind, `: `, parts);
                                     break;
                                 default:
-                                    parts.popFront;
+                                    parts.popFront();
                                     auto rest = find!(a => !a.empty)(parts); // skip empty strings
                                     writeln(kind, `: `, parts);
                                     break;

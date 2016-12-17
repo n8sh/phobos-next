@@ -953,7 +953,7 @@ private struct Array(E,
                 Returns: `bool`-array with same length as `values`, where i:th
                 `bool` value is set if `value[i]` wasn't previously in `this`.
             */
-            bool[Us.length] linearInsert(SearchPolicy sp = SearchPolicy.binarySearch, Us...)(Us values) @("complexity", "O(length)")
+            bool[Us.length] linearInsert(SearchPolicy sp = SearchPolicy.binarySearch, Us...)(Us values) @safe @("complexity", "O(length)")
                 if (values.length >= 1 &&
                     allSatisfy!(isElementAssignable, Us))
             in
@@ -1041,8 +1041,9 @@ private struct Array(E,
                     if (expandedLength != 0)
                     {
                         immutable ix = this.length - expandedLength;
-                        completeSort!comp(_mptr[0 .. ix].assumeSorted!comp,
-                                          _mptr[ix .. this.length]);
+                        // TODO use `_mptr` here instead and functionize to @trusted helper function
+                        completeSort!comp(slice[0 .. ix].assumeSorted!comp,
+                                          slice[ix .. this.length]);
                     }
                     return hits;
                 }
@@ -1102,7 +1103,7 @@ private struct Array(E,
     }
 
     /** Helper function used externally for unsorted and internally for sorted. */
-    private void linearInsertAtIndexHelper(Us...)(size_t index, Us values) nothrow @("complexity", "O(length)")
+    private void linearInsertAtIndexHelper(Us...)(size_t index, Us values) @trusted nothrow @("complexity", "O(length)")
     {
         reserve(this.length + values.length);
 

@@ -76,9 +76,11 @@ enum IsOrdered(Ordering ordering) = ordering != Ordering.unsorted;
 
 version(unittest)
 {
-    import dbgio : dln;
+    import std.conv : to;
+    import std.traits : Unqual;
     import std.algorithm.comparison : equal;
     import std.meta : AliasSeq;
+    import dbgio : dln;
 }
 
 import container_traits : ContainerElementType;
@@ -377,7 +379,7 @@ private struct Array(E,
     static if (isCopyable!E)
     {
         /// Returns: shallow duplicate of `this`.
-        Array!(Unqual!E) dup() const @trusted // `Unqual` mimics behaviour of `dup` for builtin D arrays
+        @property Array!(Unqual!E) dup() const @trusted // `Unqual` mimics behaviour of `dup` for builtin D arrays
         {
             debug typeof(return) copy;
             else typeof(return) copy = void;
@@ -1962,7 +1964,6 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 /// disabled copying
 @safe nothrow unittest
 {
-    import std.conv : to;
     alias E = ubyte;
     alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, "a < b");
     A a;
@@ -1976,6 +1977,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         ++i;
     }
     const b = a.dup;
+    static assert(is(typeof(a) == Unqual!(typeof(b))));
     assert(b.length == a.length);
     assert(a !is b);
     assert(a == b);
@@ -1984,7 +1986,6 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 /// disabled copying
 @safe nothrow unittest
 {
-    import std.conv : to;
     alias E = string;
 
     alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, "a < b");
@@ -1999,6 +2000,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         ++i;
     }
     const b = a.dup;
+    static assert(is(typeof(a) == Unqual!(typeof(b))));
     assert(b.length == a.length);
     assert(a !is b);
     assert(a == b);
@@ -2007,7 +2009,6 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 /// disabled copying
 nothrow unittest
 {
-    import std.conv : to;
     alias E = string;
     alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, "a < b");
     A a;
@@ -2020,6 +2021,7 @@ nothrow unittest
         ++i;
     }
     const b = a.dup;
+    static assert(is(typeof(a) == Unqual!(typeof(b))));
     assert(a[] == b[]);
 }
 
@@ -2320,4 +2322,12 @@ unittest
     static assert(isOutputRange!(A, E));
 
     assert((0.iota(n).collect!A)[].equal(0.iota(n)));
+}
+
+/// map array of uncopyable
+pure unittest
+{
+    alias A = SortedUncopyableArray!int;
+    A a;
+    // A b = a.dup;
 }

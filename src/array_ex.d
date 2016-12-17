@@ -953,7 +953,7 @@ private struct Array(E,
                 Returns: `bool`-array with same length as `values`, where i:th
                 `bool` value is set if `value[i]` wasn't previously in `this`.
             */
-            bool[Us.length] linearInsert(SearchPolicy sp = SearchPolicy.binarySearch, Us...)(Us values) @safe @("complexity", "O(length)")
+            bool[Us.length] linearInsert(SearchPolicy sp = SearchPolicy.binarySearch, Us...)(Us values) @("complexity", "O(length)")
                 if (values.length >= 1 &&
                     allSatisfy!(isElementAssignable, Us))
             in
@@ -1078,7 +1078,6 @@ private struct Array(E,
                 }
             }
         }
-        alias linsert = linearInsert;
     }
     else
     {

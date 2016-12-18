@@ -2329,5 +2329,5 @@ pure unittest
 {
     alias A = SortedUncopyableArray!int;
     A a;
-    // A b = a.dup;
+    // TODO make this compile: A b = a.dup;
 }

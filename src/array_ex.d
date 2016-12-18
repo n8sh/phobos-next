@@ -125,7 +125,7 @@ private struct Array(E,
 {
     import std.conv : emplace;
     import std.range : isInputRange, ElementType;
-    import std.traits : isAssignable, Unqual, isSomeChar, isArray, isScalarType, hasElaborateDestructor;
+    import std.traits : isAssignable, Unqual, isSomeChar, isArray, isScalarType, hasElaborateDestructor, TemplateOf;
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
     import core.stdc.string : memset;
@@ -133,6 +133,9 @@ private struct Array(E,
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
 
     alias ME = Unqual!E;        // mutable element type
+    alias This = typeof(this);
+    alias ThisTemplate = TemplateOf!(This);
+    alias MThis = ThisTemplate!(ME, assignment, ordering, useGCAllocation, less);
 
     template shouldAddGCRange(T)
     {
@@ -162,7 +165,7 @@ private struct Array(E,
     }
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
-    pragma(inline) static typeof(this) withLength(size_t initialLength) @trusted nothrow
+    pragma(inline) static This withLength(size_t initialLength) @trusted nothrow
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
@@ -185,7 +188,7 @@ private struct Array(E,
     }
 
     /// Returns: an array with initial capacity `initialCapacity`.
-    pragma(inline) static typeof(this) withCapacity(size_t initialCapacity) @trusted nothrow
+    pragma(inline) static This withCapacity(size_t initialCapacity) @trusted nothrow
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
@@ -207,7 +210,7 @@ private struct Array(E,
     }
 
     /// Returns: an array of one element `element`.
-    pragma(inline) static typeof(this) withElement(E element) @trusted nothrow
+    pragma(inline) static This withElement(E element) @trusted nothrow
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
@@ -244,7 +247,7 @@ private struct Array(E,
     }
 
     // /// Returns: an array of `Us.length` number of elements set to `elements`.
-    pragma(inline) static typeof(this) withElements(Us...)(Us elements) @trusted nothrow
+    pragma(inline) static This withElements(Us...)(Us elements) @trusted nothrow
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
@@ -284,7 +287,7 @@ private struct Array(E,
         /// Copy construction.
         this(this) nothrow @trusted
         {
-            version(showCtors) dln("Copy ctor: ", typeof(this).stringof);
+            version(showCtors) dln("Copy ctor: ", This.stringof);
             if (isLarge)        // only large case needs special treatment
             {
                 auto rhs_storePtr = _store.large.ptr; // save store pointer
@@ -298,9 +301,9 @@ private struct Array(E,
         }
 
         /// Copy assignment.
-        void opAssign(typeof(this) rhs) @trusted
+        void opAssign(This rhs) @trusted
         {
-            version(showCtors) dln("Copy assign: ", typeof(this).stringof);
+            version(showCtors) dln("Copy assign: ", This.stringof);
             // self-assignment may happen when assigning derefenced pointer
             if (isLarge)        // large = ...
             {
@@ -359,16 +362,16 @@ private struct Array(E,
     else static if (assignment == Assignment.move)
     {
         /// Copy ctor moves.
-        this(typeof(this) rhs) @trusted
+        this(This rhs) @trusted
         {
-            version(showCtors) dln("Copying: ", typeof(this).stringof);
+            version(showCtors) dln("Copying: ", This.stringof);
             assert(!isBorrowed);
             import std.algorith.mutation : moveEmplace;
             moveEmplace(rhs, this); // TODO remove `move` when compiler does it for us
         }
 
         /// Assignment moves.
-        void opAssign(typeof(this) rhs) @trusted
+        void opAssign(This rhs) @trusted
         {
             assert(!isBorrowed);
             import std.algorith.mutation : move;
@@ -379,7 +382,7 @@ private struct Array(E,
     static if (isCopyable!E)
     {
         /// Returns: shallow duplicate of `this`.
-        @property Array!(Unqual!E) dup() const @trusted // `Unqual` mimics behaviour of `dup` for builtin D arrays
+        @property MThis dup() const @trusted // `Unqual` mimics behaviour of `dup` for builtin D arrays
         {
             debug typeof(return) copy;
             else typeof(return) copy = void;
@@ -405,7 +408,7 @@ private struct Array(E,
         }
     }
 
-    bool opEquals(const ref typeof(this) rhs) const @trusted
+    bool opEquals(const ref This rhs) const @trusted
     {
         static if (isCopyable!E)
         {
@@ -421,7 +424,7 @@ private struct Array(E,
             return true;
         }
     }
-    bool opEquals(in        typeof(this) rhs) const @trusted
+    bool opEquals(in This rhs) const @trusted
     {
         static if (isCopyable!E)
         {
@@ -732,7 +735,7 @@ private struct Array(E,
     enum isElementAssignable(U) = isAssignable!(E, U);
 
     /** Removal doesn't need to care about ordering. */
-    ContainerElementType!(typeof(this), E) linearPopAtIndex(size_t index) @trusted @("complexity", "O(length)")
+    ContainerElementType!(This, E) linearPopAtIndex(size_t index) @trusted @("complexity", "O(length)")
     {
         assert(!isBorrowed);
         assert(index < this.length);
@@ -758,7 +761,7 @@ private struct Array(E,
     alias linearDeleteAt = linearPopAtIndex;
 
     /** Removal doesn't need to care about ordering. */
-    pragma(inline) ContainerElementType!(typeof(this), E) linearPopFront() @trusted @("complexity", "O(length)")
+    pragma(inline) ContainerElementType!(This, E) linearPopFront() @trusted @("complexity", "O(length)")
     {
         return linearPopAtIndex(0);
     }
@@ -1389,7 +1392,7 @@ private struct Array(E,
     /// Get internal pointer.
     inout(E*) ptr() inout       // TODO @trusted?
     {
-        // TODO Use cast(ET[])?: alias ET = ContainerElementType!(typeof(this), E);
+        // TODO Use cast(ET[])?: alias ET = ContainerElementType!(This, E);
         if (isLarge)
         {
             return _store.large.ptr;
@@ -2329,5 +2332,5 @@ pure unittest
 {
     alias A = SortedUncopyableArray!int;
     A a;
-    // TODO make this compile: A b = a.dup;
+    A b = a.dup;
 }

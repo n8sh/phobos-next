@@ -382,7 +382,7 @@ private struct Array(E,
     static if (isCopyable!E)
     {
         /// Returns: shallow duplicate of `this`.
-        @property MThis dup() const @trusted // `Unqual` mimics behaviour of `dup` for builtin D arrays
+        @property MThis dup() const @trusted // `MThis` mimics behaviour of `dup` for builtin D arrays
         {
             debug typeof(return) copy;
             else typeof(return) copy = void;
@@ -707,7 +707,7 @@ private struct Array(E,
             {
                 static if (!shouldAddGCRange!E)
                 {
-                    free(cast(Unqual!(E)*)_store.large.ptr); // safe to case away constness
+                    free(cast(ME*)_store.large.ptr); // safe to case away constness
                 }
                 else
                 {
@@ -853,9 +853,9 @@ private struct Array(E,
             else
             {
                 reserve(this.length + values.length);
-                if (is(Unqual!E == Unqual!(ElementType!A)))
+                if (is(ME == Unqual!(ElementType!A)))
                 {
-                    // TODO reuse memcopy if ElementType!A is same as E)
+                    // TODO reuse memcopy and no overlap
                 }
                 foreach (immutable i, ref value; values)
                 {
@@ -884,9 +884,9 @@ private struct Array(E,
             else
             {
                 reserve(this.length + values.length);
-                if (is(Unqual!E == Unqual!(ElementType!A)))
+                if (is(ME == Unqual!(ElementType!A)))
                 {
-                    // TODO reuse memcopy if ElementType!A is same as E)
+                    // TODO reuse memcopy and no overlap
                 }
                 foreach (immutable i, ref value; values.slice)
                 {
@@ -1217,7 +1217,7 @@ private struct Array(E,
             static if (isScalarType!E)
                 ptr[i] = value;
             else
-                move(*(cast(Unqual!E*)(&value)), _mptr[i]); // TODO is this correct?
+                move(*(cast(ME*)(&value)), _mptr[i]); // TODO is this correct?
             return ptr[i];
         }
 

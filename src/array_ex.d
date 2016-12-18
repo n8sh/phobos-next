@@ -132,12 +132,12 @@ private struct Array(E,
     import std.algorithm.mutation : move, moveEmplace;
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
 
-    alias MutableE = Unqual!E;        // mutable element type
-    alias This = typeof(this);
-    alias ThisTemplate = TemplateOf!(This);
-    alias MutableThis = ThisTemplate!(MutableE, assignment, ordering, useGCAllocation, less);
+    private alias MutableE = Unqual!E;        // mutable element type
+    private alias This = typeof(this);
+    private alias ThisTemplate = TemplateOf!(This);
+    private alias MutableThis = ThisTemplate!(MutableE, assignment, ordering, useGCAllocation, less);
 
-    template shouldAddGCRange(T)
+    private template shouldAddGCRange(T)
     {
         import std.traits : hasIndirections, isInstanceOf;
         enum shouldAddGCRange = hasIndirections!T && !isInstanceOf!(Array, T); // TODO unify to container_traits.shouldAddGCRange

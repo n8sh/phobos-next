@@ -132,9 +132,16 @@ private struct Array(E,
     import std.algorithm.mutation : move, moveEmplace;
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
 
-    private alias MutableE = Unqual!E;        // mutable element type
+    /// Mutable element type.
+    private alias MutableE = Unqual!E;
+
+    /// Type of `this`.
     private alias This = typeof(this);
+
+    /// Template for type of `this`.
     private alias ThisTemplate = TemplateOf!(This);
+
+    /// Same type as this but with mutable element type.
     private alias MutableThis = ThisTemplate!(MutableE, assignment, ordering, useGCAllocation, less);
 
     private template shouldAddGCRange(T)

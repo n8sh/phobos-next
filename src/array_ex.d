@@ -132,10 +132,10 @@ private struct Array(E,
     import std.algorithm.mutation : move, moveEmplace;
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
 
-    alias ME = Unqual!E;        // mutable element type
+    alias MutableE = Unqual!E;        // mutable element type
     alias This = typeof(this);
     alias ThisTemplate = TemplateOf!(This);
-    alias MThis = ThisTemplate!(ME, assignment, ordering, useGCAllocation, less);
+    alias MutableThis = ThisTemplate!(MutableE, assignment, ordering, useGCAllocation, less);
 
     template shouldAddGCRange(T)
     {
@@ -236,7 +236,7 @@ private struct Array(E,
         }
         else static if (!shouldAddGCRange!E)
         {
-            moveEmplace(*(cast(ME*)(&element)), that._mptr[0]); // safe to cast away constness when no indirections
+            moveEmplace(*(cast(MutableE*)(&element)), that._mptr[0]); // safe to cast away constness when no indirections
         }
         else
         {
@@ -271,7 +271,7 @@ private struct Array(E,
         {
             static if (!shouldAddGCRange!E)
             {
-                moveEmplace(*(cast(ME*)(&element)), that._mptr[i]); // safe to cast away constness when no indirections
+                moveEmplace(*(cast(MutableE*)(&element)), that._mptr[i]); // safe to cast away constness when no indirections
             }
             else
             {
@@ -382,7 +382,7 @@ private struct Array(E,
     static if (isCopyable!E)
     {
         /// Returns: shallow duplicate of `this`.
-        @property MThis dup() const @trusted // `MThis` mimics behaviour of `dup` for builtin D arrays
+        @property MutableThis dup() const @trusted // `MutableThis` mimics behaviour of `dup` for builtin D arrays
         {
             debug typeof(return) copy;
             else typeof(return) copy = void;
@@ -707,7 +707,7 @@ private struct Array(E,
             {
                 static if (!shouldAddGCRange!E)
                 {
-                    free(cast(ME*)_store.large.ptr); // safe to case away constness
+                    free(cast(MutableE*)_store.large.ptr); // safe to case away constness
                 }
                 else
                 {
@@ -853,7 +853,7 @@ private struct Array(E,
             else
             {
                 reserve(this.length + values.length);
-                if (is(ME == Unqual!(ElementType!A)))
+                if (is(MutableE == Unqual!(ElementType!A)))
                 {
                     // TODO reuse memcopy and no overlap
                 }
@@ -884,7 +884,7 @@ private struct Array(E,
             else
             {
                 reserve(this.length + values.length);
-                if (is(ME == Unqual!(ElementType!A)))
+                if (is(MutableE == Unqual!(ElementType!A)))
                 {
                     // TODO reuse memcopy and no overlap
                 }
@@ -1217,7 +1217,7 @@ private struct Array(E,
             static if (isScalarType!E)
                 ptr[i] = value;
             else
-                move(*(cast(ME*)(&value)), _mptr[i]); // TODO is this correct?
+                move(*(cast(MutableE*)(&value)), _mptr[i]); // TODO is this correct?
             return ptr[i];
         }
 
@@ -1299,7 +1299,7 @@ private struct Array(E,
     /** Allocate heap regionwith `newCapacity` number of elements of type `E`.
         If `zero` is `true` they will be zero-initialized.
     */
-    private static ME* allocate(size_t newCapacity, bool zero = false)
+    private static MutableE* allocate(size_t newCapacity, bool zero = false)
     {
         typeof(return) ptr = null;
         static if (useGCAllocation)
@@ -1404,7 +1404,7 @@ private struct Array(E,
     }
 
     /// Get internal pointer to mutable content. Doesn't need to be qualified with `scope`.
-    private ME* _mptr() const   // TODO @trusted?
+    private MutableE* _mptr() const   // TODO @trusted?
     {
         if (isLarge)
         {
@@ -1477,7 +1477,7 @@ private:                        // data
             this.length = initialLength;
         }
 
-        ME* _mptr() const @trusted
+        MutableE* _mptr() const @trusted
         {
             return cast(typeof(return))ptr;
         }
@@ -1489,7 +1489,7 @@ private:                        // data
         enum capacity = smallCapacity;
         E[capacity] elms;
         SmallLength length;
-        ME* _mptr() const @trusted
+        MutableE* _mptr() const @trusted
         {
             return cast(typeof(return))(elms.ptr);
         }

@@ -302,63 +302,66 @@ private struct MapUniqueResult(alias fun, Range)
 template filterUnique(alias predicate) if (is(typeof(unaryFun!predicate)))
 {
     import std.algorithm.mutation : move;
-    import std.range.primitives : isInputRange, isForwardRange, isInfinite;
-    import std.traits : Unqual, isCopyable;
-
-    private static struct Result(alias pred, Range)
-    {
-        alias R = Unqual!Range;
-        R _input;
-
-        this(R r)
-        {
-            move(r, _input);
-            while (!_input.empty && !pred(_input.front))
-            {
-                _input.popFront();
-            }
-        }
-
-        static if (isCopyable!Range)
-        {
-            auto opSlice() { return this; }
-        }
-
-        static if (isInfinite!Range)
-        {
-            enum bool empty = false;
-        }
-        else
-        {
-            @property bool empty() { return _input.empty; }
-        }
-
-        void popFront()
-        {
-            do
-            {
-                _input.popFront();
-            } while (!_input.empty && !pred(_input.front));
-        }
-
-        @property auto ref front()
-        {
-            assert(!empty, "Attempting to fetch the front of an empty filterUnique.");
-            return _input.front;
-        }
-
-        static if (isForwardRange!R &&
-                   isCopyable!R) // TODO should save be allowed for non-copyable?
-        {
-            @property auto save()
-            {
-                return typeof(this)(_input.save);
-            }
-        }
-    }
+    import std.range.primitives : isInputRange;
+    import std.traits : Unqual;
 
     auto filterUnique(Range)(Range range) if (isInputRange!(Unqual!Range))
     {
-        return Result!(unaryFun!predicate, Range)(move(range));
+        return FilterUniqueResult!(unaryFun!predicate, Range)(move(range));
+    }
+}
+
+private static struct FilterUniqueResult(alias pred, Range)
+{
+    import std.algorithm.mutation : move;
+    import std.range.primitives : isForwardRange, isInfinite;
+    import std.traits : Unqual, isCopyable;
+    alias R = Unqual!Range;
+    R _input;
+
+    this(R r)
+    {
+        move(r, _input);
+        while (!_input.empty && !pred(_input.front))
+        {
+            _input.popFront();
+        }
+    }
+
+    static if (isCopyable!Range)
+    {
+        auto opSlice() { return this; }
+    }
+
+    static if (isInfinite!Range)
+    {
+        enum bool empty = false;
+    }
+    else
+    {
+        @property bool empty() { return _input.empty; }
+    }
+
+    void popFront()
+    {
+        do
+        {
+            _input.popFront();
+        } while (!_input.empty && !pred(_input.front));
+    }
+
+    @property auto ref front()
+    {
+        assert(!empty, "Attempting to fetch the front of an empty filterUnique.");
+        return _input.front;
+    }
+
+    static if (isForwardRange!R &&
+               isCopyable!R) // TODO should save be allowed for non-copyable?
+    {
+        @property auto save()
+        {
+            return typeof(this)(_input.save);
+        }
     }
 }

@@ -133,20 +133,20 @@ UniqueRange!Source intoRange(Source)(Source source)
 
     equal(C.withElements(11, 13, 15, 17)
            .intoRange
-           .filter!(_ => _ != 11)
-           .map!(_ => _ != 2*_),
+           .filterUnique!(_ => _ != 11)
+           .mapUnique!(_ => _ != 2*_),
           [13, 15, 17]);
 }
 
 import std.functional : unaryFun;
 
-template map(fun...) if (fun.length >= 1)
+template mapUnique(fun...) if (fun.length >= 1)
 {
     import std.algorithm.mutation : move;
     import std.range.primitives : isInputRange, ElementType;
     import std.traits : Unqual;
 
-    auto map(Range)(Range r) if (isInputRange!(Unqual!Range))
+    auto mapUnique(Range)(Range r) if (isInputRange!(Unqual!Range))
     {
         import std.meta : AliasSeq, staticMap;
 
@@ -176,11 +176,11 @@ template map(fun...) if (fun.length >= 1)
                 "Mapping function(s) must not return void: " ~ _funs.stringof);
         }
 
-        return MapResult!(_fun, Range)(move(r));
+        return MapUniqueResult!(_fun, Range)(move(r));
     }
 }
 
-private struct MapResult(alias fun, Range)
+private struct MapUniqueResult(alias fun, Range)
 {
     import std.traits : Unqual, isCopyable;
     import std.range.primitives : isInputRange, isForwardRange, isBidirectionalRange, isRandomAccessRange, isInfinite, hasSlicing;
@@ -193,13 +193,13 @@ private struct MapResult(alias fun, Range)
     {
         @property auto ref back()()
         {
-            assert(!empty, "Attempting to fetch the back of an empty map.");
+            assert(!empty, "Attempting to fetch the back of an empty mapUnique.");
             return fun(_input.back);
         }
 
         void popBack()()
         {
-            assert(!empty, "Attempting to popBack an empty map.");
+            assert(!empty, "Attempting to popBack an empty mapUnique.");
             _input.popBack();
         }
     }
@@ -224,13 +224,13 @@ private struct MapResult(alias fun, Range)
 
     void popFront()
     {
-        assert(!empty, "Attempting to popFront an empty map.");
+        assert(!empty, "Attempting to popFront an empty mapUnique.");
         _input.popFront();
     }
 
     @property auto ref front()
     {
-        assert(!empty, "Attempting to fetch the front of an empty map.");
+        assert(!empty, "Attempting to fetch the front of an empty mapUnique.");
         return fun(_input.front);
     }
 
@@ -299,7 +299,7 @@ private struct MapResult(alias fun, Range)
     }
 }
 
-template filter(alias predicate) if (is(typeof(unaryFun!predicate)))
+template filterUnique(alias predicate) if (is(typeof(unaryFun!predicate)))
 {
     import std.algorithm.mutation : move;
     import std.range.primitives : isInputRange, isForwardRange, isInfinite;
@@ -343,7 +343,7 @@ template filter(alias predicate) if (is(typeof(unaryFun!predicate)))
 
         @property auto ref front()
         {
-            assert(!empty, "Attempting to fetch the front of an empty filter.");
+            assert(!empty, "Attempting to fetch the front of an empty filterUnique.");
             return _input.front;
         }
 
@@ -357,7 +357,7 @@ template filter(alias predicate) if (is(typeof(unaryFun!predicate)))
         }
     }
 
-    auto filter(Range)(Range range) if (isInputRange!(Unqual!Range))
+    auto filterUnique(Range)(Range range) if (isInputRange!(Unqual!Range))
     {
         return Result!(unaryFun!predicate, Range)(move(range));
     }

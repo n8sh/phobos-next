@@ -1,6 +1,6 @@
 module unique_slice;
 
-@safe pure:
+@safe pure nothrow @nogc:
 
 /** Unique slice owning its source of `Source`.
     Copy construction is disabled.

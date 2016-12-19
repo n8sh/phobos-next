@@ -24,42 +24,42 @@ struct UniqueArrayRange(Source)
     this(Source source)
     {
         import std.algorithm.mutation : move;
-        _offset = 0;
-        _length = source.length;
+        _frontIx = 0;
+        _backIx = source.length;
         _source = move(source); // TODO remove `move` when compiler does it for us
     }
 
-    @property bool empty() const { return _offset != _length; }
+    @property bool empty() const { return _frontIx == _backIx; }
 
     @property inout(E) front() inout
     {
         assert(!empty);
-        return _source[_offset];
+        return _source[_frontIx];
     }
 
     @property inout(E) back() inout
     {
         assert(!empty);
-        return _source[_offset + _length - 1];
+        return _source[_backIx - 1];
     }
 
     @property void popFront()
     {
         assert(!empty);
-        _offset = _offset + 1;
+        _frontIx = _frontIx + 1;
     }
 
     @property void popBack()
     {
         assert(!empty);
-        _length = _length - 1;
+        _backIx = _backIx - 1;
     }
 
-    @property size_t length() const { return _length; }
+    @property size_t length() const { return _backIx - _frontIx; }
 
 private:
-    size_t _offset;             // offset to front element
-    size_t _length;
+    size_t _frontIx;             // offset to front element
+    size_t _backIx;
     Source _source; // typically a non-reference count container type with disable copy construction
 }
 
@@ -80,10 +80,28 @@ UniqueArrayRange!Source intoSlice(Source)(Source source)
     alias C = SA!int;
 
     auto cs = C.withElements(11, 13, 15, 17).intoSlice;
-    assert(cs.length == 4);
 
-    foreach (e; C.withElements(11, 13, 15, 17).intoSlice)
-    {
-        dln(e);
-    }
+    assert(!cs.empty);
+    assert(cs.length == 4);
+    assert(cs.front == 11);
+    assert(cs.back == 17);
+
+    cs.popFront();
+    assert(cs.length == 3);
+    assert(cs.front == 13);
+    assert(cs.back == 17);
+
+    cs.popBack();
+    assert(cs.length == 2);
+    assert(cs.front == 13);
+    assert(cs.back == 15);
+
+    cs.popFront();
+    assert(cs.length == 1);
+    assert(cs.front == 15);
+    assert(cs.back == 15);
+
+    cs.popBack();
+    assert(cs.length == 0);
+    assert(cs.empty);
 }

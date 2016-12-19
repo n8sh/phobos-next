@@ -17,7 +17,7 @@ struct UniqueRange(Source)
     alias Slice = typeof(Source.init[]);
     alias E = ElementType!Slice;
 
-    @disable this(this);
+    @disable this(this);        // not intended to be copied
 
     pragma(inline) @safe pure nothrow @nogc:
 
@@ -61,6 +61,12 @@ struct UniqueRange(Source)
         _backIx = _backIx - 1;
     }
 
+    /// Returns: shallow duplicate of `this`.
+    @property UniqueRange dup() const
+    {
+        return typeof(this)(_frontIx, _backIx, _source.dup);
+    }
+
     /// Length.
     @property size_t length() const { return _backIx - _frontIx; }
 
@@ -70,10 +76,10 @@ private:
     Source _source; // typically a non-reference count container type with disable copy construction
 }
 
-/** Returns: A slice of `Source` that own it's `source` (data container).
+/** Returns: A range of `Source` that owns its `source` (data container).
     Similar to Rust's `into_iter`.
  */
-UniqueRange!Source intoSlice(Source)(Source source)
+UniqueRange!Source intoRange(Source)(Source source)
     if (hasLength!Source)
 {
     import std.algorithm.mutation : move;
@@ -86,7 +92,7 @@ UniqueRange!Source intoSlice(Source)(Source source)
     import array_ex : SA = UncopyableArray;
     alias C = SA!int;
 
-    auto cs = C.withElements(11, 13, 15, 17).intoSlice;
+    auto cs = C.withElements(11, 13, 15, 17).intoRange;
 
     assert(!cs.empty);
     assert(cs.length == 4);
@@ -124,7 +130,7 @@ UniqueRange!Source intoSlice(Source)(Source source)
     version(none) // TODO is proven to work when `map` and `filter` accepts non-copyable parameters
     {
         foreach (ref e; C.withElements(11, 13, 15, 17)
-                         .intoSlice
+                         .intoRange
                          .map!(_ => _^^2)
                          .filter!(_ => _ != 121))
         {

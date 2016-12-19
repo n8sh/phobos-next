@@ -5,11 +5,13 @@ module unique_slice;
 struct UniqueSlice(Source)
 {
     alias Slice = typeof(Source.init[]);
+
     @disable this(this);
+
     Source _source; // typically a non-reference count container type with disable copy construction
 }
 
-UniqueSlice!Source intoSlice(Source)(Source source)
+pragma(inline) UniqueSlice!Source intoSlice(Source)(Source source)
 {
     import std.algorithm.mutation : move;
     return typeof(return)(move(source)); // TODO remove `move` when compiler does it for us

@@ -502,7 +502,7 @@ private struct Array(E,
             foreach (ref value; values)
             {
                 reserve(i + 1); // slower reserve
-                _mptr[i++] = value.move();
+                _mptr[i++] = value.move(); // TODO remove `move` when compiler does it for us
                 setOnlyLength(i); // must be set here because correct length is needed in reserve call above in this same scope
             }
         }

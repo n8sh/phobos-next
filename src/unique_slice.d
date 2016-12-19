@@ -2,6 +2,11 @@ module unique_slice;
 
 @safe pure nothrow @nogc:
 
+version(unittest)
+{
+    import dbgio : dln;
+}
+
 /** Unique slice owning its source of `Source`.
     Copy construction is disabled.
  */
@@ -11,11 +16,13 @@ struct UniqueSlice(Source)
 
     @disable this(this);
 
+    pragma(inline):
+
     this(Source source) @trusted
     {
         import std.algorithm.mutation : move;
         _source = move(source); // TODO remove `move` when compiler does it for us
-        _slice = source[];
+        _slice = _source[];
     }
 
     alias _slice this;
@@ -36,10 +43,14 @@ pragma(inline) UniqueSlice!Source intoSlice(Source)(Source source)
 ///
 nothrow @nogc unittest
 {
-    import array_ex : SA = UncopyableArray;
+    import array_ex : SA = SortedSetUncopyableArray;
     alias C = SA!int;
-    auto cs = C.withElements(1, 3, 5, 7).intoSlice;
+
+    auto cs = C.withElements(11, 13, 15, 17).intoSlice;
+    assert(cs.length == 4);
+
     foreach (e; cs)
     {
+        dln(e);
     }
 }

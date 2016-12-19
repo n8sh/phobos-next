@@ -7,7 +7,7 @@ version(unittest)
 
 import std.range.primitives : hasLength;
 
-/** Unique slice owning its source of `Source`.
+/** Unique range (slice) owning its source of `Source`.
     Copy construction is disabled.
  */
 struct UniqueRange(Source)

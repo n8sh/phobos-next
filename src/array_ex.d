@@ -1861,7 +1861,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ssA.length == 0);
             assert(ssA.empty);
 
-            // linearInsertAt
+            // insertAt
             ssA ~= 1;
             ssA ~= 2;
             ssA ~= 3;

@@ -113,7 +113,7 @@ UniqueArrayRange!Source intoSlice(Source)(Source source)
     assert(cs.empty);
 }
 
-/// basics
+/// combined with Phobos ranges
 @safe pure nothrow @nogc unittest
 {
     import std.algorithm.iteration : map, filter;

@@ -2,6 +2,9 @@ module unique_slice;
 
 @safe pure:
 
+/** Unique slice owning its source of `Source`.
+    Copy construction is disabled.
+ */
 struct UniqueSlice(Source)
 {
     alias Slice = typeof(Source.init[]);
@@ -11,6 +14,9 @@ struct UniqueSlice(Source)
     Source _source; // typically a non-reference count container type with disable copy construction
 }
 
+/** Returns: A slice of `Source` that own it's `source` (data container).
+    Similar to Rust's `into_iter`.
+ */
 pragma(inline) UniqueSlice!Source intoSlice(Source)(Source source)
 {
     import std.algorithm.mutation : move;

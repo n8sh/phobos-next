@@ -10,7 +10,7 @@ import std.range.primitives : hasLength;
 /** Unique slice owning its source of `Source`.
     Copy construction is disabled.
  */
-struct UniqueArrayRange(Source)
+struct UniqueRange(Source)
     if (hasLength!Source)       // TODO use traits `isArrayContainer`
 {
     import std.range : ElementType;
@@ -73,7 +73,7 @@ private:
 /** Returns: A slice of `Source` that own it's `source` (data container).
     Similar to Rust's `into_iter`.
  */
-UniqueArrayRange!Source intoSlice(Source)(Source source)
+UniqueRange!Source intoSlice(Source)(Source source)
     if (hasLength!Source)
 {
     import std.algorithm.mutation : move;

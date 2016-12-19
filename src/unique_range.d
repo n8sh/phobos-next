@@ -62,9 +62,12 @@ struct UniqueRange(Source)
     }
 
     /// Returns: shallow duplicate of `this`.
-    @property UniqueRange dup() const
+    version(none)               // TODO make compile
     {
-        return typeof(this)(_frontIx, _backIx, _source.dup);
+        @property UniqueRange dup() const
+        {
+            return typeof(this)(_frontIx, _backIx, _source.dup);
+        }
     }
 
     /// Length.

@@ -138,10 +138,10 @@ UniqueRange!Source intoRange(Source)(Source source)
 }
 
 import std.functional : unaryFun;
-import std.algorithm.mutation : move;
 
 template filter(alias predicate) if (is(typeof(unaryFun!predicate)))
 {
+    import std.algorithm.mutation : move, moveEmplace;
     import std.range.primitives : isInputRange, isForwardRange, isInfinite;
     import std.traits : Unqual, isCopyable;
 
@@ -152,7 +152,7 @@ template filter(alias predicate) if (is(typeof(unaryFun!predicate)))
 
         this(R r)
         {
-            _input = move(r);
+            move(r, _input);
             while (!_input.empty && !pred(_input.front))
             {
                 _input.popFront();

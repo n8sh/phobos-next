@@ -133,15 +133,173 @@ UniqueRange!Source intoRange(Source)(Source source)
 
     equal(C.withElements(11, 13, 15, 17)
            .intoRange
-           .filter!(_ => _ != 11),
+           .filter!(_ => _ != 11)
+           .map!(_ => _ != 2*_),
           [13, 15, 17]);
 }
 
 import std.functional : unaryFun;
 
+template map(fun...) if (fun.length >= 1)
+{
+    import std.algorithm.mutation : move;
+    import std.range.primitives : isInputRange, ElementType;
+    import std.traits : Unqual;
+
+    auto map(Range)(Range r) if (isInputRange!(Unqual!Range))
+    {
+        import std.meta : AliasSeq, staticMap;
+
+        alias RE = ElementType!(Range);
+        static if (fun.length > 1)
+        {
+            import std.functional : adjoin;
+            import std.meta : staticIndexOf;
+
+            alias _funs = staticMap!(unaryFun, fun);
+            alias _fun = adjoin!_funs;
+
+            // Once DMD issue #5710 is fixed, this validation loop can be moved into a template.
+            foreach (f; _funs)
+            {
+                static assert(!is(typeof(f(RE.init)) == void),
+                    "Mapping function(s) must not return void: " ~ _funs.stringof);
+            }
+        }
+        else
+        {
+            alias _fun = unaryFun!fun;
+            alias _funs = AliasSeq!(_fun);
+
+            // Do the validation separately for single parameters due to DMD issue #15777.
+            static assert(!is(typeof(_fun(RE.init)) == void),
+                "Mapping function(s) must not return void: " ~ _funs.stringof);
+        }
+
+        return MapResult!(_fun, Range)(move(r));
+    }
+}
+
+private struct MapResult(alias fun, Range)
+{
+    import std.traits : Unqual;
+    import std.range.primitives : isInputRange, isForwardRange, isBidirectionalRange, isRandomAccessRange, isInfinite, hasSlicing;
+    import std.algorithm.mutation : move;
+
+    alias R = Unqual!Range;
+    R _input;
+
+    static if (isBidirectionalRange!R)
+    {
+        @property auto ref back()()
+        {
+            assert(!empty, "Attempting to fetch the back of an empty map.");
+            return fun(_input.back);
+        }
+
+        void popBack()()
+        {
+            assert(!empty, "Attempting to popBack an empty map.");
+            _input.popBack();
+        }
+    }
+
+    this(R input)
+    {
+        _input = move(input);
+    }
+
+    static if (isInfinite!R)
+    {
+        // Propagate infinite-ness.
+        enum bool empty = false;
+    }
+    else
+    {
+        @property bool empty()
+        {
+            return _input.empty;
+        }
+    }
+
+    void popFront()
+    {
+        assert(!empty, "Attempting to popFront an empty map.");
+        _input.popFront();
+    }
+
+    @property auto ref front()
+    {
+        assert(!empty, "Attempting to fetch the front of an empty map.");
+        return fun(_input.front);
+    }
+
+    static if (isRandomAccessRange!R)
+    {
+        static if (is(typeof(_input[ulong.max])))
+            private alias opIndex_t = ulong;
+        else
+            private alias opIndex_t = uint;
+
+        auto ref opIndex(opIndex_t index)
+        {
+            return fun(_input[index]);
+        }
+    }
+
+    static if (hasLength!R)
+    {
+        @property auto length()
+        {
+            return _input.length;
+        }
+
+        alias opDollar = length;
+    }
+
+    static if (hasSlicing!R)
+    {
+        static if (is(typeof(_input[ulong.max .. ulong.max])))
+            private alias opSlice_t = ulong;
+        else
+            private alias opSlice_t = uint;
+
+        static if (hasLength!R)
+        {
+            auto opSlice(opSlice_t low, opSlice_t high)
+            {
+                return typeof(this)(_input[low .. high]);
+            }
+        }
+        else static if (is(typeof(_input[opSlice_t.max .. $])))
+        {
+            struct DollarToken{}
+            enum opDollar = DollarToken.init;
+            auto opSlice(opSlice_t low, DollarToken)
+            {
+                return typeof(this)(_input[low .. $]);
+            }
+
+            auto opSlice(opSlice_t low, opSlice_t high)
+            {
+                import std.range : takeExactly;
+                return this[low .. $].takeExactly(high - low);
+            }
+        }
+    }
+
+    static if (isForwardRange!R)
+    {
+        @property auto save()
+        {
+            return typeof(this)(_input.save);
+        }
+    }
+}
+
 template filter(alias predicate) if (is(typeof(unaryFun!predicate)))
 {
-    import std.algorithm.mutation : move, moveEmplace;
+    import std.algorithm.mutation : move;
     import std.range.primitives : isInputRange, isForwardRange, isInfinite;
     import std.traits : Unqual, isCopyable;
 

@@ -8,7 +8,9 @@ version(unittest)
 import std.range.primitives : hasLength;
 
 /** Unique range (slice) owning its source of `Source`.
-    Copy construction is disabled.
+
+    Copy construction is disabled, explicit copying is instead done through
+    member `.dup`.
  */
 struct UniqueRange(Source)
     if (hasLength!Source)       // TODO use traits `isArrayContainer`

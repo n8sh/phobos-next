@@ -21,6 +21,7 @@ struct UniqueArrayRange(Source)
 
     pragma(inline) @safe pure nothrow @nogc:
 
+    /// Construct from `source`.
     this(Source source)
     {
         import std.algorithm.mutation : move;
@@ -29,32 +30,38 @@ struct UniqueArrayRange(Source)
         _source = move(source); // TODO remove `move` when compiler does it for us
     }
 
+    /// Is `true` if range is empty.
     @property bool empty() const { return _frontIx == _backIx; }
 
+    /// Front element.
     @property inout(E) front() inout
     {
         assert(!empty);
         return _source[_frontIx];
     }
 
+    /// Back element.
     @property inout(E) back() inout
     {
         assert(!empty);
         return _source[_backIx - 1];
     }
 
+    /// Pop front element.
     @property void popFront()
     {
         assert(!empty);
         _frontIx = _frontIx + 1;
     }
 
+    /// Pop back element.
     @property void popBack()
     {
         assert(!empty);
         _backIx = _backIx - 1;
     }
 
+    /// Length.
     @property size_t length() const { return _backIx - _frontIx; }
 
 private:

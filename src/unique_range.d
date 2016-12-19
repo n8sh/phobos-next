@@ -80,7 +80,7 @@ UniqueArrayRange!Source intoSlice(Source)(Source source)
     return typeof(return)(move(source)); // TODO remove `move` when compiler does it for us
 }
 
-///
+/// basics
 @safe pure nothrow @nogc unittest
 {
     import array_ex : SA = UncopyableArray;
@@ -111,4 +111,24 @@ UniqueArrayRange!Source intoSlice(Source)(Source source)
     cs.popBack();
     assert(cs.length == 0);
     assert(cs.empty);
+}
+
+/// basics
+@safe pure nothrow @nogc unittest
+{
+    import std.algorithm.iteration : map, filter;
+
+    import array_ex : SA = UncopyableArray;
+    alias C = SA!int;
+
+    version(none) // TODO is proven to work when `map` and `filter` accepts non-copyable parameters
+    {
+        foreach (ref e; C.withElements(11, 13, 15, 17)
+                         .intoSlice
+                         .map!(_ => _^^2)
+                         .filter!(_ => _ != 121))
+        {
+            dln(e);
+        }
+    }
 }

@@ -742,7 +742,7 @@ private struct Array(E,
     enum isElementAssignable(U) = isAssignable!(E, U);
 
     /** Removal doesn't need to care about ordering. */
-    ContainerElementType!(This, E) linearPopAtIndex(size_t index) @trusted @("complexity", "O(length)")
+    ContainerElementType!(This, E) popAtIndex(size_t index) @trusted @("complexity", "O(length)")
     {
         assert(!isBorrowed);
         assert(index < this.length);
@@ -764,13 +764,13 @@ private struct Array(E,
         decOnlyLength();
         return value;
     }
-    alias linearRemoveAt = linearPopAtIndex;
-    alias linearDeleteAt = linearPopAtIndex;
+    alias removeAt = popAtIndex;
+    alias deleteAt = popAtIndex;
 
     /** Removal doesn't need to care about ordering. */
     pragma(inline) ContainerElementType!(This, E) linearPopFront() @trusted @("complexity", "O(length)")
     {
-        return linearPopAtIndex(0);
+        return popAtIndex(0);
     }
 
     /** Removal doesn't need to care about ordering. */
@@ -1018,7 +1018,7 @@ private struct Array(E,
                     }
                     else
                     {
-                        linearInsertAtIndexHelper(index, values);
+                        insertAtIndexHelper(index, values);
                         return [true];
                     }
                 }
@@ -1077,7 +1077,7 @@ private struct Array(E,
                     size_t index;
                     if (!slice.assumeSorted!comp.containsStoreIndex!sp(values, index)) // faster than `completeSort` for single value
                     {
-                        linearInsertAtIndexHelper(index, values);
+                        insertAtIndexHelper(index, values);
                     }
                 }
                 else
@@ -1094,27 +1094,27 @@ private struct Array(E,
     else
     {
         /** Insert element(s) `values` at array offset `index`. */
-        pragma(inline) void linearInsertAtIndex(Us...)(size_t index, Us values) nothrow @("complexity", "O(length)")
+        pragma(inline) void insertAtIndex(Us...)(size_t index, Us values) nothrow @("complexity", "O(length)")
             if (values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
         {
             assert(!isBorrowed);
-            linearInsertAtIndexHelper(index, values);
+            insertAtIndexHelper(index, values);
         }
 
         /** Insert element(s) `values` at the beginning. */
-        pragma(inline) void linearPushFront(Us...)(Us values) nothrow @("complexity", "O(length)")
+        pragma(inline) void pushFront(Us...)(Us values) nothrow @("complexity", "O(length)")
             if (values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
         {
-            linearInsertAtIndex(0, values);
+            insertAtIndex(0, values);
         }
 
-        alias prepend = linearPushFront;
+        alias prepend = pushFront;
     }
 
     /** Helper function used externally for unsorted and internally for sorted. */
-    private void linearInsertAtIndexHelper(Us...)(size_t index, Us values) @trusted nothrow @("complexity", "O(length)")
+    private void insertAtIndexHelper(Us...)(size_t index, Us values) @trusted nothrow @("complexity", "O(length)")
     {
         reserve(this.length + values.length);
 
@@ -1871,7 +1871,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             ssA ~= 7;
             ssA ~= 8;
             assert(ssA[].equal([1, 2, 3, 4, 5, 6, 7, 8]));
-            ssA.linearInsertAtIndex(3, 100, 101);
+            ssA.insertAtIndex(3, 100, 101);
             assert(ssA[].equal([1, 2, 3, 100, 101, 4, 5, 6, 7, 8]));
             assertNotThrown(ssA.linearPopFront());
             assert(ssA[].equal([2, 3, 100, 101, 4, 5, 6, 7, 8]));
@@ -1889,13 +1889,13 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ssA.empty);
             ssA.compress();
 
-            // linearPopAtIndex
+            // popAtIndex
             ssA ~= 1;
             ssA ~= 2;
             ssA ~= 3;
             ssA ~= 4;
             ssA ~= 5;
-            assertNotThrown(ssA.linearPopAtIndex(2));
+            assertNotThrown(ssA.popAtIndex(2));
             assert(ssA[].equal([1, 2, 4, 5]));
 
             // pushBack and assignment from slice

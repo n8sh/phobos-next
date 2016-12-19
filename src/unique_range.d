@@ -3,6 +3,7 @@ module unique_range;
 version(unittest)
 {
     import dbgio : dln;
+    import std.algorithm.comparison : equal;
 }
 
 import std.range.primitives : hasLength;
@@ -125,21 +126,78 @@ UniqueRange!Source intoRange(Source)(Source source)
 }
 
 /// combined with Phobos ranges
-@safe pure nothrow @nogc unittest
+@safe pure nothrow unittest
 {
-    import std.algorithm.iteration : map, filter;
-
     import array_ex : SA = UncopyableArray;
     alias C = SA!int;
 
-    version(none) // TODO is proven to work when `map` and `filter` accepts non-copyable parameters
+    equal(C.withElements(11, 13, 15, 17)
+           .intoRange
+           .filter!(_ => _ != 11),
+          [13, 15, 17]);
+}
+
+import std.functional : unaryFun;
+import std.algorithm.mutation : move;
+
+template filter(alias predicate) if (is(typeof(unaryFun!predicate)))
+{
+    import std.range.primitives : isInputRange, isForwardRange, isInfinite;
+    import std.traits : Unqual, isCopyable;
+
+    private static struct Result(alias pred, Range)
     {
-        foreach (ref e; C.withElements(11, 13, 15, 17)
-                         .intoRange
-                         .map!(_ => _^^2)
-                         .filter!(_ => _ != 121))
+        alias R = Unqual!Range;
+        R _input;
+
+        this(R r)
         {
-            dln(e);
+            _input = move(r);
+            while (!_input.empty && !pred(_input.front))
+            {
+                _input.popFront();
+            }
         }
+
+        static if (isCopyable!Range)
+        {
+            auto opSlice() { return this; }
+        }
+
+        static if (isInfinite!Range)
+        {
+            enum bool empty = false;
+        }
+        else
+        {
+            @property bool empty() { return _input.empty; }
+        }
+
+        void popFront()
+        {
+            do
+            {
+                _input.popFront();
+            } while (!_input.empty && !pred(_input.front));
+        }
+
+        @property auto ref front()
+        {
+            assert(!empty, "Attempting to fetch the front of an empty filter.");
+            return _input.front;
+        }
+
+        static if (isForwardRange!R)
+        {
+            @property auto save()
+            {
+                return typeof(this)(_input.save);
+            }
+        }
+    }
+
+    auto filter(Range)(Range range) if (isInputRange!(Unqual!Range))
+    {
+        return Result!(unaryFun!predicate, Range)(move(range));
     }
 }

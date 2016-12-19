@@ -1613,10 +1613,6 @@ pure unittest
 
 static void tester(Ordering ordering, bool supportGC, alias less)()
 {
-    // dln("ordering:", ordering);
-    // dln("supportGC:", supportGC);
-    // dln("less:", less);
-
     import std.functional : binaryFun;
     import std.range : iota, chain, repeat, only, ElementType;
     import std.algorithm : filter, map;
@@ -1711,7 +1707,6 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 
     foreach (immutable n; chain(0.only, iota(0, 10).map!(x => 2^^x)))
     {
-        // dln("n:", n);
         import std.array : array;
         import std.range : radial;
 

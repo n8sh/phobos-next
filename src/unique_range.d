@@ -19,17 +19,15 @@ struct UniqueArrayRange(Source)
 
     @disable this(this);
 
-    pragma(inline):
+    pragma(inline) @safe pure nothrow @nogc:
 
-    this(Source source) @trusted
+    this(Source source)
     {
         import std.algorithm.mutation : move;
         _offset = 0;
         _length = source.length;
         _source = move(source); // TODO remove `move` when compiler does it for us
     }
-
-    pragma(inline) @safe pure nothrow @nogc:
 
     @property bool empty() const { return _offset != _length; }
 

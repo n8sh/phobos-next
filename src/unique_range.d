@@ -132,7 +132,7 @@ UniqueRange!Source intoRange(Source)(Source source)
     alias C = SA!int;
 
     equal(C.withElements(11, 13, 15, 17)
-           .intoRange
+           .intoRange()
            .filterUnique!(_ => _ != 11)
            .mapUnique!(_ => _ != 2*_),
           [13, 15, 17]);

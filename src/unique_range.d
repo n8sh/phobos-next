@@ -182,7 +182,7 @@ template map(fun...) if (fun.length >= 1)
 
 private struct MapResult(alias fun, Range)
 {
-    import std.traits : Unqual;
+    import std.traits : Unqual, isCopyable;
     import std.range.primitives : isInputRange, isForwardRange, isBidirectionalRange, isRandomAccessRange, isInfinite, hasSlicing;
     import std.algorithm.mutation : move;
 
@@ -257,7 +257,8 @@ private struct MapResult(alias fun, Range)
         alias opDollar = length;
     }
 
-    static if (hasSlicing!R)
+    static if (hasSlicing!R &&
+               isCopyable!R)
     {
         static if (is(typeof(_input[ulong.max .. ulong.max])))
             private alias opSlice_t = ulong;
@@ -288,7 +289,8 @@ private struct MapResult(alias fun, Range)
         }
     }
 
-    static if (isForwardRange!R)
+    static if (isForwardRange!R &&
+               isCopyable!R)    // TODO should save be allowed for non-copyable?
     {
         @property auto save()
         {
@@ -345,7 +347,8 @@ template filter(alias predicate) if (is(typeof(unaryFun!predicate)))
             return _input.front;
         }
 
-        static if (isForwardRange!R)
+        static if (isForwardRange!R &&
+                   isCopyable!R) // TODO should save be allowed for non-copyable?
         {
             @property auto save()
             {

@@ -960,12 +960,12 @@ private struct Array(E,
 
         static if (ordering == Ordering.sortedUniqueSet)
         {
-            /** Inserts `values` into `this` ordered set.
+            /** Inserts several `values` into `this` ordered set.
 
                 Returns: `bool`-array with same length as `values`, where i:th
                 `bool` value is set if `value[i]` wasn't previously in `this`.
             */
-            bool[Us.length] linearInsert(SearchPolicy sp = SearchPolicy.binarySearch, Us...)(Us values) @("complexity", "O(length)")
+            bool[Us.length] insertMany(SearchPolicy sp = SearchPolicy.binarySearch, Us...)(Us values) @("complexity", "O(length)")
                 if (values.length >= 1 &&
                     allSatisfy!(isElementAssignable, Us))
             in
@@ -1064,7 +1064,7 @@ private struct Array(E,
         else static if (ordering == Ordering.sortedValues)
         {
             /** Inserts `values`. */
-            void linearInsert(SearchPolicy sp = SearchPolicy.binarySearch, Us...)(Us values) @("complexity", "O(log(length))")
+            void insertMany(SearchPolicy sp = SearchPolicy.binarySearch, Us...)(Us values) @("complexity", "O(log(length))")
                 if (values.length >= 1 &&
                     allSatisfy!(isElementAssignable, Us))
             {
@@ -1774,12 +1774,12 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             {
                 static if (ordering == Ordering.sortedUniqueSet)
                 {
-                    assert(ssA.linearInsert(i)[].equal([true]));
-                    assert(ssA.linearInsert(i)[].equal([false]));
+                    assert(ssA.insertMany(i)[].equal([true]));
+                    assert(ssA.insertMany(i)[].equal([false]));
                 }
                 else
                 {
-                    ssA.linearInsert(i);
+                    ssA.insertMany(i);
                 }
             }
             assert(ssA[].equal(sort!comp(fw.array)));
@@ -1787,17 +1787,17 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             auto ssB = Array!(E, assignment, ordering, supportGC, less).withLength(0);
             static if (ordering == Ordering.sortedUniqueSet)
             {
-                assert(ssB.linearInsert(1, 7, 4, 9)[].equal(true.repeat(4)));
-                assert(ssB.linearInsert(3, 6, 8, 5, 1, 9)[].equal([true, true, true, true, false, false]));
-                assert(ssB.linearInsert(3, 0, 2, 10, 11, 5)[].equal([false, true, true, true, true, false]));
-                assert(ssB.linearInsert(0, 2, 10, 11)[].equal(false.repeat(4))); // false becuse already inserted
+                assert(ssB.insertMany(1, 7, 4, 9)[].equal(true.repeat(4)));
+                assert(ssB.insertMany(3, 6, 8, 5, 1, 9)[].equal([true, true, true, true, false, false]));
+                assert(ssB.insertMany(3, 0, 2, 10, 11, 5)[].equal([false, true, true, true, true, false]));
+                assert(ssB.insertMany(0, 2, 10, 11)[].equal(false.repeat(4))); // false becuse already inserted
                 assert(ssB.capacity == 16);
             }
             else
             {
-                ssB.linearInsert(1, 7, 4, 9);
-                ssB.linearInsert(3, 6, 8, 5);
-                ssB.linearInsert(0, 2, 10, 11);
+                ssB.insertMany(1, 7, 4, 9);
+                ssB.insertMany(3, 6, 8, 5);
+                ssB.insertMany(0, 2, 10, 11);
                 assert(ssB.capacity == 16);
             }
 

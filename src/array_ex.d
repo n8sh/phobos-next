@@ -2317,6 +2317,7 @@ unittest
     import std.algorithm.iteration : map;
     alias A = UncopyableArray!int;
     auto y = A.init[].map!(_ => _^^2).array;
+    A z = y.dup;                // check that dup returns same type
 }
 
 /// collection
@@ -2337,7 +2338,10 @@ unittest
 /// map array of uncopyable
 pure unittest
 {
-    alias A = SortedUncopyableArray!int;
-    A a;
-    A b = a.dup;
+    foreach (AT; AliasSeq!(SortedUncopyableArray, SortedSetUncopyableArray))
+    {
+        alias A = AT!int;
+        A a;
+        A b = a.dup;
+    }
 }

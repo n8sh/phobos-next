@@ -68,10 +68,10 @@ pure nothrow @nogc unittest
 
         // empty case
         immutable E[0] c0 = [];
-        assert(A()
-               .filteredInplace!(_ => _ & 1)
-               .intoUniqueRange()
-               .equal(c0[]));
+        assert(A.withCapacity(0)
+                .filteredInplace!(_ => _ & 1)
+                .intoUniqueRange()
+                .equal(c0[]));
 
         // odd elements
         immutable E[6] c1 = [3, 11, 13, 15, 17, 19];

@@ -11,7 +11,7 @@ version(unittest)
 }
 
 /** Returns: `r` eagerly in-place filtered on `predicate`.
-    TODO Move to array_ex.d to get access to private members in Array such as _mptr
+    TODO Move to free function in array_ex.d to get @trusted access to private Array._mptr
  */
 C filteredInplace(alias predicate, C)(C r) @trusted
     if (is(typeof(unaryFun!predicate)) &&

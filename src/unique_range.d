@@ -85,7 +85,7 @@ private:
 /** Returns: A range of `Source` that owns its `source` (data container).
     Similar to Rust's `into_iter`.
  */
-UniqueRange!Source intoRange(Source)(Source source)
+UniqueRange!Source intoUniqueRange(Source)(Source source)
     if (hasLength!Source)
 {
     import std.algorithm.mutation : move;
@@ -98,7 +98,7 @@ UniqueRange!Source intoRange(Source)(Source source)
     import array_ex : SA = UncopyableArray;
     alias C = SA!int;
 
-    auto cs = C.withElements(11, 13, 15, 17).intoRange;
+    auto cs = C.withElements(11, 13, 15, 17).intoUniqueRange;
 
     assert(!cs.empty);
     assert(cs.length == 4);
@@ -132,7 +132,7 @@ UniqueRange!Source intoRange(Source)(Source source)
     alias C = SA!int;
 
     equal(C.withElements(11, 13, 15, 17)
-           .intoRange()
+           .intoUniqueRange()
            .filterUnique!(_ => _ != 11)
            .mapUnique!(_ => _ != 2*_),
           [13, 15, 17]);
@@ -311,7 +311,7 @@ template filterUnique(alias predicate) if (is(typeof(unaryFun!predicate)))
     }
 }
 
-private static struct FilterUniqueResult(alias pred, Range)
+private struct FilterUniqueResult(alias pred, Range)
 {
     import std.algorithm.mutation : move;
     import std.range.primitives : isForwardRange, isInfinite;

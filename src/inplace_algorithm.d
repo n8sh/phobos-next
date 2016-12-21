@@ -109,9 +109,10 @@ C filteredInplace(alias predicate, C)(C r) @trusted
 
         // elements less than or equal to limit
         immutable E[7] c7 = [3, 11, 12, 13, 14, 15, 16];
-        assert(A.withElements(3, 11, 12, 13, 14, 15, 16, 17, 18, 19)
-                .filteredInplace!(_ => _ <= 16)
-                .intoUniqueRange()
-                .equal(c7[]));
+        auto a7 = A.withElements(3, 11, 12, 13, 14, 15, 16, 17, 18, 19);
+        assert(a7.isLarge);
+        assert(move(a7).filteredInplace!(_ => _ <= 16)
+                       .intoUniqueRange()
+                       .equal(c7[]));
     }
 }

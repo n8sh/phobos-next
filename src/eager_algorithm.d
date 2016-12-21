@@ -18,13 +18,15 @@ C filteredInplace(alias predicate, C)(C r)
     import std.traits : hasElaborateDestructor;
     import std.range.primitives : ElementType;
     import std.algorithm.mutation : move;
+    import traits_ex : ownsItsElements;
 
     alias pred = unaryFun!predicate;
+    alias E = ElementType!C;
 
     size_t dstIx = 0;           // destination index
 
     // skip leading passing elements
-    foreach (ref e; r)
+    foreach (const ref e; r)
     {
         if (!pred(e)) { break; }
         dstIx += 1;
@@ -33,14 +35,18 @@ C filteredInplace(alias predicate, C)(C r)
     // inline filtering
     foreach (immutable srcIx; dstIx + 1 .. r.length)
     {
+        // TODO move this into unchecked function in Array
         if (pred(r[srcIx]))
         {
-            move(r[srcIx], r[dstIx]);
+            static if (ownsItsElements!C)
+            {
+                move(r[srcIx], r[dstIx]);
+            }
             dstIx += 1;
         }
         else
         {
-            static if (hasElaborateDestructor!(ElementType!C))
+            static if (hasElaborateDestructor!E)
             {
                 .destroy(e);
             }

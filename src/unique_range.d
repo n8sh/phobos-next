@@ -209,7 +209,7 @@ private struct MapUniqueResult(alias fun, Range)
 
     this(R input)
     {
-        _input = move(input);
+        _input = move(input); // TODO remove `move` when compiler does it for us
     }
 
     static if (isInfinite!R)
@@ -326,7 +326,7 @@ private struct FilterUniqueResult(alias pred, Range)
 
     this(R r)
     {
-        _input = move(r);
+        _input = move(r);       // TODO remove `move` when compiler does it for us
         while (!_input.empty && !pred(_input.front))
         {
             _input.popFront();

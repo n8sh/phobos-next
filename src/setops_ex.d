@@ -233,6 +233,7 @@ SetIntersection2!(less, preferredSearchPolicy, Rs) setIntersectionFast(alias les
     import std.algorithm.mutation : move;
     // TODO Remove need for these switch cases if this can be fixed:
     // http://forum.dlang.org/post/pknonazfniihvpicxbld@forum.dlang.org
+    // TODO remove `move` when compiler does it for us
     static if (Rs.length == 2)
     {
         return typeof(return)(move(ranges[0]),

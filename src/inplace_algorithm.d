@@ -10,7 +10,9 @@ version(unittest)
     import dbgio : dln;
 }
 
-/** Returns: `r` eagerly in-place filtered on `predicate`. */
+/** Returns: `r` eagerly in-place filtered on `predicate`.
+    TODO Move to array_ex.d to get access to private members in Array such as _mptr
+ */
 C filteredInplace(alias predicate, C)(C r) @trusted
     if (is(typeof(unaryFun!predicate)) &&
         hasIndexing!C)          // TODO extend to isArrayContainer!C

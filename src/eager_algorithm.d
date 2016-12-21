@@ -64,6 +64,8 @@ pure nothrow @nogc unittest
     {
         alias A = C!E;
 
+        static assert(is(A == typeof(A().filteredInplace!(_ => _ & 1))));
+
         // empty case
         immutable E[0] c0 = [];
         assert(A()

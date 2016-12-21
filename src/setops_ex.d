@@ -230,7 +230,31 @@ SetIntersection2!(less, preferredSearchPolicy, Rs) setIntersectionFast(alias les
     if (Rs.length >= 2 && allSatisfy!(isInputRange, Rs) &&
         !is(CommonType!(staticMap!(ElementType, Rs)) == void))
 {
-    return typeof(return)(ranges);
+    import std.algorithm.mutation : move;
+    // TODO Remove need for these switch cases if this can be fixed:
+    // http://forum.dlang.org/post/pknonazfniihvpicxbld@forum.dlang.org
+    static if (Rs.length == 2)
+    {
+        return typeof(return)(move(ranges[0]),
+                              move(ranges[1]));
+    }
+    else static if (Rs.length == 3)
+    {
+        return typeof(return)(move(ranges[0]),
+                              move(ranges[1]),
+                              move(ranges[2]));
+    }
+    else static if (Rs.length == 4)
+    {
+        return typeof(return)(move(ranges[0]),
+                              move(ranges[1]),
+                              move(ranges[2]),
+                              move(ranges[3]));
+    }
+    else
+    {
+        return typeof(return)(ranges);
+    }
 }
 
 unittest

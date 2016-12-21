@@ -994,3 +994,10 @@ enum isRvalue(alias A) = !isLvalue!A;
     static assert(!isLvalue!13);
     static assert(!isLvalue!"a");
 }
+
+template ownsItsElements(C)
+{
+    import std.traits : isCopyable, hasIndirections;
+    import std.range.primitives : ElementType;
+    enum ownsItsElements = !isCopyable!C && !hasIndirections!(ElementType!C);
+}

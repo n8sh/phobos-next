@@ -64,7 +64,7 @@ C filteredInplace(alias predicate, C)(C r) @trusted
         }
     }
 
-    r.length = dstIx;           // truncate
+    r.shrinkTo(dstIx);
 
     return move(r);
 }
@@ -77,8 +77,7 @@ C filteredInplace(alias predicate, C)(C r) @trusted
     import array_ex : UncopyableArray, SortedSetUncopyableArray;
 
     alias E = int;
-    foreach (C; AliasSeq!(UncopyableArray// , TODO SortedSetUncopyableArray
-                 ))
+    foreach (C; AliasSeq!(UncopyableArray, SortedSetUncopyableArray))
     {
         alias A = C!E;
 

@@ -11,11 +11,11 @@ version(unittest)
 }
 
 /** Returns: `r` eagerly in-place filtered on `predicate`. */
-C filteredInplace(alias predicate, C)(C r)
+C filteredInplace(alias predicate, C)(C r) @safe
     if (is(typeof(unaryFun!predicate)) &&
         hasIndexing!C)
 {
-    import std.traits : hasElaborateDestructor, isMutable;
+    import std.traits : hasElaborateDestructor, isMutable, hasIndirections;
     import std.range.primitives : ElementType;
     import std.algorithm.mutation : move;
     import traits_ex : ownsItsElements;
@@ -26,9 +26,9 @@ C filteredInplace(alias predicate, C)(C r)
     size_t dstIx = 0;           // destination index
 
     // skip leading passing elements
-    foreach (const ref e; r)
+    // TODO reuse .indexOf!(_ => !pred(_)) algorithm in `Array`
+    while (dstIx < r.length && pred(r[dstIx]))
     {
-        if (!pred(e)) { break; }
         dstIx += 1;
     }
 
@@ -38,7 +38,8 @@ C filteredInplace(alias predicate, C)(C r)
         // TODO move this into unchecked function in Array
         if (pred(r[srcIx]))
         {
-            static if (isMutable!E)
+            static if (isMutable!E &&
+                       !hasIndirections!E)
             {
                 move(r[srcIx], r[dstIx]); // TODO reuse function in array
             }
@@ -66,7 +67,7 @@ C filteredInplace(alias predicate, C)(C r)
     return move(r);
 }
 
-pure nothrow @nogc unittest
+@safe pure nothrow @nogc unittest
 {
     import std.meta : AliasSeq;
     import unique_range : intoUniqueRange;

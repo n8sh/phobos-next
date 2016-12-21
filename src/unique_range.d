@@ -299,6 +299,7 @@ private struct MapUniqueResult(alias fun, Range)
     }
 }
 
+// TODO Add duck-typed interface that shows that result is still sorted according to `predicate`
 template filterUnique(alias predicate) if (is(typeof(unaryFun!predicate)))
 {
     import std.algorithm.mutation : move;
@@ -311,6 +312,7 @@ template filterUnique(alias predicate) if (is(typeof(unaryFun!predicate)))
     }
 }
 
+// TODO Add duck-typed interface that shows that result is still sorted according to `predicate`
 private struct FilterUniqueResult(alias pred, Range)
 {
     import std.algorithm.mutation : move;

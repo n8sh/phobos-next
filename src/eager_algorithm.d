@@ -1,4 +1,4 @@
-module eager_algorithms;
+module eager_algorithm;
 
 import std.functional : unaryFun;
 

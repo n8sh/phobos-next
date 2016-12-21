@@ -223,7 +223,7 @@ public:
     }
 }
 
-/// Ditto
+/// ditto
 SetIntersection2!(less, preferredSearchPolicy, Rs) setIntersectionFast(alias less = "a < b",
                                                                        SearchPolicy preferredSearchPolicy = SearchPolicy.gallop,
                                                                        Rs...)(Rs ranges)

@@ -54,30 +54,35 @@ C filteredInplace(alias predicate, C)(C r)
 
 pure nothrow @nogc unittest
 {
+    import std.meta : AliasSeq;
     import unique_range : intoUniqueRange;
-    import array_ex : UncopyableArray;
+    import array_ex : UncopyableArray, SortedSetUncopyableArray;
 
     alias E = int;
-    alias A = UncopyableArray!E;
+    foreach (C; AliasSeq!(UncopyableArray// , TODO SortedSetUncopyableArray
+                 ))
+    {
+        alias A = C!E;
 
-    // empty case
-    immutable E[0] c0 = [];
-    assert(A()
-            .filteredInplace!(_ => _ & 1)
-            .intoUniqueRange()
-            .equal(c0[]));
+        // empty case
+        immutable E[0] c0 = [];
+        assert(A()
+               .filteredInplace!(_ => _ & 1)
+               .intoUniqueRange()
+               .equal(c0[]));
 
-    // odd elements
-    immutable E[6] c1 = [3, 11, 13, 15, 17, 19];
-    assert(A.withElements(3, 11, 12, 13, 14, 15, 16, 17, 18, 19)
-            .filteredInplace!(_ => _ & 1)
-            .intoUniqueRange()
-            .equal(c1[]));
+        // odd elements
+        immutable E[6] c1 = [3, 11, 13, 15, 17, 19];
+        assert(A.withElements(3, 11, 12, 13, 14, 15, 16, 17, 18, 19)
+                .filteredInplace!(_ => _ & 1)
+                .intoUniqueRange()
+                .equal(c1[]));
 
-    // elements less than or equal to limit
-    immutable E[6] c2 = [3, 11, 12, 13, 14, 15];
-    assert(A.withElements(3, 11, 12, 13, 14, 15, 16, 17, 18, 19)
-            .filteredInplace!(_ => _ <= 15)
-            .intoUniqueRange()
-            .equal(c2[]));
+        // elements less than or equal to limit
+        immutable E[6] c2 = [3, 11, 12, 13, 14, 15];
+        assert(A.withElements(3, 11, 12, 13, 14, 15, 16, 17, 18, 19)
+                .filteredInplace!(_ => _ <= 15)
+                .intoUniqueRange()
+                .equal(c2[]));
+    }
 }

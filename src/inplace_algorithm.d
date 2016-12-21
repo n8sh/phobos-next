@@ -11,10 +11,11 @@ version(unittest)
 }
 
 /** Returns: `r` eagerly in-place filtered on `predicate`. */
-C filteredInplace(alias predicate, C)(C r) @safe
+C filteredInplace(alias predicate, C)(C r) @trusted
     if (is(typeof(unaryFun!predicate)) &&
-        hasIndexing!C)
+        hasIndexing!C)          // TODO extend to isArrayContainer!C
 {
+    import std.typecons : Unqual;
     import std.traits : hasElaborateDestructor, isMutable, hasIndirections;
     import std.range.primitives : ElementType;
     import std.algorithm.mutation : move;
@@ -22,12 +23,13 @@ C filteredInplace(alias predicate, C)(C r) @safe
 
     alias pred = unaryFun!predicate;
     alias E = ElementType!C;
+    alias MutableC = Unqual!C;
 
     size_t dstIx = 0;           // destination index
 
     // skip leading passing elements
     // TODO reuse .indexOf!(_ => !pred(_)) algorithm in `Array`
-    while (dstIx < r.length && pred(r[dstIx]))
+    while (dstIx < r.length && pred(r.ptr[dstIx]))
     {
         dstIx += 1;
     }
@@ -35,17 +37,17 @@ C filteredInplace(alias predicate, C)(C r) @safe
     // inline filtering
     foreach (immutable srcIx; dstIx + 1 .. r.length)
     {
-        // TODO move this into unchecked function in Array
-        if (pred(r[srcIx]))
+        // TODO move this into @trusted member of Array
+        if (pred(r.ptr[srcIx]))
         {
             static if (isMutable!E &&
                        !hasIndirections!E)
             {
-                move(r[srcIx], r[dstIx]); // TODO reuse function in array
+                move(r.ptr[srcIx], r.ptr[dstIx]); // TODO reuse function in array
             }
             else static if (ownsItsElements!C)
             {
-                move(r[srcIx], r[dstIx]); // TODO reuse function in array
+                move(r.ptr[srcIx], r.ptr[dstIx]); // TODO reuse function in array
             }
             else
             {
@@ -69,6 +71,7 @@ C filteredInplace(alias predicate, C)(C r) @safe
 
 @safe pure nothrow @nogc unittest
 {
+    import std.algorithm.mutation : move;
     import std.meta : AliasSeq;
     import unique_range : intoUniqueRange;
     import array_ex : UncopyableArray, SortedSetUncopyableArray;
@@ -88,18 +91,27 @@ C filteredInplace(alias predicate, C)(C r) @safe
                 .intoUniqueRange()
                 .equal(c0[]));
 
+        // few elements triggers small-array optimization
+        immutable E[2] c2 = [3, 11];
+        auto a2 = A.withElements(2, 3, 11, 12);
+        assert(a2.isSmall);
+        assert(move(a2).filteredInplace!(_ => _ & 1)
+                       .intoUniqueRange()
+                       .equal(c2[]));
+
         // odd elements
-        immutable E[6] c1 = [3, 11, 13, 15, 17, 19];
-        assert(A.withElements(3, 11, 12, 13, 14, 15, 16, 17, 18, 19)
-                .filteredInplace!(_ => _ & 1)
-                .intoUniqueRange()
-                .equal(c1[]));
+        immutable E[6] c6 = [3, 11, 13, 15, 17, 19];
+        auto a6 = A.withElements(3, 11, 12, 13, 14, 15, 16, 17, 18, 19);
+        assert(a6.isLarge);
+        assert(move(a6).filteredInplace!(_ => _ & 1)
+                       .intoUniqueRange()
+                       .equal(c6[]));
 
         // elements less than or equal to limit
-        immutable E[6] c2 = [3, 11, 12, 13, 14, 15];
+        immutable E[7] c7 = [3, 11, 12, 13, 14, 15, 16];
         assert(A.withElements(3, 11, 12, 13, 14, 15, 16, 17, 18, 19)
-                .filteredInplace!(_ => _ <= 15)
+                .filteredInplace!(_ => _ <= 16)
                 .intoUniqueRange()
-                .equal(c2[]));
+                .equal(c7[]));
     }
 }

@@ -15,7 +15,7 @@ C filteredInplace(alias predicate, C)(C r)
     if (is(typeof(unaryFun!predicate)) &&
         hasIndexing!C)
 {
-    import std.traits : hasElaborateDestructor;
+    import std.traits : hasElaborateDestructor, isMutable;
     import std.range.primitives : ElementType;
     import std.algorithm.mutation : move;
     import traits_ex : ownsItsElements;
@@ -38,9 +38,17 @@ C filteredInplace(alias predicate, C)(C r)
         // TODO move this into unchecked function in Array
         if (pred(r[srcIx]))
         {
-            static if (ownsItsElements!C)
+            static if (isMutable!E)
             {
-                move(r[srcIx], r[dstIx]);
+                move(r[srcIx], r[dstIx]); // TODO reuse function in array
+            }
+            else static if (ownsItsElements!C)
+            {
+                move(r[srcIx], r[dstIx]); // TODO reuse function in array
+            }
+            else
+            {
+                static assert(false, "Cannot move elements in instance of " ~ C.stringof);
             }
             dstIx += 1;
         }

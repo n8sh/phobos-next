@@ -4,6 +4,12 @@ import std.functional : unaryFun;
 
 import typecons_ex : hasIndexing;
 
+version(unittest)
+{
+    import std.algorithm.comparison : equal;
+    import dbgio : dln;
+}
+
 /** Returns: `r` eagerly in-place filtered on `predicate`. */
 C filteredInplace(alias predicate, C)(C r)
     if (is(typeof(unaryFun!predicate)) &&
@@ -15,21 +21,22 @@ C filteredInplace(alias predicate, C)(C r)
 
     alias pred = unaryFun!predicate;
 
-    size_t count = 0;
+    size_t dstIx = 0;           // destination index
 
-    // skip leading filtered elements
+    // skip leading passing elements
     foreach (ref e; r)
     {
         if (!pred(e)) { break; }
-        count += 1;
+        dstIx += 1;
     }
 
-    foreach (immutable ix, ref e; r)
+    // inline filtering
+    foreach (immutable srcIx; dstIx + 1 .. r.length)
     {
-        if (pred(e))
+        if (pred(r[srcIx]))
         {
-            move(e, r[count]);
-            count += 1;
+            move(r[srcIx], r[dstIx]);
+            dstIx += 1;
         }
         else
         {
@@ -40,14 +47,9 @@ C filteredInplace(alias predicate, C)(C r)
         }
     }
 
-    r.length = count;           // truncate
+    r.length = dstIx;           // truncate
 
     return move(r);
-}
-
-version(unittest)
-{
-    import std.algorithm.comparison : equal;
 }
 
 pure nothrow @nogc unittest
@@ -55,9 +57,10 @@ pure nothrow @nogc unittest
     import unique_range : intoUniqueRange;
     import array_ex : UncopyableArray;
     alias A = UncopyableArray!int;
-    immutable int[5] c = [1, 3, 5, 7, 9];
-    assert(A.withElements(1, 2, 3, 4, 5, 6, 7, 8, 9)
-                  .filteredInplace!(_ => _ & 1)
-                  .intoUniqueRange()
+    immutable int[4] c = [3, 11, 13, 15];
+    assert(A.withElements(3, 11, 12, 13, 14, 15, 16, 17, 18, 19)
+            .filteredInplace!(_ => _ & 1)
+            .filteredInplace!(_ => _ <= 15)
+            .intoUniqueRange()
             .equal(c[]));
 }

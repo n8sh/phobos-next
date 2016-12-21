@@ -224,16 +224,12 @@ public:
 }
 
 /// Ditto
-SetIntersection2!(less, preferredSearchPolicy, Rs) setIntersection2(alias less = "a < b",
-                                                           SearchPolicy preferredSearchPolicy = SearchPolicy.gallop,
-                                                           Rs...)(Rs ranges)
+SetIntersection2!(less, preferredSearchPolicy, Rs) setIntersectionFast(alias less = "a < b",
+                                                                       SearchPolicy preferredSearchPolicy = SearchPolicy.gallop,
+                                                                       Rs...)(Rs ranges)
     if (Rs.length >= 2 && allSatisfy!(isInputRange, Rs) &&
         !is(CommonType!(staticMap!(ElementType, Rs)) == void))
 {
-    foreach (r; ranges)
-    {
-        version(show) dln("r:", r);
-    }
     return typeof(return)(ranges);
 }
 
@@ -253,10 +249,10 @@ unittest
 
     enum less = "a < b";
 
-    auto s0 = setIntersection2!(less)(a0[], a0[]);
+    auto s0 = setIntersectionFast!(less)(a0[], a0[]);
     assert(s0.equal(a0[]));
 
-    auto s1 = setIntersection2!(less)(a1[], a1[]);
+    auto s1 = setIntersectionFast!(less)(a1[], a1[]);
     assert(s1.equal(a1[]));
 
     immutable smallTestLength = 1000;
@@ -274,12 +270,12 @@ unittest
     sort(y[]);
 
     // associative
-    assert(equal(setIntersection2!(less)(x[], y[]),
-                 setIntersection2!(less)(y[], x[])));
+    assert(equal(setIntersectionFast!(less)(x[], y[]),
+                 setIntersectionFast!(less)(y[], x[])));
 
     // same as current
     assert(equal(setIntersection!(less)(x[], y[]),
-                 setIntersection2!(less)(x[], y[])));
+                 setIntersectionFast!(less)(x[], y[])));
 
     void testSetIntersection()
     {
@@ -288,7 +284,7 @@ unittest
 
     void testSetIntersectionNew()
     {
-        auto z = setIntersection2!(less)(x[], y[]).collect!A;
+        auto z = setIntersectionFast!(less)(x[], y[]).collect!A;
     }
 
     import std.datetime : benchmark, Duration;
@@ -305,7 +301,7 @@ unittest
 @safe pure nothrow unittest
 {
     enum less = "a < b";
-    auto si = setIntersection2!(less)([1, 2, 3],
+    auto si = setIntersectionFast!(less)([1, 2, 3],
                                       [1, 2, 3]);
     const sic = si.save();
     assert(si.equal([1, 2, 3]));

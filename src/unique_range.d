@@ -326,7 +326,7 @@ private struct FilterUniqueResult(alias pred, Range)
 
     this(R r)
     {
-        move(r, _input);
+        _input = move(r);
         while (!_input.empty && !pred(_input.front))
         {
             _input.popFront();

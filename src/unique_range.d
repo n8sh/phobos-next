@@ -92,6 +92,7 @@ UniqueRange!Source intoUniqueRange(Source)(Source source)
     return typeof(return)(move(source)); // TODO remove `move` when compiler does it for us
 }
 
+/// A generator is range which owns its own state.
 alias intoGenerator = intoUniqueRange;
 
 /// basics

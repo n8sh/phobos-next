@@ -56,8 +56,9 @@ pure nothrow @nogc unittest
 {
     import unique_range : intoUniqueRange;
     import array_ex : UncopyableArray;
-    alias A = UncopyableArray!int;
+
     alias E = int;
+    alias A = UncopyableArray!E;
 
     // empty case
     immutable E[0] c0 = [];

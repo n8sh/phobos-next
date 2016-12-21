@@ -1411,7 +1411,7 @@ private struct Array(E,
     }
 
     /// Get internal pointer to mutable content. Doesn't need to be qualified with `scope`.
-    private MutableE* _mptr() const   // TODO @trusted?
+    private MutableE* _mptr() const
     {
         if (isLarge)
         {

@@ -232,32 +232,31 @@ SetIntersection2!(less, preferredSearchPolicy, Rs) setIntersectionFast(alias les
 {
     // TODO Remove need for these switch cases if this can be fixed:
     // http://forum.dlang.org/post/pknonazfniihvpicxbld@forum.dlang.org
-    // TODO remove `move` when compiler does it for us
     static if (Rs.length == 2)
     {
         import std.algorithm.mutation : move;
-        return typeof(return)(move(ranges[0]),
-                              move(ranges[1]));
+        return typeof(return)(move(ranges[0]), // TODO remove `move` when compiler does it for us
+                              move(ranges[1])); // TODO remove `move` when compiler does it for us
     }
     else static if (Rs.length == 3)
     {
         import std.algorithm.mutation : move;
-        return typeof(return)(move(ranges[0]),
-                              move(ranges[1]),
-                              move(ranges[2]));
+        return typeof(return)(move(ranges[0]), // TODO remove `move` when compiler does it for us
+                              move(ranges[1]), // TODO remove `move` when compiler does it for us
+                              move(ranges[2])); // TODO remove `move` when compiler does it for us
     }
     else static if (Rs.length == 4)
     {
         import std.algorithm.mutation : move;
-        return typeof(return)(move(ranges[0]),
-                              move(ranges[1]),
-                              move(ranges[2]),
-                              move(ranges[3]));
+        return typeof(return)(move(ranges[0]), // TODO remove `move` when compiler does it for us
+                              move(ranges[1]), // TODO remove `move` when compiler does it for us
+                              move(ranges[2]), // TODO remove `move` when compiler does it for us
+                              move(ranges[3])); // TODO remove `move` when compiler does it for us
     }
     else
     {
         import std.functional : forward;
-        return typeof(return)(forward!ranges);
+        return typeof(return)(forward!ranges); // TODO remove `move` when compiler does it for us
     }
 }
 

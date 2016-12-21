@@ -92,6 +92,8 @@ UniqueRange!Source intoUniqueRange(Source)(Source source)
     return typeof(return)(move(source)); // TODO remove `move` when compiler does it for us
 }
 
+alias intoGenerator = intoUniqueRange;
+
 /// basics
 @safe pure nothrow @nogc unittest
 {

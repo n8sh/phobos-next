@@ -1397,7 +1397,7 @@ private struct Array(E,
     }
 
     /// Get internal pointer.
-    inout(E*) ptr() inout       // TODO @trusted?
+    inout(E*) ptr() inout
     {
         // TODO Use cast(ET[])?: alias ET = ContainerElementType!(This, E);
         if (isLarge)

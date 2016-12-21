@@ -57,10 +57,16 @@ pure nothrow @nogc unittest
     import unique_range : intoUniqueRange;
     import array_ex : UncopyableArray;
     alias A = UncopyableArray!int;
-    immutable int[4] c = [3, 11, 13, 15];
+
+    immutable int[6] c1 = [3, 11, 13, 15, 17, 19];
     assert(A.withElements(3, 11, 12, 13, 14, 15, 16, 17, 18, 19)
             .filteredInplace!(_ => _ & 1)
+            .intoUniqueRange()
+            .equal(c1[]));
+
+    immutable int[6] c2 = [3, 11, 12, 13, 14, 15];
+    assert(A.withElements(3, 11, 12, 13, 14, 15, 16, 17, 18, 19)
             .filteredInplace!(_ => _ <= 15)
             .intoUniqueRange()
-            .equal(c[]));
+            .equal(c2[]));
 }

@@ -98,10 +98,14 @@ alias intoGenerator = intoUniqueRange;
 /// basics
 @safe pure nothrow @nogc unittest
 {
+    import std.range.primitives : isInputRange, isIterable;
     import array_ex : SA = UncopyableArray;
     alias C = SA!int;
 
     auto cs = C.withElements(11, 13, 15, 17).intoUniqueRange;
+
+    static assert(isInputRange!(typeof(cs)));
+    static assert(isIterable!(typeof(cs)));
 
     assert(!cs.empty);
     assert(cs.length == 4);

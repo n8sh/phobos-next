@@ -239,21 +239,6 @@ SetIntersection2!(less, preferredSearchPolicy, Rs) setIntersectionFast(alias les
         return typeof(return)(move(ranges[0]), // TODO remove `move` when compiler does it for us
                               move(ranges[1])); // TODO remove `move` when compiler does it for us
     }
-    else static if (Rs.length == 3)
-    {
-        import std.algorithm.mutation : move;
-        return typeof(return)(move(ranges[0]), // TODO remove `move` when compiler does it for us
-                              move(ranges[1]), // TODO remove `move` when compiler does it for us
-                              move(ranges[2])); // TODO remove `move` when compiler does it for us
-    }
-    else static if (Rs.length == 4)
-    {
-        import std.algorithm.mutation : move;
-        return typeof(return)(move(ranges[0]), // TODO remove `move` when compiler does it for us
-                              move(ranges[1]), // TODO remove `move` when compiler does it for us
-                              move(ranges[2]), // TODO remove `move` when compiler does it for us
-                              move(ranges[3])); // TODO remove `move` when compiler does it for us
-    }
     else
     {
         import std.functional : forward;

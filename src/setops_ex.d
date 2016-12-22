@@ -169,12 +169,8 @@ public:
     ///
     this(Rs inputs)
     {
-        this._inputs = inputs;
-        foreach (const i, ref input; inputs)
-        {
-            import std.algorithm.mutation : move;
-            this._inputs[i] = move(input); // TODO remove `move` when compiler does it for us
-        }
+        import std.functional : forward;
+        this._inputs = forward!inputs;
         // position to the first element
         adjustPosition();
     }

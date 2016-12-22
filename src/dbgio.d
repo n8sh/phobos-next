@@ -7,7 +7,7 @@
 */
 module dbgio;
 
-// version = show;
+version = show;
 
 /** See_Also: http://forum.dlang.org/post/nq4eol$2h34$1@digitalmars.com */
 void assumeNogc(alias Func, T...)(T xs) @nogc
@@ -35,17 +35,6 @@ mixin template dump(Names ... )
     }();
 }
 
-// unittest
-// {
-//     int x = 5;
-//     int y = 3;
-//     int z = 15;
-//     mixin dump!("x", "y");  // x = 5, y = 3
-//     mixin dump!("z");       // z = 15
-//     mixin dump!("x+y");     // x+y = 8
-//     mixin dump!("x+y < z"); // x+y < z = true
-// }
-
 @trusted:
 
 /* http://stackoverflow.com/questions/19413340/escaping-safety-with-debug-statements */
@@ -56,6 +45,7 @@ debug auto trustedPureDebugCall(alias fn, Args...) (Args args) pure
 
 nothrow pure:
 
+/** Debug print `args` followed by a newline. */
 void dln(string file = __FILE__, uint line = __LINE__, string fun = __FUNCTION__, Args...)(Args args)
 {
     try

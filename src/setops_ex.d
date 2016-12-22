@@ -242,7 +242,7 @@ SetIntersection2!(less, preferredSearchPolicy, Rs) setIntersectionFast(alias les
     else
     {
         import std.functional : forward;
-        return typeof(return)(forward!ranges); // TODO remove `move` when compiler does it for us
+        return typeof(return)(forward!ranges); // TODO remove `forward` when compiler does it for us
     }
 }
 

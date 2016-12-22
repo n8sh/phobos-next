@@ -97,7 +97,7 @@ struct SetIntersection2(alias less = "a < b",
         !is(CommonType!(staticMap!(ElementType, Rs)) == void))
 {
 private:
-    Rs _input;
+    Rs _inputs;
     alias comp = binaryFun!less;
     alias ElementType = CommonType!(staticMap!(.ElementType, Rs));
 
@@ -109,9 +109,9 @@ private:
         auto compsLeft = Rs.length; // number of compares left
         static if (Rs.length > 1) while (true)
         {
-            foreach (i, ref r; _input)
+            foreach (i, ref r; _inputs)
             {
-                alias next = _input[(i + 1) % Rs.length]; // requires copying of range
+                alias next = _inputs[(i + 1) % Rs.length]; // requires copying of range
 
                 // TODO Use upperBound only when next.length / r.length > 12
 
@@ -167,9 +167,13 @@ private:
 
 public:
     ///
-    this(Rs input)
+    this(Rs inputs)
     {
-        this._input = input;
+        foreach (const i, ref input; inputs)
+        {
+            import std.algorithm.mutation : move;
+            this._inputs[i] = move(input); // TODO remove `move` when compiler does it for us
+        }
         // position to the first element
         adjustPosition();
     }
@@ -177,7 +181,7 @@ public:
     ///
     @property bool empty()
     {
-        foreach (ref r; _input)
+        foreach (ref r; _inputs)
         {
             if (r.empty) return true;
         }
@@ -188,13 +192,13 @@ public:
     void popFront()
     {
         assert(!empty);
-        static if (Rs.length > 1) foreach (i, ref r; _input)
+        static if (Rs.length > 1) foreach (i, ref r; _inputs)
         {
-            alias next = _input[(i + 1) % Rs.length];
+            alias next = _inputs[(i + 1) % Rs.length];
             assert(!comp(r.front, next.front));
         }
 
-        foreach (ref r; _input)
+        foreach (ref r; _inputs)
         {
             r.popFront();
         }
@@ -205,7 +209,7 @@ public:
     @property ElementType front()
     {
         assert(!empty);
-        return _input[0].front;
+        return _inputs[0].front;
     }
 
     static if (allSatisfy!(isForwardRange, Rs))
@@ -214,9 +218,9 @@ public:
         @property SetIntersection2 save()
         {
             auto ret = this;
-            foreach (i, ref r; _input)
+            foreach (i, ref r; _inputs)
             {
-                ret._input[i] = r.save;
+                ret._inputs[i] = r.save;
             }
             return ret;
         }

@@ -20,7 +20,7 @@ void assumeNogc(alias Func, T...)(T xs) @nogc
         return cast(SetFunctionAttributes!(T, functionLinkage!T, attrs)) f;
     } {}
     assumeNogcPtr(&Func!T)(xs);
-};
+}
 
 mixin template dump(Names ... )
 {
@@ -46,7 +46,10 @@ debug auto trustedPureDebugCall(alias fn, Args...) (Args args) pure
 nothrow pure:
 
 /** Debug print `args` followed by a newline. */
-void dln(string file = __FILE__, uint line = __LINE__, string fun = __FUNCTION__, Args...)(Args args)
+void dln(string file = __FILE__,
+         uint line = __LINE__,
+         string fun = __FUNCTION__,
+         Args...)(Args args)
 {
     try
     {
@@ -67,7 +70,9 @@ version(show) @safe pure nothrow @nogc unittest
 template show(Args...)
     if (Args.length >= 1)
 {
-    void show(string file = __FILE__, uint line = __LINE__, string fun = __FUNCTION__)
+    void show(string file = __FILE__,
+              uint line = __LINE__,
+              string fun = __FUNCTION__)
     {
         import std.stdio: write, writeln;
         try

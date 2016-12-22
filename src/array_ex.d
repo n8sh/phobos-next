@@ -747,6 +747,7 @@ private struct Array(E,
         assert(!isBorrowed);
         assert(index < this.length);
         auto value = move(_mptr[index]); // TODO remove `move` when compiler does it for us
+
         // TODO use this instead:
         // immutable si = index + 1;   // source index
         // immutable ti = index;       // target index
@@ -754,6 +755,7 @@ private struct Array(E,
         // import std.algorithm.mutation : moveEmplaceAll;
         // moveEmplaceAll(_mptr[si .. si + restLength],
         //                _mptr[ti .. ti + restLength]);
+
         foreach (immutable i; 0 .. this.length - (index + 1)) // each element index that needs to be moved
         {
             immutable si = index + i + 1; // source index
@@ -761,6 +763,7 @@ private struct Array(E,
             moveEmplace(_mptr[si], // TODO remove `move` when compiler does it for us
                         _mptr[ti]);
         }
+
         decOnlyLength();
         return value;
     }
@@ -787,7 +790,7 @@ private struct Array(E,
         assert(!isBorrowed);
         assert(!empty);
         decOnlyLength();
-        return move(_mptr[this.length]); // TODO optimize by not clearing `_store.large.ptr[--this.length]` after move
+        return move(_mptr[this.length]); // TODO remove `move` when compiler does it for us, or optimize by not clearing `_store.large.ptr[--this.length]` after move
     }
 
     /** Pop last `count` back elements. */

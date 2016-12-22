@@ -170,7 +170,7 @@ public:
     this(Rs inputs)
     {
         import std.functional : forward;
-        this._inputs = forward!inputs;
+        this._inputs = forward!inputs; // TODO remove `forward` when compiler does it for us
         // position to the first element
         adjustPosition();
     }

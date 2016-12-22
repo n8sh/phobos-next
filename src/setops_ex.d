@@ -169,6 +169,7 @@ public:
     ///
     this(Rs inputs)
     {
+        this._inputs = inputs;
         foreach (const i, ref input; inputs)
         {
             import std.algorithm.mutation : move;

@@ -485,12 +485,13 @@ private struct Array(E,
             _store.small.length = 0;
 
             reserve(values.length); // fast reserve
+            setOnlyLength(values.length);
+
             size_t i = 0;
-            foreach (ref value; values)
+            foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
             {
                 _mptr[i++] = value; // TODO do moveMany when possible
             }
-            setOnlyLength(values.length);
         }
         else
         {
@@ -499,7 +500,7 @@ private struct Array(E,
             _store.small.length = 0;
 
             size_t i = 0;
-            foreach (ref value; values)
+            foreach (ref value; move(values))
             {
                 reserve(i + 1); // slower reserve
                 _mptr[i++] = value.move(); // TODO remove `move` when compiler does it for us

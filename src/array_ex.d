@@ -124,7 +124,7 @@ private struct Array(E,
                      alias less = "a < b") // TODO move out of this definition and support only for the case when `ordering` is not `Ordering.unsorted`
 {
     import std.conv : emplace;
-    import std.range : isInputRange, ElementType;
+    import std.range : isInputRange, isIterable, ElementType;
     import std.traits : isAssignable, Unqual, isSomeChar, isArray, isScalarType, hasElaborateDestructor, TemplateOf;
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
@@ -472,7 +472,7 @@ private struct Array(E,
         If `values` are sorted `assumeSortedParameter` is `true`.
      */
     this(R)(R values, bool assumeSortedParameter = false) @trusted @("complexity", "O(n*log(n))")
-        if (isInputRange!R)
+        if (isIterable!R)
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 

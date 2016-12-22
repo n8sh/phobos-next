@@ -7,7 +7,7 @@
 */
 module dbgio;
 
-version = show;
+// version = show;
 
 /** See_Also: http://forum.dlang.org/post/nq4eol$2h34$1@digitalmars.com */
 void assumeNogc(alias Func, T...)(T xs) @nogc

@@ -3,11 +3,6 @@
  */
 module gmp;
 
-version(unittest)
-{
-    import dbgio : dln;
-}
-
 /** Arbitrary precision signed integer (Z).
  */
 struct Integer

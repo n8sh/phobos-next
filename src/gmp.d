@@ -414,4 +414,5 @@ extern(C)
     void free(void* ptr);
 }
 
+// link with C library GNU MP
 pragma(lib, "gmp");

@@ -2316,11 +2316,11 @@ auto splicerN(uint N, T)(T[] x) @trusted
         {
             static assert(i < N, "Index " ~ i ~ " to large");
             static if (i == 0)
-                return _.ptr[0 .. (i + 1)*_.length/N];
+                return _.ptr[0 .. (i + 1)*_.length/N]; // non-range-checked slicing is @trusted
             else static if (i + 1 == N)
-                return _.ptr[i * _.length/N .. _.length];
+                return _.ptr[i * _.length/N .. _.length]; // non-range-checked slicing is @trusted
             else
-                return _.ptr[i * _.length/N .. (i + 1)*_.length/N];
+                return _.ptr[i * _.length/N .. (i + 1)*_.length/N]; // non-range-checked is @trusted
         }
 
         private T[] _;
@@ -2353,10 +2353,10 @@ auto splicer2(T)(T[] x) @trusted
         pragma(inline) @trusted pure nothrow @nogc:
 
         /// Returns: first part of splice.
-        @property inout(T)[] first() inout { return _.ptr[0 .. _.length/count]; }
+        @property inout(T)[] first() inout { return _.ptr[0 .. _.length/count]; } // non-range-checked slicing is @trusted
 
         /// Returns: second part of splice.
-        @property inout(T)[] second() inout { return _.ptr[_.length/count .. _.length]; }
+        @property inout(T)[] second() inout { return _.ptr[_.length/count .. _.length]; } // non-range-checked slicing is @trusted
 
         inout(T)[] at(uint i)() inout
         {
@@ -2381,13 +2381,13 @@ auto splicer3(T)(T[] x) @trusted
         pragma(inline) @trusted pure nothrow @nogc:
 
         /// Returns: first part of splice.
-        @property inout(T)[] first() inout { return _.ptr[0 .. _.length/count]; }
+        @property inout(T)[] first() inout { return _.ptr[0 .. _.length/count]; } // non-range-checked slicing is @trusted
 
         /// Returns: second part of splice.
-        @property inout(T)[] second() inout { return _.ptr[_.length/count .. 2*_.length/count]; }
+        @property inout(T)[] second() inout { return _.ptr[_.length/count .. 2*_.length/count]; } // non-range-checked slicing is @trusted
 
         /// Returns: third part of splice.
-        @property inout(T)[] third() inout { return _.ptr[2*_.length/count .. _.length]; }
+        @property inout(T)[] third() inout { return _.ptr[2*_.length/count .. _.length]; } // non-range-checked slicing is @trusted
 
         private T[] _;
     }

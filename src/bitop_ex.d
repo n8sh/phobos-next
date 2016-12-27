@@ -6,11 +6,12 @@
     Authors: $(WEB Per Nordlöw)
 
     TODO Add range checking of bit indexes.
+    TODO Make use of TZCNT and LZCNT either as inline assembly or as builtins: https://github.com/dlang/dmd/pull/6364
 */
 module bitop_ex;
 
-import std.traits : isIntegral;
 import std.meta : allSatisfy;
+import std.traits : isIntegral;
 
 pure @nogc nothrow:
 
@@ -23,7 +24,8 @@ template UnsignedOfSameSizeAs(T)
     else static if (nBits == 32) alias UnsignedOfSameSizeAs = uint;
     else static if (nBits == 64) alias UnsignedOfSameSizeAs = ulong;
     else static if (nBits == 128) alias UnsignedOfSameSizeAs = ucent;
-    else {
+    else
+    {
         import std.conv: to;
         static assert(false, "No Unsigned type of size " ~ to!string(nBits) ~ " found");
     }

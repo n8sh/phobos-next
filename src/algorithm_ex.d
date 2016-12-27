@@ -2300,6 +2300,9 @@ auto spliced3(T)(T[] x) @trusted
 }
 
 /** Splice `x` in `count` parts, all as equal in lengths as possible.
+
+    Safely avoids range checking thanks to D's builtin slice expressions.
+    Use in divide-and-conquer algorithms such as quicksort and binary search.
  */
 auto splicerN(uint count, T)(T[] x) @trusted
 {
@@ -2340,9 +2343,7 @@ auto splicerN(uint count, T)(T[] x) @trusted
     }
 }
 
-/** Lazy variant of `spliced2`.
-    Generalize to N >= 2 and add `at!N`.
- */
+/** Specialization of `splicerN` to N=2. */
 auto splicer2(T)(T[] x) @trusted
 {
     static struct Result        // Voldemort type
@@ -2371,9 +2372,7 @@ auto splicer2(T)(T[] x) @trusted
     return Result(x);
 }
 
-/** Lazy variant of `spliced3`.
-    Generalize to N >= 3 and add `at!N`.
- */
+/** Specialization of `splicerN` to N=3. */
 auto splicer3(T)(T[] x) @trusted
 {
     static struct Result        // Voldemort type

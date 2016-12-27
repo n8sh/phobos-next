@@ -2299,27 +2299,28 @@ auto spliced3(T)(T[] x) @trusted
     assert(y.third.equal(x[4 .. 6]));
 }
 
-/** Splice `x` in `count` parts, all as equal in lengths as possible.
+/** Splice `x` in `N` parts, all as equal in lengths as possible.
 
     Safely avoids range checking thanks to D's builtin slice expressions.
     Use in divide-and-conquer algorithms such as quicksort and binary search.
  */
-auto splicerN(uint count, T)(T[] x) @trusted
+auto splicerN(uint N, T)(T[] x) @trusted
 {
     static struct Result        // Voldemort type
     {
+        enum count = N;
         pragma(inline) @trusted pure nothrow @nogc:
 
         /// Returns: `i`:th slice.
         inout(T)[] at(uint i)() inout
         {
-            static assert(i < count, "Index " ~ i ~ " to large");
+            static assert(i < N, "Index " ~ i ~ " to large");
             static if (i == 0)
-                return _.ptr[0 .. (i + 1)*_.length/count];
-            else static if (i + 1 == count)
-                return _.ptr[i * _.length/count .. _.length];
+                return _.ptr[0 .. (i + 1)*_.length/N];
+            else static if (i + 1 == N)
+                return _.ptr[i * _.length/N .. _.length];
             else
-                return _.ptr[i * _.length/count .. (i + 1)*_.length/count];
+                return _.ptr[i * _.length/N .. (i + 1)*_.length/N];
         }
 
         private T[] _;
@@ -2349,7 +2350,6 @@ auto splicer2(T)(T[] x) @trusted
     static struct Result        // Voldemort type
     {
         enum count = 2;
-
         pragma(inline) @trusted pure nothrow @nogc:
 
         /// Returns: first part of splice.
@@ -2378,7 +2378,6 @@ auto splicer3(T)(T[] x) @trusted
     static struct Result        // Voldemort type
     {
         enum count = 3;
-
         pragma(inline) @trusted pure nothrow @nogc:
 
         /// Returns: first part of splice.

@@ -2240,7 +2240,7 @@ typeof(fun(E.init))[n] map(alias fun, E, size_t n)(const E[n] src)
     }
 }
 
-/** Returns: `x` split in two parts, all as equal in length as possible.
+/** Returns: `x` eagerly split in two parts, all as equal in length as possible.
 
     Safely avoids range checking thanks to D's builtin slice expressions.
     Use in divide-and-conquer algorithms such as quicksort and binary search.
@@ -2268,7 +2268,7 @@ alias halved = spliced2;
     assert(y.second.equal(x[3 .. $]));
 }
 
-/** Returns: `x` split in three parts, all as equal in length as possible.
+/** Returns: `x` eagerly split in three parts, all as equal in length as possible.
 
     Safely avoids range checking thanks to D's builtin slice expressions.
     Use in divide-and-conquer algorithms such as quicksort and binary search.

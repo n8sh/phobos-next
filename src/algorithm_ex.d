@@ -351,13 +351,45 @@ bool overlaps(T)(const(T)[] r1, const(T)[] r2) @trusted // pure nothrow
     return b < e;
 }
 
-/** Returns: If range is a palindrome larger than $(D minLength).
+/** Returns: If `range` is symmetric.
     See also: http://forum.dlang.org/thread/dlfeiszyweafpjiocplf@forum.dlang.org#post-vpzuaqxvtdpzpeuorxdl:40forum.dlang.org
     See also: https://stackoverflow.com/questions/21849580/equality-operator-in-favour-of-std-range-equal
     TODO: Test graphemes in `string` and `wstring`.
     TODO Move to Phobos
 */
-bool isSymmetric(R)(R range, size_t minLength = 0) // TODO good value for minLength?
+bool isSymmetric(R)(R range)
+    if (isBidirectionalRange!(R))
+{
+    size_t i = 0;
+    import std.range : empty;
+    while (!range.empty)
+    {
+        import std.range.primitives : front, back, popFront, popBack;
+        if (range.front != range.back) return false;
+        range.popFront(); i++;
+        if (range.empty) break;
+        range.popBack(); i++;
+    }
+    return true;
+}
+
+///
+unittest
+{
+    assert(`dallassallad`.isSymmetric);
+    assert(!`ab`.isSymmetric);
+    assert(`a`.isSymmetric);
+    assert(`åäå`.isSymmetric);
+    assert(`áá`.isSymmetric);
+    assert(`åäå`.isSymmetric);
+    assert(``.isSymmetric);
+    assert([1, 2, 2, 1].isSymmetric);
+}
+
+/** Returns: If `range` is a palindrome larger than `minLength`.
+ */
+bool isPalindrome(R)(R range,
+                     size_t minLength = 0) // TODO good value for minLength?
     if (isBidirectionalRange!(R))
 {
     static if (isRandomAccessRange!R) // arrays excluding `char[]` and `wchar[]`
@@ -365,10 +397,11 @@ bool isSymmetric(R)(R range, size_t minLength = 0) // TODO good value for minLen
         if (range.length < minLength) { return false; }
     }
     size_t i = 0;
+    // TODO reuse `isSymmetric`
     import std.range : empty;
     while (!range.empty)
     {
-        import std.range.primitives: front, back, popFront, popBack;
+        import std.range.primitives : front, back, popFront, popBack;
         if (range.front != range.back) return false;
         range.popFront(); i++;
         if (range.empty) break;
@@ -380,18 +413,15 @@ bool isSymmetric(R)(R range, size_t minLength = 0) // TODO good value for minLen
 ///
 unittest
 {
-    assert(`dallassallad`.isSymmetric);
-    assert(!`ab`.isSymmetric);
-    assert(`a`.isSymmetric);
-    assert(`åäå`.isSymmetric);
-    assert(`áá`.isSymmetric);
-    assert(`åäå`.isSymmetric(3));
-    assert(!`åäå`.isSymmetric(4));
-    assert(``.isSymmetric);
-    assert([1, 2, 2, 1].isSymmetric);
-    assert(![1, 2, 2, 1].isSymmetric(5));
+    assert(`dallassallad`.isPalindrome);
+    assert(!`ab`.isPalindrome);
+    assert(`a`.isPalindrome);
+    assert(`åäå`.isPalindrome);
+    assert(`áá`.isPalindrome);
+    assert(`åäå`.isPalindrome);
+    assert(``.isPalindrome);
+    assert([1, 2, 2, 1].isPalindrome);
 }
-alias isPalindrome = isSymmetric;
 
 import traits_ex : areEquable;
 

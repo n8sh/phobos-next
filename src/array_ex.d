@@ -99,7 +99,7 @@ else                            // LDC2 1.1.0-beta3
 /// Semantics of copy construction and copy assignment.
 enum Assignment
 {
-    disabled,           /// for reference counting use `std.typecons.RefCounted`
+    disabled,           /// for reference counting use `std.typecons.RefCounted`. for safe slicing use `borrown`
     move,               /// only move construction allowed
     copy                /// always copy (often not the desirable)
 }

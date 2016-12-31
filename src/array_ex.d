@@ -96,7 +96,7 @@ else                            // LDC2 1.1.0-beta3
     /// Is `true` if `T` is assignable.
     enum isCopyable(T) = is(typeof({ T foo = T.init; T copy = foo; }));
 
-/// Semantics of copy construction and assignment.
+/// Semantics of copy construction and copy assignment.
 enum Assignment
 {
     disabled,           /// for reference counting use `std.typecons.RefCounted`

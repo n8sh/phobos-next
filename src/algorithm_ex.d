@@ -31,8 +31,6 @@ alias tail = dropOne;
 
 /** This overload enables, when possible, lvalue return.
 
-    TODO should we limit this template to `a.length >= 2`.
-
     BUG this overload is not chosen over `std.algorithm.either` so function must
     currently be called `either` instead of `either`
  */

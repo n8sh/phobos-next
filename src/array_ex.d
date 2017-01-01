@@ -1630,7 +1630,7 @@ pure unittest
             Str str_as3 = 'a'.withElementMake!(Ch[]);
             assert(str_as == str_as2);
             assert(str_as2 == str_as3);
-            str_as ~= '_'.to!Ch;
+            str_as ~= Ch('_');
             assert(str_as[].equal("a_"));
         }
     }

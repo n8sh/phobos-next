@@ -52,17 +52,38 @@ version(useMemoryErrorHandler) unittest
 
     TODO Add to Phobos `std.array`.
 */
-auto asStatic(T, size_t length)(T[length] arr)
+static if (__VERSION__ <= 2072)
 {
-    return arr;
-}
+    T[length] asStatic(T, size_t length)(T[length] arr)
+    {
+        return arr;
+    }
 
-///
-@safe pure nothrow @nogc unittest
+    ///
+    @safe pure nothrow @nogc unittest
+    {
+        auto x = [1, 2, 3].asStatic;
+        static assert(is(typeof(x) == int[x.length]));
+        static assert(is(typeof([1, 2, 3].asStatic) == int[x.length]));
+    }
+}
+else
 {
-    auto x = [1, 2, 3].asStatic;
-    static assert(is(typeof(x) == int[x.length]));
-    static assert(is(typeof([1, 2, 3].asStatic) == int[x.length]));
+    version(none)               // TODO fix build on 2.073; http://forum.dlang.org/posting/hajkabybnxgqceqphlvi
+    {
+        auto asStatic(T, size_t length)(scope T[length] arr)
+        {
+            return arr;
+        }
+
+        ///
+        @safe pure nothrow @nogc unittest
+        {
+            auto x = [1, 2, 3].asStatic;
+            static assert(is(typeof(x) == int[x.length]));
+            static assert(is(typeof([1, 2, 3].asStatic) == int[x.length]));
+        }
+    }
 }
 
 enum Ordering

@@ -2254,8 +2254,8 @@ auto spliced2(T)(T[] x) @trusted
     }
     immutable m = x.length / 2;
     // range checking is not needed
-    return Result(x.ptr[0 .. m],
-                  x.ptr[m .. x.length]);
+    return Result(x.ptr[0 .. m], // non-range-checked slicing is @trusted
+                  x.ptr[m .. x.length]); // non-range-checked slicing is @trusted
 }
 alias halved = spliced2;
 
@@ -2285,9 +2285,9 @@ auto spliced3(T)(T[] x) @trusted
     // range checking is not needed
     immutable m = 1*x.length/count;
     immutable n = 2*x.length/count;
-    return Result(x.ptr[0 .. m],
-                  x.ptr[m .. n],
-                  x.ptr[n .. x.length]);
+    return Result(x.ptr[0 .. m], // non-range-checked slicing is @trusted
+                  x.ptr[m .. n], // non-range-checked slicing is @trusted
+                  x.ptr[n .. x.length]); // non-range-checked slicing is @trusted
 }
 
 @safe pure nothrow @nogc unittest

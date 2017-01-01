@@ -29,12 +29,12 @@ version(print)
 import std.range : dropOne;
 alias tail = dropOne;
 
-import std.algorithm : either;
+// import std.algorithm : either;
 
 /** This overload enables, when possible, lvalue return.
     TODO should we limit this template to `a.length >= 2`.
  */
-auto ref either(Ts...)(ref Ts a)
+auto ref eitherRef(Ts...)(ref Ts a)
     if (a.length >= 1 && allSameType!Ts)
 {
     static if (Ts.length == 1)
@@ -43,34 +43,17 @@ auto ref either(Ts...)(ref Ts a)
     }
     else
     {
-        return a[0] ? a[0] : either(a[1 .. $]); // recurse
+        return a[0] ? a[0] : eitherRef(a[1 .. $]); // recurse
     }
 }
 
 ///
 @safe pure /*TODO nothrow*/ unittest
 {
-    immutable p = 1, q = 2;
-    auto pq = either(p, q);
-    assert(pq == 1);
-
-    assert(either(3, 4) == 3);
-    assert(either(0, 4) == 4);
-    assert(either(0, 0) == 0);
-    assert(either(``, `a`) == ``);
-    string s = null;
-    assert(either(s, `a`) == `a`);
-    assert(either(`a`, ``) == `a`);
-    immutable a2 = [1, 2];
-    assert(either(a2) == a2);
-    assert(either([0, 1], [1, 2]) == [0, 1]);
-    assert(either([0, 1], [1]) == [0, 1]);
-    assert(either(`a`, `b`) == `a`);
-
-    // int x = 1, y = 2;
-    // either(x, y) = 3;
-    // assert(x == 3);
-    // assert(y == 2);
+    int x = 1, y = 2;
+    eitherRef(x, y) = 3;
+    assert(x == 3);
+    assert(y == 2);
 }
 
 /** Returns: Last Argument if all arguments implicitly bool-convert to `true`

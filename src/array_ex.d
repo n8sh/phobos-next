@@ -69,9 +69,9 @@ static if (__VERSION__ <= 2072)
 }
 else
 {
-    version(none)               // TODO fix build on 2.073; http://forum.dlang.org/posting/hajkabybnxgqceqphlvi
+    static if (false)
     {
-        auto asStatic(T, size_t length)(scope T[length] arr)
+        T[length] asStatic(T, size_t length)(T[length] arr)
         {
             return arr;
         }

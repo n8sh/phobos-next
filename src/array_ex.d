@@ -526,7 +526,7 @@ private struct Array(E,
             foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
             {
                 reserve(i + 1); // slower reserve
-                _mptr[i++] = value.move(); // TODO remove `move` when compiler does it for us. TODO should we really do move here?
+                _mptr[i++] = value;
                 setOnlyLength(i); // must be set here because correct length is needed in reserve call above in this same scope
             }
         }

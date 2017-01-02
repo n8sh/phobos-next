@@ -491,6 +491,8 @@ private struct Array(E,
 
     /** Construct from InputRange `values`.
         If `values` are sorted `assumeSortedParameter` is `true`.
+
+        TODO Have `assumeSortedParameter` only when `IsOrdered!ordering` is true
      */
     this(R)(R values, bool assumeSortedParameter = false) @trusted @("complexity", "O(n*log(n))")
         if (isIterable!R)

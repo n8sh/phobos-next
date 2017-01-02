@@ -48,8 +48,6 @@ version(useMemoryErrorHandler) unittest
 
     auto x = [1, 2, 3].s;
 
-    TODO Useful alternative names are `a{as,to}{Static,Fixed}`, `fix`, `fixed` , `statically`, `onStack`.
-
     TODO Add to Phobos `std.array`.
 */
 T[length] asStatic(T, size_t length)(scope T[length] arr)

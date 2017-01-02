@@ -269,7 +269,7 @@ unittest
     assert(s1.equal(a1[]));
 
     immutable smallTestLength = 1000;
-    immutable factor = 12; // this is the magical limit on my laptop when performance of upperBound beats standard implementation
+    immutable factor = 12; // this is the magical limit on my laptop when performance of `upperBound` beats standard implementation
     immutable largeTestLength = factor*smallTestLength;
     E elementLow = 0;
     E elementHigh = 10_000_000;

@@ -52,38 +52,18 @@ version(useMemoryErrorHandler) unittest
 
     TODO Add to Phobos `std.array`.
 */
-static if (__VERSION__ <= 2072)
+T[length] asStatic(T, size_t length)(scope T[length] arr)
+    @safe pure nothrow @nogc
 {
-    T[length] asStatic(T, size_t length)(T[length] arr)
-    {
-        return arr;
-    }
-
-    ///
-    @safe pure nothrow @nogc unittest
-    {
-        auto x = [1, 2, 3].asStatic;
-        static assert(is(typeof(x) == int[x.length]));
-        static assert(is(typeof([1, 2, 3].asStatic) == int[x.length]));
-    }
+    return arr;
 }
-else
-{
-    static if (false)
-    {
-        T[length] asStatic(T, size_t length)(T[length] arr)
-        {
-            return arr;
-        }
 
-        ///
-        @safe pure nothrow @nogc unittest
-        {
-            auto x = [1, 2, 3].asStatic;
-            static assert(is(typeof(x) == int[x.length]));
-            static assert(is(typeof([1, 2, 3].asStatic) == int[x.length]));
-        }
-    }
+///
+@safe pure nothrow @nogc unittest
+{
+    auto x = [1, 2, 3].asStatic;
+    static assert(is(typeof(x) == int[x.length]));
+    static assert(is(typeof([1, 2, 3].asStatic) == int[x.length]));
 }
 
 enum Ordering

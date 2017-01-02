@@ -513,7 +513,7 @@ private struct Array(E,
             size_t i = 0;
             foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
             {
-                _mptr[i++] = value; // TODO do moveMany when possible
+                _mptr[i++] = value;
             }
         }
         else

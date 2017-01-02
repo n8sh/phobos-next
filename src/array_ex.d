@@ -86,7 +86,7 @@ import container_traits : ContainerElementType;
 
 import std.traits : isInstanceOf;
 
-/// Is `true` iff `C` is an instance of `Array`.
+/// Is `true` iff `C` is an instance of an `Array` container.
 enum isArrayContainer(C) = isInstanceOf!(Array, C);
 
 static if (__VERSION__ >= 2072)

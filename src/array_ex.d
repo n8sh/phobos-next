@@ -85,9 +85,9 @@ version(unittest)
 import container_traits : ContainerElementType;
 
 import std.traits : isInstanceOf;
-/// Returns: `true` iff `C` is an `Array`.
 
-enum isMyArray(C) = isInstanceOf!(Array, C);
+/// Is `true` iff `C` is an `Array`.
+enum isArrayContainer(C) = isInstanceOf!(Array, C);
 
 static if (__VERSION__ >= 2072)
     import std.traits : isCopyable;
@@ -829,7 +829,7 @@ private struct Array(E,
         void pushBack(R)(R values) @("complexity", "O(values.length)")
             if (isInputRange!R &&
                 !(isArray!R) &&
-                !(isMyArray!R) &&
+                !(isArrayContainer!R) &&
                 isElementAssignable!(ElementType!R))
         {
             assert(!isBorrowed);
@@ -878,7 +878,7 @@ private struct Array(E,
         }
         /// ditto.
         void pushBack(A)(const ref A values) @trusted @("complexity", "O(values.length)") // TODO `in` parameter qualifier doesn't work here. Compiler bug?
-            if (isMyArray!A &&
+            if (isArrayContainer!A &&
                 isElementAssignable!(ElementType!A))
         {
             assert(!isBorrowed);
@@ -931,7 +931,7 @@ private struct Array(E,
         }
 	pragma(inline) void opOpAssign(string op, A)(const ref A values)
             if (op == "~" &&
-                isMyArray!A &&
+                isArrayContainer!A &&
                 isElementAssignable!(ElementType!A))
         {
             assert(!isBorrowed);

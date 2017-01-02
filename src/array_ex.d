@@ -46,7 +46,7 @@ version(useMemoryErrorHandler) unittest
     For more convenient usage alias it as `s' together with UFCS for the
     following convenient notation:
 
-    auto x = [1, 2, 3].s;
+    const x = [1, 2, 3].s;
 
     TODO Add to Phobos `std.array`.
 */

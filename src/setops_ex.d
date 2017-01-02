@@ -90,7 +90,7 @@ import std.meta : allSatisfy, staticMap;
 import std.functional : binaryFun;
 import std.algorithm.sorting : SearchPolicy;
 
-struct SetIntersection2(alias less = "a < b",
+struct SetIntersectionFast(alias less = "a < b",
                         SearchPolicy preferredSearchPolicy = SearchPolicy.gallop,
                         Rs...)
     if (Rs.length >= 2 && allSatisfy!(isInputRange, Rs) &&
@@ -212,7 +212,7 @@ public:
     static if (allSatisfy!(isForwardRange, Rs))
     {
         ///
-        @property SetIntersection2 save()
+        @property SetIntersectionFast save()
         {
             auto ret = this;
             foreach (i, ref r; _inputs)
@@ -225,9 +225,9 @@ public:
 }
 
 /// ditto
-SetIntersection2!(less, preferredSearchPolicy, Rs) setIntersectionFast(alias less = "a < b",
-                                                                       SearchPolicy preferredSearchPolicy = SearchPolicy.gallop,
-                                                                       Rs...)(Rs ranges)
+SetIntersectionFast!(less, preferredSearchPolicy, Rs) setIntersectionFast(alias less = "a < b",
+                                                                          SearchPolicy preferredSearchPolicy = SearchPolicy.gallop,
+                                                                          Rs...)(Rs ranges)
     if (Rs.length >= 2 && allSatisfy!(isInputRange, Rs) &&
         !is(CommonType!(staticMap!(ElementType, Rs)) == void))
 {

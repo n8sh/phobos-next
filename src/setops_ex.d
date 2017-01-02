@@ -315,7 +315,7 @@ unittest
 {
     enum less = "a < b";
     auto si = setIntersectionFast!(less)([1, 2, 3],
-                                      [1, 2, 3]);
+                                         [1, 2, 3]);
     const sic = si.save();
     assert(si.equal([1, 2, 3]));
 }

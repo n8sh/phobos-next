@@ -71,9 +71,7 @@ C filteredInplace(alias predicate, C)(C r) @trusted
     return move(r);
 }
 
-/** Filter `r` eagerly in-place on `predicate`.
-    TODO Move to free function in array_ex.d to get @trusted access to private Array._mptr
- */
+/** Filter `r` eagerly in-place using `predicate`. */
 void filterInplace(alias predicate, C)(ref C r) @trusted
     if (is(typeof(unaryFun!predicate)) &&
         hasIndexing!C)          // TODO extend to isArrayContainer!C

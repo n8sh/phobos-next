@@ -51,7 +51,7 @@ version(useMemoryErrorHandler) unittest
     TODO Add to Phobos `std.array`.
 */
 T[length] asStatic(T, size_t length)(T[length] arr)
-    @safe pure nothrow @nogc
+    @safe pure nothrow @nogc // TODO needed for now in order for DIP-1000 to work correctly, See http://forum.dlang.org/post/otrsanpgmokzpzqmfyvx@forum.dlang.org
 {
     return arr;
 }

@@ -72,7 +72,7 @@ C filteredInplace(alias predicate, C)(C r) @trusted
 }
 
 /** Filter `r` eagerly in-place using `predicate`. */
-void filterInplace(alias predicate, C)(ref C r) @trusted
+void filterInplace(alias predicate, C)(ref C r)
     if (is(typeof(unaryFun!predicate)) &&
         hasIndexing!C)          // TODO extend to isArrayContainer!C
 {

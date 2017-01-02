@@ -50,7 +50,7 @@ version(useMemoryErrorHandler) unittest
 
     TODO Add to Phobos `std.array`.
 */
-T[length] asStatic(T, size_t length)(scope T[length] arr)
+T[length] asStatic(T, size_t length)(T[length] arr)
     @safe pure nothrow @nogc
 {
     return arr;

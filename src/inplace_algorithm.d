@@ -76,7 +76,8 @@ void filterInplace(alias predicate, C)(ref C r)
     if (is(typeof(unaryFun!predicate)) &&
         hasIndexing!C)          // TODO extend to isArrayContainer!C
 {
-    r = r.filteredInplace!predicate();
+    import std.algorithm.mutation : move;
+    r = move(r).filteredInplace!predicate();
 }
 
 @safe pure nothrow @nogc unittest
@@ -123,5 +124,11 @@ void filterInplace(alias predicate, C)(ref C r)
         assert(move(a7).filteredInplace!(_ => _ <= 16)
                        .intoUniqueRange()
                        .equal(c7[]));
+
+        auto a3 = A.withElements(2, 4, 11);
+        a3.filterInplace!(_ => _ & 1);
+        assert(a3.length == 1);
+        assert(a3[0] == 11);
     }
+
 }

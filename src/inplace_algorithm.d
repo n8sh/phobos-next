@@ -71,6 +71,16 @@ C filteredInplace(alias predicate, C)(C r) @trusted
     return move(r);
 }
 
+/** Filter `r` eagerly in-place on `predicate`.
+    TODO Move to free function in array_ex.d to get @trusted access to private Array._mptr
+ */
+void filterInplace(alias predicate, C)(ref C r) @trusted
+    if (is(typeof(unaryFun!predicate)) &&
+        hasIndexing!C)          // TODO extend to isArrayContainer!C
+{
+    r = r.filteredInplace!predicate();
+}
+
 @safe pure nothrow @nogc unittest
 {
     import std.algorithm.mutation : move;

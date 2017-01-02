@@ -137,11 +137,11 @@ alias intoGenerator = intoUniqueRange;
 {
     import array_ex : SA = UncopyableArray;
     alias C = SA!int;
-    C.withElements(11, 13, 15, 17)
-     .intoUniqueRange()
-     .filterUnique!(_ => _ != 11)
-     .mapUnique!(_ => _ != 2*_)
-     .equal([13, 15, 17]);
+    assert(C.withElements(11, 13, 15, 17)
+            .intoUniqueRange()
+            .filterUnique!(_ => _ != 11)
+            .mapUnique!(_ => 2*_)
+            .equal([2*13, 2*15, 2*17]));
 }
 
 import std.functional : unaryFun;

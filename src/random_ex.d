@@ -20,43 +20,44 @@ module random_ex;
 import std.traits: isIntegral, isFloatingPoint, isNumeric, isIterable, isStaticArray, isArray, hasIndirections, isSomeString, isScalarType;
 import std.range: isInputRange, ElementType, hasAssignableElements, isBoolean;
 import std.random: uniform;
+import std.algorithm.mutation : move;
 
 version(unittest) private enum testLength = 64;
 
 /** Randomize Contents of $(D x). */
-auto ref randInPlace(E)(ref E x) @trusted
+ref E randInPlace(E)(return ref E x) @trusted
     if (isBoolean!E)
 {
     return x = cast(bool)uniform(0, 2);
 }
 
 /** Randomize Contents of $(D x), optionally in range [$(D low), $(D high)]. */
-auto ref randInPlace(E)(ref E x) @trusted
+ref E randInPlace(E)(return ref E x) @trusted
     if (isIntegral!E)
 {
     return x = uniform(E.min, E.max);    // BUG: Never assigns the value E.max
 }
 
 /** Randomize Contents of $(D x), optional in range [$(D low), $(D high)]. */
-auto ref randInPlace(E)(ref E x) @trusted
+ref E randInPlace(E)(return ref E x) @trusted
     if (isFloatingPoint!E)
 {
     return x = uniform(cast(E)0, cast(E)1);
 }
 
 /** Randomize Contents of $(D x), optionally in range [$(D low), $(D high)]. */
-auto ref randInPlaceWithRange(E)(ref E x,
-                                 E low,
-                                 E high) @trusted
+ref E randInPlaceWithRange(E)(return ref E x,
+                              E low,
+                              E high) @trusted
     if (isIntegral!E)
 {
     return x = uniform(low, high);    // BUG: Never assigns the value E.max
 }
 
 /** Randomize Contents of $(D x), optional in range [$(D low), $(D high)]. */
-auto ref randInPlaceWithRange(E)(ref E x,
-                                 E low /* E.min_normal */,
-                                 E high /* E.max */) @trusted
+ref E randInPlaceWithRange(E)(return ref E x,
+                              E low /* E.min_normal */,
+                              E high /* E.max */) @trusted
     if (isFloatingPoint!E)
 {
     return x = uniform(low, high);
@@ -68,7 +69,7 @@ version(unittest)
 }
 
 /** Randomize Contents of $(D x). */
-auto ref randInPlace(Rational, E)(ref Rational!E x) @trusted
+ref Rational!E randInPlace(Rational, E)(return ref Rational!E x) @trusted
     if (isIntegral!E)
 {
     return x = rational(uniform(E.min, E.max),
@@ -84,7 +85,7 @@ unittest
 /** Generate Random Contents of $(D x).
     See also: http://forum.dlang.org/thread/emlgflxpgecxsqweauhc@forum.dlang.org
  */
-auto ref randInPlace(ref dchar x) @trusted
+ref dchar randInPlace(return ref dchar x) @trusted
 {
     auto ui = uniform(0,
                       0xD800 +
@@ -118,41 +119,43 @@ unittest
 }
 
 /** Randomize Contents of $(D x). */
-auto ref randInPlace(dstring x) @trusted
+dstring randInPlace(dstring x) @trusted
 {
-    dstring y;
+    typeof(x) y;
     foreach (ix; 0 .. x.length)
         y ~= randomized!dchar; // TODO How to do this in a better way?
     x = y;
-    return y;
+    return x;
 }
 
 /** Randomize Contents of $(D x).
  */
-auto ref randInPlace(R)(R x)
-    if (hasAssignableElements!R)
+R randInPlace(R)(R x)
+    if (isIterable!R &&
+        hasAssignableElements!R)
 {
     foreach (ref e; x)
     {
         e.randInPlace();
     }
-    return x;
+    return move(x);             // TODO remove when compiler does this for us
 }
 
 /** Randomize Contents of $(D x).
     Each element is randomized within range `[elementLow, elementHigh]`.
  */
-auto ref randInPlaceWithElementRange(R, E)(R x,
-                                           E elementLow,
-                                           E elementHigh)
-    if (hasAssignableElements!R &&
+R randInPlaceWithElementRange(R, E)(R x,
+                                    E elementLow,
+                                    E elementHigh)
+    if (isIterable!R &&
+        hasAssignableElements!R &&
         is(ElementType!R == E))
 {
     foreach (ref e; x)
     {
         e.randInPlaceWithRange(elementLow, elementHigh);
     }
-    return x;
+    return move(x);
 }
 
 unittest
@@ -172,7 +175,7 @@ unittest
 
 /** Randomize Contents of $(D x).
  */
-auto ref randInPlace(T)(ref T x)
+ref T randInPlace(T)(return ref T x)
     if (isStaticArray!T)
 {
     foreach (ref e; x)
@@ -203,7 +206,7 @@ unittest
 /** Blockwise Randomize Contents of $(D x) of Array Type $(D A).
     Randomizes in array blocks of type $(D B).
  */
-auto ref randInPlaceBlockwise(B = size_t, A)(ref A x)
+ref A randInPlaceBlockwise(B = size_t, A)(ref A x)
     if (isArray!A &&
         isIntegral!(ElementType!A))
 {
@@ -241,6 +244,8 @@ auto ref randInPlaceBlockwise(B = size_t, A)(ref A x)
     {
         e.randInPlace();
     }
+
+    return x;
 }
 
 unittest
@@ -273,7 +278,7 @@ unittest
 
 /** Randomize Contents of members of $(D x).
  */
-auto ref randInPlace(T)(ref T x)
+auto ref randInPlace(T)(return ref T x)
     if (is(T == struct))
 {
     foreach (ref e; x.tupleof)
@@ -334,7 +339,8 @@ T randomInstanceOf(T)()
     else
         /* don't init - randInPlace below fills in everything safely */
         T x = void;
-    return x.randInPlace();
+    x.randInPlace();
+    return x;
 }
 
 /** Get New Randomized Instance of Type $(D T).

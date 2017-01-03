@@ -6,7 +6,7 @@ module arrayn;
 
     TODO Merge with array_ex.d to enable reuse of push and pop algorithms
 */
-struct ArrayN(E, uint capacity, bool useBorrowing = true)
+struct ArrayN(E, uint capacity, bool borrowChecked = true)
 {
     import std.bitmanip : bitfields;
     import std.traits : isSomeChar, hasElaborateDestructor;
@@ -14,7 +14,7 @@ struct ArrayN(E, uint capacity, bool useBorrowing = true)
 
     E[capacity] _store = void;  /// stored elements
 
-    static if (useBorrowing)
+    static if (borrowChecked)
     {
         /// Number of bits needed to store number of read borrows.
         enum readBorrowCountBits = 3;
@@ -92,7 +92,7 @@ struct ArrayN(E, uint capacity, bool useBorrowing = true)
     /** Destruct. */
     pragma(inline) ~this() nothrow @trusted
     {
-        static if (useBorrowing) assert(!isBorrowed);
+        static if (borrowChecked) assert(!isBorrowed);
         static if (hasElaborateDestructor!E)
         {
             foreach (immutable i; 0 .. length)
@@ -138,7 +138,7 @@ struct ArrayN(E, uint capacity, bool useBorrowing = true)
         auto ref popFront()
         {
             assert(!empty);
-            static if (useBorrowing) assert(!isBorrowed);
+            static if (borrowChecked) assert(!isBorrowed);
             // TODO is there a reusable Phobos function for this?
             foreach (const i; 0 .. _length - 1)
             {
@@ -154,7 +154,7 @@ struct ArrayN(E, uint capacity, bool useBorrowing = true)
     auto ref popBack()
     {
         assert(!empty);
-        static if (useBorrowing) assert(!isBorrowed);
+        static if (borrowChecked) assert(!isBorrowed);
         _length = cast(typeof(_length))(_length - 1); // TODO better?
         static if (hasElaborateDestructor!E)
         {
@@ -186,7 +186,7 @@ pragma(inline):
         return _store.ptr[_length - 1];
     }
 
-    static if (useBorrowing)
+    static if (borrowChecked)
     {
         import borrowed : ReadBorrowed, WriteBorrowed;
 

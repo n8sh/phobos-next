@@ -14,26 +14,41 @@ struct ArrayN(E, uint capacity, bool useBorrowing = true)
 
     E[capacity] _store = void;  /// stored elements
 
-    /// Number of bits needed to store number of read borrows.
-    enum readBorrowCountBits = 3;
-    /// Maximum value possible for `_readBorrowCount`.
-    enum readBorrowCountMax = 2^^readBorrowCountBits - 1;
+    static if (useBorrowing)
+    {
+        /// Number of bits needed to store number of read borrows.
+        enum readBorrowCountBits = 3;
+        /// Maximum value possible for `_readBorrowCount`.
+        enum readBorrowCountMax = 2^^readBorrowCountBits - 1;
 
-    static      if (capacity <= 2^^(8*ubyte.sizeof - 1 - readBorrowCountBits) - 1)
-    {
-        mixin(bitfields!(ubyte, "_length", 4, /// number of defined elements in `_store`
-                         bool, "_writeBorrowed", 1, // TODO make private
-                         uint, "_readBorrowCount", readBorrowCountBits, // TODO make private
-                  ));
+        static      if (capacity <= 2^^(8*ubyte.sizeof - 1 - readBorrowCountBits) - 1)
+        {
+            mixin(bitfields!(ubyte, "_length", 4, /// number of defined elements in `_store`
+                             bool, "_writeBorrowed", 1, // TODO make private
+                             uint, "_readBorrowCount", readBorrowCountBits, // TODO make private
+                      ));
+        }
+        else static if (capacity <= 2^^(8*ushort.sizeof - 1 - readBorrowCountBits) - 1)
+        {
+            mixin(bitfields!(ushort, "_length", 14, /// number of defined elements in `_store`
+                             bool, "_writeBorrowed", 1, // TODO make private
+                             uint, "_readBorrowCount", readBorrowCountBits, // TODO make private
+                      ));
+        }
+        else static assert("Too large capacity " ~ capacity);
     }
-    else static if (capacity <= 2^^(8*ushort.sizeof - 1 - readBorrowCountBits) - 1)
+    else
     {
-        mixin(bitfields!(ushort, "_length", 14, /// number of defined elements in `_store`
-                         bool, "_writeBorrowed", 1, // TODO make private
-                         uint, "_readBorrowCount", readBorrowCountBits, // TODO make private
-                  ));
+        static if (capacity <= 2^^(8*ubyte.sizeof) - 1)
+        {
+            ubyte length;       /// number of defined elements in `_store`
+        }
+        else static if (capacity <= 2^^(8*ushort.sizeof) - 1)
+        {
+            ushort length;       /// number of defined elements in `_store`
+        }
+        else static assert("Too large capacity " ~ capacity);
     }
-    else static assert("Too large capacity " ~ capacity);
 
     alias ElementType = E;
 
@@ -77,7 +92,7 @@ struct ArrayN(E, uint capacity, bool useBorrowing = true)
     /** Destruct. */
     pragma(inline) ~this() nothrow @trusted
     {
-        assert(!isBorrowed);
+        static if (useBorrowing) assert(!isBorrowed);
         static if (hasElaborateDestructor!E)
         {
             foreach (immutable i; 0 .. length)
@@ -123,7 +138,7 @@ struct ArrayN(E, uint capacity, bool useBorrowing = true)
         auto ref popFront()
         {
             assert(!empty);
-            assert(!isBorrowed);
+            static if (useBorrowing) assert(!isBorrowed);
             // TODO is there a reusable Phobos function for this?
             foreach (const i; 0 .. _length - 1)
             {
@@ -139,7 +154,7 @@ struct ArrayN(E, uint capacity, bool useBorrowing = true)
     auto ref popBack()
     {
         assert(!empty);
-        assert(!isBorrowed);
+        static if (useBorrowing) assert(!isBorrowed);
         _length = cast(typeof(_length))(_length - 1); // TODO better?
         static if (hasElaborateDestructor!E)
         {
@@ -171,63 +186,85 @@ pragma(inline):
         return _store.ptr[_length - 1];
     }
 
-    /// Get read-only slice in range `i` .. `j`.
-    auto opSlice(size_t i, size_t j) const { return sliceRO(i, j); }
-    /// Get read-write slice in range `i` .. `j`.
-    auto opSlice(size_t i, size_t j) { return sliceRW(i, j); }
-
-    /// Get read-only full slice.
-    auto opSlice() const { return sliceRO(); }
-    /// Get read-write full slice.
-    auto opSlice() { return sliceRW(); }
-
-    import borrowed : ReadBorrowed, WriteBorrowed;
-
-    /// Get full read-only slice.
-    ReadBorrowed!(E[], typeof(this)) sliceRO() const @trusted
+    static if (useBorrowing)
     {
-        import std.typecons : Unqual;
-        assert(!_writeBorrowed, "typeof(this) is already write-borrowed");
-        return typeof(return)(_store.ptr[0 .. _length],
-                              cast(Unqual!(typeof(this))*)(&this)); // trusted unconst casta
+        import borrowed : ReadBorrowed, WriteBorrowed;
+
+        /// Get read-only slice in range `i` .. `j`.
+        auto opSlice(size_t i, size_t j) const { return sliceRO(i, j); }
+        /// Get read-write slice in range `i` .. `j`.
+        auto opSlice(size_t i, size_t j) { return sliceRW(i, j); }
+
+        /// Get read-only full slice.
+        auto opSlice() const { return sliceRO(); }
+        /// Get read-write full slice.
+        auto opSlice() { return sliceRW(); }
+
+        /// Get full read-only slice.
+        ReadBorrowed!(E[], typeof(this)) sliceRO() const @trusted
+        {
+            import std.typecons : Unqual;
+            assert(!_writeBorrowed, "typeof(this) is already write-borrowed");
+            return typeof(return)(_store.ptr[0 .. _length],
+                                  cast(Unqual!(typeof(this))*)(&this)); // trusted unconst casta
+        }
+
+        /// Get read-only slice in range `i` .. `j`.
+        ReadBorrowed!(E[], typeof(this)) sliceRO(size_t i, size_t j) const @trusted
+        {
+            import std.typecons : Unqual;
+            assert(!_writeBorrowed, "typeof(this) is already write-borrowed");
+            return typeof(return)(_store.ptr[i .. j],
+                                  cast(Unqual!(typeof(this))*)(&this)); // trusted unconst cast
+        }
+
+        /// Get full read-write slice.
+        WriteBorrowed!(E[], typeof(this)) sliceRW() @trusted
+        {
+            assert(!_writeBorrowed, "typeof(this) is already write-borrowed");
+            assert(_readBorrowCount == 0, "typeof(this) is already read-borrowed");
+            return typeof(return)(_store.ptr[0 .. _length], &this);
+        }
+
+        /// Get read-write slice in range `i` .. `j`.
+        WriteBorrowed!(E[], typeof(this)) sliceRW(size_t i, size_t j) @trusted
+        {
+            assert(!_writeBorrowed, "typeof(this) is already write-borrowed");
+            assert(_readBorrowCount == 0, "typeof(this) is already read-borrowed");
+            return typeof(return)(_store.ptr[0 .. j], &this);
+        }
+
+        @safe pure nothrow @nogc @property
+        {
+            /// Returns: `true` iff `this` is either write or read borrowed.
+            bool isBorrowed() const { return _writeBorrowed || _readBorrowCount >= 1; }
+
+            /// Returns: `true` iff `this` is write borrowed.
+            bool isWriteBorrowed() const { return _writeBorrowed; }
+
+            /// Returns: number of read-only borrowers of `this`.
+            uint readBorrowCount() const { return _readBorrowCount; }
+        }
     }
-
-    /// Get read-only slice in range `i` .. `j`.
-    ReadBorrowed!(E[], typeof(this)) sliceRO(size_t i, size_t j) const @trusted
+    else
     {
-        import std.typecons : Unqual;
-        assert(!_writeBorrowed, "typeof(this) is already write-borrowed");
-        return typeof(return)(_store.ptr[i .. j],
-                              cast(Unqual!(typeof(this))*)(&this)); // trusted unconst cast
-    }
+        /// Get slice in range `i` .. `j`.
+        inout(E)[] opSlice(size_t i, size_t j) inout return scope
+        {
+            assert(i <= j);
+            assert(j <= _length);
+            return _store.ptr[i .. j];
+        }
 
-    /// Get full read-write slice.
-    WriteBorrowed!(E[], typeof(this)) sliceRW() @trusted
-    {
-        assert(!_writeBorrowed, "typeof(this) is already write-borrowed");
-        assert(_readBorrowCount == 0, "typeof(this) is already read-borrowed");
-        return typeof(return)(_store.ptr[0 .. _length], &this);
-    }
-
-    /// Get read-write slice in range `i` .. `j`.
-    WriteBorrowed!(E[], typeof(this)) sliceRW(size_t i, size_t j) @trusted
-    {
-        assert(!_writeBorrowed, "typeof(this) is already write-borrowed");
-        assert(_readBorrowCount == 0, "typeof(this) is already read-borrowed");
-        return typeof(return)(_store.ptr[0 .. j], &this);
+        /// Get full slice.
+        inout(E)[] opSlice() inout return scope
+        {
+            return _store.ptr[0 .. _length];
+        }
     }
 
     @safe pure nothrow @nogc @property
     {
-        /// Returns: `true` iff `this` is either write or read borrowed.
-        bool isBorrowed() const { return _writeBorrowed || _readBorrowCount >= 1; }
-
-        /// Returns: `true` iff `this` is write borrowed.
-        bool isWriteBorrowed() const { return _writeBorrowed; }
-
-        /// Returns: number of read-only borrowers of `this`.
-        uint readBorrowCount() const { return _readBorrowCount; }
-
         /** Returns: `true` if `this` is empty, `false` otherwise. */
         bool empty() const { return _length == 0; }
 

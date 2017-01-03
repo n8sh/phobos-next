@@ -1,7 +1,7 @@
 /** Statically allocated arrays with compile-time known lengths. */
 module arrayn;
 
-/** Borrow Checking. */
+/** Type of checking. */
 enum Checking
 {
     viaScope,

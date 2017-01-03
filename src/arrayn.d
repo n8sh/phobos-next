@@ -166,21 +166,21 @@ struct ArrayN(E, uint capacity, bool borrowChecked)
 pragma(inline):
 
     /** Index operator. */
-    ref inout(E) opIndex(size_t i) inout @trusted // TODO DIP-1000 scope
+    ref inout(E) opIndex(size_t i) inout @trusted return scope
     {
         assert(i < _length);
         return _store.ptr[i];
     }
 
     /** First (front) element. */
-    ref inout(E) front() inout @trusted // TODO DIP-1000 scope
+    ref inout(E) front() inout @trusted return scope
     {
         assert(!empty);
         return _store.ptr[0];
     }
 
     /** Last (back) element. */
-    ref inout(E) back() inout @trusted // TODO DIP-1000 scope
+    ref inout(E) back() inout @trusted return scope
     {
         assert(!empty);
         return _store.ptr[_length - 1];
@@ -278,7 +278,7 @@ pragma(inline):
         static if (isSomeChar!E)
         {
             /** Get as `string`. */
-            const(E)[] toString() const @system // TODO DIP-1000 scope
+            const(E)[] toString() const return scope
             {
                 return opSlice();
             }

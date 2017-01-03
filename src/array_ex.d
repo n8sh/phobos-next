@@ -1174,12 +1174,12 @@ private struct Array(E,
         const nothrow @nogc: // indexing and slicing must be `const` when ordered
 
         /// Slice operator must be const when ordered.
-        auto opSlice() return // TODO DIP-1000 scope
+        auto opSlice() @safe return scope
         {
             return (cast(const(E)[])slice).assumeSorted!comp;
         }
         /// ditto
-        auto opSlice(this This)(size_t i, size_t j) // const because mutation only via `op.*Assign`. TODO DIP-1000 scope
+        auto opSlice(this This)(size_t i, size_t j) @safe return scope // const because mutation only via `op.*Assign`
         {
             import std.range : assumeSorted;
             return (cast(const(E)[])slice[i .. j]).assumeSorted!comp;
@@ -1188,21 +1188,21 @@ private struct Array(E,
         @trusted:
 
         /// Index operator must be const to preserve ordering.
-        ref const(E) opIndex(size_t i) return // TODO DIP-1000 scope
+        ref const(E) opIndex(size_t i) return scope
         {
             assert(i < this.length);
             return ptr[i];
         }
 
         /// Get front element (as constant reference to preserve ordering).
-        ref const(E) front() return // TODO DIP-1000 scope
+        ref const(E) front() return scope
         {
             assert(!empty);
             return ptr[0];
         }
 
         /// Get back element (as constant reference to preserve ordering).
-        ref const(E) back() return // TODO DIP-1000 scope
+        ref const(E) back() return scope
         {
             assert(!empty);
             return ptr[this.length - 1];
@@ -1222,7 +1222,7 @@ private struct Array(E,
         @nogc:
 
         /// Index assign operator.
-        ref E opIndexAssign(V)(V value, size_t i) @trusted return // TODO DIP-1000 scope
+        ref E opIndexAssign(V)(V value, size_t i) @trusted return scope
         {
             assert(!isBorrowed);
             assert(i < this.length);
@@ -1236,7 +1236,7 @@ private struct Array(E,
         /// Slice assign operator.
         static if (isCopyable!E)
         {
-            void opSliceAssign(V)(V value, size_t i, size_t j) @trusted return // TODO DIP-1000 scope
+            void opSliceAssign(V)(V value, size_t i, size_t j) @trusted return scope
             {
                 assert(!isBorrowed);
                 assert(i <= j);
@@ -1251,36 +1251,36 @@ private struct Array(E,
         inout:             // indexing and slicing can be mutable when unordered
 
         /// Slice operator.
-        inout(E)[] opSlice() return    // TODO DIP-1000 scope
+        inout(E)[] opSlice() @safe return scope
         {
             return this.opSlice(0, this.length);
         }
         /// ditto
-        inout(E)[] opSlice(size_t i, size_t j) return // TODO DIP-1000 scope
+        inout(E)[] opSlice(size_t i, size_t j) @trusted return scope
         {
             assert(i <= j);
             assert(j <= this.length);
-            return ptr[i .. j]; // TODO DIP-1000 scope
+            return ptr[i .. j];
         }
 
         @trusted:
 
         /// Index operator.
-        ref inout(E) opIndex(size_t i) return // TODO DIP-1000 scope
+        ref inout(E) opIndex(size_t i) return scope
         {
             assert(i < this.length);
             return ptr[i];
         }
 
         /// Get front element reference.
-        ref inout(E) front() return // TODO DIP-1000 scope
+        ref inout(E) front() return scope
         {
             assert(!empty);
             return ptr[0];
         }
 
         /// Get back element reference.
-        ref inout(E) back() return // TODO DIP-1000 scope
+        ref inout(E) back() return scope
         {
             assert(!empty);
             return ptr[this.length - 1];
@@ -1429,7 +1429,7 @@ private struct Array(E,
     }
 
     /// Get internal slice.
-    private auto ref slice() inout @trusted return // TODO DIP-1000 scope
+    private auto slice() inout @trusted return scope
     {
         return ptr[0 .. this.length];
     }
@@ -2321,7 +2321,7 @@ unittest
 }
 
 /// collection
-/*@safe*/ pure nothrow @nogc unittest // TODO make @safe when DIP-1000 has been added
+/*@safe*/ pure nothrow @nogc unittest // TODO make @safe when collect has been made safe
 {
     import std.range : iota, isOutputRange;
     import algorithm_ex : collect;

@@ -4,8 +4,8 @@ module arrayn;
 /** Type of checking. */
 enum Checking
 {
-    viaScope,
-    viaBorrowing
+    viaScope,     // compile-time checking of slice lifetimes via DIP-1000 scope
+    viaBorrowing  // run-time checking of slice lifetimes and borrows (includes iterator invalidation checking)
 }
 
 /** Statically allocated `E`-array of fixed pre-allocated length.  Similar to
@@ -315,7 +315,7 @@ version(unittest)
     import std.typecons : AliasSeq;
 }
 
-/// non-borrow checked string
+/// scope checked string
 @safe pure nothrow @nogc unittest
 {
     enum capacity = 15;

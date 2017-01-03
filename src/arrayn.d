@@ -6,7 +6,7 @@ module arrayn;
 
     TODO Merge with array_ex.d to enable reuse of push and pop algorithms
 */
-struct ArrayN(E, uint capacity, bool borrowChecked = true)
+struct ArrayN(E, uint capacity, bool borrowChecked)
 {
     import std.bitmanip : bitfields;
     import std.traits : isSomeChar, hasElaborateDestructor;
@@ -41,11 +41,11 @@ struct ArrayN(E, uint capacity, bool borrowChecked = true)
     {
         static if (capacity <= 2^^(8*ubyte.sizeof) - 1)
         {
-            ubyte length;       /// number of defined elements in `_store`
+            ubyte _length;       /// number of defined elements in `_store`
         }
         else static if (capacity <= 2^^(8*ushort.sizeof) - 1)
         {
-            ushort length;       /// number of defined elements in `_store`
+            ushort _length;       /// number of defined elements in `_store`
         }
         else static assert("Too large capacity " ~ capacity);
     }
@@ -107,7 +107,7 @@ struct ArrayN(E, uint capacity, bool borrowChecked = true)
     }
 
     /** Returns: `true` if `key` is contained in `this`. */
-    bool canFind(const E[] key) const @nogc @trusted
+    bool canFind(const E[] key) const @trusted
     {
         import std.algorithm.searching : canFind;
         return _store.ptr[0 .. _length].canFind(key);
@@ -249,7 +249,7 @@ pragma(inline):
     else
     {
         /// Get slice in range `i` .. `j`.
-        inout(E)[] opSlice(size_t i, size_t j) inout return scope
+        inout(E)[] opSlice(size_t i, size_t j) @trusted inout return scope
         {
             assert(i <= j);
             assert(j <= _length);
@@ -257,7 +257,7 @@ pragma(inline):
         }
 
         /// Get full slice.
-        inout(E)[] opSlice() inout return scope
+        inout(E)[] opSlice() @trusted inout return scope
         {
             return _store.ptr[0 .. _length];
         }
@@ -287,18 +287,18 @@ pragma(inline):
 }
 
 /** Stack-allocated string of maximum length of `capacity.` */
-alias StringN(uint capacity) = ArrayN!(immutable(char), capacity);
+alias StringN(uint capacity, bool borrowChecked = true) = ArrayN!(immutable(char), capacity, borrowChecked);
 /** Stack-allocated wstring of maximum length of `capacity.` */
-alias WStringN(uint capacity) = ArrayN!(immutable(wchar), capacity);
+alias WStringN(uint capacity, bool borrowChecked = true) = ArrayN!(immutable(wchar), capacity, borrowChecked);
 /** Stack-allocated dstring of maximum length of `capacity.` */
-alias DStringN(uint capacity) = ArrayN!(immutable(dchar), capacity);
+alias DStringN(uint capacity, bool borrowChecked = true) = ArrayN!(immutable(dchar), capacity, borrowChecked);
 
 /** Stack-allocated mutable string of maximum length of `capacity.` */
-alias MutableStringN(uint capacity) = ArrayN!(char, capacity);
+alias MutableStringN(uint capacity, bool borrowChecked = true) = ArrayN!(char, capacity, borrowChecked);
 /** Stack-allocated mutable wstring of maximum length of `capacity.` */
-alias MutableWStringN(uint capacity) = ArrayN!(char, capacity);
+alias MutableWStringN(uint capacity, bool borrowChecked = true) = ArrayN!(char, capacity, borrowChecked);
 /** Stack-allocated mutable dstring of maximum length of `capacity.` */
-alias MutableDStringN(uint capacity) = ArrayN!(char, capacity);
+alias MutableDStringN(uint capacity, bool borrowChecked = true) = ArrayN!(char, capacity, borrowChecked);
 
 version(unittest)
 {
@@ -311,7 +311,7 @@ pure unittest                   // TODO @safe
     alias E = char;
     enum capacity = 3;
 
-    alias A = ArrayN!(E, capacity);
+    alias A = ArrayN!(E, capacity, true);
     static assert(A.sizeof == E.sizeof*capacity + 1);
 
     auto ab = A('a', 'b');
@@ -367,7 +367,7 @@ pure unittest                   // TODO @safe
     static void testAsSomeString(E)()
     {
         enum capacity = 15;
-        alias A = ArrayN!(immutable(E), capacity);
+        alias A = ArrayN!(immutable(E), capacity, true);
         auto a = A("abc");
         assert(a[] == "abc");
         assert(a[].equal("abc"));
@@ -389,7 +389,7 @@ pure unittest                   // TODO @safe
     enum capacity = 4;
     import std.traits : hasIndirections;
     static assert(hasIndirections!string);
-    alias A = ArrayN!(string, capacity);
+    alias A = ArrayN!(string, capacity, true);
 }
 
 ///
@@ -400,6 +400,27 @@ pure unittest                   // TODO @safe
     static assert(String15.readBorrowCountMax == 7);
 
     auto x = String15("alpha");
+
+    assert(x.canFind("alpha"));
+    assert(x.canFind("al"));
+    assert(x.canFind("ph"));
+    assert(!x.canFind("ala"));
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    enum capacity = 15;
+    alias String15 = StringN!(capacity, false);
+
+    auto x = String15("alphas");
+
+    assert(x[0] == 'a');
+    assert(x[$ - 1] == 's');
+
+    assert(x[0 .. 2] == "al");
+    assert(x[] == "alphas");
+    assert(x[].equal("alphas"));
 
     assert(x.canFind("alpha"));
     assert(x.canFind("al"));

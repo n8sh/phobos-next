@@ -35,7 +35,7 @@ import std.algorithm.comparison : either;
 import algorithm_ex: tryEvery, split, splitBefore, findPopBefore, findPopAfter;
 import grammar;
 import languages : Lang;
-import dbgio;
+import dbgio : dln;
 
 /** C++ Demangler. */
 class Demangler(R)

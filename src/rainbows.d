@@ -140,9 +140,9 @@ class Rainbow
         return this;
     }
 
-    public Rainbow ef(Effect effect)
+    public Rainbow effect(Effect effect_)
     {
-        codes ~= effect;
+        codes ~= effect_;
         codes ~= ";";
         return this;
     }

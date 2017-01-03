@@ -31,7 +31,8 @@ import std.array: array;
 import std.stdio;
 import std.functional : unaryFun, binaryFun;
 
-import algorithm_ex: either, tryEvery, split, splitBefore, findPopBefore, findPopAfter;
+import std.algorithm.comparison : either;
+import algorithm_ex: tryEvery, split, splitBefore, findPopBefore, findPopAfter;
 import grammar;
 import languages : Lang;
 import dbgio;

@@ -1,18 +1,27 @@
 /** Statically allocated arrays with compile-time known lengths. */
 module arrayn;
 
+/** Borrow Checking. */
+enum Checking
+{
+    viaScope,
+    viaBorrowing
+}
+
 /** Statically allocated `E`-array of fixed pre-allocated length.  Similar to
     Rust's `fixedvec`: https://docs.rs/fixedvec/0.2.3/fixedvec/
 
     TODO Merge with array_ex.d to enable reuse of push and pop algorithms
 */
-struct ArrayN(E, uint capacity, bool borrowChecked)
+struct ArrayN(E, uint capacity, Checking checking)
 {
     import std.bitmanip : bitfields;
     import std.traits : isSomeChar, hasElaborateDestructor;
     import qcmeman : gc_addRange, gc_removeRange;
 
     E[capacity] _store = void;  /// stored elements
+
+    enum borrowChecked = checking == Checking.viaBorrowing;
 
     static if (borrowChecked)
     {
@@ -287,18 +296,18 @@ pragma(inline):
 }
 
 /** Stack-allocated string of maximum length of `capacity.` */
-alias StringN(uint capacity, bool borrowChecked) = ArrayN!(immutable(char), capacity, borrowChecked);
+alias StringN(uint capacity, Checking checking) = ArrayN!(immutable(char), capacity, checking);
 /** Stack-allocated wstring of maximum length of `capacity.` */
-alias WStringN(uint capacity, bool borrowChecked) = ArrayN!(immutable(wchar), capacity, borrowChecked);
+alias WStringN(uint capacity, Checking checking) = ArrayN!(immutable(wchar), capacity, checking);
 /** Stack-allocated dstring of maximum length of `capacity.` */
-alias DStringN(uint capacity, bool borrowChecked) = ArrayN!(immutable(dchar), capacity, borrowChecked);
+alias DStringN(uint capacity, Checking checking) = ArrayN!(immutable(dchar), capacity, checking);
 
 /** Stack-allocated mutable string of maximum length of `capacity.` */
-alias MutableStringN(uint capacity, bool borrowChecked) = ArrayN!(char, capacity, borrowChecked);
+alias MutableStringN(uint capacity, Checking checking) = ArrayN!(char, capacity, checking);
 /** Stack-allocated mutable wstring of maximum length of `capacity.` */
-alias MutableWStringN(uint capacity, bool borrowChecked) = ArrayN!(char, capacity, borrowChecked);
+alias MutableWStringN(uint capacity, Checking checking) = ArrayN!(char, capacity, checking);
 /** Stack-allocated mutable dstring of maximum length of `capacity.` */
-alias MutableDStringN(uint capacity, bool borrowChecked) = ArrayN!(char, capacity, borrowChecked);
+alias MutableDStringN(uint capacity, Checking checking) = ArrayN!(char, capacity, checking);
 
 version(unittest)
 {
@@ -312,7 +321,7 @@ version(unittest)
     enum capacity = 15;
     foreach (StrN; AliasSeq!(StringN, WStringN, DStringN))
     {
-        alias String15 = StrN!(capacity, false);
+        alias String15 = StrN!(capacity, Checking.viaScope);
 
         auto x = String15("alphas");
 
@@ -335,7 +344,7 @@ pure unittest                   // TODO @safe
     alias E = char;
     enum capacity = 3;
 
-    alias A = ArrayN!(E, capacity, true);
+    alias A = ArrayN!(E, capacity, Checking.viaBorrowing);
     static assert(A.sizeof == E.sizeof*capacity + 1);
 
     auto ab = A('a', 'b');
@@ -391,7 +400,7 @@ pure unittest                   // TODO @safe
     static void testAsSomeString(E)()
     {
         enum capacity = 15;
-        alias A = ArrayN!(immutable(E), capacity, true);
+        alias A = ArrayN!(immutable(E), capacity, Checking.viaBorrowing);
         auto a = A("abc");
         assert(a[] == "abc");
         assert(a[].equal("abc"));
@@ -412,14 +421,14 @@ pure unittest                   // TODO @safe
     enum capacity = 4;
     import std.traits : hasIndirections;
     static assert(hasIndirections!string);
-    alias A = ArrayN!(string, capacity, true);
+    alias A = ArrayN!(string, capacity, Checking.viaBorrowing);
 }
 
 ///
 @safe pure nothrow @nogc unittest
 {
     enum capacity = 15;
-    alias String15 = StringN!(capacity, true);
+    alias String15 = StringN!(capacity, Checking.viaBorrowing);
     static assert(String15.readBorrowCountMax == 7);
 
     auto x = String15("alpha");
@@ -434,7 +443,7 @@ pure unittest                   // TODO @safe
 pure unittest
 {
     enum capacity = 15;
-    alias String15 = StringN!(capacity, true);
+    alias String15 = StringN!(capacity, Checking.viaBorrowing);
 
     auto x = String15("alpha");
 

@@ -303,27 +303,30 @@ alias MutableDStringN(uint capacity, bool borrowChecked = true) = ArrayN!(char, 
 version(unittest)
 {
     import std.algorithm.comparison : equal;
+    import std.typecons : AliasSeq;
 }
 
-/// non-borrow checked
+/// non-borrow checked string
 @safe pure nothrow @nogc unittest
 {
     enum capacity = 15;
-    alias String15 = StringN!(capacity, false);
+    foreach (StrN; AliasSeq!(StringN, WStringN, DStringN))
+    {
+        alias String15 = StrN!(capacity, false);
 
-    auto x = String15("alphas");
+        auto x = String15("alphas");
 
-    assert(x[0] == 'a');
-    assert(x[$ - 1] == 's');
+        assert(x[0] == 'a');
+        assert(x[$ - 1] == 's');
 
-    assert(x[0 .. 2] == "al");
-    assert(x[] == "alphas");
-    assert(x[].equal("alphas"));
+        assert(x[0 .. 2] == "al");
+        assert(x[] == "alphas");
 
-    assert(x.canFind("alpha"));
-    assert(x.canFind("al"));
-    assert(x.canFind("ph"));
-    assert(!x.canFind("ala"));
+        assert(x.canFind("alpha"));
+        assert(x.canFind("al"));
+        assert(x.canFind("ph"));
+        assert(!x.canFind("ala"));
+    }
 }
 
 ///
@@ -397,7 +400,6 @@ pure unittest                   // TODO @safe
         const x = "a".to!(E[]);
     }
 
-    import std.typecons : AliasSeq;
     foreach (E; AliasSeq!(char, wchar, dchar))
     {
         testAsSomeString!E();

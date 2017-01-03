@@ -287,18 +287,18 @@ pragma(inline):
 }
 
 /** Stack-allocated string of maximum length of `capacity.` */
-alias StringN(uint capacity, bool borrowChecked = true) = ArrayN!(immutable(char), capacity, borrowChecked);
+alias StringN(uint capacity, bool borrowChecked) = ArrayN!(immutable(char), capacity, borrowChecked);
 /** Stack-allocated wstring of maximum length of `capacity.` */
-alias WStringN(uint capacity, bool borrowChecked = true) = ArrayN!(immutable(wchar), capacity, borrowChecked);
+alias WStringN(uint capacity, bool borrowChecked) = ArrayN!(immutable(wchar), capacity, borrowChecked);
 /** Stack-allocated dstring of maximum length of `capacity.` */
-alias DStringN(uint capacity, bool borrowChecked = true) = ArrayN!(immutable(dchar), capacity, borrowChecked);
+alias DStringN(uint capacity, bool borrowChecked) = ArrayN!(immutable(dchar), capacity, borrowChecked);
 
 /** Stack-allocated mutable string of maximum length of `capacity.` */
-alias MutableStringN(uint capacity, bool borrowChecked = true) = ArrayN!(char, capacity, borrowChecked);
+alias MutableStringN(uint capacity, bool borrowChecked) = ArrayN!(char, capacity, borrowChecked);
 /** Stack-allocated mutable wstring of maximum length of `capacity.` */
-alias MutableWStringN(uint capacity, bool borrowChecked = true) = ArrayN!(char, capacity, borrowChecked);
+alias MutableWStringN(uint capacity, bool borrowChecked) = ArrayN!(char, capacity, borrowChecked);
 /** Stack-allocated mutable dstring of maximum length of `capacity.` */
-alias MutableDStringN(uint capacity, bool borrowChecked = true) = ArrayN!(char, capacity, borrowChecked);
+alias MutableDStringN(uint capacity, bool borrowChecked) = ArrayN!(char, capacity, borrowChecked);
 
 version(unittest)
 {
@@ -419,7 +419,7 @@ pure unittest                   // TODO @safe
 @safe pure nothrow @nogc unittest
 {
     enum capacity = 15;
-    alias String15 = StringN!capacity;
+    alias String15 = StringN!(capacity, true);
     static assert(String15.readBorrowCountMax == 7);
 
     auto x = String15("alpha");
@@ -434,7 +434,7 @@ pure unittest                   // TODO @safe
 pure unittest
 {
     enum capacity = 15;
-    alias String15 = StringN!capacity;
+    alias String15 = StringN!(capacity, true);
 
     auto x = String15("alpha");
 

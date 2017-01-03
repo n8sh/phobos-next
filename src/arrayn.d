@@ -6,7 +6,7 @@ module arrayn;
 
     TODO Merge with array_ex.d to enable reuse of push and pop algorithms
 */
-struct ArrayN(E, uint capacity)
+struct ArrayN(E, uint capacity, bool useBorrowing = true)
 {
     import std.bitmanip : bitfields;
     import std.traits : isSomeChar, hasElaborateDestructor;

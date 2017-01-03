@@ -123,7 +123,7 @@ struct ArrayN(E, uint capacity, bool borrowChecked)
         foreach (const i, ref e; es)
         {
             import std.algorithm.mutation : moveEmplace;
-            moveEmplace(e, _store[_length + i]);
+            moveEmplace(e, _store[_length + i]); // TODO remove `move` when compiler does it for us
         }
         _length = cast(typeof(_length))(_length + Es.length); // TODO better?
         return this;

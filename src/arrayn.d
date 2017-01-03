@@ -305,6 +305,27 @@ version(unittest)
     import std.algorithm.comparison : equal;
 }
 
+/// non-borrow checked
+@safe pure nothrow @nogc unittest
+{
+    enum capacity = 15;
+    alias String15 = StringN!(capacity, false);
+
+    auto x = String15("alphas");
+
+    assert(x[0] == 'a');
+    assert(x[$ - 1] == 's');
+
+    assert(x[0 .. 2] == "al");
+    assert(x[] == "alphas");
+    assert(x[].equal("alphas"));
+
+    assert(x.canFind("alpha"));
+    assert(x.canFind("al"));
+    assert(x.canFind("ph"));
+    assert(!x.canFind("ala"));
+}
+
 ///
 pure unittest                   // TODO @safe
 {
@@ -400,27 +421,6 @@ pure unittest                   // TODO @safe
     static assert(String15.readBorrowCountMax == 7);
 
     auto x = String15("alpha");
-
-    assert(x.canFind("alpha"));
-    assert(x.canFind("al"));
-    assert(x.canFind("ph"));
-    assert(!x.canFind("ala"));
-}
-
-///
-@safe pure nothrow @nogc unittest
-{
-    enum capacity = 15;
-    alias String15 = StringN!(capacity, false);
-
-    auto x = String15("alphas");
-
-    assert(x[0] == 'a');
-    assert(x[$ - 1] == 's');
-
-    assert(x[0 .. 2] == "al");
-    assert(x[] == "alphas");
-    assert(x[].equal("alphas"));
 
     assert(x.canFind("alpha"));
     assert(x.canFind("al"));

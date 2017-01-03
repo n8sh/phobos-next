@@ -1,3 +1,4 @@
+/** Statically allocated arrays with compile-time known lengths. */
 module arrayn;
 
 /** Statically allocated `E`-array of fixed pre-allocated length.  Similar to

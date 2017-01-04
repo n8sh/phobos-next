@@ -731,8 +731,8 @@ unittest
 ///
 pure unittest
 {
-    import arrayn : StringN;
-    alias String15 = StringN!15;
+    import arrayn : StringN, Checking;
+    alias String15 = StringN!(15, Checking.viaScope);
 
     String15 s;
     String15 t = s;

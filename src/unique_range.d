@@ -383,6 +383,7 @@ import std.range.primitives : isInputRange, isInfinite, hasSlicing;
 Take!R takeUnique(R)(R input, size_t n)
 if (is(R T == Take!T))
 {
+    import std.algorithm.mutation : move;
     import std.algorithm.comparison : min;
     return R(move(input.source), min(n, input._maxAvailable));
 }
@@ -391,5 +392,6 @@ if (is(R T == Take!T))
 Take!(R) takeUnique(R)(R input, size_t n)
 if (isInputRange!(Unqual!R) && (isInfinite!(Unqual!R) || !hasSlicing!(Unqual!R) && !is(R T == Take!T)))
 {
+    import std.algorithm.mutation : move;
     return Take!R(move(input), n);
 }

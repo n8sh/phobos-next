@@ -373,3 +373,23 @@ private struct FilterUniqueResult(alias pred, Range)
         }
     }
 }
+
+// TODO move these hidden behind template
+import std.range : Take;
+import std.typecons : Unqual;
+import std.range.primitives : isInputRange, isInfinite, hasSlicing;
+
+/// ditto
+Take!R takeUnique(R)(R input, size_t n)
+if (is(R T == Take!T))
+{
+    import std.algorithm.comparison : min;
+    return R(move(input.source), min(n, input._maxAvailable));
+}
+
+/// ditto
+Take!(R) takeUnique(R)(R input, size_t n)
+if (isInputRange!(Unqual!R) && (isInfinite!(Unqual!R) || !hasSlicing!(Unqual!R) && !is(R T == Take!T)))
+{
+    return Take!R(move(input), n);
+}

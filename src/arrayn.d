@@ -313,6 +313,8 @@ version(unittest)
 {
     import std.algorithm.comparison : equal;
     import std.typecons : AliasSeq;
+    import std.exception : assertThrown;
+    import core.exception : AssertError;
 }
 
 /// scope checked string
@@ -347,8 +349,6 @@ version(none) pure unittest     // TODO activate
     foreach (StrN; AliasSeq!(StringN, WStringN, DStringN))
     {
         alias String15 = StrN!(capacity, Checking.viaScope);
-        import std.exception : assertThrown;
-        import core.exception : AssertError;
         assertThrown!AssertError(String15("åäö_åäöå_"));
     }
 }
@@ -505,7 +505,5 @@ pure unittest
     auto xr7 = (cast(const)x)[];
     assert(x.readBorrowCount == 7);
 
-    import std.exception : assertThrown;
-    import core.exception : AssertError;
     assertThrown!AssertError((cast(const)x)[]);
 }

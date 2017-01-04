@@ -1,7 +1,7 @@
 /** Statically allocated arrays with compile-time known lengths. */
 module arrayn;
 
-/** Type of checking. */
+/** Type of index and slice lifetime checking. */
 enum Checking
 {
     viaScope,     // compile-time checking of slice lifetimes via DIP-1000 scope

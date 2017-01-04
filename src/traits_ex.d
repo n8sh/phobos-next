@@ -12,6 +12,12 @@ import std.traits: isArray, ParameterTypeTuple, isStaticArray, isDynamicArray, i
 import std.range: ElementType, isForwardRange, isRandomAccessRange, isInputRange, isBidirectionalRange, isOutputRange, isIterable;
 import std.typecons : Tuple;
 
+static if (__VERSION__ >= 2072)
+    public import std.traits : isCopyable;
+else                            // LDC2 1.1.0-beta3
+    /// Is `true` if `T` is assignable.
+    enum isCopyable(T) = is(typeof({ T foo = T.init; T copy = foo; }));
+
 /** Returns: true iff $(D ptr) is handled by the garbage collector (GC). */
 bool isGCPointer(const void* ptr) nothrow
 {

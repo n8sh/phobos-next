@@ -85,15 +85,10 @@ version(unittest)
 import container_traits : ContainerElementType;
 
 import std.traits : isInstanceOf;
+import traits_ex : isCopyable;
 
 /// Is `true` iff `C` is an instance of an `Array` container.
 enum isArrayContainer(C) = isInstanceOf!(Array, C);
-
-static if (__VERSION__ >= 2072)
-    import std.traits : isCopyable;
-else                            // LDC2 1.1.0-beta3
-    /// Is `true` if `T` is assignable.
-    enum isCopyable(T) = is(typeof({ T foo = T.init; T copy = foo; }));
 
 /// Semantics of copy construction and copy assignment.
 enum Assignment
@@ -1174,12 +1169,12 @@ private struct Array(E,
         const nothrow @nogc: // indexing and slicing must be `const` when ordered
 
         /// Slice operator must be const when ordered.
-        auto opSlice() @safe return scope
+        auto opSlice() @safe return
         {
             return (cast(const(E)[])slice).assumeSorted!comp;
         }
         /// ditto
-        auto opSlice(this This)(size_t i, size_t j) @safe return scope // const because mutation only via `op.*Assign`
+        auto opSlice(this This)(size_t i, size_t j) @safe return // const because mutation only via `op.*Assign`
         {
             import std.range : assumeSorted;
             return (cast(const(E)[])slice[i .. j]).assumeSorted!comp;
@@ -1188,21 +1183,21 @@ private struct Array(E,
         @trusted:
 
         /// Index operator must be const to preserve ordering.
-        ref const(E) opIndex(size_t i) return scope
+        ref const(E) opIndex(size_t i) return
         {
             assert(i < this.length);
             return ptr[i];
         }
 
         /// Get front element (as constant reference to preserve ordering).
-        ref const(E) front() return scope
+        ref const(E) front() return
         {
             assert(!empty);
             return ptr[0];
         }
 
         /// Get back element (as constant reference to preserve ordering).
-        ref const(E) back() return scope
+        ref const(E) back() return
         {
             assert(!empty);
             return ptr[this.length - 1];
@@ -1222,7 +1217,7 @@ private struct Array(E,
         @nogc:
 
         /// Index assign operator.
-        ref E opIndexAssign(V)(V value, size_t i) @trusted return scope
+        ref E opIndexAssign(V)(V value, size_t i) @trusted return
         {
             assert(!isBorrowed);
             assert(i < this.length);
@@ -1236,7 +1231,7 @@ private struct Array(E,
         /// Slice assign operator.
         static if (isCopyable!E)
         {
-            void opSliceAssign(V)(V value, size_t i, size_t j) @trusted return scope
+            void opSliceAssign(V)(V value, size_t i, size_t j) @trusted return
             {
                 assert(!isBorrowed);
                 assert(i <= j);
@@ -1251,12 +1246,12 @@ private struct Array(E,
         inout:             // indexing and slicing can be mutable when unordered
 
         /// Slice operator.
-        inout(E)[] opSlice() @safe return scope
+        inout(E)[] opSlice() @safe return
         {
             return this.opSlice(0, this.length);
         }
         /// ditto
-        inout(E)[] opSlice(size_t i, size_t j) @trusted return scope
+        inout(E)[] opSlice(size_t i, size_t j) @trusted return
         {
             assert(i <= j);
             assert(j <= this.length);
@@ -1266,21 +1261,21 @@ private struct Array(E,
         @trusted:
 
         /// Index operator.
-        ref inout(E) opIndex(size_t i) return scope
+        ref inout(E) opIndex(size_t i) return
         {
             assert(i < this.length);
             return ptr[i];
         }
 
         /// Get front element reference.
-        ref inout(E) front() return scope
+        ref inout(E) front() return
         {
             assert(!empty);
             return ptr[0];
         }
 
         /// Get back element reference.
-        ref inout(E) back() return scope
+        ref inout(E) back() return
         {
             assert(!empty);
             return ptr[this.length - 1];
@@ -1429,7 +1424,7 @@ private struct Array(E,
     }
 
     /// Get internal slice.
-    private auto slice() inout @trusted return scope
+    private auto slice() inout @trusted return
     {
         return ptr[0 .. this.length];
     }

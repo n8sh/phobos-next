@@ -116,10 +116,10 @@ struct ArrayN(E, uint capacity, Checking checking)
     }
 
     /** Returns: `true` if `key` is contained in `this`. */
-    bool canFind(const E[] key) const @trusted
+    bool canFind(const(E)[] key) const @trusted
     {
         import std.algorithm.searching : canFind;
-        return _store.ptr[0 .. _length].canFind(key);
+        return cast(const(E)*)_store.ptr[0 .. _length].canFind(key);
     }
 
     /** Push/Add elements `es` at back.
@@ -335,6 +335,19 @@ version(unittest)
         assert(x.canFind("al"));
         assert(x.canFind("ph"));
         assert(!x.canFind("ala"));
+    }
+}
+
+/// scope checked string
+@safe pure nothrow @nogc unittest
+{
+    enum capacity = 15;
+    alias String15 = StringN!(capacity, Checking.viaScope);
+    string f()
+    {
+        auto x = String15("alphas");
+        auto y = x[];
+        return y;
     }
 }
 

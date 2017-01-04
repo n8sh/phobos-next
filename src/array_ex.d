@@ -166,7 +166,8 @@ private struct Array(E,
     }
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
-    pragma(inline) static This withLength(size_t initialLength) @trusted nothrow
+    pragma(inline)
+    static This withLength(size_t initialLength) @trusted nothrow
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
@@ -189,7 +190,8 @@ private struct Array(E,
     }
 
     /// Returns: an array with initial capacity `initialCapacity`.
-    pragma(inline) static This withCapacity(size_t initialCapacity) @trusted nothrow
+    pragma(inline)
+    static This withCapacity(size_t initialCapacity) @trusted nothrow
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
@@ -211,7 +213,8 @@ private struct Array(E,
     }
 
     /// Returns: an array of one element `element`.
-    pragma(inline) static This withElement(E element) @trusted nothrow
+    pragma(inline)
+    static This withElement(E element) @trusted nothrow
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
@@ -248,7 +251,8 @@ private struct Array(E,
     }
 
     // /// Returns: an array of `Us.length` number of elements set to `elements`.
-    pragma(inline) static This withElements(Us...)(Us elements) @trusted nothrow
+    pragma(inline)
+    static This withElements(Us...)(Us elements) @trusted nothrow
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
@@ -443,7 +447,8 @@ private struct Array(E,
     }
 
     /// Compare with range `R` with comparable element type.
-    pragma(inline) bool opEquals(R)(R rhs) const
+    pragma(inline, true)
+    bool opEquals(R)(R rhs) const
         // TODO do we need to restrict this?: if (isInputRange!R)
     {
         return opSlice.equal(rhs);
@@ -645,7 +650,8 @@ private struct Array(E,
     alias pack = compress;
 
     /// Reallocate storage. TODO move to Large.reallocateAndSetCapacity
-    pragma(inline) private void reallocateLargeStoreAndSetCapacity(size_t newCapacity) pure nothrow @trusted
+    pragma(inline, true)
+    private void reallocateLargeStoreAndSetCapacity(size_t newCapacity) pure nothrow @trusted
     {
         _store.large.capacity = newCapacity;
         static if (useGCAllocation)
@@ -660,7 +666,8 @@ private struct Array(E,
     }
 
     /// Destruct.
-    pragma(inline) ~this() nothrow @trusted
+    pragma(inline, true)
+    ~this() nothrow @trusted
     {
         assert(!isBorrowed);
         if (isLarge)
@@ -675,7 +682,8 @@ private struct Array(E,
     }
 
     /// Empty.
-    pragma(inline) void clear() nothrow
+    pragma(inline, true)
+    void clear() nothrow
     {
         assert(!isBorrowed);
         release();
@@ -684,7 +692,8 @@ private struct Array(E,
     /// ditto
     alias makeEmpty = clear;
     /// ditto
-    pragma(inline) void opAssign(typeof(null)) { clear(); }
+    pragma(inline, true)
+    void opAssign(typeof(null)) { clear(); }
 
     /// Release internal store.
     private void release() nothrow @trusted
@@ -722,7 +731,8 @@ private struct Array(E,
     }
 
     /// Reset internal data.
-    pragma(inline) private void resetInternalData()
+    pragma(inline, true)
+    private void resetInternalData()
     {
         if (isLarge)
         {
@@ -768,13 +778,15 @@ private struct Array(E,
     alias deleteAt = popAtIndex;
 
     /** Removal doesn't need to care about ordering. */
-    pragma(inline) ContainerElementType!(This, E) linearPopFront() @trusted @("complexity", "O(length)")
+    pragma(inline, true)
+    ContainerElementType!(This, E) linearPopFront() @trusted @("complexity", "O(length)")
     {
         return popAtIndex(0);
     }
 
     /** Removal doesn't need to care about ordering. */
-    pragma(inline) void popBack() @safe @("complexity", "O(1)")
+    pragma(inline, true)
+    void popBack() @safe @("complexity", "O(1)")
     {
         assert(!isBorrowed);
         assert(!empty);
@@ -782,7 +794,8 @@ private struct Array(E,
     }
 
     /** Pop back element and return it. */
-    pragma(inline) E backPop() @trusted
+    pragma(inline, true)
+    E backPop() @trusted
     {
         assert(!isBorrowed);
         assert(!empty);
@@ -791,7 +804,8 @@ private struct Array(E,
     }
 
     /** Pop last `count` back elements. */
-    pragma(inline) void popBackN(size_t count) @safe @("complexity", "O(1)")
+    pragma(inline, true)
+    void popBackN(size_t count) @safe @("complexity", "O(1)")
     {
         assert(!isBorrowed);
         shrinkTo(this.length - count);
@@ -905,10 +919,12 @@ private struct Array(E,
         alias append = pushBack;
         alias put = pushBack;
 
+        pragma(inline, true):
+
         // NOTE these separate overloads of opOpAssign are needed because one
         // `const ref`-parameter-overload doesn't work because of compiler bug
         // with: `this(this) @disable`
-        pragma(inline) void opOpAssign(string op, Us...)(Us values)
+        void opOpAssign(string op, Us...)(Us values)
             if (op == "~" &&
                 values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
@@ -916,7 +932,7 @@ private struct Array(E,
             assert(!isBorrowed);
             pushBack(move(values)); // TODO remove `move` when compiler does it for us
         }
-	pragma(inline) void opOpAssign(string op, R)(R values)
+        void opOpAssign(string op, R)(R values)
             if (op == "~" &&
                 isInputRange!R &&
                 allSatisfy!(isElementAssignable, ElementType!R))
@@ -924,7 +940,7 @@ private struct Array(E,
             assert(!isBorrowed);
             pushBack(move(values)); // TODO remove `move` when compiler does it for us
         }
-	pragma(inline) void opOpAssign(string op, A)(const ref A values)
+        void opOpAssign(string op, A)(const ref A values)
             if (op == "~" &&
                 isArrayContainer!A &&
                 isElementAssignable!(ElementType!A))
@@ -941,19 +957,19 @@ private struct Array(E,
         import std.range : SearchPolicy, assumeSorted;
 
         /// Returns: `true` iff this contains `value`.
-        pragma(inline) bool contains(U)(U value) const nothrow @nogc @("complexity", "O(log(length))")
+        pragma(inline, true) bool contains(U)(U value) const nothrow @nogc @("complexity", "O(log(length))")
         {
             return this[].contains(value); // reuse `SortedRange.contains`
         }
 
         /** Wrapper for `std.range.SortedRange.lowerBound` when this `ordering` is sorted. */
-        pragma(inline) auto lowerBound(SearchPolicy sp = SearchPolicy.binarySearch, U)(U e) inout @("complexity", "O(log(length))")
+        pragma(inline, true) auto lowerBound(SearchPolicy sp = SearchPolicy.binarySearch, U)(U e) inout @("complexity", "O(log(length))")
         {
             return this[].lowerBound!sp(e); // reuse `SortedRange.lowerBound`
         }
 
         /** Wrapper for `std.range.SortedRange.upperBound` when this `ordering` is sorted. */
-        pragma(inline) auto upperBound(SearchPolicy sp = SearchPolicy.binarySearch, U)(U e) inout @("complexity", "O(log(length))")
+        pragma(inline, true) auto upperBound(SearchPolicy sp = SearchPolicy.binarySearch, U)(U e) inout @("complexity", "O(log(length))")
         {
             return this[].upperBound!sp(e); // reuse `SortedRange.upperBound`
         }
@@ -1094,7 +1110,7 @@ private struct Array(E,
     else
     {
         /** Insert element(s) `values` at array offset `index`. */
-        pragma(inline) void insertAtIndex(Us...)(size_t index, Us values) nothrow @("complexity", "O(length)")
+        pragma(inline, true) void insertAtIndex(Us...)(size_t index, Us values) nothrow @("complexity", "O(length)")
             if (values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
         {
@@ -1103,7 +1119,7 @@ private struct Array(E,
         }
 
         /** Insert element(s) `values` at the beginning. */
-        pragma(inline) void pushFront(Us...)(Us values) nothrow @("complexity", "O(length)")
+        pragma(inline, true) void pushFront(Us...)(Us values) nothrow @("complexity", "O(length)")
             if (values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
         {
@@ -1475,7 +1491,7 @@ private:                        // data
         size_t capacity;        // store capacity
         size_t length;          // length, TODO assert little-endian byte first
 
-        pragma(inline):
+        pragma(inline, true):
 
         this(size_t initialCapacity, size_t initialLength, bool zero)
         {

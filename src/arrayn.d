@@ -335,6 +335,21 @@ version(unittest)
         assert(x.canFind("al"));
         assert(x.canFind("ph"));
         assert(!x.canFind("ala"));
+
+        const y = String15("åäö_åäöå"); // fits in 15 chars
+    }
+}
+
+/// scope checked string
+version(none) pure unittest     // TODO activate
+{
+    enum capacity = 15;
+    foreach (StrN; AliasSeq!(StringN, WStringN, DStringN))
+    {
+        alias String15 = StrN!(capacity, Checking.viaScope);
+        import std.exception : assertThrown;
+        import core.exception : AssertError;
+        assertThrown!AssertError(String15("åäö_åäöå_"));
     }
 }
 

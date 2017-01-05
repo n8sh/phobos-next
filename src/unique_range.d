@@ -64,6 +64,22 @@ struct UniqueRange(Source)
         _backIx = _backIx - 1;
     }
 
+    /// Pop front element and return it.
+    E frontPop()
+    {
+        assert(!empty);
+        import std.algorithm.mutation : move;
+        return move(_source[_frontIx++]);
+    }
+
+    /// Pop back element and return it.
+    E backPop()
+    {
+        assert(!empty);
+        import std.algorithm.mutation : move;
+        return move(_source[--_backIx]);
+    }
+
     /// Returns: shallow duplicate of `this`.
     version(none)               // TODO make compile
     {

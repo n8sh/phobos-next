@@ -83,14 +83,14 @@ alias takeFront = frontPop;
 @safe pure nothrow unittest
 {
     auto x = [11, 22];
-    assert(x.stealFront == 11); assert(x == [22]);
-    assert(x.stealFront == 22); assert(x == []);
+    assert(x.frontPop() == 11); assert(x == [22]);
+    assert(x.frontPop() == 22); assert(x == []);
 }
 
 @safe pure nothrow unittest
 {
     auto x = ["a", "b"];
-    assert(x.stealFront == "a"); assert(x == ["b"]);
+    assert(x.frontPop() == "a"); assert(x == ["b"]);
 }
 
 @safe pure nothrow unittest
@@ -98,8 +98,8 @@ alias takeFront = frontPop;
     struct V { int x, y; }
     auto x = [V(11, 12),
               V(21, 22)];
-    assert(x.stealFront == V(11, 12)); assert(x == [V(21, 22)]);
-    assert(x.stealFront == V(21, 22)); assert(x == []);
+    assert(x.frontPop() == V(11, 12)); assert(x == [V(21, 22)]);
+    assert(x.frontPop() == V(21, 22)); assert(x == []);
 }
 
 /** Steal back from $(D r) destructively and return it.

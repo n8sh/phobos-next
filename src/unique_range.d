@@ -71,6 +71,7 @@ struct UniqueRange(Source)
         import std.algorithm.mutation : move;
         return move(_source[_frontIx++]);
     }
+    alias stealFront = frontPop;
 
     /// Pop back element and return it.
     E backPop()
@@ -79,6 +80,7 @@ struct UniqueRange(Source)
         import std.algorithm.mutation : move;
         return move(_source[--_backIx]);
     }
+    alias stealBack = backPop;
 
     /// Returns: shallow duplicate of `this`.
     version(none)               // TODO make compile

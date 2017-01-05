@@ -54,7 +54,7 @@ enum hasStealableElements(R) = (hasPureCopy!(ElementType!R)); // TODO recurse
    See also: http://forum.dlang.org/thread/jkbhlezbcrufowxtthmy@forum.dlang.org#post-konhvblwbmpdrbeqhyuv:40forum.dlang.org
    See also: http://forum.dlang.org/thread/onibkzepudfisxtrigsi@forum.dlang.org#post-dafmzroxvaeejyxrkbon:40forum.dlang.org
 */
-auto stealFront(R)(ref R r)
+ElementType!R frontPop(R)(ref R r)
     if (isInputRange!R &&
         hasStealableElements!R)
 {
@@ -63,10 +63,21 @@ auto stealFront(R)(ref R r)
     /* return r.moveFront(); */
     auto e = r.moveFront();
     r.popFront();
-    return e;
+
+    import std.traits : hasIndirections;
+    static if (hasIndirections!(typeof(return))) // TODO better trait?
+    {
+        import std.algorithm.mutation : move;
+        return move(e);
+    }
+    else
+    {
+        return e;
+    }
 }
-alias pullFront = stealFront;
-alias takeFront = stealFront;
+alias stealFront = frontPop;
+alias pullFront = frontPop;
+alias takeFront = frontPop;
 
 @safe pure nothrow unittest
 {

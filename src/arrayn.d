@@ -365,9 +365,10 @@ version(none) pure unittest     // TODO activate
     string f()
     {
         auto x = String15("alphas");
-        auto y = x[];
+        auto y = x[];           // slice to stack allocated string
         return y;               // errors with -dip1000
     }
+    f();
 }
 
 ///

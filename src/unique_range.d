@@ -93,11 +93,11 @@ struct UniqueRange(Source)
             // import std.traits : Unqual;
             // TODO reinterpret as typeof(*(cast(Unqual!E*)(&_source[_backIx]))) iff `E` doesn't contain any immutable indirections
             import std.algorithm.mutation : move;
-            return move(_source[_backIx++]);
+            return move(_source[--_backIx]);
         }
         else
         {
-            return _source[_backIx++]; // no move needed
+            return _source[--_backIx]; // no move needed
         }
     }
     alias stealBack = backPop;

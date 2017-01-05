@@ -366,7 +366,7 @@ version(none) pure unittest     // TODO activate
     {
         auto x = String15("alphas");
         auto y = x[];
-        return y;
+        return y;               // errors with -dip1000
     }
 }
 

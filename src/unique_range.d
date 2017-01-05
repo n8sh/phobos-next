@@ -69,7 +69,7 @@ struct UniqueRange(Source)
     {
         assert(!empty);
         import std.traits : hasIndirections;
-        static if (hasIndirections!E)
+        static if (hasIndirections!E) // TODO better trait?
         {
             // import std.traits : Unqual;
             // TODO reinterpret as typeof(*(cast(Unqual!E*)(&_source[_frontIx]))) iff `E` doesn't contain any immutable indirections
@@ -88,7 +88,7 @@ struct UniqueRange(Source)
     {
         assert(!empty);
         import std.traits : hasIndirections;
-        static if (hasIndirections!E)
+        static if (hasIndirections!E) // TODO better trait?
         {
             // import std.traits : Unqual;
             // TODO reinterpret as typeof(*(cast(Unqual!E*)(&_source[_backIx]))) iff `E` doesn't contain any immutable indirections

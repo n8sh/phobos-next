@@ -14,7 +14,7 @@ import std.range.primitives : hasLength;
     member `.dup`.
  */
 struct UniqueRange(Source)
-    if (hasLength!Source)       // TODO use traits `isArrayContainer`
+    if (hasLength!Source)       // TODO use traits `isArrayContainer` checking fo
 {
     import std.range : ElementType;
     alias Slice = typeof(Source.init[]);
@@ -37,14 +37,14 @@ struct UniqueRange(Source)
     @property bool empty() const { return _frontIx == _backIx; }
 
     /// Front element.
-    @property inout(E) front() inout
+    @property ref inout(E) front() inout return // TODO scope
     {
         assert(!empty);
         return _source[_frontIx];
     }
 
     /// Back element.
-    @property inout(E) back() inout
+    @property ref inout(E) back() inout return // TODO scope
     {
         assert(!empty);
         return _source[_backIx - 1];
@@ -374,24 +374,43 @@ private struct FilterUniqueResult(alias pred, Range)
     }
 }
 
-// TODO move these hidden behind template
+// TODO move these hidden behind template defs of takeUnique
 import std.range : Take;
 import std.typecons : Unqual;
 import std.range.primitives : isInputRange, isInfinite, hasSlicing;
 
-/// ditto
+/// Unique take.
 Take!R takeUnique(R)(R input, size_t n)
-if (is(R T == Take!T))
+    if (is(R T == Take!T))
 {
     import std.algorithm.mutation : move;
     import std.algorithm.comparison : min;
-    return R(move(input.source), min(n, input._maxAvailable));
+    return R(move(input.source), // TODO remove `move` when compiler does it for us
+             min(n, input._maxAvailable));
 }
 
 /// ditto
 Take!(R) takeUnique(R)(R input, size_t n)
-if (isInputRange!(Unqual!R) && (isInfinite!(Unqual!R) || !hasSlicing!(Unqual!R) && !is(R T == Take!T)))
+    if (isInputRange!(Unqual!R) &&
+        (isInfinite!(Unqual!R) ||
+         !hasSlicing!(Unqual!R) &&
+         !is(R T == Take!T)))
 {
     import std.algorithm.mutation : move;
-    return Take!R(move(input), n);
+    return Take!R(move(input), n); // TODO remove `move` when compiler does it for us
+}
+
+import std.functional : binaryFun;
+
+InputRange findUnique(alias pred = "a == b", InputRange, Element)(InputRange haystack, scope Element needle)
+    if (isInputRange!InputRange &&
+        is (typeof(binaryFun!pred(haystack.front, needle)) : bool))
+{
+    for (; !haystack.empty; haystack.popFront())
+    {
+        if (binaryFun!pred(haystack.front, needle))
+            break;
+    }
+    import std.algorithm.mutation : move;
+    return move(haystack);
 }

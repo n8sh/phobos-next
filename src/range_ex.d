@@ -62,6 +62,7 @@ ElementType!R frontPop(R)(ref R r)
     /* scope(success) r.popFront(); */
     /* return r.moveFront(); */
     auto e = r.moveFront();
+
     r.popFront();
 
     import std.traits : hasIndirections;
@@ -105,19 +106,31 @@ alias takeFront = frontPop;
     See also: http://forum.dlang.org/thread/jkbhlezbcrufowxtthmy@forum.dlang.org#post-konhvblwbmpdrbeqhyuv:40forum.dlang.org
     See also: http://forum.dlang.org/thread/onibkzepudfisxtrigsi@forum.dlang.org#post-dafmzroxvaeejyxrkbon:40forum.dlang.org
 */
-auto stealBack(R)(ref R r)
-    if (isBidirectionalRange!R &&
+ElementType!R backPop(R)(ref R r)
+    if (isInputRange!R &&
         hasStealableElements!R)
 {
     import std.range: moveBack, popBack;
     /* scope(success) r.popBack(); */
-    /* return r.moveBack; */
-    auto e = r.moveBack;
+    /* return r.moveBack(); */
+    auto e = r.moveBack();
+
     r.popBack();
-    return e;
+
+    import std.traits : hasIndirections;
+    static if (hasIndirections!(typeof(return))) // TODO better trait?
+    {
+        import std.algorithm.mutation : move;
+        return move(e);
+    }
+    else
+    {
+        return e;
+    }
 }
-alias pullBack = stealBack;
-alias takeBack = stealBack;
+alias stealBack = backPop;
+alias pullBack = backPop;
+alias takeBack = backPop;
 
 @safe pure nothrow unittest
 {

@@ -68,8 +68,18 @@ struct UniqueRange(Source)
     E frontPop()
     {
         assert(!empty);
-        import std.algorithm.mutation : move;
-        return move(_source[_frontIx++]);
+        import std.traits : hasIndirections;
+        static if (hasIndirections!E)
+        {
+            // import std.traits : Unqual;
+            // TODO reinterpret as typeof(*(cast(Unqual!E*)(&_source[_frontIx]))) iff `E` doesn't contain any immutable indirections
+            import std.algorithm.mutation : move;
+            return move(_source[_frontIx++]);
+        }
+        else
+        {
+            return _source[_frontIx++]; // no move needed
+        }
     }
     alias stealFront = frontPop;
 
@@ -77,8 +87,18 @@ struct UniqueRange(Source)
     E backPop()
     {
         assert(!empty);
-        import std.algorithm.mutation : move;
-        return move(_source[--_backIx]);
+        import std.traits : hasIndirections;
+        static if (hasIndirections!E)
+        {
+            // import std.traits : Unqual;
+            // TODO reinterpret as typeof(*(cast(Unqual!E*)(&_source[_backIx]))) iff `E` doesn't contain any immutable indirections
+            import std.algorithm.mutation : move;
+            return move(_source[_backIx++]);
+        }
+        else
+        {
+            return _source[_backIx++]; // no move needed
+        }
     }
     alias stealBack = backPop;
 

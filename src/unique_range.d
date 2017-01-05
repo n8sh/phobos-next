@@ -51,14 +51,14 @@ struct UniqueRange(Source)
     }
 
     /// Pop front element.
-    @property void popFront()
+    void popFront()
     {
         assert(!empty);
         _frontIx = _frontIx + 1;
     }
 
     /// Pop back element.
-    @property void popBack()
+    void popBack()
     {
         assert(!empty);
         _backIx = _backIx - 1;

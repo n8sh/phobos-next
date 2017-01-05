@@ -135,14 +135,14 @@ alias takeBack = backPop;
 @safe pure nothrow unittest
 {
     auto x = [11, 22];
-    assert(x.stealBack == 22); assert(x == [11]);
-    assert(x.stealBack == 11); assert(x == []);
+    assert(x.backPop() == 22); assert(x == [11]);
+    assert(x.backPop() == 11); assert(x == []);
 }
 
 @safe pure nothrow unittest
 {
     auto x = ["a", "b"];
-    assert(x.stealBack == "b"); assert(x == ["a"]);
+    assert(x.backPop() == "b"); assert(x == ["a"]);
 }
 
 @safe pure nothrow unittest
@@ -150,8 +150,8 @@ alias takeBack = backPop;
     struct V { int x, y; }
     auto x = [V(11, 12),
               V(21, 22)];
-    assert(x.stealBack == V(21, 22)); assert(x == [V(11, 12)]);
-    assert(x.stealBack == V(11, 12)); assert(x == []);
+    assert(x.backPop() == V(21, 22)); assert(x == [V(11, 12)]);
+    assert(x.backPop() == V(11, 12)); assert(x == []);
 }
 
 /** Sliding Splitter.

@@ -22,7 +22,7 @@ struct UniqueRange(Source)
 
     @disable this(this);        // not intended to be copied
 
-    pragma(inline) @safe pure nothrow @nogc:
+    pragma(inline, true) @safe pure nothrow @nogc:
 
     /// Construct from `source`.
     this(Source source)

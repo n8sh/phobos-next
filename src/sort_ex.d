@@ -15,7 +15,6 @@ import std.range: ElementType, isRandomAccessRange, isInputRange;
 /* } */
 
 /** Sort random access range $(D R) of aggregates on value of calls to $(D xtor).
-
     See also: http://forum.dlang.org/thread/nqwzojnlidlsmpunpqqy@forum.dlang.org#post-dmfvkbfhzigecnwglrur:40forum.dlang.org
  */
 void sortBy(alias xtor, R)(R r)
@@ -29,7 +28,6 @@ void sortBy(alias xtor, R)(R r)
 }
 
 /** Reverse sort random access range $(D R) of aggregates on value of calls to $(D xtor).
-
     See also: http://forum.dlang.org/thread/nqwzojnlidlsmpunpqqy@forum.dlang.org#post-dmfvkbfhzigecnwglrur:40forum.dlang.org
 */
 void rsortBy(alias xtor, R)(R r)

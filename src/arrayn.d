@@ -521,3 +521,10 @@ pure unittest
 
     assertThrown!AssertError((cast(const)x)[]);
 }
+
+///
+@safe pure nothrow @nogc unittest
+{
+    enum capacity = 4;
+    // TODO alias A = ArrayN!(int, capacity, Checking.viaBorrowing);
+}

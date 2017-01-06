@@ -40,11 +40,13 @@ void rsortBy(alias xtor, R)(R r) if (isRandomAccessRange!R &&
 
 /* private alias makePredicate(alias xtor) = (a, b) => (xtorFun!xtor(a) < xtorFun!xtor(b)); */
 
+/// Extractor function used by `sortBy` and `rsortBy`.
 private template xtorFun(alias xtor)
 {
     import std.traits: isIntegral;
     static if (is(typeof(xtor) : string))
     {
+        pragma(inline, true)    // must be inlined
         auto ref xtorFun(T)(auto ref T a)
         {
             mixin("with (a) { return " ~ xtor ~ "; }");
@@ -52,6 +54,7 @@ private template xtorFun(alias xtor)
     }
     else static if (isIntegral!(typeof(xtor)))
     {
+        pragma(inline, true)    // must be inlined
         auto ref xtorFun(T)(auto ref T a)
         {
             import std.conv: to;

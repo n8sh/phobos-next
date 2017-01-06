@@ -800,8 +800,17 @@ private struct Array(E,
         assert(!isBorrowed);
         assert(!empty);
         decOnlyLength();
-        return move(_mptr[this.length]); // TODO remove `move` when compiler does it for us, or optimize by not clearing `_store.large.ptr[--this.length]` after move
+        import std.traits : hasIndirections;
+        static if (hasIndirections!E) // TODO better trait?
+        {
+            return move(_mptr[this.length]); // TODO remove `move` when compiler does it for us, or optimize by not clearing `_store.large.ptr[--this.length]` after move
+        }
+        else
+        {
+            return _mptr[this.length];
+        }
     }
+    alias stealBack = backPop;
 
     /** Pop last `count` back elements. */
     pragma(inline, true)

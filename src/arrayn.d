@@ -16,7 +16,7 @@ enum Checking
 struct ArrayN(E, uint capacity, Checking checking)
 {
     import std.bitmanip : bitfields;
-    import std.traits : isSomeChar, hasElaborateDestructor;
+    import std.traits : isSomeChar, hasElaborateDestructor, isAssignable;
     import qcmeman : gc_addRange, gc_removeRange;
 
     E[capacity] _store = void;  /// stored elements
@@ -63,6 +63,9 @@ struct ArrayN(E, uint capacity, Checking checking)
 
     alias ElementType = E;
 
+    /// Is `true` if `U` can be assign to the element type `E` of `this`.
+    enum isElementAssignable(U) = isAssignable!(E, U);
+
     template shouldAddGCRange(T)
     {
         import std.traits : hasIndirections;
@@ -72,20 +75,24 @@ struct ArrayN(E, uint capacity, Checking checking)
     @safe pure nothrow @nogc:
 
     /** Construct with elements `es`. */
-    pragma(inline) this(Es...)(Es es) @trusted
-        if (Es.length >= 1 &&
-            Es.length <= capacity)
+    version(none)               // TODO needed?
     {
-        static if (shouldAddGCRange!E)
+        pragma(inline) this(Es...)(Es es) @trusted
+        if (Es.length >= 1 &&
+            Es.length <= capacity && // TODO check conversions `dchar` etc
+            allSatisfy!(isElementAssignable, Es))
         {
-            gc_addRange(_store.ptr, capacity * E.sizeof);
+            static if (shouldAddGCRange!E)
+            {
+                gc_addRange(_store.ptr, capacity * E.sizeof);
+            }
+            foreach (const i, ref e; es)
+            {
+                import std.algorithm.mutation : moveEmplace;
+                moveEmplace(e, _store[i]);
+            }
+            _length = es.length;
         }
-        foreach (const i, ref e; es)
-        {
-            import std.algorithm.mutation : moveEmplace;
-            moveEmplace(e, _store[i]);
-        }
-        _length = es.length;
     }
 
     /** Construct with elements in `es`. */
@@ -382,7 +389,7 @@ pure unittest                   // TODO @safe
     alias A = ArrayN!(E, capacity, Checking.viaBorrowing);
     static assert(A.sizeof == E.sizeof*capacity + 1);
 
-    auto ab = A('a', 'b');
+    auto ab = A("ab");
     assert(!ab.empty);
     assert(ab[0] == 'a');
     assert(ab.front == 'a');
@@ -396,7 +403,7 @@ pure unittest                   // TODO @safe
     assert(ab[] == "ab");
     assert(ab.toString == "ab");
 
-    const abc = A('a', 'b', 'c');
+    const abc = A("abc");
     assert(!abc.empty);
     assert(abc.front == 'a');
     assert(abc.back == 'c');
@@ -419,7 +426,7 @@ pure unittest                   // TODO @safe
     assert(xy[] == "xy");
     assert(xy[0 .. 1] == "x");
 
-    const xyz = A('x', 'y', 'z');
+    const xyz = A("xyz");
     assert(!xyz.empty);
     assert(xyz.front == 'x');
     assert(xyz.back == 'z');

@@ -275,6 +275,11 @@ enum isOutputRangeOf(R, E) = isOutputRange!R && is(ElementType!R == E);
 enum isArrayOf(R, E) = isArray!R && is(ElementType!R == E);
 enum isArrayOfSomeString(R) = isArray!R && isSomeString!(ElementType!R);
 
+/// TODO Move to Phobos?
+enum isSomeCharString(T) = (is(T == string) ||
+                            is(T == const(char)[]) ||
+                            is(T == char[]));
+
 unittest
 {
     alias R = typeof(["a", "b"]);

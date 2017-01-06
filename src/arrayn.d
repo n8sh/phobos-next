@@ -526,5 +526,5 @@ pure unittest
 @safe pure nothrow @nogc unittest
 {
     enum capacity = 4;
-    // TODO alias A = ArrayN!(int, capacity, Checking.viaBorrowing);
+    // TODO alias A = ArrayN!(int*, capacity, Checking.viaBorrowing);
 }

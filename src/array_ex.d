@@ -27,6 +27,9 @@
 
     TODO replace qcmeman with std.experimental.allocator parameter defaulting to
     `Mallocator`
+
+    TODO use intsort.radixSort when element type isSigned or isUnsigned and
+    above or below a certain threshold calculated by my benchmarks
  */
 module array_ex;
 

@@ -753,7 +753,7 @@ private struct Array(E,
     {
         assert(!isBorrowed);
         assert(index < this.length);
-        auto value = move(_mptr[index]); // TODO remove `move` when compiler does it for us
+        auto value = move(_mptr[index]);
 
         // TODO use this instead:
         // immutable si = index + 1;   // source index
@@ -772,7 +772,7 @@ private struct Array(E,
         }
 
         decOnlyLength();
-        return value;
+        return move(value); // TODO remove `move` when compiler does it for us
     }
     alias removeAt = popAtIndex;
     alias deleteAt = popAtIndex;
@@ -803,7 +803,7 @@ private struct Array(E,
         import std.traits : hasIndirections;
         static if (hasIndirections!E) // TODO better trait?
         {
-            return move(_mptr[this.length]); // TODO remove `move` when compiler does it for us, or optimize by not clearing `_store.large.ptr[--this.length]` after move
+            return move(_mptr[this.length]);
         }
         else
         {

@@ -749,6 +749,7 @@ private struct Array(E,
         }
     }
 
+    /// Is `true` if `U` can be assign to the element type `E` of `this`.
     enum isElementAssignable(U) = isAssignable!(E, U);
 
     /** Removal doesn't need to care about ordering. */

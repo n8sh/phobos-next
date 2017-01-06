@@ -89,7 +89,7 @@ struct ArrayN(E, uint capacity, Checking checking)
     }
 
     /** Construct with elements in `es`. */
-    pragma(inline) this(const E[] es) @trusted
+    this(const(E)[] es) @trusted
     {
         assert(es.length <= capacity);
         static if (shouldAddGCRange!E)
@@ -101,7 +101,7 @@ struct ArrayN(E, uint capacity, Checking checking)
     }
 
     /** Destruct. */
-    pragma(inline) ~this() nothrow @trusted
+    ~this() nothrow @trusted
     {
         static if (borrowChecked) assert(!isBorrowed);
         static if (hasElaborateDestructor!E)

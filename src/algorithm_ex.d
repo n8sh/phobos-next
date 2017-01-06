@@ -35,7 +35,8 @@ alias tail = dropOne;
     currently be called `either` instead of `either`
  */
 ref Ts[0] eitherRef(Ts...)(ref Ts a)
-    if (a.length >= 1 && allSameType!Ts)
+    if (a.length >= 1 &&
+        allSameType!Ts)         // TODO better trait for this?
 {
     static if (Ts.length == 1)
     {

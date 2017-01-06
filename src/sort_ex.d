@@ -14,11 +14,13 @@ import std.range: ElementType, isRandomAccessRange, isInputRange;
 /*     return r.sort!preds; */
 /* } */
 
-/** Sort Random Access Range $(D R) of Aggregates on Value of Calls to $(D xtor).
+/** Sort random access range $(D R) of aggregates on value of calls to $(D xtor).
+
     See also: http://forum.dlang.org/thread/nqwzojnlidlsmpunpqqy@forum.dlang.org#post-dmfvkbfhzigecnwglrur:40forum.dlang.org
  */
-void sortBy(alias xtor, R)(R r) if (isRandomAccessRange!R &&
-                                    isAggregateType!(ElementType!R))
+void sortBy(alias xtor, R)(R r)
+    if (isRandomAccessRange!R &&
+        isAggregateType!(ElementType!R))
 {
     import std.algorithm : sort;
     import std.functional: unaryFun;
@@ -26,11 +28,13 @@ void sortBy(alias xtor, R)(R r) if (isRandomAccessRange!R &&
                        xtorFun!xtor(b)));
 }
 
-/** Reverse Sort Random Access Range $(D R) of Aggregates on Value of Calls to $(D xtor).
+/** Reverse sort random access range $(D R) of aggregates on value of calls to $(D xtor).
+
     See also: http://forum.dlang.org/thread/nqwzojnlidlsmpunpqqy@forum.dlang.org#post-dmfvkbfhzigecnwglrur:40forum.dlang.org
 */
-void rsortBy(alias xtor, R)(R r) if (isRandomAccessRange!R &&
-                                     isAggregateType!(ElementType!R))
+void rsortBy(alias xtor, R)(R r)
+    if (isRandomAccessRange!R &&
+        isAggregateType!(ElementType!R))
 {
     import std.algorithm : sort;
     import std.functional: unaryFun;

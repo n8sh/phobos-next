@@ -80,7 +80,7 @@ struct ArrayN(E, uint capacity, Checking checking)
         {
             gc_addRange(_store.ptr, capacity * E.sizeof);
         }
-        foreach (const i, const e; es)
+        foreach (const i, ref e; es)
         {
             import std.algorithm.mutation : moveEmplace;
             moveEmplace(e, _store[i]);

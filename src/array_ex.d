@@ -803,11 +803,11 @@ private struct Array(E,
         import std.traits : hasIndirections;
         static if (hasIndirections!E) // TODO better trait?
         {
-            return move(_mptr[this.length]);
+            return move(_mptr[this.length]); // move is indeed need here
         }
         else
         {
-            return _mptr[this.length];
+            return _mptr[this.length]; // no move needed
         }
     }
     alias stealBack = backPop;

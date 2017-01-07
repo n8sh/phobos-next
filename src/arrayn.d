@@ -483,7 +483,7 @@ pure unittest                   // TODO @safe
     assert(!x.canFind("ala"));
 }
 
-/// assignment from `const` to `immutable` element type `E`
+/// assignment from `const` to `immutable` element type
 @safe pure nothrow @nogc unittest
 {
     enum capacity = 15;

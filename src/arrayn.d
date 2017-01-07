@@ -481,9 +481,15 @@ pure unittest                   // TODO @safe
     assert(x.canFind("al"));
     assert(x.canFind("ph"));
     assert(!x.canFind("ala"));
+}
 
+/// assignment from const to immutable element type
+@safe pure nothrow @nogc unittest
+{
+    enum capacity = 15;
+    alias String15 = StringN!(capacity, Checking.viaBorrowing);
     const char[4] _;
-    auto y = String15(_[]);
+    auto x = String15(_[]);
 }
 
 ///

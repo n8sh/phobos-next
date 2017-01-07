@@ -488,8 +488,10 @@ pure unittest                   // TODO @safe
 {
     enum capacity = 15;
     alias String15 = StringN!(capacity, Checking.viaBorrowing);
-    const char[4] _;
+    const char[4] _ = ['a', 'b', 'c', 'd'];
     auto x = String15(_[]);
+    assert(x.length == 4);
+    assert(x[] == "abcd");
 }
 
 ///

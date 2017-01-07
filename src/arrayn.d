@@ -16,6 +16,7 @@ enum Checking
 struct ArrayN(E, uint capacity, Checking checking)
 {
     import std.bitmanip : bitfields;
+    import std.typecons : Unqual;
     import std.traits : isSomeChar, hasElaborateDestructor, isAssignable;
     import qcmeman : gc_addRange, gc_removeRange;
 
@@ -62,6 +63,7 @@ struct ArrayN(E, uint capacity, Checking checking)
     }
 
     alias ElementType = E;
+    alias ME = Unqual!E;
 
     /// Is `true` if `U` can be assign to the element type `E` of `this`.
     enum isElementAssignable(U) = isAssignable!(E, U);
@@ -96,7 +98,7 @@ struct ArrayN(E, uint capacity, Checking checking)
     }
 
     /** Construct with elements in `es`. */
-    this(const(E)[] es) @trusted
+    this(const(ME)[] es) @trusted
     {
         assert(es.length <= capacity);
         static if (shouldAddGCRange!E)
@@ -479,6 +481,9 @@ pure unittest                   // TODO @safe
     assert(x.canFind("al"));
     assert(x.canFind("ph"));
     assert(!x.canFind("ala"));
+
+    const char[4] _;
+    auto y = String15(_[]);
 }
 
 ///

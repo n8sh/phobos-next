@@ -151,6 +151,7 @@ struct ArrayN(E, uint capacity, Checking checking)
     }
     /// ditto
     alias append = pushBack;
+    alias put = pushBack;       // OutputRange support
 
     import std.traits : isMutable;
     static if (isMutable!E)
@@ -373,6 +374,7 @@ version(none) pure unittest     // TODO activate
 {
     enum capacity = 15;
     alias String15 = StringN!(capacity, Checking.viaScope);
+
     string f()
     {
         auto x = String15("alphas");
@@ -390,6 +392,9 @@ pure unittest                   // TODO @safe
 
     alias A = ArrayN!(E, capacity, Checking.viaBorrowing);
     static assert(A.sizeof == E.sizeof*capacity + 1);
+
+    import std.range : isOutputRange;
+    static assert(isOutputRange!(A, E));
 
     auto ab = A("ab");
     assert(!ab.empty);

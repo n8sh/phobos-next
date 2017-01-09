@@ -124,7 +124,7 @@ private struct Array(E,
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
     import core.stdc.string : memset;
-    import std.algorithm.mutation : move, moveEmplace;
+    import std.algorithm.mutation : move, moveEmplace, moveEmplaceAll;
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
 
     /// Mutable element type.
@@ -176,8 +176,7 @@ private struct Array(E,
         else typeof(return) that = void;
 
         // TODO functionize:
-        that._isLarge = initialLength > smallCapacity;
-        if (that.isLarge)
+        if (initialLength > smallCapacity)
         {
             emplace!Large(&that._large, initialLength, initialLength, true); // no elements so we need to zero
         }
@@ -199,8 +198,7 @@ private struct Array(E,
         debug typeof(return) that;
         else typeof(return) that = void;
 
-        that._isLarge = initialCapacity > smallCapacity;
-        if (that.isLarge)
+        if (initialCapacity > smallCapacity)
         {
             emplace!Large(&that._large, initialCapacity, 0, false);
         }
@@ -224,14 +222,13 @@ private struct Array(E,
 
         // TODO functionize:
         enum initialLength = 1;
-        that._isLarge = initialLength > smallCapacity;
-        if (that.isLarge)
+        if (initialLength > smallCapacity)
         {
             emplace!Large(&that._large, initialLength, initialLength, false);
         }
         else
         {
-            that._small.length = cast(ubyte)initialLength;
+            emplace!Small(&that._small, initialLength, false);
         }
 
         // move element
@@ -262,14 +259,13 @@ private struct Array(E,
 
         // TODO functionize:
         enum initialLength = Us.length;
-        that._isLarge = initialLength > smallCapacity;
-        if (that.isLarge)
+        if (initialLength > smallCapacity)
         {
             emplace!Large(&that._large, initialLength, initialLength, false);
         }
         else
         {
-            that._small.length = cast(ubyte)initialLength;
+            emplace!Small(&that._small, initialLength, false);
         }
 
         // move elements
@@ -330,7 +326,7 @@ private struct Array(E,
                 {
                     {            // make it small
                         clear();    // clear large storage
-                        _isLarge = false;
+                        _large.isLarge = false; // TODO needed?
                     }
                     _small = rhs._small; // small
                 }
@@ -341,7 +337,7 @@ private struct Array(E,
                 {
                     {            // make it large
                         clear(); // clear small storage
-                        _isLarge = true;
+                        _large.isLarge = true; // TODO needed?
                     }
                     // TODO functionize to Large.opAssign(Large rhs):
                     if (_large.ptr != rhs._large.ptr) // if not self assignment
@@ -390,27 +386,22 @@ private struct Array(E,
         /// Returns: shallow duplicate of `this`.
         @property MutableThis dup() const @trusted // `MutableThis` mimics behaviour of `dup` for builtin D arrays
         {
-            debug typeof(return) copy;
-            else typeof(return) copy = void;
-            copy._isLarge = isLarge;
+            debug typeof(return) that;
+            else typeof(return) that = void;
             if (isLarge)
             {
-                // TODO: emplace!Large(&copy._large, _large.length, _large.length, false);
-                copy._large.capacity = _large.length;
-                copy._large.length = _large.length;
-                copy._large.ptr = allocate(_large.length, false);
+                emplace!Large(&that._large, _large.length, _large.length, false);
                 foreach (immutable i; 0 .. _large.length)
                 {
-                    copy._large.ptr[i] = _large.ptr[i];
+                    that._large.ptr[i] = _large.ptr[i];
                 }
             }
             else
             {
-                // TODO move to Small ctor and use emplace
-                copy._small.length = _small.length;
-                copy._small.elms[0 .. _small.length] = _small.elms[0 .. _small.length];
+                emplace!Small(&that._small, _small.length, false);
+                that._small.elms[0 .. _small.length] = _small.elms[0 .. _small.length]; // copy elements
             }
-            return copy;
+            return that;
         }
     }
 
@@ -483,7 +474,7 @@ private struct Array(E,
         static if (hasLength!R)
         {
             // TODO choose large or small depending on values.length
-            _isLarge = false;
+            _small.isLarge = false;
             _small.length = 0;
 
             reserve(values.length); // fast reserve
@@ -498,7 +489,7 @@ private struct Array(E,
         else
         {
             // always start small
-            _isLarge = false;
+            _small.isLarge = false;
             _small.length = 0;
 
             size_t i = 0;
@@ -553,13 +544,17 @@ private struct Array(E,
                                 tempLarge._mptr[i]);
                 }
 
-                // small storage doesn't need to be cleared
+                static if (hasElaborateDestructor!E)
+                {
+                    destroyElements();
+                }
 
                 // TODO functionize:
                 {               // make this large
                     moveEmplace(tempLarge, _large);
-                    _isLarge = true;
                 }
+
+                assert(isLarge);
             }
             else
             {
@@ -578,15 +573,11 @@ private struct Array(E,
             {
                 if (this.length <= smallCapacity)
                 {
-                    Small tempSmall; // temporary small storage
-                    tempSmall.length = cast(ubyte)length;
+                    Small tempSmall = Small(length, false);
 
                     // move to temporary small
-                    foreach (immutable i; 0 .. tempSmall.length)
-                    {
-                        moveEmplace(_large._mptr[i],
-                                    tempSmall._mptr[i]);
-                    }
+                    moveEmplaceAll(_large._mptr[0 .. tempSmall.length],
+                                   tempSmall._mptr[0 .. tempSmall.length]);
 
                     // free existing large data
                     static if (shouldAddGCRange!E)
@@ -602,14 +593,7 @@ private struct Array(E,
                         free(_mptr);
                     }
 
-                    // move to new small
-                    foreach (immutable i; 0 .. tempSmall.length)
-                    {
-                        moveEmplace(tempSmall._mptr[i],
-                                    _small._mptr[i]);
-                    }
-                    _small.length = tempSmall.length;
-                    _isLarge = false; // now small
+                    moveEmplace(tempSmall, _small);
                 }
                 else
                 {
@@ -696,16 +680,24 @@ private struct Array(E,
     pragma(inline, true)
     void opAssign(typeof(null)) { clear(); }
 
+    /// Destroy elements.
+    static if (hasElaborateDestructor!E)
+    {
+        private void destroyElements() nothrow @trusted
+        {
+            foreach (immutable i; 0 .. this.length)
+            {
+                .destroy(_mptr[i]);
+            }
+        }
+    }
+
     /// Release internal store.
     private void release() nothrow @trusted
     {
         static if (hasElaborateDestructor!E)
         {
-            import std.traits : hasElaborateDestructor;
-            foreach (immutable i; 0 .. this.length)
-            {
-                .destroy(_mptr[i]);
-            }
+            destroyElements();
         }
         if (isLarge)
         {
@@ -761,7 +753,6 @@ private struct Array(E,
         // immutable si = index + 1;   // source index
         // immutable ti = index;       // target index
         // immutable restLength = this.length - (index + 1);
-        // import std.algorithm.mutation : moveEmplaceAll;
         // moveEmplaceAll(_mptr[si .. si + restLength],
         //                _mptr[ti .. ti + restLength]);
 
@@ -1359,12 +1350,12 @@ private struct Array(E,
         if (isLarge)
         {
             assert(_large.length);
-            _large.length -= 1;
+            _large.length = _large.length - 1;
         }
         else
         {
             assert(_small.length);
-            _small.length -= 1;
+            _small.length = cast(SmallLength)(_small.length - 1);
         }
     }
 
@@ -1444,32 +1435,50 @@ private struct Array(E,
     debug private enum _ptrMagic = cast(E*)0x0C6F3C6c0f3a8471;
 
     /// Returns: `true` if `this` currently uses large array storage.
-    bool isLarge() const @safe
+    bool isLarge() const @trusted // trusted access to anonymous union
     {
-        import bitop_ex : getHighBit;
-        // TODO activate as @trusted and add return this.length.getHighBit();
-        return _isLarge;
+        assert(_large.isLarge == _small.isLarge); // must always be same
+        return _large.isLarge;
     }
 
     /// Returns: `true` if `this` currently uses small (packed) array storage.
     bool isSmall() const @safe { return !isLarge; }
 
-    enum smallCapacity = (Large.sizeof - SmallLength.sizeof) / E.sizeof;
-
     alias SmallLength = ubyte;
+
+    enum largeSmallLengthDifference = Large.sizeof - SmallLength.sizeof;
+    enum smallCapacity = largeSmallLengthDifference / E.sizeof;
+    enum smallPadding = largeSmallLengthDifference % E.sizeof;
+
+    static assert(smallCapacity != 0);
+    static assert(smallPadding == 0);
+
+    pragma(msg, "small Capacity/Padding: ", smallCapacity, ",", smallPadding);
 
     /** Tag `this` borrowed.
         Used by wrapper logic in owned.d and borrowed.d
     */
-    void tagAsBorrowed() @safe { _isBorrowed = true; }
+    void tagAsBorrowed() @trusted
+    {
+        if (isLarge) { _large.isBorrowed = true; }
+        else         { _small.isBorrowed = true; }
+    }
 
     /** Tag `this` as not borrowed.
         Used by wrapper logic in owned.d and borrowed.d
     */
-    void untagAsNotBorrowed() @safe { _isBorrowed = false; }
+    void untagAsNotBorrowed() @trusted
+    {
+        if (isLarge) { _large.isBorrowed = false; }
+        else         { _small.isBorrowed = false; }
+    }
 
     /// Returns: `true` if this is borrowed
-    bool isBorrowed() @safe { return _isBorrowed; }
+    bool isBorrowed() @trusted
+    {
+        if (isLarge) { return _large.isBorrowed; }
+        else         { return _small.isBorrowed; }
+    }
 
 private:                        // data
     static struct Large
@@ -1480,7 +1489,11 @@ private:                        // data
         else
             @nogc E* ptr;       // non-GC-allocated store pointer
         size_t capacity;        // store capacity
-        size_t length;          // length, TODO assert little-endian byte first
+
+        import std.bitmanip : bitfields;
+        mixin(bitfields!(size_t, "length", 8*size_t.sizeof - 2,
+                         bool, "isLarge", 1,
+                         bool, "isBorrowed", 1));
 
         pragma(inline, true):
 
@@ -1489,6 +1502,8 @@ private:                        // data
             this.capacity = initialCapacity;
             this.ptr = allocate(initialCapacity, zero);
             this.length = initialLength;
+            this.isLarge = true;
+            this.isBorrowed = false;
         }
 
         MutableE* _mptr() const @trusted
@@ -1501,8 +1516,24 @@ private:                        // data
     static struct Small
     {
         enum capacity = smallCapacity;
+
         E[capacity] elms;
-        SmallLength length;
+
+        this(size_t initialLength, bool zero)
+        {
+            this.length = cast(SmallLength)initialLength;
+            this.isLarge = false;
+            this.isBorrowed = false;
+            if (zero) { elms[] = 0; }
+        }
+
+        import std.bitmanip : bitfields;
+        mixin(bitfields!(SmallLength, "length", 8*SmallLength.sizeof - 2,
+                         bool, "isLarge", 1, // defaults to false
+                         bool, "isBorrowed", 1)); // default to false
+
+        pragma(inline, true):
+
         MutableE* _mptr() const @trusted
         {
             return cast(typeof(return))(elms.ptr);
@@ -1522,9 +1553,6 @@ private:                        // data
         Large _large;            // indirected storage
         Small _small;            // non-indirected storage
     }
-
-    bool _isLarge;              // TODO pack into bit 7 of _length
-    bool _isBorrowed;           // TODO pack into bit 6 of _length
 }
 
 import std.traits : hasMember, isDynamicArray;

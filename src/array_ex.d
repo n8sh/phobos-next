@@ -148,8 +148,8 @@ private struct Array(E,
         enum shouldAddGCRange = hasIndirections!T && !isInstanceOf!(Array, T); // TODO unify to container_traits.shouldAddGCRange
     }
 
-    static if (useGCAllocation ||
-               shouldAddGCRange!E)
+    static if (useGCAllocation || // either we asked for allocation
+               shouldAddGCRange!E) // or we need GC ranges
     {
         import core.memory : GC;
     }
@@ -296,6 +296,7 @@ private struct Array(E,
             if (isLarge)        // only large case needs special treatment
             {
                 auto rhs_storePtr = _large.ptr; // save store pointer
+                _large.setCapacity(this.length);
                 _large.capacity = this.length;  // pack by default
                 _large.ptr = allocate(this.length, false);
                 foreach (immutable i; 0 .. this.length)
@@ -642,7 +643,7 @@ private struct Array(E,
     pragma(inline, true)
     private void reallocateLargeStoreAndSetCapacity(size_t newCapacity) pure nothrow @trusted
     {
-        _large.capacity = newCapacity;
+        _large.setCapacity(newCapacity);
         static if (useGCAllocation)
         {
             _large.ptr = cast(E*)GC.realloc(_mptr, E.sizeof * _large.capacity);
@@ -1493,7 +1494,7 @@ private:                        // data
             E* ptr;                // GC-allocated store pointer. See also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
         else
             @nogc E* ptr;       // non-GC-allocated store pointer
-        CapacityType capacity;        // store capacity
+        CapacityType capacity;  // store capacity
 
         import std.bitmanip : bitfields; // TODO replace with own logic cause this mixin costs compilation speed
         mixin(bitfields!(size_t, "length", lengthBits,
@@ -1505,7 +1506,8 @@ private:                        // data
             assert(initialCapacity <= lengthMax);
             assert(initialLength <= lengthMax);
 
-            this.capacity = initialCapacity;
+            setCapacity(initialCapacity);
+            this.capacity = cast(CapacityType)initialCapacity;
             this.ptr = allocate(initialCapacity, zero);
             this.length = initialLength;
             this.isLarge = true;
@@ -1513,6 +1515,12 @@ private:                        // data
         }
 
         pragma(inline, true):
+
+        void setCapacity(size_t newCapacity)
+        {
+            assert(newCapacity <= capacity.max);
+            capacity = cast(CapacityType)newCapacity;
+        }
 
         MutableE* _mptr() const @trusted
         {

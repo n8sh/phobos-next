@@ -1603,7 +1603,7 @@ R withCapacityMake(R)(size_t capacity)
     return r;
 }
 
-pure nothrow unittest
+@safe pure nothrow unittest
 {
     immutable capacity = 10;
     auto x = capacity.withCapacityMake!(int[]);
@@ -1655,7 +1655,7 @@ alias CopyableWString  (bool useGCAllocation = false) = Array!(wchar, Assignment
 alias UncopyableDString(bool useGCAllocation = false) = Array!(dchar, Assignment.disabled, Ordering.unsorted, useGCAllocation, size_t, "a < b");
 alias CopyableDString  (bool useGCAllocation = false) = Array!(dchar, Assignment.copy, Ordering.unsorted, useGCAllocation, size_t, "a < b");
 
-pure unittest
+@safe pure unittest
 {
     import std.conv : to;
     foreach (assignment; AliasSeq!(Assignment.disabled, Assignment.copy))
@@ -2030,7 +2030,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 }
 
 /// disabled copying
-@safe nothrow unittest
+@safe pure nothrow unittest
 {
     alias E = ubyte;
     alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, size_t, "a < b");
@@ -2052,7 +2052,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 }
 
 /// disabled copying
-@safe nothrow unittest
+@safe pure nothrow unittest
 {
     alias E = string;
 
@@ -2075,7 +2075,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 }
 
 /// disabled copying
-nothrow unittest
+@safe pure nothrow unittest
 {
     alias E = string;
     alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, size_t, "a < b");
@@ -2094,7 +2094,7 @@ nothrow unittest
 }
 
 /// disabled copying
-nothrow unittest
+@safe pure nothrow @nogc unittest
 {
     import std.traits : isRvalueAssignable, isLvalueAssignable;
 
@@ -2128,7 +2128,7 @@ nothrow unittest
 }
 
 ///
-nothrow @nogc unittest
+@safe pure nothrow @nogc unittest
 {
     alias E = int;
     alias A = Array!E;
@@ -2167,7 +2167,7 @@ pure nothrow /+TODO @nogc+/ unittest
     }
 }
 
-pure nothrow unittest
+@safe pure nothrow unittest
 {
     alias E = int;
     alias A = Array!E;

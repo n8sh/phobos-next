@@ -2079,7 +2079,7 @@ template RawRadixTree(Value = void)
         @property typeof(this) save()
         {
             typeof(this) copy;
-            copy._bRanges = this._bRanges.dup;
+            copy._bRanges = this._bRanges.dup; // ...this is inferred as @safe
             copy._branch1Depth = this._branch1Depth;
             return copy;
         }
@@ -2243,7 +2243,7 @@ template RawRadixTree(Value = void)
 
     pragma(inline):
 
-        @property typeof(this) save()
+        @property typeof(this) save() @trusted // TODO remove @trusted
         {
             typeof(this) copy;
             copy.leafNRange = this.leafNRange;

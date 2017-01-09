@@ -113,6 +113,7 @@ enum Assignment
                           otherwise C's `{m,ce,re}alloc()` is used.
  */
 private struct Array(E,
+                     // TODO merge these flags into one to reduce template bloat
                      Assignment assignment = Assignment.disabled,
                      Ordering ordering = Ordering.unsorted,
                      bool useGCAllocation = false,
@@ -126,6 +127,8 @@ private struct Array(E,
     import core.stdc.string : memset;
     import std.algorithm.mutation : move, moveEmplace, moveEmplaceAll;
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
+
+    alias CapacityType = size_t; // TODO make this a template parameter, https://github.com/izabera/s
 
     /// Mutable element type.
     private alias MutableE = Unqual!E;
@@ -390,7 +393,7 @@ private struct Array(E,
             else typeof(return) that = void;
             if (isLarge)
             {
-                emplace!Large(&that._large, _large.length, _large.length, false);
+                emplace!(that.Large)(&that._large, _large.length, _large.length, false);
                 foreach (immutable i; 0 .. _large.length)
                 {
                     that._large.ptr[i] = _large.ptr[i];
@@ -398,7 +401,7 @@ private struct Array(E,
             }
             else
             {
-                emplace!Small(&that._small, _small.length, false);
+                emplace!(that.Small)(&that._small, _small.length, false);
                 that._small.elms[0 .. _small.length] = _small.elms[0 .. _small.length]; // copy elements
             }
             return that;
@@ -1455,11 +1458,6 @@ private struct Array(E,
         private enum smallPadSize = largeSmallLengthDifference - smallCapacity*E.sizeof;
     }
 
-    static assert(smallCapacity != 0);
-    static assert(smallPadSize == 0);
-
-    pragma(msg, E, " ", largeSmallLengthDifference, " small Capacity/Padding: ", smallCapacity, ",", smallPadSize);
-
     /** Tag `this` borrowed.
         Used by wrapper logic in owned.d and borrowed.d
     */
@@ -1529,7 +1527,10 @@ private:                        // data
             this.length = cast(SmallLength)initialLength;
             this.isLarge = false;
             this.isBorrowed = false;
-            if (zero) { elms[] = 0; }
+            if (zero)
+            {
+                elms[] = E.init;
+            }
         }
 
         static if (smallPadSize)

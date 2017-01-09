@@ -1173,7 +1173,7 @@ private struct Array(E,
     /// ditto
     static if (IsOrdered!ordering)
     {
-        const nothrow @nogc: // indexing and slicing must be `const` when ordered
+        const pure nothrow @nogc: // indexing and slicing must be `const` when ordered
 
         /// Slice operator must be const when ordered.
         auto opSlice() @safe return

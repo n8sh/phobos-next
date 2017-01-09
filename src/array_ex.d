@@ -371,7 +371,6 @@ private struct Array(E,
         {
             version(showCtors) dln("Copying: ", This.stringof);
             assert(!isBorrowed);
-            import std.algorith.mutation : moveEmplace;
             moveEmplace(rhs, this); // TODO remove `move` when compiler does it for us
         }
 

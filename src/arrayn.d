@@ -374,7 +374,6 @@ version(none) pure unittest     // TODO activate
 {
     enum capacity = 15;
     alias String15 = StringN!(capacity, Checking.viaScope);
-
     string f()
     {
         auto x = String15("alphas");

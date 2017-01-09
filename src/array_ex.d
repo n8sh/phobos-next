@@ -1495,7 +1495,7 @@ private:                        // data
             @nogc E* ptr;       // non-GC-allocated store pointer
         CapacityType capacity;        // store capacity
 
-        import std.bitmanip : bitfields;
+        import std.bitmanip : bitfields; // TODO replace with own logic cause this mixin costs compilation speed
         mixin(bitfields!(size_t, "length", lengthBits,
                          bool, "isLarge", 1,
                          bool, "isBorrowed", 1));
@@ -1532,7 +1532,7 @@ private:                        // data
         {
             ubyte[smallPadSize] _ignoredPadding;
         }
-        import std.bitmanip : bitfields;
+        import std.bitmanip : bitfields; // TODO replace with own logic cause this mixin costs compilation speed
         mixin(bitfields!(SmallLength, "length", lengthBits,
                          bool, "isLarge", 1, // defaults to false
                          bool, "isBorrowed", 1)); // default to false

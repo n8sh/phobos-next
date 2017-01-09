@@ -1517,11 +1517,10 @@ private:                        // data
         static assert(Small.capacity == 23);
     }
 
-    /// String storage.
     union
     {
-        Large _large;            // large string
-        Small _small;            // small string
+        Large _large;            // indirected storage
+        Small _small;            // non-indirected storage
     }
 
     bool _isLarge;              // TODO pack into bit 7 of _length

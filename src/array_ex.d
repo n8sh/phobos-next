@@ -7,9 +7,6 @@
 
     TODO Breakout common logic into private `BasicArray` and reuse with `alias this` to express StandardArray, SortedArray, SortedSetArray
 
-    TODO Remove explicit moves when DMD std.algorithm.mutation.move calls these
-    members for us (if they exist)
-
     TODO Use std.array.insertInPlace in insert()?
     TODO Use std.array.replaceInPlace?
 
@@ -28,6 +25,9 @@
 
     TODO use `intsort.radixSort` when element type `isSigned` or `isUnsigned` and
     above or below a certain threshold calculated by my benchmarks
+
+    TODO Remove explicit moves when DMD std.algorithm.mutation.move calls these
+    members for us (if they exist)
  */
 module array_ex;
 
@@ -1017,26 +1017,6 @@ private struct Array(E,
             {
                 static if (values.length == 1) // faster because `contains()` followed by `completeSort()` searches array twice
                 {
-                    static if (false)
-                    {
-                        import std.traits : CommonType;
-                        size_t[Us.length] ixs;
-                        CommonType!Us[Us.length] vs;
-                        size_t i = 0;
-                        foreach (const ref value; sort([values]))
-                        {
-                            immutable index = indexOf(value);
-                            if (index != size_t.max)
-                            {
-                                ixs[i] = index;
-                                vs[i] = value;
-                                ++i;
-                            }
-                        }
-                        // TODO insert them in one go in reverse starting from
-                        // the end of this array
-                    }
-
                     import searching_ex : containsStoreIndex;
                     size_t index;
                     if (slice.assumeSorted!comp.containsStoreIndex!sp(values, index)) // faster than `completeSort` for single value

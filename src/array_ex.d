@@ -117,7 +117,10 @@ private struct Array(E,
                      Assignment assignment = Assignment.disabled,
                      Ordering ordering = Ordering.unsorted,
                      bool useGCAllocation = false,
+                     CapacityType = size_t, // see also https://github.com/izabera/s
                      alias less = "a < b") // TODO move out of this definition and support only for the case when `ordering` is not `Ordering.unsorted`
+    if (is(CapacityType == size_t) ||
+        is(CapacityType == uint))
 {
     import std.conv : emplace;
     import std.range : isInputRange, isIterable, ElementType;
@@ -127,8 +130,6 @@ private struct Array(E,
     import core.stdc.string : memset;
     import std.algorithm.mutation : move, moveEmplace, moveEmplaceAll;
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
-
-    alias CapacityType = size_t; // TODO make this a template parameter, https://github.com/izabera/s
 
     /// Mutable element type.
     private alias MutableE = Unqual!E;
@@ -140,7 +141,7 @@ private struct Array(E,
     private alias ThisTemplate = TemplateOf!(This);
 
     /// Same type as this but with mutable element type.
-    private alias MutableThis = ThisTemplate!(MutableE, assignment, ordering, useGCAllocation, less);
+    private alias MutableThis = ThisTemplate!(MutableE, assignment, ordering, useGCAllocation, CapacityType, less);
 
     private template shouldAddGCRange(T)
     {
@@ -296,8 +297,8 @@ private struct Array(E,
             if (isLarge)        // only large case needs special treatment
             {
                 auto rhs_storePtr = _large.ptr; // save store pointer
-                _large.setCapacity(this.length);
-                _large.capacity = this.length;  // pack by default
+                _large.setCapacity(this.length); // pack by default
+                // _large.length already copied
                 _large.ptr = allocate(this.length, false);
                 foreach (immutable i; 0 .. this.length)
                 {
@@ -1637,22 +1638,22 @@ R withElementMake(R)(typeof(R.init[0]) e)
     return [e];
 }
 
-alias UncopyableArray(E, bool useGCAllocation = false) = Array!(E, Assignment.disabled, Ordering.unsorted, useGCAllocation, "a < b");
-alias CopyableArray  (E, bool useGCAllocation = false) = Array!(E, Assignment.copy, Ordering.unsorted, useGCAllocation, "a < b");
+alias UncopyableArray(E, bool useGCAllocation = false) = Array!(E, Assignment.disabled, Ordering.unsorted, useGCAllocation, size_t, "a < b");
+alias CopyableArray  (E, bool useGCAllocation = false) = Array!(E, Assignment.copy, Ordering.unsorted, useGCAllocation, size_t, "a < b");
 
-alias SortedCopyableArray    (E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.copy, Ordering.sortedValues, useGCAllocation, less);
-alias SortedSetCopyableArray (E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.copy, Ordering.sortedUniqueSet, useGCAllocation, less);
+alias SortedCopyableArray    (E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.copy, Ordering.sortedValues, useGCAllocation, size_t, less);
+alias SortedSetCopyableArray (E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.copy, Ordering.sortedUniqueSet, useGCAllocation, size_t, less);
 
-alias SortedUncopyableArray    (E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.disabled, Ordering.sortedValues, useGCAllocation, less);
-alias SortedSetUncopyableArray (E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.disabled, Ordering.sortedUniqueSet, useGCAllocation, less);
+alias SortedUncopyableArray    (E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.disabled, Ordering.sortedValues, useGCAllocation, size_t, less);
+alias SortedSetUncopyableArray (E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.disabled, Ordering.sortedUniqueSet, useGCAllocation, size_t, less);
 
 // string aliases
-alias UncopyableString (bool useGCAllocation = false) = Array!(char,  Assignment.disabled, Ordering.unsorted, useGCAllocation, "a < b");
-alias CopyableString   (bool useGCAllocation = false) = Array!(char,  Assignment.copy, Ordering.unsorted, useGCAllocation, "a < b");
-alias UncopyableWString(bool useGCAllocation = false) = Array!(wchar, Assignment.disabled, Ordering.unsorted, useGCAllocation, "a < b");
-alias CopyableWString  (bool useGCAllocation = false) = Array!(wchar, Assignment.copy, Ordering.unsorted, useGCAllocation, "a < b");
-alias UncopyableDString(bool useGCAllocation = false) = Array!(dchar, Assignment.disabled, Ordering.unsorted, useGCAllocation, "a < b");
-alias CopyableDString  (bool useGCAllocation = false) = Array!(dchar, Assignment.copy, Ordering.unsorted, useGCAllocation, "a < b");
+alias UncopyableString (bool useGCAllocation = false) = Array!(char,  Assignment.disabled, Ordering.unsorted, useGCAllocation, size_t, "a < b");
+alias CopyableString   (bool useGCAllocation = false) = Array!(char,  Assignment.copy, Ordering.unsorted, useGCAllocation, size_t, "a < b");
+alias UncopyableWString(bool useGCAllocation = false) = Array!(wchar, Assignment.disabled, Ordering.unsorted, useGCAllocation, size_t, "a < b");
+alias CopyableWString  (bool useGCAllocation = false) = Array!(wchar, Assignment.copy, Ordering.unsorted, useGCAllocation, size_t, "a < b");
+alias UncopyableDString(bool useGCAllocation = false) = Array!(dchar, Assignment.disabled, Ordering.unsorted, useGCAllocation, size_t, "a < b");
+alias CopyableDString  (bool useGCAllocation = false) = Array!(dchar, Assignment.copy, Ordering.unsorted, useGCAllocation, size_t, "a < b");
 
 pure unittest
 {
@@ -1690,7 +1691,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 
     foreach (Ch; AliasSeq!(char, wchar, dchar))
     {
-        alias Str = Array!(Ch, assignment, ordering, supportGC, less);
+        alias Str = Array!(Ch, assignment, ordering, supportGC, size_t, less);
         auto y = Str.withElements('a', 'b', 'c');
         static assert(is(Unqual!(ElementType!Str) == Ch));
         static assert(y.isString);
@@ -1709,7 +1710,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 
     foreach (Ch; AliasSeq!(char))
     {
-        alias Str = Array!(Ch, assignment, ordering, supportGC, less);
+        alias Str = Array!(Ch, assignment, ordering, supportGC, size_t, less);
         auto str = Str.withElements('a', 'b', 'c');
 
         static assert(str.isString);
@@ -1726,7 +1727,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     }
 
     {
-        alias A = Array!(int, assignment, ordering, supportGC, less);
+        alias A = Array!(int, assignment, ordering, supportGC, size_t, less);
         foreach (immutable n; [0, 1, 2, 3, 4, 5])
         {
             assert(A.withLength(n).isSmall);
@@ -1740,7 +1741,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         immutable maxLength = 1024;
         foreach (immutable n; 0 .. maxLength)
         {
-            auto x = Array!(E, assignment, ordering, supportGC, less).withLength(n);
+            auto x = Array!(E, assignment, ordering, supportGC, size_t, less).withLength(n);
 
             // test resize
             static if (!IsOrdered!ordering)
@@ -1756,7 +1757,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(x.length == n);
 
             import std.algorithm.mutation : move;
-            auto y = Array!(E, assignment, ordering, supportGC, less)();
+            auto y = Array!(E, assignment, ordering, supportGC, size_t, less)();
             move(x, y);
 
             assert(x.length == 0);
@@ -1779,7 +1780,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 
         auto bw = fw.array.radial;
 
-        Array!(E, assignment, ordering, supportGC, less) ss0 = bw; // reversed
+        Array!(E, assignment, ordering, supportGC, size_t, less) ss0 = bw; // reversed
         static assert(is(Unqual!(ElementType!(typeof(ss0))) == E));
         static assert(isInstanceOf!(Array, typeof(ss0)));
         assert(ss0.length == n);
@@ -1792,7 +1793,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ss0[].isSorted!comp);
         }
 
-        Array!(E, assignment, ordering, supportGC, less) ss1 = fw; // ordinary
+        Array!(E, assignment, ordering, supportGC, size_t, less) ss1 = fw; // ordinary
         assert(ss1.length == n);
 
         static if (IsOrdered!ordering)
@@ -1802,7 +1803,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ss1[].isSorted!comp);
         }
 
-        Array!(E, assignment, ordering, supportGC, less) ss2 = fw.filter!(x => x & 1);
+        Array!(E, assignment, ordering, supportGC, size_t, less) ss2 = fw.filter!(x => x & 1);
         assert(ss2.length == n/2);
 
         static if (IsOrdered!ordering)
@@ -1813,12 +1814,12 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ss2[].isSorted!comp);
         }
 
-        auto ssA = Array!(E, assignment, ordering, supportGC, less).withLength(0);
+        auto ssA = Array!(E, assignment, ordering, supportGC, size_t, less).withLength(0);
         static if (IsOrdered!ordering)
         {
             static if (less == "a < b")
             {
-                alias A = Array!(E, assignment, ordering, supportGC, less);
+                alias A = Array!(E, assignment, ordering, supportGC, size_t, less);
                 const A x = [1, 2, 3, 4, 5, 6];
                 assert(x.front == 1);
                 assert(x.back == 6);
@@ -1841,7 +1842,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             }
             assert(ssA[].equal(sort!comp(fw.array)));
 
-            auto ssB = Array!(E, assignment, ordering, supportGC, less).withLength(0);
+            auto ssB = Array!(E, assignment, ordering, supportGC, size_t, less).withLength(0);
             static if (ordering == Ordering.sortedUniqueSet)
             {
                 assert(ssB.insertMany(1, 7, 4, 9)[].equal(true.repeat(4)));
@@ -1956,7 +1957,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ssA[].equal([1, 2, 4, 5]));
 
             // pushBack and assignment from slice
-            auto ssB = Array!(E, assignment, ordering, supportGC, less).withLength(0);
+            auto ssB = Array!(E, assignment, ordering, supportGC, size_t, less).withLength(0);
             ssB.pushBack([1, 2, 3, 4, 5]);
             ssB.pushBack([6, 7]);
             assert(ssB[].equal([1, 2, 3, 4, 5, 6, 7]));
@@ -1972,8 +1973,8 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             // pushBack(Array)
             {
                 immutable s = [1, 2, 3];
-                Array!(E, assignment, ordering, supportGC, less) s1 = s;
-                Array!(E, assignment, ordering, supportGC, less) s2 = s1[];
+                Array!(E, assignment, ordering, supportGC, size_t, less) s1 = s;
+                Array!(E, assignment, ordering, supportGC, size_t, less) s2 = s1[];
                 assert(s1[].equal(s));
                 s1 ~= s1;
                 assert(s1[].equal(chain(s, s)));
@@ -1981,10 +1982,10 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
                 assert(s1[].equal(chain(s, s, s)));
             }
 
-            immutable ss_ = Array!(E, assignment, ordering, supportGC, less)(null);
+            immutable ss_ = Array!(E, assignment, ordering, supportGC, size_t, less)(null);
             assert(ss_.empty);
 
-            auto ssC = Array!(E, assignment, ordering, supportGC, less).withLength(0);
+            auto ssC = Array!(E, assignment, ordering, supportGC, size_t, less).withLength(0);
             immutable(int)[] i5 = [1, 2, 3, 4, 5];
             ssC.pushBack(i5);
             assert(ssC[].equal(i5));
@@ -2032,7 +2033,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 @safe nothrow unittest
 {
     alias E = ubyte;
-    alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, "a < b");
+    alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, size_t, "a < b");
     A a;
     immutable n = ubyte.max;
     size_t i = 0;
@@ -2055,7 +2056,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 {
     alias E = string;
 
-    alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, "a < b");
+    alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, size_t, "a < b");
     A a;
     immutable n = 100_000;
     size_t i = 0;
@@ -2077,7 +2078,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 nothrow unittest
 {
     alias E = string;
-    alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, "a < b");
+    alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, size_t, "a < b");
     A a;
     immutable n = 100_000;
     size_t i = 0;

@@ -1250,7 +1250,7 @@ private struct Array(E,
             }
         }
 
-        pure inout:             // indexing and slicing can be mutable when unordered
+        pure inout: // indexing and slicing has mutable access only when unordered
 
         /// Slice operator.
         inout(E)[] opSlice() return

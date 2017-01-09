@@ -1215,7 +1215,7 @@ private struct Array(E,
         nothrow:
 
         /// Set length to `newLength`.
-        @property void length(size_t newLength) @trusted
+        @property void length(size_t newLength) @safe pure
         {
             reserve(newLength);
             setOnlyLength(newLength);
@@ -1250,10 +1250,10 @@ private struct Array(E,
             }
         }
 
-        inout:             // indexing and slicing can be mutable when unordered
+        pure inout:             // indexing and slicing can be mutable when unordered
 
         /// Slice operator.
-        inout(E)[] opSlice() @safe return
+        inout(E)[] opSlice() return
         {
             return this.opSlice(0, this.length);
         }

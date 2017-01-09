@@ -63,7 +63,7 @@ struct ArrayN(E, uint capacity, Checking checking)
     }
 
     alias ElementType = E;
-    alias ME = Unqual!E;
+    alias MutableE = Unqual!E;
 
     /// Is `true` if `U` can be assign to the element type `E` of `this`.
     enum isElementAssignable(U) = isAssignable!(E, U);
@@ -98,7 +98,7 @@ struct ArrayN(E, uint capacity, Checking checking)
     }
 
     /** Construct with elements in `es`. */
-    this(const(ME)[] es) @trusted
+    this(const(MutableE)[] es) @trusted
     {
         assert(es.length <= capacity);
         static if (shouldAddGCRange!E)

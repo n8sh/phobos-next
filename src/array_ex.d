@@ -3,14 +3,9 @@
 
     TODO Remove _isLarge and code it into top-most bit of length instead
 
-    TODO Use Large.ctor() or emplace!Large instead of explicit initialization
-
     TODO Replace ` = void` with construction or emplace
 
     TODO Breakout common logic into private `BasicArray` and reuse with `alias this` to express StandardArray, SortedArray, SortedSetArray
-
-    TODO Remove explicit moves when DMD std.algorithm.mutation.move calls these
-    members for us (if they exist)
 
     TODO Use std.array.insertInPlace in insert()?
     TODO Use std.array.replaceInPlace?
@@ -30,6 +25,9 @@
 
     TODO use `intsort.radixSort` when element type `isSigned` or `isUnsigned` and
     above or below a certain threshold calculated by my benchmarks
+
+    TODO Remove explicit moves when DMD std.algorithm.mutation.move calls these
+    members for us (if they exist)
  */
 module array_ex;
 
@@ -181,11 +179,11 @@ private struct Array(E,
         that._isLarge = initialLength > smallCapacity;
         if (that.isLarge)
         {
-            emplace!Large(&that._store.large, initialLength, initialLength, true); // no elements so we need to zero
+            emplace!Large(&that._large, initialLength, initialLength, true); // no elements so we need to zero
         }
         else
         {
-            that._store.small.length = cast(ubyte)initialLength;
+            that._small.length = cast(ubyte)initialLength;
         }
 
         version(showCtors) dln("EXITING: ", __PRETTY_FUNCTION__);
@@ -204,11 +202,11 @@ private struct Array(E,
         that._isLarge = initialCapacity > smallCapacity;
         if (that.isLarge)
         {
-            emplace!Large(&that._store.large, initialCapacity, 0, false);
+            emplace!Large(&that._large, initialCapacity, 0, false);
         }
         else
         {
-            that._store.small.length = 0;
+            that._small.length = 0;
         }
 
         version(showCtors) dln("EXITING: ", __PRETTY_FUNCTION__);
@@ -229,11 +227,11 @@ private struct Array(E,
         that._isLarge = initialLength > smallCapacity;
         if (that.isLarge)
         {
-            emplace!Large(&that._store.large, initialLength, initialLength, false);
+            emplace!Large(&that._large, initialLength, initialLength, false);
         }
         else
         {
-            that._store.small.length = cast(ubyte)initialLength;
+            that._small.length = cast(ubyte)initialLength;
         }
 
         // move element
@@ -267,11 +265,11 @@ private struct Array(E,
         that._isLarge = initialLength > smallCapacity;
         if (that.isLarge)
         {
-            emplace!Large(&that._store.large, initialLength, initialLength, false);
+            emplace!Large(&that._large, initialLength, initialLength, false);
         }
         else
         {
-            that._store.small.length = cast(ubyte)initialLength;
+            that._small.length = cast(ubyte)initialLength;
         }
 
         // move elements
@@ -298,12 +296,12 @@ private struct Array(E,
             version(showCtors) dln("Copy ctor: ", This.stringof);
             if (isLarge)        // only large case needs special treatment
             {
-                auto rhs_storePtr = _store.large.ptr; // save store pointer
-                _store.large.capacity = this.length;  // pack by default
-                _store.large.ptr = allocate(this.length, false);
+                auto rhs_storePtr = _large.ptr; // save store pointer
+                _large.capacity = this.length;  // pack by default
+                _large.ptr = allocate(this.length, false);
                 foreach (immutable i; 0 .. this.length)
                 {
-                    _store.large.ptr[i] = rhs_storePtr[i];
+                    _large.ptr[i] = rhs_storePtr[i];
                 }
             }
         }
@@ -318,13 +316,13 @@ private struct Array(E,
                 if (rhs.isLarge) // large = large
                 {
                     // TODO functionize to Large.opAssign(Large rhs):
-                    if (_store.large.ptr != rhs._store.large.ptr) // if not self assignment
+                    if (_large.ptr != rhs._large.ptr) // if not self assignment
                     {
-                        _store.large.length = rhs._store.large.length;
-                        reserve(rhs._store.large.length);
-                        foreach (immutable i; 0 .. rhs._store.large.length)
+                        _large.length = rhs._large.length;
+                        reserve(rhs._large.length);
+                        foreach (immutable i; 0 .. rhs._large.length)
                         {
-                            _store.large.ptr[i] = rhs._store.large.ptr[i];
+                            _large.ptr[i] = rhs._large.ptr[i];
                         }
                     }
                 }
@@ -334,7 +332,7 @@ private struct Array(E,
                         clear();    // clear large storage
                         _isLarge = false;
                     }
-                    _store.small = rhs._store.small; // small
+                    _small = rhs._small; // small
                 }
             }
             else                // small = ...
@@ -346,19 +344,19 @@ private struct Array(E,
                         _isLarge = true;
                     }
                     // TODO functionize to Large.opAssign(Large rhs):
-                    if (_store.large.ptr != rhs._store.large.ptr) // if not self assignment
+                    if (_large.ptr != rhs._large.ptr) // if not self assignment
                     {
-                        _store.large.length = rhs._store.large.length;
-                        reserve(rhs._store.large.length);
-                        foreach (immutable i; 0 .. rhs._store.large.length)
+                        _large.length = rhs._large.length;
+                        reserve(rhs._large.length);
+                        foreach (immutable i; 0 .. rhs._large.length)
                         {
-                            _store.large.ptr[i] = rhs._store.large.ptr[i];
+                            _large.ptr[i] = rhs._large.ptr[i];
                         }
                     }
                 }
                 else            // small = small
                 {
-                    _store.small = rhs._store.small;
+                    _small = rhs._small;
                 }
             }
         }
@@ -397,20 +395,20 @@ private struct Array(E,
             copy._isLarge = isLarge;
             if (isLarge)
             {
-                // TODO: emplace!Large(&copy._store.large, _store.large.length, _store.large.length, false);
-                copy._store.large.capacity = _store.large.length;
-                copy._store.large.length = _store.large.length;
-                copy._store.large.ptr = allocate(_store.large.length, false);
-                foreach (immutable i; 0 .. _store.large.length)
+                // TODO: emplace!Large(&copy._large, _large.length, _large.length, false);
+                copy._large.capacity = _large.length;
+                copy._large.length = _large.length;
+                copy._large.ptr = allocate(_large.length, false);
+                foreach (immutable i; 0 .. _large.length)
                 {
-                    copy._store.large.ptr[i] = _store.large.ptr[i];
+                    copy._large.ptr[i] = _large.ptr[i];
                 }
             }
             else
             {
                 // TODO move to Small ctor and use emplace
-                copy._store.small.length = _store.small.length;
-                copy._store.small.elms[0 .. _store.small.length] = _store.small.elms[0 .. _store.small.length];
+                copy._small.length = _small.length;
+                copy._small.elms[0 .. _small.length] = _small.elms[0 .. _small.length];
             }
             return copy;
         }
@@ -486,7 +484,7 @@ private struct Array(E,
         {
             // TODO choose large or small depending on values.length
             _isLarge = false;
-            _store.small.length = 0;
+            _small.length = 0;
 
             reserve(values.length); // fast reserve
             setOnlyLength(values.length);
@@ -501,7 +499,7 @@ private struct Array(E,
         {
             // always start small
             _isLarge = false;
-            _store.small.length = 0;
+            _small.length = 0;
 
             size_t i = 0;
             foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
@@ -539,7 +537,7 @@ private struct Array(E,
             reallocateLargeStoreAndSetCapacity(newCapacity.nextPow2);
             static if (shouldAddGCRange!E)
             {
-                gc_addRange(_mptr, _store.large.capacity * E.sizeof);
+                gc_addRange(_mptr, _large.capacity * E.sizeof);
             }
         }
         else
@@ -551,7 +549,7 @@ private struct Array(E,
                 // move small to temporary large
                 foreach (immutable i; 0 .. length)
                 {
-                    moveEmplace(_store.small._mptr[i],
+                    moveEmplace(_small._mptr[i],
                                 tempLarge._mptr[i]);
                 }
 
@@ -559,7 +557,7 @@ private struct Array(E,
 
                 // TODO functionize:
                 {               // make this large
-                    moveEmplace(tempLarge, _store.large);
+                    moveEmplace(tempLarge, _large);
                     _isLarge = true;
                 }
             }
@@ -586,7 +584,7 @@ private struct Array(E,
                     // move to temporary small
                     foreach (immutable i; 0 .. tempSmall.length)
                     {
-                        moveEmplace(_store.large._mptr[i],
+                        moveEmplace(_large._mptr[i],
                                     tempSmall._mptr[i]);
                     }
 
@@ -608,14 +606,14 @@ private struct Array(E,
                     foreach (immutable i; 0 .. tempSmall.length)
                     {
                         moveEmplace(tempSmall._mptr[i],
-                                    _store.small._mptr[i]);
+                                    _small._mptr[i]);
                     }
-                    _store.small.length = tempSmall.length;
+                    _small.length = tempSmall.length;
                     _isLarge = false; // now small
                 }
                 else
                 {
-                    if (_store.large.capacity != this.length)
+                    if (_large.capacity != this.length)
                     {
                         static if (shouldAddGCRange!E)
                         {
@@ -624,7 +622,7 @@ private struct Array(E,
                         reallocateLargeStoreAndSetCapacity(this.length);
                         static if (shouldAddGCRange!E)
                         {
-                            gc_addRange(_mptr, _store.large.capacity * E.sizeof);
+                            gc_addRange(_mptr, _large.capacity * E.sizeof);
                         }
                     }
                 }
@@ -644,8 +642,8 @@ private struct Array(E,
                 {
                     free(_mptr);
                 }
-                _store.large.capacity = 0;
-                _store.large.ptr = null;
+                _large.capacity = 0;
+                _large.ptr = null;
             }
         }
     }
@@ -656,15 +654,15 @@ private struct Array(E,
     pragma(inline, true)
     private void reallocateLargeStoreAndSetCapacity(size_t newCapacity) pure nothrow @trusted
     {
-        _store.large.capacity = newCapacity;
+        _large.capacity = newCapacity;
         static if (useGCAllocation)
         {
-            _store.large.ptr = cast(E*)GC.realloc(_mptr, E.sizeof * _store.large.capacity);
+            _large.ptr = cast(E*)GC.realloc(_mptr, E.sizeof * _large.capacity);
         }
         else                    // @nogc
         {
-            _store.large.ptr = cast(E*)realloc(_mptr, E.sizeof * _store.large.capacity);
-            assert(_store.large.ptr, "Reallocation failed");
+            _large.ptr = cast(E*)realloc(_mptr, E.sizeof * _large.capacity);
+            assert(_large.ptr, "Reallocation failed");
         }
     }
 
@@ -675,18 +673,18 @@ private struct Array(E,
         assert(!isBorrowed);
         if (isLarge)
         {
-            debug assert(_store.large.ptr != _ptrMagic, "Double free."); // trigger fault for double frees
+            debug assert(_large.ptr != _ptrMagic, "Double free."); // trigger fault for double frees
         }
         release();
         if (isLarge)
         {
-            debug _store.large.ptr = _ptrMagic; // tag as freed
+            debug _large.ptr = _ptrMagic; // tag as freed
         }
     }
 
     /// Empty.
     pragma(inline, true)
-    void clear() nothrow
+    void clear() @safe nothrow
     {
         assert(!isBorrowed);
         release();
@@ -713,21 +711,21 @@ private struct Array(E,
         {
             static if (shouldAddGCRange!E)
             {
-                gc_removeRange(_store.large.ptr);
+                gc_removeRange(_large.ptr);
             }
             static if (useGCAllocation)
             {
-                GC.free(_store.large.ptr);
+                GC.free(_large.ptr);
             }
             else                // @nogc
             {
                 static if (!shouldAddGCRange!E)
                 {
-                    free(cast(MutableE*)_store.large.ptr); // safe to case away constness
+                    free(cast(MutableE*)_large.ptr); // safe to case away constness
                 }
                 else
                 {
-                    free(_store.large.ptr);
+                    free(_large.ptr);
                 }
             }
         }
@@ -735,17 +733,17 @@ private struct Array(E,
 
     /// Reset internal data.
     pragma(inline, true)
-    private void resetInternalData()
+    private void resetInternalData() @trusted pure nothrow @nogc
     {
         if (isLarge)
         {
-            _store.large.ptr = null;
-            _store.large.length = 0;
-            _store.large.capacity = 0;
+            _large.ptr = null;
+            _large.length = 0;
+            _large.capacity = 0;
         }
         else
         {
-            _store.small.length = 0; // fast discardal
+            _small.length = 0; // fast discardal
         }
     }
 
@@ -875,7 +873,7 @@ private struct Array(E,
                 isElementAssignable!(ElementType!A))
         {
             assert(!isBorrowed);
-            if (ptr == values.ptr) // called as: this ~= this. TODO extend to check if `values` overlaps ptr[0 .. _store.large.capacity]
+            if (ptr == values.ptr) // called as: this ~= this. TODO extend to check if `values` overlaps ptr[0 .. _large.capacity]
             {
                 reserve(2*this.length);
                 foreach (immutable i; 0 .. this.length)
@@ -1019,26 +1017,6 @@ private struct Array(E,
             {
                 static if (values.length == 1) // faster because `contains()` followed by `completeSort()` searches array twice
                 {
-                    static if (false)
-                    {
-                        import std.traits : CommonType;
-                        size_t[Us.length] ixs;
-                        CommonType!Us[Us.length] vs;
-                        size_t i = 0;
-                        foreach (const ref value; sort([values]))
-                        {
-                            immutable index = indexOf(value);
-                            if (index != size_t.max)
-                            {
-                                ixs[i] = index;
-                                vs[i] = value;
-                                ++i;
-                            }
-                        }
-                        // TODO insert them in one go in reverse starting from
-                        // the end of this array
-                    }
-
                     import searching_ex : containsStoreIndex;
                     size_t index;
                     if (slice.assumeSorted!comp.containsStoreIndex!sp(values, index)) // faster than `completeSort` for single value
@@ -1195,7 +1173,7 @@ private struct Array(E,
     /// ditto
     static if (IsOrdered!ordering)
     {
-        const nothrow @nogc: // indexing and slicing must be `const` when ordered
+        const pure nothrow @nogc: // indexing and slicing must be `const` when ordered
 
         /// Slice operator must be const when ordered.
         auto opSlice() @safe return
@@ -1237,7 +1215,7 @@ private struct Array(E,
         nothrow:
 
         /// Set length to `newLength`.
-        @property void length(size_t newLength) @trusted
+        @property void length(size_t newLength) @safe pure
         {
             reserve(newLength);
             setOnlyLength(newLength);
@@ -1272,10 +1250,10 @@ private struct Array(E,
             }
         }
 
-        inout:             // indexing and slicing can be mutable when unordered
+        pure inout: // indexing and slicing has mutable access only when unordered
 
         /// Slice operator.
-        inout(E)[] opSlice() @safe return
+        inout(E)[] opSlice() return
         {
             return this.opSlice(0, this.length);
         }
@@ -1366,11 +1344,11 @@ private struct Array(E,
     {
         if (isLarge)
         {
-            return _store.large.length;
+            return _large.length;
         }
         else
         {
-            return _store.small.length;
+            return _small.length;
         }
     }
     alias opDollar = length;    /// ditto
@@ -1380,13 +1358,13 @@ private struct Array(E,
     {
         if (isLarge)
         {
-            assert(_store.large.length);
-            _store.large.length -= 1;
+            assert(_large.length);
+            _large.length -= 1;
         }
         else
         {
-            assert(_store.small.length);
-            _store.small.length -= 1;
+            assert(_small.length);
+            _small.length -= 1;
         }
     }
 
@@ -1395,12 +1373,12 @@ private struct Array(E,
     {
         if (isLarge)
         {
-            _store.large.length = newLength; // TODO compress?
+            _large.length = newLength; // TODO compress?
         }
         else
         {
             assert(newLength <= SmallLength.max);
-            _store.small.length = cast(SmallLength)newLength;
+            _small.length = cast(SmallLength)newLength;
         }
     }
 
@@ -1409,7 +1387,7 @@ private struct Array(E,
     {
         if (isLarge)
         {
-            return _store.large.capacity;
+            return _large.capacity;
         }
         else
         {
@@ -1431,11 +1409,11 @@ private struct Array(E,
         // TODO Use cast(ET[])?: alias ET = ContainerElementType!(This, E);
         if (isLarge)
         {
-            return _store.large.ptr;
+            return _large.ptr;
         }
         else
         {
-            return _store.small.elms.ptr;
+            return _small.elms.ptr;
         }
     }
 
@@ -1444,11 +1422,11 @@ private struct Array(E,
     {
         if (isLarge)
         {
-            return _store.large._mptr;
+            return _large._mptr;
         }
         else
         {
-            return _store.small._mptr;
+            return _small._mptr;
         }
     }
 
@@ -1531,22 +1509,20 @@ private:                        // data
         }
     }
 
-    static if (is(E == char) &&    // this can be interpreted as a string
-               size_t.sizeof == 8) // 64-bit
+    static if (E.sizeof == 1 &&
+               size_t.sizeof == 8 && // 64-bit
+               Small.capacity == 23)
     {
         static assert(Large.sizeof == 24);
         static assert(Small.sizeof == 24);
-        static assert(Small.capacity == 23);
     }
 
-    /// String storage.
-    union Store
+    union
     {
-        Large large;            // large string
-        Small small;            // small string
+        Large _large;            // indirected storage
+        Small _small;            // non-indirected storage
     }
 
-    Store _store;
     bool _isLarge;              // TODO pack into bit 7 of _length
     bool _isBorrowed;           // TODO pack into bit 6 of _length
 }

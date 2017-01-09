@@ -921,7 +921,7 @@ private struct Array(E,
             }
         }
         alias append = pushBack;
-        alias put = pushBack;
+        alias put = pushBack;   // OutputRange support
 
         pragma(inline, true):
 

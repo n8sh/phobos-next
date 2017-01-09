@@ -684,7 +684,7 @@ private struct Array(E,
 
     /// Empty.
     pragma(inline, true)
-    void clear() nothrow
+    void clear() @safe nothrow
     {
         assert(!isBorrowed);
         release();
@@ -733,7 +733,7 @@ private struct Array(E,
 
     /// Reset internal data.
     pragma(inline, true)
-    private void resetInternalData()
+    private void resetInternalData() @trusted pure nothrow @nogc
     {
         if (isLarge)
         {

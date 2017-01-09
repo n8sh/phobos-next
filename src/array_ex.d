@@ -3,8 +3,6 @@
 
     TODO Remove _isLarge and code it into top-most bit of length instead
 
-    TODO Use Large.ctor() or emplace!Large instead of explicit initialization
-
     TODO Replace ` = void` with construction or emplace
 
     TODO Breakout common logic into private `BasicArray` and reuse with `alias this` to express StandardArray, SortedArray, SortedSetArray

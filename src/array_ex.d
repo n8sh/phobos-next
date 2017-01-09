@@ -575,9 +575,11 @@ private struct Array(E,
                 {
                     Small tempSmall = Small(length, false);
 
-                    // move to temporary small
-                    moveEmplaceAll(_large._mptr[0 .. tempSmall.length],
-                                   tempSmall._mptr[0 .. tempSmall.length]);
+                    // move elements to temporary small. TODO make moveEmplaceAll work on char[],char[] and use
+                    foreach (immutable i; 0 .. length)
+                    {
+                        moveEmplace(_large._mptr[i], tempSmall._mptr[i]);
+                    }
 
                     // free existing large data
                     static if (shouldAddGCRange!E)
@@ -1448,12 +1450,12 @@ private struct Array(E,
 
     enum largeSmallLengthDifference = Large.sizeof - SmallLength.sizeof;
     enum smallCapacity = largeSmallLengthDifference / E.sizeof;
-    enum smallPadding = largeSmallLengthDifference % E.sizeof;
+    enum smallPadSize = largeSmallLengthDifference - smallCapacity*E.sizeof;
 
     static assert(smallCapacity != 0);
-    static assert(smallPadding == 0);
+    static assert(smallPadSize == 0);
 
-    pragma(msg, "small Capacity/Padding: ", smallCapacity, ",", smallPadding);
+    pragma(msg, E, " ", largeSmallLengthDifference, " small Capacity/Padding: ", smallCapacity, ",", smallPadSize);
 
     /** Tag `this` borrowed.
         Used by wrapper logic in owned.d and borrowed.d
@@ -1529,6 +1531,7 @@ private:                        // data
 
         import std.bitmanip : bitfields;
         mixin(bitfields!(SmallLength, "length", 8*SmallLength.sizeof - 2,
+                         ubyte, unusedPadding,
                          bool, "isLarge", 1, // defaults to false
                          bool, "isBorrowed", 1)); // default to false
 
@@ -1539,6 +1542,9 @@ private:                        // data
             return cast(typeof(return))(elms.ptr);
         }
     }
+
+    static assert(Large.sizeof ==
+                  Small.sizeof);
 
     static if (E.sizeof == 1 &&
                size_t.sizeof == 8 && // 64-bit

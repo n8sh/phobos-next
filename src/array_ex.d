@@ -682,7 +682,7 @@ private struct Array(E,
     alias makeEmpty = clear;
     /// ditto
     pragma(inline, true)
-    void opAssign(typeof(null)) { clear(); }
+    void opAssign(typeof(null)) @safe{ clear(); }
 
     /// Destroy elements.
     static if (hasElaborateDestructor!E)
@@ -1485,28 +1485,34 @@ private struct Array(E,
 private:                        // data
     static struct Large
     {
+        private enum lengthBits = 8*CapacityType.sizeof - 2;
+        private enum lengthMax = 2^^lengthBits - 1;
+
         // TODO reuse andralex's module `storage` for small size/array optimization (SSO)
         static if (useGCAllocation)
             E* ptr;                // GC-allocated store pointer. See also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
         else
             @nogc E* ptr;       // non-GC-allocated store pointer
-        size_t capacity;        // store capacity
+        CapacityType capacity;        // store capacity
 
         import std.bitmanip : bitfields;
-        mixin(bitfields!(size_t, "length", 8*size_t.sizeof - 2,
+        mixin(bitfields!(size_t, "length", lengthBits,
                          bool, "isLarge", 1,
                          bool, "isBorrowed", 1));
 
-        pragma(inline, true):
-
         this(size_t initialCapacity, size_t initialLength, bool zero)
         {
+            assert(initialCapacity <= CapacityType.max);
+            assert(initialLength <= CapacityType.max);
+
             this.capacity = initialCapacity;
             this.ptr = allocate(initialCapacity, zero);
             this.length = initialLength;
             this.isLarge = true;
             this.isBorrowed = false;
         }
+
+        pragma(inline, true):
 
         MutableE* _mptr() const @trusted
         {
@@ -1518,8 +1524,18 @@ private:                        // data
     static struct Small
     {
         enum capacity = smallCapacity;
+        private enum lengthBits = 8*SmallLength.sizeof - 2;
+        private enum lengthMax = 2^^lengthBits - 1;
 
         E[capacity] elms;
+        static if (smallPadSize)
+        {
+            ubyte[smallPadSize] _ignoredPadding;
+        }
+        import std.bitmanip : bitfields;
+        mixin(bitfields!(SmallLength, "length", lengthBits,
+                         bool, "isLarge", 1, // defaults to false
+                         bool, "isBorrowed", 1)); // default to false
 
         this(size_t initialLength, bool zero)
         {
@@ -1531,16 +1547,6 @@ private:                        // data
                 elms[] = E.init;
             }
         }
-
-        static if (smallPadSize)
-        {
-            ubyte[smallPadSize] _ignoredPadding;
-        }
-
-        import std.bitmanip : bitfields;
-        mixin(bitfields!(SmallLength, "length", 8*SmallLength.sizeof - 2,
-                         bool, "isLarge", 1, // defaults to false
-                         bool, "isBorrowed", 1)); // default to false
 
         pragma(inline, true):
 

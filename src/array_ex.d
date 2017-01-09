@@ -1509,7 +1509,7 @@ private:                        // data
         }
     }
 
-    static if (is(E == char) &&    // this can be interpreted as a string
+    static if (E.sizeof == 1 &&
                size_t.sizeof == 8 && // 64-bit
                Small.capacity == 23)
     {

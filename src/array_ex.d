@@ -1446,11 +1446,14 @@ private struct Array(E,
     /// Returns: `true` if `this` currently uses small (packed) array storage.
     bool isSmall() const @safe { return !isLarge; }
 
-    alias SmallLength = ubyte;
+    private
+    {
+        private alias SmallLength = ubyte;
 
-    enum largeSmallLengthDifference = Large.sizeof - SmallLength.sizeof;
-    enum smallCapacity = largeSmallLengthDifference / E.sizeof;
-    enum smallPadSize = largeSmallLengthDifference - smallCapacity*E.sizeof;
+        private enum largeSmallLengthDifference = Large.sizeof - SmallLength.sizeof;
+        private enum smallCapacity = largeSmallLengthDifference / E.sizeof;
+        private enum smallPadSize = largeSmallLengthDifference - smallCapacity*E.sizeof;
+    }
 
     static assert(smallCapacity != 0);
     static assert(smallPadSize == 0);
@@ -1529,9 +1532,13 @@ private:                        // data
             if (zero) { elms[] = 0; }
         }
 
+        static if (smallPadSize)
+        {
+            ubyte[smallPadSize] _ignoredPadding;
+        }
+
         import std.bitmanip : bitfields;
         mixin(bitfields!(SmallLength, "length", 8*SmallLength.sizeof - 2,
-                         ubyte, unusedPadding,
                          bool, "isLarge", 1, // defaults to false
                          bool, "isBorrowed", 1)); // default to false
 

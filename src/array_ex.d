@@ -1510,11 +1510,11 @@ private:                        // data
     }
 
     static if (is(E == char) &&    // this can be interpreted as a string
-               size_t.sizeof == 8) // 64-bit
+               size_t.sizeof == 8 && // 64-bit
+               Small.capacity == 23)
     {
         static assert(Large.sizeof == 24);
         static assert(Small.sizeof == 24);
-        static assert(Small.capacity == 23);
     }
 
     union

@@ -1502,8 +1502,8 @@ private:                        // data
 
         this(size_t initialCapacity, size_t initialLength, bool zero)
         {
-            assert(initialCapacity <= CapacityType.max);
-            assert(initialLength <= CapacityType.max);
+            assert(initialCapacity <= lengthMax);
+            assert(initialLength <= lengthMax);
 
             this.capacity = initialCapacity;
             this.ptr = allocate(initialCapacity, zero);
@@ -1539,6 +1539,8 @@ private:                        // data
 
         this(size_t initialLength, bool zero)
         {
+            assert(initialLength <= lengthMax);
+
             this.length = cast(SmallLength)initialLength;
             this.isLarge = false;
             this.isBorrowed = false;

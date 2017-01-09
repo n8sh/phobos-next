@@ -2357,7 +2357,7 @@ pure nothrow unittest
 }
 
 /// append to empty to array as AA value type
-pure unittest
+@safe pure nothrow @nogc unittest
 {
     import std.exception: assertThrown;
     import core.exception : RangeError;
@@ -2368,7 +2368,7 @@ pure unittest
 }
 
 /// map array of uncopyable
-unittest
+@safe pure unittest
 {
     import std.range : isInputRange;
     import std.array : array;
@@ -2394,7 +2394,7 @@ unittest
 }
 
 /// map array of uncopyable
-pure unittest
+@safe pure nothrow @nogc unittest
 {
     foreach (AT; AliasSeq!(SortedUncopyableArray, SortedSetUncopyableArray))
     {

@@ -86,7 +86,6 @@ version(unittest)
 import container_traits : ContainerElementType;
 
 import std.traits : isInstanceOf;
-import traits_ex : isCopyable;
 
 /// Is `true` iff `C` is an instance of an `Array` container.
 enum isArrayContainer(C) = isInstanceOf!(Array, C);
@@ -124,7 +123,7 @@ private struct Array(E,
 {
     import std.conv : emplace;
     import std.range : isInputRange, isIterable, ElementType;
-    import std.traits : isAssignable, Unqual, isSomeChar, isArray, isScalarType, hasElaborateDestructor, TemplateOf;
+    import std.traits : isAssignable, Unqual, isSomeChar, isArray, isScalarType, hasElaborateDestructor, TemplateOf, isCopyable;
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
     import core.stdc.string : memset;

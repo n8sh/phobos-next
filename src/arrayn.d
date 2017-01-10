@@ -23,18 +23,18 @@ struct ArrayN(E, uint capacity, Checking checking)
     E[capacity] _store = void;  /// stored elements
 
     enum maxLength = capacity;  // for public use
-
-    enum borrowChecked = checking == Checking.viaBorrowing;
+    private enum borrowChecked = checking == Checking.viaBorrowing;
 
     static if (borrowChecked)
     {
         /// Number of bits needed to store number of read borrows.
-        enum readBorrowCountBits = 3;
+        private enum readBorrowCountBits = 3;
         /// Maximum value possible for `_readBorrowCount`.
         enum readBorrowCountMax = 2^^readBorrowCountBits - 1;
 
         static      if (capacity <= 2^^(8*ubyte.sizeof - 1 - readBorrowCountBits) - 1)
         {
+            private enum lengthMax = 2^^4 - 1;
             mixin(bitfields!(ubyte, "_length", 4, /// number of defined elements in `_store`
                              bool, "_writeBorrowed", 1, // TODO make private
                              uint, "_readBorrowCount", readBorrowCountBits, // TODO make private
@@ -42,6 +42,7 @@ struct ArrayN(E, uint capacity, Checking checking)
         }
         else static if (capacity <= 2^^(8*ushort.sizeof - 1 - readBorrowCountBits) - 1)
         {
+            private enum lengthMax = 2^^14 - 1;
             mixin(bitfields!(ushort, "_length", 14, /// number of defined elements in `_store`
                              bool, "_writeBorrowed", 1, // TODO make private
                              uint, "_readBorrowCount", readBorrowCountBits, // TODO make private
@@ -66,12 +67,12 @@ struct ArrayN(E, uint capacity, Checking checking)
     alias MutableE = Unqual!E;
 
     /// Is `true` if `U` can be assign to the element type `E` of `this`.
-    enum isElementAssignable(U) = isAssignable!(E, U);
+    private enum isElementAssignable(U) = isAssignable!(E, U);
 
     template shouldAddGCRange(T)
     {
         import std.traits : hasIndirections;
-        enum shouldAddGCRange = hasIndirections!T; // TODO and only if T's indirections are handled by the GC (not tagged with @nogc)
+        private enum shouldAddGCRange = hasIndirections!T; // TODO and only if T's indirections are handled by the GC (not tagged with @nogc)
     }
 
     @safe pure nothrow @nogc:

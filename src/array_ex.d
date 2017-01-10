@@ -1,8 +1,6 @@
 /** Array container(s) with optional sortedness via template-parameter
     `Ordering` and optional use of GC via `useGCAllocation`.
 
-    TODO Remove _isLarge and code it into top-most bit of length instead
-
     TODO Replace ` = void` with construction or emplace
 
     TODO Breakout common logic into private `BasicArray` and reuse with `alias this` to express StandardArray, SortedArray, SortedSetArray

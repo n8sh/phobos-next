@@ -22,7 +22,7 @@ struct ArrayN(E, uint capacity, Checking checking)
 
     E[capacity] _store = void;  /// stored elements
 
-    enum maxLength = capacity;  // for public use
+    alias maxLength = capacity;  // for public use
     private enum borrowChecked = checking == Checking.viaBorrowing;
 
     static if (borrowChecked)

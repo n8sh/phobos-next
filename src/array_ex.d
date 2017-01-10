@@ -16,8 +16,6 @@
     collection's element type. See also:
     https://forum.dlang.org/post/n3qq6e$2bis$1@digitalmars.com
 
-    TODO All Array with const members and movals
-
     TODO replace qcmeman with std.experimental.allocator parameter defaulting to
     `Mallocator`
 

@@ -2095,7 +2095,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 /// disabled copying
 @safe pure nothrow @nogc unittest
 {
-    import std.traits : isRvalueAssignable, isLvalueAssignable;
+    import std.traits : isRvalueAssignable, isLvalueAssignable, isCopyable;
 
     alias E = string;
 
@@ -2273,6 +2273,7 @@ pure nothrow /+TODO @nogc+/ unittest
             x[A.withElement(E(i, 2*i))] = 42;
             assert(x.length == i + 1);
             auto a = A.withElement(E(i, 2*i));
+            import std.traits : isCopyable;
             static if (isCopyable!A)
             {
                 // TODO why do these fail when `A` is uncopyable?

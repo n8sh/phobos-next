@@ -1,6 +1,8 @@
 /** Array container(s) with optional sortedness via template-parameter
     `Ordering` and optional use of GC via `useGCAllocation`.
 
+    TODO Search for `taggedPointer` and use
+
     TODO Replace ` = void` with construction or emplace
 
     TODO Breakout common logic into private `BasicArray` and reuse with `alias this` to express StandardArray, SortedArray, SortedSetArray

@@ -52,11 +52,11 @@ struct ArrayN(E, uint capacity, Checking checking)
     }
     else
     {
-        static if (capacity <= 2^^(8*ubyte.sizeof) - 1)
+        static if (capacity <= ubyte.max)
         {
             ubyte _length;       /// number of defined elements in `_store`
         }
-        else static if (capacity <= 2^^(8*ushort.sizeof) - 1)
+        else static if (capacity <= ushort.max)
         {
             ushort _length;       /// number of defined elements in `_store`
         }

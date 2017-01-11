@@ -1,8 +1,6 @@
 /** Array container(s) with optional sortedness via template-parameter
     `Ordering` and optional use of GC via `useGCAllocation`.
 
-    TODO Search for `taggedPointer` and use
-
     TODO Replace ` = void` with construction or emplace
 
     TODO Breakout common logic into private `BasicArray` and reuse with `alias this` to express StandardArray, SortedArray, SortedSetArray
@@ -1487,9 +1485,6 @@ private:                        // data
         private enum lengthBits = 8*CapacityType.sizeof - 2;
         private enum lengthMax = 2^^lengthBits - 1;
 
-        // TODO use std.bitmanip.taggedPointer instead and put `ptr` and `Small.length`
-        // - first on version(LittleEndian)
-        // - last on version(BigEndian)
         static if (useGCAllocation)
             E* ptr;                // GC-allocated store pointer. See also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
         else

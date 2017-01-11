@@ -1356,7 +1356,7 @@ private struct Array(E,
         else
         {
             assert(_small.length);
-            _small.length = cast(SmallLength)(_small.length - 1);
+            _small.length = cast(SmallLengthType)(_small.length - 1);
         }
     }
 
@@ -1369,8 +1369,8 @@ private struct Array(E,
         }
         else
         {
-            assert(newLength <= SmallLength.max);
-            _small.length = cast(SmallLength)newLength;
+            assert(newLength <= SmallLengthType.max);
+            _small.length = cast(SmallLengthType)newLength;
         }
     }
 
@@ -1447,9 +1447,9 @@ private struct Array(E,
 
     private
     {
-        private alias SmallLength = ubyte;
+        private alias SmallLengthType = ubyte;
 
-        private enum largeSmallLengthDifference = Large.sizeof - SmallLength.sizeof;
+        private enum largeSmallLengthDifference = Large.sizeof - SmallLengthType.sizeof;
         private enum smallCapacity = largeSmallLengthDifference / E.sizeof;
         private enum smallPadSize = largeSmallLengthDifference - smallCapacity*E.sizeof;
     }
@@ -1522,7 +1522,7 @@ private:                        // data
                 @nogc E* ptr;       // non-GC-allocated store pointer
             CapacityType capacity;  // store capacity
             import std.bitmanip : bitfields; // TODO replace with own logic cause this mixin costs compilation speed
-            mixin(bitfields!(size_t, "length", lengthBits,
+            mixin(bitfields!(CapacityType, "length", lengthBits,
                              bool, "isBorrowed", 1,
                              bool, "isLarge", 1,
                       ));
@@ -1559,7 +1559,7 @@ private:                        // data
     static struct Small
     {
         enum capacity = smallCapacity;
-        private enum lengthBits = 8*SmallLength.sizeof - 2;
+        private enum lengthBits = 8*SmallLengthType.sizeof - 2;
         private enum lengthMax = 2^^lengthBits - 1;
 
         import std.bitmanip : bitfields; // TODO replace with own logic cause this mixin costs compilation speed
@@ -1567,7 +1567,7 @@ private:                        // data
         {
             mixin(bitfields!(bool, "isLarge", 1, // defaults to false
                              bool, "isBorrowed", 1, // default to false
-                             SmallLength, "length", lengthBits,
+                             SmallLengthType, "length", lengthBits,
                       ));
             static if (smallPadSize) { ubyte[smallPadSize] _ignoredPadding; }
             E[capacity] elms;
@@ -1576,7 +1576,7 @@ private:                        // data
         {
             E[capacity] elms;
             static if (smallPadSize) { ubyte[smallPadSize] _ignoredPadding; }
-            mixin(bitfields!(SmallLength, "length", lengthBits,
+            mixin(bitfields!(SmallLengthType, "length", lengthBits,
                              bool, "isBorrowed", 1, // default to false
                              bool, "isLarge", 1, // defaults to false
                              ));
@@ -1586,7 +1586,7 @@ private:                        // data
         {
             assert(initialLength <= lengthMax);
 
-            this.length = cast(SmallLength)initialLength;
+            this.length = cast(SmallLengthType)initialLength;
             this.isLarge = false;
             this.isBorrowed = false;
             if (zero)

@@ -7,8 +7,6 @@ module gmp;
  */
 struct Integer
 {
-    import std.typecons : Unqual;
-
     pragma(inline) @trusted pure nothrow:
 
     string toString(int base = 10) const

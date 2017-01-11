@@ -1480,31 +1480,53 @@ private struct Array(E,
     }
 
 private:                        // data
+    enum useAlignedTaggedPointer = false; // TODO make this work when true
     static struct Large
     {
-        private enum lengthBits = 8*CapacityType.sizeof - 2;
-        private enum lengthMax = 2^^lengthBits - 1;
-
-        version(none)           // see: http://forum.dlang.org/posting/zifyahfohbwavwkwbgmw
+        static if (useAlignedTaggedPointer)
         {
-            import std.bitmanip : taggedPointer;
-            mixin(taggedPointer!(E*, "ptr", // GC-allocated store pointer. See also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
-                                 bool, "isLarge", 1,
-                                 bool, "isBorrowed", 1));
-            CapacityType capacity;  // store capacity
-            CapacityType length;  // store length
+            private enum lengthMax = CapacityType.max;
+            version(LittleEndian) // see: http://forum.dlang.org/posting/zifyahfohbwavwkwbgmw
+            {
+                import std.bitmanip : taggedPointer;
+                mixin(taggedPointer!(uint*, "_uintptr", // GC-allocated store pointer. See also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
+                                     bool, "isLarge", 1, // bit 0
+                                     bool, "isBorrowed", 1, // bit 1
+                          ));
+            pragma(inline, true):
+                @property void ptr(E* c)
+                {
+                    dln(c);
+                    assert((cast(ulong)c & 0b11) == 0);
+                    _uintptr = cast(uint*)c;
+                }
+                @property inout(E)* ptr() inout
+                {
+                    return cast(E*)_uintptr;
+                }
+                CapacityType capacity;  // store capacity
+                CapacityType length;  // store length
+            }
+            else
+            {
+                static assert("BigEndian support and test");
+            }
         }
-
-        static if (useGCAllocation)
-            E* ptr;                // GC-allocated store pointer. See also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
         else
-            @nogc E* ptr;       // non-GC-allocated store pointer
-        CapacityType capacity;  // store capacity
-
-        import std.bitmanip : bitfields; // TODO replace with own logic cause this mixin costs compilation speed
-        mixin(bitfields!(size_t, "length", lengthBits,
-                         bool, "isLarge", 1,
-                         bool, "isBorrowed", 1));
+        {
+            private enum lengthBits = 8*CapacityType.sizeof - 2;
+            private enum lengthMax = 2^^lengthBits - 1;
+            static if (useGCAllocation)
+                E* ptr;                // GC-allocated store pointer. See also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
+            else
+                @nogc E* ptr;       // non-GC-allocated store pointer
+            CapacityType capacity;  // store capacity
+            import std.bitmanip : bitfields; // TODO replace with own logic cause this mixin costs compilation speed
+            mixin(bitfields!(size_t, "length", lengthBits,
+                             bool, "isBorrowed", 1,
+                             bool, "isLarge", 1,
+                      ));
+        }
 
         this(size_t initialCapacity, size_t initialLength, bool zero)
         {
@@ -1540,15 +1562,25 @@ private:                        // data
         private enum lengthBits = 8*SmallLength.sizeof - 2;
         private enum lengthMax = 2^^lengthBits - 1;
 
-        E[capacity] elms;
-        static if (smallPadSize)
-        {
-            ubyte[smallPadSize] _ignoredPadding;
-        }
         import std.bitmanip : bitfields; // TODO replace with own logic cause this mixin costs compilation speed
-        mixin(bitfields!(SmallLength, "length", lengthBits,
-                         bool, "isLarge", 1, // defaults to false
-                         bool, "isBorrowed", 1)); // default to false
+        static if (useAlignedTaggedPointer)
+        {
+            mixin(bitfields!(bool, "isLarge", 1, // defaults to false
+                             bool, "isBorrowed", 1, // default to false
+                             SmallLength, "length", lengthBits,
+                      ));
+            static if (smallPadSize) { ubyte[smallPadSize] _ignoredPadding; }
+            E[capacity] elms;
+        }
+        else
+        {
+            E[capacity] elms;
+            static if (smallPadSize) { ubyte[smallPadSize] _ignoredPadding; }
+            mixin(bitfields!(SmallLength, "length", lengthBits,
+                             bool, "isBorrowed", 1, // default to false
+                             bool, "isLarge", 1, // defaults to false
+                             ));
+        }
 
         this(size_t initialLength, bool zero)
         {

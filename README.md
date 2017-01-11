@@ -11,7 +11,7 @@ It includes various kinds of
 - Integer Sorting Algorithms, such as Non-In-Place Radix Sort: `intsort.d`
 - Clever Printing of Groups of arrays/slices: `show.d`
 - Boyer Moore Hoorspool Search: `horspool.d`
-- Symbol Regex (Structured Regular Expressions similar to Elisps rx): `sregex.d`
+- Symbol Regex (Structured Regular Expressions similar to Elisps rx): `symbolic.d`
 - extension to Phobos (often ending with _ex.d)
 - A compile-time sized variant of bitarray.d i call `bitset.d`
 - An N-Gram implementation (many nested for loops): `ngram.d`

@@ -114,8 +114,8 @@ private struct Array(E,
                      bool useGCAllocation = false,
                      CapacityType = size_t, // see also https://github.com/izabera/s
                      alias less = "a < b") // TODO move out of this definition and support only for the case when `ordering` is not `Ordering.unsorted`
-    if (is(CapacityType == size_t) ||
-        is(CapacityType == uint))
+    if (is(CapacityType == size_t) ||      // 3 64-bit words
+        is(CapacityType == uint))          // 2 64-bit words
 {
     import std.conv : emplace;
     import std.range : isInputRange, isIterable, ElementType;
@@ -1485,7 +1485,20 @@ private:                        // data
         private enum lengthBits = 8*CapacityType.sizeof - 2;
         private enum lengthMax = 2^^lengthBits - 1;
 
-        // TODO reuse andralex's module `storage` for small size/array optimization (SSO)
+        version(none)           // see: http://forum.dlang.org/posting/zifyahfohbwavwkwbgmw
+        {
+            import std.bitmanip : taggedPointer;
+            mixin(taggedPointer!(E*, "ptr", // GC-allocated store pointer. See also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
+                                 bool, "isLarge", 1,
+                                 bool, "isBorrowed", 1));
+            // static if (useGCAllocation)
+            //     E* ptr;                // GC-allocated store pointer. See also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
+            // else
+            //     @nogc E* ptr;       // non-GC-allocated store pointer
+            CapacityType capacity;  // store capacity
+            CapacityType length;  // store length
+        }
+
         static if (useGCAllocation)
             E* ptr;                // GC-allocated store pointer. See also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
         else

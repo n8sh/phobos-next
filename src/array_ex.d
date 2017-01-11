@@ -1491,10 +1491,6 @@ private:                        // data
             mixin(taggedPointer!(E*, "ptr", // GC-allocated store pointer. See also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
                                  bool, "isLarge", 1,
                                  bool, "isBorrowed", 1));
-            // static if (useGCAllocation)
-            //     E* ptr;                // GC-allocated store pointer. See also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
-            // else
-            //     @nogc E* ptr;       // non-GC-allocated store pointer
             CapacityType capacity;  // store capacity
             CapacityType length;  // store length
         }

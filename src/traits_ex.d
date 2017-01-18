@@ -986,15 +986,15 @@ template EntropyBitsOf(T)
     static assert(EntropyBitsOf!int == 8*int.sizeof);
 }
 
-/** Is `true` if `A` is an l-value, `false` otherwise.
+/** Is `true` if `sym` is an l-value, `false` otherwise.
     See also: https://forum.dlang.org/post/mailman.4192.1454351296.22025.digitalmars-d-learn@puremagic.com
     TODO Add to Phobos
 */
-enum isLvalue(alias A) = is(typeof((ref _){}(A)));
+enum isLvalue(alias sym) = is(typeof((ref _){}(sym)));
 
-/** Is `true` if `A` is an l-value, `false` otherwise.
+/** Is `true` if `sym` is an l-value, `false` otherwise.
  */
-enum isRvalue(alias A) = !isLvalue!A;
+enum isRvalue(alias sym) = !isLvalue!sym;
 
 @safe pure nothrow @nogc unittest
 {

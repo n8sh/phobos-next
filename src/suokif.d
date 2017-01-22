@@ -380,7 +380,7 @@ unittest
         }
     }
 
-    // const file = `~/Work/justd/phobos-next/src/emotion.kif`.expandTilde;
+    // const file = `~/Work/phobos-next/src/emotion.kif`.expandTilde;
     // dln(tokens[]);
 }
 

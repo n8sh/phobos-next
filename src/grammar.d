@@ -1,6 +1,6 @@
 #!/usr/bin/env rdmd-dev
 
-/** Generic Language Constructs.
+   /** Generic Language Constructs.
     See also: https://en.wikipedia.org/wiki/Predicate_(grammar)
 
     Note that ! and ? are more definite sentence enders than .
@@ -174,7 +174,7 @@ bool isEnglishDoubleConsonant(S)(S s) if (isSomeString!S)
     return c.among!(`bb`, `dd`, `ff`, `gg`, `mm`, `nn`, `pp`, `rr`, `tt`, `ck`, `ft`) != 0;
 }
 
-/** computer Token. */
+/** Computer token. */
 enum TokenId:ubyte
 {
     unknown,
@@ -208,7 +208,9 @@ enum VerbForm:ubyte
     supinum, pastParticiple = supinum,
 }
 
-struct Verb(S) if (isSomeString!S)
+/** Verb Instance. */
+struct Verb(S)
+    if (isSomeString!S)
 {
     S expr;
     VerbForm form;
@@ -216,7 +218,13 @@ struct Verb(S) if (isSomeString!S)
 }
 
 /** Subject Count. */
-enum Count:ubyte { unknown, singular, plural, uncountable}
+enum Count : ubyte
+{
+    unknown,
+    singular,
+    plural,
+    uncountable
+}
 
 struct Noun(S) if (isSomeString!S)
 {

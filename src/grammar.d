@@ -1,10 +1,10 @@
-#!/usr/bin/env rdmd-dev
-
-   /** Generic Language Constructs.
+/** Generic Language Constructs.
     See also: https://en.wikipedia.org/wiki/Predicate_(grammar)
 
     Note that ! and ? are more definite sentence enders than .
- */
+
+    TODO `isSomeString` => `isStringLike`
+*/
 module grammar;
 
 import std.traits: isSomeChar, isSomeString;
@@ -30,7 +30,8 @@ enum englishVowels = ['a', 'o', 'u', 'e', 'i', 'y',
                       'A', 'O', 'U', 'E', 'I', 'Y'];
 
 /** Check if $(D c) is a Vowel. */
-bool isEnglishVowel(C)(C c) if (isSomeChar!C)
+bool isEnglishVowel(C)(C c)
+    if (isSomeChar!C)
 {
     return c.among!('a', 'o', 'u', 'e', 'i', 'y',
                     'A', 'O', 'U', 'E', 'I', 'Y') != 0; // TODO Reuse englishVowels and hash-table
@@ -40,7 +41,8 @@ bool isEnglishVowel(C)(C c) if (isSomeChar!C)
 enum englishAccentedVowels = ['é'];
 
 /** Check if $(D c) is an Accented Vowel. */
-bool isEnglishAccentedVowel(C)(C c) if (isSomeChar!C)
+bool isEnglishAccentedVowel(C)(C c)
+    if (isSomeChar!C)
 {
     return c.among!('é') != 0; // TODO Reuse englishAccentedVowels and hash-table
 }
@@ -63,7 +65,8 @@ enum swedishVowels = (swedishHardVowels ~
                       swedishSoftVowels);
 
 /** Check if $(D c) is a Swedish Vowel. */
-bool isSwedishVowel(C)(C c) if (isSomeChar!C)
+bool isSwedishVowel(C)(C c)
+    if (isSomeChar!C)
 {
     // TODO Reuse swedishVowels and hash-table
     return c.among!('a', 'o', 'u', 'å', 'e', 'i', 'y', 'ä', 'ö',
@@ -71,14 +74,16 @@ bool isSwedishVowel(C)(C c) if (isSomeChar!C)
 }
 
 /** Check if $(D c) is a Swedish hard vowel. */
-bool isSwedishHardVowel(C)(C c) if (isSomeChar!C)
+bool isSwedishHardVowel(C)(C c)
+    if (isSomeChar!C)
 {
     return c.among!('a', 'o', 'u', 'å',
                     'A', 'O', 'U', 'Å') != 0;
 }
 
 /** Check if $(D c) is a Swedish soft vowel. */
-bool isSwedishSoftVowel(C)(C c) if (isSomeChar!C)
+bool isSwedishSoftVowel(C)(C c)
+    if (isSomeChar!C)
 {
     return c.among!('e', 'i', 'y', 'ä', 'ö',
                     'E', 'I', 'Y', 'Ä', 'Ö') != 0;
@@ -89,13 +94,15 @@ enum spanishAccentedVowels = ['á', 'é', 'í', 'ó', 'ú',
                               'Á', 'É', 'Í', 'Ó', 'Ú'];
 
 /** Check if $(D c) is a Spanish Accented Vowel. */
-bool isSpanishAccentedVowel(C)(C c) if (isSomeChar!C)
+bool isSpanishAccentedVowel(C)(C c)
+    if (isSomeChar!C)
 {
     return c.among!(spanishAccentedVowels) != 0;
 }
 
 /** Check if $(D c) is a Spanish Vowel. */
-bool isSpanishVowel(C)(C c) if (isSomeChar!C)
+bool isSpanishVowel(C)(C c)
+    if (isSomeChar!C)
 {
     return (c.isEnglishVowel ||
             c.isSpanishAccentedVowel);
@@ -108,7 +115,8 @@ unittest
 }
 
 /** Check if $(D c) is a Vowel in language $(D lang). */
-bool isVowel(C)(C c, Lang lang) if (isSomeChar!C)
+bool isVowel(C)(C c, Lang lang)
+    if (isSomeChar!C)
 {
     switch (lang)
     {
@@ -134,7 +142,8 @@ enum englishConsonants = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n',
                           'B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X'];
 
 /** Check if $(D c) is a Consonant. */
-bool isEnglishConsonant(C)(C c) if (isSomeChar!C)
+bool isEnglishConsonant(C)(C c)
+    if (isSomeChar!C)
 {
     // TODO Reuse englishConsonants and hash-table
     return c.among!('b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x',
@@ -153,7 +162,8 @@ unittest
 enum englishLetters = englishVowels ~ englishConsonants;
 
 /** Check if $(D c) is a Letter. */
-bool isEnglishLetter(C)(C c) if (isSomeChar!C)
+bool isEnglishLetter(C)(C c)
+    if (isSomeChar!C)
 {
     return c.among!(englishLetters) != 0;
 }
@@ -169,7 +179,8 @@ unittest
 enum englishDoubleConsonants = [`bb`, `dd`, `ff`, `gg`, `mm`, `nn`, `pp`, `rr`, `tt`, `ck`, `ft`];
 
 /** Check if $(D c) is an English Double consonant. */
-bool isEnglishDoubleConsonant(S)(S s) if (isSomeString!S)
+bool isEnglishDoubleConsonant(S)(S s)
+    if (isSomeString!S)
 {
     return c.among!(`bb`, `dd`, `ff`, `gg`, `mm`, `nn`, `pp`, `rr`, `tt`, `ck`, `ft`) != 0;
 }
@@ -226,7 +237,8 @@ enum Count : ubyte
     uncountable
 }
 
-struct Noun(S) if (isSomeString!S)
+struct Noun(S)
+    if (isSomeString!S)
 {
     S expr;
     Count count;
@@ -246,7 +258,8 @@ enum Comparation:ubyte
     exzessive
 }
 
-struct Adjective(S) if (isSomeString!S)
+struct Adjective(S)
+    if (isSomeString!S)
 {
     S expr;
     Comparation comparation;
@@ -450,9 +463,13 @@ string inPlural(string word, int count = 2,
                 string pluralWord = null)
 {
     if (count == 1 || word.length == 0)
+    {
         return word; // it isn't actually inPlural
+    }
     if (pluralWord !is null)
+    {
         return pluralWord;
+    }
     switch (word[$ - 1])
     {
         case 's':

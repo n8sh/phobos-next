@@ -270,6 +270,7 @@ enum isIterableOfSomeString(R) = (isIterable!R && isSomeString!(ElementType!R));
 enum isRandomAccessRangeOf(R, E) = isRandomAccessRange!R && is(ElementType!R == E);
 enum isForwardRangeOf(R, E) = isForwardRange!R && is(ElementType!R == E);
 enum isInputRangeOf(R, E) = isInputRange!R && is(ElementType!R == E);
+enum isInputRangeOfUnqual(R, E) = isInputRange!R && is(Unqual!(ElementType!R) == E);
 enum isBidirectionalRangeOf(R, E) = isBidirectionalRange!R && is(ElementType!R == E);
 enum isOutputRangeOf(R, E) = isOutputRange!R && is(ElementType!R == E);
 enum isArrayOf(R, E) = isArray!R && is(ElementType!R == E);
@@ -291,6 +292,7 @@ alias isSource = isInputRange;
 alias isRange = isInputRange;
 
 alias isSourceOf = isInputRangeOf;
+alias isSourceOfUnqual = isInputRangeOfUnqual;
 alias isSink = isOutputRange;
 alias isSinkOf = isOutputRangeOf;
 

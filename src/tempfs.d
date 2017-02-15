@@ -17,7 +17,7 @@ version(linux)                  // wrap in platform-independent interface
     {
         import core.sys.posix.stdlib: mkstemp;
 
-        char[255] buf;
+        char[4096] buf;
         buf[0 .. namePrefix.length] = namePrefix[]; // copy the name into the mutable buffer
         buf[namePrefix.length .. namePrefix.length + 6] = "XXXXXX"[];
         buf[namePrefix.length + 6] = 0; // make sure it is zero terminated yourself

@@ -7,24 +7,26 @@
  */
 module tempfs;
 
+version(linux)
+{
 /** Create a New Temporary File starting with ($D namePrefix) and ending with 6
     randomly defined characters.
     Returns: File Descriptor to opened file.
 */
-int tempfile(string namePrefix = null) @trusted
-{
-    import core.sys.posix.stdlib: mkstemp;
+    int tempfile(string namePrefix = null) @trusted
+    {
+        import core.sys.posix.stdlib: mkstemp;
 
-    char[255] buf;
-    buf[0 .. namePrefix.length] = namePrefix[]; // copy the name into the mutable buffer
-    buf[namePrefix.length .. namePrefix.length + 6] = "XXXXXX"[];
-    buf[namePrefix.length + 6] = 0; // make sure it is zero terminated yourself
+        char[255] buf;
+        buf[0 .. namePrefix.length] = namePrefix[]; // copy the name into the mutable buffer
+        buf[namePrefix.length .. namePrefix.length + 6] = "XXXXXX"[];
+        buf[namePrefix.length + 6] = 0; // make sure it is zero terminated yourself
 
-    auto tmp = mkstemp(buf.ptr);
+        auto tmp = mkstemp(buf.ptr);
 
-    // dln(buf[0 .. namePrefix.length + 6]);
-    return tmp;
-}
+        // dln(buf[0 .. namePrefix.length + 6]);
+        return tmp;
+    }
 
 /** TODO Scoped variant of tempfile.
     Search http://forum.dlang.org/thread/mailman.262.1386205638.3242.digitalmars-d-learn@puremagic.com
@@ -33,12 +35,13 @@ int tempfile(string namePrefix = null) @trusted
 /** Create a New Temporary Directory Tree.
     Returns: Path to root of tree.
 */
-char* temptree(char* name_x,
-               char* template_ = null) @trusted
-{
-    return null;
-}
+    char* temptree(char* name_x,
+                   char* template_ = null) @trusted
+    {
+        return null;
+    }
 
-unittest
-{
+    unittest
+    {
+    }
 }

@@ -14,11 +14,14 @@ module tempfs;
 int tempfile(string namePrefix = null) @trusted
 {
     import core.sys.posix.stdlib: mkstemp;
+
     char[255] buf;
     buf[0 .. namePrefix.length] = namePrefix[]; // copy the name into the mutable buffer
     buf[namePrefix.length .. namePrefix.length + 6] = "XXXXXX"[];
     buf[namePrefix.length + 6] = 0; // make sure it is zero terminated yourself
+
     auto tmp = mkstemp(buf.ptr);
+
     // dln(buf[0 .. namePrefix.length + 6]);
     return tmp;
 }

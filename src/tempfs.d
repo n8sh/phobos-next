@@ -7,7 +7,7 @@
  */
 module tempfs;
 
-version(linux)                  // TODO wrap in platform-independent interface
+version(linux)                  // TODO wrap in OS-independent interface
 {
 /** Create a New Temporary File starting with ($D namePrefix) and ending with 6
     randomly defined characters.

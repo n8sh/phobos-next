@@ -523,6 +523,26 @@ Language decodeLang(S)(S lang)
     assert(`sv`.to!Language == Language.sv);
 }
 
+Language decodeLangDefaulted(S)(S lang, Lang defaultLang)
+    @safe pure nothrow
+    if (isSomeString!S)
+{
+    try
+    {
+        return decodeLang(lang);
+    }
+    catch (Exception e)
+    {
+        return defaultLang;
+    }
+}
+
+@safe pure nothrow unittest
+{
+    assert(`_`.decodeLangDefaulted(Lang.unknown) == Lang.unknown);
+    assert(`sv`.decodeLangDefaulted(Lang.unknown) == Lang.sv);
+}
+
 @safe pure nothrow @nogc unittest
 {
     with (Language)

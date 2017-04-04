@@ -3,7 +3,7 @@
 module skip_ex;
 
 import std.functional : binaryFun;
-import std.range: front, back, save, empty, popBack, hasSlicing, isBidirectionalRange;
+import std.range: front, back, save, empty, popBack, hasSlicing, isBidirectionalRange, ElementType;
 import std.algorithm : skipOver;
 
 // TODO Add variadic (static and dynamic) versions of "(starts|ends)With(Either)?"
@@ -244,7 +244,7 @@ bool skipOverFrontAndBack(alias pred = "a == b", R, E)(ref R r,
                                                        E frontPrefix,
                                                        E backSuffix)
     if (isBidirectionalRange!R &&
-        is(typeof(binaryFun!pred(r.front, E.init))))
+        is(typeof(binaryFun!pred(ElementType!R.init, E.init))))
 {
     if (binaryFun!pred(r.front, frontPrefix) &&
         binaryFun!pred(r.back, backSuffix))

@@ -237,8 +237,8 @@ void skipOverSuffixes(R, A)(ref R s, in A suffixes)
     }
 }
 
-/** Drop either both prefix `frontPrefix` and suffix `backSuffix` or nothing.
-    Returns: `true` upon, `false` otherwise.
+/** Drop either both prefix `frontPrefix` and suffix `backSuffix` or do nothing.
+    Returns: `true` upon drop, `false` otherwise.
  */
 bool skipOverFrontAndBack(alias pred = "a == b", R, E)(ref R r,
                                                        E frontPrefix,

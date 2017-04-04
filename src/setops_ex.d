@@ -88,13 +88,16 @@ import std.traits : CommonType;
 import std.range.primitives;
 import std.meta : allSatisfy, staticMap;
 import std.functional : binaryFun;
-import std.algorithm.sorting : SearchPolicy;
+import std.algorithm.sorting : SearchPolicy, SortedRange;
+import range_ex : haveCommonElementType;
 
+// TODO add interface to expose result as as (`isSorted`, `SortedRange`)
 struct SetIntersectionFast(alias less = "a < b",
-                        SearchPolicy preferredSearchPolicy = SearchPolicy.gallop,
-                        Rs...)
-    if (Rs.length >= 2 && allSatisfy!(isInputRange, Rs) &&
-        !is(CommonType!(staticMap!(ElementType, Rs)) == void))
+                           SearchPolicy preferredSearchPolicy = SearchPolicy.gallop,
+                           Rs...)
+    if (Rs.length >= 2 &&
+        allSatisfy!(isInputRange, Rs) &&
+        haveCommonElementType!Rs)
 {
 private:
     Rs _inputs;
@@ -225,24 +228,27 @@ public:
 }
 
 /// ditto
-SetIntersectionFast!(less, preferredSearchPolicy, Rs) setIntersectionFast(alias less = "a < b",
-                                                                          SearchPolicy preferredSearchPolicy = SearchPolicy.gallop,
-                                                                          Rs...)(Rs ranges)
-    if (Rs.length >= 2 && allSatisfy!(isInputRange, Rs) &&
-        !is(CommonType!(staticMap!(ElementType, Rs)) == void))
+SortedRange!(SetIntersectionFast!(less, preferredSearchPolicy, Rs))
+setIntersectionFast(alias less = "a < b",
+                    SearchPolicy preferredSearchPolicy = SearchPolicy.gallop,
+                    Rs...)(Rs ranges)
+    if (Rs.length >= 2 &&
+        allSatisfy!(isInputRange, Rs) &&
+        haveCommonElementType!Rs)
 {
     // TODO Remove need for these switch cases if this can be fixed:
     // http://forum.dlang.org/post/pknonazfniihvpicxbld@forum.dlang.org
+    import std.algorithm.sorting : assumeSorted;
     static if (Rs.length == 2)
     {
         import std.algorithm.mutation : move;
-        return typeof(return)(move(ranges[0]), // TODO remove `move` when compiler does it for us
-                              move(ranges[1])); // TODO remove `move` when compiler does it for us
+        return assumeSorted(SetIntersectionFast!(less, preferredSearchPolicy, Rs)(move(ranges[0]), // TODO remove `move` when compiler does it for us
+                                                                                  move(ranges[1]))); // TODO remove `move` when compiler does it for us
     }
     else
     {
         import std.functional : forward;
-        return typeof(return)(forward!ranges); // TODO remove `forward` when compiler does it for us
+        return assumeSorted(SetIntersectionFast!(less, preferredSearchPolicy, Rs)(forward!ranges)); // TODO remove `forward` when compiler does it for us
     }
 }
 

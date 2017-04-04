@@ -3,7 +3,7 @@
 module skip_ex;
 
 import std.functional : binaryFun;
-import std.range: back, save, empty, popBack, hasSlicing;
+import std.range: front, back, save, empty, popBack, hasSlicing, isBidirectionalRange;
 import std.algorithm : skipOver;
 
 // TODO Add variadic (static and dynamic) versions of "(starts|ends)With(Either)?"
@@ -233,4 +233,37 @@ void skipOverSuffixes(R, A)(ref R s, in A suffixes)
         if (s.length > suffix.length &&
             s.endsWith(suffix)) { s = s[0 .. $ - suffix.length]; break; }
     }
+}
+
+/** Drop either both prefix `frontPrefix` and suffix `backSuffix` or nothing.
+    Returns: `true` upon, `false` otherwise.
+ */
+bool skipOverFrontAndBack(R, E)(ref R r,
+                                E frontPrefix,
+                                E backSuffix)
+    if (isBidirectionalRange!R)
+{
+    if (r.front == frontPrefix &&
+        r.back == backSuffix)
+    {
+        import std.range : popBack, popFront;
+        r.popFront();
+        r.popBack();
+        return true;
+    }
+    return false;
+}
+
+@safe pure unittest
+{
+    auto expr = `"alpha"`;
+    assert(expr.skipOverFrontAndBack('"', '"'));
+    assert(expr == `alpha`);
+}
+
+@safe pure unittest
+{
+    auto expr = `"alpha"`;
+    assert(!expr.skipOverFrontAndBack(',', '"'));
+    assert(expr == `"alpha"`);
 }

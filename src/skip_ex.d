@@ -248,7 +248,7 @@ bool skipOverFrontAndBack(alias pred = "a == b", R, E)(ref R r,
 {
     static if (isArray!R)
     {
-        if (r.length >= 2 &&        // TODO express this requirement in `r`
+        if (r.length >= 2 &&
             r[0] == frontPrefix &&
             r[$ - 1] == backSuffix)
         {

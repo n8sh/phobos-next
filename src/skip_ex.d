@@ -260,7 +260,7 @@ bool skipOverFrontAndBack(alias pred = "a == b", R, E)(ref R r,
     }
     else
     {
-        if (r.length >= 2 &&        // TODO express this requirement in `r`
+        if (r.length >= 2 && // TODO express this requirement in `r` as `hasLength`
             binaryFun!pred(r.front, frontPrefix) &&
             binaryFun!pred(r.back, backSuffix))
         {

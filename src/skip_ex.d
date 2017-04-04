@@ -3,7 +3,7 @@
 module skip_ex;
 
 import std.functional : binaryFun;
-import std.range: front, back, save, empty, popBack, hasSlicing, isBidirectionalRange, ElementType, hasLength;
+import std.range: front, back, save, empty, popBack, hasSlicing, isBidirectionalRange, ElementType, hasLength, isArray;
 import std.algorithm : skipOver;
 
 // TODO Add variadic (static and dynamic) versions of "(starts|ends)With(Either)?"
@@ -246,14 +246,27 @@ bool skipOverFrontAndBack(alias pred = "a == b", R, E)(ref R r,
     if (isBidirectionalRange!R &&
         is(typeof(binaryFun!pred(ElementType!R.init, E.init))))
 {
-    if (r.length >= 2 &&        // TODO hasLength
-        binaryFun!pred(r.front, frontPrefix) &&
-        binaryFun!pred(r.back, backSuffix))
+    static if (isArray!R)
     {
-        import std.range : popBack, popFront;
-        r.popFront();
-        r.popBack();
-        return true;
+        if (r.length >= 2 &&        // TODO express this requirement in `r`
+            r[0] == frontPrefix &&
+            r[$ - 1] == backSuffix)
+        {
+            r = r[1 .. $ - 1];
+            return true;
+        }
+    }
+    else
+    {
+        if (r.length >= 2 &&        // TODO express this requirement in `r`
+            binaryFun!pred(r.front, frontPrefix) &&
+            binaryFun!pred(r.back, backSuffix))
+        {
+            import std.range : popBack, popFront;
+            r.popFront();
+            r.popBack();
+            return true;
+        }
     }
     return false;
 }

@@ -88,10 +88,9 @@ import std.traits : CommonType;
 import std.range.primitives;
 import std.meta : allSatisfy, staticMap;
 import std.functional : binaryFun;
-import std.algorithm.sorting : SearchPolicy, SortedRange;
+import std.algorithm.sorting : SearchPolicy;
 import range_ex : haveCommonElementType;
 
-// TODO add interface to expose result as as (`isSorted`, `SortedRange`)
 struct SetIntersectionFast(alias less = "a < b",
                            SearchPolicy preferredSearchPolicy = SearchPolicy.gallop,
                            Rs...)
@@ -227,8 +226,16 @@ public:
     }
 }
 
+import std.typecons : Unqual;
+
+auto assumeMoveableSorted(alias pred = "a < b", R)(R r)
+    if (isInputRange!(Unqual!R))
+{
+    return MoveableSortedRange!(Unqual!R, pred)(r);
+}
+
 /// ditto
-SortedRange!(SetIntersectionFast!(less, preferredSearchPolicy, Rs))
+MoveableSortedRange!(SetIntersectionFast!(less, preferredSearchPolicy, Rs))
 setIntersectionFast(alias less = "a < b",
                     SearchPolicy preferredSearchPolicy = SearchPolicy.gallop,
                     Rs...)(Rs ranges)
@@ -242,13 +249,13 @@ setIntersectionFast(alias less = "a < b",
     static if (Rs.length == 2)
     {
         import std.algorithm.mutation : move;
-        return assumeSorted(SetIntersectionFast!(less, preferredSearchPolicy, Rs)(move(ranges[0]), // TODO remove `move` when compiler does it for us
-                                                                                  move(ranges[1]))); // TODO remove `move` when compiler does it for us
+        return assumeMoveableSorted(SetIntersectionFast!(less, preferredSearchPolicy, Rs)(move(ranges[0]), // TODO remove `move` when compiler does it for us
+                                                                                          move(ranges[1]))); // TODO remove `move` when compiler does it for us
     }
     else
     {
         import std.functional : forward;
-        return assumeSorted(SetIntersectionFast!(less, preferredSearchPolicy, Rs)(forward!ranges)); // TODO remove `forward` when compiler does it for us
+        return assumeMoveableSorted(SetIntersectionFast!(less, preferredSearchPolicy, Rs)(forward!ranges)); // TODO remove `forward` when compiler does it for us
     }
 }
 
@@ -324,4 +331,415 @@ unittest
                                          [1, 2, 3]);
     const sic = si.save();
     assert(si.equal([1, 2, 3]));
+}
+
+// TODO remove this `MoveableSortedRange` and replace with Phobos' `SortedRange` in this buffer
+struct MoveableSortedRange(Range, alias pred = "a < b")
+    if (isInputRange!Range)
+{
+    import std.functional : binaryFun;
+
+    private alias predFun = binaryFun!pred;
+    private bool geq(L, R)(L lhs, R rhs)
+    {
+        return !predFun(lhs, rhs);
+    }
+    private bool gt(L, R)(L lhs, R rhs)
+    {
+        return predFun(rhs, lhs);
+    }
+    private Range _input;
+
+    // Undocummented because a clearer way to invoke is by calling
+    // assumeSorted.
+    this(Range input)
+    out
+    {
+        // moved out of the body as a workaround for Issue 12661
+        dbgVerifySorted();
+    }
+    body
+    {
+        import std.algorithm.mutation : move;
+        this._input = move(input); // TODO
+    }
+
+    // Assertion only.
+    private void dbgVerifySorted()
+    {
+        if (!__ctfe)
+        debug
+        {
+            static if (isRandomAccessRange!Range && hasLength!Range)
+            {
+                import core.bitop : bsr;
+                import std.algorithm.sorting : isSorted;
+
+                // Check the sortedness of the input
+                if (this._input.length < 2) return;
+
+                immutable size_t msb = bsr(this._input.length) + 1;
+                assert(msb > 0 && msb <= this._input.length);
+                immutable step = this._input.length / msb;
+                auto st = stride(this._input, step);
+
+                assert(isSorted!pred(st), "Range is not sorted");
+            }
+        }
+    }
+
+    /// Range primitives.
+    @property bool empty()             //const
+    {
+        return this._input.empty;
+    }
+
+    /// Ditto
+    static if (isForwardRange!Range)
+    @property auto save()
+    {
+        // Avoid the constructor
+        typeof(this) result = this;
+        result._input = _input.save;
+        return result;
+    }
+
+    /// Ditto
+    @property auto ref front()
+    {
+        return _input.front;
+    }
+
+    /// Ditto
+    void popFront()
+    {
+        _input.popFront();
+    }
+
+    /// Ditto
+    static if (isBidirectionalRange!Range)
+    {
+        @property auto ref back()
+        {
+            return _input.back;
+        }
+
+        /// Ditto
+        void popBack()
+        {
+            _input.popBack();
+        }
+    }
+
+    /// Ditto
+    static if (isRandomAccessRange!Range)
+        auto ref opIndex(size_t i)
+        {
+            return _input[i];
+        }
+
+    /// Ditto
+    static if (hasSlicing!Range)
+        auto opSlice(size_t a, size_t b)
+        {
+            assert(
+                a <= b,
+                "Attempting to slice a SortedRange with a larger first argument than the second."
+            );
+            typeof(this) result = this;
+            result._input = _input[a .. b];// skip checking
+            return result;
+        }
+
+    /// Ditto
+    static if (hasLength!Range)
+    {
+        @property size_t length()          //const
+        {
+            return _input.length;
+        }
+        alias opDollar = length;
+    }
+
+/**
+   Releases the controlled range and returns it.
+*/
+    auto release()
+    {
+        import std.algorithm.mutation : move;
+        return move(_input);
+    }
+
+    // Assuming a predicate "test" that returns 0 for a left portion
+    // of the range and then 1 for the rest, returns the index at
+    // which the first 1 appears. Used internally by the search routines.
+    private size_t getTransitionIndex(SearchPolicy sp, alias test, V)(V v)
+    if (sp == SearchPolicy.binarySearch && isRandomAccessRange!Range && hasLength!Range)
+    {
+        size_t first = 0, count = _input.length;
+        while (count > 0)
+        {
+            immutable step = count / 2, it = first + step;
+            if (!test(_input[it], v))
+            {
+                first = it + 1;
+                count -= step + 1;
+            }
+            else
+            {
+                count = step;
+            }
+        }
+        return first;
+    }
+
+    // Specialization for trot and gallop
+    private size_t getTransitionIndex(SearchPolicy sp, alias test, V)(V v)
+    if ((sp == SearchPolicy.trot || sp == SearchPolicy.gallop)
+        && isRandomAccessRange!Range)
+    {
+        if (empty || test(front, v)) return 0;
+        immutable count = length;
+        if (count == 1) return 1;
+        size_t below = 0, above = 1, step = 2;
+        while (!test(_input[above], v))
+        {
+            // Still too small, update below and increase gait
+            below = above;
+            immutable next = above + step;
+            if (next >= count)
+            {
+                // Overshot - the next step took us beyond the end. So
+                // now adjust next and simply exit the loop to do the
+                // binary search thingie.
+                above = count;
+                break;
+            }
+            // Still in business, increase step and continue
+            above = next;
+            static if (sp == SearchPolicy.trot)
+                ++step;
+            else
+                step <<= 1;
+        }
+        return below + this[below .. above].getTransitionIndex!(
+            SearchPolicy.binarySearch, test, V)(v);
+    }
+
+    // Specialization for trotBackwards and gallopBackwards
+    private size_t getTransitionIndex(SearchPolicy sp, alias test, V)(V v)
+    if ((sp == SearchPolicy.trotBackwards || sp == SearchPolicy.gallopBackwards)
+        && isRandomAccessRange!Range)
+    {
+        immutable count = length;
+        if (empty || !test(back, v)) return count;
+        if (count == 1) return 0;
+        size_t below = count - 2, above = count - 1, step = 2;
+        while (test(_input[below], v))
+        {
+            // Still too large, update above and increase gait
+            above = below;
+            if (below < step)
+            {
+                // Overshot - the next step took us beyond the end. So
+                // now adjust next and simply fall through to do the
+                // binary search thingie.
+                below = 0;
+                break;
+            }
+            // Still in business, increase step and continue
+            below -= step;
+            static if (sp == SearchPolicy.trot)
+                ++step;
+            else
+                step <<= 1;
+        }
+        return below + this[below .. above].getTransitionIndex!(
+            SearchPolicy.binarySearch, test, V)(v);
+    }
+
+// lowerBound
+/**
+   This function uses a search with policy $(D sp) to find the
+   largest left subrange on which $(D pred(x, value)) is $(D true) for
+   all $(D x) (e.g., if $(D pred) is "less than", returns the portion of
+   the range with elements strictly smaller than $(D value)). The search
+   schedule and its complexity are documented in
+   $(LREF SearchPolicy).  See also STL's
+   $(HTTP sgi.com/tech/stl/lower_bound.html, lower_bound).
+*/
+    auto lowerBound(SearchPolicy sp = SearchPolicy.binarySearch, V)(V value)
+    if (isTwoWayCompatible!(predFun, ElementType!Range, V)
+         && hasSlicing!Range)
+    {
+        return this[0 .. getTransitionIndex!(sp, geq)(value)];
+    }
+
+// upperBound
+/**
+This function searches with policy $(D sp) to find the largest right
+subrange on which $(D pred(value, x)) is $(D true) for all $(D x)
+(e.g., if $(D pred) is "less than", returns the portion of the range
+with elements strictly greater than $(D value)). The search schedule
+and its complexity are documented in $(LREF SearchPolicy).
+
+For ranges that do not offer random access, $(D SearchPolicy.linear)
+is the only policy allowed (and it must be specified explicitly lest it exposes
+user code to unexpected inefficiencies). For random-access searches, all
+policies are allowed, and $(D SearchPolicy.binarySearch) is the default.
+
+See_Also: STL's $(HTTP sgi.com/tech/stl/lower_bound.html,upper_bound).
+*/
+    auto upperBound(SearchPolicy sp = SearchPolicy.binarySearch, V)(V value)
+    if (isTwoWayCompatible!(predFun, ElementType!Range, V))
+    {
+        static assert(hasSlicing!Range || sp == SearchPolicy.linear,
+            "Specify SearchPolicy.linear explicitly for "
+            ~ typeof(this).stringof);
+        static if (sp == SearchPolicy.linear)
+        {
+            for (; !_input.empty && !predFun(value, _input.front);
+                 _input.popFront())
+            {
+            }
+            return this;
+        }
+        else
+        {
+            return this[getTransitionIndex!(sp, gt)(value) .. length];
+        }
+    }
+
+
+// equalRange
+/**
+   Returns the subrange containing all elements $(D e) for which both $(D
+   pred(e, value)) and $(D pred(value, e)) evaluate to $(D false) (e.g.,
+   if $(D pred) is "less than", returns the portion of the range with
+   elements equal to $(D value)). Uses a classic binary search with
+   interval halving until it finds a value that satisfies the condition,
+   then uses $(D SearchPolicy.gallopBackwards) to find the left boundary
+   and $(D SearchPolicy.gallop) to find the right boundary. These
+   policies are justified by the fact that the two boundaries are likely
+   to be near the first found value (i.e., equal ranges are relatively
+   small). Completes the entire search in $(BIGOH log(n)) time. See also
+   STL's $(HTTP sgi.com/tech/stl/equal_range.html, equal_range).
+*/
+    auto equalRange(V)(V value)
+    if (isTwoWayCompatible!(predFun, ElementType!Range, V)
+        && isRandomAccessRange!Range)
+    {
+        size_t first = 0, count = _input.length;
+        while (count > 0)
+        {
+            immutable step = count / 2;
+            auto it = first + step;
+            if (predFun(_input[it], value))
+            {
+                // Less than value, bump left bound up
+                first = it + 1;
+                count -= step + 1;
+            }
+            else if (predFun(value, _input[it]))
+            {
+                // Greater than value, chop count
+                count = step;
+            }
+            else
+            {
+                // Equal to value, do binary searches in the
+                // leftover portions
+                // Gallop towards the left end as it's likely nearby
+                immutable left = first
+                    + this[first .. it]
+                    .lowerBound!(SearchPolicy.gallopBackwards)(value).length;
+                first += count;
+                // Gallop towards the right end as it's likely nearby
+                immutable right = first
+                    - this[it + 1 .. first]
+                    .upperBound!(SearchPolicy.gallop)(value).length;
+                return this[left .. right];
+            }
+        }
+        return this.init;
+    }
+
+// trisect
+/**
+Returns a tuple $(D r) such that $(D r[0]) is the same as the result
+of $(D lowerBound(value)), $(D r[1]) is the same as the result of $(D
+equalRange(value)), and $(D r[2]) is the same as the result of $(D
+upperBound(value)). The call is faster than computing all three
+separately. Uses a search schedule similar to $(D
+equalRange). Completes the entire search in $(BIGOH log(n)) time.
+*/
+    auto trisect(V)(V value)
+    if (isTwoWayCompatible!(predFun, ElementType!Range, V)
+        && isRandomAccessRange!Range && hasLength!Range)
+    {
+        import std.typecons : tuple;
+        size_t first = 0, count = _input.length;
+        while (count > 0)
+        {
+            immutable step = count / 2;
+            auto it = first + step;
+            if (predFun(_input[it], value))
+            {
+                // Less than value, bump left bound up
+                first = it + 1;
+                count -= step + 1;
+            }
+            else if (predFun(value, _input[it]))
+            {
+                // Greater than value, chop count
+                count = step;
+            }
+            else
+            {
+                // Equal to value, do binary searches in the
+                // leftover portions
+                // Gallop towards the left end as it's likely nearby
+                immutable left = first
+                    + this[first .. it]
+                    .lowerBound!(SearchPolicy.gallopBackwards)(value).length;
+                first += count;
+                // Gallop towards the right end as it's likely nearby
+                immutable right = first
+                    - this[it + 1 .. first]
+                    .upperBound!(SearchPolicy.gallop)(value).length;
+                return tuple(this[0 .. left], this[left .. right],
+                        this[right .. length]);
+            }
+        }
+        // No equal element was found
+        return tuple(this[0 .. first], this.init, this[first .. length]);
+    }
+
+// contains
+/**
+Returns $(D true) if and only if $(D value) can be found in $(D
+range), which is assumed to be sorted. Performs $(BIGOH log(r.length))
+evaluations of $(D pred). See also STL's $(HTTP
+sgi.com/tech/stl/binary_search.html, binary_search).
+ */
+
+    bool contains(V)(V value)
+    if (isRandomAccessRange!Range)
+    {
+        if (empty) return false;
+        immutable i = getTransitionIndex!(SearchPolicy.binarySearch, geq)(value);
+        if (i >= length) return false;
+        return !predFun(value, _input[i]);
+    }
+
+// groupBy
+/**
+Returns a range of subranges of elements that are equivalent according to the
+sorting relation.
+ */
+    auto groupBy()()
+    {
+        import std.algorithm.iteration : chunkBy;
+        return _input.chunkBy!((a, b) => !predFun(a, b) && !predFun(b, a));
+    }
 }

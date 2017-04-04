@@ -19,7 +19,9 @@ bool skipOverBack(alias pred = "a == b", R1, R2)(ref R1 r1, R2 r2)
     if (is(typeof(binaryFun!pred(r1.back, r2.back))))
 {
     auto r = r1.save;
-    while (!r2.empty && !r.empty && binaryFun!pred(r.back, r2.back))
+    while (!r2.empty &&
+           !r.empty &&
+           binaryFun!pred(r.back, r2.back))
     {
         r.popBack();
         r2.popBack();
@@ -238,13 +240,14 @@ void skipOverSuffixes(R, A)(ref R s, in A suffixes)
 /** Drop either both prefix `frontPrefix` and suffix `backSuffix` or nothing.
     Returns: `true` upon, `false` otherwise.
  */
-bool skipOverFrontAndBack(R, E)(ref R r,
-                                E frontPrefix,
-                                E backSuffix)
-    if (isBidirectionalRange!R)
+bool skipOverFrontAndBack(alias pred = "a == b", R, E)(ref R r,
+                                                       E frontPrefix,
+                                                       E backSuffix)
+    if (isBidirectionalRange!R &&
+        is(typeof(binaryFun!pred(r.front, E.init))))
 {
-    if (r.front == frontPrefix &&
-        r.back == backSuffix)
+    if (binaryFun!pred(r.front, frontPrefix) &&
+        binaryFun!pred(r.back, backSuffix))
     {
         import std.range : popBack, popFront;
         r.popFront();

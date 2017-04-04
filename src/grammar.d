@@ -343,7 +343,7 @@ class Subject : Part
 static immutable implies = [`in order to`];
 
 /** Subject Person. */
-enum Person:ubyte { first, second, third }
+enum Person:ubyte { unknown, first, second, third }
 
 /** Subject Gender. */
 enum Gender:ubyte

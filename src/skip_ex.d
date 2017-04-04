@@ -3,7 +3,7 @@
 module skip_ex;
 
 import std.functional : binaryFun;
-import std.range: front, back, save, empty, popBack, hasSlicing, isBidirectionalRange, ElementType;
+import std.range: front, back, save, empty, popBack, hasSlicing, isBidirectionalRange, ElementType, hasLength;
 import std.algorithm : skipOver;
 
 // TODO Add variadic (static and dynamic) versions of "(starts|ends)With(Either)?"
@@ -246,7 +246,8 @@ bool skipOverFrontAndBack(alias pred = "a == b", R, E)(ref R r,
     if (isBidirectionalRange!R &&
         is(typeof(binaryFun!pred(ElementType!R.init, E.init))))
 {
-    if (binaryFun!pred(r.front, frontPrefix) &&
+    if (r.length >= 2 &&
+        binaryFun!pred(r.front, frontPrefix) &&
         binaryFun!pred(r.back, backSuffix))
     {
         import std.range : popBack, popFront;
@@ -266,7 +267,24 @@ bool skipOverFrontAndBack(alias pred = "a == b", R, E)(ref R r,
 
 @safe pure unittest
 {
-    auto expr = `"alpha"`;
+    auto expr_ = `"alpha"`;
+    auto expr = expr_;
     assert(!expr.skipOverFrontAndBack(',', '"'));
-    assert(expr == `"alpha"`);
+    assert(expr == expr_);
+}
+
+@safe pure unittest
+{
+    auto expr_ = `"alpha`;
+    auto expr = expr_;
+    assert(!expr.skipOverFrontAndBack('"', '"'));
+    assert(expr == expr_);
+}
+
+@safe pure unittest
+{
+    auto expr_ = `alpha"`;
+    auto expr = expr_;
+    assert(!expr.skipOverFrontAndBack('"', '"'));
+    assert(expr == expr_);
 }

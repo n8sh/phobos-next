@@ -231,7 +231,8 @@ import std.typecons : Unqual;
 auto assumeMoveableSorted(alias pred = "a < b", R)(R r)
     if (isInputRange!(Unqual!R))
 {
-    return MoveableSortedRange!(Unqual!R, pred)(r);
+    import std.algorithm.mutation : move;
+    return MoveableSortedRange!(Unqual!R, pred)(move(r)); // TODO remove `move` when compiler does it for us
 }
 
 /// ditto

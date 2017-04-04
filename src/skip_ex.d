@@ -246,7 +246,7 @@ bool skipOverFrontAndBack(alias pred = "a == b", R, E)(ref R r,
     if (isBidirectionalRange!R &&
         is(typeof(binaryFun!pred(ElementType!R.init, E.init))))
 {
-    if (r.length >= 2 &&
+    if (r.length >= 2 &&        // TODO hasLength
         binaryFun!pred(r.front, frontPrefix) &&
         binaryFun!pred(r.back, backSuffix))
     {

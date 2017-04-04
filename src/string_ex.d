@@ -29,6 +29,7 @@ bool isCapitalizedEasy(S)(S s)
     assert(!`ALPHA`.isCapitalizedEasy);
     assert(!`aThing`.isCapitalizedEasy);
     assert(`Alpha`.isCapitalizedEasy);
+    assert(`Jack London`.isCapitalizedEasy);
 }
 
 /** Check if $(D s) starts with a capital letter followed by only lower
@@ -66,6 +67,7 @@ bool isCapitalized(S)(S s)
     assert(!`ALPHA`.isCapitalized);
     assert(!`aThing`.isCapitalized);
     assert(`Alpha`.isCapitalized);
+    assert(!`Jack London`.isCapitalized);
 }
 
 /** Return `true` if `s` has proper name-style capitalization, such as in `Alpha Centauri`.

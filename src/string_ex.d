@@ -33,7 +33,7 @@ bool isCapitalizedEasy(S)(S s)
 
 /** Check if $(D s) starts with a capital letter followed by only lower
     letters. */
-bool isCapitalized(S)(S s)
+bool isWordCapitalized(S)(S s)
     if (isSomeString!S)
 {
     import std.range.primitives : empty, front, popFront;
@@ -61,12 +61,12 @@ bool isCapitalized(S)(S s)
 
 @safe pure unittest
 {
-    assert(!``.isCapitalized);
-    assert(!`alpha`.isCapitalized);
-    assert(!`ALPHA`.isCapitalized);
-    assert(!`aThing`.isCapitalized);
-    assert(`Alpha`.isCapitalized);
-    assert(!`Jack London`.isCapitalized);
+    assert(!``.isWordCapitalized);
+    assert(!`alpha`.isWordCapitalized);
+    assert(!`ALPHA`.isWordCapitalized);
+    assert(!`aThing`.isWordCapitalized);
+    assert(`Alpha`.isWordCapitalized);
+    assert(!`Jack London`.isWordCapitalized);
 }
 
 /** Return `true` if `s` has proper name-style capitalization, such as in `Alpha Centauri`.
@@ -85,7 +85,7 @@ bool isNameCapitalized(S)(S s)
             .all!(x => ((x.index >= 1 &&
                          (x.value.all!(x => x.isUpper) || // Henry II
                           x.value.among!(`of`, `upon`))) ||
-                        x.value.isCapitalized)); // TODO add enumerate and all middle word to be a preposition
+                        x.value.isWordCapitalized)); // TODO add enumerate and all middle word to be a preposition
 }
 
 @safe pure unittest

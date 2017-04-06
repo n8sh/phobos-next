@@ -1,7 +1,6 @@
 module string_ex;
 
 import std.traits : isSomeString;
-import dbgio;
 
 /** Check if $(D s) starts with a capital letter followed by a lower
     letter. */

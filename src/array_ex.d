@@ -1693,6 +1693,20 @@ alias CopyableDString  (bool useGCAllocation = false) = Array!(dchar, Assignment
 
 @safe pure unittest
 {
+    auto c = UncopyableString!false();
+    auto w = UncopyableWString!false();
+    auto d = UncopyableDString!false();
+}
+
+@safe pure unittest
+{
+    auto c = CopyableString!false();
+    auto w = CopyableWString!false();
+    auto d = CopyableDString!false();
+}
+
+@safe pure unittest
+{
     import std.conv : to;
     foreach (assignment; AliasSeq!(Assignment.disabled, Assignment.copy))
     {

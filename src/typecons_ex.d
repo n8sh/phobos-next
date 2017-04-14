@@ -652,7 +652,7 @@ mixin template RvalueRef()
     static assert (is(T == struct));
 
     @nogc @safe
-    ref inout(T) byRef() inout pure nothrow return
+    ref inout(T) asRef() inout pure nothrow return
     {
         return this;
     }
@@ -678,5 +678,5 @@ mixin template RvalueRef()
 
     Vec v = Vec(42, 23);
     foo(v);                     // works
-    foo(Vec(42, 23).byRef);     // works as well, and use the same function
+    foo(Vec(42, 23).asRef);     // works as well, and use the same function
 }

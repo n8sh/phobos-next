@@ -28,7 +28,8 @@
 module array_ex;
 
 // version = useMemoryErrorHandler;
-version(useMemoryErrorHandler) unittest
+version(useMemoryErrorHandler)
+@safe unittest
 {
     import etc.linux.memoryerror : registerMemoryErrorHandler;
     registerMemoryErrorHandler();
@@ -47,11 +48,12 @@ version(useMemoryErrorHandler) unittest
 
     TODO Add to Phobos `std.array`.
 */
-T[length] asStatic(T, size_t length)(T[length] arr)
-    @safe pure nothrow @nogc // TODO remove. needed for now in order for DIP-1000 to work correctly, See http://forum.dlang.org/post/otrsanpgmokzpzqmfyvx@forum.dlang.org
+T[n] asStatic(T, size_t n)(T[n] arr)
+//    @safe pure nothrow @nogc // TODO remove. needed for now in order for DIP-1000 to work correctly, See http://forum.dlang.org/post/otrsanpgmokzpzqmfyvx@forum.dlang.org
 {
     return arr;
 }
+alias s = asStatic;
 
 ///
 @safe pure nothrow @nogc unittest
@@ -61,6 +63,7 @@ T[length] asStatic(T, size_t length)(T[length] arr)
     static assert(is(typeof([1, 2, 3].asStatic) == int[x.length]));
 }
 
+/// Array element ordering.
 enum Ordering
 {
     unsorted, // unsorted array
@@ -68,14 +71,15 @@ enum Ordering
     sortedUniqueSet, // sorted array with unique values
 }
 
+/// Is `true` iff `ordering` is sorted.
 enum IsOrdered(Ordering ordering) = ordering != Ordering.unsorted;
 
 version(unittest)
 {
-    import std.conv : to;
-    import std.traits : Unqual;
     import std.algorithm.comparison : equal;
+    import std.conv : to;
     import std.meta : AliasSeq;
+    import std.traits : Unqual;
     import dbgio : dln;
 }
 

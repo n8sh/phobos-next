@@ -63,7 +63,11 @@ alias s = asStatic;
     static assert(is(typeof(x) == int[x.length]));
     static assert(is(typeof([1, 2, 3].asStatic) == int[x.length]));
 
-    static assert(!__traits(compiles, { static int[] doNotDoThat() @nogc { return [1, 2, 3].s; } }));
+    static assert(!__traits(compiles,
+                            {
+                                static int[] doNotDoThat() @nogc { return [1, 2, 3].s; }
+                            }
+                      ));
 }
 
 /// Array element ordering.

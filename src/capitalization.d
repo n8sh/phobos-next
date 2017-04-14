@@ -37,26 +37,31 @@ bool isCapitalized(S)(S s)
     if (isSomeString!S)
 {
     import std.range.primitives : empty, front, popFront;
-    import std.ascii : isDigit;
-    import std.uni : isUpper, isLower;
 
     if (s.empty) { return false; }
 
+    import std.ascii : isDigit;
+    import std.uni : isUpper;
     const firstDigit = s.front.isDigit;
     const firstUpper = s.front.isUpper;
+
     if (!(firstDigit ||
           firstUpper))
         return false;
 
     s.popFront();
 
-    import std.algorithm.searching : all;
-
     if (s.empty)
+    {
         return firstDigit;
+    }
     else
+    {
+        import std.uni : isLower;
+        import std.algorithm.searching : all;
         return s.all!(x => (x.isDigit ||
                             x.isLower));
+    }
 }
 
 @safe pure unittest

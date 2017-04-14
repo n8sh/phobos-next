@@ -65,7 +65,7 @@ alias s = asStatic;
 
     static assert(!__traits(compiles,
                             {
-                                static int[] doNotDoThat() @nogc { return [1, 2, 3].s; }
+                                static int[] doNotDoThat() { return [1, 2, 3].s; }
                             }
                       ));
 }

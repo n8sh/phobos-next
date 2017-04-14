@@ -1,5 +1,7 @@
 module string_ex;
 
+import std.traits : isSomeString;
+
 S[] quotedWords(S)(S s,
                    string quoteBeginChar = `"`,
                    string quoteEndChar = `"`)

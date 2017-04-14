@@ -52,6 +52,7 @@ T[length] asStatic(T, size_t length)(T[length] arr)
 {
     return arr;
 }
+alias s = asStatic;
 
 ///
 @safe pure nothrow @nogc unittest

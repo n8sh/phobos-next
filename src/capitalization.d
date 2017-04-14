@@ -31,6 +31,42 @@ bool isCapitalizedEasy(S)(S s)
     assert(`Jack London`.isCapitalizedEasy);
 }
 
+import std.uni : isLower;
+auto isLowercased(S, alias pred = isLower)(S s)
+    if (isSomeString!S)
+{
+    import std.algorithm.searching : all;
+    import std.traits : isNarrowString;
+    import std.utf : byUTF;
+    // TODO functionize
+    static if (isNarrowString!S) return s.byUTF!dchar.all!(ch => pred(ch));
+    else                         return t.map!(ch => pred(ch));
+}
+
+@safe pure unittest
+{
+    assert(!`A`.isLowercased);
+    assert(`a`.isLowercased);
+}
+
+import std.uni : isUpper;
+auto isUppercased(S, alias pred = isUpper)(S s)
+    if (isSomeString!S)
+{
+    import std.algorithm.searching : all;
+    import std.traits : isNarrowString;
+    import std.utf : byUTF;
+    // TODO functionize
+    static if (isNarrowString!S) return s.byUTF!dchar.all!(ch => pred(ch));
+    else                         return t.map!(ch => pred(ch));
+}
+
+@safe pure unittest
+{
+    assert(`A`.isUppercased);
+    assert(!`a`.isUppercased);
+}
+
 /** Check if $(D s) starts with a capital letter followed by only lower
     letters. */
 bool isCapitalized(S)(S s)

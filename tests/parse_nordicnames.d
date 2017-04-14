@@ -14,8 +14,6 @@ void readNordicNames()
     import std.net.curl;
     import std.array: array;
     import arsd.dom;
-    import knet.separators;
-    import grammar: Gender;
     import skip_ex: skipOverBack;
 
     const dirPath = `~/Knowledge/nordic_names/wiki`;

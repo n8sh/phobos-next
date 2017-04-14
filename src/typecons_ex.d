@@ -642,3 +642,41 @@ template makeEnumFromSymbolNames(string prefix = `__`,
     static assert(Type._s_.stringof == `_s_`);
     static assert(Type._Pi_.stringof == `_Pi_`);
 }
+
+/**
+   See also: https://p0nce.github.io/d-idioms/#Rvalue-references:-Understanding-auto-ref-and-then-not-using-it
+   */
+mixin template RvalueRef()
+{
+    alias T = typeof(this); // typeof(this) get us the type we're in
+    static assert (is(T == struct));
+
+    @nogc @safe
+    ref const(T) byRef() const pure nothrow return
+    {
+        return this;
+    }
+}
+
+@safe @nogc pure nothrow unittest
+{
+    static struct Vec
+    {
+        @safe @nogc pure nothrow:
+        float x, y;
+        this(float x, float y) pure nothrow
+        {
+            this.x = x;
+            this.y = y;
+        }
+        mixin RvalueRef;
+    }
+
+    static void foo(ref const Vec pos)
+    {
+    }
+
+    Vec v = Vec(42, 23);
+    foo(v);                     // works
+    foo(Vec(42, 23).byRef);     // works as well, and use the same function
+}

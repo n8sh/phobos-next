@@ -554,7 +554,7 @@ enum englishObjectPronouns = [`me`, `him,`, `her`, `us`, `them`, `whom`];
 */
 enum swedishObjectPronouns = [`mig`, `honom,`, `henne`, `oss`, `dem`];
 
-auto indefiniteArticle(string s, Lang lang)
+auto indefiniteArticleIn(string s, Lang lang)
 {
     import std.range.primitives : empty, front;
     return (!s.empty && s.front.isVowel(lang) ? `an` : `a`);
@@ -563,7 +563,7 @@ auto indefiniteArticle(string s, Lang lang)
 auto inIndefiniteNounForm(string s, Lang lang)
 {
     import std.range : chain;
-    return chain(s.indefiniteArticle(lang), ` `, s);
+    return chain(s.indefiniteArticleIn(lang), ` `, s);
 }
 
 unittest

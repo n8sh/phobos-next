@@ -117,7 +117,8 @@ enum isIndexableBy(R, alias I) = (hasIndexing!R && is(string == typeof(I))); // 
     static assert(isIndexableBy!(int[], "I"));
 }
 
-/** Generate `opIndex` and `opSlice`. */
+/** Generate bounds-checked `opIndex` and `opSlice`.
+ */
 static private
 mixin template _genIndexAndSliceOps(I)
 {
@@ -160,10 +161,10 @@ mixin template _genIndexAndSliceOps(I)
     }
 }
 
-/** Generate `opIndex` and `opSlice`.
+/** Generate @trusted non-bounds-checked `opIndex` and `opSlice`.
  */
 static private
-mixin template _genTrustedUncheckedOps(I)
+mixin template _genUncheckedIndexAndSliceOps(I)
 {
     @trusted:
 
@@ -265,10 +266,10 @@ struct IndexedBy(R, string IndexTypeName)
         import modulo : Mod;
         mixin(`alias ` ~ IndexTypeName ~ ` = Mod!(R.length);`); // TODO relax integer precision argument of `Mod`
 
-        // dummy variable needed for symbol argument to `_genTrustedUncheckedOps`
+        // dummy variable needed for symbol argument to `_genUncheckedIndexAndSliceOps`
         mixin(`private static alias I__ = ` ~ IndexTypeName ~ `;`);
 
-        mixin _genTrustedUncheckedOps!(I__); // no range checking needed because I is always < R.length
+        mixin _genUncheckedIndexAndSliceOps!(I__); // no range checking needed because I is always < R.length
 
         /** Get index of element `E` wrapped in a `bool`-convertable struct. */
         auto findIndex(E)(E e) @safe pure nothrow @nogc

@@ -118,7 +118,8 @@ enum isIndexableBy(R, alias I) = (hasIndexing!R && is(string == typeof(I))); // 
 }
 
 /** Generate `opIndex` and `opSlice`. */
-static private mixin template genIndexAndSliceOps(I)
+static private
+mixin template _genIndexAndSliceOps(I)
 {
     // indexing
 
@@ -161,7 +162,8 @@ static private mixin template genIndexAndSliceOps(I)
 
 /** Generate `opIndex` and `opSlice`.
  */
-mixin template genTrustedUncheckedOps(I)
+static private
+mixin template _genTrustedUncheckedOps(I)
 {
     @trusted:
 
@@ -212,7 +214,7 @@ struct IndexedBy(R, I)
     if (isIndexableBy!(R, I))
 {
     alias Index = I;        /// indexing type
-    mixin genIndexAndSliceOps!I;
+    mixin _genIndexAndSliceOps!I;
     R _r;
     alias _r this; // TODO Use opDispatch instead; to override only opSlice and opIndex
 }
@@ -225,7 +227,7 @@ struct IndexedArray(E, I)
 {
     static assert(I.min == 0, "Index type I is currently limited to start at 0 and be continuous");
     alias Index = I;            /// indexing type
-    mixin genIndexAndSliceOps!I;
+    mixin _genIndexAndSliceOps!I;
     alias R = E[I.max + 1];     // needed by mixins
     R _r;                       // static array
     alias _r this; // TODO Use opDispatch instead; to override only opSlice and opIndex
@@ -263,10 +265,10 @@ struct IndexedBy(R, string IndexTypeName)
         import modulo : Mod;
         mixin(`alias ` ~ IndexTypeName ~ ` = Mod!(R.length);`); // TODO relax integer precision argument of `Mod`
 
-        // dummy variable needed for symbol argument to `genTrustedUncheckedOps`
+        // dummy variable needed for symbol argument to `_genTrustedUncheckedOps`
         mixin(`private static alias I__ = ` ~ IndexTypeName ~ `;`);
 
-        mixin genTrustedUncheckedOps!(I__); // no range checking needed because I is always < R.length
+        mixin _genTrustedUncheckedOps!(I__); // no range checking needed because I is always < R.length
 
         /** Get index of element `E` wrapped in a `bool`-convertable struct. */
         auto findIndex(E)(E e) @safe pure nothrow @nogc
@@ -296,7 +298,7 @@ struct IndexedBy(R, string IndexTypeName)
                       private T _ix = 0;
                   }
               });
-        mixin genIndexAndSliceOps!(mixin(IndexTypeName));
+        mixin _genIndexAndSliceOps!(mixin(IndexTypeName));
     }
     R _r;
     alias _r this; // TODO Use opDispatch instead; to override only opSlice and opIndex

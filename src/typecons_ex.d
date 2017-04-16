@@ -164,7 +164,7 @@ mixin template _genIndexAndSliceOps(I)
 /** Generate @trusted non-bounds-checked `opIndex` and `opSlice`.
  */
 static private
-mixin template _genUncheckedIndexAndSliceOps(I)
+mixin template _genIndexAndSliceOps_unchecked(I)
 {
     @trusted:
 
@@ -266,10 +266,10 @@ struct IndexedBy(R, string IndexTypeName)
         import modulo : Mod;
         mixin(`alias ` ~ IndexTypeName ~ ` = Mod!(R.length);`); // TODO relax integer precision argument of `Mod`
 
-        // dummy variable needed for symbol argument to `_genUncheckedIndexAndSliceOps`
+        // dummy variable needed for symbol argument to `_genIndexAndSliceOps_unchecked`
         mixin(`private static alias I__ = ` ~ IndexTypeName ~ `;`);
 
-        mixin _genUncheckedIndexAndSliceOps!(I__); // no range checking needed because I is always < R.length
+        mixin _genIndexAndSliceOps_unchecked!(I__); // no range checking needed because I is always < R.length
 
         /** Get index of element `E` wrapped in a `bool`-convertable struct. */
         auto findIndex(E)(E e) @safe pure nothrow @nogc

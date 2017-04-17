@@ -2339,7 +2339,6 @@ pure nothrow /+TODO @nogc+/ unittest
         {
             pragma(msg, E);
             const(E)[2] x = [E.init, E.init];
-            pragma(msg, typeof(x));
             // TODO caCopy ~= E.init;
             caCopy ~= x[];
             assert(caCopy.length == 3);

@@ -478,9 +478,10 @@ unittest
     assert(stemmer.stem("") == "");
     assert(stemmer.stem("x") == "x");
     assert(stemmer.stem("xyz") == "xyz");
+    assert(stemmer.stem("win") == "win");
+    // TODO assert(stemmer.stem("winner") == "win");
     assert(stemmer.stem("winning") == "win");
     assert(stemmer.stem("farted") == "fart");
-    assert(stemmer.stem("win") == "win");
     assert(stemmer.stem("caresses") == "caress");
     assert(stemmer.stem("ponies") == "poni");
     assert(stemmer.stem("ties") == "ti");

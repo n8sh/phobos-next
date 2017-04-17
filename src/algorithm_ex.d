@@ -1868,7 +1868,7 @@ bool isAmong(alias pred = (a, b) => a == b,
     if (Values.length != 0)
 {
     import std.algorithm.comparison : among;
-    return value.among!pred(values) != 0;
+    return cast(bool)value.among!pred(values);
 }
 
 ///

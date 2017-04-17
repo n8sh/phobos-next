@@ -345,15 +345,17 @@ alias Lang = Language;
 bool hasCase(Language lang) @safe pure @nogc nothrow
 {
     import std.algorithm.comparison: among;
-    with (Language) return lang.among!(bg, ada) != 0;
+    with (Language)
+        return cast(bool)lang.among!(bg, ada);
 }
 alias isCaseSensitive = hasCase;
 
 /** Return true if $(D lang) is a formal (computer) language. */
 bool isFormal(Language lang) @safe pure @nogc nothrow
 {
-    with (Language) return (lang >= firstFormal &&
-                        lang <= lastFormal);
+    with (Language)
+        return (lang >= firstFormal &&
+                lang <= lastFormal);
 }
 alias forMachines = isFormal;
 alias isProgrammingLanguage = isFormal;

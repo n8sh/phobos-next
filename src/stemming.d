@@ -556,11 +556,11 @@ auto ref stemSwedish(S)(S s) if (isSomeString!S)
         if (s.endsWith(en))
         {
             const t = s[0 .. $ - en.length];
-            if (s.among!(`även`) != 0)
+            if (s.among!(`även`))
             {
                 return s;
             }
-            else if (t.among!(`sann`) != 0)
+            else if (t.among!(`sann`))
             {
                 return t;
             }
@@ -607,7 +607,7 @@ auto ref stemSwedish(S)(S s) if (isSomeString!S)
 
     if (s.endsWith(na))
     {
-        if (s.among!(`sina`, `dina`, `mina`) != 0)
+        if (s.among!(`sina`, `dina`, `mina`))
         {
             return s[0 .. $ - 1];
         }
@@ -670,7 +670,7 @@ auto ref stemSwedish(S)(S s) if (isSomeString!S)
     if (s.endsWith(aste))
     {
         const t = s[0 .. $ - aste.length];
-        if (t.among!(`sann`) != 0)
+        if (t.among!(`sann`))
         {
             return t;
         }
@@ -687,7 +687,7 @@ auto ref stemSwedish(S)(S s) if (isSomeString!S)
     if (s.endsWith(are, ast))
     {
         const t = s[0 .. $ - are.length];
-        if (t.among!(`sann`) != 0)
+        if (t.among!(`sann`))
         {
             return t;
         }
@@ -726,7 +726,7 @@ auto ref stemSwedish(S)(S s) if (isSomeString!S)
             }
             return t;
         }
-        if (s.among!(`hade`) != 0)
+        if (s.among!(`hade`))
         {
             return s;
         }

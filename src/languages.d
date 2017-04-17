@@ -8,7 +8,7 @@ import std.traits: isSomeString;
     See also: https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
     See also: http://msdn.microsoft.com/en-us/library/ms533052(v=vs.85).aspx
 */
-enum Language:ushort
+enum Lang:ushort
 {
     unknown,
 
@@ -339,21 +339,20 @@ enum Language:ushort
 
     regularExpression, regexp = regularExpression,
 }
-alias Lang = Language;
 
 /** Return true if $(D lang) is case-sensitive. */
-bool hasCase(Language lang) @safe pure @nogc nothrow
+bool hasCase(Lang lang) @safe pure @nogc nothrow
 {
     import std.algorithm.comparison: among;
-    with (Language)
+    with (Lang)
         return cast(bool)lang.among!(bg, ada);
 }
 alias isCaseSensitive = hasCase;
 
 /** Return true if $(D lang) is a formal (computer) language. */
-bool isFormal(Language lang) @safe pure @nogc nothrow
+bool isFormal(Lang lang) @safe pure @nogc nothrow
 {
-    with (Language)
+    with (Lang)
         return (lang >= firstFormal &&
                 lang <= lastFormal);
 }
@@ -361,10 +360,10 @@ alias forMachines = isFormal;
 alias isProgrammingLanguage = isFormal;
 
 /** TODO Remove when __traits(documentation) is merged */
-string toSpoken(Language lang, Language spokenLang = Language.init)
+string toSpoken(Lang lang, Lang spokenLang = Lang.init)
     @safe pure @nogc nothrow
 {
-    switch (lang) with (Language)
+    switch (lang) with (Lang)
     {
         case unknown: return `??`;
         case en: return `English`; // 英語
@@ -501,31 +500,31 @@ string toSpoken(Language lang, Language spokenLang = Language.init)
     }
 }
 
-Language decodeLang(S)(S lang)
+Lang decodeLang(S)(S lang)
     @safe pure
     if (isSomeString!S)
 {
     if (lang == `is`)
     {
-        return Language.is_;
+        return Lang.is_;
     }
     else if (lang == `in`)
     {
-        return Language.in_;
+        return Lang.in_;
     }
     else
     {
-        return lang.to!Language;
+        return lang.to!Lang;
     }
 }
 
 @safe pure unittest
 {
-    assert(`sv`.decodeLang == Language.sv);
-    assert(`sv`.to!Language == Language.sv);
+    assert(`sv`.decodeLang == Lang.sv);
+    assert(`sv`.to!Lang == Lang.sv);
 }
 
-Language decodeLangDefaulted(S)(S lang, Lang defaultLang)
+Lang decodeLangDefaulted(S)(S lang, Lang defaultLang)
     @safe pure nothrow
     if (isSomeString!S)
 {
@@ -547,7 +546,7 @@ Language decodeLangDefaulted(S)(S lang, Lang defaultLang)
 
 @safe pure nothrow @nogc unittest
 {
-    with (Language)
+    with (Lang)
     {
         assert(unknown.toSpoken == `??`);
         assert(c.toSpoken == `C`);
@@ -560,36 +559,36 @@ Language decodeLangDefaulted(S)(S lang, Lang defaultLang)
 @safe unittest
 {
     import conv_ex : tolerantTo;
-    assert("en".tolerantTo!Language == Language.en);
-    assert("EnglisH".tolerantTo!Language == Language.en);
+    assert("en".tolerantTo!Lang == Lang.en);
+    assert("EnglisH".tolerantTo!Lang == Lang.en);
 }
 
-string toHTML(Language lang) @safe pure nothrow @nogc
+string toHTML(Lang lang) @safe pure nothrow @nogc
 {
     return lang.toSpoken;
 }
 
-string toMathML(Language lang)
+string toMathML(Lang lang)
     @safe pure nothrow @nogc
 {
     return lang.toHTML;
 }
 
-Language language(string name)
+Lang language(string name)
     @safe pure nothrow @nogc
 {
     switch (name)
     {
-        case `C`:    return Language.c;
-        case `C++`:  return Language.cxx;
-        case `Objective-C`:  return Language.objectiveC;
-        case `D`:    return Language.d;
-        case `Java`: return Language.java;
-        default:     return Language.unknown;
+        case `C`:    return Lang.c;
+        case `C++`:  return Lang.cxx;
+        case `Objective-C`:  return Lang.objectiveC;
+        case `D`:    return Lang.d;
+        case `Java`: return Lang.java;
+        default:     return Lang.unknown;
     }
 }
 
-/** Markup Language */
+/** Markup Lang */
 enum MarkupLang:ubyte
 {
     unknown,                    // Unknown: ?
@@ -599,9 +598,9 @@ enum MarkupLang:ubyte
 
 /** Languages that capitalize all their nouns, not only proper ones.
  */
-bool capitalizesNoun(Language lang)
+bool capitalizesNoun(Lang lang)
     @safe pure nothrow @nogc
 {
     import std.algorithm.comparison : among;
-    return lang.among!(Language.de) != 0;
+    return cast(bool)lang.among!(Lang.de);
 }

@@ -11,7 +11,8 @@ import std.typecons: Tuple, tuple;
 import grammar: Lang, isEnglishVowel, isSwedishVowel, isSwedishConsonant, isEnglishConsonant;
 import skip_ex: skipOverBack;
 
-public class Stemmer(S) if (isSomeString!S)
+public class Stemmer(S)
+    if (isSomeString!S)
 {
     /**
      * In stem(p,i,j), p is a char pointer, and the string to be stemmed

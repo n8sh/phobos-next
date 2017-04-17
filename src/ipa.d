@@ -61,12 +61,24 @@ bool isIPAVowelPhoneme(S)(S s)
     if (isSomeString!S)
 {
     import std.algorithm.comparison : among;
-    return s.among!(`æ`, `ə`, `ʌ`, `ɜ`, `eə`, `ɜr`, `ɑː`, `aɪ`, `ɑr`, `aʊ`, `ɛ`, `eɪ`, `iː`, `ɪ`, `ɔː`, `ɔɪ`, `oʊ`, `uː`, `ʊ`) != 0;
+    return cast(bool)s.among!(`æ`, `ə`, `ʌ`, `ɜ`, `eə`, `ɜr`, `ɑː`, `aɪ`, `ɑr`, `aʊ`, `ɛ`, `eɪ`, `iː`, `ɪ`, `ɔː`, `ɔɪ`, `oʊ`, `uː`, `ʊ`);
+}
+
+@safe pure nothrow @nogc unittest
+{
+    assert(`æ`.isIPAVowelPhoneme);
+    assert(!`b`.isIPAVowelPhoneme);
 }
 
 bool isIPAConsonantPhoneme(S)(S s)
     if (isSomeString!S)
 {
     import std.algorithm.comparison : among;
-    return s.among!(`b`, `d`, `ð`, `dʒ`, `f`, `ɡ`, `h`, `hw`, `j`, `k`, `l`, `m`, `n`, `ŋ`, `p`, `r`, `s`, `ʃ`, `t`, `θ`, `tʃ`, `tʃ`, `w`, `z`, `ʒ`);
+    return cast(bool)s.among!(`b`, `d`, `ð`, `dʒ`, `f`, `ɡ`, `h`, `hw`, `j`, `k`, `l`, `m`, `n`, `ŋ`, `p`, `r`, `s`, `ʃ`, `t`, `θ`, `tʃ`, `w`, `z`, `ʒ`);
+}
+
+@safe pure nothrow @nogc unittest
+{
+    assert(!`a`.isIPAConsonantPhoneme);
+    assert(`b`.isIPAConsonantPhoneme);
 }

@@ -1930,7 +1930,7 @@ void resetAllMembers(T)(T c)
 }
 
 ///
-unittest
+@safe pure nothrow unittest
 {
     class C
     {
@@ -2056,7 +2056,7 @@ bool countsAtMost(R)(R r, size_t maxCount) @("complexity", "O(maxCount)")
 }
 
 ///
-@safe pure nothrow unittest
+@safe pure nothrow @nogc unittest
 {
     static void test(R)(R x)
         if (isInputRange!R)
@@ -2088,10 +2088,11 @@ bool countsAtMost(R)(R r, size_t maxCount) @("complexity", "O(maxCount)")
 
     import std.algorithm : filter;
     import std.range : iota;
-    import std.array : array;
 
     test(3.iota.filter!(x => true));
-    test(3.iota.array);
+
+    int[3] x = [0, 1, 2];
+    test(x[]);
 }
 
 import std.traits : allSatisfy;

@@ -945,6 +945,22 @@ private struct Array(E,
         {
             assert(!isBorrowed);
             pushBack(move(values)); // TODO remove `move` when compiler does it for us
+            // static if (values.length == 1)
+            // {
+            //     import std.traits : hasIndirections;
+            //     static if (hasIndirections!(Us[0]))
+            //     {
+            //         pushBack(move(values)); // TODO remove `move` when compiler does it for us
+            //     }
+            //     else
+            //     {
+            //         pushBack(move(cast(Unqual!(Us[0]))values[0])); // TODO remove `move` when compiler does it for us
+            //     }
+            // }
+            // else
+            // {
+            //     pushBack(move(values)); // TODO remove `move` when compiler does it for us
+            // }
         }
         void opOpAssign(string op, R)(R values)
             if (op == "~" &&
@@ -1504,17 +1520,20 @@ private:                        // data
                                      bool, "isLarge", 1, // bit 0
                                      bool, "isBorrowed", 1, // bit 1
                           ));
-            pragma(inline, true):
+
+                pragma(inline, true):
                 @property void ptr(E* c)
                 {
                     dln(c);
                     assert((cast(ulong)c & 0b11) == 0);
                     _uintptr = cast(uint*)c;
                 }
+
                 @property inout(E)* ptr() inout
                 {
                     return cast(E*)_uintptr;
                 }
+
                 CapacityType capacity;  // store capacity
                 CapacityType length;  // store length
             }
@@ -1527,11 +1546,18 @@ private:                        // data
         {
             private enum lengthBits = 8*CapacityType.sizeof - 2;
             private enum lengthMax = 2^^lengthBits - 1;
+
             static if (useGCAllocation)
+            {
                 E* ptr;                // GC-allocated store pointer. See also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
+            }
             else
+            {
                 @nogc E* ptr;       // non-GC-allocated store pointer
+            }
+
             CapacityType capacity;  // store capacity
+
             import std.bitmanip : bitfields; // TODO replace with own logic cause this mixin costs compilation speed
             mixin(bitfields!(CapacityType, "length", lengthBits,
                              bool, "isBorrowed", 1,
@@ -2312,8 +2338,9 @@ pure nothrow /+TODO @nogc+/ unittest
         static if (!hasIndirections!E)
         {
             pragma(msg, E);
-            // caCopy ~= const(E).init;
-            const E[2] x = [E.init, E.init];
+            const(E)[2] x = [E.init, E.init];
+            pragma(msg, typeof(x));
+            // caCopy ~= E.init;
             caCopy ~= x[];
             assert(caCopy.length == 3);
             assert(caCopy[1 .. $] == x[]);

@@ -2307,10 +2307,17 @@ pure nothrow /+TODO @nogc+/ unittest
         immutable ca = CA.withElement(E.init);
 
         auto caCopy = ca.dup;
-        // TODO
-        // pragma(msg, typeof(caCopy));
-        // pragma(msg, E);
-        // caCopy ~= const(E).init;
+
+        import std.traits : hasIndirections;
+        static if (!hasIndirections!E)
+        {
+            pragma(msg, E);
+            // caCopy ~= const(E).init;
+            const E[2] x = [E.init, E.init];
+            caCopy ~= x[];
+            assert(caCopy.length == 3);
+            assert(caCopy[1 .. $] == x[]);
+        }
 
         // should have same element type
         static assert(is(typeof(caCopy[0]) ==

@@ -2091,7 +2091,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 }
 
 /// disabled copying
-@safe pure nothrow unittest
+@safe pure nothrow @nogc unittest
 {
     alias E = ubyte;
     alias A = Array!(E, Assignment.disabled, Ordering.unsorted, false, size_t, "a < b");

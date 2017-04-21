@@ -134,7 +134,7 @@ enum Lang:ushort
     es, spanish = es, spa = spanish,                      /// Spanish
     // es_ar, spanishArgentina = es_ar,
     // es_bo, spanishBolivia = es_bo,
-    sw, swahili = sw,                      /// Swahili: East Africa
+    sw, swahili = sw, swa = swahili, /// Swahili: East Africa
     sv, swedish = sv, swe = swedish,                       /// Swedish
     tg, tajik = tg,                      /// Tajik: Tajikistan, Afghanistan
     ta, tamil = ta,                      /// Tamil: India

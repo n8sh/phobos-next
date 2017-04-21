@@ -104,7 +104,7 @@ enum Lang:ushort
     ms, malay = ms,                      /// Malay: Malaysia
     mt, maltese = mt,                      /// Maltese: Malta
     ne, nepali = ne,                      /// Nepali: Nepal
-    no, norwegian = no,                      /// Norwegian: Norway
+    no, norwegian = no, nob = norwegian,  /// Norwegian: Norway
     ps, pashto = ps,                      /// Pashto: Afghanistan, Iran, Pakistan
     fa, persian = fa, farsi = persian,                     /// Persian (Farsi): Iran, Iraq, Afghanistan, Pakistan, Azerbaijan
     oc, occitan = oc,                      /// Occitan (Provençal, Languedocian): France
@@ -129,8 +129,8 @@ enum Lang:ushort
     // tpi,                       /// TODO?
     gd, scottish_gaelic = gd,                      /// Scottish Gaelic: Scotland
     sr, serbian = sr,                      /// Serbian: Serbia, Montenegro, Bosnia
-    sk, slovak = sk,                      /// Slovak: Slovak Republic
-    sl, slovene = sl, slovenian = slovene,                      /// Slovene, Slovenian: Slovenia, Austria, Italy
+    sk, slovak = sk, slk = slovak,         /// Slovak: Slovak Republic
+    sl, slovene = sl, slovenian = slovene, slv = slovenian, /// Slovene, Slovenian: Slovenia, Austria, Italy
     es, spanish = es, spa = spanish,                      /// Spanish
     // es_ar, spanishArgentina = es_ar,
     // es_bo, spanishBolivia = es_bo,

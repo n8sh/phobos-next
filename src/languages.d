@@ -137,8 +137,8 @@ enum Lang:ushort
     sw, swahili = sw, swa = swahili, /// Swahili: East Africa
     sv, swedish = sv, swe = swedish,                       /// Swedish
     tg, tajik = tg,                      /// Tajik: Tajikistan, Afghanistan
-    ta, tamil = ta,                      /// Tamil: India
-    th, thai = th,                      /// Thai: Thailand
+    ta, tamil = ta, tam = tamil,         /// Tamil: India
+    th, thai = th, tha = thai,                      /// Thai: Thailand
     tr, turkish = tr,                      /// Turkish: Turkey, Cyprus
     tk, turkmen = tk,                      /// Turkmen: Turkmenistan, Afghanistan
     uk, ukrainian = uk,                      /// Ukrainian

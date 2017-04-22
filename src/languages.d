@@ -20,7 +20,7 @@ enum Lang:ushort
     // ace,                      /// TODO?
     // ai,                       /// TODO?
     // ain,                       /// TODO?
-    af, afrikaans = af,           /// Afrikaans
+    af, afrikaans = af, afr = afrikaans, /// Afrikaans
     ar, arabic = ar,                       /// Arabic
     // ary,                       /// TODO?
     // arc,                       /// TODO?
@@ -71,7 +71,7 @@ enum Lang:ushort
     gl, galician = gl, gallegan = galician,                      /// Galician (Gallegan): Spain, Portugal
     gv, manx = gv,                      /// Manx: Isle of Man
     de, german = de, deu = german,                      /// German: Germany, Austria, Switzerland, Liechtenstein, Italy, Belgium
-    el, greek = el, ell = greek,                      /// Greek: Greece, Cyprus
+    el, greek = el, ell = greek, grc = ell, /// Greek: Greece, Cyprus
     ha, hausa = ha,                      /// Hausa: Nigeria
     haw, hawaiian = haw,                     /// Hawaiian: Hawaii
     he, hebrew = he,                      /// Hebrew: Israel
@@ -101,7 +101,7 @@ enum Lang:ushort
     nan, southern_min = nan, min_nan = southern_min,                    /// Min Nan: https://en.wikipedia.org/wiki/Southern_Min
     mg, malagasy = mg, malgache = malagasy,                    /// Malagasy (Malgache): Madagascar
     mn, mongolian = mn,                      /// Mongolian: Mongolia
-    ms, malay = ms,                      /// Malay: Malaysia
+    ms, malay = ms, zsm = malay,             /// Malay: Malaysia
     mt, maltese = mt,                      /// Maltese: Malta
     ne, nepali = ne,                      /// Nepali: Nepal
     no, norwegian = no, nob = norwegian,  /// Norwegian: Norway
@@ -139,15 +139,15 @@ enum Lang:ushort
     tg, tajik = tg,                      /// Tajik: Tajikistan, Afghanistan
     ta, tamil = ta, tam = tamil,         /// Tamil: India
     th, thai = th, tha = thai,                      /// Thai: Thailand
-    tr, turkish = tr,                      /// Turkish: Turkey, Cyprus
+    tr, turkish = tr, tur = turkish,                /// Turkish: Turkey, Cyprus
     tk, turkmen = tk,                      /// Turkmen: Turkmenistan, Afghanistan
-    uk, ukrainian = uk,                      /// Ukrainian
+    uk, ukrainian = uk, ukr = ukrainian,   /// Ukrainian
     ur, urdu = ur,                      /// Urdu: Pakistan, India, Central Asia
     uz, uzbek = uz,                      /// Uzbek: Uzbekistan, Central Asia, China
-    vi, vietnamese = vi,                      /// Vietnamese: Viet Nam
+    vi, vietnamese = vi, vie = vietnamese, /// Vietnamese: Viet Nam
     vo, volapuk = vo,                      /// Volapük
-    wa, waloon = wa,                      /// Waloon: Belgium
-    yi, yiddish = yi,                      /// Yiddish: Israel, USA, Russia
+    wa, waloon = wa, wln = waloon,         /// Waloon: Belgium
+    yi, yiddish = yi, yid = yiddish, /// Yiddish: Israel, USA, Russia
 
     aa, afar = aa,/// Afar	Ethiopia, Eritrea, Djibouti	Salaamata
     ab, abkhaz = ab,/// Abkhaz	Caucasus	needed!

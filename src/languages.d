@@ -361,7 +361,7 @@ alias isProgrammingLanguage = isFormal;
 
 /** TODO Remove when __traits(documentation) is merged */
 string toSpoken(Lang lang, Lang spokenLang = Lang.init)
-    @safe pure @nogc nothrow
+    @safe pure nothrow // TODO @nogc
 {
     with (Lang)
         switch (lang)
@@ -495,15 +495,25 @@ string toSpoken(Lang lang, Lang spokenLang = Lang.init)
         case swift: return `Swift`;
         case fortran: return `Fortran`;
         case modelica: return `Modelica`;
-        case math: return `Mathematics`;
-        case physics: return `Physics`;
+
+        case math: return `mathematics`;
+        case physics: return `physics`;
         case regularExpression: return `regular expression`;
-        default: return `??`;
+
+        default:
+            try
+            {
+                return lang.to!(typeof(return));
+            }
+            catch (Exception e)
+            {
+                return `__unconvertiable__`;
+            }
         }
 }
 
 Lang decodeLang(S)(S lang)
-    @safe pure
+    @safe pure nothrow // @nogc
     if (isSomeString!S)
 {
     if (lang == `is`)
@@ -516,7 +526,8 @@ Lang decodeLang(S)(S lang)
     }
     else
     {
-        return lang.to!Lang;
+        import conv_ex : toWithDefault;
+        return lang.toWithDefault!Lang(Lang.unknown);
     }
 }
 
@@ -546,7 +557,7 @@ Lang decodeLangDefaulted(S)(S lang, Lang defaultLang)
     assert(`sv`.decodeLangDefaulted(Lang.unknown) == Lang.sv);
 }
 
-@safe pure nothrow @nogc unittest
+@safe pure nothrow /*TODO @nogc*/ unittest
 {
     with (Lang)
     {
@@ -565,13 +576,13 @@ Lang decodeLangDefaulted(S)(S lang, Lang defaultLang)
     assert("EnglisH".tolerantTo!Lang == Lang.en);
 }
 
-string toHTML(Lang lang) @safe pure nothrow @nogc
+string toHTML(Lang lang) @safe pure nothrow /*TODO @nogc*/
 {
     return lang.toSpoken;
 }
 
 string toMathML(Lang lang)
-    @safe pure nothrow @nogc
+    @safe pure nothrow /*TODO @nogc*/
 {
     return lang.toHTML;
 }

@@ -7,9 +7,9 @@ enum Growable { no, yes }
 enum Copyable { no, yes }
 
 /** Store presence of elements of type `E` in a set in the range `0 .. length`. */
-struct BitHashSet(E,
-                  Growable growable = Growable.no,
-                  Copyable copyable = Copyable.no)
+struct DenseSetFilter(E,
+                      Growable growable = Growable.no,
+                      Copyable copyable = Copyable.no)
     if (is(typeof(cast(size_t)E.init))) // is castable to size_t
 {
     import core.memory : malloc = pureMalloc, calloc = pureCalloc, realloc = pureRealloc;
@@ -171,14 +171,14 @@ private:
     alias E = uint;
 
     import std.range : isOutputRange;
-    alias Set = BitHashSet!(E, Growable.no);
+    alias Set = DenseSetFilter!(E, Growable.no);
     static assert(isOutputRange!(Set, E));
 
     const set0 = Set();
     assert(set0.capacity == 0);
 
     const length = 2^^6;
-    auto set = BitHashSet!E(2*length);
+    auto set = DenseSetFilter!E(2*length);
     const y = set.dup;
     assert(y.capacity == 2*length);
 
@@ -228,7 +228,7 @@ private:
 {
     alias E = uint;
 
-    auto set = BitHashSet!(E, Growable.yes)();
+    auto set = DenseSetFilter!(E, Growable.yes)();
     assert(set._length == 0);
 
     const length = 2^^16;
@@ -259,7 +259,7 @@ nothrow @nogc unittest          // TODO pure when https://github.com/dlang/phobo
     import std.typecons : RefCounted;
     alias E = int;
 
-    RefCounted!(BitHashSet!(E, Growable.yes)) set;
+    RefCounted!(DenseSetFilter!(E, Growable.yes)) set;
 
     assert(set._length == 0);
     assert(set.capacity == 0);
@@ -277,7 +277,7 @@ nothrow @nogc unittest          // TODO pure when https://github.com/dlang/phobo
         assert(y._length == e + 1);
     }
 
-    const set1 = RefCounted!(BitHashSet!(E, Growable.yes))(42);
+    const set1 = RefCounted!(DenseSetFilter!(E, Growable.yes))(42);
     assert(set1._length == 42);
     assert(set1.capacity == 64);
 }
@@ -287,7 +287,7 @@ nothrow @nogc unittest          // TODO pure when https://github.com/dlang/phobo
 {
     enum E:ubyte { a, b, c, d, dAlias = d }
 
-    auto set = BitHashSet!(E, Growable.yes)();
+    auto set = DenseSetFilter!(E, Growable.yes)();
 
     assert(set._length == 0);
 

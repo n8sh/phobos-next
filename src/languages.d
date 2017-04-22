@@ -524,8 +524,8 @@ Lang decodeLang(S)(S lang)
     }
     else
     {
-        import conv_ex : toWithDefault;
-        return lang.toWithDefault!Lang(Lang.unknown);
+        import conv_ex : toDefaulted;
+        return lang.toDefaulted!Lang(Lang.unknown);
     }
 }
 

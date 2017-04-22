@@ -7,7 +7,7 @@ import std.range : isInputRange, ElementType;
 /** Variant of std.conv.to with $(D defaultValue) making it $(D nothrow).
     TODO add overload for std.conv : to with default value to make this @nogc
  */
-CommonType!(T, U) toWithDefault(T, U, S)(S value, U defaultValue)
+CommonType!(T, U) toDefaulted(T, U, S)(S value, U defaultValue)
     if (haveCommonType!(T, U))
 {
     try
@@ -23,8 +23,8 @@ CommonType!(T, U) toWithDefault(T, U, S)(S value, U defaultValue)
 
 @safe pure nothrow /*@nogc*/ unittest
 {
-    assert("42_1".toWithDefault!int(42.1) == 42.1);
-    assert(42.toWithDefault!string("_42") == "42");
+    assert("42_1".toDefaulted!int(42.1) == 42.1);
+    assert(42.toDefaulted!string("_42") == "42");
 }
 
 /** More tolerant variant of `std.conv.to`.

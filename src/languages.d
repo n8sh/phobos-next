@@ -136,6 +136,7 @@ enum Lang:ushort
     // es_bo, spanishBolivia = es_bo,
     sw, swahili = sw, swa = swahili, /// Swahili: East Africa
     sv, swedish = sv, swe = swedish,                       /// Swedish
+    asv, ancientSwedish = asv,                       /// Ancient Swedish
     tg, tajik = tg,                      /// Tajik: Tajikistan, Afghanistan
     ta, tamil = ta, tam = tamil,         /// Tamil: India
     th, thai = th, tha = thai,                      /// Thai: Thailand
@@ -458,6 +459,7 @@ string toSpoken(Lang lang, Lang spokenLang = Lang.init)
         case es: return `Spanish`;
         case sw: return `Swahili`;
         case sv: return `Swedish`;
+        case asv: return `Ancient Swedish`;
         case tg: return `Tajik`;
         case ta: return `Tamil`;
         case th: return `Thai`;

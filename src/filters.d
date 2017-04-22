@@ -1,4 +1,4 @@
-module bithashset;
+module filters;
 
 /// Growable flag.
 enum Growable { no, yes }

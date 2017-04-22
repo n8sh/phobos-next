@@ -71,7 +71,7 @@ enum Lang:ushort
     gl, galician = gl, gallegan = galician,                      /// Galician (Gallegan): Spain, Portugal
     gv, manx = gv,                      /// Manx: Isle of Man
     de, german = de, deu = german,                      /// German: Germany, Austria, Switzerland, Liechtenstein, Italy, Belgium
-    el, greek = el, ell = greek, /// Greek: Greece, Cyprus
+    el, greek = el, ell = greek,     /// Greek: Greece, Cyprus
     ha, hausa = ha,                      /// Hausa: Nigeria
     haw, hawaiian = haw,                     /// Hawaiian: Hawaii
     he, hebrew = he,                      /// Hebrew: Israel

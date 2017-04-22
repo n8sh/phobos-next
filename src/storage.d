@@ -3,8 +3,6 @@ module storage;
 /// Large array storage.
 static struct Large(E, bool useGCallocation)
 {
-    import qcmeman;
-
     E* ptr;
     size_t length;
 
@@ -14,9 +12,7 @@ static struct Large(E, bool useGCallocation)
     }
     else
     {
-        alias _malloc = malloc;
-        alias _realloc = realloc;
-        alias _free = free;
+        import core.memory : malloc = pureMalloc, realloc = pureRealloc;
     }
 
     pure nothrow:
@@ -45,16 +41,17 @@ static struct Large(E, bool useGCallocation)
         this(size_t n)
         {
             length = n;
-            ptr = cast(E*)_malloc(E.sizeof * length);
+            ptr = cast(E*)malloc(E.sizeof * length);
         }
         void resize(size_t n)
         {
             length = n;
-            ptr = cast(E*)_realloc(ptr, E.sizeof * length);
+            ptr = cast(E*)realloc(ptr, E.sizeof * length);
         }
         void clear()
         {
-            _free(ptr);
+            import qcmeman : free;
+            free(ptr);
             debug ptr = null;
         }
     }

@@ -363,8 +363,9 @@ alias isProgrammingLanguage = isFormal;
 string toSpoken(Lang lang, Lang spokenLang = Lang.init)
     @safe pure @nogc nothrow
 {
-    switch (lang) with (Lang)
-    {
+    with (Lang)
+        switch (lang)
+        {
         case unknown: return `??`;
         case en: return `English`; // 英語
         case en_US: return `American English`;
@@ -406,6 +407,7 @@ string toSpoken(Lang lang, Lang spokenLang = Lang.init)
         case gv: return `Manx`;
         case de: return `German`;
         case el: return `Greek`;
+        case grc: return `Ancient Greek`;
         case ha: return `Hausa`;
         case he: return `Hebrew`;
         case hi: return `Hindi`;
@@ -489,7 +491,7 @@ string toSpoken(Lang lang, Lang spokenLang = Lang.init)
         case go: return `Go`;
         case java: return `Java`;
         case ada: return `Ada`;
-        // case rust: return `Rust`;
+            // case rust: return `Rust`;
         case swift: return `Swift`;
         case fortran: return `Fortran`;
         case modelica: return `Modelica`;
@@ -497,7 +499,7 @@ string toSpoken(Lang lang, Lang spokenLang = Lang.init)
         case physics: return `Physics`;
         case regularExpression: return `regular expression`;
         default: return `??`;
-    }
+        }
 }
 
 Lang decodeLang(S)(S lang)

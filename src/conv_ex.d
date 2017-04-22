@@ -5,13 +5,14 @@ import traits_ex : haveCommonType, isSourceOfSomeChar;
 import std.range : isInputRange, ElementType;
 
 /** Variant of std.conv.to with $(D defaultValue) making it $(D nothrow).
+    TODO add overload for std.conv : to with default value to make this @nogc
  */
 CommonType!(T, U) toWithDefault(T, U, S)(S value, U defaultValue)
     if (haveCommonType!(T, U))
 {
-    import std.conv : to;
     try
     {
+        import std.conv : to;
         return value.to!T;
     }
     catch (Exception e) // assume ConvException. TODO can we capture ConvException instead make it inferred nothrow

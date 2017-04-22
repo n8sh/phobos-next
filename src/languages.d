@@ -617,8 +617,3 @@ bool capitalizesNoun(Lang lang)
     import std.algorithm.comparison : among;
     return cast(bool)lang.among!(Lang.de);
 }
-
-import filters : DenseSetFilter, Growable, Copyable;
-
-/// O(1) insertion and lookup, O(n) iteration.
-alias LangFilter = DenseSetFilter!(Lang, Growable.yes, Copyable.no);

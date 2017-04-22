@@ -12,13 +12,13 @@ T* constructVariableLength(T, Args...)(size_t requiredCapacity, Args args) @trus
 {
     import std.math : nextPow2;
     import std.algorithm : clamp;
-    import std.conv : emplace;
     const paddedRequestedCapacity = (requiredCapacity == 1 ?
                                      1 :
                                      (nextPow2(requiredCapacity - 1).clamp(T.minCapacity,
                                                                            T.maxCapacity)));
     assert(paddedRequestedCapacity >= requiredCapacity);
     import core.memory : malloc = pureMalloc;
+    import std.conv : emplace;
     return emplace(cast(typeof(return))malloc(T.allocationSizeOfCapacity(paddedRequestedCapacity)),
                    paddedRequestedCapacity, args);
 }

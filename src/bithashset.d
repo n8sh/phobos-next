@@ -13,7 +13,6 @@ struct BitHashSet(E,
     if (is(typeof(cast(size_t)E.init))) // is castable to size_t
 {
     import core.memory : malloc = pureMalloc, calloc = pureCalloc, realloc = pureRealloc;
-    import qcmeman : free;
     import core.bitop : bts, btr, btc, bt;
 
     @safe pure nothrow @nogc pragma(inline):
@@ -37,6 +36,7 @@ struct BitHashSet(E,
 
     ~this() @trusted
     {
+        import qcmeman : free;
         free(_blocksPtr);
     }
 

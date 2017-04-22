@@ -356,8 +356,6 @@ bool isFormal(Lang lang) @safe pure @nogc nothrow
         return (lang >= firstFormal &&
                 lang <= lastFormal);
 }
-alias forMachines = isFormal;
-alias isProgrammingLanguage = isFormal;
 
 /** TODO Remove when __traits(documentation) is merged */
 string toSpoken(Lang lang, Lang spokenLang = Lang.init)

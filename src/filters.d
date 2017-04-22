@@ -17,6 +17,9 @@ struct DenseSetFilter(E,
 
     @safe pure nothrow @nogc pragma(inline):
 
+    /// Maximum number of elements in filter.
+    enum elementMaxCount = cast(size_t)E.max - E.min + 1;
+
     /// Construct set to store at most `length` number of bits.
     this(size_t length) @trusted
     {
@@ -29,9 +32,17 @@ struct DenseSetFilter(E,
         }
         else
         {
-            // TODO only allocate
             _capacity = length;
             _blocksPtr = cast(Block*)calloc(blockCount, Block.sizeof);
+        }
+    }
+
+    static if (growable == Growable.no)
+    {
+        /// Construct from inferred capacity and length `elementMaxCount`.
+        static typeof(this) withInferredLength()
+        {
+            return typeof(this)(elementMaxCount);
         }
     }
 
@@ -291,6 +302,27 @@ nothrow @nogc unittest          // TODO pure when https://github.com/dlang/phobo
     auto set = DenseSetFilter!(E, Growable.yes)();
 
     assert(set._length == 0);
+
+    import std.traits : EnumMembers;
+    foreach (lang; [EnumMembers!E])
+    {
+        assert(!set.contains(lang));
+    }
+    foreach (lang; [EnumMembers!E])
+    {
+        set.insert(lang);
+        assert(set.contains(lang));
+    }
+
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    enum E:ubyte { a, b, c, d, dAlias = d }
+
+    auto set = DenseSetFilter!(E, Growable.no).withInferredLength();
+    assert(set.capacity == typeof(set).elementMaxCount);
 
     import std.traits : EnumMembers;
     foreach (lang; [EnumMembers!E])

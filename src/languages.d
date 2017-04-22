@@ -618,7 +618,7 @@ bool capitalizesNoun(Lang lang)
     return cast(bool)lang.among!(Lang.de);
 }
 
-import bithashset : DenseSetFilter, Growable, Copyable;
+import filters : DenseSetFilter, Growable, Copyable;
 
 /// O(1) insertion and lookup, O(n) iteration.
 alias LangSet = DenseSetFilter!(Lang, Growable.yes, Copyable.no);

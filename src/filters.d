@@ -6,7 +6,13 @@ enum Growable { no, yes }
 /// Copyable flag.
 enum Copyable { no, yes }
 
-/** Store presence of elements of type `E` in a set in the range `0 .. length`. */
+/** Store presence of elements of type `E` in a set in the range `0 .. length`.
+    Can be seen as a generalization of `std.typecons.BitFlags` to integer types.
+
+    Typically used to implement very fast membership checking. For instance in
+    graph traversal algorithms, this filter is typically used as a temporary set
+    that checks if a node has been previously visisted or not.
+ */
 struct DenseSetFilter(E,
                       Growable growable = Growable.yes,
                       Copyable copyable = Copyable.no)

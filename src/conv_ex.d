@@ -29,7 +29,7 @@ CommonType!(T, U) toWithDefault(T, U, S)(S value, U defaultValue)
 
 /** More tolerant variant of `std.conv.to`.
 */
-auto tolerantTo(U, S)(S t,
+auto tolerantTo(U, S)(S value,
                       bool tryStrippingPluralS = true,
                       bool tryToLower = true,
                       bool tryLevenshtein = true,
@@ -39,7 +39,7 @@ auto tolerantTo(U, S)(S t,
     import std.conv: to;
     try
     {
-        return t.to!U;
+        return value.to!U;
     }
     catch (Exception e)
     {
@@ -48,24 +48,24 @@ auto tolerantTo(U, S)(S t,
             if (tryToLower)
             {
                 import std.uni: toLower;
-                return t.toLower.tolerantTo!U(tryStrippingPluralS,
-                                              false,
-                                              tryLevenshtein,
-                                              levenshteinMaxDistance);
+                return value.toLower.tolerantTo!U(tryStrippingPluralS,
+                                                  false,
+                                                  tryLevenshtein,
+                                                  levenshteinMaxDistance);
             }
         }
         catch (Exception e)
         {
             import std.algorithm.searching: endsWith;
             if (tryStrippingPluralS &&
-                t.endsWith(`s`))
+                value.endsWith(`s`))
             {
                 try
                 {
-                    return t[0 .. $ - 1].tolerantTo!U(false,
-                                                      tryToLower,
-                                                      tryLevenshtein,
-                                                      levenshteinMaxDistance);
+                    return value[0 .. $ - 1].tolerantTo!U(false,
+                                                          tryToLower,
+                                                          tryLevenshtein,
+                                                          levenshteinMaxDistance);
                 }
                 catch (Exception e)
                 {
@@ -87,7 +87,7 @@ auto tolerantTo(U, S)(S t,
                 import std.algorithm.comparison: levenshteinDistance;
                 import std.algorithm.searching: minPos;
                 import std.typecons: tuple;
-                return members.map!(s => tuple(t.levenshteinDistance(s.to!string), s))
+                return members.map!(s => tuple(value.levenshteinDistance(s.to!string), s))
                               .minPos!"a[0] < b[0]".front[1];
             }
         }

@@ -18,6 +18,7 @@ T* constructVariableLength(T, Args...)(size_t requiredCapacity, Args args) @trus
                                      (nextPow2(requiredCapacity - 1).clamp(T.minCapacity,
                                                                            T.maxCapacity)));
     assert(paddedRequestedCapacity >= requiredCapacity);
+    import core.memory : malloc = pureMalloc;
     return emplace(cast(typeof(return))malloc(T.allocationSizeOfCapacity(paddedRequestedCapacity)),
                    paddedRequestedCapacity, args);
 }
@@ -25,6 +26,7 @@ T* constructVariableLength(T, Args...)(size_t requiredCapacity, Args args) @trus
 T* expandVariableLength(T, Args...)(T* curr, size_t requiredCapacity, Args args) @trusted
 {
     T* next;
+    import qcmeman : free;
     free(cast(voidf*)(&this));
     return next;
 }
@@ -36,5 +38,3 @@ template hasVariableLength(T)
     import std.traits: hasMember;
     enum hasVariableLength = hasMember!(T, "allocationSizeOfCapacity");
 }
-
-import qcmeman;

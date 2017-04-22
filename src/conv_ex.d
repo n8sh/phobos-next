@@ -27,16 +27,16 @@ CommonType!(T, U) toWithDefault(T, U, S)(S value, U defaultValue)
     assert(42.toWithDefault!string("_42") == "42");
 }
 
-/** More tolerant variant of std.conv.to.
+/** More tolerant variant of `std.conv.to`.
 */
 auto tolerantTo(U, S)(S t,
                       bool tryStrippingPluralS = true,
                       bool tryToLower = true,
                       bool tryLevenshtein = true,
-                      size_t levenshteinMaxDistance = 3) if (isSomeString!S)
+                      size_t levenshteinMaxDistance = 3)
+    if (isSomeString!S)
 {
     import std.conv: to;
-
     try
     {
         return t.to!U;

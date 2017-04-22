@@ -281,3 +281,25 @@ nothrow @nogc unittest          // TODO pure when https://github.com/dlang/phobo
     assert(set1._length == 42);
     assert(set1.capacity == 64);
 }
+
+///
+@safe pure nothrow @nogc unittest
+{
+    enum E:ubyte { a, b, c, d, dAlias = d }
+
+    auto set = BitHashSet!(E, Growable.yes)();
+
+    assert(set._length == 0);
+
+    import std.traits : EnumMembers;
+    foreach (lang; [EnumMembers!E])
+    {
+        assert(!set.contains(lang));
+    }
+    foreach (lang; [EnumMembers!E])
+    {
+        set.insert(lang);
+        assert(set.contains(lang));
+    }
+
+}

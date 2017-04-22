@@ -620,18 +620,3 @@ import bithashset : BitHashSet, Growable, Copyable;
 
 /// O(1) insertion and lookup, O(n) iteration.
 alias LangSet = BitHashSet!(Lang, Growable.yes, Copyable.no);
-
-@safe pure nothrow @nogc unittest
-{
-    LangSet x;
-    import std.traits : EnumMembers;
-    foreach (lang; [EnumMembers!Lang])
-    {
-        assert(!x.contains(lang));
-    }
-    foreach (lang; [EnumMembers!Lang])
-    {
-        x.insert(lang);
-        assert(x.contains(lang));
-    }
-}

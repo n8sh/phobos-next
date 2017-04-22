@@ -8,7 +8,7 @@ enum Copyable { no, yes }
 
 /** Store presence of elements of type `E` in a set in the range `0 .. length`. */
 struct DenseSetFilter(E,
-                      Growable growable = Growable.no,
+                      Growable growable = Growable.yes,
                       Copyable copyable = Copyable.no)
     if (is(typeof(cast(size_t)E.init))) // is castable to size_t
 {
@@ -29,6 +29,7 @@ struct DenseSetFilter(E,
         }
         else
         {
+            // TODO only allocate
             _capacity = length;
             _blocksPtr = cast(Block*)calloc(blockCount, Block.sizeof);
         }
@@ -178,7 +179,7 @@ private:
     assert(set0.capacity == 0);
 
     const length = 2^^6;
-    auto set = DenseSetFilter!E(2*length);
+    auto set = DenseSetFilter!(E, Growable.no)(2*length);
     const y = set.dup;
     assert(y.capacity == 2*length);
 

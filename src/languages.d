@@ -621,4 +621,4 @@ bool capitalizesNoun(Lang lang)
 import filters : DenseSetFilter, Growable, Copyable;
 
 /// O(1) insertion and lookup, O(n) iteration.
-alias LangSet = DenseSetFilter!(Lang, Growable.yes, Copyable.no);
+alias LangFilter = DenseSetFilter!(Lang, Growable.yes, Copyable.no);

@@ -1,7 +1,9 @@
 module bithashset;
 
-// merge these using Flags?
+/// Growable flag.
 enum Growable { no, yes }
+
+/// Copyable flag.
 enum Copyable { no, yes }
 
 /** Store presence of elements of type `E` in a set in the range `0 .. length`. */
@@ -10,7 +12,8 @@ struct BitHashSet(E,
                   Copyable copyable = Copyable.no)
     if (is(typeof(cast(size_t)E.init))) // is castable to size_t
 {
-    import qcmeman : malloc, calloc, realloc, free;
+    import core.memory : malloc = pureMalloc, calloc = pureCalloc, realloc = pureRealloc;
+    import qcmeman : free;
     import core.bitop : bts, btr, btc, bt;
 
     @safe pure nothrow @nogc pragma(inline):

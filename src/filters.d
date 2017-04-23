@@ -330,8 +330,9 @@ nothrow @nogc unittest          // TODO pure when https://github.com/dlang/phobo
     auto set = DenseSetFilter!(E, Growable.no).withInferredLength(); // TODO use instantiator function here
     assert(set.capacity == typeof(set).elementMaxCount);
 
-    // assert(set.contains(0));
-    // assert(set.insert(0));
+    static assert(!__traits(compiles, { assert(set.contains(0)); }));
+    static assert(!__traits(compiles, { assert(set.insert(0)); }));
+    static assert(!__traits(compiles, { assert(0 in set); }));
 
     import std.traits : EnumMembers;
     foreach (lang; [EnumMembers!E])

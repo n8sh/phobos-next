@@ -327,7 +327,7 @@ nothrow @nogc unittest          // TODO pure when https://github.com/dlang/phobo
 {
     enum E:ubyte { a, b, c, d, dAlias = d }
 
-    auto set = DenseSetFilter!(E, Growable.no).withInferredLength(); // TODO use instantiatorFunction here
+    auto set = DenseSetFilter!(E, Growable.no).withInferredLength(); // TODO use instantiator function here
     assert(set.capacity == typeof(set).elementMaxCount);
 
     // assert(set.contains(0));

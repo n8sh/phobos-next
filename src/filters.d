@@ -12,6 +12,9 @@ enum Copyable { no, yes }
     Typically used to implement very fast membership checking. For instance in
     graph traversal algorithms, this filter is typically used as a temporary set
     that checks if a node has been previously visisted or not.
+
+    TODO Add operators for bitwise `and` and `or` operations similar to
+    https://dlang.org/library/std/typecons/bit_flags.html
  */
 struct DenseSetFilter(E,
                       Growable growable = Growable.yes,

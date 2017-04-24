@@ -439,7 +439,7 @@ private:
 {
     enum E:ubyte { a, b, c, d, dAlias = d }
 
-    auto set = StaticDenseSetFilter!(E)(); // TODO use instantiator function here
+    auto set = StaticDenseSetFilter!(E)();
     static assert(set.sizeof == size_t.sizeof);
 
     static assert(!__traits(compiles, { assert(set.contains(0)); }));
@@ -478,7 +478,7 @@ private:
     enum E:ubyte { a, b, c, d, dAlias = d }
 
     E[2] es = [E.a, E.c];
-    auto set = StaticDenseSetFilter!(E)(es[]); // TODO use instantiator function here
+    auto set = StaticDenseSetFilter!(E)(es[]);
 
     foreach (const ref e; es)
     {

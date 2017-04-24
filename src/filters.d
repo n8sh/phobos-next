@@ -370,7 +370,8 @@ struct StaticDenseSetFilter(E, Block = size_t)
         isUnsigned!E &&
         E.max <= ushort.max)    // may need to be relaxed
 {
-    import std.range : isInputRange;
+    import std.range : isInputRange, ElementType;
+    import std.traits: isAssignable;
     import core.memory : malloc = pureMalloc, calloc = pureCalloc, realloc = pureRealloc;
     import core.bitop : bts, btr, btc, bt;
 
@@ -378,7 +379,8 @@ struct StaticDenseSetFilter(E, Block = size_t)
 
     /// Construct from elements `r`.
     this(R)(R r)
-        if (isInputRange!R)
+        if (isInputRange!R &&
+            isAssignable!(E, ElementType!R))
     {
         foreach (const ref e; r)
         {

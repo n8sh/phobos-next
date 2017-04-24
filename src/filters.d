@@ -390,6 +390,14 @@ struct StaticDenseSetFilter(E, Block = size_t)
 
     pragma(inline, true):
 
+    /// Construct with all ones.
+    static typeof(this) withAllOnes()
+    {
+        typeof(return) that = void;
+        that._blocks[] = Block.max;
+        return that;
+    }
+
     /** Insert element `e`.
         Returns: precense status of element before insertion.
     */
@@ -436,6 +444,11 @@ private:
     inout(Block)* _blocksPtr() @trusted inout { return _blocks.ptr; }
 }
 
+version(unittest)
+{
+    import std.traits : EnumMembers;
+}
+
 ///
 @safe pure nothrow @nogc unittest
 {
@@ -447,8 +460,6 @@ private:
     static assert(!__traits(compiles, { assert(set.contains(0)); }));
     static assert(!__traits(compiles, { assert(set.insert(0)); }));
     static assert(!__traits(compiles, { assert(0 in set); }));
-
-    import std.traits : EnumMembers;
 
     // initially empty
     foreach (lang; [EnumMembers!E])
@@ -485,5 +496,18 @@ private:
     foreach (const ref e; es)
     {
         assert(set.contains(e));
+    }
+}
+
+/// assignment from range
+@safe pure nothrow @nogc unittest
+{
+    enum E:ubyte { a, b, c, d, dAlias = d }
+
+    auto set = StaticDenseSetFilter!(E).withAllOnes;
+
+    foreach (lang; [EnumMembers!E])
+    {
+        assert(set.contains(lang));
     }
 }

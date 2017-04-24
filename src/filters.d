@@ -373,7 +373,7 @@ struct StaticDenseFilter(E, Block = size_t)
     /** Insert element `e`.
         Returns: precense status of element before insertion.
     */
-    bool insert(E e) @trusted
+    bool insert(in E e) @trusted
     {
         return bts(_blocksPtr, cast(size_t)e) != 0;
     }
@@ -382,7 +382,7 @@ struct StaticDenseFilter(E, Block = size_t)
     /** Remove element `e`.
         Returns: precense status of element before removal.
      */
-    bool remove(E e) @trusted
+    bool remove(in E e) @trusted
     {
         return btr(_blocksPtr, cast(size_t)e) != 0;
     }
@@ -390,13 +390,13 @@ struct StaticDenseFilter(E, Block = size_t)
     @property:
 
     /// Check if element `e` is stored/contained.
-    bool contains(E e) @trusted const
+    bool contains(in E e) @trusted const
     {
         return bt(_blocksPtr, cast(size_t)e) != 0;
     }
 
     /// ditto
-    auto opBinaryRight(string op)(E e) const
+    auto opBinaryRight(string op)(in E e) const
         if (op == "in")
     {
         return contains(e);

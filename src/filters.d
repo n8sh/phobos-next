@@ -479,7 +479,7 @@ private:
 {
     enum E:ubyte { a, b, c, d, dAlias = d }
 
-    E[2] es = [E.a, E.c];
+    const E[2] es = [E.a, E.c];
     auto set = StaticDenseSetFilter!(E)(es[]);
 
     foreach (const ref e; es)

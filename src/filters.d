@@ -364,7 +364,7 @@ import std.traits : isIntegral, isUnsigned;
     TODO Add operators for bitwise `and` and `or` operations similar to
     https://dlang.org/library/std/typecons/bit_flags.html
  */
-struct StaticDenseFilter(E, Block = size_t)
+struct StaticDenseSetFilter(E, Block = size_t)
     if (is(typeof(cast(size_t)E.init)) &&
         isIntegral!E &&
         isUnsigned!E &&
@@ -426,7 +426,7 @@ private:
 {
     enum E:ubyte { a, b, c, d, dAlias = d }
 
-    auto set = StaticDenseFilter!(E)(); // TODO use instantiator function here
+    auto set = StaticDenseSetFilter!(E)(); // TODO use instantiator function here
     static assert(set.sizeof == size_t.sizeof);
 
     static assert(!__traits(compiles, { assert(set.contains(0)); }));

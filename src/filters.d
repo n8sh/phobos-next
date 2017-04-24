@@ -352,6 +352,8 @@ nothrow @nogc unittest          // TODO pure when https://github.com/dlang/phobo
 
 }
 
+import std.traits : isIntegral, isUnsigned;
+
 /** Store presence of elements of type `E` in a set in the range `0 .. length`.
     Can be seen as a generalization of `std.typecons.BitFlags` to integer types.
 
@@ -363,7 +365,9 @@ nothrow @nogc unittest          // TODO pure when https://github.com/dlang/phobo
     https://dlang.org/library/std/typecons/bit_flags.html
  */
 struct StaticDenseFilter(E, Block = size_t)
-    if (is(typeof(cast(size_t)E.init))) // is castable to size_t
+    if (is(typeof(cast(size_t)E.init)) &&
+        isIntegral!E &&
+        isUnsigned!E)
 {
     import core.memory : malloc = pureMalloc, calloc = pureCalloc, realloc = pureRealloc;
     import core.bitop : bts, btr, btc, bt;

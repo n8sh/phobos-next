@@ -396,7 +396,7 @@ struct StaticDenseSetFilter(E, Block = size_t)
         import std.range : empty;
         if (r.empty)
         {
-            return withAllOnes();
+            return asFull();
         }
         else
         {
@@ -407,7 +407,7 @@ struct StaticDenseSetFilter(E, Block = size_t)
     pragma(inline, true):
 
     /// Construct with all ones.
-    static typeof(this) withAllOnes()
+    static typeof(this) asFull()
     {
         typeof(return) that = void;
         that._blocks[] = Block.max;
@@ -549,7 +549,7 @@ version(unittest)
 {
     enum E:ubyte { a, b, c, d, dAlias = d }
 
-    auto set = StaticDenseSetFilter!(E).withAllOnes;
+    auto set = StaticDenseSetFilter!(E).asFull;
 
     foreach (lang; [EnumMembers!E])
     {

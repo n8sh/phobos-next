@@ -387,14 +387,6 @@ struct StaticDenseFilter(E, Block = size_t)
         return btr(_blocksPtr, cast(size_t)e) != 0;
     }
 
-    /** Insert element `e` if it's present otherwise remove it.
-        Returns: `true` if elements was zeroed, `false` otherwise.
-     */
-    bool complement(E e) @trusted
-    {
-        return btc(_blocksPtr, cast(size_t)e) != 0;
-    }
-
     @property:
 
     /// Check if element `e` is stored/contained.
@@ -437,16 +429,28 @@ private:
     static assert(!__traits(compiles, { assert(0 in set); }));
 
     import std.traits : EnumMembers;
+
+    // initially empty
     foreach (lang; [EnumMembers!E])
     {
         assert(!set.contains(lang));
         assert(lang !in set);
     }
+
+    // insert
     foreach (lang; [EnumMembers!E])
     {
         set.insert(lang);
         assert(set.contains(lang));
         assert(lang in set);
+    }
+
+    // remove
+    foreach (lang; [EnumMembers!E])
+    {
+        set.remove(lang);
+        assert(!set.contains(lang));
+        assert(lang !in set);
     }
 
 }

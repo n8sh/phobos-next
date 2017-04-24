@@ -370,10 +370,23 @@ struct StaticDenseSetFilter(E, Block = size_t)
         isUnsigned!E &&
         E.max <= ushort.max)    // may need to be relaxed
 {
+    import std.range : isInputRange;
     import core.memory : malloc = pureMalloc, calloc = pureCalloc, realloc = pureRealloc;
     import core.bitop : bts, btr, btc, bt;
 
-    @safe pure nothrow @nogc pragma(inline):
+    @safe pure nothrow @nogc:
+
+    /// Construct from elements `r`.
+    this(R)(R r)
+        if (isInputRange!R)
+    {
+        foreach (const ref e; r)
+        {
+            insert(e);
+        }
+    }
+
+    pragma(inline, true):
 
     /** Insert element `e`.
         Returns: precense status of element before insertion.
@@ -457,5 +470,18 @@ private:
         assert(!set.contains(lang));
         assert(lang !in set);
     }
+}
 
+/// assignment from range
+@safe pure nothrow @nogc unittest
+{
+    enum E:ubyte { a, b, c, d, dAlias = d }
+
+    E[2] es = [E.a, E.c];
+    auto set = StaticDenseSetFilter!(E)(es[]); // TODO use instantiator function here
+
+    foreach (const ref e; es)
+    {
+        assert(set.contains(e));
+    }
 }

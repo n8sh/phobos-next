@@ -368,7 +368,7 @@ struct StaticDenseFilter(E, Block = size_t)
     if (is(typeof(cast(size_t)E.init)) &&
         isIntegral!E &&
         isUnsigned!E &&
-        E.max <= uint.max)
+        E.max <= ushort.max)    // may need to be relaxed
 {
     import core.memory : malloc = pureMalloc, calloc = pureCalloc, realloc = pureRealloc;
     import core.bitop : bts, btr, btc, bt;

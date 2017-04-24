@@ -388,6 +388,22 @@ struct StaticDenseSetFilter(E, Block = size_t)
         }
     }
 
+    /// Construct from elements `r`, or a complete matched if 'r' is empty.
+    static typeof(this) fromRangeOrFull(R)(R r)
+        if (isInputRange!R &&
+            isAssignable!(E, ElementType!R))
+    {
+        import std.range : empty;
+        if (r.empty)
+        {
+            return withAllOnes();
+        }
+        else
+        {
+            return typeof(this)(r);
+        }
+    }
+
     pragma(inline, true):
 
     /// Construct with all ones.
@@ -492,6 +508,35 @@ version(unittest)
 
     const E[2] es = [E.a, E.c];
     auto set = StaticDenseSetFilter!(E)(es[]);
+
+    foreach (const ref e; es)
+    {
+        assert(set.contains(e));
+    }
+}
+
+/// assignment from range
+@safe pure nothrow @nogc unittest
+{
+    enum E:ubyte { a, b, c, d, dAlias = d }
+
+    const E[] es = [];
+    auto set = StaticDenseSetFilter!(E).fromRangeOrFull(es[]);
+
+    foreach (lang; [EnumMembers!E])
+    {
+        assert(set.contains(lang));
+        assert(lang in set);
+    }
+}
+
+/// assignment from range
+@safe pure nothrow @nogc unittest
+{
+    enum E:ubyte { a, b, c, d, dAlias = d }
+
+    const E[2] es = [E.a, E.c];
+    auto set = StaticDenseSetFilter!(E).fromRangeOrFull(es[]);
 
     foreach (const ref e; es)
     {

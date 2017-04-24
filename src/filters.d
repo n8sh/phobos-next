@@ -367,7 +367,8 @@ import std.traits : isIntegral, isUnsigned;
 struct StaticDenseFilter(E, Block = size_t)
     if (is(typeof(cast(size_t)E.init)) &&
         isIntegral!E &&
-        isUnsigned!E)
+        isUnsigned!E &&
+        E.max <= uint.max)
 {
     import core.memory : malloc = pureMalloc, calloc = pureCalloc, realloc = pureRealloc;
     import core.bitop : bts, btr, btc, bt;

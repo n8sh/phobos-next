@@ -351,3 +351,102 @@ nothrow @nogc unittest          // TODO pure when https://github.com/dlang/phobo
     }
 
 }
+
+/** Store presence of elements of type `E` in a set in the range `0 .. length`.
+    Can be seen as a generalization of `std.typecons.BitFlags` to integer types.
+
+    Typically used to implement very fast membership checking. For instance in
+    graph traversal algorithms, this filter is typically used as a temporary set
+    that checks if a node has been previously visisted or not.
+
+    TODO Add operators for bitwise `and` and `or` operations similar to
+    https://dlang.org/library/std/typecons/bit_flags.html
+ */
+struct StaticDenseFilter(E, Block = size_t)
+    if (is(typeof(cast(size_t)E.init))) // is castable to size_t
+{
+    import core.memory : malloc = pureMalloc, calloc = pureCalloc, realloc = pureRealloc;
+    import core.bitop : bts, btr, btc, bt;
+
+    @safe pure nothrow @nogc pragma(inline):
+
+    /** Insert element `e`.
+        Returns: precense status of element before insertion.
+    */
+    bool insert(E e) @trusted
+    {
+        return bts(_blocksPtr, cast(size_t)e) != 0;
+    }
+    alias put = insert;         // OutputRange compatibility
+
+    /** Remove element `e`.
+        Returns: precense status of element before removal.
+     */
+    bool remove(E e) @trusted
+    {
+        return btr(_blocksPtr, cast(size_t)e) != 0;
+    }
+
+    /** Insert element `e` if it's present otherwise remove it.
+        Returns: `true` if elements was zeroed, `false` otherwise.
+     */
+    bool complement(E e) @trusted
+    {
+        return btc(_blocksPtr, cast(size_t)e) != 0;
+    }
+
+    @property:
+
+    /// Check if element `e` is stored/contained.
+    bool contains(E e) @trusted const
+    {
+        return bt(_blocksPtr, cast(size_t)e) != 0;
+    }
+
+    /// ditto
+    auto opBinaryRight(string op)(E e) const
+        if (op == "in")
+    {
+        return contains(e);
+    }
+
+private:
+    /// Maximum number of elements in filter.
+    enum elementMaxCount = cast(size_t)E.max - E.min + 1;
+
+    /** Number of bits per `Block`. */
+    enum bitsPerBlock = 8*Block.sizeof;
+
+    /** Number of `Block`s. */
+    enum blockCount = (elementMaxCount + (bitsPerBlock-1)) / bitsPerBlock;
+
+    Block[blockCount] _blocks;          /// Pointer to blocks of bits.
+    inout(Block)* _blocksPtr() @trusted inout { return _blocks.ptr; }
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    enum E:ubyte { a, b, c, d, dAlias = d }
+
+    auto set = StaticDenseFilter!(E)(); // TODO use instantiator function here
+    static assert(set.sizeof == size_t.sizeof);
+
+    static assert(!__traits(compiles, { assert(set.contains(0)); }));
+    static assert(!__traits(compiles, { assert(set.insert(0)); }));
+    static assert(!__traits(compiles, { assert(0 in set); }));
+
+    import std.traits : EnumMembers;
+    foreach (lang; [EnumMembers!E])
+    {
+        assert(!set.contains(lang));
+        assert(lang !in set);
+    }
+    foreach (lang; [EnumMembers!E])
+    {
+        set.insert(lang);
+        assert(set.contains(lang));
+        assert(lang in set);
+    }
+
+}

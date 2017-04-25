@@ -591,6 +591,7 @@ version(unittest)
 
     auto set = StaticDenseSetFilter!(Role)();
 
+    // inserts
     foreach (rel; [EnumMembers!Rel])
     {
         assert(!set.contains(Role(rel)));
@@ -604,6 +605,22 @@ version(unittest)
 
         assert(set.contains(Role(rel)));
         assert(set.contains(Role(rel, true)));
+    }
+
+    // removes
+    foreach (rel; [EnumMembers!Rel])
+    {
+        assert(set.contains(Role(rel)));
+        assert(set.contains(Role(rel, true)));
+
+        set.remove(Role(rel));
+        assert(!set.contains(Role(rel)));
+
+        assert(set.contains(Role(rel, true)));
+        set.remove(Role(rel, true));
+
+        assert(!set.contains(Role(rel)));
+        assert(!set.contains(Role(rel, true)));
     }
 
     auto fullSet = StaticDenseSetFilter!(Role).asFull;

@@ -545,7 +545,7 @@ version(unittest)
 /// assignment from range
 @safe pure nothrow @nogc unittest
 {
-    enum E:ubyte { a, b, c, d, dAlias = d }
+    enum E:ubyte { a, b, c, d }
 
     const E[2] es = [E.a, E.c];
     auto set = StaticDenseSetFilter!(E).fromRangeOrFull(es[]);
@@ -553,19 +553,23 @@ version(unittest)
     foreach (const ref e; es)
     {
         assert(set.contains(e));
+        assert(set.remove(e));
+        assert(!set.contains(e));
     }
 }
 
 /// assignment from range
 @safe pure nothrow @nogc unittest
 {
-    enum E:ubyte { a, b, c, d, dAlias = d }
+    enum E:ubyte { a, b, c, d }
 
     auto set = StaticDenseSetFilter!(E).asFull;
 
-    foreach (lang; [EnumMembers!E])
+    foreach (e; [EnumMembers!E])
     {
-        assert(set.contains(lang));
+        assert(set.contains(e));
+        assert(set.remove(e));
+        assert(!set.contains(e));
     }
 }
 

@@ -18,7 +18,7 @@ T toDefaulted(T, S, U)(S value, /*lazy*/ U defaultValue)
         import std.conv : to;
         return value.to!T;
     }
-    catch (Exception e) // assume ConvException. TODO can we capture ConvException instead make it inferred nothrow
+    catch (Exception e) // assume `ConvException`. TODO can we capture `ConvException` instead make it inferred `nothrow`
     {
         return defaultValue;
     }

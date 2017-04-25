@@ -355,8 +355,7 @@ nothrow @nogc unittest          // TODO pure when https://github.com/dlang/phobo
 /** Check if `E` is filterable in `StaticDenseSetFilter`, that is castable to
     `uint` and castable from unsigned int zero.
 */
-enum isStaticDenseSetFilterableElementType(E) = (is(typeof(cast(uint)E.init)) &&
-                                                 is(typeof(cast(E)0u)));
+enum isStaticDenseSetFilterableElementType(E) = (is(typeof(cast(size_t)E.init)));
 
 @safe pure nothrow @nogc unittest
 {
@@ -572,14 +571,33 @@ version(unittest)
 @safe pure nothrow @nogc unittest
 {
     enum Rel:ubyte { subClassOf, instanceOf, memberOf }
+
     struct Role
     {
         Rel rel;
         bool inversion;
-        const @safe pure nothrow @nogc:
+
+        enum min = 0;
+        enum max = 2*Rel.max - 1;
+
+        @safe pure nothrow @nogc:
+
         size_t opCast(T : size_t)() const
         {
             return inversion | 2*cast(size_t)inversion;
         }
+    }
+
+    auto set = StaticDenseSetFilter!(Role)();
+
+    foreach (rel; [EnumMembers!Rel])
+    {
+        // TODO assert(!set.contains(Role(rel)));
+        set.insert(Role(rel));
+        assert(set.contains(Role(rel)));
+
+        // TODO assert(!set.contains(Role(rel, true)));
+        set.insert(Role(rel, true));
+        assert(set.contains(Role(rel, true)));
     }
 }

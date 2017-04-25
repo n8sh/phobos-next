@@ -355,15 +355,17 @@ nothrow @nogc unittest          // TODO pure when https://github.com/dlang/phobo
 /** Check if `E` is filterable in `StaticDenseSetFilter`, that is castable to
     `uint` and castable from unsigned int zero.
 */
-enum isCastableToSize(E) = (is(typeof(cast(size_t)E.init)));
+enum isStaticDenseFilterableType(E) = (is(typeof(cast(size_t)E.init)) &&
+                                       is(typeof(cast(size_t)E.min)) &&
+                                       is(typeof(cast(size_t)E.max)));
 
 @safe pure nothrow @nogc unittest
 {
     enum E { a, b }
-    static assert(isCastableToSize!E);
-    static assert(isCastableToSize!uint);
-    static assert(!isCastableToSize!string);
-    static assert(isCastableToSize!char);
+    static assert(isStaticDenseFilterableType!E);
+    static assert(isStaticDenseFilterableType!uint);
+    static assert(!isStaticDenseFilterableType!string);
+    static assert(isStaticDenseFilterableType!char);
 }
 
 /** Store presence of elements of type `E` in a set in the range `0 .. length`.
@@ -378,7 +380,7 @@ enum isCastableToSize(E) = (is(typeof(cast(size_t)E.init)));
  */
 struct StaticDenseSetFilter(E,
                             Block = size_t) // TODO infer block to be `ubyte` if E.max < 255, etc
-    if (isCastableToSize!E) // may need to be relaxed
+    if (isStaticDenseFilterableType!E) // may need to be relaxed
 {
     import std.range : isInputRange, ElementType;
     import std.traits: isAssignable;
@@ -578,10 +580,8 @@ version(unittest)
         bool inversion;
 
         /// Mapping to unsigned integral:
-
         enum min = 0;
         enum max = 2*Rel.max - 1;
-
         size_t opCast(T : size_t)() const
             @safe pure nothrow @nogc
         {

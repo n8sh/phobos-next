@@ -593,11 +593,15 @@ version(unittest)
     foreach (rel; [EnumMembers!Rel])
     {
         assert(!set.contains(Role(rel)));
+        assert(!set.contains(Role(rel, true)));
+
         set.insert(Role(rel));
         assert(set.contains(Role(rel)));
 
         assert(!set.contains(Role(rel, true)));
         set.insert(Role(rel, true));
+
+        assert(set.contains(Role(rel)));
         assert(set.contains(Role(rel, true)));
     }
 }

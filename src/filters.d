@@ -417,7 +417,7 @@ struct StaticDenseSetFilter(E,
 
     pragma(inline, true):
 
-    /// Construct with all ones.
+    /// Construct a full set .
     static typeof(this) asFull()
     {
         typeof(return) that = void;

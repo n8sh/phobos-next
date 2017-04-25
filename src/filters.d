@@ -556,3 +556,14 @@ version(unittest)
         assert(set.contains(lang));
     }
 }
+
+/// assignment from range
+@safe pure nothrow @nogc unittest
+{
+    enum Rel:ubyte { subClassOf, instanceOf, memberOf }
+    struct Role
+    {
+        Rel rel;
+        bool inversion;
+    }
+}

@@ -5,7 +5,10 @@ import traits_ex : haveCommonType, isSourceOfSomeChar;
 import std.range : isInputRange, ElementType;
 
 /** Variant of std.conv.to with $(D defaultValue) making it $(D nothrow).
+
     TODO add overload for std.conv : to with default value to make this @nogc
+
+    See also: http://forum.dlang.org/post/tsszfamjalzviqjhpdcr@forum.dlang.org
  */
 CommonType!(T, U) toDefaulted(T, U, S)(S value, U defaultValue)
     if (haveCommonType!(T, U))

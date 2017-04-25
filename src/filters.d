@@ -378,7 +378,7 @@ enum isStaticDenseSetFilterableElementType(E) = (is(typeof(cast(uint)E.init)) &&
     https://dlang.org/library/std/typecons/bit_flags.html
  */
 struct StaticDenseSetFilter(E,
-                            Block = size_t)      // infer block to be `ubyte` if E.max < 255, etc
+                            Block = size_t) // TODO infer block to be `ubyte` if E.max < 255, etc
     if (isStaticDenseSetFilterableElementType!E) // may need to be relaxed
 {
     import std.range : isInputRange, ElementType;

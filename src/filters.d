@@ -585,7 +585,7 @@ version(unittest)
         size_t opCast(T : size_t)() const
             @safe pure nothrow @nogc
         {
-            return inversion | 2*cast(size_t)rel;
+            return inversion | 2*rel;
         }
     }
 

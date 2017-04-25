@@ -352,7 +352,20 @@ nothrow @nogc unittest          // TODO pure when https://github.com/dlang/phobo
 
 }
 
-import std.traits : isIntegral, isUnsigned;
+/** Check if `E` is filterable in `StaticDenseSetFilter`, that is castable to
+    `uint` and castable from unsigned int zero.
+*/
+enum isStaticDenseSetFilterableElementType(E) = (is(typeof(cast(uint)E.init)) &&
+                                                 is(typeof(cast(E)0u)));
+
+@safe pure nothrow @nogc unittest
+{
+    enum E { a, b }
+    static assert(isStaticDenseSetFilterableElementType!E);
+    static assert(isStaticDenseSetFilterableElementType!uint);
+    static assert(!isStaticDenseSetFilterableElementType!string);
+    static assert(isStaticDenseSetFilterableElementType!char);
+}
 
 /** Store presence of elements of type `E` in a set in the range `0 .. length`.
     Can be seen as a generalization of `std.typecons.BitFlags` to integer types.
@@ -364,11 +377,9 @@ import std.traits : isIntegral, isUnsigned;
     TODO Add operators for bitwise `and` and `or` operations similar to
     https://dlang.org/library/std/typecons/bit_flags.html
  */
-struct StaticDenseSetFilter(E, Block = size_t)
-    if (is(typeof(cast(size_t)E.init)) &&
-        isIntegral!E &&
-        isUnsigned!E &&
-        E.max <= ushort.max)    // may need to be relaxed
+struct StaticDenseSetFilter(E,
+                            Block = size_t)      // infer block to be `ubyte` if E.max < 255, etc
+    if (isStaticDenseSetFilterableElementType!E) // may need to be relaxed
 {
     import std.range : isInputRange, ElementType;
     import std.traits: isAssignable;
@@ -565,5 +576,10 @@ version(unittest)
     {
         Rel rel;
         bool inversion;
+        const @safe pure nothrow @nogc:
+        size_t opCast(T : size_t)() const
+        {
+            return inversion | 2*cast(size_t)inversion;
+        }
     }
 }

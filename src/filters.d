@@ -577,7 +577,7 @@ version(unittest)
         Rel rel;
         bool inversion;
 
-        /// Mapping to unsigned integral.
+        /// Mapping to unsigned integral:
 
         enum min = 0;
         enum max = 2*Rel.max - 1;

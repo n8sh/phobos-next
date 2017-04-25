@@ -10,8 +10,8 @@ import std.range : isInputRange, ElementType;
 
     See also: http://forum.dlang.org/post/tsszfamjalzviqjhpdcr@forum.dlang.org
  */
-CommonType!(T, U) toDefaulted(T, U, S)(S value, U defaultValue)
-    if (haveCommonType!(T, U))
+T toDefaulted(T, S, U)(S value, /*lazy*/ U defaultValue)
+    if (is(typeof(() { T r = defaultValue; }))) // TODO use std.traits.isAssignable!(T, U) ?
 {
     try
     {
@@ -26,7 +26,7 @@ CommonType!(T, U) toDefaulted(T, U, S)(S value, U defaultValue)
 
 @safe pure nothrow /*@nogc*/ unittest
 {
-    assert("42_1".toDefaulted!int(42.1) == 42.1);
+    assert("42_1".toDefaulted!int(42) == 42);
     assert(42.toDefaulted!string("_42") == "42");
 }
 

@@ -355,15 +355,15 @@ nothrow @nogc unittest          // TODO pure when https://github.com/dlang/phobo
 /** Check if `E` is filterable in `StaticDenseSetFilter`, that is castable to
     `uint` and castable from unsigned int zero.
 */
-enum isStaticDenseSetFilterableElementType(E) = (is(typeof(cast(size_t)E.init)));
+enum isCastableToSize(E) = (is(typeof(cast(size_t)E.init)));
 
 @safe pure nothrow @nogc unittest
 {
     enum E { a, b }
-    static assert(isStaticDenseSetFilterableElementType!E);
-    static assert(isStaticDenseSetFilterableElementType!uint);
-    static assert(!isStaticDenseSetFilterableElementType!string);
-    static assert(isStaticDenseSetFilterableElementType!char);
+    static assert(isCastableToSize!E);
+    static assert(isCastableToSize!uint);
+    static assert(!isCastableToSize!string);
+    static assert(isCastableToSize!char);
 }
 
 /** Store presence of elements of type `E` in a set in the range `0 .. length`.
@@ -378,7 +378,7 @@ enum isStaticDenseSetFilterableElementType(E) = (is(typeof(cast(size_t)E.init)))
  */
 struct StaticDenseSetFilter(E,
                             Block = size_t) // TODO infer block to be `ubyte` if E.max < 255, etc
-    if (isStaticDenseSetFilterableElementType!E) // may need to be relaxed
+    if (isCastableToSize!E) // may need to be relaxed
 {
     import std.range : isInputRange, ElementType;
     import std.traits: isAssignable;

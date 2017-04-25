@@ -577,12 +577,13 @@ version(unittest)
         Rel rel;
         bool inversion;
 
+        /// Mapping to unsigned integral.
+
         enum min = 0;
         enum max = 2*Rel.max - 1;
 
-        @safe pure nothrow @nogc:
-
         size_t opCast(T : size_t)() const
+            @safe pure nothrow @nogc
         {
             return inversion | 2*cast(size_t)rel;
         }

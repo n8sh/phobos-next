@@ -584,7 +584,7 @@ version(unittest)
 
         size_t opCast(T : size_t)() const
         {
-            return inversion | 2*cast(size_t)inversion;
+            return inversion | 2*cast(size_t)rel;
         }
     }
 
@@ -592,11 +592,11 @@ version(unittest)
 
     foreach (rel; [EnumMembers!Rel])
     {
-        // TODO assert(!set.contains(Role(rel)));
+        assert(!set.contains(Role(rel)));
         set.insert(Role(rel));
         assert(set.contains(Role(rel)));
 
-        // TODO assert(!set.contains(Role(rel, true)));
+        assert(!set.contains(Role(rel, true)));
         set.insert(Role(rel, true));
         assert(set.contains(Role(rel, true)));
     }

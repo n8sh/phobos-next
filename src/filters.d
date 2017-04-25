@@ -577,7 +577,7 @@ version(unittest)
     struct Role
     {
         Rel rel;
-        bool inversion;
+        bool reversion;
 
         /// Mapping to unsigned integral:
         enum min = 0;
@@ -585,7 +585,7 @@ version(unittest)
         size_t opCast(T : size_t)() const
             @safe pure nothrow @nogc
         {
-            return inversion | 2*rel;
+            return reversion | 2*rel;
         }
     }
 

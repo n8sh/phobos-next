@@ -604,4 +604,20 @@ version(unittest)
         assert(set.contains(Role(rel)));
         assert(set.contains(Role(rel, true)));
     }
+
+    auto fullSet = StaticDenseSetFilter!(Role).asFull;
+
+    foreach (rel; [EnumMembers!Rel])
+    {
+        assert(fullSet.contains(Role(rel)));
+        assert(fullSet.contains(Role(rel, true)));
+    }
+
+    auto emptySet = StaticDenseSetFilter!(Role)();
+
+    foreach (rel; [EnumMembers!Rel])
+    {
+        assert(!emptySet.contains(Role(rel)));
+        assert(!emptySet.contains(Role(rel, true)));
+    }
 }

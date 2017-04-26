@@ -378,8 +378,7 @@ enum isStaticDenseFilterableType(E) = (is(typeof(cast(size_t)E.init)) &&
     TODO Add operators for bitwise `and` and `or` operations similar to
     https://dlang.org/library/std/typecons/bit_flags.html
  */
-struct StaticDenseSetFilter(E,
-                            Block = size_t) // TODO infer block to be `ubyte` if E.max < 255, etc
+struct StaticDenseSetFilter(E)
     if (isStaticDenseFilterableType!E) // may need to be relaxed
 {
     import std.range : isInputRange, ElementType;
@@ -427,20 +426,34 @@ struct StaticDenseSetFilter(E,
     }
 
     /** Insert element `e`.
-        Returns: precense status of element before insertion.
     */
-    bool insert(in E e) @trusted
+    void insert(in E e) @trusted
     {
-        return bts(_blocksPtr, cast(size_t)e) != 0;
+        import bitop_ex : setBit;
+        static if (isPacked)
+        {
+            _blocks[0].setBit(cast(size_t)e);
+        }
+        else
+        {
+            bts(_blocksPtr, cast(size_t)e);
+        }
     }
     alias put = insert;         // OutputRange compatibility
 
     /** Remove element `e`.
-        Returns: precense status of element before removal.
      */
-    bool remove(in E e) @trusted
+    void remove(in E e) @trusted
     {
-        return btr(_blocksPtr, cast(size_t)e) != 0;
+        import bitop_ex : resetBit;
+        static if (isPacked)
+        {
+            _blocks[0].resetBit(cast(size_t)e);
+        }
+        else
+        {
+            btr(_blocksPtr, cast(size_t)e);
+        }
     }
 
     @property:
@@ -448,7 +461,15 @@ struct StaticDenseSetFilter(E,
     /// Check if element `e` is stored/contained.
     bool contains(in E e) @trusted const
     {
-        return bt(_blocksPtr, cast(size_t)e) != 0;
+        import bitop_ex : testBit;
+        static if (isPacked)
+        {
+            return _blocks[0].testBit(cast(size_t)e);
+        }
+        else
+        {
+            return bt(_blocksPtr, cast(size_t)e) != 0;
+        }
     }
 
     /// ditto
@@ -461,6 +482,27 @@ struct StaticDenseSetFilter(E,
 private:
     /// Maximum number of elements in filter.
     enum elementMaxCount = cast(size_t)E.max - E.min + 1;
+
+    static      if (elementMaxCount <= 8*ubyte.sizeof)
+    {
+        enum isPacked = true;
+        alias Block = ubyte;
+    }
+    else static if (elementMaxCount <= 8*ushort.sizeof)
+    {
+        enum isPacked = true;
+        alias Block = ushort;
+    }
+    else static if (elementMaxCount <= 8*uint.sizeof)
+    {
+        enum isPacked = true;
+        alias Block = uint;
+    }
+    else
+    {
+        enum isPacked = false;
+        alias Block = size_t;
+    }
 
     /** Number of bits per `Block`. */
     enum bitsPerBlock = 8*Block.sizeof;
@@ -483,7 +525,7 @@ version(unittest)
     enum E:ubyte { a, b, c, d, dAlias = d }
 
     auto set = StaticDenseSetFilter!(E)();
-    static assert(set.sizeof == size_t.sizeof);
+    static assert(set.sizeof == 1);
 
     static assert(!__traits(compiles, { assert(set.contains(0)); }));
     static assert(!__traits(compiles, { assert(set.insert(0)); }));
@@ -520,6 +562,7 @@ version(unittest)
 
     const E[2] es = [E.a, E.c];
     auto set = StaticDenseSetFilter!(E)(es[]);
+    static assert(set.sizeof == 1);
 
     foreach (const ref e; es)
     {
@@ -534,12 +577,13 @@ version(unittest)
 
     const E[] es = [];
     auto set = StaticDenseSetFilter!(E).fromRangeOrFull(es[]);
+    static assert(set.sizeof == 1);
 
     foreach (e; [EnumMembers!E])
     {
         assert(set.contains(e));
         assert(e in set);
-        assert(set.remove(e));
+        set.remove(e);
         assert(!set.contains(e));
         assert(e !in set);
     }
@@ -552,11 +596,12 @@ version(unittest)
 
     const E[2] es = [E.a, E.c];
     auto set = StaticDenseSetFilter!(E).fromRangeOrFull(es[]);
+    static assert(set.sizeof == 1);
 
     foreach (const ref e; es)
     {
         assert(set.contains(e));
-        assert(set.remove(e));
+        set.remove(e);
         assert(!set.contains(e));
     }
 }
@@ -567,11 +612,120 @@ version(unittest)
     enum E:ubyte { a, b, c, d }
 
     auto set = StaticDenseSetFilter!(E).asFull;
+    static assert(set.sizeof == 1);
 
     foreach (e; [EnumMembers!E])
     {
         assert(set.contains(e));
-        assert(set.remove(e));
+        set.remove(e);
+        assert(!set.contains(e));
+    }
+}
+
+/// assignment from range
+@safe pure nothrow @nogc unittest
+{
+    enum E:ubyte
+    {
+        a, b, c, d, e, f, g, h,
+    }
+
+    auto set = StaticDenseSetFilter!(E).asFull;
+    static assert(set.sizeof == 1);
+    static assert(set.isPacked);
+
+    foreach (e; [EnumMembers!E])
+    {
+        assert(set.contains(e));
+        set.remove(e);
+        assert(!set.contains(e));
+    }
+}
+
+/// assignment from range
+@safe pure nothrow @nogc unittest
+{
+    enum E:ubyte
+    {
+        a, b, c, d, e, f, g, h,
+        i,
+    }
+
+    auto set = StaticDenseSetFilter!(E).asFull;
+    static assert(set.sizeof == 2);
+    static assert(set.isPacked);
+
+    foreach (e; [EnumMembers!E])
+    {
+        assert(set.contains(e));
+        set.remove(e);
+        assert(!set.contains(e));
+    }
+}
+
+/// assignment from range
+@safe pure nothrow @nogc unittest
+{
+    enum E:ubyte
+    {
+        a, b, c, d, e, f, g, h,
+        i, j, k, l, m, n, o, p,
+    }
+
+    auto set = StaticDenseSetFilter!(E).asFull;
+    static assert(set.sizeof == 2);
+    static assert(set.isPacked);
+
+    foreach (e; [EnumMembers!E])
+    {
+        assert(set.contains(e));
+        set.remove(e);
+        assert(!set.contains(e));
+    }
+}
+
+/// assignment from range
+@safe pure nothrow @nogc unittest
+{
+    enum E:ubyte
+    {
+        a, b, c, d, e, f, g, h,
+        i, j, k, l, m, n, o, p,
+        r,
+    }
+
+    auto set = StaticDenseSetFilter!(E).asFull;
+    static assert(set.sizeof == 4);
+    static assert(set.isPacked);
+
+    foreach (e; [EnumMembers!E])
+    {
+        assert(set.contains(e));
+        set.remove(e);
+        assert(!set.contains(e));
+    }
+}
+
+/// assignment from range
+@safe pure nothrow @nogc unittest
+{
+    enum E:ubyte
+    {
+        a, b, c, d, e, f, g, h,
+        i, j, k, l, m, n, o, p,
+        r, s, t, u, v, w, x, y,
+        z, a1, a2, a3, a4, a5, a6, a7,
+        a8
+    }
+
+    auto set = StaticDenseSetFilter!(E).asFull;
+    static assert(set.sizeof == 8);
+    static assert(!set.isPacked);
+
+    foreach (e; [EnumMembers!E])
+    {
+        assert(set.contains(e));
+        set.remove(e);
         assert(!set.contains(e));
     }
 }
@@ -597,6 +751,7 @@ version(unittest)
     }
 
     auto set = StaticDenseSetFilter!(Role)();
+    static assert(set.sizeof == 1);
 
     // inserts
     foreach (rel; [EnumMembers!Rel])

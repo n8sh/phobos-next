@@ -1796,6 +1796,12 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 
     alias E = int;
 
+    {
+        alias A = SortedUncopyableArray!E;
+        auto x = A.withElements(0, 3, 2, 1);
+        assert(x[].equal([0, 1, 2, 3]));
+    }
+
     foreach (Ch; AliasSeq!(char, wchar, dchar))
     {
         alias Str = Array!(Ch, assignment, ordering, supportGC, size_t, less);

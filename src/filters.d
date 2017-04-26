@@ -378,7 +378,8 @@ enum isStaticDenseFilterableType(E) = (is(typeof(cast(size_t)E.init)) &&
     TODO Add operators for bitwise `and` and `or` operations similar to
     https://dlang.org/library/std/typecons/bit_flags.html
  */
-struct StaticDenseSetFilter(E)
+struct StaticDenseSetFilter(E,
+                            bool requestPacked = true)
     if (isStaticDenseFilterableType!E) // may need to be relaxed
 {
     import std.range : isInputRange, ElementType;
@@ -486,20 +487,28 @@ private:
     /// Maximum number of elements in filter.
     enum elementMaxCount = cast(size_t)E.max + 1;
 
-    static      if (elementMaxCount <= 8*ubyte.sizeof)
+    static if (requestPacked)
     {
-        enum isPacked = true;
-        alias Block = ubyte;
-    }
-    else static if (elementMaxCount <= 8*ushort.sizeof)
-    {
-        enum isPacked = true;
-        alias Block = ushort;
-    }
-    else static if (elementMaxCount <= 8*uint.sizeof)
-    {
-        enum isPacked = true;
-        alias Block = uint;
+        static      if (elementMaxCount <= 8*ubyte.sizeof)
+        {
+            enum isPacked = true;
+            alias Block = ubyte;
+        }
+        else static if (elementMaxCount <= 8*ushort.sizeof)
+        {
+            enum isPacked = true;
+            alias Block = ushort;
+        }
+        else static if (elementMaxCount <= 8*uint.sizeof)
+        {
+            enum isPacked = true;
+            alias Block = uint;
+        }
+        else
+        {
+            enum isPacked = false;
+            alias Block = size_t;
+        }
     }
     else
     {

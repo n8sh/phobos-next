@@ -2563,10 +2563,10 @@ pure nothrow /+TODO @nogc+/ unittest
 {
     alias A = Array!int;
 
-    const x = A.withElements(3, 0, 2, 1, 3);
+    const x = A.withElements(0, 3, 0, 2, 1, 3);
 
     const y = x.toSorted;
-    assert(y == [0, 1, 2, 3, 3].s[]);
+    assert(y == [0, 0, 1, 2, 3, 3].s[]);
 
     const z = x.toSortedSet;
     assert(z == [0, 1, 2, 3].s[]);

@@ -522,19 +522,22 @@ private struct Array(E,
 
         if (!assumeSortedParameter)
         {
-            static if (ordering == Ordering.sortedValues)
+            static if (isOrdered!ordering)
             {
                 sortElements!comp();
             }
-            else static if (ordering == Ordering.sortedUniqueSet)
+            static if (ordering == Ordering.sortedUniqueSet)
             {
-                sortElements!comp();
-                // TODO can we prevent this double-pass initialization?
                 import std.algorithm.iteration : uniq;
                 size_t j = 0;
-                foreach (const ref e; uniq(slice))
+                foreach (ref e; uniq(slice))
                 {
-                    _mptr[j] = e; // TODO `move`
+                    auto ePtr = &e;
+                    const separate = ePtr != &_mptr[j];
+                    if (separate)
+                    {
+                        move(*cast(MutableE*)ePtr, _mptr[j]);
+                    }
                     ++j;
                 }
                 shrinkTo(j);
@@ -2563,10 +2566,10 @@ pure nothrow /+TODO @nogc+/ unittest
 {
     alias A = Array!int;
 
-    const x = A.withElements(0, 3, 0, 2, 1, 3);
+    const x = A.withElements(0, 1, 3, 0, 2, 1, 3);
 
     const y = x.toSorted;
-    assert(y == [0, 0, 1, 2, 3, 3].s[]);
+    assert(y == [0, 0, 1, 1, 2, 3, 3].s[]);
 
     const z = x.toSortedSet;
     assert(z == [0, 1, 2, 3].s[]);

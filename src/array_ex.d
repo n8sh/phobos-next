@@ -544,7 +544,7 @@ private struct Array(E,
         version(showCtors) dln("EXITING: ", __PRETTY_FUNCTION__);
     }
 
-    /// Sort all elements regardless of `ordering`.
+    /// Sort all elements in-place regardless of `ordering`.
     private void sortElements(alias comp_)() @trusted nothrow
     {
         import std.algorithm.sorting : sort;

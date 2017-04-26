@@ -2570,4 +2570,7 @@ pure nothrow /+TODO @nogc+/ unittest
 
     assert(x.toSortedArray == [0, 0, 1, 1, 2, 3, 3].s[]);
     assert(x.toSortedSetArray == [0, 1, 2, 3].s[]);
+
+    assert(x.toSortedArray!"a > b" == [3, 3, 2, 1, 1, 0, 0].s[]);
+    assert(x.toSortedSetArray!"a > b" == [3, 2, 1, 0].s[]);
 }

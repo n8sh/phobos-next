@@ -170,7 +170,6 @@ private struct Array(E,
 
     static if (isOrdered!ordering)
     {
-        pragma(msg, ordering);
         static assert(!isNarrowString, "Ordered array cannot contain element type " ~ E.stringof);
     }
 

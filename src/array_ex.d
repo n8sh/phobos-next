@@ -297,10 +297,7 @@ private struct Array(E,
 
         static if (isOrdered!ordering)
         {
-            static if (isRandomAccessRange!(typeof(slice)))
-            {
-                that.sortElements!comp();
-            }
+            that.sortElements!comp();
         }
 
         return that;
@@ -525,10 +522,7 @@ private struct Array(E,
 
         static if (isOrdered!ordering)
         {
-            static if (isRandomAccessRange!(typeof(slice)))
-            {
-                if (!assumeSortedParameter) { sortElements!comp(); }
-            }
+            if (!assumeSortedParameter) { sortElements!comp(); }
         }
 
         version(showCtors) dln("EXITING: ", __PRETTY_FUNCTION__);

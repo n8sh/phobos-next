@@ -1176,12 +1176,12 @@ private struct Array(E,
                    isComparable!E)
         {
             /// Returns: a sorted array copy.
-            Array!(E, assignment, ordering.sortedValues, useGCAllocation, CapacityType, less) toSortedArray() const
+            Array!(E, assignment, ordering.sortedValues, useGCAllocation, CapacityType, less_) toSortedArray(alias less_ = "a < b")() const
             {
                 return typeof(return)(slice);
             }
             /// Returns: a sorted set array copy.
-            Array!(E, assignment, ordering.sortedUniqueSet, useGCAllocation, CapacityType, less) toSortedSetArray() const
+            Array!(E, assignment, ordering.sortedUniqueSet, useGCAllocation, CapacityType, less_) toSortedSetArray(alias less_ = "a < b")() const
             {
                 return typeof(return)(slice);
             }
@@ -2568,9 +2568,6 @@ pure nothrow /+TODO @nogc+/ unittest
 
     const x = A.withElements(0, 1, 3, 0, 2, 1, 3);
 
-    const y = x.toSortedArray;
-    assert(y == [0, 0, 1, 1, 2, 3, 3].s[]);
-
-    const z = x.toSortedSetArray;
-    assert(z == [0, 1, 2, 3].s[]);
+    assert(x.toSortedArray == [0, 0, 1, 1, 2, 3, 3].s[]);
+    assert(x.toSortedSetArray == [0, 1, 2, 3].s[]);
 }

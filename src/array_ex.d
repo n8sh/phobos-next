@@ -1163,15 +1163,15 @@ private struct Array(E,
                    !is(E == wchar) &&
                    isComparable!E)
         {
+            /// Returns: a sorted copy.
             Array!(E, assignment, ordering.sortedValues, useGCAllocation, CapacityType, less) toSorted()
             {
-                pragma(msg, E, "TODO toSorted:");
-                return typeof(return)(slice); // TODO implement and use construction from `InputRange`
+                return typeof(return)(slice);
             }
+            /// Returns: a sorted set copy.
             Array!(E, assignment, ordering.sortedUniqueSet, useGCAllocation, CapacityType, less) toSortedSet()
             {
-                pragma(msg, E, "TODO toSortedSet:");
-                return typeof(return)(slice); // TODO implement and use construction from `InputRange`
+                return typeof(return)(slice);
             }
         }
     }

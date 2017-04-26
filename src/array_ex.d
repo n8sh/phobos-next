@@ -129,7 +129,7 @@ private struct Array(E,
         is(CapacityType == uint))          // 2 64-bit words
 {
     import std.conv : emplace;
-    import std.range : isInputRange, isIterable, ElementType;
+    import std.range : isInputRange, isRandomAccessRange, isIterable, ElementType;
     import std.traits : isAssignable, Unqual, isSomeChar, isArray, isScalarType, hasElaborateDestructor, TemplateOf, isCopyable;
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
@@ -222,7 +222,6 @@ private struct Array(E,
     }
 
     /// Returns: an array of one element `element`.
-    pragma(inline)
     static This withElement(E element) @trusted nothrow
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
@@ -258,8 +257,7 @@ private struct Array(E,
         return that;
     }
 
-    // /// Returns: an array of `Us.length` number of elements set to `elements`.
-    pragma(inline)
+    /// Returns: an array of `Us.length` number of elements set to `elements`.
     static This withElements(Us...)(Us elements) @trusted nothrow
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
@@ -288,6 +286,14 @@ private struct Array(E,
             else
             {
                 moveEmplace(element, that._mptr[i]); // TODO remove `move` when compiler does it for us
+            }
+        }
+
+        static if (IsOrdered!ordering)
+        {
+            static if (isRandomAccessRange!(typeof(slice)))
+            {
+                that.sortElements!comp();
             }
         }
 
@@ -513,14 +519,17 @@ private struct Array(E,
 
         static if (IsOrdered!ordering)
         {
-            if (!assumeSortedParameter)
-            {
-                import std.algorithm.sorting : sort;
-                sort!comp(_mptr[0 .. this.length]);
-            }
+            if (!assumeSortedParameter) { sortElements!comp(); }
         }
 
         version(showCtors) dln("EXITING: ", __PRETTY_FUNCTION__);
+    }
+
+    /// Sort all elements regardless of `ordering`.
+    private void sortElements(alias comp_)() @trusted nothrow
+    {
+        import std.algorithm.sorting : sort;
+        sort!comp_(_mptr[0 .. this.length]);
     }
 
     /// Reserve room for `newCapacity`.
@@ -1137,6 +1146,17 @@ private struct Array(E,
         }
 
         alias prepend = pushFront;
+
+        import traits_ex : isComparable;
+        static if (isCopyable!E &&
+                   isComparable!E)
+        {
+            // Array!(E, assignment, ordering.sortedValues, useGCAllocation, CapacityType, less) toSorted()
+            // {
+            //     pragma(msg, E, "TODO sort");
+            //     return typeof(return)(slice); // TODO implement and use construction from `InputRange`
+            // }
+        }
     }
 
     /** Helper function used externally for unsorted and internally for sorted. */

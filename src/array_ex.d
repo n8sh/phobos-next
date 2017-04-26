@@ -1163,12 +1163,12 @@ private struct Array(E,
                    isComparable!E)
         {
             /// Returns: a sorted copy.
-            Array!(E, assignment, ordering.sortedValues, useGCAllocation, CapacityType, less) toSorted()
+            Array!(E, assignment, ordering.sortedValues, useGCAllocation, CapacityType, less) toSorted() const
             {
                 return typeof(return)(slice);
             }
             /// Returns: a sorted set copy.
-            Array!(E, assignment, ordering.sortedUniqueSet, useGCAllocation, CapacityType, less) toSortedSet()
+            Array!(E, assignment, ordering.sortedUniqueSet, useGCAllocation, CapacityType, less) toSortedSet() const
             {
                 return typeof(return)(slice);
             }
@@ -2539,10 +2539,25 @@ pure nothrow /+TODO @nogc+/ unittest
 /// map array of uncopyable
 @safe pure nothrow @nogc unittest
 {
-    foreach (AT; AliasSeq!(SortedUncopyableArray, SortedSetUncopyableArray))
+    foreach (AT; AliasSeq!(SortedUncopyableArray,
+                           SortedSetUncopyableArray))
     {
         alias A = AT!int;
         A a;
         A b = a.dup;
     }
+}
+
+/// init and append to empty array as AA value type
+@safe pure nothrow @nogc unittest
+{
+    alias A = Array!int;
+
+    const x = A.withElements(3, 0, 2, 1, 3);
+
+    const y = x.toSorted;
+    assert(y == [0, 1, 2, 3, 3].s[]);
+
+    // const z = x.toSortedSet;
+    // assert(z == [0, 1, 2, 3].s[]);
 }

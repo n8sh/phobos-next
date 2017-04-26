@@ -129,7 +129,7 @@ private struct Array(E,
         is(CapacityType == uint))          // 2 64-bit words
 {
     import std.conv : emplace;
-    import std.range : isInputRange, isRandomAccessRange, isIterable, ElementType;
+    import std.range : isInputRange, isIterable, ElementType;
     import std.traits : isAssignable, Unqual, isSomeChar, isArray, isScalarType, hasElaborateDestructor, TemplateOf, isCopyable;
     import std.functional : binaryFun;
     import std.meta : allSatisfy;

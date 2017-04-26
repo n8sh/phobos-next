@@ -27,7 +27,7 @@ struct DenseSetFilter(E,
     @safe pure nothrow @nogc pragma(inline):
 
     /// Maximum number of elements in filter.
-    enum elementMaxCount = cast(size_t)E.max - E.min + 1;
+    enum elementMaxCount = cast(size_t)E.max + 1;
 
     /// Construct set to store at most `length` number of bits.
     this(size_t length) @trusted
@@ -388,7 +388,8 @@ struct StaticDenseSetFilter(E)
 
     @safe pure nothrow @nogc:
 
-    /// Construct from elements `r`.
+    /** Construct from elements `r`.
+     */
     this(R)(R r)
         if (isInputRange!R &&
             isAssignable!(E, ElementType!R))
@@ -399,7 +400,8 @@ struct StaticDenseSetFilter(E)
         }
     }
 
-    /// Construct from elements `r`, or a complete matched if 'r' is empty.
+    /** Construct from elements `r`, or a complete matched if 'r' is empty.
+     */
     static typeof(this) fromRangeOrFull(R)(R r)
         if (isInputRange!R &&
             isAssignable!(E, ElementType!R))
@@ -426,7 +428,7 @@ struct StaticDenseSetFilter(E)
     }
 
     /** Insert element `e`.
-    */
+     */
     void insert(in E e) @trusted
     {
         import bitop_ex : setBit;
@@ -458,7 +460,8 @@ struct StaticDenseSetFilter(E)
 
     @property:
 
-    /// Check if element `e` is stored/contained.
+    /** Check if element `e` is stored/contained.
+     */
     bool contains(in E e) @trusted const
     {
         import bitop_ex : testBit;
@@ -481,7 +484,7 @@ struct StaticDenseSetFilter(E)
 
 private:
     /// Maximum number of elements in filter.
-    enum elementMaxCount = cast(size_t)E.max - E.min + 1;
+    enum elementMaxCount = cast(size_t)E.max + 1;
 
     static      if (elementMaxCount <= 8*ubyte.sizeof)
     {

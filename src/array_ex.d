@@ -2337,7 +2337,6 @@ pure nothrow /+TODO @nogc+/ unittest
         import std.traits : hasIndirections;
         static if (!hasIndirections!E)
         {
-            pragma(msg, E);
             const(E)[2] x = [E.init, E.init];
             // TODO caCopy ~= E.init;
             caCopy ~= x[];

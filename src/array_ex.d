@@ -79,7 +79,7 @@ enum Ordering
 }
 
 /// Is `true` iff `ordering` is sorted.
-enum IsOrdered(Ordering ordering) = ordering != Ordering.unsorted;
+enum isOrdered(Ordering ordering) = ordering != Ordering.unsorted;
 
 version(unittest)
 {
@@ -149,6 +149,13 @@ private struct Array(E,
     /// Same type as this but with mutable element type.
     private alias MutableThis = ThisTemplate!(MutableE, assignment, ordering, useGCAllocation, CapacityType, less);
 
+    /// Is `true` iff `Array` can be interpreted as a narrow D `string` or `wstring`.
+    enum isNarrowString = (is(MutableE == char) ||
+                           is(MutableE == wchar));
+
+    /// Is `true` iff `Array` can be interpreted as a D `string`, `wstring` or `dstring`.
+    enum isString = isNarrowString || is(MutableE == dchar);
+
     private template shouldAddGCRange(T)
     {
         import std.traits : hasIndirections, isInstanceOf;
@@ -161,11 +168,11 @@ private struct Array(E,
         import core.memory : GC;
     }
 
-    /// Type of element stored.
-    // alias ElementType = E;
-
-    /// Is `true` iff `Array` can be interpreted as a D `string`, `wstring` or `dstring`.
-    enum isString = isSomeChar!E;
+    static if (isOrdered!ordering)
+    {
+        pragma(msg, ordering);
+        static assert(!isNarrowString, "Ordered array cannot contain element type " ~ E.stringof);
+    }
 
     alias comp = binaryFun!less; //< comparison
 
@@ -289,7 +296,7 @@ private struct Array(E,
             }
         }
 
-        static if (IsOrdered!ordering)
+        static if (isOrdered!ordering)
         {
             static if (isRandomAccessRange!(typeof(slice)))
             {
@@ -478,7 +485,7 @@ private struct Array(E,
     /** Construct from InputRange `values`.
         If `values` are sorted `assumeSortedParameter` is `true`.
 
-        TODO Have `assumeSortedParameter` only when `IsOrdered!ordering` is true
+        TODO Have `assumeSortedParameter` only when `isOrdered!ordering` is true
      */
     this(R)(R values, bool assumeSortedParameter = false) @trusted @("complexity", "O(n*log(n))")
         if (isIterable!R)
@@ -517,7 +524,7 @@ private struct Array(E,
             }
         }
 
-        static if (IsOrdered!ordering)
+        static if (isOrdered!ordering)
         {
             static if (isRandomAccessRange!(typeof(slice)))
             {
@@ -837,7 +844,7 @@ private struct Array(E,
         shrinkTo(this.length - count);
     }
 
-    static if (!IsOrdered!ordering) // for unsorted arrays
+    static if (!isOrdered!ordering) // for unsorted arrays
     {
         /// Push back (append) `values`.
         pragma(inline) void pushBack(Us...)(Us values) @("complexity", "O(1)") @trusted
@@ -994,7 +1001,7 @@ private struct Array(E,
 
     import searching_ex : containsStoreIndex; // TODO this is redundant but elides rdmd dependency error from array_ex.d
 
-    static if (IsOrdered!ordering)
+    static if (isOrdered!ordering)
     {
         import std.range : SearchPolicy, assumeSorted;
 
@@ -1152,6 +1159,8 @@ private struct Array(E,
 
         import traits_ex : isComparable;
         static if (isCopyable!E &&
+                   !is(E == char) &&
+                   !is(E == wchar) &&
                    isComparable!E)
         {
             Array!(E, assignment, ordering.sortedValues, useGCAllocation, CapacityType, less) toSorted()
@@ -1218,7 +1227,7 @@ private struct Array(E,
     pragma(inline, true):
 
     /// ditto
-    static if (IsOrdered!ordering)
+    static if (isOrdered!ordering)
     {
         const pure nothrow @nogc: // indexing and slicing must be `const` when ordered
 
@@ -1812,38 +1821,45 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 
     foreach (Ch; AliasSeq!(char, wchar, dchar))
     {
-        alias Str = Array!(Ch, assignment, ordering, supportGC, size_t, less);
-        auto y = Str.withElements('a', 'b', 'c');
-        static assert(is(Unqual!(ElementType!Str) == Ch));
-        static assert(y.isString);
-        y = Str.init;
-
-        const(Ch)[] xs;
+        static if (!isOrdered!ordering || // either not ordered
+                   is(Ch == dchar))       // or not a not a narrow string
         {
-            // immutable
-            immutable x = Str.withElements('a', 'b', 'c');
-            static if (!IsOrdered!ordering)
+            alias Str = Array!(Ch, assignment, ordering, supportGC, size_t, less);
+            auto y = Str.withElements('a', 'b', 'c');
+            static assert(is(Unqual!(ElementType!Str) == Ch));
+            static assert(y.isString);
+            y = Str.init;
+
+            const(Ch)[] xs;
             {
-                xs = x[];       // TODO should fail with DIP-1000 scope
+                // immutable
+                immutable x = Str.withElements('a', 'b', 'c');
+                static if (!isOrdered!ordering)
+                {
+                    xs = x[];       // TODO should fail with DIP-1000 scope
+                }
             }
         }
     }
 
     foreach (Ch; AliasSeq!(char))
     {
-        alias Str = Array!(Ch, assignment, ordering, supportGC, size_t, less);
-        auto str = Str.withElements('a', 'b', 'c');
-
-        static assert(str.isString);
-
-        static if (IsOrdered!ordering)
+        static if (!isOrdered!ordering)
         {
-            static assert(is(Unqual!(ElementType!Str) == Ch));
-        }
-        else
-        {
-            static assert(is(ElementType!Str == Ch));
-            assert(str[] == `abc`); // TODO this fails for wchar and dchar
+            alias Str = Array!(Ch, assignment, ordering, supportGC, size_t, less);
+            auto str = Str.withElements('a', 'b', 'c');
+
+            static assert(str.isString);
+
+            static if (isOrdered!ordering)
+            {
+                static assert(is(Unqual!(ElementType!Str) == Ch));
+            }
+            else
+            {
+                static assert(is(ElementType!Str == Ch));
+                assert(str[] == `abc`); // TODO this fails for wchar and dchar
+            }
         }
     }
 
@@ -1865,7 +1881,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             auto x = Array!(E, assignment, ordering, supportGC, size_t, less).withLength(n);
 
             // test resize
-            static if (!IsOrdered!ordering)
+            static if (!isOrdered!ordering)
             {
                 assert(x.length == n);
                 x.length = n + 1;
@@ -1906,7 +1922,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         static assert(isInstanceOf!(Array, typeof(ss0)));
         assert(ss0.length == n);
 
-        static if (IsOrdered!ordering)
+        static if (isOrdered!ordering)
         {
             if (!ss0.empty) { assert(ss0[0] == ss0[0]); } // trigger use of opindex
             assert(ss0[].equal(fw.array
@@ -1917,7 +1933,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         Array!(E, assignment, ordering, supportGC, size_t, less) ss1 = fw; // ordinary
         assert(ss1.length == n);
 
-        static if (IsOrdered!ordering)
+        static if (isOrdered!ordering)
         {
             assert(ss1[].equal(fw.array
                                  .sort!comp));
@@ -1927,7 +1943,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         Array!(E, assignment, ordering, supportGC, size_t, less) ss2 = fw.filter!(x => x & 1);
         assert(ss2.length == n/2);
 
-        static if (IsOrdered!ordering)
+        static if (isOrdered!ordering)
         {
             assert(ss2[].equal(fw.filter!(x => x & 1)
                                  .array
@@ -1936,7 +1952,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         }
 
         auto ssA = Array!(E, assignment, ordering, supportGC, size_t, less).withLength(0);
-        static if (IsOrdered!ordering)
+        static if (isOrdered!ordering)
         {
             static if (less == "a < b")
             {

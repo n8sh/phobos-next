@@ -63,6 +63,7 @@ bool testBit(T, I...)(in T a, I bixs) @safe
 {
     return a & makeBit!T(bixs) ? true : false;
 }
+
 /** Returns: Check if all $(D bix):th Bits Of $(D a) are set. */
 pragma(inline, true)
 bool testBit(T, I...)(in T a, I bixs) @trusted
@@ -71,6 +72,7 @@ bool testBit(T, I...)(in T a, I bixs) @trusted
 {
     return (*(cast(UnsignedOfSameSizeAs!T*)&a)).testBit(bixs); // reuse integer variant
 }
+
 /** Returns: Check if all $(D bix):th Bits Of $(D *a) are set. */
 pragma(inline, true)
 bool testBit(T, I...)(in T* a, I bixs)
@@ -207,6 +209,7 @@ void resetBit(T, I...)(ref T a, I bixs) @safe
 {
     a &= ~makeBit!T(bixs);
 }
+
 /** Reset bits `I` of `*a` (to zero). */
 pragma(inline, true)
 void resetBit(T, I...)(T* a, I bixs) @safe

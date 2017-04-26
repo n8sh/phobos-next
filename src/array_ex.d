@@ -519,7 +519,10 @@ private struct Array(E,
 
         static if (IsOrdered!ordering)
         {
-            if (!assumeSortedParameter) { sortElements!comp(); }
+            static if (isRandomAccessRange!(typeof(slice)))
+            {
+                if (!assumeSortedParameter) { sortElements!comp(); }
+            }
         }
 
         version(showCtors) dln("EXITING: ", __PRETTY_FUNCTION__);
@@ -529,7 +532,7 @@ private struct Array(E,
     private void sortElements(alias comp_)() @trusted nothrow
     {
         import std.algorithm.sorting : sort;
-        sort!comp_(_mptr[0 .. this.length]);
+        sort!comp_(_mptr[0 .. length]);
     }
 
     /// Reserve room for `newCapacity`.
@@ -1151,11 +1154,16 @@ private struct Array(E,
         static if (isCopyable!E &&
                    isComparable!E)
         {
-            // Array!(E, assignment, ordering.sortedValues, useGCAllocation, CapacityType, less) toSorted()
-            // {
-            //     pragma(msg, E, "TODO sort");
-            //     return typeof(return)(slice); // TODO implement and use construction from `InputRange`
-            // }
+            Array!(E, assignment, ordering.sortedValues, useGCAllocation, CapacityType, less) toSorted()
+            {
+                pragma(msg, E, "TODO toSorted:");
+                return typeof(return)(slice); // TODO implement and use construction from `InputRange`
+            }
+            Array!(E, assignment, ordering.sortedUniqueSet, useGCAllocation, CapacityType, less) toSortedSet()
+            {
+                pragma(msg, E, "TODO toSortedSet:");
+                return typeof(return)(slice); // TODO implement and use construction from `InputRange`
+            }
         }
     }
 

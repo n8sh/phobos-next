@@ -5391,7 +5391,7 @@ class Scanner(Term)
         //     results.noBytesTotal += dent.size;
         // } catch (Exception)
         //   {
-        //     dln(`Could not get size of `,  dir.name);
+        //     dln(`Couldn't get size of `,  dir.name);
         // }
         if (gstats.followSymlinks == SymlinkFollowContext.none) { return; }
 

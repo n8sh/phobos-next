@@ -329,10 +329,12 @@ enum Lang:ushort
     go,
     java,
     ada,
-    // rust,
+    rust,
     swift,
     fortran,
-    modelica, lastFormal = modelica,
+    modelica,
+    sumo,
+    lastFormal = sumo,
 
     /// Academic Languages
     math,                /// "Mathematics is the only truly universal language"
@@ -491,10 +493,11 @@ string toSpoken(Lang lang, Lang spokenLang = Lang.init)
         case go: return `Go`;
         case java: return `Java`;
         case ada: return `Ada`;
-            // case rust: return `Rust`;
+        case rust: return `Rust`;
         case swift: return `Swift`;
         case fortran: return `Fortran`;
         case modelica: return `Modelica`;
+        case sumo: return `Suggested Upper Merged Ontology`;
 
         case math: return `mathematics`;
         case physics: return `physics`;

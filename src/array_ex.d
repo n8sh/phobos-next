@@ -1,6 +1,9 @@
 /** Array container(s) with optional sortedness via template-parameter
     `Ordering` and optional use of GC via `useGCAllocation`.
 
+    TODO Add some way to implement lazy sorting either for the whole array (via
+    bool flag) or completeSort at a certain offset (extra member).
+
     TODO Replace ` = void` with construction or emplace
 
     TODO Breakout common logic into private `BasicArray` and reuse with `alias this` to express StandardArray, SortedArray, SortedSetArray

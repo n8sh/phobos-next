@@ -1,6 +1,8 @@
 /** Array container(s) with optional sortedness via template-parameter
     `Ordering` and optional use of GC via `useGCAllocation`.
 
+    TODO Make concat pass one of its args as auto ref reuse the argument if it's and rvalue
+
     TODO Add some way to implement lazy sorting either for the whole array (via
     bool flag) or completeSort at a certain offset (extra member).
 

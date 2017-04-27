@@ -1832,7 +1832,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     {
         alias A = SortedUncopyableArray!E;
         auto x = A.withElements(0, 3, 2, 1);
-        assert(x[].equal([0, 1, 2, 3]));
+        assert(x[].equal([0, 1, 2, 3].s[]));
     }
 
     foreach (Ch; AliasSeq!(char, wchar, dchar))
@@ -1976,8 +1976,8 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
                 const A x = [1, 2, 3, 4, 5, 6];
                 assert(x.front == 1);
                 assert(x.back == 6);
-                assert(x.lowerBound(3).equal([1, 2]));
-                assert(x.upperBound(3).equal([4, 5, 6]));
+                assert(x.lowerBound(3).equal([1, 2].s[]));
+                assert(x.upperBound(3).equal([4, 5, 6].s[]));
                 assert(x[].equal(x[])); // already sorted
             }
 
@@ -1985,8 +1985,8 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             {
                 static if (ordering == Ordering.sortedUniqueSet)
                 {
-                    assert(ssA.insertMany(i)[].equal([true]));
-                    assert(ssA.insertMany(i)[].equal([false]));
+                    assert(ssA.insertMany(i)[].equal([true].s[]));
+                    assert(ssA.insertMany(i)[].equal([false].s[]));
                 }
                 else
                 {
@@ -1999,8 +1999,8 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             static if (ordering == Ordering.sortedUniqueSet)
             {
                 assert(ssB.insertMany(1, 7, 4, 9)[].equal(true.repeat(4)));
-                assert(ssB.insertMany(3, 6, 8, 5, 1, 9)[].equal([true, true, true, true, false, false]));
-                assert(ssB.insertMany(3, 0, 2, 10, 11, 5)[].equal([false, true, true, true, true, false]));
+                assert(ssB.insertMany(3, 6, 8, 5, 1, 9)[].equal([true, true, true, true, false, false].s[]));
+                assert(ssB.insertMany(3, 0, 2, 10, 11, 5)[].equal([false, true, true, true, true, false].s[]));
                 assert(ssB.insertMany(0, 2, 10, 11)[].equal(false.repeat(4))); // false becuse already inserted
                 assert(ssB.capacity == 16);
             }
@@ -2030,35 +2030,35 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
                 A x = [1, 2, 3];
                 x ~= x;
                 assert(x[].equal([1, 2, 3,
-                                  1, 2, 3]));
+                                  1, 2, 3].s[]));
                 x ~= x[];
                 assert(x[].equal([1, 2, 3, 1, 2, 3,
-                                  1, 2, 3, 1, 2, 3]));
+                                  1, 2, 3, 1, 2, 3].s[]));
             }
 
             ssA ~= 3;
             ssA ~= 2;
             ssA ~= 1;
-            assert(ssA[].equal([3, 2, 1]));
+            assert(ssA[].equal([3, 2, 1].s[]));
 
             ssA.compress();
 
             // popBack
             ssA[0] = 1;
             ssA[1] = 2;
-            assert(ssA[].equal([1, 2, 1]));
+            assert(ssA[].equal([1, 2, 1].s[]));
             assert(!ssA.empty);
             assert(ssA.front == 1);
             assert(ssA.back == 1);
 
             assertNotThrown(ssA.popBack());
-            assert(ssA[].equal([1, 2]));
+            assert(ssA[].equal([1, 2].s[]));
             assert(!ssA.empty);
             assert(ssA.front == 1);
             assert(ssA.back == 2);
 
             assertNotThrown(ssA.popBack());
-            assert(ssA[].equal([1]));
+            assert(ssA[].equal([1].s[]));
             assert(!ssA.empty);
             assert(ssA.front == 1);
             assert(ssA.back == 1);
@@ -2081,15 +2081,15 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             ssA ~= 6;
             ssA ~= 7;
             ssA ~= 8;
-            assert(ssA[].equal([1, 2, 3, 4, 5, 6, 7, 8]));
+            assert(ssA[].equal([1, 2, 3, 4, 5, 6, 7, 8].s[]));
             ssA.insertAtIndex(3, 100, 101);
-            assert(ssA[].equal([1, 2, 3, 100, 101, 4, 5, 6, 7, 8]));
+            assert(ssA[].equal([1, 2, 3, 100, 101, 4, 5, 6, 7, 8].s[]));
             assertNotThrown(ssA.linearPopFront());
-            assert(ssA[].equal([2, 3, 100, 101, 4, 5, 6, 7, 8]));
+            assert(ssA[].equal([2, 3, 100, 101, 4, 5, 6, 7, 8].s[]));
             assertNotThrown(ssA.linearPopFront());
-            assert(ssA[].equal([3, 100, 101, 4, 5, 6, 7, 8]));
+            assert(ssA[].equal([3, 100, 101, 4, 5, 6, 7, 8].s[]));
             assertNotThrown(ssA.linearPopFront());
-            assert(ssA[].equal([100, 101, 4, 5, 6, 7, 8]));
+            assert(ssA[].equal([100, 101, 4, 5, 6, 7, 8].s[]));
             assertNotThrown(ssA.linearPopFront());
             assertNotThrown(ssA.linearPopFront());
             assertNotThrown(ssA.linearPopFront());
@@ -2107,13 +2107,13 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             ssA ~= 4;
             ssA ~= 5;
             assertNotThrown(ssA.popAtIndex(2));
-            assert(ssA[].equal([1, 2, 4, 5]));
+            assert(ssA[].equal([1, 2, 4, 5].s[]));
 
             // pushBack and assignment from slice
             auto ssB = Array!(E, assignment, ordering, supportGC, size_t, less).withLength(0);
-            ssB.pushBack([1, 2, 3, 4, 5]);
+            ssB.pushBack([1, 2, 3, 4, 5].s[]);
             ssB.pushBack([6, 7]);
-            assert(ssB[].equal([1, 2, 3, 4, 5, 6, 7]));
+            assert(ssB[].equal([1, 2, 3, 4, 5, 6, 7].s[]));
             assert(ssB.backPop() == 7);
             assert(ssB.backPop() == 6);
             assert(ssB.backPop() == 5);
@@ -2139,7 +2139,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ss_.empty);
 
             auto ssC = Array!(E, assignment, ordering, supportGC, size_t, less).withLength(0);
-            immutable(int)[] i5 = [1, 2, 3, 4, 5];
+            immutable(int)[] i5 = [1, 2, 3, 4, 5].s[];
             ssC.pushBack(i5);
             assert(ssC[].equal(i5));
 
@@ -2147,16 +2147,16 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ssCc[].equal(i5));
 
             ssC.shrinkTo(4);
-            assert(ssC[].equal([1, 2, 3, 4]));
+            assert(ssC[].equal([1, 2, 3, 4].s[]));
 
             ssC.shrinkTo(3);
-            assert(ssC[].equal([1, 2, 3]));
+            assert(ssC[].equal([1, 2, 3].s[]));
 
             ssC.shrinkTo(2);
-            assert(ssC[].equal([1, 2]));
+            assert(ssC[].equal([1, 2].s[]));
 
             ssC.shrinkTo(1);
-            assert(ssC[].equal([1]));
+            assert(ssC[].equal([1].s[]));
 
             ssC.shrinkTo(0);
             assert(ssC[].length == 0);
@@ -2164,7 +2164,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 
             ssC.pushBack(i5);
             ssC.popBackN(3);
-            assert(ssC[].equal([1, 2]));
+            assert(ssC[].equal([1, 2].s[]));
 
             auto ssD = ssC;
             ssC.clear();

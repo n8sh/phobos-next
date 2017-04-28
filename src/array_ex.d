@@ -894,19 +894,31 @@ private struct Array(E,
                 isElementAssignable!(ElementType!R))
         {
             assert(!isBorrowed);
-            reserve(this.length + values.length);
-            foreach (immutable i, ref value; values) // `ref` so we can `move`
+            import std.range.primitives : hasLength;
+            static if (hasLength!R)
             {
-                static if (isScalarType!(typeof(value)))
+                const nextLength = this.length + values.length;
+                reserve(nextLength);
+                foreach (immutable i, ref value; values) // `ref` so we can `move`
                 {
-                    _mptr[this.length + i] = value;
+                    static if (isScalarType!(typeof(value)))
+                    {
+                        _mptr[this.length + i] = value;
+                    }
+                    else
+                    {
+                        moveEmplace(value, _mptr[this.length + i]); // TODO remove `moveEmplace` when compiler does it for us
+                    }
                 }
-                else
+                setOnlyLength(nextLength);
+            }
+            else
+            {
+                foreach (ref value; values) // `ref` so we can `move`
                 {
-                    moveEmplace(value, _mptr[this.length + i]); // TODO remove `moveEmplace` when compiler does it for us
+                    pushBack(value);
                 }
             }
-            setOnlyLength(this.length + values.length);
         }
         /// ditto.
         void pushBack(A)(A values) @trusted @("complexity", "O(values.length)")

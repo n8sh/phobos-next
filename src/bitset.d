@@ -9,6 +9,7 @@ module bitset;
 
 version(unittest)
 {
+    import array_ex : s;
     import dbgio;
 }
 
@@ -1079,7 +1080,7 @@ struct BitSet(uint len, Block = size_t)
 }
 
 /// run-time
-@safe pure nothrow unittest
+@safe pure nothrow @nogc unittest
 {
     import std.algorithm : equal;
     import nesses: denseness;
@@ -1108,13 +1109,13 @@ struct BitSet(uint len, Block = size_t)
     assert(b0.oneIndexes.equal([1, 2,
                                 m/2 - 11, m/2 - 1, m/2, m/2 + 1, m/2 + 11,
                                 m - 3,
-                                m - 2]));
+                                m - 2].s[]));
     assert(b0.countOnes == 9);
     assert(b0.denseness == Q(9, m));
 }
 
 /// run-time
-@safe pure nothrow unittest
+@safe pure nothrow @nogc unittest
 {
     import std.algorithm : equal;
     import nesses: denseness;
@@ -1141,13 +1142,13 @@ struct BitSet(uint len, Block = size_t)
     assert(b0.oneIndexes.equal([0, 1,
                                 m/2 - 11, m/2 - 1, m/2, m/2 + 1, m/2 + 11,
                                 m - 2,
-                                m - 1]));
+                                m - 1].s[]));
     assert(b0.countOnes == 9);
     assert(b0.denseness == Q(9, m));
 }
 
 /// run-time
-@safe pure nothrow unittest
+@safe pure nothrow @nogc unittest
 {
     import std.algorithm : equal;
     import nesses: denseness;
@@ -1175,7 +1176,7 @@ struct BitSet(uint len, Block = size_t)
 }
 
 /// test ubyte access
-@safe pure nothrow unittest
+@safe pure nothrow @nogc unittest
 {
     auto b8 = BitSet!(8, ubyte)();
     b8[0] = 1;
@@ -1183,7 +1184,7 @@ struct BitSet(uint len, Block = size_t)
     b8[3] = 1;
     b8[6] = 1;
 
-    assert(b8.ubytes == [64 + 8 + 2 + 1]);
+    assert(b8.ubytes == [64 + 8 + 2 + 1].s[]);
 
     alias Ix = b8.Index;
     Ix nextIx;
@@ -1207,7 +1208,7 @@ struct BitSet(uint len, Block = size_t)
 }
 
 /// test all zero and all one predicates
-@safe pure nothrow unittest
+@safe pure nothrow @nogc unittest
 {
     static void test(size_t restCount)()
     {
@@ -1294,7 +1295,7 @@ unittest
         assert(bs.at!5 == false);
 
         // test slicing
-        assert(bs[].equal([0, 1, 0, 1, 1, 0]));
+        assert(bs[].equal([0, 1, 0, 1, 1, 0].s[]));
         assert(bs[1 .. 4].equal([1, 0, 1]));
 
         auto rs = bs[1 .. 6 - 1]; // TODO Use opDollar

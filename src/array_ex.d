@@ -2571,11 +2571,11 @@ pure nothrow /+TODO @nogc+/ unittest
     assert(x[].equal(y[]));
 
     x.clear();
-    x.pushBack(y[].map!(_ => _^^2)); // hasLength
+    x.pushBack(y[].map!(_ => _^^2)); // rhs has length (`hasLength`)
     assert(x[].equal(y[].map!(_ => _^^2)));
 
     x.clear();
-    x.pushBack(y[].filter!(_ => _ & 1)); // !hasLength
+    x.pushBack(y[].filter!(_ => _ & 1)); // rhs has no length (`!hasLength`)
     assert(x[].equal(y[].filter!(_ => _ & 1)));
 }
 

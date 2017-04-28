@@ -90,6 +90,7 @@ enum isOrdered(Ordering ordering) = ordering != Ordering.unsorted;
 
 version(unittest)
 {
+    import std.algorithm.iteration : map, filter;
     import std.algorithm.comparison : equal;
     import std.conv : to;
     import std.meta : AliasSeq;
@@ -2538,8 +2539,10 @@ pure nothrow /+TODO @nogc+/ unittest
 {
     import std.exception: assertThrown;
     import core.exception : RangeError;
+
     alias Key = string;
     alias A = Array!int;
+
     A[Key] x;
     // assertThrown!RangeError({ x["a"] ~= 42; }); // TODO make this work
 }
@@ -2549,9 +2552,10 @@ pure nothrow /+TODO @nogc+/ unittest
 {
     import std.range : isInputRange;
     import std.array : array;
-    import std.algorithm.iteration : map;
+
     alias A = UncopyableArray!int;
     auto y = A.init[].map!(_ => _^^2).array;
+
     A z = y.dup;                // check that dup returns same type
     z = A.init;
     const w = [0, 1].s;
@@ -2562,7 +2566,6 @@ pure nothrow /+TODO @nogc+/ unittest
 ///
 @safe pure nothrow @nogc unittest
 {
-    import std.algorithm.iteration : map, filter;
     alias A = UncopyableArray!int;
     A x;
     const y = [0, 1, 2, 3].s;

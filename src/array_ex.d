@@ -2543,7 +2543,7 @@ pure nothrow /+TODO @nogc+/ unittest
 }
 
 /// map array of uncopyable
-@safe pure unittest
+@safe pure nothrow unittest
 {
     import std.range : isInputRange;
     import std.array : array;
@@ -2551,6 +2551,21 @@ pure nothrow /+TODO @nogc+/ unittest
     alias A = UncopyableArray!int;
     auto y = A.init[].map!(_ => _^^2).array;
     A z = y.dup;                // check that dup returns same type
+    z = A.init;
+    const w = [0, 1].s;
+    z.pushBack(w[]);
+    assert(z[].equal(w[]));
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    import std.algorithm.iteration : map;
+    alias A = UncopyableArray!int;
+    A x;
+    const y = [0, 1].s;
+    x.pushBack(y[]);
+    assert(x[].equal(y[]));
 }
 
 /// collection

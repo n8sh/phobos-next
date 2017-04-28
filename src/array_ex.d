@@ -261,7 +261,8 @@ private struct Array(E,
         }
         else static if (!shouldAddGCRange!E)
         {
-            moveEmplace(*(cast(MutableE*)(&element)), that._mptr[0]); // safe to cast away constness when no indirections
+            moveEmplace(*cast(MutableE*)&element, // TODO can we prevent this cast?
+                        that._mptr[0]); // safe to cast away constness when no indirections
         }
         else
         {
@@ -295,7 +296,8 @@ private struct Array(E,
         {
             static if (!shouldAddGCRange!E)
             {
-                moveEmplace(*(cast(MutableE*)(&element)), that._mptr[i]); // safe to cast away constness when no indirections
+                moveEmplace(*cast(MutableE*)&element,
+                            that._mptr[i]); // safe to cast away constness when no indirections
             }
             else
             {
@@ -627,7 +629,8 @@ private struct Array(E,
                     // move elements to temporary small. TODO make moveEmplaceAll work on char[],char[] and use
                     foreach (immutable i; 0 .. length)
                     {
-                        moveEmplace(_large._mptr[i], tempSmall._mptr[i]);
+                        moveEmplace(_large._mptr[i],
+                                    tempSmall._mptr[i]);
                     }
 
                     // free existing large data
@@ -882,7 +885,8 @@ private struct Array(E,
                 }
                 else
                 {
-                    moveEmplace(value, _mptr[this.length + i]); // TODO remove `move` when compiler does it for us
+                    moveEmplace(*cast(MutableE*)&value, // TODO can we prevent this cast?
+                                _mptr[this.length + i]); // TODO remove `move` when compiler does it for us
                 }
             }
             setOnlyLength(this.length + values.length);
@@ -909,7 +913,8 @@ private struct Array(E,
                     }
                     else
                     {
-                        moveEmplace(value, _mptr[this.length + i]); // TODO remove `moveEmplace` when compiler does it for us
+                        moveEmplace(*cast(Mutable!E*)&value, // TODO can we prevent this cast?
+                                    _mptr[this.length + i]); // TODO remove `moveEmplace` when compiler does it for us
                     }
                     ++i;
                 }
@@ -1249,12 +1254,14 @@ private struct Array(E,
 
     private void pushBackHelper(Us...)(Us values) @trusted nothrow @("complexity", "O(1)")
     {
-        reserve(this.length + values.length);
+        const newLength = this.length + values.length;
+        reserve(newLength);
         foreach (immutable i, ref value; values)
         {
-            moveEmplace(value, _mptr[this.length + i]); // TODO remove `move` when compiler does it for us
+            moveEmplace(*cast(MutableE*)&value, // TODO can we prevent this cast?
+                        _mptr[this.length + i]); // TODO remove `move` when compiler does it for us
         }
-        setOnlyLength(this.length + values.length);
+        setOnlyLength(newLength);
     }
 
     @property @("complexity", "O(1)")

@@ -887,7 +887,7 @@ private struct Array(E,
             setOnlyLength(this.length + values.length);
         }
         /// ditto
-        void pushBack(R)(R values) @("complexity", "O(values.length)")
+        void pushBack(R)(R values) @("complexity", "O(values.length)") @trusted
             if (isInputRange!R &&
                 !(isArray!R) &&
                 !(isArrayContainer!R) &&
@@ -899,7 +899,8 @@ private struct Array(E,
             {
                 const nextLength = this.length + values.length;
                 reserve(nextLength);
-                foreach (immutable i, ref value; values) // `ref` so we can `move`
+                size_t i = 0;
+                foreach (ref value; values) // `ref` so we can `move`
                 {
                     static if (isScalarType!(typeof(value)))
                     {
@@ -909,6 +910,7 @@ private struct Array(E,
                     {
                         moveEmplace(value, _mptr[this.length + i]); // TODO remove `moveEmplace` when compiler does it for us
                     }
+                    ++i;
                 }
                 setOnlyLength(nextLength);
             }
@@ -2560,12 +2562,17 @@ pure nothrow /+TODO @nogc+/ unittest
 ///
 @safe pure nothrow @nogc unittest
 {
-    import std.algorithm.iteration : map;
+    import std.algorithm.iteration : map, filter;
     alias A = UncopyableArray!int;
     A x;
-    const y = [0, 1].s;
+    const y = [0, 1, 2, 3].s;
+
     x.pushBack(y[]);
     assert(x[].equal(y[]));
+
+    x.clear();
+    x.pushBack(y[].map!(_ => _^^2));
+    assert(x[].equal(y[].map!(_ => _^^2)));
 }
 
 /// collection

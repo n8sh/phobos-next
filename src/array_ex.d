@@ -138,7 +138,7 @@ private struct Array(E,
 {
     import std.conv : emplace;
     import std.range : isInputRange, isIterable, ElementType;
-    import std.traits : isAssignable, Unqual, isSomeChar, isArray, isScalarType, hasElaborateDestructor, TemplateOf, isCopyable;
+    import std.traits : isAssignable, Unqual, isSomeChar, isArray, isScalarType, hasElaborateDestructor, hasIndirections, TemplateOf, isCopyable;
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
     import core.stdc.string : memset;
@@ -847,7 +847,6 @@ private struct Array(E,
         assert(!isBorrowed);
         assert(!empty);
         decOnlyLength();
-        import std.traits : hasIndirections;
         static if (hasIndirections!E) // TODO better trait?
         {
             return move(_mptr[this.length]); // move is indeed need here
@@ -879,14 +878,14 @@ private struct Array(E,
             reserve(newLength);
             foreach (immutable i, ref value; values) // `ref` so we can `move`
             {
-                static if (isScalarType!(typeof(value)))
+                // TODO functionize:
+                static if (hasIndirections!(typeof(value)))
                 {
-                    _mptr[this.length + i] = value;
+                    moveEmplace(*cast(MutableE*)&value, _mptr[this.length + i]);
                 }
                 else
                 {
-                    moveEmplace(*cast(MutableE*)&value, // TODO can we prevent this cast?
-                                _mptr[this.length + i]); // TODO remove `move` when compiler does it for us
+                    _mptr[this.length + i] = value;
                 }
             }
             setOnlyLength(this.length + values.length);
@@ -907,14 +906,14 @@ private struct Array(E,
                 size_t i = 0;
                 foreach (ref value; values) // `ref` so we can `move`
                 {
-                    static if (isScalarType!(typeof(value)))
+                    // TODO functionize:
+                    static if (hasIndirections!(typeof(value)))
                     {
-                        _mptr[this.length + i] = value;
+                        moveEmplace(*cast(Mutable!E*)&value, _mptr[this.length + i]);
                     }
                     else
                     {
-                        moveEmplace(*cast(Mutable!E*)&value, // TODO can we prevent this cast?
-                                    _mptr[this.length + i]); // TODO remove `moveEmplace` when compiler does it for us
+                        _mptr[this.length + i] = value;
                     }
                     ++i;
                 }
@@ -1258,8 +1257,16 @@ private struct Array(E,
         reserve(newLength);
         foreach (immutable i, ref value; values)
         {
-            moveEmplace(*cast(MutableE*)&value, // TODO can we prevent this cast?
-                        _mptr[this.length + i]); // TODO remove `move` when compiler does it for us
+            // TODO functionize:
+            static if (hasIndirections!(typeof(value)))
+            {
+                moveEmplace(*cast(MutableE*)&value,
+                            _mptr[this.length + i]);
+            }
+            else
+            {
+                _mptr[this.length + i] = value;
+            }
         }
         setOnlyLength(newLength);
     }

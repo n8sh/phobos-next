@@ -62,7 +62,8 @@ auto nullableRef(T)(T* a) @safe pure nothrow
 
 /** See also: http://forum.dlang.org/thread/jwdbjlobbilowlnpdzzo@forum.dlang.org
  */
-template New(T) if (is(T == class))
+template New(T)
+    if (is(T == class))
 {
     T New(Args...) (Args args) {
         return new T(args);

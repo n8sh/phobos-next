@@ -80,6 +80,11 @@ alias stealFront = frontPop;
 alias pullFront = frontPop;
 alias takeFront = frontPop;
 
+version(unittest)
+{
+    import array_ex : s;
+}
+
 @safe pure nothrow unittest
 {
     auto x = [11, 22];
@@ -351,7 +356,8 @@ auto slidingSplitter(R)(R data, size_t lower, size_t upper)
 
     for (size_t i; i < y.length; ++i)
     {
-        assert(y[i] == tuple(x[0..i], x[i..3]));
+        assert(y[i] == tuple(x[0 .. i],
+                             x[i .. 3]));
     }
 
     assert(y.front == tuple([], x));
@@ -675,46 +681,46 @@ auto adjacentTriples(R)(R r)
 }
 
 ///
-unittest
+@safe pure nothrow @nogc unittest
 {
     import std.typecons : t = tuple;
     import std.algorithm : equal, map;
-    auto x = [1, 2, 3, 4, 5, 6, 7].map!(a => a); // test with ForwardRange
+    auto x = [1, 2, 3, 4, 5, 6, 7].s[].map!(a => a); // test with ForwardRange
     auto y = x.adjacentTuples!4;
     assert(y.equal([t(1, 2, 3, 4),
                     t(2, 3, 4, 5),
                     t(3, 4, 5, 6),
-                    t(4, 5, 6, 7)]));
+                    t(4, 5, 6, 7)].s[]));
 }
 
 ///
-unittest
+@safe pure nothrow @nogc unittest
 {
     import std.typecons : t = tuple;
     import std.algorithm : equal;
-    immutable x = [1, 2, 3, 4];
+    immutable x = [1, 2, 3, 4].s[];
     auto y = x.adjacentPairs;
-    assert(y.equal([t(1, 2), t(2, 3), t(3, 4)]));
+    assert(y.equal([t(1, 2), t(2, 3), t(3, 4)].s[]));
 }
 
 ///
-unittest
+@safe pure nothrow @nogc unittest
 {
     import std.typecons : t = tuple;
     import std.algorithm : equal;
-    auto x = ["1", "2", "3", "4"];
+    auto x = ["1", "2", "3", "4"].s[];
     auto y = x.adjacentPairs;
-    assert(y.equal([t("1", "2"), t("2", "3"), t("3", "4")]));
+    assert(y.equal([t("1", "2"), t("2", "3"), t("3", "4")].s[]));
 }
 
 ///
-unittest
+@safe pure nothrow @nogc unittest
 {
     import std.typecons : t = tuple;
     import std.algorithm : equal;
-    immutable x = ["1", "2", "3", "4"];
+    immutable x = ["1", "2", "3", "4"].s[];
     auto y = x.adjacentPairs;
-    assert(y.equal([t("1", "2"), t("2", "3"), t("3", "4")]));
+    assert(y.equal([t("1", "2"), t("2", "3"), t("3", "4")].s[]));
 }
 
 auto rangify(T)(T range)
@@ -744,7 +750,7 @@ unittest
     import std.algorithm : equal;
     auto s = S();
     s.arr = [1, 2, 3];
-    assert(s.rangify.equal([1, 2, 3]));
+    assert(s.rangify.equal([1, 2, 3].s[]));
 }
 
 /** Overload has questionable memory safety.  Would be quite cool if DIP-1000
@@ -772,7 +778,7 @@ auto staticLengthRange(size_t n, R)(R range)
 }
 
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     import std.algorithm.iteration : map;
 
@@ -781,7 +787,7 @@ unittest
     static assert (isInputRange!(typeof(r1)));
     static assert (r1.length == 3);
 
-    auto arr = [1, 2, 3, 4];
+    auto arr = [1, 2, 3, 4].s[];
     auto r2 = arr.map!(a => a * 2).staticLengthRange!4;
     static assert (r2.length == 4);
 }

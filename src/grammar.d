@@ -16,6 +16,8 @@ import std.conv;
 
 import languages: Lang;
 
+@safe pure:
+
 /** Computer Token Usage. */
 enum Usage:ubyte
 {
@@ -297,7 +299,7 @@ enum Tense:ubyte
 }
 alias Tempus = Tense;
 
-@safe pure nothrow @nogc
+nothrow @nogc
 {
     bool isPast(Tense tense)
     {
@@ -383,7 +385,7 @@ enum Mood:ubyte
 /** Check if $(D mood) is a Realis Mood.
     See also: https://en.wikipedia.org/wiki/Grammatical_mood#Realis_moods
  */
-bool isRealis(Mood mood) @safe pure @nogc nothrow
+bool isRealis(Mood mood) @nogc nothrow
 {
     with (Mood)
         return cast(bool)mood.among!(indicative);
@@ -394,7 +396,7 @@ enum realisMoods = [Mood.indicative];
 /** Check if $(D mood) is a Irrealis Mood.
     See also: https://en.wikipedia.org/wiki/Grammatical_mood#Irrealis_moods
 */
-bool isIrrealis(Mood mood) @safe pure @nogc nothrow
+bool isIrrealis(Mood mood) @nogc nothrow
 {
     with (Mood)
         return cast(bool)mood.among!(subjunctive,
@@ -492,7 +494,7 @@ string inPlural(string word, int count = 2,
 /** Return $(D s) lemmatized (normalized).
     See also: https://en.wikipedia.org/wiki/Lemmatisation
  */
-S lemmatized(S)(S s) @safe pure nothrow
+S lemmatized(S)(S s) nothrow
     if (isSomeString!S)
 {
     if      (s.among!(`be`, `is`, `am`, `are`)) return `be`;
@@ -503,7 +505,7 @@ S lemmatized(S)(S s) @safe pure nothrow
 /**
    TODO Reuse knet translation query instead.
  */
-string negationIn(Lang lang) @safe pure nothrow
+string negationIn(Lang lang) nothrow
 {
     switch (lang) with (Lang)
     {
@@ -565,6 +567,16 @@ auto indefiniteArticleIn(string s, Lang lang)
     return (!s.empty && s.front.isVowel(lang) ? `an` : `a`);
 }
 
+auto definiteArticleIn(string s, Lang lang)
+{
+    switch (lang)
+    {
+    case Lang.en:
+    default:
+        return `the`;
+    }
+}
+
 auto inIndefiniteNounForm(string s, Lang lang)
 {
     import std.range : chain;
@@ -578,6 +590,12 @@ unittest
                  `a person`));
     assert(equal(`apple`.inIndefiniteNounForm(Lang.en),
                  `an apple`));
+}
+
+auto inDefiniteNounForm(string s, Lang lang)
+{
+    import std.range : chain;
+    return chain(s.definiteArticleIn(lang), ` `, s);
 }
 
 enum Adverbial

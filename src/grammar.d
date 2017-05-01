@@ -544,22 +544,40 @@ enum LatinCase:ubyte
 /** English Subject Pronouns.
    See also: https://en.wikipedia.org/wiki/Subject_pronoun
 */
-enum englishSubjectPronouns = [`I`, `you`, `he`, `she`, `it`, `we`, `they`, `what`, `who`];
+enum englishSubjectPronouns = [`I`,
+                               `you`,
+                               `he`, `she`, `it`,
+                               `we`,
+                               `they`,
+                               `what`,
+                               `who`];
 
 /** Swedish Subject Pronouns.
     See also: https://en.wikipedia.org/wiki/Subject_pronoun
 */
-enum swedishSubjectPronouns = [`jag`, `du`, `han`, `hon`, `den`, `det`, `vi`, `de`, `vad`, `vem`];
+enum swedishSubjectPronouns = [`jag`, `du`,
+                               `han`, `hon`, `den`, `det`,
+                               `vi`,
+                               `de`,
+                               `vad`,
+                               `vem`];
 
 /** English Object Pronouns.
     See also: https://en.wikipedia.org/wiki/Object_pronoun
 */
-enum englishObjectPronouns = [`me`, `him,`, `her`, `us`, `them`, `whom`];
+enum englishObjectPronouns = [`me`,
+                              `him,`, `her`,
+                              `us`,
+                              `them`,
+                              `whom`];
 
 /** Swedish Object Pronouns.
     See also: https://en.wikipedia.org/wiki/Object_pronoun
 */
-enum swedishObjectPronouns = [`mig`, `honom,`, `henne`, `oss`, `dem`];
+enum swedishObjectPronouns = [`mig`,
+                              `honom,`, `henne`,
+                              `oss`,
+                              `dem`];
 
 /// Indefinite article of `s` in language `lang`.
 string indefiniteArticleIn(string s, Lang lang)

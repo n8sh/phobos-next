@@ -81,27 +81,28 @@ auto cartesianPower(bool doCopy = true, T)(T[] items, in uint repeat, T[] buffer
     }
 }
 
-@safe pure nothrow unittest
+@safe pure nothrow @nogc unittest
 {
+    import array_ex : s;
     int[2] items = [1, 2];
     const n = 4;
     int[n] buf;
     import std.algorithm.comparison : equal;
     assert(items.cartesianPower!false(n, buf)
-                .equal([[1, 1, 1, 1],
-                        [1, 1, 1, 2],
-                        [1, 1, 2, 1],
-                        [1, 1, 2, 2],
-                        [1, 2, 1, 1],
-                        [1, 2, 1, 2],
-                        [1, 2, 2, 1],
-                        [1, 2, 2, 2],
-                        [2, 1, 1, 1],
-                        [2, 1, 1, 2],
-                        [2, 1, 2, 1],
-                        [2, 1, 2, 2],
-                        [2, 2, 1, 1],
-                        [2, 2, 1, 2],
-                        [2, 2, 2, 1],
-                        [2, 2, 2, 2]]));
+                .equal([[1, 1, 1, 1].s[],
+                        [1, 1, 1, 2].s[],
+                        [1, 1, 2, 1].s[],
+                        [1, 1, 2, 2].s[],
+                        [1, 2, 1, 1].s[],
+                        [1, 2, 1, 2].s[],
+                        [1, 2, 2, 1].s[],
+                        [1, 2, 2, 2].s[],
+                        [2, 1, 1, 1].s[],
+                        [2, 1, 1, 2].s[],
+                        [2, 1, 2, 1].s[],
+                        [2, 1, 2, 2].s[],
+                        [2, 2, 1, 1].s[],
+                        [2, 2, 1, 2].s[],
+                        [2, 2, 2, 1].s[],
+                        [2, 2, 2, 2].s[]].s[]));
 }

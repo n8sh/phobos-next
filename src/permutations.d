@@ -58,7 +58,12 @@ struct CartesianPower(bool doCopy = true, T)
     }
 }
 
-static assert(isInputRange!(typeof([1, 2].cartesianPower!false(4))));
+version(unittest)
+{
+    import array_ex : s;
+}
+
+static assert(isInputRange!(typeof([1, 2].s[].cartesianPower!false(4))));
 
 auto cartesianPower(bool doCopy = true, T)(T[] items, in uint repeat)
     pure nothrow @safe
@@ -83,7 +88,6 @@ auto cartesianPower(bool doCopy = true, T)(T[] items, in uint repeat, T[] buffer
 
 @safe pure nothrow @nogc unittest
 {
-    import array_ex : s;
     int[2] items = [1, 2];
     const n = 4;
     int[n] buf;

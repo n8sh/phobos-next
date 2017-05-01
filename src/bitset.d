@@ -1296,7 +1296,7 @@ unittest
 
         // test slicing
         assert(bs[].equal([0, 1, 0, 1, 1, 0].s[]));
-        assert(bs[1 .. 4].equal([1, 0, 1]));
+        assert(bs[1 .. 4].equal([1, 0, 1].s[]));
 
         auto rs = bs[1 .. 6 - 1]; // TODO Use opDollar
         assert(rs.length == 4);

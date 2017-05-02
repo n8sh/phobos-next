@@ -216,9 +216,11 @@ struct YearMonth
     mixin(bitfields!(ushort, "year", 12,
                      Month, "month", 4));
 
-    pragma(inline) this(ushort year, Month month) @safe pure nothrow @nogc
+    pragma(inline) this(int year, Month month)
+        @safe pure nothrow @nogc
     {
-        this.year = year;
+        assert(0 <= year && year <= 2^^12 - 1); // assert within range
+        this.year = cast(ushort)year;
         this.month = month;
     }
 

@@ -186,7 +186,7 @@ struct ArrayN(E, uint capacity, Checking checking)
         return this;
     }
 
-pragma(inline):
+pragma(inline, true):
 
     /** Index operator. */
     ref inout(E) opIndex(size_t i) inout @trusted return scope
@@ -257,7 +257,7 @@ pragma(inline):
             return typeof(return)(_store.ptr[0 .. j], &this);
         }
 
-        @safe pure nothrow @nogc @property
+        @property
         {
             /// Returns: `true` iff `this` is either write or read borrowed.
             bool isBorrowed() const { return _writeBorrowed || _readBorrowCount >= 1; }
@@ -286,7 +286,7 @@ pragma(inline):
         }
     }
 
-    @safe pure nothrow @nogc @property
+    @property
     {
         /** Returns: `true` if `this` is empty, `false` otherwise. */
         bool empty() const { return _length == 0; }

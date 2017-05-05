@@ -2659,12 +2659,20 @@ R append(R, Args...)(auto ref R data,
                      auto ref Args args)
     if (args.length >= 1)
 {
+    import std.algorithm.mutation : move;
+    static if (__traits(isRef, data))
+    {
+        R mutableData = data.dup;
+    }
+    else
+    {
+        alias mutableData = data;
+    }
     foreach (ref arg; args)
     {
-        data.pushBack(arg);
+        mutableData.pushBack(arg);
     }
-    import std.algorithm.mutation : move;
-    return move(data);
+    return move(mutableData);
 }
 
 ///
@@ -2675,11 +2683,12 @@ R append(R, Args...)(auto ref R data,
     assert(Str(`a`).append('b', 'c')[] == `abc`);
     assert(Str(`a`).append(`b`, `c`)[] == `abc`);
 
-    const Str x = Str(`a`).append('b', 'c');
+    const Str x = Str(`a`).append('b', 'c'); // is moved
     assert(x[] == `abc`);
 
-    Str y;
-    y.pushBack(`a`);
+    Str y = `x`;
+    auto z = y.append('y', 'z'); // needs dup
+    assert(z[] == `xyz`);
 }
 
 // TODO implement?

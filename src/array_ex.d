@@ -1841,9 +1841,9 @@ R append(R, Args...)(R data,
 
 @safe pure nothrow @nogc unittest
 {
-    alias S = UncopyableString!false;
-    assert(S(`a`).append('b', 'c')[] == `abc`);
-    const S x = S(`a`).append('b', 'c');
+    alias Str = UncopyableString!false;
+    assert(Str(`a`).append('b', 'c')[] == `abc`);
+    const Str x = Str(`a`).append('b', 'c');
     assert(x[] == `abc`);
 }
 

@@ -2654,19 +2654,15 @@ pure nothrow /+TODO @nogc+/ unittest
     assert(x.toSortedSetArray!"a > b" == [3, 2, 1, 0].s[]);
 }
 
-/// Append arguments `args` to `data`.
-R append(R, Args...)(R data,
+/// Append arguments `args` to `data` and return it.
+R append(R, Args...)(auto ref R data,
                      auto ref Args args)
     if (args.length >= 1)
 {
-    import std.range : ElementType;
-    alias E = ElementType!R;
-
     foreach (ref arg; args)
     {
         data.pushBack(arg);
     }
-
     import std.algorithm.mutation : move;
     return move(data);
 }

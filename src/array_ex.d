@@ -1834,46 +1834,6 @@ alias CopyableDString  (bool useGCAllocation = false) = Array!(dchar, Assignment
     auto d = CopyableDString!false();
 }
 
-/// Append arguments `args` to `data`.
-R append(R, Args...)(R data,
-                     auto ref Args args)
-    if (args.length >= 1)
-{
-    import std.range : ElementType;
-    alias E = ElementType!R;
-
-    foreach (ref arg; args)
-    {
-        data ~= arg;
-    }
-
-    import std.algorithm.mutation : move;
-    return move(data);
-}
-
-///
-@safe pure nothrow @nogc unittest
-{
-    alias Str = UncopyableString!false;
-    assert(Str(`a`).append('b', 'c')[] == `abc`);
-    const Str x = Str(`a`).append('b', 'c');
-    assert(x[] == `abc`);
-}
-
-// TODO implement?
-// T opBinary(string op, R, Args...)(R lhs,
-//                                   auto ref Args args)
-// {
-//     return append(lhs, rhs);
-// }
-// @safe pure nothrow @nogc unittest
-// {
-//     alias S = UncopyableString!false;
-//     // TODO
-//     // const S x = S(`a`) ~ 'b';
-//     // assert(x[] == `abc`);
-// }
-
 @safe pure unittest
 {
     import std.conv : to;
@@ -2683,3 +2643,43 @@ pure nothrow /+TODO @nogc+/ unittest
     assert(x.toSortedArray!"a > b" == [3, 3, 2, 1, 1, 0, 0].s[]);
     assert(x.toSortedSetArray!"a > b" == [3, 2, 1, 0].s[]);
 }
+
+/// Append arguments `args` to `data`.
+R append(R, Args...)(R data,
+                     auto ref Args args)
+    if (args.length >= 1)
+{
+    import std.range : ElementType;
+    alias E = ElementType!R;
+
+    foreach (ref arg; args)
+    {
+        data ~= arg;
+    }
+
+    import std.algorithm.mutation : move;
+    return move(data);
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    alias Str = UncopyableString!false;
+    assert(Str(`a`).append('b', 'c')[] == `abc`);
+    const Str x = Str(`a`).append('b', 'c');
+    assert(x[] == `abc`);
+}
+
+// TODO implement?
+// T opBinary(string op, R, Args...)(R lhs,
+//                                   auto ref Args args)
+// {
+//     return append(lhs, rhs);
+// }
+// @safe pure nothrow @nogc unittest
+// {
+//     alias S = UncopyableString!false;
+//     // TODO
+//     // const S x = S(`a`) ~ 'b';
+//     // assert(x[] == `abc`);
+// }

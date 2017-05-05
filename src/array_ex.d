@@ -930,8 +930,8 @@ private struct Array(E,
                 isElementAssignable!(ElementType!A)) // TODO relax for NarrowStrings
         {
             assert(!isBorrowed);
-            import algorithm_ex : overlap;
-            if (overlap(this[], values[])) // called for instances as: `this ~= this`
+            import algorithm_ex : overlaps;
+            if (overlaps(this[], values[])) // called for instances as: `this ~= this`
             {
                 reserve(2*this.length);
                 foreach (immutable i; 0 .. this.length)
@@ -963,8 +963,8 @@ private struct Array(E,
                 isElementAssignable!(ElementType!A)) // TODO relax for NarrowStrings
         {
             assert(!isBorrowed);
-            import algorithm_ex : overlap;
-            if (overlap(this[], values[])) // called for instances as: `this ~= this`
+            import algorithm_ex : overlaps;
+            if (overlaps(this[], values[])) // called for instances as: `this ~= this`
             {
                 reserve(2*this.length);
                 // NOTE: this is not needed because we don't need range checking here?:

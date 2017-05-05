@@ -887,6 +887,7 @@ private struct Array(E,
             }
             setOnlyLength(this.length + values.length);
         }
+
         /// ditto
         void pushBack(R)(R values) @("complexity", "O(values.length)") @trusted
             if (isInputRange!R &&
@@ -924,6 +925,7 @@ private struct Array(E,
                 }
             }
         }
+
         /// ditto.
         void pushBack(A)(A values) @trusted @("complexity", "O(values.length)")
             if (isArray!A &&
@@ -957,6 +959,7 @@ private struct Array(E,
                 setOnlyLength(this.length + values.length);
             }
         }
+
         /// ditto.
         void pushBack(A)(in ref A values) @trusted @("complexity", "O(values.length)") // TODO `in` parameter qualifier doesn't work here. Compiler bug?
             if (isArrayContainer!A &&

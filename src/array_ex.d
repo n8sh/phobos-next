@@ -2676,7 +2676,7 @@ pure nothrow /+TODO @nogc+/ unittest
  */
 C append(C, Args...)(auto ref C data,
                      auto ref Args args)
-    if (args.length >= 1)       // TODO if `C` is a container supporting `pushBack`
+    if (args.length >= 1)    // TODO trait: when `C` is a container supporting `pushBack`
 {
     static if (__traits(isRef, data)) // `data` is an r-value
     {

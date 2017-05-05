@@ -963,24 +963,6 @@ private struct Array(E,
         }
 
         /// ditto.
-        void _pushBackArray(A)(A values) @trusted @("complexity", "O(values.length)")
-        {
-            reserve(this.length + values.length);
-            static if (is(MutableE == Unqual!(ElementType!A))) // TODO also when `E[]` is `A[]`
-            {
-                _mptr[this.length .. this.length + values.length] = values[];
-            }
-            else
-            {
-                foreach (immutable i, ref value; values)
-                {
-                    _mptr[this.length + i] = value;
-                }
-            }
-            setOnlyLength(this.length + values.length);
-        }
-
-        /// ditto.
         void pushBack(A)(in ref A values) @trusted @("complexity", "O(values.length)") // TODO `in` parameter qualifier doesn't work here. Compiler bug?
             if (isArrayContainer!A &&
                 (is(MutableE == Unqual!(typeof(A.init[0]))) || // TODO reuse NarrowString traits in std.traits
@@ -1021,6 +1003,23 @@ private struct Array(E,
             }
         }
         alias put = pushBack;   // OutputRange support
+
+        private void _pushBackArray(A)(A values) @trusted @("complexity", "O(values.length)")
+        {
+            reserve(this.length + values.length);
+            static if (is(MutableE == Unqual!(ElementType!A))) // TODO also when `E[]` is `A[]`
+            {
+                _mptr[this.length .. this.length + values.length] = values[];
+            }
+            else
+            {
+                foreach (immutable i, ref value; values)
+                {
+                    _mptr[this.length + i] = value;
+                }
+            }
+            setOnlyLength(this.length + values.length);
+        }
 
         pragma(inline, true):
 

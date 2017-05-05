@@ -2671,6 +2671,7 @@ R append(R, Args...)(auto ref R data,
     {
         alias mutableData = data;
     }
+    // TODO use `mutableData.pushBack(args);` instead
     foreach (ref arg; args)
     {
         mutableData.pushBack(arg);

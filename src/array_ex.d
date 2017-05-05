@@ -1540,7 +1540,7 @@ private struct Array(E,
     }
 
     /// Get internal pointer.
-    inout(E*) ptr() inout
+    inout(E*) ptr() inout @trusted return scope // array access is @trusted
     {
         // TODO Use cast(ET[])?: alias ET = ContainerElementType!(This, E);
         if (isLarge)
@@ -1554,7 +1554,7 @@ private struct Array(E,
     }
 
     /// Get internal pointer to mutable content. Doesn't need to be qualified with `scope`.
-    private MutableE* _mptr() const
+    private MutableE* _mptr() const return scope
     {
         if (isLarge)
         {
@@ -1567,7 +1567,7 @@ private struct Array(E,
     }
 
     /// Get internal slice.
-    private auto slice() inout @trusted return
+    private auto slice() inout @trusted return scope
     {
         return ptr[0 .. this.length];
     }
@@ -2708,6 +2708,7 @@ R append(R, Args...)(auto ref R data,
 
     Str y = `x`;
     Str z = y.append('y', 'z', `w`); // needs dup
+    assert(y.ptr != z.ptr);
     assert(z[] == `xyzw`);
 }
 

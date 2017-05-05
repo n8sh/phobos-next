@@ -419,7 +419,7 @@ bool isPalindrome(R)(R range,
 }
 
 ///
-unittest
+@safe pure unittest
 {
     assert(`dallassallad`.isPalindrome);
     assert(!`ab`.isPalindrome);
@@ -428,7 +428,7 @@ unittest
     assert(`áá`.isPalindrome);
     assert(`åäå`.isPalindrome);
     assert(``.isPalindrome);
-    assert([1, 2, 2, 1].isPalindrome);
+    assert([1, 2, 2, 1].s[].isPalindrome);
 }
 
 import traits_ex : areEquable;
@@ -514,10 +514,10 @@ auto isAnagramOf(R1, R2)(R1 r1, R2 r2) // TODO nothrow
 alias isPermutationOf = isAnagramOf; // TODO Only define isAnagramOf for strings?
 
 ///
-@safe pure unittest // TODO nothrow
+@safe pure unittest
 {
-    assert([1, 2, 3, 4, 5].isPermutationOf([1, 2, 4, 5, 3]));
-    assert(![1, 2, 3, 4, 5].isPermutationOf([1, 4, 5, 3]));
+    assert([1, 2, 3, 4, 5].s[].isPermutationOf([1, 2, 4, 5, 3].s[]));
+    assert(![1, 2, 3, 4, 5].s[].isPermutationOf([1, 4, 5, 3].s[]));
 }
 
 ///

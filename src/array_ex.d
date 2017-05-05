@@ -930,8 +930,8 @@ private struct Array(E,
                 isElementAssignable!(ElementType!A))
         {
             assert(!isBorrowed);
-            // assert(!overlap(this[], values[]));
-            if (ptr == values.ptr) // called as: this ~= this. TODO extend to check if `values` overlaps ptr[0 .. _large.capacity]
+            import algorithm_ex : overlap;
+            if (overlap(this[], values[])) // called for instances as: `this ~= this`
             {
                 reserve(2*this.length);
                 foreach (immutable i; 0 .. this.length)
@@ -943,7 +943,7 @@ private struct Array(E,
             else
             {
                 reserve(this.length + values.length);
-                static if (is(MutableE == Unqual!(ElementType!A)))
+                static if (is(MutableE == Unqual!(ElementType!A))) // TODO also when `typeof(this)` is `A`
                 {
                     _mptr[this.length .. this.length + values.length] = values[];
                 }
@@ -963,7 +963,8 @@ private struct Array(E,
                 isElementAssignable!(ElementType!A))
         {
             assert(!isBorrowed);
-            if (ptr == values.ptr) // called as: this ~= this. TODO extend to check if `values` overlaps ptr[0 .. _large.capacity]
+            import algorithm_ex : overlap;
+            if (overlap(this[], values[])) // called for instances as: `this ~= this`
             {
                 reserve(2*this.length);
                 // NOTE: this is not needed because we don't need range checking here?:
@@ -977,7 +978,7 @@ private struct Array(E,
             else
             {
                 reserve(this.length + values.length);
-                static if (is(MutableE == Unqual!(ElementType!A)))
+                static if (is(MutableE == Unqual!(ElementType!A))) // TODO also when `typeof(this)` is `A`
                 {
                     _mptr[this.length .. this.length + values.length] = values[];
                 }

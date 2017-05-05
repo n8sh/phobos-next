@@ -2654,12 +2654,16 @@ pure nothrow /+TODO @nogc+/ unittest
     assert(x.toSortedSetArray!"a > b" == [3, 2, 1, 0].s[]);
 }
 
-/// Append arguments `args` to `data` and return it.
+/** Return `data` appended with arguments `args`.
+
+    If `data` is an r-value it's modified and returned, otherwise a copy is made
+    and returned.
+ */
 R append(R, Args...)(auto ref R data,
                      auto ref Args args)
     if (args.length >= 1)
 {
-    static if (__traits(isRef, data))
+    static if (__traits(isRef, data)) // `data` is an r-value
     {
         R mutableData = data.dup;
     }

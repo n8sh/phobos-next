@@ -1839,6 +1839,13 @@ R append(R, Args...)(R data,
     return move(data);
 }
 
+@safe pure nothrow @nogc unittest
+{
+    alias S = UncopyableString!false;
+    const S x = S(`a`).append('b', 'c');
+    assert(x[] == `abc`);
+}
+
 // TODO implement?
 T opBinary(string op, R, Args...)(R lhs,
                                   auto ref Args args)

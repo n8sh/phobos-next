@@ -933,36 +933,51 @@ private struct Array(E,
                  isElementAssignable!(ElementType!A)))
         {
             assert(!isBorrowed);
-            import algorithm_ex : overlaps;
-            if (this.ptr == values[].ptr) // called for instances as: `this ~= this`
+            static if (is(A == immutable(E)[]))
             {
-                reserve(2*this.length);
-                foreach (immutable i; 0 .. this.length)
-                {
-                    _mptr[this.length + i] = ptr[i]; // needs copying
-                }
-                setOnlyLength(2 * this.length);
-            }
-            else if (overlaps(this[], values[]))
-            {
-                assert(false, `TODO`);
+                // immutable array cannot overlap with mutable array container
+                // data; no need to check for overlap with `overlaps()`
+                _pushBackArray(values);
             }
             else
             {
-                reserve(this.length + values.length);
-                static if (is(MutableE == Unqual!(ElementType!A))) // TODO also when `E[]` is `A[]`
+                import algorithm_ex : overlaps;
+                if (this.ptr == values[].ptr) // called for instances as: `this ~= this`
                 {
-                    _mptr[this.length .. this.length + values.length] = values[];
+                    reserve(2*this.length);
+                    foreach (immutable i; 0 .. this.length)
+                    {
+                        _mptr[this.length + i] = ptr[i]; // needs copying
+                    }
+                    setOnlyLength(2 * this.length);
+                }
+                else if (overlaps(this[], values[]))
+                {
+                    assert(false, `TODO`);
                 }
                 else
                 {
-                    foreach (immutable i, ref value; values)
-                    {
-                        _mptr[this.length + i] = value;
-                    }
+                    _pushBackArray(values);
                 }
-                setOnlyLength(this.length + values.length);
             }
+        }
+
+        /// ditto.
+        void _pushBackArray(A)(A values) @trusted @("complexity", "O(values.length)")
+        {
+            reserve(this.length + values.length);
+            static if (is(MutableE == Unqual!(ElementType!A))) // TODO also when `E[]` is `A[]`
+            {
+                _mptr[this.length .. this.length + values.length] = values[];
+            }
+            else
+            {
+                foreach (immutable i, ref value; values)
+                {
+                    _mptr[this.length + i] = value;
+                }
+            }
+            setOnlyLength(this.length + values.length);
         }
 
         /// ditto.

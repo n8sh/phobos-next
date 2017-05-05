@@ -984,7 +984,6 @@ private struct Array(E,
                 setOnlyLength(this.length + values.length);
             }
         }
-        alias append = pushBack;
         alias put = pushBack;   // OutputRange support
 
         pragma(inline, true):
@@ -1822,6 +1821,24 @@ alias CopyableDString  (bool useGCAllocation = false) = Array!(dchar, Assignment
     auto c = CopyableString!false();
     auto w = CopyableWString!false();
     auto d = CopyableDString!false();
+}
+
+// TODO can we somehow make use of this in Array.opBinary
+R append(R, Args...)(R data,
+                     auto ref Args args)
+    if (args.length >= 1)
+{
+    import std.range : ElementType;
+    alias E = ElementType!R;
+
+    import std.algorithm.mutation : move;
+    return move(data);
+}
+
+@safe pure nothrow @nogc unittest
+{
+    alias S = UncopyableString!false;
+    S x = S(`alpha`).append(`beta`, `gamma`);
 }
 
 @safe pure unittest

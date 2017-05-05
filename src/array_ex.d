@@ -6,7 +6,7 @@
 
     TODO Replace ` = void` with construction or emplace
 
-    TODO Breakout common logic into private `BasicArray` and reuse with `alias
+    TODO Break out common logic into private `BasicArray` and reuse with `alias
     this` to express StandardArray, SortedArray, SortedSetArray
 
     TODO Use std.array.insertInPlace in insert()?

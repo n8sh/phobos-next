@@ -929,8 +929,8 @@ private struct Array(E,
         /// ditto.
         void pushBack(A)(A values) @trusted @("complexity", "O(values.length)")
             if (isArray!A &&
-                is(MutableE == Unqual!(typeof(A.init[0]))) && // TODO reuse NarrowString traits in std.traits
-                isElementAssignable!(ElementType!A))
+                (is(MutableE == Unqual!(typeof(A.init[0]))) || // TODO reuse NarrowString traits in std.traits
+                 isElementAssignable!(ElementType!A)))
         {
             assert(!isBorrowed);
             import algorithm_ex : overlaps;
@@ -968,8 +968,8 @@ private struct Array(E,
         /// ditto.
         void pushBack(A)(in ref A values) @trusted @("complexity", "O(values.length)") // TODO `in` parameter qualifier doesn't work here. Compiler bug?
             if (isArrayContainer!A &&
-                is(MutableE == Unqual!(typeof(A.init[0]))) && // TODO reuse NarrowString traits in std.traits
-                isElementAssignable!(ElementType!A)) // TODO relax for NarrowStrings
+                (is(MutableE == Unqual!(typeof(A.init[0]))) || // TODO reuse NarrowString traits in std.traits
+                 isElementAssignable!(ElementType!A))) // TODO relax for NarrowStrings
         {
             assert(!isBorrowed);
             import algorithm_ex : overlaps;

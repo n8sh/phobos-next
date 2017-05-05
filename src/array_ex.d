@@ -1855,7 +1855,6 @@ R append(R, Args...)(R data,
 // {
 //     return append(lhs, rhs);
 // }
-
 // @safe pure nothrow @nogc unittest
 // {
 //     alias S = UncopyableString!false;

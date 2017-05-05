@@ -2674,13 +2674,13 @@ pure nothrow /+TODO @nogc+/ unittest
     If `data` is an r-value it's modified and returned, otherwise a copy is made
     and returned.
  */
-R append(R, Args...)(auto ref R data,
+C append(C, Args...)(auto ref C data,
                      auto ref Args args)
-    if (args.length >= 1)
+    if (args.length >= 1)       // TODO if `C` is a container supporting `pushBack`
 {
     static if (__traits(isRef, data)) // `data` is an r-value
     {
-        R mutableData = data.dup;
+        C mutableData = data.dup;
     }
     else
     {

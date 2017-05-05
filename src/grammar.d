@@ -505,14 +505,14 @@ S lemmatized(S)(S s) nothrow
 /**
    TODO Reuse knet translation query instead.
  */
-string negationIn(Lang lang) nothrow
+string negationIn(Lang lang) nothrow @nogc
 {
     switch (lang) with (Lang)
     {
-        case en: return `not`;
-        case sv: return `inte`;
-        case de: return `nicht`;
-        default: return `not`;
+    case en: return `not`;
+    case sv: return `inte`;
+    case de: return `nicht`;
+    default: return `not`;
     }
 }
 

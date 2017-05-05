@@ -2664,7 +2664,7 @@ R append(R, Args...)(R data,
 
     foreach (ref arg; args)
     {
-        data ~= arg;
+        data.pushBack(arg);
     }
 
     import std.algorithm.mutation : move;
@@ -2677,10 +2677,13 @@ R append(R, Args...)(R data,
     alias Str = UncopyableString!false;
 
     assert(Str(`a`).append('b', 'c')[] == `abc`);
-    // assert(Str(`a`).append(`b`, `c`)[] == `abc`);
+    assert(Str(`a`).append(`b`, `c`)[] == `abc`);
 
     const Str x = Str(`a`).append('b', 'c');
     assert(x[] == `abc`);
+
+    Str y;
+    y.pushBack(`a`);
 }
 
 // TODO implement?

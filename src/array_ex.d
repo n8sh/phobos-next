@@ -1850,19 +1850,19 @@ R append(R, Args...)(R data,
 }
 
 // TODO implement?
-T opBinary(string op, R, Args...)(R lhs,
-                                  auto ref Args args)
-{
-    return append(lhs, rhs);
-}
+// T opBinary(string op, R, Args...)(R lhs,
+//                                   auto ref Args args)
+// {
+//     return append(lhs, rhs);
+// }
 
-@safe pure nothrow @nogc unittest
-{
-    alias S = UncopyableString!false;
-    // TODO
-    // const S x = S(`a`) ~ 'b';
-    // assert(x[] == `abc`);
-}
+// @safe pure nothrow @nogc unittest
+// {
+//     alias S = UncopyableString!false;
+//     // TODO
+//     // const S x = S(`a`) ~ 'b';
+//     // assert(x[] == `abc`);
+// }
 
 @safe pure unittest
 {

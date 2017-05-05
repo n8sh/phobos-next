@@ -1693,8 +1693,8 @@ alias sadd = addu;
 alias ssub = subu;
 alias smul = mulu;
 
-/** Append Arguments $(args) to $(D data).
-    TODO Add support for other Random Access Ranges such as std.container.Array
+/** Append arguments $(args) to $(D data).
+    TODO Add support for other random-access-ranges such as array_ex.d.
     See also: http://forum.dlang.org/thread/mevnosveagdiswkxtbrv@forum.dlang.org?page=1
  */
 ref R append(R, Args...)(ref R data,

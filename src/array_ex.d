@@ -1823,6 +1823,7 @@ alias CopyableDString  (bool useGCAllocation = false) = Array!(dchar, Assignment
     auto d = CopyableDString!false();
 }
 
+/// Append arguments `args` to `data`.
 R append(R, Args...)(R data,
                      auto ref Args args)
     if (args.length >= 1)

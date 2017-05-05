@@ -933,7 +933,7 @@ private struct Array(E,
         {
             assert(!isBorrowed);
             import algorithm_ex : overlaps;
-            if (overlaps(this[], values[])) // called for instances as: `this ~= this`
+            if (this.ptr == values[].ptr) // called for instances as: `this ~= this`
             {
                 reserve(2*this.length);
                 foreach (immutable i; 0 .. this.length)
@@ -941,6 +941,10 @@ private struct Array(E,
                     _mptr[this.length + i] = ptr[i]; // needs copying
                 }
                 setOnlyLength(2 * this.length);
+            }
+            else if (overlaps(this[], values[]))
+            {
+                assert(false, `TODO`);
             }
             else
             {
@@ -967,7 +971,7 @@ private struct Array(E,
         {
             assert(!isBorrowed);
             import algorithm_ex : overlaps;
-            if (overlaps(this[], values[])) // called for instances as: `this ~= this`
+            if (this.ptr == values[].ptr) // called for instances as: `this ~= this`
             {
                 reserve(2*this.length);
                 // NOTE: this is not needed because we don't need range checking here?:
@@ -977,6 +981,10 @@ private struct Array(E,
                     _mptr[this.length + i] = values.ptr[i];
                 }
                 setOnlyLength(2 * this.length);
+            }
+            else if (overlaps(this[], values[]))
+            {
+                assert(false, `TODO`);
             }
             else
             {
@@ -2667,7 +2675,7 @@ R append(R, Args...)(R data,
     alias Str = UncopyableString!false;
 
     assert(Str(`a`).append('b', 'c')[] == `abc`);
-    // TODO assert(Str(`a`).append(`b`, `c`)[] == `abc`);
+    // assert(Str(`a`).append(`b`, `c`)[] == `abc`);
 
     const Str x = Str(`a`).append('b', 'c');
     assert(x[] == `abc`);

@@ -937,7 +937,7 @@ private struct Array(E,
             {
                 // immutable array cannot overlap with mutable array container
                 // data; no need to check for overlap with `overlaps()`
-                _pushBackArray(values);
+                _mptr[this.length .. this.length + values.length] = values[];
             }
             else
             {
@@ -957,7 +957,19 @@ private struct Array(E,
                 }
                 else
                 {
-                    _pushBackArray(values);
+                    reserve(this.length + values.length);
+                    static if (is(MutableE == Unqual!(ElementType!A))) // TODO also when `E[]` is `A[]`
+                    {
+                        _mptr[this.length .. this.length + values.length] = values[];
+                    }
+                    else
+                    {
+                        foreach (immutable i, ref value; values)
+                        {
+                            _mptr[this.length + i] = value;
+                        }
+                    }
+                    setOnlyLength(this.length + values.length);
                 }
             }
         }
@@ -1003,23 +1015,6 @@ private struct Array(E,
             }
         }
         alias put = pushBack;   // OutputRange support
-
-        private void _pushBackArray(A)(A values) @trusted @("complexity", "O(values.length)")
-        {
-            reserve(this.length + values.length);
-            static if (is(MutableE == Unqual!(ElementType!A))) // TODO also when `E[]` is `A[]`
-            {
-                _mptr[this.length .. this.length + values.length] = values[];
-            }
-            else
-            {
-                foreach (immutable i, ref value; values)
-                {
-                    _mptr[this.length + i] = value;
-                }
-            }
-            setOnlyLength(this.length + values.length);
-        }
 
         pragma(inline, true):
 

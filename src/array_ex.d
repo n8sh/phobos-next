@@ -1823,7 +1823,6 @@ alias CopyableDString  (bool useGCAllocation = false) = Array!(dchar, Assignment
     auto d = CopyableDString!false();
 }
 
-// TODO can we somehow make use of this in Array.opBinary
 R append(R, Args...)(R data,
                      auto ref Args args)
     if (args.length >= 1)
@@ -1840,11 +1839,19 @@ R append(R, Args...)(R data,
     return move(data);
 }
 
+// TODO implement?
+T opBinary(string op, R, Args...)(R lhs,
+                                  auto ref Args args)
+{
+    return append(lhs, rhs);
+}
+
 @safe pure nothrow @nogc unittest
 {
     alias S = UncopyableString!false;
-    S x = S(`a`).append('b', 'c');
-    assert(x[] == `abc`);
+    // TODO
+    // const S x = S(`a`) ~ 'b';
+    // assert(x[] == `abc`);
 }
 
 @safe pure unittest

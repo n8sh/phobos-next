@@ -1839,6 +1839,7 @@ R append(R, Args...)(R data,
     return move(data);
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     alias Str = UncopyableString!false;

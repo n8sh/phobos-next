@@ -2659,7 +2659,6 @@ R append(R, Args...)(auto ref R data,
                      auto ref Args args)
     if (args.length >= 1)
 {
-    import std.algorithm.mutation : move;
     static if (__traits(isRef, data))
     {
         R mutableData = data.dup;
@@ -2672,6 +2671,7 @@ R append(R, Args...)(auto ref R data,
     {
         mutableData.pushBack(arg);
     }
+    import std.algorithm.mutation : move;
     return move(mutableData);
 }
 

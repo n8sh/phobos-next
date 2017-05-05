@@ -2691,7 +2691,7 @@ R append(R, Args...)(auto ref R data,
     assert(x[] == `abc`);
 
     Str y = `x`;
-    auto z = y.append('y', 'z'); // needs dup
+    Str z = y.append('y', 'z'); // needs dup
     assert(z[] == `xyz`);
 }
 

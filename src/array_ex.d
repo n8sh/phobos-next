@@ -929,7 +929,7 @@ private struct Array(E,
         /// ditto.
         void pushBack(A)(A values) @trusted @("complexity", "O(values.length)")
             if (isArray!A &&
-                (is(MutableE == Unqual!(typeof(A.init[0]))) || // TODO reuse NarrowString traits in std.traits
+                (is(MutableE == Unqual!(typeof(A.init[0]))) || // for narrow strings
                  isElementAssignable!(ElementType!A)))
         {
             assert(!isBorrowed);
@@ -977,7 +977,7 @@ private struct Array(E,
         /// ditto.
         void pushBack(A)(in ref A values) @trusted @("complexity", "O(values.length)") // TODO `in` parameter qualifier doesn't work here. Compiler bug?
             if (isArrayContainer!A &&
-                (is(MutableE == Unqual!(typeof(A.init[0]))) || // TODO reuse NarrowString traits in std.traits
+                (is(MutableE == Unqual!(typeof(A.init[0]))) || // for narrow strings
                  isElementAssignable!(ElementType!A))) // TODO relax for NarrowStrings
         {
             assert(!isBorrowed);

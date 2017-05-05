@@ -431,7 +431,7 @@ private struct Array(E,
         }
     }
 
-    bool opEquals(const ref This rhs) const @trusted
+    bool opEquals(in ref This rhs) const @trusted
     {
         static if (isCopyable!E)
         {
@@ -930,6 +930,7 @@ private struct Array(E,
                 isElementAssignable!(ElementType!A))
         {
             assert(!isBorrowed);
+            // assert(!overlap(this[], values[]));
             if (ptr == values.ptr) // called as: this ~= this. TODO extend to check if `values` overlaps ptr[0 .. _large.capacity]
             {
                 reserve(2*this.length);
@@ -942,24 +943,27 @@ private struct Array(E,
             else
             {
                 reserve(this.length + values.length);
-                if (is(MutableE == Unqual!(ElementType!A)))
+                static if (is(MutableE == Unqual!(ElementType!A)))
                 {
-                    // TODO reuse memcopy and no overlap
+                    _mptr[this.length .. this.length + values.length] = values[];
                 }
-                foreach (immutable i, ref value; values)
+                else
                 {
-                    _mptr[this.length + i] = value;
+                    foreach (immutable i, ref value; values)
+                    {
+                        _mptr[this.length + i] = value;
+                    }
                 }
                 setOnlyLength(this.length + values.length);
             }
         }
         /// ditto.
-        void pushBack(A)(const ref A values) @trusted @("complexity", "O(values.length)") // TODO `in` parameter qualifier doesn't work here. Compiler bug?
+        void pushBack(A)(in ref A values) @trusted @("complexity", "O(values.length)") // TODO `in` parameter qualifier doesn't work here. Compiler bug?
             if (isArrayContainer!A &&
                 isElementAssignable!(ElementType!A))
         {
             assert(!isBorrowed);
-            if (ptr == values.ptr) // called as: this ~= this
+            if (ptr == values.ptr) // called as: this ~= this. TODO extend to check if `values` overlaps ptr[0 .. _large.capacity]
             {
                 reserve(2*this.length);
                 // NOTE: this is not needed because we don't need range checking here?:
@@ -973,13 +977,16 @@ private struct Array(E,
             else
             {
                 reserve(this.length + values.length);
-                if (is(MutableE == Unqual!(ElementType!A)))
+                static if (is(MutableE == Unqual!(ElementType!A)))
                 {
-                    // TODO reuse memcopy and no overlap
+                    _mptr[this.length .. this.length + values.length] = values[];
                 }
-                foreach (immutable i, ref value; values.slice)
+                else
                 {
-                    _mptr[this.length + i] = value;
+                    foreach (immutable i, ref value; values[])
+                    {
+                        _mptr[this.length + i] = value;
+                    }
                 }
                 setOnlyLength(this.length + values.length);
             }

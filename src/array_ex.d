@@ -1831,6 +1831,11 @@ R append(R, Args...)(R data,
     import std.range : ElementType;
     alias E = ElementType!R;
 
+    foreach (ref arg; args)
+    {
+        data ~= arg;
+    }
+
     import std.algorithm.mutation : move;
     return move(data);
 }
@@ -1838,7 +1843,8 @@ R append(R, Args...)(R data,
 @safe pure nothrow @nogc unittest
 {
     alias S = UncopyableString!false;
-    S x = S(`alpha`).append(`beta`, `gamma`);
+    S x = S(`a`).append('b', 'c');
+    assert(x[] == `abc`);
 }
 
 @safe pure unittest

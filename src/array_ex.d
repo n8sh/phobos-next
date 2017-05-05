@@ -943,7 +943,7 @@ private struct Array(E,
             else
             {
                 reserve(this.length + values.length);
-                static if (is(MutableE == Unqual!(ElementType!A))) // TODO also when `typeof(this)` is `A`
+                static if (is(MutableE == Unqual!(ElementType!A))) // TODO also when `E[]` is `A[]`
                 {
                     _mptr[this.length .. this.length + values.length] = values[];
                 }
@@ -978,7 +978,7 @@ private struct Array(E,
             else
             {
                 reserve(this.length + values.length);
-                static if (is(MutableE == Unqual!(ElementType!A))) // TODO also when `typeof(this)` is `A`
+                static if (is(MutableE == Unqual!(ElementType!A))) // TODO also when `E[]` is `A[]`
                 {
                     _mptr[this.length .. this.length + values.length] = values[];
                 }

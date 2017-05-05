@@ -250,7 +250,7 @@ auto findInOrder(alias pred = `a == b`,
 }
 
 ///
-unittest
+@safe pure nothrow @nogc unittest
 {
     import std.range : empty;
     assert(`a b c`.findInOrder(`a`, `b`, `c`));
@@ -261,6 +261,7 @@ unittest
  */
 inout(T[]) overlapInOrder(T)(inout(T[]) a,
                              inout(T[]) b) /* @trusted pure nothrow */
+    @trusted pure nothrow @nogc
 {
     if (a.ptr <= b.ptr &&       // if a-start lies at or before b-start
         b.ptr < a.ptr + a.length) // if b-start lies before b-end
@@ -282,6 +283,7 @@ inout(T[]) overlapInOrder(T)(inout(T[]) a,
  */
 inout(T[]) overlap(T)(inout(T[]) a,
                       inout(T[]) b) /* @safe pure nothrow */
+    @safe pure nothrow @nogc
 {
     if (inout(T[]) ab = overlapInOrder(a, b))
     {
@@ -298,10 +300,10 @@ inout(T[]) overlap(T)(inout(T[]) a,
 }
 
 ///
-unittest
+@safe pure unittest
 {
-    auto x = [-11_111, 11, 22, 333_333];
-    const y = [-22_222, 441, 555, 66];
+    auto x = [-11_111, 11, 22, 333_333].s;
+    const y = [-22_222, 441, 555, 66].s;
 
     assert(!overlap(x, y));
     assert(!overlap(y, x));
@@ -323,7 +325,8 @@ unittest
 /** Helper for overlap().
     Copied from std.array with simplified return expression.
  */
-bool overlaps(T)(const(T)[] r1, const(T)[] r2) @trusted // pure nothrow
+bool overlaps(T)(const(T)[] r1, const(T)[] r2)
+    @trusted pure nothrow @nogc
 {
     alias U = inout(T);
     static U* max(U* a, U* b) nothrow { return a > b ? a : b; }
@@ -333,6 +336,27 @@ bool overlaps(T)(const(T)[] r1, const(T)[] r2) @trusted // pure nothrow
     auto e = min(r1.ptr + r1.length,
                  r2.ptr + r2.length);
     return b < e;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    auto x = [-11_111, 11, 22, 333_333].s;
+    const y = [-22_222, 441, 555, 66].s;
+
+    assert(!overlaps(x, y));
+    assert(!overlaps(y, x));
+
+    auto x01 = x[0..1];
+    auto x12 = x[1..2];
+    auto x23 = x[2..3];
+
+    assert(overlaps(x, x12));
+    assert(overlaps(x, x01));
+    assert(overlaps(x, x23));
+    assert(overlaps(x01, x));
+    assert(overlaps(x12, x));
+    assert(overlaps(x23, x));
 }
 
 /** Returns: If `range` is symmetric.
@@ -349,16 +373,16 @@ bool isSymmetric(R)(R range)
     while (!range.empty)
     {
         import std.range.primitives : front, back, popFront, popBack;
-        if (range.front != range.back) return false;
+        if (range.front != range.back) { return false; }
         range.popFront(); i++;
-        if (range.empty) break;
+        if (range.empty) { break; }
         range.popBack(); i++;
     }
     return true;
 }
 
 ///
-unittest
+@safe pure unittest
 {
     assert(`dallassallad`.isSymmetric);
     assert(!`ab`.isSymmetric);

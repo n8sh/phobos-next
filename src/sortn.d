@@ -53,7 +53,7 @@ module sortn;
 
 import std.meta : allSatisfy;
 import std.traits : isIntegral;
-import std.range : isInputRange, isRandomAccessRange;
+import std.range : isRandomAccessRange;
 
 version(unittest) import std.algorithm.comparison : equal;
 

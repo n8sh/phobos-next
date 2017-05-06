@@ -1,7 +1,7 @@
 module hybridsort;
 
 import bijections : IntegralBijectableTypes;
-import intsort : radixSort;
+import integer_sorting : radixSort;
 
 static immutable size_t[IntegralBijectableTypes.length] radixSortMinLength;
 
@@ -24,7 +24,7 @@ auto hybridSort(alias less = "a < b", Range)(Range r)
     import std.traits : isNumeric;
     static if (isNumeric!(ElementType!Range))
     {
-        import intsort : radixSort;
+        import integer_sorting : radixSort;
         return r.radixSort;
     }
     else

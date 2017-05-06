@@ -23,7 +23,7 @@
     TODO replace qcmeman with std.experimental.allocator parameter defaulting to
     `Mallocator`
 
-    TODO use `intsort.radixSort` when element type `isSigned` or `isUnsigned` and
+    TODO use `integer_sorting.radixSort` when element type `isSigned` or `isUnsigned` and
     above or below a certain threshold calculated by my benchmarks
 
     TODO Remove explicit moves when DMD std.algorithm.mutation.move calls these

@@ -8,7 +8,7 @@ See also: http://forum.dlang.org/post/tppptevxiygafzpicmgz@forum.dlang.org
 
 It includes various kinds of
 
-- Integer Sorting Algorithms, such as Non-In-Place Radix Sort: `intsort.d`
+- Integer Sorting Algorithms, such as Non-In-Place Radix Sort: `integer_sorting.d`
 - Clever Printing of Groups of arrays/slices: `show.d`
 - Boyer Moore Hoorspool Search: `horspool.d`
 - Symbol Regex (Structured Regular Expressions similar to Elisps rx): `symbolic.d`

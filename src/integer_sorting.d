@@ -5,7 +5,7 @@
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
     Authors: $(WEB Per Nordlöw)
  */
-module intsort;
+module integer_sorting;
 
 import std.range : isRandomAccessRange, ElementType;
 import std.traits : isNumeric;

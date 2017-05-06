@@ -132,7 +132,7 @@ body
 
     static if (n < 2)
     {
-        // already sorted
+        // no sorting needed
     }
     else static if (n == 2)
     {
@@ -338,7 +338,7 @@ body
     }
     else
     {
-        static assert(false, "Unsupported n " ~ n.stringof);
+        static assert(false, "Unsupported length: " ~ n.stringof);
     }
 
     import std.algorithm.sorting : assumeSorted;

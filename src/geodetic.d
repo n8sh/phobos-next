@@ -12,7 +12,8 @@ struct WGS84Coordinate(T = double)
 
     /// Construct from `latitude` and `longitude`.
     this(T latitude,
-         T longitude) pure
+         T longitude)
+        pure nothrow @nogc
     {
         this.latitude = latitude;
         this.longitude = longitude;

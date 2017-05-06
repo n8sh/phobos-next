@@ -333,8 +333,10 @@ enum Lang:ushort
     swift,
     fortran,
     modelica,
+
     sumo,
-    lastFormal = sumo,
+    bfo,
+    lastFormal = bfo,
 
     /// Academic Languages
     math,                /// "Mathematics is the only truly universal language"
@@ -498,6 +500,7 @@ string toSpoken(Lang lang, Lang spokenLang = Lang.init)
         case fortran: return `Fortran`;
         case modelica: return `Modelica`;
         case sumo: return `Suggested Upper Merged Ontology`;
+        case bfo: return `Basic Formal Ontology`;
 
         case math: return `mathematics`;
         case physics: return `physics`;

@@ -499,6 +499,7 @@ string toSpoken(Lang lang, Lang spokenLang = Lang.init)
         case swift: return `Swift`;
         case fortran: return `Fortran`;
         case modelica: return `Modelica`;
+
         case sumo: return `Suggested Upper Merged Ontology`;
         case bfo: return `Basic Formal Ontology`;
 

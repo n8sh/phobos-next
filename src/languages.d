@@ -523,16 +523,11 @@ Lang decodeLang(S)(S lang)
     @safe pure nothrow // @nogc
     if (isSomeString!S)
 {
-    if (lang == `is`)
+    switch  (lang)
     {
-        return Lang.is_;
-    }
-    else if (lang == `in`)
-    {
-        return Lang.in_;
-    }
-    else
-    {
+    case `is`: return Lang.is_;
+    case `in`: return Lang.in_;
+    default:
         import conv_ex : toDefaulted;
         return lang.toDefaulted!Lang(Lang.unknown);
     }

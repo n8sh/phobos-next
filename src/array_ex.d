@@ -1113,7 +1113,8 @@ private struct Array(E,
                 {
                     valuesArray[i] = value;
                 }
-                assert(sort(valuesArray[]).findAdjacent.empty, "Parameter `values` must not contain duplicate elements");
+                assert(sort(valuesArray[]).findAdjacent.empty,
+                       "Parameter `values` must not contain duplicate elements");
             }
             body
             {
@@ -1191,9 +1192,9 @@ private struct Array(E,
                 }
                 else
                 {
-                    import std.algorithm.sorting : completeSort;
                     pushBackHelper(values); // simpler because duplicates are allowed
                     immutable ix = this.length - values.length;
+                    import std.algorithm.sorting : completeSort;
                     completeSort!comp(_mptr[0 .. ix].assumeSorted!comp,
                                       _mptr[ix .. this.length]);
                 }

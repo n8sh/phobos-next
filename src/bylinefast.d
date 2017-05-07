@@ -59,7 +59,7 @@ struct ByLineFast(Char, Terminator)
         buffer.length = bufferSize;
     }
 
-    @property bool empty() const @trusted
+    @property bool empty() const @trusted scope
     {
         // Its important to check "line !is null" instead of
         // "line.length != 0", otherwise, no empty lines can
@@ -91,7 +91,7 @@ struct ByLineFast(Char, Terminator)
         return false;
     }
 
-    @property char[] front() @safe return // DIP-25
+    @property char[] front() @safe return scope
     {
         if (first_call)
         {
@@ -101,7 +101,7 @@ struct ByLineFast(Char, Terminator)
         return line;
     }
 
-    void popFront() @trusted
+    void popFront() @trusted scope
     {
         if (strBuffer.length == 0)
         {
@@ -184,7 +184,8 @@ auto byLineFast(Terminator = char,
     return ByLineFast!(Char, Terminator)(f, keepTerminator, separator, bufferSize);
 }
 
-version(linux) unittest
+version(linux)
+unittest
 {
     import std.stdio: File, writeln;
     import std.algorithm.searching: count;
@@ -195,7 +196,8 @@ version(linux) unittest
            File(path).byLine.count);
 }
 
-version(linux) @safe unittest
+version(linux)
+@safe unittest
 {
     import std.stdio: File;
 
@@ -214,12 +216,13 @@ version(linux) @safe unittest
     }
 }
 
-version(none) unittest
+version(none)
+unittest
 {
     import std.stdio: File, writeln;
     import std.algorithm.searching: count;
 
-    const path = "/home/per/Knowledge/DBpedia/instance_types_en.nt";
+    const path = "/home/per/Knowledge/DBpedia/latest/instance_types_en.ttl";
 
     import std.datetime: StopWatch;
 

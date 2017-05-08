@@ -948,7 +948,9 @@ private struct Array(E,
             {
                 // immutable array cannot overlap with mutable array container
                 // data; no need to check for overlap with `overlaps()`
+                reserve(this.length + values.length);
                 _mptr[this.length .. this.length + values.length] = values[];
+                setOnlyLength(this.length + values.length);
             }
             else
             {
@@ -1647,7 +1649,6 @@ private:                        // data
                 pragma(inline, true):
                 @property void ptr(E* c)
                 {
-                    dln(c);
                     assert((cast(ulong)c & 0b11) == 0);
                     _uintptr = cast(uint*)c;
                 }
@@ -2211,6 +2212,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             auto ssC = Array!(E, assignment, ordering, supportGC, size_t, less).withLength(0);
             immutable(int)[] i5 = [1, 2, 3, 4, 5].s[];
             ssC.pushBack(i5);
+            assert(i5 == [1, 2, 3, 4, 5].s[]);
             assert(ssC[].equal(i5));
 
             auto ssCc = ssC;    // copy it

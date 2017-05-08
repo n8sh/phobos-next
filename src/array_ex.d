@@ -1,6 +1,8 @@
 /** Array container(s) with optional sortedness via template-parameter
     `Ordering` and optional use of GC via `useGCAllocation`.
 
+    TODO Add constructor from range should automatically move its elements
+
     TODO Add some way to implement lazy sorting either for the whole array (via
     bool flag) or completeSort at a certain offset (extra member).
 
@@ -505,6 +507,15 @@ private struct Array(E,
 
             reserve(values.length); // fast reserve
             setOnlyLength(values.length);
+
+            static if (__traits(isRef))
+            {
+                // TODO dup elements
+            }
+            else
+            {
+                // TODO move elements
+            }
 
             size_t i = 0;
             foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us

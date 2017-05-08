@@ -1,7 +1,7 @@
 /** Array container(s) with optional sortedness via template-parameter
     `Ordering` and optional use of GC via `useGCAllocation`.
 
-    TODO Add constructor from range should automatically move its elements
+    TODO Support for constructing from non-copyable elements
 
     TODO Add some way to implement lazy sorting either for the whole array (via
     bool flag) or completeSort at a certain offset (extra member).

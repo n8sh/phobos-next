@@ -991,41 +991,9 @@ private struct Array(E,
         void pushBack(A)(in ref A values) @trusted @("complexity", "O(values.length)") // TODO `in` parameter qualifier doesn't work here. Compiler bug?
             if (isArrayContainer!A &&
                 (is(MutableE == Unqual!(typeof(A.init[0]))) || // for narrow strings
-                 isElementAssignable!(ElementType!A))) // TODO relax for NarrowStrings
+                 isElementAssignable!(ElementType!A)))
         {
-            assert(!isBorrowed);
-            import algorithm_ex : overlaps;
-            if (this.ptr == values[].ptr) // called for instances as: `this ~= this`
-            {
-                reserve(2*this.length);
-                // NOTE: this is not needed because we don't need range checking here?:
-                // _mptr[length .. 2*length] = values.ptr[0 .. length];
-                foreach (immutable i; 0 .. this.length)
-                {
-                    _mptr[this.length + i] = values.ptr[i];
-                }
-                setOnlyLength(2 * this.length);
-            }
-            else if (overlaps(this[], values[]))
-            {
-                assert(false, `TODO`);
-            }
-            else
-            {
-                reserve(this.length + values.length);
-                static if (is(MutableE == Unqual!(ElementType!A))) // TODO also when `E[]` is `A[]`
-                {
-                    _mptr[this.length .. this.length + values.length] = values[];
-                }
-                else
-                {
-                    foreach (immutable i, ref value; values[])
-                    {
-                        _mptr[this.length + i] = value;
-                    }
-                }
-                setOnlyLength(this.length + values.length);
-            }
+            pushBack(values[]);
         }
         alias put = pushBack;   // OutputRange support
 

@@ -2706,9 +2706,7 @@ version(unittest)
 {
     alias A = UniqueArray!SS;
     A x;
-
     x ~= SS.init;
-
     // TODO x.pushBack(A.init);
 }
 

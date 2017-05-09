@@ -70,7 +70,6 @@ struct ArrayN(E, uint capacity, Checking checking)
         }
     }
 
-    alias ElementType = E;
     alias MutableE = Unqual!E;
 
     /// Is `true` if `U` can be assign to the element type `E` of `this`.
@@ -346,7 +345,9 @@ version(unittest)
     {
         alias String15 = StrN!(capacity, Checking.viaScope);
 
+        typeof(String15.init[0])[] xs;
         auto x = String15("alphas");
+        xs = x[];               // TODO shouldn't compile with -dip1000
 
         assert(x[0] == 'a');
         assert(x[$ - 1] == 's');
@@ -386,7 +387,7 @@ version(none) pure unittest     // TODO activate
     {
         auto x = String15("alphas");
         auto y = x[];           // slice to stack allocated (scoped) string
-        return y;               // errors with -dip1000
+        return y;               // TODO should error with -dip1000
     }
     f();
 }

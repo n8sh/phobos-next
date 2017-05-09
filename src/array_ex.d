@@ -184,11 +184,11 @@ private struct Array(E,
     alias comp = binaryFun!less; //< comparison
 
     /// Create a empty array.
-    this(typeof(null)) nothrow
-    {
-        version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
-        // nothing needed, rely on default initialization of data members
-    }
+    // this(typeof(null)) nothrow
+    // {
+    //     version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
+    //     // nothing needed, rely on default initialization of data members
+    // }
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
     pragma(inline)
@@ -849,6 +849,8 @@ private struct Array(E,
         decOnlyLength();
     }
 
+    enum needsElementMove(T) = hasIndirections!T || !isCopyable!T;
+
     /** Pop back element and return it. */
     pragma(inline, true)
     E backPop() @trusted
@@ -856,7 +858,8 @@ private struct Array(E,
         assert(!isBorrowed);
         assert(!empty);
         decOnlyLength();
-        static if (hasIndirections!E) // TODO better trait?
+        // TODO functionize:
+        static if (needsElementMove!E)
         {
             return move(_mptr[this.length]); // move is indeed need here
         }
@@ -888,7 +891,7 @@ private struct Array(E,
             foreach (immutable i, ref value; values) // `ref` so we can `move`
             {
                 // TODO functionize:
-                static if (hasIndirections!(typeof(value)))
+                static if (needsElementMove!(typeof(value)))
                 {
                     moveEmplace(*cast(MutableE*)&value, _mptr[this.length + i]);
                 }
@@ -917,7 +920,7 @@ private struct Array(E,
                 foreach (ref value; values) // `ref` so we can `move`
                 {
                     // TODO functionize:
-                    static if (hasIndirections!(typeof(value)))
+                    static if (needsElementMove!(typeof(value)))
                     {
                         moveEmplace(*cast(Mutable!E*)&value, _mptr[this.length + i]);
                     }
@@ -2175,8 +2178,8 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
                 assert(s1[].equal(chain(s, s, s)));
             }
 
-            immutable ss_ = Array!(E, assignment, ordering, supportGC, size_t, less)(null);
-            assert(ss_.empty);
+            // immutable ss_ = Array!(E, assignment, ordering, supportGC, size_t, less)(null);
+            // assert(ss_.empty);
 
             auto ssC = Array!(E, assignment, ordering, supportGC, size_t, less).withLength(0);
             immutable(int)[] i5 = [1, 2, 3, 4, 5].s[];
@@ -2659,7 +2662,7 @@ C append(C, Args...)(auto ref C data,
     {
         C mutableData = data.dup;
     }
-    else
+    else                        // `data` is an l-value
     {
         alias mutableData = data;
     }
@@ -2672,7 +2675,7 @@ C append(C, Args...)(auto ref C data,
     return move(mutableData);
 }
 
-///
+/// append
 @safe pure nothrow @nogc unittest
 {
     alias Str = UniqueString!false;
@@ -2687,6 +2690,23 @@ C append(C, Args...)(auto ref C data,
     Str z = y.append('y', 'z', `w`); // needs dup
     assert(y.ptr != z.ptr);
     assert(z[] == `xyzw`);
+}
+
+version(unittest)
+{
+    private static struct SS
+    {
+        @disable this(this);
+        int x;
+    }
+}
+
+/// uncopyable elements
+@safe pure nothrow @nogc unittest
+{
+    alias A = UniqueArray!SS;
+    A a;
+    a ~= SS.init;
 }
 
 // TODO implement?

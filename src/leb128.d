@@ -60,8 +60,8 @@ version(unittest)
 
     import std.array : Appender;
     alias Raw = Appender!(ubyte[]);
-    // import array_ex : UncopyableArray;
-    // alias Raw = UncopyableArray!ubyte;
+    // import array_ex : UniqueArray;
+    // alias Raw = UniqueArray!ubyte;
 }
 
 @safe pure nothrow unittest

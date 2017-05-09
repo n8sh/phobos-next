@@ -265,11 +265,11 @@ unittest
     import std.algorithm.sorting : sort;
     import std.algorithm.setops : setIntersection;
     import random_ex : randInPlaceWithElementRange;
-    import array_ex : UncopyableArray;
+    import array_ex : UniqueArray;
     import algorithm_ex : collect;
 
     alias E = ulong;
-    alias A = UncopyableArray!E;
+    alias A = UniqueArray!E;
 
     auto a0 = A();
     auto a1 = A.withElements(1);

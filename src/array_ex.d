@@ -1803,35 +1803,35 @@ R withElementMake(R)(typeof(R.init[0]) e)
     return [e];
 }
 
-alias UncopyableArray(E, bool useGCAllocation = false) = Array!(E, Assignment.disabled, Ordering.unsorted, useGCAllocation, size_t, "a < b");
-alias CopyableArray  (E, bool useGCAllocation = false) = Array!(E, Assignment.copy, Ordering.unsorted, useGCAllocation, size_t, "a < b");
+alias UniqueArray(E, bool useGCAllocation = false) = Array!(E, Assignment.disabled, Ordering.unsorted, useGCAllocation, size_t, "a < b");
+alias CopyingArray(E, bool useGCAllocation = false) = Array!(E, Assignment.copy, Ordering.unsorted, useGCAllocation, size_t, "a < b");
 
-alias SortedCopyableArray    (E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.copy, Ordering.sortedValues, useGCAllocation, size_t, less);
-alias SortedSetCopyableArray (E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.copy, Ordering.sortedUniqueSet, useGCAllocation, size_t, less);
+alias SortedCopyingArray(E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.copy, Ordering.sortedValues, useGCAllocation, size_t, less);
+alias SortedSetCopyingArray(E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.copy, Ordering.sortedUniqueSet, useGCAllocation, size_t, less);
 
-alias SortedUncopyableArray    (E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.disabled, Ordering.sortedValues, useGCAllocation, size_t, less);
-alias SortedSetUncopyableArray (E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.disabled, Ordering.sortedUniqueSet, useGCAllocation, size_t, less);
+alias SortedUniqueArray(E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.disabled, Ordering.sortedValues, useGCAllocation, size_t, less);
+alias SortedSetUniqueArray(E, bool useGCAllocation = false, alias less = "a < b") = Array!(E, Assignment.disabled, Ordering.sortedUniqueSet, useGCAllocation, size_t, less);
 
 // string aliases
-alias UncopyableString (bool useGCAllocation = false) = Array!(char,  Assignment.disabled, Ordering.unsorted, useGCAllocation, size_t, "a < b");
-alias CopyableString   (bool useGCAllocation = false) = Array!(char,  Assignment.copy, Ordering.unsorted, useGCAllocation, size_t, "a < b");
-alias UncopyableWString(bool useGCAllocation = false) = Array!(wchar, Assignment.disabled, Ordering.unsorted, useGCAllocation, size_t, "a < b");
-alias CopyableWString  (bool useGCAllocation = false) = Array!(wchar, Assignment.copy, Ordering.unsorted, useGCAllocation, size_t, "a < b");
-alias UncopyableDString(bool useGCAllocation = false) = Array!(dchar, Assignment.disabled, Ordering.unsorted, useGCAllocation, size_t, "a < b");
-alias CopyableDString  (bool useGCAllocation = false) = Array!(dchar, Assignment.copy, Ordering.unsorted, useGCAllocation, size_t, "a < b");
+alias UniqueString(bool useGCAllocation = false) = Array!(char,  Assignment.disabled, Ordering.unsorted, useGCAllocation, size_t, "a < b");
+alias CopyingString(bool useGCAllocation = false) = Array!(char,  Assignment.copy, Ordering.unsorted, useGCAllocation, size_t, "a < b");
+alias UniqueWString(bool useGCAllocation = false) = Array!(wchar, Assignment.disabled, Ordering.unsorted, useGCAllocation, size_t, "a < b");
+alias CopyingWString(bool useGCAllocation = false) = Array!(wchar, Assignment.copy, Ordering.unsorted, useGCAllocation, size_t, "a < b");
+alias UniqueDString(bool useGCAllocation = false) = Array!(dchar, Assignment.disabled, Ordering.unsorted, useGCAllocation, size_t, "a < b");
+alias CopyingDString(bool useGCAllocation = false) = Array!(dchar, Assignment.copy, Ordering.unsorted, useGCAllocation, size_t, "a < b");
 
 @safe pure unittest
 {
-    auto c = UncopyableString!false();
-    auto w = UncopyableWString!false();
-    auto d = UncopyableDString!false();
+    auto c = UniqueString!false();
+    auto w = UniqueWString!false();
+    auto d = UniqueDString!false();
 }
 
 @safe pure unittest
 {
-    auto c = CopyableString!false();
-    auto w = CopyableWString!false();
-    auto d = CopyableDString!false();
+    auto c = CopyingString!false();
+    auto w = CopyingWString!false();
+    auto d = CopyingDString!false();
 }
 
 @safe pure unittest
@@ -1869,7 +1869,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     alias E = int;
 
     {
-        alias A = SortedUncopyableArray!E;
+        alias A = SortedUniqueArray!E;
         auto x = A.withElements(0, 3, 2, 1);
         assert(x[].equal([0, 1, 2, 3].s[]));
     }
@@ -2296,7 +2296,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     alias A = Array!E;
     static assert(!isCopyable!(A));
 
-    alias CA = CopyableArray!E;
+    alias CA = CopyingArray!E;
     static assert(isCopyable!(CA));
 
     static assert(isRvalueAssignable!(A));
@@ -2462,7 +2462,7 @@ pure nothrow /+TODO @nogc+/ unittest
 {
     struct E { int x, y; }
     foreach (A; AliasSeq!(Array!E,
-                          CopyableArray!E))
+                          CopyingArray!E))
     {
         int[A] x;
         immutable n = 100;
@@ -2524,8 +2524,8 @@ pure nothrow /+TODO @nogc+/ unittest
 ///
 @safe pure nothrow @nogc unittest
 {
-    alias Key = UncopyableArray!char;
-    alias Value = UncopyableArray!int;
+    alias Key = UniqueArray!char;
+    alias Value = UniqueArray!int;
     struct E
     {
         Key key;
@@ -2575,7 +2575,7 @@ pure nothrow /+TODO @nogc+/ unittest
     import std.range : isInputRange;
     import std.array : array;
 
-    alias A = UncopyableArray!int;
+    alias A = UniqueArray!int;
     auto y = A.init[].map!(_ => _^^2).array;
 
     A z = y.dup;                // check that dup returns same type
@@ -2588,7 +2588,7 @@ pure nothrow /+TODO @nogc+/ unittest
 ///
 @safe pure nothrow @nogc unittest
 {
-    alias A = UncopyableArray!int;
+    alias A = UniqueArray!int;
     A x;
     const y = [0, 1, 2, 3].s;
 
@@ -2622,8 +2622,8 @@ pure nothrow /+TODO @nogc+/ unittest
 /// map array of uncopyable
 @safe pure nothrow @nogc unittest
 {
-    foreach (AT; AliasSeq!(SortedUncopyableArray,
-                           SortedSetUncopyableArray))
+    foreach (AT; AliasSeq!(SortedUniqueArray,
+                           SortedSetUniqueArray))
     {
         alias A = AT!int;
         A a;
@@ -2674,7 +2674,7 @@ C append(C, Args...)(auto ref C data,
 ///
 @safe pure nothrow @nogc unittest
 {
-    alias Str = UncopyableString!false;
+    alias Str = UniqueString!false;
 
     assert(Str(`a`).append('b', 'c')[] == `abc`);
     assert(Str(`a`).append(`b`, `c`)[] == `abc`);
@@ -2696,7 +2696,7 @@ C append(C, Args...)(auto ref C data,
 // }
 // @safe pure nothrow @nogc unittest
 // {
-//     alias S = UncopyableString!false;
+//     alias S = UniqueString!false;
 //     // TODO
 //     // const S x = S(`a`) ~ 'b';
 //     // assert(x[] == `abc`);

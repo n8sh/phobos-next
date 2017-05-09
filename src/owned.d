@@ -177,19 +177,19 @@ void moveEmplace(Owner)(ref Owner src, ref Owner dst) @safe pure nothrow @nogc
 template needsOwnership(Container)
 {
     import std.range.primitives : hasSlicing;
-    // TODO activate when array_ex : UncopyableArray
+    // TODO activate when array_ex : UniqueArray
     // enum needsOwnership = hasSlicing!Container; // TODO extend to check if it's not @safe
     enum needsOwnership = is(Container == struct);
 }
 
 version(unittest)
 {
-    import array_ex : UncopyableArray, CopyableArray;
+    import array_ex : UniqueArray, CopyingArray;
 }
 
 pure unittest
 {
-    alias A = UncopyableArray!int;
+    alias A = UniqueArray!int;
     const Owned!A co;          // const owner
 
     import std.traits : isMutable;
@@ -200,7 +200,7 @@ pure unittest
 
 @safe pure unittest
 {
-    alias A = UncopyableArray!int;
+    alias A = UniqueArray!int;
     A a = A.init;
     a = A.init;
     // TODO a ~= A.init;
@@ -208,7 +208,7 @@ pure unittest
 
 @safe pure unittest
 {
-    alias A = CopyableArray!int;
+    alias A = CopyingArray!int;
     A a = A.init;
     A b = A.init;
     a = b;
@@ -223,7 +223,7 @@ pure unittest
 
     import borrowed : ReadBorrowed, WriteBorrowed;
 
-    alias A = UncopyableArray!int;
+    alias A = UniqueArray!int;
 
     Owned!A oa;
 
@@ -355,7 +355,7 @@ nothrow unittest
 {
     import std.algorithm.sorting : sort;
     alias E = int;
-    alias A = UncopyableArray!E;
+    alias A = UniqueArray!E;
     A a;
     sort(a[]);         // TODO make this work
 }
@@ -367,7 +367,7 @@ nothrow unittest
     import std.range : isInputRange, isForwardRange, isRandomAccessRange, hasSlicing;
 
     alias E = int;
-    alias A = UncopyableArray!E;
+    alias A = UniqueArray!E;
     alias O = Owned!A;
 
     O o;
@@ -402,7 +402,7 @@ nothrow unittest
     import std.range : isInputRange, isForwardRange, isRandomAccessRange, hasSlicing;
 
     alias E = int;
-    alias A = UncopyableArray!E;
+    alias A = UniqueArray!E;
     alias O = Owned!A;
 
     const O co;

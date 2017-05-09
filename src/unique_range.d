@@ -136,8 +136,8 @@ alias intoGenerator = intoUniqueRange;
 /// basics
 @safe pure nothrow @nogc unittest
 {
+    import array_ex : SA = UniqueArray;
     import std.range.primitives : isInputRange, isIterable;
-    import array_ex : SA = UncopyableArray;
     alias C = SA!int;
 
     auto cs = C.withElements(11, 13, 15, 17).intoUniqueRange;
@@ -173,7 +173,7 @@ alias intoGenerator = intoUniqueRange;
 /// combined with Phobos ranges
 @safe pure nothrow unittest
 {
-    import array_ex : SA = UncopyableArray;
+    import array_ex : SA = UniqueArray;
     alias C = SA!int;
     assert(C.withElements(11, 13, 15, 17)
             .intoUniqueRange()

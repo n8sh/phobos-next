@@ -85,10 +85,10 @@ void filterInplace(alias predicate, C)(ref C r)
     import std.algorithm.mutation : move;
     import std.meta : AliasSeq;
     import unique_range : intoUniqueRange;
-    import array_ex : UncopyableArray, SortedSetUncopyableArray;
+    import array_ex : UniqueArray, SortedSetUniqueArray;
 
     alias E = int;
-    foreach (C; AliasSeq!(UncopyableArray, SortedSetUncopyableArray))
+    foreach (C; AliasSeq!(UniqueArray, SortedSetUniqueArray))
     {
         alias A = C!E;
 

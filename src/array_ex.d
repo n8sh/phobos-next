@@ -2705,8 +2705,11 @@ version(unittest)
 @safe pure nothrow @nogc unittest
 {
     alias A = UniqueArray!SS;
-    A a;
-    a ~= SS.init;
+    A x;
+
+    x ~= SS.init;
+
+    // TODO x.pushBack(A.init);
 }
 
 // TODO implement?

@@ -3,7 +3,7 @@
 struct S
 {
     @safe pure nothrow @nogc
-    int[] opSlice() return scope
+    inout(int)[] opSlice() inout return scope
     {
         return x[];
     }

@@ -4,8 +4,8 @@ module arrayn;
 /** Type of index and slice lifetime checking. */
 enum Checking
 {
-    viaScope,     // compile-time checking of slice lifetimes via DIP-1000 scope
-    viaBorrowing  // run-time checking of slice lifetimes and borrows (includes iterator invalidation checking)
+    viaScope,     // compile-time checking of slice lifetimes (via DIP-1000 `scope`)
+    viaScopeAndBorrowing // run-time checking of slice lifetimes and borrows (includes iterator invalidation checking)
 }
 
 /** Statically allocated `E`-array of fixed pre-allocated length.  Similar to
@@ -23,7 +23,7 @@ struct ArrayN(E, uint capacity, Checking checking)
     E[capacity] _store = void;  /// stored elements
 
     alias maxLength = capacity;  // for public use
-    private enum borrowChecked = checking == Checking.viaBorrowing;
+    private enum borrowChecked = checking == Checking.viaScopeAndBorrowing;
 
     static if (borrowChecked)
     {
@@ -390,7 +390,7 @@ pure unittest                   // TODO @safe
     alias E = char;
     enum capacity = 3;
 
-    alias A = ArrayN!(E, capacity, Checking.viaBorrowing);
+    alias A = ArrayN!(E, capacity, Checking.viaScopeAndBorrowing);
     static assert(A.sizeof == E.sizeof*capacity + 1);
 
     import std.range : isOutputRange;
@@ -449,7 +449,7 @@ pure unittest                   // TODO @safe
     static void testAsSomeString(E)()
     {
         enum capacity = 15;
-        alias A = ArrayN!(immutable(E), capacity, Checking.viaBorrowing);
+        alias A = ArrayN!(immutable(E), capacity, Checking.viaScopeAndBorrowing);
         auto a = A("abc");
         assert(a[] == "abc");
         assert(a[].equal("abc"));
@@ -470,14 +470,14 @@ pure unittest                   // TODO @safe
     enum capacity = 4;
     import std.traits : hasIndirections;
     static assert(hasIndirections!string);
-    alias A = ArrayN!(string, capacity, Checking.viaBorrowing);
+    alias A = ArrayN!(string, capacity, Checking.viaScopeAndBorrowing);
 }
 
 ///
 @safe pure nothrow @nogc unittest
 {
     enum capacity = 15;
-    alias String15 = StringN!(capacity, Checking.viaBorrowing);
+    alias String15 = StringN!(capacity, Checking.viaScopeAndBorrowing);
     static assert(String15.readBorrowCountMax == 7);
 
     auto x = String15("alpha");
@@ -492,7 +492,7 @@ pure unittest                   // TODO @safe
 @safe pure nothrow @nogc unittest
 {
     enum capacity = 15;
-    alias String15 = StringN!(capacity, Checking.viaBorrowing);
+    alias String15 = StringN!(capacity, Checking.viaScopeAndBorrowing);
     const char[4] _ = ['a', 'b', 'c', 'd'];
     auto x = String15(_[]);
     assert(x.length == 4);
@@ -503,7 +503,7 @@ pure unittest                   // TODO @safe
 pure unittest
 {
     enum capacity = 15;
-    alias String15 = StringN!(capacity, Checking.viaBorrowing);
+    alias String15 = StringN!(capacity, Checking.viaScopeAndBorrowing);
 
     auto x = String15("alpha");
 
@@ -544,5 +544,5 @@ pure unittest
 @safe pure nothrow @nogc unittest
 {
     enum capacity = 4;
-    // TODO alias A = ArrayN!(int*, capacity, Checking.viaBorrowing);
+    // TODO alias A = ArrayN!(int*, capacity, Checking.viaScopeAndBorrowing);
 }

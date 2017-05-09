@@ -1,4 +1,7 @@
-/** Statically allocated arrays with compile-time known lengths. */
+/** Statically allocated arrays with compile-time known lengths.
+
+    TODO Make scope-checking kick in: http://forum.dlang.org/post/hnrungqxapjwqpkluvqu@forum.dlang.org
+ */
 module arrayn;
 
 /** Type of index and slice lifetime checking. */

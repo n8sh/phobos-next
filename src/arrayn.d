@@ -29,6 +29,7 @@ struct ArrayN(E, uint capacity, Checking checking)
     {
         /// Number of bits needed to store number of read borrows.
         private enum readBorrowCountBits = 3;
+
         /// Maximum value possible for `_readBorrowCount`.
         enum readBorrowCountMax = 2^^readBorrowCountBits - 1;
 
@@ -48,7 +49,10 @@ struct ArrayN(E, uint capacity, Checking checking)
                              uint, "_readBorrowCount", readBorrowCountBits, // TODO make private
                       ));
         }
-        else static assert("Too large capacity " ~ capacity);
+        else
+        {
+            static assert("Too large capacity " ~ capacity);
+        }
     }
     else
     {
@@ -60,7 +64,10 @@ struct ArrayN(E, uint capacity, Checking checking)
         {
             ushort _length;       /// number of defined elements in `_store`
         }
-        else static assert("Too large capacity " ~ capacity);
+        else
+        {
+            static assert("Too large capacity " ~ capacity);
+        }
     }
 
     alias ElementType = E;
@@ -113,7 +120,7 @@ struct ArrayN(E, uint capacity, Checking checking)
     /** Destruct. */
     ~this() nothrow @trusted
     {
-        static if (borrowChecked) assert(!isBorrowed);
+        static if (borrowChecked) { assert(!isBorrowed); }
         static if (hasElaborateDestructor!E)
         {
             foreach (immutable i; 0 .. length)
@@ -161,7 +168,7 @@ struct ArrayN(E, uint capacity, Checking checking)
         auto ref popFront()
         {
             assert(!empty);
-            static if (borrowChecked) assert(!isBorrowed);
+            static if (borrowChecked) { assert(!isBorrowed); }
             // TODO is there a reusable Phobos function for this?
             foreach (const i; 0 .. _length - 1)
             {
@@ -177,7 +184,7 @@ struct ArrayN(E, uint capacity, Checking checking)
     auto ref popBack()
     {
         assert(!empty);
-        static if (borrowChecked) assert(!isBorrowed);
+        static if (borrowChecked) { assert(!isBorrowed); }
         _length = cast(typeof(_length))(_length - 1); // TODO better?
         static if (hasElaborateDestructor!E)
         {

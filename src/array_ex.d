@@ -509,14 +509,14 @@ private struct Array(E,
             reserve(values.length); // fast reserve
             setOnlyLength(values.length);
 
-            static if (__traits(isRef))
-            {
-                // TODO dup elements
-            }
-            else
-            {
-                // TODO move elements
-            }
+            // static if (__traits(isRef))
+            // {
+            //     // TODO dup elements
+            // }
+            // else
+            // {
+            //     // TODO move elements
+            // }
 
             size_t i = 0;
             foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
@@ -524,7 +524,7 @@ private struct Array(E,
                 // TODO functionize:
                 static if (needsMove!(typeof(value)))
                 {
-                    move(value, _mptr[i++]);
+                    moveEmplace(value, _mptr[i++]);
                 }
                 else
                 {
@@ -545,7 +545,7 @@ private struct Array(E,
                 // TODO functionize:
                 static if (needsMove!(typeof(value)))
                 {
-                    move(value, _mptr[i++]);
+                    moveEmplace(value, _mptr[i++]);
                 }
                 else
                 {

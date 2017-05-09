@@ -383,7 +383,7 @@ version(none) pure unittest     // TODO activate
 {
     enum capacity = 15;
     alias String15 = StringN!(capacity, Checking.viaScope);
-    string f() nothrow @nogc
+    string f() @safe pure nothrow @nogc
     {
         auto x = String15("alphas");
         auto y = x[];           // slice to stack allocated (scoped) string

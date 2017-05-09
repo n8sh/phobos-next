@@ -15,3 +15,10 @@ int[] f()
     S s;
     return s[];                 // should error with -dip1000
 }
+
+void g()
+{
+    int[] r;
+    S s;
+    r = s[];
+}

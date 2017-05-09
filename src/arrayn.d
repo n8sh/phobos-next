@@ -220,17 +220,17 @@ pragma(inline, true):
         import borrowed : ReadBorrowed, WriteBorrowed;
 
         /// Get read-only slice in range `i` .. `j`.
-        auto opSlice(size_t i, size_t j) const { return sliceRO(i, j); }
+        auto opSlice(size_t i, size_t j) const return scope { return sliceRO(i, j); }
         /// Get read-write slice in range `i` .. `j`.
-        auto opSlice(size_t i, size_t j) { return sliceRW(i, j); }
+        auto opSlice(size_t i, size_t j) return scope { return sliceRW(i, j); }
 
         /// Get read-only full slice.
-        auto opSlice() const { return sliceRO(); }
+        auto opSlice() const return scope { return sliceRO(); }
         /// Get read-write full slice.
-        auto opSlice() { return sliceRW(); }
+        auto opSlice() return scope { return sliceRW(); }
 
         /// Get full read-only slice.
-        ReadBorrowed!(E[], typeof(this)) sliceRO() const @trusted
+        ReadBorrowed!(E[], typeof(this)) sliceRO() const @trusted return scope
         {
             import std.typecons : Unqual;
             assert(!_writeBorrowed, "Already write-borrowed");
@@ -239,7 +239,7 @@ pragma(inline, true):
         }
 
         /// Get read-only slice in range `i` .. `j`.
-        ReadBorrowed!(E[], typeof(this)) sliceRO(size_t i, size_t j) const @trusted
+        ReadBorrowed!(E[], typeof(this)) sliceRO(size_t i, size_t j) const @trusted return scope
         {
             import std.typecons : Unqual;
             assert(!_writeBorrowed, "Already write-borrowed");
@@ -248,7 +248,7 @@ pragma(inline, true):
         }
 
         /// Get full read-write slice.
-        WriteBorrowed!(E[], typeof(this)) sliceRW() @trusted
+        WriteBorrowed!(E[], typeof(this)) sliceRW() @trusted return scope
         {
             assert(!_writeBorrowed, "Already write-borrowed");
             assert(_readBorrowCount == 0, "Already read-borrowed");
@@ -256,7 +256,7 @@ pragma(inline, true):
         }
 
         /// Get read-write slice in range `i` .. `j`.
-        WriteBorrowed!(E[], typeof(this)) sliceRW(size_t i, size_t j) @trusted
+        WriteBorrowed!(E[], typeof(this)) sliceRW(size_t i, size_t j) @trusted return scope
         {
             assert(!_writeBorrowed, "Already write-borrowed");
             assert(_readBorrowCount == 0, "Already read-borrowed");

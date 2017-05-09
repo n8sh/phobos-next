@@ -393,7 +393,7 @@ version(none) pure unittest     // TODO activate
 }
 
 ///
-pure unittest                   // TODO @safe
+@safe pure unittest
 {
     alias E = char;
     enum capacity = 3;
@@ -452,7 +452,7 @@ pure unittest                   // TODO @safe
 }
 
 ///
-pure unittest                   // TODO @safe
+@safe pure unittest
 {
     static void testAsSomeString(E)()
     {

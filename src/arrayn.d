@@ -347,7 +347,7 @@ version(unittest)
 
         typeof(String15.init[0])[] xs;
         auto x = String15("alphas");
-        xs = x[];               // TODO shouldn't compile with -dip1000
+        xs = x[];               // TODO should error with -dip1000
 
         assert(x[0] == 'a');
         assert(x[$ - 1] == 's');

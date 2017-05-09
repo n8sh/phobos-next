@@ -521,7 +521,15 @@ private struct Array(E,
             size_t i = 0;
             foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
             {
-                _mptr[i++] = value;
+                // TODO functionize:
+                static if (needsMove!(typeof(value)))
+                {
+                    move(value, _mptr[i++]);
+                }
+                else
+                {
+                    _mptr[i++] = value;
+                }
             }
         }
         else
@@ -534,7 +542,15 @@ private struct Array(E,
             foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
             {
                 reserve(i + 1); // slower reserve
-                _mptr[i++] = value;
+                // TODO functionize:
+                static if (needsMove!(typeof(value)))
+                {
+                    move(value, _mptr[i++]);
+                }
+                else
+                {
+                    _mptr[i++] = value;
+                }
                 setOnlyLength(i); // must be set here because correct length is needed in reserve call above in this same scope
             }
         }
@@ -849,7 +865,7 @@ private struct Array(E,
         decOnlyLength();
     }
 
-    enum needsElementMove(T) = hasIndirections!T || !isCopyable!T;
+    enum needsMove(T) = hasIndirections!T || !isCopyable!T;
 
     /** Pop back element and return it. */
     pragma(inline, true)
@@ -859,7 +875,7 @@ private struct Array(E,
         assert(!empty);
         decOnlyLength();
         // TODO functionize:
-        static if (needsElementMove!E)
+        static if (needsMove!E)
         {
             return move(_mptr[this.length]); // move is indeed need here
         }
@@ -891,7 +907,7 @@ private struct Array(E,
             foreach (immutable i, ref value; values) // `ref` so we can `move`
             {
                 // TODO functionize:
-                static if (needsElementMove!(typeof(value)))
+                static if (needsMove!(typeof(value)))
                 {
                     moveEmplace(*cast(MutableE*)&value, _mptr[this.length + i]);
                 }
@@ -920,7 +936,7 @@ private struct Array(E,
                 foreach (ref value; values) // `ref` so we can `move`
                 {
                     // TODO functionize:
-                    static if (needsElementMove!(typeof(value)))
+                    static if (needsMove!(typeof(value)))
                     {
                         moveEmplace(*cast(Mutable!E*)&value, _mptr[this.length + i]);
                     }

@@ -227,7 +227,7 @@ pragma(inline, true):
         ReadBorrowed!(E[], typeof(this)) sliceRO() const @trusted
         {
             import std.typecons : Unqual;
-            assert(!_writeBorrowed, "typeof(this) is already write-borrowed");
+            assert(!_writeBorrowed, "Already write-borrowed");
             return typeof(return)(_store.ptr[0 .. _length],
                                   cast(Unqual!(typeof(this))*)(&this)); // trusted unconst casta
         }
@@ -236,7 +236,7 @@ pragma(inline, true):
         ReadBorrowed!(E[], typeof(this)) sliceRO(size_t i, size_t j) const @trusted
         {
             import std.typecons : Unqual;
-            assert(!_writeBorrowed, "typeof(this) is already write-borrowed");
+            assert(!_writeBorrowed, "Already write-borrowed");
             return typeof(return)(_store.ptr[i .. j],
                                   cast(Unqual!(typeof(this))*)(&this)); // trusted unconst cast
         }
@@ -244,16 +244,16 @@ pragma(inline, true):
         /// Get full read-write slice.
         WriteBorrowed!(E[], typeof(this)) sliceRW() @trusted
         {
-            assert(!_writeBorrowed, "typeof(this) is already write-borrowed");
-            assert(_readBorrowCount == 0, "typeof(this) is already read-borrowed");
+            assert(!_writeBorrowed, "Already write-borrowed");
+            assert(_readBorrowCount == 0, "Already read-borrowed");
             return typeof(return)(_store.ptr[0 .. _length], &this);
         }
 
         /// Get read-write slice in range `i` .. `j`.
         WriteBorrowed!(E[], typeof(this)) sliceRW(size_t i, size_t j) @trusted
         {
-            assert(!_writeBorrowed, "typeof(this) is already write-borrowed");
-            assert(_readBorrowCount == 0, "typeof(this) is already read-borrowed");
+            assert(!_writeBorrowed, "Already write-borrowed");
+            assert(_readBorrowCount == 0, "Already read-borrowed");
             return typeof(return)(_store.ptr[0 .. j], &this);
         }
 

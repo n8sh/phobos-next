@@ -24,7 +24,7 @@ class GzipFileInputRange
     {
         if (!_chunkRange.empty)
         {
-            _uncompressedBuffer = cast(char[])_uncompress.uncompress(_chunkRange.front.dup);
+            _uncompressedBuffer = cast(ubyte[])_uncompress.uncompress(_chunkRange.front.dup);
             _chunkRange.popFront();
             _bufferIndex = 0;
         }
@@ -32,7 +32,7 @@ class GzipFileInputRange
         {
             if (!_exhausted)
             {
-                _uncompressedBuffer = cast(char[])_uncompress.flush();
+                _uncompressedBuffer = cast(ubyte[])_uncompress.flush();
                 _exhausted = true;
                 _bufferIndex = 0;
             }
@@ -72,7 +72,7 @@ private:
     File _f;
     ReturnType!(_f.byChunk) _chunkRange;
     bool _exhausted;
-    char[] _uncompressedBuffer;
+    ubyte[] _uncompressedBuffer;
     size_t _bufferIndex;
 }
 

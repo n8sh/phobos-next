@@ -10,12 +10,12 @@ struct GzipFileInputRange
     import std.stdio : File;
     import std.traits : ReturnType;
 
-    enum CHUNKSIZE = 0x4000;
+    enum chunkSize = 0x4000;
 
     this(in const(char)[] path)
     {
         _f = File(path, "r");
-        _chunkRange = _f.byChunk(CHUNKSIZE);
+        _chunkRange = _f.byChunk(chunkSize);
         _uncompress = new UnCompress;
         load();
     }
@@ -24,32 +24,32 @@ struct GzipFileInputRange
     {
         if (!_chunkRange.empty)
         {
-            _uncompressedBuffer = cast(ubyte[])_uncompress.uncompress(_chunkRange.front);
+            _uncompressedBuf = cast(ubyte[])_uncompress.uncompress(_chunkRange.front);
             _chunkRange.popFront();
-            _bufferIndex = 0;
+            _bufIx = 0;
         }
         else
         {
             if (!_exhausted)
             {
-                _uncompressedBuffer = cast(ubyte[])_uncompress.flush();
+                _uncompressedBuf = cast(ubyte[])_uncompress.flush();
                 _exhausted = true;
-                _bufferIndex = 0;
+                _bufIx = 0;
             }
             else
             {
-                _uncompressedBuffer.length = 0;
+                _uncompressedBuf.length = 0;
             }
         }
     }
 
     void popFront()
     {
-        _bufferIndex += 1;
-        if (_bufferIndex >= _uncompressedBuffer.length)
+        _bufIx += 1;
+        if (_bufIx >= _uncompressedBuf.length)
         {
             load();
-            _bufferIndex = 0;
+            _bufIx = 0;
         }
     }
 
@@ -58,12 +58,12 @@ struct GzipFileInputRange
 
     @property ubyte front() const
     {
-        return _uncompressedBuffer[_bufferIndex];
+        return _uncompressedBuf[_bufIx];
     }
 
     @property bool empty() const
     {
-        return _uncompressedBuffer.length == 0;
+        return _uncompressedBuf.length == 0;
     }
 
 private:
@@ -72,8 +72,8 @@ private:
     File _f;
     ReturnType!(_f.byChunk) _chunkRange;
     bool _exhausted;
-    ubyte[] _uncompressedBuffer;
-    size_t _bufferIndex;
+    ubyte[] _uncompressedBuf;
+    size_t _bufIx;
 }
 
 class GzipByLine
@@ -149,30 +149,70 @@ private:
 
 struct ZlibFileInputRange
 {
+    enum chunkSize = 0x4000;
+
     @safe /*@nogc*/:
 
     this(in const(char)[] path) @trusted
     {
-        import std.string : toStringz;
+        import std.string : toStringz; // TODO avoid GC allocation by looking at how gmp-d z.d solves it
         _f = gzopen(path.toStringz, `rb`);
         if (!_f)
         {
             throw new Exception("Couldn't open file " ~ path.idup);
         }
+        // popFront();
     }
 
-    ~this() @trusted
+    ~this() @trusted nothrow
     {
         gzclose(_f);
     }
 
     @disable this(this);
 
+    void load() @trusted
+    {
+        _buf.shrinkTo(0);
+        int count = gzread(_f, _buf.data.ptr, chunkSize);
+        if (count == -1)
+        {
+            throw new Exception("Error decoding file");
+        }
+    }
+
+    void popFront()
+    {
+        _bufIx += 1;
+        if (_bufIx >= _buf.data.length)
+        {
+            load();
+            _bufIx = 0;
+        }
+    }
+
+    pragma(inline, true):
     pure nothrow @nogc:
+
+    @property ubyte front() const
+    {
+        return _buf.data[_bufIx];
+    }
+
+    @property bool empty() const
+    {
+        return _buf.data.length == 0;
+    }
 
 private:
     import etc.c.zlib;
+
     gzFile _f;
+
+    import std.array : Appender;
+    Appender!(ubyte[]) _buf;
+
+    size_t _bufIx;
 }
 
 unittest

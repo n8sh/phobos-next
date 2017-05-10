@@ -76,11 +76,6 @@ private:
     size_t _bufferIndex;
 }
 
-struct ZlibFileInputRange
-{
-    private:
-}
-
 class GzipByLine
 {
     this(in const(char)[] filename,
@@ -152,22 +147,52 @@ private:
     File _f;
 }
 
+struct ZlibFileInputRange
+{
+    @safe /*@nogc*/:
+
+    this(in const(char)[] filename) @trusted
+    {
+        import std.string : toStringz;
+        _f = gzopen(filename.toStringz, `rb`);
+        if (!_f)
+        {
+            throw new Exception("Couldn't open file " ~ filename.idup);
+        }
+    }
+
+    ~this() @trusted
+    {
+        gzclose(_f);
+    }
+
+    @disable this(this);
+
+    pure nothrow @nogc:
+
+private:
+    import etc.c.zlib;
+    gzFile _f;
+}
+
 unittest
 {
-    enum fileName = "test.gz";
+    enum filename = "test.gz";
 
-    auto of = new GzipOut(fileName);
+    auto of = new GzipOut(filename);
     of.compress("bla\nbla\nbla");
     of.finish();
 
     import std.algorithm.searching : count;
-    assert(new GzipByLine(fileName).count == 3);
+    assert(new GzipByLine(filename).count == 3);
+
+    auto zfi = ZlibFileInputRange(filename);
 }
 
 // version(none)
 unittest
 {
-    enum fileName = "/home/per/Knowledge/ConceptNet5/5.5/conceptnet-assertions-5.5.0.csv.gz";
+    enum filename = "/home/per/Knowledge/ConceptNet5/5.5/conceptnet-assertions-5.5.0.csv.gz";
 
     import std.stdio: writeln;
     import std.range: take;
@@ -175,7 +200,7 @@ unittest
 
     const lineBlockCount = 100_000;
     size_t lineNr = 0;
-    foreach (const line; new GzipByLine(fileName))
+    foreach (const line; new GzipByLine(filename))
     {
         if (lineNr % lineBlockCount == 0)
         {
@@ -185,7 +210,7 @@ unittest
     }
 
     const lineCount = 5;
-    foreach (const line; new GzipByLine(fileName).take(lineCount))
+    foreach (const line; new GzipByLine(filename).take(lineCount))
     {
         writeln(line);
     }

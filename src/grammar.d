@@ -19,7 +19,7 @@ import languages: Lang;
 @safe pure:
 
 /** Computer Token Usage. */
-enum Usage:ubyte
+enum Usage : ubyte
 {
     unknown,
     definition,
@@ -188,7 +188,7 @@ bool isEnglishDoubleConsonant(S)(S s)
 }
 
 /** Computer token. */
-enum TokenId:ubyte
+enum TokenId : ubyte
 {
     unknown,
 
@@ -210,7 +210,7 @@ enum TokenId:ubyte
 }
 
 /** Verb Form. */
-enum VerbForm:ubyte
+enum VerbForm : ubyte
 {
     unknown,
 
@@ -250,7 +250,7 @@ struct Noun(S)
 /** Comparation.
     See also: https://en.wikipedia.org/wiki/Comparison_(grammar)
 */
-enum Comparation:ubyte
+enum Comparation : ubyte
 {
     unknown,
     positive,
@@ -273,7 +273,7 @@ struct Adjective(S)
     See also: http://www.ego4u.com/en/cram-up/grammar/tenses-graphic
     See also: http://www.ego4u.com/en/cram-up/grammar/tenses-examples
 */
-enum Tense:ubyte
+enum Tense : ubyte
 {
     unknown,
 
@@ -321,12 +321,24 @@ nothrow @nogc
 }
 
 /** Part of a Sentence. */
-enum SentencePart:ubyte
+enum SentencePart : ubyte
 {
+    unknown,
     subject,
     predicate,
     adverbial,
     object,
+}
+
+enum Adverbial
+{
+    unknown,
+    manner, // the children were playing `happily`
+    place, // we met in `London`
+    time, // they start work `at six thirty`
+    probability, // `perhaps` the weather will be fine
+    directional, // superman flew `in`, the car drove `out` (förändring av tillstånd)
+    locative, // are you `in`?, the ball is `out` (oföränderligt tillstånd)
 }
 
 class Part
@@ -338,7 +350,7 @@ class Predicate : Part
 }
 
 // TODO: Conversion to Sense
-enum Article:ubyte
+enum Article : ubyte
 {
     unknown,
     indefinite,
@@ -354,10 +366,10 @@ class Subject : Part
 static immutable implies = [`in order to`];
 
 /** Subject Person. */
-enum Person:ubyte { unknown, first, second, third }
+enum Person : ubyte { unknown, first, second, third }
 
 /** Subject Gender. */
-enum Gender:ubyte
+enum Gender : ubyte
 {
     unknown,
     male, maskulinum = male,
@@ -371,7 +383,7 @@ enum Gender:ubyte
     Modus in Swedish.
     See also: https://en.wikipedia.org/wiki/Grammatical_mood
 */
-enum Mood:ubyte
+enum Mood : ubyte
 {
     unknown,
     indicative, // indikativ in Swedish. Example: I eat pizza.
@@ -522,9 +534,9 @@ string negationIn(Lang lang) nothrow @nogc
     }
 }
 
-enum Manner:ubyte
+enum Manner : ubyte
 {
-    // unknown,
+    unknown,
     formal,
     informal,
     slang,
@@ -534,9 +546,14 @@ enum Manner:ubyte
 /** Grammatical Case.
     See also: https://en.wikipedia.org/wiki/Grammatical_case
 */
-enum Case:ubyte
+enum Case : ubyte
 {
-    unknown, nominative, genitive, dative, accusative, ablative
+    unknown,
+    nominative,
+    genitive,
+    dative,
+    accusative,
+    ablative
 }
 
 /** English Subject Pronouns.
@@ -619,18 +636,9 @@ auto inDefiniteNounForm(string s, Lang lang)
     return chain(s.definiteArticleIn(lang), ` `, s);
 }
 
-enum Adverbial
-{
-    manner, // the children were playing `happily`
-    place, // we met in `London`
-    time, // they start work `at six thirty`
-    probability, // `perhaps` the weather will be fine
-    directional, // superman flew `in`, the car drove `out` (förändring av tillstånd)
-    locative, // are you `in`?, the ball is `out` (oföränderligt tillstånd)
-}
-
 enum Casing
 {
+    unknown,
     lower,
     upper,
     capitalized,

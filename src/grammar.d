@@ -333,12 +333,26 @@ enum SentencePart : ubyte
 enum Adverbial
 {
     unknown,
-    manner, // the children were playing `happily`
-    place, // we met in `London`
-    time, // they start work `at six thirty`
-    probability, // `perhaps` the weather will be fine
-    directional, // superman flew `in`, the car drove `out` (förändring av tillstånd)
-    locative, // are you `in`?, the ball is `out` (oföränderligt tillstånd)
+
+    manner,          // they were playing `happily` (sätts-adverbial in Swedish)
+
+    place,                      // we met in `London`, `at the beach`
+    space = place,
+
+    time,                       // they start work `at six thirty`
+
+    probability,                // `perhaps` the weather will be fine
+
+    direction, // superman flew `in`, the car drove `out` (förändring av tillstånd in Swedish)
+    location,  // are you `in`?, the ball is `out` (oföränderligt tillstånd in Swedish)
+
+    quantifier,                 // he weighs `63 kilograms` (måtts-adverbial in Swedish)
+
+    comparation,                // (grads-adverbial in Swedish)
+
+    cause,                      // (orsaks-adverbial in Swedish)
+
+    circumstance,               // (omständighets-adverbial in Swedish)
 }
 
 class Part

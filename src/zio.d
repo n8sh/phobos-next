@@ -83,7 +83,7 @@ class GzipByLine
     {
         this._range = new GzipFileInputRange(filename);
         this._separator = separator;
-        if (!empty) { popFront(); }
+        popFront();
     }
 
     void popFront()
@@ -155,7 +155,16 @@ unittest
     import std.range: take;
     import std.algorithm.searching: count;
 
-    writeln(`File `, fileName, ` contains `, new GzipByLine(fileName).count, ` number of lines`);
+    const lineBlockCount = 100_000;
+    size_t lineNr = 0;
+    foreach (const line; new GzipByLine(fileName))
+    {
+        if (lineNr % lineBlockCount == 0)
+        {
+            writeln(`Line `, lineNr, `read`);
+        }
+        lineNr += 1;
+    }
 
     const lineCount = 5;
     foreach (const line; new GzipByLine(fileName).take(lineCount))

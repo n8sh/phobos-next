@@ -17,14 +17,14 @@ class GzipFileInputRange
         _f = File(filename, "r");
         _chunkRange = _f.byChunk(CHUNKSIZE);
         _uncompress = new UnCompress;
-        load;
+        load();
     }
 
     void load()
     {
         if (!_chunkRange.empty)
         {
-            _uncompressedBuffer = cast(ubyte[])_uncompress.uncompress(_chunkRange.front.dup);
+            _uncompressedBuffer = cast(ubyte[])_uncompress.uncompress(_chunkRange.front);
             _chunkRange.popFront();
             _bufferIndex = 0;
         }
@@ -48,7 +48,7 @@ class GzipFileInputRange
         _bufferIndex += 1;
         if (_bufferIndex >= _uncompressedBuffer.length)
         {
-            load;
+            load();
             _bufferIndex = 0;
         }
     }

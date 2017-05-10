@@ -161,7 +161,7 @@ unittest
     {
         if (lineNr % lineBlockCount == 0)
         {
-            writeln(`Line `, lineNr, `read`);
+            writeln(`Line `, lineNr, ` read containing:`, line);
         }
         lineNr += 1;
     }

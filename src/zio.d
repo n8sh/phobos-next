@@ -12,9 +12,9 @@ struct GzipFileInputRange
 
     enum CHUNKSIZE = 0x4000;
 
-    this(in const(char)[] filename)
+    this(in const(char)[] path)
     {
-        _f = File(filename, "r");
+        _f = File(path, "r");
         _chunkRange = _f.byChunk(CHUNKSIZE);
         _uncompress = new UnCompress;
         load();
@@ -78,10 +78,10 @@ private:
 
 class GzipByLine
 {
-    this(in const(char)[] filename,
+    this(in const(char)[] path,
          char separator = '\n')
     {
-        this._range = GzipFileInputRange(filename);
+        this._range = GzipFileInputRange(path);
         this._separator = separator;
         popFront();
     }
@@ -123,9 +123,9 @@ class GzipOut
     import std.zlib: Compress, HeaderFormat;
     import std.stdio: File;
 
-    this(string filename)
+    this(string path)
     {
-        _f = File(filename, "w");
+        _f = File(path, "w");
         _compress = new Compress(HeaderFormat.gzip);
     }
 
@@ -151,13 +151,13 @@ struct ZlibFileInputRange
 {
     @safe /*@nogc*/:
 
-    this(in const(char)[] filename) @trusted
+    this(in const(char)[] path) @trusted
     {
         import std.string : toStringz;
-        _f = gzopen(filename.toStringz, `rb`);
+        _f = gzopen(path.toStringz, `rb`);
         if (!_f)
         {
-            throw new Exception("Couldn't open file " ~ filename.idup);
+            throw new Exception("Couldn't open file " ~ path.idup);
         }
     }
 
@@ -177,22 +177,22 @@ private:
 
 unittest
 {
-    enum filename = "test.gz";
+    enum path = "test.gz";
 
-    auto of = new GzipOut(filename);
+    auto of = new GzipOut(path);
     of.compress("bla\nbla\nbla");
     of.finish();
 
     import std.algorithm.searching : count;
-    assert(new GzipByLine(filename).count == 3);
+    assert(new GzipByLine(path).count == 3);
 
-    auto zfi = ZlibFileInputRange(filename);
+    auto zfi = ZlibFileInputRange(path);
 }
 
 // version(none)
 unittest
 {
-    enum filename = "/home/per/Knowledge/ConceptNet5/5.5/conceptnet-assertions-5.5.0.csv.gz";
+    enum path = "/home/per/Knowledge/ConceptNet5/5.5/conceptnet-assertions-5.5.0.csv.gz";
 
     import std.stdio: writeln;
     import std.range: take;
@@ -200,7 +200,7 @@ unittest
 
     const lineBlockCount = 100_000;
     size_t lineNr = 0;
-    foreach (const line; new GzipByLine(filename))
+    foreach (const line; new GzipByLine(path))
     {
         if (lineNr % lineBlockCount == 0)
         {
@@ -210,7 +210,7 @@ unittest
     }
 
     const lineCount = 5;
-    foreach (const line; new GzipByLine(filename).take(lineCount))
+    foreach (const line; new GzipByLine(path).take(lineCount))
     {
         writeln(line);
     }

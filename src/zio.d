@@ -68,13 +68,17 @@ struct GzipFileInputRange
 
 private:
     import std.zlib: UnCompress;
-
     UnCompress _uncompress;
     File _f;
     ReturnType!(_f.byChunk) _chunkRange;
     bool _exhausted;
     ubyte[] _uncompressedBuffer;
     size_t _bufferIndex;
+}
+
+struct ZlibFileInputRange
+{
+    private:
 }
 
 class GzipByLine
@@ -132,7 +136,7 @@ class GzipOut
 
     void compress(const string s)
     {
-        auto compressed = _compress.compress(s); // TODO dup needed?
+        auto compressed = _compress.compress(s);
         _f.rawWrite(compressed);
     }
 

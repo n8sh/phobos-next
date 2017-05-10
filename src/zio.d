@@ -79,7 +79,7 @@ private:
 class GzipByLine
 {
     this(in const(char)[] filename,
-         dchar separator = '\n')
+         char separator = '\n')
     {
         this._range = new GzipFileInputRange(filename);
         this._separator = separator;
@@ -105,7 +105,7 @@ class GzipByLine
         return _buf.data.length == 0;
     }
 
-    inout(char)[] front() inout return scope // TODO should this mutable or not?
+    const(char)[] front() const return scope
     {
         return _buf.data;
     }
@@ -114,7 +114,7 @@ private:
     GzipFileInputRange _range;
     import std.array : Appender;
     Appender!(char[]) _buf;
-    dchar _separator;
+    char _separator;
 }
 
 class GzipOut
@@ -146,6 +146,18 @@ private:
     File _f;
 }
 
+unittest
+{
+    enum fileName = "test.gz";
+
+    auto of = new GzipOut(fileName);
+    of.compress("bla\nbla\nbla");
+    of.finish();
+
+    import std.algorithm.searching: count;
+    assert(new GzipByLine(fileName).count == 3);
+}
+
 // version(none)
 unittest
 {
@@ -171,16 +183,4 @@ unittest
     {
         writeln(line);
     }
-}
-
-unittest
-{
-    enum fileName = "test.gz";
-
-    auto of = new GzipOut(fileName);
-    of.compress("bla\nbla\nbla");
-    of.finish();
-
-    import std.algorithm.searching: count;
-    assert(new GzipByLine(fileName).count == 3);
 }

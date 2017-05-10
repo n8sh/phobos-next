@@ -32,7 +32,7 @@ class GzipFileInputRange
         {
             if (!_exhausted)
             {
-                _uncompressedBuffer = cast(char[])_uncompress.flush;
+                _uncompressedBuffer = cast(char[])_uncompress.flush();
                 _exhausted = true;
                 _bufferIndex = 0;
             }

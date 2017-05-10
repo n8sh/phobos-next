@@ -19,7 +19,8 @@ enum Copyable { no, yes }
 struct DenseSetFilter(E,
                       Growable growable = Growable.yes,
                       Copyable copyable = Copyable.no)
-    if (is(typeof(cast(size_t)E.init))) // is castable to size_t
+    if (is(typeof(cast(size_t)E.init)) && // is castable to size_t
+        cast(uint)E.max <= uint.max)      // and small enough
 {
     import core.memory : malloc = pureMalloc, calloc = pureCalloc, realloc = pureRealloc;
     import core.bitop : bts, btr, btc, bt;

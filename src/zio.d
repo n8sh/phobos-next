@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 /** File I/O of Compressed Files.
 */
 module zio;
@@ -9,12 +7,12 @@ import bzlib;
 
 class GzipFileInputRange
 {
-    import std.stdio: File;
-    import std.traits: ReturnType;
+    import std.stdio : File;
+    import std.traits : ReturnType;
 
     enum CHUNKSIZE = 0x4000;
 
-    this(string filename)
+    this(in const(char)[] filename)
     {
         _f = File(filename, "r");
         _chunkRange = _f.byChunk(CHUNKSIZE);
@@ -45,11 +43,6 @@ class GzipFileInputRange
         }
     }
 
-    @property char front() @safe @nogc pure nothrow
-    {
-        return _uncompressedBuffer[_bufferIndex];
-    }
-
     void popFront()
     {
         _bufferIndex += 1;
@@ -60,7 +53,14 @@ class GzipFileInputRange
         }
     }
 
-    @property bool empty() @safe @nogc pure nothrow
+    @safe pure nothrow @nogc:
+
+    @property ubyte front() const
+    {
+        return _uncompressedBuffer[_bufferIndex];
+    }
+
+    @property bool empty() const
     {
         return _uncompressedBuffer.length == 0;
     }
@@ -78,41 +78,43 @@ private:
 
 class GzipByLine
 {
-    this(string filename)
+    this(in const(char)[] filename,
+         dchar separator = '\n')
     {
         this._range = new GzipFileInputRange(filename);
-        popFront;
-    }
-
-    @property bool empty() @safe @nogc pure nothrow
-    {
-        return _buf.length == 0;
+        this._separator = separator;
+        if (!empty) { popFront(); }
     }
 
     void popFront()
     {
-        _buf.length = 0;
-        while (!_range.empty && _range.front != '\n')
+        _buf.shrinkTo(0);
+        while (!_range.empty &&
+               _range.front != _separator)
         {
-            _buf ~= _range.front;
+            _buf.put(_range.front);
             _range.popFront();
         }
         _range.popFront();
     }
 
-    auto front() @safe pure nothrow // TODO should this mutable or not?
+    @safe pure nothrow @nogc
+
+    @property bool empty()
     {
-        return _buf;
+        return _buf.data.length == 0;
     }
 
-    string ifront() @safe pure nothrow
+    inout(char)[] front() inout return scope // TODO should this mutable or not?
     {
-        return _buf.idup;
+        return _buf.data;
     }
 
 private:
     GzipFileInputRange _range;
-    char[] _buf;
+    import std.array : Appender;
+    Appender!(char[]) _buf;
+    dchar _separator;
 }
 
 class GzipOut
@@ -144,31 +146,32 @@ private:
     File _f;
 }
 
+// version(none)
+unittest
+{
+    enum fileName = "/home/per/Knowledge/ConceptNet5/5.5/conceptnet-assertions-5.5.0.csv.gz";
+
+    import std.stdio: writeln;
+    import std.range: take;
+    import std.algorithm.searching: count;
+
+    writeln(`File `, fileName, ` contains `, new GzipByLine(fileName).count, ` number of lines`);
+
+    const lineCount = 5;
+    foreach (const line; new GzipByLine(fileName).take(lineCount))
+    {
+        writeln(line);
+    }
+}
+
 unittest
 {
     enum fileName = "test.gz";
 
     auto of = new GzipOut(fileName);
     of.compress("bla\nbla\nbla");
-    of.finish;
+    of.finish();
 
     import std.algorithm.searching: count;
-
     assert(new GzipByLine(fileName).count == 3);
-}
-
-version(none) unittest
-{
-    enum fileName = "/home/per/Knowledge/DBpedia/disambiguations_en2.nt.gz";
-
-    import std.stdio: writeln;
-    import std.range: take;
-    import std.algorithm.searching: count;
-
-    writeln(new GzipByLine(fileName).count);
-
-    foreach (immutable line; new GzipByLine(fileName).take(5))
-    {
-        writeln(line);
-    }
 }

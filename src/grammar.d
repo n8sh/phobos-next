@@ -338,7 +338,13 @@ class Predicate : Part
 }
 
 // TODO: Conversion to Sense
-enum Article:ubyte { indefinite, definite,  partitive }
+enum Article:ubyte
+{
+    unknown,
+    indefinite,
+    definite,
+    partitive
+}
 
 class Subject : Part
 {
@@ -529,14 +535,6 @@ enum Manner:ubyte
     See also: https://en.wikipedia.org/wiki/Grammatical_case
 */
 enum Case:ubyte
-{
-    unknown, nominative, genitive, dative, accusative, ablative
-}
-
-/** Grammatical Latin Case.
-    See also: https://en.wikipedia.org/wiki/Grammatical_case
-*/
-enum LatinCase:ubyte
 {
     unknown, nominative, genitive, dative, accusative, ablative
 }

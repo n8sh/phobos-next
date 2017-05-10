@@ -5,7 +5,7 @@ module zio;
 import bylinefast;
 import bzlib;
 
-class GzipFileInputRange
+struct GzipFileInputRange
 {
     import std.stdio : File;
     import std.traits : ReturnType;
@@ -82,7 +82,7 @@ class GzipByLine
     this(in const(char)[] filename,
          char separator = '\n')
     {
-        this._range = new GzipFileInputRange(filename);
+        this._range = GzipFileInputRange(filename);
         this._separator = separator;
         popFront();
     }
@@ -156,7 +156,7 @@ unittest
     of.compress("bla\nbla\nbla");
     of.finish();
 
-    import std.algorithm.searching: count;
+    import std.algorithm.searching : count;
     assert(new GzipByLine(fileName).count == 3);
 }
 

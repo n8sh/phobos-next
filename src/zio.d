@@ -53,6 +53,7 @@ class GzipFileInputRange
         }
     }
 
+    pragma(inline, true):
     @safe pure nothrow @nogc:
 
     @property ubyte front() const
@@ -98,7 +99,8 @@ class GzipByLine
         _range.popFront();
     }
 
-    @safe pure nothrow @nogc
+    pragma(inline, true):
+    @safe pure nothrow @nogc:
 
     @property bool empty()
     {

@@ -550,7 +550,6 @@ string negationIn(Lang lang) nothrow @nogc
 
 enum Manner : ubyte
 {
-    unknown,
     formal,
     informal,
     slang,

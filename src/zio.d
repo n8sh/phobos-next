@@ -161,7 +161,8 @@ struct ZlibFileInputRange
         {
             throw new Exception("Couldn't open file " ~ path.idup);
         }
-        // popFront();
+        _buf.reserve(chunkSize);
+        load();
     }
 
     ~this() @trusted nothrow
@@ -183,11 +184,12 @@ struct ZlibFileInputRange
 
     void popFront()
     {
+        assert(!empty);
         _bufIx += 1;
         if (_bufIx >= _buf.data.length)
         {
             load();
-            _bufIx = 0;
+            _bufIx = 0;         // restart counter
         }
     }
 
@@ -201,7 +203,7 @@ struct ZlibFileInputRange
 
     @property bool empty() const
     {
-        return _buf.data.length == 0;
+        return _bufIx == _buf.data.length;
     }
 
 private:
@@ -227,6 +229,11 @@ unittest
     assert(new GzipByLine(path).count == 3);
 
     auto zfi = ZlibFileInputRange(path);
+
+    foreach (e; ZlibFileInputRange(path))
+    {
+        writeln(e);
+    }
 }
 
 // version(none)
@@ -254,4 +261,9 @@ unittest
     {
         writeln(line);
     }
+}
+
+version(unittest)
+{
+    import std.stdio : writeln;
 }

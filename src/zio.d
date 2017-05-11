@@ -243,7 +243,7 @@ unittest
 
     auto zfi = ZlibFileInputRange(path);
 
-    foreach (e; ZlibFileInputRange(path))
+    foreach (e; ZlibFileInputRange(`/etc/alternatives/c++.1.gz`))
     {
         write(cast(char)e);
     }

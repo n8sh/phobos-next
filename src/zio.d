@@ -82,7 +82,7 @@ class GzipByLine(E = char)
     {
         this._range = typeof(_range)(path);
         this._separator = separator;
-        this._lbuf = typeof(_lbuf).withCapacity(80);
+        // this._lbuf = typeof(_lbuf).withCapacity(80);
         popFront();
     }
 
@@ -120,11 +120,13 @@ class GzipByLine(E = char)
 
 private:
     ZlibFileInputRange _range;
-    // import std.array : Appender; // TODO replace with array_ex : UniqueArray!E
-    // Appender!(E[]) _lbuf;    // line buffer
 
-    import array_ex : UniqueArray;
-    UniqueArray!E _lbuf;
+    import std.array : Appender;
+    Appender!(E[]) _lbuf;    // line buffer
+
+    // NOTE this is slower for ldc:
+    // import array_ex : UniqueArray;
+    // UniqueArray!E _lbuf;
 
     E _separator;
 }
@@ -265,7 +267,7 @@ unittest
     assert(new GzipByLine!char(path).count == 3);
 }
 
-version(none)
+// version(none)
 unittest
 {
     enum path = "/home/per/Knowledge/ConceptNet5/5.5/conceptnet-assertions-5.5.0.csv.gz";
@@ -286,7 +288,7 @@ unittest
     }
 
     const lineCount = 5;
-    foreach (const line; new GzipByLine(path).take(lineCount))
+    foreach (const line; new GzipByLine!char(path).take(lineCount))
     {
         writeln(line);
     }

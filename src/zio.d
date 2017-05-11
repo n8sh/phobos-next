@@ -258,7 +258,7 @@ unittest
     assert(new GzipByLine(path).count == 3);
 }
 
-// version(none)
+version(none)
 unittest
 {
     enum path = "/home/per/Knowledge/ConceptNet5/5.5/conceptnet-assertions-5.5.0.csv.gz";

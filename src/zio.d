@@ -2,8 +2,7 @@
 */
 module zio;
 
-import bylinefast;
-import bzlib;
+// import bzlib;
 
 struct GzipFileInputRange
 {

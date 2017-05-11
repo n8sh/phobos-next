@@ -81,7 +81,7 @@ class GzipByLine
     this(in const(char)[] path,
          char separator = '\n')
     {
-        this._range = GzipFileInputRange(path);
+        this._range = typeof(_range)(path);
         this._separator = separator;
         popFront();
     }
@@ -157,7 +157,7 @@ struct ZlibFileInputRange
     */
     enum chunkSize = 128 * 1024; // 128K
 
-    @safe /*@nogc*/:
+    @safe:
 
     this(in const(char)[] path) @trusted
     {
@@ -202,7 +202,7 @@ struct ZlibFileInputRange
     pragma(inline, true):
     pure nothrow @nogc:
 
-    @property ref const(ubyte) front() const return scope
+    @property ubyte front() const
     {
         assert(!empty);
         return _buf[_bufIx]; // TODO use .ptr[]
@@ -210,7 +210,7 @@ struct ZlibFileInputRange
 
     @property bool empty() const
     {
-        return _bufIx == _buf.length;
+        return _bufIx == _bufLength;
     }
 
 private:
@@ -222,14 +222,21 @@ private:
     ubyte[] _buf;
     size_t _bufLength;
     size_t _bufIx;
+
+    // TODO make this work:
+    // extern (C) nothrow @nogc:
+    // pragma(mangle, "gzopen") gzFile gzopen(const(char)* path, const(char)* mode);
+    // pragma(mangle, "gzclose") int gzclose(gzFile file);
+    // pragma(mangle, "gzread") int gzread(gzFile file, void* buf, uint len);
 }
 
 unittest
 {
     enum path = "test.gz";
+    const source = "bla\nbla\nbla";
 
     auto of = new GzipOut(path);
-    of.compress("bla\nbla\nbla");
+    of.compress(source);
     of.finish();
 
     import std.algorithm.searching : count;
@@ -239,7 +246,7 @@ unittest
 
     foreach (e; ZlibFileInputRange(path))
     {
-        writeln(cast(char)e);
+        write(cast(char)e);
     }
 }
 
@@ -272,5 +279,5 @@ unittest
 
 version(unittest)
 {
-    import std.stdio : writeln;
+    import std.stdio : write, writeln;
 }

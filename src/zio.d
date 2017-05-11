@@ -177,7 +177,7 @@ struct ZlibFileInputRange
 
     ~this() @trusted
     {
-        int ret = gzclose(_f);
+        const int ret = gzclose(_f);
         if (ret < 0)
         {
             throw new Exception("Couldn't close file");

@@ -89,7 +89,7 @@ class GzipByLine
     {
         _buf.shrinkTo(0);
         while (!_range.empty &&
-               _range.front != _separator)
+               _range.front != _separator) // TODO use sentinel
         {
             _buf.put(_range.front);
             _range.popFront();

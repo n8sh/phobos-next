@@ -193,14 +193,14 @@ struct ZlibFileInputRange
         {
             throw new Exception("Error decoding file");
         }
-        _bufLength = count;
+        _length = count;
     }
 
     void popFront()
     {
         assert(!empty);
         _ix += 1;
-        if (_ix >= _bufLength)
+        if (_ix >= _length)
         {
             load();
             _ix = 0;         // restart counter
@@ -218,7 +218,7 @@ struct ZlibFileInputRange
 
     @property bool empty() const
     {
-        return _ix == _bufLength;
+        return _ix == _length;
     }
 
 private:
@@ -228,7 +228,7 @@ private:
 
     import std.array : Appender;
     ubyte[] _buf;
-    size_t _bufLength;
+    size_t _length;
     size_t _ix;
 
     // TODO make this work:

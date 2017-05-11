@@ -25,7 +25,7 @@ struct GzipFileInputRange
         {
             _uncompressedBuf = cast(ubyte[])_uncompress.uncompress(_chunkRange.front);
             _chunkRange.popFront();
-            _ix = 0;
+            _bufIx = 0;
         }
         else
         {
@@ -33,7 +33,7 @@ struct GzipFileInputRange
             {
                 _uncompressedBuf = cast(ubyte[])_uncompress.flush();
                 _exhausted = true;
-                _ix = 0;
+                _bufIx = 0;
             }
             else
             {
@@ -44,11 +44,11 @@ struct GzipFileInputRange
 
     void popFront()
     {
-        _ix += 1;
-        if (_ix >= _uncompressedBuf.length)
+        _bufIx += 1;
+        if (_bufIx >= _uncompressedBuf.length)
         {
             load();
-            _ix = 0;
+            _bufIx = 0;
         }
     }
 
@@ -57,7 +57,7 @@ struct GzipFileInputRange
 
     @property ubyte front() const
     {
-        return _uncompressedBuf[_ix];
+        return _uncompressedBuf[_bufIx];
     }
 
     @property bool empty() const
@@ -72,7 +72,7 @@ private:
     ReturnType!(_f.byChunk) _chunkRange;
     bool _exhausted;
     ubyte[] _uncompressedBuf;
-    size_t _ix;
+    size_t _bufIx;
 }
 
 class GzipByLine
@@ -193,17 +193,17 @@ struct ZlibFileInputRange
         {
             throw new Exception("Error decoding file");
         }
-        _length = count;
+        _bufLength = count;
     }
 
     void popFront()
     {
         assert(!empty);
-        _ix += 1;
-        if (_ix >= _length)
+        _bufIx += 1;
+        if (_bufIx >= _bufLength)
         {
             load();
-            _ix = 0;         // restart counter
+            _bufIx = 0;         // restart counter
         }
     }
 
@@ -213,12 +213,12 @@ struct ZlibFileInputRange
     @property ubyte front() const @trusted
     {
         assert(!empty);
-        return _buf.ptr[_ix];
+        return _buf.ptr[_bufIx];
     }
 
     @property bool empty() const
     {
-        return _ix == _length;
+        return _bufIx == _bufLength;
     }
 
 private:
@@ -228,8 +228,8 @@ private:
 
     import std.array : Appender;
     ubyte[] _buf;
-    size_t _length;
-    size_t _ix;
+    size_t _bufLength;
+    size_t _bufIx;
 
     // TODO make this work:
     // extern (C) nothrow @nogc:

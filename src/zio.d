@@ -196,9 +196,9 @@ struct ZlibFileInputRange
     pragma(inline, true):
     pure nothrow @nogc:
 
-    @property ubyte front() const
+    @property ref const(ubyte) front() const return scope
     {
-        return _buf.data[_bufIx];
+        return _buf.data[_bufIx]; // TODO use .ptr[]
     }
 
     @property bool empty() const

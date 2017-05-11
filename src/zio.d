@@ -94,7 +94,12 @@ class GzipByLine
             _buf.put(_range.front);
             _range.popFront();
         }
-        _range.popFront();
+
+        if (!_range.empty &&
+            _range.front == _separator)
+        {
+            _range.popFront();  // pop separator
+        }
     }
 
     pragma(inline, true):
@@ -111,7 +116,7 @@ class GzipByLine
     }
 
 private:
-    GzipFileInputRange _range;
+    ZlibFileInputRange _range;
     import std.array : Appender;
     Appender!(char[]) _buf;
     char _separator;
@@ -185,10 +190,12 @@ struct ZlibFileInputRange
             throw new Exception("Error decoding file");
         }
         _bufLength = count;
+        dln("bufLength:", _bufLength);
     }
 
     void popFront()
     {
+        dln("popFront");
         assert(!empty);
         _bufIx += 1;
         if (_bufIx >= _bufLength)
@@ -203,12 +210,14 @@ struct ZlibFileInputRange
 
     @property ubyte front() const
     {
+        dln("front");
         assert(!empty);
         return _buf[_bufIx]; // TODO use .ptr[]
     }
 
     @property bool empty() const
     {
+        dln("empty:", _bufIx == _bufLength);
         return _bufIx == _bufLength;
     }
 
@@ -282,4 +291,5 @@ unittest
 version(unittest)
 {
     import std.stdio : write, writeln;
+    import dbgio : dln;
 }

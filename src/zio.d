@@ -78,7 +78,7 @@ private:
 class GzipByLine(E = char)
 {
     this(in const(char)[] path,
-         char separator = '\n')
+         E separator = '\n')
     {
         this._range = typeof(_range)(path);
         this._separator = separator;

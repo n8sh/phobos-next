@@ -75,7 +75,7 @@ private:
     size_t _bufIx;
 }
 
-class GzipByLine
+class GzipByLine(E = char)
 {
     this(in const(char)[] path,
          char separator = '\n')
@@ -87,11 +87,13 @@ class GzipByLine
 
     void popFront()
     {
-        _buf.shrinkTo(0);
+        _lbuf.shrinkTo(0);
+
+        // TODO sentinel-based search for `_separator` in `_range`
         while (!_range.empty &&
-               _range.front != _separator) // TODO use sentinel
+               _range.front != _separator)
         {
-            _buf.put(_range.front);
+            _lbuf.put(_range.front);
             _range.popFront();
         }
 
@@ -107,19 +109,23 @@ class GzipByLine
 
     @property bool empty()
     {
-        return _buf.data.length == 0;
+        return _lbuf.data.length == 0;
     }
 
-    const(char)[] front() const return scope
+    const(E)[] front() const return scope
     {
-        return _buf.data;
+        return _lbuf.data;
     }
 
 private:
     ZlibFileInputRange _range;
-    import std.array : Appender;
-    Appender!(char[]) _buf;
-    char _separator;
+    // import std.array : Appender; // TODO replace with array_ex : UniqueArray!E
+    // Appender!(E[]) _lbuf;    // line buffer
+
+    import array_ex : UniqueArray;
+    UniqueArray!E _lbuf;
+
+    E _separator;
 }
 
 class GzipOut
@@ -255,7 +261,7 @@ unittest
     }
 
     import std.algorithm.searching : count;
-    assert(new GzipByLine(path).count == 3);
+    assert(new GzipByLine!char(path).count == 3);
 }
 
 version(none)
@@ -269,7 +275,7 @@ unittest
 
     const lineBlockCount = 100_000;
     size_t lineNr = 0;
-    foreach (const line; new GzipByLine(path))
+    foreach (const line; new GzipByLine!char(path))
     {
         if (lineNr % lineBlockCount == 0)
         {

@@ -241,12 +241,15 @@ unittest
     import std.algorithm.searching : count;
     assert(new GzipByLine(path).count == 3);
 
-    auto zfi = ZlibFileInputRange(path);
-
-    foreach (e; ZlibFileInputRange(`/etc/alternatives/c++.1.gz`))
+    foreach (e; ZlibFileInputRange(path))
     {
         write(cast(char)e);
     }
+
+    // foreach (e; ZlibFileInputRange(`/etc/alternatives/c++.1.gz`))
+    // {
+    //     write(cast(char)e);
+    // }
 }
 
 version(none)

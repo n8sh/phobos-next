@@ -243,18 +243,15 @@ unittest
     of.compress(source);
     of.finish();
 
-    import std.algorithm.searching : count;
-    assert(new GzipByLine(path).count == 3);
-
+    size_t ix = 0;
     foreach (e; ZlibFileInputRange(path))
     {
-        write(cast(char)e);
+        assert(cast(char)e == source[ix]);
+        ++ix;
     }
 
-    // foreach (e; ZlibFileInputRange(`/etc/alternatives/c++.1.gz`))
-    // {
-    //     write(cast(char)e);
-    // }
+    import std.algorithm.searching : count;
+    assert(new GzipByLine(path).count == 3);
 }
 
 version(none)

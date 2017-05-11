@@ -149,7 +149,13 @@ private:
 
 struct ZlibFileInputRange
 {
-    enum chunkSize = 0x4000;
+    /* Zlib docs:
+       CHUNK is simply the buffer size for feeding data to and pulling data from
+       the zlib routines. Larger buffer sizes would be more efficient,
+       especially for inflate(). If the memory is available, buffers sizes on
+       the order of 128K or 256K bytes should be used.
+    */
+    enum chunkSize = 128 * 1024; // 128K
 
     @safe /*@nogc*/:
 
@@ -161,7 +167,7 @@ struct ZlibFileInputRange
         {
             throw new Exception("Couldn't open file " ~ path.idup);
         }
-        _buf.reserve(chunkSize);
+        _buf = new ubyte[chunkSize];
         load();
     }
 
@@ -174,19 +180,19 @@ struct ZlibFileInputRange
 
     void load() @trusted
     {
-        _buf.shrinkTo(0);
-        int count = gzread(_f, _buf.data.ptr, chunkSize);
+        int count = gzread(_f, _buf.ptr, chunkSize);
         if (count == -1)
         {
             throw new Exception("Error decoding file");
         }
+        _bufLength = count;
     }
 
     void popFront()
     {
         assert(!empty);
         _bufIx += 1;
-        if (_bufIx >= _buf.data.length)
+        if (_bufIx >= _bufLength)
         {
             load();
             _bufIx = 0;         // restart counter
@@ -198,12 +204,13 @@ struct ZlibFileInputRange
 
     @property ref const(ubyte) front() const return scope
     {
-        return _buf.data[_bufIx]; // TODO use .ptr[]
+        assert(!empty);
+        return _buf[_bufIx]; // TODO use .ptr[]
     }
 
     @property bool empty() const
     {
-        return _bufIx == _buf.data.length;
+        return _bufIx == _buf.length;
     }
 
 private:
@@ -212,8 +219,8 @@ private:
     gzFile _f;
 
     import std.array : Appender;
-    Appender!(ubyte[]) _buf;
-
+    ubyte[] _buf;
+    size_t _bufLength;
     size_t _bufIx;
 }
 
@@ -232,11 +239,11 @@ unittest
 
     foreach (e; ZlibFileInputRange(path))
     {
-        writeln(e);
+        writeln(cast(char)e);
     }
 }
 
-// version(none)
+version(none)
 unittest
 {
     enum path = "/home/per/Knowledge/ConceptNet5/5.5/conceptnet-assertions-5.5.0.csv.gz";

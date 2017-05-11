@@ -75,8 +75,10 @@ private:
     size_t _bufIx;
 }
 
-class GzipByLine(E = char)
+class GzipByLine
 {
+    private alias E = char;
+
     this(in const(char)[] path,
          E separator = '\n')
     {
@@ -264,7 +266,7 @@ unittest
     }
 
     import std.algorithm.searching : count;
-    assert(new GzipByLine!char(path).count == 3);
+    assert(new GzipByLine(path).count == 3);
 }
 
 // version(none)
@@ -278,7 +280,7 @@ unittest
 
     const lineBlockCount = 100_000;
     size_t lineNr = 0;
-    foreach (const line; new GzipByLine!char(path))
+    foreach (const line; new GzipByLine(path))
     {
         if (lineNr % lineBlockCount == 0)
         {
@@ -288,7 +290,7 @@ unittest
     }
 
     const lineCount = 5;
-    foreach (const line; new GzipByLine!char(path).take(lineCount))
+    foreach (const line; new GzipByLine(path).take(lineCount))
     {
         writeln(line);
     }

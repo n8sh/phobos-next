@@ -82,6 +82,7 @@ class GzipByLine(E = char)
     {
         this._range = typeof(_range)(path);
         this._separator = separator;
+        this._lbuf = typeof(_lbuf).withCapacity(80);
         popFront();
     }
 

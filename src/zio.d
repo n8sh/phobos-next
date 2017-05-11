@@ -175,9 +175,13 @@ struct ZlibFileInputRange
         load();
     }
 
-    ~this() @trusted nothrow
+    ~this() @trusted
     {
-        gzclose(_f);
+        int ret = gzclose(_f);
+        if (ret < 0)
+        {
+            throw new Exception("Couldn't close file");
+        }
     }
 
     @disable this(this);

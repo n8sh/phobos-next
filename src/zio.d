@@ -190,12 +190,10 @@ struct ZlibFileInputRange
             throw new Exception("Error decoding file");
         }
         _bufLength = count;
-        dln("bufLength:", _bufLength);
     }
 
     void popFront()
     {
-        dln("popFront");
         assert(!empty);
         _bufIx += 1;
         if (_bufIx >= _bufLength)
@@ -210,14 +208,12 @@ struct ZlibFileInputRange
 
     @property ubyte front() const
     {
-        dln("front");
         assert(!empty);
         return _buf[_bufIx]; // TODO use .ptr[]
     }
 
     @property bool empty() const
     {
-        dln("empty:", _bufIx == _bufLength);
         return _bufIx == _bufLength;
     }
 

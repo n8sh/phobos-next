@@ -25,7 +25,7 @@ struct GzipFileInputRange
         {
             _uncompressedBuf = cast(ubyte[])_uncompress.uncompress(_chunkRange.front);
             _chunkRange.popFront();
-            _bufIx = 0;
+            _ix = 0;
         }
         else
         {
@@ -33,7 +33,7 @@ struct GzipFileInputRange
             {
                 _uncompressedBuf = cast(ubyte[])_uncompress.flush();
                 _exhausted = true;
-                _bufIx = 0;
+                _ix = 0;
             }
             else
             {
@@ -44,11 +44,11 @@ struct GzipFileInputRange
 
     void popFront()
     {
-        _bufIx += 1;
-        if (_bufIx >= _uncompressedBuf.length)
+        _ix += 1;
+        if (_ix >= _uncompressedBuf.length)
         {
             load();
-            _bufIx = 0;
+            _ix = 0;
         }
     }
 
@@ -57,7 +57,7 @@ struct GzipFileInputRange
 
     @property ubyte front() const
     {
-        return _uncompressedBuf[_bufIx];
+        return _uncompressedBuf[_ix];
     }
 
     @property bool empty() const
@@ -72,7 +72,7 @@ private:
     ReturnType!(_f.byChunk) _chunkRange;
     bool _exhausted;
     ubyte[] _uncompressedBuf;
-    size_t _bufIx;
+    size_t _ix;
 }
 
 class GzipByLine
@@ -199,26 +199,26 @@ struct ZlibFileInputRange
     void popFront()
     {
         assert(!empty);
-        _bufIx += 1;
-        if (_bufIx >= _bufLength)
+        _ix += 1;
+        if (_ix >= _bufLength)
         {
             load();
-            _bufIx = 0;         // restart counter
+            _ix = 0;         // restart counter
         }
     }
 
     pragma(inline, true):
     pure nothrow @nogc:
 
-    @property ubyte front() const
+    @property ubyte front() const @trusted
     {
         assert(!empty);
-        return _buf[_bufIx]; // TODO use .ptr[]
+        return _buf.ptr[_ix];
     }
 
     @property bool empty() const
     {
-        return _bufIx == _bufLength;
+        return _ix == _bufLength;
     }
 
 private:
@@ -229,7 +229,7 @@ private:
     import std.array : Appender;
     ubyte[] _buf;
     size_t _bufLength;
-    size_t _bufIx;
+    size_t _ix;
 
     // TODO make this work:
     // extern (C) nothrow @nogc:

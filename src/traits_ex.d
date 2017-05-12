@@ -923,7 +923,7 @@ template rank(T)
         enum rank = 0; // base case, stop there
 }
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     import array_ex : s;
     import std.range : cycle;

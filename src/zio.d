@@ -92,18 +92,44 @@ class GzipByLine
     {
         _lbuf.shrinkTo(0);
 
-        // TODO sentinel-based search for `_separator` in `_range`
-        while (!_range.empty &&
-               _range.front != _separator)
+        static if (__traits(hasMember, typeof(_range), `bufferFronts`))
         {
-            _lbuf.put(_range.front);
-            _range.popFront();
+            // TODO functionize this to an interface
+            import std.algorithm : find;
+            while (!_range.empty)
+            {
+                const hit = _range.bufferFronts.find(_separator); // or use `indexOf`
+                if (hit)
+                {
+                    _range._bufIx += hit.ptr - _range.bufferFronts.ptr + 1; // advancement + separator
+                    if (_range.empty)
+                    {
+                        _range.load();
+                    }
+                    break;
+                }
+                else            // no separator yet
+                {
+                    _lbuf.put(_range.bufferFronts); // so just add everything
+                    _range.load();
+                }
+            }
         }
-
-        if (!_range.empty &&
-            _range.front == _separator)
+        else
         {
-            _range.popFront();  // pop separator
+            // TODO sentinel-based search for `_separator` in `_range`
+            while (!_range.empty &&
+                   _range.front != _separator)
+            {
+                _lbuf.put(_range.front);
+                _range.popFront();
+            }
+
+            if (!_range.empty &&
+                _range.front == _separator)
+            {
+                _range.popFront();  // pop separator
+            }
         }
     }
 
@@ -232,6 +258,15 @@ struct ZlibFileInputRange
         return _bufIx == _bufLength;
     }
 
+    /** Get current bufferFronts.
+        TODO need better name for this
+     */
+    inout(ubyte)[] bufferFronts() inout @trusted
+    {
+        assert(!empty);
+        return _buf[_bufIx .. $];
+    }
+
 private:
     import etc.c.zlib;
 
@@ -269,7 +304,7 @@ unittest
     assert(new GzipByLine(path).count == 3);
 }
 
-// version(none)
+version(none)
 unittest
 {
     enum path = "/home/per/Knowledge/ConceptNet5/5.5/conceptnet-assertions-5.5.0.csv.gz";

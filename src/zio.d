@@ -25,7 +25,6 @@ struct GzipFileInputRange
         {
             _uncompressedBuf = cast(ubyte[])_uncompress.uncompress(_chunkRange.front);
             _chunkRange.popFront();
-            _bufIx = 0;
         }
         else
         {
@@ -33,13 +32,13 @@ struct GzipFileInputRange
             {
                 _uncompressedBuf = cast(ubyte[])_uncompress.flush();
                 _exhausted = true;
-                _bufIx = 0;
             }
             else
             {
                 _uncompressedBuf.length = 0;
             }
         }
+        _bufIx = 0;
     }
 
     void popFront()
@@ -48,7 +47,6 @@ struct GzipFileInputRange
         if (_bufIx >= _uncompressedBuf.length)
         {
             loadNextChunk();
-            _bufIx = 0;
         }
     }
 
@@ -101,11 +99,9 @@ class GzipByLine
                 ubyte[] currentFronts = _range.bufferFronts;
                 // `_range` is mutable so sentinel-based search can kick
                 const hit = currentFronts.find(_separator); // or use `indexOf`
-                dln("searching in currentFronts:", currentFronts, " separator:", cast(ubyte)_separator);
-                if (hit)
+                if (hit.length)
                 {
                     const lineLength = hit.ptr - currentFronts.ptr;
-                    dln("hit:", "`", cast(char[])hit, "`", " ", "[", hit.ptr, ",", hit.length, "]", " lineLength:", lineLength);
                     _lbuf.put(currentFronts[0 .. lineLength]); // add everything to separator
                     _range._bufIx += lineLength + _separator.sizeof; // advancement + separator
                     if (_range.empty)
@@ -116,12 +112,10 @@ class GzipByLine
                 }
                 else            // no separator yet
                 {
-                    dln("no hit:", hit);
                     _lbuf.put(currentFronts); // so just add everything
                     _range.loadNextChunk();
                 }
             }
-            dln("front:", front);
         }
         else
         {
@@ -238,6 +232,7 @@ struct ZlibFileInputRange
         {
             throw new Exception("Error decoding file");
         }
+        _bufIx = 0;
         _bufLength = count;
     }
 
@@ -272,7 +267,6 @@ struct ZlibFileInputRange
     inout(ubyte)[] bufferFronts() inout @trusted
     {
         assert(!empty);
-        dln("_bufIx:", _bufIx, " _bufLength:", _bufLength, " _buf.length:", _buf.length);
         return _buf[_bufIx .. _bufLength];
     }
 

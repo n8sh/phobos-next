@@ -278,7 +278,7 @@ private:
     import std.array : Appender;
     ubyte[] _buf;
     size_t _bufReadLength;      // number of bytes in `_buf` recently read
-    size_t _bufIx;
+    size_t _bufIx;              // current iteration index in `_buf`
 
     // TODO make this work:
     // extern (C) nothrow @nogc:

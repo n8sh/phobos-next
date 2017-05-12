@@ -233,14 +233,14 @@ struct ZlibFileInputRange
             throw new Exception("Error decoding file");
         }
         _bufIx = 0;
-        _bufLength = count;
+        _bufReadLength = count;
     }
 
     void popFront()
     {
         assert(!empty);
         _bufIx += 1;
-        if (_bufIx >= _bufLength)
+        if (_bufIx >= _bufReadLength)
         {
             loadNextChunk();
             _bufIx = 0;         // restart counter
@@ -258,7 +258,7 @@ struct ZlibFileInputRange
 
     @property bool empty() const
     {
-        return _bufIx == _bufLength;
+        return _bufIx == _bufReadLength;
     }
 
     /** Get current bufferFronts.
@@ -267,7 +267,7 @@ struct ZlibFileInputRange
     inout(ubyte)[] bufferFronts() inout @trusted
     {
         assert(!empty);
-        return _buf[_bufIx .. _bufLength];
+        return _buf.ptr[_bufIx .. _bufReadLength];
     }
 
 private:
@@ -277,7 +277,7 @@ private:
 
     import std.array : Appender;
     ubyte[] _buf;
-    size_t _bufLength;
+    size_t _bufReadLength;      // number of bytes in `_buf` recently read
     size_t _bufIx;
 
     // TODO make this work:

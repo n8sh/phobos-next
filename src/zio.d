@@ -93,7 +93,7 @@ class GzipByLine
         static if (__traits(hasMember, typeof(_range), `bufferFronts`))
         {
             // TODO functionize
-            import std.algorithm : find;
+            import std.algorithm.searching : find;
             while (!_range.empty)
             {
                 ubyte[] currentFronts = _range.bufferFronts;

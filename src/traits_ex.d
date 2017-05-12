@@ -1014,3 +1014,21 @@ template ownsItsElements(C)
     import std.range.primitives : ElementType;
     enum ownsItsElements = !isCopyable!C && !hasIndirections!(ElementType!C);
 }
+
+/// Rank of type `T`.
+template rank(T)
+{
+    static if (isInputRange!T) // is T a range?
+        enum size_t rank = 1 + rank!(ElementType!T); // if yes, recurse
+    else
+        enum size_t rank = 0; // base case, stop there
+}
+
+unittest
+{
+    import array_ex : s;
+    import std.range : cycle;
+    auto c = cycle([[0,1].s[],
+                    [2,3].s[]].s[]); // == [[0,1],[2,3],[0,1],[2,3],[0,1]...
+    assert(rank!(typeof(c)) == 2); // range of ranges
+}

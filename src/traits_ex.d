@@ -927,9 +927,12 @@ unittest
 {
     import array_ex : s;
     import std.range : cycle;
+
     auto c = cycle([[0,1].s[],
                     [2,3].s[]].s[]); // == [[0,1],[2,3],[0,1],[2,3],[0,1]...
+
     assert(rank!(typeof(c)) == 2); // range of ranges
+
     static assert(rank!(int[]) == 1);
     static assert(rank!(int[][]) == 2);
 }

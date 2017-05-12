@@ -275,7 +275,6 @@ private:
 
     gzFile _f;
 
-    import std.array : Appender;
     ubyte[] _buf;
     size_t _bufReadLength;      // number of bytes in `_buf` recently read
     size_t _bufIx;              // current stream read index in `_buf`

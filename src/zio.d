@@ -101,6 +101,7 @@ class GzipByLine
                 ubyte[] currentFronts = _range.bufferFronts;
                 // `_range` is mutable so sentinel-based search can kick
                 const hit = currentFronts.find(_separator); // or use `indexOf`
+                dln("searching in currentFronts:", currentFronts, " separator:", cast(ubyte)_separator);
                 if (hit)
                 {
                     const lineLength = hit.ptr - currentFronts.ptr;

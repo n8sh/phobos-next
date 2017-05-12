@@ -275,7 +275,7 @@ private:
 
     gzFile _f;
 
-    ubyte[] _buf;
+    ubyte[] _buf;               // block read buffer
     size_t _bufReadLength;      // number of bytes in `_buf` recently read
     size_t _bufIx;              // current stream read index in `_buf`
 

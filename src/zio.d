@@ -98,14 +98,15 @@ class GzipByLine
             import std.algorithm : find;
             while (!_range.empty)
             {
+                ubyte[] currentFronts = _range.bufferFronts;
                 // `_range` is mutable so sentinel-based search can kick
-                const hit = _range.bufferFronts.find(_separator); // or use `indexOf`
+                const hit = currentFronts.find(_separator); // or use `indexOf`
                 if (hit)
                 {
-                    dln("hit:", hit);
-                    const lineLength = hit.ptr - _range.bufferFronts.ptr;
-                    _lbuf.put(_range.bufferFronts[0 .. lineLength]); // add everything to separator
-                    _range._bufIx += lineLength + 1; // advancement + separator
+                    const lineLength = hit.ptr - currentFronts.ptr;
+                    dln("hit:", "`", cast(char[])hit, "`", " ", "[", hit.ptr, ",", hit.length, "]", " lineLength:", lineLength);
+                    _lbuf.put(currentFronts[0 .. lineLength]); // add everything to separator
+                    _range._bufIx += lineLength + _separator.sizeof; // advancement + separator
                     if (_range.empty)
                     {
                         _range.loadNextChunk();
@@ -115,10 +116,11 @@ class GzipByLine
                 else            // no separator yet
                 {
                     dln("no hit:", hit);
-                    _lbuf.put(_range.bufferFronts); // so just add everything
+                    _lbuf.put(currentFronts); // so just add everything
                     _range.loadNextChunk();
                 }
             }
+            dln("front:", front);
         }
         else
         {
@@ -269,9 +271,7 @@ struct ZlibFileInputRange
     inout(ubyte)[] bufferFronts() inout @trusted
     {
         assert(!empty);
-        dln("_bufIx:", _bufIx);
-        dln("_bufLength:", _bufLength);
-        dln("_buf.length:", _buf.length);
+        dln("_bufIx:", _bufIx, " _bufLength:", _bufLength, " _buf.length:", _buf.length);
         return _buf[_bufIx .. _bufLength];
     }
 
@@ -295,7 +295,7 @@ private:
 unittest
 {
     enum path = "test.gz";
-    const source = "bla\nbla\nbla";
+    const source = "abc\ndef\nghi";
 
     auto of = new GzipOut(path);
     of.compress(source);

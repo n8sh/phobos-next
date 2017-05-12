@@ -271,7 +271,7 @@ struct ZlibFileInputRange
     }
 
 private:
-    import etc.c.zlib;
+    import etc.c.zlib : gzFile, gzopen, gzclose, gzread;
 
     gzFile _f;
 

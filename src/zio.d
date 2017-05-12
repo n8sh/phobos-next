@@ -276,7 +276,10 @@ private:
     gzFile _f;
 
     ubyte[] _buf;               // block read buffer
-    size_t _bufReadLength;      // number of bytes in `_buf` recently read
+
+    // number of bytes in `_buf` recently read by `gzread`, normally equal to `_buf.length` except after last read where is it's normally less than `_buf.length`
+    size_t _bufReadLength;
+
     size_t _bufIx;              // current stream read index in `_buf`
 
     // TODO make this work:

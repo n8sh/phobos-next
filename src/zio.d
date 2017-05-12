@@ -16,10 +16,10 @@ struct GzipFileInputRange
         _f = File(path, "r");
         _chunkRange = _f.byChunk(chunkSize);
         _uncompress = new UnCompress;
-        load();
+        loadNextChunk();
     }
 
-    void load()
+    void loadNextChunk()
     {
         if (!_chunkRange.empty)
         {
@@ -47,7 +47,7 @@ struct GzipFileInputRange
         _bufIx += 1;
         if (_bufIx >= _uncompressedBuf.length)
         {
-            load();
+            loadNextChunk();
             _bufIx = 0;
         }
     }
@@ -94,24 +94,29 @@ class GzipByLine
 
         static if (__traits(hasMember, typeof(_range), `bufferFronts`))
         {
-            // TODO functionize this to an interface
+            // TODO functionize
             import std.algorithm : find;
             while (!_range.empty)
             {
+                // `_range` is mutable so sentinel-based search can kick
                 const hit = _range.bufferFronts.find(_separator); // or use `indexOf`
                 if (hit)
                 {
-                    _range._bufIx += hit.ptr - _range.bufferFronts.ptr + 1; // advancement + separator
+                    dln("hit:", hit);
+                    const lineLength = hit.ptr - _range.bufferFronts.ptr;
+                    _lbuf.put(_range.bufferFronts[0 .. lineLength]); // add everything to separator
+                    _range._bufIx += lineLength + 1; // advancement + separator
                     if (_range.empty)
                     {
-                        _range.load();
+                        _range.loadNextChunk();
                     }
-                    break;
+                    break;      // done
                 }
                 else            // no separator yet
                 {
+                    dln("no hit:", hit);
                     _lbuf.put(_range.bufferFronts); // so just add everything
-                    _range.load();
+                    _range.loadNextChunk();
                 }
             }
         }
@@ -209,7 +214,7 @@ struct ZlibFileInputRange
             throw new Exception("Couldn't open file " ~ path.idup);
         }
         _buf = new ubyte[chunkSize];
-        load();
+        loadNextChunk();
     }
 
     ~this() @trusted
@@ -223,7 +228,7 @@ struct ZlibFileInputRange
 
     @disable this(this);
 
-    void load() @trusted
+    void loadNextChunk() @trusted
     {
         int count = gzread(_f, _buf.ptr, chunkSize);
         if (count == -1)
@@ -239,7 +244,7 @@ struct ZlibFileInputRange
         _bufIx += 1;
         if (_bufIx >= _bufLength)
         {
-            load();
+            loadNextChunk();
             _bufIx = 0;         // restart counter
         }
     }
@@ -264,7 +269,10 @@ struct ZlibFileInputRange
     inout(ubyte)[] bufferFronts() inout @trusted
     {
         assert(!empty);
-        return _buf[_bufIx .. $];
+        dln("_bufIx:", _bufIx);
+        dln("_bufLength:", _bufLength);
+        dln("_buf.length:", _buf.length);
+        return _buf[_bufIx .. _bufLength];
     }
 
 private:

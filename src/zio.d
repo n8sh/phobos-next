@@ -294,7 +294,7 @@ unittest
     enum path = "test.gz";
     const source = "abc\ndef\nghi";
 
-    auto of = new GzipOut(path);
+    scope auto of = new GzipOut(path);
     of.compress(source);
     of.finish();
 

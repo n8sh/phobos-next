@@ -296,23 +296,30 @@ unittest
     import std.stdio : File;
 
     enum path = "test.gz";
-    scope File file = File(path, "w"); // TODO temporary file
 
-    const source = "abc\ndef\nghi";
+    const wholeSource = "abc\ndef\nghi";
 
-    scope auto of = new GzipOut(file);
-    of.compress(source);
-    of.finish();
-
-    size_t ix = 0;
-    foreach (e; ZlibFileInputRange(path))
+    foreach (const n; 0 .. wholeSource.length)
     {
-        assert(cast(char)e == source[ix]);
-        ++ix;
-    }
+        dln(`n:`, n);
+        const source = wholeSource[0 .. n]; // slice from the beginning
 
-    import std.algorithm.searching : count;
-    assert(new GzipByLine(path).count == 3);
+        scope File file = File(path, "w"); // TODO temporary file
+        scope auto of = new GzipOut(file);
+        of.compress(source);
+        of.finish();
+
+        size_t ix = 0;
+        foreach (e; ZlibFileInputRange(path))
+        {
+            assert(cast(char)e == source[ix]);
+            ++ix;
+        }
+
+        import std.algorithm.searching : count;
+        import std.algorithm.iteration : splitter;
+        assert(new GzipByLine(path).count == source.splitter('\n').count);
+    }
 }
 
 version(none)

@@ -90,7 +90,7 @@ class GzipByLine
     {
         _lbuf.shrinkTo(0);
 
-        static if (__traits(hasMember, typeof(_range), `bufferFronts`))
+        static if (__traits(hasMember, typeof(_range), `bufferFronts`)) // TODO use trait
         {
             // TODO functionize
             import std.algorithm.searching : find;

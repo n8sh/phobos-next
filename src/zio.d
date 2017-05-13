@@ -166,9 +166,9 @@ class GzipOut
     import std.zlib: Compress, HeaderFormat;
     import std.stdio: File;
 
-    this(string path)
+    this(File file)
     {
-        _f = File(path, "w");
+        _f = file;
         _compress = new Compress(HeaderFormat.gzip);
     }
 
@@ -291,10 +291,14 @@ private:
 
 unittest
 {
+    import std.stdio : File;
+
     enum path = "test.gz";
+    scope File file = File(path, "w"); // TODO temporary file
+
     const source = "abc\ndef\nghi";
 
-    scope auto of = new GzipOut(path);
+    scope auto of = new GzipOut(file);
     of.compress(source);
     of.finish();
 

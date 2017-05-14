@@ -42,10 +42,10 @@ string toOrdinal(T)(T n)
 /** Get English ordinal number of unsigned integer $(D n).
     See also: https://en.wikipedia.org/wiki/Ordinal_number_(linguistics)
  */
-T fromOrdinalTo(T)(S  n)
-    if (isUnsinged!T)
+T fromOrdinalTo(T)(scope const(char)[] ordinal)
+    if (isUnsigned!T)
 {
-    switch (n)
+    switch (ordinal)
     {
     case `zeroth`: return 0;
     case `first`: return 1;
@@ -69,9 +69,15 @@ T fromOrdinalTo(T)(S  n)
     case `nineteenth`: return 19;
     case `twentieth`: return 20;
     default:
-        assert(s.skipOver(`th`));
-        enforce(false, `Handle this case`);
+        import std.algorithm : skipOver;
+        assert(ordinal.skipOver(`th`));
+        assert(false, `Handle this case`);
     }
+}
+
+@safe pure nothrow @nogc unittest
+{
+    assert(`zeroth`.fromOrdinalTo!uint == 0);
 }
 
 enum onesNumerals = [ `zero`, `one`, `two`, `three`, `four`,

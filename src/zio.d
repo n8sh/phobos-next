@@ -82,7 +82,7 @@ template isBlockInputRange(R)
                               __traits(hasMember, R, `loadNextChunk`));
 }
 
-class GzipByLine
+class GzipByLine(BlockInputRange)
 {
     private alias E = char;
 
@@ -161,7 +161,7 @@ class GzipByLine
     }
 
 private:
-    ZlibFileInputRange _range;
+    BlockInputRange _range;
 
     import std.array : Appender;
     Appender!(E[]) _lbuf;       // line buffer
@@ -396,7 +396,7 @@ void testInputRange(FileInputRange)()
 
     const wholeSource = "abc\ndef\nghi";
 
-    foreach (const n; 4 .. wholeSource.length) // TODO change 4 to 0
+    foreach (const n; wholeSource.length .. wholeSource.length) // TODO change 4 to 0
     {
         dln(`n:`, n);
         const source = wholeSource[0 .. n]; // slice from the beginning
@@ -416,9 +416,10 @@ void testInputRange(FileInputRange)()
 
         import std.algorithm.searching : count;
         import std.algorithm.iteration : splitter;
-        dln(`new GzipByLine(path).count:`, new GzipByLine(path).count);
+        alias R = GzipByLine!ZlibFileInputRange;
+        dln(`new GzipByLine(path).count:`, new R(path).count);
         dln(`source.splitter('\n').count:`, source.splitter('\n').count);
-        assert(new GzipByLine(path).count == source.splitter('\n').count);
+        assert(new R(path).count == source.splitter('\n').count);
     }
 }
 

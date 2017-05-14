@@ -396,7 +396,7 @@ void testInputRange(FileInputRange)()
 
     const wholeSource = "abc\ndef\nghi";
 
-    foreach (const n; wholeSource.length .. wholeSource.length) // TODO change 4 to 0
+    foreach (const n; wholeSource.length .. wholeSource.length) // TODO from 0
     {
         dln(`n:`, n);
         const source = wholeSource[0 .. n]; // slice from the beginning

@@ -101,7 +101,7 @@ class GzipByLine(BlockInputRange)
 
         static if (isBlockInputRange!(typeof(_range)))
         {
-            dln(`here`);
+            // dln(`here`);
             // TODO functionize
             import std.algorithm.searching : find;
             while (!_range.empty)
@@ -112,7 +112,7 @@ class GzipByLine(BlockInputRange)
                 if (hit.length)
                 {
                     const lineLength = hit.ptr - currentFronts.ptr;
-                    dln(`hit: `, hit, " hitLength:", lineLength);
+                    // dln(`hit: `, hit, " hitLength:", lineLength);
                     _lbuf.put(currentFronts[0 .. lineLength]); // add everything to separator
                     _range._bufIx += lineLength + _separator.sizeof; // advancement + separator
                     if (_range.empty)
@@ -123,7 +123,7 @@ class GzipByLine(BlockInputRange)
                 }
                 else            // no separator yet
                 {
-                    dln(`no hit`);
+                    // dln(`no hit`);
                     _lbuf.put(currentFronts); // so just add everything
                     _range.loadNextChunk();
                 }
@@ -429,7 +429,6 @@ unittest
     // TODO activate testInputRange!(Bz2libFileInputRange);
 }
 
-version(none)
 unittest
 {
     enum path = "/home/per/Knowledge/ConceptNet5/5.5/conceptnet-assertions-5.5.0.csv.gz";
@@ -440,7 +439,7 @@ unittest
 
     const lineBlockCount = 100_000;
     size_t lineNr = 0;
-    foreach (const line; new GzipByLine(path))
+    foreach (const line; new GzipByLine!ZlibFileInputRange(path))
     {
         if (lineNr % lineBlockCount == 0)
         {
@@ -450,7 +449,7 @@ unittest
     }
 
     const lineCount = 5;
-    foreach (const line; new GzipByLine(path).take(lineCount))
+    foreach (const line; new GzipByLine!ZlibFileInputRange(path).take(lineCount))
     {
         writeln(line);
     }

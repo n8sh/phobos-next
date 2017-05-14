@@ -75,7 +75,7 @@ template isBlockInputRange(R)
 {
     import std.range : isInputRange;
     enum isBlockInputRange = (isInputRange!R &&
-                              __traits(hasMember, R, `bufferFronts`) &&
+                              __traits(hasMember, R, `bufferFrontChunk`) &&
                               __traits(hasMember, R, `loadNextChunk`));
 }
 
@@ -103,7 +103,7 @@ class GzipByLine
             import std.algorithm.searching : find;
             while (!_range.empty)
             {
-                ubyte[] currentFronts = _range.bufferFronts;
+                ubyte[] currentFronts = _range.bufferFrontChunk;
                 // `_range` is mutable so sentinel-based search can kick
                 const hit = currentFronts.find(_separator); // or use `indexOf`
                 if (hit.length)
@@ -272,10 +272,10 @@ struct ZlibFileInputRange
         return _bufIx == _bufReadLength;
     }
 
-    /** Get current bufferFronts.
+    /** Get current bufferFrontChunk.
         TODO need better name for this
      */
-    inout(ubyte)[] bufferFronts() inout @trusted
+    inout(ubyte)[] bufferFrontChunk() inout @trusted
     {
         assert(!empty);
         return _buf.ptr[_bufIx .. _bufReadLength];
@@ -362,10 +362,10 @@ struct Bz2libFileInputRange
         return _bufIx == _bufReadLength;
     }
 
-    /** Get current bufferFronts.
+    /** Get current bufferFrontChunk.
         TODO need better name for this
      */
-    inout(ubyte)[] bufferFronts() inout @trusted
+    inout(ubyte)[] bufferFrontChunk() inout @trusted
     {
         assert(!empty);
         return _buf.ptr[_bufIx .. _bufReadLength];

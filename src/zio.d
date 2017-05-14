@@ -71,7 +71,7 @@ private:
     size_t _bufIx;
 }
 
-/** Is `true` if `R` is block input range.
+/** Is `true` iff `R` is block input range.
    TODO Move to std.range
  */
 template isBlockInputRange(R)

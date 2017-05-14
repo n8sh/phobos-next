@@ -103,15 +103,28 @@ class GzipByLine(BlockInputRange)
         {
             // dln(`here`);
             // TODO functionize
-            import std.algorithm.searching : find;
             while (!_range.empty)
             {
                 ubyte[] currentFronts = _range.bufferFrontChunk;
                 // `_range` is mutable so sentinel-based search can kick
-                const hit = currentFronts.find(_separator); // or use `indexOf`
-                if (hit.length)
+
+                enum useCountUntil = false;
+                static if (useCountUntil)
                 {
-                    const lineLength = hit.ptr - currentFronts.ptr;
+                    import std.algorithm.searching : countUntil;
+                    // TODO
+                }
+                else
+                {
+                    import std.algorithm.searching : find;
+                    const hit = currentFronts.find(_separator); // or use `indexOf`
+                    const hitPtr = hit.ptr;
+                    const hitLength = hit.length;
+                }
+
+                if (hitLength)
+                {
+                    const lineLength = hitPtr - currentFronts.ptr;
                     // dln(`hit: `, hit, " hitLength:", lineLength);
                     _lbuf.put(currentFronts[0 .. lineLength]); // add everything to separator
                     _range._bufIx += lineLength + _separator.sizeof; // advancement + separator

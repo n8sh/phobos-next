@@ -384,10 +384,11 @@ void testInputRange(FileInputRange)()
 
     const wholeSource = "abc\ndef\nghi";
 
-    foreach (const n; 0 .. wholeSource.length)
+    foreach (const n; 4 .. wholeSource.length) // TODO change 4 to 0
     {
         dln(`n:`, n);
         const source = wholeSource[0 .. n]; // slice from the beginning
+        dln(`source:"`, source, `"`);
 
         scope File file = File(path, "w"); // TODO temporary file
         scope auto of = new GzipOut(file);

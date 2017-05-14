@@ -192,6 +192,8 @@ private:
 
 struct ZlibFileInputRange
 {
+    enum defaultExtension = `.gz`;
+
     /* Zlib docs:
        CHUNK is simply the buffer size for feeding data to and pulling data from
        the zlib routines. Larger buffer sizes would be more efficient,
@@ -292,6 +294,7 @@ private:
 struct Bz2libFileInputRange
 {
     enum chunkSize = 128 * 1024; // 128K
+    enum defaultExtension = `.bz2`;
 
     @safe:
 
@@ -373,11 +376,11 @@ private:
     size_t _bufIx;              // current stream read index in `_buf`
 }
 
-unittest
+void testInputRange(FileInputRange)()
 {
     import std.stdio : File;
 
-    enum path = "test.gz";
+    enum path = "test" ~ FileInputRange.defaultExtension;
 
     const wholeSource = "abc\ndef\nghi";
 
@@ -392,7 +395,7 @@ unittest
         of.finish();
 
         size_t ix = 0;
-        foreach (e; ZlibFileInputRange(path))
+        foreach (e; FileInputRange(path))
         {
             assert(cast(char)e == source[ix]);
             ++ix;
@@ -402,6 +405,12 @@ unittest
         import std.algorithm.iteration : splitter;
         assert(new GzipByLine(path).count == source.splitter('\n').count);
     }
+}
+
+unittest
+{
+    testInputRange!(ZlibFileInputRange);
+    testInputRange!(Bz2libFileInputRange);
 }
 
 version(none)

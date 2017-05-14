@@ -10,33 +10,33 @@ import std.traits: isIntegral, isUnsigned, isSomeString;
 string toOrdinal(T)(T n)
     if (isUnsinged!T)
 {
-    string s;
+    string ordinal;
     switch (n)
     {
-        case 0: s = `zeroth`; break;
-        case 1: s = `first`; break;
-        case 2: s = `second`; break;
-        case 3: s = `third`; break;
-        case 4: s = `fourth`; break;
-        case 5: s = `fifth`; break;
-        case 6: s = `sixth`; break;
-        case 7: s = `seventh`; break;
-        case 8: s = `eighth`; break;
-        case 9: s = `ninth`; break;
-        case 10: s = `tenth`; break;
-        case 11: s = `eleventh`; break;
-        case 12: s = `twelveth`; break;
-        case 13: s = `thirteenth`; break;
-        case 14: s = `fourteenth`; break;
-        case 15: s = `fifteenth`; break;
-        case 16: s = `sixteenth`; break;
-        case 17: s = `seventeenth`; break;
-        case 18: s = `eighteenth`; break;
-        case 19: s = `nineteenth`; break;
-        case 20: s = `twentieth`; break;
-        default: s = to!string(n) ~ `:th`; break;
+        case 0: ordinal = `zeroth`; break;
+        case 1: ordinal = `first`; break;
+        case 2: ordinal = `second`; break;
+        case 3: ordinal = `third`; break;
+        case 4: ordinal = `fourth`; break;
+        case 5: ordinal = `fifth`; break;
+        case 6: ordinal = `sixth`; break;
+        case 7: ordinal = `seventh`; break;
+        case 8: ordinal = `eighth`; break;
+        case 9: ordinal = `ninth`; break;
+        case 10: ordinal = `tenth`; break;
+        case 11: ordinal = `eleventh`; break;
+        case 12: ordinal = `twelveth`; break;
+        case 13: ordinal = `thirteenth`; break;
+        case 14: ordinal = `fourteenth`; break;
+        case 15: ordinal = `fifteenth`; break;
+        case 16: ordinal = `sixteenth`; break;
+        case 17: ordinal = `seventeenth`; break;
+        case 18: ordinal = `eighteenth`; break;
+        case 19: ordinal = `nineteenth`; break;
+        case 20: ordinal = `twentieth`; break;
+        default: ordinal = to!string(n) ~ `:th`; break; // TODO
     }
-    return s;
+    return ordinal;
 }
 
 /** Get English ordinal number of unsigned integer $(D n).

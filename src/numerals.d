@@ -2,18 +2,17 @@
 module numerals;
 
 import std.conv: to;
-import std.traits: isIntegral, isSomeString;
+import std.traits: isIntegral, isUnsigned, isSomeString;
 
-/** Get English Ordinal Number of $(D n).
+/** Get English ordinal number of unsigned integer $(D n).
     See also: https://en.wikipedia.org/wiki/Ordinal_number_(linguistics)
  */
 string toOrdinal(T)(T n)
-    if (isIntegral!T)
+    if (isUnsinged!T)
 {
     string s;
     switch (n)
     {
-        default: s = to!string(n) ~ `:th`; break;
         case 0: s = `zeroth`; break;
         case 1: s = `first`; break;
         case 2: s = `second`; break;
@@ -35,6 +34,7 @@ string toOrdinal(T)(T n)
         case 18: s = `eighteenth`; break;
         case 19: s = `nineteenth`; break;
         case 20: s = `twentieth`; break;
+        default: s = to!string(n) ~ `:th`; break;
     }
     return s;
 }

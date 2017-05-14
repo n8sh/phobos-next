@@ -410,7 +410,7 @@ void testInputRange(FileInputRange)()
 unittest
 {
     testInputRange!(ZlibFileInputRange);
-    testInputRange!(Bz2libFileInputRange);
+    // TODO activate testInputRange!(Bz2libFileInputRange);
 }
 
 version(none)

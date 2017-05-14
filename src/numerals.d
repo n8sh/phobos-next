@@ -34,7 +34,8 @@ string toOrdinal(T)(T n)
         case 18: ordinal = `eighteenth`; break;
         case 19: ordinal = `nineteenth`; break;
         case 20: ordinal = `twentieth`; break;
-        default: ordinal = to!string(n) ~ `:th`; break; // TODO
+        default:
+            assert(0, "Handle this case");
     }
     return ordinal;
 }
@@ -71,7 +72,7 @@ T fromOrdinalTo(T)(scope const(char)[] ordinal)
     default:
         import std.algorithm : skipOver;
         assert(ordinal.skipOver(`th`));
-        assert(false, `Handle this case`);
+        assert(0, `Handle this case`);
     }
 }
 

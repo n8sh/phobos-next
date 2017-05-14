@@ -75,8 +75,8 @@ template isBlockInputRange(R)
 {
     import std.range : isInputRange;
     enum isBlockInputRange = (isInputRange!R &&
-                              (__traits(hasMember, R, `bufferFronts`) &&
-                               __traits(hasMember, R, `loadNextChunk`)));
+                              __traits(hasMember, R, `bufferFronts`) &&
+                              __traits(hasMember, R, `loadNextChunk`));
 }
 
 class GzipByLine

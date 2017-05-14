@@ -2,8 +2,6 @@
 */
 module zio;
 
-// import bzlib;
-
 struct GzipFileInputRange
 {
     import std.stdio : File;
@@ -289,6 +287,90 @@ private:
     // pragma(mangle, "gzopen") gzFile gzopen(const(char)* path, const(char)* mode);
     // pragma(mangle, "gzclose") int gzclose(gzFile file);
     // pragma(mangle, "gzread") int gzread(gzFile file, void* buf, uint len);
+}
+
+struct Bz2libFileInputRange
+{
+    enum chunkSize = 128 * 1024; // 128K
+
+    @safe:
+
+    this(in const(char)[] path) @trusted
+    {
+        import std.string : toStringz; // TODO avoid GC allocation by looking at how gmp-d z.d solves it
+        _f = BZ2_bzopen(path.toStringz, `rb`);
+        if (!_f)
+        {
+            throw new Exception("Couldn't open file " ~ path.idup);
+        }
+        _buf = new ubyte[chunkSize];
+        loadNextChunk();
+    }
+
+    ~this() @trusted
+    {
+        BZ2_bzclose(&_f);       // TODO error handling?
+    }
+
+    @disable this(this);
+
+    void loadNextChunk() @trusted
+    {
+        int count = BZ2_bzread(_f, _buf.ptr, chunkSize);
+        if (count == -1)
+        {
+            throw new Exception("Error decoding file");
+        }
+        _bufIx = 0;
+        _bufReadLength = count;
+    }
+
+    void popFront()
+    {
+        assert(!empty);
+        _bufIx += 1;
+        if (_bufIx >= _bufReadLength)
+        {
+            loadNextChunk();
+            _bufIx = 0;         // restart counter
+        }
+    }
+
+    pragma(inline, true):
+    pure nothrow @nogc:
+
+    @property ubyte front() const @trusted
+    {
+        assert(!empty);
+        return _buf.ptr[_bufIx];
+    }
+
+    @property bool empty() const
+    {
+        return _bufIx == _bufReadLength;
+    }
+
+    /** Get current bufferFronts.
+        TODO need better name for this
+     */
+    inout(ubyte)[] bufferFronts() inout @trusted
+    {
+        assert(!empty);
+        return _buf.ptr[_bufIx .. _bufReadLength];
+    }
+
+private:
+    import bzlib : BZFILE, BZ2_bzopen, BZ2_bzread, BZ2_bzwrite, BZ2_bzclose;
+    pragma(lib, "bz2");             // Ubuntu: sudo apt-get install libbz2-dev
+
+    BZFILE* _f;
+
+    ubyte[] _buf;               // block read buffer
+
+    // number of bytes in `_buf` recently read by `gzread`, normally equal to `_buf.length` except after last read where is it's normally less than `_buf.length`
+    size_t _bufReadLength;
+
+    size_t _bufIx;              // current stream read index in `_buf`
 }
 
 unittest

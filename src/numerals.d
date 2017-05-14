@@ -78,6 +78,7 @@ T fromOrdinalTo(T)(scope const(char)[] ordinal)
 @safe pure nothrow @nogc unittest
 {
     assert(`zeroth`.fromOrdinalTo!uint == 0);
+    assert(`fourteenth`.fromOrdinalTo!uint == 14);
 }
 
 enum onesNumerals = [ `zero`, `one`, `two`, `three`, `four`,

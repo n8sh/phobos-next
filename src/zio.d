@@ -92,6 +92,7 @@ class GzipByLine
                    __traits(hasMember, typeof(_range), `loadNextChunk`) &&
                    __traits(hasMember, typeof(_range), `put`)) // TODO use trait
         {
+            dln(`here`);
             // TODO functionize
             import std.algorithm.searching : find;
             while (!_range.empty)
@@ -101,6 +102,7 @@ class GzipByLine
                 const hit = currentFronts.find(_separator); // or use `indexOf`
                 if (hit.length)
                 {
+                    dln(`hit`);
                     const lineLength = hit.ptr - currentFronts.ptr;
                     _lbuf.put(currentFronts[0 .. lineLength]); // add everything to separator
                     _range._bufIx += lineLength + _separator.sizeof; // advancement + separator
@@ -112,6 +114,7 @@ class GzipByLine
                 }
                 else            // no separator yet
                 {
+                    dln(`no hit`);
                     _lbuf.put(currentFronts); // so just add everything
                     _range.loadNextChunk();
                 }

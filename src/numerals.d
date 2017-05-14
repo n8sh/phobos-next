@@ -39,6 +39,41 @@ string toOrdinal(T)(T n)
     return s;
 }
 
+/** Get English ordinal number of unsigned integer $(D n).
+    See also: https://en.wikipedia.org/wiki/Ordinal_number_(linguistics)
+ */
+T fromOrdinalTo(T)(S  n)
+    if (isUnsinged!T)
+{
+    switch (n)
+    {
+    case `zeroth`: return 0;
+    case `first`: return 1;
+    case `second`: return 2;
+    case `third`: return 3;
+    case `fourth`: return 4;
+    case `fifth`: return 5;
+    case `sixth`: return 6;
+    case `seventh`: return 7;
+    case `eighth`: return 8;
+    case `ninth`: return 9;
+    case `tenth`: return 10;
+    case `eleventh`: return 11;
+    case `twelveth`: return 12;
+    case `thirteenth`: return 13;
+    case `fourteenth`: return 14;
+    case `fifteenth`: return 15;
+    case `sixteenth`: return 16;
+    case `seventeenth`: return 17;
+    case `eighteenth`: return 18;
+    case `nineteenth`: return 19;
+    case `twentieth`: return 20;
+    default:
+        assert(s.skipOver(`th`));
+        enforce(false, `Handle this case`);
+    }
+}
+
 enum onesNumerals = [ `zero`, `one`, `two`, `three`, `four`,
                       `five`, `six`, `seven`, `eight`, `nine` ];
 enum singleWords = onesNumerals ~ [ `ten`, `eleven`, `twelve`, `thirteen`, `fourteen`,

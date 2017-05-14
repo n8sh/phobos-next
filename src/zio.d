@@ -71,6 +71,14 @@ private:
     size_t _bufIx;
 }
 
+template isBlockInputRange(R)
+{
+    import std.range : isInputRange;
+    enum isBlockInputRange = (isInputRange!R &&
+                              (__traits(hasMember, R, `bufferFronts`) &&
+                               __traits(hasMember, R, `loadNextChunk`)));
+}
+
 class GzipByLine
 {
     private alias E = char;
@@ -88,8 +96,7 @@ class GzipByLine
     {
         _lbuf.shrinkTo(0);
 
-        static if (__traits(hasMember, typeof(_range), `bufferFronts`) &&
-                   __traits(hasMember, typeof(_range), `loadNextChunk`)) // TODO use trait
+        static if (isBlockInputRange!(typeof(_range)))
         {
             dln(`here`);
             // TODO functionize
@@ -101,8 +108,8 @@ class GzipByLine
                 const hit = currentFronts.find(_separator); // or use `indexOf`
                 if (hit.length)
                 {
-                    dln(`hit`);
                     const lineLength = hit.ptr - currentFronts.ptr;
+                    dln(`hit: `, hit, " hitLength:", lineLength);
                     _lbuf.put(currentFronts[0 .. lineLength]); // add everything to separator
                     _range._bufIx += lineLength + _separator.sizeof; // advancement + separator
                     if (_range.empty)
@@ -154,7 +161,7 @@ private:
     ZlibFileInputRange _range;
 
     import std.array : Appender;
-    Appender!(E[]) _lbuf;    // line buffer
+    Appender!(E[]) _lbuf;       // line buffer
 
     // NOTE this is slower for ldc:
     // import array_ex : UniqueArray;

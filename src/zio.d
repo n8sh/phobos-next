@@ -89,8 +89,7 @@ class GzipByLine
         _lbuf.shrinkTo(0);
 
         static if (__traits(hasMember, typeof(_range), `bufferFronts`) &&
-                   __traits(hasMember, typeof(_range), `loadNextChunk`) &&
-                   __traits(hasMember, typeof(_range), `put`)) // TODO use trait
+                   __traits(hasMember, typeof(_range), `loadNextChunk`)) // TODO use trait
         {
             dln(`here`);
             // TODO functionize
@@ -407,6 +406,8 @@ void testInputRange(FileInputRange)()
 
         import std.algorithm.searching : count;
         import std.algorithm.iteration : splitter;
+        dln(`new GzipByLine(path).count:`, new GzipByLine(path).count);
+        dln(`source.splitter('\n').count:`, source.splitter('\n').count);
         assert(new GzipByLine(path).count == source.splitter('\n').count);
     }
 }

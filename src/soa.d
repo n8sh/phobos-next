@@ -22,7 +22,6 @@ struct SOA(S)
 
     alias MemberNames = FieldNameTuple!S;
     alias Types = staticMap!(toType, MemberNames);
-    alias ArrayTypes = staticMap!(toArray, Types);
 
     @safe /*pure*/:
 
@@ -47,26 +46,44 @@ struct SOA(S)
         if (_length == _capacity) { grow(); }
         foreach (const index, ref container; containers)
         {
-            container[_length] = types[index];
+            // TODO functionize
+            static if (false)
+            {
+                import std.algorithm.mutation : move;
+                move(types[index], container[_length]);
+            }
+            else
+            {
+                container[_length] = types[index];
+            }
         }
         ++_length;
     }
 
-    void pushBack(S t)
+    void pushBack(S e)
     {
         if (_length == _capacity) { grow(); }
         foreach (const index, _; Types)
         {
-            containers[index][_length] = __traits(getMember, t, MemberNames[index]);
+            // TODO functionize
+            static if (false)
+            {
+                import std.algorithm.mutation : move;
+                move(__traits(getMember, e, MemberNames[index]), containers[index][_length]);
+            }
+            else
+            {
+                containers[index][_length] = __traits(getMember, e, MemberNames[index]);
+            }
         }
         ++_length;
     }
 
-    void opOpAssign(string op, S)(S t)
+    void opOpAssign(string op, S)(S e)
         if (op == "~")
     {
         import std.algorithm.mutation : move;
-        pushBack(move(t));
+        pushBack(move(e));      // TODO remove when compile does this for us
     }
 
     size_t length() const @property
@@ -92,6 +109,7 @@ private:
 
     // TODO use template mixin instead of Tuple for better performance
     import std.typecons : Tuple;
+    alias ArrayTypes = staticMap!(toArray, Types);
     Tuple!ArrayTypes containers;
 
     IAllocator _alloc;
@@ -100,7 +118,7 @@ private:
     size_t _capacity = 0;
     short growFactor = 2;
 
-    void allocate(size_t size_) @trusted
+    void allocate(size_t newCapacity) @trusted
     {
         if (_alloc is null)
         {
@@ -108,7 +126,7 @@ private:
         }
         foreach (const index, ref container; containers)
         {
-            container = _alloc.makeArray!(Types[index])(size_);
+            container = _alloc.makeArray!(Types[index])(newCapacity);
         }
     }
 

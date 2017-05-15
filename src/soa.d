@@ -125,7 +125,7 @@ private:
     }
     mixin(generateContainers());
 
-    ref inout(Types[index][]) getContainer(size_t index)() inout
+    ref inout(Types[index][]) getContainer(size_t index)() inout return scope
     {
         mixin(`return ` ~ `container` ~ index.stringof ~ ";");
     }

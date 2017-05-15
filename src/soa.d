@@ -1,7 +1,8 @@
 /** Structure of arrays.
     See also: https://maikklein.github.io/post/soa-d/
     See also: TODO Add my forum post
-    TODO is it possible to cleverly allow syntax x[0].name to not have to create
+
+    TODO add `x[0].name` that doesn't have to create a temporary
  */
 module soa;
 

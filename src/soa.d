@@ -1,6 +1,7 @@
 /** Structure of arrays.
     See also: https://maikklein.github.io/post/soa-d/
     See also: TODO Add my forum post
+    TODO is it possible to cleverly allow syntax x[0].name to not have to create
  */
 module soa;
 
@@ -186,8 +187,10 @@ unittest
     x ~= S.init;
     assert(x.length == 2);
 
-    x.pushBackMembers(42, 42f);
+    x.pushBackMembers(42, 43f);
     assert(x.length == 3);
+    assert(x.i[2] == 42);
+    assert(x.f[2] == 43);
 
     auto x3 = SOA!S(3);
     assert(x3.length == 0);

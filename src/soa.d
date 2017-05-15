@@ -40,7 +40,7 @@ struct SOA(T)
     void pushBack(Types types)
     {
         if (length == _capacity) { grow(); }
-        foreach(index, ref container; containers)
+        foreach (index, ref container; containers)
         {
             container[length] = types[index];
         }
@@ -50,7 +50,7 @@ struct SOA(T)
     void pushBack(T t)
     {
         if (length == _capacity) { grow(); }
-        foreach(index, _; Types)
+        foreach (index, _; Types)
         {
             containers[index][length] = __traits(getMember, t, MemberNames[index]);
         }

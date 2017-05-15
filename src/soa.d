@@ -39,7 +39,7 @@ struct SOA(S)
         import std.meta : staticIndexOf;
         alias index = staticIndexOf!(name, MemberNames);
         static assert(index >= 0);
-        return containers[index];
+        return getContainer!index;
     }
 
     void pushBackMembers(Types types)

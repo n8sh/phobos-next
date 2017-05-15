@@ -39,22 +39,22 @@ struct SOA(T)
 
     void pushBack(Types types)
     {
-        if (length == _capacity) { grow(); }
+        if (_length == _capacity) { grow(); }
         foreach (const index, ref container; containers)
         {
-            container[length] = types[index];
+            container[_length] = types[index];
         }
-        length = length + 1;
+        ++_length;
     }
 
     void pushBack(T t)
     {
-        if (length == _capacity) { grow(); }
+        if (_length == _capacity) { grow(); }
         foreach (const index, _; Types)
         {
-            containers[index][length] = __traits(getMember, t, MemberNames[index]);
+            containers[index][_length] = __traits(getMember, t, MemberNames[index]);
         }
-        length = length + 1;
+        ++_length;
     }
 
     size_t length() const @property
@@ -73,9 +73,9 @@ struct SOA(T)
 
 private:
 
-    void length(size_t len) @property
+    void length(size_t newLength) @property
     {
-        _length = len;
+        _length = newLength;
     }
 
     import std.typecons : Tuple;

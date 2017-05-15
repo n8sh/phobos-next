@@ -39,7 +39,7 @@ struct SOA(T)
         return containers[index];
     }
 
-    void pushBack(Types types)
+    void pushBackMembers(Types types)
     {
         if (_length == _capacity) { grow(); }
         foreach (const index, ref container; containers)
@@ -140,8 +140,15 @@ unittest
 
     auto x = SOA!S();
     assert(x.length == 0);
+
     x.pushBack(S.init);
     assert(x.length == 1);
+
+    x ~= S.init;
+    assert(x.length == 2);
+
+    x.pushBackMembers(42, 42f);
+    assert(x.length == 3);
 
     auto x3 = SOA!S(3);
     assert(x3.length == 0);

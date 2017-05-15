@@ -132,7 +132,7 @@ private:
     // alias ArrayTypes = staticMap!(toArray, Types);
     // Tuple!ArrayTypes containers;
 
-    static string generateContainers()
+    static string generateArrays()
     {
         string defs;
         foreach (const index, Type; Types)
@@ -142,7 +142,7 @@ private:
         }
         return defs;
     }
-    mixin(generateContainers());
+    mixin(generateArrays());
 
     ref inout(Types[index][]) getArray(size_t index)() inout return scope
     {

@@ -4,7 +4,7 @@
  */
 module soa;
 
-// @safe:
+@safe /*pure*/:
 
 /** Structure of arrays similar to members of `T`.
  */
@@ -23,6 +23,8 @@ struct SOA(T)
     alias MemberNames = FieldNameTuple!T;
     alias Types = staticMap!(toType, MemberNames);
     alias ArrayTypes = staticMap!(toArray, Types);
+
+    @safe /*pure*/:
 
     this(size_t size_, IAllocator _alloc = allocatorObject(Mallocator.instance))
     {
@@ -71,7 +73,7 @@ struct SOA(T)
         return _length;
     }
 
-    ~this()
+    ~this() @trusted
     {
         if (_alloc is null) { return; }
         foreach (ref container; containers)
@@ -96,7 +98,7 @@ private:
     size_t _capacity = 0;
     short growFactor = 2;
 
-    void allocate(size_t size_)
+    void allocate(size_t size_) @trusted
     {
         if (_alloc is null)
         {
@@ -108,7 +110,7 @@ private:
         }
     }
 
-    void grow()
+    void grow() @trusted
     {
         import std.algorithm: max;
         size_t newCapacity = max(1, _capacity * growFactor);

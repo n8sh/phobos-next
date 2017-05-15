@@ -2,7 +2,8 @@
     See also: https://maikklein.github.io/post/soa-d/
     See also: TODO Add my forum post
 
-    TODO add `x[0].name` that doesn't have to create a temporary
+    TODO add `x[0].name` that doesn't have to create a temporary.  See:
+    http://forum.dlang.org/post/wvulryummkqtskiwrusb@forum.dlang.org
  */
 module soa;
 
@@ -50,7 +51,7 @@ struct SOA(S)
         allocate(size_);
     }
 
-    auto ref opDispatch(string name)()
+    auto opDispatch(string name)()
     {
         import std.meta : staticIndexOf;
         alias index = staticIndexOf!(name, MemberNames);
@@ -118,6 +119,7 @@ struct SOA(S)
     }
 
     /** Index operator. */
+    // TODO activate:
     // ref inout(ElementRef) opIndex(size_t elementIndex) inout return scope
     // {
     //     return ElementRef(this, elementIndex);

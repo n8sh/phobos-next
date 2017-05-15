@@ -22,11 +22,11 @@ struct SOA(T)
     alias Types = staticMap!(toType, MemberNames);
     alias ArrayTypes = staticMap!(toArray, Types);
 
-    this(size_t _size, IAllocator _alloc = allocatorObject(Mallocator.instance))
+    this(size_t size_, IAllocator _alloc = allocatorObject(Mallocator.instance))
     {
         alloc = _alloc;
-        size = _size;
-        allocate(size);
+        _size = size_;
+        allocate(size_);
     }
 
     auto ref opDispatch(string name)()
@@ -39,7 +39,7 @@ struct SOA(T)
 
     void pushBack(Types types)
     {
-        if (length == size) { grow(); }
+        if (length == _size) { grow(); }
         foreach(index, ref container; containers)
         {
             container[length] = types[index];
@@ -49,7 +49,7 @@ struct SOA(T)
 
     void pushBack(T t)
     {
-        if (length == size) { grow(); }
+        if (length == _size) { grow(); }
         foreach(index, _; Types)
         {
             containers[index][length] = __traits(getMember, t, MemberNames[index]);
@@ -84,10 +84,10 @@ private:
     IAllocator alloc;
 
     size_t _length = 0;
-    size_t size = 0;
+    size_t _size = 0;
     short growFactor = 2;
 
-    void allocate(size_t size)
+    void allocate(size_t size_)
     {
         if (alloc is null)
         {
@@ -95,17 +95,17 @@ private:
         }
         foreach (index, ref container; containers)
         {
-            container = alloc.makeArray!(Types[index])(size);
+            container = alloc.makeArray!(Types[index])(size_);
         }
     }
 
     void grow()
     {
         import std.algorithm: max;
-        size_t newSize = max(1,size * growFactor);
-        size_t expandSize = newSize - size;
+        size_t newSize = max(1, _size * growFactor);
+        size_t expandSize = newSize - _size;
 
-        if (size is 0)
+        if (_size is 0)
         {
             allocate(newSize);
         }
@@ -116,7 +116,7 @@ private:
                 alloc.expandArray(container, expandSize);
             }
         }
-        size = newSize;
+        _size = newSize;
     }
 }
 

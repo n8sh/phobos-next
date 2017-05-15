@@ -28,9 +28,16 @@ struct SOA(S)
     alias Types = staticMap!(toType, MemberNames);
     alias PtrTypes = staticMap!(toPtrType, MemberNames);
 
-    private static struct SRef
+    /// Reference to element in `soaPtr` at index `elementIndex`.
+    private struct ElementRef
     {
-        S s;
+        SOA* soaPtr;
+        size_t elementIndex;
+        auto ref opDispatch(string name)()
+            @trusted return scope
+        {
+            return (*soaPtr).name[elementIndex];
+        }
     }
 
     @safe /*pure*/:
@@ -110,14 +117,15 @@ struct SOA(S)
         }
     }
 
-private:
-
-    // void length(size_t newLength) @property
+    /** Index operator. */
+    // ref inout(ElementRef) opIndex(size_t elementIndex) inout return scope
     // {
-    //     _length = newLength;
+    //     return ElementRef(this, elementIndex);
     // }
 
-    // TODO use template mixin and getContainer instead of Tuple for better performance
+private:
+
+    // TODO use when importing std.typecons doesn't cost to performance
     // import std.typecons : Tuple;
     // alias ArrayTypes = staticMap!(toArray, Types);
     // Tuple!ArrayTypes containers;
@@ -136,7 +144,7 @@ private:
 
     ref inout(Types[index][]) getContainer(size_t index)() inout return scope
     {
-        mixin(`return ` ~ `container` ~ index.stringof ~ ";");
+        mixin(`return container` ~ index.stringof ~ ";");
     }
 
     IAllocator _alloc;

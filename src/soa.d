@@ -90,6 +90,7 @@ private:
         _length = newLength;
     }
 
+    // TODO use template mixin instead of Tuple for better performance
     import std.typecons : Tuple;
     Tuple!ArrayTypes containers;
 

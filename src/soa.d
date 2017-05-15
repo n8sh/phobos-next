@@ -26,7 +26,7 @@ struct SOA(T)
 
     this(size_t size_, IAllocator _alloc = allocatorObject(Mallocator.instance))
     {
-        alloc = _alloc;
+        _alloc = _alloc;
         _capacity = size_;
         allocate(size_);
     }
@@ -73,10 +73,10 @@ struct SOA(T)
 
     ~this()
     {
-        if (alloc is null) { return; }
+        if (_alloc is null) { return; }
         foreach (ref container; containers)
         {
-            alloc.dispose(container);
+            _alloc.dispose(container);
         }
     }
 
@@ -90,7 +90,7 @@ private:
     import std.typecons : Tuple;
     Tuple!ArrayTypes containers;
 
-    IAllocator alloc;
+    IAllocator _alloc;
 
     size_t _length = 0;
     size_t _capacity = 0;
@@ -98,13 +98,13 @@ private:
 
     void allocate(size_t size_)
     {
-        if (alloc is null)
+        if (_alloc is null)
         {
-            alloc = allocatorObject(Mallocator.instance);
+            _alloc = allocatorObject(Mallocator.instance);
         }
         foreach (const index, ref container; containers)
         {
-            container = alloc.makeArray!(Types[index])(size_);
+            container = _alloc.makeArray!(Types[index])(size_);
         }
     }
 
@@ -122,7 +122,7 @@ private:
         {
             foreach (ref container; containers)
             {
-                alloc.expandArray(container, expandSize);
+                _alloc.expandArray(container, expandSize);
             }
         }
         _capacity = newCapacity;

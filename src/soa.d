@@ -11,7 +11,7 @@ module soa;
 /** Structure of arrays similar to members of `S`.
  */
 struct SOA(S)
-    if (is(S == struct))        // TODO extend to `isAggregate!S`
+    if (is(S == struct))        // TODO extend to `isAggregate!S`?
 {
     import std.experimental.allocator;
     import std.experimental.allocator.mallocator;
@@ -21,10 +21,17 @@ struct SOA(S)
 
     alias toArray(S) = S[];
     alias toType(string s) = typeof(__traits(getMember, S, s));
+    alias toPtrType(string s) = typeof(__traits(getMember, S, s));
 
     alias MemberNames = FieldNameTuple!S;
     enum memberCount = MemberNames.length;
     alias Types = staticMap!(toType, MemberNames);
+    alias PtrTypes = staticMap!(toPtrType, MemberNames);
+
+    private static struct SRef
+    {
+        S s;
+    }
 
     @safe /*pure*/:
 
@@ -105,10 +112,10 @@ struct SOA(S)
 
 private:
 
-    void length(size_t newLength) @property
-    {
-        _length = newLength;
-    }
+    // void length(size_t newLength) @property
+    // {
+    //     _length = newLength;
+    // }
 
     // TODO use template mixin and getContainer instead of Tuple for better performance
     // import std.typecons : Tuple;

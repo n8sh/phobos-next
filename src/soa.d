@@ -6,6 +6,8 @@ module soa;
 
 // @safe:
 
+/** Structure of arrays similar to members of `T`.
+ */
 struct SOA(T)
     if (is(T == struct))        // TODO extend to `isAggregate!T`
 {
@@ -55,6 +57,13 @@ struct SOA(T)
             containers[index][_length] = __traits(getMember, t, MemberNames[index]);
         }
         ++_length;
+    }
+
+    void opOpAssign(string op, T)(T t)
+        if (op == "~")
+    {
+        import std.algorithm.mutation : move;
+        pushBack(move(t));
     }
 
     size_t length() const @property

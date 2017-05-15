@@ -128,7 +128,7 @@ unittest
 {
     struct S { int i; float f; }
 
-    SOA!S x;
+    auto x = SOA!S();
     assert(x.length == 0);
     x.pushBack(S.init);
     assert(x.length == 1);

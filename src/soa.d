@@ -12,7 +12,6 @@ struct SOA(T)
     import std.experimental.allocator.mallocator;
 
     import std.meta : staticMap;
-    import std.typecons : Tuple;
     import std.traits : FieldNameTuple;
 
     alias toArray(T) = T[];
@@ -29,15 +28,15 @@ struct SOA(T)
         allocate(size);
     }
 
-    ref auto opDispatch(string name)()
+    auto ref opDispatch(string name)()
     {
-        import std.meta: staticIndexOf;
+        import std.meta : staticIndexOf;
         alias index = staticIndexOf!(name, MemberNames);
         static assert(index >= 0);
         return containers[index];
     }
 
-    void insertBack(Types types)
+    void pushBack(Types types)
     {
         if (length == size) { grow(); }
         foreach(index, ref container; containers)
@@ -47,7 +46,7 @@ struct SOA(T)
         length = length + 1;
     }
 
-    void insertBack(T t)
+    void pushBack(T t)
     {
         if (length == size) { grow(); }
         foreach(index, _; Types)
@@ -78,7 +77,9 @@ private:
         _length = len;
     }
 
+    import std.typecons : Tuple;
     Tuple!ArrayTypes containers;
+
     IAllocator alloc;
 
     size_t _length = 0;
@@ -122,4 +123,7 @@ unittest
 {
     struct S { int i; float f; }
     SOA!S x;
+    assert(x.length == 0);
+    x.pushBack(S.init);
+    assert(x.length == 1);
 }

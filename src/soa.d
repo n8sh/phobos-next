@@ -119,11 +119,20 @@ private:
     }
 }
 
+version(unittest)
+{
+    import dbgio;
+}
+
 unittest
 {
     struct S { int i; float f; }
+
     SOA!S x;
     assert(x.length == 0);
     x.pushBack(S.init);
     assert(x.length == 1);
+
+    auto x3 = SOA!S(3);
+    assert(x3.length == 0);
 }

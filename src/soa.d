@@ -6,10 +6,10 @@ module soa;
 
 @safe /*pure*/:
 
-/** Structure of arrays similar to members of `T`.
+/** Structure of arrays similar to members of `S`.
  */
-struct SOA(T)
-    if (is(T == struct))        // TODO extend to `isAggregate!T`
+struct SOA(S)
+    if (is(S == struct))        // TODO extend to `isAggregate!S`
 {
     import std.experimental.allocator;
     import std.experimental.allocator.mallocator;
@@ -17,16 +17,17 @@ struct SOA(T)
     import std.meta : staticMap;
     import std.traits : FieldNameTuple;
 
-    alias toArray(T) = T[];
-    alias toType(string s) = typeof(__traits(getMember, T, s));
+    alias toArray(S) = S[];
+    alias toType(string s) = typeof(__traits(getMember, S, s));
 
-    alias MemberNames = FieldNameTuple!T;
+    alias MemberNames = FieldNameTuple!S;
     alias Types = staticMap!(toType, MemberNames);
     alias ArrayTypes = staticMap!(toArray, Types);
 
     @safe /*pure*/:
 
-    this(size_t size_, IAllocator _alloc = allocatorObject(Mallocator.instance))
+    this(size_t size_,
+         IAllocator _alloc = allocatorObject(Mallocator.instance))
     {
         _alloc = _alloc;
         _capacity = size_;
@@ -51,7 +52,7 @@ struct SOA(T)
         ++_length;
     }
 
-    void pushBack(T t)
+    void pushBack(S t)
     {
         if (_length == _capacity) { grow(); }
         foreach (const index, _; Types)
@@ -61,7 +62,7 @@ struct SOA(T)
         ++_length;
     }
 
-    void opOpAssign(string op, T)(T t)
+    void opOpAssign(string op, S)(S t)
         if (op == "~")
     {
         import std.algorithm.mutation : move;

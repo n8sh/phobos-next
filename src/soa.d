@@ -169,11 +169,6 @@ private:
     }
 }
 
-version(unittest)
-{
-    import dbgio;
-}
-
 unittest
 {
     struct S { int i; float f; }

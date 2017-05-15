@@ -21,6 +21,7 @@ struct SOA(S)
     alias toType(string s) = typeof(__traits(getMember, S, s));
 
     alias MemberNames = FieldNameTuple!S;
+    enum memberCount = MemberNames.length;
     alias Types = staticMap!(toType, MemberNames);
 
     @safe /*pure*/:
@@ -44,17 +45,17 @@ struct SOA(S)
     void pushBackMembers(Types types)
     {
         if (_length == _capacity) { grow(); }
-        foreach (const index, ref container; containers)
+        foreach (const index, _; MemberNames)
         {
             // TODO functionize
             static if (false)
             {
                 import std.algorithm.mutation : move;
-                move(types[index], container[_length]);
+                move(types[index], getContainer!index[_length]);
             }
             else
             {
-                container[_length] = types[index];
+                getContainer!index[_length] = types[index];
             }
         }
         ++_length;
@@ -63,17 +64,17 @@ struct SOA(S)
     void pushBack(S e)
     {
         if (_length == _capacity) { grow(); }
-        foreach (const index, _; Types)
+        foreach (const index, _; MemberNames)
         {
             // TODO functionize
             static if (false)
             {
                 import std.algorithm.mutation : move;
-                move(__traits(getMember, e, MemberNames[index]), containers[index][_length]);
+                move(__traits(getMember, e, MemberNames[index]), getContainer!index[_length]);
             }
             else
             {
-                containers[index][_length] = __traits(getMember, e, MemberNames[index]);
+                getContainer!index[_length] = __traits(getMember, e, MemberNames[index]);
             }
         }
         ++_length;
@@ -94,9 +95,9 @@ struct SOA(S)
     ~this() @trusted
     {
         if (_alloc is null) { return; }
-        foreach (ref container; containers)
+        foreach (const index, _; MemberNames)
         {
-            _alloc.dispose(container);
+            _alloc.dispose(getContainer!index);
         }
     }
 
@@ -108,9 +109,9 @@ private:
     }
 
     // TODO use template mixin and getContainer instead of Tuple for better performance
-    import std.typecons : Tuple;
-    alias ArrayTypes = staticMap!(toArray, Types);
-    Tuple!ArrayTypes containers;
+    // import std.typecons : Tuple;
+    // alias ArrayTypes = staticMap!(toArray, Types);
+    // Tuple!ArrayTypes containers;
 
     static string generateContainers()
     {
@@ -118,7 +119,6 @@ private:
         foreach (const index, Type; Types)
         {
             enum TypeName = Type.stringof;
-            pragma(msg, index.stringof);
             defs ~= TypeName ~ `[] container` ~ index.stringof ~ ";";
         }
         return defs;
@@ -142,9 +142,9 @@ private:
         {
             _alloc = allocatorObject(Mallocator.instance);
         }
-        foreach (const index, ref container; containers)
+        foreach (const index, _; MemberNames)
         {
-            container = _alloc.makeArray!(Types[index])(newCapacity);
+            getContainer!index = _alloc.makeArray!(Types[index])(newCapacity);
         }
     }
 
@@ -160,9 +160,9 @@ private:
         }
         else
         {
-            foreach (ref container; containers)
+            foreach (const index, _; MemberNames)
             {
-                _alloc.expandArray(container, expandSize);
+                _alloc.expandArray(getContainer!index, expandSize);
             }
         }
         _capacity = newCapacity;
@@ -179,6 +179,10 @@ unittest
     struct S { int i; float f; }
 
     auto x = SOA!S();
+
+    static assert(is(typeof(x.getContainer!0()) == int[]));
+    static assert(is(typeof(x.getContainer!1()) == float[]));
+
     assert(x.length == 0);
 
     x.pushBack(S.init);
@@ -192,6 +196,4 @@ unittest
 
     auto x3 = SOA!S(3);
     assert(x3.length == 0);
-
-    x3.getContainer!0;
 }

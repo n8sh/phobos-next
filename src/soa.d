@@ -107,10 +107,28 @@ private:
         _length = newLength;
     }
 
-    // TODO use template mixin instead of Tuple for better performance
+    // TODO use template mixin and getContainer instead of Tuple for better performance
     import std.typecons : Tuple;
     alias ArrayTypes = staticMap!(toArray, Types);
     Tuple!ArrayTypes containers;
+
+    static string generateContainers()
+    {
+        string defs;
+        foreach (const index, Type; Types)
+        {
+            enum TypeName = Type.stringof;
+            pragma(msg, index.stringof);
+            defs ~= TypeName ~ `[] container` ~ index.stringof ~ ";";
+        }
+        return defs;
+    }
+    mixin(generateContainers());
+
+    ref inout(Types[index][]) getContainer(size_t index)() inout
+    {
+        mixin(`return ` ~ `container` ~ index.stringof ~ ";");
+    }
 
     IAllocator _alloc;
 
@@ -174,4 +192,6 @@ unittest
 
     auto x3 = SOA!S(3);
     assert(x3.length == 0);
+
+    x3.getContainer!0;
 }

@@ -3,16 +3,17 @@
  */
 module soa;
 
-@safe:
+// @safe:
 
 struct SOA(T)
+    if (is(T == struct))        // TODO extend to `isAggregate!T`
 {
     import std.experimental.allocator;
     import std.experimental.allocator.mallocator;
 
-    import std.meta: staticMap;
-    import std.typecons: Tuple;
-    import std.traits: FieldNameTuple;
+    import std.meta : staticMap;
+    import std.typecons : Tuple;
+    import std.traits : FieldNameTuple;
 
     alias toArray(T) = T[];
     alias toType(string s) = typeof(__traits(getMember, T, s));
@@ -115,4 +116,10 @@ private:
         }
         size = newSize;
     }
+}
+
+unittest
+{
+    struct S { int i; float f; }
+    SOA!S x;
 }

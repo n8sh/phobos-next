@@ -25,7 +25,7 @@ struct SOA(T)
     this(size_t size_, IAllocator _alloc = allocatorObject(Mallocator.instance))
     {
         alloc = _alloc;
-        _size = size_;
+        _capacity = size_;
         allocate(size_);
     }
 
@@ -39,7 +39,7 @@ struct SOA(T)
 
     void pushBack(Types types)
     {
-        if (length == _size) { grow(); }
+        if (length == _capacity) { grow(); }
         foreach(index, ref container; containers)
         {
             container[length] = types[index];
@@ -49,7 +49,7 @@ struct SOA(T)
 
     void pushBack(T t)
     {
-        if (length == _size) { grow(); }
+        if (length == _capacity) { grow(); }
         foreach(index, _; Types)
         {
             containers[index][length] = __traits(getMember, t, MemberNames[index]);
@@ -84,7 +84,7 @@ private:
     IAllocator alloc;
 
     size_t _length = 0;
-    size_t _size = 0;
+    size_t _capacity = 0;
     short growFactor = 2;
 
     void allocate(size_t size_)
@@ -102,12 +102,12 @@ private:
     void grow()
     {
         import std.algorithm: max;
-        size_t newSize = max(1, _size * growFactor);
-        size_t expandSize = newSize - _size;
+        size_t newCapacity = max(1, _capacity * growFactor);
+        size_t expandSize = newCapacity - _capacity;
 
-        if (_size is 0)
+        if (_capacity is 0)
         {
-            allocate(newSize);
+            allocate(newCapacity);
         }
         else
         {
@@ -116,7 +116,7 @@ private:
                 alloc.expandArray(container, expandSize);
             }
         }
-        _size = newSize;
+        _capacity = newCapacity;
     }
 }
 

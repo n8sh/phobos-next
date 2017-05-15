@@ -65,7 +65,7 @@ struct SOA(S)
         foreach (const index, _; MemberNames)
         {
             // TODO functionize
-            static if (false)
+            static if (false)   // activate for non-Copyable membeers
             {
                 import std.algorithm.mutation : move;
                 move(types[index], getArray!index[_length]);
@@ -84,7 +84,7 @@ struct SOA(S)
         foreach (const index, _; MemberNames)
         {
             // TODO functionize
-            static if (false)
+            static if (false)   // activate for non-Copyable membeers
             {
                 import std.algorithm.mutation : move;
                 move(__traits(getMember, e, MemberNames[index]), getArray!index[_length]);

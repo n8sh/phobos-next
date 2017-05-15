@@ -55,7 +55,7 @@ struct SOA(S)
         import std.meta : staticIndexOf;
         alias index = staticIndexOf!(name, MemberNames);
         static assert(index >= 0);
-        return getContainer!index;
+        return getArray!index;
     }
 
     void pushBackMembers(Types types)
@@ -67,11 +67,11 @@ struct SOA(S)
             static if (false)
             {
                 import std.algorithm.mutation : move;
-                move(types[index], getContainer!index[_length]);
+                move(types[index], getArray!index[_length]);
             }
             else
             {
-                getContainer!index[_length] = types[index];
+                getArray!index[_length] = types[index];
             }
         }
         ++_length;
@@ -86,11 +86,11 @@ struct SOA(S)
             static if (false)
             {
                 import std.algorithm.mutation : move;
-                move(__traits(getMember, e, MemberNames[index]), getContainer!index[_length]);
+                move(__traits(getMember, e, MemberNames[index]), getArray!index[_length]);
             }
             else
             {
-                getContainer!index[_length] = __traits(getMember, e, MemberNames[index]);
+                getArray!index[_length] = __traits(getMember, e, MemberNames[index]);
             }
         }
         ++_length;
@@ -113,7 +113,7 @@ struct SOA(S)
         if (_alloc is null) { return; }
         foreach (const index, _; MemberNames)
         {
-            _alloc.dispose(getContainer!index);
+            _alloc.dispose(getArray!index);
         }
     }
 
@@ -142,7 +142,7 @@ private:
     }
     mixin(generateContainers());
 
-    ref inout(Types[index][]) getContainer(size_t index)() inout return scope
+    ref inout(Types[index][]) getArray(size_t index)() inout return scope
     {
         mixin(`return container` ~ index.stringof ~ ";");
     }
@@ -161,7 +161,7 @@ private:
         }
         foreach (const index, _; MemberNames)
         {
-            getContainer!index = _alloc.makeArray!(Types[index])(newCapacity);
+            getArray!index = _alloc.makeArray!(Types[index])(newCapacity);
         }
     }
 
@@ -179,7 +179,7 @@ private:
         {
             foreach (const index, _; MemberNames)
             {
-                _alloc.expandArray(getContainer!index, expandSize);
+                _alloc.expandArray(getArray!index, expandSize);
             }
         }
         _capacity = newCapacity;
@@ -192,8 +192,8 @@ unittest
 
     auto x = SOA!S();
 
-    static assert(is(typeof(x.getContainer!0()) == int[]));
-    static assert(is(typeof(x.getContainer!1()) == float[]));
+    static assert(is(typeof(x.getArray!0()) == int[]));
+    static assert(is(typeof(x.getArray!1()) == float[]));
 
     assert(x.length == 0);
 

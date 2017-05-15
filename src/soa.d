@@ -1,4 +1,5 @@
 /** Structure of arrays.
+    See also: https://maikklein.github.io/post/soa-d/
  */
 module soa;
 

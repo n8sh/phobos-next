@@ -686,7 +686,7 @@ mixin template RvalueRef()
 }
 
 /** Convert enum value `v` to `string`.
-   See also http://forum.dlang.org/post/aqqhlbaepoimpopvouwv@forum.dlang.org
+    See also http://forum.dlang.org/post/aqqhlbaepoimpopvouwv@forum.dlang.org
  */
 string enumToString(E)(E v)
 {

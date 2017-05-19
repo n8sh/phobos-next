@@ -685,32 +685,35 @@ mixin template RvalueRef()
     foo(Vec(42, 23).asRef);     // works as well, and use the same function
 }
 
+/** Convert enum value `v` to `string`.
+   See also http://forum.dlang.org/post/aqqhlbaepoimpopvouwv@forum.dlang.org
+ */
 string enumToString(E)(E v)
 {
-    static assert(is(E == enum),
-        "emumToString is only meant for enums");
+    static assert(is(E == enum), "emumToString is only meant for enums");
     switch(v)
     {
-        foreach(m; __traits(allMembers, E))
+        foreach (m; __traits(allMembers, E))
         {
             case mixin("E." ~ m) : return m;
         }
-
-        default :
+        default:
         {
             string result = "cast(" ~ E.stringof ~ ")";
             uint val = v;
+
             enum headLength = E.stringof.length + "cast()".length;
-            uint log10Val = (val < 10) ? 0 : (val < 100) ? 1 : (val < 1000) ? 2 :
-                (val < 10000) ? 3 : (val < 100000) ? 4 : (val < 1000000) ? 5 :
-                (val < 10000000) ? 6 : (val < 100000000) ? 7 : (val < 1000000000) ? 8 : 9;
+            uint log10Val = (val < 10) ? 0 : (val < 100) ? 1 : (val < 1_000) ? 2 :
+                (val < 10_000) ? 3 : (val < 100_000) ? 4 : (val < 1_000_000) ? 5 :
+                (val < 10_000_000) ? 6 : (val < 100_000_000) ? 7 : (val < 1000_000_000) ? 8 : 9;
+
             result.length += log10Val + 1;
-            for(uint i;i != log10Val + 1;i++)
+
+            for (uint i; i != log10Val + 1; i++)
             {
                 cast(char)result[headLength + log10Val - i] = cast(char) ('0' + (val % 10));
                 val /= 10;
             }
-
             return cast(string) result;
         }
     }

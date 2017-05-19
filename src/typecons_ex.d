@@ -709,7 +709,7 @@ string enumToString(E)(E v)
 
             result.length += log10Val + 1;
 
-            for (uint i; i != log10Val + 1; i++)
+            foreach (uint i; 0 .. log10Val + 1)
             {
                 cast(char)result[headLength + log10Val - i] = cast(char) ('0' + (val % 10));
                 val /= 10;

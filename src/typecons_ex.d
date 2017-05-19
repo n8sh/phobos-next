@@ -684,3 +684,42 @@ mixin template RvalueRef()
     foo(v);                     // works
     foo(Vec(42, 23).asRef);     // works as well, and use the same function
 }
+
+string enumToString(E)(E v)
+{
+    static assert(is(E == enum),
+        "emumToString is only meant for enums");
+    switch(v)
+    {
+        foreach(m; __traits(allMembers, E))
+        {
+            case mixin("E." ~ m) : return m;
+        }
+
+        default :
+        {
+            string result = "cast(" ~ E.stringof ~ ")";
+            uint val = v;
+            enum headLength = E.stringof.length + "cast()".length;
+            uint log10Val = (val < 10) ? 0 : (val < 100) ? 1 : (val < 1000) ? 2 :
+                (val < 10000) ? 3 : (val < 100000) ? 4 : (val < 1000000) ? 5 :
+                (val < 10000000) ? 6 : (val < 100000000) ? 7 : (val < 1000000000) ? 8 : 9;
+            result.length += log10Val + 1;
+            for(uint i;i != log10Val + 1;i++)
+            {
+                cast(char)result[headLength + log10Val - i] = cast(char) ('0' + (val % 10));
+                val /= 10;
+            }
+
+            return cast(string) result;
+        }
+    }
+}
+
+@safe pure nothrow unittest
+{
+    enum ET { one, two }
+    // static assert(to!string(ET.one) == "one");
+    static assert (enumToString(ET.one) == "one");
+    assert (enumToString(ET.one) == "one");
+}

@@ -220,10 +220,11 @@ unittest
     assert(x.i[2] == 42);
     assert(x.f[2] == 43f);
 
+    // uses opDispatch
     assert(x[2].i == 42);
     assert(x[2].f == 43f);
 
-    auto x3 = SOA!S(3);
+    const x3 = SOA!S(3);
     assert(x3.length == 0);
     assert(x3.capacity == 3);
 }

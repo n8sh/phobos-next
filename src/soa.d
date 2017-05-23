@@ -21,6 +21,7 @@ struct SOA(S)
     alias toArray(S) = S[];
     alias toType(string s) = typeof(__traits(getMember, S, s));
     alias toPtrType(string s) = typeof(__traits(getMember, S, s));
+    alias ElementType = S;
 
     alias MemberNames = FieldNameTuple!S;
     alias Types = staticMap!(toType, MemberNames);
@@ -114,6 +115,7 @@ struct SOA(S)
     /** Index operator. */
     inout(SOAElementRef!S) opIndex(size_t elementIndex) inout return
     {
+        assert(elementIndex < _length);
         return typeof(return)(&this, elementIndex);
     }
 
@@ -187,6 +189,8 @@ private struct SOAElementRef(S)
     SOA!S* soaPtr;
     size_t elementIndex;
 
+    @disable this(this);
+
     /// Access member name `memberName`.
     auto ref opDispatch(string nameName)()
         @trusted return scope
@@ -224,4 +228,14 @@ unittest
     const x3 = SOA!S(3);
     assert(x3.length == 0);
     assert(x3.capacity == 3);
+
+    /// TODO shouldn't compile
+    ref int testScope() @safe
+    {
+        auto y = SOA!S(1);
+        y ~= S(42, 43f);
+        return y[0].i;
+    }
+
+    testScope();
 }

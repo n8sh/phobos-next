@@ -1,9 +1,7 @@
 /** Structure of arrays.
-    See also: https://maikklein.github.io/post/soa-d/
-    See also: TODO Add my forum post
 
-    TODO add `x[0].name` that doesn't have to create a temporary.  See:
-    http://forum.dlang.org/post/wvulryummkqtskiwrusb@forum.dlang.org
+    See also: https://maikklein.github.io/post/soa-d/
+    See also: http://forum.dlang.org/post/wvulryummkqtskiwrusb@forum.dlang.org
  */
 module soa;
 

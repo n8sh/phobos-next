@@ -218,6 +218,7 @@ unittest
     x.pushBackMembers(42, 43f);
     assert(x.length == 3);
     assert(x.i[2] == 42);
+    // TODO assert(x[2].i == 42);
     assert(x.f[2] == 43);
 
     auto x3 = SOA!S(3);

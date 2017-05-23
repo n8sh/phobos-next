@@ -194,7 +194,7 @@ private struct SOAElementRef(S)
     auto ref opDispatch(string nameName)()
         @trusted return scope
     {
-        return (*soaPtr).nameName[elementIndex];
+        mixin(`return ` ~ `(*soaPtr).` ~ nameName ~ `[elementIndex];`);
     }
 }
 
@@ -218,8 +218,10 @@ unittest
     x.pushBackMembers(42, 43f);
     assert(x.length == 3);
     assert(x.i[2] == 42);
-    // TODO assert(x[2].i == 42);
-    assert(x.f[2] == 43);
+    assert(x.f[2] == 43f);
+
+    assert(x[2].i == 42);
+    assert(x[2].f == 43f);
 
     auto x3 = SOA!S(3);
     assert(x3.length == 0);

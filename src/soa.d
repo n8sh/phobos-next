@@ -23,7 +23,6 @@ struct SOA(S)
     alias toPtrType(string s) = typeof(__traits(getMember, S, s));
 
     alias MemberNames = FieldNameTuple!S;
-    enum memberCount = MemberNames.length;
     alias Types = staticMap!(toType, MemberNames);
     alias PtrTypes = staticMap!(toPtrType, MemberNames);
 

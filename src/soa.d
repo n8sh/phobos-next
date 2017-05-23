@@ -29,18 +29,6 @@ struct SOA(S)
     alias Types = staticMap!(toType, MemberNames);
     alias PtrTypes = staticMap!(toPtrType, MemberNames);
 
-    /// Reference to element in `soaPtr` at index `elementIndex`.
-    private struct ElementRef
-    {
-        SOA* soaPtr;
-        size_t elementIndex;
-        auto ref opDispatch(string name)()
-            @trusted return scope
-        {
-            return (*soaPtr).name[elementIndex];
-        }
-    }
-
     @safe /*pure*/:
 
     this(size_t size_,
@@ -120,9 +108,9 @@ struct SOA(S)
 
     /** Index operator. */
     // TODO activate:
-    // ref inout(ElementRef) opIndex(size_t elementIndex) inout return scope
+    // ref inout(SOAElementRef!S) opIndex(size_t elementIndex) inout return scope
     // {
-    //     return ElementRef(this, elementIndex);
+    //     return SOAElementRef!S(this, elementIndex);
     // }
 
 private:
@@ -185,6 +173,19 @@ private:
             }
         }
         _capacity = newCapacity;
+    }
+}
+
+/// Reference to element in `soaPtr` at index `elementIndex`.
+private struct SOAElementRef(S)
+    if (is(S == struct))        // TODO extend to `isAggregate!S`?
+{
+    SOA!S* soaPtr;
+    size_t elementIndex;
+    auto ref opDispatch(string name)()
+        @trusted return scope
+    {
+        return (*soaPtr).name[elementIndex];
     }
 }
 

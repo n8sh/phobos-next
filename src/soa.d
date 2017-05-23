@@ -50,16 +50,8 @@ struct SOA(S)
         if (_length == _capacity) { grow(); }
         foreach (const index, _; MemberNames)
         {
-            // TODO functionize
-            static if (false)   // activate for non-Copyable membeers
-            {
-                import std.algorithm.mutation : move;
-                move(types[index], getArray!index[_length]);
-            }
-            else
-            {
-                getArray!index[_length] = types[index];
-            }
+            import std.algorithm.mutation : move;
+            move(types[index], getArray!index[_length]); // same as `getArray!index[_length] = types[index];`
         }
         ++_length;
     }
@@ -70,16 +62,8 @@ struct SOA(S)
         if (_length == _capacity) { grow(); }
         foreach (const index, _; MemberNames)
         {
-            // TODO functionize
-            static if (false)   // activate for non-Copyable membeers
-            {
-                import std.algorithm.mutation : move;
-                move(__traits(getMember, e, MemberNames[index]), getArray!index[_length]);
-            }
-            else
-            {
-                getArray!index[_length] = __traits(getMember, e, MemberNames[index]);
-            }
+            import std.algorithm.mutation : move;
+            move(__traits(getMember, e, MemberNames[index]), getArray!index[_length]); // same as `getArray!index[_length] = __traits(getMember, e, MemberNames[index]);`
         }
         ++_length;
     }

@@ -31,12 +31,12 @@ struct SOA(S)
 
     @safe /*pure*/:
 
-    this(size_t size_,
+    this(size_t initialCapacity,
          IAllocator _alloc = allocatorObject(Mallocator.instance))
     {
         _alloc = _alloc;
-        _capacity = size_;
-        allocate(size_);
+        _capacity = initialCapacity;
+        allocate(initialCapacity);
     }
 
     auto opDispatch(string name)()
@@ -66,6 +66,7 @@ struct SOA(S)
         ++_length;
     }
 
+    /// Push element `e` to back of array.
     void pushBack(S e)
     {
         if (_length == _capacity) { grow(); }
@@ -89,12 +90,19 @@ struct SOA(S)
         if (op == "~")
     {
         import std.algorithm.mutation : move;
-        pushBack(move(e));      // TODO remove when compile does this for us
+        pushBack(move(e));      // TODO remove when compiler does this for us
     }
 
+    /// Length of this array.
     size_t length() const @property
     {
         return _length;
+    }
+
+    /// Capacity of this array.
+    size_t capacity() const @property
+    {
+        return _capacity;
     }
 
     ~this() @trusted
@@ -107,11 +115,10 @@ struct SOA(S)
     }
 
     /** Index operator. */
-    // TODO activate:
-    // ref inout(SOAElementRef!S) opIndex(size_t elementIndex) inout return scope
-    // {
-    //     return SOAElementRef!S(this, elementIndex);
-    // }
+    inout(SOAElementRef!S) opIndex(size_t elementIndex) inout return
+    {
+        return typeof(return)(&this, elementIndex);
+    }
 
 private:
 
@@ -182,10 +189,12 @@ private struct SOAElementRef(S)
 {
     SOA!S* soaPtr;
     size_t elementIndex;
-    auto ref opDispatch(string name)()
+
+    /// Access member name `memberName`.
+    auto ref opDispatch(string nameName)()
         @trusted return scope
     {
-        return (*soaPtr).name[elementIndex];
+        return (*soaPtr).nameName[elementIndex];
     }
 }
 
@@ -213,4 +222,5 @@ unittest
 
     auto x3 = SOA!S(3);
     assert(x3.length == 0);
+    assert(x3.capacity == 3);
 }

@@ -333,16 +333,19 @@ Array!Token lexSUOKIF(string src) @safe pure
         }
     }
 
-    dln(lowerSymbols);
+    // dln(lowerSymbols);
     return tokens;
 }
 
 unittest
 {
+    readSUOKIFs(`~/Work/sumo`);
+}
+
+void readSUOKIFs(string rootDirPath)
+{
     import std.stdio : write, writeln;
     import std.path : expandTilde;
-
-    const rootDirPath = `~/Work/sumo`;
 
     import std.file: dirEntries, SpanMode;
     auto entries = dirEntries(rootDirPath.expandTilde, SpanMode.breadth, false); // false: skip symlinks

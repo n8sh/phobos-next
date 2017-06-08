@@ -5102,14 +5102,7 @@ class Scanner(Term)
         if (!sst.isNull)
         {
             import algorithm_ex: findFirstOfAnyInOrder;
-            static if (__VERSION__ >= 2067)
-            {
-                import std.range: tee;
-            }
-            else
-            {
-                import range_ex: tee;
-            }
+            import std.range : tee;
 
             auto scan = (sst.strings
                             .filter!(raw => !raw.empty) // skip empty raw string

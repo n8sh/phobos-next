@@ -21,15 +21,12 @@ string encodeHTML(Char)(Char c) @safe pure if (isSomeChar!Char)
         return "&#" ~ to!string(cast(int)c) ~ ";";
 }
 
-static if (__VERSION__ >= 2066L)
+/** Copied from arsd.dom */
+auto encodeHTML(string data) @safe pure
 {
-    /** Copied from arsd.dom */
-    auto encodeHTML(string data) @safe pure
-    {
-        import std.utf: byDchar;
-        import std.algorithm: joiner, map;
-        return data.byDchar.map!encodeHTML.joiner("");
-    }
+    import std.utf: byDchar;
+    import std.algorithm: joiner, map;
+    return data.byDchar.map!encodeHTML.joiner("");
 }
 
 void main(string[] args)

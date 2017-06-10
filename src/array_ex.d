@@ -137,7 +137,7 @@ private struct Array(E,
         is(CapacityType == uint))          // 2 64-bit words
 {
     import std.conv : emplace;
-    import std.range : isInputRange, isIterable, ElementType;
+    import std.range : isInputRange, isInfinite, isIterable, ElementType;
     import std.traits : isAssignable, Unqual, isSomeChar, isArray, isScalarType, hasElaborateDestructor, hasIndirections, TemplateOf, isCopyable;
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
@@ -470,7 +470,7 @@ private struct Array(E,
     /// Compare with range `R` with comparable element type.
     pragma(inline, true)
     bool opEquals(R)(R rhs) const
-        // TODO do we need to restrict this?: if (isInputRange!R)
+        if (isInputRange!R && !isInfinite!R)
     {
         return opSlice.equal(rhs);
     }
@@ -921,7 +921,7 @@ private struct Array(E,
 
         /// ditto
         void pushBack(R)(R values) @("complexity", "O(values.length)") @trusted
-            if (isInputRange!R &&
+            if (isInputRange!R && !isInfinite!R &&
                 !(isArray!R) &&
                 !(isArrayContainer!R) &&
                 isElementAssignable!(ElementType!R))
@@ -1048,7 +1048,7 @@ private struct Array(E,
         }
         void opOpAssign(string op, R)(R values)
             if (op == "~" &&
-                isInputRange!R &&
+                isInputRange!R && !isInfinite!R &&
                 allSatisfy!(isElementAssignable, ElementType!R))
         {
             assert(!isBorrowed);

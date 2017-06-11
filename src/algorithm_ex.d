@@ -2424,3 +2424,23 @@ auto splicer3(T)(T[] x) @trusted
     assert(y.second.equal(x[2 .. 4]));
     assert(y.third.equal(x[4 .. $]));
 }
+
+auto use(alias F, T)(T t)
+    if (is(typeof(F(T.init))))  // is callable
+{
+    return F(t);
+}
+
+@safe pure nothrow @nogc unittest
+{
+    // import std.stdio;
+    foreach (const i; 1 .. 11)
+    {
+        foreach (const j; 1 .. 11)
+        {
+            immutable result = (i * j).use!(x => x*x);
+            // write(result, " ");
+        }
+        // writeln();
+    }
+}

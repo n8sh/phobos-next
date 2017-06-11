@@ -2425,6 +2425,9 @@ auto splicer3(T)(T[] x) @trusted
     assert(y.third.equal(x[4 .. $]));
 }
 
+/**
+   See also: http://forum.dlang.org/post/mqfaevkvhwwtzaafrtve@forum.dlang.org
+ */
 auto use(alias F, T)(T t)
     if (is(typeof(F(T.init))))  // is callable
 {

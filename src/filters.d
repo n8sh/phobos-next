@@ -841,10 +841,12 @@ version(unittest)
 
     auto a = StaticDenseSetFilter!(E)([E.a].s[]);
     auto b = StaticDenseSetFilter!(E)([E.b].s[]);
+    auto c = StaticDenseSetFilter!(E)([E.b].s[]);
 
     auto a_or_b = StaticDenseSetFilter!(E)([E.a, E.b].s[]);
     auto a_and_b = StaticDenseSetFilter!(E)();
 
-    assert((a | b) == a_or_b);
+    assert((a | b | c) == a_or_b);
     assert((a & b) == a_and_b);
+    assert((a & a & b) == a_and_b);
 }

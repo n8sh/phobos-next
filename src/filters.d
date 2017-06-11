@@ -160,6 +160,15 @@ struct DenseSetFilter(E,
         return contains(e);
     }
 
+    /// ditto
+    typeof(this) opBinary(string op)(auto ref in typeof(this) e) const
+        if (op == "|" || op == "&" || op == "^")
+    {
+        typeof(return) result;
+        mixin(`result._blocks[] = _blocks[] ` ~ op ~ ` e._blocks[];`);
+        return result;
+    }
+
     /** Get current capacity in number of elements (bits).
         If `growable` is `Growable.yes` then capacity is variable, otherwise it's constant.
     */
@@ -481,6 +490,15 @@ struct StaticDenseSetFilter(E,
         if (op == "in")
     {
         return contains(e);
+    }
+
+    /// ditto
+    typeof(this) opBinary(string op)(auto ref in typeof(this) e) const
+        if (op == "|" || op == "&" || op == "^")
+    {
+        typeof(return) result;
+        mixin(`result._blocks[] = _blocks[] ` ~ op ~ ` e._blocks[];`);
+        return result;
     }
 
 private:
@@ -812,4 +830,21 @@ version(unittest)
         assert(!emptySet.contains(Role(rel)));
         assert(!emptySet.contains(Role(rel, true)));
     }
+}
+
+/// set operations
+@safe pure nothrow @nogc unittest
+{
+    import array_ex : s;
+
+    enum E:ubyte { a, b, c, d, dAlias = d }
+
+    auto a = StaticDenseSetFilter!(E)([E.a].s[]);
+    auto b = StaticDenseSetFilter!(E)([E.b].s[]);
+
+    auto a_or_b = StaticDenseSetFilter!(E)([E.a, E.b].s[]);
+    auto a_and_b = StaticDenseSetFilter!(E)();
+
+    assert((a | b) == a_or_b);
+    assert((a & b) == a_and_b);
 }

@@ -52,13 +52,14 @@ struct BitSet(uint len, Block = size_t)
     private Block[blockCount] _blocks;
 
     /** Data as an array unsigned bytes. */
-    const(ubyte)[] ubytes() const @trusted { return (cast(ubyte*)&_blocks)[0 .. _blocks.sizeof]; }
+    const(ubyte)[] ubytes() const @trusted pure nothrow @nogc { return (cast(ubyte*)&_blocks)[0 .. _blocks.sizeof]; }
+    immutable(ubyte)[] ubytes() immutable @trusted pure nothrow @nogc { return (cast(ubyte*)&_blocks)[0 .. _blocks.sizeof]; }
 
     /** Get pointer to data blocks. */
-    @property inout (Block*) ptr() inout { return _blocks.ptr; }
+    @property inout (Block*) ptr() inout pure nothrow @nogc { return _blocks.ptr; }
 
     /** Reset all bits (to zero). */
-    void reset() @safe nothrow { _blocks[] = 0; }
+    void reset() @safe pure nothrow @nogc { _blocks[] = 0; }
 
     /** Gets the amount of native words backing this $(D BitSet). */
     @property static uint dim() @safe pure nothrow @nogc { return blockCount; }
@@ -196,8 +197,9 @@ struct BitSet(uint len, Block = size_t)
     static if (len >= 1)
     {
         /** Sets the $(D i)'th bit in the $(D BitSet). No range checking needed. */
-        pragma(inline, true) bool opIndexAssign(ModUInt)(bool b, Mod!(len, ModUInt) i) @trusted pure nothrow
-            if (isUnsigned!ModUInt)
+        pragma(inline, true) bool opIndexAssign(ModUInt)(bool b, Mod!(len, ModUInt) i)
+            @trusted pure nothrow @nogc
+        if (isUnsigned!ModUInt)
         {
             b ? bts(ptr, cast(size_t)i) : btr(ptr, cast(size_t)i);
             return b;
@@ -213,7 +215,11 @@ struct BitSet(uint len, Block = size_t)
     }
 
     /** Duplicates the $(D BitSet) and its contents. */
-    @property BitSet dup() const @safe pure nothrow @nogc { return this; }
+    @property BitSet dup() const
+        @safe pure nothrow @nogc
+    {
+        return this;
+    }
 
     /** Support for $(D foreach) loops for $(D BitSet). */
     int opApply(scope int delegate(ref bool) dg)
@@ -301,6 +307,7 @@ struct BitSet(uint len, Block = size_t)
 
     /** Reverse block `Block`. */
     private pragma(inline, true) @property Block reverseBlock(in Block block)
+        @safe pure nothrow @nogc
     {
         static if (Block.sizeof == 4)
         {
@@ -423,6 +430,7 @@ struct BitSet(uint len, Block = size_t)
 
     /** Sorts the $(D BitSet)'s elements. */
     @property BitSet sort()
+        @safe pure nothrow @nogc
     out (result)
     {
         assert(result == this);
@@ -475,7 +483,8 @@ struct BitSet(uint len, Block = size_t)
 
 
     /** Support for operators == and != for $(D BitSet). */
-    bool opEquals(Block2)(in BitSet!(len, Block2) a2) const @trusted
+    bool opEquals(Block2)(in BitSet!(len, Block2) a2) const
+        @trusted pure nothrow @nogc
         if (isUnsigned!Block2)
     {
         size_t i;
@@ -507,7 +516,8 @@ struct BitSet(uint len, Block = size_t)
     }
 
     /** Supports comparison operators for $(D BitSet). */
-    int opCmp(Block2)(in BitSet!(len, Block2) a2) const @trusted
+    int opCmp(Block2)(in BitSet!(len, Block2) a2) const
+        @trusted pure nothrow @nogc
         if (isUnsigned!Block2)
     {
         uint i;
@@ -546,7 +556,8 @@ struct BitSet(uint len, Block = size_t)
     }
 
     /** Support for hashing for $(D BitSet). */
-    extern(D) size_t toHash() const @trusted pure nothrow
+    extern(D) size_t toHash() const
+        @trusted pure nothrow
     {
         size_t hash = 3557;
         auto n  = len / 8;
@@ -565,6 +576,7 @@ struct BitSet(uint len, Block = size_t)
 
     /** Set this $(D BitSet) to the contents of $(D ba). */
     this(bool[] ba)
+        @safe pure nothrow @nogc
     in
     {
         assert(length == ba.length);
@@ -579,6 +591,7 @@ struct BitSet(uint len, Block = size_t)
 
     /** Set this $(D BitSet) to the contents of $(D ba). */
     this(const ref bool[len] ba)
+        @safe pure nothrow @nogc
     {
         foreach (immutable i, const b; ba)
         {

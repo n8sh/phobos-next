@@ -501,6 +501,14 @@ struct StaticDenseSetFilter(E,
         return result;
     }
 
+    /// ditto
+    typeof(this) opOpAssign(string op)(auto ref in typeof(this) e)
+        if (op == "|" || op == "&" || op == "^")
+    {
+        mixin(`_blocks[] ` ~ op ~ `= e._blocks[];`);
+        return this;
+    }
+
 private:
     /// Maximum number of elements in filter.
     enum elementMaxCount = cast(size_t)E.max + 1;
@@ -849,4 +857,7 @@ version(unittest)
     assert((a | b | c) == a_or_b);
     assert((a & b) == a_and_b);
     assert((a & a & b) == a_and_b);
+
+    a |= b;
+    assert(a == a_or_b);
 }

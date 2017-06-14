@@ -621,7 +621,7 @@ struct BitSet(uint len, Block = size_t)
     bool allZero() const
         @safe pure nothrow @nogc
     {
-        foreach (const block; _blocks)
+        foreach (const block; _blocks) // TODO array operation
         {
             if (block != 0) { return false; }
         }

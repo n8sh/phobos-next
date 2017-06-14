@@ -106,18 +106,18 @@ struct BitSet(uint len, Block = size_t)
         size_t _j = _store.length;
     }
 
-    pragma(inline) Range opSlice() const @trusted pure nothrow
+    pragma(inline, true) Range opSlice() const @trusted pure nothrow
     {
         return Range(this);
     }
 
-    pragma(inline) Range opSlice(size_t i, size_t j) const @trusted pure nothrow
+    pragma(inline, true) Range opSlice(size_t i, size_t j) const @trusted pure nothrow
     {
         return Range(this, i, j);
     }
 
     /** Gets the $(D i)'th bit in the $(D BitSet). */
-    pragma(inline) bool opIndex(size_t i) const @trusted pure nothrow
+    pragma(inline, true) bool opIndex(size_t i) const @trusted pure nothrow
     in
     {
         assert(i < len);        // TODO nothrow or not?
@@ -166,7 +166,7 @@ struct BitSet(uint len, Block = size_t)
     }
 
     /** Puts the $(D i)'th bit in the $(D BitSet) to $(D b). */
-    pragma(inline) auto ref put()(size_t i, bool b) @trusted pure nothrow
+    pragma(inline, true) auto ref put()(size_t i, bool b) @trusted pure nothrow
     {
         this[i] = b;
         return this;
@@ -174,7 +174,7 @@ struct BitSet(uint len, Block = size_t)
 
     /** Sets the $(D i)'th bit in the $(D BitSet). */
     import std.traits: isIntegral;
-    pragma(inline) bool opIndexAssign(Index2)(bool b, Index2 i) @trusted pure nothrow
+    pragma(inline, true) bool opIndexAssign(Index2)(bool b, Index2 i) @trusted pure nothrow
         if (isIntegral!Index2)
     in
     {
@@ -196,7 +196,7 @@ struct BitSet(uint len, Block = size_t)
     static if (len >= 1)
     {
         /** Sets the $(D i)'th bit in the $(D BitSet). No range checking needed. */
-        pragma(inline) bool opIndexAssign(ModUInt)(bool b, Mod!(len, ModUInt) i) @trusted pure nothrow
+        pragma(inline, true) bool opIndexAssign(ModUInt)(bool b, Mod!(len, ModUInt) i) @trusted pure nothrow
             if (isUnsigned!ModUInt)
         {
             b ? bts(ptr, cast(size_t)i) : btr(ptr, cast(size_t)i);
@@ -300,7 +300,7 @@ struct BitSet(uint len, Block = size_t)
     }
 
     /** Reverse block `Block`. */
-    private pragma(inline) @property Block reverseBlock(in Block block)
+    private pragma(inline, true) @property Block reverseBlock(in Block block)
     {
         static if (Block.sizeof == 4)
         {
@@ -733,13 +733,13 @@ struct BitSet(uint len, Block = size_t)
         alias Q = Rational!ulong;
 
         /** Get number of bits set in $(D this). */
-        pragma(inline) Q denseness(int depth = -1) const @safe pure nothrow @nogc
+        pragma(inline, true) Q denseness(int depth = -1) const @safe pure nothrow @nogc
         {
             return Q(countOnes, length);
         }
 
         /** Get number of Bits Unset in $(D this). */
-        pragma(inline) Q sparseness(int depth = -1) const @safe pure nothrow @nogc
+        pragma(inline, true) Q sparseness(int depth = -1) const @safe pure nothrow @nogc
         {
             return 1 - denseness(depth);
         }

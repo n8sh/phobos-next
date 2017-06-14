@@ -586,7 +586,11 @@ struct BitSet(uint len, Block = size_t)
         }
     }
 
-    bool opCast(T : bool)() const @safe pure nothrow @nogc { return !this.allZero ; }
+    bool opCast(T : bool)() const
+        @safe pure nothrow @nogc
+    {
+        return !this.allZero;
+    }
 
     /// construct from dynamic array
     @safe nothrow @nogc unittest
@@ -614,7 +618,8 @@ struct BitSet(uint len, Block = size_t)
     }
 
     /** Check if this $(D BitSet) has only zeros (is empty). */
-    bool allZero() const @safe pure nothrow @nogc
+    bool allZero() const
+        @safe pure nothrow @nogc
     {
         foreach (const block; _blocks)
         {
@@ -624,8 +629,8 @@ struct BitSet(uint len, Block = size_t)
     }
 
     /** Check if this $(D BitSet) has only ones in range [ $(d low), $(d high) [. */
-    bool allOneBetween(size_t low, size_t high)
-        const @safe pure nothrow @nogc
+    bool allOneBetween(size_t low, size_t high) const
+        @safe pure nothrow @nogc
     in
     {
         assert(low + 1 <= len && high <= len);

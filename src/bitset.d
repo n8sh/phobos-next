@@ -842,8 +842,7 @@ struct BitSet(uint len, Block = size_t)
     BitSet opAnd(in BitSet e2) const
     {
         BitSet result;
-        for (size_t i = 0; i < dim; ++i)
-            result.ptr[i] = this.ptr[i] & e2.ptr[i];
+        result._blocks[] = this._blocks[] & e2._blocks[];
         return result;
     }
     ///
@@ -860,8 +859,7 @@ struct BitSet(uint len, Block = size_t)
     BitSet opOr(in BitSet e2) const
     {
         BitSet result;
-        for (size_t i = 0; i < dim; ++i)
-            result.ptr[i] = this.ptr[i] | e2.ptr[i];
+        result._blocks[] = this._blocks[] | e2._blocks[];
         return result;
     }
     ///
@@ -878,8 +876,7 @@ struct BitSet(uint len, Block = size_t)
     BitSet opXor(in BitSet e2) const
     {
         BitSet result;
-        for (size_t i = 0; i < dim; ++i)
-            result.ptr[i] = this.ptr[i] ^ e2.ptr[i];
+        result._blocks[] = this._blocks[] ^ e2._blocks[];
         return result;
     }
     ///
@@ -899,8 +896,7 @@ struct BitSet(uint len, Block = size_t)
     BitSet opSub(in BitSet e2) const
     {
         BitSet result;
-        for (size_t i = 0; i < dim; ++i)
-            result.ptr[i] = this.ptr[i] & ~e2.ptr[i];
+        result._blocks[] = this._blocks[] & ~e2._blocks[];
         return result;
     }
     ///
@@ -917,8 +913,7 @@ struct BitSet(uint len, Block = size_t)
      */
     BitSet opAndAssign(in BitSet e2)
     {
-        for (size_t i = 0; i < dim; ++i)
-            ptr[i] &= e2.ptr[i];
+        _blocks[] &= e2._blocks[];
         return this;
     }
     ///
@@ -935,8 +930,7 @@ struct BitSet(uint len, Block = size_t)
      */
     BitSet opOrAssign(in BitSet e2)
     {
-        for (size_t i = 0; i < dim; ++i)
-            ptr[i] |= e2.ptr[i];
+        _blocks[] |= e2._blocks[];
         return this;
     }
     ///
@@ -953,8 +947,7 @@ struct BitSet(uint len, Block = size_t)
      */
     BitSet opXorAssign(in BitSet e2)
     {
-        for (size_t i = 0; i < dim; ++i)
-            ptr[i] ^= e2.ptr[i];
+        _blocks[] ^= e2._blocks[];
         return this;
     }
     ///
@@ -972,10 +965,8 @@ struct BitSet(uint len, Block = size_t)
      * $(D a -= b) for $(D BitSet) means the same thing as $(D a &amp;= ~b).
      */
     BitSet opSubAssign(in BitSet e2)
-    body
     {
-        for (size_t i = 0; i < dim; ++i)
-            ptr[i] &= ~e2.ptr[i];
+        _blocks[] &= ~e2._blocks[];
         return this;
     }
     ///

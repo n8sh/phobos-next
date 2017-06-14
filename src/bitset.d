@@ -475,7 +475,7 @@ struct BitSet(uint len, Block = size_t)
 
 
     /** Support for operators == and != for $(D BitSet). */
-    bool opEquals(Block2)(in BitSet!(len, Block2) a2) const
+    bool opEquals(Block2)(in BitSet!(len, Block2) a2) const @trusted
         if (isUnsigned!Block2)
     {
         size_t i;
@@ -507,7 +507,7 @@ struct BitSet(uint len, Block = size_t)
     }
 
     /** Supports comparison operators for $(D BitSet). */
-    int opCmp(Block2)(in BitSet!(len, Block2) a2) const
+    int opCmp(Block2)(in BitSet!(len, Block2) a2) const @trusted
         if (isUnsigned!Block2)
     {
         uint i;
@@ -571,13 +571,19 @@ struct BitSet(uint len, Block = size_t)
     }
     body
     {
-        foreach (immutable i, const b; ba) { this[i] = b; }
+        foreach (immutable i, const b; ba)
+        {
+            this[i] = b;
+        }
     }
 
     /** Set this $(D BitSet) to the contents of $(D ba). */
     this(const ref bool[len] ba)
     {
-        foreach (immutable i, const b; ba) { this[i] = b; }
+        foreach (immutable i, const b; ba)
+        {
+            this[i] = b;
+        }
     }
 
     bool opCast(T : bool)() const @safe pure nothrow @nogc { return !this.allZero ; }

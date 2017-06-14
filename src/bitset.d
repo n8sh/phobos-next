@@ -380,7 +380,7 @@ struct BitSet(uint len, Block = size_t)
         static bool[len] data = [0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0,
                                  0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0];
         auto b = BitSet!len(data);
-        b.reverse;
+        b.reverse();
         for (size_t i = 0; i < data.length; ++i)
         {
             assert(b[i] == data[len - 1 - i]);
@@ -396,7 +396,7 @@ struct BitSet(uint len, Block = size_t)
                                  0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0,
                                  0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0];
         auto b = BitSet!len(data);
-        b.reverse;
+        b.reverse();
         for (size_t i = 0; i < data.length; ++i)
         {
             assert(b[i] == data[len - 1 - i]);
@@ -414,7 +414,7 @@ struct BitSet(uint len, Block = size_t)
                                  0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0,
                                  0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0];
         auto b = BitSet!len(data);
-        b.reverse;
+        b.reverse();
         for (size_t i = 0; i < data.length; ++i)
         {
             assert(b[i] == data[len - 1 - i]);

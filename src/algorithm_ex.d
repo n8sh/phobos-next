@@ -2480,7 +2480,6 @@ ElementType!(Args[0])[sumOfLengths!Args] concat(Args...)(Args arrays)
     return result;
 }
 
-
 @safe pure nothrow @nogc unittest
 {
     int[2] x = [1, 2];

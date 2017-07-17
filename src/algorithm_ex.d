@@ -2464,6 +2464,7 @@ template sumOfLengths(A...)
     static assert(sumOfLengths!(x, y, z) == 6);
 }
 
+/// Returns: concatenation of the static arrays `Args`.
 ElementType!(Args[0])[sumOfLengths!Args] concat(Args...)(Args arrays)
     if (allSatisfy!(isStaticArray, Args))
 {

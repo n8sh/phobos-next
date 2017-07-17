@@ -2450,7 +2450,7 @@ auto use(alias F, T)(T t)
 
 /// Sum of the lengths of the static arrays 'A'.
 template sumOfLengths(A...)
-    if (A.length > 0)
+    if (A.length >= 1)
 {
     static if (A.length == 1)
         enum sumOfLengths = A[0].length;

@@ -2447,3 +2447,19 @@ auto use(alias F, T)(T t)
         // writeln();
     }
 }
+
+/// Sum of the lengths of the static arrays 'A'.
+template sumOfLengths(A...)
+    if (A.length > 0)
+{
+    static if (A.length == 1)
+        enum sumOfLengths = A[0].length;
+    else
+        enum sumOfLengths = A[0].length + sumOfLengths!(A[1 .. $]);
+}
+
+@safe pure nothrow @nogc unittest
+{
+    int[2] x, y, z;
+    static assert(sumOfLengths!(x, y, z) == 6);
+}

@@ -1504,13 +1504,13 @@ struct Plane(E, uint D)
 //         assert(p == pn);
 //     }
 
-    /// Returns: the distance from a point to the plane.
+    /// Returns: distance from a point to the plane.
     /// Note: the plane $(RED must) be normalized, the result can be negative.
     /* E distanceTo(N point) const { */
     /*     return dot(point, normal) + distance; */
     /* } */
 
-    /// Returns: the distanceTo from a point to the plane.
+    /// Returns: distanceTo from a point to the plane.
     /// Note: the plane does not have to be normalized, the result can be negative.
     /* E ndistance(N point) const { */
     /*     return (dot(point, normal) + distance) / normal.magnitude; */

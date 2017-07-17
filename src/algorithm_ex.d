@@ -2468,7 +2468,7 @@ alias Elem(A : E[n], E, size_t n) = E;
 
 /// Returns: concatenation of the static arrays `Args`.
 Elem!(Args[0])[sumOfLengths!Args] concat(Args...)(Args arrays)
-    // if (allSatisfy!(isStaticArray, Args))
+    if (allSatisfy!(isStaticArray, Args))
 {
     typeof(return) result = void;
     foreach (const i, a; arrays)

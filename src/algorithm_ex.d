@@ -1003,7 +1003,7 @@ unittest
     assert(test(1, 2, 3) == 6);
 }
 
-import std.typetuple : allSatisfy;
+import std.meta : allSatisfy;
 
 /** Zip $(D ranges) together with operation $(D fun).
     TODO Remove when Issue 8715 is fixed providing zipWith

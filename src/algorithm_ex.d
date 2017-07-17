@@ -2466,8 +2466,6 @@ template sumOfLengths(A...)
 
 alias Elem(A : E[n], E, size_t n) = E;
 
-// import std.meta : staticMap;
-
 /// Returns: concatenation of the static arrays `Args`.
 Elem!(Args[0])[sumOfLengths!Args] concat(Args...)(Args arrays)
     // if (allSatisfy!(isStaticArray, Args))

@@ -2464,8 +2464,12 @@ template sumOfLengths(A...)
     static assert(sumOfLengths!(x, y, z) == 6);
 }
 
+alias Elem(A : E[n], E, size_t n) = E;
+
+import std.meta : staticMap;
+
 /// Returns: concatenation of the static arrays `Args`.
-ElementType!(Args[0])[sumOfLengths!Args] concat(Args...)(Args arrays)
+CommonType!(staticMap!(Elem, Args))[sumOfLengths!Args] concat(Args...)(Args arrays)
     if (allSatisfy!(isStaticArray, Args))
 {
     typeof(return) result = void;

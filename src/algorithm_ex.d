@@ -2466,7 +2466,7 @@ template sumOfLengths(A...)
 
 alias Elem(A : E[n], E, size_t n) = E;
 
-/// Returns: concatenation of the static arrays `Args`.
+/// Returns: concatenation of the static arrays `Args` as a static array.
 Elem!(Args[0])[sumOfLengths!Args] concat(Args...)(Args arrays)
     if (allSatisfy!(isStaticArray, Args))
 {

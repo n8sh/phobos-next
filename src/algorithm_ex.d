@@ -1746,12 +1746,6 @@ ref R append(R, Args...)(ref R data,
             data[$ - args.length + i] = arg;
         }
     }
-    // else static if (isStaticArray!R &&
-    //                 allSatisfy!(isElementType, Args) &&
-    //                 allSatisfy!(isStaticArray, Args))
-    // {
-    //     // TODO
-    // }
     else
     {
         static size_t estimateLength(Args args)

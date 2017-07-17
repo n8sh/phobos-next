@@ -2450,7 +2450,7 @@ auto use(alias F, T)(T t)
 
 /// Sum of the lengths of the static arrays 'A'.
 template sumOfLengths(A...)
-    if (A.length >= 1)
+    if (A.length)
 {
     static if (A.length == 1)
         enum sumOfLengths = A[0].length;
@@ -2462,4 +2462,29 @@ template sumOfLengths(A...)
 {
     int[2] x, y, z;
     static assert(sumOfLengths!(x, y, z) == 6);
+}
+
+ElementType!(Args[0])[sumOfLengths!Args] append2(Args...)(Args arrays)
+    if (allSatisfy!(isStaticArray, Args))
+{
+    typeof(return) result = void;
+    foreach (const i, a; arrays)
+    {
+        static if (i == 0)
+            enum offset = 0;
+        else
+            enum offset = sumOfLengths!(arrays[0 .. i]);
+        result[offset .. offset + a.length] = a[];
+    }
+    return result;
+}
+
+
+@safe pure nothrow @nogc unittest
+{
+    int[2] x = [1, 2];
+    const int[2] y = [3, 4];
+    auto z = append2(x, y);
+    static assert(is(typeof(z) == int[4]));
+    assert(z == [1, 2, 3, 4]);
 }

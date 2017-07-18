@@ -2762,7 +2762,7 @@ import std.traits : isStaticArray;
 import std.meta : allSatisfy;
 
 /// Returns: concatenation of the static arrays `Args` as a static array.
-Elem!(Args[0])[sumOfLengths!Args] concat(Args...)(Args arrays)
+Elem!(Args[0])[sumOfLengths!Args] concatenate(Args...)(Args arrays)
     if (allSatisfy!(isStaticArray, Args))
 {
     typeof(return) result = void;
@@ -2781,7 +2781,7 @@ Elem!(Args[0])[sumOfLengths!Args] concat(Args...)(Args arrays)
 {
     int[2] x = [1, 2];
     const int[2] y = [3, 4];
-    auto z = concat(x, y);
+    auto z = concatenate(x, y);
     static assert(is(typeof(z) == int[4]));
     assert(z == [1, 2, 3, 4]);
 }

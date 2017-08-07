@@ -377,6 +377,8 @@ void readSUOKIFs(string rootDirPath)
 
                 import std.datetime : StopWatch, AutoStart, Duration;
                 auto sw = StopWatch(AutoStart.yes);
+
+                // TODO insert a null at the end to enable sentinel-based search
                 const tokens = filePath.readText.lexSUOKIF();
                 sw.stop;
                 import std.conv : to;

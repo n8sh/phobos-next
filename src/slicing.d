@@ -19,6 +19,8 @@ auto preSlicer(alias isTerminator, R)(R input)
     return PreSlicer!(unaryFun!isTerminator, R)(input);
 }
 
+import dbgio;
+
 private struct PreSlicer(alias isTerminator, R)
 {
     private R _input;
@@ -27,10 +29,23 @@ private struct PreSlicer(alias isTerminator, R)
     private void findTerminator()
     {
         import std.range : save;
-        import std.algorithm : find;
-        auto hit = _input.save.find!(a => !isTerminator(a));
-        auto r = hit.find!isTerminator();
-        _end = _input.length - r.length;
+        import std.algorithm : countUntil;
+
+        size_t offset = 0;
+        if (isTerminator(_input[0]))
+        {
+            offset += 1;        // skip over it
+        }
+
+        const count = _input[offset .. $].countUntil!isTerminator();
+        if (count == -1)        // end reached
+        {
+            _end = _input.length;
+        }
+        else
+        {
+            _end = offset + count;
+        }
     }
 
     this(R input)
@@ -93,14 +108,17 @@ unittest
     import std.uni : isUpper;
     import std.algorithm : equal;
 
+    assert(equal("isAKindOf".preSlicer!isUpper, ["is", "A", "Kind", "Of"]));
+
     assert(equal("doThis".preSlicer!isUpper, ["do", "This"]));
     assert(equal("doThisIf".preSlicer!isUpper, ["do", "This", "If"]));
+
     assert(equal("utcOffset".preSlicer!isUpper, ["utc", "Offset"]));
-    assert(equal("isURI".preSlicer!isUpper, ["is", "URI"]));
+    assert(equal("isUri".preSlicer!isUpper, ["is", "Uri"]));
     // TODO assert(equal("baseSIUnit".preSlicer!isUpper, ["base", "SI", "Unit"]));
 
     assert(equal("SomeGreatVariableName".preSlicer!isUpper, ["Some", "Great", "Variable", "Name"]));
-    assert(equal("someGGGreatVariableName".preSlicer!isUpper, ["some", "GGGreat", "Variable", "Name"]));
+    assert(equal("someGGGreatVariableName".preSlicer!isUpper, ["some", "G", "G", "Great", "Variable", "Name"]));
 
     string[] e;
     assert(equal("".preSlicer!isUpper, e));

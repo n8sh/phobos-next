@@ -105,8 +105,8 @@ auto toLowerSpacedChars(T, Separator)(const T t, const Separator separator = " "
 ///
 @safe pure unittest
 {
-    enum Things { isURI, isLink }
-    assert(Things.isURI.toLowerSpacedChars.equal("is uri"));
+    enum Things { isUri, isLink }
+    assert(Things.isUri.toLowerSpacedChars.equal("is uri"));
     assert(Things.isLink.toLowerSpacedChars.equal("is link"));
 }
 

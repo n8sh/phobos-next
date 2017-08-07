@@ -239,7 +239,7 @@ Array!Token lexSUOKIF(string src) @safe pure
             const number = getNumber(src); // TODO tokenize
             tokens ~= Token.number;
             break;
-            // std.ascii.isWhite
+            // from std.ascii.isWhite:
         case ' ':
         case 0x09:
         case 0x10:

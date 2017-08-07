@@ -15,16 +15,23 @@ enum Token
 {
     leftParen,
     rightParen,
+
     symbol,
+
     stringLiteral,
+
     oneDirInference,            // one-directional inference
     biDirInference,             // bi-directional inference
+
     equivalence,
 
     variable,
     varParams,                  // one or more parameter
+
     whitespace,
+
     number,
+
     comment,
 
     className,

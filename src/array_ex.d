@@ -417,18 +417,21 @@ private struct Array(E,
         {
             debug typeof(return) that;
             else typeof(return) that = void;
+
             if (isLarge)
             {
                 emplace!(that.Large)(&that._large, _large.length, _large.length, false);
                 foreach (immutable i; 0 .. _large.length)
                 {
-                    that._large.ptr[i] = _large.ptr[i];
+                    // TODO is there a more standardized way of solving this other than this hacky cast?
+                    that._large.ptr[i] = (cast(E*)_large.ptr)[i];
                 }
             }
             else
             {
                 emplace!(that.Small)(&that._small, _small.length, false);
-                that._small.elms[0 .. _small.length] = _small.elms[0 .. _small.length]; // copy elements
+                // TODO is there a more standardized way of solving this other than this hacky cast?
+                that._small.elms[0 .. _small.length] = (cast(E[_small.elms.length])_small.elms)[0 .. _small.length]; // copy elements
             }
             return that;
         }

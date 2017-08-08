@@ -125,7 +125,7 @@ bool isSymbolChar(char x)
     return x.isAlphaNum || x.among!('_', '-');
 }
 
-/** Parse SUO-KIF from `src`. */
+/** Parse SUO-KIF from `src` into returned array of expressions (`Expr`). */
 UniqueArray!Expr lexSUOKIF(string src) @safe pure
 {
     import std.range : empty, front, popFront, popFrontN;
@@ -135,7 +135,7 @@ UniqueArray!Expr lexSUOKIF(string src) @safe pure
     import std.array : Appender;
 
     UniqueArray!Token tokenStack;         // token stack
-    UniqueArray!Expr exprStack;           // expression stack
+    UniqueArray!Expr exprs;           // expression stack
 
     size_t leftParenDepth = 0;
 
@@ -236,7 +236,7 @@ UniqueArray!Expr lexSUOKIF(string src) @safe pure
             {
                 newExpr.subs ~= Expr(tokenStack[$ - argCount + argIx]);
             }
-            exprStack ~= newExpr;
+            exprs ~= newExpr;
 
             tokenStack.popBackN(argCount + 1); // forget tokens plus match leftParen
 
@@ -406,7 +406,7 @@ UniqueArray!Expr lexSUOKIF(string src) @safe pure
 
     assert(leftParenDepth == 0);        // should be balanced
 
-    return exprStack;
+    return exprs;
 }
 
 unittest

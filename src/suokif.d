@@ -96,8 +96,12 @@ enum TOK
 /** SUO-KIF Token. */
 struct Token
 {
-    TOK tok;
+    this(TOK tok)
+    {
+        this.tok = tok;
+    }
     string src;                 // optional source slice
+    TOK tok;
 }
 
 bool isLispSymbolChar(char x)
@@ -195,10 +199,12 @@ Array!Token lexSUOKIF(string src) @safe pure
         case '(':
             src.popFront();
             tokens ~= Token(TOK.leftParen);
+            ++leftParenDepth;
             break;
         case ')':
             src.popFront();
             tokens ~= Token(TOK.rightParen);
+            --leftParenDepth;
             break;
         case '"':
             const stringLiteral = getStringLiteral(src); // TODO tokenize

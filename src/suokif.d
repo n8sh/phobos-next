@@ -96,9 +96,11 @@ enum TOK
 /** SUO-KIF Token. */
 struct Token
 {
-    this(TOK tok)
+    @safe pure nothrow @nogc:
+    this(TOK tok, string src = [])
     {
         this.tok = tok;
+        this.src = src;
     }
     string src;                 // optional source slice
     TOK tok;

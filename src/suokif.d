@@ -106,6 +106,15 @@ struct Token
     TOK tok;
 }
 
+/** SUO_KIF Expression
+    TODO use vary.FastVariant
+ */
+struct Expr
+{
+    Token token;
+    Expr[] subs;                // sub-expressions
+}
+
 bool isLispSymbolChar(char x)
     @safe pure nothrow @nogc
 {
@@ -208,9 +217,14 @@ void lexSUOKIF(string src) @safe pure
             src.popFront();
             --leftParenDepth;
 
+            tokens.popBack();   // pop right paren
+            size_t j = tokens.length;
             while (tokens.back.tok != TOK.leftParen)
             {
-                dln(tokens.back);
+                if (leftParenDepth == 0) // is top-level
+                {
+                    dln(tokens.back);
+                }
                 tokens.popBack();
             }
             tokens.popBack();   // pop matching leftParen

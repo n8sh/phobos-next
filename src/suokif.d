@@ -111,6 +111,7 @@ struct Token
  */
 struct Expr
 {
+    @safe pure nothrow @nogc:
     Token token;                // token
     Expr[] subs;                // sub-expressions
 }

@@ -119,7 +119,7 @@ Array!Token lexSUOKIF(string src) @safe pure
 
     typeof(return) tokens;
 
-    size_t parenDepth = 0;
+    size_t leftParenDepth = 0;
     Appender!(Token[]) tokenStack;
 
     const whole = src;
@@ -355,7 +355,7 @@ Array!Token lexSUOKIF(string src) @safe pure
         }
     }
 
-    assert(parenDepth == 0);        // should be balanced
+    assert(leftParenDepth == 0);        // should be balanced
 
     // dln(lowerSymbols);
     return tokens;

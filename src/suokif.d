@@ -106,12 +106,12 @@ struct Token
     TOK tok;
 }
 
-/** SUO_KIF Expression
+/** SUO_KIF Expression.
     TODO use vary.FastVariant
  */
 struct Expr
 {
-    Token token;
+    Token token;                // token
     Expr[] subs;                // sub-expressions
 }
 

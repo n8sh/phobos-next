@@ -115,8 +115,12 @@ Array!Token lexSUOKIF(string src) @safe pure
     import std.uni : isWhite, isAlpha;
     import std.ascii : isDigit;
     import std.algorithm : among, skipOver;
+    import std.array : Appender;
 
     typeof(return) tokens;
+
+    size_t parenDepth = 0;
+    Appender!(Token[]) tokenStack;
 
     const whole = src;
 
@@ -350,6 +354,8 @@ Array!Token lexSUOKIF(string src) @safe pure
             break;
         }
     }
+
+    assert(parenDepth == 0);        // should be balanced
 
     // dln(lowerSymbols);
     return tokens;

@@ -133,6 +133,7 @@ void lexSUOKIF(string src) @safe pure
     import std.array : Appender;
 
     Array!Token tokens;         // token stack
+    Array!Token exprs;          // expression stack
     // Appender!(Token[]) tokens;
 
     size_t leftParenDepth = 0;
@@ -142,15 +143,16 @@ void lexSUOKIF(string src) @safe pure
     src.skipOver(x"EFBBBF");    // skip magic? header for some files
 
     /// Skip comment.
-    static void skipComment(ref string src)
+    static void skipComment(ref string src) @safe pure
     {
-        while (!src.empty && !src.front.among('\r', '\n')) // until end of line
+        while (!src.empty &&
+               !src.front.among('\r', '\n')) // until end of line
         {
             src.popFront();
         }
     }
 
-    static string skipN(ref string src, size_t n)
+    static string skipN(ref string src, size_t n) @safe pure nothrow @nogc
     {
         const part = src[0 .. n];
         src = src[n .. $];
@@ -158,7 +160,7 @@ void lexSUOKIF(string src) @safe pure
     }
 
     /// Get symbol.
-    static string getSymbol(ref string src)
+    static string getSymbol(ref string src) @safe pure nothrow @nogc
     {
         size_t i = 0;
         while (i != src.length &&
@@ -167,7 +169,7 @@ void lexSUOKIF(string src) @safe pure
     }
 
     /// Get numeric literal (number) in integer or decimal forma.
-    static string getNumber(ref string src)
+    static string getNumber(ref string src) @safe pure nothrow @nogc
     {
         size_t i = 0;
         while (i != src.length &&
@@ -177,7 +179,7 @@ void lexSUOKIF(string src) @safe pure
     }
 
     /// Get string literal.
-    static string getStringLiteral(ref string src)
+    static string getStringLiteral(ref string src) @safe pure nothrow @nogc
     {
         src.popFront();         // pop leading double quote
         size_t i = 0;
@@ -189,7 +191,7 @@ void lexSUOKIF(string src) @safe pure
     }
 
     /// Skip whitespace.
-    static string getWhitespace(ref string src)
+    static string getWhitespace(ref string src) @safe pure nothrow @nogc
     {
         size_t i = 0;
         while (i != src.length &&
@@ -204,7 +206,7 @@ void lexSUOKIF(string src) @safe pure
         switch (src.front)
         {
         case ';':
-            skipComment(src);
+            skipComment(src);   // TODO store comment in Token
             tokens ~= Token(TOK.comment, src[0 .. 1]);
             break;
         case '(':
@@ -218,7 +220,7 @@ void lexSUOKIF(string src) @safe pure
             --leftParenDepth;
 
             tokens.popBack();   // pop right paren
-            size_t j = tokens.length;
+            size_t j = 0;
             while (tokens.back.tok != TOK.leftParen)
             {
                 if (leftParenDepth == 0) // is top-level
@@ -226,6 +228,7 @@ void lexSUOKIF(string src) @safe pure
                     dln(tokens.back);
                 }
                 tokens.popBack();
+                ++j;
             }
             tokens.popBack();   // pop matching leftParen
 

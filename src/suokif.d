@@ -97,7 +97,7 @@ enum TOK
 struct Token
 {
     @safe pure nothrow @nogc:
-    this(TOK tok, string src = [])
+    this(TOK tok, string src)
     {
         this.tok = tok;
         this.src = src;
@@ -115,18 +115,18 @@ bool isLispSymbolChar(char x)
 }
 
 /** Parse SUO-KIF from `src`. */
-Array!Token lexSUOKIF(string src) @safe pure
+void lexSUOKIF(string src) @safe pure
 {
-    import std.range : empty, front, popFront;
+    import std.range : empty, front, popFront, popFrontN;
     import std.uni : isWhite, isAlpha;
     import std.ascii : isDigit;
     import std.algorithm : among, skipOver;
     import std.array : Appender;
 
-    typeof(return) tokens;
+    Array!Token tokens;         // token stack
+    // Appender!(Token[]) tokens;
 
     size_t leftParenDepth = 0;
-    Appender!(Token[]) tokenStack;
 
     const whole = src;
 
@@ -196,32 +196,32 @@ Array!Token lexSUOKIF(string src) @safe pure
         {
         case ';':
             skipComment(src);
-            tokens ~= Token(TOK.comment);
+            tokens ~= Token(TOK.comment, src[0 .. 1]);
             break;
         case '(':
+            tokens ~= Token(TOK.leftParen, src[0 .. 1]);
             src.popFront();
-            tokens ~= Token(TOK.leftParen);
             ++leftParenDepth;
             break;
         case ')':
+            tokens ~= Token(TOK.rightParen, src[0 .. 1]);
             src.popFront();
-            tokens ~= Token(TOK.rightParen);
             --leftParenDepth;
             break;
         case '"':
             const stringLiteral = getStringLiteral(src); // TODO tokenize
-            tokens ~= Token(TOK.stringLiteral);
+            tokens ~= Token(TOK.stringLiteral, stringLiteral);
             break;
         case '=':
-            src.popFront();
-            if (src.front == '>')
+            if (src.length >= 2 && src[1] == '>') // src.startsWith(`=>`)
             {
-                src.popFront();
-                tokens ~= Token(TOK.oneDirInference);
+                tokens ~= Token(TOK.oneDirInference, src[0 .. 2]);
+                src.popFrontN(2);
             }
             else
             {
-                tokens ~= Token(TOK.equivalence);
+                tokens ~= Token(TOK.equivalence, src[0 .. 1]);
+                src.popFront();
             }
             break;
         case '<':
@@ -232,19 +232,27 @@ Array!Token lexSUOKIF(string src) @safe pure
                 if (src.front == '>')
                 {
                     src.popFront();
-                    tokens ~= Token(TOK.biDirInference);
+                    tokens ~= Token(TOK.biDirInference, null);
                 }
+                else
+                {
+                    throw new Exception(`Parse error`);
+                }
+            }
+            else
+            {
+                throw new Exception(`Parse error`);
             }
             break;
         case '?':
             src.popFront();
-            const variableSymbol = getSymbol(src); // TODO tokenize
-            tokens ~= Token(TOK.variable);
+            const variableSymbol = getSymbol(src);
+            tokens ~= Token(TOK.variable, variableSymbol);
             break;
         case '@':
             src.popFront();
-            const variableSymbol = getSymbol(src); // TODO tokenize
-            tokens ~= Token(TOK.varParams);
+            const varParamsSymbol = getSymbol(src);
+            tokens ~= Token(TOK.varParams, varParamsSymbol);
             break;
         case '0':
         case '1':
@@ -259,8 +267,8 @@ Array!Token lexSUOKIF(string src) @safe pure
         case '-':
         case '+':
         case '.':
-            const number = getNumber(src); // TODO tokenize
-            tokens ~= Token(TOK.number);
+            const number = getNumber(src);
+            tokens ~= Token(TOK.number, number);
             break;
             // from std.ascii.isWhite:
         case ' ':
@@ -272,7 +280,7 @@ Array!Token lexSUOKIF(string src) @safe pure
         case 0x0D:
             assert(src.front.isWhite);
             getWhitespace(src);
-            tokens ~= Token(TOK.whitespace);
+            tokens ~= Token(TOK.whitespace, null);
             break;
         default:
             // other
@@ -281,57 +289,57 @@ Array!Token lexSUOKIF(string src) @safe pure
                 const symbol = getSymbol(src); // TODO tokenize
                 switch (symbol)
                 {
-                case `and`: tokens ~= Token(TOK.and_); break;
-                case `or`: tokens ~= Token(TOK.or_); break;
-                case `not`: tokens ~= Token(TOK.not_); break;
-                case `exists`: tokens ~= Token(TOK.exists_); break;
-                case `instance`: tokens ~= Token(TOK.instance_); break;
-                case `domain`: tokens ~= Token(TOK.domain_); break;
-                case `lexicon`: tokens ~= Token(TOK.lexicon_); break;
-                case `range`: tokens ~= Token(TOK.range_); break;
-                case `subrelation`: tokens ~= Token(TOK.subrelation_); break;
-                case `models`: tokens ~= Token(TOK.models_); break;
-                case `format`: tokens ~= Token(TOK.format_); break;
-                case `subclass`: tokens ~= Token(TOK.subclass_); break;
-                case `documentation`: tokens ~= Token(TOK.documentation_); break;
-                case `meronym`: tokens ~= Token(TOK.meronym_); break;
-                case `property`: tokens ~= Token(TOK.property_); break;
-                case `attribute`: tokens ~= Token(TOK.attribute_); break;
-                case `subAttribute`: tokens ~= Token(TOK.subAttribute_); break;
-                case `equal`: tokens ~= Token(TOK.equal_); break;
-                case `abbreviation`: tokens ~= Token(TOK.abbreviation_); break;
-                case `result`: tokens ~= Token(TOK.result_); break;
-                case `duration`: tokens ~= Token(TOK.duration_); break;
-                case `agent`: tokens ~= Token(TOK.agent_); break;
-                case `member`: tokens ~= Token(TOK.member_); break;
-                case `hasPurpose`: tokens ~= Token(TOK.hasPurpose_); break;
-                case `finishes`: tokens ~= Token(TOK.finishes_); break;
-                case `earlier`: tokens ~= Token(TOK.earlier_); break;
-                case `yield`: tokens ~= Token(TOK.yield_); break;
-                case `instrument`: tokens ~= Token(TOK.instrument_); break;
-                case `destination`: tokens ~= Token(TOK.destination_); break;
-                case `material`: tokens ~= Token(TOK.material_); break;
-                case `causes`: tokens ~= Token(TOK.causes_); break;
-                case `origin`: tokens ~= Token(TOK.origin_); break;
-                case `located`: tokens ~= Token(TOK.located_); break;
-                case `employs`: tokens ~= Token(TOK.employs_); break;
-                case `possesses`: tokens ~= Token(TOK.possesses_); break;
-                case `disjoint`: tokens ~= Token(TOK.disjoint_); break;
-                case `mother`: tokens ~= Token(TOK.mother_); break;
-                case `father`: tokens ~= Token(TOK.father_); break;
-                case `son`: tokens ~= Token(TOK.son_); break;
-                case `daughter`: tokens ~= Token(TOK.daughter_); break;
-                case `brother`: tokens ~= Token(TOK.brother_); break;
-                case `sister`: tokens ~= Token(TOK.sister_); break;
-                case `sibling`: tokens ~= Token(TOK.sibling_); break;
-                case `lessThan`: tokens ~= Token(TOK.lessThan_); break;
-                case `lessThanOrEqualTo`: tokens ~= Token(TOK.lessThanOrEqualTo_); break;
-                case `greaterThan`: tokens ~= Token(TOK.greaterThan_); break;
-                case `greaterThanOrEqualTo`: tokens ~= Token(TOK.greaterThanOrEqualTo_); break;
-                case `date`: tokens ~= Token(TOK.date_); break;
-                case `insured`: tokens ~= Token(TOK.insured_); break;
-                case `askPrice`: tokens ~= Token(TOK.askPrice_); break;
-                case `outOfTheMoney`: tokens ~= Token(TOK.outOfTheMoney_); break;
+                case `and`: tokens ~= Token(TOK.and_, symbol); break;
+                case `or`: tokens ~= Token(TOK.or_, symbol); break;
+                case `not`: tokens ~= Token(TOK.not_, symbol); break;
+                case `exists`: tokens ~= Token(TOK.exists_, symbol); break;
+                case `instance`: tokens ~= Token(TOK.instance_, symbol); break;
+                case `domain`: tokens ~= Token(TOK.domain_, symbol); break;
+                case `lexicon`: tokens ~= Token(TOK.lexicon_, symbol); break;
+                case `range`: tokens ~= Token(TOK.range_, symbol); break;
+                case `subrelation`: tokens ~= Token(TOK.subrelation_, symbol); break;
+                case `models`: tokens ~= Token(TOK.models_, symbol); break;
+                case `format`: tokens ~= Token(TOK.format_, symbol); break;
+                case `subclass`: tokens ~= Token(TOK.subclass_, symbol); break;
+                case `documentation`: tokens ~= Token(TOK.documentation_, symbol); break;
+                case `meronym`: tokens ~= Token(TOK.meronym_, symbol); break;
+                case `property`: tokens ~= Token(TOK.property_, symbol); break;
+                case `attribute`: tokens ~= Token(TOK.attribute_, symbol); break;
+                case `subAttribute`: tokens ~= Token(TOK.subAttribute_, symbol); break;
+                case `equal`: tokens ~= Token(TOK.equal_, symbol); break;
+                case `abbreviation`: tokens ~= Token(TOK.abbreviation_, symbol); break;
+                case `result`: tokens ~= Token(TOK.result_, symbol); break;
+                case `duration`: tokens ~= Token(TOK.duration_, symbol); break;
+                case `agent`: tokens ~= Token(TOK.agent_, symbol); break;
+                case `member`: tokens ~= Token(TOK.member_, symbol); break;
+                case `hasPurpose`: tokens ~= Token(TOK.hasPurpose_, symbol); break;
+                case `finishes`: tokens ~= Token(TOK.finishes_, symbol); break;
+                case `earlier`: tokens ~= Token(TOK.earlier_, symbol); break;
+                case `yield`: tokens ~= Token(TOK.yield_, symbol); break;
+                case `instrument`: tokens ~= Token(TOK.instrument_, symbol); break;
+                case `destination`: tokens ~= Token(TOK.destination_, symbol); break;
+                case `material`: tokens ~= Token(TOK.material_, symbol); break;
+                case `causes`: tokens ~= Token(TOK.causes_, symbol); break;
+                case `origin`: tokens ~= Token(TOK.origin_, symbol); break;
+                case `located`: tokens ~= Token(TOK.located_, symbol); break;
+                case `employs`: tokens ~= Token(TOK.employs_, symbol); break;
+                case `possesses`: tokens ~= Token(TOK.possesses_, symbol); break;
+                case `disjoint`: tokens ~= Token(TOK.disjoint_, symbol); break;
+                case `mother`: tokens ~= Token(TOK.mother_, symbol); break;
+                case `father`: tokens ~= Token(TOK.father_, symbol); break;
+                case `son`: tokens ~= Token(TOK.son_, symbol); break;
+                case `daughter`: tokens ~= Token(TOK.daughter_, symbol); break;
+                case `brother`: tokens ~= Token(TOK.brother_, symbol); break;
+                case `sister`: tokens ~= Token(TOK.sister_, symbol); break;
+                case `sibling`: tokens ~= Token(TOK.sibling_, symbol); break;
+                case `lessThan`: tokens ~= Token(TOK.lessThan_, symbol); break;
+                case `lessThanOrEqualTo`: tokens ~= Token(TOK.lessThanOrEqualTo_, symbol); break;
+                case `greaterThan`: tokens ~= Token(TOK.greaterThan_, symbol); break;
+                case `greaterThanOrEqualTo`: tokens ~= Token(TOK.greaterThanOrEqualTo_, symbol); break;
+                case `date`: tokens ~= Token(TOK.date_, symbol); break;
+                case `insured`: tokens ~= Token(TOK.insured_, symbol); break;
+                case `askPrice`: tokens ~= Token(TOK.askPrice_, symbol); break;
+                case `outOfTheMoney`: tokens ~= Token(TOK.outOfTheMoney_, symbol); break;
                 default:
                     import std.uni : isLower;
                     import std.algorithm : endsWith;
@@ -364,9 +372,6 @@ Array!Token lexSUOKIF(string src) @safe pure
     }
 
     assert(leftParenDepth == 0);        // should be balanced
-
-    // dln(lowerSymbols);
-    return tokens;
 }
 
 unittest
@@ -405,7 +410,7 @@ void readSUOKIFs(string rootDirPath)
                 auto sw = StopWatch(AutoStart.yes);
 
                 // TODO insert a null at the end to enable sentinel-based search
-                const tokens = filePath.readText.lexSUOKIF();
+                filePath.readText.lexSUOKIF();
                 sw.stop;
                 import std.conv : to;
                 writeln(`took `, sw.peek().to!Duration);

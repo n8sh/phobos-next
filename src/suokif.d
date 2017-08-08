@@ -116,6 +116,7 @@ struct Expr
     Expr[] subs;                // sub-expressions
 }
 
+pragma(inline, true)
 bool isSymbolChar(char x)
     @safe pure nothrow @nogc
 {

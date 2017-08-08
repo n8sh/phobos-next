@@ -116,7 +116,7 @@ struct Expr
     Expr[] subs;                // sub-expressions
 }
 
-bool isLispSymbolChar(char x)
+bool isSymbolChar(char x)
     @safe pure nothrow @nogc
 {
     import std.uni : isAlphaNum;
@@ -165,7 +165,7 @@ void lexSUOKIF(string src) @safe pure
     {
         size_t i = 0;
         while (i != src.length &&
-               src[i].isLispSymbolChar) { ++i; }
+               src[i].isSymbolChar) { ++i; }
         return skipN(src, i);
     }
 

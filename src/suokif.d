@@ -126,7 +126,7 @@ bool isSymbolChar(char x)
 }
 
 /** Parse SUO-KIF from `src`. */
-void lexSUOKIF(string src) @safe pure
+UniqueArray!Expr lexSUOKIF(string src) @safe pure
 {
     import std.range : empty, front, popFront, popFrontN;
     import std.uni : isWhite, isAlpha;
@@ -405,6 +405,8 @@ void lexSUOKIF(string src) @safe pure
     }
 
     assert(leftParenDepth == 0);        // should be balanced
+
+    return exprStack;
 }
 
 unittest

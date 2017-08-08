@@ -207,6 +207,14 @@ void lexSUOKIF(string src) @safe pure
             tokens ~= Token(TOK.rightParen, src[0 .. 1]);
             src.popFront();
             --leftParenDepth;
+
+            while (tokens.back.tok != TOK.leftParen)
+            {
+                dln(tokens.back);
+                tokens.popBack();
+            }
+            tokens.popBack();   // pop matching leftParen
+
             break;
         case '"':
             const stringLiteral = getStringLiteral(src); // TODO tokenize
@@ -280,7 +288,7 @@ void lexSUOKIF(string src) @safe pure
         case 0x0D:
             assert(src.front.isWhite);
             getWhitespace(src);
-            tokens ~= Token(TOK.whitespace, null);
+            // skip whitespace: tokens ~= Token(TOK.whitespace, null);
             break;
         default:
             // other

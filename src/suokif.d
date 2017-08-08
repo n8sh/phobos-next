@@ -288,7 +288,7 @@ void lexSUOKIF(string src) @safe pure
         case 0x0D:
             assert(src.front.isWhite);
             getWhitespace(src);
-            // skip whitespace: tokens ~= Token(TOK.whitespace, null);
+            // skip whitespace for now: tokens ~= Token(TOK.whitespace, null);
             break;
         default:
             // other

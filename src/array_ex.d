@@ -730,7 +730,7 @@ private struct Array(E,
     }
 
     /// Destruct.
-    pragma(inline, true)
+    pragma(inline)
     ~this() nothrow @trusted
     {
         assert(!isBorrowed);
@@ -746,7 +746,7 @@ private struct Array(E,
     }
 
     /// Empty.
-    pragma(inline, true)
+    pragma(inline)
     void clear() @safe nothrow
     {
         assert(!isBorrowed);
@@ -868,7 +868,7 @@ private struct Array(E,
     enum needsMove(T) = hasIndirections!T || !isCopyable!T;
 
     /** Pop back element and return it. */
-    pragma(inline, true)
+    pragma(inline)
     E backPop() @trusted
     {
         assert(!isBorrowed);
@@ -1017,11 +1017,11 @@ private struct Array(E,
         }
         alias put = pushBack;   // OutputRange support
 
-        pragma(inline, true):
 
         // NOTE these separate overloads of opOpAssign are needed because one
         // `const ref`-parameter-overload doesn't work because of compiler bug
         // with: `this(this) @disable`
+        pragma(inline)
         void opOpAssign(string op, Us...)(Us values)
             if (op == "~" &&
                 values.length >= 1 &&
@@ -1046,6 +1046,8 @@ private struct Array(E,
             //     pushBack(move(values)); // TODO remove `move` when compiler does it for us
             // }
         }
+
+        pragma(inline)
         void opOpAssign(string op, R)(R values)
             if (op == "~" &&
                 isInputRange!R && !isInfinite!R &&
@@ -1054,6 +1056,8 @@ private struct Array(E,
             assert(!isBorrowed);
             pushBack(move(values)); // TODO remove `move` when compiler does it for us
         }
+
+        pragma(inline, true)
         void opOpAssign(string op, A)(const ref A values)
             if (op == "~" &&
                 isArrayContainer!A &&
@@ -1071,19 +1075,19 @@ private struct Array(E,
         import std.range : SearchPolicy, assumeSorted;
 
         /// Returns: `true` iff this contains `value`.
-        pragma(inline, true) bool contains(U)(U value) const nothrow @nogc @("complexity", "O(log(length))")
+        bool contains(U)(U value) const nothrow @nogc @("complexity", "O(log(length))")
         {
             return this[].contains(value); // reuse `SortedRange.contains`
         }
 
         /** Wrapper for `std.range.SortedRange.lowerBound` when this `ordering` is sorted. */
-        pragma(inline, true) auto lowerBound(SearchPolicy sp = SearchPolicy.binarySearch, U)(U e) inout @("complexity", "O(log(length))")
+        auto lowerBound(SearchPolicy sp = SearchPolicy.binarySearch, U)(U e) inout @("complexity", "O(log(length))")
         {
             return this[].lowerBound!sp(e); // reuse `SortedRange.lowerBound`
         }
 
         /** Wrapper for `std.range.SortedRange.upperBound` when this `ordering` is sorted. */
-        pragma(inline, true) auto upperBound(SearchPolicy sp = SearchPolicy.binarySearch, U)(U e) inout @("complexity", "O(log(length))")
+        auto upperBound(SearchPolicy sp = SearchPolicy.binarySearch, U)(U e) inout @("complexity", "O(log(length))")
         {
             return this[].upperBound!sp(e); // reuse `SortedRange.upperBound`
         }
@@ -1205,7 +1209,8 @@ private struct Array(E,
     else
     {
         /** Insert element(s) `values` at array offset `index`. */
-        pragma(inline, true) void insertAtIndex(Us...)(size_t index, Us values) nothrow @("complexity", "O(length)")
+        pragma(inline, true)
+        void insertAtIndex(Us...)(size_t index, Us values) nothrow @("complexity", "O(length)")
             if (values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
         {
@@ -1214,7 +1219,8 @@ private struct Array(E,
         }
 
         /** Insert element(s) `values` at the beginning. */
-        pragma(inline, true) void pushFront(Us...)(Us values) nothrow @("complexity", "O(length)")
+        pragma(inline, true)
+        void pushFront(Us...)(Us values) nothrow @("complexity", "O(length)")
             if (values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
         {
@@ -1300,7 +1306,7 @@ private struct Array(E,
     }
 
     @property @("complexity", "O(1)")
-    pragma(inline, true):
+    pragma(inline):
 
     /// ditto
     static if (isOrdered!ordering)
@@ -1385,6 +1391,7 @@ private struct Array(E,
         pure inout: // indexing and slicing has mutable access only when unordered
 
         /// Slice operator.
+        pragma(inline)
         inout(E)[] opSlice() return
         {
             return this.opSlice(0, this.length);
@@ -1528,6 +1535,7 @@ private struct Array(E,
     }
 
     /// Shrink length to `newLength`.
+    pragma(inline)
     void shrinkTo(size_t newLength) @safe
     {
         assert(!isBorrowed);
@@ -1677,6 +1685,7 @@ private:                        // data
                       ));
         }
 
+        pragma(inline)
         this(size_t initialCapacity, size_t initialLength, bool zero)
         {
             assert(initialCapacity <= lengthMax);
@@ -1731,6 +1740,7 @@ private:                        // data
                              ));
         }
 
+        pragma(inline)
         this(size_t initialLength, bool zero)
         {
             assert(initialLength <= lengthMax);
@@ -1744,8 +1754,7 @@ private:                        // data
             }
         }
 
-        pragma(inline, true):
-
+        pragma(inline, true)
         MutableE* _mptr() const @trusted
         {
             return cast(typeof(return))(elms.ptr);

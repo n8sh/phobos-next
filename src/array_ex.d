@@ -2798,6 +2798,7 @@ Elem!(Args[0])[sumOfLengths!Args] concatenate(Args...)(Args arrays)
     assert(z == [1, 2, 3, 4]);
 }
 
+/// See also: http://forum.dlang.org/post/omfm56$28nu$1@digitalmars.com
 @safe pure nothrow unittest
 {
     import std.range : ElementType;

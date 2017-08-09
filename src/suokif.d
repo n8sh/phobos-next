@@ -219,81 +219,81 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
             assert(!exprs.empty);
 
             // TODO retroIndexOf
-            size_t argCount = 0; // last index
-            while (exprs[$ - 1 - argCount].token.tok != TOK.leftParen)
+            size_t count = 0; // last index
+            while (exprs[$ - 1 - count].token.tok != TOK.leftParen)
             {
-                ++argCount;
+                ++count;
             }
-            assert(argCount != 0);
+            assert(count != 0);
 
             Expr newExpr;
 
-            foreach (const argIx; 0 .. argCount)
+            foreach (const argIx; 0 .. count)
             {
-                dln(argIx, ":", exprs[$ - argCount + argIx]);
+                dln(argIx, ":", exprs[$ - count + argIx]);
             }
 
             // copy parameters to expression
-            switch (argCount)
+            switch (count)
             {
             case 0:
                 break;          // do nothing
             case 1:
-                newExpr.subs = [exprs[$ - argCount + 0]];
+                newExpr.subs = [exprs[$ - count + 0]];
                 break;
             case 2:
-                newExpr.subs = [exprs[$ - argCount + 0],
-                                exprs[$ - argCount + 1]];
+                newExpr.subs = [exprs[$ - count + 0],
+                                exprs[$ - count + 1]];
                 break;
             case 3:
-                newExpr.subs = [exprs[$ - argCount + 0],
-                                exprs[$ - argCount + 1],
-                                exprs[$ - argCount + 2]];
+                newExpr.subs = [exprs[$ - count + 0],
+                                exprs[$ - count + 1],
+                                exprs[$ - count + 2]];
                 if (newExpr.subs[0].token.tok == TOK.subclass_)
                 {
                     // dln(newExpr.subs);
                 }
                 break;
             case 4:
-                newExpr.subs = [exprs[$ - argCount + 0],
-                                exprs[$ - argCount + 1],
-                                exprs[$ - argCount + 2],
-                                exprs[$ - argCount + 3]];
+                newExpr.subs = [exprs[$ - count + 0],
+                                exprs[$ - count + 1],
+                                exprs[$ - count + 2],
+                                exprs[$ - count + 3]];
                 break;
             case 5:
-                newExpr.subs = [exprs[$ - argCount + 0],
-                                exprs[$ - argCount + 1],
-                                exprs[$ - argCount + 2],
-                                exprs[$ - argCount + 3],
-                                exprs[$ - argCount + 4]];
+                newExpr.subs = [exprs[$ - count + 0],
+                                exprs[$ - count + 1],
+                                exprs[$ - count + 2],
+                                exprs[$ - count + 3],
+                                exprs[$ - count + 4]];
                 break;
             case 6:
-                newExpr.subs = [exprs[$ - argCount + 0],
-                                exprs[$ - argCount + 1],
-                                exprs[$ - argCount + 2],
-                                exprs[$ - argCount + 3],
-                                exprs[$ - argCount + 4],
-                                exprs[$ - argCount + 5]];
+                newExpr.subs = [exprs[$ - count + 0],
+                                exprs[$ - count + 1],
+                                exprs[$ - count + 2],
+                                exprs[$ - count + 3],
+                                exprs[$ - count + 4],
+                                exprs[$ - count + 5]];
                 break;
             case 7:
-                newExpr.subs = [exprs[$ - argCount + 0],
-                                exprs[$ - argCount + 1],
-                                exprs[$ - argCount + 2],
-                                exprs[$ - argCount + 3],
-                                exprs[$ - argCount + 4],
-                                exprs[$ - argCount + 5],
-                                exprs[$ - argCount + 6]];
+                newExpr.subs = [exprs[$ - count + 0],
+                                exprs[$ - count + 1],
+                                exprs[$ - count + 2],
+                                exprs[$ - count + 3],
+                                exprs[$ - count + 4],
+                                exprs[$ - count + 5],
+                                exprs[$ - count + 6]];
                 break;
             default:
-                foreach (const argIx; 0 .. argCount)
+                foreach (const argIx; 0 .. count)
                 {
-                    newExpr.subs ~= exprs[$ - argCount + argIx];
+                    newExpr.subs ~= exprs[$ - count + argIx];
                 }
                 // dln(newExpr);
                 break;
             }
 
-            exprs.popBackN(argCount + 1); // forget tokens plus match leftParen
+            exprs.popBackN(count + 1); // forget tokens plus match leftParen
 
             exprs ~= newExpr;
 
@@ -307,6 +307,7 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
             {
                 exprs ~= Expr(Token(TOK.oneDirInference, src[0 .. 2]));
                 src.popFrontN(2);
+                dln(exprs.back);
             }
             else
             {
@@ -458,6 +459,7 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
             }
             break;
         }
+        dln("back:", exprs.back);
     }
 
     assert(leftParenDepth == 0);        // should be balanced

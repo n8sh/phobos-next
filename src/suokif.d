@@ -247,7 +247,7 @@ UniqueArray!Expr lexSUOKIF(string src) @safe pure
                                 exprs[$ - argCount + 2].move];
                 if (newExpr.subs[0].token.tok == TOK.subclass_)
                 {
-                    dln(newExpr.subs);
+                    // dln(newExpr.subs);
                 }
                 break;
             case 4:

@@ -2800,16 +2800,21 @@ Elem!(Args[0])[sumOfLengths!Args] concatenate(Args...)(Args arrays)
 
 @safe pure nothrow @nogc unittest
 {
+    struct Token
+    {
+        string src;
+    }
+
     struct S
     {
-        int x;
+        Token token;
         S[] subs;
     }
     S s;
 
     struct T
     {
-        int x;
+        Token token;
         import std.array : Appender;
         Appender!(T[]) subs;
     }
@@ -2817,7 +2822,7 @@ Elem!(Args[0])[sumOfLengths!Args] concatenate(Args...)(Args arrays)
 
     // struct U
     // {
-    //     int x;
+    //     Token token;
     //     UniqueArray!U subs;
     // }
     // U u;

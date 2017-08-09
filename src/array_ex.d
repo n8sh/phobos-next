@@ -2800,20 +2800,27 @@ Elem!(Args[0])[sumOfLengths!Args] concatenate(Args...)(Args arrays)
 
 @safe pure nothrow unittest
 {
+    import std.range : ElementType;
+    import std.array : Appender;
+
     struct S
     {
         string src;
         S[] subs;
     }
-    S s;
-    s.subs ~= S.init;
 
     struct T
     {
         string src;
-        import std.array : Appender;
         Appender!(T[]) subs;
     }
+
+    static assert(is(ElementType!(S[]) == S));
+    static assert(is(ElementType!(T[]) == void));
+
+    S s;
+    s.subs ~= S.init;
+
     T t;
     // t.subs ~= T.init;
     // t.subs.put(T.init);

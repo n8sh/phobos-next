@@ -224,66 +224,70 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
             {
                 ++argCount;
             }
-            // assert(argCount != 0);
+            assert(argCount != 0);
 
             Expr newExpr;
+
+            foreach (const argIx; 0 .. argCount)
+            {
+                dln(argIx, ":", exprs[$ - argCount + argIx]);
+            }
 
             // copy parameters to expression
             switch (argCount)
             {
             case 0:
-                // dln(`x`);
                 break;          // do nothing
             case 1:
-                newExpr.subs = [exprs[$ - argCount + 0].move];
+                newExpr.subs = [exprs[$ - argCount + 0]];
                 break;
             case 2:
-                newExpr.subs = [exprs[$ - argCount + 0].move,
-                                exprs[$ - argCount + 1].move];
+                newExpr.subs = [exprs[$ - argCount + 0],
+                                exprs[$ - argCount + 1]];
                 break;
             case 3:
-                newExpr.subs = [exprs[$ - argCount + 0].move,
-                                exprs[$ - argCount + 1].move,
-                                exprs[$ - argCount + 2].move];
+                newExpr.subs = [exprs[$ - argCount + 0],
+                                exprs[$ - argCount + 1],
+                                exprs[$ - argCount + 2]];
                 if (newExpr.subs[0].token.tok == TOK.subclass_)
                 {
                     // dln(newExpr.subs);
                 }
                 break;
             case 4:
-                newExpr.subs = [exprs[$ - argCount + 0].move,
-                                exprs[$ - argCount + 1].move,
-                                exprs[$ - argCount + 2].move,
-                                exprs[$ - argCount + 3].move];
+                newExpr.subs = [exprs[$ - argCount + 0],
+                                exprs[$ - argCount + 1],
+                                exprs[$ - argCount + 2],
+                                exprs[$ - argCount + 3]];
                 break;
             case 5:
-                newExpr.subs = [exprs[$ - argCount + 0].move,
-                                exprs[$ - argCount + 1].move,
-                                exprs[$ - argCount + 2].move,
-                                exprs[$ - argCount + 3].move,
-                                exprs[$ - argCount + 4].move];
+                newExpr.subs = [exprs[$ - argCount + 0],
+                                exprs[$ - argCount + 1],
+                                exprs[$ - argCount + 2],
+                                exprs[$ - argCount + 3],
+                                exprs[$ - argCount + 4]];
                 break;
             case 6:
-                newExpr.subs = [exprs[$ - argCount + 0].move,
-                                exprs[$ - argCount + 1].move,
-                                exprs[$ - argCount + 2].move,
-                                exprs[$ - argCount + 3].move,
-                                exprs[$ - argCount + 4].move,
-                                exprs[$ - argCount + 5].move];
+                newExpr.subs = [exprs[$ - argCount + 0],
+                                exprs[$ - argCount + 1],
+                                exprs[$ - argCount + 2],
+                                exprs[$ - argCount + 3],
+                                exprs[$ - argCount + 4],
+                                exprs[$ - argCount + 5]];
                 break;
             case 7:
-                newExpr.subs = [exprs[$ - argCount + 0].move,
-                                exprs[$ - argCount + 1].move,
-                                exprs[$ - argCount + 2].move,
-                                exprs[$ - argCount + 3].move,
-                                exprs[$ - argCount + 4].move,
-                                exprs[$ - argCount + 5].move,
-                                exprs[$ - argCount + 6].move];
+                newExpr.subs = [exprs[$ - argCount + 0],
+                                exprs[$ - argCount + 1],
+                                exprs[$ - argCount + 2],
+                                exprs[$ - argCount + 3],
+                                exprs[$ - argCount + 4],
+                                exprs[$ - argCount + 5],
+                                exprs[$ - argCount + 6]];
                 break;
             default:
                 foreach (const argIx; 0 .. argCount)
                 {
-                    newExpr.subs ~= exprs[$ - argCount + argIx].move;
+                    newExpr.subs ~= exprs[$ - argCount + argIx];
                 }
                 // dln(newExpr);
                 break;
@@ -291,7 +295,7 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
 
             exprs.popBackN(argCount + 1); // forget tokens plus match leftParen
 
-            exprs ~= newExpr.move;
+            exprs ~= newExpr;
 
             break;
         case '"':

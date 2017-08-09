@@ -2797,3 +2797,28 @@ Elem!(Args[0])[sumOfLengths!Args] concatenate(Args...)(Args arrays)
     static assert(is(typeof(z) == int[4]));
     assert(z == [1, 2, 3, 4]);
 }
+
+@safe pure nothrow @nogc unittest
+{
+    struct S
+    {
+        int x;
+        S[] subs;
+    }
+    S s;
+
+    struct T
+    {
+        int x;
+        import std.array : Appender;
+        Appender!(T[]) subs;
+    }
+    T t;
+
+    // struct U
+    // {
+    //     int x;
+    //     UniqueArray!U subs;
+    // }
+    // U u;
+}

@@ -113,7 +113,7 @@ struct Expr
 {
     @safe pure nothrow @nogc:
     Token token;                // token
-    Expr[] subs;                // sub-expressions
+    UniqueArray!(Expr*) subs;   // sub-expressions
 }
 
 pragma(inline)
@@ -131,8 +131,7 @@ UniqueArray!Expr lexSUOKIF(string src) @safe pure
     import std.range : empty, front, popFront, popFrontN;
     import std.uni : isWhite, isAlpha;
     import std.ascii : isDigit;
-    import std.algorithm : among, skipOver;
-    import std.array : Appender;
+    import std.algorithm : among, skipOver, move;
 
     UniqueArray!Token tokens;         // token stack
     UniqueArray!Expr exprs;           // expression stack
@@ -223,7 +222,7 @@ UniqueArray!Expr lexSUOKIF(string src) @safe pure
             tokens.popBack();   // pop right paren
             assert(!tokens.empty);
 
-            // TODO retroindexOf
+            // TODO retroIndexOf
             size_t argCount = 0; // last index
             while (tokens[$ - 1 - argCount].tok != TOK.leftParen)
             {
@@ -232,11 +231,11 @@ UniqueArray!Expr lexSUOKIF(string src) @safe pure
 
             Expr newExpr;
             // copy parameters to expression
-            foreach (argIx; 0 .. argCount)
+            foreach (const argIx; 0 .. argCount)
             {
-                newExpr.subs ~= Expr(tokens[$ - argCount + argIx]);
+                newExpr.subs ~= new Expr(tokens[$ - argCount + argIx]);
             }
-            exprs ~= newExpr;
+            exprs ~= move(newExpr);
 
             tokens.popBackN(argCount + 1); // forget tokens plus match leftParen
 

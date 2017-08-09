@@ -130,7 +130,6 @@ UniqueArray!Expr lexSUOKIF(string src) @safe pure
     import std.ascii : isDigit;
     import std.algorithm : among, skipOver, move;
 
-    UniqueArray!Token tokens;         // token stack
     UniqueArray!Expr exprs;           // expression stack
 
     size_t leftParenDepth = 0;
@@ -204,24 +203,24 @@ UniqueArray!Expr lexSUOKIF(string src) @safe pure
         {
         case ';':
             skipComment(src);   // TODO store comment in Token
-            tokens ~= Token(TOK.comment, src[0 .. 1]);
+            exprs ~= Expr(Token(TOK.comment, src[0 .. 1]));
             break;
         case '(':
-            tokens ~= Token(TOK.leftParen, src[0 .. 1]);
+            exprs ~= Expr(Token(TOK.leftParen, src[0 .. 1]));
             src.popFront();
             ++leftParenDepth;
             break;
         case ')':
-            tokens ~= Token(TOK.rightParen, src[0 .. 1]);
+            exprs ~= Expr(Token(TOK.rightParen, src[0 .. 1]));
             src.popFront();
             --leftParenDepth;
 
-            tokens.popBack();   // pop right paren
-            assert(!tokens.empty);
+            exprs.popBack();   // pop right paren
+            assert(!exprs.empty);
 
             // TODO retroIndexOf
             size_t argCount = 0; // last index
-            while (tokens[$ - 1 - argCount].tok != TOK.leftParen)
+            while (exprs[$ - 1 - argCount].token.tok != TOK.leftParen)
             {
                 ++argCount;
             }
@@ -233,73 +232,73 @@ UniqueArray!Expr lexSUOKIF(string src) @safe pure
             case 0:
                 break;          // do nothing
             case 1:
-                newExpr.subs = [Expr(tokens[$ - argCount + 0])];
+                newExpr.subs = [exprs[$ - argCount + 0].move];
                 break;
             case 2:
-                newExpr.subs = [Expr(tokens[$ - argCount + 0]),
-                                Expr(tokens[$ - argCount + 1])];
+                newExpr.subs = [exprs[$ - argCount + 0].move,
+                                exprs[$ - argCount + 1].move];
                 break;
             case 3:
-                newExpr.subs = [Expr(tokens[$ - argCount + 0]),
-                                Expr(tokens[$ - argCount + 1]),
-                                Expr(tokens[$ - argCount + 2])];
+                newExpr.subs = [exprs[$ - argCount + 0].move,
+                                exprs[$ - argCount + 1].move,
+                                exprs[$ - argCount + 2].move];
                 break;
             case 4:
-                newExpr.subs = [Expr(tokens[$ - argCount + 0]),
-                                Expr(tokens[$ - argCount + 1]),
-                                Expr(tokens[$ - argCount + 2]),
-                                Expr(tokens[$ - argCount + 3])];
+                newExpr.subs = [exprs[$ - argCount + 0].move,
+                                exprs[$ - argCount + 1].move,
+                                exprs[$ - argCount + 2].move,
+                                exprs[$ - argCount + 3].move];
                 break;
             case 5:
-                newExpr.subs = [Expr(tokens[$ - argCount + 0]),
-                                Expr(tokens[$ - argCount + 1]),
-                                Expr(tokens[$ - argCount + 2]),
-                                Expr(tokens[$ - argCount + 3]),
-                                Expr(tokens[$ - argCount + 4])];
+                newExpr.subs = [exprs[$ - argCount + 0].move,
+                                exprs[$ - argCount + 1].move,
+                                exprs[$ - argCount + 2].move,
+                                exprs[$ - argCount + 3].move,
+                                exprs[$ - argCount + 4].move];
                 break;
             case 6:
-                newExpr.subs = [Expr(tokens[$ - argCount + 0]),
-                                Expr(tokens[$ - argCount + 1]),
-                                Expr(tokens[$ - argCount + 2]),
-                                Expr(tokens[$ - argCount + 3]),
-                                Expr(tokens[$ - argCount + 4]),
-                                Expr(tokens[$ - argCount + 5])];
+                newExpr.subs = [exprs[$ - argCount + 0].move,
+                                exprs[$ - argCount + 1].move,
+                                exprs[$ - argCount + 2].move,
+                                exprs[$ - argCount + 3].move,
+                                exprs[$ - argCount + 4].move,
+                                exprs[$ - argCount + 5].move];
                 break;
             case 7:
-                newExpr.subs = [Expr(tokens[$ - argCount + 0]),
-                                Expr(tokens[$ - argCount + 1]),
-                                Expr(tokens[$ - argCount + 2]),
-                                Expr(tokens[$ - argCount + 3]),
-                                Expr(tokens[$ - argCount + 4]),
-                                Expr(tokens[$ - argCount + 5]),
-                                Expr(tokens[$ - argCount + 6])];
+                newExpr.subs = [exprs[$ - argCount + 0].move,
+                                exprs[$ - argCount + 1].move,
+                                exprs[$ - argCount + 2].move,
+                                exprs[$ - argCount + 3].move,
+                                exprs[$ - argCount + 4].move,
+                                exprs[$ - argCount + 5].move,
+                                exprs[$ - argCount + 6].move];
                 break;
             default:
                 foreach (const argIx; 0 .. argCount)
                 {
-                    newExpr.subs ~= Expr(tokens[$ - argCount + argIx]);
+                    newExpr.subs ~= exprs[$ - argCount + argIx].move;
                 }
-                dln(newExpr);
+                // dln(newExpr);
                 break;
             }
             exprs ~= newExpr.move;
 
-            tokens.popBackN(argCount + 1); // forget tokens plus match leftParen
+            exprs.popBackN(argCount + 1); // forget tokens plus match leftParen
 
             break;
         case '"':
             const stringLiteral = getStringLiteral(src); // TODO tokenize
-            tokens ~= Token(TOK.stringLiteral, stringLiteral);
+            exprs ~= Expr(Token(TOK.stringLiteral, stringLiteral));
             break;
         case '=':
             if (src.length >= 2 && src[1] == '>') // src.startsWith(`=>`)
             {
-                tokens ~= Token(TOK.oneDirInference, src[0 .. 2]);
+                exprs ~= Expr(Token(TOK.oneDirInference, src[0 .. 2]));
                 src.popFrontN(2);
             }
             else
             {
-                tokens ~= Token(TOK.equivalence, src[0 .. 1]);
+                exprs ~= Expr(Token(TOK.equivalence, src[0 .. 1]));
                 src.popFront();
             }
             break;
@@ -311,7 +310,7 @@ UniqueArray!Expr lexSUOKIF(string src) @safe pure
                 if (src.front == '>')
                 {
                     src.popFront();
-                    tokens ~= Token(TOK.biDirInference, null);
+                    exprs ~= Expr(Token(TOK.biDirInference, null));
                 }
                 else
                 {
@@ -326,12 +325,12 @@ UniqueArray!Expr lexSUOKIF(string src) @safe pure
         case '?':
             src.popFront();
             const variableSymbol = getSymbol(src);
-            tokens ~= Token(TOK.variable, variableSymbol);
+            exprs ~= Expr(Token(TOK.variable, variableSymbol));
             break;
         case '@':
             src.popFront();
             const varParamsSymbol = getSymbol(src);
-            tokens ~= Token(TOK.varParams, varParamsSymbol);
+            exprs ~= Expr(Token(TOK.varParams, varParamsSymbol));
             break;
         case '0':
         case '1':
@@ -347,7 +346,7 @@ UniqueArray!Expr lexSUOKIF(string src) @safe pure
         case '+':
         case '.':
             const number = getNumber(src);
-            tokens ~= Token(TOK.number, number);
+            exprs ~= Expr(Token(TOK.number, number));
             break;
             // from std.ascii.isWhite:
         case ' ':
@@ -359,7 +358,7 @@ UniqueArray!Expr lexSUOKIF(string src) @safe pure
         case 0x0D:
             assert(src.front.isWhite);
             getWhitespace(src);
-            // skip whitespace for now: tokens ~= Token(TOK.whitespace, null);
+            // skip whitespace for now: exprs ~= Expr(Token(TOK.whitespace, null));
             break;
         default:
             // other
@@ -368,57 +367,57 @@ UniqueArray!Expr lexSUOKIF(string src) @safe pure
                 const symbol = getSymbol(src); // TODO tokenize
                 switch (symbol)
                 {
-                case `and`: tokens ~= Token(TOK.and_, symbol); break;
-                case `or`: tokens ~= Token(TOK.or_, symbol); break;
-                case `not`: tokens ~= Token(TOK.not_, symbol); break;
-                case `exists`: tokens ~= Token(TOK.exists_, symbol); break;
-                case `instance`: tokens ~= Token(TOK.instance_, symbol); break;
-                case `domain`: tokens ~= Token(TOK.domain_, symbol); break;
-                case `lexicon`: tokens ~= Token(TOK.lexicon_, symbol); break;
-                case `range`: tokens ~= Token(TOK.range_, symbol); break;
-                case `subrelation`: tokens ~= Token(TOK.subrelation_, symbol); break;
-                case `models`: tokens ~= Token(TOK.models_, symbol); break;
-                case `format`: tokens ~= Token(TOK.format_, symbol); break;
-                case `subclass`: tokens ~= Token(TOK.subclass_, symbol); break;
-                case `documentation`: tokens ~= Token(TOK.documentation_, symbol); break;
-                case `meronym`: tokens ~= Token(TOK.meronym_, symbol); break;
-                case `property`: tokens ~= Token(TOK.property_, symbol); break;
-                case `attribute`: tokens ~= Token(TOK.attribute_, symbol); break;
-                case `subAttribute`: tokens ~= Token(TOK.subAttribute_, symbol); break;
-                case `equal`: tokens ~= Token(TOK.equal_, symbol); break;
-                case `abbreviation`: tokens ~= Token(TOK.abbreviation_, symbol); break;
-                case `result`: tokens ~= Token(TOK.result_, symbol); break;
-                case `duration`: tokens ~= Token(TOK.duration_, symbol); break;
-                case `agent`: tokens ~= Token(TOK.agent_, symbol); break;
-                case `member`: tokens ~= Token(TOK.member_, symbol); break;
-                case `hasPurpose`: tokens ~= Token(TOK.hasPurpose_, symbol); break;
-                case `finishes`: tokens ~= Token(TOK.finishes_, symbol); break;
-                case `earlier`: tokens ~= Token(TOK.earlier_, symbol); break;
-                case `yield`: tokens ~= Token(TOK.yield_, symbol); break;
-                case `instrument`: tokens ~= Token(TOK.instrument_, symbol); break;
-                case `destination`: tokens ~= Token(TOK.destination_, symbol); break;
-                case `material`: tokens ~= Token(TOK.material_, symbol); break;
-                case `causes`: tokens ~= Token(TOK.causes_, symbol); break;
-                case `origin`: tokens ~= Token(TOK.origin_, symbol); break;
-                case `located`: tokens ~= Token(TOK.located_, symbol); break;
-                case `employs`: tokens ~= Token(TOK.employs_, symbol); break;
-                case `possesses`: tokens ~= Token(TOK.possesses_, symbol); break;
-                case `disjoint`: tokens ~= Token(TOK.disjoint_, symbol); break;
-                case `mother`: tokens ~= Token(TOK.mother_, symbol); break;
-                case `father`: tokens ~= Token(TOK.father_, symbol); break;
-                case `son`: tokens ~= Token(TOK.son_, symbol); break;
-                case `daughter`: tokens ~= Token(TOK.daughter_, symbol); break;
-                case `brother`: tokens ~= Token(TOK.brother_, symbol); break;
-                case `sister`: tokens ~= Token(TOK.sister_, symbol); break;
-                case `sibling`: tokens ~= Token(TOK.sibling_, symbol); break;
-                case `lessThan`: tokens ~= Token(TOK.lessThan_, symbol); break;
-                case `lessThanOrEqualTo`: tokens ~= Token(TOK.lessThanOrEqualTo_, symbol); break;
-                case `greaterThan`: tokens ~= Token(TOK.greaterThan_, symbol); break;
-                case `greaterThanOrEqualTo`: tokens ~= Token(TOK.greaterThanOrEqualTo_, symbol); break;
-                case `date`: tokens ~= Token(TOK.date_, symbol); break;
-                case `insured`: tokens ~= Token(TOK.insured_, symbol); break;
-                case `askPrice`: tokens ~= Token(TOK.askPrice_, symbol); break;
-                case `outOfTheMoney`: tokens ~= Token(TOK.outOfTheMoney_, symbol); break;
+                case `and`: exprs ~= Expr(Token(TOK.and_, symbol)); break;
+                case `or`: exprs ~= Expr(Token(TOK.or_, symbol)); break;
+                case `not`: exprs ~= Expr(Token(TOK.not_, symbol)); break;
+                case `exists`: exprs ~= Expr(Token(TOK.exists_, symbol)); break;
+                case `instance`: exprs ~= Expr(Token(TOK.instance_, symbol)); break;
+                case `domain`: exprs ~= Expr(Token(TOK.domain_, symbol)); break;
+                case `lexicon`: exprs ~= Expr(Token(TOK.lexicon_, symbol)); break;
+                case `range`: exprs ~= Expr(Token(TOK.range_, symbol)); break;
+                case `subrelation`: exprs ~= Expr(Token(TOK.subrelation_, symbol)); break;
+                case `models`: exprs ~= Expr(Token(TOK.models_, symbol)); break;
+                case `format`: exprs ~= Expr(Token(TOK.format_, symbol)); break;
+                case `subclass`: exprs ~= Expr(Token(TOK.subclass_, symbol)); break;
+                case `documentation`: exprs ~= Expr(Token(TOK.documentation_, symbol)); break;
+                case `meronym`: exprs ~= Expr(Token(TOK.meronym_, symbol)); break;
+                case `property`: exprs ~= Expr(Token(TOK.property_, symbol)); break;
+                case `attribute`: exprs ~= Expr(Token(TOK.attribute_, symbol)); break;
+                case `subAttribute`: exprs ~= Expr(Token(TOK.subAttribute_, symbol)); break;
+                case `equal`: exprs ~= Expr(Token(TOK.equal_, symbol)); break;
+                case `abbreviation`: exprs ~= Expr(Token(TOK.abbreviation_, symbol)); break;
+                case `result`: exprs ~= Expr(Token(TOK.result_, symbol)); break;
+                case `duration`: exprs ~= Expr(Token(TOK.duration_, symbol)); break;
+                case `agent`: exprs ~= Expr(Token(TOK.agent_, symbol)); break;
+                case `member`: exprs ~= Expr(Token(TOK.member_, symbol)); break;
+                case `hasPurpose`: exprs ~= Expr(Token(TOK.hasPurpose_, symbol)); break;
+                case `finishes`: exprs ~= Expr(Token(TOK.finishes_, symbol)); break;
+                case `earlier`: exprs ~= Expr(Token(TOK.earlier_, symbol)); break;
+                case `yield`: exprs ~= Expr(Token(TOK.yield_, symbol)); break;
+                case `instrument`: exprs ~= Expr(Token(TOK.instrument_, symbol)); break;
+                case `destination`: exprs ~= Expr(Token(TOK.destination_, symbol)); break;
+                case `material`: exprs ~= Expr(Token(TOK.material_, symbol)); break;
+                case `causes`: exprs ~= Expr(Token(TOK.causes_, symbol)); break;
+                case `origin`: exprs ~= Expr(Token(TOK.origin_, symbol)); break;
+                case `located`: exprs ~= Expr(Token(TOK.located_, symbol)); break;
+                case `employs`: exprs ~= Expr(Token(TOK.employs_, symbol)); break;
+                case `possesses`: exprs ~= Expr(Token(TOK.possesses_, symbol)); break;
+                case `disjoint`: exprs ~= Expr(Token(TOK.disjoint_, symbol)); break;
+                case `mother`: exprs ~= Expr(Token(TOK.mother_, symbol)); break;
+                case `father`: exprs ~= Expr(Token(TOK.father_, symbol)); break;
+                case `son`: exprs ~= Expr(Token(TOK.son_, symbol)); break;
+                case `daughter`: exprs ~= Expr(Token(TOK.daughter_, symbol)); break;
+                case `brother`: exprs ~= Expr(Token(TOK.brother_, symbol)); break;
+                case `sister`: exprs ~= Expr(Token(TOK.sister_, symbol)); break;
+                case `sibling`: exprs ~= Expr(Token(TOK.sibling_, symbol)); break;
+                case `lessThan`: exprs ~= Expr(Token(TOK.lessThan_, symbol)); break;
+                case `lessThanOrEqualTo`: exprs ~= Expr(Token(TOK.lessThanOrEqualTo_, symbol)); break;
+                case `greaterThan`: exprs ~= Expr(Token(TOK.greaterThan_, symbol)); break;
+                case `greaterThanOrEqualTo`: exprs ~= Expr(Token(TOK.greaterThanOrEqualTo_, symbol)); break;
+                case `date`: exprs ~= Expr(Token(TOK.date_, symbol)); break;
+                case `insured`: exprs ~= Expr(Token(TOK.insured_, symbol)); break;
+                case `askPrice`: exprs ~= Expr(Token(TOK.askPrice_, symbol)); break;
+                case `outOfTheMoney`: exprs ~= Expr(Token(TOK.outOfTheMoney_, symbol)); break;
                 default:
                     import std.uni : isLower;
                     import std.algorithm : endsWith;
@@ -431,11 +430,11 @@ UniqueArray!Expr lexSUOKIF(string src) @safe pure
                     }
                     else if (symbol.endsWith(`Fn`))
                     {
-                        tokens ~= Token(TOK.functionName, symbol);
+                        exprs ~= Expr(Token(TOK.functionName, symbol));
                     }
                     else
                     {
-                        tokens ~= Token(TOK.symbol, symbol);
+                        exprs ~= Expr(Token(TOK.symbol, symbol));
                     }
                     break;
                 }
@@ -443,7 +442,6 @@ UniqueArray!Expr lexSUOKIF(string src) @safe pure
             else
             {
                 dln(`Cannot handle character '`, src.front, `' at index:`, &src[0] - &whole[0]);
-                // dln(tokens[]);
                 assert(false);
             }
             break;

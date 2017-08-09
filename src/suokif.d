@@ -235,7 +235,7 @@ UniqueArray!Expr lexSUOKIF(string src) @safe pure
             {
                 newExpr.subs ~= new Expr(tokens[$ - argCount + argIx]);
             }
-            exprs ~= move(newExpr);
+            exprs ~= newExpr.move;
 
             tokens.popBackN(argCount + 1); // forget tokens plus match leftParen
 

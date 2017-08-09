@@ -2817,7 +2817,7 @@ Elem!(Args[0])[sumOfLengths!Args] concatenate(Args...)(Args arrays)
     }
 
     static assert(is(ElementType!(S[]) == S));
-    static assert(is(ElementType!(T[]) == void));
+    static assert(is(ElementType!(T[]) == void)); // TODO forward-reference bug: should be `T`
 
     S s;
     s.subs ~= S.init;

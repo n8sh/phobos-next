@@ -232,6 +232,7 @@ UniqueArray!Expr lexSUOKIF(string src) @safe pure
             switch (argCount)
             {
             case 0:
+                dln(`x`);
                 break;          // do nothing
             case 1:
                 newExpr.subs = [exprs[$ - argCount + 0].move];
@@ -287,9 +288,10 @@ UniqueArray!Expr lexSUOKIF(string src) @safe pure
                 // dln(newExpr);
                 break;
             }
-            exprs ~= newExpr.move;
 
             exprs.popBackN(argCount + 1); // forget tokens plus match leftParen
+
+            exprs ~= newExpr.move;
 
             break;
         case '"':

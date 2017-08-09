@@ -106,7 +106,7 @@ struct Token
  */
 struct Expr
 {
-    Token token;                // token
+    Token token;               // token
     // UniqueArray!(Expr*) subs;   // sub-expressions
     // import std.array : Appender;
     // Appender!(Expr[]) subs;
@@ -224,8 +224,10 @@ UniqueArray!Expr lexSUOKIF(string src) @safe pure
             {
                 ++argCount;
             }
+            // assert(argCount != 0);
 
             Expr newExpr;
+
             // copy parameters to expression
             switch (argCount)
             {
@@ -242,6 +244,10 @@ UniqueArray!Expr lexSUOKIF(string src) @safe pure
                 newExpr.subs = [exprs[$ - argCount + 0].move,
                                 exprs[$ - argCount + 1].move,
                                 exprs[$ - argCount + 2].move];
+                if (newExpr.subs[0].token.tok == TOK.subclass_)
+                {
+                    dln(newExpr.subs);
+                }
                 break;
             case 4:
                 newExpr.subs = [exprs[$ - argCount + 0].move,

@@ -97,13 +97,8 @@ enum TOK
 struct Token
 {
     @safe pure nothrow @nogc:
-    this(TOK tok, string src)
-    {
-        this.tok = tok;
-        this.src = src;
-    }
-    string src;                 // optional source slice
     TOK tok;
+    string src;                 // optional source slice
 }
 
 /** SUO_KIF Expression.
@@ -111,9 +106,11 @@ struct Token
  */
 struct Expr
 {
-    @safe pure nothrow @nogc:
     Token token;                // token
-    UniqueArray!(Expr*) subs;   // sub-expressions
+    // UniqueArray!(Expr*) subs;   // sub-expressions
+    // import std.array : Appender;
+    // Appender!(Expr[]) subs;
+    Expr[] subs;
 }
 
 pragma(inline)
@@ -231,9 +228,59 @@ UniqueArray!Expr lexSUOKIF(string src) @safe pure
 
             Expr newExpr;
             // copy parameters to expression
-            foreach (const argIx; 0 .. argCount)
+            switch (argCount)
             {
-                newExpr.subs ~= new Expr(tokens[$ - argCount + argIx]);
+            case 0:
+                break;          // do nothing
+            case 1:
+                newExpr.subs = [Expr(tokens[$ - argCount + 0])];
+                break;
+            case 2:
+                newExpr.subs = [Expr(tokens[$ - argCount + 0]),
+                                Expr(tokens[$ - argCount + 1])];
+                break;
+            case 3:
+                newExpr.subs = [Expr(tokens[$ - argCount + 0]),
+                                Expr(tokens[$ - argCount + 1]),
+                                Expr(tokens[$ - argCount + 2])];
+                break;
+            case 4:
+                newExpr.subs = [Expr(tokens[$ - argCount + 0]),
+                                Expr(tokens[$ - argCount + 1]),
+                                Expr(tokens[$ - argCount + 2]),
+                                Expr(tokens[$ - argCount + 3])];
+                break;
+            case 5:
+                newExpr.subs = [Expr(tokens[$ - argCount + 0]),
+                                Expr(tokens[$ - argCount + 1]),
+                                Expr(tokens[$ - argCount + 2]),
+                                Expr(tokens[$ - argCount + 3]),
+                                Expr(tokens[$ - argCount + 4])];
+                break;
+            case 6:
+                newExpr.subs = [Expr(tokens[$ - argCount + 0]),
+                                Expr(tokens[$ - argCount + 1]),
+                                Expr(tokens[$ - argCount + 2]),
+                                Expr(tokens[$ - argCount + 3]),
+                                Expr(tokens[$ - argCount + 4]),
+                                Expr(tokens[$ - argCount + 5])];
+                break;
+            case 7:
+                newExpr.subs = [Expr(tokens[$ - argCount + 0]),
+                                Expr(tokens[$ - argCount + 1]),
+                                Expr(tokens[$ - argCount + 2]),
+                                Expr(tokens[$ - argCount + 3]),
+                                Expr(tokens[$ - argCount + 4]),
+                                Expr(tokens[$ - argCount + 5]),
+                                Expr(tokens[$ - argCount + 6])];
+                break;
+            default:
+                foreach (const argIx; 0 .. argCount)
+                {
+                    newExpr.subs ~= Expr(tokens[$ - argCount + argIx]);
+                }
+                dln(newExpr);
+                break;
             }
             exprs ~= newExpr.move;
 

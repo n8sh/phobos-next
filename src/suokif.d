@@ -123,7 +123,7 @@ bool isSymbolChar(char x)
 }
 
 /** Parse SUO-KIF from `src` into returned array of expressions (`Expr`). */
-UniqueArray!Expr lexSUOKIF(string src) @safe pure
+UniqueArray!Expr parseSUOKIF(string src) @safe pure
 {
     import std.range : empty, front, popFront, popFrontN;
     import std.uni : isWhite, isAlpha;
@@ -497,7 +497,7 @@ void readSUOKIFs(string rootDirPath)
                 auto sw = StopWatch(AutoStart.yes);
 
                 // TODO insert a null at the end to enable sentinel-based search
-                filePath.readText.lexSUOKIF();
+                filePath.readText.parseSUOKIF();
                 sw.stop;
                 import std.conv : to;
                 writeln(`took `, sw.peek().to!Duration);

@@ -2798,31 +2798,29 @@ Elem!(Args[0])[sumOfLengths!Args] concatenate(Args...)(Args arrays)
     assert(z == [1, 2, 3, 4]);
 }
 
-@safe pure nothrow @nogc unittest
+@safe pure nothrow unittest
 {
-    struct Token
-    {
-        string src;
-    }
-
     struct S
     {
-        Token token;
+        string src;
         S[] subs;
     }
     S s;
+    s.subs ~= S.init;
 
     struct T
     {
-        Token token;
+        string src;
         import std.array : Appender;
         Appender!(T[]) subs;
     }
     T t;
+    // t.subs ~= T.init;
+    // t.subs.put(T.init);
 
     // struct U
     // {
-    //     Token token;
+    //     string src;
     //     UniqueArray!U subs;
     // }
     // U u;

@@ -55,7 +55,6 @@ enum TOK
     property_,
     attribute_,
     subAttribute_,
-    equal_,
     abbreviation_,
     result_,
     duration_,
@@ -82,6 +81,7 @@ enum TOK
     sister_,
     sibling_,
 
+    equal_,
     lessThan_,
     greaterThan_,
     lessThanOrEqualTo_,
@@ -363,7 +363,6 @@ Exprs parseSUOKIF(string src) @safe pure
                 case `property`: exprs ~= Expr(Token(TOK.property_, symbol)); break;
                 case `attribute`: exprs ~= Expr(Token(TOK.attribute_, symbol)); break;
                 case `subAttribute`: exprs ~= Expr(Token(TOK.subAttribute_, symbol)); break;
-                case `equal`: exprs ~= Expr(Token(TOK.equal_, symbol)); break;
                 case `abbreviation`: exprs ~= Expr(Token(TOK.abbreviation_, symbol)); break;
                 case `result`: exprs ~= Expr(Token(TOK.result_, symbol)); break;
                 case `duration`: exprs ~= Expr(Token(TOK.duration_, symbol)); break;
@@ -389,6 +388,7 @@ Exprs parseSUOKIF(string src) @safe pure
                 case `brother`: exprs ~= Expr(Token(TOK.brother_, symbol)); break;
                 case `sister`: exprs ~= Expr(Token(TOK.sister_, symbol)); break;
                 case `sibling`: exprs ~= Expr(Token(TOK.sibling_, symbol)); break;
+                case `equal`: exprs ~= Expr(Token(TOK.equal_, symbol)); break;
                 case `lessThan`: exprs ~= Expr(Token(TOK.lessThan_, symbol)); break;
                 case `lessThanOrEqualTo`: exprs ~= Expr(Token(TOK.lessThanOrEqualTo_, symbol)); break;
                 case `greaterThan`: exprs ~= Expr(Token(TOK.greaterThan_, symbol)); break;

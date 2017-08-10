@@ -121,7 +121,7 @@ bool isSymbolChar(char x)
 {
     import std.uni : isAlphaNum;
     import std.algorithm : among;
-    return x.isAlphaNum || x.among!('_', '-'); // TODO join to a single call to `among`
+    return x.isAlphaNum || x.among!('_', '-'); // TODO merge to single call to among
 }
 
 /// Returns: true if `s` is terminated with a zero character (null).

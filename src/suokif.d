@@ -107,7 +107,7 @@ struct Token
  */
 struct Expr
 {
-    Token token;               // token
+    Token token;                // token
     Expr[] subs;
 }
 
@@ -248,77 +248,15 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
             }
             // assert(count != 0);
 
-            Expr newExpr;
-
-            foreach (const argIx; 0 .. count)
+            if (count >= 1)
             {
-                // dln(argIx, ":", exprs[$ - count + argIx]);
+                Expr newExpr = Expr(exprs[$ - count].token,
+                                    exprs[$ - count + 1 .. $].dup);
+
+                exprs.popBackN(count + 1); // forget tokens including leftParen
+
+                exprs ~= newExpr;
             }
-
-            // copy parameters to expression
-            switch (count)
-            {
-            case 0:
-                break;          // do nothing
-            case 1:
-                newExpr.subs = [exprs[$ - count + 0]];
-                break;
-            case 2:
-                newExpr.subs = [exprs[$ - count + 0],
-                                exprs[$ - count + 1]];
-                break;
-            case 3:
-                newExpr.subs = [exprs[$ - count + 0],
-                                exprs[$ - count + 1],
-                                exprs[$ - count + 2]];
-                if (newExpr.subs[0].token.tok == TOK.subclass_)
-                {
-                    // dln(newExpr.subs);
-                }
-                break;
-            case 4:
-                newExpr.subs = [exprs[$ - count + 0],
-                                exprs[$ - count + 1],
-                                exprs[$ - count + 2],
-                                exprs[$ - count + 3]];
-                break;
-            case 5:
-                newExpr.subs = [exprs[$ - count + 0],
-                                exprs[$ - count + 1],
-                                exprs[$ - count + 2],
-                                exprs[$ - count + 3],
-                                exprs[$ - count + 4]];
-                break;
-            case 6:
-                newExpr.subs = [exprs[$ - count + 0],
-                                exprs[$ - count + 1],
-                                exprs[$ - count + 2],
-                                exprs[$ - count + 3],
-                                exprs[$ - count + 4],
-                                exprs[$ - count + 5]];
-                break;
-            case 7:
-                newExpr.subs = [exprs[$ - count + 0],
-                                exprs[$ - count + 1],
-                                exprs[$ - count + 2],
-                                exprs[$ - count + 3],
-                                exprs[$ - count + 4],
-                                exprs[$ - count + 5],
-                                exprs[$ - count + 6]];
-                break;
-            default:
-                foreach (const argIx; 0 .. count)
-                {
-                    newExpr.subs ~= exprs[$ - count + argIx];
-                }
-                // dln(newExpr);
-                break;
-            }
-
-            exprs.popBackN(count + 1); // forget tokens plus match leftParen
-            // dln("newExpr:", newExpr, " count:", count);
-
-            exprs ~= newExpr;
 
             break;
         case '"':

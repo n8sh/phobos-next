@@ -124,7 +124,12 @@ bool isSymbolChar(char x)
     return x.isAlphaNum || x.among!('_', '-'); // TODO merge to single call to among
 }
 
-/// Returns: true if `s` is terminated with a zero character (null).
+/** Returns: true if `s` is terminated with a zero character (null).
+
+    Used to verify input to parser make use of sentinel-based search.
+
+    See also: https://en.wikipedia.org/wiki/Sentinel_value
+ */
 pragma(inline, true)
 bool isNullTerminated(const(char)[] s)
     @safe pure nothrow @nogc
@@ -142,6 +147,7 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
     import std.ascii : isDigit;
     import std.algorithm : among, skipOver, move;
 
+    alias Src = typeof(src);
     UniqueArray!Expr exprs;           // expression stack
 
     size_t leftParenDepth = 0;
@@ -151,7 +157,7 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
     src.skipOver(x"EFBBBF");    // skip magic? header for some files
 
     /// Skip comment.
-    static void skipComment(ref string src) @safe pure
+    static void skipComment(ref Src src) @safe pure
     {
         assert(src.isNullTerminated);
         while (!src.front.among('\r', '\n')) // until end of line
@@ -160,7 +166,8 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
         }
     }
 
-    static string skipOverNBytes(ref string src, size_t n) @safe pure nothrow @nogc
+    pragma(inline, true)
+    static Src skipOverNBytes(ref Src src, size_t n) @safe pure nothrow @nogc
     {
         const part = src[0 .. n];
         src = src[n .. $];
@@ -168,7 +175,7 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
     }
 
     /// Get symbol.
-    static string getSymbol(ref string src) @safe pure nothrow @nogc
+    static Src getSymbol(ref Src src) @safe pure nothrow @nogc
     {
         assert(src.isNullTerminated);
         size_t i = 0;
@@ -177,7 +184,7 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
     }
 
     /// Get numeric literal (number) in integer or decimal forma.
-    static string getNumber(ref string src) @safe pure nothrow @nogc
+    static Src getNumber(ref Src src) @safe pure nothrow @nogc
     {
         assert(src.isNullTerminated);
         size_t i = 0;
@@ -186,8 +193,8 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
         return skipOverNBytes(src, i);
     }
 
-    /// Get string literal.
-    static string getStringLiteral(ref string src) @safe pure nothrow @nogc
+    /// Get Src literal.
+    static Src getStringLiteral(ref Src src) @safe pure nothrow @nogc
     {
         assert(src.isNullTerminated);
         src.popFront();         // pop leading double quote
@@ -199,7 +206,7 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
     }
 
     /// Skip whitespace.
-    static string getWhitespace(ref string src) @safe pure nothrow @nogc
+    static Src getWhitespace(ref Src src) @safe pure nothrow @nogc
     {
         assert(src.isNullTerminated);
         size_t i = 0;
@@ -207,7 +214,7 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
         return skipOverNBytes(src, i);
     }
 
-    bool[string] lowerSymbols;
+    bool[Src] lowerSymbols;
 
     while (true)
     {

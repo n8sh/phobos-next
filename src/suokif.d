@@ -219,7 +219,7 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
             assert(!exprs.empty);
 
             // TODO retroIndexOf
-            size_t count = 0; // last index
+            size_t count = 0; // number of elements between parens
             while (exprs[$ - 1 - count].token.tok != TOK.leftParen)
             {
                 ++count;
@@ -294,6 +294,7 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
             }
 
             exprs.popBackN(count + 1); // forget tokens plus match leftParen
+            dln("newExpr:", newExpr, " count:", count);
 
             exprs ~= newExpr;
 
@@ -459,7 +460,7 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
             }
             break;
         }
-        dln("back:", exprs.back);
+        // dln("back:", exprs.back);
     }
 
     assert(leftParenDepth == 0);        // should be balanced
@@ -467,9 +468,15 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
     return exprs;
 }
 
+@safe pure unittest
+{
+    const text = `(instance AttrFn BinaryFunction)`;
+    const exprs = parseSUOKIF(text);
+}
+
 unittest
 {
-    readSUOKIFs(`~/Work/sumo`);
+    // readSUOKIFs(`~/Work/sumo`);
 }
 
 void readSUOKIFs(string rootDirPath)

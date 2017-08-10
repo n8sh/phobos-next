@@ -501,8 +501,6 @@ Exprs readSUOKIFs(string rootDirPath)
         }
     }
 
-    // const file = `~/Work/phobos-next/src/emotion.kif`.expandTilde;
-
     return allExprs;
 }
 

@@ -27,7 +27,7 @@ enum TOK
     equivalence,
 
     variable,
-    varParams,                  // one or more parameters
+    variableList,               // one or more variables (parameters)
 
     whitespace,
 
@@ -303,8 +303,8 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
             break;
         case '@':
             src.popFront();
-            const varParamsSymbol = getSymbol(src);
-            exprs ~= Expr(Token(TOK.varParams, varParamsSymbol));
+            const variableListSymbol = getSymbol(src);
+            exprs ~= Expr(Token(TOK.variableList, variableListSymbol));
             break;
         case '0':
         case '1':

@@ -226,13 +226,13 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
             {
                 ++count;
             }
-            assert(count != 0);
+            // assert(count != 0);
 
             Expr newExpr;
 
             foreach (const argIx; 0 .. count)
             {
-                dln(argIx, ":", exprs[$ - count + argIx]);
+                // dln(argIx, ":", exprs[$ - count + argIx]);
             }
 
             // copy parameters to expression
@@ -296,7 +296,7 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
             }
 
             exprs.popBackN(count + 1); // forget tokens plus match leftParen
-            dln("newExpr:", newExpr, " count:", count);
+            // dln("newExpr:", newExpr, " count:", count);
 
             exprs ~= newExpr;
 
@@ -310,7 +310,6 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
             {
                 exprs ~= Expr(Token(TOK.oneDirInference, src[0 .. 2]));
                 src.popFrontN(2);
-                dln(exprs.back);
             }
             else
             {
@@ -376,6 +375,8 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
             getWhitespace(src);
             // skip whitespace for now: exprs ~= Expr(Token(TOK.whitespace, null));
             break;
+        case 0x00:
+            goto nullFound;
         default:
             // other
             if (src.front.isAlpha)
@@ -465,6 +466,8 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
         // dln("back:", exprs.back);
     }
 
+nullFound:
+
     assert(leftParenDepth == 0);        // should be balanced
 
     return exprs;
@@ -478,7 +481,7 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
 
 unittest
 {
-    // readSUOKIFs(`~/Work/sumo`);
+    readSUOKIFs(`~/Work/sumo`);
 }
 
 /** Read all SUO-KIF files (.kif) located under `rootDirPath`.
@@ -515,7 +518,7 @@ void readSUOKIFs(string rootDirPath)
 
                 // TODO move this logic to readText(bool nullTerminated = false) by .capacity += 1
                 const text = filePath.readText;
-                const ctext = text ~ `\0`; // null at the end to enable sentinel-based search in parser
+                const ctext = text ~ '\0'; // null at the end to enable sentinel-based search in parser
                 assert(ctext[$ - 1] == '\0');
                 ctext.parseSUOKIF();
                 sw.stop;

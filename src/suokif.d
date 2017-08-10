@@ -124,7 +124,7 @@ bool isSymbolChar(char x)
     return x.isAlphaNum || x.among!('_', '-'); // TODO merge to single call to among
 }
 
-/** Returns: true if `s` is null-terminated (`'\0'`).
+/** Returns: true if `s` is null-terminated (ending with `'\0'`).
 
     Used to verify input to parser make use of sentinel-based search.
 

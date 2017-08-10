@@ -13,6 +13,8 @@ import vary : VaryN;
 /** SUO-KIF Token Type. */
 enum TOK
 {
+    unknown,
+
     leftParen,
     rightParen,
 

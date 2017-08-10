@@ -115,13 +115,13 @@ struct Expr
     Expr[] subs;
 }
 
-pragma(inline)
+pragma(inline, true)
 bool isSymbolChar(char x)
     @safe pure nothrow @nogc
 {
     import std.uni : isAlphaNum;
     import std.algorithm : among;
-    return x.isAlphaNum || x.among!('_', '-'); // TODO join to a single call to among
+    return x.isAlphaNum || x.among!('_', '-'); // TODO join to a single call to `among`
 }
 
 /// Returns: true if `s` is terminated with a zero character (null).

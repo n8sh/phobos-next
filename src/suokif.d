@@ -108,9 +108,6 @@ struct Token
 struct Expr
 {
     Token token;               // token
-    // UniqueArray!(Expr*) subs;   // sub-expressions
-    // import std.array : Appender;
-    // Appender!(Expr[]) subs;
     Expr[] subs;
 }
 

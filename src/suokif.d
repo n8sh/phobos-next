@@ -148,6 +148,7 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
     import std.algorithm : among, skipOver, move;
 
     alias Src = typeof(src);
+
     UniqueArray!Expr exprs;           // expression stack
 
     size_t leftParenDepth = 0;

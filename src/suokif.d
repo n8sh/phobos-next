@@ -156,6 +156,15 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
 
     src.skipOver(x"EFBBBF");    // skip magic? header for some files
 
+    /// Skip over `n` bytes in `src`.
+    pragma(inline, true)
+    static Src skipOverNBytes(ref Src src, size_t n) @safe pure nothrow @nogc
+    {
+        const part = src[0 .. n];
+        src = src[n .. $];
+        return part;
+    }
+
     /// Skip comment.
     static void skipComment(ref Src src) @safe pure
     {
@@ -164,14 +173,6 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
         {
             src.popFront();
         }
-    }
-
-    pragma(inline, true)
-    static Src skipOverNBytes(ref Src src, size_t n) @safe pure nothrow @nogc
-    {
-        const part = src[0 .. n];
-        src = src[n .. $];
-        return part;
     }
 
     /// Get symbol.

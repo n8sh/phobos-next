@@ -860,7 +860,7 @@ private struct Array(E,
     }
 
     /** Removal doesn't need to care about ordering. */
-    pragma(inline, true)
+    pragma(inline)
     void popBack() @safe @("complexity", "O(1)")
     {
         assert(!isBorrowed);

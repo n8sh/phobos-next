@@ -513,9 +513,11 @@ void readSUOKIFs(string rootDirPath)
                 import std.datetime : StopWatch, AutoStart, Duration;
                 auto sw = StopWatch(AutoStart.yes);
 
-                // TODO insert a null at the end to enable sentinel-based search
+                // TODO move this logic to readText(bool nullTerminated = false) by .capacity += 1
                 const text = filePath.readText;
-                text.parseSUOKIF();
+                const ctext = text ~ `\0`; // null at the end to enable sentinel-based search in parser
+                assert(ctext[$ - 1] == '\0');
+                ctext.parseSUOKIF();
                 sw.stop;
                 import std.conv : to;
                 writeln(`took `, sw.peek().to!Duration);

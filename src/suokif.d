@@ -160,7 +160,7 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
         }
     }
 
-    static string skipN(ref string src, size_t n) @safe pure nothrow @nogc
+    static string skipOverNBytes(ref string src, size_t n) @safe pure nothrow @nogc
     {
         const part = src[0 .. n];
         src = src[n .. $];
@@ -173,7 +173,7 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
         assert(src.isNullTerminated);
         size_t i = 0;
         while (src[i].isSymbolChar) { ++i; }
-        return skipN(src, i);
+        return skipOverNBytes(src, i);
     }
 
     /// Get numeric literal (number) in integer or decimal forma.
@@ -183,7 +183,7 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
         size_t i = 0;
         while (src[i].isDigit ||
                src[i].among!('+', '-', '.')) { ++i; } // TODO merge to single call to among
-        return skipN(src, i);
+        return skipOverNBytes(src, i);
     }
 
     /// Get string literal.
@@ -204,7 +204,7 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
         assert(src.isNullTerminated);
         size_t i = 0;
         while (src[i].isWhite) { ++i; }
-        return skipN(src, i);
+        return skipOverNBytes(src, i);
     }
 
     bool[string] lowerSymbols;

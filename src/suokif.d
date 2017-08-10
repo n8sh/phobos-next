@@ -124,9 +124,19 @@ bool isSymbolChar(char x)
     return x.isAlphaNum || x.among!('_', '-');
 }
 
+/// Returns: true if `s` is terminated with a zero character (null).
+pragma(inline, true)
+bool isNullTerminated(const(char)[] s)
+    @safe pure nothrow @nogc
+{
+    return s[$ - 1] == '\0';
+}
+
 /** Parse SUO-KIF from `src` into returned array of expressions (`Expr`). */
 UniqueArray!Expr parseSUOKIF(string src) @safe pure
 {
+    assert(src.isNullTerminated);
+
     import std.range : empty, front, popFront, popFrontN;
     import std.uni : isWhite, isAlpha;
     import std.ascii : isDigit;
@@ -143,6 +153,7 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
     /// Skip comment.
     static void skipComment(ref string src) @safe pure
     {
+        assert(src.isNullTerminated);
         while (!src.empty &&
                !src.front.among('\r', '\n')) // until end of line
         {
@@ -160,29 +171,29 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
     /// Get symbol.
     static string getSymbol(ref string src) @safe pure nothrow @nogc
     {
+        assert(src.isNullTerminated);
         size_t i = 0;
-        while (i != src.length &&
-               src[i].isSymbolChar) { ++i; }
+        while (src[i].isSymbolChar) { ++i; }
         return skipN(src, i);
     }
 
     /// Get numeric literal (number) in integer or decimal forma.
     static string getNumber(ref string src) @safe pure nothrow @nogc
     {
+        assert(src.isNullTerminated);
         size_t i = 0;
-        while (i != src.length &&
-               (src[i].isDigit ||
-                src[i].among!('+', '-', '.'))) { ++i; }
+        while (src[i].isDigit ||
+               src[i].among!('+', '-', '.')) { ++i; } // TODO merge to single call to among
         return skipN(src, i);
     }
 
     /// Get string literal.
     static string getStringLiteral(ref string src) @safe pure nothrow @nogc
     {
+        assert(src.isNullTerminated);
         src.popFront();         // pop leading double quote
         size_t i = 0;
-        while (i != src.length &&
-               src[i] != '"') { ++i; }
+        while (!src[i].among('"', '\0')) { ++i; }
         const literal = src[0 .. i]; src = src[i .. $]; // TODO functionize
         src.popFront();         // pop ending double quote
         return literal;
@@ -191,15 +202,15 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
     /// Skip whitespace.
     static string getWhitespace(ref string src) @safe pure nothrow @nogc
     {
+        assert(src.isNullTerminated);
         size_t i = 0;
-        while (i != src.length &&
-               src[i].isWhite) { ++i; }
+        while (src[i].isWhite) { ++i; }
         return skipN(src, i);
     }
 
     bool[string] lowerSymbols;
 
-    while (!src.empty)
+    while (true)
     {
         switch (src.front)
         {
@@ -306,7 +317,8 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
             exprs ~= Expr(Token(TOK.stringLiteral, stringLiteral));
             break;
         case '=':
-            if (src.length >= 2 && src[1] == '>') // src.startsWith(`=>`)
+            if (src.length >= 2 + 1 && // two plus terminator
+                src[1] == '>') // src.startsWith(`=>`)
             {
                 exprs ~= Expr(Token(TOK.oneDirInference, src[0 .. 2]));
                 src.popFrontN(2);
@@ -375,7 +387,7 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
             getWhitespace(src);
             // skip whitespace for now: exprs ~= Expr(Token(TOK.whitespace, null));
             break;
-        case 0x00:
+        case '\0':
             goto nullFound;
         default:
             // other
@@ -475,7 +487,7 @@ nullFound:
 
 @safe pure unittest
 {
-    const text = `(instance AttrFn BinaryFunction)`;
+    const text = "(instance AttrFn BinaryFunction)\0";
     const exprs = parseSUOKIF(text);
 }
 

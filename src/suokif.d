@@ -5,9 +5,7 @@
 */
 module suokif;
 
-// import std.range : isInputRange;
 import dbgio : dln;
-import array_ex : UniqueArray;
 
 /** SUO-KIF Token Type. */
 enum TOK
@@ -112,6 +110,10 @@ struct Expr
     Expr[] subs;
 }
 
+import array_ex : UniqueArray;
+alias Exprs = UniqueArray!Expr;
+// alias Exprs = Appender!(Expr[]);// import std.array : Appender;
+
 pragma(inline, true)
 bool isSymbolChar(char x)
     @safe pure nothrow @nogc
@@ -135,7 +137,7 @@ bool isNullTerminated(const(char)[] s)
 }
 
 /** Parse SUO-KIF from `src` into returned array of expressions (`Expr`). */
-UniqueArray!Expr parseSUOKIF(string src) @safe pure
+Exprs parseSUOKIF(string src) @safe pure
 {
     assert(src.isNullTerminated);
 
@@ -146,7 +148,7 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
 
     alias Src = typeof(src);
 
-    UniqueArray!Expr exprs;           // expression stack
+    typeof(return) exprs;           // expression stack
 
     size_t leftParenDepth = 0;
 
@@ -450,8 +452,10 @@ unittest
 
 /** Read all SUO-KIF files (.kif) located under `rootDirPath`.
  */
-void readSUOKIFs(string rootDirPath)
+Exprs readSUOKIFs(string rootDirPath)
 {
+    typeof(return) allExprs;
+
     import std.stdio : write, writeln;
     import std.path : expandTilde;
 
@@ -484,7 +488,7 @@ void readSUOKIFs(string rootDirPath)
                 const text = filePath.readText;
                 const ctext = text ~ '\0'; // null at the end to enable sentinel-based search in parser
                 assert(ctext[$ - 1] == '\0');
-                ctext.parseSUOKIF();
+                allExprs ~= ctext.parseSUOKIF()[];
                 sw.stop;
                 import std.conv : to;
                 writeln(`took `, sw.peek().to!Duration);
@@ -498,6 +502,8 @@ void readSUOKIFs(string rootDirPath)
     }
 
     // const file = `~/Work/phobos-next/src/emotion.kif`.expandTilde;
+
+    return allExprs;
 }
 
 // void lexSUOKIF2(R)(R src)

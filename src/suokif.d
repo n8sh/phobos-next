@@ -514,7 +514,8 @@ void readSUOKIFs(string rootDirPath)
                 auto sw = StopWatch(AutoStart.yes);
 
                 // TODO insert a null at the end to enable sentinel-based search
-                filePath.readText.parseSUOKIF();
+                const text = filePath.readText;
+                text.parseSUOKIF();
                 sw.stop;
                 import std.conv : to;
                 writeln(`took `, sw.peek().to!Duration);

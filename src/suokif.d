@@ -157,7 +157,6 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
     src.skipOver(x"EFBBBF");    // skip magic? header for some files
 
     /// Skip over `n` bytes in `src`.
-    pragma(inline, true)
     static Src skipOverNBytes(ref Src src, size_t n) @safe pure nothrow @nogc
     {
         const part = src[0 .. n];

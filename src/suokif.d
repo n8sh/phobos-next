@@ -479,6 +479,8 @@ unittest
     // readSUOKIFs(`~/Work/sumo`);
 }
 
+/** Read all SUO-KIF files (.kif) located under `rootDirPath`.
+ */
 void readSUOKIFs(string rootDirPath)
 {
     import std.stdio : write, writeln;

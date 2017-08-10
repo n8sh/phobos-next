@@ -27,7 +27,7 @@ enum TOK
     equivalence,
 
     variable,
-    varParams,                  // one or more parameter(s)
+    varParams,                  // one or more parameters
 
     whitespace,
 

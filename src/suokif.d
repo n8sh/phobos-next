@@ -51,6 +51,7 @@ enum TOK
     models_,
     format_,
     subclass_,
+    partition_,
     documentation_,
     meronym_,
     property_,
@@ -356,6 +357,7 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
                 case `models`: exprs ~= Expr(Token(TOK.models_, symbol)); break;
                 case `format`: exprs ~= Expr(Token(TOK.format_, symbol)); break;
                 case `subclass`: exprs ~= Expr(Token(TOK.subclass_, symbol)); break;
+                case `partition`: exprs ~= Expr(Token(TOK.partition_, symbol)); break;
                 case `documentation`: exprs ~= Expr(Token(TOK.documentation_, symbol)); break;
                 case `meronym`: exprs ~= Expr(Token(TOK.meronym_, symbol)); break;
                 case `property`: exprs ~= Expr(Token(TOK.property_, symbol)); break;

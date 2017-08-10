@@ -218,8 +218,6 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
         return skipOverNBytes(src, i);
     }
 
-    bool[Src] lowerSymbols;
-
     while (true)
     {
         switch (src.front)
@@ -253,7 +251,7 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
             {
                 Expr newExpr = Expr(exprs[$ - count].token,
                                     exprs[$ - count + 1 .. $].dup); // TODO move them instead
-                dln(newExpr);
+                // dln(newExpr);
 
                 exprs.popBackN(count + 1); // forget tokens including leftParen
 
@@ -400,14 +398,7 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
                 default:
                     import std.uni : isLower;
                     import std.algorithm : endsWith;
-                    if (symbol.front.isLower)
-                    {
-                        if (symbol !in lowerSymbols)
-                        {
-                            lowerSymbols[symbol] = true;
-                        }
-                    }
-                    else if (symbol.endsWith(`Fn`))
+                    if (symbol.endsWith(`Fn`))
                     {
                         exprs ~= Expr(Token(TOK.functionName, symbol));
                     }

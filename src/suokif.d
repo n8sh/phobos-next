@@ -430,6 +430,17 @@ nullFound:
 {
     const text = "(instance AttrFn BinaryFunction)\0";
     const exprs = parseSUOKIF(text);
+
+    assert(exprs.length == 1);
+
+    assert(exprs[0].token.tok == TOK.instance_);
+    assert(exprs[0].token.src == `instance`);
+
+    assert(exprs[0].subs[0].token.tok == TOK.functionName);
+    assert(exprs[0].subs[0].token.src == "AttrFn");
+
+    assert(exprs[0].subs[1].token.tok == TOK.symbol);
+    assert(exprs[0].subs[1].token.src == "BinaryFunction");
 }
 
 unittest

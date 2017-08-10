@@ -154,8 +154,7 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
     static void skipComment(ref string src) @safe pure
     {
         assert(src.isNullTerminated);
-        while (!src.empty &&
-               !src.front.among('\r', '\n')) // until end of line
+        while (!src.front.among('\r', '\n')) // until end of line
         {
             src.popFront();
         }

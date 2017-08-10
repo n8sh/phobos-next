@@ -7,8 +7,7 @@ module suokif;
 
 // import std.range : isInputRange;
 import dbgio : dln;
-import array_ex : UniqueArray, Ordering;
-import vary : VaryN;
+import array_ex : UniqueArray;
 
 /** SUO-KIF Token Type. */
 enum TOK

@@ -157,7 +157,8 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
     src.skipOver(x"EFBBBF");    // skip magic? header for some files
 
     /// Skip over `n` bytes in `src`.
-    static Src skipOverNBytes(ref Src src, size_t n) @safe pure nothrow @nogc
+    static Src skipOverNBytes(ref Src src, size_t n)
+        @safe pure nothrow @nogc
     {
         const part = src[0 .. n];
         src = src[n .. $];
@@ -165,7 +166,8 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
     }
 
     /// Skip comment.
-    static void skipComment(ref Src src) @safe pure
+    static void skipComment(ref Src src)
+        @safe pure
     {
         assert(src.isNullTerminated);
         while (!src.front.among('\r', '\n')) // until end of line
@@ -175,7 +177,8 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
     }
 
     /// Get symbol.
-    static Src getSymbol(ref Src src) @safe pure nothrow @nogc
+    static Src getSymbol(ref Src src)
+        @safe pure nothrow @nogc
     {
         assert(src.isNullTerminated);
         size_t i = 0;
@@ -184,7 +187,8 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
     }
 
     /// Get numeric literal (number) in integer or decimal forma.
-    static Src getNumber(ref Src src) @safe pure nothrow @nogc
+    static Src getNumber(ref Src src)
+        @safe pure nothrow @nogc
     {
         assert(src.isNullTerminated);
         size_t i = 0;
@@ -194,7 +198,8 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
     }
 
     /// Get Src literal.
-    static Src getStringLiteral(ref Src src) @safe pure nothrow @nogc
+    static Src getStringLiteral(ref Src src)
+        @safe pure nothrow @nogc
     {
         assert(src.isNullTerminated);
         src.popFront();         // pop leading double quote
@@ -206,7 +211,8 @@ UniqueArray!Expr parseSUOKIF(string src) @safe pure
     }
 
     /// Skip whitespace.
-    static Src getWhitespace(ref Src src) @safe pure nothrow @nogc
+    static Src getWhitespace(ref Src src)
+        @safe pure nothrow @nogc
     {
         assert(src.isNullTerminated);
         size_t i = 0;

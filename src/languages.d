@@ -334,6 +334,8 @@ enum Lang:ushort
     fortran,
     modelica,
 
+    lastFormal = modelica,
+
     /// Academic Languages
     math,                /// "Mathematics is the only truly universal language"
     physics,

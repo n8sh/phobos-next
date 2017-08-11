@@ -334,10 +334,6 @@ enum Lang:ushort
     fortran,
     modelica,
 
-    sumo,
-    bfo,
-    lastFormal = bfo,
-
     /// Academic Languages
     math,                /// "Mathematics is the only truly universal language"
     physics,

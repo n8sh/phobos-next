@@ -5,8 +5,6 @@
 */
 module suokif;
 
-import dbgio : dln;
-
 /** SUO-KIF Token Type. */
 enum TOK
 {
@@ -410,12 +408,13 @@ Exprs parseSUOKIF(string src) @safe pure
             }
             else
             {
-                dln(`Cannot handle character '`, src.front, `' at index:`, &src[0] - &whole[0]);
-                assert(false);
+                import std.conv : to;
+                assert(false,
+                       `Cannot handle character '` ~ src.front.to!string ~
+                       `' at index:` ~ (&src[0] - &whole[0]).to!string);
             }
             break;
         }
-        // dln("back:", exprs.back);
     }
 
 nullFound:

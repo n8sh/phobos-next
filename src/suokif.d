@@ -71,12 +71,6 @@ enum TOK
     sister_,
     sibling_,
 
-    equal_,
-    lessThan_,
-    greaterThan_,
-    lessThanOrEqualTo_,
-    greaterThanOrEqualTo_,
-
     date_,
     insured_,
     askPrice_,
@@ -368,11 +362,6 @@ Exprs parseSUOKIF(string src) @safe pure
                 case `brother`: exprs ~= Expr(Token(TOK.brother_, symbol)); break;
                 case `sister`: exprs ~= Expr(Token(TOK.sister_, symbol)); break;
                 case `sibling`: exprs ~= Expr(Token(TOK.sibling_, symbol)); break;
-                case `equal`: exprs ~= Expr(Token(TOK.equal_, symbol)); break;
-                case `lessThan`: exprs ~= Expr(Token(TOK.lessThan_, symbol)); break;
-                case `lessThanOrEqualTo`: exprs ~= Expr(Token(TOK.lessThanOrEqualTo_, symbol)); break;
-                case `greaterThan`: exprs ~= Expr(Token(TOK.greaterThan_, symbol)); break;
-                case `greaterThanOrEqualTo`: exprs ~= Expr(Token(TOK.greaterThanOrEqualTo_, symbol)); break;
                 case `date`: exprs ~= Expr(Token(TOK.date_, symbol)); break;
                 case `insured`: exprs ~= Expr(Token(TOK.insured_, symbol)); break;
                 case `askPrice`: exprs ~= Expr(Token(TOK.askPrice_, symbol)); break;

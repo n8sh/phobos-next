@@ -40,7 +40,6 @@ enum TOK
     subrelation_,
     models_,
     format_,
-    partition_,
     documentation_,
     meronym_,
     property_,
@@ -339,7 +338,6 @@ Exprs parseSUOKIF(string src) @safe pure
                 case `subrelation`: exprs ~= Expr(Token(TOK.subrelation_, symbol)); break;
                 case `models`: exprs ~= Expr(Token(TOK.models_, symbol)); break;
                 case `format`: exprs ~= Expr(Token(TOK.format_, symbol)); break;
-                case `partition`: exprs ~= Expr(Token(TOK.partition_, symbol)); break;
                 case `documentation`: exprs ~= Expr(Token(TOK.documentation_, symbol)); break;
                 case `meronym`: exprs ~= Expr(Token(TOK.meronym_, symbol)); break;
                 case `property`: exprs ~= Expr(Token(TOK.property_, symbol)); break;

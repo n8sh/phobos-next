@@ -31,7 +31,6 @@ enum TOK
 
     comment,
 
-    className,
     functionName,
 
     // keywords
@@ -39,14 +38,11 @@ enum TOK
     or_,
     not_,
     exists_,
-    instance_,
     domain_,
-    lexicon_,
     range_,
     subrelation_,
     models_,
     format_,
-    subclass_,
     partition_,
     documentation_,
     meronym_,
@@ -344,14 +340,11 @@ Exprs parseSUOKIF(string src) @safe pure
                 case `or`: exprs ~= Expr(Token(TOK.or_, symbol)); break;
                 case `not`: exprs ~= Expr(Token(TOK.not_, symbol)); break;
                 case `exists`: exprs ~= Expr(Token(TOK.exists_, symbol)); break;
-                case `instance`: exprs ~= Expr(Token(TOK.instance_, symbol)); break;
                 case `domain`: exprs ~= Expr(Token(TOK.domain_, symbol)); break;
-                case `lexicon`: exprs ~= Expr(Token(TOK.lexicon_, symbol)); break;
                 case `range`: exprs ~= Expr(Token(TOK.range_, symbol)); break;
                 case `subrelation`: exprs ~= Expr(Token(TOK.subrelation_, symbol)); break;
                 case `models`: exprs ~= Expr(Token(TOK.models_, symbol)); break;
                 case `format`: exprs ~= Expr(Token(TOK.format_, symbol)); break;
-                case `subclass`: exprs ~= Expr(Token(TOK.subclass_, symbol)); break;
                 case `partition`: exprs ~= Expr(Token(TOK.partition_, symbol)); break;
                 case `documentation`: exprs ~= Expr(Token(TOK.documentation_, symbol)); break;
                 case `meronym`: exprs ~= Expr(Token(TOK.meronym_, symbol)); break;

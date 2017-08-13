@@ -34,9 +34,6 @@ enum TOK
     functionName,
 
     // keywords
-    and_,
-    or_,
-    not_,
     exists_,
     domain_,
     range_,
@@ -336,9 +333,6 @@ Exprs parseSUOKIF(string src) @safe pure
                 const symbol = getSymbol(src); // TODO tokenize
                 switch (symbol)
                 {
-                case `and`: exprs ~= Expr(Token(TOK.and_, symbol)); break;
-                case `or`: exprs ~= Expr(Token(TOK.or_, symbol)); break;
-                case `not`: exprs ~= Expr(Token(TOK.not_, symbol)); break;
                 case `exists`: exprs ~= Expr(Token(TOK.exists_, symbol)); break;
                 case `domain`: exprs ~= Expr(Token(TOK.domain_, symbol)); break;
                 case `range`: exprs ~= Expr(Token(TOK.range_, symbol)); break;

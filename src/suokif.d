@@ -34,7 +34,6 @@ enum TOK
     functionName,
 
     // keywords
-    exists_,
     domain_,
     range_,
     subrelation_,
@@ -326,7 +325,6 @@ Exprs parseSUOKIF(string src) @safe pure
                 const symbol = getSymbol(src); // TODO tokenize
                 switch (symbol)
                 {
-                case `exists`: exprs ~= Expr(Token(TOK.exists_, symbol)); break;
                 case `domain`: exprs ~= Expr(Token(TOK.domain_, symbol)); break;
                 case `range`: exprs ~= Expr(Token(TOK.range_, symbol)); break;
                 case `subrelation`: exprs ~= Expr(Token(TOK.subrelation_, symbol)); break;

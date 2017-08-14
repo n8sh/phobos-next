@@ -360,8 +360,6 @@ Exprs readSUOKIFs(string rootDirPath)
                 write(`Reading SUO-KIF `, filePath, ` ... `);
 
                 import std.file : readText;
-                // file.readText.lexSUOKIF2();
-
                 import std.datetime : StopWatch, AutoStart, Duration;
                 auto sw = StopWatch(AutoStart.yes);
 

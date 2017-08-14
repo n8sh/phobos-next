@@ -36,19 +36,16 @@ enum TOK
     // keywords
     domain_,
     range_,
-    subrelation_,
     models_,
     format_,
     documentation_,
     meronym_,
     property_,
-    attribute_,
     subAttribute_,
     abbreviation_,
     result_,
     duration_,
     agent_,
-    member_,
     hasPurpose_,
     finishes_,
     earlier_,
@@ -58,7 +55,6 @@ enum TOK
     material_,
     causes_,
     origin_,
-    located_,
     employs_,
     possesses_,
     disjoint_,
@@ -327,19 +323,16 @@ Exprs parseSUOKIF(string src) @safe pure
                 {
                 case `domain`: exprs ~= Expr(Token(TOK.domain_, symbol)); break;
                 case `range`: exprs ~= Expr(Token(TOK.range_, symbol)); break;
-                case `subrelation`: exprs ~= Expr(Token(TOK.subrelation_, symbol)); break;
                 case `models`: exprs ~= Expr(Token(TOK.models_, symbol)); break;
                 case `format`: exprs ~= Expr(Token(TOK.format_, symbol)); break;
                 case `documentation`: exprs ~= Expr(Token(TOK.documentation_, symbol)); break;
                 case `meronym`: exprs ~= Expr(Token(TOK.meronym_, symbol)); break;
                 case `property`: exprs ~= Expr(Token(TOK.property_, symbol)); break;
-                case `attribute`: exprs ~= Expr(Token(TOK.attribute_, symbol)); break;
                 case `subAttribute`: exprs ~= Expr(Token(TOK.subAttribute_, symbol)); break;
                 case `abbreviation`: exprs ~= Expr(Token(TOK.abbreviation_, symbol)); break;
                 case `result`: exprs ~= Expr(Token(TOK.result_, symbol)); break;
                 case `duration`: exprs ~= Expr(Token(TOK.duration_, symbol)); break;
                 case `agent`: exprs ~= Expr(Token(TOK.agent_, symbol)); break;
-                case `member`: exprs ~= Expr(Token(TOK.member_, symbol)); break;
                 case `hasPurpose`: exprs ~= Expr(Token(TOK.hasPurpose_, symbol)); break;
                 case `finishes`: exprs ~= Expr(Token(TOK.finishes_, symbol)); break;
                 case `earlier`: exprs ~= Expr(Token(TOK.earlier_, symbol)); break;
@@ -349,7 +342,6 @@ Exprs parseSUOKIF(string src) @safe pure
                 case `material`: exprs ~= Expr(Token(TOK.material_, symbol)); break;
                 case `causes`: exprs ~= Expr(Token(TOK.causes_, symbol)); break;
                 case `origin`: exprs ~= Expr(Token(TOK.origin_, symbol)); break;
-                case `located`: exprs ~= Expr(Token(TOK.located_, symbol)); break;
                 case `employs`: exprs ~= Expr(Token(TOK.employs_, symbol)); break;
                 case `possesses`: exprs ~= Expr(Token(TOK.possesses_, symbol)); break;
                 case `disjoint`: exprs ~= Expr(Token(TOK.disjoint_, symbol)); break;

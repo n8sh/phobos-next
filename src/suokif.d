@@ -370,7 +370,7 @@ Exprs readSUOKIFs(string rootDirPath)
                 allExprs ~= ctext.parseSUOKIF()[];
                 sw.stop();
                 import std.conv : to;
-                writeln(`took `, sw.peek().to!Duration);
+                writeln(`took `, sw.peek.to!Duration);
             }
         }
         catch (std.utf.UTFException e)

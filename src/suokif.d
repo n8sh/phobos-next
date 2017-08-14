@@ -357,7 +357,7 @@ Exprs readSUOKIFs(string rootDirPath)
             if (filePath.endsWith(`.kif`) &&
                 !filePath.pathSplitter.canFind(`.git`)) // invalid UTF-8 encodings
             {
-                write(`Lexing SUO-KIF `, filePath, ` ... `);
+                write(`Reading SUO-KIF `, filePath, ` ... `);
 
                 import std.file : readText;
                 // file.readText.lexSUOKIF2();

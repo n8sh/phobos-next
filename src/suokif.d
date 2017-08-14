@@ -5,7 +5,7 @@
 */
 module suokif;
 
-/** SUO-KIF Token Type. */
+/** SUO-KIF (Lisp) Token Type. */
 enum TOK
 {
     unknown,
@@ -21,6 +21,10 @@ enum TOK
     biDirInference,             // bi-directional inference
 
     equivalence,
+
+    lispAttribute,              // Lisp attribute, for instance `:group`
+    lispComma,                  // Lisp attribute, for instance `:group`
+    lispBackQuote,              // Lisp attribute, for instance `:group`
 
     variable,
     variableList,               // one or more variables (parameters)
@@ -273,6 +277,19 @@ Exprs parseSUOKIF(string src) @safe pure
             {
                 throw new Exception(`Parse error`);
             }
+            break;
+        case ':':
+            src.popFront();
+            const variableSymbol = getSymbol(src);
+            exprs ~= Expr(Token(TOK.lispAttribute, variableSymbol));
+            break;
+        case ',':
+            src.popFront();
+            exprs ~= Expr(Token(TOK.lispComma));
+            break;
+        case '`':
+            src.popFront();
+            exprs ~= Expr(Token(TOK.lispBackQuote));
             break;
         case '?':
             src.popFront();

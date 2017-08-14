@@ -17,11 +17,6 @@ enum TOK
 
     stringLiteral,
 
-    oneDirInference,            // one-directional inference
-    biDirInference,             // bi-directional inference
-
-    equivalence,
-
     lispComma,
     lispBackQuote,
     lispQuote,
@@ -36,44 +31,6 @@ enum TOK
     comment,
 
     functionName,
-
-    // keywords
-    domain_,
-    range_,
-    models_,
-    format_,
-    documentation_,
-    meronym_,
-    property_,
-    subAttribute_,
-    abbreviation_,
-    result_,
-    duration_,
-    agent_,
-    hasPurpose_,
-    finishes_,
-    earlier_,
-    yield_,
-    instrument_,
-    destination_,
-    material_,
-    causes_,
-    origin_,
-    employs_,
-    possesses_,
-    disjoint_,
-    mother_,
-    father_,
-    son_,
-    daughter_,
-    brother_,
-    sister_,
-    sibling_,
-
-    date_,
-    insured_,
-    askPrice_,
-    outOfTheMoney_,
 }
 
 /** SUO-KIF Token. */
@@ -249,39 +206,6 @@ Exprs parseSUOKIF(string src) @safe pure
             const stringLiteral = getStringLiteral(src); // TODO tokenize
             exprs ~= Expr(Token(TOK.stringLiteral, stringLiteral));
             break;
-        case '=':
-            if (src.length >= 2 + 1 && // two plus terminator
-                src[1] == '>') // src.startsWith(`=>`)
-            {
-                exprs ~= Expr(Token(TOK.oneDirInference, src[0 .. 2]));
-                src.popFrontN(2);
-            }
-            else
-            {
-                exprs ~= Expr(Token(TOK.equivalence, src[0 .. 1]));
-                src.popFront();
-            }
-            break;
-        case '<':
-            src.popFront();
-            if (src.front == '=')
-            {
-                src.popFront();
-                if (src.front == '>')
-                {
-                    src.popFront();
-                    exprs ~= Expr(Token(TOK.biDirInference, null));
-                }
-                else
-                {
-                    throw new Exception(`Parse error`);
-                }
-            }
-            else
-            {
-                throw new Exception(`Parse error`);
-            }
-            break;
         case ',':
             src.popFront();
             exprs ~= Expr(Token(TOK.lispComma));
@@ -340,55 +264,15 @@ Exprs parseSUOKIF(string src) @safe pure
                 )
             {
                 const symbol = getSymbol(src); // TODO tokenize
-                switch (symbol)
+                import std.uni : isLower;
+                import std.algorithm : endsWith;
+                if (symbol.endsWith(`Fn`))
                 {
-                case `domain`: exprs ~= Expr(Token(TOK.domain_, symbol)); break;
-                case `range`: exprs ~= Expr(Token(TOK.range_, symbol)); break;
-                case `models`: exprs ~= Expr(Token(TOK.models_, symbol)); break;
-                case `format`: exprs ~= Expr(Token(TOK.format_, symbol)); break;
-                case `documentation`: exprs ~= Expr(Token(TOK.documentation_, symbol)); break;
-                case `meronym`: exprs ~= Expr(Token(TOK.meronym_, symbol)); break;
-                case `property`: exprs ~= Expr(Token(TOK.property_, symbol)); break;
-                case `subAttribute`: exprs ~= Expr(Token(TOK.subAttribute_, symbol)); break;
-                case `abbreviation`: exprs ~= Expr(Token(TOK.abbreviation_, symbol)); break;
-                case `result`: exprs ~= Expr(Token(TOK.result_, symbol)); break;
-                case `duration`: exprs ~= Expr(Token(TOK.duration_, symbol)); break;
-                case `agent`: exprs ~= Expr(Token(TOK.agent_, symbol)); break;
-                case `hasPurpose`: exprs ~= Expr(Token(TOK.hasPurpose_, symbol)); break;
-                case `finishes`: exprs ~= Expr(Token(TOK.finishes_, symbol)); break;
-                case `earlier`: exprs ~= Expr(Token(TOK.earlier_, symbol)); break;
-                case `yield`: exprs ~= Expr(Token(TOK.yield_, symbol)); break;
-                case `instrument`: exprs ~= Expr(Token(TOK.instrument_, symbol)); break;
-                case `destination`: exprs ~= Expr(Token(TOK.destination_, symbol)); break;
-                case `material`: exprs ~= Expr(Token(TOK.material_, symbol)); break;
-                case `causes`: exprs ~= Expr(Token(TOK.causes_, symbol)); break;
-                case `origin`: exprs ~= Expr(Token(TOK.origin_, symbol)); break;
-                case `employs`: exprs ~= Expr(Token(TOK.employs_, symbol)); break;
-                case `possesses`: exprs ~= Expr(Token(TOK.possesses_, symbol)); break;
-                case `disjoint`: exprs ~= Expr(Token(TOK.disjoint_, symbol)); break;
-                case `mother`: exprs ~= Expr(Token(TOK.mother_, symbol)); break;
-                case `father`: exprs ~= Expr(Token(TOK.father_, symbol)); break;
-                case `son`: exprs ~= Expr(Token(TOK.son_, symbol)); break;
-                case `daughter`: exprs ~= Expr(Token(TOK.daughter_, symbol)); break;
-                case `brother`: exprs ~= Expr(Token(TOK.brother_, symbol)); break;
-                case `sister`: exprs ~= Expr(Token(TOK.sister_, symbol)); break;
-                case `sibling`: exprs ~= Expr(Token(TOK.sibling_, symbol)); break;
-                case `date`: exprs ~= Expr(Token(TOK.date_, symbol)); break;
-                case `insured`: exprs ~= Expr(Token(TOK.insured_, symbol)); break;
-                case `askPrice`: exprs ~= Expr(Token(TOK.askPrice_, symbol)); break;
-                case `outOfTheMoney`: exprs ~= Expr(Token(TOK.outOfTheMoney_, symbol)); break;
-                default:
-                    import std.uni : isLower;
-                    import std.algorithm : endsWith;
-                    if (symbol.endsWith(`Fn`))
-                    {
-                        exprs ~= Expr(Token(TOK.functionName, symbol));
-                    }
-                    else
-                    {
-                        exprs ~= Expr(Token(TOK.symbol, symbol));
-                    }
-                    break;
+                    exprs ~= Expr(Token(TOK.functionName, symbol));
+                }
+                else
+                {
+                    exprs ~= Expr(Token(TOK.symbol, symbol));
                 }
             }
             else

@@ -165,7 +165,11 @@ Exprs parseSUOKIF(string src) @safe pure
     {
         assert(src.isNullTerminated);
         size_t i = 0;
-        while (src[i].isSymbolChar) { ++i; }
+        while ((!src[i].among!('\0', '(', ')')) &&
+               (!src[i].isWhite))
+        {
+            ++i;
+        }
         return skipOverNBytes(src, i);
     }
 
@@ -187,7 +191,7 @@ Exprs parseSUOKIF(string src) @safe pure
         assert(src.isNullTerminated);
         src.popFront();         // pop leading double quote
         size_t i = 0;
-        while (!src[i].among('"', '\0')) { ++i; }
+        while (!src[i].among('\0', '"')) { ++i; }
         const literal = src[0 .. i]; src = src[i .. $]; // TODO functionize
         src.popFront();         // pop ending double quote
         return literal;
@@ -332,7 +336,8 @@ Exprs parseSUOKIF(string src) @safe pure
             goto nullFound;
         default:
             // other
-            if (src.front.isAlpha)
+            if (true// src.front.isAlpha
+                )
             {
                 const symbol = getSymbol(src); // TODO tokenize
                 switch (symbol)
@@ -395,6 +400,11 @@ Exprs parseSUOKIF(string src) @safe pure
             }
             break;
         }
+        if (!exprs.empty)
+        {
+            import dbgio : dln;
+            // dln(exprs.back);
+        }
     }
 
 nullFound:
@@ -432,6 +442,7 @@ unittest
     const exprs = ctext.parseSUOKIF();
 }
 
+// version(none)
 unittest
 {
     readSUOKIFs(`~/Work/sumo`);

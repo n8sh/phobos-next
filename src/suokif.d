@@ -442,7 +442,6 @@ unittest
     const exprs = ctext.parseSUOKIF();
 }
 
-// version(none)
 unittest
 {
     readSUOKIFs(`~/Work/sumo`);

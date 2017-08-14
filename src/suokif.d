@@ -368,7 +368,7 @@ Exprs readSUOKIFs(string rootDirPath)
                 const ctext = text ~ '\0'; // null at the end to enable sentinel-based search in parser
                 assert(ctext[$ - 1] == '\0');
                 allExprs ~= ctext.parseSUOKIF()[];
-                sw.stop;
+                sw.stop();
                 import std.conv : to;
                 writeln(`took `, sw.peek().to!Duration);
             }

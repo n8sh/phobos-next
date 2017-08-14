@@ -22,8 +22,6 @@ enum TOK
 
     equivalence,
 
-    lispAttribute,              // Lisp attribute, for instance `:group`
-    lispAmpersandSymbol,        // Lisp attribute, for instance `&rest`
     lispComma,
     lispBackQuote,
     lispQuote,
@@ -100,7 +98,7 @@ alias Exprs = UniqueArray!Expr;
 // alias Exprs = Appender!(Expr[]);// import std.array : Appender;
 
 pragma(inline, true)
-bool isSymbolChar(char x)
+bool isSymbolChar(dchar x)
     @safe pure nothrow @nogc
 {
     import std.uni : isAlphaNum;
@@ -280,16 +278,6 @@ Exprs parseSUOKIF(string src) @safe pure
                 throw new Exception(`Parse error`);
             }
             break;
-        case ':':
-            src.popFront();
-            const variableSymbol = getSymbol(src);
-            exprs ~= Expr(Token(TOK.lispAttribute, variableSymbol));
-            break;
-        case '&':
-            src.popFront();
-            const variableSymbol = getSymbol(src);
-            exprs ~= Expr(Token(TOK.lispAmpersandSymbol, variableSymbol));
-            break;
         case ',':
             src.popFront();
             exprs ~= Expr(Token(TOK.lispComma));
@@ -433,6 +421,7 @@ nullFound:
     assert(exprs[0].subs[1].token.src == "BinaryFunction");
 }
 
+version(none)
 unittest
 {
     import std.path : expandTilde;

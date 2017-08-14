@@ -23,8 +23,10 @@ enum TOK
     equivalence,
 
     lispAttribute,              // Lisp attribute, for instance `:group`
-    lispComma,                  // Lisp attribute, for instance `:group`
-    lispBackQuote,              // Lisp attribute, for instance `:group`
+    lispAmpersandSymbol,        // Lisp attribute, for instance `&rest`
+    lispComma,
+    lispBackQuote,
+    lispQuote,
 
     variable,
     variableList,               // one or more variables (parameters)
@@ -283,6 +285,11 @@ Exprs parseSUOKIF(string src) @safe pure
             const variableSymbol = getSymbol(src);
             exprs ~= Expr(Token(TOK.lispAttribute, variableSymbol));
             break;
+        case '&':
+            src.popFront();
+            const variableSymbol = getSymbol(src);
+            exprs ~= Expr(Token(TOK.lispAmpersandSymbol, variableSymbol));
+            break;
         case ',':
             src.popFront();
             exprs ~= Expr(Token(TOK.lispComma));
@@ -290,6 +297,10 @@ Exprs parseSUOKIF(string src) @safe pure
         case '`':
             src.popFront();
             exprs ~= Expr(Token(TOK.lispBackQuote));
+            break;
+        case '\'':
+            src.popFront();
+            exprs ~= Expr(Token(TOK.lispQuote));
             break;
         case '?':
             src.popFront();
@@ -420,6 +431,16 @@ nullFound:
 
     assert(exprs[0].subs[1].token.tok == TOK.symbol);
     assert(exprs[0].subs[1].token.src == "BinaryFunction");
+}
+
+unittest
+{
+    import std.path : expandTilde;
+    import std.file : readText;
+    const text = `~/elisp/mine/relangs.el`.expandTilde.readText;
+    const ctext = text ~ '\0'; // null at the end to enable sentinel-based search in parser
+    assert(ctext[$ - 1] == '\0');
+    const exprs = ctext.parseSUOKIF();
 }
 
 unittest

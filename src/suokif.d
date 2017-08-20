@@ -304,7 +304,7 @@ nullFound:
 
 @safe pure unittest
 {
-    const text = ";;a comment\n(instance AttrFn BinaryFunction)\0";
+    immutable text = ";;a comment\n(instance AttrFn BinaryFunction)\0";
     const exprs = parseSUOKIF(text);
 
     assert(exprs.length == 1);

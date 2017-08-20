@@ -77,7 +77,8 @@ bool isNullTerminated(const(char)[] s)
 }
 
 /** Parse SUO-KIF from `src` into returned array of expressions (`Expr`). */
-Exprs parseSUOKIF(string src) @safe pure
+Exprs parseSUOKIF(string src, bool includeComments = false)
+    @safe pure
 {
     assert(src.isNullTerminated);
 
@@ -170,7 +171,10 @@ Exprs parseSUOKIF(string src) @safe pure
         {
         case ';':
             skipComment(src);   // TODO store comment in Token
-            exprs ~= Expr(Token(TOK.comment, src[0 .. 1]));
+            if (includeComments)
+            {
+                exprs ~= Expr(Token(TOK.comment, src[0 .. 1]));
+            }
             break;
         case '(':
             exprs ~= Expr(Token(TOK.leftParen, src[0 .. 1]));

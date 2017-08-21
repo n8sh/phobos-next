@@ -448,6 +448,7 @@ version(none)
 unittest
 {
     enum path = "/home/per/Knowledge/ConceptNet5/5.5/conceptnet-assertions-5.5.0.csv.gz";
+    alias R = ZlibFileInputRange;
 
     import std.stdio: writeln;
     import std.range: take;
@@ -455,7 +456,7 @@ unittest
 
     const lineBlockCount = 100_000;
     size_t lineNr = 0;
-    foreach (const line; new DecompressByLine!ZlibFileInputRange(path))
+    foreach (const line; new DecompressByLine!R(path))
     {
         if (lineNr % lineBlockCount == 0)
         {
@@ -465,7 +466,7 @@ unittest
     }
 
     const lineCount = 5;
-    foreach (const line; new DecompressByLine!ZlibFileInputRange(path).take(lineCount))
+    foreach (const line; new DecompressByLine!R(path).take(lineCount))
     {
         writeln(line);
     }
@@ -475,6 +476,7 @@ version(none)
 unittest
 {
     enum path = "/home/per/Knowledge/DBpedia/2016-10/genders_en.ttl.bz2";
+    alias R = Bz2libFileInputRange;
 
     import std.stdio: writeln;
     import std.range: take;
@@ -482,7 +484,7 @@ unittest
 
     const lineBlockCount = 100_000;
     size_t lineNr = 0;
-    foreach (const line; new DecompressByLine!ZlibFileInputRange(path))
+    foreach (const line; new DecompressByLine!R(path))
     {
         if (lineNr % lineBlockCount == 0)
         {
@@ -492,7 +494,7 @@ unittest
     }
 
     const lineCount = 5;
-    foreach (const line; new DecompressByLine!ZlibFileInputRange(path).take(lineCount))
+    foreach (const line; new DecompressByLine!R(path).take(lineCount))
     {
         writeln(line);
     }

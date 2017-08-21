@@ -82,7 +82,8 @@ template isBlockInputRange(R)
                               __traits(hasMember, R, `loadNextChunk`));
 }
 
-class GzipByLine(BlockInputRange)
+/** Decompress `BlockInputRange` linewise. */
+class DecompressByLine(BlockInputRange)
 {
     private alias E = char;
 
@@ -429,8 +430,8 @@ void testInputRange(FileInputRange)()
 
         import std.algorithm.searching : count;
         import std.algorithm.iteration : splitter;
-        alias R = GzipByLine!ZlibFileInputRange;
-        dln(`new GzipByLine(path).count:`, new R(path).count);
+        alias R = DecompressByLine!ZlibFileInputRange;
+        dln(`new DecompressByLine(path).count:`, new R(path).count);
         dln(`source.splitter('\n').count:`, source.splitter('\n').count);
         assert(new R(path).count == source.splitter('\n').count);
     }
@@ -453,7 +454,7 @@ unittest
 
     const lineBlockCount = 100_000;
     size_t lineNr = 0;
-    foreach (const line; new GzipByLine!ZlibFileInputRange(path))
+    foreach (const line; new DecompressByLine!ZlibFileInputRange(path))
     {
         if (lineNr % lineBlockCount == 0)
         {
@@ -463,7 +464,34 @@ unittest
     }
 
     const lineCount = 5;
-    foreach (const line; new GzipByLine!ZlibFileInputRange(path).take(lineCount))
+    foreach (const line; new DecompressByLine!ZlibFileInputRange(path).take(lineCount))
+    {
+        writeln(line);
+    }
+}
+
+version(none)
+unittest
+{
+    enum path = "/home/per/Knowledge/DBpedia/2016-10/genders_en.ttl.bz2";
+
+    import std.stdio: writeln;
+    import std.range: take;
+    import std.algorithm.searching: count;
+
+    const lineBlockCount = 100_000;
+    size_t lineNr = 0;
+    foreach (const line; new DecompressByLine!ZlibFileInputRange(path))
+    {
+        if (lineNr % lineBlockCount == 0)
+        {
+            writeln(`Line `, lineNr, ` read containing:`, line);
+        }
+        lineNr += 1;
+    }
+
+    const lineCount = 5;
+    foreach (const line; new DecompressByLine!ZlibFileInputRange(path).take(lineCount))
     {
         writeln(line);
     }

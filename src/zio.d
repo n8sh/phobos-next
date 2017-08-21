@@ -447,7 +447,7 @@ unittest
 version(none)
 unittest
 {
-    enum path = "/home/per/Knowledge/ConceptNet5/5.5/conceptnet-assertions-5.5.0.csv.gz";
+    enum path = "/home/per/Knowledge/ConceptNet5/5.5/data/assertions/conceptnet-assertions-5.5.0.csv.gz";
     alias R = ZlibFileInputRange;
 
     import std.stdio: writeln;

@@ -443,6 +443,7 @@ unittest
     // TODO activate testInputRange!(Bz2libFileInputRange);
 }
 
+version(none)
 unittest
 {
     enum path = "/home/per/Knowledge/ConceptNet5/5.5/conceptnet-assertions-5.5.0.csv.gz";

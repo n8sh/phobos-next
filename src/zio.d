@@ -82,7 +82,8 @@ template isBlockInputRange(R)
                               __traits(hasMember, R, `loadNextChunk`));
 }
 
-/** Decompress `BlockInputRange` linewise. */
+/** Decompress `BlockInputRange` linewise.
+ */
 class DecompressByLine(BlockInputRange)
 {
     private alias E = char;

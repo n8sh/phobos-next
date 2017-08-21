@@ -316,7 +316,6 @@ private:
     // pragma(mangle, "gzread") int gzread(gzFile file, void* buf, uint len);
 }
 
-version(none)                   // TODO activate
 struct Bz2libFileInputRange
 {
     enum chunkSize = 128 * 1024; // 128K
@@ -440,7 +439,7 @@ void testInputRange(FileInputRange)()
 unittest
 {
     testInputRange!(ZlibFileInputRange);
-    // TODO activate testInputRange!(Bz2libFileInputRange);
+    testInputRange!(Bz2libFileInputRange);
 }
 
 version(none)

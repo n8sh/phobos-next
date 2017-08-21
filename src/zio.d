@@ -482,7 +482,7 @@ unittest
     import std.range: take;
     import std.algorithm.searching: count;
 
-    const lineBlockCount = 100_000;
+    const lineBlockCount = 1000;
     size_t lineNr = 0;
     foreach (const line; new DecompressByLine!R(path))
     {

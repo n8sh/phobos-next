@@ -162,10 +162,10 @@ class DecompressByLine(BlockInputRange)
         }
     }
 
-    pragma(inline, true):
+    pragma(inline):
     @safe pure nothrow @nogc:
 
-    @property bool empty()
+    @property bool empty() const
     {
         return _lbuf.data.length == 0;
     }
@@ -444,7 +444,7 @@ unittest
     testInputRange!(Bz2libFileInputRange);
 }
 
-version(none)
+// version(none)
 unittest
 {
     enum path = "/home/per/Knowledge/ConceptNet5/5.5/data/assertions/conceptnet-assertions-5.5.0.csv.gz";

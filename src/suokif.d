@@ -45,12 +45,12 @@ struct Token
 struct Expr
 {
     Token token;                // token
-    Expr[] subs;
+    Expr[] subExprs;            // sub-expressions
     @safe pure nothrow @nogc:
-    this(Token token, Expr[] subs = [])
+    this(Token token, Expr[] subExprs = [])
     {
         this.token = token;
-        this.subs = subs;
+        this.subExprs = subExprs;
     }
 }
 
@@ -332,11 +332,11 @@ nullFound:
     assert(exprs[0].token.tok == TOK.symbol);
     assert(exprs[0].token.src == `instance`);
 
-    assert(exprs[0].subs[0].token.tok == TOK.functionName);
-    assert(exprs[0].subs[0].token.src == "AttrFn");
+    assert(exprs[0].subExprs[0].token.tok == TOK.functionName);
+    assert(exprs[0].subExprs[0].token.src == "AttrFn");
 
-    assert(exprs[0].subs[1].token.tok == TOK.symbol);
-    assert(exprs[0].subs[1].token.src == "BinaryFunction");
+    assert(exprs[0].subExprs[1].token.tok == TOK.symbol);
+    assert(exprs[0].subExprs[1].token.src == "BinaryFunction");
 }
 
 version(none)

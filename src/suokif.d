@@ -231,13 +231,10 @@ struct SUOKIFParser
                 }
                 assert(count != 0);
 
-                if (count >= 1)
-                {
-                    Expr newExpr = Expr(exprs[$ - count].token,
-                                        exprs[$ - count + 1 .. $].dup);
-                    exprs.popBackN(1 + count); // forget tokens including leftParen
-                    exprs.put(newExpr.move);
-                }
+                Expr newExpr = Expr(exprs[$ - count].token,
+                                    exprs[$ - count + 1 .. $].dup);
+                exprs.popBackN(1 + count); // forget tokens including leftParen
+                exprs.put(newExpr.move);
 
                 if (_depth == 0) // top-level expression done
                 {

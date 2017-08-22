@@ -160,7 +160,7 @@ struct SUOKIFParser
 
         /// Get symbol.
         static Src getSymbol(ref Src src)
-        @safe pure nothrow @nogc
+            @safe pure nothrow @nogc
         {
             assert(src.isNullTerminated);
             size_t i = 0;
@@ -175,7 +175,7 @@ struct SUOKIFParser
 
         /// Get numeric literal (number) in integer or decimal forma.
         static Src getNumber(ref Src src)
-        @safe pure nothrow @nogc
+            @safe pure nothrow @nogc
         {
             assert(src.isNullTerminated);
             size_t i = 0;
@@ -186,7 +186,7 @@ struct SUOKIFParser
 
         /// Get Src literal.
         static Src getStringLiteral(ref Src src)
-        @safe pure nothrow @nogc
+            @safe pure nothrow @nogc
         {
             assert(src.isNullTerminated);
             src.popFront();         // pop leading double quote
@@ -199,7 +199,7 @@ struct SUOKIFParser
 
         /// Skip whitespace.
         static Src getWhitespace(ref Src src)
-        @safe pure nothrow @nogc
+            @safe pure nothrow @nogc
         {
             assert(src.isNullTerminated);
             size_t i = 0;

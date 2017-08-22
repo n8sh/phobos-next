@@ -81,7 +81,7 @@ Exprs parseSUOKIF(string src, bool includeComments = false)
     @safe pure
 {
     import std.exception : enforce;
-    enforce(src.isNullTerminated); // safest to do this check everytime for now
+    enforce(src.isNullTerminated); // safest to do this check in non-debug mode
 
     import std.range : empty, front, popFront, popFrontN;
     import std.uni : isWhite, isAlpha;

@@ -46,11 +46,11 @@ struct Expr
 {
     Token token;                // token
     Expr[] subExprs;            // sub-expressions
-    @safe pure nothrow @nogc:
+    @safe pure nothrow:
     this(Token token, Expr[] subExprs = [])
     {
         this.token = token;
-        this.subExprs = subExprs;
+        this.subExprs = subExprs.dup;
     }
 }
 
@@ -218,7 +218,7 @@ Exprs parseSUOKIF(string src,
             if (count >= 1)
             {
                 Expr newExpr = Expr(exprs[$ - count].token,
-                                    exprs[$ - count + 1 .. $].dup); // TODO moveAll or moveEmplaceAll from `exprs` instead
+                                    exprs[$ - count + 1 .. $]); // TODO moveAll or moveEmplaceAll from `exprs` instead
                 exprs.popBackN(1 + count); // forget tokens including leftParen
                 exprs ~= newExpr.move;
             }

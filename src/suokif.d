@@ -363,8 +363,6 @@ struct SUOKIFParser
     foreach (const ref expr; SUOKIFParser(text))
     {
     }
-    // const exprs = parseSUOKIF(text);
-
     // assert(exprs.length == 1);
 
     // assert(exprs[0].token.tok == TOK.symbol);

@@ -285,7 +285,6 @@ Exprs parseSUOKIF(string src,
                 )
             {
                 const symbol = getSymbol(src); // TODO tokenize
-                import std.uni : isLower;
                 import std.algorithm : endsWith;
                 if (symbol.endsWith(`Fn`))
                 {

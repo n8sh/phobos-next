@@ -118,6 +118,10 @@ Exprs parseSUOKIF(string src, bool includeComments = false)
         }
     }
 
+    import std.meta : AliasSeq;
+    alias whiteChars = AliasSeq!(' ', '\t', '\n', '\r'); // TODO use
+    alias digitChars = AliasSeq!('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'); // TODO use
+
     /// Get symbol.
     static Src getSymbol(ref Src src)
         @safe pure nothrow @nogc
@@ -125,7 +129,8 @@ Exprs parseSUOKIF(string src, bool includeComments = false)
         assert(src.isNullTerminated);
         size_t i = 0;
         while ((!src[i].among!('\0', '(', ')')) &&
-               (!src[i].isWhite))
+               (!src[i].isWhite)
+            )
         {
             ++i;
         }

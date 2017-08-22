@@ -350,7 +350,7 @@ struct SUOKIFParser
     const Src _whole;           // whole input
     Exprs exprs;                // current
     size_t _depth = 0;          // parenthesis depth
-    bool _endOfFile;
+    bool _endOfFile;            // signals null terminator found
     bool _includeComments = false;
     bool _includeWhitespace = false;
 }

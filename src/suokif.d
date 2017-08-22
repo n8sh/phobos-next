@@ -251,7 +251,7 @@ struct SUOKIFParser
 
                 if (depth == 0) // top-level expression done
                 {
-                    assert(exprs.length == 1);
+                    assert(exprs.length >= 1); // we should have at least one `Expr`
                     return;
                 }
 

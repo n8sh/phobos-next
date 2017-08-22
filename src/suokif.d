@@ -73,7 +73,7 @@ pragma(inline, true)
 bool isNullTerminated(const(char)[] s)
     @safe pure nothrow @nogc
 {
-    return s[$ - 1] == '\0';
+    return s.length >= 1 && s[$ - 1] == '\0';
 }
 
 /** Parse SUO-KIF from `src` into returned array of expressions (`Expr`). */

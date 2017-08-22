@@ -89,6 +89,9 @@ struct SUOKIFParser
         import std.algorithm : skipOver;
         this.src.skipOver(x"EFBBBF");    // skip magic? header for some files
 
+        import std.exception : enforce;
+        enforce(src.isNullTerminated); // safest to do this check in non-debug mode aswell
+
         this._whole = src;
         this._includeComments = includeComments;
         this._includeWhitespace = includeWhitespace;
@@ -119,9 +122,6 @@ struct SUOKIFParser
 
     private void nextFront()
     {
-        import std.exception : enforce;
-        enforce(src.isNullTerminated); // safest to do this check in non-debug mode aswell
-
         import std.range : empty, front, popFront, popFrontN;
         import std.uni : isWhite, isAlpha;
         import std.ascii : isDigit;

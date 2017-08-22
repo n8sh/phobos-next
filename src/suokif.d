@@ -360,10 +360,8 @@ struct SUOKIFParser
 @safe pure unittest
 {
     const text = ";;a comment\n(instance AttrFn BinaryFunction)\0";
-    foreach (const ref expr; SUOKIFParser(text))
-    {
-    }
-    // assert(exprs.length == 1);
+    auto exprs = SUOKIFParser(text);
+    // assert(!exprs.empty);
 
     // assert(exprs[0].token.tok == TOK.symbol);
     // assert(exprs[0].token.src == `instance`);

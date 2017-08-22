@@ -121,7 +121,7 @@ Exprs parseSUOKIF(string src,
     }
 
     import std.meta : AliasSeq;
-    // TODO use and benchmark:
+    // from std.ascii.isWhite. TODO use and benchmark:
     alias whiteChars = AliasSeq!(' ', // 0x20
                                  '\t', // (0x09)
                                  '\n', // (0x0a)
@@ -262,7 +262,6 @@ Exprs parseSUOKIF(string src,
             const number = getNumber(src);
             exprs ~= Expr(Token(TOK.number, number));
             break;
-            // from std.ascii.isWhite:
         case ' ':
         case '\t':
         case '\n':

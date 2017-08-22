@@ -119,8 +119,8 @@ Exprs parseSUOKIF(string src, bool includeComments = false)
     }
 
     import std.meta : AliasSeq;
-    alias whiteChars = AliasSeq!(' ', '\t', '\n', '\r'); // TODO use
-    alias digitChars = AliasSeq!('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'); // TODO use
+    alias whiteChars = AliasSeq!(' ', '\t', '\n', '\r'); // TODO use and benchmark
+    alias digitChars = AliasSeq!('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'); // TODO use benchmark
 
     /// Get symbol.
     static Src getSymbol(ref Src src)

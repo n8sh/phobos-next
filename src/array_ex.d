@@ -1,6 +1,8 @@
 /** Array container(s) with optional sortedness via template-parameter
     `Ordering` and optional use of GC via `useGCAllocation`.
 
+    TODO UniqueArray!(const(E)) where E has indirections
+
     TODO Support for constructing from r-value range (container) of non-copyable
     elements.
 

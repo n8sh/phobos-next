@@ -262,6 +262,7 @@ Exprs parseSUOKIF(string src,
             const number = getNumber(src);
             exprs ~= Expr(Token(TOK.number, number));
             break;
+        // from std.ascii.isWhite:
         case ' ':
         case '\t':
         case '\n':

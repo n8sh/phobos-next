@@ -94,17 +94,20 @@ struct SUOKIFParser
         this._topExpr = nextFront();
     }
 
+    pragma(inline, true)
     @property bool empty() const nothrow @nogc
     {
         return _topExpr.token.tok == TOK.endOfFile;
     }
 
+    pragma(inline, true)
     ref Expr front() return scope
     {
         assert(!empty);
         return _topExpr;
     }
 
+    pragma(inline, true)
     void popFront()
     {
         assert(!empty);

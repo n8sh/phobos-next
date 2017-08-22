@@ -80,7 +80,8 @@ bool isNullTerminated(const(char)[] s)
 Exprs parseSUOKIF(string src, bool includeComments = false)
     @safe pure
 {
-    assert(src.isNullTerminated);
+    import std.exception : enforce;
+    enforce(src.isNullTerminated);
 
     import std.range : empty, front, popFront, popFrontN;
     import std.uni : isWhite, isAlpha;

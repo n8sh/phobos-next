@@ -216,11 +216,11 @@ struct SUOKIFParser
                 ++_depth;
                 break;
             case ')':
-                exprs.put(Expr(Token(TOK.rightParen, src[0 .. 1])));
+                // NOTE: this is not needed: exprs.put(Expr(Token(TOK.rightParen, src[0 .. 1])));
                 src.popFront();
                 --_depth;
+                // NOTE: this is not needed: exprs.popBack();   // pop right paren
 
-                exprs.popBack();   // pop right paren
                 assert(!exprs.empty);
 
                 // TODO retroIndexOf

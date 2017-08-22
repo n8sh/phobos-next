@@ -48,9 +48,8 @@ struct Expr
     Expr[] subs;
 }
 
-import array_ex : UniqueArray;
-alias Exprs = UniqueArray!Expr; // TODO UniqueArray!(const(Expr))
-// alias Exprs = Appender!(Expr[]);// import std.array : Appender;
+import arrayn : ArrayN, Checking;
+alias Exprs = ArrayN!(Expr, 128, Checking.viaScope);
 
 pragma(inline, true)
 bool isSymbolChar(dchar x)
@@ -217,16 +216,16 @@ struct SUOKIFParser
                 skipComment(src);   // TODO store comment in Token
                 if (_includeComments)
                 {
-                    exprs ~= Expr(Token(TOK.comment, src[0 .. 1]));
+                    exprs.put(Expr(Token(TOK.comment, src[0 .. 1])));
                 }
                 break;
             case '(':
-                exprs ~= Expr(Token(TOK.leftParen, src[0 .. 1]));
+                exprs.put(Expr(Token(TOK.leftParen, src[0 .. 1])));
                 src.popFront();
                 ++_depth;
                 break;
             case ')':
-                exprs ~= Expr(Token(TOK.rightParen, src[0 .. 1]));
+                exprs.put(Expr(Token(TOK.rightParen, src[0 .. 1])));
                 src.popFront();
                 --_depth;
 
@@ -246,7 +245,7 @@ struct SUOKIFParser
                     Expr newExpr = Expr(exprs[$ - count].token,
                                         exprs[$ - count + 1 .. $].dup);
                     exprs.popBackN(1 + count); // forget tokens including leftParen
-                    exprs ~= newExpr.move;
+                    exprs.put(newExpr.move);
                 }
 
                 if (_depth == 0) // top-level expression done
@@ -258,29 +257,29 @@ struct SUOKIFParser
                 break;
             case '"':
                 const stringLiteral = getStringLiteral(src); // TODO tokenize
-                exprs ~= Expr(Token(TOK.stringLiteral, stringLiteral));
+                exprs.put(Expr(Token(TOK.stringLiteral, stringLiteral)));
                 break;
             case ',':
                 src.popFront();
-                exprs ~= Expr(Token(TOK.lispComma));
+                exprs.put(Expr(Token(TOK.lispComma)));
                 break;
             case '`':
                 src.popFront();
-                exprs ~= Expr(Token(TOK.lispBackQuote));
+                exprs.put(Expr(Token(TOK.lispBackQuote)));
                 break;
             case '\'':
                 src.popFront();
-                exprs ~= Expr(Token(TOK.lispQuote));
+                exprs.put(Expr(Token(TOK.lispQuote)));
                 break;
             case '?':
                 src.popFront();
                 const variableSymbol = getSymbol(src);
-                exprs ~= Expr(Token(TOK.variable, variableSymbol));
+                exprs.put(Expr(Token(TOK.variable, variableSymbol)));
                 break;
             case '@':
                 src.popFront();
                 const variableListSymbol = getSymbol(src);
-                exprs ~= Expr(Token(TOK.variableList, variableListSymbol));
+                exprs.put(Expr(Token(TOK.variableList, variableListSymbol)));
                 break;
                 // std.ascii.isDigit:
             case '0':
@@ -297,7 +296,7 @@ struct SUOKIFParser
             case '-':
             case '.':
                 const number = getNumber(src);
-                exprs ~= Expr(Token(TOK.number, number));
+                exprs.put(Expr(Token(TOK.number, number)));
                 break;
                 // from std.ascii.isWhite
             case ' ':
@@ -310,7 +309,7 @@ struct SUOKIFParser
                 getWhitespace(src);
                 if (_includeWhitespace)
                 {
-                    exprs ~= Expr(Token(TOK.whitespace, null));
+                    exprs.put(Expr(Token(TOK.whitespace, null)));
                 }
                 break;
             case '\0':
@@ -326,11 +325,11 @@ struct SUOKIFParser
                     import std.algorithm : endsWith;
                     if (symbol.endsWith(`Fn`))
                     {
-                        exprs ~= Expr(Token(TOK.functionName, symbol));
+                        exprs.put(Expr(Token(TOK.functionName, symbol)));
                     }
                     else
                     {
-                        exprs ~= Expr(Token(TOK.symbol, symbol));
+                        exprs.put(Expr(Token(TOK.symbol, symbol)));
                     }
                 }
                 else
@@ -348,7 +347,9 @@ struct SUOKIFParser
     private:
     Src src;                    // remaining input
     const Src _whole;           // whole input
-    Exprs exprs;                // current
+
+    Exprs exprs;   // current
+
     size_t _depth = 0;          // parenthesis depth
     bool _endOfFile;            // signals null terminator found
     bool _includeComments = false;

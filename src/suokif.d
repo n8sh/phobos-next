@@ -78,6 +78,8 @@ bool isNullTerminated(const(char)[] s)
  */
 struct SUOKIFParser
 {
+    private alias Src = string;
+
     @safe pure:
 
     this(Src src,
@@ -344,8 +346,6 @@ struct SUOKIFParser
     }
 
     private:
-    alias Src = string;
-
     Src src;                    // remaining input
     const Src _whole;           // whole input
     Exprs exprs;                // current

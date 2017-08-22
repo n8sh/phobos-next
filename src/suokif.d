@@ -29,6 +29,8 @@ enum TOK
 
     comment,
     whitespace,
+
+    endOfFile,
 }
 
 /** SUO-KIF Token. */
@@ -49,7 +51,7 @@ struct Expr
 }
 
 import array_ex : UniqueArray;
-alias Exprs = UniqueArray!Expr;
+alias Exprs = UniqueArray!Expr; // TODO UniqueArray!(const(Expr))
 // alias Exprs = Appender!(Expr[]);// import std.array : Appender;
 
 pragma(inline, true)
@@ -74,263 +76,305 @@ bool isNullTerminated(const(char)[] s)
     return s.length >= 1 && s[$ - 1] == '\0';
 }
 
-/** Parse SUO-KIF from `src` into returned array of expressions (`Expr`). */
-Exprs parseSUOKIF(string src,
-                  bool includeComments = false,
-                  bool includeWhitespace = false)
-    @safe pure
+/** Parse SUO-KIF from `src` into returned array of expressions (`Expr`).
+ */
+struct SUOKIFParser
 {
-    import std.exception : enforce;
-    enforce(src.isNullTerminated); // safest to do this check in non-debug mode aswell
+    @safe pure:
 
-    import std.range : empty, front, popFront, popFrontN;
-    import std.uni : isWhite, isAlpha;
-    import std.ascii : isDigit;
-    import std.algorithm : among, skipOver, move;
-
-    alias Src = typeof(src);
-
-    typeof(return) exprs;           // expression stack
-
-    size_t leftParenDepth = 0;
-
-    const whole = src;
-
-    src.skipOver(x"EFBBBF");    // skip magic? header for some files
-
-    /// Skip over `n` bytes in `src`.
-    static Src skipOverNBytes(ref Src src, size_t n)
-        @safe pure nothrow @nogc
+    this(Src src,
+         bool includeComments = false,
+         bool includeWhitespace = false)
     {
-        const part = src[0 .. n];
-        src = src[n .. $];
-        return part;
+        this.src = src;
+        this._whole = src;
+        this._includeComments = includeComments;
+        this._includeWhitespace = includeWhitespace;
+
+        this._topExpr = nextFront();
     }
 
-    /// Skip comment.
-    static void skipComment(ref Src src)
+    @property bool empty() const nothrow @nogc
+    {
+        return _topExpr.token.tok != TOK.endOfFile;
+    }
+
+    ref Expr front() return scope
+    {
+        assert(!empty);
+        return _topExpr;
+    }
+
+    void popFront()
+    {
+        assert(!empty);
+        _topExpr = nextFront();
+    }
+
+    private Expr nextFront()
+    {
+        import std.exception : enforce;
+        enforce(src.isNullTerminated); // safest to do this check in non-debug mode aswell
+
+        import std.range : empty, front, popFront, popFrontN;
+        import std.uni : isWhite, isAlpha;
+        import std.ascii : isDigit;
+        import std.algorithm : among, skipOver, move;
+
+        src.skipOver(x"EFBBBF");    // skip magic? header for some files
+
+        /// Skip over `n` bytes in `src`.
+        static Src skipOverNBytes(ref Src src, size_t n)
+        @safe pure nothrow @nogc
+        {
+            const part = src[0 .. n];
+            src = src[n .. $];
+            return part;
+        }
+
+        /// Skip comment.
+        static void skipComment(ref Src src)
         @safe pure
-    {
-        assert(src.isNullTerminated);
-        while (!src.front.among('\r', '\n')) // until end of line
         {
-            src.popFront();
+            assert(src.isNullTerminated);
+            while (!src.front.among('\r', '\n')) // until end of line
+            {
+                src.popFront();
+            }
         }
-    }
 
-    import std.meta : AliasSeq;
-    // from std.ascii.isWhite. TODO use and benchmark:
-    alias whiteChars = AliasSeq!(' ', // 0x20
-                                 '\t', // (0x09)
-                                 '\n', // (0x0a)
-                                 '\v', // (0x0b)
-                                 '\r', // (0x0c)
-                                 '\f'); // (0x0d)
-    alias digitChars = AliasSeq!('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'); // TODO use benchmark
+        import std.meta : AliasSeq;
+        // from std.ascii.isWhite. TODO use and benchmark:
+        alias whiteChars = AliasSeq!(' ', // 0x20
+                                     '\t', // (0x09)
+                                     '\n', // (0x0a)
+                                     '\v', // (0x0b)
+                                     '\r', // (0x0c)
+                                     '\f'); // (0x0d)
+        alias digitChars = AliasSeq!('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'); // TODO use benchmark
 
-    /// Get symbol.
-    static Src getSymbol(ref Src src)
+        /// Get symbol.
+        static Src getSymbol(ref Src src)
         @safe pure nothrow @nogc
-    {
-        assert(src.isNullTerminated);
-        size_t i = 0;
-        while ((!src[i].among!('\0', '(', ')')) &&
-               (!src[i].isWhite) // TODO use whiteChars instead
-            )
         {
-            ++i;
-        }
-        return skipOverNBytes(src, i);
-    }
-
-    /// Get numeric literal (number) in integer or decimal forma.
-    static Src getNumber(ref Src src)
-        @safe pure nothrow @nogc
-    {
-        assert(src.isNullTerminated);
-        size_t i = 0;
-        while (src[i].isDigit ||                      // TODO use digitChars instead
-               src[i].among!('+', '-', '.')) { ++i; } // TODO merge to single call to among
-        return skipOverNBytes(src, i);
-    }
-
-    /// Get Src literal.
-    static Src getStringLiteral(ref Src src)
-        @safe pure nothrow @nogc
-    {
-        assert(src.isNullTerminated);
-        src.popFront();         // pop leading double quote
-        size_t i = 0;
-        while (!src[i].among('\0', '"')) { ++i; }
-        const literal = src[0 .. i]; src = src[i .. $]; // TODO functionize
-        src.popFront();         // pop ending double quote
-        return literal;
-    }
-
-    /// Skip whitespace.
-    static Src getWhitespace(ref Src src)
-        @safe pure nothrow @nogc
-    {
-        assert(src.isNullTerminated);
-        size_t i = 0;
-        while (src[i].isWhite) { ++i; }
-        return skipOverNBytes(src, i);
-    }
-
-    while (true)
-    {
-        switch (src.front)
-        {
-        case ';':
-            skipComment(src);   // TODO store comment in Token
-            if (includeComments)
-            {
-                exprs ~= Expr(Token(TOK.comment, src[0 .. 1]));
-            }
-            break;
-        case '(':
-            exprs ~= Expr(Token(TOK.leftParen, src[0 .. 1]));
-            src.popFront();
-            ++leftParenDepth;
-            break;
-        case ')':
-            exprs ~= Expr(Token(TOK.rightParen, src[0 .. 1]));
-            src.popFront();
-            --leftParenDepth;
-
-            exprs.popBack();   // pop right paren
-            assert(!exprs.empty);
-
-            // TODO retroIndexOf
-            size_t count = 0; // number of elements between parens
-            while (exprs[$ - 1 - count].token.tok != TOK.leftParen)
-            {
-                ++count;
-            }
-            assert(count != 0);
-
-            if (count >= 1)
-            {
-                Expr newExpr = Expr(exprs[$ - count].token,
-                                    exprs[$ - count + 1 .. $].dup);
-                exprs.popBackN(1 + count); // forget tokens including leftParen
-                exprs ~= newExpr.move;
-            }
-
-            break;
-        case '"':
-            const stringLiteral = getStringLiteral(src); // TODO tokenize
-            exprs ~= Expr(Token(TOK.stringLiteral, stringLiteral));
-            break;
-        case ',':
-            src.popFront();
-            exprs ~= Expr(Token(TOK.lispComma));
-            break;
-        case '`':
-            src.popFront();
-            exprs ~= Expr(Token(TOK.lispBackQuote));
-            break;
-        case '\'':
-            src.popFront();
-            exprs ~= Expr(Token(TOK.lispQuote));
-            break;
-        case '?':
-            src.popFront();
-            const variableSymbol = getSymbol(src);
-            exprs ~= Expr(Token(TOK.variable, variableSymbol));
-            break;
-        case '@':
-            src.popFront();
-            const variableListSymbol = getSymbol(src);
-            exprs ~= Expr(Token(TOK.variableList, variableListSymbol));
-            break;
-        // std.ascii.isDigit:
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-        case '+':
-        case '-':
-        case '.':
-            const number = getNumber(src);
-            exprs ~= Expr(Token(TOK.number, number));
-            break;
-        // from std.ascii.isWhite
-        case ' ':
-        case '\t':
-        case '\n':
-        case '\v':
-        case '\r':
-        case '\f':
-            assert(src.front.isWhite);
-            getWhitespace(src);
-            if (includeWhitespace)
-            {
-                exprs ~= Expr(Token(TOK.whitespace, null));
-            }
-            break;
-        case '\0':
-            goto nullFound;
-        default:
-            // other
-            if (true// src.front.isAlpha
+            assert(src.isNullTerminated);
+            size_t i = 0;
+            while ((!src[i].among!('\0', '(', ')')) &&
+                   (!src[i].isWhite) // TODO use whiteChars instead
                 )
             {
-                const symbol = getSymbol(src); // TODO tokenize
-                import std.algorithm : endsWith;
-                if (symbol.endsWith(`Fn`))
+                ++i;
+            }
+            return skipOverNBytes(src, i);
+        }
+
+        /// Get numeric literal (number) in integer or decimal forma.
+        static Src getNumber(ref Src src)
+        @safe pure nothrow @nogc
+        {
+            assert(src.isNullTerminated);
+            size_t i = 0;
+            while (src[i].isDigit ||                      // TODO use digitChars instead
+                   src[i].among!('+', '-', '.')) { ++i; } // TODO merge to single call to among
+            return skipOverNBytes(src, i);
+        }
+
+        /// Get Src literal.
+        static Src getStringLiteral(ref Src src)
+        @safe pure nothrow @nogc
+        {
+            assert(src.isNullTerminated);
+            src.popFront();         // pop leading double quote
+            size_t i = 0;
+            while (!src[i].among('\0', '"')) { ++i; }
+            const literal = src[0 .. i]; src = src[i .. $]; // TODO functionize
+            src.popFront();         // pop ending double quote
+            return literal;
+        }
+
+        /// Skip whitespace.
+        static Src getWhitespace(ref Src src)
+        @safe pure nothrow @nogc
+        {
+            assert(src.isNullTerminated);
+            size_t i = 0;
+            while (src[i].isWhite) { ++i; }
+            return skipOverNBytes(src, i);
+        }
+
+        Exprs exprs;            // current
+        size_t depth = 0;
+
+        while (true)
+        {
+            switch (src.front)
+            {
+            case ';':
+                skipComment(src);   // TODO store comment in Token
+                if (_includeComments)
                 {
-                    exprs ~= Expr(Token(TOK.functionName, symbol));
+                    exprs ~= Expr(Token(TOK.comment, src[0 .. 1]));
+                }
+                break;
+            case '(':
+                exprs ~= Expr(Token(TOK.leftParen, src[0 .. 1]));
+                src.popFront();
+                ++depth;
+                break;
+            case ')':
+                exprs ~= Expr(Token(TOK.rightParen, src[0 .. 1]));
+                src.popFront();
+                --depth;
+
+                exprs.popBack();   // pop right paren
+                assert(!exprs.empty);
+
+                // TODO retroIndexOf
+                size_t count = 0; // number of elements between parens
+                while (exprs[$ - 1 - count].token.tok != TOK.leftParen)
+                {
+                    ++count;
+                }
+                assert(count != 0);
+
+                if (count >= 1)
+                {
+                    Expr newExpr = Expr(exprs[$ - count].token,
+                                        exprs[$ - count + 1 .. $].dup);
+                    exprs.popBackN(1 + count); // forget tokens including leftParen
+                    exprs ~= newExpr.move;
+                }
+
+                if (depth == 0) // top-level expression done
+                {
+                    assert(exprs.length == 1);
+                    return exprs[0];
+                }
+
+                break;
+            case '"':
+                const stringLiteral = getStringLiteral(src); // TODO tokenize
+                exprs ~= Expr(Token(TOK.stringLiteral, stringLiteral));
+                break;
+            case ',':
+                src.popFront();
+                exprs ~= Expr(Token(TOK.lispComma));
+                break;
+            case '`':
+                src.popFront();
+                exprs ~= Expr(Token(TOK.lispBackQuote));
+                break;
+            case '\'':
+                src.popFront();
+                exprs ~= Expr(Token(TOK.lispQuote));
+                break;
+            case '?':
+                src.popFront();
+                const variableSymbol = getSymbol(src);
+                exprs ~= Expr(Token(TOK.variable, variableSymbol));
+                break;
+            case '@':
+                src.popFront();
+                const variableListSymbol = getSymbol(src);
+                exprs ~= Expr(Token(TOK.variableList, variableListSymbol));
+                break;
+                // std.ascii.isDigit:
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+            case '+':
+            case '-':
+            case '.':
+                const number = getNumber(src);
+                exprs ~= Expr(Token(TOK.number, number));
+                break;
+                // from std.ascii.isWhite
+            case ' ':
+            case '\t':
+            case '\n':
+            case '\v':
+            case '\r':
+            case '\f':
+                assert(src.front.isWhite);
+                getWhitespace(src);
+                if (_includeWhitespace)
+                {
+                    exprs ~= Expr(Token(TOK.whitespace, null));
+                }
+                break;
+            case '\0':
+                goto nullFound;
+            default:
+                // other
+                if (true// src.front.isAlpha
+                    )
+                {
+                    const symbol = getSymbol(src); // TODO tokenize
+                    import std.algorithm : endsWith;
+                    if (symbol.endsWith(`Fn`))
+                    {
+                        exprs ~= Expr(Token(TOK.functionName, symbol));
+                    }
+                    else
+                    {
+                        exprs ~= Expr(Token(TOK.symbol, symbol));
+                    }
                 }
                 else
                 {
-                    exprs ~= Expr(Token(TOK.symbol, symbol));
+                    import std.conv : to;
+                    assert(false,
+                           `Cannot handle character '` ~ src.front.to!string ~
+                           `' at index:` ~ (&src[0] - &_whole[0]).to!string);
                 }
+                break;
             }
-            else
-            {
-                import std.conv : to;
-                assert(false,
-                       `Cannot handle character '` ~ src.front.to!string ~
-                       `' at index:` ~ (&src[0] - &whole[0]).to!string);
-            }
-            break;
         }
-        if (!exprs.empty)
-        {
-            // import dbgio : dln;
-            // dln(exprs.back);
-        }
+
+    nullFound:
+        assert(depth == 0, "Unbalanced parenthesis at end of file");
+        return Expr(Token(TOK.endOfFile));
     }
 
-nullFound:
+    private:
+    alias Src = string;
 
-    assert(leftParenDepth == 0);        // should be balanced
+    Src src;                    // remaining input
 
-    return exprs;
+    const Src _whole;           // whole input
+
+    Expr _topExpr;               // current top-level expression
+
+    bool _includeComments = false;
+    bool _includeWhitespace = false;
 }
+
 
 @safe pure unittest
 {
     const text = ";;a comment\n(instance AttrFn BinaryFunction)\0";
-    const exprs = parseSUOKIF(text);
+    foreach (const ref expr; SUOKIFParser(text))
+    {
+    }
+    // const exprs = parseSUOKIF(text);
 
-    assert(exprs.length == 1);
+    // assert(exprs.length == 1);
 
-    assert(exprs[0].token.tok == TOK.symbol);
-    assert(exprs[0].token.src == `instance`);
+    // assert(exprs[0].token.tok == TOK.symbol);
+    // assert(exprs[0].token.src == `instance`);
 
-    assert(exprs[0].subs[0].token.tok == TOK.functionName);
-    assert(exprs[0].subs[0].token.src == "AttrFn");
+    // assert(exprs[0].subs[0].token.tok == TOK.functionName);
+    // assert(exprs[0].subs[0].token.src == "AttrFn");
 
-    assert(exprs[0].subs[1].token.tok == TOK.symbol);
-    assert(exprs[0].subs[1].token.src == "BinaryFunction");
+    // assert(exprs[0].subs[1].token.tok == TOK.symbol);
+    // assert(exprs[0].subs[1].token.src == "BinaryFunction");
 }
 
 version(none)
@@ -341,7 +385,9 @@ unittest
     const text = `~/elisp/mine/relangs.el`.expandTilde.readText;
     const ctext = text ~ '\0'; // null at the end to enable sentinel-based search in parser
     assert(ctext[$ - 1] == '\0');
-    const exprs = ctext.parseSUOKIF();
+    foreach (const ref expr; SUOKIFParser(ctext))
+    {
+    }
 }
 
 unittest
@@ -385,7 +431,10 @@ Exprs readSUOKIFs(string rootDirPath)
                 const text = filePath.readText;
                 const ctext = text ~ '\0'; // null at the end to enable sentinel-based search in parser
                 assert(ctext[$ - 1] == '\0');
-                allExprs ~= ctext.parseSUOKIF()[];
+                foreach (topExpr; SUOKIFParser(ctext))
+                {
+                    allExprs ~= topExpr;
+                }
                 sw.stop();
                 import std.conv : to;
                 writeln(`took `, sw.peek.to!Duration);

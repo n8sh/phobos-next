@@ -40,7 +40,7 @@ struct Token
 }
 
 /** SUO_KIF Expression.
-    TODO use vary.FastVariant
+    TODO use vary.FastVariant instead of `Expr[]`
  */
 struct Expr
 {

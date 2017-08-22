@@ -422,7 +422,6 @@ void readSUOKIFs(string rootDirPath)
                 // TODO move this logic to readText(bool nullTerminated = false) by .capacity += 1
                 const text = filePath.readText;
                 const ctext = text ~ '\0'; // null at the end to enable sentinel-based search in parser
-                assert(ctext[$ - 1] == '\0');
 
                 foreach (const ref topExpr; SUOKIFParser(ctext))
                 {

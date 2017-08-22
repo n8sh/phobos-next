@@ -29,8 +29,6 @@ enum TOK
 
     comment,
     whitespace,
-
-    endOfFile,
 }
 
 /** SUO-KIF Token. */
@@ -87,34 +85,39 @@ struct SUOKIFParser
          bool includeWhitespace = false)
     {
         this.src = src;
+
+        import std.algorithm : skipOver;
+        this.src.skipOver(x"EFBBBF");    // skip magic? header for some files
+
         this._whole = src;
         this._includeComments = includeComments;
         this._includeWhitespace = includeWhitespace;
 
-        this._topExpr = nextFront();
+        nextFront();
     }
 
     pragma(inline, true)
     @property bool empty() const nothrow @nogc
     {
-        return _topExpr.token.tok == TOK.endOfFile;
+        return _endOfFile;
     }
 
     pragma(inline, true)
     ref Expr front() return scope
     {
         assert(!empty);
-        return _topExpr;
+        return exprs.back;
     }
 
     pragma(inline, true)
     void popFront()
     {
         assert(!empty);
-        _topExpr = nextFront();
+        exprs.popBack();
+        nextFront();
     }
 
-    private Expr nextFront()
+    private void nextFront()
     {
         import std.exception : enforce;
         enforce(src.isNullTerminated); // safest to do this check in non-debug mode aswell
@@ -122,9 +125,8 @@ struct SUOKIFParser
         import std.range : empty, front, popFront, popFrontN;
         import std.uni : isWhite, isAlpha;
         import std.ascii : isDigit;
-        import std.algorithm : among, skipOver, move;
 
-        src.skipOver(x"EFBBBF");    // skip magic? header for some files
+        import std.algorithm : among, move;
 
         /// Skip over `n` bytes in `src`.
         static Src skipOverNBytes(ref Src src, size_t n)
@@ -205,7 +207,6 @@ struct SUOKIFParser
             return skipOverNBytes(src, i);
         }
 
-        Exprs exprs;            // current
         size_t depth = 0;
 
         while (true)
@@ -251,7 +252,7 @@ struct SUOKIFParser
                 if (depth == 0) // top-level expression done
                 {
                     assert(exprs.length == 1);
-                    return exprs[0];
+                    return;
                 }
 
                 break;
@@ -313,7 +314,9 @@ struct SUOKIFParser
                 }
                 break;
             case '\0':
-                goto nullFound;
+                assert(depth == 0, "Unbalanced parenthesis at end of file");
+                _endOfFile = true;
+                return;
             default:
                 // other
                 if (true// src.front.isAlpha
@@ -340,10 +343,6 @@ struct SUOKIFParser
                 break;
             }
         }
-
-    nullFound:
-        assert(depth == 0, "Unbalanced parenthesis at end of file");
-        return Expr(Token(TOK.endOfFile));
     }
 
     private:
@@ -353,7 +352,9 @@ struct SUOKIFParser
 
     const Src _whole;           // whole input
 
-    Expr _topExpr;               // current top-level expression
+    Exprs exprs;                // current
+
+    bool _endOfFile;
 
     bool _includeComments = false;
     bool _includeWhitespace = false;

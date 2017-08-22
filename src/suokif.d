@@ -207,8 +207,6 @@ struct SUOKIFParser
             return skipOverNBytes(src, i);
         }
 
-        size_t depth = 0;
-
         while (true)
         {
             switch (src.front)
@@ -223,12 +221,12 @@ struct SUOKIFParser
             case '(':
                 exprs ~= Expr(Token(TOK.leftParen, src[0 .. 1]));
                 src.popFront();
-                ++depth;
+                ++_depth;
                 break;
             case ')':
                 exprs ~= Expr(Token(TOK.rightParen, src[0 .. 1]));
                 src.popFront();
-                --depth;
+                --_depth;
 
                 exprs.popBack();   // pop right paren
                 assert(!exprs.empty);
@@ -249,7 +247,7 @@ struct SUOKIFParser
                     exprs ~= newExpr.move;
                 }
 
-                if (depth == 0) // top-level expression done
+                if (_depth == 0) // top-level expression done
                 {
                     assert(exprs.length >= 1); // we should have at least one `Expr`
                     return;
@@ -314,7 +312,7 @@ struct SUOKIFParser
                 }
                 break;
             case '\0':
-                assert(depth == 0, "Unbalanced parenthesis at end of file");
+                assert(_depth == 0, "Unbalanced parenthesis at end of file");
                 _endOfFile = true;
                 return;
             default:
@@ -353,6 +351,8 @@ struct SUOKIFParser
     const Src _whole;           // whole input
 
     Exprs exprs;                // current
+
+    size_t _depth = 0;
 
     bool _endOfFile;
 

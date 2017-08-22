@@ -77,7 +77,9 @@ bool isNullTerminated(const(char)[] s)
 }
 
 /** Parse SUO-KIF from `src` into returned array of expressions (`Expr`). */
-Exprs parseSUOKIF(string src, bool includeComments = false)
+Exprs parseSUOKIF(string src,
+                  bool includeComments = false,
+                  bool includeWhitespace = false)
     @safe pure
 {
     import std.exception : enforce;
@@ -270,7 +272,10 @@ Exprs parseSUOKIF(string src, bool includeComments = false)
         case 0x0D:
             assert(src.front.isWhite);
             getWhitespace(src);
-            // skip whitespace for now: exprs ~= Expr(Token(TOK.whitespace, null));
+            if (includeWhitespace)
+            {
+                exprs ~= Expr(Token(TOK.whitespace, null));
+            }
             break;
         case '\0':
             goto nullFound;

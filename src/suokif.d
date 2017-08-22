@@ -264,12 +264,11 @@ Exprs parseSUOKIF(string src,
             break;
             // from std.ascii.isWhite:
         case ' ':
-        case 0x09:
-        case 0x10:
-        case 0x0A:
-        case 0x0B:
-        case 0x0C:
-        case 0x0D:
+        case '\t':
+        case '\n':
+        case '\v':
+        case '\r':
+        case '\f':
             assert(src.front.isWhite);
             getWhitespace(src);
             if (includeWhitespace)

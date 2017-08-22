@@ -46,6 +46,12 @@ struct Expr
 {
     Token token;                // token
     Expr[] subs;
+    @safe pure nothrow @nogc:
+    this(Token token, Expr[] subs = [])
+    {
+        this.token = token;
+        this.subs = subs;
+    }
 }
 
 import array_ex : UniqueArray;

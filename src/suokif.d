@@ -25,9 +25,10 @@ enum TOK
     variableList,               // one or more variables (parameters)
     functionName,
 
-    whitespace,
     number,
+
     comment,
+    whitespace,
 }
 
 /** SUO-KIF Token. */

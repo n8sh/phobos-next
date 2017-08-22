@@ -119,7 +119,7 @@ Exprs parseSUOKIF(string src, bool includeComments = false)
     }
 
     import std.meta : AliasSeq;
-    alias whiteChars = AliasSeq!(' ', '\t', '\n', '\r'); // TODO use and benchmark
+    alias whiteChars = AliasSeq!(' ', '\t', '\n', '\v', '\r', '\f'); // TODO use and benchmark
     alias digitChars = AliasSeq!('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'); // TODO use benchmark
 
     /// Get symbol.
@@ -129,7 +129,7 @@ Exprs parseSUOKIF(string src, bool includeComments = false)
         assert(src.isNullTerminated);
         size_t i = 0;
         while ((!src[i].among!('\0', '(', ')')) &&
-               (!src[i].isWhite)
+               (!src[i].isWhite) // TODO use whiteChars instead
             )
         {
             ++i;
@@ -143,7 +143,7 @@ Exprs parseSUOKIF(string src, bool includeComments = false)
     {
         assert(src.isNullTerminated);
         size_t i = 0;
-        while (src[i].isDigit ||
+        while (src[i].isDigit ||                      // TODO use digitChars instead
                src[i].among!('+', '-', '.')) { ++i; } // TODO merge to single call to among
         return skipOverNBytes(src, i);
     }

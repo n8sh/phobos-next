@@ -115,7 +115,8 @@ struct ArrayN(E, uint capacity, Checking checking)
         {
             gc_addRange(_store.ptr, capacity * E.sizeof);
         }
-        _store[0 .. es.length] = es; // copy
+        // shallow copy needs to cast away shallow constness for now
+        _store[0 .. es.length] = (cast(E*)es.ptr)[0 .. es.length];
         _length = cast(ubyte)es.length;
     }
 
@@ -144,7 +145,7 @@ struct ArrayN(E, uint capacity, Checking checking)
         return _store.ptr[0 .. _length].canFind(needle);
     }
 
-    /** Push/Add elements `es` at back.
+    /** Add elements `es` to back.
         NOTE doesn't invalidate any borrow
      */
     auto ref pushBack(Es...)(Es es) @trusted
@@ -162,6 +163,17 @@ struct ArrayN(E, uint capacity, Checking checking)
     /// ditto
     alias append = pushBack;
     alias put = pushBack;       // OutputRange support
+
+    /** Add elements `es` to back.
+        NOTE doesn't invalidate any borrow
+     */
+    void opOpAssign(string op, Us...)(Us values)
+        if (op == "~" &&
+            values.length >= 1 &&
+            allSatisfy!(isElementAssignable, Us))
+    {
+        pushBack(move(values)); // TODO remove `move` when compiler does it for
+    }
 
     import std.traits : isMutable;
     static if (isMutable!E)

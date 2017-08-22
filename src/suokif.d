@@ -96,7 +96,7 @@ struct SUOKIFParser
 
     @property bool empty() const nothrow @nogc
     {
-        return _topExpr.token.tok != TOK.endOfFile;
+        return _topExpr.token.tok == TOK.endOfFile;
     }
 
     ref Expr front() return scope
@@ -361,16 +361,16 @@ struct SUOKIFParser
 {
     const text = ";;a comment\n(instance AttrFn BinaryFunction)\0";
     auto exprs = SUOKIFParser(text);
-    // assert(!exprs.empty);
+    assert(!exprs.empty);
 
-    // assert(exprs[0].token.tok == TOK.symbol);
-    // assert(exprs[0].token.src == `instance`);
+    assert(exprs.front.token.tok == TOK.symbol);
+    assert(exprs.front.token.src == `instance`);
 
-    // assert(exprs[0].subs[0].token.tok == TOK.functionName);
-    // assert(exprs[0].subs[0].token.src == "AttrFn");
+    assert(exprs.front.subs[0].token.tok == TOK.functionName);
+    assert(exprs.front.subs[0].token.src == "AttrFn");
 
-    // assert(exprs[0].subs[1].token.tok == TOK.symbol);
-    // assert(exprs[0].subs[1].token.src == "BinaryFunction");
+    assert(exprs.front.subs[1].token.tok == TOK.symbol);
+    assert(exprs.front.subs[1].token.src == "BinaryFunction");
 }
 
 version(none)
@@ -393,10 +393,8 @@ unittest
 
 /** Read all SUO-KIF files (.kif) located under `rootDirPath`.
  */
-Exprs readSUOKIFs(string rootDirPath)
+void readSUOKIFs(string rootDirPath)
 {
-    typeof(return) allExprs;
-
     import std.stdio : write, writeln;
     import std.path : expandTilde;
 
@@ -429,7 +427,7 @@ Exprs readSUOKIFs(string rootDirPath)
                 assert(ctext[$ - 1] == '\0');
                 foreach (topExpr; SUOKIFParser(ctext))
                 {
-                    allExprs ~= topExpr;
+                    // TOOD use topExpr
                 }
                 sw.stop();
                 import std.conv : to;
@@ -442,8 +440,6 @@ Exprs readSUOKIFs(string rootDirPath)
             writeln(" failed because of invalid UTF-8 encoding starting with ", filePath.read(16));
         }
     }
-
-    return allExprs;
 }
 
 // void lexSUOKIF2(R)(R src)

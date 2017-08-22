@@ -212,7 +212,7 @@ Exprs parseSUOKIF(string src,
             if (count >= 1)
             {
                 Expr newExpr = Expr(exprs[$ - count].token,
-                                    exprs[$ - count + 1 .. $].dup); // TODO moveAll or moveEmplaceAll from `exprs` instead
+                                    exprs[$ - count + 1 .. $].dup);
                 exprs.popBackN(1 + count); // forget tokens including leftParen
                 exprs ~= newExpr.move;
             }

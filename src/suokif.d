@@ -51,15 +51,6 @@ struct Expr
 import arrayn : ArrayN, Checking;
 alias Exprs = ArrayN!(Expr, 128, Checking.viaScope);
 
-pragma(inline, true)
-bool isSymbolChar(dchar x)
-    @safe pure nothrow @nogc
-{
-    import std.uni : isAlphaNum;
-    import std.algorithm : among;
-    return x.isAlphaNum || x.among!('_', '-'); // TODO merge to single call to among
-}
-
 /** Returns: true if `s` is null-terminated (ending with `'\0'`).
 
     Used to verify input to parser make use of sentinel-based search.

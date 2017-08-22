@@ -217,7 +217,7 @@ struct ArrayN(E, uint capacity, Checking checking)
         {
             foreach (i; 0 .. n)
             {
-                .destroy(_store.ptr[i]);
+                .destroy(_store.ptr[_length + i]);
             }
         }
         return this;

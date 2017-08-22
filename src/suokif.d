@@ -358,7 +358,7 @@ struct SUOKIFParser
 
 @safe pure unittest
 {
-    const text = ";;a comment\n(instance AttrFn BinaryFunction)\0";
+    const text = ";;a comment\n(instance AttrFn BinaryFunction);;another comment\0";
     auto exprs = SUOKIFParser(text);
     assert(!exprs.empty);
 

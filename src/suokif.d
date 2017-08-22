@@ -246,6 +246,7 @@ Exprs parseSUOKIF(string src,
             const variableListSymbol = getSymbol(src);
             exprs ~= Expr(Token(TOK.variableList, variableListSymbol));
             break;
+        // std.ascii.isDigit:
         case '0':
         case '1':
         case '2':
@@ -256,8 +257,8 @@ Exprs parseSUOKIF(string src,
         case '7':
         case '8':
         case '9':
-        case '-':
         case '+':
+        case '-':
         case '.':
             const number = getNumber(src);
             exprs ~= Expr(Token(TOK.number, number));

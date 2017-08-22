@@ -45,13 +45,7 @@ struct Token
 struct Expr
 {
     Token token;                // token
-    Expr[] subExprs;            // sub-expressions
-    @safe pure nothrow:
-    this(Token token, Expr[] subExprs = [])
-    {
-        this.token = token;
-        this.subExprs = subExprs.dup;
-    }
+    Expr[] subs;
 }
 
 import array_ex : UniqueArray;
@@ -218,7 +212,7 @@ Exprs parseSUOKIF(string src,
             if (count >= 1)
             {
                 Expr newExpr = Expr(exprs[$ - count].token,
-                                    exprs[$ - count + 1 .. $]); // TODO moveAll or moveEmplaceAll from `exprs` instead
+                                    exprs[$ - count + 1 .. $].dup); // TODO moveAll or moveEmplaceAll from `exprs` instead
                 exprs.popBackN(1 + count); // forget tokens including leftParen
                 exprs ~= newExpr.move;
             }
@@ -332,11 +326,11 @@ nullFound:
     assert(exprs[0].token.tok == TOK.symbol);
     assert(exprs[0].token.src == `instance`);
 
-    assert(exprs[0].subExprs[0].token.tok == TOK.functionName);
-    assert(exprs[0].subExprs[0].token.src == "AttrFn");
+    assert(exprs[0].subs[0].token.tok == TOK.functionName);
+    assert(exprs[0].subs[0].token.src == "AttrFn");
 
-    assert(exprs[0].subExprs[1].token.tok == TOK.symbol);
-    assert(exprs[0].subExprs[1].token.src == "BinaryFunction");
+    assert(exprs[0].subs[1].token.tok == TOK.symbol);
+    assert(exprs[0].subs[1].token.src == "BinaryFunction");
 }
 
 version(none)

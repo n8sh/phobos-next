@@ -195,7 +195,7 @@ struct ArrayN(E, uint capacity, Checking checking)
     }
 
     /** Pop last (back) element. */
-    auto ref popBack()
+    void popBack()
     {
         assert(!empty);
         static if (borrowChecked) { assert(!isBorrowed); }
@@ -204,11 +204,10 @@ struct ArrayN(E, uint capacity, Checking checking)
         {
             .destroy(_store.ptr[_length]);
         }
-        return this;
     }
 
     /** Pop the `n` last (back) elements. */
-    auto ref popBackN(size_t n)
+    void popBackN(size_t n)
     {
         assert(length >= n);
         static if (borrowChecked) { assert(!isBorrowed); }
@@ -220,7 +219,6 @@ struct ArrayN(E, uint capacity, Checking checking)
                 .destroy(_store.ptr[_length + i]);
             }
         }
-        return this;
     }
 
 pragma(inline, true):

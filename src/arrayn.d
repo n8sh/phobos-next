@@ -207,6 +207,22 @@ struct ArrayN(E, uint capacity, Checking checking)
         return this;
     }
 
+    /** Pop the `n` last (back) elements. */
+    auto ref popBackN(size_t n)
+    {
+        assert(length >= n);
+        static if (borrowChecked) { assert(!isBorrowed); }
+        _length = cast(typeof(_length))(_length - n); // TODO better?
+        static if (hasElaborateDestructor!E)
+        {
+            foreach (i; 0 .. n)
+            {
+                .destroy(_store.ptr[i]);
+            }
+        }
+        return this;
+    }
+
 pragma(inline, true):
 
     /** Index operator. */
@@ -432,6 +448,10 @@ version(none) pure unittest     // TODO activate
     ab.popBack();
     assert(ab[] == "ab");
     assert(ab.toString == "ab");
+
+    ab.popBackN(2);
+    assert(ab.empty);
+    ab.pushBack('a', 'b');
 
     const abc = A("abc");
     assert(!abc.empty);

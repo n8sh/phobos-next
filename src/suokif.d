@@ -207,7 +207,7 @@ Exprs parseSUOKIF(string src,
             {
                 ++count;
             }
-            // assert(count != 0);
+            assert(count != 0);
 
             if (count >= 1)
             {

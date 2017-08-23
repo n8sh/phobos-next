@@ -178,7 +178,7 @@ struct SUOKIFParser
             return skipOverNBytes(src, i);
         }
 
-        /// Get string literal.
+        /// Get string literal at `src`.
         static Src getStringLiteral(ref Src src)
             @safe pure nothrow @nogc
         {

@@ -68,25 +68,30 @@ bool isNullTerminated(const(char)[] s)
  */
 struct SUOKIFParser
 {
+    import std.algorithm : among;
+
     private alias Src = string;
 
     @safe pure:
 
-    this(Src src,
+    this(Src input,
          bool includeComments = false,
          bool includeWhitespace = false)
     {
-        this.src = src;
+        _input = input;
 
-        import std.algorithm : skipOver;
-        this.src.skipOver(x"EFBBBF");    // skip magic? header for some files
+        import std.algorithm : startsWith;
+        immutable magic = x"EFBBBF";
+        if (_input[_off .. $].startsWith(magic))
+        {
+            _off += magic.length;
+        }
 
         import std.exception : enforce;
-        enforce(src.isNullTerminated); // safest to do this check in non-debug mode aswell
+        enforce(_input.isNullTerminated); // safest to do this check in non-debug mode aswell
 
-        this._input = src;
-        this._includeComments = includeComments;
-        this._includeWhitespace = includeWhitespace;
+        _includeComments = includeComments;
+        _includeWhitespace = includeWhitespace;
 
         nextFront();
     }
@@ -122,117 +127,150 @@ struct SUOKIFParser
                                  '\f'); // (0x0d)
     alias digitChars = AliasSeq!('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'); // TODO use benchmark
 
-    private void nextFront()
+private:
+
+    /// Get next `char` in input.
+    pragma(inline, true)
+    char peekNextChar() const nothrow @nogc
+    {
+        return _input[_off];    // TODO .ptr
+    }
+
+    /// Get next `char` in input.
+    pragma(inline, true)
+    char peekNextNthChar(size_t n) const nothrow @nogc
+    {
+        return _input[_off + n]; // TODO .ptr
+    }
+
+    /// Get next n `chars` in input.
+    pragma(inline, true)
+    Src peekNChars(size_t n) const nothrow @nogc
+    {
+        return _input[_off .. _off + n]; // TODO .ptr
+    }
+
+    /// Get remaining `string` in input.
+    pragma(inline, true)
+    Src peekRest() const nothrow @nogc
+    {
+        return _input[_off .. $]; // TODO .ptr
+    }
+
+    /// Drop next byte in input.
+    pragma(inline, true)
+    void dropFront() nothrow @nogc
+    {
+        _off += 1;
+    }
+
+    /// Drop next `n` bytes in input.
+    pragma(inline, true)
+    void dropFrontN(size_t n) nothrow @nogc
+    {
+        _off += n;
+    }
+
+    /// Skip over `n` bytes in `src`.
+    pragma(inline)
+    Src skipOverNBytes(size_t n)
+        nothrow @nogc
+    {
+        const part = _input[_off .. _off + n]; // TODO .ptr
+        dropFrontN(n);
+        return part;
+    }
+
+    /// Skip comment.
+    pragma(inline)
+    void skipComment()
+    {
+        while (!peekNextChar().among('\r', '\n')) // until end of line
+        {
+            _off += 1;
+        }
+    }
+
+    /// Get symbol.
+    pragma(inline)
+    Src getSymbol() nothrow @nogc
+    {
+        size_t i = 0;
+        while ((!peekNextNthChar(i).among!('\0', '(', ')',
+                                           whiteChars))) // NOTE this is faster than !src[i].isWhite
+        {
+            ++i;
+        }
+        return skipOverNBytes(i);
+    }
+
+    /// Get numeric literal (number) in integer or decimal form.
+    pragma(inline)
+    Src getNumber() nothrow @nogc
+    {
+        size_t i = 0;
+        while (peekNextNthChar(i).among!('+', '-', '.',
+                                         digitChars)) // NOTE this is faster than src[i].isDigit
+        {
+            ++i;
+        }
+        return skipOverNBytes(i);
+    }
+
+    /// Skip whitespace.
+    pragma(inline)
+    Src getWhitespace() nothrow @nogc
+    {
+        size_t i = 0;
+        while (peekNextNthChar(i).among!(whiteChars)) // NOTE this is faster than `src[i].isWhite`
+        {
+            ++i;
+        }
+        return skipOverNBytes(i);
+    }
+
+    /// Get string literal at `src`.
+    pragma(inline)
+    Src getStringLiteral() nothrow @nogc
+    {
+        dropFront();
+        size_t i = 0;
+        while (!peekNextNthChar(i).among('\0', '"')) // TODO handle backslash + double-quote
+        {
+            ++i;
+        }
+        const literal = peekNChars(i);
+        dropFrontN(i);
+        if (peekNextChar() == '"') { dropFront(); } // pop ending double quote
+        return literal;
+    }
+
+    void nextFront()
     {
         import std.range : empty, front, popFront, popFrontN;
         import std.uni : isWhite, isAlpha;
         import std.ascii : isDigit;
 
-        import std.algorithm : among, move;
-
-        /// Skip over `n` bytes in `src`.
-        pragma(inline)
-        static Src skipOverNBytes(ref Src src, size_t n)
-            @safe pure nothrow @nogc
-        {
-            const part = src[0 .. n];
-            src = src[n .. $];
-            return part;
-        }
-
-        /// Skip comment.
-        pragma(inline)
-        static void skipComment(ref Src src)
-            @safe pure
-        {
-            assert(src.isNullTerminated);
-            while (!src.front.among('\r', '\n')) // until end of line
-            {
-                src.popFront();
-            }
-        }
-
-        /// Get symbol.
-        pragma(inline)
-        static Src getSymbol(ref Src src)
-            @safe pure nothrow @nogc
-        {
-            assert(src.isNullTerminated);
-            size_t i = 0;
-            while ((!src[i].among!('\0', '(', ')',
-                                   whiteChars))) // NOTE this is faster than !src[i].isWhite
-            {
-                ++i;
-            }
-            return skipOverNBytes(src, i);
-        }
-
-        /// Get numeric literal (number) in integer or decimal form.
-        pragma(inline)
-        static Src getNumber(ref Src src)
-            @safe pure nothrow @nogc
-        {
-            assert(src.isNullTerminated);
-            size_t i = 0;
-            while (src[i].among!('+', '-', '.',
-                                 digitChars)) // NOTE this is faster than src[i].isDigit
-            {
-                ++i;
-            }
-            return skipOverNBytes(src, i);
-        }
-
-        /// Get string literal at `src`.
-        pragma(inline)
-        static Src getStringLiteral(ref Src src)
-            @safe pure nothrow @nogc
-        {
-            assert(src.isNullTerminated);
-            src.popFront();         // pop leading double quote
-            size_t i = 0;
-            while (!src[i].among('\0', '"')) // TODO handle backslash + double-quote
-            {
-                ++i;
-            }
-            const literal = src[0 .. i];
-            src = src[i .. $];  // TODO functionize
-            if (src[0] == '"') { src.popFront(); } // pop ending double quote
-            return literal;
-        }
-
-        /// Skip whitespace.
-        pragma(inline)
-        static Src getWhitespace(ref Src src)
-            @safe pure nothrow @nogc
-        {
-            assert(src.isNullTerminated);
-            size_t i = 0;
-            while (src[i].among!(whiteChars)) // NOTE this is faster than `src[i].isWhite`
-            {
-                ++i;
-            }
-            return skipOverNBytes(src, i);
-        }
-
         while (true)
         {
-            switch (src.front)
+            switch (_input[_off]) // TODO .ptr
             {
             case ';':
-                skipComment(src);   // TODO store comment in Token
+                skipComment();  // TODO store comment in Token
                 if (_includeComments)
                 {
-                    exprs.put(Expr(Token(TOK.comment, src[0 .. 1])));
+                    assert(false, "change skipComment");
+                    // exprs.put(Expr(Token(TOK.comment, src[0 .. 1])));
                 }
                 break;
             case '(':
-                exprs.put(Expr(Token(TOK.leftParen, src[0 .. 1])));
-                src.popFront();
+                exprs.put(Expr(Token(TOK.leftParen, peekNChars(1))));
+                dropFront();
                 ++_depth;
                 break;
             case ')':
                 // NOTE: this is not needed: exprs.put(Expr(Token(TOK.rightParen, src[0 .. 1])));
-                src.popFront();
+                dropFront();
                 --_depth;
                 // NOTE: this is not needed: exprs.popBack();   // pop right paren
 
@@ -249,6 +287,7 @@ struct SUOKIFParser
                 Expr newExpr = Expr(exprs[$ - count].token,
                                     exprs[$ - count + 1 .. $].dup);
                 exprs.popBackN(1 + count); // forget tokens including leftParen
+                import std.algorithm : move;
                 exprs.put(newExpr.move);
 
                 if (_depth == 0) // top-level expression done
@@ -259,29 +298,29 @@ struct SUOKIFParser
 
                 break;
             case '"':
-                const stringLiteral = getStringLiteral(src); // TODO tokenize
+                const stringLiteral = getStringLiteral(); // TODO tokenize
                 exprs.put(Expr(Token(TOK.stringLiteral, stringLiteral)));
                 break;
             case ',':
-                src.popFront();
+                dropFront();
                 exprs.put(Expr(Token(TOK.lispComma)));
                 break;
             case '`':
-                src.popFront();
+                dropFront();
                 exprs.put(Expr(Token(TOK.lispBackQuote)));
                 break;
             case '\'':
-                src.popFront();
+                dropFront();
                 exprs.put(Expr(Token(TOK.lispQuote)));
                 break;
             case '?':
-                src.popFront();
-                const variableSymbol = getSymbol(src);
+                dropFront();
+                const variableSymbol = getSymbol();
                 exprs.put(Expr(Token(TOK.variable, variableSymbol)));
                 break;
             case '@':
-                src.popFront();
-                const variableListSymbol = getSymbol(src);
+                dropFront();
+                const variableListSymbol = getSymbol();
                 exprs.put(Expr(Token(TOK.variableList, variableListSymbol)));
                 break;
                 // std.ascii.isDigit:
@@ -298,7 +337,7 @@ struct SUOKIFParser
             case '+':
             case '-':
             case '.':
-                const number = getNumber(src);
+                const number = getNumber();
                 exprs.put(Expr(Token(TOK.number, number)));
                 break;
                 // from std.ascii.isWhite
@@ -308,8 +347,8 @@ struct SUOKIFParser
             case '\v':
             case '\r':
             case '\f':
-                assert(src.front.isWhite);
-                getWhitespace(src);
+                assert(peekNextChar.isWhite);
+                getWhitespace();
                 if (_includeWhitespace)
                 {
                     exprs.put(Expr(Token(TOK.whitespace, null)));
@@ -324,7 +363,7 @@ struct SUOKIFParser
                 if (true// src.front.isAlpha
                     )
                 {
-                    const symbol = getSymbol(src); // TODO tokenize
+                    const symbol = getSymbol(); // TODO tokenize
                     import std.algorithm : endsWith;
                     if (symbol.endsWith(`Fn`))
                     {
@@ -339,16 +378,16 @@ struct SUOKIFParser
                 {
                     import std.conv : to;
                     assert(false,
-                           `Cannot handle character '` ~ src.front.to!string ~
-                           `' at index:` ~ (&src[0] - &_input[0]).to!string);
+                           `Cannot handle character '` ~ peekNextChar.to!string ~
+                           `' at charater offset:` ~ _off.to!string);
                 }
                 break;
             }
         }
     }
 
-    private:
-    Src src;                    // remaining input
+private:
+    size_t _off;                // current offset in `_input`
     const Src _input;           // input
 
     Exprs exprs;   // current

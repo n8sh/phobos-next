@@ -233,7 +233,7 @@ struct SUOKIFParser
                 assert(!exprs.empty);
 
                 // TODO retroIndexOf
-                size_t count = 0; // number of elements between parens
+                size_t count; // number of elements between parens
                 while (exprs[$ - 1 - count].token.tok != TOK.leftParen)
                 {
                     ++count;
@@ -347,7 +347,7 @@ struct SUOKIFParser
 
     Exprs exprs;   // current
 
-    size_t _depth = 0;          // parenthesis depth
+    size_t _depth;              // parenthesis depth
     bool _endOfFile;            // signals null terminator found
     bool _includeComments = false;
     bool _includeWhitespace = false;

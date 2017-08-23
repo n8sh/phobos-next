@@ -84,7 +84,7 @@ struct SUOKIFParser
         import std.exception : enforce;
         enforce(src.isNullTerminated); // safest to do this check in non-debug mode aswell
 
-        this._whole = src;
+        this._input = src;
         this._includeComments = includeComments;
         this._includeWhitespace = includeWhitespace;
 
@@ -340,7 +340,7 @@ struct SUOKIFParser
                     import std.conv : to;
                     assert(false,
                            `Cannot handle character '` ~ src.front.to!string ~
-                           `' at index:` ~ (&src[0] - &_whole[0]).to!string);
+                           `' at index:` ~ (&src[0] - &_input[0]).to!string);
                 }
                 break;
             }
@@ -349,7 +349,7 @@ struct SUOKIFParser
 
     private:
     Src src;                    // remaining input
-    const Src _whole;           // whole input
+    const Src _input;           // input
 
     Exprs exprs;   // current
 

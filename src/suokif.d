@@ -164,7 +164,7 @@ struct SUOKIFParser
             return skipOverNBytes(src, i);
         }
 
-        /// Get numeric literal (number) in integer or decimal forma.
+        /// Get numeric literal (number) in integer or decimal form.
         static Src getNumber(ref Src src)
             @safe pure nothrow @nogc
         {

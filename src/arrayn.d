@@ -151,7 +151,7 @@ struct ArrayN(E, uint capacity, Checking checking)
     auto ref pushBack(Es...)(Es es) @trusted
         if (Es.length <= capacity)
     {
-        assert(_length + Es.length <= capacity);
+        assert(_length + Es.length <= capacity); // TODO use enforce here?
         foreach (const i, ref e; es)
         {
             import std.algorithm.mutation : moveEmplace;
@@ -161,7 +161,6 @@ struct ArrayN(E, uint capacity, Checking checking)
         return this;
     }
     /// ditto
-    alias append = pushBack;
     alias put = pushBack;       // OutputRange support
 
     /** Add elements `es` to back.

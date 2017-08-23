@@ -191,7 +191,7 @@ struct SUOKIFParser
             }
             const literal = src[0 .. i];
             src = src[i .. $];  // TODO functionize
-            src.popFront();     // pop ending double quote
+            if (src[0] == '"') { src.popFront(); } // pop ending double quote
             return literal;
         }
 

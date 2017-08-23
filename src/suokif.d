@@ -383,7 +383,7 @@ private:
     size_t _offset;             // current offset in `_input`
     const Src _input;           // input
 
-    Exprs exprs;   // current
+    Exprs exprs;                // current
 
     size_t _depth;              // parenthesis depth
     bool _endOfFile;            // signals null terminator found

@@ -150,13 +150,6 @@ private:
         return _input[_off .. _off + n]; // TODO .ptr
     }
 
-    /// Get remaining `string` in input.
-    pragma(inline, true)
-    Src peekRest() const nothrow @nogc
-    {
-        return _input[_off .. $]; // TODO .ptr
-    }
-
     /// Drop next byte in input.
     pragma(inline, true)
     void dropFront() nothrow @nogc

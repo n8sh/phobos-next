@@ -82,9 +82,9 @@ struct SUOKIFParser
 
         import std.algorithm : startsWith;
         immutable magic = x"EFBBBF";
-        if (_input[_off .. $].startsWith(magic))
+        if (_input[_offset .. $].startsWith(magic))
         {
-            _off += magic.length;
+            _offset += magic.length;
         }
 
         import std.exception : enforce;
@@ -133,35 +133,35 @@ private:
     pragma(inline, true)
     char peekNextChar() const nothrow @nogc
     {
-        return _input[_off];    // TODO .ptr
+        return _input[_offset];    // TODO .ptr
     }
 
     /// Get next `char` in input.
     pragma(inline, true)
     char peekNextNthChar(size_t n) const nothrow @nogc
     {
-        return _input[_off + n]; // TODO .ptr
+        return _input[_offset + n]; // TODO .ptr
     }
 
     /// Get next n `chars` in input.
     pragma(inline, true)
     Src peekNChars(size_t n) const nothrow @nogc
     {
-        return _input[_off .. _off + n]; // TODO .ptr
+        return _input[_offset .. _offset + n]; // TODO .ptr
     }
 
     /// Drop next byte in input.
     pragma(inline, true)
     void dropFront() nothrow @nogc
     {
-        _off += 1;
+        _offset += 1;
     }
 
     /// Drop next `n` bytes in input.
     pragma(inline, true)
     void dropFrontN(size_t n) nothrow @nogc
     {
-        _off += n;
+        _offset += n;
     }
 
     /// Skip over `n` bytes in `src`.
@@ -169,7 +169,7 @@ private:
     Src skipOverNBytes(size_t n)
         nothrow @nogc
     {
-        const part = _input[_off .. _off + n]; // TODO .ptr
+        const part = _input[_offset .. _offset + n]; // TODO .ptr
         dropFrontN(n);
         return part;
     }
@@ -180,7 +180,7 @@ private:
     {
         while (!peekNextChar().among('\r', '\n')) // until end of line
         {
-            _off += 1;
+            _offset += 1;
         }
     }
 
@@ -246,7 +246,7 @@ private:
 
         while (true)
         {
-            switch (_input[_off]) // TODO .ptr
+            switch (_input[_offset]) // TODO .ptr
             {
             case ';':
                 skipComment();  // TODO store comment in Token
@@ -372,7 +372,7 @@ private:
                     import std.conv : to;
                     assert(false,
                            `Cannot handle character '` ~ peekNextChar.to!string ~
-                           `' at charater offset:` ~ _off.to!string);
+                           `' at charater offset:` ~ _offset.to!string);
                 }
                 break;
             }
@@ -380,7 +380,7 @@ private:
     }
 
 private:
-    size_t _off;                // current offset in `_input`
+    size_t _offset;             // current offset in `_input`
     const Src _input;           // input
 
     Exprs exprs;   // current

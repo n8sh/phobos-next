@@ -145,7 +145,7 @@ struct ArrayN(E, uint capacity, Checking checking)
         return _store.ptr[0 .. _length].canFind(needle);
     }
 
-    /** Add elements `es` to back.
+    /** Add elements `es` to the back.
         Throws when array becomes full.
         NOTE doesn't invalidate any borrow
      */
@@ -164,7 +164,7 @@ struct ArrayN(E, uint capacity, Checking checking)
     /// ditto
     alias put = pushBack;       // `OutputRange` support
 
-    /** Try to add elements `es` to back.
+    /** Try to add elements `es` to the back.
         NOTE doesn't invalidate any borrow
         Returns: `true` iff all `es` were pushed, `false` otherwise.
      */
@@ -183,7 +183,7 @@ struct ArrayN(E, uint capacity, Checking checking)
     /// ditto
     alias put = pushBack;       // `OutputRange` support
 
-    /** Add elements `es` to back.
+    /** Add elements `es` to the back.
         NOTE doesn't invalidate any borrow
      */
     void opOpAssign(string op, Us...)(Us values)

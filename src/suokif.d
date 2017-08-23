@@ -170,8 +170,11 @@ struct SUOKIFParser
         {
             assert(src.isNullTerminated);
             size_t i = 0;
-            while (src[i].isDigit ||                      // TODO use digitChars instead
-                   src[i].among!('+', '-', '.')) { ++i; } // TODO merge to single call to among
+            while (src[i].among!('+', '-', '.',
+                                 digitChars)) // NOTE this is faster than src[i].isDigit
+            {
+                ++i;
+            }
             return skipOverNBytes(src, i);
         }
 
@@ -182,7 +185,10 @@ struct SUOKIFParser
             assert(src.isNullTerminated);
             src.popFront();         // pop leading double quote
             size_t i = 0;
-            while (!src[i].among('\0', '"')) { ++i; }
+            while (!src[i].among('\0', '"'))
+            {
+                ++i;
+            }
             const literal = src[0 .. i]; src = src[i .. $]; // TODO functionize
             src.popFront();         // pop ending double quote
             return literal;
@@ -194,7 +200,10 @@ struct SUOKIFParser
         {
             assert(src.isNullTerminated);
             size_t i = 0;
-            while (src[i].isWhite) { ++i; }
+            while (src[i].isWhite)
+            {
+                ++i;
+            }
             return skipOverNBytes(src, i);
         }
 

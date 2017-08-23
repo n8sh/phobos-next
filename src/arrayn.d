@@ -441,8 +441,10 @@ version(none) pure unittest     // TODO activate
 }
 
 ///
-@safe pure unittest
+@safe pure nothrow unittest
 {
+    import std.exception : assertNotThrown;
+
     alias E = char;
     enum capacity = 3;
 
@@ -460,7 +462,7 @@ version(none) pure unittest     // TODO activate
     assert(ab.length == 2);
     assert(ab[] == "ab");
     assert(ab[0 .. 1] == "a");
-    ab.pushBack('_');
+    assertNotThrown(ab.pushBack('_'));
     assert(ab[] == "ab_");
     ab.popBack();
     assert(ab[] == "ab");
@@ -468,7 +470,7 @@ version(none) pure unittest     // TODO activate
 
     ab.popBackN(2);
     assert(ab.empty);
-    ab.pushBack('a', 'b');
+    assertNotThrown(ab.pushBack('a', 'b'));
 
     const abc = A("abc");
     assert(!abc.empty);

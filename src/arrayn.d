@@ -84,7 +84,7 @@ struct ArrayN(E, uint capacity, Checking checking)
         private enum shouldAddGCRange = hasIndirections!T; // TODO and only if T's indirections are handled by the GC (not tagged with @nogc)
     }
 
-    @safe pure nothrow @nogc:
+    @safe pure:
 
     /** Construct with elements `es`. */
     version(none)               // TODO needed?
@@ -108,7 +108,7 @@ struct ArrayN(E, uint capacity, Checking checking)
     }
 
     /** Construct with elements in `es`. */
-    this(const(MutableE)[] es) @trusted
+    this(const(MutableE)[] es) @trusted nothrow @nogc
     {
         assert(es.length <= capacity);
         static if (shouldAddGCRange!E)
@@ -121,7 +121,7 @@ struct ArrayN(E, uint capacity, Checking checking)
     }
 
     /** Destruct. */
-    ~this() nothrow @trusted
+    ~this() @trusted nothrow @nogc
     {
         static if (borrowChecked) { assert(!isBorrowed); }
         static if (hasElaborateDestructor!E)
@@ -146,22 +146,42 @@ struct ArrayN(E, uint capacity, Checking checking)
     }
 
     /** Add elements `es` to back.
+        Throws when array becomes full.
         NOTE doesn't invalidate any borrow
      */
-    auto ref pushBack(Es...)(Es es) @trusted
+    void pushBack(Es...)(Es es) @trusted
         if (Es.length <= capacity)
     {
-        assert(_length + Es.length <= capacity); // TODO use enforce here?
+        import std.exception : enforce;
+        enforce(_length + Es.length <= capacity, `Arguments don't fit in array`);
         foreach (const i, ref e; es)
         {
             import std.algorithm.mutation : moveEmplace;
             moveEmplace(e, _store[_length + i]); // TODO remove `move` when compiler does it for us
         }
         _length = cast(typeof(_length))(_length + Es.length); // TODO better?
-        return this;
     }
     /// ditto
-    alias put = pushBack;       // OutputRange support
+    alias put = pushBack;       // `OutputRange` support
+
+    /** Try to add elements `es` to back.
+        NOTE doesn't invalidate any borrow
+        Returns: `true` iff all `es`, `false` otherwise.
+     */
+    bool pushBackMaybe(Es...)(Es es) @trusted
+        if (Es.length <= capacity)
+    {
+        if (_length + Es.length <= capacity) { return false; }
+        foreach (const i, ref e; es)
+        {
+            import std.algorithm.mutation : moveEmplace;
+            moveEmplace(e, _store[_length + i]); // TODO remove `move` when compiler does it for us
+        }
+        _length = cast(typeof(_length))(_length + Es.length); // TODO better?
+        return true;
+    }
+    /// ditto
+    alias put = pushBack;       // `OutputRange` support
 
     /** Add elements `es` to back.
         NOTE doesn't invalidate any borrow
@@ -178,7 +198,7 @@ struct ArrayN(E, uint capacity, Checking checking)
     static if (isMutable!E)
     {
         /** Pop first (front) element. */
-        auto ref popFront()
+        auto ref popFront() nothrow @nogc
         {
             assert(!empty);
             static if (borrowChecked) { assert(!isBorrowed); }
@@ -194,7 +214,7 @@ struct ArrayN(E, uint capacity, Checking checking)
     }
 
     /** Pop last (back) element. */
-    void popBack()
+    void popBack() nothrow @nogc
     {
         assert(!empty);
         static if (borrowChecked) { assert(!isBorrowed); }
@@ -206,7 +226,7 @@ struct ArrayN(E, uint capacity, Checking checking)
     }
 
     /** Pop the `n` last (back) elements. */
-    void popBackN(size_t n)
+    void popBackN(size_t n) nothrow @nogc
     {
         assert(length >= n);
         static if (borrowChecked) { assert(!isBorrowed); }
@@ -220,7 +240,7 @@ struct ArrayN(E, uint capacity, Checking checking)
         }
     }
 
-pragma(inline, true):
+pragma(inline, true) nothrow @nogc:
 
     /** Index operator. */
     ref inout(E) opIndex(size_t i) inout @trusted return scope

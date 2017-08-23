@@ -131,7 +131,7 @@ struct SUOKIFParser
         import std.algorithm : among, move;
 
         /// Skip over `n` bytes in `src`.
-        pragma(inline, true)
+        pragma(inline)
         static Src skipOverNBytes(ref Src src, size_t n)
             @safe pure nothrow @nogc
         {
@@ -141,6 +141,7 @@ struct SUOKIFParser
         }
 
         /// Skip comment.
+        pragma(inline)
         static void skipComment(ref Src src)
             @safe pure
         {
@@ -152,6 +153,7 @@ struct SUOKIFParser
         }
 
         /// Get symbol.
+        pragma(inline)
         static Src getSymbol(ref Src src)
             @safe pure nothrow @nogc
         {
@@ -166,6 +168,7 @@ struct SUOKIFParser
         }
 
         /// Get numeric literal (number) in integer or decimal form.
+        pragma(inline)
         static Src getNumber(ref Src src)
             @safe pure nothrow @nogc
         {
@@ -180,6 +183,7 @@ struct SUOKIFParser
         }
 
         /// Get string literal at `src`.
+        pragma(inline)
         static Src getStringLiteral(ref Src src)
             @safe pure nothrow @nogc
         {
@@ -197,6 +201,7 @@ struct SUOKIFParser
         }
 
         /// Skip whitespace.
+        pragma(inline)
         static Src getWhitespace(ref Src src)
             @safe pure nothrow @nogc
         {

@@ -53,7 +53,7 @@ alias Exprs = ArrayN!(Expr, 128, Checking.viaScope);
 
 /** Returns: true if `s` is null-terminated (ending with `'\0'`).
 
-    Used to verify input to parser make use of sentinel-based search.
+    Used to verify input to parsers that make use of sentinel-based search.
 
     See also: https://en.wikipedia.org/wiki/Sentinel_value
  */

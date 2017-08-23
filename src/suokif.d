@@ -122,7 +122,7 @@ struct SUOKIFParser
 
         /// Skip over `n` bytes in `src`.
         static Src skipOverNBytes(ref Src src, size_t n)
-        @safe pure nothrow @nogc
+            @safe pure nothrow @nogc
         {
             const part = src[0 .. n];
             src = src[n .. $];
@@ -131,7 +131,7 @@ struct SUOKIFParser
 
         /// Skip comment.
         static void skipComment(ref Src src)
-        @safe pure
+            @safe pure
         {
             assert(src.isNullTerminated);
             while (!src.front.among('\r', '\n')) // until end of line

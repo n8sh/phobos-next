@@ -131,6 +131,7 @@ struct SUOKIFParser
         import std.algorithm : among, move;
 
         /// Skip over `n` bytes in `src`.
+        pragma(inline, true)
         static Src skipOverNBytes(ref Src src, size_t n)
             @safe pure nothrow @nogc
         {

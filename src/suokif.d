@@ -201,7 +201,7 @@ struct SUOKIFParser
         {
             assert(src.isNullTerminated);
             size_t i = 0;
-            while (src[i].isWhite)
+            while (src[i].among!(whiteChars)) // NOTE this is faster than `src[i].isWhite`
             {
                 ++i;
             }

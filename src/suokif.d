@@ -141,8 +141,7 @@ struct SUOKIFParser
         }
 
         import std.meta : AliasSeq;
-        // from std.ascii.isWhite. TODO use and benchmark:
-        alias whiteChars = AliasSeq!(' ', // 0x20
+        // from std.ascii.isWhite alias whiteChars = AliasSeq!(' ', // 0x20
                                      '\t', // (0x09)
                                      '\n', // (0x0a)
                                      '\v', // (0x0b)

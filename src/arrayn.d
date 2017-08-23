@@ -166,7 +166,7 @@ struct ArrayN(E, uint capacity, Checking checking)
 
     /** Try to add elements `es` to back.
         NOTE doesn't invalidate any borrow
-        Returns: `true` iff all `es`, `false` otherwise.
+        Returns: `true` iff all `es` were pushed, `false` otherwise.
      */
     bool pushBackMaybe(Es...)(Es es) @trusted
         if (Es.length <= capacity)

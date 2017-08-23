@@ -185,12 +185,13 @@ struct SUOKIFParser
             assert(src.isNullTerminated);
             src.popFront();         // pop leading double quote
             size_t i = 0;
-            while (!src[i].among('\0', '"'))
+            while (!src[i].among('\0', '"')) // TODO handle backslash + double-quote
             {
                 ++i;
             }
-            const literal = src[0 .. i]; src = src[i .. $]; // TODO functionize
-            src.popFront();         // pop ending double quote
+            const literal = src[0 .. i];
+            src = src[i .. $];  // TODO functionize
+            src.popFront();     // pop ending double quote
             return literal;
         }
 

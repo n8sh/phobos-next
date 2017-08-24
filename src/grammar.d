@@ -27,16 +27,16 @@ enum Usage : ubyte
     call
 }
 
-/// ================ Articles
+/// ================ English Articles
+
+/** English indefinite articles. */
+enum englishIndefiniteArticles = [`a`, `an`];
 
 /** English definite articles. */
 enum englishDefiniteArticles = [`the`];
 
 /** English definite articles. */
 enum englishArticles = englishIndefiniteArticles ~ englishDefiniteArticles;
-
-/** English indefinite articles. */
-enum englishIndefiniteArticles = [`a`, `an`];
 
 /** Check if $(D c) is a Vowel. */
 bool isEnglishIndefiniteArticle(C)(C c)
@@ -57,6 +57,39 @@ bool isEnglishArticle(C)(C c)
     if (isSomeChar!C)
 {
     return cast(bool)c.among!(`a`, `an`, `the`); // TODO reuse englishArticles
+}
+
+/// ================ German Articles
+
+/** German indefinite articles. */
+enum germanIndefiniteArticles = [`ein`, `eine`, `einer`, `einem`, `eines`];
+
+/** German definite articles. */
+enum germanDefiniteArticles = [`der`, `die`, `das`, `den`, `dem`, `des`];
+
+/** German definite articles. */
+enum germanArticles = germanIndefiniteArticles ~ germanDefiniteArticles;
+
+/** Check if $(D c) is a Vowel. */
+bool isGermanIndefiniteArticle(C)(C c)
+    if (isSomeChar!C)
+{
+    return cast(bool)c.among!(`ein`, `eine`, `einer`, `einem`, `eines`); // TODO reuse germanIndefiniteArticles
+}
+
+/** Check if $(D c) is a Vowel. */
+bool isGermanDefiniteArticle(C)(C c)
+    if (isSomeChar!C)
+{
+    return cast(bool)c.among!(`der`, `die`, `das`, `den`, `dem`, `des`); // TODO reuse germanDefiniteArticles
+}
+
+/** Check if $(D c) is a Vowel. */
+bool isGermanArticle(C)(C c)
+    if (isSomeChar!C)
+{
+    return cast(bool)c.among!(`ein`, `eine`, `einer`, `einem`, `eines`,
+                              `der`, `die`, `das`, `den`, `dem`, `des`); // TODO reuse germanArticles
 }
 
 /// ================ Vowels

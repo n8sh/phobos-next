@@ -6,6 +6,8 @@
     TODO `isSomeString` => `isStringLike`
 
     TODO Use static foreach to add declarations
+
+    See also: http://forum.dlang.org/thread/mgdtuxkuswfxxoithwxh@forum.dlang.org
 */
 module grammar;
 

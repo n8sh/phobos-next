@@ -144,16 +144,14 @@ bool isSwedishVowel(C)(C c)
 bool isSwedishHardVowel(C)(C c)
     if (isSomeChar!C)
 {
-    return cast(bool)c.among!('a', 'o', 'u', 'å',
-                              'A', 'O', 'U', 'Å');
+    return cast(bool)c.among!(swedishHardVowels);
 }
 
 /** Check if $(D c) is a Swedish soft vowel. */
 bool isSwedishSoftVowel(C)(C c)
     if (isSomeChar!C)
 {
-    return cast(bool)c.among!('e', 'i', 'y', 'ä', 'ö',
-                              'E', 'I', 'Y', 'Ä', 'Ö');
+    return cast(bool)c.among!(swedishSoftVowels);
 }
 
 /** Spanish Accented Vowels. */

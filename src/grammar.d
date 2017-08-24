@@ -635,18 +635,20 @@ enum Case : ubyte
 enum englishSubjectPronouns = [`I`, // 1st-person singular
                                `you`, // 2nd-person singular
                                `he`, `she`, `it`, // 3rd-person singular
-                               `we`,
-                               `they`,
-                               `who`];
+                               `we`,              // 1st-person plural
+                               `they`,            // 2nd-person plural
+                               `what`, // interrogate
+                               `who`]; // possesive
 
 /** Swedish Subject Pronouns.
     See also: https://en.wikipedia.org/wiki/Subject_pronoun
 */
-enum swedishSubjectPronouns = [`jag`, `du`,
-                               `han`, `hon`, `den`, `det`,
-                               `vi`,
-                               `de`,
-                               `vad`,
+enum swedishSubjectPronouns = [`jag`, // 1st-person singular
+                               `du`,  // 2nd-person singular
+                               `han`, `hon`, `den`, `det`, // 1st-person singular
+                               `vi`,                       // 2nd-person plural
+                               `de`,                       // 3rd-person plural
+                               `vad`,                      // interrogate
                                `vem`];
 
 /** English Object Pronouns.

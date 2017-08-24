@@ -5,6 +5,8 @@
 */
 module suokif;
 
+version = benchmark;
+
 /** SUO-KIF (Lisp) Token Type. */
 enum TOK
 {
@@ -120,13 +122,17 @@ struct SUOKIFParser
 
     import std.meta : AliasSeq;
     // from std.ascii.isWhite
+    alias endOfLineChars = AliasSeq!('\n', // (0x0a)
+                                     '\r', // (0x0c)
+        );
     alias whiteChars = AliasSeq!(' ', // 0x20
                                  '\t', // (0x09)
                                  '\n', // (0x0a)
                                  '\v', // (0x0b)
                                  '\r', // (0x0c)
-                                 '\f'); // (0x0d)
-    alias digitChars = AliasSeq!('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'); // TODO use benchmark
+                                 '\f' // (0x0d)
+        );
+    alias digitChars = AliasSeq!('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
 
 private:
 
@@ -175,11 +181,11 @@ private:
         return part;
     }
 
-    /// Skip comment.
+    /// Skip line comment.
     pragma(inline)
-    void skipComment()
+    void skipLineComment()
     {
-        while (!peekNext().among('\r', '\n')) // until end of line
+        while (!peekNext().among(endOfLineChars))
         {
             _offset += 1;
         }
@@ -191,7 +197,7 @@ private:
     {
         size_t i = 0;
         while ((!peekNextNth(i).among!('\0', '(', ')',
-                                           whiteChars))) // NOTE this is faster than !src[i].isWhite
+                                       whiteChars))) // NOTE this is faster than !src[i].isWhite
         {
             ++i;
         }
@@ -204,7 +210,7 @@ private:
     {
         size_t i = 0;
         while (peekNextNth(i).among!('+', '-', '.',
-                                         digitChars)) // NOTE this is faster than src[i].isDigit
+                                     digitChars)) // NOTE this is faster than src[i].isDigit
         {
             ++i;
         }
@@ -250,10 +256,10 @@ private:
             switch (_input[_offset]) // TODO .ptr
             {
             case ';':
-                skipComment();  // TODO store comment in Token
+                skipLineComment();  // TODO store comment in Token
                 if (_includeComments)
                 {
-                    assert(false, "change skipComment");
+                    assert(false, "change skipLineComment");
                     // exprs.put(Expr(Token(TOK.comment, src[0 .. 1])));
                 }
                 break;
@@ -420,8 +426,6 @@ unittest
     {
     }
 }
-
-version = benchmark;
 
 /** Read all SUO-KIF files (.kif) located under `rootDirPath`.
  */

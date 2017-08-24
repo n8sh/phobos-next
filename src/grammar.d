@@ -637,8 +637,8 @@ enum englishSubjectPronouns = [`I`, // 1st-person singular
                                `he`, `she`, `it`, // 3rd-person singular
                                `we`,              // 1st-person plural
                                `they`,            // 2nd-person plural
-                               `what`, // interrogate
-                               `who`]; // possesive
+                               `what`,            // interrogate singular (Object)
+                               `who`];            // interrogate singular
 
 /** Swedish Subject Pronouns.
     See also: https://en.wikipedia.org/wiki/Subject_pronoun
@@ -648,8 +648,9 @@ enum swedishSubjectPronouns = [`jag`, // 1st-person singular
                                `han`, `hon`, `den`, `det`, // 3rd-person singular
                                `vi`,                       // 1st-person plural
                                `de`,                       // 2nd-person plural
-                               `vad`,                      // interrogate
-                               `vem`];
+                               `vad`,                      // interrogate singular (Object)
+                               `vem`,                      // interrogate singular
+                               `vilka`];                   // interrogate plural
 
 /** English Object Pronouns.
     See also: https://en.wikipedia.org/wiki/Object_pronoun

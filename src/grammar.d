@@ -96,15 +96,14 @@ bool isGermanArticle(C)(C c)
 /// ================ Vowels
 
 /** English Vowels. */
-enum englishVowels = ['a', 'o', 'u', 'e', 'i', 'y',
-                      'A', 'O', 'U', 'E', 'I', 'Y'];
+enum englishVowels = AliasSeq!('a', 'o', 'u', 'e', 'i', 'y',
+                               'A', 'O', 'U', 'E', 'I', 'Y');
 
 /** Check if $(D c) is a Vowel. */
 bool isEnglishVowel(C)(C c)
     if (isSomeChar!C)
 {
-    return cast(bool)c.among!('a', 'o', 'u', 'e', 'i', 'y',
-                              'A', 'O', 'U', 'E', 'I', 'Y'); // TODO Reuse englishVowels and hash-table
+    return cast(bool)c.among!(englishVowels);
 }
 
 /** English Accented Vowels. */
@@ -208,28 +207,26 @@ unittest
 enum EnglishConsonant { b, c, d, f, g, h, j, k, l, m, n, p, q, r, s, t, v, w, x }
 
 /** English Consontants. */
-enum englishConsonants = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x',
-                          'B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X'];
+enum englishConsonants = AliasSeq!('b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x',
+                                   'B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X');
 
 /** Check if $(D c) is a Consonant. */
 bool isEnglishConsonant(C)(C c)
     if (isSomeChar!C)
 {
     // TODO Reuse englishConsonants and hash-table
-    return cast(bool)c.among!('b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x',
-                              'B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X');
+    return cast(bool)c.among!(englishConsonants);
 }
 alias isSwedishConsonant = isEnglishConsonant;
 
 unittest
 {
-    // TODO
-    // assert('k'.isEnglishConsonant);
-    // assert(!'å'.isEnglishConsonant);
+    assert('k'.isEnglishConsonant);
+    assert(!'å'.isEnglishConsonant);
 }
 
 /** English Letters. */
-enum englishLetters = englishVowels ~ englishConsonants;
+enum englishLetters = AliasSeq!(englishVowels, englishConsonants);
 
 /** Check if $(D c) is a Letter. */
 bool isEnglishLetter(C)(C c)

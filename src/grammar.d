@@ -15,6 +15,7 @@ import std.algorithm.comparison: among;
 import std.algorithm: uniq, map, find, canFind, startsWith, endsWith, among;
 import std.array: array;
 import std.conv;
+import std.meta : AliasSeq;
 
 import languages: Lang;
 
@@ -32,33 +33,30 @@ enum Usage : ubyte
 /// ================ English Articles
 
 /** English indefinite articles. */
-enum englishIndefiniteArticles = [`a`, `an`];
+enum englishIndefiniteArticles = AliasSeq!(`a`, `an`);
 
 /** English definite articles. */
-enum englishDefiniteArticles = [`the`];
+enum englishDefiniteArticles = AliasSeq!(`the`);
 
 /** English definite articles. */
-enum englishArticles = englishIndefiniteArticles ~ englishDefiniteArticles;
+enum englishArticles = AliasSeq!(englishIndefiniteArticles, englishDefiniteArticles);
 
-/** Check if $(D c) is a Vowel. */
 bool isEnglishIndefiniteArticle(C)(C c)
-    if (isSomeChar!C)
+    if (isSomeString!C)
 {
-    return cast(bool)c.among!(`a`, `an`); // TODO reuse englishIndefiniteArticles
+    return cast(bool)c.among!(EnglishIndefiniteArticle);
 }
 
-/** Check if $(D c) is a Vowel. */
 bool isEnglishDefiniteArticle(C)(C c)
-    if (isSomeChar!C)
+    if (isSomeString!C)
 {
-    return cast(bool)c.among!(`the`); // TODO reuse englishDefiniteArticles
+    return cast(bool)c.among!(englishDefiniteArticles);
 }
 
-/** Check if $(D c) is a Vowel. */
 bool isEnglishArticle(C)(C c)
-    if (isSomeChar!C)
+    if (isSomeString!C)
 {
-    return cast(bool)c.among!(`a`, `an`, `the`); // TODO reuse englishArticles
+    return cast(bool)c.among!(englishArticles);
 }
 
 /// ================ German Articles
@@ -74,21 +72,21 @@ enum germanArticles = germanIndefiniteArticles ~ germanDefiniteArticles;
 
 /** Check if $(D c) is a Vowel. */
 bool isGermanIndefiniteArticle(C)(C c)
-    if (isSomeChar!C)
+    if (isSomeString!C)
 {
     return cast(bool)c.among!(`ein`, `eine`, `einer`, `einem`, `eines`); // TODO reuse germanIndefiniteArticles
 }
 
 /** Check if $(D c) is a Vowel. */
 bool isGermanDefiniteArticle(C)(C c)
-    if (isSomeChar!C)
+    if (isSomeString!C)
 {
     return cast(bool)c.among!(`der`, `die`, `das`, `den`, `dem`, `des`); // TODO reuse germanDefiniteArticles
 }
 
 /** Check if $(D c) is a Vowel. */
 bool isGermanArticle(C)(C c)
-    if (isSomeChar!C)
+    if (isSomeString!C)
 {
     return cast(bool)c.among!(`ein`, `eine`, `einer`, `einem`, `eines`,
                               `der`, `die`, `das`, `den`, `dem`, `des`); // TODO reuse germanArticles

@@ -637,7 +637,6 @@ enum englishSubjectPronouns = [`I`, // 1st-person singular
                                `he`, `she`, `it`, // 3rd-person singular
                                `we`,
                                `they`,
-                               `what`,
                                `who`];
 
 /** Swedish Subject Pronouns.

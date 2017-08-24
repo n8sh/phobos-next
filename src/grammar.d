@@ -655,11 +655,12 @@ enum swedishSubjectPronouns = [`jag`, // 1st-person singular
 /** English Object Pronouns.
     See also: https://en.wikipedia.org/wiki/Object_pronoun
 */
-enum englishObjectPronouns = [`me`,
-                              `him,`, `her`,
-                              `us`,
-                              `them`,
-                              `whom`];
+enum englishObjectPronouns = [`me`, // 1st-person singular
+                              `you`, // 2nd-person singular
+                              `him,`, `her`, // 3rd-person singular
+                              `us`,          // 1st-person plural
+                              `them`,        // 2nd-person plural
+                              `whom`];       // interrogate singular
 
 /** Swedish Object Pronouns.
     See also: https://en.wikipedia.org/wiki/Object_pronoun

@@ -107,13 +107,13 @@ bool isEnglishVowel(C)(C c)
 }
 
 /** English Accented Vowels. */
-enum englishAccentedVowels = ['é'];
+enum englishAccentedVowels = AliasSeq!('é');
 
 /** Check if $(D c) is an Accented Vowel. */
 bool isEnglishAccentedVowel(C)(C c)
     if (isSomeChar!C)
 {
-    return cast(bool)c.among!('é'); // TODO Reuse englishAccentedVowels and hash-table
+    return cast(bool)c.among!(englishAccentedVowels);
 }
 
 unittest
@@ -201,12 +201,12 @@ unittest
     assert('å'.isSwedishVowel);
 }
 
-/** English Consonants.
+/** English consonant type.
     See also: https://simple.wikipedia.org/wiki/Consonant
 */
 enum EnglishConsonant { b, c, d, f, g, h, j, k, l, m, n, p, q, r, s, t, v, w, x }
 
-/** English Consontants. */
+/** English consontant characters. */
 enum englishConsonants = AliasSeq!('b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x',
                                    'B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X');
 
@@ -225,22 +225,21 @@ unittest
     assert(!'å'.isEnglishConsonant);
 }
 
-/** English Letters. */
-enum englishLetters = AliasSeq!(englishVowels, englishConsonants);
+/** English letters. */
+enum englishletters = AliasSeq!(englishVowels, englishConsonants);
 
-/** Check if $(D c) is a Letter. */
+/** Check if $(D c) is a letter. */
 bool isEnglishLetter(C)(C c)
     if (isSomeChar!C)
 {
-    return cast(bool)c.among!(englishLetters);
+    return cast(bool)c.among!(englishletters);
 }
 alias isEnglish = isEnglishLetter;
 
 unittest
 {
-    // TODO
-    // assert('k'.isEnglishLetter);
-    // assert(!'å'.isEnglishLetter);
+    assert('k'.isEnglishLetter);
+    assert(!'å'.isEnglishLetter);
 }
 
 enum englishDoubleConsonants = [`bb`, `dd`, `ff`, `gg`, `mm`, `nn`, `pp`, `rr`, `tt`, `ck`, `ft`];

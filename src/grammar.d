@@ -122,24 +122,22 @@ unittest
 }
 
 /** Swedish Hard Vowels. */
-enum swedishHardVowels = ['a', 'o', 'u', 'å',
-                          'A', 'O', 'U', 'Å'];
+enum swedishHardVowels = AliasSeq!('a', 'o', 'u', 'å',
+                                   'A', 'O', 'U', 'Å');
 
 /** Swedish Soft Vowels. */
-enum swedishSoftVowels = ['e', 'i', 'y', 'ä', 'ö',
-                          'E', 'I', 'Y', 'Ä', 'Ö'];
+enum swedishSoftVowels = AliasSeq!('e', 'i', 'y', 'ä', 'ö',
+                                   'E', 'I', 'Y', 'Ä', 'Ö');
 
 /** Swedish Vowels. */
-enum swedishVowels = (swedishHardVowels ~
-                      swedishSoftVowels);
+enum swedishVowels = AliasSeq!(swedishHardVowels,
+                               swedishSoftVowels);
 
 /** Check if $(D c) is a Swedish Vowel. */
 bool isSwedishVowel(C)(C c)
     if (isSomeChar!C)
 {
-    // TODO Reuse swedishVowels and hash-table
-    return cast(bool)c.among!('a', 'o', 'u', 'å', 'e', 'i', 'y', 'ä', 'ö',
-                              'A', 'O', 'U', 'Å', 'E', 'I', 'Y', 'Ä', 'Ö');
+    return cast(bool)c.among!(swedishVowels);
 }
 
 /** Check if $(D c) is a Swedish hard vowel. */

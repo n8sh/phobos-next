@@ -132,21 +132,21 @@ private:
 
     /// Get next `char` in input.
     pragma(inline, true)
-    char peekNextChar() const nothrow @nogc
+    char peekNext() const nothrow @nogc
     {
         return _input[_offset];    // TODO .ptr
     }
 
     /// Get next `char` in input.
     pragma(inline, true)
-    char peekNextNthChar(size_t n) const nothrow @nogc
+    char peekNextNth(size_t n) const nothrow @nogc
     {
         return _input[_offset + n]; // TODO .ptr
     }
 
     /// Get next n `chars` in input.
     pragma(inline, true)
-    Src peekNChars(size_t n) const nothrow @nogc
+    Src peekNextsN(size_t n) const nothrow @nogc
     {
         return _input[_offset .. _offset + n]; // TODO .ptr
     }
@@ -167,7 +167,7 @@ private:
 
     /// Skip over `n` bytes in `src`.
     pragma(inline)
-    Src skipOverNBytes(size_t n)
+    Src skipOverN(size_t n)
         nothrow @nogc
     {
         const part = _input[_offset .. _offset + n]; // TODO .ptr
@@ -179,7 +179,7 @@ private:
     pragma(inline)
     void skipComment()
     {
-        while (!peekNextChar().among('\r', '\n')) // until end of line
+        while (!peekNext().among('\r', '\n')) // until end of line
         {
             _offset += 1;
         }
@@ -190,12 +190,12 @@ private:
     Src getSymbol() nothrow @nogc
     {
         size_t i = 0;
-        while ((!peekNextNthChar(i).among!('\0', '(', ')',
+        while ((!peekNextNth(i).among!('\0', '(', ')',
                                            whiteChars))) // NOTE this is faster than !src[i].isWhite
         {
             ++i;
         }
-        return skipOverNBytes(i);
+        return skipOverN(i);
     }
 
     /// Get numeric literal (number) in integer or decimal form.
@@ -203,12 +203,12 @@ private:
     Src getNumber() nothrow @nogc
     {
         size_t i = 0;
-        while (peekNextNthChar(i).among!('+', '-', '.',
+        while (peekNextNth(i).among!('+', '-', '.',
                                          digitChars)) // NOTE this is faster than src[i].isDigit
         {
             ++i;
         }
-        return skipOverNBytes(i);
+        return skipOverN(i);
     }
 
     /// Skip whitespace.
@@ -216,11 +216,11 @@ private:
     Src getWhitespace() nothrow @nogc
     {
         size_t i = 0;
-        while (peekNextNthChar(i).among!(whiteChars)) // NOTE this is faster than `src[i].isWhite`
+        while (peekNextNth(i).among!(whiteChars)) // NOTE this is faster than `src[i].isWhite`
         {
             ++i;
         }
-        return skipOverNBytes(i);
+        return skipOverN(i);
     }
 
     /// Get string literal at `src`.
@@ -229,13 +229,13 @@ private:
     {
         dropFront();
         size_t i = 0;
-        while (!peekNextNthChar(i).among('\0', '"')) // TODO handle backslash + double-quote
+        while (!peekNextNth(i).among('\0', '"')) // TODO handle backslash + double-quote
         {
             ++i;
         }
-        const literal = peekNChars(i);
+        const literal = peekNextsN(i);
         dropFrontN(i);
-        if (peekNextChar() == '"') { dropFront(); } // pop ending double quote
+        if (peekNext() == '"') { dropFront(); } // pop ending double quote
         return literal;
     }
 
@@ -258,7 +258,7 @@ private:
                 }
                 break;
             case '(':
-                exprs.put(Expr(Token(TOK.leftParen, peekNChars(1))));
+                exprs.put(Expr(Token(TOK.leftParen, peekNextsN(1))));
                 dropFront();
                 ++_depth;
                 break;
@@ -341,7 +341,7 @@ private:
             case '\v':
             case '\r':
             case '\f':
-                assert(peekNextChar.isWhite);
+                assert(peekNext.isWhite);
                 getWhitespace();
                 if (_includeWhitespace)
                 {
@@ -372,7 +372,7 @@ private:
                 {
                     import std.conv : to;
                     assert(false,
-                           `Cannot handle character '` ~ peekNextChar.to!string ~
+                           `Cannot handle character '` ~ peekNext.to!string ~
                            `' at charater offset:` ~ _offset.to!string);
                 }
                 break;

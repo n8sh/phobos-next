@@ -632,9 +632,9 @@ enum Case : ubyte
 /** English Subject Pronouns.
    See also: https://en.wikipedia.org/wiki/Subject_pronoun
 */
-enum englishSubjectPronouns = [`I`,
-                               `you`,
-                               `he`, `she`, `it`,
+enum englishSubjectPronouns = [`I`, // 1st-person singular
+                               `you`, // 2nd-person singular
+                               `he`, `she`, `it`, // 3rd-person singular
                                `we`,
                                `they`,
                                `what`,
@@ -662,7 +662,7 @@ enum englishObjectPronouns = [`me`,
 /** Swedish Object Pronouns.
     See also: https://en.wikipedia.org/wiki/Object_pronoun
 */
-enum swedishObjectPronouns = [`mig`,
+enum swedishObjectPronouns = [`mig`, `dig`,
                               `honom,`, `henne`,
                               `oss`,
                               `dem`];

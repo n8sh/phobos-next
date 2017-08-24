@@ -62,34 +62,33 @@ bool isEnglishArticle(C)(C c)
 /// ================ German Articles
 
 /** German indefinite articles. */
-enum germanIndefiniteArticles = [`ein`, `eine`, `einer`, `einem`, `eines`];
+enum germanIndefiniteArticles = AliasSeq!(`ein`, `eine`, `einer`, `einen`, `einem`, `eines`);
 
 /** German definite articles. */
-enum germanDefiniteArticles = [`der`, `die`, `das`, `den`, `dem`, `des`];
+enum germanDefiniteArticles = AliasSeq!(`der`, `die`, `das`, `den`, `dem`, `des`);
 
 /** German definite articles. */
-enum germanArticles = germanIndefiniteArticles ~ germanDefiniteArticles;
+enum germanArticles = AliasSeq!(germanIndefiniteArticles, germanDefiniteArticles);
 
 /** Check if $(D c) is a Vowel. */
 bool isGermanIndefiniteArticle(C)(C c)
     if (isSomeString!C)
 {
-    return cast(bool)c.among!(`ein`, `eine`, `einer`, `einem`, `eines`); // TODO reuse germanIndefiniteArticles
+    return cast(bool)c.among!(germanIndefiniteArticles);
 }
 
 /** Check if $(D c) is a Vowel. */
 bool isGermanDefiniteArticle(C)(C c)
     if (isSomeString!C)
 {
-    return cast(bool)c.among!(`der`, `die`, `das`, `den`, `dem`, `des`); // TODO reuse germanDefiniteArticles
+    return cast(bool)c.among!(germanDefiniteArticles);
 }
 
 /** Check if $(D c) is a Vowel. */
 bool isGermanArticle(C)(C c)
     if (isSomeString!C)
 {
-    return cast(bool)c.among!(`ein`, `eine`, `einer`, `einem`, `eines`,
-                              `der`, `die`, `das`, `den`, `dem`, `des`); // TODO reuse germanArticles
+    return cast(bool)c.among!(germanArticles);
 }
 
 /// ================ Vowels

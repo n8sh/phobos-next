@@ -645,9 +645,9 @@ enum englishSubjectPronouns = [`I`, // 1st-person singular
 */
 enum swedishSubjectPronouns = [`jag`, // 1st-person singular
                                `du`,  // 2nd-person singular
-                               `han`, `hon`, `den`, `det`, // 1st-person singular
-                               `vi`,                       // 2nd-person plural
-                               `de`,                       // 3rd-person plural
+                               `han`, `hon`, `den`, `det`, // 3rd-person singular
+                               `vi`,                       // 1st-person plural
+                               `de`,                       // 2nd-person plural
                                `vad`,                      // interrogate
                                `vem`];
 

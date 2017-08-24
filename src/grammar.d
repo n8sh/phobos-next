@@ -4,6 +4,8 @@
     Note that ! and ? are more definite sentence enders than .
 
     TODO `isSomeString` => `isStringLike`
+
+    TODO Use static foreach to add declarations
 */
 module grammar;
 

@@ -27,6 +27,40 @@ enum Usage : ubyte
     call
 }
 
+/// ================ Articles
+
+/** English definite articles. */
+enum englishDefiniteArticles = [`the`];
+
+/** English definite articles. */
+enum englishArticles = englishIndefiniteArticles ~ englishDefiniteArticles;
+
+/** English indefinite articles. */
+enum englishIndefiniteArticles = [`a`, `an`];
+
+/** Check if $(D c) is a Vowel. */
+bool isEnglishIndefiniteArticle(C)(C c)
+    if (isSomeChar!C)
+{
+    return cast(bool)c.among!(`a`, `an`); // TODO reuse englishIndefiniteArticles
+}
+
+/** Check if $(D c) is a Vowel. */
+bool isEnglishDefiniteArticle(C)(C c)
+    if (isSomeChar!C)
+{
+    return cast(bool)c.among!(`the`); // TODO reuse englishDefiniteArticles
+}
+
+/** Check if $(D c) is a Vowel. */
+bool isEnglishArticle(C)(C c)
+    if (isSomeChar!C)
+{
+    return cast(bool)c.among!(`a`, `an`, `the`); // TODO reuse englishArticles
+}
+
+/// ================ Vowels
+
 /** English Vowels. */
 enum englishVowels = ['a', 'o', 'u', 'e', 'i', 'y',
                       'A', 'O', 'U', 'E', 'I', 'Y'];

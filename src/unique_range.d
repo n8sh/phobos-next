@@ -413,13 +413,12 @@ private struct FilterUniqueResult(alias pred, Range)
 }
 
 // TODO move these hidden behind template defs of takeUnique
-import std.range : Take;
 import std.typecons : Unqual;
 import std.range.primitives : isInputRange, isInfinite, hasSlicing;
 
 /// Unique take.
-Take!R takeUnique(R)(R input, size_t n)
-    if (is(R T == Take!T))
+UniqueTake!R takeUnique(R)(R input, size_t n)
+    if (is(R T == UniqueTake!T))
 {
     import std.algorithm.mutation : move;
     import std.algorithm.comparison : min;
@@ -428,14 +427,230 @@ Take!R takeUnique(R)(R input, size_t n)
 }
 
 /// ditto
-Take!(R) takeUnique(R)(R input, size_t n)
+UniqueTake!(R) takeUnique(R)(R input, size_t n)
     if (isInputRange!(Unqual!R) &&
         (isInfinite!(Unqual!R) ||
          !hasSlicing!(Unqual!R) &&
-         !is(R T == Take!T)))
+         !is(R T == UniqueTake!T)))
 {
     import std.algorithm.mutation : move;
-    return Take!R(move(input), n); // TODO remove `move` when compiler does it for us
+    return UniqueTake!R(move(input), n); // TODO remove `move` when compiler does it for us
+}
+
+struct UniqueTake(Range)
+    if (isInputRange!(Unqual!Range) &&
+        //take _cannot_ test hasSlicing on infinite ranges, because hasSlicing uses
+        //take for slicing infinite ranges.
+        !((!isInfinite!(Unqual!Range) && hasSlicing!(Unqual!Range)) || is(Range T == UniqueTake!T)))
+{
+    import std.range.primitives : isForwardRange, hasAssignableElements, ElementType, hasMobileElements, isRandomAccessRange;
+
+    private alias R = Unqual!Range;
+
+    /// User accessible in read and write
+    public R source;
+
+    private size_t _maxAvailable;
+
+    alias Source = R;
+
+    this(R source, size_t _maxAvailable)
+    {
+        import std.algorithm.mutation : move;
+        this.source = move(source);
+        this._maxAvailable = _maxAvailable;
+    }
+
+    /// Range primitives
+    @property bool empty()
+    {
+        return _maxAvailable == 0 || source.empty;
+    }
+
+    /// ditto
+    @property auto ref front()
+    {
+        assert(!empty,
+            "Attempting to fetch the front of an empty "
+            ~ UniqueTake.stringof);
+        return source.front;
+    }
+
+    /// ditto
+    void popFront()
+    {
+        assert(!empty,
+            "Attempting to popFront() past the end of a "
+            ~ UniqueTake.stringof);
+        source.popFront();
+        --_maxAvailable;
+    }
+
+    static if (isForwardRange!R)
+        /// ditto
+        @property UniqueTake save()
+        {
+            return UniqueTake(source.save, _maxAvailable);
+        }
+
+    static if (hasAssignableElements!R)
+        /// ditto
+        @property auto front(ElementType!R v)
+        {
+            assert(!empty,
+                "Attempting to assign to the front of an empty "
+                ~ UniqueTake.stringof);
+            // This has to return auto instead of void because of Bug 4706.
+            source.front = v;
+        }
+
+    static if (hasMobileElements!R)
+    {
+        /// ditto
+        auto moveFront()
+        {
+            assert(!empty,
+                "Attempting to move the front of an empty "
+                ~ UniqueTake.stringof);
+            return source.moveFront();
+        }
+    }
+
+    static if (isInfinite!R)
+    {
+        /// ditto
+        @property size_t length() const
+        {
+            return _maxAvailable;
+        }
+
+        /// ditto
+        alias opDollar = length;
+
+        //Note: Due to UniqueTake/hasSlicing circular dependency,
+        //This needs to be a restrained template.
+        /// ditto
+        auto opSlice()(size_t i, size_t j)
+        if (hasSlicing!R)
+        {
+            assert(i <= j, "Invalid slice bounds");
+            assert(j <= length, "Attempting to slice past the end of a "
+                ~ UniqueTake.stringof);
+            return source[i .. j];
+        }
+    }
+    else static if (hasLength!R)
+    {
+        /// ditto
+        @property size_t length()
+        {
+            import std.algorithm.comparison : min;
+            return min(_maxAvailable, source.length);
+        }
+
+        alias opDollar = length;
+    }
+
+    static if (isRandomAccessRange!R)
+    {
+        /// ditto
+        void popBack()
+        {
+            assert(!empty,
+                "Attempting to popBack() past the beginning of a "
+                ~ UniqueTake.stringof);
+            --_maxAvailable;
+        }
+
+        /// ditto
+        @property auto ref back()
+        {
+            assert(!empty,
+                "Attempting to fetch the back of an empty "
+                ~ UniqueTake.stringof);
+            return source[this.length - 1];
+        }
+
+        /// ditto
+        auto ref opIndex(size_t index)
+        {
+            assert(index < length,
+                "Attempting to index out of the bounds of a "
+                ~ UniqueTake.stringof);
+            return source[index];
+        }
+
+        static if (hasAssignableElements!R)
+        {
+            /// ditto
+            @property auto back(ElementType!R v)
+            {
+                // This has to return auto instead of void because of Bug 4706.
+                assert(!empty,
+                    "Attempting to assign to the back of an empty "
+                    ~ UniqueTake.stringof);
+                source[this.length - 1] = v;
+            }
+
+            /// ditto
+            void opIndexAssign(ElementType!R v, size_t index)
+            {
+                assert(index < length,
+                    "Attempting to index out of the bounds of a "
+                    ~ UniqueTake.stringof);
+                source[index] = v;
+            }
+        }
+
+        static if (hasMobileElements!R)
+        {
+            /// ditto
+            auto moveBack()
+            {
+                assert(!empty,
+                    "Attempting to move the back of an empty "
+                    ~ UniqueTake.stringof);
+                return source.moveAt(this.length - 1);
+            }
+
+            /// ditto
+            auto moveAt(size_t index)
+            {
+                assert(index < length,
+                    "Attempting to index out of the bounds of a "
+                    ~ UniqueTake.stringof);
+                return source.moveAt(index);
+            }
+        }
+    }
+
+    /**
+    Access to maximal length of the range.
+    Note: the actual length of the range depends on the underlying range.
+    If it has fewer elements, it will stop before maxLength is reached.
+    */
+    @property size_t maxLength() const
+    {
+        return _maxAvailable;
+    }
+}
+
+/// basics
+@safe pure nothrow @nogc unittest
+{
+    import array_ex : SA = UniqueArray;
+    import std.range.primitives : isInputRange, isIterable;
+    alias C = SA!int;
+
+    auto cs = C.withElements(11, 13, 15, 17).intoUniqueRange.takeUnique(2);
+    assert(cs.front == 11);
+    cs.popFront();
+    assert(cs.front == 13);
+    cs.popFront();
+    assert(cs.empty);
+
+    static assert(isInputRange!(typeof(cs)));
+    static assert(isIterable!(typeof(cs)));
 }
 
 import std.functional : binaryFun;

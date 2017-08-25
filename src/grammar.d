@@ -7,7 +7,8 @@
 
     TODO Use static foreach to add declarations
 
-    TODO add overload to std.algorithm.among that takes an immutable array as argument
+    TODO add overload to std.algorithm.among that takes an immutable array as
+    argument to prevent calls to aliasSeqOf
 
     See also: http://forum.dlang.org/thread/mgdtuxkuswfxxoithwxh@forum.dlang.org
 */

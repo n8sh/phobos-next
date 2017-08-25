@@ -123,6 +123,8 @@ enum isIndexableBy(R, alias I) = (hasIndexing!R && is(string == typeof(I))); // 
 static private
 mixin template _genIndexAndSliceOps(I)
 {
+    import conv_ex : toDefaulted;
+
     // indexing
 
     /// Get element at compile-time index `i`.
@@ -135,14 +137,16 @@ mixin template _genIndexAndSliceOps(I)
     /// Get element at index `i`.
     auto ref opIndex(I i) inout
     {
-        assert(cast(size_t)i < _r.length, "Range violation with index type " ~ I.stringof);
+        assert(cast(size_t)i < _r.length, "Range violation with index of type " ~ I.stringof ~
+               " being " ~ i.toDefaulted!string(""));
         return _r[cast(size_t)i];
     }
 
     /// Set element at index `i` to `value`.
     auto ref opIndexAssign(V)(V value, I i)
     {
-        assert(cast(size_t)i < _r.length, "Range violation with index type " ~ I.stringof);
+        assert(cast(size_t)i < _r.length, "Range violation with index of type " ~ I.stringof ~
+               " being " ~ i.toDefaulted!string(""));
         import std.algorithm.mutation : move;
         move(value, _r[cast(size_t)i]);
         return _r[cast(size_t)i];

@@ -7,17 +7,18 @@
 
     TODO Use static foreach to add declarations
 
+    TODO add overload for among that takes a immutable array as argument
+
     See also: http://forum.dlang.org/thread/mgdtuxkuswfxxoithwxh@forum.dlang.org
 */
 module grammar;
 
 import std.traits: isSomeChar, isSomeString;
-import std.typecons: Nullable, AliasSeq;
 import std.algorithm.comparison: among;
 import std.algorithm: uniq, map, find, canFind, startsWith, endsWith, among;
 import std.array: array;
 import std.conv;
-import std.meta : AliasSeq;
+import std.meta : AliasSeq, aliasSeqOf;
 
 import languages: Lang;
 
@@ -35,62 +36,62 @@ enum Usage : ubyte
 /// ================ English Articles
 
 /** English indefinite articles. */
-enum englishIndefiniteArticles = AliasSeq!(`a`, `an`);
+immutable englishIndefiniteArticles = [`a`, `an`];
 
 /** English definite articles. */
-enum englishDefiniteArticles = AliasSeq!(`the`);
+immutable englishDefiniteArticles = [`the`];
 
 /** English definite articles. */
-enum englishArticles = AliasSeq!(englishIndefiniteArticles, englishDefiniteArticles);
+immutable englishArticles = englishIndefiniteArticles ~ englishDefiniteArticles;
 
-bool isEnglishIndefiniteArticle(C)(C c)
-    if (isSomeString!C)
+bool isEnglishIndefiniteArticle(S)(S s)
+    if (isSomeString!S)
 {
-    return cast(bool)c.among!(EnglishIndefiniteArticle);
+    return cast(bool)s.among!(aliasSeqOf!englishIndefiniteArticles);
 }
 
-bool isEnglishDefiniteArticle(C)(C c)
-    if (isSomeString!C)
+bool isEnglishDefiniteArticle(S)(S s)
+    if (isSomeString!S)
 {
-    return cast(bool)c.among!(englishDefiniteArticles);
+    return cast(bool)s.among!(aliasSeqOf!englishDefiniteArticles);
 }
 
-bool isEnglishArticle(C)(C c)
-    if (isSomeString!C)
+bool isEnglishArticle(S)(S s)
+    if (isSomeString!S)
 {
-    return cast(bool)c.among!(englishArticles);
+    return cast(bool)s.among!(aliasSeqOf!englishArticles);
 }
 
 /// ================ German Articles
 
 /** German indefinite articles. */
-enum germanIndefiniteArticles = AliasSeq!(`ein`, `eine`, `einer`, `einen`, `einem`, `eines`);
+immutable germanIndefiniteArticles = [`ein`, `eine`, `einer`, `einen`, `einem`, `eines`];
 
 /** German definite articles. */
-enum germanDefiniteArticles = AliasSeq!(`der`, `die`, `das`, `den`, `dem`, `des`);
+immutable germanDefiniteArticles = [`der`, `die`, `das`, `den`, `dem`, `des`];
 
 /** German definite articles. */
-enum germanArticles = AliasSeq!(germanIndefiniteArticles, germanDefiniteArticles);
+immutable germanArticles = AliasSeq!(germanIndefiniteArticles, germanDefiniteArticles);
 
-/** Check if $(D c) is a Vowel. */
-bool isGermanIndefiniteArticle(C)(C c)
-    if (isSomeString!C)
+/** Check if $(D s) is a Vowel. */
+bool isGermanIndefiniteArticle(S)(S s)
+    if (isSomeString!S)
 {
-    return cast(bool)c.among!(germanIndefiniteArticles);
+    return cast(bool)s.among!(germanIndefiniteArticles);
 }
 
-/** Check if $(D c) is a Vowel. */
-bool isGermanDefiniteArticle(C)(C c)
-    if (isSomeString!C)
+/** Check if $(D s) is a Vowel. */
+bool isGermanDefiniteArticle(S)(S s)
+    if (isSomeString!S)
 {
-    return cast(bool)c.among!(germanDefiniteArticles);
+    return cast(bool)s.among!(germanDefiniteArticles);
 }
 
-/** Check if $(D c) is a Vowel. */
-bool isGermanArticle(C)(C c)
+/** Check if $(D s) is a Vowel. */
+bool isGermanArticle(S)(S s)
     if (isSomeString!C)
 {
-    return cast(bool)c.among!(germanArticles);
+    return cast(bool)s.among!(germanArticles);
 }
 
 /// ================ Vowels

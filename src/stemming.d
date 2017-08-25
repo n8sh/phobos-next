@@ -8,7 +8,7 @@ import std.range: empty;
 import std.traits: isSomeString;
 import std.typecons: Tuple, tuple;
 
-import grammar: Lang, isEnglishVowel, isSwedishVowel, isSwedishConsonant, isEnglishConsonant;
+lingua: Lang, isEnglishVowel, isSwedishVowel, isSwedishConsonant, isEnglishConsonant;
 import skip_ex: skipOverBack;
 
 public class Stemmer(S)

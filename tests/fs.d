@@ -165,7 +165,7 @@ import geometry;
 import random_ex;
 import mathml;
 import mangling;
-import grammar;
+lingua;
 import attributes;
 import find_ex;
 

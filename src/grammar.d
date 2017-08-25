@@ -45,7 +45,6 @@ immutable englishDefiniteArticles = [`the`];
 immutable englishArticles = englishIndefiniteArticles ~ englishDefiniteArticles;
 
 bool isEnglishIndefiniteArticle(S)(S s)
-    if (isSomeString!S)
 {
     return cast(bool)s.among!(aliasSeqOf!englishIndefiniteArticles);
 }
@@ -77,44 +76,44 @@ immutable germanArticles = AliasSeq!(germanIndefiniteArticles, germanDefiniteArt
 bool isGermanIndefiniteArticle(S)(S s)
     if (isSomeString!S)
 {
-    return cast(bool)s.among!(germanIndefiniteArticles);
+    return cast(bool)s.among!(aliasSeqOf!germanIndefiniteArticles);
 }
 
 /** Check if $(D s) is a Vowel. */
 bool isGermanDefiniteArticle(S)(S s)
     if (isSomeString!S)
 {
-    return cast(bool)s.among!(germanDefiniteArticles);
+    return cast(bool)s.among!(aliasSeqOf!germanDefiniteArticles);
 }
 
 /** Check if $(D s) is a Vowel. */
 bool isGermanArticle(S)(S s)
     if (isSomeString!C)
 {
-    return cast(bool)s.among!(germanArticles);
+    return cast(bool)s.among!(aliasSeqOf!germanArticles);
 }
 
 /// ================ Vowels
 
 /** English Vowels. */
-enum englishVowels = AliasSeq!('a', 'o', 'u', 'e', 'i', 'y',
-                               'A', 'O', 'U', 'E', 'I', 'Y');
+immutable dchar[] englishVowels = ['a', 'o', 'u', 'e', 'i', 'y',
+                                   'A', 'O', 'U', 'E', 'I', 'Y'];
 
 /** Check if $(D c) is a Vowel. */
 bool isEnglishVowel(C)(C c)
     if (isSomeChar!C)
 {
-    return cast(bool)c.among!(englishVowels);
+    return cast(bool)c.among!(aliasSeqOf!englishVowels);
 }
 
 /** English Accented Vowels. */
-enum englishAccentedVowels = AliasSeq!('é');
+immutable dchar[] englishAccentedVowels = ['é'];
 
 /** Check if $(D c) is an Accented Vowel. */
 bool isEnglishAccentedVowel(C)(C c)
     if (isSomeChar!C)
 {
-    return cast(bool)c.among!(englishAccentedVowels);
+    return cast(bool)c.among!(aliasSeqOf!englishAccentedVowels);
 }
 
 unittest
@@ -123,36 +122,35 @@ unittest
 }
 
 /** Swedish Hard Vowels. */
-enum swedishHardVowels = AliasSeq!('a', 'o', 'u', 'å',
-                                   'A', 'O', 'U', 'Å');
+immutable swedishHardVowels = ['a', 'o', 'u', 'å',
+                               'A', 'O', 'U', 'Å'];
 
 /** Swedish Soft Vowels. */
-enum swedishSoftVowels = AliasSeq!('e', 'i', 'y', 'ä', 'ö',
-                                   'E', 'I', 'Y', 'Ä', 'Ö');
+immutable swedishSoftVowels = ['e', 'i', 'y', 'ä', 'ö',
+                               'E', 'I', 'Y', 'Ä', 'Ö'];
 
 /** Swedish Vowels. */
-enum swedishVowels = AliasSeq!(swedishHardVowels,
-                               swedishSoftVowels);
+immutable swedishVowels = swedishHardVowels ~ swedishSoftVowels;
 
 /** Check if $(D c) is a Swedish Vowel. */
 bool isSwedishVowel(C)(C c)
     if (isSomeChar!C)
 {
-    return cast(bool)c.among!(swedishVowels);
+    return cast(bool)c.among!(aliasSeqOf!swedishVowels);
 }
 
 /** Check if $(D c) is a Swedish hard vowel. */
 bool isSwedishHardVowel(C)(C c)
     if (isSomeChar!C)
 {
-    return cast(bool)c.among!(swedishHardVowels);
+    return cast(bool)c.among!(aliasSeqOf!swedishHardVowels);
 }
 
 /** Check if $(D c) is a Swedish soft vowel. */
 bool isSwedishSoftVowel(C)(C c)
     if (isSomeChar!C)
 {
-    return cast(bool)c.among!(swedishSoftVowels);
+    return cast(bool)c.among!(aliasSeqOf!swedishSoftVowels);
 }
 
 /** Spanish Accented Vowels. */
@@ -163,7 +161,7 @@ enum spanishAccentedVowels = ['á', 'é', 'í', 'ó', 'ú',
 bool isSpanishAccentedVowel(C)(C c)
     if (isSomeChar!C)
 {
-    return cast(bool)c.among!(spanishAccentedVowels);
+    return cast(bool)c.among!(aliasSeqOf!spanishAccentedVowels);
 }
 
 /** Check if $(D c) is a Spanish Vowel. */
@@ -204,15 +202,14 @@ unittest
 enum EnglishConsonant { b, c, d, f, g, h, j, k, l, m, n, p, q, r, s, t, v, w, x }
 
 /** English consontant characters. */
-enum englishConsonants = AliasSeq!('b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x',
-                                   'B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X');
+immutable dchar[] englishConsonants = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x',
+                                       'B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X'];
 
 /** Check if $(D c) is a Consonant. */
 bool isEnglishConsonant(C)(C c)
     if (isSomeChar!C)
 {
-    // TODO Reuse englishConsonants and hash-table
-    return cast(bool)c.among!(englishConsonants);
+    return cast(bool)c.among!(aliasSeqOf!englishConsonants);
 }
 alias isSwedishConsonant = isEnglishConsonant;
 
@@ -223,13 +220,13 @@ unittest
 }
 
 /** English letters. */
-enum englishletters = AliasSeq!(englishVowels, englishConsonants);
+immutable dchar[] englishletters = englishVowels ~ englishConsonants;
 
 /** Check if $(D c) is a letter. */
 bool isEnglishLetter(C)(C c)
     if (isSomeChar!C)
 {
-    return cast(bool)c.among!(englishletters);
+    return cast(bool)c.among!(aliasSeqOf!englishletters);
 }
 alias isEnglish = isEnglishLetter;
 

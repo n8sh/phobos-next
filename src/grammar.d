@@ -7,9 +7,6 @@
 
     TODO Use static foreach to add declarations
 
-    TODO add overload to std.algorithm.among that takes an immutable array as
-    argument to prevent calls to aliasSeqOf
-
     See also: http://forum.dlang.org/thread/mgdtuxkuswfxxoithwxh@forum.dlang.org
 */
 module grammar;
@@ -19,7 +16,10 @@ import std.algorithm.comparison: among;
 import std.algorithm: uniq, map, find, canFind, startsWith, endsWith, among;
 import std.array: array;
 import std.conv;
-import std.meta : AliasSeq, aliasSeqOf;
+
+// TODO add overload to std.algorithm.among that takes an immutable array as
+// argument to prevent calls to aliasSeqOf
+import std.meta : aliasSeqOf;
 
 import languages: Lang;
 
@@ -71,7 +71,7 @@ immutable germanIndefiniteArticles = [`ein`, `eine`, `einer`, `einen`, `einem`, 
 immutable germanDefiniteArticles = [`der`, `die`, `das`, `den`, `dem`, `des`];
 
 /** German definite articles. */
-immutable germanArticles = AliasSeq!(germanIndefiniteArticles, germanDefiniteArticles);
+immutable germanArticles = germanIndefiniteArticles ~ germanDefiniteArticles;
 
 /** Check if $(D s) is a Vowel. */
 bool isGermanIndefiniteArticle(S)(S s)

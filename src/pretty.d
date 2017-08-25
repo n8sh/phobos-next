@@ -27,7 +27,7 @@ import std.string: empty;
 
 /* TODO Move logic (toHTML) to these deps and remove these imports */
 import mathml;
-lingua;
+import lingua;
 import attributes;
 import slicing : preSlicer;
 

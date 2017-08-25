@@ -33,7 +33,7 @@ import std.functional : unaryFun, binaryFun;
 
 import std.algorithm.comparison : either;
 import algorithm_ex: tryEvery, split, splitBefore, findPopBefore, findPopAfter;
-lingua;
+import lingua;
 import languages : Lang;
 import dbgio : dln;
 

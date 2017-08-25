@@ -5,7 +5,7 @@
  */
 module attributes;
 
-lingua: Lang, TokenId, Usage;
+import lingua: Lang, TokenId, Usage;
 
 @safe pure nothrow @nogc
 {

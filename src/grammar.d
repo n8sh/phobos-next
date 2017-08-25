@@ -5,7 +5,7 @@
 
     TODO `isSomeString` => `isStringLike`
 
-    TODO Use static foreach to add declarations
+    TODO Use static foreach to add declarations for all isX, for each X
 
     See also: http://forum.dlang.org/thread/mgdtuxkuswfxxoithwxh@forum.dlang.org
 */
@@ -201,6 +201,12 @@ unittest
     See also: https://simple.wikipedia.org/wiki/Consonant
 */
 enum EnglishConsonant { b, c, d, f, g, h, j, k, l, m, n, p, q, r, s, t, v, w, x }
+
+/** English lowercase consontant characters. */
+immutable dchar[] englishLowerConsonants = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x'];
+
+/** English uppercase consontant characters. */
+immutable dchar[] englishUpperConsonants = ['B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X'];
 
 /** English consontant characters. */
 immutable dchar[] englishConsonants = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x',

@@ -45,6 +45,8 @@ immutable englishDefiniteArticles = [`the`];
 /** English definite articles. */
 immutable englishArticles = englishIndefiniteArticles ~ englishDefiniteArticles;
 
+pragma(msg, englishArticles);
+
 bool isEnglishIndefiniteArticle(S)(S s)
 {
     return cast(bool)s.among!(aliasSeqOf!englishIndefiniteArticles);

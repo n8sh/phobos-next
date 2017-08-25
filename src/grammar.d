@@ -7,7 +7,7 @@
 
     TODO Use static foreach to add declarations
 
-    TODO add overload for among that takes a immutable array as argument
+    TODO add overload to std.algorithm.among that takes an immutable array as argument
 
     See also: http://forum.dlang.org/thread/mgdtuxkuswfxxoithwxh@forum.dlang.org
 */

@@ -96,6 +96,12 @@ bool isGermanArticle(S)(S s)
 
 /// ================ Vowels
 
+/** English vowel type.
+    See also: https://simple.wikipedia.org/wiki/Vowel
+*/
+enum EnglishVowel { a, o, u, e, i, y,
+                    A, O, U, E, I, Y }
+
 /** English Vowels. */
 immutable dchar[] englishVowels = ['a', 'o', 'u', 'e', 'i', 'y',
                                    'A', 'O', 'U', 'E', 'I', 'Y'];

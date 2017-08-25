@@ -220,13 +220,13 @@ unittest
 }
 
 /** English letters. */
-immutable dchar[] englishletters = englishVowels ~ englishConsonants;
+immutable dchar[] englishLetters = englishVowels ~ englishConsonants;
 
 /** Check if $(D c) is a letter. */
 bool isEnglishLetter(C)(C c)
     if (isSomeChar!C)
 {
-    return cast(bool)c.among!(aliasSeqOf!englishletters);
+    return cast(bool)c.among!(aliasSeqOf!englishLetters);
 }
 alias isEnglish = isEnglishLetter;
 

@@ -137,16 +137,14 @@ mixin template _genIndexAndSliceOps(I)
     /// Get element at index `i`.
     auto ref opIndex(I i) inout
     {
-        assert(cast(size_t)i < _r.length, "Range violation with index of type " ~ I.stringof ~
-               " being " ~ i.toDefaulted!string(""));
+        assert(cast(size_t)i < _r.length, "Range violation with index of type " ~ I.stringof);
         return _r[cast(size_t)i];
     }
 
     /// Set element at index `i` to `value`.
     auto ref opIndexAssign(V)(V value, I i)
     {
-        assert(cast(size_t)i < _r.length, "Range violation with index of type " ~ I.stringof ~
-               " being " ~ i.toDefaulted!string(""));
+        assert(cast(size_t)i < _r.length, "Range violation with index of type " ~ I.stringof);
         import std.algorithm.mutation : move;
         move(value, _r[cast(size_t)i]);
         return _r[cast(size_t)i];

@@ -123,7 +123,7 @@ bool isEnglishAccentedVowel(C)(C c)
     return cast(bool)c.among!(aliasSeqOf!englishAccentedVowels);
 }
 
-unittest
+nothrow @nogc unittest
 {
     assert('é'.isEnglishAccentedVowel);
 }
@@ -179,7 +179,7 @@ bool isSpanishVowel(C)(C c)
             c.isSpanishAccentedVowel);
 }
 
-unittest
+nothrow @nogc unittest
 {
     assert('é'.isSpanishVowel);
 }
@@ -196,7 +196,7 @@ bool isVowel(C)(C c, Lang lang)
     }
 }
 
-unittest
+nothrow @nogc unittest
 {
     assert(!'k'.isSwedishVowel);
     assert('å'.isSwedishVowel);
@@ -224,7 +224,7 @@ bool isEnglishConsonant(C)(C c)
 }
 alias isSwedishConsonant = isEnglishConsonant;
 
-unittest
+nothrow @nogc unittest
 {
     assert('k'.isEnglishConsonant);
     assert(!'å'.isEnglishConsonant);
@@ -241,7 +241,7 @@ bool isEnglishLetter(C)(C c)
 }
 alias isEnglish = isEnglishLetter;
 
-unittest
+nothrow @nogc unittest
 {
     assert('k'.isEnglishLetter);
     assert(!'å'.isEnglishLetter);

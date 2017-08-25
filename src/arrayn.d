@@ -181,7 +181,7 @@ struct ArrayN(E, uint capacity, Checking checking)
         return true;
     }
     /// ditto
-    alias put = pushBack;       // `OutputRange` support
+    alias putMaybe = pushBackMaybe;
 
     /** Add elements `es` to the back.
         NOTE doesn't invalidate any borrow

@@ -443,7 +443,7 @@ struct UniqueTake(Range)
         //take for slicing infinite ranges.
         !((!isInfinite!(Unqual!Range) && hasSlicing!(Unqual!Range)) || is(Range T == UniqueTake!T)))
 {
-    import std.range.primitives : isForwardRange, hasAssignableElements, ElementType, hasMobileElements, isRandomAccessRange;
+    import std.range.primitives : isForwardRange, hasAssignableElements, ElementType, hasMobileElements, isRandomAccessRange, moveFront;
 
     private alias R = Unqual!Range;
 
@@ -504,17 +504,17 @@ struct UniqueTake(Range)
             source.front = v;
         }
 
-    static if (hasMobileElements!R)
-    {
-        /// ditto
-        auto moveFront()
-        {
-            assert(!empty,
-                "Attempting to move the front of an empty "
-                ~ UniqueTake.stringof);
-            return source.moveFront();
-        }
-    }
+    // static if (hasMobileElements!R)
+    // {
+    //     /// ditto
+    //     auto moveFront()
+    //     {
+    //         assert(!empty,
+    //             "Attempting to move the front of an empty "
+    //             ~ UniqueTake.stringof);
+    //         return source.moveFront();
+    //     }
+    // }
 
     static if (isInfinite!R)
     {

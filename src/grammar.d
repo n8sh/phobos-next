@@ -181,8 +181,7 @@ bool isSpanishVowel(C)(C c)
 
 unittest
 {
-    // TODO
-    // assert('é'.isSpanishVowel);
+    assert('é'.isSpanishVowel);
 }
 
 /** Check if $(D c) is a Vowel in language $(D lang). */

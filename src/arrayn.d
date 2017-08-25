@@ -171,7 +171,7 @@ struct ArrayN(E, uint capacity, Checking checking)
     bool pushBackMaybe(Es...)(Es es) @trusted
         if (Es.length <= capacity)
     {
-        if (_length + Es.length <= capacity) { return false; }
+        if (_length + Es.length > capacity) { return false; }
         foreach (const i, ref e; es)
         {
             import std.algorithm.mutation : moveEmplace;

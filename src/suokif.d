@@ -475,7 +475,7 @@ unittest
         catch (std.utf.UTFException e)
         {
             import std.file : read;
-            writeln(" failed because of invalid UTF-8 encoding starting with ", filePath.read(16));
+            writeln("Failed because of invalid UTF-8 encoding starting with ", filePath.read(16));
         }
     }
 }

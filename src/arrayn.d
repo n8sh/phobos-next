@@ -24,6 +24,7 @@ struct ArrayN(E, uint capacity, Checking checking)
     import qcmeman : gc_addRange, gc_removeRange;
 
     E[capacity] _store = void;  /// stored elements
+    alias This = typeof(this);
 
     alias maxLength = capacity;  // for public use
     private enum borrowChecked = checking == Checking.viaScopeAndBorrowing;
@@ -278,25 +279,25 @@ pragma(inline, true) nothrow @nogc:
         auto opSlice() return scope { return sliceRW(); }
 
         /// Get full read-only slice.
-        ReadBorrowed!(E[], typeof(this)) sliceRO() const @trusted return scope
+        ReadBorrowed!(E[], This) sliceRO() const @trusted return scope
         {
             import std.typecons : Unqual;
             assert(!_writeBorrowed, "Already write-borrowed");
             return typeof(return)(_store.ptr[0 .. _length],
-                                  cast(Unqual!(typeof(this))*)(&this)); // trusted unconst casta
+                                  cast(Unqual!(This)*)(&this)); // trusted unconst casta
         }
 
         /// Get read-only slice in range `i` .. `j`.
-        ReadBorrowed!(E[], typeof(this)) sliceRO(size_t i, size_t j) const @trusted return scope
+        ReadBorrowed!(E[], This) sliceRO(size_t i, size_t j) const @trusted return scope
         {
             import std.typecons : Unqual;
             assert(!_writeBorrowed, "Already write-borrowed");
             return typeof(return)(_store.ptr[i .. j],
-                                  cast(Unqual!(typeof(this))*)(&this)); // trusted unconst cast
+                                  cast(Unqual!(This)*)(&this)); // trusted unconst cast
         }
 
         /// Get full read-write slice.
-        WriteBorrowed!(E[], typeof(this)) sliceRW() @trusted return scope
+        WriteBorrowed!(E[], This) sliceRW() @trusted return scope
         {
             assert(!_writeBorrowed, "Already write-borrowed");
             assert(_readBorrowCount == 0, "Already read-borrowed");
@@ -304,7 +305,7 @@ pragma(inline, true) nothrow @nogc:
         }
 
         /// Get read-write slice in range `i` .. `j`.
-        WriteBorrowed!(E[], typeof(this)) sliceRW(size_t i, size_t j) @trusted return scope
+        WriteBorrowed!(E[], This) sliceRW(size_t i, size_t j) @trusted return scope
         {
             assert(!_writeBorrowed, "Already write-borrowed");
             assert(_readBorrowCount == 0, "Already read-borrowed");

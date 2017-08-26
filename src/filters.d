@@ -13,9 +13,6 @@ enum Copyable { no, yes }
     graph traversal algorithms, this filter is typically used as a temporary set
     node (integer) ids that checks if a node has been previously visisted or
     not.
-
-    TODO Add operators for bitwise `and` and `or` operations similar to
-    https://dlang.org/library/std/typecons/bit_flags.html
  */
 struct DenseSetFilter(E,
                       Growable growable = Growable.yes,
@@ -411,8 +408,8 @@ struct StaticDenseSetFilter(E,
         }
     }
 
-    /** Construct from elements `r`, or a complete matched if 'r' is empty.
-     */
+    /** Construct from `r` if `r` is non-empty, or a full set otherwise.
+    */
     static typeof(this) fromRangeOrFull(R)(R r)
         if (isInputRange!R &&
             isAssignable!(E, ElementType!R))

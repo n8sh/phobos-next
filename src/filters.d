@@ -23,6 +23,8 @@ struct DenseSetFilter(E,
     import core.memory : malloc = pureMalloc, calloc = pureCalloc, realloc = pureRealloc;
     import core.bitop : bts, btr, btc, bt;
 
+    alias This = typeof(this);
+
     @safe pure nothrow @nogc pragma(inline):
 
     /// Maximum number of elements in filter.
@@ -48,9 +50,9 @@ struct DenseSetFilter(E,
     static if (growable == Growable.no)
     {
         /// Construct from inferred capacity and length `elementMaxCount`.
-        static typeof(this) withInferredLength()
+        static This withInferredLength()
         {
-            return typeof(this)(elementMaxCount);
+            return This(elementMaxCount);
         }
     }
 
@@ -74,9 +76,9 @@ struct DenseSetFilter(E,
         @disable this(this);
 
         /// Returns: shallow (and deep) duplicate of `this`.
-        typeof(this) dup() @trusted
+        This dup() @trusted
         {
-            typeof(this) copy;
+            This copy;
             static if (growable == Growable.yes)
             {
                 copy._length = this._length;
@@ -159,7 +161,7 @@ struct DenseSetFilter(E,
     }
 
     /// ditto
-    typeof(this) opBinary(string op)(auto ref in typeof(this) e) const
+    This opBinary(string op)(auto ref in This e) const
         if (op == "|" || op == "&" || op == "^")
     {
         typeof(return) result;
@@ -394,6 +396,8 @@ struct StaticDenseSetFilter(E,
     import core.memory : malloc = pureMalloc, calloc = pureCalloc, realloc = pureRealloc;
     import core.bitop : bts, btr, btc, bt;
 
+    alias This = typeof(this);
+
     @safe pure nothrow @nogc:
 
     /** Construct from elements `r`.
@@ -410,7 +414,7 @@ struct StaticDenseSetFilter(E,
 
     /** Construct from `r` if `r` is non-empty, or a full set otherwise.
     */
-    static typeof(this) fromRangeOrFull(R)(R r)
+    static This fromRangeOrFull(R)(R r)
         if (isInputRange!R &&
             isAssignable!(E, ElementType!R))
     {
@@ -421,14 +425,14 @@ struct StaticDenseSetFilter(E,
         }
         else
         {
-            return typeof(this)(r);
+            return This(r);
         }
     }
 
     pragma(inline, true):
 
     /// Construct a full set .
-    static typeof(this) asFull()
+    static This asFull()
     {
         typeof(return) that = void;
         that._blocks[] = Block.max;
@@ -491,7 +495,7 @@ struct StaticDenseSetFilter(E,
     }
 
     /// ditto
-    typeof(this) opBinary(string op)(auto ref in typeof(this) e) const
+    This opBinary(string op)(auto ref in This e) const
         if (op == "|" || op == "&" || op == "^")
     {
         typeof(return) result;
@@ -500,7 +504,7 @@ struct StaticDenseSetFilter(E,
     }
 
     /// ditto
-    typeof(this) opOpAssign(string op)(auto ref in typeof(this) e)
+    This opOpAssign(string op)(auto ref in This e)
         if (op == "|" || op == "&" || op == "^")
     {
         mixin(`_blocks[] ` ~ op ~ `= e._blocks[];`);

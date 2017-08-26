@@ -365,9 +365,18 @@ nothrow @nogc unittest          // TODO pure when https://github.com/dlang/phobo
 /** Check if `E` is filterable in `StaticDenseSetFilter`, that is castable to
     `uint` and castable from unsigned int zero.
 */
-enum isStaticDenseFilterableType(E) = (is(typeof(cast(size_t)E.init)) &&
-                                       is(typeof(cast(size_t)E.min)) &&
-                                       is(typeof(cast(size_t)E.max)));
+template isStaticDenseFilterableType(E)
+{
+    import std.traits : hasIndirections;
+    enum isStaticDenseFilterableType = ((is(typeof(cast(size_t)E.init)) &&
+                                         is(typeof(cast(size_t)E.min)) &&
+                                         is(typeof(cast(size_t)E.max))) &&
+                                        !hasIndirections!E && // no pointers
+                                        (E.sizeof == 1 ||     // ubyte
+                                         E.sizeof == 2 ||     // ushort
+                                         E.sizeof == 4 ||     // uint
+                                         E.sizeof == 8));     // ulong
+}
 
 @safe pure nothrow @nogc unittest
 {
@@ -376,6 +385,7 @@ enum isStaticDenseFilterableType(E) = (is(typeof(cast(size_t)E.init)) &&
     static assert(isStaticDenseFilterableType!uint);
     static assert(!isStaticDenseFilterableType!string);
     static assert(isStaticDenseFilterableType!char);
+    static assert(!isStaticDenseFilterableType!(char*));
 }
 
 /** Store presence of elements of type `E` in a set in the range `0 .. length`.
@@ -398,7 +408,37 @@ struct StaticDenseSetFilter(E,
 
     alias This = typeof(this);
 
-    @safe pure nothrow @nogc:
+    enum capacity = cast(size_t)E.max - cast(size_t)E.min + 1;
+
+    @safe pure:
+
+    string toString() const @property @trusted
+    {
+        import std.array : Appender;
+        import std.conv : to;
+        Appender!string s = "[";
+        bool other = false;
+        foreach (immutable i; 0 .. this.capacity)
+        {
+            const e = cast(E)i;
+            if (contains(e))
+            {
+                if (other)
+                {
+                    s.put(',');
+                }
+                else
+                {
+                    other = true;
+                }
+                s.put(i.to!string);
+            }
+        }
+        s.put("]");
+        return s.data;
+    }
+
+    nothrow @nogc:
 
     /** Construct from elements `r`.
      */
@@ -444,7 +484,7 @@ struct StaticDenseSetFilter(E,
     void insert(in E e) @trusted
     {
         import bitop_ex : setBit;
-        static if (isPacked)
+        static if (isPackedInScalar)
         {
             _blocks[0].setBit(cast(size_t)e);
         }
@@ -460,7 +500,7 @@ struct StaticDenseSetFilter(E,
     void remove(in E e) @trusted
     {
         import bitop_ex : resetBit;
-        static if (isPacked)
+        static if (isPackedInScalar)
         {
             _blocks[0].resetBit(cast(size_t)e);
         }
@@ -477,7 +517,7 @@ struct StaticDenseSetFilter(E,
     bool contains(in E e) @trusted const
     {
         import bitop_ex : testBit;
-        static if (isPacked)
+        static if (isPackedInScalar)
         {
             return _blocks[0].testBit(cast(size_t)e);
         }
@@ -519,28 +559,28 @@ private:
     {
         static      if (elementMaxCount <= 8*ubyte.sizeof)
         {
-            enum isPacked = true;
+            enum isPackedInScalar = true;
             alias Block = ubyte;
         }
         else static if (elementMaxCount <= 8*ushort.sizeof)
         {
-            enum isPacked = true;
+            enum isPackedInScalar = true;
             alias Block = ushort;
         }
         else static if (elementMaxCount <= 8*uint.sizeof)
         {
-            enum isPacked = true;
+            enum isPackedInScalar = true;
             alias Block = uint;
         }
         else
         {
-            enum isPacked = false;
+            enum isPackedInScalar = false;
             alias Block = size_t;
         }
     }
     else
     {
-        enum isPacked = false;
+        enum isPackedInScalar = false;
         alias Block = size_t;
     }
 
@@ -672,7 +712,7 @@ version(unittest)
 
     auto set = StaticDenseSetFilter!(E).asFull;
     static assert(set.sizeof == 1);
-    static assert(set.isPacked);
+    static assert(set.isPackedInScalar);
 
     foreach (e; [EnumMembers!E])
     {
@@ -693,7 +733,7 @@ version(unittest)
 
     auto set = StaticDenseSetFilter!(E).asFull;
     static assert(set.sizeof == 2);
-    static assert(set.isPacked);
+    static assert(set.isPackedInScalar);
 
     foreach (e; [EnumMembers!E])
     {
@@ -714,7 +754,7 @@ version(unittest)
 
     auto set = StaticDenseSetFilter!(E).asFull;
     static assert(set.sizeof == 2);
-    static assert(set.isPacked);
+    static assert(set.isPackedInScalar);
 
     foreach (e; [EnumMembers!E])
     {
@@ -736,7 +776,7 @@ version(unittest)
 
     auto set = StaticDenseSetFilter!(E).asFull;
     static assert(set.sizeof == 4);
-    static assert(set.isPacked);
+    static assert(set.isPackedInScalar);
 
     foreach (e; [EnumMembers!E])
     {
@@ -760,7 +800,7 @@ version(unittest)
 
     auto set = StaticDenseSetFilter!(E).asFull;
     static assert(set.sizeof == 8);
-    static assert(!set.isPacked);
+    static assert(!set.isPackedInScalar);
 
     foreach (e; [EnumMembers!E])
     {
@@ -773,7 +813,7 @@ version(unittest)
 /// assignment from range
 @safe pure nothrow @nogc unittest
 {
-    enum Rel:ubyte { subClassOf, instanceOf, memberOf }
+    enum Rel : ubyte { subClassOf, instanceOf, memberOf }
 
     struct Role
     {
@@ -783,6 +823,7 @@ version(unittest)
         /// Mapping to unsigned integral:
         enum min = 0;
         enum max = 2*Rel.max - 1;
+
         size_t opCast(T : size_t)() const
             @safe pure nothrow @nogc
         {
@@ -790,6 +831,7 @@ version(unittest)
         }
     }
 
+    static assert(Role.sizeof == 2);
     auto set = StaticDenseSetFilter!(Role)();
     static assert(set.sizeof == 1);
 

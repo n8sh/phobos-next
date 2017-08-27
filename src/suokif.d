@@ -173,8 +173,7 @@ private:
 
     /// Skip over `n` bytes in `src`.
     pragma(inline)
-    Src skipOverN(size_t n)
-        nothrow @nogc
+    Src skipOverN(size_t n) nothrow @nogc
     {
         const part = _input[_offset .. _offset + n]; // TODO .ptr
         dropFrontN(n);
@@ -183,7 +182,7 @@ private:
 
     /// Skip line comment.
     pragma(inline)
-    void skipLineComment()
+    void skipLineComment() nothrow @nogc
     {
         while (!peekNext().among(endOfLineChars))
         {
@@ -217,7 +216,7 @@ private:
         return skipOverN(i);
     }
 
-    /// Skip whitespace.
+    /// Get whitespace.
     pragma(inline)
     Src getWhitespace() nothrow @nogc
     {

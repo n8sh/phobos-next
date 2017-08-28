@@ -51,7 +51,9 @@ struct Expr
 }
 
 import arrayn : ArrayN, Checking;
-alias Exprs = ArrayN!(Expr, 128, Checking.viaScope);
+alias Exprs = ArrayN!(Expr,
+                      128,      // 128 is enough for SUMO
+                      Checking.viaScope);
 
 /** Returns: true if `s` is null-terminated (ending with `'\0'`).
 
@@ -281,10 +283,10 @@ private:
                 {
                     ++count;
                 }
-                assert(count != 0);
+                // assert(count != 0);
 
                 Expr newExpr = Expr(exprs[$ - count].token,
-                                    exprs[$ - count + 1 .. $].dup);
+                                    count ? exprs[$ - count + 1 .. $].dup : []);
                 exprs.popBackN(1 + count); // forget tokens including leftParen
                 import std.algorithm : move;
                 exprs.put(newExpr.move);
@@ -413,7 +415,7 @@ private:
     assert(exprs.front.subs[1].token.src == "BinaryFunction");
 }
 
-version(none)
+// version(none)
 unittest
 {
     import std.path : expandTilde;

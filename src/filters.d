@@ -213,7 +213,7 @@ private:
     const y = set.dup;
     assert(y.capacity == 2*length);
 
-    foreach (ix; 0 .. length)
+    foreach (const ix; 0 .. length)
     {
         assert(!set.contains(ix));
         assert(ix !in set);
@@ -234,19 +234,19 @@ private:
     }
 
     auto z = set.dup;
-    foreach (ix; 0 .. length)
+    foreach (const ix; 0 .. length)
     {
         assert(z.contains(ix));
         assert(ix in z);
     }
 
-    foreach (ix; 0 .. length)
+    foreach (const ix; 0 .. length)
     {
         assert(set.contains(ix));
         assert(ix in set);
     }
 
-    foreach (ix; 0 .. length)
+    foreach (const ix; 0 .. length)
     {
         assert(set.contains(ix));
         set.remove(ix);
@@ -263,7 +263,7 @@ private:
     assert(set._length == 0);
 
     const length = 2^^16;
-    foreach (ix; 0 .. length)
+    foreach (const ix; 0 .. length)
     {
         assert(!set.contains(ix));
         assert(ix !in set);
@@ -323,11 +323,11 @@ nothrow @nogc unittest          // TODO pure when https://github.com/dlang/phobo
     assert(set._length == 0);
 
     import std.traits : EnumMembers;
-    foreach (lang; [EnumMembers!E])
+    foreach (const lang; [EnumMembers!E])
     {
         assert(!set.contains(lang));
     }
-    foreach (lang; [EnumMembers!E])
+    foreach (const lang; [EnumMembers!E])
     {
         set.insert(lang);
         assert(set.contains(lang));
@@ -348,12 +348,12 @@ nothrow @nogc unittest          // TODO pure when https://github.com/dlang/phobo
     static assert(!__traits(compiles, { assert(0 in set); }));
 
     import std.traits : EnumMembers;
-    foreach (lang; [EnumMembers!E])
+    foreach (const lang; [EnumMembers!E])
     {
         assert(!set.contains(lang));
         assert(lang !in set);
     }
-    foreach (lang; [EnumMembers!E])
+    foreach (const lang; [EnumMembers!E])
     {
         set.insert(lang);
         assert(set.contains(lang));
@@ -448,7 +448,7 @@ struct StaticDenseSetFilter(E,
         }
         else
         {
-            foreach (immutable size_t i; 0 .. this.elementMaxCount)
+            foreach (const i; 0 .. this.elementMaxCount)
             {
                 const e = E.fromUnsigned(i);
                 if (contains(e))
@@ -652,14 +652,14 @@ version(unittest)
     static assert(!__traits(compiles, { assert(0 in set); }));
 
     // initially empty
-    foreach (lang; [EnumMembers!E])
+    foreach (const lang; [EnumMembers!E])
     {
         assert(!set.contains(lang));
         assert(lang !in set);
     }
 
     // insert
-    foreach (lang; [EnumMembers!E])
+    foreach (const lang; [EnumMembers!E])
     {
         set.insert(lang);
         assert(set.contains(lang));
@@ -667,7 +667,7 @@ version(unittest)
     }
 
     // remove
-    foreach (lang; [EnumMembers!E])
+    foreach (const lang; [EnumMembers!E])
     {
         set.remove(lang);
         assert(!set.contains(lang));
@@ -699,7 +699,7 @@ version(unittest)
     auto set = StaticDenseSetFilter!(E).fromRangeOrFull(es[]);
     static assert(set.sizeof == 1);
 
-    foreach (e; [EnumMembers!E])
+    foreach (const e; [EnumMembers!E])
     {
         assert(set.contains(e));
         assert(e in set);
@@ -734,7 +734,7 @@ version(unittest)
     auto set = StaticDenseSetFilter!(E).asFull;
     static assert(set.sizeof == 1);
 
-    foreach (e; [EnumMembers!E])
+    foreach (const e; [EnumMembers!E])
     {
         assert(set.contains(e));
         set.remove(e);
@@ -754,7 +754,7 @@ version(unittest)
     static assert(set.sizeof == 1);
     static assert(set.isPackedInScalar);
 
-    foreach (e; [EnumMembers!E])
+    foreach (const e; [EnumMembers!E])
     {
         assert(set.contains(e));
         set.remove(e);
@@ -775,7 +775,7 @@ version(unittest)
     static assert(set.sizeof == 2);
     static assert(set.isPackedInScalar);
 
-    foreach (e; [EnumMembers!E])
+    foreach (const e; [EnumMembers!E])
     {
         assert(set.contains(e));
         set.remove(e);
@@ -796,7 +796,7 @@ version(unittest)
     static assert(set.sizeof == 2);
     static assert(set.isPackedInScalar);
 
-    foreach (e; [EnumMembers!E])
+    foreach (const e; [EnumMembers!E])
     {
         assert(set.contains(e));
         set.remove(e);
@@ -818,7 +818,7 @@ version(unittest)
     static assert(set.sizeof == 4);
     static assert(set.isPackedInScalar);
 
-    foreach (e; [EnumMembers!E])
+    foreach (const e; [EnumMembers!E])
     {
         assert(set.contains(e));
         set.remove(e);
@@ -842,7 +842,7 @@ version(unittest)
     static assert(set.sizeof == 8);
     static assert(!set.isPackedInScalar);
 
-    foreach (e; [EnumMembers!E])
+    foreach (const e; [EnumMembers!E])
     {
         assert(set.contains(e));
         set.remove(e);
@@ -910,7 +910,7 @@ version(unittest)
     static assert(set.sizeof == 1);
 
     // inserts
-    foreach (rel; [EnumMembers!Rel])
+    foreach (const rel; [EnumMembers!Rel])
     {
         import dbgio : dln;
         dln("rel:", rel, " has value:", cast(size_t)rel);
@@ -928,7 +928,7 @@ version(unittest)
     }
 
     // removes
-    foreach (rel; [EnumMembers!Rel])
+    foreach (const rel; [EnumMembers!Rel])
     {
         assert(set.contains(Role(rel)));
         assert(set.contains(Role(rel, true)));
@@ -945,7 +945,7 @@ version(unittest)
 
     auto fullSet = StaticDenseSetFilter!(Role).asFull;
 
-    foreach (rel; [EnumMembers!Rel])
+    foreach (const rel; [EnumMembers!Rel])
     {
         assert(fullSet.contains(Role(rel)));
         assert(fullSet.contains(Role(rel, true)));
@@ -953,7 +953,7 @@ version(unittest)
 
     auto emptySet = StaticDenseSetFilter!(Role)();
 
-    foreach (rel; [EnumMembers!Rel])
+    foreach (const rel; [EnumMembers!Rel])
     {
         assert(!emptySet.contains(Role(rel)));
         assert(!emptySet.contains(Role(rel, true)));

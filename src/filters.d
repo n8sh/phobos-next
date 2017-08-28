@@ -6,6 +6,11 @@ enum Growable { no, yes }
 /// Copyable flag.
 enum Copyable { no, yes }
 
+version(unittest)
+{
+    import dbgio : dln;
+}
+
 /** Store presence of elements of type `E` in a set in the range `0 .. length`.
     Can be seen as a generalization of `std.typecons.BitFlags` to integer types.
 
@@ -906,7 +911,6 @@ version(unittest)
     // inserts
     foreach (const rel; [EnumMembers!Rel])
     {
-        import dbgio : dln;
         dln("rel:", rel, " has value:", cast(size_t)rel);
         assert(!set.contains(Role(rel)));
         assert(!set.contains(Role(rel, true)));

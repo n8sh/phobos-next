@@ -426,43 +426,37 @@ struct StaticDenseSetFilter(E,
         import std.conv : to;
 
         Appender!string str = "[";
-
         bool other = false;
+
+        pragma(inline, true)
+        void putElement(in E e)
+        {
+            if (contains(e))
+            {
+                if (other)
+                {
+                    str.put(',');
+                }
+                else
+                {
+                    other = true;
+                }
+                str.put(e.to!string);
+            }
+        }
+
         static if (is(E == enum))
         {
             foreach (const e; [EnumMembers!E])
             {
-                if (contains(e))
-                {
-                    if (other)
-                    {
-                        str.put(',');
-                    }
-                    else
-                    {
-                        other = true;
-                    }
-                    str.put(e.to!string);
-                }
+                putElement(e);
             }
         }
         else
         {
             foreach (const i; E.unsignedMin .. E.unsignedMax + 1)
             {
-                const e = E.fromUnsigned(i);
-                if (contains(e))
-                {
-                    if (other)
-                    {
-                        str.put(',');
-                    }
-                    else
-                    {
-                        other = true;
-                    }
-                    str.put(i.to!string);
-                }
+                putElement(E.fromUnsigned(i));
             }
         }
 

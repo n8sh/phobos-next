@@ -38,9 +38,10 @@ T makeBit(T, I...)(I bixs) @safe
         I.length >= 1)
 in
 {
-    foreach (const bix; bixs)
+    foreach (n, const bix; bixs)
     {
-        assert(0 <= bix && bix < 8*T.sizeof);
+        assert(0 <= bix && bix < 8*T.sizeof,
+               "Bit index nr " ~ n.stringof ~ " is out of range");
     }
 }
 body

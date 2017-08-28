@@ -86,7 +86,7 @@ bool testBit(T, I...)(in T* a, I bixs) @safe
 alias bt = testBit;
 
 ///
-unittest
+@safe pure nothrow @nogc unittest
 {
     static void test(T)()
     {
@@ -186,7 +186,7 @@ bool getHighBit(T)(in T a) @safe
 alias getTopBit = getHighBit;
 
 ///
-unittest
+@safe pure nothrow @nogc unittest
 {
     const ubyte x = 1;
     assert(!x.getTopBit);
@@ -194,7 +194,7 @@ unittest
 }
 
 ///
-unittest
+@safe pure nothrow @nogc unittest
 {
     const ubyte x = 128;
     assert(x.getTopBit);
@@ -251,7 +251,7 @@ alias resetTopBit = resetHighestBit;
 alias btr = resetBit;
 
 ///
-unittest
+pure nothrow @nogc unittest
 {
     alias T = int;
     enum nBits = 8*T.sizeof;
@@ -285,7 +285,7 @@ unittest
 }
 
 ///
-unittest
+@safe pure nothrow @nogc unittest
 {
     static void test(T)()
     {
@@ -299,7 +299,7 @@ unittest
 }
 
 ///
-unittest
+@safe pure nothrow @nogc unittest
 {
     assert(makeBit!int(2) == 4);
     assert(makeBit!int(2, 3) == 12);

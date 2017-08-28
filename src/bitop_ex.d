@@ -168,29 +168,29 @@ alias setTopBit = setHighestBit;
 
 /** Get lowest bit of `a`. */
 pragma(inline, true)
-bool getLowBit(T)(in T a) @safe
+bool getLowestBit(T)(in T a) @safe
     if (isIntegral!T)
 {
     return (a & 1) != 0;
 }
-alias getBottomBit = getLowBit;
+alias getBottomBit = getLowestBit;
 
 /** Get highest bit of `a`. */
 pragma(inline, true)
-bool getHighBit(T)(in T a) @safe
+bool getHighestBit(T)(in T a) @safe
     if (isIntegral!T)
 {
     // TODO use core.bitop.bt when T is a size_t
     return (a & (cast(T)1 << 8*T.sizeof - 1)) != 0;
 }
-alias getTopBit = getHighBit;
+alias getTopBit = getHighestBit;
 
 ///
 @safe pure nothrow @nogc unittest
 {
     const ubyte x = 1;
     assert(!x.getTopBit);
-    assert(x.getLowBit);
+    assert(x.getLowestBit);
 }
 
 ///
@@ -198,7 +198,7 @@ alias getTopBit = getHighBit;
 {
     const ubyte x = 128;
     assert(x.getTopBit);
-    assert(!x.getLowBit);
+    assert(!x.getLowestBit);
 }
 
 /** Reset bits `I` of `a` (to zero). */

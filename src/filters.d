@@ -440,7 +440,7 @@ struct StaticDenseSetFilter(E,
             {
                 if (other)
                 {
-                    str.put(',');
+                    str.put(", ");
                 }
                 else
                 {
@@ -900,7 +900,7 @@ version(unittest)
 }
 
 /// assignment from range
-@safe pure nothrow @nogc unittest
+@safe pure unittest
 {
     static assert(is(typeof(Role.init.toUnsigned)));
     static assert(is(typeof(Role.init.toUnsigned()) == Role.UnsignedType));
@@ -908,6 +908,8 @@ version(unittest)
 
     auto set = StaticDenseSetFilter!(Role)();
     static assert(set.sizeof == 1);
+
+    assert(set.toString == "StaticDenseSetFilter!(Role, true)([])");
 
     // inserts
     foreach (const rel; [EnumMembers!Rel])
@@ -925,6 +927,8 @@ version(unittest)
         assert(set.contains(Role(rel, true)));
     }
 
+    assert(set.toString == "StaticDenseSetFilter!(Role, true)([const(Role)(unknown, false), const(Role)(unknown, true), const(Role)(subClassOf, false), const(Role)(subClassOf, true), const(Role)(instanceOf, false), const(Role)(instanceOf, true), const(Role)(memberOf, false), const(Role)(memberOf, true)])");
+
     // removes
     foreach (const rel; [EnumMembers!Rel])
     {
@@ -940,6 +944,8 @@ version(unittest)
         assert(!set.contains(Role(rel)));
         assert(!set.contains(Role(rel, true)));
     }
+
+    assert(set.toString == "StaticDenseSetFilter!(Role, true)([])");
 
     auto fullSet = StaticDenseSetFilter!(Role).asFull;
 

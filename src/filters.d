@@ -367,25 +367,35 @@ nothrow @nogc unittest          // TODO pure when https://github.com/dlang/phobo
 */
 template isStaticDenseFilterableType(E)
 {
-    import std.traits : hasIndirections;
-    enum isStaticDenseFilterableType = ((is(typeof(cast(size_t)E.init)) &&
-                                         is(typeof(cast(size_t)E.min)) &&
-                                         is(typeof(cast(size_t)E.max))) &&
-                                        !hasIndirections!E && // no pointers
-                                        (E.sizeof == 1 ||     // ubyte
-                                         E.sizeof == 2 ||     // ushort
-                                         E.sizeof == 4 ||     // uint
-                                         E.sizeof == 8));     // ulong
+    import std.traits : hasIndirections, isUnsigned, isSomeChar;
+    static if (is(E == enum) ||
+               isUnsigned!E ||
+               isSomeChar!E)
+    {
+        enum isStaticDenseFilterableType = true;
+    }
+    else static if (is(typeof(E.init.toUnsigned)))
+    {
+        alias UnsignedType = typeof(E.init.toUnsigned());
+        enum isStaticDenseFilterableType = (isUnsigned!UnsignedType &&
+                                            is(typeof(E.fromUnsigned(UnsignedType.init))) &&
+                                            !hasIndirections!E);
+    }
+    else
+    {
+        enum isStaticDenseFilterableType = false;
+    }
 }
 
 @safe pure nothrow @nogc unittest
 {
-    enum E { a, b }
-    static assert(isStaticDenseFilterableType!E);
     static assert(isStaticDenseFilterableType!uint);
     static assert(!isStaticDenseFilterableType!string);
     static assert(isStaticDenseFilterableType!char);
     static assert(!isStaticDenseFilterableType!(char*));
+
+    enum E { a, b }
+    static assert(isStaticDenseFilterableType!E);
 }
 
 /** Store presence of elements of type `E` in a set in the range `0 .. length`.
@@ -402,13 +412,11 @@ struct StaticDenseSetFilter(E,
     if (isStaticDenseFilterableType!E) // may need to be relaxed
 {
     import std.range : isInputRange, ElementType;
-    import std.traits: isAssignable;
+    import std.traits: isAssignable, isUnsigned;
     import core.memory : malloc = pureMalloc, calloc = pureCalloc, realloc = pureRealloc;
     import core.bitop : bts, btr, btc, bt;
 
     alias This = typeof(this);
-
-    enum capacity = cast(size_t)E.max - cast(size_t)E.min + 1;
 
     @safe pure:
 
@@ -418,9 +426,16 @@ struct StaticDenseSetFilter(E,
         import std.conv : to;
         Appender!string s = "[";
         bool other = false;
-        foreach (immutable i; 0 .. this.capacity)
+        foreach (immutable size_t i; 0 .. this.elementMaxCount)
         {
-            const e = cast(E)i;
+            static if (is(E == enum))
+            {
+                const e = cast(E)i;
+            }
+            else
+            {
+                const e = E.fromUnsigned(i);
+            }
             if (contains(e))
             {
                 if (other)
@@ -552,8 +567,16 @@ struct StaticDenseSetFilter(E,
     }
 
 private:
-    /// Maximum number of elements in filter.
-    enum elementMaxCount = cast(size_t)E.max + 1;
+    static if (is(E == enum) || isUnsigned!E) // has normal
+    {
+        /// Maximum number of elements in filter.
+        enum elementMaxCount = E.max - E.min + 1;
+    }
+    else
+    {
+        /// Maximum number of elements in filter.
+        enum elementMaxCount = E.unsignedMax - E.unsignedMin + 1;
+    }
 
     static if (requestPacked)
     {
@@ -810,34 +833,70 @@ version(unittest)
     }
 }
 
-/// assignment from range
-@safe pure nothrow @nogc unittest
+version(unittest)
 {
-    enum Rel : ubyte { subClassOf, instanceOf, memberOf }
+    enum Rel : ubyte { unknown, subClassOf, instanceOf, memberOf }
+    import traits_ex : packedBitSizeOf;
+    static assert(packedBitSizeOf!Rel == 2);
 
     struct Role
     {
         Rel rel;
         bool reversion;
 
-        /// Mapping to unsigned integral:
-        enum min = 0;
-        enum max = 2*Rel.max - 1;
+        alias This = typeof(this);
 
-        size_t opCast(T : size_t)() const
-            @safe pure nothrow @nogc
+        enum unsignedMin = 0;
+        enum unsignedMax = 2^^(1 +  // reversion
+                               packedBitSizeOf!Rel // relation
+            ) - 1;
+
+        alias UnsignedType = ushort;
+        static assert(This.sizeof == UnsignedType.sizeof);
+        static assert(Role.sizeof == 2);
+
+        pragma(inline, true)
+        @safe pure nothrow @nogc:
+
+        /// Create from `UnsignedType` `u`.
+        static This fromUnsigned(UnsignedType u) @trusted
         {
-            return reversion | 2*rel;
+            This that;
+            that.reversion = (u >> 0) & 1;
+            that.rel = cast(Rel)(u >> 2);
+            return that;
+        }
+
+        /// Convert to `UnsignedType` `u`.
+        UnsignedType toUnsigned() const @trusted
+        {
+            UnsignedType u = cast(UnsignedType)((cast(UnsignedType)reversion << 0) |
+                                                (cast(UnsignedType)rel << 2));
+            return u;
+        }
+
+        UnsignedType opCast(UnsignedType)() const @nogc
+        {
+            return toUnsigned;
         }
     }
+}
 
-    static assert(Role.sizeof == 2);
+/// assignment from range
+@safe pure nothrow @nogc unittest
+{
+    static assert(is(typeof(Role.init.toUnsigned)));
+    static assert(is(typeof(Role.init.toUnsigned()) == Role.UnsignedType));
+    static assert(isStaticDenseFilterableType!Role);
+
     auto set = StaticDenseSetFilter!(Role)();
     static assert(set.sizeof == 1);
 
     // inserts
     foreach (rel; [EnumMembers!Rel])
     {
+        import dbgio : dln;
+        dln("rel:", rel, " has value:", cast(size_t)rel);
         assert(!set.contains(Role(rel)));
         assert(!set.contains(Role(rel, true)));
 

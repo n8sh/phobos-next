@@ -430,9 +430,9 @@ struct StaticDenseSetFilter(E,
         bool other = false;
         static if (is(E == enum))
         {
-            foreach (const m; [EnumMembers!E])
+            foreach (const e; [EnumMembers!E])
             {
-                if (contains(m))
+                if (contains(e))
                 {
                     if (other)
                     {
@@ -442,7 +442,7 @@ struct StaticDenseSetFilter(E,
                     {
                         other = true;
                     }
-                    str.put(m.to!string);
+                    str.put(e.to!string);
                 }
             }
         }

@@ -426,6 +426,8 @@ struct StaticDenseSetFilter(E,
         import std.conv : to;
         Appender!string s = "[";
         bool other = false;
+
+        // use EnumMembers[] when E is an enum
         foreach (immutable size_t i; 0 .. this.elementMaxCount)
         {
             static if (is(E == enum))
@@ -436,6 +438,7 @@ struct StaticDenseSetFilter(E,
             {
                 const e = E.fromUnsigned(i);
             }
+
             if (contains(e))
             {
                 if (other)
@@ -467,8 +470,8 @@ struct StaticDenseSetFilter(E,
         }
     }
 
-    /** Construct from `r` if `r` is non-empty, or a full set otherwise.
-    */
+    /** Construct from `r` if `r` is non-empty, otherwise construct a full set.
+     */
     static This fromRangeOrFull(R)(R r)
         if (isInputRange!R &&
             isAssignable!(E, ElementType!R))

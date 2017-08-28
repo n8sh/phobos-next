@@ -550,7 +550,8 @@ struct StaticDenseSetFilter(E,
         import bitop_ex : testBit;
         static if (isPackedInScalar)
         {
-            return _blocks[0].testBit(cast(size_t)e);
+            auto y = _blocks[0].testBit(cast(size_t)e);
+            return y;
         }
         else
         {
@@ -879,7 +880,7 @@ version(unittest)
         {
             This that;
             that.reversion = (u >> 0) & 1;
-            that.rel = cast(Rel)(u >> 2);
+            that.rel = cast(Rel)(u >> 1);
             return that;
         }
 
@@ -887,7 +888,7 @@ version(unittest)
         UnsignedType toUnsigned() const @trusted
         {
             UnsignedType u = cast(UnsignedType)((cast(UnsignedType)reversion << 0) |
-                                                (cast(UnsignedType)rel << 2));
+                                                (cast(UnsignedType)rel << 1));
             return u;
         }
 
@@ -911,7 +912,6 @@ version(unittest)
     // inserts
     foreach (const rel; [EnumMembers!Rel])
     {
-        dln("rel:", rel, " has value:", cast(size_t)rel);
         assert(!set.contains(Role(rel)));
         assert(!set.contains(Role(rel, true)));
 

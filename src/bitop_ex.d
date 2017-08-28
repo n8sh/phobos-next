@@ -31,7 +31,7 @@ template UnsignedOfSameSizeAs(T)
     }
 }
 
-/** Returns: Zero Instance T with $(D bix):th Bit set. */
+/** Returns: A T with only `bix`:th bit set. */
 T makeBit(T, I...)(I bixs) @safe
     if (isIntegral!T &&
         allSatisfy!(isIntegral, I) &&
@@ -54,7 +54,7 @@ body
 }
 alias btm = makeBit;
 
-/** Returns: Check if all $(D bix):th bits of $(D a) are set. */
+/** Returns: Check if all `bix`:th bits of $(D a) are set. */
 pragma(inline, true)
 bool testBit(T, I...)(in T a, I bixs) @safe
     if (isIntegral!T &&
@@ -64,7 +64,7 @@ bool testBit(T, I...)(in T a, I bixs) @safe
     return a & makeBit!T(bixs) ? true : false;
 }
 
-/** Returns: Check if all $(D bix):th bits of $(D a) are set. */
+/** Returns: Check if all `bix`:th bits of $(D a) are set. */
 pragma(inline, true)
 bool testBit(T, I...)(in T a, I bixs) @trusted
     if ((!(isIntegral!T)) &&
@@ -73,7 +73,7 @@ bool testBit(T, I...)(in T a, I bixs) @trusted
     return (*(cast(UnsignedOfSameSizeAs!T*)&a)).testBit(bixs); // reuse integer variant
 }
 
-/** Returns: Check if all $(D bix):th bits of $(D *a) are set. */
+/** Returns: Check if all `bix`:th bits of $(D *a) are set. */
 pragma(inline, true)
 bool testBit(T, I...)(in T* a, I bixs) @safe
     if ((!(isIntegral!T)) &&
@@ -108,7 +108,7 @@ alias bt = testBit;
     test!long;
 }
 
-/** Test and sets the $(D bix):th bit of $(D a) to one.
+/** Test and sets the `bix`:th bit of $(D a) to one.
     Returns: A non-zero value if the bit was set, and a zero if it was clear.
 */
 pragma(inline, true)
@@ -120,7 +120,7 @@ void setBit(T, I...)(ref T a, I bixs) @safe
     a |= makeBit!T(bixs);
 }
 
-/** Test and sets the $(D bix):th bit of $(D *a) to one.
+/** Test and sets the `bix`:th bit of $(D *a) to one.
     Returns: A non-zero value if the bit was set, and a zero if it was clear.
 */
 pragma(inline, true)
@@ -133,7 +133,7 @@ void setBit(T, I...)(T* a, I bixs) @safe
     *a |= makeBit!T(bixs);
 }
 
-/** Returns: Check if all $(D bix):th bits of $(D a) are set. */
+/** Returns: Check if all `bix`:th bits of $(D a) are set. */
 pragma(inline, true)
 void setBit(T, I...)(ref T a, I bixs) @trusted
     if ((!(isIntegral!T)) &&

@@ -283,7 +283,7 @@ private:
                 {
                     ++count;
                 }
-                if (disallowEmptyLists)
+                if (_disallowEmptyLists)
                 {
                     assert(count != 0);
                 }
@@ -419,7 +419,7 @@ private:
     assert(exprs.front.subs[1].token.src == "BinaryFunction");
 }
 
-// version(none)
+version(none)
 unittest
 {
     import std.path : expandTilde;
@@ -427,7 +427,7 @@ unittest
     const text = `~/elisp/mine/relangs.el`.expandTilde.readText;
     const ctext = text ~ '\0'; // null at the end to enable sentinel-based search in parser
     assert(ctext[$ - 1] == '\0');
-    foreach (const ref expr; SUOKIFParser(ctext))
+    foreach (const ref expr; SUOKIFParser(ctext, false, false, true))
     {
     }
 }

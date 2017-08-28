@@ -51,9 +51,7 @@ struct Expr
 }
 
 import arrayn : ArrayN, Checking;
-alias Exprs = ArrayN!(Expr,
-                      128,      // 128 is enough for SUMO
-                      Checking.viaScope);
+alias Exprs = ArrayN!(Expr, 128, Checking.viaScope);
 
 /** Returns: true if `s` is null-terminated (ending with `'\0'`).
 
@@ -81,7 +79,8 @@ struct SUOKIFParser
 
     this(Src input,
          bool includeComments = false,
-         bool includeWhitespace = false)
+         bool includeWhitespace = false,
+         bool disallowEmptyLists = false)
     {
         _input = input;
 
@@ -97,6 +96,7 @@ struct SUOKIFParser
 
         _includeComments = includeComments;
         _includeWhitespace = includeWhitespace;
+        _disallowEmptyLists = disallowEmptyLists;
 
         nextFront();
     }
@@ -283,7 +283,10 @@ private:
                 {
                     ++count;
                 }
-                // assert(count != 0);
+                if (disallowEmptyLists)
+                {
+                    assert(count != 0);
+                }
 
                 Expr newExpr = Expr(exprs[$ - count].token,
                                     count ? exprs[$ - count + 1 .. $].dup : []);
@@ -397,6 +400,7 @@ private:
     bool _endOfFile;            // signals null terminator found
     bool _includeComments = false;
     bool _includeWhitespace = false;
+    bool _disallowEmptyLists = false;
 }
 
 @safe pure unittest

@@ -424,9 +424,10 @@ struct StaticDenseSetFilter(E,
     {
         import std.array : Appender;
         import std.conv : to;
-        Appender!string s = "[";
-        bool other = false;
 
+        Appender!string str = "[";
+
+        bool other = false;
         static if (is(E == enum))
         {
             foreach (const m; [EnumMembers!E])
@@ -435,13 +436,13 @@ struct StaticDenseSetFilter(E,
                 {
                     if (other)
                     {
-                        s.put(',');
+                        str.put(',');
                     }
                     else
                     {
                         other = true;
                     }
-                    s.put(m.to!string);
+                    str.put(m.to!string);
                 }
             }
         }
@@ -454,19 +455,19 @@ struct StaticDenseSetFilter(E,
                 {
                     if (other)
                     {
-                        s.put(',');
+                        str.put(',');
                     }
                     else
                     {
                         other = true;
                     }
-                    s.put(i.to!string);
+                    str.put(i.to!string);
                 }
             }
         }
 
-        s.put("]");
-        return s.data;
+        str.put("]");
+        return str.data;
     }
 
     nothrow @nogc:

@@ -156,6 +156,7 @@ void setLowestBit(T)(ref T a) @safe
     setBit(a, 0);
 }
 alias setBottomBit = setLowestBit;
+alias setLsbit = setLowestBit;
 
 /** Set highest bit of `a` to one. */
 pragma(inline, true)
@@ -165,6 +166,7 @@ void setHighestBit(T)(ref T a) @safe
     setBit(a, 8*T.sizeof - 1);
 }
 alias setTopBit = setHighestBit;
+alias setMsbit = setHighestBit;
 
 /** Get lowest bit of `a`. */
 pragma(inline, true)
@@ -174,6 +176,7 @@ bool getLowestBit(T)(in T a) @safe
     return (a & 1) != 0;
 }
 alias getBottomBit = getLowestBit;
+alias getLsbit = getLowestBit;
 
 /** Get highest bit of `a`. */
 pragma(inline, true)
@@ -184,6 +187,7 @@ bool getHighestBit(T)(in T a) @safe
     return (a & (cast(T)1 << 8*T.sizeof - 1)) != 0;
 }
 alias getTopBit = getHighestBit;
+alias getMsbit = getHighestBit;
 
 ///
 @safe pure nothrow @nogc unittest

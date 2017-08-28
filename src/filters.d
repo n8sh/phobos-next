@@ -448,7 +448,7 @@ struct StaticDenseSetFilter(E,
         }
         else
         {
-            foreach (const i; 0 .. this.elementMaxCount)
+            foreach (const i; E.unsignedMin .. E.unsignedMax + 1)
             {
                 const e = E.fromUnsigned(i);
                 if (contains(e))

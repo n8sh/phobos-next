@@ -409,7 +409,7 @@ template isStaticDenseFilterableType(E)
  */
 struct StaticDenseSetFilter(E,
                             bool requestPacked = true)
-    if (isStaticDenseFilterableType!E) // may need to be relaxed
+    if (isStaticDenseFilterableType!E)
 {
     import std.range : isInputRange, ElementType;
     import std.traits: isAssignable, isUnsigned;

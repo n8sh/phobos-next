@@ -418,7 +418,6 @@ struct StaticDenseSetFilter(E,
 {
     import std.range : isInputRange, ElementType;
     import std.traits: isAssignable, isUnsigned;
-    import core.memory : malloc = pureMalloc, calloc = pureCalloc, realloc = pureRealloc;
     import core.bitop : bts, btr, btc, bt;
 
     alias This = typeof(this);
@@ -897,15 +896,15 @@ version(unittest)
             return toUnsigned;
         }
     }
+
+    static assert(is(typeof(Role.init.toUnsigned)));
+    static assert(is(typeof(Role.init.toUnsigned()) == Role.UnsignedType));
+    static assert(isStaticDenseFilterableType!Role);
 }
 
 /// assignment from range
 @safe pure unittest
 {
-    static assert(is(typeof(Role.init.toUnsigned)));
-    static assert(is(typeof(Role.init.toUnsigned()) == Role.UnsignedType));
-    static assert(isStaticDenseFilterableType!Role);
-
     auto set = StaticDenseSetFilter!(Role)();
     static assert(set.sizeof == 1);
 

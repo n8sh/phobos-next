@@ -41,7 +41,7 @@ in
     foreach (n, const bix; bixs)
     {
         assert(0 <= bix && bix < 8*T.sizeof,
-               "Bit index nr " ~ n.stringof ~ " is out of range");
+               "Bit index " ~ n.stringof ~ " is out of range");
     }
 }
 body

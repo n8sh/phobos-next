@@ -530,7 +530,7 @@ struct StaticDenseSetFilter(E,
 
     @property:
 
-    /** Check if element `e` is stored/contained.
+    /** Check if element `e` is present/stored/contained.
      */
     bool contains(in E e) @trusted const
     {

@@ -75,7 +75,7 @@ bool testBit(T, I...)(in T a, I bixs) @trusted
 
 /** Returns: Check if all $(D bix):th bits of $(D *a) are set. */
 pragma(inline, true)
-bool testBit(T, I...)(in T* a, I bixs)
+bool testBit(T, I...)(in T* a, I bixs) @safe
     if ((!(isIntegral!T)) &&
         !is(T == size_t) &&     // avoid stealing `core.bitop.bt`
         allSatisfy!(isIntegral, I) &&

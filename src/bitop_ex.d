@@ -54,7 +54,7 @@ body
 }
 alias btm = makeBit;
 
-/** Returns: Check if all $(D bix):th Bits Of $(D a) are set. */
+/** Returns: Check if all $(D bix):th bits of $(D a) are set. */
 pragma(inline, true)
 bool testBit(T, I...)(in T a, I bixs) @safe
     if (isIntegral!T &&
@@ -64,7 +64,7 @@ bool testBit(T, I...)(in T a, I bixs) @safe
     return a & makeBit!T(bixs) ? true : false;
 }
 
-/** Returns: Check if all $(D bix):th Bits Of $(D a) are set. */
+/** Returns: Check if all $(D bix):th bits of $(D a) are set. */
 pragma(inline, true)
 bool testBit(T, I...)(in T a, I bixs) @trusted
     if ((!(isIntegral!T)) &&
@@ -73,7 +73,7 @@ bool testBit(T, I...)(in T a, I bixs) @trusted
     return (*(cast(UnsignedOfSameSizeAs!T*)&a)).testBit(bixs); // reuse integer variant
 }
 
-/** Returns: Check if all $(D bix):th Bits Of $(D *a) are set. */
+/** Returns: Check if all $(D bix):th bits of $(D *a) are set. */
 pragma(inline, true)
 bool testBit(T, I...)(in T* a, I bixs)
     if ((!(isIntegral!T)) &&
@@ -133,7 +133,7 @@ void setBit(T, I...)(T* a, I bixs) @safe
     *a |= makeBit!T(bixs);
 }
 
-/** Returns: Check if all $(D bix):th Bits Of $(D a) are set. */
+/** Returns: Check if all $(D bix):th bits of $(D a) are set. */
 pragma(inline, true)
 void setBit(T, I...)(ref T a, I bixs) @trusted
     if ((!(isIntegral!T)) &&

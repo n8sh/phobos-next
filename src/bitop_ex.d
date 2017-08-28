@@ -108,7 +108,7 @@ unittest
     test!long;
 }
 
-/** Test and sets the $(D bix):th Bit Of $(D a) to one.
+/** Test and sets the $(D bix):th bit of $(D a) to one.
     Returns: A non-zero value if the bit was set, and a zero if it was clear.
 */
 pragma(inline, true)
@@ -120,7 +120,7 @@ void setBit(T, I...)(ref T a, I bixs) @safe
     a |= makeBit!T(bixs);
 }
 
-/** Test and sets the $(D bix):th Bit Of $(D *a) to one.
+/** Test and sets the $(D bix):th bit of $(D *a) to one.
     Returns: A non-zero value if the bit was set, and a zero if it was clear.
 */
 pragma(inline, true)

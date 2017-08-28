@@ -427,31 +427,44 @@ struct StaticDenseSetFilter(E,
         Appender!string s = "[";
         bool other = false;
 
-        // use EnumMembers[] when E is an enum
-        foreach (immutable size_t i; 0 .. this.elementMaxCount)
+        static if (is(E == enum))
         {
-            static if (is(E == enum))
+            foreach (const m; [EnumMembers!E])
             {
-                const e = cast(E)i;
-            }
-            else
-            {
-                const e = E.fromUnsigned(i);
-            }
-
-            if (contains(e))
-            {
-                if (other)
+                if (contains(m))
                 {
-                    s.put(',');
+                    if (other)
+                    {
+                        s.put(',');
+                    }
+                    else
+                    {
+                        other = true;
+                    }
+                    s.put(m.to!string);
                 }
-                else
-                {
-                    other = true;
-                }
-                s.put(i.to!string);
             }
         }
+        else
+        {
+            foreach (immutable size_t i; 0 .. this.elementMaxCount)
+            {
+                const e = E.fromUnsigned(i);
+                if (contains(e))
+                {
+                    if (other)
+                    {
+                        s.put(',');
+                    }
+                    else
+                    {
+                        other = true;
+                    }
+                    s.put(i.to!string);
+                }
+            }
+        }
+
         s.put("]");
         return s.data;
     }

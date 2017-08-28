@@ -425,7 +425,7 @@ struct StaticDenseSetFilter(E,
         import std.array : Appender;
         import std.conv : to;
 
-        Appender!string str = "[";
+        Appender!(typeof(return)) str = "[";
         bool other = false;
 
         pragma(inline, true)

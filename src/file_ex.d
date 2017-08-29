@@ -25,9 +25,3 @@ immutable(void)[] rawReadNullTerminated(string path)
 
     return assumeUnique(data);                // TODO can we cast this to immutable?
 }
-
-@safe unittest
-{
-    import std.file;
-    rawReadNullTerminated(make);
-}

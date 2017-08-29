@@ -875,7 +875,7 @@ version(unittest)
         @safe pure nothrow @nogc:
 
         /// Create from `UnsignedType` `u`.
-        static This fromUnsigned(UnsignedType u) @trusted
+        static This fromUnsigned(in UnsignedType u) @trusted
         {
             This that;
             that.reversion = (u >> 0) & 1;

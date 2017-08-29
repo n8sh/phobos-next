@@ -461,7 +461,7 @@ unittest
                 write(`Reading SUO-KIF `, filePath, ` ... `);
                 import std.file : readText;
                 auto sw = StopWatch(AutoStart.yes);
-                import file_ex : rawReadNullTerminated;
+                import rawio : rawReadNullTerminated;
                 foreach (const ref topExpr; SUOKIFParser(cast(string)filePath.rawReadNullTerminated()))
                 {
                     // TOOD use topExpr

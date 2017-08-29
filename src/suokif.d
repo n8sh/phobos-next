@@ -440,8 +440,13 @@ unittest
     import std.stdio : write, writeln;
     import std.path : expandTilde;
     import std.file: dirEntries, SpanMode;
+    import std.conv : to;
 
     string rootDirPath = `~/Work/sumo`;
+
+    import std.datetime : StopWatch, AutoStart, Duration;
+
+    auto totalSw = StopWatch(AutoStart.yes);
 
     auto entries = dirEntries(rootDirPath.expandTilde, SpanMode.breadth, false); // false: skip symlinks
     foreach (dent; entries)
@@ -461,7 +466,6 @@ unittest
                 write(`Reading SUO-KIF `, filePath, ` ... `);
 
                 import std.file : readText;
-                import std.datetime : StopWatch, AutoStart, Duration;
                 auto sw = StopWatch(AutoStart.yes);
 
                 // TODO move this logic to readText(bool nullTerminated = false) by .capacity += 1
@@ -473,7 +477,6 @@ unittest
                     // TOOD use topExpr
                 }
                 sw.stop();
-                import std.conv : to;
                 writeln(`took `, sw.peek.to!Duration);
             }
         }
@@ -483,4 +486,7 @@ unittest
             writeln("Failed because of invalid UTF-8 encoding starting with ", filePath.read(16));
         }
     }
+
+    totalSw.stop();
+    writeln(`Reading all files took `, totalSw.peek.to!Duration);
 }

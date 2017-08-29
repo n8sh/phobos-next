@@ -3,6 +3,8 @@ module file_ex;
 /** Read file $(D path) into raw array with one extra terminating zero (null)
     byte.
 
+    TODO add or merge to Phobos?
+
     See also: https://en.wikipedia.org/wiki/Sentinel_value
 */
 void[] rawReadNullTerminated(string path)

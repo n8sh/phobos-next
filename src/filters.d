@@ -886,9 +886,8 @@ version(unittest)
         /// Convert to `UnsignedType` `u`.
         UnsignedType toUnsigned() const @trusted
         {
-            UnsignedType u = cast(UnsignedType)((cast(UnsignedType)reversion << 0) |
-                                                (cast(UnsignedType)rel << 1));
-            return u;
+            return cast(UnsignedType)((cast(UnsignedType)reversion << 0) |
+                                      (cast(UnsignedType)rel << 1));
         }
 
         UnsignedType opCast(UnsignedType)() const @nogc

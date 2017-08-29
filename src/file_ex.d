@@ -14,14 +14,14 @@ immutable(void)[] rawReadNullTerminated(string path)
     @trusted
 {
     import std.stdio : File;
-    import std.exception : assumeUnique;
 
     auto file = File(path, `rb`);
 
     import std.array : uninitializedArray;
-    ubyte[] data = uninitializedArray!(ubyte[])(file.size + 1); // one extra for null terminator
+    ubyte[] data = uninitializedArray!(ubyte[])(file.size + 1); // one extra for terminator
     file.rawRead(data);
-    data[file.size] = 0;     // null terminator for sentinel
+    data[file.size] = 0;     // zero terminator for sentinel
 
-    return assumeUnique(data);                // TODO can we cast this to immutable?
+    import std.exception : assumeUnique;
+    return assumeUnique(data);
 }

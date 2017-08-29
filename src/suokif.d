@@ -432,6 +432,25 @@ unittest
     }
 }
 
+/** Read file $(D path) into raw array with one extra terminating zero (null)
+    byte.
+
+    See also: https://en.wikipedia.org/wiki/Sentinel_value
+*/
+void[] rawReadNullTerminated(string path)
+    @safe
+{
+    import std.stdio : File;
+    auto file = File(path, `rb`);
+
+    import std.array : uninitializedArray;
+    ubyte[] data = uninitializedArray!(ubyte[])(file.size + 1); // one extra for null terminator
+    file.rawRead(data);
+    data[file.size] = 0;     // null terminator for sentinel
+
+    return data;
+}
+
 /** Read all SUO-KIF files (.kif) located under `rootDirPath`.
  */
 version(benchmark)
@@ -453,26 +472,17 @@ unittest
     {
         const filePath = dent.name;
         import std.algorithm : endsWith, canFind;
-
-        import std.path : baseName, pathSplitter;
-
+        import std.path : pathSplitter;
         import std.utf;
-        import std.algorithm : among;
         try
         {
             if (filePath.endsWith(`.kif`) &&
                 !filePath.pathSplitter.canFind(`.git`)) // invalid UTF-8 encodings
             {
                 write(`Reading SUO-KIF `, filePath, ` ... `);
-
                 import std.file : readText;
                 auto sw = StopWatch(AutoStart.yes);
-
-                // TODO move this logic to readText(bool nullTerminated = false) by .capacity += 1
-                const text = filePath.readText;
-                const ctext = text ~ '\0'; // null at the end to enable sentinel-based search in parser
-
-                foreach (const ref topExpr; SUOKIFParser(ctext))
+                foreach (const ref topExpr; SUOKIFParser(cast(string)filePath.rawReadNullTerminated()))
                 {
                     // TOOD use topExpr
                 }

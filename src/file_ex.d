@@ -6,6 +6,7 @@ module file_ex;
     TODO add or merge to Phobos?
 
     See also: https://en.wikipedia.org/wiki/Sentinel_value
+    See also: http://forum.dlang.org/post/pdzxpkusvifelumkrtdb@forum.dlang.org
 */
 void[] rawReadNullTerminated(string path)
     @safe

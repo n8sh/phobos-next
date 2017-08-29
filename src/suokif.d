@@ -46,7 +46,7 @@ struct Token
  */
 struct Expr
 {
-    Token token;                // token
+    Token token;
     Expr[] subs;
 }
 

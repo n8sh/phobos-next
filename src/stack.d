@@ -2,7 +2,7 @@
     See also: http://forum.dlang.org/thread/wswbtzakdvpgaebuhbom@forum.dlang.org
 */
 
-import array_ex : Array, Ordering;
+import array_ex : Array;
 
 alias Stack = Array;
 

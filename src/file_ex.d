@@ -16,5 +16,5 @@ void[] rawReadNullTerminated(string path)
     file.rawRead(data);
     data[file.size] = 0;     // null terminator for sentinel
 
-    return data;
+    return data;                // TODO can we cast this to immutable?
 }

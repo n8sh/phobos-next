@@ -457,13 +457,14 @@ version(benchmark)
 unittest
 {
     import std.stdio : write, writeln;
-    import std.path : expandTilde;
+    import std.path : expandTilde, pathSplitter;
     import std.file: dirEntries, SpanMode;
     import std.conv : to;
+    import std.datetime : StopWatch, AutoStart, Duration;
+    import std.algorithm : endsWith, canFind;
+    import std.utf;
 
     string rootDirPath = `~/Work/sumo`;
-
-    import std.datetime : StopWatch, AutoStart, Duration;
 
     auto totalSw = StopWatch(AutoStart.yes);
 
@@ -471,9 +472,6 @@ unittest
     foreach (dent; entries)
     {
         const filePath = dent.name;
-        import std.algorithm : endsWith, canFind;
-        import std.path : pathSplitter;
-        import std.utf;
         try
         {
             if (filePath.endsWith(`.kif`) &&

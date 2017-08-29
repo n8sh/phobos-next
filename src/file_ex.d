@@ -1,4 +1,4 @@
-module rawio;
+module file_ex;
 
 /** Read file $(D path) into raw array with one extra terminating zero (null)
     byte.

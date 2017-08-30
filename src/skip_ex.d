@@ -6,8 +6,6 @@ import std.functional : binaryFun;
 import std.range: front, back, save, empty, popBack, hasSlicing, isBidirectionalRange, ElementType;
 import std.algorithm : skipOver;
 
-// TODO Add variadic (static and dynamic) versions of "(starts|ends)With(Either)?"
-
 version(unittest)
 {
     import array_ex : s;

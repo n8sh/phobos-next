@@ -8,8 +8,6 @@ import std.algorithm : skipOver;
 
 // TODO Add variadic (static and dynamic) versions of "(starts|ends)With(Either)?"
 
-alias skipFronts = skipOver;
-
 version(unittest)
 {
     import array_ex : s;
@@ -23,7 +21,7 @@ version(unittest)
 bool skipOverBack(alias pred = "a == b", R1, R2)(ref R1 r1, R2 r2)
     if (is(typeof(binaryFun!pred(r1.back, r2.back))) &&
         isBidirectionalRange!R1 &&
-        isBidirectionalRange!R2)
+        isBidirectionalRange!R2) // TODO R2 doesn't have to bi-directional if R1 is RandomAccess and R2.hasLength
 {
     import std.range : hasLength;
     static if (hasLength!R1 && hasLength!R2)
@@ -46,7 +44,6 @@ bool skipOverBack(alias pred = "a == b", R1, R2)(ref R1 r1, R2 r2)
     }
     return r2.empty;
 }
-alias skipBacks = skipOverBack;
 
 @safe pure unittest
 {

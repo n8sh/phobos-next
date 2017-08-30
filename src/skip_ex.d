@@ -28,7 +28,9 @@ bool skipOverBack(alias pred = "a == b", R1, R2)(ref R1 r1, R2 r2)
         r2.popBack();
     }
     if (r2.empty)
+    {
         r1 = r;
+    }
     return r2.empty;
 }
 alias skipBacks = skipOverBack;
@@ -57,8 +59,12 @@ size_t skipOverEither(alias pred = "a == b", Range, Ranges...)(ref Range haystac
 {
     import std.algorithm : skipOver;
     foreach (const ix, needle; needles)
+    {
         if (haystack.skipOver(needle))
+        {
             return ix + 1;
+        }
+    }
     return 0;
 }
 
@@ -224,7 +230,10 @@ void skipOverPrefixes(R, A)(ref R s, in A prefixes)
     foreach (prefix; prefixes)
     {
         if (s.length > prefix.length &&
-            s.skipOver(prefix)) { break; }
+            s.skipOver(prefix))
+        {
+            break;
+        }
     }
 }
 
@@ -234,7 +243,11 @@ void skipOverSuffixes(R, A)(ref R s, in A suffixes)
     foreach (suffix; suffixes)
     {
         if (s.length > suffix.length &&
-            s.endsWith(suffix)) { s = s[0 .. $ - suffix.length]; break; }
+            s.endsWith(suffix))
+        {
+            s = s[0 .. $ - suffix.length];
+            break;
+        }
     }
 }
 

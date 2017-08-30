@@ -3,13 +3,17 @@
 module skip_ex;
 
 import std.functional : binaryFun;
-import std.range: front, back, save, empty, popBack, hasSlicing, isBidirectionalRange, ElementType, hasLength, isArray;
+import std.range: front, back, save, empty, popBack, hasSlicing, isBidirectionalRange, ElementType;
 import std.algorithm : skipOver;
-import std.typecons: Unqual;
 
 // TODO Add variadic (static and dynamic) versions of "(starts|ends)With(Either)?"
 
 alias skipFronts = skipOver;
+
+version(unittest)
+{
+    import array_ex : s;
+}
 
 /**
    If $(D startsWith(r1, r2)), consume the corresponding elements off $(D
@@ -17,8 +21,17 @@ alias skipFronts = skipOver;
    return $(D false).
 */
 bool skipOverBack(alias pred = "a == b", R1, R2)(ref R1 r1, R2 r2)
-    if (is(typeof(binaryFun!pred(r1.back, r2.back))))
+    if (is(typeof(binaryFun!pred(r1.back, r2.back))) &&
+        isBidirectionalRange!R1 &&
+        isBidirectionalRange!R2)
 {
+    import std.range : hasLength;
+    static if (hasLength!R1 && hasLength!R2)
+    {
+        // Shortcut opportunity!
+        if (r2.length > r1.length)
+            return false;
+    }
     auto r = r1.save;
     while (!r2.empty &&
            !r.empty &&
@@ -38,11 +51,20 @@ alias skipBacks = skipOverBack;
 @safe pure unittest
 {
     import std.algorithm: equal;
-
     auto s1 = "Hello world";
     assert(!skipOverBack(s1, "Ha"));
     assert(s1 == "Hello world");
     assert(skipOverBack(s1, "world") && s1 == "Hello ");
+}
+
+@safe pure nothrow @nogc unittest
+{
+    auto s1 = [1, 2, 3].s[];
+    const s2 = [2, 3].s[];
+    s1.skipOverBack(s2);
+    assert(s1 == [1].s);
+    s1.skipOverBack(s2);        // no effect
+    assert(s1 == [1].s);
 }
 
 import std.typecons: tuple, Tuple;
@@ -260,6 +282,8 @@ bool skipOverFrontAndBack(alias pred = "a == b", R, E)(ref R r,
     if (isBidirectionalRange!R &&
         is(typeof(binaryFun!pred(ElementType!R.init, E.init))))
 {
+    import std.typecons: Unqual;
+    import std.range : isArray;
     static if (isArray!R &&
                is(Unqual!(typeof(R.init[0])) == E)) // for instance if `R` is `string` and `E` is `char`
     {

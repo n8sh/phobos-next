@@ -12,11 +12,45 @@ version(unittest)
 }
 
 /**
-   If $(D startsWith(r1, r2)), consume the corresponding elements off $(D
-   r1) and return $(D true). Otherwise, leave $(D r1) unchanged and
-   return $(D false).
-*/
-bool skipOverBack(alias pred = "a == b", R1, R2)(ref R1 r1, R2 r2)
+   Skip over the ending portion of the first given range that matches the second
+   range, or do nothing if there is no match.
+
+Params:
+    pred = The predicate that determines whether elements from each respective
+        range match. Defaults to equality $(D "a == b").
+    r1 = The $(REF_ALTTEXT forward range, isForwardRange, std,range,primitives) to
+        move forward.
+    r2 = The $(REF_ALTTEXT input range, isInputRange, std,range,primitives)
+        representing the initial segment of $(D r1) to skip over.
+
+Returns:
+true if the initial segment of $(D r1) matches $(D r2), and $(D r1) has been
+advanced to the point past this segment; otherwise false, and $(D r1) is left
+in its original position.
+ */
+bool skipOverBack(R1, R2)(ref R1 r1, R2 r2)
+    if (isBidirectionalRange!R1 &&
+        isBidirectionalRange!R2
+        && is(typeof(r1.back == r2.back)))
+{
+    static if (is(typeof(r1[0 .. $] == r2) : bool)
+        && is(typeof(r2.length > r1.length) : bool)
+        && is(typeof(r1 = r1[0 .. $ - r2.length])))
+    {
+        if (r2.length > r1.length || r1[$ - r2.length .. $] != r2)
+        {
+            return false;
+        }
+        r1 = r1[0 .. $ - r2.length];
+        return true;
+    }
+    else
+    {
+        return skipOverBack!((a, b) => a == b)(r1, r2);
+    }
+}
+
+bool skipOverBack(alias pred, R1, R2)(ref R1 r1, R2 r2)
     if (is(typeof(binaryFun!pred(r1.back, r2.back))) &&
         isBidirectionalRange!R1 &&
         isBidirectionalRange!R2) // TODO R2 doesn't have to bi-directional if R1 is RandomAccess and R2.hasLength
@@ -43,15 +77,6 @@ bool skipOverBack(alias pred = "a == b", R1, R2)(ref R1 r1, R2 r2)
     return r2.empty;
 }
 
-@safe pure unittest
-{
-    import std.algorithm: equal;
-    auto s1 = "Hello world";
-    assert(!skipOverBack(s1, "Ha"));
-    assert(s1 == "Hello world");
-    assert(skipOverBack(s1, "world") && s1 == "Hello ");
-}
-
 @safe pure nothrow @nogc unittest
 {
     auto s1 = [1, 2, 3].s[];
@@ -60,6 +85,15 @@ bool skipOverBack(alias pred = "a == b", R1, R2)(ref R1 r1, R2 r2)
     assert(s1 == [1].s);
     s1.skipOverBack(s2);        // no effect
     assert(s1 == [1].s);
+}
+
+@safe pure unittest
+{
+    import std.algorithm: equal;
+    auto s1 = "Hello world";
+    assert(!skipOverBack(s1, "Ha"));
+    assert(s1 == "Hello world");
+    assert(skipOverBack(s1, "world") && s1 == "Hello ");
 }
 
 import std.typecons: tuple, Tuple;

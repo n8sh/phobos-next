@@ -15,18 +15,7 @@ version(unittest)
    Skip over the ending portion of the first given range that matches the second
    range, or do nothing if there is no match.
 
-Params:
-    pred = The predicate that determines whether elements from each respective
-        range match. Defaults to equality $(D "a == b").
-    r1 = The $(REF_ALTTEXT forward range, isForwardRange, std,range,primitives) to
-        move forward.
-    r2 = The $(REF_ALTTEXT input range, isInputRange, std,range,primitives)
-        representing the initial segment of $(D r1) to skip over.
-
-Returns:
-true if the initial segment of $(D r1) matches $(D r2), and $(D r1) has been
-advanced to the point past this segment; otherwise false, and $(D r1) is left
-in its original position.
+   See also: std.algorithm.searching.skipOver.
  */
 bool skipOverBack(R1, R2)(ref R1 r1, R2 r2)
     if (isBidirectionalRange!R1 &&
@@ -50,6 +39,7 @@ bool skipOverBack(R1, R2)(ref R1 r1, R2 r2)
     }
 }
 
+///
 bool skipOverBack(alias pred, R1, R2)(ref R1 r1, R2 r2)
     if (is(typeof(binaryFun!pred(r1.back, r2.back))) &&
         isBidirectionalRange!R1 &&

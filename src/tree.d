@@ -35,6 +35,7 @@ public:
         _root = makeNode(e);
     }
 
+    /// TODO how do we make destructor of this @trusted?
     ~this() @trusted
     {
     }

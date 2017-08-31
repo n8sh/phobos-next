@@ -70,7 +70,7 @@ bool isNullTerminated(const(char)[] s)
     return s.length >= 1 && s[$ - 1] == '\0';
 }
 
-/** Lazy SUO-KIF parser from `input` into returned array of expressions (`Expr`).
+/** SUO-KIF parse from `input` into lazy range over top-level expressions (`Expr`).
  */
 struct SUOKIFParser
 {

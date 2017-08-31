@@ -1,7 +1,7 @@
 module tree;
 
-/// Tree node.
-struct Node(E)
+/// Tree node containing `E`.
+private struct Node(E)
 {
 private:
     E data;
@@ -20,6 +20,8 @@ struct GrowOnlyNaryTree(E)
 {
     /* @safe pure: */
 public:
+    @disable this(this);
+
     this(size_t regionSize)
     {
         auto _allocator = Region!PureMallocator(regionSize);
@@ -38,5 +40,5 @@ unittest
 {
     struct X { string src; }
 
-    GrowOnlyNaryTree!X tree;
+    auto tree = GrowOnlyNaryTree!X(1024);
 }

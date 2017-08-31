@@ -5,9 +5,6 @@
 */
 module suokif;
 
-// See also: http://forum.dlang.org/post/prsxfcmkngfwomygmthi@forum.dlang.org
-import std.experimental.allocator.building_blocks.region;
-
 version = benchmark;
 
 /** SUO-KIF (Lisp) Token Type. */
@@ -43,6 +40,9 @@ struct Token
     TOK tok;
     string src;                 // optional source slice
 }
+
+// See also: http://forum.dlang.org/post/prsxfcmkngfwomygmthi@forum.dlang.org
+import std.experimental.allocator.building_blocks.region;
 
 /** SUO_KIF Expression.
     TODO use vary.FastVariant instead of `Expr[]`

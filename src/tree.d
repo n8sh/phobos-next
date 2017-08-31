@@ -24,19 +24,23 @@ struct GrowOnlyUpwardsNaryTree(E)
 public:
 
     /// Create with region size in bytes.
-    this(size_t regionSize)
+    this(size_t regionSize) @trusted
     {
         _allocator = Region!PureMallocator(regionSize);
     }
 
-    this(in E e, size_t regionSize)
+    this(in E e, size_t regionSize) @trusted
     {
         _allocator = Region!PureMallocator(regionSize);
         _root = makeNode(e);
     }
 
+    ~this() @trusted
+    {
+    }
+
     /// Returns: a new node.
-    N* makeNode(in E e)
+    N* makeNode(in E e) @trusted
     {
         typeof(return) node = cast(typeof(_root))_allocator.allocate(N.sizeof);
         emplace!(N)(node, e);
@@ -44,7 +48,7 @@ public:
     }
 
     /// Returns: top node.
-    inout(Node!E)* root() inout
+    inout(Node!E)* root() inout return scope
     {
         return _root;
     }
@@ -61,10 +65,11 @@ private:
     Region!PureMallocator _allocator;
 }
 
-unittest
+/*@safe*/ unittest
 {
     struct X { string src; }
 
     auto tree = GrowOnlyUpwardsNaryTree!X(X("alpha"), 1024 * 1024);
+
     assert(tree.root.data.src == "alpha");
 }

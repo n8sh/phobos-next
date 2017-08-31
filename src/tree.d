@@ -16,19 +16,41 @@ private:
 
     See also: http://forum.dlang.org/post/prsxfcmkngfwomygmthi@forum.dlang.org
  */
-struct GrowOnlyNaryTree(E)
+struct GrowOnlyUpwardsNaryTree(E)
 {
+    alias N = Node!E;
+
     /* @safe pure: */
 public:
-    @disable this();
-    @disable this(this);
-
     this(size_t regionSize)
     {
-        auto _allocator = Region!PureMallocator(regionSize);
+        _allocator = Region!PureMallocator(regionSize);
     }
+
+    this(in E e, size_t regionSize)
+    {
+        _allocator = Region!PureMallocator(regionSize);
+        _root = makeNode(e);
+    }
+
+    /// Returns: a new node.
+    N* makeNode(in E e)
+    {
+        typeof(return) node = cast(typeof(_root))_allocator.allocate(N.sizeof);
+        emplace!(N)(node, e);
+        return node;
+    }
+
+    /// Returns: top node.
+    inout(Node!E)* root() inout
+    {
+        return _root;
+    }
+
 private:
-    Node!E *_root;
+    N* _root;
+
+    import std.conv : emplace;
 
     // import std.experimental.allocator.mallocator : Mallocator;
     import pure_mallocator : PureMallocator;
@@ -41,5 +63,5 @@ unittest
 {
     struct X { string src; }
 
-    auto tree = GrowOnlyNaryTree!X(1024);
+    auto tree = GrowOnlyUpwardsNaryTree!X(X("alpha"), 1024 * 1024);
 }

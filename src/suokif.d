@@ -1,7 +1,8 @@
 /** SUO-KIF File Format.
 
-    See: https://en.wikipedia.org/wiki/Knowledge_Interchange_Format
-    See: http://sigmakee.cvs.sourceforge.net/viewvc/sigmakee/sigma/suo-kif.pdf
+    See also: https://en.wikipedia.org/wiki/Knowledge_Interchange_Format
+    See also: http://sigmakee.cvs.sourceforge.net/viewvc/sigmakee/sigma/suo-kif.pdf
+    See also: http://forum.dlang.org/post/prsxfcmkngfwomygmthi@forum.dlang.org
 */
 module suokif;
 
@@ -48,17 +49,6 @@ struct Expr
 {
     Token token;
     Expr[] subs;
-}
-
-// See also: http://forum.dlang.org/post/prsxfcmkngfwomygmthi@forum.dlang.org
-import std.experimental.allocator.mallocator : Mallocator;
-import std.experimental.allocator.building_blocks.region : Region;
-
-/** Lisp-style sub-expression. */
-struct Sexp
-{
-    Token token;
-    Sexp[] subs;
 }
 
 import arrayn : ArrayN, Checking;

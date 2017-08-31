@@ -4,22 +4,32 @@ module tree;
 struct Node(E)
 {
 private:
-    Node!E[] subs;
+    E data;
+    import array_ex : UniqueArray;
+    UniqueArray!(Node!E*) subs;
 }
 
 /// N-ary tree that can only grow (in breadth and depth).
 struct GrowOnlyNaryTree(E)
 {
+    /* @safe pure: */
 public:
+    this(size_t regionSize)
+    {
+        auto _allocator = Region!PureMallocator(regionSize);
+    }
 private:
     Node!E *_root;
 
     // See also: http://forum.dlang.org/post/prsxfcmkngfwomygmthi@forum.dlang.org
-    import std.experimental.allocator.mallocator : Mallocator;
+    // import std.experimental.allocator.mallocator : Mallocator;
+    import pure_mallocator : PureMallocator;
     import std.experimental.allocator.building_blocks.region : Region;
+
+    Region!PureMallocator _allocator;
 }
 
-@safe pure nothrow @nogc unittest
+unittest
 {
     struct X { string src; }
     GrowOnlyNaryTree!X tree;

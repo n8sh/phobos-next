@@ -37,5 +37,6 @@ private:
 unittest
 {
     struct X { string src; }
+
     GrowOnlyNaryTree!X tree;
 }

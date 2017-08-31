@@ -20,6 +20,7 @@ struct GrowOnlyNaryTree(E)
 {
     /* @safe pure: */
 public:
+    @disable this();
     @disable this(this);
 
     this(size_t regionSize)

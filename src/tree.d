@@ -22,6 +22,8 @@ struct GrowOnlyUpwardsNaryTree(E)
 
     /* @safe pure: */
 public:
+
+    /// Create with region size in bytes.
     this(size_t regionSize)
     {
         _allocator = Region!PureMallocator(regionSize);

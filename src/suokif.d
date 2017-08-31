@@ -128,6 +128,7 @@ struct SUOKIFParser
     }
 
     import std.meta : AliasSeq;
+
     // from std.ascii.isWhite
     alias endOfLineChars = AliasSeq!('\n', // (0x0a)
                                      '\r', // (0x0c)

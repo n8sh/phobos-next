@@ -16,7 +16,7 @@ private:
 
     See also: http://forum.dlang.org/post/prsxfcmkngfwomygmthi@forum.dlang.org
  */
-struct GrowOnlyUpwardsNaryTree(E)
+struct GrowOnlyNaryTree(E)
 {
     alias N = Node!E;
 

@@ -4,7 +4,7 @@ module tree;
 struct Node(E)
 {
 private:
-    Node *_root;
+    Node!E[] subs;
 }
 
 /// N-ary tree that can only grow (in breadth and depth).

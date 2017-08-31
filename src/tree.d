@@ -66,4 +66,5 @@ unittest
     struct X { string src; }
 
     auto tree = GrowOnlyUpwardsNaryTree!X(X("alpha"), 1024 * 1024);
+    assert(tree.root.data.src == "alpha");
 }

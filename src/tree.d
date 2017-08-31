@@ -9,7 +9,7 @@ private:
     UniqueArray!(Node!E*) subs;
 }
 
-/** N-ary tree that can only grow (in breadth and depth).
+/** N-ary tree that cannot shrink but only grow (in breadth and depth).
 
     Because of this a region allocator can be used for internal memory
     allocation.

@@ -13,6 +13,8 @@ private:
 
     Because of this a region allocator can be used for internal memory
     allocation.
+
+    See also: http://forum.dlang.org/post/prsxfcmkngfwomygmthi@forum.dlang.org
  */
 struct GrowOnlyNaryTree(E)
 {
@@ -25,7 +27,6 @@ public:
 private:
     Node!E *_root;
 
-    // See also: http://forum.dlang.org/post/prsxfcmkngfwomygmthi@forum.dlang.org
     // import std.experimental.allocator.mallocator : Mallocator;
     import pure_mallocator : PureMallocator;
     import std.experimental.allocator.building_blocks.region : Region;

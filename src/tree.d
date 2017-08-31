@@ -44,6 +44,7 @@ public:
     N* makeNode(in E e) @trusted
     {
         typeof(return) node = cast(typeof(_root))_allocator.allocate(N.sizeof);
+        import std.conv : emplace;
         emplace!(N)(node, e);
         return node;
     }
@@ -56,8 +57,6 @@ public:
 
 private:
     N* _root;
-
-    import std.conv : emplace;
 
     // import std.experimental.allocator.mallocator : Mallocator;
     import pure_mallocator : PureMallocator;

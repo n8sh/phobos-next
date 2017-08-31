@@ -53,6 +53,13 @@ struct Expr
     Expr[] subs;
 }
 
+/** Lisp-style sub-expression. */
+struct Sexp
+{
+    Token token;
+    Sexp[] subs;
+}
+
 import arrayn : ArrayN, Checking;
 import file_ex : rawReadNullTerminated;
 

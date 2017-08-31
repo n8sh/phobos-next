@@ -36,9 +36,9 @@ public:
     }
 
     /// TODO how do we make destructor of this @trusted?
-    ~this() @trusted
-    {
-    }
+    // ~this() @trusted
+    // {
+    // }
 
     /// Returns: a new node.
     N* makeNode(in E e) @trusted

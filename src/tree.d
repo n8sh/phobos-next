@@ -26,12 +26,12 @@ struct GrowOnlyUpwardsNaryTree(E)
 public:
     this(size_t regionSize)
     {
-        _allocator = Region!PureMallocator(regionSize);
+        _allocator = Allocator(regionSize);
     }
 
     this(in E e, size_t regionSize)
     {
-        _allocator = Region!PureMallocator(regionSize);
+        _allocator = Allocator(regionSize);
         _root = _allocator.make!N(e);
     }
 
@@ -44,14 +44,13 @@ public:
 private:
     N* _root;
 
-    import std.conv : emplace;
-
     // import std.experimental.allocator.mallocator : Mallocator;
     import std.experimental.allocator : make, makeArray;
     import std.experimental.allocator.building_blocks.region : Region;
     import pure_mallocator : PureMallocator;
+    alias Allocator = Region!PureMallocator;
 
-    Region!PureMallocator _allocator;
+    Allocator _allocator;
 }
 
 unittest

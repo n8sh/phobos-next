@@ -1,16 +1,5 @@
 module tree;
 
-/// Tree node containing `E`.
-private struct Node(E)
-{
-private:
-    E data;
-
-    // allocate with pointers with std.experimental.allocator.makeArray and each
-    // pointer with std.experimental.allocator.makeArray
-    Node!E*[] subs;
-}
-
 /** N-ary tree that cannot shrink but only grow (in breadth and depth).
 
     Because of this a region allocator can be used for internal memory
@@ -58,4 +47,15 @@ unittest
     struct X { string src; }
 
     auto tree = GrowOnlyUpwardsNaryTree!X(X("alpha"), 1024 * 1024);
+}
+
+/// Tree node containing `E`.
+private struct Node(E)
+{
+private:
+    E data;
+
+    // allocate with pointers with std.experimental.allocator.makeArray and each
+    // pointer with std.experimental.allocator.makeArray
+    Node!E*[] subs;
 }

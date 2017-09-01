@@ -49,6 +49,15 @@ unittest
     const e = X("alpha");
     auto tree = GrowOnlyUpwardsNaryTree!X(e, 1024 * 1024);
     assert(tree.root.data == e);
+
+    // TODO this should fail to compile with -dip1000
+    Node!X* dumb()
+    {
+        auto tree = GrowOnlyUpwardsNaryTree!X(e, 1024 * 1024);
+        return tree.root;
+    }
+
+    dumb();
 }
 
 /// Tree node containing `E`.

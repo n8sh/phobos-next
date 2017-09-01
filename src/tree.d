@@ -5,8 +5,10 @@ private struct Node(E)
 {
 private:
     E data;
-    import array_ex : UniqueArray;
-    UniqueArray!(Node!E*) subs;
+
+    // allocate with pointers with std.experimental.allocator.makeArray and each
+    // pointer with std.experimental.allocator.makeArray
+    Node!E*[] subs;
 }
 
 /** N-ary tree that cannot shrink but only grow (in breadth and depth).
@@ -30,15 +32,7 @@ public:
     this(in E e, size_t regionSize)
     {
         _allocator = Region!PureMallocator(regionSize);
-        _root = makeNode(e);
-    }
-
-    /// Returns: a new node.
-    N* makeNode(in E e)
-    {
-        typeof(return) node = cast(typeof(_root))_allocator.allocate(N.sizeof);
-        emplace!(N)(node, e);
-        return node;
+        _root = _allocator.make!N(e);
     }
 
     /// Returns: top node.
@@ -53,8 +47,9 @@ private:
     import std.conv : emplace;
 
     // import std.experimental.allocator.mallocator : Mallocator;
-    import pure_mallocator : PureMallocator;
+    import std.experimental.allocator : make, makeArray;
     import std.experimental.allocator.building_blocks.region : Region;
+    import pure_mallocator : PureMallocator;
 
     Region!PureMallocator _allocator;
 }

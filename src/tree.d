@@ -30,10 +30,6 @@ public:
         return _root;
     }
 
-    void joinRight(in N*[] rightRoots)
-    {
-    }
-
 private:
     N* _root;
 

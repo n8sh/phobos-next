@@ -2,11 +2,6 @@
 
 module combinations;
 
-import std.traits: Unqual;
-import std.range: isRandomAccessRange, hasLength, ElementType;
-import std.traits: isNarrowString;
-import std.typecons: Tuple;
-
 /** Given non-negative integers $(D m) and $(D n), generate all size $(D m)
    combinations of the integers from 0 to $(D n)-1 in sorted order (each
    combination is sorted and the entire table is sorted).
@@ -28,6 +23,7 @@ import std.typecons: Tuple;
 struct Combinations(T, bool copy = true, bool useArray = true)
 {
     import std.container: Array;
+    import std.traits: Unqual;
 
     static if (useArray)
         alias Indices = Array!size_t;
@@ -174,6 +170,7 @@ auto pairwise(R)(R r)
     {
         import std.range: ForeachType;
         import std.traits: Unqual;
+        import std.typecons: Tuple;
 
         alias UR = Unqual!R;
         alias E = ForeachType!UR;
@@ -264,6 +261,7 @@ auto pairwise(R)(R r)
 unittest
 {
     import std.algorithm: equal, filter;
+    import std.typecons: Tuple;
 
     assert((new int[0]).pairwise.empty);
     assert([1].pairwise.empty);

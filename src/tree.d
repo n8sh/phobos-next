@@ -25,7 +25,7 @@ public:
     }
 
     /// Returns: top node.
-    inout(Node!E)* root() inout
+    inout(Node!E)* root() inout return scope
     {
         return _root;
     }

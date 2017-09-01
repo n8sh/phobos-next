@@ -1,14 +1,5 @@
 module tree;
 
-/// Tree node containing `E`.
-private struct Node(E)
-{
-private:
-    E data;
-    import array_ex : UniqueArray;
-    UniqueArray!(Node!E*) subs;
-}
-
 /** N-ary tree that cannot shrink but only grow (in breadth and depth).
 
     Because of this a region allocator can be used for internal memory
@@ -26,27 +17,13 @@ public:
     /// Create with region size in bytes.
     this(size_t regionSize) @trusted
     {
-        _allocator = Region!PureMallocator(regionSize);
+        _allocator = Allocator(regionSize);
     }
 
     this(in E e, size_t regionSize) @trusted
     {
-        _allocator = Region!PureMallocator(regionSize);
-        _root = makeNode(e);
-    }
-
-    /// TODO how do we make destructor of this @trusted?
-    // ~this() @trusted
-    // {
-    // }
-
-    /// Returns: a new node.
-    N* makeNode(in E e) @trusted
-    {
-        typeof(return) node = cast(typeof(_root))_allocator.allocate(N.sizeof);
-        import std.conv : emplace;
-        emplace!(N)(node, e);
-        return node;
+        _allocator = Allocator(regionSize);
+        _root = _allocator.make!N(e);
     }
 
     /// Returns: top node.
@@ -59,17 +36,39 @@ private:
     N* _root;
 
     // import std.experimental.allocator.mallocator : Mallocator;
-    import pure_mallocator : PureMallocator;
+    import std.experimental.allocator : make, makeArray;
     import std.experimental.allocator.building_blocks.region : Region;
+    import pure_mallocator : PureMallocator;
+    alias Allocator = Region!PureMallocator;
 
-    Region!PureMallocator _allocator;
+    Allocator _allocator;
 }
 
 /*@safe*/ unittest
 {
     struct X { string src; }
 
-    auto tree = GrowOnlyNaryTree!X(X("alpha"), 1024 * 1024);
+    const e = X("alpha");
+    auto tree = GrowOnlyNaryTree!X(e, 1024 * 1024);
+    assert(tree.root.data == e);
 
-    assert(tree.root.data.src == "alpha");
+    // TODO this should fail to compile with -dip1000
+    Node!X* dumb()
+    {
+        auto tree = GrowOnlyNaryTree!X(e, 1024 * 1024);
+        return tree.root;
+    }
+
+    dumb();
+}
+
+/// Tree node containing `E`.
+private struct Node(E)
+{
+private:
+    E data;
+
+    // allocate with pointers with std.experimental.allocator.makeArray and each
+    // pointer with std.experimental.allocator.makeArray
+    Node!E*[] subs;
 }

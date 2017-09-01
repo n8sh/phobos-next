@@ -48,7 +48,6 @@ unittest
 
     auto tree = GrowOnlyUpwardsNaryTree!X(X("alpha"), 1024 * 1024);
     assert(tree.root.data == X("alpha"));
-    assert(tree.root.data.src == "alpha");
 }
 
 /// Tree node containing `E`.

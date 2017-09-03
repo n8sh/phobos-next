@@ -10,7 +10,7 @@ void main(string[] args)
     const sourcePath = `aard_process.d`;
 
     import std.path: expandTilde;
-    const workDir = expandTilde(`~/justd`);     // std.file.getcwd doesn't work here because it
+    const workDir = expandTilde(`~/Work/knet`);     // std.file.getcwd doesn't work here because it
     writeln(`sched (pid=`, thisProcessID, `): was started`);
 
     GC.disable;

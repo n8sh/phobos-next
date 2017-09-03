@@ -78,8 +78,8 @@ template isBlockInputRange(R)
 {
     import std.range : isInputRange;
     enum isBlockInputRange = (isInputRange!R &&
-                              __traits(hasMember, R, `bufferFrontChunk`) &&
-                              __traits(hasMember, R, `loadNextChunk`));
+                              __traits(hasMember, R, `bufferFrontChunk`) && // TODO ask dlang for better naming
+                              __traits(hasMember, R, `loadNextChunk`));     // TODO ask dlang for better naming
 }
 
 /** Decompress `BlockInputRange` linewise.

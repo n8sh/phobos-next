@@ -88,10 +88,10 @@ class DecompressByLine(BlockInputRange)
 {
     private alias E = char;
 
-    this(in const(char)[] path,
+    this(in const(char)[] range,
          E separator = '\n')
     {
-        this._range = typeof(_range)(path);
+        this._range = typeof(_range)(range);
         this._separator = separator;
         // this._lbuf = typeof(_lbuf).withCapacity(80);
         popFront();

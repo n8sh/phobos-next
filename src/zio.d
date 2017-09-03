@@ -88,6 +88,9 @@ class DecompressByLine(BlockInputRange)
 {
     private alias E = char;
 
+    /** If `range` is of type isBlockInputRange massive performance
+        optimizationss are possible especially when decoding compressed files.
+    */
     this(in const(char)[] range,
          E separator = '\n')
     {

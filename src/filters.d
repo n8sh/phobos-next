@@ -451,6 +451,7 @@ struct StaticDenseSetFilter(E,
 
         static if (is(E == enum))
         {
+            import std.traits : EnumMembers;
             foreach (const e; [EnumMembers!E])
             {
                 putElement(e);

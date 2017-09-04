@@ -1349,6 +1349,7 @@ auto split(alias pred, R)(R haystack)
                 pos2 = ++pos1;
             }
         }
+        // TODO use Voldemort struct instead of tuple
         return tuple(takeExactly(original, pos1),
                      takeExactly(haystack, pos2 - pos1),
                      h);
@@ -1395,6 +1396,7 @@ auto splitBefore(alias pred, R)(R haystack)
                 ++pos;
             }
         }
+        // TODO use Voldemort struct instead of tuple
         return tuple(takeExactly(original, pos),
                      haystack);
     }
@@ -1417,6 +1419,7 @@ auto splitAfter(alias pred, R)(R haystack)
         import std.range : empty;
         auto balance = find!pred(haystack);
         immutable pos = balance.empty ? 0 : haystack.length - balance.length + 1;
+        // TODO use Voldemort struct instead of tuple
         return tuple(haystack[0 .. pos], haystack[pos .. haystack.length]);
     }
     else

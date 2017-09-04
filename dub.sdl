@@ -1,4 +1,5 @@
 name "phobos-next"
+targetType "library"
 
 description "Various reusable D code."
 
@@ -6,7 +7,7 @@ homepage "https://github.com/nordlow/phobos-next"
 
 license "Boost"
 copyright "Copyright © 2017, Per Nordlöw"
-authors "Per Nordlöw" email="per.nordlow@gmail.com" active=true
+authors "Per Nordlöw <per.nordlow@gmail.com>"
 
 dependency "arsd" version="~master"
 

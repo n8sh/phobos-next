@@ -2484,21 +2484,25 @@ uint startsWith(alias needle, R)(R haystack) @trusted // TODO variadic needles
 }
 
 template startsWithN(needles...)
-    if (isExpressionTuple!needles)
+    if (isExpressionTuple!needles &&
+        needles.length >= 1)
 {
     uint startsWithN(Haystack)(Haystack haystack)
         if (!is(CommonType!(typeof(Haystack.front), needles) == void))
     {
-        // TODO reuse haystack.among
-        switch (haystack)
-        {
-            foreach (uint i, v; needles)
-                case v:
-                    return i + 1;
-            default:
-                return 0;
-        }
+        if (haystack.length == 0)
+            return 0;
+        import std.algorithm.comparison : among;
+        return haystack.front.among!(needles);
     }
+}
+
+@safe pure unittest
+{
+    const haystack = "abc";
+    assert(haystack.startsWithN!('a') == 1);
+    assert(haystack.startsWithN!('b') == 0);
+    assert(haystack.startsWithN!('_', 'a') == 2);
 }
 
 uint endsWith(alias needle, R)(R haystack) @trusted // TODO variadic needles

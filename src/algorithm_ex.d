@@ -2458,8 +2458,12 @@ enum isAsciiChar(alias x) = is(typeof(x) : char) && x < 128;
 {
     static assert(isAsciiChar!'a');
     static assert(!isAsciiChar!'ä');
+
     immutable ch = 'a';
     static assert(isAsciiChar!ch);
+
+    const cch = 'a';
+    static assert(isAsciiChar!cch);
 }
 
 uint startsWith(alias needle, Haystack)(Haystack haystack) @trusted // TODO variadic needles

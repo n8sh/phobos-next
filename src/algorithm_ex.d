@@ -2498,7 +2498,7 @@ template startsWith(needles...)
                    is(Unqual!(typeof(Haystack.init[0])) == char) && // TODO reuse existing trait
                    allSatisfy!(isASCIIConstant, needles))
         {
-            // no front decoding
+            // no front decoding needed
             static if (needles.length == 1)
             {
                 return haystack[0] == needles[0] ? 1 : 0;

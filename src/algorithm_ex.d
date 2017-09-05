@@ -2491,7 +2491,8 @@ uint startsWith(alias needle, Haystack)(Haystack haystack) @trusted // TODO vari
         is(typeof(haystack.front == needle)))
 {
     import std.traits : isArray, Unqual;
-    static if (isArray!Haystack && is(Unqual!(typeof(Haystack.init[0])) == char) && // TODO reuse existing trait
+    static if (isArray!Haystack &&
+               is(Unqual!(typeof(Haystack.init[0])) == char) && // TODO reuse existing trait
                isASCIIConstant!needle)
     {
         return (haystack.length >= 1 &&
@@ -2526,8 +2527,10 @@ template startsWithN(needles...)
     {
         if (haystack.length == 0) { return 0; }
         import std.algorithm.comparison : among;
-        static if (isArray!Haystack && is(Unqual!(typeof(Haystack.init[0])) == char) && // TODO reuse existing trait
-                   allSatisfy!(isASCIIConstant, needles)) {
+        static if (isArray!Haystack &&
+                   is(Unqual!(typeof(Haystack.init[0])) == char) && // TODO reuse existing trait
+                   allSatisfy!(isASCIIConstant, needles))
+        {
             return haystack[0].among!(needles); // no front decoding
         }
         else

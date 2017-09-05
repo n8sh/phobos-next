@@ -139,7 +139,7 @@ struct FastQRecord
 
 unittest
 {
-    string input = """
+    string input = `
 @seq1
 TTATTTTAAT
 +
@@ -152,7 +152,7 @@ GACCCTTTGCA
 GATTTGGGGTTCAAAGCAGTATCGATCAAATAGTAAATCCATTTGTTCAACTCACAGTTT
 +
 !''*((((***+))%%%++)(%%%%).1***-+*''))**55CCF>>>>>>CCCCCCC65
-"""[1 .. $];
+`[1 .. $];
 
     foreach(record; FastQRecord.parse(input))
     {

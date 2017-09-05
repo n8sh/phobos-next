@@ -2486,43 +2486,11 @@ template isASCIIConstant(alias x)
     static assert(!isASCIIConstant!dch_);
 }
 
-uint startsWith(alias needle, Haystack)(Haystack haystack) @trusted // TODO variadic needles
-    if (isInputRange!Haystack &&
-        is(typeof(haystack.front == needle)))
-{
-    import std.traits : isArray, Unqual;
-    static if (isArray!Haystack &&
-               is(Unqual!(typeof(Haystack.init[0])) == char) && // TODO reuse existing trait
-               isASCIIConstant!needle)
-    {
-        return (haystack.length >= 1 &&
-                haystack.ptr[0] == needle) ? 1 : 0; // @trusted
-    }
-    else
-    {
-        import std.range : front;
-        return haystack.front == needle;
-    }
-}
-
-@safe pure nothrow @nogc unittest
-{
-    const haystack = "abc";
-    assert(haystack.startsWith!('a'));
-    assert(!haystack.startsWith!('b'));
-}
-
-@safe pure unittest
-{
-    const haystack = "äbc";
-    assert(haystack.startsWith!('ä'));
-}
-
-template startsWithN(needles...)
+template startsWith(needles...)
     if (isExpressionTuple!needles &&
         needles.length >= 1)
 {
-    uint startsWithN(Haystack)(Haystack haystack)
+    uint startsWith(Haystack)(Haystack haystack)
         if (!is(CommonType!(typeof(Haystack.front), needles) == void))
     {
         if (haystack.length == 0) { return 0; }
@@ -2550,12 +2518,25 @@ template startsWithN(needles...)
     }
 }
 
+@safe pure nothrow @nogc unittest
+{
+    const haystack = "abc";
+    assert(haystack.startsWith!('a'));
+    assert(!haystack.startsWith!('b'));
+}
+
+@safe pure unittest
+{
+    const haystack = "äbc";
+    assert(haystack.startsWith!('ä'));
+}
+
 @safe pure unittest
 {
     const haystack = "abc";
-    assert(haystack.startsWithN!('a') == 1);
-    assert(haystack.startsWithN!('b') == 0);
-    assert(haystack.startsWithN!('_', 'a') == 2);
+    assert(haystack.startsWith!('a') == 1);
+    assert(haystack.startsWith!('b') == 0);
+    assert(haystack.startsWith!('_', 'a') == 2);
 }
 
 uint endsWith(alias needle, Haystack)(Haystack haystack) @trusted // TODO variadic needles

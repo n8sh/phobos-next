@@ -11,6 +11,8 @@ authors "Per Nordlöw <per.nordlow@gmail.com>"
 
 # dependency "arsd" version="~master"
 
+dflags "-dip25" "-dip1000"
+
 importPaths "src"
 
 sourceFiles {

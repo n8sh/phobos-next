@@ -2451,7 +2451,7 @@ auto use(alias F, T)(T t)
     }
 }
 
-/** Is `true` if `x` is an ASCII character, false otherwise.
+/** Is `true` if `x` is an ASCII character constant, false otherwise.
     See also: `std.ascii.isASCII`.
 */
 enum isASCIIConstant(alias x) = (is(typeof(x) : char) ||

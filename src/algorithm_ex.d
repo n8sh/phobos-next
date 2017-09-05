@@ -2476,8 +2476,14 @@ template isASCIIConstant(alias x)
     const wchar wch = 'a';
     static assert(isASCIIConstant!wch);
 
+    const wchar wch_ = 'ä';
+    static assert(!isASCIIConstant!wch_);
+
     const dchar dch = 'a';
     static assert(isASCIIConstant!dch);
+
+    const dchar dch_ = 'ä';
+    static assert(!isASCIIConstant!dch_);
 }
 
 uint startsWith(alias needle, Haystack)(Haystack haystack) @trusted // TODO variadic needles

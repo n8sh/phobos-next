@@ -32,61 +32,13 @@ string toHTML(C)(C c, bool nbsp = true) @safe pure
         return "&#" ~ to!string(cast(int)c) ~ ";";
 }
 
-static if (__VERSION__ >= 2066L)
+/** Copied from arsd.dom */
+/** Convert string $(D s) to HTML representation. */
+auto encodeHTML(string s, bool nbsp = true) @safe pure
 {
-    /** Copied from arsd.dom */
-    /** Convert string $(D s) to HTML representation. */
-    auto encodeHTML(string s, bool nbsp = true) @safe pure
-    {
-        import std.utf : byDchar;
-        import std.algorithm : joiner, map;
-        return s.byDchar.map!toHTML.joiner(``);
-    }
-}
-else
-{
-    import std.array : appender, Appender;
-
-    /** Copied from arsd.dom */
-    string encodeHTML(string data,
-                      Appender!string os = appender!string(),
-                      bool nbsp = true) pure
-    {
-        bool skip = true;
-        foreach (char c; data)
-        {
-            // non ASCII chars are always higher than 127 in utf8;
-            // we'd better go to the full decoder if we see it.
-            if (c == '<' ||
-                c == '>' ||
-                c == '"' ||
-                c == '&' ||
-                (nbsp &&
-                 c == ' ') ||
-                cast(uint) c > 127)
-            {
-                skip = false; // there's actual work to be done
-                break;
-            }
-        }
-
-        if (skip)
-        {
-            os.put(data);
-            return data;
-        }
-
-        auto start = os.data.length;
-
-        os.reserve(data.length + 64); // grab some extra space for the encoded entities
-
-        foreach (dchar ch; data)
-        {
-            os.put(ch.encodeHTML);
-        }
-
-        return os.data[start .. $];
-    }
+    import std.utf : byDchar;
+    import std.algorithm : joiner, map;
+    return s.byDchar.map!toHTML.joiner(``);
 }
 
 @safe pure unittest

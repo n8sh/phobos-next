@@ -2454,9 +2454,13 @@ auto use(alias F, T)(T t)
 /** Is `true` if `x` is an ASCII character constant, false otherwise.
     See also: `std.ascii.isASCII`.
 */
-enum isASCIIConstant(alias x) = (is(typeof(x) : char) ||
-                                 is(typeof(x) : wchar) ||
-                                 is(typeof(x) : dchar)) && x < 128;
+template isASCIIConstant(alias x)
+{
+    alias T = typeof(x);
+    enum isASCIIConstant = (is(T : char) ||
+                            is(T : wchar) ||
+                            is(T : dchar)) && x < 128;
+}
 
 @safe pure nothrow @nogc unittest
 {

@@ -118,6 +118,8 @@ struct EnumUnion(E...)
 
     @safe pure nothrow:
 
+    import std.conv : asOriginalType;
+
     static if (E.length >= 1)
     {
         void opAssign(E[0] e) { _value = cast(U)e; }
@@ -126,7 +128,7 @@ struct EnumUnion(E...)
             bool match = false;
             foreach (m; EnumMembers!(E[0]))
             {
-                if (m == _value)
+                if (m.asOriginalType == _value.asOriginalType)
                 {
                     match = true;
                 }
@@ -144,7 +146,7 @@ struct EnumUnion(E...)
             bool match = false;
             foreach (m; EnumMembers!(E[1]))
             {
-                if (m == _value)
+                if (m.asOriginalType == _value.asOriginalType)
                 {
                     match = true;
                 }

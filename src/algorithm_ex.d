@@ -2455,11 +2455,12 @@ uint startsWith(alias needle, R)(R haystack) @trusted
     if (isInputRange!R &&
         is(typeof(haystack.front == needle)))
 {
-    import std.traits : Unqual;
+    import std.traits : isArray, Unqual;
 
     alias Needle = typeof(needle);
 
-    static if (is(R == string) &&
+    static if (isArray!R &&
+               is(Unqual!(typeof(R.init[0])) == char) &&
                is(Unqual!Needle == char) &&
                needle < 128)    // 7-bit clean ASCII => no decoding of haystack front needed
     {

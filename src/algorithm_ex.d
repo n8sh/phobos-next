@@ -2520,9 +2520,7 @@ uint endsWith(alias needle, Haystack)(Haystack haystack) @trusted // TODO variad
 {
     import std.traits : isArray, Unqual;
     static if (isArray!Haystack && is(Unqual!(typeof(Haystack.init[0])) == char) && // TODO reuse existing trait
-               is(Unqual!(typeof(needle)) : char) &&
-               needle < 128)    // 7-bit clean ASCII => no decoding of haystack front needed
-    {
+               isAsciiChar!needle) {
         return (haystack.length >= 1 &&
                 haystack.ptr[haystack.length - 1] == needle) ? 1 : 0; // @trusted
     }

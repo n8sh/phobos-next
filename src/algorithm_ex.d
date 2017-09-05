@@ -2526,16 +2526,25 @@ template startsWithN(needles...)
         if (!is(CommonType!(typeof(Haystack.front), needles) == void))
     {
         if (haystack.length == 0) { return 0; }
-        import std.algorithm.comparison : among;
         static if (isArray!Haystack &&
                    is(Unqual!(typeof(Haystack.init[0])) == char) && // TODO reuse existing trait
                    allSatisfy!(isASCIIConstant, needles))
         {
-            return haystack[0].among!(needles); // no front decoding
+            // no front decoding
+            static if (needles.length == 1)
+            {
+                return haystack[0] == needles[0] ? 1 : 0;
+            }
+            else
+            {
+                import std.algorithm.comparison : among;
+                return haystack[0].among!(needles);
+            }
         }
         else
         {
-            import std.range : front;
+            import std.range : front; // need decoding
+            import std.algorithm.comparison : among;
             return haystack.front.among!(needles);
         }
     }

@@ -2507,7 +2507,7 @@ template startsWith(needles...)
             else
             {
                 import std.algorithm.comparison : among;
-                return haystack[0].among!(needles);
+                return haystack.ptr[0].among!(needles);
             }
         }
         else

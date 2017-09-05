@@ -2451,8 +2451,16 @@ auto use(alias F, T)(T t)
     }
 }
 
-/// Is true if x is an ASCII character, false otherwise.
-enum isAsciiChar(alias x) = is(Unqual!(typeof(x)) : char) && x < 128;
+/// Is `true` if `x` is an ASCII character, false otherwise.
+enum isAsciiChar(alias x) = is(typeof(x) : char) && x < 128;
+
+@safe pure nothrow @nogc unittest
+{
+    static assert(isAsciiChar!'a');
+    static assert(!isAsciiChar!'ä');
+    immutable ch = 'a';
+    static assert(isAsciiChar!ch);
+}
 
 uint startsWith(alias needle, Haystack)(Haystack haystack) @trusted // TODO variadic needles
     if (isInputRange!Haystack &&

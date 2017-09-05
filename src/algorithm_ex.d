@@ -2456,9 +2456,7 @@ uint startsWith(alias needle, R)(R haystack) @trusted
         is(typeof(haystack.front == needle)))
 {
     import std.traits : isArray, Unqual;
-
     alias Needle = typeof(needle);
-
     static if (isArray!R &&
                is(Unqual!(typeof(R.init[0])) == char) &&
                is(Unqual!Needle == char) &&
@@ -2485,4 +2483,38 @@ uint startsWith(alias needle, R)(R haystack) @trusted
 {
     const haystack = "äbc";
     assert(haystack.startsWith!('ä'));
+}
+
+uint endsWith(alias needle, R)(R haystack) @trusted
+    if (isInputRange!R &&
+        is(typeof(haystack.front == needle)))
+{
+    import std.traits : isArray, Unqual;
+    alias Needle = typeof(needle);
+    static if (isArray!R &&
+               is(Unqual!(typeof(R.init[0])) == char) &&
+               is(Unqual!Needle == char) &&
+               needle < 128)    // 7-bit clean ASCII => no decoding of haystack front needed
+    {
+        return (haystack.length >= 1 &&
+                haystack.ptr[haystack.length - 1] == needle); // @trusted
+    }
+    else
+    {
+        import std.algorithm.searching : endsWith;
+        return haystack.endsWith(needle);
+    }
+}
+
+@safe pure nothrow @nogc unittest
+{
+    const haystack = "abc";
+    assert(haystack.endsWith!('c'));
+    assert(!haystack.endsWith!('b'));
+}
+
+@safe pure unittest
+{
+    const haystack = "abć";
+    assert(haystack.endsWith!('ć'));
 }

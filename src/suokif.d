@@ -425,7 +425,7 @@ private:
     assert(exprs.front.subs[1].token.src == "BinaryFunction");
 
     exprs.popFront();
-    // assert(exprs.empty);
+    assert(exprs.empty);
 }
 
 version(none)

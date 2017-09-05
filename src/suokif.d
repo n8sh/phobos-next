@@ -192,7 +192,7 @@ private:
     pragma(inline)
     void skipLineComment() nothrow @nogc
     {
-        while (!peekNext().among(endOfLineChars))
+        while (!peekNext().among('\0', endOfLineChars))
         {
             _offset += 1;
         }
@@ -423,6 +423,9 @@ private:
 
     assert(exprs.front.subs[1].token.tok == TOK.symbol);
     assert(exprs.front.subs[1].token.src == "BinaryFunction");
+
+    exprs.popFront();
+    // assert(exprs.empty);
 }
 
 version(none)
@@ -440,6 +443,7 @@ unittest
 
 /** Read all SUO-KIF files (.kif) located under `rootDirPath`.
  */
+version(unittest)
 version(benchmark)
 unittest
 {

@@ -11,7 +11,7 @@ authors "Per Nordlöw <per.nordlow@gmail.com>"
 
 # dependency "arsd" version="~master"
 
-dflags "-vcolumns" "-dip25" "-dip1000"
+dflags "-vcolumns" "-dip25" # "-dip1000"
 
 importPaths "src"
 

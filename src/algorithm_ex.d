@@ -2461,7 +2461,7 @@ uint startsWith(alias needle, R)(R haystack) @trusted // TODO variadic needles
                needle < 128)    // 7-bit clean ASCII => no decoding of haystack front needed
     {
         return (haystack.length >= 1 &&
-                haystack.ptr[0] == needle); // @trusted
+                haystack.ptr[0] == needle) ? 1 : 0; // @trusted
     }
     else
     {
@@ -2493,7 +2493,7 @@ uint endsWith(alias needle, R)(R haystack) @trusted // TODO variadic needles
                needle < 128)    // 7-bit clean ASCII => no decoding of haystack front needed
     {
         return (haystack.length >= 1 &&
-                haystack.ptr[haystack.length - 1] == needle); // @trusted
+                haystack.ptr[haystack.length - 1] == needle) ? 1 : 0; // @trusted
     }
     else
     {

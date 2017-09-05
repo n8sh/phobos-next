@@ -194,6 +194,7 @@ private
             try
             {
                 // consume a numeric field
+                static import std.conv;
                 arg[i] = std.conv.parse!T(remainingInput);
             }
             catch ( std.conv.ConvException e )

@@ -7,6 +7,15 @@ import std.experimental.allocator.common;
  */
 struct PureMallocator
 {
+    static if (__VERSION__ >= 2075)
+    {
+        import core.memory : pureMalloc, pureRealloc, pureFree;
+    }
+    else
+    {
+        import memory_ex : pureMalloc, pureRealloc, pureFree;
+    }
+
     pure:
 
     /**
@@ -25,7 +34,6 @@ struct PureMallocator
     @trusted @nogc
     void[] allocate(size_t bytes) shared
     {
-        import core.memory : pureMalloc;
         if (!bytes) return null;
         auto p = pureMalloc(bytes);
         return p ? p[0 .. bytes] : null;
@@ -35,7 +43,6 @@ struct PureMallocator
     @system @nogc nothrow
     bool deallocate(void[] b) shared
     {
-        import core.memory : pureFree;
         pureFree(b.ptr);
         return true;
     }
@@ -44,7 +51,6 @@ struct PureMallocator
     @system @nogc nothrow
     bool reallocate(ref void[] b, size_t s) shared
     {
-        import core.memory : pureRealloc;
         if (!s)
         {
             // fuzzy area in the C standard, see http://goo.gl/ZpWeSE

@@ -2454,26 +2454,26 @@ auto use(alias F, T)(T t)
 /** Is `true` if `x` is an ASCII character, false otherwise.
     See also: `std.ascii.isASCII`.
 */
-enum isASCIIChar(alias x) = (is(typeof(x) : char) ||
-                             is(typeof(x) : wchar) ||
-                             is(typeof(x) : dchar)) && x < 128;
+enum isASCIIConstant(alias x) = (is(typeof(x) : char) ||
+                                 is(typeof(x) : wchar) ||
+                                 is(typeof(x) : dchar)) && x < 128;
 
 @safe pure nothrow @nogc unittest
 {
-    static assert(isASCIIChar!'a');
-    static assert(!isASCIIChar!'ä');
+    static assert(isASCIIConstant!'a');
+    static assert(!isASCIIConstant!'ä');
 
     immutable ch = 'a';
-    static assert(isASCIIChar!ch);
+    static assert(isASCIIConstant!ch);
 
     const cch = 'a';
-    static assert(isASCIIChar!cch);
+    static assert(isASCIIConstant!cch);
 
     const wchar wch = 'a';
-    static assert(isASCIIChar!wch);
+    static assert(isASCIIConstant!wch);
 
     const dchar dch = 'a';
-    static assert(isASCIIChar!dch);
+    static assert(isASCIIConstant!dch);
 }
 
 uint startsWith(alias needle, Haystack)(Haystack haystack) @trusted // TODO variadic needles
@@ -2482,7 +2482,7 @@ uint startsWith(alias needle, Haystack)(Haystack haystack) @trusted // TODO vari
 {
     import std.traits : isArray, Unqual;
     static if (isArray!Haystack && is(Unqual!(typeof(Haystack.init[0])) == char) && // TODO reuse existing trait
-               isASCIIChar!needle)
+               isASCIIConstant!needle)
     {
         return (haystack.length >= 1 &&
                 haystack.ptr[0] == needle) ? 1 : 0; // @trusted
@@ -2517,7 +2517,7 @@ template startsWithN(needles...)
         if (haystack.length == 0) { return 0; }
         import std.algorithm.comparison : among;
         static if (isArray!Haystack && is(Unqual!(typeof(Haystack.init[0])) == char) && // TODO reuse existing trait
-                   allSatisfy!(isASCIIChar, needles)) {
+                   allSatisfy!(isASCIIConstant, needles)) {
             return haystack[0].among!(needles); // no front decoding
         }
         else
@@ -2542,7 +2542,7 @@ uint endsWith(alias needle, Haystack)(Haystack haystack) @trusted // TODO variad
 {
     import std.traits : isArray, Unqual;
     static if (isArray!Haystack && is(Unqual!(typeof(Haystack.init[0])) == char) && // TODO reuse existing trait
-               isASCIIChar!needle) {
+               isASCIIConstant!needle) {
         return (haystack.length >= 1 &&
                 haystack.ptr[haystack.length - 1] == needle) ? 1 : 0; // @trusted
     }

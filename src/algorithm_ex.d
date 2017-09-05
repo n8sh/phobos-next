@@ -2454,7 +2454,9 @@ auto use(alias F, T)(T t)
 /** Is `true` if `x` is an ASCII character, false otherwise.
     See also: `std.ascii.isASCII`.
 */
-enum isASCIIChar(alias x) = isSomeChar!(typeof(x)) && x < 128;
+enum isASCIIChar(alias x) = (is(typeof(x) : char) ||
+                             is(typeof(x) : wchar) ||
+                             is(typeof(x) : dchar)) && x < 128;
 
 @safe pure nothrow @nogc unittest
 {

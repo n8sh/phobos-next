@@ -2458,7 +2458,8 @@ uint startsWith(alias needle, R)(R haystack) @trusted
     alias Needle = typeof(needle);
     // import std.traits : Unqual;
     static if (is(R == string) &&
-               is(Unqual!Needle == char))
+               is(Unqual!Needle == char) &&
+               needle < 128)    // 7-bit clean ASCII => no decoding of haystack front needed
     {
         return (haystack.length >= 1 &&
                 haystack.ptr[0] == needle); // @trusted
@@ -2476,7 +2477,13 @@ uint startsWith(alias needle, R)(R haystack) @trusted
 
 @safe pure nothrow @nogc unittest
 {
-    const abc = "abc";
-    assert(abc.startsWith!('a'));
-    assert(!abc.startsWith!('b'));
+    const haystack = "abc";
+    assert(haystack.startsWith!('a'));
+    assert(!haystack.startsWith!('b'));
+}
+
+@safe pure unittest
+{
+    const haystack = "äbc";
+    assert(!haystack.startsWith!('ä'));
 }

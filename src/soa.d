@@ -213,7 +213,7 @@ unittest
     assert(x3.length == 0);
     assert(x3.capacity == 3);
 
-    // tests behaviour when compiled with flags -dip25 -dip1000
+    // tests that SOA-reference cannot escape when compiled with flags -dip25 -dip1000
     static assert(!__traits(compiles,
                             {
                                 ref int testScope() @safe

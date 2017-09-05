@@ -2467,10 +2467,6 @@ uint startsWith(alias needle, R)(R haystack) @trusted
         return (haystack.length >= 1 &&
                 haystack.ptr[0] == needle); // @trusted
     }
-    // static if (is(Unqual!(ElementType!R) ==
-    //               Unqual!(typeof(needle))))
-    // {
-    // }
     else
     {
         import std.algorithm.searching : startsWith;

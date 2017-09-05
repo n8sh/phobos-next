@@ -42,9 +42,7 @@ struct Token
     string src;                 // optional source slice
 }
 
-/** SUO_KIF Expression.
-    TODO use vary.FastVariant instead of `Expr[]`
- */
+/** SUO_KIF Expression. */
 struct Expr
 {
     Token token;

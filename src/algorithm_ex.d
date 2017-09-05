@@ -2454,18 +2454,24 @@ auto use(alias F, T)(T t)
 /** Is `true` if `x` is an ASCII character, false otherwise.
     See also: `std.ascii.isASCII`.
 */
-enum isAsciiChar(alias x) = is(typeof(x) : char) && x < 128;
+enum isASCIIChar(alias x) = isSomeChar!(typeof(x)) && x < 128;
 
 @safe pure nothrow @nogc unittest
 {
-    static assert(isAsciiChar!'a');
-    static assert(!isAsciiChar!'ä');
+    static assert(isASCIIChar!'a');
+    static assert(!isASCIIChar!'ä');
 
     immutable ch = 'a';
-    static assert(isAsciiChar!ch);
+    static assert(isASCIIChar!ch);
 
     const cch = 'a';
-    static assert(isAsciiChar!cch);
+    static assert(isASCIIChar!cch);
+
+    const wchar wch = 'a';
+    static assert(isASCIIChar!wch);
+
+    const dchar dch = 'a';
+    static assert(isASCIIChar!dch);
 }
 
 uint startsWith(alias needle, Haystack)(Haystack haystack) @trusted // TODO variadic needles
@@ -2474,7 +2480,7 @@ uint startsWith(alias needle, Haystack)(Haystack haystack) @trusted // TODO vari
 {
     import std.traits : isArray, Unqual;
     static if (isArray!Haystack && is(Unqual!(typeof(Haystack.init[0])) == char) && // TODO reuse existing trait
-               isAsciiChar!needle)
+               isASCIIChar!needle)
     {
         return (haystack.length >= 1 &&
                 haystack.ptr[0] == needle) ? 1 : 0; // @trusted
@@ -2509,7 +2515,7 @@ template startsWithN(needles...)
         if (haystack.length == 0) { return 0; }
         import std.algorithm.comparison : among;
         static if (isArray!Haystack && is(Unqual!(typeof(Haystack.init[0])) == char) && // TODO reuse existing trait
-                   allSatisfy!(isAsciiChar, needles)) {
+                   allSatisfy!(isASCIIChar, needles)) {
             return haystack[0].among!(needles); // no front decoding
         }
         else
@@ -2534,7 +2540,7 @@ uint endsWith(alias needle, Haystack)(Haystack haystack) @trusted // TODO variad
 {
     import std.traits : isArray, Unqual;
     static if (isArray!Haystack && is(Unqual!(typeof(Haystack.init[0])) == char) && // TODO reuse existing trait
-               isAsciiChar!needle) {
+               isASCIIChar!needle) {
         return (haystack.length >= 1 &&
                 haystack.ptr[haystack.length - 1] == needle) ? 1 : 0; // @trusted
     }

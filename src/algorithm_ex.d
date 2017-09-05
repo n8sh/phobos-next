@@ -2457,7 +2457,7 @@ uint startsWith(alias needle, R)(R haystack) @trusted // TODO variadic needles
 {
     import std.traits : isArray, Unqual;
     static if (isArray!R && is(Unqual!(typeof(R.init[0])) == char) && // TODO reuse existing trait
-               is(Unqual!(typeof(needle)) == char) &&
+               is(Unqual!(typeof(needle)) : char) &&
                needle < 128)    // 7-bit clean ASCII => no decoding of haystack front needed
     {
         return (haystack.length >= 1 &&
@@ -2483,13 +2483,31 @@ uint startsWith(alias needle, R)(R haystack) @trusted // TODO variadic needles
     assert(haystack.startsWith!('ä'));
 }
 
+template startsWithN(needles...)
+    if (isExpressionTuple!needles)
+{
+    uint startsWithN(Haystack)(Haystack haystack)
+        if (!is(CommonType!(typeof(Haystack.front), needles) == void))
+    {
+        // TODO reuse haystack.among
+        switch (haystack)
+        {
+            foreach (uint i, v; needles)
+                case v:
+                    return i + 1;
+            default:
+                return 0;
+        }
+    }
+}
+
 uint endsWith(alias needle, R)(R haystack) @trusted // TODO variadic needles
     if (isInputRange!R &&
         is(typeof(haystack.front == needle)))
 {
     import std.traits : isArray, Unqual;
     static if (isArray!R && is(Unqual!(typeof(R.init[0])) == char) && // TODO reuse existing trait
-               is(Unqual!(typeof(needle)) == char) &&
+               is(Unqual!(typeof(needle)) : char) &&
                needle < 128)    // 7-bit clean ASCII => no decoding of haystack front needed
     {
         return (haystack.length >= 1 &&

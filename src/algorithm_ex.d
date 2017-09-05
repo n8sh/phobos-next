@@ -2451,7 +2451,7 @@ auto use(alias F, T)(T t)
     }
 }
 
-uint startsWith(alias needle, R)(R haystack) @trusted
+uint startsWith(alias needle, R)(R haystack) @trusted // TODO variadic needles
     if (isInputRange!R &&
         is(typeof(haystack.front == needle)))
 {
@@ -2485,7 +2485,7 @@ uint startsWith(alias needle, R)(R haystack) @trusted
     assert(haystack.startsWith!('ä'));
 }
 
-uint endsWith(alias needle, R)(R haystack) @trusted
+uint endsWith(alias needle, R)(R haystack) @trusted // TODO variadic needles
     if (isInputRange!R &&
         is(typeof(haystack.front == needle)))
 {

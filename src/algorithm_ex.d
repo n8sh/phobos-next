@@ -2456,9 +2456,8 @@ uint startsWith(alias needle, R)(R haystack) @trusted // TODO variadic needles
         is(typeof(haystack.front == needle)))
 {
     import std.traits : isArray, Unqual;
-    alias Needle = typeof(needle);
     static if (isArray!R && is(Unqual!(typeof(R.init[0])) == char) && // TODO reuse existing trait
-               is(Unqual!Needle == char) &&
+               is(Unqual!(typeof(needle)) == char) &&
                needle < 128)    // 7-bit clean ASCII => no decoding of haystack front needed
     {
         return (haystack.length >= 1 &&
@@ -2489,9 +2488,8 @@ uint endsWith(alias needle, R)(R haystack) @trusted // TODO variadic needles
         is(typeof(haystack.front == needle)))
 {
     import std.traits : isArray, Unqual;
-    alias Needle = typeof(needle);
     static if (isArray!R && is(Unqual!(typeof(R.init[0])) == char) && // TODO reuse existing trait
-               is(Unqual!Needle == char) &&
+               is(Unqual!(typeof(needle)) == char) &&
                needle < 128)    // 7-bit clean ASCII => no decoding of haystack front needed
     {
         return (haystack.length >= 1 &&

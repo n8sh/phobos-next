@@ -2450,3 +2450,33 @@ auto use(alias F, T)(T t)
         // writeln();
     }
 }
+
+uint startsWith(alias needle, R)(R haystack) @trusted
+    if (isInputRange!R &&
+        is(typeof(haystack.front == needle)))
+{
+    alias Needle = typeof(needle);
+    // import std.traits : Unqual;
+    static if (is(R == string) &&
+               is(Unqual!Needle == char))
+    {
+        return (haystack.length >= 1 &&
+                haystack.ptr[0] == needle); // @trusted
+    }
+    // static if (is(Unqual!(ElementType!R) ==
+    //               Unqual!(typeof(needle))))
+    // {
+    // }
+    else
+    {
+        import std.algorithm.searching : startsWith;
+        return haystack.startsWith(needle);
+    }
+}
+
+@safe pure nothrow @nogc unittest
+{
+    const abc = "abc";
+    assert(abc.startsWith!('a'));
+    assert(!abc.startsWith!('b'));
+}

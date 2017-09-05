@@ -213,19 +213,15 @@ unittest
     assert(x3.length == 0);
     assert(x3.capacity == 3);
 
-    // tests that SOA-reference cannot escape when compiled with flags -dip25 -dip1000
-    version(none)
-    {
-        // disable for now because -dip1000 cannot be set in dub.sdl because it
-        // transitively affects depending packages
-        static assert(!__traits(compiles,
+    // disable for now because -dip1000 cannot be set in dub.sdl because it
+    // transitively affects depending packages
+    static assert(!__traits(compiles,
+                            {
+                                ref int testScope() @safe
                                 {
-                                    ref int testScope() @safe
-                                    {
-                                        auto y = SOA!S(1);
-                                        y ~= S(42, 43f);
-                                        return y[0].i;
-                                    }
-                                }));
-    }
+                                    auto y = SOA!S(1);
+                                    y ~= S(42, 43f);
+                                    return y[0].i;
+                                }
+                            }));
 }

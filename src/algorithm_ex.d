@@ -2451,22 +2451,24 @@ auto use(alias F, T)(T t)
     }
 }
 
-uint startsWith(alias needle, R)(R haystack) @trusted // TODO variadic needles
-    if (isInputRange!R &&
+/// Is true if x is an ASCII character, false otherwise.
+enum isAsciiChar(alias x) = is(Unqual!(typeof(x)) : char) && x < 128;
+
+uint startsWith(alias needle, Haystack)(Haystack haystack) @trusted // TODO variadic needles
+    if (isInputRange!Haystack &&
         is(typeof(haystack.front == needle)))
 {
     import std.traits : isArray, Unqual;
-    static if (isArray!R && is(Unqual!(typeof(R.init[0])) == char) && // TODO reuse existing trait
-               is(Unqual!(typeof(needle)) : char) &&
-               needle < 128)    // 7-bit clean ASCII => no decoding of haystack front needed
+    static if (isArray!Haystack && is(Unqual!(typeof(Haystack.init[0])) == char) && // TODO reuse existing trait
+               isAsciiChar!needle)
     {
         return (haystack.length >= 1 &&
                 haystack.ptr[0] == needle) ? 1 : 0; // @trusted
     }
     else
     {
-        import std.algorithm.searching : startsWith;
-        return haystack.startsWith(needle);
+        import std.range : front;
+        return haystack.front == needle;
     }
 }
 
@@ -2490,10 +2492,17 @@ template startsWithN(needles...)
     uint startsWithN(Haystack)(Haystack haystack)
         if (!is(CommonType!(typeof(Haystack.front), needles) == void))
     {
-        if (haystack.length == 0)
-            return 0;
+        if (haystack.length == 0) { return 0; }
         import std.algorithm.comparison : among;
-        return haystack.front.among!(needles);
+        static if (isArray!Haystack && is(Unqual!(typeof(Haystack.init[0])) == char) && // TODO reuse existing trait
+                   allSatisfy!(isAsciiChar, needles)) {
+            return haystack[0].among!(needles); // no front decoding
+        }
+        else
+        {
+            import std.range : front;
+            return haystack.front.among!(needles);
+        }
     }
 }
 
@@ -2505,12 +2514,12 @@ template startsWithN(needles...)
     assert(haystack.startsWithN!('_', 'a') == 2);
 }
 
-uint endsWith(alias needle, R)(R haystack) @trusted // TODO variadic needles
-    if (isInputRange!R &&
+uint endsWith(alias needle, Haystack)(Haystack haystack) @trusted // TODO variadic needles
+    if (isInputRange!Haystack &&
         is(typeof(haystack.front == needle)))
 {
     import std.traits : isArray, Unqual;
-    static if (isArray!R && is(Unqual!(typeof(R.init[0])) == char) && // TODO reuse existing trait
+    static if (isArray!Haystack && is(Unqual!(typeof(Haystack.init[0])) == char) && // TODO reuse existing trait
                is(Unqual!(typeof(needle)) : char) &&
                needle < 128)    // 7-bit clean ASCII => no decoding of haystack front needed
     {
@@ -2519,8 +2528,8 @@ uint endsWith(alias needle, R)(R haystack) @trusted // TODO variadic needles
     }
     else
     {
-        import std.algorithm.searching : endsWith;
-        return haystack.endsWith(needle);
+        import std.range : back;
+        return haystack.back == needle;
     }
 }
 

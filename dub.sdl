@@ -11,9 +11,14 @@ authors "Per Nordlöw <per.nordlow@gmail.com>"
 
 # dependency "arsd" version="~master"
 
-dflags "-vcolumns" "-dip25" # "-dip1000"
+dflags "-vcolumns" "-dip25"
+libs "z" "bz2" "zstd"
 
 importPaths "src"
+
+buildType "unittest" {
+   dflags "-dip1000"            # prevent dependencies to inherit -dip1000
+}
 
 sourceFiles {
    "src/combinations.d"

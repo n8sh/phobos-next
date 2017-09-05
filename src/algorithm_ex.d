@@ -2491,6 +2491,7 @@ template startsWith(needles...)
         needles.length >= 1)
 {
     uint startsWith(Haystack)(Haystack haystack)
+        @trusted
         if (!is(CommonType!(typeof(Haystack.front), needles) == void))
     {
         if (haystack.length == 0) { return 0; }
@@ -2501,7 +2502,7 @@ template startsWith(needles...)
             // no front decoding needed
             static if (needles.length == 1)
             {
-                return haystack[0] == needles[0] ? 1 : 0;
+                return haystack.ptr[0] == needles[0] ? 1 : 0;
             }
             else
             {

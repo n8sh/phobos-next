@@ -12,7 +12,7 @@ authors "Per Nordlöw <per.nordlow@gmail.com>"
 # dependency "arsd" version="~master"
 
 dflags "-vcolumns" "-dip25"
-libs "z" "bz2" "zstd"
+libs "z" "bz2"
 
 importPaths "src"
 

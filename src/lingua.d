@@ -301,13 +301,13 @@ enum VerbForm : ubyte
     infinitive,                 // sv:infinitiv,grundform. Swedish example: springa
     base = infinitive,
 
-    present,                    // sv:presens. Swedish example: springer
+    presentIndicative,          // sv:presens. Swedish example: springer
 
     presentParticiple,          // sv:presens particip. Swedish example: springande
     gerund = presentParticiple,
 
-    past,                       // sv:imperfekt. Swedish example: sprang
-    preteritum = past,
+    pastIndicative,             // sv:imperfekt. Swedish example: sprang
+    preteritum = pastIndicative,
 
     supinum,                    // Swedish example: sprungit
     pastParticiple = supinum,

@@ -31,28 +31,16 @@ struct BiMap(KeyA, KeyB,
     @safe pure nothrow @nogc:
 
     /// Check if empty.
-    bool empty() const
-    {
-        return length == 0;
-    }
+    bool empty() const { return length == 0; }
 
     /// Get length.
-    size_t length() const
-    {
-        return _left.length;
-    }
+    size_t length() const { return _left.length; }
 
     /// Non-mutating access.
-    ref const(LeftMap) left() const
-    {
-        return _left;
-    }
+    ref const(LeftMap) left() const { return _left; }
 
     /// Non-mutating access.
-    ref const(RightMap) right() const
-    {
-        return _right;
-    }
+    ref const(RightMap) right() const { return _right; }
 
     LeftMap _left;
     RightMap _right;

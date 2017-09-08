@@ -32,7 +32,7 @@ struct BiMap(X, Y,
     }
 
     /// Clear contents.
-    void clear() @trusted
+    void clear() @trusted       // TODO ok for this to be `@trusted`?
     {
         _left.clear();
         _right.clear();

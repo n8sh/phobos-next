@@ -18,7 +18,7 @@ struct BiMap(KeyA, KeyB,
     }
 
     bool contains(in KeyA a,
-                  in KeyB b)
+                  in KeyB b) const
     {
         // TODO do this symmetric?
         if (const hitPtr = a in _left)
@@ -27,6 +27,7 @@ struct BiMap(KeyA, KeyB,
         }
         return false;
     }
+
     @safe pure nothrow @nogc:
 
     /// Check if empty.

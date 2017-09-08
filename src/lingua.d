@@ -377,7 +377,9 @@ struct Adjective(S)
 }
 
 /** English Tense.
-    Tempus on Swedish.
+
+    Same as "tempus" in Swedish.
+
     See also: http://www.ego4u.com/en/cram-up/grammar/tenses-graphic
     See also: http://www.ego4u.com/en/cram-up/grammar/tenses-examples
 */

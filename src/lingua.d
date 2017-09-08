@@ -304,6 +304,9 @@ enum VerbForm : ubyte
 
     futurum,                    // Swedish example:ska springa
     futurumExaktum,             // Swedish example:ska ha sprungit
+
+    konditionalisI,             // Swedish example:skulle springa
+    konditionalisII,            // Swedish example:skulle ha sprungit
 }
 
 /** Verb Instance. */

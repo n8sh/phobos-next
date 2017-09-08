@@ -1,7 +1,7 @@
 module bimap;
 
 /** Bidirectional map between key-and-values of type `X` and `Y` inspired by C++
- * Boost Bimap (`boost::bimap`).
+    Boost Bimap (`boost::bimap`).
 
     See also: http://www.boost.org/doc/libs/1_65_1/libs/bimap/doc/html/boost_bimap/one_minute_tutorial.html
  */

@@ -280,7 +280,8 @@ enum TokenId : ubyte
 
 /** Swedish Verb Inflection (conjugation of a verb).
 
-    http://www.101languages.net/swedish/swedish-verb-conjugator/
+    See also: http://www.101languages.net/swedish/swedish-verb-conjugator/
+    See also: http://www.verbix.com/webverbix/Swedish/springa.html
  */
 enum SwedishVerbInflection : ubyte
 {

@@ -278,6 +278,15 @@ enum TokenId : ubyte
     operator,
 }
 
+/** Swedish Verb Inflection (conjugation of a verb).
+
+    http://www.101languages.net/swedish/swedish-verb-conjugator/
+ */
+enum SwedishVerbInflection : ubyte
+{
+    unknown,
+}
+
 /** Verb Form.
 
     See also: http://verb.woxikon.se/sv/springa
@@ -288,10 +297,11 @@ enum VerbForm : ubyte
 
     imperative,                 // Swedish example: spring
 
-    infinitive,              // sv:infinitiv,grundform. Swedish example: springa
+    infinitive,                 // sv:infinitiv,grundform. Swedish example: springa
     base = infinitive,
 
     present,                    // sv:presens. Swedish example: springer
+    presentParticiple,          // sv:presens particip. Swedish example: springande
 
     past,                       // sv:imperfekt. Swedish example: sprang
     preteritum = past,
@@ -300,6 +310,7 @@ enum VerbForm : ubyte
     pastParticiple = supinum,
 
     perfekt,                    // sv:perfekt. Swedish example: har sprungit
+    perfektParticiple,          // sv:perfekt particip. Swedish example: sprungen
     pluskvamperfekt,            // sv:pluskvamperfekt. Swedish example: hade sprungit
 
     futurum,                    // Swedish example:ska springa

@@ -13,15 +13,15 @@ struct BiMap(X, Y,
 
     pragma(inline, true):
 
-    void insert(X x,
-                Y y)
+    /// Insert (`x`, `y`).
+    void insert(X x, Y y)
     {
         _left[x] = y;
         _right[y] = x;
     }
 
-    bool contains(in X x,
-                  in Y y) const
+    /// Check if (`x`, `y`) is stored.
+    bool contains(in X x, in Y y) const
     {
         // TODO do this symmetric?
         if (const hitPtr = x in _left)
@@ -29,6 +29,13 @@ struct BiMap(X, Y,
             return *hitPtr == y;
         }
         return false;
+    }
+
+    /// Clear contents.
+    void clear()
+    {
+        _left.clear();
+        _right.clear();
     }
 
     @safe pure nothrow @nogc:

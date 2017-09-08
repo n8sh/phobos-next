@@ -304,7 +304,7 @@ enum VerbForm : ubyte
     presentIndicative,          // sv:presens. Swedish example: springer
 
     presentParticiple,          // sv:presens particip. Swedish example: springande
-    gerund = presentParticiple,
+    gerund = presentParticiple, // https://en.wikipedia.org/wiki/Gerund
 
     pastIndicative,             // sv:imperfekt. Swedish example: sprang
     preteritum = pastIndicative,

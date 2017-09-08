@@ -311,14 +311,20 @@ enum VerbForm : ubyte
     pastParticiple = supinum,
 
     perfekt,                    // sv:perfekt. Swedish example: har sprungit
+
     perfektParticiple,          // sv:perfekt particip. Swedish example: sprungen
+
     pluskvamperfekt,            // sv:pluskvamperfekt. Swedish example: hade sprungit
 
     futurum,                    // Swedish example:ska springa
+
     futurumExaktum,             // Swedish example:ska ha sprungit
+    futurumPerfect = futurumExaktum,
 
     konditionalisI,             // Swedish example:skulle springa
-    konditionalisII,            // Swedish example:skulle ha sprungit
+
+    conditionalPerfect,         // Swedish example:skulle ha sprungit
+    konditionalisII = conditionalPerfect,
 }
 
 /** Verb Instance. */

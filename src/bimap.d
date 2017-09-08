@@ -1,29 +1,29 @@
 module bimap;
 
-/** Bidirectional map between key-and-values of type `KeyA` and `KeyB`.
+/** Bidirectional map between key-and-values of type `X` and `Y`.
  */
-struct BiMap(KeyA, KeyB,
+struct BiMap(X, Y,
              alias Map = HashMap)
 {
-    alias LeftMap = Map!(KeyA, KeyB);
-    alias RightMap = Map!(KeyB, KeyA);
+    alias LeftMap = Map!(X, Y);
+    alias RightMap = Map!(Y, X);
 
     pragma(inline, true):
 
-    void insert(KeyA a,
-                KeyB b)
+    void insert(X x,
+                Y y)
     {
-        _left[a] = b;
-        _right[b] = a;
+        _left[x] = y;
+        _right[y] = x;
     }
 
-    bool contains(in KeyA a,
-                  in KeyB b) const
+    bool contains(in X x,
+                  in Y y) const
     {
         // TODO do this symmetric?
-        if (const hitPtr = a in _left)
+        if (const hitPtr = x in _left)
         {
-            return *hitPtr == b;
+            return *hitPtr == y;
         }
         return false;
     }
@@ -36,10 +36,10 @@ struct BiMap(KeyA, KeyB,
     /// Get length.
     size_t length() const { return _left.length; }
 
-    /// Non-mutating access.
+    /// Non-mutating access to left map.
     ref const(LeftMap) left() const { return _left; }
 
-    /// Non-mutating access.
+    /// Non-mutating access to right map.
     ref const(RightMap) right() const { return _right; }
 
     LeftMap _left;

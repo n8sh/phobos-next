@@ -278,16 +278,32 @@ enum TokenId : ubyte
     operator,
 }
 
-/** Verb Form. */
+/** Verb Form.
+
+    See also: http://verb.woxikon.se/sv/springa
+ */
 enum VerbForm : ubyte
 {
     unknown,
 
-    imperative,
-    infinitive, base = infinitive, // sv:infinitiv,grundform
-    present, // sv:presens
-    past, preteritum = past, // sv:imperfekt
-    supinum, pastParticiple = supinum,
+    imperative,                 // Swedish example: spring
+
+    infinitive,              // sv:infinitiv,grundform. Swedish example: springa
+    base = infinitive,
+
+    present,                    // sv:presens. Swedish example: springer
+
+    past,                       // sv:imperfekt. Swedish example: sprang
+    preteritum = past,
+
+    supinum,                    // Swedish example: sprungit
+    pastParticiple = supinum,
+
+    perfekt,                    // sv:perfekt. Swedish example: har sprungit
+    pluskvamperfekt,            // sv:pluskvamperfekt. Swedish example: hade sprungit
+
+    futurum,                    // Swedish example:ska springa
+    futurumExaktum,             // Swedish example:ska ha sprungit
 }
 
 /** Verb Instance. */

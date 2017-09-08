@@ -32,7 +32,7 @@ struct BiMap(X, Y,
     }
 
     /// Clear contents.
-    void clear()
+    void clear() @trusted
     {
         _left.clear();
         _right.clear();
@@ -68,4 +68,7 @@ private alias HashMap(Key, Value) = Value[Key];
     assert(bm.right.length == 1);
 
     assert(bm.contains(42, "42"));
+
+    bm.clear();
+    assert(bm.empty);
 }

@@ -13,7 +13,7 @@
 */
 module ngram;
 
-import bitset;
+import bitarrayn;
 import std.range: InputRange, ElementType, isInputRange;
 import std.traits: isSomeChar, isUnsigned, isIntegral, isFloatingPoint, Unqual, isStaticArray, isIterable, isAssociativeArray, CommonType;
 import std.stdint: uint64_t;
@@ -131,7 +131,7 @@ struct NGram(ValueType,
             static if (N == 1)
             {
                 bool begun = false;
-                foreach (ix, elt; _bins) // TODO Make bitset support ref foreach and make elt const ref
+                foreach (ix, elt; _bins) // TODO Make bitarrayn support ref foreach and make elt const ref
                 {
                     if (elt)
                     {
@@ -146,7 +146,7 @@ struct NGram(ValueType,
                 bool begun = false;
                 foreach (ix0, const ref elt0; _bins)
                 {
-                    foreach (ix1, elt1; elt0) // TODO Make bitset support ref foreach and make elt1 const ref
+                    foreach (ix1, elt1; elt0) // TODO Make bitarrayn support ref foreach and make elt1 const ref
                     {
                         if (elt1)
                         {
@@ -167,7 +167,7 @@ struct NGram(ValueType,
                 {
                     foreach (ix1, const ref elt1; elt0)
                     {
-                        foreach (ix2, elt2; elt1) { // TODO Make bitset support ref foreach and make elt2 const ref
+                        foreach (ix2, elt2; elt1) { // TODO Make bitarrayn support ref foreach and make elt2 const ref
                             if (elt2)
                             {
                                 if (begun) { rval ~= ", "; }
@@ -191,7 +191,7 @@ struct NGram(ValueType,
                     {
                         foreach (ix2, elt2; elt1)
                         {
-                            foreach (ix3, elt3; elt2) // TODO Make bitset support ref foreach and make elt2 const ref
+                            foreach (ix3, elt3; elt2) // TODO Make bitarrayn support ref foreach and make elt2 const ref
                             {
                                 if (elt3)
                                 {
@@ -218,9 +218,9 @@ struct NGram(ValueType,
                     {
                         foreach (ix2, const ref elt2; elt1)
                         {
-                            foreach (ix3, const ref elt3; elt2) // TODO Make bitset support ref foreach and make elt2 const ref
+                            foreach (ix3, const ref elt3; elt2) // TODO Make bitarrayn support ref foreach and make elt2 const ref
                             {
-                                foreach (ix4, elt4; elt3) // TODO Make bitset support ref foreach and make elt2 const ref
+                                foreach (ix4, elt4; elt3) // TODO Make bitarrayn support ref foreach and make elt2 const ref
                                 {
                                     if (elt4)
                                     {

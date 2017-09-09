@@ -681,7 +681,7 @@ auto ref packBitParallelRunLengths(R)(in R x)
 
     /* size_t[nBits] counts; */
 
-    import bitset : BitArrayN;
+    import bitarrayn : BitArrayN;
     foreach (eltIx, elt; x)
     {
         /* BitArrayN!nBits bits; */

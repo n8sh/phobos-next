@@ -193,9 +193,9 @@ static if (true) // TODO debug
     alias UIx = Mod!(radix, uint);
 
     /** Mutable RawTree Key. */
-    alias Key(size_t span) = Mod!(2^^span)[]; // TODO use bitset to more naturally support span != 8.
+    alias Key(size_t span) = Mod!(2^^span)[]; // TODO use bitarrayn to more naturally support span != 8.
     /** Immutable RawTree Key. */
-    alias IKey(size_t span) = immutable(Mod!(2^^span))[]; // TODO use bitset to more naturally support span != 8.
+    alias IKey(size_t span) = immutable(Mod!(2^^span))[]; // TODO use bitarrayn to more naturally support span != 8.
     /** Fixed-Length RawTree Key. */
     alias KeyN(size_t span, size_t N) = Mod!(2^^span)[N];
 }
@@ -205,9 +205,9 @@ else
     alias UIx = uint;
 
     /** Mutable RawTree Key. */
-    alias Key(size_t span) = ubyte[]; // TODO use bitset to more naturally support span != 8.
+    alias Key(size_t span) = ubyte[]; // TODO use bitarrayn to more naturally support span != 8.
     /** Immutable RawTree Key. */
-    alias IKey(size_t span) = immutable(ubyte)[]; // TODO use bitset to more naturally support span != 8.
+    alias IKey(size_t span) = immutable(ubyte)[]; // TODO use bitarrayn to more naturally support span != 8.
     /** Fixed-Length RawTree Key. */
     alias KeyN(size_t span, size_t N) = ubyte[N];
 }
@@ -759,7 +759,7 @@ private:
 /** Densely coded leaves with values of type `Value`. */
 static private struct DenseLeaf1(Value)
 {
-    import bitset : BitArrayN;
+    import bitarrayn : BitArrayN;
 
     enum hasValue = !is(Value == void);
 
@@ -1035,7 +1035,7 @@ template RawRadixTree(Value = void)
     import std.meta : AliasSeq, staticMap;
     import std.typecons : ConstOf;
 
-    import bitset : BitArrayN;
+    import bitarrayn : BitArrayN;
 
     enum isValue = !is(Value == void);
 
@@ -4205,7 +4205,7 @@ struct RadixTree(Key, Value)
             immutable bool added = elementRef.node && elementRef.modStatus == ModStatus.added;
             _length += added;
             /* TODO return reference (via `auto ref` return typed) to stored
-               value at `elementRef` instead, unless packed bitset storage is used
+               value at `elementRef` instead, unless packed bitarrayn storage is used
                when `Value is bool` */
             return value;
         }

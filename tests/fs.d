@@ -153,7 +153,7 @@ import csunits;
 alias Bytes64 = Bytes!ulong;
 import arsd.terminal : Color;
 import symbolic;
-import bitset;
+import bitarrayn;
 import dbgio;
 import tempfs;
 import rational: Rational;

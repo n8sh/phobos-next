@@ -57,7 +57,7 @@ import std.string: representation;
 import std.traits: isSomeString;
 import find_ex: findAcronymAt, FindContext;
 import dbgio;
-import bitset;
+import bitarrayn;
 
 /** Base Pattern.
  */

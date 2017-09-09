@@ -759,8 +759,6 @@ private struct Array(E,
         resetInternalData();
     }
     /// ditto
-    alias makeEmpty = clear;
-    /// ditto
     pragma(inline, true)
     void opAssign(typeof(null)) @safe{ clear(); }
 

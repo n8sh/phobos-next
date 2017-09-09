@@ -681,10 +681,10 @@ auto ref packBitParallelRunLengths(R)(in R x)
 
     /* size_t[nBits] counts; */
 
-    import bitset : BitSet;
+    import bitset : BitArrayN;
     foreach (eltIx, elt; x)
     {
-        /* BitSet!nBits bits; */
+        /* BitArrayN!nBits bits; */
         foreach (bitIndex; 0..nBits)
         {
             import bitop_ex: testBit;

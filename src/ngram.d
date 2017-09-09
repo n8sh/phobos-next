@@ -701,18 +701,18 @@ struct NGram(ValueType,
     {
         static if        (storage == Storage.denseStatic)
         {
-            static      if (N == 1) BitSet!noABins _bins;
-            else static if (N == 2) BitSet!noABins[noABins] _bins;
-            else static if (N == 3) BitSet!noABins[noABins][noABins] _bins;
+            static      if (N == 1) BitArrayN!noABins _bins;
+            else static if (N == 2) BitArrayN!noABins[noABins] _bins;
+            else static if (N == 3) BitArrayN!noABins[noABins][noABins] _bins;
             else static assert(false, "Dense static N >= 4 does no safely fit on stack");
         }
         else static if (storage == Storage.denseDynamic)
         {
-            static      if (N == 1) BitSet!noABins _bins;
-            else static if (N == 2) BitSet!noABins[] _bins;
-            else static if (N == 3) BitSet!noABins[][] _bins;
-            else static if (N == 4) BitSet!noABins[][][] _bins;
-            else static if (N == 5) BitSet!noABins[][][][] _bins;
+            static      if (N == 1) BitArrayN!noABins _bins;
+            else static if (N == 2) BitArrayN!noABins[] _bins;
+            else static if (N == 3) BitArrayN!noABins[][] _bins;
+            else static if (N == 4) BitArrayN!noABins[][][] _bins;
+            else static if (N == 5) BitArrayN!noABins[][][][] _bins;
             else static assert(false, "N >= 6 not supported");
         }
         else static if (storage == Storage.sparse) // shouldn't happen

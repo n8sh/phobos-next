@@ -759,7 +759,7 @@ private:
 /** Densely coded leaves with values of type `Value`. */
 static private struct DenseLeaf1(Value)
 {
-    import bitset : BitSet;
+    import bitset : BitArrayN;
 
     enum hasValue = !is(Value == void);
 
@@ -791,7 +791,7 @@ static private struct DenseLeaf1(Value)
             }
         }
 
-        this(ref BitSet!capacity ixBits, Value[] values)
+        this(ref BitArrayN!capacity ixBits, Value[] values)
         {
             assert(ixBits.length == values.length);
             _ixBits = ixBits;
@@ -813,7 +813,7 @@ static private struct DenseLeaf1(Value)
             }
         }
 
-        this(const ref BitSet!capacity ixBits)
+        this(const ref BitArrayN!capacity ixBits)
         {
             _ixBits = ixBits;
         }
@@ -890,7 +890,7 @@ static private struct DenseLeaf1(Value)
 
     /** Try to find index to first set bit in `_ixBits` starting at bit index `ix` and put the result in `nextIx`.
         Returns: `true` upon find, `false` otherwise.
-        TODO move to BitSet
+        TODO move to BitArrayN
      */
     bool tryFindSetBitIx(UIx ix, out UIx nextIx) const
     {
@@ -913,12 +913,12 @@ static private struct DenseLeaf1(Value)
     }
 
 private:
-    BitSet!capacity _ixBits;  // 32 bytes
+    BitArrayN!capacity _ixBits;  // 32 bytes
     static if (hasValue)
     {
         // static if (is(Value == bool))
         // {
-        //     BitSet!capacity _values; // packed values
+        //     BitArrayN!capacity _values; // packed values
         // }
         // else
         // {
@@ -1035,7 +1035,7 @@ template RawRadixTree(Value = void)
     import std.meta : AliasSeq, staticMap;
     import std.typecons : ConstOf;
 
-    import bitset : BitSet;
+    import bitset : BitArrayN;
 
     enum isValue = !is(Value == void);
 

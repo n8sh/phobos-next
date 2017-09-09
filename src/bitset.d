@@ -19,7 +19,7 @@ version(unittest)
 
     TODO Optimize `allOne`, `allZero` using intrinsic?
  */
-struct BitSet(uint len, Block = size_t)
+struct BitArrayN(uint len, Block = size_t)
 {
     import std.format : FormatSpec, format;
     import core.bitop : bitswap;
@@ -61,13 +61,13 @@ struct BitSet(uint len, Block = size_t)
     /** Reset all bits (to zero). */
     void reset() @safe pure nothrow @nogc { _blocks[] = 0; }
 
-    /** Gets the amount of native words backing this $(D BitSet). */
+    /** Gets the amount of native words backing this $(D BitArrayN). */
     @property static uint dim() @safe pure nothrow @nogc { return blockCount; }
 
-    /** Number of bits in the $(D BitSet). */
+    /** Number of bits in the $(D BitArrayN). */
     enum length = len;
 
-    /** BitSet range.
+    /** BitArrayN range.
 
         TODO Provide opSliceAssign for interopability with range algorithms
         via private static struct member `Range`
@@ -104,7 +104,7 @@ struct BitSet(uint len, Block = size_t)
         void popBack()  { assert(!empty); ++_i; }
 
     private:
-        BitSet _store;          // copy of store
+        BitArrayN _store;          // copy of store
         size_t _i = 0;          // iterator into _store
         size_t _j = _store.length;
     }
@@ -119,7 +119,7 @@ struct BitSet(uint len, Block = size_t)
         return Range(this, i, j);
     }
 
-    /** Gets the $(D i)'th bit in the $(D BitSet). */
+    /** Gets the $(D i)'th bit in the $(D BitArrayN). */
     pragma(inline, true) bool opIndex(size_t i) const @trusted pure nothrow
     in
     {
@@ -138,10 +138,10 @@ struct BitSet(uint len, Block = size_t)
         }
     }
 
-    /** Gets the $(D i)'th bit in the $(D BitSet). No range checking needed. */
+    /** Gets the $(D i)'th bit in the $(D BitArrayN). No range checking needed. */
     static if (len >= 1)
     {
-        /** Get the $(D i)'th bit in the $(D BitSet).
+        /** Get the $(D i)'th bit in the $(D BitArrayN).
 
             Avoids range-checking because `i` of type is bound to (0 .. len-1).
         */
@@ -158,8 +158,8 @@ struct BitSet(uint len, Block = size_t)
             }
         }
 
-        /** Get the $(D i)'th bit in the $(D BitSet).
-            Statically verifies that i is < BitSet length.
+        /** Get the $(D i)'th bit in the $(D BitArrayN).
+            Statically verifies that i is < BitArrayN length.
         */
         pragma(inline) bool at(size_t i)() const @trusted pure nothrow
             if (i < len)
@@ -168,14 +168,14 @@ struct BitSet(uint len, Block = size_t)
         }
     }
 
-    /** Puts the $(D i)'th bit in the $(D BitSet) to $(D b). */
+    /** Puts the $(D i)'th bit in the $(D BitArrayN) to $(D b). */
     pragma(inline, true) auto ref put()(size_t i, bool b) @trusted pure nothrow
     {
         this[i] = b;
         return this;
     }
 
-    /** Sets the $(D i)'th bit in the $(D BitSet). */
+    /** Sets the $(D i)'th bit in the $(D BitArrayN). */
     import std.traits: isIntegral;
     pragma(inline, true) bool opIndexAssign(Index2)(bool b, Index2 i) @trusted pure nothrow
         if (isIntegral!Index2)
@@ -186,7 +186,7 @@ struct BitSet(uint len, Block = size_t)
         /* static if (!isMutable!Index2) { */
         /*     import std.conv: to; */
         /*     static assert(i < len, */
-        /*                   "Index2 " ~ to!string(i) ~ " must be smaller than BitSet length " ~  to!string(len)); */
+        /*                   "Index2 " ~ to!string(i) ~ " must be smaller than BitArrayN length " ~  to!string(len)); */
         /* } */
         assert(i < len);
     }
@@ -198,7 +198,7 @@ struct BitSet(uint len, Block = size_t)
 
     static if (len >= 1)
     {
-        /** Sets the $(D i)'th bit in the $(D BitSet). No range checking needed. */
+        /** Sets the $(D i)'th bit in the $(D BitArrayN). No range checking needed. */
         pragma(inline, true) bool opIndexAssign(ModUInt)(bool b, Mod!(len, ModUInt) i)
             @trusted pure nothrow @nogc
         if (isUnsigned!ModUInt)
@@ -211,19 +211,19 @@ struct BitSet(uint len, Block = size_t)
     ///
     @safe pure nothrow @nogc unittest
     {
-        BitSet!2 bs;
+        BitArrayN!2 bs;
         bs[0] = true;
         assert(bs[0]);
     }
 
-    /** Duplicates the $(D BitSet) and its contents. */
-    @property BitSet dup() const
+    /** Duplicates the $(D BitArrayN) and its contents. */
+    @property BitArrayN dup() const
         @safe pure nothrow @nogc
     {
         return this;
     }
 
-    /** Support for $(D foreach) loops for $(D BitSet). */
+    /** Support for $(D foreach) loops for $(D BitArrayN). */
     int opApply(scope int delegate(ref bool) dg)
     {
         int result;
@@ -282,7 +282,7 @@ struct BitSet(uint len, Block = size_t)
     unittest
     {
         static bool[] ba = [1,0,1];
-        auto a = BitSet!3(ba);
+        auto a = BitArrayN!3(ba);
         size_t i;
         foreach (immutable b; a[]) // TODO is `opSlice` the right thing?
         {
@@ -326,8 +326,8 @@ struct BitSet(uint len, Block = size_t)
         }
     }
 
-    /** Reverses the bits of the $(D BitSet) in place. */
-    @property BitSet reverse() out (result) { assert(result == this); }
+    /** Reverses the bits of the $(D BitArrayN) in place. */
+    @property BitArrayN reverse() out (result) { assert(result == this); }
     body
     {
         static if (length == blockCount * bitsPerBlock)
@@ -388,7 +388,7 @@ struct BitSet(uint len, Block = size_t)
         enum len = 64;
         static immutable bool[len] data = [0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0,
                                            0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0];
-        auto b = BitSet!len(data);
+        auto b = BitArrayN!len(data);
         b.reverse();
         for (size_t i = 0; i < data.length; ++i)
         {
@@ -404,7 +404,7 @@ struct BitSet(uint len, Block = size_t)
                                            0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0,
                                            0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0,
                                            0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0];
-        auto b = BitSet!len(data);
+        auto b = BitArrayN!len(data);
         b.reverse();
         for (size_t i = 0; i < data.length; ++i)
         {
@@ -422,7 +422,7 @@ struct BitSet(uint len, Block = size_t)
                                            0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0,
                                            0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0,
                                            0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0];
-        auto b = BitSet!len(data);
+        auto b = BitArrayN!len(data);
         b.reverse();
         for (size_t i = 0; i < data.length; ++i)
         {
@@ -430,8 +430,8 @@ struct BitSet(uint len, Block = size_t)
         }
     }
 
-    /** Sorts the $(D BitSet)'s elements. */
-    @property BitSet sort()
+    /** Sorts the $(D BitArrayN)'s elements. */
+    @property BitArrayN sort()
         @safe pure nothrow @nogc
     out (result)
     {
@@ -475,7 +475,7 @@ struct BitSet(uint len, Block = size_t)
     /* unittest */
     /*     { */
     /*         __gshared size_t x = 0b1100011000; */
-    /*         __gshared BitSet ba = { 10, &x }; */
+    /*         __gshared BitArrayN ba = { 10, &x }; */
     /*         ba.sort(); */
     /*         for (size_t i = 0; i < 6; ++i) */
     /*             assert(ba[i] == false); */
@@ -484,8 +484,8 @@ struct BitSet(uint len, Block = size_t)
     /*     } */
 
 
-    /** Support for operators == and != for $(D BitSet). */
-    bool opEquals(Block2)(in BitSet!(len, Block2) a2) const
+    /** Support for operators == and != for $(D BitArrayN). */
+    bool opEquals(Block2)(in BitArrayN!(len, Block2) a2) const
         @trusted pure nothrow @nogc
         if (isUnsigned!Block2)
     {
@@ -508,17 +508,17 @@ struct BitSet(uint len, Block = size_t)
     ///
     nothrow unittest
     {
-        auto a = BitSet!(5, ubyte)([1,0,1,0,1]);
-        auto b = BitSet!(5, ushort)([1,0,1,1,1]);
-        auto c = BitSet!(5, uint)([1,0,1,0,1]);
-        auto d = BitSet!(5, ulong)([1,1,1,1,1]);
+        auto a = BitArrayN!(5, ubyte)([1,0,1,0,1]);
+        auto b = BitArrayN!(5, ushort)([1,0,1,1,1]);
+        auto c = BitArrayN!(5, uint)([1,0,1,0,1]);
+        auto d = BitArrayN!(5, ulong)([1,1,1,1,1]);
         assert(a != b);
         assert(a == c);
         assert(a != d);
     }
 
-    /** Supports comparison operators for $(D BitSet). */
-    int opCmp(Block2)(in BitSet!(len, Block2) a2) const
+    /** Supports comparison operators for $(D BitArrayN). */
+    int opCmp(Block2)(in BitArrayN!(len, Block2) a2) const
         @trusted pure nothrow @nogc
         if (isUnsigned!Block2)
     {
@@ -545,10 +545,10 @@ struct BitSet(uint len, Block = size_t)
     ///
     nothrow unittest
     {
-        auto a = BitSet!(5, ubyte)([1,0,1,0,1]);
-        auto b = BitSet!(5, ushort)([1,0,1,1,1]);
-        auto c = BitSet!(5, uint)([1,0,1,0,1]);
-        auto d = BitSet!(5, ulong)([1,1,1,1,1]);
+        auto a = BitArrayN!(5, ubyte)([1,0,1,0,1]);
+        auto b = BitArrayN!(5, ushort)([1,0,1,1,1]);
+        auto c = BitArrayN!(5, uint)([1,0,1,0,1]);
+        auto d = BitArrayN!(5, ulong)([1,1,1,1,1]);
         assert(a <  b);
         assert(a <= b);
         assert(a == c);
@@ -557,7 +557,7 @@ struct BitSet(uint len, Block = size_t)
         assert(c < d);
     }
 
-    /** Support for hashing for $(D BitSet). */
+    /** Support for hashing for $(D BitArrayN). */
     extern(D) size_t toHash() const
         @trusted pure nothrow
     {
@@ -576,7 +576,7 @@ struct BitSet(uint len, Block = size_t)
         return hash;
     }
 
-    /** Set this $(D BitSet) to the contents of $(D ba). */
+    /** Set this $(D BitArrayN) to the contents of $(D ba). */
     this(bool[] ba)
         @safe pure nothrow @nogc
     in
@@ -591,7 +591,7 @@ struct BitSet(uint len, Block = size_t)
         }
     }
 
-    /** Set this $(D BitSet) to the contents of $(D ba). */
+    /** Set this $(D BitArrayN) to the contents of $(D ba). */
     this(const ref bool[len] ba)
         @safe pure nothrow @nogc
     {
@@ -611,7 +611,7 @@ struct BitSet(uint len, Block = size_t)
     @safe nothrow @nogc unittest
     {
         static bool[] ba = [1,0,1,0,1];
-        auto a = BitSet!5(ba);
+        auto a = BitArrayN!5(ba);
         assert(a);
         assert(!a.allZero);
     }
@@ -619,7 +619,7 @@ struct BitSet(uint len, Block = size_t)
     @safe nothrow @nogc unittest
     {
         static bool[] ba = [0,0,0];
-        auto a = BitSet!3(ba);
+        auto a = BitArrayN!3(ba);
         assert(!a);
         assert(a.allZero);
     }
@@ -627,12 +627,12 @@ struct BitSet(uint len, Block = size_t)
     @safe nothrow @nogc unittest
     {
         static bool[3] ba = [0,0,0];
-        auto a = BitSet!3(ba);
+        auto a = BitArrayN!3(ba);
         assert(!a);
         assert(a.allZero);
     }
 
-    /** Check if this $(D BitSet) has only zeros (is empty). */
+    /** Check if this $(D BitArrayN) has only zeros (is empty). */
     bool allZero() const
         @safe pure nothrow @nogc
     {
@@ -643,7 +643,7 @@ struct BitSet(uint len, Block = size_t)
         return true;
     }
 
-    /** Check if this $(D BitSet) has only ones in range [ $(d low), $(d high) [. */
+    /** Check if this $(D BitArrayN) has only ones in range [ $(d low), $(d high) [. */
     bool allOneBetween(size_t low, size_t high) const
         @safe pure nothrow @nogc
     in
@@ -673,7 +673,7 @@ struct BitSet(uint len, Block = size_t)
         {
             @safe pure nothrow @nogc:
 
-            this(BitSet store)
+            this(BitArrayN store)
             {
                 this._store = store;
 
@@ -726,7 +726,7 @@ struct BitSet(uint len, Block = size_t)
             }
 
         private:
-            BitSet _store;               // copy of store
+            BitArrayN _store;               // copy of store
             int _i = 0;                  // front index into `_store`
             int _j = _store.length - 1;  // back index into `_store`
         }
@@ -777,7 +777,7 @@ struct BitSet(uint len, Block = size_t)
             return 1 - denseness(depth);
         }
 
-        /** Check if this $(D BitSet) has only ones. */
+        /** Check if this $(D BitArrayN) has only ones. */
         bool allOne() const @safe pure nothrow
         {
             const restCount = len % bitsPerBlock;
@@ -826,7 +826,7 @@ struct BitSet(uint len, Block = size_t)
     }
 
     /**
-     * Map the $(D BitSet) onto $(D v), with $(D numbits) being the number of bits
+     * Map the $(D BitArrayN) onto $(D v), with $(D numbits) being the number of bits
      * in the array. Does not copy the data.
      *
      * This is the inverse of $(D opCast).
@@ -853,15 +853,15 @@ struct BitSet(uint len, Block = size_t)
     nothrow unittest
     {
         static bool[] ba = [1,0,1,0,1];
-        auto a = BitSet!5(ba);
+        auto a = BitArrayN!5(ba);
         void[] v = cast(void[])a;
         assert(v.length == a.dim * size_t.sizeof);
     }
 
-    /** Support for unary operator ~ for $(D BitSet). */
-    BitSet opCom() const
+    /** Support for unary operator ~ for $(D BitArrayN). */
+    BitArrayN opCom() const
     {
-        BitSet result;
+        BitArrayN result;
         for (size_t i = 0; i < dim; ++i)
             result.ptr[i] = ~this.ptr[i];
         immutable rem = len & (bitsPerBlock-1); // number of rest bits in last block
@@ -871,80 +871,80 @@ struct BitSet(uint len, Block = size_t)
         return result;
     }
 
-    /** Support for binary operator & for $(D BitSet). */
-    BitSet opAnd(in BitSet e2) const
+    /** Support for binary operator & for $(D BitArrayN). */
+    BitArrayN opAnd(in BitArrayN e2) const
     {
-        BitSet result;
+        BitArrayN result;
         result._blocks[] = this._blocks[] & e2._blocks[];
         return result;
     }
     ///
     nothrow unittest
     {
-        const a = BitSet!5([1,0,1,0,1]);
-        auto b = BitSet!5([1,0,1,1,0]);
+        const a = BitArrayN!5([1,0,1,0,1]);
+        auto b = BitArrayN!5([1,0,1,1,0]);
         const c = a & b;
-        auto d = BitSet!5([1,0,1,0,0]);
+        auto d = BitArrayN!5([1,0,1,0,0]);
         assert(c == d);
     }
 
-    /** Support for binary operator | for $(D BitSet). */
-    BitSet opOr(in BitSet e2) const
+    /** Support for binary operator | for $(D BitArrayN). */
+    BitArrayN opOr(in BitArrayN e2) const
     {
-        BitSet result;
+        BitArrayN result;
         result._blocks[] = this._blocks[] | e2._blocks[];
         return result;
     }
     ///
     nothrow unittest
     {
-        const a = BitSet!5([1,0,1,0,1]);
-        auto b = BitSet!5([1,0,1,1,0]);
+        const a = BitArrayN!5([1,0,1,0,1]);
+        auto b = BitArrayN!5([1,0,1,1,0]);
         const c = a | b;
-        auto d = BitSet!5([1,0,1,1,1]);
+        auto d = BitArrayN!5([1,0,1,1,1]);
         assert(c == d);
     }
 
-    /** Support for binary operator ^ for $(D BitSet). */
-    BitSet opXor(in BitSet e2) const
+    /** Support for binary operator ^ for $(D BitArrayN). */
+    BitArrayN opXor(in BitArrayN e2) const
     {
-        BitSet result;
+        BitArrayN result;
         result._blocks[] = this._blocks[] ^ e2._blocks[];
         return result;
     }
     ///
     nothrow unittest
     {
-        const a = BitSet!5([1,0,1,0,1]);
-        auto b = BitSet!5([1,0,1,1,0]);
+        const a = BitArrayN!5([1,0,1,0,1]);
+        auto b = BitArrayN!5([1,0,1,1,0]);
         const c = a ^ b;
-        auto d = BitSet!5([0,0,0,1,1]);
+        auto d = BitArrayN!5([0,0,0,1,1]);
         assert(c == d);
     }
 
-    /** Support for binary operator - for $(D BitSet).
+    /** Support for binary operator - for $(D BitArrayN).
      *
-     * $(D a - b) for $(D BitSet) means the same thing as $(D a &amp; ~b).
+     * $(D a - b) for $(D BitArrayN) means the same thing as $(D a &amp; ~b).
      */
-    BitSet opSub(in BitSet e2) const
+    BitArrayN opSub(in BitArrayN e2) const
     {
-        BitSet result;
+        BitArrayN result;
         result._blocks[] = this._blocks[] & ~e2._blocks[];
         return result;
     }
     ///
     nothrow unittest
     {
-        const a = BitSet!5([1,0,1,0,1]);
-        auto b = BitSet!5([1,0,1,1,0]);
+        const a = BitArrayN!5([1,0,1,0,1]);
+        auto b = BitArrayN!5([1,0,1,1,0]);
         const c = a - b;
-        auto d = BitSet!5([0,0,0,0,1]);
+        auto d = BitArrayN!5([0,0,0,0,1]);
         assert(c == d);
     }
 
-    /** Support for operator &= for $(D BitSet).
+    /** Support for operator &= for $(D BitArrayN).
      */
-    BitSet opAndAssign(in BitSet e2)
+    BitArrayN opAndAssign(in BitArrayN e2)
     {
         _blocks[] &= e2._blocks[];
         return this;
@@ -952,16 +952,16 @@ struct BitSet(uint len, Block = size_t)
     ///
     nothrow unittest
     {
-        auto a = BitSet!5([1,0,1,0,1]);
-        const b = BitSet!5([1,0,1,1,0]);
+        auto a = BitArrayN!5([1,0,1,0,1]);
+        const b = BitArrayN!5([1,0,1,1,0]);
         a &= b;
-        const c = BitSet!5([1,0,1,0,0]);
+        const c = BitArrayN!5([1,0,1,0,0]);
         assert(a == c);
     }
 
-    /** Support for operator |= for $(D BitSet).
+    /** Support for operator |= for $(D BitArrayN).
      */
-    BitSet opOrAssign(in BitSet e2)
+    BitArrayN opOrAssign(in BitArrayN e2)
     {
         _blocks[] |= e2._blocks[];
         return this;
@@ -969,16 +969,16 @@ struct BitSet(uint len, Block = size_t)
     ///
     nothrow unittest
     {
-        auto a = BitSet!5([1,0,1,0,1]);
-        const b = BitSet!5([1,0,1,1,0]);
+        auto a = BitArrayN!5([1,0,1,0,1]);
+        const b = BitArrayN!5([1,0,1,1,0]);
         a |= b;
-        const c = BitSet!5([1,0,1,1,1]);
+        const c = BitArrayN!5([1,0,1,1,1]);
         assert(a == c);
     }
 
-    /** Support for operator ^= for $(D BitSet).
+    /** Support for operator ^= for $(D BitArrayN).
      */
-    BitSet opXorAssign(in BitSet e2)
+    BitArrayN opXorAssign(in BitArrayN e2)
     {
         _blocks[] ^= e2._blocks[];
         return this;
@@ -986,18 +986,18 @@ struct BitSet(uint len, Block = size_t)
     ///
     nothrow unittest
     {
-        auto a = BitSet!5([1,0,1,0,1]);
-        const b = BitSet!5([1,0,1,1,0]);
+        auto a = BitArrayN!5([1,0,1,0,1]);
+        const b = BitArrayN!5([1,0,1,1,0]);
         a ^= b;
-        const c = BitSet!5([0,0,0,1,1]);
+        const c = BitArrayN!5([0,0,0,1,1]);
         assert(a == c);
     }
 
-    /** Support for operator -= for $(D BitSet).
+    /** Support for operator -= for $(D BitArrayN).
      *
-     * $(D a -= b) for $(D BitSet) means the same thing as $(D a &amp;= ~b).
+     * $(D a -= b) for $(D BitArrayN) means the same thing as $(D a &amp;= ~b).
      */
-    BitSet opSubAssign(in BitSet e2)
+    BitArrayN opSubAssign(in BitArrayN e2)
     {
         _blocks[] &= ~e2._blocks[];
         return this;
@@ -1005,14 +1005,14 @@ struct BitSet(uint len, Block = size_t)
     ///
     nothrow unittest
     {
-        auto a = BitSet!5([1,0,1,0,1]);
-        const b = BitSet!5([1,0,1,1,0]);
+        auto a = BitArrayN!5([1,0,1,0,1]);
+        const b = BitArrayN!5([1,0,1,1,0]);
         a -= b;
-        const c = BitSet!5([0,0,0,0,1]);
+        const c = BitArrayN!5([0,0,0,0,1]);
         assert(a == c);
     }
 
-    /** Return a string representation of this BitSet.
+    /** Return a string representation of this BitArrayN.
      *
      * Two format specifiers are supported:
      * $(LI $(B %s) which prints the bits as an array, and)
@@ -1035,7 +1035,7 @@ struct BitSet(uint len, Block = size_t)
     ///
     unittest
     {
-        const b = BitSet!16(([0, 0, 0, 0, 1, 1, 1, 1,
+        const b = BitArrayN!16(([0, 0, 0, 0, 1, 1, 1, 1,
                              0, 0, 0, 0, 1, 1, 1, 1]));
         const s1 = format("%s", b);
         assert(s1 == "[0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1]");
@@ -1098,9 +1098,9 @@ struct BitSet(uint len, Block = size_t)
 
     enum m = 256, n = 256;
 
-    static assert(BitSet!m.init ==
-                  BitSet!m.init);
-    static assert(BitSet!m.init.denseness == Q(0, m));
+    static assert(BitArrayN!m.init ==
+                  BitArrayN!m.init);
+    static assert(BitArrayN!m.init.denseness == Q(0, m));
 }
 
 /// run-time
@@ -1113,7 +1113,7 @@ struct BitSet(uint len, Block = size_t)
     alias Q = Rational!ulong;
     enum m = 256;
 
-    BitSet!m b0;
+    BitArrayN!m b0;
 
     import modulo : Mod;
     static assert(is(typeof(b0.oneIndexes.front()) == Mod!m));
@@ -1148,7 +1148,7 @@ struct BitSet(uint len, Block = size_t)
     alias Q = Rational!ulong;
     enum m = 256;
 
-    BitSet!m b0;
+    BitArrayN!m b0;
 
     import modulo : Mod;
     static assert(is(typeof(b0.oneIndexes.front()) == Mod!m));
@@ -1181,11 +1181,11 @@ struct BitSet(uint len, Block = size_t)
 
     enum m = 256, n = 256;
 
-    BitSet!m[n] b1;
+    BitArrayN!m[n] b1;
     b1[0][0] = 1;
     assert(b1.denseness == Q(1, m*n));
 
-    BitSet!m[n][n] b2;
+    BitArrayN!m[n][n] b2;
     b2[0][0][0] = 1;
     b2[0][0][1] = 1;
     b2[0][0][4] = 1;
@@ -1196,13 +1196,13 @@ struct BitSet(uint len, Block = size_t)
 @safe pure nothrow @nogc unittest
 {
     import std.traits : isIterable;
-    static assert(isIterable!(BitSet!256));
+    static assert(isIterable!(BitArrayN!256));
 }
 
 /// test ubyte access
 @safe pure nothrow @nogc unittest
 {
-    auto b8 = BitSet!(8, ubyte)();
+    auto b8 = BitArrayN!(8, ubyte)();
     b8[0] = 1;
     b8[1] = 1;
     b8[3] = 1;
@@ -1238,7 +1238,7 @@ struct BitSet(uint len, Block = size_t)
     {
         enum n = 8*size_t.sizeof + restCount;
 
-        auto bs = BitSet!(n, size_t)();
+        auto bs = BitArrayN!(n, size_t)();
 
         assert(bs.allZero);
         assert(!bs.allOne);
@@ -1266,31 +1266,31 @@ unittest
 {
     import std.format : format;
 
-    const b0_ = BitSet!0([]);
+    const b0_ = BitArrayN!0([]);
     const b0 = b0_;
     assert(format("%s", b0) == "[]");
     assert(format("%b", b0) is null);
 
-    const b1_ = BitSet!1([1]);
+    const b1_ = BitArrayN!1([1]);
     const b1 = b1_;
     assert(format("%s", b1) == "[1]");
     assert(format("%b", b1) == "1");
 
-    const b4 = BitSet!4([0, 0, 0, 0]);
+    const b4 = BitArrayN!4([0, 0, 0, 0]);
     assert(format("%b", b4) == "0000");
 
-    const b8 = BitSet!8([0, 0, 0, 0, 1, 1, 1, 1]);
+    const b8 = BitArrayN!8([0, 0, 0, 0, 1, 1, 1, 1]);
     assert(format("%s", b8) == "[0, 0, 0, 0, 1, 1, 1, 1]");
     assert(format("%b", b8) == "00001111");
 
-    const b16 = BitSet!16([0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1]);
+    const b16 = BitArrayN!16([0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1]);
     assert(format("%s", b16) == "[0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1]");
     assert(format("%b", b16) == "00001111_00001111");
 
-    const b9 = BitSet!9([1, 0, 0, 0, 0, 1, 1, 1, 1]);
+    const b9 = BitArrayN!9([1, 0, 0, 0, 0, 1, 1, 1, 1]);
     assert(format("%b", b9) == "1_00001111");
 
-    const b17 = BitSet!17([1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1]);
+    const b17 = BitArrayN!17([1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1]);
     assert(format("%b", b17) == "1_00001111_00001111");
 }
 
@@ -1299,7 +1299,7 @@ unittest
 {
     static testRange(Block)()
     {
-        BitSet!(6, Block) bs = [false, 1, 0, 0, true, 0];
+        BitArrayN!(6, Block) bs = [false, 1, 0, 0, true, 0];
         bs.put(3, true);
 
         import std.algorithm : equal;

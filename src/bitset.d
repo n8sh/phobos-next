@@ -13,7 +13,7 @@ version(unittest)
     import dbgio;
 }
 
-/** BitSet, a statically sized `std.bitmanip.BitArray`.
+/** A statically sized `std.bitmanip.BitArray`.
 
     TODO Infer `Block` from `len` as is done for `Bound` and `Mod`.
 

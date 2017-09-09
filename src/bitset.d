@@ -663,7 +663,7 @@ struct BitSet(uint len, Block = size_t)
 
     static if (len >= 1)
     {
-        /** Range over all indexes hold a one (set bit).
+        /** Lazy range of the indices of set bits.
 
             Similar to: `std.bitmanip.bitsSet`
 
@@ -671,7 +671,7 @@ struct BitSet(uint len, Block = size_t)
          */
         struct OneIndexes
         {
-            @safe pure @nogc:
+            @safe pure nothrow @nogc:
 
             this(BitSet store)
             {
@@ -690,7 +690,7 @@ struct BitSet(uint len, Block = size_t)
                 }
             }
 
-            bool empty() const nothrow
+            bool empty() const
             {
                 return _i > _j;
             }
@@ -731,12 +731,14 @@ struct BitSet(uint len, Block = size_t)
             uint _j = _store.length - 1; // back index into _store
         }
 
-        /** Get indexes of all bits set.
+        /** Returns: a lazy range of the indices of set bits.
          */
-        auto oneIndexes() const @safe pure nothrow
+        auto oneIndexes() const @safe pure nothrow @nogc
         {
             return OneIndexes(this);
         }
+
+        alias bitsSet = OneIndexes;
 
         /** Get number of bits set in $(D this). */
         Mod!(len + 1) countOnes() const @safe pure nothrow @nogc

@@ -67,12 +67,14 @@ struct BitSet(uint len, Block = size_t)
     /** Number of bits in the $(D BitSet). */
     enum length = len;
 
-    /** BitSet Range.
+    /** BitSet range.
 
         TODO Provide opSliceAssign for interopability with range algorithms
         via private static struct member `Range`
 
         TODO Look at how std.container.array implements this.
+
+        See also: https://dlang.org/phobos/std_bitmanip.html#bitsSet
     */
     struct Range
     {
@@ -103,7 +105,7 @@ struct BitSet(uint len, Block = size_t)
 
     private:
         BitSet _store;          // copy of store
-        size_t _i = 0;         // iterator into _store
+        size_t _i = 0;          // iterator into _store
         size_t _j = _store.length;
     }
 

@@ -36,11 +36,11 @@ struct BitSet(uint len, Block = size_t)
 
     static if (Block.sizeof == 8)
     {
-        import core.bitop : bt, bts, btr;
+        import core.bitop : bt, bts, btr; // use intrinsics
     }
     else
     {
-        import bitop_ex : bt, bts, btr; // use my own overloads
+        import bitop_ex : bt, bts, btr; // use own overloads
     }
 
     /** Number of bits per `Block`. */

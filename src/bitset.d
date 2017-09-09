@@ -663,7 +663,12 @@ struct BitSet(uint len, Block = size_t)
 
     static if (len >= 1)
     {
-        /** Range over all indexes hold a one (set bit). */
+        /** Range over all indexes hold a one (set bit).
+
+            Similar to: `std.bitmanip.bitsSet`
+
+            See also: https://dlang.org/phobos/std_bitmanip.html#bitsSet
+         */
         struct OneIndexes
         {
             @safe pure @nogc:

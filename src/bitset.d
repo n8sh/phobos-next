@@ -1,11 +1,10 @@
-#!/usr/bin/env rdmd-dev-module
+/** Statically sized variant of `std.bitmanip.BitArray.
 
-/** Fixed-Sized Bit-Array.
     Copyright: Per Nordlöw 2016-.
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
     Authors: $(WEB Per Nordlöw)
  */
-module bitset;
+module bitarrayn;
 
 version(unittest)
 {

@@ -760,7 +760,7 @@ private struct Array(E,
     }
     /// ditto
     pragma(inline, true)
-    void opAssign(typeof(null)) @safe{ clear(); }
+    void opAssign(typeof(null)) @safe { clear(); }
 
     /// Destroy elements.
     static if (hasElaborateDestructor!E)

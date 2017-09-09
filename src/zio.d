@@ -62,7 +62,7 @@ struct GzipFileInputRange
     }
 
 private:
-    import std.zlib: UnCompress;
+    import std.zlib : UnCompress;
     UnCompress _uncompress;
     File _f;
     ReturnType!(_f.byChunk) _chunkRange;
@@ -416,9 +416,7 @@ void testInputRange(FileInputRange)()
 
     foreach (const n; wholeSource.length .. wholeSource.length) // TODO from 0
     {
-        dln(`n:`, n);
         const source = wholeSource[0 .. n]; // slice from the beginning
-        dln(`source:"`, source, `"`);
 
         scope File file = File(path, "w"); // TODO temporary file
         scope auto of = new GzipOut(file);
@@ -435,9 +433,13 @@ void testInputRange(FileInputRange)()
         import std.algorithm.searching : count;
         import std.algorithm.iteration : splitter;
         alias R = DecompressByLine!ZlibFileInputRange;
-        dln(`new DecompressByLine(path).count:`, new R(path).count);
-        dln(`source.splitter('\n').count:`, source.splitter('\n').count);
+
         assert(new R(path).count == source.splitter('\n').count);
+
+        // dln(`n:`, n);
+        // dln(`source:"`, source, `"`);
+        // dln(`new DecompressByLine(path).count:`, new R(path).count);
+        // dln(`source.splitter('\n').count:`, source.splitter('\n').count);
     }
 }
 
@@ -478,7 +480,7 @@ unittest
 version(none)
 unittest
 {
-    enum path = "/home/per/Knowledge/DBpedia/2016-10/genders_en.ttl.bz2";
+    enum path = "/home/per/Knowledge/DBpedia/latest/genders_en.ttl.bz2";
     alias R = Bz2libFileInputRange;
 
     import std.stdio: writeln;
@@ -506,5 +508,5 @@ unittest
 version(unittest)
 {
     import std.stdio : write, writeln;
-    import dbgio : dln;
+    // import dbgio : dln;
 }

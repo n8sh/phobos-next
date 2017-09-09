@@ -727,8 +727,8 @@ struct BitSet(uint len, Block = size_t)
 
         private:
             BitSet _store;               // copy of store
-            uint _i = 0;                 // front index into _store
-            uint _j = _store.length - 1; // back index into _store
+            int _i = 0;                  // front index into `_store`
+            int _j = _store.length - 1;  // back index into `_store`
         }
 
         /** Returns: a lazy range of the indices of set bits.

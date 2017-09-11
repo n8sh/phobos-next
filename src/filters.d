@@ -109,7 +109,8 @@ struct DenseSetFilter(E,
                 const oldBlockCount = blockCount;
                 import std.math : nextPow2;
                 this._capacity = newLength.nextPow2;
-                _blocksPtr = cast(Block*)realloc(_blocksPtr, blockCount * Block.sizeof);
+                _blocksPtr = cast(Block*)realloc(_blocksPtr,
+                                                 blockCount * Block.sizeof);
                 _blocksPtr[oldBlockCount .. blockCount] = 0;
             }
         }
@@ -122,7 +123,15 @@ struct DenseSetFilter(E,
     bool insert(E e) @trusted
     {
         const ix = cast(size_t)e;
-        static if (growable == Growable.yes) { assureCapacity(ix + 1); _length = ix + 1; } else { assert(ix < _capacity); }
+        static if (growable == Growable.yes)
+        {
+            assureCapacity(ix + 1);
+            _length = ix + 1;
+        }
+        else
+        {
+            assert(ix < _capacity);
+        }
         return bts(_blocksPtr, ix) != 0;
     }
     alias put = insert;         // OutputRange compatibility
@@ -134,7 +143,15 @@ struct DenseSetFilter(E,
     bool remove(E e) @trusted
     {
         const ix = cast(size_t)e;
-        static if (growable == Growable.yes) { assureCapacity(ix + 1); _length = ix + 1; } else { assert(ix < _capacity); }
+        static if (growable == Growable.yes)
+        {
+            assureCapacity(ix + 1);
+            _length = ix + 1;
+        }
+        else
+        {
+            assert(ix < _capacity);
+        }
         return btr(_blocksPtr, ix) != 0;
     }
 
@@ -145,7 +162,15 @@ struct DenseSetFilter(E,
     bool complement(E e) @trusted
     {
         const ix = cast(size_t)e;
-        static if (growable == Growable.yes) { assureCapacity(ix + 1); _length = ix + 1; } else { assert(ix < _capacity); }
+        static if (growable == Growable.yes)
+        {
+            assureCapacity(ix + 1);
+            _length = ix + 1;
+        }
+        else
+        {
+            assert(ix < _capacity);
+        }
         return btc(_blocksPtr, ix) != 0;
     }
 

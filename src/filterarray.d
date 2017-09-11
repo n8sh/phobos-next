@@ -36,6 +36,12 @@ struct DenseSetFilterGrowableArray(E, bool useGCAllocation = false)
     {
         return _set.contains(e);
     }
+    /// ditto
+    auto opBinaryRight(string op)(in E e) const
+        if (op == "in")
+    {
+        return contains(e);
+    }
 
     /// Check if empty.
     bool empty() const

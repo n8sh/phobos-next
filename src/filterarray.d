@@ -69,22 +69,22 @@ unittest
 
     assert(!x.insert(42));
     assert(x.contains(42));
-    assert(x[] == [42].s[]);
+    assert(x[] == [42].s);
 
     assert(x.insert(42));
     assert(x.contains(42));
-    assert(x[] == [42].s[]);
+    assert(x[] == [42].s);
 
     assert(!x.insert(43));
     assert(x.contains(43));
-    assert(x[] == [42, 43].s[]);
+    assert(x[] == [42, 43].s);
 
     x.clear();
     assert(x.empty());
 
     assert(!x.insert(44));
     assert(x.contains(44));
-    assert(x[] == [44].s[]);
+    assert(x[] == [44].s);
 }
 
 version(unittest)

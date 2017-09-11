@@ -6,12 +6,6 @@
  */
 module bitarrayn;
 
-version(unittest)
-{
-    import array_ex : s;
-    import dbgio;
-}
-
 /** A statically sized `std.bitmanip.BitArray`.
 
     TODO Infer `Block` from `len` as is done for `Bound` and `Mod`.
@@ -1364,4 +1358,9 @@ unittest
     {
         testRange!Block;
     }
+}
+
+version(unittest)
+{
+    import array_help : s;
 }

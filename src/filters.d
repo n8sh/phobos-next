@@ -6,10 +6,8 @@ enum Growable { no, yes }
 /// Copyable flag.
 enum Copyable { no, yes }
 
-version(unittest)
-{
-    import dbgio : dln;
-}
+enum isDenseSetFilterable(E) = (is(typeof(cast(size_t)E.init)) && // is castable to size_t
+                                cast(uint)E.max <= uint.max);      // and small enough
 
 /** Store presence of elements of type `E` in a set in the range `0 .. length`.
     Can be seen as a generalization of `std.typecons.BitFlags` to integer types.
@@ -22,8 +20,7 @@ version(unittest)
 struct DenseSetFilter(E,
                       Growable growable = Growable.yes,
                       Copyable copyable = Copyable.no)
-    if (is(typeof(cast(size_t)E.init)) && // is castable to size_t
-        cast(uint)E.max <= uint.max)      // and small enough
+    if (isDenseSetFilterable!E)
 {
     import core.memory : malloc = pureMalloc, calloc = pureCalloc, realloc = pureRealloc;
     import core.bitop : bts, btr, btc, bt;
@@ -63,10 +60,28 @@ struct DenseSetFilter(E,
     }
 
     pragma(inline, true)
-    ~this() @trusted
+    ~this()
+    {
+        destroy();
+    }
+
+    pragma(inline, true)
+    void destroy() @trusted
     {
         import qcmeman : free;
         free(_blocksPtr);
+    }
+
+    pragma(inline, true)
+    void clear()
+    {
+        destroy();
+        static if (growable == Growable.yes)
+        {
+            _length = 0;
+        }
+        _capacity = 0;
+        _blocksPtr = null;
     }
 
     static if (copyable)

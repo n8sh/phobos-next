@@ -357,7 +357,7 @@ private struct Array(E,
                 else            // large = small
                 {
                     {            // make it small
-                        clear();    // clear large storage
+                        clear(); // clear large storage
                         _large.isLarge = false; // TODO needed?
                     }
                     _small = rhs._small; // small

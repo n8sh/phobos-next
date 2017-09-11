@@ -49,6 +49,7 @@ struct DenseSetFilterGrowableArray(E)
         return _array.opSlice;
     }
 
+    /// Clear contents.
     void clear()
     {
         _set.clear();

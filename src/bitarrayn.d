@@ -230,7 +230,7 @@ struct BitArrayN(uint len, Block = size_t)
     }
 
     /** Duplicates the $(D BitArrayN) and its contents. */
-    @property BitArrayN dup() const
+    @property BitArrayN dup() const // TODO is this needed for value types?
         @safe pure nothrow @nogc
     {
         return this;
@@ -240,7 +240,6 @@ struct BitArrayN(uint len, Block = size_t)
     int opApply(scope int delegate(ref bool) dg)
     {
         int result;
-
         for (size_t i = 0; i < len; ++i)
         {
             bool b = opIndex(i);

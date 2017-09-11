@@ -82,7 +82,7 @@ alias takeFront = frontPop;
 
 version(unittest)
 {
-    import array_ex : s;
+    import array_help : s;
 }
 
 @safe pure nothrow unittest

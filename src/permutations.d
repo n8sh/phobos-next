@@ -60,7 +60,7 @@ struct CartesianPower(bool doCopy = true, T)
 
 version(unittest)
 {
-    import array_ex : s;
+    import array_help : s;
     static assert(isInputRange!(typeof([1, 2].s[].cartesianPower!false(4))));
 }
 

@@ -1017,7 +1017,7 @@ version(unittest)
 /// set operations
 @safe pure nothrow @nogc unittest
 {
-    import array_ex : s;
+    import array_help : s;
 
     enum E:ubyte { a, b, c, d, dAlias = d }
 

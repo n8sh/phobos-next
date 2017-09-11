@@ -16,7 +16,9 @@ enum Checking
 
     TODO Merge with array_ex.d to enable reuse of push and pop algorithms
 */
-struct ArrayN(E, uint capacity, Checking checking)
+struct ArrayN(E,
+              uint capacity,
+              Checking checking = Checking.viaScope)
 {
     import std.bitmanip : bitfields;
     import std.typecons : Unqual;

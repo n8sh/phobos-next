@@ -174,8 +174,9 @@ struct BitArrayN(uint len, Block = size_t)
     }
 
     /** Sets the $(D i)'th bit in the $(D BitArrayN). */
-    import std.traits: isIntegral;
-    pragma(inline, true) bool opIndexAssign(Index2)(bool b, Index2 i) @trusted pure nothrow
+    import std.traits : isIntegral;
+    pragma(inline, true)
+    bool opIndexAssign(Index2)(bool b, Index2 i) @trusted pure nothrow
         if (isIntegral!Index2)
     in
     {
@@ -190,7 +191,14 @@ struct BitArrayN(uint len, Block = size_t)
     }
     body
     {
-        b ? bts(ptr, cast(size_t)i) : btr(ptr, cast(size_t)i);
+        if (b)
+        {
+            bts(ptr, cast(size_t)i);
+        }
+        else
+        {
+            btr(ptr, cast(size_t)i);
+        }
         return b;
     }
 
@@ -201,7 +209,14 @@ struct BitArrayN(uint len, Block = size_t)
             @trusted pure nothrow @nogc
         if (isUnsigned!ModUInt)
         {
-            b ? bts(ptr, cast(size_t)i) : btr(ptr, cast(size_t)i);
+            if (b)
+            {
+                bts(ptr, cast(size_t)i);
+            }
+            else
+            {
+                btr(ptr, cast(size_t)i);
+            }
             return b;
         }
     }

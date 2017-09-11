@@ -1,6 +1,6 @@
 void main()
 {
-    import std.container.array : CArray = Array;
+    import std.container.array : StdArray = Array;
     import std.array : Appender;
     import std.stdio : writeln;
     import std.datetime : MonoTime;
@@ -16,7 +16,7 @@ void main()
     foreach (A; AliasSeq!(Array!E,
                           E[],
                           Appender!(E[]),
-                          CArray!E))
+                          StdArray!E))
     {
         A a;
 

@@ -137,7 +137,7 @@ struct DenseSetFilter(E,
         Returns: precense status of element before insertion.
     */
     pragma(inline, true)
-    bool insert(E e) @trusted
+    bool insert(in E e) @trusted
     {
         const ix = cast(size_t)e;
         static if (growable == Growable.yes)
@@ -157,7 +157,7 @@ struct DenseSetFilter(E,
         Returns: precense status of element before removal.
      */
     pragma(inline, true)
-    bool remove(E e) @trusted
+    bool remove(in E e) @trusted
     {
         const ix = cast(size_t)e;
         static if (growable == Growable.yes)
@@ -176,7 +176,7 @@ struct DenseSetFilter(E,
         Returns: `true` if elements was zeroed, `false` otherwise.
      */
     pragma(inline, true)
-    bool complement(E e) @trusted
+    bool complement(in E e) @trusted
     {
         const ix = cast(size_t)e;
         static if (growable == Growable.yes)
@@ -193,7 +193,7 @@ struct DenseSetFilter(E,
 
     /// Check if element `e` is stored/contained.
     pragma(inline, true)
-    bool contains(E e) @trusted const
+    bool contains(in E e) @trusted const
     {
         const ix = cast(size_t)e;
         static if (growable == Growable.yes)
@@ -205,10 +205,9 @@ struct DenseSetFilter(E,
             return ix < _capacity && bt(_blocksPtr, ix) != 0;
         }
     }
-
     /// ditto
     pragma(inline, true)
-    auto opBinaryRight(string op)(E e) const
+    auto opBinaryRight(string op)(in E e) const
         if (op == "in")
     {
         return contains(e);

@@ -30,7 +30,7 @@ struct DenseSetFilter(E,
 
     alias This = typeof(this);
 
-    @safe pure nothrow @nogc pragma(inline):
+    @safe pure nothrow @nogc:
 
     /// Maximum number of elements in filter.
     enum elementMaxCount = cast(size_t)E.max + 1;
@@ -55,12 +55,14 @@ struct DenseSetFilter(E,
     static if (growable == Growable.no)
     {
         /// Construct from inferred capacity and length `elementMaxCount`.
+        pragma(inline, true)
         static This withInferredLength()
         {
             return This(elementMaxCount);
         }
     }
 
+    pragma(inline, true)
     ~this() @trusted
     {
         import qcmeman : free;
@@ -116,6 +118,7 @@ struct DenseSetFilter(E,
     /** Insert element `e`.
         Returns: precense status of element before insertion.
     */
+    pragma(inline, true)
     bool insert(E e) @trusted
     {
         const ix = cast(size_t)e;
@@ -127,6 +130,7 @@ struct DenseSetFilter(E,
     /** Remove element `e`.
         Returns: precense status of element before removal.
      */
+    pragma(inline, true)
     bool remove(E e) @trusted
     {
         const ix = cast(size_t)e;
@@ -137,6 +141,7 @@ struct DenseSetFilter(E,
     /** Insert element `e` if it's present otherwise remove it.
         Returns: `true` if elements was zeroed, `false` otherwise.
      */
+    pragma(inline, true)
     bool complement(E e) @trusted
     {
         const ix = cast(size_t)e;
@@ -145,6 +150,7 @@ struct DenseSetFilter(E,
     }
 
     /// Check if element `e` is stored/contained.
+    pragma(inline, true)
     bool contains(E e) @trusted const
     {
         const ix = cast(size_t)e;
@@ -159,6 +165,7 @@ struct DenseSetFilter(E,
     }
 
     /// ditto
+    pragma(inline, true)
     auto opBinaryRight(string op)(E e) const
         if (op == "in")
     {
@@ -177,12 +184,14 @@ struct DenseSetFilter(E,
     /** Get current capacity in number of elements (bits).
         If `growable` is `Growable.yes` then capacity is variable, otherwise it's constant.
     */
+    pragma(inline, true)
     @property size_t capacity() const
     {
         return _capacity;
     }
 
 private:
+    pragma(inline, true)
     @property size_t blockCount() const
     {
         return _capacity / Block.sizeof + (_capacity % Block.sizeof ? 1 : 0);

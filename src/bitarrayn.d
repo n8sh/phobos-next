@@ -22,7 +22,6 @@ struct BitArrayN(uint len, Block = size_t)
 {
     import std.format : FormatSpec, format;
     import core.bitop : bitswap;
-    import rational : Rational;
     import modulo : Mod;
 
     import std.traits : isUnsigned;
@@ -736,7 +735,7 @@ struct BitArrayN(uint len, Block = size_t)
         {
             return OneIndexes(this);
         }
-
+        /// ditto
         alias bitsSet = OneIndexes;
 
         /** Get number of bits set in $(D this). */
@@ -747,32 +746,37 @@ struct BitArrayN(uint len, Block = size_t)
             {
                 if (block != 0)
                 {
-                    import std.conv : to;
                     import core.bitop : popcnt;
                     static      if (block.sizeof == 1) { n += cast(uint)block.popcnt; } // TODO do we need to force `uint`-overload of `popcnt`?
                     else static if (block.sizeof == 2) { n += cast(uint)block.popcnt; } // TODO do we need to force `uint`-overload of `popcnt`?
                     else static if (block.sizeof == 4) { n += cast(uint)block.popcnt; } // TODO do we need to force `uint`-overload of `popcnt`?
-                    else static if (block.sizeof == 8) n += (cast(ulong)((cast(uint)(block)).popcnt) +
-                                                             cast(ulong)((cast(uint)(block >> 32)).popcnt));
+                    else static if (block.sizeof == 8) { n += (cast(ulong)((cast(uint)(block)).popcnt) +
+                                                               cast(ulong)((cast(uint)(block >> 32)).popcnt)); }
                     else
-                        assert(false, "Unsupported Block size " ~ to!string(block.sizeof));
+                    {
+                        assert(false, "Unsupported Block size " ~ Block.sizeof.stringof);
+                    }
                 }
             }
             return typeof(return)(n);
         }
         alias count = countOnes;
 
-        alias Q = Rational!ulong;
-
         /** Get number of bits set in $(D this). */
-        pragma(inline, true) Q denseness(int depth = -1) const @safe pure nothrow @nogc
+        pragma(inline, true)
+        auto denseness(int depth = -1) const @safe pure nothrow @nogc
         {
+            import rational : Rational;
+            alias Q = Rational!ulong;
             return Q(countOnes, length);
         }
 
         /** Get number of Bits Unset in $(D this). */
-        pragma(inline, true) Q sparseness(int depth = -1) const @safe pure nothrow @nogc
+        pragma(inline, true)
+        auto sparseness(int depth = -1) const @safe pure nothrow @nogc
         {
+            import rational : Rational;
+            alias Q = Rational!ulong;
             return 1 - denseness(depth);
         }
 

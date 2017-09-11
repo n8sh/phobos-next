@@ -4,10 +4,10 @@ import std.traits : isIntegral;
 
 import filters : isDenseSetFilterable;
 
-/** Container that combines `DenseSetFilter` with O(1) unordered element access via
-    slicing but not indexing for now.
+/** Container combining `DenseSetFilter` with O(1) unordered element access via
+    slicing.
  */
-struct DenseSetFilterGrowableArray(E)
+struct DenseSetFilterGrowableArray(E, bool useGCAllocation = false)
     if (isDenseSetFilterable!E)
 {
     import filters : DenseSetFilter, Growable, Copyable;
@@ -58,7 +58,7 @@ struct DenseSetFilterGrowableArray(E)
 
 private:
     DenseSetFilter!(E, Growable.yes, Copyable.no) _set;
-    UniqueArray!(E) _array;     // non-copyable
+    UniqueArray!(E, useGCAllocation) _array; // non-copyable
 }
 
 @safe pure nothrow @nogc:

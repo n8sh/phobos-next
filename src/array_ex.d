@@ -71,10 +71,12 @@ version(unittest)
 
 import container_traits : ContainerElementType;
 
-import std.traits : isInstanceOf;
-
 /// Is `true` iff `C` is an instance of an `Array` container.
-enum isArrayContainer(C) = isInstanceOf!(Array, C);
+template isArrayContainer(C)
+{
+    import std.traits : isInstanceOf;
+    enum isArrayContainer = isInstanceOf!(Array, C);
+}
 
 /// Semantics of copy construction and copy assignment.
 enum Assignment

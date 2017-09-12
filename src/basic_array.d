@@ -396,14 +396,15 @@ template shouldAddGCRange(T)
 private struct UniqueBasicArray(E, alias Allocator = null) // null means means to qcmeman functions
 {
     @disable this(this);        // no copy construction
-    BasicArray!(E, Allocator) basicArray;
-    alias basicArray this;
 
     /// Returns: shallow duplicate of `this`.
     @property basicArray.MutableThis dup() const @trusted // `MutableThis` mimics behaviour of `dup` for builtin D arrays
     {
         return typeof(return)(slice());
     }
+
+    BasicArray!(E, Allocator) basicArray;
+    alias basicArray this;
 }
 
 @safe pure nothrow @nogc unittest

@@ -33,15 +33,23 @@ private struct BasicArray(E, alias Allocator = null) // null means means to qcme
     }
 
     /// Construct from range `values`.
-    this(R)(R values) @safe
+    this(R)(R values) @trusted
         if (isIterable!R)
     {
         static if (hasLength!R)
         {
             reserve(values.length);
             _length = values.length;
-            import std.algorithm : copy;
-            copy(values, mslice());
+
+            static if (isArray!R)
+            {
+                _mptr[0 .. _length] = values;
+            }
+            else
+            {
+                import std.algorithm : copy;
+                copy(values, mslice());
+            }
         }
         else
         {

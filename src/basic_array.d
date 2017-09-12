@@ -43,7 +43,7 @@ private struct BasicArray(E, alias Allocator = null) // null means means to qcme
 
             static if (isArray!R)
             {
-                _mptr[0 .. _length] = values;
+                _mptr[0 .. _length] = values; // TODO prevent overlap check?
             }
             else
             {

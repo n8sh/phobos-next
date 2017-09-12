@@ -7,18 +7,23 @@ void main()
     import std.meta : AliasSeq;
     import std.algorithm.comparison : equal;
     import std.range : iota;
+
+    import basic_array : BasicArray;
     import array_ex : Array;
     import std.stdio : writeln;
 
     alias E = uint;
     immutable n = 5_000_000;
 
-    foreach (A; AliasSeq!(Array!E,
+    foreach (A; AliasSeq!(BasicArray!E,
+                          Array!E,
                           E[],
                           Appender!(E[]),
                           StdArray!E))
     {
         A a;
+
+        a.reserve(n);
 
         immutable before = MonoTime.currTime();
 

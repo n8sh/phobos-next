@@ -2,7 +2,7 @@ module basic_array;
 
 private struct BasicArray(E, alias Allocator = null) // null means means to qcmeman functions
 {
-    import std.traits : Unqual, hasElaborateDestructor;
+    import std.traits : Unqual, hasElaborateDestructor, hasAliasing;
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
 
     /// Mutable element type.
@@ -138,6 +138,50 @@ pragma(inline, true):
     /// Get capacity.
     @property size_t capacity() const { return _capacity; }
 
+    /// Index assign operator.
+    ref E opIndexAssign(V)(V value, size_t i) @trusted return scope
+    {
+        assert(i < this.length);
+        static if (hasAliasing!E)
+            move(*(cast(MutableE*)(&value)), _mptr[i]); // TODO is this correct?
+        else
+            _ptr[i] = value;
+        return _ptr[i];
+    }
+
+    inout(E)[] opSlice() inout return
+    {
+        return this.opSlice(0, this.length);
+    }
+    /// ditto
+    inout(E)[] opSlice(size_t i, size_t j) inout @trusted return scope
+    {
+        assert(i <= j);
+        assert(j <= this.length);
+        return _ptr[i .. j];
+    }
+
+    /// Index operator.
+    ref inout(E) opIndex(size_t i) inout @trusted return scope
+    {
+        assert(i < this.length);
+        return _ptr[i];
+    }
+
+    /// Get front element reference.
+    ref inout(E) front() inout @trusted return scope
+    {
+        assert(!empty);
+        return _ptr[0];
+    }
+
+    /// Get back element reference.
+    ref inout(E) back() inout @trusted return scope
+    {
+        assert(!empty);
+        return _ptr[this.length - 1];
+    }
+
     /// Reserve room for `newCapacity`.
     void reserve(size_t newCapacity) @trusted
     {
@@ -158,7 +202,6 @@ pragma(inline, true):
     }
 
     /// Reallocate storage.
-    pragma(inline, true)
     private void reallocateAndSetCapacity(size_t newCapacity) pure nothrow @trusted
     {
         _capacity = newCapacity;
@@ -197,7 +240,10 @@ template shouldAddGCRange(T)
 
 @safe pure nothrow @nogc unittest
 {
-    BasicArray!(const(int)) a;
+    alias E = const(int);
+    alias A = BasicArray!(E);
+
+    A a;
     assert(a.empty);
     assert(a.length == 0);
     assert(a.capacity == 0);
@@ -211,4 +257,13 @@ template shouldAddGCRange(T)
     assert(c.empty);
     assert(c.capacity == 10);
     assert(b.capacity == 10);
+
+    // TODO this should fail with -dip1000
+    auto f() @safe
+    {
+        A a;
+        return a[];
+    }
+
+    auto d = f();
 }

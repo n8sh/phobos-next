@@ -53,18 +53,17 @@ private struct BasicArray(E, alias Allocator = null) // null means means to qcme
     }
 
     /// Release internal store.
+    pragma(inline, true)
     private void release() @trusted
     {
         static if (hasElaborateDestructor!E)
         {
             destroyElements();
         }
-
         static if (shouldAddGCRange!E)
         {
             gc_removeRange(_ptr);
         }
-
         free(_mptr);
     }
 
@@ -327,6 +326,19 @@ template shouldAddGCRange(T)
     a ~= E.init;
 
     assert(a.length == 3);
+}
+
+@safe pure nothrow @nogc unittest
+{
+    const length = 3;
+
+    alias E = const(int);
+    alias A = BasicArray!(E);
+
+    A a;
+
+    // copy construction disabled
+    assert(!__traits(compiles, { A b = a; }));
 }
 
 version(unittest)

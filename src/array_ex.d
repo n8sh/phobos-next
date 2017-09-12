@@ -111,11 +111,11 @@ private struct Array(E,
 {
     import std.conv : emplace;
     import std.range : isInputRange, isInfinite, isIterable, ElementType;
-    import std.traits : isAssignable, Unqual, isSomeChar, isArray, isScalarType, hasElaborateDestructor, hasIndirections, TemplateOf, isCopyable;
+    import std.traits : isAssignable, Unqual, isArray, isScalarType, hasElaborateDestructor, hasIndirections, TemplateOf, isCopyable;
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
-    import core.stdc.string : memset;
     import std.algorithm.mutation : move, moveEmplace, moveEmplaceAll;
+
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
 
     /// Mutable element type.
@@ -1643,11 +1643,11 @@ private:                        // data
 
             static if (useGCAllocation)
             {
-                E* ptr;                // GC-allocated store pointer. See also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
+                E* ptr; // GC-allocated store pointer. See also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
             }
             else
             {
-                @nogc E* ptr;       // non-GC-allocated store pointer
+                @nogc E* ptr;   // non-GC-allocated store pointer
             }
 
             CapacityType capacity;  // store capacity

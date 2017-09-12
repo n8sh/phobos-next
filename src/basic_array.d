@@ -1,6 +1,16 @@
 module basic_array;
 
-private struct BasicArray(E, alias Allocator = null) // null means means to qcmeman functions
+import std.traits : Unqual;
+
+/** Array type with deterministic control of memory. The memory allocated for
+   the array is reclaimed as soon as possible; there is no reliance on the
+   garbage collector. Array uses malloc, realloc and free for managing its own
+   memory.
+
+   Use `std.bitmanip.BitArray` for array container storing boolean values.
+ */
+struct BasicArray(E, alias Allocator = null) // null means means to qcmeman functions
+    if (!is(Unqual!T == bool))
 {
     import std.range : isIterable, hasLength;
     import std.traits : Unqual, hasElaborateDestructor, hasIndirections, hasAliasing, isMutable, isCopyable, TemplateOf, isArray;
@@ -312,12 +322,11 @@ private:
     size_t _length;              // store length
 }
 
-template shouldAddGCRange(T)
+private template shouldAddGCRange(T)
 {
     import std.traits : hasIndirections;
     enum shouldAddGCRange = hasIndirections!T; // TODO unless all pointers members are tagged as @nogc (as in `BasicArray` and `BasicStore`)
 }
-
 
 @safe pure nothrow @nogc unittest
 {
@@ -403,7 +412,8 @@ template shouldAddGCRange(T)
     auto c = A.fromValues([1, 2, 3].s);
 }
 
-private struct UniqueBasicArray(E, alias Allocator = null) // null means means to qcmeman functions
+struct UniqueBasicArray(E, alias Allocator = null) // null means means to qcmeman functions
+    if (!is(Unqual!T == bool))
 {
     @disable this(this);        // no copy construction
 

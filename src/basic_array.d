@@ -33,6 +33,13 @@ private struct BasicArray(E, alias Allocator = null) // null means means to qcme
     }
 
     /// Construct from range `values`.
+    static This fromValues(R)(R values) @trusted
+        if (isIterable!R)
+    {
+        return This(values);
+    }
+
+    /// Construct from range `values`.
     this(R)(R values) @trusted
         if (isIterable!R)
     {
@@ -391,6 +398,8 @@ template shouldAddGCRange(T)
 
     assert(b[] == [1, 2, 3].s);
     assert(b.length == 3);
+
+    auto c = A.fromValues([1, 2, 3].s);
 }
 
 private struct UniqueBasicArray(E, alias Allocator = null) // null means means to qcmeman functions

@@ -42,14 +42,15 @@ struct BasicArray(E, alias Allocator = null) // null means means to qcmeman func
         return This(initialCapacity, 0);
     }
 
-    /// Construct from range `values`.
-    static This fromValues(R)(R values) @trusted
-        if (isIterable!R)
+    /// Construct from element `values`.
+    this(E[] values...) @trusted
     {
-        return This(values);
+        reserve(values.length);
+        _length = values.length;
+        _mptr[0 .. _length] = values; // TODO prevent overlap check?
     }
 
-    /// Construct from range `values`.
+    /// Construct from range of element `values`.
     this(R)(R values) @trusted
         if (isIterable!R)
     {
@@ -335,7 +336,7 @@ private template shouldAddGCRange(T)
     alias E = const(int);
     alias A = BasicArray!(E);
 
-    A a;
+    A a;                        // default construction allowed
     assert(a.empty);
     assert(a.length == 0);
     assert(a.capacity == 0);
@@ -409,13 +410,28 @@ private template shouldAddGCRange(T)
     assert(b[] == [1, 2, 3].s);
     assert(b.length == 3);
 
-    auto c = A.fromValues([1, 2, 3].s);
+    auto c = A([1, 2, 3].s);
+
+    auto d = A(1, 2, 3);
 }
 
 struct UniqueBasicArray(E, alias Allocator = null) // null means means to qcmeman functions
     if (!is(Unqual!T == bool))
 {
     @disable this(this);        // no copy construction
+
+    /// Construct from element `values`.
+    this(E[] values...) @trusted
+    {
+        basicArray = typeof(basicArray)(values);
+    }
+
+    /// Construct from range of element `values`.
+    this(R)(R values) @trusted
+        if (isIterable!R)
+    {
+        basicArray = typeof(basicArray)(values);
+    }
 
     /// Returns: shallow duplicate of `this`.
     @property basicArray.MutableThis dup() const @trusted // `MutableThis` mimics behaviour of `dup` for builtin D arrays

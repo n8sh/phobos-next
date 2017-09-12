@@ -4,10 +4,10 @@ module qcmeman;
 extern(C)
 {
     // qualified C memory allocations
-    @safe pure nothrow @nogc:
+    pure nothrow @nogc:
 
-    void* malloc(size_t size);
-    void* calloc(size_t nmemb, size_t size);
+    void* malloc(size_t size) @safe;
+    void* calloc(size_t nmemb, size_t size) @safe;
     void* realloc(void* ptr, size_t size);
 
     void free(void* ptr);

@@ -9,10 +9,11 @@ import std.traits : Unqual;
 
    Use `std.bitmanip.BitArray` for array container storing boolean values.
  */
-struct BasicArray(E, alias Allocator = null) // null means means to qcmeman functions
+struct BasicArray(E,
+                  alias Allocator = null) // null means means to qcmeman functions
     if (!is(Unqual!T == bool))
 {
-    import std.range : isIterable;
+    import std.range : isInputRange;
     import std.traits : Unqual, hasElaborateDestructor, hasIndirections, hasAliasing, isMutable, isCopyable, TemplateOf, isArray;
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
 
@@ -52,7 +53,7 @@ struct BasicArray(E, alias Allocator = null) // null means means to qcmeman func
 
     /// Construct from range of element `values`.
     this(R)(R values) @trusted
-        if (isIterable!R)
+        if (isInputRange!R)
     {
         import std.range : hasLength;
         static if (hasLength!R)
@@ -275,7 +276,7 @@ pragma(inline, true):
     /** Inserts the given value into the end of the array.
      */
     void insertBack(R)(R values) @trusted
-        if (isIterable!R)
+        if (isInputRange!R)
     {
         import std.range : hasLength;
         static if (hasLength!R)
@@ -313,7 +314,7 @@ pragma(inline, true):
     /// ditto
     void opOpAssign(string op, R)(R values)
         if (op == "~" &&
-            isIterable!R)
+            isInputRange!R)
     {
         insertBack(values);
     }
@@ -450,10 +451,11 @@ private template shouldAddGCRange(T)
     auto d = A(1, 2, 3);
 }
 
-struct UniqueBasicArray(E, alias Allocator = null) // null means means to qcmeman functions
+struct UniqueBasicArray(E,
+                        alias Allocator = null) // null means means to qcmeman functions
     if (!is(Unqual!T == bool))
 {
-    import std.range : isIterable;
+    import std.range : isInputRange;
 
     @disable this(this);        // no copy construction
 
@@ -465,7 +467,7 @@ struct UniqueBasicArray(E, alias Allocator = null) // null means means to qcmema
 
     /// Construct from range of element `values`.
     this(R)(R values) @trusted
-        if (isIterable!R)
+        if (isInputRange!R)
     {
         basicArray = typeof(basicArray)(values);
     }

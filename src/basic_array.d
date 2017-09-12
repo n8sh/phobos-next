@@ -11,8 +11,6 @@ private struct BasicArray(E, alias Allocator = null) // null means means to qcme
     /// Type of `this`.
     private alias This = typeof(this);
 
-    enum useGCAllocation = false; // TODO set if Allocator is GCAllocator
-
     @disable this(this);        // no copy construction
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
@@ -67,14 +65,7 @@ private struct BasicArray(E, alias Allocator = null) // null means means to qcme
             gc_removeRange(_ptr);
         }
 
-        static if (useGCAllocation)
-        {
-            GC.free(_mptr);
-        }
-        else
-        {
-            free(_mptr);
-        }
+        free(_mptr);
     }
 
     /// Destroy elements.
@@ -104,17 +95,11 @@ private struct BasicArray(E, alias Allocator = null) // null means means to qcme
     private static MutableE* allocate(size_t initialCapacity, bool zero = false)
     {
         typeof(return) ptr = null;
-        static if (useGCAllocation)
-        {
-            if (zero) { ptr = cast(typeof(return))GC.calloc(initialCapacity, E.sizeof); }
-            else      { ptr = cast(typeof(return))GC.malloc(initialCapacity * E.sizeof); }
-        }
-        else                    // @nogc
-        {
-            if (zero) { ptr = cast(typeof(return))calloc(initialCapacity, E.sizeof); }
-            else      { ptr = cast(typeof(return))malloc(initialCapacity * E.sizeof); }
-            assert(ptr, "Allocation failed");
-        }
+
+        if (zero) { ptr = cast(typeof(return))calloc(initialCapacity, E.sizeof); }
+        else      { ptr = cast(typeof(return))malloc(initialCapacity * E.sizeof); }
+        assert(ptr, "Allocation failed");
+
         static if (shouldAddGCRange!E)
         {
             gc_addRange(ptr, initialCapacity * E.sizeof);
@@ -259,15 +244,8 @@ pragma(inline, true):
     private void reallocateAndSetCapacity(size_t newCapacity) pure nothrow @trusted
     {
         _capacity = newCapacity;
-        static if (useGCAllocation)
-        {
-            _ptr = cast(E*)GC.realloc(_mptr, E.sizeof * _capacity);
-        }
-        else                    // @nogc
-        {
-            _ptr = cast(E*)realloc(_mptr, E.sizeof * _capacity);
-            assert(_mptr, "Reallocation failed");
-        }
+        _ptr = cast(E*)realloc(_mptr, E.sizeof * _capacity);
+        assert(_mptr, "Reallocation failed");
     }
 
     /// Mutable pointer.
@@ -277,10 +255,7 @@ pragma(inline, true):
     }
 
 private:
-    static if (useGCAllocation)
-        E* _ptr; // GC-allocated store pointer. See also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
-    else
-        @nogc E* _ptr;   // non-GC-allocated store pointer
+    @nogc E* _ptr;              // non-GC-allocated store pointer
     size_t _capacity;            // store capacity
     size_t _length;              // store length
 }

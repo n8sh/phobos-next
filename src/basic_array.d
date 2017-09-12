@@ -75,10 +75,6 @@ private:
     size_t _length;              // store length
 }
 
-private struct BasicStore(E, bool useGCAllocation = false)
-{
-}
-
 template shouldAddGCRange(T)
 {
     import std.traits : hasIndirections;

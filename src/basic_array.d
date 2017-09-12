@@ -240,6 +240,8 @@ template shouldAddGCRange(T)
 
 @safe pure nothrow @nogc unittest
 {
+    const length = 3;
+
     alias E = const(int);
     alias A = BasicArray!(E);
 
@@ -248,15 +250,16 @@ template shouldAddGCRange(T)
     assert(a.length == 0);
     assert(a.capacity == 0);
 
-    const b = BasicArray!int.withLength(10);
+    const b = BasicArray!int.withLength(3);
     assert(!b.empty);
-    assert(b.length == 10);
-    assert(b.capacity == 10);
+    assert(b.length == 3);
+    assert(b.capacity == 3);
+    assert(b[] == [0, 0, 0].s);
 
-    const c = BasicArray!int.withCapacity(10);
+    const c = BasicArray!int.withCapacity(3);
     assert(c.empty);
-    assert(c.capacity == 10);
-    assert(b.capacity == 10);
+    assert(c.capacity == 3);
+    assert(c[] == []);
 
     // TODO this should fail with -dip1000
     auto f() @safe
@@ -265,4 +268,9 @@ template shouldAddGCRange(T)
         return a[];
     }
     auto d = f();
+}
+
+version(unittest)
+{
+    import array_help : s;
 }

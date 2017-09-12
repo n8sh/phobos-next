@@ -54,18 +54,6 @@ private struct BasicArray(E, alias Allocator = null) // null means means to qcme
         resetInternalData();
     }
 
-    /// Destroy elements.
-    static if (hasElaborateDestructor!E)
-    {
-        private void destroyElements() @trusted
-        {
-            foreach (const i; 0 .. _length)
-            {
-                .destroy(_mptr[i]);
-            }
-        }
-    }
-
     /// Release internal store.
     private void release() @trusted
     {
@@ -89,7 +77,20 @@ private struct BasicArray(E, alias Allocator = null) // null means means to qcme
         }
     }
 
+    /// Destroy elements.
+    static if (hasElaborateDestructor!E)
+    {
+        private void destroyElements() @trusted
+        {
+            foreach (const i; 0 .. _length)
+            {
+                .destroy(_mptr[i]);
+            }
+        }
+    }
+
     /// Reset internal data.
+    pragma(inline, true)
     private void resetInternalData()
     {
         _ptr = null;

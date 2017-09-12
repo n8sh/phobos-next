@@ -2,7 +2,7 @@ module basic_array;
 
 private struct BasicArray(E, alias Allocator = null) // null means means to qcmeman functions
 {
-    import std.traits : Unqual, hasElaborateDestructor, hasAliasing;
+    import std.traits : Unqual, hasElaborateDestructor, hasIndirections, hasAliasing, isMutable;
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
 
     /// Mutable element type.
@@ -57,7 +57,7 @@ private struct BasicArray(E, alias Allocator = null) // null means means to qcme
     {
         private void destroyElements() @trusted
         {
-            foreach (const i; 0 .. this.length)
+            foreach (const i; 0 .. _length)
             {
                 .destroy(_mptr[i]);
             }
@@ -132,43 +132,52 @@ pragma(inline, true):
     @property void length(size_t newLength)
     {
         reserve(newLength);
-        _length = length;
+        _length = newLength;
     }
 
     /// Get capacity.
     @property size_t capacity() const { return _capacity; }
 
-    /// Index assign operator.
-    ref E opIndexAssign(V)(V value, size_t i) @trusted return scope
-    {
-        assert(i < this.length);
-        static if (hasAliasing!E)
-            move(*(cast(MutableE*)(&value)), _mptr[i]); // TODO is this correct?
-        else
-            slice()[i] = value;
-        return slice()[i];
-    }
-
     /// Index operator.
     ref inout(E) opIndex(size_t i) inout @trusted return scope
     {
-        assert(i < this.length);
         return slice()[i];
     }
 
     /// Slice operator.
     inout(E)[] opSlice(size_t i, size_t j) inout @trusted return scope
     {
-        assert(i <= j);
-        assert(j <= this.length);
         return slice()[i .. j];
     }
     ///
     inout(E)[] opSlice() inout return scope
     {
-        return this.opSlice(0, this.length);
+        return this.opSlice(0, _length);
     }
 
+    /// Index assign operator.
+    ref E opIndexAssign(V)(V value, size_t i) @trusted return scope
+    {
+        static if (hasElaborateDestructor!E)
+            move(*(cast(MutableE*)(&value)), _mptr[i]); // TODO is this correct?
+        else static if (hasIndirections!E && // TODO `hasAliasing` instead?
+                        !isMutable!E)
+            static assert("Cannot modify constant elements with indirections");
+        else
+            slice()[i] = value;
+        return slice()[i];
+    }
+
+    /// Slice assign operator.
+    E[] opSliceAssign(V)(V value, size_t i, size_t j) @trusted return scope
+    {
+        return slice()[i .. j] = value;
+    }
+    /// ditto
+    E[] opSliceAssign(V)(V value) @trusted return scope
+    {
+        return slice()[] = value;
+    }
 
     /// Get front element reference.
     ref inout(E) front() inout @trusted return scope
@@ -181,7 +190,7 @@ pragma(inline, true):
     ref inout(E) back() inout @trusted return scope
     {
         assert(!empty);
-        return slice()[this.length - 1];
+        return slice()[_length - 1];
     }
 
     /** Inserts the given value into the end of the array.
@@ -191,7 +200,15 @@ pragma(inline, true):
         reserve(_length + values.length);
         foreach (const ix, const ref value; values)
         {
-            _mptr[_length + ix] = value;
+            static if (hasIndirections!E && // TODO `hasAliasing` instead?
+                       !isMutable!E)
+            {
+                static assert("Cannot modify constant elements with indirections");
+            }
+            else
+            {
+                mslice()[_length + ix] = value;
+            }
         }
     }
 
@@ -205,6 +222,12 @@ pragma(inline, true):
     private inout(E)[] slice() inout return scope
     {
         return _ptr[0 .. _length];
+    }
+
+    /// Helper mutable slice.
+    private MutableE[] mslice() inout return scope
+    {
+        return _mptr[0 .. _length];
     }
 
     /// Reserve room for `newCapacity`.
@@ -285,8 +308,8 @@ template shouldAddGCRange(T)
     b[2] = 3;
     assert(b[] == [1, 2, 3].s);
 
-    // b[] = [4, 5, 6].s;
-    // assert(b[] == [4, 5, 6].s);
+    b[] = [4, 5, 6].s;
+    assert(b[] == [4, 5, 6].s);
 
     const c = BasicArray!int.withCapacity(3);
     assert(c.empty);
@@ -300,6 +323,22 @@ template shouldAddGCRange(T)
         return a[];
     }
     auto d = f();
+}
+
+@safe pure nothrow @nogc unittest
+{
+    const length = 3;
+
+    alias E = const(int*);
+    alias A = BasicArray!(E);
+
+    A a;
+
+    a.length = 1;
+    assert(a.length == 1);
+    assert(a.capacity >= 1);
+
+    a[0] = E.init;
 }
 
 version(unittest)

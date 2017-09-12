@@ -407,8 +407,7 @@ private struct UniqueBasicArray(E, alias Allocator = null) // null means means t
 
     auto a = A.withLength(length);
 
-    // copy construction disabled
-    static assert(!__traits(compiles, { A b = a; }));
+    static assert(!__traits(compiles, { A b = a; })); // copying disabled
 }
 
 version(unittest)

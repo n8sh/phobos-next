@@ -13,9 +13,8 @@ private struct BasicArray(E, alias Allocator = null) // null means means to qcme
 
     enum useGCAllocation = false; // TODO set if Allocator is GCAllocator
 
-    this(size_t initialCapacity, size_t initialLength, bool zero = true)
+    this(size_t initialCapacity, size_t initialLength, bool zero = true) @trusted
     {
-        setCapacity(initialCapacity);
         this._capacity = initialCapacity;
         this._ptr = allocate(initialCapacity, zero);
         this._length = initialLength;
@@ -23,7 +22,7 @@ private struct BasicArray(E, alias Allocator = null) // null means means to qcme
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
     pragma(inline)
-    static This withLength(size_t initialLength) @trusted
+    static This withLength(size_t initialLength)
     {
         return This(initialLength, initialLength, true);
     }
@@ -55,20 +54,13 @@ private struct BasicArray(E, alias Allocator = null) // null means means to qcme
 pragma(inline, true):
 
     /// Check if empty.
-    bool empty() const @safe { return _length == 0; }
+    bool empty() const { return _length == 0; }
 
     /// Get length.
-    size_t length() const @trusted
-    {
-        return _length;
-    }
+    size_t length() const { return _length; }
     alias opDollar = length;    /// ditto
 
-    void setCapacity(size_t newCapacity)
-    {
-        _capacity = newCapacity;
-    }
-
+    /// Mutable pointer.
     MutableE* _mptr() const @trusted
     {
         return cast(typeof(return))_ptr;

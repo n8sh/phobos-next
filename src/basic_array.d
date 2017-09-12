@@ -145,24 +145,23 @@ pragma(inline, true):
         static if (hasAliasing!E)
             move(*(cast(MutableE*)(&value)), _mptr[i]); // TODO is this correct?
         else
-            _ptr[i] = value;
-        return _ptr[i];
+            slice()[i] = value;
+        return slice()[i];
     }
 
     /// Index operator.
     ref inout(E) opIndex(size_t i) inout @trusted return scope
     {
         assert(i < this.length);
-        return _ptr[i];
+        return slice()[i];
     }
 
     /// Slice operator.
     inout(E)[] opSlice(size_t i, size_t j) inout @trusted return scope
     {
-        // TODO is the correct way of doing it?
         assert(i <= j);
         assert(j <= this.length);
-        return _ptr[i .. j];
+        return slice()[i .. j];
     }
     ///
     inout(E)[] opSlice() inout return scope
@@ -285,7 +284,9 @@ template shouldAddGCRange(T)
     b[1] = 2;
     b[2] = 3;
     assert(b[] == [1, 2, 3].s);
-    assert(b[] == [4, 5, 6].s);
+
+    // b[] = [4, 5, 6].s;
+    // assert(b[] == [4, 5, 6].s);
 
     const c = BasicArray!int.withCapacity(3);
     assert(c.empty);

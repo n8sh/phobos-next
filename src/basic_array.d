@@ -48,7 +48,7 @@ private struct BasicArray(E, alias Allocator = null) // null means means to qcme
             else
             {
                 import std.algorithm : copy;
-                copy(values, mslice());
+                copy(values, _mptr[0 .. _length]);
             }
         }
         else
@@ -286,7 +286,7 @@ pragma(inline, true):
     }
 
     /// Helper mutable slice.
-    private MutableE[] mslice() inout return scope @trusted
+    private MutableE[] mslice() return scope @trusted
     {
         return _mptr[0 .. _length];
     }

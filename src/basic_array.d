@@ -59,7 +59,6 @@ struct BasicArray(E, alias Allocator = null) // null means means to qcmeman func
         {
             reserve(values.length);
             _length = values.length;
-
             static if (isArray!R)
             {
                 _mptr[0 .. _length] = values; // TODO prevent overlap check?
@@ -72,7 +71,7 @@ struct BasicArray(E, alias Allocator = null) // null means means to qcmeman func
         }
         else
         {
-            foreach (const i, ref value; values)
+            foreach (ref value; values)
             {
                 insertBack(value);
             }
@@ -269,25 +268,50 @@ pragma(inline, true):
     void insertBack(E[] values...) @trusted
     {
         reserve(_length + values.length);
-        foreach (const ix, const ref value; values)
+        _mptr[_length + 0 .. _length + values.length] = values; // TODO prevent overlap check?
+        _length += values.length;
+    }
+
+    /** Inserts the given value into the end of the array.
+     */
+    void insertBack(R)(R values) @trusted
+        if (isIterable!R)
+    {
+        import std.range : hasLength;
+        static if (hasLength!R)
         {
-            static if (hasIndirections!E && // TODO `hasAliasing` instead?
-                       !isMutable!E)
+            reserve(_length + values.length);
+            static if (isArray!R)
             {
-                static assert("Cannot modify constant elements with indirections");
+                _mptr[_length + 0 .. _length + values.length] = values; // TODO prevent overlap check?
             }
             else
             {
-                mslice()[_length + ix] = value;
+                import std.algorithm : copy;
+                copy(values, _mptr[_length .. _length + values.length]);
+            }
+            _length += values.length;
+        }
+        else
+        {
+            foreach (ref value; values)
+            {
+                insertBack(value);
             }
         }
-        _length += values.length;
     }
+
     /// ditto
     alias put = insertBack;
 
     /** ~= operator overload */
     void opOpAssign(string op)(E[] values...) if (op == "~")
+    {
+        insertBack(values);
+    }
+
+    /** ~= operator overload */
+    void opOpAssign(string op, R)(R values) if (op == "~")
     {
         insertBack(values);
     }

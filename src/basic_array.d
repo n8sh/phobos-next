@@ -322,14 +322,14 @@ pragma(inline, true):
     alias put = insertBack;
 
     /** ~= operator overload */
-    void opOpAssign(string op)(E[] values...)
+    void opOpAssign(string op)(E[] values...) @safe
         if (op == "~")
     {
         insertBack(values);
     }
 
     /// ditto
-    void opOpAssign(string op, R)(R values)
+    void opOpAssign(string op, R)(R values) @safe
         if (op == "~" &&
             isInputRange!R)
     {

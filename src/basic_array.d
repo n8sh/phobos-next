@@ -13,18 +13,18 @@ private struct BasicArray(E, alias Allocator = null) // null means means to qcme
 
     enum useGCAllocation = false; // TODO set if Allocator is GCAllocator
 
-    this(size_t initialCapacity, size_t initialLength, bool zero = true) @trusted
-    {
-        this._capacity = initialCapacity;
-        this._ptr = allocate(initialCapacity, zero);
-        this._length = initialLength;
-    }
-
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
     pragma(inline)
     static This withLength(size_t initialLength)
     {
         return This(initialLength, initialLength, true);
+    }
+
+    private this(size_t initialCapacity, size_t initialLength, bool zero = true) @trusted
+    {
+        this._capacity = initialCapacity;
+        this._ptr = allocate(initialCapacity, zero);
+        this._length = initialLength;
     }
 
     /** Allocate heap regionwith `newCapacity` number of elements of type `E`.
@@ -59,6 +59,9 @@ pragma(inline, true):
     /// Get length.
     size_t length() const { return _length; }
     alias opDollar = length;    /// ditto
+
+    /// Get capacity.
+    size_t capacity() const { return _capacity; }
 
     /// Mutable pointer.
     MutableE* _mptr() const @trusted

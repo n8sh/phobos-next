@@ -275,9 +275,9 @@ pragma(inline, true):
     alias put = pushBack;
 
     /** ~= operator overload */
-    void opOpAssign(string op)(E value) if (op == "~")
+    void opOpAssign(string op)(E[] values...) if (op == "~")
     {
-        pushBack(value);
+        pushBack(values);
     }
 
     /// Helper slice.
@@ -377,10 +377,11 @@ template shouldAddGCRange(T)
 
     a[0] = E.init;
 
-    a.pushBack(E.init);
+    a.pushBack(E.init, E.init);
     a ~= E.init;
+    a.pushBack([E.init].s);
 
-    assert(a.length == 3);
+    assert(a.length == 5);
 }
 
 @safe pure nothrow @nogc unittest
@@ -394,7 +395,7 @@ template shouldAddGCRange(T)
     A b = a;                    // copy construction enabled
 
     assert(a[] == b[]);         // same content
-    assert(a[].ptr !is b[].ptr);
+    assert(a[].ptr !is b[].ptr); // but not the same
 
     assert(b[] == [1, 2, 3].s);
     assert(b.length == 3);

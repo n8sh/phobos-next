@@ -97,26 +97,26 @@ private struct BasicArray(E, alias Allocator = null) // null means means to qcme
         _capacity = 0;
     }
 
-    /** Allocate heap regionwith `newCapacity` number of elements of type `E`.
+    /** Allocate heap regionwith `initialCapacity` number of elements of type `E`.
         If `zero` is `true` they will be zero-initialized.
     */
-    private static MutableE* allocate(size_t newCapacity, bool zero = false)
+    private static MutableE* allocate(size_t initialCapacity, bool zero = false)
     {
         typeof(return) ptr = null;
         static if (useGCAllocation)
         {
-            if (zero) { ptr = cast(typeof(return))GC.calloc(newCapacity, E.sizeof); }
-            else      { ptr = cast(typeof(return))GC.malloc(newCapacity * E.sizeof); }
+            if (zero) { ptr = cast(typeof(return))GC.calloc(initialCapacity, E.sizeof); }
+            else      { ptr = cast(typeof(return))GC.malloc(initialCapacity * E.sizeof); }
         }
         else                    // @nogc
         {
-            if (zero) { ptr = cast(typeof(return))calloc(newCapacity, E.sizeof); }
-            else      { ptr = cast(typeof(return))malloc(newCapacity * E.sizeof); }
+            if (zero) { ptr = cast(typeof(return))calloc(initialCapacity, E.sizeof); }
+            else      { ptr = cast(typeof(return))malloc(initialCapacity * E.sizeof); }
             assert(ptr, "Allocation failed");
         }
         static if (shouldAddGCRange!E)
         {
-            gc_addRange(ptr, newCapacity * E.sizeof);
+            gc_addRange(ptr, initialCapacity * E.sizeof);
         }
         return ptr;
     }

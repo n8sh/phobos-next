@@ -2,7 +2,7 @@ module basic_array;
 
 private struct BasicArray(E, alias Allocator = null) // null means means to qcmeman functions
 {
-    import std.traits : Unqual;
+    import std.traits : Unqual, hasElaborateDestructor;
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
 
     /// Mutable element type.
@@ -35,6 +35,64 @@ private struct BasicArray(E, alias Allocator = null) // null means means to qcme
         this._capacity = initialCapacity;
         this._ptr = allocate(initialCapacity, zero);
         this._length = initialLength;
+    }
+
+    /// Destruct.
+    pragma(inline, true)
+    ~this()
+    {
+        release();
+    }
+
+    /// Empty.
+    pragma(inline, true)
+    void clear()
+    {
+        release();
+        resetInternalData();
+    }
+
+    /// Destroy elements.
+    static if (hasElaborateDestructor!E)
+    {
+        private void destroyElements() @trusted
+        {
+            foreach (const i; 0 .. this.length)
+            {
+                .destroy(_mptr[i]);
+            }
+        }
+    }
+
+    /// Release internal store.
+    private void release() @trusted
+    {
+        static if (hasElaborateDestructor!E)
+        {
+            destroyElements();
+        }
+
+        static if (shouldAddGCRange!E)
+        {
+            gc_removeRange(_ptr);
+        }
+
+        static if (useGCAllocation)
+        {
+            GC.free(_mptr);
+        }
+        else
+        {
+            free(_mptr);
+        }
+    }
+
+    /// Reset internal data.
+    private void resetInternalData()
+    {
+        _ptr = null;
+        _length = 0;
+        _capacity = 0;
     }
 
     /** Allocate heap regionwith `newCapacity` number of elements of type `E`.

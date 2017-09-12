@@ -36,17 +36,6 @@
  */
 module array_ex;
 
-// version = useMemoryErrorHandler;
-version(useMemoryErrorHandler)
-@safe unittest
-{
-    import etc.linux.memoryerror : registerMemoryErrorHandler;
-    registerMemoryErrorHandler();
-    import std.stdio : writeln;
-    writeln("registerMemoryErrorHandler done");
-}
-// version = showCtors;
-
 /// Array element ordering.
 enum Ordering
 {

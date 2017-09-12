@@ -16,14 +16,22 @@ private struct BasicArray(E, alias Allocator = null) // null means means to qcme
     @disable this(this);        // no copy construction
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
-    pragma(inline)
+    pragma(inline, true)
     static This withLength(size_t initialLength)
     {
         return This(initialLength, initialLength, true);
     }
 
-    private this(size_t initialCapacity, size_t initialLength, bool zero = true) @trusted
+    /// Returns: an array with initial capacity `initialCapacity`.
+    pragma(inline, true)
+    static This withCapacity(size_t initialCapacity)
     {
+        return This(initialCapacity, 0);
+    }
+
+    private this(size_t initialCapacity, size_t initialLength = 0, bool zero = true) @trusted
+    {
+        assert(initialCapacity >= initialLength);
         this._capacity = initialCapacity;
         this._ptr = allocate(initialCapacity, zero);
         this._length = initialLength;
@@ -92,7 +100,11 @@ template shouldAddGCRange(T)
     BasicArray!int a;
     assert(a.empty);
 
-    const a10 = BasicArray!int.withLength(10);
-    assert(!a10.empty);
-    assert(a10.length == 10);
+    const b = BasicArray!int.withLength(10);
+    assert(!b.empty);
+    assert(b.length == 10);
+
+    const c = BasicArray!int.withCapacity(10);
+    assert(c.empty);
+    assert(c.capacity == 10);
 }

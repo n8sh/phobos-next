@@ -125,11 +125,53 @@ pragma(inline, true):
     bool empty() const { return _length == 0; }
 
     /// Get length.
-    size_t length() const { return _length; }
+    @property size_t length() const { return _length; }
     alias opDollar = length;    /// ditto
 
+    /// Set length to `newLength`.
+    @property void length(size_t newLength)
+    {
+        reserve(newLength);
+        _length = length;
+    }
+
     /// Get capacity.
-    size_t capacity() const { return _capacity; }
+    @property size_t capacity() const { return _capacity; }
+
+    /// Reserve room for `newCapacity`.
+    void reserve(size_t newCapacity) @trusted
+    {
+        if (newCapacity <= capacity) { return; }
+
+        static if (shouldAddGCRange!E)
+        {
+            gc_removeRange(_mptr);
+        }
+
+        import std.math : nextPow2;
+        reallocateAndSetCapacity(newCapacity.nextPow2);
+
+        static if (shouldAddGCRange!E)
+        {
+            gc_addRange(_mptr, _capacity * E.sizeof);
+        }
+    }
+
+    /// Reallocate storage.
+    pragma(inline, true)
+    private void reallocateAndSetCapacity(size_t newCapacity) pure nothrow @trusted
+    {
+        _capacity = newCapacity;
+        static if (useGCAllocation)
+        {
+            _ptr = cast(E*)GC.realloc(_mptr, E.sizeof * _capacity);
+        }
+        else                    // @nogc
+        {
+            _ptr = cast(E*)realloc(_mptr, E.sizeof * _capacity);
+            assert(_mptr, "Reallocation failed");
+        }
+    }
 
     /// Mutable pointer.
     MutableE* _mptr() const @trusted
@@ -155,14 +197,18 @@ template shouldAddGCRange(T)
 
 @safe pure nothrow @nogc unittest
 {
-    BasicArray!int a;
+    BasicArray!(const(int)) a;
     assert(a.empty);
+    assert(a.length == 0);
+    assert(a.capacity == 0);
 
     const b = BasicArray!int.withLength(10);
     assert(!b.empty);
     assert(b.length == 10);
+    assert(b.capacity == 10);
 
     const c = BasicArray!int.withCapacity(10);
     assert(c.empty);
     assert(c.capacity == 10);
+    assert(b.capacity == 10);
 }

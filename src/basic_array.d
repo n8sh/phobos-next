@@ -249,6 +249,7 @@ template shouldAddGCRange(T)
     assert(a.empty);
     assert(a.length == 0);
     assert(a.capacity == 0);
+    assert(a[] == []);
 
     const b = BasicArray!int.withLength(3);
     assert(!b.empty);

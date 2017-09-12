@@ -68,14 +68,9 @@ pragma(inline, true):
 
 private:
     static if (useGCAllocation)
-    {
         E* _ptr; // GC-allocated store pointer. See also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
-    }
     else
-    {
         @nogc E* _ptr;   // non-GC-allocated store pointer
-    }
-
     size_t _capacity;            // store capacity
     size_t _length;              // store length
 }

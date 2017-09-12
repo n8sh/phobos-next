@@ -169,6 +169,21 @@ struct BasicArray(E,
         return ptr;
     }
 
+    /** Comparison for equality. */
+    pragma(inline, true)
+    bool opEquals(in This rhs) const
+    {
+        return opEquals(rhs);
+    }
+
+    /// ditto
+    bool opEquals(ref in This rhs) const
+    {
+        if (empty) return rhs.empty;
+        if (rhs.empty) return false;
+        return slice() == rhs.slice();
+    }
+
 pragma(inline, true):
 
     /// Check if empty.
@@ -244,6 +259,7 @@ pragma(inline, true):
     {
         return slice()[i .. j] = value;
     }
+
     /// ditto
     E[] opSliceAssign(V)(V value) @trusted return scope
     {
@@ -311,6 +327,7 @@ pragma(inline, true):
     {
         insertBack(values);
     }
+
     /// ditto
     void opOpAssign(string op, R)(R values)
         if (op == "~" &&
@@ -440,11 +457,18 @@ private template shouldAddGCRange(T)
     auto a = A([1, 2, 3].s);
     A b = a;                    // copy construction enabled
 
-    assert(a[] == b[]);         // same content
+    assert(a[] == b[]);          // same content
     assert(a[].ptr !is b[].ptr); // but not the same
 
     assert(b[] == [1, 2, 3].s);
     assert(b.length == 3);
+
+    b ~= 4;
+    assert(a != b);
+    a.clear();
+    assert(a != b);
+    b.clear();
+    assert(a == b);
 
     auto c = A([1, 2, 3].s);
 

@@ -65,9 +65,9 @@ private struct BasicArray(E, alias Allocator = null) // null means means to qcme
                  bool zero = true) @trusted
     {
         assert(initialCapacity >= initialLength);
-        this._capacity = initialCapacity;
-        this._ptr = allocate(initialCapacity, zero);
-        this._length = initialLength;
+        _capacity = initialCapacity;
+        _ptr = allocate(initialCapacity, zero);
+        _length = initialLength;
     }
 
     static if (isCopyable!E)
@@ -77,7 +77,7 @@ private struct BasicArray(E, alias Allocator = null) // null means means to qcme
             MutableE* newPtr = allocate(_length, false);
             _capacity = _length;
             newPtr[0 .. _length] = slice();
-            this._ptr = newPtr;
+            _ptr = newPtr;
         }
 
         /// Returns: shallow duplicate of `this`.
@@ -210,7 +210,7 @@ pragma(inline, true):
     ///
     inout(E)[] opSlice() inout return scope
     {
-        return this.opSlice(0, _length);
+        return opSlice(0, _length);
     }
 
     /// Index assign operator.

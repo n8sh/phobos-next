@@ -62,7 +62,7 @@ private struct BasicArray(E, alias Allocator = null) // null means means to qcme
         {
             foreach (const i, ref value; values)
             {
-                pushBack(value);
+                insertBack(value);
             }
         }
     }
@@ -254,7 +254,7 @@ pragma(inline, true):
 
     /** Inserts the given value into the end of the array.
      */
-    void pushBack(E[] values...) @trusted
+    void insertBack(E[] values...) @trusted
     {
         reserve(_length + values.length);
         foreach (const ix, const ref value; values)
@@ -272,12 +272,12 @@ pragma(inline, true):
         _length += values.length;
     }
     /// ditto
-    alias put = pushBack;
+    alias put = insertBack;
 
     /** ~= operator overload */
     void opOpAssign(string op)(E[] values...) if (op == "~")
     {
-        pushBack(values);
+        insertBack(values);
     }
 
     /// Helper slice.
@@ -377,9 +377,9 @@ template shouldAddGCRange(T)
 
     a[0] = E.init;
 
-    a.pushBack(E.init, E.init);
+    a.insertBack(E.init, E.init);
     a ~= E.init;
-    a.pushBack([E.init].s);
+    a.insertBack([E.init].s);
 
     assert(a.length == 5);
 }

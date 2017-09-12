@@ -13,6 +13,8 @@ private struct BasicArray(E, alias Allocator = null) // null means means to qcme
 
     enum useGCAllocation = false; // TODO set if Allocator is GCAllocator
 
+    @disable this(this);        // no copy construction
+
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
     pragma(inline)
     static This withLength(size_t initialLength)

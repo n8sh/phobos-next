@@ -12,7 +12,7 @@ import std.traits : Unqual;
 struct BasicArray(E, alias Allocator = null) // null means means to qcmeman functions
     if (!is(Unqual!T == bool))
 {
-    import std.range : isIterable, hasLength;
+    import std.range : isIterable;
     import std.traits : Unqual, hasElaborateDestructor, hasIndirections, hasAliasing, isMutable, isCopyable, TemplateOf, isArray;
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
 
@@ -54,6 +54,7 @@ struct BasicArray(E, alias Allocator = null) // null means means to qcmeman func
     this(R)(R values) @trusted
         if (isIterable!R)
     {
+        import std.range : hasLength;
         static if (hasLength!R)
         {
             reserve(values.length);
@@ -418,6 +419,8 @@ private template shouldAddGCRange(T)
 struct UniqueBasicArray(E, alias Allocator = null) // null means means to qcmeman functions
     if (!is(Unqual!T == bool))
 {
+    import std.range : isIterable;
+
     @disable this(this);        // no copy construction
 
     /// Construct from element `values`.

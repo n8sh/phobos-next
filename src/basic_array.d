@@ -210,10 +210,11 @@ pragma(inline, true):
                 mslice()[_length + ix] = value;
             }
         }
+        _length += values.length;
     }
 
     /** ~= operator overload */
-    void opOpAssign(string op)(T value) if (op == "~")
+    void opOpAssign(string op)(E value) if (op == "~")
     {
         pushBack(value);
     }
@@ -339,9 +340,15 @@ template shouldAddGCRange(T)
     assert(a.capacity >= 1);
 
     a[0] = E.init;
+
+    a.pushBack(E.init);
+    a ~= E.init;
+
+    assert(a.length == 3);
 }
 
 version(unittest)
 {
     import array_help : s;
+    import dbgio : dln;
 }

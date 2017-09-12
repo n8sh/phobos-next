@@ -183,7 +183,7 @@ pragma(inline, true):
     }
 
     /// Reserve room for `newCapacity`.
-    void reserve(size_t newCapacity) @trusted
+    private void reserve(size_t newCapacity) @trusted
     {
         if (newCapacity <= capacity) { return; }
 
@@ -217,7 +217,7 @@ pragma(inline, true):
     }
 
     /// Mutable pointer.
-    MutableE* _mptr() const @trusted
+    private MutableE* _mptr() const @trusted
     {
         return cast(typeof(return))_ptr;
     }
@@ -264,6 +264,5 @@ template shouldAddGCRange(T)
         A a;
         return a[];
     }
-
     auto d = f();
 }

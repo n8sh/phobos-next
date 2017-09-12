@@ -305,13 +305,15 @@ pragma(inline, true):
     alias put = insertBack;
 
     /** ~= operator overload */
-    void opOpAssign(string op)(E[] values...) if (op == "~")
+    void opOpAssign(string op)(E[] values...)
+        if (op == "~")
     {
         insertBack(values);
     }
-
-    /** ~= operator overload */
-    void opOpAssign(string op, R)(R values) if (op == "~")
+    /// ditto
+    void opOpAssign(string op, R)(R values)
+        if (op == "~" &&
+            isIterable!R)
     {
         insertBack(values);
     }
@@ -417,6 +419,14 @@ private template shouldAddGCRange(T)
     a.insertBack([E.init].s);
 
     assert(a.length == 5);
+
+    import std.algorithm : filter;
+
+    a.insertBack([E.init].s[].filter!(_ => _ is E.init));
+    assert(a.length == 6);
+
+    a.insertBack([E.init].s[].filter!(_ => _ !is E.init));
+    assert(a.length == 6);
 }
 
 @safe pure nothrow @nogc unittest

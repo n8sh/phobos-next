@@ -11,55 +11,27 @@ private struct BasicArray(E, alias Allocator = null) // null means means to qcme
     /// Type of `this`.
     private alias This = typeof(this);
 
-    /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
-    pragma(inline)
-    static This withLength(size_t initialLength) @trusted nothrow
-    {
-        debug typeof(return) that;
-        else typeof(return) that = void;
+    enum useGCAllocation = false; // TODO set if Allocator is GCAllocator
 
-        return that;
-    }
-
-private:
-
-    BasicStore!(E) _store;
-}
-
-private struct BasicStore(E,
-                          bool useGCAllocation = false)
-{
-    import std.traits : Unqual;
-    import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
-
-    /// Mutable element type.
-    private alias MutableE = Unqual!E;
-
-    this(size_t initialCapacity, size_t initialLength, bool zero)
+    this(size_t initialCapacity, size_t initialLength, bool zero = true)
     {
         setCapacity(initialCapacity);
-        this.capacity = initialCapacity;
-        this.ptr = allocate(initialCapacity, zero);
-        this.length = initialLength;
+        this._capacity = initialCapacity;
+        this._ptr = allocate(initialCapacity, zero);
+        this._length = initialLength;
     }
 
-pragma(inline, true):
-
-    void setCapacity(size_t newCapacity)
+    /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
+    pragma(inline)
+    static This withLength(size_t initialLength) @trusted
     {
-        capacity = newCapacity;
-    }
-
-    MutableE* _mptr() const @trusted
-    {
-        return cast(typeof(return))ptr;
+        return This(initialLength, initialLength, true);
     }
 
     /** Allocate heap regionwith `newCapacity` number of elements of type `E`.
         If `zero` is `true` they will be zero-initialized.
     */
     private static MutableE* allocate(size_t newCapacity, bool zero = false)
-        pure nothrow
     {
         typeof(return) ptr = null;
         static if (useGCAllocation)
@@ -80,17 +52,44 @@ pragma(inline, true):
         return ptr;
     }
 
+pragma(inline, true):
+
+    /// Check if empty.
+    bool empty() const @safe { return _length == 0; }
+
+    /// Get length.
+    size_t length() const @trusted
+    {
+        return _length;
+    }
+    alias opDollar = length;    /// ditto
+
+    void setCapacity(size_t newCapacity)
+    {
+        _capacity = newCapacity;
+    }
+
+    MutableE* _mptr() const @trusted
+    {
+        return cast(typeof(return))_ptr;
+    }
+
+private:
     static if (useGCAllocation)
     {
-        E* ptr; // GC-allocated store pointer. See also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
+        E* _ptr; // GC-allocated store pointer. See also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
     }
     else
     {
-        @nogc E* ptr;   // non-GC-allocated store pointer
+        @nogc E* _ptr;   // non-GC-allocated store pointer
     }
 
-    size_t capacity;            // store capacity
-    size_t length;              // store length
+    size_t _capacity;            // store capacity
+    size_t _length;              // store length
+}
+
+private struct BasicStore(E, bool useGCAllocation = false)
+{
 }
 
 template shouldAddGCRange(T)
@@ -102,5 +101,10 @@ template shouldAddGCRange(T)
 
 @safe pure nothrow @nogc unittest
 {
-    BasicArray!int x;
+    BasicArray!int a;
+    assert(a.empty);
+
+    const a10 = BasicArray!int.withLength(10);
+    assert(!a10.empty);
+    assert(a10.length == 10);
 }

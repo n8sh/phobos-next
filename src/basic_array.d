@@ -126,6 +126,27 @@ pragma(inline, true):
     /// Get capacity.
     @property size_t capacity() const { return _capacity; }
 
+    /** Ensures sufficient capacity to accommodate for newCapacity number of
+        elements. If `newCapacity` < `capacity`, this method does nothing.
+     */
+    void reserve(size_t newCapacity) @trusted
+    {
+        if (newCapacity <= capacity) { return; }
+
+        static if (shouldAddGCRange!E)
+        {
+            gc_removeRange(_mptr);
+        }
+
+        import std.math : nextPow2;
+        reallocateAndSetCapacity(newCapacity.nextPow2);
+
+        static if (shouldAddGCRange!E)
+        {
+            gc_addRange(_mptr, _capacity * E.sizeof);
+        }
+    }
+
     /// Index operator.
     ref inout(E) opIndex(size_t i) inout @trusted return scope
     {
@@ -219,25 +240,6 @@ pragma(inline, true):
     private MutableE[] mslice() inout return scope
     {
         return _mptr[0 .. _length];
-    }
-
-    /// Reserve room for `newCapacity`.
-    private void reserve(size_t newCapacity) @trusted
-    {
-        if (newCapacity <= capacity) { return; }
-
-        static if (shouldAddGCRange!E)
-        {
-            gc_removeRange(_mptr);
-        }
-
-        import std.math : nextPow2;
-        reallocateAndSetCapacity(newCapacity.nextPow2);
-
-        static if (shouldAddGCRange!E)
-        {
-            gc_addRange(_mptr, _capacity * E.sizeof);
-        }
     }
 
     /// Reallocate storage.

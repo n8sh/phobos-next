@@ -212,6 +212,8 @@ pragma(inline, true):
         }
         _length += values.length;
     }
+    /// ditto
+    alias put = pushBack;
 
     /** ~= operator overload */
     void opOpAssign(string op)(E value) if (op == "~")

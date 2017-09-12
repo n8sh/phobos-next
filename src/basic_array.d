@@ -149,18 +149,6 @@ pragma(inline, true):
         return _ptr[i];
     }
 
-    inout(E)[] opSlice() inout return
-    {
-        return this.opSlice(0, this.length);
-    }
-    /// ditto
-    inout(E)[] opSlice(size_t i, size_t j) inout @trusted return scope
-    {
-        assert(i <= j);
-        assert(j <= this.length);
-        return _ptr[i .. j];
-    }
-
     /// Index operator.
     ref inout(E) opIndex(size_t i) inout @trusted return scope
     {
@@ -168,18 +156,56 @@ pragma(inline, true):
         return _ptr[i];
     }
 
+    /// Slice operator.
+    inout(E)[] opSlice(size_t i, size_t j) inout @trusted return scope
+    {
+        // TODO is the correct way of doing it?
+        assert(i <= j);
+        assert(j <= this.length);
+        return _ptr[i .. j];
+    }
+    ///
+    inout(E)[] opSlice() inout return scope
+    {
+        return this.opSlice(0, this.length);
+    }
+
+
     /// Get front element reference.
     ref inout(E) front() inout @trusted return scope
     {
         assert(!empty);
-        return _ptr[0];
+        return slice()[0];
     }
 
     /// Get back element reference.
     ref inout(E) back() inout @trusted return scope
     {
         assert(!empty);
-        return _ptr[this.length - 1];
+        return slice()[this.length - 1];
+    }
+
+    /** Inserts the given value into the end of the array.
+     */
+    void pushBack(E[] values...) @trusted
+    {
+        reserve(_length + values.length);
+        foreach (const ix, const ref value; values)
+        {
+            _mptr[_length + ix] = value;
+        }
+    }
+
+    /** ~= operator overload */
+    void opOpAssign(string op)(T value) if (op == "~")
+    {
+        pushBack(value);
+    }
+
+    /// Helper slice.
+    private inout(E)[] slice() inout return scope
+    {
+        return _ptr[0 .. _length];
     }
 
     /// Reserve room for `newCapacity`.
@@ -251,11 +277,15 @@ template shouldAddGCRange(T)
     assert(a.capacity == 0);
     assert(a[] == []);
 
-    const b = BasicArray!int.withLength(3);
+    auto b = BasicArray!int.withLength(3);
     assert(!b.empty);
     assert(b.length == 3);
     assert(b.capacity == 3);
-    assert(b[] == [0, 0, 0].s);
+    b[0] = 1;
+    b[1] = 2;
+    b[2] = 3;
+    assert(b[] == [1, 2, 3].s);
+    assert(b[] == [4, 5, 6].s);
 
     const c = BasicArray!int.withCapacity(3);
     assert(c.empty);

@@ -2,16 +2,21 @@ module basic_array;
 
 private struct BasicArray(E, alias Allocator = null) // null means means to qcmeman functions
 {
-    import std.traits : Unqual, hasElaborateDestructor, hasIndirections, hasAliasing, isMutable;
+    import std.range : isIterable, hasLength;
+    import std.traits : Unqual, hasElaborateDestructor, hasIndirections, hasAliasing, isMutable, isCopyable, TemplateOf, isArray;
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
 
     /// Mutable element type.
     private alias MutableE = Unqual!E;
 
+    /// Template for type of `this`.
+    private alias ThisTemplate = TemplateOf!(This);
+
+    /// Same type as this but with mutable element type.
+    private alias MutableThis = ThisTemplate!(MutableE, Allocator);
+
     /// Type of `this`.
     private alias This = typeof(this);
-
-    @disable this(this);        // no copy construction
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
     pragma(inline, true)
@@ -27,6 +32,26 @@ private struct BasicArray(E, alias Allocator = null) // null means means to qcme
         return This(initialCapacity, 0);
     }
 
+    /// Construct from range `values`.
+    this(R)(R values) @safe
+        if (isIterable!R)
+    {
+        static if (hasLength!R)
+        {
+            reserve(values.length);
+            _length = values.length;
+            import std.algorithm : copy;
+            copy(values, mslice());
+        }
+        else
+        {
+            foreach (const i, ref value; values)
+            {
+                pushBack(value);
+            }
+        }
+    }
+
     private this(size_t initialCapacity,
                  size_t initialLength = 0,
                  bool zero = true) @trusted
@@ -35,6 +60,23 @@ private struct BasicArray(E, alias Allocator = null) // null means means to qcme
         this._capacity = initialCapacity;
         this._ptr = allocate(initialCapacity, zero);
         this._length = initialLength;
+    }
+
+    static if (isCopyable!E)
+    {
+        this(this) @trusted
+        {
+            MutableE* newPtr = allocate(_length, false);
+            _capacity = _length;
+            newPtr[0 .. _length] = slice();
+            this._ptr = newPtr;
+        }
+
+        /// Returns: shallow duplicate of `this`.
+        @property MutableThis dup() const @trusted // `MutableThis` mimics behaviour of `dup` for builtin D arrays
+        {
+            return typeof(return)(slice());
+        }
     }
 
     /// Destruct.
@@ -230,13 +272,13 @@ pragma(inline, true):
     }
 
     /// Helper slice.
-    private inout(E)[] slice() inout return scope
+    private inout(E)[] slice() inout return scope @trusted
     {
         return _ptr[0 .. _length];
     }
 
     /// Helper mutable slice.
-    private MutableE[] mslice() inout return scope
+    private MutableE[] mslice() inout return scope @trusted
     {
         return _mptr[0 .. _length];
     }
@@ -305,6 +347,10 @@ template shouldAddGCRange(T)
         return a[];
     }
     auto d = f();
+
+    const e = BasicArray!int([1, 2, 3, 4].s);
+    assert(e.length == 4);
+    assert(e[] == [1, 2, 3, 4].s);
 }
 
 @safe pure nothrow @nogc unittest
@@ -335,10 +381,34 @@ template shouldAddGCRange(T)
     alias E = const(int);
     alias A = BasicArray!(E);
 
-    A a;
+    auto a = A([1, 2, 3].s);
+    A b = a;                    // copy construction enabled
+
+    assert(a[] == b[]);         // same content
+    assert(a[].ptr !is b[].ptr);
+
+    assert(b[] == [1, 2, 3].s);
+    assert(b.length == 3);
+}
+
+private struct UniqueBasicArray(E, alias Allocator = null) // null means means to qcmeman functions
+{
+    @disable this(this);        // no copy construction
+    BasicArray!(E, Allocator) basicArray;
+    alias basicArray this;
+}
+
+@safe pure nothrow @nogc unittest
+{
+    const length = 3;
+
+    alias E = const(int);
+    alias A = UniqueBasicArray!(E);
+
+    auto a = A.withLength(length);
 
     // copy construction disabled
-    assert(!__traits(compiles, { A b = a; }));
+    static assert(!__traits(compiles, { A b = a; }));
 }
 
 version(unittest)

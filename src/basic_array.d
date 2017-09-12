@@ -29,7 +29,9 @@ private struct BasicArray(E, alias Allocator = null) // null means means to qcme
         return This(initialCapacity, 0);
     }
 
-    private this(size_t initialCapacity, size_t initialLength = 0, bool zero = true) @trusted
+    private this(size_t initialCapacity,
+                 size_t initialLength = 0,
+                 bool zero = true) @trusted
     {
         assert(initialCapacity >= initialLength);
         this._capacity = initialCapacity;

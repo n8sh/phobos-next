@@ -17,6 +17,28 @@ T[n] asStatic(T, size_t n)(T[n] arr)
 }
 alias s = asStatic;
 
+version(unittest)
+{
+    /// non-copyable element type
+    private static struct S
+    {
+        @disable this(this);
+        int x;
+    }
+}
+
+/// non-copyable element type in array
+@safe pure nothrow unittest
+{
+    auto a = [S(42)];
+}
+
+/// non-copyable element type in static array
+@safe pure nothrow @nogc unittest
+{
+    // TODO auto b = [S(42)].s;
+}
+
 ///
 @safe pure nothrow @nogc unittest
 {

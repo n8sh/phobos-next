@@ -34,6 +34,8 @@ struct BasicArray(T,
 
     /// Is `true` if `U` can be assign to the element type `T` of `this`.
     enum isElementAssignable(U) = isAssignable!(MutableE, U);
+    enum isElementMovable(U) = is(typeof(MutableE == Unqual!U));
+    enum isElementAssignableOrMovable(U) = isAssignable!(U) || isElementMovable!(U);
 
     /// True if elements need move.
     enum needsMove(T) = !isCopyable!T || hasIndirections!T;
@@ -70,12 +72,14 @@ struct BasicArray(T,
         _mptr[0 .. _length] = values; // array assignment
     }
 
+    enum isConstructableFrom(R) = (isInputRange!R &&
+                                   !isInfinite!R &&
+                                   !isArray!R &&
+                                   isElementAssignableOrMovable!(ElementType!R));
+
     /// Construct from range of element `values`.
     this(R)(R values) @trusted
-        if (isInputRange!R &&
-            !isInfinite!R &&
-            !isArray!R &&
-            isElementAssignable!(ElementType!R))
+        if (isConstructableFrom!R)
     {
         import std.range : hasLength;
         static if (hasLength!R)
@@ -663,9 +667,7 @@ struct UniqueBasicArray(T,
 
     /// Construct from range of element `values`.
     this(R)(R values) @trusted
-        if (isInputRange!R &&
-            !isInfinite!R &&
-            basicArray.isElementAssignable!(ElementType!R))
+        if (basicArray.isConstructableFrom!R)
     {
         basicArray = typeof(basicArray)(values);
     }
@@ -683,13 +685,22 @@ struct UniqueBasicArray(T,
     alias basicArray this;
 }
 
-/// construct from scalar
+/// construct from uncopyable scalar
 @safe pure nothrow @nogc unittest
 {
     alias T = const(int);
     alias A = UniqueBasicArray!(T);
     auto a = A(17);
     assert(a[] == [17].s);
+}
+
+/// construct from slice of uncopyable type
+@safe pure nothrow unittest
+{
+    alias T = const(int);
+    alias A = UniqueBasicArray!(T);
+    // auto a = A([A(17)]);
+    // assert(a[] == [A(17)]);
 }
 
 /// check disabled copying

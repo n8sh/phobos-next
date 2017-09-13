@@ -408,6 +408,10 @@ private template shouldAddGCRange(T)
     a ~= a[];
     assert(a[] == [10, 11, 12,
                    10, 11, 12].s);
+
+    a ~= false;
+    assert(a[] == [10, 11, 12,
+                   10, 11, 12, 0].s);
 }
 
 @safe pure nothrow @nogc unittest

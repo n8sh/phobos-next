@@ -8,6 +8,8 @@ import std.traits : Unqual;
    memory.
 
    Use `std.bitmanip.BitArray` for array container storing boolean values.
+
+   TODO make use of `Allocator` parameter when non-`null`
  */
 struct BasicArray(E,
                   alias Allocator = null) // null means means to qcmeman functions

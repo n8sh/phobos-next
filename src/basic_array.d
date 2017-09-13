@@ -415,9 +415,13 @@ pragma(inline, true):
     }
 
 private:
-    @nogc E* _ptr;              // non-GC-allocated store pointer
-    size_t _capacity;            // store capacity
-    size_t _length;              // store length
+    // defined here https://dlang.org/phobos/std_experimental_allocator_gc_allocator.html#.GCAllocator
+    static if (is(Allocator == std.experimental.allocator.gc_allocator.GCAllocator))
+        E* _ptr;                // GC-allocated store pointer
+    else
+        @nogc E* _ptr;          // non-GC-allocated store pointer
+    size_t _capacity;           // store capacity
+    size_t _length;             // store length
 }
 
 private template shouldAddGCRange(T)
@@ -603,5 +607,4 @@ struct UniqueBasicArray(E,
 version(unittest)
 {
     import array_help : s;
-    import dbgio : dln;
 }

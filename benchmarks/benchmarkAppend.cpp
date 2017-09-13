@@ -23,7 +23,7 @@ int main(int argc, const char* argv[], const char* envp[])
     typedef int E;
     std::vector<int> a;
     const uint n = 5000000;
-    // a.reserve(n);
+    a.reserve(n);
 
     const auto start_time = my_clock::now();
     for (size_t i = 0; i < n; ++i)

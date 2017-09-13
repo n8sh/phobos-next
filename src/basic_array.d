@@ -327,16 +327,16 @@ pragma(inline, true):
     }
 
     /// Get front element reference.
-    ref inout(T) front() inout @trusted return scope
+    ref inout(T) front() inout return scope
     {
-        assert(!empty);
+        // TODO use?: enforce(!empty);
         return slice()[0];
     }
 
     /// Get back element reference.
-    ref inout(T) back() inout @trusted return scope
+    ref inout(T) back() inout return scope
     {
-        assert(!empty);
+        // TODO use?: enforce(!empty);
         return slice()[_length - 1];
 
     }

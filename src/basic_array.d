@@ -693,13 +693,13 @@ struct UniqueBasicArray(T,
     assert(a[] == [17].s);
 }
 
-/// construct from slice of uncopyable type
+/// construct from slice of copyable type
 @safe pure nothrow unittest
 {
     alias T = const(int);
     alias A = UniqueBasicArray!(T);
-    // auto a = A([A(17)]);
-    // assert(a[] == [A(17)]);
+    auto a = A([17]);
+    assert(a[] == [17].s);
 }
 
 /// check disabled copying

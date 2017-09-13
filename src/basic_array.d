@@ -278,13 +278,13 @@ pragma(inline, true):
         }
     }
 
-    /// Index operator.
+    /// Index support.
     ref inout(T) opIndex(size_t i) inout return scope
     {
         return slice()[i];
     }
 
-    /// Slice operator.
+    /// Slice support.
     inout(T)[] opSlice(size_t i, size_t j) inout return scope
     {
         return slice()[i .. j];
@@ -295,7 +295,7 @@ pragma(inline, true):
         return opSlice(0, _length);
     }
 
-    /// Index assign operator.
+    /// Index assignment support.
     ref T opIndexAssign(U)(U value, size_t i) @trusted return scope
     {
         static if (hasElaborateDestructor!T)
@@ -314,16 +314,16 @@ pragma(inline, true):
         return slice()[i];
     }
 
-    /// Slice assign operator.
-    T[] opSliceAssign(U)(U value, size_t i, size_t j) return scope
-    {
-        return slice()[i .. j] = value;
-    }
-
-    /// ditto
+    /// Slice assignment support.
     T[] opSliceAssign(U)(U value) return scope
     {
         return slice()[] = value;
+    }
+
+    /// ditto
+    T[] opSliceAssign(U)(U value, size_t i, size_t j) return scope
+    {
+        return slice()[i .. j] = value;
     }
 
     /// Get front element reference.

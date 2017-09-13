@@ -626,6 +626,8 @@ version(unittest)
     A a42 = A(42);
 }
 
+/** Non-copyable variant of `BasicArray`.
+ */
 struct UniqueBasicArray(T,
                         alias Allocator = null) // null means means to qcmeman functions
     if (!is(Unqual!T == bool))

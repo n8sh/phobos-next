@@ -38,7 +38,7 @@ unittest
 /// non-copyable element type in static array
 @nogc unittest
 {
-    // TODO auto b = [S(42)].s;
+    // TODO this should compile: auto b = [S(42)].s;
 }
 
 ///

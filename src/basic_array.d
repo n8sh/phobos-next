@@ -329,14 +329,14 @@ pragma(inline, true):
     /// Get front element reference.
     ref inout(T) front() inout return scope @property
     {
-        // TODO use?: enforce(!empty);
+        // TODO use?: enforce(!empty); emsi-containers doesn't, std.container.Array does
         return slice()[0];
     }
 
     /// Get back element reference.
     ref inout(T) back() inout return scope @property
     {
-        // TODO use?: enforce(!empty);
+        // TODO use?: enforce(!empty); emsi-containers doesn't, std.container.Array does
         return slice()[_length - 1];
 
     }

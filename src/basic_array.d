@@ -55,7 +55,7 @@ struct BasicArray(E,
     {
         if (values.length == 1) // TODO branch should be detected at compile-time
         {
-            // twice as fast as default array assignment below
+            // twice as fast as array assignment below
             _capacity = 1;
             _length = 1;
             _ptr = This.allocate(1);
@@ -338,7 +338,7 @@ pragma(inline, true):
     {
         if (values.length == 1) // TODO branch should be detected at compile-time
         {
-            // twice as fast as default array assignment below
+            // twice as fast as array assignment below
             return insertBack1(values[0]);
         }
         static if (is(E == immutable(E)))

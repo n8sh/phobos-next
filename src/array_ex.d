@@ -442,7 +442,6 @@ private struct Array(E,
     size_t toHash() const @trusted pure nothrow
     {
         import core.internal.hash : hashOf;
-        // TODO this doesn't work when element type is non-copyable: return this.slice.hashOf;
         typeof(return) hash = this.length;
         foreach (immutable i; 0 .. this.length)
         {

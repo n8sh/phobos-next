@@ -18,7 +18,7 @@ struct BasicArray(T,
     import std.range : isInputRange, ElementType, isInfinite;
     import std.traits : Unqual, hasElaborateDestructor, hasIndirections, hasAliasing, isMutable, TemplateOf, isArray, isAssignable, isCopyable;
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
-    import std.algorithm : move;
+    import std.algorithm : move, moveEmplace;
 
     /// Mutable element type.
     private alias MutableE = Unqual!T;
@@ -331,6 +331,17 @@ pragma(inline, true):
 
     }
 
+    /** Move `value` into the end of the array.
+     */
+    pragma(inline, true)
+    void moveBack()(ref T value) @trusted
+        if (!isCopyable!T)
+    {
+        reserve(_length + 1);
+        moveEmplace(value, _mptr[_length]);
+        _length += 1;
+    }
+
     /** Insert `value` into the end of the array.
 
         TODO rename to `insertBack` and make this steal scalar calls over
@@ -346,7 +357,7 @@ pragma(inline, true):
         }
         else
         {
-            move(value, _mptr[_length]); // TODO remove `move` when compiler does it for us
+            moveEmplace(*cast(MutableE*)(&value), _mptr[_length]); // TODO remove `move` when compiler does it for us
         }
         _length += 1;
     }
@@ -358,7 +369,7 @@ pragma(inline, true):
         if (!isCopyable!T)
     {
         reserve(_length + 1);
-        move(*cast(MutableE*)(&value), _mptr[_length]); // TODO remove `move` when compiler does it for us
+        moveEmplace(*cast(MutableE*)(&value), _mptr[_length]); // TODO remove `move` when compiler does it for us
         _length += 1;
     }
 

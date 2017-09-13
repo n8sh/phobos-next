@@ -56,7 +56,8 @@ struct BasicArray(T,
 
     /// Construct from element `values`.
     this(U)(U[] values...) @trusted
-        if (isElementAssignable!U)
+        if (isElementAssignable!U &&
+            isCopyable!U)       // prevent accidental move of l-value `values`
     {
         if (values.length == 1) // TODO branch should be detected at compile-time
         {
@@ -72,14 +73,14 @@ struct BasicArray(T,
         _mptr[0 .. _length] = values; // array assignment
     }
 
-    enum isConstructableFrom(R) = (isInputRange!R &&
-                                   !isInfinite!R &&
-                                   !isArray!R &&
-                                   isElementAssignableOrMovable!(ElementType!R));
+    enum isConstructableFromRange(R) = (isInputRange!R &&
+                                        !isInfinite!R &&
+                                        isElementAssignableOrMovable!(ElementType!R));
 
     /// Construct from range of element `values`.
     this(R)(R values) @trusted
-        if (isConstructableFrom!R)
+        if (!isArray!R &&
+            isConstructableFromRange!R)
     {
         import std.range : hasLength;
         static if (hasLength!R)
@@ -378,7 +379,8 @@ pragma(inline, true):
     /** Insert `values` into the end of the array.
      */
     void insertBack(U)(U[] values...) @trusted
-        if (isElementAssignable!U)
+        if (isElementAssignable!U &&
+            isCopyable!U)       // prevent accidental move of l-value `values`
     {
         if (values.length == 1) // TODO branch should be detected at compile-time
         {
@@ -623,7 +625,7 @@ private template shouldAddGCRange(T)
 version(unittest)
 {
     /// non-copyable element type
-    private static struct S
+    private static struct SomeUncopyableStruct
     {
         @disable this(this);
         int x;
@@ -633,13 +635,13 @@ version(unittest)
 /// non-copyable element type
 @safe pure nothrow /*@nogc*/ unittest
 {
-    alias A = BasicArray!(S);
+    alias A = BasicArray!(SomeUncopyableStruct);
     A a0 = A();
 
-    const s = S(1);
-    const a = [S(1)];
+    const s = SomeUncopyableStruct(1);
+    const a = [SomeUncopyableStruct(1)];
 
-    a0.insertBack(S(1));
+    a0.insertBack(SomeUncopyableStruct(1));
 
     assert(a0[] == a[]);
 
@@ -659,14 +661,15 @@ struct UniqueBasicArray(T,
 
     /// Construct from element `values`.
     this(U)(U[] values...) @trusted
-        if (basicArray.isElementAssignable!U)
+        if (basicArray.isElementAssignable!U &&
+            isCopyable!U)       // prevent accidental move of l-value `values`
     {
         basicArray = typeof(basicArray)(values);
     }
 
     /// Construct from range of element `values`.
     this(R)(R values) @trusted
-        if (basicArray.isConstructableFrom!R)
+        if (basicArray.isConstructableFromRange!R)
     {
         basicArray = typeof(basicArray)(values);
     }
@@ -700,6 +703,20 @@ struct UniqueBasicArray(T,
     alias A = UniqueBasicArray!(T);
     const a = A([17]);
     assert(a[] == [17].s);
+}
+
+/// construct from scalar of uncopyable type
+@safe pure nothrow @nogc unittest
+{
+    alias A = UniqueBasicArray!(SomeUncopyableStruct);
+    // const a = A(SomeUncopyableStruct(17));
+}
+
+/// construct from slice of uncopyable type
+@safe pure nothrow unittest
+{
+    alias A = UniqueBasicArray!(SomeUncopyableStruct);
+    // const a = A([SomeUncopyableStruct(17)]);
 }
 
 /// check disabled copying

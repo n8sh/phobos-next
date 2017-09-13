@@ -18,6 +18,7 @@ struct BasicArray(E,
     import std.range : isInputRange, ElementType, isInfinite;
     import std.traits : Unqual, hasElaborateDestructor, hasIndirections, hasAliasing, isMutable, isCopyable, TemplateOf, isArray, isAssignable;
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
+    import std.algorithm : move;
 
     /// Mutable element type.
     private alias MutableE = Unqual!E;
@@ -256,12 +257,18 @@ pragma(inline, true):
     ref E opIndexAssign(U)(U value, size_t i) @trusted return scope
     {
         static if (hasElaborateDestructor!E)
+        {
             move(*(cast(MutableE*)(&value)), _mptr[i]); // TODO is this correct?
+        }
         else static if (hasIndirections!E && // TODO `hasAliasing` instead?
                         !isMutable!E)
+        {
             static assert("Cannot modify constant elements with indirections");
+        }
         else
+        {
             slice()[i] = value;
+        }
         return slice()[i];
     }
 
@@ -301,14 +308,33 @@ pragma(inline, true):
     void insertBack1(E value) @trusted
     {
         reserve(_length + 1);
-        _mptr[_length] = value;
+        static if (isCopyable!E)
+        {
+            _mptr[_length] = value;
+        }
+        else
+        {
+            move(value, _mptr[_length]); // TODO remove `move` when compiler does it for us
+        }
+        _length += 1;
+    }
+
+    /** Insert unmoveable `values` into the end of the array.
+     */
+    pragma(inline, true)
+    void insertBack()(E value) @trusted
+        if (!isCopyable!E)
+    {
+        reserve(_length + 1);
+        move(*cast(MutableE*)(&value), _mptr[_length]); // TODO remove `move` when compiler does it for us
         _length += 1;
     }
 
     /** Insert `values` into the end of the array.
      */
     void insertBack(U)(U[] values...) @trusted
-        if (isElementAssignable!U)
+        if (isElementAssignable!U &&
+            isCopyable!U)
     {
         if (values.length == 1) // TODO branch should be detected at compile-time
         {
@@ -561,9 +587,20 @@ version(unittest)
 }
 
 /// non-copyable element type
-@safe pure nothrow @nogc unittest
+@safe pure nothrow /*@nogc*/ unittest
 {
-    // alias A = BasicArray!(S);
+    alias A = BasicArray!(S);
+    A a0 = A();
+
+    const s = S(1);
+    const a = [S(1)];
+
+    a0.insertBack(S(1));
+
+    assert(a0[] == a[]);
+
+    // a0 ~= A(1);
+    A a42 = A(42);
 }
 
 struct UniqueBasicArray(E,

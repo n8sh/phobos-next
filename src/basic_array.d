@@ -344,7 +344,7 @@ pragma(inline, true):
         _length += 1;
     }
 
-    /** Insert unmoveable `values` into the end of the array.
+    /** Insert unmoveable `value` into the end of the array.
      */
     pragma(inline, true)
     void insertBack()(T value) @trusted

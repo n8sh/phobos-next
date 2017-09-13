@@ -153,7 +153,6 @@ private struct Array(E,
     // }
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
-    pragma(inline)
     static This withLength(size_t initialLength) @trusted nothrow
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
@@ -176,7 +175,6 @@ private struct Array(E,
     }
 
     /// Returns: an array with initial capacity `initialCapacity`.
-    pragma(inline)
     static This withCapacity(size_t initialCapacity) @trusted nothrow
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);

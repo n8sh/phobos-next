@@ -430,6 +430,16 @@ private template shouldAddGCRange(T)
     enum shouldAddGCRange = hasIndirections!T; // TODO unless all pointers members are tagged as @nogc (as in `BasicArray` and `BasicStore`)
 }
 
+/// construct from scalar
+@safe pure nothrow @nogc unittest
+{
+    alias E = const(int);
+    alias A = UniqueBasicArray!(E);
+    auto a = A(17);
+    assert(a[] == [17].s);
+}
+
+/// construct and append from slices
 @safe pure nothrow @nogc unittest
 {
     alias E = int;
@@ -594,14 +604,6 @@ struct UniqueBasicArray(E,
     auto a = A.withLength(length);
 
     static assert(!__traits(compiles, { A b = a; })); // copying disabled
-}
-
-@safe pure nothrow @nogc unittest
-{
-    alias E = const(int);
-    alias A = UniqueBasicArray!(E);
-    auto a = A(17);
-    assert(a[] == [17].s);
 }
 
 version(unittest)

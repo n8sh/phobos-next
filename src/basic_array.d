@@ -54,8 +54,7 @@ struct BasicArray(T,
 
     /// Construct from element `values`.
     this(U)(U[] values...) @trusted
-        if (isElementAssignable!U &&
-            isCopyable!U)
+        if (isElementAssignable!U)
     {
         if (values.length == 1) // TODO branch should be detected at compile-time
         {
@@ -358,8 +357,7 @@ pragma(inline, true):
     /** Insert `values` into the end of the array.
      */
     void insertBack(U)(U[] values...) @trusted
-        if (isElementAssignable!U &&
-            isCopyable!U)
+        if (isElementAssignable!U)
     {
         if (values.length == 1) // TODO branch should be detected at compile-time
         {
@@ -638,8 +636,7 @@ struct UniqueBasicArray(T,
 
     /// Construct from element `values`.
     this(U)(U[] values...) @trusted
-        if (basicArray.isElementAssignable!U &&
-            isCopyable!U)
+        if (basicArray.isElementAssignable!U)
     {
         basicArray = typeof(basicArray)(values);
     }

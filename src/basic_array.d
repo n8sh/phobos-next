@@ -566,5 +566,4 @@ struct UniqueBasicArray(E,
 version(unittest)
 {
     import array_help : s;
-    import dbgio : dln;
 }

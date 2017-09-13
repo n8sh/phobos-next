@@ -106,7 +106,7 @@ struct BasicArray(T,
         }
     }
 
-    /// Construct from uncopyable range of uncopyable elements `values`.
+    /// Construct from uncopyable range of uncopyable `values`.
     this(R)(R values) @trusted
         if (!isCopyable!R &&
             !isCopyable!(ElementType!R) &&
@@ -115,21 +115,23 @@ struct BasicArray(T,
         static assert(false, "TODO implement");
     }
 
+    /// Construct using `initialCapacity`, `initialLength` and zeroing-flag `zero`.
     private this(size_t initialCapacity,
                  size_t initialLength = 0,
                  bool zero = true) @trusted
     {
         assert(initialCapacity >= initialLength);
         _capacity = initialCapacity;
-        _ptr = allocate(initialCapacity, zero);
+        _ptr = This.allocate(initialCapacity, zero);
         _length = initialLength;
     }
 
     static if (isCopyable!T)
     {
+        /// Copy construction.
         this(this) @trusted
         {
-            MutableE* newPtr = allocate(_length, false);
+            MutableE* newPtr = This.allocate(_length, false);
             _capacity = _length;
             newPtr[0 .. _length] = slice();
             _ptr = newPtr;

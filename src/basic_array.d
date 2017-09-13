@@ -50,6 +50,14 @@ struct BasicArray(E,
     this(U)(U[] values...) @trusted
         if (isElementAssignable!U)
     {
+        if (values.length == 1) // TODO branch should be detected at compile-time
+        {
+            _capacity = 1;
+            _length = 1;
+            _ptr = This.allocate(1);
+            _mptr[0] = values[0];
+            return;
+        }
         reserve(values.length);
         _length = values.length;
         _mptr[0 .. _length] = values;
@@ -283,10 +291,11 @@ pragma(inline, true):
 
     /** Insert `value` into the end of the array.
 
-        TODO make this kick in instead of U[] value... overload
+        TODO rename to `insertBack` and make this steal scalar calls over
+        insertBack(U)(U[] values...) overload below
      */
     pragma(inline, true)
-    void insertBack(E value) @trusted
+    void insertBack1(E value) @trusted
     {
         reserve(_length + 1);
         _mptr[_length] = value;
@@ -298,6 +307,10 @@ pragma(inline, true):
     void insertBack(U)(U[] values...) @trusted
         if (isElementAssignable!U)
     {
+        if (values.length == 1) // TODO branch should be detected at compile-time
+        {
+            return insertBack1(values[0]);
+        }
         static if (is(E == immutable(E)))
         {
             /* An array of immutable values cannot overlap with the `this`
@@ -577,6 +590,14 @@ struct UniqueBasicArray(E,
     auto a = A.withLength(length);
 
     static assert(!__traits(compiles, { A b = a; })); // copying disabled
+}
+
+@safe pure nothrow @nogc unittest
+{
+    alias E = const(int);
+    alias A = UniqueBasicArray!(E);
+    auto a = A(17);
+    assert(a[] == [17].s);
 }
 
 version(unittest)

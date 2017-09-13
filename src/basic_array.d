@@ -115,7 +115,11 @@ struct BasicArray(T,
         static assert(false, "TODO implement");
     }
 
-    /// Construct using `initialCapacity`, `initialLength` and zeroing-flag `zero`.
+    /** Construct using
+        - initial capacity `initialCapacity`,
+        - initial length `initialLength`
+        - and zeroing-flag `zero`.
+    */
     private this(size_t initialCapacity,
                  size_t initialLength = 0,
                  bool zero = true) @trusted

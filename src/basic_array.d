@@ -48,12 +48,15 @@ struct BasicArray(E,
         return This(initialCapacity, 0);
     }
 
+    this(U)(U[] values...) @trusted
+
     /// Construct from element `values`.
     this(U)(U[] values...) @trusted
         if (isElementAssignable!U)
     {
         if (values.length == 1) // TODO branch should be detected at compile-time
         {
+            // twice as fast as default array assignment below
             _capacity = 1;
             _length = 1;
             _ptr = This.allocate(1);
@@ -62,7 +65,7 @@ struct BasicArray(E,
         }
         reserve(values.length);
         _length = values.length;
-        _mptr[0 .. _length] = values;
+        _mptr[0 .. _length] = values; // array assignment
     }
 
     /// Construct from range of element `values`.
@@ -311,6 +314,7 @@ pragma(inline, true):
     {
         if (values.length == 1) // TODO branch should be detected at compile-time
         {
+            // twice as fast as default array assignment below
             return insertBack1(values[0]);
         }
         static if (is(E == immutable(E)))

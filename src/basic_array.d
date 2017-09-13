@@ -87,9 +87,17 @@ struct BasicArray(T,
         }
         else
         {
-            foreach (ref value; values)
+            foreach (ref value; move(values))
             {
-                insertBack(value);
+                static if (isCopyable!(ElementType!R))
+                {
+                    insertBack(value);
+                }
+                else
+                {
+                    // TODO functionize to insertBackFromMove(value) which calls moveEmplace(_mptr[_length], value)
+                    insertBack(move(value)); // TODO remove `move` when compiler does it for us
+                }
             }
         }
     }

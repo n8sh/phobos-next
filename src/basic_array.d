@@ -13,7 +13,7 @@ struct BasicArray(E,
                   alias Allocator = null) // null means means to qcmeman functions
     if (!is(Unqual!T == bool))
 {
-    import std.range : isInputRange, ElementType;
+    import std.range : isInputRange, ElementType, isInfinite;
     import std.traits : Unqual, hasElaborateDestructor, hasIndirections, hasAliasing, isMutable, isCopyable, TemplateOf, isArray, isAssignable;
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
 
@@ -58,6 +58,7 @@ struct BasicArray(E,
     /// Construct from range of element `values`.
     this(R)(R values) @trusted
         if (isInputRange!R &&
+            !isInfinite!R &&
             !isArray!R &&
             isElementAssignable!(ElementType!R))
     {
@@ -321,6 +322,7 @@ pragma(inline, true):
      */
     void insertBack(R)(R values) @trusted
         if (isInputRange!R &&
+            !isInfinite!R &&
             !isArray!R &&
             isElementAssignable!(ElementType!R))
     {
@@ -355,6 +357,7 @@ pragma(inline, true):
     void opOpAssign(string op, R)(R values)
         if (op == "~" &&
             isInputRange!R &&
+            !isInfinite!R &&
             isElementAssignable!(ElementType!R))
     {
         insertBack(values);
@@ -536,6 +539,7 @@ struct UniqueBasicArray(E,
     /// Construct from range of element `values`.
     this(R)(R values) @trusted
         if (isInputRange!R &&
+            !isInfinite!R &&
             basicArray.isElementAssignable!(ElementType!R))
     {
         basicArray = typeof(basicArray)(values);

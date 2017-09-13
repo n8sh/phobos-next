@@ -282,6 +282,8 @@ pragma(inline, true):
     }
 
     /** Insert `value` into the end of the array.
+
+        TODO make this kick in instead of U[] value... overload
      */
     pragma(inline, true)
     void insertBack(E value) @trusted

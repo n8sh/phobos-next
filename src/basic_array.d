@@ -689,7 +689,7 @@ struct UniqueBasicArray(T,
 {
     alias T = const(int);
     alias A = UniqueBasicArray!(T);
-    auto a = A(17);
+    const a = A(17);
     assert(a[] == [17].s);
 }
 
@@ -698,7 +698,7 @@ struct UniqueBasicArray(T,
 {
     alias T = const(int);
     alias A = UniqueBasicArray!(T);
-    auto a = A([17]);
+    const a = A([17]);
     assert(a[] == [17].s);
 }
 

@@ -338,7 +338,6 @@ pragma(inline, true):
      */
     pragma(inline, true)
     void moveBack()(ref T value) @trusted
-        if (!isCopyable!T)
     {
         reserve(_length + 1);
         moveEmplace(value, _mptr[_length]);

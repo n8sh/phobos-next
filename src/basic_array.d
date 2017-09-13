@@ -555,7 +555,7 @@ struct UniqueBasicArray(E,
                         alias Allocator = null) // null means means to qcmeman functions
     if (!is(Unqual!T == bool))
 {
-    import std.range : isInputRange, ElementType;
+    import std.range : isInputRange, ElementType, isInfinite;
 
     @disable this(this);        // no copy construction
 

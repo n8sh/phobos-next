@@ -11,7 +11,7 @@ import std.traits : Unqual;
 
    TODO make use of `Allocator` parameter when non-`null`
  */
-struct BasicArray(E,
+struct BasicArray(T,
                   alias Allocator = null) // null means means to qcmeman functions
     if (!is(Unqual!T == bool))
 {
@@ -21,7 +21,7 @@ struct BasicArray(E,
     import std.algorithm : move;
 
     /// Mutable element type.
-    private alias MutableE = Unqual!E;
+    private alias MutableE = Unqual!T;
 
     /// Template for type of `this`.
     private alias ThisTemplate = TemplateOf!(This);
@@ -32,8 +32,11 @@ struct BasicArray(E,
     /// Type of `this`.
     private alias This = typeof(this);
 
-    /// Is `true` if `U` can be assign to the element type `E` of `this`.
+    /// Is `true` if `U` can be assign to the element type `T` of `this`.
     enum isElementAssignable(U) = isAssignable!(MutableE, U);
+
+    /// True if elements need move.
+    enum needsMove(T) = hasIndirections!T || !isCopyable!T;
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
     pragma(inline, true)
@@ -102,7 +105,7 @@ struct BasicArray(E,
         _length = initialLength;
     }
 
-    static if (isCopyable!E)
+    static if (isCopyable!T)
     {
         this(this) @trusted
         {
@@ -132,11 +135,11 @@ struct BasicArray(E,
     pragma(inline, true)
     private void release() @trusted
     {
-        static if (hasElaborateDestructor!E)
+        static if (hasElaborateDestructor!T)
         {
             destroyElements();
         }
-        static if (shouldAddGCRange!E)
+        static if (shouldAddGCRange!T)
         {
             gc_removeRange(_ptr);
         }
@@ -144,7 +147,7 @@ struct BasicArray(E,
     }
 
     /// Destroy elements.
-    static if (hasElaborateDestructor!E)
+    static if (hasElaborateDestructor!T)
     {
         private void destroyElements() @trusted
         {
@@ -164,20 +167,20 @@ struct BasicArray(E,
         _capacity = 0;
     }
 
-    /** Allocate heap regionwith `initialCapacity` number of elements of type `E`.
+    /** Allocate heap regionwith `initialCapacity` number of elements of type `T`.
         If `zero` is `true` they will be zero-initialized.
     */
     private static MutableE* allocate(size_t initialCapacity, bool zero = false)
     {
         typeof(return) ptr = null;
 
-        if (zero) { ptr = cast(typeof(return))calloc(initialCapacity, E.sizeof); }
-        else      { ptr = cast(typeof(return))malloc(initialCapacity * E.sizeof); }
+        if (zero) { ptr = cast(typeof(return))calloc(initialCapacity, T.sizeof); }
+        else      { ptr = cast(typeof(return))malloc(initialCapacity * T.sizeof); }
         assert(ptr, "Allocation failed");
 
-        static if (shouldAddGCRange!E)
+        static if (shouldAddGCRange!T)
         {
-            gc_addRange(ptr, initialCapacity * E.sizeof);
+            gc_addRange(ptr, initialCapacity * T.sizeof);
         }
         return ptr;
     }
@@ -223,7 +226,7 @@ pragma(inline, true):
     {
         if (newCapacity <= capacity) { return; }
 
-        static if (shouldAddGCRange!E)
+        static if (shouldAddGCRange!T)
         {
             gc_removeRange(_mptr);
         }
@@ -231,38 +234,38 @@ pragma(inline, true):
         import std.math : nextPow2;
         reallocateAndSetCapacity(newCapacity.nextPow2);
 
-        static if (shouldAddGCRange!E)
+        static if (shouldAddGCRange!T)
         {
-            gc_addRange(_mptr, _capacity * E.sizeof);
+            gc_addRange(_mptr, _capacity * T.sizeof);
         }
     }
 
     /// Index operator.
-    ref inout(E) opIndex(size_t i) inout @trusted return scope
+    ref inout(T) opIndex(size_t i) inout @trusted return scope
     {
         return slice()[i];
     }
 
     /// Slice operator.
-    inout(E)[] opSlice(size_t i, size_t j) inout @trusted return scope
+    inout(T)[] opSlice(size_t i, size_t j) inout @trusted return scope
     {
         return slice()[i .. j];
     }
     ///
-    inout(E)[] opSlice() inout return scope
+    inout(T)[] opSlice() inout return scope
     {
         return opSlice(0, _length);
     }
 
     /// Index assign operator.
-    ref E opIndexAssign(U)(U value, size_t i) @trusted return scope
+    ref T opIndexAssign(U)(U value, size_t i) @trusted return scope
     {
-        static if (hasElaborateDestructor!E)
+        static if (hasElaborateDestructor!T)
         {
             move(*(cast(MutableE*)(&value)), _mptr[i]); // TODO is this correct?
         }
-        else static if (hasIndirections!E && // TODO `hasAliasing` instead?
-                        !isMutable!E)
+        else static if (hasIndirections!T && // TODO `hasAliasing` instead?
+                        !isMutable!T)
         {
             static assert("Cannot modify constant elements with indirections");
         }
@@ -274,26 +277,26 @@ pragma(inline, true):
     }
 
     /// Slice assign operator.
-    E[] opSliceAssign(U)(U value, size_t i, size_t j) @trusted return scope
+    T[] opSliceAssign(U)(U value, size_t i, size_t j) @trusted return scope
     {
         return slice()[i .. j] = value;
     }
 
     /// ditto
-    E[] opSliceAssign(U)(U value) @trusted return scope
+    T[] opSliceAssign(U)(U value) @trusted return scope
     {
         return slice()[] = value;
     }
 
     /// Get front element reference.
-    ref inout(E) front() inout @trusted return scope
+    ref inout(T) front() inout @trusted return scope
     {
         assert(!empty);
         return slice()[0];
     }
 
     /// Get back element reference.
-    ref inout(E) back() inout @trusted return scope
+    ref inout(T) back() inout @trusted return scope
     {
         assert(!empty);
         return slice()[_length - 1];
@@ -306,10 +309,10 @@ pragma(inline, true):
         insertBack(U)(U[] values...) overload below
      */
     pragma(inline, true)
-    void insertBack1(E value) @trusted
+    void insertBack1(T value) @trusted
     {
         reserve(_length + 1);
-        static if (isCopyable!E)
+        static if (isCopyable!T)
         {
             _mptr[_length] = value;
         }
@@ -323,8 +326,8 @@ pragma(inline, true):
     /** Insert unmoveable `values` into the end of the array.
      */
     pragma(inline, true)
-    void insertBack()(E value) @trusted
-        if (!isCopyable!E)
+    void insertBack()(T value) @trusted
+        if (!isCopyable!T)
     {
         reserve(_length + 1);
         move(*cast(MutableE*)(&value), _mptr[_length]); // TODO remove `move` when compiler does it for us
@@ -342,7 +345,7 @@ pragma(inline, true):
             // twice as fast as array assignment below
             return insertBack1(values[0]);
         }
-        static if (is(E == immutable(E)))
+        static if (is(T == immutable(T)))
         {
             /* An array of immutable values cannot overlap with the `this`
                mutable array container data, which entails no need to check for
@@ -404,7 +407,7 @@ pragma(inline, true):
     alias put = insertBack;
 
     /// ditto
-    void opOpAssign(string op)(E[] values...)
+    void opOpAssign(string op)(T[] values...)
         if (op == "~")
     {
         insertBack(values);
@@ -420,7 +423,7 @@ pragma(inline, true):
     }
 
     /// Helper slice.
-    private inout(E)[] slice() inout return scope @trusted
+    private inout(T)[] slice() inout return scope @trusted
     {
         return _ptr[0 .. _length];
     }
@@ -435,7 +438,7 @@ pragma(inline, true):
     private void reallocateAndSetCapacity(size_t newCapacity) pure nothrow @trusted
     {
         _capacity = newCapacity;
-        _ptr = cast(E*)realloc(_mptr, E.sizeof * _capacity);
+        _ptr = cast(T*)realloc(_mptr, T.sizeof * _capacity);
         assert(_mptr, "Reallocation failed");
     }
 
@@ -448,9 +451,9 @@ pragma(inline, true):
 private:
     // defined here https://dlang.org/phobos/std_experimental_allocator_gc_allocator.html#.GCAllocator
     static if (is(Allocator == std.experimental.allocator.gc_allocator.GCAllocator))
-        E* _ptr;                // GC-allocated store pointer
+        T* _ptr;                // GC-allocated store pointer
     else
-        @nogc E* _ptr;          // non-GC-allocated store pointer
+        @nogc T* _ptr;          // non-GC-allocated store pointer
     size_t _capacity;           // store capacity
     size_t _length;             // store length
 }
@@ -464,8 +467,8 @@ private template shouldAddGCRange(T)
 /// construct and append from slices
 @safe pure nothrow @nogc unittest
 {
-    alias E = int;
-    alias A = BasicArray!(E);
+    alias T = int;
+    alias A = BasicArray!(T);
 
     auto a = A([10, 11, 12].s);
 
@@ -480,8 +483,8 @@ private template shouldAddGCRange(T)
 
 @safe pure nothrow @nogc unittest
 {
-    alias E = int;
-    alias A = BasicArray!(E);
+    alias T = int;
+    alias A = BasicArray!(T);
 
     A a;
 
@@ -493,7 +496,7 @@ private template shouldAddGCRange(T)
 
     a.insertBack(11, 12);
 
-    a ~= E.init;
+    a ~= T.init;
     a.insertBack([3].s);
     assert(a[] == [10, 11, 12, 0, 3].s);
 
@@ -512,8 +515,8 @@ private template shouldAddGCRange(T)
 
 @safe pure nothrow @nogc unittest
 {
-    alias E = const(int);
-    alias A = BasicArray!(E);
+    alias T = const(int);
+    alias A = BasicArray!(T);
 
     A a;                        // default construction allowed
     assert(a.empty);
@@ -553,8 +556,8 @@ private template shouldAddGCRange(T)
 
 @safe pure nothrow @nogc unittest
 {
-    alias E = const(int);
-    alias A = BasicArray!(E);
+    alias T = const(int);
+    alias A = BasicArray!(T);
 
     auto a = A([1, 2, 3].s);
     A b = a;                    // copy construction enabled
@@ -604,7 +607,7 @@ version(unittest)
     A a42 = A(42);
 }
 
-struct UniqueBasicArray(E,
+struct UniqueBasicArray(T,
                         alias Allocator = null) // null means means to qcmeman functions
     if (!is(Unqual!T == bool))
 {
@@ -635,15 +638,15 @@ struct UniqueBasicArray(E,
         return typeof(return)(slice());
     }
 
-    BasicArray!(E, Allocator) basicArray;
+    BasicArray!(T, Allocator) basicArray;
     alias basicArray this;
 }
 
 /// construct from scalar
 @safe pure nothrow @nogc unittest
 {
-    alias E = const(int);
-    alias A = UniqueBasicArray!(E);
+    alias T = const(int);
+    alias A = UniqueBasicArray!(T);
     auto a = A(17);
     assert(a[] == [17].s);
 }
@@ -651,8 +654,8 @@ struct UniqueBasicArray(E,
 /// check disabled copying
 @safe pure nothrow @nogc unittest
 {
-    alias E = const(int);
-    alias A = UniqueBasicArray!(E);
+    alias T = const(int);
+    alias A = UniqueBasicArray!(T);
 
     auto a = A.withLength(3);
 

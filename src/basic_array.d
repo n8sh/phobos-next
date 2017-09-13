@@ -95,8 +95,7 @@ struct BasicArray(T,
                 }
                 else
                 {
-                    // TODO functionize to insertBackFromMove(value) which calls moveEmplace(_mptr[_length], value)
-                    insertBack(move(value)); // TODO remove `move` when compiler does it for us
+                    moveBack(value);
                 }
             }
         }

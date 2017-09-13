@@ -278,9 +278,21 @@ pragma(inline, true):
     {
         assert(!empty);
         return slice()[_length - 1];
+
     }
 
-    /** Inserts the given value into the end of the array.
+    /** Insert `value` into the end of the array.
+     */
+    pragma(inline, true)
+    void insertBack(U)(U value) @trusted
+        if (isElementAssignable!U)
+    {
+        reserve(_length + 1);
+        _mptr[_length] = value;
+        _length += 1;
+    }
+
+    /** Insert `values` into the end of the array.
      */
     void insertBack(U)(U[] values...) @trusted
         if (isElementAssignable!U)
@@ -318,7 +330,7 @@ pragma(inline, true):
         _length += values.length;
     }
 
-    /** Inserts the given value into the end of the array.
+    /** Insert `values` into the end of the array.
      */
     void insertBack(R)(R values) @trusted
         if (isInputRange!R &&
@@ -346,13 +358,12 @@ pragma(inline, true):
     /// ditto
     alias put = insertBack;
 
-    /** ~= operator overload */
+    /// ditto
     void opOpAssign(string op)(E[] values...)
         if (op == "~")
     {
         insertBack(values);
     }
-
     /// ditto
     void opOpAssign(string op, R)(R values)
         if (op == "~" &&

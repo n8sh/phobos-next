@@ -212,8 +212,8 @@ struct BasicArray(T,
     /// Calculate D associative array (AA) key hash.
     size_t toHash() const @trusted pure nothrow
     {
+        pragma(msg, T);
         import core.internal.hash : hashOf;
-        // TODO this doesn't work when element type is non-copyable: return this.slice.hashOf;
         typeof(return) hash = this.length;
         foreach (immutable i; 0 .. this.length)
         {

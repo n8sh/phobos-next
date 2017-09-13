@@ -523,7 +523,7 @@ struct UniqueBasicArray(E,
                         alias Allocator = null) // null means means to qcmeman functions
     if (!is(Unqual!T == bool))
 {
-    import std.range : isInputRange;
+    import std.range : isInputRange, ElementType;
 
     @disable this(this);        // no copy construction
 
@@ -536,7 +536,7 @@ struct UniqueBasicArray(E,
     /// Construct from range of element `values`.
     this(R)(R values) @trusted
         if (isInputRange!R &&
-            isElementAssignable!(ElementType!R))
+            basicArray.isElementAssignable!(ElementType!R))
     {
         basicArray = typeof(basicArray)(values);
     }
@@ -561,8 +561,6 @@ struct UniqueBasicArray(E,
     auto a = A.withLength(length);
 
     static assert(!__traits(compiles, { A b = a; })); // copying disabled
-
-    // TODO auto b = a.dup;
 }
 
 version(unittest)

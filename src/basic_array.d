@@ -279,13 +279,13 @@ pragma(inline, true):
     }
 
     /// Index operator.
-    ref inout(T) opIndex(size_t i) inout @trusted return scope
+    ref inout(T) opIndex(size_t i) inout return scope
     {
         return slice()[i];
     }
 
     /// Slice operator.
-    inout(T)[] opSlice(size_t i, size_t j) inout @trusted return scope
+    inout(T)[] opSlice(size_t i, size_t j) inout return scope
     {
         return slice()[i .. j];
     }
@@ -315,13 +315,13 @@ pragma(inline, true):
     }
 
     /// Slice assign operator.
-    T[] opSliceAssign(U)(U value, size_t i, size_t j) @trusted return scope
+    T[] opSliceAssign(U)(U value, size_t i, size_t j) return scope
     {
         return slice()[i .. j] = value;
     }
 
     /// ditto
-    T[] opSliceAssign(U)(U value) @trusted return scope
+    T[] opSliceAssign(U)(U value) return scope
     {
         return slice()[] = value;
     }
@@ -428,7 +428,7 @@ pragma(inline, true):
 
     /** Insert `values` into the end of the array.
      */
-    void insertBack(R)(R values) @trusted
+    void insertBack(R)(R values)
         if (isInputRange!R &&
             !isInfinite!R &&
             !isArray!R &&
@@ -491,7 +491,7 @@ pragma(inline, true):
     }
 
     /// Mutable pointer.
-    private MutableE* _mptr() const @trusted
+    private MutableE* _mptr() const return scope @trusted
     {
         return cast(typeof(return))_ptr;
     }
@@ -666,7 +666,7 @@ struct UniqueBasicArray(T,
     @disable this(this);        // no copy construction
 
     /// Construct from element `values`.
-    this(U)(U[] values...) @trusted
+    this(U)(U[] values...)
         if (basicArray.isElementAssignable!U &&
             isCopyable!U)       // prevent accidental move of l-value `values`
     {
@@ -674,16 +674,25 @@ struct UniqueBasicArray(T,
     }
 
     /// Construct from range of element `values`.
-    this(R)(R values) @trusted
+    this(R)(R values)
         if (basicArray.isConstructableFromRange!R)
     {
         basicArray = typeof(basicArray)(values);
     }
 
+    /// Construct from uncopyable range of uncopyable `values`.
+    this(R)(R values) @trusted
+        if (!isCopyable!R &&
+            !isCopyable!(ElementType!R) &&
+            isElementAssignable!(ElementType!R))
+    {
+        static assert(false, "TODO implement");
+    }
+
     /// Returns: shallow duplicate of `this`.
     static if (isCopyable!T)
     {
-        @property basicArray.MutableThis dup() const @trusted // `MutableThis` mimics behaviour of `dup` for builtin D arrays
+        @property basicArray.MutableThis dup() const // `MutableThis` mimics behaviour of `dup` for builtin D arrays
         {
             return typeof(return)(slice());
         }

@@ -937,7 +937,7 @@ private struct Array(E,
             }
             else
             {
-                import algorithm_ex : overlaps;
+                import overlapping : overlaps;
                 if (this.ptr == values[].ptr) // called for instances as: `this ~= this`
                 {
                     reserve(2*this.length);

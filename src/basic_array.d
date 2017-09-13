@@ -13,7 +13,7 @@ struct BasicArray(E,
                   alias Allocator = null) // null means means to qcmeman functions
     if (!is(Unqual!T == bool))
 {
-    import std.range : isInputRange;
+    import std.range : isInputRange, ElementType;
     import std.traits : Unqual, hasElaborateDestructor, hasIndirections, hasAliasing, isMutable, isCopyable, TemplateOf, isArray, isAssignable;
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
 
@@ -47,7 +47,8 @@ struct BasicArray(E,
     }
 
     /// Construct from element `values`.
-    this(E[] values...) @trusted
+    this(U)(U[] values...) @trusted
+        if (isElementAssignable!U)
     {
         reserve(values.length);
         _length = values.length;
@@ -56,22 +57,17 @@ struct BasicArray(E,
 
     /// Construct from range of element `values`.
     this(R)(R values) @trusted
-        if (isInputRange!R)
+        if (isInputRange!R &&
+            !isArray!R &&
+            isElementAssignable!(ElementType!R))
     {
         import std.range : hasLength;
         static if (hasLength!R)
         {
             reserve(values.length);
             _length = values.length;
-            static if (isArray!R)
-            {
-                _mptr[0 .. _length] = values;
-            }
-            else
-            {
-                import std.algorithm : copy;
-                copy(values, _mptr[0 .. _length]);
-            }
+            import std.algorithm : copy;
+            copy(values, _mptr[0 .. _length]);
         }
         else
         {
@@ -324,21 +320,16 @@ pragma(inline, true):
     /** Inserts the given value into the end of the array.
      */
     void insertBack(R)(R values) @trusted
-        if (isInputRange!R)
+        if (isInputRange!R &&
+            !isArray!R &&
+            isElementAssignable!(ElementType!R))
     {
         import std.range : hasLength;
         static if (hasLength!R)
         {
             reserve(_length + values.length);
-            static if (isArray!R)
-            {
-                _mptr[_length .. _length + values.length] = values; // TODO prevent overlap check?
-            }
-            else
-            {
-                import std.algorithm : copy;
-                copy(values, _mptr[_length .. _length + values.length]);
-            }
+            import std.algorithm : copy;
+            copy(values, _mptr[_length .. _length + values.length]);
             _length += values.length;
         }
         else
@@ -363,7 +354,8 @@ pragma(inline, true):
     /// ditto
     void opOpAssign(string op, R)(R values)
         if (op == "~" &&
-            isInputRange!R)
+            isInputRange!R &&
+            isElementAssignable!(ElementType!R))
     {
         insertBack(values);
     }
@@ -404,6 +396,52 @@ private template shouldAddGCRange(T)
 {
     import std.traits : hasIndirections;
     enum shouldAddGCRange = hasIndirections!T; // TODO unless all pointers members are tagged as @nogc (as in `BasicArray` and `BasicStore`)
+}
+
+@safe pure nothrow @nogc unittest
+{
+    alias E = int;
+    alias A = BasicArray!(E);
+
+    auto a = A([10, 11, 12].s);
+
+    a ~= a[];
+    assert(a[] == [10, 11, 12,
+                   10, 11, 12].s);
+}
+
+@safe pure nothrow @nogc unittest
+{
+    const length = 3;
+
+    alias E = int;
+    alias A = BasicArray!(E);
+
+    A a;
+
+    a.length = 1;
+    assert(a.length == 1);
+    assert(a.capacity >= 1);
+
+    a[0] = 10;
+
+    a.insertBack(11, 12);
+
+    a ~= E.init;
+    a.insertBack([3].s);
+    assert(a[] == [10, 11, 12, 0, 3].s);
+
+    import std.algorithm : filter;
+
+    a.insertBack([42].s[].filter!(_ => _ is 42));
+    assert(a[] == [10, 11, 12, 0, 3, 42].s);
+
+    a.insertBack([42].s[].filter!(_ => _ !is 42));
+    assert(a[] == [10, 11, 12, 0, 3, 42].s);
+
+    a ~= a[];
+    assert(a[] == [10, 11, 12, 0, 3, 42,
+                   10, 11, 12, 0, 3, 42].s);
 }
 
 @safe pure nothrow @nogc unittest
@@ -453,36 +491,6 @@ private template shouldAddGCRange(T)
 {
     const length = 3;
 
-    alias E = int;
-    alias A = BasicArray!(E);
-
-    A a;
-
-    a.length = 1;
-    assert(a.length == 1);
-    assert(a.capacity >= 1);
-
-    a[0] = E.init;
-
-    a.insertBack(1, 2);
-    a ~= E.init;
-    a.insertBack([3].s);
-
-    assert(a[] == [0, 1, 2, 0, 3].s);
-
-    import std.algorithm : filter;
-
-    a.insertBack([E.init].s[].filter!(_ => _ is E.init));
-    assert(a.length == 6);
-
-    a.insertBack([E.init].s[].filter!(_ => _ !is E.init));
-    assert(a.length == 6);
-}
-
-@safe pure nothrow @nogc unittest
-{
-    const length = 3;
-
     alias E = const(int);
     alias A = BasicArray!(E);
 
@@ -523,7 +531,8 @@ struct UniqueBasicArray(E,
 
     /// Construct from range of element `values`.
     this(R)(R values) @trusted
-        if (isInputRange!R)
+        if (isInputRange!R &&
+            isElementAssignable!(ElementType!R))
     {
         basicArray = typeof(basicArray)(values);
     }

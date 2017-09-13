@@ -36,10 +36,10 @@ int main(int argc, const char* argv[], const char* envp[])
     const auto diff = end_time - start_time;
 
     // convert from the clock rate to a millisecond clock
-    const auto milliseconds = cr::duration_cast<cr::milliseconds>(diff);
+    const auto microseconds = cr::duration_cast<cr::microseconds>(diff);
 
-    // get the clock count (i.e. the number of milliseconds)
-    const auto millisecond_count = milliseconds.count();
+    // get the clock count (i.e. the number of microseconds)
+    const auto millisecond_count = microseconds.count();
 
     std::cout << millisecond_count << '\n';
 

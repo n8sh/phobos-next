@@ -16,7 +16,7 @@ struct BasicArray(E,
     if (!is(Unqual!T == bool))
 {
     import std.range : isInputRange, ElementType, isInfinite;
-    import std.traits : Unqual, hasElaborateDestructor, hasIndirections, hasAliasing, isMutable, isCopyable, TemplateOf, isArray, isAssignable;
+    import std.traits : Unqual, hasElaborateDestructor, hasIndirections, hasAliasing, isMutable, TemplateOf, isArray, isAssignable, isCopyable;
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
     import std.algorithm : move;
 
@@ -51,7 +51,8 @@ struct BasicArray(E,
 
     /// Construct from element `values`.
     this(U)(U[] values...) @trusted
-        if (isElementAssignable!U)
+        if (isElementAssignable!U &&
+            isCopyable!U)
     {
         if (values.length == 1) // TODO branch should be detected at compile-time
         {
@@ -607,12 +608,14 @@ struct UniqueBasicArray(E,
                         alias Allocator = null) // null means means to qcmeman functions
     if (!is(Unqual!T == bool))
 {
-    import std.range : isInputRange, ElementType, isInfinite;
+    import std.range : isInputRange, ElementType, isInfinite, isCopyable;
 
     @disable this(this);        // no copy construction
 
     /// Construct from element `values`.
-    this(E[] values...) @trusted
+    this(U)(U[] values...) @trusted
+        if (basicArray.isElementAssignable!U &&
+            isCopyable!U)
     {
         basicArray = typeof(basicArray)(values);
     }

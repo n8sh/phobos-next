@@ -36,7 +36,7 @@ struct BasicArray(T,
     enum isElementAssignable(U) = isAssignable!(MutableE, U);
 
     /// True if elements need move.
-    enum needsMove(T) = hasIndirections!T || !isCopyable!T;
+    enum needsMove(T) = !isCopyable!T || hasIndirections!T;
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
     pragma(inline, true)

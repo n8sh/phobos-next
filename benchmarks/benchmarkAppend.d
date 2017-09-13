@@ -9,17 +9,17 @@ void main()
     import std.range : iota;
 
     import basic_array : BasicArray;
-    import array_ex : Array;
+    import array_ex : NextArray = Array;
     import std.stdio : writeln;
 
     alias E = uint;
     immutable n = 5_000_000;
 
     foreach (A; AliasSeq!(BasicArray!E,
-                          Array!E,
-                          E[],
+                          NextArray!E,
+                          StdArray!E,
                           Appender!(E[]),
-                          StdArray!E))
+                          E[]))
     {
         A a;
 

@@ -48,8 +48,6 @@ struct BasicArray(E,
         return This(initialCapacity, 0);
     }
 
-    this(U)(U[] values...) @trusted
-
     /// Construct from element `values`.
     this(U)(U[] values...) @trusted
         if (isElementAssignable!U)
@@ -528,8 +526,6 @@ private template shouldAddGCRange(T)
 
 @safe pure nothrow @nogc unittest
 {
-    const length = 3;
-
     alias E = const(int);
     alias A = BasicArray!(E);
 
@@ -552,6 +548,22 @@ private template shouldAddGCRange(T)
     auto c = A([1, 2, 3].s);
 
     auto d = A(1, 2, 3);
+}
+
+version(unittest)
+{
+    /// non-copyable element type
+    private static struct S
+    {
+        @disable this(this);
+        int x;
+    }
+}
+
+/// non-copyable element type
+@safe pure nothrow @nogc unittest
+{
+    // alias A = BasicArray!(S);
 }
 
 struct UniqueBasicArray(E,

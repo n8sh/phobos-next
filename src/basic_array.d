@@ -14,7 +14,7 @@ struct BasicArray(E,
     if (!is(Unqual!T == bool))
 {
     import std.range : isInputRange;
-    import std.traits : Unqual, hasElaborateDestructor, hasIndirections, hasAliasing, isMutable, isCopyable, TemplateOf, isArray;
+    import std.traits : Unqual, hasElaborateDestructor, hasIndirections, hasAliasing, isMutable, isCopyable, TemplateOf, isArray, isAssignable;
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
 
     /// Mutable element type.
@@ -28,6 +28,9 @@ struct BasicArray(E,
 
     /// Type of `this`.
     private alias This = typeof(this);
+
+    /// Is `true` if `U` can be assign to the element type `E` of `this`.
+    enum isElementAssignable(U) = isAssignable!(MutableE, U);
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
     pragma(inline, true)
@@ -48,7 +51,7 @@ struct BasicArray(E,
     {
         reserve(values.length);
         _length = values.length;
-        _mptr[0 .. _length] = values; // TODO prevent overlap check?
+        _mptr[0 .. _length] = values;
     }
 
     /// Construct from range of element `values`.
@@ -62,7 +65,7 @@ struct BasicArray(E,
             _length = values.length;
             static if (isArray!R)
             {
-                _mptr[0 .. _length] = values; // TODO prevent overlap check?
+                _mptr[0 .. _length] = values;
             }
             else
             {
@@ -242,7 +245,7 @@ pragma(inline, true):
     }
 
     /// Index assign operator.
-    ref E opIndexAssign(V)(V value, size_t i) @trusted return scope
+    ref E opIndexAssign(U)(U value, size_t i) @trusted return scope
     {
         static if (hasElaborateDestructor!E)
             move(*(cast(MutableE*)(&value)), _mptr[i]); // TODO is this correct?
@@ -255,13 +258,13 @@ pragma(inline, true):
     }
 
     /// Slice assign operator.
-    E[] opSliceAssign(V)(V value, size_t i, size_t j) @trusted return scope
+    E[] opSliceAssign(U)(U value, size_t i, size_t j) @trusted return scope
     {
         return slice()[i .. j] = value;
     }
 
     /// ditto
-    E[] opSliceAssign(V)(V value) @trusted return scope
+    E[] opSliceAssign(U)(U value) @trusted return scope
     {
         return slice()[] = value;
     }
@@ -282,10 +285,39 @@ pragma(inline, true):
 
     /** Inserts the given value into the end of the array.
      */
-    void insertBack(E[] values...) @trusted
+    void insertBack(U)(U[] values...) @trusted
+        if (isElementAssignable!U)
     {
-        reserve(_length + values.length);
-        _mptr[_length + 0 .. _length + values.length] = values; // TODO prevent overlap check?
+        static if (is(E == immutable(E)))
+        {
+            /* An array of immutable values cannot overlap with the `this`
+               mutable array container data, which entails no need to check for
+               overlap.
+            */
+            reserve(_length + values.length);
+            _mptr[_length .. _length + values.length] = values;
+        }
+        else
+        {
+            import overlapping : overlaps;
+            if (_ptr == values.ptr) // called for instances as: `this ~= this`
+            {
+                reserve(2*_length); // invalidates `values.ptr`
+                foreach (immutable i; 0 .. _length)
+                {
+                    _mptr[_length + i] = _ptr[i];
+                }
+            }
+            else if (overlaps(this[], values[]))
+            {
+                assert(false, `TODO Handle overlapping arrays`);
+            }
+            else
+            {
+                reserve(_length + values.length);
+                _mptr[_length .. _length + values.length] = values;
+            }
+        }
         _length += values.length;
     }
 
@@ -300,7 +332,7 @@ pragma(inline, true):
             reserve(_length + values.length);
             static if (isArray!R)
             {
-                _mptr[_length + 0 .. _length + values.length] = values; // TODO prevent overlap check?
+                _mptr[_length .. _length + values.length] = values; // TODO prevent overlap check?
             }
             else
             {
@@ -421,7 +453,7 @@ private template shouldAddGCRange(T)
 {
     const length = 3;
 
-    alias E = const(int*);
+    alias E = int;
     alias A = BasicArray!(E);
 
     A a;
@@ -432,11 +464,11 @@ private template shouldAddGCRange(T)
 
     a[0] = E.init;
 
-    a.insertBack(E.init, E.init);
+    a.insertBack(1, 2);
     a ~= E.init;
-    a.insertBack([E.init].s);
+    a.insertBack([3].s);
 
-    assert(a.length == 5);
+    assert(a[] == [0, 1, 2, 0, 3].s);
 
     import std.algorithm : filter;
 
@@ -523,5 +555,5 @@ struct UniqueBasicArray(E,
 version(unittest)
 {
     import array_help : s;
-    // import dbgio : dln;
+    import dbgio : dln;
 }

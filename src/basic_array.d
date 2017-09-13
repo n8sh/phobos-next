@@ -95,6 +95,15 @@ struct BasicArray(T,
         }
     }
 
+    /// Construct from uncopyable range of uncopyable elements `values`.
+    this(R)(R values) @trusted
+        if (!isCopyable!R &&
+            !isCopyable!(ElementType!R) &&
+            isElementAssignable!(ElementType!R))
+    {
+        static assert(false, "TODO implement");
+    }
+
     private this(size_t initialCapacity,
                  size_t initialLength = 0,
                  bool zero = true) @trusted
@@ -198,6 +207,19 @@ struct BasicArray(T,
         if (empty) return rhs.empty;
         if (rhs.empty) return false;
         return slice() == rhs.slice();
+    }
+
+    /// Calculate D associative array (AA) key hash.
+    size_t toHash() const @trusted pure nothrow
+    {
+        import core.internal.hash : hashOf;
+        // TODO this doesn't work when element type is non-copyable: return this.slice.hashOf;
+        typeof(return) hash = this.length;
+        foreach (immutable i; 0 .. this.length)
+        {
+            hash ^= _ptr[i].hashOf;
+        }
+        return hash;
     }
 
 pragma(inline, true):

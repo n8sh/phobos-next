@@ -284,8 +284,7 @@ pragma(inline, true):
     /** Insert `value` into the end of the array.
      */
     pragma(inline, true)
-    void insertBack(U)(U value) @trusted
-        if (isElementAssignable!U)
+    void insertBack(E value) @trusted
     {
         reserve(_length + 1);
         _mptr[_length] = value;
@@ -581,4 +580,5 @@ struct UniqueBasicArray(E,
 version(unittest)
 {
     import array_help : s;
+    import dbgio : dln;
 }

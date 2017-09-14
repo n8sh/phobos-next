@@ -78,7 +78,8 @@ import std.range: isInputRange;
 
     Possible alternatives or aliases: allElementsEqual, haveEqualElements
 */
-bool allEqual(R)(R range) /* pure @safe @nogc nothrow */ if (isInputRange!R)
+bool allEqual(R)(R range)
+    if (isInputRange!R)
 {
     import std.algorithm: findAdjacent;
     import std.range: empty;
@@ -104,8 +105,9 @@ unittest { int[] x; assert(x.allEqual); }
 
     Possible alternatives or aliases: allElementsEqualTo
 */
-bool allEqualTo(R, E)(R range, E element) @safe pure nothrow if (isInputRange!R &&
-                                                                 is(ElementType!R == E))
+bool allEqualTo(R, E)(R range, E element)
+    if (isInputRange!R &&
+        is(ElementType!R == E))
 {
     import std.algorithm: all;
     return range.all!(a => a == element);
@@ -118,7 +120,7 @@ import traits_ex: isStruct, isClass;
 import std.traits: isStaticArray;
 
 /** Check if all Elements of $(D x) are zero. */
-bool allZero(T, bool useStatic = true)(in T x) @safe pure nothrow @nogc
+bool allZero(T, bool useStatic = true)(in T x)
 {
     static if (isStruct!T || isClass!T)
     {
@@ -207,7 +209,7 @@ unittest
 
 /** Returns: true iff $(D a) is set to the default/initial value of its type $(D T).
  */
-bool isDefaulted(T)(in T a) @safe pure nothrow @nogc
+bool isDefaulted(T)(in T a)
 {
     import std.traits: isInstanceOf;
     import std.typecons: Nullable;

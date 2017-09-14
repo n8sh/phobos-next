@@ -48,8 +48,12 @@ bool of(E, R)(E x, R ys) pure if (isIterable!R/*  && */
     else
     {
         foreach (y; ys)
+        {
             if (x == y)
+            {
                 return true;
+            }
+        }
         return false;
     }
 }

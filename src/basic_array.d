@@ -681,14 +681,14 @@ struct UniqueBasicArray(T,
         if (Super.isElementAssignable!U &&
             isCopyable!U)       // prevent accidental move of l-value `values`
     {
-        basicArray = Super(values);
+        _basicArray = Super(values);
     }
 
     /// Construct from range of element `values`.
     this(R)(R values)
         if (Super.isConstructableFromRange!R)
     {
-        basicArray = Super(values);
+        _basicArray = Super(values);
     }
 
     /// Construct from uncopyable range of uncopyable `values`.
@@ -710,8 +710,8 @@ struct UniqueBasicArray(T,
     }
 
     alias Super = BasicArray!(T, Allocator);
-    Super basicArray;
-    alias basicArray this;
+    Super _basicArray;
+    alias _basicArray this;
 }
 
 /// construct from uncopyable scalar
@@ -743,7 +743,7 @@ struct UniqueBasicArray(T,
 @safe pure nothrow unittest
 {
     alias A = UniqueBasicArray!(SomeUncopyableStruct);
-    // const a = A([SomeUncopyableStruct(17)]);
+    const a = A([SomeUncopyableStruct(17)]);
 }
 
 /// check disabled copying

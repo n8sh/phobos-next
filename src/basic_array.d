@@ -10,6 +10,11 @@ import std.traits : Unqual;
    Use `std.bitmanip.BitArray` for array container storing boolean values.
 
    TODO make use of `Allocator` parameter when non-`null`
+
+   TODO Use correct growth factor:
+   - https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md
+
+   See also: https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md
  */
 struct BasicArray(T,
                   alias Allocator = null) // null means means to qcmeman functions

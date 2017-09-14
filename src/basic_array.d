@@ -262,12 +262,13 @@ pragma(inline, true):
     /// Get capacity.
     @property size_t capacity() const { return _capacity; }
 
-    /** Ensures sufficient capacity to accommodate for newCapacity number of
-        elements. If `newCapacity` < `capacity`, this method does nothing.
+    /** Ensures sufficient capacity to accommodate for requestedCapacity number
+        of elements. If `requestedCapacity` < `capacity`, this method does
+        nothing.
      */
-    void reserve(size_t newCapacity) @trusted
+    void reserve(size_t requestedCapacity) @trusted
     {
-        if (newCapacity <= capacity) { return; }
+        if (requestedCapacity <= capacity) { return; }
 
         static if (shouldAddGCRange!T)
         {
@@ -276,9 +277,9 @@ pragma(inline, true):
 
         // growth factor
         // Motivation: https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md#memory-handling
-        reallocateAndSetCapacity(3*newCapacity/2); // use 1.5 as Facebook's `fbvector` does
+        reallocateAndSetCapacity(3*requestedCapacity/2); // use 1.5 as Facebook's `fbvector` does
         // import std.math : nextPow2;
-        // reallocateAndSetCapacity(newCapacity.nextPow2);
+        // reallocateAndSetCapacity(requestedCapacity.nextPow2);
 
         static if (shouldAddGCRange!T)
         {

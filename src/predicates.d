@@ -14,9 +14,10 @@ import std.range : isIterable, ElementType;
     TODO Make $(D ys) lazy if any of $(D ys) is a delegate.
     TODO Reuse $(D among)
  */
-bool of(S, T...)(in S x, in T ys) pure if (ys.length >= 1 &&
-                                           is(typeof({ return S.init ==
-                                                       CommonType!(T).init; })))
+bool of(S, T...)(in S x, in T ys)
+    if (ys.length >= 1 &&
+        is(typeof({ return S.init ==
+                    CommonType!(T).init; })))
 {
     foreach (y; ys)
     {
@@ -35,10 +36,11 @@ bool of(S, T...)(in S x, in T ys) pure if (ys.length >= 1 &&
 /** Return true if $(D x) is a equal to any of $(D ys).
     TODO Reuse $(D among)
  */
-bool of(E, R)(E x, R ys) pure if (isIterable!R/*  && */
-                                  /* is(E.init == ElementType!R.init) */)
+bool of(E, R)(E x, R ys)
+    if (isIterable!R/*  && */
+        /* is(E.init == ElementType!R.init) */)
 {
-    import std.range: isNarrowString;
+    import std.range : isNarrowString;
     static if (isNarrowString!R)
     {
         import std.algorithm: canFind;

@@ -703,7 +703,7 @@ struct UniqueBasicArray(T,
     /// Returns: shallow duplicate of `this`.
     static if (isCopyable!T)
     {
-        @property BasicArray!(T, Allocator).MutableThis dup() const // `MutableThis` mimics behaviour of `dup` for builtin D arrays
+        @property Super.MutableThis dup() const // `MutableThis` mimics behaviour of `dup` for builtin D arrays
         {
             return typeof(return)(slice());
         }

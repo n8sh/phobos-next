@@ -686,7 +686,7 @@ struct UniqueBasicArray(T,
 
     /// Construct from range of element `values`.
     this(R)(R values)
-        if (basicArray.isConstructableFromRange!R)
+        if (Super.isConstructableFromRange!R)
     {
         basicArray = Super(values);
     }

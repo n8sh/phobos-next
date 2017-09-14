@@ -100,7 +100,7 @@ struct BasicArray(T,
                 }
                 else
                 {
-                    moveBack(value);
+                    insertBackMove(value);
                 }
             }
         }
@@ -344,7 +344,7 @@ pragma(inline, true):
     /** Move `value` into the end of the array.
      */
     pragma(inline, true)
-    void moveBack()(ref T value) @trusted
+    void insertBackMove()(ref T value) @trusted
     {
         reserve(_length + 1);
         moveEmplace(value, _mptr[_length]);
@@ -366,7 +366,8 @@ pragma(inline, true):
         }
         else
         {
-            moveEmplace(*cast(MutableE*)(&value), _mptr[_length]); // TODO remove `move` when compiler does it for us
+            moveEmplace(*cast(MutableE*)(&value),
+                        _mptr[_length]); // TODO remove `move` when compiler does it for us
         }
         _length += 1;
     }
@@ -378,7 +379,8 @@ pragma(inline, true):
         if (!isCopyable!T)
     {
         reserve(_length + 1);
-        moveEmplace(*cast(MutableE*)(&value), _mptr[_length]); // TODO remove `move` when compiler does it for us
+        moveEmplace(*cast(MutableE*)(&value),
+                    _mptr[_length]); // TODO remove `move` when compiler does it for us
         _length += 1;
     }
 

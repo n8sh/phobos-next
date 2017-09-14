@@ -743,7 +743,21 @@ struct UniqueBasicArray(T,
 @safe pure nothrow unittest
 {
     alias A = UniqueBasicArray!(SomeUncopyableStruct);
-    const a = A([SomeUncopyableStruct(17)]);
+    alias R = typeof([SomeUncopyableStruct(17)]);
+
+    pragma(msg, R.stringof)
+
+    import std.range : isInputRange, hasLength, isIterable, ElementType, isInfinite;
+
+    // TODO change traits
+
+    // pragma(msg, isInputRange!R);
+    // pragma(msg, isIterable!R);
+    // pragma(msg, hasLength!R);
+    // pragma(msg, !isInfinite!R);
+    // pragma(msg, isElementAssignableOrMovable!(ElementType!R));
+
+    // const a = A([SomeUncopyableStruct(17)]);
 }
 
 /// check disabled copying

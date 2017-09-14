@@ -9,14 +9,12 @@ void main()
     import std.range : iota;
 
     import basic_array : BasicArray;
-    import array_ex : NextArray = Array;
     import std.stdio : writeln;
 
     alias E = uint;
     immutable n = 5_000_000;
 
     foreach (A; AliasSeq!(BasicArray!E,
-                          NextArray!E,
                           StdArray!E,
                           Appender!(E[]),
                           E[]))

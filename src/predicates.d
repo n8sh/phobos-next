@@ -7,9 +7,8 @@
    */
 module predicates;
 
-import std.traits: CommonType;
-import std.range: isIterable, ElementType;
-import std.algorithm: among;
+import std.traits : CommonType;
+import std.range : isIterable, ElementType;
 
 /** Return true if $(D x) is a equal to any of $(D ys).
     TODO Make $(D ys) lazy if any of $(D ys) is a delegate.

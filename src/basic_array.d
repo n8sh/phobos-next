@@ -745,8 +745,6 @@ struct UniqueBasicArray(T,
     alias A = UniqueBasicArray!(SomeUncopyableStruct);
     alias R = typeof([SomeUncopyableStruct(17)]);
 
-    pragma(msg, R.stringof)
-
     import std.range : isInputRange, hasLength, isIterable, ElementType, isInfinite;
 
     // TODO change traits
@@ -774,4 +772,5 @@ struct UniqueBasicArray(T,
 version(unittest)
 {
     import array_help : s;
+    // import dbgio : dln;
 }

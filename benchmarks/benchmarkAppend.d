@@ -1,14 +1,13 @@
 void main()
 {
-    import std.container.array : StdArray = Array;
     import std.array : Appender;
+    import std.container.array : StdArray = Array;
+    import basic_array : BasicArray;
+
     import std.stdio : writeln;
     import std.datetime : MonoTime;
     import std.meta : AliasSeq;
     import std.range : iota;
-
-    import basic_array : BasicArray;
-    import std.stdio : writeln;
 
     alias E = uint;
     immutable n = 5_000_000;

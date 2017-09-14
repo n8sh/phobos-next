@@ -678,7 +678,7 @@ struct UniqueBasicArray(T,
 
     /// Construct from element `values`.
     this(U)(U[] values...)
-        if (basicArray.isElementAssignable!U &&
+        if (Super.isElementAssignable!U &&
             isCopyable!U)       // prevent accidental move of l-value `values`
     {
         basicArray = typeof(basicArray)(values);
@@ -695,7 +695,7 @@ struct UniqueBasicArray(T,
     this(R)(R values) @trusted
         if (!isCopyable!R &&
             !isCopyable!(ElementType!R) &&
-            isElementAssignable!(ElementType!R))
+            Super.isElementAssignable!(ElementType!R))
     {
         static assert(false, "TODO implement");
     }
@@ -703,13 +703,14 @@ struct UniqueBasicArray(T,
     /// Returns: shallow duplicate of `this`.
     static if (isCopyable!T)
     {
-        @property basicArray.MutableThis dup() const // `MutableThis` mimics behaviour of `dup` for builtin D arrays
+        @property BasicArray!(T, Allocator).MutableThis dup() const // `MutableThis` mimics behaviour of `dup` for builtin D arrays
         {
             return typeof(return)(slice());
         }
     }
 
-    BasicArray!(T, Allocator) basicArray;
+    alias Super = BasicArray!(T, Allocator);
+    Super basicArray;
     alias basicArray this;
 }
 

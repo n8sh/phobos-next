@@ -5,7 +5,6 @@ void main()
     import std.stdio : writeln;
     import std.datetime : MonoTime;
     import std.meta : AliasSeq;
-    import std.algorithm.comparison : equal;
     import std.range : iota;
 
     import basic_array : BasicArray;

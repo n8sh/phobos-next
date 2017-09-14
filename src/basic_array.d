@@ -681,14 +681,14 @@ struct UniqueBasicArray(T,
         if (Super.isElementAssignable!U &&
             isCopyable!U)       // prevent accidental move of l-value `values`
     {
-        basicArray = typeof(basicArray)(values);
+        basicArray = Super(values);
     }
 
     /// Construct from range of element `values`.
     this(R)(R values)
         if (basicArray.isConstructableFromRange!R)
     {
-        basicArray = typeof(basicArray)(values);
+        basicArray = Super(values);
     }
 
     /// Construct from uncopyable range of uncopyable `values`.

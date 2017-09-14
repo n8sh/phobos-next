@@ -274,8 +274,11 @@ pragma(inline, true):
             gc_removeRange(_mptr);
         }
 
-        import std.math : nextPow2;
-        reallocateAndSetCapacity(newCapacity.nextPow2);
+        // growth factor
+        // Motivation: https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md#memory-handling
+        reallocateAndSetCapacity(newCapacity*3/2); // use 1.5 as Facebook's `fbvector` does
+        // import std.math : nextPow2;
+        // reallocateAndSetCapacity(newCapacity.nextPow2);
 
         static if (shouldAddGCRange!T)
         {

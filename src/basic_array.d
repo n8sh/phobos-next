@@ -60,6 +60,17 @@ struct BasicArray(T,
     }
 
     /// Construct from element `values`.
+    this(U)(U value) @trusted
+        if (isElementAssignable!U &&
+            !isCopyable!U)
+    {
+        _capacity = 1;
+        _length = 1;
+        _ptr = This.allocate(1);
+        moveEmplace(value, _mptr[0]); // TODO remove `moveEmplace` when compiler does it for us
+    }
+
+    /// Construct from element `values`.
     this(U)(U[] values...) @trusted
         if (isElementAssignable!U &&
             isCopyable!U)       // prevent accidental move of l-value `values`
@@ -653,17 +664,32 @@ version(unittest)
 @safe pure nothrow /*@nogc*/ unittest
 {
     alias A = BasicArray!(SomeUncopyableStruct);
-    A a0 = A();
+    A a0 = A(SomeUncopyableStruct(17));
 
-    const s = SomeUncopyableStruct(1);
-    const a = [SomeUncopyableStruct(1)];
+    a0.insertBack(SomeUncopyableStruct(18));
+    assert(a0[] == [SomeUncopyableStruct(17),
+                    SomeUncopyableStruct(18)]);
 
-    a0.insertBack(SomeUncopyableStruct(1));
-
-    assert(a0[] == a[]);
-
-    // a0 ~= A(1);
     A a42 = A(42);
+}
+
+/// construct from slice of uncopyable type
+@safe pure nothrow unittest
+{
+    alias A = BasicArray!(SomeUncopyableStruct);
+    alias R = typeof([SomeUncopyableStruct(17)]);
+
+    import std.range : isInputRange, hasLength, isIterable, ElementType, isInfinite;
+
+    // TODO change traits
+
+    // pragma(msg, isInputRange!R);
+    pragma(msg, isRefIterable!R);
+    // pragma(msg, hasLength!R);
+    // pragma(msg, !isInfinite!R);
+    // pragma(msg, isElementAssignableOrMovable!(ElementType!R));
+
+    // const a = A([SomeUncopyableStruct(17)]);
 }
 
 /** Non-copyable variant of `BasicArray`.
@@ -732,32 +758,6 @@ struct UniqueBasicArray(T,
     assert(a[] == [17].s);
 }
 
-/// construct from scalar of uncopyable type
-@safe pure nothrow @nogc unittest
-{
-    alias A = UniqueBasicArray!(SomeUncopyableStruct);
-    // const a = A(SomeUncopyableStruct(17));
-}
-
-/// construct from slice of uncopyable type
-@safe pure nothrow unittest
-{
-    alias A = UniqueBasicArray!(SomeUncopyableStruct);
-    alias R = typeof([SomeUncopyableStruct(17)]);
-
-    import std.range : isInputRange, hasLength, isIterable, ElementType, isInfinite;
-
-    // TODO change traits
-
-    // pragma(msg, isInputRange!R);
-    // pragma(msg, isIterable!R);
-    // pragma(msg, hasLength!R);
-    // pragma(msg, !isInfinite!R);
-    // pragma(msg, isElementAssignableOrMovable!(ElementType!R));
-
-    // const a = A([SomeUncopyableStruct(17)]);
-}
-
 /// check disabled copying
 @safe pure nothrow @nogc unittest
 {
@@ -774,3 +774,6 @@ version(unittest)
     import array_help : s;
     // import dbgio : dln;
 }
+
+/// TODO Move to Phobos.
+private enum bool isRefIterable(T) = is(typeof({ foreach (ref elem; T.init) {} }));

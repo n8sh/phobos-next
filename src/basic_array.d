@@ -127,11 +127,11 @@ struct BasicArray(T,
             reserve(values.length);
             _length = values.length;
             import std.algorithm : copy;
-            copy(values, _mptr[0 .. _length]);
+            copy(values, _mptr[0 .. _length]); // TODO better to use foreach instead?
         }
         else
         {
-            foreach (ref value; move(values))
+            foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
             {
                 static if (isCopyable!(ElementType!R))
                 {

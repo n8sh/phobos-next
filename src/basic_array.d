@@ -599,7 +599,7 @@ private template shouldAddGCRange(T)
 
 @safe pure nothrow @nogc unittest
 {
-    alias T = const(int);
+    alias T = int;
     alias A = BasicArray!(T);
 
     A a;                        // default construction allowed
@@ -640,7 +640,7 @@ private template shouldAddGCRange(T)
 
 @safe pure nothrow @nogc unittest
 {
-    alias T = const(int);
+    alias T = int;
     alias A = BasicArray!(T);
 
     auto a = A([1, 2, 3].s);
@@ -667,7 +667,7 @@ private template shouldAddGCRange(T)
 /// scope checking
 @safe pure nothrow @nogc unittest
 {
-    alias T = const(int);
+    alias T = int;
     alias A = BasicArray!T;
 
     T[] leakSlice() @safe
@@ -770,7 +770,7 @@ struct UniqueBasicArray(T,
 /// construct from uncopyable scalar
 @safe pure nothrow @nogc unittest
 {
-    alias T = const(int);
+    alias T = int;
     alias A = UniqueBasicArray!(T);
     const a = A(17);
     assert(a[] == [17].s);
@@ -779,7 +779,7 @@ struct UniqueBasicArray(T,
 /// construct from slice of copyable type
 @safe pure nothrow unittest
 {
-    alias T = const(int);
+    alias T = int;
     alias A = UniqueBasicArray!(T);
     const a = A([17]);
     assert(a[] == [17].s);
@@ -788,7 +788,7 @@ struct UniqueBasicArray(T,
 /// check disabled copying
 @safe pure nothrow @nogc unittest
 {
-    alias T = const(int);
+    alias T = int;
     alias A = UniqueBasicArray!(T);
 
     auto a = A.withLength(3);

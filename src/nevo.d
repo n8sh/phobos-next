@@ -13,11 +13,6 @@
 */
 module nevo;
 
-version(unittest)
-{
-    import dbgio : dln;
-}
-
 @safe pure:
 
 /** Low-Level (Genetic Programming) Operation Network Node Types often implemented
@@ -283,6 +278,7 @@ enum Gop : ubyte
 
 import std.bitmanip : BitArray;
 import std.random : Random, uniform;
+
 import array_ex : UniqueArray, CopyingArray;
 import traits_ex : packedBitSizeOf;
 import typecons_ex : IndexedBy;
@@ -478,4 +474,9 @@ unittest
     }
 
     dln("DONE");
+}
+
+version(unittest)
+{
+    import dbgio : dln;
 }

@@ -743,7 +743,7 @@ struct UniqueBasicArray(T,
         // `MutableThis` mimics behaviour of `dup` for builtin D arrays
         @property UniqueBasicArray!(Unqual!T, Allocator) dup() const
         {
-            return typeof(return)(this[]);
+            return typeof(return)(cast(Unqual!T[])this[]);
         }
     }
 

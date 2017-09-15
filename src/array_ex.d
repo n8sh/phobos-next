@@ -157,8 +157,8 @@ private struct Array(E,
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
-        debug typeof(return) that;
-        else typeof(return) that = void;
+        debug { typeof(return) that; }
+        else { typeof(return) that = void; }
 
         // TODO functionize:
         if (initialLength > smallCapacity)
@@ -179,8 +179,8 @@ private struct Array(E,
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
-        debug typeof(return) that;
-        else typeof(return) that = void;
+        debug { typeof(return) that; }
+        else { typeof(return) that = void; }
 
         if (initialCapacity > smallCapacity)
         {
@@ -200,8 +200,8 @@ private struct Array(E,
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
-        debug typeof(return) that;
-        else typeof(return) that = void;
+        debug { typeof(return) that; }
+        else { typeof(return) that = void; }
 
         // TODO functionize:
         enum initialLength = 1;
@@ -237,8 +237,8 @@ private struct Array(E,
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
-        debug typeof(return) that;
-        else typeof(return) that = void;
+        debug { typeof(return) that; }
+        else { typeof(return) that = void; }
 
         // TODO functionize:
         enum initialLength = Us.length;
@@ -375,8 +375,8 @@ private struct Array(E,
         /// Returns: shallow duplicate of `this`.
         @property MutableThis dup() const @trusted // `MutableThis` mimics behaviour of `dup` for builtin D arrays
         {
-            debug typeof(return) that;
-            else typeof(return) that = void;
+            debug { typeof(return) that; }
+            else { typeof(return) that = void; }
 
             if (isLarge)
             {

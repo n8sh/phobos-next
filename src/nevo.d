@@ -279,7 +279,8 @@ enum Gop : ubyte
 import std.bitmanip : BitArray;
 import std.random : Random, uniform;
 
-import array_ex : UniqueArray, CopyingArray;
+import basic_array : BasicArray;
+import array_ex : UniqueArray;
 import traits_ex : packedBitSizeOf;
 import typecons_ex : IndexedBy;
 import owned : Owned;
@@ -296,7 +297,7 @@ alias OpCount = size_t;
 alias CellRIx = ptrdiff_t;
 
 /// Relative Cell indexs.
-alias CellRIxs = Owned!(CopyingArray!CellRIx);
+alias CellRIxs = Owned!(BasicArray!CellRIx);
 
 /// Calculating Cell.
 struct Cell
@@ -314,6 +315,8 @@ struct Cell
     {
         auto gen = Random();
         this.lop = lop;
+
+        // TODO use std.algorithm to fill in `inputCellRIxs`
         inputCellRIxs.length = inputRIxsLength;
         foreach (ref rix; inputCellRIxs[])
         {

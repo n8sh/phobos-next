@@ -149,6 +149,7 @@ struct BasicArray(T,
     /// Construct from iterable of element `values`.
     this(I)(I values) @trusted
         if (!isArray!I &&
+            !isCopyable!T &&
             isRefIterable!I &&
             isElementAssignable!(ElementType!I))
     {

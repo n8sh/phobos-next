@@ -466,7 +466,7 @@ struct StaticDenseSetFilter(E,
                             bool requestPacked = true)
     if (isStaticDenseFilterableType!E)
 {
-    import std.range : isInputRange, ElementType;
+    import std.range : isIterable, ElementType;
     import std.traits: isAssignable, isUnsigned;
     import core.bitop : bts, btr, btc, bt;
 
@@ -523,8 +523,8 @@ struct StaticDenseSetFilter(E,
 
     /** Construct from elements `r`.
      */
-    this(R)(R r)
-        if (isInputRange!R &&
+    private this(R)(R r)
+        if (isIterable!R &&
             isAssignable!(E, ElementType!R))
     {
         foreach (const ref e; r)
@@ -536,7 +536,7 @@ struct StaticDenseSetFilter(E,
     /** Construct from `r` if `r` is non-empty, otherwise construct a full set.
      */
     static This fromRangeOrFull(R)(R r)
-        if (isInputRange!R &&
+        if (isIterable!R &&
             isAssignable!(E, ElementType!R))
     {
         import std.range : empty;
@@ -544,10 +544,7 @@ struct StaticDenseSetFilter(E,
         {
             return asFull();
         }
-        else
-        {
-            return This(r);
-        }
+        return This(r);
     }
 
     pragma(inline, true):

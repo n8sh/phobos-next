@@ -95,7 +95,7 @@ struct BasicArray(T,
     /// Construct from element `values`.
     this(U)(U[] values...) @trusted
         if (isElementAssignable!U &&
-            isCopyable!U)       // prevent accidental move of l-value `values`
+            isCopyable!U)       // prevent accidental move of l-value `values` in array calls
     {
         if (values.length == 1) // TODO branch should be detected at compile-time
         {
@@ -144,15 +144,6 @@ struct BasicArray(T,
                 }
             }
         }
-    }
-
-    /// Construct from uncopyable range of uncopyable `values`.
-    this(R)(R values) @trusted
-        if (!isCopyable!R &&
-            !isCopyable!(ElementType!R) &&
-            isElementAssignable!(ElementType!R))
-    {
-        static assert(false, "TODO implement");
     }
 
     /// Construct from iterable of element `values`.

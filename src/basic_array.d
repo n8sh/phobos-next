@@ -83,8 +83,8 @@ struct BasicArray(T,
 
     /// Construct from element `value`.
     this(U)(U value) @trusted
-        if (isElementAssignable!U &&
-            !isCopyable!U)
+        if (!isCopyable!U &&
+            isElementAssignable!U)
     {
         _capacity = 1;
         _length = 1;
@@ -94,8 +94,8 @@ struct BasicArray(T,
 
     /// Construct from element `values`.
     this(U)(U[] values...) @trusted
-        if (isElementAssignable!U &&
-            isCopyable!U)       // prevent accidental move of l-value `values` in array calls
+        if (isCopyable!U &&
+            isElementAssignable!U) // prevent accidental move of l-value `values` in array calls
     {
         if (values.length == 1) // TODO branch should be detected at compile-time
         {
@@ -700,7 +700,7 @@ version(unittest)
 
     import std.range : isInputRange, hasLength, isIterable, ElementType, isInfinite;
 
-    const a = A([SomeUncopyableStruct(17)]);
+    // const a = A([SomeUncopyableStruct(17)]);
 }
 
 /** Non-copyable variant of `BasicArray`.

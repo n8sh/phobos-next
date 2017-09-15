@@ -535,7 +535,7 @@ struct StaticDenseSetFilter(E,
 
     /** Construct from `r` if `r` is non-empty, otherwise construct a full set.
      */
-    static This fromValuesOrFull(R)(R r)
+    static This withValuesOrFull(R)(R r)
         if (isIterable!R &&
             isAssignable!(E, ElementType!R))
     {
@@ -743,7 +743,7 @@ version(unittest)
     enum E:ubyte { a, b, c, d }
 
     const E[] es = [];
-    auto set = StaticDenseSetFilter!(E).fromValuesOrFull(es[]);
+    auto set = StaticDenseSetFilter!(E).withValuesOrFull(es[]);
     static assert(set.sizeof == 1);
 
     foreach (const e; [EnumMembers!E])
@@ -762,7 +762,7 @@ version(unittest)
     enum E:ubyte { a, b, c, d }
 
     const E[2] es = [E.a, E.c];
-    auto set = StaticDenseSetFilter!(E).fromValuesOrFull(es[]);
+    auto set = StaticDenseSetFilter!(E).withValuesOrFull(es[]);
     static assert(set.sizeof == 1);
 
     foreach (const ref e; es)

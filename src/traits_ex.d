@@ -16,7 +16,7 @@ public import std.traits : isCopyable;
 
 /** Returns: true iff $(D ptr) is handled by the garbage collector (GC). */
 bool isGCPointer(const void* ptr)
-    @trusted nothrow
+    @trusted nothrow            // TODO @nogc?
 {
     import core.memory : GC;
     return !!GC.addrOf(ptr);

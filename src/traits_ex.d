@@ -15,7 +15,8 @@ import std.typecons : Tuple;
 public import std.traits : isCopyable;
 
 /** Returns: true iff $(D ptr) is handled by the garbage collector (GC). */
-bool isGCPointer(const void* ptr) nothrow
+bool isGCPointer(const void* ptr)
+    @trusted nothrow
 {
     import core.memory : GC;
     return !!GC.addrOf(ptr);

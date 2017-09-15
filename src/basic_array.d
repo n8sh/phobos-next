@@ -124,7 +124,6 @@ struct BasicArray(T,
         import std.range : hasLength;
         static if (hasLength!R)
         {
-            static assert(false, "Untested!");
             reserve(values.length);
             _length = values.length;
             import std.algorithm : copy;
@@ -709,7 +708,7 @@ version(unittest)
 }
 
 /// construct from slice of uncopyable type
-@safe pure nothrow unittest
+@safe pure nothrow @nogc unittest
 {
     alias A = BasicArray!(SomeUncopyableStruct);
     alias R = typeof([SomeUncopyableStruct(17)]);
@@ -717,6 +716,16 @@ version(unittest)
     import std.range : isInputRange, hasLength, isIterable, ElementType, isInfinite;
 
     // const a = A([SomeUncopyableStruct(17)]);
+}
+
+/// construct from map range
+@safe pure nothrow unittest
+{
+    import std.algorithm : map;
+    alias T = int;
+    alias A = UniqueBasicArray!(T);
+    auto a = A([10, 20, 30].s[].map!(_ => _^^2));
+    assert(a[] == [100, 400, 900].s);
 }
 
 /** Non-copyable variant of `BasicArray`.

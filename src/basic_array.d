@@ -486,21 +486,37 @@ pragma(inline, true):
     /// ditto
     alias put = insertBack;
 
+    /** Forwards to $(D insertBack(values)).
+     */
+    void opOpAssign(string op, Value)(Value value)
+        if (op == "~")
+    {
+        static if (is(typeof(values[])))
+        {
+            insertBack(values[]);
+        }
+        else
+        {
+            insertBack(values);
+        }
+    }
     /// ditto
     void opOpAssign(string op)(T[] values...)
         if (op == "~")
     {
         insertBack(values);
     }
-    /// ditto
-    void opOpAssign(string op, R)(R values)
-        if (op == "~" &&
-            isInputRange!R &&
-            !isInfinite!R &&
-            isElementAssignable!(ElementType!R))
-    {
-        insertBack(values);
-    }
+
+    // This opBinary(string op, R)(R values)
+    //     if (op == "~")
+    // {
+    //     // TODO: optimize
+    //     This result;
+    //     result ~= this[];
+    //     assert(result.length == length);
+    //     result ~= values[];
+    //     return result;
+    // }
 
     /// Helper slice.
     private inout(T)[] slice() inout return scope @trusted

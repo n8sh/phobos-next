@@ -252,6 +252,13 @@ struct BasicArray(T,
         return slice() == rhs.slice();
     }
 
+    /// ditto
+    bool opEquals(U)(in U[] rhs) const
+        if (typeof(T.init == U.init))
+    {
+        return slice() == rhs;
+    }
+
     /// Calculate D associative array (AA) key hash.
     size_t toHash() const @trusted pure nothrow
     {

@@ -41,14 +41,20 @@ template allSame(V ...)
     if (isExpressions!V)
 {
     static if (V.length <= 1)
+    {
         enum allSame = true;
+    }
     else static if (V.length & 1)
+    {
         enum allSame = (V[$ - 1] == V[0] &&
                         V[0 .. $/2] == V[$/2 .. $-1] &&
                         allSame!(V[0 .. $/2]));
+    }
     else
+    {
         enum allSame = (V[0 .. $/2] == V[$/2 .. $] &&
                         allSame!(V[0 .. $/2]));
+    }
 }
 
 @safe pure nothrow @nogc unittest

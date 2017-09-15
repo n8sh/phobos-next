@@ -668,8 +668,22 @@ private template shouldAddGCRange(T)
 @safe pure nothrow @nogc unittest
 {
     alias T = const(int);
-    T[] as = BasicArray!T(1, 2)[]; // TODO shouldn't compile with -dip1000
-    auto bs = BasicArray!T(1, 2)[]; // TODO shouldn't compile with -dip1000
+    alias A = BasicArray!T;
+
+    T[] leakSlice() @safe
+    {
+        A a;
+        return a[];             // TODO shouldn't compile with -dip1000
+    }
+
+    T* leakPointer() @safe
+    {
+        A a;
+        return a._ptr;          // TODO shouldn't compile with -dip1000
+    }
+
+    T[] as = A(1, 2)[]; // TODO shouldn't compile with -dip1000
+    auto bs = A(1, 2)[]; // TODO shouldn't compile with -dip1000
 }
 
 version(unittest)

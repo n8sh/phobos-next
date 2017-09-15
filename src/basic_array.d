@@ -756,7 +756,7 @@ struct UniqueBasicArray(T,
     static if (isCopyable!T)
     {
         // `MutableThis` mimics behaviour of `dup` for builtin D arrays
-        @property UniqueBasicArray!(Unqual!T, Allocator) dup() const
+        @property UniqueBasicArray!(Unqual!T, Allocator) dup() const @trusted
         {
             return typeof(return)(cast(Unqual!T[])this[]);
         }
@@ -785,13 +785,16 @@ struct UniqueBasicArray(T,
     assert(a[] == [17].s);
 }
 
-/// check disabled copying
+/// check duplication
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
     alias A = UniqueBasicArray!(T);
 
-    auto a = A.withLength(3);
+    auto a = A([10, 11, 12].s);
+    auto b = a.dup;
+    assert(a == b);
+    assert(a[].ptr !is b[].ptr);
 
     static assert(!__traits(compiles, { A b = a; })); // copying disabled
 }

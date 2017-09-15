@@ -49,14 +49,48 @@ struct BasicArray(T,
     pragma(inline, true)
     static This withLength(size_t initialLength)
     {
-        return This(initialLength, initialLength, true);
+        return This.withCapacityLengthZeroAndFlag(initialLength, initialLength, true);
     }
 
     /// Returns: an array with initial capacity `initialCapacity`.
     pragma(inline, true)
     static This withCapacity(size_t initialCapacity)
     {
-        return This(initialCapacity, 0);
+        return This.withCapacityLengthZeroAndFlag(initialCapacity, 0, false);
+    }
+
+    /** Construct using
+        - initial capacity `initialCapacity`,
+        - initial length `initialLength`
+        - and zeroing-flag `zero`.
+    */
+    pragma(inline, true)
+    private static This withCapacityLengthZeroAndFlag(size_t initialCapacity,
+                                                      size_t initialLength,
+                                                      bool zero) @trusted
+    {
+        assert(initialCapacity >= initialLength);
+
+        debug { This that; }
+        else  { This that = void; }
+
+        that._capacity = initialCapacity;
+        that._ptr = This.allocate(initialCapacity, zero);
+        that._length = initialLength;
+
+        return that;
+    }
+
+    static if (isCopyable!T)
+    {
+        /// Copy construction.
+        this(this) @trusted
+        {
+            MutableE* newPtr = This.allocate(_length, false);
+            _capacity = _length;
+            newPtr[0 .. _length] = slice();
+            _ptr = newPtr;
+        }
     }
 
     /// Construct from element `values`.
@@ -66,7 +100,7 @@ struct BasicArray(T,
     {
         _capacity = 1;
         _length = 1;
-        _ptr = This.allocate(1);
+        _ptr = This.allocate(1, false);
         moveEmplace(value, _mptr[0]); // TODO remove `moveEmplace` when compiler does it for us
     }
 
@@ -80,7 +114,7 @@ struct BasicArray(T,
             // twice as fast as array assignment below
             _capacity = 1;
             _length = 1;
-            _ptr = This.allocate(1);
+            _ptr = This.allocate(1, false);
             _mptr[0] = values[0];
             return;
         }
@@ -129,33 +163,6 @@ struct BasicArray(T,
             isElementAssignable!(ElementType!R))
     {
         static assert(false, "TODO implement");
-    }
-
-    /** Construct using
-        - initial capacity `initialCapacity`,
-        - initial length `initialLength`
-        - and zeroing-flag `zero`.
-    */
-    private this(size_t initialCapacity,
-                 size_t initialLength = 0,
-                 bool zero = true) @trusted
-    {
-        assert(initialCapacity >= initialLength);
-        _capacity = initialCapacity;
-        _ptr = This.allocate(initialCapacity, zero);
-        _length = initialLength;
-    }
-
-    static if (isCopyable!T)
-    {
-        /// Copy construction.
-        this(this) @trusted
-        {
-            MutableE* newPtr = This.allocate(_length, false);
-            _capacity = _length;
-            newPtr[0 .. _length] = slice();
-            _ptr = newPtr;
-        }
     }
 
     /// Destruct.
@@ -212,7 +219,7 @@ struct BasicArray(T,
     /** Allocate heap regionwith `initialCapacity` number of elements of type `T`.
         If `zero` is `true` they will be zero-initialized.
     */
-    private static MutableE* allocate(size_t initialCapacity, bool zero = false)
+    private static MutableE* allocate(size_t initialCapacity, bool zero)
     {
         typeof(return) ptr = null;
 
@@ -650,6 +657,13 @@ private template shouldAddGCRange(T)
     auto d = A(1, 2, 3);
 }
 
+/// scope checking
+@safe pure nothrow @nogc unittest
+{
+    alias T = const(int);
+    auto as = BasicArray!T(1, 2)[];
+}
+
 version(unittest)
 {
     /// non-copyable element type
@@ -669,8 +683,6 @@ version(unittest)
     a0.insertBack(SomeUncopyableStruct(18));
     assert(a0[] == [SomeUncopyableStruct(17),
                     SomeUncopyableStruct(18)]);
-
-    A a42 = A(42);
 }
 
 /// construct from slice of uncopyable type

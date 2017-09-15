@@ -49,14 +49,14 @@ struct BasicArray(T,
     pragma(inline, true)
     static This withLength(size_t initialLength)
     {
-        return This.withCapacityLengthZeroAndFlag(initialLength, initialLength, true);
+        return This.withCapacityLengthZero(initialLength, initialLength, true);
     }
 
     /// Returns: an array with initial capacity `initialCapacity`.
     pragma(inline, true)
     static This withCapacity(size_t initialCapacity)
     {
-        return This.withCapacityLengthZeroAndFlag(initialCapacity, 0, false);
+        return This.withCapacityLengthZero(initialCapacity, 0, false);
     }
 
     /** Construct using
@@ -65,9 +65,9 @@ struct BasicArray(T,
         - and zeroing-flag `zero`.
     */
     pragma(inline, true)
-    private static This withCapacityLengthZeroAndFlag(size_t initialCapacity,
-                                                      size_t initialLength,
-                                                      bool zero) @trusted
+    private static This withCapacityLengthZero(size_t initialCapacity,
+                                               size_t initialLength,
+                                               bool zero) @trusted
     {
         assert(initialCapacity >= initialLength);
 

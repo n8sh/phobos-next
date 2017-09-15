@@ -163,7 +163,7 @@ struct BasicArray(T,
     /// Construct from iterable of element `values`.
     this(I)(I values) @trusted
         if (!isArray!I &&
-            isConstructableFromRange!I)
+            isConstructableFromIterable!I)
     {
         static assert(false, "Here!");
     }

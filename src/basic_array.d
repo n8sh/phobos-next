@@ -81,19 +81,7 @@ struct BasicArray(T,
         return that;
     }
 
-    static if (isCopyable!T)
-    {
-        /// Copy construction.
-        this(this) @trusted
-        {
-            MutableE* newPtr = This.allocate(_length, false);
-            _capacity = _length;
-            newPtr[0 .. _length] = slice();
-            _ptr = newPtr;
-        }
-    }
-
-    /// Construct from element `values`.
+    /// Construct from element `value`.
     this(U)(U value) @trusted
         if (isElementAssignable!U &&
             !isCopyable!U)
@@ -123,6 +111,7 @@ struct BasicArray(T,
         _mptr[0 .. _length] = values; // array assignment
     }
 
+    /// Is `true` iff constructable from range `R`.
     enum isConstructableFromRange(R) = (isInputRange!R &&
                                         !isInfinite!R &&
                                         isElementAssignable!(ElementType!R));
@@ -163,6 +152,32 @@ struct BasicArray(T,
             isElementAssignable!(ElementType!R))
     {
         static assert(false, "TODO implement");
+    }
+
+    /// Is `true` iff constructable from iterable `I`.
+    enum isConstructableFromIterable(I) = (isRefIterable!I &&
+                                           !isInfinite!I &&
+                                           isElementAssignable!(ElementType!I));
+
+    /// Construct from iterable of element `values`.
+    this(I)(I values) @trusted
+        if (!isArray!I &&
+            isConstructableFromRange!I)
+    {
+        static assert(false, "Here!");
+    }
+
+    // optional copy construction
+    static if (isCopyable!T)
+    {
+        /// Copy construction.
+        this(this) @trusted
+        {
+            MutableE* newPtr = This.allocate(_length, false);
+            _capacity = _length;
+            newPtr[0 .. _length] = slice();
+            _ptr = newPtr;
+        }
     }
 
     /// Destruct.
@@ -678,7 +693,7 @@ version(unittest)
     }
 }
 
-/// non-copyable element type
+/// construct and insert from non-copyable element type passed by value
 @safe pure nothrow /*@nogc*/ unittest
 {
     alias A = BasicArray!(SomeUncopyableStruct);
@@ -696,14 +711,6 @@ version(unittest)
     alias R = typeof([SomeUncopyableStruct(17)]);
 
     import std.range : isInputRange, hasLength, isIterable, ElementType, isInfinite;
-
-    // TODO change traits
-
-    // pragma(msg, isInputRange!R);
-    pragma(msg, isRefIterable!R);
-    // pragma(msg, hasLength!R);
-    // pragma(msg, !isInfinite!R);
-    // pragma(msg, isElementAssignableOrMovable!(ElementType!R));
 
     // const a = A([SomeUncopyableStruct(17)]);
 }

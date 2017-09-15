@@ -668,7 +668,8 @@ private template shouldAddGCRange(T)
 @safe pure nothrow @nogc unittest
 {
     alias T = const(int);
-    auto as = BasicArray!T(1, 2)[];
+    T[] as = BasicArray!T(1, 2)[]; // TODO shouldn't compile with -dip1000
+    auto bs = BasicArray!T(1, 2)[]; // TODO shouldn't compile with -dip1000
 }
 
 version(unittest)

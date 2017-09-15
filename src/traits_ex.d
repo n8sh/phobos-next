@@ -246,6 +246,11 @@ pure nothrow unittest
     assert(tup.asDynamicArray() == arr);
 }
 
+/** Is `true` if `R` is iterable over references to its elements.
+    TODO Add to Phobos.
+ */
+enum bool isRefIterable(T) = is(typeof({ foreach (ref elem; T.init) {} }));
+
 /// Useful aliases for combinations of range predicates.
 enum isIterableOf(R, E) = isIterable!R && is(ElementType!R == E);
 enum isIterableOfUnqual(R, E) = isIterable!R && is(Unqual!(ElementType!R) == Unqual!E);

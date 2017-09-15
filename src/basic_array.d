@@ -155,17 +155,13 @@ struct BasicArray(T,
         static assert(false, "TODO implement");
     }
 
-    /// Is `true` iff constructable from iterable `I`.
-    enum isConstructableFromIterable(I) = (isRefIterable!I &&
-                                           !isInfinite!I &&
-                                           isElementAssignable!(ElementType!I));
-
     /// Construct from iterable of element `values`.
     this(I)(I values) @trusted
         if (!isArray!I &&
-            isConstructableFromIterable!I)
+            isRefIterable!I &&
+            isElementAssignable!(ElementType!I))
     {
-        static assert(false, "Here!");
+        static assert(false, "TODO implement");
     }
 
     // optional copy construction
@@ -713,7 +709,7 @@ version(unittest)
 
     import std.range : isInputRange, hasLength, isIterable, ElementType, isInfinite;
 
-    // const a = A([SomeUncopyableStruct(17)]);
+    const a = A([SomeUncopyableStruct(17)]);
 }
 
 /** Non-copyable variant of `BasicArray`.

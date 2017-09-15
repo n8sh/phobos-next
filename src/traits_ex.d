@@ -106,9 +106,13 @@ template allSameRecursive(V...)
     if (isExpressions!(V))
 {
     static if (V.length <= 1)
+    {
         enum allSameRecursive = true;
+    }
     else
+    {
         enum allSameRecursive = V[0] == V[1] && allSameRecursive!(V[1..$]);
+    }
 }
 
 @safe pure nothrow @nogc unittest
@@ -123,9 +127,13 @@ template allSameRecursive(V...)
 template allSameType(T...)
 {
     static if (T.length <= 1)
+    {
         enum allSameType = true;
+    }
     else
+    {
         enum allSameType = is(T[0] == T[1]) && allSameType!(T[1..$]);
+    }
 }
 
 enum allSameType1(T...) = !T.length || (is(T[0] == T[T.length > 1]) && allSameType1!(T[1 .. $]));

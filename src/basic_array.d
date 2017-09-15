@@ -25,6 +25,9 @@ struct BasicArray(T,
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
     import std.algorithm : move, moveEmplace;
 
+    /// Type of `this`.
+    private alias This = typeof(this);
+
     /// Mutable element type.
     private alias MutableE = Unqual!T;
 
@@ -33,9 +36,6 @@ struct BasicArray(T,
 
     /// Same type as this but with mutable element type.
     private alias MutableThis = ThisTemplate!(MutableE, Allocator);
-
-    /// Type of `this`.
-    private alias This = typeof(this);
 
     /// Is `true` if `U` can be assign to the element type `T` of `this`.
     enum isElementAssignable(U) = isAssignable!(MutableE, U);
@@ -741,9 +741,9 @@ struct UniqueBasicArray(T,
     static if (isCopyable!T)
     {
         // `MutableThis` mimics behaviour of `dup` for builtin D arrays
-        @property Super.MutableThis dup() const
+        @property UniqueBasicArray!(Unqual!T, Allocator) dup() const
         {
-            return typeof(return)(slice());
+            return typeof(return)(this[]);
         }
     }
 

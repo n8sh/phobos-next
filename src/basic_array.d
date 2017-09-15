@@ -124,6 +124,7 @@ struct BasicArray(T,
         import std.range : hasLength;
         static if (hasLength!R)
         {
+            static assert(false, "Untested!");
             reserve(values.length);
             _length = values.length;
             import std.algorithm : copy;

@@ -711,8 +711,6 @@ struct UniqueBasicArray(T,
 {
     import std.range : ElementType, isCopyable;
 
-    @disable this(this);        // no copy construction
-
     /// Construct from element `values`.
     this(U)(U[] values...)
         if (Super.isElementAssignable!U &&
@@ -736,6 +734,8 @@ struct UniqueBasicArray(T,
     {
         static assert(false, "TODO implement");
     }
+
+    @disable this(this);        // no copy construction
 
     /// Returns: shallow duplicate of `this`.
     static if (isCopyable!T)

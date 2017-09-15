@@ -791,12 +791,12 @@ struct UniqueBasicArray(T,
     alias T = int;
     alias A = UniqueBasicArray!(T);
 
+    static assert(!__traits(compiles, { A b = a; })); // copying disabled
+
     auto a = A([10, 11, 12].s);
     auto b = a.dup;
     assert(a == b);
     assert(a[].ptr !is b[].ptr);
-
-    static assert(!__traits(compiles, { A b = a; })); // copying disabled
 }
 
 version(unittest)

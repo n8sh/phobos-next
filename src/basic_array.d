@@ -528,9 +528,13 @@ pragma(inline, true):
 private:
     // defined here https://dlang.org/phobos/std_experimental_allocator_gc_allocator.html#.GCAllocator
     static if (is(Allocator == std.experimental.allocator.gc_allocator.GCAllocator))
+    {
         T* _ptr;                // GC-allocated store pointer
+    }
     else
+    {
         @nogc T* _ptr;          // non-GC-allocated store pointer
+    }
     size_t _capacity;           // store capacity
     size_t _length;             // store length
 }

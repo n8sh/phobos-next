@@ -91,7 +91,7 @@ struct BasicArray(T,
 
     enum isConstructableFromRange(R) = (isInputRange!R &&
                                         !isInfinite!R &&
-                                        isElementAssignableOrMovable!(ElementType!R));
+                                        isElementAssignable!(ElementType!R));
 
     /// Construct from range of element `values`.
     this(R)(R values) @trusted

@@ -495,7 +495,7 @@ pragma(inline, true):
 
     /** Remove last value fromm the end of the array.
      */
-    void removeBack()
+    void popBack()              // TODO name it `removeBack` instead?
     {
         // import std.exception : enforce;
         // enforce(!empty);        // TODO use `assert` instead?

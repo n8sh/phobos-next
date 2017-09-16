@@ -754,6 +754,22 @@ version(unittest)
     assert(a[] == [100, 400, 900].s);
 }
 
+/// construct with string as element type that needs GC-range
+@safe pure nothrow @nogc unittest
+{
+    alias T = string;
+    alias A = BasicArray!(T);
+
+    A a;
+    a ~= `alpha`;
+    a ~= `beta`;
+    a ~= [`gamma`, `delta`].s;
+    assert(a[] == [`alpha`, `beta`, `gamma`, `delta`].s);
+
+    const b = [`a`, `b`, `c`].s;
+    // a ~= b;
+}
+
 /** Non-copyable variant of `BasicArray`.
  */
 struct UniqueBasicArray(T,
@@ -833,22 +849,6 @@ struct UniqueBasicArray(T,
     auto b = a.dup;
     assert(a == b);
     assert(a[].ptr !is b[].ptr);
-}
-
-/// construct with string as element type that needs GC-range
-@safe pure nothrow @nogc unittest
-{
-    alias T = string;
-    alias A = UniqueBasicArray!(T);
-
-    A a;
-    a ~= `alpha`;
-    a ~= `beta`;
-    a ~= [`gamma`, `delta`].s;
-    assert(a[] == [`alpha`, `beta`, `gamma`, `delta`].s);
-
-    const b = [`a`, `b`, `c`].s;
-    // TODO a ~= b;
 }
 
 version(unittest)

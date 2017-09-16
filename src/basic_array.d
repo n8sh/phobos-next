@@ -744,16 +744,6 @@ version(unittest)
     // const a = A([SomeUncopyableStruct(17)]);
 }
 
-/// construct from map range
-@safe pure nothrow unittest
-{
-    import std.algorithm : map;
-    alias T = int;
-    alias A = UniqueBasicArray!(T);
-    auto a = A([10, 20, 30].s[].map!(_ => _^^2));
-    assert(a[] == [100, 400, 900].s);
-}
-
 /// construct with string as element type that needs GC-range
 @safe pure nothrow @nogc unittest
 {
@@ -849,6 +839,16 @@ struct UniqueBasicArray(T,
     auto b = a.dup;
     assert(a == b);
     assert(a[].ptr !is b[].ptr);
+}
+
+/// construct from map range
+@safe pure nothrow unittest
+{
+    import std.algorithm : map;
+    alias T = int;
+    alias A = UniqueBasicArray!(T);
+    auto a = A([10, 20, 30].s[].map!(_ => _^^2));
+    assert(a[] == [100, 400, 900].s);
 }
 
 version(unittest)

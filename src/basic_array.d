@@ -305,7 +305,7 @@ pragma(inline, true):
 
         // growth factor
         // Motivation: https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md#memory-handling
-        reallocateAndSetCapacity(3*requestedCapacity/2); // use 1.5 as Facebook's `fbvector` does
+        reallocateAndSetCapacity(3*requestedCapacity/2); // use 1.5 like Facebook's `fbvector` does
         // import std.math : nextPow2;
         // reallocateAndSetCapacity(requestedCapacity.nextPow2);
 

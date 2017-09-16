@@ -25,7 +25,10 @@ struct ArrayN(E,
     import std.traits : isSomeChar, hasElaborateDestructor, isAssignable;
     import qcmeman : gc_addRange, gc_removeRange;
 
-    E[capacity] _store = void;  /// stored elements
+     /// stored elements
+    debug { E[capacity] _store; }
+    else { E[capacity] _store = void; }
+
     alias This = typeof(this);
 
     alias maxLength = capacity;  // for public use

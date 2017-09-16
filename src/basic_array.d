@@ -840,6 +840,11 @@ struct UniqueBasicArray(T,
 {
     alias T = string;
     alias A = UniqueBasicArray!(T);
+    A a;
+    a ~= `alpha`;
+    a ~= `beta`;
+    a ~= [`gamma`, `delta`].s;
+    assert(a[] == [`alpha`, `beta`, `gamma`, `delta`].s);
 }
 
 version(unittest)

@@ -826,7 +826,7 @@ private struct Array(E,
     }
 
     /// True if elements need move.
-    enum needsMove(T) =  !isCopyable!T || hasIndirections!T;
+    enum needsMove(T) = !isCopyable!T || hasIndirections!T;
 
     /** Pop back element and return it. */
     pragma(inline)

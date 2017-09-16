@@ -762,9 +762,13 @@ version(unittest)
     a ~= [`gamma`, `delta`].s;
     assert(a[] == [`alpha`, `beta`, `gamma`, `delta`].s);
 
-    const b = [`a`].s;
+    const b = [`epsilon`].s;
+
     a.insertBack(b);
+    assert(a[] == [`alpha`, `beta`, `gamma`, `delta`, `epsilon`].s);
+
     a ~= b;
+    assert(a[] == [`alpha`, `beta`, `gamma`, `delta`, `epsilon`, `epsilon`].s);
 }
 
 /** Non-copyable variant of `BasicArray`.

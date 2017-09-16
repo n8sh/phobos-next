@@ -122,7 +122,7 @@ private:
     }
     mixin(generateArrays());
 
-    ref inout(Types[index][]) getArray(size_t index)() inout return scope
+    ref inout(Types[index][]) getArray(size_t index)() inout return
     {
         mixin(`return container` ~ index.stringof ~ ";");
     }

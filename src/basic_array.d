@@ -513,6 +513,12 @@ pragma(inline, true):
     {
         insertBack(values);
     }
+    /// ditto
+    void opOpAssign(string op)(const(T)[] values...)
+        if (op == "~")
+    {
+        insertBack(values);
+    }
 
     // This opBinary(string op, R)(R values)
     //     if (op == "~")
@@ -756,8 +762,9 @@ version(unittest)
     a ~= [`gamma`, `delta`].s;
     assert(a[] == [`alpha`, `beta`, `gamma`, `delta`].s);
 
-    const b = [`a`, `b`, `c`].s;
-    // a ~= b;
+    const b = [`a`].s;
+    a.insertBack(b);
+    a ~= b;
 }
 
 /** Non-copyable variant of `BasicArray`.

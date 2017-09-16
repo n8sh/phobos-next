@@ -568,7 +568,8 @@ private:
 private template shouldAddGCRange(T)
 {
     import std.traits : hasIndirections;
-    enum shouldAddGCRange = hasIndirections!T; // TODO unless all pointers members are tagged as @nogc (as in `BasicArray` and `BasicStore`)
+    // TODO unless all pointers members are tagged as @nogc (as in `BasicArray` and `BasicStore`)
+    enum shouldAddGCRange = hasIndirections!T;
 }
 
 /// construct and append from slices
@@ -832,6 +833,13 @@ struct UniqueBasicArray(T,
     auto b = a.dup;
     assert(a == b);
     assert(a[].ptr !is b[].ptr);
+}
+
+/// construct with string as element type that needs GC-range
+@safe pure nothrow unittest
+{
+    alias T = string;
+    alias A = UniqueBasicArray!(T);
 }
 
 version(unittest)

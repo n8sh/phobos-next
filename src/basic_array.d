@@ -497,8 +497,9 @@ pragma(inline, true):
      */
     void removeBack()
     {
-        import std.exception : enforce;
-        enforce(!empty);        // TODO use `assert` instead?
+        // import std.exception : enforce;
+        // enforce(!empty);        // TODO use `assert` instead?
+        assert(!empty);
         static if (hasElaborateDestructor!T)
         {
             .destroy(_mptr[_length - 1]);

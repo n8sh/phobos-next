@@ -493,6 +493,19 @@ pragma(inline, true):
     /// ditto
     alias put = insertBack;
 
+    /** Remove last value fromm the end of the array.
+     */
+    void removeBack()
+    {
+        import std.exception : enforce;
+        enforce(!empty);        // TODO use `assert` instead?
+        static if (hasElaborateDestructor!T)
+        {
+            .destroy(_mptr[_length - 1]);
+        }
+        _length -= 1;
+    }
+
     /** Forwards to $(D insertBack(values)).
      */
     void opOpAssign(string op, Value)(Value value)

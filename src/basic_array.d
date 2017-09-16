@@ -836,7 +836,7 @@ struct UniqueBasicArray(T,
 }
 
 /// construct with string as element type that needs GC-range
-@safe pure nothrow unittest
+@safe pure nothrow @nogc unittest
 {
     alias T = string;
     alias A = UniqueBasicArray!(T);

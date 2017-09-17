@@ -41,7 +41,6 @@ struct VariantStorage(Types...)
     /// Peek at element of type `ValueType` at `index`.
     ValueType peek(ValueType)(in Index index)
     {
-        // TODO generate switch
         final switch (index._type)
         {
             foreach (const typeIx, Type; Types)

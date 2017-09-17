@@ -32,10 +32,16 @@ struct VariantStorage(Types...)
 
     import basic_array : Array = UniqueBasicArray;
 
-    /// Returns: array type storing `Type` (as a string).
+    /// Returns: array type (as a string) of `Type`.
     static string arrayTypeString(Type)()
     {
         return `Array!` ~ Type.stringof;
+    }
+
+    /// Returns: array instance (as a strinng) storing `Type`.
+    static string arrayInstanceString(Type)()
+    {
+        return `_values` ~ Type.stringof;
     }
 
     /// Peek at element of type `ValueType` at `index`.
@@ -59,7 +65,7 @@ private:
             string s = "";
             foreach (i, Type; Types)
             {
-                s ~= arrayTypeString!Type ~ ` ` ~ `_values` ~ Type.stringof ~ `;`;
+                s ~= arrayTypeString!Type ~ ` ` ~ `_values` ~ arrayInstanceStringOf!Type ~ `;`;
             }
             return s;
         }());

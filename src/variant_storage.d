@@ -79,18 +79,18 @@ version(unittest)
                                Pred1, Pred2, Pred3, Pred4, Pred5);
     struct Node {}
 
-    struct Fn1 { VS.Index a, b; }
-    struct Fn2 {}
+    struct Fn1 { VS.Index a; }
+    struct Fn2 { VS.Index a, b; }
 
-    struct Rel1 {}
-    struct Rel2 {}
-    struct Rel3 {}
+    struct Rel1 { VS.Index a; }
+    struct Rel2 { VS.Index a, b; }
+    struct Rel3 { VS.Index a, b, c; }
 
-    struct Pred1 {}
-    struct Pred2 {}
-    struct Pred3 {}
-    struct Pred4 {}
-    struct Pred5 {}
+    struct Pred1 { VS.Index a; }
+    struct Pred2 { VS.Index a, b; }
+    struct Pred3 { VS.Index a, b, c; }
+    struct Pred4 { VS.Index a, b, c, d; }
+    struct Pred5 { VS.Index a, b, c, d, e; }
 }
 
 @safe pure nothrow @nogc unittest

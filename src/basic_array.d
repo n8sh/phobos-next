@@ -466,10 +466,8 @@ pragma(inline, true):
     /** Insert `values` into the end of the array.
      */
     void insertBack(R)(R values)
-        if (isInputRange!R &&
-            !isInfinite!R &&
-            !isArray!R &&
-            isElementAssignable!(ElementType!R))
+        if (!isArray!R &&
+            isConstructableFromRange!R)
     {
         import std.range : hasLength;
         static if (hasLength!R)
@@ -481,9 +479,16 @@ pragma(inline, true):
         }
         else
         {
-            foreach (ref value; values)
+            foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
             {
-                insertBack(value);
+                static if (isCopyable!(ElementType!R))
+                {
+                    insertBack(value);
+                }
+                else
+                {
+                    insertBackMove(value);
+                }
             }
         }
     }

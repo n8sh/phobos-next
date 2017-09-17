@@ -26,6 +26,11 @@ T[n] asStatic(T, size_t n)(T[n] x)
     else
     {
         T[n] y = void;
+
+        // TODO why doesn't this work here?
+        // import std.algorithm.mutation : moveEmplaceAll;
+        // moveEmplaceAll(x[], y[]);
+
         size_t ix = 0;
         foreach (ref value; x)
         {
@@ -33,6 +38,7 @@ T[n] asStatic(T, size_t n)(T[n] x)
             move(value, y[ix]);
             ix += 1;
         }
+
         return y;
     }
 }

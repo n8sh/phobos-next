@@ -12,17 +12,28 @@ module array_help;
 
     TODO Fix problems discussed here: http://forum.dlang.org/post/otrsanpgmokzpzqmfyvx@forum.dlang.org
     TODO File a bug report: http://forum.dlang.org/post/otrsanpgmokzpzqmfyvx@forum.dlang.org
+
+    TODO fix compiler so that move kicks in here automatically and remove
+    special case on `isCopyable`
 */
-T[n] asStatic(T, size_t n)(T[n] arr)
+T[n] asStatic(T, size_t n)(T[n] x)
 {
     import std.traits : isCopyable;
     static if (isCopyable!T)
     {
-        return arr;
+        return x;
     }
     else
     {
-        static assert(false, "Support forwarding of uncopyable elements");
+        T[n] y = void;
+        size_t ix = 0;
+        foreach (ref value; x)
+        {
+            import std.algorithm.mutation : move;
+            move(value, y[ix]);
+            ix += 1;
+        }
+        return y;
     }
 }
 alias s = asStatic;
@@ -49,7 +60,7 @@ unittest
 /// non-copyable element type in static array
 unittest
 {
-    // TODO this should compile: auto b = [S(42)].s;
+    auto b = [S(42)].s;
 }
 
 ///

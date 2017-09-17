@@ -9,9 +9,10 @@ module array_help;
     const x = [1, 2, 3].s;
 
     TODO Add to Phobos `std.array`.
+
+    TODO Fix problems discussed here: http://forum.dlang.org/post/otrsanpgmokzpzqmfyvx@forum.dlang.org
 */
 T[n] asStatic(T, size_t n)(T[n] arr)
-//    @safe pure nothrow @nogc // TODO remove. needed for now in order for DIP-1000 to work correctly, See http://forum.dlang.org/post/otrsanpgmokzpzqmfyvx@forum.dlang.org
 {
     import std.traits : isCopyable;
     static if (isCopyable!T)

@@ -35,22 +35,16 @@ version(unittest)
     }
 }
 
-@safe pure nothrow:
-
-/// non-copyable element type in array
-unittest
-{
-    auto a = [S(42)];
-}
+@safe pure nothrow @nogc:
 
 /// non-copyable element type in static array
-@nogc unittest
+unittest
 {
     // TODO this should compile: auto b = [S(42)].s;
 }
 
 ///
-@nogc unittest
+unittest
 {
     auto x = [1, 2, 3].asStatic;
 

@@ -31,12 +31,10 @@ T[n] asStatic(T, size_t n)(T[n] x)
         // import std.algorithm.mutation : moveEmplaceAll;
         // moveEmplaceAll(x[], y[]);
 
-        size_t ix = 0;
-        foreach (ref value; x)
+        foreach (const ix, ref value; x)
         {
             import std.algorithm.mutation : move;
             move(value, y[ix]);
-            ix += 1;
         }
 
         return y;

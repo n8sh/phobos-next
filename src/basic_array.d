@@ -13,8 +13,7 @@ import std.traits : Unqual;
 
    TODO make use of `Allocator` parameter when non-`null`
 
-   TODO Use correct growth factor:
-   - https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md
+   TODO Use `std.traits.areCopyCompatibleArrays`
 
    See also: https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md
  */
@@ -22,7 +21,7 @@ struct BasicArray(T,
                   alias Allocator = null) // null means means to qcmeman functions
     if (!is(Unqual!T == bool))
 {
-    import std.range : isInputRange, ElementType, isInfinite;
+    import std.range : isInputRange, isIterable, ElementType, isInfinite;
     import std.traits : Unqual, hasElaborateDestructor, hasIndirections, hasAliasing, isMutable, TemplateOf, isArray, isAssignable, isCopyable;
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
     import std.algorithm : move, moveEmplace;
@@ -113,15 +112,15 @@ struct BasicArray(T,
         _mptr[0 .. _length] = values; // array assignment
     }
 
-    /// Is `true` iff constructable from range `R`.
-    enum isConstructableFromRange(R) = (isInputRange!R &&
-                                        !isInfinite!R &&
-                                        isElementAssignable!(ElementType!R));
+    /// Is `true` iff constructable from the iterable (or range) `R`.
+    enum isConstructableFromIterable(R) = (isIterable!R &&
+                                           !isInfinite!R &&
+                                           isElementAssignable!(ElementType!R));
 
     /// Construct from the elements `values`.
     this(R)(R values) @trusted
         if (!isArray!R &&
-            isConstructableFromRange!R)
+            isConstructableFromIterable!R)
     {
         import std.range : hasLength;
         static if (hasLength!R)
@@ -467,7 +466,7 @@ pragma(inline, true):
      */
     void insertBack(R)(R values)
         if (!isArray!R &&
-            isConstructableFromRange!R)
+            isConstructableFromIterable!R)
     {
         import std.range : hasLength;
         static if (hasLength!R)
@@ -784,11 +783,15 @@ version(unittest)
 @safe pure nothrow @nogc unittest
 {
     alias A = BasicArray!(SomeUncopyableStruct);
-    alias R = typeof([SomeUncopyableStruct(17)]);
+    // TODO can we safely support this?: A a = [SomeUncopyableStruct(17)];
+}
 
-    import std.range : isInputRange, hasLength, isIterable, ElementType, isInfinite;
-
-    // const a = A([SomeUncopyableStruct(17)]);
+// construct from array with uncopyable elements
+@safe pure nothrow @nogc unittest
+{
+    alias A = BasicArray!(SomeUncopyableStruct);
+    A a;
+    // a.insertBack(A.init);
 }
 
 /// construct with string as element type that needs GC-range
@@ -830,7 +833,7 @@ struct UniqueBasicArray(T,
 
     /// Construct from range of element `values`.
     this(R)(R values)
-        if (Super.isConstructableFromRange!R)
+        if (Super.isConstructableFromIterable!R)
     {
         _basicArray = Super(values);
     }

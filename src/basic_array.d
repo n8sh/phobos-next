@@ -805,10 +805,10 @@ version(unittest)
 
     const b = A([10, 20, 30].s[].map!(_ => T(_^^2))); // hasLength
     assert(b.length == 3);
-    assert(b == [T(100), T(400), T(900)]); // @TODO @nogc .s
+    assert(b == [T(100), T(400), T(900)]); // TODO use .s
 
     const c = A([10, 20, 30].s[].filter!(_ => _ == 30).map!(_ => T(_^^2))); // !hasLength
-    assert(c == [T(900)]);      // TODO @nogc with .s
+    assert(c == [T(900)]);      // TODO use .s
 }
 
 /// construct with string as element type that needs GC-range

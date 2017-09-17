@@ -65,7 +65,7 @@ private:
             string s = "";
             foreach (i, Type; Types)
             {
-                s ~= arrayTypeString!Type ~ ` ` ~ `_values` ~ arrayInstanceStringOf!Type ~ `;`;
+                s ~= arrayTypeString!Type ~ ` ` ~ `_values` ~ arrayInstanceString!Type ~ `;`;
             }
             return s;
         }());

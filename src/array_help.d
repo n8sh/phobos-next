@@ -20,8 +20,7 @@ T[n] asStatic(T, size_t n)(T[n] arr)
     }
     else
     {
-        import std.algorithm.mutation : move;
-        return move(arr);
+        static assert(false, "Support forwarding of uncopyable elements");
     }
 }
 alias s = asStatic;

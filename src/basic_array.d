@@ -527,6 +527,7 @@ pragma(inline, true):
         insertBackMove(value);
     }
 
+    /// ditto
     void opOpAssign(string op, U)(U[] values...) @trusted
         if (op == "~" &&
             isElementAssignable!U &&
@@ -535,6 +536,7 @@ pragma(inline, true):
         insertBack(values);
     }
 
+    /// ditto
     void opOpAssign(string op, R)(R values)
         if (op == "~" &&
             isInputRange!R &&

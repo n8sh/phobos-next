@@ -11,6 +11,7 @@ module array_help;
     TODO Add to Phobos `std.array`.
 
     TODO Fix problems discussed here: http://forum.dlang.org/post/otrsanpgmokzpzqmfyvx@forum.dlang.org
+    TODO File a bug report: http://forum.dlang.org/post/otrsanpgmokzpzqmfyvx@forum.dlang.org
 */
 T[n] asStatic(T, size_t n)(T[n] arr)
 {

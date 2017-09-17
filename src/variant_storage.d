@@ -44,15 +44,15 @@ struct VariantStorage(Types...)
         return `_values` ~ Type.stringof;
     }
 
-    /// Peek at element of type `ValueType` at `index`.
-    ValueType peek(ValueType)(in Index index)
+    /// Peek at element of type `PeekedValueType` at `peekedIndex`.
+    PeekedValueType peek(PeekedValueType)(in Index peekedIndex)
     {
-        final switch (index._type)
+        final switch (peekedIndex._type)
         {
             foreach (const typeIx, Type; Types)
             {
             case typeIx:
-                mixin(`return ` ~ arrayInstanceString!ValueType ~ `[` ~ index._index ~ `];`);
+                mixin(`return ` ~ arrayInstanceString!PeekedValueType ~ `[` ~ peekedIndex._index ~ `];`);
             }
         }
         return typeof(return).init;

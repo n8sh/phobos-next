@@ -128,7 +128,8 @@ struct BasicArray(T,
         {
             reserve(values.length);
         }
-        static if (isCopyable!(ElementType!R))
+        static if (hasLength!R &&
+                   isCopyable!(ElementType!R))
         {
             _length = values.length;
             import std.algorithm : copy;

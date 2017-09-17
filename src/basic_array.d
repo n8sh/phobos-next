@@ -43,7 +43,7 @@ struct BasicArray(T,
     enum isElementAssignableOrMovable(U) = isAssignable!(U) || isElementMovable!(U);
 
     /// True if elements need move.
-    enum needsMove(T) = !isCopyable!T || hasIndirections!T;
+    enum needsMove(T) = !isCopyable!T || hasElaborateDestructor!T;
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
     pragma(inline, true)
@@ -500,12 +500,28 @@ pragma(inline, true):
         // import std.exception : enforce;
         // enforce(!empty);        // TODO use `assert` instead?
         assert(!empty);
+        _length -= 1;
         static if (hasElaborateDestructor!T)
         {
-            .destroy(_mptr[_length - 1]);
+            .destroy(_mptr[_length]);
         }
-        _length -= 1;
     }
+
+    /** Pop back element and return it. */
+    T backPop() @trusted
+    {
+        assert(!empty);
+        _length -= 1;
+        static if (needsMove!T)
+        {
+            return move(_mptr[_length]); // move is indeed need here
+        }
+        else
+        {
+            return _mptr[_length]; // no move needed
+        }
+    }
+    alias stealBack = backPop;
 
     /** Forwards to $(D insertBack(values)).
      */

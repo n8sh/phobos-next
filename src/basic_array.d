@@ -803,11 +803,11 @@ version(unittest)
 
     import std.algorithm : map, filter;
 
-    auto b = A([10, 20, 30].s[].map!(_ => T(_^^2))); // hasLength
+    const b = A([10, 20, 30].s[].map!(_ => T(_^^2))); // hasLength
     assert(b.length == 3);
     assert(b == [T(100), T(400), T(900)]);
 
-    auto c = A([10, 20, 30].s[].filter!(_ => _ == 30).map!(_ => T(_^^2))); // !hasLength
+    const c = A([10, 20, 30].s[].filter!(_ => _ == 30).map!(_ => T(_^^2))); // !hasLength
     assert(c == [T(900)]);
 }
 

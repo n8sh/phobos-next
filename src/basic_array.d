@@ -115,7 +115,7 @@ struct BasicArray(T,
     /** Is `true` iff constructable from the iterable (or range) `I`.
      */
     enum isAssignableFromElementsOfRefIterableStruct(I) = (is(I == struct) && // exclude class ranges for aliasing control
-                                                           isRefIterable!I &&
+                                                           isRefIterable!I && // elements may be non-copyable
                                                            !isInfinite!I &&
                                                            isElementAssignable!(ElementType!I));
 

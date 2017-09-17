@@ -112,15 +112,16 @@ struct BasicArray(T,
         _mptr[0 .. _length] = values; // array assignment
     }
 
-    /// Is `true` iff constructable from the iterable (or range) `R`.
-    enum isConstructableFromIterable(R) = (isIterable!R &&
-                                           !isInfinite!R &&
-                                           isElementAssignable!(ElementType!R));
+    /// Is `true` iff constructable from the iterable (or range) `I`.
+    enum isConstructableFromRefIterable(I) = (is(I == struct) && // no aliasing
+                                              isRefIterable!I &&
+                                              !isInfinite!I &&
+                                              isElementAssignable!(ElementType!I));
 
     /// Construct from the elements `values`.
     this(R)(R values) @trusted
         if (!isArray!R &&
-            isConstructableFromIterable!R)
+            isConstructableFromRefIterable!R)
     {
         import std.range : hasLength;
         static if (hasLength!R)
@@ -466,10 +467,11 @@ pragma(inline, true):
      */
     void insertBack(R)(R values)
         if (!isArray!R &&
-            isConstructableFromIterable!R)
+            isConstructableFromRefIterable!R)
     {
         import std.range : hasLength;
-        static if (hasLength!R)
+        static if (isInputRange!R &&
+                   hasLength!R)
         {
             reserve(_length + values.length);
             import std.algorithm : copy;
@@ -790,8 +792,12 @@ version(unittest)
 @safe pure nothrow @nogc unittest
 {
     alias A = BasicArray!(SomeUncopyableStruct);
+
     A a;
-    // a.insertBack(A.init);
+    assert(a.empty);
+
+    a.insertBack(A.init);
+    assert(a.empty);
 }
 
 /// construct with string as element type that needs GC-range
@@ -833,7 +839,7 @@ struct UniqueBasicArray(T,
 
     /// Construct from range of element `values`.
     this(R)(R values)
-        if (Super.isConstructableFromIterable!R)
+        if (Super.isConstructableFromRefIterable!R)
     {
         _basicArray = Super(values);
     }

@@ -13,7 +13,16 @@ module array_help;
 T[n] asStatic(T, size_t n)(T[n] arr)
 //    @safe pure nothrow @nogc // TODO remove. needed for now in order for DIP-1000 to work correctly, See http://forum.dlang.org/post/otrsanpgmokzpzqmfyvx@forum.dlang.org
 {
-    return arr;
+    import std.traits : isCopyable;
+    static if (isCopyable!T)
+    {
+        return arr;
+    }
+    else
+    {
+        import std.algorithm.mutation : move;
+        return move(arr);
+    }
 }
 alias s = asStatic;
 

@@ -112,16 +112,17 @@ struct BasicArray(T,
         _mptr[0 .. _length] = values; // array assignment
     }
 
-    /// Is `true` iff constructable from the iterable (or range) `I`.
-    enum isConstructableFromRefIterable(I) = (is(I == struct) && // no aliasing
-                                              isRefIterable!I &&
-                                              !isInfinite!I &&
-                                              isElementAssignable!(ElementType!I));
+    /** Is `true` iff constructable from the iterable (or range) `I`.
+     */
+    enum isAssignableFromElementsOfRefIterable(I) = (is(I == struct) && // exclude class ranges for aliasing control
+                                                     isRefIterable!I &&
+                                                     !isInfinite!I &&
+                                                     isElementAssignable!(ElementType!I));
 
     /// Construct from the elements `values`.
     this(R)(R values) @trusted
         if (!isArray!R &&
-            isConstructableFromRefIterable!R)
+            isAssignableFromElementsOfRefIterable!R)
     {
         import std.range : hasLength;
         static if (hasLength!R)
@@ -467,7 +468,7 @@ pragma(inline, true):
      */
     void insertBack(R)(R values)
         if (!isArray!R &&
-            isConstructableFromRefIterable!R)
+            isAssignableFromElementsOfRefIterable!R)
     {
         import std.range : hasLength;
         static if (isInputRange!R &&
@@ -839,7 +840,7 @@ struct UniqueBasicArray(T,
 
     /// Construct from range of element `values`.
     this(R)(R values)
-        if (Super.isConstructableFromRefIterable!R)
+        if (Super.isAssignableFromElementsOfRefIterable!R)
     {
         _basicArray = Super(values);
     }

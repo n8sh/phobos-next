@@ -118,7 +118,7 @@ struct BasicArray(T,
                                         !isInfinite!R &&
                                         isElementAssignable!(ElementType!R));
 
-    /// Construct from range of element `values`.
+    /// Construct from the elements `values`.
     this(R)(R values) @trusted
         if (!isArray!R &&
             isConstructableFromRange!R)
@@ -147,7 +147,7 @@ struct BasicArray(T,
         }
     }
 
-    /// Construct from iterable of element `values`.
+    /// Construct from the elements `values`.
     this(I)(I values) @trusted
         if (!isArray!I &&
             !isCopyable!T &&
@@ -419,7 +419,7 @@ pragma(inline, true):
         insertBackMove(value);
     }
 
-    /** Insert `values` into the end of the array.
+    /** Insert the elements `values` into the end of the array.
      */
     void insertBack(U)(U[] values...) @trusted
         if (isElementAssignable!U &&
@@ -463,7 +463,7 @@ pragma(inline, true):
         _length += values.length;
     }
 
-    /** Insert `values` into the end of the array.
+    /** Insert the elements `values` into the end of the array.
      */
     void insertBack(R)(R values)
         if (!isArray!R &&

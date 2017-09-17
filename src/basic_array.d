@@ -793,7 +793,7 @@ version(unittest)
 }
 
 // construct from range of uncopyable elements
-@safe pure nothrow @nogc unittest
+@safe pure nothrow unittest //@nogc
 {
     alias T = SomeUncopyableStruct;
     alias A = BasicArray!T;
@@ -805,10 +805,10 @@ version(unittest)
 
     auto b = A([10, 20, 30].s[].map!(_ => T(_^^2))); // hasLength
     assert(b.length == 3);
-    // assert(b == [T(10), T(20), T(30)].s[]);
+    assert(b == [T(100), T(400), T(900)]);
 
     auto c = A([10, 20, 30].s[].filter!(_ => _ == 30).map!(_ => T(_^^2))); // !hasLength
-    assert(c.length == 1);
+    assert(c == [T(900)]);
 }
 
 /// construct with string as element type that needs GC-range

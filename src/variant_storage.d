@@ -71,27 +71,31 @@ private:
         }());
 }
 
-struct Node {}
-
-struct Fn1 {}
-struct Fn2 {}
-
-struct Rel1 {}
-struct Rel2 {}
-struct Rel3 {}
-
-struct Pred1 {}
-struct Pred2 {}
-struct Pred3 {}
-struct Pred4 {}
-struct Pred5 {}
-
-@safe pure nothrow @nogc unittest
+version(unittest)
 {
     alias VS = VariantStorage!(Node,
                                Fn1, Fn2,
                                Rel1, Rel2, Rel3,
                                Pred1, Pred2, Pred3, Pred4, Pred5);
+    struct Node {}
+
+    struct Fn1 { VS.Index a, b; }
+    struct Fn2 {}
+
+    struct Rel1 {}
+    struct Rel2 {}
+    struct Rel3 {}
+
+    struct Pred1 {}
+    struct Pred2 {}
+    struct Pred3 {}
+    struct Pred4 {}
+    struct Pred5 {}
+}
+
+@safe pure nothrow @nogc unittest
+{
+
 
     VS vs;
 

@@ -19,11 +19,11 @@ module array_help;
 T[n] asStatic(T, size_t n)(T[n] x)
 {
     import std.traits : isCopyable;
-    static if (isCopyable!T)
+    static if (isCopyable!T)    // TODO remove when compiler moves this
     {
         return x;
     }
-    else
+    else                        // TODO remove when compiler moves this
     {
         T[n] y = void;
 

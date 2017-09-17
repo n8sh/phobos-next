@@ -52,8 +52,7 @@ struct VariantStorage(Types...)
             foreach (const typeIx, Type; Types)
             {
             case typeIx:
-                // return xxx[index._index];
-                break;
+                mixin(`return ` ~ arrayInstanceString!ValueType ~ `[` ~ index._index ~ `];`);
             }
         }
         return typeof(return).init;
@@ -95,9 +94,7 @@ version(unittest)
 
 @safe pure nothrow @nogc unittest
 {
-
-
     VS vs;
 
-    auto node = vs.peek!Node(VS.Index.init);
+    // auto node = vs.peek!Node(Fn1);
 }

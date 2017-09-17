@@ -127,6 +127,9 @@ struct BasicArray(T,
         static if (hasLength!R)
         {
             reserve(values.length);
+        }
+        static if (isCopyable!(ElementType!R))
+        {
             _length = values.length;
             import std.algorithm : copy;
             copy(values, _mptr[0 .. _length]); // TODO better to use foreach instead?
@@ -141,20 +144,10 @@ struct BasicArray(T,
                 }
                 else
                 {
-                    insertBackMove(value);
+                    insertBackMove(value); // steal element
                 }
             }
         }
-    }
-
-    /// Construct from the elements `values`.
-    this(I)(I values) @trusted
-        if (!isArray!I &&
-            !isCopyable!T &&
-            isRefIterable!I &&
-            isElementAssignable!(ElementType!I))
-    {
-        static assert(false, "TODO implement");
     }
 
     // optional copy construction
@@ -256,7 +249,7 @@ struct BasicArray(T,
 
     /// ditto
     bool opEquals(U)(in U[] rhs) const
-        if (typeof(T.init == U.init))
+        if (is(typeof(T.init == U.init)))
     {
         return slice() == rhs;
     }
@@ -797,6 +790,25 @@ version(unittest)
 
     a.insertBack(A.init);
     assert(a.empty);
+}
+
+// construct from range of uncopyable elements
+@safe pure nothrow @nogc unittest
+{
+    alias T = SomeUncopyableStruct;
+    alias A = BasicArray!T;
+
+    A a;
+    assert(a.empty);
+
+    import std.algorithm : map, filter;
+
+    auto b = A([10, 20, 30].s[].map!(_ => T(_^^2))); // hasLength
+    assert(b.length == 3);
+    // assert(b == [T(10), T(20), T(30)].s[]);
+
+    auto c = A([10, 20, 30].s[].filter!(_ => _ == 30).map!(_ => T(_^^2))); // !hasLength
+    assert(c.length == 1);
 }
 
 /// construct with string as element type that needs GC-range

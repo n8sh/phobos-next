@@ -9,6 +9,8 @@ import std.traits : Unqual;
 
    Use `std.bitmanip.BitArray` for array container storing boolean values.
 
+   TODO Call gc_addRange in all insertBack* functions
+
    TODO make use of `Allocator` parameter when non-`null`
 
    TODO Use correct growth factor:

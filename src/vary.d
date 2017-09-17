@@ -30,7 +30,7 @@ static class VaryNException : Exception
 private struct VaryN(bool memoryPacked = false, TypesParam...)
 {
     alias Ix = ubyte; // type index type
-    enum maxParamCount = 2^^(Ix.sizeof * 8) - 1; // maximum number of allowed type parameters
+    enum maxTypesCount = 2^^(Ix.sizeof * 8) - 1; // maximum number of allowed type parameters
 
     import std.typecons : Unqual;
     import std.meta : allSatisfy, staticIndexOf, staticMap, NoDuplicates;
@@ -61,8 +61,8 @@ public:
     // static checking
     static assert(N >= 2,
                   "No use storing only one type in a " ~ name);
-    static assert(N < maxParamCount,
-                  "Cannot store more than " ~ maxParamCount.stringof ~ " Types in a " ~ name);
+    static assert(N < maxTypesCount,
+                  "Cannot store more than " ~ maxTypesCount.stringof ~ " Types in a " ~ name);
 
     /** `true` if `U` is allowed to be assigned to `this` */
     enum bool allowsAssignmentFrom(U) = ((N == 0 ||

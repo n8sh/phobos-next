@@ -39,6 +39,13 @@ version(unittest)
 
 @safe pure nothrow @nogc:
 
+unittest
+{
+    auto x = [1, 2, 3].asStatic;
+    static assert(is(typeof(x) == int[x.length]));
+    static assert(is(typeof([1, 2, 3].asStatic) == int[x.length]));
+}
+
 /// non-copyable element type in static array
 unittest
 {

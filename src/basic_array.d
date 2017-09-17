@@ -403,8 +403,7 @@ pragma(inline, true):
         }
         else
         {
-            moveEmplace(*cast(MutableE*)(&value),
-                        _mptr[_length]); // TODO remove `move` when compiler does it for us
+            insertBackMove(*cast(MutableE*)(&value));
         }
         _length += 1;
     }
@@ -415,10 +414,7 @@ pragma(inline, true):
     void insertBack()(T value) @trusted
         if (!isCopyable!T)
     {
-        reserve(_length + 1);
-        moveEmplace(*cast(MutableE*)(&value),
-                    _mptr[_length]); // TODO remove `move` when compiler does it for us
-        _length += 1;
+        insertBackMove(value);
     }
 
     /** Insert `values` into the end of the array.
@@ -525,27 +521,26 @@ pragma(inline, true):
 
     /** Forwards to $(D insertBack(values)).
      */
-    void opOpAssign(string op, Value)(Value value)
+    void opOpAssign(string op)(T value)
         if (op == "~")
     {
-        static if (is(typeof(values[])))
-        {
-            insertBack(values[]);
-        }
-        else
-        {
-            insertBack(values);
-        }
+        insertBackMove(value);
     }
-    /// ditto
-    void opOpAssign(string op)(T[] values...)
-        if (op == "~")
+
+    void opOpAssign(string op, U)(U[] values...) @trusted
+        if (op == "~" &&
+            isElementAssignable!U &&
+            isCopyable!U)       // prevent accidental move of l-value `values`
     {
         insertBack(values);
     }
-    /// ditto
-    void opOpAssign(string op)(const(T)[] values...)
-        if (op == "~")
+
+    void opOpAssign(string op, R)(R values)
+        if (op == "~" &&
+            isInputRange!R &&
+            !isInfinite!R &&
+            !isArray!R &&
+            isElementAssignable!(ElementType!R))
     {
         insertBack(values);
     }
@@ -762,11 +757,18 @@ version(unittest)
 @safe pure nothrow /*@nogc*/ unittest
 {
     alias A = BasicArray!(SomeUncopyableStruct);
-    A a0 = A(SomeUncopyableStruct(17));
 
-    a0.insertBack(SomeUncopyableStruct(18));
-    assert(a0[] == [SomeUncopyableStruct(17),
-                    SomeUncopyableStruct(18)]);
+    A a = A(SomeUncopyableStruct(17));
+    assert(a[] == [SomeUncopyableStruct(17)]);
+
+    a.insertBack(SomeUncopyableStruct(18));
+    assert(a[] == [SomeUncopyableStruct(17),
+                   SomeUncopyableStruct(18)]);
+
+    a ~= SomeUncopyableStruct(19);
+    assert(a[] == [SomeUncopyableStruct(17),
+                   SomeUncopyableStruct(18),
+                   SomeUncopyableStruct(19)]);
 }
 
 /// construct from slice of uncopyable type

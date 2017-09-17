@@ -45,17 +45,26 @@ struct VariantStorage(Types...)
     }
 
     /// Peek at element of type `PeekedValueType` at `peekedIndex`.
-    PeekedValueType peek(PeekedValueType)(in Index peekedIndex)
+    auto ref peek(PeekedValueType)(in Index peekedIndex)
     {
+        import std.conv : to;
+        const peekedIndexString = peekedIndex._index.to!string;
+        mixin(`return ` ~ arrayInstanceString!PeekedValueType ~ `[peekedIndexString];`);
+    }
+
+    /// Peek at element of type `PeekedValueType` at `peekedIndex`.
+    void print(PeekedValueType)(in Index peekedIndex)
+    {
+        import std.conv : to;
+        const peekedIndexString = peekedIndex._index.to!string;
         final switch (peekedIndex._type)
         {
             foreach (const typeIx, Type; Types)
             {
             case typeIx:
-                mixin(`return ` ~ arrayInstanceString!PeekedValueType ~ `[` ~ peekedIndex._index ~ `];`);
+                mixin(`return ` ~ arrayInstanceString!PeekedValueType ~ `[peekedIndexString];`);
             }
         }
-        return typeof(return).init;
     }
 
 private:
@@ -64,7 +73,7 @@ private:
             string s = "";
             foreach (i, Type; Types)
             {
-                s ~= arrayTypeString!Type ~ ` ` ~ `_values` ~ arrayInstanceString!Type ~ `;`;
+                s ~= arrayTypeString!Type ~ ` ` ~ arrayInstanceString!Type ~ `;`;
             }
             return s;
         }());
@@ -72,11 +81,9 @@ private:
 
 version(unittest)
 {
-    alias VS = VariantStorage!(Node,
-                               Fn1, Fn2,
+    alias VS = VariantStorage!(Fn1, Fn2,
                                Rel1, Rel2, Rel3,
                                Pred1, Pred2, Pred3, Pred4, Pred5);
-    struct Node {}
 
     struct Fn1 { VS.Index a; }
     struct Fn2 { VS.Index a, b; }
@@ -96,5 +103,5 @@ version(unittest)
 {
     VS vs;
 
-    // auto node = vs.peek!Node(Fn1);
+    auto node = vs.peek!Fn1(0);
 }

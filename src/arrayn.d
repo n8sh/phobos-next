@@ -145,7 +145,7 @@ struct ArrayN(E,
 
     /** Returns: `true` if `needle` is contained in `this` haystack. */
     bool canFind(N)(const(N)[] needle) const @trusted
-        if (is(typeof(E.init == N.init)))
+        if (is(typeof(E.init == N.init))) // TODO reuse some trait in Phobos?
     {
         import std.algorithm.searching : canFind;
         return _store.ptr[0 .. _length].canFind(needle);

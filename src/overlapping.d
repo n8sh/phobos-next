@@ -1,9 +1,11 @@
 module overlappping;
 
+@safe pure nothrow @nogc:
+
 /** Returns: Slice Overlap of $(D a) and $(D b) in order given by arguments.
  */
 inout(T[]) overlapsInOrder(T)(inout(T[]) a,
-                              inout(T[]) b) /* @trusted pure nothrow */
+                              inout(T[]) b)
     @trusted pure nothrow @nogc
 {
     if (a.ptr <= b.ptr &&       // if a-start lies at or before b-start
@@ -39,7 +41,7 @@ bool overlaps(T)(in const(T)[] r1,
 }
 
 ///
-@safe pure nothrow @nogc unittest
+unittest
 {
     auto x = [-11_111, 11, 22, 333_333].s;
     const y = [-22_222, 441, 555, 66].s;
@@ -81,7 +83,7 @@ inout(T[]) overlap(T)(inout(T[]) a,
 }
 
 ///
-@safe pure unittest
+unittest
 {
     auto x = [-11_111, 11, 22, 333_333].s;
     const y = [-22_222, 441, 555, 66].s;

@@ -45,6 +45,7 @@ struct VariantStorage(Types...)
     }
 
     /// Peek at element of type `PeekedValueType` at `peekedIndex`.
+    version(none)
     auto ref peek(PeekedValueType)(in Index peekedIndex)
     {
         import std.conv : to;
@@ -103,5 +104,5 @@ version(unittest)
 {
     VS vs;
 
-    auto node = vs.peek!Fn1(0);
+    // auto node = vs.peek!Fn1(0);
 }

@@ -87,7 +87,7 @@ private:
             string s = "";
             foreach (i, Type; Types)
             {
-                pragma(msg, Type);
+                // pragma(msg, Type);
                 s ~= arrayTypeString!Type ~ ` ` ~ arrayInstanceString!Type ~ `;`;
             }
             return s;

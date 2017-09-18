@@ -141,13 +141,12 @@ version(unittest)
                                  string,
                                  ulong);
 
-    import arrayn : ArrayN, Checking;
+    import chars : FewChars;
 
-    // small strings
-    alias Chars7  = ArrayN!(char, 7);
-    alias Chars15 = ArrayN!(char, 15);
-    alias Chars23 = ArrayN!(char, 23);
-    alias Chars31 = ArrayN!(char, 31);
+    alias Chars7  = FewChars!(7);
+    alias Chars15 = FewChars!(15);
+    alias Chars23 = FewChars!(23);
+    alias Chars31 = FewChars!(31);
 
     static assert(Chars7.sizeof == 8);
     static assert(Chars15.sizeof == 16);

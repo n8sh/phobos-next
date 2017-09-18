@@ -96,16 +96,20 @@ private:
 
 version(unittest)
 {
-    alias VS = VariantStorage!(Fn1, Fn2,
-                               Rel1, Rel2, Rel3,
+    alias VS = VariantStorage!(Fn1, Fn2, Fn3, Fn4,
+                               Rel1, Rel2, Rel3, Rel4, Rel5,
                                Pred1, Pred2, Pred3, Pred4, Pred5);
 
     struct Fn1 { VS.Index a; }
     struct Fn2 { VS.Index a, b; }
+    struct Fn3 { VS.Index a, b, c; }
+    struct Fn4 { VS.Index a, b, c, d; }
 
     struct Rel1 { VS.Index a; }
     struct Rel2 { VS.Index a, b; }
     struct Rel3 { VS.Index a, b, c; }
+    struct Rel4 { VS.Index a, b, c, d; }
+    struct Rel5 { VS.Index a, b, c, d, e; }
 
     struct Pred1 { VS.Index a; }
     struct Pred2 { VS.Index a, b; }

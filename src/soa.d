@@ -45,7 +45,7 @@ struct SOA(S)
         return getArray!index;
     }
 
-    void pushBackMembers(Types types)
+    void insertBackMembers(Types types)
     {
         if (_length == _capacity) { grow(); }
         foreach (const index, _; MemberNames)
@@ -57,7 +57,7 @@ struct SOA(S)
     }
 
     /// Push element `e` to back of array.
-    void pushBack(S e)
+    void insertBack(S e)
     {
         if (_length == _capacity) { grow(); }
         foreach (const index, _; MemberNames)
@@ -72,7 +72,7 @@ struct SOA(S)
         if (op == "~")
     {
         import std.algorithm.mutation : move;
-        pushBack(move(e));      // TODO remove when compiler does this for us
+        insertBack(move(e));      // TODO remove when compiler does this for us
     }
 
     /// Length of this array.
@@ -194,13 +194,13 @@ unittest
 
     assert(x.length == 0);
 
-    x.pushBack(S.init);
+    x.insertBack(S.init);
     assert(x.length == 1);
 
     x ~= S.init;
     assert(x.length == 2);
 
-    x.pushBackMembers(42, 43f);
+    x.insertBackMembers(42, 43f);
     assert(x.length == 3);
     assert(x.i[2] == 42);
     assert(x.f[2] == 43f);

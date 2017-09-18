@@ -2,9 +2,7 @@
     See also: http://forum.dlang.org/thread/wswbtzakdvpgaebuhbom@forum.dlang.org
 */
 
-import array_ex : Array;
-
-alias Stack = Array;
+import array_ex : Stack = Array;
 
 @safe pure nothrow @nogc unittest
 {
@@ -13,17 +11,17 @@ alias Stack = Array;
     Stack!T s;
     assert(s.empty);
 
-    // pushBack:
+    // insertBack:
 
-    s.pushBack(13);
+    s.insertBack(13);
     assert(!s.empty);
     assert(s.back == 13);
 
-    s.pushBack(14);
+    s.insertBack(14);
     assert(!s.empty);
     assert(s.back == 14);
 
-    s.pushBack(15);
+    s.insertBack(15);
     assert(!s.empty);
     assert(s.back == 15);
 
@@ -40,9 +38,9 @@ alias Stack = Array;
     s.popBack();
     assert(s.empty);
 
-    // pushBack:
+    // insertBack:
 
-    s.pushBack(13, 14, 15);
+    s.insertBack(13, 14, 15);
     assert(!s.empty);
     assert(s.back == 15);
 

@@ -155,7 +155,7 @@ struct ArrayN(E,
         Throws when array becomes full.
         NOTE doesn't invalidate any borrow
      */
-    void pushBack(Es...)(Es es) @trusted
+    void insertBack(Es...)(Es es) @trusted
         if (Es.length <= capacity)
     {
         import std.exception : enforce;
@@ -168,13 +168,13 @@ struct ArrayN(E,
         _length = cast(typeof(_length))(_length + Es.length); // TODO better?
     }
     /// ditto
-    alias put = pushBack;       // `OutputRange` support
+    alias put = insertBack;       // `OutputRange` support
 
     /** Try to add elements `es` to the back.
         NOTE doesn't invalidate any borrow
         Returns: `true` iff all `es` were pushed, `false` otherwise.
      */
-    bool pushBackMaybe(Es...)(Es es) @trusted
+    bool insertBackMaybe(Es...)(Es es) @trusted
         if (Es.length <= capacity)
     {
         if (_length + Es.length > capacity) { return false; }
@@ -187,7 +187,7 @@ struct ArrayN(E,
         return true;
     }
     /// ditto
-    alias putMaybe = pushBackMaybe;
+    alias putMaybe = insertBackMaybe;
 
     /** Add elements `es` to the back.
         NOTE doesn't invalidate any borrow
@@ -197,7 +197,7 @@ struct ArrayN(E,
             values.length >= 1 &&
             allSatisfy!(isElementAssignable, Us))
     {
-        pushBack(move(values)); // TODO remove `move` when compiler does it for
+        insertBack(move(values)); // TODO remove `move` when compiler does it for
     }
 
     import std.traits : isMutable;
@@ -468,7 +468,7 @@ version(none) pure unittest     // TODO activate
     assert(ab.length == 2);
     assert(ab[] == "ab");
     assert(ab[0 .. 1] == "a");
-    assertNotThrown(ab.pushBack('_'));
+    assertNotThrown(ab.insertBack('_'));
     assert(ab[] == "ab_");
     ab.popBack();
     assert(ab[] == "ab");
@@ -476,7 +476,7 @@ version(none) pure unittest     // TODO activate
 
     ab.popBackN(2);
     assert(ab.empty);
-    assertNotThrown(ab.pushBack('a', 'b'));
+    assertNotThrown(ab.insertBack('a', 'b'));
 
     const abc = A("abc");
     assert(!abc.empty);

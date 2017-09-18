@@ -858,7 +858,7 @@ private struct Array(E,
     static if (!isOrdered!ordering) // for unsorted arrays
     {
         /// Push back (append) `values`.
-        pragma(inline) void pushBack(Us...)(Us values) @("complexity", "O(1)") @trusted
+        pragma(inline) void insertBack(Us...)(Us values) @("complexity", "O(1)") @trusted
             if (values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
         {
@@ -881,7 +881,7 @@ private struct Array(E,
         }
 
         /// ditto
-        void pushBack(R)(R values) @("complexity", "O(values.length)") @trusted
+        void insertBack(R)(R values) @("complexity", "O(values.length)") @trusted
             if (isInputRange!R && !isInfinite!R &&
                 !(isArray!R) &&
                 !(isArrayContainer!R) &&
@@ -913,13 +913,13 @@ private struct Array(E,
             {
                 foreach (ref value; values) // `ref` so we can `move`
                 {
-                    pushBack(value);
+                    insertBack(value);
                 }
             }
         }
 
         /// ditto.
-        void pushBack(A)(A values) @trusted @("complexity", "O(values.length)")
+        void insertBack(A)(A values) @trusted @("complexity", "O(values.length)")
             if (isArray!A &&
                 (is(MutableE == Unqual!(typeof(A.init[0]))) || // for narrow strings
                  isElementAssignable!(ElementType!A)))
@@ -969,14 +969,14 @@ private struct Array(E,
         }
 
         /// ditto.
-        void pushBack(A)(in ref A values) @trusted @("complexity", "O(values.length)") // TODO `in` parameter qualifier doesn't work here. Compiler bug?
+        void insertBack(A)(in ref A values) @trusted @("complexity", "O(values.length)") // TODO `in` parameter qualifier doesn't work here. Compiler bug?
             if (isArrayContainer!A &&
                 (is(MutableE == Unqual!(typeof(A.init[0]))) || // for narrow strings
                  isElementAssignable!(ElementType!A)))
         {
-            pushBack(values[]);
+            insertBack(values[]);
         }
-        alias put = pushBack;   // OutputRange support
+        alias put = insertBack;   // OutputRange support
 
 
         // NOTE these separate overloads of opOpAssign are needed because one
@@ -989,22 +989,22 @@ private struct Array(E,
                 allSatisfy!(isElementAssignable, Us))
         {
             assert(!isBorrowed);
-            pushBack(move(values)); // TODO remove `move` when compiler does it for us
+            insertBack(move(values)); // TODO remove `move` when compiler does it for us
             // static if (values.length == 1)
             // {
             //     import std.traits : hasIndirections;
             //     static if (hasIndirections!(Us[0]))
             //     {
-            //         pushBack(move(values)); // TODO remove `move` when compiler does it for us
+            //         insertBack(move(values)); // TODO remove `move` when compiler does it for us
             //     }
             //     else
             //     {
-            //         pushBack(move(cast(Unqual!(Us[0]))values[0])); // TODO remove `move` when compiler does it for us
+            //         insertBack(move(cast(Unqual!(Us[0]))values[0])); // TODO remove `move` when compiler does it for us
             //     }
             // }
             // else
             // {
-            //     pushBack(move(values)); // TODO remove `move` when compiler does it for us
+            //     insertBack(move(values)); // TODO remove `move` when compiler does it for us
             // }
         }
 
@@ -1015,7 +1015,7 @@ private struct Array(E,
                 allSatisfy!(isElementAssignable, ElementType!R))
         {
             assert(!isBorrowed);
-            pushBack(move(values)); // TODO remove `move` when compiler does it for us
+            insertBack(move(values)); // TODO remove `move` when compiler does it for us
         }
 
         pragma(inline, true)
@@ -1025,7 +1025,7 @@ private struct Array(E,
                 isElementAssignable!(ElementType!A))
         {
             assert(!isBorrowed);
-            pushBack(values);
+            insertBack(values);
         }
     }
 
@@ -1121,7 +1121,7 @@ private struct Array(E,
                         hits[i] = !this[0 .. initialLength].contains(value);
                         if (hits[i])
                         {
-                            pushBackHelper(value); // NOTE: append but don't yet sort
+                            insertBackHelper(value); // NOTE: append but don't yet sort
                             ++expandedLength;
                         }
                     }
@@ -1158,7 +1158,7 @@ private struct Array(E,
                 }
                 else
                 {
-                    pushBackHelper(values); // simpler because duplicates are allowed
+                    insertBackHelper(values); // simpler because duplicates are allowed
                     immutable ix = this.length - values.length;
                     import std.algorithm.sorting : completeSort;
                     completeSort!comp(_mptr[0 .. ix].assumeSorted!comp,
@@ -1246,7 +1246,7 @@ private struct Array(E,
         setOnlyLength(this.length + values.length);
     }
 
-    private void pushBackHelper(Us...)(Us values) @trusted nothrow @("complexity", "O(1)")
+    private void insertBackHelper(Us...)(Us values) @trusted nothrow @("complexity", "O(1)")
     {
         const newLength = this.length + values.length;
         reserve(newLength);
@@ -2138,10 +2138,10 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assertNotThrown(ssA.popAtIndex(2));
             assert(ssA[].equal([1, 2, 4, 5].s[]));
 
-            // pushBack and assignment from slice
+            // insertBack and assignment from slice
             auto ssB = Array!(E, assignment, ordering, supportGC, size_t, less).withLength(0);
-            ssB.pushBack([1, 2, 3, 4, 5].s[]);
-            ssB.pushBack([6, 7]);
+            ssB.insertBack([1, 2, 3, 4, 5].s[]);
+            ssB.insertBack([6, 7]);
             assert(ssB[].equal([1, 2, 3, 4, 5, 6, 7].s[]));
             assert(ssB.backPop() == 7);
             assert(ssB.backPop() == 6);
@@ -2152,7 +2152,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ssB.backPop() == 1);
             assert(ssB.empty);
 
-            // pushBack(Array)
+            // insertBack(Array)
             {
                 immutable s = [1, 2, 3];
                 Array!(E, assignment, ordering, supportGC, size_t, less) s1 = s;
@@ -2169,7 +2169,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 
             auto ssC = Array!(E, assignment, ordering, supportGC, size_t, less).withLength(0);
             immutable(int)[] i5 = [1, 2, 3, 4, 5].s[];
-            ssC.pushBack(i5);
+            ssC.insertBack(i5);
             assert(i5 == [1, 2, 3, 4, 5].s[]);
             assert(ssC[].equal(i5));
 
@@ -2192,7 +2192,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ssC[].length == 0);
             assert(ssC.empty);
 
-            ssC.pushBack(i5);
+            ssC.insertBack(i5);
             ssC.popBackN(3);
             assert(ssC[].equal([1, 2].s[]));
 
@@ -2571,7 +2571,7 @@ pure nothrow /+TODO @nogc+/ unittest
     A z = y.dup;                // check that dup returns same type
     z = A.init;
     const w = [0, 1].s;
-    z.pushBack(w[]);
+    z.insertBack(w[]);
     assert(z[].equal(w[]));
 }
 
@@ -2582,15 +2582,15 @@ pure nothrow /+TODO @nogc+/ unittest
     A x;
     const y = [0, 1, 2, 3].s;
 
-    x.pushBack(y[]);
+    x.insertBack(y[]);
     assert(x[].equal(y[]));
 
     x.clear();
-    x.pushBack(y[].map!(_ => _^^2)); // rhs has length (`hasLength`)
+    x.insertBack(y[].map!(_ => _^^2)); // rhs has length (`hasLength`)
     assert(x[].equal(y[].map!(_ => _^^2)));
 
     x.clear();
-    x.pushBack(y[].filter!(_ => _ & 1)); // rhs has no length (`!hasLength`)
+    x.insertBack(y[].filter!(_ => _ & 1)); // rhs has no length (`!hasLength`)
     assert(x[].equal(y[].filter!(_ => _ & 1)));
 }
 
@@ -2642,7 +2642,7 @@ pure nothrow /+TODO @nogc+/ unittest
  */
 C append(C, Args...)(auto ref C data,
                      auto ref Args args)
-    if (args.length >= 1)    // TODO trait: when `C` is a container supporting `pushBack`
+    if (args.length >= 1)    // TODO trait: when `C` is a container supporting `insertBack`
 {
     static if (__traits(isRef, data)) // `data` is an r-value
     {
@@ -2652,10 +2652,10 @@ C append(C, Args...)(auto ref C data,
     {
         alias mutableData = data;
     }
-    // TODO use `mutableData.pushBack(args);` instead
+    // TODO use `mutableData.insertBack(args);` instead
     foreach (ref arg; args)
     {
-        mutableData.pushBack(arg);
+        mutableData.insertBack(arg);
     }
     import std.algorithm.mutation : move;
     return move(mutableData);
@@ -2693,7 +2693,7 @@ version(unittest)
     alias A = UniqueArray!SS;
     A x;
     x ~= SS.init;
-    // TODO x.pushBack(A.init);
+    // TODO x.insertBack(A.init);
 }
 
 // TODO implement?

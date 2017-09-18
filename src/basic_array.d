@@ -267,6 +267,28 @@ struct CopyableArray(T,
         return hash;
     }
 
+    /** Return a string representation of this BitArrayN.
+     *
+     * Two format specifiers are supported:
+     * $(LI $(B %s) which prints the bits as an array, and)
+     * $(LI $(B %b) which prints the bits as 8-bit byte packets)
+     * separated with an underscore.
+     */
+    static if (isCopyable!T)
+    {
+        void toString(scope void delegate(const(char)[]) sink /* , FormatSpec!char fmt */) const
+        {
+            sink("[");
+            foreach (const ix, ref value; slice())
+            {
+                import std.format : formattedWrite;
+                sink.formattedWrite("%s", value);
+                if (ix + 1 < length) { sink(", "); } // separator
+            }
+            sink("]");
+        }
+    }
+
 pragma(inline, true):
 
     /// Check if empty.

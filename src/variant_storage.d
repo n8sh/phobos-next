@@ -67,10 +67,11 @@ struct VariantStorage(Types...)
     }
 
     /** Insert `value` at back. */
-    void insertBack(U)(U value)
+    Index insertBack(U)(U value)
         if (canStore!U)
     {
         mixin(arrayInstanceString!U ~ `.insertBack(value);`);
+        assert(false, `TODO return type index`);
     }
 
     /** Returns: length of store. */
@@ -84,22 +85,22 @@ struct VariantStorage(Types...)
         return lengthSum;
     }
 
-    /// Peek at element of type `U` at `peekedIndex`.
+    /// Peek at element of type `U` at `index`.
     version(none)
-    auto ref peek(U)(in Index peekedIndex)
+    auto ref peek(U)(in Index index)
         if (canStore!U)
     {
         import std.conv : to;
-        const peekedIndexString = peekedIndex._index.to!string;
+        const peekedIndexString = index._index.to!string;
         mixin(`return ` ~ arrayInstanceString!U ~ `[peekedIndexString];`);
     }
 
-    /// Peek at element of type `U` at `peekedIndex`.
-    // void print(U)(in Index peekedIndex)
+    /// Peek at element of type `U` at `index`.
+    // void print(U)(in Index index)
     // {
     //     import std.conv : to;
-    //     const peekedIndexString = peekedIndex._index.to!string;
-    //     final switch (peekedIndex._type)
+    //     const peekedIndexString = index._index.to!string;
+    //     final switch (index._type)
     //     {
     //         foreach (const typeIx, Type; Types)
     //         {
@@ -125,7 +126,7 @@ version(unittest)
 {
     import chars : FewChars;
     alias Data = VariantStorage!(FewChars!7,
-                                 string,
+                                 FewChars!15,
                                  ulong);
 }
 
@@ -140,6 +141,9 @@ version(unittest)
 
     data.insertBack(FewChars!7.init);
     assert(data.length == 2);
+
+    data.insertBack(FewChars!15.init);
+    assert(data.length == 3);
 }
 
 version(unittest)

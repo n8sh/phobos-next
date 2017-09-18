@@ -147,6 +147,11 @@ version(unittest)
     alias Chars23 = ArrayN!(char, 23);
     alias Chars31 = ArrayN!(char, 31);
 
+    static assert(Chars7.sizeof == 8);
+    static assert(Chars15.sizeof == 16);
+    static assert(Chars23.sizeof == 24);
+    static assert(Chars31.sizeof == 32);
+
     Data data;
 }
 

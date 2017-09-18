@@ -28,6 +28,10 @@ struct VariantStorage(Types...)
 {
     alias Index = VariantIndex!Types;
 
+    import std.meta : staticIndexOf;
+    enum indexOf(T) = staticIndexOf!(T, Types); // TODO cast to ubyte if Types.length is <= 256
+    enum canStore(T) = indexOf!T >= 0;
+
     import basic_copyable_array : CopyableArray; // TODO break out `BasicArray` from CopyableArray
 
     static string typeStringOf(Type)()
@@ -62,29 +66,48 @@ struct VariantStorage(Types...)
         }
     }
 
-    /// Peek at element of type `PeekedValueType` at `peekedIndex`.
-    version(none)
-    auto ref peek(PeekedValueType)(in Index peekedIndex)
+    /** Insert `value` at back. */
+    void insertBack(U)(U value)
+        if (canStore!U)
     {
-        import std.conv : to;
-        const peekedIndexString = peekedIndex._index.to!string;
-        mixin(`return ` ~ arrayInstanceString!PeekedValueType ~ `[peekedIndexString];`);
+        mixin(arrayInstanceString!U ~ `.insertBack(value);`);
     }
 
-    /// Peek at element of type `PeekedValueType` at `peekedIndex`.
-    void print(PeekedValueType)(in Index peekedIndex)
+    /** Returns: length of store. */
+    @property size_t length() const
+    {
+        typeof(return) lengthSum = 0;
+        foreach (Type; Types)
+        {
+            mixin(`lengthSum += ` ~ arrayInstanceString!Type ~ `.length;`);
+        }
+        return lengthSum;
+    }
+
+    /// Peek at element of type `U` at `peekedIndex`.
+    version(none)
+    auto ref peek(U)(in Index peekedIndex)
+        if (canStore!U)
     {
         import std.conv : to;
         const peekedIndexString = peekedIndex._index.to!string;
-        final switch (peekedIndex._type)
-        {
-            foreach (const typeIx, Type; Types)
-            {
-            case typeIx:
-                mixin(`return ` ~ arrayInstanceString!PeekedValueType ~ `[peekedIndexString];`);
-            }
-        }
+        mixin(`return ` ~ arrayInstanceString!U ~ `[peekedIndexString];`);
     }
+
+    /// Peek at element of type `U` at `peekedIndex`.
+    // void print(U)(in Index peekedIndex)
+    // {
+    //     import std.conv : to;
+    //     const peekedIndexString = peekedIndex._index.to!string;
+    //     final switch (peekedIndex._type)
+    //     {
+    //         foreach (const typeIx, Type; Types)
+    //         {
+    //         case typeIx:
+    //             mixin(`return ` ~ arrayInstanceString!U ~ `[peekedIndexString];`);
+    //         }
+    //     }
+    // }
 
 private:
     // storages
@@ -98,27 +121,21 @@ private:
         }());
 }
 
-/// test regular store
 version(unittest)
 {
-    alias Data = VariantStorage!(Chars7,
-                                 Chars15,
-                                 Chars23,
-                                 Chars31,
+    import chars : FewChars;
+    alias Data = VariantStorage!(FewChars!(7),
                                  string,
                                  ulong);
+}
 
-    import chars : FewChars;
-
-    alias Chars7  = FewChars!(7);
-    alias Chars15 = FewChars!(15);
-    alias Chars23 = FewChars!(23);
-    alias Chars31 = FewChars!(31);
-
-    static assert(Chars7.sizeof == 8);
-    static assert(Chars15.sizeof == 16);
-    static assert(Chars23.sizeof == 24);
-    static assert(Chars31.sizeof == 32);
+/// test regular store
+@safe pure nothrow @nogc unittest
+{
+    Data data;
+    assert(data.length == 0);
+    data.insertBack(ulong(13));
+    assert(data.length == 1);
 }
 
 version(unittest)

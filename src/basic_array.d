@@ -267,15 +267,10 @@ struct CopyableArray(T,
         return hash;
     }
 
-    /** Return a string representation of this BitArrayN.
-     *
-     * Two format specifiers are supported:
-     * $(LI $(B %s) which prints the bits as an array, and)
-     * $(LI $(B %b) which prints the bits as 8-bit byte packets)
-     * separated with an underscore.
-     */
     static if (isCopyable!T)
     {
+        /** Construct a string representation of `this` at `sink`.
+         */
         void toString(scope void delegate(const(char)[]) sink /* , FormatSpec!char fmt */) const
         {
             sink("[");
@@ -853,6 +848,16 @@ version(unittest)
 
     a ~= b;
     assert(a[] == [`alpha`, `beta`, `gamma`, `delta`, `epsilon`, `epsilon`].s);
+}
+
+/// convert to string
+// @safe pure nothrow
+unittest
+{
+    alias T = int;
+    alias A = CopyableArray!(T);
+    import std.stdio : writeln;
+    writeln(A([1, 2, 3]));
 }
 
 /** Non-copyable variant of `CopyableArray`.

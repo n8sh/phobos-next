@@ -279,7 +279,9 @@ enum Gop : ubyte
 import std.bitmanip : BitArray;
 import std.random : Random, uniform;
 
-import basic_array : CopyableArray, UncopyableArray;
+import basic_copyable_array : CopyableArray;
+import basic_uncopyable_array : UncopyableArray;
+
 import traits_ex : packedBitSizeOf;
 import typecons_ex : IndexedBy;
 import owned : Owned;

@@ -28,7 +28,7 @@ struct VariantStorage(Types...)
 {
     alias Index = VariantIndex!Types;
 
-    import basic_array : Array = CopyableArray; // TODO break out `BasicArray` from CopyableArray
+    import basic_copyable_array : CopyableArray; // TODO break out `BasicArray` from CopyableArray
 
     static string typeStringOf(Type)()
     {
@@ -45,7 +45,7 @@ struct VariantStorage(Types...)
     /// Returns: array type (as a string) of `Type`.
     static string arrayTypeString(Type)()
     {
-        return `Array!(` ~ Type.stringof ~ `)`;
+        return `CopyableArray!(` ~ Type.stringof ~ `)`;
     }
 
     /// Returns: array instance (as a strinng) storing `Type`.

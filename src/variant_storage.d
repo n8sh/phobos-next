@@ -32,16 +32,29 @@ struct VariantStorage(Types...)
 
     import basic_array : Array = UncopyableArray;
 
+    static string typeStringOf(Type)()
+    {
+        // static if (__traits(hasMember, Type, `typeString`))
+        // {
+        //     return Type.typeString;
+        // }
+        // else
+        // {
+        //     return Type.mangleof;
+        // }
+        return Type.stringof;
+    }
+
     /// Returns: array type (as a string) of `Type`.
     static string arrayTypeString(Type)()
     {
-        return `Array!` ~ Type.stringof;
+        return `Array!` ~ typeStringOf!Type;
     }
 
     /// Returns: array instance (as a strinng) storing `Type`.
     static string arrayInstanceString(Type)()
     {
-        return `_values` ~ Type.stringof;
+        return `_values` ~ typeStringOf!Type;
     }
 
     /// Peek at element of type `PeekedValueType` at `peekedIndex`.

@@ -1,3 +1,4 @@
+
 module basic_copyable_array;
 
 import std.traits : Unqual;
@@ -8,6 +9,9 @@ import std.traits : Unqual;
     memory.
 
     Use `std.bitmanip.BitArray` for array container storing boolean values.
+
+    TODO Add OutputRange.writer support as
+    https://github.com/burner/StringBuffer/blob/master/source/stringbuffer.d#L45
 
     TODO Call gc_addRange in all insertBack* functions
 

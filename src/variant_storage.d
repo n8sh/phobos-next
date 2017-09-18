@@ -60,6 +60,14 @@ struct VariantStorage(Types...)
         return `_values` ~ typeStringOf!Type;
     }
 
+    version(LDC)
+    {
+        static if (__VERSION__ >= 2076)
+        {
+            pragma(msg, __FILE__ ~ ":" ~ __LINE__.stringof ~ ": info: LDC now has foreach, so use it to generate arrays");
+        }
+    }
+
     /// Peek at element of type `PeekedValueType` at `peekedIndex`.
     version(none)
     auto ref peek(PeekedValueType)(in Index peekedIndex)

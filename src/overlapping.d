@@ -21,6 +21,44 @@ inout(T[]) overlapsInOrder(T)(inout(T[]) a,
     }
 }
 
+/** Helper for overlap().
+    Copied from std.array with simplified return expression.
+ */
+bool overlaps(T)(in const(T)[] r1,
+                 in const(T)[] r2)
+    @trusted pure nothrow @nogc
+{
+    alias U = inout(T);
+    static U* max(U* a, U* b) nothrow { return a > b ? a : b; }
+    static U* min(U* a, U* b) nothrow { return a < b ? a : b; }
+
+    auto b = max(r1.ptr, r2.ptr);
+    auto e = min(r1.ptr + r1.length,
+                 r2.ptr + r2.length);
+    return b < e;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    auto x = [-11_111, 11, 22, 333_333].s;
+    const y = [-22_222, 441, 555, 66].s;
+
+    assert(!overlaps(x, y));
+    assert(!overlaps(y, x));
+
+    auto x01 = x[0..1];
+    auto x12 = x[1..2];
+    auto x23 = x[2..3];
+
+    assert(overlaps(x, x12));
+    assert(overlaps(x, x01));
+    assert(overlaps(x, x23));
+    assert(overlaps(x01, x));
+    assert(overlaps(x12, x));
+    assert(overlaps(x23, x));
+}
+
 /** Returns: Slice Overlap of $(D a) and $(D b) in any order.
     Deprecated by: std.array.overlap
  */
@@ -63,44 +101,6 @@ inout(T[]) overlap(T)(inout(T[]) a,
     assert(overlap(x01, x) == x01);
     assert(overlap(x12, x) == x12);
     assert(overlap(x23, x) == x23);
-}
-
-/** Helper for overlap().
-    Copied from std.array with simplified return expression.
- */
-bool overlaps(T)(in const(T)[] r1,
-                 in const(T)[] r2)
-    @trusted pure nothrow @nogc
-{
-    alias U = inout(T);
-    static U* max(U* a, U* b) nothrow { return a > b ? a : b; }
-    static U* min(U* a, U* b) nothrow { return a < b ? a : b; }
-
-    auto b = max(r1.ptr, r2.ptr);
-    auto e = min(r1.ptr + r1.length,
-                 r2.ptr + r2.length);
-    return b < e;
-}
-
-///
-@safe pure nothrow @nogc unittest
-{
-    auto x = [-11_111, 11, 22, 333_333].s;
-    const y = [-22_222, 441, 555, 66].s;
-
-    assert(!overlaps(x, y));
-    assert(!overlaps(y, x));
-
-    auto x01 = x[0..1];
-    auto x12 = x[1..2];
-    auto x23 = x[2..3];
-
-    assert(overlaps(x, x12));
-    assert(overlaps(x, x01));
-    assert(overlaps(x, x23));
-    assert(overlaps(x01, x));
-    assert(overlaps(x12, x));
-    assert(overlaps(x23, x));
 }
 
 version(unittest)

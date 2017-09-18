@@ -136,6 +136,8 @@ version(unittest)
     assert(data.length == 0);
     data.insertBack(ulong(13));
     assert(data.length == 1);
+    data.insertBack(ulong(14));
+    assert(data.length == 2);
 }
 
 version(unittest)

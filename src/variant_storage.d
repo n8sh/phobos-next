@@ -28,7 +28,7 @@ struct VariantStorage(Types...)
 {
     alias Index = VariantIndex!Types;
 
-    import basic_array : Array = CopyableArray;
+    import basic_array : Array = CopyableArray; // TODO break out `BasicArray` from CopyableArray
 
     static string typeStringOf(Type)()
     {
@@ -98,6 +98,29 @@ private:
         }());
 }
 
+/// test regular store
+version(unittest)
+{
+    alias Data = VariantStorage!(Chars7,
+                                 Chars15,
+                                 Chars23,
+                                 Chars31,
+                                 string,
+                                 ulong);
+
+    import chars : FewChars;
+
+    alias Chars7  = FewChars!(7);
+    alias Chars15 = FewChars!(15);
+    alias Chars23 = FewChars!(23);
+    alias Chars31 = FewChars!(31);
+
+    static assert(Chars7.sizeof == 8);
+    static assert(Chars15.sizeof == 16);
+    static assert(Chars23.sizeof == 24);
+    static assert(Chars31.sizeof == 32);
+}
+
 version(unittest)
 {
     alias VS = VariantStorage!(Rel1, Rel2, Rel3, Rel4, Rel5,
@@ -128,28 +151,5 @@ version(unittest)
 @safe pure nothrow @nogc unittest
 {
     VS vs;
-
     // auto node = vs.peek!Fn1(0);
-}
-
-version(unittest)
-{
-    alias Data = VariantStorage!(Chars7,
-                                 Chars15,
-                                 Chars23,
-                                 Chars31,
-                                 string,
-                                 ulong);
-
-    import chars : FewChars;
-
-    alias Chars7  = FewChars!(7);
-    alias Chars15 = FewChars!(15);
-    alias Chars23 = FewChars!(23);
-    alias Chars31 = FewChars!(31);
-
-    static assert(Chars7.sizeof == 8);
-    static assert(Chars15.sizeof == 16);
-    static assert(Chars23.sizeof == 24);
-    static assert(Chars31.sizeof == 32);
 }

@@ -159,8 +159,6 @@ version(unittest)
     static assert(Chars15.sizeof == 16);
     static assert(Chars23.sizeof == 24);
     static assert(Chars31.sizeof == 32);
-
-    Data data;
 }
 
 @safe pure nothrow @nogc unittest

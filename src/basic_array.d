@@ -82,7 +82,7 @@ struct CopyableArray(T,
         return that;
     }
 
-    /// Construct from element `value`.
+    /// Construct from uncopyable element `value`.
     this(U)(U value) @trusted
         if (!isCopyable!U &&
             isElementAssignable!U)

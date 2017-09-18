@@ -855,8 +855,8 @@ unittest
 {
     alias T = int;
     alias A = CopyableArray!(T);
-    // import std.stdio : writeln;
-    // writeln(A([1, 2, 3]));
+    CopyableArray!char sink;
+    // TODO make this work: A([1, 2, 3]).toString(sink.put);
 }
 
 /** Non-copyable variant of `CopyableArray`.

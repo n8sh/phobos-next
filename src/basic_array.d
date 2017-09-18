@@ -851,13 +851,12 @@ version(unittest)
 }
 
 /// convert to string
-// @safe pure nothrow
 unittest
 {
     alias T = int;
     alias A = CopyableArray!(T);
-    import std.stdio : writeln;
-    writeln(A([1, 2, 3]));
+    // import std.stdio : writeln;
+    // writeln(A([1, 2, 3]));
 }
 
 /** Non-copyable variant of `CopyableArray`.

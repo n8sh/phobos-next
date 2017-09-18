@@ -34,7 +34,7 @@ struct VariantStorage(Types...)
     // {
     // }
 
-    import basic_array : Array = UncopyableArray;
+    import basic_array : Array = CopyableArray;
 
     static string typeStringOf(Type)()
     {
@@ -90,8 +90,6 @@ private:
             string s = "";
             foreach (i, Type; Types)
             {
-                pragma(msg, arrayTypeString!Type);
-                pragma(msg, arrayInstanceString!Type);
                 s ~= arrayTypeString!Type ~ ` ` ~ arrayInstanceString!Type ~ `;`;
             }
             return s;
@@ -134,22 +132,20 @@ version(unittest)
 
 version(unittest)
 {
-    alias Data = VariantStorage!(// String7,
-                                 // String15,
-                                 // String23,
-                                 // String31,
-                                 // String39,
+    alias Data = VariantStorage!(Chars7,
+                                 Chars15,
+                                 Chars23,
+                                 Chars31,
                                  string,
                                  ulong);
 
-    import arrayn : ArrayN, StringN, Checking;
+    import arrayn : ArrayN, Checking;
 
-    // // small strings
-    // alias String7  = StringN!(7, Checking.viaScope);
-    // alias String15 = StringN!(15, Checking.viaScope);
-    // alias String23 = StringN!(23, Checking.viaScope);
-    // alias String31 = StringN!(31, Checking.viaScope);
-    // alias String39 = StringN!(39, Checking.viaScope);
+    // small strings
+    alias Chars7  = ArrayN!(char, 7);
+    alias Chars15 = ArrayN!(char, 15);
+    alias Chars23 = ArrayN!(char, 23);
+    alias Chars31 = ArrayN!(char, 31);
 
     Data data;
 }

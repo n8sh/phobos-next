@@ -23,7 +23,7 @@ void main()
 
         immutable before = MonoTime.currTime();
 
-        foreach (uint i; 0 .. n)
+        foreach (const i; 0 .. n)
         {
             a ~= i;
         }

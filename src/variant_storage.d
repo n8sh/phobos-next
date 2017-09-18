@@ -124,7 +124,7 @@ private:
 version(unittest)
 {
     import chars : FewChars;
-    alias Data = VariantStorage!(FewChars!(7),
+    alias Data = VariantStorage!(FewChars!7,
                                  string,
                                  ulong);
 }
@@ -134,9 +134,11 @@ version(unittest)
 {
     Data data;
     assert(data.length == 0);
+
     data.insertBack(ulong(13));
     assert(data.length == 1);
-    data.insertBack(ulong(14));
+
+    data.insertBack(FewChars!7.init);
     assert(data.length == 2);
 }
 

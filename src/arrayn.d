@@ -156,7 +156,7 @@ struct ArrayN(E,
         NOTE doesn't invalidate any borrow
      */
     void insertBack(Es...)(Es es) @trusted
-        if (Es.length <= capacity)
+        if (Es.length <= capacity) // TODO use `isAssignable`
     {
         import std.exception : enforce;
         enforce(_length + Es.length <= capacity, `Arguments don't fit in array`);

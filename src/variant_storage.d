@@ -20,7 +20,7 @@ struct VariantIndex(Types...)
 
     Each element is indexed by a corresponding `VariantIndex`.
 
-    - TODO insertBack
+    - TODO insertBack(Type)
     - TODO removeBack
     - TODO removeBackMaybe()
  */

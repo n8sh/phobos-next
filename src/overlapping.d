@@ -2,8 +2,8 @@ module overlappping;
 
 /** Returns: Slice Overlap of $(D a) and $(D b) in order given by arguments.
  */
-inout(T[]) overlapInOrder(T)(inout(T[]) a,
-                             inout(T[]) b) /* @trusted pure nothrow */
+inout(T[]) overlapsInOrder(T)(inout(T[]) a,
+                              inout(T[]) b) /* @trusted pure nothrow */
     @trusted pure nothrow @nogc
 {
     if (a.ptr <= b.ptr &&       // if a-start lies at or before b-start
@@ -28,11 +28,11 @@ inout(T[]) overlap(T)(inout(T[]) a,
                       inout(T[]) b) /* @safe pure nothrow */
     @safe pure nothrow @nogc
 {
-    if (inout(T[]) ab = overlapInOrder(a, b))
+    if (inout(T[]) ab = overlapsInOrder(a, b))
     {
         return ab;
     }
-    else if (inout(T[]) ba = overlapInOrder(b, a))
+    else if (inout(T[]) ba = overlapsInOrder(b, a))
     {
         return ba;
     }

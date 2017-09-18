@@ -138,7 +138,6 @@ version(unittest)
     // auto node = vs.peek!Fn1(0);
 }
 
-version(none)
 version(unittest)
 {
     alias Data = VariantStorage!(Chars7,

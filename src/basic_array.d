@@ -3,20 +3,20 @@ module basic_array;
 import std.traits : Unqual;
 
 /** Array type with deterministic control of memory. The memory allocated for
-   the array is reclaimed as soon as possible; there is no reliance on the
-   garbage collector. Array uses malloc, realloc and free for managing its own
-   memory.
+    the array is reclaimed as soon as possible; there is no reliance on the
+    garbage collector. Array uses malloc, realloc and free for managing its own
+    memory.
 
-   Use `std.bitmanip.BitArray` for array container storing boolean values.
+    Use `std.bitmanip.BitArray` for array container storing boolean values.
 
-   TODO Call gc_addRange in all insertBack* functions
+    TODO Call gc_addRange in all insertBack* functions
 
-   TODO make use of `Allocator` parameter when non-`null`
+    TODO make use of `Allocator` parameter when non-`null`
 
-   TODO Use `std.traits.areCopyCompatibleArrays`
+    TODO Use `std.traits.areCopyCompatibleArrays`
 
-   See also: https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md
- */
+    See also: https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md
+*/
 struct BasicArray(T,
                   alias Allocator = null) // null means means to qcmeman functions
     if (!is(Unqual!T == bool))

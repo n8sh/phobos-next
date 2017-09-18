@@ -370,18 +370,18 @@ pragma(inline, true) nothrow @nogc:
 }
 
 /** Stack-allocated string of maximum length of `capacity.` */
-alias StringN(uint capacity, Checking checking) = ArrayN!(immutable(char), capacity, checking);
+alias StringN(uint capacity, Checking checking = Checking.viaScope) = ArrayN!(immutable(char), capacity, checking);
 /** Stack-allocated wstring of maximum length of `capacity.` */
-alias WStringN(uint capacity, Checking checking) = ArrayN!(immutable(wchar), capacity, checking);
+alias WStringN(uint capacity, Checking checking = Checking.viaScope) = ArrayN!(immutable(wchar), capacity, checking);
 /** Stack-allocated dstring of maximum length of `capacity.` */
-alias DStringN(uint capacity, Checking checking) = ArrayN!(immutable(dchar), capacity, checking);
+alias DStringN(uint capacity, Checking checking = Checking.viaScope) = ArrayN!(immutable(dchar), capacity, checking);
 
 /** Stack-allocated mutable string of maximum length of `capacity.` */
-alias MutableStringN(uint capacity, Checking checking) = ArrayN!(char, capacity, checking);
+alias MutableStringN(uint capacity, Checking checking = Checking.viaScope) = ArrayN!(char, capacity, checking);
 /** Stack-allocated mutable wstring of maximum length of `capacity.` */
-alias MutableWStringN(uint capacity, Checking checking) = ArrayN!(char, capacity, checking);
+alias MutableWStringN(uint capacity, Checking checking = Checking.viaScope) = ArrayN!(char, capacity, checking);
 /** Stack-allocated mutable dstring of maximum length of `capacity.` */
-alias MutableDStringN(uint capacity, Checking checking) = ArrayN!(char, capacity, checking);
+alias MutableDStringN(uint capacity, Checking checking = Checking.viaScope) = ArrayN!(char, capacity, checking);
 
 version(unittest)
 {

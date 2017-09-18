@@ -28,12 +28,6 @@ struct VariantStorage(Types...)
 {
     alias Index = VariantIndex!Types;
 
-    // TODO this crashes. Make this work when LDC is at 2.076
-    // import std.meta : AliasSeq;
-    // static foreach (Type; Types)
-    // {
-    // }
-
     import basic_array : Array = CopyableArray;
 
     static string typeStringOf(Type)()

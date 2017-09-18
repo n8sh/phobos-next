@@ -138,6 +138,7 @@ version(unittest)
     // auto node = vs.peek!Fn1(0);
 }
 
+version(none)
 version(unittest)
 {
     alias Data = VariantStorage!(Chars7,
@@ -159,11 +160,4 @@ version(unittest)
     static assert(Chars15.sizeof == 16);
     static assert(Chars23.sizeof == 24);
     static assert(Chars31.sizeof == 32);
-}
-
-@safe pure nothrow @nogc unittest
-{
-    VS vs;
-
-    // auto node = vs.peek!Fn1(0);
 }

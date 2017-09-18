@@ -2,7 +2,7 @@ void main()
 {
     import std.array : Appender;
     import std.container.array : StdArray = Array;
-    import basic_array : BasicArray;
+    import basic_array : CopyableArray;
 
     import std.stdio : writeln;
     import std.datetime : MonoTime;
@@ -12,7 +12,7 @@ void main()
     alias E = uint;
     immutable n = 5_000_000;
 
-    foreach (A; AliasSeq!(BasicArray!E,
+    foreach (A; AliasSeq!(CopyableArray!E,
                           StdArray!E,
                           Appender!(E[]),
                           E[]))

@@ -30,7 +30,7 @@ struct VariantStorage(Types...)
     // {
     // }
 
-    import basic_array : Array = UniqueBasicArray;
+    import basic_array : Array = UncopyableArray;
 
     /// Returns: array type (as a string) of `Type`.
     static string arrayTypeString(Type)()

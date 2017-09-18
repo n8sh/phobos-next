@@ -17,8 +17,8 @@ import std.traits : Unqual;
 
     See also: https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md
 */
-struct BasicArray(T,
-                  alias Allocator = null) // null means means to qcmeman functions
+struct CopyableArray(T,
+                     alias Allocator = null) // null means means to qcmeman functions
     if (!is(Unqual!T == bool))
 {
     import std.range : isInputRange, isIterable, ElementType, isInfinite;
@@ -602,7 +602,7 @@ private:
 private template shouldAddGCRange(T)
 {
     import std.traits : hasIndirections;
-    // TODO unless all pointers members are tagged as @nogc (as in `BasicArray` and `BasicStore`)
+    // TODO unless all pointers members are tagged as @nogc (as in `CopyableArray` and `BasicStore`)
     enum shouldAddGCRange = hasIndirections!T;
 }
 
@@ -610,7 +610,7 @@ private template shouldAddGCRange(T)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = BasicArray!(T);
+    alias A = CopyableArray!(T);
 
     auto a = A([10, 11, 12].s);
 
@@ -626,7 +626,7 @@ private template shouldAddGCRange(T)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = BasicArray!(T);
+    alias A = CopyableArray!(T);
 
     A a;
 
@@ -658,7 +658,7 @@ private template shouldAddGCRange(T)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = BasicArray!(T);
+    alias A = CopyableArray!(T);
 
     A a;                        // default construction allowed
     assert(a.empty);
@@ -666,7 +666,7 @@ private template shouldAddGCRange(T)
     assert(a.capacity == 0);
     assert(a[] == []);
 
-    auto b = BasicArray!int.withLength(3);
+    auto b = CopyableArray!int.withLength(3);
     assert(!b.empty);
     assert(b.length == 3);
     assert(b.capacity == 3);
@@ -678,7 +678,7 @@ private template shouldAddGCRange(T)
     b[] = [4, 5, 6].s;
     assert(b[] == [4, 5, 6].s);
 
-    const c = BasicArray!int.withCapacity(3);
+    const c = CopyableArray!int.withCapacity(3);
     assert(c.empty);
     assert(c.capacity == 3);
     assert(c[] == []);
@@ -691,7 +691,7 @@ private template shouldAddGCRange(T)
     }
     auto d = f();
 
-    const e = BasicArray!int([1, 2, 3, 4].s);
+    const e = CopyableArray!int([1, 2, 3, 4].s);
     assert(e.length == 4);
     assert(e[] == [1, 2, 3, 4].s);
 }
@@ -699,7 +699,7 @@ private template shouldAddGCRange(T)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = BasicArray!(T);
+    alias A = CopyableArray!(T);
 
     auto a = A([1, 2, 3].s);
     A b = a;                    // copy construction enabled
@@ -726,7 +726,7 @@ private template shouldAddGCRange(T)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = BasicArray!T;
+    alias A = CopyableArray!T;
 
     T[] leakSlice() @safe return scope
     {
@@ -759,7 +759,7 @@ version(unittest)
 /// construct and insert from non-copyable element type passed by value
 @safe pure nothrow /*@nogc*/ unittest
 {
-    alias A = BasicArray!(SomeUncopyableStruct);
+    alias A = CopyableArray!(SomeUncopyableStruct);
 
     A a = A(SomeUncopyableStruct(17));
     assert(a[] == [SomeUncopyableStruct(17)]);
@@ -777,14 +777,14 @@ version(unittest)
 /// construct from slice of uncopyable type
 @safe pure nothrow @nogc unittest
 {
-    alias A = BasicArray!(SomeUncopyableStruct);
+    alias A = CopyableArray!(SomeUncopyableStruct);
     // TODO can we safely support this?: A a = [SomeUncopyableStruct(17)];
 }
 
 // construct from array with uncopyable elements
 @safe pure nothrow @nogc unittest
 {
-    alias A = BasicArray!(SomeUncopyableStruct);
+    alias A = CopyableArray!(SomeUncopyableStruct);
 
     A a;
     assert(a.empty);
@@ -797,7 +797,7 @@ version(unittest)
 @safe pure nothrow @nogc unittest
 {
     alias T = SomeUncopyableStruct;
-    alias A = BasicArray!T;
+    alias A = CopyableArray!T;
 
     A a;
     assert(a.empty);
@@ -816,7 +816,7 @@ version(unittest)
 @safe pure nothrow @nogc unittest
 {
     alias T = string;
-    alias A = BasicArray!(T);
+    alias A = CopyableArray!(T);
 
     A a;
     a ~= `alpha`;
@@ -833,10 +833,10 @@ version(unittest)
     assert(a[] == [`alpha`, `beta`, `gamma`, `delta`, `epsilon`, `epsilon`].s);
 }
 
-/** Non-copyable variant of `BasicArray`.
+/** Non-copyable variant of `CopyableArray`.
  */
-struct UniqueBasicArray(T,
-                        alias Allocator = null) // null means means to qcmeman functions
+struct UncopyableArray(T,
+                       alias Allocator = null) // null means means to qcmeman functions
     if (!is(Unqual!T == bool))
 {
     import std.range : ElementType, isCopyable;
@@ -871,13 +871,13 @@ struct UniqueBasicArray(T,
     static if (isCopyable!T)
     {
         // `MutableThis` mimics behaviour of `dup` for builtin D arrays
-        @property UniqueBasicArray!(Unqual!T, Allocator) dup() const @trusted
+        @property UncopyableArray!(Unqual!T, Allocator) dup() const @trusted
         {
             return typeof(return)(cast(Unqual!T[])this[]);
         }
     }
 
-    alias Super = BasicArray!(T, Allocator);
+    alias Super = CopyableArray!(T, Allocator);
     Super _basicArray;
     alias _basicArray this;
 }
@@ -886,7 +886,7 @@ struct UniqueBasicArray(T,
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = UniqueBasicArray!(T);
+    alias A = UncopyableArray!(T);
     const a = A(17);
     assert(a[] == [17].s);
 }
@@ -895,7 +895,7 @@ struct UniqueBasicArray(T,
 @safe pure nothrow unittest
 {
     alias T = int;
-    alias A = UniqueBasicArray!(T);
+    alias A = UncopyableArray!(T);
     const a = A([17]);
     assert(a[] == [17].s);
 }
@@ -904,7 +904,7 @@ struct UniqueBasicArray(T,
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = UniqueBasicArray!(T);
+    alias A = UncopyableArray!(T);
 
     static assert(!__traits(compiles, { A b = a; })); // copying disabled
 
@@ -919,7 +919,7 @@ struct UniqueBasicArray(T,
 {
     import std.algorithm : map;
     alias T = int;
-    alias A = UniqueBasicArray!(T);
+    alias A = UncopyableArray!(T);
     auto a = A([10, 20, 30].s[].map!(_ => _^^2));
     assert(a[] == [100, 400, 900].s);
 }

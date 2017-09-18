@@ -38,21 +38,20 @@ struct VariantStorage(Types...)
 
     static string typeStringOf(Type)()
     {
-        // static if (__traits(hasMember, Type, `typeString`))
-        // {
-        //     return Type.typeString;
-        // }
-        // else
-        // {
-        //     return Type.mangleof;
-        // }
-        return Type.stringof;
+        static if (__traits(hasMember, Type, `typeString`))
+        {
+            return Type.typeString;
+        }
+        else
+        {
+            return Type.mangleof;
+        }
     }
 
     /// Returns: array type (as a string) of `Type`.
     static string arrayTypeString(Type)()
     {
-        return `Array!` ~ typeStringOf!Type;
+        return `Array!(` ~ Type.stringof ~ `)`;
     }
 
     /// Returns: array instance (as a strinng) storing `Type`.
@@ -91,7 +90,8 @@ private:
             string s = "";
             foreach (i, Type; Types)
             {
-                // pragma(msg, Type);
+                pragma(msg, arrayTypeString!Type);
+                pragma(msg, arrayInstanceString!Type);
                 s ~= arrayTypeString!Type ~ ` ` ~ arrayInstanceString!Type ~ `;`;
             }
             return s;
@@ -132,24 +132,24 @@ version(unittest)
     // auto node = vs.peek!Fn1(0);
 }
 
-version(none)
 version(unittest)
 {
-    alias Data = VariantStorage!(String7,
-                                 String15,
-                                 String23,
-                                 String31,
-                                 String39,
-                                 string);
+    alias Data = VariantStorage!(// String7,
+                                 // String15,
+                                 // String23,
+                                 // String31,
+                                 // String39,
+                                 string,
+                                 ulong);
 
-    import arrayn : StringN, Checking;
+    import arrayn : ArrayN, StringN, Checking;
 
-    // small strings
-    alias String7  = StringN!(7, Checking.viaScope);
-    alias String15 = StringN!(15, Checking.viaScope);
-    alias String23 = StringN!(23, Checking.viaScope);
-    alias String31 = StringN!(31, Checking.viaScope);
-    alias String39 = StringN!(39, Checking.viaScope);
+    // // small strings
+    // alias String7  = StringN!(7, Checking.viaScope);
+    // alias String15 = StringN!(15, Checking.viaScope);
+    // alias String23 = StringN!(23, Checking.viaScope);
+    // alias String31 = StringN!(31, Checking.viaScope);
+    // alias String39 = StringN!(39, Checking.viaScope);
 
     Data data;
 }

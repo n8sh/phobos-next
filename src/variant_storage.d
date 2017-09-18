@@ -74,6 +74,7 @@ private:
             string s = "";
             foreach (i, Type; Types)
             {
+                pragma(msg, Type);
                 s ~= arrayTypeString!Type ~ ` ` ~ arrayInstanceString!Type ~ `;`;
             }
             return s;
@@ -98,6 +99,35 @@ version(unittest)
     struct Pred3 { VS.Index a, b, c; }
     struct Pred4 { VS.Index a, b, c, d; }
     struct Pred5 { VS.Index a, b, c, d, e; }
+}
+
+@safe pure nothrow @nogc unittest
+{
+    VS vs;
+
+    // auto node = vs.peek!Fn1(0);
+}
+
+version(none)
+version(unittest)
+{
+    alias Data = VariantStorage!(String7,
+                                 String15,
+                                 String23,
+                                 String31,
+                                 String39,
+                                 string);
+
+    import arrayn : StringN, Checking;
+
+    // small strings
+    alias String7  = StringN!(7, Checking.viaScope);
+    alias String15 = StringN!(15, Checking.viaScope);
+    alias String23 = StringN!(23, Checking.viaScope);
+    alias String31 = StringN!(31, Checking.viaScope);
+    alias String39 = StringN!(39, Checking.viaScope);
+
+    Data data;
 }
 
 @safe pure nothrow @nogc unittest

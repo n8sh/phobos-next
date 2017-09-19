@@ -37,8 +37,7 @@ struct WordVariant(Types...)
     alias S = size_t; // TODO templatize?
 
     import typecons_ex : makeEnumFromSymbolNames;
-    enum useMangleOf = false;
-    alias Ix = makeEnumFromSymbolNames!(`ix_`, ``, true, useMangleOf, Types);
+    alias Ix = makeEnumFromSymbolNames!(`ix_`, ``, true, false, Types);
     static assert(Ix.undefined == 0);
 
     import traits_ex : bitsNeeded;

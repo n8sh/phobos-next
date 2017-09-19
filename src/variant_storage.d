@@ -158,7 +158,7 @@ version(unittest)
     assert(data.insertBack(Chars!15(`1234`)).isA!(Chars!15));
     assert(data.at!(Chars!15)(1) == Chars!15(`1234`));
     assert(data.allOf!(Chars!15) == [Chars!15(`123`),
-                                         Chars!15(`1234`)].s);
+                                     Chars!15(`1234`)].s);
     assert(data.length == 4);
 }
 

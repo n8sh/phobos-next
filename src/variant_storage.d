@@ -32,9 +32,10 @@ struct VariantIndex(Types...)
  */
 struct VariantStorage(Types...)
 {
+    import std.meta : staticIndexOf;
+
     alias Index = VariantIndex!Types;
 
-    import std.meta : staticIndexOf;
     enum indexOf(T) = staticIndexOf!(T, Types); // TODO cast to ubyte if Types.length is <= 256
     enum canStore(T) = indexOf!T >= 0;
 

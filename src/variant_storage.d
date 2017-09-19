@@ -87,7 +87,7 @@ struct VariantStorage(Types...)
     }
 
     /// Get all elements of type `U`.
-    scope inout(U)[] allOfType(U)() inout return
+    scope inout(U)[] allOf(U)() inout return
         if (Index.canStore!U)
     {
         mixin(`return ` ~ arrayInstanceString!U ~ `[];`);
@@ -143,22 +143,22 @@ version(unittest)
     assert(data.insertBack(ulong(13)).isA!ulong);
     assert(data.at!ulong(0) == ulong(13));
     assert(data.length == 1);
-    assert(data.allOfType!ulong == [ulong(13)].s);
+    assert(data.allOf!ulong == [ulong(13)].s);
 
     assert(data.insertBack(Chars!7(`1234567`)).isA!(Chars!7));
     assert(data.at!(Chars!7)(0) == Chars!7(`1234567`));
-    assert(data.allOfType!(Chars!7) == [Chars!7(`1234567`)].s);
+    assert(data.allOf!(Chars!7) == [Chars!7(`1234567`)].s);
     assert(data.length == 2);
 
     assert(data.insertBack(Chars!15(`123`)).isA!(Chars!15));
     assert(data.at!(Chars!15)(0) == Chars!15(`123`));
-    assert(data.allOfType!(Chars!15) == [Chars!15(`123`)].s);
+    assert(data.allOf!(Chars!15) == [Chars!15(`123`)].s);
     assert(data.length == 3);
 
     assert(data.insertBack(Chars!15(`1234`)).isA!(Chars!15));
     assert(data.at!(Chars!15)(1) == Chars!15(`1234`));
-    assert(data.allOfType!(Chars!15) == [Chars!15(`123`),
-                                            Chars!15(`1234`)].s);
+    assert(data.allOf!(Chars!15) == [Chars!15(`123`),
+                                         Chars!15(`1234`)].s);
     assert(data.length == 4);
 }
 

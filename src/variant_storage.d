@@ -5,7 +5,7 @@ struct VariantIndex(Types...)
     import std.meta : staticIndexOf;
 
 private:
-    alias Type = ubyte; // type index type
+    alias Type = ubyte;         // type index type
     enum typeBits = 8 * Type.sizeof;
     enum maxTypesCount = 2^^(typeBits) - 1; // maximum number of allowed type parameters
 

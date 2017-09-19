@@ -36,6 +36,7 @@ private:
 
     Each element is indexed by a corresponding `VariantIndex`.
 
+    - TODO this.filterOfType!U(variantIndexes)
     - TODO removeBack
     - TODO removeBackMaybe()
  */

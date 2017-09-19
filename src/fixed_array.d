@@ -23,6 +23,6 @@ private:
 
 @safe pure nothrow @nogc unittest
 {
-    const ch7 = FixedArray!(char, 7)(`12345678`);
+    const ch7 = FixedArray!(char, 7)(`1234567`);
     assert(ch7._es[] == `1234567`);
 }

@@ -93,10 +93,8 @@ struct VariantStorage(Types...)
     scope inout(U)* peek(U)(in Index index) inout return @system
         if (Index.canReferToType!U)
     {
-        dln(index._kindNr);
         if (Index.nrOfKind!U == index._kindNr)
         {
-            dln(index._index);
             return &at!U(index._index);
         }
         else
@@ -219,6 +217,7 @@ version(unittest)
     struct UInt { uint value; }
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     S s;
@@ -230,13 +229,19 @@ version(unittest)
     assert(s.length == 5);
 }
 
+/// put and peek
 pure nothrow @nogc unittest
 {
     S s;
-
-    S.Index lone = s.put(Rel1());
-    Rel1* lonePtr = s.peek!Rel1(lone);
-    assert(lonePtr);
+    const n = 10;
+    foreach (const i; 0 .. n)
+    {
+        S.Index lone = s.put(UInt(i));
+        UInt* lonePtr = s.peek!UInt(lone);
+        assert(lonePtr);
+        assert(*lonePtr == UInt(i));
+    }
+    assert(s.length == 10);
 }
 
 version(unittest)

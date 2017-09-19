@@ -36,7 +36,7 @@ private:
 
     Each element is indexed by a corresponding `VariantIndex`.
 
-    - TODO this.filterOfType!U(variantIndexes)
+    - TODO Range this.filterOfType!U(variantIndexes) inout, Range element is of type `ref inout(U)`
     - TODO removeBack
     - TODO removeBackMaybe()
  */

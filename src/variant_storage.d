@@ -9,6 +9,8 @@ private:
     enum kindBits = 8 * Kind.sizeof; // bits needed to store kind code
 
     enum indexOf(U) = staticIndexOf!(U, Types); // TODO cast to ubyte if Types.length is <= 256
+
+    /// Is `true` iff an `U`-index can be stored.
     enum canStore(U) = indexOf!U >= 0;
 
     /// Construct.

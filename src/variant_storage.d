@@ -134,7 +134,7 @@ static private:
                                  ulong);
 }
 
-/// test regular store
+///
 @safe pure nothrow @nogc unittest
 {
     Data data;

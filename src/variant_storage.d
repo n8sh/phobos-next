@@ -91,10 +91,17 @@ struct VariantStorage(Types...)
     }
 
     /// Peek at element of type `U` at `index`.
-    scope ref inout(U) get(U)(in size_t index) inout return
+    scope ref inout(U) ofTypeAt(U)(in size_t index) inout return
         if (canStore!U)
     {
         mixin(`return ` ~ arrayInstanceString!U ~ `[index];`);
+    }
+
+    /// Get all elements of type `U`.
+    scope inout(U)[] allOfType(U)() inout return
+        if (canStore!U)
+    {
+        mixin(`return ` ~ arrayInstanceString!U ~ `[];`);
     }
 
     /** Returns: length of store. */
@@ -135,19 +142,20 @@ version(unittest)
     assert(data.length == 0);
 
     assert(data.insertBack(ulong(13)).isOfType!ulong);
-    assert(data.get!ulong(0) == ulong(13));
+    assert(data.ofTypeAt!ulong(0) == ulong(13));
     assert(data.length == 1);
+    assert(data.allOfType!ulong == [ulong(13)].s);
 
     assert(data.insertBack(FewChars!7(`1234567`)).isOfType!(FewChars!7));
-    assert(data.get!(FewChars!7)(0) == FewChars!7(`1234567`));
+    assert(data.ofTypeAt!(FewChars!7)(0) == FewChars!7(`1234567`));
     assert(data.length == 2);
 
     assert(data.insertBack(FewChars!15(`123`)).isOfType!(FewChars!15));
-    assert(data.get!(FewChars!15)(0) == FewChars!15(`123`));
+    assert(data.ofTypeAt!(FewChars!15)(0) == FewChars!15(`123`));
     assert(data.length == 3);
 
     assert(data.insertBack(FewChars!15(`1234`)).isOfType!(FewChars!15));
-    assert(data.get!(FewChars!15)(1) == FewChars!15(`1234`));
+    assert(data.ofTypeAt!(FewChars!15)(1) == FewChars!15(`1234`));
     assert(data.length == 4);
 }
 
@@ -181,5 +189,9 @@ version(unittest)
 @safe pure nothrow @nogc unittest
 {
     VS vs;
-    // auto node = vs.peek!Fn1(0);
+}
+
+version(unittest)
+{
+    import array_help : s;
 }

@@ -39,8 +39,6 @@ struct VariantStorage(Types...)
 {
     alias Index = VariantIndex!Types;
 
-    import basic_copyable_array : CopyableArray; // TODO break out `BasicArray` from CopyableArray
-
     private static string typeStringOf(Type)()
     {
         static if (__traits(hasMember, Type, `typeString`))
@@ -52,6 +50,8 @@ struct VariantStorage(Types...)
             return Type.mangleof;
         }
     }
+
+    import basic_copyable_array : CopyableArray; // TODO break out `BasicArray` from CopyableArray
 
     /// Returns: array type (as a string) of `Type`.
     private static immutable(string) arrayTypeString(Type)()

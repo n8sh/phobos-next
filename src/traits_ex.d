@@ -842,61 +842,6 @@ template stringsOf(T...)        // TODO Add to Phobos
     enum strings = stringsOf!(bool, short, int, long);
 }
 
-/** Number of bits required to store a packed instance of $(D T).
-    See also: http://forum.dlang.org/thread/okonqhnxzqlqtxijxsfg@forum.dlang.org
-
-    TODO Extend to continuous version; use std.numeric.sumOfLog2s. Ask on
-    StackExchange Computer Science for the correct terminology.
-
-    See: http://dlang.org/phobos/std_numeric.html#.sumOfLog2s
-
-    TODO merge with `UsageOf`
-   */
-template packedBitSizeOf(T)
-{
-    static if (is(T == enum))
-    {
-        static assert(T.min != T.max, "enum T must have at least two enumerators");
-        import core.bitop : bsr;
-        enum range = T.max - T.min; // TODO use uniqueEnumMembers.length instead?
-        enum packedBitSizeOf = range.bsr + 1;
-    }
-    // TODO
-    // else static if (isAggregate!T)
-    // {
-    //     foreach (E; T.tupleof)
-    //     {
-    //         ....;
-    //     }
-    // }
-    else
-    {
-        enum packedBitSizeOf = 8*T.sizeof;
-    }
-}
-
-@safe pure nothrow @nogc unittest
-{
-    static assert(packedBitSizeOf!ubyte == 8);
-    static assert(!__traits(compiles, { enum E1 { x } static assert(packedBitSizeOf!E1 == 1);}));
-    enum E2 { x, y }
-    static assert(packedBitSizeOf!E2 == 1);
-    enum E3 { x, y, z }
-    static assert(packedBitSizeOf!E3 == 2);
-    enum E4 { x, y, z, w }
-    static assert(packedBitSizeOf!E4 == 2);
-    enum E5 { a, b, c, d, e }
-    static assert(packedBitSizeOf!E5 == 3);
-    enum E6 { a, b, c, d, e, f }
-    static assert(packedBitSizeOf!E6 == 3);
-    enum E7 { a, b, c, d, e, f, g }
-    static assert(packedBitSizeOf!E7 == 3);
-    enum E8 { a, b, c, d, e, f, g, h }
-    static assert(packedBitSizeOf!E8 == 3);
-    enum E9 { a, b, c, d, e, f, g, h, i }
-    static assert(packedBitSizeOf!E9 == 4);
-}
-
 /** Get Dimensionality of Type $(D T).
    See also: http://forum.dlang.org/thread/hiuhqdxtpifhzwebewjh@forum.dlang.org?page=2
 */

@@ -7,7 +7,7 @@
    TODO Profile use of cellops and logops in a specific domain or pattern och
    and use roulette wheel sampling based on these in future patterns.
 
-   TODO reuse traits_ex.packedBitSizeOf
+   TODO reuse bit_traits.packedBitSizeOf
 
    TODO reuse `IndexedBy` `Cells` and `CellIx`
 */

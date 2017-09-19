@@ -900,7 +900,7 @@ version(unittest)
 version(unittest)
 {
     enum Rel : ubyte { unknown, subClassOf, instanceOf, memberOf }
-    import traits_ex : packedBitSizeOf;
+    import bit_traits : packedBitSizeOf;
     static assert(packedBitSizeOf!Rel == 2);
 
     struct Role

@@ -192,7 +192,7 @@ version(unittest)
     alias S = VariantStorage!(Rel1, Rel2, Rel3, Rel4, Rel5,
                               Pred1, Pred2, Pred3, Pred4, Pred5,
                               Fn1, Fn2, Fn3, Fn4,
-                              UInt);
+                              Int);
 
     // relations
     struct Rel1 { S.Index[1] args; }
@@ -214,18 +214,18 @@ version(unittest)
     struct Fn3 { S.Index[3] args; }
     struct Fn4 { S.Index[4] args; }
 
-    struct UInt { uint value; }
+    struct Int { int value; }
 }
 
 ///
 @safe pure nothrow @nogc unittest
 {
     S s;
-    S.Index top = s.put(Rel1(s.put(Rel1(s.put(Rel2([s.put(UInt(42)),
-                                                    s.put(UInt(43))]))))));
+    S.Index top = s.put(Rel1(s.put(Rel1(s.put(Rel2([s.put(Int(42)),
+                                                    s.put(Int(43))]))))));
     assert(s.allOf!Rel1.length == 2);
     assert(s.allOf!Rel2.length == 1);
-    assert(s.allOf!UInt.length == 2);
+    assert(s.allOf!Int.length == 2);
     assert(s.length == 5);
 }
 
@@ -236,10 +236,10 @@ pure nothrow @nogc unittest
     const n = 10;
     foreach (const i; 0 .. n)
     {
-        S.Index lone = s.put(UInt(i));
-        UInt* lonePtr = s.peek!UInt(lone);
+        S.Index lone = s.put(Int(i));
+        Int* lonePtr = s.peek!Int(lone);
         assert(lonePtr);
-        assert(*lonePtr == UInt(i));
+        assert(*lonePtr == Int(i));
     }
     assert(s.length == 10);
 }

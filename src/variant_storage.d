@@ -6,7 +6,9 @@ private struct VariantIndex(Types...)
     import std.meta : staticIndexOf;
 private:
     alias Kind = ubyte;              // kind code
-    enum kindBits = 8 * Kind.sizeof; // bits needed to store kind code
+    alias Size = size_t;             // size type
+
+    enum kindBits = bitsNeeded!(Types.length);
 
     /// Get number kind of kind type `SomeKind`.
     enum nrOfKind(SomeKind) = staticIndexOf!(SomeKind, Types); // TODO cast to ubyte if Types.length is <= 256
@@ -15,7 +17,7 @@ private:
     enum canReferTo(SomeKind) = nrOfKind!SomeKind >= 0;
 
     /// Construct.
-    this(Kind kind, size_t index) // TODO can ctor inferred by bitfields?
+    this(Kind kind, Size index) // TODO can ctor inferred by bitfields?
     {
         _kindNr = kind;
         _index = index;
@@ -26,8 +28,23 @@ private:
     bool isA(SomeKind)() const { return nrOfKind!(SomeKind) == _kindNr; }
 
     import std.bitmanip : bitfields;
-    mixin(bitfields!(size_t, "_index", 64 - kindBits,
+    mixin(bitfields!(Size, "_index", 8*Size.sizeof - kindBits,
                      Kind, "_kindNr", kindBits));
+}
+
+/** Get number of bits needed to represent the range (0 .. `length`-1). */
+private template bitsNeeded(size_t length)
+{
+    static      if (length <= 2)   { enum bitsNeeded = 1; }
+    else static if (length <= 4)   { enum bitsNeeded = 2; }
+    else static if (length <= 8)   { enum bitsNeeded = 3; }
+    else static if (length <= 16)  { enum bitsNeeded = 4; }
+    else static if (length <= 32)  { enum bitsNeeded = 5; }
+    else static if (length <= 64)  { enum bitsNeeded = 6; }
+    else static if (length <= 128) { enum bitsNeeded = 7; }
+    else static if (length <= 256) { enum bitsNeeded = 8; }
+    else static if (length <= 512) { enum bitsNeeded = 9; }
+    else                           { static assert(false, `Too large length`); }
 }
 
 /** Stores set of variants.

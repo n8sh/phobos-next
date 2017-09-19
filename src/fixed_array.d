@@ -6,22 +6,23 @@ module fixed_array;
 struct FixedArray(E, uint capacity)
     if (capacity <= ubyte.max)
 {
-    this(in E[] Es)
+    this(in E[] es)
         @trusted
     {
-        assert(Es.length <= capacity,
-               "Input parameter `Es` too large");
-        _Es.ptr[0 .. Es.length] = Es;
-        _length = cast(typeof(_length))Es.length;
+        assert(es.length <= capacity,
+               "Length of input parameter `es` is larger than capacity "
+               ~ capacity.stringof);
+        _es[0 .. es.length] = es;
+        _length = cast(typeof(_length))es.length;
     }
 
 private:
-    E[capacity] _Es;
+    E[capacity] _es;
     ubyte _length;
 }
 
 @safe pure nothrow @nogc unittest
 {
-    const ch7 = FixedArray!(char, 7)(`1234567`);
-    assert(ch7._Es[] == `1234567`);
+    const ch7 = FixedArray!(char, 7)(`12345678`);
+    assert(ch7._es[] == `1234567`);
 }

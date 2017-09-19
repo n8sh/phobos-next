@@ -4,8 +4,8 @@ struct VariantIndex(Types...)
 {
     import std.meta : staticIndexOf;
 
-    alias Type = ubyte; // type index type
-    enum typeBits = 8 * Type.sizeof;
+    alias Kind = ubyte; // kind code
+    enum typeBits = 8 * Kind.sizeof;
     enum maxTypesCount = 2^^(typeBits) - 1; // maximum number of allowed type parameters
 
     enum indexOf(U) = staticIndexOf!(U, Types); // TODO cast to ubyte if Types.length is <= 256
@@ -15,18 +15,18 @@ struct VariantIndex(Types...)
 
     private enum N = typeCount; // useful local shorthand
 
-    this(Type type, size_t index) // TODO can ctor inferred by bitfields?
+    this(Kind kind, size_t index) // TODO can ctor inferred by bitfields?
     {
-        _type = type;
+        _kind = kind;
         _index = index;
     }
 
     /// Returns: `true` iff `this` targets a value of type `U`.
-    bool isOfType(U)() const { return indexOf!(U) == _type; }
+    bool isOfType(U)() const { return indexOf!(U) == _kind; }
 
     import std.bitmanip : bitfields;
     mixin(bitfields!(size_t, "_index", 64 - typeBits,
-                     Type, "_type", typeBits));
+                     Kind, "_kind", typeBits));
 }
 
 /** Stores set of variants.

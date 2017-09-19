@@ -73,14 +73,6 @@ struct VariantStorage(Types...)
         return `_values` ~ typeStringOf!Type;
     }
 
-    version(LDC)
-    {
-        static if (__VERSION__ >= 2076)
-        {
-            pragma(msg, __FILE__ ~ ":" ~ __LINE__.stringof ~ ": info: LDC now has foreach, so use it to generate arrays");
-        }
-    }
-
     /** Insert `value` at back. */
     Index insertBack(U)(U value)
         if (canStore!U)
@@ -109,6 +101,15 @@ struct VariantStorage(Types...)
     }
 
 private:
+    version(LDC)
+    {
+        static if (__VERSION__ >= 2076)
+        {
+            pragma(msg, __FILE__ ~ ":" ~ __LINE__.stringof ~
+                   ": info: both DMD and LDC now has foreach, so use it to generate storages below");
+        }
+
+    }
     // storages
     mixin({
             string s = "";

@@ -10,8 +10,8 @@ private:
 
     enum indexOf(U) = staticIndexOf!(U, Types); // TODO cast to ubyte if Types.length is <= 256
 
-    /// Is `true` iff an `U`-index can be stored.
-    enum canStore(U) = indexOf!U >= 0;
+    /// Is `true` iff an index to a `U`-kind can be stored.
+    enum hasKind(U) = indexOf!U >= 0;
 
     /// Construct.
     this(Kind kind, size_t index) // TODO can ctor inferred by bitfields?
@@ -72,7 +72,7 @@ struct VariantStorage(Types...)
 
     /** Insert `value` at back. */
     Index insertBack(U)(U value)
-        if (Index.canStore!U)
+        if (Index.hasKind!U)
     {
         mixin(arrayInstanceString!U ~ `.insertBack(value);`);
         mixin(`const currentLength = ` ~ arrayInstanceString!U ~ `.length;`);
@@ -80,16 +80,32 @@ struct VariantStorage(Types...)
     }
     alias put = insertBack;
 
-    /// Peek at element of type `U` at `index`.
+    /// Get reference to element of type `U` at `index`.
     scope ref inout(U) at(U)(in size_t index) inout return
-        if (Index.canStore!U)
+        if (Index.hasKind!U)
     {
         mixin(`return ` ~ arrayInstanceString!U ~ `[index];`);
     }
 
+    /// Peek at element of type `U` at `index`.
+    scope inout(U)* peek(U)(in Index index) inout return @trusted
+        if (Index.hasKind!U)
+    {
+        dln(index._kind);
+        if (Index.indexOf!U == index._kind)
+        {
+            dln(index._index);
+            return &at!U(index._index);
+        }
+        else
+        {
+            return typeof(return).init;
+        }
+    }
+
     /// Get all elements of type `U`.
     scope inout(U)[] allOf(U)() inout return
-        if (Index.canStore!U)
+        if (Index.hasKind!U)
     {
         mixin(`return ` ~ arrayInstanceString!U ~ `[];`);
     }
@@ -204,13 +220,16 @@ version(unittest)
 @safe pure nothrow @nogc unittest
 {
     S s;
-    s.put(Rel1(s.put(Rel1(s.put(Rel2([s.put(UInt(42)),
-                                      s.put(UInt(43))]))))));
+    S.Index top = s.put(Rel1(s.put(Rel1(s.put(Rel2([s.put(UInt(42)),
+                                                    s.put(UInt(43))]))))));
     assert(s.length == 5);
+
+    S.Index lone = s.put(Rel1());
+    assert(s.peek!Rel1(lone));
 }
 
 version(unittest)
 {
     import array_help : s;
-    // import dbgio : dln;
+    import dbgio : dln;
 }

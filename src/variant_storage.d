@@ -71,11 +71,10 @@ struct VariantStorage(Types...)
     {
         mixin(`const currentIndex = ` ~ arrayInstanceString!SomeKind ~ `.length;`);
         mixin(arrayInstanceString!SomeKind ~ `.insertBack(value);`);
-        mixin(`const currentLength = ` ~ arrayInstanceString!SomeKind ~ `.length;`);
         return Index(Index.nrOfKind!SomeKind,
                      currentIndex);
     }
-    alias put = insertBack;
+    alias put = insertBack;     // polymorphic `OutputRange` support :)
 
     /// Get reference to element of type `SomeKind` at `index`.
     scope ref inout(SomeKind) at(SomeKind)(in size_t index) inout return

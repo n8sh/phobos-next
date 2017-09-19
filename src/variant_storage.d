@@ -78,6 +78,7 @@ struct VariantStorage(Types...)
         mixin(`const currentLength = ` ~ arrayInstanceString!U ~ `.length;`);
         return typeof(return)(Index.indexOf!U, currentLength);
     }
+    alias put = insertBack;
 
     /// Peek at element of type `U` at `index`.
     scope ref inout(U) at(U)(in size_t index) inout return
@@ -140,22 +141,22 @@ version(unittest)
     Data data;
     assert(data.length == 0);
 
-    assert(data.insertBack(ulong(13)).isA!ulong);
+    assert(data.put(ulong(13)).isA!ulong);
     assert(data.at!ulong(0) == ulong(13));
     assert(data.length == 1);
     assert(data.allOf!ulong == [ulong(13)].s);
 
-    assert(data.insertBack(Chars!7(`1234567`)).isA!(Chars!7));
+    assert(data.put(Chars!7(`1234567`)).isA!(Chars!7));
     assert(data.at!(Chars!7)(0) == Chars!7(`1234567`));
     assert(data.allOf!(Chars!7) == [Chars!7(`1234567`)].s);
     assert(data.length == 2);
 
-    assert(data.insertBack(Chars!15(`123`)).isA!(Chars!15));
+    assert(data.put(Chars!15(`123`)).isA!(Chars!15));
     assert(data.at!(Chars!15)(0) == Chars!15(`123`));
     assert(data.allOf!(Chars!15) == [Chars!15(`123`)].s);
     assert(data.length == 3);
 
-    assert(data.insertBack(Chars!15(`1234`)).isA!(Chars!15));
+    assert(data.put(Chars!15(`1234`)).isA!(Chars!15));
     assert(data.at!(Chars!15)(1) == Chars!15(`1234`));
     assert(data.allOf!(Chars!15) == [Chars!15(`123`), Chars!15(`1234`)].s);
     assert(data.length == 4);
@@ -194,8 +195,8 @@ version(unittest)
 @safe pure nothrow @nogc unittest
 {
     S s;
-    s.insertBack(Rel1(s.insertBack(Rel1(s.insertBack(Rel2(s.insertBack(UInt(42)),
-                                                          s.insertBack(UInt(43))))))));
+    s.put(Rel1(s.put(Rel1(s.put(Rel2(s.put(UInt(42)),
+                                     s.put(UInt(43))))))));
     assert(s.length == 5);
 }
 

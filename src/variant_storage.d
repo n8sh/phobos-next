@@ -106,7 +106,7 @@ struct VariantStorage(Types...)
     }
 
 private:
-    // TODO make this work
+    // TODO this currently crashes
     // static if (__VERSION__ >= 2076)
     // {
     //     static foreach (alias Type; Types)

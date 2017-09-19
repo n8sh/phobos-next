@@ -2,9 +2,14 @@ module variant_storage;
 
 struct VariantIndex(Types...)
 {
+    import std.meta : staticIndexOf;
+
     alias Type = ubyte; // type index type
     enum typeBits = 8 * Type.sizeof;
     enum maxTypesCount = 2^^(typeBits) - 1; // maximum number of allowed type parameters
+
+    enum indexOf(U) = staticIndexOf!(U, Types); // TODO cast to ubyte if Types.length is <= 256
+    enum canStore(U) = indexOf!U >= 0;
 
     enum typeCount = Types.length;
 
@@ -16,9 +21,12 @@ struct VariantIndex(Types...)
         _index = index;
     }
 
+    /// Returns: `true` iff `this` targets a value of type `U`.
+    bool isOfType(U)() const { return indexOf!(U) == _type; }
+
     import std.bitmanip : bitfields;
-    mixin(bitfields!(Type, "_type", typeBits,
-                     size_t, "_index", 64 - typeBits));
+    mixin(bitfields!(size_t, "_index", 64 - typeBits,
+                     Type, "_type", typeBits));
 }
 
 /** Stores set of variants.
@@ -144,7 +152,7 @@ version(unittest)
     Data data;
     assert(data.length == 0);
 
-    data.insertBack(ulong(13));
+    assert(data.insertBack(ulong(13)).isOfType!ulong);
     assert(data.length == 1);
 
     data.insertBack(FewChars!7.init);

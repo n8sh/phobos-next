@@ -90,6 +90,13 @@ struct VariantStorage(Types...)
         return typeof(return)(indexOf!U, currentLength);
     }
 
+    /// Peek at element of type `U` at `index`.
+    scope ref inout(U) get(U)(in size_t index) inout return
+        if (canStore!U)
+    {
+        mixin(`return ` ~ arrayInstanceString!U ~ `[index];`);
+    }
+
     /** Returns: length of store. */
     @property size_t length() const
     {
@@ -100,31 +107,6 @@ struct VariantStorage(Types...)
         }
         return lengthSum;
     }
-
-    /// Peek at element of type `U` at `index`.
-    version(none)
-    auto ref peek(U)(in Index index)
-        if (canStore!U)
-    {
-        import std.conv : to;
-        const peekedIndexString = index._index.to!string;
-        mixin(`return ` ~ arrayInstanceString!U ~ `[peekedIndexString];`);
-    }
-
-    /// Peek at element of type `U` at `index`.
-    // void print(U)(in Index index)
-    // {
-    //     import std.conv : to;
-    //     const peekedIndexString = index._index.to!string;
-    //     final switch (index._type)
-    //     {
-    //         foreach (const typeIx, Type; Types)
-    //         {
-    //         case typeIx:
-    //             mixin(`return ` ~ arrayInstanceString!U ~ `[peekedIndexString];`);
-    //         }
-    //     }
-    // }
 
 private:
     // storages
@@ -153,13 +135,20 @@ version(unittest)
     assert(data.length == 0);
 
     assert(data.insertBack(ulong(13)).isOfType!ulong);
+    assert(data.get!ulong(0) == ulong(13));
     assert(data.length == 1);
 
-    assert(data.insertBack(FewChars!7.init).isOfType!(FewChars!7));
+    assert(data.insertBack(FewChars!7(`1234567`)).isOfType!(FewChars!7));
+    assert(data.get!(FewChars!7)(0) == FewChars!7(`1234567`));
     assert(data.length == 2);
 
-    assert(data.insertBack(FewChars!15.init).isOfType!(FewChars!15));
+    assert(data.insertBack(FewChars!15(`123`)).isOfType!(FewChars!15));
+    assert(data.get!(FewChars!15)(0) == FewChars!15(`123`));
     assert(data.length == 3);
+
+    assert(data.insertBack(FewChars!15(`1234`)).isOfType!(FewChars!15));
+    assert(data.get!(FewChars!15)(1) == FewChars!15(`1234`));
+    assert(data.length == 4);
 }
 
 version(unittest)

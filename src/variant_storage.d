@@ -8,10 +8,10 @@ private:
     alias Kind = ubyte;              // kind code
     enum kindBits = 8 * Kind.sizeof; // bits needed to store kind code
 
-    enum indexOf(U) = staticIndexOf!(U, Types); // TODO cast to ubyte if Types.length is <= 256
+    enum kindOf(U) = staticIndexOf!(U, Types); // TODO cast to ubyte if Types.length is <= 256
 
     /// Is `true` iff an index to a `U`-kind can be stored.
-    enum hasKind(U) = indexOf!U >= 0;
+    enum hasKind(U) = kindOf!U >= 0;
 
     /// Construct.
     this(Kind kind, size_t index) // TODO can ctor inferred by bitfields?
@@ -21,7 +21,7 @@ private:
     }
 
     /// Returns: `true` iff `this` targets a value of type `U`.
-    bool isA(U)() const { return indexOf!(U) == _kind; }
+    bool isA(U)() const { return kindOf!(U) == _kind; }
 
     import std.bitmanip : bitfields;
     mixin(bitfields!(size_t, "_index", 64 - kindBits,
@@ -76,7 +76,8 @@ struct VariantStorage(Types...)
     {
         mixin(arrayInstanceString!U ~ `.insertBack(value);`);
         mixin(`const currentLength = ` ~ arrayInstanceString!U ~ `.length;`);
-        return typeof(return)(Index.indexOf!U, currentLength);
+        return Index(Index.kindOf!U,
+                     currentLength);
     }
     alias put = insertBack;
 
@@ -88,18 +89,18 @@ struct VariantStorage(Types...)
     }
 
     /// Peek at element of type `U` at `index`.
-    scope inout(U)* peek(U)(in Index index) inout return @trusted
+    scope inout(U)* peek(U)(in Index index) inout return @system
         if (Index.hasKind!U)
     {
         dln(index._kind);
-        if (Index.indexOf!U == index._kind)
+        if (Index.kindOf!U == index._kind)
         {
             dln(index._index);
             return &at!U(index._index);
         }
         else
         {
-            return typeof(return).init;
+            return null;
         }
     }
 
@@ -226,8 +227,12 @@ version(unittest)
     assert(s.allOf!Rel2.length == 1);
     assert(s.allOf!UInt.length == 2);
     assert(s.length == 5);
+}
 
-    // S.Index lone = s.put(Rel1());
+pure nothrow @nogc unittest
+{
+    S s;
+    S.Index lone = s.put(Rel1());
     // assert(s.peek!Rel1(lone));
 }
 

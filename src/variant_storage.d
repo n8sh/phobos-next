@@ -149,14 +149,18 @@ version(unittest)
 
     assert(data.insertBack(FewChars!7(`1234567`)).isOfType!(FewChars!7));
     assert(data.ofTypeAt!(FewChars!7)(0) == FewChars!7(`1234567`));
+    assert(data.allOfType!(FewChars!7) == [FewChars!7(`1234567`)].s);
     assert(data.length == 2);
 
     assert(data.insertBack(FewChars!15(`123`)).isOfType!(FewChars!15));
     assert(data.ofTypeAt!(FewChars!15)(0) == FewChars!15(`123`));
+    assert(data.allOfType!(FewChars!15) == [FewChars!15(`123`)].s);
     assert(data.length == 3);
 
     assert(data.insertBack(FewChars!15(`1234`)).isOfType!(FewChars!15));
     assert(data.ofTypeAt!(FewChars!15)(1) == FewChars!15(`1234`));
+    assert(data.allOfType!(FewChars!15) == [FewChars!15(`123`),
+                                            FewChars!15(`1234`)].s);
     assert(data.length == 4);
 }
 

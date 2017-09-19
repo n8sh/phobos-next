@@ -197,7 +197,7 @@ version(unittest)
 {
     S s;
     s.put(Rel1(s.put(Rel1(s.put(Rel2([s.put(UInt(42)),
-                                      s.put(UInt(43))].s))))));
+                                      s.put(UInt(43))]))))));
     assert(s.length == 5);
 }
 

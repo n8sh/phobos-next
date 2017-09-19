@@ -33,10 +33,6 @@ private:
     Enables lightweight storage of polymorphic objects.
 
     Each element is indexed by a corresponding `VariantIndex`.
-
-    - TODO Range this.filterOfType!U(variantIndexes) inout, Range element is of type `ref inout(U)`
-    - TODO removeBack
-    - TODO removeBackMaybe()
  */
 struct VariantStorage(Types...)
 {

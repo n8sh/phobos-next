@@ -151,6 +151,8 @@ private:
 version(unittest)
 {
     import fixed_array : FixedArray;
+
+static private:
     alias Chars(uint capacity) = FixedArray!(char, capacity);
     alias Data = VariantStorage!(Chars!7,
                                  Chars!15,
@@ -188,6 +190,7 @@ version(unittest)
 
 version(unittest)
 {
+static private:
     alias S = VariantStorage!(Rel1, Rel2,
                               Int);
 

@@ -4,6 +4,7 @@ struct VariantIndex(Types...)
 {
     import std.meta : staticIndexOf;
 
+private:
     alias Type = ubyte; // type index type
     enum typeBits = 8 * Type.sizeof;
     enum maxTypesCount = 2^^(typeBits) - 1; // maximum number of allowed type parameters
@@ -44,12 +45,12 @@ struct VariantStorage(Types...)
 
     alias Index = VariantIndex!Types;
 
-    enum indexOf(U) = staticIndexOf!(U, Types); // TODO cast to ubyte if Types.length is <= 256
-    enum canStore(U) = indexOf!U >= 0;
+    private enum indexOf(U) = staticIndexOf!(U, Types); // TODO cast to ubyte if Types.length is <= 256
+    private enum canStore(U) = indexOf!U >= 0;
 
     import basic_copyable_array : CopyableArray; // TODO break out `BasicArray` from CopyableArray
 
-    static string typeStringOf(Type)()
+    private static string typeStringOf(Type)()
     {
         static if (__traits(hasMember, Type, `typeString`))
         {
@@ -62,13 +63,13 @@ struct VariantStorage(Types...)
     }
 
     /// Returns: array type (as a string) of `Type`.
-    static string arrayTypeString(Type)()
+    private static string arrayTypeString(Type)()
     {
         return `CopyableArray!(` ~ Type.stringof ~ `)`;
     }
 
     /// Returns: array instance (as a strinng) storing `Type`.
-    static string arrayInstanceString(Type)()
+    private static string arrayInstanceString(Type)()
     {
         return `_values` ~ typeStringOf!Type;
     }

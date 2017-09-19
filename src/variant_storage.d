@@ -118,7 +118,7 @@ private:
     // storages
     mixin({
             string s = "";
-            foreach (i, Type; Types)
+            foreach (Type; Types)
             {
                 s ~= arrayTypeString!Type ~ ` ` ~ arrayInstanceString!Type ~ `;`;
             }

@@ -40,7 +40,7 @@ struct WordVariant(Types...)
     alias Ix = makeEnumFromSymbolNames!(`ix_`, ``, true, false, Types);
     static assert(Ix.undefined == 0);
 
-    import traits_ex : bitsNeeded;
+    import bit_traits : bitsNeeded;
     enum typeBits = bitsNeeded!(1 + Types.length); // number of bits needed to represent variant type, plus one for undefined state
     enum typeShift = 8*S.sizeof - typeBits;
     enum typeMask = cast(S)(2^^typeBits - 1) << typeShift;
@@ -320,7 +320,7 @@ struct VariantPointerTo(Types...)
 
     alias S = size_t; // TODO templatize?
 
-    import traits_ex : bitsNeeded;
+    import bit_traits : bitsNeeded;
     enum typeBits = bitsNeeded!(Types.length); // number of bits needed to represent variant type
     enum typeShift = 8*S.sizeof - typeBits;
     enum typeMask = cast(S)(2^^typeBits - 1) << typeShift;

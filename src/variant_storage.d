@@ -74,10 +74,11 @@ struct VariantStorage(Types...)
     Index insertBack(U)(U value)
         if (Index.hasKind!U)
     {
+        mixin(`const currentIndex = ` ~ arrayInstanceString!U ~ `.length;`);
         mixin(arrayInstanceString!U ~ `.insertBack(value);`);
         mixin(`const currentLength = ` ~ arrayInstanceString!U ~ `.length;`);
         return Index(Index.kindOf!U,
-                     currentLength);
+                     currentIndex);
     }
     alias put = insertBack;
 
@@ -233,7 +234,7 @@ pure nothrow @nogc unittest
 {
     S s;
     S.Index lone = s.put(Rel1());
-    // assert(s.peek!Rel1(lone));
+    assert(s.peek!Rel1(lone));
 }
 
 version(unittest)

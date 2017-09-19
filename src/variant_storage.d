@@ -13,10 +13,6 @@ private:
     enum indexOf(U) = staticIndexOf!(U, Types); // TODO cast to ubyte if Types.length is <= 256
     enum canStore(U) = indexOf!U >= 0;
 
-    enum typeCount = Types.length;
-
-    private enum N = typeCount; // useful local shorthand
-
     /// Construct.
     this(Kind kind, size_t index) // TODO can ctor inferred by bitfields?
     {
@@ -48,9 +44,6 @@ struct VariantStorage(Types...)
 
     alias Index = VariantIndex!Types;
 
-    private enum indexOf(U) = staticIndexOf!(U, Types); // TODO cast to ubyte if Types.length is <= 256
-    private enum canStore(U) = indexOf!U >= 0;
-
     import basic_copyable_array : CopyableArray; // TODO break out `BasicArray` from CopyableArray
 
     private static string typeStringOf(Type)()
@@ -79,23 +72,23 @@ struct VariantStorage(Types...)
 
     /** Insert `value` at back. */
     Index insertBack(U)(U value)
-        if (canStore!U)
+        if (Index.canStore!U)
     {
         mixin(arrayInstanceString!U ~ `.insertBack(value);`);
         mixin(`const currentLength = ` ~ arrayInstanceString!U ~ `.length;`);
-        return typeof(return)(indexOf!U, currentLength);
+        return typeof(return)(Index.indexOf!U, currentLength);
     }
 
     /// Peek at element of type `U` at `index`.
     scope ref inout(U) ofTypeAt(U)(in size_t index) inout return
-        if (canStore!U)
+        if (Index.canStore!U)
     {
         mixin(`return ` ~ arrayInstanceString!U ~ `[index];`);
     }
 
     /// Get all elements of type `U`.
     scope inout(U)[] allOfType(U)() inout return
-        if (canStore!U)
+        if (Index.canStore!U)
     {
         mixin(`return ` ~ arrayInstanceString!U ~ `[];`);
     }

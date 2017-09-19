@@ -105,6 +105,12 @@ struct VariantStorage(Types...)
         return lengthSum;
     }
 
+    /** Check if empty. */
+    @property bool empty() const
+    {
+        return length == 0;
+    }
+
 private:
     // TODO this currently crashes
     // static if (__VERSION__ >= 2076)

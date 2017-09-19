@@ -260,7 +260,7 @@ struct CopyableArray(T,
     }
 
     /// Calculate D associative array (AA) key hash.
-    size_t toHash() const @trusted pure nothrow
+    size_t toHash() const @trusted
     {
         import core.internal.hash : hashOf;
         typeof(return) hash = this.length;
@@ -593,7 +593,7 @@ pragma(inline, true):
     }
 
     /// Reallocate storage.
-    private void reallocateAndSetCapacity(size_t newCapacity) pure nothrow @trusted
+    private void reallocateAndSetCapacity(size_t newCapacity) @trusted
     {
         _capacity = newCapacity;
         _ptr = cast(T*)realloc(_mptr, T.sizeof * _capacity);

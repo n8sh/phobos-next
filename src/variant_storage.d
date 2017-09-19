@@ -6,8 +6,8 @@ private struct VariantIndex(Types...)
     import std.meta : staticIndexOf;
 
 private:
-    alias Kind = ubyte; // kind code
-    enum kindBits = 8 * Kind.sizeof;
+    alias Kind = ubyte;              // kind code
+    enum kindBits = 8 * Kind.sizeof; // bits needed to store kind code
     enum maxTypesCount = 2^^(kindBits) - 1; // maximum number of allowed type parameters
 
     enum indexOf(U) = staticIndexOf!(U, Types); // TODO cast to ubyte if Types.length is <= 256

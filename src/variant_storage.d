@@ -192,9 +192,13 @@ version(unittest)
 @safe pure nothrow @nogc unittest
 {
     VS vs;
+
+    vs.insertBack(Rel1(vs.insertBack(Rel1(vs.insertBack(Rel1())))));
+    assert(vs.length == 3);
 }
 
 version(unittest)
 {
     import array_help : s;
+    import dbgio : dln;
 }

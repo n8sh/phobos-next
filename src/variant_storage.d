@@ -36,21 +36,9 @@ private:
 
     Each element is indexed by a corresponding `VariantIndex`.
  */
-struct VariantStorage(Types...)
+private struct VariantStorage(Types...)
 {
     alias Index = VariantIndex!Types;
-
-    private static string typeStringOf(Type)()
-    {
-        static if (__traits(hasMember, Type, `typeString`))
-        {
-            return Type.typeString;
-        }
-        else
-        {
-            return Type.mangleof;
-        }
-    }
 
     import basic_copyable_array : CopyableArray; // TODO break out `BasicArray` from CopyableArray
 
@@ -65,7 +53,7 @@ struct VariantStorage(Types...)
     pragma(inline, true)
     private static immutable(string) arrayInstanceString(Type)()
     {
-        return `_values` ~ typeStringOf!Type;
+        return `_values` ~ Type.mangleof;
     }
 
     /** Insert `value` at back. */
@@ -122,22 +110,9 @@ struct VariantStorage(Types...)
     }
 
     /** Check if empty. */
-    @property bool empty() const
-    {
-        return length == 0;
-    }
+    @property bool empty() const { return length == 0; }
 
 private:
-    // TODO enable, when this compiles
-    // static if (__VERSION__ >= 2076)
-    // {
-    //     static foreach (alias Type; Types)
-    //     {
-    //         mixin(arrayTypeString!Type ~ ` ` ~ arrayInstanceString!Type ~ `;`);
-    //     }
-    // }
-
-    // storages
     mixin({
             string s = "";
             foreach (Type; Types)

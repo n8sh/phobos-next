@@ -122,7 +122,7 @@ struct VariantStorage(Types...)
     }
 
 private:
-    // TODO this currently crashes on dmd 2.076
+    // TODO enable, when this compiles
     // static if (__VERSION__ >= 2076)
     // {
     //     static foreach (alias Type; Types)

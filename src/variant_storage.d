@@ -116,7 +116,7 @@ private:
     //     }
     // }
 
-    // // storages
+    // storages
     mixin({
             string s = "";
             foreach (Type; Types)

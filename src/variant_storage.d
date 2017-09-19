@@ -4,7 +4,6 @@ module variant_storage;
 private struct VariantIndex(Types...)
 {
     import std.meta : staticIndexOf;
-
 private:
     alias Kind = ubyte;              // kind code
     enum kindBits = 8 * Kind.sizeof; // bits needed to store kind code

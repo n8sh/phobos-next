@@ -37,8 +37,6 @@ private:
  */
 struct VariantStorage(Types...)
 {
-    import std.meta : staticIndexOf;
-
     alias Index = VariantIndex!Types;
 
     import basic_copyable_array : CopyableArray; // TODO break out `BasicArray` from CopyableArray

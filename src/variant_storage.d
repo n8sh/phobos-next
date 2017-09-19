@@ -155,10 +155,10 @@ version(unittest)
     assert(data.insertBack(ulong(13)).isOfType!ulong);
     assert(data.length == 1);
 
-    data.insertBack(FewChars!7.init);
+    assert(data.insertBack(FewChars!7.init).isOfType!(FewChars!7));
     assert(data.length == 2);
 
-    data.insertBack(FewChars!15.init);
+    assert(data.insertBack(FewChars!15.init).isOfType!(FewChars!15));
     assert(data.length == 3);
 }
 

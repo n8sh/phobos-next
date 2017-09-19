@@ -122,13 +122,12 @@ struct VariantStorage(Types...)
     }
 
 private:
-    // TODO this currently crashes
+    // TODO this currently crashes on dmd 2.076
     // static if (__VERSION__ >= 2076)
     // {
     //     static foreach (alias Type; Types)
     //     {
-    //         pragma(msg, Type);
-    //         // mixin(arrayTypeString!Type ~ ` ` ~ arrayInstanceString!Type ~ `;`);
+    //         mixin(arrayTypeString!Type ~ ` ` ~ arrayInstanceString!Type ~ `;`);
     //     }
     // }
 

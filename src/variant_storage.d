@@ -8,6 +8,7 @@ private:
     alias Kind = ubyte;              // kind code
     enum kindBits = 8 * Kind.sizeof; // bits needed to store kind code
 
+    /// Get number kind of kind type `SomeKind`.
     enum nrOfKind(SomeKind) = staticIndexOf!(SomeKind, Types); // TODO cast to ubyte if Types.length is <= 256
 
     /// Is `true` iff an index to a `SomeKind`-kind can be stored.

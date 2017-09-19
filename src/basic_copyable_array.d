@@ -69,7 +69,6 @@ struct CopyableArray(T,
         - initial length `initialLength`
         - and zeroing-flag `zero`.
     */
-    pragma(inline, true)
     private static This withCapacityLengthZero(size_t initialCapacity,
                                                size_t initialLength,
                                                bool zero) @trusted
@@ -253,6 +252,7 @@ struct CopyableArray(T,
     }
 
     /// ditto
+    pragma(inline, true)
     bool opEquals(U)(in U[] rhs) const
         if (is(typeof(T.init == U.init)))
     {
@@ -288,16 +288,17 @@ struct CopyableArray(T,
         }
     }
 
-pragma(inline, true):
-
     /// Check if empty.
+    pragma(inline, true)
     bool empty() const { return _length == 0; }
 
     /// Get length.
+    pragma(inline, true)
     @property size_t length() const { return _length; }
     alias opDollar = length;    /// ditto
 
     /// Set length to `newLength`.
+    pragma(inline, true)
     @property void length(size_t newLength)
     {
         reserve(newLength);
@@ -305,6 +306,7 @@ pragma(inline, true):
     }
 
     /// Get capacity.
+    pragma(inline, true)
     @property size_t capacity() const { return _capacity; }
 
     /** Ensures sufficient capacity to accommodate for requestedCapacity number
@@ -333,17 +335,20 @@ pragma(inline, true):
     }
 
     /// Index support.
+    pragma(inline, true)
     ref inout(T) opIndex(size_t i) inout return scope
     {
         return slice()[i];
     }
 
     /// Slice support.
+    pragma(inline, true)
     inout(T)[] opSlice(size_t i, size_t j) inout return scope
     {
         return slice()[i .. j];
     }
     ///
+    pragma(inline, true)
     inout(T)[] opSlice() inout return scope
     {
         return opSlice(0, _length);
@@ -369,18 +374,21 @@ pragma(inline, true):
     }
 
     /// Slice assignment support.
+    pragma(inline, true)
     T[] opSliceAssign(U)(U value) return scope
     {
         return slice()[] = value;
     }
 
     /// ditto
+    pragma(inline, true)
     T[] opSliceAssign(U)(U value, size_t i, size_t j) return scope
     {
         return slice()[i .. j] = value;
     }
 
     /// Get front element reference.
+    pragma(inline, true)
     ref inout(T) front() inout return scope @property
     {
         // TODO use?: enforce(!empty); emsi-containers doesn't, std.container.Array does
@@ -388,6 +396,7 @@ pragma(inline, true):
     }
 
     /// Get back element reference.
+    pragma(inline, true)
     ref inout(T) back() inout return scope @property
     {
         // TODO use?: enforce(!empty); emsi-containers doesn't, std.container.Array does
@@ -543,6 +552,7 @@ pragma(inline, true):
 
     /** Forwards to $(D insertBack(values)).
      */
+    pragma(inline, true)
     void opOpAssign(string op)(T value)
         if (op == "~")
     {
@@ -550,6 +560,7 @@ pragma(inline, true):
     }
 
     /// ditto
+    pragma(inline, true)
     void opOpAssign(string op, U)(U[] values...) @trusted
         if (op == "~" &&
             isElementAssignable!U &&
@@ -559,6 +570,7 @@ pragma(inline, true):
     }
 
     /// ditto
+    pragma(inline, true)
     void opOpAssign(string op, R)(R values)
         if (op == "~" &&
             isInputRange!R &&
@@ -581,12 +593,14 @@ pragma(inline, true):
     // }
 
     /// Helper slice.
+    pragma(inline, true)
     private inout(T)[] slice() inout return scope @trusted
     {
         return _ptr[0 .. _length];
     }
 
     /// Helper mutable slice.
+    pragma(inline, true)
     private MutableE[] mslice() return scope @trusted
     {
         return _mptr[0 .. _length];
@@ -601,6 +615,7 @@ pragma(inline, true):
     }
 
     /// Mutable pointer.
+    pragma(inline, true)
     private MutableE* _mptr() const return scope @trusted
     {
         return cast(typeof(return))_ptr;

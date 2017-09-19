@@ -195,9 +195,9 @@ version(unittest)
 @safe pure nothrow @nogc unittest
 {
     S s;
-
-    s.insertBack(Rel1(s.insertBack(Rel1(s.insertBack(Rel1(s.insertBack(UInt(42))))))));
-    assert(s.length == 4);
+    s.insertBack(Rel1(s.insertBack(Rel1(s.insertBack(Rel2(s.insertBack(UInt(42)),
+                                                          s.insertBack(UInt(43))))))));
+    assert(s.length == 5);
 }
 
 version(unittest)

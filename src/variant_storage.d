@@ -11,7 +11,7 @@ private:
     enum kindOf(U) = staticIndexOf!(U, Types); // TODO cast to ubyte if Types.length is <= 256
 
     /// Is `true` iff an index to a `U`-kind can be stored.
-    enum hasKind(U) = kindOf!U >= 0;
+    enum supportsKind(U) = kindOf!U >= 0;
 
     /// Construct.
     this(Kind kind, size_t index) // TODO can ctor inferred by bitfields?
@@ -72,7 +72,7 @@ struct VariantStorage(Types...)
 
     /** Insert `value` at back. */
     Index insertBack(U)(U value)
-        if (Index.hasKind!U)
+        if (Index.supportsKind!U)
     {
         mixin(`const currentIndex = ` ~ arrayInstanceString!U ~ `.length;`);
         mixin(arrayInstanceString!U ~ `.insertBack(value);`);
@@ -84,14 +84,14 @@ struct VariantStorage(Types...)
 
     /// Get reference to element of type `U` at `index`.
     scope ref inout(U) at(U)(in size_t index) inout return
-        if (Index.hasKind!U)
+        if (Index.supportsKind!U)
     {
         mixin(`return ` ~ arrayInstanceString!U ~ `[index];`);
     }
 
     /// Peek at element of type `U` at `index`.
     scope inout(U)* peek(U)(in Index index) inout return @system
-        if (Index.hasKind!U)
+        if (Index.supportsKind!U)
     {
         dln(index._kind);
         if (Index.kindOf!U == index._kind)
@@ -107,7 +107,7 @@ struct VariantStorage(Types...)
 
     /// Constant access to all elements of type `U`.
     scope const(U)[] allOf(U)() const return
-        if (Index.hasKind!U)
+        if (Index.supportsKind!U)
     {
         mixin(`return ` ~ arrayInstanceString!U ~ `[];`);
     }

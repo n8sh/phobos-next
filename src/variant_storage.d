@@ -8,7 +8,6 @@ private struct VariantIndex(Types...)
 private:
     alias Kind = ubyte;              // kind code
     enum kindBits = 8 * Kind.sizeof; // bits needed to store kind code
-    enum maxTypesCount = 2^^(kindBits) - 1; // maximum number of allowed type parameters
 
     enum indexOf(U) = staticIndexOf!(U, Types); // TODO cast to ubyte if Types.length is <= 256
     enum canStore(U) = indexOf!U >= 0;

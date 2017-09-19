@@ -8,10 +8,10 @@ private:
     alias Kind = ubyte;              // kind code
     enum kindBits = 8 * Kind.sizeof; // bits needed to store kind code
 
-    enum nrOfKind(AnyKind) = staticIndexOf!(AnyKind, Types); // TODO cast to ubyte if Types.length is <= 256
+    enum nrOfKind(SomeKind) = staticIndexOf!(SomeKind, Types); // TODO cast to ubyte if Types.length is <= 256
 
-    /// Is `true` iff an index to a `AnyKind`-kind can be stored.
-    enum canReferToType(AnyKind) = nrOfKind!AnyKind >= 0;
+    /// Is `true` iff an index to a `SomeKind`-kind can be stored.
+    enum canReferToType(SomeKind) = nrOfKind!SomeKind >= 0;
 
     /// Construct.
     this(Kind kind, size_t index) // TODO can ctor inferred by bitfields?
@@ -20,8 +20,8 @@ private:
         _index = index;
     }
 
-    /// Returns: `true` iff `this` targets a value of type `U`.
-    bool isA(U)() const { return nrOfKind!(U) == _kindNr; }
+    /// Returns: `true` iff `this` targets a value of type `SomeKind`.
+    bool isA(SomeKind)() const { return nrOfKind!(SomeKind) == _kindNr; }
 
     import std.bitmanip : bitfields;
     mixin(bitfields!(size_t, "_index", 64 - kindBits,
@@ -67,31 +67,31 @@ struct VariantStorage(Types...)
     }
 
     /** Insert `value` at back. */
-    Index insertBack(AnyKind)(AnyKind value)
-        if (Index.canReferToType!AnyKind)
+    Index insertBack(SomeKind)(SomeKind value)
+        if (Index.canReferToType!SomeKind)
     {
-        mixin(`const currentIndex = ` ~ arrayInstanceString!AnyKind ~ `.length;`);
-        mixin(arrayInstanceString!AnyKind ~ `.insertBack(value);`);
-        mixin(`const currentLength = ` ~ arrayInstanceString!AnyKind ~ `.length;`);
-        return Index(Index.nrOfKind!AnyKind,
+        mixin(`const currentIndex = ` ~ arrayInstanceString!SomeKind ~ `.length;`);
+        mixin(arrayInstanceString!SomeKind ~ `.insertBack(value);`);
+        mixin(`const currentLength = ` ~ arrayInstanceString!SomeKind ~ `.length;`);
+        return Index(Index.nrOfKind!SomeKind,
                      currentIndex);
     }
     alias put = insertBack;
 
-    /// Get reference to element of type `U` at `index`.
-    scope ref inout(U) at(U)(in size_t index) inout return
-        if (Index.canReferToType!U)
+    /// Get reference to element of type `SomeKind` at `index`.
+    scope ref inout(SomeKind) at(SomeKind)(in size_t index) inout return
+        if (Index.canReferToType!SomeKind)
     {
-        mixin(`return ` ~ arrayInstanceString!U ~ `[index];`);
+        mixin(`return ` ~ arrayInstanceString!SomeKind ~ `[index];`);
     }
 
-    /// Peek at element of type `U` at `index`.
-    scope inout(U)* peek(U)(in Index index) inout return @system
-        if (Index.canReferToType!U)
+    /// Peek at element of type `SomeKind` at `index`.
+    scope inout(SomeKind)* peek(SomeKind)(in Index index) inout return @system
+        if (Index.canReferToType!SomeKind)
     {
-        if (Index.nrOfKind!U == index._kindNr)
+        if (Index.nrOfKind!SomeKind == index._kindNr)
         {
-            return &at!U(index._index);
+            return &at!SomeKind(index._index);
         }
         else
         {
@@ -99,11 +99,11 @@ struct VariantStorage(Types...)
         }
     }
 
-    /// Constant access to all elements of type `U`.
-    scope const(U)[] allOf(U)() const return
-        if (Index.canReferToType!U)
+    /// Constant access to all elements of type `SomeKind`.
+    scope const(SomeKind)[] allOf(SomeKind)() const return
+        if (Index.canReferToType!SomeKind)
     {
-        mixin(`return ` ~ arrayInstanceString!U ~ `[];`);
+        mixin(`return ` ~ arrayInstanceString!SomeKind ~ `[];`);
     }
 
     /** Returns: length of store. */

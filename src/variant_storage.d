@@ -123,9 +123,10 @@ private:
 
 version(unittest)
 {
-    import chars : FewChars;
-    alias Data = VariantStorage!(FewChars!7,
-                                 FewChars!15,
+    import fixed_array : FixedArray;
+    alias Chars(uint capacity) = FixedArray!(char, capacity);
+    alias Data = VariantStorage!(Chars!7,
+                                 Chars!15,
                                  ulong);
 }
 
@@ -139,16 +140,16 @@ version(unittest)
     assert(data.get!ulong(0) == ulong(13));
     assert(data.length == 1);
 
-    assert(data.insertBack(FewChars!7(`1234567`)).isOfType!(FewChars!7));
-    assert(data.get!(FewChars!7)(0) == FewChars!7(`1234567`));
+    assert(data.insertBack(Chars!7(`1234567`)).isOfType!(Chars!7));
+    assert(data.get!(Chars!7)(0) == Chars!7(`1234567`));
     assert(data.length == 2);
 
-    assert(data.insertBack(FewChars!15(`123`)).isOfType!(FewChars!15));
-    assert(data.get!(FewChars!15)(0) == FewChars!15(`123`));
+    assert(data.insertBack(Chars!15(`123`)).isOfType!(Chars!15));
+    assert(data.get!(Chars!15)(0) == Chars!15(`123`));
     assert(data.length == 3);
 
-    assert(data.insertBack(FewChars!15(`1234`)).isOfType!(FewChars!15));
-    assert(data.get!(FewChars!15)(1) == FewChars!15(`1234`));
+    assert(data.insertBack(Chars!15(`1234`)).isOfType!(Chars!15));
+    assert(data.get!(Chars!15)(1) == Chars!15(`1234`));
     assert(data.length == 4);
 }
 

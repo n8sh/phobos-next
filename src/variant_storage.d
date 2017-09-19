@@ -8,24 +8,24 @@ private:
     alias Kind = ubyte;              // kind code
     enum kindBits = 8 * Kind.sizeof; // bits needed to store kind code
 
-    enum kindOf(U) = staticIndexOf!(U, Types); // TODO cast to ubyte if Types.length is <= 256
+    enum nrOfKind(AnyKind) = staticIndexOf!(AnyKind, Types); // TODO cast to ubyte if Types.length is <= 256
 
-    /// Is `true` iff an index to a `U`-kind can be stored.
-    enum canReferToType(U) = kindOf!U >= 0;
+    /// Is `true` iff an index to a `AnyKind`-kind can be stored.
+    enum canReferToType(AnyKind) = nrOfKind!AnyKind >= 0;
 
     /// Construct.
     this(Kind kind, size_t index) // TODO can ctor inferred by bitfields?
     {
-        _kind = kind;
+        _kindNr = kind;
         _index = index;
     }
 
     /// Returns: `true` iff `this` targets a value of type `U`.
-    bool isA(U)() const { return kindOf!(U) == _kind; }
+    bool isA(U)() const { return nrOfKind!(U) == _kindNr; }
 
     import std.bitmanip : bitfields;
     mixin(bitfields!(size_t, "_index", 64 - kindBits,
-                     Kind, "_kind", kindBits));
+                     Kind, "_kindNr", kindBits));
 }
 
 /** Stores set of variants.
@@ -71,13 +71,13 @@ struct VariantStorage(Types...)
     }
 
     /** Insert `value` at back. */
-    Index insertBack(U)(U value)
-        if (Index.canReferToType!U)
+    Index insertBack(AnyKind)(AnyKind value)
+        if (Index.canReferToType!AnyKind)
     {
-        mixin(`const currentIndex = ` ~ arrayInstanceString!U ~ `.length;`);
-        mixin(arrayInstanceString!U ~ `.insertBack(value);`);
-        mixin(`const currentLength = ` ~ arrayInstanceString!U ~ `.length;`);
-        return Index(Index.kindOf!U,
+        mixin(`const currentIndex = ` ~ arrayInstanceString!AnyKind ~ `.length;`);
+        mixin(arrayInstanceString!AnyKind ~ `.insertBack(value);`);
+        mixin(`const currentLength = ` ~ arrayInstanceString!AnyKind ~ `.length;`);
+        return Index(Index.nrOfKind!AnyKind,
                      currentIndex);
     }
     alias put = insertBack;
@@ -93,8 +93,8 @@ struct VariantStorage(Types...)
     scope inout(U)* peek(U)(in Index index) inout return @system
         if (Index.canReferToType!U)
     {
-        dln(index._kind);
-        if (Index.kindOf!U == index._kind)
+        dln(index._kindNr);
+        if (Index.nrOfKind!U == index._kindNr)
         {
             dln(index._index);
             return &at!U(index._index);

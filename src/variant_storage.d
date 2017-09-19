@@ -166,7 +166,8 @@ version(unittest)
 {
     alias VS = VariantStorage!(Rel1, Rel2, Rel3, Rel4, Rel5,
                                Pred1, Pred2, Pred3, Pred4, Pred5,
-                               Fn1, Fn2, Fn3, Fn4);
+                               Fn1, Fn2, Fn3, Fn4,
+                               UInt);
 
     // relations
     struct Rel1 { VS.Index a; }
@@ -187,14 +188,16 @@ version(unittest)
     struct Fn2 { VS.Index a, b; }
     struct Fn3 { VS.Index a, b, c; }
     struct Fn4 { VS.Index a, b, c, d; }
+
+    struct UInt { uint value; }
 }
 
 @safe pure nothrow @nogc unittest
 {
     VS vs;
 
-    vs.insertBack(Rel1(vs.insertBack(Rel1(vs.insertBack(Rel1())))));
-    assert(vs.length == 3);
+    vs.insertBack(Rel1(vs.insertBack(Rel1(vs.insertBack(Rel1(vs.insertBack(UInt(42))))))));
+    assert(vs.length == 4);
 }
 
 version(unittest)

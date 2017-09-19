@@ -15,6 +15,7 @@ struct VariantIndex(Types...)
 
     private enum N = typeCount; // useful local shorthand
 
+    /// Construct.
     this(Kind kind, size_t index) // TODO can ctor inferred by bitfields?
     {
         _kind = kind;

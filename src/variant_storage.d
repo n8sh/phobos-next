@@ -164,40 +164,40 @@ version(unittest)
 
 version(unittest)
 {
-    alias VS = VariantStorage!(Rel1, Rel2, Rel3, Rel4, Rel5,
-                               Pred1, Pred2, Pred3, Pred4, Pred5,
-                               Fn1, Fn2, Fn3, Fn4,
-                               UInt);
+    alias S = VariantStorage!(Rel1, Rel2, Rel3, Rel4, Rel5,
+                              Pred1, Pred2, Pred3, Pred4, Pred5,
+                              Fn1, Fn2, Fn3, Fn4,
+                              UInt);
 
     // relations
-    struct Rel1 { VS.Index a; }
-    struct Rel2 { VS.Index a, b; }
-    struct Rel3 { VS.Index a, b, c; }
-    struct Rel4 { VS.Index a, b, c, d; }
-    struct Rel5 { VS.Index a, b, c, d, e; }
+    struct Rel1 { S.Index a; }
+    struct Rel2 { S.Index a, b; }
+    struct Rel3 { S.Index a, b, c; }
+    struct Rel4 { S.Index a, b, c, d; }
+    struct Rel5 { S.Index a, b, c, d, e; }
 
     // predicates
-    struct Pred1 { VS.Index a; }
-    struct Pred2 { VS.Index a, b; }
-    struct Pred3 { VS.Index a, b, c; }
-    struct Pred4 { VS.Index a, b, c, d; }
-    struct Pred5 { VS.Index a, b, c, d, e; }
+    struct Pred1 { S.Index a; }
+    struct Pred2 { S.Index a, b; }
+    struct Pred3 { S.Index a, b, c; }
+    struct Pred4 { S.Index a, b, c, d; }
+    struct Pred5 { S.Index a, b, c, d, e; }
 
     // functions
-    struct Fn1 { VS.Index a; }
-    struct Fn2 { VS.Index a, b; }
-    struct Fn3 { VS.Index a, b, c; }
-    struct Fn4 { VS.Index a, b, c, d; }
+    struct Fn1 { S.Index a; }
+    struct Fn2 { S.Index a, b; }
+    struct Fn3 { S.Index a, b, c; }
+    struct Fn4 { S.Index a, b, c, d; }
 
     struct UInt { uint value; }
 }
 
 @safe pure nothrow @nogc unittest
 {
-    VS vs;
+    S s;
 
-    vs.insertBack(Rel1(vs.insertBack(Rel1(vs.insertBack(Rel1(vs.insertBack(UInt(42))))))));
-    assert(vs.length == 4);
+    s.insertBack(Rel1(s.insertBack(Rel1(s.insertBack(Rel1(s.insertBack(UInt(42))))))));
+    assert(s.length == 4);
 }
 
 version(unittest)

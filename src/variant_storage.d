@@ -189,30 +189,12 @@ version(unittest)
 
 version(unittest)
 {
-    alias S = VariantStorage!(Rel1, Rel2, Rel3, Rel4, Rel5,
-                              Pred1, Pred2, Pred3, Pred4, Pred5,
-                              Fn1, Fn2, Fn3, Fn4,
+    alias S = VariantStorage!(Rel1, Rel2,
                               Int);
 
     // relations
     struct Rel1 { S.Index[1] args; }
     struct Rel2 { S.Index[2] args; }
-    struct Rel3 { S.Index[3] args; }
-    struct Rel4 { S.Index[4] args; }
-    struct Rel5 { S.Index[5] args; }
-
-    // predicates
-    struct Pred1 { S.Index[1] args; }
-    struct Pred2 { S.Index[2] args; }
-    struct Pred3 { S.Index[3] args; }
-    struct Pred4 { S.Index[4] args; }
-    struct Pred5 { S.Index[5] args; }
-
-    // functions
-    struct Fn1 { S.Index[1] args; }
-    struct Fn2 { S.Index[2] args; }
-    struct Fn3 { S.Index[3] args; }
-    struct Fn4 { S.Index[4] args; }
 
     struct Int { int value; }
 }

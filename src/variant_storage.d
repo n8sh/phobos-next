@@ -103,8 +103,8 @@ struct VariantStorage(Types...)
         }
     }
 
-    /// Get all elements of type `U`.
-    scope inout(U)[] allOf(U)() inout return
+    /// Constant access to all elements of type `U`.
+    scope const(U)[] allOf(U)() const return
         if (Index.hasKind!U)
     {
         mixin(`return ` ~ arrayInstanceString!U ~ `[];`);
@@ -222,10 +222,13 @@ version(unittest)
     S s;
     S.Index top = s.put(Rel1(s.put(Rel1(s.put(Rel2([s.put(UInt(42)),
                                                     s.put(UInt(43))]))))));
+    assert(s.allOf!Rel1.length == 2);
+    assert(s.allOf!Rel2.length == 1);
+    assert(s.allOf!UInt.length == 2);
     assert(s.length == 5);
 
-    S.Index lone = s.put(Rel1());
-    assert(s.peek!Rel1(lone));
+    // S.Index lone = s.put(Rel1());
+    // assert(s.peek!Rel1(lone));
 }
 
 version(unittest)

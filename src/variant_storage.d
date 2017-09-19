@@ -106,16 +106,17 @@ struct VariantStorage(Types...)
     }
 
 private:
-    version(LDC)
-    {
-        static if (__VERSION__ >= 2076)
-        {
-            pragma(msg, __FILE__ ~ ":" ~ __LINE__.stringof ~
-                   ": info: both DMD and LDC now has foreach, so use it to generate storages below");
-        }
-    }
+    // TODO make this work
+    // static if (__VERSION__ >= 2076)
+    // {
+    //     static foreach (alias Type; Types)
+    //     {
+    //         pragma(msg, Type);
+    //         // mixin(arrayTypeString!Type ~ ` ` ~ arrayInstanceString!Type ~ `;`);
+    //     }
+    // }
 
-    // storages
+    // // storages
     mixin({
             string s = "";
             foreach (Type; Types)

@@ -147,10 +147,12 @@ version(unittest)
 {
     Data data;
     assert(data.length == 0);
+    assert(data.empty);
 
     assert(data.put(ulong(13)).isA!ulong);
     assert(data.at!ulong(0) == ulong(13));
     assert(data.length == 1);
+    assert(!data.empty);
     assert(data.allOf!ulong == [ulong(13)].s);
 
     assert(data.put(Chars!7(`1234567`)).isA!(Chars!7));

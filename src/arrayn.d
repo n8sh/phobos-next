@@ -93,7 +93,7 @@ struct ArrayN(E,
         private enum shouldAddGCRange = hasIndirections!T; // TODO and only if T's indirections are handled by the GC (not tagged with @nogc)
     }
 
-    @safe pure:
+    @safe:
 
     /** Construct with elements `es`. */
     version(none)               // TODO needed?
@@ -117,7 +117,7 @@ struct ArrayN(E,
     }
 
     /** Construct with elements in `es`. */
-    this(const(MutableE)[] es) @trusted nothrow @nogc
+    this(const(MutableE)[] es) @trusted
     {
         assert(es.length <= capacity);
         static if (shouldAddGCRange!E)
@@ -130,7 +130,7 @@ struct ArrayN(E,
     }
 
     /** Destruct. */
-    ~this() @trusted nothrow @nogc
+    ~this() @trusted
     {
         static if (borrowChecked) { assert(!isBorrowed); }
         static if (hasElaborateDestructor!E)
@@ -207,7 +207,7 @@ struct ArrayN(E,
     static if (isMutable!E)
     {
         /** Pop first (front) element. */
-        auto ref popFront() nothrow @nogc
+        auto ref popFront()
         {
             assert(!empty);
             static if (borrowChecked) { assert(!isBorrowed); }
@@ -223,7 +223,7 @@ struct ArrayN(E,
     }
 
     /** Pop last (back) element. */
-    void popBack() nothrow @nogc
+    void popBack()
     {
         assert(!empty);
         static if (borrowChecked) { assert(!isBorrowed); }
@@ -235,7 +235,7 @@ struct ArrayN(E,
     }
 
     /** Pop the `n` last (back) elements. */
-    void popBackN(size_t n) nothrow @nogc
+    void popBackN(size_t n)
     {
         assert(length >= n);
         static if (borrowChecked) { assert(!isBorrowed); }
@@ -249,7 +249,7 @@ struct ArrayN(E,
         }
     }
 
-pragma(inline, true) nothrow @nogc:
+pragma(inline, true):
 
     /** Index operator. */
     ref inout(E) opIndex(size_t i) inout @trusted return scope

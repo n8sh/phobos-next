@@ -5,9 +5,9 @@ struct VariantIndex(Types...)
     import std.meta : staticIndexOf;
 
 private:
-    alias Type = ubyte;         // type index type
-    enum typeBits = 8 * Type.sizeof;
-    enum maxTypesCount = 2^^(typeBits) - 1; // maximum number of allowed type parameters
+    alias Kind = ubyte; // kind code
+    enum kindBits = 8 * Kind.sizeof;
+    enum maxTypesCount = 2^^(kindBits) - 1; // maximum number of allowed type parameters
 
     enum indexOf(U) = staticIndexOf!(U, Types); // TODO cast to ubyte if Types.length is <= 256
     enum canStore(U) = indexOf!U >= 0;
@@ -16,18 +16,19 @@ private:
 
     private enum N = typeCount; // useful local shorthand
 
-    this(Type type, size_t index) // TODO can ctor inferred by bitfields?
+    /// Construct.
+    this(Kind kind, size_t index) // TODO can ctor inferred by bitfields?
     {
-        _type = type;
+        _kind = kind;
         _index = index;
     }
 
     /// Returns: `true` iff `this` targets a value of type `U`.
-    bool isOfType(U)() const { return indexOf!(U) == _type; }
+    bool isOfType(U)() const { return indexOf!(U) == _kind; }
 
     import std.bitmanip : bitfields;
-    mixin(bitfields!(size_t, "_index", 64 - typeBits,
-                     Type, "_type", typeBits));
+    mixin(bitfields!(size_t, "_index", 64 - kindBits,
+                     Kind, "_kind", kindBits));
 }
 
 /** Stores set of variants.
@@ -75,14 +76,6 @@ struct VariantStorage(Types...)
         return `_values` ~ typeStringOf!Type;
     }
 
-    version(LDC)
-    {
-        static if (__VERSION__ >= 2076)
-        {
-            pragma(msg, __FILE__ ~ ":" ~ __LINE__.stringof ~ ": info: LDC now has foreach, so use it to generate arrays");
-        }
-    }
-
     /** Insert `value` at back. */
     Index insertBack(U)(U value)
         if (canStore!U)
@@ -118,6 +111,15 @@ struct VariantStorage(Types...)
     }
 
 private:
+    version(LDC)
+    {
+        static if (__VERSION__ >= 2076)
+        {
+            pragma(msg, __FILE__ ~ ":" ~ __LINE__.stringof ~
+                   ": info: both DMD and LDC now has foreach, so use it to generate storages below");
+        }
+    }
+
     // storages
     mixin({
             string s = "";
@@ -131,9 +133,10 @@ private:
 
 version(unittest)
 {
-    import chars : FewChars;
-    alias Data = VariantStorage!(FewChars!7,
-                                 FewChars!15,
+    import fixed_array : FixedArray;
+    alias Chars(uint capacity) = FixedArray!(char, capacity);
+    alias Data = VariantStorage!(Chars!7,
+                                 Chars!15,
                                  ulong);
 }
 
@@ -148,20 +151,20 @@ version(unittest)
     assert(data.length == 1);
     assert(data.allOfType!ulong == [ulong(13)].s);
 
-    assert(data.insertBack(FewChars!7(`1234567`)).isOfType!(FewChars!7));
-    assert(data.ofTypeAt!(FewChars!7)(0) == FewChars!7(`1234567`));
-    assert(data.allOfType!(FewChars!7) == [FewChars!7(`1234567`)].s);
+    assert(data.insertBack(Chars!7(`1234567`)).isOfType!(Chars!7));
+    assert(data.ofTypeAt!(Chars!7)(0) == Chars!7(`1234567`));
+    assert(data.allOfType!(Chars!7) == [Chars!7(`1234567`)].s);
     assert(data.length == 2);
 
-    assert(data.insertBack(FewChars!15(`123`)).isOfType!(FewChars!15));
-    assert(data.ofTypeAt!(FewChars!15)(0) == FewChars!15(`123`));
-    assert(data.allOfType!(FewChars!15) == [FewChars!15(`123`)].s);
+    assert(data.insertBack(Chars!15(`123`)).isOfType!(Chars!15));
+    assert(data.ofTypeAt!(Chars!15)(0) == Chars!15(`123`));
+    assert(data.allOfType!(Chars!15) == [Chars!15(`123`)].s);
     assert(data.length == 3);
 
-    assert(data.insertBack(FewChars!15(`1234`)).isOfType!(FewChars!15));
-    assert(data.ofTypeAt!(FewChars!15)(1) == FewChars!15(`1234`));
-    assert(data.allOfType!(FewChars!15) == [FewChars!15(`123`),
-                                            FewChars!15(`1234`)].s);
+    assert(data.insertBack(Chars!15(`1234`)).isOfType!(Chars!15));
+    assert(data.ofTypeAt!(Chars!15)(1) == Chars!15(`1234`));
+    assert(data.allOfType!(Chars!15) == [Chars!15(`123`),
+                                            Chars!15(`1234`)].s);
     assert(data.length == 4);
 }
 

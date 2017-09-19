@@ -45,15 +45,17 @@ struct ArrayN(E,
         static      if (capacity <= 2^^(8*ubyte.sizeof - 1 - readBorrowCountBits) - 1)
         {
             private enum lengthMax = 2^^4 - 1;
-            mixin(bitfields!(ubyte, "_length", 4, /// number of defined elements in `_store`
+            alias Length = ubyte;
+            mixin(bitfields!(Length, "_length", 4, /// number of defined elements in `_store`
                              bool, "_writeBorrowed", 1, // TODO make private
                              uint, "_readBorrowCount", readBorrowCountBits, // TODO make private
                       ));
         }
         else static if (capacity <= 2^^(8*ushort.sizeof - 1 - readBorrowCountBits) - 1)
         {
+            alias Length = ushort;
             private enum lengthMax = 2^^14 - 1;
-            mixin(bitfields!(ushort, "_length", 14, /// number of defined elements in `_store`
+            mixin(bitfields!(Length, "_length", 14, /// number of defined elements in `_store`
                              bool, "_writeBorrowed", 1, // TODO make private
                              uint, "_readBorrowCount", readBorrowCountBits, // TODO make private
                       ));
@@ -67,16 +69,17 @@ struct ArrayN(E,
     {
         static if (capacity <= ubyte.max)
         {
-            ubyte _length;       /// number of defined elements in `_store`
+            alias Length = ubyte;
         }
         else static if (capacity <= ushort.max)
         {
-            ushort _length;       /// number of defined elements in `_store`
+            alias Length = ushort;
         }
         else
         {
             static assert("Too large capacity " ~ capacity);
         }
+        Length _length;         /// number of defined elements in `_store`
     }
 
     alias MutableE = Unqual!E;
@@ -90,7 +93,7 @@ struct ArrayN(E,
         private enum shouldAddGCRange = hasIndirections!T; // TODO and only if T's indirections are handled by the GC (not tagged with @nogc)
     }
 
-    @safe pure:
+    @safe:
 
     /** Construct with elements `es`. */
     version(none)               // TODO needed?
@@ -114,7 +117,7 @@ struct ArrayN(E,
     }
 
     /** Construct with elements in `es`. */
-    this(const(MutableE)[] es) @trusted nothrow @nogc
+    this(const(MutableE)[] es) @trusted
     {
         assert(es.length <= capacity);
         static if (shouldAddGCRange!E)
@@ -127,7 +130,7 @@ struct ArrayN(E,
     }
 
     /** Destruct. */
-    ~this() @trusted nothrow @nogc
+    ~this() @trusted
     {
         static if (borrowChecked) { assert(!isBorrowed); }
         static if (hasElaborateDestructor!E)
@@ -165,7 +168,7 @@ struct ArrayN(E,
             import std.algorithm.mutation : moveEmplace;
             moveEmplace(e, _store[_length + i]); // TODO remove `move` when compiler does it for us
         }
-        _length = cast(typeof(_length))(_length + Es.length); // TODO better?
+        _length = cast(Length)(_length + Es.length); // TODO better?
     }
     /// ditto
     alias put = insertBack;       // `OutputRange` support
@@ -183,7 +186,7 @@ struct ArrayN(E,
             import std.algorithm.mutation : moveEmplace;
             moveEmplace(e, _store[_length + i]); // TODO remove `move` when compiler does it for us
         }
-        _length = cast(typeof(_length))(_length + Es.length); // TODO better?
+        _length = cast(Length)(_length + Es.length); // TODO better?
         return true;
     }
     /// ditto
@@ -204,7 +207,7 @@ struct ArrayN(E,
     static if (isMutable!E)
     {
         /** Pop first (front) element. */
-        auto ref popFront() nothrow @nogc
+        auto ref popFront()
         {
             assert(!empty);
             static if (borrowChecked) { assert(!isBorrowed); }
@@ -220,11 +223,11 @@ struct ArrayN(E,
     }
 
     /** Pop last (back) element. */
-    void popBack() nothrow @nogc
+    void popBack()
     {
         assert(!empty);
         static if (borrowChecked) { assert(!isBorrowed); }
-        _length = cast(typeof(_length))(_length - 1); // TODO better?
+        _length = cast(Length)(_length - 1); // TODO better?
         static if (hasElaborateDestructor!E)
         {
             .destroy(_store.ptr[_length]);
@@ -232,11 +235,11 @@ struct ArrayN(E,
     }
 
     /** Pop the `n` last (back) elements. */
-    void popBackN(size_t n) nothrow @nogc
+    void popBackN(size_t n)
     {
         assert(length >= n);
         static if (borrowChecked) { assert(!isBorrowed); }
-        _length = cast(typeof(_length))(_length - n); // TODO better?
+        _length = cast(Length)(_length - n); // TODO better?
         static if (hasElaborateDestructor!E)
         {
             foreach (i; 0 .. n)
@@ -246,7 +249,7 @@ struct ArrayN(E,
         }
     }
 
-pragma(inline, true) nothrow @nogc:
+pragma(inline, true):
 
     /** Index operator. */
     ref inout(E) opIndex(size_t i) inout @trusted return scope

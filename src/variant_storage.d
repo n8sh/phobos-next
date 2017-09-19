@@ -36,8 +36,8 @@ struct VariantStorage(Types...)
 
     alias Index = VariantIndex!Types;
 
-    enum indexOf(T) = staticIndexOf!(T, Types); // TODO cast to ubyte if Types.length is <= 256
-    enum canStore(T) = indexOf!T >= 0;
+    enum indexOf(U) = staticIndexOf!(U, Types); // TODO cast to ubyte if Types.length is <= 256
+    enum canStore(U) = indexOf!U >= 0;
 
     import basic_copyable_array : CopyableArray; // TODO break out `BasicArray` from CopyableArray
 

@@ -2,16 +2,23 @@ module variant_storage;
 
 struct VariantIndex(Types...)
 {
-    alias Ix = ubyte; // type index type
-    enum maxTypesCount = 2^^(Ix.sizeof * 8) - 1; // maximum number of allowed type parameters
+    alias Type = ubyte; // type index type
+    enum typeBits = 8 * Type.sizeof;
+    enum maxTypesCount = 2^^(typeBits) - 1; // maximum number of allowed type parameters
 
     enum typeCount = Types.length;
 
     private enum N = typeCount; // useful local shorthand
 
+    this(Type type, size_t index) // TODO can ctor inferred by bitfields?
+    {
+        _type = type;
+        _index = index;
+    }
+
     import std.bitmanip : bitfields;
-    mixin(bitfields!(Ix, "_type", 1,
-                     size_t, "_index", 7));
+    mixin(bitfields!(Type, "_type", typeBits,
+                     size_t, "_index", 64 - typeBits));
 }
 
 /** Stores set of variants.
@@ -71,7 +78,8 @@ struct VariantStorage(Types...)
         if (canStore!U)
     {
         mixin(arrayInstanceString!U ~ `.insertBack(value);`);
-        assert(false, `TODO return type index`);
+        mixin(`const currentLength = ` ~ arrayInstanceString!U ~ `.length;`);
+        return typeof(return)(indexOf!U, currentLength);
     }
 
     /** Returns: length of store. */

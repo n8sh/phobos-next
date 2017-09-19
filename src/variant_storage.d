@@ -22,6 +22,7 @@ private:
     }
 
     /// Returns: `true` iff `this` targets a value of type `SomeKind`.
+    pragma(inline, true)
     bool isA(SomeKind)() const { return nrOfKind!(SomeKind) == _kindNr; }
 
     import std.bitmanip : bitfields;
@@ -54,12 +55,14 @@ struct VariantStorage(Types...)
     import basic_copyable_array : CopyableArray; // TODO break out `BasicArray` from CopyableArray
 
     /// Returns: array type (as a string) of `Type`.
+    pragma(inline, true)
     private static immutable(string) arrayTypeString(Type)()
     {
         return `CopyableArray!(` ~ Type.stringof ~ `)`;
     }
 
     /// Returns: array instance (as a strinng) storing `Type`.
+    pragma(inline, true)
     private static immutable(string) arrayInstanceString(Type)()
     {
         return `_values` ~ typeStringOf!Type;
@@ -77,6 +80,7 @@ struct VariantStorage(Types...)
     alias put = insertBack;     // polymorphic `OutputRange` support :)
 
     /// Get reference to element of type `SomeKind` at `index`.
+    pragma(inline, true)
     scope ref inout(SomeKind) at(SomeKind)(in size_t index) inout return
         if (Index.canReferTo!SomeKind)
     {
@@ -84,6 +88,7 @@ struct VariantStorage(Types...)
     }
 
     /// Peek at element of type `SomeKind` at `index`.
+    pragma(inline, true)
     scope inout(SomeKind)* peek(SomeKind)(in Index index) inout return @system
         if (Index.canReferTo!SomeKind)
     {
@@ -98,6 +103,7 @@ struct VariantStorage(Types...)
     }
 
     /// Constant access to all elements of type `SomeKind`.
+    pragma(inline, true)
     scope const(SomeKind)[] allOf(SomeKind)() const return
         if (Index.canReferTo!SomeKind)
     {

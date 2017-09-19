@@ -59,13 +59,13 @@ struct VariantStorage(Types...)
     }
 
     /// Returns: array type (as a string) of `Type`.
-    private static string arrayTypeString(Type)()
+    private static immutable(string) arrayTypeString(Type)()
     {
         return `CopyableArray!(` ~ Type.stringof ~ `)`;
     }
 
     /// Returns: array instance (as a strinng) storing `Type`.
-    private static string arrayInstanceString(Type)()
+    private static immutable(string) arrayInstanceString(Type)()
     {
         return `_values` ~ typeStringOf!Type;
     }

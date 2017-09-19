@@ -108,8 +108,8 @@ private:
             pragma(msg, __FILE__ ~ ":" ~ __LINE__.stringof ~
                    ": info: both DMD and LDC now has foreach, so use it to generate storages below");
         }
-
     }
+
     // storages
     mixin({
             string s = "";

@@ -171,24 +171,24 @@ version(unittest)
                               UInt);
 
     // relations
-    struct Rel1 { S.Index a; }
-    struct Rel2 { S.Index a, b; }
-    struct Rel3 { S.Index a, b, c; }
-    struct Rel4 { S.Index a, b, c, d; }
-    struct Rel5 { S.Index a, b, c, d, e; }
+    struct Rel1 { S.Index[1] args; }
+    struct Rel2 { S.Index[2] args; }
+    struct Rel3 { S.Index[3] args; }
+    struct Rel4 { S.Index[4] args; }
+    struct Rel5 { S.Index[5] args; }
 
     // predicates
-    struct Pred1 { S.Index a; }
-    struct Pred2 { S.Index a, b; }
-    struct Pred3 { S.Index a, b, c; }
-    struct Pred4 { S.Index a, b, c, d; }
-    struct Pred5 { S.Index a, b, c, d, e; }
+    struct Pred1 { S.Index[1] args; }
+    struct Pred2 { S.Index[2] args; }
+    struct Pred3 { S.Index[3] args; }
+    struct Pred4 { S.Index[4] args; }
+    struct Pred5 { S.Index[5] args; }
 
     // functions
-    struct Fn1 { S.Index a; }
-    struct Fn2 { S.Index a, b; }
-    struct Fn3 { S.Index a, b, c; }
-    struct Fn4 { S.Index a, b, c, d; }
+    struct Fn1 { S.Index[1] args; }
+    struct Fn2 { S.Index[2] args; }
+    struct Fn3 { S.Index[3] args; }
+    struct Fn4 { S.Index[4] args; }
 
     struct UInt { uint value; }
 }
@@ -196,8 +196,8 @@ version(unittest)
 @safe pure nothrow @nogc unittest
 {
     S s;
-    s.put(Rel1(s.put(Rel1(s.put(Rel2(s.put(UInt(42)),
-                                     s.put(UInt(43))))))));
+    s.put(Rel1(s.put(Rel1(s.put(Rel2([s.put(UInt(42)),
+                                      s.put(UInt(43))].s))))));
     assert(s.length == 5);
 }
 

@@ -34,9 +34,6 @@ struct VariantIndex(Types...)
     Enables lightweight storage of polymorphic objects.
 
     Each element is indexed by a corresponding `VariantIndex`.
-
-    - TODO removeBack
-    - TODO removeBackMaybe()
  */
 struct VariantStorage(Types...)
 {

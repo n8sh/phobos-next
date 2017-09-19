@@ -233,8 +233,10 @@ version(unittest)
 pure nothrow @nogc unittest
 {
     S s;
+
     S.Index lone = s.put(Rel1());
-    assert(s.peek!Rel1(lone));
+    Rel1* lonePtr = s.peek!Rel1(lone);
+    assert(lonePtr);
 }
 
 version(unittest)

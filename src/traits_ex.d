@@ -297,7 +297,7 @@ enum isSomeCharString(T) = (is(T == string) ||
                             is(T == const(char)[]) ||
                             is(T == char[]));
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     alias R = typeof(["a", "b"]);
     static assert(isArrayOf!(R, string));
@@ -316,7 +316,7 @@ enum isSourceOfSomeChar(R) = (isSource!R && isSomeChar!(ElementType!R));
 alias isSomeCharSource = isSourceOfSomeChar;
 alias isSomeLazyString = isSourceOfSomeChar;
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     import std.meta : AliasSeq;
     foreach (Ch; AliasSeq!(char, wchar, dchar))
@@ -340,7 +340,7 @@ alias greaterThan = binaryFun!((a, b) => a > b);
 
 /** Check if $(D T) has an even length. */
 enum hasEvenLength(T...) = !(T.length & 1);
-unittest
+@safe pure nothrow @nogc unittest
 {
     static assert(!hasEvenLength!(1));
     static assert(hasEvenLength!(1, 2));
@@ -356,7 +356,7 @@ enum isWString(T) = is(T == wstring);
 enum isDString(T) = is(T == dstring);
 
 enum isEnum(T) = is(T == enum);
-unittest
+@safe pure nothrow @nogc unittest
 {
     interface I {}
     class A {}
@@ -375,7 +375,7 @@ unittest
 
 /* See also: http://d.puremagic.com/issues/show_bug.cgi?id=4427 */
 enum isStruct(T) = is(T == struct);
-unittest
+@safe pure nothrow @nogc unittest
 {
     interface I {}
     class A {}
@@ -392,7 +392,7 @@ unittest
 }
 
 enum isClass(T) = is(T == class);
-unittest
+@safe pure nothrow @nogc unittest
 {
     interface I {}
     class A {}
@@ -409,7 +409,7 @@ unittest
 }
 
 enum isInterface(T) = is(T == interface);
-unittest
+@safe pure nothrow @nogc unittest
 {
     interface I {}
     class A {}
@@ -428,7 +428,7 @@ unittest
 template isType(T)       { enum isType = true; }
 template isType(alias T) { enum isType = false; }
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     struct S { alias int foo; }
     static assert(isType!int );
@@ -447,14 +447,14 @@ template isNullable(T)
     enum isNullable = isAssignable!(T, typeof(null));
 }
 ///
-unittest
+@safe pure nothrow @nogc unittest
 {
     static assert(isNullable!(int*));
 }
 
 enum nameOf(alias a) = a.stringof;
 ///
-unittest
+@safe pure nothrow @nogc unittest
 {
     int var;
     static assert(nameOf!var == var.stringof);
@@ -463,7 +463,7 @@ unittest
 /** Is $(D ElementType) of type of $(D a). */
 alias ElementTypeOf(alias a) = ElementType!(typeof(a));
 ///
-unittest
+@safe pure nothrow @nogc unittest
 {
     int[] var;
     static assert(is(ElementTypeOf!var == int));
@@ -477,7 +477,7 @@ template Chainable()
         return chain(this, r);
     }
 }
-unittest { mixin Chainable; }
+@safe pure nothrow @nogc unittest { mixin Chainable; }
 
 /** Returns true if `T` is an instance of the template `S`.
     See also: http://forum.dlang.org/thread/mailman.2901.1316118301.14074.digitalmars-d-learn@puremagic.com#post-zzdpfhsgfdgpszdbgbbt:40forum.dlang.org
@@ -488,11 +488,11 @@ template isA(alias S, T)
     enum isA = isInstanceOf!(S, T);
 }
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     import std.traits : isInstanceOf;
     import std.range : SortedRange, assumeSorted;
-    const x = [1, 2, 3].assumeSorted;
+    const x = [1, 2, 3].s[].assumeSorted;
     static assert(isInstanceOf!(SortedRange, typeof(x)));
     static assert(isA!(SortedRange, typeof(x)));
 }
@@ -505,7 +505,7 @@ enum isComparable(T) = is(typeof({ return T.init <  T.init; })); /// TODO Move t
 enum isEquable   (T) = is(typeof({ return T.init == T.init; })); /// TODO Move to Phobos' std.traits
 enum isNotEquable(T) = is(typeof({ return T.init != T.init; })); /// TODO Move to Phobos' std.traits
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     static assert(isComparable!int);
     static assert(isComparable!string);
@@ -521,7 +521,7 @@ enum areComparable(T, U) = is(typeof({ return T.init <  U.init; })); /// TODO Mo
 enum areEquable   (T, U) = is(typeof({ return T.init == U.init; })); /// TODO Move to Phobos' std.traits
 enum areNotEquable(T, U) = is(typeof({ return T.init != U.init; })); /// TODO Move to Phobos' std.traits
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     static assert(areComparable!(int, float));
     static assert(areEquable!(int, float));
@@ -546,7 +546,7 @@ enum arityMin0(alias fun) = __traits(compiles, fun());
 */
 enum isCallableWith(alias fun, T) = (is(typeof(fun(T.init))) ||
                                      is(typeof(T.init.fun))); // TODO Are both these needed?
-unittest
+@safe pure nothrow @nogc unittest
 {
     auto sqr(T)(T x) { return x*x; }
     assert(isCallableWith!(sqr, int));
@@ -559,7 +559,7 @@ unittest
 enum isCallableWith(alias fun, T, U) = (is(typeof(fun(T.init,
                                                       U.init))) ||
                                         is(typeof(T.init.fun(U)))); // TODO Are both these needed?
-unittest
+@safe pure nothrow @nogc unittest
 {
     auto sqr2(T)(T x, T y) { return x*x + y*y; }
     assert(isCallableWith!(sqr2, int, int));
@@ -593,7 +593,7 @@ template isCTFEable2(fun...)
     enum isCTFEable2 = true;
 }
 
-unittest
+@safe pure nothrow unittest
 {
     int fun1() { return 1; }
     auto fun1_N()
@@ -633,7 +633,7 @@ unittest
 */
 enum isCTEable(alias expr) = __traits(compiles, { enum id = expr; });
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     static assert(isCTEable!11);
     enum x = 11;
@@ -651,7 +651,7 @@ import std.traits: functionAttributes, FunctionAttribute, isCallable, ParameterT
 import std.traits : isMutable;
 enum isConst(T) = !isMutable!T;
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     static assert(isConst!(const(int)));
     static assert(!isConst!int);
@@ -661,7 +661,7 @@ import std.traits : CommonType;
 
 /// Is `true` iff `Types` all share a common type.
 enum bool haveCommonType(Types...) = !is(CommonType!Types == void);
-unittest
+@safe pure nothrow @nogc unittest
 {
     static assert(haveCommonType!(bool, int, long));
     static assert(!haveCommonType!(bool, int, string));
@@ -676,7 +676,7 @@ enum bool isPure(alias fun) = (isCallable!fun &&
 enum bool isPurelyCallableWith(alias fun, T...) = (isPure!fun &&
                                                    is(T == ParameterTypeTuple!fun));
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     int foo(int x) @safe pure nothrow { return x; }
     static assert(isPure!foo);
@@ -1054,4 +1054,9 @@ template ownsItsElements(C)
     import std.traits : isCopyable, hasIndirections;
     import std.range.primitives : ElementType;
     enum ownsItsElements = !isCopyable!C && !hasIndirections!(ElementType!C);
+}
+
+version(unittest)
+{
+    import array_help : s;
 }

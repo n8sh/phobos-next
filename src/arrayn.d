@@ -122,13 +122,6 @@ struct ArrayN(E,
         {
             gc_addRange(_store.ptr, values.length * E.sizeof);
         }
-        if (values.length == 1) // TODO branch should be detected at compile-time
-        {
-            // twice as fast as array assignment below
-            _length = 1;
-            _store[0] = values[0];
-            return;
-        }
         _store[0 .. values.length] = values;
         _length = cast(Length)values.length;
     }

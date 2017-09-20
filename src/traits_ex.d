@@ -143,7 +143,8 @@ template allSameType(T...)
     }
 }
 
-enum allSameType1(T...) = !T.length || (is(T[0] == T[T.length > 1]) && allSameType1!(T[1 .. $]));
+/** Returns: true iff all types $(D T) are the same. */
+enum allSameType_alternative(T...) = !T.length || (is(T[0] == T[T.length > 1]) && allSameType1!(T[1 .. $]));
 
 @safe pure nothrow @nogc unittest
 {

@@ -96,6 +96,21 @@ struct ArrayN(E,
     @safe:
 
     /// Construct from element `values`.
+    this(Us...)(Us values) @trusted
+        if (Us.length <= capacity)
+    {
+        static if (shouldAddGCRange!E)
+        {
+            gc_addRange(_store.ptr, values.length * E.sizeof);
+        }
+        foreach (const ix, value; values)
+        {
+            _store[ix] = value;
+        }
+        _length = cast(Length)values.length;
+    }
+
+    /// Construct from element `values`.
     this(U)(U[] values) @trusted
         if (isCopyable!U//  &&
             // isElementAssignable!U
@@ -375,12 +390,28 @@ alias MutableWStringN(uint capacity, Checking checking = Checking.viaScope) = Ar
 /** Stack-allocated mutable dstring of maximum length of `capacity.` */
 alias MutableDStringN(uint capacity, Checking checking = Checking.viaScope) = ArrayN!(char, capacity, checking);
 
-version(unittest)
+/// construct from array may throw
+@safe pure unittest
 {
-    import std.algorithm.comparison : equal;
-    import std.typecons : AliasSeq;
-    import std.exception : assertThrown;
-    import core.exception : AssertError;
+    enum capacity = 3;
+    alias E = int;
+    alias A = ArrayN!(E, capacity);
+
+    auto a = A([1, 2, 3]);
+    assert(a[] == [1, 2, 3].s);
+}
+
+/// construct from scalars is nothrow
+@safe pure nothrow @nogc unittest
+{
+    enum capacity = 3;
+    alias E = int;
+    alias A = ArrayN!(E, capacity);
+
+    auto a = A(1, 2, 3);
+    assert(a[] == [1, 2, 3].s);
+
+    static assert(!__traits(compiles, { auto _ = A(1, 2, 3, 4); }));
 }
 
 /// scope checked string
@@ -412,15 +443,6 @@ version(unittest)
 
         const y = String15("åäö_åäöå"); // fits in 15 chars
     }
-}
-
-/// construct from array
-version(none) pure unittest     // TODO activate
-{
-    enum capacity = 3;
-    alias E = char;
-    alias A = ArrayN!(E, capacity);
-    auto a = A([1, 2, 3]);
 }
 
 /// scope checked string
@@ -488,7 +510,7 @@ version(none) pure unittest     // TODO activate
     assert(abc[] == "abc");
     assert(ab[0 .. 2] == "ab");
     assert(abc.full);
-    // static assert(!__traits(compiles, { const abcd = A('a', 'b', 'c', 'd'); })); // too many elements
+    static assert(!__traits(compiles, { const abcd = A('a', 'b', 'c', 'd'); })); // too many elements
 
     assert(ab[] == "ab");
     ab.popFront();
@@ -510,7 +532,7 @@ version(none) pure unittest     // TODO activate
     assert(xyz.length == 3);
     assert(xyz[] == "xyz");
     assert(xyz.full);
-    // static assert(!__traits(compiles, { const xyzw = A('x', 'y', 'z', 'w'); })); // too many elements
+    static assert(!__traits(compiles, { const xyzw = A('x', 'y', 'z', 'w'); })); // too many elements
 }
 
 ///
@@ -616,4 +638,14 @@ pure unittest
 {
     enum capacity = 4;
     // TODO alias A = ArrayN!(int*, capacity, Checking.viaScopeAndBorrowing);
+}
+
+version(unittest)
+{
+    import std.algorithm.comparison : equal;
+    import std.typecons : AliasSeq;
+    import std.exception : assertThrown;
+    import core.exception : AssertError;
+
+    import array_help : s;
 }

@@ -16,7 +16,7 @@ module array_help;
     TODO fix compiler so that move kicks in here automatically and remove
     special case on `isCopyable`
 */
-T[n] asStatic(T, size_t n)(T[n] x)
+T[n] asStaticArray(T, size_t n)(T[n] x) // TODO do we need inout(T) here?
 {
     import std.traits : isCopyable;
     static if (isCopyable!T)    // TODO remove when compiler moves this
@@ -37,7 +37,7 @@ T[n] asStatic(T, size_t n)(T[n] x)
         return y;
     }
 }
-alias s = asStatic;
+alias s = asStaticArray;
 
 version(unittest)
 {
@@ -52,9 +52,9 @@ version(unittest)
 
 unittest
 {
-    auto x = [1, 2, 3].asStatic;
+    auto x = [1, 2, 3].asStaticArray;
     static assert(is(typeof(x) == int[x.length]));
-    static assert(is(typeof([1, 2, 3].asStatic) == int[x.length]));
+    static assert(is(typeof([1, 2, 3].asStaticArray) == int[x.length]));
 }
 
 /// non-copyable element type in static array
@@ -66,10 +66,10 @@ unittest
 ///
 unittest
 {
-    auto x = [1, 2, 3].asStatic;
+    auto x = [1, 2, 3].asStaticArray;
 
     static assert(is(typeof(x) == int[x.length]));
-    static assert(is(typeof([1, 2, 3].asStatic) == int[x.length]));
+    static assert(is(typeof([1, 2, 3].asStaticArray) == int[x.length]));
 
     static assert(!__traits(compiles,
                             {
@@ -77,3 +77,5 @@ unittest
                             }
                       ));
 }
+
+private enum isCopyable(S) = is(typeof( { S foo = S.init; S copy = foo; } ));

@@ -153,8 +153,6 @@ enum allSameType_alternative(T...) = !T.length || (is(T[0] == T[T.length > 1]) &
     static assert(!allSameType!(int, int, double));
     static assert(allSameType!(Tuple!(int, int, int).Types, int));
 }
-
-alias allTypesSame = allSameType;
 alias isHomogeneous = allSameType;
 enum isHomogeneousTuple(T) = isHomogeneous!(T.Types);
 
@@ -165,8 +163,8 @@ enum isHomogeneousTuple(T) = isHomogeneous!(T.Types);
     static assert(!isHomogeneousTuple!(Tuple!(int, float, double)));
 }
 
-enum isHomogeneousTupleOf(T, E) = (isHomogeneous!(T.Types) &&
-                                   is(Unqual!(T.Types[0]) == Unqual!E));
+enum isHomogeneousTupleOf(T, E) = (isHomogeneous!(T) &&
+                                   is(T.Types[0] == E));
 
 @safe pure nothrow @nogc unittest
 {
@@ -231,7 +229,7 @@ template allSameTypesInTuple(T)
 /** Convert tuple $(D tup) to a static array.
     See also: http://dpaste.dzfl.pl/d0059e6e6c09
 */
-inout (T.Types[0])[T.length] toStaticArray(T)(inout T tup) @trusted
+inout(T.Types[0])[T.length] toStaticArray(T)(inout T tup) @trusted
     if (allSameType!(T.Types))
 {
     return *cast(T.Types[0][T.length]*)&tup; // hackish

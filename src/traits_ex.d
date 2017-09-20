@@ -223,22 +223,22 @@ template allSameTypesInTuple(T)
     static assert(allSameTypesInTuple!(typeof(ztup)));
 }
 
-/** Return Tuple $(D tup) as a Static Array.
+/** Convert tuple $(D tup) to a static array.
     See also: http://dpaste.dzfl.pl/d0059e6e6c09
 */
-inout (T.Types[0])[T.length] asStaticArray(T)(inout T tup)
+inout (T.Types[0])[T.length] toStaticArray(T)(inout T tup) @trusted
     if (allSameType!(T.Types))
 {
     return *cast(T.Types[0][T.length]*)&tup; // hackish
 }
 
-pure nothrow @nogc unittest
+@safe pure nothrow @nogc unittest
 {
     import std.typecons: tuple;
     const auto tup = tuple("a", "b", "c", "d");
     const string[4] arr = ["a", "b", "c", "d"];
-    static assert(is(typeof(tup.asStaticArray()) == typeof(arr)));
-    assert(tup.asStaticArray() == arr);
+    static assert(is(typeof(tup.toStaticArray()) == typeof(arr)));
+    assert(tup.toStaticArray() == arr);
 }
 
 /** Return Tuple $(D tup) as a Dynamic Array.

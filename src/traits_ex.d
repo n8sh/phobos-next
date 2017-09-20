@@ -318,7 +318,8 @@ enum isSourceOfUnqual(R, E) = isInputRangeOfUnqual!(R, E);
 enum isSink(R) = isOutputRange!(R);
 enum isSinkOf(R, E) = isOutputRangeOf!(R, E);
 
-enum isSourceOfSomeChar(R) = (isSource!R && isSomeChar!(ElementType!R));
+enum isSourceOfSomeChar(R) = (isSource!R &&
+                              isSomeChar!(ElementType!R));
 alias isSomeLazyString = isSourceOfSomeChar;
 
 @safe pure nothrow @nogc unittest

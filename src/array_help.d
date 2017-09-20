@@ -18,7 +18,7 @@ module array_help;
 */
 T[n] asStaticArray(T, size_t n)(T[n] x) // TODO do we need inout(T) here?
 {
-    import std.traits : isCopyable;
+    // import std.traits : isCopyable;
     static if (isCopyable!T)    // TODO remove when compiler moves this
     {
         return x;

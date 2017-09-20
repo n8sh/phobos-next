@@ -1,7 +1,7 @@
 #!/usr/bin/env rdmd-dev-module
 
 /** Various extensions to core.bitop and std.bitmanip.
-    Copyright: Per Nordlöw 2016-.
+    Copyright: Per Nordlöw 2017-.
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
     Authors: $(WEB Per Nordlöw)
 

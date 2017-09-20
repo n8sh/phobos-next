@@ -1,10 +1,13 @@
 #!/usr/bin/env rdmd-dev-module
 
 /** Various extensions to std.traits.
-    Copyright: Per Nordlöw 2016-.
+
+    Copyright: Per Nordlöw 2017-.
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
     Authors: $(WEB Per Nordlöw)
+
     See also: http://forum.dlang.org/thread/jbyixfbuefvdlttnyclu@forum.dlang.org#post-mailman.2199.1353742037.5162.digitalmars-d-learn:40puremagic.com
+    See also: http://forum.dlang.org/post/rjrdgmijsmvvsbpinidz@forum.dlang.org
 */
 module traits_ex;
 

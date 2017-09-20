@@ -22,17 +22,18 @@ bool isGCPointer(const void* ptr)
     @trusted nothrow            // TODO @nogc?
 {
     import core.memory : GC;
-    return !!GC.addrOf(ptr);
+    return cast(bool)GC.addrOf(ptr);
 }
 alias inGC = isGCPointer;
 alias isGCed = isGCPointer;
 
+//
 nothrow unittest
 {
     int s;
-    int* sp = &s;
+    scope int* sp = &s;
     assert(!sp.isGCPointer);
-    int* ip = new int;
+    scope int* ip = new int;
     assert(ip.isGCPointer);
 }
 

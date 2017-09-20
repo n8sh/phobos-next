@@ -18,11 +18,14 @@ import std.typecons : Tuple;
 public import std.traits : isCopyable;
 
 /** Returns: true iff $(D ptr) is handled by the garbage collector (GC). */
-bool isGCPointer(const void* ptr)
-    @trusted nothrow            // TODO @nogc?
+template isGCPointer(T)
 {
-    import core.memory : GC;
-    return cast(bool)GC.addrOf(ptr);
+    bool isGCPointer(const T* ptr)
+        @trusted nothrow            // TODO @nogc?
+    {
+        import core.memory : GC;
+        return cast(bool)GC.addrOf(ptr);
+    }
 }
 alias inGC = isGCPointer;
 alias isGCed = isGCPointer;
@@ -308,13 +311,13 @@ enum isSomeCharString(T) = (is(T == string) ||
     static assert(isArrayOfSomeString!(R));
 }
 
-alias isSource = isInputRange;
-alias isRange = isInputRange;
+enum isSource(R) = isInputRange!(R);
+enum isRange(R) = isInputRange!(R);
 
-alias isSourceOf = isInputRangeOf;
-alias isSourceOfUnqual = isInputRangeOfUnqual;
-alias isSink = isOutputRange;
-alias isSinkOf = isOutputRangeOf;
+enum isSourceOf(R, E) = isInputRangeOf!(R, E);
+enum isSourceOfUnqual(R, E) = isInputRangeOfUnqual!(R, E);
+enum isSink(R) = isOutputRange!(R);
+enum isSinkOf(R, E) = isOutputRangeOf!(R, E);
 
 enum isSourceOfSomeChar(R) = (isSource!R && isSomeChar!(ElementType!R));
 alias isSomeCharSource = isSourceOfSomeChar;

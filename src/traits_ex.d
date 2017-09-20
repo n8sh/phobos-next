@@ -319,7 +319,6 @@ enum isSink(R) = isOutputRange!(R);
 enum isSinkOf(R, E) = isOutputRangeOf!(R, E);
 
 enum isSourceOfSomeChar(R) = (isSource!R && isSomeChar!(ElementType!R));
-alias isSomeCharSource = isSourceOfSomeChar;
 alias isSomeLazyString = isSourceOfSomeChar;
 
 @safe pure nothrow @nogc unittest

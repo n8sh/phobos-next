@@ -1,4 +1,3 @@
-
 module basic_copyable_array;
 
 import std.traits : Unqual;

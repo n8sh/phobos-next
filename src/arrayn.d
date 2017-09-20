@@ -103,7 +103,8 @@ struct ArrayN(E,
         {
             gc_addRange(_store.ptr, values.length * E.sizeof);
         }
-        foreach (const ix, value; values)
+
+        foreach (const ix, ref value; values)
         {
             _store[ix] = value;
         }
@@ -118,10 +119,12 @@ struct ArrayN(E,
     {
         import std.exception : enforce;
         enforce(_length + values.length <= capacity, `Arguments don't fit in array`);
+
         static if (shouldAddGCRange!E)
         {
             gc_addRange(_store.ptr, values.length * E.sizeof);
         }
+
         _store[0 .. values.length] = values;
         _length = cast(Length)values.length;
     }

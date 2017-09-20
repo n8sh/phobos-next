@@ -18,23 +18,32 @@ module array_help;
 
     See also: http://dpaste.dzfl.pl/d0059e6e6c09
 */
-T[n] asStaticArray(T, size_t n)(T[n] x)
+T[n] asStaticArray(T, size_t n)(T[n] x) @trusted
 {
-    import std.traits : isCopyable; // TODO remove `move` when compiler does it for us
-    static if (isCopyable!T)    // TODO remove `move` when compiler does it for us
+    import std.traits : isCopyable, hasElaborateDestructor; // TODO remove `move` when compiler does it for us
+    static if (isCopyable!T)  // TODO remove `move` when compiler does it for us
     {
         return x;
     }
-    else                        // TODO remove `move` when compiler does it for us
+    else                      // TODO remove `move` when compiler does it for us
     {
+        // TODO remove `move` when compiler does it for us:
         T[n] y = void;        // initialized below
-        // TODO why doesn't this work here?
-        // import std.algorithm.mutation : moveEmplaceAll;
-        // moveEmplaceAll(x[], y[]);
-        foreach (const ix, ref value; x)
+        static if (hasElaborateDestructor!T)
         {
-            import std.algorithm.mutation : move;
-            move(value, y[ix]);
+            // TODO why doesn't this work here?
+            // import std.algorithm.mutation : moveEmplaceAll;
+            // moveEmplaceAll(x[], y[]);
+            foreach (const ix, ref value; x)
+            {
+                import std.algorithm.mutation : move;
+                move(value, y[ix]);
+            }
+        }
+        else
+        {
+            import core.stdc.string : memcpy;
+            memcpy(y.ptr, x.ptr, n*T.sizeof); // fast
         }
         return y;
     }

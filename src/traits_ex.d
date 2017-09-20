@@ -892,7 +892,6 @@ template rank(T)
 
 @safe pure nothrow @nogc unittest
 {
-    import array_help : s;
     import std.range : cycle;
 
     auto c = cycle([[0,1].s[],

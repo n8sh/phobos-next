@@ -15,8 +15,10 @@ module array_help;
 
     TODO fix compiler so that move kicks in here automatically and remove
     special case on `isCopyable`
+
+    See also: http://dpaste.dzfl.pl/d0059e6e6c09
 */
-T[n] asStaticArray(T, size_t n)(T[n] x) // TODO do we need inout(T) here?
+T[n] asStaticArray(T, size_t n)(T[n] x)
 {
     import std.traits : isCopyable;
     static if (isCopyable!T)    // TODO remove when compiler moves this

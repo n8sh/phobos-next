@@ -163,6 +163,7 @@ struct ArrayN(E,
     {
         import std.exception : enforce;
         enforce(_length + Es.length <= capacity, `Arguments don't fit in array`);
+
         foreach (const i, ref e; es)
         {
             import std.algorithm.mutation : moveEmplace;

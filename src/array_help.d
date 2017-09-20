@@ -20,12 +20,12 @@ module array_help;
 */
 T[n] asStaticArray(T, size_t n)(T[n] x)
 {
-    import std.traits : isCopyable; // TODO remove when compiler moves this
-    static if (isCopyable!T)    // TODO remove when compiler moves this
+    import std.traits : isCopyable; // TODO remove `move` when compiler does it for us
+    static if (isCopyable!T)    // TODO remove `move` when compiler does it for us
     {
         return x;
     }
-    else                        // TODO remove when compiler moves this
+    else                        // TODO remove `move` when compiler does it for us
     {
         T[n] y = void;        // initialized below
         // TODO why doesn't this work here?

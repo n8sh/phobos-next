@@ -420,7 +420,7 @@ alias MutableDStringN(uint capacity, Checking checking = Checking.viaScope) = Ar
     alias E = int;
     alias A = ArrayN!(E, capacity);
 
-    auto a = A([1, 2, 3]);
+    auto a = A([1, 2, 3].s[]);
     assert(a[] == [1, 2, 3].s);
 }
 

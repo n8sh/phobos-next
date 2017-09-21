@@ -219,3 +219,32 @@ version(unittest)
 {
     import array_help : s;
 }
+
+// version = benchmark;
+
+version(benchmark)
+unittest
+{
+    alias E = uint;
+    immutable n = 5_000_000;
+
+    import std.stdio : writeln;
+    import std.datetime : MonoTime;
+    import std.meta : AliasSeq;
+    foreach (A; AliasSeq!(VariantArrays!(E)))
+    {
+        A a;
+
+        immutable before = MonoTime.currTime();
+
+        foreach (uint i; 0 .. n)
+        {
+            a ~= i;
+        }
+
+        immutable after = MonoTime.currTime();
+
+        writeln("Added ", n, " integer nodes into ", A.stringof, " in ", after - before);
+    }
+
+}

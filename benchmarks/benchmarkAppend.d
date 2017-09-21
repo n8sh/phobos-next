@@ -7,7 +7,6 @@ void main()
     import std.stdio : writeln;
     import std.datetime : MonoTime;
     import std.meta : AliasSeq;
-    import std.range : iota;
 
     alias E = uint;
     immutable n = 5_000_000;
@@ -19,7 +18,7 @@ void main()
     {
         A a;
 
-        a.reserve(n);
+        // a.reserve(n);
 
         immutable before = MonoTime.currTime();
 

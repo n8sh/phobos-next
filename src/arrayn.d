@@ -118,11 +118,11 @@ struct ArrayN(E,
     /// Construct from element `values`.
     this(U)(U[] values) @trusted
         if (isCopyable!U//  &&
-            // isElementAssignable!U
+            // TODO isElementAssignable!U
             ) // prevent accidental move of l-value `values` in array calls
     {
         import std.exception : enforce;
-        enforce(_length + values.length <= capacity, `Arguments don't fit in array`);
+        enforce(values.length <= capacity, `Arguments don't fit in array`);
 
         static if (shouldAddGCRange!E)
         {
@@ -140,11 +140,12 @@ struct ArrayN(E,
 
     /// Construct from element `values`.
     static This fromValuesUnsafe(U)(U[] values) @system
-        if (isCopyable!U//  &&
-            // isElementAssignable!U
+        if (isCopyable!U &&
+            isElementAssignable!U
             ) // prevent accidental move of l-value `values` in array calls
     {
         This that = void;
+        static assert(checking == Checking.viaScope, `Set borrow checking flags`);
 
         static if (shouldAddGCRange!E)
         {

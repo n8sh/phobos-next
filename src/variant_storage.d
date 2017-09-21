@@ -68,7 +68,16 @@ private struct VariantStorage(Types...)
         return Index(Index.nrOfKind!SomeKind,
                      currentIndex);
     }
-    alias put = insertBack;     // polymorphic `OutputRange` support :)
+    alias put = insertBack;     // polymorphic `OutputRange` support
+
+    /// ditto
+    pragma(inline, true)
+    void opOpAssign(string op, SomeKind)(SomeKind value)
+        if (op == "~" &&
+            Index.canReferTo!SomeKind)
+    {
+        insertBack(value);
+    }
 
     /// Get reference to element of type `SomeKind` at `index`.
     pragma(inline, true)

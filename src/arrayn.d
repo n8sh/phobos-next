@@ -17,7 +17,7 @@ enum Checking
     TODO Merge with array_ex.d to enable reuse of push and pop algorithms
 */
 struct ArrayN(E,
-              uint capacity,
+              uint requestedCapacity,
               Checking checking = Checking.viaScope)
 {
     import std.bitmanip : bitfields;
@@ -26,12 +26,12 @@ struct ArrayN(E,
     import qcmeman : gc_addRange, gc_removeRange;
 
     /// stored elements
-    debug { E[capacity] _store; }
-    else { E[capacity] _store = void; }
+    debug { E[requestedCapacity] _store; }
+    else { E[requestedCapacity] _store = void; }
 
     alias This = typeof(this);
 
-    alias maxLength = capacity;  // for public use
+    alias capacity = requestedCapacity; // for public use
     private enum borrowChecked = checking == Checking.viaScopeAndBorrowing;
 
     static if (borrowChecked)
@@ -42,7 +42,7 @@ struct ArrayN(E,
         /// Maximum value possible for `_readBorrowCount`.
         enum readBorrowCountMax = 2^^readBorrowCountBits - 1;
 
-        static      if (capacity <= 2^^(8*ubyte.sizeof - 1 - readBorrowCountBits) - 1)
+        static      if (requestedCapacity <= 2^^(8*ubyte.sizeof - 1 - readBorrowCountBits) - 1)
         {
             private enum lengthMax = 2^^4 - 1;
             alias Length = ubyte;
@@ -52,7 +52,7 @@ struct ArrayN(E,
                              uint, "_readBorrowCount", readBorrowCountBits,
                       ));
         }
-        else static if (capacity <= 2^^(8*ushort.sizeof - 1 - readBorrowCountBits) - 1)
+        else static if (requestedCapacity <= 2^^(8*ushort.sizeof - 1 - readBorrowCountBits) - 1)
         {
             alias Length = ushort;
             private enum lengthMax = 2^^14 - 1;
@@ -64,22 +64,22 @@ struct ArrayN(E,
         }
         else
         {
-            static assert("Too large capacity " ~ capacity);
+            static assert("Too large requested capacity " ~ requestedCapacity);
         }
     }
     else
     {
-        static if (capacity <= ubyte.max)
+        static if (requestedCapacity <= ubyte.max)
         {
             alias Length = ubyte;
         }
-        else static if (capacity <= ushort.max)
+        else static if (requestedCapacity <= ushort.max)
         {
             alias Length = ushort;
         }
         else
         {
-            static assert("Too large capacity " ~ capacity);
+            static assert("Too large requested capacity " ~ requestedCapacity);
         }
         Length _length;         /// number of defined elements in `_store`
     }
@@ -99,7 +99,7 @@ struct ArrayN(E,
 
     /// Construct from element `values`.
     this(Us...)(Us values) @trusted
-        if (Us.length <= capacity)
+        if (Us.length <= requestedCapacity)
     {
         static if (shouldAddGCRange!E)
         {
@@ -124,7 +124,7 @@ struct ArrayN(E,
             ) // prevent accidental move of l-value `values` in array calls
     {
         import std.exception : enforce;
-        enforce(values.length <= capacity, `Arguments don't fit in array`);
+        enforce(values.length <= requestedCapacity, `Arguments don't fit in array`);
 
         static if (shouldAddGCRange!E)
         {
@@ -187,10 +187,10 @@ struct ArrayN(E,
         NOTE doesn't invalidate any borrow
      */
     void insertBack(Es...)(Es es) @trusted
-        if (Es.length <= capacity) // TODO use `isAssignable`
+        if (Es.length <= requestedCapacity) // TODO use `isAssignable`
     {
         import std.exception : enforce;
-        enforce(_length + Es.length <= capacity, `Arguments don't fit in array`);
+        enforce(_length + Es.length <= requestedCapacity, `Arguments don't fit in array`);
 
         foreach (const i, ref e; es)
         {
@@ -207,9 +207,9 @@ struct ArrayN(E,
         Returns: `true` iff all `es` were pushed, `false` otherwise.
      */
     bool insertBackMaybe(Es...)(Es es) @trusted
-        if (Es.length <= capacity)
+        if (Es.length <= requestedCapacity)
     {
-        if (_length + Es.length > capacity) { return false; }
+        if (_length + Es.length > requestedCapacity) { return false; }
         foreach (const i, ref e; es)
         {
             import std.algorithm.mutation : moveEmplace;
@@ -384,7 +384,7 @@ pragma(inline, true):
         bool empty() const { return _length == 0; }
 
         /** Returns: `true` if `this` is full, `false` otherwise. */
-        bool full() const { return _length == capacity; }
+        bool full() const { return _length == requestedCapacity; }
 
         /** Get length. */
         auto length() const { return _length; }
@@ -401,19 +401,19 @@ pragma(inline, true):
     }
 }
 
-/** Stack-allocated string of maximum length of `capacity.` */
-alias StringN(uint capacity, Checking checking = Checking.viaScope) = ArrayN!(immutable(char), capacity, checking);
-/** Stack-allocated wstring of maximum length of `capacity.` */
-alias WStringN(uint capacity, Checking checking = Checking.viaScope) = ArrayN!(immutable(wchar), capacity, checking);
-/** Stack-allocated dstring of maximum length of `capacity.` */
-alias DStringN(uint capacity, Checking checking = Checking.viaScope) = ArrayN!(immutable(dchar), capacity, checking);
+/** Stack-allocated string of maximum length of `requestedCapacity.` */
+alias StringN(uint requestedCapacity, Checking checking = Checking.viaScope) = ArrayN!(immutable(char), requestedCapacity, checking);
+/** Stack-allocated wstring of maximum length of `requestedCapacity.` */
+alias WStringN(uint requestedCapacity, Checking checking = Checking.viaScope) = ArrayN!(immutable(wchar), requestedCapacity, checking);
+/** Stack-allocated dstring of maximum length of `requestedCapacity.` */
+alias DStringN(uint requestedCapacity, Checking checking = Checking.viaScope) = ArrayN!(immutable(dchar), requestedCapacity, checking);
 
-/** Stack-allocated mutable string of maximum length of `capacity.` */
-alias MutableStringN(uint capacity, Checking checking = Checking.viaScope) = ArrayN!(char, capacity, checking);
-/** Stack-allocated mutable wstring of maximum length of `capacity.` */
-alias MutableWStringN(uint capacity, Checking checking = Checking.viaScope) = ArrayN!(char, capacity, checking);
-/** Stack-allocated mutable dstring of maximum length of `capacity.` */
-alias MutableDStringN(uint capacity, Checking checking = Checking.viaScope) = ArrayN!(char, capacity, checking);
+/** Stack-allocated mutable string of maximum length of `requestedCapacity.` */
+alias MutableStringN(uint requestedCapacity, Checking checking = Checking.viaScope) = ArrayN!(char, requestedCapacity, checking);
+/** Stack-allocated mutable wstring of maximum length of `requestedCapacity.` */
+alias MutableWStringN(uint requestedCapacity, Checking checking = Checking.viaScope) = ArrayN!(char, requestedCapacity, checking);
+/** Stack-allocated mutable dstring of maximum length of `requestedCapacity.` */
+alias MutableDStringN(uint requestedCapacity, Checking checking = Checking.viaScope) = ArrayN!(char, requestedCapacity, checking);
 
 /// construct from array may throw
 @safe pure unittest

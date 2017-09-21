@@ -46,18 +46,20 @@ struct ArrayN(E,
         {
             private enum lengthMax = 2^^4 - 1;
             alias Length = ubyte;
+            // TODO make private:
             mixin(bitfields!(Length, "_length", 4, /// number of defined elements in `_store`
-                             bool, "_writeBorrowed", 1, // TODO make private
-                             uint, "_readBorrowCount", readBorrowCountBits, // TODO make private
+                             bool, "_writeBorrowed", 1,
+                             uint, "_readBorrowCount", readBorrowCountBits,
                       ));
         }
         else static if (capacity <= 2^^(8*ushort.sizeof - 1 - readBorrowCountBits) - 1)
         {
             alias Length = ushort;
             private enum lengthMax = 2^^14 - 1;
+            // TODO make private:
             mixin(bitfields!(Length, "_length", 14, /// number of defined elements in `_store`
-                             bool, "_writeBorrowed", 1, // TODO make private
-                             uint, "_readBorrowCount", readBorrowCountBits, // TODO make private
+                             bool, "_writeBorrowed", 1,
+                             uint, "_readBorrowCount", readBorrowCountBits,
                       ));
         }
         else

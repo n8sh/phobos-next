@@ -39,7 +39,7 @@ private:
 
     Each element is indexed by a corresponding `VariantIndex`.
  */
-private struct VariantStorage(Types...)
+private struct VariantArrays(Types...)
 {
     alias Index = VariantIndex!Types;
 
@@ -141,9 +141,9 @@ version(unittest)
 
 static private:
     alias Chars(uint capacity) = BasicFixedArray!(char, capacity);
-    alias Data = VariantStorage!(Chars!7,
-                                 Chars!15,
-                                 ulong);
+    alias Data = VariantArrays!(Chars!7,
+                                Chars!15,
+                                ulong);
 }
 
 ///
@@ -178,8 +178,8 @@ static private:
 version(unittest)
 {
 static private:
-    alias S = VariantStorage!(Rel1, Rel2,
-                              Int);
+    alias S = VariantArrays!(Rel1, Rel2,
+                             Int);
 
     // relations
     struct Rel1 { S.Index[1] args; }

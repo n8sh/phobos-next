@@ -21,7 +21,7 @@ import std.traits : Unqual;
     See also: http://dpaste.dzfl.pl/d0059e6e6c09
     See also: http://forum.dlang.org/post/oq0cd1$2ji3$1@digitalmars.com
 */
-Unqual!T[n] asStaticArray(T, size_t n)(T[n] x) @trusted
+Unqual!T[n] asStaticArray(T, size_t n)(T[n] x...) @trusted
 {
     import std.traits : isCopyable, hasElaborateDestructor; // TODO remove `move` when compiler does it for us
     static if (isCopyable!T)  // TODO remove `move` when compiler does it for us
@@ -70,8 +70,12 @@ unittest
     auto a = [1, 2, 3].asStaticArray;
     static assert(is(typeof(a) == int[a.length]));
     static assert(is(typeof([1, 2, 3].asStaticArray) == int[a.length]));
+
     auto b = "hello".s;
     static assert(is(typeof(b) == char[5]));
+
+    auto x = s!ubyte(1, 2, 3);
+    static assert(is(typeof(x) == ubyte[3]));
 }
 
 /// non-copyable element type in static array

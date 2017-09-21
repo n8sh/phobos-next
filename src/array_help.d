@@ -1,5 +1,7 @@
 module array_help;
 
+import std.traits : Unqual;
+
 /** Returns: statically (stack) allocated array with elements of type `T` of
     length `n`.
 
@@ -17,13 +19,14 @@ module array_help;
     special case on `isCopyable`
 
     See also: http://dpaste.dzfl.pl/d0059e6e6c09
+    See also: http://forum.dlang.org/post/oq0cd1$2ji3$1@digitalmars.com
 */
-T[n] asStaticArray(T, size_t n)(T[n] x) @trusted
+Unqual!T[n] asStaticArray(T, size_t n)(T[n] x) @trusted
 {
     import std.traits : isCopyable, hasElaborateDestructor; // TODO remove `move` when compiler does it for us
     static if (isCopyable!T)  // TODO remove `move` when compiler does it for us
     {
-        return x;
+        return x[];
     }
     else                      // TODO remove `move` when compiler does it for us
     {

@@ -106,6 +106,10 @@ struct ArrayN(E,
 
         foreach (const ix, ref value; values)
         {
+            static if (hasElaborateDestructor!(typeof(value)))
+            {
+                // TODO moveEmplace
+            }
             _store[ix] = value;
         }
         _length = cast(Length)values.length;
@@ -125,6 +129,11 @@ struct ArrayN(E,
             gc_addRange(_store.ptr, values.length * E.sizeof);
         }
 
+        static if (is(E == U) &&
+                   hasElaborateDestructor!U)
+        {
+            // TODO moveEmplaceAll
+        }
         _store[0 .. values.length] = values;
         _length = cast(Length)values.length;
     }

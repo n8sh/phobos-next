@@ -128,10 +128,10 @@ private:
 
 version(unittest)
 {
-    import fixed_array : FixedArray;
+    import fixed_array : BasicFixedArray;
 
 static private:
-    alias Chars(uint capacity) = FixedArray!(char, capacity);
+    alias Chars(uint capacity) = BasicFixedArray!(char, capacity);
     alias Data = VariantStorage!(Chars!7,
                                  Chars!15,
                                  ulong);

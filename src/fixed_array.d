@@ -3,7 +3,7 @@ module fixed_array;
 
 /** A few (`capacity`) elements of type `E`.
  */
-struct FixedArray(E, uint capacity)
+struct BasicFixedArray(E, uint capacity)
     if (capacity <= ubyte.max)
 {
     this(in E[] es)
@@ -23,6 +23,6 @@ private:
 
 @safe pure nothrow @nogc unittest
 {
-    const ch7 = FixedArray!(char, 7)(`1234567`);
+    const ch7 = BasicFixedArray!(char, 7)(`1234567`);
     assert(ch7._es[] == `1234567`);
 }

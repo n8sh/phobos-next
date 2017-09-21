@@ -169,7 +169,7 @@ struct ArrayN(E,
         static if (borrowChecked) { assert(!isBorrowed); }
         static if (hasElaborateDestructor!E)
         {
-            foreach (immutable i; 0 .. length)
+            foreach (const i; 0 .. length)
             {
                 .destroy(_store.ptr[i]);
             }

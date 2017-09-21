@@ -64,11 +64,14 @@ version(unittest)
 
 @safe pure nothrow @nogc:
 
+///
 unittest
 {
-    auto x = [1, 2, 3].asStaticArray;
-    static assert(is(typeof(x) == int[x.length]));
-    static assert(is(typeof([1, 2, 3].asStaticArray) == int[x.length]));
+    auto a = [1, 2, 3].asStaticArray;
+    static assert(is(typeof(a) == int[a.length]));
+    static assert(is(typeof([1, 2, 3].asStaticArray) == int[a.length]));
+    auto b = "hello".s;
+    static assert(is(typeof(b) == char[5]));
 }
 
 /// non-copyable element type in static array

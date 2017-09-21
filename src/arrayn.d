@@ -424,6 +424,16 @@ alias MutableDStringN(uint capacity, Checking checking = Checking.viaScope) = Ar
     assert(a[] == [1, 2, 3].s);
 }
 
+/// unsafe construct from array
+@trusted pure nothrow @nogc unittest
+{
+    enum capacity = 3;
+    alias E = int;
+    alias A = ArrayN!(E, capacity);
+    auto a = A.fromValuesUnsafe([1, 2, 3].s);
+    assert(a[] == [1, 2, 3].s);
+}
+
 /// construct from scalars is nothrow
 @safe pure nothrow @nogc unittest
 {

@@ -138,6 +138,30 @@ struct ArrayN(E,
         _length = cast(Length)values.length;
     }
 
+    /// Construct from element `values`.
+    static This fromValuesUnsafe(U)(U[] values) @system
+        if (isCopyable!U//  &&
+            // isElementAssignable!U
+            ) // prevent accidental move of l-value `values` in array calls
+    {
+        This that = void;
+
+        static if (shouldAddGCRange!E)
+        {
+            gc_addRange(_store.ptr, values.length * E.sizeof);
+        }
+
+        static if (is(E == U) &&
+                   hasElaborateDestructor!U)
+        {
+            // TODO moveEmplaceAll
+        }
+        that._store[0 .. values.length] = values;
+        that._length = cast(Length)values.length;
+
+        return that;
+    }
+
     /** Destruct. */
     ~this() @trusted
     {

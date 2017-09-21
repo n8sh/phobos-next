@@ -63,8 +63,9 @@ private struct VariantArrays(Types...)
     Index insertBack(SomeKind)(SomeKind value)
         if (Index.canReferTo!SomeKind)
     {
-        mixin(`const currentIndex = ` ~ arrayInstanceString!SomeKind ~ `.length;`);
-        mixin(arrayInstanceString!SomeKind ~ `.insertBack(value);`);
+        mixin(`alias array = ` ~ arrayInstanceString!SomeKind ~ `;`);
+        const currentIndex = array.length;
+        array.insertBack(value);
         return Index(Index.nrOfKind!SomeKind,
                      currentIndex);
     }
@@ -220,7 +221,7 @@ version(unittest)
     import array_help : s;
 }
 
-// version = benchmark;
+version = benchmark;
 
 version(benchmark)
 unittest

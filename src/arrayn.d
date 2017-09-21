@@ -146,14 +146,6 @@ struct ArrayN(E,
         }
     }
 
-    /** Returns: `true` if `needle` is contained in `this` haystack. */
-    bool canFind(N)(const(N)[] needle) const @trusted
-        if (is(typeof(E.init == N.init))) // TODO reuse some trait in Phobos?
-    {
-        import std.algorithm.searching : canFind;
-        return _store.ptr[0 .. _length].canFind(needle);
-    }
-
     /** Add elements `es` to the back.
         Throws when array becomes full.
         NOTE doesn't invalidate any borrow
@@ -430,14 +422,6 @@ alias MutableDStringN(uint capacity, Checking checking = Checking.viaScope) = Ar
         assert(x[0 .. 2] == "al");
         assert(x[] == "alphas");
 
-        static if (is(StrN == StringN)) // only test `string` for now
-        {
-            assert(x.canFind("alpha"));
-            assert(x.canFind("al"));
-            assert(x.canFind("ph"));
-            assert(!x.canFind("ala"));
-        }
-
         const y = String15("åäö_åäöå"); // fits in 15 chars
     }
 }
@@ -569,13 +553,7 @@ version(none) pure unittest     // TODO activate
     enum capacity = 15;
     alias String15 = StringN!(capacity, Checking.viaScopeAndBorrowing);
     static assert(String15.readBorrowCountMax == 7);
-
     auto x = String15("alpha");
-
-    assert(x.canFind("alpha"));
-    assert(x.canFind("al"));
-    assert(x.canFind("ph"));
-    assert(!x.canFind("ala"));
 }
 
 /// assignment from `const` to `immutable` element type

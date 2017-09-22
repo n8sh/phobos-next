@@ -1394,16 +1394,15 @@ unittest
 /** Variant of $(D findSplitBefore) that destructively pops everything up to,
     not including, $(D needle) from $(D haystack).
 */
-auto findPopBefore(alias pred = `a == b`, R1, R2)(ref R1 haystack,
-                                                  R2 needle)
+auto findPopBefore(alias pred = `a == b`, R1, R2)(ref R1 haystack, R2 needle)
     if (isForwardRange!R1 &&
         isForwardRange!R2)
 {
     import std.range : empty;
-    if (haystack.empty || needle.empty)
-    {
-        return R1.init; // TODO correct?
-    }
+
+    if (needle.empty) { return haystack[0 .. 0]; } // contextual empty hit
+    if (haystack.empty) { return R1.init; }
+
     import std.algorithm.searching : findSplitBefore;
     if (auto split = findSplitBefore!pred(haystack, needle)) // TODO If which case are empty and what return value should they lead to?
     {
@@ -1438,16 +1437,15 @@ unittest
 /** Variant of $(D findSplitAfter) that destructively pops everything up to,
     including, $(D needle) from $(D haystack).
 */
-auto findPopAfter(alias pred = `a == b`, R1, R2)(ref R1 haystack,
-                                                 R2 needle)
+auto findPopAfter(alias pred = `a == b`, R1, R2)(ref R1 haystack, R2 needle)
     if (isForwardRange!R1 &&
         isForwardRange!R2)
 {
     import std.range : empty;
-    if (haystack.empty || needle.empty)
-    {
-        return R1.init; // TODO correct?
-    }
+
+    if (needle.empty) { return haystack[0 .. 0]; } // contextual empty hit
+    if (haystack.empty) { return R1.init; }
+
     import std.algorithm.searching : findSplitAfter;
     auto split = findSplitAfter!pred(haystack, needle);// TODO use new interface to findSplitAfter
     if (split[0].empty)

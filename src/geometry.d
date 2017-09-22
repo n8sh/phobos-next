@@ -32,9 +32,9 @@
 
 module geometry;
 
-// version = unittestAllInstances;
+version = unittestAllInstances;
 
-version = print;
+// version = print;
 
 version(NoReciprocalMul)
 {

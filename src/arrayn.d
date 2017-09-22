@@ -15,6 +15,8 @@ enum Checking
     Rust's `fixedvec`: https://docs.rs/fixedvec/0.2.3/fixedvec/
 
     TODO Merge with array_ex.d to enable reuse of push and pop algorithms
+
+    TODO Add @safe nothrow @nogc ctor from static array (of known length)
 */
 struct ArrayN(E,
               uint requestedCapacity,

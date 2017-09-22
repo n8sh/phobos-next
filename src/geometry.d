@@ -13,6 +13,7 @@
    Note: All methods marked with pure are weakly pure since, they all access an instance member.
    All static methods are strongly pure.
 
+   TODO Replace toMathML() with fmt argument %M to toString functions
    TODO Optimize using core.simd or std.simd
    TODO Merge with analyticgeometry
    TODO Merge with https://github.com/CyberShadow/ae/blob/master/utils/geometry.d
@@ -1241,6 +1242,7 @@ alias mat2_cm = Matrix!(float, 2, 2, Layout.columnMajor);
     assert(m(1, 0) == 3);
     assert(m(1, 1) == 4);
 }
+
 @safe pure nothrow @nogc unittest
 {
     auto m = mat2_cm(1, 3,

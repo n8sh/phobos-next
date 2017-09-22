@@ -206,7 +206,7 @@ struct Point(E, uint D)
         Point!(CommonType!(E, F), D) y;
         foreach (i; iota!(0, D))
         {
-            y._point[i] = mixin("_point[i]" ~ op ~ "r.vector_[i]");
+            y._point[i] = mixin("_point[i]" ~ op ~ "r._vector[i]");
         }
         return y;
     }
@@ -251,14 +251,14 @@ struct Vector(E, uint D,
                 immutable vec_norm = vec.magnitude;
                 foreach (i; iota!(0, D))
                 {
-                    vector_[i] = vec.vector_[i] / vec_norm;
+                    _vector[i] = vec._vector[i] / vec_norm;
                 }
                 return;
             }
         }
         foreach (i; iota!(0, D))
         {
-            vector_[i] = vec.vector_[i];
+            _vector[i] = vec._vector[i];
         }
     }
 
@@ -289,13 +289,13 @@ struct Vector(E, uint D,
 
     @property string toString() const
     {
-        return toOrientationString ~ "Vector:" ~ to!string(vector_);
+        return toOrientationString ~ "Vector:" ~ to!string(_vector);
     }
 
     /** Returns: LaTeX Encoding of Vector. http://www.thestudentroom.co.uk/wiki/LaTex#Matrices_and_Vectors */
     @property string toLaTeX() const
     {
-        return `\begin{pmatrix} ` ~ map!(to!string)(vector_[]).join(joinString) ~ ` \end{pmatrix}` ;
+        return `\begin{pmatrix} ` ~ map!(to!string)(_vector[]).join(joinString) ~ ` \end{pmatrix}` ;
     }
 
     @property string toMathML() const
@@ -319,14 +319,14 @@ struct Vector(E, uint D,
                 str ~= `
     <mtr>
       <mtd>
-        <mn>` ~ vector_[i].toMathML ~ `</mn>
+        <mn>` ~ _vector[i].toMathML ~ `</mn>
       </mtd>
     </mtr>`;
                 break;
             case Orient.row:
                 str ~= `
       <mtd>
-        <mn>` ~ vector_[i].toMathML ~ `</mn>
+        <mn>` ~ _vector[i].toMathML ~ `</mn>
       </mtd>`;
                 break;
             }
@@ -357,8 +357,8 @@ struct Vector(E, uint D,
             {
                 alias P = real; // precision
                 immutable angle = uniform(0, 2*cast(P)PI);
-                vector_[0] = scaling*sin(angle);
-                vector_[1] = scaling*cos(angle);
+                _vector[0] = scaling*sin(angle);
+                _vector[1] = scaling*cos(angle);
             }
             static if (D == 3)  // randomize on unit sphere: See also: http://mathworld.wolfram.com/SpherePointPicking.html
             {
@@ -367,19 +367,19 @@ struct Vector(E, uint D,
                 immutable v = uniform(0, cast(P)1);
                 immutable theta = 2*PI*u;
                 immutable phi = acos(2*v-1);
-                vector_[0] = scaling*cos(theta)*sin(phi);
-                vector_[1] = scaling*sin(theta)*sin(phi);
-                vector_[2] = scaling*cos(phi);
+                _vector[0] = scaling*cos(theta)*sin(phi);
+                _vector[1] = scaling*sin(theta)*sin(phi);
+                _vector[2] = scaling*cos(phi);
             }
             else
             {
-                vector_.randInPlace();
+                _vector.randInPlace();
                 normalize(); // TODO Turn this into D data restriction instead?
             }
         }
         else
         {
-            vector_.randInPlace();
+            _vector.randInPlace();
         }
     }
 
@@ -389,33 +389,33 @@ struct Vector(E, uint D,
     @property bool ok() const
     {
         static if (isFloatingPoint!E)
-            foreach (v; vector_)
+            foreach (v; _vector)
                 if (isNaN(v) || isInfinity(v))
                     return false;
         return true;
     }
     // NOTE: Disabled this because I want same behaviour as MATLAB: bool opCast(T : bool)() const { return ok; }
-    bool opCast(T : bool)() const { return all!"a" (vector_[]) ; }
+    bool opCast(T : bool)() const { return all!"a" (_vector[]) ; }
 
     /// Returns: Pointer to the coordinates.
-    // @property auto value_ptr() { return vector_.ptr; }
+    // @property auto value_ptr() { return _vector.ptr; }
 
     /// Sets all values to $(D value).
-    void clear(E value) { foreach (i; iota!(0, D)) { vector_[i] = value; } }
+    void clear(E value) { foreach (i; iota!(0, D)) { _vector[i] = value; } }
 
     /** Returns: Whole Internal Array of E. */
-    auto ref opSlice() { return vector_[]; }
+    auto ref opSlice() { return _vector[]; }
     /** Returns: Slice of Internal Array of E. */
-    auto ref opSlice(uint off, uint len) { return vector_[off..len]; }
+    auto ref opSlice(uint off, uint len) { return _vector[off..len]; }
     /** Returns: Reference to Internal Vector Element. */
-    ref inout(E) opIndex(uint i) inout { return vector_[i]; }
+    ref inout(E) opIndex(uint i) inout { return _vector[i]; }
 
     bool opEquals(S)(const S scalar) const
         if (isAssignable!(E, S)) // TOREVIEW: Use isNotEquable instead
     {
         foreach (i; iota!(0, D))
         {
-            if (vector_[i] != scalar)
+            if (_vector[i] != scalar)
             {
                 return false;
             }
@@ -425,7 +425,7 @@ struct Vector(E, uint D,
     bool opEquals(F)(const F vec) const
         if (isVector!F && dimension == F.dimension) // TOREVIEW: Use isEquable instead?
     {
-        return vector_ == vec.vector_;
+        return _vector == vec._vector;
     }
     bool opEquals(F)(const(F)[] array) const
         if (isAssignable!(E, F) && !isArray!F && !isVector!F) // TOREVIEW: Use isNotEquable instead?
@@ -436,7 +436,7 @@ struct Vector(E, uint D,
         }
         foreach (i; iota!(0, D))
         {
-            if (vector_[i] != array[i])
+            if (_vector[i] != array[i])
             {
                 return false;
             }
@@ -461,22 +461,22 @@ struct Vector(E, uint D,
         }
         else static if (is(T : E))
         {
-            vector_[i] = head;
+            _vector[i] = head;
             construct!(i + 1)(tail);
         }
         else static if (isDynamicArray!T)
         {
             static assert((Tail.length == 0) && (i == 0), "Dynamic array can not be passed together with other arguments");
-            vector_[] = head[];
+            _vector[] = head[];
         }
         else static if (isStaticArray!T)
         {
-            vector_[i .. i + T.length] = head[];
+            _vector[i .. i + T.length] = head[];
             construct!(i + T.length)(tail);
         }
         else static if (isCompatibleVector!T)
         {
-            vector_[i .. i + T.dimension] = head.vector_[];
+            _vector[i .. i + T.dimension] = head._vector[];
             construct!(i + T.dimension)(tail);
         }
         else
@@ -487,7 +487,7 @@ struct Vector(E, uint D,
 
     // private void dispatchImpl(int i, string s, int size)(ref E[size] result) const {
     //     static if (s.length > 0) {
-    //         result[i] = vector_[coordToIndex!(s[0])];
+    //         result[i] = _vector[coordToIndex!(s[0])];
     //         dispatchImpl!(i + 1, s[1..$])(result);
     //     }
     // }
@@ -498,7 +498,7 @@ struct Vector(E, uint D,
     //     E[s.length] ret;
     //     dispatchImpl!(0, s)(ret);
     //     Vector!(E, s.length) ret_vec;
-    //     ret_vec.vector_ = ret;
+    //     ret_vec._vector = ret;
     //     return ret_vec;
     // }
 
@@ -510,7 +510,7 @@ struct Vector(E, uint D,
         Vector y;
         foreach (i; iota!(0, D))
         {
-            y.vector_[i] = - vector_[i];
+            y._vector[i] = - _vector[i];
         }
         return y;
     }
@@ -522,7 +522,7 @@ struct Vector(E, uint D,
         Vector!(CommonType!(E, F), D) y;
         foreach (i; iota!(0, D))
         {
-            y.vector_[i] = mixin("vector_[i]" ~ op ~ "r.vector_[i]");
+            y._vector[i] = mixin("_vector[i]" ~ op ~ "r._vector[i]");
         }
         return y;
     }
@@ -532,7 +532,7 @@ struct Vector(E, uint D,
         Vector!(CommonType!(E, F), D) y;
         foreach (i; iota!(0, dimension))
         {
-            y.vector_[i] = vector_[i] * r;
+            y._vector[i] = _vector[i] * r;
         }
         return y;
     }
@@ -566,7 +566,7 @@ struct Vector(E, uint D,
         {
             foreach (r; iota!(0, T.rows))
             {
-                ret.vector_[r] += vector_[c] * inp.at(r,c);
+                ret._vector[r] += _vector[c] * inp.at(r,c);
             }
         }
         return ret;
@@ -584,7 +584,7 @@ struct Vector(E, uint D,
     {
         foreach (i; iota!(0, dimension))
         {
-            mixin("vector_[i]" ~ op ~ "= r;");
+            mixin("_vector[i]" ~ op ~ "= r;");
         }
     }
     unittest {
@@ -600,7 +600,7 @@ struct Vector(E, uint D,
     {
         foreach (i; iota!(0, dimension))
         {
-            mixin("vector_[i]" ~ op ~ "= r.vector_[i];");
+            mixin("_vector[i]" ~ op ~ "= r._vector[i];");
         }
     }
 
@@ -616,7 +616,7 @@ struct Vector(E, uint D,
         {
             E y = 0;                // TOREVIEW: Use other precision for now
         }
-        foreach (i; iota!(0, D)) { y += vector_[i] ^^ N; }
+        foreach (i; iota!(0, D)) { y += _vector[i] ^^ N; }
         return y;
     }
 
@@ -658,7 +658,7 @@ struct Vector(E, uint D,
                 immutable m = this.magnitude;
                 foreach (i; iota!(0, D))
                 {
-                    vector_[i] /= m;
+                    _vector[i] /= m;
                 }
             }
         }
@@ -681,7 +681,7 @@ struct Vector(E, uint D,
 
     /// Returns: Vector Index at Character Coordinate $(D coord).
     private @property ref inout(E) get_(char coord)() inout {
-        return vector_[coordToIndex!coord];
+        return _vector[coordToIndex!coord];
     }
 
     /// Coordinate Character c to Index
@@ -712,11 +712,11 @@ struct Vector(E, uint D,
     }
 
     /// Updates the vector with the values from other.
-    void update(Vector!(E, D) other) { vector_ = other.vector_; }
+    void update(Vector!(E, D) other) { _vector = other._vector; }
 
-    static if (D == 2) { void set(E x, E y) { vector_[0] = x; vector_[1] = y; } }
-    else static if (D == 3) { void set(E x, E y, E z) { vector_[0] = x; vector_[1] = y; vector_[2] = z; } }
-    else static if (D == 4) { void set(E x, E y, E z, E w) { vector_[0] = x; vector_[1] = y; vector_[2] = z; vector_[3] = w; } }
+    static if (D == 2) { void set(E x, E y) { _vector[0] = x; _vector[1] = y; } }
+    else static if (D == 3) { void set(E x, E y, E z) { _vector[0] = x; _vector[1] = y; _vector[2] = z; } }
+    else static if (D == 4) { void set(E x, E y, E z, E w) { _vector[0] = x; _vector[1] = y; _vector[2] = z; _vector[3] = w; } }
 
     static if (D >= 1) { alias x = get_!'x'; }
     static if (D >= 2) { alias y = get_!'y'; }
@@ -767,7 +767,7 @@ struct Vector(E, uint D,
     }
 
     /** Element data. */
-    E[D] vector_;
+    E[D] _vector;
 
     unittest {
         // static if (isSigned!(E)) { assert(-Vector!(E,D)(+2),
@@ -1045,7 +1045,7 @@ struct Matrix(E, uint rows_, uint cols_,
         {
             static if (i % cols == 0)
             {
-                matrix_[i / cols] = head.vector_;
+                matrix_[i / cols] = head._vector;
                 construct!(i + T.dimension)(tail);
             }
             else

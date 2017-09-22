@@ -73,14 +73,11 @@ struct CopyableArray(T,
                                                bool zero) @trusted
     {
         assert(initialCapacity >= initialLength);
-
-        debug { This that; }
-        else  { This that = void; }
-
-        that._capacity = initialCapacity;
+        This that = void;
+        // TODO use Store constructor
         that._ptr = This.allocate(initialCapacity, zero);
+        that._capacity = initialCapacity;
         that._length = initialLength;
-
         return that;
     }
 
@@ -89,9 +86,9 @@ struct CopyableArray(T,
         if (!isCopyable!U &&
             isElementAssignable!U)
     {
+        _ptr = This.allocate(1, false);
         _capacity = 1;
         _length = 1;
-        _ptr = This.allocate(1, false);
         moveEmplace(value, _mptr[0]); // TODO remove `moveEmplace` when compiler does it for us
     }
 
@@ -103,9 +100,9 @@ struct CopyableArray(T,
         if (values.length == 1) // TODO branch should be detected at compile-time
         {
             // twice as fast as array assignment below
+            _ptr = This.allocate(1, false);
             _capacity = 1;
             _length = 1;
-            _ptr = This.allocate(1, false);
             _mptr[0] = values[0];
             return;
         }

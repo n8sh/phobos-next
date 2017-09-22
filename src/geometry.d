@@ -162,8 +162,7 @@ struct Point(E, uint D)
     @property void toString(scope void delegate(const(char)[]) sink) const
     {
         import std.format : formattedWrite;
-        sink("Point:");
-        sink.formattedWrite("%s", _point);
+        sink.formattedWrite("Point:%s", _point);
     }
 
     @property string toMathML() const
@@ -282,13 +281,15 @@ struct Vector(E, uint D,
 
     @property const
     {
-        string toOrientationString() { return orient == Orient.column ? `Column` : `Row`; }
+        string orientationString() { return orient == Orient.column ? `Column` : `Row`; }
         string joinString() { return orient == Orient.column ? ` \\ ` : ` & `; }
     }
 
-    @property string toString() const
+    @property void toString(scope void delegate(const(char)[]) sink) const
     {
-        return toOrientationString ~ "Vector:" ~ to!string(_vector);
+        import std.format : formattedWrite;
+        sink(orientationString);
+        sink.formattedWrite("Vector:%s", _vector);
     }
 
     /** Returns: LaTeX Encoding of Vector. http://www.thestudentroom.co.uk/wiki/LaTex#Matrices_and_Vectors */

@@ -191,8 +191,6 @@ struct Point(E, uint D)
         return str;
     }
 
-    @safe pure nothrow:
-
     /** Returns: Area 0 */
     @property E area() const { return 0; }
 
@@ -237,7 +235,6 @@ struct Vector(E, uint D,
         (!normalizedFlag ||
          isFloatingPoint!E)) // only normalize fp for now
 {
-
     // Construct from vector.
     this(V)(V vec)
         if (isVector!V &&
@@ -281,10 +278,10 @@ struct Vector(E, uint D,
 
     enum dimension = D; /// Get dimensionality.
 
-    @safe pure nothrow const
+    @property const
     {
-        @property string toOrientationString() { return orient == Orient.column ? `Column` : `Row`; }
-        @property string joinString() { return orient == Orient.column ? ` \\ ` : ` & `; }
+        string toOrientationString() { return orient == Orient.column ? `Column` : `Row`; }
+        string joinString() { return orient == Orient.column ? ` \\ ` : ` & `; }
     }
 
     @property string toString() const
@@ -383,15 +380,20 @@ struct Vector(E, uint D,
         }
     }
 
-    @safe pure nothrow:
-
-    /// Returns: true if all values are not nan and finite, otherwise false.
+    /// Returns: `true` if all values are not `nan` nor `infinite`, otherwise `false`.
     @property bool ok() const
     {
         static if (isFloatingPoint!E)
+        {
             foreach (v; _vector)
-                if (isNaN(v) || isInfinity(v))
+            {
+                if (isNaN(v) ||
+                    isInfinity(v))
+                {
                     return false;
+                }
+            }
+        }
         return true;
     }
     // NOTE: Disabled this because I want same behaviour as MATLAB: bool opCast(T : bool)() const { return ok; }
@@ -757,21 +759,21 @@ struct Vector(E, uint D,
             enum Vector e4 = Vector(E0, E0, E0, E1); /// ditto
         }
     }
-    unittest
+    @safe pure nothrow @nogc unittest
     {
         static if (isNumeric!E)
         {
-            assert(vec2.e1[] == [1, 0]);
-            assert(vec2.e2[] == [0, 1]);
+            assert(vec2.e1[] == [1, 0].s);
+            assert(vec2.e2[] == [0, 1].s);
 
-            assert(vec3.e1[] == [1, 0, 0]);
-            assert(vec3.e2[] == [0, 1, 0]);
-            assert(vec3.e3[] == [0, 0, 1]);
+            assert(vec3.e1[] == [1, 0, 0].s);
+            assert(vec3.e2[] == [0, 1, 0].s);
+            assert(vec3.e3[] == [0, 0, 1].s);
 
-            assert(vec4.e1[] == [1, 0, 0, 0]);
-            assert(vec4.e2[] == [0, 1, 0, 0]);
-            assert(vec4.e3[] == [0, 0, 1, 0]);
-            assert(vec4.e4[] == [0, 0, 0, 1]);
+            assert(vec4.e1[] == [1, 0, 0, 0].s);
+            assert(vec4.e2[] == [0, 1, 0, 0].s);
+            assert(vec4.e3[] == [0, 0, 1, 0].s);
+            assert(vec4.e4[] == [0, 0, 0, 1].s);
         }
     }
 
@@ -1116,7 +1118,7 @@ struct Matrix(E, uint rows_, uint cols_,
 
     this()(E value) { clear(value); }
 
-    /// Returns: true if all values are not nan and finite, otherwise false.
+    /// Returns: `true` if all values are not nan and finite, otherwise `false`.
     @property bool ok() const
     {
         static if (isFloatingPoint!E)

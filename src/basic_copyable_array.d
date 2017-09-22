@@ -268,7 +268,7 @@ struct CopyableArray(T,
     {
         /** Construct a string representation of `this` at `sink`.
          */
-        void toString(scope void delegate(const(char)[]) sink /* , FormatSpec!char fmt */) const
+        void toString(scope void delegate(const(char)[]) sink) const
         {
             sink("[");
             foreach (const ix, ref value; slice())

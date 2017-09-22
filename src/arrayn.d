@@ -25,13 +25,14 @@ struct ArrayN(E,
     import std.traits : isSomeChar, hasElaborateDestructor, isAssignable, isCopyable;
     import qcmeman : gc_addRange, gc_removeRange;
 
+    alias capacity = requestedCapacity; // for public use
+
     /// stored elements
-    debug { E[requestedCapacity] _store; }
-    else { E[requestedCapacity] _store = void; }
+    debug { E[capacity] _store; }
+    else { E[capacity] _store = void; }
 
     alias This = typeof(this);
 
-    alias capacity = requestedCapacity; // for public use
     private enum borrowChecked = checking == Checking.viaScopeAndBorrowing;
 
     static if (borrowChecked)
@@ -42,7 +43,7 @@ struct ArrayN(E,
         /// Maximum value possible for `_readBorrowCount`.
         enum readBorrowCountMax = 2^^readBorrowCountBits - 1;
 
-        static      if (requestedCapacity <= 2^^(8*ubyte.sizeof - 1 - readBorrowCountBits) - 1)
+        static      if (capacity <= 2^^(8*ubyte.sizeof - 1 - readBorrowCountBits) - 1)
         {
             private enum lengthMax = 2^^4 - 1;
             alias Length = ubyte;
@@ -52,7 +53,7 @@ struct ArrayN(E,
                              uint, "_readBorrowCount", readBorrowCountBits,
                       ));
         }
-        else static if (requestedCapacity <= 2^^(8*ushort.sizeof - 1 - readBorrowCountBits) - 1)
+        else static if (capacity <= 2^^(8*ushort.sizeof - 1 - readBorrowCountBits) - 1)
         {
             alias Length = ushort;
             private enum lengthMax = 2^^14 - 1;
@@ -64,22 +65,22 @@ struct ArrayN(E,
         }
         else
         {
-            static assert("Too large requested capacity " ~ requestedCapacity);
+            static assert("Too large requested capacity " ~ capacity);
         }
     }
     else
     {
-        static if (requestedCapacity <= ubyte.max)
+        static if (capacity <= ubyte.max)
         {
             alias Length = ubyte;
         }
-        else static if (requestedCapacity <= ushort.max)
+        else static if (capacity <= ushort.max)
         {
             alias Length = ushort;
         }
         else
         {
-            static assert("Too large requested capacity " ~ requestedCapacity);
+            static assert("Too large requested capacity " ~ capacity);
         }
         Length _length;         /// number of defined elements in `_store`
     }
@@ -99,7 +100,7 @@ struct ArrayN(E,
 
     /// Construct from element `values`.
     this(Us...)(Us values) @trusted
-        if (Us.length <= requestedCapacity)
+        if (Us.length <= capacity)
     {
         static if (shouldAddGCRange!E)
         {
@@ -124,7 +125,7 @@ struct ArrayN(E,
             ) // prevent accidental move of l-value `values` in array calls
     {
         import std.exception : enforce;
-        enforce(values.length <= requestedCapacity, `Arguments don't fit in array`);
+        enforce(values.length <= capacity, `Arguments don't fit in array`);
 
         static if (shouldAddGCRange!E)
         {
@@ -146,12 +147,16 @@ struct ArrayN(E,
             isElementAssignable!U
             ) // prevent accidental move of l-value `values` in array calls
     {
+        // debug { This that; }
+        // else { This that = void; }
+
         This that = void;
+
         static assert(checking == Checking.viaScope, `Set borrow checking flags`);
 
         static if (shouldAddGCRange!E)
         {
-            gc_addRange(_store.ptr, values.length * E.sizeof);
+            gc_addRange(that._store.ptr, values.length * E.sizeof);
         }
 
         static if (is(E == U) &&
@@ -187,10 +192,10 @@ struct ArrayN(E,
         NOTE doesn't invalidate any borrow
      */
     void insertBack(Es...)(Es es) @trusted
-        if (Es.length <= requestedCapacity) // TODO use `isAssignable`
+        if (Es.length <= capacity) // TODO use `isAssignable`
     {
         import std.exception : enforce;
-        enforce(_length + Es.length <= requestedCapacity, `Arguments don't fit in array`);
+        enforce(_length + Es.length <= capacity, `Arguments don't fit in array`);
 
         foreach (const i, ref e; es)
         {
@@ -207,9 +212,9 @@ struct ArrayN(E,
         Returns: `true` iff all `es` were pushed, `false` otherwise.
      */
     bool insertBackMaybe(Es...)(Es es) @trusted
-        if (Es.length <= requestedCapacity)
+        if (Es.length <= capacity)
     {
-        if (_length + Es.length > requestedCapacity) { return false; }
+        if (_length + Es.length > capacity) { return false; }
         foreach (const i, ref e; es)
         {
             import std.algorithm.mutation : moveEmplace;
@@ -384,7 +389,7 @@ pragma(inline, true):
         bool empty() const { return _length == 0; }
 
         /** Returns: `true` if `this` is full, `false` otherwise. */
-        bool full() const { return _length == requestedCapacity; }
+        bool full() const { return _length == capacity; }
 
         /** Get length. */
         auto length() const { return _length; }
@@ -600,6 +605,15 @@ version(none) pure unittest     // TODO activate
     alias String15 = StringN!(capacity, Checking.viaScopeAndBorrowing);
     static assert(String15.readBorrowCountMax == 7);
     auto x = String15("alpha");
+}
+
+/// equality
+pure nothrow @nogc unittest
+{
+    enum capacity = 10;
+    alias S = ArrayN!(int, capacity);
+    // assert(S.fromValuesUnsafe([1, 2, 3].s) ==
+    //        S.fromValuesUnsafe([1, 2, 3].s));
 }
 
 /// assignment from `const` to `immutable` element type

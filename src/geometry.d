@@ -7,13 +7,11 @@
    $(LI #D on freenode: answered general questions about D.)
    )
 
-   Authors: David Herberth
-   License: MIT
-
    Note: All methods marked with pure are weakly pure since, they all access an instance member.
    All static methods are strongly pure.
 
    TODO Replace toMathML() with fmt argument %M to toString functions
+   TODO Replace toLaTeX() with fmt argument %L to toString functions
    TODO Optimize using core.simd or std.simd
    TODO Merge with analyticgeometry
    TODO Merge with https://github.com/CyberShadow/ae/blob/master/utils/geometry.d

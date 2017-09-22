@@ -142,7 +142,7 @@ auto sqrtx(T)(T x)
 
 /// $(D D)-Dimensional Cartesian Point with Coordinate Type (Precision) $(D E).
 struct Point(E, uint D)
-    if (D >= 1 /* && isNumeric!E */)
+    if (D >= 1 /* && TODO extend trait : isNumeric!E */)
 {
     alias type = E;
 

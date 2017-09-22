@@ -28,12 +28,12 @@ struct ArrayN(E,
     alias capacity = requestedCapacity; // for public use
 
     /// stored elements
-    debug { E[capacity] _store; }
-    else { E[capacity] _store = void; }
+    E[capacity] _store = void;
 
     alias This = typeof(this);
 
-    private enum borrowChecked = checking == Checking.viaScopeAndBorrowing;
+    /// Is `true` iff `this` has borrow-checked slicing.
+    enum borrowChecked = checking == Checking.viaScopeAndBorrowing;
 
     static if (borrowChecked)
     {
@@ -116,6 +116,11 @@ struct ArrayN(E,
             _store[ix] = value;
         }
         _length = cast(Length)values.length;
+        static if (borrowChecked)
+        {
+            _writeBorrowed = false;
+            _readBorrowCount = 0;
+        }
     }
 
     /// Construct from element `values`.
@@ -139,6 +144,11 @@ struct ArrayN(E,
         }
         _store[0 .. values.length] = values;
         _length = cast(Length)values.length;
+        static if (borrowChecked)
+        {
+            _writeBorrowed = false;
+            _readBorrowCount = 0;
+        }
     }
 
     /// Construct from element `values`.
@@ -147,12 +157,9 @@ struct ArrayN(E,
             isElementAssignable!U
             ) // prevent accidental move of l-value `values` in array calls
     {
-        // debug { This that; }
-        // else { This that = void; }
+        // TODO reuse constructor
 
         This that = void;
-
-        static assert(checking == Checking.viaScope, `Set borrow checking flags`);
 
         static if (shouldAddGCRange!E)
         {
@@ -162,10 +169,17 @@ struct ArrayN(E,
         static if (is(E == U) &&
                    hasElaborateDestructor!U)
         {
-            // TODO moveEmplaceAll
+            // TODO `moveEmplaceAll` from values
         }
+
         that._store[0 .. values.length] = values;
         that._length = cast(Length)values.length;
+
+        static if (borrowChecked)
+        {
+            that._writeBorrowed = false;
+            that._readBorrowCount = 0;
+        }
 
         return that;
     }
@@ -404,6 +418,23 @@ pragma(inline, true):
             }
         }
     }
+
+    /** Comparison for equality. */
+    bool opEquals(in This rhs) const
+    {
+        return this[] == rhs[];
+    }
+    /// ditto
+    bool opEquals(in ref This rhs) const
+    {
+        return this[] == rhs[];
+    }
+    /// ditto
+    bool opEquals(U)(in U[] rhs) const
+        if (is(typeof(T[].init == U[].init)))
+    {
+        return this[] == rhs[];
+    }
 }
 
 /** Stack-allocated string of maximum length of `requestedCapacity.` */
@@ -603,8 +634,8 @@ pure nothrow @nogc unittest
 {
     enum capacity = 10;
     alias S = ArrayN!(int, capacity);
-    // assert(S.fromValuesUnsafe([1, 2, 3].s) ==
-    //        S.fromValuesUnsafe([1, 2, 3].s));
+    assert(S.fromValuesUnsafe([1, 2, 3].s) ==
+           S.fromValuesUnsafe([1, 2, 3].s));
 }
 
 /// assignment from `const` to `immutable` element type

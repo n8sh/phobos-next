@@ -96,9 +96,9 @@ else
 // See also: http://stackoverflow.com/questions/18552454/using-ctfe-to-generate-set-of-struct-aliases/18553026?noredirect=1#18553026
 string makeInstanceAliases(string templateName,
                            string aliasName = "",
-                           const uint minDimension = 2,
-                           const uint maxDimension = 4,
-                           const string[] elementTypes = defaultElementTypes)
+                           in uint minDimension = 2,
+                           in uint maxDimension = 4,
+                           in string[] elementTypes = defaultElementTypes)
 in
 {
     assert(templateName.length);
@@ -158,7 +158,7 @@ struct Point(E, uint D)
 
     /** Element data. */
     E[D] _point;
-    static const uint dimension = D; /// Get dimensionality.
+    enum dimension = D; /// Get dimensionality.
 
     @property void toString(scope void delegate(const(char)[]) sink) const
     {
@@ -281,7 +281,7 @@ struct Vector(E, uint D,
     /** Construct from combination of arguments. */
     this(Args...)(Args args) { construct!(0)(args); }
 
-    static const uint dimension = D; /// Get dimensionality.
+    enum dimension = D; /// Get dimensionality.
 
     @safe pure nothrow const
     {
@@ -1261,7 +1261,7 @@ struct SpherePoint(E)
     }
     /** Element data. */
     E[D] spherePoint_;
-    static const uint dimension = D; /// Get dimensionality.
+    enum dimension = D; /// Get dimensionality.
 
     @property string toString() const
     {
@@ -1448,7 +1448,7 @@ struct Plane(E, uint D)
     if (D >= 2 &&
         isFloatingPoint!E)
 {
-    static const uint dimension = D; /// Get dimensionality.
+    enum dimension = D; /// Get dimensionality.
 
     alias N = Vector!(E, D, true); /// Plane Normal Type.
     union

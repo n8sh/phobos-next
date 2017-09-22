@@ -632,8 +632,10 @@ pure nothrow @nogc unittest
 {
     enum capacity = 10;
     alias S = ArrayN!(int, capacity);
+
     assert(S.fromValuesUnsafe([1, 2, 3].s) ==
            S.fromValuesUnsafe([1, 2, 3].s));
+
     const x = [1, 2, 3].s;
     assert(S.fromValuesUnsafe([1, 2, 3].s) == x);
     assert(S.fromValuesUnsafe([1, 2, 3].s) == x[]);

@@ -241,18 +241,16 @@ struct CopyableArray(T,
     {
         return slice() == rhs.slice();
     }
-
     /// ditto
     pragma(inline, true)
     bool opEquals(in ref This rhs) const
     {
         return slice() == rhs.slice();
     }
-
     /// ditto
     pragma(inline, true)
     bool opEquals(U)(in U[] rhs) const
-        if (is(typeof(T.init == U.init)))
+        if (is(typeof(T[].init == U[].init)))
     {
         return slice() == rhs;
     }

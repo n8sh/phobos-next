@@ -74,7 +74,7 @@ struct CopyableArray(T,
     {
         assert(initialCapacity >= initialLength);
         // TODO use Store constructor:
-        This that = void;
+        This that;
         that._ptr = This.allocate(initialCapacity, zero);
         that._capacity = initialCapacity;
         that._length = initialLength;

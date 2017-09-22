@@ -410,7 +410,7 @@ struct Vector(E, uint D,
     /** Returns: Reference to Internal Vector Element. */
     ref inout(E) opIndex(uint i) inout { return _vector[i]; }
 
-    bool opEquals(S)(const S scalar) const
+    bool opEquals(S)(in S scalar) const
         if (isAssignable!(E, S)) // TOREVIEW: Use isNotEquable instead
     {
         foreach (i; iota!(0, D))
@@ -422,13 +422,16 @@ struct Vector(E, uint D,
         }
         return true;
     }
-    bool opEquals(F)(const F vec) const
-        if (isVector!F && dimension == F.dimension) // TOREVIEW: Use isEquable instead?
+    bool opEquals(F)(in F vec) const
+        if (isVector!F &&
+            dimension == F.dimension) // TOREVIEW: Use isEquable instead?
     {
         return _vector == vec._vector;
     }
-    bool opEquals(F)(const(F)[] array) const
-        if (isAssignable!(E, F) && !isArray!F && !isVector!F) // TOREVIEW: Use isNotEquable instead?
+    bool opEquals(F)(const F[] array) const
+        if (isAssignable!(E, F) &&
+            !isArray!F &&
+            !isVector!F) // TOREVIEW: Use isNotEquable instead?
     {
         if (array.length != dimension)
         {
@@ -446,6 +449,7 @@ struct Vector(E, uint D,
 
     static void isCompatibleVectorImpl(uint d)(Vector!(E, d) vec) if (d <= dimension) {}
     static void isCompatibleMatrixImpl(uint r, uint c)(Matrix!(E, r, c) m) {}
+
     enum isCompatibleVector(T) = is(typeof(isCompatibleVectorImpl(T.init)));
     enum isCompatibleMatrix(T) = is(typeof(isCompatibleMatrixImpl(T.init)));
 
@@ -558,7 +562,8 @@ struct Vector(E, uint D,
 
     /** Multiply this Vector with Matrix. */
     Vector!(E, T.rows) opBinary(string op : "*", T)(T inp) const
-        if (isCompatibleMatrix!T && (T.cols == dimension))
+        if (isCompatibleMatrix!T &&
+            (T.cols == dimension))
     {
         Vector!(E, T.rows) ret;
         ret.clear(0);
@@ -574,7 +579,9 @@ struct Vector(E, uint D,
 
     /** Multiply this Vector with Matrix. */
     auto opBinaryRight(string op, T)(T inp) const
-        if (!isVector!T && !isMatrix!T && !isQuaternion!T)
+        if (!isVector!T &&
+            !isMatrix!T &&
+            !isQuaternion!T)
     {
         return this.opBinary!(op)(inp);
     }
@@ -606,7 +613,8 @@ struct Vector(E, uint D,
 
     /// Returns: Non-Rooted $(D N) - Norm of $(D x).
     auto nrnNorm(uint N)() const
-        if (isNumeric!E && N >= 1)
+        if (isNumeric!E &&
+            N >= 1)
     {
         static if (isFloatingPoint!E)
         {
@@ -1083,13 +1091,17 @@ struct Matrix(E, uint rows_, uint cols_,
     }
 
     this(T)(T mat)
-        if (isMatrix!T && (T.cols >= cols) && (T.rows >= rows))
+        if (isMatrix!T &&
+            (T.cols >= cols) &&
+            (T.rows >= rows))
     {
         matrix_[] = mat.matrix_[];
     }
 
     this(T)(T mat)
-        if (isMatrix!T && (T.cols < cols) && (T.rows < rows))
+        if (isMatrix!T &&
+            (T.cols < cols) &&
+            (T.rows < rows))
     {
         makeIdentity();
         foreach (r; iota!(0, T.rows))

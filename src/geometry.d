@@ -153,12 +153,12 @@ struct Point(E, uint D)
 
     /** Element data. */
     E[D] _point;
-    enum dimension = D; /// Get dimensionality.
+    enum dimension = D;
 
     @property void toString(scope void delegate(const(char)[]) sink) const
     {
         import std.format : formattedWrite;
-        sink.formattedWrite("Point:%s", _point);
+        sink.formattedWrite("Point(%s)", _point);
     }
 
     @property string toMathML() const
@@ -273,7 +273,7 @@ struct Vector(E, uint D,
     /** Construct from combination of arguments. */
     this(Args...)(Args args) { construct!(0)(args); }
 
-    enum dimension = D; /// Get dimensionality.
+    enum dimension = D;
 
     @property const
     {
@@ -285,7 +285,7 @@ struct Vector(E, uint D,
     {
         import std.format : formattedWrite;
         sink(orientationString);
-        sink.formattedWrite("Vector:%s", _vector);
+        sink.formattedWrite("Vector(%s)", _vector);
     }
 
     /** Returns: LaTeX Encoding of Vector. http://www.thestudentroom.co.uk/wiki/LaTex#Matrices_and_Vectors */
@@ -962,7 +962,7 @@ struct Matrix(E, uint rows_, uint cols_,
     @property void toString(scope void delegate(const(char)[]) sink) const
     {
         import std.format : formattedWrite;
-        sink.formattedWrite("Matrix:%s", _matrix);
+        sink.formattedWrite("Matrix(%s)", _matrix);
     }
 
     @property string toLaTeX() const
@@ -1280,12 +1280,12 @@ struct SpherePoint(E)
     }
     /** Element data. */
     E[D] _spherePoint;
-    enum dimension = D; /// Get dimensionality.
+    enum dimension = D;
 
     @property void toString(scope void delegate(const(char)[]) sink) const
     {
         import std.format : formattedWrite;
-        sink.formattedWrite("SpherePoint:%s", _spherePoint);
+        sink.formattedWrite("SpherePoint(%s)", _spherePoint);
     }
 
     @property string toMathML() const
@@ -1381,7 +1381,7 @@ struct Box(E, uint D)
     @property void toString(scope void delegate(const(char)[]) sink) const
     {
         import std.format : formattedWrite;
-        sink.formattedWrite("Box(lower=%s, upper=%s)", min, max);
+        sink.formattedWrite("Box(lower:%s, upper:%s)", min, max);
     }
 
     /// Get Box Center.
@@ -1470,23 +1470,29 @@ struct Plane(E, uint D)
     if (D >= 2 &&
         isFloatingPoint!E)
 {
-    enum dimension = D; /// Get dimensionality.
+    enum dimension = D;
 
     alias N = Vector!(E, D, true); /// Plane Normal Type.
     union
     {
         static if (D == 3)
+        {
             struct
             {
                 E a; /// normal.x
                 E b; /// normal.y
                 E c; /// normal.z
             }
+        }
         N normal;                    /// Plane Normal.
     }
     E distance;                  /// Plane Constant (Offset from origo).
 
-    @safe pure nothrow:
+    @property void toString(scope void delegate(const(char)[]) sink) const
+    {
+        import std.format : formattedWrite;
+        sink.formattedWrite("Plane(normal:%s, distance:%s)", normal, distance);
+    }
 
     /// Constructs the plane, from either four scalars of type $(I E)
     /// or from a 3-dimensional vector (= normal) and a scalar.

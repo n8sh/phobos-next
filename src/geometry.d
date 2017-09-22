@@ -156,12 +156,17 @@ struct Point(E,
             point_[ix] = arg;
         }
     }
+
     /** Element data. */
     E[D] point_;
     static const uint dimension = D; /// Get dimensionality.
 
-    @property @trusted string toString() const { return "Point:" ~ to!string(point_); }
-    @property @trusted string toMathML() const
+    @property string toString() const
+    {
+        return "Point:" ~ to!string(point_);
+    }
+
+    @property string toMathML() const
     {
         // opening
         string str = `<math><mrow>
@@ -282,10 +287,19 @@ struct Vector(E, uint D,
         @property string toOrientationString() { return orient == Orient.column ? `Column` : `Row`; }
         @property string joinString() { return orient == Orient.column ? ` \\ ` : ` & `; }
     }
-    @property @trusted string toString() const { return toOrientationString ~ "Vector:" ~ to!string(vector_); }
+
+    @property string toString() const
+    {
+        return toOrientationString ~ "Vector:" ~ to!string(vector_);
+    }
+
     /** Returns: LaTeX Encoding of Vector. http://www.thestudentroom.co.uk/wiki/LaTex#Matrices_and_Vectors */
-    @property @trusted string toLaTeX() const { return `\begin{pmatrix} ` ~ map!(to!string)(vector_[]).join(joinString) ~ ` \end{pmatrix}` ; }
-    @property @trusted string toMathML() const
+    @property string toLaTeX() const
+    {
+        return `\begin{pmatrix} ` ~ map!(to!string)(vector_[]).join(joinString) ~ ` \end{pmatrix}` ;
+    }
+
+    @property string toMathML() const
     {
         // opening
         string str = `<math><mrow>
@@ -334,7 +348,7 @@ struct Vector(E, uint D,
         return str;
     }
 
-    auto ref randInPlace(E scaling = cast(E)1) @trusted
+    auto ref randInPlace(E scaling = cast(E)1)
     {
         import random_ex: randInPlace;
         static if (normalizedFlag &&
@@ -936,8 +950,14 @@ struct Matrix(E,
     // @property auto value_ptr() { return matrix_[0].ptr; }
 
     /// Returns: The current matrix_ formatted as flat string.
-    @property @trusted string toString() { return format("%s", matrix_); }
-    @property @trusted string toLaTeX() const {
+
+    @property string toString()
+    {
+        return format("%s", matrix_);
+    }
+
+    @property string toLaTeX() const
+    {
         string s;
         foreach (r; iota!(0, rows))
         {
@@ -950,7 +970,8 @@ struct Matrix(E,
         }
         return `\begin{pmatrix} ` ~ s ~ ` \end{pmatrix}`;
     }
-    @property @trusted string toMathML() const
+
+    @property string toMathML() const
     {
         // opening
         string str = `<math><mrow>
@@ -982,7 +1003,7 @@ struct Matrix(E,
     }
 
     /// Returns: The current matrix_ as pretty formatted string.
-    @property string toPrettyString() @trusted
+    @property string toPrettyString()
     {
         string fmtr = "%s";
 
@@ -1243,8 +1264,12 @@ struct SpherePoint(E)
     E[D] spherePoint_;
     static const uint dimension = D; /// Get dimensionality.
 
-    @property @trusted string toString() const { return "SpherePoint:" ~ to!string(spherePoint_); }
-    @property @trusted string toMathML() const
+    @property string toString() const
+    {
+        return "SpherePoint:" ~ to!string(spherePoint_);
+    }
+
+    @property string toMathML() const
     {
         // opening
         string str = `<math><mrow>
@@ -1334,7 +1359,10 @@ struct Box(E, uint D)
     this(Vector!(E,D) l_,
          Vector!(E,D) h_) { min = l_; max = h_; }
 
-    @property @trusted string toString() { return format("(l=%s, u=%s)", min, max); }
+    @property string toString()
+    {
+        return format("(l=%s, u=%s)", min, max);
+    }
 
     /// Get Box Center.
     // @property Vector!(E,D) center() { return (min + max) / 2;}

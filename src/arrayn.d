@@ -630,7 +630,7 @@ version(none) pure unittest     // TODO activate
 /// equality
 pure unittest
 {
-    enum capacity = 10;
+    enum capacity = 15;
     alias S = ArrayN!(int, capacity);
     assert(S([1, 2, 3].s[]) ==
            S([1, 2, 3].s[]));
@@ -641,7 +641,7 @@ pure unittest
 /// equality
 pure nothrow @nogc unittest
 {
-    enum capacity = 10;
+    enum capacity = 15;
     alias S = ArrayN!(int, capacity);
 
     assert(S.fromValuesUnsafe([1, 2, 3].s) ==

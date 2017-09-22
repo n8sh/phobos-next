@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 /**
    Special thanks to:
    $(UL

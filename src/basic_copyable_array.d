@@ -239,14 +239,13 @@ struct CopyableArray(T,
     pragma(inline, true)
     bool opEquals(in This rhs) const
     {
-        return opEquals(rhs);
+        return slice() == rhs.slice();
     }
 
     /// ditto
-    bool opEquals(ref in This rhs) const
+    pragma(inline, true)
+    bool opEquals(in ref This rhs) const
     {
-        if (empty) return rhs.empty;
-        if (rhs.empty) return false;
         return slice() == rhs.slice();
     }
 
@@ -346,11 +345,11 @@ struct CopyableArray(T,
     {
         return slice()[i .. j];
     }
-    ///
+    /// ditto
     pragma(inline, true)
     inout(T)[] opSlice() inout return scope
     {
-        return opSlice(0, _length);
+        return slice();
     }
 
     /// Index assignment support.

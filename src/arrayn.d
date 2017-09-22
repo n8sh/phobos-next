@@ -30,7 +30,7 @@ struct ArrayN(E,
     alias capacity = requestedCapacity; // for public use
 
     /// stored elements
-    E[capacity] _store = void;
+    E[capacity] _store;         // TODO use store constructor
 
     alias This = typeof(this);
 
@@ -159,8 +159,7 @@ struct ArrayN(E,
             isElementAssignable!U
             ) // prevent accidental move of l-value `values` in array calls
     {
-        // TODO use Store constructor:
-        This that = void;
+        This that;              // TODO use Store constructor:
         static if (shouldAddGCRange!E)
         {
             gc_addRange(that._store.ptr, values.length * E.sizeof);

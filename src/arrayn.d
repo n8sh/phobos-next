@@ -429,9 +429,9 @@ pragma(inline, true):
     }
     /// ditto
     bool opEquals(U)(in U[] rhs) const
-        if (is(typeof(T[].init == U[].init)))
+        if (is(typeof(E[].init == U[].init)))
     {
-        return this[] == rhs[];
+        return this[] == rhs;
     }
 }
 
@@ -634,6 +634,9 @@ pure nothrow @nogc unittest
     alias S = ArrayN!(int, capacity);
     assert(S.fromValuesUnsafe([1, 2, 3].s) ==
            S.fromValuesUnsafe([1, 2, 3].s));
+    const x = [1, 2, 3].s;
+    assert(S.fromValuesUnsafe([1, 2, 3].s) == x);
+    assert(S.fromValuesUnsafe([1, 2, 3].s) == x[]);
 }
 
 /// assignment from `const` to `immutable` element type

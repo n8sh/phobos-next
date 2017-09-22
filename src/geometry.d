@@ -1254,16 +1254,16 @@ struct SpherePoint(E)
     {
         foreach (ix, arg; args)
         {
-            spherePoint_[ix] = arg;
+            _spherePoint[ix] = arg;
         }
     }
     /** Element data. */
-    E[D] spherePoint_;
+    E[D] _spherePoint;
     enum dimension = D; /// Get dimensionality.
 
     @property string toString() const
     {
-        return "SpherePoint:" ~ to!string(spherePoint_);
+        return "SpherePoint:" ~ to!string(_spherePoint);
     }
 
     @property string toMathML() const
@@ -1278,7 +1278,7 @@ struct SpherePoint(E)
             str ~= `
     <mtr>
       <mtd>
-        <mn>` ~ spherePoint_[i].toMathML ~ `</mn>
+        <mn>` ~ _spherePoint[i].toMathML ~ `</mn>
       </mtd>
     </mtr>`;
         }
@@ -1297,7 +1297,7 @@ struct SpherePoint(E)
     /** Returns: Area 0 */
     @property auto area() const { return 0; }
 
-    auto ref opSlice() { return spherePoint_[]; }
+    auto ref opSlice() { return _spherePoint[]; }
 }
 alias sphointf = SpherePoint!float;
 alias sphointd = SpherePoint!double;

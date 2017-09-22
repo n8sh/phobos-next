@@ -594,11 +594,12 @@ struct Vector(E, uint D,
             mixin("_vector[i]" ~ op ~ "= r;");
         }
     }
-    unittest {
+    unittest
+    {
         auto v2 = vec2(1, 3);
-        v2 *= 5.0f; assert(v2[] == [5, 15]);
-        v2 ^^= 2; assert(v2[] == [25, 225]);
-        v2 /= 5; assert(v2[] == [5, 45]);
+        v2 *= 5.0f; assert(v2[] == [5, 15].s);
+        v2 ^^= 2; assert(v2[] == [25, 225].s);
+        v2 /= 5; assert(v2[] == [5, 45].s);
     }
 
     void opOpAssign(string op)(Vector r)
@@ -1666,4 +1667,9 @@ unittest
         wln("LaTeX:\n", m.toLaTeX);
         wln("MathML:\n", m.toMathML);
     }
+}
+
+version(unittest)
+{
+    import array_help : s;
 }

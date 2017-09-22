@@ -649,9 +649,17 @@ pure nothrow @nogc unittest
     assert(S.fromValuesUnsafe([1, 2, 3].s) ==
            S.fromValuesUnsafe([1, 2, 3].s));
 
-    const x = [1, 2, 3].s;
-    assert(S.fromValuesUnsafe([1, 2, 3].s) == x);
-    assert(S.fromValuesUnsafe([1, 2, 3].s) == x[]);
+    const ax = [1, 2, 3].s;
+    assert(S.fromValuesUnsafe([1, 2, 3].s) == ax);
+    assert(S.fromValuesUnsafe([1, 2, 3].s) == ax[]);
+
+    const cx = [1, 2, 3].s;
+    assert(S.fromValuesUnsafe([1, 2, 3].s) == cx);
+    assert(S.fromValuesUnsafe([1, 2, 3].s) == cx[]);
+
+    immutable ix = [1, 2, 3].s;
+    assert(S.fromValuesUnsafe([1, 2, 3].s) == ix);
+    assert(S.fromValuesUnsafe([1, 2, 3].s) == ix[]);
 }
 
 /// assignment from `const` to `immutable` element type

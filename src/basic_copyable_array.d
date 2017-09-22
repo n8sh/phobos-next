@@ -73,8 +73,8 @@ struct CopyableArray(T,
                                                bool zero) @trusted
     {
         assert(initialCapacity >= initialLength);
+        // TODO use Store constructor:
         This that = void;
-        // TODO use Store constructor
         that._ptr = This.allocate(initialCapacity, zero);
         that._capacity = initialCapacity;
         that._length = initialLength;
@@ -210,8 +210,8 @@ struct CopyableArray(T,
     private void resetInternalData()
     {
         _ptr = null;
-        _length = 0;
         _capacity = 0;
+        _length = 0;
     }
 
     /** Allocate heap regionwith `initialCapacity` number of elements of type `T`.

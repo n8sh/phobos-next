@@ -157,10 +157,8 @@ struct ArrayN(E,
             isElementAssignable!U
             ) // prevent accidental move of l-value `values` in array calls
     {
-        // TODO reuse constructor
-
+        // TODO use Store constructor:
         This that = void;
-
         static if (shouldAddGCRange!E)
         {
             gc_addRange(that._store.ptr, values.length * E.sizeof);

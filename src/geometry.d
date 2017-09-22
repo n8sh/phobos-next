@@ -194,7 +194,7 @@ struct Point(E, uint D)
     @safe pure nothrow:
 
     /** Returns: Area 0 */
-    @property auto area() const { return 0; }
+    @property E area() const { return 0; }
 
     auto ref opSlice() { return _point[]; }
 
@@ -1295,7 +1295,7 @@ struct SpherePoint(E)
     @safe pure nothrow:
 
     /** Returns: Area 0 */
-    @property auto area() const { return 0; }
+    @property E area() const { return 0; }
 
     auto ref opSlice() { return _spherePoint[]; }
 }

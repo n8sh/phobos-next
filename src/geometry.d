@@ -1605,7 +1605,7 @@ unittest
 /**
    See also: http://stackoverflow.com/questions/401847/circle-rectangle-collision-detection-intersection
  */
-bool intersects(T)(Circle!T circle, Rect!T rect)
+bool intersection(T)(Circle!T circle, Rect!T rect)
 {
     Point!T dist = void; // circle distance
 

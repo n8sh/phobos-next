@@ -143,8 +143,7 @@ auto sqrtx(T)(T x)
 // ==============================================================================================
 
 /// $(D D)-Dimensional Cartesian Point with Coordinate Type (Precision) $(D E).
-struct Point(E,
-             uint D)
+struct Point(E, uint D)
     if (D >= 1 /* && isNumeric!E */)
 {
     alias type = E;
@@ -161,7 +160,7 @@ struct Point(E,
     E[D] point_;
     static const uint dimension = D; /// Get dimensionality.
 
-    @property string toString() const
+    @property string toString(scope void delegate(const(char)[]) sink) const
     {
         return "Point:" ~ to!string(point_);
     }
@@ -913,9 +912,7 @@ enum Layout { columnMajor, rowMajor }; // Matrix Storage Major Dimension.
 ///  rows_ = rows of the matrix
 ///  cols_ = columns of the matrix
 ///  layout = matrix layout
-struct Matrix(E,
-              uint rows_,
-              uint cols_,
+struct Matrix(E, uint rows_, uint cols_,
               Layout layout = Layout.rowMajor)
     if (rows_ >= 1 &&
         cols_ >= 1)

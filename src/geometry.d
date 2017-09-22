@@ -152,17 +152,19 @@ struct Point(E, uint D)
     {
         foreach (ix, arg; args)
         {
-            point_[ix] = arg;
+            _point[ix] = arg;
         }
     }
 
     /** Element data. */
-    E[D] point_;
+    E[D] _point;
     static const uint dimension = D; /// Get dimensionality.
 
-    @property string toString(scope void delegate(const(char)[]) sink) const
+    @property void toString(scope void delegate(const(char)[]) sink) const
     {
-        return "Point:" ~ to!string(point_);
+        import std.format : formattedWrite;
+        sink("Point:");
+        sink.formattedWrite("%s", _point);
     }
 
     @property string toMathML() const
@@ -177,7 +179,7 @@ struct Point(E, uint D)
             str ~= `
     <mtr>
       <mtd>
-        <mn>` ~ point_[i].toMathML ~ `</mn>
+        <mn>` ~ _point[i].toMathML ~ `</mn>
       </mtd>
     </mtr>`;
         }
@@ -196,7 +198,7 @@ struct Point(E, uint D)
     /** Returns: Area 0 */
     @property auto area() const { return 0; }
 
-    auto ref opSlice() { return point_[]; }
+    auto ref opSlice() { return _point[]; }
 
     /** Points +/- Vector => Point */
     auto opBinary(string op, F)(Vector!(F, D) r) const
@@ -206,7 +208,7 @@ struct Point(E, uint D)
         Point!(CommonType!(E, F), D) y;
         foreach (i; iota!(0, D))
         {
-            y.point_[i] = mixin("point_[i]" ~ op ~ "r.vector_[i]");
+            y._point[i] = mixin("_point[i]" ~ op ~ "r.vector_[i]");
         }
         return y;
     }

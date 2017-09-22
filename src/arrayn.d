@@ -590,15 +590,6 @@ version(none) pure unittest     // TODO activate
 }
 
 ///
-@safe pure nothrow @nogc unittest
-{
-    enum capacity = 4;
-    import std.traits : hasIndirections;
-    static assert(hasIndirections!string);
-    alias A = ArrayN!(string, capacity, Checking.viaScopeAndBorrowing);
-}
-
-///
 @safe pure unittest
 {
     enum capacity = 15;

@@ -57,8 +57,6 @@ import rational: Rational;
 import range_ex: iota;
 import traits_ex: isEquable, isNotEquable, haveCommonType;
 
-/* TODO This doesn't seem that elegant. */
-
 enum isVector(E)     = is(typeof(isVectorImpl(E.init)));
 enum isPoint(E)      = is(typeof(isPointImpl(E.init)));
 enum isMatrix(E)     = is(typeof(isMatrixImpl(E.init)));
@@ -930,40 +928,41 @@ struct Matrix(E, uint rows_, uint cols_,
     if (rows_ >= 1 &&
         cols_ >= 1)
 {
-    alias mT = E; /// Internal type of the matrix_
+    alias mT = E; /// Internal type of the _matrix
     static const uint rows = rows_; /// Number of rows
     static const uint cols = cols_; /// Number of columns
 
     /** Matrix $(RED row-major) in memory. */
     static if (layout == Layout.rowMajor)
     {
-        E[cols][rows] matrix_; // In C it would be mt[rows][cols], D does it like this: (mt[cols])[rows]
-        @safe nothrow ref inout(E) opCall(uint row, uint col) inout { return matrix_[row][col]; }
-        @safe nothrow ref inout(E)     at(uint row, uint col) inout { return matrix_[row][col]; }
+        E[cols][rows] _matrix; // In C it would be mt[rows][cols], D does it like this: (mt[cols])[rows]
+        @safe nothrow ref inout(E) opCall(uint row, uint col) inout { return _matrix[row][col]; }
+        @safe nothrow ref inout(E)     at(uint row, uint col) inout { return _matrix[row][col]; }
     }
     else
     {
-        E[rows][cols] matrix_; // In C it would be mt[cols][rows], D does it like this: (mt[rows])[cols]
-        @safe nothrow ref inout(E) opCall(uint row, uint col) inout { return matrix_[col][row]; }
-        @safe nothrow ref inout(E) at    (uint row, uint col) inout { return matrix_[col][row]; }
+        E[rows][cols] _matrix; // In C it would be mt[cols][rows], D does it like this: (mt[rows])[cols]
+        @safe nothrow ref inout(E) opCall(uint row, uint col) inout { return _matrix[col][row]; }
+        @safe nothrow ref inout(E) at    (uint row, uint col) inout { return _matrix[col][row]; }
     }
-    alias matrix_ this;
+    alias _matrix this;
 
     /// Returns: The pointer to the stored values as OpenGL requires it.
-    /// Note this will return a pointer to a $(RED row-major) matrix_,
+    /// Note this will return a pointer to a $(RED row-major) _matrix,
     /// $(RED this means you've to set the transpose argument to GL_TRUE when passing it to OpenGL).
     /// Examples:
     /// ---
     /// // 3rd argument = GL_TRUE
     /// glUniformMatrix4fv(programs.main.model, 1, GL_TRUE, mat4.translation(-0.5f, -0.5f, 1.0f).value_ptr);
     /// ---
-    // @property auto value_ptr() { return matrix_[0].ptr; }
+    // @property auto value_ptr() { return _matrix[0].ptr; }
 
-    /// Returns: The current matrix_ formatted as flat string.
+    /// Returns: The current _matrix formatted as flat string.
 
-    @property string toString()
+    @property void toString(scope void delegate(const(char)[]) sink) const
     {
-        return format("%s", matrix_);
+        import std.format : formattedWrite;
+        sink.formattedWrite("Matrix:%s", _matrix);
     }
 
     @property string toLaTeX() const
@@ -1012,16 +1011,16 @@ struct Matrix(E, uint rows_, uint cols_,
         return str;
     }
 
-    /// Returns: The current matrix_ as pretty formatted string.
+    /// Returns: The current _matrix as pretty formatted string.
     @property string toPrettyString()
     {
         string fmtr = "%s";
 
-        size_t rjust = max(format(fmtr, reduce!(max)(matrix_[])).length,
-                           format(fmtr, reduce!(min)(matrix_[])).length) - 1;
+        size_t rjust = max(format(fmtr, reduce!(max)(_matrix[])).length,
+                           format(fmtr, reduce!(min)(_matrix[])).length) - 1;
 
         string[] outer_parts;
-        foreach (E[] row; matrix_)
+        foreach (E[] row; _matrix)
         {
             string[] inner_parts;
             foreach (E col; row)
@@ -1051,14 +1050,14 @@ struct Matrix(E, uint rows_, uint cols_,
         }
         else static if (is(T : E))
         {
-            matrix_[i / cols][i % cols] = head;
+            _matrix[i / cols][i % cols] = head;
             construct!(i + 1)(tail);
         }
         else static if (is(T == Vector!(E, cols)))
         {
             static if (i % cols == 0)
             {
-                matrix_[i / cols] = head._vector;
+                _matrix[i / cols] = head._vector;
                 construct!(i + T.dimension)(tail);
             }
             else
@@ -1100,7 +1099,7 @@ struct Matrix(E, uint rows_, uint cols_,
             (T.cols >= cols) &&
             (T.rows >= rows))
     {
-        matrix_[] = mat.matrix_[];
+        _matrix[] = mat._matrix[];
     }
 
     this(T)(T mat)
@@ -1124,7 +1123,7 @@ struct Matrix(E, uint rows_, uint cols_,
     @property bool ok() const
     {
         static if (isFloatingPoint!E)
-            foreach (row; matrix_)
+            foreach (row; _matrix)
                 foreach (col; row)
                     if (isNaN(col) || isInfinity(col))
                         return false;
@@ -1171,39 +1170,39 @@ struct Matrix(E, uint rows_, uint cols_,
         alias id = identity;    // shorthand
 
         /// Transpose Current Matrix.
-        void transpose() { matrix_ = transposed().matrix_; }
+        void transpose() { _matrix = transposed()._matrix; }
         alias T = transpose; // C++ Armadillo naming convention.
 
         unittest
         {
             mat2 m2 = mat2(1.0f);
             m2.transpose();
-            assert(m2.matrix_ == mat2(1.0f).matrix_);
+            assert(m2._matrix == mat2(1.0f)._matrix);
             m2.makeIdentity();
-            assert(m2.matrix_ == [[1.0f, 0.0f],
+            assert(m2._matrix == [[1.0f, 0.0f],
                                   [0.0f, 1.0f]]);
             m2.transpose();
-            assert(m2.matrix_ == [[1.0f, 0.0f],
+            assert(m2._matrix == [[1.0f, 0.0f],
                                   [0.0f, 1.0f]]);
-            assert(m2.matrix_ == m2.identity.matrix_);
+            assert(m2._matrix == m2.identity._matrix);
 
             mat3 m3 = mat3(1.1f, 1.2f, 1.3f,
                            2.1f, 2.2f, 2.3f,
                            3.1f, 3.2f, 3.3f);
             m3.transpose();
-            assert(m3.matrix_ == [[1.1f, 2.1f, 3.1f],
+            assert(m3._matrix == [[1.1f, 2.1f, 3.1f],
                                   [1.2f, 2.2f, 3.2f],
                                   [1.3f, 2.3f, 3.3f]]);
 
             mat4 m4 = mat4(2.0f);
             m4.transpose();
-            assert(m4.matrix_ == mat4(2.0f).matrix_);
+            assert(m4._matrix == mat4(2.0f)._matrix);
             m4.makeIdentity();
-            assert(m4.matrix_ == [[1.0f, 0.0f, 0.0f, 0.0f],
+            assert(m4._matrix == [[1.0f, 0.0f, 0.0f, 0.0f],
                                   [0.0f, 1.0f, 0.0f, 0.0f],
                                   [0.0f, 0.0f, 1.0f, 0.0f],
                                   [0.0f, 0.0f, 0.0f, 1.0f]]);
-            assert(m4.matrix_ == m4.identity.matrix_);
+            assert(m4._matrix == m4.identity._matrix);
         }
 
     }
@@ -1283,9 +1282,10 @@ struct SpherePoint(E)
     E[D] _spherePoint;
     enum dimension = D; /// Get dimensionality.
 
-    @property string toString() const
+    @property void toString(scope void delegate(const(char)[]) sink) const
     {
-        return "SpherePoint:" ~ to!string(_spherePoint);
+        import std.format : formattedWrite;
+        sink.formattedWrite("SpherePoint:%s", _spherePoint);
     }
 
     @property string toMathML() const
@@ -1378,13 +1378,14 @@ struct Box(E, uint D)
     this(Vector!(E,D) l_,
          Vector!(E,D) h_) { min = l_; max = h_; }
 
-    @property string toString()
+    @property void toString(scope void delegate(const(char)[]) sink) const
     {
-        return format("(l=%s, u=%s)", min, max);
+        import std.format : formattedWrite;
+        sink.formattedWrite("Box(lower=%s, upper=%s)", min, max);
     }
 
     /// Get Box Center.
-    // @property Vector!(E,D) center() { return (min + max) / 2;}
+    // TODO @property Vector!(E,D) center() { return (min + max) / 2;}
 
     @safe nothrow:
 

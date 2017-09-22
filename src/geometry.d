@@ -218,7 +218,8 @@ auto point(Ts...)(Ts args)
     return Point!(CommonType!Ts, args.length)(args);
 }
 
-unittest {
+@safe pure nothrow @nogc unittest
+{
     assert(point(1, 2) + vector(1, 2) == point(2, 4));
     assert(point(1, 2) - vector(1, 2) == point(0, 0));
 }
@@ -780,7 +781,8 @@ struct Vector(E, uint D,
     /** Element data. */
     E[D] _vector;
 
-    unittest {
+    unittest
+    {
         // static if (isSigned!(E)) { assert(-Vector!(E,D)(+2),
         //                                   +Vector!(E,D)(-2)); }
     }
@@ -799,8 +801,9 @@ alias nvec2f = Vector!(float, 2, true);
 alias nvec3f = Vector!(float, 3, true);
 alias nvec4f = Vector!(float, 4, true);
 
-unittest {
-    assert(vec2f(2, 3)[] == [2, 3]);
+@safe pure nothrow @nogc unittest
+{
+    assert(vec2f(2, 3)[] == [2, 3].s);
     assert(vec2f(2, 3)[0] == 2);
     assert(vec2f(2) == 2);
     assert(vec2f(true) == true);
@@ -816,7 +819,7 @@ unittest {
         wln(vec2f(11, 22).toLaTeX);
         wln(vec2f(11, 22).T.toLaTeX);
     }
-    assert((vec2(1, 3)*2.5f)[] == [2.5f, 7.5f]);
+    assert((vec2(1, 3)*2.5f)[] == [2.5f, 7.5f].s);
 
     nvec2f v = vec2f(3, 4);
     assert(v[] == nvec2f(0.6, 0.8)[]);
@@ -841,7 +844,8 @@ alias T = transpose; // C++ Armadillo naming convention.
     }
     return c;
 }
-unittest {
+@safe pure nothrow @nogc unittest
+{
     assert(elementwiseLessThanOrEqual(vec2f(1, 1),
                                            vec2f(2, 2)) == vec2b(true, true));
 }
@@ -901,16 +905,14 @@ alias outer = outerProduct;
     return (a - b).magnitude;
 }
 
-unittest {
+@safe pure nothrow @nogc unittest
+{
     auto v1 = vec3f(1, 2, -3);
     auto v2 = vec3f(1, 3, 2);
-    assert(cross(v1, v2)[] == [13, -5, 1]);
-    assert(distance(vec2f(0, 0),
-                         vec2f(0, 10)) == 10);
-    assert(distance(vec2f(0, 0),
-                         vec2d(0, 10)) == 10);
-    assert(dot(v1, v2) ==
-                dot(v2, v1)); // commutative
+    assert(cross(v1, v2)[] == [13, -5, 1].s);
+    assert(distance(vec2f(0, 0), vec2f(0, 10)) == 10);
+    assert(distance(vec2f(0, 0), vec2d(0, 10)) == 10);
+    assert(dot(v1, v2) == dot(v2, v1)); // commutative
 }
 
 // ==============================================================================================
@@ -1172,7 +1174,8 @@ struct Matrix(E, uint rows_, uint cols_,
         void transpose() { matrix_ = transposed().matrix_; }
         alias T = transpose; // C++ Armadillo naming convention.
 
-        unittest {
+        unittest
+        {
             mat2 m2 = mat2(1.0f);
             m2.transpose();
             assert(m2.matrix_ == mat2(1.0f).matrix_);
@@ -1229,7 +1232,8 @@ alias mat34 = Matrix!(float, 3, 4);
 alias mat4 = Matrix!(float, 4, 4);
 alias mat2_cm = Matrix!(float, 2, 2, Layout.columnMajor);
 
-unittest {
+@safe pure nothrow @nogc unittest
+{
     auto m = mat2(1, 2,
                   3, 4);
     assert(m(0, 0) == 1);
@@ -1237,7 +1241,8 @@ unittest {
     assert(m(1, 0) == 3);
     assert(m(1, 1) == 4);
 }
-unittest {
+@safe pure nothrow @nogc unittest
+{
     auto m = mat2_cm(1, 3,
                      2, 4);
     assert(m(0, 0) == 1);
@@ -1246,13 +1251,14 @@ unittest {
     assert(m(1, 1) == 4);
 }
 
-unittest {
+@safe pure nothrow @nogc unittest
+{
     alias E = float;
     immutable a = Vector!(E, 2, false, Orient.column)(1, 2);
     immutable b = Vector!(E, 3, false, Orient.column)(3, 4, 5);
     immutable c = outerProduct(a, b);
-    assert(c[] == [[3, 4, 5],
-                   [6, 8, 10]]);
+    assert(c[] == [[3, 4, 5].s,
+                   [6, 8, 10].s].s);
 }
 
 // ==============================================================================================
@@ -1406,7 +1412,8 @@ struct Box(E, uint D)
     /// Expands Box by another Box $(D b).
     auto ref expand(Box b) { return this.expand(b.min).expand(b.max); }
 
-    unittest {
+    unittest
+    {
         immutable auto b = Box(Vector!(E,D)(1),
                                Vector!(E,D)(3));
         assert(b.sides == Vector!(E,D)(2));
@@ -1507,7 +1514,8 @@ struct Plane(E, uint D)
         this.distance = distance;
     }
 
-    /* unittest { */
+    /* unittest
+       { */
     /*     Plane p = Plane(0.0f, 1.0f, 2.0f, 3.0f); */
     /*     assert(p.normal == N(0.0f, 1.0f, 2.0f)); */
     /*     assert(p.distance == 3.0f); */
@@ -1556,7 +1564,8 @@ struct Plane(E, uint D)
     /*     return (dot(point, normal) + distance) / normal.magnitude; */
     /* } */
 
-    /* unittest { */
+    /* unittest
+       { */
     /*     Plane p = Plane(-1.0f, 4.0f, 19.0f, -10.0f); */
     /*     assert(almost_equal(p.ndistance(N(5.0f, -2.0f, 0.0f)), -1.182992)); */
     /*     assert(almost_equal(p.ndistance(N(5.0f, -2.0f, 0.0f)), */
@@ -1611,7 +1620,7 @@ auto sphere(C, R)(C center, R radius) { return Sphere!(C.type, C.dimension)(cent
 // return Sphere!(CommonType!C, C.length)(center, radius);
 // }
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     const x = sphere(point(1.0, 2, 3, 4), 10.0);
     version(print) wln(x, " has volume ", x.volume);
@@ -1641,7 +1650,7 @@ bool intersection(T)(Circle!T circle, Rect!T rect)
     return (cornerDistance_sq <= circle.r^^2);
 }
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     version(print)
     {

@@ -50,7 +50,7 @@ version(LDC)
     }
 }
 
-import core.simd;
+// TODO use import core.simd;
 import std.stdio: writeln;
 import std.math: sqrt, isNaN, isInfinity, PI, sin, cos, acos;
 import std.conv: to;

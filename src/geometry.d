@@ -1465,17 +1465,28 @@ struct Box(E, uint D)
     @property auto sides() const pure { return max - min; }
 
     /** Returns: Area */
-    @property auto sidesProduct() const pure {
-        real y = 1;
+    @property real sidesProduct() const pure
+    {
+        typeof(return) y = 1;
         foreach (side; this.sides)
         {
             y *= side;
         }
         return y;
     }
-    static      if (D == 2) { alias area = sidesProduct;  }
-    else static if (D == 3) { alias volume = sidesProduct;  }
-    else static if (D >= 4) { alias hyperVolume = sidesProduct;  }
+
+    static if (D == 2)
+    {
+        alias area = sidesProduct;
+    }
+    else static if (D == 3)
+    {
+        alias volume = sidesProduct;
+    }
+    else static if (D >= 4)
+    {
+        alias hyperVolume = sidesProduct;
+    }
 
     alias include = expand;
 

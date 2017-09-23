@@ -57,7 +57,7 @@ import std.conv: to;
 import std.traits: isSomeString, isIntegral, isFloatingPoint, isNumeric, isSigned, isStaticArray, isDynamicArray, isImplicitlyConvertible, isAssignable, isArray, CommonType;
 import std.string: format, rightJustify;
 import std.array: join;
-import std.algorithm;
+import std.algorithm : map, all, any, min, max, reduce;
 import std.random: uniform;
 
 import mathml;

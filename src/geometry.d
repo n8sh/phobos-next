@@ -218,14 +218,15 @@ struct Point(E, uint D)
         return y;
     }
 }
-mixin(makeInstanceAliases("Point", "point", 2,3, ["int", "float", "double", "real"]));
 
-/** Instantiator. */
+/** Instantiator for `Point`. */
 auto point(Ts...)(Ts args)
     if (haveCommonType!Ts)
 {
     return Point!(CommonType!Ts, args.length)(args);
 }
+
+mixin(makeInstanceAliases("Point", "point", 2,3, ["int", "float", "double", "real"]));
 
 @safe pure nothrow @nogc unittest
 {
@@ -1363,7 +1364,7 @@ alias sphointf = SpherePoint3!float;
 alias sphointd = SpherePoint3!double;
 alias sphointr = SpherePoint3!real;
 
-/** Instantiator. */
+/** Instantiator for `SpherePoint3`. */
 auto spherePoint(Ts...)(Ts args)
     if (haveCommonType!Ts)
 {
@@ -1383,6 +1384,7 @@ struct Particle(E, uint D,
     Vector!(E, D, normalizedVelocityFlag) velocity;
     E mass;
 }
+
 mixin(makeInstanceAliases("Particle", "particle", 2,4, ["float", "double", "real"]));
 
 /** $(D D)-Dimensional Particle with Coordinate Position and
@@ -1505,6 +1507,7 @@ struct Box(E, uint D)
         //                  all!"a || a == a.nan"(elementwiseLessThanOrEqual(min, max)[]));
     }
 }
+
 mixin(makeInstanceAliases("Box","box", 2,4, ["int", "float", "double", "real"]));
 
 Box!(E,D) unite(E, uint D)(Box!(E,D) a,
@@ -1640,6 +1643,7 @@ struct Plane(E, uint D)
     /* } */
 
 }
+
 mixin(makeInstanceAliases("Plane","plane", 3,4, defaultElementTypes));
 
 // ==============================================================================================

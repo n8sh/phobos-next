@@ -1646,8 +1646,9 @@ struct Sphere(E, uint D)
     if (D >= 2 &&
         isNumeric!E)
 {
-    alias P = Point!(E, D);
-    P center;
+    alias CenterType = Point!(E, D);
+
+    CenterType center;
     E radius;
 
     void translate(Vector!(E, D) shift) { center = center + shift; } // point + vector => point

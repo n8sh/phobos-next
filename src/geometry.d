@@ -356,7 +356,7 @@ struct Vector(E, uint D,
         return str;
     }
 
-    auto randInPlace(E scaling = cast(E)1)
+    auto randInPlace(E scaling = 1)
     {
         import random_ex: randInPlace;
         static if (normalizedFlag &&

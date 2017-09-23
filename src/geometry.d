@@ -143,7 +143,7 @@ struct Point(E, uint D)
 
     this(T...)(T args)
     {
-        foreach (ix, arg; args)
+        foreach (const ix, arg; args)
         {
             _point[ix] = arg;
         }
@@ -1300,7 +1300,7 @@ struct SpherePoint3(E)
     /** Construct from Components $(D args). */
     this(T...)(T args)
     {
-        foreach (ix, arg; args)
+        foreach (const ix, arg; args)
         {
             _spherePoint[ix] = arg;
         }

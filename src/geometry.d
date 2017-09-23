@@ -1523,8 +1523,8 @@ struct Plane(E, uint D)
 {
     enum dimension = D;
 
-    alias NormalType = Vector!(E, D, true); /// Plane Normal Type.
     alias ElementType = E;
+    alias NormalType = Vector!(E, D, true); /// Plane Normal Type.
 
     union
     {

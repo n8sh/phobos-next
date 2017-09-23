@@ -38,6 +38,8 @@ private:
     Enables lightweight storage of polymorphic objects.
 
     Each element is indexed by a corresponding `VariantIndex`.
+
+    TODO generalize to VariantStorage by making CopyableArray an argument to Storage template parameter
  */
 private struct VariantArrays(Types...)
 {

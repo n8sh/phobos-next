@@ -33,6 +33,14 @@ version = unittestAllInstances;
 
 // version = print;
 
+version(LDC)
+{
+    static if (__VERSION__ >= 2076)
+    {
+        static assert(false, "LDC no has static foreach, use that instead of iota!(...)");
+    }
+}
+
 version(NoReciprocalMul)
 {
     private enum rmul = false;
@@ -107,9 +115,9 @@ body
     {
         aliasName = templateName.toLower;
     }
-    foreach (n; minDimension .. maxDimension + 1)
+    foreach (const n; minDimension .. maxDimension + 1)
     {
-        foreach (et; elementTypes) // for each elementtype
+        foreach (const et; elementTypes) // for each elementtype
         {
             immutable prefix = ("alias " ~ templateName ~ "!("~et~", " ~
                                 to!string(n) ~ ") " ~ aliasName ~ "" ~
@@ -170,7 +178,7 @@ struct Point(E, uint D)
   <mo>(</mo>
   <mtable>`;
 
-        foreach (i; iota!(0, D))
+        foreach (const i; iota!(0, D))
         {
             str ~= `
     <mtr>
@@ -192,7 +200,7 @@ struct Point(E, uint D)
     /** Returns: Area 0 */
     @property E area() const { return 0; }
 
-    auto opSlice() { return _point[]; }
+    inout(E)[] opSlice() inout { return _point[]; }
 
     /** Points +/- Vector => Point */
     auto opBinary(string op, F)(Vector!(F, D) r) const
@@ -200,7 +208,7 @@ struct Point(E, uint D)
             (op == "-"))
     {
         Point!(CommonType!(E, F), D) y;
-        foreach (i; iota!(0, D))
+        foreach (const i; iota!(0, D))
         {
             y._point[i] = mixin("_point[i]" ~ op ~ "r._vector[i]");
         }
@@ -245,7 +253,7 @@ struct Vector(E, uint D,
             if (vec.normalized)
             {
                 immutable vec_norm = vec.magnitude;
-                foreach (i; iota!(0, D))
+                foreach (const i; iota!(0, D))
                 {
                     _vector[i] = vec._vector[i] / vec_norm;
                 }

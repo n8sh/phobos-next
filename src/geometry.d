@@ -192,7 +192,7 @@ struct Point(E, uint D)
     /** Returns: Area 0 */
     @property E area() const { return 0; }
 
-    auto ref opSlice() { return _point[]; }
+    auto opSlice() { return _point[]; }
 
     /** Points +/- Vector => Point */
     auto opBinary(string op, F)(Vector!(F, D) r) const
@@ -345,7 +345,7 @@ struct Vector(E, uint D,
         return str;
     }
 
-    auto ref randInPlace(E scaling = cast(E)1)
+    auto randInPlace(E scaling = cast(E)1)
     {
         import random_ex: randInPlace;
         static if (normalizedFlag &&
@@ -416,12 +416,12 @@ struct Vector(E, uint D,
     }
 
     /** Returns: Whole Internal Array of E. */
-    auto ref opSlice()
+    auto opSlice()
     {
         return _vector[];
     }
     /** Returns: Slice of Internal Array of E. */
-    auto ref opSlice(uint off, uint len)
+    auto opSlice(uint off, uint len)
     {
         return _vector[off .. len];
     }
@@ -1350,7 +1350,7 @@ struct SpherePoint3(E)
     /** Returns: Area 0 */
     @property E area() const { return 0; }
 
-    auto ref opSlice() { return _spherePoint[]; }
+    auto opSlice() { return _spherePoint[]; }
 }
 alias sphointf = SpherePoint3!float;
 alias sphointd = SpherePoint3!double;
@@ -1433,7 +1433,7 @@ struct Box(E, uint D)
     }
 
     /// Expands the Box, so that $(I v) is part of the Box.
-    auto ref expand(Vector!(E,D) v)
+    ref Box expand(Vector!(E,D) v)
     {
         foreach (i; iota!(0, D))
         {
@@ -1444,7 +1444,7 @@ struct Box(E, uint D)
     }
 
     /// Expands Box by another Box $(D b).
-    auto ref expand(Box b)
+    ref Box expand(Box b)
     {
         return this.expand(b.min).expand(b.max);
     }

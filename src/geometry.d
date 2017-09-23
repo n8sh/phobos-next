@@ -1709,12 +1709,10 @@ auto sphere(C, R)(C center, R radius)
  */
 bool intersect(T)(Circle!T circle, Rect!T rect)
 {
-    Point!T dist = void; // circle distance
-
     immutable hw = rect.w/2, hh = rect.h/2;
 
-    dist.x = abs(circle.x - rect.x0 - hw);
-    dist.y = abs(circle.y - rect.y0 - hh);
+    immutable dist = Point!T(abs(circle.x - rect.x0 - hw),
+                             abs(circle.y - rect.y0 - hh));
 
     if (dist.x > (hw + circle.r)) return false;
     if (dist.y > (hh + circle.r)) return false;

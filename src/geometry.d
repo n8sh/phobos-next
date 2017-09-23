@@ -1523,7 +1523,8 @@ struct Plane(E, uint D)
 {
     enum dimension = D;
 
-    alias N = Vector!(E, D, true); /// Plane Normal Type.
+    alias NormalType = Vector!(E, D, true); /// Plane Normal Type.
+
     union
     {
         static if (D == 3)
@@ -1535,7 +1536,7 @@ struct Plane(E, uint D)
                 E c; /// normal.z
             }
         }
-        N normal;                    /// Plane Normal.
+        NormalType normal;      /// Plane Normal.
     }
     E distance;                  /// Plane Constant (Offset from origo).
 
@@ -1567,7 +1568,7 @@ struct Plane(E, uint D)
         }
     }
 
-    this(N normal, E distance)
+    this(NormalType normal, E distance)
     {
         this.normal = normal;
         this.distance = distance;

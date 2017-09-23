@@ -1525,7 +1525,7 @@ struct Plane(E, uint D)
 
     alias ElementType = E;
 
-    /// Plane normal type.
+    /// Normal type of plane.
     alias NormalType = Vector!(E, D, true);
 
     union

@@ -33,19 +33,21 @@ version = unittestAllInstances;
 
 // version = print;
 
+version(NoReciprocalMul)
+{
+    private enum rmul = false;
+}
+else
+{
+    private enum rmul = true;
+}
+
 version(LDC)
 {
     static if (__VERSION__ >= 2076)
     {
-        static assert(false, "LDC no has static foreach, use that instead of iota!(...)");
+        static assert(false, "LDC now has static foreach, use that instead of iota!(...)");
     }
-}
-
-version(NoReciprocalMul)
-{
-    private enum rmul = false;
-} else {
-    private enum rmul = true;
 }
 
 import core.simd;

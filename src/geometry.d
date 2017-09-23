@@ -128,9 +128,13 @@ body
 auto sqrtx(T)(T x)
 {
     static if (is(T : int))
+    {
         return std.math.sqrt(cast(float)x);
+    }
     else
+    {
         return std.math.sqrt(x);
+    }
 }
 
 // ==============================================================================================

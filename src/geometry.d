@@ -1705,9 +1705,9 @@ auto sphere(C, R)(C center, R radius)
 }
 
 /**
-   See also: http://stackoverflow.com/questions/401847/circle-rectangle-collision-detection-intersection
+   See also: http://stackoverflow.com/questions/401847/circle-rectangle-collision-detection-intersect
  */
-bool intersection(T)(Circle!T circle, Rect!T rect)
+bool intersect(T)(Circle!T circle, Rect!T rect)
 {
     Point!T dist = void; // circle distance
 

@@ -139,7 +139,7 @@ auto sqrtx(T)(T x)
 struct Point(E, uint D)
     if (D >= 1 /* && TODO extend trait : isNumeric!E */)
 {
-    alias type = E;
+    alias ScalarType = E;
 
     this(T...)(T args)
     {
@@ -1295,7 +1295,7 @@ struct SpherePoint3(E)
     if (isFloatingPoint!E)
 {
     enum D = 3;                 // only in three dimensions
-    alias type = E;
+    alias ScalarType = E;
 
     /** Construct from Components $(D args). */
     this(T...)(T args)
@@ -1671,7 +1671,7 @@ struct Sphere(E, uint D)
 
 auto sphere(C, R)(C center, R radius)
 {
-    return Sphere!(C.type, C.dimension)(center, radius);
+    return Sphere!(C.ScalarType, C.dimension)(center, radius);
 }
 // TODO Use this instead:
 // auto sphere(R, C...)(Point!(CommonType!C, C.length) center, R radius) {

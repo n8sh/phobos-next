@@ -694,7 +694,7 @@ struct Vector(E, uint D,
         }
 
         /// Returns: normalizedFlag Copy of this Vector.
-        @property pure Vector normalized() const
+        @property Vector normalized() const
         {
             Vector y = this;
             y.normalize();
@@ -843,16 +843,16 @@ alias nvec4f = Vector!(float, 4, true);
     assert(v[] == nvec2f(0.6, 0.8)[]);
 }
 
-@safe pure nothrow auto transpose(E, uint D, bool normalizedFlag)(in Vector!(E, D,
-                                                                  normalizedFlag,
-                                                                  Orient.column) a)
+auto transpose(E, uint D, bool normalizedFlag)(in Vector!(E, D,
+                                                          normalizedFlag,
+                                                          Orient.column) a)
 {
     return Vector!(E, D, normalizedFlag, Orient.row)(a);
 }
 alias T = transpose; // C++ Armadillo naming convention.
 
-@safe pure nothrow auto elementwiseLessThanOrEqual(Ta, Tb, uint D)(Vector!(Ta, D) a,
-                                                                   Vector!(Tb, D) b)
+auto elementwiseLessThanOrEqual(Ta, Tb, uint D)(Vector!(Ta, D) a,
+                                                Vector!(Tb, D) b)
 {
     Vector!(bool, D) c = void;
     foreach (i; iota!(0, D))
@@ -864,11 +864,11 @@ alias T = transpose; // C++ Armadillo naming convention.
 @safe pure nothrow @nogc unittest
 {
     assert(elementwiseLessThanOrEqual(vec2f(1, 1),
-                                           vec2f(2, 2)) == vec2b(true, true));
+                                      vec2f(2, 2)) == vec2b(true, true));
 }
 
 /// Returns: Scalar/Dot-Product of Two Vectors $(D a) and $(D b).
-@safe pure nothrow T dotProduct(T, U)(in T a, in U b)
+T dotProduct(T, U)(in T a, in U b)
     if (isVector!T &&
         isVector!U &&
         (T.dimension ==
@@ -884,8 +884,8 @@ alias T = transpose; // C++ Armadillo naming convention.
 alias dot = dotProduct;
 
 /// Returns: Outer-Product of Two Vectors $(D a) and $(D b).
-@safe pure nothrow auto outerProduct(Ta, Tb, uint Da, uint Db)(in Vector!(Ta, Da) a,
-                                                               in Vector!(Tb, Db) b)
+auto outerProduct(Ta, Tb, uint Da, uint Db)(in Vector!(Ta, Da) a,
+                                            in Vector!(Tb, Db) b)
     if (Da >= 1 &&
         Db >= 1)
 {
@@ -902,7 +902,7 @@ alias dot = dotProduct;
 alias outer = outerProduct;
 
 /// Returns: Vector/Cross-Product of two 3-Dimensional Vectors.
-@safe pure nothrow T cross(T)(in T a, in T b)
+T cross(T)(in T a, in T b)
     if (isVector!T &&
         T.dimension == 3) /// isVector!T &&
 {
@@ -912,8 +912,7 @@ alias outer = outerProduct;
 }
 
 /// Returns: (Euclidean) Distance between $(D a) and $(D b).
-@safe pure nothrow real distance(T, U)(in T a,
-                                       in U b)
+real distance(T, U)(in T a, in U b)
     if ((isVector!T && // either both vectors
          isVector!U) ||
         (isPoint!T && // or both points
@@ -955,14 +954,14 @@ struct Matrix(E, uint rows_, uint cols_,
     static if (layout == Layout.rowMajor)
     {
         E[cols][rows] _matrix; // In C it would be mt[rows][cols], D does it like this: (mt[cols])[rows]
-        @safe nothrow ref inout(E) opCall(uint row, uint col) inout { return _matrix[row][col]; }
-        @safe nothrow ref inout(E)     at(uint row, uint col) inout { return _matrix[row][col]; }
+        ref inout(E) opCall(uint row, uint col) inout { return _matrix[row][col]; }
+        ref inout(E)     at(uint row, uint col) inout { return _matrix[row][col]; }
     }
     else
     {
         E[rows][cols] _matrix; // In C it would be mt[cols][rows], D does it like this: (mt[rows])[cols]
-        @safe nothrow ref inout(E) opCall(uint row, uint col) inout { return _matrix[col][row]; }
-        @safe nothrow ref inout(E) at    (uint row, uint col) inout { return _matrix[col][row]; }
+        ref inout(E) opCall(uint row, uint col) inout { return _matrix[col][row]; }
+        ref inout(E) at    (uint row, uint col) inout { return _matrix[col][row]; }
     }
     alias _matrix this;
 
@@ -1052,7 +1051,6 @@ struct Matrix(E, uint rows_, uint cols_,
         return "[" ~ join(outer_parts, "\n")[1..$] ~ "]";
     }
 
-    @safe pure nothrow:
     static void isCompatibleMatrixImpl(uint r, uint c)(Matrix!(E, r, c) m) {}
 
     enum isCompatibleMatrix(T) = is(typeof(isCompatibleMatrixImpl(T.init)));
@@ -1345,8 +1343,6 @@ struct SpherePoint3(E)
         return str;
     }
 
-    @safe pure nothrow:
-
     /** Returns: Area 0 */
     @property E area() const { return 0; }
 
@@ -1419,10 +1415,8 @@ struct Box(E, uint D)
     /// Get Box Center.
     // TODO @property Vector!(E,D) center() { return (min + max) / 2;}
 
-    @safe nothrow:
-
     /// Constructs a Box enclosing $(D points).
-    pure static Box fromPoints(in Vector!(E,D)[] points)
+    static Box fromPoints(in Vector!(E,D)[] points)
     {
         Box y;
         foreach (p; points)
@@ -1462,13 +1456,13 @@ struct Box(E, uint D)
     }
 
     /** Returns: Length of Sides */
-    @property auto sides() const pure { return max - min; }
+    @property auto sides() const { return max - min; }
 
     /** Returns: Area */
-    @property real sidesProduct() const pure
+    @property real sidesProduct() const
     {
         typeof(return) y = 1;
-        foreach (side; this.sides)
+        foreach (const ref side; sides)
         {
             y *= side;
         }
@@ -1502,10 +1496,10 @@ struct Box(E, uint D)
 }
 mixin(makeInstanceAliases("Box","box", 2,4, ["int", "float", "double", "real"]));
 
-@safe pure nothrow Box!(E,D) unite(E, uint D)(Box!(E,D) a,
-                                              Box!(E,D) b) { return a.expand(b); }
-@safe pure nothrow Box!(E,D) unite(E, uint D)(Box!(E,D) a,
-                                              Vector!(E,D) b) { return a.expand(b); }
+Box!(E,D) unite(E, uint D)(Box!(E,D) a,
+                           Box!(E,D) b) { return a.expand(b); }
+Box!(E,D) unite(E, uint D)(Box!(E,D) a,
+                           Vector!(E,D) b) { return a.expand(b); }
 
 // ==============================================================================================
 

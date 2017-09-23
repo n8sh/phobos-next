@@ -52,10 +52,8 @@ import std.random: uniform;
 
 import mathml;
 alias wln = writeln;
-import dbgio;
-import rational: Rational;
 import range_ex: iota;
-import traits_ex: isEquable, isNotEquable, haveCommonType;
+import traits_ex: haveCommonType;
 
 enum isVector(E)     = is(typeof(isVectorImpl(E.init)));
 enum isPoint(E)      = is(typeof(isPointImpl(E.init)));
@@ -396,20 +394,38 @@ struct Vector(E, uint D,
         return true;
     }
     // NOTE: Disabled this because I want same behaviour as MATLAB: bool opCast(T : bool)() const { return ok; }
-    bool opCast(T : bool)() const { return all!"a" (_vector[]) ; }
+    bool opCast(T : bool)() const
+    {
+        return all!"a"(_vector[]);
+    }
 
     /// Returns: Pointer to the coordinates.
     // @property auto value_ptr() { return _vector.ptr; }
 
     /// Sets all values to $(D value).
-    void clear(E value) { foreach (i; iota!(0, D)) { _vector[i] = value; } }
+    void clear(E value)
+    {
+        foreach (i; iota!(0, D))
+        {
+            _vector[i] = value;
+        }
+    }
 
     /** Returns: Whole Internal Array of E. */
-    auto ref opSlice() { return _vector[]; }
+    auto ref opSlice()
+    {
+        return _vector[];
+    }
     /** Returns: Slice of Internal Array of E. */
-    auto ref opSlice(uint off, uint len) { return _vector[off..len]; }
+    auto ref opSlice(uint off, uint len)
+    {
+        return _vector[off .. len];
+    }
     /** Returns: Reference to Internal Vector Element. */
-    ref inout(E) opIndex(uint i) inout { return _vector[i]; }
+    ref inout(E) opIndex(uint i) inout
+    {
+        return _vector[i];
+    }
 
     bool opEquals(S)(in S scalar) const
         if (isAssignable!(E, S)) // TOREVIEW: Use isNotEquable instead
@@ -823,8 +839,7 @@ alias nvec4f = Vector!(float, 4, true);
     assert(v[] == nvec2f(0.6, 0.8)[]);
 }
 
-@safe pure nothrow auto transpose(E, uint D, bool normalizedFlag)(in Vector!(E,
-                                                                  D,
+@safe pure nothrow auto transpose(E, uint D, bool normalizedFlag)(in Vector!(E, D,
                                                                   normalizedFlag,
                                                                   Orient.column) a)
 {
@@ -1123,10 +1138,19 @@ struct Matrix(E, uint rows_, uint cols_,
     @property bool ok() const
     {
         static if (isFloatingPoint!E)
+        {
             foreach (row; _matrix)
+            {
                 foreach (col; row)
-                    if (isNaN(col) || isInfinity(col))
+                {
+                    if (isNaN(col) ||
+                        isInfinity(col))
+                    {
                         return false;
+                    }
+                }
+            }
+        }
         return true;
     }
 
@@ -1170,7 +1194,10 @@ struct Matrix(E, uint rows_, uint cols_,
         alias id = identity;    // shorthand
 
         /// Transpose Current Matrix.
-        void transpose() { _matrix = transposed()._matrix; }
+        void transpose()
+        {
+            _matrix = transposed()._matrix;
+        }
         alias T = transpose; // C++ Armadillo naming convention.
 
         unittest
@@ -1264,7 +1291,7 @@ alias mat2_cm = Matrix!(float, 2, 2, Layout.columnMajor);
 // ==============================================================================================
 
 /// 3-Dimensional Spherical Point with Coordinate Type (Precision) $(D E).
-struct SpherePoint(E)
+struct SpherePoint3(E)
     if (isFloatingPoint!E)
 {
     enum D = 3;                 // only in three dimensions
@@ -1285,7 +1312,7 @@ struct SpherePoint(E)
     @property void toString(scope void delegate(const(char)[]) sink) const
     {
         import std.format : formattedWrite;
-        sink.formattedWrite("SpherePoint(%s)", _spherePoint);
+        sink.formattedWrite("SpherePoint3(%s)", _spherePoint);
     }
 
     @property string toMathML() const
@@ -1321,15 +1348,15 @@ struct SpherePoint(E)
 
     auto ref opSlice() { return _spherePoint[]; }
 }
-alias sphointf = SpherePoint!float;
-alias sphointd = SpherePoint!double;
-alias sphointr = SpherePoint!real;
+alias sphointf = SpherePoint3!float;
+alias sphointd = SpherePoint3!double;
+alias sphointr = SpherePoint3!real;
 
 /** Instantiator. */
 auto spherePoint(Ts...)(Ts args)
     if (haveCommonType!Ts)
 {
-    return SpherePoint!(CommonType!Ts, args.length)(args);
+    return SpherePoint3!(CommonType!Ts, args.length)(args);
 }
 
 // ==============================================================================================
@@ -1341,9 +1368,9 @@ struct Particle(E, uint D,
                 bool normalizedVelocityFlag = false)
     if (D >= 1)
 {
-    Point!(E, D) position;          // Position.
-    Vector!(E, D, normalizedVelocityFlag) velocity; // Velocity.
-    E mass;                         // Mass.
+    Point!(E, D) position;
+    Vector!(E, D, normalizedVelocityFlag) velocity;
+    E mass;
 }
 mixin(makeInstanceAliases("Particle", "particle", 2,4, ["float", "double", "real"]));
 
@@ -1355,11 +1382,12 @@ struct ForcedParticle(E, uint D,
                       bool normalizedVelocityFlag = false)
     if (D >= 1)
 {
-    Point!(E, D) position;          // Position.
-    Vector!(E, D, normalizedVelocityFlag) velocity; // Velocity.
-    E mass;                         // Mass.
-    Vector!(E, D) force;            // Force.
-    // Acceleration.
+    Point!(E, D) position;
+    Vector!(E, D, normalizedVelocityFlag) velocity;
+    E mass;
+    Vector!(E, D) force;
+
+    /// Get acceleration.
     @property auto acceleration() const { return force/mass; }
 }
 
@@ -1412,7 +1440,10 @@ struct Box(E, uint D)
     }
 
     /// Expands Box by another Box $(D b).
-    auto ref expand(Box b) { return this.expand(b.min).expand(b.max); }
+    auto ref expand(Box b)
+    {
+        return this.expand(b.min).expand(b.max);
+    }
 
     unittest
     {
@@ -1604,25 +1635,44 @@ struct Sphere(E, uint D)
 
     @property:
 
-    E diameter() const { return 2*radius; }
+    E diameter() const
+    {
+        return 2 * radius;
+    }
     static if (D == 2)
     {
-        auto area()   const { return PI * radius^^2; }
+        auto area() const
+        {
+            return PI * radius ^^ 2;
+        }
     }
     else static if (D == 3)
     {
-        auto area()   const { return 4*PI*radius^^2; }
-        auto volume() const { return 4*PI*radius^^3/3; }
+        auto area() const
+        {
+            return 4 * PI * radius ^^ 2;
+        }
+        auto volume() const
+        {
+            return 4 * PI * radius ^^ 3 / 3;
+        }
     }
     else static if (D >= 4)
     {
         // See also: https://en.wikipedia.org/wiki/Volume_of_an_n-ball
         real n = D;
-        import std.mathspecial: gamma;
-        auto volume() const { return PI^^(n/2) / gamma(n/2 + 1) * radius^^n; }
+        auto volume() const
+        {
+            import std.mathspecial: gamma;
+            return PI ^^ (n / 2) / gamma(n / 2 + 1) * radius ^^ n;
+        }
     }
 }
-auto sphere(C, R)(C center, R radius) { return Sphere!(C.type, C.dimension)(center, radius); }
+
+auto sphere(C, R)(C center, R radius)
+{
+    return Sphere!(C.type, C.dimension)(center, radius);
+}
 // TODO Use this instead:
 // auto sphere(R, C...)(Point!(CommonType!C, C.length) center, R radius) {
 // return Sphere!(CommonType!C, C.length)(center, radius);

@@ -87,7 +87,7 @@ else
 }
 
 // See also: http://stackoverflow.com/questions/18552454/using-ctfe-to-generate-set-of-struct-aliases/18553026?noredirect=1#18553026
-string makeInstanceAliases(string templateName,
+string makeInstanceAliases(in string templateName,
                            string aliasName = "",
                            in uint minDimension = 2,
                            in uint maxDimension = 4,

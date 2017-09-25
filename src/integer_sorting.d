@@ -105,7 +105,7 @@ auto radixSort(R,
             // reset histogram counters
             bins[] = 0;
 
-            // populate histogram \c O for current digit
+            // populate histogram \c hist for current digit
             U ors  = 0;             // digits "or-sum"
             U ands = ~ors;          // digits "and-product"
 
@@ -161,27 +161,22 @@ auto radixSort(R,
     else
     {
         // histogram buckets upper-limits/walls for values in \p x.
-        size_t[radix] O; // most certainly fits in the stack (L1-cache)
+        size_t[radix] hist; // most certainly fits in the stack (L1-cache)
 
         // non-in-place requires temporary \p y. TODO we could allocate these as
         // a stack-allocated array for small arrays and gain extra speed.
-
-        // TODO use:
-        // FixedDynamicArray!E tmp;
-        // auto y = tmp[];
-
-        import qcmeman : malloc, free;
-        E* yPtr = cast(E*)malloc(n*E.sizeof); // TODO use other allocation than malloc?
-        E[] y = yPtr[0 .. n];
+        import fixed_dynamic_array : FixedDynamicArray;
+        auto tempStorage = FixedDynamicArray!E(n);
+        auto y = tempStorage[];
 
         foreach (const d; 0 .. nDigits) // for each digit-index \c d (in base \c radix) starting with least significant (LSD-first)
         {
             const sh = d*radixNBits;   // digit bit shift
 
             // reset histogram counters
-            O[] = 0;
+            hist[] = 0;
 
-            // populate histogram \c O for current digit
+            // populate histogram \c hist for current digit
             static if (fastDigitDiscardal)
             {
                 U ors  = 0;             // digits "or-sum"
@@ -190,7 +185,7 @@ auto radixSort(R,
             for (size_t j = 0; j != n; ++j) // for each element index \c j in \p x
             {
                 const uint i = (x[j].bijectToUnsigned(descending) >> sh) & mask; // digit (index)
-                ++O[i];              // increase histogram bin counter
+                ++hist[i];              // increase histogram bin counter
                 static if (fastDigitDiscardal)
                 {
                     // accumulate bits statistics
@@ -209,7 +204,7 @@ auto radixSort(R,
             // bin boundaries: accumulate bin counters array
             for (size_t j = 1; j != radix; ++j) // for each successive bin counter
             {
-                O[j] += O[j - 1]; // accumulate bin counter
+                hist[j] += hist[j - 1]; // accumulate bin counter
             }
 
             // reorder. access \p x's elements in \em reverse to \em reuse filled caches from previous forward iteration.
@@ -217,7 +212,7 @@ auto radixSort(R,
             for (size_t j = n - 1; j < n; --j) // for each element \c j in reverse order. when j wraps around j < n is no longer true
             {
                 const uint i = (x[j].bijectToUnsigned(descending) >> sh) & mask; // digit (index)
-                y[--O[i]] = x[j]; // reorder into y
+                y[--hist[i]] = x[j]; // reorder into y
             }
 
             static if (nDigits & 1) // if odd number of digit passes
@@ -238,8 +233,6 @@ auto radixSort(R,
                 swap(x, y);
             }
         }
-
-        free(yPtr);
     }
 
     import std.algorithm.sorting : assumeSorted; // TODO move this to radixSort when know how map less to descending
@@ -261,7 +254,7 @@ version(benchmark)
 {
     import std.stdio : writeln;
 
-/** Test $(D radixSort) with ElementType $(D E) */
+    /** Test $(D radixSort) with ElementType $(D E) */
     void test(E)(int n) @safe
     {
         writeln("ElementType=", E.stringof, " n=", n);
@@ -341,37 +334,6 @@ version(benchmark)
     test!double(n);
 }
 
-/** Dynamically allocated (heap) array with fixed length.
- */
-private struct FixedDynamicArray(E)
-{
-    import qcmeman : malloc, free;
-
-pragma(inline, true):
-
-    this(size_t length)
-    {
-        _length = length;
-        _storage = cast(E*)malloc(length * E.sizeof);
-    }
-
-    ~this()
-    {
-        free(_storage);
-    }
-
-    @disable this(this);
-
-    scope inout(E)[] opSlice() inout @trusted return
-    {
-        return _storage[0 .. _length];
-    }
-
-private:
-    size_t _length;
-    E* _storage;
-}
-
 unittest
 {
     import std.meta : AliasSeq;
@@ -401,4 +363,9 @@ unittest
 
         swap(a, b);
     }
+}
+
+version(unittest)
+{
+    import dbgio : dln;
 }

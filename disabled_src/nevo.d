@@ -282,7 +282,6 @@ import std.random : Random, uniform;
 import basic_copyable_array : CopyableArray;
 import basic_uncopyable_array : UncopyableArray;
 
-import traits_ex : packedBitSizeOf;
 import typecons_ex : IndexedBy;
 import owned : Owned;
 

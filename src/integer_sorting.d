@@ -210,10 +210,16 @@ auto radixSort(R,
 
             // reorder. access \p x's elements in \em reverse to \em reuse filled caches from previous forward iteration.
             // \em stable reorder from \p x to \c y using normal counting sort (see \c counting_sort above).
-            for (size_t j = n - 1; j < n; --j) // for each element \c j in reverse order. when j wraps around j < n is no longer true
+            enum unrollFactor = 1;
+            assert((n % unrollFactor) == 0); // is evenly divisible by unroll factor
+            for (size_t j = n - 1; j < n; j -= unrollFactor) // for each element \c j in reverse order. when j wraps around j < n is no longer true
             {
-                const uint i = (x[j].bijectToUnsigned(descending) >> sh) & mask; // digit (index)
-                y[--hist[i]] = x[j]; // reorder into y
+                import range_ex : iota;
+                foreach (k; iota!(0, unrollFactor))
+                {
+                    const uint i = (x[j - k].bijectToUnsigned(descending) >> sh) & mask; // digit (index)
+                    y[--hist[i]] = x[j - k]; // reorder into y
+                }
             }
 
             static if (nDigits & 1) // if odd number of digit passes

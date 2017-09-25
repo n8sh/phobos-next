@@ -44,6 +44,7 @@ auto radixSort(R,
                                                 bool doInPlace = false/* , */
                                                 /* ElementType!R elementMin = ElementType!(R).max, */
                                                 /* ElementType!R elementMax = ElementType!(R).min */)
+
     @trusted
     if (isRandomAccessRange!R &&
         (isNumeric!(ElementType!R)))
@@ -166,7 +167,7 @@ auto radixSort(R,
         // non-in-place requires temporary \p y. TODO we could allocate these as
         // a stack-allocated array for small arrays and gain extra speed.
         import fixed_dynamic_array : FixedDynamicArray;
-        auto tempStorage = FixedDynamicArray!E(n);
+        auto tempStorage = FixedDynamicArray!E.makeUninitialized(n);
         auto y = tempStorage[];
 
         foreach (const d; 0 .. nDigits) // for each digit-index \c d (in base \c radix) starting with least significant (LSD-first)

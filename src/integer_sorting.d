@@ -260,12 +260,12 @@ version = benchmark;
 version(benchmark)
 @safe unittest
 {
-    import std.stdio : writeln;
+    import std.stdio : write, writef, writeln;
 
     /** Test $(D radixSort) with ElementType $(D E) */
     void test(E)(int n) @safe
     {
-        writeln("ElementType=", E.stringof, " n=", n);
+        writef("E:%8-s n=%10-s: ", E.stringof, n);
 
         import random_ex : randInPlace;
         import std.algorithm : sort, min, max, isSorted;
@@ -278,20 +278,20 @@ version(benchmark)
         // generate random
         auto a = new E[n];
         a[].randInPlace();
-        version(show) writeln("original random: ", a[0 .. min(nMax, $)]);
+        version(show) write("original random: ", a[0 .. min(nMax, $)], ", ");
 
-        // quick sort
+        // standard quick sort
         TickDuration sortTime;
         auto qa = a.dup;
         sw.reset; sw.start(); sort(qa); sw.stop; sortTime = sw.peek;
-        version(show) writeln("quick sorted: ", qa[0 .. min(nMax, $)]);
+        version(show) write("quick sorted: ", qa[0 .. min(nMax, $)], ", ");
         assert(qa.isSorted);
 
         // reverse radix sort
         {
             auto b = a.dup;
             radixSort!(typeof(b), "a", true)(b);
-            version(show) writeln("reverse radix sorted: ", b[0 .. min(nMax, $)]);
+            version(show) write("reverse radix sorted: ", b[0 .. min(nMax, $)], ", ");
             assert(b.retro.equal(qa));
         }
 
@@ -305,9 +305,7 @@ version(benchmark)
             sw.stop;
             immutable radixTime1 = sw.peek.usecs;
 
-            writeln("- sort:", sortTime.usecs,
-                    "us, radixSort:", radixTime1,
-                    "us, Speed-Up:", cast(real)sortTime.usecs / radixTime1);
+            writef("radixSort: %9-s, ", cast(real)sortTime.usecs / radixTime1);
             assert(b.equal(qa));
         }
 
@@ -328,9 +326,7 @@ version(benchmark)
                 writeln("standard radix sorted with fast-discardal: ",
                         b[0 .. min(nMax, $)]);
             }
-            writeln("- sort:", sortTime.usecs,
-                    "us, radixSort with fast-discardal:", radixTime,
-                    "us, Speed-Up:", cast(real)sortTime.usecs / radixTime);
+            writef("radixSort with fast-discardal: %9-s ", cast(real)sortTime.usecs / radixTime);
         }
 
         writeln("");

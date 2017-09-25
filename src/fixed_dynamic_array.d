@@ -4,24 +4,34 @@ module fixed_dynamic_array;
  */
 private struct FixedDynamicArray(E)
 {
-    import qcmeman : malloc, free;
+    import qcmeman : pureMalloc = malloc, pureFree = free;
 
 pragma(inline, true):
 
-    this(size_t length)
+    /// Make and return uninitialized array of `length`.
+    static typeof(this) makeUninitialized(size_t length) @system
+    {
+        return typeof(return)(length);
+    }
+
+    /// Construct uninitialized array of `length`.
+    private this(size_t length) @system
     {
         _length = length;
-        _storage = cast(E*)malloc(length * E.sizeof);
+        _storage = cast(E*)pureMalloc(length * E.sizeof);
     }
 
-    ~this()
+    /// Destruct.
+    ~this() @trusted
     {
-        free(_storage);
+        pureFree(_storage);
     }
 
-    @disable this(this);        // no copying
+    // disable copying
+    @disable this(this);
 
-    scope inout(E)[] opSlice() inout @trusted return
+    /// Get slice.
+    scope inout(E)[] opSlice() inout @system return
     {
         return _storage[0 .. _length];
     }
@@ -29,4 +39,11 @@ pragma(inline, true):
 private:
     size_t _length;
     E* _storage;
+}
+
+@system pure nothrow @nogc unittest
+{
+    auto x = FixedDynamicArray!(int).makeUninitialized(7);
+    x[] = [11];
+    asssert(x[] == 11);
 }

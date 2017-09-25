@@ -286,8 +286,8 @@ version(benchmark)
                         b[0 .. min(nMax, $)]);
             }
             writeln("- sort:", sortTime.usecs,
-                    "us radixSort:", radixTime1,
-                    "us Speed-Up:", cast(real)sortTime.usecs / radixTime1);
+                    "us, radixSort:", radixTime1,
+                    "us, Speed-Up:", cast(real)sortTime.usecs / radixTime1);
             assert(b.equal(qa));
         }
 
@@ -303,8 +303,8 @@ version(benchmark)
                         b[0 .. min(nMax, $)]);
             }
             writeln("- sort:", sortTime.usecs,
-                    "us radixSort:", radixTime,
-                    "us Speed-Up:", cast(real)sortTime.usecs / radixTime);
+                    "us, radixSort with fast-discardal:", radixTime,
+                    "us, Speed-Up:", cast(real)sortTime.usecs / radixTime);
         }
 
         writeln("");

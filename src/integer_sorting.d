@@ -31,8 +31,6 @@ import bijections;
    TODO Choose fastDigitDiscardal based on elementMin and elementMax (if they
    are given)
 
-   TODO Add doInPlace CT-param. If doInPlace isRandomAccessRange!R is needed
-
    See also: http://forum.dlang.org/thread/vmytpazcusauxypkwdbn@forum.dlang.org#post-vmytpazcusauxypkwdbn:40forum.dlang.org
    See also: https://probablydance.com/2016/12/27/i-wrote-a-faster-sorting-algorithm/
  */
@@ -40,7 +38,6 @@ auto radixSort(R,
                alias fun = "a",
                bool descending = false,
                bool fastDigitDiscardal = false)(R x,
-                                                bool doInPlace = false/* , */
                                                 /* ElementType!R elementMin = ElementType!(R).max, */
                                                 /* ElementType!R elementMax = ElementType!(R).min */)
 
@@ -85,6 +82,8 @@ auto radixSort(R,
     enum mask = radix-1;                              // radix bit mask
 
     alias U = typeof(x.front.bijectToUnsigned); // get unsigned integer type of same precision as \tparam E.
+
+    bool doInPlace = false;
 
     if (nDigits != 1)           // if more than one bucket sort pass (BSP)
     {

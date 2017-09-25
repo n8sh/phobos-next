@@ -214,6 +214,13 @@ auto radixSort(R,
             assert((n % unrollFactor) == 0); // is evenly divisible by unroll factor
             for (size_t j = n - 1; j < n; j -= unrollFactor) // for each element \c j in reverse order. when j wraps around j < n is no longer true
             {
+                version(LDC)
+                {
+                    static if (__VERSION__ >= 2076)
+                    {
+                        static assert(false, "LDC now has static foreach, use that instead of iota!(...)");
+                    }
+                }
                 import range_ex : iota;
                 foreach (k; iota!(0, unrollFactor))
                 {

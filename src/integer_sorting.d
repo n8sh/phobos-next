@@ -44,6 +44,7 @@ auto radixSort(R,
                                                 bool doInPlace = false/* , */
                                                 /* ElementType!R elementMin = ElementType!(R).max, */
                                                 /* ElementType!R elementMax = ElementType!(R).min */)
+    @trusted
     if (isRandomAccessRange!R &&
         (isNumeric!(ElementType!R)))
 {
@@ -164,8 +165,9 @@ auto radixSort(R,
 
         // non-in-place requires temporary \p y. TODO we could allocate these as
         // a stack-allocated array for small arrays and gain extra speed.
-        import std.array : uninitializedArray;
-        auto y = uninitializedArray!(E[])(n); // TODO use qcmeman : malloc and free or parameter from function call
+        import qcmeman : malloc, free;
+        E* yPtr = cast(E*)malloc(n*E.sizeof);
+        E[] y = yPtr[0 .. n];
 
         foreach (const d; 0 .. nDigits) // for each digit-index \c d (in base \c radix) starting with least significant (LSD-first)
         {
@@ -231,6 +233,7 @@ auto radixSort(R,
                 swap(x, y);
             }
         }
+        free(yPtr);
     }
 
     import std.algorithm.sorting : assumeSorted; // TODO move this to radixSort when know how map less to descending

@@ -72,18 +72,18 @@ auto radixSort(R,
         static assert("Cannot handle ElementType " ~ E.stringof);
     }
 
-    // TODO Activate this: subtract min from all values and then const uint elemBits = is_min(a_max) ? 8*sizeof(E) : binlog(a_max); and add it back.
-    enum nDigits = elemBits / radixNBits;         // Number of \c nDigits in radix \p radixNBits
+    // TODO activate this: subtract min from all values and then const uint elemBits = is_min(a_max) ? 8*sizeof(E) : binlog(a_max); and add it back.
+    enum nDigits = elemBits / radixNBits;         // number of \c nDigits in radix \p radixNBits
     static assert(elemBits % radixNBits == 0,
                   "Precision of ElementType must be evenly divisble by bit-precision of Radix.");
 
     /* const nRemBits = elemBits % radixNBits; // number remaining bits to sort */
     /* if (nRemBits) { nDigits++; }     // one more for remainding bits */
 
-    enum radix = cast(typeof(radixNBits))1 << radixNBits;    // Bin Count
+    enum radix = cast(typeof(radixNBits))1 << radixNBits;    // bin count
     enum mask = radix-1;                              // radix bit mask
 
-    alias U = typeof(x.front.bijectToUnsigned); // Get Unsigned Integer Type of same precision as \tparam E.
+    alias U = typeof(x.front.bijectToUnsigned); // get unsigned integer type of same precision as \tparam E.
 
     if (nDigits != 1)           // if more than one bucket sort pass (BSP)
     {
@@ -92,19 +92,19 @@ auto radixSort(R,
 
     static if (false/* doInPlace */)
     {
-        // Histogram Buckets Upper-Limits/Walls for values in \p x.
+        // histogram buckets upper-limits/walls for values in \p x.
         Slice!size_t[radix] bins = void; // bucket slices
         for (uint d = 0; d != nDigits; ++d)  // for each digit-index \c d (in base \c radix) starting with least significant (LSD-first)
         {
             const uint sh = d*radixNBits;   // digit bit shift
 
-            // TODO Activate and verify that performance is unchanged.
+            // TODO activate and verify that performance is unchanged.
             // auto uize_ = [descending, sh, mask](E a) { return (bijectToUnsigned(a, descending) >> sh) & mask; }; // local shorthand
 
-            // Reset Histogram Counters
+            // reset histogram counters
             bins[] = 0;
 
-            // Populate Histogram \c O for current digit
+            // populate histogram \c O for current digit
             U ors  = 0;             // digits "or-sum"
             U ands = ~ors;          // digits "and-product"
 
@@ -122,7 +122,7 @@ auto radixSort(R,
                 continue;               // no sorting is needed for this digit
             }
 
-            // Bin Boundaries: Accumulate Bin Counters Array
+            // bin boundaries: accumulate bin counters array
             size_t bin_max = bins[0].high();
             bins[0].low() = 0;                    // first floor is always zero
             for (size_t j = 1; j != radix; ++j)  // for each successive bin counter
@@ -159,10 +159,10 @@ auto radixSort(R,
     }
     else
     {
-        // Histogram Buckets Upper-Limits/Walls for values in \p x.
+        // histogram buckets upper-limits/walls for values in \p x.
         size_t[radix] O; // most certainly fits in the stack (L1-cache)
 
-        // Non-In-Place requires temporary \p y. TODO We could allocate these as
+        // non-in-place requires temporary \p y. TODO we could allocate these as
         // a stack-allocated array for small arrays and gain extra speed.
         import std.array : uninitializedArray;
         auto y = uninitializedArray!(E[])(n); // TODO use qcmeman : malloc and free or parameter from function call
@@ -171,10 +171,10 @@ auto radixSort(R,
         {
             const sh = d*radixNBits;   // digit bit shift
 
-            // Reset Histogram Counters
+            // reset histogram counters
             O[] = 0;
 
-            // Populate Histogram \c O for current digit
+            // populate histogram \c O for current digit
             static if (fastDigitDiscardal)
             {
                 U ors  = 0;             // digits "or-sum"
@@ -199,14 +199,14 @@ auto radixSort(R,
                 }
             }
 
-            // Bin Boundaries: Accumulate Bin Counters Array
+            // bin boundaries: accumulate bin counters array
             for (size_t j = 1; j != radix; ++j) // for each successive bin counter
             {
                 O[j] += O[j - 1]; // accumulate bin counter
             }
 
-            // Reorder. Access \p x's elements in \em reverse to \em reuse filled caches from previous forward iteration.
-            // \em Stable Reorder From \p x to \c y using Normal Counting Sort (see \c counting_sort above).
+            // reorder. access \p x's elements in \em reverse to \em reuse filled caches from previous forward iteration.
+            // \em stable reorder from \p x to \c y using normal counting sort (see \c counting_sort above).
             for (size_t j = n - 1; j < n; --j) // for each element \c j in reverse order. when j wraps around j < n is no longer true
             {
                 const uint i = (x[j].bijectToUnsigned(descending) >> sh) & mask; // digit (index)
@@ -265,19 +265,19 @@ version(benchmark)
         auto sw = StopWatch();
         immutable nMax = 5;
 
-        // Generate Random
+        // generate random
         auto a = new E[n];
         a[].randInPlace();
         version(show) writeln("original random: ", a[0 .. min(nMax, $)]);
 
-        // Quick Sort
+        // quick sort
         TickDuration sortTime;
         auto qa = a.dup;
         sw.reset; sw.start(); sort(qa); sw.stop; sortTime = sw.peek;
         version(show) writeln("quick sorted: ", qa[0 .. min(nMax, $)]);
         assert(qa.isSorted);
 
-        // Reverse Radix Sort
+        // reverse radix sort
         {
             auto b = a.dup;
             radixSort!(typeof(b), "a", true)(b);
@@ -285,7 +285,7 @@ version(benchmark)
             assert(b.retro.equal(qa));
         }
 
-        // Standard Radix Sort
+        // standard radix sort
         {
             auto b = a.dup;
             sw.reset; sw.start(); radixSort!(typeof(b), "b", false)(b); sw.stop;
@@ -301,7 +301,7 @@ version(benchmark)
             assert(b.equal(qa));
         }
 
-        // Standard Radix Sort Fast-Discardal
+        // standard radix sort fast-discardal
         {
             auto b = a.dup;
             sw.reset; sw.start(); radixSort!(typeof(b), "b", false, true)(b); sw.stop;

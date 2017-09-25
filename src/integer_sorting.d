@@ -33,8 +33,6 @@ import bijections;
 
    TODO Add doInPlace CT-param. If doInPlace isRandomAccessRange!R is needed
 
-   TODO Use @nogc attribute when possible
-
    See also: http://forum.dlang.org/thread/vmytpazcusauxypkwdbn@forum.dlang.org#post-vmytpazcusauxypkwdbn:40forum.dlang.org
    See also: https://probablydance.com/2016/12/27/i-wrote-a-faster-sorting-algorithm/
  */

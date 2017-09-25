@@ -22,7 +22,7 @@ import bijections;
 
    radixNBits = Number of bits in Radix (Digit)
 
-   TODO optimize calculcation of fast-digit discardal
+   TODO optimize calculation of fast-digit discardal
 
    TODO x[] = y[] not needed when input is mutable
 
@@ -36,6 +36,7 @@ import bijections;
    TODO Use @nogc attribute when possible
 
    See also: http://forum.dlang.org/thread/vmytpazcusauxypkwdbn@forum.dlang.org#post-vmytpazcusauxypkwdbn:40forum.dlang.org
+   See also: https://probablydance.com/2016/12/27/i-wrote-a-faster-sorting-algorithm/
  */
 auto radixSort(R,
                alias fun = "a",

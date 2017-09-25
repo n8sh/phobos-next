@@ -155,9 +155,9 @@ auto radixSort(R,
         // Non-In-Place requires temporary \p y. TODO We could allocate these as
         // a stack-allocated array for small arrays and gain extra speed.
         import std.array : uninitializedArray;
-        auto y = uninitializedArray!(E[])(n);
+        auto y = uninitializedArray!(E[])(n); // TODO use qcmeman : malloc and free or parameter from function call
 
-        foreach (d; 0 .. nDigits) // for each digit-index \c d (in base \c radix) starting with least significant (LSD-first)
+        foreach (const d; 0 .. nDigits) // for each digit-index \c d (in base \c radix) starting with least significant (LSD-first)
         {
             const sh = d*radixNBits;   // digit bit shift
 

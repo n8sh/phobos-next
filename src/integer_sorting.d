@@ -165,8 +165,13 @@ auto radixSort(R,
 
         // non-in-place requires temporary \p y. TODO we could allocate these as
         // a stack-allocated array for small arrays and gain extra speed.
+
+        // TODO use:
+        // FixedDynamicArray!E tmp;
+        // auto y = tmp[];
+
         import qcmeman : malloc, free;
-        E* yPtr = cast(E*)malloc(n*E.sizeof);
+        E* yPtr = cast(E*)malloc(n*E.sizeof); // TODO use other allocation than malloc?
         E[] y = yPtr[0 .. n];
 
         foreach (const d; 0 .. nDigits) // for each digit-index \c d (in base \c radix) starting with least significant (LSD-first)
@@ -224,7 +229,7 @@ auto radixSort(R,
                 else
                 {
                     import std.algorithm : copy;
-                    copy(y[], x[]);
+                    copy(y[], x[]); // TODO use memcpy
                 }
             }
             else
@@ -233,6 +238,7 @@ auto radixSort(R,
                 swap(x, y);
             }
         }
+
         free(yPtr);
     }
 
@@ -333,6 +339,37 @@ version(benchmark)
     }
     test!float(n);
     test!double(n);
+}
+
+/** Dynamically allocated (heap) array with fixed length.
+ */
+private struct FixedDynamicArray(E)
+{
+    import qcmeman : malloc, free;
+
+pragma(inline, true):
+
+    this(size_t length)
+    {
+        _length = length;
+        _storage = cast(E*)malloc(length * E.sizeof);
+    }
+
+    ~this()
+    {
+        free(_storage);
+    }
+
+    @disable this(this);
+
+    scope inout(E)[] opSlice() inout @trusted return
+    {
+        return _storage[0 .. _length];
+    }
+
+private:
+    size_t _length;
+    E* _storage;
 }
 
 unittest

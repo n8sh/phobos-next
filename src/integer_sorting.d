@@ -344,7 +344,7 @@ version(benchmark)
     test!double(n);
 }
 
-unittest
+@safe unittest
 {
     import std.meta : AliasSeq;
 
@@ -352,7 +352,7 @@ unittest
 
     foreach (ix, T; AliasSeq!(byte, short))
     {
-        import std.container : Array;
+        import basic_uncopyable_array : Array = UncopyableArray;
         import std.algorithm : sort, isSorted, swap;
         import random_ex : randInPlace;
 

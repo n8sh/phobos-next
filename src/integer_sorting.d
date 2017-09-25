@@ -33,6 +33,7 @@ import bijections;
 
    See also: http://forum.dlang.org/thread/vmytpazcusauxypkwdbn@forum.dlang.org#post-vmytpazcusauxypkwdbn:40forum.dlang.org
    See also: https://probablydance.com/2016/12/27/i-wrote-a-faster-sorting-algorithm/
+   See also: https://github.com/skarupke/ska_sort/blob/master/ska_sort.hpp
  */
 auto radixSort(R,
                alias fun = "a",

@@ -298,13 +298,13 @@ version(benchmark)
         // standard radix sort
         {
             auto b = a.dup;
-            sw.reset; sw.start(); radixSort!(typeof(b), "b", false)(b); sw.stop;
+
+            sw.reset;
+            sw.start();
+            radixSort!(typeof(b), "b", false)(b);
+            sw.stop;
             immutable radixTime1 = sw.peek.usecs;
-            version(show)
-            {
-                writeln("standard radix sorted: ",
-                        b[0 .. min(nMax, $)]);
-            }
+
             writeln("- sort:", sortTime.usecs,
                     "us, radixSort:", radixTime1,
                     "us, Speed-Up:", cast(real)sortTime.usecs / radixTime1);
@@ -314,9 +314,15 @@ version(benchmark)
         // standard radix sort fast-discardal
         {
             auto b = a.dup;
-            sw.reset; sw.start(); radixSort!(typeof(b), "b", false, true)(b); sw.stop;
-            assert(b.equal(qa));
+
+            sw.reset;
+            sw.start();
+            radixSort!(typeof(b), "b", false, true)(b);
+            sw.stop;
             immutable radixTime = sw.peek.usecs;
+
+            assert(b.equal(qa));
+
             version(show)
             {
                 writeln("standard radix sorted with fast-discardal: ",

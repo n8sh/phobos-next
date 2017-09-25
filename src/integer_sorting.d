@@ -22,10 +22,15 @@ import bijections;
 
    radixNBits = Number of bits in Radix (Digit)
 
+   TODO optimize calculcation of fast-digit discardal
+
    TODO x[] = y[] not needed when input is mutable
+
    TODO Restrict fun.
+
    TODO Choose fastDigitDiscardal based on elementMin and elementMax (if they
    are given)
+
    TODO Add doInPlace CT-param. If doInPlace isRandomAccessRange!R is needed
 
    TODO Use @nogc attribute when possible
@@ -102,13 +107,18 @@ auto radixSort(R,
             // Populate Histogram \c O for current digit
             U ors  = 0;             // digits "or-sum"
             U ands = ~ors;          // digits "and-product"
+
             for (size_t j = 0; j != n; ++j) // for each element index \c j in \p x
             {
                 const uint i = (x[j].bijectToUnsigned(descending) >> sh) & mask; // digit (index)
                 ++bins[i].high();       // increase histogram bin counter
-                ors |= i; ands &= i; // accumulate bits statistics
+                ors |= i;               // accumulate all one bits statistics
+                ands &= i;              // accumulate all zero bits statistics
             }
-            if ((! ors) || (! ~ands)) { // if bits in digit[d] are either all \em zero or all \em one
+
+            if ((! ors) ||      // if bits in digit[d] are all zero or
+                (! ~ands))      // if bits in digit[d] are all one
+            {
                 continue;               // no sorting is needed for this digit
             }
 
@@ -121,7 +131,7 @@ auto radixSort(R,
                 bins[j].low()  = bins[j - 1].high(); // previous roof becomes current floor
                 bins[j].high() += bins[j - 1].high(); // accumulate bin counter
             }
-            // TODO if (bin_max == 1) { std::cout << "No accumulation needed!" << std::endl; }
+            // TODO if (bin_max == 1) { writeln("No accumulation needed!"); }
 
             /** \em Unstable In-Place (Permutate) Reorder/Sort \p x.
              * Access \p x's elements in \em reverse to \em reuse filled caches from previous forward iteration.

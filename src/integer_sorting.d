@@ -265,7 +265,7 @@ version(benchmark)
     /** Test $(D radixSort) with ElementType $(D E) */
     void test(E)(int n) @safe
     {
-        writef("E:%8-s n=%10-s: ", E.stringof, n);
+        writef("E:%8-s n:%10-s: ", E.stringof, n);
 
         import random_ex : randInPlace;
         import std.algorithm : sort, min, max, isSorted;

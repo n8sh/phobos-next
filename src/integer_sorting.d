@@ -235,6 +235,7 @@ auto radixSort(R,
 }
 
 version = benchmark;
+// version = show;
 
 version(benchmark)
 @safe unittest
@@ -246,7 +247,6 @@ version(benchmark)
     {
         writeln("ElementType=", E.stringof, " n=", n);
 
-        immutable show = true;
         import random_ex : randInPlace;
         import std.algorithm : sort, min, max, isSorted;
         import std.range : retro;
@@ -258,20 +258,20 @@ version(benchmark)
         // Generate Random
         auto a = new E[n];
         a[].randInPlace();
-        if (show) writeln("original random: ", a[0 .. min(nMax, $)]);
+        version(show) writeln("original random: ", a[0 .. min(nMax, $)]);
 
         // Quick Sort
         TickDuration sortTime;
         auto qa = a.dup;
         sw.reset; sw.start(); sort(qa); sw.stop; sortTime = sw.peek;
-        if (show) writeln("quick sorted: ", qa[0 .. min(nMax, $)]);
+        version(show) writeln("quick sorted: ", qa[0 .. min(nMax, $)]);
         assert(qa.isSorted);
 
         // Reverse Radix Sort
         {
             auto b = a.dup;
             radixSort!(typeof(b), "a", true)(b);
-            if (show) writeln("reverse radix sorted: ", b[0 .. min(nMax, $)]);
+            version(show) writeln("reverse radix sorted: ", b[0 .. min(nMax, $)]);
             assert(b.retro.equal(qa));
         }
 
@@ -280,14 +280,14 @@ version(benchmark)
             auto b = a.dup;
             sw.reset; sw.start(); radixSort!(typeof(b), "b", false)(b); sw.stop;
             immutable radixTime1 = sw.peek.usecs;
-            if (show)
+            version(show)
             {
                 writeln("standard radix sorted: ",
                         b[0 .. min(nMax, $)]);
-                writeln("- sort:", sortTime.usecs,
-                        "us radixSort:", radixTime1,
-                        "us Speed-Up:", cast(real)sortTime.usecs / radixTime1);
             }
+            writeln("- sort:", sortTime.usecs,
+                    "us radixSort:", radixTime1,
+                    "us Speed-Up:", cast(real)sortTime.usecs / radixTime1);
             assert(b.equal(qa));
         }
 
@@ -297,14 +297,14 @@ version(benchmark)
             sw.reset; sw.start(); radixSort!(typeof(b), "b", false, true)(b); sw.stop;
             assert(b.equal(qa));
             immutable radixTime = sw.peek.usecs;
-            if (show)
+            version(show)
             {
                 writeln("standard radix sorted with fast-discardal: ",
                         b[0 .. min(nMax, $)]);
-                writeln("- sort:", sortTime.usecs,
-                        "us radixSort:", radixTime,
-                        "us Speed-Up:", cast(real)sortTime.usecs / radixTime);
             }
+            writeln("- sort:", sortTime.usecs,
+                    "us radixSort:", radixTime,
+                    "us Speed-Up:", cast(real)sortTime.usecs / radixTime);
         }
 
         writeln("");

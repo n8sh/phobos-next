@@ -181,7 +181,7 @@ auto radixSort(R,
             static if (fastDigitDiscardal)
             {
                 U ors  = 0;             // digits "or-sum"
-                U ands = ~ors;          // digits "and-product"
+                U ands = ~(cast(U)0);   // digits "and-product"
             }
             for (size_t j = 0; j != n; ++j) // for each element index \c j in \p x
             {

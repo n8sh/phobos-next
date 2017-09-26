@@ -96,9 +96,9 @@ auto radixSort(R,
     {
         // histogram buckets upper-limits/walls for values in `x`
         Slice!size_t[radix] binStat = void; // bucket slices
-        for (uint digitOffset = 0; digitOffset != digitCount; ++digitOffset)  // for each `digitOffset` (in base `radix`) starting with least significant (LSD-first)
+        foreach (immutable digitOffset; 0 .. digitCount) // for each `digitOffset` (in base `radix`) starting with least significant (LSD-first)
         {
-            immutable uint digitBitshift = digitOffset*radixBitCount; // digit bit shift
+            immutable digitBitshift = digitOffset*radixBitCount; // digit bit shift
 
             // TODO activate and verify that performance is unchanged.
             // auto uize_ = [descending, digitBitshift, mask](E a) { return (bijectToUnsigned(a, descending) >> digitBitshift) & mask; }; // local shorthand

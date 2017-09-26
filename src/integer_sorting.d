@@ -96,12 +96,12 @@ auto radixSort(R,
     {
         // histogram buckets upper-limits/walls for values in `x`
         Slice!size_t[radix] bins = void; // bucket slices
-        for (uint d = 0; d != digitCount; ++d)  // for each digit-index `d` (in base `radix`) starting with least significant (LSD-first)
+        for (uint digitOffset = 0; digitOffset != digitCount; ++digitOffset)  // for each `digitOffset` (in base `radix`) starting with least significant (LSD-first)
         {
-            const uint sh = d*radixBitCount;   // digit bit shift
+            const uint digitBitshift = digitOffset*radixBitCount; // digit bit shift
 
             // TODO activate and verify that performance is unchanged.
-            // auto uize_ = [descending, sh, mask](E a) { return (bijectToUnsigned(a, descending) >> sh) & mask; }; // local shorthand
+            // auto uize_ = [descending, digitBitshift, mask](E a) { return (bijectToUnsigned(a, descending) >> digitBitshift) & mask; }; // local shorthand
 
             // reset histogram counters
             bins[] = 0;
@@ -112,7 +112,7 @@ auto radixSort(R,
 
             foreach (const j; 0 .. n) // for each element index `j` in `x`
             {
-                const uint i = (x[j].bijectToUnsigned(descending) >> sh) & mask; // digit (index)
+                const uint i = (x[j].bijectToUnsigned(descending) >> digitBitshift) & mask; // digit (index)
                 ++bins[i].high();       // increase histogram bin counter
                 ors |= i;               // accumulate all one bits statistics
                 ands &= i;              // accumulate all zero bits statistics
@@ -147,7 +147,7 @@ auto radixSort(R,
                     const E    e0 = x[i0]; // value of first/current element of permutation
                     while (true)
                     {
-                        const int rN = (e0.bijectToUnsigned(descending) >> sh) & mask; // next digit (index)
+                        const int rN = (e0.bijectToUnsigned(descending) >> digitBitshift) & mask; // next digit (index)
                         if (r == rN) // if permutation cycle closed (back to same digit)
                             break;
                         const ai = bins[rN].pop_back(); // array index
@@ -170,9 +170,9 @@ auto radixSort(R,
         auto tempStorage = FixedDynamicArray!E.makeUninitialized(n);
         auto y = tempStorage[];
 
-        foreach (const d; 0 .. digitCount) // for each digit-index `d` (in base `radix`) starting with least significant (LSD-first)
+        foreach (const digitOffset; 0 .. digitCount) // for each `digitOffset` (in base `radix`) starting with least significant (LSD-first)
         {
-            const sh = d*radixBitCount;   // digit bit shift
+            const digitBitshift = digitOffset*radixBitCount;   // digit bit shift
 
             // calculate counts
             bstat[] = 0;         // reset
@@ -183,7 +183,7 @@ auto radixSort(R,
             }
             foreach (const j; 0 .. n) // for each element index `j` in `x`
             {
-                const i = (x[j].bijectToUnsigned(descending) >> sh) & mask; // digit (index)
+                const i = (x[j].bijectToUnsigned(descending) >> digitBitshift) & mask; // digit (index)
                 ++bstat[i];              // increase histogram bin counter
                 static if (fastDigitDiscardal)
                 {
@@ -216,7 +216,7 @@ auto radixSort(R,
                 import range_ex : iota;
                 foreach (k; iota!(0, unrollFactor)) // inlined (unrolled) loop
                 {
-                    const i = (x[j - k].bijectToUnsigned(descending) >> sh) & mask; // digit (index)
+                    const i = (x[j - k].bijectToUnsigned(descending) >> digitBitshift) & mask; // digit (index)
                     y[--bstat[i]] = x[j - k]; // reorder into y
                 }
             }

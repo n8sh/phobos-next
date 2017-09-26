@@ -15,27 +15,27 @@ import bijections;
 
 /** Radix sort of $(D input).
 
-   Note that this implementation of non-inplace radix sort only requires $(D
-   input) to be a BidirectionalRange not a RandomAccessRange.
+    Note that this implementation of non-inplace radix sort only requires $(D
+    input) to be a BidirectionalRange not a RandomAccessRange.
 
-   Note that $(D input) can be a $(D BidirectionalRange) aswell as $(D
-   RandomAccessRange).
+    Note that $(D input) can be a $(D BidirectionalRange) aswell as $(D
+    RandomAccessRange).
 
-   radixBitCount = Number of bits in Radix (Digit)
+    radixBitCount = Number of bits in Radix (Digit)
 
-   TODO make `radixBitCount` a template parameter either 8 or 16,
-   ElementType.sizeof must be a multiple of radixBitCount
+    TODO make `radixBitCount` a template parameter either 8 or 16,
+    ElementType.sizeof must be a multiple of radixBitCount
 
-   TODO input[] = y[] not needed when input is mutable
+    TODO input[] = y[] not needed when input is mutable
 
-   TODO Restrict fun.
+    TODO Restrict fun.
 
-   TODO Choose fastDigitDiscardal based on elementMin and elementMax (if they
-   are given)
+    TODO Choose fastDigitDiscardal based on elementMin and elementMax (if they
+    are given)
 
-   See also: https://probablydance.com/2016/12/27/i-wrote-a-faster-sorting-algorithm/
-   See also: https://github.com/skarupke/ska_sort/blob/master/ska_sort.hpp
-   See also: http://forum.dlang.org/thread/vmytpazcusauxypkwdbn@forum.dlang.org#post-vmytpazcusauxypkwdbn:40forum.dlang.org
+    See also: https://probablydance.com/2016/12/27/i-wrote-a-faster-sorting-algorithm/
+    See also: https://github.com/skarupke/ska_sort/blob/master/ska_sort.hpp
+    See also: http://forum.dlang.org/thread/vmytpazcusauxypkwdbn@forum.dlang.org#post-vmytpazcusauxypkwdbn:40forum.dlang.org
  */
 auto radixSort(R,
                alias fun = "a",

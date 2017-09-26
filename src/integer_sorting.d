@@ -13,7 +13,7 @@ import std.meta : AliasSeq;
 
 import bijections;
 
-/** Non-Inplace Radix Sort $(D input).
+/** Radix sort of $(D input).
 
    Note that this implementation of non-inplace radix sort only requires $(D input)
    to be a BidirectionalRange not a RandomAccessRange.
@@ -22,7 +22,7 @@ import bijections;
 
    radixBitCount = Number of bits in Radix (Digit)
 
-   TODO optimize calculation of fast-digit discardal
+   TODO make `radixBitCount` a template parameter either 8 or 16, ElementType.sizeof must be a multiple of radixBitCount
 
    TODO input[] = y[] not needed when input is mutable
 

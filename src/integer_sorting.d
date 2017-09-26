@@ -73,7 +73,7 @@ auto radixSort(R,
     }
 
     // TODO activate this: subtract min from all values and then const uint elementBitCount = is_min(a_max) ? 8*sizeof(E) : binlog(a_max); and add it back.
-    enum digitCount = elementBitCount / radixBitCount;         // number of \c digitCount in radix \p radixBitCount
+    enum digitCount = elementBitCount / radixBitCount;         // number of `digitCount` in radix `radixBitCount`
     static assert(elementBitCount % radixBitCount == 0,
                   "Precision of ElementType must be evenly divisble by bit-precision of Radix.");
 
@@ -94,9 +94,9 @@ auto radixSort(R,
 
     static if (inPlace)
     {
-        // histogram buckets upper-limits/walls for values in \p x.
+        // histogram buckets upper-limits/walls for values in `x`
         Slice!size_t[radix] bins = void; // bucket slices
-        for (uint d = 0; d != digitCount; ++d)  // for each digit-index \c d (in base \c radix) starting with least significant (LSD-first)
+        for (uint d = 0; d != digitCount; ++d)  // for each digit-index `d` (in base `radix`) starting with least significant (LSD-first)
         {
             const uint sh = d*radixBitCount;   // digit bit shift
 
@@ -106,11 +106,11 @@ auto radixSort(R,
             // reset histogram counters
             bins[] = 0;
 
-            // populate histogram \c hist for current digit
+            // populate histogram `hist` for current digit
             U ors  = 0;             // digits "or-sum"
             U ands = ~ors;          // digits "and-product"
 
-            foreach (const j; 0 .. n) // for each element index \c j in \p x
+            foreach (const j; 0 .. n) // for each element index `j` in `x`
             {
                 const uint i = (x[j].bijectToUnsigned(descending) >> sh) & mask; // digit (index)
                 ++bins[i].high();       // increase histogram bin counter
@@ -135,9 +135,9 @@ auto radixSort(R,
             }
             // TODO if (bin_max == 1) { writeln("No accumulation needed!"); }
 
-            /** \em Unstable In-Place (Permutate) Reorder/Sort \p x.
-             * Access \p x's elements in \em reverse to \em reuse filled caches from previous forward iteration.
-             * \see \c in_place_indexed_reorder
+            /** \em unstable in-place (permutate) reorder/sort `x`
+             * access `x`'s elements in \em reverse to \em reuse filled caches from previous forward iteration.
+             * \see `in_place_indexed_reorder`
              */
             for (int r = radix - 1; r >= 0; --r) // for each radix digit r in reverse order (cache-friendly)
             {
@@ -161,16 +161,16 @@ auto radixSort(R,
     }
     else
     {
-        // histogram buckets upper-limits/walls for values in \p x.
+        // histogram buckets count and later upper-limits/walls for values in `x`
         size_t[radix] bstat;    // fits in the L1-cache
 
-        // non-in-place requires temporary \p y. TODO we could allocate these as
+        // non-in-place requires temporary `y`. TODO we could allocate these as
         // a stack-allocated array for small arrays and gain extra speed.
         import fixed_dynamic_array : FixedDynamicArray;
         auto tempStorage = FixedDynamicArray!E.makeUninitialized(n);
         auto y = tempStorage[];
 
-        foreach (const d; 0 .. digitCount) // for each digit-index \c d (in base \c radix) starting with least significant (LSD-first)
+        foreach (const d; 0 .. digitCount) // for each digit-index `d` (in base `radix`) starting with least significant (LSD-first)
         {
             const sh = d*radixBitCount;   // digit bit shift
 
@@ -181,7 +181,7 @@ auto radixSort(R,
                 U ors  = 0;             // digits "or-sum"
                 U ands = ~(cast(U)0);   // digits "and-product"
             }
-            foreach (const j; 0 .. n) // for each element index \c j in \p x
+            foreach (const j; 0 .. n) // for each element index `j` in `x`
             {
                 const i = (x[j].bijectToUnsigned(descending) >> sh) & mask; // digit (index)
                 ++bstat[i];              // increase histogram bin counter
@@ -206,11 +206,11 @@ auto radixSort(R,
                 bstat[j] += bstat[j - 1]; // accumulate bin counter
             }
 
-            // reorder. access \p x's elements in \em reverse to \em reuse filled caches from previous forward iteration.
-            // \em stable reorder from \p x to \c y using normal counting sort (see \c counting_sort above).
+            // reorder. access `x`'s elements in \em reverse to \em reuse filled caches from previous forward iteration.
+            // \em stable reorder from `x` to `y` using normal counting sort (see `counting_sort` above).
             enum unrollFactor = 1;
             assert((n % unrollFactor) == 0); // is evenly divisible by unroll factor
-            for (size_t j = n - 1; j < n; j -= unrollFactor) // for each element \c j in reverse order. when j wraps around j < n is no longer true
+            for (size_t j = n - 1; j < n; j -= unrollFactor) // for each element `j` in reverse order. when `j` wraps around `j` < `n` is no longer true
             {
                 version(LDC) static if (__VERSION__ >= 2076) { static assert(0, "TODO use static foreach inplace of iota!(...)"); }
                 import range_ex : iota;

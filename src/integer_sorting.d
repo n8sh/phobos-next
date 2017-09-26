@@ -170,33 +170,50 @@ auto radixSort(R,
         auto tempStorage = FixedDynamicArray!E.makeUninitialized(n);
         auto y = tempStorage[];
 
+        static if (fastDigitDiscardal)
+        {
+            U ors  = 0;             // digits "or-sum"
+        }
+
         foreach (immutable digitOffset; 0 .. digitCount) // for each `digitOffset` (in base `radix`) starting with least significant (LSD-first)
         {
             immutable digitBitshift = digitOffset*radixBitCount;   // digit bit shift
 
-            // calculate counts
-            binStat[] = 0;         // reset
             static if (fastDigitDiscardal)
             {
-                U ors  = 0;             // digits "or-sum"
-                U ands = ~(cast(U)0);   // digits "and-product"
-            }
-            foreach (immutable j; 0 .. n) // for each element index `j` in `x`
-            {
-                immutable i = (x[j].bijectToUnsigned(descending) >> digitBitshift) & mask; // digit (index)
-                ++binStat[i];              // increase histogram bin counter
-                static if (fastDigitDiscardal)
+                if (digitOffset != 0) // if first iteration already performed we have bit statistics
                 {
-                    // accumulate bits statistics
-                    ors |= i;
-                    ands &= i;
+                    if ((! ((ors >> digitBitshift) & mask))) // if bits in digit[d] are either all \em zero or
+                    {
+                        continue;               // no sorting is needed for this digit
+                    }
                 }
             }
+
+            // calculate counts
+            binStat[] = 0;         // reset
+            foreach (immutable j; 0 .. n) // for each element index `j` in `x`
+            {
+                immutable U unsignedValue = cast(U)x[j].bijectToUnsigned(descending);
+                static if (fastDigitDiscardal)
+                {
+                    if (digitOffset == 0) // first iteration calculates statistics
+                    {
+                        ors |= unsignedValue; // accumulate bits statistics
+                    }
+                }
+                immutable i = (unsignedValue >> digitBitshift) & mask; // digit (index)
+                ++binStat[i];              // increase histogram bin counter
+            }
+
             static if (fastDigitDiscardal)
             {
-                if ((! ors) || (! ~ands)) // if bits in digit[d] are either all \em zero or all \em one
+                if (digitOffset == 0) // if first iteration already performed we have bit statistics
                 {
-                    continue;               // no sorting is needed for this digit
+                    if ((! ((ors >> digitBitshift) & mask))) // if bits in digit[d] are either all \em zero or
+                    {
+                        continue;               // no sorting is needed for this digit
+                    }
                 }
             }
 
@@ -265,7 +282,7 @@ version(benchmark)
     {
         writef("%8-s %10-s: ", E.stringof, n);
 
-        import std.traits : isIntegral;
+        import std.traits : isIntegral, isSigned, isUnsigned;
         import random_ex : randInPlace, randInPlaceWithElementRange;
         import std.algorithm.sorting : sort, SwapStrategy, isSorted;
         import std.algorithm.comparison : min, max, equal;
@@ -276,9 +293,10 @@ version(benchmark)
 
         // generate random
         auto a = new E[n];
-        static if (isIntegral!E)
+        static if (isUnsigned!E)
         {
-            a[].randInPlaceWithElementRange(E.min, E.max);
+            // a[].randInPlaceWithElementRange(cast(E)0, cast(E)n);
+            a[].randInPlace();
         }
         else
         {

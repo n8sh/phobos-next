@@ -95,7 +95,7 @@ auto radixSort(R,
     static if (inPlace)
     {
         // histogram buckets upper-limits/walls for values in `x`
-        Slice!size_t[radix] bins = void; // bucket slices
+        Slice!size_t[radix] binStat = void; // bucket slices
         for (uint digitOffset = 0; digitOffset != digitCount; ++digitOffset)  // for each `digitOffset` (in base `radix`) starting with least significant (LSD-first)
         {
             const uint digitBitshift = digitOffset*radixBitCount; // digit bit shift
@@ -104,7 +104,7 @@ auto radixSort(R,
             // auto uize_ = [descending, digitBitshift, mask](E a) { return (bijectToUnsigned(a, descending) >> digitBitshift) & mask; }; // local shorthand
 
             // reset histogram counters
-            bins[] = 0;
+            binStat[] = 0;
 
             // populate histogram `hist` for current digit
             U ors  = 0;             // digits "or-sum"
@@ -113,7 +113,7 @@ auto radixSort(R,
             foreach (const j; 0 .. n) // for each element index `j` in `x`
             {
                 const uint i = (x[j].bijectToUnsigned(descending) >> digitBitshift) & mask; // digit (index)
-                ++bins[i].high();       // increase histogram bin counter
+                ++binStat[i].high();       // increase histogram bin counter
                 ors |= i;               // accumulate all one bits statistics
                 ands &= i;              // accumulate all zero bits statistics
             }
@@ -125,13 +125,13 @@ auto radixSort(R,
             }
 
             // bin boundaries: accumulate bin counters array
-            size_t bin_max = bins[0].high();
-            bins[0].low() = 0;                    // first floor is always zero
+            size_t bin_max = binStat[0].high();
+            binStat[0].low() = 0;                    // first floor is always zero
             for (size_t j = 1; j != radix; ++j)  // for each successive bin counter
             {
-                bin_max = max(bin_max, bins[j].high());
-                bins[j].low()  = bins[j - 1].high(); // previous roof becomes current floor
-                bins[j].high() += bins[j - 1].high(); // accumulate bin counter
+                bin_max = max(bin_max, binStat[j].high());
+                binStat[j].low()  = binStat[j - 1].high(); // previous roof becomes current floor
+                binStat[j].high() += binStat[j - 1].high(); // accumulate bin counter
             }
             // TODO if (bin_max == 1) { writeln("No accumulation needed!"); }
 
@@ -141,16 +141,16 @@ auto radixSort(R,
              */
             for (int r = radix - 1; r >= 0; --r) // for each radix digit r in reverse order (cache-friendly)
             {
-                while (bins[r])  // as long as elements left in r:th bucket
+                while (binStat[r])  // as long as elements left in r:th bucket
                 {
-                    const uint i0 = bins[r].pop_back(); // index to first element of permutation
+                    const uint i0 = binStat[r].pop_back(); // index to first element of permutation
                     const E    e0 = x[i0]; // value of first/current element of permutation
                     while (true)
                     {
                         const int rN = (e0.bijectToUnsigned(descending) >> digitBitshift) & mask; // next digit (index)
                         if (r == rN) // if permutation cycle closed (back to same digit)
                             break;
-                        const ai = bins[rN].pop_back(); // array index
+                        const ai = binStat[rN].pop_back(); // array index
                         swap(x[ai], e0); // do swap
                     }
                     x[i0] = e0;         // complete cycle
@@ -162,7 +162,7 @@ auto radixSort(R,
     else
     {
         // histogram buckets count and later upper-limits/walls for values in `x`
-        size_t[radix] bstat;    // fits in the L1-cache
+        size_t[radix] binStat;    // fits in the L1-cache
 
         // non-in-place requires temporary `y`. TODO we could allocate these as
         // a stack-allocated array for small arrays and gain extra speed.
@@ -175,7 +175,7 @@ auto radixSort(R,
             const digitBitshift = digitOffset*radixBitCount;   // digit bit shift
 
             // calculate counts
-            bstat[] = 0;         // reset
+            binStat[] = 0;         // reset
             static if (fastDigitDiscardal)
             {
                 U ors  = 0;             // digits "or-sum"
@@ -184,7 +184,7 @@ auto radixSort(R,
             foreach (const j; 0 .. n) // for each element index `j` in `x`
             {
                 const i = (x[j].bijectToUnsigned(descending) >> digitBitshift) & mask; // digit (index)
-                ++bstat[i];              // increase histogram bin counter
+                ++binStat[i];              // increase histogram bin counter
                 static if (fastDigitDiscardal)
                 {
                     // accumulate bits statistics
@@ -203,7 +203,7 @@ auto radixSort(R,
             // bin boundaries: accumulate bin counters array
             foreach (const j; 1 .. radix) // for each successive bin counter
             {
-                bstat[j] += bstat[j - 1]; // accumulate bin counter
+                binStat[j] += binStat[j - 1]; // accumulate bin counter
             }
 
             // reorder. access `x`'s elements in \em reverse to \em reuse filled caches from previous forward iteration.
@@ -217,7 +217,7 @@ auto radixSort(R,
                 foreach (k; iota!(0, unrollFactor)) // inlined (unrolled) loop
                 {
                     const i = (x[j - k].bijectToUnsigned(descending) >> digitBitshift) & mask; // digit (index)
-                    y[--bstat[i]] = x[j - k]; // reorder into y
+                    y[--binStat[i]] = x[j - k]; // reorder into y
                 }
             }
 

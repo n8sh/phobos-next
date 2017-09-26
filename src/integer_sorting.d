@@ -183,7 +183,7 @@ auto radixSort(R,
             }
             for (size_t j = 0; j != n; ++j) // for each element index \c j in \p x
             {
-                const uint i = (x[j].bijectToUnsigned(descending) >> sh) & mask; // digit (index)
+                const i = (x[j].bijectToUnsigned(descending) >> sh) & mask; // digit (index)
                 ++bstat[i];              // increase histogram bin counter
                 static if (fastDigitDiscardal)
                 {
@@ -216,7 +216,7 @@ auto radixSort(R,
                 import range_ex : iota;
                 foreach (k; iota!(0, unrollFactor)) // inlined (unrolled) loop
                 {
-                    const uint i = (x[j - k].bijectToUnsigned(descending) >> sh) & mask; // digit (index)
+                    const i = (x[j - k].bijectToUnsigned(descending) >> sh) & mask; // digit (index)
                     y[--bstat[i]] = x[j - k]; // reorder into y
                 }
             }

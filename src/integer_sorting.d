@@ -108,20 +108,17 @@ auto radixSort(R,
 
             // populate histogram `hist` for current digit
             U ors  = 0;             // digits "or-sum"
-            U ands = ~ors;          // digits "and-product"
 
             foreach (immutable j; 0 .. n) // for each element index `j` in `x`
             {
                 immutable uint i = (x[j].bijectToUnsigned(descending) >> digitBitshift) & mask; // digit (index)
                 ++binStat[i].high();       // increase histogram bin counter
                 ors |= i;               // accumulate all one bits statistics
-                ands &= i;              // accumulate all zero bits statistics
             }
 
-            if ((! ors) ||      // if bits in digit[d] are all zero or
-                (! ~ands))      // if bits in digit[d] are all one
+            if ((! ors))        // if bits in digit[d] are all zero or
             {
-                continue;               // no sorting is needed for this digit
+                continue;       // no sorting is needed for this digit
             }
 
             // bin boundaries: accumulate bin counters array

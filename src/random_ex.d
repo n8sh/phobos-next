@@ -25,21 +25,21 @@ import std.algorithm.mutation : move;
 version(unittest) private enum testLength = 64;
 
 /** Randomize value $(D x). */
-ref E randInPlace(E)(return ref E x) @trusted
+ref E randInPlace(E)(return ref E x)
     if (isBoolean!E)
 {
     return x = cast(bool)uniform(0, 2);
 }
 
 /** Randomize value $(D x), optionally in range [$(D low), $(D high)]. */
-ref E randInPlace(E)(return ref E x) @trusted
+ref E randInPlace(E)(return ref E x)
     if (isIntegral!E)
 {
     return x = uniform(E.min, E.max);    // BUG: Never assigns the value E.max
 }
 
 /** Randomize value $(D x), optional in range [$(D low), $(D high)]. */
-ref E randInPlace(E)(return ref E x) @trusted
+ref E randInPlace(E)(return ref E x)
     if (isFloatingPoint!E)
 {
     return x = uniform(cast(E)0, cast(E)1);
@@ -48,7 +48,7 @@ ref E randInPlace(E)(return ref E x) @trusted
 /** Randomize value $(D x), optionally in range [$(D low), $(D high)]. */
 ref E randInPlaceWithRange(E)(return ref E x,
                               E low,
-                              E high) @trusted
+                              E high)
     if (isIntegral!E)
 {
     return x = uniform(low, high);    // BUG: Never assigns the value E.max
@@ -57,7 +57,7 @@ ref E randInPlaceWithRange(E)(return ref E x,
 /** Randomize value of $(D x), optional in range [$(D low), $(D high)]. */
 ref E randInPlaceWithRange(E)(return ref E x,
                               E low /* E.min_normal */,
-                              E high /* E.max */) @trusted
+                              E high /* E.max */)
     if (isFloatingPoint!E)
 {
     return x = uniform(low, high);
@@ -76,7 +76,7 @@ ref Rational!E randInPlace(Rational, E)(return ref Rational!E x) @trusted
                         uniform(1, E.max));
 }
 
-unittest
+@safe unittest
 {
     Rational!int x;
     x.randInPlace();
@@ -158,7 +158,7 @@ R randInPlaceWithElementRange(R, E)(R x,
     return move(x);
 }
 
-unittest
+@safe unittest
 {
     void testDynamic(T)()
     {
@@ -185,7 +185,7 @@ ref T randInPlace(T)(return ref T x)
     return x;
 }
 
-unittest
+@safe unittest
 {
     void testStatic(T)()
     {
@@ -288,7 +288,7 @@ auto ref randInPlace(T)(return ref T x)
     return x;
 }
 
-unittest
+@safe unittest
 {
     struct T { ubyte a, b, c, d; }
     T[testLength] x;

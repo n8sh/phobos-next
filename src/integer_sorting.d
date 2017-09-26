@@ -265,7 +265,8 @@ version(benchmark)
     {
         writef("%8-s %10-s: ", E.stringof, n);
 
-        import random_ex : randInPlace;
+        import std.traits : isIntegral;
+        import random_ex : randInPlace, randInPlaceWithElementRange;
         import std.algorithm.sorting : sort, SwapStrategy, isSorted;
         import std.algorithm.comparison : min, max, equal;
         import std.range : retro;
@@ -275,7 +276,14 @@ version(benchmark)
 
         // generate random
         auto a = new E[n];
-        a[].randInPlace();
+        static if (isIntegral!E)
+        {
+            a[].randInPlaceWithElementRange(E.min, E.max);
+        }
+        else
+        {
+            a[].randInPlace();
+        }
         version(show) write("original random: ", a[0 .. min(nMax, $)], ", ");
 
         // standard quick sort

@@ -20,7 +20,7 @@ import bijections;
 
    Note that $(D x) can be a $(D BidirectionalRange) aswell as $(D RandomAccessRange).
 
-   radixNBits = Number of bits in Radix (Digit)
+   radixBitCount = Number of bits in Radix (Digit)
 
    TODO optimize calculation of fast-digit discardal
 
@@ -52,42 +52,42 @@ auto radixSort(R,
 
     immutable n = x.length; // number of elements
     alias E = ElementType!R;
-    enum elemBits = 8*E.sizeof; // Total Number of Bits needed to code each element
+    enum elementBitCount = 8*E.sizeof; // total number of bits needed to code each element
 
     /* Lookup number of radix bits from sizeof ElementType.
        These give optimal performance on Intel Core i7.
     */
-    static if (elemBits == 8)
+    static if (elementBitCount == 8)
     {
-        enum radixNBits = 8;
+        enum radixBitCount = 8;
     }
-    else static if (elemBits == 16 ||
-                    elemBits == 32 ||
-                    elemBits == 64)
+    else static if (elementBitCount == 16 ||
+                    elementBitCount == 32 ||
+                    elementBitCount == 64)
     {
-        enum radixNBits = 16; // this prevents "rest" digit
+        enum radixBitCount = 16; // this prevents "rest" digit
     }
     else
     {
         static assert("Cannot handle ElementType " ~ E.stringof);
     }
 
-    // TODO activate this: subtract min from all values and then const uint elemBits = is_min(a_max) ? 8*sizeof(E) : binlog(a_max); and add it back.
-    enum nDigits = elemBits / radixNBits;         // number of \c nDigits in radix \p radixNBits
-    static assert(elemBits % radixNBits == 0,
+    // TODO activate this: subtract min from all values and then const uint elementBitCount = is_min(a_max) ? 8*sizeof(E) : binlog(a_max); and add it back.
+    enum digitCount = elementBitCount / radixBitCount;         // number of \c digitCount in radix \p radixBitCount
+    static assert(elementBitCount % radixBitCount == 0,
                   "Precision of ElementType must be evenly divisble by bit-precision of Radix.");
 
-    /* const nRemBits = elemBits % radixNBits; // number remaining bits to sort */
-    /* if (nRemBits) { nDigits++; }     // one more for remainding bits */
+    /* const nRemBits = elementBitCount % radixBitCount; // number remaining bits to sort */
+    /* if (nRemBits) { digitCount++; }     // one more for remainding bits */
 
-    enum radix = cast(typeof(radixNBits))1 << radixNBits;    // bin count
-    enum mask = radix-1;                              // radix bit mask
+    enum radix = cast(typeof(radixBitCount))1 << radixBitCount;    // bin count
+    enum mask = radix-1;                                     // radix bit mask
 
     alias U = typeof(x.front.bijectToUnsigned); // get unsigned integer type of same precision as \tparam E.
 
     bool doInPlace = false;
 
-    if (nDigits != 1)           // if more than one bucket sort pass (BSP)
+    if (digitCount != 1)           // if more than one bucket sort pass (BSP)
     {
         doInPlace = false; // we cannot do in-place because each BSP is unstable and may ruin order from previous digit passes
     }
@@ -96,9 +96,9 @@ auto radixSort(R,
     {
         // histogram buckets upper-limits/walls for values in \p x.
         Slice!size_t[radix] bins = void; // bucket slices
-        for (uint d = 0; d != nDigits; ++d)  // for each digit-index \c d (in base \c radix) starting with least significant (LSD-first)
+        for (uint d = 0; d != digitCount; ++d)  // for each digit-index \c d (in base \c radix) starting with least significant (LSD-first)
         {
-            const uint sh = d*radixNBits;   // digit bit shift
+            const uint sh = d*radixBitCount;   // digit bit shift
 
             // TODO activate and verify that performance is unchanged.
             // auto uize_ = [descending, sh, mask](E a) { return (bijectToUnsigned(a, descending) >> sh) & mask; }; // local shorthand
@@ -110,7 +110,7 @@ auto radixSort(R,
             U ors  = 0;             // digits "or-sum"
             U ands = ~ors;          // digits "and-product"
 
-            for (size_t j = 0; j != n; ++j) // for each element index \c j in \p x
+            foreach (const j; 0 .. n) // for each element index \c j in \p x
             {
                 const uint i = (x[j].bijectToUnsigned(descending) >> sh) & mask; // digit (index)
                 ++bins[i].high();       // increase histogram bin counter
@@ -170,9 +170,9 @@ auto radixSort(R,
         auto tempStorage = FixedDynamicArray!E.makeUninitialized(n);
         auto y = tempStorage[];
 
-        foreach (const d; 0 .. nDigits) // for each digit-index \c d (in base \c radix) starting with least significant (LSD-first)
+        foreach (const d; 0 .. digitCount) // for each digit-index \c d (in base \c radix) starting with least significant (LSD-first)
         {
-            const sh = d*radixNBits;   // digit bit shift
+            const sh = d*radixBitCount;   // digit bit shift
 
             // calculate counts
             bstat[] = 0;         // reset
@@ -181,7 +181,7 @@ auto radixSort(R,
                 U ors  = 0;             // digits "or-sum"
                 U ands = ~(cast(U)0);   // digits "and-product"
             }
-            for (size_t j = 0; j != n; ++j) // for each element index \c j in \p x
+            foreach (const j; 0 .. n) // for each element index \c j in \p x
             {
                 const i = (x[j].bijectToUnsigned(descending) >> sh) & mask; // digit (index)
                 ++bstat[i];              // increase histogram bin counter
@@ -201,7 +201,7 @@ auto radixSort(R,
             }
 
             // bin boundaries: accumulate bin counters array
-            for (size_t j = 1; j != radix; ++j) // for each successive bin counter
+            foreach (const j; 1 .. radix) // for each successive bin counter
             {
                 bstat[j] += bstat[j - 1]; // accumulate bin counter
             }
@@ -221,7 +221,7 @@ auto radixSort(R,
                 }
             }
 
-            static if (nDigits & 1) // if odd number of digit passes
+            static if (digitCount & 1) // if odd number of digit passes
             {
                 static if (__traits(compiles, x[] == y[]))
                 {

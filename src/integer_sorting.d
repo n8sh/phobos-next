@@ -300,7 +300,7 @@ version(benchmark)
         auto a = new E[n];
         static if (isUnsigned!E)
         {
-            // a[].randInPlaceWithElementRange(cast(E)0, cast(E)n);
+            // a[].randInPlaceWithElementRange(cast(E)0, cast(E)uint.max);
             a[].randInPlace();
         }
         else

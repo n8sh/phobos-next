@@ -276,7 +276,7 @@ unittest
     }
 }
 
-/** Randomize Contents of members of $(D x).
+/** Randomize members of $(D x).
  */
 auto ref randInPlace(T)(return ref T x)
     if (is(T == struct))
@@ -298,7 +298,7 @@ unittest
     assert(y != x);
 }
 
-/** Randomize Contents of members of $(D x).
+/** Randomize members of $(D x).
  */
 auto ref randInPlace(T)(T x)
     if (is(T == class))
@@ -328,7 +328,7 @@ unittest
     testClass!float;
 }
 
-/** Get New Randomized Instance of Type $(D T).
+/** Returns: randomized instance of type $(D T).
  */
 T randomInstanceOf(T)()
 {
@@ -343,7 +343,7 @@ T randomInstanceOf(T)()
     return x;
 }
 
-/** Get New Randomized Instance of Type $(D T).
+/** Returns: randomized instance of type $(D T).
  */
 T randomInstanceOf(T)(T low = T.min,
                       T high = T.max)
@@ -361,7 +361,7 @@ T randomInstanceOf(T)(T low = T.min,
 
 alias randomized = randomInstanceOf;
 
-/** Random Number Generator xoroshiro128+
+/** Random number generator xoroshiro128+
 
    See also: http://xoroshiro.di.unimi.it/
    See also: http://forum.dlang.org/post/kdobdorqztlsomweftmi@forum.dlang.org

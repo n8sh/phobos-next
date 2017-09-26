@@ -40,7 +40,7 @@ import bijections;
 auto radixSort(R,
                alias fun = "a",
                bool descending = false,
-               bool fastDigitDiscardal = false,
+               bool requestDigitDiscardal = false,
                bool inPlace = false)(R input,
                                      /* ElementType!R elementMin = ElementType!(R).max, */
                                      /* ElementType!R elementMax = ElementType!(R).min */)
@@ -49,6 +49,7 @@ auto radixSort(R,
     if (isRandomAccessRange!R &&
         (isNumeric!(ElementType!R)))
 {
+    import std.algorithm.sorting : assumeSorted; // TODO move this to radixSort when know how map less to descending
     import std.algorithm : min, max;
     import std.range : front;
 
@@ -79,6 +80,8 @@ auto radixSort(R,
     enum digitCount = elementBitCount / radixBitCount;         // number of `digitCount` in radix `radixBitCount`
     static assert(elementBitCount % radixBitCount == 0,
                   "Precision of ElementType must be evenly divisble by bit-precision of Radix.");
+
+    enum doDigitDiscardal = requestDigitDiscardal && digitCount >= 2;
 
     /* immutable nRemBits = elementBitCount % radixBitCount; // number remaining bits to sort */
     /* if (nRemBits) { digitCount++; }     // one more for remainding bits */
@@ -170,7 +173,7 @@ auto radixSort(R,
         auto tempStorage = FixedDynamicArray!E.makeUninitialized(n);
         auto tempSlice = tempStorage[];
 
-        static if (fastDigitDiscardal)
+        static if (doDigitDiscardal)
         {
             U ors  = 0;         // digits diff(xor)-or-sum
         }
@@ -179,7 +182,7 @@ auto radixSort(R,
         {
             immutable digitBitshift = digitOffset*radixBitCount;   // digit bit shift
 
-            static if (fastDigitDiscardal)
+            static if (doDigitDiscardal)
             {
                 if (digitOffset != 0) // if first iteration already performed we have bit statistics
                 {
@@ -192,21 +195,24 @@ auto radixSort(R,
 
             // calculate counts
             binStat[] = 0;         // reset
+            U previousUnsignedValue = cast(U)input[0].bijectToUnsigned(descending);
             foreach (immutable j; 0 .. n) // for each element index `j` in `input`
             {
-                immutable U unsignedValue = cast(U)input[j].bijectToUnsigned(descending);
-                static if (fastDigitDiscardal)
+                immutable U currentUnsignedValue = cast(U)input[j].bijectToUnsigned(descending);
+                static if (doDigitDiscardal)
                 {
                     if (digitOffset == 0) // first iteration calculates statistics
                     {
-                        ors |= unsignedValue; // accumulate bits statistics
+                        ors |= previousUnsignedValue ^ currentUnsignedValue; // accumulate bit change statistics
+                        // ors |= currentUnsignedValue; // accumulate bits statistics
                     }
                 }
-                immutable i = (unsignedValue >> digitBitshift) & mask; // digit (index)
+                immutable i = (currentUnsignedValue >> digitBitshift) & mask; // digit (index)
                 ++binStat[i];              // increase histogram bin counter
+                previousUnsignedValue = currentUnsignedValue;
             }
 
-            static if (fastDigitDiscardal)
+            static if (doDigitDiscardal)
             {
                 if (digitOffset == 0) // if first iteration already performed we have bit statistics
                 {
@@ -258,7 +264,6 @@ auto radixSort(R,
         }
     }
 
-    import std.algorithm.sorting : assumeSorted; // TODO move this to radixSort when know how map less to descending
     static if (descending)
     {
         return input.assumeSorted!"a > b";

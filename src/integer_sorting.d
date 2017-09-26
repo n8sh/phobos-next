@@ -365,7 +365,7 @@ version(benchmark)
         radixSort(a[]);
         assert(a[].isSorted);
 
-        b[].sort;
+        b[].sort();
         assert(b[].isSorted);
 
         assert(a == b);

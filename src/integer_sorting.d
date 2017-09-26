@@ -266,7 +266,8 @@ version(benchmark)
         writef("E:%8-s n:%10-s: ", E.stringof, n);
 
         import random_ex : randInPlace;
-        import std.algorithm : sort, min, max, isSorted;
+        import std.algorithm.sorting : sort, SwapStrategy;
+        import std.algorithm : min, max, isSorted;
         import std.range : retro;
         import std.algorithm : equal;
         import std.datetime : StopWatch, AutoStart, TickDuration;
@@ -279,9 +280,13 @@ version(benchmark)
         version(show) write("original random: ", a[0 .. min(nMax, $)], ", ");
 
         // standard quick sort
-        TickDuration sortTime;
         auto qa = a.dup;
-        sw.reset; sw.start(); sort(qa); sw.stop; sortTime = sw.peek;
+
+        sw.reset;
+        sw.start();
+        sort!("a < b", SwapStrategy.stable)(qa);
+        sw.stop;
+        const TickDuration sortTime = sw.peek;
         version(show) write("quick sorted: ", qa[0 .. min(nMax, $)], ", ");
         assert(qa.isSorted);
 
@@ -301,7 +306,7 @@ version(benchmark)
             sw.start();
             radixSort!(typeof(b), "b", false)(b);
             sw.stop;
-            immutable radixTime1 = sw.peek.usecs;
+            const radixTime1 = sw.peek.usecs;
 
             writef("radixSort: %9-s, ", cast(real)sortTime.usecs / radixTime1);
             assert(b.equal(qa));
@@ -315,7 +320,7 @@ version(benchmark)
             sw.start();
             radixSort!(typeof(b), "b", false, true)(b);
             sw.stop;
-            immutable radixTime = sw.peek.usecs;
+            const radixTime = sw.peek.usecs;
 
             assert(b.equal(qa));
 

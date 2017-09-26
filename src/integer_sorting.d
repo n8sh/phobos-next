@@ -267,9 +267,8 @@ version(benchmark)
 
         import random_ex : randInPlace;
         import std.algorithm.sorting : sort, SwapStrategy, isSorted;
-        import std.algorithm.comparison : min, max;
+        import std.algorithm.comparison : min, max, equal;
         import std.range : retro;
-        import std.algorithm : equal;
         import std.datetime : StopWatch, AutoStart, TickDuration;
         auto sw = StopWatch();
         immutable nMax = 5;

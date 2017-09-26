@@ -72,12 +72,12 @@ auto radixSort(R,
         static assert("Cannot handle ElementType " ~ E.stringof);
     }
 
-    // TODO activate this: subtract min from all values and then const uint elementBitCount = is_min(a_max) ? 8*sizeof(E) : binlog(a_max); and add it back.
+    // TODO activate this: subtract min from all values and then immutable uint elementBitCount = is_min(a_max) ? 8*sizeof(E) : binlog(a_max); and add it back.
     enum digitCount = elementBitCount / radixBitCount;         // number of `digitCount` in radix `radixBitCount`
     static assert(elementBitCount % radixBitCount == 0,
                   "Precision of ElementType must be evenly divisble by bit-precision of Radix.");
 
-    /* const nRemBits = elementBitCount % radixBitCount; // number remaining bits to sort */
+    /* immutable nRemBits = elementBitCount % radixBitCount; // number remaining bits to sort */
     /* if (nRemBits) { digitCount++; }     // one more for remainding bits */
 
     enum radix = cast(typeof(radixBitCount))1 << radixBitCount;    // bin count
@@ -98,7 +98,7 @@ auto radixSort(R,
         Slice!size_t[radix] binStat = void; // bucket slices
         for (uint digitOffset = 0; digitOffset != digitCount; ++digitOffset)  // for each `digitOffset` (in base `radix`) starting with least significant (LSD-first)
         {
-            const uint digitBitshift = digitOffset*radixBitCount; // digit bit shift
+            immutable uint digitBitshift = digitOffset*radixBitCount; // digit bit shift
 
             // TODO activate and verify that performance is unchanged.
             // auto uize_ = [descending, digitBitshift, mask](E a) { return (bijectToUnsigned(a, descending) >> digitBitshift) & mask; }; // local shorthand
@@ -110,9 +110,9 @@ auto radixSort(R,
             U ors  = 0;             // digits "or-sum"
             U ands = ~ors;          // digits "and-product"
 
-            foreach (const j; 0 .. n) // for each element index `j` in `x`
+            foreach (immutable j; 0 .. n) // for each element index `j` in `x`
             {
-                const uint i = (x[j].bijectToUnsigned(descending) >> digitBitshift) & mask; // digit (index)
+                immutable uint i = (x[j].bijectToUnsigned(descending) >> digitBitshift) & mask; // digit (index)
                 ++binStat[i].high();       // increase histogram bin counter
                 ors |= i;               // accumulate all one bits statistics
                 ands &= i;              // accumulate all zero bits statistics
@@ -143,14 +143,14 @@ auto radixSort(R,
             {
                 while (binStat[r])  // as long as elements left in r:th bucket
                 {
-                    const uint i0 = binStat[r].pop_back(); // index to first element of permutation
-                    const E    e0 = x[i0]; // value of first/current element of permutation
+                    immutable uint i0 = binStat[r].pop_back(); // index to first element of permutation
+                    immutable E    e0 = x[i0]; // value of first/current element of permutation
                     while (true)
                     {
-                        const int rN = (e0.bijectToUnsigned(descending) >> digitBitshift) & mask; // next digit (index)
+                        immutable int rN = (e0.bijectToUnsigned(descending) >> digitBitshift) & mask; // next digit (index)
                         if (r == rN) // if permutation cycle closed (back to same digit)
                             break;
-                        const ai = binStat[rN].pop_back(); // array index
+                        immutable ai = binStat[rN].pop_back(); // array index
                         swap(x[ai], e0); // do swap
                     }
                     x[i0] = e0;         // complete cycle
@@ -170,9 +170,9 @@ auto radixSort(R,
         auto tempStorage = FixedDynamicArray!E.makeUninitialized(n);
         auto y = tempStorage[];
 
-        foreach (const digitOffset; 0 .. digitCount) // for each `digitOffset` (in base `radix`) starting with least significant (LSD-first)
+        foreach (immutable digitOffset; 0 .. digitCount) // for each `digitOffset` (in base `radix`) starting with least significant (LSD-first)
         {
-            const digitBitshift = digitOffset*radixBitCount;   // digit bit shift
+            immutable digitBitshift = digitOffset*radixBitCount;   // digit bit shift
 
             // calculate counts
             binStat[] = 0;         // reset
@@ -181,9 +181,9 @@ auto radixSort(R,
                 U ors  = 0;             // digits "or-sum"
                 U ands = ~(cast(U)0);   // digits "and-product"
             }
-            foreach (const j; 0 .. n) // for each element index `j` in `x`
+            foreach (immutable j; 0 .. n) // for each element index `j` in `x`
             {
-                const i = (x[j].bijectToUnsigned(descending) >> digitBitshift) & mask; // digit (index)
+                immutable i = (x[j].bijectToUnsigned(descending) >> digitBitshift) & mask; // digit (index)
                 ++binStat[i];              // increase histogram bin counter
                 static if (fastDigitDiscardal)
                 {
@@ -201,7 +201,7 @@ auto radixSort(R,
             }
 
             // bin boundaries: accumulate bin counters array
-            foreach (const j; 1 .. radix) // for each successive bin counter
+            foreach (immutable j; 1 .. radix) // for each successive bin counter
             {
                 binStat[j] += binStat[j - 1]; // accumulate bin counter
             }
@@ -216,7 +216,7 @@ auto radixSort(R,
                 import range_ex : iota;
                 foreach (k; iota!(0, unrollFactor)) // inlined (unrolled) loop
                 {
-                    const i = (x[j - k].bijectToUnsigned(descending) >> digitBitshift) & mask; // digit (index)
+                    immutable i = (x[j - k].bijectToUnsigned(descending) >> digitBitshift) & mask; // digit (index)
                     y[--binStat[i]] = x[j - k]; // reorder into y
                 }
             }
@@ -285,7 +285,7 @@ version(benchmark)
         sw.start();
         sort!("a < b", SwapStrategy.stable)(qa);
         sw.stop;
-        const TickDuration sortTime = sw.peek;
+        immutable TickDuration sortTime = sw.peek;
         version(show) write("quick sorted: ", qa[0 .. min(nMax, $)], ", ");
         assert(qa.isSorted);
 
@@ -305,7 +305,7 @@ version(benchmark)
             sw.start();
             radixSort!(typeof(b), "b", false)(b);
             sw.stop;
-            const radixTime1 = sw.peek.usecs;
+            immutable radixTime1 = sw.peek.usecs;
 
             writef("radixSort: %9-s, ", cast(real)sortTime.usecs / radixTime1);
             assert(b.equal(qa));
@@ -319,7 +319,7 @@ version(benchmark)
             sw.start();
             radixSort!(typeof(b), "b", false, true)(b);
             sw.stop;
-            const radixTime = sw.peek.usecs;
+            immutable radixTime = sw.peek.usecs;
 
             assert(b.equal(qa));
 
@@ -335,8 +335,8 @@ version(benchmark)
     }
 
     import std.meta : AliasSeq;
-    const n = 1_00_000;
-    foreach (ix, T; AliasSeq!(byte, short, int, long))
+    immutable n = 1_00_000;
+    foreach (immutable ix, T; AliasSeq!(byte, short, int, long))
     {
         test!T(n); // test signed
         import std.traits : Unsigned;
@@ -350,7 +350,7 @@ version(benchmark)
 {
     import std.meta : AliasSeq;
 
-    const n = 1_000_000;
+    immutable n = 1_000_000;
 
     foreach (ix, T; AliasSeq!(byte, short))
     {

@@ -15,14 +15,16 @@ import bijections;
 
 /** Radix sort of $(D input).
 
-   Note that this implementation of non-inplace radix sort only requires $(D input)
-   to be a BidirectionalRange not a RandomAccessRange.
+   Note that this implementation of non-inplace radix sort only requires $(D
+   input) to be a BidirectionalRange not a RandomAccessRange.
 
-   Note that $(D input) can be a $(D BidirectionalRange) aswell as $(D RandomAccessRange).
+   Note that $(D input) can be a $(D BidirectionalRange) aswell as $(D
+   RandomAccessRange).
 
    radixBitCount = Number of bits in Radix (Digit)
 
-   TODO make `radixBitCount` a template parameter either 8 or 16, ElementType.sizeof must be a multiple of radixBitCount
+   TODO make `radixBitCount` a template parameter either 8 or 16,
+   ElementType.sizeof must be a multiple of radixBitCount
 
    TODO input[] = y[] not needed when input is mutable
 

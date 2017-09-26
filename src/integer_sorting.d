@@ -21,7 +21,7 @@ import bijections;
     Note that $(D input) can be a $(D BidirectionalRange) aswell as $(D
     RandomAccessRange).
 
-    radixBitCount = Number of bits in Radix (Digit)
+    `radixBitCount` is the number of bits in radix (digit)
 
     TODO make `radixBitCount` a template parameter either 8 or 16,
     ElementType.sizeof must be a multiple of radixBitCount

@@ -24,28 +24,28 @@ import std.algorithm.mutation : move;
 
 version(unittest) private enum testLength = 64;
 
-/** Randomize Contents of $(D x). */
+/** Randomize value $(D x). */
 ref E randInPlace(E)(return ref E x) @trusted
     if (isBoolean!E)
 {
     return x = cast(bool)uniform(0, 2);
 }
 
-/** Randomize Contents of $(D x), optionally in range [$(D low), $(D high)]. */
+/** Randomize value $(D x), optionally in range [$(D low), $(D high)]. */
 ref E randInPlace(E)(return ref E x) @trusted
     if (isIntegral!E)
 {
     return x = uniform(E.min, E.max);    // BUG: Never assigns the value E.max
 }
 
-/** Randomize Contents of $(D x), optional in range [$(D low), $(D high)]. */
+/** Randomize value $(D x), optional in range [$(D low), $(D high)]. */
 ref E randInPlace(E)(return ref E x) @trusted
     if (isFloatingPoint!E)
 {
     return x = uniform(cast(E)0, cast(E)1);
 }
 
-/** Randomize Contents of $(D x), optionally in range [$(D low), $(D high)]. */
+/** Randomize value $(D x), optionally in range [$(D low), $(D high)]. */
 ref E randInPlaceWithRange(E)(return ref E x,
                               E low,
                               E high) @trusted
@@ -54,7 +54,7 @@ ref E randInPlaceWithRange(E)(return ref E x,
     return x = uniform(low, high);    // BUG: Never assigns the value E.max
 }
 
-/** Randomize Contents of $(D x), optional in range [$(D low), $(D high)]. */
+/** Randomize value of $(D x), optional in range [$(D low), $(D high)]. */
 ref E randInPlaceWithRange(E)(return ref E x,
                               E low /* E.min_normal */,
                               E high /* E.max */) @trusted
@@ -68,7 +68,7 @@ version(unittest)
     import rational: Rational, rational;
 }
 
-/** Randomize Contents of $(D x). */
+/** Randomize value of $(D x). */
 ref Rational!E randInPlace(Rational, E)(return ref Rational!E x) @trusted
     if (isIntegral!E)
 {
@@ -82,7 +82,7 @@ unittest
     x.randInPlace();
 }
 
-/** Generate Random Contents of $(D x).
+/** Generate random value of $(D x).
     See also: http://forum.dlang.org/thread/emlgflxpgecxsqweauhc@forum.dlang.org
  */
 ref dchar randInPlace(return ref dchar x) @trusted
@@ -118,7 +118,7 @@ unittest
     auto r = d.randomize; // TODO Use Phobos function to check if string is legally coded.
 }
 
-/** Randomize Contents of $(D x). */
+/** Randomize value of $(D x). */
 dstring randInPlace(dstring x) @trusted
 {
     typeof(x) y;
@@ -128,7 +128,7 @@ dstring randInPlace(dstring x) @trusted
     return x;
 }
 
-/** Randomize Contents of $(D x).
+/** Randomize value of $(D x).
  */
 R randInPlace(R)(R x)
     if (isIterable!R &&
@@ -141,7 +141,7 @@ R randInPlace(R)(R x)
     return move(x);             // TODO remove when compiler does this for us
 }
 
-/** Randomize Contents of $(D x).
+/** Randomize all elements of $(D x).
     Each element is randomized within range `[elementLow, elementHigh]`.
  */
 R randInPlaceWithElementRange(R, E)(R x,
@@ -173,7 +173,7 @@ unittest
     testDynamic!bool;
 }
 
-/** Randomize Contents of $(D x).
+/** Randomize elements of $(D x).
  */
 ref T randInPlace(T)(return ref T x)
     if (isStaticArray!T)
@@ -203,7 +203,7 @@ unittest
     testStatic!E;
 }
 
-/** Blockwise Randomize Contents of $(D x) of Array Type $(D A).
+/** Blockwise-randomize elements of $(D x) of array type $(D A).
     Randomizes in array blocks of type $(D B).
  */
 ref A randInPlaceBlockwise(B = size_t, A)(ref A x)

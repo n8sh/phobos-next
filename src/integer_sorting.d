@@ -13,18 +13,18 @@ import std.meta : AliasSeq;
 
 import bijections;
 
-/** Non-Inplace Radix Sort $(D x).
+/** Non-Inplace Radix Sort $(D input).
 
-   Note that this implementation of non-inplace radix sort only requires $(D x)
+   Note that this implementation of non-inplace radix sort only requires $(D input)
    to be a BidirectionalRange not a RandomAccessRange.
 
-   Note that $(D x) can be a $(D BidirectionalRange) aswell as $(D RandomAccessRange).
+   Note that $(D input) can be a $(D BidirectionalRange) aswell as $(D RandomAccessRange).
 
    radixBitCount = Number of bits in Radix (Digit)
 
    TODO optimize calculation of fast-digit discardal
 
-   TODO x[] = y[] not needed when input is mutable
+   TODO input[] = y[] not needed when input is mutable
 
    TODO Restrict fun.
 
@@ -39,7 +39,7 @@ auto radixSort(R,
                alias fun = "a",
                bool descending = false,
                bool fastDigitDiscardal = false,
-               bool inPlace = false)(R x,
+               bool inPlace = false)(R input,
                                      /* ElementType!R elementMin = ElementType!(R).max, */
                                      /* ElementType!R elementMax = ElementType!(R).min */)
 
@@ -50,7 +50,7 @@ auto radixSort(R,
     import std.algorithm : min, max;
     import std.range : front;
 
-    immutable n = x.length; // number of elements
+    immutable n = input.length; // number of elements
     alias E = ElementType!R;
     enum elementBitCount = 8*E.sizeof; // total number of bits needed to code each element
 
@@ -83,7 +83,7 @@ auto radixSort(R,
     enum radix = cast(typeof(radixBitCount))1 << radixBitCount;    // bin count
     enum mask = radix-1;                                     // radix bit mask
 
-    alias U = typeof(x.front.bijectToUnsigned); // get unsigned integer type of same precision as \tparam E.
+    alias U = typeof(input.front.bijectToUnsigned); // get unsigned integer type of same precision as \tparam E.
 
     bool doInPlace = false;
 
@@ -94,7 +94,7 @@ auto radixSort(R,
 
     static if (inPlace)
     {
-        // histogram buckets upper-limits/walls for values in `x`
+        // histogram buckets upper-limits/walls for values in `input`
         Slice!size_t[radix] binStat = void; // bucket slices
         foreach (immutable digitOffset; 0 .. digitCount) // for each `digitOffset` (in base `radix`) starting with least significant (LSD-first)
         {
@@ -109,9 +109,9 @@ auto radixSort(R,
             // populate histogram `hist` for current digit
             U ors  = 0;             // digits "or-sum"
 
-            foreach (immutable j; 0 .. n) // for each element index `j` in `x`
+            foreach (immutable j; 0 .. n) // for each element index `j` in `input`
             {
-                immutable uint i = (x[j].bijectToUnsigned(descending) >> digitBitshift) & mask; // digit (index)
+                immutable uint i = (input[j].bijectToUnsigned(descending) >> digitBitshift) & mask; // digit (index)
                 ++binStat[i].high();       // increase histogram bin counter
                 ors |= i;               // accumulate all one bits statistics
             }
@@ -132,8 +132,8 @@ auto radixSort(R,
             }
             // TODO if (bin_max == 1) { writeln("No accumulation needed!"); }
 
-            /** \em unstable in-place (permutate) reorder/sort `x`
-             * access `x`'s elements in \em reverse to \em reuse filled caches from previous forward iteration.
+            /** \em unstable in-place (permutate) reorder/sort `input`
+             * access `input`'s elements in \em reverse to \em reuse filled caches from previous forward iteration.
              * \see `in_place_indexed_reorder`
              */
             for (int r = radix - 1; r >= 0; --r) // for each radix digit r in reverse order (cache-friendly)
@@ -141,16 +141,16 @@ auto radixSort(R,
                 while (binStat[r])  // as long as elements left in r:th bucket
                 {
                     immutable uint i0 = binStat[r].pop_back(); // index to first element of permutation
-                    immutable E    e0 = x[i0]; // value of first/current element of permutation
+                    immutable E    e0 = input[i0]; // value of first/current element of permutation
                     while (true)
                     {
                         immutable int rN = (e0.bijectToUnsigned(descending) >> digitBitshift) & mask; // next digit (index)
                         if (r == rN) // if permutation cycle closed (back to same digit)
                             break;
                         immutable ai = binStat[rN].pop_back(); // array index
-                        swap(x[ai], e0); // do swap
+                        swap(input[ai], e0); // do swap
                     }
-                    x[i0] = e0;         // complete cycle
+                    input[i0] = e0;         // complete cycle
                 }
             }
         }
@@ -158,7 +158,7 @@ auto radixSort(R,
     }
     else
     {
-        // histogram buckets count and later upper-limits/walls for values in `x`
+        // histogram buckets count and later upper-limits/walls for values in `input`
         size_t[radix] binStat;    // fits in the L1-cache
 
         // non-in-place requires temporary `y`. TODO we could allocate these as
@@ -189,9 +189,9 @@ auto radixSort(R,
 
             // calculate counts
             binStat[] = 0;         // reset
-            foreach (immutable j; 0 .. n) // for each element index `j` in `x`
+            foreach (immutable j; 0 .. n) // for each element index `j` in `input`
             {
-                immutable U unsignedValue = cast(U)x[j].bijectToUnsigned(descending);
+                immutable U unsignedValue = cast(U)input[j].bijectToUnsigned(descending);
                 static if (fastDigitDiscardal)
                 {
                     if (digitOffset == 0) // first iteration calculates statistics
@@ -220,8 +220,8 @@ auto radixSort(R,
                 binStat[j] += binStat[j - 1]; // accumulate bin counter
             }
 
-            // reorder. access `x`'s elements in \em reverse to \em reuse filled caches from previous forward iteration.
-            // \em stable reorder from `x` to `tempSlice` using normal counting sort (see `counting_sort` above).
+            // reorder. access `input`'s elements in \em reverse to \em reuse filled caches from previous forward iteration.
+            // \em stable reorder from `input` to `tempSlice` using normal counting sort (see `counting_sort` above).
             enum unrollFactor = 1;
             assert((n % unrollFactor) == 0); // is evenly divisible by unroll factor
             for (size_t j = n - 1; j < n; j -= unrollFactor) // for each element `j` in reverse order. when `j` wraps around `j` < `n` is no longer true
@@ -230,27 +230,27 @@ auto radixSort(R,
                 import range_ex : iota;
                 foreach (k; iota!(0, unrollFactor)) // inlined (unrolled) loop
                 {
-                    immutable i = (x[j - k].bijectToUnsigned(descending) >> digitBitshift) & mask; // digit (index)
-                    tempSlice[--binStat[i]] = x[j - k]; // reorder into tempSlice
+                    immutable i = (input[j - k].bijectToUnsigned(descending) >> digitBitshift) & mask; // digit (index)
+                    tempSlice[--binStat[i]] = input[j - k]; // reorder into tempSlice
                 }
             }
 
             static if (digitCount & 1) // if odd number of digit passes
             {
-                static if (__traits(compiles, x[] == tempSlice[]))
+                static if (__traits(compiles, input[] == tempSlice[]))
                 {
-                    x[] = tempSlice[]; // faster than std.algorithm.copy() because x never overlap tempSlice
+                    input[] = tempSlice[]; // faster than std.algorithm.copy() because input never overlap tempSlice
                 }
                 else
                 {
                     import std.algorithm : copy;
-                    copy(tempSlice[], x[]); // TODO use memcpy
+                    copy(tempSlice[], input[]); // TODO use memcpy
                 }
             }
             else
             {
                 import std.algorithm : swap;
-                swap(x, tempSlice);
+                swap(input, tempSlice);
             }
         }
     }
@@ -258,11 +258,11 @@ auto radixSort(R,
     import std.algorithm.sorting : assumeSorted; // TODO move this to radixSort when know how map less to descending
     static if (descending)
     {
-        return x.assumeSorted!"a > b";
+        return input.assumeSorted!"a > b";
     }
     else
     {
-        return x.assumeSorted!"a < b";
+        return input.assumeSorted!"a < b";
     }
 }
 

@@ -6,13 +6,15 @@ private struct FixedDynamicArray(E)
 {
     import qcmeman : pureMalloc = malloc, pureFree = free;
 
-pragma(inline, true):
+pragma(inline):
 
     /// Make and return uninitialized array of `length`.
     static typeof(this) makeUninitialized(size_t length) @system
     {
         return typeof(return)(length);
     }
+
+pragma(inline, true):
 
     /// Construct uninitialized array of `length`.
     private this(size_t length) @system
@@ -31,6 +33,12 @@ pragma(inline, true):
     @disable this(this);
 
     /// Get slice.
+    scope ref inout(E) opIndex(size_t i) inout @system return
+    {
+        return _storage[i];
+    }
+
+    /// Get slice.
     scope inout(E)[] opSlice() inout @system return
     {
         return _storage[0 .. _length];
@@ -44,6 +52,6 @@ private:
 @system pure nothrow @nogc unittest
 {
     auto x = FixedDynamicArray!(int).makeUninitialized(7);
-    x[] = [11];
-    asssert(x[] == 11);
+    x[0] = 11;
+    assert(x[0] == 11);
 }

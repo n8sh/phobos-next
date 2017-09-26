@@ -32,7 +32,7 @@ pragma(inline, true):
     // disable copying
     @disable this(this);
 
-    /// Get index.
+    /// Get element at index `i`.
     scope ref inout(E) opIndex(size_t i) inout @system return
     {
         return _storage[i];

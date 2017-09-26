@@ -165,11 +165,11 @@ auto radixSort(R,
         // a stack-allocated array for small arrays and gain extra speed.
         import fixed_dynamic_array : FixedDynamicArray;
         auto tempStorage = FixedDynamicArray!E.makeUninitialized(n);
-        auto y = tempStorage[];
+        auto tempSlice = tempStorage[];
 
         static if (fastDigitDiscardal)
         {
-            U ors  = 0;             // digits "or-sum"
+            U ors  = 0;         // digits diff(xor)-or-sum
         }
 
         foreach (immutable digitOffset; 0 .. digitCount) // for each `digitOffset` (in base `radix`) starting with least significant (LSD-first)
@@ -221,7 +221,7 @@ auto radixSort(R,
             }
 
             // reorder. access `x`'s elements in \em reverse to \em reuse filled caches from previous forward iteration.
-            // \em stable reorder from `x` to `y` using normal counting sort (see `counting_sort` above).
+            // \em stable reorder from `x` to `tempSlice` using normal counting sort (see `counting_sort` above).
             enum unrollFactor = 1;
             assert((n % unrollFactor) == 0); // is evenly divisible by unroll factor
             for (size_t j = n - 1; j < n; j -= unrollFactor) // for each element `j` in reverse order. when `j` wraps around `j` < `n` is no longer true
@@ -231,26 +231,26 @@ auto radixSort(R,
                 foreach (k; iota!(0, unrollFactor)) // inlined (unrolled) loop
                 {
                     immutable i = (x[j - k].bijectToUnsigned(descending) >> digitBitshift) & mask; // digit (index)
-                    y[--binStat[i]] = x[j - k]; // reorder into y
+                    tempSlice[--binStat[i]] = x[j - k]; // reorder into tempSlice
                 }
             }
 
             static if (digitCount & 1) // if odd number of digit passes
             {
-                static if (__traits(compiles, x[] == y[]))
+                static if (__traits(compiles, x[] == tempSlice[]))
                 {
-                    x[] = y[]; // faster than std.algorithm.copy() because x never overlap y
+                    x[] = tempSlice[]; // faster than std.algorithm.copy() because x never overlap tempSlice
                 }
                 else
                 {
                     import std.algorithm : copy;
-                    copy(y[], x[]); // TODO use memcpy
+                    copy(tempSlice[], x[]); // TODO use memcpy
                 }
             }
             else
             {
                 import std.algorithm : swap;
-                swap(x, y);
+                swap(x, tempSlice);
             }
         }
     }

@@ -169,7 +169,7 @@ size_t skipOverShortestOf(alias pred = "a == b",
             }
             else
             {
-                static assert(false,
+                static assert(0,
                               "Cannot handle needle of type " ~ Needle.stringof ~
                               " when haystack has ElementType " ~ (ElementType!Range).stringof);
             }
@@ -244,7 +244,7 @@ size_t skipOverBackShortestOf(alias pred = "a == b", Range, Ranges...)(ref Range
     }
     else
     {
-        static assert(false, "Unsupported combination of haystack type " ~ Range.stringof ~
+        static assert(0, "Unsupported combination of haystack type " ~ Range.stringof ~
                       " with needle types " ~ Ranges.stringof);
     }
 }

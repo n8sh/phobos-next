@@ -31,7 +31,7 @@ struct UncopyableArray(T,
             !isCopyable!(ElementType!R) &&
             Super.isElementAssignable!(ElementType!R))
     {
-        static assert(false, "TODO implement");
+        static assert(0, "TODO implement");
     }
 
     @disable this(this);        // no copy construction

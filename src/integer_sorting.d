@@ -70,7 +70,7 @@ auto radixSort(R,
     }
     else
     {
-        static assert(false, "TODO handle element type " ~ e.stringof);
+        static assert(0, "TODO handle element type " ~ e.stringof);
     }
 
     // TODO activate this: subtract min from all values and then immutable uint elementBitCount = is_min(a_max) ? 8*sizeof(E) : binlog(a_max); and add it back.

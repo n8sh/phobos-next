@@ -40,7 +40,7 @@ template UsageOf(T)
     }
     else
     {
-        static assert(false, "Type " ~ T.stringof ~ "unsupported.");
+        static assert(0, "Type " ~ T.stringof ~ "unsupported.");
     }
 
     /** Maybe Minimum Usage in bytes. */

@@ -268,7 +268,7 @@ private auto substituteSplitter(alias pred = `a == b`, R, Rs...)(R haystack, Rs 
                     }
                     else
                     {
-                        static assert(false, `Handle R without slicing ` ~ R.stringof);
+                        static assert(0, `Handle R without slicing ` ~ R.stringof);
                     }
                 }
             }

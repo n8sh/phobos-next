@@ -912,7 +912,7 @@ auto zipWith(alias fun, Ranges...)(Ranges ranges)
     import std.range: zip;
     import std.algorithm.iteration: map;
     static if (ranges.length < 2)
-        static assert(false, `Need at least 2 range arguments.`);
+        static assert(0, `Need at least 2 range arguments.`);
     else static if (ranges.length == 2)
         return zip(ranges).map!(a => binaryFun!fun(a.expand));
     else
@@ -1321,7 +1321,7 @@ auto splitAfter(alias pred, R)(R haystack)
     }
     else
     {
-        static assert(false, `How to implement this?`);
+        static assert(0, `How to implement this?`);
         // import std.range : empty;
         /* auto original = haystack.save; */
         /* auto h = haystack.save; */

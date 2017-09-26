@@ -12,7 +12,7 @@ private template bitsNeeded(size_t length)
     else static if (length <= 128) { enum bitsNeeded = 7; }
     else static if (length <= 256) { enum bitsNeeded = 8; }
     else static if (length <= 512) { enum bitsNeeded = 9; }
-    else                           { static assert(false, `Too large length`); }
+    else                           { static assert(0, `Too large length`); }
 }
 
 /** Number of bits required to store a packed instance of $(D T).

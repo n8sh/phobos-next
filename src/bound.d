@@ -225,7 +225,7 @@ template BoundsType(alias low,
     }
     else
     {
-        static assert(false, "Cannot construct a bound using types " ~ LowType.stringof ~ " and " ~ HighType.stringof);
+        static assert(0, "Cannot construct a bound using types " ~ LowType.stringof ~ " and " ~ HighType.stringof);
     }
 }
 
@@ -500,13 +500,13 @@ struct Bound(V,
             }
             else
             {
-                static assert(false, "Unsupported binary operator " + op);
+                static assert(0, "Unsupported binary operator " + op);
             }
             alias TU_ = CommonType!(typeof(min_), typeof(max_));
 
             mixin("const result = _value " ~ op ~ "rhs;");
 
-            /* static assert(false, min_.stringof ~ "," ~ */
+            /* static assert(0, min_.stringof ~ "," ~ */
             /*               max_.stringof ~ "," ~ */
             /*               typeof(result).stringof ~ "," ~ */
             /*               TU_.stringof); */

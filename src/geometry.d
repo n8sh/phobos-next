@@ -488,7 +488,7 @@ struct Vector(E, uint D,
     {
         static        if (i >= D)
         {
-            static assert(false, "Too many arguments passed to constructor");
+            static assert(0, "Too many arguments passed to constructor");
         }
         else static if (is(T : E))
         {
@@ -512,7 +512,7 @@ struct Vector(E, uint D,
         }
         else
         {
-            static assert(false, "Vector constructor argument must be of type " ~ E.stringof ~ " or Vector, not " ~ T.stringof);
+            static assert(0, "Vector constructor argument must be of type " ~ E.stringof ~ " or Vector, not " ~ T.stringof);
         }
     }
 
@@ -583,7 +583,7 @@ struct Vector(E, uint D,
         }
         else
         {
-            static assert(false, "Incompatible vector dimensions.");
+            static assert(0, "Incompatible vector dimensions.");
         }
     }
 
@@ -743,7 +743,7 @@ struct Vector(E, uint D,
         }
         else
         {
-            static assert(false, "Accepted coordinates are x, s, r, u, y, g, t, v, z, p, b, w, q and a not " ~ c ~ ".");
+            static assert(0, "Accepted coordinates are x, s, r, u, y, g, t, v, z, p, b, w, q and a not " ~ c ~ ".");
         }
     }
 
@@ -1069,7 +1069,7 @@ struct Matrix(E, uint rows_, uint cols_,
     {
         static if (i >= rows*cols)
         {
-            static assert(false, "Too many arguments passed to constructor");
+            static assert(0, "Too many arguments passed to constructor");
         }
         else static if (is(T : E))
         {
@@ -1085,12 +1085,12 @@ struct Matrix(E, uint rows_, uint cols_,
             }
             else
             {
-                static assert(false, "Can't convert Vector into the matrix. Maybe it doesn't align to the columns correctly or dimension doesn't fit");
+                static assert(0, "Can't convert Vector into the matrix. Maybe it doesn't align to the columns correctly or dimension doesn't fit");
             }
         }
         else
         {
-            static assert(false, "Matrix constructor argument must be of type " ~ E.stringof ~ " or Vector, not " ~ T.stringof);
+            static assert(0, "Matrix constructor argument must be of type " ~ E.stringof ~ " or Vector, not " ~ T.stringof);
         }
     }
 

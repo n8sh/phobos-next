@@ -727,7 +727,7 @@ bool isNewline(C)(C c) @safe pure nothrow @nogc
     }
     else
     {
-        static assert(false, "Support Windows?");
+        static assert(0, "Support Windows?");
     }
 }
 
@@ -753,7 +753,7 @@ bool isNewline(S)(S s) @safe pure nothrow @nogc
     }
     else
     {
-        static assert(false, "Support windows?");
+        static assert(0, "Support windows?");
     }
 }
 

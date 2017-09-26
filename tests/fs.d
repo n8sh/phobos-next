@@ -444,14 +444,14 @@ class FKind
         else static if (is(MagicData == string)) { this.magicData = lit(magicData.representation.dup); }
         else static if (is(MagicData == void[])) { this.magicData = lit(cast(ubyte[])magicData); }
         else static if (isAssignable!(Patt, MagicData)) { this.magicData = magicData; }
-        else static assert(false, `Cannot handle MagicData being type ` ~ MagicData.stringof);
+        else static assert(0, `Cannot handle MagicData being type ` ~ MagicData.stringof);
 
         this.magicOffset = magicOffset;
 
         static      if (is(RefPattern == ubyte[])) { this.refPattern = refPattern_; }
         else static if (is(RefPattern == string)) { this.refPattern = refPattern_.representation.dup; }
         else static if (is(RefPattern == void[])) { this.refPattern = (cast(ubyte[])refPattern_).dup; }
-        else static assert(false, `Cannot handle RefPattern being type ` ~ RefPattern.stringof);
+        else static assert(0, `Cannot handle RefPattern being type ` ~ RefPattern.stringof);
 
         this.keywords = keywords_;
 

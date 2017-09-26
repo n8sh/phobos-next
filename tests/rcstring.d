@@ -127,7 +127,7 @@ private:
             }
             else
             {
-                static assert(false, "Unspecified endianness.");
+                static assert(0, "Unspecified endianness.");
             }
         }
         else

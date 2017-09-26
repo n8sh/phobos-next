@@ -338,7 +338,7 @@ body
     }
     else
     {
-        static assert(false, "Unsupported length: " ~ n.stringof);
+        static assert(0, "Unsupported length: " ~ n.stringof);
     }
 
     import std.algorithm.sorting : assumeSorted;

@@ -86,12 +86,12 @@ auto bijectToUnsigned(T)(T a) @trusted
         }
         else
         {
-            static assert(false, "Unsupported integral input type " ~ UT.stringof);
+            static assert(0, "Unsupported integral input type " ~ UT.stringof);
         }
     }
     else static if (is(UT == float))  { return ff(*cast(uint*)(&a)); }
     else static if (is(UT == double)) { return ff(*cast(ulong*)(&a)); }
-    else static assert(false, "Unsupported input type " ~ UT.stringof);
+    else static assert(0, "Unsupported input type " ~ UT.stringof);
 }
 
 /** Same as `bijectToUnsigned` with extra argument `descending` that reverses

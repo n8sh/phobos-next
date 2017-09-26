@@ -30,7 +30,7 @@ struct Digest(size_t numBytes = 20, string name = "SHA-1")
     else static if (hash_t.sizeof == 8) align(8) ubyte[numBytes] _bytes;
     else
     {
-        static assert(false, "Cannot handle hash_t of size " ~ to!string(hash_t.sizeof));
+        static assert(0, "Cannot handle hash_t of size " ~ to!string(hash_t.sizeof));
     }
 
     alias _bytes this;
@@ -81,7 +81,7 @@ struct Digest(size_t numBytes = 20, string name = "SHA-1")
             }
             else
             {
-                static assert(false, "Unsupported binary operator " ~ op);
+                static assert(0, "Unsupported binary operator " ~ op);
             }
             return tmp;
         }

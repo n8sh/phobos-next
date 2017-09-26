@@ -53,7 +53,7 @@ C filteredInplace(alias predicate, C)(C r) @trusted
             }
             else
             {
-                static assert(false, "Cannot move elements in instance of " ~ C.stringof);
+                static assert(0, "Cannot move elements in instance of " ~ C.stringof);
             }
             dstIx += 1;
         }

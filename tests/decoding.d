@@ -33,7 +33,7 @@ template regexClass(T)
     }
     else
     {
-        static assert(false, format("Unsupported type %s", arg));
+        static assert(0, format("Unsupported type %s", arg));
     }
 }
 
@@ -70,7 +70,7 @@ auto parseDecodeArgs(Args...)(string matchedElementName)
         }
         else
         {
-            static assert(false, format("Unsupported type %s", typeof(arg)));
+            static assert(0, format("Unsupported type %s", typeof(arg)));
         }
     }
 

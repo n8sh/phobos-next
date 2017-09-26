@@ -27,7 +27,7 @@ template UnsignedOfSameSizeAs(T)
     else
     {
         import std.conv: to;
-        static assert(false, "No Unsigned type of size " ~ to!string(nBits) ~ " found");
+        static assert(0, "No Unsigned type of size " ~ to!string(nBits) ~ " found");
     }
 }
 

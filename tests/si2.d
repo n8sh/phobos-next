@@ -380,7 +380,7 @@ struct SIB(alias Exp_, U)
     /// convert to real from type "s"
     U opDispatch(string s)()
     {
-        static if(!is(Unit!(s).type)) static assert(false, "SI has no member named "~s~" nor is it a known type");
+        static if(!is(Unit!(s).type)) static assert(0, "SI has no member named "~s~" nor is it a known type");
         else
         {
             static assert(This.Alike!(Unit!(s).type), "Can't convert type "~This.Stringof~" to \""~s~"\" of type "~Unit!(s).type.Stringof);
@@ -395,7 +395,7 @@ struct OfType
 {
     static auto opDispatch(string s, U)(U v) ///
     {
-        static if(!is(Unit!(s).type)) static assert(false, "OfType."~s~" is not a known type");
+        static if(!is(Unit!(s).type)) static assert(0, "OfType."~s~" is not a known type");
         else return Unit!(s).type.Using!(U)(cast(U)(v * Unit!(s).mul));
     }
 }

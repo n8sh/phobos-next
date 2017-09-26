@@ -242,7 +242,7 @@ struct NGram(ValueType,
             }
             else
             {
-                static assert(false, "N >= 5 not supported");
+                static assert(0, "N >= 5 not supported");
             }
             rval ~= "]";
         }
@@ -323,7 +323,7 @@ struct NGram(ValueType,
         else static if (storage == Storage.denseStatic)
             _bins = rhs._bins;
         else
-            static assert(false, "Cannot handle storage of type " ~ to!string(storage));
+            static assert(0, "Cannot handle storage of type " ~ to!string(storage));
         return this;
     }
 
@@ -429,7 +429,7 @@ struct NGram(ValueType,
                 }
                 else
                 {
-                    static assert(false, "N >= 6 not supported");
+                    static assert(0, "N >= 6 not supported");
                 }
             }
             return this;
@@ -458,7 +458,7 @@ struct NGram(ValueType,
             else static if (N == 3) { return _bins[ng[0]][ng[1]][ng[2]]; }
             else static if (N == 4) { return _bins[ng[0]][ng[1]][ng[2]][ng[3]]; }
             else static if (N == 5) { return _bins[ng[0]][ng[1]][ng[2]][ng[3]][ng[4]]; }
-            else { static assert(false, "N >= 6 not supported"); }
+            else { static assert(0, "N >= 6 not supported"); }
         }
     }
 
@@ -488,7 +488,7 @@ struct NGram(ValueType,
             else static if (N == 3) { return _bins[ng[0]][ng[1]][ng[2]]; }
             else static if (N == 4) { return _bins[ng[0]][ng[1]][ng[2]][ng[3]]; }
             else static if (N == 5) { return _bins[ng[0]][ng[1]][ng[2]][ng[3]][ng[4]]; }
-            else { static assert(false, "N >= 6 not supported"); }
+            else { static assert(0, "N >= 6 not supported"); }
         }
     }
 
@@ -503,7 +503,7 @@ struct NGram(ValueType,
             else static if (N == 3) { _bins[ng[0]][ng[1]][ng[2]] = true; }
             else static if (N == 4) { _bins[ng[0]][ng[1]][ng[2]][ng[3]] = true; }
             else static if (N == 5) { _bins[ng[0]][ng[1]][ng[2]][ng[3]][ng[4]] = true; }
-            else { static assert(false, "N >= 6 not supported"); }
+            else { static assert(0, "N >= 6 not supported"); }
         }
         else
         {
@@ -598,7 +598,7 @@ struct NGram(ValueType,
         static if (this.isDense && rhs.isDense)
         {
             static if (N == 1) return dotProduct(this._bins, rhs._bins);
-            else static assert(false, "N >= " ~ to!string(N) ~ " not supported");
+            else static assert(0, "N >= " ~ to!string(N) ~ " not supported");
         }
         else static if (this.isSparse)
         {
@@ -620,7 +620,7 @@ struct NGram(ValueType,
         }
         else
         {
-            static assert(false, "Combination of " ~ typeof(storage).stringof ~ " and " ~
+            static assert(0, "Combination of " ~ typeof(storage).stringof ~ " and " ~
                           typeof(rhsStorage).stringof ~ " not supported");
             return 0;
         }
@@ -666,7 +666,7 @@ struct NGram(ValueType,
         }
         else
         {
-            static assert(false, "Combination of " ~ to!string(this.getStorage) ~ " and " ~
+            static assert(0, "Combination of " ~ to!string(this.getStorage) ~ " and " ~
                           to!string(rhs.getStorage) ~ " and N == " ~ to!string(N) ~ " not supported");
         }
         return tmp;
@@ -704,7 +704,7 @@ struct NGram(ValueType,
             static      if (N == 1) BitArrayN!noABins _bins;
             else static if (N == 2) BitArrayN!noABins[noABins] _bins;
             else static if (N == 3) BitArrayN!noABins[noABins][noABins] _bins;
-            else static assert(false, "Dense static N >= 4 does no safely fit on stack");
+            else static assert(0, "Dense static N >= 4 does no safely fit on stack");
         }
         else static if (storage == Storage.denseDynamic)
         {
@@ -713,7 +713,7 @@ struct NGram(ValueType,
             else static if (N == 3) BitArrayN!noABins[][] _bins;
             else static if (N == 4) BitArrayN!noABins[][][] _bins;
             else static if (N == 5) BitArrayN!noABins[][][][] _bins;
-            else static assert(false, "N >= 6 not supported");
+            else static assert(0, "N >= 6 not supported");
         }
         else static if (storage == Storage.sparse) // shouldn't happen
         {
@@ -726,7 +726,7 @@ struct NGram(ValueType,
     {
         static      if (N == 1) BinType[noABins] _bins;
         else static if (N == 2) BinType[noABins][noABins] _bins;
-        else static assert(false, "Dense static N >= 3 does not safely fit on stack");
+        else static assert(0, "Dense static N >= 3 does not safely fit on stack");
     }
     else static if (storage == Storage.denseDynamic &&
                     (isUnsigned!ValueType ||
@@ -737,7 +737,7 @@ struct NGram(ValueType,
         else static if (N == 3) BinType[][][] _bins;
         else static if (N == 4) BinType[][][][] _bins;
         else static if (N == 5) BinType[][][][][] _bins;
-        else static assert(false, "N >= 6 not supported");
+        else static assert(0, "N >= 6 not supported");
     }
     else
     {

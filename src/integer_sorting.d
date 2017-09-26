@@ -57,7 +57,8 @@ auto radixSort(R,
     /* Lookup number of radix bits from sizeof ElementType.
        These give optimal performance on Intel Core i7.
     */
-    static if (elementBitCount == 8)
+    static if (elementBitCount == 8 ||
+               elementBitCount == 24)
     {
         enum radixBitCount = 8;
     }
@@ -65,11 +66,11 @@ auto radixSort(R,
                     elementBitCount == 32 ||
                     elementBitCount == 64)
     {
-        enum radixBitCount = 16; // this prevents "rest" digit
+        enum radixBitCount = 16;
     }
     else
     {
-        static assert("Cannot handle ElementType " ~ E.stringof);
+        static assert(false, "TODO handle element type " ~ e.stringof);
     }
 
     // TODO activate this: subtract min from all values and then immutable uint elementBitCount = is_min(a_max) ? 8*sizeof(E) : binlog(a_max); and add it back.

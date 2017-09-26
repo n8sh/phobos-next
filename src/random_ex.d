@@ -1,6 +1,6 @@
 #!/usr/bin/env rdmd-dev-module
 
-/** Generate Randomized Instances.
+/** Randomize existing instances and generate randomized instances of a given type.
 
     Copyright: Per Nordlöw 2017-.
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).

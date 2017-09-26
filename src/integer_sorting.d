@@ -38,9 +38,10 @@ import bijections;
 auto radixSort(R,
                alias fun = "a",
                bool descending = false,
-               bool fastDigitDiscardal = false)(R x,
-                                                /* ElementType!R elementMin = ElementType!(R).max, */
-                                                /* ElementType!R elementMax = ElementType!(R).min */)
+               bool fastDigitDiscardal = false,
+               bool inPlace = false)(R x,
+                                     /* ElementType!R elementMin = ElementType!(R).max, */
+                                     /* ElementType!R elementMax = ElementType!(R).min */)
 
     @trusted
     if (isRandomAccessRange!R &&
@@ -91,7 +92,7 @@ auto radixSort(R,
         doInPlace = false; // we cannot do in-place because each BSP is unstable and may ruin order from previous digit passes
     }
 
-    static if (false/* doInPlace */)
+    static if (inPlace)
     {
         // histogram buckets upper-limits/walls for values in \p x.
         Slice!size_t[radix] bins = void; // bucket slices
@@ -161,7 +162,7 @@ auto radixSort(R,
     else
     {
         // histogram buckets upper-limits/walls for values in \p x.
-        size_t[radix] hist; // most certainly fits in the stack (L1-cache)
+        size_t[radix] bstat;    // fits in the L1-cache
 
         // non-in-place requires temporary \p y. TODO we could allocate these as
         // a stack-allocated array for small arrays and gain extra speed.
@@ -173,10 +174,8 @@ auto radixSort(R,
         {
             const sh = d*radixNBits;   // digit bit shift
 
-            // reset histogram counters
-            hist[] = 0;
-
-            // populate histogram \c hist for current digit
+            // calculate counts
+            bstat[] = 0;         // reset
             static if (fastDigitDiscardal)
             {
                 U ors  = 0;             // digits "or-sum"
@@ -185,7 +184,7 @@ auto radixSort(R,
             for (size_t j = 0; j != n; ++j) // for each element index \c j in \p x
             {
                 const uint i = (x[j].bijectToUnsigned(descending) >> sh) & mask; // digit (index)
-                ++hist[i];              // increase histogram bin counter
+                ++bstat[i];              // increase histogram bin counter
                 static if (fastDigitDiscardal)
                 {
                     // accumulate bits statistics
@@ -204,7 +203,7 @@ auto radixSort(R,
             // bin boundaries: accumulate bin counters array
             for (size_t j = 1; j != radix; ++j) // for each successive bin counter
             {
-                hist[j] += hist[j - 1]; // accumulate bin counter
+                bstat[j] += bstat[j - 1]; // accumulate bin counter
             }
 
             // reorder. access \p x's elements in \em reverse to \em reuse filled caches from previous forward iteration.
@@ -215,10 +214,10 @@ auto radixSort(R,
             {
                 version(LDC) static if (__VERSION__ >= 2076) { static assert(0, "TODO use static foreach inplace of iota!(...)"); }
                 import range_ex : iota;
-                foreach (k; iota!(0, unrollFactor))
+                foreach (k; iota!(0, unrollFactor)) // inlined (unrolled) loop
                 {
                     const uint i = (x[j - k].bijectToUnsigned(descending) >> sh) & mask; // digit (index)
-                    y[--hist[i]] = x[j - k]; // reorder into y
+                    y[--bstat[i]] = x[j - k]; // reorder into y
                 }
             }
 

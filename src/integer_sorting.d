@@ -266,8 +266,8 @@ version(benchmark)
         writef("E:%8-s n:%10-s: ", E.stringof, n);
 
         import random_ex : randInPlace;
-        import std.algorithm.sorting : sort, SwapStrategy;
-        import std.algorithm : min, max, isSorted;
+        import std.algorithm.sorting : sort, SwapStrategy, isSorted;
+        import std.algorithm.comparison : min, max;
         import std.range : retro;
         import std.algorithm : equal;
         import std.datetime : StopWatch, AutoStart, TickDuration;
@@ -356,7 +356,8 @@ version(benchmark)
     foreach (ix, T; AliasSeq!(byte, short))
     {
         import basic_uncopyable_array : Array = UncopyableArray;
-        import std.algorithm : sort, isSorted, swap;
+        import std.algorithm.sorting : sort, isSorted;
+        import std.algorithm.mutation : swap;
         import random_ex : randInPlace;
 
         auto a = Array!T();

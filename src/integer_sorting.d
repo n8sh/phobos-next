@@ -90,7 +90,7 @@ auto radixSort(R,
 
     import fixed_dynamic_array : FixedDynamicArray;
 
-    static if (inPlace)
+    static if (inPlace) // most-significant digit (MSD) first in-place radix sort
     {
         size_t[radix] binStat;    // fits in the L1-cache
 
@@ -117,7 +117,7 @@ auto radixSort(R,
 
         assert(input.isSorted!"a < b");
     }
-    else
+    else                        // standard radix sort
     {
         // histogram buckets count and later upper-limits/walls for values in `input`
         size_t[radix] binStat = void;    // fits in the L1-cache

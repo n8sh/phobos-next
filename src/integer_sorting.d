@@ -92,9 +92,8 @@ auto radixSort(R,
 
     static if (inPlace) // most-significant digit (MSD) first in-place radix sort
     {
-        size_t[radix] binStat;    // fits in the L1-cache
-
         // histogram buckets count and later upper-limits/walls for values in `input`
+        size_t[radix] binStat;
         foreach (immutable digitOffsetReversed; 0 .. digitCount) // for each `digitOffset` (in base `radix`) starting with least significant (LSD-first)
         {
             immutable digitOffset = digitCount - 1 - digitOffsetReversed;
@@ -120,7 +119,7 @@ auto radixSort(R,
     else                        // standard radix sort
     {
         // histogram buckets count and later upper-limits/walls for values in `input`
-        size_t[radix] binStat = void;    // fits in the L1-cache
+        size_t[radix] binStat = void; // initialized in loop
 
         // non-in-place requires temporary `y`. TODO we could allocate these as
         // a stack-allocated array for small arrays and gain extra speed.
@@ -319,25 +318,25 @@ version(benchmark)
         }
 
         // inplace-place radix sort
-        static if (is(E == uint))
-        {
-            auto b = a.dup;
+        // static if (is(E == uint))
+        // {
+        //     auto b = a.dup;
 
-            sw.reset;
-            sw.start();
-            b[].radixSort!(typeof(b[]), "b", false, false, true)();
-            sw.stop;
-            immutable radixTime = sw.peek.usecs;
+        //     sw.reset;
+        //     sw.start();
+        //     b[].radixSort!(typeof(b[]), "b", false, false, true)();
+        //     sw.stop;
+        //     immutable radixTime = sw.peek.usecs;
 
-            assert(b[].equal(qa[]));
+        //     assert(b[].equal(qa[]));
 
-            version(show)
-            {
-                writeln("in-place radix sorted with fast-discardal: ",
-                        b[0 .. min(nMax, $)]);
-            }
-            writef("%9-s, ", cast(real)sortTime.usecs / radixTime);
-        }
+        //     version(show)
+        //     {
+        //         writeln("in-place radix sorted with fast-discardal: ",
+        //                 b[0 .. min(nMax, $)]);
+        //     }
+        //     writef("%9-s, ", cast(real)sortTime.usecs / radixTime);
+        // }
 
         writeln("");
     }

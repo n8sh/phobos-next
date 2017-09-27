@@ -36,6 +36,12 @@ private:
                      Kind, "_kindNr", kindBits));
 }
 
+private mixin template VariantArrayOf(Type)
+{
+    import basic_copyable_array : CopyableArray;
+    CopyableArray!Type _array;
+}
+
 /** Stores set of variants.
 
     Enables lightweight storage of polymorphic objects.
@@ -46,13 +52,15 @@ private struct VariantArrays(Types...)
 {
     alias Index = VariantIndex!Types;
 
-    import basic_copyable_array : CopyableArray; // TODO break out `BasicArray` from CopyableArray
+    import basic_copyable_array : CopyableArray;
 
     pragma(inline, true):
 
     /// Returns: array type (as a string) of `Type`.
     private static immutable(string) arrayTypeString(Type)()
     {
+        // import std.traits : fullyQualifiedName;
+        // return `CopyableArray!(` ~ fullyQualifiedName!Type ~ `)`;
         return `CopyableArray!(` ~ Type.stringof ~ `)`;
     }
 
@@ -131,6 +139,7 @@ private:
     {
         static foreach (Type; Types)
         {
+            mixin VariantArrayOf!(Type);
             mixin(arrayTypeString!Type ~ ` ` ~ arrayInstanceString!Type ~ `;`);
         }
     }

@@ -17,6 +17,12 @@ pragma(inline, true):
         return This(Store(length, cast(T*)pureMalloc(length * T.sizeof)));
     }
 
+    pragma(inline)              // DMD cannot inline this
+    static This withLength(size_t length) @system
+    {
+        return This(Store(length, cast(T*)pureCalloc(length, T.sizeof)));
+    }
+
     /// Construct from `store`.
     private this(Store store)
     {
@@ -81,4 +87,13 @@ private:
     auto x = FixedDynamicArray!(int).makeUninitializedOfLength(7);
     x[0] = 11;
     assert(x[0] == 11);
+
+    auto y = FixedDynamicArray!(int).withLength(3);
+    y[0] = 11;
+    assert(y[] == [11, 0, 0].s);
+}
+
+version(unittest)
+{
+    import array_help : s;
 }

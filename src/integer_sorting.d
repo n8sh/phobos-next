@@ -112,6 +112,7 @@ auto radixSort(R,
         {
             binHighOffsets[j] += binHighOffsets[j - 1]; // accumulate bin counter
         }
+        assert(binHighOffsets[radix - 1] == n); // should equal high offset of last bin
 
         assert(input.isSorted!"a < b");
     }
@@ -177,6 +178,7 @@ auto radixSort(R,
             {
                 binHighOffsets[j] += binHighOffsets[j - 1]; // accumulate bin counter
             }
+            assert(binHighOffsets[radix - 1] == n); // should equal high offset of last bin
 
             // reorder. access `input`'s elements in \em reverse to \em reuse filled caches from previous forward iteration.
             // \em stable reorder from `input` to `tempSlice` using normal counting sort (see `counting_sort` above).

@@ -94,9 +94,11 @@ auto radixSort(R,
     {
         static assert(!descending, "TODO Implement descending version");
 
-        size_t[radix] binHighOffsets; // histogram buckets count and later upper-limits/walls for values in `input`
         foreach (immutable digitOffsetReversed; 0 .. digitCount) // for each `digitOffset` (in base `radix`) starting with least significant (LSD-first)
         {
+            size_t[radix] binLowOffsets;
+            size_t[radix] binHighOffsets; // histogram buckets count and later upper-limits/walls for values in `input`
+
             immutable digitOffset = digitCount - 1 - digitOffsetReversed;
             immutable digitBitshift = digitOffset*radixBitCount; // digit bit shift
 
@@ -107,14 +109,38 @@ auto radixSort(R,
                 immutable i = (currentUnsignedValue >> digitBitshift) & mask; // digit (index)
                 ++binHighOffsets[i];   // increase histogram bin counter
             }
+
+            // bin boundaries: accumulate bin counters array
+            binLowOffsets[0] = 0;             // first low is always zero
+            foreach (immutable j; 1 .. radix) // for each successive bin counter
+            {
+                binLowOffsets[j]= binHighOffsets[j - 1]; // previous roof becomes current floor
+                binHighOffsets[j] += binHighOffsets[j - 1]; // accumulate bin counter
+            }
+            assert(binHighOffsets[radix - 1] == n); // should equal high offset of last bin
         }
 
-        // bin boundaries: accumulate bin counters array
-        foreach (immutable j; 1 .. radix) // for each successive bin counter
-        {
-            binHighOffsets[j] += binHighOffsets[j - 1]; // accumulate bin counter
-        }
-        assert(binHighOffsets[radix - 1] == n); // should equal high offset of last bin
+        // /** \em unstable in-place (permutate) reorder/sort `input`
+        //  * access `input`'s elements in \em reverse to \em reuse filled caches from previous forward iteration.
+        //  * \see `in_place_indexed_reorder`
+        //  */
+        // for (int r = radix - 1; r >= 0; --r) // for each radix digit r in reverse order (cache-friendly)
+        // {
+        //     while (binStat[r])  // as long as elements left in r:th bucket
+        //     {
+        //         immutable uint i0 = binStat[r].pop_back(); // index to first element of permutation
+        //         immutable E    e0 = input[i0]; // value of first/current element of permutation
+        //         while (true)
+        //         {
+        //             immutable int rN = (e0.bijectToUnsigned(descending) >> digitBitshift) & mask; // next digit (index)
+        //             if (r == rN) // if permutation cycle closed (back to same digit)
+        //                 break;
+        //             immutable ai = binStat[rN].pop_back(); // array index
+        //             swap(input[ai], e0); // do swap
+        //         }
+        //         input[i0] = e0;         // complete cycle
+        //     }
+        // }
 
         // TODO copy reorder algorithm into local function that calls itself in the recursion step
         // TODO call this local function

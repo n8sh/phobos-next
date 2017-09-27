@@ -1,6 +1,6 @@
 module variant_arrays;
 
-/** Polymorphic index into an element in `VariantStore`. */
+/** Polymorphic index into an element in `VariantArrays`. */
 private struct VariantIndex(Types...)
 {
     import std.meta : staticIndexOf;

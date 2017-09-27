@@ -285,7 +285,7 @@ version(benchmark)
     /** Test $(D radixSort) with ElementType $(D E) */
     void test(E)(int n) @safe
     {
-        writef("%8-s %10-s ", E.stringof, n);
+        writef("%8-s, %10-s, ", E.stringof, n);
 
         import std.traits : isIntegral, isSigned, isUnsigned;
         import random_ex : randInPlace, randInPlaceWithElementRange;
@@ -338,7 +338,7 @@ version(benchmark)
             sw.stop;
             immutable radixTime1 = sw.peek.usecs;
 
-            writef("%9-s ", cast(real)sortTime.usecs / radixTime1);
+            writef("%9-s, ", cast(real)sortTime.usecs / radixTime1);
             assert(b.equal(qa));
         }
 
@@ -359,7 +359,7 @@ version(benchmark)
                 writeln("standard radix sorted with fast-discardal: ",
                         b[0 .. min(nMax, $)]);
             }
-            writef("%9-s ", cast(real)sortTime.usecs / radixTime);
+            writef("%9-s, ", cast(real)sortTime.usecs / radixTime);
         }
 
         writeln("");
@@ -382,9 +382,13 @@ version(benchmark)
 {
     import std.meta : AliasSeq;
 
-    immutable n = 1_000_000;
+    immutable n = 10_000;
 
-    foreach (ix, T; AliasSeq!(byte, short))
+    foreach (ix, T; AliasSeq!(byte, ubyte,
+                              short, ushort,
+                              int, uint,
+                              long, ulong,
+                              float, double))
     {
         import basic_uncopyable_array : Array = UncopyableArray;
         import std.algorithm.sorting : sort, isSorted;
@@ -398,7 +402,7 @@ version(benchmark)
 
         auto b = a.dup;
 
-        radixSort(a[]);
+        a[].radixSort();
         assert(a[].isSorted);
 
         b[].sort();

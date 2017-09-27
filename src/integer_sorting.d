@@ -287,6 +287,8 @@ version(benchmark)
     {
         writef("%8-s, %10-s, ", E.stringof, n);
 
+        import basic_uncopyable_array : Array = UncopyableArray;
+
         import std.traits : isIntegral, isSigned, isUnsigned;
         import random_ex : randInPlace, randInPlaceWithElementRange;
         import std.algorithm.sorting : sort, SwapStrategy, isSorted;
@@ -297,7 +299,7 @@ version(benchmark)
         immutable nMax = 5;
 
         // generate random
-        auto a = new E[n];
+        auto a = Array!E.withLength(n);
         static if (isUnsigned!E)
         {
             // a[].randInPlaceWithElementRange(cast(E)0, cast(E)uint.max);
@@ -314,18 +316,18 @@ version(benchmark)
 
         sw.reset;
         sw.start();
-        sort!("a < b", SwapStrategy.stable)(qa);
+        qa[].sort!("a < b", SwapStrategy.stable)();
         sw.stop;
         immutable TickDuration sortTime = sw.peek;
         version(show) write("quick sorted: ", qa[0 .. min(nMax, $)], ", ");
-        assert(qa.isSorted);
+        assert(qa[].isSorted);
 
         // reverse radix sort
         {
             auto b = a.dup;
-            radixSort!(typeof(b), "a", true)(b);
+            b[].radixSort!(typeof(b[]), "a", true)();
             version(show) write("reverse radix sorted: ", b[0 .. min(nMax, $)], ", ");
-            assert(b.retro.equal(qa));
+            assert(b[].retro.equal(qa[]));
         }
 
         // standard radix sort
@@ -334,12 +336,12 @@ version(benchmark)
 
             sw.reset;
             sw.start();
-            radixSort!(typeof(b), "b", false)(b);
+            b[].radixSort!(typeof(b[]), "b", false)();
             sw.stop;
             immutable radixTime1 = sw.peek.usecs;
 
             writef("%9-s, ", cast(real)sortTime.usecs / radixTime1);
-            assert(b.equal(qa));
+            assert(b[].equal(qa[]));
         }
 
         // standard radix sort fast-discardal
@@ -348,11 +350,11 @@ version(benchmark)
 
             sw.reset;
             sw.start();
-            radixSort!(typeof(b), "b", false, true)(b);
+            b[].radixSort!(typeof(b[]), "b", false, true)();
             sw.stop;
             immutable radixTime = sw.peek.usecs;
 
-            assert(b.equal(qa));
+            assert(b[].equal(qa[]));
 
             version(show)
             {
@@ -384,7 +386,7 @@ version(benchmark)
 
     immutable n = 10_000;
 
-    foreach (ix, T; AliasSeq!(byte, ubyte,
+    foreach (ix, E; AliasSeq!(byte, ubyte,
                               short, ushort,
                               int, uint,
                               long, ulong,
@@ -395,8 +397,7 @@ version(benchmark)
         import std.algorithm.mutation : swap;
         import random_ex : randInPlace;
 
-        auto a = Array!T();
-        a.length = n;
+        auto a = Array!E.withLength(n);
 
         a[].randInPlace();
         auto b = a.dup;

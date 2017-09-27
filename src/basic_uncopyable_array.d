@@ -10,6 +10,15 @@ struct UncopyableArray(T,
 {
     import std.range : ElementType, isCopyable;
 
+    /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
+    pragma(inline)
+    static typeof(this) withLength(size_t initialLength) @trusted
+    {
+        typeof(return) that;
+        that._basicArray = Super.withLength(initialLength);
+        return that;
+    }
+
     /// Construct from element `values`.
     this(U)(U[] values...)
         if (Super.isElementAssignable!U &&

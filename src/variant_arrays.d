@@ -190,7 +190,9 @@ private:
     assert(data.length == 4);
 }
 
-version(unittest)
+// version = extraTests;
+
+version(extraTests)
 {
 static private:
     alias I = VariantIndex!(Rel1, Rel2,
@@ -207,6 +209,7 @@ static private:
 }
 
 ///
+version(extraTests)
 @safe pure nothrow @nogc unittest
 {
     S s;
@@ -220,6 +223,7 @@ static private:
 }
 
 /// put and peek
+version(extraTests)
 pure nothrow @nogc unittest
 {
     S s;

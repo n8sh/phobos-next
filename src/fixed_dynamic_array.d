@@ -10,7 +10,7 @@ pragma(inline, true):
 
     /// Make and return uninitialized array of `length`.
     pragma(inline)              // DMD cannot inline this
-    static typeof(this) makeUninitialized(size_t length) @system
+    static typeof(this) makeUninitializedOfLength(size_t length) @system
     {
         return typeof(return)(length);
     }
@@ -66,7 +66,7 @@ private:
 
 @system pure nothrow @nogc unittest
 {
-    auto x = FixedDynamicArray!(int).makeUninitialized(7);
+    auto x = FixedDynamicArray!(int).makeUninitializedOfLength(7);
     x[0] = 11;
     assert(x[0] == 11);
 }

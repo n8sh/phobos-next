@@ -193,12 +193,15 @@ private:
 version(unittest)
 {
 static private:
-    alias S = VariantArrays!(Rel1, Rel2,
-                             Int);
+    alias I = VariantIndex!(Rel1, Rel2,
+                            Int);
 
     // relations
-    struct Rel1 { S.Index[1] args; }
-    struct Rel2 { S.Index[2] args; }
+    struct Rel1 { I[1] args; }
+    struct Rel2 { I[2] args; }
+
+    alias S = VariantArrays!(Rel1, Rel2,
+                             Int);
 
     struct Int { int value; }
 }
@@ -207,6 +210,7 @@ static private:
 @safe pure nothrow @nogc unittest
 {
     S s;
+
     S.Index top = s.put(Rel1(s.put(Rel1(s.put(Rel2([s.put(Int(42)),
                                                     s.put(Int(43))]))))));
     assert(s.allOf!Rel1.length == 2);
@@ -219,6 +223,7 @@ static private:
 pure nothrow @nogc unittest
 {
     S s;
+
     const n = 10;
     foreach (const i; 0 .. n)
     {

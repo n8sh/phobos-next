@@ -96,28 +96,29 @@ auto radixSort(R,
 
         foreach (immutable digitOffsetReversed; 0 .. digitCount) // for each `digitOffset` (in base `radix`) starting with least significant (LSD-first)
         {
-            size_t[radix] binLowOffsets;
-            size_t[radix] binHighOffsets; // histogram buckets count and later upper-limits/walls for values in `input`
-
             immutable digitOffset = digitCount - 1 - digitOffsetReversed;
             immutable digitBitshift = digitOffset*radixBitCount; // digit bit shift
+
+            // [lowOffsets[i], highOffsets[i]] will become slices into `input`
+            size_t[radix] lowOffsets; // low offsets for each bin
+            size_t[radix] highOffsets; // high offsets for each bin
 
             // calculate counts
             foreach (immutable j; 0 .. n) // for each element index `j` in `input`
             {
                 immutable UE currentUnsignedValue = cast(UE)input[j].bijectToUnsigned(descending);
                 immutable i = (currentUnsignedValue >> digitBitshift) & mask; // digit (index)
-                ++binHighOffsets[i];   // increase histogram bin counter
+                ++highOffsets[i];   // increase histogram bin counter
             }
 
             // bin boundaries: accumulate bin counters array
-            binLowOffsets[0] = 0;             // first low is always zero
+            lowOffsets[0] = 0;             // first low is always zero
             foreach (immutable j; 1 .. radix) // for each successive bin counter
             {
-                binLowOffsets[j]= binHighOffsets[j - 1]; // previous roof becomes current floor
-                binHighOffsets[j] += binHighOffsets[j - 1]; // accumulate bin counter
+                lowOffsets[j] = highOffsets[j - 1]; // previous roof becomes current floor
+                highOffsets[j] += highOffsets[j - 1]; // accumulate bin counter
             }
-            assert(binHighOffsets[radix - 1] == n); // should equal high offset of last bin
+            assert(highOffsets[radix - 1] == n); // should equal high offset of last bin
         }
 
         // /** \em unstable in-place (permutate) reorder/sort `input`
@@ -175,7 +176,7 @@ auto radixSort(R,
             }
 
             // calculate counts
-            size_t[radix] binHighOffsets; // histogram buckets count and later upper-limits/walls for values in `input`
+            size_t[radix] highOffsets; // histogram buckets count and later upper-limits/walls for values in `input`
             UE previousUnsignedValue = cast(UE)input[0].bijectToUnsigned(descending);
             foreach (immutable j; 0 .. n) // for each element index `j` in `input`
             {
@@ -189,7 +190,7 @@ auto radixSort(R,
                     }
                 }
                 immutable i = (currentUnsignedValue >> digitBitshift) & mask; // digit (index)
-                ++binHighOffsets[i];              // increase histogram bin counter
+                ++highOffsets[i];              // increase histogram bin counter
                 previousUnsignedValue = currentUnsignedValue;
             }
 
@@ -207,9 +208,9 @@ auto radixSort(R,
             // bin boundaries: accumulate bin counters array
             foreach (immutable j; 1 .. radix) // for each successive bin counter
             {
-                binHighOffsets[j] += binHighOffsets[j - 1]; // accumulate bin counter
+                highOffsets[j] += highOffsets[j - 1]; // accumulate bin counter
             }
-            assert(binHighOffsets[radix - 1] == n); // should equal high offset of last bin
+            assert(highOffsets[radix - 1] == n); // should equal high offset of last bin
 
             // reorder. access `input`'s elements in \em reverse to \em reuse filled caches from previous forward iteration.
             // \em stable reorder from `input` to `tempSlice` using normal counting sort (see `counting_sort` above).
@@ -222,10 +223,10 @@ auto radixSort(R,
                 foreach (k; iota!(0, unrollFactor)) // inlined (unrolled) loop
                 {
                     immutable i = (input[j - k].bijectToUnsigned(descending) >> digitBitshift) & mask; // digit (index)
-                    tempSlice[--binHighOffsets[i]] = input[j - k]; // reorder into tempSlice
+                    tempSlice[--highOffsets[i]] = input[j - k]; // reorder into tempSlice
                 }
             }
-            assert(binHighOffsets[0] == 0); // should equal low offset of first bin
+            assert(highOffsets[0] == 0); // should equal low offset of first bin
 
             static if (digitCount & 1) // if odd number of digit passes
             {

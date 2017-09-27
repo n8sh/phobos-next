@@ -4,7 +4,7 @@ module fixed_dynamic_array;
  */
 private struct FixedDynamicArray(T)
 {
-    import qcmeman : pureMalloc = malloc, pureFree = free;
+    import qcmeman : pureMalloc = malloc, pureCalloc = calloc, pureFree = free;
 
 pragma(inline, true):
 

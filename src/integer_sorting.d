@@ -86,14 +86,7 @@ auto radixSort(R,
     enum radix = cast(typeof(radixBitCount))1 << radixBitCount;    // bin count
     enum mask = radix-1;                                     // radix bit mask
 
-    alias U = typeof(input.front.bijectToUnsigned); // get unsigned integer type of same precision as \tparam E.
-
-    bool doInPlace = false;
-
-    if (digitCount != 1)           // if more than one bucket sort pass (BSP)
-    {
-        doInPlace = false; // we cannot do in-place because each BSP is unstable and may ruin order from previous digit passes
-    }
+    alias UE = typeof(input.front.bijectToUnsigned); // get unsigned integer type of same precision as \tparam E.
 
     static if (inPlace)
     {
@@ -110,7 +103,7 @@ auto radixSort(R,
             binStat[] = 0;
 
             // populate histogram `hist` for current digit
-            U ors  = 0;             // digits "or-sum"
+            UE ors  = 0;             // digits "or-sum"
 
             foreach (immutable j; 0 .. n) // for each element index `j` in `input`
             {
@@ -172,7 +165,7 @@ auto radixSort(R,
 
         static if (doDigitDiscardal)
         {
-            U ors  = 0;         // digits diff(xor)-or-sum
+            UE ors  = 0;         // digits diff(xor)-or-sum
         }
 
         foreach (immutable digitOffset; 0 .. digitCount) // for each `digitOffset` (in base `radix`) starting with least significant (LSD-first)
@@ -192,10 +185,10 @@ auto radixSort(R,
 
             // calculate counts
             binStat[] = 0;         // reset
-            U previousUnsignedValue = cast(U)input[0].bijectToUnsigned(descending);
+            UE previousUnsignedValue = cast(UE)input[0].bijectToUnsigned(descending);
             foreach (immutable j; 0 .. n) // for each element index `j` in `input`
             {
-                immutable U currentUnsignedValue = cast(U)input[j].bijectToUnsigned(descending);
+                immutable UE currentUnsignedValue = cast(UE)input[j].bijectToUnsigned(descending);
                 static if (doDigitDiscardal)
                 {
                     if (digitOffset == 0) // first iteration calculates statistics

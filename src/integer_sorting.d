@@ -399,13 +399,8 @@ version(benchmark)
         a.length = n;
 
         a[].randInPlace();
-
         auto b = a.dup;
-
-        a[].radixSort();
-        b[].sort();
-
-        assert(a == b);
+        assert(a[].radixSort() == b[].sort());
 
         swap(a, b);
     }

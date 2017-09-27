@@ -39,7 +39,7 @@ private:
 private mixin template VariantArrayOf(Type)
 {
     import basic_copyable_array : CopyableArray;
-    CopyableArray!Type _array;
+    CopyableArray!Type store;
 }
 
 /** Stores set of variants.
@@ -57,11 +57,9 @@ private struct VariantArrays(Types...)
     pragma(inline, true):
 
     /// Returns: array type (as a string) of `Type`.
-    private static immutable(string) arrayTypeString(Type)()
+    private static immutable(string) arrayTypeStringOfIndex(uint typeIndex)()
     {
-        // import std.traits : fullyQualifiedName;
-        // return `CopyableArray!(` ~ fullyQualifiedName!Type ~ `)`;
-        return `CopyableArray!(` ~ Type.stringof ~ `)`;
+        return `CopyableArray!(Types[` ~ typeIndex.stringof ~ `])`;
     }
 
     /// Returns: array instance (as a strinng) storing `Type`.
@@ -137,19 +135,19 @@ private struct VariantArrays(Types...)
 private:
     static if (__VERSION__ >= 2076)
     {
-        static foreach (Type; Types)
+        static foreach (const typeIndex, Type; Types)
         {
-            mixin VariantArrayOf!(Type);
-            mixin(arrayTypeString!Type ~ ` ` ~ arrayInstanceString!Type ~ `;`);
+            // mixin VariantArrayOf!(Type);
+            mixin(arrayTypeStringOfIndex!typeIndex ~ ` ` ~ arrayInstanceString!Type ~ `;`);
         }
     }
     else
     {
         mixin({
                 string s = "";
-                foreach (Type; Types)
+                foreach (const typeIndex, Type; Types)
                 {
-                    s ~= arrayTypeString!Type ~ ` ` ~ arrayInstanceString!Type ~ `;`;
+                    s ~= arrayTypeStringOfIndex!typeIndex ~ ` ` ~ arrayInstanceString!Type ~ `;`;
                 }
                 return s;
             }());

@@ -101,7 +101,7 @@ auto radixSort(R,
     static if (inPlace)
     {
         // histogram buckets upper-limits/walls for values in `input`
-        Slice!size_t[radix] binStat = void; // bucket slices
+        size_t[radix] binStat = void; // fits in the L1-cache
         foreach (immutable digitOffset; 0 .. digitCount) // for each `digitOffset` (in base `radix`) starting with least significant (LSD-first)
         {
             immutable digitBitshift = digitOffset*radixBitCount; // digit bit shift
@@ -165,7 +165,7 @@ auto radixSort(R,
     else
     {
         // histogram buckets count and later upper-limits/walls for values in `input`
-        size_t[radix] binStat;    // fits in the L1-cache
+        size_t[radix] binStat = void;    // fits in the L1-cache
 
         // non-in-place requires temporary `y`. TODO we could allocate these as
         // a stack-allocated array for small arrays and gain extra speed.

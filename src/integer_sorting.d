@@ -83,9 +83,6 @@ auto radixSort(R,
 
     enum doDigitDiscardal = requestDigitDiscardal && digitCount >= 2;
 
-    /* immutable nRemBits = elementBitCount % radixBitCount; // number remaining bits to sort */
-    /* if (nRemBits) { digitCount++; }     // one more for remainding bits */
-
     enum radix = cast(typeof(radixBitCount))1 << radixBitCount;    // bin count
     enum mask = radix-1;                                     // radix bit mask
 

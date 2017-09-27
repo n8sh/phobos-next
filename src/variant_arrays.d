@@ -127,14 +127,24 @@ private struct VariantArrays(Types...)
     @property bool empty() const { return length == 0; }
 
 private:
-    mixin({
-            string s = "";
-            foreach (Type; Types)
-            {
-                s ~= arrayTypeString!Type ~ ` ` ~ arrayInstanceString!Type ~ `;`;
-            }
-            return s;
-        }());
+    static if (__VERSION__ >= 2076)
+    {
+        static foreach (Type; Types)
+        {
+            mixin(arrayTypeString!Type ~ ` ` ~ arrayInstanceString!Type ~ `;`);
+        }
+    }
+    else
+    {
+        mixin({
+                string s = "";
+                foreach (Type; Types)
+                {
+                    s ~= arrayTypeString!Type ~ ` ` ~ arrayInstanceString!Type ~ `;`;
+                }
+                return s;
+            }());
+    }
 }
 
 version(unittest)

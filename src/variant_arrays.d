@@ -17,6 +17,8 @@ private:
     /// Is `true` iff an index to a `SomeKind`-kind can be stored.
     enum canReferTo(SomeKind) = nrOfKind!SomeKind >= 0;
 
+    pragma(inline, true):
+
     /// Construct.
     this(Kind kind, Size index) // TODO can ctor inferred by bitfields?
     {
@@ -25,7 +27,6 @@ private:
     }
 
     /// Returns: `true` iff `this` targets a value of type `SomeKind`.
-    pragma(inline, true)
     bool isA(SomeKind)() const { return nrOfKind!(SomeKind) == _kindNr; }
 
     import std.bitmanip : bitfields;
@@ -38,8 +39,6 @@ private:
     Enables lightweight storage of polymorphic objects.
 
     Each element is indexed by a corresponding `VariantIndex`.
-
-    TODO generalize to VariantStorage by making CopyableArray an argument to Storage template parameter
  */
 private struct VariantArrays(Types...)
 {
@@ -47,21 +46,22 @@ private struct VariantArrays(Types...)
 
     import basic_copyable_array : CopyableArray; // TODO break out `BasicArray` from CopyableArray
 
+    pragma(inline, true):
+
     /// Returns: array type (as a string) of `Type`.
-    pragma(inline, true)
     private static immutable(string) arrayTypeString(Type)()
     {
         return `CopyableArray!(` ~ Type.stringof ~ `)`;
     }
 
     /// Returns: array instance (as a strinng) storing `Type`.
-    pragma(inline, true)
     private static immutable(string) arrayInstanceString(Type)()
     {
         return `_values` ~ Type.mangleof;
     }
 
     /** Insert `value` at back. */
+    pragma(inline)              // DMD cannot inline
     Index insertBack(SomeKind)(SomeKind value)
         if (Index.canReferTo!SomeKind)
     {
@@ -74,7 +74,6 @@ private struct VariantArrays(Types...)
     alias put = insertBack;     // polymorphic `OutputRange` support
 
     /// ditto
-    pragma(inline, true)
     void opOpAssign(string op, SomeKind)(SomeKind value)
         if (op == "~" &&
             Index.canReferTo!SomeKind)
@@ -83,7 +82,6 @@ private struct VariantArrays(Types...)
     }
 
     /// Get reference to element of type `SomeKind` at `index`.
-    pragma(inline, true)
     scope ref inout(SomeKind) at(SomeKind)(in size_t index) inout return
         if (Index.canReferTo!SomeKind)
     {
@@ -91,7 +89,6 @@ private struct VariantArrays(Types...)
     }
 
     /// Peek at element of type `SomeKind` at `index`.
-    pragma(inline, true)
     scope inout(SomeKind)* peek(SomeKind)(in Index index) inout return @system
         if (Index.canReferTo!SomeKind)
     {
@@ -106,7 +103,6 @@ private struct VariantArrays(Types...)
     }
 
     /// Constant access to all elements of type `SomeKind`.
-    pragma(inline, true)
     scope const(SomeKind)[] allOf(SomeKind)() const return
         if (Index.canReferTo!SomeKind)
     {

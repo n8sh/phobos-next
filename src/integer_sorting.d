@@ -116,6 +116,9 @@ auto radixSort(R,
         }
         assert(binHighOffsets[radix - 1] == n); // should equal high offset of last bin
 
+        // TODO copy reorder algorithm into local function that calls itself in the recursion step
+        // TODO call this local function
+
         assert(input.isSorted!"a < b");
     }
     else                        // standard radix sort

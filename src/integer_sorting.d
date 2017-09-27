@@ -99,22 +99,13 @@ auto radixSort(R,
             immutable digitBitshift = digitOffset*radixBitCount; // digit bit shift
 
             // calculate counts
-            binStats[digitOffset] = FixedDynamicArray!size_t.makeUninitialized(radix^^(digitOffset + 1));
-            UE previousUnsignedValue = cast(UE)input[0].bijectToUnsigned(descending);
+            binStats[digitOffset] = FixedDynamicArray!size_t.makeUninitializedOfLength(radix^^(digitOffset + 1));
+            binStats[digitOffset][] = 0;
             foreach (immutable j; 0 .. n) // for each element index `j` in `input`
             {
                 immutable UE currentUnsignedValue = cast(UE)input[j].bijectToUnsigned(descending);
-                static if (doDigitDiscardal)
-                {
-                    if (digitOffset == 0) // first iteration calculates statistics
-                    {
-                        ors |= previousUnsignedValue ^ currentUnsignedValue; // accumulate bit change statistics
-                        // ors |= currentUnsignedValue; // accumulate bits statistics
-                    }
-                }
                 immutable i = (currentUnsignedValue >> digitBitshift) & mask; // digit (index)
                 ++binStats[digitOffset][i];              // increase histogram bin counter
-                previousUnsignedValue = currentUnsignedValue;
             }
         }
 
@@ -128,7 +119,7 @@ auto radixSort(R,
         // non-in-place requires temporary `y`. TODO we could allocate these as
         // a stack-allocated array for small arrays and gain extra speed.
         import fixed_dynamic_array : FixedDynamicArray;
-        auto tempStorage = FixedDynamicArray!E.makeUninitialized(n);
+        auto tempStorage = FixedDynamicArray!E.makeUninitializedOfLength(n);
         auto tempSlice = tempStorage[];
 
         static if (doDigitDiscardal)

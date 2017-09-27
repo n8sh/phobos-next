@@ -118,9 +118,6 @@ auto radixSort(R,
     }
     else                        // standard radix sort
     {
-        // histogram buckets count and later upper-limits/walls for values in `input`
-        size_t[radix] binStat = void; // initialized in loop
-
         // non-in-place requires temporary `y`. TODO we could allocate these as
         // a stack-allocated array for small arrays and gain extra speed.
         auto tempStorage = FixedDynamicArray!E.makeUninitializedOfLength(n);
@@ -147,7 +144,7 @@ auto radixSort(R,
             }
 
             // calculate counts
-            binStat[] = 0;         // reset
+            size_t[radix] binStat; // histogram buckets count and later upper-limits/walls for values in `input`
             UE previousUnsignedValue = cast(UE)input[0].bijectToUnsigned(descending);
             foreach (immutable j; 0 .. n) // for each element index `j` in `input`
             {

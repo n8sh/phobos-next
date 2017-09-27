@@ -403,10 +403,7 @@ version(benchmark)
         auto b = a.dup;
 
         a[].radixSort();
-        assert(a[].isSorted);
-
         b[].sort();
-        assert(b[].isSorted);
 
         assert(a == b);
 

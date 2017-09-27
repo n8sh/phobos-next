@@ -183,7 +183,7 @@ auto radixSort(R,
             // reorder. access `input`'s elements in \em reverse to \em reuse filled caches from previous forward iteration.
             // \em stable reorder from `input` to `tempSlice` using normal counting sort (see `counting_sort` above).
             enum unrollFactor = 1;
-            assert((n % unrollFactor) == 0); // is evenly divisible by unroll factor
+            assert((n % unrollFactor) == 0, "We need rest calculation"); // is evenly divisible by unroll factor
             for (size_t j = n - 1; j < n; j -= unrollFactor) // for each element `j` in reverse order. when `j` wraps around `j` < `n` is no longer true
             {
                 version(LDC) static if (__VERSION__ >= 2076) { static assert(0, "TODO use static foreach inplace of iota!(...)"); }

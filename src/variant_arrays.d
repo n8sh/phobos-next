@@ -1,4 +1,4 @@
-module variant_storage;
+module variant_arrays;
 
 /** Polymorphic index into an element in `VariantStore`. */
 private struct VariantIndex(Types...)

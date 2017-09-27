@@ -57,7 +57,7 @@ auto radixSort(R,
     alias E = ElementType!R;
     enum elementBitCount = 8*E.sizeof; // total number of bits needed to code each element
 
-    /* Lookup number of radix bits from sizeof ElementType.
+    /* Lookup number of radix bits from sizeof `ElementType`.
        These give optimal performance on Intel Core i7.
     */
     static if (elementBitCount == 8 ||

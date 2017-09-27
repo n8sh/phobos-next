@@ -398,7 +398,7 @@ version(benchmark)
         auto a = Array!T();
         a.length = n;
 
-        a[].randInPlace;
+        a[].randInPlace();
 
         auto b = a.dup;
 

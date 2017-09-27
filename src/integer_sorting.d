@@ -92,6 +92,8 @@ auto radixSort(R,
 
     static if (inPlace) // most-significant digit (MSD) first in-place radix sort
     {
+        static assert(!descending, "TODO Implement descending version");
+
         size_t[radix] binHighOffsets; // histogram buckets count and later upper-limits/walls for values in `input`
         foreach (immutable digitOffsetReversed; 0 .. digitCount) // for each `digitOffset` (in base `radix`) starting with least significant (LSD-first)
         {

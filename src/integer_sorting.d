@@ -88,25 +88,31 @@ auto radixSort(R,
 
     alias UE = typeof(input.front.bijectToUnsigned); // get unsigned integer type of same precision as \tparam E.
 
+    import fixed_dynamic_array : FixedDynamicArray;
+
     static if (inPlace)
     {
-        import fixed_dynamic_array : FixedDynamicArray;
-        FixedDynamicArray!size_t[digitCount] binStats;
+        size_t[radix] binStat;    // fits in the L1-cache
 
         // histogram buckets count and later upper-limits/walls for values in `input`
-        foreach (immutable digitOffset; 0 .. digitCount) // for each `digitOffset` (in base `radix`) starting with least significant (LSD-first)
+        foreach (immutable digitOffsetReversed; 0 .. digitCount) // for each `digitOffset` (in base `radix`) starting with least significant (LSD-first)
         {
+            immutable digitOffset = digitCount - 1 - digitOffsetReversed;
             immutable digitBitshift = digitOffset*radixBitCount; // digit bit shift
 
             // calculate counts
-            binStats[digitOffset] = FixedDynamicArray!size_t.makeUninitializedOfLength(radix^^(digitOffset + 1));
-            binStats[digitOffset][] = 0;
             foreach (immutable j; 0 .. n) // for each element index `j` in `input`
             {
                 immutable UE currentUnsignedValue = cast(UE)input[j].bijectToUnsigned(descending);
                 immutable i = (currentUnsignedValue >> digitBitshift) & mask; // digit (index)
-                ++binStats[digitOffset][i];              // increase histogram bin counter
+                ++binStat[i];   // increase histogram bin counter
             }
+        }
+
+        // bin boundaries: accumulate bin counters array
+        foreach (immutable j; 1 .. radix) // for each successive bin counter
+        {
+            binStat[j] += binStat[j - 1]; // accumulate bin counter
         }
 
         assert(input.isSorted!"a < b");
@@ -118,7 +124,6 @@ auto radixSort(R,
 
         // non-in-place requires temporary `y`. TODO we could allocate these as
         // a stack-allocated array for small arrays and gain extra speed.
-        import fixed_dynamic_array : FixedDynamicArray;
         auto tempStorage = FixedDynamicArray!E.makeUninitializedOfLength(n);
         auto tempSlice = tempStorage[];
 

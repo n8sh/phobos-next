@@ -51,12 +51,12 @@ pragma(inline, true):
     /// Slice assignment support.
     scope T[] opSliceAssign(U)(U value) return
     {
-        return slice()[] = value;
+        return _storage[] = value;
     }
     /// ditto
     scope T[] opSliceAssign(U)(U value, size_t i, size_t j) return
     {
-        return slice()[i .. j] = value;
+        return _storage[i .. j] = value;
     }
 
 private:

@@ -2,7 +2,7 @@ module fixed_dynamic_array;
 
 /** Dynamically allocated (heap) array with fixed length.
  */
-private struct FixedDynamicArray(E)
+private struct FixedDynamicArray(T)
 {
     import qcmeman : pureMalloc = malloc, pureFree = free;
 
@@ -20,7 +20,7 @@ pragma(inline, true):
     private this(size_t length) @system
     {
         _length = length;
-        _storage = cast(E*)pureMalloc(length * E.sizeof);
+        _storage = cast(T*)pureMalloc(length * T.sizeof);
     }
 
     /// Destruct.
@@ -33,25 +33,36 @@ pragma(inline, true):
     @disable this(this);
 
     /// Get element at index `i`.
-    scope ref inout(E) opIndex(size_t i) inout @system return
+    scope ref inout(T) opIndex(size_t i) inout @system return
     {
         return _storage[i];
     }
 
     /// Slice support.
-    scope inout(E)[] opSlice(size_t i, size_t j) inout @system return
+    scope inout(T)[] opSlice(size_t i, size_t j) inout @system return
     {
         return _storage[i .. j];
     }
     /// ditto
-    scope inout(E)[] opSlice() inout @system return
+    scope inout(T)[] opSlice() inout @system return
     {
         return _storage[0 .. _length];
     }
 
+    /// Slice assignment support.
+    scope T[] opSliceAssign(U)(U value) return
+    {
+        return slice()[] = value;
+    }
+    /// ditto
+    scope T[] opSliceAssign(U)(U value, size_t i, size_t j) return
+    {
+        return slice()[i .. j] = value;
+    }
+
 private:
     size_t _length;
-    E* _storage;
+    T* _storage;
 }
 
 @system pure nothrow @nogc unittest

@@ -38,7 +38,12 @@ pragma(inline, true):
         return _storage[i];
     }
 
-    /// Get slice.
+    /// Slice support.
+    scope inout(E)[] opSlice(size_t i, size_t j) inout @system return
+    {
+        return _storage[i .. j];
+    }
+    /// ditto
     scope inout(E)[] opSlice() inout @system return
     {
         return _storage[0 .. _length];

@@ -441,7 +441,6 @@ unittest
 
 /** Read all SUO-KIF files (.kif) located under `rootDirPath`.
  */
-version(unittest)
 version(benchmark)
 unittest
 {

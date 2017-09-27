@@ -18,14 +18,14 @@ pragma(inline, true):
     /// Construct uninitialized array of `length`.
     private this(size_t length) @system
     {
-        _length = length;
-        _storage = cast(T*)pureMalloc(length * T.sizeof);
+        _store.length = length;
+        _store.ptr = cast(T*)pureMalloc(length * T.sizeof);
     }
 
     /// Destruct.
     ~this() @trusted
     {
-        pureFree(_storage);
+        pureFree(_store.ptr);
     }
 
     // disable copying
@@ -34,34 +34,38 @@ pragma(inline, true):
     /// Get element at index `i`.
     scope ref inout(T) opIndex(size_t i) inout @system return
     {
-        return _storage[i];
+        return _store.ptr[i];
     }
 
     /// Slice support.
     scope inout(T)[] opSlice(size_t i, size_t j) inout @system return
     {
-        return _storage[i .. j];
+        return _store.ptr[i .. j];
     }
     /// ditto
     scope inout(T)[] opSlice() inout @system return
     {
-        return _storage[0 .. _length];
+        return _store.ptr[0 .. _store.length];
     }
 
     /// Slice assignment support.
     scope T[] opSliceAssign(U)(U value) return
     {
-        return _storage[0 .. _length] = value;
+        return _store.ptr[0 .. _store.length] = value;
     }
     /// ditto
     scope T[] opSliceAssign(U)(U value, size_t i, size_t j) return
     {
-        return _storage[i .. j] = value;
+        return _store.ptr[i .. j] = value;
     }
 
 private:
-    size_t _length;
-    T* _storage;
+    static struct Store
+    {
+        size_t length;
+        T* ptr;
+    }
+    Store _store;
 }
 
 @system pure nothrow @nogc unittest

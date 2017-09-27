@@ -49,7 +49,7 @@ auto radixSort(R,
     if (isRandomAccessRange!R &&
         (isNumeric!(ElementType!R)))
 {
-    import std.algorithm.sorting : assumeSorted; // TODO move this to radixSort when know how map less to descending
+    import std.algorithm.sorting : isSorted, assumeSorted; // TODO move this to radixSort when know how map less to descending
     import std.algorithm : min, max;
     import std.range : front;
 
@@ -90,67 +90,35 @@ auto radixSort(R,
 
     static if (inPlace)
     {
-        // histogram buckets upper-limits/walls for values in `input`
-        size_t[radix] binStat = void; // fits in the L1-cache
+        import fixed_dynamic_array : FixedDynamicArray;
+        FixedDynamicArray!size_t[digitCount] binStats;
+
+        // histogram buckets count and later upper-limits/walls for values in `input`
         foreach (immutable digitOffset; 0 .. digitCount) // for each `digitOffset` (in base `radix`) starting with least significant (LSD-first)
         {
             immutable digitBitshift = digitOffset*radixBitCount; // digit bit shift
 
-            // TODO activate and verify that performance is unchanged.
-            // auto uize_ = [descending, digitBitshift, mask](E a) { return (bijectToUnsigned(a, descending) >> digitBitshift) & mask; }; // local shorthand
-
-            // reset histogram counters
-            binStat[] = 0;
-
-            // populate histogram `hist` for current digit
-            UE ors  = 0;             // digits "or-sum"
-
+            // calculate counts
+            binStats[digitOffset] = FixedDynamicArray!size_t.makeUninitialized(radix^^(digitOffset + 1));
+            UE previousUnsignedValue = cast(UE)input[0].bijectToUnsigned(descending);
             foreach (immutable j; 0 .. n) // for each element index `j` in `input`
             {
-                immutable uint i = (input[j].bijectToUnsigned(descending) >> digitBitshift) & mask; // digit (index)
-                ++binStat[i].high();       // increase histogram bin counter
-                ors |= i;               // accumulate all one bits statistics
-            }
-
-            if ((! ors))        // if bits in digit[d] are all zero or
-            {
-                continue;       // no sorting is needed for this digit
-            }
-
-            // bin boundaries: accumulate bin counters array
-            size_t bin_max = binStat[0].high();
-            binStat[0].low() = 0;                    // first floor is always zero
-            for (size_t j = 1; j != radix; ++j)  // for each successive bin counter
-            {
-                bin_max = max(bin_max, binStat[j].high());
-                binStat[j].low()  = binStat[j - 1].high(); // previous roof becomes current floor
-                binStat[j].high() += binStat[j - 1].high(); // accumulate bin counter
-            }
-            // TODO if (bin_max == 1) { writeln("No accumulation needed!"); }
-
-            /** \em unstable in-place (permutate) reorder/sort `input`
-             * access `input`'s elements in \em reverse to \em reuse filled caches from previous forward iteration.
-             * \see `in_place_indexed_reorder`
-             */
-            for (int r = radix - 1; r >= 0; --r) // for each radix digit r in reverse order (cache-friendly)
-            {
-                while (binStat[r])  // as long as elements left in r:th bucket
+                immutable UE currentUnsignedValue = cast(UE)input[j].bijectToUnsigned(descending);
+                static if (doDigitDiscardal)
                 {
-                    immutable uint i0 = binStat[r].pop_back(); // index to first element of permutation
-                    immutable E    e0 = input[i0]; // value of first/current element of permutation
-                    while (true)
+                    if (digitOffset == 0) // first iteration calculates statistics
                     {
-                        immutable int rN = (e0.bijectToUnsigned(descending) >> digitBitshift) & mask; // next digit (index)
-                        if (r == rN) // if permutation cycle closed (back to same digit)
-                            break;
-                        immutable ai = binStat[rN].pop_back(); // array index
-                        swap(input[ai], e0); // do swap
+                        ors |= previousUnsignedValue ^ currentUnsignedValue; // accumulate bit change statistics
+                        // ors |= currentUnsignedValue; // accumulate bits statistics
                     }
-                    input[i0] = e0;         // complete cycle
                 }
+                immutable i = (currentUnsignedValue >> digitBitshift) & mask; // digit (index)
+                ++binStats[digitOffset][i];              // increase histogram bin counter
+                previousUnsignedValue = currentUnsignedValue;
             }
         }
 
+        assert(input.isSorted!"a < b");
     }
     else
     {
@@ -354,12 +322,33 @@ version(benchmark)
             writef("%9-s, ", cast(real)sortTime.usecs / radixTime);
         }
 
+        // inplace-place radix sort
+        static if (is(E == uint))
+        {
+            auto b = a.dup;
+
+            sw.reset;
+            sw.start();
+            b[].radixSort!(typeof(b[]), "b", false, false, true)();
+            sw.stop;
+            immutable radixTime = sw.peek.usecs;
+
+            assert(b[].equal(qa[]));
+
+            version(show)
+            {
+                writeln("in-place radix sorted with fast-discardal: ",
+                        b[0 .. min(nMax, $)]);
+            }
+            writef("%9-s, ", cast(real)sortTime.usecs / radixTime);
+        }
+
         writeln("");
     }
 
     import std.meta : AliasSeq;
     immutable n = 1_00_000;
-    writeln("EType, eCount, radixSort (speed-up), radixSort with fast discardal (speed-up)");
+    writeln("EType, eCount, radixSort (speed-up), radixSort with fast discardal (speed-up), in-place radixSort (speed-up)");
     foreach (immutable ix, T; AliasSeq!(byte, short, int, long))
     {
         test!T(n); // test signed

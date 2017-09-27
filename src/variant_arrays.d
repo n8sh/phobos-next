@@ -154,20 +154,16 @@ private:
     }
 }
 
-version(unittest)
+///
+@safe pure nothrow @nogc unittest
 {
     import fixed_array : BasicFixedArray;
 
-static private:
     alias Chars(uint capacity) = BasicFixedArray!(char, capacity);
     alias Data = VariantArrays!(Chars!7,
                                 Chars!15,
                                 ulong);
-}
 
-///
-@safe pure nothrow @nogc unittest
-{
     Data data;
     assert(data.length == 0);
     assert(data.empty);

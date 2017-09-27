@@ -93,7 +93,7 @@ auto radixSort(R,
     static if (inPlace) // most-significant digit (MSD) first in-place radix sort
     {
         // histogram buckets count and later upper-limits/walls for values in `input`
-        size_t[radix] binStat;
+        size_t[radix] binHighOffsets;
         foreach (immutable digitOffsetReversed; 0 .. digitCount) // for each `digitOffset` (in base `radix`) starting with least significant (LSD-first)
         {
             immutable digitOffset = digitCount - 1 - digitOffsetReversed;
@@ -104,14 +104,14 @@ auto radixSort(R,
             {
                 immutable UE currentUnsignedValue = cast(UE)input[j].bijectToUnsigned(descending);
                 immutable i = (currentUnsignedValue >> digitBitshift) & mask; // digit (index)
-                ++binStat[i];   // increase histogram bin counter
+                ++binHighOffsets[i];   // increase histogram bin counter
             }
         }
 
         // bin boundaries: accumulate bin counters array
         foreach (immutable j; 1 .. radix) // for each successive bin counter
         {
-            binStat[j] += binStat[j - 1]; // accumulate bin counter
+            binHighOffsets[j] += binHighOffsets[j - 1]; // accumulate bin counter
         }
 
         assert(input.isSorted!"a < b");
@@ -144,7 +144,7 @@ auto radixSort(R,
             }
 
             // calculate counts
-            size_t[radix] binStat; // histogram buckets count and later upper-limits/walls for values in `input`
+            size_t[radix] binHighOffsets; // histogram buckets count and later upper-limits/walls for values in `input`
             UE previousUnsignedValue = cast(UE)input[0].bijectToUnsigned(descending);
             foreach (immutable j; 0 .. n) // for each element index `j` in `input`
             {
@@ -158,7 +158,7 @@ auto radixSort(R,
                     }
                 }
                 immutable i = (currentUnsignedValue >> digitBitshift) & mask; // digit (index)
-                ++binStat[i];              // increase histogram bin counter
+                ++binHighOffsets[i];              // increase histogram bin counter
                 previousUnsignedValue = currentUnsignedValue;
             }
 
@@ -176,7 +176,7 @@ auto radixSort(R,
             // bin boundaries: accumulate bin counters array
             foreach (immutable j; 1 .. radix) // for each successive bin counter
             {
-                binStat[j] += binStat[j - 1]; // accumulate bin counter
+                binHighOffsets[j] += binHighOffsets[j - 1]; // accumulate bin counter
             }
 
             // reorder. access `input`'s elements in \em reverse to \em reuse filled caches from previous forward iteration.
@@ -190,7 +190,7 @@ auto radixSort(R,
                 foreach (k; iota!(0, unrollFactor)) // inlined (unrolled) loop
                 {
                     immutable i = (input[j - k].bijectToUnsigned(descending) >> digitBitshift) & mask; // digit (index)
-                    tempSlice[--binStat[i]] = input[j - k]; // reorder into tempSlice
+                    tempSlice[--binHighOffsets[i]] = input[j - k]; // reorder into tempSlice
                 }
             }
 

@@ -9,6 +9,8 @@ private:
     alias Size = size_t;             // size type
 
     import bit_traits : bitsNeeded;
+
+    /// Number of bits needed to represent kind.
     enum kindBits = bitsNeeded!(Types.length);
 
     /// Get number kind of kind type `SomeKind`.

@@ -194,6 +194,7 @@ auto radixSort(R,
                     tempSlice[--binHighOffsets[i]] = input[j - k]; // reorder into tempSlice
                 }
             }
+            assert(binHighOffsets[0] == 0); // should equal low offset of first bin
 
             static if (digitCount & 1) // if odd number of digit passes
             {

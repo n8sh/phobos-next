@@ -60,9 +60,10 @@ private struct VariantArrays(Types...)
         return `_values` ~ Type.mangleof;
     }
 
-    /** Insert `value` at back. */
-    pragma(inline)              // DMD cannot inline
-    Index insertBack(SomeKind)(SomeKind value)
+    /** Insert `value` at back.
+     */
+    pragma(inline)                             // DMD cannot inline
+    Index insertBack(SomeKind)(SomeKind value) // TODO add array type overload
         if (Index.canReferTo!SomeKind)
     {
         mixin(`alias arrayInstance = ` ~ arrayInstanceString!SomeKind ~ `;`);
@@ -74,7 +75,7 @@ private struct VariantArrays(Types...)
     alias put = insertBack;     // polymorphic `OutputRange` support
 
     /// ditto
-    void opOpAssign(string op, SomeKind)(SomeKind value)
+    void opOpAssign(string op, SomeKind)(SomeKind value) // TODO add array type overload
         if (op == "~" &&
             Index.canReferTo!SomeKind)
     {

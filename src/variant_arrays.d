@@ -79,7 +79,7 @@ private struct VariantArrays(Types...)
     {
         enum index = Index.nrOfKind!(Type);
         static assert(index >= 0, "Unsupported type");
-        return `_values` ~ index.stringof; // previously `Type.mangleof`
+        return `_store` ~ index.stringof; // previously `Type.mangleof`
     }
 
     /** Insert `value` at back.

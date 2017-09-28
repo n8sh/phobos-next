@@ -21,7 +21,7 @@ struct HashSet(T,
     /** Insert `value`. */
     void insert(T value)
     {
-        const hash = hashOf(value);
+        const size_t hash = hashOf(value);
         const size_t index = hash & hashMask;
     }
 

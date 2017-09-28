@@ -14,7 +14,7 @@ private:
     enum kindBits = bitsNeeded!(Types.length);
 
     /// Get number kind of kind type `SomeKind`.
-    enum nrOfKind(SomeKind) = staticIndexOf!(SomeKind, Types); // TODO cast to ubyte if Types.length is <= 256
+    public enum nrOfKind(SomeKind) = staticIndexOf!(SomeKind, Types); // TODO cast to ubyte if Types.length is <= 256
 
     /// Is `true` iff an index to a `SomeKind`-kind can be stored.
     enum canReferTo(SomeKind) = nrOfKind!SomeKind >= 0;

@@ -18,7 +18,10 @@ struct HashSet(T,
         _buckets = Buckets.withLength(bucketCount);
     }
 
-    /** Insert `value`. */
+    /** Insert `value`.
+        Returns: `true` if value was already present, `false` otherwise. This is
+        similar to behaviour of `contains`.
+     */
     bool insert(T value)
     {
         import std.algorithm.searching : canFind;
@@ -28,6 +31,7 @@ struct HashSet(T,
         if (!_buckets[index][].canFind(value))
         {
             _buckets[index].insertBackMove(value);
+            return true;
         }
 
         return false;

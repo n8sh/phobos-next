@@ -77,7 +77,9 @@ private struct VariantArrays(Types...)
     /// Returns: array instance (as a strinng) storing `Type`.
     private static immutable(string) arrayInstanceString(Type)()
     {
-        return `_values` ~ Type.mangleof;
+        enum index = Index.nrOfKind!(Type);
+        static assert(index >= 0, "Unsupported type");
+        return `_values` ~ index.stringof; // previously `Type.mangleof`
     }
 
     /** Insert `value` at back.

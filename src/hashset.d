@@ -29,7 +29,8 @@ private:
 @safe pure nothrow @nogc unittest
 {
     alias T = uint;
-    HashSet!T s;
+    auto s = HashSet!T(15);
+    assert(s._buckets.length == 16);
 }
 
 version(unittest)

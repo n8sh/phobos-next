@@ -5,11 +5,21 @@ struct HashSet(T,
 {
     import basic_uncopyable_array : Array = UncopyableArray;
 
-    /// Construct with `bucketCount` number of initial buckets.
-    this(size_t bucketCount)
+    /** Construct with at least `requestedMinimumBucketCount` number of initial
+        buckets.
+     */
+    this(size_t requestedMinimumBucketCount)
     {
-        _buckets = Buckets.withLength(bucketCount);
+        import std.math : nextPow2;
+        _buckets = Buckets.withLength(nextPow2(requestedMinimumBucketCount));
     }
+
+    void insert(T value)
+    {
+        import core.internal.hash : hashOf;
+        const hash = hashOf(value);
+    }
+
 private:
     alias Bucket = Array!(T);
     alias Buckets = Array!Bucket;

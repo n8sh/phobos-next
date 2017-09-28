@@ -1,5 +1,7 @@
 module hashset;
 
+/** Hash set storing elements of type `T`.
+ */
 struct HashSet(T,
                alias Allocator = null, // null means means to qcmeman functions
                alias hashFunction = null)

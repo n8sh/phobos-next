@@ -4,34 +4,40 @@ module variant_arrays;
 private struct VariantIndex(Types...)
 {
     import std.meta : staticIndexOf;
-private:
+
     alias Kind = ubyte;              // kind code
     alias Size = size_t;             // size type
 
     import bit_traits : bitsNeeded;
 
     /// Number of bits needed to represent kind.
-    enum kindBits = bitsNeeded!(Types.length);
+    private enum kindBits = bitsNeeded!(Types.length);
 
     /// Get number kind of kind type `SomeKind`.
-    public enum nrOfKind(SomeKind) = staticIndexOf!(SomeKind, Types); // TODO cast to ubyte if Types.length is <= 256
+    enum nrOfKind(SomeKind) = staticIndexOf!(SomeKind, Types); // TODO cast to ubyte if Types.length is <= 256
 
     /// Is `true` iff an index to a `SomeKind`-kind can be stored.
-    public enum canReferTo(SomeKind) = nrOfKind!SomeKind >= 0;
+    enum canReferTo(SomeKind) = nrOfKind!SomeKind >= 0;
 
     pragma(inline, true):
 
     /// Construct.
-    this(Kind kind, Size index) // TODO can ctor inferred by bitfields?
+    private this(Kind kind, Size index) // TODO can ctor inferred by bitfields?
     {
         _kindNr = kind;
         _index = index;
     }
 
     /// Get kindNr.
-    public Kind kindNr() const
+    Kind kindNr() const
     {
         return _kindNr;
+    }
+
+    /// Get index.
+    Size index() const
+    {
+        return _index;
     }
 
     /// Returns: `true` iff `this` targets a value of type `SomeKind`.

@@ -19,10 +19,19 @@ struct HashSet(T,
     }
 
     /** Insert `value`. */
-    void insert(T value)
+    bool insert(T value)
     {
+        import std.algorithm.searching : canFind;
+
         const size_t hash = hashOf(value);
         const size_t index = hash & hashMask;
+
+        if (!_buckets[index][].canFind(value))
+        {
+            _buckets[index].insertBackMove(value);
+        }
+
+        return false;
     }
 
 private:
@@ -37,7 +46,9 @@ private:
     const n = 255;
     alias T = uint;
     auto s = HashSet!T(n);
+
     assert(s._buckets.length == 256);
+
     foreach (i; 0 .. 16)
     {
         s.insert(i);

@@ -23,8 +23,7 @@ struct HashSet(T,
     {
         import std.algorithm.searching : canFind;
 
-        const size_t hash = hashFn(value);
-        const size_t index = hash & hashMask;
+        const index = hashFn(value) & hashMask;
 
         if (!_buckets[index][].canFind(value))
         {

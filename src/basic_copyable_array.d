@@ -329,26 +329,26 @@ struct CopyableArray(T,
 
     /// Index support.
     pragma(inline, true)
-    ref inout(T) opIndex(size_t i) inout return scope
+    scope ref inout(T) opIndex(size_t i) inout return
     {
         return slice()[i];
     }
 
     /// Slice support.
     pragma(inline, true)
-    inout(T)[] opSlice(size_t i, size_t j) inout return scope
+    scope inout(T)[] opSlice(size_t i, size_t j) inout return
     {
         return slice()[i .. j];
     }
     /// ditto
     pragma(inline, true)
-    inout(T)[] opSlice() inout return scope
+    scope inout(T)[] opSlice() inout return
     {
         return slice();
     }
 
     /// Index assignment support.
-    ref T opIndexAssign(U)(U value, size_t i) @trusted return scope
+    scope ref T opIndexAssign(U)(U value, size_t i) @trusted return
     {
         static if (hasElaborateDestructor!T)
         {
@@ -368,21 +368,21 @@ struct CopyableArray(T,
 
     /// Slice assignment support.
     pragma(inline, true)
-    T[] opSliceAssign(U)(U value) return scope
+    scope T[] opSliceAssign(U)(U value) return
     {
         return slice()[] = value;
     }
 
     /// ditto
     pragma(inline, true)
-    T[] opSliceAssign(U)(U value, size_t i, size_t j) return scope
+    scope T[] opSliceAssign(U)(U value, size_t i, size_t j) return
     {
         return slice()[i .. j] = value;
     }
 
     /// Get front element reference.
     pragma(inline, true)
-    ref inout(T) front() inout return scope @property
+    scope ref inout(T) front() inout return @property
     {
         // TODO use?: enforce(!empty); emsi-containers doesn't, std.container.Array does
         return slice()[0];
@@ -390,7 +390,7 @@ struct CopyableArray(T,
 
     /// Get back element reference.
     pragma(inline, true)
-    ref inout(T) back() inout return scope @property
+    scope ref inout(T) back() inout return @property
     {
         // TODO use?: enforce(!empty); emsi-containers doesn't, std.container.Array does
         return slice()[_length - 1];
@@ -587,14 +587,14 @@ struct CopyableArray(T,
 
     /// Helper slice.
     pragma(inline, true)
-    private inout(T)[] slice() inout return scope @trusted
+    scope private inout(T)[] slice() inout return  @trusted
     {
         return _ptr[0 .. _length];
     }
 
     /// Helper mutable slice.
     pragma(inline, true)
-    private MutableE[] mslice() return scope @trusted
+    scope private MutableE[] mslice() return  @trusted
     {
         return _mptr[0 .. _length];
     }
@@ -609,7 +609,7 @@ struct CopyableArray(T,
 
     /// Mutable pointer.
     pragma(inline, true)
-    private MutableE* _mptr() const return scope @trusted
+    scope private MutableE* _mptr() const return  @trusted
     {
         return cast(typeof(return))_ptr;
     }
@@ -757,13 +757,13 @@ private template shouldAddGCRange(T)
     alias T = int;
     alias A = CopyableArray!T;
 
-    T[] leakSlice() @safe return scope
+    scope T[] leakSlice() @safe return
     {
         A a;
         return a[];             // TODO shouldn't compile with -dip1000
     }
 
-    T* leakPointer() @safe return scope
+    scope T* leakPointer() @safe return
     {
         A a;
         return a._ptr;          // TODO shouldn't compile with -dip1000

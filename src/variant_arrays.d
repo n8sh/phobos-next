@@ -28,6 +28,12 @@ private:
         _index = index;
     }
 
+    /// Get kindNr.
+    Kind kindNr() const
+    {
+        return _kindNr;
+    }
+
     /// Returns: `true` iff `this` targets a value of type `SomeKind`.
     bool isA(SomeKind)() const { return nrOfKind!(SomeKind) == _kindNr; }
 

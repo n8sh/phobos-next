@@ -149,7 +149,7 @@ private:
     {
         static foreach (const typeIndex, Type; Types)
         {
-            // mixin VariantArrayOf!(Type);
+            // TODO is it better to use?: mixin VariantArrayOf!(Type);
             mixin(arrayTypeStringOfIndex!typeIndex ~ ` ` ~ arrayInstanceString!Type ~ `;`);
         }
     }

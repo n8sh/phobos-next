@@ -17,7 +17,7 @@ private:
     public enum nrOfKind(SomeKind) = staticIndexOf!(SomeKind, Types); // TODO cast to ubyte if Types.length is <= 256
 
     /// Is `true` iff an index to a `SomeKind`-kind can be stored.
-    enum canReferTo(SomeKind) = nrOfKind!SomeKind >= 0;
+    public enum canReferTo(SomeKind) = nrOfKind!SomeKind >= 0;
 
     pragma(inline, true):
 

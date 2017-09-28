@@ -4,7 +4,7 @@ struct HashSet(T,
                alias Allocator = null, // null means means to qcmeman functions
                alias hashFunction = null)
 {
-    import core.internal.hash : hashOf;
+    import core.internal.hash : hashFn = hashOf;
     import basic_uncopyable_array : Array = UncopyableArray;
 
     /** Construct with at least `requestedMinimumBucketCount` number of initial
@@ -23,7 +23,7 @@ struct HashSet(T,
     {
         import std.algorithm.searching : canFind;
 
-        const size_t hash = hashOf(value);
+        const size_t hash = hashFn(value);
         const size_t index = hash & hashMask;
 
         if (!_buckets[index][].canFind(value))

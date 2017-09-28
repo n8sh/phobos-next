@@ -4,6 +4,7 @@ struct HashSet(T,
                alias Allocator = null, // null means means to qcmeman functions
                alias hashFunction = null)
 {
+    import core.internal.hash : hashOf;
     import basic_uncopyable_array : Array = UncopyableArray;
 
     /** Construct with at least `requestedMinimumBucketCount` number of initial
@@ -20,11 +21,8 @@ struct HashSet(T,
     /** Insert `value`. */
     void insert(T value)
     {
-        import core.internal.hash : hashOf;
         const hash = hashOf(value);
-        pragma(msg, typeof(hash));
         const size_t index = hash & hashMask;
-        dln("index:", index);
     }
 
 private:

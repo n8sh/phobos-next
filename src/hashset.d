@@ -25,16 +25,13 @@ struct HashSet(T,
     bool insert(T value)
     {
         import std.algorithm.searching : canFind;
-
         const index = hashFn(value) & hashMask;
-
         if (!_buckets[index][].canFind(value))
         {
             _buckets[index].insertBackMove(value);
-            return true;
+            return false;
         }
-
-        return false;
+        return true;
     }
 
 private:
@@ -54,7 +51,12 @@ private:
 
     foreach (i; 0 .. 16)
     {
-        s.insert(i);
+        assert(!s.insert(i));
+    }
+
+    foreach (i; 0 .. 16)
+    {
+        assert(s.insert(i));
     }
 }
 

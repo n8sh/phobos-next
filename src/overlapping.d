@@ -26,8 +26,8 @@ inout(T[]) overlapsInOrder(T)(inout(T[]) a,
 /** Helper for overlap().
     Copied from std.array with simplified return expression.
  */
-bool overlaps(T)(in const(T)[] r1,
-                 in const(T)[] r2)
+bool overlaps(T)(in T[] r1,
+                 in T[] r2)
     @trusted pure nothrow @nogc
 {
     alias U = inout(T);

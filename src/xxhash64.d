@@ -73,9 +73,9 @@ struct XXHash64
         _totalLength = 0;
     }
 
-    /**
-     * Use this to feed the hash with data.
-     * Also implements the $(XREF range, OutputRange) interface for $(D ubyte) and $(D const(ubyte)[]).
+    /** Use this to feed the hash with data.
+
+        Also implements the $(XREF range, OutputRange) interface for $(D ubyte) and $(D const(ubyte)[]).
      */
     void put(scope const(ubyte)[] data...) @trusted
     {

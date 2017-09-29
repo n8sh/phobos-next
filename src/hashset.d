@@ -30,6 +30,14 @@ struct HashSet(T,
         initializeBuckets(bucketCount);
     }
 
+    /** Initialize `bucketCount` number of buckets.
+     */
+    private void initializeBuckets(size_t bucketCount) @trusted // TODO remove @trusted
+    {
+        _buckets = Buckets.withLength(bucketCount);
+        _largeBucketFlags = LargeBucketFlags.withLength(bucketCount);
+    }
+
     /// Destruct.
     ~this()
     {
@@ -63,14 +71,6 @@ struct HashSet(T,
     private void resetInternalData()
     {
         assert(false, "TODO");
-    }
-
-    /** Initialize `bucketCount` number of buckets.
-     */
-    private void initializeBuckets(size_t bucketCount) @trusted // TODO remove @trusted
-    {
-        _buckets = Buckets.withLength(bucketCount);
-        _largeBucketFlags = LargeBucketFlags.withLength(bucketCount);
     }
 
     /** Insert `value`.

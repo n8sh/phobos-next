@@ -17,7 +17,7 @@ struct HashSet(T,
     pragma(inline, true)
     this(size_t elementCount)
     {
-        const requestedBucketCount = 2 * elementCount / smallBucketLength; // TODO may need adjustment
+        const requestedBucketCount = elementCount / smallBucketLength;
         initialize(requestedBucketCount);
     }
 

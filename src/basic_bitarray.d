@@ -11,13 +11,28 @@ struct BitArray(alias Allocator = null)
     pragma(inline, true)
     @safe pure nothrow @nogc:
 
-    /** Construct with `length` number of bits. */
-    this(size_t length) @trusted
+    alias This = typeof(this);
+
+    /** Construct with `length` number of zero bits. */
+    static This withLength(size_t length) @trusted
     {
-        _blockCount = ((length / blockBits) + // number of whole blocks
-                       (length % blockBits ? 1 : 0)); // remained block
-        _ptr = cast(Block*)calloc(blockBits, _blockCount);
-        _length = length;
+        This that = void;
+        that._blockCount = ((length / blockBits) + // number of whole blocks
+                            (length % blockBits ? 1 : 0)); // remained block
+        that._ptr = cast(Block*)calloc(blockBits, that._blockCount);
+        that._length = length;
+        return that;
+    }
+
+    /** Construct with room for `capacity` number of bits. */
+    static This withCapacity(size_t length) @trusted
+    {
+        This that = void;
+        that._blockCount = ((length / blockBits) + // number of whole blocks
+                            (length % blockBits ? 1 : 0)); // remained block
+        that._ptr = cast(Block*)malloc(blockBits * that._blockCount);
+        that._length = 0;
+        return that;
     }
 
     ~this() @trusted
@@ -72,7 +87,7 @@ version = show;
 {
     const bitCount = 100;
 
-    auto a = BitArray!(null)(bitCount);
+    auto a = BitArray!(null).withLength(bitCount);
 
     assert(a.length == bitCount);
     assert(a.capacity == 2*a.blockBits);

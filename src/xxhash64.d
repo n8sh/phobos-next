@@ -1,3 +1,8 @@
+/** xxHash is an extremely fast non-cryptographic hash algorithm, working at
+    speeds close to RAM limits. It is proposed in two flavors, 32 and 64 bits.
+
+    TODO merge into xxhash-d
+*/
 module xxhash64;
 
 @safe pure nothrow @nogc:

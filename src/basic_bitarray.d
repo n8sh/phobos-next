@@ -13,6 +13,8 @@ struct BitArray(alias Allocator = null)
         _store = Store.withLength(blockCount);
     }
 
+    @disable this(this);
+
 private:
     import basic_copyable_array : Array = CopyableArray;
     alias Block = size_t;

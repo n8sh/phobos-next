@@ -6,8 +6,6 @@ import core.internal.hash : hashOf;
 /** Hash set storing elements of type `T`.
 
     Uses small-size-optimized (SSO) arrays as buckets.
-
-    TODO use FNV-1a hash by default to unsigned keys
  */
 struct HashSet(T,
                alias Allocator = null,

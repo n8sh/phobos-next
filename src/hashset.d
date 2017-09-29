@@ -8,7 +8,7 @@ import std.traits : isIntegral, isUnsigned;
  */
 struct HashSet(T,
                alias Allocator = null,
-               alias hashFunction = murmurHash3Of!T)
+               alias hashFunction = xxhash64Of)
 {
     /** Construct with room for storing `capacity` number of elements.
      */
@@ -186,18 +186,25 @@ version = show;
     }
 }
 
-/** Alternative to `core.internal.hash.hashOf`.
+/** xxHash64-variant of `core.internal.hash.hashOf`.
+ */
+private ulong xxhash64Of(T)(in T value) @trusted
+    if (isIntegral!T)
+{
+    import xxhash64 : xxhash64Of;
+    return xxhash64Of((cast(const(ubyte)*)(&value))[0 .. value.sizeof]);
+}
+
+/** MurmurHash3-variant of `core.internal.hash.hashOf`.
  */
 private ulong murmurHash3Of(T)(in T value) @trusted
     if (isIntegral!T)
 {
     import std.digest : makeDigest;
     import std.digest.murmurhash : MurmurHash3;
-
     auto dig = makeDigest!(MurmurHash3!(128));
     dig.put((cast(const(ubyte)*)(&value))[0 .. value.sizeof]);
     dig.finish();
-
     const elements = dig.get();
     return elements[0] ^ elements[1];
 }

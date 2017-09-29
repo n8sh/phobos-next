@@ -20,12 +20,12 @@ struct HashSet(T,
         return that;
     }
 
-    /** Initialize at least `requestedBucketCount` number of initial buckets.
+    /** Initialize at least `minimumBucketCount` number of initial buckets.
      */
-    private void initialize(size_t requestedBucketCount)
+    private void initialize(size_t minimumBucketCount)
     {
         import std.math : nextPow2;
-        immutable bucketCount = nextPow2(requestedBucketCount == 0 ? 0 : requestedBucketCount - 1);
+        immutable bucketCount = nextPow2(minimumBucketCount == 0 ? 0 : minimumBucketCount - 1);
         hashMask = bucketCount - 1;
         initializeBuckets(bucketCount);
     }

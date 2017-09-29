@@ -144,10 +144,10 @@ struct XXHash64
         ulong result;
         if (totalLength >= bufferMaxSize)
         {
-            result = rotateLeft(state[0],  1) +
-                rotateLeft(state[1],  7) +
-                rotateLeft(state[2], 12) +
-                rotateLeft(state[3], 18);
+            result = (rotateLeft(state[0],  1) +
+                      rotateLeft(state[1],  7) +
+                      rotateLeft(state[2], 12) +
+                      rotateLeft(state[3], 18));
             result = (result ^ processSingle(0, state[0])) * prime1 + prime4;
             result = (result ^ processSingle(0, state[1])) * prime1 + prime4;
             result = (result ^ processSingle(0, state[2])) * prime1 + prime4;
@@ -163,6 +163,7 @@ struct XXHash64
 
         // process remaining bytes in temporary buffer
         const(ubyte)* data = buffer.ptr;
+
         // point beyond last byte
         const(ubyte)* stop = data + bufferSize;
 

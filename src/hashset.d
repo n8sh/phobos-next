@@ -4,6 +4,8 @@ import std.traits : isIntegral, isUnsigned;
 import core.internal.hash : hashOf;
 
 /** Hash set storing elements of type `T`.
+
+    Uses small-size-optimized (SSO) arrays as buckets.
  */
 struct HashSet(T,
                alias Allocator = null,
@@ -72,8 +74,8 @@ struct HashSet(T,
                     // expand small to large
                     SmallBucket smallCopy = _buckets[bucketIndex].small;
 
-                    static assert(0, "TODO emplace large bucket");
-                    _buckets[bucketIndex].large = LargeBucket(smallCopy[]);
+                    import std.conv: emplace;
+                    emplace!(LargeBucket)(&_buckets[bucketIndex].large, smallCopy[]);
 
                     _largeBucketFlags[bucketIndex] = true; // bucket is now large
                     dln("becomes large");

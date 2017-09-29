@@ -1,14 +1,12 @@
 module hashset;
 
-import core.internal.hash : hashOf;
-
 /** Hash set storing elements of type `T`.
 
     TODO add union storage for small arrays together with smallArrayFlags BitArray
  */
 struct HashSet(T,
                alias Allocator = null,
-               alias hashFunction = hashOf)
+               alias hashFunction = murmurHash3Of!T)
 {
     import basic_uncopyable_array : Array = UncopyableArray; // TODO change to CopyableArray when
 
@@ -26,7 +24,7 @@ struct HashSet(T,
     private void initialize(size_t requestedBucketCount)
     {
         import std.math : nextPow2;
-        immutable bucketCount = nextPow2(requestedBucketCount);
+        immutable bucketCount = nextPow2(requestedBucketCount == 0 ? 0 : requestedBucketCount - 1);
         hashMask = bucketCount - 1;
         initializeBuckets(bucketCount);
     }
@@ -74,20 +72,35 @@ private:
     size_t hashMask;
 }
 
+private size_t murmurHash3Of(T)(in T value)
+{
+    import std.digest : digest;
+    import std.digest.murmurhash : MurmurHash3;
+    immutable ubyte[16] hash = digest!(MurmurHash3!(128, 64))([value].s);
+    return ((cast(size_t)(hash[0] << 0)) |
+            (cast(size_t)(hash[1] << 1)) |
+            (cast(size_t)(hash[2] << 2)) |
+            (cast(size_t)(hash[3] << 3)) |
+            (cast(size_t)(hash[4] << 4)));
+}
+
 @safe pure nothrow unittest
 {
-    const n = 255;
+    const bucketCount = 2^^16;
+    const elementCount = bucketCount/2;
+
     alias T = uint;
-    auto s = HashSet!T(n);
 
-    assert(s._buckets.length == 256);
+    auto s = HashSet!(T)(bucketCount);
 
-    foreach (i; 0 .. 16)
+    assert(s._buckets.length == bucketCount);
+
+    foreach (i; 0 .. elementCount)
     {
         assert(!s.insert(i));
     }
 
-    foreach (i; 0 .. 16)
+    foreach (i; 0 .. elementCount)
     {
         assert(s.insert(i));
     }

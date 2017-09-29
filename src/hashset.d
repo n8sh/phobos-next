@@ -39,6 +39,7 @@ struct HashSet(T,
     private void initializeBuckets(size_t bucketCount) @trusted // TODO remove @trusted
     {
         _buckets = Buckets.withLength(bucketCount);
+        _largeBucketFlags = LargeBucketFlags(bucketCount);
     }
 
     /** Insert `value`.
@@ -80,7 +81,6 @@ private:
     alias LargeBucket = Array!(T, Allocator);
 
     enum smallBucketLength = (LargeBucket.sizeof - 1) / T.sizeof;
-    pragma(msg, smallBucketLength);
 
     struct SmallBucket
     {
@@ -102,6 +102,7 @@ private:
     alias LargeBucketFlags = BitArray!(Allocator);
 
     Buckets _buckets;
+    LargeBucketFlags _largeBucketFlags;
     size_t hashMask;
 }
 

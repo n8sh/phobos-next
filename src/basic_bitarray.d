@@ -67,12 +67,20 @@ version = show;
     const bitCount = 100;
 
     auto a = BitArray!(null)(bitCount);
-    assert(a[0] == false);
-    a.put(0, true);
-    assert(a[0] == true);
-
     assert(a.length == bitCount);
     assert(a.capacity == 2*a.blockBits);
+
+    foreach (const i; 0 .. bitCount)
+    {
+        assert(!a[i]);
+    }
+
+    a.put(0, true);
+    assert(a[0]);
+    foreach (const i; 1 .. bitCount)
+    {
+        assert(!a[i]);
+    }
 }
 
 version(unittest)

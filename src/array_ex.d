@@ -782,7 +782,7 @@ private struct Array(E,
     enum isElementAssignable(U) = isAssignable!(E, U);
 
     /** Removal doesn't need to care about ordering. */
-    ContainerElementType!(This, E) popAtIndex(size_t index) @trusted @("complexity", "O(length)")
+    ContainerElementType!(This, E) removeAtIndex(size_t index) @trusted @("complexity", "O(length)")
     {
         assert(!isBorrowed);
         assert(index < this.length);
@@ -806,14 +806,12 @@ private struct Array(E,
         decOnlyLength();
         return move(value); // TODO remove `move` when compiler does it for us
     }
-    alias removeAt = popAtIndex;
-    alias deleteAt = popAtIndex;
 
     /** Removal doesn't need to care about ordering. */
     pragma(inline, true)
     ContainerElementType!(This, E) linearPopFront() @trusted @("complexity", "O(length)")
     {
-        return popAtIndex(0);
+        return removeAtIndex(0);
     }
 
     /** Removal doesn't need to care about ordering. */
@@ -2129,13 +2127,13 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ssA.empty);
             ssA.compress();
 
-            // popAtIndex
+            // removeAtIndex
             ssA ~= 1;
             ssA ~= 2;
             ssA ~= 3;
             ssA ~= 4;
             ssA ~= 5;
-            assertNotThrown(ssA.popAtIndex(2));
+            assertNotThrown(ssA.removeAtIndex(2));
             assert(ssA[].equal([1, 2, 4, 5].s[]));
 
             // insertBack and assignment from slice

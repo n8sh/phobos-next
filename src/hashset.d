@@ -52,6 +52,30 @@ struct HashSet(T,
         return true;
     }
 
+    /** Remove `value`.
+        Returns: `true` if values was removed, `false` otherwise.
+     */
+    bool remove(U)(in U value)
+        if (is(typeof(T.init == U.init)))
+    {
+        import std.algorithm.searching : find;
+
+        const index = hashFunction(value) & hashMask;
+
+        const bucketSlice = _buckets[index][];
+        const hit = bucketSlice.find(value);
+        if (hit)
+        {
+            const offset = hit.ptr - bucketSlice.ptr;
+            static assert(0, "TODO Implement popAtIndex in Array and use here");
+            if (hit)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
 private:
     alias Bucket = Array!(T, Allocator);
     alias Buckets = Array!(Bucket, Allocator);

@@ -14,7 +14,7 @@ ulong xxhash64Of(in ubyte[] data, ulong seed = 0)
 {
     auto xh = XXHash64(seed);
     xh.start();
-    xh.put(data.ptr, data.length);
+    xh.put(data);
     return xh.finish();
 }
 
@@ -72,17 +72,14 @@ struct XXHash64
         _totalLength = 0;
     }
 
-    /// Add a chunk of bytes.
-    /** @param  data  pointer to a continuous block of data
-        @param  length number of bytes
-        @return false if parameters are invalid / zero **/
-    bool put(scope const(ubyte)* data, ulong length) @trusted
+    /**
+     * Use this to feed the hash with data.
+     * Also implements the $(XREF range, OutputRange) interface for $(D ubyte) and $(D const(ubyte)[]).
+     */
+    private void put(scope const(ubyte)[] data...) @trusted
     {
-        // no data ?
-        if (!data || length == 0)
-        {
-            return false;
-        }
+        auto ptr = data.ptr;
+        auto length = data.length;
 
         _totalLength += length;
 
@@ -92,13 +89,13 @@ struct XXHash64
             // just add new data
             while (length-- > 0)
             {
-                _buffer[_bufferSize++] = *data++;
+                _buffer[_bufferSize++] = *ptr++;
             }
-            return true;
+            return;
         }
 
         // point beyond last byte
-        const(ubyte)* stop      = data + length;
+        const(ubyte)* stop      = ptr + length;
         const(ubyte)* stopBlock = stop - bufferMaxSize;
 
         // some data left from previous update ?
@@ -107,7 +104,7 @@ struct XXHash64
             // make sure temporary buffer is full (16 bytes)
             while (_bufferSize < bufferMaxSize)
             {
-                _buffer[_bufferSize++] = *data++;
+                _buffer[_bufferSize++] = *ptr++;
             }
 
             // process these 32 bytes (4x8)
@@ -117,24 +114,24 @@ struct XXHash64
         // copying _state to local variables helps optimizer A LOT
         ulong s0 = _state[0], s1 = _state[1], s2 = _state[2], s3 = _state[3];
         // 32 bytes at once
-        while (data <= stopBlock)
+        while (ptr <= stopBlock)
         {
             // local variables s0..s3 instead of _state[0].._state[3] are much faster
-            process(data, s0, s1, s2, s3);
-            data += 32;
+            process(ptr, s0, s1, s2, s3);
+            ptr += 32;
         }
         // copy back
         _state[0] = s0; _state[1] = s1; _state[2] = s2; _state[3] = s3;
 
         // copy remainder to temporary buffer
-        _bufferSize = stop - data;
+        _bufferSize = stop - ptr;
         foreach (const i; 0 .. _bufferSize)
         {
-            _buffer[i] = data[i];
+            _buffer[i] = ptr[i];
         }
 
         // done
-        return true;
+        return;
     }
 
     /** Returns: the finished XXHash64 hash.

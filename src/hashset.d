@@ -46,6 +46,7 @@ struct HashSet(T,
      */
     bool insert(T value) @trusted
     {
+        dln(value);
         import std.algorithm.searching : canFind;
         immutable bucketIndex = bucketHashIndex(value);
         if (_largeBucketFlags[bucketIndex]) // if `_buckets[buckedIndex]` is `Large`
@@ -82,6 +83,7 @@ struct HashSet(T,
         import std.algorithm.searching : find;
         immutable bucketIndex = bucketHashIndex(value);
         assert(0, "TODO Implement removeAtIndex in Array and use _buckets[bucketIndex].removeAtIndex() here");
+        assert(0, "TODO Check shrinkage to SmallBucket");
     }
 
     /** Get index into `bucket` for `value`.

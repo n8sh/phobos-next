@@ -48,6 +48,7 @@ struct HashSet(T,
     {
         import std.algorithm.searching : canFind;
         immutable bucketIndex = hashFunction(value) & hashMask;
+        // dln(bucketIndex);
         if (!_buckets[bucketIndex][].canFind(value))
         {
             _buckets[bucketIndex].insertBackMove(value);

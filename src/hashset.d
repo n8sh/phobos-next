@@ -34,7 +34,7 @@ struct HashSet(T,
     /** Initialize `bucketCount` number of buckets.
      */
     pragma(inline, true)
-    private void initializeBuckets(size_t bucketCount) @trusted
+    private void initializeBuckets(size_t bucketCount) @trusted // TODO remove @trusted
     {
         _buckets = Buckets.withLength(bucketCount);
     }

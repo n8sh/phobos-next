@@ -24,17 +24,6 @@ struct BitArray(alias Allocator = null)
         return that;
     }
 
-    /** Construct with room for `capacity` number of bits. */
-    static This withCapacity(size_t length) @trusted
-    {
-        typeof(return) that = void;
-        that._blockCount = ((length / blockBits) + // number of whole blocks
-                            (length % blockBits ? 1 : 0)); // remained block
-        that._ptr = cast(Block*)malloc(blockBits * that._blockCount);
-        that._length = 0;
-        return that;
-    }
-
     ~this() @trusted
     {
         free(_ptr);

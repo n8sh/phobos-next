@@ -12,9 +12,10 @@ module xxhash64;
 ulong xxhash64Of(in ubyte[] data, ulong seed = 0)
     @trusted
 {
-    auto hasher = XXHash64(seed);
-    hasher.add(data.ptr, data.length);
-    return hasher.hash();
+    auto xh = XXHash64(seed);
+    xh.start();
+    xh.add(data.ptr, data.length);
+    return xh.finish();
 }
 
 /** xxHash-64, based on Yann Collet's descriptions
@@ -43,14 +44,22 @@ struct XXHash64
 {
     @safe pure nothrow @nogc:
 
-    /// create new XXHash (64 bit)
-    /** @param seed your seed value, even zero is a valid seed **/
+    /**
+     * Constructs XXHash64 with `seed`.
+     */
     this(ulong seed)
     {
-        state[0] = seed + prime1 + prime2;
-        state[1] = seed + prime2;
-        state[2] = seed;
-        state[3] = seed - prime1;
+        _seed = seed;
+    }
+
+    /** (Re)initialize.
+     */
+    void start()
+    {
+        state[0] = _seed + prime1 + prime2;
+        state[1] = _seed + prime2;
+        state[2] = _seed;
+        state[3] = _seed - prime1;
         bufferSize  = 0;
         totalLength = 0;
     }
@@ -119,7 +128,7 @@ struct XXHash64
     /** Returns: the finished XXHash64 hash.
         This also calls $(LREF start) to reset the internal state.
     */
-    ulong hash() @trusted
+    ulong finish() @trusted
     {
         // fold 256 bit state into one single 64 bit value
         ulong result;
@@ -186,6 +195,8 @@ private:
     ubyte[bufferMaxSize] buffer;
     ulong bufferSize;
     ulong totalLength;
+
+    ulong _seed;
 
     /// rotate bits, should compile to a single CPU instruction (ROL)
     static ulong rotateLeft(ulong x, ubyte bits)

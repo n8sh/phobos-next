@@ -196,27 +196,21 @@ private:
     }
 }
 
-/** Combine constructor, add() and hash() into one static function.
+@safe pure nothrow @nogc:
 
-    @param  data  pointer to a continuous block of data
-    @param  length number of bytes
-    @param  seed your seed value, e.g. zero is a valid seed
-    @return 64 bit XXHash **/
+/** Compute xxhash64 of input `data`, with optional seed `seed`.
+ */
 ulong xxhash64Of(in ubyte[] data, ulong seed = 0)
-    @trusted pure nothrow @nogc
+    @trusted
 {
     auto hasher = XXHash64(seed);
     hasher.add(data.ptr, data.length);
     return hasher.hash();
 }
 
-@safe pure nothrow @nogc unittest
+///
+unittest
 {
     ubyte[6] x = [1, 2, 3, 4, 5, 6];
     auto y = xxhash64Of(x[]);
-}
-
-version(unittest)
-{
-    import array_help : s;
 }

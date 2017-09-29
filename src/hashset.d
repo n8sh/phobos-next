@@ -81,7 +81,10 @@ private size_t murmurHash3Of(T)(in T value)
             (cast(size_t)(hash[1] << 1)) |
             (cast(size_t)(hash[2] << 2)) |
             (cast(size_t)(hash[3] << 3)) |
-            (cast(size_t)(hash[4] << 4)));
+            (cast(size_t)(hash[4] << 4)) |
+            (cast(size_t)(hash[5] << 5)) |
+            (cast(size_t)(hash[6] << 6)) |
+            (cast(size_t)(hash[7] << 7)));
 }
 
 @safe pure nothrow unittest

@@ -96,7 +96,9 @@ struct HashSet(T,
 private:
     alias LargeBucket = Array!(T, Allocator);
 
-    enum smallBucketLength = (LargeBucket.sizeof - 1) / T.sizeof;
+    import std.algorithm : max;
+    enum smallBucketLength = max(1, // at least one element in small bucket
+                                 (LargeBucket.sizeof - 1) / T.sizeof);
 
     import arrayn : ArrayN;
     alias SmallBucket = ArrayN!(T, smallBucketLength);

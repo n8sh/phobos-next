@@ -64,7 +64,7 @@ struct HashSet(T,
         import std.algorithm.searching : find;
         immutable bucketIndex = hashFunction(value) & hashMask;
         const bucketSlice = _buckets[bucketIndex][];
-        const hit = bucketSlice.find(value);
+        auto hit = bucketSlice.find(value);
         if (hit)
         {
             const offset = hit.ptr - bucketSlice.ptr;

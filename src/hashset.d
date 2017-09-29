@@ -7,7 +7,7 @@ import core.internal.hash : hashOf;
     TODO add union storage for small arrays together with smallArrayFlags BitArray
  */
 struct HashSet(T,
-               alias Allocator = null, // null means means to qcmeman functions
+               alias Allocator = null,
                alias hashFunction = hashOf)
 {
     import basic_uncopyable_array : Array = UncopyableArray; // TODO change to CopyableArray when
@@ -53,8 +53,8 @@ struct HashSet(T,
     }
 
 private:
-    alias Bucket = Array!(T);
-    alias Buckets = Array!Bucket;
+    alias Bucket = Array!(T, Allocator);
+    alias Buckets = Array!(Bucket, Allocator);
 
     Buckets _buckets;
     size_t hashMask;

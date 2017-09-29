@@ -12,12 +12,16 @@ struct HashSet(T,
     import basic_uncopyable_array : Array = UncopyableArray; // TODO change to CopyableArray when
     import basic_bitarray : BitArray;
 
-    /** Construct with prepare storage for `elementCount` number of elements.
+    alias This = typeof(this);
+
+    /** Construct with prepare storage for `capacity` number of elements.
      */
     pragma(inline, true)
-    this(size_t elementCount)
+    static This withCapacity(size_t capacity)
     {
-        initialize(elementCount / smallBucketLength);
+        This that;
+        that.initialize(capacity / smallBucketLength);
+        return that;
     }
 
     /** Initialize at least `requestedBucketCount` number of initial buckets.
@@ -151,7 +155,7 @@ version = show;
 
     alias T = uint;
 
-    auto s = HashSet!(T, null, /*identityHashOf*/)(elementCount);
+    auto s = HashSet!(T, null, /*identityHashOf*/).withCapacity(elementCount);
 
     foreach (const i; 0 .. elementCount)
     {

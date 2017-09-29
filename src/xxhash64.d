@@ -17,7 +17,9 @@ ulong xxhash64Of(in ubyte[] data, ulong seed = 0)
     xh.put(data.ptr, data.length);
     return xh.finish();
 }
-/// ditto
+
+/** Compute xxHash-64 of input string `data`, with optional seed `seed`.
+ */
 ulong xxhash64Of(in string data, ulong seed = 0)
     @trusted
 {

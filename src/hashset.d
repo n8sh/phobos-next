@@ -1,12 +1,14 @@
 module hashset;
 
+import core.internal.hash : hashOf;
+
 /** Hash set storing elements of type `T`.
 
     TODO add union storage for small arrays together with smallArrayFlags BitArray
  */
 struct HashSet(T,
                alias Allocator = null,
-               alias hashFunction = murmurHash3Of!T)
+               alias hashFunction = hashOf)
 {
     import basic_uncopyable_array : Array = UncopyableArray; // TODO change to CopyableArray when
 
@@ -73,6 +75,7 @@ private:
     size_t hashMask;
 }
 
+/** Alternative to `core.internal.hash.hashOf`. */
 private size_t murmurHash3Of(T)(in T value)
 {
     import std.digest : digest;

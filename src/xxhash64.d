@@ -96,8 +96,8 @@ struct XXHash64
         }
 
         // point beyond last byte
-        const(ubyte)* stop      = ptr + length;
-        const(ubyte)* stopBlock = stop - bufferMaxSize;
+        const(ubyte)* end      = ptr + length;
+        const(ubyte)* endBlock = end - bufferMaxSize;
 
         // some data left from previous update ?
         if (_bufferSize > 0)
@@ -115,7 +115,7 @@ struct XXHash64
         // copying _state to local variables helps optimizer A LOT
         ulong s0 = _state[0], s1 = _state[1], s2 = _state[2], s3 = _state[3];
         // 32 bytes at once
-        while (ptr <= stopBlock)
+        while (ptr <= endBlock)
         {
             // local variables s0..s3 instead of _state[0].._state[3] are much faster
             process(ptr, s0, s1, s2, s3);
@@ -125,7 +125,7 @@ struct XXHash64
         _state[0] = s0; _state[1] = s1; _state[2] = s2; _state[3] = s3;
 
         // copy remainder to temporary buffer
-        _bufferSize = stop - ptr;
+        _bufferSize = end - ptr;
         foreach (const i; 0 .. _bufferSize)
         {
             _buffer[i] = ptr[i];
@@ -162,23 +162,23 @@ struct XXHash64
         const(ubyte)* data = _buffer.ptr;
 
         // point beyond last byte
-        const(ubyte)* stop = data + _bufferSize;
+        const(ubyte)* end = data + _bufferSize;
 
         // at least 8 bytes left ? => eat 8 bytes per step
-        for (; data + 8 <= stop; data += 8)
+        for (; data + 8 <= end; data += 8)
         {
             result = rotateLeft(result ^ processSingle(0, *cast(ulong*)data), 27) * prime1 + prime4;
         }
 
         // 4 bytes left ? => eat those
-        if (data + 4 <= stop)
+        if (data + 4 <= end)
         {
             result = rotateLeft(result ^ (*cast(uint*)data) * prime1, 23) * prime2 + prime3;
             data  += 4;
         }
 
         // take care of remaining 0..3 bytes, eat 1 byte per step
-        while (data != stop)
+        while (data != end)
         {
             result = rotateLeft(result ^ (*data++) * prime5, 11) * prime1;
         }

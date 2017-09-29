@@ -61,7 +61,14 @@ struct HashSet(T,
         {
             if (!_buckets[bucketIndex].small[].canFind(value))
             {
-                _buckets[bucketIndex].small.insertBack(value); // TODO define use `insertBackMove`
+                const ok = _buckets[bucketIndex].small.insertBackMaybe(value);
+                if (!ok)        // if full
+                {
+                    // expand small to large
+                    SmallBucket smallCopy = _buckets[bucketIndex].small;
+                    _buckets[bucketIndex].large = LargeBucket(smallCopy[]);
+                }
+                _largeBucketFlags[bucketIndex] = true; // bucket is now large
                 return false;
             }
         }

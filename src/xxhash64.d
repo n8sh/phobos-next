@@ -20,7 +20,7 @@ ulong xxhash64Of(in ubyte[] data, ulong seed = 0)
 
 /** Compute xxHash-64 of input string `data`, with optional seed `seed`.
  */
-ulong xxhash64Of(in string data, ulong seed = 0)
+ulong xxhash64Of(in char[] data, ulong seed = 0)
     @trusted
 {
     return xxhash64Of(cast(ubyte[])data, seed);

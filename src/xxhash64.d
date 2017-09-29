@@ -1,6 +1,18 @@
 module xxhash64;
 
-/** XXHash (64 bit), based on Yann Collet's descriptions
+@safe pure nothrow @nogc:
+
+/** Compute XXHash64 of input `data`, with optional seed `seed`.
+ */
+ulong xxhash64Of(in ubyte[] data, ulong seed = 0)
+    @trusted
+{
+    auto hasher = XXHash64(seed);
+    hasher.add(data.ptr, data.length);
+    return hasher.hash();
+}
+
+/** XXHash64, based on Yann Collet's descriptions
 
     How to use:
 
@@ -99,9 +111,10 @@ struct XXHash64
         return true;
     }
 
-    /// Get current hash.
-    /** @return 64 bit XXHash **/
-    ulong hash() const @trusted
+    /** Returns: the finished XXHash64 hash.
+        This also calls $(LREF start) to reset the internal state.
+    */
+    ulong hash() @trusted
     {
         // fold 256 bit state into one single 64 bit value
         ulong result;
@@ -196,21 +209,15 @@ private:
     }
 }
 
-@safe pure nothrow @nogc:
-
-/** Compute xxhash64 of input `data`, with optional seed `seed`.
- */
-ulong xxhash64Of(in ubyte[] data, ulong seed = 0)
-    @trusted
-{
-    auto hasher = XXHash64(seed);
-    hasher.add(data.ptr, data.length);
-    return hasher.hash();
-}
-
 ///
 unittest
 {
-    ubyte[6] x = [1, 2, 3, 4, 5, 6];
+    ubyte[8] x = [1, 2, 3, 4, 5, 6, 7, 8];
     auto y = xxhash64Of(x[]);
+    assert(xxhash64Of(x[]) == 9316896406413536788UL);
+}
+
+version(unittest)
+{
+    // import dbgio : dln;
 }

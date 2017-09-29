@@ -111,12 +111,21 @@ private ulong murmurHash3Of(T)(in T value) @trusted
 
     foreach (const i; 0 .. elementCount)
     {
-        assert(!s.insert(i));
+        assert(!s.insert(i));   // all new
     }
 
     foreach (const i; 0 .. elementCount)
     {
-        assert(s.insert(i));
+        assert(s.insert(i));    // already exist
+    }
+
+    foreach (const bucketIndex; 0 .. bucketCount)
+    {
+        const length = s._buckets[bucketIndex].length;
+        if (length != 0)
+        {
+            dln("bucket[", bucketIndex, "].length:", length);
+        }
     }
 }
 

@@ -156,6 +156,7 @@ public:
         import std.conv : emplace;
         import std.algorithm.mutation : move;
 
+        static assert(0, "Use moveEmplace instead");
         alias U = Unqual!T;
         emplace!U(cast(U*)(&_store),
                   (*cast(U*)&that).move()); // TODO ok when `that` has indirections?
@@ -171,6 +172,7 @@ public:
 
         if (hasValue) { release(); }
 
+        static assert(0, "Use moveEmplace instead");
         alias U = Unqual!T;
         emplace!U(cast(U*)(&_store),
                   (*cast(U*)&that).move()); // TODO ok when `that` has indirections?

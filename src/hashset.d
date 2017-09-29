@@ -41,6 +41,7 @@ struct HashSet(T,
 private:
     alias Bucket = Array!(T);
     alias Buckets = Array!Bucket;
+
     Buckets _buckets;
     size_t hashMask;
 }

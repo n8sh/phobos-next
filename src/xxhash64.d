@@ -249,12 +249,6 @@ private:
     }
 }
 
-version(unittest)
-{
-    import std.digest : hexDigest, isDigest;
-    static assert(isDigest!(XXHash64));
-}
-
 /// test simple `xxhash64Of`
 unittest
 {
@@ -268,11 +262,15 @@ unittest
     assert(xxhash64Of(`xxhash`, 20141025) == 13067679811253438005UL);
 }
 
-/// test with `std.digest`
+version(unittest)
+{
+    import std.digest : hexDigest, isDigest;
+    static assert(isDigest!(XXHash64));
+}
+
+/// `std.digest` conformance
 unittest
 {
     import std.digest;
-    auto dig = hexDigest!XXHash64(`xxhash`);
-    import dbgio : dln;
-    dln(dig);
+    assert(hexDigest!XXHash64(`xxhash`) == `32DD38952C4BC720`);
 }

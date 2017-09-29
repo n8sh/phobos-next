@@ -32,7 +32,7 @@ struct BitArrayN(uint len, Block = size_t)
     }
     else
     {
-        import bitop_ex : bt, bts, btr; // use own overloads
+        import bitop_ex : bt, bts, btr;
     }
 
     /** Number of bits per `Block`. */

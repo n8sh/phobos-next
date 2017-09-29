@@ -133,12 +133,11 @@ version = show;
 
 @safe pure nothrow unittest
 {
-    const bucketCount = 2^^10;
-    const elementCount = bucketCount/2;
+    const elementCount = 2^^10;
 
     alias T = uint;
 
-    auto s = HashSet!(T, null, /*identityHashOf*/)(bucketCount);
+    auto s = HashSet!(T, null, /*identityHashOf*/)(elementCount);
 
     foreach (const i; 0 .. elementCount)
     {
@@ -151,7 +150,7 @@ version = show;
     }
 
     size_t usedBucketCount = 0;
-    foreach (const bucketIndex; 0 .. bucketCount)
+    foreach (const bucketIndex; 0 .. s._buckets.length)
     {
         const length = s._buckets[bucketIndex].length;
         if (length != 0)
@@ -164,7 +163,7 @@ version = show;
     version(show)
     {
         dln("Element count: ", elementCount);
-        dln("Bucket usage: ", usedBucketCount, "/", bucketCount);
+        dln("Bucket usage: ", usedBucketCount, "/", s._buckets.length);
     }
 
     // assert(usedBucketCount == 405);

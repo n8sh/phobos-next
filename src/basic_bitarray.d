@@ -13,7 +13,7 @@ struct BitArray(alias Allocator = null)
     {
         _blockCount = ((length / blockBits) + // number of whole blocks
                        (length % blockBits ? 1 : 0)); // remained block
-        _ptr = cast(Block*)calloc(blockBits, _blockCount);
+        _ptr = cast(Block*)calloc(blockBits, _blockCount); // TODO use malloc and lazy call to `memset` later on
         _length = length;
     }
 

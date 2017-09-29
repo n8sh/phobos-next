@@ -17,8 +17,7 @@ struct HashSet(T,
     pragma(inline, true)
     this(size_t elementCount)
     {
-        const requestedBucketCount = elementCount / smallBucketLength;
-        initialize(requestedBucketCount);
+        initialize(elementCount / smallBucketLength);
     }
 
     /** Initialize at least `requestedBucketCount` number of initial buckets.

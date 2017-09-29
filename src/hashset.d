@@ -45,15 +45,25 @@ struct HashSet(T,
         Returns: `true` if value was already present, `false` otherwise. This is
         similar to behaviour of `contains`.
      */
-    bool insert(T value)
+    bool insert(T value) @trusted
     {
         import std.algorithm.searching : canFind;
         immutable bucketIndex = bucketHashIndex(value);
-        // dln(bucketIndex);
-        if (!_buckets[bucketIndex][].canFind(value))
+        if (_largeBucketFlags[bucketIndex]) // if `_buckets[buckedIndex]` is `Large`
         {
-            _buckets[bucketIndex].insertBackMove(value);
-            return false;
+            if (!_buckets[bucketIndex].large[].canFind(value))
+            {
+                _buckets[bucketIndex].large.insertBackMove(value);
+                return false;
+            }
+        }
+        else                    // otherwise  `_buckets[buckedIndex]` is `Small`
+        {
+            if (!_buckets[bucketIndex].small[].canFind(value))
+            {
+                _buckets[bucketIndex].small.insertBack(value); // TODO define use `insertBackMove`
+                return false;
+            }
         }
         return true;
     }
@@ -81,11 +91,8 @@ private:
 
     enum smallBucketLength = (LargeBucket.sizeof - 1) / T.sizeof;
 
-    struct SmallBucket
-    {
-        T[smallBucketLength] _elements;
-        ubyte length;
-    }
+    import arrayn : ArrayN;
+    alias SmallBucket = ArrayN!(T, smallBucketLength);
 
     static assert(SmallBucket.sizeof <=
                   LargeBucket.sizeof);
@@ -97,7 +104,7 @@ private:
         LargeBucket large;
     }
 
-    alias Buckets = Array!(LargeBucket, Allocator);
+    alias Buckets = Array!(HybridBucket, Allocator);
     alias LargeBucketFlags = BitArray!(Allocator);
 
     Buckets _buckets;
@@ -149,22 +156,22 @@ version = show;
         assert(s.insert(i));    // already exist
     }
 
-    size_t usedBucketCount = 0;
-    foreach (const bucketIndex; 0 .. s._buckets.length)
-    {
-        const length = s._buckets[bucketIndex].length;
-        if (length != 0)
-        {
-            // dln("bucket[", bucketIndex, "].length:", length);
-            usedBucketCount += 1;
-        }
-    }
+    // size_t usedBucketCount = 0;
+    // foreach (const bucketIndex; 0 .. s._buckets.length)
+    // {
+    //     const length = s._buckets[bucketIndex].length;
+    //     if (length != 0)
+    //     {
+    //         // dln("bucket[", bucketIndex, "].length:", length);
+    //         usedBucketCount += 1;
+    //     }
+    // }
 
-    version(show)
-    {
-        dln("Element count: ", elementCount);
-        dln("Bucket usage: ", usedBucketCount, "/", s._buckets.length);
-    }
+    // version(show)
+    // {
+    //     dln("Element count: ", elementCount);
+    //     dln("Bucket usage: ", usedBucketCount, "/", s._buckets.length);
+    // }
 
     // assert(usedBucketCount == 405);
 }

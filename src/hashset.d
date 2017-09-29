@@ -78,14 +78,14 @@ private size_t murmurHash3Of(T)(in T value)
     import std.digest : digest;
     import std.digest.murmurhash : MurmurHash3;
     immutable ubyte[16] hash = digest!(MurmurHash3!(128))([value].s);
-    return ((cast(size_t)((hash[0] ^ hash[15]) << 7)) |
-            (cast(size_t)((hash[1] ^ hash[14]) << 6)) |
-            (cast(size_t)((hash[2] ^ hash[13]) << 5)) |
-            (cast(size_t)((hash[3] ^ hash[12]) << 4)) |
-            (cast(size_t)((hash[4] ^ hash[11]) << 3)) |
-            (cast(size_t)((hash[5] ^ hash[10]) << 2)) |
-            (cast(size_t)((hash[6] ^ hash[9]) << 1)) |
-            (cast(size_t)((hash[7] ^ hash[8]) << 0)));
+    return (((cast(size_t)(hash[0] ^ hash [8]) << 0*8)) |
+            ((cast(size_t)(hash[1] ^ hash [9]) << 1*8)) |
+            ((cast(size_t)(hash[2] ^ hash[10]) << 2*8)) |
+            ((cast(size_t)(hash[3] ^ hash[11]) << 3*8)) |
+            ((cast(size_t)(hash[4] ^ hash[12]) << 4*8)) |
+            ((cast(size_t)(hash[5] ^ hash[13]) << 5*8)) |
+            ((cast(size_t)(hash[6] ^ hash[14]) << 6*8)) |
+            ((cast(size_t)(hash[7] ^ hash[15]) << 7*8)));
 }
 
 @safe pure nothrow unittest

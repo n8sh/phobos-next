@@ -47,7 +47,7 @@ struct HashSet(T,
     bool insert(T value)
     {
         import std.algorithm.searching : canFind;
-        immutable bucketIndex = hashFunction(value) & hashMask;
+        immutable bucketIndex = bucketHashIndex(value);
         // dln(bucketIndex);
         if (!_buckets[bucketIndex][].canFind(value))
         {
@@ -60,12 +60,19 @@ struct HashSet(T,
     /** Remove `value`.
         Returns: `true` if values was removed, `false` otherwise.
      */
-    bool remove(U)(in U value)
-        if (is(typeof(T.init == U.init)))
+    bool remove(in T value)
     {
         import std.algorithm.searching : find;
-        immutable bucketIndex = hashFunction(value) & hashMask;
-        static assert(0, "TODO Implement removeAtIndex in Array and use _buckets[bucketIndex].removeAtIndex() here");
+        immutable bucketIndex = bucketHashIndex(value);
+        assert(0, "TODO Implement removeAtIndex in Array and use _buckets[bucketIndex].removeAtIndex() here");
+    }
+
+    /** Get index into `bucket` for `value`.
+     */
+    pragma(inline, true)
+    size_t bucketHashIndex(in T value) const
+    {
+        return hashFunction(value) & hashMask; // fast modulo calculation
     }
 
 private:

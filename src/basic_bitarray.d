@@ -3,6 +3,7 @@ module basic_bitarray;
 /** Array of bits. */
 struct BitArray(alias Allocator = null)
 {
+    pragma(inline, true)
     @safe pure nothrow @nogc:
 
     /** Construct with `length` number of bits. */
@@ -15,11 +16,9 @@ struct BitArray(alias Allocator = null)
     }
 
     /// Check if empty.
-    pragma(inline, true)
     bool empty() const { return _length == 0; }
 
     /// Get length.
-    pragma(inline, true)
     @property size_t length() const { return _length; }
     alias opDollar = length;    /// ditto
 

@@ -1,5 +1,6 @@
 module hashset;
 
+import std.traits : isIntegral;
 import core.internal.hash : hashOf;
 
 /** Hash set storing elements of type `T`.
@@ -8,7 +9,7 @@ import core.internal.hash : hashOf;
  */
 struct HashSet(T,
                alias Allocator = null,
-               alias hashFunction = hashOf)
+               alias hashFunction = murmurHash3Of!T)
 {
     import basic_uncopyable_array : Array = UncopyableArray; // TODO change to CopyableArray when
 
@@ -75,19 +76,18 @@ private:
 }
 
 /** Alternative to `core.internal.hash.hashOf`. */
-private size_t murmurHash3Of(T)(in T value)
+private ulong murmurHash3Of(T)(in T value) @trusted
+    if (isIntegral!T)
 {
-    import std.digest : digest;
+    import std.digest : makeDigest;
     import std.digest.murmurhash : MurmurHash3;
-    immutable ubyte[16] hash = digest!(MurmurHash3!(128))([value].s);
-    return (((cast(size_t)(hash[0] ^ hash [8]) << 0*8)) |
-            ((cast(size_t)(hash[1] ^ hash [9]) << 1*8)) |
-            ((cast(size_t)(hash[2] ^ hash[10]) << 2*8)) |
-            ((cast(size_t)(hash[3] ^ hash[11]) << 3*8)) |
-            ((cast(size_t)(hash[4] ^ hash[12]) << 4*8)) |
-            ((cast(size_t)(hash[5] ^ hash[13]) << 5*8)) |
-            ((cast(size_t)(hash[6] ^ hash[14]) << 6*8)) |
-            ((cast(size_t)(hash[7] ^ hash[15]) << 7*8)));
+
+    auto dig = makeDigest!(MurmurHash3!(128));
+    dig.put((cast(const(ubyte)*)(&value))[0 .. value.sizeof]);
+    dig.finish();
+
+    const elements = dig.get();
+    return elements[0] ^ elements[1];
 }
 
 @safe pure nothrow unittest

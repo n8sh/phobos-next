@@ -11,6 +11,8 @@ struct HashSet(T,
                alias Allocator = null,
                alias hashFunction = murmurHash3Of!T)
 {
+    import std.traits : hasElaborateDestructor;
+
     alias This = typeof(this);
 
     /** Construct with prepare storage for `capacity` number of elements.
@@ -32,9 +34,39 @@ struct HashSet(T,
         initializeBuckets(bucketCount);
     }
 
+    /// Destruct.
     ~this()
     {
-        static assert(0, "Only delete large buckets");
+        release();
+    }
+
+    /// Empty.
+    void clear() @safe nothrow
+    {
+        release();
+        resetInternalData();
+    }
+
+    /// Release internal store.
+    private void release() @trusted
+    {
+        foreach (const bucketIndex; 0 .. _buckets.length)
+        {
+            if (_largeBucketFlags[bucketIndex])
+            {
+                .destroy(_buckets[bucketIndex].large);
+            }
+            else
+            {
+                .destroy(_buckets[bucketIndex].small);
+            }
+        }
+    }
+
+    /// Reset internal data.
+    private void resetInternalData()
+    {
+        assert(false, "TODO");
     }
 
     /** Initialize `bucketCount` number of buckets.
@@ -176,25 +208,6 @@ version = show;
     {
         assert(s.insert(i));    // already exist
     }
-
-    // size_t usedBucketCount = 0;
-    // foreach (const bucketIndex; 0 .. s._buckets.length)
-    // {
-    //     const length = s._buckets[bucketIndex].length;
-    //     if (length != 0)
-    //     {
-    //         // dln("bucket[", bucketIndex, "].length:", length);
-    //         usedBucketCount += 1;
-    //     }
-    // }
-
-    // version(show)
-    // {
-    //     dln("Element count: ", elementCount);
-    //     dln("Bucket usage: ", usedBucketCount, "/", s._buckets.length);
-    // }
-
-    // assert(usedBucketCount == 405);
 }
 
 version(unittest)

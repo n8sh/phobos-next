@@ -56,7 +56,7 @@ struct BitArrayN(uint len, Block = size_t)
     /** Gets the amount of native words backing this $(D BitArrayN). */
     @property static uint dim() @safe pure nothrow @nogc { return blockCount; }
 
-    /** Number of bits in the $(D BitArrayN). */
+    /** Number of bits. */
     enum length = len;
 
     /** BitArrayN range.
@@ -111,7 +111,7 @@ struct BitArrayN(uint len, Block = size_t)
         return Range(this, i, j);
     }
 
-    /** Gets the $(D i)'th bit in the $(D BitArrayN). */
+    /** Gets the $(D i)'th bit. */
     pragma(inline, true) bool opIndex(size_t i) const @trusted pure nothrow
     in
     {
@@ -130,10 +130,10 @@ struct BitArrayN(uint len, Block = size_t)
         }
     }
 
-    /** Gets the $(D i)'th bit in the $(D BitArrayN). No range checking needed. */
+    /** Gets the $(D i)'th bit. No range checking needed. */
     static if (len >= 1)
     {
-        /** Get the $(D i)'th bit in the $(D BitArrayN).
+        /** Get the $(D i)'th bit.
 
             Avoids range-checking because `i` of type is bound to (0 .. len-1).
         */
@@ -150,7 +150,7 @@ struct BitArrayN(uint len, Block = size_t)
             }
         }
 
-        /** Get the $(D i)'th bit in the $(D BitArrayN).
+        /** Get the $(D i)'th bit.
             Statically verifies that i is < BitArrayN length.
         */
         pragma(inline) bool at(size_t i)() const @trusted pure nothrow
@@ -160,14 +160,14 @@ struct BitArrayN(uint len, Block = size_t)
         }
     }
 
-    /** Puts the $(D i)'th bit in the $(D BitArrayN) to $(D b). */
+    /** Puts the $(D i)'th bit to $(D b). */
     pragma(inline, true) auto ref put()(size_t i, bool b) @trusted pure nothrow
     {
         this[i] = b;
         return this;
     }
 
-    /** Sets the $(D i)'th bit in the $(D BitArrayN). */
+    /** Sets the $(D i)'th bit. */
     import std.traits : isIntegral;
     pragma(inline, true)
     bool opIndexAssign(Index2)(bool b, Index2 i) @trusted pure nothrow
@@ -198,7 +198,7 @@ struct BitArrayN(uint len, Block = size_t)
 
     static if (len >= 1)
     {
-        /** Sets the $(D i)'th bit in the $(D BitArrayN). No range checking needed. */
+        /** Sets the $(D i)'th bit. No range checking needed. */
         pragma(inline, true) bool opIndexAssign(ModUInt)(bool b, Mod!(len, ModUInt) i)
             @trusted pure nothrow @nogc
         if (isUnsigned!ModUInt)

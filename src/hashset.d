@@ -102,7 +102,7 @@ private ulong murmurHash3Of(T)(in T value) @trusted
 
 @safe pure nothrow unittest
 {
-    const bucketCount = 2^^16;
+    const bucketCount = 2^^10;
     const elementCount = bucketCount/2;
 
     alias T = uint;
@@ -132,12 +132,13 @@ private ulong murmurHash3Of(T)(in T value) @trusted
         }
     }
 
-    assert(usedBucketCount == 25782);
     version(show)
     {
         dln("Element count: ", elementCount);
         dln("Bucket usage: ", usedBucketCount, "/", bucketCount);
     }
+
+    assert(usedBucketCount == 405);
 }
 
 version(unittest)

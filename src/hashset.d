@@ -9,9 +9,6 @@ struct HashSet(T,
                alias Allocator = null,
                alias hashFunction = murmurHash3Of!T)
 {
-    import basic_uncopyable_array : Array = UncopyableArray; // TODO change to CopyableArray when
-    import basic_bitarray : BitArray;
-
     alias This = typeof(this);
 
     /** Construct with prepare storage for `capacity` number of elements.
@@ -35,6 +32,11 @@ struct HashSet(T,
         initializeBuckets(bucketCount);
     }
 
+    ~this()
+    {
+        static assert(0, "Only delete large buckets");
+    }
+
     /** Initialize `bucketCount` number of buckets.
      */
     pragma(inline, true)
@@ -55,6 +57,7 @@ struct HashSet(T,
         immutable bucketIndex = bucketHashIndex(value);
         if (_largeBucketFlags[bucketIndex]) // if `_buckets[buckedIndex]` is `Large`
         {
+            dln("large");
             if (!_buckets[bucketIndex].large[].canFind(value))
             {
                 _buckets[bucketIndex].large.insertBackMove(value);
@@ -63,6 +66,7 @@ struct HashSet(T,
         }
         else                    // otherwise  `_buckets[buckedIndex]` is `Small`
         {
+            dln("small: length:",  _buckets[bucketIndex].small.length);
             if (!_buckets[bucketIndex].small[].canFind(value))
             {
                 const ok = _buckets[bucketIndex].small.insertBackMaybe(value);
@@ -70,9 +74,13 @@ struct HashSet(T,
                 {
                     // expand small to large
                     SmallBucket smallCopy = _buckets[bucketIndex].small;
+
+                    static assert(0, "TODO emplace large bucket");
                     _buckets[bucketIndex].large = LargeBucket(smallCopy[]);
+
+                    _largeBucketFlags[bucketIndex] = true; // bucket is now large
+                    dln("becomes large");
                 }
-                _largeBucketFlags[bucketIndex] = true; // bucket is now large
                 return false;
             }
         }
@@ -99,6 +107,9 @@ struct HashSet(T,
     }
 
 private:
+    import basic_uncopyable_array : Array = UncopyableArray; // TODO change to CopyableArray when
+    import basic_bitarray : BitArray;
+
     alias LargeBucket = Array!(T, Allocator);
 
     import std.algorithm : max;

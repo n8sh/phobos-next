@@ -1,7 +1,7 @@
 module basic_bitarray;
 
 /** Array of bits. */
-struct BitArray
+struct BitArray(alias Allocator = null)
 {
     @safe pure nothrow @nogc:
 
@@ -16,7 +16,7 @@ private:
     import basic_copyable_array : Array = CopyableArray;
     alias Block = size_t;
     enum blockBits = 8*Block.sizeof;
-    alias Store = Array!Block;
+    alias Store = Array!(Block, Allocator);
     Store _store;
 }
 
@@ -25,7 +25,7 @@ version = show;
 @safe pure nothrow @nogc unittest
 {
     const bitCount = 100;
-    auto a = BitArray(bitCount);
+    auto a = BitArray!(null)(bitCount);
     assert(a._store.length == 2);
 }
 

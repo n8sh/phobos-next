@@ -16,7 +16,7 @@ struct BitArray(alias Allocator = null)
     /** Construct with `length` number of zero bits. */
     static This withLength(size_t length) @trusted
     {
-        This that = void;
+        typeof(return) that = void;
         that._blockCount = ((length / blockBits) + // number of whole blocks
                             (length % blockBits ? 1 : 0)); // remained block
         that._ptr = cast(Block*)calloc(blockBits, that._blockCount);
@@ -27,7 +27,7 @@ struct BitArray(alias Allocator = null)
     /** Construct with room for `capacity` number of bits. */
     static This withCapacity(size_t length) @trusted
     {
-        This that = void;
+        typeof(return) that = void;
         that._blockCount = ((length / blockBits) + // number of whole blocks
                             (length % blockBits ? 1 : 0)); // remained block
         that._ptr = cast(Block*)malloc(blockBits * that._blockCount);

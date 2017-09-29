@@ -4,8 +4,6 @@ import std.traits : isIntegral, isUnsigned;
 import core.internal.hash : hashOf;
 
 /** Hash set storing elements of type `T`.
-
-    TODO add union storage for small arrays together with smallArrayFlags BitArray
  */
 struct HashSet(T,
                alias Allocator = null,

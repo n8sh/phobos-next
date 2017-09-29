@@ -181,7 +181,7 @@ version = show;
 
 @safe pure nothrow unittest
 {
-    const elementCount = 2^^10;
+    const elementCount = 2^^20;
 
     alias T = uint;
 
@@ -197,12 +197,13 @@ version = show;
     }
 }
 
+import xxhash64 : xxhash64Of;
+
 /** xxHash64-variant of `core.internal.hash.hashOf`.
  */
 private ulong xxhash64Of(T)(in T value) @trusted
     if (isIntegral!T)
 {
-    import xxhash64 : xxhash64Of;
     return xxhash64Of((cast(const(ubyte)*)(&value))[0 .. value.sizeof]);
 }
 

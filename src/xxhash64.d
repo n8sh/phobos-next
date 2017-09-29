@@ -248,10 +248,8 @@ unittest
     ubyte[8] x = [1, 2, 3, 4, 5, 6, 7, 8];
     auto y = xxhash64Of(x[]);
     assert(xxhash64Of(x[]) == 9316896406413536788UL);
-    assert(xxhash64Of(`xxhash`, 20141025) == 13067679811253438005UL);
-}
 
-version(unittest)
-{
-    // import dbgio : dln;
+    // tests copied from https://pypi.python.org/pypi/xxhash/0.6.0
+    assert(xxhash64Of(`xxhash`) == 3665147885093898016UL);
+    assert(xxhash64Of(`xxhash`, 20141025) == 13067679811253438005UL);
 }

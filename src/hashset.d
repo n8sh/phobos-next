@@ -13,13 +13,11 @@ struct HashSet(T,
                alias Allocator = null,
                alias hashFunction = murmurHash3Of!T)
 {
-    alias This = typeof(this);
-
     /** Construct with prepare storage for `capacity` number of elements.
      */
-    static This withCapacity(size_t capacity)
+    static typeof(this) withCapacity(size_t capacity)
     {
-        This that;
+        typeof(return) that;
         that.initialize(capacity / smallBucketLength);
         return that;
     }

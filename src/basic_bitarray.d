@@ -22,6 +22,10 @@ struct BitArray(alias Allocator = null)
     @property size_t length() const { return _length; }
     alias opDollar = length;    /// ditto
 
+    /// Get capacity.
+    pragma(inline, true)
+    @property size_t capacity() const { return blockBits*_store.capacity; }
+
     @disable this(this);
 
 private:
@@ -40,8 +44,11 @@ version = show;
 @safe pure nothrow @nogc unittest
 {
     const bitCount = 100;
+
     auto a = BitArray!(null)(bitCount);
+
     assert(a.length == bitCount);
+    assert(a.capacity == 2*a.blockBits);
     assert(a._store.length == 2);
 }
 

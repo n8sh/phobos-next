@@ -1,7 +1,6 @@
 module hashset;
 
 import std.traits : isIntegral, isUnsigned;
-import core.internal.hash : hashOf;
 
 /** Hash set storing elements of type `T`.
 
@@ -157,8 +156,35 @@ private:
     alias LargeBucketFlags = BitArray!(Allocator);
 
     Buckets _buckets;
-    LargeBucketFlags _largeBucketFlags; // TODO this store currently wastes 1 or 2 words as _bucket already contain same _length and _store
+
+    // TODO this store currently wastes 1 or 2 words as _bucket already contain
+    // same _length and _store. Use MultiArray!(HybridBucket, bool) container to
+    // store this.
+    LargeBucketFlags _largeBucketFlags;
+
     size_t hashMask;
+}
+
+version = show;
+
+
+@safe pure nothrow unittest
+{
+    const elementCount = 2^^10;
+
+    alias T = uint;
+
+    auto s = HashSet!(T, null, /*identityHashOf*/).withCapacity(elementCount);
+
+    foreach (const i; 0 .. elementCount)
+    {
+        assert(!s.insert(i));   // all new
+    }
+
+    foreach (const i; 0 .. elementCount)
+    {
+        assert(s.insert(i));    // already exist
+    }
 }
 
 /** Alternative to `core.internal.hash.hashOf`.
@@ -183,28 +209,6 @@ private size_t identityHashOf(U)(in U value)
         U.sizeof < size_t.sizeof)
 {
     return value;
-}
-
-version = show;
-
-
-@safe pure nothrow unittest
-{
-    const elementCount = 2^^10;
-
-    alias T = uint;
-
-    auto s = HashSet!(T, null, /*identityHashOf*/).withCapacity(elementCount);
-
-    foreach (const i; 0 .. elementCount)
-    {
-        assert(!s.insert(i));   // all new
-    }
-
-    foreach (const i; 0 .. elementCount)
-    {
-        assert(s.insert(i));    // already exist
-    }
 }
 
 version(unittest)

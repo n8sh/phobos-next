@@ -14,11 +14,24 @@ struct HashSet(T,
     /** Construct with at least `requestedMinimumBucketCount` number of initial
         buckets.
      */
-    this(size_t requestedMinimumBucketCount)
+    pragma(inline, true)
+    this(size_t requestedBucketCount)
+    {
+        initialize(requestedBucketCount);
+    }
+
+    pragma(inline)
+    private void initialize(size_t requestedBucketCount) @safe
     {
         import std.math : nextPow2;
-        immutable bucketCount = nextPow2(requestedMinimumBucketCount);
+        immutable bucketCount = nextPow2(requestedBucketCount);
         hashMask = bucketCount - 1;
+        initializeBuckets(bucketCount);
+    }
+
+    pragma(inline, true)
+    private void initializeBuckets(size_t bucketCount) @trusted
+    {
         _buckets = Buckets.withLength(bucketCount);
     }
 

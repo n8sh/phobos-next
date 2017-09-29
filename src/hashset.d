@@ -165,7 +165,8 @@ private:
     size_t hashMask;
 }
 
-/** Alternative to `core.internal.hash.hashOf`. */
+/** Alternative to `core.internal.hash.hashOf`.
+ */
 private ulong murmurHash3Of(T)(in T value) @trusted
     if (isIntegral!T)
 {

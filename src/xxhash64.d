@@ -64,12 +64,12 @@ struct XXHash64
      */
     void start()
     {
-        state[0] = _seed + prime1 + prime2;
-        state[1] = _seed + prime2;
-        state[2] = _seed;
-        state[3] = _seed - prime1;
-        bufferSize  = 0;
-        totalLength = 0;
+        _state[0] = _seed + prime1 + prime2;
+        _state[1] = _seed + prime2;
+        _state[2] = _seed;
+        _state[3] = _seed - prime1;
+        _bufferSize  = 0;
+        _totalLength = 0;
     }
 
     /// Add a chunk of bytes.
@@ -84,15 +84,15 @@ struct XXHash64
             return false;
         }
 
-        totalLength += length;
+        _totalLength += length;
 
         // unprocessed old data plus new data still fit in temporary buffer ?
-        if (bufferSize + length < bufferMaxSize)
+        if (_bufferSize + length < bufferMaxSize)
         {
             // just add new data
             while (length-- > 0)
             {
-                buffer[bufferSize++] = *data++;
+                _buffer[_bufferSize++] = *data++;
             }
             return true;
         }
@@ -102,35 +102,35 @@ struct XXHash64
         const(ubyte)* stopBlock = stop - bufferMaxSize;
 
         // some data left from previous update ?
-        if (bufferSize > 0)
+        if (_bufferSize > 0)
         {
             // make sure temporary buffer is full (16 bytes)
-            while (bufferSize < bufferMaxSize)
+            while (_bufferSize < bufferMaxSize)
             {
-                buffer[bufferSize++] = *data++;
+                _buffer[_bufferSize++] = *data++;
             }
 
             // process these 32 bytes (4x8)
-            process(buffer.ptr, state[0], state[1], state[2], state[3]);
+            process(_buffer.ptr, _state[0], _state[1], _state[2], _state[3]);
         }
 
-        // copying state to local variables helps optimizer A LOT
-        ulong s0 = state[0], s1 = state[1], s2 = state[2], s3 = state[3];
+        // copying _state to local variables helps optimizer A LOT
+        ulong s0 = _state[0], s1 = _state[1], s2 = _state[2], s3 = _state[3];
         // 32 bytes at once
         while (data <= stopBlock)
         {
-            // local variables s0..s3 instead of state[0]..state[3] are much faster
+            // local variables s0..s3 instead of _state[0].._state[3] are much faster
             process(data, s0, s1, s2, s3);
             data += 32;
         }
         // copy back
-        state[0] = s0; state[1] = s1; state[2] = s2; state[3] = s3;
+        _state[0] = s0; _state[1] = s1; _state[2] = s2; _state[3] = s3;
 
         // copy remainder to temporary buffer
-        bufferSize = stop - data;
-        foreach (const i; 0 .. bufferSize)
+        _bufferSize = stop - data;
+        foreach (const i; 0 .. _bufferSize)
         {
-            buffer[i] = data[i];
+            _buffer[i] = data[i];
         }
 
         // done
@@ -138,36 +138,36 @@ struct XXHash64
     }
 
     /** Returns: the finished XXHash64 hash.
-        This also calls $(LREF start) to reset the internal state.
+        This also calls $(LREF start) to reset the internal _state.
     */
     ulong finish() @trusted
     {
-        // fold 256 bit state into one single 64 bit value
+        // fold 256 bit _state into one single 64 bit value
         ulong result;
-        if (totalLength >= bufferMaxSize)
+        if (_totalLength >= bufferMaxSize)
         {
-            result = (rotateLeft(state[0],  1) +
-                      rotateLeft(state[1],  7) +
-                      rotateLeft(state[2], 12) +
-                      rotateLeft(state[3], 18));
-            result = (result ^ processSingle(0, state[0])) * prime1 + prime4;
-            result = (result ^ processSingle(0, state[1])) * prime1 + prime4;
-            result = (result ^ processSingle(0, state[2])) * prime1 + prime4;
-            result = (result ^ processSingle(0, state[3])) * prime1 + prime4;
+            result = (rotateLeft(_state[0],  1) +
+                      rotateLeft(_state[1],  7) +
+                      rotateLeft(_state[2], 12) +
+                      rotateLeft(_state[3], 18));
+            result = (result ^ processSingle(0, _state[0])) * prime1 + prime4;
+            result = (result ^ processSingle(0, _state[1])) * prime1 + prime4;
+            result = (result ^ processSingle(0, _state[2])) * prime1 + prime4;
+            result = (result ^ processSingle(0, _state[3])) * prime1 + prime4;
         }
         else
         {
-            // internal state wasn't set in put(), therefore original seed is still stored in state2
-            result = state[2] + prime5;
+            // internal _state wasn't set in put(), therefore original seed is still stored in state2
+            result = _state[2] + prime5;
         }
 
-        result += totalLength;
+        result += _totalLength;
 
         // process remaining bytes in temporary buffer
-        const(ubyte)* data = buffer.ptr;
+        const(ubyte)* data = _buffer.ptr;
 
         // point beyond last byte
-        const(ubyte)* stop = data + bufferSize;
+        const(ubyte)* stop = data + _bufferSize;
 
         // at least 8 bytes left ? => eat 8 bytes per step
         for (; data + 8 <= stop; data += 8)
@@ -211,11 +211,10 @@ private:
     /// temporarily store up to 31 bytes between multiple put() calls
     enum bufferMaxSize = 31+1;
 
-    ulong[4] state;
-    ubyte[bufferMaxSize] buffer;
-    ulong bufferSize;
-    ulong totalLength;
-
+    ulong[4] _state;
+    ubyte[bufferMaxSize] _buffer;
+    ulong _bufferSize;
+    ulong _totalLength;
     ulong _seed;
 
     /// rotate bits, should compile to a single CPU instruction (ROL)

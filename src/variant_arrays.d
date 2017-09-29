@@ -40,20 +40,26 @@ private struct VariantIndex(Types...)
         return _index;
     }
 
-    int opCmp(in typeof(this) that) const @trusted
+    /// Comparsion works like for integers.
+    int opCmp(in typeof(this) rhs) const @trusted
     {
-        // Size size = cast(Size*)(&_index);
+        if (this.rawWord < rhs.rawWord) { return -1; }
+        if (this.rawWord > rhs.rawWord) { return +1; }
         return 0;
     }
 
     /// Returns: `true` iff `this` targets a value of type `SomeKind`.
-    public bool isA(SomeKind)() const { return nrOfKind!(SomeKind) == _kindNr; }
+    public bool isA(SomeKind)() const
+    {
+        return nrOfKind!(SomeKind) == _kindNr;
+    }
 
     import std.bitmanip : bitfields;
     union
     {
         mixin(bitfields!(Size, "_index", 8*Size.sizeof - kindBits,
                          Kind, "_kindNr", kindBits));
+        Size rawWord;           // for comparsion
     }
 
     static assert(this.sizeof == Size.sizeof,

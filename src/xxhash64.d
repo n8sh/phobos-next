@@ -16,7 +16,7 @@ ulong xxhash64Of(in ubyte[] data, ulong seed = 0)
     auto xh = XXHash64(seed);
     xh.start();
     xh.put(data);
-    return xh.finish();
+    return xh.finishUlong();
 }
 
 /** Compute xxHash-64 of input string `data`, with optional seed `seed`.
@@ -135,7 +135,7 @@ struct XXHash64
     /** Returns: the finished XXHash64 hash.
         This also calls $(LREF start) to reset the internal _state.
     */
-    ulong finish() @trusted
+    ulong finishUlong() @trusted
     {
         // fold 256 bit _state into one single 64 bit value
         ulong result;
@@ -195,6 +195,15 @@ struct XXHash64
         return result;
     }
 
+    /** Returns: the finished XXHash64 hash.
+        This also calls $(LREF start) to reset the internal _state.
+    */
+    ubyte[8] finish() @trusted
+    {
+        const ulong resultUlong = finishUlong();
+        return (cast(ubyte*)&resultUlong)[0 .. typeof(return).sizeof];
+    }
+
 private:
     /// magic constants
     enum ulong prime1 = 11400714785074694791UL;
@@ -239,6 +248,12 @@ private:
     }
 }
 
+version(unittest)
+{
+    import std.digest : hexDigest, isDigest;
+    static assert(isDigest!(XXHash64));
+}
+
 /// test simple `xxhash64Of`
 unittest
 {
@@ -250,4 +265,13 @@ unittest
     // tests copied from https://pypi.python.org/pypi/xxhash/0.6.0
     assert(xxhash64Of(`xxhash`) == 3665147885093898016UL);
     assert(xxhash64Of(`xxhash`, 20141025) == 13067679811253438005UL);
+}
+
+/// test with `std.digest`
+unittest
+{
+    import std.digest;
+    auto dig = hexDigest!XXHash64(`xxhash`);
+    import dbgio : dln;
+    dln(dig);
 }

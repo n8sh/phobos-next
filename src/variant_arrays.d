@@ -40,12 +40,24 @@ private struct VariantIndex(Types...)
         return _index;
     }
 
+    int opCmp(in typeof(this) that) const @trusted
+    {
+        // Size size = cast(Size*)(&_index);
+        return 0;
+    }
+
     /// Returns: `true` iff `this` targets a value of type `SomeKind`.
     public bool isA(SomeKind)() const { return nrOfKind!(SomeKind) == _kindNr; }
 
     import std.bitmanip : bitfields;
-    mixin(bitfields!(Size, "_index", 8*Size.sizeof - kindBits,
-                     Kind, "_kindNr", kindBits));
+    union
+    {
+        mixin(bitfields!(Size, "_index", 8*Size.sizeof - kindBits,
+                         Kind, "_kindNr", kindBits));
+    }
+
+    static assert(this.sizeof == Size.sizeof,
+                  `This should haven't any memory overhead compared to size_t`);
 }
 
 private mixin template VariantArrayOf(Type)

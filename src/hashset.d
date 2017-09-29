@@ -46,7 +46,7 @@ struct HashSet(T,
     bool insert(T value)
     {
         import std.algorithm.searching : canFind;
-        const bucketIndex = hashFunction(value) & hashMask;
+        immutable bucketIndex = hashFunction(value) & hashMask;
         if (!_buckets[bucketIndex][].canFind(value))
         {
             _buckets[bucketIndex].insertBackMove(value);
@@ -62,7 +62,7 @@ struct HashSet(T,
         if (is(typeof(T.init == U.init)))
     {
         import std.algorithm.searching : find;
-        const bucketIndex = hashFunction(value) & hashMask;
+        immutable bucketIndex = hashFunction(value) & hashMask;
         const bucketSlice = _buckets[bucketIndex][];
         const hit = bucketSlice.find(value);
         if (hit)

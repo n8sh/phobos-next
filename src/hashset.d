@@ -1,14 +1,15 @@
 module hashset;
 
+import core.internal.hash : hashOf;
+
 /** Hash set storing elements of type `T`.
 
     TODO add union storage for small arrays together with smallArrayFlags BitArray
  */
 struct HashSet(T,
                alias Allocator = null, // null means means to qcmeman functions
-               alias hashFunction = null)
+               alias hashFunction = hashOf)
 {
-    import core.internal.hash : hashFn = hashOf;
     import basic_uncopyable_array : Array = UncopyableArray; // TODO change to CopyableArray when
 
     /** Construct with at least `requestedMinimumBucketCount` number of initial
@@ -42,7 +43,7 @@ struct HashSet(T,
     bool insert(T value)
     {
         import std.algorithm.searching : canFind;
-        const index = hashFn(value) & hashMask;
+        const index = hashFunction(value) & hashMask;
         if (!_buckets[index][].canFind(value))
         {
             _buckets[index].insertBackMove(value);

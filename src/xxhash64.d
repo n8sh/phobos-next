@@ -14,7 +14,7 @@ ulong xxhash64Of(in ubyte[] data, ulong seed = 0)
 {
     auto xh = XXHash64(seed);
     xh.start();
-    xh.add(data.ptr, data.length);
+    xh.put(data.ptr, data.length);
     return xh.finish();
 }
 
@@ -24,8 +24,8 @@ ulong xxhash64Of(in ubyte[] data, ulong seed = 0)
 
         ulong myseed = 0;
         XXHash64 myhash(myseed);
-        myhash.add(pointerToSomeBytes,     numberOfBytes);
-        myhash.add(pointerToSomeMoreBytes, numberOfMoreBytes); // call add() as often as you like to ...
+        myhash.put(pointerToSomeBytes,     numberOfBytes);
+        myhash.put(pointerToSomeMoreBytes, numberOfMoreBytes); // call put() as often as you like to ...
 
     and compute hash:
 
@@ -68,7 +68,7 @@ struct XXHash64
     /** @param  data  pointer to a continuous block of data
         @param  length number of bytes
         @return false if parameters are invalid / zero **/
-    bool add(scope const(ubyte)* data, ulong length) @trusted
+    bool put(scope const(ubyte)* data, ulong length) @trusted
     {
         // no data ?
         if (!data || length == 0)
@@ -145,7 +145,7 @@ struct XXHash64
         }
         else
         {
-            // internal state wasn't set in add(), therefore original seed is still stored in state2
+            // internal state wasn't set in put(), therefore original seed is still stored in state2
             result = state[2] + prime5;
         }
 
@@ -188,7 +188,7 @@ private:
     enum ulong prime4 =  9650029242287828579UL;
     enum ulong prime5 =  2870177450012600261UL;
 
-    /// temporarily store up to 31 bytes between multiple add() calls
+    /// temporarily store up to 31 bytes between multiple put() calls
     enum bufferMaxSize = 31+1;
 
     ulong[4] state;

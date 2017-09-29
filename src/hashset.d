@@ -63,18 +63,7 @@ struct HashSet(T,
     {
         import std.algorithm.searching : find;
         immutable bucketIndex = hashFunction(value) & hashMask;
-        const bucketSlice = _buckets[bucketIndex][];
-        auto hit = bucketSlice.find(value);
-        if (hit)
-        {
-            const offset = hit.ptr - bucketSlice.ptr;
-            static assert(0, "TODO Implement popAtIndex in Array and use here");
-            if (hit)
-            {
-                return true;
-            }
-        }
-        return false;
+        static assert(0, "TODO Implement removeAtIndex in Array and use _buckets[bucketIndex].removeAtIndex() here");
     }
 
 private:

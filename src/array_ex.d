@@ -809,7 +809,7 @@ private struct Array(E,
 
     /** Removal doesn't need to care about ordering. */
     pragma(inline, true)
-    ContainerElementType!(This, E) linearPopFront() @trusted @("complexity", "O(length)")
+    ContainerElementType!(This, E) popFront() @trusted @("complexity", "O(length)")
     {
         return removeAtIndex(0);
     }
@@ -2111,19 +2111,19 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ssA[].equal([1, 2, 3, 4, 5, 6, 7, 8].s[]));
             ssA.insertAtIndex(3, 100, 101);
             assert(ssA[].equal([1, 2, 3, 100, 101, 4, 5, 6, 7, 8].s[]));
-            assertNotThrown(ssA.linearPopFront());
+            assertNotThrown(ssA.popFront());
             assert(ssA[].equal([2, 3, 100, 101, 4, 5, 6, 7, 8].s[]));
-            assertNotThrown(ssA.linearPopFront());
+            assertNotThrown(ssA.popFront());
             assert(ssA[].equal([3, 100, 101, 4, 5, 6, 7, 8].s[]));
-            assertNotThrown(ssA.linearPopFront());
+            assertNotThrown(ssA.popFront());
             assert(ssA[].equal([100, 101, 4, 5, 6, 7, 8].s[]));
-            assertNotThrown(ssA.linearPopFront());
-            assertNotThrown(ssA.linearPopFront());
-            assertNotThrown(ssA.linearPopFront());
-            assertNotThrown(ssA.linearPopFront());
-            assertNotThrown(ssA.linearPopFront());
-            assertNotThrown(ssA.linearPopFront());
-            assertNotThrown(ssA.linearPopFront());
+            assertNotThrown(ssA.popFront());
+            assertNotThrown(ssA.popFront());
+            assertNotThrown(ssA.popFront());
+            assertNotThrown(ssA.popFront());
+            assertNotThrown(ssA.popFront());
+            assertNotThrown(ssA.popFront());
+            assertNotThrown(ssA.popFront());
             assert(ssA.empty);
             ssA.compress();
 

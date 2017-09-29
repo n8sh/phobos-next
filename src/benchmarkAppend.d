@@ -3,10 +3,11 @@ version = benchmark;
 version(benchmark)
 void main()
 {
+    // standard storage
     import std.array : Appender;
     import std.container.array : StdArray = Array;
 
-    // TODO my containers
+    // my containers
     import basic_copyable_array : CopyableArray;
     import variant_arrays : VariantArrays;
     import hashset : HashSet, identityHashOf, xxhash64Of;

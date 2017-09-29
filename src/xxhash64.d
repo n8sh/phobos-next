@@ -2,6 +2,7 @@
     speeds close to RAM limits. It is proposed in two flavors, 32 and 64 bits.
 
     TODO merge into xxhash-d
+    TODO make endian-aware
 */
 module xxhash64;
 

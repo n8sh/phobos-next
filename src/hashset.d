@@ -98,6 +98,8 @@ private ulong murmurHash3Of(T)(in T value) @trusted
     return elements[0] ^ elements[1];
 }
 
+// version = show;
+
 @safe pure nothrow unittest
 {
     const bucketCount = 2^^16;
@@ -119,18 +121,31 @@ private ulong murmurHash3Of(T)(in T value) @trusted
         assert(s.insert(i));    // already exist
     }
 
+    size_t usedBucketCount = 0;
     foreach (const bucketIndex; 0 .. bucketCount)
     {
         const length = s._buckets[bucketIndex].length;
         if (length != 0)
         {
-            dln("bucket[", bucketIndex, "].length:", length);
+            // dln("bucket[", bucketIndex, "].length:", length);
+            usedBucketCount += 1;
         }
+    }
+
+    assert(usedBucketCount == 25782);
+    version(show)
+    {
+        dln("Element count: ", elementCount);
+        dln("Bucket usage: ", usedBucketCount, "/", bucketCount);
     }
 }
 
 version(unittest)
 {
     import array_help : s;
+}
+
+version(show)
+{
     import dbgio : dln;
 }

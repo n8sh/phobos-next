@@ -46,13 +46,6 @@ struct BitArray(alias Allocator = null)
         return cast(bool)bt(_ptr, i);
     }
 
-    /** Sets the `i`'th bit to `value`. */
-    auto ref put()(size_t i, bool value) @trusted
-    {
-        bts(_ptr, i);
-        return this;
-    }
-
     /** Set the `i`'th bit to `value`. */
     void opIndexAssign(bool value, size_t i) @trusted
     {
@@ -85,7 +78,6 @@ version = show;
         assert(!a[i]);
     }
 
-    a.put(0, true);
     assert(a[0]);
     foreach (const i; 1 .. bitCount)
     {

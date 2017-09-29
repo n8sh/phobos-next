@@ -13,8 +13,6 @@ struct HashSet(T,
                alias Allocator = null,
                alias hashFunction = murmurHash3Of!T)
 {
-    import std.traits : hasElaborateDestructor;
-
     alias This = typeof(this);
 
     /** Construct with prepare storage for `capacity` number of elements.

@@ -230,6 +230,8 @@ private:
     assert(data.length == 3);
 
     const i3 = data.put(Chars!15(`1234`));
+    assert(i0 < i3);
+    assert(i1 < i3);
     assert(i2 < i3);
 
     assert(i3.isA!(Chars!15));

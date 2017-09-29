@@ -262,6 +262,7 @@ unittest
     assert(xxhash64Of(`xxhash`, 20141025) == 13067679811253438005UL);
 }
 
+version(DigitalMars)            // LDC doesn't have std/digest.d
 version(unittest)
 {
     import std.digest : hexDigest, isDigest;

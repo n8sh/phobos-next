@@ -78,6 +78,7 @@ version = show;
         assert(!a[i]);
     }
 
+    a[0] = true;
     assert(a[0]);
     foreach (const i; 1 .. bitCount)
     {

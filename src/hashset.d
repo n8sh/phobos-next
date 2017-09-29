@@ -159,7 +159,7 @@ private:
     alias LargeBucketFlags = BitArray!(Allocator);
 
     Buckets _buckets;
-    LargeBucketFlags _largeBucketFlags;
+    LargeBucketFlags _largeBucketFlags; // TODO this store currently wastes 1 or 2 words as _bucket already contain same _length and _store
     size_t hashMask;
 }
 

@@ -147,13 +147,13 @@ private struct VariantArrays(Types...)
     @property bool empty() const { return length == 0; }
 
 private:
-    static if (__VERSION__ >= 2076)
+    static if (false/*__VERSION__ >= 2076*/)
     {
-        static foreach (const typeIndex, Type; Types)
-        {
-            // TODO is it better to use?: mixin VariantArrayOf!(Type);
-            mixin(arrayTypeStringOfIndex!typeIndex ~ ` ` ~ arrayInstanceString!Type ~ `;`);
-        }
+        // static foreach (const typeIndex, Type; Types)
+        // {
+        //     // TODO is it better to use?: mixin VariantArrayOf!(Type);
+        //     mixin(arrayTypeStringOfIndex!typeIndex ~ ` ` ~ arrayInstanceString!Type ~ `;`);
+        // }
     }
     else
     {
@@ -258,7 +258,7 @@ version(unittest)
     import array_help : s;
 }
 
-version = benchmark;
+// version = benchmark;
 
 version(benchmark)
 unittest

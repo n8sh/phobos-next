@@ -62,9 +62,7 @@ struct HashSet(T,
         if (is(typeof(T.init == U.init)))
     {
         import std.algorithm.searching : find;
-
         const bucketIndex = hashFunction(value) & hashMask;
-
         const bucketSlice = _buckets[bucketIndex][];
         const hit = bucketSlice.find(value);
         if (hit)

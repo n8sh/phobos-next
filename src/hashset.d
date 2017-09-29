@@ -209,8 +209,9 @@ private ulong murmurHash3Of(T)(in T value) @trusted
     return elements[0] ^ elements[1];
 }
 
+/** Dummy-hash for benchmarking performance. */
 pragma(inline, true)
-private size_t identityHashOf(U)(in U value)
+private U identityHashOf(U)(in U value)
     if (isUnsigned!U &&
         U.sizeof < size_t.sizeof)
 {

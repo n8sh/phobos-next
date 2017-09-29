@@ -177,7 +177,8 @@ version = show;
 
     foreach (const i; 0 .. elementCount)
     {
-        assert(!s.insert(i));   // all new
+        assert(!s.insert(i));
+        assert(s.insert(i));
     }
 
     foreach (const i; 0 .. elementCount)

@@ -78,12 +78,11 @@ struct HashSet(T,
      */
     bool insert(T value) @trusted
     {
-        dln(value);
+        import std.conv : emplace;
         import std.algorithm.searching : canFind;
         immutable bucketIndex = bucketHashIndex(value);
         if (_largeBucketFlags[bucketIndex]) // if `_buckets[buckedIndex]` is `Large`
         {
-            dln("large");
             if (!_buckets[bucketIndex].large[].canFind(value))
             {
                 _buckets[bucketIndex].large.insertBackMove(value);
@@ -92,7 +91,6 @@ struct HashSet(T,
         }
         else                    // otherwise  `_buckets[buckedIndex]` is `Small`
         {
-            dln("small: length:",  _buckets[bucketIndex].small.length);
             if (!_buckets[bucketIndex].small[].canFind(value))
             {
                 const ok = _buckets[bucketIndex].small.insertBackMaybe(value);
@@ -100,12 +98,9 @@ struct HashSet(T,
                 {
                     // expand small to large
                     SmallBucket smallCopy = _buckets[bucketIndex].small;
-
-                    import std.conv : emplace;
                     emplace!(LargeBucket)(&_buckets[bucketIndex].large, smallCopy[]);
-
+                    _buckets[bucketIndex].large.insertBackMove(value);
                     _largeBucketFlags[bucketIndex] = true; // bucket is now large
-                    dln("becomes large");
                 }
                 return false;
             }
@@ -169,7 +164,7 @@ version = show;
 
 @safe pure nothrow unittest
 {
-    const elementCount = 2^^10;
+    const elementCount = 2^^7;
 
     alias T = uint;
 

@@ -201,7 +201,7 @@ struct XXHash64
     ubyte[8] finish() @trusted
     {
         const ulong resultUlong = finishUlong();
-        return (cast(ubyte*)&resultUlong)[0 .. typeof(return).sizeof];
+        return (cast(ubyte*)&resultUlong)[0 .. typeof(return).sizeof]; // TODO make endian-aware
     }
 
 private:

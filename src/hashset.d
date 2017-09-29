@@ -1,6 +1,6 @@
 module hashset;
 
-import std.traits : isIntegral;
+import std.traits : isIntegral, isUnsigned;
 import core.internal.hash : hashOf;
 
 /** Hash set storing elements of type `T`.
@@ -96,6 +96,14 @@ private ulong murmurHash3Of(T)(in T value) @trusted
 
     const elements = dig.get();
     return elements[0] ^ elements[1];
+}
+
+pragma(inline, true)
+private size_t identityHashOf(U)(in U value)
+    if (isUnsigned!U &&
+        U.sizeof < typeof(return).sizeof)
+{
+    return value;
 }
 
 // version = show;

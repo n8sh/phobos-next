@@ -1,13 +1,15 @@
 module hashset;
 
 /** Hash set storing elements of type `T`.
+
+    TODO add union storage for small arrays together with smallArrayFlags BitArray
  */
 struct HashSet(T,
                alias Allocator = null, // null means means to qcmeman functions
                alias hashFunction = null)
 {
     import core.internal.hash : hashFn = hashOf;
-    import basic_uncopyable_array : Array = UncopyableArray;
+    import basic_uncopyable_array : Array = UncopyableArray; // TODO change to CopyableArray when
 
     /** Construct with at least `requestedMinimumBucketCount` number of initial
         buckets.

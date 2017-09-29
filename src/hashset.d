@@ -209,7 +209,7 @@ private ulong murmurHash3Of(T)(in T value) @trusted
     return elements[0] ^ elements[1];
 }
 
-/** Dummy-hash for benchmarking performance. */
+/** Dummy-hash for benchmarking performance of HashSet. */
 pragma(inline, true)
 private U identityHashOf(U)(in U value)
     if (isUnsigned!U &&

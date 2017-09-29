@@ -8,7 +8,8 @@ struct BitArray(alias Allocator = null)
     /** Construct with `length` number of bits. */
     this(size_t length)
     {
-        immutable blockCount = length / blockBits + (length % blockBits ? 1 : 0);
+        immutable blockCount = ((length / blockBits) + // number of whole blocks
+                                (length % blockBits ? 1 : 0)); // remained block
         _store = Store.withLength(blockCount);
     }
 

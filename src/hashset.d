@@ -10,7 +10,6 @@ struct HashSet(T,
                alias Allocator = null,
                alias hashFunction = hashOf)
 {
-    import std.traits : isAssignable;
     import basic_uncopyable_array : Array = UncopyableArray; // TODO change to CopyableArray when
 
     /** Construct with at least `requestedBucketCount` number of initial buckets.

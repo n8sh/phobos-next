@@ -7,7 +7,7 @@ module xxhash64;
 
 @safe pure nothrow @nogc:
 
-/** Compute XXHash64 of input `data`, with optional seed `seed`.
+/** Compute xxHash-64 of input `data`, with optional seed `seed`.
  */
 ulong xxhash64Of(in ubyte[] data, ulong seed = 0)
     @trusted
@@ -17,7 +17,7 @@ ulong xxhash64Of(in ubyte[] data, ulong seed = 0)
     return hasher.hash();
 }
 
-/** XXHash64, based on Yann Collet's descriptions
+/** xxHash-64, based on Yann Collet's descriptions
 
     How to use:
 

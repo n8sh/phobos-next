@@ -126,7 +126,7 @@ struct XXHash64
 
         // copy remainder to temporary buffer
         bufferSize = stop - data;
-        for (uint i = 0; i < bufferSize; i++)
+        foreach (const i; 0 .. bufferSize)
         {
             buffer[i] = data[i];
         }

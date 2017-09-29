@@ -192,31 +192,47 @@ private:
     import fixed_array : BasicFixedArray;
 
     alias Chars(uint capacity) = BasicFixedArray!(char, capacity);
-    alias Data = VariantArrays!(Chars!7,
-                                Chars!15,
-                                ulong);
+    alias VA = VariantArrays!(ulong,
+                              Chars!7,
+                              Chars!15);
 
-    Data data;
+    VA data;
     assert(data.length == 0);
     assert(data.empty);
 
-    assert(data.put(ulong(13)).isA!ulong);
+    const i0 = data.put(ulong(13));
+
+    assert(i0.isA!ulong);
     assert(data.at!ulong(0) == ulong(13));
     assert(data.length == 1);
     assert(!data.empty);
     assert(data.allOf!ulong == [ulong(13)].s);
 
-    assert(data.put(Chars!7(`1234567`)).isA!(Chars!7));
+    const i1 = data.put(Chars!7(`1234567`));
+
+    // same order as in `Types`
+    assert(i0 < i1);
+
+    assert(i1.isA!(Chars!7));
     assert(data.at!(Chars!7)(0) == Chars!7(`1234567`));
     assert(data.allOf!(Chars!7) == [Chars!7(`1234567`)].s);
     assert(data.length == 2);
 
-    assert(data.put(Chars!15(`123`)).isA!(Chars!15));
+    const i2 = data.put(Chars!15(`123`));
+
+    // same order as in `Types`
+    assert(i0 < i2);
+    assert(i1 < i2);
+
+    assert(i2.isA!(Chars!15));
     assert(data.at!(Chars!15)(0) == Chars!15(`123`));
     assert(data.allOf!(Chars!15) == [Chars!15(`123`)].s);
     assert(data.length == 3);
 
-    assert(data.put(Chars!15(`1234`)).isA!(Chars!15));
+    const i3 = data.put(Chars!15(`1234`));
+    assert(i2 < i3);
+
+    assert(i3.isA!(Chars!15));
     assert(data.at!(Chars!15)(1) == Chars!15(`1234`));
     assert(data.allOf!(Chars!15) == [Chars!15(`123`), Chars!15(`1234`)].s);
     assert(data.length == 4);

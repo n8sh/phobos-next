@@ -129,9 +129,6 @@ struct XXHash64
         {
             _buffer[i] = ptr[i];
         }
-
-        // done
-        return;
     }
 
     /** Returns: the finished XXHash64 hash.

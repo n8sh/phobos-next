@@ -92,7 +92,7 @@ private:
                   LargeBucket.sizeof);
 
     /** Small-size-optimized bucket. */
-    union SSOBucket
+    union HybridBucket
     {
         SmallBucket small;
         LargeBucket large;

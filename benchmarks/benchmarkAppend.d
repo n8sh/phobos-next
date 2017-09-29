@@ -35,7 +35,7 @@ void main()
 
     foreach (A; AliasSeq!(HashSet!E))
     {
-        A a = A(n);
+        A a = A.withCapacity(n);
         immutable before = MonoTime.currTime();
         foreach (const i; 0 .. n)
         {

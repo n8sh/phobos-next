@@ -17,6 +17,12 @@ ulong xxhash64Of(in ubyte[] data, ulong seed = 0)
     xh.put(data.ptr, data.length);
     return xh.finish();
 }
+/// ditto
+ulong xxhash64Of(in string data, ulong seed = 0)
+    @trusted
+{
+    return xxhash64Of(cast(ubyte[])data, seed);
+}
 
 /** xxHash-64, based on Yann Collet's descriptions
 
@@ -98,7 +104,9 @@ struct XXHash64
         {
             // make sure temporary buffer is full (16 bytes)
             while (bufferSize < bufferMaxSize)
+            {
                 buffer[bufferSize++] = *data++;
+            }
 
             // process these 32 bytes (4x8)
             process(buffer.ptr, state[0], state[1], state[2], state[3]);
@@ -119,7 +127,9 @@ struct XXHash64
         // copy remainder to temporary buffer
         bufferSize = stop - data;
         for (uint i = 0; i < bufferSize; i++)
+        {
             buffer[i] = data[i];
+        }
 
         // done
         return true;
@@ -158,18 +168,22 @@ struct XXHash64
 
         // at least 8 bytes left ? => eat 8 bytes per step
         for (; data + 8 <= stop; data += 8)
+        {
             result = rotateLeft(result ^ processSingle(0, *cast(ulong*)data), 27) * prime1 + prime4;
+        }
 
         // 4 bytes left ? => eat those
         if (data + 4 <= stop)
         {
-            result = rotateLeft(result ^ (*cast(uint*)data) * prime1,   23) * prime2 + prime3;
+            result = rotateLeft(result ^ (*cast(uint*)data) * prime1, 23) * prime2 + prime3;
             data  += 4;
         }
 
         // take care of remaining 0..3 bytes, eat 1 byte per step
         while (data != stop)
-            result = rotateLeft(result ^ (*data++) * prime5,            11) * prime1;
+        {
+            result = rotateLeft(result ^ (*data++) * prime5, 11) * prime1;
+        }
 
         // mix bits
         result ^= result >> 33;
@@ -177,6 +191,9 @@ struct XXHash64
         result ^= result >> 29;
         result *= prime3;
         result ^= result >> 32;
+
+        start();
+
         return result;
     }
 
@@ -231,6 +248,7 @@ unittest
     ubyte[8] x = [1, 2, 3, 4, 5, 6, 7, 8];
     auto y = xxhash64Of(x[]);
     assert(xxhash64Of(x[]) == 9316896406413536788UL);
+    assert(xxhash64Of(`xxhash`, 20141025) == 13067679811253438005UL);
 }
 
 version(unittest)

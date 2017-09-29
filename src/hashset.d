@@ -12,8 +12,7 @@ struct HashSet(T,
 {
     import basic_uncopyable_array : Array = UncopyableArray; // TODO change to CopyableArray when
 
-    /** Construct with at least `requestedMinimumBucketCount` number of initial
-        buckets.
+    /** Construct with at least `requestedBucketCount` number of initial buckets.
      */
     pragma(inline, true)
     this(size_t requestedBucketCount)

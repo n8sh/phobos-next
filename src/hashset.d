@@ -45,6 +45,7 @@ struct HashSet(T,
     {
         import std.algorithm.searching : canFind;
         immutable bucketIndex = hashFunction(value) & hashMask;
+        dln(bucketIndex);
         if (!_buckets[bucketIndex][].canFind(value))
         {
             _buckets[bucketIndex].insertBackMove(value);
@@ -76,7 +77,7 @@ private size_t murmurHash3Of(T)(in T value)
 {
     import std.digest : digest;
     import std.digest.murmurhash : MurmurHash3;
-    immutable ubyte[16] hash = digest!(MurmurHash3!(128, 64))([value].s);
+    immutable ubyte[16] hash = digest!(MurmurHash3!(128))([value].s);
     return ((cast(size_t)(hash[0] << 0)) |
             (cast(size_t)(hash[1] << 1)) |
             (cast(size_t)(hash[2] << 2)) |

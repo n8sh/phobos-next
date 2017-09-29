@@ -14,7 +14,7 @@ struct BitArray(alias Allocator = null)
     alias This = typeof(this);
 
     /** Construct with `length` number of zero bits. */
-    pragma(inline)
+    pragma(inline)              // TODO gcc cannot inline this
     static This withLength(size_t length) @trusted
     {
         typeof(return) that = void;

@@ -82,14 +82,24 @@ struct CopyableArray(T,
     }
 
     /// Construct from uncopyable element `value`.
-    this(U)(U value) @trusted
-        if (!isCopyable!U &&
-            isElementAssignable!U)
+    this()(T value) @trusted
+        if (!isCopyable!T)
     {
         _ptr = This.allocate(1, false);
         _capacity = 1;
         _length = 1;
         moveEmplace(value, _mptr[0]); // TODO remove `moveEmplace` when compiler does it for us
+    }
+
+    /// Construct from uncopyable element `value`.
+    this(U)(U value) @trusted
+        if (isCopyable!U &&
+            isElementAssignable!U)
+    {
+        _ptr = This.allocate(1, false);
+        _capacity = 1;
+        _length = 1;
+        _mptr[0] = value;
     }
 
     /// Construct from element `values`.

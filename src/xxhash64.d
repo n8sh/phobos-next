@@ -206,10 +206,10 @@ private:
     enum bufferMaxSize = 31+1;
 
     ulong[4] _state;
-    ubyte[bufferMaxSize] _buffer;
     ulong _bufferSize;
     ulong _totalLength;
     ulong _seed;
+    ubyte[bufferMaxSize] _buffer;
 
     /// rotate bits, should compile to a single CPU instruction (ROL)
     static ulong rotateLeft(ulong x, ubyte bits)

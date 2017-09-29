@@ -49,16 +49,4 @@ void main()
         immutable after = MonoTime.currTime();
         writeln("Inserted ", n, " integers into ", A.stringof, " in ", after - before);
     }
-
-    foreach (A; AliasSeq!(HashSet!(E, null, xxhash64Of)))
-    {
-        A a = A.withCapacity(n);
-        immutable before = MonoTime.currTime();
-        foreach (const i; 0 .. n)
-        {
-            a.insert(i);
-        }
-        immutable after = MonoTime.currTime();
-        writeln("Inserted ", n, " integers into ", A.stringof, " in ", after - before);
-    }
 }

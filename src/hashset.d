@@ -20,6 +20,8 @@ struct HashSet(T,
         initialize(requestedBucketCount);
     }
 
+    /** Initialize at least `requestedBucketCount` number of initial buckets.
+     */
     pragma(inline)
     private void initialize(size_t requestedBucketCount) @safe
     {
@@ -29,6 +31,8 @@ struct HashSet(T,
         initializeBuckets(bucketCount);
     }
 
+    /** Initialize `bucketCount` number of buckets.
+     */
     pragma(inline, true)
     private void initializeBuckets(size_t bucketCount) @trusted
     {

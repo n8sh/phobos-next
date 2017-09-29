@@ -101,7 +101,7 @@ private ulong murmurHash3Of(T)(in T value) @trusted
 pragma(inline, true)
 private size_t identityHashOf(U)(in U value)
     if (isUnsigned!U &&
-        U.sizeof < typeof(return).sizeof)
+        U.sizeof < size_t.sizeof)
 {
     return value;
 }
@@ -115,7 +115,7 @@ private size_t identityHashOf(U)(in U value)
 
     alias T = uint;
 
-    auto s = HashSet!(T)(bucketCount);
+    auto s = HashSet!(T, null, /*identityHashOf*/)(bucketCount);
 
     assert(s._buckets.length == bucketCount);
 

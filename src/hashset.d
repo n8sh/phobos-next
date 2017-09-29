@@ -23,7 +23,7 @@ struct HashSet(T,
     /** Initialize at least `requestedBucketCount` number of initial buckets.
      */
     pragma(inline)
-    private void initialize(size_t requestedBucketCount) @safe
+    private void initialize(size_t requestedBucketCount)
     {
         import std.math : nextPow2;
         immutable bucketCount = nextPow2(requestedBucketCount);

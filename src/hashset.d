@@ -13,7 +13,7 @@ struct HashSet(T,
                alias Allocator = null,
                alias hashFunction = murmurHash3Of!T)
 {
-    /** Construct with space optimized for storing `capacity` number of elements.
+    /** Construct with capacity for storing `capacity` number of elements.
      */
     static typeof(this) withCapacity(size_t capacity)
     {

@@ -106,7 +106,7 @@ struct HashSet(T,
                     // expand small to large
                     SmallBucket smallCopy = _buckets[bucketIndex].small;
 
-                    import std.conv: emplace;
+                    import std.conv : emplace;
                     emplace!(LargeBucket)(&_buckets[bucketIndex].large, smallCopy[]);
 
                     _largeBucketFlags[bucketIndex] = true; // bucket is now large

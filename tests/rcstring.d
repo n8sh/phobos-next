@@ -38,7 +38,7 @@ struct RCXString(E = immutable char, size_t maxSmallSize = 23, alias realloc = G
 
 private:
     // import std.utf;
-    import std.conv: emplace;
+    import std.conv : emplace;
     import std.traits: isSomeChar, Unqual;
 
     version(unittest) import std.stdio;

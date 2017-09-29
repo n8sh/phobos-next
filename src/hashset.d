@@ -12,6 +12,7 @@ struct HashSet(T,
                alias hashFunction = murmurHash3Of!T)
 {
     import basic_uncopyable_array : Array = UncopyableArray; // TODO change to CopyableArray when
+    import basic_bitarray : BitArray;
 
     /** Construct with at least `requestedBucketCount` number of initial buckets.
      */
@@ -76,8 +77,29 @@ struct HashSet(T,
     }
 
 private:
-    alias Bucket = Array!(T, Allocator);
-    alias Buckets = Array!(Bucket, Allocator);
+    alias LargeBucket = Array!(T, Allocator);
+
+    enum smallBucketLength = (LargeBucket.sizeof - 1) / T.sizeof;
+    pragma(msg, smallBucketLength);
+
+    struct SmallBucket
+    {
+        T[smallBucketLength] _elements;
+        ubyte length;
+    }
+
+    static assert(SmallBucket.sizeof <=
+                  LargeBucket.sizeof);
+
+    /** Small-size-optimized bucket. */
+    union SSOBucket
+    {
+        SmallBucket small;
+        LargeBucket large;
+    }
+
+    alias Buckets = Array!(LargeBucket, Allocator);
+    alias LargeBucketFlags = BitArray!(Allocator);
 
     Buckets _buckets;
     size_t hashMask;

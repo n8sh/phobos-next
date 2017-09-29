@@ -28,7 +28,7 @@ struct BitArrayN(uint len, Block = size_t)
 
     static if (Block.sizeof == 8)
     {
-        import core.bitop : bt, bts, btr; // use intrinsics
+        import core.bitop : bt, bts, btr;
     }
     else
     {

@@ -167,7 +167,6 @@ private:
 
 version = show;
 
-
 @safe pure nothrow unittest
 {
     const elementCount = 2^^10;

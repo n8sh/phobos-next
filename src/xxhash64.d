@@ -243,9 +243,11 @@ private:
     }
 }
 
-///
+/// test simple `xxhash64Of`
 unittest
 {
+    assert(xxhash64Of("") == 17241709254077376921UL);
+
     ubyte[8] x = [1, 2, 3, 4, 5, 6, 7, 8];
     auto y = xxhash64Of(x[]);
     assert(xxhash64Of(x[]) == 9316896406413536788UL);

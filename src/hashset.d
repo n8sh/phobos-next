@@ -81,7 +81,7 @@ struct HashSet(T,
         import std.conv : emplace;
         import std.algorithm.searching : canFind;
         immutable bucketIndex = bucketHashIndex(value);
-        if (_largeBucketFlags[bucketIndex]) // if `_buckets[buckedIndex]` is `Large`
+        if (_largeBucketFlags[bucketIndex])
         {
             if (!_buckets[bucketIndex].large[].canFind(value))
             {
@@ -89,7 +89,7 @@ struct HashSet(T,
                 return false;
             }
         }
-        else                    // otherwise  `_buckets[buckedIndex]` is `Small`
+        else
         {
             if (!_buckets[bucketIndex].small[].canFind(value))
             {
@@ -106,6 +106,23 @@ struct HashSet(T,
             }
         }
         return true;
+    }
+
+    /** Check if `value` is stored.
+        Returns: `true` if value was already present, `false` otherwise.
+     */
+    bool contains(in T value) const @trusted
+    {
+        import std.algorithm.searching : canFind;
+        immutable bucketIndex = bucketHashIndex(value);
+        if (_largeBucketFlags[bucketIndex])
+        {
+            return _buckets[bucketIndex].large[].canFind(value);
+        }
+        else
+        {
+            return _buckets[bucketIndex].small[].canFind(value);
+        }
     }
 
     /** Remove `value`.
@@ -164,7 +181,7 @@ version = show;
 
 @safe pure nothrow unittest
 {
-    const elementCount = 2^^7;
+    const elementCount = 2^^10;
 
     alias T = uint;
 
@@ -172,13 +189,11 @@ version = show;
 
     foreach (const i; 0 .. elementCount)
     {
+        assert(!s.contains(i));
         assert(!s.insert(i));
+        assert(s.contains(i));
         assert(s.insert(i));
-    }
-
-    foreach (const i; 0 .. elementCount)
-    {
-        assert(s.insert(i));    // already exist
+        assert(s.contains(i));
     }
 }
 

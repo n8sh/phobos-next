@@ -103,9 +103,6 @@ private:
     import arrayn : ArrayN;
     alias SmallBucket = ArrayN!(T, smallBucketLength);
 
-    static assert(SmallBucket.sizeof <=
-                  LargeBucket.sizeof);
-
     /** Small-size-optimized bucket. */
     union HybridBucket
     {

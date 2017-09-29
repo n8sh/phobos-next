@@ -13,7 +13,6 @@ struct HashSet(T,
 
     /** Construct with prepare storage for `capacity` number of elements.
      */
-    pragma(inline, true)
     static This withCapacity(size_t capacity)
     {
         This that;
@@ -23,7 +22,6 @@ struct HashSet(T,
 
     /** Initialize at least `requestedBucketCount` number of initial buckets.
      */
-    pragma(inline)
     private void initialize(size_t requestedBucketCount)
     {
         import std.math : nextPow2;
@@ -39,7 +37,6 @@ struct HashSet(T,
 
     /** Initialize `bucketCount` number of buckets.
      */
-    pragma(inline, true)
     private void initializeBuckets(size_t bucketCount) @trusted // TODO remove @trusted
     {
         _buckets = Buckets.withLength(bucketCount);

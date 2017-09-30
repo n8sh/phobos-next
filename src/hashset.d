@@ -224,11 +224,20 @@ private ulong murmurHash3Of(T)(in T value) @trusted
 
 /** Dummy-hash for benchmarking performance of HashSet. */
 pragma(inline, true)
-private U identityHashOf(U)(in U value)
-    if (isUnsigned!U &&
-        U.sizeof <= size_t.sizeof)
+private T identityHashOf(T)(in T value)
+    if (isUnsigned!T &&
+        T.sizeof <= size_t.sizeof)
 {
     return value;
+}
+
+/** See also: http://forum.dlang.org/post/o1igoc$21ma$1@digitalmars.com */
+pragma(inline, true)
+private T typeidHashOf(T)(in T value)
+    if (isUnsigned!T &&
+        T.sizeof <= size_t.sizeof)
+{
+    return typeif(T);
 }
 
 version(unittest)

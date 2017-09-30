@@ -201,6 +201,7 @@ import xxhash64 : xxhash64Of;
 
 /** xxHash64-variant of `core.internal.hash.hashOf`.
  */
+pragma(inline, true)
 private ulong xxhash64Of(T)(in T value) @trusted
     if (isIntegral!T)
 {
@@ -212,7 +213,7 @@ private ulong xxhash64Of(T)(in T value) @trusted
 private ulong murmurHash3Of(T)(in T value) @trusted
     if (isIntegral!T)
 {
-    import std.digest : makeDigest;
+    import std.digest.digest : makeDigest;
     import std.digest.murmurhash : MurmurHash3;
     auto dig = makeDigest!(MurmurHash3!(128));
     dig.put((cast(const(ubyte)*)(&value))[0 .. value.sizeof]);
@@ -225,7 +226,7 @@ private ulong murmurHash3Of(T)(in T value) @trusted
 pragma(inline, true)
 private U identityHashOf(U)(in U value)
     if (isUnsigned!U &&
-        U.sizeof < size_t.sizeof)
+        U.sizeof <= size_t.sizeof)
 {
     return value;
 }

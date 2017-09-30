@@ -271,6 +271,6 @@ version(unittest)
 /// `std.digest` conformance
 unittest
 {
-    import std.digest;
+    import std.digest.digest;
     assert(hexDigest!XXHash64(`xxhash`) == `32DD38952C4BC720`);
 }

@@ -18,7 +18,7 @@ void main()
     import std.meta : AliasSeq;
 
     alias E = uint;
-    immutable n = 5_000_000;
+    immutable n = 1_000_000;
 
     foreach (A; AliasSeq!(CopyableArray!E,
                           VariantArrays!E,
@@ -38,13 +38,26 @@ void main()
     }
 
     foreach (A; AliasSeq!(HashSet!(E, null, identityHashOf),
-                          HashSet!(E, null, xxhash64Of)))
+                          HashSet!(E, null, xxhash64Of),
+                          HashSet!(E, null, hashOf)))
     {
         A a = A.withCapacity(n);
         immutable before = MonoTime.currTime();
         foreach (const i; 0 .. n)
         {
             a.insert(i);
+        }
+        immutable after = MonoTime.currTime();
+        writeln("Inserted ", n, " integers into ", A.stringof, " in ", after - before);
+    }
+
+    foreach (A; AliasSeq!(bool[E]))
+    {
+        A a = A.init;
+        immutable before = MonoTime.currTime();
+        foreach (const i; 0 .. n)
+        {
+            a[i] = true;
         }
         immutable after = MonoTime.currTime();
         writeln("Inserted ", n, " integers into ", A.stringof, " in ", after - before);

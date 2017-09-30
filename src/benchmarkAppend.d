@@ -10,7 +10,7 @@ void main()
     // my containers
     import basic_copyable_array : CopyableArray;
     import variant_arrays : VariantArrays;
-    import hashset : HashSet, identityHashOf, xxhash64Of;
+    import hashset : HashSet, identityHashOf, murmurHash3Of, xxhash64Of, typeidHashOf;
     // import trie : RadixTreeSetGrowOnly;
 
     import std.stdio : writeln;
@@ -38,8 +38,11 @@ void main()
     }
 
     foreach (A; AliasSeq!(HashSet!(E, null, identityHashOf),
+                          HashSet!(E, null, typeidHashOf),
+                          HashSet!(E, null, hashOf),
+                          HashSet!(E, null, murmurHash3Of),
                           HashSet!(E, null, xxhash64Of),
-                          HashSet!(E, null, hashOf)))
+                          ))
     {
         A a = A.withCapacity(n);
         immutable before = MonoTime.currTime();

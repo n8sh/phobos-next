@@ -226,7 +226,10 @@ ulong identityHashOf(T)(in T value)
     return value;
 }
 
-/** See also: http://forum.dlang.org/post/o1igoc$21ma$1@digitalmars.com */
+/** See also: http://forum.dlang.org/post/o1igoc$21ma$1@digitalmars.com
+
+    Doesn't work: integers are returned as is.
+ */
 pragma(inline, true)
 size_t typeidHashOf(T)(in T value) @trusted
 {

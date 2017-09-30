@@ -233,7 +233,7 @@ ulong identityHashOf(T)(in T value)
 
 /** See also: http://forum.dlang.org/post/o1igoc$21ma$1@digitalmars.com */
 pragma(inline, true)
-ulong typeidHashOf(T)(in T value)
+size_t typeidHashOf(T)(in T value)
     if (isUnsigned!T &&
         T.sizeof <= size_t.sizeof)
 {

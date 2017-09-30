@@ -241,7 +241,7 @@ version(show)
     const elementCount = 2^^10;
     foreach (const i; 0 .. elementCount)
     {
-        dln(typeidHashOf(i));
+        dln(typeidHashOf(i));   // doesn't work just prints 0, 1, 2, ...
     }
 }
 

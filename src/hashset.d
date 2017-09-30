@@ -239,7 +239,7 @@ size_t typeidHashOf(T)(in T value) @trusted
 // version = show;
 
 version(show)
-@safe /*nothrow pure @nogc*/ unittest
+@safe nothrow /*pure @nogc*/ unittest
 {
     const elementCount = 2^^10;
     foreach (const i; 0 .. elementCount)

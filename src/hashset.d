@@ -177,16 +177,11 @@ private:
     size_t hashMask;
 }
 
-version = show;
-
 @safe pure nothrow unittest
 {
     const elementCount = 2^^20;
-
     alias T = uint;
-
     auto s = HashSet!(T, null, /*identityHashOf*/).withCapacity(elementCount);
-
     foreach (const i; 0 .. elementCount)
     {
         assert(!s.contains(i));
@@ -233,11 +228,21 @@ ulong identityHashOf(T)(in T value)
 
 /** See also: http://forum.dlang.org/post/o1igoc$21ma$1@digitalmars.com */
 pragma(inline, true)
-size_t typeidHashOf(T)(in T value)
-    if (isUnsigned!T &&
-        T.sizeof <= size_t.sizeof)
+size_t typeidHashOf(T)(in T value) @trusted
 {
     return typeid(T).getHash(&value);
+}
+
+// version = show;
+
+version(show)
+@safe /*nothrow pure @nogc*/ unittest
+{
+    const elementCount = 2^^10;
+    foreach (const i; 0 .. elementCount)
+    {
+        dln(typeidHashOf(i));
+    }
 }
 
 version(unittest)

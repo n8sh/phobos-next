@@ -202,7 +202,7 @@ import xxhash64 : xxhash64Of;
 /** xxHash64-variant of `core.internal.hash.hashOf`.
  */
 pragma(inline, true)
-private ulong xxhash64Of(T)(in T value) @trusted
+ulong xxhash64Of(T)(in T value) @trusted
     if (isIntegral!T)
 {
     return xxhash64Of((cast(const(ubyte)*)(&value))[0 .. value.sizeof]);
@@ -210,7 +210,7 @@ private ulong xxhash64Of(T)(in T value) @trusted
 
 /** MurmurHash3-variant of `core.internal.hash.hashOf`.
  */
-private ulong murmurHash3Of(T)(in T value) @trusted
+ulong murmurHash3Of(T)(in T value) @trusted
     if (isIntegral!T)
 {
     import std.digest.digest : makeDigest;
@@ -224,7 +224,7 @@ private ulong murmurHash3Of(T)(in T value) @trusted
 
 /** Dummy-hash for benchmarking performance of HashSet. */
 pragma(inline, true)
-private T identityHashOf(T)(in T value)
+ulong identityHashOf(T)(in T value)
     if (isUnsigned!T &&
         T.sizeof <= size_t.sizeof)
 {
@@ -233,11 +233,11 @@ private T identityHashOf(T)(in T value)
 
 /** See also: http://forum.dlang.org/post/o1igoc$21ma$1@digitalmars.com */
 pragma(inline, true)
-private T typeidHashOf(T)(in T value)
+ulong typeidHashOf(T)(in T value)
     if (isUnsigned!T &&
         T.sizeof <= size_t.sizeof)
 {
-    return typeif(T);
+    return typeif(T).getHash(&value);
 }
 
 version(unittest)

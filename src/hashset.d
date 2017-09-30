@@ -237,7 +237,7 @@ ulong typeidHashOf(T)(in T value)
     if (isUnsigned!T &&
         T.sizeof <= size_t.sizeof)
 {
-    return typeif(T).getHash(&value);
+    return typeid(T).getHash(&value);
 }
 
 version(unittest)

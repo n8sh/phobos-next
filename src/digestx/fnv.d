@@ -125,13 +125,6 @@ auto fnv64aOf(T...)(in T data)
 {
     return digest!(FNV64A, T)(data);
 }
-/// ditto
-ulong ulong_fnv64aOf(T...)(in T data) @trusted
-{
-    typeof(return) result;
-    (cast(ubyte*)&result)[0 .. result.sizeof] = digest!(FNV64A, T)(data);
-    return result;
-}
 
 @safe pure nothrow @nogc unittest
 {
@@ -139,5 +132,4 @@ ulong ulong_fnv64aOf(T...)(in T data) @trusted
     assert(fnv64Of("") == x"CBF29CE484222325");
     assert(fnv32aOf("") == x"811C9DC5");
     assert(fnv64aOf("") == x"CBF29CE484222325");
-    assert(ulong_fnv64aOf("") != 0);
 }

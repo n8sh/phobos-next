@@ -28,6 +28,14 @@ struct BitArray(alias Allocator = null)
         free(_ptr);
     }
 
+    void clear() @trusted
+    {
+        free(_ptr);
+        _ptr = null;
+        _blockCount = 0;
+        _length = 0;
+    }
+
     /// Check if empty.
     bool empty() const { return _length == 0; }
 
@@ -59,7 +67,7 @@ private:
 
     Block* _ptr;
     size_t _blockCount;
-    size_t _length;             // TODO remove this
+    size_t _length;
 }
 
 version = show;

@@ -12,7 +12,7 @@ void main()
     import variant_arrays : VariantArrays;
     import hashset : HashSet;
     import hashset : identityHashOf, murmurHash3Of, xxhash64Of, typeidHashOf;
-    import digestx.fnv : ulong_fnv64aOf;
+    import digestx.fnv : fnv64aOf;
     // import trie : RadixTreeSetGrowOnly;
 
     import std.stdio : writeln;
@@ -44,7 +44,7 @@ void main()
                           HashSet!(E, null, hashOf),
                           HashSet!(E, null, murmurHash3Of),
                           HashSet!(E, null, xxhash64Of),
-                          // HashSet!(E, null, ulong_fnv64aOf),
+                          // HashSet!(E, null, fnv64aOf),
                           ))
     {
         A a = A.withCapacity(n);

@@ -29,14 +29,11 @@ struct CopyableArray(T,
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
     import std.algorithm : move, moveEmplace;
 
-    /// Type of `this`.
-    private alias This = typeof(this);
-
     /// Mutable element type.
     private alias MutableE = Unqual!T;
 
     /// Template for type of `this`.
-    private alias ThisTemplate = TemplateOf!(This);
+    private alias ThisTemplate = TemplateOf!(typeof(this));
 
     /// Same type as this but with mutable element type.
     private alias MutableThis = ThisTemplate!(MutableE, Allocator);
@@ -51,16 +48,16 @@ struct CopyableArray(T,
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
     pragma(inline, true)
-    static This withLength(size_t initialLength)
+    static typeof(this) withLength(size_t initialLength)
     {
-        return This.withCapacityLengthZero(initialLength, initialLength, true);
+        return withCapacityLengthZero(initialLength, initialLength, true);
     }
 
     /// Returns: an array with initial capacity `initialCapacity`.
     pragma(inline, true)
-    static This withCapacity(size_t initialCapacity)
+    static typeof(this) withCapacity(size_t initialCapacity)
     {
-        return This.withCapacityLengthZero(initialCapacity, 0, false);
+        return withCapacityLengthZero(initialCapacity, 0, false);
     }
 
     /** Construct using
@@ -68,14 +65,14 @@ struct CopyableArray(T,
         - initial length `initialLength`
         - and zeroing-flag `zero`.
     */
-    private static This withCapacityLengthZero(size_t initialCapacity,
-                                               size_t initialLength,
-                                               bool zero) @trusted
+    private static typeof(this) withCapacityLengthZero(size_t initialCapacity,
+                                                       size_t initialLength,
+                                                       bool zero) @trusted
     {
         assert(initialCapacity >= initialLength);
         // TODO use Store constructor:
-        This that;
-        that._ptr = This.allocate(initialCapacity, zero);
+        typeof(this) that;
+        that._ptr = typeof(this).allocate(initialCapacity, zero);
         that._capacity = initialCapacity;
         that._length = initialLength;
         return that;
@@ -85,7 +82,7 @@ struct CopyableArray(T,
     this()(T value) @trusted
         if (!isCopyable!T)
     {
-        _ptr = This.allocate(1, false);
+        _ptr = typeof(this).allocate(1, false);
         _capacity = 1;
         _length = 1;
         moveEmplace(value, _mptr[0]); // TODO remove `moveEmplace` when compiler does it for us
@@ -96,7 +93,7 @@ struct CopyableArray(T,
         if (isCopyable!U &&
             isElementAssignable!U)
     {
-        _ptr = This.allocate(1, false);
+        _ptr = typeof(this).allocate(1, false);
         _capacity = 1;
         _length = 1;
         _mptr[0] = value;
@@ -110,7 +107,7 @@ struct CopyableArray(T,
         if (values.length == 1) // TODO branch should be detected at compile-time
         {
             // twice as fast as array assignment below
-            _ptr = This.allocate(1, false);
+            _ptr = typeof(this).allocate(1, false);
             _capacity = 1;
             _length = 1;
             _mptr[0] = values[0];
@@ -166,7 +163,7 @@ struct CopyableArray(T,
         /// Copy construction.
         this(this) @trusted
         {
-            MutableE* newPtr = This.allocate(_length, false);
+            MutableE* newPtr = typeof(this).allocate(_length, false);
             _capacity = _length;
             newPtr[0 .. _length] = slice();
             _ptr = newPtr;
@@ -244,13 +241,13 @@ struct CopyableArray(T,
 
     /** Comparison for equality. */
     pragma(inline, true)
-    bool opEquals(in This rhs) const
+    bool opEquals(in typeof(this) rhs) const
     {
         return slice() == rhs.slice();
     }
     /// ditto
     pragma(inline, true)
-    bool opEquals(in ref This rhs) const
+    bool opEquals(in ref typeof(this) rhs) const
     {
         return slice() == rhs.slice();
     }
@@ -584,11 +581,11 @@ struct CopyableArray(T,
         insertBack(values);
     }
 
-    // This opBinary(string op, R)(R values)
+    // typeof(this) opBinary(string op, R)(R values)
     //     if (op == "~")
     // {
     //     // TODO: optimize
-    //     This result;
+    //     typeof(this) result;
     //     result ~= this[];
     //     assert(result.length == length);
     //     result ~= values[];

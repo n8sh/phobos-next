@@ -25,7 +25,7 @@ struct HashSet(T,
         // make bucket count a power of two
         immutable bucketCount = nextPow2(minimumBucketCount == 0 ? 0 : minimumBucketCount - 1);
         // so we can use fast bitmask instead of slower division remainder
-        hashMask = bucketCount - 1;
+        _hashMask = bucketCount - 1;
         initializeBuckets(bucketCount);
     }
 
@@ -69,7 +69,9 @@ struct HashSet(T,
     /// Reset internal data.
     private void resetInternalData()
     {
-        assert(false, "TODO");
+        _buckets.clear();
+        _largeBucketFlags.clear();
+        _hashMask = 0;
     }
 
     /** Insert `value`.
@@ -143,7 +145,7 @@ struct HashSet(T,
     {
         static if (__traits(compiles, { typeof(return) _ = hashFunction(value); }))
         {
-            return hashFunction(value) & hashMask; // TODO is this correct?
+            return hashFunction(value) & _hashMask; // TODO is this correct?
         }
         else
         {
@@ -159,7 +161,7 @@ struct HashSet(T,
 
             static if (isUnsigned!(typeof(digest)))
             {
-                return cast(typeof(return))digest & hashMask; // fast modulo calculation
+                return cast(typeof(return))digest & _hashMask; // fast modulo calculation
             }
             else static if (isStaticArray!(typeof(digest)))
             {
@@ -174,7 +176,7 @@ struct HashSet(T,
                 {
                     (cast(ubyte*)&hashIndex)[0 .. hashIndex.sizeof] = digest[0 .. hashIndex.sizeof];
                 }
-                return hashIndex & hashMask;
+                return hashIndex & _hashMask;
             }
             else
             {
@@ -213,7 +215,7 @@ private:
     // store this.
     LargeBucketFlags _largeBucketFlags;
 
-    size_t hashMask;
+    size_t _hashMask;
 }
 
 @safe pure nothrow unittest
@@ -231,17 +233,7 @@ private:
     }
 }
 
-// version = show;
-
-version(show)
-@safe nothrow /*pure @nogc*/ unittest
-{
-    immutable elementCount = 2^^10;
-    foreach (immutable i; 0 .. elementCount)
-    {
-        dln(typeidHashOf(i));   // doesn't work just prints 0, 1, 2, ...
-    }
-}
+version = show;
 
 version(unittest)
 {

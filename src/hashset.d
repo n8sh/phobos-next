@@ -192,14 +192,13 @@ private:
     }
 }
 
-import xxhash64 : xxhash64Of;
-
 /** xxHash64-variant of `core.internal.hash.hashOf`.
  */
 pragma(inline, true)
 ulong xxhash64Of(T)(in T value) @trusted
     if (isIntegral!T)
 {
+    import xxhash64 : xxhash64Of;
     return xxhash64Of((cast(const(ubyte)*)(&value))[0 .. value.sizeof]);
 }
 

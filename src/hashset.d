@@ -215,7 +215,6 @@ ulong murmurHash3Of(T)(in T value) @trusted
 }
 
 /** Dummy-hash for benchmarking performance of HashSet. */
-pragma(inline, true)
 ulong identityHashOf(T)(in T value)
     if (isUnsigned!T &&
         T.sizeof <= size_t.sizeof)
@@ -227,7 +226,6 @@ ulong identityHashOf(T)(in T value)
 
     Doesn't work: integers are returned as is.
  */
-pragma(inline, true)
 size_t typeidHashOf(T)(in T value) @trusted
 {
     return typeid(T).getHash(&value);

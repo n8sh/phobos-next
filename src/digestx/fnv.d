@@ -51,9 +51,9 @@ struct FNV(ulong bitLength, bool fnv1a = false)
     ubyte[bitLength / 8] finish() @trusted pure nothrow @nogc
     {
         import std.bitmanip : nativeToBigEndian;
-        auto hash = _hash;
+        _result = _hash;
         start();
-        return nativeToBigEndian(hash);
+        return nativeToBigEndian(_result);
     }
 
     Element get() const
@@ -80,6 +80,7 @@ private:
     }
 
     Element _hash;
+    Element _result;
 }
 
 alias FNV32 = FNV!32; /// 32bit FNV-1, hash size is ubyte[4]

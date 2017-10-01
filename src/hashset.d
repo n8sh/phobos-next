@@ -143,7 +143,7 @@ struct HashSet(T,
     pragma(inline, true)
     size_t bucketHashIndex(in T value) const
     {
-        immutable digest = hashFunction((cast(ubyte*)&value)[0 .. value.sizeof]);
+        immutable digest = hashFunction((cast(ubyte*)&value)[0 .. value.sizeof]); // TODO ask forums when this is correct
 
         static assert(digest.sizeof >=
                       typeof(return).sizeof,

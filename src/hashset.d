@@ -72,6 +72,7 @@ struct HashSet(T,
         _buckets.clear();
         _largeBucketFlags.clear();
         _hashMask = 0;
+        _length = 0;
     }
 
     /** Insert `value`.
@@ -136,7 +137,7 @@ struct HashSet(T,
         immutable bucketIndex = bucketHashIndex(value);
         assert(0, "TODO Implement removeAtIndex in Array and use _buckets[bucketIndex].removeAtIndex() here");
         assert(0, "TODO Check shrinkage to SmallBucket");
-        assert(0, "TODO _length -= 1;")
+        assert(0, "TODO _length -= 1;");
     }
 
     /** Get index into `bucket` for `value`.
@@ -185,6 +186,13 @@ struct HashSet(T,
             }
         }
     }
+
+    /// Check if empty.
+    bool empty() const { return _length == 0; }
+
+    /// Get length.
+    @property size_t length() const { return _length; }
+    alias opDollar = length;    /// ditto
 
 private:
     import basic_uncopyable_array : Array = UncopyableArray; // TODO change to CopyableArray when

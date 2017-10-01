@@ -43,7 +43,7 @@ void main()
                           HashSet!(E, null, hashOf),
                           HashSet!(E, null, murmurHash3Of),
                           HashSet!(E, null, xxhash64Of),
-                          HashSet!(E, null, fnv64aOf),
+                          // TODO HashSet!(E, null, fnv64aOf),
                           ))
     {
         A a = A.withCapacity(n);

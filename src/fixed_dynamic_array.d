@@ -6,21 +6,19 @@ private struct FixedDynamicArray(T)
 {
     import qcmeman : pureMalloc = malloc, pureCalloc = calloc, pureFree = free;
 
-    alias This = typeof(this);
-
 pragma(inline, true):
 
     /// Make and return uninitialized array of `length`.
     pragma(inline)              // DMD cannot inline this
-    static This makeUninitializedOfLength(size_t length) @system
+    static typeof(this) makeUninitializedOfLength(size_t length) @system
     {
-        return This(Store(length, cast(T*)pureMalloc(length * T.sizeof)));
+        return typeof(return)(Store(length, cast(T*)pureMalloc(length * T.sizeof)));
     }
 
     pragma(inline)              // DMD cannot inline this
-    static This withLength(size_t length) @system
+    static typeof(this) withLength(size_t length) @system
     {
-        return This(Store(length, cast(T*)pureCalloc(length, T.sizeof)));
+        return typeof(return)(Store(length, cast(T*)pureCalloc(length, T.sizeof)));
     }
 
     /// Construct from `store`.

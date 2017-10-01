@@ -136,6 +136,7 @@ struct HashSet(T,
         immutable bucketIndex = bucketHashIndex(value);
         assert(0, "TODO Implement removeAtIndex in Array and use _buckets[bucketIndex].removeAtIndex() here");
         assert(0, "TODO Check shrinkage to SmallBucket");
+        assert(0, "TODO _length -= 1;")
     }
 
     /** Get index into `bucket` for `value`.
@@ -215,6 +216,8 @@ private:
     // store this.
     LargeBucketFlags _largeBucketFlags;
 
+    size_t _length;
+
     size_t _hashMask;
 }
 
@@ -231,6 +234,9 @@ private:
         assert(s.insert(i));
         assert(s.contains(i));
     }
+
+    s.clear();
+    assert(s.length == 0);
 }
 
 version = show;

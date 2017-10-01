@@ -24,7 +24,9 @@ struct HashSet(T,
     private void initialize(size_t minimumBucketCount)
     {
         import std.math : nextPow2;
+        // make bucket count a power of two
         immutable bucketCount = nextPow2(minimumBucketCount == 0 ? 0 : minimumBucketCount - 1);
+        // so we can use fast bitmask instead of slower division remainder
         hashMask = bucketCount - 1;
         initializeBuckets(bucketCount);
     }

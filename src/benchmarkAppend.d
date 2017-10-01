@@ -13,7 +13,7 @@ void main()
     import hashset : HashSet;
 
     import xxhash64 : xxhash64Of;
-    import digestx.fnv : fnv64aOf;
+    import digestx.fnv : fnv64Of, fnv64aOf;
     import trie : RadixTreeSetGrowOnly;
 
     import std.stdio : writeln;
@@ -40,11 +40,12 @@ void main()
         writeln("Added ", n, " integers into ", A.stringof, " in ", after - before);
     }
 
-    foreach (A; AliasSeq!(HashSet!(E, null, identityHashOf),
+    foreach (A; AliasSeq!(// HashSet!(E, null, identityHashOf),
                           HashSet!(E, null, typeidHashOf),
                           HashSet!(E, null, hashOf),
                           HashSet!(E, null, murmurHash3Of),
                           HashSet!(E, null, xxhash64Of),
+                          HashSet!(E, null, fnv64Of),
                           HashSet!(E, null, fnv64aOf),
                           // RadixTreeSetGrowOnly!(E),
                           ))

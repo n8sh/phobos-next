@@ -212,7 +212,7 @@ private:
 {
     immutable elementCount = 2^^10;
     alias T = uint;
-    auto s = HashSet!(T, null, /*identityHashOf*/).withCapacity(elementCount);
+    auto s = HashSet!(T, null).withCapacity(elementCount);
     foreach (immutable i; 0 .. elementCount)
     {
         assert(!s.contains(i));
@@ -221,37 +221,6 @@ private:
         assert(s.insert(i));
         assert(s.contains(i));
     }
-}
-
-/** Dummy-hash for benchmarking performance of HashSet. */
-pragma(inline, true)
-ulong identityHashOf(T)(in T value)
-    if (isUnsigned!T &&
-        T.sizeof <= size_t.sizeof)
-{
-    return value;
-}
-
-/** See also: http://forum.dlang.org/post/o1igoc$21ma$1@digitalmars.com
-    Doesn't work: integers are returned as is.
- */
-pragma(inline, true)
-size_t typeidHashOf(T)(in T value) @trusted
-{
-    return typeid(T).getHash(&value);
-}
-
-/** MurmurHash3-variant of `core.internal.hash.hashOf`.
- */
-ulong murmurHash3Of(scope const(ubyte)[] data) @trusted // TODO make variadic
-{
-    import std.digest.digest : makeDigest;
-    import std.digest.murmurhash : MurmurHash3;
-    auto dig = makeDigest!(MurmurHash3!(128));
-    dig.put(data);
-    dig.finish();
-    immutable elements = dig.get();
-    return elements[0] ^ elements[1];
 }
 
 // version = show;

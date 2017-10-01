@@ -45,7 +45,7 @@ void main()
                           HashSet!(E, null, hashOf),
                           HashSet!(E, null, murmurHash3Of),
                           HashSet!(E, null, xxhash64Of),
-                          // HashSet!(E, null, fnv64aOf),
+                          HashSet!(E, null, fnv64aOf),
                           RadixTreeSetGrowOnly!(E),
                           ))
     {

@@ -103,13 +103,13 @@ size_t typeidHashOf(T)(in T value) @trusted
 
 /** MurmurHash3-variant of `core.internal.hash.hashOf`.
  */
-ulong murmurHash3Of(scope const(ubyte)[] data) @trusted // TODO make variadic
+ulong murmurHash3Of(T...)(in T data) @trusted
 {
     import std.digest.digest : makeDigest;
     import std.digest.murmurhash : MurmurHash3;
     auto dig = makeDigest!(MurmurHash3!(128));
     dig.put(data);
     dig.finish();
-    immutable elements = dig.get();
+    immutable elements = dig.get(); // ElementType
     return elements[0] ^ elements[1];
 }

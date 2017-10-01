@@ -10,6 +10,19 @@ public import std.digest.digest;
  */
 struct FNV(ulong bitLength, bool fnv1a = false)
 {
+    static if (bitLength == 32)
+    {
+        alias Element = uint;
+    }
+    else static if (bitLength == 64)
+    {
+        alias Element = ulong;
+    }
+    else
+    {
+        static assert(0, "Unsupported hash length " ~ bitLength.stringof);
+    }
+
     /// Initializes the digest calculation.
     void start() @safe pure nothrow @nogc
     {
@@ -43,25 +56,30 @@ struct FNV(ulong bitLength, bool fnv1a = false)
         return nativeToBigEndian(hash);
     }
 
+    Element get() const
+    {
+        return _hash;
+    }
+
 private:
 
     // FNV-1 hash parameters
     static if (bitLength == 32)
     {
-        enum uint fnvPrime = 0x1000193U;
-        enum uint fnvOffsetBasis = 0x811C9DC5U;
+        enum Element fnvPrime = 0x1000193U;
+        enum Element fnvOffsetBasis = 0x811C9DC5U;
     }
     else static if (bitLength == 64)
     {
-        enum ulong fnvPrime = 0x100000001B3UL;
-        enum ulong fnvOffsetBasis = 0xCBF29CE484222325UL;
+        enum Element fnvPrime = 0x100000001B3UL;
+        enum Element fnvOffsetBasis = 0xCBF29CE484222325UL;
     }
     else
     {
         static assert(0, "Unsupported hash length " ~ bitLength.stringof);
     }
 
-    typeof(fnvPrime) _hash;
+    Element _hash;
 }
 
 alias FNV32 = FNV!32; /// 32bit FNV-1, hash size is ubyte[4]

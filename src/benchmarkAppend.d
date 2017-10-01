@@ -48,7 +48,8 @@ void main()
                           RadixTreeSetGrowOnly!(E),
                           ))
     {
-        static if (__traits(hasMember, A, `withCapacity`))
+        import std.traits : hasMember;
+        static if (hasMember!(A, `withCapacity`))
         {
             A a = A.withCapacity(n);
         }

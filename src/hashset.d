@@ -76,7 +76,6 @@ struct HashSet(T,
     }
 
     /** Insert `value`.
-
         Returns: `true` if value was already present, `false` otherwise (similar
         to behaviour of `contains`).
      */

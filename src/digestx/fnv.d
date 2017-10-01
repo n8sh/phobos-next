@@ -126,6 +126,7 @@ auto fnv64aOf(T...)(in T data)
     return digest!(FNV64A, T)(data);
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     assert(fnv32Of("") == x"811C9DC5");

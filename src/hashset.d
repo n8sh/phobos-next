@@ -86,15 +86,16 @@ struct HashSet(T,
         immutable bucketIndex = bucketHashIndex(value);
         if (_largeBucketFlags[bucketIndex])
         {
-            if (!_buckets[bucketIndex].large[].canFind(value))
+            if (!_buckets[bucketIndex].large[].canFind(value)) // TODO optimize
             {
                 _buckets[bucketIndex].large.insertBackMove(value);
+                _length += 1;
                 return false;
             }
         }
         else
         {
-            if (!_buckets[bucketIndex].small[].canFind(value))
+            if (!_buckets[bucketIndex].small[].canFind(value)) // TODO optimize
             {
                 immutable ok = _buckets[bucketIndex].small.insertBackMaybe(value);
                 if (!ok)        // if full
@@ -105,6 +106,7 @@ struct HashSet(T,
                     _buckets[bucketIndex].large.insertBackMove(value);
                     _largeBucketFlags[bucketIndex] = true; // bucket is now large
                 }
+                _length += 1;
                 return false;
             }
         }

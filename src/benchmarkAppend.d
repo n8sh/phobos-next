@@ -10,7 +10,8 @@ void main()
     // my containers
     import basic_copyable_array : CopyableArray;
     import variant_arrays : VariantArrays;
-    import hashset : HashSet, identityHashOf, murmurHash3Of, xxhash64Of, typeidHashOf;
+    import hashset : HashSet;
+    import hashset : identityHashOf, murmurHash3Of, xxhash64Of, typeidHashOf;
     import digestx.fnv;
     // import trie : RadixTreeSetGrowOnly;
 

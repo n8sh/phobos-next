@@ -233,13 +233,11 @@ alias Tiger2_160Digest = WrapperDigest!Tiger2_160;
 alias Tiger2_128Digest = WrapperDigest!Tiger2_128;
 
 ///
-@safe nothrow unittest
+@trusted nothrow unittest
 {
-    import std.string : representation;
-
     Tiger st;
     st.start();
-    st.put("The quick brown fox jumps over the lazy dog".representation);
+    st.put(cast(ubyte[])"The quick brown fox jumps over the lazy dog");
     assert(st.finish() == x"6D12A41E72E644F017B6F0E2F7B44C6285F06DD5D2C5B075");
 
     // Template API
@@ -251,19 +249,19 @@ alias Tiger2_128Digest = WrapperDigest!Tiger2_128;
 
     // OOP API
     Digest t = new TigerDigest;
-    t.put("Tiger".representation);
+    t.put(cast(ubyte[])"Tiger");
     assert(t.finish() == x"DD00230799F5009FEC6DEBC838BB6A27DF2B9D6F110C7937");
 
     t = new Tiger160Digest;
-    t.put("Tiger".representation);
+    t.put(cast(ubyte[])"Tiger");
     assert(t.finish() == x"DD00230799F5009FEC6DEBC838BB6A27DF2B9D6F");
 
     t = new Tiger128Digest;
-    t.put("Tiger".representation);
+    t.put(cast(ubyte[])"Tiger");
     assert(t.finish() == x"DD00230799F5009FEC6DEBC838BB6A27");
 
     t = new Tiger2Digest;
-    t.put("Tiger".representation);
+    t.put(cast(ubyte[])"Tiger");
     assert(t.finish() == x"FE40798B8EB937FD977608930548D6A894C20B04CBEF7A42");
 }
 

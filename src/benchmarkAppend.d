@@ -11,7 +11,8 @@ void main()
     import basic_copyable_array : CopyableArray;
     import variant_arrays : VariantArrays;
     import hashset : HashSet;
-    import hashset : identityHashOf, murmurHash3Of, xxhash64Of, typeidHashOf;
+
+    import xxhash64 : xxhash64Of;
     import digestx.fnv : fnv64aOf;
     import trie : RadixTreeSetGrowOnly;
 
@@ -39,7 +40,7 @@ void main()
         writeln("Added ", n, " integers into ", A.stringof, " in ", after - before);
     }
 
-    foreach (A; AliasSeq!(HashSet!(E, null, identityHashOf),
+    foreach (A; AliasSeq!(// HashSet!(E, null, identityHashOf),
                           HashSet!(E, null, typeidHashOf),
                           HashSet!(E, null, hashOf),
                           HashSet!(E, null, murmurHash3Of),
@@ -77,4 +78,35 @@ void main()
         immutable after = MonoTime.currTime();
         writeln("Inserted ", n, " integers into ", A.stringof, " in ", after - before);
     }
+}
+
+/** Dummy-hash for benchmarking performance of HashSet. */
+pragma(inline, true)
+ulong identityHashOf(T)(in T value)
+    if (isUnsigned!T &&
+        T.sizeof <= size_t.sizeof)
+{
+    return value;
+}
+
+/** See also: http://forum.dlang.org/post/o1igoc$21ma$1@digitalmars.com
+    Doesn't work: integers are returned as is.
+ */
+pragma(inline, true)
+size_t typeidHashOf(T)(in T value) @trusted
+{
+    return typeid(T).getHash(&value);
+}
+
+/** MurmurHash3-variant of `core.internal.hash.hashOf`.
+ */
+ulong murmurHash3Of(scope const(ubyte)[] data) @trusted // TODO make variadic
+{
+    import std.digest.digest : makeDigest;
+    import std.digest.murmurhash : MurmurHash3;
+    auto dig = makeDigest!(MurmurHash3!(128));
+    dig.put(data);
+    dig.finish();
+    immutable elements = dig.get();
+    return elements[0] ^ elements[1];
 }

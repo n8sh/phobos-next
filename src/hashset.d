@@ -195,22 +195,22 @@ private:
 /** xxHash64-variant of `core.internal.hash.hashOf`.
  */
 pragma(inline, true)
-ulong xxhash64Of(T)(in T value) @trusted
+ulong xxhash64Of(T)(in T values) @trusted
     if (isIntegral!T)
 {
     import xxhash64 : xxhash64Of;
-    return xxhash64Of((cast(const(ubyte)*)(&value))[0 .. value.sizeof]);
+    return xxhash64Of((cast(const(ubyte)*)(&values))[0 .. values.sizeof]);
 }
 
 /** MurmurHash3-variant of `core.internal.hash.hashOf`.
  */
-ulong murmurHash3Of(T)(in T value) @trusted
+ulong murmurHash3Of(T)(in T values) @trusted
     if (isIntegral!T)
 {
     import std.digest.digest : makeDigest;
     import std.digest.murmurhash : MurmurHash3;
     auto dig = makeDigest!(MurmurHash3!(128));
-    dig.put((cast(const(ubyte)*)(&value))[0 .. value.sizeof]);
+    dig.put((cast(const(ubyte)*)(&values))[0 .. values.sizeof]);
     dig.finish();
     const elements = dig.get();
     return elements[0] ^ elements[1];

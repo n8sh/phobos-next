@@ -8,7 +8,7 @@ import std.traits : isIntegral, isUnsigned;
  */
 struct HashSet(T,
                alias Allocator = null,
-               alias hashFunction = xxhash64Of)
+               alias hashFunction = hashOf)
 {
     /** Construct with room for storing `capacity` number of elements.
      */
@@ -143,14 +143,35 @@ struct HashSet(T,
     pragma(inline, true)
     size_t bucketHashIndex(in T value) const
     {
-        immutable hashResult = hashFunction(value);
-        static if (isUnsigned!(typeof(hashResult)) && hashResult.sizeof <= typeof(return).sizeof)
+        immutable digest = hashFunction(value);
+
+        static assert(digest.sizeof >=
+                      typeof(return).sizeof,
+                      `Size of digest is ` ~ digest.sizeof
+                      ~ ` but needs to be at least ` ~ typeof(return).sizeof.stringof);
+
+        static if (isUnsigned!(typeof(digest)))
         {
-            return hashResult & hashMask; // fast modulo calculation
+            return cast(typeof(return))digest & hashMask; // fast modulo calculation
+        }
+        else static if (isStaticArray!(typeof(digest)))
+        {
+            typeof(return) hashIndex;
+            static if (2*size_t.sizeof == digest.sizeof)
+            {
+                // for instance, use all 128-bits when size_t is 64-bit
+                (cast(ubyte*)&hashIndex)[0 .. hashIndex.sizeof] = (digest[0 .. hashIndex.sizeof] ^
+                                                                   digest[hashIndex.sizeof .. 2*hashIndex.sizeof]);
+            }
+            else
+            {
+                (cast(ubyte*)&hashIndex)[0 .. hashIndex.sizeof] = digest[0 .. hashIndex.sizeof];
+            }
+            return hashIndex;
         }
         else
         {
-            static assert(0, false);
+            static assert(0, "Unsupported return value of hash function");
         }
     }
 
@@ -211,50 +232,26 @@ ulong identityHashOf(T)(in T value)
     return value;
 }
 
-/** xxHash64-variant of `core.internal.hash.hashOf`.
- */
-pragma(inline, true)
-ulong xxhash64Of(T)(in T value) @trusted // TODO make variadic
-    if (isIntegral!T)
-{
-    import xxhash64 : xxhash64Of;
-    return xxhash64Of((cast(immutable(ubyte)*)(&value))[0 .. value.sizeof]);
-}
-
-/** MurmurHash3-variant of `core.internal.hash.hashOf`.
- */
-ulong murmurHash3Of(T)(in T value) @trusted // TODO make variadic
-    if (isIntegral!T)                       // TODO exnd
-{
-    import std.digest.digest : makeDigest;
-    import std.digest.murmurhash : MurmurHash3;
-    auto dig = makeDigest!(MurmurHash3!(128));
-    dig.put((cast(immutable(ubyte)*)(&value))[0 .. value.sizeof]);
-    dig.finish();
-    immutable elements = dig.get();
-    return elements[0] ^ elements[1];
-}
-
-// /** fnv64-variant of `core.internal.hash.hashOf`.
-//  */
-// pragma(inline, true)
-// ulong fnv64aOf(T)(in T value) @trusted // TODO make variadic
-//     if (isIntegral!T)                  // TODO extend
-// {
-//     import digestx.fnv : fnv64aOf;
-//     typeof(return) result;
-//     cast(ubyte*)&result[0 .. result.sizeof] = fnv64aOf((cast(immutable(ubyte)*)(&value))[0 .. value.sizeof]);
-//     return result;
-// }
-
 /** See also: http://forum.dlang.org/post/o1igoc$21ma$1@digitalmars.com
-
     Doesn't work: integers are returned as is.
  */
 pragma(inline, true)
 size_t typeidHashOf(T)(in T value) @trusted
 {
     return typeid(T).getHash(&value);
+}
+
+/** MurmurHash3-variant of `core.internal.hash.hashOf`.
+ */
+ulong murmurHash3Of(scope const(ubyte) data) @trusted // TODO make variadic
+{
+    import std.digest.digest : makeDigest;
+    import std.digest.murmurhash : MurmurHash3;
+    auto dig = makeDigest!(MurmurHash3!(128));
+    dig.put(data);
+    dig.finish();
+    immutable elements = dig.get();
+    return elements[0] ^ elements[1];
 }
 
 // version = show;

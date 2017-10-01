@@ -195,7 +195,7 @@ private:
 /** xxHash64-variant of `core.internal.hash.hashOf`.
  */
 pragma(inline, true)
-ulong xxhash64Of(T)(in T values) @trusted
+ulong xxhash64Of(T)(in T values) @trusted // TODO make variadic
     if (isIntegral!T)
 {
     import xxhash64 : xxhash64Of;
@@ -204,7 +204,7 @@ ulong xxhash64Of(T)(in T values) @trusted
 
 /** MurmurHash3-variant of `core.internal.hash.hashOf`.
  */
-ulong murmurHash3Of(T)(in T values) @trusted
+ulong murmurHash3Of(T)(in T values) @trusted // TODO make variadic
     if (isIntegral!T)
 {
     import std.digest.digest : makeDigest;

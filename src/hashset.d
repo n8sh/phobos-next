@@ -179,7 +179,7 @@ private:
 
 @safe pure nothrow unittest
 {
-    const elementCount = 2^^20;
+    const elementCount = 2^^10;
     alias T = uint;
     auto s = HashSet!(T, null, /*identityHashOf*/).withCapacity(elementCount);
     foreach (const i; 0 .. elementCount)
@@ -214,7 +214,7 @@ ulong xxhash64Of(T)(in T value) @trusted // TODO make variadic
 /** MurmurHash3-variant of `core.internal.hash.hashOf`.
  */
 ulong murmurHash3Of(T)(in T value) @trusted // TODO make variadic
-    if (isIntegral!T)
+    if (isIntegral!T)                       // TODO exnd
 {
     import std.digest.digest : makeDigest;
     import std.digest.murmurhash : MurmurHash3;
@@ -229,7 +229,7 @@ ulong murmurHash3Of(T)(in T value) @trusted // TODO make variadic
  */
 pragma(inline, true)
 ulong fnv64aOf(T)(in T value) @trusted // TODO make variadic
-    if (isIntegral!T)
+    if (isIntegral!T)                  // TODO extend
 {
     import digestx.fnv : fnv64aOf;
     typeof(return) result;

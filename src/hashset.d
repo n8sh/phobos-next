@@ -143,7 +143,15 @@ struct HashSet(T,
     pragma(inline, true)
     size_t bucketHashIndex(in T value) const
     {
-        return hashFunction(value) & hashMask; // fast modulo calculation
+        immutable hashResult = hashFunction(value);
+        static if (isUnsigned!(typeof(hashResult)) && hashResult.sizeof <= typeof(return).sizeof)
+        {
+            return hashResult & hashMask; // fast modulo calculation
+        }
+        else
+        {
+            static assert(0, false);
+        }
     }
 
 private:
@@ -227,17 +235,17 @@ ulong murmurHash3Of(T)(in T value) @trusted // TODO make variadic
     return elements[0] ^ elements[1];
 }
 
-/** fnv64-variant of `core.internal.hash.hashOf`.
- */
-pragma(inline, true)
-ulong fnv64aOf(T)(in T value) @trusted // TODO make variadic
-    if (isIntegral!T)                  // TODO extend
-{
-    import digestx.fnv : fnv64aOf;
-    typeof(return) result;
-    cast(ubyte*)&result[0 .. result.sizeof] = fnv64aOf((cast(immutable(ubyte)*)(&value))[0 .. value.sizeof]);
-    return result;
-}
+// /** fnv64-variant of `core.internal.hash.hashOf`.
+//  */
+// pragma(inline, true)
+// ulong fnv64aOf(T)(in T value) @trusted // TODO make variadic
+//     if (isIntegral!T)                  // TODO extend
+// {
+//     import digestx.fnv : fnv64aOf;
+//     typeof(return) result;
+//     cast(ubyte*)&result[0 .. result.sizeof] = fnv64aOf((cast(immutable(ubyte)*)(&value))[0 .. value.sizeof]);
+//     return result;
+// }
 
 /** See also: http://forum.dlang.org/post/o1igoc$21ma$1@digitalmars.com
 

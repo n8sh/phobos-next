@@ -11,8 +11,8 @@ void main()
     import basic_copyable_array : CopyableArray;
     import variant_arrays : VariantArrays;
     import hashset : HashSet;
-    import hashset : identityHashOf, murmurHash3Of, xxhash64Of, fnv64aOf, typeidHashOf;
-    import digestx.fnv;
+    import hashset : identityHashOf, murmurHash3Of, xxhash64Of, typeidHashOf;
+    import digestx.fnv : fnv64aOf;
     // import trie : RadixTreeSetGrowOnly;
 
     import std.stdio : writeln;

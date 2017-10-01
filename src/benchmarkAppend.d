@@ -13,7 +13,7 @@ void main()
     import hashset : HashSet;
     import hashset : identityHashOf, murmurHash3Of, xxhash64Of, typeidHashOf;
     import digestx.fnv : fnv64aOf;
-    // import trie : RadixTreeSetGrowOnly;
+    import trie : RadixTreeSetGrowOnly;
 
     import std.stdio : writeln;
     import std.datetime : MonoTime;
@@ -45,9 +45,17 @@ void main()
                           HashSet!(E, null, murmurHash3Of),
                           HashSet!(E, null, xxhash64Of),
                           // HashSet!(E, null, fnv64aOf),
+                          RadixTreeSetGrowOnly!(E),
                           ))
     {
-        A a = A.withCapacity(n);
+        static if (__traits(hasMember, A, `withCapacity`))
+        {
+            A a = A.withCapacity(n);
+        }
+        else
+        {
+            A a;
+        }
         immutable before = MonoTime.currTime();
         foreach (const i; 0 .. n)
         {

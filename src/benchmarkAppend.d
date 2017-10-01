@@ -11,7 +11,7 @@ void main()
     import basic_copyable_array : CopyableArray;
     import variant_arrays : VariantArrays;
     import hashset : HashSet;
-    import hashset : identityHashOf, murmurHash3Of, xxhash64Of, typeidHashOf;
+    import hashset : identityHashOf, murmurHash3Of, xxhash64Of, fnv64aOf, typeidHashOf;
     import digestx.fnv;
     // import trie : RadixTreeSetGrowOnly;
 
@@ -44,7 +44,7 @@ void main()
                           HashSet!(E, null, hashOf),
                           HashSet!(E, null, murmurHash3Of),
                           HashSet!(E, null, xxhash64Of),
-                          // TODO HashSet!(E, null, fnv64aOf),
+                          // HashSet!(E, null, fnv64aOf),
                           ))
     {
         A a = A.withCapacity(n);

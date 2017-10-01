@@ -25,8 +25,6 @@ struct DenseSetFilter(E,
     import core.memory : malloc = pureMalloc, calloc = pureCalloc, realloc = pureRealloc;
     import core.bitop : bts, btr, btc, bt;
 
-    alias This = typeof(this);
-
     @safe pure nothrow @nogc:
 
     /// Maximum number of elements in filter.
@@ -53,9 +51,9 @@ struct DenseSetFilter(E,
     {
         /// Construct from inferred capacity and length `elementMaxCount`.
         pragma(inline, true)
-        static This withInferredLength()
+        static typeof(this) withInferredLength()
         {
-            return This(elementMaxCount);
+            return typeof(return)(elementMaxCount);
         }
     }
 
@@ -100,9 +98,9 @@ struct DenseSetFilter(E,
         @disable this(this);
 
         /// Returns: shallow (and deep) duplicate of `this`.
-        This dup() @trusted
+        typeof(this) dup() @trusted
         {
-            This copy;
+            typeof(return) copy;
             static if (growable == Growable.yes)
             {
                 copy._length = this._length;
@@ -214,7 +212,7 @@ struct DenseSetFilter(E,
     }
 
     /// ditto
-    This opBinary(string op)(auto ref in This e) const
+    typeof(this) opBinary(string op)(auto ref in typeof(this) e) const
         if (op == "|" || op == "&" || op == "^")
     {
         typeof(return) result;
@@ -535,7 +533,7 @@ struct StaticDenseSetFilter(E,
 
     /** Construct from `r` if `r` is non-empty, otherwise construct a full set.
      */
-    static This withValuesOrFull(R)(R r)
+    static typeof(this) withValuesOrFull(R)(R r)
         if (isIterable!R &&
             isAssignable!(E, ElementType!R))
     {
@@ -544,13 +542,13 @@ struct StaticDenseSetFilter(E,
         {
             return asFull();
         }
-        return This(r);
+        return typeof(return)(r);
     }
 
     pragma(inline, true):
 
     /// Construct a full set .
-    static This asFull()
+    static typeof(this) asFull()
     {
         typeof(return) that = void;
         that._blocks[] = Block.max;
@@ -614,7 +612,7 @@ struct StaticDenseSetFilter(E,
     }
 
     /// ditto
-    This opBinary(string op)(auto ref in This e) const
+    typeof(this) opBinary(string op)(auto ref in typeof(this) e) const
         if (op == "|" || op == "&" || op == "^")
     {
         typeof(return) result;
@@ -623,7 +621,7 @@ struct StaticDenseSetFilter(E,
     }
 
     /// ditto
-    This opOpAssign(string op)(auto ref in This e)
+    typeof(this) opOpAssign(string op)(auto ref in typeof(this) e)
         if (op == "|" || op == "&" || op == "^")
     {
         mixin(`_blocks[] ` ~ op ~ `= e._blocks[];`);
@@ -908,24 +906,22 @@ version(unittest)
         Rel rel;
         bool reversion;
 
-        alias This = typeof(this);
-
         enum unsignedMin = 0;
         enum unsignedMax = 2^^(1 +  // reversion
                                packedBitSizeOf!Rel // relation
             ) - 1;
 
         alias UnsignedType = ushort;
-        static assert(This.sizeof == UnsignedType.sizeof);
+        static assert(typeof(this).sizeof == UnsignedType.sizeof);
         static assert(Role.sizeof == 2);
 
         pragma(inline, true)
         @safe pure nothrow @nogc:
 
         /// Create from `UnsignedType` `u`.
-        static This fromUnsigned(in UnsignedType u) @trusted
+        static typeof(this) fromUnsigned(in UnsignedType u) @trusted
         {
-            This that;
+            typeof(return) that;
             that.reversion = (u >> 0) & 1;
             that.rel = cast(Rel)(u >> 1);
             return that;

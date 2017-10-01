@@ -243,7 +243,7 @@ size_t typeidHashOf(T)(in T value) @trusted
 
 /** MurmurHash3-variant of `core.internal.hash.hashOf`.
  */
-ulong murmurHash3Of(scope const(ubyte) data) @trusted // TODO make variadic
+ulong murmurHash3Of(scope const(ubyte)[] data) @trusted // TODO make variadic
 {
     import std.digest.digest : makeDigest;
     import std.digest.murmurhash : MurmurHash3;

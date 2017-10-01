@@ -184,7 +184,7 @@ struct HashSet(T,
             }
             else
             {
-                static assert(0, "Unsupported return value of hash function for digest type " ~ typeof(digest).stringof);
+                static assert(0, "Unsupported digest type " ~ typeof(digest).stringof);
             }
         }
     }

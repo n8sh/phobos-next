@@ -153,7 +153,7 @@ private struct Array(E,
     // }
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
-    static This withLength(size_t initialLength) @trusted nothrow
+    static typeof(this) withLength(size_t initialLength) @trusted nothrow
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
@@ -175,7 +175,7 @@ private struct Array(E,
     }
 
     /// Returns: an array with initial capacity `initialCapacity`.
-    static This withCapacity(size_t initialCapacity) @trusted nothrow
+    static typeof(this) withCapacity(size_t initialCapacity) @trusted nothrow
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
@@ -196,7 +196,7 @@ private struct Array(E,
     }
 
     /// Returns: an array of one element `element`.
-    static This withElement(E element) @trusted nothrow
+    static typeof(this) withElement(E element) @trusted nothrow
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
@@ -233,7 +233,7 @@ private struct Array(E,
     }
 
     /// Returns: an array of `Us.length` number of elements set to `elements`.
-    static This withElements(Us...)(Us elements) @trusted nothrow
+    static typeof(this) withElements(Us...)(Us elements) @trusted nothrow
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
@@ -278,7 +278,7 @@ private struct Array(E,
         /// Copy construction.
         this(this) nothrow @trusted
         {
-            version(showCtors) dln("Copy ctor: ", This.stringof);
+            version(showCtors) dln("Copy ctor: ", typeof(this).stringof);
             if (isLarge)        // only large case needs special treatment
             {
                 auto rhs_storePtr = _large.ptr; // save store pointer
@@ -293,9 +293,9 @@ private struct Array(E,
         }
 
         /// Copy assignment.
-        void opAssign(This rhs) @trusted
+        void opAssign(typeof(this) rhs) @trusted
         {
-            version(showCtors) dln("Copy assign: ", This.stringof);
+            version(showCtors) dln("Copy assign: ", typeof(this).stringof);
             // self-assignment may happen when assigning derefenced pointer
             if (isLarge)        // large = ...
             {
@@ -354,15 +354,15 @@ private struct Array(E,
     else static if (assignment == Assignment.move)
     {
         /// Copy ctor moves.
-        this(This rhs) @trusted
+        this(typeof(this) rhs) @trusted
         {
-            version(showCtors) dln("Copying: ", This.stringof);
+            version(showCtors) dln("Copying: ", typeof(this).stringof);
             assert(!isBorrowed);
             moveEmplace(rhs, this); // TODO remove `move` when compiler does it for us
         }
 
         /// Assignment moves.
-        void opAssign(This rhs) @trusted
+        void opAssign(typeof(this) rhs) @trusted
         {
             assert(!isBorrowed);
             import std.algorith.mutation : move;
@@ -397,7 +397,7 @@ private struct Array(E,
         }
     }
 
-    bool opEquals(in ref This rhs) const @trusted
+    bool opEquals(in ref typeof(this) rhs) const @trusted
     {
         static if (isCopyable!E)
         {
@@ -413,7 +413,7 @@ private struct Array(E,
             return true;
         }
     }
-    bool opEquals(in This rhs) const @trusted
+    bool opEquals(in typeof(this) rhs) const @trusted
     {
         static if (isCopyable!E)
         {
@@ -782,7 +782,7 @@ private struct Array(E,
     enum isElementAssignable(U) = isAssignable!(E, U);
 
     /** Removal doesn't need to care about ordering. */
-    ContainerElementType!(This, E) removeAtIndex(size_t index) @trusted @("complexity", "O(length)")
+    ContainerElementType!(typeof(this), E) removeAtIndex(size_t index) @trusted @("complexity", "O(length)")
     {
         assert(!isBorrowed);
         assert(index < this.length);
@@ -809,7 +809,7 @@ private struct Array(E,
 
     /** Removal doesn't need to care about ordering. */
     pragma(inline, true)
-    ContainerElementType!(This, E) popFront() @trusted @("complexity", "O(length)")
+    ContainerElementType!(typeof(this), E) popFront() @trusted @("complexity", "O(length)")
     {
         return removeAtIndex(0);
     }
@@ -1009,11 +1009,13 @@ private struct Array(E,
         pragma(inline)
         void opOpAssign(string op, R)(R values)
             if (op == "~" &&
-                isInputRange!R && !isInfinite!R &&
+                isInputRange!R &&
+                !isInfinite!R &&
                 allSatisfy!(isElementAssignable, ElementType!R))
         {
             assert(!isBorrowed);
-            insertBack(move(values)); // TODO remove `move` when compiler does it for us
+            // TODO use move(values)
+            insertBack(values); // TODO remove `move` when compiler does it for us
         }
 
         pragma(inline, true)
@@ -1505,7 +1507,7 @@ private struct Array(E,
     /// Get internal pointer.
     inout(E*) ptr() inout @trusted return scope // array access is @trusted
     {
-        // TODO Use cast(ET[])?: alias ET = ContainerElementType!(This, E);
+        // TODO Use cast(ET[])?: alias ET = ContainerElementType!(typeof(this), E);
         if (isLarge)
         {
             return _large.ptr;

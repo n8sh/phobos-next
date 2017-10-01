@@ -190,7 +190,7 @@ private:
     alias LargeBucket = Array!(T, Allocator);
 
     import std.algorithm : max;
-    enum smallBucketLength = max(1, // at least one element in small bucket
+    enum smallBucketLength = max(1, // at least one element in small bucket for good performance
                                  (LargeBucket.sizeof - 1) / T.sizeof);
 
     import arrayn : ArrayN;

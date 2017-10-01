@@ -55,7 +55,7 @@ struct HashSet(T,
     /// Release internal store.
     private void release() @trusted
     {
-        foreach (const bucketIndex; 0 .. _buckets.length)
+        foreach (immutable bucketIndex; 0 .. _buckets.length)
         {
             if (_largeBucketFlags[bucketIndex])
             {
@@ -95,7 +95,7 @@ struct HashSet(T,
         {
             if (!_buckets[bucketIndex].small[].canFind(value))
             {
-                const ok = _buckets[bucketIndex].small.insertBackMaybe(value);
+                immutable ok = _buckets[bucketIndex].small.insertBackMaybe(value);
                 if (!ok)        // if full
                 {
                     // expand small to large
@@ -181,10 +181,10 @@ private:
 
 @safe pure nothrow unittest
 {
-    const elementCount = 2^^10;
+    immutable elementCount = 2^^10;
     alias T = uint;
     auto s = HashSet!(T, null, /*identityHashOf*/).withCapacity(elementCount);
-    foreach (const i; 0 .. elementCount)
+    foreach (immutable i; 0 .. elementCount)
     {
         assert(!s.contains(i));
         assert(!s.insert(i));
@@ -210,7 +210,7 @@ ulong xxhash64Of(T)(in T value) @trusted // TODO make variadic
     if (isIntegral!T)
 {
     import xxhash64 : xxhash64Of;
-    return xxhash64Of((cast(const(ubyte)*)(&value))[0 .. value.sizeof]);
+    return xxhash64Of((cast(immutable(ubyte)*)(&value))[0 .. value.sizeof]);
 }
 
 /** MurmurHash3-variant of `core.internal.hash.hashOf`.
@@ -221,9 +221,9 @@ ulong murmurHash3Of(T)(in T value) @trusted // TODO make variadic
     import std.digest.digest : makeDigest;
     import std.digest.murmurhash : MurmurHash3;
     auto dig = makeDigest!(MurmurHash3!(128));
-    dig.put((cast(const(ubyte)*)(&value))[0 .. value.sizeof]);
+    dig.put((cast(immutable(ubyte)*)(&value))[0 .. value.sizeof]);
     dig.finish();
-    const elements = dig.get();
+    immutable elements = dig.get();
     return elements[0] ^ elements[1];
 }
 
@@ -235,7 +235,7 @@ ulong fnv64aOf(T)(in T value) @trusted // TODO make variadic
 {
     import digestx.fnv : fnv64aOf;
     typeof(return) result;
-    cast(ubyte*)&result[0 .. result.sizeof] = fnv64aOf((cast(const(ubyte)*)(&value))[0 .. value.sizeof]);
+    cast(ubyte*)&result[0 .. result.sizeof] = fnv64aOf((cast(immutable(ubyte)*)(&value))[0 .. value.sizeof]);
     return result;
 }
 
@@ -254,8 +254,8 @@ size_t typeidHashOf(T)(in T value) @trusted
 version(show)
 @safe nothrow /*pure @nogc*/ unittest
 {
-    const elementCount = 2^^10;
-    foreach (const i; 0 .. elementCount)
+    immutable elementCount = 2^^10;
+    foreach (immutable i; 0 .. elementCount)
     {
         dln(typeidHashOf(i));   // doesn't work just prints 0, 1, 2, ...
     }

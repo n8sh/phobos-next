@@ -1,7 +1,5 @@
 module hashset;
 
-import std.traits : isIntegral, isUnsigned;
-
 /** Hash set storing elements of type `T`.
 
     Uses small-size-optimized (SSO) arrays as buckets.
@@ -149,6 +147,8 @@ struct HashSet(T,
                       typeof(return).sizeof,
                       `Size of digest is ` ~ digest.sizeof
                       ~ ` but needs to be at least ` ~ typeof(return).sizeof.stringof);
+
+        import std.traits : isUnsigned, isStaticArray;
 
         static if (isUnsigned!(typeof(digest)))
         {

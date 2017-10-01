@@ -32,8 +32,6 @@ struct ArrayN(E,
     /// stored elements
     E[capacity] _store;         // TODO use store constructor
 
-    alias This = typeof(this);
-
     /// Is `true` iff `this` has borrow-checked slicing.
     enum borrowChecked = checking == Checking.viaScopeAndBorrowing;
 
@@ -154,12 +152,12 @@ struct ArrayN(E,
     }
 
     /// Construct from element `values`.
-    static This fromValuesUnsafe(U)(U[] values) @system
+    static typeof(this) fromValuesUnsafe(U)(U[] values) @system
         if (isCopyable!U &&
             isElementAssignable!U
             ) // prevent accidental move of l-value `values` in array calls
     {
-        This that;              // TODO use Store constructor:
+        typeof(return) that;              // TODO use Store constructor:
         static if (shouldAddGCRange!E)
         {
             gc_addRange(that._store.ptr, values.length * E.sizeof);
@@ -334,25 +332,25 @@ pragma(inline, true):
         auto opSlice() return scope { return sliceRW(); }
 
         /// Get full read-only slice.
-        ReadBorrowed!(E[], This) sliceRO() const @trusted return scope
+        ReadBorrowed!(E[], typeof(this)) sliceRO() const @trusted return scope
         {
             import std.typecons : Unqual;
             assert(!_writeBorrowed, "Already write-borrowed");
             return typeof(return)(_store.ptr[0 .. _length],
-                                  cast(Unqual!(This)*)(&this)); // trusted unconst casta
+                                  cast(Unqual!(typeof(this))*)(&this)); // trusted unconst casta
         }
 
         /// Get read-only slice in range `i` .. `j`.
-        ReadBorrowed!(E[], This) sliceRO(size_t i, size_t j) const @trusted return scope
+        ReadBorrowed!(E[], typeof(this)) sliceRO(size_t i, size_t j) const @trusted return scope
         {
             import std.typecons : Unqual;
             assert(!_writeBorrowed, "Already write-borrowed");
             return typeof(return)(_store.ptr[i .. j],
-                                  cast(Unqual!(This)*)(&this)); // trusted unconst cast
+                                  cast(Unqual!(typeof(this))*)(&this)); // trusted unconst cast
         }
 
         /// Get full read-write slice.
-        WriteBorrowed!(E[], This) sliceRW() @trusted return scope
+        WriteBorrowed!(E[], typeof(this)) sliceRW() @trusted return scope
         {
             assert(!_writeBorrowed, "Already write-borrowed");
             assert(_readBorrowCount == 0, "Already read-borrowed");
@@ -360,7 +358,7 @@ pragma(inline, true):
         }
 
         /// Get read-write slice in range `i` .. `j`.
-        WriteBorrowed!(E[], This) sliceRW(size_t i, size_t j) @trusted return scope
+        WriteBorrowed!(E[], typeof(this)) sliceRW(size_t i, size_t j) @trusted return scope
         {
             assert(!_writeBorrowed, "Already write-borrowed");
             assert(_readBorrowCount == 0, "Already read-borrowed");
@@ -419,12 +417,12 @@ pragma(inline, true):
     }
 
     /** Comparison for equality. */
-    bool opEquals(in This rhs) const
+    bool opEquals(in typeof(this) rhs) const
     {
         return this[] == rhs[];
     }
     /// ditto
-    bool opEquals(in ref This rhs) const
+    bool opEquals(in ref typeof(this) rhs) const
     {
         return this[] == rhs[];
     }

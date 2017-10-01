@@ -76,8 +76,9 @@ struct HashSet(T,
     }
 
     /** Insert `value`.
-        Returns: `true` if value was already present, `false` otherwise. This is
-        similar to behaviour of `contains`.
+
+        Returns: `true` if value was already present, `false` otherwise (similar
+        to behaviour of `contains`).
      */
     bool insert(T value) @trusted
     {

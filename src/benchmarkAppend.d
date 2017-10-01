@@ -85,7 +85,7 @@ import std.traits : isUnsigned;
 /** Dummy-hash for benchmarking performance of HashSet. */
 pragma(inline, true)
 ulong identityHashOf(T)(in T value)
-    if (isUnsigned!T &&
+    if (isSigned!T &&
         T.sizeof <= size_t.sizeof)
 {
     return value;

@@ -196,9 +196,20 @@ private:
  */
 pragma(inline, true)
 ulong xxhash64Of(T)(in T value) @trusted
+    if (isIntegral!T)
 {
     import xxhash64 : xxhash64Of;
     return xxhash64Of((cast(const(ubyte)*)(&value))[0 .. value.sizeof]);
+}
+
+/** fnv64a-variant of `core.internal.hash.hashOf`.
+ */
+pragma(inline, true)
+ulong fnv64aOf(T)(in T value) @trusted
+    if (isIntegral!T)
+{
+    import digestx.fnv : fnv64aOf;
+    return fnv64aOf((cast(const(ubyte)*)(&value))[0 .. value.sizeof]);
 }
 
 /** MurmurHash3-variant of `core.internal.hash.hashOf`.

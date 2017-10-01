@@ -40,13 +40,13 @@ void main()
         writeln("Added ", n, " integers into ", A.stringof, " in ", after - before);
     }
 
-    foreach (A; AliasSeq!(// HashSet!(E, null, identityHashOf),
+    foreach (A; AliasSeq!(HashSet!(E, null, identityHashOf),
                           HashSet!(E, null, typeidHashOf),
                           HashSet!(E, null, hashOf),
                           HashSet!(E, null, murmurHash3Of),
                           HashSet!(E, null, xxhash64Of),
                           HashSet!(E, null, fnv64aOf),
-                          RadixTreeSetGrowOnly!(E),
+                          // RadixTreeSetGrowOnly!(E),
                           ))
     {
         import std.traits : hasMember;
@@ -79,6 +79,8 @@ void main()
         writeln("Inserted ", n, " integers into ", A.stringof, " in ", after - before);
     }
 }
+
+import std.traits : isUnsigned;
 
 /** Dummy-hash for benchmarking performance of HashSet. */
 pragma(inline, true)

@@ -72,7 +72,7 @@ private:
         static assert(false, "Unsupported hash length");
     }
 
-    typeof(fnvPrime) _hash = void;
+    typeof(fnvPrime) _hash;
 }
 
 alias FNV32 = FNV!32; /// 32bit FNV-1, hash size is ubyte[4]

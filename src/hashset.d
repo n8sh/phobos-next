@@ -148,7 +148,7 @@ struct HashSet(T,
         else
         {
             // cast input `value` to `ubyte[]` and use std.digest API
-            immutable digest = hashFunction((cast(ubyte*)&value)[0 .. value.sizeof]); // TODO ask forums when this is correct
+            immutable digest = hashFunction((cast(ubyte*)&value)[0 .. value.sizeof]); // TODO ask forums when this isn't correct
 
             static assert(digest.sizeof >=
                           typeof(return).sizeof,

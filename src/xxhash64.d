@@ -233,7 +233,6 @@ private:
 /** Compute xxHash-64 of input `data`, with optional seed `seed`.
  */
 ulong xxhash64Of(in ubyte[] data, ulong seed = 0)
-    @trusted
 {
     auto xh = XXHash64(seed);
     xh.start();

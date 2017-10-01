@@ -192,6 +192,15 @@ private:
     }
 }
 
+/** Dummy-hash for benchmarking performance of HashSet. */
+pragma(inline, true)
+ulong identityHashOf(T)(in T value)
+    if (isUnsigned!T &&
+        T.sizeof <= size_t.sizeof)
+{
+    return value;
+}
+
 /** xxHash64-variant of `core.internal.hash.hashOf`.
  */
 pragma(inline, true)
@@ -216,13 +225,16 @@ ulong murmurHash3Of(T)(in T value) @trusted // TODO make variadic
     return elements[0] ^ elements[1];
 }
 
-/** Dummy-hash for benchmarking performance of HashSet. */
+/** fnv64-variant of `core.internal.hash.hashOf`.
+ */
 pragma(inline, true)
-ulong identityHashOf(T)(in T value)
-    if (isUnsigned!T &&
-        T.sizeof <= size_t.sizeof)
+ulong fnv64aOf(T)(in T value) @trusted // TODO make variadic
+    if (isIntegral!T)
 {
-    return value;
+    import digestx.fnv : fnv64aOf;
+    typeof(return) result;
+    cast(ubyte*)&result[0 .. result.sizeof] = fnv64aOf((cast(const(ubyte)*)(&value))[0 .. value.sizeof]);
+    return result;
 }
 
 /** See also: http://forum.dlang.org/post/o1igoc$21ma$1@digitalmars.com

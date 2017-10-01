@@ -106,22 +106,22 @@ unittest
 }
 
 /// Convenience aliases for std.digest.digest.digest using the FNV implementation.
-auto fnv32Of(T...)(T data)
+auto fnv32Of(T...)(in T data)
 {
     return digest!(FNV32, T)(data);
 }
 /// ditto
-auto fnv64Of(T...)(T data)
+auto fnv64Of(T...)(in T data)
 {
     return digest!(FNV64, T)(data);
 }
 /// ditto
-auto fnv32aOf(T...)(T data)
+auto fnv32aOf(T...)(in T data)
 {
     return digest!(FNV32A, T)(data);
 }
 /// ditto
-auto fnv64aOf(T...)(T data)
+auto fnv64aOf(T...)(in T data)
 {
     return digest!(FNV64A, T)(data);
 }

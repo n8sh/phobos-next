@@ -141,37 +141,44 @@ struct HashSet(T,
     pragma(inline, true)
     size_t bucketHashIndex(in T value) const
     {
-        immutable digest = hashFunction((cast(ubyte*)&value)[0 .. value.sizeof]); // TODO ask forums when this is correct
-
-        static assert(digest.sizeof >=
-                      typeof(return).sizeof,
-                      `Size of digest is ` ~ digest.sizeof
-                      ~ ` but needs to be at least ` ~ typeof(return).sizeof.stringof);
-
-        import std.traits : isUnsigned, isStaticArray;
-
-        static if (isUnsigned!(typeof(digest)))
+        static if (__traits(compiles, { typeof(return) _ = hashFunction(value); }))
         {
-            return cast(typeof(return))digest & hashMask; // fast modulo calculation
-        }
-        else static if (isStaticArray!(typeof(digest)))
-        {
-            typeof(return) hashIndex = void;
-            static if (2*size_t.sizeof == digest.sizeof)
-            {
-                // for instance, use all 128-bits when size_t is 64-bit
-                (cast(ubyte*)&hashIndex)[0 .. hashIndex.sizeof] = (digest[0 .. hashIndex.sizeof] ^
-                                                                   digest[hashIndex.sizeof .. 2*hashIndex.sizeof]);
-            }
-            else
-            {
-                (cast(ubyte*)&hashIndex)[0 .. hashIndex.sizeof] = digest[0 .. hashIndex.sizeof];
-            }
-            return hashIndex & hashMask;
+            return hashFunction(value) & hashMask; // TODO is this correct?
         }
         else
         {
-            static assert(0, "Unsupported return value of hash function");
+            immutable digest = hashFunction((cast(ubyte*)&value)[0 .. value.sizeof]); // TODO ask forums when this is correct
+
+            static assert(digest.sizeof >=
+                          typeof(return).sizeof,
+                          `Size of digest is ` ~ digest.sizeof
+                          ~ ` but needs to be at least ` ~ typeof(return).sizeof.stringof);
+
+            import std.traits : isUnsigned, isStaticArray;
+
+            static if (isUnsigned!(typeof(digest)))
+            {
+                return cast(typeof(return))digest & hashMask; // fast modulo calculation
+            }
+            else static if (isStaticArray!(typeof(digest)))
+            {
+                typeof(return) hashIndex = void;
+                static if (2*size_t.sizeof == digest.sizeof)
+                {
+                    // for instance, use all 128-bits when size_t is 64-bit
+                    (cast(ubyte*)&hashIndex)[0 .. hashIndex.sizeof] = (digest[0 .. hashIndex.sizeof] ^
+                                                                       digest[hashIndex.sizeof .. 2*hashIndex.sizeof]);
+                }
+                else
+                {
+                    (cast(ubyte*)&hashIndex)[0 .. hashIndex.sizeof] = digest[0 .. hashIndex.sizeof];
+                }
+                return hashIndex & hashMask;
+            }
+            else
+            {
+                static assert(0, "Unsupported return value of hash function");
+            }
         }
     }
 

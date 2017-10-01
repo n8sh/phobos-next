@@ -49,22 +49,11 @@ private:
     static if (bitLength == 32)
     {
         enum uint fnvPrime = 0x1000193U;
-    }
-    else static if (bitLength == 64)
-    {
-        enum ulong fnvPrime = 0x100000001B3UL;
-    }
-    else
-    {
-        static assert(false, "Unsupported hash length");
-    }
-
-    static if (bitLength == 32)
-    {
         enum uint fnvOffsetBasis = 0x811C9DC5U;
     }
     else static if (bitLength == 64)
     {
+        enum ulong fnvPrime = 0x100000001B3UL;
         enum ulong fnvOffsetBasis = 0xCBF29CE484222325UL;
     }
     else

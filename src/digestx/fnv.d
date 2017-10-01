@@ -58,7 +58,7 @@ private:
     }
     else
     {
-        static assert(false, "Unsupported hash length");
+        static assert(0, "Unsupported hash length " ~ bitLength.stringof);
     }
 
     typeof(fnvPrime) _hash;

@@ -8,25 +8,6 @@ module xxhash64;
 
 @safe pure nothrow @nogc:
 
-/** Compute xxHash-64 of input `data`, with optional seed `seed`.
- */
-ulong xxhash64Of(in ubyte[] data, ulong seed = 0)
-    @trusted
-{
-    auto xh = XXHash64(seed);
-    xh.start();
-    xh.put(data);
-    return xh.finishUlong();
-}
-
-/** Compute xxHash-64 of input string `data`, with optional seed `seed`.
- */
-ulong xxhash64Of(in char[] data, ulong seed = 0)
-    @trusted
-{
-    return xxhash64Of(cast(ubyte[])data, seed);
-}
-
 /** xxHash-64, based on Yann Collet's descriptions
 
     How to use:
@@ -247,6 +228,25 @@ private:
         state2 = processSingle(state2, block[2]);
         state3 = processSingle(state3, block[3]);
     }
+}
+
+/** Compute xxHash-64 of input `data`, with optional seed `seed`.
+ */
+ulong xxhash64Of(in ubyte[] data, ulong seed = 0)
+    @trusted
+{
+    auto xh = XXHash64(seed);
+    xh.start();
+    xh.put(data);
+    return xh.finishUlong();
+}
+
+/** Compute xxHash-64 of input string `data`, with optional seed `seed`.
+ */
+ulong xxhash64Of(in char[] data, ulong seed = 0)
+    @trusted
+{
+    return xxhash64Of(cast(ubyte[])data, seed);
 }
 
 /// test simple `xxhash64Of`

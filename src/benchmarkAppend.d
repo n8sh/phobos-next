@@ -40,7 +40,9 @@ void main()
             a ~= cast(E)i;      // need to cast away const here
         }
         immutable after = MonoTime.currTime();
-        writeln("Added ", n, " integers into ", A.stringof, " in ", after - before);
+        write("Added ", n, " integers in ", after - before);
+
+        writeln(` for `, A.stringof);
     }
 
     foreach (A; AliasSeq!(// HashSet!(E, null, identityHashOf),

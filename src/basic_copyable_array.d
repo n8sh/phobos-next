@@ -554,7 +554,7 @@ struct CopyableArray(T,
     alias stealBack = backPop;
 
     /** Removal doesn't need to care about ordering. */
-    T removeAtIndex(size_t index)
+    T popAtIndex(size_t index)
         @trusted
         @("complexity", "O(length)")
     {
@@ -585,7 +585,7 @@ struct CopyableArray(T,
         @trusted
         @("complexity", "O(length)")
     {
-        return removeAtIndex(0);
+        return popAtIndex(0);
     }
 
     /** Forwards to $(D insertBack(values)).
@@ -936,10 +936,10 @@ unittest
     a.removeFront();
     assert(a == [2, 3].s);
 
-    a.removeAtIndex(1);
+    a.popAtIndex(1);
     assert(a == [2].s);
 
-    a.removeAtIndex(0);
+    a.popAtIndex(0);
     assert(a == [].s);
 
     a.insertBack(11);
@@ -949,7 +949,7 @@ unittest
 
     a.insertBack(17);
     assert(a == [17].s);
-    assert(a.dropBack);
+    a.dropBack();
     assert(a.empty);
 }
 

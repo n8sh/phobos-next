@@ -4,8 +4,10 @@ import std.traits : isIntegral;
 
 import filters : isDenseSetFilterable;
 
-/** Container combining `DenseSetFilter` with O(1) unordered element access via
+ /** Container combining `DenseSetFilter` with O(1) unordered element access via
     slicing.
+
+    TODO better name?
  */
 struct DenseSetFilterGrowableArray(E,
                                    alias Allocator = null)

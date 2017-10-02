@@ -537,6 +537,7 @@ struct CopyableArray(T,
     alias dropBack = removeBack;
 
     /** Pop back element and return it. */
+    pragma(inline, true)
     T backPop() @trusted
     {
         assert(!empty);
@@ -930,14 +931,26 @@ unittest
     alias A = CopyableArray!(T);
 
     auto a = A([1, 2, 3].s);
-
     assert(a == [1, 2, 3].s);
+
     a.removeFront();
     assert(a == [2, 3].s);
+
     a.removeAtIndex(1);
     assert(a == [2].s);
+
     a.removeAtIndex(0);
     assert(a == [].s);
+
+    a.insertBack(11);
+    assert(a == [11].s);
+
+    assert(a.backPop == 11);
+
+    a.insertBack(17);
+    assert(a == [17].s);
+    assert(a.dropBack);
+    assert(a.empty);
 }
 
 

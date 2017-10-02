@@ -6,7 +6,7 @@ module hashset;
  */
 struct HashSet(T,
                alias Allocator = null,
-               alias hashFunction = hashOf)
+               alias hasher = hashOf)
 {
     /** Construct with room for storing `capacity` number of elements.
      */
@@ -147,14 +147,34 @@ struct HashSet(T,
     pragma(inline)              // LDC can inline, DMD cannot
     size_t bucketHashIndex(in T value) const
     {
-        static if (__traits(compiles, { typeof(return) _ = hashFunction(value); }))
+        import std.digest : isDigest;
+        static if (__traits(compiles, { typeof(return) _ = hasher(value); }))
         {
-            return hashFunction(value) & _hashMask; // TODO is this correct?
+            return hasher(value) & _hashMask; // TODO is this correct?
+        }
+        else static if (is(isDigest!hasher) && isDigest!hasher)
+        {
+            import std.digest.digest : makeDigest;
+            auto dig = makeDigest!(hasher);
+            dig.put(value);
+            dig.finish();
+            static if (is(typeof(dig.get()) == typeof(return)))
+            {
+                return dig.get();
+            }
+            else static if (is(typeof(dig.get()) == typeof(return)[2]))
+            {
+                return dig.get()[0] ^ dig.get()[1];
+            }
+            else
+            {
+                static assert(0, "Handle get with return type " ~ typeof(dig.get()));
+            }
         }
         else
         {
             // cast input `value` to `ubyte[]` and use std.digest API
-            immutable digest = hashFunction((cast(ubyte*)&value)[0 .. value.sizeof]); // TODO ask forums when this isn't correct
+            immutable digest = hasher((cast(ubyte*)&value)[0 .. value.sizeof]); // TODO ask forums when this isn't correct
 
             static assert(digest.sizeof >=
                           typeof(return).sizeof,

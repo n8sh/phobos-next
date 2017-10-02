@@ -552,7 +552,9 @@ struct CopyableArray(T,
     }
     alias stealBack = backPop;
 
-    /** Removal doesn't need to care about ordering. */
+    /** Pop element at `index`.
+        Removal doesn't need to care about ordering.
+    */
     T popAt(size_t index)
         @trusted
         @("complexity", "O(length)")

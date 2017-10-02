@@ -58,7 +58,7 @@ struct FNV(ulong bitLength, bool fnv1a = false)
 
     Element get() const
     {
-        return _hash;
+        return _result;
     }
 
 private:

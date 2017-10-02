@@ -16,6 +16,8 @@ void main()
     import xxhash64 : XXHash64;
     import digestx.fnv : FNV;
 
+    import filters : DenseSetFilter;
+
     // import digestx.fnv : fnv64aOf;
     import trie : RadixTreeSetGrowOnly;
 
@@ -24,7 +26,7 @@ void main()
     import std.meta : AliasSeq;
 
     alias E = uint;
-    immutable n = 1_000_000;
+    immutable n = 50_000_000;
 
     foreach (A; AliasSeq!(CopyableArray!E,
                           VariantArrays!E,
@@ -46,13 +48,14 @@ void main()
     }
 
     foreach (A; AliasSeq!(// HashSet!(E, null, identityHashOf),
-                          HashSet!(E, null, typeidHashOf),
-                          HashSet!(E, null, hashOf),
-                          HashSet!(E, null, MurmurHash3!(128)),
-                          HashSet!(E, null, FNV!(64, true)),
-                          HashSet!(E, null, XXHash64),
-                          RadixTreeSetGrowOnly!(E),
-                          ))
+                 DenseSetFilter!(E),
+                 HashSet!(E, null, typeidHashOf),
+                 HashSet!(E, null, hashOf),
+                 HashSet!(E, null, MurmurHash3!(128)),
+                 HashSet!(E, null, FNV!(64, true)),
+                 HashSet!(E, null, XXHash64),
+                 RadixTreeSetGrowOnly!(E),
+                 ))
     {
         import std.traits : hasMember;
         static if (hasMember!(A, `withCapacity`))

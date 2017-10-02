@@ -581,7 +581,7 @@ struct CopyableArray(T,
     }
 
     pragma(inline, true)
-    T removeFront()
+    T popFront()
         @trusted
         @("complexity", "O(length)")
     {
@@ -933,7 +933,7 @@ unittest
     auto a = A([1, 2, 3].s);
     assert(a == [1, 2, 3].s);
 
-    a.removeFront();
+    assert(a.popFront() == 1);
     assert(a == [2, 3].s);
 
     a.popAtIndex(1);

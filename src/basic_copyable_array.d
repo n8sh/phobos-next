@@ -524,6 +524,7 @@ struct CopyableArray(T,
 
     /** Remove last value fromm the end of the array.
      */
+    pragma(inline, true)
     void popBack()              // TODO name it `removeBack` instead?
     {
         // import std.exception : enforce;
@@ -585,14 +586,6 @@ struct CopyableArray(T,
         @("complexity", "O(length)")
     {
         return removeAtIndex(0);
-    }
-
-    pragma(inline, true)
-    void popBack()
-        @("complexity", "O(1)")
-    {
-        assert(!empty);
-        _length -= 1;
     }
 
     /** Forwards to $(D insertBack(values)).

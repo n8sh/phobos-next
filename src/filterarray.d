@@ -7,11 +7,12 @@ import filters : isDenseSetFilterable;
 /** Container combining `DenseSetFilter` with O(1) unordered element access via
     slicing.
  */
-struct DenseSetFilterGrowableArray(E, bool useGCAllocation = false)
+struct DenseSetFilterGrowableArray(E,
+                                   alias Allocator = null)
     if (isDenseSetFilterable!E)
 {
     import filters : DenseSetFilter, Growable, Copyable;
-    import array_ex : UniqueArray;
+    import basic_copyable_array : CopyableArray;
 
     @disable this(this);
 
@@ -71,7 +72,7 @@ struct DenseSetFilterGrowableArray(E, bool useGCAllocation = false)
 private:
     // TODO merge into
     DenseSetFilter!(E, Growable.yes, Copyable.no) _set;
-    UniqueArray!(E, useGCAllocation) _array; // non-copyable
+    CopyableArray!(E, Allocator) _array;
 }
 
 @safe pure nothrow @nogc:

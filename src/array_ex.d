@@ -122,13 +122,6 @@ private struct Array(E,
     /// Same type as this but with mutable element type.
     private alias MutableThis = ThisTemplate!(MutableE, assignment, ordering, useGCAllocation, CapacityType, less);
 
-    /// Is `true` iff `Array` can be interpreted as a narrow D `string` or `wstring`.
-    enum isNarrowString = (is(MutableE == char) ||
-                           is(MutableE == wchar));
-
-    /// Is `true` iff `Array` can be interpreted as a D `string`, `wstring` or `dstring`.
-    enum isString = isNarrowString || is(MutableE == dchar);
-
     static if (useGCAllocation || // either we asked for allocation
                shouldAddGCRange!E) // or we need GC ranges
     {
@@ -137,6 +130,9 @@ private struct Array(E,
 
     static if (isOrdered!ordering)
     {
+        /// Is `true` iff `Array` can be interpreted as a narrow D `string` or `wstring`.
+        private enum isNarrowString = (is(MutableE == char) ||
+                                       is(MutableE == wchar));
         static assert(!isNarrowString, "A narrow string cannot be an ordered array because it's not random access'");
     }
 
@@ -1912,7 +1908,6 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             alias Str = Array!(Ch, assignment, ordering, supportGC, size_t, less);
             auto y = Str.withElements('a', 'b', 'c');
             static assert(is(Unqual!(ElementType!Str) == Ch));
-            static assert(y.isString);
             y = Str.init;
 
             const(Ch)[] xs;
@@ -1933,8 +1928,6 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
         {
             alias Str = Array!(Ch, assignment, ordering, supportGC, size_t, less);
             auto str = Str.withElements('a', 'b', 'c');
-
-            static assert(str.isString);
 
             static if (isOrdered!ordering)
             {

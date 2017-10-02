@@ -213,7 +213,7 @@ struct HashSet(T,
         }
         else
         {
-            static assert(0, "Cannot handle hasher of type " ~ typeof(hasher).stringof);
+            static assert(0, "Cannot handle hasher " ~ hasher.stringof);
         }
     }
 

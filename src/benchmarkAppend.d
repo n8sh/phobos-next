@@ -37,7 +37,7 @@ void main()
                           E[]))
     {
         A a;
-        // a.reserve(n);
+
         immutable before = MonoTime.currTime();
         foreach (const i; 0 .. n)
         {

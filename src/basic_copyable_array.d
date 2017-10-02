@@ -914,6 +914,7 @@ unittest
 {
     alias T = int;
     alias A = CopyableArray!(T);
+
     CopyableArray!char sink;
     // TODO make this work: A([1, 2, 3]).toString(sink.put);
 }
@@ -923,12 +924,32 @@ unittest
 {
     alias T = int;
     alias A = CopyableArray!(T);
+
     auto a = A([1, 2, 3].s);
+
     foreach (const i, const e; a)
     {
         assert(i + 1 == e);
     }
 }
+
+/// removal
+@safe pure nothrow @nogc unittest
+{
+    alias T = int;
+    alias A = CopyableArray!(T);
+
+    auto a = A([1, 2, 3].s);
+
+    assert(a == [1, 2, 3].s);
+    a.removeFront();
+    assert(a == [2, 3].s);
+    a.removeAtIndex(1);
+    assert(a == [2].s);
+    a.removeAtIndex(0);
+    assert(a == [].s);
+}
+
 
 /// TODO Move to Phobos.
 private enum bool isRefIterable(T) = is(typeof({ foreach (ref elem; T.init) {} }));

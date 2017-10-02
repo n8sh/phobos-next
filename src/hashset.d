@@ -160,11 +160,11 @@ struct HashSet(T,
             dig.finish();
             static if (is(typeof(dig.get()) == typeof(return)))
             {
-                return dig.get();
+                return dig.get() & _hashMask;
             }
             else static if (is(typeof(dig.get()) == typeof(return)[2]))
             {
-                return dig.get()[0] ^ dig.get()[1];
+                return (dig.get()[0] ^ dig.get()[1]) & _hashMask;
             }
             else
             {

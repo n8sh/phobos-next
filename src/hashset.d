@@ -140,7 +140,7 @@ struct HashSet(T,
         immutable bucketIndex = bucketHashIndex(value);
         if (_largeBucketFlags[bucketIndex])
         {
-            // TODO functionize to: return popFirst(_buckets[bucketIndex].large, value)
+            // TODO functionize to: return popFirstOf(_buckets[bucketIndex].large, value)
             const count = _buckets[bucketIndex].large[].countUntil(value);
             if (count != -1)
             {
@@ -150,7 +150,7 @@ struct HashSet(T,
         }
         else
         {
-            // TODO functionize to: return popFirst(_buckets[bucketIndex].small, value)
+            // TODO functionize to: return popFirstOf(_buckets[bucketIndex].small, value)
             const count = _buckets[bucketIndex].small[].countUntil(value);
             if (count != -1)
             {

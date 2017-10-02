@@ -902,16 +902,6 @@ version(unittest)
 /// convert to string
 unittest
 {
-    // import arrayn : ArrayN;
-    // alias Chars7 = ArrayN!(char, 7);
-    // alias A = CopyableArray!(Chars7);
-    // CopyableArray!char sink;
-    // TODO make this work: A([1, 2, 3]).toString(sink.put);
-}
-
-/// convert to string
-unittest
-{
     alias T = int;
     alias A = CopyableArray!(T);
 

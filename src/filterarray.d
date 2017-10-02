@@ -20,24 +20,24 @@ struct DenseSetFilterGrowableArray(E, bool useGCAllocation = false)
     /** Insert element `e`.
         Returns: precense status of element before insertion.
     */
-    bool insert(in E e)
+    bool insert(E e)
     {
         const hit = _set.insert(e);
         if (!hit)
         {
-            _array.put(e);
+            _array.insertBack(e);
         }
         return hit;
     }
     alias put = insert;         // OutputRange compatibility
 
     /// Check if element `e` is stored/contained.
-    bool contains(in E e) const
+    bool contains(E e) const
     {
         return _set.contains(e);
     }
     /// ditto
-    auto opBinaryRight(string op)(in E e) const
+    auto opBinaryRight(string op)(E e) const
         if (op == "in")
     {
         return contains(e);
@@ -63,6 +63,7 @@ struct DenseSetFilterGrowableArray(E, bool useGCAllocation = false)
     }
 
 private:
+    // TODO merge into
     DenseSetFilter!(E, Growable.yes, Copyable.no) _set;
     UniqueArray!(E, useGCAllocation) _array; // non-copyable
 }

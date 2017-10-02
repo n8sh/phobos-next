@@ -134,12 +134,14 @@ struct HashSet(T,
         Returns: `true` if values was removed, `false` otherwise.
      */
     bool remove(in T value)
+        @trusted
     {
         import std.algorithm.searching : countUntil;
         immutable bucketIndex = bucketHashIndex(value);
         if (_largeBucketFlags[bucketIndex])
         {
-            const count = _buckets[bucketIndex].large[].countUntil(value); // TODO functionize to removeFirst()
+            // TODO functionize to: return tryRemoveFirst(_buckets[bucketIndex].large, value)
+            const count = _buckets[bucketIndex].large[].countUntil(value);
             if (count != -1)
             {
                 _buckets[bucketIndex].large.popAt(count);
@@ -148,7 +150,8 @@ struct HashSet(T,
         }
         else
         {
-            const count = _buckets[bucketIndex].small[].countUntil(value); // TODO functionize to removeFirst()
+             // TODO functionize to: return tryRemoveFirst(_buckets[bucketIndex].small, value)
+            const count = _buckets[bucketIndex].small[].countUntil(value);
             if (count != -1)
             {
                 // _buckets[bucketIndex].small.popAt(count);
@@ -281,7 +284,9 @@ private:
 {
     immutable elementCount = 2^^10;
     alias T = uint;
+
     auto s = HashSet!(T, null).withCapacity(elementCount);
+
     foreach (immutable i; 0 .. elementCount)
     {
         assert(!s.contains(i));
@@ -289,6 +294,14 @@ private:
         assert(s.contains(i));
         assert(s.insert(i));
         assert(s.contains(i));
+    }
+
+    foreach (immutable i; 0 .. elementCount)
+    {
+        assert(s.contains(i));
+        assert(s.remove(i));
+        assert(!s.contains(i));
+        assert(!s.remove(i));
     }
 
     s.clear();

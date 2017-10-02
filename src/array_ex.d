@@ -137,7 +137,7 @@ private struct Array(E,
 
     static if (isOrdered!ordering)
     {
-        static assert(!isNarrowString, "Ordered array cannot contain element type " ~ E.stringof);
+        static assert(!isNarrowString, "A narrow string cannot be an ordered array because it's not random access'");
     }
 
     alias comp = binaryFun!less; //< comparison

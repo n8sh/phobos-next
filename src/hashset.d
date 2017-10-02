@@ -136,31 +136,17 @@ struct HashSet(T,
     bool remove(in T value)
         @trusted
     {
-        import std.algorithm.searching : countUntil;
         immutable bucketIndex = bucketHashIndex(value);
+        import container_algorithm : popFirst;
         if (_largeBucketFlags[bucketIndex])
         {
-            // TODO functionize to: return popFirst(_buckets[bucketIndex].large, value)
-            const count = _buckets[bucketIndex].large[].countUntil(value);
-            if (count != -1)
-            {
-                _buckets[bucketIndex].large.popAt(count);
-                return true;
-            }
+            // dln("TODO Check shrinkage to SmallBucket");
+            return _buckets[bucketIndex].large.popFirst(value);
         }
         else
         {
-            // TODO functionize to: return popFirst(_buckets[bucketIndex].small, value)
-            const count = _buckets[bucketIndex].small[].countUntil(value);
-            if (count != -1)
-            {
-                // _buckets[bucketIndex].small.popAt(count);
-                assert(0);
-            }
+            return _buckets[bucketIndex].small.popFirst(value);
         }
-        assert(0, "TODO Implement removeAt in Array and use _buckets[bucketIndex].removeAt() here");
-        assert(0, "TODO Check shrinkage to SmallBucket");
-        assert(0, "TODO _length -= 1;");
     }
 
     /** Get index into `bucket` for `value`.

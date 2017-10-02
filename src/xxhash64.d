@@ -182,8 +182,13 @@ struct XXHash64
     ubyte[8] finish() @trusted
     {
         import std.bitmanip : swapEndian;
-        const ulong resultUlong = swapEndian(finishUlong());
-        return (cast(ubyte*)&resultUlong)[0 .. typeof(return).sizeof];
+        _result = swapEndian(finishUlong());
+        return (cast(ubyte*)&_result)[0 .. typeof(return).sizeof];
+    }
+
+    ulong get()
+    {
+        return _result;
     }
 
 private:
@@ -202,6 +207,7 @@ private:
     ulong _totalLength;
     ulong _seed;
     ubyte[bufferMaxSize] _buffer;
+    ulong _result;
 
     /// rotate bits, should compile to a single CPU instruction (ROL)
     static ulong rotateLeft(ulong x, ubyte bits)

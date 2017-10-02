@@ -26,7 +26,7 @@ void main()
     import std.meta : AliasSeq;
 
     alias E = uint;
-    immutable n = 50_000_000;
+    immutable n = 1_000_000;
 
     foreach (A; AliasSeq!(CopyableArray!E,
                           VariantArrays!E,
@@ -88,6 +88,8 @@ void main()
         }
 
         writeln(` for `, A.stringof);
+
+        a.clear();
     }
 
     foreach (A; AliasSeq!(bool[E]))

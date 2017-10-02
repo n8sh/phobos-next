@@ -587,6 +587,14 @@ struct CopyableArray(T,
         return removeAtIndex(0);
     }
 
+    pragma(inline, true)
+    void popBack()
+        @("complexity", "O(1)")
+    {
+        assert(!empty);
+        _length -= 1;
+    }
+
     /** Forwards to $(D insertBack(values)).
      */
     pragma(inline, true)

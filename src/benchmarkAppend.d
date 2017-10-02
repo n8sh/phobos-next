@@ -4,6 +4,7 @@ version(benchmark)
 void main()
 {
     // standard storage
+    import std.traits : hasMember;
     import std.array : Appender;
     import std.container.array : StdArray = Array;
 
@@ -45,6 +46,11 @@ void main()
         write("Appended ", n, " integers in ", after - before);
 
         writeln(` for `, A.stringof);
+
+        static if (hasMember!(A, `clear`))
+        {
+            a.clear();
+        }
     }
 
     foreach (A; AliasSeq!(// HashSet!(E, null, identityHashOf),
@@ -57,7 +63,6 @@ void main()
                  RadixTreeSetGrowOnly!(E),
                  ))
     {
-        import std.traits : hasMember;
         static if (hasMember!(A, `withCapacity`))
         {
             A a = A.withCapacity(n);

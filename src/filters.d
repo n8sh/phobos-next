@@ -18,6 +18,7 @@ enum isDenseSetFilterable(E) = (is(typeof(cast(size_t)E.init)) && // is castable
     not.
  */
 struct DenseSetFilter(E,
+                      // TODO make these use the Flags template
                       Growable growable = Growable.yes,
                       Copyable copyable = Copyable.no)
     if (isDenseSetFilterable!E)

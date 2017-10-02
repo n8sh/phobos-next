@@ -552,6 +552,41 @@ struct CopyableArray(T,
     }
     alias stealBack = backPop;
 
+    /** Removal doesn't need to care about ordering. */
+    T removeAtIndex(size_t index)
+        @trusted
+        @("complexity", "O(length)")
+    {
+        assert(index < this.length);
+        auto value = move(_mptr[index]);
+
+        // TODO use this instead:
+        // immutable si = index + 1;   // source index
+        // immutable ti = index;       // target index
+        // immutable restLength = this.length - (index + 1);
+        // moveEmplaceAll(_mptr[si .. si + restLength],
+        //                _mptr[ti .. ti + restLength]);
+
+        foreach (immutable i; 0 .. this.length - (index + 1)) // each element index that needs to be moved
+        {
+            immutable si = index + i + 1; // source index
+            immutable ti = index + i; // target index
+            moveEmplace(_mptr[si], // TODO remove `move` when compiler does it for us
+                        _mptr[ti]);
+        }
+
+        _length -= 1;
+        return move(value); // TODO remove `move` when compiler does it for us
+    }
+
+    pragma(inline, true)
+    T popFront()
+        @trusted
+        @("complexity", "O(length)")
+    {
+        return removeAtIndex(0);
+    }
+
     /** Forwards to $(D insertBack(values)).
      */
     pragma(inline, true)

@@ -53,12 +53,12 @@ struct FNV(ulong bitLength, bool fnv1a = false)
         import std.bitmanip : nativeToBigEndian;
         _result = _hash;
         start();
-        return nativeToBigEndian(_result);
+        return nativeToBigEndian(_result); // TODO can avoid this calculation?
     }
 
     Element get() const
     {
-        return _result;
+        return _hash;
     }
 
 private:

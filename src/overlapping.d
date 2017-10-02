@@ -1,4 +1,4 @@
-module overlappping;
+module overlapping;
 
 @safe pure nothrow @nogc:
 

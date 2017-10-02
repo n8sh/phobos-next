@@ -61,12 +61,12 @@ struct DenseSetFilter(E,
     pragma(inline, true)
     ~this()
     {
-        destroy();
+        release();
     }
 
     /// Free storage.
     pragma(inline, true)
-    private void destroy() @trusted
+    private void release() @trusted
     {
         import qcmeman : free;
         free(_blocksPtr);
@@ -76,7 +76,7 @@ struct DenseSetFilter(E,
     pragma(inline, true)
     void clear()
     {
-        destroy();
+        release();
         _blocksPtr = null;
         static if (growable == Growable.yes)
         {

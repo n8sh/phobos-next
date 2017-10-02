@@ -152,11 +152,11 @@ struct HashSet(T,
         {
             return hasher(value) & _hashMask; // TODO is this correct?
         }
-        else static if (is(isDigest!hasher) && isDigest!hasher)
+        else static if (__traits(compiles, { enum _ = isDigest!hasher; }) && isDigest!hasher)
         {
             import std.digest.digest : makeDigest;
             auto dig = makeDigest!(hasher);
-            dig.put(value);
+            dig.put((cast(ubyte*)&value)[0 .. value.sizeof]);
             dig.finish();
             static if (is(typeof(dig.get()) == typeof(return)))
             {

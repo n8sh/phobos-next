@@ -135,8 +135,13 @@ struct HashSet(T,
      */
     bool remove(in T value)
     {
-        import std.algorithm.searching : find;
         immutable bucketIndex = bucketHashIndex(value);
+        if (_largeBucketFlags[bucketIndex])
+        {
+        }
+        else
+        {
+        }
         assert(0, "TODO Implement removeAtIndex in Array and use _buckets[bucketIndex].removeAtIndex() here");
         assert(0, "TODO Check shrinkage to SmallBucket");
         assert(0, "TODO _length -= 1;");

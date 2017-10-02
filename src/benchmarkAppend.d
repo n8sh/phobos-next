@@ -49,7 +49,7 @@ void main()
                           HashSet!(E, null, MurmurHash3!(128)),
                           HashSet!(E, null, FNV!(64, true)),
                           HashSet!(E, null, XXHash64),
-                          // RadixTreeSetGrowOnly!(E),
+                          RadixTreeSetGrowOnly!(E),
                           ))
     {
         import std.traits : hasMember;
@@ -88,7 +88,7 @@ import std.traits : isUnsigned;
 /** Dummy-hash for benchmarking performance of HashSet. */
 pragma(inline, true)
 ulong identityHashOf(T)(in T value)
-    if (isSigned!T &&
+if (isUnsigned!T &&
         T.sizeof <= size_t.sizeof)
 {
     return value;

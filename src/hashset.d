@@ -151,6 +151,7 @@ struct HashSet(T,
             const count = _buckets[bucketIndex].small[].countUntil(value); // TODO functionize to removeFirst()
             if (count != -1)
             {
+                // _buckets[bucketIndex].small.popAt(count);
                 assert(0);
             }
         }

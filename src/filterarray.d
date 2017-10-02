@@ -49,6 +49,12 @@ struct DenseSetFilterGrowableArray(E, bool useGCAllocation = false)
         return _array.empty;
     }
 
+    /// Get length.
+    size_t length() const
+    {
+        return _array.length;
+    }
+
     /// Non-mutable slicing.
     auto opSlice() const
     {

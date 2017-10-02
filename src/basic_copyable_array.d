@@ -12,8 +12,6 @@ import std.traits : Unqual;
     TODO Add OutputRange.writer support as
     https://github.com/burner/StringBuffer/blob/master/source/stringbuffer.d#L45
 
-    TODO Call gc_addRange in all insertBack* functions
-
     TODO make use of `Allocator` parameter when non-`null`
 
     TODO Use `std.traits.areCopyCompatibleArrays`
@@ -425,7 +423,7 @@ struct CopyableArray(T,
     void insertBack1(T value) @trusted
     {
         reserve(_length + 1);
-        static if (isCopyable!T)
+        static if (isScalar!T)
         {
             _mptr[_length] = value;
         }

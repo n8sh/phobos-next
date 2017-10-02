@@ -171,7 +171,8 @@ struct HashSet(T,
             }
             else
             {
-                static assert(0, "Handle get with return type " ~ typeof(dig.get()));
+                static assert(0, "Handle get() with return type " ~ typeof(dig.get()).stringof ~
+                              " on " ~ size_t.sizeof.stringof ~ "-bit platform");
             }
         }
         else

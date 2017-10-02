@@ -525,7 +525,7 @@ struct CopyableArray(T,
     /** Remove last value fromm the end of the array.
      */
     pragma(inline, true)
-    void popBack()              // TODO name it `removeBack` instead?
+    void removeBack()
     {
         // import std.exception : enforce;
         // enforce(!empty);        // TODO use `assert` instead?
@@ -536,6 +536,7 @@ struct CopyableArray(T,
             .destroy(_mptr[_length]);
         }
     }
+    alias dropBack = removeBack;
 
     /** Pop back element and return it. */
     T backPop() @trusted

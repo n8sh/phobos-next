@@ -150,7 +150,7 @@ private struct Array(E,
     // }
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
-    static typeof(this) withLength(size_t initialLength) @trusted nothrow
+    static typeof(this) withLength(size_t initialLength) @trusted
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
@@ -172,7 +172,7 @@ private struct Array(E,
     }
 
     /// Returns: an array with initial capacity `initialCapacity`.
-    static typeof(this) withCapacity(size_t initialCapacity) @trusted nothrow
+    static typeof(this) withCapacity(size_t initialCapacity) @trusted
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
@@ -193,7 +193,7 @@ private struct Array(E,
     }
 
     /// Returns: an array of one element `element`.
-    static typeof(this) withElement(E element) @trusted nothrow
+    static typeof(this) withElement(E element) @trusted
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
@@ -230,7 +230,7 @@ private struct Array(E,
     }
 
     /// Returns: an array of `Us.length` number of elements set to `elements`.
-    static typeof(this) withElements(Us...)(Us elements) @trusted nothrow
+    static typeof(this) withElements(Us...)(Us elements) @trusted
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
@@ -273,7 +273,7 @@ private struct Array(E,
     static if (assignment == Assignment.copy)
     {
         /// Copy construction.
-        this(this) nothrow @trusted
+        this(this) @trusted
         {
             version(showCtors) dln("Copy ctor: ", typeof(this).stringof);
             if (isLarge)        // only large case needs special treatment
@@ -436,7 +436,7 @@ private struct Array(E,
     }
 
     /// Calculate D associative array (AA) key hash.
-    size_t toHash() const @trusted pure nothrow
+    size_t toHash() const @trusted pure
     {
         import core.internal.hash : hashOf;
         typeof(return) hash = this.length;
@@ -542,14 +542,14 @@ private struct Array(E,
     }
 
     /// Sort all elements in-place regardless of `ordering`.
-    private void sortElements(alias comp_)() @trusted nothrow
+    private void sortElements(alias comp_)() @trusted
     {
         import std.algorithm.sorting : sort;
         sort!comp_(_mptr[0 .. length]);
     }
 
     /// Reserve room for `newCapacity`.
-    void reserve(size_t newCapacity) pure nothrow @trusted
+    void reserve(size_t newCapacity) pure @trusted
     {
         assert(!isBorrowed);
         if (newCapacity <= capacity) { return; }
@@ -599,7 +599,7 @@ private struct Array(E,
     }
 
     /// Pack/Compress storage.
-    void compress() pure nothrow @trusted
+    void compress() pure @trusted
     {
         assert(!isBorrowed);
         if (isLarge)
@@ -674,7 +674,7 @@ private struct Array(E,
 
     /// Reallocate storage. TODO move to Large.reallocateAndSetCapacity
     pragma(inline, true)
-    private void reallocateLargeStoreAndSetCapacity(size_t newCapacity) pure nothrow @trusted
+    private void reallocateLargeStoreAndSetCapacity(size_t newCapacity) pure @trusted
     {
         _large.setCapacity(newCapacity);
         static if (useGCAllocation)
@@ -690,7 +690,7 @@ private struct Array(E,
 
     /// Destruct.
     pragma(inline)
-    ~this() nothrow @trusted
+    ~this() @trusted
     {
         assert(!isBorrowed);
         if (isLarge)
@@ -719,7 +719,7 @@ private struct Array(E,
     /// Destroy elements.
     static if (hasElaborateDestructor!E)
     {
-        private void destroyElements() nothrow @trusted
+        private void destroyElements() @trusted
         {
             foreach (immutable i; 0 .. this.length)
             {
@@ -729,7 +729,7 @@ private struct Array(E,
     }
 
     /// Release internal store.
-    private void release() nothrow @trusted
+    private void release() @trusted
     {
         static if (hasElaborateDestructor!E)
         {
@@ -761,7 +761,7 @@ private struct Array(E,
 
     /// Reset internal data.
     pragma(inline, true)
-    private void resetInternalData() @trusted pure nothrow @nogc
+    private void resetInternalData() @trusted pure @nogc
     {
         if (isLarge)
         {
@@ -1033,7 +1033,7 @@ private struct Array(E,
         import std.range : SearchPolicy, assumeSorted;
 
         /// Returns: `true` iff this contains `value`.
-        bool contains(U)(U value) const nothrow @nogc @("complexity", "O(log(length))")
+        bool contains(U)(U value) const @nogc @("complexity", "O(log(length))")
         {
             return this[].contains(value); // reuse `SortedRange.contains`
         }
@@ -1168,7 +1168,7 @@ private struct Array(E,
     {
         /** Insert element(s) `values` at array offset `index`. */
         pragma(inline, true)
-        void insertAtIndex(Us...)(size_t index, Us values) nothrow @("complexity", "O(length)")
+        void insertAtIndex(Us...)(size_t index, Us values) @("complexity", "O(length)")
             if (values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
         {
@@ -1178,7 +1178,7 @@ private struct Array(E,
 
         /** Insert element(s) `values` at the beginning. */
         pragma(inline, true)
-        void pushFront(Us...)(Us values) nothrow @("complexity", "O(length)")
+        void pushFront(Us...)(Us values) @("complexity", "O(length)")
             if (values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
         {
@@ -1207,7 +1207,7 @@ private struct Array(E,
     }
 
     /** Helper function used externally for unsorted and internally for sorted. */
-    private void insertAtIndexHelper(Us...)(size_t index, Us values) @trusted nothrow @("complexity", "O(length)")
+    private void insertAtIndexHelper(Us...)(size_t index, Us values) @trusted @("complexity", "O(length)")
     {
         reserve(this.length + values.length);
 
@@ -1243,7 +1243,7 @@ private struct Array(E,
         setOnlyLength(this.length + values.length);
     }
 
-    private void insertBackHelper(Us...)(Us values) @trusted nothrow @("complexity", "O(1)")
+    private void insertBackHelper(Us...)(Us values) @trusted @("complexity", "O(1)")
     {
         const newLength = this.length + values.length;
         reserve(newLength);
@@ -1269,7 +1269,7 @@ private struct Array(E,
     /// ditto
     static if (isOrdered!ordering)
     {
-        const pure nothrow @nogc: // indexing and slicing must be `const` when ordered
+        const pure @nogc: // indexing and slicing must be `const` when ordered
 
         /// Slice operator must be const when ordered.
         auto opSlice() return scope
@@ -1309,8 +1309,6 @@ private struct Array(E,
     }
     else
     {
-        nothrow:
-
         /// Set length to `newLength`.
         @property void length(size_t newLength)
         {
@@ -1406,7 +1404,7 @@ private struct Array(E,
     //     }
     // }
 
-    pure nothrow:
+    pure:
 
     /** Allocate heap regionwith `newCapacity` number of elements of type `E`.
         If `zero` is `true` they will be zero-initialized.

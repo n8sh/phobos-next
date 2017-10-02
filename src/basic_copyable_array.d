@@ -527,8 +527,6 @@ struct CopyableArray(T,
     pragma(inline, true)
     void removeBack()
     {
-        // import std.exception : enforce;
-        // enforce(!empty);        // TODO use `assert` instead?
         assert(!empty);
         _length -= 1;
         static if (hasElaborateDestructor!T)

@@ -144,7 +144,7 @@ struct HashSet(T,
 
     /** Get index into `bucket` for `value`.
      */
-    pragma(inline, true)
+    pragma(inline)
     size_t bucketHashIndex(in T value) const
     {
         static if (__traits(compiles, { typeof(return) _ = hashFunction(value); }))

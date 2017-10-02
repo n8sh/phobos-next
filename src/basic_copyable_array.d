@@ -561,14 +561,20 @@ struct CopyableArray(T,
     {
         assert(index < this.length);
         auto value = move(_mptr[index]);
+        shiftToFrontAt(index);
+        _length -= 1;
+        return move(value); // TODO remove `move` when compiler does it for us
+    }
 
+    private void shiftToFrontAt(size_t index)
+        @trusted
+    {
         // TODO use this instead:
         // immutable si = index + 1;   // source index
         // immutable ti = index;       // target index
         // immutable restLength = this.length - (index + 1);
         // moveEmplaceAll(_mptr[si .. si + restLength],
         //                _mptr[ti .. ti + restLength]);
-
         foreach (immutable i; 0 .. this.length - (index + 1)) // each element index that needs to be moved
         {
             immutable si = index + i + 1; // source index
@@ -576,9 +582,6 @@ struct CopyableArray(T,
             moveEmplace(_mptr[si], // TODO remove `move` when compiler does it for us
                         _mptr[ti]);
         }
-
-        _length -= 1;
-        return move(value); // TODO remove `move` when compiler does it for us
     }
 
     pragma(inline, true)

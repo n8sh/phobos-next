@@ -40,7 +40,7 @@ void main()
             a ~= cast(E)i;      // need to cast away const here
         }
         immutable after = MonoTime.currTime();
-        write("Added ", n, " integers in ", after - before);
+        write("Inserted ", n, " integers in ", after - before);
 
         writeln(` for `, A.stringof);
     }

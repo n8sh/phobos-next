@@ -25,7 +25,9 @@ struct ArrayN(E,
     import std.bitmanip : bitfields;
     import std.typecons : Unqual;
     import std.traits : isSomeChar, hasElaborateDestructor, isAssignable, isCopyable;
+
     import qcmeman : gc_addRange, gc_removeRange;
+    import container_traits : shouldAddGCRange;
 
     alias capacity = requestedCapacity; // for public use
 
@@ -89,12 +91,6 @@ struct ArrayN(E,
 
     /// Is `true` if `U` can be assign to the element type `E` of `this`.
     private enum isElementAssignable(U) = isAssignable!(E, U);
-
-    template shouldAddGCRange(T)
-    {
-        import std.traits : hasIndirections;
-        private enum shouldAddGCRange = hasIndirections!T; // TODO and only if T's indirections are handled by the GC (not tagged with @nogc)
-    }
 
     @safe:
 

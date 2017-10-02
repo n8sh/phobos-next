@@ -725,7 +725,10 @@ private struct Array(E,
     }
     /// ditto
     pragma(inline, true)
-    void opAssign(typeof(null)) { clear(); }
+    void opAssign(typeof(null))
+    {
+        clear();
+    }
 
     /// Destroy elements.
     static if (hasElaborateDestructor!E)

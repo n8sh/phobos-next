@@ -343,13 +343,6 @@ struct CopyableArray(T,
         return slice()[i];
     }
 
-    /// Foreach support.
-    pragma(inline, true)
-    scope ref inout(T) opSlice(size_t i) inout return
-    {
-        return slice()[i];
-    }
-
     /// Slice support.
     pragma(inline, true)
     scope inout(T)[] opSlice(size_t i, size_t j) inout return
@@ -888,6 +881,18 @@ unittest
     alias A = CopyableArray!(T);
     CopyableArray!char sink;
     // TODO make this work: A([1, 2, 3]).toString(sink.put);
+}
+
+/// foreach
+@safe pure nothrow @nogc unittest
+{
+    alias T = int;
+    alias A = CopyableArray!(T);
+    auto a = A([1, 2, 3].s);
+    foreach (const i, const e; a)
+    {
+        assert(i + 1 == e);
+    }
 }
 
 /// TODO Move to Phobos.

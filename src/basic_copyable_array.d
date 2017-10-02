@@ -23,7 +23,8 @@ struct CopyableArray(T,
     if (!is(Unqual!T == bool))
 {
     import std.range : isInputRange, isIterable, ElementType, isInfinite;
-    import std.traits : Unqual, hasElaborateDestructor, hasIndirections, hasAliasing, isMutable, TemplateOf, isArray, isAssignable, isCopyable;
+    import std.traits : Unqual, hasElaborateDestructor, hasIndirections, hasAliasing,
+        isMutable, TemplateOf, isArray, isAssignable, isCopyable;
     import std.algorithm : move, moveEmplace;
 
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;

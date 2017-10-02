@@ -151,7 +151,7 @@ struct HashSet(T,
         import std.traits : hasMember;
         static if (__traits(compiles, { typeof(return) _ = hasher(value); }))
         {
-            return hasher(value) & _hashMask; // TODO is this correct?
+            return hasher(value) & _hashMask;
         }
         else static if (__traits(compiles, { enum _ = isDigest!hasher; }) &&
                         isDigest!hasher &&

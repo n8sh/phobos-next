@@ -19,7 +19,7 @@ void main()
     // import digestx.fnv : fnv64aOf;
     import trie : RadixTreeSetGrowOnly;
 
-    import std.stdio : writeln;
+    import std.stdio : write, writeln;
     import std.datetime : MonoTime;
     import std.meta : AliasSeq;
 
@@ -61,25 +61,55 @@ void main()
         {
             A a;
         }
-        immutable before = MonoTime.currTime();
-        foreach (const i; 0 .. n)
+
         {
-            a.insert(i);
+            immutable before = MonoTime.currTime();
+            foreach (const i; 0 .. n)
+            {
+                a.insert(i);
+            }
+            immutable after = MonoTime.currTime();
+            write("Inserted ", n, " integers in ", after - before);
         }
-        immutable after = MonoTime.currTime();
-        writeln("Inserted ", n, " integers into ", A.stringof, " in ", after - before);
+
+        {
+            immutable before = MonoTime.currTime();
+            foreach (const i; 0 .. n)
+            {
+                assert(a.contains(i));
+            }
+            immutable after = MonoTime.currTime();
+            write(", Checked ", n, " integers in ", after - before);
+        }
+
+        writeln(` for `, A.stringof);
     }
 
     foreach (A; AliasSeq!(bool[E]))
     {
         A a = A.init;
-        immutable before = MonoTime.currTime();
-        foreach (const i; 0 .. n)
+
         {
-            a[i] = true;
+            immutable before = MonoTime.currTime();
+            foreach (const i; 0 .. n)
+            {
+                a[i] = true;
+            }
+            immutable after = MonoTime.currTime();
+            write("Inserted ", n, " integers in ", after - before);
         }
-        immutable after = MonoTime.currTime();
-        writeln("Inserted ", n, " integers into ", A.stringof, " in ", after - before);
+
+        {
+            immutable before = MonoTime.currTime();
+            foreach (const i; 0 .. n)
+            {
+                assert(i in a);
+            }
+            immutable after = MonoTime.currTime();
+            write(", Checked ", n, " integers in ", after - before);
+        }
+
+        writeln(` for `, A.stringof);
     }
 }
 

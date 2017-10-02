@@ -4,7 +4,7 @@ import std.traits : isIntegral;
 
 import filters : isDenseSetFilterable;
 
-/** Container combining `DenseSetFilter` with array store.
+/** Container combining `DenseSetFilter` with growable array store.
 
     Has O(1) unordered element access via slicing.
 

@@ -178,7 +178,6 @@ struct CopyableArray(T,
     }
 
     /// Empty.
-    pragma(inline, true)
     void clear()
     {
         release();
@@ -406,7 +405,6 @@ struct CopyableArray(T,
 
     /** Move `value` into the end of the array.
      */
-    pragma(inline, true)
     void insertBackMove()(ref T value) @trusted
     {
         reserve(_length + 1);
@@ -419,18 +417,16 @@ struct CopyableArray(T,
         TODO rename to `insertBack` and make this steal scalar calls over
         insertBack(U)(U[] values...) overload below
      */
-    pragma(inline, true)
     void insertBack1(T value) @trusted
     {
         reserve(_length + 1);
-        static if (isCopyable!T &&
-                   !hasElaborateDestructor!T)
+        static if (needsMove!T)
         {
-            _mptr[_length] = value;
+            insertBackMove(*cast(MutableE*)(&value));
         }
         else
         {
-            insertBackMove(*cast(MutableE*)(&value));
+            _mptr[_length] = value;
         }
         _length += 1;
     }

@@ -148,11 +148,14 @@ struct HashSet(T,
     size_t bucketHashIndex(in T value) const
     {
         import std.digest.digest : isDigest;
+        import std.traits : hasMember;
         static if (__traits(compiles, { typeof(return) _ = hasher(value); }))
         {
             return hasher(value) & _hashMask; // TODO is this correct?
         }
-        else static if (__traits(compiles, { enum _ = isDigest!hasher; }) && isDigest!hasher)
+        else static if (__traits(compiles, { enum _ = isDigest!hasher; }) &&
+                        isDigest!hasher &&
+                        hasMember!(hasher, "get"))
         {
             import std.digest.digest : makeDigest;
             auto dig = makeDigest!(hasher);

@@ -142,7 +142,7 @@ struct HashSet(T,
         else
         {
         }
-        assert(0, "TODO Implement removeAtIndex in Array and use _buckets[bucketIndex].removeAtIndex() here");
+        assert(0, "TODO Implement removeAt in Array and use _buckets[bucketIndex].removeAt() here");
         assert(0, "TODO Check shrinkage to SmallBucket");
         assert(0, "TODO _length -= 1;");
     }

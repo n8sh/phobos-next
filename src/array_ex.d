@@ -796,7 +796,7 @@ private struct Array(E,
     enum isElementAssignable(U) = isAssignable!(E, U);
 
     /** Removal doesn't need to care about ordering. */
-    ContainerElementType!(typeof(this), E) removeAtIndex(size_t index)
+    ContainerElementType!(typeof(this), E) removeAt(size_t index)
         @trusted
         @("complexity", "O(length)")
     {
@@ -829,7 +829,7 @@ private struct Array(E,
         @trusted
         @("complexity", "O(length)")
     {
-        return removeAtIndex(0);
+        return removeAt(0);
     }
 
     /** Removal doesn't need to care about ordering. */
@@ -2166,13 +2166,13 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             assert(ssA.empty);
             ssA.compress();
 
-            // removeAtIndex
+            // removeAt
             ssA ~= 1;
             ssA ~= 2;
             ssA ~= 3;
             ssA ~= 4;
             ssA ~= 5;
-            assertNotThrown(ssA.removeAtIndex(2));
+            assertNotThrown(ssA.removeAt(2));
             assert(ssA[].equal([1, 2, 4, 5].s[]));
 
             // insertBack and assignment from slice

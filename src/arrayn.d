@@ -11,14 +11,14 @@ enum Checking
     viaScopeAndBorrowing // run-time checking of slice lifetimes and borrows (includes iterator invalidation checking)
 }
 
-/** Statically allocated `E`-array of fixed pre-allocated length.  Similar to
+/** Statically allocated `T`-array of fixed pre-allocated length.  Similar to
     Rust's `fixedvec`: https://docs.rs/fixedvec/0.2.3/fixedvec/
 
     TODO Merge with array_ex.d to enable reuse of push and pop algorithms
 
     TODO Add @safe nothrow @nogc ctor from static array (of known length)
 */
-struct ArrayN(E,
+struct ArrayN(T,
               uint requestedCapacity,
               Checking checking = Checking.viaScope)
 {
@@ -32,7 +32,7 @@ struct ArrayN(E,
     alias capacity = requestedCapacity; // for public use
 
     /// stored elements
-    E[capacity] _store;         // TODO use store constructor
+    T[capacity] _store;         // TODO use store constructor
 
     /// Is `true` iff `this` has borrow-checked slicing.
     enum borrowChecked = checking == Checking.viaScopeAndBorrowing;
@@ -87,10 +87,10 @@ struct ArrayN(E,
         Length _length;         /// number of defined elements in `_store`
     }
 
-    alias MutableE = Unqual!E;
+    alias MutableE = Unqual!T;
 
-    /// Is `true` if `U` can be assign to the element type `E` of `this`.
-    private enum isElementAssignable(U) = isAssignable!(E, U);
+    /// Is `true` if `U` can be assign to the element type `T` of `this`.
+    private enum isElementAssignable(U) = isAssignable!(T, U);
 
     @safe:
 
@@ -98,9 +98,9 @@ struct ArrayN(E,
     this(Us...)(Us values) @trusted
         if (Us.length <= capacity)
     {
-        static if (shouldAddGCRange!E)
+        static if (shouldAddGCRange!T)
         {
-            gc_addRange(_store.ptr, values.length * E.sizeof);
+            gc_addRange(_store.ptr, values.length * T.sizeof);
         }
 
         foreach (const ix, ref value; values)
@@ -128,9 +128,9 @@ struct ArrayN(E,
         import std.exception : enforce;
         enforce(values.length <= capacity, `Arguments don't fit in array`);
 
-        static if (shouldAddGCRange!E)
+        static if (shouldAddGCRange!T)
         {
-            gc_addRange(_store.ptr, values.length * E.sizeof);
+            gc_addRange(_store.ptr, values.length * T.sizeof);
         }
 
         _store[0 .. values.length] = values;
@@ -149,9 +149,9 @@ struct ArrayN(E,
             ) // prevent accidental move of l-value `values` in array calls
     {
         typeof(return) that;              // TODO use Store constructor:
-        static if (shouldAddGCRange!E)
+        static if (shouldAddGCRange!T)
         {
-            gc_addRange(that._store.ptr, values.length * E.sizeof);
+            gc_addRange(that._store.ptr, values.length * T.sizeof);
         }
 
         that._store[0 .. values.length] = values;
@@ -170,14 +170,14 @@ struct ArrayN(E,
     ~this() @trusted
     {
         static if (borrowChecked) { assert(!isBorrowed); }
-        static if (hasElaborateDestructor!E)
+        static if (hasElaborateDestructor!T)
         {
             foreach (const i; 0 .. length)
             {
                 .destroy(_store.ptr[i]);
             }
         }
-        static if (shouldAddGCRange!E)
+        static if (shouldAddGCRange!T)
         {
             gc_removeRange(_store.ptr);
         }
@@ -234,7 +234,7 @@ struct ArrayN(E,
     }
 
     import std.traits : isMutable;
-    static if (isMutable!E)
+    static if (isMutable!T)
     {
         /** Pop first (front) element. */
         auto ref popFront()
@@ -258,7 +258,7 @@ struct ArrayN(E,
         assert(!empty);
         static if (borrowChecked) { assert(!isBorrowed); }
         _length = cast(Length)(_length - 1); // TODO better?
-        static if (hasElaborateDestructor!E)
+        static if (hasElaborateDestructor!T)
         {
             .destroy(_store.ptr[_length]);
         }
@@ -270,7 +270,7 @@ struct ArrayN(E,
         assert(length >= n);
         static if (borrowChecked) { assert(!isBorrowed); }
         _length = cast(Length)(_length - n); // TODO better?
-        static if (hasElaborateDestructor!E)
+        static if (hasElaborateDestructor!T)
         {
             foreach (i; 0 .. n)
             {
@@ -282,21 +282,21 @@ struct ArrayN(E,
 pragma(inline, true):
 
     /** Index operator. */
-    ref inout(E) opIndex(size_t i) inout @trusted return scope
+    ref inout(T) opIndex(size_t i) inout @trusted return scope
     {
         assert(i < _length);
         return _store.ptr[i];
     }
 
     /** First (front) element. */
-    ref inout(E) front() inout @trusted return scope
+    ref inout(T) front() inout @trusted return scope
     {
         assert(!empty);
         return _store.ptr[0];
     }
 
     /** Last (back) element. */
-    ref inout(E) back() inout @trusted return scope
+    ref inout(T) back() inout @trusted return scope
     {
         assert(!empty);
         return _store.ptr[_length - 1];
@@ -317,7 +317,7 @@ pragma(inline, true):
         auto opSlice() return scope { return sliceRW(); }
 
         /// Get full read-only slice.
-        ReadBorrowed!(E[], typeof(this)) sliceRO() const @trusted return scope
+        ReadBorrowed!(T[], typeof(this)) sliceRO() const @trusted return scope
         {
             import std.typecons : Unqual;
             assert(!_writeBorrowed, "Already write-borrowed");
@@ -326,7 +326,7 @@ pragma(inline, true):
         }
 
         /// Get read-only slice in range `i` .. `j`.
-        ReadBorrowed!(E[], typeof(this)) sliceRO(size_t i, size_t j) const @trusted return scope
+        ReadBorrowed!(T[], typeof(this)) sliceRO(size_t i, size_t j) const @trusted return scope
         {
             import std.typecons : Unqual;
             assert(!_writeBorrowed, "Already write-borrowed");
@@ -335,7 +335,7 @@ pragma(inline, true):
         }
 
         /// Get full read-write slice.
-        WriteBorrowed!(E[], typeof(this)) sliceRW() @trusted return scope
+        WriteBorrowed!(T[], typeof(this)) sliceRW() @trusted return scope
         {
             assert(!_writeBorrowed, "Already write-borrowed");
             assert(_readBorrowCount == 0, "Already read-borrowed");
@@ -343,7 +343,7 @@ pragma(inline, true):
         }
 
         /// Get read-write slice in range `i` .. `j`.
-        WriteBorrowed!(E[], typeof(this)) sliceRW(size_t i, size_t j) @trusted return scope
+        WriteBorrowed!(T[], typeof(this)) sliceRW(size_t i, size_t j) @trusted return scope
         {
             assert(!_writeBorrowed, "Already write-borrowed");
             assert(_readBorrowCount == 0, "Already read-borrowed");
@@ -365,7 +365,7 @@ pragma(inline, true):
     else
     {
         /// Get slice in range `i` .. `j`.
-        inout(E)[] opSlice(size_t i, size_t j) @trusted inout return scope
+        inout(T)[] opSlice(size_t i, size_t j) @trusted inout return scope
         {
             assert(i <= j);
             assert(j <= _length);
@@ -373,7 +373,7 @@ pragma(inline, true):
         }
 
         /// Get full slice.
-        inout(E)[] opSlice() @trusted inout return scope
+        inout(T)[] opSlice() @trusted inout return scope
         {
             return _store.ptr[0 .. _length];
         }
@@ -391,10 +391,10 @@ pragma(inline, true):
         auto length() const { return _length; }
         alias opDollar = length;    /// ditto
 
-        static if (isSomeChar!E)
+        static if (isSomeChar!T)
         {
             /** Get as `string`. */
-            const(E)[] toString() const return scope
+            const(T)[] toString() const return scope
             {
                 return opSlice();
             }
@@ -413,7 +413,7 @@ pragma(inline, true):
     }
     /// ditto
     bool opEquals(U)(in U[] rhs) const
-        if (is(typeof(E[].init == U[].init)))
+        if (is(typeof(T[].init == U[].init)))
     {
         return this[] == rhs;
     }
@@ -437,8 +437,8 @@ alias MutableDStringN(uint requestedCapacity, Checking checking = Checking.viaSc
 @safe pure unittest
 {
     enum capacity = 3;
-    alias E = int;
-    alias A = ArrayN!(E, capacity);
+    alias T = int;
+    alias A = ArrayN!(T, capacity);
 
     auto a = A([1, 2, 3].s[]);
     assert(a[] == [1, 2, 3].s);
@@ -448,8 +448,8 @@ alias MutableDStringN(uint requestedCapacity, Checking checking = Checking.viaSc
 @trusted pure nothrow @nogc unittest
 {
     enum capacity = 3;
-    alias E = int;
-    alias A = ArrayN!(E, capacity);
+    alias T = int;
+    alias A = ArrayN!(T, capacity);
     auto a = A.fromValuesUnsafe([1, 2, 3].s);
     assert(a[] == [1, 2, 3].s);
 }
@@ -458,8 +458,8 @@ alias MutableDStringN(uint requestedCapacity, Checking checking = Checking.viaSc
 @safe pure nothrow @nogc unittest
 {
     enum capacity = 3;
-    alias E = int;
-    alias A = ArrayN!(E, capacity);
+    alias T = int;
+    alias A = ArrayN!(T, capacity);
 
     auto a = A(1, 2, 3);
     assert(a[] == [1, 2, 3].s);
@@ -520,14 +520,14 @@ version(none) pure unittest     // TODO activate
 {
     import std.exception : assertNotThrown;
 
-    alias E = char;
+    alias T = char;
     enum capacity = 3;
 
-    alias A = ArrayN!(E, capacity, Checking.viaScopeAndBorrowing);
-    static assert(A.sizeof == E.sizeof*capacity + 1);
+    alias A = ArrayN!(T, capacity, Checking.viaScopeAndBorrowing);
+    static assert(A.sizeof == T.sizeof*capacity + 1);
 
     import std.range : isOutputRange;
-    static assert(isOutputRange!(A, E));
+    static assert(isOutputRange!(A, T));
 
     auto ab = A("ab");
     assert(!ab.empty);
@@ -583,22 +583,22 @@ version(none) pure unittest     // TODO activate
 ///
 @safe pure unittest
 {
-    static void testAsSomeString(E)()
+    static void testAsSomeString(T)()
     {
         enum capacity = 15;
-        alias A = ArrayN!(immutable(E), capacity, Checking.viaScopeAndBorrowing);
+        alias A = ArrayN!(immutable(T), capacity, Checking.viaScopeAndBorrowing);
         auto a = A("abc");
         assert(a[] == "abc");
         assert(a[].equal("abc"));
 
         import std.conv : to;
-        const x = "a".to!(E[]);
+        const x = "a".to!(T[]);
     }
 
-    foreach (E; AliasSeq!(char// , wchar, dchar
+    foreach (T; AliasSeq!(char// , wchar, dchar
                  ))
     {
-        testAsSomeString!E();
+        testAsSomeString!T();
     }
 }
 

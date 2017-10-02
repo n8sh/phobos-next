@@ -107,6 +107,12 @@ private struct Array(E,
 
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
 
+    private template shouldAddGCRange(T)
+    {
+        import std.traits : hasIndirections, isInstanceOf;
+        enum shouldAddGCRange = hasIndirections!T && !isInstanceOf!(Array, T); // TODO unify to container_traits.shouldAddGCRange
+    }
+
     /// Mutable element type.
     private alias MutableE = Unqual!E;
 
@@ -125,12 +131,6 @@ private struct Array(E,
 
     /// Is `true` iff `Array` can be interpreted as a D `string`, `wstring` or `dstring`.
     enum isString = isNarrowString || is(MutableE == dchar);
-
-    private template shouldAddGCRange(T)
-    {
-        import std.traits : hasIndirections, isInstanceOf;
-        enum shouldAddGCRange = hasIndirections!T && !isInstanceOf!(Array, T); // TODO unify to container_traits.shouldAddGCRange
-    }
 
     static if (useGCAllocation || // either we asked for allocation
                shouldAddGCRange!E) // or we need GC ranges

@@ -128,11 +128,12 @@ private struct Array(E,
         import core.memory : GC;
     }
 
+    /// Is `true` iff `Array` can be interpreted as a narrow D `string` or `wstring`.
+    private enum isNarrowString = (is(MutableE == char) ||
+                                   is(MutableE == wchar));
+
     static if (isOrdered!ordering)
     {
-        /// Is `true` iff `Array` can be interpreted as a narrow D `string` or `wstring`.
-        private enum isNarrowString = (is(MutableE == char) ||
-                                       is(MutableE == wchar));
         static assert(!isNarrowString, "A narrow string cannot be an ordered array because it's not random access'");
     }
 

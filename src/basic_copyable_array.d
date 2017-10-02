@@ -423,7 +423,8 @@ struct CopyableArray(T,
     void insertBack1(T value) @trusted
     {
         reserve(_length + 1);
-        static if (isScalar!T)
+        static if (isCopyable!T &&
+                   !hasElaborateDestructor!T)
         {
             _mptr[_length] = value;
         }

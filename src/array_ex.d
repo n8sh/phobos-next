@@ -706,7 +706,7 @@ private struct Array(E,
 
     /// Empty.
     pragma(inline)
-    void clear() @safe nothrow
+    void clear()
     {
         assert(!isBorrowed);
         release();
@@ -714,7 +714,7 @@ private struct Array(E,
     }
     /// ditto
     pragma(inline, true)
-    void opAssign(typeof(null)) @safe { clear(); }
+    void opAssign(typeof(null)) { clear(); }
 
     /// Destroy elements.
     static if (hasElaborateDestructor!E)
@@ -813,7 +813,7 @@ private struct Array(E,
 
     /** Removal doesn't need to care about ordering. */
     pragma(inline)
-    void popBack() @safe @("complexity", "O(1)")
+    void popBack() @("complexity", "O(1)")
     {
         assert(!isBorrowed);
         assert(!empty);
@@ -844,7 +844,7 @@ private struct Array(E,
 
     /** Pop last `count` back elements. */
     pragma(inline, true)
-    void popBackN(size_t count) @safe @("complexity", "O(1)")
+    void popBackN(size_t count) @("complexity", "O(1)")
     {
         assert(!isBorrowed);
         shrinkTo(this.length - count);
@@ -1272,12 +1272,12 @@ private struct Array(E,
         const pure nothrow @nogc: // indexing and slicing must be `const` when ordered
 
         /// Slice operator must be const when ordered.
-        auto opSlice() @safe return scope
+        auto opSlice() return scope
         {
             return (cast(const(E)[])slice).assumeSorted!comp;
         }
         /// ditto
-        auto opSlice(this This)(size_t i, size_t j) @safe return scope // const because mutation only via `op.*Assign`
+        auto opSlice(this This)(size_t i, size_t j) return scope // const because mutation only via `op.*Assign`
         {
             import std.range : assumeSorted;
             return (cast(const(E)[])slice[i .. j]).assumeSorted!comp;
@@ -1312,7 +1312,7 @@ private struct Array(E,
         nothrow:
 
         /// Set length to `newLength`.
-        @property void length(size_t newLength) @safe pure
+        @property void length(size_t newLength)
         {
             reserve(newLength);
             setOnlyLength(newLength);
@@ -1435,7 +1435,7 @@ private struct Array(E,
     @nogc:
 
     /// Check if empty.
-    bool empty() const @safe { return this.length == 0; }
+    bool empty() const { return this.length == 0; }
 
     /// Get length.
     size_t length() const @trusted
@@ -1495,7 +1495,7 @@ private struct Array(E,
 
     /// Shrink length to `newLength`.
     pragma(inline)
-    void shrinkTo(size_t newLength) @safe
+    void shrinkTo(size_t newLength)
     {
         assert(!isBorrowed);
         assert(newLength <= length());
@@ -1550,7 +1550,7 @@ private struct Array(E,
     }
 
     /// Returns: `true` if `this` currently uses small (packed) array storage.
-    bool isSmall() const @safe { return !isLarge; }
+    bool isSmall() const { return !isLarge; }
 
     private
     {

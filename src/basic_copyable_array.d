@@ -26,8 +26,10 @@ struct CopyableArray(T,
 {
     import std.range : isInputRange, isIterable, ElementType, isInfinite;
     import std.traits : Unqual, hasElaborateDestructor, hasIndirections, hasAliasing, isMutable, TemplateOf, isArray, isAssignable, isCopyable;
-    import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
     import std.algorithm : move, moveEmplace;
+
+    import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
+    import container_traits : shouldAddGCRange;
 
     /// Mutable element type.
     private alias MutableE = Unqual!T;
@@ -634,8 +636,6 @@ private:
     size_t _capacity;           // store capacity
     size_t _length;             // store length
 }
-
-import container_traits : shouldAddGCRange;
 
 /// construct and append from slices
 @safe pure nothrow @nogc unittest

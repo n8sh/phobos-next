@@ -862,7 +862,6 @@ private struct Array(E,
             return _mptr[this.length]; // no move needed
         }
     }
-    alias stealBack = backPop;
 
     /** Pop last `count` back elements. */
     pragma(inline, true)

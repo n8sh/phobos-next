@@ -343,6 +343,13 @@ struct CopyableArray(T,
         return slice()[i];
     }
 
+    /// Foreach support.
+    pragma(inline, true)
+    scope ref inout(T) opSlice(size_t i) inout return
+    {
+        return slice()[i];
+    }
+
     /// Slice support.
     pragma(inline, true)
     scope inout(T)[] opSlice(size_t i, size_t j) inout return

@@ -70,7 +70,7 @@ struct DenseSetFilterGrowableArray(E,
     }
 
 private:
-    // TODO merge into
+    // TODO merge into store with only one length and capcity
     DenseSetFilter!(E, Growable.yes, Copyable.no) _set;
     CopyableArray!(E, Allocator) _array;
 }

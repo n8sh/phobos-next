@@ -1,5 +1,8 @@
 module container_algorithm;
 
+/** Pop first occurrence of `needle` in `haystack` (if any).
+    Returns: `true` iff was made, `false` otherwise.
+ */
 bool popFirst(C, E)(ref C haystack,
                     in E needle)
     if (__traits(hasMember, C, `popAt`))

@@ -550,12 +550,20 @@ struct CopyableArray(T,
             return _mptr[_length]; // no move needed
         }
     }
-    alias stealBack = backPop;
 
-    /** Pop element at `index`.
-        Removal doesn't need to care about ordering.
-    */
-    T popAt(size_t index)
+    /** Pop element at `index`. */
+    void popAt(size_t index)
+        @trusted
+        @("complexity", "O(length)")
+    {
+        assert(index < this.length);
+        .destroy(_mptr[index]);
+        shiftToFrontAt(index);
+        _length -= 1;
+    }
+
+    /** Move element at `index`. */
+    T moveAt(size_t index)
         @trusted
         @("complexity", "O(length)")
     {
@@ -564,6 +572,14 @@ struct CopyableArray(T,
         shiftToFrontAt(index);
         _length -= 1;
         return move(value); // TODO remove `move` when compiler does it for us
+    }
+
+    /** Move element at front. */
+    pragma(inline, true)
+    T frontPop()
+        @("complexity", "O(length)")
+    {
+        return moveAt(0);
     }
 
     private void shiftToFrontAt(size_t index)
@@ -582,14 +598,6 @@ struct CopyableArray(T,
             moveEmplace(_mptr[si], // TODO remove `move` when compiler does it for us
                         _mptr[ti]);
         }
-    }
-
-    pragma(inline, true)
-    T frontPop()
-        @trusted
-        @("complexity", "O(length)")
-    {
-        return popAt(0);
     }
 
     /** Forwards to $(D insertBack(values)).

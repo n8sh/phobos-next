@@ -5,9 +5,11 @@ import std.traits : isIntegral;
 import filters : isDenseSetFilterable;
 
  /** Container combining `DenseSetFilter` with O(1) unordered element access via
-    slicing.
+     slicing.
 
-    TODO better name?
+     Useful in graph algorithms with index ranges.
+
+     TODO better name?
  */
 struct DenseSetFilterGrowableArray(E,
                                    alias Allocator = null)

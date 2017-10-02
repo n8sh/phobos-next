@@ -954,6 +954,10 @@ unittest
     a.insertBack([11, 12, 13, 14, 15].s[]);
     a.popAtIndex(2);
     assert(a == [11, 12, 14, 15].s);
+    a.popAtIndex(0);
+    assert(a == [12, 14, 15].s);
+    a.popAtIndex(2);
+    assert(a == [12, 14].s);
 }
 
 

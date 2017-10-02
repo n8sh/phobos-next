@@ -1,5 +1,11 @@
 module container_traits;
 
+template shouldAddGCRange(T)
+{
+    import std.traits : hasIndirections;
+    enum shouldAddGCRange = hasIndirections!T;
+}
+
 template ContainerElementType(ContainerType, ElementType)
 {
     import std.traits : isMutable, hasIndirections, PointerTarget, isPointer, Unqual;
@@ -53,12 +59,6 @@ template ContainerElementType(ContainerType, ElementType)
         else
             alias ContainerElementType = ElementType;
     }
-}
-
-template shouldAddGCRange(T)
-{
-    import std.traits : hasIndirections;
-    enum shouldAddGCRange = hasIndirections!T;
 }
 
 /**

@@ -635,12 +635,7 @@ private:
     size_t _length;             // store length
 }
 
-private template shouldAddGCRange(T)
-{
-    import std.traits : hasIndirections;
-    // TODO unless all pointers members are tagged as @nogc (as in `CopyableArray` and `BasicStore`)
-    enum shouldAddGCRange = hasIndirections!T;
-}
+import container_traits : shouldAddGCRange;
 
 /// construct and append from slices
 @safe pure nothrow @nogc unittest

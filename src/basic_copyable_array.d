@@ -559,7 +559,7 @@ struct CopyableArray(T,
         _length -= 1;
     }
 
-    /** Move element at `index`. */
+    /** Move element at `index` to return. */
     T moveAt(size_t index)
         @trusted
         @("complexity", "O(length)")

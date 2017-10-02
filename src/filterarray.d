@@ -7,7 +7,7 @@ import filters : isDenseSetFilterable;
  /** Container combining `DenseSetFilter` with O(1) unordered element access via
      slicing.
 
-     For use in graph algorithms with index ranges.
+     For use in graph algorithms with limited index ranges.
 
      TODO better name?
  */

@@ -950,6 +950,10 @@ unittest
     assert(a == [17].s);
     a.dropBack();
     assert(a.empty);
+
+    a.insertBack([11, 12, 13, 14, 15].s[]);
+    a.popAtIndex(2);
+    assert(a == [11, 12, 14, 15].s);
 }
 
 

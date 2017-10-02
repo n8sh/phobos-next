@@ -43,7 +43,7 @@ void main()
         writeln("Added ", n, " integers into ", A.stringof, " in ", after - before);
     }
 
-    foreach (A; AliasSeq!(// HashSet!(E, null, identityHashOf),
+    foreach (A; AliasSeq!(HashSet!(E, null, identityHashOf),
                           HashSet!(E, null, typeidHashOf),
                           HashSet!(E, null, hashOf),
                           HashSet!(E, null, MurmurHash3!(128)),

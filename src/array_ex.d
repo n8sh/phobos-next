@@ -150,7 +150,8 @@ private struct Array(E,
     // }
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
-    static typeof(this) withLength(size_t initialLength) @trusted
+    static typeof(this) withLength(size_t initialLength)
+        @trusted
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
@@ -172,7 +173,8 @@ private struct Array(E,
     }
 
     /// Returns: an array with initial capacity `initialCapacity`.
-    static typeof(this) withCapacity(size_t initialCapacity) @trusted
+    static typeof(this) withCapacity(size_t initialCapacity)
+        @trusted
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
@@ -193,7 +195,8 @@ private struct Array(E,
     }
 
     /// Returns: an array of one element `element`.
-    static typeof(this) withElement(E element) @trusted
+    static typeof(this) withElement(E element)
+        @trusted
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
@@ -230,7 +233,8 @@ private struct Array(E,
     }
 
     /// Returns: an array of `Us.length` number of elements set to `elements`.
-    static typeof(this) withElements(Us...)(Us elements) @trusted
+    static typeof(this) withElements(Us...)(Us elements)
+        @trusted
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
@@ -394,7 +398,8 @@ private struct Array(E,
         }
     }
 
-    bool opEquals(in ref typeof(this) rhs) const @trusted
+    bool opEquals(in ref typeof(this) rhs) const
+        @trusted
     {
         static if (isCopyable!E)
         {
@@ -410,7 +415,8 @@ private struct Array(E,
             return true;
         }
     }
-    bool opEquals(in typeof(this) rhs) const @trusted
+    bool opEquals(in typeof(this) rhs) const
+        @trusted
     {
         static if (isCopyable!E)
         {
@@ -436,7 +442,8 @@ private struct Array(E,
     }
 
     /// Calculate D associative array (AA) key hash.
-    size_t toHash() const @trusted pure
+    size_t toHash() const
+        @trusted pure
     {
         import core.internal.hash : hashOf;
         typeof(return) hash = this.length;
@@ -452,7 +459,9 @@ private struct Array(E,
 
         TODO Have `assumeSortedParameter` only when `isOrdered!ordering` is true
      */
-    this(R)(R values, bool assumeSortedParameter = false) @trusted @("complexity", "O(n*log(n))")
+    this(R)(R values, bool assumeSortedParameter = false)
+        @trusted
+        @("complexity", "O(n*log(n))")
         if (isIterable!R)
     {
         version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
@@ -542,14 +551,16 @@ private struct Array(E,
     }
 
     /// Sort all elements in-place regardless of `ordering`.
-    private void sortElements(alias comp_)() @trusted
+    private void sortElements(alias comp_)()
+        @trusted
     {
         import std.algorithm.sorting : sort;
         sort!comp_(_mptr[0 .. length]);
     }
 
     /// Reserve room for `newCapacity`.
-    void reserve(size_t newCapacity) pure @trusted
+    void reserve(size_t newCapacity)
+        pure @trusted
     {
         assert(!isBorrowed);
         if (newCapacity <= capacity) { return; }
@@ -599,7 +610,8 @@ private struct Array(E,
     }
 
     /// Pack/Compress storage.
-    void compress() pure @trusted
+    void compress()
+        pure @trusted
     {
         assert(!isBorrowed);
         if (isLarge)
@@ -674,7 +686,8 @@ private struct Array(E,
 
     /// Reallocate storage. TODO move to Large.reallocateAndSetCapacity
     pragma(inline, true)
-    private void reallocateLargeStoreAndSetCapacity(size_t newCapacity) pure @trusted
+    private void reallocateLargeStoreAndSetCapacity(size_t newCapacity)
+        pure @trusted
     {
         _large.setCapacity(newCapacity);
         static if (useGCAllocation)
@@ -690,7 +703,8 @@ private struct Array(E,
 
     /// Destruct.
     pragma(inline)
-    ~this() @trusted
+    ~this()
+        @trusted
     {
         assert(!isBorrowed);
         if (isLarge)
@@ -719,7 +733,8 @@ private struct Array(E,
     /// Destroy elements.
     static if (hasElaborateDestructor!E)
     {
-        private void destroyElements() @trusted
+        private void destroyElements()
+            @trusted
         {
             foreach (immutable i; 0 .. this.length)
             {
@@ -729,7 +744,8 @@ private struct Array(E,
     }
 
     /// Release internal store.
-    private void release() @trusted
+    private void release()
+        @trusted
     {
         static if (hasElaborateDestructor!E)
         {
@@ -761,7 +777,8 @@ private struct Array(E,
 
     /// Reset internal data.
     pragma(inline, true)
-    private void resetInternalData() @trusted pure @nogc
+    private void resetInternalData()
+        @trusted pure @nogc
     {
         if (isLarge)
         {
@@ -779,7 +796,9 @@ private struct Array(E,
     enum isElementAssignable(U) = isAssignable!(E, U);
 
     /** Removal doesn't need to care about ordering. */
-    ContainerElementType!(typeof(this), E) removeAtIndex(size_t index) @trusted @("complexity", "O(length)")
+    ContainerElementType!(typeof(this), E) removeAtIndex(size_t index)
+        @trusted
+        @("complexity", "O(length)")
     {
         assert(!isBorrowed);
         assert(index < this.length);
@@ -806,7 +825,9 @@ private struct Array(E,
 
     /** Removal doesn't need to care about ordering. */
     pragma(inline, true)
-    ContainerElementType!(typeof(this), E) popFront() @trusted @("complexity", "O(length)")
+    ContainerElementType!(typeof(this), E) popFront()
+        @trusted
+        @("complexity", "O(length)")
     {
         return removeAtIndex(0);
     }
@@ -825,7 +846,8 @@ private struct Array(E,
 
     /** Pop back element and return it. */
     pragma(inline)
-    E backPop() @trusted
+    E backPop()
+        @trusted
     {
         assert(!isBorrowed);
         assert(!empty);
@@ -853,7 +875,9 @@ private struct Array(E,
     static if (!isOrdered!ordering) // for unsorted arrays
     {
         /// Push back (append) `values`.
-        pragma(inline) void insertBack(Us...)(Us values) @("complexity", "O(1)") @trusted
+        pragma(inline) void insertBack(Us...)(Us values)
+            @trusted
+            @("complexity", "O(1)")
             if (values.length >= 1 &&
                 allSatisfy!(isElementAssignable, Us))
         {
@@ -1243,7 +1267,9 @@ private struct Array(E,
         setOnlyLength(this.length + values.length);
     }
 
-    private void insertBackHelper(Us...)(Us values) @trusted @("complexity", "O(1)")
+    private void insertBackHelper(Us...)(Us values)
+        @trusted
+        @("complexity", "O(1)")
     {
         const newLength = this.length + values.length;
         reserve(newLength);
@@ -1319,7 +1345,8 @@ private struct Array(E,
         @nogc:
 
         /// Index assign operator.
-        ref E opIndexAssign(V)(V value, size_t i) @trusted return scope
+        ref E opIndexAssign(V)(V value, size_t i)
+            @trusted return scope
         {
             assert(!isBorrowed);
             assert(i < this.length);
@@ -1333,7 +1360,8 @@ private struct Array(E,
         /// Slice assign operator.
         static if (isCopyable!E)
         {
-            void opSliceAssign(V)(V value, size_t i, size_t j) @trusted return scope
+            void opSliceAssign(V)(V value, size_t i, size_t j)
+                @trusted return scope
             {
                 assert(!isBorrowed);
                 assert(i <= j);
@@ -1354,7 +1382,8 @@ private struct Array(E,
             return this.opSlice(0, this.length);
         }
         /// ditto
-        inout(E)[] opSlice(size_t i, size_t j) @trusted return scope
+        inout(E)[] opSlice(size_t i, size_t j)
+            @trusted return scope
         {
             assert(i <= j);
             assert(j <= this.length);
@@ -1436,7 +1465,8 @@ private struct Array(E,
     bool empty() const { return this.length == 0; }
 
     /// Get length.
-    size_t length() const @trusted
+    size_t length()
+        const @trusted
     {
         if (isLarge)
         {
@@ -1450,7 +1480,8 @@ private struct Array(E,
     alias opDollar = length;    /// ditto
 
     /// Decrease only length.
-    private void decOnlyLength() @trusted
+    private void decOnlyLength()
+        @trusted
     {
         if (isLarge)
         {
@@ -1465,7 +1496,8 @@ private struct Array(E,
     }
 
     /// Set only length.
-    private void setOnlyLength(size_t newLength) @trusted
+    private void setOnlyLength(size_t newLength)
+        @trusted
     {
         if (isLarge)
         {
@@ -1479,7 +1511,9 @@ private struct Array(E,
     }
 
     /// Get reserved capacity of store.
-    size_t capacity() const @trusted
+    size_t capacity()
+        const
+        @trusted
     {
         if (isLarge)
         {
@@ -1501,7 +1535,9 @@ private struct Array(E,
     }
 
     /// Get internal pointer.
-    inout(E*) ptr() inout @trusted return scope // array access is @trusted
+    inout(E*) ptr()
+        inout
+        @trusted return scope // array access is @trusted
     {
         // TODO Use cast(ET[])?: alias ET = ContainerElementType!(typeof(this), E);
         if (isLarge)
@@ -1515,7 +1551,8 @@ private struct Array(E,
     }
 
     /// Get internal pointer to mutable content. Doesn't need to be qualified with `scope`.
-    private MutableE* _mptr() const return scope
+    private MutableE* _mptr()
+        const return scope
     {
         if (isLarge)
         {
@@ -1528,7 +1565,8 @@ private struct Array(E,
     }
 
     /// Get internal slice.
-    private auto slice() inout @trusted return scope
+    private auto slice() inout
+        @trusted return scope
     {
         return ptr[0 .. this.length];
     }
@@ -1541,7 +1579,8 @@ private struct Array(E,
     debug private enum _ptrMagic = cast(E*)0x0C6F3C6c0f3a8471;
 
     /// Returns: `true` if `this` currently uses large array storage.
-    bool isLarge() const @trusted // trusted access to anonymous union
+    bool isLarge()
+        const @trusted // trusted access to anonymous union
     {
         assert(_large.isLarge == _small.isLarge); // must always be same
         return _large.isLarge;
@@ -1562,7 +1601,8 @@ private struct Array(E,
     /** Tag `this` borrowed.
         Used by wrapper logic in owned.d and borrowed.d
     */
-    void tagAsBorrowed() @trusted
+    void tagAsBorrowed()
+        @trusted
     {
         if (isLarge) { _large.isBorrowed = true; }
         else         { _small.isBorrowed = true; }
@@ -1571,14 +1611,16 @@ private struct Array(E,
     /** Tag `this` as not borrowed.
         Used by wrapper logic in owned.d and borrowed.d
     */
-    void untagAsNotBorrowed() @trusted
+    void untagAsNotBorrowed()
+        @trusted
     {
         if (isLarge) { _large.isBorrowed = false; }
         else         { _small.isBorrowed = false; }
     }
 
     /// Returns: `true` if this is borrowed
-    bool isBorrowed() @trusted
+    bool isBorrowed()
+        @trusted
     {
         if (isLarge) { return _large.isBorrowed; }
         else         { return _small.isBorrowed; }
@@ -1664,7 +1706,8 @@ private:                        // data
             capacity = cast(CapacityType)newCapacity;
         }
 
-        MutableE* _mptr() const @trusted
+        MutableE* _mptr() const
+            @trusted
         {
             return cast(typeof(return))ptr;
         }
@@ -1712,7 +1755,8 @@ private:                        // data
         }
 
         pragma(inline, true)
-        MutableE* _mptr() const @trusted
+        MutableE* _mptr() const
+            @trusted
         {
             return cast(typeof(return))(elms.ptr);
         }

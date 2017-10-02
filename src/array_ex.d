@@ -116,11 +116,8 @@ private struct Array(E,
     /// Mutable element type.
     private alias MutableE = Unqual!E;
 
-    /// Type of `this`.
-    private alias This = typeof(this);
-
     /// Template for type of `this`.
-    private alias ThisTemplate = TemplateOf!(This);
+    private alias ThisTemplate = TemplateOf!(typeof(this));
 
     /// Same type as this but with mutable element type.
     private alias MutableThis = ThisTemplate!(MutableE, assignment, ordering, useGCAllocation, CapacityType, less);
@@ -1285,6 +1282,7 @@ private struct Array(E,
             import std.range : assumeSorted;
             return (cast(const(E)[])slice[i .. j]).assumeSorted!comp;
         }
+        private alias This = typeof(this);
 
         @trusted:
 

@@ -580,7 +580,7 @@ struct CopyableArray(T,
     }
 
     pragma(inline, true)
-    T popFront()
+    T removeFront()
         @trusted
         @("complexity", "O(length)")
     {

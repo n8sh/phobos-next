@@ -175,7 +175,7 @@ struct HashSet(T,
                               " on " ~ size_t.sizeof.stringof ~ "-bit platform");
             }
         }
-        else
+        else static if (__traits(compiles, { auto _ = hasher((ubyte[]).init); }))
         {
             // cast input `value` to `ubyte[]` and use std.digest API
             immutable digest = hasher((cast(ubyte*)&value)[0 .. value.sizeof]); // TODO ask forums when this isn't correct
@@ -210,6 +210,10 @@ struct HashSet(T,
             {
                 static assert(0, "Unsupported digest type " ~ typeof(digest).stringof);
             }
+        }
+        else
+        {
+            static assert(0, "Cannot handle hasher of type " ~ typeof(hasher).stringof);
         }
     }
 

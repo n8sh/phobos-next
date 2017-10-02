@@ -8,7 +8,7 @@ bool popFirst(C, E)(ref C haystack,
     //     is(ElementType!C == E.init))
 {
     import std.algorithm.searching : countUntil;
-    immutable offset = haystack[].countUntil(value);
+    immutable offset = haystack[].countUntil(needle);
     if (offset != -1)
     {
         haystack.popAt(offset);

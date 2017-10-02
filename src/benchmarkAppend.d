@@ -13,9 +13,9 @@ void main()
     import hashset : HashSet;
 
     import std.digest.murmurhash : MurmurHash3;
+    import xxhash64 : XXHash64;
     import digestx.fnv : FNV;
 
-    import xxhash64 : xxhash64Of;
     // import digestx.fnv : fnv64aOf;
     import trie : RadixTreeSetGrowOnly;
 
@@ -48,7 +48,7 @@ void main()
                           HashSet!(E, null, hashOf),
                           HashSet!(E, null, MurmurHash3!(128)),
                           HashSet!(E, null, FNV!(64, true)),
-                          HashSet!(E, null, xxhash64Of),
+                          HashSet!(E, null, XXHash64),
                           // RadixTreeSetGrowOnly!(E),
                           ))
     {

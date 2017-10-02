@@ -147,7 +147,7 @@ struct HashSet(T,
     pragma(inline)              // LDC can inline, DMD cannot
     size_t bucketHashIndex(in T value) const
     {
-        import std.digest : isDigest;
+        import std.digest.digest : isDigest;
         static if (__traits(compiles, { typeof(return) _ = hasher(value); }))
         {
             return hasher(value) & _hashMask; // TODO is this correct?

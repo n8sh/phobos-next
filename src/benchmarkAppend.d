@@ -55,13 +55,16 @@ void main()
     }
 
     foreach (A; AliasSeq!(// HashSet!(E, null, identityHashOf),
+
                  DenseSetFilter!(E),
                  DenseSetFilterGrowableArray!(E),
+
                  HashSet!(E, null, typeidHashOf),
                  HashSet!(E, null, hashOf),
                  HashSet!(E, null, MurmurHash3!(128)),
                  HashSet!(E, null, FNV!(64, true)),
                  HashSet!(E, null, XXHash64),
+
                  RadixTreeSetGrowOnly!(E),
                  ))
     {

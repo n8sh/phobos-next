@@ -12,6 +12,9 @@ void main()
     import variant_arrays : VariantArrays;
     import hashset : HashSet;
 
+    import std.digest.murmurhash : MurmurHash3;
+    import digestx.fnv : FNV;
+
     import xxhash64 : xxhash64Of;
     // import digestx.fnv : fnv64aOf;
     import trie : RadixTreeSetGrowOnly;
@@ -43,9 +46,9 @@ void main()
     foreach (A; AliasSeq!(// HashSet!(E, null, identityHashOf),
                           HashSet!(E, null, typeidHashOf),
                           HashSet!(E, null, hashOf),
-                          HashSet!(E, null, murmurHash3Of),
+                          HashSet!(E, null, MurmurHash3!(128)),
+                          HashSet!(E, null, FNV!(64, true)),
                           HashSet!(E, null, xxhash64Of),
-                          HashSet!(E, null, fnv64aOf),
                           // RadixTreeSetGrowOnly!(E),
                           ))
     {
@@ -98,28 +101,4 @@ pragma(inline, true)
 size_t typeidHashOf(T)(in T value) @trusted
 {
     return typeid(T).getHash(&value);
-}
-
-/** MurmurHash3-variant of `core.internal.hash.hashOf`.
- */
-ulong murmurHash3Of(T...)(in T data) @trusted
-{
-    import std.digest.digest : makeDigest;
-    import std.digest.murmurhash : MurmurHash3;
-    auto dig = makeDigest!(MurmurHash3!(128));
-    dig.put(data);
-    dig.finish();
-    return dig.get()[0] ^ dig.get()[1]; // of type `Element`
-}
-
-/** MurmurHash3-variant of `core.internal.hash.hashOf`.
- */
-ulong fnv64aOf(T...)(in T data) @trusted
-{
-    import std.digest.digest : makeDigest;
-    import digestx.fnv : FNV;
-    auto dig = makeDigest!(FNV!(64, true));
-    dig.put(data);
-    dig.finish();
-    return dig.get();           // of type `Element`
 }

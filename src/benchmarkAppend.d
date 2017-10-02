@@ -18,6 +18,7 @@ void main()
     import digestx.fnv : FNV;
 
     import filters : DenseSetFilter;
+    import filterarray : DenseSetFilterGrowableArray;
 
     // import digestx.fnv : fnv64aOf;
     import trie : RadixTreeSetGrowOnly;
@@ -55,6 +56,7 @@ void main()
 
     foreach (A; AliasSeq!(// HashSet!(E, null, identityHashOf),
                  DenseSetFilter!(E),
+                 DenseSetFilterGrowableArray!(E),
                  HashSet!(E, null, typeidHashOf),
                  HashSet!(E, null, hashOf),
                  HashSet!(E, null, MurmurHash3!(128)),

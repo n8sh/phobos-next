@@ -25,6 +25,7 @@ struct ArrayN(T,
     import std.bitmanip : bitfields;
     import std.typecons : Unqual;
     import std.traits : isSomeChar, hasElaborateDestructor, isAssignable, isCopyable;
+    import std.algorithm.mutation : move, moveEmplace;
 
     import qcmeman : gc_addRange, gc_removeRange;
     import container_traits : shouldAddGCRange;
@@ -195,7 +196,6 @@ struct ArrayN(T,
 
         foreach (const i, ref e; es)
         {
-            import std.algorithm.mutation : moveEmplace;
             moveEmplace(e, _store[_length + i]); // TODO remove `move` when compiler does it for us
         }
         _length = cast(Length)(_length + Es.length); // TODO better?
@@ -213,7 +213,6 @@ struct ArrayN(T,
         if (_length + Es.length > capacity) { return false; }
         foreach (const i, ref e; es)
         {
-            import std.algorithm.mutation : moveEmplace;
             moveEmplace(e, _store[_length + i]); // TODO remove `move` when compiler does it for us
         }
         _length = cast(Length)(_length + Es.length); // TODO better?
@@ -244,7 +243,6 @@ struct ArrayN(T,
             // TODO is there a reusable Phobos function for this?
             foreach (const i; 0 .. _length - 1)
             {
-                import std.algorithm.mutation : move;
                 move(_store[i + 1], _store[i]); // like `_store[i] = _store[i + 1];` but more generic
             }
             _length = cast(typeof(_length))(_length - 1); // TODO better?
@@ -275,6 +273,50 @@ struct ArrayN(T,
             foreach (i; 0 .. n)
             {
                 .destroy(_store.ptr[_length + i]);
+            }
+        }
+    }
+
+    /** Move element at `index` to return. */
+    static if (isMutable!T)
+    {
+        /** Pop element at `index`. */
+        void popAt(size_t index)
+        @trusted
+        @("complexity", "O(length)")
+        {
+            assert(index < this.length);
+            .destroy(_store.ptr[index]);
+            shiftToFrontAt(index);
+            _length = cast(Length)(_length - 1);
+        }
+
+        T moveAt(size_t index)
+        @trusted
+        @("complexity", "O(length)")
+        {
+            assert(index < this.length);
+            auto value = move(_store.ptr[index]);
+            shiftToFrontAt(index);
+            _length = cast(Length)(_length - 1);
+            return move(value); // TODO remove `move` when compiler does it for us
+        }
+
+        private void shiftToFrontAt(size_t index)
+        @trusted
+        {
+            // TODO use this instead:
+            // immutable si = index + 1;   // source index
+            // immutable ti = index;       // target index
+            // immutable restLength = this.length - (index + 1);
+            // moveEmplaceAll(_store.ptr[si .. si + restLength],
+            //                _store.ptr[ti .. ti + restLength]);
+            foreach (immutable i; 0 .. this.length - (index + 1)) // each element index that needs to be moved
+            {
+                immutable si = index + i + 1; // source index
+                immutable ti = index + i; // target index
+                moveEmplace(_store.ptr[si], // TODO remove `move` when compiler does it for us
+                            _store.ptr[ti]);
             }
         }
     }

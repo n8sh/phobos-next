@@ -163,12 +163,6 @@ struct ArrayN(E,
             gc_addRange(that._store.ptr, values.length * E.sizeof);
         }
 
-        static if (is(E == U) &&
-                   hasElaborateDestructor!U)
-        {
-            // TODO `moveEmplaceAll` from values
-        }
-
         that._store[0 .. values.length] = values;
         that._length = cast(Length)values.length;
 

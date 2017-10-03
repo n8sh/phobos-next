@@ -169,6 +169,7 @@ struct HashSet(K, V = void,
         if (_largeBucketFlags[bucketIndex])
         {
             immutable hit = _buckets[bucketIndex].large.popFirst(value);
+            _length -= hit ? 1 : 0;
             if (hit &&
                 _buckets[bucketIndex].large.length <= smallBucketLength) // large fits in small
             {
@@ -183,7 +184,6 @@ struct HashSet(K, V = void,
                 // moveEmplace(small, _buckets[bucketIndex].small);
 
                 // _largeBucketFlags[bucketIndex] = false; // now small
-                _length -= 1;
                 // dln("...");
             }
             return hit;
@@ -191,10 +191,7 @@ struct HashSet(K, V = void,
         else
         {
             immutable hit = _buckets[bucketIndex].small.popFirst(value);
-            if (hit)
-            {
-                _length -= 1;
-            }
+            _length -= hit ? 1 : 0;
             return hit;
         }
     }
@@ -374,7 +371,6 @@ size_t bucketHash(alias hasher, K)(in K value)
 
     foreach (immutable i; 0 .. elementCount)
     {
-        dln("Removing ", i, " when length is ", s.length);
         assert(s.length == elementCount - i);
 
         assert(s.contains(i));

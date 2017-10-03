@@ -8,9 +8,9 @@ pragma(inline, true)
 /** See also: http://forum.dlang.org/post/o1igoc$21ma$1@digitalmars.com
     Doesn't work: integers are returned as is.
  */
-size_t typeidHashOf(T)(in T value) @trusted
+size_t typeidHashOf(T)(in T x) @trusted
 {
-    return typeid(T).getHash(&value); // TODO why not pure @nogc?
+    return typeid(T).getHash(&x); // TODO why not pure @nogc?
 }
 
 unittest
@@ -21,11 +21,11 @@ unittest
 pure @nogc:
 
 /** Dummy-hash for benchmarking performance of HashSet. */
-ulong identityHash64Of(T)(in T value)
+ulong identityHash64Of(T)(in T x)
     if (isIntegral!T &&
         T.sizeof <= ulong.sizeof)
 {
-    return value;               // maps -1 to ulong.max
+    return x;               // maps -1 to ulong.max
 }
 
 unittest
@@ -66,4 +66,26 @@ ulong muellerHash64(T)(T x)
     y = (y ^ (y >> 27)) * 0x94d049bb133111ebUL;
     y = y ^ (y >> 31);
     return y;
+}
+
+/** Thomas Wang 64-bit mix hash.
+
+    See also: https://gist.github.com/badboy/6267743#64-bit-mix-functions
+ */
+public ulong wangMixHash64(ulong x)
+{
+    x = (~x) + (x << 21); // x = (x << 21) - x - 1;
+    x = x ^ (x >>> 24);
+    x = (x + (x << 3)) + (x << 8); // x * 265
+    x = x ^ (x >>> 14);
+    x = (x + (x << 2)) + (x << 4); // x * 21
+    x = x ^ (x >>> 28);
+    x = x + (x << 31);
+    return x;
+}
+
+unittest
+{
+    assert(wangMixHash64(0) == 8633297058295171728UL);
+    assert(wangMixHash64(1) == 6614235796240398542UL);
 }

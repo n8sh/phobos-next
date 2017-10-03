@@ -266,7 +266,7 @@ struct HashSet(T,
     BucketCounts bucketCounts() const
     {
         typeof(return) result;
-        foreach (const i; 0 .. length)
+        foreach (const i; 0 .. _largeBucketFlags.length)
         {
             if (_largeBucketFlags[i])
             {
@@ -321,6 +321,10 @@ private:
     alias T = uint;
 
     auto s = HashSet!(T, null).withCapacity(elementCount);
+
+    // all buckets start small
+    assert(s.bucketCounts.smallCount != 0);
+    assert(s.bucketCounts.largeCount == 0);
 
     foreach (immutable i; 0 .. elementCount)
     {

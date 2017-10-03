@@ -44,8 +44,8 @@ struct BitArrayN(uint len, Block = size_t)
     private Block[blockCount] _blocks;
 
     /** Data as an array unsigned bytes. */
-    const(ubyte)[] ubytes() const @trusted pure nothrow @nogc { return (cast(ubyte*)&_blocks)[0 .. _blocks.sizeof]; }
-    immutable(ubyte)[] ubytes() immutable @trusted pure nothrow @nogc { return (cast(ubyte*)&_blocks)[0 .. _blocks.sizeof]; }
+    const(ubyte)[] ubytes() const @trusted { return (cast(ubyte*)&_blocks)[0 .. _blocks.sizeof]; }
+    immutable(ubyte)[] ubytes() immutable @trusted { return (cast(ubyte*)&_blocks)[0 .. _blocks.sizeof]; }
 
     /** Get pointer to data blocks. */
     @property inout (Block*) ptr() inout pure nothrow @nogc { return _blocks.ptr; }
@@ -200,7 +200,7 @@ struct BitArrayN(uint len, Block = size_t)
     {
         /** Sets the $(D i)'th bit. No range checking needed. */
         pragma(inline, true) bool opIndexAssign(ModUInt)(bool b, Mod!(len, ModUInt) i)
-            @trusted pure nothrow @nogc
+            @trusted
         if (isUnsigned!ModUInt)
         {
             if (b)
@@ -492,7 +492,7 @@ struct BitArrayN(uint len, Block = size_t)
 
     /** Support for operators == and != for $(D BitArrayN). */
     bool opEquals(Block2)(in BitArrayN!(len, Block2) a2) const
-        @trusted pure nothrow @nogc
+        @trusted
         if (isUnsigned!Block2)
     {
         size_t i;
@@ -525,7 +525,7 @@ struct BitArrayN(uint len, Block = size_t)
 
     /** Supports comparison operators for $(D BitArrayN). */
     int opCmp(Block2)(in BitArrayN!(len, Block2) a2) const
-        @trusted pure nothrow @nogc
+        @trusted
         if (isUnsigned!Block2)
     {
         uint i;
@@ -739,7 +739,7 @@ struct BitArrayN(uint len, Block = size_t)
 
         /** Returns: a lazy range of the indices of set bits.
          */
-        auto oneIndexes() const @safe pure nothrow @nogc
+        auto oneIndexes() const
         {
             return OneIndexes(this);
         }
@@ -747,7 +747,7 @@ struct BitArrayN(uint len, Block = size_t)
         alias bitsSet = OneIndexes;
 
         /** Get number of bits set in $(D this). */
-        Mod!(len + 1) countOnes() const @safe pure nothrow @nogc
+        Mod!(len + 1) countOnes() const // TODO make free function
         {
             typeof(return) n = 0;
             foreach (immutable ix, const ref block; _blocks)
@@ -772,7 +772,7 @@ struct BitArrayN(uint len, Block = size_t)
 
         /** Get number of bits set in $(D this). */
         pragma(inline, true)
-        auto denseness(int depth = -1) const @safe pure nothrow @nogc
+        auto denseness(int depth = -1) const
         {
             import rational : Rational;
             alias Q = Rational!ulong;
@@ -781,7 +781,7 @@ struct BitArrayN(uint len, Block = size_t)
 
         /** Get number of Bits Unset in $(D this). */
         pragma(inline, true)
-        auto sparseness(int depth = -1) const @safe pure nothrow @nogc
+        auto sparseness(int depth = -1) const
         {
             import rational : Rational;
             alias Q = Rational!ulong;
@@ -816,7 +816,7 @@ struct BitArrayN(uint len, Block = size_t)
          */
         bool canFindIndexOf(ModUInt)(bool value,
                                      Mod!(len, ModUInt) currIx,
-                                     out Mod!(len, ModUInt) nextIx) const @safe pure nothrow @nogc
+                                     out Mod!(len, ModUInt) nextIx) const
             if (isUnsigned!ModUInt)
         {
             if (currIx >= length) { return false; }

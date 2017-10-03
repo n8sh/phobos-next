@@ -15,6 +15,7 @@ void main()
 
     import std.digest.murmurhash : MurmurHash3;
     import xxhash64 : XXHash64;
+    import hash_functions : muellerHash64;
     import digestx.fnv : FNV;
 
     import filters : DenseSetFilter;
@@ -61,6 +62,7 @@ void main()
 
                  HashSet!(E, null, typeidHashOf),
                  HashSet!(E, null, hashOf),
+                 HashSet!(E, null, muellerHash64),
                  HashSet!(E, null, MurmurHash3!(128)),
                  HashSet!(E, null, FNV!(64, true)),
                  HashSet!(E, null, XXHash64),

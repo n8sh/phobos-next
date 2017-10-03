@@ -149,7 +149,7 @@ struct HashSet(T,
                 // .destroy(_buckets[bucketIndex].large);
                 // moveEmplace(small, _buckets[bucketIndex].small);
                 // _largeBucketFlags[bucketIndex] = false; // now small
-                // _length -= 1;
+                _length -= 1;
             }
             return hit;
         }

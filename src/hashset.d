@@ -180,6 +180,7 @@ struct HashSet(T,
     {
         import std.digest.digest : isDigest;
         import std.traits : hasMember;
+
         static if (__traits(compiles, { size_t _ = hasher(value); }))
         {
             return hasher(value) & _hashMask;
@@ -189,9 +190,11 @@ struct HashSet(T,
                         hasMember!(hasher, "get"))
         {
             import std.digest.digest : makeDigest;
+
             auto dig = makeDigest!(hasher);
             dig.put((cast(ubyte*)&value)[0 .. value.sizeof]);
             dig.finish();
+
             static if (is(typeof(dig.get()) == typeof(return)))
             {
                 return dig.get() & _hashMask;

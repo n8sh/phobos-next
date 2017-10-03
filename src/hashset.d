@@ -7,7 +7,7 @@ module hashset;
     TODO extend to HashSetOrMap and specialize HashSet to HashMap with void
     Value-type.
  */
-struct HashSet(K,
+struct HashSet(K, V = void,
                alias Allocator = null,
                alias hasher = hashOf,
                uint smallBucketMinLength = 1) // at least one element in small bucket for good performance
@@ -325,7 +325,7 @@ private:
     immutable elementCount = 11;
     alias K = uint;
 
-    auto s = HashSet!(K, null).withCapacity(elementCount);
+    auto s = HashSet!(K, void, null).withCapacity(elementCount);
 
     // all buckets start small
     assert(s.bucketCounts.smallCount != 0);

@@ -4,7 +4,8 @@ module hashset;
 
     Uses small-size-optimized (SSO) arrays as buckets.
 
-    TODO adapt `SmallBucketLength` to make `SamllBucket` fit in a cache line
+    TODO adapt `SmallBucketLength` to make `SamllBucket` fit in a cache line for
+    very fast search
  */
 struct HashSet(T,
                alias Allocator = null,

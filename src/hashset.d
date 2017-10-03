@@ -152,10 +152,10 @@ struct HashSet(K, V = void,
     }
 
     /// ditto
-    auto opBinaryRight(string op)(in K value) const
+    bool opBinaryRight(string op)(in K value) const
         if (op == "in")
     {
-        return contains(value);
+        return contains(value); // TODO return entry reference instead
     }
 
     /** Remove `value`.

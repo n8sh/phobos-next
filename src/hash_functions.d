@@ -1,15 +1,21 @@
 module hashfuns;
 
-import std.traits : isIntegral, isUnsigned;
+import std.traits : isIntegral;
 
-pragma(inline, true):
+pragma(inline, true)
+@safe pure nothrow @nogc:
 
 /** Dummy-hash for benchmarking performance of HashSet. */
 ulong identityHashOf(T)(in T value)
-    if (isUnsigned!T &&
+    if (isIntegral!T &&
         T.sizeof <= ulong.sizeof)
 {
-    return value;
+    return value;               // maps -1 to ulong.max
+}
+
+unittest
+{
+    assert(identityHashOf(-1) == ulong.max);
 }
 
 /** See also: http://forum.dlang.org/post/o1igoc$21ma$1@digitalmars.com
@@ -26,7 +32,6 @@ size_t typeidHashOf(T)(in T value) @trusted
     See also: http://zimbry.blogspot.se/2011/09/better-bit-mixing-improving-on.html
  */
 uint muellerHash32(uint x)
-    @safe pure nothrow @nogc
 {
     x = ((x >> 16) ^ x) * 0x45d9f3b;
     x = ((x >> 16) ^ x) * 0x45d9f3b;
@@ -44,7 +49,6 @@ uint muellerHash32(uint x)
     See also: http://xorshift.di.unimi.it/splitmix64.c
  */
 ulong muellerHash64(T)(T x)
-    @safe pure nothrow @nogc
     if (isIntegral!T &&
         T.sizeof <= ulong.sizeof)
 {

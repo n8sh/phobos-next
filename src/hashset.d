@@ -256,7 +256,7 @@ struct HashSet(T,
     @property size_t length() const { return _length; }
     alias opDollar = length;    /// ditto
 
-    /// Bucket count statistics
+    /// Bucket count statistics.
     struct BucketCounts
     {
         size_t smallCount;      // number of small buckets

@@ -306,6 +306,8 @@ private:
         assert(s.contains(i));
     }
 
+    assert(s.length == elementCount);
+
     foreach (immutable i; 0 .. elementCount)
     {
         assert(s.contains(i));
@@ -314,6 +316,8 @@ private:
         assert(!s.remove(i));
     }
 
+    // dln(s.length);
+    // assert(s.length == 0);
     s.clear();
     assert(s.length == 0);
 }

@@ -6,6 +6,7 @@ module hashfuns;
    See also: http://zimbry.blogspot.se/2011/09/better-bit-mixing-improving-on.html
  */
 uint muellerHash32(uint x)
+    @safe pure nothrow @nogc
 {
     x = ((x >> 16) ^ x) * 0x45d9f3b;
     x = ((x >> 16) ^ x) * 0x45d9f3b;
@@ -23,6 +24,7 @@ uint muellerHash32(uint x)
    See also: http://xorshift.di.unimi.it/splitmix64.c
  */
 ulong muellerHash64(ulong x)
+    @safe pure nothrow @nogc
 {
     x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9UL;
     x = (x ^ (x >> 27)) * 0x94d049bb133111ebUL;

@@ -292,7 +292,7 @@ private:
 
 @safe pure nothrow unittest
 {
-    immutable elementCount = 2^^10;
+    immutable elementCount = 11;
     alias T = uint;
 
     auto s = HashSet!(T, null).withCapacity(elementCount);
@@ -300,9 +300,16 @@ private:
     foreach (immutable i; 0 .. elementCount)
     {
         assert(!s.contains(i));
+
+        assert(s.length == i);
         assert(!s.insert(i));
+        assert(s.length == i + 1);
+
         assert(s.contains(i));
+
         assert(s.insert(i));
+        assert(s.length == i + 1);
+
         assert(s.contains(i));
     }
 
@@ -310,14 +317,21 @@ private:
 
     foreach (immutable i; 0 .. elementCount)
     {
+        show!i;
+        assert(s.length == elementCount - i);
+
         assert(s.contains(i));
+
         assert(s.remove(i));
+        assert(s.length == elementCount - i - 1);
+
         assert(!s.contains(i));
         assert(!s.remove(i));
+        assert(s.length == elementCount - i - 1);
     }
 
-    // dln(s.length);
-    // assert(s.length == 0);
+    assert(s.length == 0);
+
     s.clear();
     assert(s.length == 0);
 }
@@ -331,5 +345,5 @@ version(unittest)
 
 version(show)
 {
-    import dbgio : dln;
+    import dbgio;
 }

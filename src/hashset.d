@@ -3,6 +3,9 @@ module hashset;
 /** Hash set storing elements of type `T`.
 
     Uses small-size-optimized (SSO) arrays as buckets.
+
+    TODO extend to HashSetOrMap and specialize HashSet to HashMap with void
+    Value-type.
  */
 struct HashSet(T,
                alias Allocator = null,

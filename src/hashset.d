@@ -146,19 +146,19 @@ struct HashSet(T,
             if (hit &&
                 _buckets[bucketIndex].large.length <= smallBucketLength) // large fits in small
             {
-                auto small = SmallBucket.fromValuesUnsafe(_buckets[bucketIndex].large[]); // TODO move elements
-                assert(small == _buckets[bucketIndex].large[]);
+                // auto small = SmallBucket.fromValuesUnsafe(_buckets[bucketIndex].large[]); // TODO move elements
+                // assert(small == _buckets[bucketIndex].large[]);
 
-                dln(bucketIndex, ": ", small);
+                // SmallBucket small2;
+                // moveEmplace(small, small2);
 
+                // dln(bucketIndex, ": ", small);
+                // .destroy(_buckets[bucketIndex].large);
+                // moveEmplace(small, _buckets[bucketIndex].small);
 
-                .destroy(_buckets[bucketIndex].large);
-
-                moveEmplace(small, _buckets[bucketIndex].small);
-
-                _largeBucketFlags[bucketIndex] = false; // now small
-                _length -= 1;
-                dln("...");
+                // _largeBucketFlags[bucketIndex] = false; // now small
+                // _length -= 1;
+                // dln("...");
             }
             return hit;
         }

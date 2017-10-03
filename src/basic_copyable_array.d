@@ -12,8 +12,6 @@ import std.traits : Unqual;
     TODO Add OutputRange.writer support as
     https://github.com/burner/StringBuffer/blob/master/source/stringbuffer.d#L45
 
-    TODO make use of `Allocator` parameter when non-`null`
-
     TODO Use `std.traits.areCopyCompatibleArrays`
 
     See also: https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md

@@ -36,12 +36,3 @@ ulong muellerHash64(T)(T x)
     y = y ^ (y >> 31);
     return y;
 }
-
-unittest
-{
-    import dbgio;
-    const x = muellerHash64(cast(uint)17);
-    show!(x);
-    const y = muellerHash64(cast(int)17);
-    show!(y);
-}

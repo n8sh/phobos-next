@@ -151,6 +151,13 @@ struct HashSet(K, V = void,
         }
     }
 
+    /// ditto
+    auto opBinaryRight(string op)(in K value) const
+        if (op == "in")
+    {
+        return contains(value);
+    }
+
     /** Remove `value`.
         Returns: `true` if value was removed, `false` otherwise.
      */
@@ -350,6 +357,7 @@ size_t bucketHash(alias hasher, K)(in K value)
     foreach (immutable i; 0 .. elementCount)
     {
         assert(!s.contains(i));
+        assert(i !in s);
 
         assert(s.length == i);
         assert(!s.insert(i));

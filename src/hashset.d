@@ -228,6 +228,7 @@ struct HashSet(T,
             else static if (isStaticArray!(typeof(digest)))
             {
                 typeof(return) hashIndex;
+
                 static if (2*size_t.sizeof == digest.sizeof)
                 {
                     // for instance, use all 128-bits when size_t is 64-bit
@@ -238,6 +239,7 @@ struct HashSet(T,
                 {
                     (cast(ubyte*)&hashIndex)[0 .. hashIndex.sizeof] = digest[0 .. hashIndex.sizeof];
                 }
+
                 return hashIndex & _hashMask;
             }
             else

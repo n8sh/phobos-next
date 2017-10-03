@@ -137,6 +137,7 @@ struct HashSet(T,
     bool remove(in T value)
         @trusted
     {
+        dln("value:", value);
         immutable bucketIndex = bucketHashIndex(value);
         import container_algorithm : popFirst;
         if (_largeBucketFlags[bucketIndex])
@@ -146,10 +147,18 @@ struct HashSet(T,
                 _buckets[bucketIndex].large.length <= smallBucketLength) // large fits in small
             {
                 auto small = SmallBucket.fromValuesUnsafe(_buckets[bucketIndex].large[]); // TODO move elements
-                // .destroy(_buckets[bucketIndex].large);
-                // moveEmplace(small, _buckets[bucketIndex].small);
-                // _largeBucketFlags[bucketIndex] = false; // now small
+                assert(small == _buckets[bucketIndex].large[]);
+
+                dln(bucketIndex, ": ", small);
+
+
+                .destroy(_buckets[bucketIndex].large);
+
+                moveEmplace(small, _buckets[bucketIndex].small);
+
+                _largeBucketFlags[bucketIndex] = false; // now small
                 _length -= 1;
+                dln("...");
             }
             return hit;
         }
@@ -215,7 +224,7 @@ struct HashSet(T,
             }
             else static if (isStaticArray!(typeof(digest)))
             {
-                typeof(return) hashIndex = void;
+                typeof(return) hashIndex;
                 static if (2*size_t.sizeof == digest.sizeof)
                 {
                     // for instance, use all 128-bits when size_t is 64-bit

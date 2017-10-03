@@ -3,7 +3,22 @@ module hashfuns;
 import std.traits : isIntegral;
 
 pragma(inline, true)
-@safe pure nothrow @nogc:
+@safe nothrow:
+
+/** See also: http://forum.dlang.org/post/o1igoc$21ma$1@digitalmars.com
+    Doesn't work: integers are returned as is.
+ */
+size_t typeidHashOf(T)(in T value) @trusted
+{
+    return typeid(T).getHash(&value);
+}
+
+unittest
+{
+    auto x = typeidHashOf(cast(int)17);
+}
+
+pure @nogc:
 
 /** Dummy-hash for benchmarking performance of HashSet. */
 ulong identityHash64Of(T)(in T value)
@@ -18,14 +33,6 @@ unittest
     assert(identityHash64Of(-1) == ulong.max);
     assert(identityHash64Of(int.max) == int.max);
     assert(identityHash64Of(ulong.max) == ulong.max);
-}
-
-/** See also: http://forum.dlang.org/post/o1igoc$21ma$1@digitalmars.com
-    Doesn't work: integers are returned as is.
- */
-size_t typeidHashOf(T)(in T value) @trusted
-{
-    return typeid(T).getHash(&value);
 }
 
 /** Mueller hash function (bit mixer) A (32-bit).

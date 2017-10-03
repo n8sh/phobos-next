@@ -1,3 +1,5 @@
+/** Sparseness and denseness of ranges.
+ */
 module nesses;
 
 import rational: Rational;
@@ -8,7 +10,8 @@ import std.traits : isIterable, isFloatingPoint;
 
     Depth defaults -1 meaning infinite depth.
 */
-Rational!ulong sparseness(T)(in T x, int depth = -1)
+Rational!ulong sparseness(T)(in T x,
+                             int depth = -1)
 {
     alias R = typeof(return); // rational shorthand
     static if (isIterable!T)

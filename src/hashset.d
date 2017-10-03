@@ -244,7 +244,8 @@ struct HashSet(T,
         }
         else
         {
-            static assert(0, "Cannot handle hasher of type " ~ typeof(hasher).stringof);
+            static assert(0, "Cannot combine hasher " ~ hasher.stringof ~
+                          " with element type " ~ T.stringof);
         }
     }
 

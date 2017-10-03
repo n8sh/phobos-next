@@ -145,16 +145,12 @@ struct HashSet(T,
             if (hit &&
                 _buckets[bucketIndex].large.length <= smallBucketLength) // large fits in small
             {
-                // dln("large elements: ", _buckets[bucketIndex].large[]);
                 // auto small = SmallBucket.fromValuesUnsafe(_buckets[bucketIndex].large[]); // TODO move elements
                 // dln("small:", small);
                 // .destroy(_buckets[bucketIndex].large);
-                // dln("destroyed");
                 // moveEmplace(small, _buckets[bucketIndex].small);
-                // dln("moveEmplaced");
                 // _largeBucketFlags[bucketIndex] = false; // now small
-                // dln("...");
-                _length -= 1;
+                // _length -= 1;
             }
             return hit;
         }

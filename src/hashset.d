@@ -271,18 +271,10 @@ struct HashSet(T,
     /// Get bucket count statistics.
     BucketCounts bucketCounts() const
     {
-        typeof(return) result;
-        foreach (immutable i; 0 .. _largeBucketFlags.length) // TODO reuse function that counts ones
-        {
-            if (_largeBucketFlags[i])
-            {
-                result.largeCount += 1;
-            }
-            else
-            {
-                result.smallCount += 1;
-            }
-        }
+        const largeCount = _largeBucketFlags.countOnes;
+        const smallCount = _largeBucketFlags.length - largeCount;
+        auto result = typeof(return)(smallCount,
+                                     largeCount);
         assert(result.largeCount + result.smallCount == _largeBucketFlags.length);
         return result;
     }

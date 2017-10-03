@@ -1,8 +1,6 @@
 module hashfuns;
 
-import std.traits : isIntegral;
-
-import std.traits : isUnsigned;
+import std.traits : isIntegral, isUnsigned;
 
 pragma(inline, true):
 

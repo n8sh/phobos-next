@@ -799,7 +799,7 @@ struct BitArrayN(uint len, Block = size_t)
             const hasRest = restCount != 0;
             if (_blocks.length >= 1)
             {
-                foreach (const ref block; _blocks[0 .. $ - hasRest])
+                foreach (const block; _blocks[0 .. $ - hasRest])
                 {
                     if (block != Block.max) { return false; }
                 }

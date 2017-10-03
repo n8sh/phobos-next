@@ -58,14 +58,18 @@ void main()
     foreach (A; AliasSeq!(DenseSetFilter!(E),
                           DenseSetFilterGrowableArray!(E),
 
+                          // functions
                           HashSet!(E, null, identityHash64Of),
                           HashSet!(E, null, typeidHashOf),
                           HashSet!(E, null, hashOf),
                           HashSet!(E, null, muellerHash64),
+
+                          // std.digests
                           HashSet!(E, null, MurmurHash3!(128)),
                           HashSet!(E, null, FNV!(64, true)),
                           HashSet!(E, null, XXHash64),
 
+                          // radix tree
                           RadixTreeSetGrowOnly!(E),
                  ))
     {

@@ -256,6 +256,30 @@ struct HashSet(T,
     @property size_t length() const { return _length; }
     alias opDollar = length;    /// ditto
 
+    struct BucketCounts
+    {
+        size_t smallCount;
+        size_t largeCount;
+    }
+
+    /// Get bucket count statistics.
+    BucketCounts bucketCounts() const
+    {
+        typeof(return) result;
+        foreach (const i; 0 .. length)
+        {
+            if (_largeBucketFlags[i])
+            {
+                result.largeCount += 1;
+            }
+            else
+            {
+                result.smallCount += 1;
+            }
+        }
+        return result;
+    }
+
 private:
     import basic_uncopyable_array : Array = UncopyableArray; // TODO change to CopyableArray when
     import basic_bitarray : BitArray;

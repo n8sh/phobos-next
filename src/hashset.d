@@ -285,7 +285,7 @@ struct HashSet(T,
 
 private:
     import basic_uncopyable_array : Array = UncopyableArray; // TODO change to CopyableArray when
-    import basic_bitarray : BitArray;
+    import bitarray : BitArray;
 
     alias LargeBucket = Array!(T, Allocator);
 

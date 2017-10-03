@@ -1,4 +1,4 @@
-module basic_bitarray;
+module bitarray;
 
 /** Array of bits.
     Like `std.bitmanip.BitArray` but @safe pure nothrow @nogc.

@@ -3,6 +3,8 @@ module hashset;
 /** Hash set storing elements of type `T`.
 
     Uses small-size-optimized (SSO) arrays as buckets.
+
+    TODO adapt `SmallBucketLength` to make `SamllBucket` fit in a cache line
  */
 struct HashSet(T,
                alias Allocator = null,

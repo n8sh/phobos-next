@@ -15,7 +15,7 @@ void main()
 
     import std.digest.murmurhash : MurmurHash3;
     import xxhash64 : XXHash64;
-    import hash_functions : muellerHash64;
+    import hash_functions;
     import digestx.fnv : FNV;
 
     import filters : DenseSetFilter;
@@ -55,19 +55,18 @@ void main()
         }
     }
 
-    foreach (A; AliasSeq!(// HashSet!(E, null, identityHashOf),
+    foreach (A; AliasSeq!(DenseSetFilter!(E),
+                          DenseSetFilterGrowableArray!(E),
 
-                 DenseSetFilter!(E),
-                 DenseSetFilterGrowableArray!(E),
+                          HashSet!(E, null, identityHashOf),
+                          HashSet!(E, null, typeidHashOf),
+                          HashSet!(E, null, hashOf),
+                          HashSet!(E, null, muellerHash64),
+                          HashSet!(E, null, MurmurHash3!(128)),
+                          HashSet!(E, null, FNV!(64, true)),
+                          HashSet!(E, null, XXHash64),
 
-                 HashSet!(E, null, typeidHashOf),
-                 HashSet!(E, null, hashOf),
-                 HashSet!(E, null, muellerHash64),
-                 HashSet!(E, null, MurmurHash3!(128)),
-                 HashSet!(E, null, FNV!(64, true)),
-                 HashSet!(E, null, XXHash64),
-
-                 RadixTreeSetGrowOnly!(E),
+                          RadixTreeSetGrowOnly!(E),
                  ))
     {
         static if (hasMember!(A, `withCapacity`))
@@ -130,24 +129,4 @@ void main()
 
         writeln(` for `, A.stringof);
     }
-}
-
-import std.traits : isUnsigned;
-
-/** Dummy-hash for benchmarking performance of HashSet. */
-pragma(inline, true)
-ulong identityHashOf(T)(in T value)
-if (isUnsigned!T &&
-        T.sizeof <= size_t.sizeof)
-{
-    return value;
-}
-
-/** See also: http://forum.dlang.org/post/o1igoc$21ma$1@digitalmars.com
-    Doesn't work: integers are returned as is.
- */
-pragma(inline, true)
-size_t typeidHashOf(T)(in T value) @trusted
-{
-    return typeid(T).getHash(&value);
 }

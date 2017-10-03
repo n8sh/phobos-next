@@ -155,12 +155,18 @@ struct HashSet(T,
                 // dln("moveEmplaced");
                 // _largeBucketFlags[bucketIndex] = false; // now small
                 // dln("...");
+                _length -= 1;
             }
             return hit;
         }
         else
         {
-            return _buckets[bucketIndex].small.popFirst(value);
+            const hit = _buckets[bucketIndex].small.popFirst(value);
+            if (hit)
+            {
+                _length -= 1;
+            }
+            return hit;
         }
     }
 

@@ -10,7 +10,7 @@ pragma(inline, true)
  */
 size_t typeidHashOf(T)(in T value) @trusted
 {
-    return typeid(T).getHash(&value);
+    return typeid(T).getHash(&value); // TODO why not pure @nogc?
 }
 
 unittest

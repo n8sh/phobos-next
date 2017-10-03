@@ -296,7 +296,9 @@ private:
     import arrayn : ArrayN;
     alias SmallBucket = ArrayN!(T, smallBucketLength);
 
-    /** Small-size-optimized bucket. */
+    /** Small-size-optimized bucket array.
+        Size-state (small or large) is determined corresponding bit in `LargeBucketFlags`.
+     */
     union HybridBucket
     {
         SmallBucket small;

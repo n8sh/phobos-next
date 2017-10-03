@@ -34,7 +34,7 @@ struct HashSet(T,
 
     /** Initialize `bucketCount` number of buckets.
      */
-    private void initializeBuckets(size_t bucketCount) @trusted // TODO remove @trusted
+    private void initializeBuckets(size_t bucketCount) @trusted
     {
         _buckets = Buckets.withLength(bucketCount);
         _largeBucketFlags = LargeBucketFlags.withLength(bucketCount);
@@ -88,7 +88,7 @@ struct HashSet(T,
         immutable bucketIndex = bucketHashIndex(value);
         if (_largeBucketFlags[bucketIndex])
         {
-            if (!_buckets[bucketIndex].large[].canFind(value)) // TODO optimize
+            if (!_buckets[bucketIndex].large[].canFind(value))
             {
                 _buckets[bucketIndex].large.insertBackMove(value);
                 _length += 1;
@@ -97,7 +97,7 @@ struct HashSet(T,
         }
         else
         {
-            if (!_buckets[bucketIndex].small[].canFind(value)) // TODO optimize
+            if (!_buckets[bucketIndex].small[].canFind(value))
             {
                 immutable ok = _buckets[bucketIndex].small.insertBackMaybe(value);
                 if (!ok)        // if full
@@ -267,7 +267,7 @@ struct HashSet(T,
     BucketCounts bucketCounts() const
     {
         typeof(return) result;
-        foreach (immutable i; 0 .. _largeBucketFlags.length)
+        foreach (immutable i; 0 .. _largeBucketFlags.length) // TODO reuse function that counts ones
         {
             if (_largeBucketFlags[i])
             {
@@ -278,6 +278,7 @@ struct HashSet(T,
                 result.smallCount += 1;
             }
         }
+        assert(result.largeCount + result.smallCount == _largeBucketFlags.length);
         return result;
     }
 

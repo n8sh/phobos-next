@@ -606,7 +606,7 @@ struct StaticDenseSetFilter(E,
     }
 
     /// ditto
-    auto opBinaryRight(string op)(in E e) const
+    bool opBinaryRight(string op)(in E e) const
         if (op == "in")
     {
         return contains(e);

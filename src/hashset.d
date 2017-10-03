@@ -1,13 +1,13 @@
 module hashset;
 
-/** Hash set storing elements of type `T`.
+/** Hash set storing (key) elements of type `K`.
 
     Uses small-size-optimized (SSO) arrays as buckets.
 
     TODO extend to HashSetOrMap and specialize HashSet to HashMap with void
     Value-type.
  */
-struct HashSet(T,
+struct HashSet(K,
                alias Allocator = null,
                alias hasher = hashOf,
                uint smallBucketMinLength = 1) // at least one element in small bucket for good performance
@@ -86,7 +86,7 @@ struct HashSet(T,
         Returns: `true` if value was already present, `false` otherwise (similar
         to behaviour of `contains`).
      */
-    bool insert(T value) @trusted
+    bool insert(K value) @trusted
     {
         import std.conv : emplace;
         immutable bucketIndex = bucketHashIndex(value);
@@ -122,7 +122,7 @@ struct HashSet(T,
     /** Check if `value` is stored.
         Returns: `true` if value was already present, `false` otherwise.
      */
-    bool contains(in T value) const @trusted
+    bool contains(in K value) const @trusted
     {
         immutable bucketIndex = bucketHashIndex(value);
         if (_largeBucketFlags[bucketIndex])
@@ -138,7 +138,7 @@ struct HashSet(T,
     /** Remove `value`.
         Returns: `true` if value was removed, `false` otherwise.
      */
-    bool remove(in T value)
+    bool remove(in K value)
         @trusted
     {
         // dln("value:", value);
@@ -180,7 +180,7 @@ struct HashSet(T,
     /** Get index into `bucket` for `value`.
      */
     pragma(inline)              // LDC can inline, DMD cannot
-    size_t bucketHashIndex(in T value) const
+    size_t bucketHashIndex(in K value) const
     {
         import std.digest.digest : isDigest;
         import std.traits : hasMember;
@@ -254,7 +254,7 @@ struct HashSet(T,
         else
         {
             static assert(0, "Cannot combine hasher " ~ hasher.stringof ~
-                          " with element type " ~ T.stringof);
+                          " with element type " ~ K.stringof);
         }
     }
 
@@ -287,14 +287,14 @@ private:
     import basic_uncopyable_array : Array = UncopyableArray; // TODO change to CopyableArray when
     import bitarray : BitArray;
 
-    alias LargeBucket = Array!(T, Allocator);
+    alias LargeBucket = Array!(K, Allocator);
 
     import std.algorithm : max;
     enum smallBucketLength = max(smallBucketMinLength,
-                                 (LargeBucket.sizeof - 1) / T.sizeof);
+                                 (LargeBucket.sizeof - 1) / K.sizeof);
 
     import arrayn : ArrayN;
-    alias SmallBucket = ArrayN!(T, smallBucketLength);
+    alias SmallBucket = ArrayN!(K, smallBucketLength);
 
     /** Small-size-optimized bucket array.
         Size-state (small or large) is determined corresponding bit in `LargeBucketFlags`.
@@ -323,9 +323,9 @@ private:
 @safe pure nothrow unittest
 {
     immutable elementCount = 11;
-    alias T = uint;
+    alias K = uint;
 
-    auto s = HashSet!(T, null).withCapacity(elementCount);
+    auto s = HashSet!(K, null).withCapacity(elementCount);
 
     // all buckets start small
     assert(s.bucketCounts.smallCount != 0);

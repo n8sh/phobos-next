@@ -8,6 +8,8 @@ struct HashSet(T,
                alias Allocator = null,
                alias hasher = hashOf)
 {
+    import std.algorithm.mutation : move, moveEmplace;
+
     /** Construct with room for storing `capacity` number of elements.
      */
     static typeof(this) withCapacity(size_t capacity)
@@ -101,8 +103,8 @@ struct HashSet(T,
                 if (!ok)        // if full
                 {
                     // expand small to large
-                    SmallBucket smallCopy = _buckets[bucketIndex].small;
-                    emplace!(LargeBucket)(&_buckets[bucketIndex].large, smallCopy[]);
+                    SmallBucket small = _buckets[bucketIndex].small;
+                    emplace!(LargeBucket)(&_buckets[bucketIndex].large, small[]);
                     _buckets[bucketIndex].large.insertBackMove(value);
                     _largeBucketFlags[bucketIndex] = true; // bucket is now large
                 }
@@ -131,7 +133,7 @@ struct HashSet(T,
     }
 
     /** Remove `value`.
-        Returns: `true` if values was removed, `false` otherwise.
+        Returns: `true` if value was removed, `false` otherwise.
      */
     bool remove(in T value)
         @trusted
@@ -140,15 +142,19 @@ struct HashSet(T,
         import container_algorithm : popFirst;
         if (_largeBucketFlags[bucketIndex])
         {
-            // dln("TODO Check shrinkage to SmallBucket");
             const hit = _buckets[bucketIndex].large.popFirst(value);
             if (hit &&
                 _buckets[bucketIndex].large.length <= smallBucketLength) // large fits in small
             {
-                SmallBucket smallCopy = SmallBucket.fromValuesUnsafe(_buckets[bucketIndex].large[]); // TODO move elements
-                .destroy(_buckets[bucketIndex].large);
-                _buckets[bucketIndex].small = smallCopy; // TODO move elements
-                _largeBucketFlags[bucketIndex] = false;
+                // dln("large elements: ", _buckets[bucketIndex].large[]);
+                // auto small = SmallBucket.fromValuesUnsafe(_buckets[bucketIndex].large[]); // TODO move elements
+                // dln("small:", small);
+                // .destroy(_buckets[bucketIndex].large);
+                // dln("destroyed");
+                // moveEmplace(small, _buckets[bucketIndex].small);
+                // dln("moveEmplaced");
+                // _largeBucketFlags[bucketIndex] = false; // now small
+                // dln("...");
             }
             return hit;
         }

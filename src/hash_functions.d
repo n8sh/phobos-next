@@ -1,5 +1,7 @@
 module hashfuns;
 
+import std.traits : isUnsigned;
+
 /** Mueller hash function (bit mixer) A (32-bit).
 
    See also: https://stackoverflow.com/a/12996028/683710
@@ -23,11 +25,13 @@ uint muellerHash32(uint x)
    See also: http://zimbry.blogspot.se/2011/09/better-bit-mixing-improving-on.html
    See also: http://xorshift.di.unimi.it/splitmix64.c
  */
-ulong muellerHash64(ulong x)
+ulong muellerHash64(T)(T x)
     @safe pure nothrow @nogc
+    if (isUnsigned!T)
 {
-    x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9UL;
-    x = (x ^ (x >> 27)) * 0x94d049bb133111ebUL;
-    x = x ^ (x >> 31);
-    return x;
+    typeof(return) y = x;
+    y = (y ^ (y >> 30)) * 0xbf58476d1ce4e5b9UL;
+    y = (y ^ (y >> 27)) * 0x94d049bb133111ebUL;
+    y = y ^ (y >> 31);
+    return y;
 }

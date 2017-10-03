@@ -67,14 +67,14 @@ struct HashSet(K, V = void,
     }
 
     /// Empty.
-    void clear() @safe nothrow
+    void clear()
     {
         release();
         resetInternalData();
     }
 
     /// Release internal store.
-    private void release() @trusted
+    private void release()
     {
         foreach (immutable bucketIndex; 0 .. _buckets.length)
         {

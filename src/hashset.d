@@ -9,6 +9,7 @@ struct HashSet(T,
                alias hasher = hashOf)
 {
     import std.algorithm.mutation : move, moveEmplace;
+    import std.algorithm.searching : canFind;
 
     /** Construct with room for storing `capacity` number of elements.
      */
@@ -84,7 +85,6 @@ struct HashSet(T,
     bool insert(T value) @trusted
     {
         import std.conv : emplace;
-        import std.algorithm.searching : canFind;
         immutable bucketIndex = bucketHashIndex(value);
         if (_largeBucketFlags[bucketIndex])
         {
@@ -120,7 +120,6 @@ struct HashSet(T,
      */
     bool contains(in T value) const @trusted
     {
-        import std.algorithm.searching : canFind;
         immutable bucketIndex = bucketHashIndex(value);
         if (_largeBucketFlags[bucketIndex])
         {

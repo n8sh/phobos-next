@@ -20,6 +20,7 @@ uint muellerHash32(uint x)
 
    See also: https://stackoverflow.com/a/12996028/683710
    See also: http://zimbry.blogspot.se/2011/09/better-bit-mixing-improving-on.html
+   See also: http://xorshift.di.unimi.it/splitmix64.c
  */
 ulong muellerHash64(ulong x)
 {

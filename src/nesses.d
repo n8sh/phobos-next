@@ -4,7 +4,9 @@ import rational: Rational;
 import std.traits : isIterable, isFloatingPoint;
 
 /** Returns: number of default-initialized (zero) elements in $(D x) at
-    recursion depth $(D depth). Depth defaults to infinite depth (-1).
+    recursion depth $(D depth).
+
+    Depth defaults -1 meaning infinite depth.
 */
 Rational!ulong sparseness(T)(in T x, int depth = -1)
 {

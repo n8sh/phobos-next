@@ -206,7 +206,7 @@ struct DenseSetFilter(E,
     }
     /// ditto
     pragma(inline, true)
-    auto opBinaryRight(string op)(in E e) const
+    bool opBinaryRight(string op)(in E e) const
         if (op == "in")
     {
         return contains(e);

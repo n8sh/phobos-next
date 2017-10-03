@@ -1,6 +1,6 @@
 module hashset;
 
-/** Hash set storing (key) elements of type `K`.
+/** Hash set (or map) storing (key) elements of type `K` and values of type `V`.
 
     Uses small-size-optimized (SSO) arrays as buckets.
 
@@ -14,6 +14,22 @@ struct HashSet(K, V = void,
 {
     import std.algorithm.mutation : move, moveEmplace;
     import std.algorithm.searching : canFind;
+
+    /// Element type.
+    static if (is(V == void))
+    {
+        private alias T = K;
+    }
+    else
+    {
+        private struct T
+        {
+            K key;
+            V value;
+        }
+    }
+
+    alias ElementType = T;
 
     /** Construct with room for storing `capacity` number of elements.
      */

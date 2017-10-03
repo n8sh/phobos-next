@@ -746,7 +746,7 @@ struct BitArrayN(uint len, Block = size_t)
         /// ditto
         alias bitsSet = OneIndexes;
 
-        /** Get number of bits set in $(D this). */
+        /** Get number of bits set. */
         Mod!(len + 1) countOnes() const    // TODO make free function
         {
             typeof(return) n = 0;
@@ -774,7 +774,7 @@ struct BitArrayN(uint len, Block = size_t)
             return typeof(return)(n);
         }
 
-        /** Get number of bits set in $(D this). */
+        /** Get number of bits set divided by length. */
         pragma(inline, true)
         auto denseness(int depth = -1) const
         {
@@ -783,7 +783,7 @@ struct BitArrayN(uint len, Block = size_t)
             return Q(countOnes, length);
         }
 
-        /** Get number of Bits Unset in $(D this). */
+        /** Get number of bits unset divided by length. */
         pragma(inline, true)
         auto sparseness(int depth = -1) const
         {

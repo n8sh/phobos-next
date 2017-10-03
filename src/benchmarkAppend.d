@@ -63,6 +63,7 @@ void main()
                           HashSet!(E, null, typeidHashOf),
                           HashSet!(E, null, hashOf),
                           HashSet!(E, null, muellerHash64),
+                          HashSet!(E, null, wangMixHash64),
 
                           // std.digests
                           HashSet!(E, null, MurmurHash3!(128)),
@@ -100,6 +101,11 @@ void main()
             }
             immutable after = MonoTime.currTime();
             write(", Checked ", n, " integers in ", after - before);
+        }
+
+        static if (hasMember!(A, `bucketCounts`))
+        {
+            write(" ", a.bucketCounts());
         }
 
         writeln(` for `, A.stringof);

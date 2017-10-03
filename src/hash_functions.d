@@ -1,3 +1,5 @@
+/** Various hash functions, including integer ones.
+ */
 module hashfuns;
 
 import std.traits : isIntegral;
@@ -35,7 +37,7 @@ unittest
     assert(identityHash64Of(ulong.max) == ulong.max);
 }
 
-/** Mueller hash function (bit mixer) A (32-bit).
+/** Mueller integer hash function (bit mixer) A (32-bit).
 
     See also: https://stackoverflow.com/a/12996028/683710
     See also: http://zimbry.blogspot.se/2011/09/better-bit-mixing-improving-on.html
@@ -48,7 +50,7 @@ uint muellerHash32(uint x)
     return x;
 }
 
-/** Mueller hash function (bit mixer) A (64-bit).
+/** Mueller integer hash function (bit mixer) A (64-bit).
 
     Based on splitmix64, which seems to be based on the blog article "Better Bit
     Mixing" (mix 13).
@@ -68,7 +70,7 @@ ulong muellerHash64(T)(T x)
     return y;
 }
 
-/** Thomas Wang 64-bit mix hash.
+/** Thomas Wang 64-bit mix integer hash function.
 
     See also: https://gist.github.com/badboy/6267743#64-bit-mix-functions
  */

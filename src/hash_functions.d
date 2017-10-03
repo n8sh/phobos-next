@@ -16,6 +16,8 @@ ulong identityHashOf(T)(in T value)
 unittest
 {
     assert(identityHashOf(-1) == ulong.max);
+    assert(identityHashOf(int.max) == int.max);
+    assert(identityHashOf(ulong.max) == ulong.max);
 }
 
 /** See also: http://forum.dlang.org/post/o1igoc$21ma$1@digitalmars.com

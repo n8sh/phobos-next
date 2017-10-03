@@ -259,8 +259,8 @@ struct HashSet(T,
     /// Bucket count statistics.
     struct BucketCounts
     {
-        size_t smallCount;      // number of small buckets
-        size_t largeCount;      // number of large buckets
+        size_t smallCount;      // number of hybrid bucket being small
+        size_t largeCount;      // number of hybrid bucket being large
     }
 
     /// Get bucket count statistics.

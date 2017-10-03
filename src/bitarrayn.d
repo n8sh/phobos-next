@@ -747,28 +747,32 @@ struct BitArrayN(uint len, Block = size_t)
         alias bitsSet = OneIndexes;
 
         /** Get number of bits set in $(D this). */
-        Mod!(len + 1) countOnes() const // TODO make free function
+        Mod!(len + 1) countOnes() const    // TODO make free function
         {
             typeof(return) n = 0;
-            foreach (immutable ix, const ref block; _blocks)
+            foreach (const ref block; _blocks)
             {
-                if (block != 0)
+                import core.bitop : popcnt;
+                static if (block.sizeof == 1 ||
+                           block.sizeof == 2 ||
+                           block.sizeof == 4 ||
+                           block.sizeof == 4)
                 {
-                    import core.bitop : popcnt;
-                    static      if (block.sizeof == 1) { n += cast(uint)block.popcnt; } // TODO do we need to force `uint`-overload of `popcnt`?
-                    else static if (block.sizeof == 2) { n += cast(uint)block.popcnt; } // TODO do we need to force `uint`-overload of `popcnt`?
-                    else static if (block.sizeof == 4) { n += cast(uint)block.popcnt; } // TODO do we need to force `uint`-overload of `popcnt`?
-                    else static if (block.sizeof == 8) { n += (cast(ulong)((cast(uint)(block)).popcnt) +
-                                                               cast(ulong)((cast(uint)(block >> 32)).popcnt)); }
-                    else
-                    {
-                        assert(false, "Unsupported Block size " ~ Block.sizeof.stringof);
-                    }
+                    // TODO do we need to force `uint`-overload of `popcnt`?
+                    n += cast(uint)block.popcnt;
+                }
+                else static if (block.sizeof == 8)
+                {
+                    n += (cast(ulong)((cast(uint)(block)).popcnt) +
+                          cast(ulong)((cast(uint)(block >> 32)).popcnt));
+                }
+                else
+                {
+                    assert(false, "Unsupported Block size " ~ Block.sizeof.stringof);
                 }
             }
             return typeof(return)(n);
         }
-        alias count = countOnes;
 
         /** Get number of bits set in $(D this). */
         pragma(inline, true)

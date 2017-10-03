@@ -18,7 +18,7 @@ import std.traits : Unqual;
 */
 struct CopyableArray(T,
                      alias Allocator = null) // null means means to qcmeman functions
-    if (!is(Unqual!T == bool))
+    if (!is(Unqual!T == bool))               // use `BitArray` instead
 {
     import std.range : isInputRange, isIterable, ElementType, isInfinite;
     import std.traits : Unqual, hasElaborateDestructor, hasIndirections, hasAliasing,

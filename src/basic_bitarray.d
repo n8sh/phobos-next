@@ -3,7 +3,7 @@ module basic_bitarray;
 /** Array of bits.
     Like `std.bitmanip.BitArray` but @safe pure nothrow @nogc.
  */
-struct BitArray(alias Allocator = null)
+struct BitArray(alias Allocator = null) // TODO use Allocator
 {
     import qcmeman : malloc, calloc, realloc, free;
     import core.bitop : bt, bts, btr;

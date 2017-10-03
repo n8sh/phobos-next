@@ -6,7 +6,8 @@ module hashset;
  */
 struct HashSet(T,
                alias Allocator = null,
-               alias hasher = hashOf)
+               alias hasher = hashOf,
+               uint smallBucketMinLength = 1) // at least one element in small bucket for good performance
 {
     import std.algorithm.mutation : move, moveEmplace;
     import std.algorithm.searching : canFind;
@@ -286,7 +287,7 @@ private:
     alias LargeBucket = Array!(T, Allocator);
 
     import std.algorithm : max;
-    enum smallBucketLength = max(1, // at least one element in small bucket for good performance
+    enum smallBucketLength = max(smallBucketMinLength,
                                  (LargeBucket.sizeof - 1) / T.sizeof);
 
     import arrayn : ArrayN;

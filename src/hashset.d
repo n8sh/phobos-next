@@ -164,7 +164,6 @@ struct HashSet(K, V = void,
     bool remove(in K value)
         @trusted
     {
-        // dln("value:", value);
         immutable bucketIndex = bucketHash!(hasher)(value) & _hashMask;
         import container_algorithm : popFirst;
         if (_largeBucketFlags[bucketIndex])

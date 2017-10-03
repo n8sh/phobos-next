@@ -1,6 +1,6 @@
 module hashfuns;
 
-import std.traits : isUnsigned;
+import std.traits : isIntegral;
 
 /** Mueller hash function (bit mixer) A (32-bit).
 
@@ -27,11 +27,21 @@ uint muellerHash32(uint x)
  */
 ulong muellerHash64(T)(T x)
     @safe pure nothrow @nogc
-    if (isUnsigned!T)
+    if (isIntegral!T &&
+        T.sizeof <= ulong.sizeof)
 {
     typeof(return) y = x;
     y = (y ^ (y >> 30)) * 0xbf58476d1ce4e5b9UL;
     y = (y ^ (y >> 27)) * 0x94d049bb133111ebUL;
     y = y ^ (y >> 31);
     return y;
+}
+
+unittest
+{
+    import dbgio;
+    const x = muellerHash64(cast(uint)17);
+    show!(x);
+    const y = muellerHash64(cast(int)17);
+    show!(y);
 }

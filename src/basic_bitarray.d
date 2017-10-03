@@ -59,7 +59,7 @@ struct BitArray(alias Allocator = null)
         bts(_blockPtr, i);
     }
 
-    /** Get number of bits set in $(D this). */
+    /** Get number of bits set. */
     size_t countOnes() const    // TODO make free function
     {
         typeof(return) n = 0;

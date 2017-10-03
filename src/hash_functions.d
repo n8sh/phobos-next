@@ -4,8 +4,9 @@ import std.traits : isIntegral;
 
 import std.traits : isUnsigned;
 
+pragma(inline, true):
+
 /** Dummy-hash for benchmarking performance of HashSet. */
-pragma(inline, true)
 ulong identityHashOf(T)(in T value)
     if (isUnsigned!T &&
         T.sizeof <= ulong.sizeof)
@@ -16,7 +17,6 @@ ulong identityHashOf(T)(in T value)
 /** See also: http://forum.dlang.org/post/o1igoc$21ma$1@digitalmars.com
     Doesn't work: integers are returned as is.
  */
-pragma(inline, true)
 size_t typeidHashOf(T)(in T value) @trusted
 {
     return typeid(T).getHash(&value);

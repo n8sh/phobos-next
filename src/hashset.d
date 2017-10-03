@@ -141,7 +141,16 @@ struct HashSet(T,
         if (_largeBucketFlags[bucketIndex])
         {
             // dln("TODO Check shrinkage to SmallBucket");
-            return _buckets[bucketIndex].large.popFirst(value);
+            const hit = _buckets[bucketIndex].large.popFirst(value);
+            if (hit &&
+                _buckets[bucketIndex].large.length <= smallBucketLength) // large fits in small
+            {
+                SmallBucket smallCopy = SmallBucket.fromValuesUnsafe(_buckets[bucketIndex].large[]); // TODO move elements
+                .destroy(_buckets[bucketIndex].large);
+                _buckets[bucketIndex].small = smallCopy; // TODO move elements
+                _largeBucketFlags[bucketIndex] = false;
+            }
+            return hit;
         }
         else
         {

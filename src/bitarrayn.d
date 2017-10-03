@@ -750,7 +750,7 @@ struct BitArrayN(uint len, Block = size_t)
         Mod!(len + 1) countOnes() const    // TODO make free function
         {
             typeof(return) n = 0;
-            foreach (const ref block; _blocks)
+            foreach (const block; _blocks)
             {
                 import core.bitop : popcnt;
                 static if (block.sizeof == 1 ||

@@ -43,7 +43,7 @@ struct DenseSetFilterGrowableArray(E,
         return _set.contains(e);
     }
     /// ditto
-    auto opBinaryRight(string op)(E e) const
+    bool opBinaryRight(string op)(E e) const
         if (op == "in")
     {
         return contains(e);

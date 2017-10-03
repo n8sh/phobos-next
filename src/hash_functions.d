@@ -2,6 +2,26 @@ module hashfuns;
 
 import std.traits : isIntegral;
 
+import std.traits : isUnsigned;
+
+/** Dummy-hash for benchmarking performance of HashSet. */
+pragma(inline, true)
+ulong identityHashOf(T)(in T value)
+    if (isUnsigned!T &&
+        T.sizeof <= ulong.sizeof)
+{
+    return value;
+}
+
+/** See also: http://forum.dlang.org/post/o1igoc$21ma$1@digitalmars.com
+    Doesn't work: integers are returned as is.
+ */
+pragma(inline, true)
+size_t typeidHashOf(T)(in T value) @trusted
+{
+    return typeid(T).getHash(&value);
+}
+
 /** Mueller hash function (bit mixer) A (32-bit).
 
     See also: https://stackoverflow.com/a/12996028/683710

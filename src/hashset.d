@@ -142,7 +142,7 @@ struct HashSet(T,
         import container_algorithm : popFirst;
         if (_largeBucketFlags[bucketIndex])
         {
-            const hit = _buckets[bucketIndex].large.popFirst(value);
+            immutable hit = _buckets[bucketIndex].large.popFirst(value);
             if (hit &&
                 _buckets[bucketIndex].large.length <= smallBucketLength) // large fits in small
             {
@@ -164,7 +164,7 @@ struct HashSet(T,
         }
         else
         {
-            const hit = _buckets[bucketIndex].small.popFirst(value);
+            immutable hit = _buckets[bucketIndex].small.popFirst(value);
             if (hit)
             {
                 _length -= 1;
@@ -267,7 +267,7 @@ struct HashSet(T,
     BucketCounts bucketCounts() const
     {
         typeof(return) result;
-        foreach (const i; 0 .. _largeBucketFlags.length)
+        foreach (immutable i; 0 .. _largeBucketFlags.length)
         {
             if (_largeBucketFlags[i])
             {
@@ -347,7 +347,7 @@ private:
 
     foreach (immutable i; 0 .. elementCount)
     {
-        show!i;
+        dln("Removing ", i, " when length is ", s.length);
         assert(s.length == elementCount - i);
 
         assert(s.contains(i));

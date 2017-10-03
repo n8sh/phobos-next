@@ -18,20 +18,20 @@ struct BitArray(alias Allocator = null)
         typeof(return) that = void;
         that._blockCount = ((length / blockBits) + // number of whole blocks
                             (length % blockBits ? 1 : 0)); // remained block
-        that._ptr = cast(Block*)calloc(blockBits, that._blockCount);
+        that._blockPtr = cast(Block*)calloc(blockBits, that._blockCount);
         that._length = length;
         return that;
     }
 
     ~this() @trusted
     {
-        free(_ptr);
+        free(_blockPtr);
     }
 
     void clear() @trusted
     {
-        free(_ptr);
-        _ptr = null;
+        free(_blockPtr);
+        _blockPtr = null;
         _blockCount = 0;
         _length = 0;
     }
@@ -50,23 +50,68 @@ struct BitArray(alias Allocator = null)
     bool opIndex(size_t i) const @trusted
     {
         assert(i < length);        // TODO nothrow or not?
-        return cast(bool)bt(_ptr, i);
+        return cast(bool)bt(_blockPtr, i);
     }
 
     /** Set the `i`'th bit to `value`. */
     void opIndexAssign(bool value, size_t i) @trusted
     {
-        bts(_ptr, i);
+        bts(_blockPtr, i);
+    }
+
+    /** Get number of bits set in $(D this). */
+    size_t countOnes() const    // TODO make free function
+    {
+        typeof(return) n = 0;
+        foreach (const ref block; blocks)
+        {
+            if (block != 0)
+            {
+                import core.bitop : popcnt;
+                static      if (block.sizeof == 1)
+                {
+                    // TODO do we need to force `uint`-overload of `popcnt`?
+                    n += cast(uint)block.popcnt;
+                }
+                else static if (block.sizeof == 2)
+                {
+                    // TODO do we need to force `uint`-overload of `popcnt`?
+                    n += cast(uint)block.popcnt;
+                }
+                else static if (block.sizeof == 4)
+                {
+                    // TODO do we need to force `uint`-overload of `popcnt`?
+                    n += cast(uint)block.popcnt;
+                }
+                else static if (block.sizeof == 8)
+                {
+                    n += (cast(ulong)((cast(uint)(block)).popcnt) +
+                          cast(ulong)((cast(uint)(block >> 32)).popcnt));
+                }
+                else
+                {
+                    assert(false, "Unsupported Block size " ~ Block.sizeof.stringof);
+                }
+            }
+        }
+        return typeof(return)(n);
     }
 
     @disable this(this);
 
 private:
+
+    /** Get block. */
+    inout(Block)[] blocks() inout @trusted
+    {
+        return _blockPtr[0 .. _blockCount];
+    }
+
     alias Block = size_t;
     enum blockBits = 8*Block.sizeof;
 
-    Block* _ptr;
     size_t _blockCount;
+    Block* _blockPtr;
     size_t _length;
 }
 

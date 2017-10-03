@@ -3,8 +3,8 @@ module nesses;
 import rational: Rational;
 import std.traits : isIterable, isFloatingPoint;
 
-/** Returns: Number of Default-Initialized (Zero) Elements in $(D x) at
-    recursion depth $(D depth) defaulting infinite depth (-1).
+/** Returns: number of default-initialized (zero) elements in $(D x) at
+    recursion depth $(D depth). Depth defaults to infinite depth (-1).
 */
 Rational!ulong sparseness(T)(in T x, int depth = -1)
 {

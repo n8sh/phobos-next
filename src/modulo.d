@@ -7,10 +7,22 @@ import std.traits : isIntegral;
  */
 template TypeOfModulo(size_t m)
 {
-    static      if (m - 1 <= ubyte.max)  { alias TypeOfModulo = ubyte; }
-    else static if (m - 1 <= ushort.max) { alias TypeOfModulo = ushort; }
-    else static if (m - 1 <= uint.max)   { alias TypeOfModulo = uint; }
-    else                                 { alias TypeOfModulo = ulong; }
+    static      if (m - 1 <= ubyte.max)
+    {
+        alias TypeOfModulo = ubyte;
+    }
+    else static if (m - 1 <= ushort.max)
+    {
+        alias TypeOfModulo = ushort;
+    }
+    else static if (m - 1 <= uint.max)
+    {
+        alias TypeOfModulo = uint;
+    }
+    else
+    {
+        alias TypeOfModulo = ulong;
+    }
     // TODO ucent?
 }
 

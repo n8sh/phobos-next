@@ -133,8 +133,10 @@ private:
     alias Block = size_t;
     enum blockBits = 8*Block.sizeof;
 
+    // as slice
     size_t _blockCount;
     Block* _blockPtr;
+
     size_t _length;
 }
 

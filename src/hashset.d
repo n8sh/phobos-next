@@ -378,20 +378,17 @@ size_t bucketHash(alias hasher, K)(in K value)
 
     foreach (immutable i; 0 .. n)
     {
-        assert(!s.contains(i));
         assert(i !in s);
 
         assert(s.length == i);
         assert(!s.insert(i));
         assert(s.length == i + 1);
 
-        assert(s.contains(i));
         assert(i in s);
 
         assert(s.insert(i));
         assert(s.length == i + 1);
 
-        assert(s.contains(i));
         assert(i in s);
     }
 
@@ -401,13 +398,11 @@ size_t bucketHash(alias hasher, K)(in K value)
     {
         assert(s.length == n - i);
 
-        assert(s.contains(i));
         assert(i in s);
 
         assert(s.remove(i));
         assert(s.length == n - i - 1);
 
-        assert(!s.contains(i));
         assert(i !in s);
         assert(!s.remove(i));
         assert(s.length == n - i - 1);

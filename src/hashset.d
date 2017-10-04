@@ -21,7 +21,7 @@ module hashset;
     void allocator(IAllocator a) { assert(empty); _allocator = a; }
 }
 
-EMSI-containers has some help logic for this.
+EMSI-containers has some helper logic for this.
 
  */
 struct HashSet(K, V = void,

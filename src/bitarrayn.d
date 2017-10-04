@@ -848,6 +848,26 @@ struct BitArrayN(uint len, Block = size_t)
             return hit;
         }
 
+        bool canFindIndexOf(UInt)(bool value,
+                                  UInt currIx,
+                                  out UInt nextIx) const
+            if (isUnsigned!UInt)
+        {
+            if (currIx >= length) { return false; }
+            bool hit = false;
+            foreach (immutable ix_; cast(uint)currIx .. cast(uint)length)
+            {
+                const bool bit = this[ix_];
+                if (bit == value)
+                {
+                    nextIx = typeof(nextIx)(ix_);
+                    hit = true;
+                    break;
+                }
+            }
+            return hit;
+        }
+
     }
 
     /**

@@ -12,16 +12,14 @@ struct ModArrayN(uint capacity,
     private enum radix = 2^^span;
     import std.algorithm.mutation : move;
 
-    static if (true) // TODO replace with: `debug`
+    debug
     {
         import modulo : Mod;
         alias Ix = Mod!(radix, ubyte);
-        alias UIx = Mod!(radix, uint);
     }
     else
     {
         alias Ix = ubyte;
-        alias UIx = uint;
     }
 
     enum L = elementLength;
@@ -49,7 +47,7 @@ struct ModArrayN(uint capacity,
         _length = rhs.length;
     }
 
-    pragma(inline) this(Es...)(Es es)
+    this(Es...)(Es es)
         if (Es.length >= 1 &&
             Es.length <= capacity)
     {
@@ -62,7 +60,7 @@ struct ModArrayN(uint capacity,
 
     static if (L == 1)
     {
-        pragma(inline) this(const Ix[] es)
+        this(const Ix[] es)
         {
             assert(es.length <= capacity);
             _store[0 .. es.length] = es;
@@ -95,7 +93,8 @@ struct ModArrayN(uint capacity,
         return s;
     }
 
-    pragma(inline) @safe pure nothrow @nogc:
+    pragma(inline)
+    @safe pure nothrow @nogc:
 
     /** Get first element. */
     auto front() inout
@@ -253,17 +252,32 @@ static assert(ModArrayN!(2, 3, 8).sizeof == 8);
 @safe pure nothrow unittest
 {
     import std.algorithm : equal;
-    import modulo : Mod, mod;
 
-    enum span = 8;
-    enum M = 2^^span;
+    debug
+    {
+        enum span = 8;
+        enum radix = 2^^span;
+        import modulo : Mod, mod;
+        alias Ix = Mod!(radix, ubyte);
+        static Mod!radix mk(ubyte value)
+        {
+            return mod!radix(value);
+        }
+    }
+    else
+    {
+        alias Ix = ubyte;
+        static ubyte mk(ubyte value)
+        {
+            return value;
+        }
+    }
 
-    alias Ix = Mod!(M, ubyte);
-    Ix[] ixs = [11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M];
+    Ix[] ixs = [mk(11), mk(22), mk(33), mk(44)];
     enum capacity = 7;
 
     auto x = ModArrayN!(capacity, 1)(ixs);
-    auto y = ModArrayN!(capacity, 1)(11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M);
+    auto y = ModArrayN!(capacity, 1)(mk(11), mk(22), mk(33), mk(44));
 
     assert(x == y);
 
@@ -271,19 +285,19 @@ static assert(ModArrayN!(2, 3, 8).sizeof == 8);
     assert(x.available == 3);
     assert(!x.empty);
 
-    assert(!x.contains([10.mod!M]));
-    assert(x.contains([11.mod!M]));
-    assert(x.contains([22.mod!M]));
-    assert(x.contains([33.mod!M]));
-    assert(x.contains([44.mod!M]));
-    assert(!x.contains([45.mod!M]));
+    assert(!x.contains([mk(10)]));
+    assert(x.contains([mk(11)]));
+    assert(x.contains([mk(22)]));
+    assert(x.contains([mk(33)]));
+    assert(x.contains([mk(44)]));
+    assert(!x.contains([mk(45)]));
 
-    assert(!x.contains(10.mod!M));
-    assert(x.contains(11.mod!M));
-    assert(x.contains(22.mod!M));
-    assert(x.contains(33.mod!M));
-    assert(x.contains(44.mod!M));
-    assert(!x.contains(45.mod!M));
+    assert(!x.contains(mk(10)));
+    assert(x.contains(mk(11)));
+    assert(x.contains(mk(22)));
+    assert(x.contains(mk(33)));
+    assert(x.contains(mk(44)));
+    assert(!x.contains(mk(45)));
 
     assert(x.equal([11, 22, 33, 44]));
     assert(x.front == 11);
@@ -309,7 +323,7 @@ static assert(ModArrayN!(2, 3, 8).sizeof == 8);
     assert(!x.full);
     assert(x.length == 0);
 
-    x.pushBack(11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M, 55.mod!M, 66.mod!M, 77.mod!M);
+    x.pushBack(mk(11), mk(22), mk(33), mk(44), mk(55), mk(66), mk(77));
     assert(x.equal([11, 22, 33, 44, 55, 66, 77]));
     assert(!x.empty);
     assert(x.full);
@@ -329,21 +343,12 @@ static assert(ModArrayN!(2, 3, 8).sizeof == 8);
     x.pushBack(1).pushBack(2).equal([1, 2]);
     assert(x.equal([1, 2]));
     assert(x.length == 2);
-}
 
-///
-@safe pure unittest
-{
-    import modulo : Mod, mod;
-
-    enum span = 8;
-    enum M = 2^^span;
-
-    alias Ix = Mod!(M, ubyte);
-    Ix[] ixs = [11.mod!M, 22.mod!M, 33.mod!M, 44.mod!M];
-    enum capacity = 7;
-    auto x = ModArrayN!(capacity, 1)(ixs);
-    assert(x.sizeof == 8);
-
-    assert(x.toString == `0B,16,21,2C`);
+    auto z = ModArrayN!(capacity, 1)(ixs);
+    assert(z.sizeof == 8);
+    try
+    {
+        assert(z.toString == `0B,16,21,2C`);
+    }
+    catch (Exception e) {}
 }

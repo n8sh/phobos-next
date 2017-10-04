@@ -1,4 +1,4 @@
-module index_array;
+module index_arrayn;
 
 /** Statically allocated `Mod`-array of fixed pre-allocated length `capacity` of
     `Mod`-elements in chunks of `elementLength`. `ElementType` is

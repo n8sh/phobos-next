@@ -1,35 +1,40 @@
 module hashset;
 
 /** Hash set (or map) storing (key) elements of type `K` and values of type `V`.
-
-    HashSet
-    Uses small-size-optimized (SSO) arrays as buckets.
-
-    TODO extend to HashSetOrMap and specialize HashSet to HashMap with void
-    Value-type.
-
-    TODO use https://dlang.org/phobos/std_experimental_allocator.html as:
-
-    struct HashTable
-{
-    private IAllocator _allocator;
-    this(size_t buckets, IAllocator allocator = theAllocator) {
-        this._allocator = allocator;
-        ...
-    }
-    // Getter and setter
-    IAllocator allocator() { return _allocator; }
-    void allocator(IAllocator a) { assert(empty); _allocator = a; }
-}
-
-EMSI-containers has some helper logic for this.
-
+ *
+ * Uses small-size-optimized (SSO) arrays as buckets.
+ *
+ * Params:
+ *      K = key type.
+ *      V = value type.
+ *      Allocator = memory allocator.
+ *      hasher = hash function or std.digest Hash.
+ *      smallBucketMinCapacity = minimum capacity of small bucket
+ *
+ * TODO extend to HashSetOrMap and specialize HashSet to HashMap with void
+ * Value-type.
+ *
+ * TODO use https://dlang.org/phobos/std_experimental_allocator.html as:
+ *
+ * struct HashTable
+ * {
+ *     private IAllocator _allocator;
+ *     this(size_t buckets, IAllocator allocator = theAllocator) {
+ *         this._allocator = allocator;
+ *         ...
+ *     }
+ *     // Getter and setter
+ *     IAllocator allocator() { return _allocator; }
+ *     void allocator(IAllocator a) { assert(empty); _allocator = a; }
+ * }
+ *
+ * EMSI-containers has some helper logic for this.
  */
 struct HashSet(K, V = void,
                alias Allocator = null,
                alias hasher = hashOf,
-               uint smallBucketMinLength = 1)
-    if (smallBucketMinLength >= 1) // no use having empty small buckets
+               uint smallBucketMinCapacity = 1)
+    if (smallBucketMinCapacity >= 1) // no use having empty small buckets
 {
     import std.algorithm.mutation : move, moveEmplace;
     import std.algorithm.searching : canFind;
@@ -55,7 +60,7 @@ struct HashSet(K, V = void,
     static typeof(this) withCapacity(size_t capacity)
     {
         typeof(return) that;
-        that.initialize(capacity / smallBucketLength);
+        that.initialize(capacity / smallBucketCapacity);
         return that;
     }
 
@@ -202,7 +207,7 @@ struct HashSet(K, V = void,
             immutable hit = _buckets[bucketIndex].large.popFirst(value);
             _length -= hit ? 1 : 0;
             if (hit &&
-                _buckets[bucketIndex].large.length <= smallBucketLength) // large fits in small
+                _buckets[bucketIndex].large.length <= smallBucketCapacity) // large fits in small
             {
                 auto small = SmallBucket.fromValuesUnsafe(_buckets[bucketIndex].large[]); // TODO move elements
                 assert(small == _buckets[bucketIndex].large[]);
@@ -255,11 +260,11 @@ private:
     alias LargeBucket = Array!(K, Allocator);
 
     import std.algorithm : max;
-    enum smallBucketLength = max(smallBucketMinLength,
+    enum smallBucketCapacity = max(smallBucketMinCapacity,
                                  (LargeBucket.sizeof - 1) / K.sizeof);
 
     import arrayn : ArrayN;
-    alias SmallBucket = ArrayN!(K, smallBucketLength);
+    alias SmallBucket = ArrayN!(K, smallBucketCapacity);
 
     /** Small-size-optimized bucket array.
         Size-state (small or large) is determined corresponding bit in `LargeBucketFlags`.

@@ -273,7 +273,7 @@ static assert(ModArrayN!(2, 3, 8).sizeof == 8);
         }
     }
 
-    Ix[] ixs = [mk(11), mk(22), mk(33), mk(44)];
+    auto ixs = [mk(11), mk(22), mk(33), mk(44)];
     enum capacity = 7;
 
     auto x = ModArrayN!(capacity, 1)(ixs);
@@ -351,4 +351,9 @@ static assert(ModArrayN!(2, 3, 8).sizeof == 8);
         assert(z.toString == `0B,16,21,2C`);
     }
     catch (Exception e) {}
+}
+
+version(unittest)
+{
+    import array_help : s;
 }

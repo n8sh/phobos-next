@@ -15,7 +15,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     pragma(inline)              // TODO gcc cannot inline this
     static typeof(this) withLength(size_t length) @trusted
     {
-        typeof(return) that = void;
+        typeof(return) that;
         that._blockCount = ((length / blockBits) + // number of whole blocks
                             (length % blockBits ? 1 : 0)); // remained block
         that._blockPtr = cast(Block*)calloc(blockBits, that._blockCount);
@@ -27,7 +27,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     static typeof(this) withLengthAndBlocks(size_t length,
                                             Block[] blocks) @trusted
     {
-        typeof(return) that = void;
+        typeof(return) that;
         that._blockCount = blocks.length;
         that._blockPtr = cast(Block*)malloc(blockBits * that._blockCount);
         that._blocks[] = blocks;

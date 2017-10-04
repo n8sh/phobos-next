@@ -196,22 +196,42 @@ bool hasContents(T)(in T a) // @safe pure nothrow @nogc
 }
 
 /** Reset $(D a) to its default value.
-    See also: std.typecons.Nullable.nullify
+ *
+ * Params:
+ *      T = the argument type, likely to be infered.
+ *      a = a reference to a T.
+ *
+ * See also: std.typecons.Nullable.nullify
  */
 auto ref reset(T)(ref T a) @trusted // pure nothrow
 {
     static if (isInstanceOf!(Nullable, T))
+    {
         a.nullify();
+    }
     else
+    {
         return a = T.init;
+    }
 }
 
 ///
 unittest
 {
     int x = 42;
-    x.reset;
+    x.reset();
     assert(x == x.init);
+}
+
+///
+@safe @nogc pure nothrow unittest
+{
+    uint a = 159;
+    string b = "bla";
+    a.reset();
+    assert(a == 0);
+    b.reset();
+    assert(b == "");
 }
 
 ///

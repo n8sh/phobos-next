@@ -126,9 +126,8 @@ import bijections : isIntegralBijectableType, bijectToUnsigned, bijectFromUnsign
 import variant_ex : WordVariant;
 import typecons_ex : IndexedBy;
 import index_array : ModArrayN;
+import array_ex : Array = UniqueArray;
 import container_traits : shouldAddGCRange;
-
-import array_ex : UniqueArray;
 
 // version = enterSingleInfiniteMemoryLeakTest;
 version = benchmark;
@@ -1528,7 +1527,7 @@ template RawRadixTree(Value = void)
             }
         }
 
-        void appendFrontIxsToKey(ref UniqueArray!Ix key) const @nogc
+        void appendFrontIxsToKey(ref Array!Ix key) const @nogc
         {
             final switch (branch.typeIx) with (Branch.Ix)
             {
@@ -1862,7 +1861,7 @@ template RawRadixTree(Value = void)
             }
         }
 
-        void appendFrontIxsToKey(ref UniqueArray!Ix key) const @nogc
+        void appendFrontIxsToKey(ref Array!Ix key) const @nogc
         {
             assert(!empty);
             switch (leaf.typeIx) with (Node.Ix)
@@ -1954,7 +1953,7 @@ template RawRadixTree(Value = void)
     {
         static if (isValue)
         {
-            bool appendFrontIxsToKey(ref UniqueArray!Ix key, ref Value value) const @trusted
+            bool appendFrontIxsToKey(ref Array!Ix key, ref Value value) const @trusted
             {
                 foreach (const ref branchRange; _bRanges)
                 {
@@ -1970,7 +1969,7 @@ template RawRadixTree(Value = void)
         }
         else
         {
-            bool appendFrontIxsToKey(ref UniqueArray!Ix key) const @trusted
+            bool appendFrontIxsToKey(ref Array!Ix key) const @trusted
             {
                 foreach (const ref branchRange; _bRanges)
                 {
@@ -2085,8 +2084,8 @@ template RawRadixTree(Value = void)
         }
 
     private:
-        UniqueArray!BranchRange _bRanges;
-        // UniqueArray!Ix _branchesKeyPrefix;
+        Array!BranchRange _bRanges;
+        // Array!Ix _branchesKeyPrefix;
 
         // index to first branchrange in `_bRanges` that is currently on a leaf1
         // or `typeof.max` if undefined
@@ -2277,7 +2276,7 @@ template RawRadixTree(Value = void)
         BranchRanges branchRanges;
 
         // cache
-        UniqueArray!Ix _cachedFrontKey; // copy of front key
+        Array!Ix _cachedFrontKey; // copy of front key
         static if (isValue)
         {
             Value _cachedFrontValue; // copy of front value
@@ -4005,7 +4004,7 @@ UKey toFixedRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @
 /** Remap typed key `typedKey` to raw (untyped) key of type `UKey`.
     TODO DIP-1000 scope
  */
-UKey toRawKey(TypedKey)(in TypedKey typedKey, ref UniqueArray!Ix rawUKey) @trusted
+UKey toRawKey(TypedKey)(in TypedKey typedKey, ref Array!Ix rawUKey) @trusted
     if (isTrieableKeyType!TypedKey)
 {
     enum radix = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
@@ -4066,7 +4065,7 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, ref UniqueArray!Ix rawUKey) @trust
 
                 static if (i + 1 == members.length) // last member is allowed to be an array of fixed length
                 {
-                    UniqueArray!Ix memberRawUKey;
+                    Array!Ix memberRawUKey;
                     const memberRawKey = member.toRawKey(memberRawUKey); // TODO DIP-1000 scope
                     rawUKey ~= memberRawUKey;
                 }
@@ -4197,7 +4196,7 @@ struct RadixTree(Key, Value)
         {
             _rawTree.ElementRefType elementRef; // reference to where element was added
 
-            UniqueArray!Ix rawUKey;
+            Array!Ix rawUKey;
             auto rawKey = key.toRawKey(rawUKey); // TODO DIP-1000 scope
 
             _rawTree.insert(rawKey, value, elementRef);
@@ -4217,7 +4216,7 @@ struct RadixTree(Key, Value)
         {
             _rawTree.ElementRefType elementRef; // indicates that key was added
 
-            UniqueArray!Ix rawUKey;
+            Array!Ix rawUKey;
             auto rawKey = key.toRawKey(rawUKey); // TODO DIP-1000 scope
 
             _rawTree.insert(rawKey, value, elementRef);
@@ -4256,7 +4255,7 @@ struct RadixTree(Key, Value)
         /** Returns: pointer to value if `key` is contained in set, null otherwise. */
         inout(Value*) contains(in Key key) inout @nogc
         {
-            UniqueArray!Ix rawUKey;
+            Array!Ix rawUKey;
             auto rawKey = key.toRawKey(rawUKey); // TODO DIP-1000 scope
             return _rawTree.contains(rawKey);
         }
@@ -4279,7 +4278,7 @@ struct RadixTree(Key, Value)
         {
             _rawTree.ElementRefType elementRef; // indicates that elt was added
 
-            UniqueArray!Ix rawUKey;
+            Array!Ix rawUKey;
             auto rawKey = key.toRawKey(rawUKey); // TODO DIP-1000 scope
 
             _rawTree.insert(rawKey, elementRef);
@@ -4294,7 +4293,7 @@ struct RadixTree(Key, Value)
         /** Returns: `true` if `key` is stored, `false` otherwise. */
         bool contains(in Key key) inout
         {
-            UniqueArray!Ix rawUKey;
+            Array!Ix rawUKey;
             auto rawKey = key.toRawKey(rawUKey); // TODO DIP-1000 scope
             return _rawTree.contains(rawKey);
         }
@@ -4323,7 +4322,7 @@ struct RadixTree(Key, Value)
      */
     pragma(inline) auto prefix(Key keyPrefix) @system
     {
-        UniqueArray!Ix rawUKey;
+        Array!Ix rawUKey;
         auto rawKeyPrefix = keyPrefix.toRawKey(rawUKey);
 
         UKey rawKeyPrefixRest;
@@ -4410,7 +4409,7 @@ struct RadixTree(Key, Value)
     */
     pragma(inline) auto upperBound(Key key) @system
     {
-        UniqueArray!Ix rawUKey;
+        Array!Ix rawUKey;
         auto rawKey = key.toRawKey(rawUKey);
 
         UKey rawKeyRest;
@@ -4444,7 +4443,7 @@ struct RadixTree(Key, Value)
 
         TypedElt front()
         {
-            UniqueArray!Ix wholeRawKey = _rawKeyPrefix.dup;
+            Array!Ix wholeRawKey = _rawKeyPrefix.dup;
             wholeRawKey ~= _rawRange.lowKey;
             static if (RawTree.hasValue) { return typeof(return)(wholeRawKey[].toTypedKey!Key,
                                                                  _rawRange._front._cachedFrontValue); }
@@ -4461,7 +4460,7 @@ struct RadixTree(Key, Value)
 
         RawTree.RangeType _rawRange;
         alias _rawRange this;
-        UniqueArray!Ix _rawKeyPrefix;
+        Array!Ix _rawKeyPrefix;
     }
 
     static if (RawTree.hasValue)
@@ -5417,7 +5416,7 @@ void benchmark()()
 @safe pure nothrow @nogc unittest
 {
     // alias Key = string;
-    // alias Value = UniqueArray!int;
+    // alias Value = Array!int;
     // RadixTreeMapGrowOnly!(Key, Value) map;
 }
 

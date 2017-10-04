@@ -23,14 +23,14 @@ struct IndexArrayN(uint capacity,
 
     enum L = elementLength;
 
-    /// ElementType type `Element`.
+    /// ElementType type `T`.
     static if (L == 1)
     {
-        alias Element = Ix;
+        alias T = Ix;
     }
     else
     {
-        alias Element = Ix[L];
+        alias T = Ix[L];
     }
 
     this(uint rhsCapacity)(in IndexArrayN!(rhsCapacity, elementLength, span) rhs)
@@ -225,11 +225,11 @@ struct IndexArrayN(uint capacity,
 private:
     static if (L == 1)
     {
-        Element[capacity] _store = void; // byte indexes
+        T[capacity] _store = void; // byte indexes
     }
     else
     {
-        Element[capacity] _store = void; // byte indexes
+        T[capacity] _store = void; // byte indexes
     }
 
     static if (_store.sizeof == 6)

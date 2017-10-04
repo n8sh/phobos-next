@@ -186,7 +186,8 @@ struct HashSet(K, V = void,
         return contains(value); // TODO return entry reference instead
     }
 
-    /** Remove `value`.
+    /** Remove `value` and, when possible, shrink its large bucket to small.
+
         Returns: `true` if value was removed, `false` otherwise.
      */
     bool remove(in K value)

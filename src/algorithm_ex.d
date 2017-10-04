@@ -216,22 +216,16 @@ auto ref reset(T)(ref T a) @trusted // pure nothrow
 }
 
 ///
-unittest
-{
-    int x = 42;
-    x.reset();
-    assert(x == x.init);
-}
-
-///
 @safe @nogc pure nothrow unittest
 {
+
     uint a = 159;
-    string b = "bla";
     a.reset();
-    assert(a == 0);
+    assert(a == a.init);
+
+    string b = "bla";
     b.reset();
-    assert(b == "");
+    assert(b == b.init);
 }
 
 ///

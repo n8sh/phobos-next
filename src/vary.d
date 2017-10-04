@@ -156,8 +156,7 @@ public:
         import std.algorithm.mutation : moveEmplace;
 
         alias U = Unqual!T;
-        moveEmplace(*cast(U*)&that,
-                    *cast(U*)(&_store)); // TODO ok when `that` has indirections?
+        moveEmplace(that, *cast(U*)(&_store)); // TODO ok when `that` has indirections?
 
         _tix = cast(Ix)indexOf!U; // set type tag
     }
@@ -170,8 +169,7 @@ public:
         if (hasValue) { release(); }
 
         alias U = Unqual!T;
-        moveEmplace(*cast(U*)&that,
-                    *cast(U*)(&_store)); // TODO ok when `that` has indirections?
+        moveEmplace(that, *cast(U*)(&_store)); // TODO ok when `that` has indirections?
 
         _tix = cast(Ix)indexOf!U; // set type tag
 

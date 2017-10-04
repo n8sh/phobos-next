@@ -273,7 +273,7 @@ static assert(ModArrayN!(2, 3, 8).sizeof == 8);
         }
     }
 
-    auto ixs = [mk(11), mk(22), mk(33), mk(44)].s;
+    const ixs = [mk(11), mk(22), mk(33), mk(44)].s;
     enum capacity = 7;
 
     auto x = ModArrayN!(capacity, 1)(ixs);
@@ -369,7 +369,7 @@ static assert(ModArrayN!(2, 3, 8).sizeof == 8);
         }
     }
 
-    auto ixs = [mk(11), mk(22), mk(33), mk(44)].s;
+    const ixs = [mk(11), mk(22), mk(33), mk(44)].s;
     enum capacity = 7;
     auto z = ModArrayN!(capacity, 1)(ixs);
     assert(z.sizeof == 8);

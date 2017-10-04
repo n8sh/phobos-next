@@ -83,6 +83,16 @@ struct HashSet(K, V = void,
         release();
     }
 
+    /// Duplicate.
+    typeof(this) dup()
+    {
+        typeof(return) that;
+        that._buckets = _buckets.dup;
+        that._largeBucketFlags = _largeBucketFlags.dup;
+        that._hashMask = _hashMask;
+        return that;
+    }
+
     /// Empty.
     void clear()
     {

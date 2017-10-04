@@ -528,7 +528,6 @@ struct CopyableArray(T,
             .destroy(_mptr[_length]);
         }
     }
-    alias dropBack = popBack;
 
     /** Pop back element and return it. */
     pragma(inline, true)

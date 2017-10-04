@@ -92,7 +92,8 @@ template Mod(size_t m,
 
         /// Construct from Mod!n, where `m >= n`.
         this(size_t n, U)(Mod!(n, U) rhs)
-            if (m >= n && isIntegral!U)
+            if (m >= n &&
+                isIntegral!U)
         {
             this.x = cast(T)rhs.x; // cannot overflow
         }
@@ -114,7 +115,8 @@ template Mod(size_t m,
 
         /// Assign from Mod!n, where `m >= n`.
         auto ref opAssign(size_t n, U)(Mod!(n, U) rhs)
-            if (m >= n && isIntegral!U)
+            if (m >= n &&
+                isIntegral!U)
         {
             this.x = cast(T)rhs.x; // cannot overflow
         }

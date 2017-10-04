@@ -50,13 +50,23 @@ struct BitArrayN(uint len, Block = size_t)
     }
 
     /** Get pointer to data blocks. */
-    @property inout (Block*) ptr() inout pure nothrow @nogc { return _blocks.ptr; }
+    @property inout(Block*) ptr() inout @system
+
+    {
+        return _blocks.ptr;
+    }
 
     /** Reset all bits (to zero). */
-    void reset() @safe pure nothrow @nogc { _blocks[] = 0; }
+    void reset()
+    {
+        _blocks[] = 0;
+    }
 
     /** Gets the amount of native words backing this $(D BitArrayN). */
-    @property static uint dim() @safe pure nothrow @nogc { return blockCount; }
+    @property static uint dim()
+    {
+        return blockCount;
+    }
 
     /** Number of bits. */
     enum length = len;
@@ -75,9 +85,9 @@ struct BitArrayN(uint len, Block = size_t)
         @safe pure @nogc:
 
         /// Returns: `true` iff `this` is empty.
-        bool   empty()  const nothrow { return _i == _j; }
+        bool   empty()  const { return _i == _j; }
         /// Returns: `this` length.
-        size_t length() const nothrow { return _j - _i; }
+        size_t length() const { return _j - _i; }
 
         /// Get front.
         bool front() const
@@ -103,18 +113,18 @@ struct BitArrayN(uint len, Block = size_t)
         size_t _j = _store.length;
     }
 
-    pragma(inline, true) Range opSlice() const @trusted pure nothrow
+    pragma(inline, true) Range opSlice() const @trusted
     {
         return Range(this);
     }
 
-    pragma(inline, true) Range opSlice(size_t i, size_t j) const @trusted pure nothrow
+    pragma(inline, true) Range opSlice(size_t i, size_t j) const @trusted
     {
         return Range(this, i, j);
     }
 
     /** Gets the $(D i)'th bit. */
-    pragma(inline, true) bool opIndex(size_t i) const @trusted pure nothrow
+    pragma(inline, true) bool opIndex(size_t i) const @trusted
     in
     {
         assert(i < len);        // TODO nothrow or not?
@@ -139,7 +149,7 @@ struct BitArrayN(uint len, Block = size_t)
 
             Avoids range-checking because `i` of type is bound to (0 .. len-1).
         */
-        pragma(inline) bool opIndex(ModUInt)(Mod!(len, ModUInt) i) const @trusted pure nothrow
+        pragma(inline) bool opIndex(ModUInt)(Mod!(len, ModUInt) i) const @trusted
             if (isUnsigned!ModUInt)
         {
             static if (Block.sizeof == 8)
@@ -155,7 +165,7 @@ struct BitArrayN(uint len, Block = size_t)
         /** Get the $(D i)'th bit.
             Statically verifies that i is < BitArrayN length.
         */
-        pragma(inline) bool at(size_t i)() const @trusted pure nothrow
+        pragma(inline) bool at(size_t i)() const @trusted
             if (i < len)
         {
             return this[i];
@@ -163,7 +173,7 @@ struct BitArrayN(uint len, Block = size_t)
     }
 
     /** Puts the $(D i)'th bit to $(D b). */
-    pragma(inline, true) auto ref put()(size_t i, bool b) @trusted pure nothrow
+    pragma(inline, true) auto ref put()(size_t i, bool b) @trusted
     {
         this[i] = b;
         return this;
@@ -172,7 +182,7 @@ struct BitArrayN(uint len, Block = size_t)
     /** Sets the $(D i)'th bit. */
     import std.traits : isIntegral;
     pragma(inline, true)
-    bool opIndexAssign(Index2)(bool b, Index2 i) @trusted pure nothrow
+    bool opIndexAssign(Index2)(bool b, Index2 i) @trusted
         if (isIntegral!Index2)
     in
     {
@@ -230,7 +240,6 @@ struct BitArrayN(uint len, Block = size_t)
 
     /** Duplicate. */
     @property typeof(this) dup() const // TODO is this needed for value types?
-        @safe pure nothrow @nogc
     {
         return this;
     }
@@ -320,7 +329,6 @@ struct BitArrayN(uint len, Block = size_t)
 
     /** Reverse block `Block`. */
     private pragma(inline, true) @property Block reverseBlock(in Block block)
-        @safe pure nothrow @nogc
     {
         static if (Block.sizeof == 4)
         {
@@ -447,7 +455,6 @@ struct BitArrayN(uint len, Block = size_t)
 
     /** Sorts the $(D BitArrayN)'s elements. */
     @property typeof(this) sort()
-        @safe pure nothrow @nogc
     out (result)
     {
         assert(result == this);
@@ -593,7 +600,6 @@ struct BitArrayN(uint len, Block = size_t)
 
     /** Set this $(D BitArrayN) to the contents of $(D ba). */
     this(bool[] ba)
-        @safe pure nothrow @nogc
     in
     {
         assert(length == ba.length);
@@ -608,7 +614,6 @@ struct BitArrayN(uint len, Block = size_t)
 
     /** Set this $(D BitArrayN) to the contents of $(D ba). */
     this(const ref bool[len] ba)
-        @safe pure nothrow @nogc
     {
         foreach (immutable i, const b; ba)
         {
@@ -617,7 +622,6 @@ struct BitArrayN(uint len, Block = size_t)
     }
 
     bool opCast(T : bool)() const
-        @safe pure nothrow @nogc
     {
         return !this.allZero;
     }
@@ -660,7 +664,6 @@ struct BitArrayN(uint len, Block = size_t)
 
     /** Check if this $(D BitArrayN) has only ones in range [ $(d low), $(d high) [. */
     bool allOneBetween(size_t low, size_t high) const
-        @safe pure nothrow @nogc
     in
     {
         assert(low + 1 <= len && high <= len);
@@ -686,8 +689,6 @@ struct BitArrayN(uint len, Block = size_t)
          */
         struct OneIndexes
         {
-            @safe pure nothrow @nogc:
-
             this(BitArrayN store)
             {
                 this._store = store;
@@ -802,7 +803,7 @@ struct BitArrayN(uint len, Block = size_t)
         }
 
         /** Check if this $(D BitArrayN) has only ones. */
-        bool allOne() const @safe pure nothrow
+        bool allOne() const
         {
             const restCount = len % bitsPerBlock;
             const hasRest = restCount != 0;

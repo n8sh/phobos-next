@@ -28,9 +28,13 @@ struct ModArrayN(uint capacity,
 
     /// ElementType type `Element`.
     static if (L == 1)
+    {
         alias Element = Ix;
+    }
     else
+    {
         alias Element = Ix[L];
+    }
 
     this(uint rhsCapacity)(in ModArrayN!(rhsCapacity, elementLength, span) rhs)
     {

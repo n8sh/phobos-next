@@ -386,11 +386,13 @@ size_t bucketHash(alias hasher, K)(in K value)
         assert(s.length == i + 1);
 
         assert(s.contains(i));
+        assert(i in s);
 
         assert(s.insert(i));
         assert(s.length == i + 1);
 
         assert(s.contains(i));
+        assert(i in s);
     }
 
     assert(s.length == n);
@@ -400,11 +402,13 @@ size_t bucketHash(alias hasher, K)(in K value)
         assert(s.length == n - i);
 
         assert(s.contains(i));
+        assert(i in s);
 
         assert(s.remove(i));
         assert(s.length == n - i - 1);
 
         assert(!s.contains(i));
+        assert(i !in s);
         assert(!s.remove(i));
         assert(s.length == n - i - 1);
     }

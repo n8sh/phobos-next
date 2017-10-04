@@ -173,18 +173,14 @@ struct HashSet(K, V = void,
             if (hit &&
                 _buckets[bucketIndex].large.length <= smallBucketLength) // large fits in small
             {
-                // auto small = SmallBucket.fromValuesUnsafe(_buckets[bucketIndex].large[]); // TODO move elements
-                // assert(small == _buckets[bucketIndex].large[]);
+                auto small = SmallBucket.fromValuesUnsafe(_buckets[bucketIndex].large[]); // TODO move elements
+                assert(small == _buckets[bucketIndex].large[]);
 
-                // SmallBucket small2;
-                // moveEmplace(small, small2);
+                .destroy(_buckets[bucketIndex].large);
+                moveEmplace(small, _buckets[bucketIndex].small);
 
-                // dln(bucketIndex, ": ", small);
-                // .destroy(_buckets[bucketIndex].large);
-                // moveEmplace(small, _buckets[bucketIndex].small);
-
-                // _largeBucketFlags[bucketIndex] = false; // now small
-                // dln("...");
+                _largeBucketFlags[bucketIndex] = false; // now small
+                assert(_largeBucketFlags[bucketIndex] == false);
             }
             return hit;
         }

@@ -155,10 +155,11 @@ public:
     {
         import std.algorithm.mutation : moveEmplace;
 
-        alias U = Unqual!T;
-        moveEmplace(that, *cast(U*)(&_store)); // TODO ok when `that` has indirections?
+        alias MT = Unqual!T;
+        moveEmplace(*cast(MT*)&that,
+                    *cast(MT*)(&_store)); // TODO ok when `that` has indirections?
 
-        _tix = cast(Ix)indexOf!U; // set type tag
+        _tix = cast(Ix)indexOf!MT; // set type tag
     }
 
     VaryN opAssign(T)(T that) @trusted nothrow @nogc
@@ -168,10 +169,11 @@ public:
 
         if (hasValue) { release(); }
 
-        alias U = Unqual!T;
-        moveEmplace(that, *cast(U*)(&_store)); // TODO ok when `that` has indirections?
+        alias MT = Unqual!T;
+        moveEmplace(*cast(MT*)&that,
+                    *cast(MT*)(&_store)); // TODO ok when `that` has indirections?
 
-        _tix = cast(Ix)indexOf!U; // set type tag
+        _tix = cast(Ix)indexOf!MT; // set type tag
 
         return this;
     }
@@ -182,13 +184,13 @@ public:
     */
     @property inout(T)* peek(T)() inout @trusted nothrow @nogc
     {
-        alias U = Unqual!T;
-        static if (!is(U == void))
+        alias MT = Unqual!T;
+        static if (!is(MT == void))
         {
-            static assert(allowsAssignmentFrom!U, "Cannot store a " ~ U.stringof ~ " in a " ~ name);
+            static assert(allowsAssignmentFrom!MT, "Cannot store a " ~ MT.stringof ~ " in a " ~ name);
         }
-        if (!isOfType!U) return null;
-        return cast(inout U*)&_store; // TODO alignment
+        if (!isOfType!MT) return null;
+        return cast(inout MT*)&_store; // TODO alignment
     }
 
     /// Get Value of type $(D T).

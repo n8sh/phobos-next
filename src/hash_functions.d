@@ -1,6 +1,6 @@
 /** Various hash functions, including integer ones.
  */
-module hashfuns;
+module hash_functions;
 
 import std.traits : isIntegral;
 

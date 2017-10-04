@@ -90,6 +90,7 @@ struct HashSet(K, V = void,
         that._buckets = _buckets.dup;
         that._largeBucketFlags = _largeBucketFlags.dup;
         that._hashMask = _hashMask;
+        that._length = _length;
         return that;
     }
 

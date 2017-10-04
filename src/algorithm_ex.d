@@ -2480,3 +2480,29 @@ uint endsWith(alias needle, Haystack)(Haystack haystack) @trusted // TODO variad
     const haystack = "abć";
     assert(haystack.endsWith!('ć'));
 }
+
+/**
+ * Allows forbidden casts.
+ *
+ * Params:
+ *      OT = The output type.
+ *      IT = The input type, optional, likely to be infered.
+ *      it = A reference to an IT.
+ *
+ * Returns:
+ *      the same as $(D cast(OT) it), except that it never fails to compile.
+ */
+auto bruteCast(OT, IT)(auto ref IT it)
+{
+    return *cast(OT*) &it;
+}
+
+///
+nothrow pure @nogc unittest
+{
+    static immutable array = [0u,1u,2u];
+    size_t len;
+    //len = cast(uint) array; // not allowed.
+    len = bruteCast!uint(array);
+    assert(len == array.length);
+}

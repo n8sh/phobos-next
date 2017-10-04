@@ -165,7 +165,7 @@ struct IndexArrayN(uint capacity,
     }
 
     /** Returns: `true` if `key` is contained in `this`. */
-    bool contains(const Ix[] key) const @nogc
+    bool contains(in Ix[] key) const @nogc
     {
         // TODO use binarySearch instead of canFind
         import std.algorithm.searching : canFind;
@@ -180,7 +180,7 @@ struct IndexArrayN(uint capacity,
         /** Returns: `true` if `ix` is contained in `this`. */
         debug
         {
-            bool contains(ModUInt)(const Mod!(radix, ModUInt) ix) const @nogc
+            bool contains(ModUInt)(in Mod!(radix, ModUInt) ix) const @nogc
                 if (isUnsigned!ModUInt)
             {
                 // TODO use binarySearch instead of canFind
@@ -190,12 +190,12 @@ struct IndexArrayN(uint capacity,
         }
         else
         {
-            bool contains(UInt)(const UInt ix) const @nogc
+            bool contains(UInt)(in UInt ix) const @nogc
                 if (isUnsigned!UInt)
             {
                 // TODO use binarySearch instead of canFind
                 import std.algorithm.searching : canFind;
-                return (chunks.canFind(ix));
+                return (chunks.canFind(cast(T)ix));
             }
         }
     }

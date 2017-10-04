@@ -153,13 +153,11 @@ public:
     this(T)(T that) @trusted nothrow @nogc
         if (allowsAssignmentFrom!T)
     {
-        import std.conv : emplace;
-        import std.algorithm.mutation : move;
+        import std.algorithm.mutation : moveEmplace;
 
-        static assert(0, "Use moveEmplace instead");
         alias U = Unqual!T;
-        emplace!U(cast(U*)(&_store),
-                  (*cast(U*)&that).move()); // TODO ok when `that` has indirections?
+        moveEmplace(*cast(U*)&that,
+                    *cast(U*)(&_store)); // TODO ok when `that` has indirections?
 
         _tix = cast(Ix)indexOf!U; // set type tag
     }
@@ -167,15 +165,13 @@ public:
     VaryN opAssign(T)(T that) @trusted nothrow @nogc
         if (allowsAssignmentFrom!T)
     {
-        import std.conv : emplace;
-        import std.algorithm.mutation : move;
+        import std.algorithm.mutation : moveEmplace;
 
         if (hasValue) { release(); }
 
-        static assert(0, "Use moveEmplace instead");
         alias U = Unqual!T;
-        emplace!U(cast(U*)(&_store),
-                  (*cast(U*)&that).move()); // TODO ok when `that` has indirections?
+        moveEmplace(*cast(U*)&that,
+                    *cast(U*)(&_store)); // TODO ok when `that` has indirections?
 
         _tix = cast(Ix)indexOf!U; // set type tag
 

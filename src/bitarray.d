@@ -54,9 +54,17 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     }
 
     /** Set the `i`'th bit to `value`. */
-    void opIndexAssign(bool value, size_t i) @trusted
+    bool opIndexAssign(bool value, size_t i) @trusted
     {
-        bts(_blockPtr, i);
+        if (value)
+        {
+            bts(_blockPtr, i);
+        }
+        else
+        {
+            btr(_blockPtr, i);
+        }
+        return value;
     }
 
     /** Get number of bits set. */
@@ -130,6 +138,8 @@ version = show;
     assert(!a[1]);
     a[1] = true;
     assert(a[1]);
+    a[1] = false;
+    assert(!a[1]);
 }
 
 version(unittest)

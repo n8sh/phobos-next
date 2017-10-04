@@ -6,6 +6,23 @@ module hashset;
 
     TODO extend to HashSetOrMap and specialize HashSet to HashMap with void
     Value-type.
+
+    TODO use https://dlang.org/phobos/std_experimental_allocator.html as:
+
+    struct HashTable
+{
+    private IAllocator _allocator;
+    this(size_t buckets, IAllocator allocator = theAllocator) {
+        this._allocator = allocator;
+        ...
+    }
+    // Getter and setter
+    IAllocator allocator() { return _allocator; }
+    void allocator(IAllocator a) { assert(empty); _allocator = a; }
+}
+
+EMSI-containers has some help logic for this.
+
  */
 struct HashSet(K, V = void,
                alias Allocator = null,

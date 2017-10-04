@@ -43,9 +43,11 @@ struct BitArrayN(uint len, Block = size_t)
     /** Data stored as `Block`s. */
     private Block[blockCount] _blocks;
 
-    /** Data as an array unsigned bytes. */
-    const(ubyte)[] ubytes() const @trusted { return (cast(ubyte*)&_blocks)[0 .. _blocks.sizeof]; }
-    immutable(ubyte)[] ubytes() immutable @trusted { return (cast(ubyte*)&_blocks)[0 .. _blocks.sizeof]; }
+    /** Data as an array of unsigned bytes. */
+    inout(ubyte)[] ubytes() inout @trusted
+    {
+        return (cast(ubyte*)&_blocks)[0 .. _blocks.sizeof];
+    }
 
     /** Get pointer to data blocks. */
     @property inout (Block*) ptr() inout pure nothrow @nogc { return _blocks.ptr; }

@@ -23,6 +23,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
         return that;
     }
 
+    /** Construct with `length` number of zero bits stored in `blocks`. */
     pragma(inline)
     static typeof(this) withLengthAndBlocks(size_t length,
                                             Block[] blocks) @trusted
@@ -123,7 +124,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
 
 private:
 
-    /** Get block. */
+    /** Get blocks. */
     inout(Block)[] _blocks() inout @trusted
     {
         return _blockPtr[0 .. _blockCount];

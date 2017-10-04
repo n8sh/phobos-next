@@ -12,7 +12,7 @@ struct ModArrayN(uint capacity,
     private enum radix = 2^^span;
     import std.algorithm : move;
 
-    static if (true) // TODO debug
+    static if (true) // TODO replace with: `debug`
     {
         import modulo : Mod;
         alias Ix = Mod!(radix, ubyte);

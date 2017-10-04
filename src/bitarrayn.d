@@ -96,7 +96,7 @@ struct BitArrayN(uint len, Block = size_t)
         void popBack()  { assert(!empty); ++_i; }
 
     private:
-        BitArrayN _store;          // copy of store
+        BitArrayN _store;       // copy of store
         size_t _i = 0;          // iterator into _store
         size_t _j = _store.length;
     }
@@ -221,10 +221,13 @@ struct BitArrayN(uint len, Block = size_t)
         BitArrayN!2 bs;
         bs[0] = true;
         assert(bs[0]);
+        assert(!bs[1]);
+        bs[1] = true;
+        assert(bs[1]);
     }
 
-    /** Duplicates the $(D BitArrayN) and its contents. */
-    @property BitArrayN dup() const // TODO is this needed for value types?
+    /** Duplicate. */
+    @property typeof(this) dup() const // TODO is this needed for value types?
         @safe pure nothrow @nogc
     {
         return this;
@@ -333,7 +336,11 @@ struct BitArrayN(uint len, Block = size_t)
     }
 
     /** Reverses the bits of the $(D BitArrayN) in place. */
-    @property BitArrayN reverse() out (result) { assert(result == this); }
+    @property typeof(this) reverse()
+    out (result)
+    {
+        assert(result == this);
+    }
     body
     {
         static if (length == blockCount * bitsPerBlock)
@@ -437,7 +444,7 @@ struct BitArrayN(uint len, Block = size_t)
     }
 
     /** Sorts the $(D BitArrayN)'s elements. */
-    @property BitArrayN sort()
+    @property typeof(this) sort()
         @safe pure nothrow @nogc
     out (result)
     {
@@ -874,7 +881,7 @@ struct BitArrayN(uint len, Block = size_t)
     }
 
     /** Support for unary operator ~ for $(D BitArrayN). */
-    BitArrayN opCom() const
+    typeof(this) opCom() const
     {
         BitArrayN result;
         for (size_t i = 0; i < dim; ++i)
@@ -887,7 +894,7 @@ struct BitArrayN(uint len, Block = size_t)
     }
 
     /** Support for binary operator & for $(D BitArrayN). */
-    BitArrayN opAnd(in BitArrayN e2) const
+    typeof(this) opAnd(in typeof(this) e2) const
     {
         BitArrayN result;
         result._blocks[] = this._blocks[] & e2._blocks[];
@@ -904,7 +911,7 @@ struct BitArrayN(uint len, Block = size_t)
     }
 
     /** Support for binary operator | for $(D BitArrayN). */
-    BitArrayN opOr(in BitArrayN e2) const
+    typeof(this) opOr(in typeof(this) e2) const
     {
         BitArrayN result;
         result._blocks[] = this._blocks[] | e2._blocks[];
@@ -921,7 +928,7 @@ struct BitArrayN(uint len, Block = size_t)
     }
 
     /** Support for binary operator ^ for $(D BitArrayN). */
-    BitArrayN opXor(in BitArrayN e2) const
+    typeof(this) opXor(in typeof(this) e2) const
     {
         BitArrayN result;
         result._blocks[] = this._blocks[] ^ e2._blocks[];
@@ -941,7 +948,7 @@ struct BitArrayN(uint len, Block = size_t)
      *
      * $(D a - b) for $(D BitArrayN) means the same thing as $(D a &amp; ~b).
      */
-    BitArrayN opSub(in BitArrayN e2) const
+    typeof(this) opSub(in typeof(this) e2) const
     {
         BitArrayN result;
         result._blocks[] = this._blocks[] & ~e2._blocks[];
@@ -959,7 +966,7 @@ struct BitArrayN(uint len, Block = size_t)
 
     /** Support for operator &= for $(D BitArrayN).
      */
-    BitArrayN opAndAssign(in BitArrayN e2)
+    typeof(this) opAndAssign(in typeof(this) e2)
     {
         _blocks[] &= e2._blocks[];
         return this;
@@ -976,7 +983,7 @@ struct BitArrayN(uint len, Block = size_t)
 
     /** Support for operator |= for $(D BitArrayN).
      */
-    BitArrayN opOrAssign(in BitArrayN e2)
+    typeof(this) opOrAssign(in typeof(this) e2)
     {
         _blocks[] |= e2._blocks[];
         return this;
@@ -993,7 +1000,7 @@ struct BitArrayN(uint len, Block = size_t)
 
     /** Support for operator ^= for $(D BitArrayN).
      */
-    BitArrayN opXorAssign(in BitArrayN e2)
+    typeof(this) opXorAssign(in typeof(this) e2)
     {
         _blocks[] ^= e2._blocks[];
         return this;
@@ -1012,7 +1019,7 @@ struct BitArrayN(uint len, Block = size_t)
      *
      * $(D a -= b) for $(D BitArrayN) means the same thing as $(D a &amp;= ~b).
      */
-    BitArrayN opSubAssign(in BitArrayN e2)
+    typeof(this) opSubAssign(in typeof(this) e2)
     {
         _blocks[] &= ~e2._blocks[];
         return this;

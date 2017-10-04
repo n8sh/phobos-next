@@ -23,9 +23,27 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
         return that;
     }
 
+    pragma(inline)
+    static typeof(this) withLengthAndBlocks(size_t length,
+                                            Block[] blocks) @trusted
+    {
+        typeof(return) that = void;
+        that._blockCount = blocks.length;
+        that._blockPtr = cast(Block*)malloc(blockBits * that._blockCount);
+        that._blocks[] = blocks;
+        that._length = length;
+        return that;
+    }
+
     ~this() @trusted
     {
         free(_blockPtr);
+    }
+
+    /// Duplicate.
+    typeof(this) dup()
+    {
+        return typeof(this).withLengthAndBlocks(_length, _blocks);
     }
 
     void clear() @trusted
@@ -95,6 +113,12 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
         return typeof(return)(n);
     }
 
+    /** Support for operators == and != for $(D BitArrayN). */
+    bool opEquals(in ref typeof(this) rhs) const
+    {
+        return _blocks == rhs._blocks;
+    }
+
     @disable this(this);
 
 private:
@@ -140,6 +164,25 @@ version = show;
     assert(a[1]);
     a[1] = false;
     assert(!a[1]);
+}
+
+@safe pure nothrow @nogc unittest
+{
+    const n = 5;
+
+    auto a = BitArray!(null).withLength(n);
+    foreach (const i; 0 .. n)
+    {
+        assert(a.countOnes == i);
+        a[i] = true;
+        assert(a.countOnes == i + 1);
+    }
+    assert(a.countOnes == n);
+
+    auto b = a.dup;
+    assert(b.countOnes == n);
+
+    assert(a == b);
 }
 
 version(unittest)

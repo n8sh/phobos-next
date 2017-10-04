@@ -43,8 +43,10 @@ template TypeOfModulo(size_t m)
 
     TODO Move to Phobos std.typecons
  */
-template Mod(size_t m, T = TypeOfModulo!m)
-    if (m >= 1 && isIntegral!T)
+template Mod(size_t m,
+             T = TypeOfModulo!m)
+    if (m >= 1 &&
+        isIntegral!T)
 {
     import math_ex : isPowerOf2;
 

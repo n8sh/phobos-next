@@ -218,41 +218,61 @@ bool empty(UKey ukey) @safe pure nothrow @nogc { return ukey.length == 0; }
 private template IxElt(Value)
 {
     static if (is(Value == void)) // set case
+    {
         alias IxElt = UIx;
+    }
     else                        // map case
+    {
         struct IxElt { UIx ix; Value value; }
+    }
 }
 
 private static auto eltIx(Value)(inout IxElt!Value elt)
 {
     static if (is(Value == void)) // set case
+    {
         return elt;
+    }
     else                        // map case
+    {
         return elt.ix;
+    }
 }
 
 private template Elt(Value)
 {
     static if (is(Value == void)) // set case
+    {
         alias Elt = UKey;
+    }
     else                        // map case
+    {
         struct Elt { UKey key; Value value; }
+    }
 }
 
 private auto eltKey(Value)(inout Elt!Value elt)
 {
     static if (is(Value == void)) // set case
+    {
         return elt;
+    }
     else                        // map case
+    {
         return elt.key;
+    }
 }
 
 private auto eltKeyDropExactly(Value)(Elt!Value elt, size_t n)
 {
     static if (is(Value == void)) // set case
+    {
         return elt[n .. $];
+    }
     else                        // map case
+    {
         return Elt!Value(elt.key[n .. $], elt.value);
+    }
 }
 
 /** Results of attempt at modification sub. */
@@ -488,8 +508,14 @@ static private struct SparseLeaf1(Value)
     enum minCapacity = 0;     // preferred minimum number of preallocated values
 
     // preferred maximum number of preallocated values, if larger use a DenseLeaf1 instead
-    static if (hasValue) { enum maxCapacity = 128; }
-    else                { enum maxCapacity = 48; }
+    static if (hasValue)
+    {
+        enum maxCapacity = 128;
+    }
+    else
+    {
+        enum maxCapacity = 48;
+    }
 
     static if (true) // TODO debug
     {
@@ -515,9 +541,13 @@ static private struct SparseLeaf1(Value)
     typeof(this)* dup()
     {
         static if (hasValue)
+        {
             return constructVariableLength!(typeof(this))(this._capacity, ixs, values);
+        }
         else
+        {
             return constructVariableLength!(typeof(this))(this._capacity, ixs);
+        }
     }
 
     static if (hasValue)
@@ -587,9 +617,13 @@ static private struct SparseLeaf1(Value)
             {
                 // make room
                 static if (hasValue)
+                {
                     next = constructVariableLength!(typeof(this))(length + 1, ixsSlots, valuesSlots);
+                }
                 else
+                {
                     next = constructVariableLength!(typeof(this))(length + 1, ixsSlots);
+                }
                 this.deinit(); free(&this); // clear `this`. TODO reuse existing helper function in Phobos?
             }
             else
@@ -606,8 +640,14 @@ static private struct SparseLeaf1(Value)
                                        out size_t index) @trusted
     {
         // get index
-        static if (hasValue) { immutable ix = elt.ix; }
-        else                 { immutable ix = elt; }
+        static if (hasValue)
+        {
+            immutable ix = elt.ix;
+        }
+        else
+        {
+            immutable ix = elt;
+        }
 
         // handle existing element
         if (ixs.assumeSorted.containsStoreIndex(ix, index))
@@ -710,8 +750,14 @@ static private struct SparseLeaf1(Value)
     /** Get all reserved keys. */
     private pragma(inline) auto ixsSlots() inout @trusted @nogc
     {
-        static if (hasValue) return (cast(Ix*)(_values.ptr + _capacity))[0 .. _capacity];
-        else                 return _ixs.ptr[0 .. _capacity];
+        static if (hasValue)
+        {
+            return (cast(Ix*)(_values.ptr + _capacity))[0 .. _capacity];
+        }
+        else
+        {
+            return _ixs.ptr[0 .. _capacity];
+        }
     }
     static if (hasValue)
     {
@@ -825,9 +871,13 @@ static private struct DenseLeaf1(Value)
     typeof(this)* dup()
     {
         static if (hasValue)
+        {
             return construct!(typeof(this)*)(_ixBits, _values);
+        }
         else
+        {
             return construct!(typeof(this)*)(_ixBits);
+        }
     }
 
     ~this()
@@ -858,8 +908,14 @@ static private struct DenseLeaf1(Value)
     {
         ModStatus modStatus;
 
-        static if (hasValue) { immutable ix = elt.ix; }
-        else                 { immutable ix = elt; }
+        static if (hasValue)
+        {
+            immutable ix = elt.ix;
+        }
+        else
+        {
+            immutable ix = elt;
+        }
 
         if (contains(ix))
         {
@@ -1301,7 +1357,10 @@ template RawRadixTree(Value = void)
     }
 
     static assert(hasVariableLength!SparseBranch);
-    static if (!isValue) { static assert(SparseBranch.sizeof == 16); }
+    static if (!isValue)
+    {
+        static assert(SparseBranch.sizeof == 16);
+    }
 
     /** Dense/Unpacked `radix`-branch with `radix` number of sub-nodes. */
     static private struct DenseBranch
@@ -1671,8 +1730,14 @@ template RawRadixTree(Value = void)
             {
             case undefined: assert(false);
             case ix_HeptLeaf1:
-                static if (isValue) assert(false, "HeptLeaf1 cannot store a value");
-                else                return UIx(leaf1.as!(HeptLeaf1).keys[_ix]);
+                static if (isValue)
+                {
+                    assert(false, "HeptLeaf1 cannot store a value");
+                }
+                else
+                {
+                    return UIx(leaf1.as!(HeptLeaf1).keys[_ix]);
+                }
             case ix_SparseLeaf1Ptr:
                 return UIx(leaf1.as!(SparseLeaf1!Value*).ixs[_ix]);
             case ix_DenseLeaf1Ptr:
@@ -1755,9 +1820,13 @@ template RawRadixTree(Value = void)
             case undefined: assert(false);
             case ix_HeptLeaf1:
                 static if (isValue)
+                {
                     assert(false, "HeptLeaf1 cannot store a value");
+                }
                 else
+                {
                     return UIx(0);           // always first
+                }
             case ix_SparseLeaf1Ptr:
                 auto leaf_ = leaf1.as!(SparseLeaf1!Value*);
                 empty = leaf_.empty;
@@ -2989,24 +3058,40 @@ template RawRadixTree(Value = void)
             case undefined: return typeof(return).init;
             case ix_OneLeafMax7:
                 static if (isValue)
+                {
                     assert(false);
+                }
                 else
+                {
                     return insertAt(curr.as!(OneLeafMax7), key, elementRef);
+                }
             case ix_TwoLeaf3:
                 static if (isValue)
+                {
                     assert(false);
+                }
                 else
+                {
                     return insertAt(curr.as!(TwoLeaf3), key, elementRef);
+                }
             case ix_TriLeaf2:
                 static if (isValue)
+                {
                     assert(false);
+                }
                 else
+                {
                     return insertAt(curr.as!(TriLeaf2), key, elementRef);
+                }
             case ix_HeptLeaf1:
                 static if (isValue)
+                {
                     assert(false);
+                }
                 else
+                {
                     return insertAt(curr.as!(HeptLeaf1), key, elementRef);
+                }
             case ix_SparseLeaf1Ptr:
                 return insertAtLeaf(Leaf1!Value(curr.as!(SparseLeaf1!Value*)), elt, elementRef); // TODO use toLeaf(curr)
             case ix_DenseLeaf1Ptr:
@@ -3109,9 +3194,13 @@ template RawRadixTree(Value = void)
                 auto next = constructVariableLength!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
                                                                     IxSub(currSubIx, Node(curr)));
                 static if (isValue)
+                {
                     return insertAtLeaf1(Branch(next), UIx(key[$ - 1]), elt.value, elementRef);
+                }
                 else
+                {
                     return insertAtLeaf1(Branch(next), UIx(key[$ - 1]), elementRef);
+                }
             }
         }
     }
@@ -3165,16 +3254,24 @@ template RawRadixTree(Value = void)
         if (key.length == 1)
         {
             static if (isValue)
+            {
                 return insertAtLeaf1(curr, UIx(key[0]), elt.value, elementRef);
+            }
             else
+            {
                 return insertAtLeaf1(curr, UIx(key[0]), elementRef);
+            }
         }
         else                // key.length >= 2
         {
             static if (isValue)
+            {
                 return insertAtSubNode(curr, key, elt.value, elementRef);
+            }
             else
+            {
                 return insertAtSubNode(curr, key, elementRef);
+            }
         }
     }
 
@@ -3230,8 +3327,14 @@ template RawRadixTree(Value = void)
             }
         case ix_DenseLeaf1Ptr:
             immutable modStatus = curr.as!(DenseLeaf1!Value*).insert(elt);
-            static if (isValue) { immutable ix = elt.ix; }
-            else                 { immutable ix = elt; }
+            static if (isValue)
+            {
+                immutable ix = elt.ix;
+            }
+            else
+            {
+                immutable ix = elt;
+            }
             elementRef = ElementRef(Node(curr), ix, modStatus);
             break;
         default:
@@ -3295,9 +3398,13 @@ template RawRadixTree(Value = void)
         if (key.length == 1)
         {
             static if (isValue)
+            {
                 return Node(insertIxAtLeaftoLeaf(curr, IxElt!Value(UIx(key[0]), elt.value), elementRef));
+            }
             else
+            {
                 return Node(insertIxAtLeaftoLeaf(curr, UIx(key[0]), elementRef));
+            }
         }
         else
         {
@@ -4345,15 +4452,28 @@ struct RadixTree(Key, Value)
 
         TypedElt front() const
         {
-            static if (RawTree.hasValue) { return typeof(return)(_rawRange.lowKey.toTypedKey!Key,
-                                                                 _rawRange._front._cachedFrontValue); }
-            else                         { return _rawRange.lowKey.toTypedKey!Key; }
+            static if (RawTree.hasValue)
+            {
+                return typeof(return)(_rawRange.lowKey.toTypedKey!Key,
+                                      _rawRange._front._cachedFrontValue);
+            }
+            else
+            {
+                return _rawRange.lowKey.toTypedKey!Key;
+            }
         }
+
         TypedElt back() const
         {
-            static if (RawTree.hasValue) { return typeof(return)(_rawRange.highKey.toTypedKey!Key,
-                                                                 _rawRange._back._cachedFrontValue); }
-            else                         { return _rawRange.highKey.toTypedKey!Key; }
+            static if (RawTree.hasValue)
+            {
+                return typeof(return)(_rawRange.highKey.toTypedKey!Key,
+                                      _rawRange._back._cachedFrontValue);
+            }
+            else
+            {
+                return _rawRange.highKey.toTypedKey!Key;
+            }
         }
 
         @property typeof(this) save()
@@ -4378,13 +4498,28 @@ struct RadixTree(Key, Value)
 
         static if (RawTree.hasValue)
         {
-            const(Elt!Value) front() const { return typeof(return)(_rawRange.lowKey, _rawRange._front._cachedFrontValue); }
-            const(Elt!Value) back() const { return typeof(return)(_rawRange.highKey, _rawRange._back._cachedFrontValue);}
+            const(Elt!Value) front() const
+            {
+                return typeof(return)(_rawRange.lowKey,
+                                      _rawRange._front._cachedFrontValue);
+            }
+
+            const(Elt!Value) back() const
+            {
+                return typeof(return)(_rawRange.highKey,
+                                      _rawRange._back._cachedFrontValue);
+            }
         }
         else
         {
-            const(Elt!Value) front() const { return _rawRange.lowKey; }
-            const(Elt!Value) back() const { return _rawRange.highKey; }
+            const(Elt!Value) front() const
+            {
+                return _rawRange.lowKey;
+            }
+            const(Elt!Value) back() const
+            {
+                return _rawRange.highKey;
+            }
         }
 
         @property typeof(this) save()
@@ -4445,9 +4580,15 @@ struct RadixTree(Key, Value)
         {
             Array!Ix wholeRawKey = _rawKeyPrefix.dup;
             wholeRawKey ~= _rawRange.lowKey;
-            static if (RawTree.hasValue) { return typeof(return)(wholeRawKey[].toTypedKey!Key,
-                                                                 _rawRange._front._cachedFrontValue); }
-            else                         { return wholeRawKey[].toTypedKey!Key; }
+            static if (RawTree.hasValue)
+            {
+                return typeof(return)(wholeRawKey[].toTypedKey!Key,
+                                      _rawRange._front._cachedFrontValue);
+            }
+            else
+            {
+                return wholeRawKey[].toTypedKey!Key;
+            }
         }
 
         @property typeof(this) save()
@@ -4507,8 +4648,14 @@ void print(Key, Value)(const ref RadixTree!(Key, Value) tree) @safe
 */
 template MutableKey(Key)
 {
-    static if (isArray!Key) alias MutableKey = const(Unqual!(typeof(Key.init[0])))[];
-    else                    alias MutableKey = Key;
+    static if (isArray!Key)
+    {
+        alias MutableKey = const(Unqual!(typeof(Key.init[0])))[];
+    }
+    else
+    {
+        alias MutableKey = Key;
+    }
 }
 
 alias RadixTreeSetGrowOnly(Key) = RadixTree!(Key, void);
@@ -5138,8 +5285,14 @@ void testWords(Value)()
 
     enum hasValue = !is(Value == void);
 
-    static if (hasValue) { auto rtr = radixTreeMap!(string, Value); }
-    else                 { auto rtr = radixTreeSet!(string); }
+    static if (hasValue)
+    {
+        auto rtr = radixTreeMap!(string, Value);
+    }
+    else
+    {
+        auto rtr = radixTreeSet!(string);
+    }
     assert(rtr.empty);
 
     enum debugPrint = false;
@@ -5431,8 +5584,14 @@ template iota(size_t from, size_t to)
 private template iotaImpl(size_t to, size_t now)
 {
     import std.meta : AliasSeq;
-    static if (now >= to) { alias iotaImpl = AliasSeq!(now); }
-    else                  { alias iotaImpl = AliasSeq!(now, iotaImpl!(to, now + 1)); }
+    static if (now >= to)
+    {
+        alias iotaImpl = AliasSeq!(now);
+    }
+    else
+    {
+        alias iotaImpl = AliasSeq!(now, iotaImpl!(to, now + 1));
+    }
 }
 
 unittest

@@ -364,12 +364,13 @@ size_t bucketHash(alias hasher, K)(in K value)
     }
 }
 
-@safe pure nothrow unittest
+@safe pure nothrow @nogc unittest
 {
     immutable n = 11;
     alias K = uint;
 
-    auto s = HashSet!(K, void, null).withCapacity(n);
+    import digestx.fnv : FNV;
+    auto s = HashSet!(K, void, null, FNV!(64, true)).withCapacity(n);
 
     // all buckets start small
     assert(s.bucketCounts.smallCount != 0);

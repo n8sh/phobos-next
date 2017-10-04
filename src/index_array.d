@@ -10,7 +10,7 @@ struct ModArrayN(uint capacity,
     if (capacity*elementLength >= 2) // no use storing less than 2 bytes
 {
     private enum radix = 2^^span;
-    import std.algorithm : move;
+    import std.algorithm.mutation : move;
 
     static if (true) // TODO replace with: `debug`
     {
@@ -160,7 +160,6 @@ struct ModArrayN(uint capacity,
         assert(length + Es.length <= capacity);
         foreach (const i, ref e; es)
         {
-            import std.algorithm.mutation : move;
             _store[_length + i] = e.move();
         }
         _length = _length + Es.length;

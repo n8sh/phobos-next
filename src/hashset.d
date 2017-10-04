@@ -366,16 +366,16 @@ size_t bucketHash(alias hasher, K)(in K value)
 
 @safe pure nothrow unittest
 {
-    immutable elementCount = 11;
+    immutable n = 11;
     alias K = uint;
 
-    auto s = HashSet!(K, void, null).withCapacity(elementCount);
+    auto s = HashSet!(K, void, null).withCapacity(n);
 
     // all buckets start small
     assert(s.bucketCounts.smallCount != 0);
     assert(s.bucketCounts.largeCount == 0);
 
-    foreach (immutable i; 0 .. elementCount)
+    foreach (immutable i; 0 .. n)
     {
         assert(!s.contains(i));
         assert(i !in s);
@@ -392,20 +392,20 @@ size_t bucketHash(alias hasher, K)(in K value)
         assert(s.contains(i));
     }
 
-    assert(s.length == elementCount);
+    assert(s.length == n);
 
-    foreach (immutable i; 0 .. elementCount)
+    foreach (immutable i; 0 .. n)
     {
-        assert(s.length == elementCount - i);
+        assert(s.length == n - i);
 
         assert(s.contains(i));
 
         assert(s.remove(i));
-        assert(s.length == elementCount - i - 1);
+        assert(s.length == n - i - 1);
 
         assert(!s.contains(i));
         assert(!s.remove(i));
-        assert(s.length == elementCount - i - 1);
+        assert(s.length == n - i - 1);
     }
 
     assert(s.bucketCounts.largeCount == 0);

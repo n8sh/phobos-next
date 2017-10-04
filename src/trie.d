@@ -125,7 +125,6 @@ import std.range.primitives : hasLength;
 import bijections : isIntegralBijectableType, bijectToUnsigned, bijectFromUnsigned;
 import variant_ex : WordVariant;
 import typecons_ex : IndexedBy;
-import index_array : ModArrayN;
 import array_ex : Array = UniqueArray;
 import container_traits : shouldAddGCRange;
 
@@ -185,11 +184,11 @@ static assert(size_t.sizeof == 8, "Currently requires a 64-bit CPU (size_t.sizeo
 /** Radix Modulo Index
     Restricted index type avoids range checking in array indexing below.
 */
-static if (true) // TODO debug
+static if (true)
 {
     import modulo : Mod, mod;
     alias Ix = Mod!(radix, ubyte);
-    alias UIx = Mod!(radix, uint);
+    alias UIx = Mod!(radix, size_t); // `size_t` is faster than `uint` on Intel Haswell
 
     /** Mutable RawTree Key. */
     alias Key(size_t span) = Mod!(2^^span)[]; // TODO use bitarrayn to more naturally support span != 8.
@@ -197,11 +196,14 @@ static if (true) // TODO debug
     alias IKey(size_t span) = immutable(Mod!(2^^span))[]; // TODO use bitarrayn to more naturally support span != 8.
     /** Fixed-Length RawTree Key. */
     alias KeyN(size_t span, size_t N) = Mod!(2^^span)[N];
+
+    import index_array : ModArrayN;
+    alias IxsN = ModArrayN;
 }
 else
 {
     alias Ix = ubyte;
-    alias UIx = uint;
+    alias UIx = size_t;         // `size_t` is faster than `uint` on Intel Haswell
 
     /** Mutable RawTree Key. */
     alias Key(size_t span) = ubyte[]; // TODO use bitarrayn to more naturally support span != 8.
@@ -209,8 +211,10 @@ else
     alias IKey(size_t span) = immutable(ubyte)[]; // TODO use bitarrayn to more naturally support span != 8.
     /** Fixed-Length RawTree Key. */
     alias KeyN(size_t span, size_t N) = ubyte[N];
+
+    import arrayn : ArrayN;
+    alias IxsN = ArrayN;
 }
-alias IxsN = ModArrayN;
 
 alias UKey = Key!span;
 bool empty(UKey ukey) @safe pure nothrow @nogc { return ukey.length == 0; }

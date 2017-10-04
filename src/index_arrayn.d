@@ -10,7 +10,6 @@ struct IndexArrayN(uint capacity,
     if (capacity*elementLength >= 2) // no use storing less than 2 bytes
 {
     private enum radix = 2^^span;
-    import std.algorithm.mutation : move;
 
     debug
     {
@@ -123,7 +122,7 @@ struct IndexArrayN(uint capacity,
         // TODO is there a reusable Phobos function for this?
         foreach (const i; 0 .. _length - 1)
         {
-            move(_store[i + 1], _store[i]); // like `_store[i] = _store[i + 1];` but more generic
+            _store[i] = _store[i + 1]; // like `_store[i] = _store[i + 1];` but more generic
         }
         _length = _length - 1;
         return this;
@@ -136,7 +135,7 @@ struct IndexArrayN(uint capacity,
         // TODO is there a reusable Phobos function for this?
         foreach (const i; 0 .. _length - n)
         {
-            move(_store[i + n], _store[i]); // like `_store[i] = _store[i + n];` but more generic
+            _store[i] = _store[i + n];
         }
         _length = _length - n;
         return this;
@@ -157,9 +156,9 @@ struct IndexArrayN(uint capacity,
         if (Es.length <= capacity)
     {
         assert(length + Es.length <= capacity);
-        foreach (const i, ref e; es)
+        foreach (const i, const e; es)
         {
-            move(e, _store[_length + i]);
+            _store[_length + i] = e;
         }
         _length = _length + Es.length;
         return this;

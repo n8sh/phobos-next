@@ -417,24 +417,24 @@ unittest
     auto rng = ArrayRange!(immutable(char))(arr);
     assert(rng.array == "bla", rng.array);
     assert(rng.front == 'b');
-    rng.popFront;
+    rng.popFront();
     assert(rng.front == 'l');
-    rng.popFront;
+    rng.popFront();
     assert(rng.front == 'a');
-    rng.popFront;
+    rng.popFront();
     assert(rng.empty);
     assert(arr == "bla");
     //
     auto t1 = "é_é";
     auto r1 = ArrayRange!(immutable(char))(t1);
     auto r2 = r1.save;
-    foreach(i; 0 .. 3) r1.popFront;
+    foreach(i; 0 .. 3) r1.popFront();
     assert(r1.empty);
     r1 = r2;
     assert(r1.front == 'é');
     //
     auto r3 = ArrayRange!(immutable(char),true)(t1);
-    foreach(i; 0 .. 5) r3.popFront;
+    foreach(i; 0 .. 5) r3.popFront();
     assert(r3.empty);
 }
 
@@ -447,7 +447,7 @@ unittest
     while (!rng.empty)
     {
         assert(rng.front == cnt++);
-        rng.popFront;
+        rng.popFront();
     }
     assert(arr == src);
     auto bck = ArrayRange!ubyte(arr);
@@ -531,7 +531,7 @@ if (isInputRange!Range && is(typeof(unaryFun!pred)) && isImplicitlyConvertible!
         if (!f(range.front))
             break;
         else
-            range.popFront;
+            range.popFront();
     }
 }
 ///
@@ -562,7 +562,7 @@ pure @safe unittest
 }
 
 /**
- * Convenience function that calls popWhile() on the input argument 
+ * Convenience function that calls popWhile() on the input argument
  * and returns the consumed range to allow function pipelining.
  * In addition this wrapper accepts rvalues.
  */
@@ -685,8 +685,8 @@ if (isInputRange!R1 && isInputRange!R2 && is(ElementType!R1 == ElementType!R2))
             _takeFlop = !_takeFlop;
             final switch (_takeFlop)
             {
-                case false: return flop.popFront;
-                case true:  return flip.popFront;
+                case false: return flop.popFront();
+                case true:  return flip.popFront();
             }
         }
     }
@@ -730,7 +730,7 @@ if (isInputRange!Range && is(typeof(unaryFun!pred)) && isImplicitlyConvertible!
         ///
         void popFront()
         {
-            range.popFront;
+            range.popFront();
         }
         ///
         auto front()
@@ -822,7 +822,7 @@ if (isInputRange!Range && is(typeof((ElementType!Range).init))
     while (!range.empty)
     {
         result += ubyte(range.front != noone);
-        range.popFront;
+        range.popFront();
     }
     return result;
 }
@@ -1220,7 +1220,7 @@ bool deepIterate(alias Fun, string member = "", IdMode mode = IdMode.breadth,
         result = deepIterate!(Fun, member, mode, Range, A)(items.front, a);
         if (result)
             break;
-        items.popFront;
+        items.popFront();
     }
 
     static if (mode == IdMode.depth)
@@ -1441,4 +1441,3 @@ version (none) unittest
     c.foo(42,8);
     assert(int42 & int8 & ffree1 & ffree2);
 }
-

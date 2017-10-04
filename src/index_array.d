@@ -4,9 +4,9 @@ module index_array;
     `Mod`-elements in chunks of `elementLength`. `ElementType` is
     `Mod[elementLength]`.
 */
-struct ModArrayN(uint capacity,
-                 uint elementLength = 1,
-                 uint span = 8)
+struct IndexArrayN(uint capacity,
+                   uint elementLength = 1,
+                   uint span = 8)
     if (capacity*elementLength >= 2) // no use storing less than 2 bytes
 {
     private enum radix = 2^^span;
@@ -34,7 +34,7 @@ struct ModArrayN(uint capacity,
         alias Element = Ix[L];
     }
 
-    this(uint rhsCapacity)(in ModArrayN!(rhsCapacity, elementLength, span) rhs)
+    this(uint rhsCapacity)(in IndexArrayN!(rhsCapacity, elementLength, span) rhs)
     {
         static if (capacity < rhsCapacity)
         {
@@ -243,10 +243,10 @@ private:
                      ubyte, "_mustBeIgnored", typeBits)); // must be here and ignored because it contains `WordVariant` type of `Node`
 }
 
-static assert(ModArrayN!(3, 1, 8).sizeof == 4);
-static assert(ModArrayN!(7, 1, 8).sizeof == 8);
-static assert(ModArrayN!(3, 2, 8).sizeof == 8);
-static assert(ModArrayN!(2, 3, 8).sizeof == 8);
+static assert(IndexArrayN!(3, 1, 8).sizeof == 4);
+static assert(IndexArrayN!(7, 1, 8).sizeof == 8);
+static assert(IndexArrayN!(3, 2, 8).sizeof == 8);
+static assert(IndexArrayN!(2, 3, 8).sizeof == 8);
 
 ///
 @safe pure nothrow @nogc unittest
@@ -276,8 +276,8 @@ static assert(ModArrayN!(2, 3, 8).sizeof == 8);
     const ixs = [mk(11), mk(22), mk(33), mk(44)].s;
     enum capacity = 7;
 
-    auto x = ModArrayN!(capacity, 1)(ixs);
-    auto y = ModArrayN!(capacity, 1)(mk(11), mk(22), mk(33), mk(44));
+    auto x = IndexArrayN!(capacity, 1)(ixs);
+    auto y = IndexArrayN!(capacity, 1)(mk(11), mk(22), mk(33), mk(44));
 
     assert(x == y);
 
@@ -371,7 +371,7 @@ static assert(ModArrayN!(2, 3, 8).sizeof == 8);
 
     const ixs = [mk(11), mk(22), mk(33), mk(44)].s;
     enum capacity = 7;
-    auto z = ModArrayN!(capacity, 1)(ixs);
+    auto z = IndexArrayN!(capacity, 1)(ixs);
     assert(z.sizeof == 8);
     try
     {

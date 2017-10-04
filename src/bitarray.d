@@ -12,7 +12,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     @safe pure nothrow @nogc:
 
     /** Construct with `length` number of zero bits. */
-    pragma(inline)              // TODO gcc cannot inline this
+    pragma(inline)              // TODO DMD cannot inline this
     static typeof(this) withLength(size_t length) @trusted
     {
         typeof(return) that;
@@ -24,7 +24,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     }
 
     /** Construct with `length` number of zero bits stored in `blocks`. */
-    pragma(inline)
+    pragma(inline)              // TODO DMD cannot inline this
     static typeof(this) withLengthAndBlocks(size_t length,
                                             Block[] blocks) @trusted
     {
@@ -36,6 +36,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
         return that;
     }
 
+    /// Destroy.
     ~this() @trusted
     {
         free(_blockPtr);
@@ -47,6 +48,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
         return typeof(this).withLengthAndBlocks(_length, _blocks);
     }
 
+    /// Empty.
     void clear() @trusted
     {
         free(_blockPtr);
@@ -87,6 +89,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     }
 
     /** Get number of bits set. */
+    pragma(inline, false)
     size_t countOnes() const    // TODO make free function
     {
         typeof(return) n = 0;
@@ -114,7 +117,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
         return typeof(return)(n);
     }
 
-    /** Support for operators == and != for $(D BitArrayN). */
+    /** Equality, operators == and !=. */
     bool opEquals(in ref typeof(this) rhs) const
     {
         return _blocks == rhs._blocks;

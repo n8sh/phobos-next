@@ -2,6 +2,7 @@ module hashset;
 
 /** Hash set (or map) storing (key) elements of type `K` and values of type `V`.
 
+    HashSet
     Uses small-size-optimized (SSO) arrays as buckets.
 
     TODO extend to HashSetOrMap and specialize HashSet to HashMap with void
@@ -27,7 +28,8 @@ EMSI-containers has some helper logic for this.
 struct HashSet(K, V = void,
                alias Allocator = null,
                alias hasher = hashOf,
-               uint smallBucketMinLength = 1) // at least one element in small bucket for good performance
+               uint smallBucketMinLength = 1)
+    if (smallBucketMinLength >= 1) // no use having empty small buckets
 {
     import std.algorithm.mutation : move, moveEmplace;
     import std.algorithm.searching : canFind;

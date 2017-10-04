@@ -406,7 +406,8 @@ struct TriLeaf2
         case 3:
             import std.algorithm.searching : commonPrefix;
             return commonPrefix(keys.at!0[],
-                                commonPrefix(keys.at!1[], keys.at!2[])); // TODO make and reuse variadic commonPrefix
+                                commonPrefix(keys.at!1[],
+                                             keys.at!2[])); // TODO make and reuse variadic commonPrefix
         }
     }
 

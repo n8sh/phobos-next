@@ -249,6 +249,102 @@ static assert(ModArrayN!(3, 2, 8).sizeof == 8);
 static assert(ModArrayN!(2, 3, 8).sizeof == 8);
 
 ///
+@safe pure nothrow @nogc unittest
+{
+    import std.algorithm : equal;
+
+    debug
+    {
+        enum span = 8;
+        enum radix = 2^^span;
+        import modulo : Mod, mod;
+        alias Ix = Mod!(radix, ubyte);
+        static Mod!radix mk(ubyte value)
+        {
+            return mod!radix(value);
+        }
+    }
+    else
+    {
+        alias Ix = ubyte;
+        static ubyte mk(ubyte value)
+        {
+            return value;
+        }
+    }
+
+    auto ixs = [mk(11), mk(22), mk(33), mk(44)].s;
+    enum capacity = 7;
+
+    auto x = ModArrayN!(capacity, 1)(ixs);
+    auto y = ModArrayN!(capacity, 1)(mk(11), mk(22), mk(33), mk(44));
+
+    assert(x == y);
+
+    assert(x.length == 4);
+    assert(x.available == 3);
+    assert(!x.empty);
+
+    assert(!x.contains([mk(10)].s));
+    assert(x.contains([mk(11)].s));
+    assert(x.contains([mk(22)].s));
+    assert(x.contains([mk(33)].s));
+    assert(x.contains([mk(44)].s));
+    assert(!x.contains([mk(45)].s));
+
+    assert(!x.contains(mk(10)));
+    assert(x.contains(mk(11)));
+    assert(x.contains(mk(22)));
+    assert(x.contains(mk(33)));
+    assert(x.contains(mk(44)));
+    assert(!x.contains(mk(45)));
+
+    assert(x.equal([11, 22, 33, 44].s[]));
+    assert(x.front == 11);
+    assert(x.back == 44);
+    assert(!x.full);
+    x.popFront();
+    assert(x.equal([22, 33, 44].s[]));
+    assert(x.front == 22);
+    assert(x.back == 44);
+    assert(!x.full);
+    x.popBack();
+    assert(x.equal([22, 33].s[]));
+    assert(x.front == 22);
+    assert(x.back == 33);
+    assert(!x.full);
+    x.popFront();
+    assert(x.equal([33].s[]));
+    assert(x.front == 33);
+    assert(x.back == 33);
+    assert(!x.full);
+    x.popFront();
+    assert(x.empty);
+    assert(!x.full);
+    assert(x.length == 0);
+
+    x.pushBack(mk(11), mk(22), mk(33), mk(44), mk(55), mk(66), mk(77));
+    assert(x.equal([11, 22, 33, 44, 55, 66, 77].s[]));
+    assert(!x.empty);
+    assert(x.full);
+
+    x.popFrontN(3);
+    assert(x.equal([44, 55, 66, 77].s[]));
+
+    x.popFrontN(2);
+    assert(x.equal([66, 77].s[]));
+
+    x.popFrontN(1);
+    assert(x.equal([77].s[]));
+
+    x.popFrontN(1);
+    assert(x.empty);
+
+    x.pushBack(1).pushBack(2).equal([1, 2].s[]);
+    assert(x.equal([1, 2].s[]));
+    assert(x.length == 2);
+}
+
 @safe pure nothrow unittest
 {
     import std.algorithm : equal;
@@ -273,77 +369,8 @@ static assert(ModArrayN!(2, 3, 8).sizeof == 8);
         }
     }
 
-    auto ixs = [mk(11), mk(22), mk(33), mk(44)];
+    auto ixs = [mk(11), mk(22), mk(33), mk(44)].s;
     enum capacity = 7;
-
-    auto x = ModArrayN!(capacity, 1)(ixs);
-    auto y = ModArrayN!(capacity, 1)(mk(11), mk(22), mk(33), mk(44));
-
-    assert(x == y);
-
-    assert(x.length == 4);
-    assert(x.available == 3);
-    assert(!x.empty);
-
-    assert(!x.contains([mk(10)]));
-    assert(x.contains([mk(11)]));
-    assert(x.contains([mk(22)]));
-    assert(x.contains([mk(33)]));
-    assert(x.contains([mk(44)]));
-    assert(!x.contains([mk(45)]));
-
-    assert(!x.contains(mk(10)));
-    assert(x.contains(mk(11)));
-    assert(x.contains(mk(22)));
-    assert(x.contains(mk(33)));
-    assert(x.contains(mk(44)));
-    assert(!x.contains(mk(45)));
-
-    assert(x.equal([11, 22, 33, 44]));
-    assert(x.front == 11);
-    assert(x.back == 44);
-    assert(!x.full);
-    x.popFront();
-    assert(x.equal([22, 33, 44]));
-    assert(x.front == 22);
-    assert(x.back == 44);
-    assert(!x.full);
-    x.popBack();
-    assert(x.equal([22, 33]));
-    assert(x.front == 22);
-    assert(x.back == 33);
-    assert(!x.full);
-    x.popFront();
-    assert(x.equal([33]));
-    assert(x.front == 33);
-    assert(x.back == 33);
-    assert(!x.full);
-    x.popFront();
-    assert(x.empty);
-    assert(!x.full);
-    assert(x.length == 0);
-
-    x.pushBack(mk(11), mk(22), mk(33), mk(44), mk(55), mk(66), mk(77));
-    assert(x.equal([11, 22, 33, 44, 55, 66, 77]));
-    assert(!x.empty);
-    assert(x.full);
-
-    x.popFrontN(3);
-    assert(x.equal([44, 55, 66, 77]));
-
-    x.popFrontN(2);
-    assert(x.equal([66, 77]));
-
-    x.popFrontN(1);
-    assert(x.equal([77]));
-
-    x.popFrontN(1);
-    assert(x.empty);
-
-    x.pushBack(1).pushBack(2).equal([1, 2]);
-    assert(x.equal([1, 2]));
-    assert(x.length == 2);
-
     auto z = ModArrayN!(capacity, 1)(ixs);
     assert(z.sizeof == 8);
     try

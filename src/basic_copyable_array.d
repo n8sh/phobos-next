@@ -519,7 +519,7 @@ struct CopyableArray(T,
     /** Remove last value fromm the end of the array.
      */
     pragma(inline, true)
-    void removeBack()
+    void popBack()
     {
         assert(!empty);
         _length -= 1;
@@ -528,7 +528,7 @@ struct CopyableArray(T,
             .destroy(_mptr[_length]);
         }
     }
-    alias dropBack = removeBack;
+    alias dropBack = popBack;
 
     /** Pop back element and return it. */
     pragma(inline, true)

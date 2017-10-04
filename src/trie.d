@@ -197,7 +197,7 @@ static if (true)                // TODO replace with: `debug`
     /** Fixed-Length RawTree Key. */
     alias KeyN(size_t span, size_t N) = Mod!(2^^span)[N];
 
-    import index_array : IndexArrayN;
+    import index_arrayn : IndexArrayN;
 }
 else
 {

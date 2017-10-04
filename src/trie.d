@@ -315,7 +315,10 @@ struct OneLeafMax7
         this.key = key;
     }
 
-    pragma(inline) bool contains(UKey key) const nothrow @nogc { return this.key == key; }
+    pragma(inline) bool contains(UKey key) const nothrow @nogc
+    {
+        return this.key == key;
+    }
 
     @property string toString() const
     {

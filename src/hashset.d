@@ -379,6 +379,8 @@ size_t bucketHash(alias hasher, K)(in K value)
         assert(s.length == elementCount - i - 1);
     }
 
+    assert(s.bucketCounts.largeCount == 0);
+
     assert(s.length == 0);
 
     s.clear();

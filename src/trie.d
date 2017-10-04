@@ -198,7 +198,6 @@ static if (true)                // TODO replace with: `debug`
     alias KeyN(size_t span, size_t N) = Mod!(2^^span)[N];
 
     import index_array : ModArrayN;
-    alias IxsN = ModArrayN;
 }
 else
 {
@@ -211,13 +210,15 @@ else
     alias IKey(size_t span) = immutable(ubyte)[]; // TODO use bitarrayn to more naturally support span != 8.
     /** Fixed-Length RawTree Key. */
     alias KeyN(size_t span, size_t N) = ubyte[N];
-
-    import arrayn : ArrayN;
-    alias IxsN = ArrayN;
 }
 
+alias IxsN = ModArrayN;
+
 alias UKey = Key!span;
-bool empty(UKey ukey) @safe pure nothrow @nogc { return ukey.length == 0; }
+bool empty(UKey ukey) @safe pure nothrow @nogc
+{
+    return ukey.length == 0;
+}
 
 private template IxElt(Value)
 {

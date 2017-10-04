@@ -184,7 +184,7 @@ static assert(size_t.sizeof == 8, "Currently requires a 64-bit CPU (size_t.sizeo
 /** Radix Modulo Index
     Restricted index type avoids range checking in array indexing below.
 */
-static if (true)
+static if (true)                // TODO replace with: `debug`
 {
     import modulo : Mod, mod;
     alias Ix = Mod!(radix, ubyte);

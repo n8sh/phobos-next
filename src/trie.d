@@ -5609,3 +5609,8 @@ unittest
 }
 
 import qcmeman;
+
+version(unittest)
+{
+    import array_help : s;
+}

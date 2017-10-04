@@ -159,12 +159,12 @@ auto maskBit(T)(const T value, size_t index) nothrow @safe pure
     return mask!(MaskKind.Bit)(value, index);
 }
 ///
-nothrow @safe pure unittest
+nothrow @safe pure @nogc unittest
 {
     assert(maskBit(0b1111,1) == 0b1101);
 }
 
-nothrow @safe pure unittest
+nothrow @safe pure @nogc unittest
 {
     enum v0 = 0x44332211;
     static assert(mask!0(v0) == 0x44332200);

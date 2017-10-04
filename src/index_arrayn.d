@@ -159,7 +159,7 @@ struct IndexArrayN(uint capacity,
         assert(length + Es.length <= capacity);
         foreach (const i, ref e; es)
         {
-            _store[_length + i] = e.move();
+            move(e, _store[_length + i]);
         }
         _length = _length + Es.length;
         return this;
@@ -179,7 +179,7 @@ struct IndexArrayN(uint capacity,
         import std.traits : isUnsigned;
 
         /** Returns: `true` if `ix` is contained in `this`. */
-        static if (true) // TODO debug
+        debug
         {
             bool contains(ModUInt)(const Mod!(radix, ModUInt) ix) const @nogc
                 if (isUnsigned!ModUInt)
@@ -340,7 +340,7 @@ static assert(IndexArrayN!(2, 3, 8).sizeof == 8);
     x.popFrontN(1);
     assert(x.empty);
 
-    x.pushBack(1).pushBack(2).equal([1, 2].s[]);
+    x.pushBack(mk(1)).pushBack(mk(2)).equal([1, 2].s[]);
     assert(x.equal([1, 2].s[]));
     assert(x.length == 2);
 }

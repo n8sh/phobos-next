@@ -125,9 +125,8 @@ import std.range.primitives : hasLength;
 import bijections : isIntegralBijectableType, bijectToUnsigned, bijectFromUnsigned;
 import variant_ex : WordVariant;
 import typecons_ex : IndexedBy;
-// import basic_uncopyable_array : Array = UncopyableArray;
-import array_ex : Array = UniqueArray;
 import container_traits : shouldAddGCRange;
+import basic_uncopyable_array : Array = UncopyableArray;
 
 // version = enterSingleInfiniteMemoryLeakTest;
 version = benchmark;
@@ -2113,16 +2112,16 @@ template RawRadixTree(Value = void)
             return _bRanges[_branch1Depth].atLeaf1;
         }
 
-        void shrinkTo(size_t length)
+        void shrinkTo(size_t newLength)
         {
             // turn emptyness exception into an assert like ranges do
             // size_t suffixLength = 0;
-            // foreach (const ref branchRange; _bRanges[$ - length .. $]) // TODO reverse isearch
+            // foreach (const ref branchRange; _bRanges[$ - newLength .. $]) // TODO reverse isearch
             // {
             //     suffixLength += branchRange.prefixLength + 1;
             // }
             // _branchesKeyPrefix.popBackN(suffixLength);
-            _bRanges.shrinkTo(length);
+            _bRanges.length = newLength;
         }
 
         void push(ref BranchRange branchRange)
@@ -2229,7 +2228,7 @@ template RawRadixTree(Value = void)
 
         private void cacheFront()
         {
-            _cachedFrontKey.shrinkTo(0); // not clear() because we want to keep existing allocation
+            _cachedFrontKey.length = 0; // not clear() because we want to keep existing allocation
 
             // branches
             static if (isValue)

@@ -219,7 +219,7 @@ auto radixSort(R,
             for (size_t j = n - 1; j < n; j -= unrollFactor) // for each element `j` in reverse order. when `j` wraps around `j` < `n` is no longer true
             {
                 version(LDC) static if (__VERSION__ >= 2076) { static assert(0, "TODO use static foreach inplace of iota!(...)"); }
-                import range_ex : iota;
+                import static_iota : iota;
                 foreach (k; iota!(0, unrollFactor)) // inlined (unrolled) loop
                 {
                     immutable i = (input[j - k].bijectToUnsigned(descending) >> digitBitshift) & mask; // digit (index)

@@ -2143,6 +2143,7 @@ ElementType!R[n] arrayN(size_t n, R)(R r)
 
 /** Static array overload for `std.algorithm.iteration.map`.
     See also: http://forum.dlang.org/thread/rqlittlysttwxwphlnmh@forum.dlang.org
+    TODO Add to Phobos
  */
 typeof(fun(E.init))[n] map(alias fun, E, size_t n)(const E[n] src)
 {

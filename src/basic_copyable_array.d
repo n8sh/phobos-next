@@ -442,7 +442,7 @@ struct CopyableArray(T,
 
     /** Insert unmoveable `value` into the end of the array.
      */
-    pragma(inline, true)
+    pragma(inline)              // DMD cannot inline
     void insertBack()(T value) @trusted
         if (!isCopyable!T)
     {
@@ -978,8 +978,11 @@ unittest
 }
 
 /// removal
-@safe pure nothrow @nogc unittest
+@safe pure nothrow unittest
 {
+    size_t mallocCount = 0;
+    size_t freeCount = 0;
+
     struct S
     {
         @safe pure nothrow @nogc:
@@ -990,6 +993,7 @@ unittest
         {
             // dln("ctor:");
             _ptr = cast(int*)malloc(1);
+            mallocCount += 1;
             dln("malloc: _ptr=", _ptr);
             *_ptr = x;
         }
@@ -1000,6 +1004,7 @@ unittest
         {
             // dln("dtor:");
             free(_ptr);
+            freeCount += 1;
             dln("free: _ptr=", _ptr);
         }
 
@@ -1016,14 +1021,24 @@ unittest
         @NoGc int* _ptr;
     }
 
+    size_t extraDtor = 1;
+
     alias A = CopyableArray!(S);
-    A a;
 
-    a.insertBack(S(11));
-    assert(a.front !is S(11));
-    assert(a.back !is S(11));
+    assert(mallocCount == 0);
 
-    a.insertBack(S(12));
+    {
+        A a;
+        a.insertBack(S(11));
+        assert(mallocCount == 1);
+        assert(freeCount == extraDtor + 0);
+    }
+
+    assert(freeCount == extraDtor + 1);
+
+    // assert(a.front !is S(11));
+    // assert(a.back !is S(11));
+    // a.insertBack(S(12));
 }
 
 /// TODO Move to Phobos.

@@ -994,7 +994,7 @@ unittest
             // dln("ctor:");
             _ptr = cast(int*)malloc(1);
             mallocCount += 1;
-            dln("malloc: _ptr=", _ptr);
+            // dln("malloc: _ptr=", _ptr);
             *_ptr = x;
         }
 
@@ -1005,7 +1005,7 @@ unittest
             // dln("dtor:");
             free(_ptr);
             freeCount += 1;
-            dln("free: _ptr=", _ptr);
+            // dln("free: _ptr=", _ptr);
         }
 
         // bool opEquals(in typeof(this) rhs) const @trusted
@@ -1050,5 +1050,5 @@ private enum bool isRefIterable(T) = is(typeof({ foreach (ref elem; T.init) {} }
 version(unittest)
 {
     import array_help : s;
-    import dbgio;
+    // import dbgio;
 }

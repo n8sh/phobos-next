@@ -46,7 +46,7 @@ else
 version(LDC) static if (__VERSION__ >= 2076) { static assert(0, "TODO use static foreach inplace of iota!(...)"); }
 
 // TODO use import core.simd;
-import std.stdio: writeln;
+import std.stdio: wln = writeln;
 import std.math: sqrt, isNaN, isInfinity, PI, sin, cos, acos;
 import std.conv: to;
 import std.traits: isSomeString, isIntegral, isFloatingPoint, isNumeric, isSigned, isStaticArray, isDynamicArray, isImplicitlyConvertible, isAssignable, isArray, CommonType;
@@ -56,7 +56,6 @@ import std.algorithm : map, all, any, min, max, reduce;
 import std.random: uniform;
 
 import mathml;
-alias wln = writeln;
 import static_iota : iota;
 import traits_ex: haveCommonType;
 

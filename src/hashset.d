@@ -41,18 +41,20 @@ struct HashSet(K, V = void,
     import std.algorithm.mutation : move, moveEmplace;
     import std.algorithm.searching : canFind;
 
+    enum hasValue = !is(V == void);
+
     /// Element type.
-    static if (is(V == void))
-    {
-        private alias T = K;
-    }
-    else
+    static if (hasValue)
     {
         private struct T
         {
             K key;
             V value;
         }
+    }
+    else
+    {
+        private alias T = K;
     }
 
     alias ElementType = T;
@@ -423,6 +425,20 @@ size_t bucketHash(alias hasher, K)(in K value)
 
     s.clear();
     assert(s.length == 0);
+}
+
+@safe pure nothrow @nogc unittest
+{
+    immutable n = 11;
+    alias K = uint;
+    alias V = string;
+
+    import digestx.fnv : FNV;
+    auto s = HashSet!(K, V, null, FNV!(64, true)).withCapacity(n);
+
+    // all buckets start small
+    assert(s.bucketCounts.smallCount != 0);
+    assert(s.bucketCounts.largeCount == 0);
 }
 
 version = show;

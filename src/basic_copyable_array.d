@@ -683,7 +683,7 @@ private:
     }
     else
     {
-        @nogc T* _ptr;          // non-GC-allocated store pointer
+        @NoGc T* _ptr;          // non-GC-allocated store pointer
     }
     size_t _capacity;           // store capacity
     size_t _length;             // store length
@@ -1021,9 +1021,12 @@ unittest
         @NoGc int* _ptr;
     }
 
+    // TODO static assert(!mustAddGCRange!S);
+
     size_t extraDtor = 1;
 
     alias A = CopyableArray!(S);
+    static assert(!mustAddGCRange!A);
 
     assert(mallocCount == 0);
 

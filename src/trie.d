@@ -181,10 +181,12 @@ private enum radix = 2^^span;
 static assert(span == 8, "Radix is currently limited to 8");
 static assert(size_t.sizeof == 8, "Currently requires a 64-bit CPU (size_t.sizeof == 8)");
 
+version = useModulo;
+
 /** Radix Modulo Index
     Restricted index type avoids range checking in array indexing below.
 */
-static if (true)                // TODO replace with: `debug`
+version(useModulo)
 {
     import modulo : Mod, mod;
     alias Ix = Mod!(radix, ubyte);
@@ -196,13 +198,11 @@ static if (true)                // TODO replace with: `debug`
     alias IKey(size_t span) = immutable(Mod!(2^^span))[]; // TODO use bitarrayn to more naturally support span != 8.
     /** Fixed-Length RawTree Key. */
     alias KeyN(size_t span, size_t N) = Mod!(2^^span)[N];
-
-    import index_arrayn : IndexArrayN;
 }
 else
 {
     alias Ix = ubyte;
-    alias UIx = size_t;         // `size_t` is faster than `uint` on Intel Haswell
+    alias UIx = size_t;
 
     /** Mutable RawTree Key. */
     alias Key(size_t span) = ubyte[]; // TODO use bitarrayn to more naturally support span != 8.
@@ -212,6 +212,7 @@ else
     alias KeyN(size_t span, size_t N) = ubyte[N];
 }
 
+import index_arrayn : IndexArrayN;
 alias IxsN = IndexArrayN;
 
 alias UKey = Key!span;
@@ -526,7 +527,7 @@ static private struct SparseLeaf1(Value)
         enum maxCapacity = 48;
     }
 
-    static if (true) // TODO debug
+    version(useModulo)
     {
         alias Capacity = Mod!(maxCapacity + 1);
     }
@@ -1103,7 +1104,7 @@ template RawRadixTree(Value = void)
 
     enum isValue = !is(Value == void);
 
-    static if (true) // TODO debug
+    version(useModulo)
     {
         alias SubCount = Mod!(radix + 1);
     }
@@ -1123,7 +1124,7 @@ template RawRadixTree(Value = void)
         enum maxCapacity = 48; // maximum number of preallocated sub-indexes and sub-nodes
         enum prefixCapacity = 5; // 5, 13, 21, ...
 
-        static if (true) // TODO debug
+        version(useModulo)
         {
             alias Count = Mod!(maxCapacity + 1);
         }
@@ -1448,7 +1449,9 @@ template RawRadixTree(Value = void)
             immutable bool hit = cnt >= 0;
             if (hit)
             {
-                nextIx = Ix(currIx + cnt);
+                const nextIx_ = currIx + cnt;
+                assert(nextIx_ <= Ix.max);
+                nextIx = cast(Ix)nextIx_;
             }
             return hit;
         }
@@ -1607,7 +1610,7 @@ template RawRadixTree(Value = void)
                 key ~= branch.as!(DenseBranch*).prefix[];
                 break;
             }
-            key ~= frontIx.to!Ix; // uses cached data so ok to not depend on branch type
+            key ~= Ix(frontIx); // uses cached data so ok to not depend on branch type
         }
 
         size_t prefixLength() const @nogc
@@ -1956,13 +1959,13 @@ template RawRadixTree(Value = void)
                 key ~= leaf.as!(TriLeaf2).keys[ix][];
                 break;
             case ix_HeptLeaf1:
-                key ~= leaf.as!(HeptLeaf1).keys[ix].to!Ix;
+                key ~= Ix(leaf.as!(HeptLeaf1).keys[ix]);
                 break;
             case ix_SparseLeaf1Ptr:
-                key ~= leaf.as!(SparseLeaf1!Value*).ixs[ix].to!Ix;
+                key ~= Ix(leaf.as!(SparseLeaf1!Value*).ixs[ix]);
                 break;
             case ix_DenseLeaf1Ptr:
-                key ~= ix.to!Ix;
+                key ~= Ix(ix);
                 break;
             default: assert(false, "Unsupported Node type");
             }

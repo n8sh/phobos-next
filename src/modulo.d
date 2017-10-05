@@ -87,7 +87,7 @@ template Mod(size_t m,
         }
         body
         {
-            this.x = cast(T)value; // overflow checked in ctor
+            this.x = cast(T)value;
         }
 
         /// Construct from Mod!n, where `m >= n`.

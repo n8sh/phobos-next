@@ -188,11 +188,18 @@ import std.typecons : Nullable;
 bool hasContents(T)(in T a) // @safe pure nothrow @nogc
 {
     static if (isInstanceOf!(Nullable, T))
+    {
         return !a.isNull;
-    else static if (isArray!T || isSomeString!T)
+    }
+    else static if (isArray!T ||
+                    isSomeString!T)
+    {
         return cast(bool)a.length; // see: http://stackoverflow.com/questions/18563414/empty-string-should-implicit-convert-to-bool-true/18566334?noredirect=1#18566334
+    }
     else
+    {
         return cast(bool)a;
+    }
 }
 
 /** Reset $(D a) to its default value.

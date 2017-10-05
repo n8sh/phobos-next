@@ -1023,6 +1023,9 @@ unittest
 
     // TODO static assert(!mustAddGCRange!S);
 
+    /* D compilers cannot currently move stuff efficiently when using
+     * std.algorithm.mutation.move. A final dtor call to the cleared sourced is
+     * always done. */
     size_t extraDtor = 1;
 
     alias A = CopyableArray!(S);

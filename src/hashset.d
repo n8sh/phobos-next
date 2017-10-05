@@ -46,7 +46,7 @@ struct HashSetOrMap(K, V = void,
     /// Element type.
     static if (hasValue)        // HashMap
     {
-        private struct T
+        struct T
         {
             K key;
             V value;

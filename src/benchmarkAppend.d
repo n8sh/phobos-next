@@ -58,16 +58,16 @@ void main()
                           DenseSetFilterGrowableArray!(E),
 
                           // functions
-                          HashSet!(E, void, null, identityHash64Of),
-                          HashSet!(E, void, null, typeidHashOf),
-                          HashSet!(E, void, null, hashOf),
-                          HashSet!(E, void, null, muellerHash64),
-                          HashSet!(E, void, null, wangMixHash64),
+                          HashSet!(E, null, identityHash64Of),
+                          HashSet!(E, null, typeidHashOf),
+                          HashSet!(E, null, hashOf),
+                          HashSet!(E, null, muellerHash64),
+                          HashSet!(E, null, wangMixHash64),
 
                           // std.digests
-                          HashSet!(E, void, null, MurmurHash3!(128)),
-                          HashSet!(E, void, null, FNV!(64, true)),
-                          HashSet!(E, void, null, XXHash64),
+                          HashSet!(E, null, MurmurHash3!(128)),
+                          HashSet!(E, null, FNV!(64, true)),
+                          HashSet!(E, null, XXHash64),
 
                           // radix tree
                           RadixTreeSetGrowOnly!(E),

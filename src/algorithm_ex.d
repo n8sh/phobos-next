@@ -848,7 +848,7 @@ void doTimes(uint n, lazy void expr)
 */
 void doTimes(uint n)(lazy void expr)
 {
-    import range_ex: iota;
+    import static_iota : iota;
     foreach (i; iota!(0, n)) expr();
 }
 
@@ -2255,7 +2255,7 @@ auto splicerN(uint N, T)(T[] x) @trusted
 ///
 @safe pure nothrow @nogc unittest
 {
-    import range_ex : iota;
+    import static_iota : iota;
 
     enum count = 6;
 

@@ -1,6 +1,7 @@
 module container_traits;
 
-template ContainerElementType(ContainerType, ElementType)
+template ContainerElementType(ContainerType,
+                              ElementType)
 {
     import std.traits : isMutable, hasIndirections, PointerTarget, isPointer,
         Unqual;

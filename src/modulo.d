@@ -1,6 +1,6 @@
 module modulo;
 
-import std.traits : isIntegral;
+import std.traits : isIntegral, isSigned;
 
 /** Lookup type representing an unsigned integer in inclusive range (0 .. m - 1).
     TODO Merge with similar logic in bound.d
@@ -82,8 +82,11 @@ template Mod(size_t m,
         {
             static if (m != 2^^(U.sizeof)) // dynamic check only modulo doesn't equal storage precision
             {
-                assert(value >= 0, `value too small`); // TODO use enforce instead?
-                assert(value < m, `value too large`); // TODO use enforce instead?
+                static if (isSigned!U)
+                {
+                    assert(value >= 0, `value too small`);
+                }
+                assert(value < m, `value too large`);
             }
         }
         body
@@ -106,8 +109,11 @@ template Mod(size_t m,
         {
             static if (m != 2^^(U.sizeof)) // dynamic check only modulo doesn't equal storage precision
             {
-                assert(value >= 0, `value too small`); // TODO use enforce instead?
-                assert(value < m, `value too large`); // TODO use enforce instead?
+                static if (isSigned!U)
+                {
+                    assert(value >= 0, `value too small`);
+                }
+                assert(value < m, `value too large`);
             }
         }
         body

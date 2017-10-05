@@ -1,6 +1,7 @@
 module basic_copyable_array;
 
 import std.traits : Unqual;
+import container_traits;
 
 /** Array type with deterministic control of memory. The memory allocated for
     the array is reclaimed as soon as possible; there is no reliance on the
@@ -26,7 +27,6 @@ struct CopyableArray(T,
     import std.algorithm : move, moveEmplace;
 
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
-    import container_traits : shouldAddGCRange;
 
     /// Mutable element type.
     private alias MutableE = Unqual!T;
@@ -977,6 +977,54 @@ unittest
     assert(a == [12, 14].s);
 }
 
+/// removal
+@safe pure nothrow @nogc unittest
+{
+    struct S
+    {
+        @safe pure nothrow @nogc:
+
+        import qcmeman : malloc, free;
+
+        this(int x) @trusted
+        {
+            // dln("ctor:");
+            _ptr = cast(int*)malloc(1);
+            dln("malloc: _ptr=", _ptr);
+            *_ptr = x;
+        }
+
+        @disable this(this);
+
+        ~this() @trusted
+        {
+            // dln("dtor:");
+            free(_ptr);
+            dln("free: _ptr=", _ptr);
+        }
+
+        // bool opEquals(in typeof(this) rhs) const @trusted
+        // {
+        //     if (_ptr == rhs._ptr)
+        //     {
+        //         return true;
+        //     }
+        //     return (_ptr && rhs._ptr &&
+        //             *_ptr == *rhs._ptr);
+        // }
+
+        @NoGc int* _ptr;
+    }
+
+    alias A = CopyableArray!(S);
+    A a;
+
+    a.insertBack(S(11));
+    assert(a.front !is S(11));
+    assert(a.back !is S(11));
+
+    a.insertBack(S(12));
+}
 
 /// TODO Move to Phobos.
 private enum bool isRefIterable(T) = is(typeof({ foreach (ref elem; T.init) {} }));
@@ -984,4 +1032,5 @@ private enum bool isRefIterable(T) = is(typeof({ foreach (ref elem; T.init) {} }
 version(unittest)
 {
     import array_help : s;
+    import dbgio;
 }

@@ -39,9 +39,9 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     }
 
     /// Destroy.
-    ~this() @trusted
+    ~this()
     {
-        free(_blockPtr);
+        release();
     }
 
     /// Duplicate.
@@ -51,9 +51,21 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     }
 
     /// Empty.
-    void clear() @trusted
+    void clear()
+    {
+        release();
+        resetInternalData();
+    }
+
+    /// Release internal store.
+    private void release() @trusted
     {
         free(_blockPtr);
+    }
+
+    /// Reset internal data.
+    private void resetInternalData()
+    {
         _blockPtr = null;
         _blockCount = 0;
         _length = 0;

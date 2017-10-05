@@ -106,7 +106,7 @@ enum NoInit;
 template shouldAddGCRange(T)
 {
     import std.traits : hasIndirections;
-    enum shouldAddGCRange = hasIndirections!T; // TODO exclude pointers with attribute `@NoGc` flag set
+    enum shouldAddGCRange = hasIndirections!T; // TODO use mustAddGCRange below instead
 }
 
 /**

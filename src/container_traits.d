@@ -212,6 +212,5 @@ template mustAddGCRange(T = void)
     {
         @NoGc void* c;
     }
-
     static assert(mustAddGCRange!Baz);
 }

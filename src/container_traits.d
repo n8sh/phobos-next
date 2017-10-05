@@ -111,8 +111,8 @@ template shouldAddGCRange(T)
 
 /**
  * Indicates if an aggregate contains members that might be collected by the
- * garbage collector. This is used in `construct` to determine if the content of
- * a manually allocated aggregate must be declared to the GC.
+ * garbage collector. This is used in constructors to determine if the content
+ * of a manually allocated aggregate must be declared to the GC.
  */
 template mustAddGCRange(T = void)
     if (is(T == struct) ||

@@ -53,7 +53,7 @@ struct HashSetOrMap(K, V = void,
         }
 
         /// Get key part of element.
-        static auto ref K getKey()(auto ref T elt)
+        static auto ref inout(K) keyOf()(auto ref inout(T) elt)
         {
             return elt.key;
         }
@@ -63,7 +63,7 @@ struct HashSetOrMap(K, V = void,
         private alias T = K;
 
         /// Get key part of element.
-        static auto ref K getKey()(auto ref T elt)
+        static auto ref inout(K) keyOf()(auto ref inout(T) elt)
         {
             return elt;
         }

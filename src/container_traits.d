@@ -164,18 +164,26 @@ template mustAddGCRange(T = void)
     }
 
     static if (hasUDA!(T, NoGc))
+    {
         enum mustAddGCRange = [];
+    }
     else
+    {
         enum mustAddGCRange = check();
+    }
 
     static if (hasUDA!(T, TellRangeAdded))
     {
         static if (mustAddGCRange.length)
+        {
             pragma(msg,
                    "a GC range will be added for any new " ~ T.stringof
                    ~ ", because of: " ~ mustAddGCRange);
+        }
         else
+        {
             pragma(msg, "a GC range wont be added for any new " ~ T.stringof);
+        }
     }
 }
 

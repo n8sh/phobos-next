@@ -325,14 +325,14 @@ alias HashMap(K, V,
 /** Get index into `bucket` for `value`.
  */
 pragma(inline)              // LDC can inline, DMD cannot
-size_t bucketHash(alias hasher, K)(in K value)
+size_t bucketHash(alias hasher, K)(in K key)
 {
     import std.digest.digest : isDigest;
     import std.traits : hasMember;
 
-    static if (__traits(compiles, { size_t _ = hasher(value); }))
+    static if (__traits(compiles, { size_t _ = hasher(key); }))
     {
-        return hasher(value);
+        return hasher(key);
     }
     else static if (__traits(compiles, { enum _ = isDigest!hasher; }) &&
                     isDigest!hasher &&
@@ -341,7 +341,7 @@ size_t bucketHash(alias hasher, K)(in K value)
         import std.digest.digest : makeDigest;
 
         auto dig = makeDigest!(hasher);
-        dig.put((cast(ubyte*)&value)[0 .. value.sizeof]);
+        dig.put((cast(ubyte*)&key)[0 .. key.sizeof]);
         dig.finish();
 
         static if (is(typeof(dig.get()) == typeof(return)))
@@ -360,8 +360,8 @@ size_t bucketHash(alias hasher, K)(in K value)
     }
     else static if (__traits(compiles, { auto _ = hasher((ubyte[]).init); }))
     {
-        // cast input `value` to `ubyte[]` and use std.digest API
-        immutable digest = hasher((cast(ubyte*)&value)[0 .. value.sizeof]); // TODO ask forums when this isn't correct
+        // cast input `key` to `ubyte[]` and use std.digest API
+        immutable digest = hasher((cast(ubyte*)&key)[0 .. key.sizeof]); // TODO ask forums when this isn't correct
 
         static assert(digest.sizeof >=
                       typeof(return).sizeof,

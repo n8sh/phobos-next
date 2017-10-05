@@ -94,6 +94,7 @@ void conditionalSwap(alias less = "a < b", Range, indexes...)(Range r)
 {
     import std.algorithm.mutation : swapAt;
     import std.functional : binaryFun;
+    import static_iota : iota;
     foreach (const i; iota!(0, indexes.length / 2))
     {
         const j = indexes[2*i];

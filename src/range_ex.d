@@ -388,6 +388,7 @@ auto slidingSplitter(R)(R data, size_t lower, size_t upper)
 
     foreach (ch; name8)
     {
+        import static_iota : iota;
         foreach (ix; iota!(0, ch.length)) // for each part in split
         {
             import std.algorithm: equal;
@@ -414,6 +415,7 @@ auto slidingSplitter(R)(R data, size_t lower, size_t upper)
 
     foreach (ch; name8)
     {
+        import static_iota : iota;
         foreach (ix; iota!(0, ch.length)) // for each part in split
         {
             import std.algorithm: equal;
@@ -466,21 +468,6 @@ private:
     T[] _data;
     size_t _beginIndex;
     size_t _length;
-}
-
-/** Static Iota.
-    TODO Add to Phobos.
-*/
-template iota(size_t from, size_t to)
-    if (from <= to)
-{
-    alias iota = siotaImpl!(to-1, from);
-}
-private template siotaImpl(size_t to, size_t now)
-{
-    import std.meta: AliasSeq;
-    static if (now >= to) { alias siotaImpl = AliasSeq!(now); }
-    else                  { alias siotaImpl = AliasSeq!(now, siotaImpl!(to, now+1)); }
 }
 
 /** Same as $(D iota) but with explicit conversion to type $(D T).

@@ -72,7 +72,7 @@ bool allZero(T, bool useStatic = true)(in T x)
     }
     else static if (useStatic && isStaticArray!T)
     {
-        import range_ex: iota;
+        import static_iota : iota;
         foreach (ix; iota!(0, x.length))
         {
             if (!x[ix].allZero) { return false; } // make use of iota?

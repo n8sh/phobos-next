@@ -170,7 +170,6 @@ struct CopyableArray(T,
     }
 
     /// Destruct.
-    pragma(inline, true)
     ~this()
     {
         release();
@@ -184,7 +183,6 @@ struct CopyableArray(T,
     }
 
     /// Release internal store.
-    pragma(inline, true)
     private void release() @trusted
     {
         static if (hasElaborateDestructor!T)
@@ -296,10 +294,22 @@ struct CopyableArray(T,
     alias opDollar = length;    /// ditto
 
     /// Set length to `newLength`.
-    pragma(inline, true)
-    @property void length(size_t newLength)
+    @property void length(size_t newLength) @trusted
     {
-        reserve(newLength);
+        if (newLength < length)
+        {
+            static if (hasElaborateDestructor!T)
+            {
+                foreach (const i; newLength .. _length)
+                {
+                    .destroy(_mptr[i]);
+                }
+            }
+        }
+        else
+        {
+            reserve(newLength);
+        }
         _length = newLength;
     }
 
@@ -955,7 +965,7 @@ unittest
 
     a.insertBack(17);
     assert(a == [17].s);
-    a.dropBack();
+    a.popBack();
     assert(a.empty);
 
     a.insertBack([11, 12, 13, 14, 15].s[]);

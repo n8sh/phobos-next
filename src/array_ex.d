@@ -1337,8 +1337,15 @@ private struct Array(E,
         /// Set length to `newLength`.
         @property void length(size_t newLength)
         {
-            reserve(newLength);
-            setOnlyLength(newLength);
+            if (newLength < length)
+            {
+                shrinkTo(newLength);
+            }
+            else
+            {
+                reserve(newLength);
+                setOnlyLength(newLength);
+            }
         }
 
         @nogc:
@@ -1529,8 +1536,11 @@ private struct Array(E,
     void shrinkTo(size_t newLength)
     {
         assert(!isBorrowed);
-        assert(newLength <= length());
-        setOnlyLength(newLength);
+        if (newLength < length)
+        {
+            // TODO shouldAddGCRange
+            setOnlyLength(newLength);
+        }
     }
 
     /// Get internal pointer.

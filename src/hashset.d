@@ -60,6 +60,12 @@ struct HashSetOrMap(K, V = void,
             return elt.key;
         }
 
+        /// Get value part of element.
+        static auto ref inout(K) valueOf()(auto ref inout(T) elt)
+        {
+            return elt.value;
+        }
+
         alias ValueType = V;
     }
     else                        // HashSet

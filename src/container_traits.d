@@ -236,4 +236,22 @@ template mustAddGCRange(T = void)
         @NoGc void* c;
     }
     static assert(mustAddGCRange!Baz);
+
+    struct S
+    {
+        int x;
+    }
+    static assert(!mustAddGCRange!S);
+
+    struct T
+    {
+        int* x;
+    }
+    static assert(mustAddGCRange!T);
+
+    struct U
+    {
+        @NoGc int* x;
+    }
+    static assert(!mustAddGCRange!U);
 }

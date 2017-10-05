@@ -322,7 +322,7 @@ alias HashMap(K, V,
                                                                hasher,
                                                                smallBucketMinCapacity);
 
-/** Get index into `bucket` for `value`.
+/** Get index into `bucket` for `key`.
  */
 pragma(inline)              // LDC can inline, DMD cannot
 size_t bucketHash(alias hasher, K)(in K key)

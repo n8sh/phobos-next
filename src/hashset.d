@@ -113,6 +113,8 @@ struct HashSetOrMap(K, V = void,
         release();
     }
 
+    @disable this(this);
+
     /// Duplicate.
     typeof(this) dup()
     {
@@ -152,8 +154,8 @@ struct HashSetOrMap(K, V = void,
     {
         _buckets.clear();
         _largeBucketFlags.clear();
-        _hashMask = 0;
         _length = 0;
+        _hashMask = 0;
     }
 
     /** Insert `element`.

@@ -13,9 +13,6 @@ import container_traits;
  *      hasher = hash function or std.digest Hash.
  *      smallBucketMinCapacity = minimum capacity of small bucket
  *
- * TODO extend to HashSetOrMap and specialize HashSet to HashMap with void
- * Value-type.
- *
  * TODO use https://dlang.org/phobos/std_experimental_allocator.html as:
  *
  * struct HashTable

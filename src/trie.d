@@ -125,6 +125,7 @@ import std.range.primitives : hasLength;
 import bijections : isIntegralBijectableType, bijectToUnsigned, bijectFromUnsigned;
 import variant_ex : WordVariant;
 import typecons_ex : IndexedBy;
+// import basic_uncopyable_array : Array = UncopyableArray;
 import array_ex : Array = UniqueArray;
 import container_traits : shouldAddGCRange;
 

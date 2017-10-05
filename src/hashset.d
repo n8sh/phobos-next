@@ -156,7 +156,7 @@ struct HashSetOrMap(K, V = void,
     bool insert(T element) @trusted
     {
         import std.conv : emplace;
-        immutable bucketIndex = bucketHash!(hasher)(element) & _hashMask;
+        immutable bucketIndex = bucketHash!(hasher)(keyOf(element)) & _hashMask;
         if (_largeBucketFlags[bucketIndex])
         {
             if (!_buckets[bucketIndex].large[].canFind(element))
@@ -191,7 +191,7 @@ struct HashSetOrMap(K, V = void,
      */
     bool contains(in T element) const @trusted
     {
-        immutable bucketIndex = bucketHash!(hasher)(element) & _hashMask;
+        immutable bucketIndex = bucketHash!(hasher)(keyOf(element)) & _hashMask;
         if (_largeBucketFlags[bucketIndex])
         {
             return _buckets[bucketIndex].large[].canFind(element);
@@ -216,7 +216,7 @@ struct HashSetOrMap(K, V = void,
     bool remove(in T element)
         @trusted
     {
-        immutable bucketIndex = bucketHash!(hasher)(element) & _hashMask;
+        immutable bucketIndex = bucketHash!(hasher)(keyOf(element)) & _hashMask;
         import container_algorithm : popFirst;
         if (_largeBucketFlags[bucketIndex])
         {
@@ -277,7 +277,7 @@ private:
 
     import std.algorithm : max;
     enum smallBucketCapacity = max(smallBucketMinCapacity,
-                                 (LargeBucket.sizeof - 1) / T.sizeof);
+                                   (LargeBucket.sizeof - 1) / T.sizeof);
 
     import arrayn : ArrayN;
     alias SmallBucket = ArrayN!(T, smallBucketCapacity);

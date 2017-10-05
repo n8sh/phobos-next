@@ -1,3 +1,4 @@
+/** Traits used by containers. */
 module container_traits;
 
 template ContainerElementType(ContainerType,

@@ -5,23 +5,23 @@ import std.traits : isIntegral;
 /** Lookup type representing an unsigned integer in inclusive range (0 .. m - 1).
     TODO Merge with similar logic in bound.d
  */
-template TypeOfModulo(size_t m)
+template UnsignedOfModulo(size_t m)
 {
     static      if (m - 1 <= ubyte.max)
     {
-        alias TypeOfModulo = ubyte;
+        alias UnsignedOfModulo = ubyte;
     }
     else static if (m - 1 <= ushort.max)
     {
-        alias TypeOfModulo = ushort;
+        alias UnsignedOfModulo = ushort;
     }
     else static if (m - 1 <= uint.max)
     {
-        alias TypeOfModulo = uint;
+        alias UnsignedOfModulo = uint;
     }
     else
     {
-        alias TypeOfModulo = ulong;
+        alias UnsignedOfModulo = ulong;
     }
     // TODO ucent?
 }
@@ -56,14 +56,14 @@ template TypeOfModulo(size_t m)
     TODO Move to Phobos std.typecons
  */
 template Mod(size_t m,
-             T = TypeOfModulo!m)
+             T = UnsignedOfModulo!m)
     if (m >= 1 &&
         isIntegral!T)
 {
     import math_ex : isPowerOf2;
 
     // smallest builtin unsigned integer type that can fit 2^^m
-    alias UI = TypeOfModulo!m;
+    alias UI = UnsignedOfModulo!m;
 
     static assert(m - 1 <= 2^^(8*T.sizeof) - 1); // if so, check that it matches `s`
 
@@ -175,7 +175,7 @@ template Mod(size_t m,
 }
 
 /// Instantiator for `Mod`.
-auto mod(size_t m, T = TypeOfModulo!m)(T value)
+auto mod(size_t m, T = UnsignedOfModulo!m)(T value)
     if (m >= 1)
 {
     return Mod!(m)(value);

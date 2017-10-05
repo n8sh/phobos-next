@@ -1531,14 +1531,24 @@ private struct Array(E,
         }
     }
 
-    /// Shrink length to `newLength`.
+    /** Shrink length to `newLength`.
+     *
+     * If `newLength` >= `length` operation has no effect.
+     */
     pragma(inline)
     void shrinkTo(size_t newLength)
     {
         assert(!isBorrowed);
         if (newLength < length)
         {
-            // TODO shouldAddGCRange
+            static if (hasElaborateDestructor!E)
+            {
+                dln(length, " => ", newLength, " ", E.stringof);
+                foreach (immutable i; newLength .. length)
+                {
+                    .destroy(_mptr[i]);
+                }
+            }
             setOnlyLength(newLength);
         }
     }

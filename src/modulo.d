@@ -91,7 +91,7 @@ template Mod(size_t m,
         }
         body
         {
-            this.x = cast(T)value;
+            this._value = cast(T)value;
         }
 
         /// Construct from Mod!n, where `n <= m`.
@@ -99,7 +99,7 @@ template Mod(size_t m,
             if (n <= m &&
                 isIntegral!U)
         {
-            this.x = cast(T)rhs.x; // cannot overflow
+            this._value = cast(T)rhs._value; // cannot overflow
         }
 
         /// Assign from `value` of unsigned integer type `UI`.
@@ -118,7 +118,7 @@ template Mod(size_t m,
         }
         body
         {
-            this.x = cast(T)value; // overflow checked in ctor
+            this._value = cast(T)value; // overflow checked in ctor
         }
 
         /// Assign from Mod!n, where `n <= m`.
@@ -126,7 +126,7 @@ template Mod(size_t m,
             if (n <= m &&
                 isIntegral!U)
         {
-            this.x = cast(T)rhs.x; // cannot overflow
+            this._value = cast(T)rhs._value; // cannot overflow
         }
 
         auto ref opOpAssign(string op, U)(U rhs)
@@ -135,7 +135,7 @@ template Mod(size_t m,
                 op == `*` &&
                 isIntegral!U)
         {
-            mixin(`x = cast(T)(x ` ~ op ~ `rhs);`);
+            mixin(`_value = cast(T)(_value ` ~ op ~ `rhs);`);
             return this;
         }
 
@@ -149,11 +149,11 @@ template Mod(size_t m,
             {
                 static if (isPowerOf2(m))
                 {
-                    x = (x - 1) & max; // more efficient
+                    _value = (_value - 1) & max; // more efficient
                 }
                 else
                 {
-                    if (x == min) x = max; else --x;
+                    if (_value == min) _value = max; else --_value;
                 }
                 return this;
             }
@@ -161,11 +161,11 @@ template Mod(size_t m,
             {
                 static if (isPowerOf2(m))
                 {
-                    x = (x + 1) & max; // more efficient
+                    _value = (_value + 1) & max; // more efficient
                 }
                 else
                 {
-                    if (x == max) x = min; else ++x;
+                    if (_value == max) _value = min; else ++_value;
                 }
                 return this;
             }
@@ -175,10 +175,10 @@ template Mod(size_t m,
             }
         }
 
-        @property size_t _prop() const @safe pure nothrow @nogc { return x; } // read-only access
+        @property size_t _prop() const @safe pure nothrow @nogc { return _value; } // read-only access
         alias _prop this;
 
-        private T x;
+        private T _value;
     }
 }
 

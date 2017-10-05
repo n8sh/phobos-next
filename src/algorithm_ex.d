@@ -2351,15 +2351,12 @@ auto use(alias F, T)(T t)
 
 @safe pure nothrow @nogc unittest
 {
-    // import std.stdio;
     foreach (const i; 1 .. 11)
     {
         foreach (const j; 1 .. 11)
         {
             immutable result = (i * j).use!(x => x*x);
-            // write(result, " ");
         }
-        // writeln();
     }
 }
 

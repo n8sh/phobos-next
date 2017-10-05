@@ -3,12 +3,14 @@ module container_traits;
 template shouldAddGCRange(T)
 {
     import std.traits : hasIndirections;
-    enum shouldAddGCRange = hasIndirections!T;
+
+    enum shouldAddGCRange = hasIndirections!T; // TODO exclude pointers with attribute `@NoGc` flag set
 }
 
 template ContainerElementType(ContainerType, ElementType)
 {
-    import std.traits : isMutable, hasIndirections, PointerTarget, isPointer, Unqual;
+    import std.traits : isMutable, hasIndirections, PointerTarget, isPointer,
+        Unqual;
 
     template ET(bool isConst, T)
     {
@@ -29,7 +31,8 @@ template ContainerElementType(ContainerType, ElementType)
             }
             else
             {
-                static assert(DataIsImmutable, "An immutable container cannot reference const or mutable data");
+                static assert(DataIsImmutable,
+                              "An immutable container cannot reference const or mutable data");
                 static if (PointerIsConst)
                     alias ET = immutable(PointerTarget!ElementType)*;
                 else
@@ -90,13 +93,16 @@ enum NoInit;
  * a manually allocated aggregate must be declared to the GC.
  */
 template mustAddGCRange(T = void)
-    if (is(T==struct) || is(T==union) || is(T==class))
+    if (is(T == struct) ||
+        is(T == union) ||
+        is(T == class))
 {
     import std.traits : hasUDA, isDynamicArray, isPointer;
+
     string check()
     {
-        import std.meta: aliasSeqOf;
-        import std.range: iota;
+        import std.meta : aliasSeqOf;
+        import std.range : iota;
 
         string managedMembers;
 
@@ -105,7 +111,8 @@ template mustAddGCRange(T = void)
         static if (is(T == class))
         {
             import std.traits : BaseClassesTuple;
-            foreach(BT; BaseClassesTuple!T)
+
+            foreach (BT; BaseClassesTuple!T)
             {
                 string m = mustAddGCRange!BT;
                 if (m.length)
@@ -113,17 +120,17 @@ template mustAddGCRange(T = void)
             }
         }
 
-        foreach(i; aliasSeqOf!(iota(0, T.tupleof.length)))
+        foreach (i; aliasSeqOf!(iota(0, T.tupleof.length))) // TODO use iota!()
         {
-            static if (!is(typeof(T.tupleof[i])== void))
+            static if (!is(typeof(T.tupleof[i]) == void))
             {
                 alias MT = typeof(T.tupleof[i]);
                 static if (isDynamicArray!MT && !hasUDA!(T.tupleof[i], NoGc))
                     mixin(addManaged);
                 else static if (isPointer!MT && !hasUDA!(T.tupleof[i], NoGc))
                     mixin(addManaged);
-                else static if (is(MT == class) && (!is(MT : T)) && !hasUDA!(T.tupleof[i], NoGc)
-                                && !(isTemplateInstance!T /*&& staticIndexOf!(MT,TemplateArgsOf!T) > 0*/))
+                else static if (is(MT == class) && (!is(MT : T))
+                                && !hasUDA!(T.tupleof[i], NoGc) && !(isTemplateInstance!T /*&& staticIndexOf!(MT,TemplateArgsOf!T) > 0*/ ))
                 {
                     // failure here when the class is a template and when one of the member
                     // type is one of the template argument.
@@ -154,8 +161,9 @@ template mustAddGCRange(T = void)
     static if (hasUDA!(T, TellRangeAdded))
     {
         static if (mustAddGCRange.length)
-            pragma(msg, "a GC range will be added for any new " ~ T.stringof ~
-                   ", because of: " ~ mustAddGCRange);
+            pragma(msg,
+                   "a GC range will be added for any new " ~ T.stringof
+                   ~ ", because of: " ~ mustAddGCRange);
         else
             pragma(msg, "a GC range wont be added for any new " ~ T.stringof);
     }
@@ -165,13 +173,28 @@ template mustAddGCRange(T = void)
 @safe pure nothrow @nogc unittest
 {
     // 'a' will be managed with expand/Shrink
-    class Foo{@NoGc int[] a; @NoGc void* b;}
+    class Foo
+    {
+        @NoGc int[] a;
+        @NoGc void* b;
+    }
+
     static assert(!mustAddGCRange!Foo);
+
     // 'a' will be managed with '.length' so druntime.
-    class Bar{int[] a; @NoGc void* b;}
+    class Bar
+    {
+        int[] a;
+        @NoGc void* b;
+    }
     // b's annotation is canceled by a type.
     static assert(mustAddGCRange!Bar);
+
     // Baz base is not @NoGc
-    class Baz: Bar{@NoGc void* c;}
+    class Baz : Bar
+    {
+        @NoGc void* c;
+    }
+
     static assert(mustAddGCRange!Baz);
 }

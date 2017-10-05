@@ -57,7 +57,7 @@ import std.random: uniform;
 
 import mathml;
 alias wln = writeln;
-import range_ex: iota;
+import static_iota : iota;
 import traits_ex: haveCommonType;
 
 enum isVector(E)     = is(typeof(isVectorImpl(E.init)));

@@ -2287,14 +2287,29 @@ auto splicer2(T)(T[] x) @trusted
         {
             static assert(i < count, "Index " ~ i ~ " to large");
             static      if (i == 0)
+            {
                 return first;
+            }
             else static if (i == 1)
+            {
                 return second;
+            }
         }
 
         private T[] _;
     }
     return Result(x);
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    immutable int[6] x = [0, 1, 2, 3, 4, 5];
+    immutable y = x.splicer2;
+    assert(y.first.equal(x[0 .. 3]));
+    assert(y.second.equal(x[3 .. $]));
+    assert(y.at!0.equal(x[0 .. 3]));
+    assert(y.at!1.equal(x[3 .. $]));
 }
 
 /** Specialization of `splicerN` to N=3. */
@@ -2317,17 +2332,6 @@ auto splicer3(T)(T[] x) @trusted
         private T[] _;
     }
     return Result(x);
-}
-
-///
-@safe pure nothrow @nogc unittest
-{
-    immutable int[6] x = [0, 1, 2, 3, 4, 5];
-    immutable y = x.splicer2;
-    assert(y.first.equal(x[0 .. 3]));
-    assert(y.second.equal(x[3 .. $]));
-    assert(y.at!0.equal(x[0 .. 3]));
-    assert(y.at!1.equal(x[3 .. $]));
 }
 
 ///

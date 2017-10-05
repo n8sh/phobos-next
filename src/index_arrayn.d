@@ -1,5 +1,7 @@
 module index_arrayn;
 
+version = useModulo;
+
 /** Statically allocated `Mod`-array of fixed pre-allocated length `capacity` of
     `Mod`-elements in chunks of `elementLength`. `ElementType` is
     `Mod[elementLength]`.
@@ -11,7 +13,7 @@ struct IndexArrayN(uint capacity,
 {
     private enum radix = 2^^span;
 
-    debug
+    version(useModulo)
     {
         import modulo : Mod;
         alias Ix = Mod!(radix, ubyte);
@@ -180,7 +182,7 @@ struct IndexArrayN(uint capacity,
         import std.traits : isUnsigned;
 
         /** Returns: `true` if `ix` is contained in `this`. */
-        debug
+        version(useModulo)
         {
             bool contains(ModUInt)(in Mod!(radix, ModUInt) ix) const @nogc
                 if (isUnsigned!ModUInt)
@@ -254,7 +256,7 @@ static assert(IndexArrayN!(2, 3, 8).sizeof == 8);
 {
     import std.algorithm : equal;
 
-    debug
+    version(useModulo)
     {
         enum span = 8;
         enum radix = 2^^span;
@@ -350,7 +352,7 @@ static assert(IndexArrayN!(2, 3, 8).sizeof == 8);
 {
     import std.algorithm : equal;
 
-    debug
+    version(useModulo)
     {
         enum span = 8;
         enum radix = 2^^span;

@@ -149,34 +149,34 @@ struct HashSetOrMap(K, V = void,
         _length = 0;
     }
 
-    /** Insert `value`.
-        Returns: `true` if value was already present, `false` otherwise (similar
+    /** Insert `element`.
+        Returns: `true` if element was already present, `false` otherwise (similar
         to behaviour of `contains`).
      */
-    bool insert(T value) @trusted
+    bool insert(T element) @trusted
     {
         import std.conv : emplace;
-        immutable bucketIndex = bucketHash!(hasher)(value) & _hashMask;
+        immutable bucketIndex = bucketHash!(hasher)(element) & _hashMask;
         if (_largeBucketFlags[bucketIndex])
         {
-            if (!_buckets[bucketIndex].large[].canFind(value))
+            if (!_buckets[bucketIndex].large[].canFind(element))
             {
-                _buckets[bucketIndex].large.insertBackMove(value);
+                _buckets[bucketIndex].large.insertBackMove(element);
                 _length += 1;
                 return false;
             }
         }
         else
         {
-            if (!_buckets[bucketIndex].small[].canFind(value))
+            if (!_buckets[bucketIndex].small[].canFind(element))
             {
-                immutable ok = _buckets[bucketIndex].small.insertBackMaybe(value);
+                immutable ok = _buckets[bucketIndex].small.insertBackMaybe(element);
                 if (!ok)        // if full
                 {
                     // expand small to large
                     SmallBucket small = _buckets[bucketIndex].small;
                     emplace!(LargeBucket)(&_buckets[bucketIndex].large, small[]);
-                    _buckets[bucketIndex].large.insertBackMove(value);
+                    _buckets[bucketIndex].large.insertBackMove(element);
                     _largeBucketFlags[bucketIndex] = true; // bucket is now large
                 }
                 _length += 1;
@@ -186,41 +186,41 @@ struct HashSetOrMap(K, V = void,
         return true;
     }
 
-    /** Check if `value` is stored.
-        Returns: `true` if value was already present, `false` otherwise.
+    /** Check if `element` is stored.
+        Returns: `true` if element was already present, `false` otherwise.
      */
-    bool contains(in T value) const @trusted
+    bool contains(in T element) const @trusted
     {
-        immutable bucketIndex = bucketHash!(hasher)(value) & _hashMask;
+        immutable bucketIndex = bucketHash!(hasher)(element) & _hashMask;
         if (_largeBucketFlags[bucketIndex])
         {
-            return _buckets[bucketIndex].large[].canFind(value);
+            return _buckets[bucketIndex].large[].canFind(element);
         }
         else
         {
-            return _buckets[bucketIndex].small[].canFind(value);
+            return _buckets[bucketIndex].small[].canFind(element);
         }
     }
 
     /// ditto
-    bool opBinaryRight(string op)(in T value) const
+    bool opBinaryRight(string op)(in T element) const
         if (op == "in")
     {
-        return contains(value); // TODO return entry reference instead
+        return contains(element); // TODO return entry reference instead
     }
 
-    /** Remove `value` and, when possible, shrink its large bucket to small.
+    /** Remove `element` and, when possible, shrink its large bucket to small.
 
-        Returns: `true` if value was removed, `false` otherwise.
+        Returns: `true` if element was removed, `false` otherwise.
      */
-    bool remove(in T value)
+    bool remove(in T element)
         @trusted
     {
-        immutable bucketIndex = bucketHash!(hasher)(value) & _hashMask;
+        immutable bucketIndex = bucketHash!(hasher)(element) & _hashMask;
         import container_algorithm : popFirst;
         if (_largeBucketFlags[bucketIndex])
         {
-            immutable hit = _buckets[bucketIndex].large.popFirst(value);
+            immutable hit = _buckets[bucketIndex].large.popFirst(element);
             _length -= hit ? 1 : 0;
             if (hit &&
                 _buckets[bucketIndex].large.length <= smallBucketCapacity) // large fits in small
@@ -238,7 +238,7 @@ struct HashSetOrMap(K, V = void,
         }
         else
         {
-            immutable hit = _buckets[bucketIndex].small.popFirst(value);
+            immutable hit = _buckets[bucketIndex].small.popFirst(element);
             _length -= hit ? 1 : 0;
             return hit;
         }

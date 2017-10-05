@@ -82,6 +82,7 @@ template Mod(size_t m,
         {
             static if (m != 2^^(U.sizeof)) // dynamic check only modulo doesn't equal storage precision
             {
+                assert(value >= 0, `value too small`); // TODO use enforce instead?
                 assert(value < m, `value too large`); // TODO use enforce instead?
             }
         }
@@ -105,6 +106,7 @@ template Mod(size_t m,
         {
             static if (m != 2^^(U.sizeof)) // dynamic check only modulo doesn't equal storage precision
             {
+                assert(value >= 0, `value too small`); // TODO use enforce instead?
                 assert(value < m, `value too large`); // TODO use enforce instead?
             }
         }

@@ -185,8 +185,8 @@ auto mod(size_t m, T = UnsignedOfModulo!m)(T value)
 @safe pure nothrow @nogc unittest
 {
     enum m = 256;
-    Mod!(m, ubyte) ub = m - 1;
-    Mod!(m, uint) ui = m - 1;
+    Mod!(m, ubyte) ub = cast(ubyte)(m - 1);
+    Mod!(m, uint) ui = cast(ubyte)(m - 1);
     assert(ub == ui);
     --ub;
     assert(ub != ui);

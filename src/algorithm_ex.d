@@ -2175,8 +2175,8 @@ auto spliced2(T)(T[] x) @trusted
     }
     immutable m = x.length / 2;
     // range checking is not needed
-    return Result(x.ptr[0 .. m], // non-range-checked slicing can be @trusted
-                  x.ptr[m .. x.length]); // non-range-checked slicing can be @trusted
+    return Result(x.ptr[0 .. m], // can be @trusted
+                  x.ptr[m .. x.length]); // can be @trusted
 }
 alias halved = spliced2;
 
@@ -2206,9 +2206,9 @@ auto spliced3(T)(T[] x) @trusted
     // range checking is not needed
     immutable m = 1*x.length/count;
     immutable n = 2*x.length/count;
-    return Result(x.ptr[0 .. m], // non-range-checked slicing can be @trusted
-                  x.ptr[m .. n], // non-range-checked slicing can be @trusted
-                  x.ptr[n .. x.length]); // non-range-checked slicing can be @trusted
+    return Result(x.ptr[0 .. m], // can be @trusted
+                  x.ptr[m .. n], // can be @trusted
+                  x.ptr[n .. x.length]); // can be @trusted
 }
 
 @safe pure nothrow @nogc unittest
@@ -2237,9 +2237,9 @@ auto splicerN(uint N, T)(T[] x) @trusted
         {
             static assert(i < N, "Index " ~ i ~ " to large");
             static if (i == 0)
-                return _.ptr[0 .. (i + 1)*_.length/N]; // non-range-checked slicing can be @trusted
+                return _.ptr[0 .. (i + 1)*_.length/N]; // can be @trusted
             else static if (i + 1 == N)
-                return _.ptr[i * _.length/N .. _.length]; // non-range-checked slicing can be @trusted
+                return _.ptr[i * _.length/N .. _.length]; // can be @trusted
             else
                 return _.ptr[i * _.length/N .. (i + 1)*_.length/N]; // non-range-checked can be @trusted
         }
@@ -2274,10 +2274,10 @@ auto splicer2(T)(T[] x) @trusted
         pragma(inline) @trusted pure nothrow @nogc:
 
         /// Returns: first part of splice.
-        @property inout(T)[] first() inout { return _.ptr[0 .. _.length/count]; } // non-range-checked slicing can be @trusted
+        @property inout(T)[] first() inout { return _.ptr[0 .. _.length/count]; } // can be @trusted
 
         /// Returns: second part of splice.
-        @property inout(T)[] second() inout { return _.ptr[_.length/count .. _.length]; } // non-range-checked slicing can be @trusted
+        @property inout(T)[] second() inout { return _.ptr[_.length/count .. _.length]; } // can be @trusted
 
         inout(T)[] at(uint i)() inout
         {
@@ -2317,13 +2317,13 @@ auto splicer3(T)(T[] x) @trusted
         pragma(inline) @trusted pure nothrow @nogc:
 
         /// Returns: first part of splice.
-        @property inout(T)[] first() inout { return _.ptr[0 .. _.length/count]; } // non-range-checked slicing can be @trusted
+        @property inout(T)[] first() inout { return _.ptr[0 .. _.length/count]; } // can be @trusted
 
         /// Returns: second part of splice.
-        @property inout(T)[] second() inout { return _.ptr[_.length/count .. 2*_.length/count]; } // non-range-checked slicing can be @trusted
+        @property inout(T)[] second() inout { return _.ptr[_.length/count .. 2*_.length/count]; } // can be @trusted
 
         /// Returns: third part of splice.
-        @property inout(T)[] third() inout { return _.ptr[2*_.length/count .. _.length]; } // non-range-checked slicing can be @trusted
+        @property inout(T)[] third() inout { return _.ptr[2*_.length/count .. _.length]; } // can be @trusted
 
         private T[] _;
     }

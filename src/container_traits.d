@@ -17,20 +17,30 @@ template ContainerElementType(ContainerType,
             static if (isConst)
             {
                 static if (PointerIsConst)
+                {
                     alias ET = ElementType;
+                }
                 else static if (PointerIsImmutable)
+                {
                     alias ET = ElementType;
+                }
                 else
+                {
                     alias ET = const(PointerTarget!ElementType)*;
+                }
             }
             else
             {
                 static assert(DataIsImmutable,
                               "An immutable container cannot reference const or mutable data");
                 static if (PointerIsConst)
+                {
                     alias ET = immutable(PointerTarget!ElementType)*;
+                }
                 else
+                {
                     alias ET = ElementType;
+                }
             }
         }
         else
@@ -38,23 +48,35 @@ template ContainerElementType(ContainerType,
             static if (isConst)
             {
                 static if (is(ElementType == immutable))
+                {
                     alias ET = ElementType;
+                }
                 else
+                {
                     alias ET = const(Unqual!ElementType);
+                }
             }
             else
+            {
                 alias ET = immutable(Unqual!ElementType);
+            }
         }
     }
 
     static if (isMutable!ContainerType)
+    {
         alias ContainerElementType = ElementType;
+    }
     else
     {
         static if (hasIndirections!ElementType)
+        {
             alias ContainerElementType = ET!(is(ContainerType == const), ElementType);
+        }
         else
+        {
             alias ContainerElementType = ElementType;
+        }
     }
 }
 

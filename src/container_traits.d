@@ -196,10 +196,9 @@ template mustAddGCRange(T = void)
         @NoGc int[] a;
         @NoGc void* b;
     }
-
     static assert(!mustAddGCRange!Foo);
-
     // 'a' will be managed with '.length' so druntime.
+
     class Bar
     {
         int[] a;

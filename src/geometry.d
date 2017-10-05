@@ -46,7 +46,6 @@ else
 version(LDC) static if (__VERSION__ >= 2076) { static assert(0, "TODO use static foreach inplace of iota!(...)"); }
 
 // TODO use import core.simd;
-import std.stdio: wln = writeln;
 import std.math: sqrt, isNaN, isInfinity, PI, sin, cos, acos;
 import std.conv: to;
 import std.traits: isSomeString, isIntegral, isFloatingPoint, isNumeric, isSigned, isStaticArray, isDynamicArray, isImplicitlyConvertible, isAssignable, isArray, CommonType;
@@ -837,10 +836,10 @@ alias nvec4f = Vector!(float, 4, true);
     assert(!any!"a"(vec2b(false, false)[]));
     version(print)
     {
-        wln(vec2f(2, 3));
-        wln(transpose(vec2f(11, 22)));
-        wln(vec2f(11, 22).toLaTeX);
-        wln(vec2f(11, 22).T.toLaTeX);
+        dln(vec2f(2, 3));
+        dln(transpose(vec2f(11, 22)));
+        dln(vec2f(11, 22).toLaTeX);
+        dln(vec2f(11, 22).T.toLaTeX);
     }
     assert((vec2(1, 3)*2.5f)[] == [2.5f, 7.5f].s);
 
@@ -1703,7 +1702,7 @@ auto sphere(C, R)(C center, R radius)
 @safe pure nothrow @nogc unittest
 {
     const x = sphere(point(1.0, 2, 3, 4), 10.0);
-    version(print) wln(x, " has volume ", x.volume);
+    version(print) dln(x, " has volume ", x.volume);
 }
 
 /**
@@ -1732,33 +1731,38 @@ bool intersect(T)(Circle!T circle, Rect!T rect)
 {
     version(print)
     {
-        wln(box2f(vec2f(1, 2),
+        dln(box2f(vec2f(1, 2),
                   vec2f(3, 3)));
-        wln([12, 3, 3]);
+        dln([12, 3, 3]);
 
-        wln(sort(vec2f(2, 3)[]));
-        wln(vec2f(2, 3));
+        dln(sort(vec2f(2, 3)[]));
+        dln(vec2f(2, 3));
 
-        wln(vec2f(2, 3));
-        wln(vec2f(2, 3));
+        dln(vec2f(2, 3));
+        dln(vec2f(2, 3));
 
-        wln(vec3f(2, 3, 4));
+        dln(vec3f(2, 3, 4));
 
-        wln(box2f(vec2f(1, 2),
+        dln(box2f(vec2f(1, 2),
                   vec2f(3, 4)));
 
-        wln(vec2i(2, 3));
-        wln(vec3i(2, 3, 4));
-        wln( + vec3i(2, 3, 4));
-        wln("vec2i:\n", vec2i(2, 3).toMathML);
+        dln(vec2i(2, 3));
+        dln(vec3i(2, 3, 4));
+        dln( + vec3i(2, 3, 4));
+        dln("vec2i:\n", vec2i(2, 3).toMathML);
 
         auto m = mat2(1, 2, 3, 4);
-        wln("LaTeX:\n", m.toLaTeX);
-        wln("MathML:\n", m.toMathML);
+        dln("LaTeX:\n", m.toLaTeX);
+        dln("MathML:\n", m.toMathML);
     }
 }
 
 version(unittest)
 {
     import array_help : s;
+}
+
+version(print)
+{
+    import dbgio;
 }

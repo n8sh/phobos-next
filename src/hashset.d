@@ -43,6 +43,8 @@ struct HashSetOrMap(K, V = void,
 
     enum hasValue = !is(V == void);
 
+    alias KeyType = K;
+
     /// Element type.
     static if (hasValue)        // HashMap
     {
@@ -57,6 +59,8 @@ struct HashSetOrMap(K, V = void,
         {
             return elt.key;
         }
+
+        alias ValueType = V;
     }
     else                        // HashSet
     {
@@ -250,6 +254,9 @@ struct HashSetOrMap(K, V = void,
     /// Get length.
     @property size_t length() const { return _length; }
     alias opDollar = length;    /// ditto
+
+    /// Get bucket count.
+    @property size_t bucketCount() const { return _buckets.length; }
 
     /// Bucket count statistics.
     struct BucketCounts

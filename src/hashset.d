@@ -475,11 +475,56 @@ size_t bucketHash(alias hasher, K)(in K key)
     alias V = string;
 
     import digestx.fnv : FNV;
-    auto s = HashMap!(K, V, null, FNV!(64, true)).withCapacity(n);
+    alias M = HashMap!(K, V, null, FNV!(64, true));
+    alias E = M.ElementType;
+    auto m = M.withCapacity(n);
 
     // all buckets start small
-    assert(s.bucketCounts.smallCount != 0);
-    assert(s.bucketCounts.largeCount == 0);
+    assert(m.bucketCounts.smallCount != 0);
+    assert(m.bucketCounts.largeCount == 0);
+
+    foreach (immutable i; 0 .. n)
+    {
+        const e = E(i, "");
+
+        assert(e !in m);
+
+        assert(m.length == i);
+        assert(!m.insert(e));
+        assert(m.length == i + 1);
+
+        assert(e in m);
+
+        assert(m.insert(e));
+        assert(m.length == i + 1);
+
+        assert(e in m);
+    }
+
+    assert(m.length == n);
+
+    foreach (immutable i; 0 .. n)
+    {
+        const e = E(i, "");
+
+        assert(m.length == n - i);
+
+        assert(e in m);
+
+        assert(m.remove(e));
+        assert(m.length == n - i - 1);
+
+        assert(e !in m);
+        assert(!m.remove(e));
+        assert(m.length == n - i - 1);
+    }
+
+    assert(m.bucketCounts.largeCount == 0);
+
+    assert(m.length == 0);
+
+    m.clear();
+    assert(m.length == 0);
 }
 
 version = show;

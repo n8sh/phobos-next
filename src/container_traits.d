@@ -1,12 +1,5 @@
 module container_traits;
 
-template shouldAddGCRange(T)
-{
-    import std.traits : hasIndirections;
-
-    enum shouldAddGCRange = hasIndirections!T; // TODO exclude pointers with attribute `@NoGc` flag set
-}
-
 template ContainerElementType(ContainerType, ElementType)
 {
     import std.traits : isMutable, hasIndirections, PointerTarget, isPointer,
@@ -87,6 +80,12 @@ enum TellRangeAdded;
  */
 enum NoInit;
 
+template shouldAddGCRange(T)
+{
+    import std.traits : hasIndirections;
+    enum shouldAddGCRange = hasIndirections!T; // TODO exclude pointers with attribute `@NoGc` flag set
+}
+
 /**
  * Indicates if an aggregate contains members that might be collected by the
  * garbage collector. This is used in `construct` to determine if the content of
@@ -101,9 +100,6 @@ template mustAddGCRange(T = void)
 
     string check()
     {
-        import std.meta : aliasSeqOf;
-        import std.range : iota;
-
         string managedMembers;
 
         enum addManaged = q{managedMembers ~= " " ~ T.tupleof[i].stringof;};
@@ -116,19 +112,27 @@ template mustAddGCRange(T = void)
             {
                 string m = mustAddGCRange!BT;
                 if (m.length)
+                {
                     managedMembers ~= " " ~ m;
+                }
             }
         }
 
-        foreach (i; aliasSeqOf!(iota(0, T.tupleof.length))) // TODO use iota!()
+        import std.meta : aliasSeqOf;
+        import std.range : iota;
+        foreach (i; aliasSeqOf!(iota(0, T.tupleof.length))) // TODO use my iota!(0, T.tupleof.length)
         {
             static if (!is(typeof(T.tupleof[i]) == void))
             {
                 alias MT = typeof(T.tupleof[i]);
                 static if (isDynamicArray!MT && !hasUDA!(T.tupleof[i], NoGc))
+                {
                     mixin(addManaged);
+                }
                 else static if (isPointer!MT && !hasUDA!(T.tupleof[i], NoGc))
+                {
                     mixin(addManaged);
+                }
                 else static if (is(MT == class) && (!is(MT : T))
                                 && !hasUDA!(T.tupleof[i], NoGc) && !(isTemplateInstance!T /*&& staticIndexOf!(MT,TemplateArgsOf!T) > 0*/ ))
                 {
@@ -136,17 +140,23 @@ template mustAddGCRange(T = void)
                     // type is one of the template argument.
                     //pragma(msg, T.stringof, " ", MT.stringof);
                     static if (mustAddGCRange!MT)
+                    {
                         mixin(addManaged);
+                    }
                 }
                 else static if (is(MT == struct) && !is(MT == T) && !hasUDA!(T.tupleof[i], NoGc))
                 {
                     static if (mustAddGCRange!MT)
+                    {
                         mixin(addManaged);
+                    }
                 }
                 else static if (is(MT == union) && !is(MT == T) && !hasUDA!(T.tupleof[i], NoGc))
                 {
                     static if (mustAddGCRange!MT)
+                    {
                         mixin(addManaged);
+                    }
                 }
             }
         }

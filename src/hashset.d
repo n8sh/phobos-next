@@ -32,10 +32,10 @@ import container_traits;
  *
  * EMSI-containers has some helper logic for this.
  */
-struct HashSet(K, V = void,
-               alias Allocator = null,
-               alias hasher = hashOf,
-               uint smallBucketMinCapacity = 1)
+struct HashSetOrMap(K, V = void,
+                    alias Allocator = null,
+                    alias hasher = hashOf,
+                    uint smallBucketMinCapacity = 1)
     if (smallBucketMinCapacity >= 1) // no use having empty small buckets
 {
     import std.algorithm.mutation : move, moveEmplace;
@@ -44,17 +44,29 @@ struct HashSet(K, V = void,
     enum hasValue = !is(V == void);
 
     /// Element type.
-    static if (hasValue)
+    static if (hasValue)        // HashMap
     {
         private struct T
         {
             K key;
             V value;
         }
+
+        /// Get key part of element.
+        static auto ref K getKey()(auto ref T elt)
+        {
+            return elt.key;
+        }
     }
-    else
+    else                        // HashSet
     {
         private alias T = K;
+
+        /// Get key part of element.
+        static auto ref K getKey()(auto ref T elt)
+        {
+            return elt;
+        }
     }
 
     alias ElementType = T;
@@ -141,7 +153,7 @@ struct HashSet(K, V = void,
         Returns: `true` if value was already present, `false` otherwise (similar
         to behaviour of `contains`).
      */
-    bool insert(K value) @trusted
+    bool insert(T value) @trusted
     {
         import std.conv : emplace;
         immutable bucketIndex = bucketHash!(hasher)(value) & _hashMask;
@@ -177,7 +189,7 @@ struct HashSet(K, V = void,
     /** Check if `value` is stored.
         Returns: `true` if value was already present, `false` otherwise.
      */
-    bool contains(in K value) const @trusted
+    bool contains(in T value) const @trusted
     {
         immutable bucketIndex = bucketHash!(hasher)(value) & _hashMask;
         if (_largeBucketFlags[bucketIndex])
@@ -191,7 +203,7 @@ struct HashSet(K, V = void,
     }
 
     /// ditto
-    bool opBinaryRight(string op)(in K value) const
+    bool opBinaryRight(string op)(in T value) const
         if (op == "in")
     {
         return contains(value); // TODO return entry reference instead
@@ -201,7 +213,7 @@ struct HashSet(K, V = void,
 
         Returns: `true` if value was removed, `false` otherwise.
      */
-    bool remove(in K value)
+    bool remove(in T value)
         @trusted
     {
         immutable bucketIndex = bucketHash!(hasher)(value) & _hashMask;
@@ -261,14 +273,14 @@ private:
     import basic_uncopyable_array : Array = UncopyableArray;
     import bitarray : BitArray;
 
-    alias LargeBucket = Array!(K, Allocator);
+    alias LargeBucket = Array!(T, Allocator);
 
     import std.algorithm : max;
     enum smallBucketCapacity = max(smallBucketMinCapacity,
-                                 (LargeBucket.sizeof - 1) / K.sizeof);
+                                 (LargeBucket.sizeof - 1) / T.sizeof);
 
     import arrayn : ArrayN;
-    alias SmallBucket = ArrayN!(K, smallBucketCapacity);
+    alias SmallBucket = ArrayN!(T, smallBucketCapacity);
 
     /** Small-size-optimized bucket array.
         Size-state (small or large) is determined corresponding bit in `LargeBucketFlags`.
@@ -293,6 +305,22 @@ private:
 
     size_t _hashMask;
 }
+
+alias HashSet(K,
+              alias Allocator = null,
+              alias hasher = hashOf,
+              uint smallBucketMinCapacity = 1) = HashSetOrMap!(K, void,
+                                                               Allocator,
+                                                               hasher,
+                                                               smallBucketMinCapacity);
+
+alias HashMap(K, V,
+              alias Allocator = null,
+              alias hasher = hashOf,
+              uint smallBucketMinCapacity = 1) = HashSetOrMap!(K, V,
+                                                               Allocator,
+                                                               hasher,
+                                                               smallBucketMinCapacity);
 
 /** Get index into `bucket` for `value`.
  */
@@ -381,7 +409,7 @@ size_t bucketHash(alias hasher, K)(in K value)
     alias K = uint;
 
     import digestx.fnv : FNV;
-    auto s = HashSet!(K, void, null, FNV!(64, true)).withCapacity(n);
+    auto s = HashSet!(K, null, FNV!(64, true)).withCapacity(n);
 
     // all buckets start small
     assert(s.bucketCounts.smallCount != 0);
@@ -434,7 +462,7 @@ size_t bucketHash(alias hasher, K)(in K value)
     alias V = string;
 
     import digestx.fnv : FNV;
-    auto s = HashSet!(K, V, null, FNV!(64, true)).withCapacity(n);
+    auto s = HashMap!(K, V, null, FNV!(64, true)).withCapacity(n);
 
     // all buckets start small
     assert(s.bucketCounts.smallCount != 0);

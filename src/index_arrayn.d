@@ -33,7 +33,9 @@ struct IndexArrayN(uint capacity,
         alias T = Ix[L];
     }
 
-    this(uint rhsCapacity)(in IndexArrayN!(rhsCapacity, elementLength, span) rhs)
+    this(uint rhsCapacity)(in IndexArrayN!(rhsCapacity,
+                                           elementLength,
+                                           span) rhs)
     {
         static if (capacity < rhsCapacity)
         {

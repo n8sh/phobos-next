@@ -185,7 +185,7 @@ import std.typecons : Nullable;
 
 /** Returns: true iff $(D a) has a value containing meaningful information.
  */
-bool hasContents(T)(in T a) // @safe pure nothrow @nogc
+bool hasContents(T)(in T a)
 {
     static if (isInstanceOf!(Nullable, T))
     {
@@ -899,12 +899,14 @@ unittest
     assert(sum == n);
 }
 
-private string genNaryFun(string fun, V...)() @safe pure
+private string genNaryFun(string fun, V...)()
 {
     string code;
     import std.string: format;
     foreach (n, v; V)
+    {
         code ~= "alias values[%d] %s;".format(n, cast(char)('a'+n));
+    }
     code ~= `return ` ~ fun ~ `;`;
     return code;
 }
@@ -986,22 +988,25 @@ struct Limits(T)
 {
     import std.algorithm: min, max;
 
-    @property @safe pure:
+    @property:
 
     /** Expand Limits to include $(D a). */
-    auto ref include(in T a) nothrow {
+    auto ref include(in T a) nothrow
+    {
         _lims[0] = min(_lims[0], a);
         _lims[1] = max(_lims[1], a);
         return this;
     }
     alias expand = include;
 
-    auto ref reset() nothrow {
+    auto ref reset() nothrow
+    {
         _lims[0] = T.max;
         _lims[1] = T.min;
     }
 
-    string toString() const {
+    string toString() const
+    {
         import std.conv: to;
         return (`[` ~ to!string(_lims[0]) ~
                 `...` ~ to!string(_lims[1]) ~ `]`) ;
@@ -1123,7 +1128,7 @@ unittest
 }
 
 /** Python Style To-String-Conversion Alias. */
-string str(T)(in T a) @safe pure
+string str(T)(in T a)
 {
     import std.conv: to;
     return to!string(a);
@@ -1770,22 +1775,6 @@ auto distinct(R)(R r)
 //     assert(equal(first.chain(second).distinct.take(5),
 //                  [1, 0, 2, 3, 5]));
 // }
-
-T[n] s(T, size_t n)(auto ref T[n] values) @property @safe pure nothrow
-{
-    return values;
-}
-
-///
-@safe pure nothrow unittest
-{
-    enum n = 3;
-    auto a = [1, 2, 3];
-    auto x = [1, 2, 3].s;
-    static assert(is(typeof(x) == int[3]));
-    static assert(is(typeof([1, 2, 3].s) == int[3]));
-    assert([1, 2, 3].s[2] == 3);
-}
 
 /** Make a static array. */
 auto staticArray() @property @safe
@@ -2517,4 +2506,9 @@ nothrow pure @nogc unittest
     //len = cast(uint) array; // not allowed.
     len = bruteCast!uint(array);
     assert(len == array.length);
+}
+
+version(unittest)
+{
+    import array_help : s;
 }

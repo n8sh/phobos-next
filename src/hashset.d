@@ -1,5 +1,7 @@
 module hashset;
 
+import container_traits;
+
 /** Hash set (or map) storing (key) elements of type `K` and values of type `V`.
  *
  * Uses small-size-optimized (SSO) arrays as buckets.

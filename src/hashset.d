@@ -125,7 +125,7 @@ struct HashSetOrMap(K, V = void,
     }
 
     /// Release internal store.
-    private void release()
+    private void release() @trusted
     {
         foreach (immutable bucketIndex; 0 .. _buckets.length)
         {

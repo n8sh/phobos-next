@@ -260,12 +260,7 @@ struct CopyableArray(T,
     size_t toHash() const @trusted
     {
         import core.internal.hash : hashOf;
-        typeof(return) hash = this.length;
-        foreach (immutable i; 0 .. this.length)
-        {
-            hash ^= _ptr[i].hashOf;
-        }
-        return hash;
+        return this.length ^ hashOf(slice());
     }
 
     static if (isCopyable!T)

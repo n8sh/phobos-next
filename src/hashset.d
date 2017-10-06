@@ -15,6 +15,8 @@ import container_traits;
  *
  * TODO use https://dlang.org/phobos/std_experimental_allocator.html as:
  *
+ * TODO `byKey`, `byValue`, `byKeyValue`
+ *
  * struct HashTable
  * {
  *     private IAllocator _allocator;

@@ -262,7 +262,7 @@ struct HashSetOrMap(K, V = void,
     }
 
     /// ditto
-    scope ElementRef opBinaryRight(string op)(in T element) @trusted // TODO inout
+    scope inout(ElementRef) opBinaryRight(string op)(in T element) inout @trusted
         if (op == "in")
     {
         import std.algorithm.searching : countUntil;
@@ -278,11 +278,11 @@ struct HashSetOrMap(K, V = void,
         }
         if (elementOffset != -1)
         {
-            return ElementRef(&this, bucketIndex, elementOffset);
+            return typeof(return)(&this, bucketIndex, elementOffset);
         }
         else
         {
-            return ElementRef.init;
+            return typeof(return).init;
         }
     }
 

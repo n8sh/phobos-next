@@ -154,19 +154,9 @@ struct HashSetOrMap(K, V = void,
         if (_length != rhs._length) { return false; }
         foreach (immutable bucketIndex; 0 .. _buckets.length)
         {
-            if (_largeBucketFlags[bucketIndex])
+            foreach (const ref element; bucketElementsAt(bucketIndex))
             {
-                foreach (const ref element; _buckets[bucketIndex].large[])
-                {
-                    if (!rhs.contains(element)) { return false; }
-                }
-            }
-            else
-            {
-                foreach (const ref element; _buckets[bucketIndex].small[])
-                {
-                    if (!rhs.contains(element)) { return false; }
-                }
+                if (!rhs.contains(element)) { return false; }
             }
         }
         return true;

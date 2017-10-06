@@ -239,11 +239,24 @@ struct HashSetOrMap(K, V = void,
     {
         HashSetOrMap* table;
         size_t bucketIndex;     // table index to bucket
-        size_t bucketOffset;    // offset inside bucket
+        size_t elementOffset;    // offset inside bucket
 
         bool opCast(T : bool)() const
         {
             return cast(bool)table;
+        }
+
+        ref inout(T) opUnary(string s)() inout
+            if (s == "*")
+        {
+            if (table._largeBucketFlags[bucketIndex])
+            {
+                table._buckets[bucketIndex].large[elementOffset];
+            }
+            else
+            {
+                table._buckets[bucketIndex].small[elementOffset];
+            }
         }
     }
 
@@ -253,18 +266,18 @@ struct HashSetOrMap(K, V = void,
     {
         import std.algorithm.searching : countUntil;
         immutable bucketIndex = bucketHash!(hasher)(keyOf(element)) & _hashMask;
-        ptrdiff_t offset;
+        ptrdiff_t elementOffset;
         if (_largeBucketFlags[bucketIndex])
         {
-            offset = _buckets[bucketIndex].large[].countUntil(element);
+            elementOffset = _buckets[bucketIndex].large[].countUntil(element);
         }
         else
         {
-            offset = _buckets[bucketIndex].small[].countUntil(element);
+            elementOffset = _buckets[bucketIndex].small[].countUntil(element);
         }
-        if (offset != -1)
+        if (elementOffset != -1)
         {
-            return ElementRef(&this, bucketIndex, offset);
+            return ElementRef(&this, bucketIndex, elementOffset);
         }
         else
         {

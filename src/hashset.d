@@ -238,8 +238,8 @@ struct HashSetOrMap(K, V = void,
     static private struct ElementRef
     {
         HashSetOrMap* table;
-        size_t bucketIndex;     // table index to bucket
-        size_t elementOffset;    // offset inside bucket
+        size_t bucketIndex;     // index to bucket inside table
+        size_t elementOffset;   // offset to element inside bucket
 
         bool opCast(T : bool)() const
         {
@@ -251,11 +251,11 @@ struct HashSetOrMap(K, V = void,
         {
             if (table._largeBucketFlags[bucketIndex])
             {
-                table._buckets[bucketIndex].large[elementOffset];
+                return table._buckets[bucketIndex].large[elementOffset];
             }
             else
             {
-                table._buckets[bucketIndex].small[elementOffset];
+                return table._buckets[bucketIndex].small[elementOffset];
             }
         }
     }
@@ -553,7 +553,9 @@ size_t bucketHash(alias hasher, K)(in K key)
 
             assert(s1.length == n - i);
 
-            assert(e in s1);
+            auto hit = e in s1;
+            assert(hit);
+            assert(*hit == e);
 
             assert(s1.remove(e));
             assert(s1.length == n - i - 1);

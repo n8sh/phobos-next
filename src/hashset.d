@@ -451,7 +451,7 @@ size_t bucketHash(alias hasher, K)(in K key)
 
     static if (__traits(compiles, { size_t _ = hasher(key); }))
     {
-        return hasher(key);
+        return hasher(key);     // for instance `hashOf`
     }
     else static if (__traits(compiles, { enum _ = isDigest!hasher; }) &&
                     isDigest!hasher &&

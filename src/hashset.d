@@ -575,6 +575,7 @@ size_t bucketHash(alias hasher, K)(in K key)
 
         auto s2 = s1.dup;
         assert(s1 == s2);
+        static assert(!__traits(compiles, { const _ = s1 < s2; })); // no ordering
         assert(s2.length == n);
 
         // empty s1

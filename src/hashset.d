@@ -375,7 +375,7 @@ struct HashSetOrMap(K, V = void,
     }
 
     /// Get bucket count statistics.
-    BucketCounts bucketCounts() const
+    @property BucketCounts bucketCounts() const
     {
         const largeCount = _largeBucketFlags.countOnes;
         const smallCount = _largeBucketFlags.length - largeCount;

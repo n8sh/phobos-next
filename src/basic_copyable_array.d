@@ -260,7 +260,19 @@ struct CopyableArray(T,
     size_t toHash() const @trusted
     {
         import core.internal.hash : hashOf;
-        return this.length ^ hashOf(slice());
+        static if (isCopyable!T)
+        {
+            return this.length ^ hashOf(slice());
+        }
+        else
+        {
+            typeof(return) hash = this.length;
+            foreach (immutable i; 0 .. this.length)
+            {
+                hash ^= this.ptr[i].hashOf;
+            }
+            return hash;
+        }
     }
 
     static if (isCopyable!T)
@@ -665,9 +677,16 @@ struct CopyableArray(T,
 
     /// Helper slice.
     pragma(inline, true)
-    scope private inout(T)[] slice() inout return  @trusted
+    scope private inout(T)[] slice() inout return @trusted
     {
         return _ptr[0 .. _length];
+    }
+
+    /// Unsafe access to pointer.
+    pragma(inline, true)
+    scope private inout(T)* ptr() inout return @system
+    {
+        return _ptr;
     }
 
     /// Helper mutable slice.

@@ -370,8 +370,8 @@ struct HashSetOrMap(K, V = void,
     /// Bucket count statistics.
     struct BucketCounts
     {
-        size_t smallCount;      // number of hybrid bucket being small
-        size_t largeCount;      // number of hybrid bucket being large
+        size_t smallCount;      // number of hybrid buckets being small
+        size_t largeCount;      // number of hybrid buckets being large
     }
 
     /// Get bucket count statistics.

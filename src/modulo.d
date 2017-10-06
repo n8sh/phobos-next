@@ -293,11 +293,11 @@ auto mod(size_t m, T = UnsignedOfModulo!m)(T value)
     x -= 4;
     assert(x == 252);
 
-    const Mod!(256, ubyte) y = 55;
+    const Mod!(255, ubyte) y = 55;
 
     import std.traits : isAssignable;
     static assert(isAssignable!(typeof(x), typeof(y)));
-    x = y;
+    static assert(!isAssignable!(typeof(y), typeof(x)));
 }
 
 /// construct from other precision

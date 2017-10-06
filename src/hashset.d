@@ -53,15 +53,15 @@ struct HashSetOrMap(K, V = void,
         }
 
         /// Get key part of element.
-        static auto ref inout(K) keyOf()(auto ref inout(T) elt)
+        static auto ref inout(K) keyOf()(auto ref inout(T) element)
         {
-            return elt.key;
+            return element.key;
         }
 
         /// Get value part of element.
-        static auto ref inout(K) valueOf()(auto ref inout(T) elt)
+        static auto ref inout(K) valueOf()(auto ref inout(T) element)
         {
-            return elt.value;
+            return element.value;
         }
 
         alias ValueType = V;
@@ -71,9 +71,9 @@ struct HashSetOrMap(K, V = void,
         private alias T = K;
 
         /// Get key part of element.
-        static auto ref inout(K) keyOf()(auto ref inout(T) elt)
+        static auto ref inout(K) keyOf()(auto ref inout(T) element)
         {
-            return elt;
+            return element;
         }
     }
 

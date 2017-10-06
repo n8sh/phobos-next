@@ -309,9 +309,28 @@ struct CopyableArray(T,
         else
         {
             reserve(newLength);
+            foreach (const i; _length .. newLength)
+            {
+                static if (hasElaborateDestructor!T)
+                {
+                    static if (isCopyable!T)
+                    {
+                        import std.conv : emplace;
+                        emplace(&_mptr[i], T.init);
+                    }
+                    else
+                    {
+                        auto _ = T.init;
+                        moveEmplace(_, _mptr[i]);
+                    }
+                }
+                else
+                {
+                    _mptr[i] = T.init;
+                }
+            }
         }
         _length = newLength;
-        assert(false, "TODO default initialize new elements");
     }
 
     /// Get capacity.

@@ -147,6 +147,30 @@ struct HashSetOrMap(K, V = void,
         return that;
     }
 
+    /// Equality.
+    bool opEquals(in ref typeof(this) rhs) const @trusted
+    {
+        if (_length != rhs._length) { return false; }
+        foreach (immutable bucketIndex; 0 .. _buckets.length)
+        {
+            if (_largeBucketFlags[bucketIndex])
+            {
+                foreach (const ref element; _buckets[bucketIndex].large[])
+                {
+                    if (!rhs.contains(element)) { return false; }
+                }
+            }
+            else
+            {
+                foreach (const ref element; _buckets[bucketIndex].small[])
+                {
+                    if (!rhs.contains(element)) { return false; }
+                }
+            }
+        }
+        return true;
+    }
+
     /// Empty.
     void clear()
     {
@@ -550,6 +574,7 @@ size_t bucketHash(alias hasher, K)(in K key)
         // duplicate s1
 
         auto s2 = s1.dup;
+        assert(s1 == s2);
         assert(s2.length == n);
 
         // empty s1

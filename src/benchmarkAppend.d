@@ -11,7 +11,7 @@ void main()
     // my containers
     import basic_copyable_array : CopyableArray;
     import variant_arrays : VariantArrays;
-    import hashset : HashSet;
+    import hashset : HashSet, HashMap;
 
     import std.digest.murmurhash : MurmurHash3;
     import xxhash64 : XXHash64;
@@ -101,7 +101,7 @@ void main()
                 a.insert(i);
             }
             immutable after = MonoTime.currTime();
-            write("Inserted ", n, " integers in ", after - before);
+            write("Inserted ", n, " elements in ", after - before);
         }
 
         {
@@ -111,7 +111,7 @@ void main()
                 assert(a.contains(i));
             }
             immutable after = MonoTime.currTime();
-            write(", Checked ", n, " integers in ", after - before);
+            write(", Checked ", n, " elements in ", after - before);
         }
 
         static if (hasMember!(A, `bucketCounts`))
@@ -122,6 +122,28 @@ void main()
         writeln(` for `, A.stringof);
 
         a.clear();
+    }
+
+    foreach (A; AliasSeq!(HashMap!(E, string, null, FNV!(64, true))))
+    {
+        static if (hasMember!(A, `withCapacity`))
+        {
+            A a = A.withCapacity(n);
+        }
+        else
+        {
+            A a;
+        }
+
+        {
+            immutable before = MonoTime.currTime();
+            foreach (const i; 0 .. n)
+            {
+                a.insert(A.ElementType(i, ""));
+            }
+            immutable after = MonoTime.currTime();
+            write("Inserted ", n, " elements in ", after - before);
+        }
     }
 
     foreach (A; AliasSeq!(bool[E]))
@@ -135,7 +157,7 @@ void main()
                 a[i] = true;
             }
             immutable after = MonoTime.currTime();
-            write("Inserted ", n, " integers in ", after - before);
+            write("Inserted ", n, " elements in ", after - before);
         }
 
         {
@@ -145,7 +167,7 @@ void main()
                 assert(i in a);
             }
             immutable after = MonoTime.currTime();
-            write(", Checked ", n, " integers in ", after - before);
+            write(", Checked ", n, " elements in ", after - before);
         }
 
         writeln(` for `, A.stringof);

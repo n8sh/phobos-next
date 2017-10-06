@@ -116,7 +116,7 @@ struct HashSetOrMap(K, V = void,
     @disable this(this);
 
     /// Duplicate.
-    typeof(this) dup() @trusted @nogc
+    typeof(this) dup() @trusted
     {
         typeof(return) that;
 

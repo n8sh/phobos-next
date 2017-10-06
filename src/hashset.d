@@ -35,6 +35,7 @@ struct HashSetOrMap(K, V = void,
                     uint smallBucketMinCapacity = 1)
     if (smallBucketMinCapacity >= 1) // no use having empty small buckets
 {
+    import std.traits : hasElaborateDestructor;
     import std.algorithm.mutation : move, moveEmplace;
     import std.algorithm.searching : canFind;
 
@@ -155,11 +156,17 @@ struct HashSetOrMap(K, V = void,
         {
             if (_largeBucketFlags[bucketIndex])
             {
-                .destroy(_buckets[bucketIndex].large);
+                static if (hasElaborateDestructor!LargeBucket)
+                {
+                    .destroy(_buckets[bucketIndex].large);
+                }
             }
             else
             {
-                .destroy(_buckets[bucketIndex].small);
+                static if (hasElaborateDestructor!SmallBucket)
+                {
+                    .destroy(_buckets[bucketIndex].small);
+                }
             }
         }
     }

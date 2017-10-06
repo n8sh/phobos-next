@@ -1,7 +1,5 @@
 module bitarray;
 
-import container_traits;
-
 /** Array of bits.
     Like `std.bitmanip.BitArray` but @safe pure nothrow @nogc.
  */
@@ -151,6 +149,7 @@ private:
     enum blockBits = 8*Block.sizeof;
 
     size_t _blockCount;
+    import container_traits : NoGc;
     @NoGc Block* _blockPtr;
 
     size_t _length;

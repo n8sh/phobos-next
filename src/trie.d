@@ -125,7 +125,7 @@ import std.range.primitives : hasLength;
 import bijections : isIntegralBijectableType, bijectToUnsigned, bijectFromUnsigned;
 import variant_ex : WordVariant;
 import typecons_ex : IndexedBy;
-import container_traits : shouldAddGCRange;
+import container_traits : mustAddGCRange;
 import basic_uncopyable_array : Array = UncopyableArray;
 
 // version = enterSingleInfiniteMemoryLeakTest;
@@ -562,7 +562,7 @@ static private struct SparseLeaf1(Value)
 
     static if (hasValue)
     {
-        static if (shouldAddGCRange!Value)
+        static if (mustAddGCRange!Value)
         {
             import core.memory : GC;
         }
@@ -582,7 +582,7 @@ static private struct SparseLeaf1(Value)
             _length = ixs.length;
             foreach (immutable i, immutable ix; ixs) { ixsSlots[i] = ix; }
             foreach (immutable i, immutable value; values) { valuesSlots[i] = value; }
-            static if (shouldAddGCRange!Value)
+            static if (mustAddGCRange!Value)
             {
                 GC.addRange(valuesSlots.ptr, _capacity * Value.sizeof);
             }
@@ -612,7 +612,8 @@ static private struct SparseLeaf1(Value)
 
     private pragma(inline) void deinit() @trusted
     {
-        static if (shouldAddGCRange!Value)
+        static if (hasValue &&
+                   mustAddGCRange!Value)
         {
             GC.removeRange(valuesSlots.ptr, _capacity * Value.sizeof);
         }
@@ -818,7 +819,14 @@ static private struct DenseLeaf1(Value)
 
     enum hasValue = !is(Value == void);
 
-    enum hasGCScannedValues = hasValue && !is(Value == bool) && shouldAddGCRange!Value;
+    static if (hasValue)
+    {
+        enum hasGCScannedValues = !is(Value == bool) && mustAddGCRange!Value;
+    }
+    else
+    {
+        enum hasGCScannedValues = false;
+    }
 
     static if (hasGCScannedValues)
     {

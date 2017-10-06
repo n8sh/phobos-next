@@ -192,6 +192,9 @@ struct HashSetOrMap(K, V = void,
             }
             else
             {
+                /* TODO SmallBucket itself doens't need to be destroyed only
+                   it's elements and gc_removeRange doesn't need to be called
+                   either, that is take car of by dtor of _buckets. */
                 static if (hasElaborateDestructor!SmallBucket)
                 {
                     .destroy(_buckets[bucketIndex].small);

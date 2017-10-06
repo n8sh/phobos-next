@@ -167,27 +167,32 @@ struct ArrayN(T,
         return that;
     }
 
-    /** Destruct. */
-    ~this() @trusted
+    static if (borrowChecked ||
+               hasElaborateDestructor!T ||
+               mustAddGCRange!T)
     {
-        static if (borrowChecked) { assert(!isBorrowed); }
-        static if (hasElaborateDestructor!T)
+        /** Destruct. */
+        ~this() @trusted
         {
-            foreach (const i; 0 .. length)
+            static if (borrowChecked) { assert(!isBorrowed); }
+            static if (hasElaborateDestructor!T)
             {
-                .destroy(_store.ptr[i]);
+                foreach (const i; 0 .. length)
+                {
+                    .destroy(_store.ptr[i]);
+                }
             }
-        }
-        static if (mustAddGCRange!T)
-        {
-            gc_removeRange(_store.ptr);
+            static if (mustAddGCRange!T)
+            {
+                gc_removeRange(_store.ptr);
+            }
         }
     }
 
     /** Add elements `es` to the back.
         Throws when array becomes full.
         NOTE doesn't invalidate any borrow
-     */
+    */
     void insertBack(Es...)(Es es) @trusted
         if (Es.length <= capacity) // TODO use `isAssignable`
     {

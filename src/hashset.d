@@ -359,7 +359,7 @@ struct HashSetOrMap(K, V = void,
 
     /** Retursn: elements in bucket at `bucketIndex`. */
     pragma(inline, true)
-    private inout(T)[] bucketElementsAt(size_t bucketIndex) inout
+    private scope inout(T)[] bucketElementsAt(size_t bucketIndex) inout return
     {
         if (_largeBucketFlags[bucketIndex])
         {

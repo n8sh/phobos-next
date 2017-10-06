@@ -481,6 +481,7 @@ alias MutableDStringN(uint requestedCapacity, Checking checking = Checking.viaSc
     enum capacity = 3;
     alias T = int;
     alias A = ArrayN!(T, capacity);
+    static assert(!mustAddGCRange!A);
 
     auto a = A([1, 2, 3].s[]);
     assert(a[] == [1, 2, 3].s);
@@ -492,6 +493,8 @@ alias MutableDStringN(uint requestedCapacity, Checking checking = Checking.viaSc
     enum capacity = 3;
     alias T = int;
     alias A = ArrayN!(T, capacity);
+    static assert(!mustAddGCRange!A);
+
     auto a = A.fromValuesUnsafe([1, 2, 3].s);
     assert(a[] == [1, 2, 3].s);
 }
@@ -502,6 +505,7 @@ alias MutableDStringN(uint requestedCapacity, Checking checking = Checking.viaSc
     enum capacity = 3;
     alias T = int;
     alias A = ArrayN!(T, capacity);
+    static assert(!mustAddGCRange!A);
 
     auto a = A(1, 2, 3);
     assert(a[] == [1, 2, 3].s);
@@ -538,6 +542,7 @@ version(none) pure unittest     // TODO activate
     enum capacity = 15;
     foreach (StrN; AliasSeq!(StringN, WStringN, DStringN))
     {
+        static assert(!mustAddGCRange!StrN);
         alias String15 = StrN!(capacity, Checking.viaScope);
         assertThrown!AssertError(String15("åäö_åäöå_"));
     }
@@ -548,6 +553,8 @@ version(none) pure unittest     // TODO activate
 {
     enum capacity = 15;
     alias String15 = StringN!(capacity, Checking.viaScope);
+    static assert(!mustAddGCRange!String15);
+
     string f() @safe pure
     {
         auto x = String15("alphas");
@@ -566,6 +573,7 @@ version(none) pure unittest     // TODO activate
     enum capacity = 3;
 
     alias A = ArrayN!(T, capacity, Checking.viaScopeAndBorrowing);
+    static assert(!mustAddGCRange!A);
     static assert(A.sizeof == T.sizeof*capacity + 1);
 
     import std.range : isOutputRange;
@@ -629,6 +637,7 @@ version(none) pure unittest     // TODO activate
     {
         enum capacity = 15;
         alias A = ArrayN!(immutable(T), capacity, Checking.viaScopeAndBorrowing);
+        static assert(!mustAddGCRange!A);
         auto a = A("abc");
         assert(a[] == "abc");
         assert(a[].equal("abc"));
@@ -649,6 +658,7 @@ version(none) pure unittest     // TODO activate
 {
     enum capacity = 15;
     alias String15 = StringN!(capacity, Checking.viaScopeAndBorrowing);
+    static assert(!mustAddGCRange!String15);
     static assert(String15.readBorrowCountMax == 7);
     auto x = String15("alpha");
 }
@@ -658,6 +668,8 @@ pure unittest
 {
     enum capacity = 15;
     alias S = ArrayN!(int, capacity);
+    static assert(!mustAddGCRange!S);
+
     assert(S([1, 2, 3].s[]) ==
            S([1, 2, 3].s[]));
     assert(S([1, 2, 3].s[]) ==
@@ -691,6 +703,8 @@ pure nothrow @nogc unittest
 {
     enum capacity = 15;
     alias String15 = StringN!(capacity, Checking.viaScopeAndBorrowing);
+    static assert(!mustAddGCRange!String15);
+
     const char[4] _ = ['a', 'b', 'c', 'd'];
     auto x = String15(_[]);
     assert(x.length == 4);
@@ -702,6 +716,7 @@ pure unittest
 {
     enum capacity = 15;
     alias String15 = StringN!(capacity, Checking.viaScopeAndBorrowing);
+    static assert(!mustAddGCRange!String15);
 
     auto x = String15("alpha");
 
@@ -753,4 +768,5 @@ version(unittest)
     import core.exception : AssertError;
 
     import array_help : s;
+    import container_traits : mustAddGCRange;
 }

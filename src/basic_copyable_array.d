@@ -310,8 +310,8 @@ struct CopyableArray(T,
         {
             reserve(newLength);
         }
-        dln("TODO default initialize new elements");
         _length = newLength;
+        assert(false, "TODO default initialize new elements");
     }
 
     /// Get capacity.

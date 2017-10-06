@@ -304,7 +304,13 @@ struct HashSetOrMap(K, V = void,
             }
         }
 
-        /// TODO is opIndexAssign needed here aswell?
+	/** Supports $(B aa[key] = value;) syntax.
+	 */
+	void opIndexAssign(K key, V value)
+	{
+            insert(T(key, value));
+	}
+
     }
 
     /** Remove `element` and, when possible, shrink its large bucket to small.

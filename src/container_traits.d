@@ -149,16 +149,20 @@ template mustAddGCRange(T = void)
             static if (!is(typeof(T.tupleof[i]) == void))
             {
                 alias MT = typeof(T.tupleof[i]);
-                static if (isDynamicArray!MT && !hasUDA!(T.tupleof[i], NoGc))
+                static if (isDynamicArray!MT &&
+                           !hasUDA!(T.tupleof[i], NoGc))
                 {
                     mixin(addManaged);
                 }
-                else static if (isPointer!MT && !hasUDA!(T.tupleof[i], NoGc))
+                else static if (isPointer!MT &&
+                                !hasUDA!(T.tupleof[i], NoGc))
                 {
                     mixin(addManaged);
                 }
-                else static if (is(MT == class) && (!is(MT : T))
-                                && !hasUDA!(T.tupleof[i], NoGc) && !(isTemplateInstance!T /*&& staticIndexOf!(MT,TemplateArgsOf!T) > 0*/ ))
+                else static if (is(MT == class) &&
+                                (!is(MT : T)) &&
+                                !hasUDA!(T.tupleof[i], NoGc) &&
+                                !(isTemplateInstance!T /*&& staticIndexOf!(MT,TemplateArgsOf!T) > 0*/ ))
                 {
                     // failure here when the class is a template and when one of the member
                     // type is one of the template argument.
@@ -168,14 +172,18 @@ template mustAddGCRange(T = void)
                         mixin(addManaged);
                     }
                 }
-                else static if (is(MT == struct) && !is(MT == T) && !hasUDA!(T.tupleof[i], NoGc))
+                else static if (is(MT == struct) &&
+                                !is(MT == T) &&
+                                !hasUDA!(T.tupleof[i], NoGc))
                 {
                     static if (mustAddGCRange!MT)
                     {
                         mixin(addManaged);
                     }
                 }
-                else static if (is(MT == union) && !is(MT == T) && !hasUDA!(T.tupleof[i], NoGc))
+                else static if (is(MT == union) &&
+                                !is(MT == T) &&
+                                !hasUDA!(T.tupleof[i], NoGc))
                 {
                     static if (mustAddGCRange!MT)
                     {

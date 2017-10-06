@@ -1517,7 +1517,7 @@ template RawRadixTree(Value = void)
 
     static assert(span <= 8*Ix.sizeof, "Need more precision in Ix");
 
-    /** Elt Reference. */
+    /** Element reference. */
     private static struct ElementRef
     {
         Node node;

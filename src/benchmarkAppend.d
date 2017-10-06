@@ -101,7 +101,7 @@ void main()
                 a.insert(i);
             }
             immutable after = MonoTime.currTime();
-            write("Inserted ", n, " elements in ", after - before);
+            write("Insertion: ", after - before);
         }
 
         {
@@ -111,7 +111,7 @@ void main()
                 assert(a.contains(i));
             }
             immutable after = MonoTime.currTime();
-            write(", Checked ", n, " elements in ", after - before);
+            write(", Checking: ", after - before);
         }
 
         static if (hasMember!(A, `bucketCounts`))
@@ -137,7 +137,7 @@ void main()
                 a.insert(A.ElementType(i, ValueType.init));
             }
             immutable after = MonoTime.currTime();
-            write("Inserted ", n, " elements in ", after - before);
+            write("Insertion: ", after - before);
         }
 
         {
@@ -147,7 +147,7 @@ void main()
                 assert(a.contains(A.ElementType(i, ValueType.init)));
             }
             immutable after = MonoTime.currTime();
-            write(", Checked ", n, " elements in ", after - before);
+            write(", Checking: ", after - before);
         }
 
         static if (hasMember!(A, `bucketCounts`))
@@ -171,14 +171,14 @@ void main()
                 a[i] = ValueType.init;
             }
             immutable after = MonoTime.currTime();
-            write("Inserted ", n, " elements in ", after - before);
+            write("Insertion: ", after - before);
         }
 
         {
             immutable before = MonoTime.currTime();
             a.rehash();
             immutable after = MonoTime.currTime();
-            write(", Rehash took ", after - before);
+            write(", Rehashing: ", after - before);
         }
 
         {
@@ -188,7 +188,7 @@ void main()
                 assert(i in a);
             }
             immutable after = MonoTime.currTime();
-            write(", Checked ", n, " elements in ", after - before);
+            write(", Checking: ", after - before);
         }
 
         writeln(` for `, A.stringof);

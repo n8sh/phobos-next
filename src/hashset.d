@@ -363,7 +363,6 @@ struct HashSetOrMap(K, V = void,
 
     /// Get length (read-only).
     @property size_t length() const { return _length; }
-    alias opDollar = length;    /// ditto
 
     /// Get bucket count.
     @property size_t bucketCount() const { return _buckets.length; }

@@ -354,7 +354,7 @@ struct HashSetOrMap(K, V = void,
      */
     ref typeof(this) rehash()() @trusted
     {
-        static assert(false, "TODO remove template braces and implement");
+        static assert(false, "TODO remove template parens of this functions and implement");
         // return this;
     }
 

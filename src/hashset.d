@@ -284,20 +284,12 @@ struct HashSetOrMap(K, V = void,
     {
         import std.algorithm.searching : countUntil;
         immutable bucketIndex = HashOf!(hasher)(keyOf(element)) & _hashMask;
-        ptrdiff_t elementOffset;
-        if (_largeBucketFlags[bucketIndex])
-        {
-            elementOffset = _buckets[bucketIndex].large[].countUntil(element);
-        }
-        else
-        {
-            elementOffset = _buckets[bucketIndex].small[].countUntil(element);
-        }
-        if (elementOffset != -1)
+        immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil(element);
+        if (elementOffset != -1) // hit
         {
             return typeof(return)(&this, bucketIndex, elementOffset);
         }
-        else
+        else                    // miss
         {
             return typeof(return).init;
         }
@@ -367,8 +359,8 @@ struct HashSetOrMap(K, V = void,
     /// Get bucket count statistics.
     BucketCounts bucketCounts() const
     {
-        const largeCount = _largeBucketFlags.countOnes;
-        const smallCount = _largeBucketFlags.length - largeCount;
+        immutable largeCount = _largeBucketFlags.countOnes;
+        immutable smallCount = _largeBucketFlags.length - largeCount;
         auto result = typeof(return)(smallCount,
                                      largeCount);
         assert(result.largeCount + result.smallCount == _largeBucketFlags.length);

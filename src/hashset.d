@@ -361,7 +361,7 @@ struct HashSetOrMap(K, V = void,
     /// Check if empty.
     bool empty() const { return _length == 0; }
 
-    /// Get length.
+    /// Get length (read-only).
     @property size_t length() const { return _length; }
     alias opDollar = length;    /// ditto
 

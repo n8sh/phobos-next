@@ -235,6 +235,7 @@ struct HashSetOrMap(K, V = void,
         }
     }
 
+    /** Reference to element. */
     static private struct ElementRef
     {
         HashSetOrMap* table;

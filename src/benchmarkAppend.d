@@ -176,6 +176,13 @@ void main()
 
         {
             immutable before = MonoTime.currTime();
+            a.rehash();
+            immutable after = MonoTime.currTime();
+            write("Rehash took ", after - before);
+        }
+
+        {
+            immutable before = MonoTime.currTime();
             foreach (const i; 0 .. n)
             {
                 assert(i in a);

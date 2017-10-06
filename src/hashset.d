@@ -116,10 +116,25 @@ struct HashSetOrMap(K, V = void,
     @disable this(this);
 
     /// Duplicate.
-    typeof(this) dup()
+    typeof(this) dup() @trusted @nogc
     {
         typeof(return) that;
-        that._buckets = _buckets.dup;
+
+        that._buckets.reserve(_buckets.length);
+        that._buckets.length = _buckets.length; // TODO this zero-initializes before initialization below, use unsafe setLengthOnlyUNSAFE
+        foreach (immutable bucketIndex; 0 .. _buckets.length)
+        {
+            import std.conv : emplace;
+            if (_largeBucketFlags[bucketIndex])
+            {
+                emplace!(LargeBucket)(&that._buckets[bucketIndex].large, _buckets[bucketIndex].large[]);
+            }
+            else
+            {
+                emplace!(SmallBucket)(&that._buckets[bucketIndex].small, _buckets[bucketIndex].small);
+            }
+        }
+
         that._largeBucketFlags = _largeBucketFlags.dup;
         that._hashMask = _hashMask;
         that._length = _length;
@@ -444,6 +459,8 @@ size_t bucketHash(alias hasher, K)(in K key)
     }
 
     assert(s.length == n);
+
+    auto s2 = s.dup;
 
     foreach (immutable i; 0 .. n)
     {

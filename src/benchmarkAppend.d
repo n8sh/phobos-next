@@ -178,7 +178,7 @@ void main()
             immutable before = MonoTime.currTime();
             a.rehash();
             immutable after = MonoTime.currTime();
-            write("Rehash took ", after - before);
+            write(", Rehash took ", after - before);
         }
 
         {

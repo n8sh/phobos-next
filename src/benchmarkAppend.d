@@ -36,7 +36,19 @@ void main()
                           Appender!(E[]),
                           E[]))
     {
-        A a;
+        static if (hasMember!(A, `withCapacity`))
+        {
+            auto a = A.withCapacity(n);
+        }
+        else static if (hasMember!(A, `reserve`))
+        {
+            A a;
+            a.reserve(n);
+        }
+        else
+        {
+            A a;
+        }
 
         immutable before = MonoTime.currTime();
         foreach (const i; 0 .. n)

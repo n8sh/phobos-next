@@ -327,7 +327,7 @@ struct HashSetOrMap(K, V = void,
      */
     ref typeof(this) rehash() @trusted
     {
-        dln("TODO");
+        dln("TODO implement");
         return this;
     }
 

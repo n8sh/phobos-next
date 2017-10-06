@@ -124,7 +124,7 @@ void main()
         a.clear();
     }
 
-    alias ValueType = string;
+    alias ValueType = uint;
 
     foreach (A; AliasSeq!(HashMap!(E, ValueType, null, FNV!(64, true))))
     {
@@ -134,7 +134,7 @@ void main()
             immutable before = MonoTime.currTime();
             foreach (const i; 0 .. n)
             {
-                a.insert(A.ElementType(i, ""));
+                a.insert(A.ElementType(i, ValueType.init));
             }
             immutable after = MonoTime.currTime();
             write("Inserted ", n, " elements in ", after - before);
@@ -144,7 +144,7 @@ void main()
             immutable before = MonoTime.currTime();
             foreach (const i; 0 .. n)
             {
-                assert(a.contains(A.ElementType(i, "")));
+                assert(a.contains(A.ElementType(i, ValueType.init)));
             }
             immutable after = MonoTime.currTime();
             write(", Checked ", n, " elements in ", after - before);

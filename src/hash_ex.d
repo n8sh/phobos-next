@@ -1,16 +1,16 @@
 module hash_ex;
 
-/** Get index into `bucket` for `key`.
+/** Get hash of `value`.
  */
 pragma(inline)              // LDC can inline, DMD cannot
-size_t genericHashOf(alias hasher, K)(in K key)
+size_t HashOf(alias hasher, T)(in T value)
 {
     import std.digest.digest : isDigest;
     import std.traits : hasMember;
 
-    static if (__traits(compiles, { size_t _ = hasher(key); }))
+    static if (__traits(compiles, { size_t _ = hasher(value); }))
     {
-        return hasher(key);     // for instance `hashOf`
+        return hasher(value);     // for instance `hashOf`
     }
     else static if (__traits(compiles, { enum _ = isDigest!hasher; }) &&
                     isDigest!hasher &&
@@ -19,7 +19,7 @@ size_t genericHashOf(alias hasher, K)(in K key)
         import std.digest.digest : makeDigest;
 
         auto dig = makeDigest!(hasher);
-        dig.put((cast(ubyte*)&key)[0 .. key.sizeof]);
+        dig.put((cast(ubyte*)&value)[0 .. value.sizeof]);
         dig.finish();
 
         static if (is(typeof(dig.get()) == typeof(return)))
@@ -38,8 +38,8 @@ size_t genericHashOf(alias hasher, K)(in K key)
     }
     else static if (__traits(compiles, { auto _ = hasher((ubyte[]).init); }))
     {
-        // cast input `key` to `ubyte[]` and use std.digest API
-        immutable digest = hasher((cast(ubyte*)&key)[0 .. key.sizeof]); // TODO ask forums when this isn't correct
+        // cast input `value` to `ubyte[]` and use std.digest API
+        immutable digest = hasher((cast(ubyte*)&value)[0 .. value.sizeof]); // TODO ask forums when this isn't correct
 
         static assert(digest.sizeof >=
                       typeof(return).sizeof,
@@ -77,6 +77,6 @@ size_t genericHashOf(alias hasher, K)(in K key)
     else
     {
         static assert(0, "Cannot combine hasher " ~ hasher.stringof ~
-                      " with element type " ~ K.stringof);
+                      " with element type " ~ T.stringof);
     }
 }

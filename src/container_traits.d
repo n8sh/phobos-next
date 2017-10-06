@@ -224,6 +224,13 @@ template mustAddGCRange(T = void)
     enum mustAddGCRange = mustAddGCRange!Dummy;
 }
 
+/// Returns: `true` iff `T` is a template instance, `false` otherwise.
+private template isTemplateInstance(T)
+{
+    import std.traits : TemplateOf;
+    enum isTemplateInstance = is(typeof(TemplateOf!(T)));
+}
+
 ///
 @safe pure nothrow @nogc unittest
 {

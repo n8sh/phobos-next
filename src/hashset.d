@@ -461,6 +461,7 @@ size_t bucketHash(alias hasher, K)(in K key)
     assert(s.length == n);
 
     auto s2 = s.dup;
+    assert(s2.length == n);
 
     foreach (immutable i; 0 .. n)
     {
@@ -518,6 +519,9 @@ size_t bucketHash(alias hasher, K)(in K key)
     }
 
     assert(m.length == n);
+
+    auto m2 = m.dup;
+    assert(m2.length == n);
 
     foreach (immutable i; 0 .. n)
     {

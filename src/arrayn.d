@@ -28,7 +28,7 @@ struct ArrayN(T,
     import std.algorithm.mutation : move, moveEmplace;
 
     import qcmeman : gc_addRange, gc_removeRange;
-    import container_traits : shouldAddGCRange;
+    import container_traits : mustAddGCRange;
 
     alias capacity = requestedCapacity; // for public use
 
@@ -99,7 +99,7 @@ struct ArrayN(T,
     this(Us...)(Us values) @trusted
         if (Us.length <= capacity)
     {
-        static if (shouldAddGCRange!T)
+        static if (mustAddGCRange!T)
         {
             gc_addRange(_store.ptr, values.length * T.sizeof);
         }
@@ -129,7 +129,7 @@ struct ArrayN(T,
         import std.exception : enforce;
         enforce(values.length <= capacity, `Arguments don't fit in array`);
 
-        static if (shouldAddGCRange!T)
+        static if (mustAddGCRange!T)
         {
             gc_addRange(_store.ptr, values.length * T.sizeof);
         }
@@ -150,7 +150,7 @@ struct ArrayN(T,
             ) // prevent accidental move of l-value `values` in array calls
     {
         typeof(return) that;              // TODO use Store constructor:
-        static if (shouldAddGCRange!T)
+        static if (mustAddGCRange!T)
         {
             gc_addRange(that._store.ptr, values.length * T.sizeof);
         }
@@ -178,7 +178,7 @@ struct ArrayN(T,
                 .destroy(_store.ptr[i]);
             }
         }
-        static if (shouldAddGCRange!T)
+        static if (mustAddGCRange!T)
         {
             gc_removeRange(_store.ptr);
         }

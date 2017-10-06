@@ -124,16 +124,11 @@ void main()
         a.clear();
     }
 
-    foreach (A; AliasSeq!(HashMap!(E, string, null, FNV!(64, true))))
+    alias ValueType = string;
+
+    foreach (A; AliasSeq!(HashMap!(E, ValueType, null, FNV!(64, true))))
     {
-        static if (hasMember!(A, `withCapacity`))
-        {
-            A a = A.withCapacity(n);
-        }
-        else
-        {
-            A a;
-        }
+        A a = A.withCapacity(5*n/4);
 
         {
             immutable before = MonoTime.currTime();
@@ -144,9 +139,28 @@ void main()
             immutable after = MonoTime.currTime();
             write("Inserted ", n, " elements in ", after - before);
         }
+
+        {
+            immutable before = MonoTime.currTime();
+            foreach (const i; 0 .. n)
+            {
+                assert(a.contains(A.ElementType(i, "")));
+            }
+            immutable after = MonoTime.currTime();
+            write(", Checked ", n, " elements in ", after - before);
+        }
+
+        static if (hasMember!(A, `bucketCounts`))
+        {
+            write(" ", a.bucketCounts());
+        }
+
+        writeln(` for `, A.stringof);
+
+        a.clear();
     }
 
-    foreach (A; AliasSeq!(bool[E]))
+    foreach (A; AliasSeq!(ValueType[E]))
     {
         A a = A.init;
 
@@ -154,7 +168,7 @@ void main()
             immutable before = MonoTime.currTime();
             foreach (const i; 0 .. n)
             {
-                a[i] = true;
+                a[i] = ValueType.init;
             }
             immutable after = MonoTime.currTime();
             write("Inserted ", n, " elements in ", after - before);

@@ -285,10 +285,32 @@ struct HashSetOrMap(K, V = void,
         }
     }
 
+    static if (hasValue)
+    {
+        /// Indexing.
+        ref inout(V) opIndex(in K key) inout
+        {
+            import std.algorithm.searching : countUntil;
+            immutable bucketIndex = HashOf!(hasher)(key) & _hashMask;
+            immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil!(_ => _.key == key);
+            if (elementOffset != -1) // hit
+            {
+                return bucketElementsAt(bucketIndex)[elementOffset].value;
+            }
+            else                    // miss
+            {
+		import std.conv : text;
+                throw new Exception("Key " ~ text(key) ~ " not in table");
+            }
+        }
+
+        /// TODO is opIndexAssign needed here aswell?
+    }
+
     /** Remove `element` and, when possible, shrink its large bucket to small.
 
         Returns: `true` if element was removed, `false` otherwise.
-     */
+    */
     bool remove(in T element)
         @trusted
     {

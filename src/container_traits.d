@@ -104,12 +104,6 @@ enum TellRangeAdded;
  */
 enum NoInit;
 
-template shouldAddGCRange(T)
-{
-    import std.traits : hasIndirections;
-    enum shouldAddGCRange = hasIndirections!T; // TODO use mustAddGCRange below instead
-}
-
 /**
  * Indicates if an aggregate contains members that might be collected by the
  * garbage collector. This is used in constructors to determine if the content

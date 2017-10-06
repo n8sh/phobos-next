@@ -128,7 +128,7 @@ void main()
 
     foreach (A; AliasSeq!(HashMap!(E, ValueType, null, FNV!(64, true))))
     {
-        A a = A.withCapacity(5*n/4);
+        A a = A.withCapacity(n);
 
         {
             immutable before = MonoTime.currTime();

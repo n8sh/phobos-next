@@ -523,6 +523,8 @@ size_t bucketHash(alias hasher, K)(in K key)
 
         // empty s2
 
+        assert(s2.length == n); // should be not affected by emptying of s1
+
         foreach (immutable i; 0 .. n)
         {
             static if (X.hasValue)

@@ -32,7 +32,7 @@ struct ArrayN(T,
 
     alias capacity = requestedCapacity; // for public use
 
-    /// stored elements
+    /// Store of `capacity` number of elements.
     T[capacity] _store;         // TODO use store constructor
 
     /// Is `true` iff `this` has borrow-checked slicing.

@@ -88,8 +88,6 @@ struct ArrayN(T,
         Length _length;         /// number of defined elements in `_store`
     }
 
-    alias MutableE = Unqual!T;
-
     /// Is `true` if `U` can be assign to the element type `T` of `this`.
     private enum isElementAssignable(U) = isAssignable!(T, U);
 

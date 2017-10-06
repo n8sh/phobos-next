@@ -235,11 +235,41 @@ struct HashSetOrMap(K, V = void,
         }
     }
 
+    static private struct ElementRef
+    {
+        HashSetOrMap* table;
+        size_t bucketIndex;     // table index to bucket
+        size_t bucketOffset;    // offset inside bucket
+
+        bool opCast(T : bool)() const
+        {
+            return cast(bool)table;
+        }
+    }
+
     /// ditto
-    bool opBinaryRight(string op)(in T element) const
+    scope ElementRef opBinaryRight(string op)(in T element) @trusted // TODO inout
         if (op == "in")
     {
-        return contains(element); // TODO return entry reference instead
+        import std.algorithm.searching : countUntil;
+        immutable bucketIndex = bucketHash!(hasher)(keyOf(element)) & _hashMask;
+        ptrdiff_t offset;
+        if (_largeBucketFlags[bucketIndex])
+        {
+            offset = _buckets[bucketIndex].large[].countUntil(element);
+        }
+        else
+        {
+            offset = _buckets[bucketIndex].small[].countUntil(element);
+        }
+        if (offset != -1)
+        {
+            return ElementRef(&this, bucketIndex, offset);
+        }
+        else
+        {
+            return ElementRef.init;
+        }
     }
 
     /** Remove `element` and, when possible, shrink its large bucket to small.

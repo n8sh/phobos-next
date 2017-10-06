@@ -25,6 +25,7 @@ struct CopyableArray(T,
     import std.traits : Unqual, hasElaborateDestructor, hasIndirections, hasAliasing,
         isMutable, TemplateOf, isArray, isAssignable, isCopyable;
     import std.algorithm : move, moveEmplace;
+    import std.conv : emplace;
 
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
 
@@ -109,7 +110,7 @@ struct CopyableArray(T,
             _ptr = typeof(this).allocate(1, false);
             _capacity = 1;
             _length = 1;
-            _mptr[0] = values[0];
+            emplace(&_mptr[0], values[0]);
             return;
         }
         reserve(values.length);
@@ -317,7 +318,6 @@ struct CopyableArray(T,
                     // TODO remove when compiler does it for us:
                     static if (isCopyable!T)
                     {
-                        import std.conv : emplace;
                         emplace(&_mptr[i], T.init);
                     }
                     else

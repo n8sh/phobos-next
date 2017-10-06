@@ -79,7 +79,7 @@ struct HashSetOrMap(K, V = void,
 
     alias ElementType = T;
 
-    /** Construct with room for storing `capacity` number of elements.
+    /** Construct with room for storing at least `capacity` number of elements.
      */
     static typeof(this) withCapacity(size_t capacity)
     {

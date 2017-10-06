@@ -443,12 +443,19 @@ private struct Array(E,
         @trusted pure
     {
         import core.internal.hash : hashOf;
-        typeof(return) hash = this.length;
-        foreach (immutable i; 0 .. this.length)
+        static if (isCopyable!E)
         {
-            hash ^= this.ptr[i].hashOf;
+            return this.length ^ hashOf(slice());
         }
-        return hash;
+        else
+        {
+            typeof(return) hash = this.length;
+            foreach (immutable i; 0 .. this.length)
+            {
+                hash ^= this.ptr[i].hashOf;
+            }
+            return hash;
+        }
     }
 
     /** Construct from InputRange `values`.

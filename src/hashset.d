@@ -436,53 +436,82 @@ size_t bucketHash(alias hasher, K)(in K key)
     alias K = uint;
 
     import digestx.fnv : FNV;
-    auto s = HashSet!(K, null, FNV!(64, true)).withCapacity(n);
+    auto s1 = HashSet!(K, null, FNV!(64, true)).withCapacity(n);
 
     // all buckets start small
-    assert(s.bucketCounts.smallCount != 0);
-    assert(s.bucketCounts.largeCount == 0);
+    assert(s1.bucketCounts.smallCount != 0);
+    assert(s1.bucketCounts.largeCount == 0);
+
+    // fill s1
 
     foreach (immutable i; 0 .. n)
     {
-        assert(i !in s);
+        assert(i !in s1);
 
-        assert(s.length == i);
-        assert(!s.insert(i));
-        assert(s.length == i + 1);
+        assert(s1.length == i);
+        assert(!s1.insert(i));
+        assert(s1.length == i + 1);
 
-        assert(i in s);
+        assert(i in s1);
 
-        assert(s.insert(i));
-        assert(s.length == i + 1);
+        assert(s1.insert(i));
+        assert(s1.length == i + 1);
 
-        assert(i in s);
+        assert(i in s1);
     }
 
-    assert(s.length == n);
+    assert(s1.length == n);
 
-    auto s2 = s.dup;
+    // duplicate s1
+
+    auto s2 = s1.dup;
     assert(s2.length == n);
 
+    // empty s1
+
     foreach (immutable i; 0 .. n)
     {
-        assert(s.length == n - i);
+        assert(s1.length == n - i);
 
-        assert(i in s);
+        assert(i in s1);
 
-        assert(s.remove(i));
-        assert(s.length == n - i - 1);
+        assert(s1.remove(i));
+        assert(s1.length == n - i - 1);
 
-        assert(i !in s);
-        assert(!s.remove(i));
-        assert(s.length == n - i - 1);
+        assert(i !in s1);
+        assert(!s1.remove(i));
+        assert(s1.length == n - i - 1);
     }
 
-    assert(s.bucketCounts.largeCount == 0);
+    assert(s1.bucketCounts.largeCount == 0);
 
-    assert(s.length == 0);
+    assert(s1.length == 0);
 
-    s.clear();
-    assert(s.length == 0);
+    s1.clear();
+    assert(s1.length == 0);
+
+    // empty s2
+
+    foreach (immutable i; 0 .. n)
+    {
+        assert(s2.length == n - i);
+
+        assert(i in s2);
+
+        assert(s2.remove(i));
+        assert(s2.length == n - i - 1);
+
+        assert(i !in s2);
+        assert(!s2.remove(i));
+        assert(s2.length == n - i - 1);
+    }
+
+    assert(s2.bucketCounts.largeCount == 0);
+
+    assert(s2.length == 0);
+
+    s2.clear();
+    assert(s2.length == 0);
 }
 
 @safe pure nothrow @nogc unittest

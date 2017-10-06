@@ -313,6 +313,7 @@ struct CopyableArray(T,
             {
                 static if (hasElaborateDestructor!T)
                 {
+                    // TODO remove when compiler does it for us:
                     static if (isCopyable!T)
                     {
                         import std.conv : emplace;

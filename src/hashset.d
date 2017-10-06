@@ -94,7 +94,9 @@ struct HashSetOrMap(K, V = void,
     {
         import std.math : nextPow2;
         // make bucket count a power of two
-        immutable bucketCount = nextPow2(minimumBucketCount == 0 ? 0 : minimumBucketCount - 1);
+        immutable bucketCount = nextPow2(minimumBucketCount == 0 ?
+                                         0 :
+                                         minimumBucketCount - 1);
         // so we can use fast bitmask instead of slower division remainder
         _hashMask = bucketCount - 1;
         initializeBuckets(bucketCount);

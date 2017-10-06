@@ -309,9 +309,10 @@ struct CopyableArray(T,
         else
         {
             reserve(newLength);
-            foreach (const i; _length .. newLength)
+            static if (hasElaborateDestructor!T)
             {
-                static if (hasElaborateDestructor!T)
+                // TODO remove when compiles does it for us
+                foreach (const i; _length .. newLength)
                 {
                     // TODO remove when compiler does it for us:
                     static if (isCopyable!T)
@@ -325,10 +326,10 @@ struct CopyableArray(T,
                         moveEmplace(_, _mptr[i]);
                     }
                 }
-                else
-                {
-                    _mptr[i] = T.init;
-                }
+            }
+            else
+            {
+                _mptr[_length .. newLength] = T.init;
             }
         }
         _length = newLength;

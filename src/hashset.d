@@ -439,148 +439,120 @@ size_t bucketHash(alias hasher, K)(in K key)
 
 @safe pure nothrow @nogc unittest
 {
-    immutable n = 11;
-    alias K = uint;
-
     import digestx.fnv : FNV;
-    auto s1 = HashSet!(K, null, FNV!(64, true)).withCapacity(n);
 
-    // all buckets start small
-    assert(s1.bucketCounts.smallCount != 0);
-    assert(s1.bucketCounts.largeCount == 0);
-
-    // fill s1
-
-    foreach (immutable i; 0 .. n)
-    {
-        assert(i !in s1);
-
-        assert(s1.length == i);
-        assert(!s1.insert(i));
-        assert(s1.length == i + 1);
-
-        assert(i in s1);
-
-        assert(s1.insert(i));
-        assert(s1.length == i + 1);
-
-        assert(i in s1);
-    }
-
-    assert(s1.length == n);
-
-    // duplicate s1
-
-    auto s2 = s1.dup;
-    assert(s2.length == n);
-
-    // empty s1
-
-    foreach (immutable i; 0 .. n)
-    {
-        assert(s1.length == n - i);
-
-        assert(i in s1);
-
-        assert(s1.remove(i));
-        assert(s1.length == n - i - 1);
-
-        assert(i !in s1);
-        assert(!s1.remove(i));
-        assert(s1.length == n - i - 1);
-    }
-
-    assert(s1.bucketCounts.largeCount == 0);
-
-    assert(s1.length == 0);
-
-    s1.clear();
-    assert(s1.length == 0);
-
-    // empty s2
-
-    foreach (immutable i; 0 .. n)
-    {
-        assert(s2.length == n - i);
-
-        assert(i in s2);
-
-        assert(s2.remove(i));
-        assert(s2.length == n - i - 1);
-
-        assert(i !in s2);
-        assert(!s2.remove(i));
-        assert(s2.length == n - i - 1);
-    }
-
-    assert(s2.bucketCounts.largeCount == 0);
-
-    assert(s2.length == 0);
-
-    s2.clear();
-    assert(s2.length == 0);
-}
-
-@safe pure nothrow @nogc unittest
-{
     immutable n = 11;
+
     alias K = uint;
-    alias V = string;
+    import std.meta : AliasSeq;
 
-    import digestx.fnv : FNV;
-    alias M = HashMap!(K, V, null, FNV!(64, true));
-    alias E = M.ElementType;
-    auto m = M.withCapacity(n);
-
-    // all buckets start small
-    assert(m.bucketCounts.smallCount != 0);
-    assert(m.bucketCounts.largeCount == 0);
-
-    foreach (immutable i; 0 .. n)
+    foreach (V; AliasSeq!(void, string))
     {
-        const e = E(i, "");
+        alias X = HashSetOrMap!(K, V, null, FNV!(64, true));
+        auto s1 = X.withCapacity(n);
 
-        assert(e !in m);
+        // all buckets start small
+        assert(s1.bucketCounts.smallCount != 0);
+        assert(s1.bucketCounts.largeCount == 0);
 
-        assert(m.length == i);
-        assert(!m.insert(e));
-        assert(m.length == i + 1);
+        // fill s1
 
-        assert(e in m);
+        foreach (immutable i; 0 .. n)
+        {
+            static if (X.hasValue)
+            {
+                const e = X.ElementType(i, "");
+            }
+            else
+            {
+                const e = i;
+            }
 
-        assert(m.insert(e));
-        assert(m.length == i + 1);
+            assert(e !in s1);
 
-        assert(e in m);
+            assert(s1.length == i);
+            assert(!s1.insert(e));
+            assert(s1.length == i + 1);
+
+            assert(e in s1);
+
+            assert(s1.insert(e));
+            assert(s1.length == i + 1);
+
+            assert(e in s1);
+        }
+
+        assert(s1.length == n);
+
+        // duplicate s1
+
+        auto s2 = s1.dup;
+        assert(s2.length == n);
+
+        // empty s1
+
+        foreach (immutable i; 0 .. n)
+        {
+            static if (X.hasValue)
+            {
+                const e = X.ElementType(i, "");
+            }
+            else
+            {
+                const e = i;
+            }
+
+            assert(s1.length == n - i);
+
+            assert(e in s1);
+
+            assert(s1.remove(e));
+            assert(s1.length == n - i - 1);
+
+            assert(e !in s1);
+            assert(!s1.remove(e));
+            assert(s1.length == n - i - 1);
+        }
+
+        assert(s1.bucketCounts.largeCount == 0);
+
+        assert(s1.length == 0);
+
+        s1.clear();
+        assert(s1.length == 0);
+
+        // empty s2
+
+        foreach (immutable i; 0 .. n)
+        {
+            static if (X.hasValue)
+            {
+                const e = X.ElementType(i, "");
+            }
+            else
+            {
+                const e = i;
+            }
+
+            assert(s2.length == n - i);
+
+            assert(e in s2);
+
+            assert(s2.remove(e));
+            assert(s2.length == n - i - 1);
+
+            assert(e !in s2);
+            assert(!s2.remove(e));
+            assert(s2.length == n - i - 1);
+        }
+
+        assert(s2.bucketCounts.largeCount == 0);
+
+        assert(s2.length == 0);
+
+        s2.clear();
+        assert(s2.length == 0);
     }
-
-    assert(m.length == n);
-
-    auto m2 = m.dup;
-    assert(m2.length == n);
-
-    foreach (immutable i; 0 .. n)
-    {
-        const e = E(i, "");
-
-        assert(m.length == n - i);
-
-        assert(e in m);
-
-        assert(m.remove(e));
-        assert(m.length == n - i - 1);
-
-        assert(e !in m);
-        assert(!m.remove(e));
-        assert(m.length == n - i - 1);
-    }
-
-    assert(m.bucketCounts.largeCount == 0);
-
-    assert(m.length == 0);
-
-    m.clear();
-    assert(m.length == 0);
 }
 
 version = show;

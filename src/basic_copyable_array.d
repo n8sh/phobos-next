@@ -24,7 +24,7 @@ struct CopyableArray(T,
     import std.range : isInputRange, isIterable, ElementType, isInfinite;
     import std.traits : Unqual, hasElaborateDestructor, hasIndirections, hasAliasing,
         isMutable, TemplateOf, isArray, isAssignable, isCopyable;
-    import std.algorithm : move, moveEmplace;
+    import std.algorithm : move, moveEmplace, moveEmplaceAll;
     import std.conv : emplace;
 
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
@@ -96,7 +96,7 @@ struct CopyableArray(T,
         _ptr = typeof(this).allocate(1, false);
         _capacity = 1;
         _length = 1;
-        _mptr[0] = value;
+        emplace(&_mptr[0], value);
     }
 
     /// Construct from element `values`.
@@ -115,7 +115,7 @@ struct CopyableArray(T,
         }
         reserve(values.length);
         _length = values.length;
-        _mptr[0 .. _length] = values; // array assignment
+        moveEmplaceAll(values, _mptr[0 .. _length]);
     }
 
     /** Is `true` iff constructable from the iterable (or range) `I`.

@@ -310,6 +310,7 @@ struct CopyableArray(T,
         {
             reserve(newLength);
         }
+        dln("TODO default initialize new elements");
         _length = newLength;
     }
 
@@ -1053,5 +1054,5 @@ private enum bool isRefIterable(T) = is(typeof({ foreach (ref elem; T.init) {} }
 version(unittest)
 {
     import array_help : s;
-    // import dbgio;
+    import dbgio;
 }

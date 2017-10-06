@@ -1524,9 +1524,13 @@ template RawRadixTree(Value = void)
         UIx ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
         ModStatus modStatus;
 
+        pragma(inline, true)
         @safe pure nothrow:
 
-        pragma(inline) bool opCast(T : bool)() const @nogc { return cast(bool)node; }
+        bool opCast(T : bool)() const @nogc
+        {
+            return cast(bool)node;
+        }
     }
 
     /** Branch Range (Iterator). */

@@ -1,7 +1,7 @@
 module basic_copyable_array;
 
 import std.traits : Unqual;
-import container_traits;
+import container_traits : NoGc, mustAddGCRange;
 
 /** Array type with deterministic control of memory. The memory allocated for
     the array is reclaimed as soon as possible; there is no reliance on the
@@ -190,7 +190,7 @@ struct CopyableArray(T,
         {
             destroyElements();
         }
-        static if (shouldAddGCRange!T)
+        static if (mustAddGCRange!T)
         {
             gc_removeRange(_ptr);
         }
@@ -229,7 +229,7 @@ struct CopyableArray(T,
         else      { ptr = cast(typeof(return))malloc(initialCapacity * T.sizeof); }
         assert(ptr, "Allocation failed");
 
-        static if (shouldAddGCRange!T)
+        static if (mustAddGCRange!T)
         {
             gc_addRange(ptr, initialCapacity * T.sizeof);
         }
@@ -347,7 +347,7 @@ struct CopyableArray(T,
     {
         if (requestedCapacity <= capacity) { return; }
 
-        static if (shouldAddGCRange!T)
+        static if (mustAddGCRange!T)
         {
             gc_removeRange(_mptr);
         }
@@ -358,7 +358,7 @@ struct CopyableArray(T,
         // import std.math : nextPow2;
         // reallocateAndSetCapacity(requestedCapacity.nextPow2);
 
-        static if (shouldAddGCRange!T)
+        static if (mustAddGCRange!T)
         {
             gc_addRange(_mptr, _capacity * T.sizeof);
         }
@@ -699,6 +699,7 @@ struct CopyableArray(T,
 
 private:
     // defined here https://dlang.org/phobos/std_experimental_allocator_gc_allocator.html#.GCAllocator
+    // import std.experimental.allocator.gc_allocator : GCAllocator;
     static if (is(Allocator == std.experimental.allocator.gc_allocator.GCAllocator))
     {
         T* _ptr;                // GC-allocated store pointer
@@ -1052,6 +1053,8 @@ unittest
 
     alias A = CopyableArray!(S);
     static assert(!mustAddGCRange!A);
+    alias AA = CopyableArray!(A);
+    static assert(!mustAddGCRange!AA);
 
     assert(mallocCount == 0);
 

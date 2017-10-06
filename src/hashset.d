@@ -325,10 +325,10 @@ struct HashSetOrMap(K, V = void,
      *
      * Reorganize `this` in place so that lookups are more efficient.
      */
-    ref typeof(this) rehash() @trusted
+    ref typeof(this) rehash()() @trusted
     {
-        dln("TODO implement");
-        return this;
+        static assert(false, "TODO remove template braces and implement");
+        // return this;
     }
 
     /// Check if empty.

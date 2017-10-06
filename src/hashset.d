@@ -321,6 +321,16 @@ struct HashSetOrMap(K, V = void,
         }
     }
 
+    /** Rehash.
+     *
+     * Reorganize `this` in place so that lookups are more efficient.
+     */
+    ref typeof(this) rehash() @trusted
+    {
+        dln("TODO");
+        return this;
+    }
+
     /// Check if empty.
     bool empty() const { return _length == 0; }
 

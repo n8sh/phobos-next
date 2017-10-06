@@ -475,6 +475,10 @@ size_t bucketHash(alias hasher, K)(in K key)
             assert(s1.length == i + 1);
 
             assert(e in s1);
+            static if (X.hasValue)
+            {
+                assert(!s1.contains(X.ElementType(i, "_"))); // other value
+            }
 
             assert(s1.insert(e));
             assert(s1.length == i + 1);

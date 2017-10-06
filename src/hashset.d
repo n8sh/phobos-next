@@ -256,14 +256,7 @@ struct HashSetOrMap(K, V = void,
     bool contains(in T element) const @trusted
     {
         immutable bucketIndex = HashOf!(hasher)(keyOf(element)) & _hashMask;
-        if (_largeBucketFlags[bucketIndex])
-        {
-            return _buckets[bucketIndex].large[].canFind(element);
-        }
-        else
-        {
-            return _buckets[bucketIndex].small[].canFind(element);
-        }
+        return bucketElementsAt(bucketIndex).canFind(element);
     }
 
     /** Reference to element. */
@@ -281,14 +274,7 @@ struct HashSetOrMap(K, V = void,
         ref inout(T) opUnary(string s)() inout
             if (s == "*")
         {
-            if (table._largeBucketFlags[bucketIndex])
-            {
-                return table._buckets[bucketIndex].large[elementOffset];
-            }
-            else
-            {
-                return table._buckets[bucketIndex].small[elementOffset];
-            }
+            return table.bucketElementsAt(bucketIndex)[elementOffset];
         }
     }
 
@@ -387,6 +373,20 @@ struct HashSetOrMap(K, V = void,
                                      largeCount);
         assert(result.largeCount + result.smallCount == _largeBucketFlags.length);
         return result;
+    }
+
+    /** Retursn: elements in bucket at `bucketIndex`. */
+    pragma(inline, true)
+    private inout(T)[] bucketElementsAt(size_t bucketIndex) inout
+    {
+        if (_largeBucketFlags[bucketIndex])
+        {
+            return _buckets[bucketIndex].large[];
+        }
+        else
+        {
+            return _buckets[bucketIndex].small[];
+        }
     }
 
 private:

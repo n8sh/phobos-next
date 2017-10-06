@@ -118,7 +118,7 @@ template shouldAddGCRange(T)
 template mustAddGCRange(T = void)
     if (is(T == struct) ||
         is(T == union) ||
-        is(T == class))
+        is(T == class)) // isAggregateType!T
 {
     import std.traits : hasUDA, isDynamicArray, isPointer;
 
@@ -211,6 +211,17 @@ template mustAddGCRange(T = void)
     }
 }
 
+/// ditto
+template mustAddGCRange(T = void)
+    if (!(is(T == struct) ||
+          is(T == union) ||
+          is(T == class))) // !isAggregateType!T
+{
+    // TODO optimize this dumb overload
+    struct Dummy { T t; }
+    enum mustAddGCRange = mustAddGCRange!Dummy;
+}
+
 ///
 @safe pure nothrow @nogc unittest
 {
@@ -255,4 +266,8 @@ template mustAddGCRange(T = void)
         @NoGc int* x;
     }
     static assert(!mustAddGCRange!U);
+
+    static assert(!mustAddGCRange!int);
+    static assert(mustAddGCRange!(int*));
+    static assert(mustAddGCRange!(int[]));
 }

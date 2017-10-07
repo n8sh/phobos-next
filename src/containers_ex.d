@@ -13,7 +13,7 @@ auto hashSet(Allocator = Mallocator, R)(R r)
     import std.range : ElementType, hasLength;
     alias E = ElementType!R; // TODO Unqual?
 
-    import containers.hashset : HashSet;
+    import hashmap : HashSet;
     static if (is(Allocator == Mallocator))
     {
         static if (hasLength!R)

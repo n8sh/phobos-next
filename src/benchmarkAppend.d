@@ -11,7 +11,7 @@ void main()
     // my containers
     import basic_copyable_array : CopyableArray;
     import variant_arrays : VariantArrays;
-    import hashset : HashSet, HashMap;
+    import hashmap : HashSet, HashMap;
 
     import std.digest.murmurhash : MurmurHash3;
     import xxhash64 : XXHash64;

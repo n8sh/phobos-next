@@ -215,45 +215,29 @@ struct HashMapOrSet(K, V = void,
     InsertionStatus insert(T element) @trusted
     {
         immutable bucketIndex = hashToIndex(HashOf!(hasher)(keyOf(element)));
-
-        immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil(element);
-
-        if (_largeBucketFlags[bucketIndex])
+        T[] bucketElements = bucketElementsAt(bucketIndex);
+        immutable ptrdiff_t elementOffset = bucketElements.countUntil(element);
+        if (elementOffset != -1) // hit
         {
-            if (elementOffset != -1) // hit
+            static if (hasValue) // replace value
             {
-                static if (hasValue) // replace value
-                {
-                    _buckets[bucketIndex].large[elementOffset].value = valueOf(element); // replace valae
-                    return InsertionStatus.modified;
-                }
-                else
-                {
-                    return typeof(return).unchanged;
-                }
+                bucketElements[elementOffset].value = valueOf(element); // replace valae
+                return InsertionStatus.modified;
             }
-            else                // no hit
+            else
+            {
+                return typeof(return).unchanged;
+            }
+        }
+        else                    // no hit
+        {
+            if (_largeBucketFlags[bucketIndex])
             {
                 _buckets[bucketIndex].large.insertBackMove(element);
                 _length += 1;
                 return InsertionStatus.added;
             }
-        }
-        else
-        {
-            if (elementOffset != -1) // hit
-            {
-                static if (hasValue) // replace value
-                {
-                    _buckets[bucketIndex].small[elementOffset].value = valueOf(element); // replace valae
-                    return InsertionStatus.modified;
-                }
-                else
-                {
-                    return typeof(return).unchanged;
-                }
-            }
-            else                // no hit
+            else
             {
                 immutable ok = _buckets[bucketIndex].small.insertBackMaybe(element);
                 if (!ok)        // if full

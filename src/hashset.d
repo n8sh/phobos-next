@@ -46,12 +46,15 @@ struct HashSetOrMap(K, V = void,
     import std.algorithm.searching : canFind;
     import hash_ex : HashOf;
 
+    /** In the hash map case, `V` is non-void, and a value is stored alongside
+     * the key of type `K`.
+     */
     enum hasValue = !is(V == void);
 
     alias KeyType = K;
 
     /// Element type.
-    static if (hasValue)        // HashMap
+    static if (hasValue)
     {
         struct T
         {

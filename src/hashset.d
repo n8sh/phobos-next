@@ -14,6 +14,7 @@ import container_traits;
  *      smallBucketMinCapacity = minimum capacity of small bucket
  *
  *
+ * TODO merge with EMSI containers.hashmap
  * TODO implement bucket growth
  * TODO forward-ranges `byKey`, `byValue`, `byKeyValue`
  * TODO benchmark against https://github.com/greg7mdp/sparsepp

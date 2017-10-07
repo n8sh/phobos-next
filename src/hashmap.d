@@ -1,4 +1,4 @@
-module hashset;
+module hashmap;
 
 import container_traits;
 

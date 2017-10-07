@@ -13,10 +13,12 @@ import container_traits;
  *      hasher = hash function or std.digest Hash.
  *      smallBucketMinCapacity = minimum capacity of small bucket
  *
- * TODO use https://dlang.org/phobos/std_experimental_allocator.html as:
  *
  * TODO implement bucket growth
  * TODO forward-ranges `byKey`, `byValue`, `byKeyValue`
+ * TODO benchmark against https://github.com/greg7mdp/sparsepp
+ *
+ * TODO use https://dlang.org/phobos/std_experimental_allocator.html:
  *
  * struct HashTable
  * {

@@ -109,7 +109,6 @@ struct HashMapOrSet(K, V = void,
                                          0 :
                                          minimumBucketCount - 1);
         // so we can use fast bitmask instead of slower division remainder
-        _hashMask = bucketCount - 1;
         initializeBuckets(bucketCount);
     }
 
@@ -150,7 +149,6 @@ struct HashMapOrSet(K, V = void,
         }
 
         that._largeBucketFlags = _largeBucketFlags.dup;
-        that._hashMask = _hashMask;
         that._length = _length;
         return that;
     }
@@ -207,7 +205,6 @@ struct HashMapOrSet(K, V = void,
         _buckets.clear();
         _largeBucketFlags.clear();
         _length = 0;
-        _hashMask = 0;
     }
 
     /** Insert `element`.
@@ -217,7 +214,7 @@ struct HashMapOrSet(K, V = void,
     bool insert(T element) @trusted
     {
         import std.conv : emplace;
-        immutable bucketIndex = HashOf!(hasher)(keyOf(element)) & _hashMask;
+        immutable bucketIndex = hashToIndex(HashOf!(hasher)(keyOf(element)));
         if (_largeBucketFlags[bucketIndex])
         {
             if (!_buckets[bucketIndex].large[].canFind(element))
@@ -252,7 +249,7 @@ struct HashMapOrSet(K, V = void,
      */
     bool contains(in T element) const @trusted
     {
-        immutable bucketIndex = HashOf!(hasher)(keyOf(element)) & _hashMask;
+        immutable bucketIndex = hashToIndex(HashOf!(hasher)(keyOf(element)));
         return bucketElementsAt(bucketIndex).canFind(element);
     }
 
@@ -280,7 +277,7 @@ struct HashMapOrSet(K, V = void,
         if (op == "in")
     {
         import std.algorithm.searching : countUntil;
-        immutable bucketIndex = HashOf!(hasher)(keyOf(element)) & _hashMask;
+        immutable bucketIndex = hashToIndex(HashOf!(hasher)(keyOf(element)));
         immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil(element);
         if (elementOffset != -1) // hit
         {
@@ -298,7 +295,7 @@ struct HashMapOrSet(K, V = void,
         ref inout(V) opIndex(in K key) inout
         {
             import std.algorithm.searching : countUntil;
-            immutable bucketIndex = HashOf!(hasher)(key) & _hashMask;
+            immutable bucketIndex = hashToIndex(HashOf!(hasher)(key));
             immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil!(_ => _.key == key);
             if (elementOffset != -1) // hit
             {
@@ -327,7 +324,7 @@ struct HashMapOrSet(K, V = void,
     bool remove(in T element)
         @trusted
     {
-        immutable bucketIndex = HashOf!(hasher)(keyOf(element)) & _hashMask;
+        immutable bucketIndex = hashToIndex(HashOf!(hasher)(keyOf(element)));
         import container_algorithm : popFirst;
         if (_largeBucketFlags[bucketIndex])
         {
@@ -440,7 +437,12 @@ private:
 
     size_t _length;
 
-    size_t _hashMask;
+    /** Returns: bucket index of `hash`. */
+    pragma(inline, true)
+    size_t hashToIndex(size_t hash) const
+    {
+        return hash & (_buckets.length - 1); // assumes `_buckets.length` to be a power of 2
+    }
 }
 
 alias HashSet(K,

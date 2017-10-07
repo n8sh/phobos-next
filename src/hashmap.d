@@ -2,6 +2,8 @@ module hashmap;
 
 import container_traits;
 
+enum InsertionStatus { added, modified, unchanged }
+
 /** Hash set (or map) storing (key) elements of type `K` and values of type `V`.
  *
  * Uses small-size-optimized (SSO) arrays as buckets.
@@ -208,8 +210,6 @@ struct HashMapOrSet(K, V = void,
         _length = 0;
     }
 
-    enum InsertionStatus { added, modified, unchanged }
-
     /** Insert `element`.
      */
     InsertionStatus insert(T element) @trusted
@@ -221,8 +221,15 @@ struct HashMapOrSet(K, V = void,
         {
             static if (hasValue) // replace value
             {
-                bucketElements[elementOffset].value = valueOf(element); // replace valae
-                return typeof(return).modified;
+                if (bucketElements[elementOffset].value != valueOf(element))
+                {
+                    bucketElements[elementOffset].value = valueOf(element); // replace valae
+                    return typeof(return).modified;
+                }
+                else
+                {
+                    return typeof(return).unchanged;
+                }
             }
             else
             {
@@ -493,7 +500,8 @@ alias HashMap(K, V,
         {
             static if (X.hasValue)
             {
-                const e = X.ElementType(i, "");
+                const v = "";
+                const e = X.ElementType(i, v);
             }
             else
             {
@@ -503,12 +511,12 @@ alias HashMap(K, V,
             assert(e !in s1);
 
             assert(s1.length == i);
-            assert(!s1.insert(e));
+            assert(s1.insert(e) == InsertionStatus.added);
 
             static if (X.hasValue)
             {
                 s1.remove(e);
-                s1[i] = "";
+                s1[i] = v;
             }
 
             assert(s1.length == i + 1);
@@ -519,7 +527,7 @@ alias HashMap(K, V,
                 assert(!s1.contains(X.ElementType(i, "_"))); // other value
             }
 
-            assert(s1.insert(e));
+            assert(s1.insert(e) == InsertionStatus.unchanged);
             assert(s1.length == i + 1);
 
             assert(e in s1);

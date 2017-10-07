@@ -35,7 +35,7 @@ import container_traits;
  *
  * EMSI-containers has some helper logic for this.
  */
-struct HashSetOrMap(K, V = void,
+struct HashMapOrSet(K, V = void,
                     alias Allocator = null,
                     alias hasher = hashOf,
                     uint smallBucketMinCapacity = 1)
@@ -259,7 +259,7 @@ struct HashSetOrMap(K, V = void,
     /** Reference to element. */
     static private struct ElementRef
     {
-        HashSetOrMap* table;
+        HashMapOrSet* table;
         size_t bucketIndex;     // index to bucket inside table
         size_t elementOffset;   // offset to element inside bucket
 
@@ -446,7 +446,7 @@ private:
 alias HashSet(K,
               alias Allocator = null,
               alias hasher = hashOf,
-              uint smallBucketMinCapacity = 1) = HashSetOrMap!(K, void,
+              uint smallBucketMinCapacity = 1) = HashMapOrSet!(K, void,
                                                                Allocator,
                                                                hasher,
                                                                smallBucketMinCapacity);
@@ -454,7 +454,7 @@ alias HashSet(K,
 alias HashMap(K, V,
               alias Allocator = null,
               alias hasher = hashOf,
-              uint smallBucketMinCapacity = 1) = HashSetOrMap!(K, V,
+              uint smallBucketMinCapacity = 1) = HashMapOrSet!(K, V,
                                                                Allocator,
                                                                hasher,
                                                                smallBucketMinCapacity);
@@ -470,7 +470,7 @@ alias HashMap(K, V,
 
     foreach (V; AliasSeq!(void, string))
     {
-        alias X = HashSetOrMap!(K, V, null, FNV!(64, true));
+        alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
         auto s1 = X.withCapacity(n);
 
         // all buckets start small

@@ -222,7 +222,7 @@ struct HashMapOrSet(K, V = void,
             static if (hasValue) // replace value
             {
                 bucketElements[elementOffset].value = valueOf(element); // replace valae
-                return InsertionStatus.modified;
+                return typeof(return).modified;
             }
             else
             {
@@ -235,7 +235,6 @@ struct HashMapOrSet(K, V = void,
             {
                 _buckets[bucketIndex].large.insertBackMove(element);
                 _length += 1;
-                return InsertionStatus.added;
             }
             else
             {
@@ -250,8 +249,8 @@ struct HashMapOrSet(K, V = void,
                     _largeBucketFlags[bucketIndex] = true; // bucket is now large
                 }
                 _length += 1;
-                return InsertionStatus.added;
             }
+            return typeof(return).added;
         }
     }
 

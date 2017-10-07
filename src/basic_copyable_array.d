@@ -1090,11 +1090,11 @@ unittest
 @safe pure /*TODO nothrow @nogc*/ unittest
 {
     import std.format : formattedWrite;
-    const x = "alpha";
+    const x = "42";
     alias A = CopyableArray!(char);
     A a;
     a.formattedWrite!("x : %s")(x);
-    assert(a == "x : alpha");
+    assert(a == "x : 42");
 }
 
 /// TODO Move to Phobos.

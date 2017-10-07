@@ -1091,7 +1091,7 @@ unittest
 {
     import std.format : formattedWrite;
     const x = "alpha";
-    alias A = CopyableArray!(char);
+    alias A = CopyableArray!(const(char));
     A a;
     a.formattedWrite!("x : %s")(x);
     assert(a == "x : alpha");

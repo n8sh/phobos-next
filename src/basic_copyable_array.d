@@ -691,7 +691,7 @@ struct CopyableArray(T,
 
     /// Helper mutable slice.
     pragma(inline, true)
-    scope private MutableE[] mslice() return  @trusted
+    scope private MutableE[] mslice() return @trusted
     {
         return _mptr[0 .. _length];
     }
@@ -706,7 +706,7 @@ struct CopyableArray(T,
 
     /// Mutable pointer.
     pragma(inline, true)
-    scope private MutableE* _mptr() const return  @trusted
+    scope private MutableE* _mptr() const return @trusted
     {
         return cast(typeof(return))_ptr;
     }

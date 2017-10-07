@@ -1086,6 +1086,17 @@ unittest
     // a.insertBack(S(12));
 }
 
+/// test `OutputRange` behaviour with std.format
+@safe pure /*nothrow @nogc*/ unittest
+{
+    import std.format : formattedWrite;
+    const x = "alpha";
+    alias A = CopyableArray!(char);
+    A a;
+    a.formattedWrite!("x : %s")(x);
+    assert(a == "x : alpha");
+}
+
 /// TODO Move to Phobos.
 private enum bool isRefIterable(T) = is(typeof({ foreach (ref elem; T.init) {} }));
 

@@ -43,7 +43,7 @@ struct HashMapOrSet(K, V = void,
 {
     import std.traits : hasElaborateDestructor;
     import std.algorithm.mutation : move, moveEmplace;
-    import std.algorithm.searching : canFind;
+    import std.algorithm.searching : canFind, countUntil;
     import hash_ex : HashOf;
 
     /** In the hash map case, `V` is non-void, and a value is stored alongside
@@ -70,7 +70,8 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Get value part of element.
-        static auto ref inout(K) valueOf()(auto ref inout(T) element)
+        static auto ref inout(V
+            ) valueOf()(auto ref inout(T) element)
         {
             return element.value;
         }
@@ -207,30 +208,57 @@ struct HashMapOrSet(K, V = void,
         _length = 0;
     }
 
+    enum InsertionStatus { added, modified, unchanged }
+
     /** Insert `element`.
-        Returns: `true` if element was already present, `false` otherwise (similar
-        to behaviour of `contains`).
      */
-    bool insert(T element) @trusted
+    InsertionStatus insert(T element) @trusted
     {
-        import std.conv : emplace;
         immutable bucketIndex = hashToIndex(HashOf!(hasher)(keyOf(element)));
+
+        immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil(element);
+
         if (_largeBucketFlags[bucketIndex])
         {
-            if (!_buckets[bucketIndex].large[].canFind(element))
+            if (elementOffset != -1) // hit
+            {
+                static if (hasValue) // replace value
+                {
+                    _buckets[bucketIndex].large[elementOffset].value = valueOf(element); // replace valae
+                    return InsertionStatus.modified;
+                }
+                else
+                {
+                    return typeof(return).unchanged;
+                }
+            }
+            else                // no hit
             {
                 _buckets[bucketIndex].large.insertBackMove(element);
                 _length += 1;
-                return false;
+                return InsertionStatus.added;
             }
         }
         else
         {
-            if (!_buckets[bucketIndex].small[].canFind(element))
+            if (elementOffset != -1) // hit
+            {
+                static if (hasValue) // replace value
+                {
+                    _buckets[bucketIndex].small[elementOffset].value = valueOf(element); // replace valae
+                    return InsertionStatus.modified;
+                }
+                else
+                {
+                    return typeof(return).unchanged;
+                }
+            }
+            else                // no hit
             {
                 immutable ok = _buckets[bucketIndex].small.insertBackMaybe(element);
                 if (!ok)        // if full
                 {
+                    import std.conv : emplace;
                     // expand small to large
                     SmallBucket small = _buckets[bucketIndex].small;
                     emplace!(LargeBucket)(&_buckets[bucketIndex].large, small[]);
@@ -238,10 +266,9 @@ struct HashMapOrSet(K, V = void,
                     _largeBucketFlags[bucketIndex] = true; // bucket is now large
                 }
                 _length += 1;
-                return false;
+                return InsertionStatus.added;
             }
         }
-        return true;
     }
 
     /** Check if `element` is stored.
@@ -276,7 +303,6 @@ struct HashMapOrSet(K, V = void,
     scope inout(ElementRef) opBinaryRight(string op)(in T element) inout @trusted
         if (op == "in")
     {
-        import std.algorithm.searching : countUntil;
         immutable bucketIndex = hashToIndex(HashOf!(hasher)(keyOf(element)));
         immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil(element);
         if (elementOffset != -1) // hit
@@ -294,7 +320,6 @@ struct HashMapOrSet(K, V = void,
         /// Indexing.
         ref inout(V) opIndex(in K key) inout
         {
-            import std.algorithm.searching : countUntil;
             immutable bucketIndex = hashToIndex(HashOf!(hasher)(key));
             immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil!(_ => _.key == key);
             if (elementOffset != -1) // hit
@@ -310,7 +335,7 @@ struct HashMapOrSet(K, V = void,
 
 	/** Supports $(B aa[key] = value;) syntax.
 	 */
-	void opIndexAssign(K key, V value)
+	void opIndexAssign(V value, K key)
 	{
             insert(T(key, value));
 	}
@@ -496,6 +521,13 @@ alias HashMap(K, V,
 
             assert(s1.length == i);
             assert(!s1.insert(e));
+
+            static if (X.hasValue)
+            {
+                s1.remove(e);
+                s1[i] = "";
+            }
+
             assert(s1.length == i + 1);
 
             assert(e in s1);

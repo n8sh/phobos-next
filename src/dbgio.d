@@ -12,8 +12,9 @@ void assumeNogc(alias Func, T...)(T xs)
     @nogc
 {
     import std.traits : isFunctionPointer, isDelegate, functionAttributes, FunctionAttribute, SetFunctionAttributes, functionLinkage;
-    static auto assumeNogcPtr(T)(T f) if (isFunctionPointer!T ||
-                                          isDelegate!T)
+    static auto assumeNogcPtr(T)(T f)
+        if (isFunctionPointer!T ||
+            isDelegate!T)
     {
         enum attrs = functionAttributes!T | FunctionAttribute.nogc;
         return cast(SetFunctionAttributes!(T, functionLinkage!T, attrs)) f;

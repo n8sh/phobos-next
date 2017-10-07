@@ -51,6 +51,7 @@ struct HashSetOrMap(K, V = void,
      */
     enum hasValue = !is(V == void);
 
+    /** Type of key stored. */
     alias KeyType = K;
 
     /// Element type.

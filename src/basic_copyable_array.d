@@ -1087,7 +1087,7 @@ unittest
 }
 
 /// test `OutputRange` behaviour with std.format
-@safe pure /*nothrow @nogc*/ unittest
+@safe pure /*TODO nothrow @nogc*/ unittest
 {
     import std.format : formattedWrite;
     const x = "alpha";

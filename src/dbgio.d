@@ -7,10 +7,9 @@
 */
 module dbgio;
 
-// version = show;
-
 /** See_Also: http://forum.dlang.org/post/nq4eol$2h34$1@digitalmars.com */
-void assumeNogc(alias Func, T...)(T xs) @nogc
+void assumeNogc(alias Func, T...)(T xs)
+    @nogc
 {
     import std.traits : isFunctionPointer, isDelegate, functionAttributes, FunctionAttribute, SetFunctionAttributes, functionLinkage;
     static auto assumeNogcPtr(T)(T f) if (isFunctionPointer!T ||
@@ -38,7 +37,8 @@ mixin template dump(Names ... )
 @trusted:
 
 /* http://stackoverflow.com/questions/19413340/escaping-safety-with-debug-statements */
-debug auto trustedPureDebugCall(alias fn, Args...) (Args args) pure
+debug auto trustedPureDebugCall(alias fn, Args...) (Args args)
+    pure
 {
     debug return fn(args);
 }
@@ -57,11 +57,6 @@ void dln(string file = __FILE__,
         debug assumeNogc!writeln(file, ":", line, ":", " debug: ", args);
     }
     catch (Exception) { }
-}
-
-version(show) @safe pure nothrow @nogc unittest
-{
-    dln("x:", " ", 12);
 }
 
 /** Show the symbol name and variable of $(D Args).
@@ -88,6 +83,8 @@ template show(Args...)
         catch (Exception) { }
     }
 }
+
+// version = show;
 
 version(show) unittest
 {

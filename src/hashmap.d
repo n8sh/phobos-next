@@ -43,7 +43,7 @@ struct HashMapOrSet(K, V = void,
                     uint smallBucketMinCapacity = 1)
     if (smallBucketMinCapacity >= 1) // no use having empty small buckets
 {
-    import std.traits : hasElaborateDestructor, isCopyable;
+    import std.traits : hasElaborateDestructor;
     import std.algorithm.mutation : move, moveEmplace;
     import std.algorithm.searching : canFind, countUntil;
     import hash_ex : HashOf;
@@ -143,31 +143,28 @@ struct HashMapOrSet(K, V = void,
     @disable this(this);
 
     /// Duplicate.
-    static if (isCopyable!T)
+    typeof(this) dup() @trusted
     {
-        typeof(this) dup() @trusted
+        typeof(return) that;
+
+        that._buckets.reserve(_buckets.length);
+        that._buckets.length = _buckets.length; // TODO this zero-initializes before initialization below, use unsafe setLengthOnlyUNSAFE
+        foreach (immutable bucketIndex; 0 .. _buckets.length)
         {
-            typeof(return) that;
-
-            that._buckets.reserve(_buckets.length);
-            that._buckets.length = _buckets.length; // TODO this zero-initializes before initialization below, use unsafe setLengthOnlyUNSAFE
-            foreach (immutable bucketIndex; 0 .. _buckets.length)
+            import std.conv : emplace;
+            if (_largeBucketFlags[bucketIndex])
             {
-                import std.conv : emplace;
-                if (_largeBucketFlags[bucketIndex])
-                {
-                    emplace!(LargeBucket)(&that._buckets[bucketIndex].large, _buckets[bucketIndex].large[]);
-                }
-                else
-                {
-                    emplace!(SmallBucket)(&that._buckets[bucketIndex].small, _buckets[bucketIndex].small);
-                }
+                emplace!(LargeBucket)(&that._buckets[bucketIndex].large, _buckets[bucketIndex].large[]);
             }
-
-            that._largeBucketFlags = _largeBucketFlags.dup;
-            that._length = _length;
-            return that;
+            else
+            {
+                emplace!(SmallBucket)(&that._buckets[bucketIndex].small, _buckets[bucketIndex].small);
+            }
         }
+
+        that._largeBucketFlags = _largeBucketFlags.dup;
+        that._length = _length;
+        return that;
     }
 
     /// Equality.
@@ -228,7 +225,7 @@ struct HashMapOrSet(K, V = void,
      */
     InsertionStatus insert(T element) @trusted
     {
-        immutable bucketIndex = hashToIndex(HashOf!(hasher)(keyOf(element)));
+        immutable bucketIndex = hashToIndex(HashOf!(hasher)(keyRefOf(element)));
         T[] bucketElements = bucketElementsAt(bucketIndex);
 
         // find element offset matching key
@@ -310,7 +307,7 @@ struct HashMapOrSet(K, V = void,
     scope inout(ElementRef) opBinaryRight(string op)(in T element) inout @trusted
         if (op == "in")
     {
-        immutable bucketIndex = hashToIndex(HashOf!(hasher)(keyOf(element)));
+        immutable bucketIndex = hashToIndex(HashOf!(hasher)(keyRefOf(element)));
         immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil(element);
         if (elementOffset != -1) // hit
         {
@@ -670,38 +667,38 @@ pure unittest
     }
 }
 
-version(unittest)
-{
-    private static struct US
-    {
-        @disable this(this);
-        int x;
-    }
-}
+// version(unittest)
+// {
+//     private static struct US
+//     {
+//         @disable this(this);
+//         int x;
+//     }
+// }
 
-/// uncopyable element type
-pure unittest
-{
-    import digestx.fnv : FNV;
+// /// uncopyable element type
+// pure unittest
+// {
+//     import digestx.fnv : FNV;
 
-    immutable n = 11;
+//     immutable n = 11;
 
-    alias K = US;
-    alias V = string;
+//     alias K = US;
+//     alias V = string;
 
-    import std.exception : assertThrown, assertNotThrown;
-    import core.exception : RangeError;
+//     import std.exception : assertThrown, assertNotThrown;
+//     import core.exception : RangeError;
 
-    alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
-    auto s = X.withCapacity(n);
+//     alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
+//     auto s = X.withCapacity(n);
 
-    static if (X.hasValue)
-    {
-        assertThrown!RangeError(s[0]);
-        s[0] = V.init;
-        assertNotThrown!RangeError(s[0]);
-    }
-}
+//     static if (X.hasValue)
+//     {
+//         assertThrown!RangeError(s[0]);
+//         s[0] = V.init;
+//         assertNotThrown!RangeError(s[0]);
+//     }
+// }
 
 version = show;
 

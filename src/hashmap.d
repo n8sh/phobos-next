@@ -322,7 +322,8 @@ struct HashMapOrSet(K, V = void,
             else                    // miss
             {
 		import std.conv : text;
-                throw new Exception("Key " ~ text(key) ~ " not in table");
+                import core.exception : RangeError;
+                throw new RangeError("Key " ~ text(key) ~ " not in table");
             }
         }
 

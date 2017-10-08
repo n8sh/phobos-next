@@ -572,7 +572,6 @@ alias HashMap(K, V,
         auto s1 = X.withCapacity(n);
 
         // all buckets start small
-        assert(s1.bucketCounts.smallCount != 0);
         assert(s1.bucketCounts.largeCount == 0);
 
         // fill s1

@@ -576,55 +576,55 @@ alias HashMap(K, V,
 
         // fill s1
 
-        foreach (immutable k; 0 .. n)
+        foreach (immutable key; 0 .. n)
         {
             static if (X.hasValue)
             {
-                const v = V.init;
-                const e = X.ElementType(k, v);
+                const value = V.init;
+                const e = X.ElementType(key, value);
             }
             else
             {
-                const e = k;
+                const e = key;
             }
 
-            assert(k !in s1);
+            assert(key !in s1);
 
-            assert(s1.length == k);
+            assert(s1.length == key);
             assert(s1.insert(e) == InsertionStatus.added);
 
             static if (X.hasValue)
             {
-                const e2 = X.ElementType(k, "a");
+                const e2 = X.ElementType(key, "a");
                 assert(s1.insert(e2) == InsertionStatus.modified);
                 assert(s1.contains(e2));
-                s1.remove(k);
-                s1[k] = v;
+                s1.remove(key);
+                s1[key] = value;
             }
 
-            assert(s1.length == k + 1);
+            assert(s1.length == key + 1);
 
-            assert(k in s1);
+            assert(key in s1);
             static if (X.hasValue)
             {
-                assert(!s1.contains(X.ElementType(k, "_"))); // other value
+                assert(!s1.contains(X.ElementType(key, "_"))); // other value
             }
 
             assert(s1.insert(e) == InsertionStatus.unchanged);
-            assert(s1.length == k + 1);
+            assert(s1.length == key + 1);
 
-            assert(k in s1);
+            assert(key in s1);
         }
 
         static if (X.hasValue)
         {
             import basic_uncopyable_array : Array = UncopyableArray;
             Array!(X.ElementType) a1;
-            foreach (k; s1.byKey)
+            foreach (key; s1.byKey)
             {
-                auto eRef = k in s1;
+                auto eRef = key in s1;
                 assert(eRef);
-                a1 ~= X.ElementType(k, (*eRef).value);
+                a1 ~= X.ElementType(key, (*eRef).value);
             }
             assert(s1.length == a1.length);
             foreach (e; a1[])
@@ -646,32 +646,32 @@ alias HashMap(K, V,
 
         // empty s1
 
-        foreach (immutable k; 0 .. n)
+        foreach (immutable key; 0 .. n)
         {
             static if (X.hasValue)
             {
-                const e = X.ElementType(k, V.init);
+                const e = X.ElementType(key, V.init);
             }
             else
             {
-                const e = k;
+                const e = key;
             }
 
-            assert(s1.length == n - k);
+            assert(s1.length == n - key);
 
-            auto hit = k in s1;
+            auto hit = key in s1;
             assert(hit);
             static if (X.hasValue)
             {
                 assert(*hit == e);
             }
 
-            assert(s1.remove(k));
-            assert(s1.length == n - k - 1);
+            assert(s1.remove(key));
+            assert(s1.length == n - key - 1);
 
-            assert(k !in s1);
-            assert(!s1.remove(k));
-            assert(s1.length == n - k - 1);
+            assert(key !in s1);
+            assert(!s1.remove(key));
+            assert(s1.length == n - key - 1);
         }
 
         assert(s1.bucketCounts.largeCount == 0);
@@ -685,27 +685,27 @@ alias HashMap(K, V,
 
         assert(s2.length == n); // should be not affected by emptying of s1
 
-        foreach (immutable k; 0 .. n)
+        foreach (immutable key; 0 .. n)
         {
             static if (X.hasValue)
             {
-                const e = X.ElementType(k, V.init);
+                const e = X.ElementType(key, V.init);
             }
             else
             {
-                const e = k;
+                const e = key;
             }
 
-            assert(s2.length == n - k);
+            assert(s2.length == n - key);
 
-            assert(k in s2);
+            assert(key in s2);
 
-            assert(s2.remove(k));
-            assert(s2.length == n - k - 1);
+            assert(s2.remove(key));
+            assert(s2.length == n - key - 1);
 
-            assert(k !in s2);
-            assert(!s2.remove(k));
-            assert(s2.length == n - k - 1);
+            assert(key !in s2);
+            assert(!s2.remove(key));
+            assert(s2.length == n - key - 1);
         }
 
         assert(s2.bucketCounts.largeCount == 0);

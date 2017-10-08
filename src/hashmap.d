@@ -569,12 +569,12 @@ alias HashMap(K, V,
     foreach (V; AliasSeq!(void, string))
     {
         alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
-        auto s1 = X.withCapacity(n);
+        auto x1 = X.withCapacity(n);
 
         // all buckets start small
-        assert(s1.bucketCounts.largeCount == 0);
+        assert(x1.bucketCounts.largeCount == 0);
 
-        // fill s1
+        // fill x1
 
         foreach (immutable key; 0 .. n)
         {
@@ -588,63 +588,63 @@ alias HashMap(K, V,
                 const element = key;
             }
 
-            assert(key !in s1);
+            assert(key !in x1);
 
-            assert(s1.length == key);
-            assert(s1.insert(element) == InsertionStatus.added);
+            assert(x1.length == key);
+            assert(x1.insert(element) == InsertionStatus.added);
 
             static if (X.hasValue)
             {
                 const e2 = X.ElementType(key, "a");
-                assert(s1.insert(e2) == InsertionStatus.modified);
-                assert(s1.contains(e2));
-                s1.remove(key);
-                s1[key] = value;
+                assert(x1.insert(e2) == InsertionStatus.modified);
+                assert(x1.contains(e2));
+                x1.remove(key);
+                x1[key] = value;
             }
 
-            assert(s1.length == key + 1);
+            assert(x1.length == key + 1);
 
-            assert(key in s1);
+            assert(key in x1);
             static if (X.hasValue)
             {
-                assert(!s1.contains(X.ElementType(key, "_"))); // other value
+                assert(!x1.contains(X.ElementType(key, "_"))); // other value
             }
 
-            assert(s1.insert(element) == InsertionStatus.unchanged);
-            assert(s1.length == key + 1);
+            assert(x1.insert(element) == InsertionStatus.unchanged);
+            assert(x1.length == key + 1);
 
-            assert(key in s1);
+            assert(key in x1);
         }
 
         static if (X.hasValue)
         {
             import basic_uncopyable_array : Array = UncopyableArray;
             Array!(X.ElementType) a1;
-            foreach (key; s1.byKey)
+            foreach (key; x1.byKey)
             {
-                auto eRef = key in s1;
+                auto eRef = key in x1;
                 assert(eRef);
                 a1 ~= X.ElementType(key, (*eRef).value);
             }
-            assert(s1.length == a1.length);
+            assert(x1.length == a1.length);
             foreach (element; a1[])
             {
-                auto eRef = element.key in s1;
+                auto eRef = element.key in x1;
                 assert(eRef);
                 assert((*eRef).value == element.value);
             }
         }
 
-        assert(s1.length == n);
+        assert(x1.length == n);
 
-        // duplicate s1
+        // duplicate x1
 
-        auto s2 = s1.dup;
-        assert(s1 == s2);
-        static assert(!__traits(compiles, { const _ = s1 < s2; })); // no ordering
-        assert(s2.length == n);
+        auto x2 = x1.dup;
+        assert(x1 == x2);
+        static assert(!__traits(compiles, { const _ = x1 < x2; })); // no ordering
+        assert(x2.length == n);
 
-        // empty s1
+        // empty x1
 
         foreach (immutable key; 0 .. n)
         {
@@ -657,33 +657,33 @@ alias HashMap(K, V,
                 const element = key;
             }
 
-            assert(s1.length == n - key);
+            assert(x1.length == n - key);
 
-            auto hit = key in s1;
+            auto hit = key in x1;
             assert(hit);
             static if (X.hasValue)
             {
                 assert(*hit == element);
             }
 
-            assert(s1.remove(key));
-            assert(s1.length == n - key - 1);
+            assert(x1.remove(key));
+            assert(x1.length == n - key - 1);
 
-            assert(key !in s1);
-            assert(!s1.remove(key));
-            assert(s1.length == n - key - 1);
+            assert(key !in x1);
+            assert(!x1.remove(key));
+            assert(x1.length == n - key - 1);
         }
 
-        assert(s1.bucketCounts.largeCount == 0);
+        assert(x1.bucketCounts.largeCount == 0);
 
-        assert(s1.length == 0);
+        assert(x1.length == 0);
 
-        s1.clear();
-        assert(s1.length == 0);
+        x1.clear();
+        assert(x1.length == 0);
 
-        // empty s2
+        // empty x2
 
-        assert(s2.length == n); // should be not affected by emptying of s1
+        assert(x2.length == n); // should be not affected by emptying of x1
 
         foreach (immutable key; 0 .. n)
         {
@@ -696,24 +696,24 @@ alias HashMap(K, V,
                 const element = key;
             }
 
-            assert(s2.length == n - key);
+            assert(x2.length == n - key);
 
-            assert(key in s2);
+            assert(key in x2);
 
-            assert(s2.remove(key));
-            assert(s2.length == n - key - 1);
+            assert(x2.remove(key));
+            assert(x2.length == n - key - 1);
 
-            assert(key !in s2);
-            assert(!s2.remove(key));
-            assert(s2.length == n - key - 1);
+            assert(key !in x2);
+            assert(!x2.remove(key));
+            assert(x2.length == n - key - 1);
         }
 
-        assert(s2.bucketCounts.largeCount == 0);
+        assert(x2.bucketCounts.largeCount == 0);
 
-        assert(s2.length == 0);
+        assert(x2.length == 0);
 
-        s2.clear();
-        assert(s2.length == 0);
+        x2.clear();
+        assert(x2.length == 0);
     }
 }
 

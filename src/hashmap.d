@@ -331,19 +331,32 @@ struct HashMapOrSet(K, V = void,
             return _eRef.bucketIndex == _eRef.table.bucketCount;
         }
 
-        @property ref inout(ElementRef) front() inout
+        @property inout(ElementRef) front() inout
         {
             return _eRef;
         }
 
         void popFront()
         {
+            assert(!empty);
+            _eRef.elementOffset += 1; // next element
+            if (_eRef.elementOffset >= _eRef.table.bucketElementsAt(_eRef.bucketIndex).length)
+            {
+                // next bucket
+                _eRef.bucketIndex += 1;
+                _eRef.elementOffset = 0;
+            }
+        }
+
+        @property typeof(this) save() // ForwardRange
+        {
+            return this;
         }
 
         private ElementRef _eRef;  // range iterator
     }
 
-    /// Returns range that iterates throug the keys of `this`.
+    /// Returns forward range that iterates through the keys.
     inout(ByKey) byKey() inout
     {
         return typeof(return)(inout(ElementRef)(&this));

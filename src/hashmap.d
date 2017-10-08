@@ -226,15 +226,8 @@ struct HashMapOrSet(K, V = void,
                     bucketElements[elementOffset].value = valueOf(element); // replace valae
                     return typeof(return).modified;
                 }
-                else
-                {
-                    return typeof(return).unchanged;
-                }
             }
-            else
-            {
-                return typeof(return).unchanged;
-            }
+            return typeof(return).unchanged;
         }
         else                    // no hit
         {

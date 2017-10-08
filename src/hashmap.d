@@ -18,7 +18,8 @@ enum InsertionStatus { added, modified, unchanged }
  * TODO implement bucket growth
  *
  * TODO rehash: if allocator has realloc we can do rehashing in-place similar to
- * reordering in in-place radix (integer_sorting.d)
+ * reordering in in-place radix (integer_sorting.d), otherwise rehash into new
+ * copy of buckets and free old buckets when done
  *
  * TODO forward-ranges `byValue`, `byKeyValue`
  *

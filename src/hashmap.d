@@ -43,7 +43,7 @@ struct HashMapOrSet(K, V = void,
                     uint smallBucketMinCapacity = 1)
     if (smallBucketMinCapacity >= 1) // no use having empty small buckets
 {
-    import std.traits : hasElaborateDestructor;
+    import std.traits : hasElaborateDestructor, isCopyable;
     import std.algorithm.mutation : move, moveEmplace;
     import std.algorithm.searching : canFind, countUntil;
     import hash_ex : HashOf;
@@ -71,9 +71,14 @@ struct HashMapOrSet(K, V = void,
             return element.key;
         }
 
+        /// Get key part reference of `element`.
+        static ref inout(K) keyRefOf()(ref inout(T) element)
+        {
+            return element.key;
+        }
+
         /// Get value part of element.
-        static auto ref inout(V
-            ) valueOf()(auto ref inout(T) element)
+        static auto ref inout(V) valueOf()(auto ref inout(T) element)
         {
             return element.value;
         }
@@ -86,6 +91,12 @@ struct HashMapOrSet(K, V = void,
 
         /// Get key part of element.
         static auto ref inout(K) keyOf()(auto ref inout(T) element)
+        {
+            return element;
+        }
+
+        /// Get key part reference of `element`.
+        static ref inout(K) keyRefOf()(ref inout(T) element)
         {
             return element;
         }
@@ -132,28 +143,31 @@ struct HashMapOrSet(K, V = void,
     @disable this(this);
 
     /// Duplicate.
-    typeof(this) dup() @trusted
+    static if (isCopyable!T)
     {
-        typeof(return) that;
-
-        that._buckets.reserve(_buckets.length);
-        that._buckets.length = _buckets.length; // TODO this zero-initializes before initialization below, use unsafe setLengthOnlyUNSAFE
-        foreach (immutable bucketIndex; 0 .. _buckets.length)
+        typeof(this) dup() @trusted
         {
-            import std.conv : emplace;
-            if (_largeBucketFlags[bucketIndex])
-            {
-                emplace!(LargeBucket)(&that._buckets[bucketIndex].large, _buckets[bucketIndex].large[]);
-            }
-            else
-            {
-                emplace!(SmallBucket)(&that._buckets[bucketIndex].small, _buckets[bucketIndex].small);
-            }
-        }
+            typeof(return) that;
 
-        that._largeBucketFlags = _largeBucketFlags.dup;
-        that._length = _length;
-        return that;
+            that._buckets.reserve(_buckets.length);
+            that._buckets.length = _buckets.length; // TODO this zero-initializes before initialization below, use unsafe setLengthOnlyUNSAFE
+            foreach (immutable bucketIndex; 0 .. _buckets.length)
+            {
+                import std.conv : emplace;
+                if (_largeBucketFlags[bucketIndex])
+                {
+                    emplace!(LargeBucket)(&that._buckets[bucketIndex].large, _buckets[bucketIndex].large[]);
+                }
+                else
+                {
+                    emplace!(SmallBucket)(&that._buckets[bucketIndex].small, _buckets[bucketIndex].small);
+                }
+            }
+
+            that._largeBucketFlags = _largeBucketFlags.dup;
+            that._length = _length;
+            return that;
+        }
     }
 
     /// Equality.
@@ -269,7 +283,7 @@ struct HashMapOrSet(K, V = void,
      */
     bool contains(in T element) const @trusted
     {
-        immutable bucketIndex = hashToIndex(HashOf!(hasher)(keyOf(element)));
+        immutable bucketIndex = hashToIndex(HashOf!(hasher)(keyRefOf(element)));
         return bucketElementsAt(bucketIndex).canFind(element);
     }
 
@@ -640,6 +654,39 @@ pure unittest
     immutable n = 11;
 
     alias K = uint;
+    alias V = string;
+
+    import std.exception : assertThrown, assertNotThrown;
+    import core.exception : RangeError;
+
+    alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
+    auto s = X.withCapacity(n);
+
+    static if (X.hasValue)
+    {
+        assertThrown!RangeError(s[0]);
+        s[0] = V.init;
+        assertNotThrown!RangeError(s[0]);
+    }
+}
+
+version(unittest)
+{
+    private static struct US
+    {
+        @disable this(this);
+        int x;
+    }
+}
+
+/// uncopyable element type
+pure unittest
+{
+    import digestx.fnv : FNV;
+
+    immutable n = 11;
+
+    alias K = US;
     alias V = string;
 
     import std.exception : assertThrown, assertNotThrown;

@@ -210,7 +210,7 @@ struct HashMapOrSet(K, V = void,
         _length = 0;
     }
 
-    /** Insert `element`.
+    /** Insert `element`, being either a key, value (map-case) or a just a key (set-case).
      */
     InsertionStatus insert(T element) @trusted
     {

@@ -869,7 +869,7 @@ private:
 version(unittest)
 {
     /// non-copyable element type
-    private static struct SomeUncopyableStruct
+    private static struct UncopyableStruct
     {
         @disable this(this);
         int x;
@@ -879,32 +879,32 @@ version(unittest)
 /// construct and insert from non-copyable element type passed by value
 @safe pure nothrow /*@nogc*/ unittest
 {
-    alias A = CopyableArray!(SomeUncopyableStruct);
+    alias A = CopyableArray!(UncopyableStruct);
 
-    A a = A(SomeUncopyableStruct(17));
-    assert(a[] == [SomeUncopyableStruct(17)]);
+    A a = A(UncopyableStruct(17));
+    assert(a[] == [UncopyableStruct(17)]);
 
-    a.insertBack(SomeUncopyableStruct(18));
-    assert(a[] == [SomeUncopyableStruct(17),
-                   SomeUncopyableStruct(18)]);
+    a.insertBack(UncopyableStruct(18));
+    assert(a[] == [UncopyableStruct(17),
+                   UncopyableStruct(18)]);
 
-    a ~= SomeUncopyableStruct(19);
-    assert(a[] == [SomeUncopyableStruct(17),
-                   SomeUncopyableStruct(18),
-                   SomeUncopyableStruct(19)]);
+    a ~= UncopyableStruct(19);
+    assert(a[] == [UncopyableStruct(17),
+                   UncopyableStruct(18),
+                   UncopyableStruct(19)]);
 }
 
 /// construct from slice of uncopyable type
 @safe pure nothrow @nogc unittest
 {
-    alias A = CopyableArray!(SomeUncopyableStruct);
-    // TODO can we safely support this?: A a = [SomeUncopyableStruct(17)];
+    alias A = CopyableArray!(UncopyableStruct);
+    // TODO can we safely support this?: A a = [UncopyableStruct(17)];
 }
 
 // construct from array with uncopyable elements
 @safe pure nothrow @nogc unittest
 {
-    alias A = CopyableArray!(SomeUncopyableStruct);
+    alias A = CopyableArray!(UncopyableStruct);
 
     A a;
     assert(a.empty);
@@ -916,7 +916,7 @@ version(unittest)
 // construct from range of uncopyable elements
 @safe pure nothrow @nogc unittest
 {
-    alias T = SomeUncopyableStruct;
+    alias T = UncopyableStruct;
     alias A = CopyableArray!T;
 
     A a;

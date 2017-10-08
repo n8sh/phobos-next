@@ -22,7 +22,7 @@ enum InsertionStatus { added, modified, unchanged }
  *
  * TODO merge with EMSI containers.hashmap
  *
- * TODO forward-ranges `byKey`, `byValue`, `byKeyValue`
+ * TODO forward-ranges `byValue`, `byKeyValue`
  *
  * TODO benchmark against https://github.com/greg7mdp/sparsepp
  *
@@ -618,18 +618,24 @@ alias HashMap(K, V,
             assert(i in s1);
         }
 
-        // static if (X.hasValue)
-        // {
-        //     import basic_uncopyable_array : Array = UncopyableArray;
-        //     Array!(X.ElementType) a1;
-        //     foreach (k; s1.byKey)
-        //     {
-        //         auto eRef = k in s;
-        //         assert(eRef);
-        //         a1 ~= X.ElementType(i, *vPtr);
-        //     }
-        //     assert(s1 == s3);
-        // }
+        static if (X.hasValue)
+        {
+            import basic_uncopyable_array : Array = UncopyableArray;
+            Array!(X.ElementType) a1;
+            foreach (k; s1.byKey)
+            {
+                auto eRef = k in s1;
+                assert(eRef);
+                a1 ~= X.ElementType(k, (*eRef).value);
+            }
+            assert(s1.length == a1.length);
+            foreach (e; a1[])
+            {
+                auto eRef = e.key in s1;
+                assert(eRef);
+                assert((*eRef).value == e.value);
+            }
+        }
 
         assert(s1.length == n);
 

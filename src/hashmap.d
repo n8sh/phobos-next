@@ -339,14 +339,17 @@ struct HashMapOrSet(K, V = void,
 
         Returns: `true` if element was removed, `false` otherwise.
     */
-    bool remove(in T element)
+    bool remove(in K key)
         @trusted
     {
-        immutable bucketIndex = hashToIndex(HashOf!(hasher)(keyOf(element)));
+        immutable bucketIndex = hashToIndex(HashOf!(hasher)(key));
         import container_algorithm : popFirst;
         if (_largeBucketFlags[bucketIndex])
         {
-            immutable hit = _buckets[bucketIndex].large.popFirst(element);
+            static if (hasValue)
+                immutable hit = _buckets[bucketIndex].large.popFirst!"a.key == b"(key);
+            else
+                immutable hit = _buckets[bucketIndex].large.popFirst(key);
             _length -= hit ? 1 : 0;
             if (hit &&
                 _buckets[bucketIndex].large.length <= smallBucketCapacity) // large fits in small
@@ -364,7 +367,10 @@ struct HashMapOrSet(K, V = void,
         }
         else
         {
-            immutable hit = _buckets[bucketIndex].small.popFirst(element);
+            static if (hasValue)
+                immutable hit = _buckets[bucketIndex].small.popFirst!"a.key == b"(key);
+            else
+                immutable hit = _buckets[bucketIndex].small.popFirst(key);
             _length -= hit ? 1 : 0;
             return hit;
         }
@@ -521,7 +527,7 @@ alias HashMap(K, V,
                 const e2 = X.ElementType(i, "a");
                 assert(s1.insert(e2) == InsertionStatus.modified);
                 assert(s1.contains(e2));
-                s1.remove(e);
+                s1.remove(i);
                 s1[i] = v;
             }
 
@@ -567,11 +573,11 @@ alias HashMap(K, V,
             assert(hit);
             assert(*hit == e);
 
-            assert(s1.remove(e));
+            assert(s1.remove(i));
             assert(s1.length == n - i - 1);
 
             assert(e !in s1);
-            assert(!s1.remove(e));
+            assert(!s1.remove(i));
             assert(s1.length == n - i - 1);
         }
 
@@ -601,11 +607,11 @@ alias HashMap(K, V,
 
             assert(e in s2);
 
-            assert(s2.remove(e));
+            assert(s2.remove(i));
             assert(s2.length == n - i - 1);
 
             assert(e !in s2);
-            assert(!s2.remove(e));
+            assert(!s2.remove(i));
             assert(s2.length == n - i - 1);
         }
 

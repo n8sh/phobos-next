@@ -15,10 +15,15 @@ enum InsertionStatus { added, modified, unchanged }
  *      hasher = hash function or std.digest Hash.
  *      smallBucketMinCapacity = minimum capacity of small bucket
  *
+ * TODO implement bucket growth
+ *
+ * TODO rehash: if allocator has realloc we can do rehashing in-place similar to
+ * reordering in in-place radix (integer_sorting.d)
  *
  * TODO merge with EMSI containers.hashmap
- * TODO implement bucket growth
+ *
  * TODO forward-ranges `byKey`, `byValue`, `byKeyValue`
+ *
  * TODO benchmark against https://github.com/greg7mdp/sparsepp
  *
  * TODO use https://dlang.org/phobos/std_experimental_allocator.html:

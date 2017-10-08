@@ -347,9 +347,13 @@ struct HashMapOrSet(K, V = void,
         if (_largeBucketFlags[bucketIndex])
         {
             static if (hasValue)
+            {
                 immutable hit = _buckets[bucketIndex].large.popFirst!"a.key == b"(key);
+            }
             else
+            {
                 immutable hit = _buckets[bucketIndex].large.popFirst(key);
+            }
             _length -= hit ? 1 : 0;
             if (hit &&
                 _buckets[bucketIndex].large.length <= smallBucketCapacity) // large fits in small
@@ -368,9 +372,13 @@ struct HashMapOrSet(K, V = void,
         else
         {
             static if (hasValue)
+            {
                 immutable hit = _buckets[bucketIndex].small.popFirst!"a.key == b"(key);
+            }
             else
+            {
                 immutable hit = _buckets[bucketIndex].small.popFirst(key);
+            }
             _length -= hit ? 1 : 0;
             return hit;
         }

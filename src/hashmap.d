@@ -28,7 +28,6 @@ enum InsertionStatus { added, modified, unchanged }
  * TODO benchmark against https://github.com/greg7mdp/sparsepp
  *
  * TODO use https://dlang.org/phobos/std_experimental_allocator.html:
- *
  * struct HashTable
  * {
  *     private IAllocator _allocator;
@@ -40,7 +39,6 @@ enum InsertionStatus { added, modified, unchanged }
  *     IAllocator allocator() { return _allocator; }
  *     void allocator(IAllocator a) { assert(empty); _allocator = a; }
  * }
- *
  * EMSI-containers has some helper logic for this.
  */
 struct HashMapOrSet(K, V = void,

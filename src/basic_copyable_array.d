@@ -868,8 +868,8 @@ private:
 
 version(unittest)
 {
-    /// non-copyable element type
-    private static struct UncopyableStruct
+    /// uncopyable struct
+    private static struct US
     {
         @disable this(this);
         int x;
@@ -879,32 +879,32 @@ version(unittest)
 /// construct and insert from non-copyable element type passed by value
 @safe pure nothrow /*@nogc*/ unittest
 {
-    alias A = CopyableArray!(UncopyableStruct);
+    alias A = CopyableArray!(US);
 
-    A a = A(UncopyableStruct(17));
-    assert(a[] == [UncopyableStruct(17)]);
+    A a = A(US(17));
+    assert(a[] == [US(17)]);
 
-    a.insertBack(UncopyableStruct(18));
-    assert(a[] == [UncopyableStruct(17),
-                   UncopyableStruct(18)]);
+    a.insertBack(US(18));
+    assert(a[] == [US(17),
+                   US(18)]);
 
-    a ~= UncopyableStruct(19);
-    assert(a[] == [UncopyableStruct(17),
-                   UncopyableStruct(18),
-                   UncopyableStruct(19)]);
+    a ~= US(19);
+    assert(a[] == [US(17),
+                   US(18),
+                   US(19)]);
 }
 
 /// construct from slice of uncopyable type
 @safe pure nothrow @nogc unittest
 {
-    alias A = CopyableArray!(UncopyableStruct);
-    // TODO can we safely support this?: A a = [UncopyableStruct(17)];
+    alias A = CopyableArray!(US);
+    // TODO can we safely support this?: A a = [US(17)];
 }
 
 // construct from array with uncopyable elements
 @safe pure nothrow @nogc unittest
 {
-    alias A = CopyableArray!(UncopyableStruct);
+    alias A = CopyableArray!(US);
 
     A a;
     assert(a.empty);
@@ -916,7 +916,7 @@ version(unittest)
 // construct from range of uncopyable elements
 @safe pure nothrow @nogc unittest
 {
-    alias T = UncopyableStruct;
+    alias T = US;
     alias A = CopyableArray!T;
 
     A a;

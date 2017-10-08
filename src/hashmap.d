@@ -518,7 +518,9 @@ alias HashMap(K, V,
 
             static if (X.hasValue)
             {
-                assert(s1.insert(X.ElementType(i, "a")) == InsertionStatus.modified);
+                const e2 = X.ElementType(i, "a");
+                assert(s1.insert(e2) == InsertionStatus.modified);
+                assert(s1.contains(e2));
                 s1.remove(e);
                 s1[i] = v;
             }

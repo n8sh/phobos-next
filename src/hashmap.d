@@ -20,8 +20,6 @@ enum InsertionStatus { added, modified, unchanged }
  * TODO rehash: if allocator has realloc we can do rehashing in-place similar to
  * reordering in in-place radix (integer_sorting.d)
  *
- * TODO merge with EMSI containers.hashmap
- *
  * TODO forward-ranges `byValue`, `byKeyValue`
  *
  * TODO support uncopyable value type for map-case

@@ -309,61 +309,72 @@ struct HashMapOrSet(K, V = void,
     }
 
     /// ditto
-    scope inout(ElementRef) opBinaryRight(string op)(in T element) inout @trusted
-        if (op == "in")
+    static if (!hasValue)
     {
-        immutable bucketIndex = hashToIndex(HashOf!(hasher)(keyRefOf(element)));
-        immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil(element);
-        if (elementOffset != -1) // hit
+        bool opBinaryRight(string op)(in K key) inout @trusted
+            if (op == "in")
         {
-            return typeof(return)(&this, bucketIndex, elementOffset);
+            return contains(key);
         }
-        else                    // miss
-        {
-            return typeof(return).init;
-        }
-    }
-
-    static private struct ByKey
-    {
-        @property bool empty() const
-        {
-            return _eRef.bucketIndex == _eRef.table.bucketCount;
-        }
-
-        @property inout(ElementRef) front() inout
-        {
-            return _eRef;
-        }
-
-        void popFront()
-        {
-            assert(!empty);
-            _eRef.elementOffset += 1; // next element
-            if (_eRef.elementOffset >= _eRef.table.bucketElementsAt(_eRef.bucketIndex).length)
-            {
-                // next bucket
-                _eRef.bucketIndex += 1;
-                _eRef.elementOffset = 0;
-            }
-        }
-
-        @property typeof(this) save() // ForwardRange
-        {
-            return this;
-        }
-
-        private ElementRef _eRef;  // range iterator
-    }
-
-    /// Returns forward range that iterates through the keys.
-    inout(ByKey) byKey() inout
-    {
-        return typeof(return)(inout(ElementRef)(&this));
     }
 
     static if (hasValue)
     {
+        scope inout(ElementRef) opBinaryRight(string op)(in K key) inout @trusted
+            if (op == "in")
+        {
+            immutable bucketIndex = hashToIndex(HashOf!(hasher)(key));
+            immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil!(_ => _.key == key);
+            if (elementOffset != -1) // hit
+            {
+                return typeof(return)(&this, bucketIndex, elementOffset);
+            }
+            else                    // miss
+            {
+                return typeof(return).init;
+            }
+        }
+
+        static private struct ByKey // TODO scope
+        {
+            @property bool empty() const
+            {
+                return _eRef.bucketIndex == _eRef.table.bucketCount;
+            }
+
+            @property auto front() inout
+            {
+                return (*_eRef).key;
+            }
+
+            void popFront()
+            {
+                assert(!empty);
+                _eRef.elementOffset += 1; // next element
+                // if current bucket was emptied
+                while (_eRef.elementOffset >= _eRef.table.bucketElementsAt(_eRef.bucketIndex).length)
+                {
+                    // next bucket
+                    _eRef.bucketIndex += 1;
+                    _eRef.elementOffset = 0;
+                    if (empty) { break; }
+                }
+            }
+
+            @property typeof(this) save() // ForwardRange
+            {
+                return this;
+            }
+
+            private ElementRef _eRef;  // range iterator
+        }
+
+        /// Returns forward range that iterates through the keys.
+        inout(ByKey) byKey() inout
+        {
+            return typeof(return)(inout(ElementRef)(&this));
+        }
+
         /// Indexing.
         ref inout(V) opIndex(in K key) inout
         {
@@ -450,7 +461,7 @@ struct HashMapOrSet(K, V = void,
     }
 
     /// Check if empty.
-    bool empty() const { return _length == 0; }
+    @property bool empty() const { return _length == 0; }
 
     /// Get length (read-only).
     @property size_t length() const { return _length; }
@@ -579,7 +590,7 @@ alias HashMap(K, V,
                 const e = i;
             }
 
-            assert(e !in s1);
+            assert(i !in s1);
 
             assert(s1.length == i);
             assert(s1.insert(e) == InsertionStatus.added);
@@ -595,7 +606,7 @@ alias HashMap(K, V,
 
             assert(s1.length == i + 1);
 
-            assert(e in s1);
+            assert(i in s1);
             static if (X.hasValue)
             {
                 assert(!s1.contains(X.ElementType(i, "_"))); // other value
@@ -604,8 +615,21 @@ alias HashMap(K, V,
             assert(s1.insert(e) == InsertionStatus.unchanged);
             assert(s1.length == i + 1);
 
-            assert(e in s1);
+            assert(i in s1);
         }
+
+        // static if (X.hasValue)
+        // {
+        //     import basic_uncopyable_array : Array = UncopyableArray;
+        //     Array!(X.ElementType) a1;
+        //     foreach (k; s1.byKey)
+        //     {
+        //         auto eRef = k in s;
+        //         assert(eRef);
+        //         a1 ~= X.ElementType(i, *vPtr);
+        //     }
+        //     assert(s1 == s3);
+        // }
 
         assert(s1.length == n);
 
@@ -631,14 +655,17 @@ alias HashMap(K, V,
 
             assert(s1.length == n - i);
 
-            auto hit = e in s1;
+            auto hit = i in s1;
             assert(hit);
-            assert(*hit == e);
+            static if (X.hasValue)
+            {
+                assert(*hit == e);
+            }
 
             assert(s1.remove(i));
             assert(s1.length == n - i - 1);
 
-            assert(e !in s1);
+            assert(i !in s1);
             assert(!s1.remove(i));
             assert(s1.length == n - i - 1);
         }
@@ -667,12 +694,12 @@ alias HashMap(K, V,
 
             assert(s2.length == n - i);
 
-            assert(e in s2);
+            assert(i in s2);
 
             assert(s2.remove(i));
             assert(s2.length == n - i - 1);
 
-            assert(e !in s2);
+            assert(i !in s2);
             assert(!s2.remove(i));
             assert(s2.length == n - i - 1);
         }

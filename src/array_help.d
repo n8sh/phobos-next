@@ -55,7 +55,7 @@ alias s = asStaticArray;
 
 version(unittest)
 {
-    private static struct SomeUncopyableStruct
+    private static struct UncopyableStruct
     {
         @disable this(this);
         int x;
@@ -81,7 +81,7 @@ unittest
 /// non-copyable element type in static array
 unittest
 {
-    auto b = [SomeUncopyableStruct(42)].s;
+    auto b = [UncopyableStruct(42)].s;
 }
 
 ///

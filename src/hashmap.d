@@ -326,21 +326,21 @@ struct HashMapOrSet(K, V = void,
 
     static private struct ByKey
     {
-        ElementRef _elementRef;  // range iterator
-
         @property bool empty() const
         {
-            return _elementRef.bucketIndex == _elementRef.table.bucketCount;
+            return _eRef.bucketIndex == _eRef.table.bucketCount;
         }
 
         @property ref inout(ElementRef) front() inout
         {
-            return _elementRef;
+            return _eRef;
         }
 
         void popFront()
         {
         }
+
+        private ElementRef _eRef;  // range iterator
     }
 
     /// Returns range that iterates throug the keys of `this`.

@@ -581,17 +581,17 @@ alias HashMap(K, V,
             static if (X.hasValue)
             {
                 const value = V.init;
-                const e = X.ElementType(key, value);
+                const element = X.ElementType(key, value);
             }
             else
             {
-                const e = key;
+                const element = key;
             }
 
             assert(key !in s1);
 
             assert(s1.length == key);
-            assert(s1.insert(e) == InsertionStatus.added);
+            assert(s1.insert(element) == InsertionStatus.added);
 
             static if (X.hasValue)
             {
@@ -610,7 +610,7 @@ alias HashMap(K, V,
                 assert(!s1.contains(X.ElementType(key, "_"))); // other value
             }
 
-            assert(s1.insert(e) == InsertionStatus.unchanged);
+            assert(s1.insert(element) == InsertionStatus.unchanged);
             assert(s1.length == key + 1);
 
             assert(key in s1);
@@ -627,11 +627,11 @@ alias HashMap(K, V,
                 a1 ~= X.ElementType(key, (*eRef).value);
             }
             assert(s1.length == a1.length);
-            foreach (e; a1[])
+            foreach (element; a1[])
             {
-                auto eRef = e.key in s1;
+                auto eRef = element.key in s1;
                 assert(eRef);
-                assert((*eRef).value == e.value);
+                assert((*eRef).value == element.value);
             }
         }
 
@@ -650,11 +650,11 @@ alias HashMap(K, V,
         {
             static if (X.hasValue)
             {
-                const e = X.ElementType(key, V.init);
+                const element = X.ElementType(key, V.init);
             }
             else
             {
-                const e = key;
+                const element = key;
             }
 
             assert(s1.length == n - key);
@@ -663,7 +663,7 @@ alias HashMap(K, V,
             assert(hit);
             static if (X.hasValue)
             {
-                assert(*hit == e);
+                assert(*hit == element);
             }
 
             assert(s1.remove(key));
@@ -689,11 +689,11 @@ alias HashMap(K, V,
         {
             static if (X.hasValue)
             {
-                const e = X.ElementType(key, V.init);
+                const element = X.ElementType(key, V.init);
             }
             else
             {
-                const e = key;
+                const element = key;
             }
 
             assert(s2.length == n - key);

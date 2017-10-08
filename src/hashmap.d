@@ -24,7 +24,7 @@ enum InsertionStatus { added, modified, unchanged }
  *
  * TODO forward-ranges `byValue`, `byKeyValue`
  *
- * TODO support uncopyable value type
+ * TODO support uncopyable value type for map-case
  *
  * TODO benchmark against https://github.com/greg7mdp/sparsepp
  *

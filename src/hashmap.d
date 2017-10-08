@@ -501,7 +501,6 @@ alias HashMap(K, V,
     immutable n = 11;
 
     alias K = uint;
-    import std.meta : AliasSeq;
 
     foreach (V; AliasSeq!(void, string))
     {
@@ -518,7 +517,7 @@ alias HashMap(K, V,
         {
             static if (X.hasValue)
             {
-                const v = "";
+                const v = V.init;
                 const e = X.ElementType(i, v);
             }
             else
@@ -569,7 +568,7 @@ alias HashMap(K, V,
         {
             static if (X.hasValue)
             {
-                const e = X.ElementType(i, "");
+                const e = X.ElementType(i, V.init);
             }
             else
             {
@@ -605,7 +604,7 @@ alias HashMap(K, V,
         {
             static if (X.hasValue)
             {
-                const e = X.ElementType(i, "");
+                const e = X.ElementType(i, V.init);
             }
             else
             {
@@ -633,10 +632,35 @@ alias HashMap(K, V,
     }
 }
 
+/// range checking
+pure unittest
+{
+    import digestx.fnv : FNV;
+
+    immutable n = 11;
+
+    alias K = uint;
+    alias V = string;
+
+    import std.exception : assertThrown, assertNotThrown;
+    import core.exception : RangeError;
+
+    alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
+    auto s = X.withCapacity(n);
+
+    static if (X.hasValue)
+    {
+        assertThrown!RangeError(s[0]);
+        s[0] = V.init;
+        assertNotThrown!RangeError(s[0]);
+    }
+}
+
 version = show;
 
 version(unittest)
 {
+    import std.meta : AliasSeq;
     import array_help : s;
 }
 

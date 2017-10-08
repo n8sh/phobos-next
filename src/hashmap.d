@@ -75,7 +75,7 @@ struct HashMapOrSet(K, V = void,
             return element.key;
         }
 
-        /// Get key part reference of `element`.
+        /// Get reference to key part of `element`.
         static ref inout(K) keyRefOf()(ref inout(T) element)
         {
             return element.key;
@@ -99,7 +99,7 @@ struct HashMapOrSet(K, V = void,
             return element;
         }
 
-        /// Get key part reference of `element`.
+        /// Get reference to key part of `element`.
         static ref inout(K) keyRefOf()(ref inout(T) element)
         {
             return element;

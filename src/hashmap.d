@@ -576,44 +576,44 @@ alias HashMap(K, V,
 
         // fill s1
 
-        foreach (immutable i; 0 .. n)
+        foreach (immutable k; 0 .. n)
         {
             static if (X.hasValue)
             {
                 const v = V.init;
-                const e = X.ElementType(i, v);
+                const e = X.ElementType(k, v);
             }
             else
             {
-                const e = i;
+                const e = k;
             }
 
-            assert(i !in s1);
+            assert(k !in s1);
 
-            assert(s1.length == i);
+            assert(s1.length == k);
             assert(s1.insert(e) == InsertionStatus.added);
 
             static if (X.hasValue)
             {
-                const e2 = X.ElementType(i, "a");
+                const e2 = X.ElementType(k, "a");
                 assert(s1.insert(e2) == InsertionStatus.modified);
                 assert(s1.contains(e2));
-                s1.remove(i);
-                s1[i] = v;
+                s1.remove(k);
+                s1[k] = v;
             }
 
-            assert(s1.length == i + 1);
+            assert(s1.length == k + 1);
 
-            assert(i in s1);
+            assert(k in s1);
             static if (X.hasValue)
             {
-                assert(!s1.contains(X.ElementType(i, "_"))); // other value
+                assert(!s1.contains(X.ElementType(k, "_"))); // other value
             }
 
             assert(s1.insert(e) == InsertionStatus.unchanged);
-            assert(s1.length == i + 1);
+            assert(s1.length == k + 1);
 
-            assert(i in s1);
+            assert(k in s1);
         }
 
         static if (X.hasValue)
@@ -646,32 +646,32 @@ alias HashMap(K, V,
 
         // empty s1
 
-        foreach (immutable i; 0 .. n)
+        foreach (immutable k; 0 .. n)
         {
             static if (X.hasValue)
             {
-                const e = X.ElementType(i, V.init);
+                const e = X.ElementType(k, V.init);
             }
             else
             {
-                const e = i;
+                const e = k;
             }
 
-            assert(s1.length == n - i);
+            assert(s1.length == n - k);
 
-            auto hit = i in s1;
+            auto hit = k in s1;
             assert(hit);
             static if (X.hasValue)
             {
                 assert(*hit == e);
             }
 
-            assert(s1.remove(i));
-            assert(s1.length == n - i - 1);
+            assert(s1.remove(k));
+            assert(s1.length == n - k - 1);
 
-            assert(i !in s1);
-            assert(!s1.remove(i));
-            assert(s1.length == n - i - 1);
+            assert(k !in s1);
+            assert(!s1.remove(k));
+            assert(s1.length == n - k - 1);
         }
 
         assert(s1.bucketCounts.largeCount == 0);
@@ -685,27 +685,27 @@ alias HashMap(K, V,
 
         assert(s2.length == n); // should be not affected by emptying of s1
 
-        foreach (immutable i; 0 .. n)
+        foreach (immutable k; 0 .. n)
         {
             static if (X.hasValue)
             {
-                const e = X.ElementType(i, V.init);
+                const e = X.ElementType(k, V.init);
             }
             else
             {
-                const e = i;
+                const e = k;
             }
 
-            assert(s2.length == n - i);
+            assert(s2.length == n - k);
 
-            assert(i in s2);
+            assert(k in s2);
 
-            assert(s2.remove(i));
-            assert(s2.length == n - i - 1);
+            assert(s2.remove(k));
+            assert(s2.length == n - k - 1);
 
-            assert(i !in s2);
-            assert(!s2.remove(i));
-            assert(s2.length == n - i - 1);
+            assert(k !in s2);
+            assert(!s2.remove(k));
+            assert(s2.length == n - k - 1);
         }
 
         assert(s2.bucketCounts.largeCount == 0);

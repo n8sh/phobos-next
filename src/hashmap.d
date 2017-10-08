@@ -289,7 +289,7 @@ struct HashMapOrSet(K, V = void,
         return bucketElementsAt(bucketIndex).canFind(element);
     }
 
-    /** Reference to element. */
+    /** Element reference (and in turn range iterator). */
     static private struct ElementRef
     {
         HashMapOrSet* table;
@@ -322,6 +322,31 @@ struct HashMapOrSet(K, V = void,
         {
             return typeof(return).init;
         }
+    }
+
+    static private struct ByKey
+    {
+        ElementRef _elementRef;  // range iterator
+
+        @property bool empty() const
+        {
+            return _elementRef.bucketIndex == _elementRef.table.bucketCount;
+        }
+
+        @property ref inout(ElementRef) front() inout
+        {
+            return _elementRef;
+        }
+
+        void popFront()
+        {
+        }
+    }
+
+    /// Returns range that iterates throug the keys of `this`.
+    inout(ByKey) byKey() inout
+    {
+        return typeof(return)(inout(ElementRef)(&this));
     }
 
     static if (hasValue)

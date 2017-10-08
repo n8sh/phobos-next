@@ -216,7 +216,17 @@ struct HashMapOrSet(K, V = void,
     {
         immutable bucketIndex = hashToIndex(HashOf!(hasher)(keyOf(element)));
         T[] bucketElements = bucketElementsAt(bucketIndex);
-        immutable ptrdiff_t elementOffset = bucketElements.countUntil(element);
+
+        // find element offset matching key
+        static if (hasValue)
+        {
+            immutable ptrdiff_t elementOffset = bucketElements.countUntil!((a, b) => (a.key == b))(keyOf(element));
+        }
+        else
+        {
+            immutable ptrdiff_t elementOffset = bucketElements.countUntil(element);
+        }
+
         if (elementOffset != -1) // hit
         {
             static if (hasValue) // replace value
@@ -508,6 +518,7 @@ alias HashMap(K, V,
 
             static if (X.hasValue)
             {
+                assert(s1.insert(X.ElementType(i, "a")) == InsertionStatus.modified);
                 s1.remove(e);
                 s1[i] = v;
             }

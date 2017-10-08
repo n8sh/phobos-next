@@ -24,6 +24,8 @@ enum InsertionStatus { added, modified, unchanged }
  *
  * TODO forward-ranges `byValue`, `byKeyValue`
  *
+ * TODO support uncopyable value type
+ *
  * TODO benchmark against https://github.com/greg7mdp/sparsepp
  *
  * TODO use https://dlang.org/phobos/std_experimental_allocator.html:

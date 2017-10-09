@@ -73,13 +73,13 @@ template show(Args...)
         import std.stdio: write, writeln;
         try
         {
-            debug write(file, ":",line, ":" /* , ": in ",fun */, " debug: ");
+            debug assumeNogc!write(file, ":",line, ":" /* , ": in ",fun */, " debug: ");
             foreach (const i, Arg; Args)
             {
-                if (i) debug write(", "); // separator
-                debug write(Args[i].stringof, ":", Arg);
+                if (i) debug assumeNogc!write(", "); // separator
+                debug assumeNogc!write(Args[i].stringof, ":", Arg);
             }
-            debug writeln();
+            debug assumeNogc!writeln();
         }
         catch (Exception) { }
     }

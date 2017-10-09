@@ -182,11 +182,12 @@ struct HashMapOrSet(K, V = void,
     {
         immutable newBucketCount = bucketCount ? 2 * bucketCount : 1; // 0 => 1, 1 => 2, 2 => 4, ...
         auto copy = typeof(this).withBucketCount(newBucketCount);
+
         foreach (immutable bucketIndex; 0 .. _buckets.length)
         {
             foreach (const ref element; bucketElementsAt(bucketIndex))
             {
-                copy.insertWithoutGrowth(element); // trusted
+                copy.insertWithoutGrowth(element);
             }
         }
         assert(copy._length == _length); // length shouldn't change

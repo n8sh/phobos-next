@@ -612,7 +612,7 @@ private:
                                    (LargeBucket.sizeof -
                                     1) // minus one for length
                                    / T.sizeof);
-    pragma(msg, SmallBucket.sizeof, ", ", LargBucket.sizeof);
+    // pragma(msg, SmallBucket.sizeof, ", ", LargBucket.sizeof);
 
     import arrayn : ArrayN;
     alias SmallBucket = ArrayN!(T, smallBucketCapacity);

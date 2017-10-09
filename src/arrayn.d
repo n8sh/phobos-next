@@ -14,7 +14,7 @@ enum Checking
 /** Statically allocated `T`-array of fixed pre-allocated length.  Similar to
     Rust's `fixedvec`: https://docs.rs/fixedvec/0.2.3/fixedvec/
 
-    TODO Merge with array_ex.d to enable reuse of push and pop algorithms
+    TODO Merge member functions with basic_*_array.d and array_ex.d
 
     TODO Add @safe nothrow @nogc ctor from static array (of known length)
 */

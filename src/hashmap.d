@@ -432,7 +432,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Indexing.
-        ref inout(V) opIndex(in K key) inout
+        ref inout(V) opIndex(in K key) inout return
         {
             immutable bucketIndex = keyToIndex(key);
             immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil!(_ => _.key == key); // TODO functionize
@@ -449,7 +449,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Get value of `key` or `defaultValue` if `key` not present.
-        inout(V) get(in K key, V defaultValue) inout // TODO make it return a ref. TODO make defaultValue lasy
+        inout(V) get(in K key, V defaultValue) inout return // TODO make it return a ref. TODO make defaultValue lasy
         {
             immutable bucketIndex = keyToIndex(key);
             immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil!(_ => _.key == key); // TODO functionize

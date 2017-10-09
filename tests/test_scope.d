@@ -13,7 +13,21 @@ struct S(T)
         return x[0];
     }
 
-    T[4] x;
+    scope inout(T)* pointer() inout return
+    {
+        return x.ptr;
+    }
+
+    struct Ref
+    {
+        this(S!T* parent)
+        {
+            _parent = parent;
+        }
+        S!T* _parent;
+    }
+
+    T[128] x;
 }
 
 @safe pure nothrow @nogc:
@@ -28,5 +42,11 @@ int[] testSlice()
 ref int testFirst()
 {
     S!int s;
-    return s.first;             // should errir with -dip1000
+    return s.first;             // should error with -dip1000
+}
+
+int* testPointer()
+{
+    S!int s;
+    return s.pointer;           // should error with -dip1000
 }

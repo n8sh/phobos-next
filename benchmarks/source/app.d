@@ -127,6 +127,11 @@ void main()
         }
 
         writeln(` for `, A.stringof);
+
+        static if (hasMember!(A, `clear`))
+        {
+            a.clear();
+        }
     }
 
     alias ValueType = uint;
@@ -170,6 +175,11 @@ void main()
         write(", Insertion (without growth): ", after - before);
 
         writeln(` for `, A.stringof);
+
+        static if (hasMember!(A, `clear`))
+        {
+            a.clear();
+        }
     }
 
     foreach (A; AliasSeq!(ValueType[E]))
@@ -204,5 +214,10 @@ void main()
         }
 
         writeln(` for `, A.stringof);
+
+        static if (hasMember!(A, `clear`))
+        {
+            a.clear();
+        }
     }
 }

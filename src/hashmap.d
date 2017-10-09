@@ -322,7 +322,7 @@ struct HashMapOrSet(K, V = void,
         scope inout(ElementRef) opBinaryRight(string op)(in K key) inout @trusted
             if (op == "in")
         {
-            immutable bucketIndex = hashToIndex(HashOf!(hasher)(key));
+            immutable bucketIndex = keyToIndex(key);
             immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil!(_ => _.key == key); // TODO functionize
             if (elementOffset != -1) // hit
             {
@@ -377,7 +377,7 @@ struct HashMapOrSet(K, V = void,
         /// Indexing.
         ref inout(V) opIndex(in K key) inout
         {
-            immutable bucketIndex = hashToIndex(HashOf!(hasher)(key));
+            immutable bucketIndex = keyToIndex(key);
             immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil!(_ => _.key == key); // TODO functionize
             if (elementOffset != -1) // hit
             {
@@ -394,7 +394,7 @@ struct HashMapOrSet(K, V = void,
         /// Get value of `key` or `defaultValue` if `key` not present.
         inout(V) get(in K key, V defaultValue) inout // TODO make it return a ref. TODO make defaultValue lasy
         {
-            immutable bucketIndex = hashToIndex(HashOf!(hasher)(key));
+            immutable bucketIndex = keyToIndex(key);
             immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil!(_ => _.key == key); // TODO functionize
             if (elementOffset != -1) // hit
             {
@@ -422,7 +422,7 @@ struct HashMapOrSet(K, V = void,
     bool remove(in K key)
         @trusted
     {
-        immutable bucketIndex = hashToIndex(HashOf!(hasher)(key));
+        immutable bucketIndex = keyToIndex(key);
         import container_algorithm : popFirst;
         if (_largeBucketFlags[bucketIndex])
         {
@@ -560,10 +560,11 @@ private:
 
     /** Returns: bucket index of `key`. */
     pragma(inline, true)
-    size_t keyToIndex(in K key)
+    size_t keyToIndex(in K key) const
     {
         return hashToIndex(HashOf!(hasher)(key));
     }
+
 }
 
 alias HashSet(K,

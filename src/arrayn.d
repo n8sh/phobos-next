@@ -99,7 +99,7 @@ struct ArrayN(T,
     {
         static if (mustAddGCRange!T)
         {
-            gc_addRange(_store.ptr, values.length * T.sizeof);
+            gc_addRange(_store.ptr, _store.sizeof);
         }
 
         foreach (const ix, ref value; values)
@@ -129,7 +129,7 @@ struct ArrayN(T,
 
         static if (mustAddGCRange!T)
         {
-            gc_addRange(_store.ptr, values.length * T.sizeof);
+            gc_addRange(_store.ptr, _store.sizeof);
         }
 
         _store[0 .. values.length] = values;
@@ -150,7 +150,7 @@ struct ArrayN(T,
         typeof(return) that;              // TODO use Store constructor:
         static if (mustAddGCRange!T)
         {
-            gc_addRange(that._store.ptr, values.length * T.sizeof);
+            gc_addRange(_store.ptr, _store.sizeof);
         }
 
         that._store[0 .. values.length] = values;

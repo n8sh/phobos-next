@@ -462,7 +462,7 @@ struct HashMapOrSet(K, V = void,
         /** Get value of `key` or `defaultValue` if `key` not present (and
          * therefore `nothrow`).
          */
-        inout(V) get(in K key, V defaultValue) inout @trusted // TODO make it return a ref. TODO make defaultValue lasy
+        V get(in K key, V defaultValue) @trusted // TODO make it inout return a ref. TODO make defaultValue lasy
         {
             immutable bucketIndex = keyToIndex(key);
             immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil!(_ => _.key == key); // TODO functionize

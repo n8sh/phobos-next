@@ -142,7 +142,7 @@ void main()
                 a.insert(A.ElementType(i, ValueType.init));
             }
             immutable after = MonoTime.currTime();
-            write("Insertion (without growth): ", after - before);
+            write("Insertion (with growth): ", after - before);
         }
 
         {

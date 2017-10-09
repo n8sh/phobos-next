@@ -5,8 +5,6 @@
  */
 struct S(T)
 {
-    @safe:
-
     scope inout(T)[] opSlice() inout return
     {
         return x[];

@@ -1,8 +1,12 @@
+@safe:
+
 /** See also: http://forum.dlang.org/post/hwfpmabyunqhlkaqogdt@forum.dlang.org
     See also: https://issues.dlang.org/show_bug.cgi?id=17388
  */
 struct S(T)
 {
+    @safe:
+
     scope inout(T)[] opSlice() inout return
     {
         return x[];
@@ -15,7 +19,7 @@ struct S(T)
 
     scope inout(T)* pointer() inout return
     {
-        return x.ptr;
+        return &x[0];
     }
 
     static private struct Range
@@ -33,6 +37,7 @@ struct S(T)
 
 @safe pure nothrow @nogc:
 
+/// this correctly fails
 int[] testSlice()
 {
     S!int s;
@@ -40,12 +45,21 @@ int[] testSlice()
     return s[];                 // should error with -dip1000
 }
 
+/// this should fail
+auto testRange()
+{
+    S!int s;
+    return s.range;
+}
+
+/// this should fail
 ref int testFirst()
 {
     S!int s;
     return s.first;             // should error with -dip1000
 }
 
+/// this should fail
 int* testPointer()
 {
     S!int s;

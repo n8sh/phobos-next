@@ -609,7 +609,10 @@ private:
 
     import std.algorithm : max;
     enum smallBucketCapacity = max(smallBucketMinCapacity,
-                                   (LargeBucket.sizeof - 1) / T.sizeof);
+                                   (LargeBucket.sizeof -
+                                    1) // minus one for length
+                                   / T.sizeof);
+    pragma(msg, SmallBucket.sizeof, ", ", LargBucket.sizeof);
 
     import arrayn : ArrayN;
     alias SmallBucket = ArrayN!(T, smallBucketCapacity);

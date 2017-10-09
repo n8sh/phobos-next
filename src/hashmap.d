@@ -19,7 +19,8 @@ enum InsertionStatus { added, modified, unchanged }
  * it has been grown into a large bucket, and remove dependency on bitarray.d by
  * removing `_largeBucketFlags`
  *
- * Avoid extra length and capacity in _statuses (length or large)
+ * TODO Avoid extra length and capacity in _statuses (length or large) by making
+ * it allocate in sync with buckets (using soa.d)
  *
  * TODO benchmark with `uint` as size and capacity of UncopyableArray which
  * makes fewer fit in small store

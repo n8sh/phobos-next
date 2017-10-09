@@ -27,6 +27,8 @@ void main()
     import std.datetime : MonoTime;
     import std.meta : AliasSeq;
 
+    import std.conv : to;
+
     alias E = uint;
     immutable n = 1_000_000;
 
@@ -53,7 +55,7 @@ void main()
         immutable before = MonoTime.currTime();
         foreach (const i; 0 .. n)
         {
-            a ~= cast(E)i;      // need to cast away const here
+            a ~= i.to!E;      // need to cast away const here
         }
         immutable after = MonoTime.currTime();
         write("Appended ", n, " integers in ", after - before);

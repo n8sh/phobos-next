@@ -230,7 +230,7 @@ struct HashMapOrSet(K, V = void,
      */
     bool contains(in T element) const @trusted
     {
-        immutable bucketIndex = hashToIndex(HashOf!(hasher)(keyRefOf(element)));
+        immutable bucketIndex = keyToIndex(keyRefOf(element));
         return bucketElementsAt(bucketIndex).canFind(element);
     }
 
@@ -238,7 +238,7 @@ struct HashMapOrSet(K, V = void,
      */
     InsertionStatus insert(T element) @trusted
     {
-        immutable bucketIndex = hashToIndex(HashOf!(hasher)(keyRefOf(element)));
+        immutable bucketIndex = keyToIndex(keyRefOf(element));
         T[] bucketElements = bucketElementsAt(bucketIndex);
 
         // find element offset matching key
@@ -560,7 +560,7 @@ private:
 
     /** Returns: bucket index of `key`. */
     pragma(inline, true)
-    size_t keyToIndex(in K key) const
+    size_t keyToIndex()(in auto ref K key) const
     {
         return hashToIndex(HashOf!(hasher)(key));
     }

@@ -116,6 +116,16 @@ struct HashMapOrSet(K, V = void,
         return typeof(return)(capacity);
     }
 
+    pragma(inline)              // LDC can, DMD cannot inline
+    private static typeof(this) withBucketCount(size_t bucketCount)
+    {
+        typeof(return) that;
+        that._buckets = Buckets.withLength(bucketCount);
+        that._largeBucketFlags = LargeBucketFlags.withLength(bucketCount);
+        that._length = 0;
+        return that;
+    }
+
     /** Construct with room for storing at least `capacity` number of elements.
      */
     private this(size_t capacity)
@@ -170,14 +180,15 @@ struct HashMapOrSet(K, V = void,
     }
 
     /// Grow by duplicating number of buckets.
-    private void grow()
+    private void grow() @trusted
     {
-        auto copy = typeof(this).withCapacity(bucketCount ? bucketCount << 2 : 1); // twice amount of buckets
+        immutable newBucketCount = bucketCount ? 2 * bucketCount : 1; // 0 => 1, 1 => 2, 2 => 4, ...
+        auto copy = typeof(this).withBucketCount(newBucketCount);
         foreach (immutable bucketIndex; 0 .. _buckets.length)
         {
             foreach (const ref element; bucketElementsAt(bucketIndex))
             {
-                copy.insertWithoutGrowth(element);
+                copy.insertWithoutGrowth(element); // trusted
             }
         }
         assert(copy._length == _length); // length shouldn't change
@@ -244,15 +255,20 @@ struct HashMapOrSet(K, V = void,
      */
     bool contains(in T element) const @trusted
     {
+        if (empty)
+        {
+            // prevent range error in `bucketElementsAt` when `this` is empty
+            return false;
+        }
         immutable bucketIndex = keyToIndex(keyRefOf(element));
         return bucketElementsAt(bucketIndex).canFind(element);
     }
 
     InsertionStatus insert(T element)
     {
-        if (_length > _buckets.length * smallBucketCapacity)
+        if (_length + 1 > _buckets.length * smallBucketCapacity)
         {
-            // grow();
+            grow();
         }
         return insertWithoutGrowth(element);
     }
@@ -320,12 +336,13 @@ struct HashMapOrSet(K, V = void,
 
         bool opCast(T : bool)() const
         {
-            return cast(bool)table;
+            return table !is null;
         }
 
         ref inout(T) opUnary(string s)() inout
             if (s == "*")
         {
+            assert(table);
             return table.bucketElementsAt(bucketIndex)[elementOffset];
         }
     }
@@ -345,6 +362,11 @@ struct HashMapOrSet(K, V = void,
         scope inout(ElementRef) opBinaryRight(string op)(in K key) inout @trusted
             if (op == "in")
         {
+            if (empty)
+            {
+                // prevent range error in `bucketElementsAt` when `this` is empty
+                return typeof(return).init;
+            }
             immutable bucketIndex = keyToIndex(key);
             immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil!(_ => _.key == key); // TODO functionize
             if (elementOffset != -1) // hit
@@ -361,24 +383,33 @@ struct HashMapOrSet(K, V = void,
         {
             @property bool empty() const
             {
-                return _eRef.bucketIndex == _eRef.table.bucketCount;
+                return bucketIndex == table.bucketCount;
             }
 
             @property auto front() inout
             {
-                return (*_eRef).key;
+                return table.bucketElementsAt(bucketIndex)[elementOffset].key;
+            }
+
+            void initFirstNonEmptyBucket()
+            {
+                while (bucketIndex < table.bucketCount &&
+                       table.bucketElementCountAt(bucketIndex) == 0)
+                {
+                    bucketIndex += 1;
+                }
             }
 
             void popFront()
             {
                 assert(!empty);
-                _eRef.elementOffset += 1; // next element
+                elementOffset += 1; // next element
                 // if current bucket was emptied
-                while (_eRef.elementOffset >= _eRef.table.bucketElementsAt(_eRef.bucketIndex).length)
+                while (elementOffset >= table.bucketElementsAt(bucketIndex).length)
                 {
                     // next bucket
-                    _eRef.bucketIndex += 1;
-                    _eRef.elementOffset = 0;
+                    bucketIndex += 1;
+                    elementOffset = 0;
                     if (empty) { break; }
                 }
             }
@@ -388,13 +419,16 @@ struct HashMapOrSet(K, V = void,
                 return this;
             }
 
-            private ElementRef _eRef;  // range iterator
+            private ElementRef _elementRef;  // range iterator, TODO alias this
+            alias _elementRef this;
         }
 
         /// Returns forward range that iterates through the keys.
-        inout(ByKey) byKey() inout
+        inout(ByKey) byKey() inout @trusted
         {
-            return typeof(return)(inout(ElementRef)(&this));
+            auto result = typeof(return)(inout(ElementRef)(&this));
+            (cast(ByKey)result).initFirstNonEmptyBucket(); // dirty cast because inout problem
+            return result;
         }
 
         /// Indexing.
@@ -524,7 +558,7 @@ struct HashMapOrSet(K, V = void,
         return result;
     }
 
-    /** Retursn: elements in bucket at `bucketIndex`. */
+    /** Returns: elements in bucket at `bucketIndex`. */
     pragma(inline, true)
     private scope inout(T)[] bucketElementsAt(size_t bucketIndex) inout return
     {
@@ -535,6 +569,20 @@ struct HashMapOrSet(K, V = void,
         else
         {
             return _buckets[bucketIndex].small[];
+        }
+    }
+
+    /** Returns: number of elements in bucket at `bucketIndex`. */
+    pragma(inline, true)
+    private size_t bucketElementCountAt(size_t bucketIndex) const
+    {
+        if (_largeBucketFlags[bucketIndex])
+        {
+            return _buckets[bucketIndex].large.length;
+        }
+        else
+        {
+            return _buckets[bucketIndex].small.length;
         }
     }
 
@@ -610,14 +658,14 @@ alias HashMap(K, V,
 {
     import digestx.fnv : FNV;
 
-    immutable n = 11;
+    immutable n = 11000;
 
     alias K = uint;
 
     foreach (V; AliasSeq!(void, string))
     {
         alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
-        auto x1 = X.withCapacity(n);
+        auto x1 = X();
 
         // all buckets start small
         assert(x1.bucketCounts.largeCount == 0);

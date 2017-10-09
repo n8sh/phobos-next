@@ -462,7 +462,7 @@ struct HashMapOrSet(K, V = void,
         /** Get value of `key` or `defaultValue` if `key` not present (and
          * therefore `nothrow`).
          *
-         * TODO make `defaultValue` `lazy` when it can be `nothrow`
+         * TODO make `defaultValue` `lazy` when that can be `nothrow`
          */
         V get(in K key, V defaultValue) @trusted
         {

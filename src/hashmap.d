@@ -225,6 +225,15 @@ struct HashMapOrSet(K, V = void,
         _length = 0;
     }
 
+    /** Check if `element` is stored.
+        Returns: `true` if element was already present, `false` otherwise.
+     */
+    bool contains(in T element) const @trusted
+    {
+        immutable bucketIndex = hashToIndex(HashOf!(hasher)(keyRefOf(element)));
+        return bucketElementsAt(bucketIndex).canFind(element);
+    }
+
     /** Insert `element`, being either a key, value (map-case) or a just a key (set-case).
      */
     InsertionStatus insert(T element) @trusted
@@ -277,15 +286,6 @@ struct HashMapOrSet(K, V = void,
             }
             return typeof(return).added;
         }
-    }
-
-    /** Check if `element` is stored.
-        Returns: `true` if element was already present, `false` otherwise.
-     */
-    bool contains(in T element) const @trusted
-    {
-        immutable bucketIndex = hashToIndex(HashOf!(hasher)(keyRefOf(element)));
-        return bucketElementsAt(bucketIndex).canFind(element);
     }
 
     /** Element reference (and in turn range iterator). */

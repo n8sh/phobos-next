@@ -15,6 +15,11 @@ enum InsertionStatus { added, modified, unchanged }
  *      hasher = hash function or std.digest Hash.
  *      smallBucketMinCapacity = minimum capacity of small bucket
  *
+ * TODO benchmark with `uint` as size and capacity of UncopyableArray which
+ * makes fewer fit in small store
+ *
+ * TODO add open addressing store
+ *
  * TODO rehash: if allocator has realloc we can do rehashing in-place similar to
  * reordering in in-place radix (integer_sorting.d), otherwise rehash into new
  * copy of buckets and free old buckets when done. If bucket element count is >

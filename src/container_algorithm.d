@@ -5,8 +5,8 @@ import std.traits : hasMember;
 /** Try to pop first occurrence of `needle` in `haystack` (if any).
     Returns: `true` iff pop was made, `false` otherwise.
  */
-bool popFirst(alias pred = "a == b", C, E)(ref C haystack,
-                                           in E needle)
+bool popFirstMaybe(alias pred = "a == b", C, E)(ref C haystack,
+                                                in E needle)
     if (hasMember!(C, "popAt"))
     // TODO activate this restriction
     // if (hasSlicing!C &&

@@ -484,16 +484,16 @@ struct HashMapOrSet(K, V = void,
         @trusted
     {
         immutable bucketIndex = keyToIndex(key);
-        import container_algorithm : popFirst;
+        import container_algorithm : popFirstMaybe;
         if (_largeBucketFlags[bucketIndex])
         {
             static if (hasValue)
             {
-                immutable hit = _buckets[bucketIndex].large.popFirst!"a.key == b"(key);
+                immutable hit = _buckets[bucketIndex].large.popFirstMaybe!"a.key == b"(key);
             }
             else
             {
-                immutable hit = _buckets[bucketIndex].large.popFirst(key);
+                immutable hit = _buckets[bucketIndex].large.popFirstMaybe(key);
             }
             _length -= hit ? 1 : 0;
             if (hit &&
@@ -514,11 +514,11 @@ struct HashMapOrSet(K, V = void,
         {
             static if (hasValue)
             {
-                immutable hit = _buckets[bucketIndex].small.popFirst!"a.key == b"(key);
+                immutable hit = _buckets[bucketIndex].small.popFirstMaybe!"a.key == b"(key);
             }
             else
             {
-                immutable hit = _buckets[bucketIndex].small.popFirst(key);
+                immutable hit = _buckets[bucketIndex].small.popFirstMaybe(key);
             }
             _length -= hit ? 1 : 0;
             return hit;

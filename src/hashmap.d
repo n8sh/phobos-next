@@ -149,6 +149,7 @@ struct HashMapOrSet(K, V = void,
 
         that._buckets.reserve(_buckets.length);
         that._buckets.length = _buckets.length; // TODO this zero-initializes before initialization below, use unsafe setLengthOnlyUNSAFE
+
         foreach (immutable bucketIndex; 0 .. _buckets.length)
         {
             import std.conv : emplace;
@@ -164,6 +165,7 @@ struct HashMapOrSet(K, V = void,
 
         that._largeBucketFlags = _largeBucketFlags.dup;
         that._length = _length;
+
         return that;
     }
 

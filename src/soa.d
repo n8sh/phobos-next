@@ -116,7 +116,7 @@ private:
         foreach (const index, Type; Types)
         {
             enum TypeName = Type.stringof;
-            defs ~= TypeName ~ `[] container` ~ index.stringof ~ ";";
+            defs ~= TypeName ~ `[] _container` ~ index.stringof ~ ";";
         }
         return defs;
     }
@@ -124,7 +124,7 @@ private:
 
     ref inout(Types[index][]) getArray(size_t index)() inout return
     {
-        mixin(`return container` ~ index.stringof ~ ";");
+        mixin(`return _container` ~ index.stringof ~ ";");
     }
 
     IAllocator _alloc;

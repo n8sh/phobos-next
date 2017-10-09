@@ -18,16 +18,12 @@ struct S(T)
         return x.ptr;
     }
 
-    struct Range
+    static private struct Range
     {
-        this(S!T* parent)
-        {
-            _parent = parent;
-        }
         S!T* _parent;
     }
 
-    inout(Range) range() inout return
+    scope inout(Range) range() inout return
     {
         return typeof(return)(&this);
     }

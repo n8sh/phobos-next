@@ -460,7 +460,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /** Get value of `key` or `defaultValue` if `key` not present (and
-         * therefore nothrow).
+         * therefore `nothrow`).
          */
         inout(V) get(in K key, V defaultValue) inout @trusted // TODO make it return a ref. TODO make defaultValue lasy
         {

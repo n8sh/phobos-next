@@ -6,7 +6,8 @@ enum InsertionStatus { added, modified, unchanged }
 
 /** Hash set (or map) storing (key) elements of type `K` and values of type `V`.
  *
- * Uses small-size-optimized (SSO) arrays as buckets.
+ * Uses small-size-optimized (SSO) arrays as buckets, which provides more stable
+ * behaviour than open-addressing.
  *
  * Params:
  *      K = key type.
@@ -22,8 +23,8 @@ enum InsertionStatus { added, modified, unchanged }
  * TODO Avoid extra length and capacity in _statuses (length or large) by making
  * it allocate in sync with buckets (using soa.d)
  *
- * TODO benchmark with `uint` as size and capacity of UncopyableArray which
- * makes fewer fit in small store
+ * TODO benchmark with `uint` as size and capacity of LargeBucket which makes
+ * fewer fit in small store
  *
  * TODO add open addressing store which requires a BitArray store aswell
  *

@@ -112,6 +112,7 @@ private:
 
     static string generateArrays()
     {
+        version(LDC) static if (__VERSION__ >= 2076) { static assert(0, "TODO use static foreach"); }
         string defs;
         foreach (const index, Type; Types)
         {

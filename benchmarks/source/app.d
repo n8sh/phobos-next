@@ -183,7 +183,7 @@ void main()
                 a[i] = ValueType.init;
             }
             immutable after = MonoTime.currTime();
-            write("Insertion: ", after - before);
+            write("Insertion (with growth): ", after - before);
         }
 
         {

@@ -85,14 +85,8 @@ void main()
                           RadixTreeSetGrowOnly!(E),
                  ))
     {
-        static if (hasMember!(A, `withCapacity`))
-        {
-            A a = A.withCapacity(n);
-        }
-        else
-        {
-            A a;
-        }
+        // scope
+        A a;
 
         {
             immutable before = MonoTime.currTime();
@@ -101,7 +95,7 @@ void main()
                 a.insert(i);
             }
             immutable after = MonoTime.currTime();
-            write("Insertion: ", after - before);
+            write("Insertion (with growth): ", after - before);
         }
 
         {
@@ -119,9 +113,20 @@ void main()
             write(" ", a.bucketCounts());
         }
 
-        writeln(` for `, A.stringof);
+        static if (hasMember!(A, `withCapacity`))
+        {
+            A b = A.withCapacity(n);
 
-        a.clear();
+            immutable before = MonoTime.currTime();
+            foreach (const i; 0 .. n)
+            {
+                b.insert(i);
+            }
+            immutable after = MonoTime.currTime();
+            write(", Insertion (without growth): ", after - before);
+        }
+
+        writeln(` for `, A.stringof);
     }
 
     alias ValueType = uint;

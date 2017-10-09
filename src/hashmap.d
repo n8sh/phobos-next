@@ -15,9 +15,9 @@ enum InsertionStatus { added, modified, unchanged }
  *      hasher = hash function or std.digest Hash.
  *      smallBucketMinCapacity = minimum capacity of small bucket
  *
- * TODO store small bucket size in `ubyte` array, zero means empty, 0xff means
- * it has been grown into a large bucket, and remove dependency on bitarray.d by
- * removing `_largeBucketFlags`
+ * TODO store small bucket size in `ubyte` array, zero means empty (= void),
+ * 0xff means it has been grown into a large bucket, and remove dependency on
+ * bitarray.d by removing `_largeBucketFlags`
  *
  * TODO Avoid extra length and capacity in _statuses (length or large) by making
  * it allocate in sync with buckets (using soa.d)

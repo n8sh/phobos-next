@@ -15,6 +15,9 @@ enum InsertionStatus { added, modified, unchanged }
  *      hasher = hash function or std.digest Hash.
  *      smallBucketMinCapacity = minimum capacity of small bucket
  *
+ * TODO store small bucket size in `ubyte` array, zero means empty, 0xff means
+ * it has been grown into a large bucket
+ *
  * TODO benchmark with `uint` as size and capacity of UncopyableArray which
  * makes fewer fit in small store
  *

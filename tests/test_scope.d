@@ -16,14 +16,16 @@ struct S(T)
     T[4] x;
 }
 
-int[] testSlice() @safe pure nothrow @nogc
+@safe pure nothrow @nogc:
+
+int[] testSlice()
 {
     S!int s;
     // TODO static assert(__traits(compiles, { return s[]; }));
     return s[];                 // should error with -dip1000
 }
 
-ref int testFirst() @safe pure nothrow @nogc
+ref int testFirst()
 {
     S!int s;
     return s.first;             // should errir with -dip1000

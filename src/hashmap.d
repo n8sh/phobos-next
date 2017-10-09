@@ -170,7 +170,7 @@ struct HashMapOrSet(K, V = void,
     }
 
     /// Grow by duplicating number of buckets.
-    void grow()
+    void grow() @trusted pure nothrow @nogc
     {
         auto copy = typeof(this).withCapacity(bucketCount ? bucketCount << 2 : 1); // twice amount of buckets
         foreach (immutable bucketIndex; 0 .. _buckets.length)
@@ -277,6 +277,12 @@ struct HashMapOrSet(K, V = void,
         }
         else                    // no hit
         {
+            if (_length > _buckets.length * smallBucketCapacity)
+            {
+                dln("growing: ", _length, ", ", _buckets.length * smallBucketCapacity);
+                grow();
+                assert(false);
+            }
             if (_largeBucketFlags[bucketIndex])
             {
                 _buckets[bucketIndex].large.insertBackMove(element);

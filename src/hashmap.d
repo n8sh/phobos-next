@@ -459,8 +459,10 @@ struct HashMapOrSet(K, V = void,
             }
         }
 
-        /// Get value of `key` or `defaultValue` if `key` not present.
-        inout(V) get(in K key, V defaultValue) inout // TODO make it return a ref. TODO make defaultValue lasy
+        /** Get value of `key` or `defaultValue` if `key` not present (and
+         * therefore nothrow).
+         */
+        inout(V) get(in K key, V defaultValue) inout @trusted // TODO make it return a ref. TODO make defaultValue lasy
         {
             immutable bucketIndex = keyToIndex(key);
             immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil!(_ => _.key == key); // TODO functionize
@@ -705,6 +707,7 @@ alias HashMap(K, V,
                 const e2 = X.ElementType(key, "a");
                 assert(x1.insert(e2) == InsertionStatus.modified);
                 assert(x1.contains(e2));
+                assert(x1.get(key, null) == "a");
                 x1.remove(key);
                 x1[key] = value;
             }

@@ -133,7 +133,7 @@ void main()
 
     foreach (A; AliasSeq!(HashMap!(E, ValueType, null, FNV!(64, true))))
     {
-        A a = A.withCapacity(n);
+        A a;
 
         {
             immutable before = MonoTime.currTime();
@@ -142,7 +142,7 @@ void main()
                 a.insert(A.ElementType(i, ValueType.init));
             }
             immutable after = MonoTime.currTime();
-            write("Insertion: ", after - before);
+            write("Insertion (without growth): ", after - before);
         }
 
         {
@@ -160,9 +160,16 @@ void main()
             write(" ", a.bucketCounts());
         }
 
-        writeln(` for `, A.stringof);
+        A b = A.withCapacity(n);
+        immutable before = MonoTime.currTime();
+        foreach (const i; 0 .. n)
+        {
+            b.insert(A.ElementType(i, ValueType.init));
+        }
+        immutable after = MonoTime.currTime();
+        write(", Insertion (without growth): ", after - before);
 
-        a.clear();
+        writeln(` for `, A.stringof);
     }
 
     foreach (A; AliasSeq!(ValueType[E]))

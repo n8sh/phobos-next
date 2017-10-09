@@ -25,7 +25,7 @@ struct S(T)
         return x[];
     }
 
-    scope ref inout(T) first() inout return
+    scope ref inout(T) firstRef() inout return
     {
         return x[0];
     }
@@ -61,14 +61,14 @@ auto testRange()
     return s.range;             // errors with -dip1000
 }
 
-/// this should fail
-ref int testFirst()
+/// TODO this should fail
+ref int testFirstRef()
 {
     S!int s;
-    return s.first;             // should error with -dip1000
+    return s.firstRef;          // should error with -dip1000
 }
 
-/// this should fail
+/// TODO this should fail
 int* testPointer()
 {
     S!int s;

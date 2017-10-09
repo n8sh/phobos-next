@@ -339,7 +339,7 @@ struct HashMapOrSet(K, V = void,
             return table !is null;
         }
 
-        ref inout(T) opUnary(string s)() inout
+        scope ref inout(T) opUnary(string s)() inout return
             if (s == "*")
         {
             assert(table);
@@ -359,7 +359,7 @@ struct HashMapOrSet(K, V = void,
 
     static if (hasValue)        // HashMap
     {
-        scope inout(ElementRef) opBinaryRight(string op)(in K key) inout @trusted
+        scope inout(ElementRef) opBinaryRight(string op)(in K key) inout @trusted return
             if (op == "in")
         {
             if (empty)
@@ -424,7 +424,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Returns forward range that iterates through the keys.
-        inout(ByKey) byKey() inout @trusted
+        inout(ByKey) byKey() inout @trusted return
         {
             auto result = typeof(return)(inout(ElementRef)(&this));
             (cast(ByKey)result).initFirstNonEmptyBucket(); // dirty cast because inout problem
@@ -432,7 +432,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Indexing.
-        ref inout(V) opIndex(in K key) inout return
+        scope ref inout(V) opIndex(in K key) inout return
         {
             immutable bucketIndex = keyToIndex(key);
             immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil!(_ => _.key == key); // TODO functionize

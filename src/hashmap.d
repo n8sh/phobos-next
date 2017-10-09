@@ -167,11 +167,18 @@ struct HashMapOrSet(K, V = void,
         return that;
     }
 
+    /// Grow by duplicating number of buckets.
     void grow()
     {
-        const newBucketCount = bucketCount << 2;
-        auto copy = typeof(this).withCapacity(newBucketCount);
-        dln("TODO");
+        auto copy = typeof(this).withCapacity(bucketCount << 2); // twice amount of buckets
+        foreach (immutable bucketIndex; 0 .. _buckets.length)
+        {
+            foreach (const ref element; bucketElementsAt(bucketIndex))
+            {
+                copy.insert(element);
+            }
+        }
+        move(copy, this);
     }
 
     /// Equality.

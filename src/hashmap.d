@@ -181,7 +181,7 @@ struct HashMapOrSet(K, V = void,
     private void grow() @trusted
     {
         immutable newBucketCount = bucketCount ? 2 * bucketCount : 1; // 0 => 1, 1 => 2, 2 => 4, ...
-        auto copy = typeof(this).withBucketCount(newBucketCount);
+        auto copy = withBucketCount(newBucketCount);
 
         foreach (immutable bucketIndex; 0 .. _buckets.length)
         {

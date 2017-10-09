@@ -5,14 +5,24 @@
  */
 struct S(T)
 {
-    scope inout(T)[] opSlice() inout return
+    static private struct Range
     {
-        return x[];
+        S!T* _parent;
     }
 
     scope inout(Range) range() inout return
     {
         return typeof(return)(&this);
+    }
+
+    scope inout(T)[] opSlice() inout return
+    {
+        return x[];
+    }
+
+    scope inout(T)[] slice() inout return
+    {
+        return x[];
     }
 
     scope ref inout(T) first() inout return
@@ -25,22 +35,23 @@ struct S(T)
         return &x[0];
     }
 
-    static private struct Range
-    {
-        S!T* _parent;
-    }
-
     T[128] x;
 }
 
 @safe pure nothrow @nogc:
 
 /// this correctly fails
+int[] testOpSlice()
+{
+    S!int s;
+    return s[];                 // errors with -dip1000
+}
+
+/// this correctly fails
 int[] testSlice()
 {
     S!int s;
-    // TODO static assert(__traits(compiles, { return s[]; }));
-    return s[];                 // should error with -dip1000
+    return s.slice;             // errors with -dip1000
 }
 
 /// this should fail

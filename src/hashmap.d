@@ -569,7 +569,7 @@ private:
 
     /** Returns: bucket index of `hash`. */
     pragma(inline, true)
-    size_t hashToIndex(size_t hash) const
+    size_t hashToIndex(size_t hash) const pure nothrow @nogc
     {
         const size_t mask = _buckets.length - 1;
         assert((~mask ^ mask) == size_t.max); // assert that _buckets.length is a power of 2
@@ -578,7 +578,7 @@ private:
 
     /** Returns: bucket index of `key`. */
     pragma(inline, true)
-    size_t keyToIndex()(in auto ref K key) const
+    size_t keyToIndex()(in auto ref K key) const pure nothrow @nogc
     {
         return hashToIndex(HashOf!(hasher)(key));
     }

@@ -262,6 +262,8 @@ struct HashMapOrSet(K, V = void,
         return bucketElementsAt(bucketIndex).canFind(element);
     }
 
+    /** Insert `element`, being either a key, value (map-case) or a just a key (set-case).
+     */
     InsertionStatus insert(T element)
     {
         if (_length + 1 > _buckets.length * smallBucketCapacity)
@@ -271,7 +273,7 @@ struct HashMapOrSet(K, V = void,
         return insertWithoutGrowth(element);
     }
 
-    /** Insert `element`, being either a key, value (map-case) or a just a key (set-case).
+    /** Insert `element` like with `insert()` but without automatic growth.
      */
     InsertionStatus insertWithoutGrowth(T element) @trusted
     {

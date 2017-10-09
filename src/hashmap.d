@@ -172,7 +172,7 @@ struct HashMapOrSet(K, V = void,
     /// Grow by duplicating number of buckets.
     void grow()
     {
-        auto copy = typeof(this).withCapacity(bucketCount << 2); // twice amount of buckets
+        auto copy = typeof(this).withCapacity(bucketCount ? bucketCount << 2 : 1); // twice amount of buckets
         foreach (immutable bucketIndex; 0 .. _buckets.length)
         {
             foreach (const ref element; bucketElementsAt(bucketIndex))

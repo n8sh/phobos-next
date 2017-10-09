@@ -150,7 +150,7 @@ struct ArrayN(T,
         typeof(return) that;              // TODO use Store constructor:
         static if (mustAddGCRange!T)
         {
-            gc_addRange(_store.ptr, _store.sizeof);
+            gc_addRange(that._store.ptr, that._store.sizeof);
         }
 
         that._store[0 .. values.length] = values;

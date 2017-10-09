@@ -117,6 +117,7 @@ struct HashMapOrSet(K, V = void,
     pragma(inline)              // LDC can, DMD cannot inline
     private static typeof(this) withBucketCount(size_t bucketCount)
     {
+        // TODO return direct call to store constructor
         typeof(return) that;
         that._buckets = Buckets.withLength(bucketCount);
         that._largeBucketFlags = LargeBucketFlags.withLength(bucketCount);

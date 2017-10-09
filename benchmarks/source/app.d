@@ -60,10 +60,7 @@ void main()
 
         writeln(` for `, A.stringof);
 
-        static if (hasMember!(A, `clear`))
-        {
-            a.clear();
-        }
+        // static if (hasMember!(A, `clear`)) { a.clear(); }
     }
 
     foreach (A; AliasSeq!(DenseSetFilter!(E),
@@ -128,10 +125,7 @@ void main()
 
         writeln(` for `, A.stringof);
 
-        static if (hasMember!(A, `clear`))
-        {
-            a.clear();
-        }
+        // static if (hasMember!(A, `clear`)) { a.clear(); }
     }
 
     alias ValueType = uint;
@@ -176,10 +170,7 @@ void main()
 
         writeln(` for `, A.stringof);
 
-        static if (hasMember!(A, `clear`))
-        {
-            a.clear();
-        }
+        // static if (hasMember!(A, `clear`)) { a.clear(); }
     }
 
     foreach (A; AliasSeq!(ValueType[E]))
@@ -215,9 +206,6 @@ void main()
 
         writeln(` for `, A.stringof);
 
-        static if (hasMember!(A, `clear`))
-        {
-            a.clear();
-        }
+        // static if (hasMember!(A, `clear`)) { a.clear(); }
     }
 }

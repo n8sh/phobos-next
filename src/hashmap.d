@@ -16,7 +16,7 @@ enum InsertionStatus { added, modified, unchanged }
  *      smallBucketMinCapacity = minimum capacity of small bucket
  *
  * TODO store small bucket size in `ubyte` array, zero means empty, 0xff means
- * it has been grown into a large bucket
+ * it has been grown into a large bucket, and remove dependency on bitarray.d
  *
  * TODO benchmark with `uint` as size and capacity of UncopyableArray which
  * makes fewer fit in small store

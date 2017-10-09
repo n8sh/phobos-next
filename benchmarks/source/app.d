@@ -108,7 +108,7 @@ void main()
             immutable before = MonoTime.currTime();
             foreach (const i; 0 .. n)
             {
-                assert(a.contains(i));
+                const hit = a.contains(i);
             }
             immutable after = MonoTime.currTime();
             write(", Checking: ", after - before);
@@ -144,7 +144,7 @@ void main()
             immutable before = MonoTime.currTime();
             foreach (const i; 0 .. n)
             {
-                assert(a.contains(A.ElementType(i, ValueType.init)));
+                const hit = a.contains(A.ElementType(i, ValueType.init));
             }
             immutable after = MonoTime.currTime();
             write(", Checking: ", after - before);

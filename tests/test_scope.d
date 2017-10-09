@@ -1,8 +1,5 @@
-@safe:
+@safe pure nothrow @nogc:
 
-/** See also: http://forum.dlang.org/post/hwfpmabyunqhlkaqogdt@forum.dlang.org
-    See also: https://issues.dlang.org/show_bug.cgi?id=17388
- */
 struct S(T)
 {
     static private struct Range
@@ -37,8 +34,6 @@ struct S(T)
 
     T[128] x;
 }
-
-@safe pure nothrow @nogc:
 
 /// this correctly fails
 int[] testOpSlice()

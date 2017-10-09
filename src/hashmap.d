@@ -170,7 +170,7 @@ struct HashMapOrSet(K, V = void,
     }
 
     /// Grow by duplicating number of buckets.
-    void grow() @trusted pure nothrow @nogc
+    void grow() @trusted
     {
         auto copy = typeof(this).withCapacity(bucketCount ? bucketCount << 2 : 1); // twice amount of buckets
         foreach (immutable bucketIndex; 0 .. _buckets.length)
@@ -280,7 +280,7 @@ struct HashMapOrSet(K, V = void,
             if (_length > _buckets.length * smallBucketCapacity)
             {
                 dln("growing: ", _length, ", ", _buckets.length * smallBucketCapacity);
-                grow();
+                // grow();
                 assert(false);
             }
             if (_largeBucketFlags[bucketIndex])
@@ -569,7 +569,7 @@ private:
 
     /** Returns: bucket index of `hash`. */
     pragma(inline, true)
-    size_t hashToIndex(size_t hash) const pure nothrow @nogc
+    size_t hashToIndex(size_t hash) const
     {
         const size_t mask = _buckets.length - 1;
         assert((~mask ^ mask) == size_t.max); // assert that _buckets.length is a power of 2
@@ -578,7 +578,7 @@ private:
 
     /** Returns: bucket index of `key`. */
     pragma(inline, true)
-    size_t keyToIndex()(in auto ref K key) const pure nothrow @nogc
+    size_t keyToIndex()(in auto ref K key) const
     {
         return hashToIndex(HashOf!(hasher)(key));
     }

@@ -1,0 +1,8 @@
+{
+    "name": "benchmark-append",
+    "targetType": "executable",
+    "sources": ["benchmarkAppend.d"],
+    "dependencies": {
+	"phobos-next": {"path": "../"}
+    }
+}

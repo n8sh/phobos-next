@@ -170,17 +170,19 @@ struct HashMapOrSet(K, V = void,
     }
 
     /// Grow by duplicating number of buckets.
-    void grow() @trusted
+    private void grow()
     {
         auto copy = typeof(this).withCapacity(bucketCount ? bucketCount << 2 : 1); // twice amount of buckets
         foreach (immutable bucketIndex; 0 .. _buckets.length)
         {
             foreach (const ref element; bucketElementsAt(bucketIndex))
             {
-                copy.insert(element);
+                copy.insertWithoutGrowth(element);
             }
         }
-        move(copy, this);
+        assert(copy._length == _length); // length shouldn't change
+        move(copy._largeBucketFlags, _largeBucketFlags);
+        move(copy._buckets, _buckets);
     }
 
     /// Equality.
@@ -246,9 +248,18 @@ struct HashMapOrSet(K, V = void,
         return bucketElementsAt(bucketIndex).canFind(element);
     }
 
+    InsertionStatus insert(T element)
+    {
+        if (_length > _buckets.length * smallBucketCapacity)
+        {
+            // grow();
+        }
+        return insertWithoutGrowth(element);
+    }
+
     /** Insert `element`, being either a key, value (map-case) or a just a key (set-case).
      */
-    InsertionStatus insert(T element) @trusted
+    InsertionStatus insertWithoutGrowth(T element) @trusted
     {
         immutable bucketIndex = keyToIndex(keyRefOf(element));
         T[] bucketElements = bucketElementsAt(bucketIndex);
@@ -277,11 +288,6 @@ struct HashMapOrSet(K, V = void,
         }
         else                    // no hit
         {
-            if (_length > _buckets.length * smallBucketCapacity)
-            {
-                // TODO activate grow();
-                assert(false);
-            }
             if (_largeBucketFlags[bucketIndex])
             {
                 _buckets[bucketIndex].large.insertBackMove(element);

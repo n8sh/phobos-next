@@ -225,11 +225,20 @@ struct HashMapOrSet(K, V = void,
         _length = 0;
     }
 
+    /** Check if `element` is stored.
+        Returns: `true` if element was already present, `false` otherwise.
+     */
+    bool contains(in T element) const @trusted
+    {
+        immutable bucketIndex = keyToIndex(keyRefOf(element));
+        return bucketElementsAt(bucketIndex).canFind(element);
+    }
+
     /** Insert `element`, being either a key, value (map-case) or a just a key (set-case).
      */
     InsertionStatus insert(T element) @trusted
     {
-        immutable bucketIndex = hashToIndex(HashOf!(hasher)(keyRefOf(element)));
+        immutable bucketIndex = keyToIndex(keyRefOf(element));
         T[] bucketElements = bucketElementsAt(bucketIndex);
 
         // find element offset matching key
@@ -279,15 +288,6 @@ struct HashMapOrSet(K, V = void,
         }
     }
 
-    /** Check if `element` is stored.
-        Returns: `true` if element was already present, `false` otherwise.
-     */
-    bool contains(in T element) const @trusted
-    {
-        immutable bucketIndex = hashToIndex(HashOf!(hasher)(keyRefOf(element)));
-        return bucketElementsAt(bucketIndex).canFind(element);
-    }
-
     /** Element reference (and in turn range iterator). */
     static private struct ElementRef
     {
@@ -322,8 +322,8 @@ struct HashMapOrSet(K, V = void,
         scope inout(ElementRef) opBinaryRight(string op)(in K key) inout @trusted
             if (op == "in")
         {
-            immutable bucketIndex = hashToIndex(HashOf!(hasher)(key));
-            immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil!(_ => _.key == key);
+            immutable bucketIndex = keyToIndex(key);
+            immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil!(_ => _.key == key); // TODO functionize
             if (elementOffset != -1) // hit
             {
                 return typeof(return)(&this, bucketIndex, elementOffset);
@@ -377,8 +377,8 @@ struct HashMapOrSet(K, V = void,
         /// Indexing.
         ref inout(V) opIndex(in K key) inout
         {
-            immutable bucketIndex = hashToIndex(HashOf!(hasher)(key));
-            immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil!(_ => _.key == key);
+            immutable bucketIndex = keyToIndex(key);
+            immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil!(_ => _.key == key); // TODO functionize
             if (elementOffset != -1) // hit
             {
                 return bucketElementsAt(bucketIndex)[elementOffset].value;
@@ -388,6 +388,21 @@ struct HashMapOrSet(K, V = void,
 		import std.conv : text;
                 import core.exception : RangeError;
                 throw new RangeError("Key " ~ text(key) ~ " not in table");
+            }
+        }
+
+        /// Get value of `key` or `defaultValue` if `key` not present.
+        inout(V) get(in K key, V defaultValue) inout // TODO make it return a ref. TODO make defaultValue lasy
+        {
+            immutable bucketIndex = keyToIndex(key);
+            immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil!(_ => _.key == key); // TODO functionize
+            if (elementOffset != -1) // hit
+            {
+                return bucketElementsAt(bucketIndex)[elementOffset].value;
+            }
+            else                    // miss
+            {
+                return defaultValue;
             }
         }
 
@@ -407,7 +422,7 @@ struct HashMapOrSet(K, V = void,
     bool remove(in K key)
         @trusted
     {
-        immutable bucketIndex = hashToIndex(HashOf!(hasher)(key));
+        immutable bucketIndex = keyToIndex(key);
         import container_algorithm : popFirst;
         if (_largeBucketFlags[bucketIndex])
         {
@@ -538,8 +553,18 @@ private:
     pragma(inline, true)
     size_t hashToIndex(size_t hash) const
     {
-        return hash & (_buckets.length - 1); // assumes `_buckets.length` to be a power of 2
+        const size_t mask = _buckets.length - 1;
+        assert((~mask ^ mask) == size_t.max); // assert that _buckets.length is a power of 2
+        return hash & mask;
     }
+
+    /** Returns: bucket index of `key`. */
+    pragma(inline, true)
+    size_t keyToIndex()(in auto ref K key) const
+    {
+        return hashToIndex(HashOf!(hasher)(key));
+    }
+
 }
 
 alias HashSet(K,

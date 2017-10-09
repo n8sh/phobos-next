@@ -177,7 +177,7 @@ struct HashMapOrSet(K, V = void,
         {
             foreach (const ref element; bucketElementsAt(bucketIndex))
             {
-                // copy.insert(element);
+                copy.insert(element);
             }
         }
         move(copy, this);

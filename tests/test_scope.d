@@ -58,7 +58,7 @@ int[] testSlice()
 auto testRange()
 {
     S!int s;
-    return s.range;
+    return s.range;             // errors with -dip1000
 }
 
 /// this should fail

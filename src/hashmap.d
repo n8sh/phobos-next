@@ -18,7 +18,9 @@ enum InsertionStatus { added, modified, unchanged }
  * TODO benchmark with `uint` as size and capacity of UncopyableArray which
  * makes fewer fit in small store
  *
- * TODO add open addressing store
+ * TODO add open addressing store which requires a BitArray store aswell
+ *
+ * TODO avoid extra bitarray size and store in _largeBucketFlags
  *
  * TODO rehash: if allocator has realloc we can do rehashing in-place similar to
  * reordering in in-place radix (integer_sorting.d), otherwise rehash into new

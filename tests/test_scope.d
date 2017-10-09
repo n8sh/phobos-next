@@ -18,13 +18,18 @@ struct S(T)
         return x.ptr;
     }
 
-    struct Ref
+    struct Range
     {
         this(S!T* parent)
         {
             _parent = parent;
         }
         S!T* _parent;
+    }
+
+    inout(Range) range() inout return
+    {
+        return typeof(return)(&this);
     }
 
     T[128] x;

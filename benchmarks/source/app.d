@@ -197,7 +197,7 @@ void main()
             immutable before = MonoTime.currTime();
             foreach (const i; 0 .. n)
             {
-                assert(i in a);
+                const hit = i in a;
             }
             immutable after = MonoTime.currTime();
             write(", Checking: ", after - before);

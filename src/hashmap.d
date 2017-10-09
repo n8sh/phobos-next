@@ -656,14 +656,14 @@ alias HashMap(K, V,
 {
     import digestx.fnv : FNV;
 
-    immutable n = 11000;
+    immutable n = 11111;
 
     alias K = uint;
 
     foreach (V; AliasSeq!(void, string))
     {
         alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
-        auto x1 = X();
+        auto x1 = X();            // start empty
 
         // all buckets start small
         assert(x1.bucketCounts.largeCount == 0);

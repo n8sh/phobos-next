@@ -68,19 +68,19 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Get key part of element.
-        static auto ref inout(K) keyOf()(auto ref inout(T) element)
+        static auto ref inout(K) keyOf()(auto ref return inout(T) element)
         {
             return element.key;
         }
 
         /// Get reference to key part of `element`.
-        static ref inout(K) keyRefOf()(ref inout(T) element)
+        static ref inout(K) keyRefOf()(ref return inout(T) element)
         {
             return element.key;
         }
 
         /// Get value part of element.
-        static auto ref inout(V) valueOf()(auto ref inout(T) element)
+        static auto ref inout(V) valueOf()(auto ref return inout(T) element)
         {
             return element.value;
         }
@@ -92,13 +92,13 @@ struct HashMapOrSet(K, V = void,
         private alias T = K;
 
         /// Get key part of element.
-        static auto ref inout(K) keyOf()(auto ref inout(T) element)
+        static auto ref inout(K) keyOf()(auto ref return inout(T) element)
         {
             return element;
         }
 
         /// Get reference to key part of `element`.
-        static ref inout(K) keyRefOf()(ref inout(T) element)
+        static ref inout(K) keyRefOf()(ref return inout(T) element)
         {
             return element;
         }

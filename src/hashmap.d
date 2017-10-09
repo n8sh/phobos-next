@@ -108,34 +108,30 @@ struct HashMapOrSet(K, V = void,
 
     alias ElementType = T;
 
-    /** Construct with room for storing at least `capacity` number of elements.
+    /** Make with room for storing at least `capacity` number of elements.
      */
+    pragma(inline)              // LDC can, DMD cannot inline
     static typeof(this) withCapacity(size_t capacity)
     {
-        typeof(return) that;
-        that.initialize(capacity / smallBucketCapacity);
-        return that;
+        return typeof(return)(capacity);
     }
 
-    /** Initialize at least `minimumBucketCount` number of initial buckets.
+    /** Construct with room for storing at least `capacity` number of elements.
      */
-    private void initialize(size_t minimumBucketCount)
+    private this(size_t capacity)
     {
+        const minimumBucketCount = capacity / smallBucketCapacity;
         import std.math : nextPow2;
+
         // make bucket count a power of two
         immutable bucketCount = nextPow2(minimumBucketCount == 0 ?
                                          0 :
                                          minimumBucketCount - 1);
-        // so we can use fast bitmask instead of slower division remainder
-        initializeBuckets(bucketCount);
-    }
 
-    /** Initialize `bucketCount` number of buckets.
-     */
-    private void initializeBuckets(size_t bucketCount) @trusted
-    {
+        // initialize buckets
         _buckets = Buckets.withLength(bucketCount);
         _largeBucketFlags = LargeBucketFlags.withLength(bucketCount);
+        _length = 0;
     }
 
     /// Destruct.
@@ -169,6 +165,13 @@ struct HashMapOrSet(K, V = void,
         that._largeBucketFlags = _largeBucketFlags.dup;
         that._length = _length;
         return that;
+    }
+
+    void grow()
+    {
+        const newBucketCount = bucketCount << 2;
+        auto copy = typeof(this).withCapacity(newBucketCount);
+        dln("TODO");
     }
 
     /// Equality.
@@ -308,7 +311,7 @@ struct HashMapOrSet(K, V = void,
     }
 
     /// ditto
-    static if (!hasValue)
+    static if (!hasValue)       // HashSet
     {
         bool opBinaryRight(string op)(in K key) inout @trusted
             if (op == "in")
@@ -317,7 +320,7 @@ struct HashMapOrSet(K, V = void,
         }
     }
 
-    static if (hasValue)
+    static if (hasValue)        // HashMap
     {
         scope inout(ElementRef) opBinaryRight(string op)(in K key) inout @trusted
             if (op == "in")

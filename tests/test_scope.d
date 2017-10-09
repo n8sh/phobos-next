@@ -12,6 +12,11 @@ struct S(T)
         return x[];
     }
 
+    scope inout(Range) range() inout return
+    {
+        return typeof(return)(&this);
+    }
+
     scope ref inout(T) first() inout return
     {
         return x[0];
@@ -25,11 +30,6 @@ struct S(T)
     static private struct Range
     {
         S!T* _parent;
-    }
-
-    scope inout(Range) range() inout return
-    {
-        return typeof(return)(&this);
     }
 
     T[128] x;

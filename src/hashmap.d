@@ -16,14 +16,15 @@ enum InsertionStatus { added, modified, unchanged }
  *      smallBucketMinCapacity = minimum capacity of small bucket
  *
  * TODO store small bucket size in `ubyte` array, zero means empty, 0xff means
- * it has been grown into a large bucket, and remove dependency on bitarray.d
+ * it has been grown into a large bucket, and remove dependency on bitarray.d by
+ * removing `_largeBucketFlags`
+ *
+ * Avoid extra length and capacity in _statuses (length or large)
  *
  * TODO benchmark with `uint` as size and capacity of UncopyableArray which
  * makes fewer fit in small store
  *
  * TODO add open addressing store which requires a BitArray store aswell
- *
- * TODO avoid extra bitarray size and store in _largeBucketFlags
  *
  * TODO rehash: if allocator has realloc we can do rehashing in-place similar to
  * reordering in in-place radix (integer_sorting.d), otherwise rehash into new

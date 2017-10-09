@@ -25,12 +25,12 @@ struct S(T)
         return x[];
     }
 
-    scope ref inout(T) firstRef() inout return
+    scope ref inout(T) front() inout return
     {
         return x[0];
     }
 
-    scope inout(T)* pointer() inout return
+    scope inout(T)* pointer() inout return // TODO should this be marked @system?
     {
         return &x[0];
     }
@@ -62,10 +62,10 @@ auto testRange()
 }
 
 /// TODO this should fail
-ref int testFirstRef()
+ref int testFront()
 {
     S!int s;
-    return s.firstRef;          // should error with -dip1000
+    return s.front;             // should error with -dip1000
 }
 
 /// TODO this should fail

@@ -18,8 +18,11 @@ import container_traits : NoGc, mustAddGCRange;
     See also: https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md
 */
 struct CopyableArray(T,
-                     alias Allocator = null) // null means means to qcmeman functions
-    if (!is(Unqual!T == bool))               // use `BitArray` instead
+                     alias Allocator = null, // null means means to qcmeman functions
+                     CapacityType = size_t)  // see also https://github.com/izabera/s
+    if (!is(Unqual!T == bool) &&             // use `BitArray` instead
+        (is(CapacityType == ulong) ||        // 3 64-bit words
+         is(CapacityType == uint)))          // 2 64-bit words
 {
     import std.range : isInputRange, isIterable, ElementType, isInfinite;
     import std.traits : Unqual, hasElaborateDestructor, hasIndirections, hasAliasing,
@@ -70,11 +73,14 @@ struct CopyableArray(T,
                                                        bool zero) @trusted
     {
         assert(initialCapacity >= initialLength);
+        assert(initialCapacity <= CapacityType.max);
+
         // TODO use Store constructor:
         typeof(this) that;
         that._ptr = typeof(this).allocate(initialCapacity, zero);
-        that._capacity = initialCapacity;
-        that._length = initialLength;
+        that._capacity = cast(CapacityType)initialCapacity;
+        that._length = cast(CapacityType)initialLength;
+
         return that;
     }
 
@@ -114,7 +120,10 @@ struct CopyableArray(T,
             return;
         }
         reserve(values.length);
-        _length = values.length;
+
+        assert(values.length <= CapacityType.max);
+        _length = cast(CapacityType)values.length;
+
         moveEmplaceAll(values, _mptr[0 .. _length]);
     }
 
@@ -339,7 +348,9 @@ struct CopyableArray(T,
                 _mptr[_length .. newLength] = T.init;
             }
         }
-        _length = newLength;
+
+        assert(newLength <= CapacityType.max);
+        _length = cast(CapacityType)newLength;
     }
 
     /// Get capacity.
@@ -699,9 +710,11 @@ struct CopyableArray(T,
     /// Reallocate storage.
     private void reallocateAndSetCapacity(size_t newCapacity) @trusted
     {
-        _capacity = newCapacity;
+        assert(newCapacity <= CapacityType.max);
+        _capacity = cast(CapacityType)newCapacity;
+
         _ptr = cast(T*)realloc(_mptr, T.sizeof * _capacity);
-        assert(_mptr, "Reallocation failed");
+        assert(_ptr, "Reallocation failed");
     }
 
     /// Mutable pointer.
@@ -722,15 +735,19 @@ private:
     {
         @NoGc T* _ptr;          // non-GC-allocated store pointer
     }
-    size_t _capacity;           // store capacity
-    size_t _length;             // store length
+    CapacityType _capacity; // store capacity
+    CapacityType _length;   // store length
 }
 
 /// construct and append from slices
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = CopyableArray!(T);
+    alias A = CopyableArray!(T, null, uint);
+    static if (size_t.sizeof == 8) // only 64-bit
+    {
+        static assert(A.sizeof == 2 * size_t.sizeof); // only two words
+    }
 
     auto a = A([10, 11, 12].s);
 

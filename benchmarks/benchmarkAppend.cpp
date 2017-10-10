@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <unordered_set>
 #include <chrono>
 
 using std::cout;
@@ -20,28 +21,46 @@ int main(int argc, const char* argv[], const char* envp[])
     // note that this is a static function, and
     // we don't actually create a clock object
 
-    typedef int E;
-    std::vector<int> a;
-    const uint n = 5000000;
-    a.reserve(n);
+    typedef uint E;
+    const size_t n = 1000000;
 
-    const auto start_time = my_clock::now();
-    for (size_t i = 0; i < n; ++i)
+    // array
     {
-        a.push_back(i);
+        std::vector<E> a;
+        a.reserve(n);
+
+        const auto start_time = my_clock::now();
+        for (size_t i = 0; i < n; ++i)
+        {
+            a.push_back(i);
+        }
+        const auto end_time = my_clock::now();
+
+        // get the elapsed time
+        const auto diff = end_time - start_time;
+
+        // get the clock count (i.e. the number of microseconds)
+        std::cout << cr::duration_cast<cr::milliseconds>(diff).count() << " msecs\n";
     }
-    const auto end_time = my_clock::now();
 
-    // get the elapsed time
-    const auto diff = end_time - start_time;
+    // unordered_set
+    {
+        std::unordered_set<E> us;
+        us.reserve(n);
 
-    // convert from the clock rate to a millisecond clock
-    const auto microseconds = cr::duration_cast<cr::microseconds>(diff);
+        const auto start_time = my_clock::now();
+        for (size_t i = 0; i < n; ++i)
+        {
+            us.insert(i);
+        }
+        const auto end_time = my_clock::now();
 
-    // get the clock count (i.e. the number of microseconds)
-    const auto millisecond_count = microseconds.count();
+        // get the elapsed time
+        const auto diff = end_time - start_time;
 
-    std::cout << millisecond_count << '\n';
+        // get the clock count (i.e. the number of microseconds)
+        std::cout << cr::duration_cast<cr::milliseconds>(diff).count() << " msecs\n";
+    }
 
     return 0;
 }

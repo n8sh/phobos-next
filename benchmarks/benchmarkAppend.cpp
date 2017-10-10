@@ -24,7 +24,7 @@ int main(int argc, const char* argv[], const char* envp[])
     typedef uint E;
     const size_t n = 1000000;
 
-    // array
+    // vector
     {
         cout << "vector:: ";
 

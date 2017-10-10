@@ -17,7 +17,7 @@ enum InsertionStatus { added, modified, unchanged }
  *      smallBucketMinCapacity = minimum capacity of small bucket
  *
  * TODO store small bucket size in `ubyte` array, zero means empty (= void),
- * 0xff means it has been grown into a large bucket, and remove dependency on
+ * `0xff` means it has been grown into a large bucket, and remove dependency on
  * bitarray.d by removing `_largeBucketFlags`
  *
  * TODO Avoid extra length and capacity in _statuses (length or large) by making
@@ -630,6 +630,23 @@ private:
     {
         SmallBucket small;
         LargeBucket large;
+    }
+
+    /** */
+    struct BucketStat
+    {
+        enum SmallMaxCount = 8 * ubyte.sizeof - 1;
+
+        @property ubyte count() const
+        {
+            return _count;
+        }
+
+        @property bool isLarge() const
+        {
+            return _count == ubyte.max;
+        }
+        ubyte _count;
     }
 
     alias Buckets = Array!(HybridBucket, Allocator);

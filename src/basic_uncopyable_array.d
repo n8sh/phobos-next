@@ -5,8 +5,11 @@ import std.traits : Unqual;
 /** Non-copyable variant of `CopyableArray`.
  */
 struct UncopyableArray(T,
-                       alias Allocator = null) // null means means to qcmeman functions
-    if (!is(Unqual!T == bool))
+                       alias Allocator = null, // null means means to qcmeman functions
+                       CapacityType = size_t)  // see also https://github.com/izabera/s
+    if (!is(Unqual!T == bool) &&             // use `BitArray` instead
+        (is(CapacityType == ulong) ||        // 3 64-bit words
+         is(CapacityType == uint)))          // 2 64-bit words
 {
     import std.range : ElementType, isCopyable;
 
@@ -65,7 +68,7 @@ struct UncopyableArray(T,
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = UncopyableArray!(T);
+    alias A = UncopyableArray!(T, null, uint);
     const a = A(17);
     assert(a[] == [17].s);
 }

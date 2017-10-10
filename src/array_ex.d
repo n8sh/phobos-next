@@ -95,7 +95,7 @@ private struct Array(E,
                      bool useGCAllocation = false,
                      CapacityType = size_t, // see also https://github.com/izabera/s
                      alias less = "a < b") // TODO move out of this definition and support only for the case when `ordering` is not `Ordering.unsorted`
-    if (is(CapacityType == size_t) ||      // 3 64-bit words
+    if (is(CapacityType == ulong) ||       // 3 64-bit words
         is(CapacityType == uint))          // 2 64-bit words
 {
     import std.conv : emplace;

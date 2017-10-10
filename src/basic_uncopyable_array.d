@@ -52,14 +52,14 @@ struct UncopyableArray(T,
     static if (isCopyable!T)
     {
         // `MutableThis` mimics behaviour of `dup` for builtin D arrays
-        @property UncopyableArray!(Unqual!T, Allocator) dup() const @trusted
+        @property UncopyableArray!(Unqual!T, Allocator, CapacityType) dup() const @trusted
         {
             return typeof(return)(cast(Unqual!T[])this[]);
         }
     }
 
     import basic_copyable_array : CopyableArray;
-    alias Super = CopyableArray!(T, Allocator);
+    alias Super = CopyableArray!(T, Allocator, CapacityType);
     Super _basicArray;
     alias _basicArray this;
 }

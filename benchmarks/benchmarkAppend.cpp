@@ -26,6 +26,8 @@ int main(int argc, const char* argv[], const char* envp[])
 
     // array
     {
+        cout << "vector:: ";
+
         std::vector<E> a;
         a.reserve(n);
 
@@ -36,11 +38,9 @@ int main(int argc, const char* argv[], const char* envp[])
         }
         const auto end_time = my_clock::now();
 
-        // get the elapsed time
         const auto diff = end_time - start_time;
-
-        // get the clock count (i.e. the number of microseconds)
-        std::cout << cr::duration_cast<cr::milliseconds>(diff).count() << " msecs\n";
+        cout << "push_back: "
+             << cr::duration_cast<cr::milliseconds>(diff).count() << " msecs\n";
     }
 
     // unordered_set
@@ -48,18 +48,37 @@ int main(int argc, const char* argv[], const char* envp[])
         std::unordered_set<E> us;
         us.reserve(n);
 
-        const auto start_time = my_clock::now();
-        for (size_t i = 0; i < n; ++i)
+        cout << "unordered_set:: ";
+
         {
-            us.insert(i);
+            const auto start_time = my_clock::now();
+            for (size_t i = 0; i < n; ++i)
+            {
+                us.insert(i);
+            }
+            const auto end_time = my_clock::now();
+
+            const auto diff = end_time - start_time;
+            cout << "insert: "
+                 << cr::duration_cast<cr::milliseconds>(diff).count() << " msecs ";
         }
-        const auto end_time = my_clock::now();
 
-        // get the elapsed time
-        const auto diff = end_time - start_time;
+        {
+            const auto start_time = my_clock::now();
+            for (size_t i = 0; i < n; ++i)
+            {
+                const auto hit = us.find(i);
+            }
+            const auto end_time = my_clock::now();
 
-        // get the clock count (i.e. the number of microseconds)
-        std::cout << cr::duration_cast<cr::milliseconds>(diff).count() << " msecs\n";
+            const auto diff = end_time - start_time;
+            cout << "find: "
+                 << cr::duration_cast<cr::milliseconds>(diff).count() << " msecs ";
+        }
+
+        cout << endl;
+
+        us.clear();
     }
 
     return 0;

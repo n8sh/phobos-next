@@ -46,7 +46,7 @@ int main(int argc, const char* argv[], const char* envp[])
     // unordered_set
     {
         std::unordered_set<E> us;
-        us.reserve(n);
+        // us.reserve(n);
 
         cout << "unordered_set:: ";
 

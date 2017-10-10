@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <unordered_set>
+#include <unordered_map>
 #include <chrono>
 
 using std::cout;
@@ -55,6 +56,44 @@ int main(int argc, const char* argv[], const char* envp[])
             for (size_t i = 0; i < n; ++i)
             {
                 us.insert(i);
+            }
+            const auto end_time = my_clock::now();
+
+            const auto diff = end_time - start_time;
+            cout << "insert: "
+                 << cr::duration_cast<cr::milliseconds>(diff).count() << " msecs ";
+        }
+
+        {
+            const auto start_time = my_clock::now();
+            for (size_t i = 0; i < n; ++i)
+            {
+                const auto hit = us.find(i);
+            }
+            const auto end_time = my_clock::now();
+
+            const auto diff = end_time - start_time;
+            cout << "find: "
+                 << cr::duration_cast<cr::milliseconds>(diff).count() << " msecs ";
+        }
+
+        cout << endl;
+
+        us.clear();
+    }
+
+    // unordered_map
+    {
+        std::unordered_map<E, E> us;
+        us.reserve(n);
+
+        cout << "unordered_map:: ";
+
+        {
+            const auto start_time = my_clock::now();
+            for (size_t i = 0; i < n; ++i)
+            {
+                us.insert(std::make_pair(i, i));
             }
             const auto end_time = my_clock::now();
 

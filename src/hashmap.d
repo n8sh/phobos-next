@@ -688,6 +688,8 @@ private:
             alias Count = ushort;
         }
 
+        pragma(inline, true):
+
         @property Count smallCount() const
         {
             assert(_count <= smallBucketCapacity);

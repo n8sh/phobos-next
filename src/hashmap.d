@@ -93,7 +93,7 @@ struct HashMapOrSet(K, V = void,
     }
     else                        // HashSet
     {
-        private alias T = K;
+        alias T = K;
 
         /// Get key part of element.
         static auto ref inout(K) keyOf()(auto ref return inout(T) element)
@@ -384,7 +384,6 @@ struct HashMapOrSet(K, V = void,
         scope ref inout(T) opUnary(string s)() inout return
             if (s == "*")
         {
-            assert(table);
             return table.bucketElementsAt(bucketIx)[elementOffset];
         }
     }

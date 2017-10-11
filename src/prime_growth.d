@@ -24,6 +24,7 @@ struct PrimeIndex
 PrimeIndex inPlaceUpdateToNextPrime(ref size_t value,
                                     PrimeIndex currentPrimeIndex = PrimeIndex.init)
 {
+    // TODO use `binarySearch` instead
     for (PrimeIndex primeIndex = currentPrimeIndex; currentPrimeIndex != primeModuloConstants.length; ++primeIndex)
     {
         immutable primeModulo = primeModuloConstants[primeIndex];

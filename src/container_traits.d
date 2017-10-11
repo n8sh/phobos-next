@@ -128,6 +128,7 @@ template mustAddGCRange(T)
 
         import std.meta : aliasSeqOf;
         import std.range : iota;
+        version(LDC) static if (__VERSION__ >= 2076) { static assert(0, "TODO use static foreach instead"); }
         foreach (i; aliasSeqOf!(iota(0, T.tupleof.length))) // TODO use my iota!(0, T.tupleof.length)
         {
             static if (!is(typeof(T.tupleof[i]) == void))

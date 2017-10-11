@@ -404,8 +404,3 @@ unittest
         }
     }
 }
-
-version(unittest)
-{
-    import dbgio;
-}

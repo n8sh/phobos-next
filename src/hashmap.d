@@ -182,7 +182,8 @@ struct HashMapOrSet(K, V = void,
                  */
                 foreach (immutable elementIx, const ref element; smallBucketElementsAt(bucketIx))
                 {
-                    emplace(&that._buckets[bucketIx].small[elementIx], element);
+                    emplace(&that._buckets[bucketIx].small[elementIx],
+                            element);
                 }
                 // emplace!(SmallBucket)(&that._buckets[bucketIx].small,
                 //                       smallBucketElementsAt(bucketIx));

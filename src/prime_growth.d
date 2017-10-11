@@ -1,4 +1,8 @@
 /** Grow size to next prime number stored in a table.
+ *
+ * Used for fast prime modulo calculations when mapping hash to index in hash
+ * tables (associative arrays).
+ *
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  */
 module prime_growth;

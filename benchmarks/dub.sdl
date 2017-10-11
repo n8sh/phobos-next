@@ -3,3 +3,19 @@ name "benchmark-append"
 targetType "executable"
 
 dependency "phobos-next" path="../"
+
+buildType "release" {
+         buildOptions "releaseMode" "optimize" # TODO "inline"
+}
+
+buildType "test-release" {
+         buildOptions "unittests" "releaseMode" "optimize" # TODO "inline"
+}
+
+buildType "release-test" {
+         buildOptions "unittests" "releaseMode" "optimize" # TODO "inline"
+}
+
+buildType "release-nobounds" {
+         buildOptions "releaseMode" "optimize" "noBoundsCheck" # TODO "inline"
+}

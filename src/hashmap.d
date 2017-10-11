@@ -770,6 +770,8 @@ private:
 
 }
 
+/** Hash map storing keys of type `K`.
+ */
 alias HashSet(K,
               alias Allocator = null,
               alias hasher = hashOf,
@@ -778,6 +780,8 @@ alias HashSet(K,
                                                                hasher,
                                                                smallBucketMinCapacity);
 
+/** Hash map storing keys of type `K` and values of type `V`.
+ */
 alias HashMap(K, V,
               alias Allocator = null,
               alias hasher = hashOf,

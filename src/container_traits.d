@@ -95,16 +95,6 @@ enum NoGc;
 enum TellRangeAdded;
 
 /**
- * When this enum is used as UDA on aggregate types whose instances are
- * created with construct() they won't be initialized, i.e the
- * static layout representing the initial value of the members is not copied.
- *
- * For example it can be used on a struct that has a `@disable this()` and
- * when the others constructor are supposed to do the initialization job.
- */
-enum NoInit;
-
-/**
  * Indicates if an aggregate contains members that might be collected by the
  * garbage collector. This is used in constructors to determine if the content
  * of a manually allocated aggregate must be declared to the GC.

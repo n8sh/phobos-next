@@ -12,7 +12,8 @@ module prime_growth;
 static assert(size_t.sizeof == 8, "This module is currently only designed for 64-bit platforms.");
 
 /** Index into prime modulo function table (`primeModuloFunctions`).
- * Requires explicit construction from integers.
+ *
+ * Requires explicit construction from integers for more type-safety.
  */
 struct PrimeIndex
 {

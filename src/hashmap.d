@@ -195,7 +195,7 @@ struct HashMapOrSet(K, V = void,
                     {
                         // fast
                         import core.stdc.string : memcpy;
-                        memcpy(that._buckets[bucketIx].small.ptr,
+                        memcpy(that._buckets[bucketIx].small.ptr, // cannot overlap
                                elementsOfSmallBucket(bucketIx).ptr,
                                elementsOfSmallBucket(bucketIx).length * T.sizeof);
                     }

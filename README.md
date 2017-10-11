@@ -15,7 +15,7 @@ It includes various kinds of
 - A fixed-size (statically stack-allocated) variant of `bitarray.d` in `bitarrayn.d`
 - An n-gram implementation (many nested for loops): `ngram.d`
 - A wrapper for bounded types: `bound.d`
-- Computer science units: `csunits.d`
+- Computer Science units: `csunits.d`
 - Enhanced `NotNull`: `notnull.d`
 - A structured wrapper for message digests: `digest_ex.d`
 - Various extension to Phobos (often ending with _ex.d)

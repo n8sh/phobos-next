@@ -16,26 +16,59 @@ struct PrimeIndex
     alias _index this;
 }
 
-/** Update `length` in-place to a prime that is greater than or equal to it.
+/** Update `length` in-place to a prime in `primeModuloConstants` that is
+ * greater than or equal to it.
  *
  * Returns: index into prime
  */
-PrimeIndex inPlaceUpdateToNextPrime(ref size_t length)
+PrimeIndex inPlaceUpdateToNextPrime(ref size_t value,
+                                    PrimeIndex currentPrimeIndex = PrimeIndex.init)
 {
-    foreach (const primeIndex, const primeModulo; primeModuloConstants)
+    for (PrimeIndex primeIndex = currentPrimeIndex; currentPrimeIndex != primeModuloConstants.length; ++primeIndex)
     {
-        if (length <= primeModulo)
+        immutable primeModulo = primeModuloConstants[primeIndex];
+        if (value <= primeModulo)
         {
-            return typeof(return)(cast(ubyte)primeIndex);
+            value = primeModulo;
+            return primeIndex;
         }
     }
-    assert(false, "Parameter length is too large");
+    assert(false, "Parameter value is too large");
+}
+
+///
+unittest
+{
+    foreach (const prime; primeModuloConstants[3 .. $])
+    {
+        size_t value = prime - 1;
+        auto primeIndex = inPlaceUpdateToNextPrime(value);
+        assert(value == prime);
+        assert(primeModuloHashToIndex(primeIndex, value) == 0);
+    }
 }
 
 unittest
 {
-    auto x = 2;
-    // inPlaceUpdateToNextPrime(x);
+    size_t value = 0;
+    auto i = PrimeIndex(0);
+
+    value = 0;
+    i = inPlaceUpdateToNextPrime(value, i);
+    assert(primeModuloConstants[i] == 0);
+
+    value = 1;
+    i = inPlaceUpdateToNextPrime(value, i);
+    assert(primeModuloConstants[i] == 2);
+
+    value = 4;
+    i = inPlaceUpdateToNextPrime(value, i);
+    assert(primeModuloConstants[i] == 5);
+
+    value = 6;
+    i = inPlaceUpdateToNextPrime(value, i);
+    assert(primeModuloConstants[i] == 7);
+
 }
 
 /** Calculate `value` modulo function indexed by `primeIndex`.
@@ -349,4 +382,9 @@ unittest
             assert(primeModuloHashToIndex(PrimeIndex(cast(typeof(PrimeIndex._index))primeIndex), primeModulo + 1) == 1);
         }
     }
+}
+
+version(unittest)
+{
+    import dbgio;
 }

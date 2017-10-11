@@ -18,8 +18,7 @@ enum InsertionStatus { added, modified, unchanged }
  *
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  *
- * TODO add flag for use growth factor smaller than powers of two. Using prime
- * table. Details are here: https://github.com/greg7mdp/sparsepp
+ * TODO add flag for use growth factor smaller than powers of two. use prime_modulo.d
  *
  * TODO add withElements() with fast pre-allocation `withCapacity`
  *

@@ -379,6 +379,25 @@ struct HashMapOrSet(K, V = void,
         }
     }
 
+    /** Element reference (and in turn range iterator). */
+    static private struct ElementRef
+    {
+        HashMapOrSet* table;
+        size_t bucketIx;        // index to bucket inside table
+        size_t elementOffset;   // offset to element inside bucket
+
+        bool opCast(T : bool)() const
+        {
+            return table !is null;
+        }
+
+        scope ref inout(T) opUnary(string s)() inout return
+            if (s == "*")
+        {
+            return table.bucketElementsAt(bucketIx)[elementOffset];
+        }
+    }
+
     static if (hasValue)        // HashMap
     {
         /** Value reference (and in turn range iterator). */
@@ -461,14 +480,14 @@ struct HashMapOrSet(K, V = void,
                 return this;
             }
 
-            private ValueRef _elementRef;  // range iterator, TODO alias this
+            private ElementRef _elementRef;  // range iterator, TODO alias this
             alias _elementRef this;
         }
 
         /// Returns forward range that iterates through the keys.
         inout(ByKey) byKey() inout @trusted return
         {
-            auto result = typeof(return)(inout(ValueRef)(&this));
+            auto result = typeof(return)(inout(ElementRef)(&this));
             (cast(ByKey)result).initFirstNonEmptyBucket(); // dirty cast because inout problem
             return result;
         }

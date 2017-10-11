@@ -109,7 +109,7 @@ enum NoInit;
  * garbage collector. This is used in constructors to determine if the content
  * of a manually allocated aggregate must be declared to the GC.
  */
-template mustAddGCRange(T = void)
+template mustAddGCRange(T)
     if (is(T == struct) ||
         is(T == union) ||
         is(T == class)) // isAggregateType!T
@@ -214,7 +214,7 @@ template mustAddGCRange(T = void)
 }
 
 /// ditto
-template mustAddGCRange(T = void)
+template mustAddGCRange(T)
     if (!(is(T == struct) ||
           is(T == union) ||
           is(T == class))) // !isAggregateType!T

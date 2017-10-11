@@ -99,11 +99,11 @@ unittest
 
 /** Calculate `value` modulo function indexed by `primeIndex`.
  */
+pragma(inline, true)
 size_t primeModuloHashToIndex(in PrimeIndex primeIndex,
                               in size_t value)
 {
-    const valueModulo = primeModuloFunctions[primeIndex](value);
-    return valueModulo;
+    return primeModuloFunctions[primeIndex](value);
 }
 
 unittest

@@ -369,25 +369,6 @@ struct HashMapOrSet(K, V = void,
         }
     }
 
-    /** Element reference (and in turn range iterator). */
-    static private struct ElementRef
-    {
-        HashMapOrSet* table;
-        size_t bucketIx;        // index to bucket inside table
-        size_t elementOffset;   // offset to element inside bucket
-
-        bool opCast(T : bool)() const
-        {
-            return table !is null;
-        }
-
-        scope ref inout(T) opUnary(string s)() inout return
-            if (s == "*")
-        {
-            return table.bucketElementsAt(bucketIx)[elementOffset];
-        }
-    }
-
     /// ditto
     static if (!hasValue)       // HashSet
     {
@@ -400,7 +381,26 @@ struct HashMapOrSet(K, V = void,
 
     static if (hasValue)        // HashMap
     {
-        scope inout(ElementRef) opBinaryRight(string op)(in K key) inout @trusted return
+        /** Value reference (and in turn range iterator). */
+        static private struct ValueRef
+        {
+            HashMapOrSet* table;
+            size_t bucketIx;        // index to bucket inside table
+            size_t elementOffset;   // offset to element inside bucket
+
+            bool opCast(T : bool)() const
+            {
+                return table !is null;
+            }
+
+            scope ref inout(V) opUnary(string s)() inout return
+                if (s == "*")
+            {
+                return table.bucketElementsAt(bucketIx)[elementOffset].value;
+            }
+        }
+
+        scope inout(ValueRef) opBinaryRight(string op)(in K key) inout @trusted return
             if (op == "in")
         {
             if (empty)
@@ -461,14 +461,14 @@ struct HashMapOrSet(K, V = void,
                 return this;
             }
 
-            private ElementRef _elementRef;  // range iterator, TODO alias this
+            private ValueRef _elementRef;  // range iterator, TODO alias this
             alias _elementRef this;
         }
 
         /// Returns forward range that iterates through the keys.
         inout(ByKey) byKey() inout @trusted return
         {
-            auto result = typeof(return)(inout(ElementRef)(&this));
+            auto result = typeof(return)(inout(ValueRef)(&this));
             (cast(ByKey)result).initFirstNonEmptyBucket(); // dirty cast because inout problem
             return result;
         }
@@ -879,14 +879,14 @@ alias HashMap(K, V,
             {
                 auto eRef = key in x1;
                 assert(eRef);
-                a1 ~= X.ElementType(key, (*eRef).value);
+                a1 ~= X.ElementType(key, (*eRef));
             }
             assert(x1.length == a1.length);
             foreach (element; a1[])
             {
                 auto eRef = element.key in x1;
                 assert(eRef);
-                assert((*eRef).value == element.value);
+                assert((*eRef) == element.value);
             }
         }
 
@@ -920,7 +920,7 @@ alias HashMap(K, V,
             assert(hit);
             static if (X.hasValue)
             {
-                assert(*hit == element);
+                assert(*hit == element.value);
             }
 
             assert(x1.remove(key));
@@ -1003,7 +1003,7 @@ pure unittest
 
     s[K.init] = V.init;
     auto vp = K.init in s;
-    assert((*vp).value == V.init);
+    assert((*vp) == V.init);
 
     s.remove(K.init);
     assert(K.init !in s);

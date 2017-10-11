@@ -16,6 +16,9 @@ enum InsertionStatus { added, modified, unchanged }
  *      hasher = hash function or std.digest Hash.
  *      smallBucketMinCapacity = minimum capacity of small bucket
  *
+ * TODO use growth factor smaller than powers of two. Using prime table. Details
+ * are here: https://github.com/greg7mdp/sparsepp
+ *
  * TODO use core.bitop : bsr, bsl to find first empty element in bucket
  *
  * TODO Avoid extra length and capacity in _statuses (length or large) by making

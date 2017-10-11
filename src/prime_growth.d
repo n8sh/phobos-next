@@ -7,9 +7,16 @@ module prime_growth;
 
 static assert(size_t.sizeof == 8, "This module is currently only designed for 64-bit platforms.");
 
+/** Index to into prime table. */
+struct PrimeIndex
+{
+    private size_t _index;
+    alias _index this;
+}
+
 /** Calculate `value` modulo function indexed by `primeIndex`.
  */
-size_t primeModuloHashToIndex(in size_t primeIndex,
+size_t primeModuloHashToIndex(in PrimeIndex primeIndex,
                               in size_t value)
 {
     const valueModulo = primeModuloFunctions[primeIndex](value);
@@ -20,20 +27,26 @@ unittest
 {
     static assert(primeModuloFunctions.length == 187);
 
-    assert(primeModuloHashToIndex(3, 8) == 3); // modulo 5
-    assert(primeModuloHashToIndex(4, 9) == 2); // modulo 7
+    assert(primeModuloHashToIndex(PrimeIndex(3), 8) == 3); // modulo 5
+    assert(primeModuloHashToIndex(PrimeIndex(4), 9) == 2); // modulo 7
 }
 
-size_t updateToNextPrime(ref size_t length)
+PrimeIndex updateToNextPrime(ref size_t length)
 {
     foreach (const primeIndex, const primeModulo; primeModuloConstants)
     {
         if (length <= primeModulo)
         {
-            return cast(typeof(return))primeIndex;
+            return typeof(return)(primeIndex);
         }
     }
     assert(false, "Parameter length is too large");
+}
+
+unittest
+{
+    auto x = 2;
+    // updateToNextPrime(x);
 }
 
 private static:
@@ -323,8 +336,8 @@ unittest
     {
         if (primeModulo != 0)
         {
-            assert(primeModuloHashToIndex(primeIndex, primeModulo + 0) == 0);
-            assert(primeModuloHashToIndex(primeIndex, primeModulo + 1) == 1);
+            assert(primeModuloHashToIndex(PrimeIndex(primeIndex), primeModulo + 0) == 0);
+            assert(primeModuloHashToIndex(PrimeIndex(primeIndex), primeModulo + 1) == 1);
         }
     }
 }

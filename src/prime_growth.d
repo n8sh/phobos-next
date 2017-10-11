@@ -33,7 +33,7 @@ unittest
     assert(primeModuloHashToIndex(PrimeIndex(4), 9) == 2); // modulo 7
 }
 
-PrimeIndex updateToNextPrime(ref size_t length)
+PrimeIndex inPlaceUpdateToNextPrime(ref size_t length)
 {
     foreach (const primeIndex, const primeModulo; primeModuloConstants)
     {
@@ -48,7 +48,7 @@ PrimeIndex updateToNextPrime(ref size_t length)
 unittest
 {
     auto x = 2;
-    // updateToNextPrime(x);
+    // inPlaceUpdateToNextPrime(x);
 }
 
 private static:

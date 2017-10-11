@@ -813,9 +813,10 @@ alias HashMap(K, V,
         import container_traits : mustAddGCRange;
         static if (X.hasValue)
         {
-            static assert(!mustAddGCRange!(X.LargeBucket));
+            static assert(mustAddGCRange!V);
+            static assert(mustAddGCRange!V[1]);
             static assert(mustAddGCRange!(X.T));
-            // TODO static assert(mustAddGCRange!(X.SmallBucket));
+            static assert(!mustAddGCRange!(X.LargeBucket));
         }
         else
         {

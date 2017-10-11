@@ -652,8 +652,11 @@ struct HashMapOrSet(K, V = void,
 private:
     import basic_uncopyable_array : Array = UncopyableArray;
 
-    alias LargeBucket = Array!(T, Allocator,
-                               ulong); // 32-bit capacity and length saves one word
+    /** 32-bit capacity and length for LargeBucketLnegth on 64-bit platforms
+     * saves one word and makes insert() and contains() significantly faster */
+    alias LargeBucketCapacityType = uint;
+
+    alias LargeBucket = Array!(T, Allocator, LargeBucketCapacityType);
 
     import std.algorithm : max;
     enum smallBucketCapacity = max(smallBucketMinCapacity,

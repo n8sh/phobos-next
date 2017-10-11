@@ -41,7 +41,7 @@ struct HashMapOrSet(K, V = void,
                     uint smallBucketMinCapacity = 1)
     if (smallBucketMinCapacity >= 1) // no use having empty small buckets
 {
-    import std.traits : hasElaborateDestructor;
+    import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor;
     import std.algorithm.mutation : move, moveEmplace, moveEmplaceAll;
     import std.algorithm.searching : canFind, countUntil;
     import std.conv : emplace;
@@ -177,16 +177,33 @@ struct HashMapOrSet(K, V = void,
             }
             else
             {
-                /** TODO use array version of `emplace`, `emplaceAll`. See also:
+                /** TODO functionize to `emplaceAll`. See also:
                  * http://forum.dlang.org/post/xxigbqqflzwfgycrclyq@forum.dlang.org
                  */
-                foreach (immutable elementIx, const ref element; smallBucketElementsAt(bucketIx))
+                static if (hasElaborateCopyConstructor!T)
                 {
-                    emplace(&that._buckets[bucketIx].small[elementIx],
-                            element);
+                    foreach (immutable elementIx, const ref element; elementsOfSmallBucket(bucketIx))
+                    {
+                        emplace(&that._buckets[bucketIx].small[elementIx],
+                                element);
+                    }
                 }
-                // emplace!(SmallBucket)(&that._buckets[bucketIx].small,
-                //                       smallBucketElementsAt(bucketIx));
+                else
+                {
+                    enum useMemcpy = true;
+                    static if (useMemcpy)
+                    {
+                        // fast
+                        import core.stdc.string : memcpy;
+                        memcpy(that._buckets[bucketIx].small.ptr,
+                               elementsOfSmallBucket(bucketIx).ptr,
+                               elementsOfSmallBucket(bucketIx).length * T.sizeof);
+                    }
+                    else
+                    {
+                        that._buckets[bucketIx].small.ptr[0 .. _bstates[bucketIx].smallCount] = elementsOfSmallBucket(bucketIx);
+                    }
+                }
             }
         }
 
@@ -257,7 +274,7 @@ struct HashMapOrSet(K, V = void,
                    either, that is take car of by dtor of _buckets. */
                 static if (hasElaborateDestructor!SmallBucket)
                 {
-                    .destroyAll(smallBucketElementsAt(bucketIx));
+                    .destroyAll(elementsOfSmallBucket(bucketIx));
                 }
             }
         }
@@ -517,7 +534,7 @@ struct HashMapOrSet(K, V = void,
         }
         else
         {
-            immutable elementIx = smallBucketElementsAt(bucketIx).countUntil!keyEqualPred(key);
+            immutable elementIx = elementsOfSmallBucket(bucketIx).countUntil!keyEqualPred(key);
             immutable hit = elementIx != -1;
             if (hit)
             {
@@ -534,7 +551,7 @@ struct HashMapOrSet(K, V = void,
     {
         assert(!_bstates[bucketIx].isLarge);
         import container_algorithm : shiftToFrontAt;
-        smallBucketElementsAt(bucketIx).shiftToFrontAt(elementIx);
+        elementsOfSmallBucket(bucketIx).shiftToFrontAt(elementIx);
         _bstates[bucketIx].decSmallCount();
         static if (hasElaborateDestructor!T)
         {
@@ -608,12 +625,12 @@ struct HashMapOrSet(K, V = void,
         }
         else
         {
-            return smallBucketElementsAt(bucketIx);
+            return elementsOfSmallBucket(bucketIx);
         }
     }
 
     pragma(inline, true)
-    private scope inout(T)[] smallBucketElementsAt(size_t bucketIx) inout return
+    private scope inout(T)[] elementsOfSmallBucket(size_t bucketIx) inout return
     {
         return _buckets[bucketIx].small[0 .. _bstates[bucketIx].smallCount];
     }

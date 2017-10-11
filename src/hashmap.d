@@ -16,8 +16,6 @@ enum InsertionStatus { added, modified, unchanged }
  *      hasher = hash function or std.digest Hash.
  *      smallBucketMinCapacity = minimum capacity of small bucket
  *
- * TODO change test size to being `n = 1111` again
- *
  * TODO use core.bitop : bsr, bsl to find first empty element in bucket
  *
  * TODO benchmark with `CapacityType` being uint for `LargeBucket`

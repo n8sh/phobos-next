@@ -24,7 +24,7 @@ struct PrimeIndex
 /** Increase `length` in-place to a ceiling prime in `primeModuloConstants`
  * which is greater than or equal to `length`.
  *
- * Returns: prime index used as parameter to calculate `primeModuloHashToIndex`.
+ * Returns: prime index used as parameter to calculate `primeModulo`.
  */
 PrimeIndex ceilToNearestPrime(ref size_t value,
                               PrimeIndex currentPrimeIndex = PrimeIndex.init)
@@ -93,14 +93,14 @@ unittest
         size_t value = prime - 1;
         auto primeIndex = ceilToNearestPrime(value);
         assert(value == prime);
-        assert(primeModuloHashToIndex(primeIndex, value) == 0);
+        assert(primeModulo(primeIndex, value) == 0);
     }
 }
 
 /** Calculate `value` modulo function indexed by `primeIndex`.
  */
 pragma(inline, true)
-size_t primeModuloHashToIndex(in PrimeIndex primeIndex,
+size_t primeModulo(in PrimeIndex primeIndex,
                               in size_t value)
 {
     return primeModuloFunctions[primeIndex](value);
@@ -110,8 +110,8 @@ unittest
 {
     static assert(primeModuloFunctions.length == 187);
 
-    assert(primeModuloHashToIndex(PrimeIndex(3), 8) == 3); // modulo 5
-    assert(primeModuloHashToIndex(PrimeIndex(4), 9) == 2); // modulo 7
+    assert(primeModulo(PrimeIndex(3), 8) == 3); // modulo 5
+    assert(primeModulo(PrimeIndex(4), 9) == 2); // modulo 7
 }
 
 private static:
@@ -404,8 +404,8 @@ unittest
     {
         if (prime != 0)
         {
-            assert(primeModuloHashToIndex(PrimeIndex(cast(typeof(PrimeIndex._index))primeIndex), prime + 0) == 0);
-            assert(primeModuloHashToIndex(PrimeIndex(cast(typeof(PrimeIndex._index))primeIndex), prime + 1) == 1);
+            assert(primeModulo(PrimeIndex(cast(typeof(PrimeIndex._index))primeIndex), prime + 0) == 0);
+            assert(primeModulo(PrimeIndex(cast(typeof(PrimeIndex._index))primeIndex), prime + 1) == 1);
         }
     }
 }

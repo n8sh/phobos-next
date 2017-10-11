@@ -276,6 +276,20 @@ private template isTemplateInstance(T)
     }
     static assert(!mustAddGCRange!U);
 
+    union N
+    {
+        S s;
+        U u;
+    }
+    static assert(!mustAddGCRange!N);
+
+    union M
+    {
+        S s;
+        T t;
+    }
+    static assert(mustAddGCRange!M);
+
     static assert(!mustAddGCRange!int);
     static assert(mustAddGCRange!(int*));
     static assert(mustAddGCRange!(int[]));

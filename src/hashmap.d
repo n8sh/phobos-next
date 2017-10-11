@@ -83,6 +83,8 @@ struct HashMapOrSet(K, V = void,
         }
 
         alias ValueType = V;
+
+        enum keyEqualPred = "a.key == b";
     }
     else                        // HashSet
     {
@@ -99,6 +101,8 @@ struct HashMapOrSet(K, V = void,
         {
             return element;
         }
+
+        enum keyEqualPred = "a == b";
     }
 
     alias ElementType = T;
@@ -296,17 +300,9 @@ struct HashMapOrSet(K, V = void,
         immutable bucketIx = keyToBucketIx(keyRefOf(element));
         T[] bucketElements = bucketElementsAt(bucketIx);
 
-        // find element offset matching key
-        static if (hasValue)
-        {
-            immutable ptrdiff_t elementOffset = bucketElements.countUntil!((a, b) => (a.key == b))(keyOf(element));
-        }
-        else
-        {
-            immutable ptrdiff_t elementOffset = bucketElements.countUntil(element);
-        }
-
-        if (elementOffset != -1) // hit
+        immutable ptrdiff_t elementOffset = bucketElements.countUntil!keyEqualPred(keyOf(element));
+        immutable hit = elementOffset != -1;
+        if (hit)
         {
             static if (hasValue) // replace value
             {
@@ -388,7 +384,8 @@ struct HashMapOrSet(K, V = void,
             }
             immutable bucketIx = keyToBucketIx(key);
             immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIx).countUntil!(_ => _.key == key); // TODO functionize
-            if (elementOffset != -1) // hit
+            immutable hit = elementOffset != -1;
+            if (hit)
             {
                 return typeof(return)(&this, bucketIx, elementOffset);
             }
@@ -455,7 +452,8 @@ struct HashMapOrSet(K, V = void,
         {
             immutable bucketIx = keyToBucketIx(key);
             immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIx).countUntil!(_ => _.key == key); // TODO functionize
-            if (elementOffset != -1) // hit
+            immutable hit = elementOffset != -1;
+            if (hit)
             {
                 return bucketElementsAt(bucketIx)[elementOffset].value;
             }
@@ -506,14 +504,7 @@ struct HashMapOrSet(K, V = void,
         import container_algorithm : popFirstMaybe;
         if (_bstates[bucketIx].isLarge)
         {
-            static if (hasValue)
-            {
-                immutable hit = _buckets[bucketIx].large.popFirstMaybe!"a.key == b"(key);
-            }
-            else
-            {
-                immutable hit = _buckets[bucketIx].large.popFirstMaybe(key);
-            }
+            immutable hit = _buckets[bucketIx].large.popFirstMaybe!keyEqualPred(key);
             _length -= hit ? 1 : 0;
             if (hit)
             {
@@ -523,23 +514,11 @@ struct HashMapOrSet(K, V = void,
         }
         else
         {
-            static if (hasValue)
+            immutable elementIx = smallBucketElementsAt(bucketIx).countUntil!keyEqualPred(key);
+            immutable hit = elementIx != -1;
+            if (hit)
             {
-                immutable elementIx = smallBucketElementsAt(bucketIx).countUntil!"a.key == b"(key);
-                immutable hit = elementIx != -1;
-                if (hit)
-                {
-                    removeSmallElementAt(bucketIx, elementIx);
-                }
-            }
-            else
-            {
-                immutable elementIx = smallBucketElementsAt(bucketIx).countUntil(key);
-                immutable hit = elementIx != -1;
-                if (hit)
-                {
-                    removeSmallElementAt(bucketIx, elementIx);
-                }
+                removeSmallElementAt(bucketIx, elementIx);
             }
             _length -= hit ? 1 : 0;
             return hit;

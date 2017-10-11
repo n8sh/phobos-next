@@ -816,6 +816,8 @@ alias HashMap(K, V,
             static assert(mustAddGCRange!V);
             static assert(mustAddGCRange!V[1]);
             static assert(mustAddGCRange!(X.T));
+            // TODO static assert(mustAddGCRange!(X.T[1]));
+            // TODO static assert(mustAddGCRange!(X.SmallBucket));
             static assert(!mustAddGCRange!(X.LargeBucket));
         }
         else

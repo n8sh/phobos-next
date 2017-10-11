@@ -16,9 +16,14 @@ enum InsertionStatus { added, modified, unchanged }
  *      hasher = hash function or std.digest Hash.
  *      smallBucketMinCapacity = minimum capacity of small bucket
  *
+ * TODO benchmark with `CapacityType` being uint for `LargeBucket`
+ *
+ * TODO call gc_addRange on small buckets
+ *
+ * TODO use core.bitop : bsr, bsl to find first empty element in bucket
+ *
  * TODO store small bucket size in `ubyte` array, zero means empty (= void),
- * `0xff` means it has been grown into a large bucket, and remove dependency on
- * bitarray.d by removing `_largeBucketFlags`
+ * `0xff` means it has been grown into a large bucket.
  *
  * TODO Avoid extra length and capacity in _statuses (length or large) by making
  * it allocate in sync with buckets (using soa.d)
@@ -61,8 +66,9 @@ struct HashMapOrSet(K, V = void,
     if (smallBucketMinCapacity >= 1) // no use having empty small buckets
 {
     import std.traits : hasElaborateDestructor;
-    import std.algorithm.mutation : move, moveEmplace;
+    import std.algorithm.mutation : move, moveEmplace, moveEmplaceAll;
     import std.algorithm.searching : canFind, countUntil;
+    import std.conv : emplace;
     import hash_ex : HashOf;
 
     /** In the hash map case, `V` is non-void, and a value is stored alongside
@@ -135,7 +141,8 @@ struct HashMapOrSet(K, V = void,
         // TODO return direct call to store constructor
         typeof(return) that;
         that._buckets = Buckets.withLength(bucketCount);
-        that._largeBucketFlags = LargeBucketFlags.withLength(bucketCount);
+        that._bucketStatuses = BucketStatuses.withLength(bucketCount);
+        assert(that._bucketStatuses.length == bucketCount);
         that._length = 0;
         return that;
     }
@@ -154,7 +161,8 @@ struct HashMapOrSet(K, V = void,
 
         // initialize buckets
         _buckets = Buckets.withLength(bucketCount);
-        _largeBucketFlags = LargeBucketFlags.withLength(bucketCount);
+        _bucketStatuses = BucketStatuses.withLength(bucketCount);
+        assert(_bucketStatuses.length == bucketCount);
         _length = 0;
     }
 
@@ -172,23 +180,31 @@ struct HashMapOrSet(K, V = void,
         typeof(return) that;
 
         that._buckets.reserve(_buckets.length);
-        that._buckets.length = _buckets.length; // TODO this zero-initializes before initialization below, use unsafe setLengthOnlyUNSAFE
 
-        foreach (immutable bucketIndex; 0 .. _buckets.length)
+        // TODO merge these
+        that._buckets.length = _buckets.length; // TODO this zero-initializes before initialization below, use unsafe setLengthOnlyUNSAFE
+        that._bucketStatuses = _bucketStatuses.dup;
+
+        that._length = _length;
+
+        foreach (immutable bucketIx; 0 .. _buckets.length)
         {
-            import std.conv : emplace;
-            if (_largeBucketFlags[bucketIndex])
+            if (_bucketStatuses[bucketIx].isLarge)
             {
-                emplace!(LargeBucket)(&that._buckets[bucketIndex].large, _buckets[bucketIndex].large[]);
+                emplace!(LargeBucket)(&that._buckets[bucketIx].large,
+                                      _buckets[bucketIx].large[]);
             }
             else
             {
-                emplace!(SmallBucket)(&that._buckets[bucketIndex].small, _buckets[bucketIndex].small);
+                // TODO do this better
+                foreach (immutable elementIx, const ref element; _buckets[bucketIx].small[0 .. _bucketStatuses[bucketIx].smallCount])
+                {
+                    emplace(&that._buckets[bucketIx].small[elementIx], element);
+                }
+                // emplace!(SmallBucket)(&that._buckets[bucketIx].small,
+                //                       _buckets[bucketIx].small[0 .. _bucketStatuses[bucketIx].smallCount]);
             }
         }
-
-        that._largeBucketFlags = _largeBucketFlags.dup;
-        that._length = _length;
 
         return that;
     }
@@ -199,25 +215,31 @@ struct HashMapOrSet(K, V = void,
         immutable newBucketCount = bucketCount ? 2 * bucketCount : 1; // 0 => 1, 1 => 2, 2 => 4, ...
         auto copy = withBucketCount(newBucketCount);
 
-        foreach (immutable bucketIndex; 0 .. _buckets.length)
+        foreach (immutable bucketIx; 0 .. _buckets.length)
         {
-            foreach (const ref element; bucketElementsAt(bucketIndex))
+            foreach (const ref element; bucketElementsAt(bucketIx))
             {
                 copy.insertWithoutGrowth(element);
             }
         }
+
         assert(copy._length == _length); // length shouldn't change
-        move(copy._largeBucketFlags, _largeBucketFlags);
+
+        // do the growth in-place
+        moveEmplace(copy._bucketStatuses, _bucketStatuses);
         move(copy._buckets, _buckets);
+
+        assert(!_buckets.empty);
+        assert(!_bucketStatuses.empty);
     }
 
     /// Equality.
     bool opEquals(in ref typeof(this) rhs) const @trusted
     {
         if (_length != rhs._length) { return false; }
-        foreach (immutable bucketIndex; 0 .. _buckets.length)
+        foreach (immutable bucketIx; 0 .. _buckets.length)
         {
-            foreach (const ref element; bucketElementsAt(bucketIndex))
+            foreach (const ref element; bucketElementsAt(bucketIx))
             {
                 if (!rhs.contains(element)) { return false; }
             }
@@ -235,13 +257,13 @@ struct HashMapOrSet(K, V = void,
     /// Release internal store.
     private void release() @trusted
     {
-        foreach (immutable bucketIndex; 0 .. _buckets.length)
+        foreach (immutable bucketIx; 0 .. _buckets.length)
         {
-            if (_largeBucketFlags[bucketIndex])
+            if (_bucketStatuses[bucketIx].isLarge)
             {
                 static if (hasElaborateDestructor!LargeBucket)
                 {
-                    .destroy(_buckets[bucketIndex].large);
+                    .destroy(_buckets[bucketIx].large);
                 }
             }
             else
@@ -251,7 +273,7 @@ struct HashMapOrSet(K, V = void,
                    either, that is take car of by dtor of _buckets. */
                 static if (hasElaborateDestructor!SmallBucket)
                 {
-                    .destroy(_buckets[bucketIndex].small);
+                    .destroyAll(_buckets[bucketIx].small[0 .. _bucketStatuses[bucketIx].smallCount]);
                 }
             }
         }
@@ -261,7 +283,7 @@ struct HashMapOrSet(K, V = void,
     private void resetInternalData()
     {
         _buckets.clear();
-        _largeBucketFlags.clear();
+        _bucketStatuses.clear();
         _length = 0;
     }
 
@@ -275,8 +297,8 @@ struct HashMapOrSet(K, V = void,
             // prevent range error in `bucketElementsAt` when `this` is empty
             return false;
         }
-        immutable bucketIndex = keyToIndex(keyRefOf(element));
-        return bucketElementsAt(bucketIndex).canFind(element);
+        immutable bucketIx = keyToBucketIx(keyRefOf(element));
+        return bucketElementsAt(bucketIx).canFind(element);
     }
 
     /** Insert `element`, being either a key, value (map-case) or a just a key (set-case).
@@ -294,8 +316,8 @@ struct HashMapOrSet(K, V = void,
      */
     InsertionStatus insertWithoutGrowth(T element) @trusted
     {
-        immutable bucketIndex = keyToIndex(keyRefOf(element));
-        T[] bucketElements = bucketElementsAt(bucketIndex);
+        immutable bucketIx = keyToBucketIx(keyRefOf(element));
+        T[] bucketElements = bucketElementsAt(bucketIx);
 
         // find element offset matching key
         static if (hasValue)
@@ -321,25 +343,28 @@ struct HashMapOrSet(K, V = void,
         }
         else                    // no hit
         {
-            if (_largeBucketFlags[bucketIndex])
+            if (_bucketStatuses[bucketIx].isLarge) // stay large
             {
-                _buckets[bucketIndex].large.insertBackMove(element);
-                _length += 1;
+                _buckets[bucketIx].large.insertBackMove(element);
             }
             else
             {
-                immutable ok = _buckets[bucketIndex].small.insertBackMaybe(element);
-                if (!ok)        // if full
+                if (_bucketStatuses[bucketIx].isFullSmall) // expand small to large
                 {
-                    import std.conv : emplace;
-                    // expand small to large
-                    SmallBucket small = _buckets[bucketIndex].small;
-                    emplace!(LargeBucket)(&_buckets[bucketIndex].large, small[]);
-                    _buckets[bucketIndex].large.insertBackMove(element);
-                    _largeBucketFlags[bucketIndex] = true; // bucket is now large
+                    SmallBucket smallCopy = _buckets[bucketIx].small;
+                    static assert(!hasElaborateDestructor!T, "moveEmplaceAll small elements to large");
+                    emplace!(LargeBucket)(&_buckets[bucketIx].large,
+                                          smallCopy[0 .. _bucketStatuses[bucketIx].smallCount]);
+                    _buckets[bucketIx].large.insertBackMove(element);
+                    _bucketStatuses[bucketIx].makeLarge();
                 }
-                _length += 1;
+                else            // stay small
+                {
+                    _buckets[bucketIx].small[_bucketStatuses[bucketIx].smallCount] = element;
+                    _bucketStatuses[bucketIx].smallCount = _bucketStatuses[bucketIx].smallCount + 1; // TODO use += 1
+                }
             }
+            _length += 1;
             return typeof(return).added;
         }
     }
@@ -348,7 +373,7 @@ struct HashMapOrSet(K, V = void,
     static private struct ElementRef
     {
         HashMapOrSet* table;
-        size_t bucketIndex;     // index to bucket inside table
+        size_t bucketIx;        // index to bucket inside table
         size_t elementOffset;   // offset to element inside bucket
 
         bool opCast(T : bool)() const
@@ -360,7 +385,7 @@ struct HashMapOrSet(K, V = void,
             if (s == "*")
         {
             assert(table);
-            return table.bucketElementsAt(bucketIndex)[elementOffset];
+            return table.bucketElementsAt(bucketIx)[elementOffset];
         }
     }
 
@@ -384,11 +409,11 @@ struct HashMapOrSet(K, V = void,
                 // prevent range error in `bucketElementsAt` when `this` is empty
                 return typeof(return).init;
             }
-            immutable bucketIndex = keyToIndex(key);
-            immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil!(_ => _.key == key); // TODO functionize
+            immutable bucketIx = keyToBucketIx(key);
+            immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIx).countUntil!(_ => _.key == key); // TODO functionize
             if (elementOffset != -1) // hit
             {
-                return typeof(return)(&this, bucketIndex, elementOffset);
+                return typeof(return)(&this, bucketIx, elementOffset);
             }
             else                    // miss
             {
@@ -400,20 +425,20 @@ struct HashMapOrSet(K, V = void,
         {
             @property bool empty() const
             {
-                return bucketIndex == table.bucketCount;
+                return bucketIx == table.bucketCount;
             }
 
             @property auto front() inout
             {
-                return table.bucketElementsAt(bucketIndex)[elementOffset].key;
+                return table.bucketElementsAt(bucketIx)[elementOffset].key;
             }
 
             void initFirstNonEmptyBucket()
             {
-                while (bucketIndex < table.bucketCount &&
-                       table.bucketElementCountAt(bucketIndex) == 0)
+                while (bucketIx < table.bucketCount &&
+                       table.bucketElementCountAt(bucketIx) == 0)
                 {
-                    bucketIndex += 1;
+                    bucketIx += 1;
                 }
             }
 
@@ -422,10 +447,10 @@ struct HashMapOrSet(K, V = void,
                 assert(!empty);
                 elementOffset += 1; // next element
                 // if current bucket was emptied
-                while (elementOffset >= table.bucketElementsAt(bucketIndex).length)
+                while (elementOffset >= table.bucketElementsAt(bucketIx).length)
                 {
                     // next bucket
-                    bucketIndex += 1;
+                    bucketIx += 1;
                     elementOffset = 0;
                     if (empty) { break; }
                 }
@@ -451,11 +476,11 @@ struct HashMapOrSet(K, V = void,
         /// Indexing.
         scope ref inout(V) opIndex(in K key) inout return
         {
-            immutable bucketIndex = keyToIndex(key);
-            immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil!(_ => _.key == key); // TODO functionize
+            immutable bucketIx = keyToBucketIx(key);
+            immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIx).countUntil!(_ => _.key == key); // TODO functionize
             if (elementOffset != -1) // hit
             {
-                return bucketElementsAt(bucketIndex)[elementOffset].value;
+                return bucketElementsAt(bucketIx)[elementOffset].value;
             }
             else                    // miss
             {
@@ -472,11 +497,11 @@ struct HashMapOrSet(K, V = void,
          */
         V get(in K key, V defaultValue) @trusted
         {
-            immutable bucketIndex = keyToIndex(key);
-            immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIndex).countUntil!(_ => _.key == key); // TODO functionize
+            immutable bucketIx = keyToBucketIx(key);
+            immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIx).countUntil!(_ => _.key == key); // TODO functionize
             if (elementOffset != -1) // hit
             {
-                return bucketElementsAt(bucketIndex)[elementOffset].value;
+                return bucketElementsAt(bucketIx)[elementOffset].value;
             }
             else                    // miss
             {
@@ -500,30 +525,22 @@ struct HashMapOrSet(K, V = void,
     bool remove(in K key)
         @trusted
     {
-        immutable bucketIndex = keyToIndex(key);
+        immutable bucketIx = keyToBucketIx(key);
         import container_algorithm : popFirstMaybe;
-        if (_largeBucketFlags[bucketIndex])
+        if (_bucketStatuses[bucketIx].isLarge)
         {
             static if (hasValue)
             {
-                immutable hit = _buckets[bucketIndex].large.popFirstMaybe!"a.key == b"(key);
+                immutable hit = _buckets[bucketIx].large.popFirstMaybe!"a.key == b"(key);
             }
             else
             {
-                immutable hit = _buckets[bucketIndex].large.popFirstMaybe(key);
+                immutable hit = _buckets[bucketIx].large.popFirstMaybe(key);
             }
             _length -= hit ? 1 : 0;
-            if (hit &&
-                _buckets[bucketIndex].large.length <= smallBucketCapacity) // large fits in small
+            if (hit)
             {
-                auto small = SmallBucket.fromValuesUnsafe(_buckets[bucketIndex].large[]); // TODO move elements
-                assert(small == _buckets[bucketIndex].large[]);
-
-                .destroy(_buckets[bucketIndex].large);
-                moveEmplace(small, _buckets[bucketIndex].small);
-
-                _largeBucketFlags[bucketIndex] = false; // now small
-                assert(_largeBucketFlags[bucketIndex] == false);
+                trShrinkLargeBucketAt(bucketIx);
             }
             return hit;
         }
@@ -531,14 +548,51 @@ struct HashMapOrSet(K, V = void,
         {
             static if (hasValue)
             {
-                immutable hit = _buckets[bucketIndex].small.popFirstMaybe!"a.key == b"(key);
+                immutable offset = _buckets[bucketIx].small[0 .. _bucketStatuses[bucketIx].smallCount].countUntil!"a.key == b"(key);
+                immutable hit = offset != -1;
+                if (hit)
+                {
+                    _bucketStatuses[bucketIx].smallCount = _bucketStatuses[bucketIx].smallCount - 1;
+                    static if (hasElaborateDestructor!T)
+                    {
+                        .destroy(_buckets[bucketIx].small[_bucketStatuses[bucketIx].smallCount]);
+                    }
+                }
             }
             else
             {
-                immutable hit = _buckets[bucketIndex].small.popFirstMaybe(key);
+                immutable offset = _buckets[bucketIx].small[0 .. _bucketStatuses[bucketIx].smallCount].countUntil(key);
+                immutable hit = offset != -1;
+                if (hit)
+                {
+                    _bucketStatuses[bucketIx].smallCount = _bucketStatuses[bucketIx].smallCount - 1;
+                    static if (hasElaborateDestructor!T)
+                    {
+                        .destroy(_buckets[bucketIx].small[_bucketStatuses[bucketIx].smallCount]);
+                    }
+                }
             }
             _length -= hit ? 1 : 0;
             return hit;
+        }
+    }
+
+    /** Shrink large bucket at `bucketIx` possible posbiel. */
+    private void trShrinkLargeBucketAt(in size_t bucketIx)
+    {
+        assert(_bucketStatuses[bucketIx].isLarge);
+        if (_buckets[bucketIx].large.length <= smallBucketCapacity) // large fits in small
+        {
+            static assert(!hasElaborateDestructor!T);
+
+            const count = _buckets[bucketIx].large.length;
+
+            SmallBucket small; // TODO = void
+            moveEmplaceAll(_buckets[bucketIx].large[], small[0 .. count]);
+
+            moveEmplaceAll(small[0 .. count], _buckets[bucketIx].small[0 .. count]);
+
+            _bucketStatuses[bucketIx].smallCount = count;
         }
     }
 
@@ -571,39 +625,40 @@ struct HashMapOrSet(K, V = void,
     /// Get bucket count statistics.
     BucketCounts bucketCounts() const
     {
-        immutable largeCount = _largeBucketFlags.countOnes;
-        immutable smallCount = _largeBucketFlags.length - largeCount;
+        import std.algorithm : count;
+        immutable largeCount = _bucketStatuses[].count!(_ => _.isLarge);
+        immutable smallCount = _bucketStatuses.length - largeCount;
         auto result = typeof(return)(smallCount,
                                      largeCount);
-        assert(result.largeCount + result.smallCount == _largeBucketFlags.length);
+        assert(result.largeCount + result.smallCount == _bucketStatuses.length);
         return result;
     }
 
-    /** Returns: elements in bucket at `bucketIndex`. */
+    /** Returns: elements in bucket at `bucketIx`. */
     pragma(inline, true)
-    private scope inout(T)[] bucketElementsAt(size_t bucketIndex) inout return
+    private scope inout(T)[] bucketElementsAt(size_t bucketIx) inout return
     {
-        if (_largeBucketFlags[bucketIndex])
+        if (_bucketStatuses[bucketIx].isLarge)
         {
-            return _buckets[bucketIndex].large[];
+            return _buckets[bucketIx].large[];
         }
         else
         {
-            return _buckets[bucketIndex].small[];
+            return _buckets[bucketIx].small[0 .. _bucketStatuses[bucketIx].smallCount];
         }
     }
 
-    /** Returns: number of elements in bucket at `bucketIndex`. */
+    /** Returns: number of elements in bucket at `bucketIx`. */
     pragma(inline, true)
-    private size_t bucketElementCountAt(size_t bucketIndex) const
+    private size_t bucketElementCountAt(size_t bucketIx) const
     {
-        if (_largeBucketFlags[bucketIndex])
+        if (_bucketStatuses[bucketIx].isLarge)
         {
-            return _buckets[bucketIndex].large.length;
+            return _buckets[bucketIx].large.length;
         }
         else
         {
-            return _buckets[bucketIndex].small.length;
+            return _bucketStatuses[bucketIx].smallCount;
         }
     }
 
@@ -611,53 +666,87 @@ private:
     import basic_uncopyable_array : Array = UncopyableArray;
     import bitarray : BitArray;
 
-    alias LargeBucket = Array!(T, Allocator);
+    alias LargeBucket = Array!(T, Allocator,
+                               ulong); // 32-bit capacity and length saves one word
 
     import std.algorithm : max;
     enum smallBucketCapacity = max(smallBucketMinCapacity,
-                                   (LargeBucket.sizeof -
-                                    1) // minus one for length
-                                   / T.sizeof);
-    // pragma(msg, SmallBucket.sizeof, ", ", LargBucket.sizeof);
+                                   LargeBucket.sizeof / T.sizeof);
 
-    import arrayn : ArrayN;
-    alias SmallBucket = ArrayN!(T, smallBucketCapacity);
+    alias SmallBucket = T[smallBucketCapacity];
 
-    /** Small-size-optimized bucket array.
-        Size-state (small or large) is determined corresponding bit in `LargeBucketFlags`.
+    /// no space for `SmallBucket`s should be wasted
+    static assert(SmallBucket.sizeof >= LargeBucket.sizeof);
+
+    /** Small-size-optimized bucket.
      */
     union HybridBucket
     {
-        SmallBucket small;
         LargeBucket large;
+        SmallBucket small;
     }
 
-    /** */
-    struct BucketStat
-    {
-        enum SmallMaxCount = 8 * ubyte.sizeof - 1;
+    /** Small-size-optimized bucket array.
 
-        @property ubyte count() const
+        Size-state (including small or large) for each element is determined by
+        corresponding element in `BucketStatuses`.
+     */
+    alias Buckets = Array!(HybridBucket, Allocator);
+
+    /** Count and large status of bucket. */
+    struct BucketStatus
+    {
+        static if (smallBucketCapacity <= 7)
         {
+            alias Count = ubyte;
+        }
+        else
+        {
+            alias Count = ushort;
+        }
+
+        @property Count smallCount() const
+        {
+            assert(_count <= smallBucketCapacity);
             return _count;
         }
 
+        @property void smallCount(size_t count)
+        {
+            assert(count <= smallBucketCapacity);
+            _count = cast(Count)count;
+        }
+
+        /** Returns: `true` iff `this` is a large bucket. */
         @property bool isLarge() const
         {
-            return _count == ubyte.max;
+            return _count == Count.max;
         }
-        ubyte _count;
+
+        @property void makeLarge()
+        {
+            _count = Count.max;
+        }
+
+        /** Returns: `true` iff `this` is a full small bucket. */
+        @property bool isFullSmall() const
+        {
+            return _count == smallBucketCapacity;
+        }
+
+        Count _count;
     }
 
-    alias Buckets = Array!(HybridBucket, Allocator);
-    alias LargeBucketFlags = BitArray!(Allocator);
+    alias BucketStatuses = Array!(BucketStatus, Allocator);
 
+    // TODO merge these into an instance of soa.d and remove invariant
     Buckets _buckets;
-
-    // TODO this store currently wastes 1 or 2 words as _bucket already contain
-    // same _length and _store. Use MultiArray!(HybridBucket, bool) container to
-    // store this.
-    LargeBucketFlags _largeBucketFlags;
+    BucketStatuses _bucketStatuses;
+    debug invariant
+    {
+        assert(_buckets.length ==
+               _bucketStatuses.length);
+    }
 
     size_t _length;
 
@@ -672,7 +761,7 @@ private:
 
     /** Returns: bucket index of `key`. */
     pragma(inline, true)
-    size_t keyToIndex()(in auto ref K key) const
+    size_t keyToBucketIx()(in auto ref K key) const
     {
         return hashToIndex(HashOf!(hasher)(key));
     }
@@ -699,7 +788,7 @@ alias HashMap(K, V,
 {
     import digestx.fnv : FNV;
 
-    immutable n = 11111;
+    immutable n = 2;            // TODO change to 1111
 
     alias K = uint;
 
@@ -779,6 +868,8 @@ alias HashMap(K, V,
 
         auto x2 = x1.dup;
         assert(x1 == x2);
+        assert(x1.bucketCounts.largeCount ==
+               x2.bucketCounts.largeCount);
         static assert(!__traits(compiles, { const _ = x1 < x2; })); // no ordering
         assert(x2.length == n);
 
@@ -786,6 +877,7 @@ alias HashMap(K, V,
 
         foreach (immutable key; 0 .. n)
         {
+            show!(key);
             static if (X.hasValue)
             {
                 const element = X.ElementType(key, V.init);
@@ -794,6 +886,7 @@ alias HashMap(K, V,
             {
                 const element = key;
             }
+            show!(element);
 
             assert(x1.length == n - key);
 
@@ -807,6 +900,10 @@ alias HashMap(K, V,
             assert(x1.remove(key));
             assert(x1.length == n - key - 1);
 
+            static if (!X.hasValue)
+            {
+                assert(!x1.contains(key));
+            }
             assert(key !in x1);
             assert(!x1.remove(key));
             assert(x1.length == n - key - 1);

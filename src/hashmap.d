@@ -12,7 +12,7 @@ enum InsertionStatus { added, modified, unchanged }
  * Params:
  *      K = key type.
  *      V = value type.
- *      Allocator = memory allocator.
+ *      Allocator = memory allocator for bucket array and large buckets (`LargeBucket`)
  *      hasher = hash function or std.digest Hash.
  *      smallBucketMinCapacity = minimum capacity of small bucket
  *

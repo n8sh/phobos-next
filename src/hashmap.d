@@ -525,9 +525,11 @@ struct HashMapOrSet(K, V = void,
         }
     }
 
-    void removeSmallElementAt(size_t bucketIx,
-                              size_t elementIx)
+    /** Remove small element at `elementIx` in bucket `bucketIx`. */
+    private void removeSmallElementAt(size_t bucketIx,
+                                      size_t elementIx)
     {
+        assert(!_bstates[bucketIx].isLarge);
         import container_algorithm : shiftToFrontAt;
         smallBucketElementsAt(bucketIx).shiftToFrontAt(elementIx);
         _bstates[bucketIx].decSmallCount();

@@ -651,7 +651,6 @@ struct HashMapOrSet(K, V = void,
 
 private:
     import basic_uncopyable_array : Array = UncopyableArray;
-    import bitarray : BitArray;
 
     alias LargeBucket = Array!(T, Allocator,
                                ulong); // 32-bit capacity and length saves one word

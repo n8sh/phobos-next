@@ -21,3 +21,41 @@ bool popFirstMaybe(alias pred = "a == b", C, E)(ref C haystack,
     }
     return false;
 }
+
+/** Remove element at index `index` in `r`.
+ * TODO reuse in array*.d
+ */
+static private void shiftToFrontAt(T)(T[] r, size_t index)
+    @trusted
+{
+    import std.algorithm.mutation : moveEmplace;
+    // TODO use this instead:
+    // immutable si = index + 1;   // source index
+    // immutable ti = index;       // target index
+    // immutable restLength = this.length - (index + 1);
+    // moveEmplaceAll(_store.ptr[si .. si + restLength],
+    //                _store.ptr[ti .. ti + restLength]);
+
+    // for each element index that needs to be moved
+    foreach (immutable i; 0 .. r.length - (index + 1))
+    {
+        immutable si = index + i + 1; // source index
+        immutable ti = index + i;     // target index
+        moveEmplace(r.ptr[si], // TODO remove `move` when compiler does it for us
+                    r.ptr[ti]);
+    }
+}
+
+@safe pure nothrow @nogc unittest
+{
+    int[4] x = [11, 12, 13, 14];
+    x[].shiftToFrontAt(1);
+    show!x;
+    assert(x == [11, 13, 14, 14]);
+}
+
+version(unittest)
+{
+    import array_help : s;
+    import dbgio;
+}

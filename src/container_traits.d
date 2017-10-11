@@ -219,9 +219,17 @@ template mustAddGCRange(T = void)
           is(T == union) ||
           is(T == class))) // !isAggregateType!T
 {
-    // TODO optimize this dumb overload
-    struct Dummy { T t; }
-    enum mustAddGCRange = mustAddGCRange!Dummy;
+    import std.traits : isStaticArray;
+    static if (isStaticArray!T)
+    {
+        enum mustAddGCRange = mustAddGCRange!(typeof(T.init[0]));
+    }
+    else
+    {
+        // TODO optimize this dumb overload
+        struct Dummy { T t; }
+        enum mustAddGCRange = mustAddGCRange!Dummy;
+    }
 }
 
 /// Returns: `true` iff `T` is a template instance, `false` otherwise.
@@ -234,6 +242,11 @@ private template isTemplateInstance(T)
 ///
 @safe pure nothrow @nogc unittest
 {
+    static assert(!mustAddGCRange!int);
+    static assert(mustAddGCRange!(int*));
+    static assert(mustAddGCRange!(int*[1]));
+    static assert(mustAddGCRange!(int[]));
+
     // 'a' will be managed with expand/Shrink
     class Foo
     {
@@ -269,12 +282,14 @@ private template isTemplateInstance(T)
         int* x;
     }
     static assert(mustAddGCRange!T);
+    static assert(mustAddGCRange!(T[1]));
 
     struct U
     {
         @NoGc int* x;
     }
     static assert(!mustAddGCRange!U);
+    static assert(!mustAddGCRange!(U[1]));
 
     union N
     {
@@ -282,6 +297,7 @@ private template isTemplateInstance(T)
         U u;
     }
     static assert(!mustAddGCRange!N);
+    static assert(!mustAddGCRange!(N[1]));
 
     union M
     {
@@ -289,8 +305,5 @@ private template isTemplateInstance(T)
         T t;
     }
     static assert(mustAddGCRange!M);
-
-    static assert(!mustAddGCRange!int);
-    static assert(mustAddGCRange!(int*));
-    static assert(mustAddGCRange!(int[]));
+    static assert(mustAddGCRange!(M[1]));
 }

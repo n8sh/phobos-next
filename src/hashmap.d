@@ -148,6 +148,7 @@ struct HashMapOrSet(K, V = void,
         release();
     }
 
+    /// No copying.
     @disable this(this);
 
     /// Duplicate.

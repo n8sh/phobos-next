@@ -51,7 +51,7 @@ struct HashMapOrSet(K, V = void,
     import std.algorithm.searching : canFind, countUntil;
     import std.conv : emplace;
     import hash_ex : HashOf;
-    import prime_growth;
+    import prime_modulo;
 
     /** In the hash map case, `V` is non-void, and a value is stored alongside
      * the key of type `K`.

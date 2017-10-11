@@ -1,4 +1,4 @@
-/** Grow size to next prime number stored in a table.
+/** Optimized prime modulo calculations.
  *
  * Used for fast prime modulo calculations when mapping hash to index in hash
  * tables (associative arrays).

@@ -14,7 +14,7 @@ It includes various kinds of
 - Symbol Regex (Structured Regular Expressions similar to Elisps rx): `symbolic.d`
 - extension to Phobos (often ending with _ex.d)
 - A compile-time fixed-size variant of `bitarray.d` i call `bitarrayn.d`
-- An N-Gram implementation (many nested for loops): `ngram.d`
+- An n-gram implementation (many nested for loops): `ngram.d`
 - A wrapper for bounded types: `bound.d`
 - Computer Science Units: `csunits.d`
 - Enhanced `NotNull`: `notnull.d`

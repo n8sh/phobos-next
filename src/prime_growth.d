@@ -16,8 +16,8 @@ struct PrimeIndex
     alias _index this;
 }
 
-/** Increase `length` in-place to a prime (ceiling) in `primeModuloConstants`
- * that is greater than or equal to it.
+/** Increase `length` in-place to a ceiling prime in `primeModuloConstants`
+ * which is greater than or equal to `length`.
  *
  * Returns: index into prime
  */

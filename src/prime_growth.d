@@ -387,7 +387,7 @@ static immutable primeModuloFunctions = [
     &mod11493228998133068689, &mod14480561146010017169, &mod18446744073709551557,
     ];
 
-/// verify that primeModuloFunctions and primeModuloFunctions are in sync
+/// verify that `primeModuloFunctions` and `primeModuloFunctions` are in sync
 unittest
 {
     static assert(primeModuloConstants.length <= PrimeIndex._index.max);

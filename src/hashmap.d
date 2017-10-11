@@ -18,8 +18,6 @@ enum InsertionStatus { added, modified, unchanged }
  *
  * TODO use core.bitop : bsr, bsl to find first empty element in bucket
  *
- * TODO benchmark with `CapacityType` being uint for `LargeBucket`
- *
  * TODO call gc_addRange on small buckets
  *
  * TODO store small bucket size in `ubyte` array, zero means empty (= void),

@@ -248,24 +248,20 @@ private template isTemplateInstance(T)
     static assert(!mustAddGCRange!(int*[0]));
     static assert(mustAddGCRange!(int[]));
 
-    // 'a' will be managed with expand/Shrink
     class Foo
     {
         @NoGc int[] a;
         @NoGc void* b;
     }
     static assert(!mustAddGCRange!Foo);
-    // 'a' will be managed with '.length' so druntime.
 
     class Bar
     {
         int[] a;
         @NoGc void* b;
     }
-    // b's annotation is canceled by a type.
     static assert(mustAddGCRange!Bar);
 
-    // Baz base is not @NoGc
     class Baz : Bar
     {
         @NoGc void* c;

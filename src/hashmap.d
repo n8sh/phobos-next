@@ -177,8 +177,8 @@ struct HashMapOrSet(K, V = void,
             }
             else
             {
-                /** TODO do this better when have an array version of emplace, emplaceAll
-                 * See also: http://forum.dlang.org/post/xxigbqqflzwfgycrclyq@forum.dlang.org
+                /** TODO use array version of `emplace`, `emplaceAll`. See also:
+                 * http://forum.dlang.org/post/xxigbqqflzwfgycrclyq@forum.dlang.org
                  */
                 foreach (immutable elementIx, const ref element; smallBucketElementsAt(bucketIx))
                 {

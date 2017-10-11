@@ -306,19 +306,13 @@ struct ArrayN(T,
         }
 
         private void shiftToFrontAt(size_t index)
-        @trusted
+            @trusted
         {
-            // TODO use this instead:
-            // immutable si = index + 1;   // source index
-            // immutable ti = index;       // target index
-            // immutable restLength = this.length - (index + 1);
-            // moveEmplaceAll(_store.ptr[si .. si + restLength],
-            //                _store.ptr[ti .. ti + restLength]);
-            foreach (immutable i; 0 .. this.length - (index + 1)) // each element index that needs to be moved
+            foreach (immutable i; 0 .. this.length - (index + 1))
             {
                 immutable si = index + i + 1; // source index
-                immutable ti = index + i; // target index
-                moveEmplace(_store.ptr[si], // TODO remove `move` when compiler does it for us
+                immutable ti = index + i;     // target index
+                moveEmplace(_store.ptr[si],
                             _store.ptr[ti]);
             }
         }

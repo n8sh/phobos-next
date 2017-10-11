@@ -956,6 +956,20 @@ pure unittest
     }
 }
 
+/// string key
+version(none)
+pure unittest
+{
+    import digestx.fnv : FNV;
+
+    immutable n = 11;
+
+    alias K = string;
+    alias V = string;
+
+    alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
+}
+
 // version(unittest)
 // {
 //     private static struct US

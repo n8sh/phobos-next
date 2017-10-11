@@ -18,8 +18,6 @@ enum InsertionStatus { added, modified, unchanged }
  *
  * TODO use core.bitop : bsr, bsl to find first empty element in bucket
  *
- * TODO call gc_addRange on small buckets
- *
  * TODO Avoid extra length and capacity in _statuses (length or large) by making
  * it allocate in sync with buckets (using soa.d)
  *
@@ -120,9 +118,10 @@ struct HashMapOrSet(K, V = void,
     {
         // TODO return direct call to store constructor
         typeof(return) that;
+
         that._buckets = Buckets.withLength(bucketCount);
         that._bstates = Bstates.withLength(bucketCount);
-        assert(that._bstates.length == bucketCount);
+
         that._length = 0;
         return that;
     }
@@ -139,9 +138,10 @@ struct HashMapOrSet(K, V = void,
                                          0 :
                                          minimumBucketCount - 1);
 
-        // initialize buckets
+        // initialize buckets and states
         _buckets = Buckets.withLength(bucketCount);
         _bstates = Bstates.withLength(bucketCount);
+
         assert(_bstates.length == bucketCount);
         _length = 0;
     }
@@ -797,6 +797,20 @@ alias HashMap(K, V,
     foreach (V; AliasSeq!(void, string))
     {
         alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
+
+        import container_traits : mustAddGCRange;
+        static if (X.hasValue)
+        {
+            static assert(!mustAddGCRange!(X.LargeBucket));
+            static assert(mustAddGCRange!(X.T));
+            // TODO static assert(mustAddGCRange!(X.SmallBucket));
+        }
+        else
+        {
+            static assert(!mustAddGCRange!(X.T));
+            static assert(!mustAddGCRange!(X.SmallBucket));
+        }
+
         auto x1 = X();            // start empty
 
         // all buckets start small

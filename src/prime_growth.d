@@ -5,10 +5,15 @@ module prime_growth;
 
 @safe pure nothrow @nogc:
 
+static assert(size_t.sizeof == 8, "This module is currently only designed for 64-bit platforms.");
+
+/** Calculate `value` modulo function indexed by `primeIndex`.
+ */
 size_t primeModuloHashToIndex(in size_t primeIndex,
                               in size_t value)
 {
-    return primeModuloFunctions[primeIndex](value);
+    const valueModulo = primeModuloFunctions[primeIndex](value);
+    return valueModulo;
 }
 
 unittest

@@ -193,7 +193,7 @@ struct HashMapOrSet(K, V = void,
                     enum useMemcpy = true;
                     static if (useMemcpy)
                     {
-                        // fast
+                        // currently faster than slice assignment on else branch
                         import core.stdc.string : memcpy;
                         memcpy(that._buckets[bucketIx].small.ptr, // cannot overlap
                                elementsOfSmallBucket(bucketIx).ptr,

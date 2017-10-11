@@ -172,8 +172,8 @@ struct HashMapOrSet(K, V = void,
         {
             if (_bstates[bucketIx].isLarge)
             {
-                emplace!(LargeBucket)(&that._buckets[bucketIx].large,
-                                      _buckets[bucketIx].large[]);
+                emplace(&that._buckets[bucketIx].large,
+                        _buckets[bucketIx].large[]);
             }
             else
             {

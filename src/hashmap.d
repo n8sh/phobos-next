@@ -959,7 +959,7 @@ pure unittest
 
     immutable n = 11;
 
-    alias K = uint;
+    alias K = string;
     alias V = string;
 
     import std.exception : assertThrown, assertNotThrown;
@@ -970,24 +970,17 @@ pure unittest
 
     static if (X.hasValue)
     {
-        assertThrown!RangeError(s[0]);
-        s[0] = V.init;
-        assertNotThrown!RangeError(s[0]);
+        assertThrown!RangeError(s[K.init]);
+        s[K.init] = V.init;
+        assertNotThrown!RangeError(s[K.init]);
     }
-}
 
-/// string key
-version(none)
-pure unittest
-{
-    import digestx.fnv : FNV;
+    s["a"] = "A";
+    auto vp = "a" in s;
+    assert((*vp).value == "A");
 
-    immutable n = 11;
-
-    alias K = string;
-    alias V = string;
-
-    alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
+    s.remove("a");
+    assert("a" !in s);
 }
 
 // version(unittest)

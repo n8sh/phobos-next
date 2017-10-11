@@ -19,7 +19,7 @@ struct PrimeIndex
 /** Increase `length` in-place to a ceiling prime in `primeModuloConstants`
  * which is greater than or equal to `length`.
  *
- * Returns: index into prime
+ * Returns: prime index used as parameter to calculate `primeModuloHashToIndex`.
  */
 PrimeIndex ceilToNearestPrime(ref size_t value,
                               PrimeIndex currentPrimeIndex = PrimeIndex.init)

@@ -174,12 +174,12 @@ struct HashMapOrSet(K, V = void,
             else
             {
                 // TODO do this better
-                foreach (immutable elementIx, const ref element; _buckets[bucketIx].small[0 .. _bstates[bucketIx].smallCount])
+                foreach (immutable elementIx, const ref element; smallBucketElementsAt(bucketIx))
                 {
                     emplace(&that._buckets[bucketIx].small[elementIx], element);
                 }
                 // emplace!(SmallBucket)(&that._buckets[bucketIx].small,
-                //                       _buckets[bucketIx].small[0 .. _bstates[bucketIx].smallCount]);
+                //                       smallBucketElementsAt(bucketIx));
             }
         }
 
@@ -250,7 +250,7 @@ struct HashMapOrSet(K, V = void,
                    either, that is take car of by dtor of _buckets. */
                 static if (hasElaborateDestructor!SmallBucket)
                 {
-                    .destroyAll(_buckets[bucketIx].small[0 .. _bstates[bucketIx].smallCount]);
+                    .destroyAll(smallBucketElementsAt(bucketIx));
                 }
             }
         }
@@ -503,7 +503,7 @@ struct HashMapOrSet(K, V = void,
         @trusted
     {
         immutable bucketIx = keyToBucketIx(key);
-        import container_algorithm : popFirstMaybe, shiftToFrontAt;
+        import container_algorithm : popFirstMaybe;
         if (_bstates[bucketIx].isLarge)
         {
             static if (hasValue)
@@ -525,30 +525,20 @@ struct HashMapOrSet(K, V = void,
         {
             static if (hasValue)
             {
-                immutable offset = smallBucketElementsAt(bucketIx).countUntil!"a.key == b"(key);
-                immutable hit = offset != -1;
+                immutable elementIx = smallBucketElementsAt(bucketIx).countUntil!"a.key == b"(key);
+                immutable hit = elementIx != -1;
                 if (hit)
                 {
-                    smallBucketElementsAt(bucketIx).shiftToFrontAt(offset);
-                    _bstates[bucketIx].decSmallCount();
-                    static if (hasElaborateDestructor!T)
-                    {
-                        .destroy(_buckets[bucketIx].small[_bstates[bucketIx].smallCount]);
-                    }
+                    removeSmallElementAt(bucketIx, elementIx);
                 }
             }
             else
             {
-                immutable offset = smallBucketElementsAt(bucketIx).countUntil(key);
-                immutable hit = offset != -1;
+                immutable elementIx = smallBucketElementsAt(bucketIx).countUntil(key);
+                immutable hit = elementIx != -1;
                 if (hit)
                 {
-                    smallBucketElementsAt(bucketIx).shiftToFrontAt(offset);
-                    _bstates[bucketIx].decSmallCount();
-                    static if (hasElaborateDestructor!T)
-                    {
-                        .destroy(_buckets[bucketIx].small[_bstates[bucketIx].smallCount]);
-                    }
+                    removeSmallElementAt(bucketIx, elementIx);
                 }
             }
             _length -= hit ? 1 : 0;
@@ -556,9 +546,16 @@ struct HashMapOrSet(K, V = void,
         }
     }
 
-    private scope inout(T)[] smallBucketElementsAt(size_t bucketIx) inout return
+    void removeSmallElementAt(size_t bucketIx,
+                              size_t elementIx)
     {
-        return _buckets[bucketIx].small[0 .. _bstates[bucketIx].smallCount];
+        import container_algorithm : shiftToFrontAt;
+        smallBucketElementsAt(bucketIx).shiftToFrontAt(elementIx);
+        _bstates[bucketIx].decSmallCount();
+        static if (hasElaborateDestructor!T)
+        {
+            .destroy(_buckets[bucketIx].small[_bstates[bucketIx].smallCount]);
+        }
     }
 
     /** Shrink large bucket at `bucketIx` possible posbiel. */
@@ -627,8 +624,14 @@ struct HashMapOrSet(K, V = void,
         }
         else
         {
-            return _buckets[bucketIx].small[0 .. _bstates[bucketIx].smallCount];
+            return smallBucketElementsAt(bucketIx);
         }
+    }
+
+    pragma(inline, true)
+    private scope inout(T)[] smallBucketElementsAt(size_t bucketIx) inout return
+    {
+        return _buckets[bucketIx].small[0 .. _bstates[bucketIx].smallCount];
     }
 
     /** Returns: number of elements in bucket at `bucketIx`. */

@@ -12,8 +12,30 @@ static assert(size_t.sizeof == 8, "This module is currently only designed for 64
  */
 struct PrimeIndex
 {
-    private size_t _index;
+    private ubyte _index;
     alias _index this;
+}
+
+/** Update `length` in-place to a prime that is greater than or equal to it.
+ *
+ * Returns: index into prime
+ */
+PrimeIndex inPlaceUpdateToNextPrime(ref size_t length)
+{
+    foreach (const primeIndex, const primeModulo; primeModuloConstants)
+    {
+        if (length <= primeModulo)
+        {
+            return typeof(return)(cast(ubyte)primeIndex);
+        }
+    }
+    assert(false, "Parameter length is too large");
+}
+
+unittest
+{
+    auto x = 2;
+    // inPlaceUpdateToNextPrime(x);
 }
 
 /** Calculate `value` modulo function indexed by `primeIndex`.
@@ -31,24 +53,6 @@ unittest
 
     assert(primeModuloHashToIndex(PrimeIndex(3), 8) == 3); // modulo 5
     assert(primeModuloHashToIndex(PrimeIndex(4), 9) == 2); // modulo 7
-}
-
-PrimeIndex inPlaceUpdateToNextPrime(ref size_t length)
-{
-    foreach (const primeIndex, const primeModulo; primeModuloConstants)
-    {
-        if (length <= primeModulo)
-        {
-            return typeof(return)(primeIndex);
-        }
-    }
-    assert(false, "Parameter length is too large");
-}
-
-unittest
-{
-    auto x = 2;
-    // inPlaceUpdateToNextPrime(x);
 }
 
 private static:
@@ -332,14 +336,17 @@ static immutable primeModuloFunctions = [
 /// verify that primeModuloFunctions and primeModuloFunctions are in sync
 unittest
 {
+    static assert(primeModuloConstants.length <= PrimeIndex._index.max);
+
     static assert(primeModuloConstants.length ==
                   primeModuloFunctions.length);
+
     foreach (const primeIndex, const primeModulo; primeModuloConstants)
     {
         if (primeModulo != 0)
         {
-            assert(primeModuloHashToIndex(PrimeIndex(primeIndex), primeModulo + 0) == 0);
-            assert(primeModuloHashToIndex(PrimeIndex(primeIndex), primeModulo + 1) == 1);
+            assert(primeModuloHashToIndex(PrimeIndex(cast(typeof(PrimeIndex._index))primeIndex), primeModulo + 0) == 0);
+            assert(primeModuloHashToIndex(PrimeIndex(cast(typeof(PrimeIndex._index))primeIndex), primeModulo + 1) == 1);
         }
     }
 }

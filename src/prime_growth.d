@@ -40,17 +40,6 @@ PrimeIndex ceilToNearestPrime(ref size_t value,
 ///
 unittest
 {
-    foreach (const prime; primeModuloConstants[3 .. $])
-    {
-        size_t value = prime - 1;
-        auto primeIndex = ceilToNearestPrime(value);
-        assert(value == prime);
-        assert(primeModuloHashToIndex(primeIndex, value) == 0);
-    }
-}
-
-unittest
-{
     size_t value = 0;
     auto i = PrimeIndex(0);
 
@@ -62,7 +51,19 @@ unittest
     i = ceilToNearestPrime(value, i);
     assert(primeModuloConstants[i] == 2);
 
+    value = 2;
+    i = ceilToNearestPrime(value, i);
+    assert(primeModuloConstants[i] == 2);
+
+    value = 3;
+    i = ceilToNearestPrime(value, i);
+    assert(primeModuloConstants[i] == 3);
+
     value = 4;
+    i = ceilToNearestPrime(value, i);
+    assert(primeModuloConstants[i] == 5);
+
+    value = 5;
     i = ceilToNearestPrime(value, i);
     assert(primeModuloConstants[i] == 5);
 
@@ -70,6 +71,25 @@ unittest
     i = ceilToNearestPrime(value, i);
     assert(primeModuloConstants[i] == 7);
 
+    value = 7;
+    i = ceilToNearestPrime(value, i);
+    assert(primeModuloConstants[i] == 7);
+
+    value = 8;
+    i = ceilToNearestPrime(value, i);
+    assert(primeModuloConstants[i] == 11);
+}
+
+///
+unittest
+{
+    foreach (const prime; primeModuloConstants[3 .. $])
+    {
+        size_t value = prime - 1;
+        auto primeIndex = ceilToNearestPrime(value);
+        assert(value == prime);
+        assert(primeModuloHashToIndex(primeIndex, value) == 0);
+    }
 }
 
 /** Calculate `value` modulo function indexed by `primeIndex`.

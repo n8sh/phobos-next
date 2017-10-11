@@ -25,7 +25,7 @@ bool popFirstMaybe(alias pred = "a == b", C, E)(ref C haystack,
 /** Remove element at index `index` in `r`.
  * TODO reuse in array*.d
  */
-static private void shiftToFrontAt(T)(T[] r, size_t index)
+void shiftToFrontAt(T)(T[] r, size_t index)
     @trusted
 {
     import std.algorithm.mutation : moveEmplace;

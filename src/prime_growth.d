@@ -16,13 +16,13 @@ struct PrimeIndex
     alias _index this;
 }
 
-/** Update `length` in-place to a prime in `primeModuloConstants` that is
- * greater than or equal to it.
+/** Increase `length` in-place to a prime (ceiling) in `primeModuloConstants`
+ * that is greater than or equal to it.
  *
  * Returns: index into prime
  */
-PrimeIndex inPlaceUpdateToNextPrime(ref size_t value,
-                                    PrimeIndex currentPrimeIndex = PrimeIndex.init)
+PrimeIndex ceilToNearestPrime(ref size_t value,
+                              PrimeIndex currentPrimeIndex = PrimeIndex.init)
 {
     // TODO use `binarySearch` instead
     for (PrimeIndex primeIndex = currentPrimeIndex; currentPrimeIndex != primeModuloConstants.length; ++primeIndex)
@@ -43,7 +43,7 @@ unittest
     foreach (const prime; primeModuloConstants[3 .. $])
     {
         size_t value = prime - 1;
-        auto primeIndex = inPlaceUpdateToNextPrime(value);
+        auto primeIndex = ceilToNearestPrime(value);
         assert(value == prime);
         assert(primeModuloHashToIndex(primeIndex, value) == 0);
     }
@@ -55,19 +55,19 @@ unittest
     auto i = PrimeIndex(0);
 
     value = 0;
-    i = inPlaceUpdateToNextPrime(value, i);
+    i = ceilToNearestPrime(value, i);
     assert(primeModuloConstants[i] == 0);
 
     value = 1;
-    i = inPlaceUpdateToNextPrime(value, i);
+    i = ceilToNearestPrime(value, i);
     assert(primeModuloConstants[i] == 2);
 
     value = 4;
-    i = inPlaceUpdateToNextPrime(value, i);
+    i = ceilToNearestPrime(value, i);
     assert(primeModuloConstants[i] == 5);
 
     value = 6;
-    i = inPlaceUpdateToNextPrime(value, i);
+    i = ceilToNearestPrime(value, i);
     assert(primeModuloConstants[i] == 7);
 
 }

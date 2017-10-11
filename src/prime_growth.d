@@ -194,7 +194,7 @@ size_t mod11493228998133068689(in size_t hash) { return hash % 11493228998133068
 size_t mod14480561146010017169(in size_t hash) { return hash % 14480561146010017169UL; }
 size_t mod18446744073709551557(in size_t hash) { return hash % 18446744073709551557UL; }
 
-static immutable primeModFunctions = [
+static immutable primeModuloFunctions = [
     &mod0, &mod2, &mod3, &mod5, &mod7, &mod11, &mod13, &mod17, &mod23, &mod29, &mod37,
     &mod47, &mod59, &mod73, &mod97, &mod127, &mod151, &mod197, &mod251, &mod313, &mod397,
     &mod499, &mod631, &mod797, &mod1009, &mod1259, &mod1597, &mod2011, &mod2539, &mod3203,
@@ -236,16 +236,16 @@ static immutable primeModFunctions = [
     &mod11493228998133068689, &mod14480561146010017169, &mod18446744073709551557
     ];
 
-size_t primeModHashToIndex(in size_t primeIndex,
-                           in size_t hash)
+size_t primeModuloHashToIndex(in size_t primeIndex,
+                              in size_t hash)
 {
-    return primeModFunctions[primeIndex](hash);
+    return primeModuloFunctions[primeIndex](hash);
 }
 
 unittest
 {
-    assert(primeModHashToIndex(3, 5) == 0); // modulo 5
-    assert(primeModHashToIndex(4, 9) == 2); // modulo 7
+    assert(primeModuloHashToIndex(3, 5) == 0); // modulo 5
+    assert(primeModuloHashToIndex(4, 9) == 2); // modulo 7
 }
 
 // ubyte next_size_over(size_t & size) const
@@ -321,7 +321,7 @@ unittest
 
 // struct power_of_two_hash_policy
 // {
-//     size_t primeModHashToIndex(size_t hash, size_t num_slots_minus_one) const
+//     size_t primeModuloHashToIndex(size_t hash, size_t num_slots_minus_one) const
 //     {
 //         return hash & num_slots_minus_one;
 //     }

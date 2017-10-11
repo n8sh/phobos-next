@@ -655,7 +655,6 @@ private:
     /** 32-bit capacity and length for LargeBucketLnegth on 64-bit platforms
      * saves one word and makes insert() and contains() significantly faster */
     alias LargeBucketCapacityType = uint;
-
     alias LargeBucket = Array!(T, Allocator, LargeBucketCapacityType);
 
     import std.algorithm : max;

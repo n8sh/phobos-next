@@ -752,7 +752,7 @@ private:
     // TODO merge these into an instance of soa.d and remove invariant
     Buckets _buckets;
     Bstates _bstates;
-    debug invariant
+    invariant
     {
         assert(_buckets.length ==
                _bstates.length);

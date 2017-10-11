@@ -225,7 +225,7 @@ struct HashMapOrSet(K, V = void,
 
         foreach (immutable bucketIx; 0 .. _buckets.length)
         {
-            foreach (const ref element; bucketElementsAt(bucketIx))
+            foreach (ref element; bucketElementsAt(bucketIx))
             {
                 copy.insertWithoutGrowth(element);
             }

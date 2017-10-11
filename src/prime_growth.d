@@ -244,7 +244,7 @@ size_t primeModuloHashToIndex(in size_t primeIndex,
 
 unittest
 {
-    assert(primeModuloHashToIndex(3, 5) == 0); // modulo 5
+    assert(primeModuloHashToIndex(3, 8) == 3); // modulo 5
     assert(primeModuloHashToIndex(4, 9) == 2); // modulo 7
 }
 

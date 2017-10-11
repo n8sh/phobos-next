@@ -19,5 +19,3 @@ It includes various kinds of
 - Computer Science Units: `csunits.d`
 - Enhanced `NotNull`: `notnull.d`
 - A structured wrapper for message digests: `digest_ex.d`
-- a bunch of various D sample code starting with `t_` in `tests`.
-- Open/LibreOffice file that includes various kinds of comments and suggestions for improvements to D's build process.

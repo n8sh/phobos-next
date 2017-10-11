@@ -695,7 +695,7 @@ struct CopyableArray(T,
 
     /// Unsafe access to pointer.
     pragma(inline, true)
-    scope private inout(T)* ptr() inout return @system
+    scope inout(T)* ptr() inout return @system
     {
         return _ptr;
     }

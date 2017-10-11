@@ -16,8 +16,12 @@ enum InsertionStatus { added, modified, unchanged }
  *      hasher = hash function or std.digest Hash.
  *      smallBucketMinCapacity = minimum capacity of small bucket
  *
- * TODO use growth factor smaller than powers of two. Using prime table. Details
- * are here: https://github.com/greg7mdp/sparsepp
+ * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
+ *
+ * TODO add flag for use growth factor smaller than powers of two. Using prime
+ * table. Details are here: https://github.com/greg7mdp/sparsepp
+ *
+ * TODO add withElements() with fast pre-allocation `withCapacity`
  *
  * TODO use core.bitop : bsr, bsl to find first empty element in bucket
  *
@@ -47,6 +51,7 @@ struct HashMapOrSet(K, V = void,
     import std.algorithm.searching : canFind, countUntil;
     import std.conv : emplace;
     import hash_ex : HashOf;
+    import prime_growth;
 
     /** In the hash map case, `V` is non-void, and a value is stored alongside
      * the key of type `K`.

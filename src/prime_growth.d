@@ -32,10 +32,10 @@ PrimeIndex ceilToNearestPrime(ref size_t value,
     // TODO use `binarySearch` instead
     for (PrimeIndex primeIndex = currentPrimeIndex; currentPrimeIndex != primeModuloConstants.length; ++primeIndex)
     {
-        immutable primeModulo = primeModuloConstants[primeIndex];
-        if (value <= primeModulo)
+        immutable prime = primeModuloConstants[primeIndex];
+        if (value <= prime)
         {
-            value = primeModulo;
+            value = prime;
             return primeIndex;
         }
     }
@@ -400,12 +400,12 @@ unittest
     static assert(primeModuloConstants.length ==
                   primeModuloFunctions.length);
 
-    foreach (const primeIndex, const primeModulo; primeModuloConstants)
+    foreach (const primeIndex, const prime; primeModuloConstants)
     {
-        if (primeModulo != 0)
+        if (prime != 0)
         {
-            assert(primeModuloHashToIndex(PrimeIndex(cast(typeof(PrimeIndex._index))primeIndex), primeModulo + 0) == 0);
-            assert(primeModuloHashToIndex(PrimeIndex(cast(typeof(PrimeIndex._index))primeIndex), primeModulo + 1) == 1);
+            assert(primeModuloHashToIndex(PrimeIndex(cast(typeof(PrimeIndex._index))primeIndex), prime + 0) == 0);
+            assert(primeModuloHashToIndex(PrimeIndex(cast(typeof(PrimeIndex._index))primeIndex), prime + 1) == 1);
         }
     }
 }

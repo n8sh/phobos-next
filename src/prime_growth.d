@@ -42,7 +42,7 @@ PrimeIndex ceilToNearestPrime(ref size_t value,
     assert(false, "Parameter value is too large");
 }
 
-///
+/// small modulos
 unittest
 {
     size_t value = 0;
@@ -85,7 +85,7 @@ unittest
     assert(primeModuloConstants[i] == 11);
 }
 
-///
+/// remaining modulos
 unittest
 {
     foreach (const prime; primeModuloConstants[3 .. $])

@@ -78,6 +78,9 @@ void main()
                           // std.digests
                           HashSet!(E, null, MurmurHash3!(128)),
                           HashSet!(E, null, FNV!(64, true)),
+                          HashSet!(ulong, null, FNV!(64, true), 2),
+                          HashSet!(ulong, null, FNV!(64, true), 3),
+                          HashSet!(ulong, null, FNV!(64, true), 4),
                           HashSet!(E, null, XXHash64),
 
                           // radix tree
@@ -130,9 +133,9 @@ void main()
         // static if (hasMember!(A, `clear`)) { a.clear(); }
     }
 
-    alias ValueType = uint;
-
-    foreach (A; AliasSeq!(HashMap!(E, ValueType, null, FNV!(64, true))))
+    foreach (A; AliasSeq!(HashMap!(uint, uint, null, FNV!(64, true)),
+                          HashMap!(ulong, ulong, null, FNV!(64, true)),
+                          HashMap!(ulong, ulong, null, FNV!(64, true), 2)))
     {
         A a;
 
@@ -140,7 +143,7 @@ void main()
             immutable before = MonoTime.currTime();
             foreach (const i; 0 .. n)
             {
-                a.insert(A.ElementType(i, ValueType.init));
+                a.insert(A.ElementType(i, A.ValueType.init));
             }
             immutable after = MonoTime.currTime();
             write("Insertion (with growth): ", after - before);
@@ -150,7 +153,7 @@ void main()
             immutable before = MonoTime.currTime();
             foreach (const i; 0 .. n)
             {
-                const hit = a.contains(A.ElementType(i, ValueType.init));
+                const hit = a.contains(A.ElementType(i, A.ValueType.init));
             }
             immutable after = MonoTime.currTime();
             write(", Checking: ", after - before);
@@ -165,7 +168,7 @@ void main()
         immutable before = MonoTime.currTime();
         foreach (const i; 0 .. n)
         {
-            b.insert(A.ElementType(i, ValueType.init));
+            b.insert(A.ElementType(i, A.ValueType.init));
         }
         immutable after = MonoTime.currTime();
         write(", Insertion (without growth): ", after - before);
@@ -174,6 +177,8 @@ void main()
 
         // static if (hasMember!(A, `clear`)) { a.clear(); }
     }
+
+    alias ValueType = uint;
 
     foreach (A; AliasSeq!(ValueType[E]))
     {

@@ -20,9 +20,6 @@ enum InsertionStatus { added, modified, unchanged }
  *
  * TODO call gc_addRange on small buckets
  *
- * TODO store small bucket size in `ubyte` array, zero means empty (= void),
- * `0xff` means it has been grown into a large bucket.
- *
  * TODO Avoid extra length and capacity in _statuses (length or large) by making
  * it allocate in sync with buckets (using soa.d)
  *

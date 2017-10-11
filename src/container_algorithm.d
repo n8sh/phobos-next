@@ -50,12 +50,11 @@ static private void shiftToFrontAt(T)(T[] r, size_t index)
 {
     int[4] x = [11, 12, 13, 14];
     x[].shiftToFrontAt(1);
-    show!x;
     assert(x == [11, 13, 14, 14]);
 }
 
 version(unittest)
 {
-    import array_help : s;
-    import dbgio;
+    // import array_help : s;
+    // import dbgio;
 }

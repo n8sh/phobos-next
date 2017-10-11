@@ -989,12 +989,12 @@ pure unittest
         assertNotThrown!RangeError(s[K.init]);
     }
 
-    s["a"] = "A";
-    auto vp = "a" in s;
-    assert((*vp).value == "A");
+    s[K.init] = V.init;
+    auto vp = K.init in s;
+    assert((*vp).value == V.init);
 
-    s.remove("a");
-    assert("a" !in s);
+    s.remove(K.init);
+    assert(K.init !in s);
 }
 
 // version(unittest)

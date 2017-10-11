@@ -222,7 +222,7 @@ template mustAddGCRange(T = void)
     import std.traits : isStaticArray;
     static if (isStaticArray!T)
     {
-        enum mustAddGCRange = mustAddGCRange!(typeof(T.init[0]));
+        enum mustAddGCRange = T.length >= 1 && mustAddGCRange!(typeof(T.init[0]));
     }
     else
     {
@@ -245,6 +245,7 @@ private template isTemplateInstance(T)
     static assert(!mustAddGCRange!int);
     static assert(mustAddGCRange!(int*));
     static assert(mustAddGCRange!(int*[1]));
+    static assert(!mustAddGCRange!(int*[0]));
     static assert(mustAddGCRange!(int[]));
 
     // 'a' will be managed with expand/Shrink

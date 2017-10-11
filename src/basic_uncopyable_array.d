@@ -13,8 +13,9 @@ struct UncopyableArray(T,
 {
     import std.range : ElementType, isCopyable;
 
+    pragma(inline):
+
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
-    pragma(inline)
     static typeof(this) withLength(size_t initialLength) @trusted
     {
         typeof(return) that;

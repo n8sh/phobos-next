@@ -60,6 +60,8 @@ struct HashMapOrSet(K, V = void,
     /** Type of key stored. */
     alias KeyType = K;
 
+    pragma(inline):
+
     /// Element type.
     static if (hasValue)
     {

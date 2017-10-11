@@ -49,6 +49,8 @@ struct CopyableArray(T,
     /// True if elements need move.
     enum needsMove(T) = !isCopyable!T || hasElaborateDestructor!T;
 
+    pragma(inline):
+
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
     pragma(inline, true)
     static typeof(this) withLength(size_t initialLength)

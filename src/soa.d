@@ -57,10 +57,11 @@ struct SOA(S)
         ++_length;
     }
 
-    /// Push element `e` to back of array.
+    /// Push element (struct) `e` to back of array.
     void insertBack(S e)
     {
         if (_length == _capacity) { grow(); }
+        version(LDC) static if (__VERSION__ >= 2076) { static assert(0, "TODO use static foreach"); }
         foreach (const index, _; MemberNames)
         {
             import std.algorithm.mutation : move;
@@ -229,3 +230,19 @@ unittest
                                 }
                             }));
 }
+
+// version(unittest)
+// {
+//     enum usesDIP1000 = !__traits(compiles,
+//                                  {
+//                                      ref int _() @safe
+//                                      {
+//                                          struct S
+//                                          {
+//                                              int* x;
+//                                          }
+//                                          return *(S.init.x);
+//                                      }
+//                                  });
+//     pragma(msg, usesDIP1000);
+// }

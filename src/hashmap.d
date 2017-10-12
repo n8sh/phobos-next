@@ -33,8 +33,6 @@ enum InsertionStatus { added, modified, unchanged }
  * 1 this is more complicated since each bucket contains a set of elements to
  * swap out and must be put in a queue.
  *
- * TODO forward-ranges `byValue`, `byKeyValue`
- *
  * TODO support uncopyable value type for map-case
  *
  * TODO benchmark against https://github.com/greg7mdp/sparsepp
@@ -389,32 +387,39 @@ struct HashMapOrSet(K, V = void,
         size_t bucketIx;        // index to bucket inside table
         size_t elementOffset;   // offset to element inside bucket
 
-        // bool opCast(T : bool)() const
-        // {
-        //     return table !is null;
-        // }
+        /// Check if empty.
+        @property bool empty() const
+        {
+            return bucketIx == table.bucketCount;
+        }
 
-        // static if (hasValue)
-        // {
-        //     /** Get key part of referenced element. */
-        //     scope ref inout(K) asKey() inout return
-        //     {
-        //         return table.bucketElementsAt(bucketIx)[elementOffset].key;
-        //     }
+        void initFirstNonEmptyBucket()
+        {
+            while (bucketIx < table.bucketCount &&
+                   table.bucketElementCountAt(bucketIx) == 0)
+            {
+                bucketIx += 1;
+            }
+        }
 
-        //     /** Get value part of referenced element. */
-        //     scope ref inout(V) asValue() inout return
-        //     {
-        //         return table.bucketElementsAt(bucketIx)[elementOffset].value;
-        //     }
-        // }
+        void popFront()
+        {
+            assert(!empty);
+            elementOffset += 1; // next element
+            // if current bucket was emptied
+            while (elementOffset >= table.bucketElementsAt(bucketIx).length)
+            {
+                // next bucket
+                bucketIx += 1;
+                elementOffset = 0;
+                if (empty) { break; }
+            }
+        }
 
-        // /** Get element of reference. */
-        // scope ref inout(T) opUnary(string s)() inout return
-        //     if (s == "*")
-        // {
-        //     return table.bucketElementsAt(bucketIx)[elementOffset];
-        // }
+        @property typeof(this) save() // ForwardRange
+        {
+            return this;
+        }
     }
 
     static if (hasValue)        // HashMap
@@ -463,55 +468,55 @@ struct HashMapOrSet(K, V = void,
 
         static private struct ByKey
         {
-            /// Check if empty.
-            @property bool empty() const
-            {
-                return bucketIx == table.bucketCount;
-            }
-
-            /// Get reference to front element.
+            /// Get reference to key of front element.
             @property scope ref inout(K) front() inout return
             {
                 return table.bucketElementsAt(bucketIx)[elementOffset].key;
             }
-
-            void initFirstNonEmptyBucket()
-            {
-                while (bucketIx < table.bucketCount &&
-                       table.bucketElementCountAt(bucketIx) == 0)
-                {
-                    bucketIx += 1;
-                }
-            }
-
-            void popFront()
-            {
-                assert(!empty);
-                elementOffset += 1; // next element
-                // if current bucket was emptied
-                while (elementOffset >= table.bucketElementsAt(bucketIx).length)
-                {
-                    // next bucket
-                    bucketIx += 1;
-                    elementOffset = 0;
-                    if (empty) { break; }
-                }
-            }
-
-            @property typeof(this) save() // ForwardRange
-            {
-                return this;
-            }
-
-            private ElementRef _elementRef;  // range iterator
+            private ElementRef _elementRef;
             alias _elementRef this;
         }
-
-        /// Returns forward range that iterates through the keys.
+        /// Returns forward range that iterates through the keys of `this`.
         inout(ByKey) byKey() inout @trusted return
         {
             auto result = typeof(return)(inout(ElementRef)(&this));
             (cast(ByKey)result).initFirstNonEmptyBucket(); // dirty cast because inout problem
+            return result;
+        }
+
+        static private struct ByValue
+        {
+            /// Get reference to value of front element.
+            @property scope ref inout(V) front() inout return
+            {
+                return table.bucketElementsAt(bucketIx)[elementOffset].value;
+            }
+            private ElementRef _elementRef;
+            alias _elementRef this;
+        }
+        /// Returns forward range that iterates through the values of `this`.
+        inout(ByValue) byValue() inout @trusted return
+        {
+            auto result = typeof(return)(inout(ElementRef)(&this));
+            (cast(ByValue)result).initFirstNonEmptyBucket(); // dirty cast because inout problem
+            return result;
+        }
+
+        static private struct ByKeyValue
+        {
+            /// Get reference to front element (key and value).
+            @property scope ref inout(T) front() inout return
+            {
+                return table.bucketElementsAt(bucketIx)[elementOffset];
+            }
+            private ElementRef _elementRef;
+            alias _elementRef this;
+        }
+        /// Returns forward range that iterates through the values of `this`.
+        inout(ByKeyValue) byKeyValue() inout @trusted return
+        {
+            auto result = typeof(return)(inout(ElementRef)(&this));
+            (cast(ByKeyValue)result).initFirstNonEmptyBucket(); // dirty cast because inout problem
             return result;
         }
 

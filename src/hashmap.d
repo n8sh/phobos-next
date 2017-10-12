@@ -73,7 +73,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Get reference to key part of `element`.
-        static ref inout(K) keyRefOf()(ref return inout(T) element)
+        static ref inout(K) keyRefOf(ref return inout(T) element)
         {
             return element.key;
         }
@@ -103,7 +103,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Get reference to key part of `element`.
-        static ref inout(K) keyRefOf()(ref return inout(T) element)
+        static ref inout(K) keyRefOf(ref return inout(T) element)
         {
             return element;
         }
@@ -119,6 +119,17 @@ struct HashMapOrSet(K, V = void,
     static typeof(this) withCapacity(size_t capacity)
     {
         return typeof(return)(capacity);
+    }
+
+    /** Make with `elements`. */
+    static typeof(this) withElements(T[] elements...)
+    {
+        typeof(this) that = withCapacity(elements.length);
+        foreach (const ref element; elements)
+        {
+            that.insert(element);
+        }
+        return that;
     }
 
     pragma(inline)              // LDC can, DMD cannot inline
@@ -817,7 +828,7 @@ private:
 
     /** Returns: bucket index of `key`. */
     pragma(inline, true)
-    size_t keyToBucketIx()(in auto ref K key) const
+    size_t keyToBucketIx(in ref K key) const
     {
         return hashToIndex(HashOf!(hasher)(key));
     }

@@ -32,12 +32,16 @@ void main()
     alias E = uint;
     immutable n = 1_000_000;
 
+    writeln("\nArrays:\n");
+
     foreach (A; AliasSeq!(CopyableArray!E,
                           VariantArrays!E,
                           StdArray!E,
                           Appender!(E[]),
                           E[]))
     {
+        write("- ");
+
         static if (hasMember!(A, `withCapacity`))
         {
             auto a = A.withCapacity(n);
@@ -65,6 +69,8 @@ void main()
         // static if (hasMember!(A, `clear`)) { a.clear(); }
     }
 
+    writeln("\nSets:\n");
+
     foreach (A; AliasSeq!(DenseSetFilter!(E),
                           DenseSetFilterGrowableArray!(E),
 
@@ -89,6 +95,8 @@ void main()
     {
         // scope
         A a;
+
+        write("- ");
 
         {
             immutable before = MonoTime.currTime();
@@ -133,11 +141,15 @@ void main()
         // static if (hasMember!(A, `clear`)) { a.clear(); }
     }
 
+    writeln("\nMaps:\n");
+
     foreach (A; AliasSeq!(HashMap!(uint, uint, null, FNV!(64, true)),
                           HashMap!(ulong, ulong, null, FNV!(64, true)),
                           HashMap!(ulong, ulong, null, FNV!(64, true), 2)))
     {
         A a;
+
+        write("- ");
 
         {
             immutable before = MonoTime.currTime();
@@ -183,6 +195,8 @@ void main()
     foreach (A; AliasSeq!(ValueType[E]))
     {
         A a = A.init;
+
+        write("- ");
 
         {
             immutable before = MonoTime.currTime();

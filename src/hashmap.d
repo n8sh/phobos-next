@@ -381,7 +381,8 @@ struct HashMapOrSet(K, V = void,
         }
     }
 
-    /** Element reference (and in turn range iterator). */
+    /** Element reference (and in turn range iterator).
+     */
     static private struct ElementRef
     {
         HashMapOrSet* table;
@@ -402,6 +403,8 @@ struct HashMapOrSet(K, V = void,
 
     static if (hasValue)        // HashMap
     {
+        alias KeyValueRef = ElementRef;
+
         /** Value reference (and in turn range iterator). */
         static private struct ValueRef
         {

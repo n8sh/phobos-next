@@ -134,7 +134,7 @@ struct HashMapOrSet(K, V = void,
         }
         else
         {
-            typeof(this) that;
+            typeof(this) that;  // TODO if `isForwardRange` count elements
         }
         foreach (const ref element; elements)
         {

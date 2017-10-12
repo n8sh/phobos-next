@@ -61,7 +61,7 @@ void main()
             a ~= i.to!uint;      // need to cast away const here
         }
         immutable after = MonoTime.currTime();
-        write("Appended ", n, " integers in ", (after - before).total!"msecs", " msecs");
+        write("Appended: ", (after - before).total!"msecs", " msecs");
 
         writeln(` for `, A.stringof);
 

@@ -48,6 +48,7 @@ struct SOA(S)
     void insertBackMembers(Types types)
     {
         if (_length == _capacity) { grow(); }
+        version(LDC) static if (__VERSION__ >= 2076) { static assert(0, "TODO use static foreach"); }
         foreach (const index, _; MemberNames)
         {
             import std.algorithm.mutation : move;

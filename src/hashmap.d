@@ -46,6 +46,7 @@ struct HashMapOrSet(K, V = void,
     import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor;
     import std.algorithm.mutation : move, moveEmplace, moveEmplaceAll;
     import std.algorithm.searching : canFind, countUntil;
+    import std.algorithm.comparison : max;
     import std.conv : emplace;
     import hash_ex : HashOf;
     import prime_modulo;
@@ -725,7 +726,9 @@ struct HashMapOrSet(K, V = void,
         }
     }
 
-    import std.algorithm : max;
+    /** Maximum number of elements that fits in a small bucket
+     * (`SmallBucket`).
+     */
     enum smallBucketCapacity = max(smallBucketMinCapacity,
                                    LargeBucket.sizeof / T.sizeof);
 

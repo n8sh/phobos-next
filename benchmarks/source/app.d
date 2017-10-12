@@ -157,7 +157,7 @@ void main()
                           HashMap!(ulong, ulong, null, muellerHash64),
                           HashMap!(ulong, ulong, null, wangMixHash64),
                           HashMap!(ulong, ulong, null, FNV!(64, true)),
-                          HashMap!(ulong, ulong, null, FNV!(64, true), 2)))
+                          HashMap!(ulong, ulong, null, FNV!(64, true))))
     {
         A a;
 

@@ -146,6 +146,8 @@ void main()
     writeln("\nMaps:\n");
 
     foreach (A; AliasSeq!(HashMap!(uint, uint, null, FNV!(64, true)),
+                          HashMap!(uint, uint, null, muellerHash64),
+                          HashMap!(uint, uint, null, wangMixHash64),
                           HashMap!(ulong, ulong, null, FNV!(64, true)),
                           HashMap!(ulong, ulong, null, FNV!(64, true), 2)))
     {

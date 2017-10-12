@@ -57,25 +57,25 @@ struct SOA(S)
         ++_length;
     }
 
-    /// Push element (struct) `e` to back of array.
-    void insertBack(S e)
+    /// Push element (struct) `value` to back of array.
+    void insertBack(S value)
     {
         if (_length == _capacity) { grow(); }
         version(LDC) static if (__VERSION__ >= 2076) { static assert(0, "TODO use static foreach"); }
         foreach (const index, _; MemberNames)
         {
             import std.algorithm.mutation : move;
-            move(__traits(getMember, e, MemberNames[index]),
-                 getArray!index[_length]); // same as `getArray!index[_length] = __traits(getMember, e, MemberNames[index]);`
+            move(__traits(getMember, value, MemberNames[index]),
+                 getArray!index[_length]); // same as `getArray!index[_length] = __traits(getMember, value, MemberNames[index]);`
         }
         ++_length;
     }
 
-    void opOpAssign(string op, S)(S e)
+    void opOpAssign(string op, S)(S value)
         if (op == "~")
     {
         import std.algorithm.mutation : move;
-        insertBack(move(e));      // TODO remove when compiler does this for us
+        insertBack(move(value));      // TODO remove when compiler does this for us
     }
 
     /// Length of this array.

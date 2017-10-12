@@ -18,8 +18,6 @@ enum InsertionStatus { added, modified, unchanged }
  *
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  *
- * TODO add withElements() with fast pre-allocation `withCapacity`
- *
  * TODO add flag for use growth factor smaller than powers of two. use prime_modulo.d
  *
  * TODO use core.bitop : bsr, bsl to find first empty element in bucket
@@ -121,10 +119,20 @@ struct HashMapOrSet(K, V = void,
         return typeof(return)(capacity);
     }
 
+    import std.traits : isIterable;
+
     /** Make with `elements`. */
-    static typeof(this) withElements(T[] elements...)
+    static typeof(this) withElements(R)(R elements)
+        if (isIterable!R)
     {
-        typeof(this) that = withCapacity(elements.length);
+        static if (hasLength!R)
+        {
+            typeof(this) that = withCapacity(elements.length);
+        }
+        else
+        {
+            typeof(this) that;
+        }
         foreach (const ref element; elements)
         {
             that.insert(element);

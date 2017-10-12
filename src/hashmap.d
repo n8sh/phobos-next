@@ -394,27 +394,27 @@ struct HashMapOrSet(K, V = void,
             return table !is null;
         }
 
-        static if (hasValue)
-        {
-            /** Get key part of referenced element. */
-            scope ref inout(K) asKey() inout return
-            {
-                return table.bucketElementsAt(bucketIx)[elementOffset].key;
-            }
+        // static if (hasValue)
+        // {
+        //     /** Get key part of referenced element. */
+        //     scope ref inout(K) asKey() inout return
+        //     {
+        //         return table.bucketElementsAt(bucketIx)[elementOffset].key;
+        //     }
 
-            /** Get value part of referenced element. */
-            scope ref inout(V) asValue() inout return
-            {
-                return table.bucketElementsAt(bucketIx)[elementOffset].value;
-            }
-        }
+        //     /** Get value part of referenced element. */
+        //     scope ref inout(V) asValue() inout return
+        //     {
+        //         return table.bucketElementsAt(bucketIx)[elementOffset].value;
+        //     }
+        // }
 
-        /** Get element of reference. */
-        scope ref inout(T) opUnary(string s)() inout return
-            if (s == "*")
-        {
-            return table.bucketElementsAt(bucketIx)[elementOffset];
-        }
+        // /** Get element of reference. */
+        // scope ref inout(T) opUnary(string s)() inout return
+        //     if (s == "*")
+        // {
+        //     return table.bucketElementsAt(bucketIx)[elementOffset];
+        // }
     }
 
     static if (hasValue)        // HashMap
@@ -463,11 +463,13 @@ struct HashMapOrSet(K, V = void,
 
         static private struct ByKey
         {
+            /// Check if empty.
             @property bool empty() const
             {
                 return bucketIx == table.bucketCount;
             }
 
+            /// Get reference to front element.
             @property scope ref inout(K) front() inout return
             {
                 return table.bucketElementsAt(bucketIx)[elementOffset].key;
@@ -915,7 +917,7 @@ alias HashMap(K, V,
         {
             import basic_uncopyable_array : Array = UncopyableArray;
             Array!(X.ElementType) a1;
-            foreach (key; x1.byKey)
+            foreach (const ref key; x1.byKey)
             {
                 auto eRef = key in x1;
                 assert(eRef);

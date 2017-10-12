@@ -38,7 +38,9 @@ enum InsertionStatus { added, modified, unchanged }
 struct HashMapOrSet(K, V = void,
                     alias Allocator = null,
                     alias hasher = hashOf,
-                    uint smallBucketMinCapacity = 1)
+                    uint smallBucketMinCapacity = 1,
+                    uint bucketScaleNumerator = 3,
+                    uint bucketScaleDenominator = 2)
     if (smallBucketMinCapacity >= 1) // no use having empty small buckets
 {
     import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor;

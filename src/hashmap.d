@@ -922,18 +922,21 @@ alias HashMap(K, V,
         {
             import basic_uncopyable_array : Array = UncopyableArray;
             Array!(X.ElementType) a1;
+
             foreach (const ref key; x1.byKey)
             {
-                auto eRef = key in x1;
-                assert(eRef);
-                a1 ~= X.ElementType(key, (*eRef));
+                auto keyPtr = key in x1;
+                assert(keyPtr);
+                a1 ~= X.ElementType(key, (*keyPtr));
             }
+
             assert(x1.length == a1.length);
-            foreach (element; a1[])
+
+            foreach (aElement; a1[])
             {
-                auto eRef = element.key in x1;
-                assert(eRef);
-                assert((*eRef) == element.value);
+                auto keyPtr = aElement.key in x1;
+                assert(keyPtr);
+                assert((*keyPtr) == aElement.value);
             }
         }
 

@@ -138,6 +138,10 @@ void main()
         {
             writef(" %s", a.bucketCounts());
         }
+        static if (hasMember!(A, `smallBucketCapacity`))
+        {
+            writef(" smallBucketCapacity:%s", A.smallBucketCapacity);
+        }
 
         writeln();
 
@@ -193,6 +197,10 @@ void main()
         static if (hasMember!(A, `bucketCounts`))
         {
             writef(" %s", a.bucketCounts());
+        }
+        static if (hasMember!(A, `smallBucketCapacity`))
+        {
+            writef(" smallBucketCapacity:%s", A.smallBucketCapacity);
         }
 
         writeln();

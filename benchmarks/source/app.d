@@ -29,7 +29,7 @@ void main()
 
     import std.conv : to;
 
-    immutable n = 1000000;
+    immutable n = 1024*1024;
 
     writefln("\nArrays:\n");
 

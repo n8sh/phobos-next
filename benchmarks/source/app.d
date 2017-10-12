@@ -217,6 +217,16 @@ void main()
 
         {
             immutable before = MonoTime.currTime();
+            foreach (const i; 0 .. n)
+            {
+                const hit = i in a;
+            }
+            immutable after = MonoTime.currTime();
+            write(", Checking: ", (after - before).total!"msecs", " msecs");
+        }
+
+        {
+            immutable before = MonoTime.currTime();
             a.rehash();
             immutable after = MonoTime.currTime();
             write(", Rehashing: ", (after - before).total!"msecs", " msecs");
@@ -229,7 +239,7 @@ void main()
                 const hit = i in a;
             }
             immutable after = MonoTime.currTime();
-            write(", Checking: ", (after - before).total!"msecs", " msecs");
+            write(", Checking (after rehash): ", (after - before).total!"msecs", " msecs");
         }
 
         write(` for `, A.stringof);

@@ -118,11 +118,6 @@ void main()
             write(", Checking: ", (after - before).total!"msecs", " msecs");
         }
 
-        static if (hasMember!(A, `bucketCounts`))
-        {
-            write(" ", a.bucketCounts());
-        }
-
         static if (hasMember!(A, `withCapacity`))
         {
             A b = A.withCapacity(n);
@@ -136,9 +131,16 @@ void main()
             write(", Insertion (no growth): ", (after - before).total!"msecs", " msecs");
         }
 
-        writeln(` for `, A.stringof);
+        write(` for `, A.stringof);
 
-        // static if (hasMember!(A, `clear`)) { a.clear(); }
+        static if (hasMember!(A, `bucketCounts`))
+        {
+            write(" ", a.bucketCounts());
+        }
+
+        writeln();
+
+        static if (hasMember!(A, `clear`)) { a.clear(); }
     }
 
     writeln("\nMaps:\n");
@@ -171,11 +173,6 @@ void main()
             write(", Checking: ", (after - before).total!"msecs", " msecs");
         }
 
-        static if (hasMember!(A, `bucketCounts`))
-        {
-            write(" ", a.bucketCounts());
-        }
-
         A b = A.withCapacity(n);
         immutable before = MonoTime.currTime();
         foreach (const i; 0 .. n)
@@ -185,9 +182,16 @@ void main()
         immutable after = MonoTime.currTime();
         write(", Insertion (no growth): ", (after - before).total!"msecs", " msecs");
 
-        writeln(` for `, A.stringof);
+        write(` for `, A.stringof);
 
-        // static if (hasMember!(A, `clear`)) { a.clear(); }
+        static if (hasMember!(A, `bucketCounts`))
+        {
+            write(" ", a.bucketCounts());
+        }
+
+        writeln();
+
+        static if (hasMember!(A, `clear`)) { a.clear(); }
     }
 
     alias ValueType = uint;
@@ -225,8 +229,10 @@ void main()
             write(", Checking: ", (after - before).total!"msecs", " msecs");
         }
 
-        writeln(` for `, A.stringof);
+        write(` for `, A.stringof);
 
-        // static if (hasMember!(A, `clear`)) { a.clear(); }
+        writeln();
+
+        static if (hasMember!(A, `clear`)) { a.clear(); }
     }
 }

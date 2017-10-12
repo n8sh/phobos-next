@@ -29,16 +29,15 @@ void main()
 
     import std.conv : to;
 
-    alias E = uint;
     immutable n = 1_000_000;
 
     writeln("\nArrays:\n");
 
-    foreach (A; AliasSeq!(CopyableArray!E,
-                          VariantArrays!E,
-                          StdArray!E,
-                          Appender!(E[]),
-                          E[]))
+    foreach (A; AliasSeq!(CopyableArray!uint,
+                          VariantArrays!uint,
+                          StdArray!uint,
+                          Appender!(uint[]),
+                          uint[]))
     {
         write("- ");
 
@@ -59,7 +58,7 @@ void main()
         immutable before = MonoTime.currTime();
         foreach (const i; 0 .. n)
         {
-            a ~= i.to!E;      // need to cast away const here
+            a ~= i.to!uint;      // need to cast away const here
         }
         immutable after = MonoTime.currTime();
         write("Appended ", n, " integers in ", (after - before).total!"msecs", " msecs");
@@ -71,26 +70,26 @@ void main()
 
     writeln("\nSets:\n");
 
-    foreach (A; AliasSeq!(DenseSetFilter!(E),
-                          DenseSetFilterGrowableArray!(E),
+    foreach (A; AliasSeq!(DenseSetFilter!(uint),
+                          DenseSetFilterGrowableArray!(uint),
 
                           // functions
-                          HashSet!(E, null, identityHash64Of),
-                          HashSet!(E, null, typeidHashOf),
-                          HashSet!(E, null, hashOf),
-                          HashSet!(E, null, muellerHash64),
-                          HashSet!(E, null, wangMixHash64),
+                          HashSet!(uint, null, identityHash64Of),
+                          HashSet!(uint, null, typeidHashOf),
+                          HashSet!(uint, null, hashOf),
+                          HashSet!(uint, null, muellerHash64),
+                          HashSet!(uint, null, wangMixHash64),
 
                           // std.digests
-                          HashSet!(E, null, MurmurHash3!(128)),
-                          HashSet!(E, null, FNV!(64, true)),
+                          HashSet!(uint, null, MurmurHash3!(128)),
+                          HashSet!(uint, null, FNV!(64, true)),
                           HashSet!(ulong, null, FNV!(64, true), 2),
                           HashSet!(ulong, null, FNV!(64, true), 3),
                           HashSet!(ulong, null, FNV!(64, true), 4),
-                          HashSet!(E, null, XXHash64),
+                          HashSet!(uint, null, XXHash64),
 
                           // radix tree
-                          RadixTreeSetGrowOnly!(E),
+                          RadixTreeSetGrowOnly!(uint),
                  ))
     {
         // scope
@@ -195,10 +194,11 @@ void main()
         static if (hasMember!(A, `clear`)) { a.clear(); }
     }
 
-    alias ValueType = uint;
-
-    foreach (A; AliasSeq!(ValueType[E]))
+    foreach (E; AliasSeq!(uint, ulong))
     {
+        alias KeyType = uint;
+        alias ValueType = uint;
+        alias A = ValueType[KeyType];
         A a = A.init;
 
         write("- ");

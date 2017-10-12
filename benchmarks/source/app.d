@@ -77,18 +77,20 @@ void main()
                           HashSet!(uint, null, identityHash64Of),
                           HashSet!(uint, null, typeidHashOf),
                           HashSet!(uint, null, hashOf),
+
                           HashSet!(uint, null, muellerHash64),
                           HashSet!(uint, null, wangMixHash64),
-
-                          // std.digests
-                          HashSet!(uint, null, MurmurHash3!(128)),
                           HashSet!(uint, null, FNV!(64, true)),
-                          HashSet!(uint, null, XXHash64),
 
+                          HashSet!(ulong, null, wangMixHash64),
                           HashSet!(ulong, null, muellerHash64),
                           HashSet!(ulong, null, FNV!(64, true), 2),
                           HashSet!(ulong, null, FNV!(64, true), 3),
                           HashSet!(ulong, null, FNV!(64, true), 4),
+
+                          // std.digests
+                          HashSet!(uint, null, MurmurHash3!(128)),
+                          HashSet!(uint, null, XXHash64),
 
                           // radix tree
                           RadixTreeSetGrowOnly!(uint),

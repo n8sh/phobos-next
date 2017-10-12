@@ -46,8 +46,7 @@
  */
 module rational;
 
-import std.algorithm, std.bigint, std.conv, std.exception, std.math,
-       std.traits;
+import std.algorithm, std.bigint, std.conv, std.exception, std.math;
 
 alias abs = std.math.abs;       // allow cross-module overloading
 
@@ -86,6 +85,7 @@ alias abs = std.math.abs;       // allow cross-module overloading
  */
 template isIntegerLike(T)
 {
+    import std.traits : isMutable;
     static if (isMutable!T)
     {
         enum bool isIntegerLike = is(typeof(
@@ -115,6 +115,7 @@ template isIntegerLike(T)
     }
     else
     {
+        import std.traits : Unqual;
         alias isIntegerLike = isIntegerLike!(Unqual!T);
     }
 }
@@ -155,7 +156,9 @@ template CommonInteger(I1, I2)
 if (isIntegerLike!I1 &&
     isIntegerLike!I2)
 {
-    alias typeof(Unqual!(I1).init * Unqual!(I2).init) CommonInteger;
+    import std.traits : Unqual;
+    alias typeof(Unqual!(I1).init *
+                 Unqual!(I2).init) CommonInteger;
 }
 
 unittest
@@ -489,9 +492,12 @@ if (isIntegerLike!Int)
         return ret;
     }
 
+    import std.traits : isAssignable;
+
     // ---------------------Assignment operators------------------------------------
     typeof(this) opAssign(Rhs)(Rhs rhs)
-        if (isIntegerLike!Rhs && isAssignable!(Int, Rhs))
+        if (isIntegerLike!Rhs &&
+            isAssignable!(Int, Rhs))
     {
         this.num = rhs;
         this.den = 1;
@@ -499,7 +505,8 @@ if (isIntegerLike!Int)
     }
 
     typeof(this) opAssign(Rhs)(Rhs rhs)
-        if (isRational!Rhs && isAssignable!(Int, typeof(Rhs.numerator)))
+        if (isRational!Rhs &&
+            isAssignable!(Int, typeof(Rhs.numerator)))
     {
         this.num = rhs.numerator;
         this.den = rhs.denominator;
@@ -613,10 +620,13 @@ if (isIntegerLike!Int)
         return this;
     }
 
+    import std.traits : isFloatingPoint;
+
     ///Convert to floating point representation.
     F opCast(F)()
     if (isFloatingPoint!F)
     {
+        import std.traits : isIntegral;
         // Do everything in real precision, then convert to F at the end.
         static if (isIntegral!(Int))
         {
@@ -942,6 +952,8 @@ Rational!(Int) toRational(Int)(real floatNum, real epsilon = 1e-8)
 
 private Rational!Int toRationalImpl(Int)(real floatNum, real epsilon)
 {
+    import std.traits : isIntegral;
+
     real actualEpsilon;
     Rational!Int ret;
 
@@ -1019,7 +1031,9 @@ if (isIntegerLike!I1 &&
                is(I2 == const) || is(I2 == immutable))
     {
         // Doesn't work with immutable(BigInt).
-        return gcf!(Unqual!I1, Unqual!I2)(m, n);
+        import std.traits : Unqual;
+        return gcf!(Unqual!I1,
+                    Unqual!I2)(m, n);
     }
     else
     {
@@ -1128,6 +1142,8 @@ Int round(Int)(Rational!Int r)
         added = true;
         intPart += 1;
     }
+
+    import std.traits : isUnsigned;
 
     static if (!isUnsigned!Int)
     {

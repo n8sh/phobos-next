@@ -389,10 +389,10 @@ struct HashMapOrSet(K, V = void,
         size_t bucketIx;        // index to bucket inside table
         size_t elementOffset;   // offset to element inside bucket
 
-        bool opCast(T : bool)() const
-        {
-            return table !is null;
-        }
+        // bool opCast(T : bool)() const
+        // {
+        //     return table !is null;
+        // }
 
         // static if (hasValue)
         // {
@@ -503,7 +503,7 @@ struct HashMapOrSet(K, V = void,
                 return this;
             }
 
-            private ElementRef _elementRef;  // range iterator, TODO alias this
+            private ElementRef _elementRef;  // range iterator
             alias _elementRef this;
         }
 

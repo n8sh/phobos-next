@@ -148,10 +148,8 @@ struct HashMapOrSet(K, V = void,
     {
         // TODO return direct call to store constructor
         typeof(return) that;
-
         that._buckets = Buckets.withLength(bucketCount);
         that._bstates = Bstates.withLength(bucketCount);
-
         that._length = 0;
         return that;
     }
@@ -161,10 +159,8 @@ struct HashMapOrSet(K, V = void,
     private this(size_t capacity)
     {
         immutable bucketCount = bucketCountOfCapacity(capacity);
-
         _buckets = Buckets.withLength(bucketCount);
         _bstates = Bstates.withLength(bucketCount);
-
         assert(_bstates.length == bucketCount);
         _length = 0;
     }

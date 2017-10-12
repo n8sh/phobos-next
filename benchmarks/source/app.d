@@ -196,8 +196,8 @@ void main()
 
     foreach (E; AliasSeq!(uint, ulong))
     {
-        alias KeyType = uint;
-        alias ValueType = uint;
+        alias KeyType = E;
+        alias ValueType = E;
         alias A = ValueType[KeyType];
         A a = A.init;
 

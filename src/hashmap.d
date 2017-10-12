@@ -405,6 +405,12 @@ struct HashMapOrSet(K, V = void,
                 return table.bucketElementsAt(bucketIx)[elementOffset].value;
             }
         }
+
+        scope ref inout(T) opUnary(string s)() inout return
+            if (s == "*")
+        {
+            return table.bucketElementsAt(bucketIx)[elementOffset];
+        }
     }
 
     static if (hasValue)        // HashMap

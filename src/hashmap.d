@@ -55,9 +55,6 @@ struct HashMapOrSet(K, V = void,
      */
     enum hasValue = !is(V == void);
 
-    /** Type of key stored. */
-    alias KeyType = K;
-
     pragma(inline):
 
     /// Element type.
@@ -87,6 +84,10 @@ struct HashMapOrSet(K, V = void,
             return element.value;
         }
 
+        /** Type of key stored. */
+        alias KeyType = K;
+
+        /** Type of value stored. */
         alias ValueType = V;
 
         enum keyEqualPred = "a.key == b";

@@ -437,7 +437,7 @@ struct CopyableArray(T,
         return slice()[i .. j] = value;
     }
 
-    /// Get front element reference.
+    /// Get reference to front element.
     pragma(inline, true)
     scope ref inout(T) front() inout return @property
     {
@@ -445,7 +445,7 @@ struct CopyableArray(T,
         return slice()[0];
     }
 
-    /// Get back element reference.
+    /// Get reference to back element.
     pragma(inline, true)
     scope ref inout(T) back() inout return @property
     {

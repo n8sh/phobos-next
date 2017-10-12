@@ -5,7 +5,7 @@
  */
 module soa;
 
-@safe /*pure*/:
+@safe /*TODO pure*/:
 
 /** Structure of arrays similar to members of `S`.
  */

@@ -29,7 +29,7 @@ void main()
 
     import std.conv : to;
 
-    immutable n = 512*1024 * 3 / 2;
+    immutable n = 512*1024 + 1;
 
     writefln("\nArrays:\n");
 
@@ -63,7 +63,7 @@ void main()
         immutable after = MonoTime.currTime();
         writef("Appended: %6s us", (after - before).total!"usecs");
 
-        writefln(` for `, A.stringof);
+        writefln(` for %s`, A.stringof);
 
         static if (hasMember!(A, `clear`)) { a.clear(); }
     }
@@ -129,7 +129,7 @@ void main()
                 b.insert(i);
             }
             immutable after = MonoTime.currTime();
-            writef(", Insertion (no growth): %6s us", (after - before).total!"usecs");
+            writef(", Insert (no growth): %6s us", (after - before).total!"usecs");
         }
 
         writef(` for %s`, A.stringof);
@@ -147,9 +147,11 @@ void main()
     writefln("\nMaps:\n");
 
     foreach (A; AliasSeq!(HashMap!(uint, uint, null, muellerHash64),
+                          HashMap!(uint, uint, null, wangMixHash64),
                           HashMap!(uint, uint, null, FNV!(64, true)),
 
                           HashMap!(ulong, ulong, null, muellerHash64),
+                          HashMap!(ulong, ulong, null, wangMixHash64),
                           HashMap!(ulong, ulong, null, FNV!(64, true)),
                           HashMap!(ulong, ulong, null, FNV!(64, true), 2)))
     {
@@ -184,7 +186,7 @@ void main()
             b.insert(A.ElementType(i, A.ValueType.init));
         }
         immutable after = MonoTime.currTime();
-        writef(", Insertion (no growth): %6s us", (after - before).total!"usecs");
+        writef(", Insert (no growth): %6s us", (after - before).total!"usecs");
 
         writef(` for %s`, A.stringof);
 

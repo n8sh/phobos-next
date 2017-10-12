@@ -153,8 +153,8 @@ alias isQ = isRational;
  * as the type returned by I1.init * I2.init.
  */
 template CommonInteger(I1, I2)
-if (isIntegerLike!I1 &&
-    isIntegerLike!I2)
+    if (isIntegerLike!I1 &&
+        isIntegerLike!I2)
 {
     import std.traits : Unqual;
     alias typeof(Unqual!(I1).init *
@@ -222,8 +222,8 @@ template CommonRational(R1, R2)
  * ---
  */
 Rational!(CommonInteger!(I1, I2)) rational(I1, I2)(I1 i1, I2 i2)
-if (isIntegerLike!I1 &&
-    isIntegerLike!I2)
+    if (isIntegerLike!I1 &&
+        isIntegerLike!I2)
 {
     static if (is(typeof(typeof(return)(i1, i2))))
     {
@@ -245,9 +245,9 @@ if (isIntegerLike!I1 &&
 
 ///Ditto
 Rational!(I) rational(I)(I val)
-if (isIntegerLike!I)
+    if (isIntegerLike!I)
 {
-     return rational(val, 1);
+    return rational(val, 1);
 }
 
 /**
@@ -258,9 +258,9 @@ if (isIntegerLike!I)
  * $(D Rational) or another integer type.
  */
 struct Rational(Int)
-if (isIntegerLike!Int)
+    if (isIntegerLike!Int)
 {
-  public:
+public:
     // ----------------Multiplication operators----------------------------------
     auto opBinary(string op, Rhs)(Rhs rhs)
         if (op == "*" && is(CommonRational!(Int, Rhs)) && isRational!Rhs)
@@ -624,7 +624,7 @@ if (isIntegerLike!Int)
 
     ///Convert to floating point representation.
     F opCast(F)()
-    if (isFloatingPoint!F)
+        if (isFloatingPoint!F)
     {
         import std.traits : isIntegral;
         // Do everything in real precision, then convert to F at the end.
@@ -1024,8 +1024,8 @@ unittest
  * $(D m) and $(D n).
  */
 CommonInteger!(I1, I2) gcf(I1, I2)(I1 m, I2 n)
-if (isIntegerLike!I1 &&
-    isIntegerLike!I2)
+    if (isIntegerLike!I1 &&
+        isIntegerLike!I2)
 {
     static if (is(I1 == const) || is(I1 == immutable) ||
                is(I2 == const) || is(I2 == immutable))
@@ -1066,8 +1066,8 @@ unittest
 
 /// Find the Least Common Multiple (LCM) of $(D n1) and $(D n2).
 CommonInteger!(I1, I2) lcm(I1, I2)(I1 n1, I2 n2)
-if (isIntegerLike!I1 &&
-    isIntegerLike!I2)
+    if (isIntegerLike!I1 &&
+        isIntegerLike!I2)
 {
     n1 = abs(n1);
     n2 = abs(n2);

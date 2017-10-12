@@ -88,7 +88,8 @@ template isIntegerLike(T)
 {
     static if (isMutable!T)
     {
-        enum bool isIntegerLike = is(typeof({
+        enum bool isIntegerLike = is(typeof(
+        {
             T n;
             n = 2;
             n = n;

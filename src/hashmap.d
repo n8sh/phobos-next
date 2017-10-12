@@ -257,8 +257,7 @@ struct HashMapOrSet(K, V = void,
 
         assert(copy._length == _length); // length shouldn't change
 
-        // do the growth in-place
-        moveEmplace(copy._bstates, _bstates);
+        moveEmplace(copy._bstates, _bstates); // `_bstates` doesn't need destroying
         move(copy._buckets, _buckets);
 
         assert(!_buckets.empty);

@@ -396,16 +396,20 @@ struct HashMapOrSet(K, V = void,
 
         static if (hasValue)
         {
+            /** Get key part of referenced element. */
             scope ref inout(K) asKey() inout return
             {
                 return table.bucketElementsAt(bucketIx)[elementOffset].key;
             }
+
+            /** Get value part of referenced element. */
             scope ref inout(V) asValue() inout return
             {
                 return table.bucketElementsAt(bucketIx)[elementOffset].value;
             }
         }
 
+        /** Get element of reference. */
         scope ref inout(T) opUnary(string s)() inout return
             if (s == "*")
         {

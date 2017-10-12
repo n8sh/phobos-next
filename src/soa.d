@@ -140,6 +140,7 @@ private:
         {
             _alloc = allocatorObject(Mallocator.instance);
         }
+        version(LDC) static if (__VERSION__ >= 2076) { static assert(0, "TODO use static foreach"); }
         foreach (const index, _; MemberNames)
         {
             getArray!index = _alloc.makeArray!(Types[index])(newCapacity);

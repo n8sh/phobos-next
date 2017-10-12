@@ -31,7 +31,7 @@ void main()
 
     immutable n = 1024*1024;
 
-    writeln("Element count: %s\n", n);
+    writefln("Element count: %s\n", n);
 
     writefln("\nArrays:\n");
 

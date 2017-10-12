@@ -23,15 +23,15 @@ void main()
 
     import trie : RadixTreeSetGrowOnly;
 
-    import std.stdio : write, writeln;
+    import std.stdio : write, writeln, writef, writefln;
     import std.datetime : MonoTime;
     import std.meta : AliasSeq;
 
     import std.conv : to;
 
-    immutable n = 512*1024 + 1;
+    immutable n = 512*1024 * 3 / 2;
 
-    writeln("\nArrays:\n");
+    writefln("\nArrays:\n");
 
     foreach (A; AliasSeq!(CopyableArray!uint,
                           VariantArrays!uint,
@@ -39,7 +39,7 @@ void main()
                           Appender!(uint[]),
                           uint[]))
     {
-        write("- ");
+        writef("- ");
 
         static if (hasMember!(A, `withCapacity`))
         {
@@ -61,14 +61,14 @@ void main()
             a ~= i.to!uint;      // need to cast away const here
         }
         immutable after = MonoTime.currTime();
-        write("Appended: ", (after - before).total!"msecs", " msecs");
+        writef("Appended: %6s us", (after - before).total!"usecs");
 
-        writeln(` for `, A.stringof);
+        writefln(` for `, A.stringof);
 
         static if (hasMember!(A, `clear`)) { a.clear(); }
     }
 
-    writeln("\nSets:\n");
+    writefln("\nSets:\n");
 
     foreach (A; AliasSeq!(DenseSetFilter!(uint),
                           DenseSetFilterGrowableArray!(uint),
@@ -97,7 +97,7 @@ void main()
         // scope
         A a;
 
-        write("- ");
+        writef("- ");
 
         {
             immutable before = MonoTime.currTime();
@@ -106,7 +106,7 @@ void main()
                 a.insert(i);
             }
             immutable after = MonoTime.currTime();
-            write("Insert (w growth): ", (after - before).total!"msecs", " msecs");
+            writef("Insert (w growth): %6s us", (after - before).total!"usecs");
         }
 
         {
@@ -116,7 +116,7 @@ void main()
                 const hit = a.contains(i);
             }
             immutable after = MonoTime.currTime();
-            write(", Checking: ", (after - before).total!"msecs", " msecs");
+            writef(", Checking: %6s us", (after - before).total!"usecs");
         }
 
         static if (hasMember!(A, `withCapacity`))
@@ -129,14 +129,14 @@ void main()
                 b.insert(i);
             }
             immutable after = MonoTime.currTime();
-            write(", Insertion (no growth): ", (after - before).total!"msecs", " msecs");
+            writef(", Insertion (no growth): %6s us", (after - before).total!"usecs");
         }
 
-        write(` for `, A.stringof);
+        writef(` for %s`, A.stringof);
 
         static if (hasMember!(A, `bucketCounts`))
         {
-            write(" ", a.bucketCounts());
+            writef(" %s", a.bucketCounts());
         }
 
         writeln();
@@ -144,7 +144,7 @@ void main()
         static if (hasMember!(A, `clear`)) { a.clear(); }
     }
 
-    writeln("\nMaps:\n");
+    writefln("\nMaps:\n");
 
     foreach (A; AliasSeq!(HashMap!(uint, uint, null, muellerHash64),
                           HashMap!(uint, uint, null, FNV!(64, true)),
@@ -155,7 +155,7 @@ void main()
     {
         A a;
 
-        write("- ");
+        writef("- ");
 
         {
             immutable before = MonoTime.currTime();
@@ -164,7 +164,7 @@ void main()
                 a.insert(A.ElementType(i, A.ValueType.init));
             }
             immutable after = MonoTime.currTime();
-            write("Insert (w growth): ", (after - before).total!"msecs", " msecs");
+            writef("Insert (w growth): %6s us", (after - before).total!"usecs");
         }
 
         {
@@ -174,7 +174,7 @@ void main()
                 const hit = a.contains(A.ElementType(i, A.ValueType.init));
             }
             immutable after = MonoTime.currTime();
-            write(", Checking: ", (after - before).total!"msecs", " msecs");
+            writef(", Checking: %6s us", (after - before).total!"usecs");
         }
 
         A b = A.withCapacity(n);
@@ -184,13 +184,13 @@ void main()
             b.insert(A.ElementType(i, A.ValueType.init));
         }
         immutable after = MonoTime.currTime();
-        write(", Insertion (no growth): ", (after - before).total!"msecs", " msecs");
+        writef(", Insertion (no growth): %6s us", (after - before).total!"usecs");
 
-        write(` for `, A.stringof);
+        writef(` for %s`, A.stringof);
 
         static if (hasMember!(A, `bucketCounts`))
         {
-            write(" ", a.bucketCounts());
+            writef(" %s", a.bucketCounts());
         }
 
         writeln();
@@ -205,7 +205,7 @@ void main()
         alias A = ValueType[KeyType];
         A a = A.init;
 
-        write("- ");
+        writef("- ");
 
         {
             immutable before = MonoTime.currTime();
@@ -214,7 +214,7 @@ void main()
                 a[i] = ValueType.init;
             }
             immutable after = MonoTime.currTime();
-            write("Insert (w growth): ", (after - before).total!"msecs", " msecs");
+            writef("Insert (w growth): %6s us", (after - before).total!"usecs");
         }
 
         {
@@ -224,14 +224,14 @@ void main()
                 const hit = i in a;
             }
             immutable after = MonoTime.currTime();
-            write(", Checking: ", (after - before).total!"msecs", " msecs");
+            writef(", Checking: %6s us", (after - before).total!"usecs");
         }
 
         {
             immutable before = MonoTime.currTime();
             a.rehash();
             immutable after = MonoTime.currTime();
-            write(", Rehashing: ", (after - before).total!"msecs", " msecs");
+            writef(", Rehashing: %6s us", (after - before).total!"usecs");
         }
 
         {
@@ -241,10 +241,10 @@ void main()
                 const hit = i in a;
             }
             immutable after = MonoTime.currTime();
-            write(", Checking (after rehash): ", (after - before).total!"msecs", " msecs");
+            writef(", Checking (after rehash): %6s us", (after - before).total!"usecs");
         }
 
-        write(` for `, A.stringof);
+        writef(` for %s`, A.stringof);
 
         writeln();
 

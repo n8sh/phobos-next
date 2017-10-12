@@ -445,14 +445,14 @@ struct HashMapOrSet(K, V = void,
             }
         }
 
-        static private struct ByKey // TODO scope
+        static private struct ByKey
         {
             @property bool empty() const
             {
                 return bucketIx == table.bucketCount;
             }
 
-            @property auto front() inout
+            @property scope ref inout(K) front() inout return
             {
                 return table.bucketElementsAt(bucketIx)[elementOffset].key;
             }

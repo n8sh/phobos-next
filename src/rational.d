@@ -49,7 +49,7 @@ module rational;
 import std.algorithm, std.bigint, std.conv, std.exception, std.math,
        std.traits;
 
-alias std.math.abs abs;  // Allow cross-module overloading.
+alias abs = std.math.abs;       // allow cross-module overloading
 
 /**
  * Checks whether $(D T) is structurally an integer, i.e. whether it supports

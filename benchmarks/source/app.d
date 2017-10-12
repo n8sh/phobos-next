@@ -97,7 +97,7 @@ void main()
                 a.insert(i);
             }
             immutable after = MonoTime.currTime();
-            write("Insertion (with growth): ", after - before);
+            write("Insert (w growth): ", after - before);
         }
 
         {
@@ -125,7 +125,7 @@ void main()
                 b.insert(i);
             }
             immutable after = MonoTime.currTime();
-            write(", Insertion (without growth): ", after - before);
+            write(", Insertion (no growth): ", after - before);
         }
 
         writeln(` for `, A.stringof);
@@ -146,7 +146,7 @@ void main()
                 a.insert(A.ElementType(i, A.ValueType.init));
             }
             immutable after = MonoTime.currTime();
-            write("Insertion (with growth): ", after - before);
+            write("Insert (w growth): ", after - before);
         }
 
         {
@@ -171,7 +171,7 @@ void main()
             b.insert(A.ElementType(i, A.ValueType.init));
         }
         immutable after = MonoTime.currTime();
-        write(", Insertion (without growth): ", after - before);
+        write(", Insertion (no growth): ", after - before);
 
         writeln(` for `, A.stringof);
 
@@ -191,7 +191,7 @@ void main()
                 a[i] = ValueType.init;
             }
             immutable after = MonoTime.currTime();
-            write("Insertion (with growth): ", after - before);
+            write("Insert (w growth): ", after - before);
         }
 
         {

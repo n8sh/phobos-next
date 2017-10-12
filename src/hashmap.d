@@ -263,6 +263,7 @@ struct HashMapOrSet(K, V = void,
 
     /// Equality.
     bool opEquals(in ref typeof(this) rhs) const @trusted
+
     {
         if (_length != rhs._length) { return false; }
         foreach (immutable bucketIx; 0 .. _buckets.length)

@@ -394,10 +394,16 @@ struct HashMapOrSet(K, V = void,
             return table !is null;
         }
 
-        scope ref inout(T) opUnary(string s)() inout return
-            if (s == "*")
+        static if (hasValue)
         {
-            return table.bucketElementsAt(bucketIx)[elementOffset];
+            scope ref inout(K) key() inout return
+            {
+                return table.bucketElementsAt(bucketIx)[elementOffset].key;
+            }
+            scope ref inout(V) value() inout return
+            {
+                return table.bucketElementsAt(bucketIx)[elementOffset].value;
+            }
         }
     }
 

@@ -690,7 +690,7 @@ struct HashMapOrSet(K, V = void,
 
     /** Returns: elements in bucket at `bucketIx`. */
     pragma(inline, true)
-    private scope inout(T)[] bucketElementsAt(size_t bucketIx) inout return
+    private scope inout(T)[] bucketElementsAt(size_t bucketIx) inout return @trusted
     {
         if (_bstates[bucketIx].isLarge)
         {
@@ -710,7 +710,7 @@ struct HashMapOrSet(K, V = void,
 
     /** Returns: number of elements in bucket at `bucketIx`. */
     pragma(inline, true)
-    private size_t bucketElementCountAt(size_t bucketIx) const
+    private size_t bucketElementCountAt(size_t bucketIx) const @trusted
     {
         if (_bstates[bucketIx].isLarge)
         {

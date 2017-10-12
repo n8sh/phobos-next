@@ -58,7 +58,7 @@ void main()
             a ~= i.to!E;      // need to cast away const here
         }
         immutable after = MonoTime.currTime();
-        write("Appended ", n, " integers in ", after - before);
+        write("Appended ", n, " integers in ", (after - before).total!"msecs", " msecs");
 
         writeln(` for `, A.stringof);
 
@@ -97,7 +97,7 @@ void main()
                 a.insert(i);
             }
             immutable after = MonoTime.currTime();
-            write("Insert (w growth): ", after - before);
+            write("Insert (w growth): ", (after - before).total!"msecs", " msecs");
         }
 
         {
@@ -107,7 +107,7 @@ void main()
                 const hit = a.contains(i);
             }
             immutable after = MonoTime.currTime();
-            write(", Checking: ", after - before);
+            write(", Checking: ", (after - before).total!"msecs", " msecs");
         }
 
         static if (hasMember!(A, `bucketCounts`))
@@ -125,7 +125,7 @@ void main()
                 b.insert(i);
             }
             immutable after = MonoTime.currTime();
-            write(", Insertion (no growth): ", after - before);
+            write(", Insertion (no growth): ", (after - before).total!"msecs", " msecs");
         }
 
         writeln(` for `, A.stringof);
@@ -146,7 +146,7 @@ void main()
                 a.insert(A.ElementType(i, A.ValueType.init));
             }
             immutable after = MonoTime.currTime();
-            write("Insert (w growth): ", after - before);
+            write("Insert (w growth): ", (after - before).total!"msecs", " msecs");
         }
 
         {
@@ -156,7 +156,7 @@ void main()
                 const hit = a.contains(A.ElementType(i, A.ValueType.init));
             }
             immutable after = MonoTime.currTime();
-            write(", Checking: ", after - before);
+            write(", Checking: ", (after - before).total!"msecs", " msecs");
         }
 
         static if (hasMember!(A, `bucketCounts`))
@@ -171,7 +171,7 @@ void main()
             b.insert(A.ElementType(i, A.ValueType.init));
         }
         immutable after = MonoTime.currTime();
-        write(", Insertion (no growth): ", after - before);
+        write(", Insertion (no growth): ", (after - before).total!"msecs", " msecs");
 
         writeln(` for `, A.stringof);
 
@@ -191,14 +191,14 @@ void main()
                 a[i] = ValueType.init;
             }
             immutable after = MonoTime.currTime();
-            write("Insert (w growth): ", after - before);
+            write("Insert (w growth): ", (after - before).total!"msecs", " msecs");
         }
 
         {
             immutable before = MonoTime.currTime();
             a.rehash();
             immutable after = MonoTime.currTime();
-            write(", Rehashing: ", after - before);
+            write(", Rehashing: ", (after - before).total!"msecs", " msecs");
         }
 
         {
@@ -208,7 +208,7 @@ void main()
                 const hit = i in a;
             }
             immutable after = MonoTime.currTime();
-            write(", Checking: ", after - before);
+            write(", Checking: ", (after - before).total!"msecs", " msecs");
         }
 
         writeln(` for `, A.stringof);

@@ -39,8 +39,8 @@ struct HashMapOrSet(K, V = void,
                     alias Allocator = null,
                     alias hasher = hashOf,
                     uint smallBucketMinCapacity = 1,
-                    uint bucketScaleNumerator = 2,
-                    uint bucketScaleDenominator = 1)
+                    uint capacityScaleNumerator = 2,
+                    uint capacityScaleDenominator = 1)
     if (smallBucketMinCapacity >= 1) // no use having empty small buckets
 {
     import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor;
@@ -135,7 +135,7 @@ struct HashMapOrSet(K, V = void,
         else
         {
             typeof(this) that;  // TODO if `isForwardRange` count elements
-        }
+       }
         foreach (const ref element; elements)
         {
             that.insert(element);
@@ -146,8 +146,7 @@ struct HashMapOrSet(K, V = void,
     pragma(inline)              // LDC can, DMD cannot inline
     private static typeof(this) withBucketCount(size_t bucketCount)
     {
-        // TODO return direct call to store constructor
-        typeof(return) that;
+        typeof(return) that;    // TODO return direct call to store constructor
         that._buckets = Buckets.withLength(bucketCount);
         that._bstates = Bstates.withLength(bucketCount);
         that._length = 0;
@@ -168,10 +167,10 @@ struct HashMapOrSet(K, V = void,
      */
     static private size_t bucketCountOfCapacity(size_t capacity)
     {
-        const minimumBucketCount = ((bucketScaleNumerator *
+        const minimumBucketCount = ((capacityScaleNumerator *
                                      capacity) /
                                     (smallBucketCapacity *
-                                     bucketScaleDenominator));
+                                     capacityScaleDenominator));
         import std.math : nextPow2;
         return nextPow2(minimumBucketCount == 0 ?
                         0 :
@@ -339,7 +338,10 @@ struct HashMapOrSet(K, V = void,
      */
     InsertionStatus insert(T element)
     {
-        if (_length + 1 > _buckets.length * smallBucketCapacity)
+        if ((capacityScaleNumerator *
+             (_length + 1) /
+             capacityScaleDenominator) >
+            _buckets.length * smallBucketCapacity)
         {
             grow();
         }

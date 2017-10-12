@@ -161,7 +161,6 @@ struct HashMapOrSet(K, V = void,
         immutable bucketCount = bucketCountOfCapacity(capacity);
         _buckets = Buckets.withLength(bucketCount);
         _bstates = Bstates.withLength(bucketCount);
-        assert(_bstates.length == bucketCount);
         _length = 0;
     }
 

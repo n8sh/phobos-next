@@ -725,6 +725,10 @@ struct HashMapOrSet(K, V = void,
         }
     }
 
+    import std.algorithm : max;
+    enum smallBucketCapacity = max(smallBucketMinCapacity,
+                                   LargeBucket.sizeof / T.sizeof);
+
 private:
     import basic_uncopyable_array : Array = UncopyableArray;
 
@@ -732,10 +736,6 @@ private:
      * saves one word and makes insert() and contains() significantly faster */
     alias LargeBucketCapacityType = uint;
     alias LargeBucket = Array!(T, Allocator, LargeBucketCapacityType);
-
-    import std.algorithm : max;
-    enum smallBucketCapacity = max(smallBucketMinCapacity,
-                                   LargeBucket.sizeof / T.sizeof);
 
     alias SmallBucket = T[smallBucketCapacity];
 

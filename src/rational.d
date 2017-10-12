@@ -144,8 +144,8 @@ unittest
  * Checks if $(D T) has the basic properties of a rational type, i.e.  it has a
  * numerator and a denominator.
  */
-enum isRational(T) = (is(typeof(T.init.denominator)) &&
-                      is(typeof(T.init.numerator)));
+enum isRational(T) = (is(typeof(T.init.numerator)) &&
+                      is(typeof(T.init.denominator)));
 alias isQ = isRational;
 
 /**

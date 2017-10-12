@@ -396,11 +396,11 @@ struct HashMapOrSet(K, V = void,
 
         static if (hasValue)
         {
-            scope ref inout(K) key() inout return
+            scope ref inout(K) asKey() inout return
             {
                 return table.bucketElementsAt(bucketIx)[elementOffset].key;
             }
-            scope ref inout(V) value() inout return
+            scope ref inout(V) asValue() inout return
             {
                 return table.bucketElementsAt(bucketIx)[elementOffset].value;
             }

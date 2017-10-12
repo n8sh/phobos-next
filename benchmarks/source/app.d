@@ -29,7 +29,7 @@ void main()
 
     import std.conv : to;
 
-    immutable n = 1_000_000;
+    immutable n = 512*1024 + 1;
 
     writeln("\nArrays:\n");
 
@@ -83,10 +83,12 @@ void main()
                           // std.digests
                           HashSet!(uint, null, MurmurHash3!(128)),
                           HashSet!(uint, null, FNV!(64, true)),
+                          HashSet!(uint, null, XXHash64),
+
+                          HashSet!(ulong, null, muellerHash64),
                           HashSet!(ulong, null, FNV!(64, true), 2),
                           HashSet!(ulong, null, FNV!(64, true), 3),
                           HashSet!(ulong, null, FNV!(64, true), 4),
-                          HashSet!(uint, null, XXHash64),
 
                           // radix tree
                           RadixTreeSetGrowOnly!(uint),

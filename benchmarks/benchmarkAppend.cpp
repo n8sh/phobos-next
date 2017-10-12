@@ -5,15 +5,12 @@
 #include <unordered_map>
 #include <chrono>
 
-using std::cout;
-using std::endl;
-using std::hex;
-using std::dec;
+using namespace std;
 
 int main(int argc, const char* argv[], const char* envp[])
 {
     // save some typing
-    namespace cr = std::chrono;
+    namespace cr = chrono;
 
     // you can replace this with steady_clock or system_clock
     typedef cr::high_resolution_clock my_clock;
@@ -29,7 +26,7 @@ int main(int argc, const char* argv[], const char* envp[])
     {
         cout << "vector:: ";
 
-        std::vector<E> a;
+        vector<E> a;
         a.reserve(n);
 
         const auto start_time = my_clock::now();
@@ -46,7 +43,7 @@ int main(int argc, const char* argv[], const char* envp[])
 
     // unordered_set
     {
-        std::unordered_set<E> us;
+        unordered_set<E> us;
         us.reserve(n);
 
         cout << "unordered_set:: ";
@@ -84,7 +81,7 @@ int main(int argc, const char* argv[], const char* envp[])
 
     // unordered_map
     {
-        std::unordered_map<E, E> us;
+        unordered_map<E, E> us;
         us.reserve(n);
 
         cout << "unordered_map:: ";
@@ -93,7 +90,7 @@ int main(int argc, const char* argv[], const char* envp[])
             const auto start_time = my_clock::now();
             for (size_t i = 0; i < n; ++i)
             {
-                us.insert(std::make_pair(i, i));
+                us.insert(make_pair(i, i));
             }
             const auto end_time = my_clock::now();
 

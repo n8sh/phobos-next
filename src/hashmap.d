@@ -39,8 +39,8 @@ struct HashMapOrSet(K, V = void,
                     alias Allocator = null,
                     alias hasher = hashOf,
                     uint smallBucketMinCapacity = 1,
-                    uint bucketScaleNumerator = 3,
-                    uint bucketScaleDenominator = 2)
+                    uint bucketScaleNumerator = 2,
+                    uint bucketScaleDenominator = 1)
     if (smallBucketMinCapacity >= 1) // no use having empty small buckets
 {
     import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor;
@@ -160,20 +160,27 @@ struct HashMapOrSet(K, V = void,
      */
     private this(size_t capacity)
     {
-        const minimumBucketCount = capacity / smallBucketCapacity;
-        import std.math : nextPow2;
+        immutable bucketCount = bucketCountOfCapacity(capacity);
 
-        // make bucket count a power of two
-        immutable bucketCount = nextPow2(minimumBucketCount == 0 ?
-                                         0 :
-                                         minimumBucketCount - 1);
-
-        // initialize buckets and states
         _buckets = Buckets.withLength(bucketCount);
         _bstates = Bstates.withLength(bucketCount);
 
         assert(_bstates.length == bucketCount);
         _length = 0;
+    }
+
+    /** Lookup bucket count from capacity `capacity`.
+     */
+    static private size_t bucketCountOfCapacity(size_t capacity)
+    {
+        const minimumBucketCount = ((bucketScaleNumerator *
+                                     capacity) /
+                                    (smallBucketCapacity *
+                                     bucketScaleDenominator));
+        import std.math : nextPow2;
+        return nextPow2(minimumBucketCount == 0 ?
+                        0 :
+                        minimumBucketCount - 1);
     }
 
     /// Destruct.

@@ -65,7 +65,7 @@ void main()
 
         writeln(` for `, A.stringof);
 
-        // static if (hasMember!(A, `clear`)) { a.clear(); }
+        static if (hasMember!(A, `clear`)) { a.clear(); }
     }
 
     writeln("\nSets:\n");

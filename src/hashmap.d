@@ -25,7 +25,7 @@ enum InsertionStatus { added, modified, unchanged }
  * TODO Avoid extra length and capacity in _statuses (length or large) by making
  * it allocate in sync with buckets (using soa.d)
  *
- * TODO rehash: if allocator has realloc we can do rehashing in-place similar to
+ * TODO grow(): if allocator has realloc we can do rehashing in-place similar to
  * reordering in in-place radix (integer_sorting.d), otherwise rehash into new
  * copy of buckets and free old buckets when done. If bucket element count is >
  * 1 this is more complicated since each bucket contains a set of elements to

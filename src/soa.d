@@ -64,7 +64,8 @@ struct SOA(S)
         foreach (const index, _; MemberNames)
         {
             import std.algorithm.mutation : move;
-            move(__traits(getMember, e, MemberNames[index]), getArray!index[_length]); // same as `getArray!index[_length] = __traits(getMember, e, MemberNames[index]);`
+            move(__traits(getMember, e, MemberNames[index]),
+                 getArray!index[_length]); // same as `getArray!index[_length] = __traits(getMember, e, MemberNames[index]);`
         }
         ++_length;
     }

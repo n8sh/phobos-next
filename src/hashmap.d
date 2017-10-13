@@ -331,11 +331,11 @@ struct HashMapOrSet(K, V = void,
     }
 
     version(LDC) { pragma(inline, true): } // needed for LDC to inline this, DMD cannot
+    pragma(inline, true):                  // LDC must have this
 
     /** Check if `element` is stored.
         Returns: `true` if element was already present, `false` otherwise.
      */
-    pragma(inline, true)
     bool contains(in K key) const @trusted
     {
         if (empty)              // TODO can this check be avoided?
@@ -348,7 +348,6 @@ struct HashMapOrSet(K, V = void,
 
     /** Insert `element`, being either a key, value (map-case) or a just a key (set-case).
      */
-    pragma(inline, true)
     InsertionStatus insert(T element)
     {
         if ((capacityScaleNumerator *
@@ -364,7 +363,7 @@ struct HashMapOrSet(K, V = void,
     static if (hasValue)
     {
         /** Insert or replace `value` at `key`. */
-        pragma(inline, true)
+        pragma(inline, true)    // LDC must have this
         InsertionStatus insert(K key, V value)
         {
             return insert(T(key, value));
@@ -373,7 +372,6 @@ struct HashMapOrSet(K, V = void,
 
     /** Insert `element` like with `insert()` but without automatic growth.
      */
-    pragma(inline)
     InsertionStatus insertWithoutGrowth(T element) @trusted
     {
         immutable bucketIx = keyToBucketIx(keyRefOf(element));
@@ -472,7 +470,7 @@ struct HashMapOrSet(K, V = void,
 
     static if (!hasValue)       // HashSet
     {
-        pragma(inline, true)
+        pragma(inline, true)    // LDC must have this
         bool opBinaryRight(string op)(in K key) inout @trusted
             if (op == "in")
         {
@@ -589,6 +587,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Indexing.
+        pragma(inline, true)    // LDC must have this
         scope ref inout(V) opIndex(in K key) inout return
         {
             immutable bucketIx = keyToBucketIx(key);
@@ -627,6 +626,7 @@ struct HashMapOrSet(K, V = void,
 
 	/** Supports $(B aa[key] = value;) syntax.
 	 */
+        pragma(inline, true)    // LDC must have this
 	void opIndexAssign(V value, K key)
 	{
             insert(T(key, value));
@@ -709,12 +709,15 @@ struct HashMapOrSet(K, V = void,
     }
 
     /// Check if empty.
+    pragma(inline, true):
     @property bool empty() const { return _length == 0; }
 
     /// Get length (read-only).
+    pragma(inline, true):
     @property size_t length() const { return _length; }
 
     /// Get bucket count.
+    pragma(inline, true):
     @property size_t bucketCount() const { return _buckets.length; }
 
     /// Bucket count statistics.
@@ -725,6 +728,7 @@ struct HashMapOrSet(K, V = void,
     }
 
     /// Get bucket count statistics.
+    pragma(inline)
     BucketCounts bucketCounts() const
     {
         import std.algorithm : count;

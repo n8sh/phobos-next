@@ -430,14 +430,14 @@ struct HashMapOrSet(K, V = void,
         size_t bucketIx;        // index to bucket inside table
         size_t elementOffset;   // offset to element inside bucket
 
+        pragma(inline, true):
+
         /// Check if empty.
-        pragma(inline, true)
         @property bool empty() const
         {
             return bucketIx == table.bucketCount;
         }
 
-        pragma(inline, true)
         void initFirstNonEmptyBucket()
         {
             while (bucketIx < table.bucketCount &&
@@ -461,7 +461,6 @@ struct HashMapOrSet(K, V = void,
             }
         }
 
-        pragma(inline, true)
         @property typeof(this) save() // ForwardRange
         {
             return this;

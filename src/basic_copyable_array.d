@@ -107,7 +107,7 @@ struct CopyableArray(T,
         emplace(&_mptr[0], value);
     }
 
-    /// Construct from element `values`.
+    /// Construct from element(s) `values`.
     this(U)(U[] values...) @trusted
         if (isCopyable!U &&
             isElementAssignable!U) // prevent accidental move of l-value `values` in array calls
@@ -122,11 +122,22 @@ struct CopyableArray(T,
             return;
         }
         reserve(values.length);
-
-        assert(values.length <= CapacityType.max);
         _length = cast(CapacityType)values.length;
 
         moveEmplaceAll(values, _mptr[0 .. _length]);
+    }
+
+    /// Construct from element(s) `values`.
+    this(uint n)(T[n] values...) @trusted
+    {
+        reserve(values.length);
+        _length = cast(CapacityType)values.length;
+        // TODO use import emplace_all instead
+        import static_iota : iota;
+        foreach (immutable i; iota!(0, values.length))
+        {
+            _mptr[i] = values[i];
+        }
     }
 
     /** Is `true` iff constructable from the iterable (or range) `I`.
@@ -365,6 +376,8 @@ struct CopyableArray(T,
      */
     void reserve(size_t requestedCapacity) @trusted
     {
+        assert(requestedCapacity <= CapacityType.max);
+
         if (requestedCapacity <= capacity) { return; }
 
         static if (mustAddGCRange!T)

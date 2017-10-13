@@ -40,16 +40,14 @@ int main(int argc, const char* argv[], const char* envp[])
 
         const auto diff = end_time - start_time;
         cout << "push_back: "
-             << cr::duration_cast<cr::microseconds>(diff).count() << " usecs\n";
+             << cr::duration_cast<cr::nanoseconds>(diff).count() << " nsecs/op\n";
     }
 
     // unordered_set
     {
         unordered_set<E> us;
         us.reserve(n);
-
         cout << "unordered_set:: ";
-
         {
             const auto start_time = my_clock::now();
             for (size_t i = 0; i < n; ++i)
@@ -57,12 +55,10 @@ int main(int argc, const char* argv[], const char* envp[])
                 us.insert(i);
             }
             const auto end_time = my_clock::now();
-
             const auto diff = end_time - start_time;
             cout << "insert: "
-                 << cr::duration_cast<cr::microseconds>(diff).count() << " usecs ";
+                 << cr::duration_cast<cr::nanoseconds>(diff).count() << " nsecs/op ";
         }
-
         {
             const auto start_time = my_clock::now();
             for (size_t i = 0; i < n; ++i)
@@ -70,14 +66,42 @@ int main(int argc, const char* argv[], const char* envp[])
                 const auto hit = us.find(i);
             }
             const auto end_time = my_clock::now();
-
             const auto diff = end_time - start_time;
             cout << "find: "
-                 << cr::duration_cast<cr::microseconds>(diff).count() << " usecs ";
+                 << cr::duration_cast<cr::nanoseconds>(diff).count() << " nsecs/op ";
         }
-
         cout << endl;
+        us.clear();
+    }
 
+    // flat_hash_set
+    {
+        ska::flat_hash_set<E> us;
+        us.reserve(n);
+        cout << "flat_hash_set:: ";
+        {
+            const auto start_time = my_clock::now();
+            for (size_t i = 0; i < n; ++i)
+            {
+                us.insert(i);
+            }
+            const auto end_time = my_clock::now();
+            const auto diff = end_time - start_time;
+            cout << "insert: "
+                 << cr::duration_cast<cr::nanoseconds>(diff).count() << " nsecs/op ";
+        }
+        {
+            const auto start_time = my_clock::now();
+            for (size_t i = 0; i < n; ++i)
+            {
+                const auto hit = us.find(i);
+            }
+            const auto end_time = my_clock::now();
+            const auto diff = end_time - start_time;
+            cout << "find: "
+                 << cr::duration_cast<cr::nanoseconds>(diff).count() << " nsecs/op ";
+        }
+        cout << endl;
         us.clear();
     }
 
@@ -85,9 +109,7 @@ int main(int argc, const char* argv[], const char* envp[])
     {
         unordered_map<E, E> us;
         us.reserve(n);
-
         cout << "unordered_map:: ";
-
         {
             const auto start_time = my_clock::now();
             for (size_t i = 0; i < n; ++i)
@@ -95,12 +117,10 @@ int main(int argc, const char* argv[], const char* envp[])
                 us.insert(make_pair(i, i));
             }
             const auto end_time = my_clock::now();
-
             const auto diff = end_time - start_time;
             cout << "insert: "
-                 << cr::duration_cast<cr::microseconds>(diff).count() << " usecs ";
+                 << cr::duration_cast<cr::nanoseconds>(diff).count() << " nsecs/op ";
         }
-
         {
             const auto start_time = my_clock::now();
             for (size_t i = 0; i < n; ++i)
@@ -108,14 +128,11 @@ int main(int argc, const char* argv[], const char* envp[])
                 const auto hit = us.find(i);
             }
             const auto end_time = my_clock::now();
-
             const auto diff = end_time - start_time;
             cout << "find: "
-                 << cr::duration_cast<cr::microseconds>(diff).count() << " usecs ";
+                 << cr::duration_cast<cr::nanoseconds>(diff).count() << " nsecs/op ";
         }
-
         cout << endl;
-
         us.clear();
     }
 

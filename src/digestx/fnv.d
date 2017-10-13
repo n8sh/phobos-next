@@ -93,10 +93,10 @@ alias FNV64A = FNV!(64, true); /// 64bit FNV-1a, hash size is ubyte[8]
 ///
 unittest
 {
-    alias FNV32Digest = WrapperDigest!FNV32; /// OOP API for 32bit FNV-1
-    alias FNV64Digest = WrapperDigest!FNV64; /// OOP API for 64bit FNV-1
+    // alias FNV32Digest = WrapperDigest!FNV32; /// OOP API for 32bit FNV-1
+    // alias FNV64Digest = WrapperDigest!FNV64; /// OOP API for 64bit FNV-1
     alias FNV32ADigest = WrapperDigest!FNV32A; /// OOP API for 32bit FNV-1a
-    alias FNV64ADigest = WrapperDigest!FNV64A; /// OOP API for 64bit FNV-1a
+    // alias FNV64ADigest = WrapperDigest!FNV64A; /// OOP API for 64bit FNV-1a
 
     FNV64 fnv64;
     fnv64.start();

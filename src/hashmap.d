@@ -252,7 +252,7 @@ struct HashMapOrSet(K, V = void,
         {
             foreach (ref element; bucketElementsAt(bucketIx))
             {
-                copy.insertWithoutGrowth(element);
+                copy.insertWithoutBucketCountGrowth(element);
             }
         }
 
@@ -356,7 +356,7 @@ struct HashMapOrSet(K, V = void,
         {
             grow();
         }
-        return insertWithoutGrowth(element);
+        return insertWithoutBucketCountGrowth(element);
     }
 
     static if (hasValue)
@@ -371,7 +371,7 @@ struct HashMapOrSet(K, V = void,
 
     /** Insert `element` like with `insert()` but without automatic growth.
      */
-    InsertionStatus insertWithoutGrowth(T element) @trusted
+    InsertionStatus insertWithoutBucketCountGrowth(T element) @trusted
     {
         immutable bucketIx = keyToBucketIx(keyRefOf(element));
         T[] bucketElements = bucketElementsAt(bucketIx);

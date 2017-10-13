@@ -6,7 +6,7 @@ module bimap;
     See also: http://www.boost.org/doc/libs/1_65_1/libs/bimap/doc/html/boost_bimap/one_minute_tutorial.html
  */
 struct BiMap(X, Y,
-             alias Map = HashMap)
+             alias Map = Y[X])
 {
     alias LeftMap = Map!(X, Y);
     alias RightMap = Map!(Y, X);

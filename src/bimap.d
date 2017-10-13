@@ -21,6 +21,7 @@ struct BiMap(X, Y,
     }
 
     /// Check if (`x`, `y`) is stored.
+    pragma(inline)              // DMD cannot inline
     bool contains(in X x, in Y y) const
     {
         // TODO do this symmetric?

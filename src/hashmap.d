@@ -324,7 +324,7 @@ struct HashMapOrSet(K, V = void,
      */
     version(LDC)
     {
-        pragma(inline, true)        // must be inlined by LDC
+        pragma(inline, true)        // must be explicitly inlined by LDC
         bool contains(in T element) const @trusted
         {
             if (empty)              // TODO can this check be avoided?

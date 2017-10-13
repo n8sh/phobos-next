@@ -13,7 +13,7 @@ struct UncopyableArray(T,
 {
     import std.range : ElementType, isCopyable;
 
-    pragma(inline):
+    pragma(inline, true):
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
     static typeof(this) withLength(size_t initialLength) @trusted
@@ -32,6 +32,7 @@ struct UncopyableArray(T,
     }
 
     /// Construct from range of element `values`.
+    pragma(inline)              // DMD cannot inline
     this(R)(R values)
         if (Super.isAssignableFromElementsOfRefIterableStruct!R)
     {
@@ -53,6 +54,7 @@ struct UncopyableArray(T,
     static if (isCopyable!T)
     {
         // `MutableThis` mimics behaviour of `dup` for builtin D arrays
+        pragma(inline)          // DMD cannot inline
         @property UncopyableArray!(Unqual!T, Allocator, CapacityType) dup() const @trusted
         {
             return typeof(return)(cast(Unqual!T[])this[]);

@@ -701,18 +701,18 @@ struct NGram(ValueType,
     {
         static if        (storage == Storage.denseStatic)
         {
-            static      if (N == 1) Static_BitArray!noABins _bins;
-            else static if (N == 2) Static_BitArray!noABins[noABins] _bins;
-            else static if (N == 3) Static_BitArray!noABins[noABins][noABins] _bins;
+            static      if (N == 1) StaticBitArray!noABins _bins;
+            else static if (N == 2) StaticBitArray!noABins[noABins] _bins;
+            else static if (N == 3) StaticBitArray!noABins[noABins][noABins] _bins;
             else static assert(0, "Dense static N >= 4 does no safely fit on stack");
         }
         else static if (storage == Storage.denseDynamic)
         {
-            static      if (N == 1) Static_BitArray!noABins _bins;
-            else static if (N == 2) Static_BitArray!noABins[] _bins;
-            else static if (N == 3) Static_BitArray!noABins[][] _bins;
-            else static if (N == 4) Static_BitArray!noABins[][][] _bins;
-            else static if (N == 5) Static_BitArray!noABins[][][][] _bins;
+            static      if (N == 1) StaticBitArray!noABins _bins;
+            else static if (N == 2) StaticBitArray!noABins[] _bins;
+            else static if (N == 3) StaticBitArray!noABins[][] _bins;
+            else static if (N == 4) StaticBitArray!noABins[][][] _bins;
+            else static if (N == 5) StaticBitArray!noABins[][][][] _bins;
             else static assert(0, "N >= 6 not supported");
         }
         else static if (storage == Storage.sparse) // shouldn't happen

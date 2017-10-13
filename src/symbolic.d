@@ -197,7 +197,7 @@ class Lit : Patt
     private ubyte[] _bytes;
     alias _bytes this;
 
-    alias SinglesHist = Static_BitArray!(2^^ubyte.sizeof);
+    alias SinglesHist = StaticBitArray!(2^^ubyte.sizeof);
 
     /// Get (Cached) (Binary) Histogram over single elements contained in this $(D Lit).
     SinglesHist singlesHist()

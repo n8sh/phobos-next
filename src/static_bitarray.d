@@ -12,7 +12,7 @@ module static_bitarray;
 
     TODO Optimize `allOne`, `allZero` using intrinsic?
  */
-struct Static_BitArray(uint len, Block = size_t)
+struct StaticBitArray(uint len, Block = size_t)
 {
     import std.format : FormatSpec, format;
     import core.bitop : bitswap;
@@ -62,7 +62,7 @@ struct Static_BitArray(uint len, Block = size_t)
         _blocks[] = 0;
     }
 
-    /** Gets the amount of native words backing this $(D Static_BitArray). */
+    /** Gets the amount of native words backing this $(D StaticBitArray). */
     @property static uint dim()
     {
         return blockCount;
@@ -71,7 +71,7 @@ struct Static_BitArray(uint len, Block = size_t)
     /** Number of bits. */
     enum length = len;
 
-    /** Static_BitArray range.
+    /** StaticBitArray range.
 
         TODO Provide opSliceAssign for interopability with range algorithms
         via private static struct member `Range`
@@ -108,7 +108,7 @@ struct Static_BitArray(uint len, Block = size_t)
         void popBack()  { assert(!empty); ++_i; }
 
     private:
-        Static_BitArray _store;       // copy of store
+        StaticBitArray _store;       // copy of store
         size_t _i = 0;          // iterator into _store
         size_t _j = _store.length;
     }
@@ -163,7 +163,7 @@ struct Static_BitArray(uint len, Block = size_t)
         }
 
         /** Get the $(D i)'th bit.
-            Statically verifies that i is < Static_BitArray length.
+            Statically verifies that i is < StaticBitArray length.
         */
         pragma(inline) bool at(size_t i)() const @trusted
             if (i < len)
@@ -191,7 +191,7 @@ struct Static_BitArray(uint len, Block = size_t)
         /* static if (!isMutable!Index2) { */
         /*     import std.conv: to; */
         /*     static assert(i < len, */
-        /*                   "Index2 " ~ to!string(i) ~ " must be smaller than Static_BitArray length " ~  to!string(len)); */
+        /*                   "Index2 " ~ to!string(i) ~ " must be smaller than StaticBitArray length " ~  to!string(len)); */
         /* } */
         assert(i < len);
     }
@@ -230,7 +230,7 @@ struct Static_BitArray(uint len, Block = size_t)
     ///
     @safe pure nothrow @nogc unittest
     {
-        Static_BitArray!2 bs;
+        StaticBitArray!2 bs;
         bs[0] = true;
         assert(bs[0]);
         assert(!bs[1]);
@@ -244,7 +244,7 @@ struct Static_BitArray(uint len, Block = size_t)
         return this;
     }
 
-    /** Support for $(D foreach) loops for $(D Static_BitArray). */
+    /** Support for $(D foreach) loops for $(D StaticBitArray). */
     int opApply(scope int delegate(ref bool) dg)
     {
         int result;
@@ -302,7 +302,7 @@ struct Static_BitArray(uint len, Block = size_t)
     unittest
     {
         static bool[] ba = [1,0,1];
-        auto a = Static_BitArray!3(ba);
+        auto a = StaticBitArray!3(ba);
         size_t i;
         foreach (immutable b; a[]) // TODO is `opSlice` the right thing?
         {
@@ -345,7 +345,7 @@ struct Static_BitArray(uint len, Block = size_t)
         }
     }
 
-    /** Reverses the bits of the $(D Static_BitArray) in place. */
+    /** Reverses the bits of the $(D StaticBitArray) in place. */
     @property typeof(this) reverse()
     out (result)
     {
@@ -411,7 +411,7 @@ struct Static_BitArray(uint len, Block = size_t)
         enum len = 64;
         static immutable bool[len] data = [0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0,
                                            0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0];
-        auto b = Static_BitArray!len(data);
+        auto b = StaticBitArray!len(data);
         b.reverse();
         for (size_t i = 0; i < data.length; ++i)
         {
@@ -427,7 +427,7 @@ struct Static_BitArray(uint len, Block = size_t)
                                            0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0,
                                            0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0,
                                            0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0];
-        auto b = Static_BitArray!len(data);
+        auto b = StaticBitArray!len(data);
         b.reverse();
         for (size_t i = 0; i < data.length; ++i)
         {
@@ -445,7 +445,7 @@ struct Static_BitArray(uint len, Block = size_t)
                                            0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0,
                                            0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0,
                                            0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0];
-        auto b = Static_BitArray!len(data);
+        auto b = StaticBitArray!len(data);
         b.reverse();
         for (size_t i = 0; i < data.length; ++i)
         {
@@ -453,7 +453,7 @@ struct Static_BitArray(uint len, Block = size_t)
         }
     }
 
-    /** Sorts the $(D Static_BitArray)'s elements. */
+    /** Sorts the $(D StaticBitArray)'s elements. */
     @property typeof(this) sort()
     out (result)
     {
@@ -497,7 +497,7 @@ struct Static_BitArray(uint len, Block = size_t)
     /* unittest */
     /*     { */
     /*         __gshared size_t x = 0b1100011000; */
-    /*         __gshared Static_BitArray ba = { 10, &x }; */
+    /*         __gshared StaticBitArray ba = { 10, &x }; */
     /*         ba.sort(); */
     /*         for (size_t i = 0; i < 6; ++i) */
     /*             assert(ba[i] == false); */
@@ -506,8 +506,8 @@ struct Static_BitArray(uint len, Block = size_t)
     /*     } */
 
 
-    /** Support for operators == and != for $(D Static_BitArray). */
-    bool opEquals(Block2)(in Static_BitArray!(len, Block2) a2) const
+    /** Support for operators == and != for $(D StaticBitArray). */
+    bool opEquals(Block2)(in StaticBitArray!(len, Block2) a2) const
         @trusted
         if (isUnsigned!Block2)
     {
@@ -530,17 +530,17 @@ struct Static_BitArray(uint len, Block = size_t)
     ///
     nothrow unittest
     {
-        auto a = Static_BitArray!(5, ubyte)([1,0,1,0,1]);
-        auto b = Static_BitArray!(5, ushort)([1,0,1,1,1]);
-        auto c = Static_BitArray!(5, uint)([1,0,1,0,1]);
-        auto d = Static_BitArray!(5, ulong)([1,1,1,1,1]);
+        auto a = StaticBitArray!(5, ubyte)([1,0,1,0,1]);
+        auto b = StaticBitArray!(5, ushort)([1,0,1,1,1]);
+        auto c = StaticBitArray!(5, uint)([1,0,1,0,1]);
+        auto d = StaticBitArray!(5, ulong)([1,1,1,1,1]);
         assert(a != b);
         assert(a == c);
         assert(a != d);
     }
 
-    /** Supports comparison operators for $(D Static_BitArray). */
-    int opCmp(Block2)(in Static_BitArray!(len, Block2) a2) const
+    /** Supports comparison operators for $(D StaticBitArray). */
+    int opCmp(Block2)(in StaticBitArray!(len, Block2) a2) const
         @trusted
         if (isUnsigned!Block2)
     {
@@ -567,10 +567,10 @@ struct Static_BitArray(uint len, Block = size_t)
     ///
     nothrow unittest
     {
-        auto a = Static_BitArray!(5, ubyte)([1,0,1,0,1]);
-        auto b = Static_BitArray!(5, ushort)([1,0,1,1,1]);
-        auto c = Static_BitArray!(5, uint)([1,0,1,0,1]);
-        auto d = Static_BitArray!(5, ulong)([1,1,1,1,1]);
+        auto a = StaticBitArray!(5, ubyte)([1,0,1,0,1]);
+        auto b = StaticBitArray!(5, ushort)([1,0,1,1,1]);
+        auto c = StaticBitArray!(5, uint)([1,0,1,0,1]);
+        auto d = StaticBitArray!(5, ulong)([1,1,1,1,1]);
         assert(a <  b);
         assert(a <= b);
         assert(a == c);
@@ -579,7 +579,7 @@ struct Static_BitArray(uint len, Block = size_t)
         assert(c < d);
     }
 
-    /** Support for hashing for $(D Static_BitArray). */
+    /** Support for hashing for $(D StaticBitArray). */
     extern(D) size_t toHash() const
         @trusted pure nothrow
     {
@@ -598,7 +598,7 @@ struct Static_BitArray(uint len, Block = size_t)
         return hash;
     }
 
-    /** Set this $(D Static_BitArray) to the contents of $(D ba). */
+    /** Set this $(D StaticBitArray) to the contents of $(D ba). */
     this(bool[] ba)
     in
     {
@@ -612,7 +612,7 @@ struct Static_BitArray(uint len, Block = size_t)
         }
     }
 
-    /** Set this $(D Static_BitArray) to the contents of $(D ba). */
+    /** Set this $(D StaticBitArray) to the contents of $(D ba). */
     this(const ref bool[len] ba)
     {
         foreach (immutable i, const b; ba)
@@ -630,7 +630,7 @@ struct Static_BitArray(uint len, Block = size_t)
     @safe nothrow @nogc unittest
     {
         static bool[] ba = [1,0,1,0,1];
-        auto a = Static_BitArray!5(ba);
+        auto a = StaticBitArray!5(ba);
         assert(a);
         assert(!a.allZero);
     }
@@ -638,7 +638,7 @@ struct Static_BitArray(uint len, Block = size_t)
     @safe nothrow @nogc unittest
     {
         static bool[] ba = [0,0,0];
-        auto a = Static_BitArray!3(ba);
+        auto a = StaticBitArray!3(ba);
         assert(!a);
         assert(a.allZero);
     }
@@ -646,12 +646,12 @@ struct Static_BitArray(uint len, Block = size_t)
     @safe nothrow @nogc unittest
     {
         static bool[3] ba = [0,0,0];
-        auto a = Static_BitArray!3(ba);
+        auto a = StaticBitArray!3(ba);
         assert(!a);
         assert(a.allZero);
     }
 
-    /** Check if this $(D Static_BitArray) has only zeros (is empty). */
+    /** Check if this $(D StaticBitArray) has only zeros (is empty). */
     bool allZero() const
         @safe pure nothrow @nogc
     {
@@ -662,7 +662,7 @@ struct Static_BitArray(uint len, Block = size_t)
         return true;
     }
 
-    /** Check if this $(D Static_BitArray) has only ones in range [ $(d low), $(d high) [. */
+    /** Check if this $(D StaticBitArray) has only ones in range [ $(d low), $(d high) [. */
     bool allOneBetween(size_t low, size_t high) const
     in
     {
@@ -689,7 +689,7 @@ struct Static_BitArray(uint len, Block = size_t)
          */
         struct OneIndexes
         {
-            this(Static_BitArray store)
+            this(StaticBitArray store)
             {
                 this._store = store;
 
@@ -742,7 +742,7 @@ struct Static_BitArray(uint len, Block = size_t)
             }
 
         private:
-            Static_BitArray _store;               // copy of store
+            StaticBitArray _store;               // copy of store
             int _i = 0;                  // front index into `_store`
             int _j = _store.length - 1;  // back index into `_store`
         }
@@ -802,7 +802,7 @@ struct Static_BitArray(uint len, Block = size_t)
             return 1 - denseness(depth);
         }
 
-        /** Check if this $(D Static_BitArray) has only ones. */
+        /** Check if this $(D StaticBitArray) has only ones. */
         bool allOne() const
         {
             const restCount = len % bitsPerBlock;
@@ -871,7 +871,7 @@ struct Static_BitArray(uint len, Block = size_t)
     }
 
     /**
-     * Map the $(D Static_BitArray) onto $(D v), with $(D numbits) being the number of bits
+     * Map the $(D StaticBitArray) onto $(D v), with $(D numbits) being the number of bits
      * in the array. Does not copy the data.
      *
      * This is the inverse of $(D opCast).
@@ -898,15 +898,15 @@ struct Static_BitArray(uint len, Block = size_t)
     nothrow unittest
     {
         static bool[] ba = [1,0,1,0,1];
-        auto a = Static_BitArray!5(ba);
+        auto a = StaticBitArray!5(ba);
         void[] v = cast(void[])a;
         assert(v.length == a.dim * size_t.sizeof);
     }
 
-    /** Support for unary operator ~ for $(D Static_BitArray). */
+    /** Support for unary operator ~ for $(D StaticBitArray). */
     typeof(this) opCom() const
     {
-        Static_BitArray result;
+        StaticBitArray result;
         for (size_t i = 0; i < dim; ++i)
             result.ptr[i] = ~this.ptr[i];
         immutable rem = len & (bitsPerBlock-1); // number of rest bits in last block
@@ -916,78 +916,78 @@ struct Static_BitArray(uint len, Block = size_t)
         return result;
     }
 
-    /** Support for binary operator & for $(D Static_BitArray). */
+    /** Support for binary operator & for $(D StaticBitArray). */
     typeof(this) opAnd(in typeof(this) e2) const
     {
-        Static_BitArray result;
+        StaticBitArray result;
         result._blocks[] = this._blocks[] & e2._blocks[];
         return result;
     }
     ///
     nothrow unittest
     {
-        const a = Static_BitArray!5([1,0,1,0,1]);
-        auto b = Static_BitArray!5([1,0,1,1,0]);
+        const a = StaticBitArray!5([1,0,1,0,1]);
+        auto b = StaticBitArray!5([1,0,1,1,0]);
         const c = a & b;
-        auto d = Static_BitArray!5([1,0,1,0,0]);
+        auto d = StaticBitArray!5([1,0,1,0,0]);
         assert(c == d);
     }
 
-    /** Support for binary operator | for $(D Static_BitArray). */
+    /** Support for binary operator | for $(D StaticBitArray). */
     typeof(this) opOr(in typeof(this) e2) const
     {
-        Static_BitArray result;
+        StaticBitArray result;
         result._blocks[] = this._blocks[] | e2._blocks[];
         return result;
     }
     ///
     nothrow unittest
     {
-        const a = Static_BitArray!5([1,0,1,0,1]);
-        auto b = Static_BitArray!5([1,0,1,1,0]);
+        const a = StaticBitArray!5([1,0,1,0,1]);
+        auto b = StaticBitArray!5([1,0,1,1,0]);
         const c = a | b;
-        auto d = Static_BitArray!5([1,0,1,1,1]);
+        auto d = StaticBitArray!5([1,0,1,1,1]);
         assert(c == d);
     }
 
-    /** Support for binary operator ^ for $(D Static_BitArray). */
+    /** Support for binary operator ^ for $(D StaticBitArray). */
     typeof(this) opXor(in typeof(this) e2) const
     {
-        Static_BitArray result;
+        StaticBitArray result;
         result._blocks[] = this._blocks[] ^ e2._blocks[];
         return result;
     }
     ///
     nothrow unittest
     {
-        const a = Static_BitArray!5([1,0,1,0,1]);
-        auto b = Static_BitArray!5([1,0,1,1,0]);
+        const a = StaticBitArray!5([1,0,1,0,1]);
+        auto b = StaticBitArray!5([1,0,1,1,0]);
         const c = a ^ b;
-        auto d = Static_BitArray!5([0,0,0,1,1]);
+        auto d = StaticBitArray!5([0,0,0,1,1]);
         assert(c == d);
     }
 
-    /** Support for binary operator - for $(D Static_BitArray).
+    /** Support for binary operator - for $(D StaticBitArray).
      *
-     * $(D a - b) for $(D Static_BitArray) means the same thing as $(D a &amp; ~b).
+     * $(D a - b) for $(D StaticBitArray) means the same thing as $(D a &amp; ~b).
      */
     typeof(this) opSub(in typeof(this) e2) const
     {
-        Static_BitArray result;
+        StaticBitArray result;
         result._blocks[] = this._blocks[] & ~e2._blocks[];
         return result;
     }
     ///
     nothrow unittest
     {
-        const a = Static_BitArray!5([1,0,1,0,1]);
-        auto b = Static_BitArray!5([1,0,1,1,0]);
+        const a = StaticBitArray!5([1,0,1,0,1]);
+        auto b = StaticBitArray!5([1,0,1,1,0]);
         const c = a - b;
-        auto d = Static_BitArray!5([0,0,0,0,1]);
+        auto d = StaticBitArray!5([0,0,0,0,1]);
         assert(c == d);
     }
 
-    /** Support for operator &= for $(D Static_BitArray).
+    /** Support for operator &= for $(D StaticBitArray).
      */
     typeof(this) opAndAssign(in typeof(this) e2)
     {
@@ -997,14 +997,14 @@ struct Static_BitArray(uint len, Block = size_t)
     ///
     nothrow unittest
     {
-        auto a = Static_BitArray!5([1,0,1,0,1]);
-        const b = Static_BitArray!5([1,0,1,1,0]);
+        auto a = StaticBitArray!5([1,0,1,0,1]);
+        const b = StaticBitArray!5([1,0,1,1,0]);
         a &= b;
-        const c = Static_BitArray!5([1,0,1,0,0]);
+        const c = StaticBitArray!5([1,0,1,0,0]);
         assert(a == c);
     }
 
-    /** Support for operator |= for $(D Static_BitArray).
+    /** Support for operator |= for $(D StaticBitArray).
      */
     typeof(this) opOrAssign(in typeof(this) e2)
     {
@@ -1014,14 +1014,14 @@ struct Static_BitArray(uint len, Block = size_t)
     ///
     nothrow unittest
     {
-        auto a = Static_BitArray!5([1,0,1,0,1]);
-        const b = Static_BitArray!5([1,0,1,1,0]);
+        auto a = StaticBitArray!5([1,0,1,0,1]);
+        const b = StaticBitArray!5([1,0,1,1,0]);
         a |= b;
-        const c = Static_BitArray!5([1,0,1,1,1]);
+        const c = StaticBitArray!5([1,0,1,1,1]);
         assert(a == c);
     }
 
-    /** Support for operator ^= for $(D Static_BitArray).
+    /** Support for operator ^= for $(D StaticBitArray).
      */
     typeof(this) opXorAssign(in typeof(this) e2)
     {
@@ -1031,16 +1031,16 @@ struct Static_BitArray(uint len, Block = size_t)
     ///
     nothrow unittest
     {
-        auto a = Static_BitArray!5([1,0,1,0,1]);
-        const b = Static_BitArray!5([1,0,1,1,0]);
+        auto a = StaticBitArray!5([1,0,1,0,1]);
+        const b = StaticBitArray!5([1,0,1,1,0]);
         a ^= b;
-        const c = Static_BitArray!5([0,0,0,1,1]);
+        const c = StaticBitArray!5([0,0,0,1,1]);
         assert(a == c);
     }
 
-    /** Support for operator -= for $(D Static_BitArray).
+    /** Support for operator -= for $(D StaticBitArray).
      *
-     * $(D a -= b) for $(D Static_BitArray) means the same thing as $(D a &amp;= ~b).
+     * $(D a -= b) for $(D StaticBitArray) means the same thing as $(D a &amp;= ~b).
      */
     typeof(this) opSubAssign(in typeof(this) e2)
     {
@@ -1050,14 +1050,14 @@ struct Static_BitArray(uint len, Block = size_t)
     ///
     nothrow unittest
     {
-        auto a = Static_BitArray!5([1,0,1,0,1]);
-        const b = Static_BitArray!5([1,0,1,1,0]);
+        auto a = StaticBitArray!5([1,0,1,0,1]);
+        const b = StaticBitArray!5([1,0,1,1,0]);
         a -= b;
-        const c = Static_BitArray!5([0,0,0,0,1]);
+        const c = StaticBitArray!5([0,0,0,0,1]);
         assert(a == c);
     }
 
-    /** Return a string representation of this Static_BitArray.
+    /** Return a string representation of this StaticBitArray.
      *
      * Two format specifiers are supported:
      * $(LI $(B %s) which prints the bits as an array, and)
@@ -1080,7 +1080,7 @@ struct Static_BitArray(uint len, Block = size_t)
     ///
     unittest
     {
-        const b = Static_BitArray!16(([0, 0, 0, 0, 1, 1, 1, 1,
+        const b = StaticBitArray!16(([0, 0, 0, 0, 1, 1, 1, 1,
                              0, 0, 0, 0, 1, 1, 1, 1]));
         const s1 = format("%s", b);
         assert(s1 == "[0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1]");
@@ -1143,9 +1143,9 @@ struct Static_BitArray(uint len, Block = size_t)
 
     enum m = 256, n = 256;
 
-    static assert(Static_BitArray!m.init ==
-                  Static_BitArray!m.init);
-    static assert(Static_BitArray!m.init.denseness == Q(0, m));
+    static assert(StaticBitArray!m.init ==
+                  StaticBitArray!m.init);
+    static assert(StaticBitArray!m.init.denseness == Q(0, m));
 }
 
 /// run-time
@@ -1158,7 +1158,7 @@ struct Static_BitArray(uint len, Block = size_t)
     alias Q = Rational!ulong;
     enum m = 256;
 
-    Static_BitArray!m b0;
+    StaticBitArray!m b0;
 
     import modulo : Mod;
     static assert(is(typeof(b0.oneIndexes.front()) == Mod!m));
@@ -1193,7 +1193,7 @@ struct Static_BitArray(uint len, Block = size_t)
     alias Q = Rational!ulong;
     enum m = 256;
 
-    Static_BitArray!m b0;
+    StaticBitArray!m b0;
 
     import modulo : Mod;
     static assert(is(typeof(b0.oneIndexes.front()) == Mod!m));
@@ -1226,11 +1226,11 @@ struct Static_BitArray(uint len, Block = size_t)
 
     enum m = 256, n = 256;
 
-    Static_BitArray!m[n] b1;
+    StaticBitArray!m[n] b1;
     b1[0][0] = 1;
     assert(b1.denseness == Q(1, m*n));
 
-    Static_BitArray!m[n][n] b2;
+    StaticBitArray!m[n][n] b2;
     b2[0][0][0] = 1;
     b2[0][0][1] = 1;
     b2[0][0][4] = 1;
@@ -1241,13 +1241,13 @@ struct Static_BitArray(uint len, Block = size_t)
 @safe pure nothrow @nogc unittest
 {
     import std.traits : isIterable;
-    static assert(isIterable!(Static_BitArray!256));
+    static assert(isIterable!(StaticBitArray!256));
 }
 
 /// test ubyte access
 @safe pure nothrow @nogc unittest
 {
-    auto b8 = Static_BitArray!(8, ubyte)();
+    auto b8 = StaticBitArray!(8, ubyte)();
     b8[0] = 1;
     b8[1] = 1;
     b8[3] = 1;
@@ -1283,7 +1283,7 @@ struct Static_BitArray(uint len, Block = size_t)
     {
         enum n = 8*size_t.sizeof + restCount;
 
-        auto bs = Static_BitArray!(n, size_t)();
+        auto bs = StaticBitArray!(n, size_t)();
 
         assert(bs.allZero);
         assert(!bs.allOne);
@@ -1311,31 +1311,31 @@ unittest
 {
     import std.format : format;
 
-    const b0_ = Static_BitArray!0([]);
+    const b0_ = StaticBitArray!0([]);
     const b0 = b0_;
     assert(format("%s", b0) == "[]");
     assert(format("%b", b0) is null);
 
-    const b1_ = Static_BitArray!1([1]);
+    const b1_ = StaticBitArray!1([1]);
     const b1 = b1_;
     assert(format("%s", b1) == "[1]");
     assert(format("%b", b1) == "1");
 
-    const b4 = Static_BitArray!4([0, 0, 0, 0]);
+    const b4 = StaticBitArray!4([0, 0, 0, 0]);
     assert(format("%b", b4) == "0000");
 
-    const b8 = Static_BitArray!8([0, 0, 0, 0, 1, 1, 1, 1]);
+    const b8 = StaticBitArray!8([0, 0, 0, 0, 1, 1, 1, 1]);
     assert(format("%s", b8) == "[0, 0, 0, 0, 1, 1, 1, 1]");
     assert(format("%b", b8) == "00001111");
 
-    const b16 = Static_BitArray!16([0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1]);
+    const b16 = StaticBitArray!16([0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1]);
     assert(format("%s", b16) == "[0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1]");
     assert(format("%b", b16) == "00001111_00001111");
 
-    const b9 = Static_BitArray!9([1, 0, 0, 0, 0, 1, 1, 1, 1]);
+    const b9 = StaticBitArray!9([1, 0, 0, 0, 0, 1, 1, 1, 1]);
     assert(format("%b", b9) == "1_00001111");
 
-    const b17 = Static_BitArray!17([1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1]);
+    const b17 = StaticBitArray!17([1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1]);
     assert(format("%b", b17) == "1_00001111_00001111");
 }
 
@@ -1344,7 +1344,7 @@ unittest
 {
     static testRange(Block)()
     {
-        Static_BitArray!(6, Block) bs = [false, 1, 0, 0, true, 0];
+        StaticBitArray!(6, Block) bs = [false, 1, 0, 0, true, 0];
         bs.put(3, true);
 
         import std.algorithm : equal;

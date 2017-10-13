@@ -377,7 +377,9 @@ struct HashMapOrSet(K, V = void,
         {
             static if (hasValue)
             {
-                // TODO replace with a single assignment?
+                /* TODO Rust does the same in its `insert()` at
+                 * https://doc.rust-lang.org/std/collections/struct.HashMap.html
+                 */
                 if (bucketElements[elementOffset].value != valueOf(element)) // if value unchanged
                 {
                     bucketElements[elementOffset].value = valueOf(element); // replace value

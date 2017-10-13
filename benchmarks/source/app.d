@@ -110,7 +110,7 @@ void main()
                 a.insert(i);
             }
             immutable after = MonoTime.currTime();
-            writef("Insert (w growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
+            writef("insert (w growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
         }
 
         {
@@ -120,7 +120,7 @@ void main()
                 const hit = a.contains(i);
             }
             immutable after = MonoTime.currTime();
-            writef(", Checking: %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
+            writef(", contains: %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
         }
 
         static if (hasMember!(A, `withCapacity`))
@@ -133,7 +133,7 @@ void main()
                 b.insert(i);
             }
             immutable after = MonoTime.currTime();
-            writef(", Insert (no growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
+            writef(", insert (no growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
         }
 
         writef(` for %s`, A.stringof);
@@ -173,7 +173,7 @@ void main()
                 a.insert(A.ElementType(i, A.ValueType.init));
             }
             immutable after = MonoTime.currTime();
-            writef("Insert (w growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
+            writef("insert (w growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
         }
 
         {
@@ -183,7 +183,7 @@ void main()
                 const hit = a.contains(A.ElementType(i, A.ValueType.init));
             }
             immutable after = MonoTime.currTime();
-            writef(", Checking: %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
+            writef(", contains: %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
         }
 
         A b = A.withCapacity(n);
@@ -193,7 +193,7 @@ void main()
             b.insert(A.ElementType(i, A.ValueType.init));
         }
         immutable after = MonoTime.currTime();
-        writef(", Insert (no growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
+        writef(", insert (no growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
 
         writef(` for %s`, A.stringof);
 
@@ -227,7 +227,7 @@ void main()
                 a[i] = ValueType.init;
             }
             immutable after = MonoTime.currTime();
-            writef("Insert (w growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
+            writef("insert (w growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
         }
 
         {
@@ -237,14 +237,14 @@ void main()
                 const hit = i in a;
             }
             immutable after = MonoTime.currTime();
-            writef(", Checking: %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
+            writef(", contains: %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
         }
 
         {
             immutable before = MonoTime.currTime();
             a.rehash();
             immutable after = MonoTime.currTime();
-            writef(", Rehashing: %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
+            writef(", rehash: %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
         }
 
         {
@@ -254,7 +254,7 @@ void main()
                 const hit = i in a;
             }
             immutable after = MonoTime.currTime();
-            writef(", Checking (after rehash): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
+            writef(", contains (after rehash): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
         }
 
         writef(` for %s`, A.stringof);

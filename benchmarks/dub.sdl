@@ -5,17 +5,16 @@ targetType "executable"
 dependency "phobos-next" path="../"
 
 buildType "release" {
-         buildOptions "releaseMode" "optimize" # TODO "inline"
+         buildOptions "releaseMode" "optimize" "inline"
 }
 
 buildType "test-release" {
-         buildOptions "unittests" "releaseMode" "optimize" # TODO "inline"
+         buildOptions "unittests" "releaseMode" "optimize" "inline"
 }
-
 buildType "release-test" {
-         buildOptions "unittests" "releaseMode" "optimize" # TODO "inline"
+         buildOptions "unittests" "releaseMode" "optimize" "inline"
 }
 
 buildType "release-nobounds" {
-         buildOptions "releaseMode" "optimize" "noBoundsCheck" # TODO "inline"
+         buildOptions "releaseMode" "optimize" "noBoundsCheck" "inline"
 }

@@ -56,10 +56,13 @@ struct BiMap(X, Y,
     RightMap _right;
 }
 
-private alias HashMap(Key, Value) = Value[Key];
+@safe pure nothrow:
 
-@safe pure nothrow unittest
+/// test with builtin associative arrays
+unittest
 {
+    alias HashMap(Key, Value) = Value[Key];
+
     BiMap!(size_t, string, HashMap) bm;
 
     bm.insert(42, "42");

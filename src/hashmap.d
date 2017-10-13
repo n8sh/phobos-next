@@ -208,7 +208,7 @@ struct HashMapOrSet(K, V = void,
             }
             else
             {
-                /** TODO functionize to `emplaceAll`. See also:
+                /** TODO functionize to `emplaceAll` in emplace_all.d. See also:
                  * http://forum.dlang.org/post/xxigbqqflzwfgycrclyq@forum.dlang.org
                  */
                 static if (hasElaborateCopyConstructor!T)

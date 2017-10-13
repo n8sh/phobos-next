@@ -40,7 +40,7 @@ int main(int argc, const char* argv[], const char* envp[])
 
         const auto diff = end_time - start_time;
         cout << "push_back: "
-             << cr::duration_cast<cr::nanoseconds>(diff).count() << " nsecs/op\n";
+             << cr::duration_cast<cr::nanoseconds>(diff).count() / n << " nsecs/op\n";
     }
 
     // unordered_set
@@ -57,7 +57,7 @@ int main(int argc, const char* argv[], const char* envp[])
             const auto end_time = my_clock::now();
             const auto diff = end_time - start_time;
             cout << "insert: "
-                 << cr::duration_cast<cr::nanoseconds>(diff).count() << " nsecs/op ";
+                 << cr::duration_cast<cr::nanoseconds>(diff).count() / n << " nsecs/op ";
         }
         {
             const auto start_time = my_clock::now();
@@ -68,7 +68,7 @@ int main(int argc, const char* argv[], const char* envp[])
             const auto end_time = my_clock::now();
             const auto diff = end_time - start_time;
             cout << "find: "
-                 << cr::duration_cast<cr::nanoseconds>(diff).count() << " nsecs/op ";
+                 << cr::duration_cast<cr::nanoseconds>(diff).count() / n << " nsecs/op ";
         }
         cout << endl;
         us.clear();
@@ -88,7 +88,7 @@ int main(int argc, const char* argv[], const char* envp[])
             const auto end_time = my_clock::now();
             const auto diff = end_time - start_time;
             cout << "insert: "
-                 << cr::duration_cast<cr::nanoseconds>(diff).count() << " nsecs/op ";
+                 << cr::duration_cast<cr::nanoseconds>(diff).count() / n << " nsecs/op ";
         }
         {
             const auto start_time = my_clock::now();
@@ -99,7 +99,7 @@ int main(int argc, const char* argv[], const char* envp[])
             const auto end_time = my_clock::now();
             const auto diff = end_time - start_time;
             cout << "find: "
-                 << cr::duration_cast<cr::nanoseconds>(diff).count() << " nsecs/op ";
+                 << cr::duration_cast<cr::nanoseconds>(diff).count() / n << " nsecs/op ";
         }
         cout << endl;
         us.clear();
@@ -119,7 +119,7 @@ int main(int argc, const char* argv[], const char* envp[])
             const auto end_time = my_clock::now();
             const auto diff = end_time - start_time;
             cout << "insert: "
-                 << cr::duration_cast<cr::nanoseconds>(diff).count() << " nsecs/op ";
+                 << cr::duration_cast<cr::nanoseconds>(diff).count() / n << " nsecs/op ";
         }
         {
             const auto start_time = my_clock::now();
@@ -130,7 +130,7 @@ int main(int argc, const char* argv[], const char* envp[])
             const auto end_time = my_clock::now();
             const auto diff = end_time - start_time;
             cout << "find: "
-                 << cr::duration_cast<cr::nanoseconds>(diff).count() << " nsecs/op ";
+                 << cr::duration_cast<cr::nanoseconds>(diff).count() / n << " nsecs/op ";
         }
         cout << endl;
         us.clear();

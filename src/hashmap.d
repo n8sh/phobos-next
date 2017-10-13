@@ -324,9 +324,9 @@ struct HashMapOrSet(K, V = void,
      */
     bool contains(in T element) const @trusted
     {
-        if (empty)
+        if (empty)              // TODO can this check be avoided?
         {
-            // prevent range error in `bucketElementsAt` when `this` is empty
+            // prevent RangeError in `bucketElementsAt` when `this` is empty
             return false;
         }
         immutable bucketIx = keyToBucketIx(keyRefOf(element));

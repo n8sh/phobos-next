@@ -273,7 +273,16 @@ struct HashMapOrSet(K, V = void,
         {
             foreach (const ref element; bucketElementsAt(bucketIx))
             {
-                if (!rhs.contains(element)) { return false; }
+                static if (hasValue)
+                {
+                    auto hit = element.key in rhs;
+                    if (!hit) { return false; }
+                    if ((*hit) != element.value) { return false; }
+                }
+                else
+                {
+                    if (!rhs.contains(element)) { return false; }
+                }
             }
         }
         return true;
@@ -325,27 +334,27 @@ struct HashMapOrSet(K, V = void,
     version(LDC)
     {
         pragma(inline, true)        // must be explicitly inlined by LDC
-        bool contains(in T element) const @trusted
+        bool contains(in K key) const @trusted
         {
             if (empty)              // TODO can this check be avoided?
             {
                 return false; // prevent `RangeError` in `bucketElementsAt` when empty
             }
-            immutable bucketIx = keyToBucketIx(keyRefOf(element));
-            return bucketElementsAt(bucketIx).canFind(element);
+            immutable bucketIx = keyToBucketIx(key);
+            return bucketElementsAt(bucketIx).canFind!keyEqualPred(key);
         }
     }
     else
     {
         pragma(inline)          // DMD cannot inline
-        bool contains(in T element) const @trusted
+        bool contains(in K key) const @trusted
         {
             if (empty)              // TODO can this check be avoided?
             {
                 return false; // prevent `RangeError` in `bucketElementsAt` when empty
             }
-            immutable bucketIx = keyToBucketIx(keyRefOf(element));
-            return bucketElementsAt(bucketIx).canFind(element);
+            immutable bucketIx = keyToBucketIx(key);
+            return bucketElementsAt(bucketIx).canFind!keyEqualPred(key);
         }
     }
 
@@ -426,16 +435,6 @@ struct HashMapOrSet(K, V = void,
         }
     }
 
-    /// ditto
-    static if (!hasValue)       // HashSet
-    {
-        bool opBinaryRight(string op)(in K key) inout @trusted
-            if (op == "in")
-        {
-            return contains(key);
-        }
-    }
-
     /** Element reference (and in turn range iterator).
      */
     static private struct ElementRef
@@ -476,6 +475,15 @@ struct HashMapOrSet(K, V = void,
         @property typeof(this) save() // ForwardRange
         {
             return this;
+        }
+    }
+
+    static if (!hasValue)       // HashSet
+    {
+        bool opBinaryRight(string op)(in K key) inout @trusted
+            if (op == "in")
+        {
+            return contains(key);
         }
     }
 
@@ -957,7 +965,7 @@ alias HashMap(K, V,
             {
                 const e2 = X.ElementType(key, "a");
                 assert(x1.insert(e2) == InsertionStatus.modified);
-                assert(x1.contains(e2));
+                assert(x1.contains(key));
                 assert(x1.get(key, null) == "a");
                 x1.remove(key);
                 x1[key] = value;
@@ -968,7 +976,9 @@ alias HashMap(K, V,
             assert(key in x1);
             static if (X.hasValue)
             {
-                assert(!x1.contains(X.ElementType(key, "_"))); // other value
+                auto hit = key in x1;
+                assert(hit);
+                assert(*hit != "_");
             }
 
             assert(x1.insert(element) == InsertionStatus.unchanged);

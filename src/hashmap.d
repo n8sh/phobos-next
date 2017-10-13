@@ -972,6 +972,10 @@ alias HashMap(K, V,
             }
 
             assert(x1.insert(element) == InsertionStatus.unchanged);
+            static if (X.hasValue)
+            {
+                assert(x1.insert(key, value) == InsertionStatus.unchanged);
+            }
             assert(x1.length == key + 1);
 
             assert(key in x1);

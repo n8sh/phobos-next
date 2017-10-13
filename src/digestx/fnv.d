@@ -9,8 +9,7 @@ public import std.digest.digest;
 /**
  * Template API FNV-1(a) hash implementation.
  */
-struct FNV(ulong bitLength, bool fnv1a = false,
-           bool useNativeEndian = false)
+struct FNV(ulong bitLength, bool fnv1a = false)
 {
     static if (bitLength == 32)
     {
@@ -57,14 +56,7 @@ struct FNV(ulong bitLength, bool fnv1a = false,
         import std.bitmanip : nativeToBigEndian;
         _result = _hash;
         start();
-        static if (useNativeEndian)
-        {
-            return _result;     // TODO fix
-        }
-        else
-        {
-            return nativeToBigEndian(_result);
-        }
+        return nativeToBigEndian(_result);
     }
 
     Element get() const

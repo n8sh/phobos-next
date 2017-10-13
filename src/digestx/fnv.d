@@ -23,6 +23,8 @@ struct FNV(ulong bitLength, bool fnv1a = false)
         static assert(0, "Unsupported hash length " ~ bitLength.stringof);
     }
 
+    pragma(inline, true):
+
     /// Initializes the digest calculation.
     void start() @safe pure nothrow @nogc
     {
@@ -88,14 +90,14 @@ alias FNV64 = FNV!64; /// 64bit FNV-1, hash size is ubyte[8]
 alias FNV32A = FNV!(32, true); /// 32bit FNV-1a, hash size is ubyte[4]
 alias FNV64A = FNV!(64, true); /// 64bit FNV-1a, hash size is ubyte[8]
 
-alias FNV32Digest = WrapperDigest!FNV32; /// OOP API for 32bit FNV-1
-alias FNV64Digest = WrapperDigest!FNV64; /// OOP API for 64bit FNV-1
-alias FNV32ADigest = WrapperDigest!FNV32A; /// OOP API for 32bit FNV-1a
-alias FNV64ADigest = WrapperDigest!FNV64A; /// OOP API for 64bit FNV-1a
-
 ///
 unittest
 {
+    alias FNV32Digest = WrapperDigest!FNV32; /// OOP API for 32bit FNV-1
+    alias FNV64Digest = WrapperDigest!FNV64; /// OOP API for 64bit FNV-1
+    alias FNV32ADigest = WrapperDigest!FNV32A; /// OOP API for 32bit FNV-1a
+    alias FNV64ADigest = WrapperDigest!FNV64A; /// OOP API for 64bit FNV-1a
+
     FNV64 fnv64;
     fnv64.start();
     fnv64.put(cast(ubyte[]) "hello");

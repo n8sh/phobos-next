@@ -5,6 +5,8 @@
 #include <unordered_map>
 #include <chrono>
 
+#include "flat_hash_map.hpp"
+
 using namespace std;
 
 int main(int argc, const char* argv[], const char* envp[])
@@ -38,7 +40,7 @@ int main(int argc, const char* argv[], const char* envp[])
 
         const auto diff = end_time - start_time;
         cout << "push_back: "
-             << cr::duration_cast<cr::milliseconds>(diff).count() << " msecs\n";
+             << cr::duration_cast<cr::microseconds>(diff).count() << " usecs\n";
     }
 
     // unordered_set
@@ -58,7 +60,7 @@ int main(int argc, const char* argv[], const char* envp[])
 
             const auto diff = end_time - start_time;
             cout << "insert: "
-                 << cr::duration_cast<cr::milliseconds>(diff).count() << " msecs ";
+                 << cr::duration_cast<cr::microseconds>(diff).count() << " usecs ";
         }
 
         {
@@ -71,7 +73,7 @@ int main(int argc, const char* argv[], const char* envp[])
 
             const auto diff = end_time - start_time;
             cout << "find: "
-                 << cr::duration_cast<cr::milliseconds>(diff).count() << " msecs ";
+                 << cr::duration_cast<cr::microseconds>(diff).count() << " usecs ";
         }
 
         cout << endl;
@@ -96,7 +98,7 @@ int main(int argc, const char* argv[], const char* envp[])
 
             const auto diff = end_time - start_time;
             cout << "insert: "
-                 << cr::duration_cast<cr::milliseconds>(diff).count() << " msecs ";
+                 << cr::duration_cast<cr::microseconds>(diff).count() << " usecs ";
         }
 
         {
@@ -109,7 +111,7 @@ int main(int argc, const char* argv[], const char* envp[])
 
             const auto diff = end_time - start_time;
             cout << "find: "
-                 << cr::duration_cast<cr::milliseconds>(diff).count() << " msecs ";
+                 << cr::duration_cast<cr::microseconds>(diff).count() << " usecs ";
         }
 
         cout << endl;

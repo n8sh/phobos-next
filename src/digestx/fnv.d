@@ -8,7 +8,8 @@ public import std.digest.digest;
 /**
  * Template API FNV-1(a) hash implementation.
  */
-struct FNV(ulong bitLength, bool fnv1a = false)
+struct FNV(ulong bitLength, bool fnv1a = false,
+           bool useNativeEndian = false)
 {
     static if (bitLength == 32)
     {
@@ -55,7 +56,14 @@ struct FNV(ulong bitLength, bool fnv1a = false)
         import std.bitmanip : nativeToBigEndian;
         _result = _hash;
         start();
-        return nativeToBigEndian(_result); // TODO can avoid this calculation?
+        static if (useNativeEndian)
+        {
+            return _result;
+        }
+        else
+        {
+            return nativeToBigEndian(_result);
+        }
     }
 
     Element get() const

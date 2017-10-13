@@ -22,17 +22,20 @@ size_t HashOf(alias hasher, T)(in T value)
         dig.put((cast(ubyte*)&value)[0 .. value.sizeof]);
         dig.finish();
 
-        static if (is(typeof(dig.get()) == typeof(return)))
+        auto result = dig.get();
+
+        static if (is(typeof(result) == typeof(return)))
         {
-            return dig.get();
+            return result;
         }
-        else static if (is(typeof(dig.get()) == typeof(return)[2]))
+        else static if (is(typeof(result) == typeof(return)[2]))
         {
-            return (dig.get()[0] ^ dig.get()[1]);
+            return (result[0] ^
+                    result[1]);
         }
         else
         {
-            static assert(0, "Handle get() with return type " ~ typeof(dig.get()).stringof ~
+            static assert(0, "Handle get() with return type " ~ typeof(result).stringof ~
                           " on " ~ size_t.sizeof.stringof ~ "-bit platform");
         }
     }

@@ -815,7 +815,7 @@ private:
 /** Densely coded leaves with values of type `Value`. */
 static private struct DenseLeaf1(Value)
 {
-    import static_bitarray : Static_BitArray;
+    import static_bitarray : StaticBitArray;
 
     enum hasValue = !is(Value == void);
 
@@ -854,7 +854,7 @@ static private struct DenseLeaf1(Value)
             }
         }
 
-        this(ref Static_BitArray!capacity ixBits, Value[] values)
+        this(ref StaticBitArray!capacity ixBits, Value[] values)
         {
             assert(ixBits.length == values.length);
             _ixBits = ixBits;
@@ -876,7 +876,7 @@ static private struct DenseLeaf1(Value)
             }
         }
 
-        this(const ref Static_BitArray!capacity ixBits)
+        this(const ref StaticBitArray!capacity ixBits)
         {
             _ixBits = ixBits;
         }
@@ -963,7 +963,7 @@ static private struct DenseLeaf1(Value)
 
     /** Try to find index to first set bit in `_ixBits` starting at bit index `ix` and put the result in `nextIx`.
         Returns: `true` upon find, `false` otherwise.
-        TODO move to Static_BitArray
+        TODO move to StaticBitArray
      */
     bool tryFindSetBitIx(UIx ix, out UIx nextIx) const
     {
@@ -986,12 +986,12 @@ static private struct DenseLeaf1(Value)
     }
 
 private:
-    Static_BitArray!capacity _ixBits;  // 32 bytes
+    StaticBitArray!capacity _ixBits;  // 32 bytes
     static if (hasValue)
     {
         // static if (is(Value == bool))
         // {
-        //     Static_BitArray!capacity _values; // packed values
+        //     StaticBitArray!capacity _values; // packed values
         // }
         // else
         // {
@@ -1108,7 +1108,7 @@ template RawRadixTree(Value = void)
     import std.meta : AliasSeq, staticMap;
     import std.typecons : ConstOf;
 
-    import static_bitarray : Static_BitArray;
+    import static_bitarray : StaticBitArray;
 
     enum isValue = !is(Value == void);
 

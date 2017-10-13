@@ -8,9 +8,6 @@ buildType "release" {
          buildOptions "releaseMode" "optimize" "inline"
 }
 
-buildType "test-release" {
-         buildOptions "unittests" "releaseMode" "optimize" "inline"
-}
 buildType "release-test" {
          buildOptions "unittests" "releaseMode" "optimize" "inline"
 }

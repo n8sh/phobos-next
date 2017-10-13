@@ -469,7 +469,7 @@ struct HashMapOrSet(K, V = void,
 
     static if (!hasValue)       // HashSet
     {
-        pragma(inline, true)    // LDC must have this
+        pragma(inline, true)
         bool opBinaryRight(string op)(in K key) inout @trusted
             if (op == "in")
         {

@@ -772,7 +772,7 @@ alias enumeratorsOf = enumMembers;
 
 /** Dynamic Variant of $(D EnumMembers) excluding the enumerator aliases.
 
-    TODO implement with an array and a bitarrayn indiciating if it has been found
+    TODO implement with an array and a static_bitarray indiciating if it has been found
     yet or not. Should have linear complexity and much less memory usage than
     `uniqueEnumMembersHashed`.
 

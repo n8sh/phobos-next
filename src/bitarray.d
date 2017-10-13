@@ -79,7 +79,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     /// Get capacity in number of bits.
     @property size_t capacity() const { return blockBits*_blockCount; }
 
-    /** Gets the $(D i)'th bit in the $(D BitArrayN). */
+    /** Get the $(D i)'th bit. */
     bool opIndex(size_t i) const @trusted
     {
         assert(i < length);        // TODO nothrow or not?

@@ -57,7 +57,7 @@ import std.string: representation;
 import std.traits: isSomeString;
 import find_ex: findAcronymAt, FindContext;
 import dbgio;
-import bitarrayn;
+import static_bitarray;
 
 /** Base Pattern.
  */
@@ -197,7 +197,7 @@ class Lit : Patt
     private ubyte[] _bytes;
     alias _bytes this;
 
-    alias SinglesHist = BitArrayN!(2^^ubyte.sizeof);
+    alias SinglesHist = Static_BitArray!(2^^ubyte.sizeof);
 
     /// Get (Cached) (Binary) Histogram over single elements contained in this $(D Lit).
     SinglesHist singlesHist()

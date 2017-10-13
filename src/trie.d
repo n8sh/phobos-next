@@ -193,9 +193,9 @@ version(useModulo)
     alias UIx = Mod!(radix, size_t); // `size_t` is faster than `uint` on Intel Haswell
 
     /** Mutable RawTree Key. */
-    alias Key(size_t span) = Mod!(2^^span)[]; // TODO use bitarrayn to more naturally support span != 8.
+    alias Key(size_t span) = Mod!(2^^span)[]; // TODO use static_bitarray to more naturally support span != 8.
     /** Immutable RawTree Key. */
-    alias IKey(size_t span) = immutable(Mod!(2^^span))[]; // TODO use bitarrayn to more naturally support span != 8.
+    alias IKey(size_t span) = immutable(Mod!(2^^span))[]; // TODO use static_bitarray to more naturally support span != 8.
     /** Fixed-Length RawTree Key. */
     alias KeyN(size_t span, size_t N) = Mod!(2^^span)[N];
 }
@@ -205,9 +205,9 @@ else
     alias UIx = size_t;
 
     /** Mutable RawTree Key. */
-    alias Key(size_t span) = ubyte[]; // TODO use bitarrayn to more naturally support span != 8.
+    alias Key(size_t span) = ubyte[]; // TODO use static_bitarray to more naturally support span != 8.
     /** Immutable RawTree Key. */
-    alias IKey(size_t span) = immutable(ubyte)[]; // TODO use bitarrayn to more naturally support span != 8.
+    alias IKey(size_t span) = immutable(ubyte)[]; // TODO use static_bitarray to more naturally support span != 8.
     /** Fixed-Length RawTree Key. */
     alias KeyN(size_t span, size_t N) = ubyte[N];
 }
@@ -815,7 +815,7 @@ private:
 /** Densely coded leaves with values of type `Value`. */
 static private struct DenseLeaf1(Value)
 {
-    import bitarrayn : BitArrayN;
+    import static_bitarray : Static_BitArray;
 
     enum hasValue = !is(Value == void);
 
@@ -854,7 +854,7 @@ static private struct DenseLeaf1(Value)
             }
         }
 
-        this(ref BitArrayN!capacity ixBits, Value[] values)
+        this(ref Static_BitArray!capacity ixBits, Value[] values)
         {
             assert(ixBits.length == values.length);
             _ixBits = ixBits;
@@ -876,7 +876,7 @@ static private struct DenseLeaf1(Value)
             }
         }
 
-        this(const ref BitArrayN!capacity ixBits)
+        this(const ref Static_BitArray!capacity ixBits)
         {
             _ixBits = ixBits;
         }
@@ -963,7 +963,7 @@ static private struct DenseLeaf1(Value)
 
     /** Try to find index to first set bit in `_ixBits` starting at bit index `ix` and put the result in `nextIx`.
         Returns: `true` upon find, `false` otherwise.
-        TODO move to BitArrayN
+        TODO move to Static_BitArray
      */
     bool tryFindSetBitIx(UIx ix, out UIx nextIx) const
     {
@@ -986,12 +986,12 @@ static private struct DenseLeaf1(Value)
     }
 
 private:
-    BitArrayN!capacity _ixBits;  // 32 bytes
+    Static_BitArray!capacity _ixBits;  // 32 bytes
     static if (hasValue)
     {
         // static if (is(Value == bool))
         // {
-        //     BitArrayN!capacity _values; // packed values
+        //     Static_BitArray!capacity _values; // packed values
         // }
         // else
         // {
@@ -1108,7 +1108,7 @@ template RawRadixTree(Value = void)
     import std.meta : AliasSeq, staticMap;
     import std.typecons : ConstOf;
 
-    import bitarrayn : BitArrayN;
+    import static_bitarray : Static_BitArray;
 
     enum isValue = !is(Value == void);
 
@@ -4335,7 +4335,7 @@ struct RadixTree(Key, Value)
             immutable bool added = elementRef.node && elementRef.modStatus == ModStatus.added;
             _length += added;
             /* TODO return reference (via `auto ref` return typed) to stored
-               value at `elementRef` instead, unless packed bitarrayn storage is used
+               value at `elementRef` instead, unless packed static_bitarray storage is used
                when `Value is bool` */
             return value;
         }

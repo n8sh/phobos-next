@@ -47,10 +47,10 @@ struct BiMap(X, Y,
     /// Get length.
     size_t length() const { return _left.length; }
 
-    /// Non-mutating access to left map.
+    /// Access to left map must be non-mutating.
     ref const(LeftMap) left() const { return _left; }
 
-    /// Non-mutating access to right map.
+    /// Access to right map must be non-mutating.
     ref const(RightMap) right() const { return _right; }
 
     LeftMap _left;

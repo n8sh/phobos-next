@@ -447,6 +447,7 @@ struct HashMapOrSet(K, V = void,
             }
         }
 
+        pragma(inline)
         void popFront()
         {
             assert(!empty);

@@ -62,7 +62,6 @@ struct BiMap(X, Y,
 unittest
 {
     alias HashMap(Key, Value) = Value[Key];
-
     BiMap!(size_t, string, HashMap) bm;
 
     bm.insert(42, "42");

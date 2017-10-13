@@ -322,19 +322,36 @@ struct HashMapOrSet(K, V = void,
     /** Check if `element` is stored.
         Returns: `true` if element was already present, `false` otherwise.
      */
-    bool contains(in T element) const @trusted
+    version(LDC)
     {
-        if (empty)              // TODO can this check be avoided?
+        pragma(inline, true)        // must be inlined by LDC
+        bool contains(in T element) const @trusted
         {
-            // prevent RangeError in `bucketElementsAt` when `this` is empty
-            return false;
+            if (empty)              // TODO can this check be avoided?
+            {
+                return false; // prevent `RangeError` in `bucketElementsAt` when empty
+            }
+            immutable bucketIx = keyToBucketIx(keyRefOf(element));
+            return bucketElementsAt(bucketIx).canFind(element);
         }
-        immutable bucketIx = keyToBucketIx(keyRefOf(element));
-        return bucketElementsAt(bucketIx).canFind(element);
+    }
+    else
+    {
+        pragma(inline)          // DMD cannot inline
+        bool contains(in T element) const @trusted
+        {
+            if (empty)              // TODO can this check be avoided?
+            {
+                return false; // prevent `RangeError` in `bucketElementsAt` when empty
+            }
+            immutable bucketIx = keyToBucketIx(keyRefOf(element));
+            return bucketElementsAt(bucketIx).canFind(element);
+        }
     }
 
     /** Insert `element`, being either a key, value (map-case) or a just a key (set-case).
      */
+    pragma(inline, true)
     InsertionStatus insert(T element)
     {
         if ((capacityScaleNumerator *
@@ -845,7 +862,7 @@ private:
 
     /** Returns: bucket index of `key`. */
     pragma(inline, true)
-    size_t keyToBucketIx(in ref K key) const
+    size_t keyToBucketIx()(in auto ref K key) const
     {
         return hashToIndex(HashOf!(hasher)(key));
     }

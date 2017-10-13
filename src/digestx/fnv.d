@@ -58,7 +58,7 @@ struct FNV(ulong bitLength, bool fnv1a = false,
         start();
         static if (useNativeEndian)
         {
-            return _result;
+            return _result;     // TODO fix
         }
         else
         {

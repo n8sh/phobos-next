@@ -375,11 +375,12 @@ struct HashMapOrSet(K, V = void,
         immutable hit = elementOffset != -1;
         if (hit)
         {
-            static if (hasValue) // replace value
+            static if (hasValue)
             {
-                if (bucketElements[elementOffset].value != valueOf(element))
+                // TODO replace with a single assignment?
+                if (bucketElements[elementOffset].value != valueOf(element)) // if value unchanged
                 {
-                    bucketElements[elementOffset].value = valueOf(element); // replace valae
+                    bucketElements[elementOffset].value = valueOf(element); // replace value
                     return typeof(return).modified;
                 }
             }

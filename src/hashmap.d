@@ -481,8 +481,6 @@ struct HashMapOrSet(K, V = void,
     {
         alias KeyValueRef = ElementRef;
 
-        version(LDC) { pragma(inline, true): } // needed for LDC to inline this, DMD cannot
-
         /** Value reference (and in turn range iterator). */
         static private struct ValueRef
         {
@@ -625,7 +623,7 @@ struct HashMapOrSet(K, V = void,
 
 	/** Supports $(B aa[key] = value;) syntax.
 	 */
-        pragma(inline, true)    // LDC must have this
+        pragma(inline, true)
 	void opIndexAssign(V value, K key)
 	{
             insert(T(key, value));
@@ -708,15 +706,15 @@ struct HashMapOrSet(K, V = void,
     }
 
     /// Check if empty.
-    pragma(inline, true):
+    pragma(inline, true)
     @property bool empty() const { return _length == 0; }
 
     /// Get length (read-only).
-    pragma(inline, true):
+    pragma(inline, true)
     @property size_t length() const { return _length; }
 
     /// Get bucket count.
-    pragma(inline, true):
+    pragma(inline, true)
     @property size_t bucketCount() const { return _buckets.length; }
 
     /// Bucket count statistics.
@@ -727,7 +725,7 @@ struct HashMapOrSet(K, V = void,
     }
 
     /// Get bucket count statistics.
-    pragma(inline)
+    pragma(inline, false)
     BucketCounts bucketCounts() const
     {
         import std.algorithm : count;

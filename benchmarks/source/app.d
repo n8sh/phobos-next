@@ -184,7 +184,7 @@ void main()
             size_t hitCount = 0;
             foreach (const i; 0 .. n)
             {
-                hitCount += a.contains(A.ElementType(i, A.ValueType.init));
+                hitCount += a.contains(i);
             }
             const ok = hitCount = n; // for side effect in output
             assert(ok);

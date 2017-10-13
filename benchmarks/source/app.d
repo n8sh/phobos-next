@@ -238,12 +238,15 @@ void main()
 
         {
             immutable before = MonoTime.currTime();
+            size_t hitCount = 0;
             foreach (const i; 0 .. n)
             {
-                const hit = i in a;
+                hitCount += cast(bool)(i in a);
             }
+            const ok = hitCount = n; // for side effect in output
+            assert(ok);
             immutable after = MonoTime.currTime();
-            writef(", contains: %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
+            writef(", contains: %3.1f ns/op (%s)", cast(double)(after - before).total!"nsecs" / n, ok ? "OK" : "ERR");
         }
 
         {

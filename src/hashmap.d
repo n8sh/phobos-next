@@ -364,6 +364,16 @@ struct HashMapOrSet(K, V = void,
         return insertWithoutGrowth(element);
     }
 
+    static if (hasValue)
+    {
+        /** Insert or replace `value` at `key`. */
+        pragma(inline, true)
+        InsertionStatus insert(K key, V value)
+        {
+            return insert(T(key, value));
+        }
+    }
+
     /** Insert `element` like with `insert()` but without automatic growth.
      */
     InsertionStatus insertWithoutGrowth(T element) @trusted

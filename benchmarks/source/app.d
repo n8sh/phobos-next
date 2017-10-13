@@ -115,12 +115,15 @@ void main()
 
         {
             immutable before = MonoTime.currTime();
+            size_t hitCount = 0;
             foreach (const i; 0 .. n)
             {
-                const hit = a.contains(i);
+                hitCount += a.contains(i);
             }
+            const ok = hitCount = n; // for side effect in output
+            assert(ok);
             immutable after = MonoTime.currTime();
-            writef(", contains: %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
+            writef(", contains: %3.1f ns/op (%s)", cast(double)(after - before).total!"nsecs" / n, ok ? "OK" : "ERR");
         }
 
         static if (hasMember!(A, `withCapacity`))
@@ -178,12 +181,15 @@ void main()
 
         {
             immutable before = MonoTime.currTime();
+            size_t hitCount = 0;
             foreach (const i; 0 .. n)
             {
-                const hit = a.contains(A.ElementType(i, A.ValueType.init));
+                hitCount += a.contains(A.ElementType(i, A.ValueType.init));
             }
+            const ok = hitCount = n; // for side effect in output
+            assert(ok);
             immutable after = MonoTime.currTime();
-            writef(", contains: %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
+            writef(", contains: %3.1f ns/op (%s)", cast(double)(after - before).total!"nsecs" / n, ok ? "OK" : "ERR");
         }
 
         A b = A.withCapacity(n);

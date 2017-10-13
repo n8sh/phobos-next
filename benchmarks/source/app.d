@@ -192,6 +192,19 @@ void main()
             writef(", contains: %3.1f ns/op (%s)", cast(double)(after - before).total!"nsecs" / n, ok ? "OK" : "ERR");
         }
 
+        {
+            immutable before = MonoTime.currTime();
+            size_t hitCount = 0;
+            foreach (const i; 0 .. n)
+            {
+                hitCount += cast(bool)(i in a);
+            }
+            const ok = hitCount = n; // for side effect in output
+            assert(ok);
+            immutable after = MonoTime.currTime();
+            writef(", in: %3.1f ns/op (%s)", cast(double)(after - before).total!"nsecs" / n, ok ? "OK" : "ERR");
+        }
+
         A b = A.withCapacity(n);
         immutable before = MonoTime.currTime();
         foreach (const i; 0 .. n)

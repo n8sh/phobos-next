@@ -4,6 +4,8 @@ import container_traits;
 
 enum InsertionStatus { added, modified, unchanged }
 
+version = doInline;
+
 /** Hash set (or map) storing (key) elements of type `K` and values of type `V`.
  *
  * Uses small-size-optimized (SSO) arrays as buckets, which provides more stable
@@ -328,34 +330,20 @@ struct HashMapOrSet(K, V = void,
         _length = 0;
     }
 
+    version(LDC) { pragma(inline, true): } // needed for LDC to inline this, DMD cannot
+
     /** Check if `element` is stored.
         Returns: `true` if element was already present, `false` otherwise.
      */
-    version(LDC)
+    pragma(inline, true)
+    bool contains(in K key) const @trusted
     {
-        pragma(inline, true)        // must be explicitly inlined by LDC
-        bool contains(in K key) const @trusted
+        if (empty)              // TODO can this check be avoided?
         {
-            if (empty)              // TODO can this check be avoided?
-            {
-                return false; // prevent `RangeError` in `bucketElementsAt` when empty
-            }
-            immutable bucketIx = keyToBucketIx(key);
-            return bucketElementsAt(bucketIx).canFind!keyEqualPred(key);
+            return false; // prevent `RangeError` in `bucketElementsAt` when empty
         }
-    }
-    else
-    {
-        pragma(inline)          // DMD cannot inline
-        bool contains(in K key) const @trusted
-        {
-            if (empty)              // TODO can this check be avoided?
-            {
-                return false; // prevent `RangeError` in `bucketElementsAt` when empty
-            }
-            immutable bucketIx = keyToBucketIx(key);
-            return bucketElementsAt(bucketIx).canFind!keyEqualPred(key);
-        }
+        immutable bucketIx = keyToBucketIx(key);
+        return bucketElementsAt(bucketIx).canFind!keyEqualPred(key);
     }
 
     /** Insert `element`, being either a key, value (map-case) or a just a key (set-case).
@@ -385,6 +373,7 @@ struct HashMapOrSet(K, V = void,
 
     /** Insert `element` like with `insert()` but without automatic growth.
      */
+    pragma(inline)
     InsertionStatus insertWithoutGrowth(T element) @trusted
     {
         immutable bucketIx = keyToBucketIx(keyRefOf(element));
@@ -444,11 +433,13 @@ struct HashMapOrSet(K, V = void,
         size_t elementOffset;   // offset to element inside bucket
 
         /// Check if empty.
+        pragma(inline, true)
         @property bool empty() const
         {
             return bucketIx == table.bucketCount;
         }
 
+        pragma(inline, true)
         void initFirstNonEmptyBucket()
         {
             while (bucketIx < table.bucketCount &&
@@ -472,6 +463,7 @@ struct HashMapOrSet(K, V = void,
             }
         }
 
+        pragma(inline, true)
         @property typeof(this) save() // ForwardRange
         {
             return this;
@@ -480,6 +472,7 @@ struct HashMapOrSet(K, V = void,
 
     static if (!hasValue)       // HashSet
     {
+        pragma(inline, true)
         bool opBinaryRight(string op)(in K key) inout @trusted
             if (op == "in")
         {
@@ -491,12 +484,16 @@ struct HashMapOrSet(K, V = void,
     {
         alias KeyValueRef = ElementRef;
 
+        version(LDC) { pragma(inline, true): } // needed for LDC to inline this, DMD cannot
+
         /** Value reference (and in turn range iterator). */
         static private struct ValueRef
         {
             HashMapOrSet* table;
             size_t bucketIx;        // index to bucket inside table
             size_t elementOffset;   // offset to element inside bucket
+
+            pragma(inline, true):
 
             bool opCast(T : bool)() const
             {
@@ -533,6 +530,7 @@ struct HashMapOrSet(K, V = void,
 
         static private struct ByKey
         {
+            pragma(inline, true):
             /// Get reference to key of front element.
             @property scope ref inout(K) front() inout return
             {
@@ -541,6 +539,7 @@ struct HashMapOrSet(K, V = void,
             private ElementRef _elementRef;
             alias _elementRef this;
         }
+
         /// Returns forward range that iterates through the keys of `this`.
         inout(ByKey) byKey() inout @trusted return
         {
@@ -551,6 +550,7 @@ struct HashMapOrSet(K, V = void,
 
         static private struct ByValue
         {
+            pragma(inline, true):
             /// Get reference to value of front element.
             @property scope ref inout(V) front() inout return
             {
@@ -559,6 +559,7 @@ struct HashMapOrSet(K, V = void,
             private ElementRef _elementRef;
             alias _elementRef this;
         }
+
         /// Returns forward range that iterates through the values of `this`.
         inout(ByValue) byValue() inout @trusted return
         {
@@ -569,6 +570,7 @@ struct HashMapOrSet(K, V = void,
 
         static private struct ByKeyValue
         {
+            pragma(inline, true):
             /// Get reference to front element (key and value).
             @property scope ref inout(T) front() inout return
             {
@@ -577,6 +579,7 @@ struct HashMapOrSet(K, V = void,
             private ElementRef _elementRef;
             alias _elementRef this;
         }
+
         /// Returns forward range that iterates through the values of `this`.
         inout(ByKeyValue) byKeyValue() inout @trusted return
         {

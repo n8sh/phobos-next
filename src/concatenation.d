@@ -1,7 +1,6 @@
 module concatenation;
 
-import std.traits : isStaticArray;
-import std.meta : allSatisfy;
+// import std.meta : allSatisfy;
 
 /// Sum of the lengths of the static arrays 'A'.
 template sumOfLengths(A...)
@@ -9,6 +8,7 @@ template sumOfLengths(A...)
 {
     static if (A.length == 1)
     {
+        import std.traits : isStaticArray;
         static if (isType!(A[0]))
         {
             static if (isStaticArray!(A[0]))
@@ -53,6 +53,7 @@ private template isType(alias T) { enum isType = false; }
  */
 ElementType!(Args[0])[sumOfLengths!Args] concatenate(Args...)(Args args)
 {
+    import std.traits : isStaticArray;
     typeof(return) result = void; // @trusted
     foreach (const i, arg; args)
     {

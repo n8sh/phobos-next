@@ -57,16 +57,15 @@ struct FNV(ulong bitLength, bool fnv1a = false)
         import static_iota : iota;
         foreach (i; iota!(0, n)) // unroll
         {
-            const ubyte e = data[i];
             static if (fnv1a)
             {
-                _hash ^= e;
+                _hash ^= data[i];
                 _hash *= fnvPrime;
             }
             else
             {
                 _hash *= fnvPrime;
-                _hash ^= e;
+                _hash ^= data[i];
             }
         }
     }

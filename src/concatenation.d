@@ -1,6 +1,7 @@
 module concatenation;
 
-/// Sum of the lengths of the static arrays 'A'.
+/** Sum of the lengths of the static arrays 'A'.
+ */
 template sumOfLengths(A...)
     if (A.length)
 {
@@ -48,6 +49,8 @@ private template isType(alias T) { enum isType = false; }
     static assert(sumOfLengths!(x, y, z, w) == 7);
 }
 
+pragma(inline, true):           // must be inlineable
+
 /** Returns: concatenation of the static arrays `Args` as a static array.
  * Move to Phobos's std.array.
  */
@@ -89,7 +92,8 @@ private alias StaticArrayElementType(A : E[n], E, size_t n) = E;
     assert(z == [1, 2, 3, 4, 17]);
 }
 
-/** Overload with faster compiler */
+/** Overload with faster compilation.
+ */
 T[n + 1] concatenate(T, size_t n)(T[n] a, T b)
 {
     typeof(return) c = void;

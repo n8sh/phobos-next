@@ -636,8 +636,6 @@ struct HashMapOrSet(K, V = void,
             void autoinitIncAt(in K key)
             {
                 auto hit = key in this;
-                pragma(msg, typeof(hit));
-                pragma(msg, typeof(*hit));
                 if (hit)
                 {
                     (*hit) += 1;

@@ -1,7 +1,5 @@
 module concatenation;
 
-// import std.meta : allSatisfy;
-
 /// Sum of the lengths of the static arrays 'A'.
 template sumOfLengths(A...)
     if (A.length)
@@ -51,7 +49,7 @@ private template isType(alias T) { enum isType = false; }
 /** Returns: concatenation of the static arrays `Args` as a static array.
  * Move to Phobos's std.array.
  */
-ElementType!(Args[0])[sumOfLengths!Args] concatenate(Args...)(Args args)
+StaticArrayElementType!(Args[0])[sumOfLengths!Args] concatenate(Args...)(Args args)
 {
     import std.traits : isStaticArray;
     typeof(return) result = void; // @trusted
@@ -77,7 +75,7 @@ ElementType!(Args[0])[sumOfLengths!Args] concatenate(Args...)(Args args)
     return result;
 }
 
-private alias ElementType(A : E[n], E, size_t n) = E;
+private alias StaticArrayElementType(A : E[n], E, size_t n) = E;
 
 @safe pure nothrow @nogc unittest
 {

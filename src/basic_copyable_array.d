@@ -123,7 +123,6 @@ struct CopyableArray(T,
         }
         reserve(values.length);
         _length = cast(CapacityType)values.length;
-
         moveEmplaceAll(values, _mptr[0 .. _length]);
     }
 

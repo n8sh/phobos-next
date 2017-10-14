@@ -23,8 +23,6 @@ template sumOfLengths(A...)
     static assert(sumOfLengths!(x, y, z) == 6);
 }
 
-alias Elem(A : E[n], E, size_t n) = E;
-
 /** Returns: concatenation of the static arrays `Args` as a static array.
  * Move to Phobos's std.array.
  */
@@ -46,6 +44,8 @@ Elem!(Args[0])[sumOfLengths!Args] concatenate(Args...)(Args args)
     }
     return result;
 }
+
+private alias Elem(A : E[n], E, size_t n) = E;
 
 @safe pure nothrow @nogc unittest
 {

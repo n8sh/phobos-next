@@ -403,12 +403,13 @@ struct HashMapOrSet(K, V = void,
             {
                 if (_bstates[bucketIx].isFullSmall) // expand small to large
                 {
-                    SmallBucket smallCopy = _buckets[bucketIx].small;
-                    static assert(!hasElaborateDestructor!T, "moveEmplaceAll small elements to large");
-                    emplace!(LargeBucket)(&_buckets[bucketIx].large,
-                                          smallCopy[0 .. _bstates[bucketIx].smallCount]);
-                    _buckets[bucketIx].large.insertBackMove(element);
+                    T[smallBucketCapacity + 1] smallCopy;
+                    smallCopy[0 .. smallBucketCapacity] = _buckets[bucketIx].small; // TODO move
+                    smallCopy[smallBucketCapacity] = element; // TODO move
+
+                    emplace!(LargeBucket)(&_buckets[bucketIx].large, smallCopy[]); // TODO move
                     _bstates[bucketIx].makeLarge();
+                    static assert(!hasElaborateDestructor!T, "moveEmplaceAll small elements to large");
                 }
                 else            // stay small
                 {

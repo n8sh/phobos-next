@@ -8,9 +8,13 @@ template sumOfLengths(A...)
     if (A.length)
 {
     static if (A.length == 1)
+    {
         enum sumOfLengths = A[0].length;
+    }
     else
+    {
         enum sumOfLengths = A[0].length + sumOfLengths!(A[1 .. $]);
+    }
 }
 
 @safe pure nothrow @nogc unittest

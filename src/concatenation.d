@@ -54,7 +54,7 @@ pragma(inline, true):           // must be inlineable
 /** Returns: concatenation of the static arrays `Args` as a static array.
  * Move to Phobos's std.array.
  */
-StaticArrayElementType!(Args[0])[sumOfLengths!Args] concatenate(Args...)(in auto ref Args args)
+StaticArrayElementType!(Args[0])[sumOfLengths!Args] concatenate(Args...)(const auto ref Args args)
 {
     import std.traits : isStaticArray;
     typeof(return) result = void; // @trusted
@@ -94,7 +94,7 @@ private alias StaticArrayElementType(A : E[n], E, size_t n) = E;
 
 /** Overload with faster compilation.
  */
-T[n + 1] concatenate(T, size_t n)(in auto ref T[n] a, T b)
+T[n + 1] concatenate(T, size_t n)(const auto ref T[n] a, T b)
 {
     typeof(return) c = void;
     c[0 .. n] = a;

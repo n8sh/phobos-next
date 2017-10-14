@@ -543,7 +543,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Returns forward range that iterates through the keys of `this`.
-        inout(ByKey) byKey() inout @trusted return
+        scope inout(ByKey) byKey() inout @trusted return
         {
             auto result = typeof(return)(inout(ElementRef)(&this));
             (cast(ByKey)result).initFirstNonEmptyBin(); // dirty cast because inout problem
@@ -563,7 +563,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Returns forward range that iterates through the values of `this`.
-        inout(ByValue) byValue() inout @trusted return
+        scope inout(ByValue) byValue() inout @trusted return
         {
             auto result = typeof(return)(inout(ElementRef)(&this));
             (cast(ByValue)result).initFirstNonEmptyBin(); // dirty cast because inout problem
@@ -583,7 +583,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Returns forward range that iterates through the values of `this`.
-        inout(ByKeyValue) byKeyValue() inout @trusted return
+        scope inout(ByKeyValue) byKeyValue() inout @trusted return
         {
             auto result = typeof(return)(inout(ElementRef)(&this));
             (cast(ByKeyValue)result).initFirstNonEmptyBin(); // dirty cast because inout problem

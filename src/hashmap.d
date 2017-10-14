@@ -8,29 +8,29 @@ version = doInline;
 
 /** Hash set (or map) storing (key) elements of type `K` and values of type `V`.
  *
- * Uses small-size-optimized (SSO) arrays as buckets, which provides more stable
+ * Uses small-size-optimized (SSO) arrays as bins, which provides more stable
  * behaviour than open-addressing.
  *
  * Params:
  *      K = key type.
  *      V = value type.
- *      Allocator = memory allocator for bucket array and large buckets (`LargeBucket`)
+ *      Allocator = memory allocator for bin array and large bins (`LargeBin`)
  *      hasher = hash function or std.digest Hash.
- *      smallBucketMinCapacity = minimum capacity of small bucket
+ *      smallBinMinCapacity = minimum capacity of small bin
  *
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  *
  * TODO add flag for use growth factor smaller than powers of two. use prime_modulo.d
  *
- * TODO use core.bitop : bsr, bsl to find first empty element in bucket
+ * TODO use core.bitop : bsr, bsl to find first empty element in bin
  *
  * TODO Avoid extra length and capacity in _statuses (length or large) by making
- * it allocate in sync with buckets (using soa.d)
+ * it allocate in sync with bins (using soa.d)
  *
  * TODO grow(): if allocator has realloc we can do rehashing in-place similar to
  * reordering in in-place radix (integer_sorting.d), otherwise rehash into new
- * copy of buckets and free old buckets when done. If bucket element count is >
- * 1 this is more complicated since each bucket contains a set of elements to
+ * copy of bins and free old bins when done. If bin element count is >
+ * 1 this is more complicated since each bin contains a set of elements to
  * swap out and must be put in a queue.
  *
  * TODO support uncopyable value type for map-case
@@ -40,10 +40,10 @@ version = doInline;
 struct HashMapOrSet(K, V = void,
                     alias Allocator = null,
                     alias hasher = hashOf,
-                    uint smallBucketMinCapacity = 1,
+                    uint smallBinMinCapacity = 1,
                     uint capacityScaleNumerator = 2,
                     uint capacityScaleDenominator = 1)
-    if (smallBucketMinCapacity >= 1) // no use having empty small buckets
+    if (smallBinMinCapacity >= 1) // no use having empty small bins
 {
     import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor;
     import std.algorithm.mutation : move, moveEmplace, moveEmplaceAll;
@@ -145,11 +145,11 @@ struct HashMapOrSet(K, V = void,
     }
 
     pragma(inline)              // LDC can, DMD cannot inline
-    private static typeof(this) withBucketCount(size_t bucketCount)
+    private static typeof(this) withBinCount(size_t binCount)
     {
         typeof(return) that;    // TODO return direct call to store constructor
-        that._buckets = Buckets.withLength(bucketCount);
-        that._bstates = Bstates.withLength(bucketCount);
+        that._bins = Bins.withLength(binCount);
+        that._bstates = Bstates.withLength(binCount);
         that._length = 0;
         return that;
     }
@@ -158,24 +158,24 @@ struct HashMapOrSet(K, V = void,
      */
     private this(size_t capacity)
     {
-        immutable bucketCount = bucketCountOfCapacity(capacity);
-        _buckets = Buckets.withLength(bucketCount);
-        _bstates = Bstates.withLength(bucketCount);
+        immutable binCount = binCountOfCapacity(capacity);
+        _bins = Bins.withLength(binCount);
+        _bstates = Bstates.withLength(binCount);
         _length = 0;
     }
 
-    /** Lookup bucket count from capacity `capacity`.
+    /** Lookup bin count from capacity `capacity`.
      */
-    static private size_t bucketCountOfCapacity(size_t capacity)
+    static private size_t binCountOfCapacity(size_t capacity)
     {
-        const minimumBucketCount = ((capacityScaleNumerator *
+        const minimumBinCount = ((capacityScaleNumerator *
                                      capacity) /
-                                    (smallBucketCapacity *
+                                    (smallBinCapacity *
                                      capacityScaleDenominator));
         import std.math : nextPow2;
-        return nextPow2(minimumBucketCount == 0 ?
+        return nextPow2(minimumBinCount == 0 ?
                         0 :
-                        minimumBucketCount - 1);
+                        minimumBinCount - 1);
     }
 
     /// Destruct.
@@ -192,20 +192,20 @@ struct HashMapOrSet(K, V = void,
     {
         typeof(return) that;
 
-        that._buckets.reserve(_buckets.length);
+        that._bins.reserve(_bins.length);
 
         // TODO merge these
-        that._buckets.length = _buckets.length; // TODO this zero-initializes before initialization below, use unsafe setLengthOnlyUNSAFE
+        that._bins.length = _bins.length; // TODO this zero-initializes before initialization below, use unsafe setLengthOnlyUNSAFE
         that._bstates = _bstates.dup;
 
         that._length = _length;
 
-        foreach (immutable bucketIx; 0 .. _buckets.length)
+        foreach (immutable binIx; 0 .. _bins.length)
         {
-            if (_bstates[bucketIx].isLarge)
+            if (_bstates[binIx].isLarge)
             {
-                emplace(&that._buckets[bucketIx].large,
-                        _buckets[bucketIx].large[]);
+                emplace(&that._bins[binIx].large,
+                        _bins[binIx].large[]);
             }
             else
             {
@@ -214,9 +214,9 @@ struct HashMapOrSet(K, V = void,
                  */
                 static if (hasElaborateCopyConstructor!T)
                 {
-                    foreach (immutable elementIx, const ref element; elementsOfSmallBucket(bucketIx))
+                    foreach (immutable elementIx, const ref element; elementsOfSmallBin(binIx))
                     {
-                        emplace(&that._buckets[bucketIx].small[elementIx],
+                        emplace(&that._bins[binIx].small[elementIx],
                                 element);
                     }
                 }
@@ -227,13 +227,13 @@ struct HashMapOrSet(K, V = void,
                     {
                         // currently faster than slice assignment on else branch
                         import core.stdc.string : memcpy;
-                        memcpy(that._buckets[bucketIx].small.ptr, // cannot overlap
-                               elementsOfSmallBucket(bucketIx).ptr,
-                               elementsOfSmallBucket(bucketIx).length * T.sizeof);
+                        memcpy(that._bins[binIx].small.ptr, // cannot overlap
+                               elementsOfSmallBin(binIx).ptr,
+                               elementsOfSmallBin(binIx).length * T.sizeof);
                     }
                     else
                     {
-                        that._buckets[bucketIx].small.ptr[0 .. _bstates[bucketIx].smallCount] = elementsOfSmallBucket(bucketIx);
+                        that._bins[binIx].small.ptr[0 .. _bstates[binIx].smallCount] = elementsOfSmallBin(binIx);
                     }
                 }
             }
@@ -242,26 +242,26 @@ struct HashMapOrSet(K, V = void,
         return that;
     }
 
-    /// Grow by duplicating number of buckets.
+    /// Grow by duplicating number of bins.
     private void grow() @trusted
     {
-        immutable newBucketCount = bucketCount ? 2 * bucketCount : 1; // 0 => 1, 1 => 2, 2 => 4, ...
-        auto copy = withBucketCount(newBucketCount);
+        immutable newBinCount = binCount ? 2 * binCount : 1; // 0 => 1, 1 => 2, 2 => 4, ...
+        auto copy = withBinCount(newBinCount);
 
-        foreach (immutable bucketIx; 0 .. _buckets.length)
+        foreach (immutable binIx; 0 .. _bins.length)
         {
-            foreach (ref element; bucketElementsAt(bucketIx))
+            foreach (ref element; binElementsAt(binIx))
             {
-                copy.insertWithoutBucketCountGrowth(element);
+                copy.insertWithoutBinCountGrowth(element);
             }
         }
 
         assert(copy._length == _length); // length shouldn't change
 
         moveEmplace(copy._bstates, _bstates); // `_bstates` doesn't need destroying
-        move(copy._buckets, _buckets);
+        move(copy._bins, _bins);
 
-        assert(!_buckets.empty);
+        assert(!_bins.empty);
         assert(!_bstates.empty);
     }
 
@@ -270,9 +270,9 @@ struct HashMapOrSet(K, V = void,
 
     {
         if (_length != rhs._length) { return false; }
-        foreach (immutable bucketIx; 0 .. _buckets.length)
+        foreach (immutable binIx; 0 .. _bins.length)
         {
-            foreach (const ref element; bucketElementsAt(bucketIx))
+            foreach (const ref element; binElementsAt(binIx))
             {
                 static if (hasValue)
                 {
@@ -299,23 +299,23 @@ struct HashMapOrSet(K, V = void,
     /// Release internal store.
     private void release() @trusted
     {
-        foreach (immutable bucketIx; 0 .. _buckets.length)
+        foreach (immutable binIx; 0 .. _bins.length)
         {
-            if (_bstates[bucketIx].isLarge)
+            if (_bstates[binIx].isLarge)
             {
-                static if (hasElaborateDestructor!LargeBucket)
+                static if (hasElaborateDestructor!LargeBin)
                 {
-                    .destroy(_buckets[bucketIx].large);
+                    .destroy(_bins[binIx].large);
                 }
             }
             else
             {
-                /* TODO SmallBucket itself doens't need to be destroyed only
+                /* TODO SmallBin itself doens't need to be destroyed only
                    it's elements and gc_removeRange doesn't need to be called
-                   either, that is take car of by dtor of _buckets. */
-                static if (hasElaborateDestructor!SmallBucket)
+                   either, that is take car of by dtor of _bins. */
+                static if (hasElaborateDestructor!SmallBin)
                 {
-                    .destroyAll(elementsOfSmallBucket(bucketIx));
+                    .destroyAll(elementsOfSmallBin(binIx));
                 }
             }
         }
@@ -324,7 +324,7 @@ struct HashMapOrSet(K, V = void,
     /// Reset internal data.
     private void resetInternalData()
     {
-        _buckets.clear();
+        _bins.clear();
         _bstates.clear();
         _length = 0;
     }
@@ -339,10 +339,10 @@ struct HashMapOrSet(K, V = void,
     {
         if (empty)              // TODO can this check be avoided?
         {
-            return false; // prevent `RangeError` in `bucketElementsAt` when empty
+            return false; // prevent `RangeError` in `binElementsAt` when empty
         }
-        immutable bucketIx = keyToBucketIx(key);
-        return bucketElementsAt(bucketIx).canFind!keyEqualPred(key);
+        immutable binIx = keyToBinIx(key);
+        return binElementsAt(binIx).canFind!keyEqualPred(key);
     }
 
     /** Insert `element`, being either a key, value (map-case) or a just a key (set-case).
@@ -352,11 +352,11 @@ struct HashMapOrSet(K, V = void,
         if ((capacityScaleNumerator *
              (_length + 1) /
              capacityScaleDenominator) >
-            _buckets.length * smallBucketCapacity)
+            _bins.length * smallBinCapacity)
         {
             grow();
         }
-        return insertWithoutBucketCountGrowth(element);
+        return insertWithoutBinCountGrowth(element);
     }
 
     static if (hasValue)
@@ -370,12 +370,12 @@ struct HashMapOrSet(K, V = void,
     }
 
     /** Insert `element` like with `insert()` without automatic growth of number
-     * of buckets.
+     * of bins.
      */
-    InsertionStatus insertWithoutBucketCountGrowth(T element) @trusted
+    InsertionStatus insertWithoutBinCountGrowth(T element) @trusted
     {
-        immutable bucketIx = keyToBucketIx(keyRefOf(element));
-        T[] elements = bucketElementsAt(bucketIx);
+        immutable binIx = keyToBinIx(keyRefOf(element));
+        T[] elements = binElementsAt(binIx);
 
         immutable ptrdiff_t elementOffset = elements.countUntil!keyEqualPred(keyOf(element));
         immutable hit = elementOffset != -1;
@@ -396,24 +396,24 @@ struct HashMapOrSet(K, V = void,
         }
         else                    // no hit
         {
-            if (_bstates[bucketIx].isLarge) // stay large
+            if (_bstates[binIx].isLarge) // stay large
             {
-                _buckets[bucketIx].large.insertBackMove(element);
+                _bins[binIx].large.insertBackMove(element);
             }
             else
             {
-                if (_bstates[bucketIx].isFullSmall) // expand small to large
+                if (_bstates[binIx].isFullSmall) // expand small to large
                 {
                     import concatenation : concatenate;
-                    auto smallCopy = concatenate(_buckets[bucketIx].small, element);
-                    emplace!(LargeBucket)(&_buckets[bucketIx].large, smallCopy[]); // TODO move
-                    _bstates[bucketIx].makeLarge();
+                    auto smallCopy = concatenate(_bins[binIx].small, element);
+                    emplace!(LargeBin)(&_bins[binIx].large, smallCopy[]); // TODO move
+                    _bstates[binIx].makeLarge();
                     static assert(!hasElaborateDestructor!T, "moveEmplaceAll small elements to large");
                 }
                 else            // stay small
                 {
-                    _buckets[bucketIx].small[_bstates[bucketIx].smallCount] = element;
-                    _bstates[bucketIx].incSmallCount();
+                    _bins[binIx].small[_bstates[binIx].smallCount] = element;
+                    _bstates[binIx].incSmallCount();
                 }
             }
             _length += 1;
@@ -426,23 +426,23 @@ struct HashMapOrSet(K, V = void,
     static private struct ElementRef
     {
         HashMapOrSet* table;
-        size_t bucketIx;        // index to bucket inside table
-        size_t elementOffset;   // offset to element inside bucket
+        size_t binIx;        // index to bin inside table
+        size_t elementOffset;   // offset to element inside bin
 
         pragma(inline, true):
 
         /// Check if empty.
         @property bool empty() const
         {
-            return bucketIx == table.bucketCount;
+            return binIx == table.binCount;
         }
 
-        void initFirstNonEmptyBucket()
+        void initFirstNonEmptyBin()
         {
-            while (bucketIx < table.bucketCount &&
-                   table.bucketElementCountAt(bucketIx) == 0)
+            while (binIx < table.binCount &&
+                   table.binElementCountAt(binIx) == 0)
             {
-                bucketIx += 1;
+                binIx += 1;
             }
         }
 
@@ -451,11 +451,11 @@ struct HashMapOrSet(K, V = void,
         {
             assert(!empty);
             elementOffset += 1; // next element
-            // if current bucket was emptied
-            while (elementOffset >= table.bucketElementsAt(bucketIx).length)
+            // if current bin was emptied
+            while (elementOffset >= table.binElementsAt(binIx).length)
             {
-                // next bucket
-                bucketIx += 1;
+                // next bin
+                binIx += 1;
                 elementOffset = 0;
                 if (empty) { break; }
             }
@@ -485,8 +485,8 @@ struct HashMapOrSet(K, V = void,
         static private struct ValueRef
         {
             HashMapOrSet* table;
-            size_t bucketIx;        // index to bucket inside table
-            size_t elementOffset;   // offset to element inside bucket
+            size_t binIx;        // index to bin inside table
+            size_t elementOffset;   // offset to element inside bin
 
             pragma(inline, true):
 
@@ -498,7 +498,7 @@ struct HashMapOrSet(K, V = void,
             scope ref inout(V) opUnary(string s)() inout return
                 if (s == "*")
             {
-                return table.bucketElementsAt(bucketIx)[elementOffset].value;
+                return table.binElementsAt(binIx)[elementOffset].value;
             }
         }
 
@@ -507,15 +507,15 @@ struct HashMapOrSet(K, V = void,
         {
             if (empty)
             {
-                // prevent range error in `bucketElementsAt` when `this` is empty
+                // prevent range error in `binElementsAt` when `this` is empty
                 return typeof(return).init;
             }
-            immutable bucketIx = keyToBucketIx(key);
-            immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIx).countUntil!(_ => _.key == key); // TODO functionize
+            immutable binIx = keyToBinIx(key);
+            immutable ptrdiff_t elementOffset = binElementsAt(binIx).countUntil!(_ => _.key == key); // TODO functionize
             immutable hit = elementOffset != -1;
             if (hit)
             {
-                return typeof(return)(&this, bucketIx, elementOffset);
+                return typeof(return)(&this, binIx, elementOffset);
             }
             else                    // miss
             {
@@ -529,7 +529,7 @@ struct HashMapOrSet(K, V = void,
             /// Get reference to key of front element.
             @property scope ref inout(K) front() inout return
             {
-                return table.bucketElementsAt(bucketIx)[elementOffset].key;
+                return table.binElementsAt(binIx)[elementOffset].key;
             }
             private ElementRef _elementRef;
             alias _elementRef this;
@@ -539,7 +539,7 @@ struct HashMapOrSet(K, V = void,
         inout(ByKey) byKey() inout @trusted return
         {
             auto result = typeof(return)(inout(ElementRef)(&this));
-            (cast(ByKey)result).initFirstNonEmptyBucket(); // dirty cast because inout problem
+            (cast(ByKey)result).initFirstNonEmptyBin(); // dirty cast because inout problem
             return result;
         }
 
@@ -549,7 +549,7 @@ struct HashMapOrSet(K, V = void,
             /// Get reference to value of front element.
             @property scope ref inout(V) front() inout return
             {
-                return table.bucketElementsAt(bucketIx)[elementOffset].value;
+                return table.binElementsAt(binIx)[elementOffset].value;
             }
             private ElementRef _elementRef;
             alias _elementRef this;
@@ -559,7 +559,7 @@ struct HashMapOrSet(K, V = void,
         inout(ByValue) byValue() inout @trusted return
         {
             auto result = typeof(return)(inout(ElementRef)(&this));
-            (cast(ByValue)result).initFirstNonEmptyBucket(); // dirty cast because inout problem
+            (cast(ByValue)result).initFirstNonEmptyBin(); // dirty cast because inout problem
             return result;
         }
 
@@ -569,7 +569,7 @@ struct HashMapOrSet(K, V = void,
             /// Get reference to front element (key and value).
             @property scope ref inout(T) front() inout return
             {
-                return table.bucketElementsAt(bucketIx)[elementOffset];
+                return table.binElementsAt(binIx)[elementOffset];
             }
             private ElementRef _elementRef;
             alias _elementRef this;
@@ -579,7 +579,7 @@ struct HashMapOrSet(K, V = void,
         inout(ByKeyValue) byKeyValue() inout @trusted return
         {
             auto result = typeof(return)(inout(ElementRef)(&this));
-            (cast(ByKeyValue)result).initFirstNonEmptyBucket(); // dirty cast because inout problem
+            (cast(ByKeyValue)result).initFirstNonEmptyBin(); // dirty cast because inout problem
             return result;
         }
 
@@ -587,12 +587,12 @@ struct HashMapOrSet(K, V = void,
         pragma(inline, true)    // LDC must have this
         scope ref inout(V) opIndex(in K key) inout return
         {
-            immutable bucketIx = keyToBucketIx(key);
-            immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIx).countUntil!(_ => _.key == key); // TODO functionize
+            immutable binIx = keyToBinIx(key);
+            immutable ptrdiff_t elementOffset = binElementsAt(binIx).countUntil!(_ => _.key == key); // TODO functionize
             immutable hit = elementOffset != -1;
             if (hit)
             {
-                return bucketElementsAt(bucketIx)[elementOffset].value;
+                return binElementsAt(binIx)[elementOffset].value;
             }
             else                    // miss
             {
@@ -609,11 +609,11 @@ struct HashMapOrSet(K, V = void,
          */
         V get(in K key, V defaultValue) @trusted
         {
-            immutable bucketIx = keyToBucketIx(key);
-            immutable ptrdiff_t elementOffset = bucketElementsAt(bucketIx).countUntil!(_ => _.key == key); // TODO functionize
+            immutable binIx = keyToBinIx(key);
+            immutable ptrdiff_t elementOffset = binElementsAt(binIx).countUntil!(_ => _.key == key); // TODO functionize
             if (elementOffset != -1) // hit
             {
-                return bucketElementsAt(bucketIx)[elementOffset].value;
+                return binElementsAt(binIx)[elementOffset].value;
             }
             else                    // miss
             {
@@ -631,67 +631,67 @@ struct HashMapOrSet(K, V = void,
 
     }
 
-    /** Remove `element` and, when possible, shrink its large bucket to small.
+    /** Remove `element` and, when possible, shrink its large bin to small.
 
         Returns: `true` if element was removed, `false` otherwise.
     */
     bool remove(in K key)
         @trusted
     {
-        immutable bucketIx = keyToBucketIx(key);
+        immutable binIx = keyToBinIx(key);
         import container_algorithm : popFirstMaybe;
-        if (_bstates[bucketIx].isLarge)
+        if (_bstates[binIx].isLarge)
         {
-            immutable hit = _buckets[bucketIx].large.popFirstMaybe!keyEqualPred(key);
+            immutable hit = _bins[binIx].large.popFirstMaybe!keyEqualPred(key);
             _length -= hit ? 1 : 0;
             if (hit)
             {
-                tryShrinkLargeBucketAt(bucketIx);
+                tryShrinkLargeBinAt(binIx);
             }
             return hit;
         }
         else
         {
-            immutable elementIx = elementsOfSmallBucket(bucketIx).countUntil!keyEqualPred(key);
+            immutable elementIx = elementsOfSmallBin(binIx).countUntil!keyEqualPred(key);
             immutable hit = elementIx != -1;
             if (hit)
             {
-                removeSmallElementAt(bucketIx, elementIx);
+                removeSmallElementAt(binIx, elementIx);
             }
             _length -= hit ? 1 : 0;
             return hit;
         }
     }
 
-    /** Remove small element at `elementIx` in bucket `bucketIx`. */
-    private void removeSmallElementAt(size_t bucketIx,
+    /** Remove small element at `elementIx` in bin `binIx`. */
+    private void removeSmallElementAt(size_t binIx,
                                       size_t elementIx)
     {
-        assert(!_bstates[bucketIx].isLarge);
+        assert(!_bstates[binIx].isLarge);
         import container_algorithm : shiftToFrontAt;
-        elementsOfSmallBucket(bucketIx).shiftToFrontAt(elementIx);
-        _bstates[bucketIx].decSmallCount();
+        elementsOfSmallBin(binIx).shiftToFrontAt(elementIx);
+        _bstates[binIx].decSmallCount();
         static if (hasElaborateDestructor!T)
         {
-            .destroy(_buckets[bucketIx].small[_bstates[bucketIx].smallCount]);
+            .destroy(_bins[binIx].small[_bstates[binIx].smallCount]);
         }
     }
 
-    /** Shrink large bucket at `bucketIx` possible posbiel. */
-    private void tryShrinkLargeBucketAt(in size_t bucketIx)
+    /** Shrink large bin at `binIx` possible posbiel. */
+    private void tryShrinkLargeBinAt(in size_t binIx)
     {
-        assert(_bstates[bucketIx].isLarge);
-        immutable count = _buckets[bucketIx].large.length;
-        if (count <= smallBucketCapacity) // large fits in small
+        assert(_bstates[binIx].isLarge);
+        immutable count = _bins[binIx].large.length;
+        if (count <= smallBinCapacity) // large fits in small
         {
             static assert(!hasElaborateDestructor!T);
 
-            SmallBucket small; // TODO = void
-            moveEmplaceAll(_buckets[bucketIx].large[], small[0 .. count]);
+            SmallBin small; // TODO = void
+            moveEmplaceAll(_bins[binIx].large[], small[0 .. count]);
 
-            moveEmplaceAll(small[0 .. count], _buckets[bucketIx].small[0 .. count]);
+            moveEmplaceAll(small[0 .. count], _bins[binIx].small[0 .. count]);
 
-            _bstates[bucketIx].smallCount = count;
+            _bstates[binIx].smallCount = count;
         }
     }
 
@@ -713,20 +713,20 @@ struct HashMapOrSet(K, V = void,
     pragma(inline, true)
     @property size_t length() const { return _length; }
 
-    /// Get bucket count.
+    /// Get bin count.
     pragma(inline, true)
-    @property size_t bucketCount() const { return _buckets.length; }
+    @property size_t binCount() const { return _bins.length; }
 
-    /// Bucket count statistics.
-    struct BucketCounts
+    /// Bin count statistics.
+    struct BinCounts
     {
-        size_t smallCount;      // number of hybrid buckets being small
-        size_t largeCount;      // number of hybrid buckets being large
+        size_t smallCount;      // number of hybrid bins being small
+        size_t largeCount;      // number of hybrid bins being large
     }
 
-    /// Get bucket count statistics.
+    /// Get bin count statistics.
     pragma(inline, false)
-    BucketCounts bucketCounts() const
+    BinCounts binCounts() const
     {
         import std.algorithm : count;
         immutable largeCount = _bstates[].count!(_ => _.isLarge);
@@ -737,78 +737,78 @@ struct HashMapOrSet(K, V = void,
         return result;
     }
 
-    /** Returns: elements in bucket at `bucketIx`. */
+    /** Returns: elements in bin at `binIx`. */
     pragma(inline, true)
-    private scope inout(T)[] bucketElementsAt(size_t bucketIx) inout return @trusted
+    private scope inout(T)[] binElementsAt(size_t binIx) inout return @trusted
     {
-        if (_bstates[bucketIx].isLarge)
+        if (_bstates[binIx].isLarge)
         {
-            return _buckets[bucketIx].large[];
+            return _bins[binIx].large[];
         }
         else
         {
-            return elementsOfSmallBucket(bucketIx);
+            return elementsOfSmallBin(binIx);
         }
     }
 
     pragma(inline, true)
-    private scope inout(T)[] elementsOfSmallBucket(size_t bucketIx) inout return
+    private scope inout(T)[] elementsOfSmallBin(size_t binIx) inout return
     {
-        return _buckets[bucketIx].small[0 .. _bstates[bucketIx].smallCount];
+        return _bins[binIx].small[0 .. _bstates[binIx].smallCount];
     }
 
-    /** Returns: number of elements in bucket at `bucketIx`. */
+    /** Returns: number of elements in bin at `binIx`. */
     pragma(inline, true)
-    private size_t bucketElementCountAt(size_t bucketIx) const @trusted
+    private size_t binElementCountAt(size_t binIx) const @trusted
     {
-        if (_bstates[bucketIx].isLarge)
+        if (_bstates[binIx].isLarge)
         {
-            return _buckets[bucketIx].large.length;
+            return _bins[binIx].large.length;
         }
         else
         {
-            return _bstates[bucketIx].smallCount;
+            return _bstates[binIx].smallCount;
         }
     }
 
-    /** Maximum number of elements that fits in a small bucket
-     * (`SmallBucket`).
+    /** Maximum number of elements that fits in a small bin
+     * (`SmallBin`).
      */
-    enum smallBucketCapacity = max(smallBucketMinCapacity,
-                                   LargeBucket.sizeof / T.sizeof);
+    enum smallBinCapacity = max(smallBinMinCapacity,
+                                   LargeBin.sizeof / T.sizeof);
 
 private:
     import basic_uncopyable_array : Array = UncopyableArray;
 
-    /** 32-bit capacity and length for LargeBucketLnegth on 64-bit platforms
+    /** 32-bit capacity and length for LargeBinLnegth on 64-bit platforms
      * saves one word and makes insert() and contains() significantly faster */
-    alias LargeBucketCapacityType = uint;
-    alias LargeBucket = Array!(T, Allocator, LargeBucketCapacityType);
+    alias LargeBinCapacityType = uint;
+    alias LargeBin = Array!(T, Allocator, LargeBinCapacityType);
 
-    alias SmallBucket = T[smallBucketCapacity];
+    alias SmallBin = T[smallBinCapacity];
 
-    /// no space for `SmallBucket`s should be wasted
-    static assert(SmallBucket.sizeof >= LargeBucket.sizeof);
+    /// no space for `SmallBin`s should be wasted
+    static assert(SmallBin.sizeof >= LargeBin.sizeof);
 
-    /** Small-size-optimized bucket.
+    /** Small-size-optimized bin.
      */
-    union HybridBucket
+    union HybridBin
     {
-        LargeBucket large;
-        SmallBucket small;
+        LargeBin large;
+        SmallBin small;
     }
 
-    /** Small-size-optimized bucket array.
+    /** Small-size-optimized bin array.
 
         Size-state (including small or large) for each element is determined by
         corresponding element in `Bstates`.
      */
-    alias Buckets = Array!(HybridBucket, Allocator);
+    alias Bins = Array!(HybridBin, Allocator);
 
-    /** Count and large status of bucket. */
+    /** Count and large status of bin. */
     struct Bstate
     {
-        static if (smallBucketCapacity <= 7)
+        static if (smallBinCapacity <= 7)
         {
             alias Count = ubyte;
         }
@@ -821,13 +821,13 @@ private:
 
         @property Count smallCount() const
         {
-            assert(_count <= smallBucketCapacity);
+            assert(_count <= smallBinCapacity);
             return _count;
         }
 
         @property void smallCount(size_t count)
         {
-            assert(count <= smallBucketCapacity);
+            assert(count <= smallBinCapacity);
             _count = cast(Count)count;
         }
 
@@ -839,11 +839,11 @@ private:
 
         @property void incSmallCount()
         {
-            assert(_count + 1 <= smallBucketCapacity);
+            assert(_count + 1 <= smallBinCapacity);
             _count += 1;
         }
 
-        /** Returns: `true` iff `this` is a large bucket. */
+        /** Returns: `true` iff `this` is a large bin. */
         @property bool isLarge() const
         {
             return _count == Count.max;
@@ -854,10 +854,10 @@ private:
             _count = Count.max;
         }
 
-        /** Returns: `true` iff `this` is a full small bucket. */
+        /** Returns: `true` iff `this` is a full small bin. */
         @property bool isFullSmall() const
         {
-            return _count == smallBucketCapacity;
+            return _count == smallBinCapacity;
         }
 
         Count _count;
@@ -866,28 +866,28 @@ private:
     alias Bstates = Array!(Bstate, Allocator);
 
     // TODO merge these into an instance of soa.d and remove invariant
-    Buckets _buckets;
+    Bins _bins;
     Bstates _bstates;
     invariant
     {
-        assert(_buckets.length ==
+        assert(_bins.length ==
                _bstates.length);
     }
 
     size_t _length;
 
-    /** Returns: bucket index of `hash`. */
+    /** Returns: bin index of `hash`. */
     pragma(inline, true)
     size_t hashToIndex(size_t hash) const
     {
-        const size_t mask = _buckets.length - 1;
-        assert((~mask ^ mask) == size_t.max); // assert that _buckets.length is a power of 2
+        const size_t mask = _bins.length - 1;
+        assert((~mask ^ mask) == size_t.max); // assert that _bins.length is a power of 2
         return hash & mask;
     }
 
-    /** Returns: bucket index of `key`. */
+    /** Returns: bin index of `key`. */
     pragma(inline, true)
-    size_t keyToBucketIx()(in auto ref K key) const
+    size_t keyToBinIx()(in auto ref K key) const
     {
         import hash_ex : HashOf;
         return hashToIndex(HashOf!(hasher)(key));
@@ -900,20 +900,20 @@ private:
 alias HashSet(K,
               alias Allocator = null,
               alias hasher = hashOf,
-              uint smallBucketMinCapacity = 1) = HashMapOrSet!(K, void,
+              uint smallBinMinCapacity = 1) = HashMapOrSet!(K, void,
                                                                Allocator,
                                                                hasher,
-                                                               smallBucketMinCapacity);
+                                                               smallBinMinCapacity);
 
 /** Hash map storing keys of type `K` and values of type `V`.
  */
 alias HashMap(K, V,
               alias Allocator = null,
               alias hasher = hashOf,
-              uint smallBucketMinCapacity = 1) = HashMapOrSet!(K, V,
+              uint smallBinMinCapacity = 1) = HashMapOrSet!(K, V,
                                                                Allocator,
                                                                hasher,
-                                                               smallBucketMinCapacity);
+                                                               smallBinMinCapacity);
 
 @safe pure nothrow @nogc unittest
 {
@@ -933,19 +933,19 @@ alias HashMap(K, V,
             static assert(mustAddGCRange!V);
             static assert(mustAddGCRange!V[1]);
             static assert(mustAddGCRange!(X.T));
-            static assert(mustAddGCRange!(X.SmallBucket));
-            static assert(!mustAddGCRange!(X.LargeBucket));
+            static assert(mustAddGCRange!(X.SmallBin));
+            static assert(!mustAddGCRange!(X.LargeBin));
         }
         else
         {
             static assert(!mustAddGCRange!(X.T));
-            static assert(!mustAddGCRange!(X.SmallBucket));
+            static assert(!mustAddGCRange!(X.SmallBin));
         }
 
         auto x1 = X();            // start empty
 
-        // all buckets start small
-        assert(x1.bucketCounts.largeCount == 0);
+        // all bins start small
+        assert(x1.binCounts.largeCount == 0);
 
         // fill x1
 
@@ -1024,8 +1024,8 @@ alias HashMap(K, V,
 
         auto x2 = x1.dup;
         assert(x1 == x2);
-        assert(x1.bucketCounts.largeCount ==
-               x2.bucketCounts.largeCount);
+        assert(x1.binCounts.largeCount ==
+               x2.binCounts.largeCount);
         static assert(!__traits(compiles, { const _ = x1 < x2; })); // no ordering
         assert(x2.length == n);
 
@@ -1063,7 +1063,7 @@ alias HashMap(K, V,
             assert(x1.length == n - key - 1);
         }
 
-        assert(x1.bucketCounts.largeCount == 0);
+        assert(x1.binCounts.largeCount == 0);
 
         assert(x1.length == 0);
 
@@ -1097,7 +1097,7 @@ alias HashMap(K, V,
             assert(x2.length == n - key - 1);
         }
 
-        assert(x2.bucketCounts.largeCount == 0);
+        assert(x2.binCounts.largeCount == 0);
 
         assert(x2.length == 0);
 

@@ -141,13 +141,13 @@ void main()
 
         writef(` for %s`, A.stringof);
 
-        static if (hasMember!(A, `bucketCounts`))
+        static if (hasMember!(A, `binCounts`))
         {
-            writef(" %s", a.bucketCounts());
+            writef(" %s", a.binCounts());
         }
-        static if (hasMember!(A, `smallBucketCapacity`))
+        static if (hasMember!(A, `smallBinCapacity`))
         {
-            writef(" smallBucketCapacity:%s", A.smallBucketCapacity);
+            writef(" smallBinCapacity:%s", A.smallBinCapacity);
         }
 
         writeln();
@@ -216,13 +216,13 @@ void main()
 
         writef(` for %s`, A.stringof);
 
-        static if (hasMember!(A, `bucketCounts`))
+        static if (hasMember!(A, `binCounts`))
         {
-            writef(" %s", a.bucketCounts());
+            writef(" %s", a.binCounts());
         }
-        static if (hasMember!(A, `smallBucketCapacity`))
+        static if (hasMember!(A, `smallBinCapacity`))
         {
-            writef(" smallBucketCapacity:%s", A.smallBucketCapacity);
+            writef(" smallBinCapacity:%s", A.smallBinCapacity);
         }
 
         writeln();

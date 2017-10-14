@@ -485,8 +485,8 @@ struct HashMapOrSet(K, V = void,
         static private struct ValueRef
         {
             HashMapOrSet* table;
-            size_t binIx;        // index to bin inside table
-            size_t elementOffset;   // offset to element inside bin
+            size_t binIx;         // index to bin inside table
+            size_t elementOffset; // offset to element inside bin
 
             pragma(inline, true):
 
@@ -628,6 +628,26 @@ struct HashMapOrSet(K, V = void,
 	{
             insert(T(key, value));
 	}
+
+        static if (__traits(compiles, { V _; _ += 1; }))
+        {
+            /** Default-initialize or increase value at `key`. */
+            pragma(inline, true)
+            void initOrIncAt(in K key)
+            {
+                auto hit = key in this;
+                pragma(msg, typeof(hit));
+                pragma(msg, typeof(*hit));
+                if (hit)
+                {
+                    (*hit) += 1;
+                }
+                else
+                {
+                    insert(key, V.init + 1);
+                }
+            }
+        }
 
     }
 
@@ -1114,7 +1134,7 @@ pure unittest
     immutable n = 11;
 
     alias K = string;
-    alias V = string;
+    alias V = uint;
 
     import std.exception : assertThrown, assertNotThrown;
     import core.exception : RangeError;
@@ -1125,8 +1145,15 @@ pure unittest
     static if (X.hasValue)
     {
         assertThrown!RangeError(s[K.init]);
+
         s[K.init] = V.init;
         assertNotThrown!RangeError(s[K.init]);
+
+        s.remove(K.init);
+        assertThrown!RangeError(s[K.init]);
+
+        s.initOrIncAt(K.init);
+        assert(s[K.init] == V.init + 1);
     }
 
     s[K.init] = V.init;

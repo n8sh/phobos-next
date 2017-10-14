@@ -31,7 +31,7 @@ alias Elem(A : E[n], E, size_t n) = E;
 Elem!(Args[0])[sumOfLengths!Args] concatenate(Args...)(Args args)
     if (allSatisfy!(isStaticArray, Args))
 {
-    typeof(return) result = void;
+    typeof(return) result = void; // @trusted
     foreach (const i, arg; args)
     {
         static if (i == 0)

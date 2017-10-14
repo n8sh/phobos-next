@@ -35,17 +35,17 @@ struct FNV(ulong bitLength, bool fnv1a = false)
     /// Feeds the digest with data.
     void put(scope const(ubyte)[] data...) pure nothrow @nogc
     {
-        foreach (immutable ubyte i; data)
+        foreach (immutable ubyte e; data)
         {
             static if (fnv1a)
             {
-                _hash ^= i;
+                _hash ^= e;
                 _hash *= fnvPrime;
             }
             else
             {
                 _hash *= fnvPrime;
-                _hash ^= i;
+                _hash ^= e;
             }
         }
     }
@@ -54,18 +54,19 @@ struct FNV(ulong bitLength, bool fnv1a = false)
     void putStaticArray(size_t n)(scope auto ref const(ubyte)[n] data)
         pure nothrow @nogc
     {
-        pragma(msg, "here");
-        foreach (immutable ubyte i; data)
+        import static_iota : iota;
+        foreach (i; iota!(0, n)) // unroll
         {
+            const ubyte e = data[i];
             static if (fnv1a)
             {
-                _hash ^= i;
+                _hash ^= e;
                 _hash *= fnvPrime;
             }
             else
             {
                 _hash *= fnvPrime;
-                _hash ^= i;
+                _hash ^= e;
             }
         }
     }

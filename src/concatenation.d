@@ -36,7 +36,9 @@ template sumOfLengths(A...)
     }
 }
 
+/** Is `true` iff `T` is a type. */
 private template isType(T)       { enum isType = true; }
+/// ditto
 private template isType(alias T) { enum isType = false; }
 
 @safe pure nothrow @nogc unittest

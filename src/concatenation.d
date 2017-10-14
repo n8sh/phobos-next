@@ -21,7 +21,9 @@ template sumOfLengths(A...)
 
 alias Elem(A : E[n], E, size_t n) = E;
 
-/// Returns: concatenation of the static arrays `Args` as a static array.
+/** Returns: concatenation of the static arrays `Args` as a static array.
+ * Move to Phobos's std.array.
+ */
 Elem!(Args[0])[sumOfLengths!Args] concatenate(Args...)(Args arrays)
     if (allSatisfy!(isStaticArray, Args))
 {

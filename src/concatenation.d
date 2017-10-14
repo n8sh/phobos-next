@@ -84,12 +84,12 @@ private alias StaticArrayElementType(A : E[n], E, size_t n) = E;
 
 @safe pure nothrow @nogc unittest
 {
-    int[2] x = [1, 2];
-    const int[2] y = [3, 4];
-    const int w = 17;
+    int[2] x = [11, 22];
+    const int[2] y = [33, 44];
+    const int w = 55;
     auto z = concatenate(x, y, w);
     static assert(is(typeof(z) == int[5]));
-    assert(z == [1, 2, 3, 4, 17]);
+    assert(z == [11, 22, 33, 44, 55]);
 }
 
 /** Overload with faster compilation.
@@ -104,9 +104,9 @@ T[n + 1] concatenate(T, size_t n)(T[n] a, T b)
 
 @safe pure nothrow @nogc unittest
 {
-    int[2] x = [1, 2];
-    int y = 3;
+    int[2] x = [11, 22];
+    int y = 33;
     auto z = concatenate(x, y);
     static assert(is(typeof(z) == int[3]));
-    assert(z == [1, 2, 3]);
+    assert(z == [11, 22, 33]);
 }

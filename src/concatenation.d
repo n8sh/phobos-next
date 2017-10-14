@@ -86,3 +86,21 @@ private alias StaticArrayElementType(A : E[n], E, size_t n) = E;
     static assert(is(typeof(z) == int[5]));
     assert(z == [1, 2, 3, 4, 17]);
 }
+
+/** Overload with faster compiler */
+T[n + 1] concatenate(T, size_t n)(T[n] a, T b)
+{
+    typeof(return) c = void;
+    c[0 .. n] = a;
+    c[n] = b;
+    return c;
+}
+
+@safe pure nothrow @nogc unittest
+{
+    int[2] x = [1, 2];
+    int y = 3;
+    auto z = concatenate(x, y);
+    static assert(is(typeof(z) == int[3]));
+    assert(z == [1, 2, 3]);
+}

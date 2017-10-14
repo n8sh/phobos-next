@@ -92,9 +92,11 @@ private alias StaticArrayElementType(A : E[n], E, size_t n) = E;
     assert(z == [11, 22, 33, 44, 55]);
 }
 
+import std.meta : Unqual;
+
 /** Overload with faster compilation.
  */
-T[n + 1] concatenate(T, size_t n)(auto ref T[n] a, T b)
+Unqual!T[n + 1] concatenate(T, size_t n)(auto ref T[n] a, T b)
 {
     typeof(return) c = void;
     c[0 .. n] = a;
@@ -104,7 +106,7 @@ T[n + 1] concatenate(T, size_t n)(auto ref T[n] a, T b)
 
 @safe pure nothrow @nogc unittest
 {
-    int[2] x = [11, 22];
+    const int[2] x = [11, 22];
     int y = 33;
     auto z = concatenate(x, y);
     static assert(is(typeof(z) == int[3]));

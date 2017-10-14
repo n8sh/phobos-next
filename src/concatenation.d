@@ -94,7 +94,7 @@ private alias StaticArrayElementType(A : E[n], E, size_t n) = E;
 
 /** Overload with faster compilation.
  */
-T[n + 1] concatenate(T, size_t n)(const auto ref T[n] a, T b)
+T[n + 1] concatenate(T, size_t n)(auto ref T[n] a, T b)
 {
     typeof(return) c = void;
     c[0 .. n] = a;

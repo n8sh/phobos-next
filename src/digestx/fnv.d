@@ -33,7 +33,7 @@ struct FNV(ulong bitLength, bool fnv1a = false)
     }
 
     /// Feeds the digest with data.
-    void put(scope const(ubyte)[] data...) @trusted pure nothrow @nogc
+    void put(scope const(ubyte)[] data...) pure nothrow @nogc
     {
         foreach (immutable ubyte i; data)
         {
@@ -51,7 +51,8 @@ struct FNV(ulong bitLength, bool fnv1a = false)
     }
 
     /// Feeds the digest with `data` being a static array.
-    void putStaticArray(size_t n)(scope auto ref const(ubyte)[n] data) @trusted pure nothrow @nogc
+    void putStaticArray(size_t n)(scope auto ref const(ubyte)[n] data)
+        pure nothrow @nogc
     {
         pragma(msg, "here");
         foreach (immutable ubyte i; data)

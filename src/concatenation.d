@@ -3,13 +3,37 @@ module concatenation;
 import std.traits : isStaticArray;
 import std.meta : allSatisfy;
 
+template isType(T)       { enum isType = true; }
+template isType(alias T) { enum isType = false; }
+
 /// Sum of the lengths of the static arrays 'A'.
 template sumOfLengths(A...)
     if (A.length)
 {
     static if (A.length == 1)
     {
-        enum sumOfLengths = A[0].length;
+        static if (isType!(A[0]))
+        {
+            static if (isStaticArray!(A[0]))
+            {
+                enum sumOfLengths = A[0].length;
+            }
+            else
+            {
+                enum sumOfLengths = 1;
+            }
+        }
+        else
+        {
+            static if (isStaticArray!(typeof(A[0])))
+            {
+                enum sumOfLengths = A[0].length;
+            }
+            else
+            {
+                enum sumOfLengths = 1;
+            }
+        }
     }
     else
     {
@@ -20,14 +44,14 @@ template sumOfLengths(A...)
 @safe pure nothrow @nogc unittest
 {
     int[2] x, y, z;
-    static assert(sumOfLengths!(x, y, z) == 6);
+    int w;
+    static assert(sumOfLengths!(x, y, z, w) == 7);
 }
 
 /** Returns: concatenation of the static arrays `Args` as a static array.
  * Move to Phobos's std.array.
  */
 ElementType!(Args[0])[sumOfLengths!Args] concatenate(Args...)(Args args)
-    if (allSatisfy!(isStaticArray, Args))
 {
     typeof(return) result = void; // @trusted
     foreach (const i, arg; args)
@@ -40,7 +64,14 @@ ElementType!(Args[0])[sumOfLengths!Args] concatenate(Args...)(Args args)
         {
             enum offset = sumOfLengths!(args[0 .. i]);
         }
-        result[offset .. offset + arg.length] = arg[];
+        static if (isStaticArray!(typeof(arg)))
+        {
+            result[offset .. offset + arg.length] = arg[];
+        }
+        else
+        {
+            result[offset] = arg;
+        }
     }
     return result;
 }
@@ -51,7 +82,8 @@ private alias ElementType(A : E[n], E, size_t n) = E;
 {
     int[2] x = [1, 2];
     const int[2] y = [3, 4];
-    auto z = concatenate(x, y);
-    static assert(is(typeof(z) == int[4]));
-    assert(z == [1, 2, 3, 4]);
+    const int w = 17;
+    auto z = concatenate(x, y, w);
+    static assert(is(typeof(z) == int[5]));
+    assert(z == [1, 2, 3, 4, 17]);
 }

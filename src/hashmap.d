@@ -633,7 +633,7 @@ struct HashMapOrSet(K, V = void,
         {
             /** Default-initialize or increase value at `key`. */
             pragma(inline, true)
-            void initOrIncAt(in K key)
+            void autoinitIncAt(in K key)
             {
                 auto hit = key in this;
                 pragma(msg, typeof(hit));
@@ -1152,7 +1152,7 @@ pure unittest
         s.remove(K.init);
         assertThrown!RangeError(s[K.init]);
 
-        s.initOrIncAt(K.init);
+        s.autoinitIncAt(K.init);
         assert(s[K.init] == V.init + 1);
     }
 

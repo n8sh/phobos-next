@@ -614,7 +614,7 @@ struct HashMapOrSet(K, V = void,
          *
          * TODO make `defaultValue` `lazy` when that can be `nothrow`
          */
-        V get(in K key, V defaultValue) @trusted
+        auto ref V get()(in K key, auto ref V defaultValue) @trusted
         {
             immutable binIx = keyToBinIx(key);
             immutable ptrdiff_t elementOffset = binElementsAt(binIx).countUntil!(_ => _.key == key); // TODO functionize

@@ -31,6 +31,12 @@ struct UncopyableArray(T,
         _basicArray = Super(values);
     }
 
+    /// Construct from element(s) `values`.
+    this(uint n)(T[n] values...) @trusted
+    {
+        _basicArray = Super(values);
+    }
+
     /// Construct from range of element `values`.
     pragma(inline)              // DMD cannot inline
     this(R)(R values)

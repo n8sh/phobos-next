@@ -20,6 +20,10 @@ version = doInline;
  *
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  *
+ * TODO add template parameter `alias nullKeyValue` that avoids having to store
+ * `bstates` when smallBinCapacity == 1, similar to:
+ *     std.typecons.nullable(alias nullValue, T)( T t )
+ *
  * TODO add flag for use growth factor smaller than powers of two. use prime_modulo.d
  *
  * TODO use core.bitop : bsr, bsl to find first empty element in bin

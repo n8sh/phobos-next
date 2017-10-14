@@ -612,9 +612,11 @@ struct HashMapOrSet(K, V = void,
         /** Get value of `key` or `defaultValue` if `key` not present (and
          * therefore `nothrow`).
          *
+         * Returns: value reference iff `defaultValue` is an l-value.
+         *
          * TODO make `defaultValue` `lazy` when that can be `nothrow`
          */
-        auto ref V get()(in K key, auto ref V defaultValue) @trusted
+        auto ref V get()(in K key, in auto ref V defaultValue) @trusted
         {
             immutable binIx = keyToBinIx(key);
             immutable ptrdiff_t elementOffset = binElementsAt(binIx).countUntil!(_ => _.key == key); // TODO functionize

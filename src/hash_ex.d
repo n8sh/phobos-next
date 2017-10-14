@@ -19,7 +19,16 @@ size_t HashOf(alias hasher, T)(in T value)
         import std.digest.digest : makeDigest;
 
         auto dig = makeDigest!(hasher);
-        dig.put((cast(ubyte*)&value)[0 .. value.sizeof]);
+
+        static if (hasMember!(hasher, "putStaticArray"))
+        {
+            dig.putStaticArray((cast(ubyte*)&value)[0 .. value.sizeof]);
+        }
+        else
+        {
+            dig.put((cast(ubyte*)&value)[0 .. value.sizeof]);
+        }
+
         dig.finish();
 
         auto result = dig.get();

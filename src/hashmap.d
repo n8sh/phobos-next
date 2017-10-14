@@ -405,8 +405,7 @@ struct HashMapOrSet(K, V = void,
                 if (_bstates[bucketIx].isFullSmall) // expand small to large
                 {
                     import concatenation : concatenate;
-                    T[smallBucketCapacity + 1] smallCopy = concatenate(_buckets[bucketIx].small, element);
-
+                    auto smallCopy = concatenate(_buckets[bucketIx].small, element);
                     emplace!(LargeBucket)(&_buckets[bucketIx].large, smallCopy[]); // TODO move
                     _bstates[bucketIx].makeLarge();
                     static assert(!hasElaborateDestructor!T, "moveEmplaceAll small elements to large");

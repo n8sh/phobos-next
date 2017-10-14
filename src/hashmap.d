@@ -369,7 +369,8 @@ struct HashMapOrSet(K, V = void,
         }
     }
 
-    /** Insert `element` like with `insert()` but without automatic growth.
+    /** Insert `element` like with `insert()` without automatic growth of number
+     * of buckets.
      */
     InsertionStatus insertWithoutBucketCountGrowth(T element) @trusted
     {
@@ -403,6 +404,7 @@ struct HashMapOrSet(K, V = void,
             {
                 if (_bstates[bucketIx].isFullSmall) // expand small to large
                 {
+                    import concatenation : concatenate; // TODO use
                     T[smallBucketCapacity + 1] smallCopy;
                     smallCopy[0 .. smallBucketCapacity] = _buckets[bucketIx].small; // TODO move
                     smallCopy[smallBucketCapacity] = element; // TODO move

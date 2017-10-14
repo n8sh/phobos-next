@@ -50,6 +50,25 @@ struct FNV(ulong bitLength, bool fnv1a = false)
         }
     }
 
+    /// Feeds the digest with `data` being a static array.
+    void putStaticArray(size_t n)(scope auto ref const(ubyte)[n] data) @trusted pure nothrow @nogc
+    {
+        pragma(msg, "here");
+        foreach (immutable ubyte i; data)
+        {
+            static if (fnv1a)
+            {
+                _hash ^= i;
+                _hash *= fnvPrime;
+            }
+            else
+            {
+                _hash *= fnvPrime;
+                _hash ^= i;
+            }
+        }
+    }
+
     /// Returns the finished FNV digest. This also calls start to reset the internal state.
     ubyte[bitLength / 8] finish() @trusted pure nothrow @nogc
     {
@@ -99,9 +118,14 @@ unittest
     alias FNV32ADigest = WrapperDigest!FNV32A; /// OOP API for 32bit FNV-1a
     // alias FNV64ADigest = WrapperDigest!FNV64A; /// OOP API for 64bit FNV-1a
 
+    const immutable(char)[5] hello = "hello";
+
     FNV64 fnv64;
     fnv64.start();
-    fnv64.put(cast(ubyte[]) "hello");
+    fnv64.put(cast(ubyte[])hello[]);
+    assert(toHexString(fnv64.finish()) == "7B495389BDBDD4C7");
+
+    fnv64.putStaticArray(cast(ubyte[5])hello);
     assert(toHexString(fnv64.finish()) == "7B495389BDBDD4C7");
 
     // Template API

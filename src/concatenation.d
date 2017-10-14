@@ -28,11 +28,11 @@ alias Elem(A : E[n], E, size_t n) = E;
 /** Returns: concatenation of the static arrays `Args` as a static array.
  * Move to Phobos's std.array.
  */
-Elem!(Args[0])[sumOfLengths!Args] concatenate(Args...)(Args arrays)
+Elem!(Args[0])[sumOfLengths!Args] concatenate(Args...)(Args args)
     if (allSatisfy!(isStaticArray, Args))
 {
     typeof(return) result = void;
-    foreach (const i, a; arrays)
+    foreach (const i, arg; args)
     {
         static if (i == 0)
         {
@@ -40,9 +40,9 @@ Elem!(Args[0])[sumOfLengths!Args] concatenate(Args...)(Args arrays)
         }
         else
         {
-            enum offset = sumOfLengths!(arrays[0 .. i]);
+            enum offset = sumOfLengths!(args[0 .. i]);
         }
-        result[offset .. offset + a.length] = a[];
+        result[offset .. offset + arg.length] = arg[];
     }
     return result;
 }

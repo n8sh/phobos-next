@@ -538,7 +538,7 @@ struct HashMapOrSet(K, V = void,
             {
                 return table.binElementsAt(binIx)[elementOffset].key;
             }
-            private ElementRef _elementRef;
+            public ElementRef _elementRef;
             alias _elementRef this;
         }
 
@@ -558,7 +558,7 @@ struct HashMapOrSet(K, V = void,
             {
                 return table.binElementsAt(binIx)[elementOffset].value;
             }
-            private ElementRef _elementRef;
+            public ElementRef _elementRef;
             alias _elementRef this;
         }
 
@@ -578,7 +578,7 @@ struct HashMapOrSet(K, V = void,
             {
                 return table.binElementsAt(binIx)[elementOffset];
             }
-            private ElementRef _elementRef;
+            public ElementRef _elementRef;
             alias _elementRef this;
         }
 

@@ -375,9 +375,9 @@ struct HashMapOrSet(K, V = void,
     InsertionStatus insertWithoutBucketCountGrowth(T element) @trusted
     {
         immutable bucketIx = keyToBucketIx(keyRefOf(element));
-        T[] bucketElements = bucketElementsAt(bucketIx);
+        T[] elements = bucketElementsAt(bucketIx);
 
-        immutable ptrdiff_t elementOffset = bucketElements.countUntil!keyEqualPred(keyOf(element));
+        immutable ptrdiff_t elementOffset = elements.countUntil!keyEqualPred(keyOf(element));
         immutable hit = elementOffset != -1;
         if (hit)
         {
@@ -386,9 +386,9 @@ struct HashMapOrSet(K, V = void,
                 /* TODO Rust does the same in its `insert()` at
                  * https://doc.rust-lang.org/std/collections/struct.HashMap.html
                  */
-                if (bucketElements[elementOffset].value != valueOf(element)) // if value unchanged
+                if (elements[elementOffset].value != valueOf(element)) // if value unchanged
                 {
-                    bucketElements[elementOffset].value = valueOf(element); // replace value
+                    elements[elementOffset].value = valueOf(element); // replace value
                     return typeof(return).modified;
                 }
             }

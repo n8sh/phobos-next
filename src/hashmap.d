@@ -21,7 +21,7 @@ version = doInline;
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  *
  * TODO adjust rehashing to occur when relative number of LargeBuckets is
- * larger than, say, 1/20.
+ * larger than, say, 1/10. Experiment with different ratios.
  *
  * TODO add template parameter `alias nullKeyValue` that avoids having to store
  * `bstates` when smallBinCapacity == 1, similar to:

@@ -629,9 +629,11 @@ struct HashMapOrSet(K, V = void,
             insert(T(key, value));
 	}
 
-        static if (__traits(compiles, { V _; _ += 1; }))
+        static if (__traits(compiles, { V _; _ += 1; })) // D rocks!
         {
-            /** Default-initialize or increase value at `key`. */
+            /** Increase value at `key`, or set value to 1 if `key` hasn't yet
+             * been added.
+             */
             pragma(inline, true)
             void autoinitIncAt(in K key)
             {

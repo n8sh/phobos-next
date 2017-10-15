@@ -949,10 +949,29 @@ version(unittest)
     assert(a.empty);
 }
 
-// construct from range of uncopyable elements
+// construct from ranges of uncopyable elements
 @safe pure nothrow @nogc unittest
 {
     alias T = US;
+    alias A = CopyableArray!T;
+
+    A a;
+    assert(a.empty);
+
+    import std.algorithm : map, filter;
+
+    const b = A([10, 20, 30].s[].map!(_ => T(_^^2))); // hasLength
+    assert(b.length == 3);
+    assert(b == [T(100), T(400), T(900)].s);
+
+    const c = A([10, 20, 30].s[].filter!(_ => _ == 30).map!(_ => T(_^^2))); // !hasLength
+    assert(c == [T(900)].s);
+}
+
+// construct from ranges of copyable elements
+@safe pure nothrow @nogc unittest
+{
+    alias T = int;
     alias A = CopyableArray!T;
 
     A a;

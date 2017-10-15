@@ -6,7 +6,7 @@
 
 module sort_ex;
 
-import std.traits: isAggregateType;
+import std.traits : isAggregateType;
 import std.range: ElementType, isRandomAccessRange, isInputRange;
 
 /** Sort random access range $(D R) of aggregates on value of calls to $(D xtor).

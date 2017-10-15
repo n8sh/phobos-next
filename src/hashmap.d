@@ -179,9 +179,9 @@ struct HashMapOrSet(K, V = void,
     static private size_t binCountOfCapacity(size_t capacity)
     {
         const minimumBinCount = ((capacityScaleNumerator *
-                                     capacity) /
-                                    (smallBinCapacity *
-                                     capacityScaleDenominator));
+                                  capacity) /
+                                 (smallBinCapacity *
+                                  capacityScaleDenominator));
         import std.math : nextPow2;
         return nextPow2(minimumBinCount == 0 ?
                         0 :

@@ -126,7 +126,7 @@ struct CopyableArray(T,
         moveEmplaceAll(values, _mptr[0 .. _length]);
     }
 
-    /// Construct from element(s) `values`.
+    /// Construct from `n` number of element(s) `values` (in a static array).
     this(uint n)(T[n] values...) @trusted
     {
         reserve(values.length);
@@ -712,6 +712,13 @@ struct CopyableArray(T,
         insertBack(values);
     }
 
+    pragma(inline, true)
+    void opOpAssign(string op)(const auto ref typeof(this) values)
+        if (op == "~")
+    {
+        insertBack(values[]);
+    }
+
     // typeof(this) opBinary(string op, R)(R values)
     //     if (op == "~")
     // {
@@ -1084,7 +1091,10 @@ unittest
     a.popAt(0);
     assert(a == [12, 14, 15].s);
     a.popAt(2);
+
     assert(a == [12, 14].s);
+
+    a ~= a;
 }
 
 /// removal

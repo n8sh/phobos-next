@@ -123,6 +123,9 @@ struct HashMapOrSet(K, V = void,
         enum keyEqualPred = "a == b";
     }
 
+    /// True if elements need move.
+    enum needsMove(T) = !isCopyable!T || hasElaborateDestructor!T;
+
     alias ElementType = T;
 
     /** Make with room for storing at least `capacity` number of elements.
@@ -370,7 +373,14 @@ struct HashMapOrSet(K, V = void,
         {
             grow();
         }
-        return insertWithoutBinCountGrowth(element);
+        static if (needsMove!T)
+        {
+            return insertWithoutBinCountGrowth(move(element));
+        }
+        else
+        {
+            return insertWithoutBinCountGrowth(element);
+        }
     }
 
     static if (hasValue)
@@ -391,8 +401,20 @@ struct HashMapOrSet(K, V = void,
         immutable binIx = keyToBinIx(keyRefOf(element));
         T[] elements = binElementsAt(binIx);
 
-        immutable ptrdiff_t elementOffset = elements.countUntil!keyEqualPred(keyOf(element));
-        immutable hit = elementOffset != -1;
+        // find offset
+        size_t elementOffset = 0;
+        foreach (const ref e; elements)
+        {
+            if (keyOf(e) == keyOf(element))
+            {
+                break;
+            }
+            elementOffset += 1;
+        }
+
+        // immutable ptrdiff_t elementOffset = elements.countUntil!keyEqualPred(keyOf(element));
+        // immutable hit = elementOffset != -1;
+        immutable hit = elementOffset < elements.length;
         if (hit)
         {
             static if (hasValue)
@@ -400,9 +422,18 @@ struct HashMapOrSet(K, V = void,
                 /* TODO Rust does the same in its `insert()` at
                  * https://doc.rust-lang.org/std/collections/struct.HashMap.html
                  */
-                if (elements[elementOffset].value != valueOf(element)) // if value unchanged
+                if (elements[elementOffset].value != valueOf(element)) // if different value
                 {
-                    elements[elementOffset].value = valueOf(element); // replace value
+                    // replace value
+                    static if (needsMove!V)
+                    {
+                        move(valueOf(element),
+                             elements[elementOffset].value);
+                    }
+                    else
+                    {
+                        elements[elementOffset].value = valueOf(element);
+                    }
                     return typeof(return).modified;
                 }
             }
@@ -418,7 +449,7 @@ struct HashMapOrSet(K, V = void,
             {
                 if (_bstates[binIx].isFullSmall) // expand small to large
                 {
-                    static if (hasElaborateDestructor!T)
+                    static if (needsMove!T)
                     {
                         // move to temporary
                         T[smallBinCapacity + 1] smallCopy = void;
@@ -1161,7 +1192,7 @@ alias HashMap(K, V,
 }
 
 /// range checking
-version(none)                   // TODO enable
+version(none)
 pure unittest
 {
     import dbgio;
@@ -1179,7 +1210,7 @@ pure unittest
             dln("allocated: ", _i, " being ", *_i);
         }
 
-        // @disable this(this);
+        @disable this(this);
 
         ~this()
         {

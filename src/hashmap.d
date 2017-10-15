@@ -32,7 +32,10 @@ version = doInline;
  * TODO use core.bitop : bsr, bsl to find first empty element in bin
  *
  * TODO Avoid extra length and capacity in _statuses (length or large) by making
- * it allocate in sync with bins (using soa.d)
+ * it allocate in sync with bins (using soa.d).
+ *
+ * TODO also try allocating values in a separate array using soa.d and see if
+ * benchmarks become better
  *
  * TODO grow(): if allocator has realloc we can do rehashing in-place similar to
  * reordering in in-place radix (integer_sorting.d), otherwise rehash into new

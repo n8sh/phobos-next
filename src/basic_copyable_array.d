@@ -159,7 +159,8 @@ struct CopyableArray(T,
 
         static if (hasLength!R &&
                    hasSlicing!R &&
-                   isCopyable!(ElementType!R))
+                   isCopyable!(ElementType!R) &&
+                   !hasElaborateDestructor!(ElementType!R))
         {
             import std.algorithm : copy;
             copy(values[0 .. values.length],

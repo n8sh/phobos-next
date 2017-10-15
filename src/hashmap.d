@@ -55,7 +55,7 @@ struct HashMapOrSet(K, V = void,
                     uint capacityScaleDenominator = 1)
     if (smallBinMinCapacity >= 1) // no use having empty small bins
 {
-    import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor;
+    import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable;
     import std.algorithm.mutation : move, moveEmplace, moveEmplaceAll;
     import std.algorithm.searching : canFind, countUntil;
     import std.algorithm.comparison : max;
@@ -198,58 +198,61 @@ struct HashMapOrSet(K, V = void,
     @disable this(this);
 
     /// Duplicate.
-    typeof(this) dup() @trusted
+    static if (isCopyable!T)
     {
-        typeof(return) that;
-
-        that._bins.reserve(_bins.length);
-
-        // TODO merge these
-        that._bins.length = _bins.length; // TODO this zero-initializes before initialization below, use unsafe setLengthOnlyUNSAFE
-        that._bstates = _bstates.dup;
-
-        that._length = _length;
-
-        foreach (immutable binIx; 0 .. _bins.length)
+        typeof(this) dup() @trusted
         {
-            if (_bstates[binIx].isLarge)
+            typeof(return) that;
+
+            that._bins.reserve(_bins.length);
+
+            // TODO merge these
+            that._bins.length = _bins.length; // TODO this zero-initializes before initialization below, use unsafe setLengthOnlyUNSAFE
+            that._bstates = _bstates.dup;
+
+            that._length = _length;
+
+            foreach (immutable binIx; 0 .. _bins.length)
             {
-                emplace(&that._bins[binIx].large,
-                        _bins[binIx].large[]);
-            }
-            else
-            {
-                /** TODO functionize to `emplaceAll` in emplace_all.d. See also:
-                 * http://forum.dlang.org/post/xxigbqqflzwfgycrclyq@forum.dlang.org
-                 */
-                static if (hasElaborateCopyConstructor!T)
+                if (_bstates[binIx].isLarge)
                 {
-                    foreach (immutable elementIx, const ref element; elementsOfSmallBin(binIx))
-                    {
-                        emplace(&that._bins[binIx].small[elementIx],
-                                element);
-                    }
+                    emplace(&that._bins[binIx].large,
+                            _bins[binIx].large[]);
                 }
                 else
                 {
-                    enum useMemcpy = true;
-                    static if (useMemcpy)
+                    /** TODO functionize to `emplaceAll` in emplace_all.d. See also:
+                     * http://forum.dlang.org/post/xxigbqqflzwfgycrclyq@forum.dlang.org
+                     */
+                    static if (hasElaborateCopyConstructor!T)
                     {
-                        // currently faster than slice assignment on else branch
-                        import core.stdc.string : memcpy;
-                        memcpy(that._bins[binIx].small.ptr, // cannot overlap
-                               elementsOfSmallBin(binIx).ptr,
-                               elementsOfSmallBin(binIx).length * T.sizeof);
+                        foreach (immutable elementIx, const ref element; elementsOfSmallBin(binIx))
+                        {
+                            emplace(&that._bins[binIx].small[elementIx],
+                                    element);
+                        }
                     }
                     else
                     {
-                        that._bins[binIx].small.ptr[0 .. _bstates[binIx].smallCount] = elementsOfSmallBin(binIx);
+                        enum useMemcpy = true;
+                        static if (useMemcpy)
+                        {
+                            // currently faster than slice assignment on else branch
+                            import core.stdc.string : memcpy;
+                            memcpy(that._bins[binIx].small.ptr, // cannot overlap
+                                   elementsOfSmallBin(binIx).ptr,
+                                   elementsOfSmallBin(binIx).length * T.sizeof);
+                        }
+                        else
+                        {
+                            that._bins[binIx].small.ptr[0 .. _bstates[binIx].smallCount] = elementsOfSmallBin(binIx);
+                        }
                     }
                 }
             }
-        }
 
-        return that;
+            return that;
+        }
     }
 
     /// Grow by duplicating number of bins.
@@ -320,12 +323,13 @@ struct HashMapOrSet(K, V = void,
             }
             else
             {
-                /* TODO SmallBin itself doens't need to be destroyed only
-                   it's elements and gc_removeRange doesn't need to be called
-                   either, that is take car of by dtor of _bins. */
-                static if (hasElaborateDestructor!SmallBin)
+                static if (hasElaborateDestructor!T)
                 {
-                    .destroyAll(elementsOfSmallBin(binIx));
+                    // TODO use emplace_all : destroyAll(elementsOfSmallBin(binIx))
+                    foreach (ref element; elementsOfSmallBin(binIx))
+                    {
+                        .destroy(element);
+                    }
                 }
             }
         }
@@ -414,11 +418,28 @@ struct HashMapOrSet(K, V = void,
             {
                 if (_bstates[binIx].isFullSmall) // expand small to large
                 {
-                    import concatenation : concatenate;
-                    auto smallCopy = concatenate(_bins[binIx].small, element);
-                    emplace!(LargeBin)(&_bins[binIx].large, smallCopy[]); // TODO move
+                    static if (hasElaborateDestructor!T)
+                    {
+                        // move to temporary
+                        T[smallBinCapacity + 1] smallCopy = void;
+                        moveEmplaceAll(_bins[binIx].small[],
+                                       smallCopy[0 .. smallBinCapacity]);
+                        moveEmplace(element,
+                                    smallCopy[smallBinCapacity]);
+
+                        // create large
+                        emplace!(LargeBin)(&_bins[binIx].large);
+
+                        // move to large
+                        moveEmplaceAll(smallCopy[], _bins[binIx].large[0 .. smallCopy.length]);
+                    }
+                    else
+                    {
+                        import concatenation : concatenate;
+                        auto smallCopy = concatenate(_bins[binIx].small, element);
+                        emplace!(LargeBin)(&_bins[binIx].large, smallCopy[]);
+                    }
                     _bstates[binIx].makeLarge();
-                    static assert(!hasElaborateDestructor!T, "moveEmplaceAll small elements to large");
                 }
                 else            // stay small
                 {
@@ -717,13 +738,13 @@ struct HashMapOrSet(K, V = void,
         immutable count = _bins[binIx].large.length;
         if (count <= smallBinCapacity) // large fits in small
         {
-            static assert(!hasElaborateDestructor!T);
-
-            SmallBin small; // TODO = void
-            moveEmplaceAll(_bins[binIx].large[], small[0 .. count]);
-
-            moveEmplaceAll(small[0 .. count], _bins[binIx].small[0 .. count]);
-
+            SmallBin smallCopy = void;
+            moveEmplaceAll(_bins[binIx].large[0 .. count], smallCopy[0 .. count]);
+            static if (hasElaborateDestructor!LargeBin)
+            {
+                .destroy(_bins[binIx].large);
+            }
+            moveEmplaceAll(smallCopy[0 .. count], _bins[binIx].small[0 .. count]);
             _bstates[binIx].smallCount = count;
         }
     }
@@ -1140,14 +1161,39 @@ alias HashMap(K, V,
 }
 
 /// range checking
+version(none)                   // TODO enable
 pure unittest
 {
+    import dbgio;
     import digestx.fnv : FNV;
 
     immutable n = 11;
 
-    alias K = string;
-    alias V = uint;
+    struct V
+    {
+        import qcmeman : malloc, free;
+
+        this(uint i)
+        {
+            _i = cast(typeof(_i))malloc(1 * (*_i).sizeof);
+            dln("allocated: ", _i, " being ", *_i);
+        }
+
+        // @disable this(this);
+
+        ~this()
+        {
+            if (_i)
+            {
+                dln("freeing: ", _i, " being ", *_i);
+            }
+            free(_i);
+        }
+
+        uint *_i;
+    }
+
+    alias K = uint;
 
     import std.exception : assertThrown, assertNotThrown;
     import core.exception : RangeError;
@@ -1159,14 +1205,17 @@ pure unittest
     {
         assertThrown!RangeError(s[K.init]);
 
-        s[K.init] = V.init;
-        assertNotThrown!RangeError(s[K.init]);
+        foreach (immutable i; 0 .. n)
+        {
+            s[i] = V(i);
+            assertNotThrown!RangeError(s[i]);
+        }
 
-        s.remove(K.init);
-        assertThrown!RangeError(s[K.init]);
-
-        s.autoinitIncAt(K.init);
-        assert(s[K.init] == V.init + 1);
+        foreach (immutable i; 0 .. n)
+        {
+            s.remove(i);
+            assertThrown!RangeError(s[i]);
+        }
     }
 
     s[K.init] = V.init;

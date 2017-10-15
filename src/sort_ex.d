@@ -132,7 +132,7 @@ auto sorted(R, E = ElementType!R)(R r)
     {
         static if (isRandomAccessRange!R)
         {
-            auto s = r.dup;
+            auto s = r.dup;     // TODO remove this
         }
         else static if (isNarrowString!R)
         {

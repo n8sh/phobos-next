@@ -171,13 +171,13 @@ struct CopyableArray(T,
         {
             foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
             {
-                static if (isCopyable!(ElementType!R))
+                static if (needsMove!(ElementType!R))
                 {
-                    insertBack(value);
+                    insertBackMove(value); // steal element
                 }
                 else
                 {
-                    insertBackMove(value); // steal element
+                    insertBack(value);
                 }
             }
         }

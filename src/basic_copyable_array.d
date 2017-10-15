@@ -169,6 +169,8 @@ struct CopyableArray(T,
         }
         else
         {
+            /* TODO optimize with `moveEmplaceAll` that does a raw copy and
+             * zeroing of values */
             foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
             {
                 static if (needsMove!(ElementType!R))

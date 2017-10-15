@@ -38,7 +38,7 @@ auto rsortBy(alias xtor, R)(R r)
 /* private alias makePredicate(alias xtor) = (a, b) => (xtorFun!xtor(a) < xtorFun!xtor(b)); */
 
 /// Extractor function used by `sortBy` and `rsortBy`.
-private template xtorFun(alias xtor)
+private static template xtorFun(alias xtor)
 {
     import std.traits: isIntegral;
     static if (is(typeof(xtor) : string))

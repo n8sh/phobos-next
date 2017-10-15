@@ -633,9 +633,10 @@ struct HashMapOrSet(K, V = void,
 	/** Supports $(B aa[key] = value;) syntax.
 	 */
         pragma(inline, true)
-	void opIndexAssign(V value, K key)
+        V opIndexAssign(V value, K key)
 	{
             insert(T(key, value));
+            return value;       // TODO make insert return value reference and set output status arg
 	}
 
         static if (__traits(compiles, { V _; _ += 1; })) // D rocks!

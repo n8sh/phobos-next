@@ -150,17 +150,20 @@ struct CopyableArray(T,
     this(R)(R values) @trusted
         if (isAssignableFromElementsOfRefIterableStruct!R)
     {
-        import std.range : hasLength;
+        import std.range : hasLength, hasSlicing;
+
         static if (hasLength!R)
         {
             reserve(values.length);
         }
+
         static if (hasLength!R &&
+                   hasSlicing!R &&
                    isCopyable!(ElementType!R))
         {
-            _length = values.length;
             import std.algorithm : copy;
-            copy(values, _mptr[0 .. _length]); // TODO better to use foreach instead?
+            copy(values[], _mptr[0 .. values.length]); // TODO better to use foreach instead?
+            _length = values.length;
         }
         else
         {

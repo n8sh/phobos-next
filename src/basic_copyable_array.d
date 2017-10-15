@@ -162,7 +162,8 @@ struct CopyableArray(T,
                    isCopyable!(ElementType!R))
         {
             import std.algorithm : copy;
-            copy(values[], _mptr[0 .. values.length]); // TODO better to use foreach instead?
+            copy(values[0 .. values.length],
+                 _mptr[0 .. values.length]); // TODO better to use foreach instead?
             _length = values.length;
         }
         else

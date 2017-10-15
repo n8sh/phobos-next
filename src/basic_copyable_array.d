@@ -152,16 +152,12 @@ struct CopyableArray(T,
     {
         import std.range : hasLength, hasSlicing;
 
-        static if (hasLength!R)
-        {
-            reserve(values.length);
-        }
-
         static if (hasLength!R &&
                    hasSlicing!R &&
                    isCopyable!(ElementType!R) &&
                    !hasElaborateDestructor!(ElementType!R))
         {
+            reserve(values.length);
             import std.algorithm : copy;
             copy(values[0 .. values.length],
                  _mptr[0 .. values.length]); // TODO better to use foreach instead?
@@ -169,17 +165,37 @@ struct CopyableArray(T,
         }
         else
         {
-            /* TODO optimize with `moveEmplaceAll` that does a raw copy and
-             * zeroing of values */
-            foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
+            static if (hasLength!R)
             {
-                static if (needsMove!(ElementType!R))
+                reserve(values.length);
+                size_t i = 0;
+                foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
                 {
-                    insertBackMove(value); // steal element
+                    static if (needsMove!(typeof(value)))
+                    {
+                        moveEmplace(value, _mptr[i++]);
+                    }
+                    else
+                    {
+                        _mptr[i++] = value;
+                    }
                 }
-                else
+                _length = values.length;
+            }
+            else
+            {
+                /* TODO optimize with `moveEmplaceAll` that does a raw copy and
+                 * zeroing of values */
+                foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
                 {
-                    insertBack(value);
+                    static if (needsMove!(ElementType!R))
+                    {
+                        insertBackMove(value); // steal element
+                    }
+                    else
+                    {
+                        insertBack1(value);
+                    }
                 }
             }
         }

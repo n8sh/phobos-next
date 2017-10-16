@@ -124,7 +124,7 @@ struct HashMapOrSet(K, V = void,
     }
 
     /// True if elements need move.
-    enum needsMove(T) = !isCopyable!T || hasElaborateDestructor!T;
+    enum needsMove(T) = hasElaborateDestructor!T || !isCopyable!T;
 
     alias ElementType = T;
 

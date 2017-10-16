@@ -47,7 +47,7 @@ struct CopyableArray(T,
     enum isElementAssignableOrMovable(U) = isAssignable!(U) || isElementMovable!(U);
 
     /// True if elements need move.
-    enum needsMove(T) = !isCopyable!T || hasElaborateDestructor!T;
+    enum needsMove(T) = hasElaborateDestructor!T || !isCopyable!T;
 
     pragma(inline):
 

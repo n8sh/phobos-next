@@ -849,7 +849,7 @@ private struct Array(E,
     }
 
     /// True if type `T` need move.
-    enum needsMove(T) = !isCopyable!T || hasElaborateDestructor!T;
+    enum needsMove(T) = hasElaborateDestructor!T || !isCopyable!T;
 
     /** Pop back element and return it. */
     pragma(inline)

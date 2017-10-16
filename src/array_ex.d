@@ -58,7 +58,7 @@ version(unittest)
     import array_help : s;
 }
 
-import container_traits : ContainerElementType;
+import container_traits : ContainerElementType, needsMove;
 
 /// Is `true` iff `C` is an instance of an `Array` container.
 template isArrayContainer(C)
@@ -847,9 +847,6 @@ private struct Array(E,
         assert(!empty);
         decOnlyLength();
     }
-
-    /// True if type `T` need move.
-    enum needsMove(T) = hasElaborateDestructor!T || !isCopyable!T;
 
     /** Pop back element and return it. */
     pragma(inline)

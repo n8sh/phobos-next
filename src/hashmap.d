@@ -1233,21 +1233,18 @@ pure unittest
     {
     }
 
-    static if (X.hasValue)
+    assertThrown!RangeError(dummy(s[K.init]));
+
+    foreach (immutable uint i; 0 .. n)
     {
-        assertThrown!RangeError(dummy(s[K.init]));
+        s[i] = V(i);
+        assertNotThrown!RangeError(dummy(s[i]));
+    }
 
-        foreach (immutable uint i; 0 .. n)
-        {
-            s[i] = V(i);
-            assertNotThrown!RangeError(dummy(s[i]));
-        }
-
-        foreach (immutable uint i; 0 .. n)
-        {
-            s.remove(i);
-            assertThrown!RangeError(dummy(s[i]));
-        }
+    foreach (immutable uint i; 0 .. n)
+    {
+        s.remove(i);
+        assertThrown!RangeError(dummy(s[i]));
     }
 
     s[K.init] = V.init;

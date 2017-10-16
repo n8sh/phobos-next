@@ -1,7 +1,7 @@
 module basic_copyable_array;
 
 import std.traits : Unqual;
-import container_traits : NoGc, mustAddGCRange;
+import container_traits : NoGc, mustAddGCRange, needsMove;
 
 /** Array type with deterministic control of memory. The memory allocated for
     the array is reclaimed as soon as possible; there is no reliance on the
@@ -45,9 +45,6 @@ struct CopyableArray(T,
     enum isElementAssignable(U) = isAssignable!(MutableE, U);
     enum isElementMovable(U) = is(typeof(MutableE == Unqual!U));
     enum isElementAssignableOrMovable(U) = isAssignable!(U) || isElementMovable!(U);
-
-    /// True if elements need move.
-    enum needsMove(T) = hasElaborateDestructor!T || !isCopyable!T;
 
     pragma(inline):
 

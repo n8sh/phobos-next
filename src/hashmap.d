@@ -795,12 +795,14 @@ struct HashMapOrSet(K, V = void,
         if (count <= smallBinCapacity) // large fits in small
         {
             SmallBin smallCopy = void;
-            moveEmplaceAll(_bins[binIx].large[0 .. count], smallCopy[0 .. count]);
+            moveEmplaceAllNoReset(_bins[binIx].large[0 .. count],
+                                  smallCopy[0 .. count]);
             static if (hasElaborateDestructor!LargeBin)
             {
                 .destroy(_bins[binIx].large);
             }
-            moveEmplaceAll(smallCopy[0 .. count], _bins[binIx].small[0 .. count]);
+            moveEmplaceAllNoReset(smallCopy[0 .. count],
+                                  _bins[binIx].small[0 .. count]);
             _bstates[binIx].smallCount = count;
         }
     }
@@ -1217,7 +1219,7 @@ alias HashMap(K, V,
 }
 
 /// range checking
-// version(none)
+version(none)
 pure unittest
 {
     import dbgio;

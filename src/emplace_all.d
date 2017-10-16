@@ -23,3 +23,23 @@ void moveEmplaceAllNoReset(T)(T[] src,
         }
     }
 }
+
+@trusted pure nothrow @nogc unittest
+{
+    import uncopyable_sample : SomeUncopyable;
+
+    alias T = SomeUncopyable;
+    enum n = 3;
+    alias A = T[n];
+
+    A x = [T(1), T(2), T(3)];
+
+    A y = void;
+    moveEmplaceAllNoReset(x[], y[]);
+
+    foreach (i; 0 .. n)
+    {
+        assert(x[i] == T.init);
+        assert(*y[i].valuePointer == i + 1);
+    }
+}

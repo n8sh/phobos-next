@@ -8,6 +8,7 @@ template needsMove(T)
     enum needsMove = hasElaborateDestructor!T || !isCopyable!T;
 }
 
+// TODO this can be simplified for faster compilation
 template ContainerElementType(ContainerType,
                               ElementType)
 {

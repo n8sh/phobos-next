@@ -356,7 +356,8 @@ struct HashMapOrSet(K, V = void,
             return false; // prevent `RangeError` in `binElementsAt` when empty
         }
         immutable binIx = keyToBinIx(key);
-        return binElementsAt(binIx).canFind!keyEqualPred(key);
+        // TODO use offsetOfElement
+        return hasKey(binElementsAt(binIx), key);
     }
 
     /** Insert `element`, being either a key, value (map-case) or a just a key (set-case).
@@ -383,17 +384,24 @@ struct HashMapOrSet(K, V = void,
         }
     }
 
-    pragma(inline)
-    static private size_t offsetOfElement(in T[] elements,
-                                          in ref T element)
+    pragma(inline, true)
+    static private size_t offsetOfKey(in T[] elements,
+                                      in ref K key)
     {
         size_t elementOffset = 0;
         foreach (const ref e; elements)
         {
-            if (keyOf(e) == keyOf(element)) { break; }
+            if (keyOf(e) == key) { break; }
             elementOffset += 1;
         }
         return elementOffset;
+    }
+
+    pragma(inline, true)
+    static private bool hasKey(in T[] elements,
+                               in ref K key)
+    {
+        return offsetOfKey(elements, key) != elements.length;
     }
 
     /** Insert `element` like with `insert()` without automatic growth of number
@@ -403,7 +411,7 @@ struct HashMapOrSet(K, V = void,
     {
         immutable binIx = keyToBinIx(keyRefOf(element));
         T[] elements = binElementsAt(binIx);
-        immutable elementOffset = offsetOfElement(elements, element);
+        immutable elementOffset = offsetOfKey(elements, keyOf(element));
         immutable elementFound = elementOffset != elements.length;
 
         if (elementFound)

@@ -280,8 +280,7 @@ struct HashMapOrSet(K, V = void,
     }
 
     /// Equality.
-    bool opEquals(in ref typeof(this) rhs) const @trusted
-
+    bool opEquals()(in auto ref typeof(this) rhs) const @trusted
     {
         if (_length != rhs._length) { return false; }
         foreach (immutable binIx; 0 .. _bins.length)

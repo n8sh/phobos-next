@@ -148,7 +148,7 @@ struct HashMapOrSet(K, V = void,
         {
             typeof(this) that;  // TODO if `isForwardRange` count elements
        }
-        foreach (const ref element; elements)
+        foreach (immutable ref element; elements)
         {
             that.insert(element);
         }
@@ -227,7 +227,7 @@ struct HashMapOrSet(K, V = void,
                      */
                     static if (hasElaborateCopyConstructor!T)
                     {
-                        foreach (immutable elementIx, const ref element; smallBinElementsAt(binIx))
+                        foreach (immutable elementIx, immutable ref element; smallBinElementsAt(binIx))
                         {
                             emplace(&that._bins[binIx].small[elementIx],
                                     element);
@@ -356,7 +356,7 @@ struct HashMapOrSet(K, V = void,
         {
             return false; // prevent `RangeError` in `binElementsAt` when empty
         }
-        const binIx = keyToBinIx(key);
+        immutable binIx = keyToBinIx(key);
         // TODO use offsetOfElement
         return hasKey(binElementsAt(binIx), key);
     }
@@ -411,7 +411,7 @@ struct HashMapOrSet(K, V = void,
      */
     InsertionStatus insertWithoutBinCountGrowth(ref T element) @trusted // ref simplifies move
     {
-        const binIx = keyToBinIx(keyRefOf(element));
+        immutable binIx = keyToBinIx(keyRefOf(element));
         T[] elements = binElementsAt(binIx);
         immutable elementOffset = offsetOfKey(elements, keyOf(element));
         immutable elementFound = elementOffset != elements.length;
@@ -586,7 +586,7 @@ struct HashMapOrSet(K, V = void,
                 // prevent range error in `binElementsAt` when `this` is empty
                 return typeof(return).init;
             }
-            const binIx = keyToBinIx(key);
+            immutable binIx = keyToBinIx(key);
             const elements = binElementsAt(binIx);
             immutable elementOffset = offsetOfKey(elements, key);
             immutable elementFound = elementOffset != elements.length;
@@ -665,7 +665,7 @@ struct HashMapOrSet(K, V = void,
         pragma(inline, true)    // LDC must have this
         scope ref inout(V) opIndex()(in auto ref K key) inout return
         {
-            const binIx = keyToBinIx(key);
+            immutable binIx = keyToBinIx(key);
 
             auto elements = binElementsAt(binIx);
             immutable elementOffset = offsetOfKey(elements, key);
@@ -691,7 +691,7 @@ struct HashMapOrSet(K, V = void,
          */
         auto ref V get()(in K key, in auto ref V defaultValue) @trusted
         {
-            const binIx = keyToBinIx(key);
+            immutable binIx = keyToBinIx(key);
             immutable ptrdiff_t elementOffset = binElementsAt(binIx).countUntil!(_ => _.key == key); // TODO functionize
             if (elementOffset != -1) // elementFound
             {
@@ -742,7 +742,7 @@ struct HashMapOrSet(K, V = void,
     bool remove(in K key)
         @trusted
     {
-        const binIx = keyToBinIx(key);
+        immutable binIx = keyToBinIx(key);
         import container_algorithm : popFirstMaybe;
         if (_bstates[binIx].isLarge)
         {
@@ -1108,7 +1108,7 @@ alias HashMap(K, V,
             import basic_uncopyable_array : Array = UncopyableArray;
             Array!(X.ElementType) a1;
 
-            foreach (const ref key; x1.byKey)
+            foreach (immutable ref key; x1.byKey)
             {
                 auto keyPtr = key in x1;
                 assert(keyPtr);

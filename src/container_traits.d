@@ -1,6 +1,13 @@
 /** Traits used by containers. */
 module container_traits;
 
+/// True if elements need move.
+template needsMove(T)
+{
+    import std.traits : hasElaborateDestructor, isCopyable;
+    enum needsMove = hasElaborateDestructor!T || !isCopyable!T;
+}
+
 template ContainerElementType(ContainerType,
                               ElementType)
 {

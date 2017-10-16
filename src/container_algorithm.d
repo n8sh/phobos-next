@@ -7,14 +7,21 @@ import std.traits : hasMember;
  */
 bool popFirstMaybe(alias pred = "a == b", C, E)(ref C haystack,
                                                 in E needle)
-    if (hasMember!(C, "popAt"))
+    if (hasMember!(C, "length") &&
+        hasMember!(C, "popAt"))
     // TODO activate this restriction
     // if (hasSlicing!C &&
     //     is(ElementType!C == E.init))
 {
-    import std.algorithm.searching : countUntil;
-    immutable offset = haystack[].countUntil!pred(needle);
-    if (offset != -1)
+    import std.functional : binaryFun;
+    // doesn't work for uncopyable element types: import std.algorithm.searching : countUntil;
+    size_t offset = 0;
+    foreach (const ref e; haystack[])
+    {
+        if (binaryFun!pred(e, needle)) { break; }
+        offset += 1;
+    }
+    if (offset != haystack.length)
     {
         haystack.popAt(offset);
         return true;

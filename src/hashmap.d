@@ -584,13 +584,13 @@ struct HashMapOrSet(K, V = void,
             }
         }
 
-        scope inout(ValueRef) opBinaryRight(string op)(in K key) inout @trusted return
+        scope auto opBinaryRight(string op)(in K key) inout @trusted return
             if (op == "in")
         {
             if (empty)
             {
                 // prevent range error in `binElementsAt` when `this` is empty
-                return typeof(return).init;
+                return null;
             }
             immutable binIx = keyToBinIx(key);
             const elements = binElementsAt(binIx);
@@ -598,11 +598,13 @@ struct HashMapOrSet(K, V = void,
             immutable elementFound = elementOffset != elements.length;
             if (elementFound)
             {
-                return typeof(return)(&this, binIx, elementOffset);
+                return &elements[elementOffset].value;
+                // return typeof(return)(&this, binIx, elementOffset);
             }
             else                    // miss
             {
-                return typeof(return).init;
+                return null;
+                // return typeof(return).init;
             }
         }
 

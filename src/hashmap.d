@@ -1299,8 +1299,3 @@ version(unittest)
 {
     import array_help : s;
 }
-
-version(show)
-{
-    import dbgio;
-}

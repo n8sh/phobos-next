@@ -34,7 +34,6 @@ void moveEmplaceAllNoReset(T)(scope T[] src,
     alias A = T[n];
 
     A x = [T(1), T(2), T(3)];
-
     A y = void;
     moveEmplaceAllNoReset(x[], y[]);
 

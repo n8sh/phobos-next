@@ -25,5 +25,7 @@ struct SomeUncopyable
         free(_i);
     }
 
+    inout(uint)* valuePointer() inout { return _i; }
+
     uint *_i;
 }

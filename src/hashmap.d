@@ -123,9 +123,6 @@ struct HashMapOrSet(K, V = void,
         enum keyEqualPred = "a == b";
     }
 
-    /// True if elements need move.
-    enum needsMove(T) = hasElaborateDestructor!T || !isCopyable!T;
-
     alias ElementType = T;
 
     /** Make with room for storing at least `capacity` number of elements.

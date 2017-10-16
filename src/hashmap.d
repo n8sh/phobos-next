@@ -356,7 +356,7 @@ struct HashMapOrSet(K, V = void,
         {
             return false; // prevent `RangeError` in `binElementsAt` when empty
         }
-        immutable binIx = keyToBinIx(key);
+        const binIx = keyToBinIx(key);
         // TODO use offsetOfElement
         return hasKey(binElementsAt(binIx), key);
     }
@@ -411,7 +411,7 @@ struct HashMapOrSet(K, V = void,
      */
     InsertionStatus insertWithoutBinCountGrowth(ref T element) @trusted // ref simplifies move
     {
-        immutable binIx = keyToBinIx(keyRefOf(element));
+        const binIx = keyToBinIx(keyRefOf(element));
         T[] elements = binElementsAt(binIx);
         immutable elementOffset = offsetOfKey(elements, keyOf(element));
         immutable elementFound = elementOffset != elements.length;
@@ -586,7 +586,7 @@ struct HashMapOrSet(K, V = void,
                 // prevent range error in `binElementsAt` when `this` is empty
                 return typeof(return).init;
             }
-            immutable binIx = keyToBinIx(key);
+            const binIx = keyToBinIx(key);
             const elements = binElementsAt(binIx);
             immutable elementOffset = offsetOfKey(elements, key);
             immutable elementFound = elementOffset != elements.length;
@@ -665,7 +665,7 @@ struct HashMapOrSet(K, V = void,
         pragma(inline, true)    // LDC must have this
         scope ref inout(V) opIndex()(in auto ref K key) inout return
         {
-            immutable binIx = keyToBinIx(key);
+            const binIx = keyToBinIx(key);
 
             auto elements = binElementsAt(binIx);
             immutable elementOffset = offsetOfKey(elements, key);
@@ -691,7 +691,7 @@ struct HashMapOrSet(K, V = void,
          */
         auto ref V get()(in K key, in auto ref V defaultValue) @trusted
         {
-            immutable binIx = keyToBinIx(key);
+            const binIx = keyToBinIx(key);
             immutable ptrdiff_t elementOffset = binElementsAt(binIx).countUntil!(_ => _.key == key); // TODO functionize
             if (elementOffset != -1) // elementFound
             {
@@ -742,7 +742,7 @@ struct HashMapOrSet(K, V = void,
     bool remove(in K key)
         @trusted
     {
-        immutable binIx = keyToBinIx(key);
+        const binIx = keyToBinIx(key);
         import container_algorithm : popFirstMaybe;
         if (_bstates[binIx].isLarge)
         {

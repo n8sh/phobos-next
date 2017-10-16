@@ -788,7 +788,7 @@ struct HashMapOrSet(K, V = void,
     }
 
     /** Shrink large bin at `binIx` possible posbiel. */
-    private void tryShrinkLargeBinAt(in size_t binIx)
+    private void tryShrinkLargeBinAt(size_t binIx)
     {
         assert(_bstates[binIx].isLarge);
         immutable count = _bins[binIx].large.length;

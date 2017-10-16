@@ -596,7 +596,6 @@ struct HashMapOrSet(K, V = void,
             const elements = binElementsAt(binIx);
             immutable elementOffset = offsetOfKey(elements, key);
             immutable elementFound = elementOffset != elements.length;
-
             if (elementFound)
             {
                 return typeof(return)(&this, binIx, elementOffset);
@@ -672,8 +671,8 @@ struct HashMapOrSet(K, V = void,
         scope ref inout(V) opIndex()(in auto ref K key) inout return
         {
             immutable binIx = keyToBinIx(key);
-
             auto elements = binElementsAt(binIx);
+
             immutable elementOffset = offsetOfKey(elements, key);
             immutable elementFound = elementOffset != elements.length;
             if (elementFound)

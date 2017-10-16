@@ -663,7 +663,7 @@ struct HashMapOrSet(K, V = void,
 
         /// Indexing.
         pragma(inline, true)    // LDC must have this
-        scope ref inout(V) opIndex(in K key) inout return
+        scope ref inout(V) opIndex()(in auto ref K key) inout return
         {
             immutable binIx = keyToBinIx(key);
 
@@ -1214,7 +1214,6 @@ alias HashMap(K, V,
 }
 
 /// range checking
-version(none)
 pure unittest
 {
     import dbgio;
@@ -1231,20 +1230,24 @@ pure unittest
     alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
     auto s = X.withCapacity(n);
 
+    void dummy(ref V value)
+    {
+    }
+
     static if (X.hasValue)
     {
-        assertThrown!RangeError(s[K.init]);
+        assertThrown!RangeError(dummy(s[K.init]));
 
-        foreach (immutable i; 0 .. n)
+        foreach (immutable uint i; 0 .. n)
         {
             s[i] = V(i);
-            assertNotThrown!RangeError(s[i]);
+            assertNotThrown!RangeError(dummy(s[i]));
         }
 
-        foreach (immutable i; 0 .. n)
+        foreach (immutable uint i; 0 .. n)
         {
             s.remove(i);
-            assertThrown!RangeError(s[i]);
+            assertThrown!RangeError(dummy(s[i]));
         }
     }
 

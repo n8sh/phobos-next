@@ -756,8 +756,9 @@ struct HashMapOrSet(K, V = void,
         }
         else
         {
-            immutable elementIx = elementsOfSmallBin(binIx).countUntil!keyEqualPred(key);
-            immutable elementFound = elementIx != -1;
+            auto elements = elementsOfSmallBin(binIx);
+            immutable elementIx = offsetOfKey(elements, key);
+            immutable elementFound = elementIx != elements.length;
             if (elementFound)
             {
                 removeSmallElementAt(binIx, elementIx);

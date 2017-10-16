@@ -452,7 +452,7 @@ struct HashMapOrSet(K, V = void,
                 {
                     static if (needsMove!T)
                     {
-                        // TODO functionize to concatenation:concatenateMove()
+                        // TODO functionize to concatenation:moveConcatenate()
 
                         // move to temporary
                         T[smallBinCapacity + 1] smallCopy = void;

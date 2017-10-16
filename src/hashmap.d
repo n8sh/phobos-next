@@ -292,9 +292,9 @@ struct HashMapOrSet(K, V = void,
             {
                 static if (hasValue)
                 {
-                    auto hit = element.key in rhs;
-                    if (!hit) { return false; }
-                    if ((*hit) != element.value) { return false; }
+                    auto elementFound = element.key in rhs;
+                    if (!elementFound) { return false; }
+                    if ((*elementFound) != element.value) { return false; }
                 }
                 else
                 {
@@ -373,14 +373,7 @@ struct HashMapOrSet(K, V = void,
         {
             grow();
         }
-        static if (needsMove!T)
-        {
-            return insertWithoutBinCountGrowth(move(element));
-        }
-        else
-        {
-            return insertWithoutBinCountGrowth(element);
-        }
+        return insertWithoutBinCountGrowth(element);
     }
 
     static if (hasValue)
@@ -393,29 +386,30 @@ struct HashMapOrSet(K, V = void,
         }
     }
 
-    /** Insert `element` like with `insert()` without automatic growth of number
-     * of bins.
-     */
-    InsertionStatus insertWithoutBinCountGrowth(T element) @trusted
+    pragma(inline)
+    static private size_t offsetOfElement(in T[] elements,
+                                          in ref T element)
     {
-        immutable binIx = keyToBinIx(keyRefOf(element));
-        T[] elements = binElementsAt(binIx);
-
-        // find offset
         size_t elementOffset = 0;
         foreach (const ref e; elements)
         {
-            if (keyOf(e) == keyOf(element))
-            {
-                break;
-            }
+            if (keyOf(e) == keyOf(element)) { break; }
             elementOffset += 1;
         }
+        return elementOffset;
+    }
 
-        // immutable ptrdiff_t elementOffset = elements.countUntil!keyEqualPred(keyOf(element));
-        // immutable hit = elementOffset != -1;
-        immutable hit = elementOffset < elements.length;
-        if (hit)
+    /** Insert `element` like with `insert()` without automatic growth of number
+     * of bins.
+     */
+    InsertionStatus insertWithoutBinCountGrowth(ref T element) @trusted // ref simplifies move
+    {
+        immutable binIx = keyToBinIx(keyRefOf(element));
+        T[] elements = binElementsAt(binIx);
+        immutable elementOffset = offsetOfElement(elements, element);
+        immutable elementFound = elementOffset != elements.length;
+
+        if (elementFound)
         {
             static if (hasValue)
             {
@@ -439,7 +433,7 @@ struct HashMapOrSet(K, V = void,
             }
             return typeof(return).unchanged;
         }
-        else                    // no hit
+        else                    // no elementFound
         {
             if (_bstates[binIx].isLarge) // stay large
             {
@@ -451,10 +445,17 @@ struct HashMapOrSet(K, V = void,
                 {
                     static if (needsMove!T)
                     {
+                        // TODO functionize to concatenation:concatenateMove()
+
                         // move to temporary
                         T[smallBinCapacity + 1] smallCopy = void;
-                        moveEmplaceAll(_bins[binIx].small[],
-                                       smallCopy[0 .. smallBinCapacity]);
+
+                        // TODO: moveEmplaceAllFast(_bins[binIx].small[], smallCopy[0 .. smallBinCapacity]);
+                        foreach (immutable i, ref e; _bins[binIx].small[])
+                        {
+                            moveEmplace(e, smallCopy[i]);
+                        }
+
                         moveEmplace(element,
                                     smallCopy[smallBinCapacity]);
 
@@ -462,7 +463,11 @@ struct HashMapOrSet(K, V = void,
                         emplace!(LargeBin)(&_bins[binIx].large);
 
                         // move to large
-                        moveEmplaceAll(smallCopy[], _bins[binIx].large[0 .. smallCopy.length]);
+                        // TODO: moveEmplaceAllFast(smallCopy[], _bins[binIx].large[0 .. smallCopy.length]);
+                        foreach (immutable i, ref e; smallCopy[])
+                        {
+                            moveEmplace(e, _bins[binIx].large[i]);
+                        }
                     }
                     else
                     {
@@ -474,7 +479,15 @@ struct HashMapOrSet(K, V = void,
                 }
                 else            // stay small
                 {
-                    _bins[binIx].small[_bstates[binIx].smallCount] = element;
+                    static if (needsMove!T)
+                    {
+                        moveEmplace(element,
+                                    _bins[binIx].small[_bstates[binIx].smallCount]);
+                    }
+                    else
+                    {
+                        _bins[binIx].small[_bstates[binIx].smallCount] = element;
+                    }
                     _bstates[binIx].incSmallCount();
                 }
             }
@@ -564,6 +577,19 @@ struct HashMapOrSet(K, V = void,
             }
         }
 
+        pragma(inline)
+        static private size_t offsetOfKey(in T[] elements,
+                                          in ref K key)
+        {
+            size_t elementOffset = 0;
+            foreach (const ref e; elements)
+            {
+                if (keyOf(e) == key) { break; }
+                elementOffset += 1;
+            }
+            return elementOffset;
+        }
+
         scope inout(ValueRef) opBinaryRight(string op)(in K key) inout @trusted return
             if (op == "in")
         {
@@ -573,9 +599,11 @@ struct HashMapOrSet(K, V = void,
                 return typeof(return).init;
             }
             immutable binIx = keyToBinIx(key);
-            immutable ptrdiff_t elementOffset = binElementsAt(binIx).countUntil!(_ => _.key == key); // TODO functionize
-            immutable hit = elementOffset != -1;
-            if (hit)
+            const elements = binElementsAt(binIx);
+            immutable elementOffset = offsetOfKey(elements, key);
+            immutable elementFound = elementOffset != elements.length;
+
+            if (elementFound)
             {
                 return typeof(return)(&this, binIx, elementOffset);
             }
@@ -651,8 +679,8 @@ struct HashMapOrSet(K, V = void,
         {
             immutable binIx = keyToBinIx(key);
             immutable ptrdiff_t elementOffset = binElementsAt(binIx).countUntil!(_ => _.key == key); // TODO functionize
-            immutable hit = elementOffset != -1;
-            if (hit)
+            immutable elementFound = elementOffset != -1;
+            if (elementFound)
             {
                 return binElementsAt(binIx)[elementOffset].value;
             }
@@ -675,7 +703,7 @@ struct HashMapOrSet(K, V = void,
         {
             immutable binIx = keyToBinIx(key);
             immutable ptrdiff_t elementOffset = binElementsAt(binIx).countUntil!(_ => _.key == key); // TODO functionize
-            if (elementOffset != -1) // hit
+            if (elementOffset != -1) // elementFound
             {
                 return binElementsAt(binIx)[elementOffset].value;
             }
@@ -702,10 +730,10 @@ struct HashMapOrSet(K, V = void,
             pragma(inline, true)
             void autoinitIncAt(in K key)
             {
-                auto hit = key in this;
-                if (hit)
+                auto elementFound = key in this;
+                if (elementFound)
                 {
-                    (*hit) += 1;
+                    (*elementFound) += 1;
                 }
                 else
                 {
@@ -727,24 +755,24 @@ struct HashMapOrSet(K, V = void,
         import container_algorithm : popFirstMaybe;
         if (_bstates[binIx].isLarge)
         {
-            immutable hit = _bins[binIx].large.popFirstMaybe!keyEqualPred(key);
-            _length -= hit ? 1 : 0;
-            if (hit)
+            immutable elementFound = _bins[binIx].large.popFirstMaybe!keyEqualPred(key);
+            _length -= elementFound ? 1 : 0;
+            if (elementFound)
             {
                 tryShrinkLargeBinAt(binIx);
             }
-            return hit;
+            return elementFound;
         }
         else
         {
             immutable elementIx = elementsOfSmallBin(binIx).countUntil!keyEqualPred(key);
-            immutable hit = elementIx != -1;
-            if (hit)
+            immutable elementFound = elementIx != -1;
+            if (elementFound)
             {
                 removeSmallElementAt(binIx, elementIx);
             }
-            _length -= hit ? 1 : 0;
-            return hit;
+            _length -= elementFound ? 1 : 0;
+            return elementFound;
         }
     }
 
@@ -1066,9 +1094,9 @@ alias HashMap(K, V,
             assert(key in x1);
             static if (X.hasValue)
             {
-                auto hit = key in x1;
-                assert(hit);
-                assert(*hit != "_");
+                auto elementFound = key in x1;
+                assert(elementFound);
+                assert(*elementFound != "_");
             }
 
             assert(x1.insert(element) == InsertionStatus.unchanged);
@@ -1129,11 +1157,11 @@ alias HashMap(K, V,
 
             assert(x1.length == n - key);
 
-            auto hit = key in x1;
-            assert(hit);
+            auto elementFound = key in x1;
+            assert(elementFound);
             static if (X.hasValue)
             {
-                assert(*hit == element.value);
+                assert(*elementFound == element.value);
             }
 
             assert(x1.remove(key));

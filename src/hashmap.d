@@ -380,7 +380,8 @@ struct HashMapOrSet(K, V = void,
         pragma(inline, true)    // LDC must have this
         InsertionStatus insert(K key, V value)
         {
-            return insert(T(key, value));
+            return insert(T(move(key),
+                            move(value)));
         }
     }
 
@@ -582,19 +583,6 @@ struct HashMapOrSet(K, V = void,
             }
         }
 
-        pragma(inline)
-        static private size_t offsetOfKey(in T[] elements,
-                                          in ref K key)
-        {
-            size_t elementOffset = 0;
-            foreach (const ref e; elements)
-            {
-                if (keyOf(e) == key) { break; }
-                elementOffset += 1;
-            }
-            return elementOffset;
-        }
-
         scope inout(ValueRef) opBinaryRight(string op)(in K key) inout @trusted return
             if (op == "in")
         {
@@ -683,8 +671,10 @@ struct HashMapOrSet(K, V = void,
         scope ref inout(V) opIndex(in K key) inout return
         {
             immutable binIx = keyToBinIx(key);
-            immutable ptrdiff_t elementOffset = binElementsAt(binIx).countUntil!(_ => _.key == key); // TODO functionize
-            immutable elementFound = elementOffset != -1;
+
+            auto elements = binElementsAt(binIx);
+            immutable elementOffset = offsetOfKey(elements, key);
+            immutable elementFound = elementOffset != elements.length;
             if (elementFound)
             {
                 return binElementsAt(binIx)[elementOffset].value;
@@ -721,10 +711,11 @@ struct HashMapOrSet(K, V = void,
 	/** Supports $(B aa[key] = value;) syntax.
 	 */
         pragma(inline, true)
-        V opIndexAssign(V value, K key)
+        void opIndexAssign(V value, K key)
 	{
-            insert(T(key, value));
-            return value;       // TODO make insert return value reference and set output status arg
+            insert(T(move(key),
+                     move(value)));
+            // TODO return reference to value
 	}
 
         static if (__traits(compiles, { V _; _ += 1; })) // D rocks!

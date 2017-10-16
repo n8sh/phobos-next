@@ -6,21 +6,22 @@ module emplace_all;
 void moveEmplaceAllNoReset(T)(T[] src,
                               T[] tgt)
 {
+    assert(src.length == tgt.length);
     import container_traits : needsMove;
-    const n = src.length;
-    assert(n == tgt.length);
-    foreach (i; 0 .. n)
+    static if (needsMove!T)
     {
-        static if (needsMove!T)
+        immutable n = src.length;
+        // TODO benchmark with `memmove` and `memset` instead
+        foreach (i; 0 .. n)
         {
             import std.algorithm.mutation : moveEmplace;
             moveEmplace(src[i], tgt[i]);
         }
-        else
-        {
-            tgt[i] = src[i];
-            src[i] = T.init;    // TODO remove later on
-        }
+    }
+    else
+    {
+        tgt[] = src[];
+        src[] = T.init;
     }
 }
 

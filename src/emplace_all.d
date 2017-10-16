@@ -3,8 +3,8 @@ module emplace_all;
 /** Version of `std.algorithm.mutation.moveEmplaceAll` that works for uncopyable
  * element type `T`.
  */
-void moveEmplaceAllFixed(T)(T[] src,
-                            T[] tgt)
+void moveEmplaceAllNoReset(T)(T[] src,
+                              T[] tgt)
 {
     import container_traits : needsMove;
     const n = src.length;
@@ -19,6 +19,7 @@ void moveEmplaceAllFixed(T)(T[] src,
         else
         {
             tgt[i] = src[i];
+            src[i] = T.init;    // TODO remove later on
         }
     }
 }

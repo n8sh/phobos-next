@@ -57,6 +57,7 @@ struct HashMapOrSet(K, V = void,
 {
     import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable;
     import std.algorithm.mutation : move, moveEmplace, moveEmplaceAll;
+    import emplace_all : moveEmplaceAllNoReset;
     import std.algorithm.searching : canFind, countUntil;
     import std.algorithm.comparison : max;
     import std.conv : emplace;
@@ -1216,7 +1217,7 @@ alias HashMap(K, V,
 }
 
 /// range checking
-version(none)
+// version(none)
 pure unittest
 {
     import dbgio;

@@ -3,8 +3,8 @@ module emplace_all;
 /** Version of `std.algorithm.mutation.moveEmplaceAll` that works for uncopyable
  * element type `T`.
  */
-void moveEmplaceAllNoReset(T)(T[] src,
-                              T[] tgt)
+void moveEmplaceAllNoReset(T)(scope T[] src,
+                              scope T[] tgt)
 {
     assert(src.length == tgt.length);
     import container_traits : needsMove;

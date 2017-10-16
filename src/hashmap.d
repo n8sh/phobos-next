@@ -1258,6 +1258,7 @@ pure unittest
 
     s[K.init] = V.init;
     auto vp = K.init in s;
+    static assert(is(typeof(vp) == const(V)*));
     assert((*vp) == V.init);
 
     s.remove(K.init);

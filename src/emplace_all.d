@@ -37,7 +37,7 @@ void moveEmplaceAllNoReset(T)(scope T[] src,
     A y = void;
     moveEmplaceAllNoReset(x[], y[]);
 
-    foreach (i; 0 .. n)
+    foreach (immutable i; 0 .. n)
     {
         assert(x[i] == T.init);
         assert(*y[i].valuePointer == i + 1);

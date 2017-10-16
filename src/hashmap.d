@@ -56,7 +56,7 @@ struct HashMapOrSet(K, V = void,
     if (smallBinMinCapacity >= 1) // no use having empty small bins
 {
     import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable;
-    import std.algorithm.mutation : move, moveEmplace, moveEmplaceAll;
+    import std.algorithm.mutation : move, moveEmplace;
     import emplace_all : moveEmplaceAllNoReset;
     import std.algorithm.searching : canFind, countUntil;
     import std.algorithm.comparison : max;

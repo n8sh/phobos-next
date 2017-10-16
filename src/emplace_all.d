@@ -1,6 +1,7 @@
 module emplace_all;
 
-/** Version of `std.algorithm.mutation.moveEmplaceAll` that works for uncopyable types.
+/** Version of `std.algorithm.mutation.moveEmplaceAll` that works for uncopyable
+ * element type `T`.
  */
 void moveEmplaceAllGeneric(T)(T[] src,
                               T[] tgt)

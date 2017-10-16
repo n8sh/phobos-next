@@ -6,7 +6,9 @@ struct SomeUncopyable
 
     import dbgio;
 
-    this(uint i)
+    @safe pure nothrow @nogc:
+
+    this(uint i) @trusted
     {
         _i = cast(typeof(_i))malloc(1 * (*_i).sizeof);
         dln("allocated: ", _i, " being ", *_i);
@@ -14,7 +16,7 @@ struct SomeUncopyable
 
     @disable this(this);
 
-    ~this()
+    ~this() @trusted
     {
         if (_i)
         {

@@ -11,6 +11,7 @@ struct SomeUncopyable
     this(uint i) @trusted
     {
         _i = cast(typeof(_i))malloc(1 * (*_i).sizeof);
+        *_i = i;
         dln("allocated: ", _i, " being ", *_i);
     }
 

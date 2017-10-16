@@ -6,10 +6,19 @@ module emplace_all;
 void moveEmplaceAllGeneric(T)(T[] src,
                               T[] tgt)
 {
+    import container_traits : needsMove;
     const n = src.length;
     assert(n == tgt.length);
     foreach (i; 0 .. n)
     {
-        moveEmplace(src[i], tgt[i]);
+        static if (needsMove!T)
+        {
+            import std.algorithm.mutation : moveEmplace;
+            moveEmplace(src[i], tgt[i]);
+        }
+        else
+        {
+            tgt[i] = src[i];
+        }
     }
 }

@@ -15,7 +15,6 @@ import std.conv: to;
 import std.ascii: isDigit;
 import std.array: array;
 import std.stdio;
-import std.functional : unaryFun, binaryFun;
 import std.traits: isSomeString, isSomeChar;
 import algorithm_ex: moveWhile, moveUntil, either;
 import dbgio;

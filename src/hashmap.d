@@ -349,14 +349,23 @@ struct HashMapOrSet(K, V = void,
     /** Check if `element` is stored.
         Returns: `true` if element was already present, `false` otherwise.
      */
-    bool contains(in K key) const @trusted
+    bool contains(in K key) const @trusted // TODO make `auto ref K` work
     {
         if (empty)              // TODO can this check be avoided?
         {
             return false; // prevent `RangeError` in `binElementsAt` when empty
         }
         immutable binIx = keyToBinIx(key);
-        // TODO use offsetOfElement
+        return hasKey(binElementsAt(binIx), key);
+    }
+    /// ditto
+    bool contains(in ref K key) const @trusted
+    {
+        if (empty)              // TODO can this check be avoided?
+        {
+            return false; // prevent `RangeError` in `binElementsAt` when empty
+        }
+        immutable binIx = keyToBinIx(key);
         return hasKey(binElementsAt(binIx), key);
     }
 

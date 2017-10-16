@@ -227,7 +227,7 @@ struct HashMapOrSet(K, V = void,
                      */
                     static if (hasElaborateCopyConstructor!T)
                     {
-                        foreach (immutable elementIx, const ref element; elementsOfSmallBin(binIx))
+                        foreach (immutable elementIx, const ref element; smallBinElementsAt(binIx))
                         {
                             emplace(&that._bins[binIx].small[elementIx],
                                     element);
@@ -241,12 +241,12 @@ struct HashMapOrSet(K, V = void,
                             // currently faster than slice assignment on else branch
                             import core.stdc.string : memcpy;
                             memcpy(that._bins[binIx].small.ptr, // cannot overlap
-                                   elementsOfSmallBin(binIx).ptr,
-                                   elementsOfSmallBin(binIx).length * T.sizeof);
+                                   smallBinElementsAt(binIx).ptr,
+                                   smallBinElementsAt(binIx).length * T.sizeof);
                         }
                         else
                         {
-                            that._bins[binIx].small.ptr[0 .. _bstates[binIx].smallCount] = elementsOfSmallBin(binIx);
+                            that._bins[binIx].small.ptr[0 .. _bstates[binIx].smallCount] = smallBinElementsAt(binIx);
                         }
                     }
                 }
@@ -326,8 +326,8 @@ struct HashMapOrSet(K, V = void,
             {
                 static if (hasElaborateDestructor!T)
                 {
-                    // TODO use emplace_all : destroyAll(elementsOfSmallBin(binIx))
-                    foreach (ref element; elementsOfSmallBin(binIx))
+                    // TODO use emplace_all : destroyAll(smallBinElementsAt(binIx))
+                    foreach (ref element; smallBinElementsAt(binIx))
                     {
                         .destroy(element);
                     }
@@ -756,7 +756,7 @@ struct HashMapOrSet(K, V = void,
         }
         else
         {
-            auto elements = elementsOfSmallBin(binIx);
+            const elements = smallBinElementsAt(binIx);
             immutable elementIx = offsetOfKey(elements, key);
             immutable elementFound = elementIx != elements.length;
             if (elementFound)
@@ -774,7 +774,7 @@ struct HashMapOrSet(K, V = void,
     {
         assert(!_bstates[binIx].isLarge);
         import container_algorithm : shiftToFrontAt;
-        elementsOfSmallBin(binIx).shiftToFrontAt(elementIx);
+        smallBinElementsAt(binIx).shiftToFrontAt(elementIx);
         _bstates[binIx].decSmallCount();
         static if (hasElaborateDestructor!T)
         {
@@ -854,12 +854,12 @@ struct HashMapOrSet(K, V = void,
         }
         else
         {
-            return elementsOfSmallBin(binIx);
+            return smallBinElementsAt(binIx);
         }
     }
 
     pragma(inline, true)
-    private scope inout(T)[] elementsOfSmallBin(size_t binIx) inout return
+    private scope inout(T)[] smallBinElementsAt(size_t binIx) inout return
     {
         return _bins[binIx].small[0 .. _bstates[binIx].smallCount];
     }

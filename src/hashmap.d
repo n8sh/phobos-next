@@ -457,11 +457,8 @@ struct HashMapOrSet(K, V = void,
                         // move to temporary
                         T[smallBinCapacity + 1] smallCopy = void;
 
-                        // TODO: moveEmplaceAllFast(_bins[binIx].small[], smallCopy[0 .. smallBinCapacity]);
-                        foreach (immutable i, ref e; _bins[binIx].small[])
-                        {
-                            moveEmplace(e, smallCopy[i]);
-                        }
+                        moveEmplaceAllNoReset(_bins[binIx].small[],
+                                              smallCopy[0 .. smallBinCapacity]);
 
                         moveEmplace(element,
                                     smallCopy[smallBinCapacity]);
@@ -470,11 +467,8 @@ struct HashMapOrSet(K, V = void,
                         emplace!(LargeBin)(&_bins[binIx].large);
 
                         // move to large
-                        // TODO: moveEmplaceAllFast(smallCopy[], _bins[binIx].large[0 .. smallCopy.length]);
-                        foreach (immutable i, ref e; smallCopy[])
-                        {
-                            moveEmplace(e, _bins[binIx].large[i]);
-                        }
+                        moveEmplaceAllNoReset(smallCopy[],
+                                              _bins[binIx].large[0 .. smallCopy.length]);
                     }
                     else
                     {

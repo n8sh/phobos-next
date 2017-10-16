@@ -454,9 +454,7 @@ struct HashMapOrSet(K, V = void,
                     {
                         // TODO functionize to concatenation:moveConcatenate()
 
-                        // move to temporary
                         T[smallBinCapacity + 1] smallCopy = void;
-
                         moveEmplaceAllNoReset(_bins[binIx].small[],
                                               smallCopy[0 .. smallBinCapacity]);
 

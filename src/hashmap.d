@@ -1030,6 +1030,7 @@ alias HashMap(K, V,
 
     alias K = uint;
 
+    import std.meta : AliasSeq;
     foreach (V; AliasSeq!(void, string))
     {
         alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
@@ -1296,7 +1297,6 @@ version = show;
 
 version(unittest)
 {
-    import std.meta : AliasSeq;
     import array_help : s;
 }
 

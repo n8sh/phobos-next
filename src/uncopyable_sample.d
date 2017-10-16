@@ -1,8 +1,10 @@
 module uncopyable_sample;
 
-struct V
+struct SomeUncopyable
 {
     import qcmeman : malloc, free;
+
+    import dbgio;
 
     this(uint i)
     {
@@ -22,9 +24,4 @@ struct V
     }
 
     uint *_i;
-}
-
-version(unittest)
-{
-    import dbgio;
 }

@@ -1267,8 +1267,3 @@ pure unittest
 }
 
 version = show;
-
-version(unittest)
-{
-    import array_help : s;
-}

@@ -150,7 +150,7 @@ struct HashMapOrSet(K, V = void,
         else
         {
             typeof(this) that;  // TODO if `isForwardRange` count elements
-       }
+        }
         foreach (immutable ref element; elements)
         {
             that.insert(element);

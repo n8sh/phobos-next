@@ -87,7 +87,7 @@ struct CopyableArray(T,
     static ref typeof(this) emplaceWithMovedElements(typeof(this)* thatPtr,
                                                      T[] elements...)
     {
-        // TODO use emplace with Store constructor
+        // TODO use Store constructor:
         immutable length = elements.length;
         thatPtr._ptr = typeof(this).allocate(length, false);
         thatPtr._capacity = cast(CapacityType)length;

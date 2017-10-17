@@ -279,7 +279,7 @@ enum Gop : ubyte
 import std.bitmanip : BitArray;
 import std.random : Random, uniform;
 
-import basic_copyable_array : CopyableArray;
+import basic_array : BasicArray;
 import basic_uncopyable_array : UncopyableArray;
 
 import typecons_ex : IndexedBy;
@@ -297,7 +297,7 @@ alias OpCount = size_t;
 alias CellRIx = ptrdiff_t;
 
 /// Relative Cell indexs.
-alias CellRIxs = Owned!(CopyableArray!CellRIx);
+alias CellRIxs = Owned!(BasicArray!CellRIx);
 
 /// Calculating Cell.
 struct Cell

@@ -17,7 +17,7 @@ struct DenseSetFilterGrowableArray(E,
     if (isDenseSetFilterable!E)
 {
     import filters : DenseSetFilter, Growable, Copyable;
-    import basic_copyable_array : CopyableArray;
+    import basic_array : BasicArray;
 
     @disable this(this);
 
@@ -77,7 +77,7 @@ struct DenseSetFilterGrowableArray(E,
 private:
     // TODO merge into store with only one length and capcity
     DenseSetFilter!(E, Growable.yes, Copyable.no) _set;
-    CopyableArray!(E, Allocator) _array;
+    BasicArray!(E, Allocator) _array;
 }
 
 @safe pure nothrow @nogc:

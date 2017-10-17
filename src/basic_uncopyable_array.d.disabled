@@ -2,7 +2,7 @@ module basic_uncopyable_array;
 
 import std.traits : Unqual;
 
-/** Non-copyable variant of `CopyableArray`.
+/** Non-copyable variant of `BasicArray`.
  */
 struct UncopyableArray(T,
                        alias Allocator = null, // null means means to qcmeman functions
@@ -75,53 +75,13 @@ struct UncopyableArray(T,
         }
     }
 
-    import basic_copyable_array : CopyableArray;
-    alias Super = CopyableArray!(T, Allocator, CapacityType);
+    import basic_array : BasicArray;
+    alias Super = BasicArray!(T, Allocator, CapacityType);
     Super _basicArray;
     alias _basicArray this;
 }
 
 /// construct from uncopyable scalar
-@safe pure nothrow @nogc unittest
-{
-    alias T = int;
-    alias A = UncopyableArray!(T, null, uint);
-    const a = A(17);
-    assert(a[] == [17].s);
-}
-
-/// construct from slice of copyable type
-@safe pure nothrow unittest
-{
-    alias T = int;
-    alias A = UncopyableArray!(T);
-    const a = A([17]);
-    assert(a[] == [17].s);
-}
-
-/// check duplication
-@safe pure nothrow @nogc unittest
-{
-    alias T = int;
-    alias A = UncopyableArray!(T);
-
-    static assert(!__traits(compiles, { A b = a; })); // copying disabled
-
-    auto a = A([10, 11, 12].s);
-    auto b = a.dup;
-    assert(a == b);
-    assert(a[].ptr !is b[].ptr);
-}
-
-/// construct from map range
-@safe pure nothrow unittest
-{
-    import std.algorithm : map;
-    alias T = int;
-    alias A = UncopyableArray!(T);
-    auto a = A([10, 20, 30].s[].map!(_ => _^^2));
-    assert(a[] == [100, 400, 900].s);
-}
 
 version(unittest)
 {

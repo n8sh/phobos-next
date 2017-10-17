@@ -9,7 +9,7 @@ void main()
     import std.container.array : StdArray = Array;
 
     // my containers
-    import basic_copyable_array : CopyableArray;
+    import basic_array : BasicArray;
     import variant_arrays : VariantArrays;
     import hashmap : HashSet, HashMap;
 
@@ -35,7 +35,7 @@ void main()
 
     writefln("\nArrays:\n");
 
-    foreach (A; AliasSeq!(CopyableArray!uint,
+    foreach (A; AliasSeq!(BasicArray!uint,
                           VariantArrays!uint,
                           StdArray!uint,
                           Appender!(uint[]),

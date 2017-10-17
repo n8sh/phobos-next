@@ -243,9 +243,10 @@ struct HashMapOrSet(K, V = void,
                         {
                             // currently faster than slice assignment on else branch
                             import core.stdc.string : memcpy;
+                            auto elements = smallBinElementsAt(binIx);
                             memcpy(that._bins[binIx].small.ptr, // cannot overlap
-                                   smallBinElementsAt(binIx).ptr,
-                                   smallBinElementsAt(binIx).length * T.sizeof);
+                                   elements.ptr,
+                                   elements.length * T.sizeof);
                         }
                         else
                         {
@@ -1149,7 +1150,7 @@ alias HashMap(K, V,
 
         foreach (immutable key; 0 .. n)
         {
-            dln(key);
+            dln("key:", key);
             static if (X.hasValue)
             {
                 const element = X.ElementType(key, V.init);

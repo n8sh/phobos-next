@@ -121,7 +121,7 @@ struct BasicArray(T,
     }
 
     static if (isCopyable!T &&
-               !is(T == union)) // forbid copying of unions for now
+               !is(T == union)) // forbid copying of unions such as `HybridBin` in hashmap.d
     {
         static typeof(this) withElements(in T[] elements)
         {

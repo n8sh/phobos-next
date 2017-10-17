@@ -468,7 +468,10 @@ struct HashMapOrSet(K, V = void,
                                     smallCopy[smallBinCapacity]);
 
                         // create large
-                        // TODO replace with one call to emplace
+
+                        // TODO replace with one call to emplace by adding
+                        // constructor that takes both capacity and length as
+                        // arguments
                         emplace!(LargeBin)(&_bins[binIx].large);
                         _bins[binIx].large.length = smallCopy.length;
                         moveEmplaceAllNoReset(smallCopy[],

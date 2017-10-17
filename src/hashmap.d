@@ -1228,7 +1228,6 @@ alias HashMap(K, V,
 /// range checking
 pure unittest
 {
-    import dbgio;
     import digestx.fnv : FNV;
 
     immutable n = 11;

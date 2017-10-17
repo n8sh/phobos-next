@@ -120,13 +120,20 @@ struct BasicArray(T,
         emplace(&_mptr[0], value);
     }
 
-    static if (isCopyable!T)
+    static if (isCopyable!T &&
+               !is(T == union)) // forbid copying of unions for now
     {
         static typeof(this) withElements(in T[] elements)
         {
             immutable length = elements.length;
             auto ptr = typeof(this).allocate(length, false);
-            ptr[0 .. length] = elements[];
+
+            foreach (immutable i, const e; elements[])
+            {
+                ptr[i] = e;
+            }
+
+            // ptr[0 .. length] = elements[];
             return typeof(return)(Store(ptr,
                                         cast(CapacityType)length,
                                         cast(CapacityType)length));

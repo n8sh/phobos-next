@@ -68,8 +68,8 @@ private struct VariantIndex(Types...)
 
 private mixin template VariantArrayOf(Type)
 {
-    import basic_copyable_array : CopyableArray;
-    CopyableArray!Type store;
+    import basic_array : BasicArray;
+    BasicArray!Type store;
 }
 
 /** Stores set of variants.
@@ -82,14 +82,14 @@ private struct VariantArrays(Types...)
 {
     alias Index = VariantIndex!Types;
 
-    import basic_copyable_array : CopyableArray;
+    import basic_array : BasicArray;
 
     pragma(inline, true):
 
     /// Returns: array type (as a string) of `Type`.
     private static immutable(string) arrayTypeStringOfIndex(uint typeIndex)()
     {
-        return `CopyableArray!(Types[` ~ typeIndex.stringof ~ `])`;
+        return `BasicArray!(Types[` ~ typeIndex.stringof ~ `])`;
     }
 
     /// Returns: array instance (as a strinng) storing `Type`.

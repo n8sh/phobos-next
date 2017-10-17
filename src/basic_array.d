@@ -1221,20 +1221,12 @@ unittest
     assert(a.capacity == ae.length);
     assert(a[] == ae);
 }
+
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
     alias A = BasicArray!(T, null, uint);
     const a = A(17);
-    assert(a[] == [17].s);
-}
-
-/// construct from slice of copyable type
-@safe pure nothrow unittest
-{
-    alias T = int;
-    alias A = BasicArray!(T);
-    const a = A([17]);
     assert(a[] == [17].s);
 }
 

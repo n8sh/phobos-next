@@ -2505,41 +2505,64 @@ nothrow pure @nogc unittest
     assert(len == array.length);
 }
 
-version(unittest)
-{
-    import array_help : s;
-}
-
 /** Split on binary predicate `pred` for adjacent elements.
  *
  * See also: http://forum.dlang.org/post/ojxshbrfiyyjbopdmewa@forum.dlang.org
  */
-auto splitterAdjacent(alias pred, R)(R input)
-    if (isInputRange!R)
+auto splitterAdjacent(alias pred = "a == b", R)(R input)
+    if (isForwardRange!R)
 {
     static struct Result
     {
-        @property T front()
+        alias E = ElementType!R;
+
+        this(R input_)
         {
-            return b;
+            this.input = input_;
+            nextFront();
+        }
+
+        @property E[] front()
+        {
+            return part.data;
         }
 
         void popFront()
         {
-            T c = a+b;
-            a = b;
-            b = c;
+            assert(!empty);
+        }
+
+        void nextFront()
+        {
+            import std.algorithm.searching : findAdjacent;
+            auto x = input.findAdjacent!pred();
         }
 
         @property bool empty() const
         {
-            return false;
+            return true;
         }
+
+        import std.array : Appender;
+        alias Part = Appender!(E[]);
+        Part part;
+        R input;
     }
+
     return Result(input);
 }
 
 ///
-unittest
+@safe pure nothrow @nogc unittest
 {
+    // auto x = [1,2,3, 5, 10,11].s[].splitterAdjacent!((a,b) => a + 1 != b);
+    // pragma(msg, ElementType!(typeof(x)));
+    // assert(x.equal([[1,2,3].s,
+    //                 [5].s,
+    //                 [10,11].s].s));
+}
+
+version(unittest)
+{
+    import array_help : s;
 }

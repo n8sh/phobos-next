@@ -584,13 +584,13 @@ struct HashMapOrSet(K, V = void,
             }
         }
 
-        scope auto opBinaryRight(string op)(in K key) inout @trusted return
+        scope inout(V)* opBinaryRight(string op)(in K key) inout @trusted return
             if (op == "in")
         {
             if (empty)
             {
                 // prevent range error in `binElementsAt` when `this` is empty
-                return null;
+                return typeof(return).init;
             }
             immutable binIx = keyToBinIx(key);
             const elements = binElementsAt(binIx);
@@ -598,13 +598,12 @@ struct HashMapOrSet(K, V = void,
             immutable elementFound = elementOffset != elements.length;
             if (elementFound)
             {
-                return &elements[elementOffset].value;
+                return cast(typeof(return))&elements[elementOffset].value;
                 // return typeof(return)(&this, binIx, elementOffset);
             }
             else                    // miss
             {
-                return null;
-                // return typeof(return).init;
+                return typeof(return).init;
             }
         }
 
@@ -720,7 +719,7 @@ struct HashMapOrSet(K, V = void,
             // TODO return reference to value
 	}
 
-        static if (__traits(compiles, { V _; _ += 1; })) // D rocks!
+        static if (__traits(compiles, { V _; _ += 1; })) // if we can increase the key
         {
             /** Increase value at `key`, or set value to 1 if `key` hasn't yet
              * been added.
@@ -728,7 +727,10 @@ struct HashMapOrSet(K, V = void,
             pragma(inline, true)
             void autoinitIncAt(in K key)
             {
+                pragma(msg, typeof(key));
+                pragma(msg, V);
                 auto elementFound = key in this;
+                pragma(msg, typeof(elementFound));
                 if (elementFound)
                 {
                     (*elementFound) += 1;
@@ -1258,7 +1260,7 @@ pure unittest
 
     s[K.init] = V.init;
     auto vp = K.init in s;
-    static assert(is(typeof(vp) == const(V)*));
+    static assert(is(typeof(vp) == V*));
     assert((*vp) == V.init);
 
     s.remove(K.init);

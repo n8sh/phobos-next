@@ -1035,7 +1035,7 @@ alias HashMap(K, V,
 {
     import digestx.fnv : FNV;
 
-    immutable n = 11111;
+    immutable n = 11_111;
 
     alias K = uint;
 

@@ -727,10 +727,7 @@ struct HashMapOrSet(K, V = void,
             pragma(inline, true)
             void autoinitIncAt(in K key)
             {
-                pragma(msg, typeof(key));
-                pragma(msg, V);
                 auto elementFound = key in this;
-                pragma(msg, typeof(elementFound));
                 if (elementFound)
                 {
                     (*elementFound) += 1;

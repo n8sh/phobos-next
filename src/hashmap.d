@@ -461,18 +461,16 @@ struct HashMapOrSet(K, V = void,
                     static if (needsMove!T)
                     {
                         // TODO functionize to concatenation:moveConcatenate()
-
                         T[smallBinCapacity + 1] smallCopy = void;
                         moveEmplaceAllNoReset(_bins[binIx].small[],
                                               smallCopy[0 .. smallBinCapacity]);
-
                         moveEmplace(element,
                                     smallCopy[smallBinCapacity]);
 
                         // create large
+                        // TODO replace with one call to emplace
                         emplace!(LargeBin)(&_bins[binIx].large);
-
-                        // move to large
+                        _bins[binIx].large.length = smallCopy.length;
                         moveEmplaceAllNoReset(smallCopy[],
                                               _bins[binIx].large[0 .. smallCopy.length]);
                     }

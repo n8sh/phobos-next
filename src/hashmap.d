@@ -1241,9 +1241,7 @@ pure unittest
     alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
     auto s = X.withCapacity(n);
 
-    void dummy(ref V value)
-    {
-    }
+    void dummy(ref V value) {}
 
     assertThrown!RangeError(dummy(s[K.init]));
 

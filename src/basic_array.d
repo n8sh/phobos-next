@@ -1258,6 +1258,19 @@ unittest
     assert(a[] == [100, 400, 900].s);
 }
 
+/// construct from map range
+@trusted pure nothrow unittest
+{
+    alias T = int;
+    alias A = BasicArray!(T);
+    import std.typecons : RefCounted;
+    RefCounted!A x;
+    auto z = [1, 2, 3].s;
+    x ~= z[];
+    auto y = x;
+    assert(y == z);
+}
+
 /// TODO Move to Phobos.
 private enum bool isRefIterable(T) = is(typeof({ foreach (ref elem; T.init) {} }));
 

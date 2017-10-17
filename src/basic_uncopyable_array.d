@@ -18,7 +18,7 @@ struct UncopyableArray(T,
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
     static typeof(this) withLength(size_t initialLength) @trusted
     {
-        typeof(return) that;
+        typeof(return) that = void;
         that._basicArray = Super.withLength(initialLength);
         return that;
     }
@@ -52,6 +52,14 @@ struct UncopyableArray(T,
             Super.isElementAssignable!(ElementType!R))
     {
         static assert(0, "TODO implement");
+    }
+
+    /** Emplace `thatPtr` with elements moved from `elements`. */
+    static ref typeof(this) emplaceWithMovedElements(typeof(this)* thatPtr,
+                                                     T[] elements) @system
+    {
+        Super.emplaceWithMovedElements(&thatPtr._basicArray, elements);
+        return *thatPtr;
     }
 
     @disable this(this);        // no copy construction

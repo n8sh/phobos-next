@@ -67,6 +67,7 @@ struct BasicArray(T,
      * - initial length `Length`,
      * - and zeroing-flag `zero`.
      */
+    pragma(inline)              // DMD cannot inline
     private static typeof(this) withCapacityLengthZero(size_t capacity,
                                                        size_t length,
                                                        bool zero) @trusted

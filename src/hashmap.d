@@ -1267,39 +1267,6 @@ pure unittest
     assert(K.init !in s);
 }
 
-// version(unittest)
-// {
-//     private static struct US
-//     {
-//         @disable this(this);
-//         int x;
-//     }
-// }
-
-// /// uncopyable element type
-// pure unittest
-// {
-//     import digestx.fnv : FNV;
-
-//     immutable n = 11;
-
-//     alias K = US;
-//     alias V = string;
-
-//     import std.exception : assertThrown, assertNotThrown;
-//     import core.exception : RangeError;
-
-//     alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
-//     auto s = X.withCapacity(n);
-
-//     static if (X.hasValue)
-//     {
-//         assertThrown!RangeError(s[0]);
-//         s[0] = V.init;
-//         assertNotThrown!RangeError(s[0]);
-//     }
-// }
-
 version = show;
 
 version(unittest)

@@ -126,7 +126,7 @@ import bijections : isIntegralBijectableType, bijectToUnsigned, bijectFromUnsign
 import variant_ex : WordVariant;
 import typecons_ex : IndexedBy;
 import container_traits : mustAddGCRange;
-import basic_uncopyable_array : Array = UncopyableArray;
+import basic_array : Array = BasicArray;
 
 // version = enterSingleInfiniteMemoryLeakTest;
 version = benchmark;

@@ -17,7 +17,7 @@ import container_traits : NoGc, mustAddGCRange, needsMove;
 
     See also: https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md
 */
-struct CopyableArray(T,
+struct BasicArray(T,
                      alias Allocator = null, // null means means to qcmeman functions
                      CapacityType = size_t)  // see also https://github.com/izabera/s
     if (!is(Unqual!T == bool) &&             // use `BitArray` instead
@@ -234,7 +234,7 @@ struct CopyableArray(T,
     static if (isCopyable!T)
     {
         pragma(inline)          // DMD cannot inline
-        @property CopyableArray!(Unqual!T, Allocator, CapacityType) dup() const @trusted
+        @property BasicArray!(Unqual!T, Allocator, CapacityType) dup() const @trusted
         {
             return typeof(this).withElements(this[]);
         }
@@ -822,7 +822,7 @@ private:
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = CopyableArray!(T, null, uint);
+    alias A = BasicArray!(T, null, uint);
     static if (size_t.sizeof == 8) // only 64-bit
     {
         static assert(A.sizeof == 2 * size_t.sizeof); // only two words
@@ -842,7 +842,7 @@ private:
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = CopyableArray!(T);
+    alias A = BasicArray!(T);
 
     A a;
 
@@ -874,7 +874,7 @@ private:
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = CopyableArray!(T);
+    alias A = BasicArray!(T);
 
     A a;                        // default construction allowed
     assert(a.empty);
@@ -882,7 +882,7 @@ private:
     assert(a.capacity == 0);
     assert(a[] == []);
 
-    auto b = CopyableArray!int.withLength(3);
+    auto b = BasicArray!int.withLength(3);
     assert(!b.empty);
     assert(b.length == 3);
     assert(b.capacity == 3);
@@ -894,7 +894,7 @@ private:
     b[] = [4, 5, 6].s;
     assert(b[] == [4, 5, 6].s);
 
-    const c = CopyableArray!int.withCapacity(3);
+    const c = BasicArray!int.withCapacity(3);
     assert(c.empty);
     assert(c.capacity == 3);
     assert(c[] == []);
@@ -907,7 +907,7 @@ private:
     }
     auto d = f();
 
-    const e = CopyableArray!int([1, 2, 3, 4].s);
+    const e = BasicArray!int([1, 2, 3, 4].s);
     assert(e.length == 4);
     assert(e[] == [1, 2, 3, 4].s);
 }
@@ -915,7 +915,7 @@ private:
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = CopyableArray!(T);
+    alias A = BasicArray!(T);
 
     auto a = A([1, 2, 3].s);
     A b = a.dup;                // copy construction enabled
@@ -942,7 +942,7 @@ private:
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = CopyableArray!T;
+    alias A = BasicArray!T;
 
     scope T[] leakSlice() @safe return
     {
@@ -975,7 +975,7 @@ version(unittest)
 /// construct and insert from non-copyable element type passed by value
 @safe pure nothrow /*@nogc*/ unittest
 {
-    alias A = CopyableArray!(US);
+    alias A = BasicArray!(US);
 
     A a = A(US(17));
     assert(a[] == [US(17)]);
@@ -993,14 +993,14 @@ version(unittest)
 /// construct from slice of uncopyable type
 @safe pure nothrow @nogc unittest
 {
-    alias A = CopyableArray!(US);
+    alias A = BasicArray!(US);
     // TODO can we safely support this?: A a = [US(17)];
 }
 
 // construct from array with uncopyable elements
 @safe pure nothrow @nogc unittest
 {
-    alias A = CopyableArray!(US);
+    alias A = BasicArray!(US);
 
     A a;
     assert(a.empty);
@@ -1013,7 +1013,7 @@ version(unittest)
 @safe pure nothrow @nogc unittest
 {
     alias T = US;
-    alias A = CopyableArray!T;
+    alias A = BasicArray!T;
 
     A a;
     assert(a.empty);
@@ -1032,7 +1032,7 @@ version(unittest)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = CopyableArray!T;
+    alias A = BasicArray!T;
 
     A a;
     assert(a.empty);
@@ -1051,7 +1051,7 @@ version(unittest)
 @safe pure nothrow @nogc unittest
 {
     alias T = string;
-    alias A = CopyableArray!(T);
+    alias A = BasicArray!(T);
 
     A a;
     a ~= `alpha`;
@@ -1072,9 +1072,9 @@ version(unittest)
 unittest
 {
     alias T = int;
-    alias A = CopyableArray!(T);
+    alias A = BasicArray!(T);
 
-    CopyableArray!char sink;
+    BasicArray!char sink;
     // TODO make this work: A([1, 2, 3]).toString(sink.put);
 }
 
@@ -1082,7 +1082,7 @@ unittest
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = CopyableArray!(T);
+    alias A = BasicArray!(T);
 
     auto a = A([1, 2, 3].s);
 
@@ -1096,7 +1096,7 @@ unittest
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = CopyableArray!(T);
+    alias A = BasicArray!(T);
 
     auto a = A([1, 2, 3].s);
     assert(a == [1, 2, 3].s);
@@ -1173,9 +1173,9 @@ unittest
      * always done. */
     size_t extraDtor = 1;
 
-    alias A = CopyableArray!(S);
+    alias A = BasicArray!(S);
     static assert(!mustAddGCRange!A);
-    alias AA = CopyableArray!(A);
+    alias AA = BasicArray!(A);
     static assert(!mustAddGCRange!AA);
 
     assert(mallocCount == 0);
@@ -1199,7 +1199,7 @@ unittest
 {
     import std.format : formattedWrite;
     const x = "42";
-    alias A = CopyableArray!(char);
+    alias A = BasicArray!(char);
     A a;
     a.formattedWrite!("x : %s")(x);
     assert(a == "x : 42");
@@ -1209,7 +1209,7 @@ unittest
 @trusted pure nothrow @nogc unittest
 {
     const x = "42";
-    alias A = CopyableArray!(char);
+    alias A = BasicArray!(char);
 
     auto ae = ['a', 'b'].s;
 
@@ -1223,7 +1223,7 @@ unittest
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = CopyableArray!(T, null, uint);
+    alias A = BasicArray!(T, null, uint);
     const a = A(17);
     assert(a[] == [17].s);
 }
@@ -1232,7 +1232,7 @@ unittest
 @safe pure nothrow unittest
 {
     alias T = int;
-    alias A = CopyableArray!(T);
+    alias A = BasicArray!(T);
     const a = A([17]);
     assert(a[] == [17].s);
 }
@@ -1241,7 +1241,7 @@ unittest
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = CopyableArray!(T);
+    alias A = BasicArray!(T);
 
     static assert(!__traits(compiles, { A b = a; })); // copying disabled
 
@@ -1256,7 +1256,7 @@ unittest
 {
     import std.algorithm : map;
     alias T = int;
-    alias A = CopyableArray!(T);
+    alias A = BasicArray!(T);
     auto a = A([10, 20, 30].s[].map!(_ => _^^2));
     assert(a[] == [100, 400, 900].s);
 }

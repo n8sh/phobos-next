@@ -1193,6 +1193,19 @@ unittest
     assert(a == "x : 42");
 }
 
+/// test emplaceWithMovedElements
+@trusted pure nothrow @nogc unittest
+{
+    const x = "42";
+    alias A = CopyableArray!(char);
+    A a = void;
+    auto ae = ['a', 'b'].s;
+    A.emplaceWithMovedElements(&a, ae[]);
+    assert(a.length == ae.length);
+    assert(a.capacity == ae.length);
+    assert(a[] == ae);
+}
+
 /// TODO Move to Phobos.
 private enum bool isRefIterable(T) = is(typeof({ foreach (ref elem; T.init) {} }));
 

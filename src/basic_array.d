@@ -1263,10 +1263,13 @@ unittest
 {
     alias T = int;
     alias A = BasicArray!(T);
+
     import std.typecons : RefCounted;
     RefCounted!A x;
+
     auto z = [1, 2, 3].s;
     x ~= z[];
+
     auto y = x;
     assert(y == z);
 }

@@ -83,9 +83,9 @@ struct CopyableArray(T,
         return that;
     }
 
-    /** Emplace into `thatPtr`. */
+    /** Emplace `thatPtr` with elements moved from `elements`. */
     static ref typeof(this) emplaceWithMovedElements(typeof(this)* thatPtr,
-                                                     T[] elements...) @trusted
+                                                     T[] elements) @trusted
     {
         // TODO use Store constructor:
         immutable length = elements.length;

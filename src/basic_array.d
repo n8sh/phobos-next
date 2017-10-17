@@ -63,10 +63,10 @@ struct BasicArray(T,
     }
 
     /** Construct using
-        - initial capacity `capacity`,
-        - initial length `Length`,
-        - and zeroing-flag `zero`.
-    */
+     * - initial capacity `capacity`,
+     * - initial length `Length`,
+     * - and zeroing-flag `zero`.
+     */
     private static typeof(this) withCapacityLengthZero(size_t capacity,
                                                        size_t length,
                                                        bool zero) @trusted

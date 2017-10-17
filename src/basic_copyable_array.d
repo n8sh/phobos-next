@@ -67,20 +67,15 @@ struct CopyableArray(T,
         - initial length `initialLength`
         - and zeroing-flag `zero`.
     */
-    private static typeof(this) withCapacityLengthZero(size_t initialCapacity,
-                                                       size_t initialLength,
+    private static typeof(this) withCapacityLengthZero(size_t capacity,
+                                                       size_t length,
                                                        bool zero) @trusted
     {
-        assert(initialCapacity >= initialLength);
-        assert(initialCapacity <= CapacityType.max);
-
-        // TODO use Store constructor:
-        typeof(this) that;
-        that._ptr = typeof(this).allocate(initialCapacity, zero);
-        that._capacity = cast(CapacityType)initialCapacity;
-        that._length = cast(CapacityType)initialLength;
-
-        return that;
+        assert(capacity >= length);
+        assert(capacity <= CapacityType.max);
+        return typeof(return)(Store(typeof(this).allocate(capacity, zero),
+                                    cast(CapacityType)capacity,
+                                    cast(CapacityType)length));
     }
 
     /** Emplace `thatPtr` with elements moved from `elements`. */
@@ -89,9 +84,9 @@ struct CopyableArray(T,
     {
         // TODO use Store constructor:
         immutable length = elements.length;
-        thatPtr._ptr = typeof(this).allocate(length, false);
-        thatPtr._capacity = cast(CapacityType)length;
-        thatPtr._length = cast(CapacityType)length;
+        thatPtr._store.ptr = typeof(this).allocate(length, false);
+        thatPtr._store.capacity = cast(CapacityType)length;
+        thatPtr._store.length = cast(CapacityType)length;
         foreach (immutable i, ref e; elements[])
         {
             moveEmplace(e, thatPtr._mptr[i]);
@@ -99,13 +94,19 @@ struct CopyableArray(T,
         return *thatPtr;
     }
 
+    pragma(inline, true)
+    private this(Store store)
+    {
+        _store = store;
+    }
+
     /// Construct from uncopyable element `value`.
     this()(T value) @trusted
         if (!isCopyable!T)
     {
-        _ptr = typeof(this).allocate(1, false);
-        _capacity = 1;
-        _length = 1;
+        _store.ptr = typeof(this).allocate(1, false);
+        _store.capacity = 1;
+        _store.length = 1;
         moveEmplace(value, _mptr[0]); // TODO remove `moveEmplace` when compiler does it for us
     }
 
@@ -114,10 +115,23 @@ struct CopyableArray(T,
         if (isCopyable!U &&
             isElementAssignable!U)
     {
-        _ptr = typeof(this).allocate(1, false);
-        _capacity = 1;
-        _length = 1;
+        _store.ptr = typeof(this).allocate(1, false);
+        _store.capacity = 1;
+        _store.length = 1;
         emplace(&_mptr[0], value);
+    }
+
+    static if (isCopyable!T)
+    {
+        static typeof(this) withElements(in T[] elements)
+        {
+            const length = elements.length;
+            auto ptr = typeof(this).allocate(length, false);
+            ptr[0 .. length] = elements[];
+            return typeof(return)(Store(ptr,
+                                        cast(CapacityType)length,
+                                        cast(CapacityType)length));
+        }
     }
 
     /// Construct from element(s) `values`.
@@ -128,22 +142,24 @@ struct CopyableArray(T,
         if (values.length == 1) // TODO branch should be detected at compile-time
         {
             // twice as fast as array assignment below
-            _ptr = typeof(this).allocate(1, false);
-            _capacity = 1;
-            _length = 1;
+            _store.ptr = typeof(this).allocate(1, false);
+            _store.capacity = 1;
+            _store.length = 1;
             emplace(&_mptr[0], values[0]);
             return;
         }
         reserve(values.length);
-        _length = cast(CapacityType)values.length;
-        moveEmplaceAll(values, _mptr[0 .. _length]);
+        _store.length = cast(CapacityType)values.length;
+        import emplace_all : moveEmplaceAllNoReset;
+        moveEmplaceAllNoReset(values,
+                              _mptr[0 .. _store.length]);
     }
 
     /// Construct from `n` number of element(s) `values` (in a static array).
     this(uint n)(T[n] values...) @trusted
     {
         reserve(values.length);
-        _length = cast(CapacityType)values.length;
+        _store.length = cast(CapacityType)values.length;
         // TODO use import emplace_all instead
         import static_iota : iota;
         foreach (immutable i; iota!(0, values.length))
@@ -174,7 +190,7 @@ struct CopyableArray(T,
             import std.algorithm : copy;
             copy(values[0 .. values.length],
                  _mptr[0 .. values.length]); // TODO better to use foreach instead?
-            _length = values.length;
+            _store.length = values.length;
         }
         else
         {
@@ -193,7 +209,7 @@ struct CopyableArray(T,
                         _mptr[i++] = value;
                     }
                 }
-                _length = values.length;
+                _store.length = values.length;
             }
             else
             {
@@ -214,18 +230,17 @@ struct CopyableArray(T,
         }
     }
 
-    // optional copy construction
+    /// Returns: shallow duplicate of `this`.
     static if (isCopyable!T)
     {
-        /// Copy construction.
-        this(this) @trusted
+        pragma(inline)          // DMD cannot inline
+        @property CopyableArray!(Unqual!T, Allocator, CapacityType) dup() const @trusted
         {
-            MutableE* newPtr = typeof(this).allocate(_length, false);
-            _capacity = _length;
-            newPtr[0 .. _length] = slice();
-            _ptr = newPtr;
+            return typeof(this).withElements(this[]);
         }
     }
+
+    @disable this(this);
 
     /// Destruct.
     ~this()
@@ -249,7 +264,7 @@ struct CopyableArray(T,
         }
         static if (mustAddGCRange!T)
         {
-            gc_removeRange(_ptr);
+            gc_removeRange(_store.ptr);
         }
         free(_mptr);
     }
@@ -259,7 +274,7 @@ struct CopyableArray(T,
     {
         private void destroyElements() @trusted
         {
-            foreach (const i; 0 .. _length)
+            foreach (const i; 0 .. _store.length)
             {
                 .destroy(_mptr[i]);
             }
@@ -270,9 +285,9 @@ struct CopyableArray(T,
     pragma(inline, true)
     private void resetInternalData()
     {
-        _ptr = null;
-        _capacity = 0;
-        _length = 0;
+        _store.ptr = null;
+        _store.capacity = 0;
+        _store.length = 0;
     }
 
     /** Allocate heap regionwith `initialCapacity` number of elements of type `T`.
@@ -351,11 +366,11 @@ struct CopyableArray(T,
 
     /// Check if empty.
     pragma(inline, true)
-    bool empty() const { return _length == 0; }
+    bool empty() const { return _store.length == 0; }
 
     /// Get length.
     pragma(inline, true)
-    @property size_t length() const { return _length; }
+    @property size_t length() const { return _store.length; }
     alias opDollar = length;    /// ditto
 
     /// Set length to `newLength`.
@@ -365,7 +380,7 @@ struct CopyableArray(T,
         {
             static if (hasElaborateDestructor!T)
             {
-                foreach (const i; newLength .. _length)
+                foreach (const i; newLength .. _store.length)
                 {
                     .destroy(_mptr[i]);
                 }
@@ -377,7 +392,7 @@ struct CopyableArray(T,
             static if (hasElaborateDestructor!T)
             {
                 // TODO remove when compiles does it for us
-                foreach (const i; _length .. newLength)
+                foreach (const i; _store.length .. newLength)
                 {
                     // TODO remove when compiler does it for us:
                     static if (isCopyable!T)
@@ -393,17 +408,17 @@ struct CopyableArray(T,
             }
             else
             {
-                _mptr[_length .. newLength] = T.init;
+                _mptr[_store.length .. newLength] = T.init;
             }
         }
 
         assert(newLength <= CapacityType.max);
-        _length = cast(CapacityType)newLength;
+        _store.length = cast(CapacityType)newLength;
     }
 
     /// Get capacity.
     pragma(inline, true)
-    @property size_t capacity() const { return _capacity; }
+    @property size_t capacity() const { return _store.capacity; }
 
     /** Ensures sufficient capacity to accommodate for requestedCapacity number
         of elements. If `requestedCapacity` < `capacity`, this method does
@@ -428,7 +443,7 @@ struct CopyableArray(T,
 
         static if (mustAddGCRange!T)
         {
-            gc_addRange(_mptr, _capacity * T.sizeof);
+            gc_addRange(_mptr, _store.capacity * T.sizeof);
         }
     }
 
@@ -498,7 +513,7 @@ struct CopyableArray(T,
     scope ref inout(T) back() inout return @property
     {
         // TODO use?: enforce(!empty); emsi-containers doesn't, std.container.Array does
-        return slice()[_length - 1];
+        return slice()[_store.length - 1];
 
     }
 
@@ -506,9 +521,9 @@ struct CopyableArray(T,
      */
     void insertBackMove()(ref T value) @trusted
     {
-        reserve(_length + 1);
-        moveEmplace(value, _mptr[_length]);
-        _length += 1;
+        reserve(_store.length + 1);
+        moveEmplace(value, _mptr[_store.length]);
+        _store.length += 1;
     }
 
     /** Insert `value` into the end of the array.
@@ -518,16 +533,16 @@ struct CopyableArray(T,
      */
     void insertBack1(T value) @trusted
     {
-        reserve(_length + 1);
+        reserve(_store.length + 1);
         static if (needsMove!T)
         {
             insertBackMove(*cast(MutableE*)(&value));
         }
         else
         {
-            _mptr[_length] = value;
+            _mptr[_store.length] = value;
         }
-        _length += 1;
+        _store.length += 1;
     }
 
     /** Insert unmoveable `value` into the end of the array.
@@ -556,18 +571,18 @@ struct CopyableArray(T,
                mutable array container data, which entails no need to check for
                overlap.
             */
-            reserve(_length + values.length);
-            _mptr[_length .. _length + values.length] = values;
+            reserve(_store.length + values.length);
+            _mptr[_store.length .. _store.length + values.length] = values;
         }
         else
         {
             import overlapping : overlaps;
-            if (_ptr == values.ptr) // called for instances as: `this ~= this`
+            if (_store.ptr == values.ptr) // called for instances as: `this ~= this`
             {
-                reserve(2*_length); // invalidates `values.ptr`
-                foreach (immutable i; 0 .. _length)
+                reserve(2*_store.length); // invalidates `values.ptr`
+                foreach (immutable i; 0 .. _store.length)
                 {
-                    _mptr[_length + i] = _ptr[i];
+                    _mptr[_store.length + i] = _store.ptr[i];
                 }
             }
             else if (overlaps(this[], values[]))
@@ -576,11 +591,11 @@ struct CopyableArray(T,
             }
             else
             {
-                reserve(_length + values.length);
-                _mptr[_length .. _length + values.length] = values;
+                reserve(_store.length + values.length);
+                _mptr[_store.length .. _store.length + values.length] = values;
             }
         }
-        _length += values.length;
+        _store.length += values.length;
     }
 
     /** Insert the elements `values` into the end of the array.
@@ -592,10 +607,10 @@ struct CopyableArray(T,
         static if (isInputRange!R &&
                    hasLength!R)
         {
-            reserve(_length + values.length);
+            reserve(_store.length + values.length);
             import std.algorithm : copy;
-            copy(values, _mptr[_length .. _length + values.length]);
-            _length += values.length;
+            copy(values, _mptr[_store.length .. _store.length + values.length]);
+            _store.length += values.length;
         }
         else
         {
@@ -622,10 +637,10 @@ struct CopyableArray(T,
     void popBack()
     {
         assert(!empty);
-        _length -= 1;
+        _store.length -= 1;
         static if (hasElaborateDestructor!T)
         {
-            .destroy(_mptr[_length]);
+            .destroy(_mptr[_store.length]);
         }
     }
 
@@ -634,14 +649,14 @@ struct CopyableArray(T,
     T backPop() @trusted
     {
         assert(!empty);
-        _length -= 1;
+        _store.length -= 1;
         static if (needsMove!T)
         {
-            return move(_mptr[_length]); // move is indeed need here
+            return move(_mptr[_store.length]); // move is indeed need here
         }
         else
         {
-            return _mptr[_length]; // no move needed
+            return _mptr[_store.length]; // no move needed
         }
     }
 
@@ -653,7 +668,7 @@ struct CopyableArray(T,
         assert(index < this.length);
         .destroy(_mptr[index]);
         shiftToFrontAt(index);
-        _length -= 1;
+        _store.length -= 1;
     }
 
     /** Move element at `index` to return. */
@@ -664,7 +679,7 @@ struct CopyableArray(T,
         assert(index < this.length);
         auto value = move(_mptr[index]);
         shiftToFrontAt(index);
-        _length -= 1;
+        _store.length -= 1;
         return move(value); // TODO remove `move` when compiler does it for us
     }
 
@@ -747,53 +762,60 @@ struct CopyableArray(T,
     pragma(inline, true)
     scope private inout(T)[] slice() inout return @trusted
     {
-        return _ptr[0 .. _length];
+        return _store.ptr[0 .. _store.length];
     }
 
     /// Unsafe access to pointer.
     pragma(inline, true)
     scope inout(T)* ptr() inout return @system
     {
-        return _ptr;
+        return _store.ptr;
     }
 
     /// Helper mutable slice.
     pragma(inline, true)
     scope private MutableE[] mslice() return @trusted
     {
-        return _mptr[0 .. _length];
+        return _mptr[0 .. _store.length];
     }
 
     /// Reallocate storage.
     private void reallocateAndSetCapacity(size_t newCapacity) @trusted
     {
         assert(newCapacity <= CapacityType.max);
-        _capacity = cast(CapacityType)newCapacity;
+        _store.capacity = cast(CapacityType)newCapacity;
 
-        _ptr = cast(T*)realloc(_mptr, T.sizeof * _capacity);
-        assert(_ptr, "Reallocation failed");
+        _store.ptr = cast(T*)realloc(_mptr, T.sizeof * _store.capacity);
+        assert(_store.ptr, "Reallocation failed");
     }
 
     /// Mutable pointer.
     pragma(inline, true)
     scope private MutableE* _mptr() const return @trusted
     {
-        return cast(typeof(return))_ptr;
+        return cast(typeof(return))_store.ptr;
     }
 
 private:
-    // defined here https://dlang.org/phobos/std_experimental_allocator_gc_allocator.html#.GCAllocator
-    // import std.experimental.allocator.gc_allocator : GCAllocator;
-    static if (is(Allocator == std.experimental.allocator.gc_allocator.GCAllocator))
+    /** For more convenient construction. */
+    struct Store
     {
-        T* _ptr;                // GC-allocated store pointer
+        // defined here https://dlang.org/phobos/std_experimental_allocator_gc_allocator.html#.GCAllocator
+        // import std.experimental.allocator.gc_allocator : GCAllocator;
+        static if (is(Allocator == std.experimental.allocator.gc_allocator.GCAllocator))
+        {
+            T* ptr;             // GC-allocated store pointer
+        }
+        else
+        {
+            @NoGc T* ptr;       // non-GC-allocated store pointer
+        }
+
+        CapacityType capacity; // store capacity
+        CapacityType length;   // store length
     }
-    else
-    {
-        @NoGc T* _ptr;          // non-GC-allocated store pointer
-    }
-    CapacityType _capacity; // store capacity
-    CapacityType _length;   // store length
+
+    Store _store;
 }
 
 /// construct and append from slices
@@ -896,7 +918,7 @@ private:
     alias A = CopyableArray!(T);
 
     auto a = A([1, 2, 3].s);
-    A b = a;                    // copy construction enabled
+    A b = a.dup;                // copy construction enabled
 
     assert(a[] == b[]);          // same content
     assert(a[].ptr !is b[].ptr); // but not the same
@@ -931,7 +953,7 @@ private:
     scope T* leakPointer() @safe return
     {
         A a;
-        return a._ptr;          // TODO shouldn't compile with -dip1000
+        return a._store.ptr;          // TODO shouldn't compile with -dip1000
     }
 
     auto lp = leakPointer();    // TODO shouldn't compile with -dip1000
@@ -1141,16 +1163,6 @@ unittest
             // dln("free: _ptr=", _ptr);
         }
 
-        // bool opEquals(in typeof(this) rhs) const @trusted
-        // {
-        //     if (_ptr == rhs._ptr)
-        //     {
-        //         return true;
-        //     }
-        //     return (_ptr && rhs._ptr &&
-        //             *_ptr == *rhs._ptr);
-        // }
-
         @NoGc int* _ptr;
     }
 
@@ -1198,12 +1210,55 @@ unittest
 {
     const x = "42";
     alias A = CopyableArray!(char);
-    A a = void;
+
     auto ae = ['a', 'b'].s;
+
+    A a = void;
     A.emplaceWithMovedElements(&a, ae[]);
+
     assert(a.length == ae.length);
     assert(a.capacity == ae.length);
     assert(a[] == ae);
+}
+@safe pure nothrow @nogc unittest
+{
+    alias T = int;
+    alias A = CopyableArray!(T, null, uint);
+    const a = A(17);
+    assert(a[] == [17].s);
+}
+
+/// construct from slice of copyable type
+@safe pure nothrow unittest
+{
+    alias T = int;
+    alias A = CopyableArray!(T);
+    const a = A([17]);
+    assert(a[] == [17].s);
+}
+
+/// check duplication
+@safe pure nothrow @nogc unittest
+{
+    alias T = int;
+    alias A = CopyableArray!(T);
+
+    static assert(!__traits(compiles, { A b = a; })); // copying disabled
+
+    auto a = A([10, 11, 12].s);
+    auto b = a.dup;
+    assert(a == b);
+    assert(a[].ptr !is b[].ptr);
+}
+
+/// construct from map range
+@safe pure nothrow unittest
+{
+    import std.algorithm : map;
+    alias T = int;
+    alias A = CopyableArray!(T);
+    auto a = A([10, 20, 30].s[].map!(_ => _^^2));
+    assert(a[] == [100, 400, 900].s);
 }
 
 /// TODO Move to Phobos.
@@ -1212,5 +1267,6 @@ private enum bool isRefIterable(T) = is(typeof({ foreach (ref elem; T.init) {} }
 version(unittest)
 {
     import array_help : s;
-    // import dbgio;
 }
+
+import dbgio;

@@ -1035,7 +1035,7 @@ alias HashMap(K, V,
     import std.algorithm.comparison : equal;
     import digestx.fnv : FNV;
 
-    immutable n = 11_111;
+    immutable n = 600;
 
     alias K = uint;
 

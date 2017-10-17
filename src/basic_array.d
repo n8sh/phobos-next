@@ -82,7 +82,6 @@ struct BasicArray(T,
     static ref typeof(this) emplaceWithMovedElements(typeof(this)* thatPtr,
                                                      T[] elements) @system
     {
-        // TODO use Store constructor:
         immutable length = elements.length;
         thatPtr._store.ptr = typeof(this).allocate(length, false);
         thatPtr._store.capacity = cast(CapacityType)length;
@@ -125,7 +124,7 @@ struct BasicArray(T,
     {
         static typeof(this) withElements(in T[] elements)
         {
-            const length = elements.length;
+            immutable length = elements.length;
             auto ptr = typeof(this).allocate(length, false);
             ptr[0 .. length] = elements[];
             return typeof(return)(Store(ptr,

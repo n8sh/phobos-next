@@ -138,7 +138,15 @@ struct BasicArray(T,
                                         cast(CapacityType)length,
                                         cast(CapacityType)length));
         }
+
+        /// Returns: shallow duplicate of `this`.
+        pragma(inline)          // DMD cannot inline
+        @property BasicArray!(Unqual!T, Allocator, CapacityType) dup() const @trusted
+        {
+            return typeof(this).withElements(this[]);
+        }
     }
+
 
     /// Construct from element(s) `values`.
     this(U)(U[] values...) @trusted
@@ -235,17 +243,6 @@ struct BasicArray(T,
             }
         }
     }
-
-    /// Returns: shallow duplicate of `this`.
-    static if (isCopyable!T)
-    {
-        pragma(inline)          // DMD cannot inline
-        @property BasicArray!(Unqual!T, Allocator, CapacityType) dup() const @trusted
-        {
-            return typeof(this).withElements(this[]);
-        }
-    }
-
     /// No default copying.
     @disable this(this);
 

@@ -92,11 +92,13 @@ private alias StaticArrayElementType(A : E[n], E, size_t n) = E;
     assert(z == [11, 22, 33, 44, 55]);
 }
 
+import std.traits : hasElaborateDestructor;
 import std.meta : Unqual;
 
 /** Overload with faster compilation.
  */
 Unqual!T[n + 1] concatenate(T, size_t n)(auto ref T[n] a, T b)
+    if (!hasElaborateDestructor!T)
 {
     typeof(return) c = void;
     c[0 .. n] = a;

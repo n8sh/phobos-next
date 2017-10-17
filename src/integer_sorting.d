@@ -271,7 +271,7 @@ version(benchmark)
     {
         writef("%8-s, %10-s, ", E.stringof, n);
 
-        import basic_uncopyable_array : Array = UncopyableArray;
+        import basic_array : Array = BasicArray;
 
         import std.traits : isIntegral, isSigned, isUnsigned;
         import random_ex : randInPlace, randInPlaceWithElementRange;
@@ -397,7 +397,7 @@ version(benchmark)
                               long, ulong,
                               float, double))
     {
-        import basic_uncopyable_array : Array = UncopyableArray;
+        import basic_array : Array = BasicArray;
         import std.algorithm.sorting : sort, isSorted;
         import std.algorithm.mutation : swap;
         import random_ex : randInPlace;

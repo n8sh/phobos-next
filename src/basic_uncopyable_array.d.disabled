@@ -1,10 +1,10 @@
-module basic_uncopyable_array;
+module basic_array;
 
 import std.traits : Unqual;
 
 /** Non-copyable variant of `BasicArray`.
  */
-struct UncopyableArray(T,
+struct BasicArray(T,
                        alias Allocator = null, // null means means to qcmeman functions
                        CapacityType = size_t)  // see also https://github.com/izabera/s
     if (!is(Unqual!T == bool) &&             // use `BitArray` instead
@@ -69,7 +69,7 @@ struct UncopyableArray(T,
     {
         // `MutableThis` mimics behaviour of `dup` for builtin D arrays
         pragma(inline)          // DMD cannot inline
-        @property UncopyableArray!(Unqual!T, Allocator, CapacityType) dup() const @trusted
+        @property BasicArray!(Unqual!T, Allocator, CapacityType) dup() const @trusted
         {
             return typeof(return)(cast(Unqual!T[])this[]);
         }

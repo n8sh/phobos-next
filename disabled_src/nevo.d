@@ -207,7 +207,7 @@ enum CellOp : ubyte
     seqClone,                   /// sequential clone
     parClone,                   /// parallel clone
 }
-alias CellOps = Owned!(UncopyableArray!CellOp);
+alias CellOps = Owned!(BasicArray!CellOp);
 
 /**m Network (Transformation) Operation Type Code.
  *
@@ -280,7 +280,7 @@ import std.bitmanip : BitArray;
 import std.random : Random, uniform;
 
 import basic_array : BasicArray;
-import basic_uncopyable_array : UncopyableArray;
+import basic_array : BasicArray;
 
 import typecons_ex : IndexedBy;
 import owned : Owned;
@@ -288,7 +288,7 @@ import owned : Owned;
 import vary : FastVariant;
 
 alias Data = FastVariant!(long, double);
-alias Datas = Owned!(UncopyableArray!Data);
+alias Datas = Owned!(BasicArray!Data);
 
 /// Scalar Operation Count.
 alias OpCount = size_t;
@@ -384,7 +384,7 @@ struct Cell
     Lop lop;                  /// operation
     CellRIxs inputCellRIxs;   /// relative indexes to (neighbouring) input cells
 }
-alias Cells = IndexedBy!(Owned!(UncopyableArray!Cell), `Ix`);
+alias Cells = IndexedBy!(Owned!(BasicArray!Cell), `Ix`);
 
 /// Network/Graph of `Cells`.
 struct Network

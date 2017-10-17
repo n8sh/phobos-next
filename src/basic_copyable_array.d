@@ -83,6 +83,22 @@ struct CopyableArray(T,
         return that;
     }
 
+    /** Emplace into `thatPtr`. */
+    static ref typeof(this) emplaceWithMovedElements(typeof(this)* thatPtr,
+                                                     T[] elements...)
+    {
+        // TODO use emplace with Store constructor
+        immutable length = elements.length;
+        thatPtr._ptr = typeof(this).allocate(length, false);
+        thatPtr._capacity = cast(CapacityType)length;
+        thatPtr._length = cast(CapacityType)length;
+        foreach (immutable i, ref e; elements[])
+        {
+            moveEmplace(e, thatPtr._mptr[i]);
+        }
+        return *thatPtr;
+    }
+
     /// Construct from uncopyable element `value`.
     this()(T value) @trusted
         if (!isCopyable!T)

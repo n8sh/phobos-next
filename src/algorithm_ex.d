@@ -1074,7 +1074,7 @@ enum isIntLike(T) = is(typeof({T t = 0; t = t+t;})); // More if needed
 auto fibonacci(T = int)(T nth = 0)
     if (isIntLike!T)
 {
-    struct Fibonacci
+    static struct Result
     {
         T a, b;
         T front() { return b; }
@@ -1086,7 +1086,7 @@ auto fibonacci(T = int)(T nth = 0)
         }
         bool empty() const { return false; }
     }
-    return nth == 0 ? Fibonacci(0, 1) : Fibonacci(1, 1);
+    return nth == 0 ? Result(0, 1) : Result(1, 1);
 }
 
 ///
@@ -2508,4 +2508,38 @@ nothrow pure @nogc unittest
 version(unittest)
 {
     import array_help : s;
+}
+
+/** Split on binary predicate `pred` for adjacent elements.
+ *
+ * See also: http://forum.dlang.org/post/ojxshbrfiyyjbopdmewa@forum.dlang.org
+ */
+auto splitterAdjacent(alias pred, R)(R input)
+    if (isInputRange!R)
+{
+    static struct Result
+    {
+        @property T front()
+        {
+            return b;
+        }
+
+        void popFront()
+        {
+            T c = a+b;
+            a = b;
+            b = c;
+        }
+
+        @property bool empty() const
+        {
+            return false;
+        }
+    }
+    return Result(input);
+}
+
+///
+unittest
+{
 }

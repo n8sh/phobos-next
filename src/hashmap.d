@@ -1045,7 +1045,8 @@ alias HashMap(K, V,
         alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
 
         import container_traits : mustAddGCRange;
-        static if (X.hasValue)
+        static if (X.hasValue &&
+                   is(V == string))
         {
             static assert(mustAddGCRange!V);
             static assert(mustAddGCRange!V[1]);

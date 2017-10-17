@@ -1,4 +1,4 @@
-module basic_copyable_array;
+module basic_array;
 
 import std.traits : Unqual;
 import container_traits : NoGc, mustAddGCRange, needsMove;

@@ -225,12 +225,13 @@ struct HashMapOrSet(K, V = void,
                 }
                 else
                 {
+                    auto elements = smallBinElementsAt(binIx);
                     /** TODO functionize to `emplaceAll` in emplace_all.d. See also:
                      * http://forum.dlang.org/post/xxigbqqflzwfgycrclyq@forum.dlang.org
                      */
                     static if (hasElaborateCopyConstructor!T)
                     {
-                        foreach (immutable elementIx, immutable ref element; smallBinElementsAt(binIx))
+                        foreach (immutable elementIx, immutable ref element; elements)
                         {
                             emplace(&that._bins[binIx].small[elementIx],
                                     element);
@@ -243,14 +244,13 @@ struct HashMapOrSet(K, V = void,
                         {
                             // currently faster than slice assignment on else branch
                             import core.stdc.string : memcpy;
-                            auto elements = smallBinElementsAt(binIx);
                             memcpy(that._bins[binIx].small.ptr, // cannot overlap
                                    elements.ptr,
                                    elements.length * T.sizeof);
                         }
                         else
                         {
-                            that._bins[binIx].small.ptr[0 .. _bstates[binIx].smallCount] = smallBinElementsAt(binIx);
+                            that._bins[binIx].small.ptr[0 .. _bstates[binIx].smallCount] = elements;
                         }
                     }
                 }

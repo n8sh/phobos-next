@@ -470,15 +470,12 @@ struct HashMapOrSet(K, V = void,
                         moveEmplace(element,
                                     smallCopy[smallBinCapacity]);
 
-                        // create large
-
-                        // TODO replace with one call to emplace by adding
-                        // constructor that takes both capacity and length as
-                        // arguments
-                        emplace!(LargeBin)(&_bins[binIx].large);
-                        _bins[binIx].large.length = smallCopy.length;
-                        moveEmplaceAllNoReset(smallCopy[],
-                                              _bins[binIx].large[0 .. smallCopy.length]);
+                        // emplace into large
+                        // LargeBin.emplace(&_bins[binIx].large),
+                        // _bins[binIx].large.length = smallCopy.length;
+                        // moveEmplaceAllNoReset(smallCopy[], _bins[binIx].large[]);
+                        LargeBin.emplaceWithMovedElements(&_bins[binIx].large,
+                                                          smallCopy[]);
                     }
                     else
                     {
@@ -895,7 +892,7 @@ struct HashMapOrSet(K, V = void,
                                    LargeBin.sizeof / T.sizeof);
 
 private:
-    import basic_uncopyable_array : Array = UncopyableArray;
+    import basic_array : Array = BasicArray;
 
     /** 32-bit capacity and length for LargeBinLnegth on 64-bit platforms
      * saves one word and makes insert() and contains() significantly faster */
@@ -1117,7 +1114,7 @@ alias HashMap(K, V,
 
         static if (X.hasValue)
         {
-            import basic_uncopyable_array : Array = UncopyableArray;
+            import basic_array : Array = BasicArray;
             Array!(X.ElementType) a1;
 
             foreach (immutable ref key; x1.byKey)
@@ -1152,6 +1149,7 @@ alias HashMap(K, V,
 
         foreach (immutable key; 0 .. n)
         {
+            dln(key);
             static if (X.hasValue)
             {
                 const element = X.ElementType(key, V.init);
@@ -1226,6 +1224,7 @@ alias HashMap(K, V,
 }
 
 /// range checking
+version(none)
 pure unittest
 {
     import digestx.fnv : FNV;
@@ -1267,3 +1266,5 @@ pure unittest
 }
 
 version = show;
+
+import dbgio;

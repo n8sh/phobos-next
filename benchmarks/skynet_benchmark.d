@@ -39,5 +39,5 @@ unittest {
     a.call();
     sw.stop();
     assert(a._value == 499999500000);
-    writeln(a._value, " after ", sw.peek);
+    writeln(a._value, " after ", sw.peek.msecs, " msecs");
 }

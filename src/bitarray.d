@@ -102,7 +102,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
 
     /** Get number of bits set. */
     pragma(inline, false)
-    size_t countOnes() const    // TODO make free function
+    size_t countOnes()() const  // template-lazy
     {
         typeof(return) n = 0;
         foreach (const block; _blocks)

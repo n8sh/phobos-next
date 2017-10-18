@@ -46,14 +46,14 @@ struct BasicArray(T,
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
     pragma(inline, true)
-    static typeof(this) withLength()(size_t initialLength)
+    static typeof(this) withLength()(size_t initialLength) // template-lazy
     {
         return withCapacityLengthZero(initialLength, initialLength, true);
     }
 
     /// Returns: an array with initial capacity `initialCapacity`.
     pragma(inline, true)
-    static typeof(this) withCapacity()(size_t initialCapacity)
+    static typeof(this) withCapacity()(size_t initialCapacity) // template-lazy
     {
         return withCapacityLengthZero(initialCapacity, 0, false);
     }
@@ -64,7 +64,7 @@ struct BasicArray(T,
      * - and zeroing-flag `zero`.
      */
     pragma(inline)              // DMD cannot inline
-    private static typeof(this) withCapacityLengthZero()(size_t capacity,
+    private static typeof(this) withCapacityLengthZero()(size_t capacity, // template-lazy
                                                          size_t length,
                                                          bool zero) @trusted
     {
@@ -76,7 +76,7 @@ struct BasicArray(T,
     }
 
     /** Emplace `thatPtr` with elements moved from `elements`. */
-    static ref typeof(this) emplaceWithMovedElements()(typeof(this)* thatPtr,
+    static ref typeof(this) emplaceWithMovedElements()(typeof(this)* thatPtr, // template-lazy
                                                        T[] elements) @system
     {
         immutable length = elements.length;
@@ -97,7 +97,7 @@ struct BasicArray(T,
     }
 
     /// Construct from uncopyable element `value`.
-    this()(T value) @trusted
+    this()(T value) @trusted    // template-lazy
         if (!isCopyable!T)
     {
         _store.ptr = typeof(this).allocate(1, false);
@@ -120,7 +120,7 @@ struct BasicArray(T,
     static if (isCopyable!T &&
                !is(T == union)) // forbid copying of unions such as `HybridBin` in hashmap.d
     {
-        static typeof(this) withElements()(in T[] elements)
+        static typeof(this) withElements()(in T[] elements) // template-lazy
         {
             immutable length = elements.length;
             auto ptr = typeof(this).allocate(length, false);
@@ -250,7 +250,7 @@ struct BasicArray(T,
     }
 
     /// Empty.
-    void clear()
+    void clear()()              // template-lazy
     {
         release();
         resetInternalData();
@@ -311,13 +311,13 @@ struct BasicArray(T,
 
     /** Comparison for equality. */
     pragma(inline, true)
-    bool opEquals()(in typeof(this) rhs) const
+    bool opEquals()(in typeof(this) rhs) const // template-lazy
     {
         return slice() == rhs.slice();
     }
     /// ditto
     pragma(inline, true)
-    bool opEquals()(in ref typeof(this) rhs) const
+    bool opEquals()(in ref typeof(this) rhs) const // template-lazy
     {
         return slice() == rhs.slice();
     }
@@ -330,7 +330,7 @@ struct BasicArray(T,
     }
 
     /// Calculate D associative array (AA) key hash.
-    size_t toHash()() const @trusted
+    size_t toHash()() const @trusted // template-lazy
     {
         import core.internal.hash : hashOf;
         static if (isCopyable!T)
@@ -352,7 +352,7 @@ struct BasicArray(T,
     {
         /** Construct a string representation of `this` at `sink`.
          */
-        void toString()(scope void delegate(const(char)[]) sink) const
+        void toString()(scope void delegate(const(char)[]) sink) const // template-lazy
         {
             sink("[");
             foreach (const ix, ref value; slice())
@@ -367,15 +367,15 @@ struct BasicArray(T,
 
     /// Check if empty.
     pragma(inline, true)
-    bool empty()() const { return _store.length == 0; }
+    bool empty()() const { return _store.length == 0; } // template-lazy
 
     /// Get length.
     pragma(inline, true)
-    @property size_t length()() const { return _store.length; }
+    @property size_t length()() const { return _store.length; } // template-lazy
     alias opDollar = length;    /// ditto
 
     /// Set length to `newLength`.
-    @property void length()(size_t newLength) @trusted
+    @property void length()(size_t newLength) @trusted // template-lazy
     {
         if (newLength < length)
         {
@@ -419,13 +419,13 @@ struct BasicArray(T,
 
     /// Get capacity.
     pragma(inline, true)
-    @property size_t capacity()() const { return _store.capacity; }
+    @property size_t capacity()() const { return _store.capacity; } // template-lazy
 
     /** Ensures sufficient capacity to accommodate for requestedCapacity number
         of elements. If `requestedCapacity` < `capacity`, this method does
         nothing.
      */
-    void reserve()(size_t requestedCapacity) @trusted
+    void reserve()(size_t requestedCapacity) @trusted // template-lazy
     {
         assert(requestedCapacity <= CapacityType.max);
 
@@ -450,20 +450,20 @@ struct BasicArray(T,
 
     /// Index support.
     pragma(inline, true)
-    scope ref inout(T) opIndex()(size_t i) inout return
+    scope ref inout(T) opIndex()(size_t i) inout return // template-lazy
     {
         return slice()[i];
     }
 
     /// Slice support.
     pragma(inline, true)
-    scope inout(T)[] opSlice()(size_t i, size_t j) inout return
+    scope inout(T)[] opSlice()(size_t i, size_t j) inout return // template-lazy
     {
         return slice()[i .. j];
     }
     /// ditto
     pragma(inline, true)
-    scope inout(T)[] opSlice()() inout return
+    scope inout(T)[] opSlice()() inout return // template-lazy
     {
         return slice();
     }
@@ -503,7 +503,7 @@ struct BasicArray(T,
 
     /// Get reference to front element.
     pragma(inline, true)
-    scope ref inout(T) front()() inout return @property
+    scope ref inout(T) front()() inout return @property // template-lazy
     {
         // TODO use?: enforce(!empty); emsi-containers doesn't, std.container.Array does
         return slice()[0];
@@ -511,7 +511,7 @@ struct BasicArray(T,
 
     /// Get reference to back element.
     pragma(inline, true)
-    scope ref inout(T) back()() inout return @property
+    scope ref inout(T) back()() inout return @property // template-lazy
     {
         // TODO use?: enforce(!empty); emsi-containers doesn't, std.container.Array does
         return slice()[_store.length - 1];
@@ -520,7 +520,7 @@ struct BasicArray(T,
 
     /** Move `value` into the end of the array.
      */
-    void insertBackMove()(ref T value) @trusted
+    void insertBackMove()(ref T value) @trusted // template-lazy
     {
         reserve(_store.length + 1);
         moveEmplace(value, _mptr[_store.length]);
@@ -532,7 +532,7 @@ struct BasicArray(T,
         TODO rename to `insertBack` and make this steal scalar calls over
         insertBack(U)(U[] values...) overload below
      */
-    void insertBack1()(T value) @trusted
+    void insertBack1()(T value) @trusted // template-lazy
     {
         reserve(_store.length + 1);
         static if (needsMove!T)
@@ -549,7 +549,7 @@ struct BasicArray(T,
     /** Insert unmoveable `value` into the end of the array.
      */
     pragma(inline)              // DMD cannot inline
-    void insertBack()(T value) @trusted
+    void insertBack()(T value) @trusted // template-lazy
         if (!isCopyable!T)
     {
         insertBackMove(value);
@@ -635,7 +635,7 @@ struct BasicArray(T,
     /** Remove last value fromm the end of the array.
      */
     pragma(inline, true)
-    void popBack()()
+    void popBack()()            // template-lazy
     {
         assert(!empty);
         _store.length -= 1;
@@ -647,7 +647,7 @@ struct BasicArray(T,
 
     /** Pop back element and return it. */
     pragma(inline, true)
-    T backPop()() @trusted
+    T backPop()() @trusted      // template-lazy
     {
         assert(!empty);
         _store.length -= 1;
@@ -662,7 +662,7 @@ struct BasicArray(T,
     }
 
     /** Pop element at `index`. */
-    void popAt()(size_t index)
+    void popAt()(size_t index)  // template-lazy
         @trusted
         @("complexity", "O(length)")
     {
@@ -673,7 +673,7 @@ struct BasicArray(T,
     }
 
     /** Move element at `index` to return. */
-    T moveAt()(size_t index)
+    T moveAt()(size_t index)    // template-lazy
         @trusted
         @("complexity", "O(length)")
     {
@@ -686,13 +686,13 @@ struct BasicArray(T,
 
     /** Move element at front. */
     pragma(inline, true)
-    T frontPop()()
+    T frontPop()()              // template-lazy
         @("complexity", "O(length)")
     {
         return moveAt(0);
     }
 
-    private void shiftToFrontAt()(size_t index)
+    private void shiftToFrontAt()(size_t index) // template-lazy
         @trusted
     {
         // TODO use this instead:
@@ -768,13 +768,13 @@ struct BasicArray(T,
 
     /// Unsafe access to pointer.
     pragma(inline, true)
-    scope inout(T)* ptr()() inout return @system
+    scope inout(T)* ptr()() inout return @system // template-lazy
     {
         return _store.ptr;
     }
 
     /// Reallocate storage.
-    private void reallocateAndSetCapacity()(size_t newCapacity) @trusted
+    private void reallocateAndSetCapacity()(size_t newCapacity) @trusted // template-lazy
     {
         assert(newCapacity <= CapacityType.max);
         _store.capacity = cast(CapacityType)newCapacity;

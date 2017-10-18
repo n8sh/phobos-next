@@ -1211,7 +1211,7 @@ alias HashMap(K, V,
 }
 
 /// range checking
-version(none)
+// version(none)
 pure unittest
 {
     import digestx.fnv : FNV;

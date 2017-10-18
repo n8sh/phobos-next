@@ -1260,7 +1260,3 @@ pure unittest
     s.remove(K.init);
     assert(K.init !in s);
 }
-
-version = show;
-
-import dbgio;

@@ -1123,9 +1123,9 @@ alias HashMap(K, V,
         assert(x1 == x2);
         static if (X.hasValue)
         {
-            assert(equal(x1.byKey, x2.byKey));
-            assert(equal(x1.byValue, x2.byValue));
-            assert(equal(x1.byKeyValue, x2.byKeyValue));
+            assert(equal(x1.byKey(), x2.byKey()));
+            assert(equal(x1.byValue(), x2.byValue()));
+            assert(equal(x1.byKeyValue(), x2.byKeyValue()));
         }
         assert(x1.binCounts.largeCount ==
                x2.binCounts.largeCount);

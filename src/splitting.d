@@ -3,7 +3,7 @@ module splitting;
 import std.range : isForwardRange, ElementType, hasSlicing, hasLength, isNarrowString, isBidirectionalRange, isInfinite, ElementEncodingType, empty, save, front;
 import std.functional : binaryFun;
 
-auto splitter(alias pred = "a == b", Range, Separator)(Range r, Separator s)
+auto splitterAdjacent(alias pred = "a == b", Range, Separator)(Range r, Separator s)
     if (is(typeof(binaryFun!pred(r.front, s)) : bool)
         && ((hasSlicing!Range && hasLength!Range) || isNarrowString!Range))
 {
@@ -69,7 +69,7 @@ auto splitter(alias pred = "a == b", Range, Separator)(Range r, Separator s)
 
         @property Range front()
         {
-            assert(!empty, "Attempting to fetch the front of an empty splitter.");
+            assert(!empty, "Attempting to fetch the front of an empty splitterAdjacent.");
             if (_frontLength == _unComputed)
             {
                 auto r = _input.find!pred(_separator);
@@ -80,7 +80,7 @@ auto splitter(alias pred = "a == b", Range, Separator)(Range r, Separator s)
 
         void popFront()
         {
-            assert(!empty, "Attempting to popFront an empty splitter.");
+            assert(!empty, "Attempting to popFront an empty splitterAdjacent.");
             if (_frontLength == _unComputed)
             {
                 front;
@@ -115,7 +115,7 @@ auto splitter(alias pred = "a == b", Range, Separator)(Range r, Separator s)
         {
             @property Range back()
             {
-                assert(!empty, "Attempting to fetch the back of an empty splitter.");
+                assert(!empty, "Attempting to fetch the back of an empty splitterAdjacent.");
                 if (_backLength == _unComputed)
                 {
                     immutable lastIndex = lastIndexOf(_input, _separator);
@@ -133,7 +133,7 @@ auto splitter(alias pred = "a == b", Range, Separator)(Range r, Separator s)
 
             void popBack()
             {
-                assert(!empty, "Attempting to popBack an empty splitter.");
+                assert(!empty, "Attempting to popBack an empty splitterAdjacent.");
                 if (_backLength == _unComputed)
                 {
                     // evaluate back to make sure it's computed
@@ -163,25 +163,16 @@ auto splitter(alias pred = "a == b", Range, Separator)(Range r, Separator s)
 {
     import std.algorithm.comparison : equal;
 
-    assert(equal(splitter("hello  world", ' '), [ "hello", "", "world" ]));
+    assert(equal(splitterAdjacent("hello  world", ' '), [ "hello", "", "world" ]));
     int[] a = [ 1, 2, 0, 0, 3, 0, 4, 5, 0 ];
     int[][] w = [ [1, 2], [], [3], [4, 5], [] ];
-    assert(equal(splitter(a, 0), w));
+    assert(equal(splitterAdjacent(a, 0), w));
     a = [ 0 ];
-    assert(equal(splitter(a, 0), [ (int[]).init, (int[]).init ]));
+    assert(equal(splitterAdjacent(a, 0), [ (int[]).init, (int[]).init ]));
     a = [ 0, 1 ];
-    assert(equal(splitter(a, 0), [ [], [1] ]));
+    assert(equal(splitterAdjacent(a, 0), [ [], [1] ]));
     w = [ [0], [1], [2] ];
-    assert(equal(splitter!"a.front == b"(w, 1), [ [[0]], [[2]] ]));
-}
-
-@safe pure nothrow @nogc unittest
-{
-    // auto x = [1,2,3, 5, 10,11].s[].splitterAdjacent!((a, b) => a + 1 != b);
-    // pragma(msg, ElementType!(typeof(x)));
-    // assert(x.equal([[1,2,3].s,
-    //                 [5].s,
-    //                 [10,11].s].s));
+    assert(equal(splitterAdjacent!"a.front == b"(w, 1), [ [[0]], [[2]] ]));
 }
 
 version(unittest)

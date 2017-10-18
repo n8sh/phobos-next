@@ -10,6 +10,8 @@ import container_traits : NoGc, mustAddGCRange, needsMove;
 
     Use `std.bitmanip.BitArray` for array container storing boolean values.
 
+    TODO add members keys() and values()
+
     TODO Add OutputRange.writer support as
     https://github.com/burner/StringBuffer/blob/master/source/stringbuffer.d#L45
 

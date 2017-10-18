@@ -1120,16 +1120,21 @@ alias HashMap(K, V,
         // duplicate x1
 
         auto x2 = x1.dup;
+
         assert(x1 == x2);
+
         static if (X.hasValue)
         {
             assert(equal(x1.byKey(), x2.byKey()));
             assert(equal(x1.byValue(), x2.byValue()));
             assert(equal(x1.byKeyValue(), x2.byKeyValue()));
         }
+
         assert(x1.binCounts.largeCount ==
                x2.binCounts.largeCount);
+
         static assert(!__traits(compiles, { const _ = x1 < x2; })); // no ordering
+
         assert(x2.length == n);
 
         // empty x1

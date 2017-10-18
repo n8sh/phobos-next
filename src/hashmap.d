@@ -990,9 +990,9 @@ alias HashSet(K,
               alias Allocator = null,
               alias hasher = hashOf,
               uint smallBinMinCapacity = 1) = HashMapOrSet!(K, void,
-                                                               Allocator,
-                                                               hasher,
-                                                               smallBinMinCapacity);
+                                                            Allocator,
+                                                            hasher,
+                                                            smallBinMinCapacity);
 
 /** Hash map storing keys of type `K` and values of type `V`.
  */
@@ -1000,9 +1000,9 @@ alias HashMap(K, V,
               alias Allocator = null,
               alias hasher = hashOf,
               uint smallBinMinCapacity = 1) = HashMapOrSet!(K, V,
-                                                               Allocator,
-                                                               hasher,
-                                                               smallBinMinCapacity);
+                                                            Allocator,
+                                                            hasher,
+                                                            smallBinMinCapacity);
 
 @safe pure nothrow @nogc unittest
 {

@@ -1,6 +1,5 @@
 import core.thread : Fiber;
 
-
 class MyFiber : Fiber
 {
     int _depth;

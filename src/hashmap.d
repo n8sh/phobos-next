@@ -472,10 +472,6 @@ struct HashMapOrSet(K, V = void,
                         moveEmplace(element,
                                     smallCopy[smallBinCapacity]);
 
-                        // emplace into large
-                        // LargeBin.emplace(&_bins[binIx].large),
-                        // _bins[binIx].large.length = smallCopy.length;
-                        // moveEmplaceAllNoReset(smallCopy[], _bins[binIx].large[]);
                         LargeBin.emplaceWithMovedElements(&_bins[binIx].large,
                                                           smallCopy[]);
                     }

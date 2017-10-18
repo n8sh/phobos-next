@@ -8,6 +8,8 @@ size_t HashOf(alias hasher, T)(in T value)
     import std.digest.digest : isDigest;
     import std.traits : hasMember;
 
+    pragma(msg, T);
+
     static if (__traits(compiles, { size_t _ = hasher(value); }))
     {
         return hasher(value);     // for instance `hashOf`
@@ -36,9 +38,17 @@ size_t HashOf(alias hasher, T)(in T value)
         {
             dig.put((cast(ubyte*)&value)[0 .. value.sizeof]);
         }
-        else static if (isSomeString!T)
+        else static if (isArray!T) // including strings, wstring, dstring
         {
-            dig.put((cast(ubyte*)value.ptr)[0 .. value.length * value[0].sizeof]);
+            alias E = typeof(T.init[0]);
+            static if (!hasIndirections!E)
+            {
+                dig.put((cast(ubyte*)value.ptr)[0 .. value.length * value[0].sizeof]);
+            }
+            else
+            {
+                static assert(0, "handle array when element type " ~ T.stringof);
+            }
         }
         else static if (isAggregateType!T)
         {
@@ -47,11 +57,19 @@ size_t HashOf(alias hasher, T)(in T value)
                 alias ST = typeof(subValue);
                 static if (hasIndirections!ST)
                 {
-                    static if (isSomeString!ST)
+                    static if (isArray!ST)
                     {
-                        dig.put((cast(ubyte*)subValue.ptr)[0 .. subValue.length * subValue[0].sizeof]);
+                        alias STE = typeof(ST.init[0]);
+                        static if (!hasIndirections!STE)
+                        {
+                            dig.put((cast(ubyte*)subValue.ptr)[0 .. subValue.length * subValue[0].sizeof]);
+                        }
+                        else
+                        {
+                            static assert(0, "handle array when element type " ~ T.stringof);
+                        }
                     }
-                    else static if (isIntegral!ST)
+                    else
                     {
                         static assert(0, "handle type " ~ ST.stringof);
                     }
@@ -60,18 +78,6 @@ size_t HashOf(alias hasher, T)(in T value)
                 {
                     dig.put((cast(ubyte*)&value)[0 .. value.sizeof]);
                 }
-            }
-        }
-        else static if (isArray!T)
-        {
-            alias E = typeof(T.init[0]);
-            static if (!hasIndirections!E)
-            {
-                dig.put(value.ptr[0 .. value.length * value[0].sizeof]);
-            }
-            else
-            {
-                static assert(0, "handle array when element type " ~ T.stringof);
             }
         }
         else

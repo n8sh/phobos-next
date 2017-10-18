@@ -89,7 +89,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Get reference to key part of `element`.
-        static ref inout(K) keyRefOf(ref return inout(T) element)
+        static ref inout(K) keyRefOf()(ref return inout(T) element) // template-lazy
         {
             return element.key;
         }
@@ -119,7 +119,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Get reference to key part of `element`.
-        static ref inout(K) keyRefOf(ref return inout(T) element)
+        static ref inout(K) keyRefOf()(ref return inout(T) element) // template-lazy
         {
             return element;
         }
@@ -132,7 +132,7 @@ struct HashMapOrSet(K, V = void,
     /** Make with room for storing at least `capacity` number of elements.
      */
     pragma(inline)              // LDC can, DMD cannot inline
-    static typeof(this) withCapacity(size_t capacity)
+    static typeof(this) withCapacity()(size_t capacity) // template-lazy
     {
         return typeof(return)(capacity);
     }
@@ -159,7 +159,7 @@ struct HashMapOrSet(K, V = void,
     }
 
     pragma(inline)              // LDC can, DMD cannot inline
-    private static typeof(this) withBinCount(size_t binCount)
+    private static typeof(this) withBinCount()(size_t binCount) // template-lazy
     {
         typeof(return) that;    // TODO return direct call to store constructor
         that._bins = Bins.withLength(binCount);
@@ -170,7 +170,7 @@ struct HashMapOrSet(K, V = void,
 
     /** Construct with room for storing at least `capacity` number of elements.
      */
-    private this(size_t capacity)
+    private this()(size_t capacity) // template-lazy
     {
         immutable binCount = binCountOfCapacity(capacity);
         _bins = Bins.withLength(binCount);
@@ -180,7 +180,7 @@ struct HashMapOrSet(K, V = void,
 
     /** Lookup bin count from capacity `capacity`.
      */
-    static private size_t binCountOfCapacity(size_t capacity)
+    static private size_t binCountOfCapacity()(size_t capacity) // template-lazy
     {
         const minimumBinCount = ((capacityScaleNumerator *
                                   capacity) /
@@ -204,7 +204,7 @@ struct HashMapOrSet(K, V = void,
     /// Duplicate.
     static if (isCopyable!T)
     {
-        typeof(this) dup() @trusted
+        typeof(this) dup()() @trusted // template-lazy
         {
             typeof(return) that;
 
@@ -307,7 +307,7 @@ struct HashMapOrSet(K, V = void,
     }
 
     /// Empty.
-    void clear()
+    void clear()()              // template-lazy
     {
         release();
         resetInternalData();
@@ -353,7 +353,7 @@ struct HashMapOrSet(K, V = void,
     /** Check if `element` is stored.
         Returns: `true` if element was already present, `false` otherwise.
      */
-    bool contains(in K key) const @trusted // TODO make `auto ref K` work
+    bool contains()(in K key) const @trusted // template-lazy. TODO make `auto ref K` work
     {
         if (empty)              // TODO can this check be avoided?
         {
@@ -363,7 +363,7 @@ struct HashMapOrSet(K, V = void,
         return hasKey(binElementsAt(binIx), key);
     }
     /// ditto
-    bool contains(in ref K key) const @trusted
+    bool contains()(in ref K key) const @trusted // template-lazy
     {
         if (empty)              // TODO can this check be avoided?
         {
@@ -565,27 +565,6 @@ struct HashMapOrSet(K, V = void,
     {
         alias KeyValueRef = ElementRef;
 
-        /** Value reference (and in turn range iterator). */
-        static private struct ValueRef
-        {
-            HashMapOrSet* table;
-            size_t binIx;         // index to bin inside table
-            size_t elementOffset; // offset to element inside bin
-
-            pragma(inline, true):
-
-            bool opCast(T : bool)() const
-            {
-                return table !is null;
-            }
-
-            scope ref inout(V) opUnary(string s)() inout return
-                if (s == "*")
-            {
-                return table.binElementsAt(binIx)[elementOffset].value;
-            }
-        }
-
         scope inout(V)* opBinaryRight(string op)(in K key) inout @trusted return
             if (op == "in")
         {
@@ -622,7 +601,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Returns forward range that iterates through the keys of `this`.
-        scope inout(ByKey) byKey() inout @trusted return
+        scope inout(ByKey) byKey()() inout @trusted return // template-lazy
         {
             auto result = typeof(return)(inout(ElementRef)(&this));
             (cast(ByKey)result).initFirstNonEmptyBin(); // dirty cast because inout problem
@@ -642,7 +621,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Returns forward range that iterates through the values of `this`.
-        scope inout(ByValue) byValue() inout @trusted return
+        scope inout(ByValue) byValue()() inout @trusted return // template-lazy
         {
             auto result = typeof(return)(inout(ElementRef)(&this));
             (cast(ByValue)result).initFirstNonEmptyBin(); // dirty cast because inout problem
@@ -662,7 +641,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Returns forward range that iterates through the values of `this`.
-        scope inout(ByKeyValue) byKeyValue() inout @trusted return
+        scope inout(ByKeyValue) byKeyValue()() inout @trusted return // template-lazy
         {
             auto result = typeof(return)(inout(ElementRef)(&this));
             (cast(ByKeyValue)result).initFirstNonEmptyBin(); // dirty cast because inout problem
@@ -714,7 +693,7 @@ struct HashMapOrSet(K, V = void,
 	/** Supports $(B aa[key] = value;) syntax.
 	 */
         pragma(inline, true)
-        void opIndexAssign(V value, K key)
+        void opIndexAssign()(V value, K key) // template-lazy
 	{
             insert(T(move(key),
                      move(value)));
@@ -727,7 +706,7 @@ struct HashMapOrSet(K, V = void,
              * been added.
              */
             pragma(inline, true)
-            void autoinitIncAt(in K key)
+            void autoinitIncAt()(in K key) // template-lazy
             {
                 auto elementFound = key in this;
                 if (elementFound)
@@ -747,7 +726,7 @@ struct HashMapOrSet(K, V = void,
 
         Returns: `true` if element was removed, `false` otherwise.
     */
-    bool remove(in K key)
+    bool remove()(in K key)     // template-lazy
         @trusted
     {
         immutable binIx = keyToBinIx(key);
@@ -777,8 +756,8 @@ struct HashMapOrSet(K, V = void,
     }
 
     /** Remove small element at `elementIx` in bin `binIx`. */
-    private void removeSmallElementAt(size_t binIx,
-                                      size_t elementIx)
+    private void removeSmallElementAt()(size_t binIx, // template-lazy
+                                        size_t elementIx)
     {
         assert(!_bstates[binIx].isLarge);
         import container_algorithm : shiftToFrontAt;
@@ -791,7 +770,7 @@ struct HashMapOrSet(K, V = void,
     }
 
     /** Shrink large bin at `binIx` possible posbiel. */
-    private void tryShrinkLargeBinAt(size_t binIx)
+    private void tryShrinkLargeBinAt()(size_t binIx) // template-lazy
     {
         assert(_bstates[binIx].isLarge);
         immutable count = _bins[binIx].large.length;
@@ -814,7 +793,7 @@ struct HashMapOrSet(K, V = void,
      *
      * Reorganize `this` in place so that lookups are more efficient.
      */
-    ref typeof(this) rehash()() @trusted
+    ref typeof(this) rehash()() @trusted // template-lazy
     {
         static assert(false, "TODO remove template parens of this functions and implement");
         // return this;
@@ -841,7 +820,7 @@ struct HashMapOrSet(K, V = void,
 
     /// Get bin count statistics.
     pragma(inline, false)
-    BinCounts binCounts() const
+    BinCounts binCounts()() const // template-lazy
     {
         import std.algorithm : count;
         immutable largeCount = _bstates[].count!(_ => _.isLarge);

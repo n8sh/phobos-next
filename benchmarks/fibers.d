@@ -22,7 +22,7 @@ import std.stdio;
 static immutable maxFiberCount = 100;
 static immutable chunkFiberCount = 10;
 
-size_t fiberCounter = 0;
+size_t fiberCounter = 0;        // thread global (in TLS)
 
 /** Function-like fiber.
  *

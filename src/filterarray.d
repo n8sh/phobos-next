@@ -26,7 +26,7 @@ struct DenseSetFilterGrowableArray(E,
     /** Insert element `e`.
         Returns: precense status of element before insertion.
     */
-    bool insert(E e)
+    bool insert()(E e)          // template-lazy
     {
         const hit = _set.insert(e);
         if (!hit)
@@ -38,7 +38,7 @@ struct DenseSetFilterGrowableArray(E,
     alias put = insert;         // OutputRange compatibility
 
     /// Check if element `e` is stored/contained.
-    bool contains(E e) const
+    bool contains()(E e) const  // template-lazy
     {
         return _set.contains(e);
     }
@@ -50,25 +50,25 @@ struct DenseSetFilterGrowableArray(E,
     }
 
     /// Check if empty.
-    bool empty() const
+    @property bool empty() const
     {
         return _array.empty;
     }
 
     /// Get length.
-    size_t length() const
+    @property size_t length() const
     {
         return _array.length;
     }
 
     /// Non-mutable slicing.
-    auto opSlice() const
+    auto opSlice() const        // template-lazy
     {
         return _array.opSlice;
     }
 
     /// Clear contents.
-    void clear()
+    void clear()()              // template-lazy
     {
         _set.clear();
         _array.clear();

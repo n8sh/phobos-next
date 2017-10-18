@@ -45,7 +45,7 @@ size_t HashOf(alias hasher, T)(in T value)
             }
             else
             {
-                static assert(0, "handle array when element type " ~ T.stringof);
+                static assert(0, "handle array with element type " ~ T.stringof);
             }
         }
         else static if (isAggregateType!T)
@@ -64,7 +64,7 @@ size_t HashOf(alias hasher, T)(in T value)
                         }
                         else
                         {
-                            static assert(0, "handle array when element type " ~ T.stringof);
+                            static assert(0, "handle with when element type " ~ T.stringof);
                         }
                     }
                     else

@@ -13,7 +13,7 @@ module algorithm_ex;
 
 import std.algorithm : min, max;
 import std.traits : isArray, Unqual, isIntegral, CommonType, isIterable, isStaticArray, isFloatingPoint, arity, isSomeString, isSomeChar, isExpressionTuple;
-import std.range : ElementType, isInputRange, isForwardRange, isBidirectionalRange, isRandomAccessRange, isOutputRange, front;
+import std.range : ElementType, isInputRange, isForwardRange, isBidirectionalRange, isRandomAccessRange, isOutputRange, front, back;
 import traits_ex : allSameType;
 import std.functional : unaryFun, binaryFun;
 import std.algorithm.searching : find;
@@ -2444,33 +2444,52 @@ template startsWith(needles...)
 @safe pure nothrow @nogc unittest
 {
     const haystack = "abc";
-    assert(haystack.startsWith!('a') == 1);
     assert(haystack.startsWith!('b') == 0);
-    assert(haystack.startsWith!('_', 'a') == 2);
+    assert(haystack.startsWith!('a') == 1);
+    assert(haystack.startsWith!('_',
+                                'a') == 2);
 }
 
-uint endsWith(alias needle, Haystack)(Haystack haystack) @trusted // TODO variadic needles
-    if (isInputRange!Haystack &&
-        is(typeof(haystack.front == needle)))
+template endsWith(needles...)
+    if (isExpressionTuple!needles &&
+        needles.length >= 1)
 {
-    import std.traits : isArray, Unqual;
-    static if (isArray!Haystack && is(Unqual!(typeof(Haystack.init[0])) == char) && // TODO reuse existing trait
-               isASCIIConstant!needle) {
-        return (haystack.length >= 1 &&
-                haystack.ptr[haystack.length - 1] == needle) ? 1 : 0; // @trusted
-    }
-    else
+    uint endsWith(Haystack)(Haystack haystack)
+        @trusted
+        if (!is(CommonType!(typeof(Haystack.back), needles) == void))
     {
-        import std.range : back;
-        return haystack.back == needle;
+        if (haystack.length == 0) { return 0; }
+        static if (isArray!Haystack &&
+                   is(Unqual!(typeof(Haystack.init[0])) == char) && // TODO reuse existing trait
+                   allSatisfy!(isASCIIConstant, needles))
+        {
+            // no back decoding needed
+            static if (needles.length == 1)
+            {
+                return haystack.ptr[haystack.length - 1] == needles[0] ? 1 : 0;
+            }
+            else
+            {
+                import std.algorithm.comparison : among;
+                return haystack.ptr[haystack.length - 1].among!(needles);
+            }
+        }
+        else
+        {
+            import std.range : back; // need decoding
+            import std.algorithm.comparison : among;
+            return haystack.back.among!(needles);
+        }
     }
 }
 
 @safe pure nothrow @nogc unittest
 {
     const haystack = "abc";
-    assert(haystack.endsWith!('c'));
-    assert(!haystack.endsWith!('b'));
+    assert(haystack.endsWith!('b') == 0);
+    assert(haystack.endsWith!('c') == 1);
+    assert(haystack.endsWith!('_',
+                              'c') == 2);
 }
 
 @safe pure unittest

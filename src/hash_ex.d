@@ -8,8 +8,6 @@ size_t HashOf(alias hasher, T)(in T value)
     import std.digest.digest : isDigest;
     import std.traits : hasMember;
 
-    pragma(msg, T);
-
     static if (__traits(compiles, { size_t _ = hasher(value); }))
     {
         return hasher(value);     // for instance `hashOf`
@@ -182,8 +180,8 @@ size_t hashOf2(alias hasher, T)(in auto ref T value)
     struct S
     {
         string str = `abc`;
-        wstring wstr = `abc`;
-        dstring dstr = `abc`;
+        wstring wstr = `XYZ`;
+        dstring dstr = `123`;
         size_t sz = 17;
         ushort us = 18;
         ubyte ub = 255;
@@ -191,7 +189,11 @@ size_t hashOf2(alias hasher, T)(in auto ref T value)
     }
 
     S s;
-    dln(hashOf2!(FNV64)(s));
+
+    // dln(hashOf2!(FNV64)(s));
+    // dln(hashOf2!(FNV64)(s));
+    // dln(hashOf2!(FNV64)(s));
+    // dln(hashOf2!(FNV64)(s));
 }
 
 version(unittest)

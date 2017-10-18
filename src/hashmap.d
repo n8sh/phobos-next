@@ -1123,6 +1123,7 @@ alias HashMap(K, V,
 
         auto x2 = x1.dup;
 
+        // non-symmetric algorithm so both are needed
         assert(x2 == x1);
         assert(x1 == x2);
 

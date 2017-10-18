@@ -75,6 +75,7 @@ private:
     size_t _counter;
 }
 
+
 unittest
 {
     auto rootFiber = new TestFiber(0);

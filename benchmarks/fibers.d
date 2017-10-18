@@ -35,6 +35,7 @@ class TestFiber : Fiber
 {
     this(size_t counter)
     {
+        writeln("this:", counter);
         _counter = counter;
         super(&run);
     }

@@ -4,8 +4,6 @@ import container_traits;
 
 enum InsertionStatus { added, modified, unchanged }
 
-version = doInline;
-
 /** Hash set (or map) storing (key) elements of type `K` and values of type `V`.
  *
  * Uses small-size-optimized (SSO) arrays as bins, which provides more stable

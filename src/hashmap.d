@@ -560,8 +560,6 @@ struct HashMapOrSet(K, V = void,
 
     static if (hasValue)        // HashMap
     {
-        alias KeyValueRef = ElementRef;
-
         scope inout(V)* opBinaryRight(string op)(in K key) inout @trusted return
             if (op == "in")
         {

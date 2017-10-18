@@ -287,6 +287,7 @@ struct HashMapOrSet(K, V = void,
     bool opEquals()(in auto ref typeof(this) rhs) const @trusted
     {
         if (_length != rhs._length) { return false; }
+
         foreach (immutable binIx; 0 .. _bins.length)
         {
             foreach (const ref element; binElementsAt(binIx))
@@ -303,6 +304,7 @@ struct HashMapOrSet(K, V = void,
                 }
             }
         }
+
         return true;
     }
 
@@ -1121,6 +1123,7 @@ alias HashMap(K, V,
 
         auto x2 = x1.dup;
 
+        assert(x2 == x1);
         assert(x1 == x2);
 
         static if (X.hasValue)

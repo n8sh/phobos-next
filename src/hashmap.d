@@ -221,8 +221,8 @@ struct HashMapOrSet(K, V = void,
             {
                 if (_bstates[binIx].isLarge)
                 {
-                    emplace(&that._bins[binIx].large,
-                            _bins[binIx].large[]);
+                    LargeBin.emplaceWithCopiedElements(&that._bins[binIx].large,
+                                                       _bins[binIx].large[]);
                 }
                 else
                 {
@@ -1146,7 +1146,6 @@ alias HashMap(K, V,
 
         foreach (immutable key; 0 .. n)
         {
-            dln("key:", key);
             static if (X.hasValue)
             {
                 const element = X.ElementType(key, V.init);

@@ -90,6 +90,22 @@ struct BasicArray(T,
         return *thatPtr;
     }
 
+    /** Emplace `thatPtr` with elements copied from `elements`. */
+    static ref typeof(this) emplaceWithCopiedElements()(typeof(this)* thatPtr, // template-lazy
+                                                        const const(T)[] elements) @system
+        if (isCopyable!T)
+    {
+        immutable length = elements.length;
+        thatPtr._store.ptr = typeof(this).allocate(length, false);
+        thatPtr._store.capacity = cast(CapacityType)length;
+        thatPtr._store.length = cast(CapacityType)length;
+        foreach (immutable i, const ref e; elements[])
+        {
+            thatPtr._mptr[i] = e;
+        }
+        return *thatPtr;
+    }
+
     pragma(inline, true)
     private this(Store store)
     {
@@ -1209,6 +1225,22 @@ unittest
 
     A a = void;
     A.emplaceWithMovedElements(&a, ae[]);
+
+    assert(a.length == ae.length);
+    assert(a.capacity == ae.length);
+    assert(a[] == ae);
+}
+
+/// test emplaceWithCopiedElements
+@trusted pure nothrow @nogc unittest
+{
+    const x = "42";
+    alias A = BasicArray!(char);
+
+    auto ae = ['a', 'b'].s;
+
+    A a = void;
+    A.emplaceWithCopiedElements(&a, ae[]);
 
     assert(a.length == ae.length);
     assert(a.capacity == ae.length);

@@ -5,40 +5,38 @@ unittest
 
     class DerivedFiber : Fiber
     {
-        this()
+        this(size_t counter)
         {
+            this.counter = counter;
             super(&run);
         }
-
     private :
         void run()
         {
-            // printf("Derived fiber running.\n");
         }
+        size_t counter;
     }
 
-    void fiberFunc()
-    {
-        // printf("Composed fiber running.\n");
-        Fiber.yield();
-        // printf("Composed fiber running.\n");
-    }
+    // void fiberFunc(size_t counter)
+    // {
+    //     Fiber.yield();
+    // }
 
-    const n = 500_000;
-    foreach (i; 0 .. n)
+    immutable n = 100_000;
+    foreach (immutable i; 0 .. n)
     {
         // create instances of each type
-        Fiber derived = new DerivedFiber();
-        Fiber composed = new Fiber(&fiberFunc);
+        Fiber derived = new DerivedFiber(0);
+        // Fiber composed = new Fiber(&fiberFunc, i);
 
         // call both fibers once
         derived.call();
-        composed.call();
+        // composed.call();
         // printf("Execution returned to calling context.\n");
-        composed.call();
+        // composed.call();
 
         // since each fiber has run to completion, each should have state TERM
         assert(derived.state == Fiber.State.TERM);
-        assert(composed.state == Fiber.State.TERM);
+        // assert(composed.state == Fiber.State.TERM);
     }
 }

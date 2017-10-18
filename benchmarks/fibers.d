@@ -19,7 +19,7 @@ static immutable maxFiberCount = 100;
 
 /** Function-like fiber.
  *
- * Arguments must all fullfil `isFiberParameter`.
+ * Arguments must all fulfill `isFiberParameter`.
  */
 class FunFiber(Args...) : Fiber
     if (allSatisfy!(isFiberParameter, Args))

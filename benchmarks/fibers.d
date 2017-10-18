@@ -31,26 +31,6 @@ size_t fiberCounter = 0;        // thread global (in TLS)
  *
  * Arguments must all fulfill `isFiberParameter`.
  */
-class FunFiber(Args...) : Fiber
-    if (allSatisfy!(isFiberParameter, Args))
-{
-    this(Args args)             // TODO make args const?
-    {
-        _args = args;
-        super(&run);
-    }
-private:
-    void run()
-    {
-        writeln(_args);
-    }
-    Args _args;
-}
-
-/** Function-like fiber.
- *
- * Arguments must all fulfill `isFiberParameter`.
- */
 class TestFiber : Fiber
 {
     this(size_t counter)
@@ -97,4 +77,24 @@ unittest
     //     assert(derived.state == Fiber.State.TERM);
     //     // assert(composed.state == Fiber.State.TERM);
     // }
+}
+
+/** Function-like fiber.
+ *
+ * Arguments must all fulfill `isFiberParameter`.
+ */
+class FunFiber(Args...) : Fiber
+    if (allSatisfy!(isFiberParameter, Args))
+{
+    this(Args args)             // TODO make args const?
+    {
+        _args = args;
+        super(&run);
+    }
+private:
+    void run()
+    {
+        writeln(_args);
+    }
+    Args _args;
 }

@@ -1,3 +1,7 @@
+/** See also: https://dlang.org/migrate-to-shared.html#shared
+ */
+module fibers;
+
 template isFiberParameter(T)
 {
     import std.traits : hasAliasing;

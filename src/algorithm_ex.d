@@ -2441,7 +2441,7 @@ template startsWith(needles...)
     assert(haystack.startsWith!('ä'));
 }
 
-@safe pure unittest
+@safe pure nothrow @nogc unittest
 {
     const haystack = "abc";
     assert(haystack.startsWith!('a') == 1);

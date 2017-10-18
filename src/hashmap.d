@@ -507,7 +507,7 @@ struct HashMapOrSet(K, V = void,
     static private struct ElementRef
     {
         HashMapOrSet* table;
-        size_t binIx;        // index to bin inside table
+        size_t binIx;           // index to bin inside table
         size_t elementOffset;   // offset to element inside bin
 
         pragma(inline, true):

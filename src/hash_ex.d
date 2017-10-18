@@ -10,7 +10,7 @@ size_t HashOf(alias hasher, T)(in T value)
 
     static if (__traits(compiles, { size_t _ = hasher(value); }))
     {
-        return hasher(value);     // for instance `hashOf`
+        return hasher(value);   // for instance `hashOf`
     }
     else static if (__traits(compiles, { enum _ = isDigest!hasher; }) &&
                     isDigest!hasher &&

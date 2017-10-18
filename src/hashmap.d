@@ -594,7 +594,7 @@ struct HashMapOrSet(K, V = void,
         {
             pragma(inline, true):
             /// Get reference to key of front element.
-            @property scope ref inout(K) front() inout return
+            @property scope ref inout(K) front()() inout return
             {
                 return table.binElementsAt(binIx)[elementOffset].key;
             }
@@ -603,7 +603,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Returns forward range that iterates through the keys of `this`.
-        scope inout(ByKey) byKey()() inout @trusted return // template-lazy
+        @property scope inout(ByKey) byKey()() inout @trusted return // template-lazy property
         {
             auto result = typeof(return)(inout(ElementRef)(&this));
             (cast(ByKey)result).initFirstNonEmptyBin(); // dirty cast because inout problem
@@ -614,7 +614,7 @@ struct HashMapOrSet(K, V = void,
         {
             pragma(inline, true):
             /// Get reference to value of front element.
-            @property scope ref inout(V) front() inout return
+            @property scope ref inout(V) front()() inout return // template-lazy property
             {
                 return table.binElementsAt(binIx)[elementOffset].value;
             }
@@ -623,7 +623,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Returns forward range that iterates through the values of `this`.
-        scope inout(ByValue) byValue()() inout @trusted return // template-lazy
+        @property scope inout(ByValue) byValue()() inout @trusted return // template-lazy
         {
             auto result = typeof(return)(inout(ElementRef)(&this));
             (cast(ByValue)result).initFirstNonEmptyBin(); // dirty cast because inout problem
@@ -634,7 +634,7 @@ struct HashMapOrSet(K, V = void,
         {
             pragma(inline, true):
             /// Get reference to front element (key and value).
-            @property scope ref inout(T) front() inout return
+            @property scope ref inout(T) front()() inout return
             {
                 return table.binElementsAt(binIx)[elementOffset];
             }
@@ -643,7 +643,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Returns forward range that iterates through the values of `this`.
-        scope inout(ByKeyValue) byKeyValue()() inout @trusted return // template-lazy
+        @property scope inout(ByKeyValue) byKeyValue()() inout @trusted return // template-lazy
         {
             auto result = typeof(return)(inout(ElementRef)(&this));
             (cast(ByKeyValue)result).initFirstNonEmptyBin(); // dirty cast because inout problem
@@ -1129,9 +1129,9 @@ alias HashMap(K, V,
 
         static if (X.hasValue)
         {
-            assert(equal(x1.byKey(), x2.byKey()));
-            assert(equal(x1.byValue(), x2.byValue()));
-            assert(equal(x1.byKeyValue(), x2.byKeyValue()));
+            assert(equal(x1.byKey, x2.byKey));
+            assert(equal(x1.byValue, x2.byValue));
+            assert(equal(x1.byKeyValue, x2.byKeyValue));
         }
 
         assert(x1.binCounts.largeCount ==

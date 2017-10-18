@@ -10,6 +10,8 @@ import container_traits : NoGc, mustAddGCRange, needsMove;
 
     Use `std.bitmanip.BitArray` for array container storing boolean values.
 
+    TODO optimize by making members templates. 0.579s before, eval-dwim: 0.67s
+
     TODO add members keys() and values()
 
     TODO Add OutputRange.writer support as

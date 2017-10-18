@@ -371,11 +371,11 @@ struct BasicArray(T,
 
     /// Get length.
     pragma(inline, true)
-    @property size_t length()() const { return _store.length; } // template-lazy
+    @property size_t length() const { return _store.length; } // can't be template-lazy
     alias opDollar = length;    /// ditto
 
     /// Set length to `newLength`.
-    @property void length()(size_t newLength) @trusted // template-lazy
+    @property void length(size_t newLength) @trusted // can't template-lazy
     {
         if (newLength < length)
         {
@@ -419,7 +419,7 @@ struct BasicArray(T,
 
     /// Get capacity.
     pragma(inline, true)
-    @property size_t capacity()() const { return _store.capacity; } // template-lazy
+    @property size_t capacity() const { return _store.capacity; } // can't be template-lazy
 
     /** Ensures sufficient capacity to accommodate for requestedCapacity number
         of elements. If `requestedCapacity` < `capacity`, this method does

@@ -1,4 +1,7 @@
-/** See also: https://dlang.org/migrate-to-shared.html#shared
+/** Fiber abstractions.
+ *
+ * See also: http://ddili.org/ders/d.en/fibers.html
+ * See also: https://dlang.org/migrate-to-shared.html#shared
  */
 module fibers;
 

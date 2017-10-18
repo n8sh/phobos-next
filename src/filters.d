@@ -74,7 +74,7 @@ struct DenseSetFilter(E,
 
     /// Clear contents.
     pragma(inline, true)
-    void clear()
+    void clear()()
     {
         release();
         _blocksPtr = null;
@@ -99,7 +99,7 @@ struct DenseSetFilter(E,
         @disable this(this);
 
         /// Returns: shallow (and deep) duplicate of `this`.
-        typeof(this) dup() @trusted
+        typeof(this) dup()() @trusted // template-lazy
         {
             typeof(return) copy;
             static if (growable == Growable.yes)
@@ -118,7 +118,7 @@ struct DenseSetFilter(E,
     static if (growable == Growable.yes)
     {
         /// Expand to capacity to make room for at least `newLength`.
-        private void assureCapacity(size_t newLength) @trusted
+        private void assureCapacity()(size_t newLength) @trusted // template-lazy
         {
             if (_capacity < newLength)
             {
@@ -136,7 +136,7 @@ struct DenseSetFilter(E,
         Returns: precense status of element before insertion.
     */
     pragma(inline, true)
-    bool insert(in E e) @trusted
+    bool insert()(in E e) @trusted // template-lazy
     {
         const ix = cast(size_t)e;
         static if (growable == Growable.yes)
@@ -156,7 +156,7 @@ struct DenseSetFilter(E,
         Returns: precense status of element before removal.
      */
     pragma(inline, true)
-    bool remove(in E e) @trusted
+    bool remove()(in E e) @trusted // template-lazy
     {
         const ix = cast(size_t)e;
         static if (growable == Growable.yes)
@@ -175,7 +175,7 @@ struct DenseSetFilter(E,
         Returns: `true` if elements was zeroed, `false` otherwise.
      */
     pragma(inline, true)
-    bool complement(in E e) @trusted
+    bool complement()(in E e) @trusted // template-laze
     {
         const ix = cast(size_t)e;
         static if (growable == Growable.yes)
@@ -192,7 +192,7 @@ struct DenseSetFilter(E,
 
     /// Check if element `e` is stored/contained.
     pragma(inline, true)
-    bool contains(in E e) @trusted const
+    bool contains()(in E e) @trusted const // template-lazy
     {
         const ix = cast(size_t)e;
         static if (growable == Growable.yes)
@@ -549,7 +549,7 @@ struct StaticDenseSetFilter(E,
     pragma(inline, true):
 
     /// Construct a full set .
-    static typeof(this) asFull()
+    static typeof(this) asFull()() // template-lazy
     {
         typeof(return) that = void;
         that._blocks[] = Block.max;
@@ -558,7 +558,7 @@ struct StaticDenseSetFilter(E,
 
     /** Insert element `e`.
      */
-    void insert(in E e) @trusted
+    void insert()(in E e) @trusted // template-lazy
     {
         import bitop_ex : setBit;
         static if (isPackedInScalar)
@@ -574,7 +574,7 @@ struct StaticDenseSetFilter(E,
 
     /** Remove element `e`.
      */
-    void remove(in E e) @trusted
+    void remove()(in E e) @trusted // template-lazy
     {
         import bitop_ex : resetBit;
         static if (isPackedInScalar)
@@ -591,7 +591,7 @@ struct StaticDenseSetFilter(E,
 
     /** Check if element `e` is present/stored/contained.
      */
-    bool contains(in E e) @trusted const
+    bool contains()(in E e) @trusted const // template-lazy
     {
         import bitop_ex : testBit;
         static if (isPackedInScalar)

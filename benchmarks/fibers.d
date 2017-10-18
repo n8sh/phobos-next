@@ -48,20 +48,20 @@ class TestFiber : Fiber
 {
     this(size_t counter)
     {
-        writeln("here");
         _counter = counter;
         super(&run);
     }
 private:
     void run()
     {
-        writeln("running");
         while (fiberCounter + chunkFiberCount < maxFiberCount)
         {
             foreach (immutable i; 0 .. chunkFiberCount)
             {
-                fiberCounter += chunkFiberCount;
-                writeln(fiberCounter);
+                writeln("loop:", _counter);
+                auto subFiber = new TestFiber(fiberCounter);
+                subFiber.call();
+                fiberCounter += 1;
             }
         }
     }

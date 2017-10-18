@@ -261,7 +261,7 @@ struct HashMapOrSet(K, V = void,
     }
 
     /// Grow by duplicating number of bins.
-    private void grow() @trusted
+    private void grow() @trusted // not template-lazy
     {
         immutable newBinCount = binCount ? 2 * binCount : 1; // 0 => 1, 1 => 2, 2 => 4, ...
         auto copy = withBinCount(newBinCount);

@@ -110,7 +110,7 @@ size_t hashOf2(alias hasher, T)(in auto ref T value)
 @trusted pure unittest
 {
     import digestx.fnv : FNV;
-    import dbgio;
+
     const ubyte[8] x = [1, 2, 3, 4, 5, 6, 7, 8];
     assert(hashOf2!(FNV!(64, true))(x) == 9130222009665091821UL);
 }

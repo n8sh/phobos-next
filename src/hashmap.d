@@ -209,10 +209,11 @@ struct HashMapOrSet(K, V = void,
             typeof(return) that;
 
             that._bins.reserve(_bins.length);
-
             // TODO merge these
             that._bins.length = _bins.length; // TODO this zero-initializes before initialization below, use unsafe setLengthOnlyUNSAFE
+
             that._bstates = _bstates.dup;
+            assert(that._bstates[] == _bstates[]);
 
             that._length = _length;
 

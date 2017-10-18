@@ -1,32 +1,49 @@
+template isFiberParameter(T)
+{
+    import std.traits : hasAliasing;
+    enum isFiberParameter = !hasAliasing!T;
+}
+
 unittest
 {
-    import core.thread : Fiber;
-    import std.stdio;
+    static assert(isFiberParameter!int);
+    static assert(!isFiberParameter!(int*));
+    static assert(isFiberParameter!string);
+}
 
-    class DerivedFiber : Fiber
+import std.traits : allSatisfy;
+import core.thread : Fiber;
+import std.stdio;
+
+static immutable maxFiberCount = 100;
+
+/** Function-like fiber.
+ */
+class FunFiber(Args...) : Fiber
+    if (allSatisfy!(isFiberParameter, Args))
+{
+    /** Extend to wrapper that takes. */
+    this(Args args)
     {
-        this(size_t counter)
-        {
-            this.counter = counter;
-            super(&run);
-        }
-    private :
-        void run()
-        {
-        }
-        size_t counter;
+        _args = args;
+        super(&run);
     }
+private :
+    void run()
+    {
+        writeln(_args);
+    }
+    Args _args;
+}
 
-    // void fiberFunc(size_t counter)
-    // {
-    //     Fiber.yield();
-    // }
+alias TestFiber = FunFiber!size_t;
 
-    immutable n = 100_000;
-    foreach (immutable i; 0 .. n)
+unittest
+{
+    foreach (immutable i; 0 .. maxFiberCount)
     {
         // create instances of each type
-        Fiber derived = new DerivedFiber(0);
+        auto derived = new TestFiber(i);
         // Fiber composed = new Fiber(&fiberFunc, i);
 
         // call both fibers once

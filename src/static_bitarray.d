@@ -44,7 +44,7 @@ struct StaticBitArray(uint len, Block = size_t)
     private Block[blockCount] _blocks;
 
     /** Data as an array of unsigned bytes. */
-    inout(ubyte)[] ubytes() inout @trusted
+    inout(ubyte)[] ubytes()() inout @trusted
     {
         return (cast(ubyte*)&_blocks)[0 .. _blocks.sizeof];
     }
@@ -80,7 +80,7 @@ struct StaticBitArray(uint len, Block = size_t)
 
         See also: https://dlang.org/phobos/std_bitmanip.html#bitsSet
     */
-    struct Range
+    struct Range()
     {
         @safe pure @nogc:
 
@@ -113,18 +113,18 @@ struct StaticBitArray(uint len, Block = size_t)
         size_t _j = _store.length;
     }
 
-    pragma(inline, true) Range opSlice() const @trusted
+    pragma(inline, true) Range!() opSlice()() const @trusted
     {
-        return Range(this);
+        return Range!()(this);
     }
 
-    pragma(inline, true) Range opSlice(size_t i, size_t j) const @trusted
+    pragma(inline, true) Range!() opSlice()(size_t i, size_t j) const @trusted
     {
-        return Range(this, i, j);
+        return Range!()(this, i, j);
     }
 
     /** Gets the $(D i)'th bit. */
-    pragma(inline, true) bool opIndex(size_t i) const @trusted
+    pragma(inline, true) bool opIndex()(size_t i) const @trusted
     in
     {
         assert(i < len);        // TODO nothrow or not?
@@ -328,7 +328,7 @@ struct StaticBitArray(uint len, Block = size_t)
     }
 
     /** Reverse block `Block`. */
-    private pragma(inline, true) @property Block reverseBlock(in Block block)
+    private pragma(inline, true) @property Block reverseBlock()(in Block block)
     {
         static if (Block.sizeof == 4)
         {
@@ -346,7 +346,7 @@ struct StaticBitArray(uint len, Block = size_t)
     }
 
     /** Reverses the bits of the $(D StaticBitArray) in place. */
-    @property typeof(this) reverse()
+    @property typeof(this) reverse()()
     out (result)
     {
         assert(result == this);
@@ -599,7 +599,7 @@ struct StaticBitArray(uint len, Block = size_t)
     }
 
     /** Set this $(D StaticBitArray) to the contents of $(D ba). */
-    this(bool[] ba)
+    this()(bool[] ba)
     in
     {
         assert(length == ba.length);
@@ -613,7 +613,7 @@ struct StaticBitArray(uint len, Block = size_t)
     }
 
     /** Set this $(D StaticBitArray) to the contents of $(D ba). */
-    this(const ref bool[len] ba)
+    this()(const ref bool[len] ba)
     {
         foreach (immutable i, const b; ba)
         {
@@ -652,7 +652,7 @@ struct StaticBitArray(uint len, Block = size_t)
     }
 
     /** Check if this $(D StaticBitArray) has only zeros (is empty). */
-    bool allZero() const
+    bool allZero()() const
         @safe pure nothrow @nogc
     {
         foreach (const block; _blocks) // TODO array operation
@@ -663,7 +663,7 @@ struct StaticBitArray(uint len, Block = size_t)
     }
 
     /** Check if this $(D StaticBitArray) has only ones in range [ $(d low), $(d high) [. */
-    bool allOneBetween(size_t low, size_t high) const
+    bool allOneBetween()(size_t low, size_t high) const
     in
     {
         assert(low + 1 <= len && high <= len);
@@ -687,7 +687,7 @@ struct StaticBitArray(uint len, Block = size_t)
 
             See also: https://dlang.org/phobos/std_bitmanip.html#bitsSet
          */
-        struct OneIndexes
+        struct OneIndexes()
         {
             this(StaticBitArray store)
             {
@@ -749,15 +749,15 @@ struct StaticBitArray(uint len, Block = size_t)
 
         /** Returns: a lazy range of the indices of set bits.
          */
-        auto oneIndexes() const
+        auto oneIndexes()() const
         {
-            return OneIndexes(this);
+            return OneIndexes!()(this);
         }
         /// ditto
-        alias bitsSet = OneIndexes;
+        alias bitsSet = oneIndexes;
 
         /** Get number of bits set. */
-        Mod!(len + 1) countOnes() const    // TODO make free function
+        Mod!(len + 1) countOnes()() const    // TODO make free function
         {
             typeof(return) n = 0;
             foreach (const block; _blocks)
@@ -786,7 +786,7 @@ struct StaticBitArray(uint len, Block = size_t)
 
         /** Get number of bits set divided by length. */
         pragma(inline, true)
-        auto denseness(int depth = -1) const
+        auto denseness()(int depth = -1) const
         {
             import rational : Rational;
             alias Q = Rational!ulong;
@@ -795,7 +795,7 @@ struct StaticBitArray(uint len, Block = size_t)
 
         /** Get number of bits unset divided by length. */
         pragma(inline, true)
-        auto sparseness(int depth = -1) const
+        auto sparseness()(int depth = -1) const
         {
             import rational : Rational;
             alias Q = Rational!ulong;
@@ -803,7 +803,7 @@ struct StaticBitArray(uint len, Block = size_t)
         }
 
         /** Check if this $(D StaticBitArray) has only ones. */
-        bool allOne() const
+        bool allOne()() const
         {
             const restCount = len % bitsPerBlock;
             const hasRest = restCount != 0;
@@ -1089,7 +1089,7 @@ struct StaticBitArray(uint len, Block = size_t)
         assert(s2 == "00001111_00001111");
     }
 
-    private void formatBitString(scope void delegate(const(char)[]) sink) const
+    private void formatBitString()(scope void delegate(const(char)[]) sink) const
     {
         import std.range : put;
 
@@ -1120,7 +1120,7 @@ struct StaticBitArray(uint len, Block = size_t)
         }
     }
 
-    private void formatBitSet(scope void delegate(const(char)[]) sink) const
+    private void formatBitSet()(scope void delegate(const(char)[]) sink) const
     {
         sink("[");
         foreach (immutable ix; 0 .. len)

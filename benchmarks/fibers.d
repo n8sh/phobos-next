@@ -18,17 +18,18 @@ import std.stdio;
 static immutable maxFiberCount = 100;
 
 /** Function-like fiber.
+ *
+ * Arguments must all fullfil `isFiberParameter`.
  */
 class FunFiber(Args...) : Fiber
     if (allSatisfy!(isFiberParameter, Args))
 {
-    /** Extend to wrapper that takes. */
-    this(Args args)
+    this(Args args)             // TODO make args const?
     {
         _args = args;
         super(&run);
     }
-private :
+private:
     void run()
     {
         writeln(_args);

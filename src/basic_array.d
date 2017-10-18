@@ -39,29 +39,21 @@ struct BasicArray(T,
     /// Mutable element type.
     private alias MutableE = Unqual!T;
 
-    /// Template for type of `this`.
-    private alias ThisTemplate = TemplateOf!(typeof(this));
-
-    /// Same type as this but with mutable element type.
-    private alias MutableThis = ThisTemplate!(MutableE, Allocator);
-
     /// Is `true` if `U` can be assign to the element type `T` of `this`.
     enum isElementAssignable(U) = isAssignable!(MutableE, U);
-    enum isElementMovable(U) = is(typeof(MutableE == Unqual!U));
-    enum isElementAssignableOrMovable(U) = isAssignable!(U) || isElementMovable!(U);
 
     pragma(inline):
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
     pragma(inline, true)
-    static typeof(this) withLength(size_t initialLength)
+    static typeof(this) withLength()(size_t initialLength)
     {
         return withCapacityLengthZero(initialLength, initialLength, true);
     }
 
     /// Returns: an array with initial capacity `initialCapacity`.
     pragma(inline, true)
-    static typeof(this) withCapacity(size_t initialCapacity)
+    static typeof(this) withCapacity()(size_t initialCapacity)
     {
         return withCapacityLengthZero(initialCapacity, 0, false);
     }
@@ -72,9 +64,9 @@ struct BasicArray(T,
      * - and zeroing-flag `zero`.
      */
     pragma(inline)              // DMD cannot inline
-    private static typeof(this) withCapacityLengthZero(size_t capacity,
-                                                       size_t length,
-                                                       bool zero) @trusted
+    private static typeof(this) withCapacityLengthZero()(size_t capacity,
+                                                         size_t length,
+                                                         bool zero) @trusted
     {
         assert(capacity >= length);
         assert(capacity <= CapacityType.max);
@@ -84,8 +76,8 @@ struct BasicArray(T,
     }
 
     /** Emplace `thatPtr` with elements moved from `elements`. */
-    static ref typeof(this) emplaceWithMovedElements(typeof(this)* thatPtr,
-                                                     T[] elements) @system
+    static ref typeof(this) emplaceWithMovedElements()(typeof(this)* thatPtr,
+                                                       T[] elements) @system
     {
         immutable length = elements.length;
         thatPtr._store.ptr = typeof(this).allocate(length, false);
@@ -128,7 +120,7 @@ struct BasicArray(T,
     static if (isCopyable!T &&
                !is(T == union)) // forbid copying of unions such as `HybridBin` in hashmap.d
     {
-        static typeof(this) withElements(in T[] elements)
+        static typeof(this) withElements()(in T[] elements)
         {
             immutable length = elements.length;
             auto ptr = typeof(this).allocate(length, false);
@@ -319,13 +311,13 @@ struct BasicArray(T,
 
     /** Comparison for equality. */
     pragma(inline, true)
-    bool opEquals(in typeof(this) rhs) const
+    bool opEquals()(in typeof(this) rhs) const
     {
         return slice() == rhs.slice();
     }
     /// ditto
     pragma(inline, true)
-    bool opEquals(in ref typeof(this) rhs) const
+    bool opEquals()(in ref typeof(this) rhs) const
     {
         return slice() == rhs.slice();
     }
@@ -338,7 +330,7 @@ struct BasicArray(T,
     }
 
     /// Calculate D associative array (AA) key hash.
-    size_t toHash() const @trusted
+    size_t toHash()() const @trusted
     {
         import core.internal.hash : hashOf;
         static if (isCopyable!T)
@@ -360,7 +352,7 @@ struct BasicArray(T,
     {
         /** Construct a string representation of `this` at `sink`.
          */
-        void toString(scope void delegate(const(char)[]) sink) const
+        void toString()(scope void delegate(const(char)[]) sink) const
         {
             sink("[");
             foreach (const ix, ref value; slice())
@@ -375,15 +367,15 @@ struct BasicArray(T,
 
     /// Check if empty.
     pragma(inline, true)
-    bool empty() const { return _store.length == 0; }
+    bool empty()() const { return _store.length == 0; }
 
     /// Get length.
     pragma(inline, true)
-    @property size_t length() const { return _store.length; }
+    @property size_t length()() const { return _store.length; }
     alias opDollar = length;    /// ditto
 
     /// Set length to `newLength`.
-    @property void length(size_t newLength) @trusted
+    @property void length()(size_t newLength) @trusted
     {
         if (newLength < length)
         {
@@ -427,13 +419,13 @@ struct BasicArray(T,
 
     /// Get capacity.
     pragma(inline, true)
-    @property size_t capacity() const { return _store.capacity; }
+    @property size_t capacity()() const { return _store.capacity; }
 
     /** Ensures sufficient capacity to accommodate for requestedCapacity number
         of elements. If `requestedCapacity` < `capacity`, this method does
         nothing.
      */
-    void reserve(size_t requestedCapacity) @trusted
+    void reserve()(size_t requestedCapacity) @trusted
     {
         assert(requestedCapacity <= CapacityType.max);
 
@@ -458,20 +450,20 @@ struct BasicArray(T,
 
     /// Index support.
     pragma(inline, true)
-    scope ref inout(T) opIndex(size_t i) inout return
+    scope ref inout(T) opIndex()(size_t i) inout return
     {
         return slice()[i];
     }
 
     /// Slice support.
     pragma(inline, true)
-    scope inout(T)[] opSlice(size_t i, size_t j) inout return
+    scope inout(T)[] opSlice()(size_t i, size_t j) inout return
     {
         return slice()[i .. j];
     }
     /// ditto
     pragma(inline, true)
-    scope inout(T)[] opSlice() inout return
+    scope inout(T)[] opSlice()() inout return
     {
         return slice();
     }
@@ -511,7 +503,7 @@ struct BasicArray(T,
 
     /// Get reference to front element.
     pragma(inline, true)
-    scope ref inout(T) front() inout return @property
+    scope ref inout(T) front()() inout return @property
     {
         // TODO use?: enforce(!empty); emsi-containers doesn't, std.container.Array does
         return slice()[0];
@@ -519,7 +511,7 @@ struct BasicArray(T,
 
     /// Get reference to back element.
     pragma(inline, true)
-    scope ref inout(T) back() inout return @property
+    scope ref inout(T) back()() inout return @property
     {
         // TODO use?: enforce(!empty); emsi-containers doesn't, std.container.Array does
         return slice()[_store.length - 1];
@@ -540,7 +532,7 @@ struct BasicArray(T,
         TODO rename to `insertBack` and make this steal scalar calls over
         insertBack(U)(U[] values...) overload below
      */
-    void insertBack1(T value) @trusted
+    void insertBack1()(T value) @trusted
     {
         reserve(_store.length + 1);
         static if (needsMove!T)
@@ -643,7 +635,7 @@ struct BasicArray(T,
     /** Remove last value fromm the end of the array.
      */
     pragma(inline, true)
-    void popBack()
+    void popBack()()
     {
         assert(!empty);
         _store.length -= 1;
@@ -655,7 +647,7 @@ struct BasicArray(T,
 
     /** Pop back element and return it. */
     pragma(inline, true)
-    T backPop() @trusted
+    T backPop()() @trusted
     {
         assert(!empty);
         _store.length -= 1;
@@ -670,7 +662,7 @@ struct BasicArray(T,
     }
 
     /** Pop element at `index`. */
-    void popAt(size_t index)
+    void popAt()(size_t index)
         @trusted
         @("complexity", "O(length)")
     {
@@ -681,7 +673,7 @@ struct BasicArray(T,
     }
 
     /** Move element at `index` to return. */
-    T moveAt(size_t index)
+    T moveAt()(size_t index)
         @trusted
         @("complexity", "O(length)")
     {
@@ -694,13 +686,13 @@ struct BasicArray(T,
 
     /** Move element at front. */
     pragma(inline, true)
-    T frontPop()
+    T frontPop()()
         @("complexity", "O(length)")
     {
         return moveAt(0);
     }
 
-    private void shiftToFrontAt(size_t index)
+    private void shiftToFrontAt()(size_t index)
         @trusted
     {
         // TODO use this instead:
@@ -776,20 +768,13 @@ struct BasicArray(T,
 
     /// Unsafe access to pointer.
     pragma(inline, true)
-    scope inout(T)* ptr() inout return @system
+    scope inout(T)* ptr()() inout return @system
     {
         return _store.ptr;
     }
 
-    /// Helper mutable slice.
-    pragma(inline, true)
-    scope private MutableE[] mslice() return @trusted
-    {
-        return _mptr[0 .. _store.length];
-    }
-
     /// Reallocate storage.
-    private void reallocateAndSetCapacity(size_t newCapacity) @trusted
+    private void reallocateAndSetCapacity()(size_t newCapacity) @trusted
     {
         assert(newCapacity <= CapacityType.max);
         _store.capacity = cast(CapacityType)newCapacity;

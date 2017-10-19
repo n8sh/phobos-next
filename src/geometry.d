@@ -21,7 +21,7 @@
    TODO Make use of staticReduce etc when they become available in Phobos.
    TODO Go through all usages of real and use CommonType!(real, E) to make it work when E is a bignum.
    TODO ead and perhaps make use of http://stackoverflow.com/questions/3098242/fast-vector-struct-that-allows-i-and-xyz-operations-in-d?rq=1
-   TODO Tag member functions in t_geom.d as pure as is done https://github.com/$(D D)-Programming-Language/phobos/blob/master/std/bigint.d
+   TODO Tag member functions in t_geom.d as pure as is done https://github.com/D-Programming-Language/phobos/blob/master/std/bigint.d
    TODO Remove need to use [] in x[] == y[]
 
    See: https://www.google.se/search?q=point+plus+vector
@@ -76,8 +76,6 @@ enum isFixMatrix(E) = isFix(typeof(isFixMatrixImpl(E.init)));
 private void isFixVectorImpl (E, uint D)        (Vector!(E, D)    vec) {}
 private void isFixPointImpl  (E, uint D)        (Point !(E, D)    vec) {}
 private void isFixMatrixImpl (E, uint R, uint C)(Matrix!(E, R, C) mat) {}
-
-// ==============================================================================================
 
 version(unittestAllInstances)
 {
@@ -139,9 +137,7 @@ auto sqrtx(T)(T x)
     }
 }
 
-// ==============================================================================================
-
-/// $(D D)-Dimensional Cartesian Point with Coordinate Type (Precision) $(D E).
+/// `D`-Dimensional Cartesian Point with Coordinate Type (Precision) `E`.
 struct Point(E, uint D)
     if (D >= 1 /* && TODO extend trait : isNumeric!E */)
 {
@@ -228,9 +224,10 @@ mixin(makeInstanceAliases("Point", "point", 2,3,
 
 enum Orient { column, row } // Vector Orientation.
 
-/** $(D D)-Dimensional Vector with Coordinate/Element (Component) Type $(D E).
-    See also: http://physics.stackexchange.com/questions/16850/is-0-0-0-an-undefined-vector
-*/
+/** `D`-Dimensional Vector with Coordinate/Element (Component) Type `E`.
+ *
+ * See also: http://physics.stackexchange.com/questions/16850/is-0-0-0-an-undefined-vector
+ */
 struct Vector(E, uint D,
               bool normalizedFlag = false, // set to true for UnitVectors
               Orient orient = Orient.column)
@@ -262,7 +259,7 @@ struct Vector(E, uint D,
         }
     }
 
-    /** Construct from Scalar $(D VALUE). */
+    /** Construct from Scalar `value`. */
     this(S)(S scalar)
         if (isAssignable!(E, S))
     {
@@ -410,7 +407,7 @@ struct Vector(E, uint D,
     /// Returns: Pointer to the coordinates.
     // @property auto value_ptr() { return _vector.ptr; }
 
-    /// Sets all values to $(D value).
+    /// Sets all values to `value`.
     void clear(E value)
     {
         foreach (i; iota!(0, D))
@@ -637,7 +634,7 @@ struct Vector(E, uint D,
         }
     }
 
-    /// Returns: Non-Rooted $(D N) - Norm of $(D x).
+    /// Returns: Non-Rooted `N` - Norm of `x`.
     auto nrnNorm(uint N)() const
         if (isNumeric!E &&
             N >= 1)
@@ -684,7 +681,7 @@ struct Vector(E, uint D,
 
     static if (isFloatingPoint!E)
     {
-        /// Normalize $(D this).
+        /// Normalize `this`.
         void normalize()
         {
             if (this != 0)         // zero vector have zero magnitude
@@ -713,7 +710,7 @@ struct Vector(E, uint D,
         }
     }
 
-    /// Returns: Vector Index at Character Coordinate $(D coord).
+    /// Returns: Vector Index at Character Coordinate `coord`.
     private @property ref inout(E) get_(char coord)() inout {
         return _vector[coordToIndex!coord];
     }
@@ -872,7 +869,7 @@ auto elementwiseLessThanOrEqual(Ta, Tb, uint D)(Vector!(Ta, D) a,
                                       vec2f(2, 2)) == vec2b(true, true));
 }
 
-/// Returns: Scalar/Dot-Product of Two Vectors $(D a) and $(D b).
+/// Returns: Scalar/Dot-Product of Two Vectors `a` and `b`.
 T dotProduct(T, U)(in T a, in U b)
     if (isVector!T &&
         isVector!U &&
@@ -888,7 +885,7 @@ T dotProduct(T, U)(in T a, in U b)
 }
 alias dot = dotProduct;
 
-/// Returns: Outer-Product of Two Vectors $(D a) and $(D b).
+/// Returns: Outer-Product of Two Vectors `a` and `b`.
 auto outerProduct(Ta, Tb, uint Da, uint Db)(in Vector!(Ta, Da) a,
                                             in Vector!(Tb, Db) b)
     if (Da >= 1 &&
@@ -916,7 +913,7 @@ T cross(T)(in T a, in T b)
              a.x * b.y - b.x * a.y);
 }
 
-/// Returns: (Euclidean) Distance between $(D a) and $(D b).
+/// Returns: (Euclidean) Distance between `a` and `b`.
 real distance(T, U)(in T a, in U b)
     if ((isVector!T && // either both vectors
          isVector!U) ||
@@ -935,8 +932,6 @@ real distance(T, U)(in T a, in U b)
     assert(distance(vec2f(0, 0), vec2d(0, 10)) == 10);
     assert(dot(v1, v2) == dot(v2, v1)); // commutative
 }
-
-// ==============================================================================================
 
 enum Layout { columnMajor, rowMajor }; // Matrix Storage Major Dimension.
 
@@ -1295,16 +1290,14 @@ alias mat2_cm = Matrix!(float, 2, 2, Layout.columnMajor);
                    [6, 8, 10].s].s);
 }
 
-// ==============================================================================================
-
-/// 3-Dimensional Spherical Point with Coordinate Type (Precision) $(D E).
+/// 3-Dimensional Spherical Point with Coordinate Type (Precision) `E`.
 struct SpherePoint3(E)
     if (isFloatingPoint!E)
 {
     enum D = 3;                 // only in three dimensions
     alias ElementType = E;
 
-    /** Construct from Components $(D args). */
+    /** Construct from Components `args`. */
     this(T...)(T args)
     {
         foreach (const ix, arg; args)
@@ -1364,10 +1357,8 @@ auto spherePoint(Ts...)(Ts args)
     return SpherePoint3!(CommonType!Ts, args.length)(args);
 }
 
-// ==============================================================================================
-
-/** $(D D)-Dimensional Particle with Cartesian Coordinate $(D position) and
-    $(D velocity) of Element (Component) Type $(D E).
+/** `D`-Dimensional Particle with Cartesian Coordinate `position` and
+    `velocity` of Element (Component) Type `E`.
 */
 struct Particle(E, uint D,
                 bool normalizedVelocityFlag = false)
@@ -1381,8 +1372,8 @@ struct Particle(E, uint D,
 mixin(makeInstanceAliases("Particle", "particle", 2,4,
                           ["float", "double", "real"]));
 
-/** $(D D)-Dimensional Particle with Coordinate Position and
-    Direction/Velocity/Force Type (Precision) $(D E).
+/** `D`-Dimensional Particle with Coordinate Position and
+    Direction/Velocity/Force Type (Precision) `E`.
     F = m*a; where F is force, m is mass, a is acceleration.
 */
 struct ForcedParticle(E, uint D,
@@ -1398,9 +1389,7 @@ struct ForcedParticle(E, uint D,
     @property auto acceleration() const { return force/mass; }
 }
 
-// ==============================================================================================
-
-/** $(D D)-Dimensional Axis-Aligned (Hyper) Cartesian $(D Box) with Element (Component) Type $(D E).
+/** `D`-Dimensional Axis-Aligned (Hyper) Cartesian `Box` with Element (Component) Type `E`.
 
     Note: We must use inclusive compares betweeen boxes and points in inclusion
     functions such as inside() and includes() in order for the behaviour of
@@ -1422,7 +1411,7 @@ struct Box(E, uint D)
     /// Get Box Center.
     // TODO @property Vector!(E,D) center() { return (min + max) / 2;}
 
-    /// Constructs a Box enclosing $(D points).
+    /// Constructs a Box enclosing `points`.
     static Box fromPoints(in Vector!(E,D)[] points)
     {
         Box y;
@@ -1444,7 +1433,7 @@ struct Box(E, uint D)
         return this;
     }
 
-    /// Expands Box by another Box $(D b).
+    /// Expands box by another box `b`.
     ref Box expand(Box b)
     {
         return this.expand(b.min).expand(b.max);
@@ -1510,9 +1499,7 @@ Box!(E,D) unite(E, uint D)(Box!(E,D) a,
 Box!(E,D) unite(E, uint D)(Box!(E,D) a,
                            Vector!(E,D) b) { return a.expand(b); }
 
-// ==============================================================================================
-
-/** $(D D)-Dimensional Infinite Cartesian (Hyper)-Plane with Element (Component) Type $(D E).
+/** `D`-Dimensional Infinite Cartesian (Hyper)-Plane with Element (Component) Type `E`.
     See also: http://stackoverflow.com/questions/18600328/preferred-representation-of-a-3d-plane-in-c-c
  */
 struct Plane(E, uint D)
@@ -1642,10 +1629,8 @@ struct Plane(E, uint D)
 mixin(makeInstanceAliases("Plane","plane", 3,4,
                           defaultElementTypes));
 
-// ==============================================================================================
-
-/** $(D D)-Dimensional Cartesian (Hyper)-Sphere with Element (Component) Type $(D E).
-*/
+/** `D`-Dimensional Cartesian (Hyper)-Sphere with Element (Component) Type `E`.
+ */
 struct Sphere(E, uint D)
     if (D >= 2 &&
         isNumeric!E)

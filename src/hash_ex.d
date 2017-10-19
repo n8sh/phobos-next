@@ -3,12 +3,12 @@ module hash_ex;
 /** Get hash of `value`.
  */
 pragma(inline)              // LDC can inline, DMD cannot
-size_t HashOf(alias hasher, T)(in T value)
+hash_t HashOf(alias hasher, T)(in T value)
 {
     import std.digest.digest : isDigest;
     import std.traits : hasMember;
 
-    static if (__traits(compiles, { size_t _ = hasher(value); }))
+    static if (__traits(compiles, { hash_t _ = hasher(value); }))
     {
         return hasher(value);   // for instance `hashOf`
     }
@@ -122,9 +122,9 @@ size_t HashOf(alias hasher, T)(in T value)
         {
             typeof(return) hashIndex;
 
-            static if (2*size_t.sizeof == digest.sizeof)
+            static if (2*hash_t.sizeof == digest.sizeof)
             {
-                // for instance, use all 128-bits when size_t is 64-bit
+                // for instance, use all 128-bits when hash_t is 64-bit
                 (cast(ubyte*)&hashIndex)[0 .. hashIndex.sizeof] = (digest[0 .. hashIndex.sizeof] ^
                                                                    digest[hashIndex.sizeof .. 2*hashIndex.sizeof]);
             }
@@ -147,7 +147,7 @@ size_t HashOf(alias hasher, T)(in T value)
     }
 }
 
-size_t hashOf2(alias hasher, T)(in auto ref T value)
+hash_t hashOf2(alias hasher, T)(in auto ref T value)
 {
     import std.traits : hasIndirections;
     static if (hasIndirections!T)

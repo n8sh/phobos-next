@@ -107,7 +107,7 @@ body
     {
         aliasName = templateName.toLower;
     }
-    foreach (const n; minDimension .. maxDimension + 1)
+    foreach (immutable n; minDimension .. maxDimension + 1)
     {
         foreach (const et; elementTypes) // for each elementtype
         {
@@ -145,7 +145,7 @@ struct Point(E, uint D)
 
     this(T...)(T args)
     {
-        foreach (const ix, arg; args)
+        foreach (immutable ix, arg; args)
         {
             _point[ix] = arg;
         }
@@ -168,7 +168,7 @@ struct Point(E, uint D)
   <mo>(</mo>
   <mtable>`;
 
-        foreach (const i; iota!(0, D))
+        foreach (immutable i; iota!(0, D))
         {
             str ~= `
     <mtr>
@@ -198,7 +198,7 @@ struct Point(E, uint D)
             (op == "-"))
     {
         Point!(CommonType!(E, F), D) y;
-        foreach (const i; iota!(0, D))
+        foreach (immutable i; iota!(0, D))
         {
             y._point[i] = mixin("_point[i]" ~ op ~ "r._vector[i]");
         }
@@ -246,7 +246,7 @@ struct Vector(E, uint D,
             if (vec.normalized)
             {
                 immutable vec_norm = vec.magnitude;
-                foreach (const i; iota!(0, D))
+                foreach (immutable i; iota!(0, D))
                 {
                     _vector[i] = vec._vector[i] / vec_norm;
                 }
@@ -1300,7 +1300,7 @@ struct SpherePoint3(E)
     /** Construct from Components `args`. */
     this(T...)(T args)
     {
-        foreach (const ix, arg; args)
+        foreach (immutable ix, arg; args)
         {
             _spherePoint[ix] = arg;
         }

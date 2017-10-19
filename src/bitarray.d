@@ -161,7 +161,7 @@ version = show;
 {
     const bitCount = 100;
 
-    auto a = BitArray!(null).withLength(bitCount);
+    auto a = BitArray!().withLength(bitCount);
 
     assert(a.length == bitCount);
     assert(a.capacity == 2*a.blockBits);
@@ -188,7 +188,7 @@ version = show;
 {
     const n = 5;
 
-    auto a = BitArray!(null).withLength(n);
+    auto a = BitArray!().withLength(n);
     foreach (const i; 0 .. n)
     {
         assert(a.countOnes == i);

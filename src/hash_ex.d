@@ -1,5 +1,14 @@
 module hash_ex;
 
+/** Digest `value` into `digest`.
+ */
+pragma(inline)              // LDC can inline, DMD cannot
+void digestAny(Digest, T)(ref Digest digest,
+                          in T value)
+{
+
+}
+
 /** Get hash of `value`.
  */
 pragma(inline)              // LDC can inline, DMD cannot

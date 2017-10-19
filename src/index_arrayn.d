@@ -1,4 +1,4 @@
-module index_arrayn;
+module static_modarray;
 
 version = useModulo;
 

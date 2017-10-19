@@ -554,7 +554,8 @@ public:
 
     // --------------------Comparison/Equality Operators---------------------------
     bool opEquals(Rhs)(Rhs rhs)
-        if (isRational!Rhs || isIntegerLike!Rhs)
+        if (isRational!Rhs ||
+            isIntegerLike!Rhs)
     {
         static if (isRational!Rhs)
         {
@@ -756,8 +757,8 @@ public:
      * Equivalent to $(D integerPart), and then casting it to type $(D I).
      */
     I opCast(I)()
-    if (isIntegerLike!I &&
-        is(typeof(cast(I) Int.init)))
+        if (isIntegerLike!I &&
+            is(typeof(cast(I) Int.init)))
     {
         return cast(I) integerPart;
     }

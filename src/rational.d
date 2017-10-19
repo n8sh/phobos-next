@@ -120,10 +120,10 @@ template isIntegerLike(T)
                 n -= 2;
                 n %= 2;
                 n %= n;
-                bool foo = n < 2;
-                bool bar = n == 2;
-                bool goo = n < n + 1;
-                bool tar = n == n;
+                bool lt = n < 2; // less than
+                bool eq = n == 2; // equal to literal
+                bool ltg = n < n + 1;
+                bool seq = n == n; // reflexive equal
                 return n;
             }));
         }

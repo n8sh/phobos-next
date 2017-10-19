@@ -120,6 +120,7 @@ template isIntegerLike(T)
                 n -= 2;
                 n %= 2;
                 n %= n;
+                // TODO what about ^^= ?
                 bool lt = n < 2; // less than
                 bool eq = n == 2; // equal to literal
                 bool ltg = n < n + 1;

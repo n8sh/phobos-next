@@ -88,30 +88,45 @@ template isIntegerLike(T)
     import std.traits : isMutable;
     static if (isMutable!T)
     {
-        enum bool isIntegerLike = is(typeof(
+        import std.traits : isIntegral, isSomeChar, isArray, isFloatingPoint;
+        static if (isIntegral!T ||
+                   isSomeChar!T)
         {
-            T n;
-            n = 2;
-            n = n;
-            n <<= 1;
-            n >>= 1;
-            n += n;
-            n += 2;
-            n *= n;
-            n *= 2;
-            n /= n;
-            n /= 2;
-            n -= n;
-            n -= 2;
-            n %= 2;
-            n %= n;
-            bool foo = n < 2;
-            bool bar = n == 2;
-            bool goo = n < n + 1;
-            bool tar = n == n;
-
-            return n;
-        }));
+            enum isIntegerLike = true;
+        }
+        else static if (isFloatingPoint!T ||
+                        is(T == bool) ||
+                        isArray!T)
+        {
+            enum isIntegerLike = false;
+        }
+        else
+        {
+            pragma(msg, T);
+            enum isIntegerLike = is(typeof(
+            {
+                T n;
+                n = 2;
+                n = n;
+                n <<= 1;
+                n >>= 1;
+                n += n;
+                n += 2;
+                n *= n;
+                n *= 2;
+                n /= n;
+                n /= 2;
+                n -= n;
+                n -= 2;
+                n %= 2;
+                n %= n;
+                bool foo = n < 2;
+                bool bar = n == 2;
+                bool goo = n < n + 1;
+                bool tar = n == n;
+                return n;
+            }));
+        }
     }
     else
     {
@@ -123,7 +138,8 @@ template isIntegerLike(T)
 unittest
 {
     import std.meta : AliasSeq;
-    foreach (T; AliasSeq!(BigInt, long, ulong, int, uint,
+    foreach (T; AliasSeq!(BigInt,
+                          long, ulong, int, uint,
                           short, ushort, byte, ubyte,
                           char, wchar, dchar))
     {

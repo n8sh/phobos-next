@@ -163,7 +163,6 @@ template isIntegerLike(T)
  */
 enum isRational(T) = (is(typeof(T.init.numerator)) &&
                       is(typeof(T.init.denominator)));
-alias isQ = isRational;
 
 /**
  * Returns a Common Integral Type between $(D I1) and $(D I2).  This is defined

@@ -34,7 +34,7 @@ void digestAny(Digest, T)(ref Digest digest,
             static assert(0, "handle array with element type " ~ T.stringof);
         }
     }
-    else static if (isAggregateType!T)
+    else static if (is(T == struct))
     {
         foreach (ref subValue; value.tupleof)
         {

@@ -277,6 +277,7 @@ struct Rational(Int)
     if (isIntegerLike!Int)
 {
 public:
+
     // ----------------Multiplication operators----------------------------------
     auto opBinary(string op, Rhs)(Rhs rhs)
         if (op == "*" && is(CommonRational!(Int, Rhs)) && isRational!Rhs)
@@ -339,7 +340,9 @@ public:
 
     // --------------------Division operators--------------------------------------
     auto opBinary(string op, Rhs)(Rhs rhs)
-        if (op == "/" && is(CommonRational!(Int, Rhs)) && isRational!Rhs)
+        if (op == "/" &&
+            is(CommonRational!(Int, Rhs)) &&
+            isRational!Rhs)
     {
         // Division = multiply by inverse.
         swap(rhs.num, rhs.den);
@@ -347,21 +350,26 @@ public:
     }
 
     typeof(this) opBinary(string op, Rhs)(Rhs rhs)
-        if (op == "/" && is(CommonRational!(Int, Rhs)) && isIntegerLike!(Rhs))
+        if (op == "/" &&
+            is(CommonRational!(Int, Rhs)) &&
+            isIntegerLike!(Rhs))
     {
         auto ret = CommonRational!(Int, Rhs)(this.numerator, this.denominator);
         return ret /= rhs;
     }
 
     typeof(this) opBinaryRight(string op, Rhs)(Rhs rhs)
-        if (op == "/" && is(CommonRational!(Int, Rhs)) && isIntegerLike!Rhs)
+        if (op == "/" &&
+            is(CommonRational!(Int, Rhs)) &&
+            isIntegerLike!Rhs)
     {
         auto ret = CommonRational!(Int, Rhs)(this.denominator, this.numerator);
         return ret *= rhs;
     }
 
     typeof(this) opOpAssign(string op, Rhs)(Rhs rhs)
-        if (op == "/" && isIntegerLike!Rhs)
+        if (op == "/" &&
+            isIntegerLike!Rhs)
     {
         auto divisor = gcf(this.num, rhs);
         this.num /= divisor;
@@ -376,7 +384,8 @@ public:
     }
 
     typeof(this) opOpAssign(string op, Rhs)(Rhs rhs)
-        if (op == "/" && isRational!Rhs)
+        if (op == "/" &&
+            isRational!Rhs)
     {
         // Division = multiply by inverse.
         swap(rhs.num, rhs.den);
@@ -385,21 +394,25 @@ public:
 
     // ---------------------Addition operators-------------------------------------
     auto opBinary(string op, Rhs)(Rhs rhs)
-        if (op == "+" && (isRational!Rhs ||
-                          isIntegerLike!Rhs))
+        if (op == "+" &&
+            (isRational!Rhs ||
+             isIntegerLike!Rhs))
     {
         auto ret = CommonRational!(typeof(this), Rhs)(this.numerator, this.denominator);
         return ret += rhs;
     }
 
     auto opBinaryRight(string op, Rhs)(Rhs rhs)
-        if (op == "+" && is(CommonRational!(Int, Rhs)) && isIntegerLike!Rhs)
+        if (op == "+" &&
+            is(CommonRational!(Int, Rhs)) &&
+            isIntegerLike!Rhs)
     {
         return opBinary!(op, Rhs)(rhs);
     }
 
     typeof(this) opOpAssign(string op, Rhs)(Rhs rhs)
-        if (op == "+" && isRational!Rhs)
+        if (op == "+" &&
+            isRational!Rhs)
     {
         if (this.den == rhs.den)
         {
@@ -418,7 +431,8 @@ public:
     }
 
     typeof(this) opOpAssign(string op, Rhs)(Rhs rhs)
-        if (op == "+" && isIntegerLike!Rhs)
+        if (op == "+" &&
+            isIntegerLike!Rhs)
     {
         this.num += rhs * this.den;
 
@@ -428,14 +442,17 @@ public:
 
     // -----------------------Subtraction operators-------------------------------
     auto opBinary(string op, Rhs)(Rhs rhs)
-        if (op == "-" && is(CommonRational!(Int, Rhs)))
+        if (op == "-" &&
+            is(CommonRational!(Int, Rhs)))
     {
-        auto ret = CommonRational!(typeof(this), Rhs)(this.numerator, this.denominator);
+        auto ret = CommonRational!(typeof(this), Rhs)(this.numerator,
+                                                      this.denominator);
         return ret -= rhs;
     }
 
     typeof(this) opOpAssign(string op, Rhs)(Rhs rhs)
-        if (op == "-" && isRational!Rhs)
+        if (op == "-" &&
+            isRational!Rhs)
     {
         if (this.den == rhs.den)
         {
@@ -454,7 +471,8 @@ public:
     }
 
     typeof(this) opOpAssign(string op, Rhs)(Rhs rhs)
-        if (op == "-" && isIntegerLike!Rhs)
+        if (op == "-" &&
+            isIntegerLike!Rhs)
     {
         this.num -= rhs * this.den;
 
@@ -463,7 +481,9 @@ public:
     }
 
     typeof(this) opBinaryRight(string op, Rhs)(Rhs rhs)
-        if (op == "-" && is(CommonInteger!(Int, Rhs)) && isIntegerLike!Rhs)
+        if (op == "-" &&
+            is(CommonInteger!(Int, Rhs)) &&
+            isIntegerLike!Rhs)
     {
         typeof(this) ret;
         ret.den = this.den;
@@ -483,7 +503,8 @@ public:
     // ---------------------Exponentiation operator---------------------------------
     // Can only handle integer powers if the result has to also be rational.
     typeof(this) opOpAssign(string op, Rhs)(Rhs rhs)
-        if (op == "^^" && isIntegerLike!Rhs)
+        if (op == "^^" &&
+            isIntegerLike!Rhs)
     {
         if (rhs < 0)
         {
@@ -501,7 +522,9 @@ public:
     }
 
     auto opBinary(string op, Rhs)(Rhs rhs)
-        if (op == "^^" && isIntegerLike!Rhs && is(CommonRational!(Int, Rhs)))
+        if (op == "^^" &&
+            isIntegerLike!Rhs &&
+            is(CommonRational!(Int, Rhs)))
     {
         auto ret = CommonRational!(Int, Rhs)(this.numerator, this.denominator);
         ret ^^= rhs;
@@ -535,13 +558,14 @@ public:
     {
         static if (isRational!Rhs)
         {
-            return rhs.num == this.num
-                && rhs.den == this.den;
+            return (rhs.num == this.num &&
+                    rhs.den == this.den);
         }
         else
         {
             static assert(isIntegerLike!Rhs);
-            return rhs == this.num && this.den == 1;
+            return (rhs == this.num &&
+                    this.den == 1);
         }
     }
 
@@ -559,11 +583,13 @@ public:
          * Assumption:  When simplify() is called, rational will be written in
          * canonical form, with any negative signs being only in the numerator.
          */
-        if (this.num < 0 && rhs.num > 0)
+        if (this.num < 0 &&
+            rhs.num > 0)
         {
             return -1;
         }
-        else if (this.num > 0 && rhs.num < 0)
+        else if (this.num > 0 &&
+                 rhs.num < 0)
         {
             return 1;
         }
@@ -730,7 +756,8 @@ public:
      * Equivalent to $(D integerPart), and then casting it to type $(D I).
      */
     I opCast(I)()
-    if (isIntegerLike!I && is(typeof(cast(I) Int.init)))
+    if (isIntegerLike!I &&
+        is(typeof(cast(I) Int.init)))
     {
         return cast(I) integerPart;
     }
@@ -795,8 +822,10 @@ private :
 
     void fixSigns()
     {
-        static if (!is(Int == ulong) && !is(Int == uint) &&
-                   !is(Int == ushort) && !is(Int == ubyte))
+        static if (!is(Int == ulong) &&
+                   !is(Int == uint) &&
+                   !is(Int == ushort) &&
+                   !is(Int == ubyte))
         {
             // Write in canonical form w.r.t. signs.
             if (den < 0)
@@ -945,9 +974,12 @@ pure unittest
  */
 Rational!(Int) toRational(Int)(real floatNum, real epsilon = 1e-8)
 {
-    enforce(floatNum != real.infinity && floatNum != -real.infinity &&
-            !isNaN(floatNum), "Can't convert NaNs and infinities to rational.");
-    enforce(floatNum < long.max && floatNum > -long.max,
+    enforce(floatNum != real.infinity &&
+            floatNum != -real.infinity &&
+            !isNaN(floatNum),
+            "Can't convert NaNs and infinities to rational.");
+    enforce(floatNum < long.max &&
+            floatNum > -long.max,
             "Rational conversions of very large numbers not yet implemented.");
     enforce(1.0L / epsilon < long.max,
             "Can't handle very small epsilons < long.max in toRational.");

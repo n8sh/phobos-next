@@ -188,12 +188,8 @@ hash_t hashOf2(alias hasher, T)(in auto ref T value)
         V v;
     }
 
-    S s;
-
-    // dln(hashOf2!(FNV64)(s));
-    // dln(hashOf2!(FNV64)(s));
-    // dln(hashOf2!(FNV64)(s));
-    // dln(hashOf2!(FNV64)(s));
+    assert(hashOf2!(FNV64)(S()) ==
+           hashOf2!(FNV64)(S()));
 }
 
 version(unittest)

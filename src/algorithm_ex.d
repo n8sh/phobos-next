@@ -2128,7 +2128,7 @@ Container collect(Container, Range) (Range r)
     TODO Better name: {make,array}{N,Exactly}
     TODO could we find a way to propagate length at compile-time?
  */
-ElementType!R[n] arrayN(size_t n, R)(R r)
+ElementType!R[n] toStaticArray(size_t n, R)(R r)
 {
     assert(r.length == n);
     typeof(return) dst;
@@ -2144,7 +2144,7 @@ ElementType!R[n] arrayN(size_t n, R)(R r)
 typeof(fun(E.init))[n] map(alias fun, E, size_t n)(const E[n] src)
 {
     import std.algorithm.iteration : map;
-    return src[].map!fun.arrayN!n;
+    return src[].map!fun.toStaticArray!n;
 }
 
 ///

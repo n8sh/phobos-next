@@ -7,8 +7,8 @@ version = useModulo;
     `Mod[elementLength]`.
 */
 struct StaticModArray(uint capacity,
-                   uint elementLength = 1,
-                   uint span = 8)
+                      uint elementLength = 1,
+                      uint span = 8)
     if (capacity*elementLength >= 2) // no use storing less than 2 bytes
 {
     private enum radix = 2^^span;
@@ -38,8 +38,8 @@ struct StaticModArray(uint capacity,
 
     /** Construct with `rhsCapacity`. */
     this(uint rhsCapacity)(in StaticModArray!(rhsCapacity,
-                                           elementLength,
-                                           span) rhs)
+                                              elementLength,
+                                              span) rhs)
     {
         static if (capacity < rhsCapacity)
         {

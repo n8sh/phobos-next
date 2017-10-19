@@ -2124,43 +2124,6 @@ Container collect(Container, Range) (Range r)
     assert([0, 1, 2, 3].filter!(_ => _ & 1).collect!V.equal([1, 3]));
 }
 
-/** Overload of `std.array.array` that creates a static array of length `n`.
-    TODO Better name: {make,array}{N,Exactly}
-    TODO could we find a way to propagate length at compile-time?
- */
-ElementType!R[n] toStaticArray(size_t n, R)(R r)
-{
-    assert(r.length == n);
-    typeof(return) dst;
-    import std.algorithm.mutation : copy;
-    r.copy(dst[]);
-    return dst;
-}
-
-/** Static array overload for `std.algorithm.iteration.map`.
-    See also: http://forum.dlang.org/thread/rqlittlysttwxwphlnmh@forum.dlang.org
-    TODO Add to Phobos
- */
-typeof(fun(E.init))[n] map(alias fun, E, size_t n)(const E[n] src)
-{
-    import std.algorithm.iteration : map;
-    return src[].map!fun.toStaticArray!n;
-}
-
-///
-@safe pure nothrow unittest
-{
-    import std.meta : AliasSeq;
-    foreach (E; AliasSeq!(int, double))
-    {
-        enum n = 42;
-        E[n] c;
-        const result = map!(_ => _^^2)(c);
-        static assert(c.length == result.length);
-        static assert(is(typeof(result) == const(E)[n]));
-    }
-}
-
 /** Returns: `x` eagerly split in two parts, all as equal in length as possible.
 
     Safely avoids range checking thanks to D's builtin slice expressions.

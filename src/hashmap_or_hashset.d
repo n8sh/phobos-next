@@ -967,7 +967,7 @@ private:
 
     /** Returns: bin index of `hash`. */
     pragma(inline, true)
-    size_t hashToIndex(size_t hash) const
+    size_t hashToIndex(hash_t hash) const
     {
         const size_t mask = _bins.length - 1;
         assert((~mask ^ mask) == size_t.max); // assert that _bins.length is a power of 2

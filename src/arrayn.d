@@ -254,7 +254,7 @@ struct ArrayN(T,
     }
 
     /** Pop last (back) element. */
-    void popBack()
+    void popBack()()            // template-lazy
     {
         assert(!empty);
         static if (borrowChecked) { assert(!isBorrowed); }
@@ -266,7 +266,7 @@ struct ArrayN(T,
     }
 
     /** Pop the `n` last (back) elements. */
-    void popBackN(size_t n)
+    void popBackN()(size_t n)   // template-lazy
     {
         assert(length >= n);
         static if (borrowChecked) { assert(!isBorrowed); }
@@ -284,7 +284,7 @@ struct ArrayN(T,
     static if (isMutable!T)
     {
         /** Pop element at `index`. */
-        void popAt(size_t index)
+        void popAt()(size_t index) // template-lazy
         @trusted
         @("complexity", "O(length)")
         {
@@ -294,7 +294,7 @@ struct ArrayN(T,
             _length = cast(Length)(_length - 1);
         }
 
-        T moveAt(size_t index)
+        T moveAt()(size_t index) // template-lazy
         @trusted
         @("complexity", "O(length)")
         {
@@ -305,7 +305,7 @@ struct ArrayN(T,
             return move(value); // TODO remove `move` when compiler does it for us
         }
 
-        private void shiftToFrontAt(size_t index)
+        private void shiftToFrontAt()(size_t index) // template-lazy
             @trusted
         {
             foreach (immutable i; 0 .. this.length - (index + 1))

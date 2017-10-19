@@ -69,7 +69,7 @@ sourceFiles {
    "src/searching_ex.d"
    "src/file_ex.d"
    "src/bijections.d"
-   "src/index_arrayn.d"
+   "src/static_modarray.d"
    "src/filters.d"
    "src/container_traits.d"
    "src/vla.d"

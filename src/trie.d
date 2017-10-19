@@ -212,7 +212,7 @@ else
     alias KeyN(size_t span, size_t N) = ubyte[N];
 }
 
-import index_arrayn : StaticModArray;
+import static_modarray : StaticModArray;
 alias IxsN = StaticModArray;
 
 alias UKey = Key!span;

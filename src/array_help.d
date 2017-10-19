@@ -34,7 +34,7 @@ Unqual!T[n] asStaticArray(T, size_t n)(T[n] x...) @trusted
         T[n] y = void;        // initialized below
         static if (hasElaborateDestructor!T)
         {
-            // moveEmplaceAll doesn't support uncopyable elements
+            // NOTE: moveEmplaceAll doesn't support uncopyable elements
             // import std.algorithm.mutation : moveEmplaceAll;
             // moveEmplaceAll(x[], y[]);
             foreach (const ix, ref value; x)

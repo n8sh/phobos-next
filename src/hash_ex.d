@@ -6,6 +6,68 @@ pragma(inline)              // LDC can inline, DMD cannot
 void digestAny(Digest, T)(ref Digest digest,
                           in T value)
 {
+    // TODO use:
+    // static if (hasMember!(hasher, "putStaticArray"))
+    // {
+    //     digest.putStaticArray((cast(ubyte*)&value)[0 .. value.sizeof]);
+    // }
+    // else
+    // {
+    //     digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
+    // }
+
+    import std.traits : isScalarType, isAggregateType, hasIndirections, isSomeString, isArray;
+
+    static if (isScalarType!T)
+    {
+        digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
+    }
+    else static if (isArray!T) // including strings, wstring, dstring
+    {
+        alias E = typeof(T.init[0]);
+        static if (!hasIndirections!E)
+        {
+            digest.put((cast(ubyte*)value.ptr)[0 .. value.length * value[0].sizeof]);
+        }
+        else
+        {
+            static assert(0, "handle array with element type " ~ T.stringof);
+        }
+    }
+    else static if (isAggregateType!T)
+    {
+        foreach (ref subValue; value.tupleof)
+        {
+            alias ST = typeof(subValue);
+            static if (hasIndirections!ST)
+            {
+                static if (isArray!ST)
+                {
+                    alias STE = typeof(ST.init[0]);
+                    static if (!hasIndirections!STE)
+                    {
+                        digest.put((cast(ubyte*)subValue.ptr)[0 .. subValue.length * subValue[0].sizeof]);
+                    }
+                    else
+                    {
+                        static assert(0, "handle with when element type " ~ T.stringof);
+                    }
+                }
+                else
+                {
+                    static assert(0, "handle type " ~ ST.stringof);
+                }
+            }
+            else
+            {
+                digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
+            }
+        }
+    }
+    else
+    {
+        static assert(0, "handle type " ~ T.stringof);
+    }
 }
 
 /** Get hash of `value`.
@@ -28,68 +90,7 @@ hash_t HashOf(alias hasher, T)(in T value)
 
         auto dig = makeDigest!(hasher);
 
-        // TODO use:
-        // static if (hasMember!(hasher, "putStaticArray"))
-        // {
-        //     dig.putStaticArray((cast(ubyte*)&value)[0 .. value.sizeof]);
-        // }
-        // else
-        // {
-        //     dig.put((cast(ubyte*)&value)[0 .. value.sizeof]);
-        // }
-
-        import std.traits : isScalarType, isAggregateType, hasIndirections, isSomeString, isArray;
-
-        static if (isScalarType!T)
-        {
-            dig.put((cast(ubyte*)&value)[0 .. value.sizeof]);
-        }
-        else static if (isArray!T) // including strings, wstring, dstring
-        {
-            alias E = typeof(T.init[0]);
-            static if (!hasIndirections!E)
-            {
-                dig.put((cast(ubyte*)value.ptr)[0 .. value.length * value[0].sizeof]);
-            }
-            else
-            {
-                static assert(0, "handle array with element type " ~ T.stringof);
-            }
-        }
-        else static if (isAggregateType!T)
-        {
-            foreach (ref subValue; value.tupleof)
-            {
-                alias ST = typeof(subValue);
-                static if (hasIndirections!ST)
-                {
-                    static if (isArray!ST)
-                    {
-                        alias STE = typeof(ST.init[0]);
-                        static if (!hasIndirections!STE)
-                        {
-                            dig.put((cast(ubyte*)subValue.ptr)[0 .. subValue.length * subValue[0].sizeof]);
-                        }
-                        else
-                        {
-                            static assert(0, "handle with when element type " ~ T.stringof);
-                        }
-                    }
-                    else
-                    {
-                        static assert(0, "handle type " ~ ST.stringof);
-                    }
-                }
-                else
-                {
-                    dig.put((cast(ubyte*)&value)[0 .. value.sizeof]);
-                }
-            }
-        }
-        else
-        {
-            static assert(0, "handle type " ~ T.stringof);
-        }
+        digestAny(dig, value);
 
         dig.finish();
 
@@ -178,18 +179,16 @@ hash_t hashOf2(alias hasher, T)(in auto ref T value)
 
     struct S
     {
-        string str = `abc`;
-        wstring wstr = `XYZ`;
-        dstring dstr = `123`;
+        // string str = `abc`;
+        // wstring wstr = `XYZ`;
+        // dstring dstr = `123`;
         size_t sz = 17;
         ushort us = 18;
         ubyte ub = 255;
         V v;
     }
 
-    dln(hashOf2!(FNV64)(S()));
-    assert(hashOf2!(FNV64)(S()) == 11083319882675209192UL);
-
+    assert(hashOf2!(FNV64)(S()) == 8596044036553494053UL);
     assert(hashOf2!(FNV64)(S()) ==
            hashOf2!(FNV64)(S()));
 }

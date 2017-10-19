@@ -161,7 +161,7 @@ struct Point(E, uint D)
         sink.formattedWrite("Point(%s)", _point);
     }
 
-    @property string toMathML() const
+    @property string toMathML()() const
     {
         // opening
         string str = `<math><mrow>
@@ -253,7 +253,7 @@ struct Vector(E, uint D,
                 return;
             }
         }
-        foreach (i; iota!(0, D))
+        foreach (immutable i; iota!(0, D))
         {
             _vector[i] = vec._vector[i];
         }
@@ -280,8 +280,8 @@ struct Vector(E, uint D,
 
     @property const
     {
-        string orientationString() { return orient == Orient.column ? `Column` : `Row`; }
-        string joinString() { return orient == Orient.column ? ` \\ ` : ` & `; }
+        string orientationString()() { return orient == Orient.column ? `Column` : `Row`; }
+        string joinString()() { return orient == Orient.column ? ` \\ ` : ` & `; }
     }
 
     @property void toString(scope void delegate(const(char)[]) sink) const
@@ -292,12 +292,12 @@ struct Vector(E, uint D,
     }
 
     /** Returns: LaTeX Encoding of Vector. http://www.thestudentroom.co.uk/wiki/LaTex#Matrices_and_Vectors */
-    @property string toLaTeX() const
+    @property string toLaTeX()() const
     {
         return `\begin{pmatrix} ` ~ map!(to!string)(_vector[]).join(joinString) ~ ` \end{pmatrix}` ;
     }
 
-    @property string toMathML() const
+    @property string toMathML()() const
     {
         // opening
         string str = `<math><mrow>
@@ -310,7 +310,7 @@ struct Vector(E, uint D,
     <mtr>`;
         }
 
-        foreach (i; iota!(0, D))
+        foreach (immutable i; iota!(0, D))
         {
             final switch (orient)
             {
@@ -346,7 +346,7 @@ struct Vector(E, uint D,
         return str;
     }
 
-    auto randInPlace(E scaling = 1)
+    auto randInPlace()(E scaling = 1)
     {
         import random_ex: randInPlace;
         static if (normalizedFlag &&
@@ -383,11 +383,11 @@ struct Vector(E, uint D,
     }
 
     /// Returns: `true` if all values are not `nan` nor `infinite`, otherwise `false`.
-    @property bool ok() const
+    @property bool ok()() const
     {
         static if (isFloatingPoint!E)
         {
-            foreach (v; _vector)
+            foreach (const ref v; _vector)
             {
                 if (isNaN(v) ||
                     isInfinity(v))
@@ -408,9 +408,10 @@ struct Vector(E, uint D,
     // @property auto value_ptr() { return _vector.ptr; }
 
     /// Sets all values to `value`.
-    void clear(E value)
+    void clear(V)(V value)
+        if (isAssignable!(E, V))
     {
-        foreach (i; iota!(0, D))
+        foreach (immutable i; iota!(0, D))
         {
             _vector[i] = value;
         }
@@ -435,7 +436,7 @@ struct Vector(E, uint D,
     bool opEquals(S)(in S scalar) const
         if (isAssignable!(E, S)) // TOREVIEW: Use isNotEquable instead
     {
-        foreach (i; iota!(0, D))
+        foreach (immutable i; iota!(0, D))
         {
             if (_vector[i] != scalar)
             {
@@ -459,7 +460,7 @@ struct Vector(E, uint D,
         {
             return false;
         }
-        foreach (i; iota!(0, D))
+        foreach (immutable i; iota!(0, D))
         {
             if (_vector[i] != array[i])
             {
@@ -530,11 +531,11 @@ struct Vector(E, uint D,
 
     ref inout(Vector) opUnary(string op : "+")() inout { return this; }
 
-    Vector   opUnary(string op : "-")() const
+    Vector opUnary(string op : "-")() const
         if (isSigned!(E))
     {
         Vector y;
-        foreach (i; iota!(0, D))
+        foreach (immutable i; iota!(0, D))
         {
             y._vector[i] = - _vector[i];
         }
@@ -546,7 +547,7 @@ struct Vector(E, uint D,
             (op == "-"))
     {
         Vector!(CommonType!(E, F), D) y;
-        foreach (i; iota!(0, D))
+        foreach (immutable i; iota!(0, D))
         {
             y._vector[i] = mixin("_vector[i]" ~ op ~ "r._vector[i]");
         }
@@ -556,7 +557,7 @@ struct Vector(E, uint D,
     Vector opBinary(string op : "*", F)(F r) const
     {
         Vector!(CommonType!(E, F), D) y;
-        foreach (i; iota!(0, dimension))
+        foreach (immutable i; iota!(0, dimension))
         {
             y._vector[i] = _vector[i] * r;
         }
@@ -589,9 +590,9 @@ struct Vector(E, uint D,
     {
         Vector!(E, T.rows) ret;
         ret.clear(0);
-        foreach (c; iota!(0, T.cols))
+        foreach (immutable c; iota!(0, T.cols))
         {
-            foreach (r; iota!(0, T.rows))
+            foreach (immutable r; iota!(0, T.rows))
             {
                 ret._vector[r] += _vector[c] * inp.at(r,c);
             }
@@ -609,9 +610,10 @@ struct Vector(E, uint D,
     }
 
     /** TODO Suitable Restrictions on F. */
-    void opOpAssign(string op, F)(F r) /* if ((op == "+") || (op == "-") || (op == "*") || (op == "%") || (op == "/") || (op == "^^")) */
+    void opOpAssign(string op, F)(F r)
+        /* if ((op == "+") || (op == "-") || (op == "*") || (op == "%") || (op == "/") || (op == "^^")) */
     {
-        foreach (i; iota!(0, dimension))
+        foreach (immutable i; iota!(0, dimension))
         {
             mixin("_vector[i]" ~ op ~ "= r;");
         }
@@ -628,7 +630,7 @@ struct Vector(E, uint D,
         if ((op == "+") ||
             (op == "-"))
     {
-        foreach (i; iota!(0, dimension))
+        foreach (immutable i; iota!(0, dimension))
         {
             mixin("_vector[i]" ~ op ~ "= r._vector[i];");
         }
@@ -647,7 +649,7 @@ struct Vector(E, uint D,
         {
             E y = 0;                // TOREVIEW: Use other precision for now
         }
-        foreach (i; iota!(0, D)) { y += _vector[i] ^^ N; }
+        foreach (immutable i; iota!(0, D)) { y += _vector[i] ^^ N; }
         return y;
     }
 
@@ -664,6 +666,7 @@ struct Vector(E, uint D,
             return nrnNorm!2;
         }
     }
+
     /// Returns: Magnitude of x.
     @property real magnitude()() const
         if (isNumeric!E)
@@ -682,12 +685,12 @@ struct Vector(E, uint D,
     static if (isFloatingPoint!E)
     {
         /// Normalize `this`.
-        void normalize()
+        void normalize()()
         {
             if (this != 0)         // zero vector have zero magnitude
             {
                 immutable m = this.magnitude;
-                foreach (i; iota!(0, D))
+                foreach (immutable i; iota!(0, D))
                 {
                     _vector[i] /= m;
                 }
@@ -695,12 +698,13 @@ struct Vector(E, uint D,
         }
 
         /// Returns: normalizedFlag Copy of this Vector.
-        @property Vector normalized() const
+        @property Vector normalized()() const
         {
             Vector y = this;
             y.normalize();
             return y;
         }
+
         unittest
         {
             static if (D == 2 && !normalizedFlag)
@@ -711,7 +715,8 @@ struct Vector(E, uint D,
     }
 
     /// Returns: Vector Index at Character Coordinate `coord`.
-    private @property ref inout(E) get_(char coord)() inout {
+    private @property ref inout(E) get_(char coord)() inout
+    {
         return _vector[coordToIndex!coord];
     }
 
@@ -779,6 +784,7 @@ struct Vector(E, uint D,
             enum Vector e4 = Vector(E0, E0, E0, E1); /// ditto
         }
     }
+
     @safe pure nothrow @nogc unittest
     {
         static if (isNumeric!E)
@@ -807,11 +813,20 @@ struct Vector(E, uint D,
     }
 
 }
-auto rowVector(Ts...)(Ts args) if (haveCommonType!Ts) { return Vector!(CommonType!Ts, args.length)(args); }
-auto columnVector(Ts...)(Ts args) if (haveCommonType!Ts) { return Vector!(CommonType!Ts, args.length, false, Orient.column)(args); }
-alias colVector = columnVector;
 
+auto rowVector(Ts...)(Ts args)
+    if (haveCommonType!Ts)
+{
+    return Vector!(CommonType!Ts, args.length)(args);
+}
 alias vector = rowVector; // TODO Should rowVector or columnVector be default?
+
+auto columnVector(Ts...)(Ts args)
+    if (haveCommonType!Ts)
+{
+    return Vector!(CommonType!Ts, args.length, false, Orient.column)(args);
+}
+alias colVector = columnVector;
 
 mixin(makeInstanceAliases("Vector", "vec", 2,4,
                           ["ubyte", "int", "float", "double", "real", "bool"]));
@@ -857,12 +872,13 @@ auto elementwiseLessThanOrEqual(Ta, Tb, uint D)(Vector!(Ta, D) a,
                                                 Vector!(Tb, D) b)
 {
     Vector!(bool, D) c = void;
-    foreach (i; iota!(0, D))
+    foreach (immutable i; iota!(0, D))
     {
         c[i] = a[i] <= b[i];
     }
     return c;
 }
+
 @safe pure nothrow @nogc unittest
 {
     assert(elementwiseLessThanOrEqual(vec2f(1, 1),
@@ -877,7 +893,7 @@ T dotProduct(T, U)(in T a, in U b)
          U.dimension))
 {
     T c = void;
-    foreach (i; iota!(0, T.dimension))
+    foreach (immutable i; iota!(0, T.dimension))
     {
         c[i] = a[i] * b[i];
     }
@@ -892,9 +908,9 @@ auto outerProduct(Ta, Tb, uint Da, uint Db)(in Vector!(Ta, Da) a,
         Db >= 1)
 {
     Matrix!(CommonType!(Ta, Tb), Da, Db) y = void;
-    foreach (r; iota!(0, Da))
+    foreach (immutable r; iota!(0, Da))
     {
-        foreach (c; iota!(0, Db))
+        foreach (immutable c; iota!(0, Db))
         {
             y.at(r,c) = a[r] * b[c];
         }
@@ -954,14 +970,29 @@ struct Matrix(E, uint rows_, uint cols_,
     static if (layout == Layout.rowMajor)
     {
         E[cols][rows] _matrix; // In C it would be mt[rows][cols], D does it like this: (mt[cols])[rows]
-        ref inout(E) opCall(uint row, uint col) inout { return _matrix[row][col]; }
-        ref inout(E)     at(uint row, uint col) inout { return _matrix[row][col]; }
+
+        ref inout(E) opCall()(uint row, uint col) inout
+        {
+            return _matrix[row][col];
+        }
+
+        ref inout(E) at()(uint row, uint col) inout
+        {
+            return _matrix[row][col];
+        }
     }
     else
     {
         E[rows][cols] _matrix; // In C it would be mt[cols][rows], D does it like this: (mt[rows])[cols]
-        ref inout(E) opCall(uint row, uint col) inout { return _matrix[col][row]; }
-        ref inout(E) at    (uint row, uint col) inout { return _matrix[col][row]; }
+        ref inout(E) opCall()(uint row, uint col) inout
+        {
+            return _matrix[col][row];
+        }
+
+        ref inout(E) at()(uint row, uint col) inout
+        {
+            return _matrix[col][row];
+        }
     }
     alias _matrix this;
 
@@ -983,12 +1014,12 @@ struct Matrix(E, uint rows_, uint cols_,
         sink.formattedWrite("Matrix(%s)", _matrix);
     }
 
-    @property string toLaTeX() const
+    @property string toLaTeX()() const
     {
         string s;
-        foreach (r; iota!(0, rows))
+        foreach (immutable r; iota!(0, rows))
         {
-            foreach (c; iota!(0, cols))
+            foreach (immutable c; iota!(0, cols))
             {
                 s ~= to!string(at(r, c)) ;
                 if (c != cols - 1) { s ~= ` & `; } // if not last column
@@ -998,18 +1029,18 @@ struct Matrix(E, uint rows_, uint cols_,
         return `\begin{pmatrix} ` ~ s ~ ` \end{pmatrix}`;
     }
 
-    @property string toMathML() const
+    @property string toMathML()() const
     {
         // opening
         string str = `<math><mrow>
   <mo>❲</mo>
   <mtable>`;
 
-        foreach (r; iota!(0, rows))
+        foreach (immutable r; iota!(0, rows))
         {
             str ~=  `
     <mtr>`;
-            foreach (c; iota!(0, cols))
+            foreach (immutable c; iota!(0, cols))
             {
                 str ~= `
       <mtd>
@@ -1030,7 +1061,7 @@ struct Matrix(E, uint rows_, uint cols_,
     }
 
     /// Returns: The current _matrix as pretty formatted string.
-    @property string toPrettyString()
+    @property string toPrettyString()()
     {
         string fmtr = "%s";
 
@@ -1125,9 +1156,9 @@ struct Matrix(E, uint rows_, uint cols_,
             (T.rows < rows))
     {
         makeIdentity();
-        foreach (r; iota!(0, T.rows))
+        foreach (immutable r; iota!(0, T.rows))
         {
-            foreach (c; iota!(0, T.cols))
+            foreach (immutable c; iota!(0, T.cols))
             {
                 at(r, c) = mat.at(r, c);
             }
@@ -1137,7 +1168,7 @@ struct Matrix(E, uint rows_, uint cols_,
     this()(E value) { clear(value); }
 
     /// Returns: `true` if all values are not nan and finite, otherwise `false`.
-    @property bool ok() const
+    @property bool ok()() const
     {
         static if (isFloatingPoint!E)
         {
@@ -1157,11 +1188,11 @@ struct Matrix(E, uint rows_, uint cols_,
     }
 
     /// Sets all values of the matrix to value (each column in each row will contain this value).
-    void clear(E value)
+    void clear()(E value)
     {
-        foreach (r; iota!(0, rows))
+        foreach (immutable r; iota!(0, rows))
         {
-            foreach (c; iota!(0, cols))
+            foreach (immutable c; iota!(0, cols))
             {
                 at(r,c) = value;
             }
@@ -1171,10 +1202,10 @@ struct Matrix(E, uint rows_, uint cols_,
     static if (rows == cols)
     {
         /// Makes the current matrix an identity matrix.
-        void makeIdentity()
+        void makeIdentity()()
         {
             clear(0);
-            foreach (r; iota!(0, rows))
+            foreach (immutable r; iota!(0, rows))
             {
                 at(r,r) = 1;
             }
@@ -1185,8 +1216,7 @@ struct Matrix(E, uint rows_, uint cols_,
         {
             Matrix ret;
             ret.clear(0);
-
-            foreach (r; iota!(0, rows))
+            foreach (immutable r; iota!(0, rows))
             {
                 ret.at(r,r) = 1;
             }
@@ -1196,7 +1226,7 @@ struct Matrix(E, uint rows_, uint cols_,
         alias id = identity;    // shorthand
 
         /// Transpose Current Matrix.
-        void transpose()
+        void transpose()()
         {
             _matrix = transposed()._matrix;
         }
@@ -1237,12 +1267,12 @@ struct Matrix(E, uint rows_, uint cols_,
     }
 
     /// Returns: a transposed copy of the matrix.
-    @property Matrix!(E, cols, rows) transposed() const
+    @property Matrix!(E, cols, rows) transposed()() const
     {
         typeof(return) ret;
-        foreach (r; iota!(0, rows))
+        foreach (immutable r; iota!(0, rows))
         {
-            foreach (c; iota!(0, cols))
+            foreach (immutable c; iota!(0, cols))
             {
                 ret.at(c,r) = at(r,c);
             }
@@ -1315,14 +1345,14 @@ struct SpherePoint3(E)
         sink.formattedWrite("SpherePoint3(%s)", _spherePoint);
     }
 
-    @property string toMathML() const
+    @property string toMathML()() const
     {
         // opening
         string str = `<math><mrow>
   <mo>(</mo>
   <mtable>`;
 
-        foreach (i; iota!(0, D))
+        foreach (immutable i; iota!(0, D))
         {
             str ~= `
     <mtr>
@@ -1382,11 +1412,11 @@ struct ForcedParticle(E, uint D,
 {
     Point!(E, D) position;
     Vector!(E, D, normalizedVelocityFlag) velocity;
-    E mass;
     Vector!(E, D) force;
+    E mass;
 
     /// Get acceleration.
-    @property auto acceleration() const { return force/mass; }
+    @property auto acceleration()() const { return force/mass; }
 }
 
 /** `D`-Dimensional Axis-Aligned (Hyper) Cartesian `Box` with Element (Component) Type `E`.
@@ -1425,7 +1455,7 @@ struct Box(E, uint D)
     /// Expands the Box, so that $(I v) is part of the Box.
     ref Box expand(Vector!(E,D) v)
     {
-        foreach (i; iota!(0, D))
+        foreach (immutable i; iota!(0, D))
         {
             if (min[i] > v[i]) min[i] = v[i];
             if (max[i] < v[i]) max[i] = v[i];
@@ -1434,7 +1464,7 @@ struct Box(E, uint D)
     }
 
     /// Expands box by another box `b`.
-    ref Box expand(Box b)
+    ref Box expand()(Box b)
     {
         return this.expand(b.min).expand(b.max);
     }
@@ -1452,10 +1482,10 @@ struct Box(E, uint D)
     }
 
     /** Returns: Length of Sides */
-    @property auto sides() const { return max - min; }
+    @property auto sides()() const { return max - min; }
 
     /** Returns: Area */
-    @property real sidesProduct() const
+    @property real sidesProduct()() const
     {
         typeof(return) y = 1;
         foreach (const ref side; sides)
@@ -1538,7 +1568,7 @@ struct Plane(E, uint D)
     /// or from a 3-dimensional vector (= normal) and a scalar.
     static if (D == 2)
     {
-        this(E a, E b, E distance)
+        this()(E a, E b, E distance)
         {
             this.normal.x = a;
             this.normal.y = b;
@@ -1547,7 +1577,7 @@ struct Plane(E, uint D)
     }
     else static if (D == 3)
     {
-        this(E a, E b, E c, E distance)
+        this()(E a, E b, E c, E distance)
         {
             this.normal.x = a;
             this.normal.y = b;
@@ -1556,7 +1586,7 @@ struct Plane(E, uint D)
         }
     }
 
-    this(NormalType normal, E distance)
+    this()(NormalType normal, E distance)
     {
         this.normal = normal;
         this.distance = distance;
@@ -1577,7 +1607,7 @@ struct Plane(E, uint D)
     /* } */
 
     /// Normalizes the plane inplace.
-    void normalize()
+    void normalize()()
     {
         immutable E det = cast(E)1 / normal.magnitude;
         normal *= det;
@@ -1640,29 +1670,32 @@ struct Sphere(E, uint D)
     CenterType center;
     E radius;
 
-    void translate(Vector!(E, D) shift) { center = center + shift; } // point + vector => point
+    void translate(Vector!(E, D) shift)
+    {
+        center = center + shift; // point + vector => point
+    }
     alias shift = translate;
 
     @property:
 
-    E diameter() const
+    E diameter()() const
     {
         return 2 * radius;
     }
     static if (D == 2)
     {
-        auto area() const
+        auto area()() const
         {
             return PI * radius ^^ 2;
         }
     }
     else static if (D == 3)
     {
-        auto area() const
+        auto area()() const
         {
             return 4 * PI * radius ^^ 2;
         }
-        auto volume() const
+        auto volume()() const
         {
             return 4 * PI * radius ^^ 3 / 3;
         }
@@ -1671,7 +1704,7 @@ struct Sphere(E, uint D)
     {
         // See also: https://en.wikipedia.org/wiki/Volume_of_an_n-ball
         real n = D;
-        auto volume() const
+        auto volume()() const
         {
             import std.mathspecial: gamma;
             return PI ^^ (n / 2) / gamma(n / 2 + 1) * radius ^^ n;

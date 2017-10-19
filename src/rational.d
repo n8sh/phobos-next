@@ -100,7 +100,6 @@ template isIntegerLike(T)
         }
         else
         {
-            pragma(msg, T);
             enum isIntegerLike = is(typeof(
             {
                 T n;

@@ -212,8 +212,8 @@ else
     alias KeyN(size_t span, size_t N) = ubyte[N];
 }
 
-import index_arrayn : IndexArrayN;
-alias IxsN = IndexArrayN;
+import index_arrayn : StaticModArray;
+alias IxsN = StaticModArray;
 
 alias UKey = Key!span;
 bool empty(UKey ukey) @safe pure nothrow @nogc

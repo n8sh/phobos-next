@@ -149,16 +149,7 @@ hash_t HashOf(alias hasher, T)(in T value)
 
 hash_t hashOf2(alias hasher, T)(in auto ref T value)
 {
-    import std.traits : hasIndirections;
-    static if (hasIndirections!T)
-    {
-        import std.traits : FieldNameTuple;
-        return HashOf!(hasher)(value);
-    }
-    else
-    {
-        return HashOf!(hasher)(value);
-    }
+    return HashOf!(hasher)(value);
 }
 
 @trusted pure unittest
@@ -187,6 +178,9 @@ hash_t hashOf2(alias hasher, T)(in auto ref T value)
         ubyte ub = 255;
         V v;
     }
+
+    dln(hashOf2!(FNV64)(S()));
+    assert(hashOf2!(FNV64)(S()) == 11083319882675209192UL);
 
     assert(hashOf2!(FNV64)(S()) ==
            hashOf2!(FNV64)(S()));

@@ -27,12 +27,11 @@
    See: https://www.google.se/search?q=point+plus+vector
    See: http://mosra.cz/blog/article.php?a=22-introducing-magnum-a-multiplatform-2d-3d-graphics-engine
 */
-
 module geometry;
 
 version = unittestAllInstances;
 
-// version = print;
+// version = show;
 
 version(NoReciprocalMul)
 {
@@ -834,7 +833,7 @@ alias nvec4f = Vector!(float, 4, true);
     assert(any!"a"(vec2b(false, true)[]));
     assert(any!"a"(vec2b(true, false)[]));
     assert(!any!"a"(vec2b(false, false)[]));
-    version(print)
+    version(show)
     {
         dln(vec2f(2, 3));
         dln(transpose(vec2f(11, 22)));
@@ -1702,7 +1701,7 @@ auto sphere(C, R)(C center, R radius)
 @safe pure nothrow @nogc unittest
 {
     const x = sphere(point(1.0, 2, 3, 4), 10.0);
-    version(print) dln(x, " has volume ", x.volume);
+    version(show) dln(x, " has volume ", x.volume);
 }
 
 /**
@@ -1729,7 +1728,7 @@ bool intersect(T)(Circle!T circle, Rect!T rect)
 
 @safe pure nothrow @nogc unittest
 {
-    version(print)
+    version(show)
     {
         dln(box2f(vec2f(1, 2),
                   vec2f(3, 3)));
@@ -1762,7 +1761,7 @@ version(unittest)
     import array_help : s;
 }
 
-version(print)
+version(show)
 {
     import dbgio;
 }

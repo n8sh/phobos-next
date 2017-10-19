@@ -6,13 +6,14 @@ version = useModulo;
     `Mod`-elements in chunks of `elementLength`. `ElementType` is
     `Mod[elementLength]`.
 */
-struct IndexArrayN(uint capacity,
+struct StaticModArray(uint capacity,
                    uint elementLength = 1,
                    uint span = 8)
     if (capacity*elementLength >= 2) // no use storing less than 2 bytes
 {
     private enum radix = 2^^span;
 
+    /// Index modulo `radix` type.
     version(useModulo)
     {
         import modulo : Mod;
@@ -35,7 +36,8 @@ struct IndexArrayN(uint capacity,
         alias T = Ix[L];
     }
 
-    this(uint rhsCapacity)(in IndexArrayN!(rhsCapacity,
+    /** Construct with `rhsCapacity`. */
+    this(uint rhsCapacity)(in StaticModArray!(rhsCapacity,
                                            elementLength,
                                            span) rhs)
     {
@@ -43,18 +45,19 @@ struct IndexArrayN(uint capacity,
         {
             assert(rhs.length <= capacity);
         }
-        foreach (const i, const ix; rhs)
+        foreach (immutable i, const ix; rhs)
         {
             _store[i] = ix;
         }
         _length = rhs.length;
     }
 
+    /** Construct with elements `es`. */
     this(Es...)(Es es)
         if (Es.length >= 1 &&
             Es.length <= capacity)
     {
-        foreach (const i, const ix; es)
+        foreach (immutable i, const ix; es)
         {
             _store[i] = ix;
         }
@@ -63,6 +66,7 @@ struct IndexArrayN(uint capacity,
 
     static if (L == 1)
     {
+        /** Construct with elements in `es`. */
         this(const Ix[] es)
         {
             assert(es.length <= capacity);
@@ -71,12 +75,13 @@ struct IndexArrayN(uint capacity,
         }
     }
 
+    /** Default key separator in printing. */
     enum keySeparator = ',';
 
     @property auto toString(char separator = keySeparator) const
     {
         string s;
-        foreach (const i, const ix; chunks)
+        foreach (immutable i, const ix; chunks)
         {
             if (i != 0) { s ~= separator; }
             import std.string : format;
@@ -124,7 +129,7 @@ struct IndexArrayN(uint capacity,
     {
         assert(!empty);
         // TODO is there a reusable Phobos function for this?
-        foreach (const i; 0 .. _length - 1)
+        foreach (immutable i; 0 .. _length - 1)
         {
             _store[i] = _store[i + 1]; // like `_store[i] = _store[i + 1];` but more generic
         }
@@ -137,7 +142,7 @@ struct IndexArrayN(uint capacity,
     {
         assert(length >= n);
         // TODO is there a reusable Phobos function for this?
-        foreach (const i; 0 .. _length - n)
+        foreach (immutable i; 0 .. _length - n)
         {
             _store[i] = _store[i + n];
         }
@@ -160,7 +165,7 @@ struct IndexArrayN(uint capacity,
         if (Es.length <= capacity)
     {
         assert(length + Es.length <= capacity);
-        foreach (const i, const e; es)
+        foreach (immutable i, const e; es)
         {
             _store[_length + i] = e;
         }
@@ -246,10 +251,10 @@ private:
                      ubyte, "_mustBeIgnored", typeBits)); // must be here and ignored because it contains `WordVariant` type of `Node`
 }
 
-static assert(IndexArrayN!(3, 1, 8).sizeof == 4);
-static assert(IndexArrayN!(7, 1, 8).sizeof == 8);
-static assert(IndexArrayN!(3, 2, 8).sizeof == 8);
-static assert(IndexArrayN!(2, 3, 8).sizeof == 8);
+static assert(StaticModArray!(3, 1, 8).sizeof == 4);
+static assert(StaticModArray!(7, 1, 8).sizeof == 8);
+static assert(StaticModArray!(3, 2, 8).sizeof == 8);
+static assert(StaticModArray!(2, 3, 8).sizeof == 8);
 
 ///
 @safe pure nothrow @nogc unittest
@@ -279,8 +284,8 @@ static assert(IndexArrayN!(2, 3, 8).sizeof == 8);
     const ixs = [mk(11), mk(22), mk(33), mk(44)].s;
     enum capacity = 7;
 
-    auto x = IndexArrayN!(capacity, 1)(ixs);
-    auto y = IndexArrayN!(capacity, 1)(mk(11), mk(22), mk(33), mk(44));
+    auto x = StaticModArray!(capacity, 1)(ixs);
+    auto y = StaticModArray!(capacity, 1)(mk(11), mk(22), mk(33), mk(44));
 
     assert(x == y);
 
@@ -374,7 +379,7 @@ static assert(IndexArrayN!(2, 3, 8).sizeof == 8);
 
     const ixs = [mk(11), mk(22), mk(33), mk(44)].s;
     enum capacity = 7;
-    auto z = IndexArrayN!(capacity, 1)(ixs);
+    auto z = StaticModArray!(capacity, 1)(ixs);
     assert(z.sizeof == 8);
     try
     {

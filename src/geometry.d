@@ -217,7 +217,8 @@ auto point(Ts...)(Ts args)
     return Point!(CommonType!Ts, args.length)(args);
 }
 
-mixin(makeInstanceAliases("Point", "point", 2,3, ["int", "float", "double", "real"]));
+mixin(makeInstanceAliases("Point", "point", 2,3,
+                          ["int", "float", "double", "real"]));
 
 @safe pure nothrow @nogc unittest
 {
@@ -815,7 +816,8 @@ alias colVector = columnVector;
 
 alias vector = rowVector; // TODO Should rowVector or columnVector be default?
 
-mixin(makeInstanceAliases("Vector", "vec", 2,4, ["ubyte", "int", "float", "double", "real", "bool"]));
+mixin(makeInstanceAliases("Vector", "vec", 2,4,
+                          ["ubyte", "int", "float", "double", "real", "bool"]));
 
 /* normalized vector aliases */
 alias nvec2f = Vector!(float, 2, true);
@@ -1376,7 +1378,8 @@ struct Particle(E, uint D,
     E mass;
 }
 
-mixin(makeInstanceAliases("Particle", "particle", 2,4, ["float", "double", "real"]));
+mixin(makeInstanceAliases("Particle", "particle", 2,4,
+                          ["float", "double", "real"]));
 
 /** $(D D)-Dimensional Particle with Coordinate Position and
     Direction/Velocity/Force Type (Precision) $(D E).
@@ -1499,7 +1502,8 @@ struct Box(E, uint D)
     }
 }
 
-mixin(makeInstanceAliases("Box","box", 2,4, ["int", "float", "double", "real"]));
+mixin(makeInstanceAliases("Box","box", 2,4,
+                          ["int", "float", "double", "real"]));
 
 Box!(E,D) unite(E, uint D)(Box!(E,D) a,
                            Box!(E,D) b) { return a.expand(b); }
@@ -1635,7 +1639,8 @@ struct Plane(E, uint D)
 
 }
 
-mixin(makeInstanceAliases("Plane","plane", 3,4, defaultElementTypes));
+mixin(makeInstanceAliases("Plane","plane", 3,4,
+                          defaultElementTypes));
 
 // ==============================================================================================
 

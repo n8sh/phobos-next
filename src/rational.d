@@ -1,5 +1,4 @@
-/**
- * This module contains an implementation of rational numbers that is templated
+/** This module contains an implementation of rational numbers that is templated
  * on the underlying integer type.  It can be used with either builtin fixed
  * width integers or arbitrary precision integers.  All relevant operators are
  * overloaded for both rational-rational and rational-integer operations.
@@ -50,8 +49,7 @@ import std.algorithm, std.bigint, std.conv, std.exception, std.math;
 
 alias abs = std.math.abs;       // allow cross-module overloading
 
-/**
- * Checks whether $(D T) is structurally an integer, i.e. whether it supports
+/** Checks whether $(D T) is structurally an integer, i.e. whether it supports
  * all of the operations an integer type should support.  Does not check the
  * nominal type of $(D T).  In particular, for a mutable type $(D T) the
  * following must compile:
@@ -157,15 +155,13 @@ template isIntegerLike(T)
     }
 }
 
-/**
- * Checks if $(D T) has the basic properties of a rational type, i.e.  it has a
+/** Checks if $(D T) has the basic properties of a rational type, i.e.  it has a
  * numerator and a denominator.
  */
 enum isRational(T) = (is(typeof(T.init.numerator)) &&
                       is(typeof(T.init.denominator)));
 
-/**
- * Returns a Common Integral Type between $(D I1) and $(D I2).  This is defined
+/** Returns a Common Integral Type between $(D I1) and $(D I2).  This is defined
  * as the type returned by I1.init * I2.init.
  */
 template CommonInteger(I1, I2)
@@ -183,11 +179,10 @@ template CommonInteger(I1, I2)
     static assert(is(CommonInteger!(byte, int) == int));
 }
 
-/**
- * Returns a Common Rational Type between $(D R1) and $(D R2), which
- * will be a Rational based on the CommonInteger of their underlying
- * integer types (or just on the CommonInteger of ($D R1) and $(D R2),
- * if they themselves are integers).
+/** Returns a Common Rational Type between $(D R1) and $(D R2), which will be a
+ * Rational based on the CommonInteger of their underlying integer types (or
+ * just on the CommonInteger of ($D R1) and $(D R2), if they themselves are
+ * integers).
  */
 template CommonRational(R1, R2)
 {
@@ -205,12 +200,11 @@ template CommonRational(R1, R2)
     }
 }
 
-/**
- * Implements rational numbers on top of whatever integer type is specified
- * by the user.  The integer type used may be any type that behaves as an integer.
- * Specifically, $(D isIntegerLike) must return true, the integer type must
- * have value semantics, and the semantics of all integer operations must follow
- * the normal rules of integer arithmetic.
+/** Implements rational numbers on top of whatever integer type is specified by
+ * the user.  The integer type used may be any type that behaves as an integer.
+ * Specifically, $(D isIntegerLike) must return true, the integer type must have
+ * value semantics, and the semantics of all integer operations must follow the
+ * normal rules of integer arithmetic.
  *
  * A regular integer can be converted to rational type simply by passing it as
  * a single argument.  In this case the denominator will simply be set to 1.
@@ -266,8 +260,7 @@ Rational!(I) rational(I)(I val)
     return rational(val, 1);
 }
 
-/**
- * The struct that implements rational numbers.  All relevant operators
+/** The struct that implements rational numbers.  All relevant operators
  * (addition, subtraction, multiplication, division, exponentiation by a
  * non-negative integer, equality and comparison) are overloaded.  The second
  * operand for all binary operators except exponentiation may be either another
@@ -752,8 +745,7 @@ public:
         }
     }
 
-    /**
-     * Casts $(D this) to an integer by truncating the fractional part.
+    /** Casts $(D this) to an integer by truncating the fractional part.
      * Equivalent to $(D integerPart), and then casting it to type $(D I).
      */
     I opCast(I)()
@@ -958,9 +950,9 @@ pure unittest
     }
 }
 
-/**
- * Convert a floating point number to a $(D Rational) based on integer type $(D Int).
- * Allows an error tolerance of $(D epsilon).  (Default $(D epsilon) = 1e-8.)
+/** Convert a floating point number to a $(D Rational) based on integer type $(D
+ * Int).  Allows an error tolerance of $(D epsilon).  (Default $(D epsilon) =
+ * 1e-8.)
  *
  * $(D epsilon) must be greater than 1.0L / long.max.
  *
@@ -1068,8 +1060,7 @@ unittest
     assert(abs(cast(real) eRational - E) < myEpsilon);
 }
 
-/**
- * Find the Greatest Common Factor (GCF), aka Greatest Common Divisor (GCD), of
+/** Find the Greatest Common Factor (GCF), aka Greatest Common Divisor (GCD), of
  * $(D m) and $(D n).
  */
 CommonInteger!(I1, I2) gcf(I1, I2)(I1 m, I2 n)
@@ -1175,10 +1166,8 @@ Int ceil(Int)(Rational!Int r)
     assert(ceil(rational(-2)) == -2);
 }
 
-/**
- * Round $(D r) to the nearest integer.  If the fractional part is exactly
- * 1/2, $(D r) will be rounded such that the absolute value is increased by
- * rounding.
+/** Round $(D r) to the nearest integer.  If the fractional part is exactly 1/2,
+ * $(D r) will be rounded such that the absolute value is increased by rounding.
  */
 Int round(Int)(Rational!Int r)
 {

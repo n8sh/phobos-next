@@ -136,7 +136,7 @@ template isIntegerLike(T)
     }
 }
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     import std.meta : AliasSeq;
     foreach (T; AliasSeq!(BigInt,
@@ -178,7 +178,7 @@ template CommonInteger(I1, I2)
                  Unqual!(I2).init) CommonInteger;
 }
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     static assert(is(CommonInteger!(BigInt, int) == BigInt));
     static assert(is(CommonInteger!(byte, int) == int));
@@ -809,7 +809,7 @@ private :
     }
 }
 
-unittest
+pure unittest
 {
     // All reference values from the Maxima computer algebra system.
 
@@ -1068,7 +1068,7 @@ CommonInteger!(I1, I2) gcf(I1, I2)(I1 m, I2 n)
     }
 }
 
-unittest
+pure unittest
 {
     assert(gcf(0, 0) == 0);
     assert(gcf(0, 1) == 1);
@@ -1110,7 +1110,7 @@ Int floor(Int)(Rational!Int r)
     }
 }
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     assert(floor(rational(1, 2)) == 0);
     assert(floor(rational(-1, 2)) == -1);
@@ -1134,7 +1134,7 @@ Int ceil(Int)(Rational!Int r)
     }
 }
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     assert(ceil(rational(1, 2)) == 1);
     assert(ceil(rational(0)) == 0);
@@ -1173,7 +1173,7 @@ Int round(Int)(Rational!Int r)
     return intPart;
 }
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     assert(round(rational(1, 3)) == 0);
     assert(round(rational(7, 2)) == 4);

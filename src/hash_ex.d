@@ -14,6 +14,7 @@
 module hash_ex;
 
 import std.traits : isScalarType, hasIndirections, isArray, isPointer;
+import std.digest.digest : isDigest;
 
 // TODO make inlining work for LDC
 version(LDC)
@@ -26,6 +27,7 @@ pragma(inline):                 // LDC can inline, DMD cannot
  */
 void digestAny(Digest, T)(ref Digest digest,
                           in auto ref T value)
+    if (isDigest!Digest)
 {
     static if (isScalarType!T)  // first because faster to evaluate than
                                 // `!hasIndirections!T` below
@@ -58,8 +60,9 @@ void digestAny(Digest, T)(ref Digest digest,
 /** Digest the class `value`. */
 void digestPointer(Digest, T)(scope ref Digest digest,
                               in T value) // no auto ref needed
-    if (is(T == class) ||
-        isPointer!T)
+    if (isDigest!Digest &&
+        (is(T == class) ||
+         isPointer!T))
 {
     digestRaw(digest, value);
 }
@@ -67,7 +70,8 @@ void digestPointer(Digest, T)(scope ref Digest digest,
 /** Digest the struct `value`. */
 void digestStruct(Digest, T)(scope ref Digest digest,
                              in auto ref T value)
-    if (is(T == struct))
+    if (isDigest!Digest &&
+        is(T == struct))
 {
     foreach (const ref subValue; value.tupleof)
     {
@@ -78,7 +82,8 @@ void digestStruct(Digest, T)(scope ref Digest digest,
 /** Digest the array `value`. */
 void digestArray(Digest, T)(scope ref Digest digest,
                             in auto ref T value)
-    if (isArray!T)
+    if (isDigest!Digest &&
+        isArray!T)
 {
     alias E = typeof(T.init[0]);
     static if (!hasIndirections!E)
@@ -95,6 +100,7 @@ void digestArray(Digest, T)(scope ref Digest digest,
 /** Digest raw bytes of `values`. */
 void digestRaw(Digest, T)(scope ref Digest digest,
                           in auto ref T value)
+    if (isDigest!Digest)
 {
     digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
 }
@@ -103,7 +109,6 @@ void digestRaw(Digest, T)(scope ref Digest digest,
  */
 hash_t HashOf(alias hasher, T)(in auto ref T value)
 {
-    import std.digest.digest : isDigest;
     import std.traits : hasMember;
 
     static if (__traits(compiles, { hash_t _ = hasher(value); }))

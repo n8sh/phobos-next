@@ -7,40 +7,6 @@ pragma(inline, true):           // TODO make this work
 }
 pragma(inline):                 // LDC can inline, DMD cannot
 
-/** Digest raw bytes. */
-void digestOfRaw(Digest, T)(scope ref Digest digest,
-                          in auto ref T value)
-    if (!hasIndirections!T)
-{
-}
-
-/** Digest of class. */
-void digestOfClass(Digest, T)(scope ref Digest digest,
-                              in T value)
-    if (is(T == class))
-{
-}
-
-/** Digest of struct. */
-void digestOfClass(Digest, T)(scope ref Digest digest,
-                              in auto ref T value)
-    if (is(T == struct))
-{
-}
-
-/** Digest array. */
-void digestOfArray(Digest, T)(scope ref Digest digest,
-                            in auto ref T value)
-    if (isArray!T)
-{
-}
-
-void digestOfSomeString(Digest, T)(scope ref Digest digest,
-                                 in auto ref T value)
-    if (isSomeString!T)
-{
-}
-
 /** Digest `value` into `digest`.
  */
 void digestOfAny(Digest, T)(ref Digest digest,
@@ -194,6 +160,40 @@ hash_t HashOf(alias hasher, T)(in T value)
         static assert(0, "Cannot combine hasher " ~ hasher.stringof ~
                       " with element type " ~ T.stringof);
     }
+}
+
+/** Digest raw bytes. */
+void digestOfRaw(Digest, T)(scope ref Digest digest,
+                          in auto ref T value)
+    if (!hasIndirections!T)
+{
+}
+
+/** Digest of class. */
+void digestOfClass(Digest, T)(scope ref Digest digest,
+                              in T value)
+    if (is(T == class))
+{
+}
+
+/** Digest of struct. */
+void digestOfClass(Digest, T)(scope ref Digest digest,
+                              in auto ref T value)
+    if (is(T == struct))
+{
+}
+
+/** Digest array. */
+void digestOfArray(Digest, T)(scope ref Digest digest,
+                            in auto ref T value)
+    if (isArray!T)
+{
+}
+
+void digestOfSomeString(Digest, T)(scope ref Digest digest,
+                                 in auto ref T value)
+    if (isSomeString!T)
+{
 }
 
 hash_t hashOf2(alias hasher, T)(in auto ref T value)

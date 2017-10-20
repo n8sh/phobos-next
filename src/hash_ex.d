@@ -217,6 +217,9 @@ hash_t hashOf2(alias hasher, T)(in auto ref T value)
         V v;
     }
 
+    assert(hashOf2!(FNV64)("alpha") ==
+           hashOf2!(FNV64)("alpha".dup));
+
     assert(hashOf2!(FNV64)(S()) ==
            hashOf2!(FNV64)(S()));
 }

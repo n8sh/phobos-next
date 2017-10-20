@@ -237,8 +237,26 @@ hash_t hashOf2(alias hasher, T)(in auto ref T value)
     // check determinism
     assert(hashOf2!(FNV64)("alpha") ==
            hashOf2!(FNV64)("alpha".dup));
+
     assert(hashOf2!(FNV64)(S()) ==
            hashOf2!(FNV64)(S()));
+
+    struct HasDigest
+    {
+        E e;
+        void toDigest(Digest)(scope ref Digest digest) const
+            pure nothrow @nogc
+            if (isDigest!Digest)
+        {
+            digestRaw(digest, e);
+        }
+    }
+
+    assert(hashOf2!(FNV64)(HasDigest(E.first)) ==
+           hashOf2!(FNV64)(HasDigest(E.first)));
+
+    assert(hashOf2!(FNV64)(HasDigest(E.first)) !=
+           hashOf2!(FNV64)(HasDigest(E.second)));
 }
 
 version(unittest)

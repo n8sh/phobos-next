@@ -104,7 +104,7 @@ struct CxxType
         if (cvQ.isConst) { sink(" const"); }
 
         // suffix qualifiers
-        foreach (_; 0 .. pointyness)
+        foreach (immutable _; 0 .. pointyness)
         {
             sink(`*`);// str ~= "*".replicate(pointyness);
         }

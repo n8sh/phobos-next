@@ -55,13 +55,6 @@ void digestAny(Digest, T)(ref Digest digest,
     }
 }
 
-/** Digest raw bytes of `values`. */
-void digestRaw(Digest, T)(scope ref Digest digest,
-                          in auto ref T value)
-{
-    digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
-}
-
 /** Digest the class `value`. */
 void digestPointer(Digest, T)(scope ref Digest digest,
                               in T value) // no auto ref needed
@@ -97,6 +90,13 @@ void digestArray(Digest, T)(scope ref Digest digest,
     {
         static assert(0, "handle array with element type " ~ T.stringof);
     }
+}
+
+/** Digest raw bytes of `values`. */
+void digestRaw(Digest, T)(scope ref Digest digest,
+                          in auto ref T value)
+{
+    digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
 }
 
 /** Get hash of `value`.

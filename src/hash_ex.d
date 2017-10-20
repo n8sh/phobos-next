@@ -52,7 +52,7 @@ void digestOfRaw(Digest, T)(scope ref Digest digest,
     digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
 }
 
-/** Digest of class `value`. */
+/** Digest the class `value`. */
 void digestOfClass(Digest, T)(scope ref Digest digest,
                               in T value)
     if (is(T == class))
@@ -60,7 +60,7 @@ void digestOfClass(Digest, T)(scope ref Digest digest,
     digestOfRaw(digest, value);
 }
 
-/** Digest of struct `value`. */
+/** Digest the struct `value`. */
 void digestOfStruct(Digest, T)(scope ref Digest digest,
                                in auto ref T value)
     if (is(T == struct))
@@ -71,7 +71,7 @@ void digestOfStruct(Digest, T)(scope ref Digest digest,
     }
 }
 
-/** Digest array. */
+/** Digest the array `value`. */
 void digestOfArray(Digest, T)(scope ref Digest digest,
                               in auto ref T value)
     if (isArray!T)
@@ -87,8 +87,9 @@ void digestOfArray(Digest, T)(scope ref Digest digest,
     }
 }
 
+/** Digest the string `value`. */
 void digestOfSomeString(Digest, T)(scope ref Digest digest,
-                                 in auto ref T value)
+                                   in auto ref T value)
     if (isSomeString!T)
 {
 }

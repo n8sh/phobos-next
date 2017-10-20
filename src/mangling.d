@@ -94,24 +94,22 @@ struct CxxType
     byte pointyness = 0;           // pointer level
     CXXCVQualifiers cvQ;
 
-    string toString()
-        @safe pure nothrow const
+    @property void toString(scope void delegate(const(char)[]) sink) const
     {
-        typeof(return) str;
+        if (cvQ.isVolatile) { sink("volatile "); }
+        if (cvQ.isRestrict) { sink("restrict "); }
 
-        if (cvQ.isVolatile) { str ~= "volatile "; }
-        if (cvQ.isRestrict) { str ~= "restrict "; }
+        sink(typeName);
 
-        str ~= typeName;
-
-        if (cvQ.isConst) { str ~= " const"; }
+        if (cvQ.isConst) { sink(" const"); }
 
         // suffix qualifiers
-        str ~= '*'.repeat(pointyness).array; // str ~= "*".replicate(pointyness);
-        if (isRef) { str ~= `&`; }
-        if (isRvalueRef) { str ~= `&&`; }
-
-        return str;
+        foreach (_; 0 .. pointyness)
+        {
+            sink(`*`);// str ~= "*".replicate(pointyness);
+        }
+        if (isRef) { sink(`&`); }
+        if (isRvalueRef) { sink(`&&`); }
     }
 }
 

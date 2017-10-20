@@ -74,7 +74,7 @@ void digestStruct(Digest, T)(scope ref Digest digest,
                              in T value)
     if (is(T == struct))
 {
-    foreach (ref subValue; value.tupleof)
+    foreach (const ref subValue; value.tupleof)
     {
         digestAny(digest, subValue);
     }

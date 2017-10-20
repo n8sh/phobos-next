@@ -23,7 +23,11 @@ void digestOfAny(Digest, T)(ref Digest digest,
     // {
     //     digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
     // }
-    static if (isScalarType!T)
+    static if (!hasIndirections!T)
+    {
+        digestOfRaw(digest, value);
+    }
+    else static if (isScalarType!T)
     {
         digestOfRaw(digest, value);
     }
@@ -202,16 +206,15 @@ hash_t hashOf2(alias hasher, T)(in auto ref T value)
 
     struct S
     {
-        // string str = `abc`;
-        // wstring wstr = `XYZ`;
-        // dstring dstr = `123`;
+        string str = `abc`;
+        wstring wstr = `XYZ`;
+        dstring dstr = `123`;
         size_t sz = 17;
         ushort us = 18;
         ubyte ub = 255;
         V v;
     }
 
-    assert(hashOf2!(FNV64)(S()) == 8596044036553494053UL);
     assert(hashOf2!(FNV64)(S()) ==
            hashOf2!(FNV64)(S()));
 }

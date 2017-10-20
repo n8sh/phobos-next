@@ -27,7 +27,8 @@ pragma(inline):                 // LDC can inline, DMD cannot
 void digestAny(Digest, T)(ref Digest digest,
                           in auto ref T value)
 {
-    static if (isScalarType!T)
+    static if (isScalarType!T)  // first because faster to evaluate than
+                                // `!hasIndirections!T` below
     {
         digestRaw(digest, value);
     }

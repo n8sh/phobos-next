@@ -107,7 +107,7 @@ void digestRaw(Digest, T)(scope ref Digest digest,
 
 /** Get hash of `value`.
  */
-hash_t HashOf(alias hasher, T)(in auto ref T value)
+hash_t hashOf2(alias hasher, T)(in auto ref T value)
 {
     import std.traits : hasMember;
 
@@ -189,11 +189,6 @@ hash_t HashOf(alias hasher, T)(in auto ref T value)
         static assert(0, "Cannot combine hasher " ~ hasher.stringof ~
                       " with element type " ~ T.stringof);
     }
-}
-
-hash_t hashOf2(alias hasher, T)(in auto ref T value)
-{
-    return HashOf!(hasher)(value);
 }
 
 @trusted pure unittest

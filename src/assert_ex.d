@@ -8,6 +8,7 @@
 
     extend to something like:
 
+    - must!"a == b"(x, y);
     - check!"a == b"(x, y);
     - require!"a == b"(x, y);
 */

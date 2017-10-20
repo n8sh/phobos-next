@@ -1,9 +1,15 @@
 #!/usr/bin/env rdmd-dev
 
 /** A Better assert.
+
     Copyright: Per Nordlöw 2017-.
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
     Authors: $(WEB Per Nordlöw)
+
+    extend to something like:
+
+    - check!"a == b"(x, y);
+    - require!"a == b"(x, y);
 */
 module assert_ex;
 
@@ -47,6 +53,7 @@ void assertTrue(T,
     version (assert) if (!test)
         throw new AssertError("at \n" ~file~ ":" ~to!string(line)~ ":\n  test: " ~to!string(test));
 }
+alias assertT = assertTrue;
 
 void assertEqual(T, U,
                  string file = __FILE__, uint line = __LINE__,

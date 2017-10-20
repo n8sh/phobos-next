@@ -28,8 +28,8 @@ void digestOfAny(Digest, T)(ref Digest digest,
     {
         digestOfRaw(digest, value);
     }
-    else static if (is(T == class) &&
-                    isPointer!T)
+    else static if (is(T == class) && // a class is memory-wise
+                    isPointer!T)      // just a pointer
     {
         digestOfPointer(digest, value);
     }

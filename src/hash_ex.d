@@ -13,7 +13,7 @@
  */
 module hash_ex;
 
-import std.traits : isScalarType, isAggregateType, hasIndirections, isSomeString, isArray, isPointer;
+import std.traits : isScalarType, hasIndirections, isArray, isPointer;
 
 // TODO make inlining work for LDC
 version(LDC)
@@ -211,11 +211,16 @@ hash_t hashOf2(alias hasher, T)(in auto ref T value)
         V v;
     }
 
+    // check determinism
     assert(hashOf2!(FNV64)("alpha") ==
            hashOf2!(FNV64)("alpha".dup));
-
     assert(hashOf2!(FNV64)(S()) ==
            hashOf2!(FNV64)(S()));
+
+    struct s
+    {
+        string s;
+    }
 }
 
 version(unittest)

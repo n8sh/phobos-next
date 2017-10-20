@@ -193,11 +193,25 @@ hash_t hashOf2(alias hasher, T)(in auto ref T value)
     const ubyte[8] bytes8 = [1, 2, 3, 4, 5, 6, 7, 8];
     assert(hashOf2!(FNV64)(bytes8) == 9130222009665091821UL);
 
+    enum E { first, second, third }
+
+    assert(hashOf2!(FNV64)(E.first) ==
+           hashOf2!(FNV64)(E.first));
+    assert(hashOf2!(FNV64)(E.second) ==
+           hashOf2!(FNV64)(E.second));
+    assert(hashOf2!(FNV64)(E.third) ==
+           hashOf2!(FNV64)(E.third));
+    assert(hashOf2!(FNV64)(E.first) !=
+           hashOf2!(FNV64)(E.second));
+    assert(hashOf2!(FNV64)(E.second) !=
+           hashOf2!(FNV64)(E.third));
+
     struct V
     {
         float f = 3;
         double d = 5;
         real r = 7;
+        E e;
     }
 
     struct S
@@ -216,11 +230,6 @@ hash_t hashOf2(alias hasher, T)(in auto ref T value)
            hashOf2!(FNV64)("alpha".dup));
     assert(hashOf2!(FNV64)(S()) ==
            hashOf2!(FNV64)(S()));
-
-    struct s
-    {
-        string s;
-    }
 }
 
 version(unittest)

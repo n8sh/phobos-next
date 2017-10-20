@@ -12,7 +12,7 @@ pragma(inline):                 // LDC can inline, DMD cannot
 /** Digest `value` into `digest`.
  */
 void digestAny(Digest, T)(ref Digest digest,
-                          in T value)
+                          in auto ref T value)
 {
     // TODO use:
     // static if (hasMember!(hasher, "putStaticArray"))
@@ -53,7 +53,7 @@ void digestAny(Digest, T)(ref Digest digest,
 
 /** Digest raw bytes of `values`. */
 void digestRaw(Digest, T)(scope ref Digest digest,
-                          in auto ref T value)
+                          in T value)
 {
     digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
 }
@@ -68,7 +68,7 @@ void digestOfPointer(Digest, T)(scope ref Digest digest,
 
 /** Digest the struct `value`. */
 void digestOfStruct(Digest, T)(scope ref Digest digest,
-                               in auto ref T value)
+                               in T value)
     if (is(T == struct))
 {
     foreach (ref subValue; value.tupleof)
@@ -79,7 +79,7 @@ void digestOfStruct(Digest, T)(scope ref Digest digest,
 
 /** Digest the array `value`. */
 void digestOfArray(Digest, T)(scope ref Digest digest,
-                              in auto ref T value)
+                              in T value)
     if (isArray!T)
 {
     alias E = typeof(T.init[0]);
@@ -95,14 +95,14 @@ void digestOfArray(Digest, T)(scope ref Digest digest,
 
 /** Digest the string `value`. */
 void digestOfSomeString(Digest, T)(scope ref Digest digest,
-                                   in auto ref T value)
+                                   in T value)
     if (isSomeString!T)
 {
 }
 
 /** Get hash of `value`.
  */
-hash_t HashOf(alias hasher, T)(in T value)
+hash_t HashOf(alias hasher, T)(in auto ref T value)
 {
     import std.digest.digest : isDigest;
     import std.traits : hasMember;

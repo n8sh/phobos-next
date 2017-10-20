@@ -1,3 +1,16 @@
+/** Hash digestion of standard types.
+ *
+ * TODO use:
+ *
+ *  static if (hasMember!(hasher, "putStaticArray"))
+ *  {
+ *      digest.putStaticArray((cast(ubyte*)&value)[0 .. value.sizeof]);
+ *  }
+ *  else
+ *  {
+ *      digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
+ *  }
+ */
 module hash_ex;
 
 import std.traits : isScalarType, isAggregateType, hasIndirections, isSomeString, isArray, isPointer;
@@ -14,16 +27,6 @@ pragma(inline):                 // LDC can inline, DMD cannot
 void digestAny(Digest, T)(ref Digest digest,
                           in auto ref T value)
 {
-    // TODO use:
-    // static if (hasMember!(hasher, "putStaticArray"))
-    // {
-    //     digest.putStaticArray((cast(ubyte*)&value)[0 .. value.sizeof]);
-    // }
-    // else
-    // {
-    //     digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
-    // }
-
     static if (isScalarType!T)
     {
         digestRaw(digest, value);
@@ -31,7 +34,7 @@ void digestAny(Digest, T)(ref Digest digest,
     else static if (is(T == class) && // a class is memory-wise
                     isPointer!T)      // just a pointer
     {
-        digestOfPointer(digest, value);
+        digestPointer(digest, value);
     }
     else static if (!hasIndirections!T) // no pointers left in `T`
     {
@@ -39,11 +42,11 @@ void digestAny(Digest, T)(ref Digest digest,
     }
     else static if (isArray!T) // including strings, wstring, dstring
     {
-        digestOfArray(digest, value);
+        digestArray(digest, value);
     }
     else static if (is(T == struct))
     {
-        digestOfStruct(digest, value);
+        digestStruct(digest, value);
     }
     else
     {
@@ -59,16 +62,16 @@ void digestRaw(Digest, T)(scope ref Digest digest,
 }
 
 /** Digest the class `value`. */
-void digestOfPointer(Digest, T)(scope ref Digest digest,
-                                in T value)
+void digestPointer(Digest, T)(scope ref Digest digest,
+                              in T value)
     if (is(T == class))
 {
     digestRaw(digest, value);
 }
 
 /** Digest the struct `value`. */
-void digestOfStruct(Digest, T)(scope ref Digest digest,
-                               in T value)
+void digestStruct(Digest, T)(scope ref Digest digest,
+                             in T value)
     if (is(T == struct))
 {
     foreach (ref subValue; value.tupleof)
@@ -78,8 +81,8 @@ void digestOfStruct(Digest, T)(scope ref Digest digest,
 }
 
 /** Digest the array `value`. */
-void digestOfArray(Digest, T)(scope ref Digest digest,
-                              in T value)
+void digestArray(Digest, T)(scope ref Digest digest,
+                            in T value)
     if (isArray!T)
 {
     alias E = typeof(T.init[0]);
@@ -91,13 +94,6 @@ void digestOfArray(Digest, T)(scope ref Digest digest,
     {
         static assert(0, "handle array with element type " ~ T.stringof);
     }
-}
-
-/** Digest the string `value`. */
-void digestOfSomeString(Digest, T)(scope ref Digest digest,
-                                   in T value)
-    if (isSomeString!T)
-{
 }
 
 /** Get hash of `value`.

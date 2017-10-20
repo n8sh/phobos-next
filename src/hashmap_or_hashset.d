@@ -978,7 +978,7 @@ private:
     pragma(inline, true)
     size_t keyToBinIx()(in auto ref K key) const
     {
-        import hash_ex : hashOf2;
+        import hash_ex : hashOf2; // faster alternative to `hashOf`
         return hashToIndex(hashOf2!(hasher)(key));
     }
 

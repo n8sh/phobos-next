@@ -116,15 +116,10 @@ hash_t HashOf(alias hasher, T)(in auto ref T value)
                     hasMember!(hasher, "get"))
     {
         import std.digest.digest : makeDigest;
-
         auto dig = makeDigest!(hasher);
-
         digestAny(dig, value);
-
         dig.finish();
-
         auto result = dig.get();
-
         static if (is(typeof(result) == typeof(return)))
         {
             return result;

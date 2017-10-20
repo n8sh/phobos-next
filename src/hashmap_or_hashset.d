@@ -952,18 +952,19 @@ private:
         Count _count;
     }
 
+    /// Bin states.
     alias Bstates = Array!(Bstate, Allocator);
 
     // TODO merge these into an instance of soa.d and remove invariant
-    Bins _bins;
-    Bstates _bstates;
+    Bins _bins;                 // bin elements
+    Bstates _bstates;           // bin states
     invariant
     {
         assert(_bins.length ==
                _bstates.length);
     }
 
-    size_t _length;
+    size_t _length;             // total number of elements stored
 
     /** Returns: bin index of `hash`. */
     pragma(inline, true)

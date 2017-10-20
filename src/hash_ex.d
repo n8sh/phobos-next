@@ -1,6 +1,6 @@
 module hash_ex;
 
-import std.traits : isScalarType, isAggregateType, hasIndirections, isSomeString, isArray;
+import std.traits : isScalarType, isAggregateType, hasIndirections, isSomeString, isArray, isPointer;
 
 // TODO make inlining work for LDC
 version(LDC)
@@ -23,17 +23,19 @@ void digestOfAny(Digest, T)(ref Digest digest,
     // {
     //     digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
     // }
-    static if (!hasIndirections!T)
+
+    static if (isScalarType!T)
     {
         digestOfRaw(digest, value);
     }
-    else static if (isScalarType!T)
+    else static if (is(T == class) &&
+                    isPointer!T)
+    {
+        digestOfPointer(digest, value);
+    }
+    else static if (!hasIndirections!T) // no pointers left in `T`
     {
         digestOfRaw(digest, value);
-    }
-    else static if (is(T == class))
-    {
-        digestOfClass(digest, value);
     }
     else static if (isArray!T) // including strings, wstring, dstring
     {
@@ -57,8 +59,8 @@ void digestOfRaw(Digest, T)(scope ref Digest digest,
 }
 
 /** Digest the class `value`. */
-void digestOfClass(Digest, T)(scope ref Digest digest,
-                              in T value)
+void digestOfPointer(Digest, T)(scope ref Digest digest,
+                                in T value)
     if (is(T == class))
 {
     digestOfRaw(digest, value);

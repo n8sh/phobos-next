@@ -88,6 +88,8 @@ void digestArray(Digest, T)(scope ref Digest digest,
     alias E = typeof(T.init[0]);
     static if (!hasIndirections!E)
     {
+        immutable length = value.length;
+        digest.put((cast(ubyte*)&length)[0 .. length.sizeof]);
         digest.put((cast(ubyte*)value.ptr)[0 .. value.length * value[0].sizeof]);
     }
     else

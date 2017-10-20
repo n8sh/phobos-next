@@ -106,6 +106,8 @@ void digestRaw(Digest, T)(scope ref Digest digest,
 }
 
 /** Get hash of `value`.
+ *
+ * A faster alternative to `hashOf`.
  */
 hash_t hashOf2(alias hasher, T)(in auto ref T value)
 {

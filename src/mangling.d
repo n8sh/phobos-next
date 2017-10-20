@@ -576,7 +576,8 @@ struct CxxBareFunctionType(R)
 {
     R[] types; // optional return and parameter types
     bool explicitVoidParameter = false; // set to true make void parameters explicit
-    R toString()
+
+    R toString()                // TODO use sink
         @safe pure
     {
         R value;
@@ -638,14 +639,11 @@ struct CXXCVQualifiers
                 isConst);
     }
 
-    string toString()
-        @safe pure nothrow const
+    @property void toString(scope void delegate(const(char)[]) sink) const
     {
-        typeof(return) value;
-        if (isRestrict) value ~= `restrict `;
-        if (isVolatile) value ~= `volatile `;
-        if (isConst)    value ~= `const `;
-        return value;
+        if (isRestrict) sink(`restrict `);
+        if (isVolatile) sink(`volatile `);
+        if (isConst)    sink(`const `);
     }
 }
 

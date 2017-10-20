@@ -978,8 +978,8 @@ private:
     pragma(inline, true)
     size_t keyToBinIx()(in auto ref K key) const
     {
-        import hash_ex : HashOf;
-        return hashToIndex(HashOf!(hasher)(key));
+        import hash_ex : hashOf2;
+        return hashToIndex(hashOf2!(hasher)(key));
     }
 
 }

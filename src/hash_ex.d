@@ -8,20 +8,27 @@ pragma(inline, true):           // TODO make this work
 pragma(inline):                 // LDC can inline, DMD cannot
 
 /** Digest raw bytes. */
-void digestRaw(Digest, T)(scope ref Digest digest,
+void digestOfRaw(Digest, T)(scope ref Digest digest,
                           in auto ref T value)
     if (!hasIndirections!T)
 {
 }
 
+/** Digest of calss. */
+void digestOfClass(Digest, T)(scope ref Digest digest,
+                              in T value)
+    if (is(T == class))
+{
+}
+
 /** Digest array. */
-void digestArray(Digest, T)(scope ref Digest digest,
+void digestOfArray(Digest, T)(scope ref Digest digest,
                             in auto ref T value)
     if (isArray!T)
 {
 }
 
-void digestSomeString(Digest, T)(scope ref Digest digest,
+void digestOfSomeString(Digest, T)(scope ref Digest digest,
                                  in auto ref T value)
     if (isSomeString!T)
 {
@@ -29,8 +36,8 @@ void digestSomeString(Digest, T)(scope ref Digest digest,
 
 /** Digest `value` into `digest`.
  */
-void digestAny(Digest, T)(ref Digest digest,
-                          in T value)
+void digestOfAny(Digest, T)(ref Digest digest,
+                            in T value)
 {
     // TODO use:
     // static if (hasMember!(hasher, "putStaticArray"))
@@ -116,7 +123,7 @@ hash_t HashOf(alias hasher, T)(in T value)
 
         auto dig = makeDigest!(hasher);
 
-        digestAny(dig, value);
+        digestOfAny(dig, value);
 
         dig.finish();
 

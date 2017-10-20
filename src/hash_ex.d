@@ -24,7 +24,7 @@ void digestOfAny(Digest, T)(ref Digest digest,
 
     import std.traits : isScalarType, isAggregateType, hasIndirections, isSomeString, isArray;
 
-    static if (isScalarType!T &&
+    static if (isScalarType!T ||
                is(T == class))  // mimics hashOf
     {
         digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);

@@ -27,7 +27,7 @@ void digestOfAny(Digest, T)(ref Digest digest,
     static if (isScalarType!T ||
                is(T == class))  // mimics hashOf
     {
-        digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
+        digestOfRaw(digest, value);
     }
     else static if (isArray!T) // including strings, wstring, dstring
     {
@@ -77,11 +77,11 @@ void digestOfAny(Digest, T)(ref Digest digest,
     }
 }
 
-/** Digest raw bytes. */
+/** Digest raw bytes of `values`. */
 void digestOfRaw(Digest, T)(scope ref Digest digest,
-                          in auto ref T value)
-    if (!hasIndirections!T)
+                            in auto ref T value)
 {
+    digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
 }
 
 /** Digest of class. */

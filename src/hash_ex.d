@@ -64,15 +64,16 @@ void digestRaw(Digest, T)(scope ref Digest digest,
 
 /** Digest the class `value`. */
 void digestPointer(Digest, T)(scope ref Digest digest,
-                              in T value)
-    if (is(T == class))
+                              in T value) // no auto ref needed
+    if (is(T == class) ||
+        isPointer!T)
 {
     digestRaw(digest, value);
 }
 
 /** Digest the struct `value`. */
 void digestStruct(Digest, T)(scope ref Digest digest,
-                             in T value)
+                             in auto ref T value)
     if (is(T == struct))
 {
     foreach (const ref subValue; value.tupleof)
@@ -83,7 +84,7 @@ void digestStruct(Digest, T)(scope ref Digest digest,
 
 /** Digest the array `value`. */
 void digestArray(Digest, T)(scope ref Digest digest,
-                            in T value)
+                            in auto ref T value)
     if (isArray!T)
 {
     alias E = typeof(T.init[0]);

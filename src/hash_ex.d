@@ -1,8 +1,33 @@
 module hash_ex;
 
+// TODO
+version(LDC)
+{
+pragma(inline, true):           // TODO make this work
+}
+pragma(inline):                 // LDC can inline, DMD cannot
+
+/** Digest raw bytes. */
+void digestRaw(Digest, T)(scope ref Digest digest,
+                          in auto ref T value)
+    if (!hasIndirections!T)
+{
+}
+
+/** Digest array. */
+void digestArray(Digest, T)(scope ref Digest digest,
+                            in auto ref T value)
+    if (isArray!T)
+{
+}
+
+void digestString(Digest, T)(scope ref Digest digest,
+                             in auto ref T value)
+{
+}
+
 /** Digest `value` into `digest`.
  */
-pragma(inline)              // LDC can inline, DMD cannot
 void digestAny(Digest, T)(ref Digest digest,
                           in T value)
 {
@@ -73,7 +98,6 @@ void digestAny(Digest, T)(ref Digest digest,
 
 /** Get hash of `value`.
  */
-pragma(inline)              // LDC can inline, DMD cannot
 hash_t HashOf(alias hasher, T)(in T value)
 {
     import std.digest.digest : isDigest;

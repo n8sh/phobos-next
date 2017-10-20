@@ -11,8 +11,8 @@ pragma(inline):                 // LDC can inline, DMD cannot
 
 /** Digest `value` into `digest`.
  */
-void digestOfAny(Digest, T)(ref Digest digest,
-                            in T value)
+void digestAny(Digest, T)(ref Digest digest,
+                          in T value)
 {
     // TODO use:
     // static if (hasMember!(hasher, "putStaticArray"))
@@ -26,7 +26,7 @@ void digestOfAny(Digest, T)(ref Digest digest,
 
     static if (isScalarType!T)
     {
-        digestOfRaw(digest, value);
+        digestRaw(digest, value);
     }
     else static if (is(T == class) && // a class is memory-wise
                     isPointer!T)      // just a pointer
@@ -35,7 +35,7 @@ void digestOfAny(Digest, T)(ref Digest digest,
     }
     else static if (!hasIndirections!T) // no pointers left in `T`
     {
-        digestOfRaw(digest, value);
+        digestRaw(digest, value); // hash everything in one call for better speed
     }
     else static if (isArray!T) // including strings, wstring, dstring
     {
@@ -52,8 +52,8 @@ void digestOfAny(Digest, T)(ref Digest digest,
 }
 
 /** Digest raw bytes of `values`. */
-void digestOfRaw(Digest, T)(scope ref Digest digest,
-                            in auto ref T value)
+void digestRaw(Digest, T)(scope ref Digest digest,
+                          in auto ref T value)
 {
     digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
 }
@@ -63,7 +63,7 @@ void digestOfPointer(Digest, T)(scope ref Digest digest,
                                 in T value)
     if (is(T == class))
 {
-    digestOfRaw(digest, value);
+    digestRaw(digest, value);
 }
 
 /** Digest the struct `value`. */
@@ -73,7 +73,7 @@ void digestOfStruct(Digest, T)(scope ref Digest digest,
 {
     foreach (ref subValue; value.tupleof)
     {
-        digestOfAny(digest, subValue);
+        digestAny(digest, subValue);
     }
 }
 
@@ -119,7 +119,7 @@ hash_t HashOf(alias hasher, T)(in T value)
 
         auto dig = makeDigest!(hasher);
 
-        digestOfAny(dig, value);
+        digestAny(dig, value);
 
         dig.finish();
 

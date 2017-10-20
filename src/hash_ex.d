@@ -2,7 +2,7 @@ module hash_ex;
 
 import std.traits : isScalarType, isAggregateType, hasIndirections, isSomeString, isArray;
 
-// TODO
+// TODO make inlining work for LDC
 version(LDC)
 {
 pragma(inline, true):           // TODO make this work

@@ -24,10 +24,13 @@ void digestOfAny(Digest, T)(ref Digest digest,
 
     import std.traits : isScalarType, isAggregateType, hasIndirections, isSomeString, isArray;
 
-    static if (isScalarType!T ||
-               is(T == class))  // mimics hashOf
+    static if (isScalarType!T)  // mimics hashOf
     {
         digestOfRaw(digest, value);
+    }
+    else static if (is(T == class))  // mimics hashOf
+    {
+        digestOfClass(digest, value);
     }
     else static if (isArray!T) // including strings, wstring, dstring
     {
@@ -89,6 +92,7 @@ void digestOfClass(Digest, T)(scope ref Digest digest,
                               in T value)
     if (is(T == class))
 {
+    digestOfRaw(digest, value);
 }
 
 /** Digest of struct. */

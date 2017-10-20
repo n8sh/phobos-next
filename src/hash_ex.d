@@ -14,10 +14,17 @@ void digestOfRaw(Digest, T)(scope ref Digest digest,
 {
 }
 
-/** Digest of calss. */
+/** Digest of class. */
 void digestOfClass(Digest, T)(scope ref Digest digest,
                               in T value)
     if (is(T == class))
+{
+}
+
+/** Digest of struct. */
+void digestOfClass(Digest, T)(scope ref Digest digest,
+                              in auto ref T value)
+    if (is(T == struct))
 {
 }
 

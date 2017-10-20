@@ -21,8 +21,9 @@ void digestArray(Digest, T)(scope ref Digest digest,
 {
 }
 
-void digestString(Digest, T)(scope ref Digest digest,
-                             in auto ref T value)
+void digestSomeString(Digest, T)(scope ref Digest digest,
+                                 in auto ref T value)
+    if (isSomeString!T)
 {
 }
 

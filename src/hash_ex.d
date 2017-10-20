@@ -1,5 +1,7 @@
 module hash_ex;
 
+import std.traits : isScalarType, isAggregateType, hasIndirections, isSomeString, isArray;
+
 // TODO
 version(LDC)
 {
@@ -21,58 +23,21 @@ void digestOfAny(Digest, T)(ref Digest digest,
     // {
     //     digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
     // }
-
-    import std.traits : isScalarType, isAggregateType, hasIndirections, isSomeString, isArray;
-
-    static if (isScalarType!T)  // mimics hashOf
+    static if (isScalarType!T)
     {
         digestOfRaw(digest, value);
     }
-    else static if (is(T == class))  // mimics hashOf
+    else static if (is(T == class))
     {
         digestOfClass(digest, value);
     }
     else static if (isArray!T) // including strings, wstring, dstring
     {
-        alias E = typeof(T.init[0]);
-        static if (!hasIndirections!E)
-        {
-            digest.put((cast(ubyte*)value.ptr)[0 .. value.length * value[0].sizeof]);
-        }
-        else
-        {
-            static assert(0, "handle array with element type " ~ T.stringof);
-        }
+        digestOfArray(digest, value);
     }
     else static if (is(T == struct))
     {
-        foreach (ref subValue; value.tupleof)
-        {
-            alias ST = typeof(subValue);
-            static if (hasIndirections!ST)
-            {
-                static if (isArray!ST)
-                {
-                    alias STE = typeof(ST.init[0]);
-                    static if (!hasIndirections!STE)
-                    {
-                        digest.put((cast(ubyte*)subValue.ptr)[0 .. subValue.length * subValue[0].sizeof]);
-                    }
-                    else
-                    {
-                        static assert(0, "handle with when element type " ~ T.stringof);
-                    }
-                }
-                else
-                {
-                    static assert(0, "handle type " ~ ST.stringof);
-                }
-            }
-            else
-            {
-                digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
-            }
-        }
+        digestOfStruct(digest, value);
     }
     else
     {
@@ -87,7 +52,7 @@ void digestOfRaw(Digest, T)(scope ref Digest digest,
     digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
 }
 
-/** Digest of class. */
+/** Digest of class `value`. */
 void digestOfClass(Digest, T)(scope ref Digest digest,
                               in T value)
     if (is(T == class))
@@ -95,18 +60,31 @@ void digestOfClass(Digest, T)(scope ref Digest digest,
     digestOfRaw(digest, value);
 }
 
-/** Digest of struct. */
-void digestOfClass(Digest, T)(scope ref Digest digest,
-                              in auto ref T value)
+/** Digest of struct `value`. */
+void digestOfStruct(Digest, T)(scope ref Digest digest,
+                               in auto ref T value)
     if (is(T == struct))
 {
+    foreach (ref subValue; value.tupleof)
+    {
+        digestOfAny(digest, subValue);
+    }
 }
 
 /** Digest array. */
 void digestOfArray(Digest, T)(scope ref Digest digest,
-                            in auto ref T value)
+                              in auto ref T value)
     if (isArray!T)
 {
+    alias E = typeof(T.init[0]);
+    static if (!hasIndirections!E)
+    {
+        digest.put((cast(ubyte*)value.ptr)[0 .. value.length * value[0].sizeof]);
+    }
+    else
+    {
+        static assert(0, "handle array with element type " ~ T.stringof);
+    }
 }
 
 void digestOfSomeString(Digest, T)(scope ref Digest digest,

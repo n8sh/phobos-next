@@ -56,7 +56,7 @@ void digestAny(Digest, T)(ref Digest digest,
 
 /** Digest raw bytes of `values`. */
 void digestRaw(Digest, T)(scope ref Digest digest,
-                          in T value)
+                          in auto ref T value)
 {
     digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
 }
@@ -88,8 +88,7 @@ void digestArray(Digest, T)(scope ref Digest digest,
     alias E = typeof(T.init[0]);
     static if (!hasIndirections!E)
     {
-        immutable length = value.length;
-        digest.put((cast(ubyte*)&length)[0 .. length.sizeof]);
+        digestRaw(digest, value.length);
         digest.put((cast(ubyte*)value.ptr)[0 .. value.length * value[0].sizeof]);
     }
     else

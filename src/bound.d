@@ -370,14 +370,13 @@ struct Bound(V,
 
     auto ref value() @property @safe pure inout nothrow { return _value + this.min; }
 
-    @property string toString() const @trusted
+    @property void toString(scope void delegate(const(char)[]) sink) const
     {
-        return (to!string(this.value) ~
-                " ∈ [" ~ to!string(min) ~
-                ", " ~ to!string(max) ~
-                "]" ~
-                " ⟒ " ~
-                V.stringof);
+        import std.format : formattedWrite;
+        sink.formattedWrite!"%s ∈ [%s, %s] ⟒ %s"(this.value,
+                                                 min,
+                                                 max,
+                                                 V.stringof);
     }
 
     /** Check if this value is defined. */

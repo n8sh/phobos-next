@@ -380,7 +380,7 @@ struct Bound(V,
     }
 
     /** Check if this value is defined. */
-    bool defined() @property @safe const pure nothrow { return optional ? this.value != V.max : true; }
+    bool isDefined() @property @safe const pure nothrow { return optional ? this.value != V.max : true; }
 
     /** Check that last operation was a success. */
     static string check() @trusted pure

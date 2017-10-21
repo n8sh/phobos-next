@@ -273,6 +273,12 @@ struct HashMapOrSet(K, V = void,
             }
         }
 
+        if (copy._length != _length)
+        {
+            import dbgio;
+            dln(copy._length, " and ", _length, " differ!");
+        }
+
         assert(copy._length == _length); // length shouldn't change
 
         moveEmplace(copy._bstates, _bstates); // `_bstates` doesn't need destroying

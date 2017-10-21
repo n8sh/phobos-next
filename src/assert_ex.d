@@ -52,7 +52,9 @@ void assertTrue(T,
                 Args...) (T test, lazy Args args)
 {
     version (assert) if (!test)
+    {
         throw new AssertError("at \n" ~file~ ":" ~to!string(line)~ ":\n  test: " ~to!string(test));
+    }
 }
 alias assertT = assertTrue;
 
@@ -61,7 +63,9 @@ void assertEqual(T, U,
                  Args...) (T lhs, U rhs, lazy Args args)
 {
     version (assert) if (lhs != rhs)
+    {
         throw new AssertError("at \n" ~file~ ":" ~to!string(line)~ ":\n  lhs: " ~to!string(lhs)~ " !=\n  rhs: " ~to!string(rhs));
+    }
 }
 alias assertE = assertEqual;
 
@@ -71,7 +75,9 @@ void assertLessThanOrEqual(T, U,
                            Args...) (T lhs, U rhs, lazy Args args)
 {
     version (assert) if (lhs > rhs)
+    {
         throw new AssertError("at \n" ~file~ ":" ~to!string(line)~ ":\n  lhs: " ~to!string(lhs)~ " >\n  rhs: " ~to!string(rhs));
+    }
 }
 alias assertLTE = assertLessThanOrEqual;
 
@@ -80,7 +86,9 @@ void assertLessThan(T, U,
                     Args...) (T lhs, U rhs, lazy Args args)
 {
     version (assert) if (lhs >= rhs)
+    {
         throw new AssertError("at \n" ~file~ ":" ~to!string(line)~ ":\n  lhs: " ~to!string(lhs)~ " >=\n  rhs: " ~to!string(rhs));
+    }
 }
 alias assertLT = assertLessThan;
 
@@ -89,6 +97,8 @@ void assertNotEqual(T, U,
                     Args...) (T lhs, U rhs, lazy Args args)
 {
     version (assert) if (lhs == rhs)
+    {
         throw new AssertError("at \n" ~file~ ":" ~to!string(line)~ ":\n  lhs: " ~to!string(lhs)~ " ==\n  rhs: " ~to!string(rhs));
+    }
 }
 alias assertNE = assertNotEqual;

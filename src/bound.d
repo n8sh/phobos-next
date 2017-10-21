@@ -368,7 +368,10 @@ struct Bound(V,
         return this;
     }
 
-    auto ref value() @property @safe pure inout nothrow { return _value + this.min; }
+    @property auto value() inout
+    {
+        return _value + this.min;
+    }
 
     @property void toString(scope void delegate(const(char)[]) sink) const
     {
@@ -380,13 +383,13 @@ struct Bound(V,
     }
 
     /** Check if this value is defined. */
-    @property bool isDefined() @safe const pure nothrow
+    @property bool isDefined() @safe const pure nothrow @nogc
     {
         return optional ? this.value != V.max : true;
     }
 
     /** Check that last operation was a success. */
-    static string check() @trusted pure
+    static string check() @trusted pure @nogc
     {
         return q{
             asm { jo overflow; }
@@ -622,9 +625,9 @@ unittest
 /** Return $(D x) with Automatic Packed Saturation.
     If $(D packed) optimize storage for compactness otherwise for speed.
  */
-auto ref saturated(V,
-                   bool optional = false,
-                   bool packed = true)(V x) // TODO inout may be irrelevant here
+auto saturated(V,
+               bool optional = false,
+               bool packed = true)(V x) // TODO inout may be irrelevant here
 {
     enum exceptional = false;
     return bound!(V.min, V.max, optional, exceptional, packed)(x);
@@ -633,7 +636,7 @@ auto ref saturated(V,
 /** Return $(D x) with Automatic Packed Saturation.
     If $(D packed) optimize storage for compactness otherwise for speed.
 */
-auto ref optional(V, bool packed = true)(V x) // TODO inout may be irrelevant here
+auto optional(V, bool packed = true)(V x) // TODO inout may be irrelevant here
 {
     return bound!(V.min, V.max, true, false, packed)(x);
 }

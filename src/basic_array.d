@@ -281,11 +281,6 @@ struct BasicArray(T,
         }
         static if (mustAddGCRange!T)
         {
-            pragma(msg, T.stringof);
-            static if (T.stringof == "WN_ExprPot")
-            {
-                dln("Removing range for ", T.stringof, " at ", _store.ptr);
-            }
             gc_removeRange(_store.ptr);
         }
         free(_mptr);
@@ -325,10 +320,6 @@ struct BasicArray(T,
 
         static if (mustAddGCRange!T)
         {
-            static if (T.stringof == "WN_ExprPot")
-            {
-                dln("Adding range for ", T.stringof, " capacity:", initialCapacity, " at ", _mptr);
-            }
             gc_addRange(ptr, initialCapacity * T.sizeof);
         }
         return ptr;
@@ -458,10 +449,6 @@ struct BasicArray(T,
 
         static if (mustAddGCRange!T)
         {
-            static if (T.stringof == "WN_ExprPot")
-            {
-                dln("Removing range for ", T.stringof, " at ", _mptr);
-            }
             gc_removeRange(_mptr);
         }
 
@@ -473,10 +460,6 @@ struct BasicArray(T,
 
         static if (mustAddGCRange!T)
         {
-            static if (T.stringof == "WN_ExprPot")
-            {
-                dln("Adding range for ", T.stringof, " capacity:", _store.capacity, " at ", _mptr);
-            }
             gc_addRange(_mptr, _store.capacity * T.sizeof);
         }
     }
@@ -1318,5 +1301,4 @@ private enum bool isRefIterable(T) = is(typeof({ foreach (ref elem; T.init) {} }
 version(unittest)
 {
     import array_help : s;
-    import dbgio;
 }

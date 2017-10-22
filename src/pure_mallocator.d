@@ -7,7 +7,7 @@ import std.experimental.allocator.common;
  */
 struct PureMallocator
 {
-    static if (__VERSION__ >= 2075)
+    static if (__VERSION__ >= 2076)
     {
         import core.memory : pureMalloc, pureRealloc, pureFree;
     }

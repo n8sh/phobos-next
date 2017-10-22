@@ -265,14 +265,14 @@ struct HashMapOrSet(K, V = void,
         immutable newBinCount = binCount ? 2 * binCount : 1; // 0 => 1, 1 => 2, 2 => 4, ...
         auto copy = withBinCount(newBinCount);
 
+        // move elements to copy
         foreach (immutable binIx; 0 .. _bins.length)
         {
             foreach (ref element; binElementsAt(binIx))
             {
-                copy.insertWithoutBinCountGrowth(element);
+                copy.insertMMoveWithoutBinCountGrowth(element);
             }
         }
-
         assert(copy._length == _length); // length shouldn't change
 
         moveEmplace(copy._bstates, _bstates); // `_bstates` doesn't need destroying
@@ -385,7 +385,7 @@ struct HashMapOrSet(K, V = void,
         {
             grow();
         }
-        return insertWithoutBinCountGrowth(element);
+        return insertMMoveWithoutBinCountGrowth(element);
     }
 
     static if (hasValue)
@@ -422,7 +422,7 @@ struct HashMapOrSet(K, V = void,
     /** Insert `element` like with `insert()` without automatic growth of number
      * of bins.
      */
-    InsertionStatus insertWithoutBinCountGrowth(ref T element) @trusted // ref simplifies move
+    InsertionStatus insertMMoveWithoutBinCountGrowth(ref T element) @trusted // ref simplifies move
     {
         immutable binIx = keyToBinIx(keyRefOf(element));
         T[] elements = binElementsAt(binIx);

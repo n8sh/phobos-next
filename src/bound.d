@@ -72,7 +72,7 @@
 module bound;
 
 import std.conv: to;
-import std.traits: CommonType, isIntegral, isUnsigned, isSigned, isFloatingPoint, isNumeric, isSomeChar, isScalarType, isBoolean;
+import std.traits: CommonType, isIntegral, isUnsigned, isSigned, isFloatingPoint, isSomeChar, isScalarType, isBoolean;
 import traits_ex : haveCommonType;
 import std.stdint: intmax_t;
 import std.exception: assertThrown;

@@ -287,7 +287,7 @@ struct HashMapOrSet(K, V = void,
                 copy.insertMoveWithoutBinCountGrowth(element);
             }
         }
-        if (copy._length == _length)
+        if (copy._length != _length)
         {
             import dbgio : dln;
             dln("copy._length:", copy._length, " _length:", _length);

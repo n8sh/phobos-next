@@ -787,12 +787,12 @@ struct BasicArray(T,
     private void reallocateAndSetCapacity()(size_t newCapacity) @trusted // template-lazy
     {
         assert(newCapacity <= CapacityType.max);
-        _store.capacity = cast(CapacityType)newCapacity;
 
         static if (mustAddGCRange!T)
         {
             gc_removeRange(_store.ptr);
         }
+        _store.capacity = cast(CapacityType)newCapacity;
         _store.ptr = cast(T*)realloc(_mptr, T.sizeof * _store.capacity);
         assert(_store.ptr, "Reallocation failed");
         static if (mustAddGCRange!T)

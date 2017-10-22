@@ -281,6 +281,7 @@ struct BasicArray(T,
         }
         static if (mustAddGCRange!T)
         {
+            pragma(msg, T.stringof);
             static if (T.stringof == "WN_ExprPot")
             {
                 dln("Removing range for ", T.stringof, " at ", _store.ptr);

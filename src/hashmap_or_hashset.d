@@ -27,7 +27,8 @@ enum InsertionStatus { added, modified, unchanged }
  *
  * TODO add flag for use growth factor smaller than powers of two. use prime_modulo.d
  *
- * TODO use core.bitop : bsr, bsl to find first empty element in bin
+ * TODO use core.bitop : bsr, bsl to find first empty element in bin. if as fast
+ * as current find use it to optimize remove()
  *
  * TODO Avoid extra length and capacity in _statuses (length or large) by making
  * it allocate in sync with bins (using soa.d).

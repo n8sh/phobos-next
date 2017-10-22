@@ -267,7 +267,13 @@ struct HashMapOrSet(K, V = void,
 
         import dbgio;
 
-        dln("_length: ", _length);
+        if (_length == 8192)
+        {
+            dln("key starts to get corrupted at _length: ", _length);
+            dln("binCount:", binCount);
+            dln("newBinCount:", newBinCount);
+            dln("copy.length:", copy.length);
+        }
 
         foreach (immutable binIx; 0 .. _bins.length)
         {

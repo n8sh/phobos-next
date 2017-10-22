@@ -265,9 +265,9 @@ struct HashMapOrSet(K, V = void,
         immutable newBinCount = binCount ? 2 * binCount : 1; // 0 => 1, 1 => 2, 2 => 4, ...
         auto copy = withBinCount(newBinCount);
 
-        import dbgio;
+        // import dbgio;
 
-        dln("_length: ", _length);
+        // dln("_length: ", _length);
 
         foreach (immutable binIx; 0 .. _bins.length)
         {
@@ -277,10 +277,10 @@ struct HashMapOrSet(K, V = void,
             }
         }
 
-        if (copy._length != _length)
-        {
-            dln(copy._length, " and ", _length, " differ!");
-        }
+        // if (copy._length != _length)
+        // {
+        //     dln(copy._length, " and ", _length, " differ!");
+        // }
 
         assert(copy._length == _length); // length shouldn't change
 

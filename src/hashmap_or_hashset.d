@@ -265,7 +265,8 @@ struct HashMapOrSet(K, V = void,
         immutable newBinCount = binCount ? 2 * binCount : 1; // 0 => 1, 1 => 2, 2 => 4, ...
         auto copy = withBinCount(newBinCount);
 
-        if (_length == 8192)
+        const willFail = _length == 8192;
+        if (willFail)
         {
             dln("key starts to get corrupted at _length: ", _length);
             dln("binCount:", binCount);
@@ -277,7 +278,7 @@ struct HashMapOrSet(K, V = void,
         {
             foreach (ref element; binElementsAt(binIx))
             {
-                copy.insertWithoutBinCountGrowth(element);
+                copy.insertWithoutBinCountGrowth(element, willFail);
             }
         }
 
@@ -435,10 +436,8 @@ struct HashMapOrSet(K, V = void,
     /** Insert `element` like with `insert()` without automatic growth of number
      * of bins.
      */
-    InsertionStatus insertWithoutBinCountGrowth(ref T element) @trusted // ref simplifies move
+    InsertionStatus insertWithoutBinCountGrowth(ref T element, bool willFail = false) @trusted // ref simplifies move
     {
-        immutable willFail = _length == 8192; // TODO remove
-
         immutable binIx = keyToBinIx(keyRefOf(element));
         T[] elements = binElementsAt(binIx);
         immutable elementOffset = offsetOfKey(elements, keyOf(element));

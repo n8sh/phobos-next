@@ -38,7 +38,10 @@ struct BasicArray(T,
 
     static if (mustAddGCRange!T)
     {
-        pragma(msg, typeof(this).stringof, ": ", "T.mustAddGCRange:", mustAddGCRange!T);
+        static if (is(T == struct))
+        {
+            pragma(msg, typeof(this).stringof, ": ", "T.mustAddGCRange:", mustAddGCRange!T, " T.tupleof:", typeof(T.tupleof));
+        }
     }
 
     /// Mutable element type.

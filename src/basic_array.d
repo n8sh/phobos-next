@@ -36,6 +36,11 @@ struct BasicArray(T,
 
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
 
+    static if (mustAddGCRange!T)
+    {
+        pragma(msg, typeof(this).stringof, ": ", "T.mustAddGCRange:", mustAddGCRange!T);
+    }
+
     /// Mutable element type.
     private alias MutableE = Unqual!T;
 

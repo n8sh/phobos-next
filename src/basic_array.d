@@ -122,7 +122,7 @@ struct BasicArray(T,
         moveEmplace(value, _mptr[0]); // TODO remove `moveEmplace` when compiler does it for us
     }
 
-    /// Construct from uncopyable element `value`.
+    /// Construct from copyable element `value`.
     this(U)(U value) @trusted
         if (isCopyable!U &&
             isElementAssignable!U)
@@ -197,65 +197,64 @@ struct BasicArray(T,
 
     /** Is `true` iff constructable from the iterable (or range) `I`.
      */
-    enum isAssignableFromElementsOfRefIterableStruct(I) = (is(I == struct) && // exclude class ranges for aliasing control
+    enum isAssignableFromElementsOfRefIterableStruct(I) = (is(I == struct) && // no class ranges
                                                            isRefIterable!I && // elements may be non-copyable
                                                            !isInfinite!I &&
                                                            isElementAssignable!(ElementType!I));
 
     /// Construct from the elements `values`.
-    this(R)(R values) @trusted
-        if (isAssignableFromElementsOfRefIterableStruct!R)
-    {
-        import std.range : hasLength, hasSlicing;
-
-        static if (hasLength!R &&
-                   hasSlicing!R &&
-                   isCopyable!(ElementType!R) &&
-                   !hasElaborateDestructor!(ElementType!R))
-        {
-            reserve(values.length);
-            import std.algorithm : copy;
-            copy(values[0 .. values.length],
-                 _mptr[0 .. values.length]); // TODO better to use foreach instead?
-            _store.length = values.length;
-        }
-        else
-        {
-            static if (hasLength!R)
-            {
-                reserve(values.length);
-                size_t i = 0;
-                foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
-                {
-                    static if (needsMove!(typeof(value)))
-                    {
-                        moveEmplace(value, _mptr[i++]);
-                    }
-                    else
-                    {
-                        _mptr[i++] = value;
-                    }
-                }
-                _store.length = values.length;
-            }
-            else
-            {
-                /* TODO optimize with `moveEmplaceAll` that does a raw copy and
-                 * zeroing of values */
-                foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
-                {
-                    static if (needsMove!(ElementType!R))
-                    {
-                        insertBackMove(value); // steal element
-                    }
-                    else
-                    {
-                        insertBack1(value);
-                    }
-                }
-            }
-        }
-    }
+    // this(R)(R values) @trusted
+    //     if (isAssignableFromElementsOfRefIterableStruct!R)
+    // {
+    //     import std.range : hasLength, hasSlicing;
+    //     static if (hasLength!R &&
+    //                hasSlicing!R &&
+    //                isCopyable!(ElementType!R) &&
+    //                !hasElaborateDestructor!(ElementType!R))
+    //     {
+    //         reserve(values.length);
+    //         import std.algorithm : copy;
+    //         copy(values[0 .. values.length],
+    //              _mptr[0 .. values.length]); // TODO better to use foreach instead?
+    //         _store.length = values.length;
+    //     }
+    //     else
+    //     {
+    //         static if (hasLength!R)
+    //         {
+    //             reserve(values.length);
+    //             size_t i = 0;
+    //             foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
+    //             {
+    //                 static if (needsMove!(typeof(value)))
+    //                 {
+    //                     moveEmplace(value, _mptr[i++]);
+    //                 }
+    //                 else
+    //                 {
+    //                     _mptr[i++] = value;
+    //                 }
+    //             }
+    //             _store.length = values.length;
+    //         }
+    //         else
+    //         {
+    //             /* TODO optimize with `moveEmplaceAll` that does a raw copy and
+    //              * zeroing of values */
+    //             foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
+    //             {
+    //                 static if (needsMove!(ElementType!R))
+    //                 {
+    //                     insertBackMove(value); // steal element
+    //                 }
+    //                 else
+    //                 {
+    //                     insertBack1(value);
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
     /// No default copying.
     @disable this(this);
 
@@ -1030,12 +1029,12 @@ version(unittest)
 
     import std.algorithm : map, filter;
 
-    const b = A([10, 20, 30].s[].map!(_ => T(_^^2))); // hasLength
-    assert(b.length == 3);
-    assert(b == [T(100), T(400), T(900)].s);
+    // const b = A([10, 20, 30].s[].map!(_ => T(_^^2))); // hasLength
+    // assert(b.length == 3);
+    // assert(b == [T(100), T(400), T(900)].s);
 
-    const c = A([10, 20, 30].s[].filter!(_ => _ == 30).map!(_ => T(_^^2))); // !hasLength
-    assert(c == [T(900)].s);
+    // const c = A([10, 20, 30].s[].filter!(_ => _ == 30).map!(_ => T(_^^2))); // !hasLength
+    // assert(c == [T(900)].s);
 }
 
 // construct from ranges of copyable elements
@@ -1049,12 +1048,12 @@ version(unittest)
 
     import std.algorithm : map, filter;
 
-    const b = A([10, 20, 30].s[].map!(_ => T(_^^2))); // hasLength
-    assert(b.length == 3);
-    assert(b == [T(100), T(400), T(900)].s);
+    // const b = A([10, 20, 30].s[].map!(_ => T(_^^2))); // hasLength
+    // assert(b.length == 3);
+    // assert(b == [T(100), T(400), T(900)].s);
 
-    const c = A([10, 20, 30].s[].filter!(_ => _ == 30).map!(_ => T(_^^2))); // !hasLength
-    assert(c == [T(900)].s);
+    // const c = A([10, 20, 30].s[].filter!(_ => _ == 30).map!(_ => T(_^^2))); // !hasLength
+    // assert(c == [T(900)].s);
 }
 
 /// construct with string as element type that needs GC-range
@@ -1275,8 +1274,8 @@ unittest
     import std.algorithm : map;
     alias T = int;
     alias A = BasicArray!(T);
-    auto a = A([10, 20, 30].s[].map!(_ => _^^2));
-    assert(a[] == [100, 400, 900].s);
+    // auto a = A([10, 20, 30].s[].map!(_ => _^^2));
+    // assert(a[] == [100, 400, 900].s);
 }
 
 /// construct from map range

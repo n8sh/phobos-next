@@ -318,11 +318,9 @@ struct BasicArray(T,
     private static MutableE* allocate(size_t initialCapacity, bool zero)
     {
         typeof(return) ptr = null;
-
         if (zero) { ptr = cast(typeof(return))calloc(initialCapacity, T.sizeof); }
         else      { ptr = cast(typeof(return))malloc(initialCapacity * T.sizeof); }
         assert(ptr, "Allocation failed");
-
         static if (mustAddGCRange!T)
         {
             gc_addRange(ptr, initialCapacity * T.sizeof);
@@ -452,21 +450,12 @@ struct BasicArray(T,
 
         if (requestedCapacity <= capacity) { return; }
 
-        static if (mustAddGCRange!T)
-        {
-            gc_removeRange(_mptr);
-        }
-
         // growth factor
         // Motivation: https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md#memory-handling
         reallocateAndSetCapacity(3*requestedCapacity/2); // use 1.5 like Facebook's `fbvector` does
+
         // import std.math : nextPow2;
         // reallocateAndSetCapacity(requestedCapacity.nextPow2);
-
-        static if (mustAddGCRange!T)
-        {
-            gc_addRange(_mptr, _store.capacity * T.sizeof);
-        }
     }
 
     /// Index support.
@@ -800,8 +789,16 @@ struct BasicArray(T,
         assert(newCapacity <= CapacityType.max);
         _store.capacity = cast(CapacityType)newCapacity;
 
+        static if (mustAddGCRange!T)
+        {
+            gc_removeRange(_store.ptr);
+        }
         _store.ptr = cast(T*)realloc(_mptr, T.sizeof * _store.capacity);
         assert(_store.ptr, "Reallocation failed");
+        static if (mustAddGCRange!T)
+        {
+            gc_addRange(_store.ptr, _store.capacity * T.sizeof);
+        }
     }
 
     /// Mutable pointer.

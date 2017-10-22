@@ -81,6 +81,19 @@ struct HashMapOrSet(K, V = void,
             V value;
         }
 
+        static if (mustAddGCRange!T)
+        {
+            pragma(msg, typeof(this).stringof, ": ", "T.mustAddGCRange:", mustAddGCRange!T);
+        }
+        static if (mustAddGCRange!K)
+        {
+            pragma(msg, typeof(this).stringof, ": ", "K.mustAddGCRange:", mustAddGCRange!K);
+        }
+        static if (mustAddGCRange!V)
+        {
+            pragma(msg, typeof(this).stringof, ": ", "V.mustAddGCRange:", mustAddGCRange!V);
+        }
+
         /// Get key part of element.
         static auto ref inout(K) keyOf()(auto ref return inout(T) element)
         {

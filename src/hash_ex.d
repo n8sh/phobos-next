@@ -59,7 +59,7 @@ void digestAny(Digest, T)(ref Digest digest,
 
 /** Digest the class `value`. */
 void digestPointer(Digest, T)(scope ref Digest digest,
-                              in T value) // no auto ref needed
+                              in T value) @trusted // no auto ref needed
     if (isDigest!Digest &&
         (is(T == class) ||
          isPointer!T))
@@ -69,7 +69,7 @@ void digestPointer(Digest, T)(scope ref Digest digest,
 
 /** Digest the struct `value`. */
 void digestStruct(Digest, T)(scope ref Digest digest,
-                             in auto ref T value)
+                             in auto ref T value) @trusted
     if (isDigest!Digest &&
         is(T == struct))
 {
@@ -81,7 +81,7 @@ void digestStruct(Digest, T)(scope ref Digest digest,
 
 /** Digest the array `value`. */
 void digestArray(Digest, T)(scope ref Digest digest,
-                            in auto ref T value)
+                            in auto ref T value) @trusted
     if (isDigest!Digest &&
         isArray!T)
 {

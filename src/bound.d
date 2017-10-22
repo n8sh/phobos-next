@@ -290,6 +290,7 @@ struct Bound(V,
              bool exceptional = true,
              bool packed = true,
              bool signed = false)
+    if (isBoundable!V)
 {
     /* Requirements */
     static assert(low <= high,

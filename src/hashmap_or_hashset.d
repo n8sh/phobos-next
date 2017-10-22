@@ -265,8 +265,6 @@ struct HashMapOrSet(K, V = void,
         immutable newBinCount = binCount ? 2 * binCount : 1; // 0 => 1, 1 => 2, 2 => 4, ...
         auto copy = withBinCount(newBinCount);
 
-        import dbgio;
-
         if (_length == 8192)
         {
             dln("key starts to get corrupted at _length: ", _length);
@@ -439,13 +437,25 @@ struct HashMapOrSet(K, V = void,
      */
     InsertionStatus insertWithoutBinCountGrowth(ref T element) @trusted // ref simplifies move
     {
+        immutable willFail = _length == 8192; // TODO remove
+
         immutable binIx = keyToBinIx(keyRefOf(element));
         T[] elements = binElementsAt(binIx);
         immutable elementOffset = offsetOfKey(elements, keyOf(element));
         immutable elementFound = elementOffset != elements.length;
 
+        if (willFail)
+        {
+            dln("WILL FAIL: elementOffset:", elementOffset, ", elementOffset:", elementFound);
+        }
+
         if (elementFound)
         {
+            if (willFail)
+            {
+                dln("WILL FAIL: shoudln't happen");
+            }
+
             static if (hasValue)
             {
                 /* TODO Rust does the same in its `insert()` at
@@ -472,6 +482,11 @@ struct HashMapOrSet(K, V = void,
         {
             if (_bstates[binIx].isLarge) // stay large
             {
+                if (willFail)
+                {
+                    dln("WILL FAIL: stay large");
+                }
+
                 _bins[binIx].large.insertBackMove(element);
             }
             else
@@ -492,6 +507,10 @@ struct HashMapOrSet(K, V = void,
                     }
                     else
                     {
+                        if (willFail)
+                        {
+                            dln("WILL FAIL: expand small to large");
+                        }
                         import concatenation : concatenate;
                         auto smallCopy = concatenate(_bins[binIx].small, element);
                         emplace!(LargeBin)(&_bins[binIx].large, smallCopy[]);
@@ -507,6 +526,10 @@ struct HashMapOrSet(K, V = void,
                     }
                     else
                     {
+                        if (willFail)
+                        {
+                            dln("WILL FAIL: stay small");
+                        }
                         _bins[binIx].small[_bstates[binIx].smallCount] = element;
                     }
                     _bstates[binIx].incSmallCount();
@@ -1248,3 +1271,5 @@ pure unittest
     s.remove(K.init);
     assert(K.init !in s);
 }
+
+import dbgio : dln, show;

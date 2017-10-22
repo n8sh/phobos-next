@@ -445,7 +445,7 @@ struct HashMapOrSet(K, V = void,
 
         if (willFail)
         {
-            dln("WILL FAIL: elementOffset:", elementOffset, ", elementOffset:", elementFound, ", element:", element);
+            dln("WILL FAIL: elementOffset:", elementOffset, ", elementOffset:", elementFound, ", element:", keyOf(element));
         }
 
         if (elementFound)

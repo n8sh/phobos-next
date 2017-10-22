@@ -351,7 +351,8 @@ struct Bound(V,
                   alias low_,
                   alias high_)(Bound!(U, low_, high_,
                                       optional, exceptional, packed, signed) rhs)
-        if (low <= low_ && high_ <= high &&
+        if (low <= low_ &&
+            high_ <= high &&
             haveCommonType!(V, U))
     {
         // verified at compile-time

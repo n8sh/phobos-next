@@ -445,7 +445,11 @@ struct HashMapOrSet(K, V = void,
 
         if (willFail)
         {
-            dln("WILL FAIL: elementOffset:", elementOffset, ", elementOffset:", elementFound, ", element:", keyOf(element));
+            dln("WILL FAIL: elementOffset:", elementOffset, ", elementOffset:", elementFound);
+            static if (K.stringof == "WN_ExprPot")
+            {
+                dln("element:", keyOf(element));
+            }
         }
 
         if (elementFound)

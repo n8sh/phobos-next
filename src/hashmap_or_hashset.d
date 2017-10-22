@@ -265,26 +265,12 @@ struct HashMapOrSet(K, V = void,
         immutable newBinCount = binCount ? 2 * binCount : 1; // 0 => 1, 1 => 2, 2 => 4, ...
         auto copy = withBinCount(newBinCount);
 
-        const willFail = _length == 8192;
-        if (willFail)
-        {
-            dln("key starts to get corrupted at _length: ", _length);
-            dln("binCount:", binCount);
-            dln("newBinCount:", newBinCount);
-            dln("copy.length:", copy.length);
-        }
-
         foreach (immutable binIx; 0 .. _bins.length)
         {
             foreach (ref element; binElementsAt(binIx))
             {
-                copy.insertWithoutBinCountGrowth(element, willFail);
+                copy.insertWithoutBinCountGrowth(element);
             }
-        }
-
-        if (copy._length != _length)
-        {
-            dln(copy._length, " and ", _length, " differ!");
         }
 
         assert(copy._length == _length); // length shouldn't change
@@ -436,29 +422,15 @@ struct HashMapOrSet(K, V = void,
     /** Insert `element` like with `insert()` without automatic growth of number
      * of bins.
      */
-    InsertionStatus insertWithoutBinCountGrowth(ref T element, bool willFail = false) @trusted // ref simplifies move
+    InsertionStatus insertWithoutBinCountGrowth(ref T element) @trusted // ref simplifies move
     {
         immutable binIx = keyToBinIx(keyRefOf(element));
         T[] elements = binElementsAt(binIx);
         immutable elementOffset = offsetOfKey(elements, keyOf(element));
         immutable elementFound = elementOffset != elements.length;
 
-        if (willFail)
-        {
-            dln("WILL FAIL: elementOffset:", elementOffset, ", elementOffset:", elementFound);
-            static if (K.stringof == "WN_ExprPot")
-            {
-                dln("element:", keyOf(element));
-            }
-        }
-
         if (elementFound)
         {
-            if (willFail)
-            {
-                dln("WILL FAIL: shoudln't happen");
-            }
-
             static if (hasValue)
             {
                 /* TODO Rust does the same in its `insert()` at
@@ -485,11 +457,6 @@ struct HashMapOrSet(K, V = void,
         {
             if (_bstates[binIx].isLarge) // stay large
             {
-                if (willFail)
-                {
-                    dln("WILL FAIL: stay large");
-                }
-
                 _bins[binIx].large.insertBackMove(element);
             }
             else
@@ -510,10 +477,6 @@ struct HashMapOrSet(K, V = void,
                     }
                     else
                     {
-                        if (willFail)
-                        {
-                            dln("WILL FAIL: expand small to large");
-                        }
                         import concatenation : concatenate;
                         auto smallCopy = concatenate(_bins[binIx].small, element);
                         emplace!(LargeBin)(&_bins[binIx].large, smallCopy[]);
@@ -529,10 +492,6 @@ struct HashMapOrSet(K, V = void,
                     }
                     else
                     {
-                        if (willFail)
-                        {
-                            dln("WILL FAIL: stay small");
-                        }
                         _bins[binIx].small[_bstates[binIx].smallCount] = element;
                     }
                     _bstates[binIx].incSmallCount();
@@ -1274,5 +1233,3 @@ pure unittest
     s.remove(K.init);
     assert(K.init !in s);
 }
-
-import dbgio : dln, show;

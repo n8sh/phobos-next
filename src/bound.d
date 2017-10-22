@@ -104,11 +104,6 @@ enum isCTEable(alias expr) = __traits(compiles, { enum id = expr; });
  */
 enum isBoundable(T) = isScalarType!T;
 
-/** Check if Types $(D T) and $(D U) can wrapped in a $(D Bounded).
- */
-enum areBoundable(T, U) = (isBoundable!T &&
-                           isBoundable!U);
-
 /** Check if Expression $(D expr) is a CT-expression that can be used as a Bound.
  */
 enum isCTBound(alias expr) = (isBoundable!(typeof(expr)) &&
@@ -314,7 +309,7 @@ struct Bound(V,
 
     /** Construct from unbounded value $(D rhs). */
     this(U, string file = __FILE__, int line = __LINE__)(U rhs)
-        if (areBoundable!(V, U))
+        if (isBoundable!(U))
     {
         checkAssign!(U, file, line)(rhs);
         this._value = cast(V)(rhs - low);

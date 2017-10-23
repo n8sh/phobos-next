@@ -69,15 +69,13 @@ void digestPointer(Digest, T)(scope ref Digest digest,
 
 /** Digest the struct `value` by digesting each member sequentially. */
 void digestStruct(Digest, T)(scope ref Digest digest,
-                             in auto ref T value) @trusted
+                             in auto ref T value)
     if (isDigest!Digest &&
         is(T == struct))
 {
     static if (!hasIndirections!T)
     {
-        // faster:
-        digestRaw(digest, value.length);
-        digest.put((cast(ubyte*)value.ptr)[0 .. value.length * value[0].sizeof]);
+        digestRaw(digest, value); // hash everything in one call for better speed
     }
     else
     {

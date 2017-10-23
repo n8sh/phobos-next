@@ -106,8 +106,8 @@ void digestArray(Digest, T)(scope ref Digest digest,
 }
 
 /** Digest raw bytes of `values`. */
-void digestRaw(Digest, T)(scope ref Digest digest,
-                          in auto ref T value) @trusted
+private void digestRaw(Digest, T)(scope ref Digest digest,
+                                  in auto ref T value) @trusted
     if (isDigest!Digest)
 {
     digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);

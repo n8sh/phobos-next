@@ -895,8 +895,17 @@ private:
      */
     union HybridBin
     {
-        LargeBin large;
         SmallBin small;
+        LargeBin large;
+    }
+
+    static if (mustAddGCRange!LargeBin)
+    {
+        static assert(mustAddGCRange!HybridBin, "HybridBin mustAddGCRange when LargeBin is " ~ LargeBin.stringof);
+    }
+    static if (mustAddGCRange!SmallBin)
+    {
+        static assert(mustAddGCRange!HybridBin, "HybridBin mustAddGCRange when SmallBin is " ~ SmallBin.stringof);
     }
 
     /** Small-size-optimized bin array.
@@ -1016,7 +1025,7 @@ private:
                    is(V == string))
         {
             static assert(mustAddGCRange!V);
-            static assert(mustAddGCRange!V[1]);
+            static assert(mustAddGCRange!(V[1]));
             static assert(mustAddGCRange!(X.T));
             static assert(mustAddGCRange!(X.SmallBin));
             static assert(!mustAddGCRange!(X.LargeBin));
@@ -1024,7 +1033,7 @@ private:
         else
         {
             static assert(!mustAddGCRange!(X.T));
-            static assert(!mustAddGCRange!(X.SmallBin));
+            static assert(!mustAddGCRange!(X.SmallBin), "Fails for X being " ~ X.SmallBin.stringof);
         }
 
         auto x1 = X();            // start empty

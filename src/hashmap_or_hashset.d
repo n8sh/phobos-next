@@ -661,6 +661,12 @@ struct HashMapOrSet(K, V = void,
             (cast(ByKeyValue)result).initFirstNonEmptyBin(); // dirty cast because inout problem
             return result;
         }
+        /// ditto
+        pragma(inline, true)
+        scope inout(ByKeyValue) opSlice()() inout return // template-lazy
+        {
+            return byKeyValue();
+        }
 
         /// Indexing.
         pragma(inline, true)    // LDC must have this

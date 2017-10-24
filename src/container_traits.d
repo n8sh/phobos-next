@@ -107,12 +107,13 @@ enum TellRangeAdded;
  * garbage collector. This is used in constructors to determine if the content
  * of a manually allocated aggregate must be declared to the GC.
  */
-template mustAddGCRange(T)
+template mustAddGCRangeOld(T)
     if (is(T == struct) ||
         is(T == union) ||
         is(T == class)) // isAggregateType!T
 {
     import std.traits : hasUDA, isDynamicArray, isPointer;
+    pragma(msg, "aggregate:", T);
 
     string check()
     {
@@ -126,7 +127,7 @@ template mustAddGCRange(T)
 
             foreach (BT; BaseClassesTuple!T)
             {
-                string m = mustAddGCRange!BT;
+                string m = mustAddGCRangeOld!BT;
                 if (m.length)
                 {
                     managedMembers ~= " " ~ m;
@@ -160,7 +161,7 @@ template mustAddGCRange(T)
                     // failure here when the class is a template and when one of the member
                     // type is one of the template argument.
                     //pragma(msg, T.stringof, " ", MT.stringof);
-                    static if (mustAddGCRange!MT)
+                    static if (mustAddGCRangeOld!MT)
                     {
                         mixin(addManaged);
                     }
@@ -169,7 +170,7 @@ template mustAddGCRange(T)
                                 !is(MT == T) &&
                                 !hasUDA!(T.tupleof[i], NoGc))
                 {
-                    static if (mustAddGCRange!MT)
+                    static if (mustAddGCRangeOld!MT)
                     {
                         mixin(addManaged);
                     }
@@ -178,7 +179,7 @@ template mustAddGCRange(T)
                                 !is(MT == T) &&
                                 !hasUDA!(T.tupleof[i], NoGc))
                 {
-                    static if (mustAddGCRange!MT)
+                    static if (mustAddGCRangeOld!MT)
                     {
                         mixin(addManaged);
                     }
@@ -190,20 +191,20 @@ template mustAddGCRange(T)
 
     static if (hasUDA!(T, NoGc))
     {
-        enum mustAddGCRange = [];
+        enum mustAddGCRangeOld = [];
     }
     else
     {
-        enum mustAddGCRange = check();
+        enum mustAddGCRangeOld = check();
     }
 
     static if (hasUDA!(T, TellRangeAdded))
     {
-        static if (mustAddGCRange.length)
+        static if (mustAddGCRangeOld.length)
         {
             pragma(msg,
                    "a GC range will be added for any new " ~ T.stringof
-                   ~ ", because of: " ~ mustAddGCRange);
+                   ~ ", because of: " ~ mustAddGCRangeOld);
         }
         else
         {
@@ -213,21 +214,22 @@ template mustAddGCRange(T)
 }
 
 /// ditto
-template mustAddGCRange(T)
+template mustAddGCRangeOld(T)
     if (!(is(T == struct) ||
           is(T == union) ||
           is(T == class))) // !isAggregateType!T
 {
+    pragma(msg, "non-aggregate:", T);
     import std.traits : isStaticArray;
     static if (isStaticArray!T)
     {
-        enum mustAddGCRange = T.length >= 1 && mustAddGCRange!(typeof(T.init[0]));
+        enum mustAddGCRangeOld = T.length >= 1 && mustAddGCRangeOld!(typeof(T.init[0]));
     }
     else
     {
         // TODO optimize this dumb overload
         struct Dummy { T t; }
-        enum mustAddGCRange = mustAddGCRange!Dummy;
+        enum mustAddGCRangeOld = mustAddGCRangeOld!Dummy;
     }
 }
 
@@ -238,6 +240,70 @@ private template isTemplateInstance(T)
     enum isTemplateInstance = is(typeof(TemplateOf!(T)));
 }
 
+/**
+ * Indicates if an aggregate contains members that might be collected by the
+ * garbage collector. This is used in constructors to determine if the content
+ * of a manually allocated aggregate must be declared to the GC.
+ */
+template mustAddGCRange(T)
+{
+    import std.traits : hasUDA, isPointer, isArray, isStaticArray, isScalarType;
+    static if (isPointer!T ||
+               is(T == class))
+    {
+        enum mustAddGCRange = true;
+    }
+    else static if (isScalarType!T)
+    {
+        enum mustAddGCRange = false;
+    }
+    else static if (is(T == struct) ||
+                    is(T == union))
+    {
+        enum mustAddGCRange = mustAddGCRangeOfStructOrUnion!T;
+    }
+    else static if (isArray!T)
+    {
+        static if (isStaticArray!T)
+        {
+            static if (T.length == 0)
+            {
+                enum mustAddGCRange = false;
+            }
+            else
+            {
+                enum mustAddGCRange = mustAddGCRange!(typeof(T.init[0]));
+            }
+        }
+        else
+        {
+            enum mustAddGCRange = true;
+        }
+    }
+    else
+    {
+        static assert(false, "Handle type " ~ T.stringof);
+    }
+}
+
+import std.traits : hasUDA;
+enum hasNoGc(alias member) = hasUDA!(member, NoGc);
+
+private template mustAddGCRangeOfMember(alias member)
+{
+    enum mustAddGCRangeOfMember = !hasUDA!(member, NoGc) && mustAddGCRange!(typeof(member));
+}
+
+/// Helper for `mustAddGCRange`.
+private template mustAddGCRangeOfStructOrUnion(T)
+    if (is(T == struct) ||
+        is(T == union))
+{
+    import std.traits : hasUDA;
+    import std.meta : anySatisfy;
+    enum mustAddGCRangeOfStructOrUnion = anySatisfy!(mustAddGCRangeOfMember, T.tupleof);
+}
+
 ///
 @safe pure nothrow @nogc unittest
 {
@@ -246,7 +312,38 @@ private template isTemplateInstance(T)
     static assert(mustAddGCRange!(int*[1]));
     static assert(!mustAddGCRange!(int*[0]));
     static assert(mustAddGCRange!(int[]));
+}
 
+///
+@safe pure nothrow @nogc unittest
+{
+    struct SmallBin
+    {
+        string[1] s;
+    }
+    static assert(mustAddGCRange!SmallBin);
+
+    union HybridBin
+    {
+        SmallBin small;
+    }
+    static assert(mustAddGCRange!HybridBin);
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    struct S
+    {
+        @NoGc int[] a;
+    }
+    static assert(!mustAddGCRange!S);
+}
+
+///
+version(none)
+@safe pure nothrow @nogc unittest
+{
     class Foo
     {
         @NoGc int[] a;

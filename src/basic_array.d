@@ -1302,6 +1302,7 @@ unittest
 
 /** Variant of `BasicArray` with copy construction (postblit) enabled.
  *
+ * See also: suppressing.d
  * See also: http://forum.dlang.org/post/eitlbtfbavdphbvplnrk@forum.dlang.org
  */
 struct BasicCopyableArray

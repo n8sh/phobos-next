@@ -286,11 +286,9 @@ template mustAddGCRange(T)
     }
 }
 
-import std.traits : hasUDA;
-enum hasNoGc(alias member) = hasUDA!(member, NoGc);
-
 private template mustAddGCRangeOfMember(alias member)
 {
+    import std.traits : hasUDA;
     enum mustAddGCRangeOfMember = !hasUDA!(member, NoGc) && mustAddGCRange!(typeof(member));
 }
 

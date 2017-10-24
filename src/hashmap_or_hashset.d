@@ -1131,6 +1131,7 @@ private:
             assert(equal(x1.byKey, x2.byKey));
             assert(equal(x1.byValue, x2.byValue));
             assert(equal(x1.byKeyValue, x2.byKeyValue));
+            assert(equal(x1[], x2[]));
         }
 
         assert(x1.binCounts.largeCount ==

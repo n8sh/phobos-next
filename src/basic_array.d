@@ -1300,6 +1300,17 @@ unittest
     assert(y == z);
 }
 
+/** Variant of `BasicArray` with copy construction (postblit) enabled.
+ *
+ * See also: http://forum.dlang.org/post/eitlbtfbavdphbvplnrk@forum.dlang.org
+ */
+struct BasicCopyableArray
+{
+    /** TODO implement using instructions at:
+     * http://forum.dlang.org/post/eitlbtfbavdphbvplnrk@forum.dlang.org
+     */
+}
+
 /// TODO Move to Phobos.
 private enum bool isRefIterable(T) = is(typeof({ foreach (ref elem; T.init) {} }));
 

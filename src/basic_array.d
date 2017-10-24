@@ -281,10 +281,7 @@ struct BasicArray(T,
         }
         static if (mustAddGCRange!T)
         {
-            if (_store.ptr)
-            {
-                gc_removeRange(_store.ptr);
-            }
+            gc_removeRange(_store.ptr);
         }
         free(_mptr);
     }

@@ -289,7 +289,11 @@ struct BasicArray(T,
         }
         static if (mustAddGCRange!T)
         {
-            gc_removeRange(_store.ptr);
+            dln(typeof(this).stringof, ".gc_removeRange:", _store.ptr);
+            if (_store.ptr)
+            {
+                gc_removeRange(_store.ptr);
+            }
         }
         free(_mptr);
     }
@@ -326,6 +330,7 @@ struct BasicArray(T,
         assert(ptr, "Allocation failed");
         static if (mustAddGCRange!T)
         {
+            dln(typeof(this).stringof, ".gc_addRange:", ptr, ", ", initialCapacity, ", ", T.sizeof);
             gc_addRange(ptr, initialCapacity * T.sizeof);
         }
         return ptr;
@@ -793,6 +798,7 @@ struct BasicArray(T,
 
         static if (mustAddGCRange!T)
         {
+            dln(typeof(this).stringof, ".gc_removeRange:", _store.ptr);
             gc_removeRange(_store.ptr);
         }
         _store.capacity = cast(CapacityType)newCapacity;
@@ -800,6 +806,8 @@ struct BasicArray(T,
         assert(_store.ptr, "Reallocation failed");
         static if (mustAddGCRange!T)
         {
+
+            dln(typeof(this).stringof, ".gc_addRange:", _store.ptr, ", ", _store.capacity, ", ", T.sizeof);
             gc_addRange(_store.ptr, _store.capacity * T.sizeof);
         }
     }
@@ -1318,4 +1326,5 @@ private enum bool isRefIterable(T) = is(typeof({ foreach (ref elem; T.init) {} }
 version(unittest)
 {
     import array_help : s;
+    import dbgio;
 }

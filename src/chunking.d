@@ -1,6 +1,6 @@
 module chunking;
 
-version(non)
+version(none)
 {
 import std.range : ElementType, empty, front, back, popFront, isForwardRange, isInputRange;
 import std.functional : unaryFun;

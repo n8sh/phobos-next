@@ -59,7 +59,7 @@ void digestAny(Digest, T)(ref Digest digest,
 
 /** Digest the class `value`. */
 void digestPointer(Digest, T)(scope ref Digest digest,
-                              in T value) @trusted // no auto ref needed
+                              in T value) // pointer passed by value
     if (isDigest!Digest &&
         (is(T == class) ||
          isPointer!T))
@@ -67,15 +67,22 @@ void digestPointer(Digest, T)(scope ref Digest digest,
     digestRaw(digest, value);
 }
 
-/** Digest the struct `value`. */
+/** Digest the struct `value` by digesting each member sequentially. */
 void digestStruct(Digest, T)(scope ref Digest digest,
-                             in auto ref T value) @trusted
+                             in auto ref T value)
     if (isDigest!Digest &&
         is(T == struct))
 {
-    foreach (const ref subValue; value.tupleof)
+    static if (!hasIndirections!T)
     {
-        digestAny(digest, subValue);
+        digestRaw(digest, value); // hash everything in one call for better speed
+    }
+    else
+    {
+        foreach (const ref subValue; value.tupleof) // for each member
+        {
+            digestAny(digest, subValue);
+        }
     }
 }
 
@@ -88,6 +95,7 @@ void digestArray(Digest, T)(scope ref Digest digest,
     alias E = typeof(T.init[0]);
     static if (!hasIndirections!E)
     {
+        // faster:
         digestRaw(digest, value.length);
         digest.put((cast(ubyte*)value.ptr)[0 .. value.length * value[0].sizeof]);
     }
@@ -98,8 +106,8 @@ void digestArray(Digest, T)(scope ref Digest digest,
 }
 
 /** Digest raw bytes of `values`. */
-void digestRaw(Digest, T)(scope ref Digest digest,
-                          in auto ref T value) @trusted
+private void digestRaw(Digest, T)(scope ref Digest digest,
+                                  in auto ref T value) @trusted
     if (isDigest!Digest)
 {
     digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);

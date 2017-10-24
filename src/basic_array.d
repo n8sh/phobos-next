@@ -36,14 +36,6 @@ struct BasicArray(T,
 
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
 
-    static if (mustAddGCRange!T)
-    {
-        static if (is(T == struct))
-        {
-            pragma(msg, typeof(this).stringof, ": ", "T.mustAddGCRange:", mustAddGCRange!T, " T.tupleof:", typeof(T.tupleof));
-        }
-    }
-
     /// Mutable element type.
     private alias MutableE = Unqual!T;
 
@@ -289,7 +281,6 @@ struct BasicArray(T,
         }
         static if (mustAddGCRange!T)
         {
-            dln(typeof(this).stringof, ".gc_removeRange:", _store.ptr);
             if (_store.ptr)
             {
                 gc_removeRange(_store.ptr);
@@ -330,7 +321,6 @@ struct BasicArray(T,
         assert(ptr, "Allocation failed");
         static if (mustAddGCRange!T)
         {
-            dln(typeof(this).stringof, ".gc_addRange:", ptr, ", ", initialCapacity, ", ", T.sizeof);
             gc_addRange(ptr, initialCapacity * T.sizeof);
         }
         return ptr;
@@ -798,7 +788,6 @@ struct BasicArray(T,
 
         static if (mustAddGCRange!T)
         {
-            dln(typeof(this).stringof, ".gc_removeRange:", _store.ptr);
             gc_removeRange(_store.ptr);
         }
         _store.capacity = cast(CapacityType)newCapacity;
@@ -807,7 +796,6 @@ struct BasicArray(T,
         static if (mustAddGCRange!T)
         {
 
-            dln(typeof(this).stringof, ".gc_addRange:", _store.ptr, ", ", _store.capacity, ", ", T.sizeof);
             gc_addRange(_store.ptr, _store.capacity * T.sizeof);
         }
     }
@@ -1189,7 +1177,8 @@ unittest
         @NoGc int* _ptr;
     }
 
-    // TODO static assert(!mustAddGCRange!S);
+    pragma(msg, "TODO activate this test!");
+    // static assert(!mustAddGCRange!S);
 
     /* D compilers cannot currently move stuff efficiently when using
      * std.algorithm.mutation.move. A final dtor call to the cleared sourced is

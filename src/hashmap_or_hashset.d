@@ -405,7 +405,7 @@ struct HashMapOrSet(K, V = void,
         }
     }
 
-    pragma(inline, true)
+    pragma(inline, true)              // DMD cannot inline
     static private size_t offsetOfKey(in T[] elements,
                                       in ref K key)
     {

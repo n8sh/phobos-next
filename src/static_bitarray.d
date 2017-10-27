@@ -724,12 +724,19 @@ struct StaticBitArray(uint len, Block = size_t)
                 }
             }
 
+            import std.traits : isMutable;
+            static if (isMutable!(typeof(_store)))
+            {
+                @disable this(this); // Rust-style mutable reference semantics
+            }
+
             pragma(inline, true)
             bool empty() const
             {
                 return _i > _j;
             }
 
+            /// Get front.
             pragma(inline, true)
             Mod!len front() const
             {
@@ -737,6 +744,7 @@ struct StaticBitArray(uint len, Block = size_t)
                 return typeof(return)(_i);
             }
 
+            /// Get back.
             pragma(inline, true)
             Mod!len back() const
             {
@@ -744,6 +752,7 @@ struct StaticBitArray(uint len, Block = size_t)
                 return typeof(return)(_j);
             }
 
+            /// Pop front.
             void popFront()
             {
                 assert(!empty);
@@ -753,6 +762,7 @@ struct StaticBitArray(uint len, Block = size_t)
                 }
             }
 
+            /// Pop back.
             void popBack()
             {
                 assert(!empty);
@@ -763,8 +773,8 @@ struct StaticBitArray(uint len, Block = size_t)
             }
 
         private:
-            StaticBitArray _store;      // copy of store
-            int _i = 0;                 // front index into `_store`
+            StaticBitArray _store; // copy of store. TODO turn into a pointer
+            int _i = 0;            // front index into `_store`
             int _j = _store.length - 1; // back index into `_store`
         }
 

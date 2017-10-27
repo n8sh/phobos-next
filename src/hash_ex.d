@@ -13,7 +13,7 @@
  */
 module hash_ex;
 
-import std.traits : isScalarType, hasIndirections, isArray, isPointer;
+import std.traits : hasMember, isScalarType, hasIndirections, isArray, isPointer;
 import std.digest.digest : isDigest;
 
 // TODO make inlining work for LDC
@@ -29,7 +29,11 @@ void digestAny(Digest, T)(ref Digest digest,
                           in auto ref T value)
     if (isDigest!Digest)
 {
-    static if (isScalarType!T)  // first because faster to evaluate than
+    static if (hasMember!(T, "toDigest"))
+    {
+        value.toDigest(digest);
+    }
+    else static if (isScalarType!T)  // first because faster to evaluate than
                                 // `!hasIndirections!T` below
     {
         digestRaw(digest, value);
@@ -119,8 +123,6 @@ private void digestRaw(Digest, T)(scope ref Digest digest,
  */
 hash_t hashOf2(alias hasher, T)(in auto ref T value)
 {
-    import std.traits : hasMember;
-
     static if (__traits(compiles, { hash_t _ = hasher(value); }))
     {
         return hasher(value);   // for instance `hashOf`

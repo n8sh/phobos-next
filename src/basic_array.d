@@ -1294,6 +1294,13 @@ unittest
     assert(y == z);
 }
 
+/// construct with slices as element types
+@trusted pure nothrow unittest
+{
+    alias A = BasicArray!(string);
+    // alias B = BasicArray!(char[]);
+}
+
 /** Variant of `BasicArray` with copy construction (postblit) enabled.
  *
  * See also: suppressing.d

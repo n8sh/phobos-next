@@ -18,6 +18,9 @@ enum InsertionStatus { added, modified, unchanged }
  *
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  *
+ * TODO add extractElement that moves it out similar to
+ * http://en.cppreference.com/w/cpp/container/unordered_set/extract
+ *
  * TODO adjust rehashing to occur when relative number of LargeBuckets is
  * larger than, say, 1/10. Experiment with different ratios.
  *

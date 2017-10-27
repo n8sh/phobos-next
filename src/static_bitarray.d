@@ -71,7 +71,7 @@ struct StaticBitArray(uint len, Block = size_t)
     /** Number of bits. */
     enum length = len;
 
-    /** StaticBitArray range.
+    /** Bidirectional range into `BitArray`.
 
         TODO Provide opSliceAssign for interopability with range algorithms
         via private static struct member `Range`
@@ -109,8 +109,8 @@ struct StaticBitArray(uint len, Block = size_t)
 
     private:
         StaticBitArray _store;       // copy of store
-        size_t _i = 0;          // iterator into _store
-        size_t _j = _store.length;
+        size_t _i = 0;               // front iterator into _store
+        size_t _j = _store.length;   // back iterator into _store
     }
 
     pragma(inline, true) Range!() opSlice()() const @trusted

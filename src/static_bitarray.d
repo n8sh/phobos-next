@@ -57,7 +57,7 @@ struct StaticBitArray(uint len, Block = size_t)
     }
 
     /** Reset all bits (to zero). */
-    void reset()
+    void reset()()
     {
         _blocks[] = 0;
     }
@@ -80,9 +80,9 @@ struct StaticBitArray(uint len, Block = size_t)
 
         See also: https://dlang.org/phobos/std_bitmanip.html#bitsSet
     */
-    struct Range()
+    struct Range()              // template-lazy
     {
-        @safe pure @nogc:
+        @safe pure nothrow @nogc:
 
         /// Returns: `true` iff `this` is empty.
         bool   empty()  const { return _i == _j; }

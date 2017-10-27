@@ -104,7 +104,7 @@ public:
             import std.conv : to;
             foreach (const i, T; Types)
             {
-            case i: return this.as!T.to!U;
+            case i: return as!T.to!U;
             }
         }
     }
@@ -117,7 +117,7 @@ public:
         {
             foreach (const i, T; Types)
             {
-            case i: return this.as!T.to!(typeof(return));
+            case i: return as!T.to!(typeof(return));
             }
         }
     }
@@ -130,24 +130,6 @@ public:
     }
 
     pure:
-
-    import std.digest.digest : isDigest;
-
-    void toDigest(Digest)(scope ref Digest digest) const nothrow @nogc
-        if (isDigest!Digest)
-    {
-        import hash_ex : digestAny;
-        digestAny(digest, _tix);
-        final switch (_tix)
-        {
-            foreach (const i, T; Types)
-            {
-            case i:
-                digestAny(digest, this.as!T);
-                return;
-            }
-        }
-    }
 
     /** Returns: Name (as a $(D string)) of Currently Stored Type. */
     auto ref typeName() const @safe nothrow @nogc
@@ -310,7 +292,7 @@ public:
             foreach (const i, T; Types)
             {
             case i:
-                return this.as!T;
+                return as!T;
             }
         }
     }
@@ -324,7 +306,7 @@ public:
                 foreach (const i, T; Types)
                 {
                 case i:
-                    return cast(CommonType)this.as!T;
+                    return cast(CommonType)as!T;
                 }
             }
         }
@@ -480,7 +462,25 @@ public:
         {
             foreach (const i, T; Types)
             {
-            case i: return this.as!T.hashOf(hash);
+            case i: return as!T.hashOf(hash);
+            }
+        }
+    }
+
+    import std.digest.digest : isDigest;
+
+    void toDigest(Digest)(scope ref Digest digest) const nothrow @nogc
+        if (isDigest!Digest)
+    {
+        import hash_ex : digestAny;
+        digestAny(digest, _tix);
+        final switch (_tix)
+        {
+            foreach (const i, T; Types)
+            {
+            case i:
+                digestAny(digest, as!T);
+                return;
             }
         }
     }

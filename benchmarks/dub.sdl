@@ -4,6 +4,8 @@ targetType "executable"
 
 dependency "phobos-next" path="../"
 
+# TODO lflags "-ltcmalloc"
+
 buildType "release" {
          buildOptions "releaseMode" "optimize" "inline"
 }

@@ -13,6 +13,7 @@ authors "Per Nordlöw <per.nordlow@gmail.com>"
 
 dflags "-vcolumns" "-dip25"
 libs "z" "bz2" "zstd"
+# TODO lflags "-ltcmalloc"
 
 importPaths "src"
 

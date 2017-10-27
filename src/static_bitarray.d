@@ -82,12 +82,19 @@ struct StaticBitArray(uint len, Block = size_t)
     */
     struct Range()              // template-lazy
     {
+        import std.traits : isMutable;
+
         @safe pure nothrow @nogc:
 
         /// Returns: `true` iff `this` is empty.
         bool   empty()  const { return _i == _j; }
         /// Returns: `this` length.
         size_t length() const { return _j - _i; }
+
+        static if (isMutable!(typeof(_store)))
+        {
+            @disable this(this); // Rust-style mutable reference semantics
+        }
 
         /// Get front.
         bool front() const

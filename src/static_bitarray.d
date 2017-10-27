@@ -93,13 +93,13 @@ struct StaticBitArray(uint len, Block = size_t)
         bool front() const
         {
             assert(!empty); // only in debug mode since _store is range-checked
-            return _store[_i];
+            return (*_store)[_i];
         }
         /// Get back.
         bool back() const
         {
             assert(!empty);  // only in debug mode since _store is range-checked
-            return _store[_j - 1];
+            return (*_store)[_j - 1];
         }
 
         /// Pop front.
@@ -108,21 +108,21 @@ struct StaticBitArray(uint len, Block = size_t)
         void popBack()  { assert(!empty); ++_i; }
 
     private:
-        StaticBitArray _store;       // copy of store. TODO make a pointer?
-        size_t _i = 0;               // front iterator into _store
-        size_t _j = _store.length;   // back iterator into _store
+        StaticBitArray* _store;
+        size_t _i = 0;             // front iterator into _store
+        size_t _j = _store.length; // back iterator into _store
     }
 
     pragma(inline, true)
-    Range!() opSlice()() const @trusted
+    inout(Range!()) opSlice()() inout @trusted
     {
-        return Range!()(this);
+        return typeof(return)(&this);
     }
 
     pragma(inline, true)
-    Range!() opSlice()(size_t i, size_t j) const @trusted
+    inout(Range!()) opSlice()(size_t i, size_t j) inout @trusted
     {
-        return Range!()(this, i, j);
+        return typeof(return)(&this, i, j);
     }
 
     /** Gets the $(D i)'th bit. */
@@ -178,7 +178,7 @@ struct StaticBitArray(uint len, Block = size_t)
     }
 
     /** Puts the $(D i)'th bit to $(D b). */
-    pragma(inline, true)
+    pragma(inline)              // DMD cannot inline
     auto ref put()(size_t i, bool b) @trusted
     {
         this[i] = b;
@@ -697,6 +697,8 @@ struct StaticBitArray(uint len, Block = size_t)
          */
         struct OneIndexes()
         {
+            @safe pure nothrow @nogc:
+
             this(StaticBitArray store)
             {
                 this._store = store;
@@ -714,17 +716,20 @@ struct StaticBitArray(uint len, Block = size_t)
                 }
             }
 
+            pragma(inline, true)
             bool empty() const
             {
                 return _i > _j;
             }
 
+            pragma(inline, true)
             Mod!len front() const
             {
                 assert(!empty);     // TODO use enforce when it's @nogc
                 return typeof(return)(_i);
             }
 
+            pragma(inline, true)
             Mod!len back() const
             {
                 assert(!empty);     // TODO use enforce when it's @nogc
@@ -750,9 +755,9 @@ struct StaticBitArray(uint len, Block = size_t)
             }
 
         private:
-            StaticBitArray _store;               // copy of store
-            int _i = 0;                  // front index into `_store`
-            int _j = _store.length - 1;  // back index into `_store`
+            StaticBitArray _store;      // copy of store
+            int _i = 0;                 // front index into `_store`
+            int _j = _store.length - 1; // back index into `_store`
         }
 
         /** Returns: a lazy range of the indices of set bits.

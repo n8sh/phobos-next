@@ -47,8 +47,6 @@ enum InsertionStatus { added, modified, unchanged }
  * 1 this is more complicated since each bin contains a set of elements to
  * swap out and must be put in a queue.
  *
- * TODO support uncopyable value type for map-case
- *
  * TODO benchmark against https://github.com/greg7mdp/sparsepp
  */
 struct HashMapOrSet(K, V = void,

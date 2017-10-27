@@ -82,8 +82,6 @@ version(unittest)
     assert(setUnionUpdate(y, x) == c);
 }
 
-// version = show;
-
 import std.traits : CommonType;
 import std.range.primitives;
 import std.meta : allSatisfy, staticMap;
@@ -121,8 +119,6 @@ private:
                 static if (allSatisfy!(isRandomAccessRange, typeof(next)))
                 {
                     import std.algorithm.sorting : assumeSorted;
-                    version (show) dln("next:", next);
-                    version (show) dln("r.front:", r.front);
 
                     // TODO remove need for this hack
                     static if (less == "a < b")
@@ -137,8 +133,6 @@ private:
                     // TODO can we merge thsse two lines two one single assignment from nextUpperBound to next
                     auto nextUpperBound = next.assumeSorted!lessEq.upperBound!preferredSearchPolicy(r.front);
                     next = next[$ - nextUpperBound.length .. $];
-
-                    version (show) dln("nextUpperBound:", nextUpperBound);
 
                     if (next.empty)
                     {

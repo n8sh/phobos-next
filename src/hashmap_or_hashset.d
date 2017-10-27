@@ -279,11 +279,6 @@ struct HashMapOrSet(K, V = void,
                 copy.insertMoveWithoutBinCountGrowth(element);
             }
         }
-        if (copy._length != _length)
-        {
-            import dbgio : dln;
-            dln("copy._length:", copy._length, " _length:", _length);
-        }
         assert(copy._length == _length); // length shouldn't change
 
         moveEmplace(copy._bstates, _bstates); // `_bstates` doesn't need destroying

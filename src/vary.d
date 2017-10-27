@@ -262,8 +262,6 @@ public:
 
     /// Returns: $(D true) if this has a defined value (is defined).
     bool hasValue() const @safe nothrow @nogc { return _tix != Ix.max; }
-    alias defined = hasValue;
-    alias isDefined = hasValue;
 
     size_t currentSize() const @safe nothrow @nogc
     {
@@ -287,6 +285,7 @@ public:
     /// Blindly Implicitly Convert Stored Value in $(D U).
     private U convertTo(U)() const @safe nothrow
     {
+        assert(hasValue);
         final switch (_tix)
         {
             foreach (const i, T; Types)
@@ -301,6 +300,7 @@ public:
     {
         CommonType commonValue() const @safe pure nothrow @nogc
         {
+            assert(hasValue);
             final switch (_tix)
             {
                 foreach (const i, T; Types)
@@ -323,15 +323,19 @@ public:
                     return (this.convertTo!CommonType ==
                             that.convertTo!CommonType);
                 }
-                else
+
+                if (!this.hasValue &&
+                    !that.hasValue)
                 {
-                    final switch (_tix)
+                    return true; // TODO same behaviour as floating point NaN?
+                }
+
+                final switch (_tix)
+                {
+                    foreach (const i, T; Types)
                     {
-                        foreach (const i, T; Types)
-                        {
-                        case i:
-                            return this.as!T == that.as!T;
-                        }
+                    case i:
+                        return this.as!T == that.as!T;
                     }
                 }
             }
@@ -341,11 +345,15 @@ public:
             bool opEquals(in VaryN that) const @trusted nothrow
             {
                 if (_tix != that._tix)
+                {
                     return false; // this needs to be nothrow or otherwise x in aa will throw which is not desirable
+                }
 
                 if (!this.hasValue &&
                     !that.hasValue)
-                    return false; // TODO same behaviour as floating point NaN?
+                {
+                    return true; // TODO same behaviour as floating point NaN?
+                }
 
                 final switch (_tix)
                 {
@@ -670,11 +678,11 @@ unittest
     static assert(C.dataMaxSize == string.sizeof);
     static assert(!__traits(compiles, { assert(d == 'a'); }));
 
-    assert(C() != C());         // two undefined should not equal
+    assert(C() == C());         // two undefined are equal
 
     C d;
     C e = d;                    // copy construction
-    assert(e != d);             // two undefined should not equal
+    assert(e == d);             // two undefined should not equal
 
     d = 11;
     assert(d != e);

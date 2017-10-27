@@ -131,6 +131,24 @@ public:
 
     pure:
 
+    import std.digest.digest : isDigest;
+
+    void toDigest(Digest)(scope ref Digest digest) const nothrow @nogc
+        if (isDigest!Digest)
+    {
+        import hash_ex : digestAny;
+        digestAny(digest, _tix);
+        final switch (_tix)
+        {
+            foreach (const i, T; Types)
+            {
+            case i:
+                digestAny(digest, this.as!T);
+                return;
+            }
+        }
+    }
+
     /** Returns: Name (as a $(D string)) of Currently Stored Type. */
     auto ref typeName() const @safe nothrow @nogc
     {

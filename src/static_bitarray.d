@@ -108,23 +108,26 @@ struct StaticBitArray(uint len, Block = size_t)
         void popBack()  { assert(!empty); ++_i; }
 
     private:
-        StaticBitArray _store;       // copy of store
+        StaticBitArray _store;       // copy of store. TODO make a pointer?
         size_t _i = 0;               // front iterator into _store
         size_t _j = _store.length;   // back iterator into _store
     }
 
-    pragma(inline, true) Range!() opSlice()() const @trusted
+    pragma(inline, true)
+    Range!() opSlice()() const @trusted
     {
         return Range!()(this);
     }
 
-    pragma(inline, true) Range!() opSlice()(size_t i, size_t j) const @trusted
+    pragma(inline, true)
+    Range!() opSlice()(size_t i, size_t j) const @trusted
     {
         return Range!()(this, i, j);
     }
 
     /** Gets the $(D i)'th bit. */
-    pragma(inline, true) bool opIndex()(size_t i) const @trusted
+    pragma(inline, true)
+    bool opIndex()(size_t i) const @trusted
     in
     {
         assert(i < len);        // TODO nothrow or not?
@@ -149,7 +152,8 @@ struct StaticBitArray(uint len, Block = size_t)
 
             Avoids range-checking because `i` of type is bound to (0 .. len-1).
         */
-        pragma(inline) bool opIndex(ModUInt)(Mod!(len, ModUInt) i) const @trusted
+        pragma(inline)
+        bool opIndex(ModUInt)(Mod!(len, ModUInt) i) const @trusted
             if (isUnsigned!ModUInt)
         {
             static if (Block.sizeof == 8)
@@ -165,7 +169,8 @@ struct StaticBitArray(uint len, Block = size_t)
         /** Get the $(D i)'th bit.
             Statically verifies that i is < StaticBitArray length.
         */
-        pragma(inline) bool at(size_t i)() const @trusted
+        pragma(inline)
+        bool at(size_t i)() const @trusted
             if (i < len)
         {
             return this[i];
@@ -173,7 +178,8 @@ struct StaticBitArray(uint len, Block = size_t)
     }
 
     /** Puts the $(D i)'th bit to $(D b). */
-    pragma(inline, true) auto ref put()(size_t i, bool b) @trusted
+    pragma(inline, true)
+    auto ref put()(size_t i, bool b) @trusted
     {
         this[i] = b;
         return this;
@@ -211,7 +217,8 @@ struct StaticBitArray(uint len, Block = size_t)
     static if (len >= 1)
     {
         /** Sets the $(D i)'th bit. No range checking needed. */
-        pragma(inline, true) bool opIndexAssign(ModUInt)(bool b, Mod!(len, ModUInt) i)
+        pragma(inline, true)
+        bool opIndexAssign(ModUInt)(bool b, Mod!(len, ModUInt) i)
             @trusted
         if (isUnsigned!ModUInt)
         {
@@ -328,7 +335,8 @@ struct StaticBitArray(uint len, Block = size_t)
     }
 
     /** Reverse block `Block`. */
-    private pragma(inline, true) @property Block reverseBlock()(in Block block)
+    pragma(inline, true)
+    static @property Block reverseBlock()(in Block block)
     {
         static if (Block.sizeof == 4)
         {

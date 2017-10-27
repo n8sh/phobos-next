@@ -697,28 +697,31 @@ struct StaticBitArray(uint len, Block = size_t)
 
     static if (len >= 1)
     {
+        import std.traits: isInstanceOf;
+
         /** Lazy range of the indices of set bits.
 
             Similar to: `std.bitmanip.bitsSet`
 
             See also: https://dlang.org/phobos/std_bitmanip.html#bitsSet
          */
-        struct OneIndexes()
+        struct OneIndexes(Store)
+            // TODO if (isInstanceOf!(StaticBitArray, Store))
         {
             @safe pure nothrow @nogc:
 
-            this(StaticBitArray store)
+            this(Store* store)
             {
                 this._store = store;
 
                 // pre-adjust front index. TODO make lazy and move to front
-                while (_i < length && !_store[_i])
+                while (_i < length && !(*_store)[_i])
                 {
                     ++_i;
                 }
 
                 // pre-adjust back index. TODO make lazy and move to front
-                while (_j > 1 && !_store[_j])
+                while (_j > 1 && !(*_store)[_j])
                 {
                     --_j;
                 }
@@ -740,7 +743,7 @@ struct StaticBitArray(uint len, Block = size_t)
             pragma(inline, true)
             Mod!len front() const
             {
-                assert(!empty);     // TODO use enforce when it's @nogc
+                assert(!empty); // TODO use enforce when it's @nogc
                 return typeof(return)(_i);
             }
 
@@ -748,7 +751,7 @@ struct StaticBitArray(uint len, Block = size_t)
             pragma(inline, true)
             Mod!len back() const
             {
-                assert(!empty);     // TODO use enforce when it's @nogc
+                assert(!empty); // TODO use enforce when it's @nogc
                 return typeof(return)(_j);
             }
 
@@ -758,7 +761,7 @@ struct StaticBitArray(uint len, Block = size_t)
                 assert(!empty);
                 while (++_i <= _j)
                 {
-                    if (_store[_i]) { break; }
+                    if ((*_store)[_i]) { break; }
                 }
             }
 
@@ -768,21 +771,21 @@ struct StaticBitArray(uint len, Block = size_t)
                 assert(!empty);
                 while (_i <= --_j)
                 {
-                    if (_store[_j]) { break; }
+                    if ((*_store)[_j]) { break; }
                 }
             }
 
         private:
-            StaticBitArray _store; // copy of store. TODO turn into a pointer
-            int _i = 0;            // front index into `_store`
-            int _j = _store.length - 1; // back index into `_store`
+            Store* _store;                 // copy of store
+            int _i = 0;                    // front index into `_store`
+            int _j = (*_store).length - 1; // back index into `_store`
         }
 
         /** Returns: a lazy range of the indices of set bits.
          */
         auto oneIndexes()() const
         {
-            return OneIndexes!()(this);
+            return OneIndexes!(typeof(this))(&this);
         }
         /// ditto
         alias bitsSet = oneIndexes;

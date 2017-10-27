@@ -673,11 +673,10 @@ struct HashMapOrSet(K, V = void,
             {
                 return binElementsAt(binIx)[elementOffset].value;
             }
-            else                    // miss
+            else                // miss
             {
-		import std.conv : text;
                 import core.exception : RangeError;
-                throw new RangeError("Key " ~ text(key) ~ " not in table");
+                throw new RangeError("Key not in table");
             }
         }
 

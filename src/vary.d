@@ -474,13 +474,16 @@ public:
     {
         import hash_ex : digestAny;
         digestAny(digest, _tix);
-        final switch (_tix)
+        if (hasValue)
         {
-            foreach (const i, T; Types)
+            final switch (_tix)
             {
-            case i:
-                digestAny(digest, as!T);
-                return;
+                foreach (const i, T; Types)
+                {
+                case i:
+                    digestAny(digest, as!T);
+                    return;
+                }
             }
         }
     }

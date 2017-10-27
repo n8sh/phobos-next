@@ -458,13 +458,17 @@ public:
     {
         import core.internal.hash : hashOf;
         const size_t hash = _tix.hashOf;
-        final switch (_tix)
+        if (hasValue)
         {
-            foreach (const i, T; Types)
+            final switch (_tix)
             {
-            case i: return as!T.hashOf(hash);
+                foreach (const i, T; Types)
+                {
+                case i: return as!T.hashOf(hash);
+                }
             }
         }
+        return hash;
     }
 
     import std.digest.digest : isDigest;

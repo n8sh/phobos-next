@@ -101,6 +101,7 @@ struct StaticBitArray(uint len, Block = size_t)
             assert(!empty); // only in debug mode since _store is range-checked
             return (*_store)[_i];
         }
+
         /// Get back.
         bool back() const
         {
@@ -110,6 +111,7 @@ struct StaticBitArray(uint len, Block = size_t)
 
         /// Pop front.
         void popFront() { assert(!empty); ++_i; }
+
         /// Pop back.
         void popBack()  { assert(!empty); ++_i; }
 

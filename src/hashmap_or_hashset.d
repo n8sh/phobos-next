@@ -1259,13 +1259,3 @@ pure unittest
     s.remove(K.init);
     assert(K.init !in s);
 }
-
-///
-version(none)
-pure unittest
-{
-    import digestx.fnv : FNV;
-    import vary : FastVariant;
-    alias K = FastVariant!(size_t, string);
-    alias X = HashMapOrSet!(K, K, null, FNV!(64, true));
-}

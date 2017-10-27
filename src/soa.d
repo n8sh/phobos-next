@@ -45,7 +45,7 @@ struct SOA(S)
         return getArray!index;
     }
 
-    void insertBackMembers(Types types)
+    void insertBackMembers()(Types types) // template-lazy
     {
         if (_length == _capacity) { grow(); }
         version(LDC) static if (__VERSION__ >= 2076) { static assert(0, "TODO use static foreach"); }
@@ -58,7 +58,7 @@ struct SOA(S)
     }
 
     /// Push element (struct) `value` to back of array.
-    void insertBack(S value)
+    void insertBack()(S value)  // template-lazy
     {
         if (_length == _capacity) { grow(); }
         version(LDC) static if (__VERSION__ >= 2076) { static assert(0, "TODO use static foreach"); }
@@ -100,7 +100,7 @@ struct SOA(S)
     }
 
     /** Index operator. */
-    inout(SOAElementRef!S) opIndex(size_t elementIndex) inout return
+    inout(SOAElementRef!S) opIndex()(size_t elementIndex) inout return // template-lazy
     {
         assert(elementIndex < _length);
         return typeof(return)(&this, elementIndex);

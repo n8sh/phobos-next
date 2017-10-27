@@ -122,13 +122,13 @@ struct StaticBitArray(uint len, Block = size_t)
     }
 
     pragma(inline, true)
-    inout(Range!()) opSlice()() inout @trusted
+    scope inout(Range!()) opSlice()() inout return @trusted
     {
         return typeof(return)(&this);
     }
 
     pragma(inline, true)
-    inout(Range!()) opSlice()(size_t i, size_t j) inout @trusted
+    scope inout(Range!()) opSlice()(size_t i, size_t j) inout return @trusted
     {
         return typeof(return)(&this, i, j);
     }
@@ -187,7 +187,7 @@ struct StaticBitArray(uint len, Block = size_t)
 
     /** Puts the $(D i)'th bit to $(D b). */
     pragma(inline)              // DMD cannot inline
-    auto ref put()(size_t i, bool b) @trusted
+    typeof(this) put()(size_t i, bool b) @trusted
     {
         this[i] = b;
         return this;

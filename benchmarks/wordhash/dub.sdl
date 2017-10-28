@@ -1,0 +1,21 @@
+name "wordhash"
+
+targetType "executable"
+
+dependency "phobos-next" path="../../"
+
+# dflags "-v"
+
+# TODO lflags "-ltcmalloc"
+
+buildType "release" {
+         buildOptions "releaseMode" "optimize" "inline"
+}
+
+buildType "release-test" {
+         buildOptions "unittests" "releaseMode" "optimize" "inline"
+}
+
+buildType "release-nobounds" {
+         buildOptions "releaseMode" "optimize" "noBoundsCheck" "inline"
+}

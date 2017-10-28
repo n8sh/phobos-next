@@ -56,7 +56,7 @@ public:
 
     private enum N = typeCount; // useful local shorthand
 
-    enum indexOf(T) = staticIndexOf!(T, Types); // TODO cast to ubyte if N is <= 256
+    private enum indexOf(T) = staticIndexOf!(T, Types); // TODO cast to ubyte if N is <= 256
 
     // static checking
     static assert(N >= 2,
@@ -65,16 +65,10 @@ public:
                   "Cannot store more than " ~ maxTypesCount.stringof ~ " Types in a " ~ name);
 
     /** Is `true` if `U` is allowed to be assigned to `this`. */
-    enum bool allowsAssignmentFrom(U) = ((N == 0 ||
-                                          indexOf!(U) >= 0 ||      // either direct match or
-                                          ((!hasIndirections!U) && // no indirections and
-                                           indexOf!(Unqual!U) >= 0))); // ok to remove constness of value types
-
-    // template comparableWith(U)
-    // {
-    //     enum bool isComparableWith(T) = is(typeof(T < U));
-    //     enum bool comparableWith = allSatisfy!(isComparableWith, Types);
-    // }
+    private enum bool allowsAssignmentFrom(U) = ((N == 0 ||
+                                                  indexOf!(U) >= 0 ||      // either direct match or
+                                                  ((!hasIndirections!U) && // no indirections and
+                                                   indexOf!(Unqual!U) >= 0))); // ok to remove constness of value types
 
     import std.variant : maxSize, VariantException;
     enum dataMaxSize = maxSize!Types;

@@ -61,7 +61,7 @@ void main()
         immutable before = MonoTime.currTime();
         foreach (const i; 0 .. n)
         {
-            a ~= i.to!uint;      // need to cast away const here
+            a ~= i.to!uint;     // need to cast away const here for now. TODO remove this requirement
         }
         immutable after = MonoTime.currTime();
         writef("Appended: %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
@@ -95,6 +95,11 @@ void main()
                           HashSet!(uint, null, MurmurHash3!(128)),
                           HashSet!(uint, null, XXHash64),
 
+                          // ubyte array
+                          HashSet!(ubyte[], null, FNV!(64, true)),
+                          HashSet!(ubyte[], null, MurmurHash3!(128)),
+                          HashSet!(ubyte[], null, XXHash64),
+
                           // radix tree
                           RadixTreeSetGrowOnly!(uint),
                  ))
@@ -108,7 +113,15 @@ void main()
             immutable before = MonoTime.currTime();
             foreach (const i; 0 .. n)
             {
-                a.insert(i);
+                static if (hasMember!(A, `ElementType`) &&
+                           is(A.ElementType == ubyte[]))
+                {
+                    a.insert(i.ubytes);
+                }
+                else
+                {
+                    a.insert(i);
+                }
             }
             immutable after = MonoTime.currTime();
             writef("insert (w growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
@@ -119,7 +132,15 @@ void main()
             size_t hitCount = 0;
             foreach (const i; 0 .. n)
             {
-                hitCount += a.contains(i);
+                static if (hasMember!(A, `ElementType`) &&
+                           is(A.ElementType == ubyte[]))
+                {
+                    hitCount += a.contains(i.ubytes);
+                }
+                else
+                {
+                    hitCount += a.contains(i);
+                }
             }
             const ok = hitCount = n; // for side effect in output
             assert(ok);
@@ -134,7 +155,15 @@ void main()
             immutable before = MonoTime.currTime();
             foreach (const i; 0 .. n)
             {
-                b.insert(i);
+                static if (hasMember!(A, `ElementType`) &&
+                           is(A.ElementType == ubyte[]))
+                {
+                    b.insert(i.ubytes);
+                }
+                else
+                {
+                    b.insert(i);
+                }
             }
             immutable after = MonoTime.currTime();
             writef(", insert (no growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
@@ -231,7 +260,7 @@ void main()
         static if (hasMember!(A, `clear`)) { a.clear(); }
     }
 
-    foreach (E; AliasSeq!(uint, ulong))
+    foreach (E; AliasSeq!(uint, ulong, string))
     {
         alias KeyType = E;
         alias ValueType = E;
@@ -244,7 +273,7 @@ void main()
             immutable before = MonoTime.currTime();
             foreach (const i; 0 .. n)
             {
-                a[i] = ValueType.init;
+                a[i.to!E] = ValueType.init;
             }
             immutable after = MonoTime.currTime();
             writef("insert (w growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
@@ -255,7 +284,7 @@ void main()
             size_t hitCount = 0;
             foreach (const i; 0 .. n)
             {
-                hitCount += cast(bool)(i in a);
+                hitCount += cast(bool)(i.to!E in a);
             }
             const ok = hitCount = n; // for side effect in output
             assert(ok);
@@ -274,7 +303,7 @@ void main()
             immutable before = MonoTime.currTime();
             foreach (const i; 0 .. n)
             {
-                const hit = i in a;
+                const hit = i.to!E in a;
             }
             immutable after = MonoTime.currTime();
             writef(", contains (after rehash): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
@@ -286,4 +315,12 @@ void main()
 
         static if (hasMember!(A, `clear`)) { a.clear(); }
     }
+}
+
+/** Returns: `x` as a static array of unsigned bytes. */
+pragma(inline, true)
+ubyte[T.sizeof] ubytes(T)(in T x)
+    @trusted pure nothrow @nogc
+{
+    return (cast(ubyte*)(&x))[0 .. x.sizeof];
 }

@@ -1002,7 +1002,7 @@ private:
     pragma(inline, true)
     size_t keyToBinIx()(in auto ref K key) const
     {
-        import hash_ex : hashOf2;
+        import digestion : hashOf2;
         return hashToIndex(hashOf2!(hasher)(key));
     }
 

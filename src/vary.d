@@ -469,7 +469,7 @@ public:
     void toDigest(Digest)(scope ref Digest digest) const nothrow @nogc
         if (isDigest!Digest)
     {
-        import hash_ex : digestAny;
+        import digestion : digestAny;
         digestAny(digest, _tix);
         if (hasValue)
         {

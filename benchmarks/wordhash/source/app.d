@@ -2,6 +2,7 @@ void main()
 {
     import std.stdio;
     import std.datetime : MonoTime;
+    import digestx.fnv : FNV;
 
     import hashset : HashSet;
     import hashmap : HashMap;
@@ -9,8 +10,8 @@ void main()
 
     alias Ix = size_t;
     alias Str = BasicArray!char;
-    alias Strs = HashSet!(Str);
-    alias IxStr = HashMap!(Ix, Str);
+    alias Strs = HashSet!(Str, null, FNV!(64, true));
+    alias IxStr = HashMap!(Ix, Str, null, FNV!(64, true));
 
     Strs strs;
 

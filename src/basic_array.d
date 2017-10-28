@@ -379,6 +379,8 @@ struct BasicArray(T,
         }
     }
 
+    import std.digest.digest : isDigest;
+
     void toDigest(Digest)(scope ref Digest digest) const nothrow @nogc
         if (isDigest!Digest)
     {

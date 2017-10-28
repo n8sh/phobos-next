@@ -136,14 +136,14 @@ struct BasicArray(T,
     static if (isCopyable!T &&
                !is(T == union)) // forbid copying of unions such as `HybridBin` in hashmap.d
     {
-        static typeof(this) withElements()(in T[] elements) // template-lazy
+        static typeof(this) withElements()(const T[] elements) // template-lazy
         {
             immutable length = elements.length;
             auto ptr = typeof(this).allocate(length, false);
 
-            foreach (immutable i, const e; elements[])
+            foreach (immutable i, const element; elements[])
             {
-                ptr[i] = e;
+                ptr[i] = *cast(MutableE*)&element;
             }
 
             // ptr[0 .. length] = elements[];
@@ -604,31 +604,31 @@ struct BasicArray(T,
         _store.length += values.length;
     }
 
-    /** Insert the elements `values` into the end of the array.
+    /** Insert the elements `elements` into the end of the array.
      */
-    void insertBack(R)(R values)
+    void insertBack(R)(R elements)
         if (isAssignableFromElementsOfRefIterableStruct!R)
     {
         import std.range : hasLength;
         static if (isInputRange!R &&
                    hasLength!R)
         {
-            reserve(_store.length + values.length);
+            reserve(_store.length + elements.length);
             import std.algorithm : copy;
-            copy(values, _mptr[_store.length .. _store.length + values.length]);
-            _store.length += values.length;
+            copy(elements, _mptr[_store.length .. _store.length + elements.length]);
+            _store.length += elements.length;
         }
         else
         {
-            foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
+            foreach (ref element; move(elements)) // TODO remove `move` when compiler does it for us
             {
                 static if (isCopyable!(ElementType!R))
                 {
-                    insertBack(value);
+                    insertBack(element);
                 }
                 else
                 {
-                    insertBackMove(value);
+                    insertBackMove(element);
                 }
             }
         }
@@ -1298,7 +1298,7 @@ unittest
 @trusted pure nothrow unittest
 {
     alias A = BasicArray!(string);
-    // alias B = BasicArray!(char[]);
+    alias B = BasicArray!(char[]);
 }
 
 /** Variant of `BasicArray` with copy construction (postblit) enabled.

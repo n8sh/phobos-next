@@ -97,3 +97,30 @@ version(unittest)
                             }
                       ));
 }
+
+/** Returns: `x` as a static array of unsigned bytes. */
+pragma(inline, true)
+@property ubyte[T.sizeof] toUbytes(T)(in T x)
+    @trusted pure nothrow @nogc // TODO endian-dependent
+{
+    return (cast(ubyte*)(&x))[0 .. x.sizeof];
+}
+
+/** Returns: `x` as a static array with elements of type `E`. */
+pragma(inline, true)
+@property ref E[T.sizeof] asN(E, T)(in ref T x)
+    @trusted pure nothrow @nogc // TODO endian-dependent
+    if (T.sizeof % E.sizeof == 0)
+{
+    return (cast(E*)(&x))[0 .. x.sizeof];
+}
+
+@safe pure nothrow @nogc unittest
+{
+    immutable ushort x = 17;
+    auto y = x.asN!ubyte;
+    version(LittleEndian)
+    {
+        assert(y == [17, 0].s);
+    }
+}

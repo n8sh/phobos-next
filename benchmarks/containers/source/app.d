@@ -1,6 +1,3 @@
-version = benchmark;
-
-version(benchmark)
 void main()
 {
     // standard storage

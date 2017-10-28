@@ -113,17 +113,17 @@ public:
     pure:
 
     /** Returns: Name (as a $(D string)) of Currently Stored Type. */
-    auto ref typeName() const @safe nothrow @nogc
+    private auto ref typeName()() const @safe nothrow @nogc
     {
         return hasValue ? typeNamesRT[_tix] : null;
     }
 
     /** Copy construct from `that`. */
-    this(in VaryN that) @safe nothrow @nogc
+    this()(in VaryN that) @safe nothrow @nogc
     {
         _store = that._store;
         _tix = that._tix;
-        // TODO run postblits
+        pragma(msg, "Run postblits for " ~ Types.stringof);
     }
 
     ~this()

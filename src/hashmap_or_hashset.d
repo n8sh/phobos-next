@@ -23,6 +23,9 @@ enum InsertionStatus { added, modified, unchanged }
  * TODO add extractElement that moves it out similar to
  * http://en.cppreference.com/w/cpp/container/unordered_set/extract
  *
+ * TODO add merge or union algorithm here or into container_algorithm.d. See
+ * also: http://en.cppreference.com/w/cpp/container/unordered_set/merge
+ *
  * TODO add test for `SetIntersectionFast` in setops_ex.d
  *
  * TODO adjust rehashing to occur when relative number of LargeBuckets is

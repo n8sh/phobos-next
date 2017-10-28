@@ -379,6 +379,14 @@ struct BasicArray(T,
         }
     }
 
+    void toDigest(Digest)(scope ref Digest digest) const nothrow @nogc
+        if (isDigest!Digest)
+    {
+        import digestion : digestAny;
+        digestAny(digest, _store.length);
+        digestAny(digest, slice());
+    }
+
     /// Check if empty.
     pragma(inline, true)
     bool empty()() const { return _store.length == 0; } // template-lazy

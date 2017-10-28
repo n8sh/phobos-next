@@ -128,7 +128,7 @@ public:
 
     ~this()
     {
-        if (hasValue) { release(); }
+        release();
     }
 
     this(T)(T that) @trusted nothrow @nogc
@@ -148,7 +148,7 @@ public:
     {
         import std.algorithm.mutation : moveEmplace;
 
-        if (hasValue) { release(); }
+        release();
 
         alias MT = Unqual!T;
         moveEmplace(*cast(MT*)&that,
@@ -212,7 +212,7 @@ public:
     /// Force $(D this) to the null/uninitialized/unset/undefined state.
     void clear() @safe nothrow @nogc
     {
-        if (hasValue) { release(); }
+        release();
         _tix = Ix.max; // this is enough to indicate undefined, no need to zero `_store`
     }
     /// ditto
@@ -234,9 +234,11 @@ public:
                 {
                     .destroy(*cast(T*)&_store); // reinterpret
                 }
+                return;
             }
+            case Ix.max:
+                return;
         }
-
         // TODO don't call if all types satisfy traits_ex.isValueType
         // _store[] = 0; // slightly faster than: memset(&_store, 0, _store.sizeof);
     }

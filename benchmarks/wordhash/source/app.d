@@ -24,8 +24,10 @@ void main()
         }
     }
     immutable after = MonoTime.currTime();
+
     const secs = (after - before).total!"msecs";
     const nsecs = (after - before).total!"nsecs";
+
     writef("Insertion: %1.2s ms, %3.1f ns/op", secs, cast(double)nsecs / strs.length);
 
 }

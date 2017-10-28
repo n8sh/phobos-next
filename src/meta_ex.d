@@ -114,3 +114,21 @@ mixin template RvalueRef()
     useVector(v);                     // works
     useVector(Vector(42, 23).byRef);  // works as well, and use the same function
 }
+
+// Use same as staticIndexOf
+template staticAssignableTypeIndexOf(U)
+{
+    static auto f(U)()
+    {
+        foreach (i, T; Types)
+        {
+            import std.traits : isAssignable;
+            static if (isAssignable!(T, U))
+            {
+                return i;
+            }
+        }
+        return 0;
+    }
+    enum canStore = f!U;
+}

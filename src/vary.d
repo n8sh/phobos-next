@@ -64,7 +64,7 @@ public:
     static assert(N < maxTypesCount,
                   "Cannot store more than " ~ maxTypesCount.stringof ~ " Types in a " ~ name);
 
-    /** `true` if `U` is allowed to be assigned to `this` */
+    /** Is `true` if `U` is allowed to be assigned to `this`. */
     enum bool allowsAssignmentFrom(U) = ((N == 0 ||
                                           indexOf!(U) >= 0 ||      // either direct match or
                                           ((!hasIndirections!U) && // no indirections and
@@ -75,24 +75,6 @@ public:
     //     enum bool isComparableWith(T) = is(typeof(T < U));
     //     enum bool comparableWith = allSatisfy!(isComparableWith, Types);
     // }
-
-    // Use same as staticIndexOf
-    template staticAssignableTypeIndexOf(U)
-    {
-        static auto f(U)()
-        {
-            foreach (i, T; Types)
-            {
-                import std.traits : isAssignable;
-                static if (isAssignable!(T, U))
-                {
-                    return i;
-                }
-            }
-            return 0;
-        }
-        enum canStore = f!U;
-    }
 
     import std.variant : maxSize, VariantException;
     enum dataMaxSize = maxSize!Types;

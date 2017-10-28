@@ -126,11 +126,13 @@ public:
         pragma(msg, "Run postblits for " ~ Types.stringof);
     }
 
+    /// Destruct.
     ~this()
     {
         release();
     }
 
+    /// Construct copy from `that`.
     this(T)(T that) @trusted nothrow @nogc
         if (allowsAssignmentFrom!T)
     {

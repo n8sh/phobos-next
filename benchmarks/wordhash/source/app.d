@@ -25,9 +25,17 @@ void main()
     }
     immutable after = MonoTime.currTime();
 
-    const secs = (after - before).total!"msecs";
-    const nsecs = (after - before).total!"nsecs";
+    immutable secs = (after - before).total!"msecs";
+    immutable nsecs = (after - before).total!"nsecs";
 
-    writef("Insertion: %1.2s ms, %3.1f ns/op", secs, cast(double)nsecs / strs.length);
+    immutable n = strs.length;
+    immutable binCounts = strs.binCounts;
+
+    writef("Insertion: n:%s %1.2s ms, %3.1f ns/op binCounts:S:%s,L:%s",
+           n,
+           secs,
+           cast(double)nsecs / n,
+           binCounts.smallCount,
+           binCounts.largeCount);
 
 }

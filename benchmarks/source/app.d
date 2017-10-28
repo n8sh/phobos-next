@@ -10,6 +10,7 @@ void main()
 
     // my containers
     import basic_array : BasicArray;
+    import array_help : toUbytes;
     import variant_arrays : VariantArrays;
     import hashset : HashSet;
     import hashmap : HashMap;
@@ -116,7 +117,7 @@ void main()
                 static if (hasMember!(A, `ElementType`) &&
                            is(A.ElementType == ubyte[]))
                 {
-                    a.insert(i.ubytes);
+                    a.insert(i.toUbytes);
                 }
                 else
                 {
@@ -135,7 +136,7 @@ void main()
                 static if (hasMember!(A, `ElementType`) &&
                            is(A.ElementType == ubyte[]))
                 {
-                    hitCount += a.contains(i.ubytes);
+                    hitCount += a.contains(i.toUbytes);
                 }
                 else
                 {
@@ -158,7 +159,7 @@ void main()
                 static if (hasMember!(A, `ElementType`) &&
                            is(A.ElementType == ubyte[]))
                 {
-                    b.insert(i.ubytes);
+                    b.insert(i.toUbytes);
                 }
                 else
                 {
@@ -315,12 +316,4 @@ void main()
 
         static if (hasMember!(A, `clear`)) { a.clear(); }
     }
-}
-
-/** Returns: `x` as a static array of unsigned bytes. */
-pragma(inline, true)
-ubyte[T.sizeof] ubytes(T)(in T x)
-    @trusted pure nothrow @nogc
-{
-    return (cast(ubyte*)(&x))[0 .. x.sizeof];
 }

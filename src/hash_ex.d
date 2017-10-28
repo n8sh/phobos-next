@@ -11,7 +11,7 @@
  *      digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
  *  }
  */
-module hash_ex;
+module digestion;
 
 import std.traits : hasMember, isScalarType, hasIndirections, isArray, isPointer;
 import std.digest.digest : isDigest;

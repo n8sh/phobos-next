@@ -93,11 +93,6 @@ void main()
                           HashSet!(uint, null, MurmurHash3!(128)),
                           HashSet!(uint, null, XXHash64),
 
-                          // ubyte array
-                          HashSet!(ubyte[], null, FNV!(64, true)),
-                          HashSet!(ubyte[], null, MurmurHash3!(128)),
-                          HashSet!(ubyte[], null, XXHash64),
-
                           // radix tree
                           RadixTreeSetGrowOnly!(uint),
                  ))

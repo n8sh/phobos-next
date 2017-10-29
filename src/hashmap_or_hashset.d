@@ -840,7 +840,7 @@ struct HashMapOrSet(K, V = void,
         size_t largeCount;      // number of hybrid bins being large
     }
 
-    /// Get bin count statistics.
+    /// Returns: bin count statistics for small and large bins.
     pragma(inline, false)
     BinCounts binCounts()() const // template-lazy
     {

@@ -72,14 +72,11 @@ struct HashMapOrSet(K, V = void,
                     uint capacityScaleDenominator = 1)
     if (smallBinMinCapacity >= 1) // no use having empty small bins
 {
-    import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable;
-
     import std.conv : emplace;
+    import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable;
+    import std.algorithm.comparison : max;
     import std.algorithm.mutation : move, moveEmplace;
     import emplace_all : moveEmplaceAllNoReset;
-
-    import std.algorithm.comparison : max;
-
     import prime_modulo;
 
     /** In the hash map case, `V` is non-void, and a value is stored alongside

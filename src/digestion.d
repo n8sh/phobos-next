@@ -1,5 +1,7 @@
 /** Hash digestion of standard types.
  *
+ * TODO keys must have immutable indirections meaning must not haveAliasing
+ *
  * TODO use:
  *
  *  static if (hasMember!(hasher, "putStaticArray"))

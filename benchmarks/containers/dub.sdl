@@ -7,13 +7,16 @@ dependency "phobos-next" path="../../"
 # TODO lflags "-ltcmalloc"
 
 buildType "release" {
-         buildOptions "releaseMode" "optimize" "inline"
+          dflags "-mcpu=native"
+          buildOptions "releaseMode" "optimize" "inline"
 }
 
 buildType "release-test" {
-         buildOptions "unittests" "releaseMode" "optimize" "inline"
+          dflags "-mcpu=native"
+          buildOptions "unittests" "releaseMode" "optimize" "inline"
 }
 
 buildType "release-nobounds" {
-         buildOptions "releaseMode" "optimize" "noBoundsCheck" "inline"
+          dflags "-mcpu=native"
+          buildOptions "releaseMode" "optimize" "noBoundsCheck" "inline"
 }

@@ -20,6 +20,8 @@ enum InsertionStatus { added, modified, unchanged }
  *
  * TODO support uncopyable keys
  *
+ * TODO keys must have immutable indirections meaning must not haveAliasing
+ *
  * TODO add extractElement that moves it out similar to
  * http://en.cppreference.com/w/cpp/container/unordered_set/extract
  *

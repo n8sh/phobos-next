@@ -55,7 +55,16 @@ void digestAny(Digest, T)(ref Digest digest,
     }
     else static if (is(T == struct))
     {
-        digestStruct(digest, value);
+        import std.range : hasSlicing;
+        static if (hasSlicing!T && isArray!(T.init[]))
+        {
+            // T is array container
+            digestArray(digest, value[]);
+        }
+        else
+        {
+            digestStruct(digest, value);
+        }
     }
     else
     {

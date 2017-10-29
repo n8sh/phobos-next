@@ -387,14 +387,20 @@ struct HashMapOrSet(K, V = void,
      */
     InsertionStatus insert(T element)
     {
+        reserveExtra(1);
+        return insertMoveWithoutBinCountGrowth(element);
+    }
+
+    /** Reserve rom for `extraCapacity` number of extra buckets. */
+    void reserveExtra()(size_t extraCapacity)
+    {
         if ((capacityScaleNumerator *
-             (_length + 1) /
+             (_length + extraCapacity) /
              capacityScaleDenominator) >
             _bins.length * smallBinCapacity)
         {
             grow();
         }
-        return insertMoveWithoutBinCountGrowth(element);
     }
 
     static if (hasValue)

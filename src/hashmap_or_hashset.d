@@ -78,7 +78,7 @@ struct HashMapOrSet(K, V = void,
     import std.algorithm.mutation : move, moveEmplace;
     import emplace_all : moveEmplaceAllNoReset;
 
-    import std.algorithm.searching : canFind, countUntil;
+    import std.algorithm.searching : canFind;
     import std.algorithm.comparison : max;
 
     import prime_modulo;
@@ -703,6 +703,7 @@ struct HashMapOrSet(K, V = void,
          */
         auto ref V get()(in K key, in auto ref V defaultValue) @trusted
         {
+            import std.algorithm.searching : countUntil;
             immutable binIx = keyToBinIx(key);
             immutable ptrdiff_t elementOffset = binElementsAt(binIx).countUntil!(_ => _.key == key); // TODO functionize
             if (elementOffset != -1) // elementFound

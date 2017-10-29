@@ -77,7 +77,7 @@ struct HashMapOrSet(K, V = void,
     import std.algorithm.comparison : max;
     import std.algorithm.mutation : move, moveEmplace;
     import emplace_all : moveEmplaceAllNoReset;
-    import prime_modulo;
+    // TODO activate and use import prime_modulo;
 
     /** In the hash map case, `V` is non-void, and a value is stored alongside
      * the key of type `K`.

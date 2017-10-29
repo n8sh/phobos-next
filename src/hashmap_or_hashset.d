@@ -1270,3 +1270,10 @@ pure unittest
     s.remove(K.init);
     assert(K.init !in s);
 }
+
+/// range checking
+pure unittest
+{
+    import digestx.fnv : FNV;
+    alias X = HashMapOrSet!(ubyte[], void, null, FNV!(64, true)); // TODO should be disallowed
+}

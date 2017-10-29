@@ -9,7 +9,7 @@ void main()
     import basic_array : BasicArray;
 
     alias Ix = size_t;
-    alias Str = BasicArray!char;
+    alias Str = BasicArray!(char); // TODO use uint as length
     alias Strs = HashSet!(Str, null, FNV!(64, true));
     alias IxStr = HashMap!(Ix, Str, null, FNV!(64, true));
 

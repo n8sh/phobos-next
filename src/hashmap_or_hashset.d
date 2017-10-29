@@ -2,7 +2,14 @@ module hashmap_or_hashset;
 
 import container_traits;
 
-enum InsertionStatus { added, modified, unchanged }
+/** Insertion status.
+ */
+enum InsertionStatus
+{
+    added,                      // element was added
+    modified,                   // value of element was changed (map only)
+    unmodified                  // element was left unchanged
+}
 
 /** Hash set (or map) storing (key) elements of type `K` and values of type `V`.
  *
@@ -469,7 +476,7 @@ struct HashMapOrSet(K, V = void,
                     return typeof(return).modified;
                 }
             }
-            return typeof(return).unchanged;
+            return typeof(return).unmodified;
         }
         else                    // no elementFound
         {
@@ -1091,10 +1098,10 @@ private:
                 assert(*elementFound != "_");
             }
 
-            assert(x1.insert(element) == InsertionStatus.unchanged);
+            assert(x1.insert(element) == InsertionStatus.unmodified);
             static if (X.hasValue)
             {
-                assert(x1.insert(key, value) == InsertionStatus.unchanged);
+                assert(x1.insert(key, value) == InsertionStatus.unmodified);
             }
             assert(x1.length == key + 1);
 

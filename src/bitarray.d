@@ -149,6 +149,7 @@ private:
     enum blockBits = 8*Block.sizeof;
 
     size_t _blockCount;
+
     import container_traits : NoGc;
     @NoGc Block* _blockPtr;
 

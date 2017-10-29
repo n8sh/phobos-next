@@ -78,7 +78,6 @@ struct HashMapOrSet(K, V = void,
     import std.algorithm.mutation : move, moveEmplace;
     import emplace_all : moveEmplaceAllNoReset;
 
-    import std.algorithm.searching : canFind;
     import std.algorithm.comparison : max;
 
     import prime_modulo;

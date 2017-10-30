@@ -150,8 +150,15 @@ private:
 
     size_t _blockCount;
 
-    import container_traits : NoGc;
-    @NoGc Block* _blockPtr;
+    static if (is(Allocator == std.experimental.allocator.gc_allocator.GCAllocator))
+    {
+        Block* _blockPtr;       // GC-allocated store pointer
+    }
+    else
+    {
+        import container_traits : NoGc;
+        @NoGc Block* _blockPtr; // non-GC-allocated store pointer
+    }
 
     size_t _length;
 }

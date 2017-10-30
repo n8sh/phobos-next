@@ -1,7 +1,7 @@
 module basic_array;
 
 import std.traits : Unqual;
-import container_traits : NoGc, mustAddGCRange, needsMove;
+import container_traits : mustAddGCRange, needsMove;
 
 /** Array type with deterministic control of memory. The memory allocated for
     the array is reclaimed as soon as possible; there is no reliance on the
@@ -826,6 +826,7 @@ private:
         }
         else
         {
+            import container_traits : NoGc;
             @NoGc T* ptr;       // non-GC-allocated store pointer
         }
 
@@ -1181,6 +1182,7 @@ unittest
             // dln("free: _ptr=", _ptr);
         }
 
+        import container_traits : NoGc;
         @NoGc int* _ptr;
     }
 

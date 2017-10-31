@@ -27,14 +27,6 @@ enum InsertionStatus
  *
  * TODO try quadratic probing using triangular numbers:
  * http://stackoverflow.com/questions/2348187/moving-from-linear-probing-to-quadratic-probing-hash-collisons/2349774#2349774
- * for (size_t i = hash & (tabledim - 1), j = 1;; ++j)
- * {
- *     const(StringValue)* sv;
- *     auto vptr = table[i].vptr;
- *     if (!vptr || table[i].hash == hash && (sv = getValue(vptr)).length == length && .memcmp(s, sv.toDchars(), length) == 0)
- *     return i;
- *     i = (i + j) & (tabledim - 1);
- * }
  *
  * TODO support uncopyable keys
  *
@@ -67,7 +59,7 @@ enum InsertionStatus
  * TODO also try allocating values in a separate array using soa.d and see if
  * benchmarks become better
  *
- * TODO grow(): if allocator has realloc we can do rehashing in-place similar to
+ * TODO growWithExtraCapacity(): if allocator has realloc we can do rehashing in-place similar to
  * reordering in in-place radix (integer_sorting.d), otherwise rehash into new
  * copy of bins and free old bins when done. If bin element count is >
  * 1 this is more complicated since each bin contains a set of elements to
@@ -286,9 +278,17 @@ struct HashMapOrSet(K, V = void,
     }
 
     /// Grow by duplicating number of bins.
-    private void grow() @trusted // not template-lazy
+    private void growWithExtraCapacity(size_t extraCapacity) @trusted // not template-lazy
     {
-        immutable newBinCount = binCount ? 2 * binCount : 1; // 0 => 1, 1 => 2, 2 => 4, ...
+        size_t newBinCount = 0;
+        if (extraCapacity == 1)
+        {
+            newBinCount = binCount ? 2 * binCount : 1; // 0 => 1, 1 => 2, 2 => 4, ...
+        }
+        else
+        {
+            newBinCount = binCountOfCapacity(_length + extraCapacity);
+        }
         auto copy = withBinCount(newBinCount);
 
         // move elements to copy
@@ -416,7 +416,7 @@ struct HashMapOrSet(K, V = void,
              capacityScaleDenominator) >
             _bins.length * smallBinCapacity)
         {
-            grow();
+            growWithExtraCapacity(extraCapacity);
         }
     }
 

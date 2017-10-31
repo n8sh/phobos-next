@@ -1280,6 +1280,10 @@ pure unittest
 
     s.remove(K.init);
     assert(K.init !in s);
+
+    X t;
+    t.reserveExtra(4096);
+    assert(t.binCount == 8192);
 }
 
 /// range checking

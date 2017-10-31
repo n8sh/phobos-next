@@ -25,6 +25,17 @@ enum InsertionStatus
  *
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  *
+ * TODO try quadratic probing using triangular numbers:
+ * http://stackoverflow.com/questions/2348187/moving-from-linear-probing-to-quadratic-probing-hash-collisons/2349774#2349774
+ * for (size_t i = hash & (tabledim - 1), j = 1;; ++j)
+ * {
+ *     const(StringValue)* sv;
+ *     auto vptr = table[i].vptr;
+ *     if (!vptr || table[i].hash == hash && (sv = getValue(vptr)).length == length && .memcmp(s, sv.toDchars(), length) == 0)
+ *     return i;
+ *     i = (i + j) & (tabledim - 1);
+ * }
+ *
  * TODO support uncopyable keys
  *
  * TODO assert that keys have only immutable indirections (!hasAliasing!K)

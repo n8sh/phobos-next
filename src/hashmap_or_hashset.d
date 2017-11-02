@@ -7,7 +7,7 @@ import container_traits;
 enum InsertionStatus
 {
     added,                      // element was added
-    modified,                   // value of element was changed (map only)
+    modified,                   // value of element was changed (map only). TODO only for Map-case
     unmodified                  // element was left unchanged
 }
 

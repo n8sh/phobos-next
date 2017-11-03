@@ -28,6 +28,9 @@ enum InsertionStatus
  * TODO try quadratic probing using triangular numbers:
  * http://stackoverflow.com/questions/2348187/moving-from-linear-probing-to-quadratic-probing-hash-collisons/2349774#2349774
  *
+ * TODO in non-sso optimized store add flag similar to Nullable that reserves a
+ * specific value for key that indicates that slot is unused
+ *
  * TODO support uncopyable keys
  *
  * TODO assert that keys have only immutable indirections (!hasAliasing!K)

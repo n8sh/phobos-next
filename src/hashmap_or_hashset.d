@@ -29,7 +29,8 @@ enum InsertionStatus
  * http://stackoverflow.com/questions/2348187/moving-from-linear-probing-to-quadratic-probing-hash-collisons/2349774#2349774
  *
  * TODO in non-sso optimized store add flag similar to Nullable that reserves a
- * specific value for key that indicates that slot is unused
+ * specific value for key that indicates that slot is unused. Use this when
+ * storing indexes in knet.storage
  *
  * TODO support uncopyable keys
  *

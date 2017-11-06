@@ -1248,15 +1248,14 @@ private:
 /// range checking
 pure unittest
 {
+    import std.exception : assertThrown, assertNotThrown;
+    import core.exception : RangeError;
+    import uncopyable_sample : V = SomeUncopyable;
     import digestx.fnv : FNV;
 
     immutable n = 11;
 
     alias K = uint;
-    import uncopyable_sample : V = SomeUncopyable;
-
-    import std.exception : assertThrown, assertNotThrown;
-    import core.exception : RangeError;
 
     alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
 

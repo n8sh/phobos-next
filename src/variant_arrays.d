@@ -240,9 +240,11 @@ private:
     assert(data.length == 3);
 
     const i3 = data.put(Chars15(`1234`));
+
+    // same order as in `Types`
     assert(i0 < i3);
     assert(i1 < i3);
-    assert(i2 < i3);
+    assert(i2 < i3);            // same type, i2 added before i3
 
     assert(i3.isA!(Chars15));
     assert(data.at!(Chars15)(1) == Chars15(`1234`));

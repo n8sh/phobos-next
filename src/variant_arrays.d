@@ -252,7 +252,7 @@ private:
     assert(data.length == 4);
 }
 
-// version = extraTests;
+version = extraTests;
 
 version(extraTests)
 {

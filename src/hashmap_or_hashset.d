@@ -938,13 +938,6 @@ private:
         static assert(mustAddGCRange!HybridBin, "HybridBin mustAddGCRange when SmallBin is " ~ SmallBin.stringof);
     }
 
-    /** Small-size-optimized bin array.
-
-        Size-state (including small or large) for each element is determined by
-        corresponding element in `Bstates`.
-     */
-    alias Bins = Array!(HybridBin, Allocator);
-
     /** Count and large status of bin. */
     struct Bstate
     {
@@ -1002,6 +995,12 @@ private:
 
         Count _count;
     }
+
+    /** Small-size-optimized bin array.
+        Size-state (including small or large) for each element is determined by
+        corresponding element in `Bstates`.
+     */
+    alias Bins = Array!(HybridBin, Allocator);
 
     /// Bin states.
     alias Bstates = Array!(Bstate, Allocator);

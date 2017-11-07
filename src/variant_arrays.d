@@ -151,11 +151,11 @@ private struct VariantArrays(Types...)
     }
 
     /// Reserve space for `newCapacity` elements of type `SomeKind`.
-    void reserveOf(SomeKind)(size_t newCapacity) inout return
+    void reserve(SomeKind)(size_t newCapacity) inout return
         if (Index.canReferTo!SomeKind)
     {
-        // TODO:
-        // mixin(arrayInstanceString!SomeKind ~ `reserve(` ~  ~ `);`);
+        mixin(`alias arrayInstance = ` ~ arrayInstanceString!SomeKind ~ `;`);
+        arrayInstance.reserve(newCapacity);
     }
 
     /** Returns: length of store. */

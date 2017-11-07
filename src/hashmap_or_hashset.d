@@ -1022,8 +1022,7 @@ private:
     size_t hashToIndex(hash_t hash) const
     {
         const size_t mask = _bins.length - 1;
-        // same as std.math.isPowerOf2(_bins.length):
-        assert((~mask ^ mask) == size_t.max);
+        assert((~mask ^ mask) == size_t.max); // isPowerOf2(_bins.length)
         return hash & mask;
     }
 

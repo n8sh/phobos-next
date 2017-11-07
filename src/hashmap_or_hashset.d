@@ -964,13 +964,13 @@ private:
             _count = cast(Count)count;
         }
 
-        @property void decSmallCount()
+        void decSmallCount()
         {
             assert(_count >= 1);
             _count -= 1;
         }
 
-        @property void incSmallCount()
+        void incSmallCount()
         {
             assert(_count + 1 <= smallBinCapacity);
             _count += 1;
@@ -982,7 +982,7 @@ private:
             return _count == Count.max;
         }
 
-        @property void makeLarge()
+        void makeLarge()
         {
             _count = Count.max;
         }

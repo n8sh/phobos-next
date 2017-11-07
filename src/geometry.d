@@ -434,7 +434,7 @@ struct Vector(E, uint D,
     }
 
     bool opEquals(S)(in S scalar) const
-        if (isAssignable!(E, S)) // TOREVIEW: Use isNotEquable instead
+        if (isAssignable!(E, S)) // TODO is(typeof(E.init != S.init))
     {
         foreach (immutable i; iota!(0, D))
         {
@@ -445,12 +445,14 @@ struct Vector(E, uint D,
         }
         return true;
     }
+
     bool opEquals(F)(in F vec) const
         if (isVector!F &&
             dimension == F.dimension) // TOREVIEW: Use isEquable instead?
     {
         return _vector == vec._vector;
     }
+
     bool opEquals(F)(const F[] array) const
         if (isAssignable!(E, F) &&
             !isArray!F &&

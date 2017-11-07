@@ -108,7 +108,7 @@ private struct VariantArrays(Types...)
     {
         mixin(`alias arrayInstance = ` ~ arrayInstanceString!SomeKind ~ `;`);
         const currentIndex = arrayInstance.length;
-        arrayInstance.insertBack(value);
+        arrayInstance.insertBackMove(value);
         return Index(Index.nrOfKind!SomeKind,
                      currentIndex);
     }

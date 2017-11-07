@@ -264,8 +264,8 @@ version(extraTests)
 {
     S s;
 
-    S.Index top = s.put(Rel1(s.put(Rel1(s.put(Rel2([s.put(Int(42)),
-                                                    s.put(Int(43))]))))));
+    const S.Index top = s.put(Rel1(s.put(Rel1(s.put(Rel2([s.put(Int(42)),
+                                                          s.put(Int(43))]))))));
     assert(s.allOf!Rel1.length == 2);
     assert(s.allOf!Rel2.length == 1);
     assert(s.allOf!Int.length == 2);

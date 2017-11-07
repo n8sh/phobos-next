@@ -144,7 +144,7 @@ private struct VariantArrays(Types...)
     }
 
     /// Constant access to all elements of type `SomeKind`.
-    scope const(SomeKind)[] allOf(SomeKind)() const return
+    scope inout(SomeKind)[] allOf(SomeKind)() inout return
         if (Index.canReferTo!SomeKind)
     {
         mixin(`return ` ~ arrayInstanceString!SomeKind ~ `[];`);

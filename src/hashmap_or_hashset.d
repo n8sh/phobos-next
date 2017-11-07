@@ -941,14 +941,7 @@ private:
     /** Count and large status of bin. */
     struct Bstate
     {
-        static if (smallBinCapacity <= 7)
-        {
-            alias Count = ubyte;
-        }
-        else
-        {
-            alias Count = ushort;
-        }
+        alias Count = ubyte;
 
         pragma(inline, true):
 

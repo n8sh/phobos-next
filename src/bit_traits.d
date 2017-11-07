@@ -53,7 +53,10 @@ template packedBitSizeOf(T)
 @safe pure nothrow @nogc unittest
 {
     static assert(packedBitSizeOf!ubyte == 8);
-    static assert(!__traits(compiles, { enum E1 { x } static assert(packedBitSizeOf!E1 == 1);}));
+    static assert(!__traits(compiles,
+                            {
+                                enum E1 { x } static assert(packedBitSizeOf!E1 == 1);
+                            }));
     enum E2 { x, y }
     static assert(packedBitSizeOf!E2 == 1);
     enum E3 { x, y, z }

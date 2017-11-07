@@ -22,7 +22,7 @@ private struct VariantIndex(Types...)
     pragma(inline, true):
 
     /// Construct.
-    private this(Kind kind, Size index) // TODO can ctor inferred by bitfields?
+    this(Kind kind, Size index) // TODO can ctor inferred by bitfields?
     {
         _kindNr = kind;
         _index = index;

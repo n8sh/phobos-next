@@ -151,7 +151,7 @@ private struct VariantArrays(Types...)
     }
 
     /// Reserve space for `newCapacity` elements of type `SomeKind`.
-    void reserve(SomeKind)(size_t newCapacity) inout return
+    void reserve(SomeKind)(size_t newCapacity)
         if (Index.canReferTo!SomeKind)
     {
         mixin(`alias arrayInstance = ` ~ arrayInstanceString!SomeKind ~ `;`);

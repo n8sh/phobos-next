@@ -150,6 +150,14 @@ private struct VariantArrays(Types...)
         mixin(`return ` ~ arrayInstanceString!SomeKind ~ `[];`);
     }
 
+    /// Reserve space for `newCapacity` elements of type `SomeKind`.
+    void reserveOf(SomeKind)(size_t newCapacity) inout return
+        if (Index.canReferTo!SomeKind)
+    {
+        // TODO:
+        // mixin(arrayInstanceString!SomeKind ~ `reserve(` ~  ~ `);`);
+    }
+
     /** Returns: length of store. */
     @property size_t length() const
     {

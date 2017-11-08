@@ -6,8 +6,8 @@ enum Growable { no, yes }
 /// Copyable flag.
 enum Copyable { no, yes }
 
-enum isDenseSetFilterable(E) = (is(typeof(cast(size_t)E.init)) && // is castable to size_t
-                                cast(size_t)E.max <= uint.max);      // and small enough
+enum isDenseSetFilterable(E) = (is(typeof(cast(size_t)E.init)) // is castable to size_t
+                                /* && cast(size_t)E.max <= uint.max */ );      // and small enough
 
 /** Store presence of elements of type `E` in a set in the range `0 .. length`.
     Can be seen as a generalization of `std.typecons.BitFlags` to integer types.

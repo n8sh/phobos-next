@@ -57,7 +57,7 @@ private struct VariantIndex(Types...)
     import std.bitmanip : bitfields;
     union
     {
-        // TODO make work with big-endian machines
+        // TODO big-endian machine
         mixin(bitfields!(Size, "_index", 8*Size.sizeof - kindBits,
                          Kind, "_kindNr", kindBits));
         Size rawWord;           // for comparsion

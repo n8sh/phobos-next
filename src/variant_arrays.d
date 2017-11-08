@@ -40,6 +40,11 @@ private struct VariantIndex(Types...)
         return _index;
     }
 
+    size_t opCast(T : size_t)() const
+    {
+        return rawWord;
+    }
+
     /// Comparsion works like for integers.
     int opCmp(in typeof(this) rhs) const @trusted
     {
@@ -58,8 +63,8 @@ private struct VariantIndex(Types...)
     union
     {
         // TODO big-endian machine
-        mixin(bitfields!(Size, "_index", 8*Size.sizeof - kindBits,
-                         Kind, "_kindNr", kindBits));
+        mixin(bitfields!(Kind, "_kindNr", kindBits,
+                         Size, "_index", 8*Size.sizeof - kindBits));
         Size rawWord;           // for comparsion
     }
 
@@ -212,6 +217,7 @@ private:
     assert(data.empty);
 
     const i0 = data.put(ulong(13));
+    assert(cast(size_t)i0 == 0);
 
     assert(i0.isA!ulong);
     assert(data.at!ulong(0) == ulong(13));
@@ -220,6 +226,7 @@ private:
     assert(data.allOf!ulong == [ulong(13)].s);
 
     const i1 = data.put(Chars7(`1234567`));
+    assert(cast(size_t)i1 == 1);
 
     // same order as in `Types`
     assert(i0 < i1);
@@ -230,6 +237,7 @@ private:
     assert(data.length == 2);
 
     const i2 = data.put(Chars15(`123`));
+    assert(cast(size_t)i2 == 2);
 
     // same order as in `Types`
     assert(i0 < i2);
@@ -241,6 +249,7 @@ private:
     assert(data.length == 3);
 
     const i3 = data.put(Chars15(`1234`));
+    assert(cast(size_t)i3 == 6);
 
     // same order as in `Types`
     assert(i0 < i3);

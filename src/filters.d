@@ -28,8 +28,18 @@ struct DenseSetFilter(E,
 
     @safe pure nothrow @nogc:
 
-    /// Maximum number of elements in filter.
-    enum elementMaxCount = cast(size_t)E.max + 1;
+    static if (growable == Growable.no)
+    {
+        /// Maximum number of elements in filter.
+        enum elementMaxCount = cast(size_t)E.max + 1;
+
+        /// Construct from inferred capacity and length `elementMaxCount`.
+        pragma(inline, true)
+        static typeof(this) withInferredLength()
+        {
+            return typeof(return)(elementMaxCount);
+        }
+    }
 
     /// Construct set to store at most `length` number of bits.
     this(size_t length) @trusted
@@ -45,16 +55,6 @@ struct DenseSetFilter(E,
         {
             _capacity = length;
             _blocksPtr = cast(Block*)calloc(blockCount, Block.sizeof);
-        }
-    }
-
-    static if (growable == Growable.no)
-    {
-        /// Construct from inferred capacity and length `elementMaxCount`.
-        pragma(inline, true)
-        static typeof(this) withInferredLength()
-        {
-            return typeof(return)(elementMaxCount);
         }
     }
 

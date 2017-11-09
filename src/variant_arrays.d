@@ -62,8 +62,14 @@ private struct VariantIndex(Types_...)
     /// Comparsion works like for integers.
     int opCmp(in typeof(this) rhs) const @trusted
     {
-        if (this.rawWord < rhs.rawWord) { return -1; }
-        if (this.rawWord > rhs.rawWord) { return +1; }
+        if (this.rawWord < rhs.rawWord)
+        {
+            return -1;
+        }
+        if (this.rawWord > rhs.rawWord)
+        {
+            return +1;
+        }
         return 0;
     }
 

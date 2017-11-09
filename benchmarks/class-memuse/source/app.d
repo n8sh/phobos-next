@@ -25,7 +25,7 @@ void main(string[] args)
     import std.traits, std.meta, std.range, std.algorithm, std.stdio, std.array;
     Appender!(Node[]) as;
 
-    const n = 10_000_000;
+    immutable n = 10_000_000;
     as.reserve(n);
 
     foreach (i; 0 .. n)

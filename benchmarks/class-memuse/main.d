@@ -6,8 +6,6 @@ class Node
         this.type = type;
     }
     ulong type;
-    ulong dype;
-    ulong jype;
     Edge[] edges;
 }
 

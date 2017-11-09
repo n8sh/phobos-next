@@ -1,7 +1,7 @@
 module variant_arrays;
 
 /** Polymorphic index into an element in `VariantArrays`. */
-private struct VariantIndex(Types...)
+private struct VariantIndex(Types_...)
 {
     import std.meta : staticIndexOf;
 
@@ -9,6 +9,13 @@ private struct VariantIndex(Types...)
     alias Size = size_t;             // size type
 
     import bit_traits : bitsNeeded;
+
+    /// Used to indicate undefined value.
+    private struct Undefined {}
+
+    import std.meta : AliasSeq;
+
+    alias Types = AliasSeq!(Undefined, Types_);
 
     /// Number of bits needed to represent kind.
     private enum kindBits = bitsNeeded!(Types.length);
@@ -40,10 +47,17 @@ private struct VariantIndex(Types...)
         return _index;
     }
 
+    /// Cast to `size_t`.
     size_t opCast(T : size_t)() const
     {
         return rawWord;
     }
+
+    /// Cast to `bool`, meaning 'true' if defined, `false` otherwise.
+    bool opCast(U : bool)() const { return isDefined(); }
+
+    /// Returns: `true` if defined.
+    bool isDefined() const { return rawWord != 0; }
 
     /// Comparsion works like for integers.
     int opCmp(in typeof(this) rhs) const @trusted
@@ -217,7 +231,7 @@ private:
     assert(data.empty);
 
     const i0 = data.put(ulong(13));
-    assert(cast(size_t)i0 == 0);
+    assert(cast(size_t)i0 == 1);
 
     assert(i0.isA!ulong);
     assert(data.at!ulong(0) == ulong(13));
@@ -226,7 +240,7 @@ private:
     assert(data.allOf!ulong == [ulong(13)].s);
 
     const i1 = data.put(Chars7(`1234567`));
-    assert(cast(size_t)i1 == 1);
+    assert(cast(size_t)i1 == 2);
 
     // same order as in `Types`
     assert(i0 < i1);
@@ -237,7 +251,7 @@ private:
     assert(data.length == 2);
 
     const i2 = data.put(Chars15(`123`));
-    assert(cast(size_t)i2 == 2);
+    assert(cast(size_t)i2 == 3);
 
     // same order as in `Types`
     assert(i0 < i2);
@@ -249,7 +263,7 @@ private:
     assert(data.length == 3);
 
     const i3 = data.put(Chars15(`1234`));
-    assert(cast(size_t)i3 == 6);
+    assert(cast(size_t)i3 == 7);
 
     // same order as in `Types`
     assert(i0 < i3);

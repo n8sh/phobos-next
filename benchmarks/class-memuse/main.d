@@ -8,6 +8,18 @@ class Node
     ulong type;
     ulong dype;
     ulong jype;
+    Edge[] edges;
+}
+
+extern(C++)
+class Edge
+{
+    this(ubyte type)
+    {
+        this.type = type;
+    }
+    ulong type;
+    Node[] actors;
 }
 
 void main(string[] args)

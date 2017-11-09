@@ -49,7 +49,16 @@ void main()
         else static if (hasMember!(A, `reserve`))
         {
             A a;
-            a.reserve(n);
+            static if (hasMember!(A, `reserve`) &&
+                       __traits(compiles, { a.reserve(n); }))
+            {
+                a.reserve(n);
+            }
+            else static if (hasMember!(A, `reserve`) &&
+                            __traits(compiles, { a.reserve!uint(n); }))
+            {
+                a.reserve!uint(n);
+            }
         }
         else
         {

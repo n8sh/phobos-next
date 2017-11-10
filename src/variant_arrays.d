@@ -28,6 +28,17 @@ private struct VariantIndex(Types_...)
 
     pragma(inline, true):
 
+    /// Construct from mutable `that`.
+    this(in typeof(this) that)
+    {
+        rawWord = that.rawWord;
+    }
+    /// Construct from constant `that`.
+    this(typeof(this) that)
+    {
+        rawWord = that.rawWord;
+    }
+
     /// Construct.
     this(Kind kind, Size index) // TODO can ctor inferred by bitfields?
     {
@@ -90,6 +101,21 @@ private struct VariantIndex(Types_...)
 
     static assert(this.sizeof == Size.sizeof,
                   `This should haven't any memory overhead compared to size_t`);
+}
+
+@safe pure nothrow unittest
+{
+    alias Ix = VariantIndex!(int, float);
+    Ix ix;
+
+    import std.array : Appender;
+    Appender!(const(Ix)[]) app;
+
+    const Ix x;
+    // TODO app ~= x;
+
+    const y = [Ix.init, Ix.init];
+    // TODO app ~= y;
 }
 
 private mixin template VariantArrayOf(Type)

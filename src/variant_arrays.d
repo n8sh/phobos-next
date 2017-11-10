@@ -1,7 +1,7 @@
 module variant_arrays;
 
 /** Polymorphic index into an element in `VariantArrays`. */
-private struct VariantIndex(Types_...)
+private struct VariantIndex(DefinedTypes...)
 {
     import std.meta : staticIndexOf;
 
@@ -15,7 +15,7 @@ private struct VariantIndex(Types_...)
 
     import std.meta : AliasSeq;
 
-    alias Types = AliasSeq!(Undefined, Types_);
+    alias Types = AliasSeq!(Undefined, DefinedTypes);
 
     /// Number of bits needed to represent kind.
     private enum kindBits = bitsNeeded!(Types.length);

@@ -29,12 +29,12 @@ private struct VariantIndex(Types_...)
     pragma(inline, true):
 
     /// Construct from mutable `that`.
-    this(in typeof(this) that)
+    this()(in typeof(this) that)
     {
         rawWord = that.rawWord;
     }
     /// Construct from constant `that`.
-    this(typeof(this) that)
+    this()(typeof(this) that)
     {
         rawWord = that.rawWord;
     }

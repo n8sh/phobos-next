@@ -46,6 +46,11 @@ private struct VariantIndex(DefinedTypes...)
         _index = index;
     }
 
+    private this(Size rawWord)
+    {
+        rawWord = rawWord;
+    }
+
     /// Get kindNr.
     Kind kindNr() const
     {

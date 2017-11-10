@@ -29,12 +29,12 @@ private struct VariantIndex(DefinedTypes...)
     pragma(inline, true):
 
     /// Construct from mutable `that`.
-    this()(in typeof(this) that)
+    this(in typeof(this) that)
     {
         rawWord = that.rawWord;
     }
     /// Construct from constant `that`.
-    this()(typeof(this) that)
+    this(typeof(this) that)
     {
         rawWord = that.rawWord;
     }
@@ -63,6 +63,18 @@ private struct VariantIndex(DefinedTypes...)
     {
         return rawWord;
     }
+
+    import std.typecons : Unqual;
+
+    /// Allow cast to unqualified.
+    U opCast(U : Unqual!(typeof(this)))() const
+    {
+        return U(rawWord);
+    }
+
+    /// The index itself is the hash.
+    hash_t toHash() const @property { return rawWord; }
+    static assert(hash_t.sizeof == rawWord.sizeof);
 
     /// Cast to `bool`, meaning 'true' if defined, `false` otherwise.
     bool opCast(U : bool)() const { return isDefined(); }
@@ -112,10 +124,12 @@ private struct VariantIndex(DefinedTypes...)
     Appender!(const(Ix)[]) app;
 
     const Ix x;
-    // TODO app ~= x;
+    Ix mx = x;
+
+    // app ~= x;
 
     const y = [Ix.init, Ix.init];
-    // TODO app ~= y;
+    // app ~= y;
 }
 
 private mixin template VariantArrayOf(Type)

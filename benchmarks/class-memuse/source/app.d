@@ -1,3 +1,6 @@
+import std.stdio : write, writeln, writef, writefln;
+import std.datetime : MonoTime;
+
 extern(C++)
 class NodeCxx
 {
@@ -6,7 +9,7 @@ class NodeCxx
         this.type = type;
     }
     ulong type;
-    EdgeCxx[] edges;
+    // EdgeCxx[] edges;
 }
 
 extern(C++)
@@ -17,23 +20,42 @@ class EdgeCxx
         this.type = type;
     }
     ulong type;
-    NodeCxx[] actors;
+    // NodeCxx[] actors;
 }
 
 void main(string[] args)
 {
-    import std.traits, std.meta, std.range, std.algorithm, std.stdio, std.array;
-    Appender!(NodeCxx[]) as;
-
     immutable n = 10_000_000;
-    as.reserve(n);
 
-    foreach (i; 0 .. n)
     {
-        as.put(new NodeCxx(42));
+        import std.array : Appender;
+        Appender!(NodeCxx[]) x;
+
+        x.reserve(n);
+
+        immutable before = MonoTime.currTime();
+        foreach (i; 0 .. n)
+        {
+            x.put(new NodeCxx(42));
+        }
+        immutable after = MonoTime.currTime();
+
+        writefln("Appender: %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
     }
 
-    while (true)
     {
+        import basic_array : BasicArray;
+        BasicArray!(NodeCxx) y;
+
+        y.reserve(n);
+
+        immutable before = MonoTime.currTime();
+        foreach (i; 0 .. n)
+        {
+            y.insertBack(new NodeCxx(42));
+        }
+        immutable after = MonoTime.currTime();
+
+        writefln("BasicArray: %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
     }
 }

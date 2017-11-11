@@ -1,36 +1,36 @@
 extern(C++)
-class Node
+class NodeCxx
 {
     this(ubyte type)
     {
         this.type = type;
     }
     ulong type;
-    Edge[] edges;
+    EdgeCxx[] edges;
 }
 
 extern(C++)
-class Edge
+class EdgeCxx
 {
     this(ubyte type)
     {
         this.type = type;
     }
     ulong type;
-    Node[] actors;
+    NodeCxx[] actors;
 }
 
 void main(string[] args)
 {
     import std.traits, std.meta, std.range, std.algorithm, std.stdio, std.array;
-    Appender!(Node[]) as;
+    Appender!(NodeCxx[]) as;
 
     immutable n = 10_000_000;
     as.reserve(n);
 
     foreach (i; 0 .. n)
     {
-        as.put(new Node(42));
+        as.put(new NodeCxx(42));
     }
 
     while (true)

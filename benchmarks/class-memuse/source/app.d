@@ -13,7 +13,7 @@ class NodeCxxClass
         this.type = type;
     }
     ulong type;
-    // EdgeCxxClass[] edges;
+    EdgeCxxClass[] edges;
 }
 
 extern(C++)
@@ -34,7 +34,7 @@ struct NodeCxxStruct
         this.type = type;
     }
     ulong type;
-    // EdgeCxxClass[] edges;
+    EdgeCxxClass[] edges;
 }
 
 void main(string[] args)

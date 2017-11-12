@@ -8,7 +8,7 @@ import std.datetime : MonoTime;
 extern(C++)
 class NodeCxxClass
 {
-    this(ubyte type)
+    this(ulong type)
     {
         this.type = type;
     }
@@ -19,7 +19,7 @@ class NodeCxxClass
 extern(C++)
 class EdgeCxxClass
 {
-    this(ubyte type)
+    this(ulong type)
     {
         this.type = type;
     }
@@ -29,7 +29,7 @@ class EdgeCxxClass
 
 struct NodeCxxStruct
 {
-    this(ubyte type)
+    this(ulong type)
     {
         this.type = type;
     }
@@ -106,6 +106,22 @@ void main(string[] args)
         foreach (immutable i; 0 .. n)
         {
             x.put(new NodeCxxClass(42));
+        }
+        immutable after = MonoTime.currTime();
+
+        showStat(typeof(x).stringof, before, after, n);
+    }
+
+    {
+        import std.experimental.allocator : theAllocator, make;
+
+        BasicArray!(NodeCxxClass) x;
+        x.reserve(n);
+
+        immutable before = MonoTime.currTime();
+        foreach (immutable i; 0 .. n)
+        {
+            x.put(theAllocator.make!NodeCxxClass(42));
         }
         immutable after = MonoTime.currTime();
 

@@ -49,7 +49,7 @@ void main(string[] args)
         x.reserve(n);
 
         immutable before = MonoTime.currTime();
-        foreach (i; 0 .. n)
+        foreach (immutable i; 0 .. n)
         {
             x.put(NodeCxxStruct(42));
         }
@@ -66,7 +66,7 @@ void main(string[] args)
         x.reserve(n);
 
         immutable before = MonoTime.currTime();
-        foreach (i; 0 .. n)
+        foreach (immutable i; 0 .. n)
         {
             x.put(NodeCxxStruct(42));
         }
@@ -83,7 +83,7 @@ void main(string[] args)
         x.reserve(n);
 
         immutable before = MonoTime.currTime();
-        foreach (i; 0 .. n)
+        foreach (immutable i; 0 .. n)
         {
             x.put(new NodeCxxClass(42));
         }
@@ -100,7 +100,7 @@ void main(string[] args)
         x.reserve(n);
 
         immutable before = MonoTime.currTime();
-        foreach (i; 0 .. n)
+        foreach (immutable i; 0 .. n)
         {
             x.put(new NodeCxxClass(42));
         }

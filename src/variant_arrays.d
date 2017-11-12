@@ -185,12 +185,25 @@ private struct VariantArrays(Types...)
     }
     alias put = insertBack;     // polymorphic `OutputRange` support
 
+    /** Move (emplace) `value` into back.
+     */
+    pragma(inline)                             // DMD cannot inline
+    Index insertBackMove(SomeKind)(ref SomeKind value) // TODO add array type overload
+        if (Index.canReferTo!SomeKind)
+    {
+        mixin(`alias arrayInstance = ` ~ arrayInstanceString!SomeKind ~ `;`);
+        const currentIndex = arrayInstance.length;
+        arrayInstance.insertBackMove(value);
+        return Index(Index.nrOfKind!SomeKind,
+                     currentIndex);
+    }
+
     /// ditto
     void opOpAssign(string op, SomeKind)(SomeKind value) // TODO add array type overload
         if (op == "~" &&
             Index.canReferTo!SomeKind)
     {
-        insertBack(value);
+        insertBackMove(value);  // move enables uncopyable types
     }
 
     /// Get reference to element of type `SomeKind` at `index`.

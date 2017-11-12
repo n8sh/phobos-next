@@ -1,3 +1,7 @@
+/** Test memory usage and performance of struct and class construction.
+ * https://dlang.org/spec/cpp_interface.html
+ */
+
 import std.stdio : write, writeln, writef, writefln;
 import std.datetime : MonoTime;
 

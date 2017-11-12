@@ -112,9 +112,9 @@ void main(string[] args)
         showStat(typeof(x).stringof, before, after, n);
     }
 
-    {
-        import std.experimental.allocator : theAllocator, make;
+    import std.experimental.allocator : theAllocator, make;
 
+    {
         BasicArray!(NodeCxxClass) x;
         x.reserve(n);
 
@@ -125,6 +125,20 @@ void main(string[] args)
         }
         immutable after = MonoTime.currTime();
 
-        showStat(typeof(x).stringof, before, after, n);
+        showStat(typeof(x).stringof ~ ".make", before, after, n);
+    }
+
+    {
+        Appender!(NodeCxxClass[]) x;
+        x.reserve(n);
+
+        immutable before = MonoTime.currTime();
+        foreach (immutable i; 0 .. n)
+        {
+            x.put(theAllocator.make!NodeCxxClass(42));
+        }
+        immutable after = MonoTime.currTime();
+
+        showStat(typeof(x).stringof ~ ".make", before, after, n);
     }
 }

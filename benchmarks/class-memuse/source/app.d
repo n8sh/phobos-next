@@ -41,10 +41,11 @@ void main(string[] args)
 {
     immutable n = 10_000_000;
 
-    {
-        import std.array : Appender;
-        Appender!(NodeCxxStruct[]) x;
+    import basic_array : BasicArray;
+    import std.array : Appender;
 
+    {
+        BasicArray!(NodeCxxStruct) x;
         x.reserve(n);
 
         immutable before = MonoTime.currTime();
@@ -54,15 +55,31 @@ void main(string[] args)
         }
         immutable after = MonoTime.currTime();
 
-        writefln("Appender: %3.1f msecs (%3.1f ns/op)",
+        writefln("%s: %3.1f msecs (%3.1f ns/op)",
+                 typeof(x).stringof,
                  cast(double)(after - before).total!"msecs",
                  cast(double)(after - before).total!"nsecs" / n);
     }
 
     {
-        import std.array : Appender;
-        Appender!(NodeCxxClass[]) x;
+        Appender!(NodeCxxStruct[]) x;
+        x.reserve(n);
 
+        immutable before = MonoTime.currTime();
+        foreach (i; 0 .. n)
+        {
+            x.put(NodeCxxStruct(42));
+        }
+        immutable after = MonoTime.currTime();
+
+        writefln("%s: %3.1f msecs (%3.1f ns/op)",
+                 typeof(x).stringof,
+                 cast(double)(after - before).total!"msecs",
+                 cast(double)(after - before).total!"nsecs" / n);
+    }
+
+    {
+        BasicArray!(NodeCxxClass) x;
         x.reserve(n);
 
         immutable before = MonoTime.currTime();
@@ -72,25 +89,25 @@ void main(string[] args)
         }
         immutable after = MonoTime.currTime();
 
-        writefln("Appender: %3.1f msecs (%3.1f ns/op)",
+        writefln("%s: %3.1f msecs (%3.1f ns/op)",
+                 typeof(x).stringof,
                  cast(double)(after - before).total!"msecs",
                  cast(double)(after - before).total!"nsecs" / n);
     }
 
     {
-        import basic_array : BasicArray;
-        BasicArray!(NodeCxxClass) y;
-
-        y.reserve(n);
+        Appender!(NodeCxxClass[]) x;
+        x.reserve(n);
 
         immutable before = MonoTime.currTime();
         foreach (i; 0 .. n)
         {
-            y.insertBack(new NodeCxxClass(42));
+            x.put(new NodeCxxClass(42));
         }
         immutable after = MonoTime.currTime();
 
-        writefln("BasicArray: %3.1f msecs (%3.1f ns/op)",
+        writefln("%s: %3.1f msecs (%3.1f ns/op)",
+                 typeof(x).stringof,
                  cast(double)(after - before).total!"msecs",
                  cast(double)(after - before).total!"nsecs" / n);
     }

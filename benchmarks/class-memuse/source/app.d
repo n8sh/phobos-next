@@ -37,12 +37,16 @@ struct NodeCxxStruct
     EdgeCxxClass[] edges;
 }
 
-void showStat(const(char[]) typeName)
+/// Show statistics.
+void showStat(T)(const(char[]) typeName,
+                 in T before,
+                 in T after,
+                 in size_t n)
 {
-    // writefln("%s: %3.1f msecs (%3.1f ns/op)",
-    //          typeName,
-    //          cast(double)(after - before).total!"msecs",
-    //          cast(double)(after - before).total!"nsecs" / n);
+    writefln("%s: %3.1f msecs (%3.1f ns/op)",
+             typeName,
+             cast(double)(after - before).total!"msecs",
+             cast(double)(after - before).total!"nsecs" / n);
 }
 
 void main(string[] args)
@@ -57,18 +61,13 @@ void main(string[] args)
         x.reserve(n);
 
         immutable before = MonoTime.currTime();
-        pragma(msg, typeof(before));
         foreach (immutable i; 0 .. n)
         {
             x.put(NodeCxxStruct(42));
         }
         immutable after = MonoTime.currTime();
 
-        // showStat(typeof(x).stringof, before, after);
-        writefln("%s: %3.1f msecs (%3.1f ns/op)",
-                 typeof(x).stringof,
-                 cast(double)(after - before).total!"msecs",
-                 cast(double)(after - before).total!"nsecs" / n);
+        showStat(typeof(x).stringof, before, after, n);
     }
 
     {
@@ -82,10 +81,7 @@ void main(string[] args)
         }
         immutable after = MonoTime.currTime();
 
-        writefln("%s: %3.1f msecs (%3.1f ns/op)",
-                 typeof(x).stringof,
-                 cast(double)(after - before).total!"msecs",
-                 cast(double)(after - before).total!"nsecs" / n);
+        showStat(typeof(x).stringof, before, after, n);
     }
 
     {
@@ -99,10 +95,7 @@ void main(string[] args)
         }
         immutable after = MonoTime.currTime();
 
-        writefln("%s: %3.1f msecs (%3.1f ns/op)",
-                 typeof(x).stringof,
-                 cast(double)(after - before).total!"msecs",
-                 cast(double)(after - before).total!"nsecs" / n);
+        showStat(typeof(x).stringof, before, after, n);
     }
 
     {
@@ -116,9 +109,6 @@ void main(string[] args)
         }
         immutable after = MonoTime.currTime();
 
-        writefln("%s: %3.1f msecs (%3.1f ns/op)",
-                 typeof(x).stringof,
-                 cast(double)(after - before).total!"msecs",
-                 cast(double)(after - before).total!"nsecs" / n);
+        showStat(typeof(x).stringof, before, after, n);
     }
 }

@@ -44,7 +44,9 @@ void main(string[] args)
         }
         immutable after = MonoTime.currTime();
 
-        writefln("Appender: %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
+        writefln("Appender: %3.1f msecs (%3.1f ns/op)",
+                 cast(double)(after - before).total!"msecs",
+                 cast(double)(after - before).total!"nsecs" / n);
     }
 
     {
@@ -60,6 +62,8 @@ void main(string[] args)
         }
         immutable after = MonoTime.currTime();
 
-        writefln("BasicArray: %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
+        writefln("BasicArray: %3.1f msecs (%3.1f ns/op)",
+                 cast(double)(after - before).total!"msecs",
+                 cast(double)(after - before).total!"nsecs" / n);
     }
 }

@@ -37,7 +37,6 @@ enum TOK
 /** SUO-KIF Token. */
 struct Token
 {
-    @safe pure nothrow @nogc:
     TOK tok;
     string src;                 // optional source slice
 }
@@ -95,7 +94,7 @@ struct SUOKIFParser
         }
 
         import std.exception : enforce;
-        enforce(_input.isNullTerminated); // safest to do this check in non-debug mode aswell
+        enforce(_input.isNullTerminated); // always needed
 
         _includeComments = includeComments;
         _includeWhitespace = includeWhitespace;

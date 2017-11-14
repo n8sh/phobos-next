@@ -94,7 +94,7 @@ struct SUOKIFParser
         }
 
         import std.exception : enforce;
-        enforce(_input.isNullTerminated); // always needed
+        enforce(_input.isNullTerminated); // _input cannot be trusted
 
         _includeComments = includeComments;
         _includeWhitespace = includeWhitespace;

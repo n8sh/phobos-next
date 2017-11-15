@@ -148,13 +148,18 @@ private struct VariantRef(DefinedTypes...)
     const R x;
     R mx = x;
 
-    import dbgio;
-    dln(x);
-
     // TODO app ~= x;
 
     const y = [R.init, R.init];
     // TODO app ~= y;
+}
+
+unittest
+{
+    alias R = VariantRef!(int, float);
+    R r;
+    import std.conv : to;
+    assert(r.to!string == `const(VariantRef!(int, float))(null)`);
 }
 
 private mixin template VariantArrayOf(Type)

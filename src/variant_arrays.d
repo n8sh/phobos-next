@@ -131,10 +131,10 @@ private struct VariantIndex(DefinedTypes...)
     const Ix x;
     Ix mx = x;
 
-    // app ~= x;
+    // TODO app ~= x;
 
     const y = [Ix.init, Ix.init];
-    // app ~= y;
+    // TODO app ~= y;
 }
 
 private mixin template VariantArrayOf(Type)

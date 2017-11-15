@@ -46,6 +46,7 @@ private struct VariantIndex(DefinedTypes...)
         _index = index;
     }
 
+    /// Construct from raw word representation `rawWord`.
     private this(Size rawWord)
     {
         this.rawWord = rawWord;

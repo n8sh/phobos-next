@@ -1,7 +1,8 @@
 module variant_arrays;
 
-/** Polymorphic index into an element in `VariantArrays`. */
-private struct VariantIndex(DefinedTypes...)
+/** Typed index (reference) into an element in `VariantArrays`.
+ */
+private struct VariantRef(DefinedTypes...)
 {
     import std.meta : staticIndexOf;
 
@@ -123,18 +124,18 @@ private struct VariantIndex(DefinedTypes...)
 
 @safe pure nothrow unittest
 {
-    alias Ix = VariantIndex!(int, float);
-    Ix ix;
+    alias R = VariantRef!(int, float);
+    R r;
 
     import std.array : Appender;
-    Appender!(const(Ix)[]) app;
+    Appender!(const(R)[]) app;
 
-    const Ix x;
-    Ix mx = x;
+    const R x;
+    R mx = x;
 
     // TODO app ~= x;
 
-    const y = [Ix.init, Ix.init];
+    const y = [R.init, R.init];
     // TODO app ~= y;
 }
 
@@ -148,11 +149,11 @@ private mixin template VariantArrayOf(Type)
 
     Enables lightweight storage of polymorphic objects.
 
-    Each element is indexed by a corresponding `VariantIndex`.
+    Each element is indexed by a corresponding `VariantRef`.
  */
 private struct VariantArrays(Types...)
 {
-    alias Index = VariantIndex!Types;
+    alias Ref = VariantRef!Types;
 
     import basic_array : BasicArray;
 
@@ -167,21 +168,28 @@ private struct VariantArrays(Types...)
     /// Returns: array instance (as a strinng) storing `Type`.
     private static immutable(string) arrayInstanceString(Type)()
     {
-        enum index = Index.nrOfKind!(Type);
+        enum index = Ref.nrOfKind!(Type);
         static assert(index >= 0, "Unsupported type");
         return `_store` ~ index.stringof; // previously `Type.mangleof`
+    }
+
+    /// Make reference to type `SomeKind` at offset `index`.
+    Ref makeRef(SomeKind)(Ref.Size index)
+        if (Ref.canReferTo!SomeKind)
+    {
+        return Ref(Ref.nrOfKind!SomeKind, index);
     }
 
     /** Insert `value` at back.
      */
     pragma(inline)                             // DMD cannot inline
-    Index insertBack(SomeKind)(SomeKind value) // TODO add array type overload
-        if (Index.canReferTo!SomeKind)
+    Ref insertBack(SomeKind)(SomeKind value) // TODO add array type overload
+        if (Ref.canReferTo!SomeKind)
     {
         mixin(`alias arrayInstance = ` ~ arrayInstanceString!SomeKind ~ `;`);
         const currentIndex = arrayInstance.length;
         arrayInstance.insertBackMove(value);
-        return Index(Index.nrOfKind!SomeKind,
+        return Ref(Ref.nrOfKind!SomeKind,
                      currentIndex);
     }
     alias put = insertBack;     // polymorphic `OutputRange` support
@@ -189,36 +197,36 @@ private struct VariantArrays(Types...)
     /** Move (emplace) `value` into back.
      */
     pragma(inline)                             // DMD cannot inline
-    Index insertBackMove(SomeKind)(ref SomeKind value) // TODO add array type overload
-        if (Index.canReferTo!SomeKind)
+    Ref insertBackMove(SomeKind)(ref SomeKind value) // TODO add array type overload
+        if (Ref.canReferTo!SomeKind)
     {
         mixin(`alias arrayInstance = ` ~ arrayInstanceString!SomeKind ~ `;`);
         const currentIndex = arrayInstance.length;
         arrayInstance.insertBackMove(value);
-        return Index(Index.nrOfKind!SomeKind,
+        return Ref(Ref.nrOfKind!SomeKind,
                      currentIndex);
     }
 
     /// ditto
     void opOpAssign(string op, SomeKind)(SomeKind value) // TODO add array type overload
         if (op == "~" &&
-            Index.canReferTo!SomeKind)
+            Ref.canReferTo!SomeKind)
     {
         insertBackMove(value);  // move enables uncopyable types
     }
 
     /// Get reference to element of type `SomeKind` at `index`.
     scope ref inout(SomeKind) at(SomeKind)(in size_t index) inout return
-        if (Index.canReferTo!SomeKind)
+        if (Ref.canReferTo!SomeKind)
     {
         mixin(`return ` ~ arrayInstanceString!SomeKind ~ `[index];`);
     }
 
     /// Peek at element of type `SomeKind` at `index`.
-    scope inout(SomeKind)* peek(SomeKind)(in Index index) inout return @system
-        if (Index.canReferTo!SomeKind)
+    scope inout(SomeKind)* peek(SomeKind)(in Ref index) inout return @system
+        if (Ref.canReferTo!SomeKind)
     {
-        if (Index.nrOfKind!SomeKind == index._kindNr)
+        if (Ref.nrOfKind!SomeKind == index._kindNr)
         {
             return &at!SomeKind(index._index);
         }
@@ -230,14 +238,14 @@ private struct VariantArrays(Types...)
 
     /// Constant access to all elements of type `SomeKind`.
     scope inout(SomeKind)[] allOf(SomeKind)() inout return
-        if (Index.canReferTo!SomeKind)
+        if (Ref.canReferTo!SomeKind)
     {
         mixin(`return ` ~ arrayInstanceString!SomeKind ~ `[];`);
     }
 
     /// Reserve space for `newCapacity` elements of type `SomeKind`.
     void reserve(SomeKind)(size_t newCapacity)
-        if (Index.canReferTo!SomeKind)
+        if (Ref.canReferTo!SomeKind)
     {
         mixin(`alias arrayInstance = ` ~ arrayInstanceString!SomeKind ~ `;`);
         arrayInstance.reserve(newCapacity);
@@ -346,8 +354,7 @@ version = extraTests;
 version(extraTests)
 {
 static private:
-    alias I = VariantIndex!(Rel1, Rel2,
-                            Int);
+    alias I = VariantRef!(Rel1, Rel2, Int);
 
     // relations
     struct Rel1 { I[1] args; }
@@ -365,8 +372,8 @@ version(extraTests)
 {
     S s;
 
-    const S.Index top = s.put(Rel1(s.put(Rel1(s.put(Rel2([s.put(Int(42)),
-                                                          s.put(Int(43))]))))));
+    const S.Ref top = s.put(Rel1(s.put(Rel1(s.put(Rel2([s.put(Int(42)),
+                                                        s.put(Int(43))]))))));
     assert(s.allOf!Rel1.length == 2);
     assert(s.allOf!Rel2.length == 1);
     assert(s.allOf!Int.length == 2);
@@ -382,7 +389,7 @@ pure nothrow @nogc unittest
     const n = 10;
     foreach (const i; 0 .. n)
     {
-        S.Index lone = s.put(Int(i));
+        S.Ref lone = s.put(Int(i));
         Int* lonePtr = s.peek!Int(lone);
         assert(lonePtr);
         assert(*lonePtr == Int(i));

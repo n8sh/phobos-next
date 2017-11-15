@@ -198,7 +198,7 @@ private struct VariantArrays(Types...)
     }
 
     /// Make reference to type `SomeKind` at offset `index`.
-    Ref makeRef(SomeKind)(Ref.Size index)
+    static Ref makeRef(SomeKind)(Ref.Size index)
         if (Ref.canReferenceType!SomeKind)
     {
         return Ref(Ref.nrOfKind!SomeKind, index);

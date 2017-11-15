@@ -111,6 +111,19 @@ private struct VariantRef(DefinedTypes...)
         return nrOfKind!(SomeKind) == _kindNr;
     }
 
+    @property void toString(scope void delegate(const(char)[]) sink) const
+    {
+        import std.format : formattedWrite;
+        if (isDefined)
+        {
+            sink.formattedWrite(`%s(%s@%s)`, typeof(this).stringof, _index, _kindNr);
+        }
+        else
+        {
+            sink.formattedWrite(`%s(undefined)`, typeof(this).stringof);
+        }
+    }
+
     import std.bitmanip : bitfields;
     union
     {
@@ -134,6 +147,9 @@ private struct VariantRef(DefinedTypes...)
 
     const R x;
     R mx = x;
+
+    import dbgio;
+    dln(x);
 
     // TODO app ~= x;
 

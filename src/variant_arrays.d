@@ -21,11 +21,13 @@ private struct VariantRef(DefinedTypes...)
     /// Number of bits needed to represent kind.
     private enum kindBits = bitsNeeded!(Types.length);
 
-    /// Get number kind of kind type `SomeKind`.
+    /** Get number kind of kind type `SomeKind`.
+        TODO make private?
+     */
     enum nrOfKind(SomeKind) = staticIndexOf!(SomeKind, Types); // TODO cast to ubyte if Types.length is <= 256
 
     /// Is `true` iff an index to a `SomeKind`-kind can be stored.
-    enum canReferTo(SomeKind) = nrOfKind!SomeKind >= 0;
+    enum canReferenceType(SomeKind) = nrOfKind!SomeKind >= 0;
 
     pragma(inline, true):
 
@@ -175,7 +177,7 @@ private struct VariantArrays(Types...)
 
     /// Make reference to type `SomeKind` at offset `index`.
     Ref makeRef(SomeKind)(Ref.Size index)
-        if (Ref.canReferTo!SomeKind)
+        if (Ref.canReferenceType!SomeKind)
     {
         return Ref(Ref.nrOfKind!SomeKind, index);
     }
@@ -184,7 +186,7 @@ private struct VariantArrays(Types...)
      */
     pragma(inline)                             // DMD cannot inline
     Ref insertBack(SomeKind)(SomeKind value) // TODO add array type overload
-        if (Ref.canReferTo!SomeKind)
+        if (Ref.canReferenceType!SomeKind)
     {
         mixin(`alias arrayInstance = ` ~ arrayInstanceString!SomeKind ~ `;`);
         const currentIndex = arrayInstance.length;
@@ -198,7 +200,7 @@ private struct VariantArrays(Types...)
      */
     pragma(inline)                             // DMD cannot inline
     Ref insertBackMove(SomeKind)(ref SomeKind value) // TODO add array type overload
-        if (Ref.canReferTo!SomeKind)
+        if (Ref.canReferenceType!SomeKind)
     {
         mixin(`alias arrayInstance = ` ~ arrayInstanceString!SomeKind ~ `;`);
         const currentIndex = arrayInstance.length;
@@ -210,21 +212,21 @@ private struct VariantArrays(Types...)
     /// ditto
     void opOpAssign(string op, SomeKind)(SomeKind value) // TODO add array type overload
         if (op == "~" &&
-            Ref.canReferTo!SomeKind)
+            Ref.canReferenceType!SomeKind)
     {
         insertBackMove(value);  // move enables uncopyable types
     }
 
     /// Get reference to element of type `SomeKind` at `index`.
     scope ref inout(SomeKind) at(SomeKind)(in size_t index) inout return
-        if (Ref.canReferTo!SomeKind)
+        if (Ref.canReferenceType!SomeKind)
     {
         mixin(`return ` ~ arrayInstanceString!SomeKind ~ `[index];`);
     }
 
     /// Peek at element of type `SomeKind` at `index`.
     scope inout(SomeKind)* peek(SomeKind)(in Ref index) inout return @system
-        if (Ref.canReferTo!SomeKind)
+        if (Ref.canReferenceType!SomeKind)
     {
         if (Ref.nrOfKind!SomeKind == index._kindNr)
         {
@@ -238,14 +240,14 @@ private struct VariantArrays(Types...)
 
     /// Constant access to all elements of type `SomeKind`.
     scope inout(SomeKind)[] allOf(SomeKind)() inout return
-        if (Ref.canReferTo!SomeKind)
+        if (Ref.canReferenceType!SomeKind)
     {
         mixin(`return ` ~ arrayInstanceString!SomeKind ~ `[];`);
     }
 
     /// Reserve space for `newCapacity` elements of type `SomeKind`.
     void reserve(SomeKind)(size_t newCapacity)
-        if (Ref.canReferTo!SomeKind)
+        if (Ref.canReferenceType!SomeKind)
     {
         mixin(`alias arrayInstance = ` ~ arrayInstanceString!SomeKind ~ `;`);
         arrayInstance.reserve(newCapacity);

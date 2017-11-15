@@ -188,7 +188,9 @@ private struct VariantArrays(Types...)
         return `BasicArray!(Types[` ~ typeIndex.stringof ~ `])`;
     }
 
-    /// Returns: array instance (as a strinng) storing `SomeKind`.
+    /** Returns: array instance (as a strinng) storing `SomeKind`.
+     * TODO make this a template mixin
+     */
     private static immutable(string) arrayInstanceString(SomeKind)()
         if (Ref.canReferenceType!SomeKind)
     {

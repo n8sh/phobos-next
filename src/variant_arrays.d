@@ -48,7 +48,7 @@ private struct VariantIndex(DefinedTypes...)
 
     private this(Size rawWord)
     {
-        rawWord = rawWord;
+        this.rawWord = rawWord;
     }
 
     /// Get kindNr.

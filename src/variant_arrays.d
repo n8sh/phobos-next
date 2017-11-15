@@ -188,12 +188,11 @@ private struct VariantArrays(Types...)
         return `BasicArray!(Types[` ~ typeIndex.stringof ~ `])`;
     }
 
-    /// Returns: array instance (as a strinng) storing `Type`.
-    private static immutable(string) arrayInstanceString(Type)()
+    /// Returns: array instance (as a strinng) storing `SomeKind`.
+    private static immutable(string) arrayInstanceString(SomeKind)()
+        if (Ref.canReferenceType!SomeKind)
     {
-        enum index = Ref.nrOfKind!(Type);
-        static assert(index >= 0, "Unsupported type");
-        return `_store` ~ index.stringof; // previously `Type.mangleof`
+        return `_store` ~ Ref.nrOfKind!(SomeKind).stringof; // previously `SomeKind.mangleof`
     }
 
     /// Make reference to type `SomeKind` at offset `index`.

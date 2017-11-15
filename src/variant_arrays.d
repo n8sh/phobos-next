@@ -120,7 +120,7 @@ private struct VariantRef(DefinedTypes...)
         }
         else
         {
-            sink.formattedWrite(`%s(undefined)`, typeof(this).stringof);
+            sink.formattedWrite(`%s(null)`, typeof(this).stringof);
         }
     }
 

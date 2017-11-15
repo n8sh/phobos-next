@@ -116,11 +116,11 @@ private struct VariantRef(DefinedTypes...)
         import std.format : formattedWrite;
         if (isDefined)
         {
-            sink.formattedWrite(`%s(%s@%s)`, typeof(this).stringof, _index, _kindNr);
+            sink.formattedWrite(`%s(%s@%s)`, Unqual!(typeof(this)).stringof, _index, _kindNr);
         }
         else
         {
-            sink.formattedWrite(`%s(null)`, typeof(this).stringof);
+            sink.formattedWrite(`%s(null)`, Unqual!(typeof(this)).stringof);
         }
     }
 
@@ -159,7 +159,7 @@ unittest
     alias R = VariantRef!(int, float);
     R r;
     import std.conv : to;
-    assert(r.to!string == `const(VariantRef!(int, float))(null)`);
+    assert(r.to!string == `VariantRef!(int, float)(null)`);
 }
 
 private mixin template VariantArrayOf(Type)

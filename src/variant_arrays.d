@@ -246,13 +246,21 @@ private struct VariantArrays(Types...)
         mixin(`return ` ~ arrayInstanceString!SomeKind ~ `[index];`);
     }
 
-    /// Peek at element of type `SomeKind` at `index`.
-    scope inout(SomeKind)* peek(SomeKind)(in Ref index) inout return @system
+    /// Get reference to element of type `SomeKind` at `ref_`.
+    scope ref inout(SomeKind) at(SomeKind)(in Ref ref_) inout return
         if (Ref.canReferenceType!SomeKind)
     {
-        if (Ref.nrOfKind!SomeKind == index._kindNr)
+        assert(Ref.nrOfKind!SomeKind == ref_._kindNr);
+        mixin(`return ` ~ arrayInstanceString!SomeKind ~ `[ref_.index];`);
+    }
+
+    /// Peek at element of type `SomeKind` at `ref_`.
+    scope inout(SomeKind)* peek(SomeKind)(in Ref ref_) inout return @system
+        if (Ref.canReferenceType!SomeKind)
+    {
+        if (Ref.nrOfKind!SomeKind == ref_._kindNr)
         {
-            return &at!SomeKind(index._index);
+            return &at!SomeKind(ref_._index);
         }
         else
         {

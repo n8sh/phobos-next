@@ -757,7 +757,7 @@ auto inIndefiniteNounForm(const(char)[] s, Lang lang)
                  `an apple`));
 }
 
-auto inDefiniteNounForm(string s, Lang lang)
+auto inDefiniteNounForm(const(char)[] s, Lang lang)
 {
     import std.range : chain;
     return chain(s.definiteArticleIn(lang), ` `, s);

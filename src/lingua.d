@@ -721,7 +721,7 @@ enum swedishObjectPronouns = [`mig`, `dig`,
                               `dem`];
 
 /// Indefinite article of `s` in language `lang`.
-string indefiniteArticleIn(string s, Lang lang)
+string indefiniteArticleIn(const(char)[] s, Lang lang)
     /*nothrow @nogc*/
 {
     import std.range.primitives : empty, front;
@@ -729,7 +729,7 @@ string indefiniteArticleIn(string s, Lang lang)
 }
 
 /// Definite article of `s` in language `lang`.
-string definiteArticleIn(string s, Lang lang)
+string definiteArticleIn(const(char)[] s, Lang lang)
     /*/*nothrow @nogc*/
 {
     switch (lang)
@@ -741,7 +741,7 @@ string definiteArticleIn(string s, Lang lang)
 }
 
 /// Returns: `s` in indefinite form in language `lang`.
-auto inIndefiniteNounForm(string s, Lang lang)
+auto inIndefiniteNounForm(const(char)[] s, Lang lang)
     /*nothrow @nogc*/
 {
     import std.range : chain;

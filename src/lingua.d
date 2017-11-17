@@ -740,6 +740,7 @@ string definiteArticleIn(string s, Lang lang)
     }
 }
 
+/// Returns: `s` in indefinite form in language `lang`.
 auto inIndefiniteNounForm(string s, Lang lang)
     /*nothrow @nogc*/
 {

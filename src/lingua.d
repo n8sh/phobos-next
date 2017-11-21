@@ -725,7 +725,13 @@ string indefiniteArticleIn(in const(char)[] s, Lang lang)
     /*nothrow @nogc*/
 {
     import std.range.primitives : empty, front;
-    return (!s.empty && s.front.isVowel(lang) ? `an` : `a`);
+    switch (lang)
+    {
+    case Lang.en:
+        return (!s.empty && s.front.isVowel(lang) ? `an` : `a`);
+    default:
+        return null;
+    }
 }
 
 /// Definite article of `s` in language `lang`.
@@ -735,8 +741,9 @@ string definiteArticleIn(in const(char)[] s, Lang lang)
     switch (lang)
     {
     case Lang.en:
-    default:
         return `the`;
+    default:
+        return null;
     }
 }
 

@@ -720,56 +720,6 @@ enum swedishObjectPronouns = [`mig`, `dig`,
                               `oss`,
                               `dem`];
 
-/// Indefinite article of `s` in language `lang`.
-string indefiniteArticleIn(in const(char)[] s, Lang lang)
-    /*nothrow @nogc*/
-{
-    import std.range.primitives : empty, front;
-    switch (lang)
-    {
-    case Lang.en:
-        return (!s.empty && s.front.isVowel(lang) ? `an` : `a`);
-    default:
-        return null;
-    }
-}
-
-/// Definite article of `s` in language `lang`.
-string definiteArticleIn(in const(char)[] s, Lang lang)
-    /*/*nothrow @nogc*/
-{
-    switch (lang)
-    {
-    case Lang.en:
-        return `the`;
-    default:
-        return null;
-    }
-}
-
-/// Returns: `s` in indefinite form in language `lang`.
-auto inIndefiniteNounForm(const(char)[] s, Lang lang)
-    /*nothrow @nogc*/
-{
-    import std.range : chain;
-    return chain(s.indefiniteArticleIn(lang), ` `, s);
-}
-
-/*nothrow @nogc*/ unittest
-{
-    import std.algorithm : equal;
-    assert(equal(`person`.inIndefiniteNounForm(Lang.en),
-                 `a person`));
-    assert(equal(`apple`.inIndefiniteNounForm(Lang.en),
-                 `an apple`));
-}
-
-auto inDefiniteNounForm(const(char)[] s, Lang lang)
-{
-    import std.range : chain;
-    return chain(s.definiteArticleIn(lang), ` `, s);
-}
-
 enum Casing
 {
     unknown,

@@ -51,7 +51,7 @@ void assertTrue(T,
                 string file = __FILE__, uint line = __LINE__,
                 Args...) (T test, lazy Args args)
 {
-    version (assert) if (!test)
+    version(assert) if (!test)
     {
         throw new AssertError("at \n" ~file~ ":" ~to!string(line)~ ":\n  test: " ~to!string(test));
     }
@@ -60,21 +60,28 @@ alias assertT = assertTrue;
 
 void assertEqual(T, U,
                  string file = __FILE__, uint line = __LINE__,
-                 Args...) (T lhs, U rhs, lazy Args args)
+                 Args...)(T lhs, U rhs,
+                          lazy Args args) // TODO use args
 {
-    version (assert) if (lhs != rhs)
+    version(assert) if (lhs != rhs)
     {
         throw new AssertError("at \n" ~file~ ":" ~to!string(line)~ ":\n  lhs: " ~to!string(lhs)~ " !=\n  rhs: " ~to!string(rhs));
     }
 }
 alias assertE = assertEqual;
 
+// @safe pure unittest
+// {
+//     assertEqual([1], [2, 3]);
+// }
+
 void assertLessThanOrEqual(T, U,
                            string file = __FILE__,
                            uint line = __LINE__,
-                           Args...) (T lhs, U rhs, lazy Args args)
+                           Args...) (T lhs, U rhs,
+                                     lazy Args args) // TODO use args
 {
-    version (assert) if (lhs > rhs)
+    version(assert) if (lhs > rhs)
     {
         throw new AssertError("at \n" ~file~ ":" ~to!string(line)~ ":\n  lhs: " ~to!string(lhs)~ " >\n  rhs: " ~to!string(rhs));
     }
@@ -83,9 +90,10 @@ alias assertLTE = assertLessThanOrEqual;
 
 void assertLessThan(T, U,
                     string file = __FILE__, uint line = __LINE__,
-                    Args...) (T lhs, U rhs, lazy Args args)
+                    Args...) (T lhs, U rhs,
+                              lazy Args args) // TODO use args
 {
-    version (assert) if (lhs >= rhs)
+    version(assert) if (lhs >= rhs)
     {
         throw new AssertError("at \n" ~file~ ":" ~to!string(line)~ ":\n  lhs: " ~to!string(lhs)~ " >=\n  rhs: " ~to!string(rhs));
     }
@@ -94,9 +102,10 @@ alias assertLT = assertLessThan;
 
 void assertNotEqual(T, U,
                     string file = __FILE__, uint line = __LINE__,
-                    Args...) (T lhs, U rhs, lazy Args args)
+                    Args...) (T lhs, U rhs,
+                              lazy Args args) // TODO use args
 {
-    version (assert) if (lhs == rhs)
+    version(assert) if (lhs == rhs)
     {
         throw new AssertError("at \n" ~file~ ":" ~to!string(line)~ ":\n  lhs: " ~to!string(lhs)~ " ==\n  rhs: " ~to!string(rhs));
     }

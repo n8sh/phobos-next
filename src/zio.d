@@ -449,6 +449,26 @@ unittest
     testInputRange!(Bz2libFileInputRange);
 }
 
+/** Read Age of Aqcuisitions.
+ */
+// version(none)
+unittest
+{
+    import std.path: expandTilde;
+    const string rootDirPath = `~/Work/knet/knowledge/en/age-of-aqcuisition`;
+    import zio : DecompressByLine, GzipFileInputRange;
+    import std.path : buildNormalizedPath;
+    const path = buildNormalizedPath(rootDirPath.expandTilde,
+                                     `AoA_51715_words.csv.gz`);
+    size_t count = 0;
+    foreach (line; new DecompressByLine!GzipFileInputRange(path))
+    {
+        count += 1;
+    }
+    writeln("count:", count);
+    assert(count == 51716);
+}
+
 // version(none)
 unittest
 {
@@ -508,5 +528,5 @@ unittest
 version(unittest)
 {
     import std.stdio : write, writeln;
-    // import dbgio : dln;
+    import dbgio;
 }

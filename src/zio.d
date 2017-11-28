@@ -435,11 +435,6 @@ void testInputRange(FileInputRange)()
         alias R = DecompressByLine!ZlibFileInputRange;
 
         assert(new R(path).count == source.splitter('\n').count);
-
-        // dln(`n:`, n);
-        // dln(`source:"`, source, `"`);
-        // dln(`new DecompressByLine(path).count:`, new R(path).count);
-        // dln(`source.splitter('\n').count:`, source.splitter('\n').count);
     }
 }
 

@@ -88,8 +88,6 @@ class DecompressByLine(BlockInputRange)
 {
     private alias E = char;
 
-    @safe:
-
     /** If `range` is of type isBlockInputRange massive performance
         optimizationss are possible especially when decoding compressed files.
     */
@@ -102,7 +100,7 @@ class DecompressByLine(BlockInputRange)
         popFront();
     }
 
-    void popFront() @trusted
+    void popFront()
     {
         _lbuf.shrinkTo(0);
 

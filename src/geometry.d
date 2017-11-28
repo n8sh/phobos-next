@@ -42,7 +42,7 @@ else
     private enum rmul = true;
 }
 
-version(LDC) static if (__VERSION__ >= 2076) { static assert(0, "TODO use static foreach inplace of iota!(...)"); }
+version(LDC) static if (__VERSION__ >= 2076) {pragma(msg, "geometry.d: TODO use static foreach inplace of iota!(...)"); }
 
 // TODO use import core.simd;
 import std.math: sqrt, isNaN, isInfinity, PI, sin, cos, acos;

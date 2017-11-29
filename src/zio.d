@@ -11,7 +11,7 @@ struct GzipFileInputRange
 
     enum defaultExtension = `.gz`;
 
-    this(in const(char)[] path)
+    this(in char[] path)
     {
         _f = File(path, "r");
         _chunkRange = _f.byChunk(chunkSize);
@@ -236,7 +236,7 @@ struct ZlibFileInputRange
 
     @safe:
 
-    this(in const(char)[] path) @trusted
+    this(in char[] path) @trusted
     {
         import std.string : toStringz; // TODO avoid GC allocation by looking at how gmp-d z.d solves it
         _f = gzopen(path.toStringz, `rb`);
@@ -330,7 +330,7 @@ struct Bz2libFileInputRange
 
     @safe:
 
-    this(in const(char)[] path) @trusted
+    this(in char[] path) @trusted
     {
         import std.string : toStringz; // TODO avoid GC allocation by looking at how gmp-d z.d solves it
         _f = BZ2_bzopen(path.toStringz, `rb`);

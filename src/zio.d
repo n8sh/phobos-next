@@ -483,7 +483,7 @@ unittest
 
     {
         const path = buildNormalizedPath(rootDirPath.expandTilde,
-                                         `AoA_51715_words2.csv.bz2`);
+                                         `AoA_51715_words_copy.csv.bz2`);
         size_t count = 0;
         foreach (line; new DecompressByLine!Bz2libFileInputRange(path))
         {

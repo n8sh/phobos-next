@@ -465,7 +465,6 @@ unittest
         {
             count += 1;
         }
-        writeln("count:", count);
         assert(count == 51716);
     }
 
@@ -477,7 +476,6 @@ unittest
         {
             count += 1;
         }
-        writeln("count:", count);
         assert(count == 51716);
     }
 
@@ -489,7 +487,6 @@ unittest
         {
             count += 1;
         }
-        writeln("count:", count);
         assert(count == 51716);
     }
 

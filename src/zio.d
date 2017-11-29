@@ -9,6 +9,8 @@ struct GzipFileInputRange
 
     enum chunkSize = 0x4000;
 
+    enum defaultExtension = `.gz`;
+
     this(in const(char)[] path)
     {
         _f = File(path, "r");
@@ -440,31 +442,61 @@ void testInputRange(FileInputRange)()
 
 unittest
 {
+    testInputRange!(GzipFileInputRange);
     testInputRange!(ZlibFileInputRange);
     testInputRange!(Bz2libFileInputRange);
 }
 
 /** Read Age of Aqcuisitions.
  */
-// version(none)
+version(none)
 unittest
 {
     import std.path: expandTilde;
     const string rootDirPath = `~/Work/knet/knowledge/en/age-of-aqcuisition`;
     import zio : DecompressByLine, GzipFileInputRange;
     import std.path : buildNormalizedPath;
-    const path = buildNormalizedPath(rootDirPath.expandTilde,
-                                     `AoA_51715_words.csv.gz`);
-    size_t count = 0;
-    foreach (line; new DecompressByLine!GzipFileInputRange(path))
+
     {
-        count += 1;
+        const path = buildNormalizedPath(rootDirPath.expandTilde,
+                                         `AoA_51715_words.csv.gz`);
+        size_t count = 0;
+        foreach (line; new DecompressByLine!GzipFileInputRange(path))
+        {
+            count += 1;
+        }
+        writeln("count:", count);
+        assert(count == 51716);
     }
-    writeln("count:", count);
-    assert(count == 51716);
+
+    {
+        const path = buildNormalizedPath(rootDirPath.expandTilde,
+                                         `AoA_51715_words.csv.gz`);
+        size_t count = 0;
+        foreach (line; new DecompressByLine!ZlibFileInputRange(path))
+        {
+            count += 1;
+        }
+        writeln("count:", count);
+        assert(count == 51716);
+    }
+
+    {
+        const path = buildNormalizedPath(rootDirPath.expandTilde,
+                                         `AoA_51715_words2.csv.bz2`);
+        size_t count = 0;
+        foreach (line; new DecompressByLine!Bz2libFileInputRange(path))
+        {
+            count += 1;
+        }
+        writeln("count:", count);
+        assert(count == 51716);
+    }
+
+    assert(false);
 }
 
-// version(none)
+version(none)
 unittest
 {
     enum path = "/home/per/Knowledge/ConceptNet5/5.5/data/assertions/conceptnet-assertions-5.5.0.csv.gz";

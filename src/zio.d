@@ -537,19 +537,19 @@ unittest
     foreach (const path; dirEntries(rootPath, SpanMode.depth).filter!(file => file.name.baseName.startsWith(`instance_types`))
                                                              .filter!(file => file.name.endsWith(`.ttl.bz2`)))
     {
-        writeln(`Checking `, path);
+        write(`Checking `, path, ` ...`); stdout.flush();
         size_t lineNr = 0;
         foreach (const line; new DecompressByLine!R(path))
         {
             lineNr += 1;
         }
 
-        writeln(path, ` line count: `, lineNr);
+        writeln(` line count: `, lineNr);
     }
 }
 
 version(unittest)
 {
-    import std.stdio : write, writeln;
+    import std.stdio : write, writeln, stdout;
     // import dbgio;
 }

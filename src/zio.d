@@ -13,7 +13,7 @@ struct GzipFileInputRange
 
     this(in char[] path)
     {
-        _f = File(path, "r");
+        _f = File(path, `r`);
         _chunkRange = _f.byChunk(chunkSize);
         _uncompress = new UnCompress;
         loadNextChunk();
@@ -134,7 +134,7 @@ class DecompressByLine(BlockInputRange)
                 if (hit.length)
                 {
                     const lineLength = hit.ptr - currentFronts.ptr;
-                    // dln(`hit: `, hit, " hit.length:", lineLength);
+                    // dln(`hit: `, hit, ` hit.length:`, lineLength);
                     _lbuf.put(currentFronts[0 .. lineLength]); // add everything up to separator
                     _range._bufIx += lineLength + _separator.sizeof; // advancement + separator
                     if (_range.empty)
@@ -244,7 +244,7 @@ struct ZlibFileInputRange
         _f = gzopen(path.toStringz, `rb`);
         if (!_f)
         {
-            throw new Exception("Couldn't open file " ~ path.idup);
+            throw new Exception(`Couldn't open file ` ~ path.idup);
         }
         _buf = new ubyte[chunkSize];
         loadNextChunk();
@@ -255,7 +255,7 @@ struct ZlibFileInputRange
         const int ret = gzclose(_f);
         if (ret < 0)
         {
-            throw new Exception("Couldn't close file");
+            throw new Exception(`Couldn't close file`);
         }
     }
 
@@ -266,7 +266,7 @@ struct ZlibFileInputRange
         int count = gzread(_f, _buf.ptr, chunkSize);
         if (count == -1)
         {
-            throw new Exception("Error decoding file");
+            throw new Exception(`Error decoding file`);
         }
         _bufIx = 0;
         _bufReadLength = count;
@@ -320,9 +320,9 @@ private:
 
     // TODO make this work:
     // extern (C) nothrow @nogc:
-    // pragma(mangle, "gzopen") gzFile gzopen(const(char)* path, const(char)* mode);
-    // pragma(mangle, "gzclose") int gzclose(gzFile file);
-    // pragma(mangle, "gzread") int gzread(gzFile file, void* buf, uint len);
+    // pragma(mangle, `gzopen`) gzFile gzopen(const(char)* path, const(char)* mode);
+    // pragma(mangle, `gzclose`) int gzclose(gzFile file);
+    // pragma(mangle, `gzread`) int gzread(gzFile file, void* buf, uint len);
 }
 
 struct Bz2libFileInputRange
@@ -341,7 +341,7 @@ struct Bz2libFileInputRange
         _f = BZ2_bzopen(path.toStringz, `rb`);
         if (!_f)
         {
-            throw new Exception("Couldn't open file " ~ path.idup);
+            throw new Exception(`Couldn't open file ` ~ path.idup);
         }
 
         static if (useGC)
@@ -375,7 +375,7 @@ struct Bz2libFileInputRange
         int count = BZ2_bzread(_f, _buf.ptr, chunkSize);
         if (count == -1)
         {
-            throw new Exception("Error decoding file");
+            throw new Exception(`Error decoding file`);
         }
         _bufIx = 0;
         _bufReadLength = count;
@@ -417,7 +417,7 @@ struct Bz2libFileInputRange
 
 private:
     import bzlib : BZFILE, BZ2_bzopen, BZ2_bzread, BZ2_bzwrite, BZ2_bzclose;
-    pragma(lib, "bz2");             // Ubuntu: sudo apt-get install libbz2-dev
+    pragma(lib, `bz2`);             // Ubuntu: sudo apt-get install libbz2-dev
 
     BZFILE* _f;
 
@@ -433,7 +433,7 @@ void testInputRange(FileInputRange)()
 {
     import std.stdio : File;
 
-    enum path = "test" ~ FileInputRange.defaultExtension;
+    enum path = `test` ~ FileInputRange.defaultExtension;
 
     const wholeSource = "abc\ndef\nghi";
 
@@ -441,7 +441,7 @@ void testInputRange(FileInputRange)()
     {
         const source = wholeSource[0 .. n]; // slice from the beginning
 
-        scope File file = File(path, "w"); // TODO temporary file
+        scope File file = File(path, `w`); // TODO temporary file
         scope auto of = new GzipOut(file);
         of.compress(source);
         of.finish();
@@ -517,7 +517,7 @@ unittest
 version(none)
 unittest
 {
-    const path = "/home/per/Knowledge/ConceptNet5/5.5/data/assertions/conceptnet-assertions-5.5.0.csv.gz";
+    const path = `/home/per/Knowledge/ConceptNet5/5.5/data/assertions/conceptnet-assertions-5.5.0.csv.gz`;
     alias R = ZlibFileInputRange;
 
     import std.stdio: writeln;
@@ -543,10 +543,10 @@ unittest
 }
 
 /// benchmark DBpedia parsing
-version(none)
+// version(none)
 unittest
 {
-    const rootPath = "/home/per/Knowledge/DBpedia/latest";
+    const rootPath = `/home/per/Knowledge/DBpedia/latest`;
     alias R = Bz2libFileInputRange;
 
     import std.algorithm : filter, startsWith, endsWith;
@@ -582,10 +582,10 @@ static private void showStat(T)(in const(char[]) tag,
                                 in size_t lineCount)
 {
     import std.stdio : writefln;
-    writefln("%s: %3.1f msecs (%3.1f nsecs/line)",
+    writefln(`%s: %3.1f msecs (%3.1f usecs/line)`,
              tag,
-             cast(double)(after - before).total!"msecs",
-             cast(double)(after - before).total!"nsecs" / lineCount);
+             cast(double)(after - before).total!`msecs`,
+             cast(double)(after - before).total!`usecs` / lineCount);
 }
 
 version(unittest)

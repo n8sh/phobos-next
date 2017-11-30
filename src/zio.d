@@ -331,7 +331,7 @@ struct Bz2libFileInputRange
 
     enum defaultExtension = `.bz2`;
 
-    enum useGC = true;
+    enum useGC = false;
 
     @safe:
 
@@ -546,25 +546,46 @@ unittest
 unittest
 {
     const rootPath = "/home/per/Knowledge/DBpedia/latest";
-    alias R = Bz2libFileInputRange;
+    alias R = ZlibFileInputRange;
+    // alias R = Bz2libFileInputRange;
 
     import std.algorithm : filter, startsWith, endsWith;
     import std.file : dirEntries, SpanMode;
     import std.path : baseName;
     import std.stdio : write, writeln, stdout;
+    import std.datetime : MonoTime;
 
     foreach (const path; dirEntries(rootPath, SpanMode.depth).filter!(file => file.name.baseName.startsWith(`instance_types`))
-                                                             .filter!(file => file.name.endsWith(`.ttl.bz2`)))
+                                                             .filter!(file => file.name.endsWith(`.ttl.gz`)))
     {
         write(`Checking `, path, ` ... `); stdout.flush();
-        size_t lineNr = 0;
+
+        immutable before = MonoTime.currTime();
+
+        size_t lineCounter = 0;
         foreach (const line; new DecompressByLine!R(path))
         {
-            lineNr += 1;
+            lineCounter += 1;
         }
 
-        writeln(`line count: `, lineNr);
+        immutable after = MonoTime.currTime();
+
+        showStat(path, before, after, lineCounter);
     }
+}
+
+/// Show statistics.
+version(unittest)
+static private void showStat(T)(in const(char[]) tag,
+                                in T before,
+                                in T after,
+                                in size_t lineCount)
+{
+    import std.stdio : writefln;
+    writefln("%s: %3.1f msecs (%3.1f nsecs/line)",
+             tag,
+             cast(double)(after - before).total!"msecs",
+             cast(double)(after - before).total!"nsecs" / lineCount);
 }
 
 version(unittest)

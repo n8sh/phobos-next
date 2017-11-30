@@ -71,11 +71,11 @@ unittest
     assert(!pq.empty);          // shouldn't consume queue
 
     assert(pq.front == tuple(3, `3`));
-    pq.popFront;
+    pq.popFront();
     assert(pq.front == tuple(10, `10`));
-    pq.popFront;
+    pq.popFront();
     assert(pq.front == tuple(11, `11`));
-    pq.popFront;
+    pq.popFront();
 
     assert(pq.empty);
 }

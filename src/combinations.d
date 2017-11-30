@@ -240,10 +240,10 @@ auto pairwise(R)(R r)
 
             void popFront()
             {
-                j.popFront;
+                j.popFront();
                 if (j.empty)
                 {
-                    i.popFront;
+                    i.popFront();
                     j = i.dropOne;
                 }
             }

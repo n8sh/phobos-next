@@ -625,7 +625,7 @@ public:
         auto s1 = RCXString("123456789_123456789_123456789_123456789_");
         s1 ~= s1;
         assert(s1 == "123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_");
-        foreach (i; 0 .. 70) s1.popFront;
+        foreach (i; 0 .. 70) s1.popFront();
         assert(s1 == "123456789_");
         s1 ~= "abc";
         assert(s1 == "123456789_abc");
@@ -791,17 +791,17 @@ public:
     {
         auto s1 = RCXString("123456789_");
         auto s2 = s1;
-        s1.popFront;
+        s1.popFront();
         assert(s1 == "23456789_");
         assert(s2 == "123456789_");
         s1 = RCXString("123456789_123456789_123456789_123456789_");
         s2 = s1;
-        s1.popFront;
+        s1.popFront();
         assert(s1 == "23456789_123456789_123456789_123456789_");
         assert(s2 == "123456789_123456789_123456789_123456789_");
         s1 = "öü";
         s2 = s1;
-        s1.popFront;
+        s1.popFront();
         assert(s1 == "ü");
         assert(s2 == "öü");
     }
@@ -972,11 +972,11 @@ unittest
     import std.algorithm : count;
     assert(rcs.count == 3);
     assert(rcs.front == 'å');
-    rcs.popFront;
+    rcs.popFront();
     assert(rcs.front == 'ä');
-    rcs.popFront;
+    rcs.popFront();
     assert(rcs.front == 'ö');
-    rcs.popFront;
+    rcs.popFront();
     assert(rcs.empty);
 }
 

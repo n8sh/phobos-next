@@ -542,6 +542,7 @@ unittest
     }
 }
 
+/// benchmark DBpedia parsing
 version(none)
 unittest
 {

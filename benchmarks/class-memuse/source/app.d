@@ -43,7 +43,7 @@ void showStat(T)(const(char[]) typeName,
                  in T after,
                  in size_t n)
 {
-    writefln("%s: %3.1f msecs (%3.1f ns/op)",
+    writefln("%s: %3.1f msecs (%3.1f nsecs/op)",
              typeName,
              cast(double)(after - before).total!"msecs",
              cast(double)(after - before).total!"nsecs" / n);

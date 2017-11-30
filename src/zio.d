@@ -226,8 +226,6 @@ private:
 
 struct ZlibFileInputRange
 {
-    enum defaultExtension = `.gz`;
-
     /* Zlib docs:
        CHUNK is simply the buffer size for feeding data to and pulling data from
        the zlib routines. Larger buffer sizes would be more efficient,
@@ -235,6 +233,8 @@ struct ZlibFileInputRange
        the order of 128K or 256K bytes should be used.
     */
     enum chunkSize = 128 * 1024; // 128K
+
+    enum defaultExtension = `.gz`;
 
     @safe:
 
@@ -328,6 +328,7 @@ private:
 struct Bz2libFileInputRange
 {
     enum chunkSize = 128 * 1024; // 128K
+
     enum defaultExtension = `.bz2`;
 
     enum useGC = true;

@@ -543,7 +543,7 @@ unittest
 }
 
 /// benchmark DBpedia parsing
-// version(none)
+version(none)
 unittest
 {
     const rootPath = `/home/per/Knowledge/DBpedia/latest`;

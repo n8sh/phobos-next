@@ -496,7 +496,7 @@ unittest
 version(none)
 unittest
 {
-    enum path = "/home/per/Knowledge/ConceptNet5/5.5/data/assertions/conceptnet-assertions-5.5.0.csv.gz";
+    const path = "/home/per/Knowledge/ConceptNet5/5.5/data/assertions/conceptnet-assertions-5.5.0.csv.gz";
     alias R = ZlibFileInputRange;
 
     import std.stdio: writeln;
@@ -521,31 +521,30 @@ unittest
     }
 }
 
-version(none)
+// version(none)
 unittest
 {
-    enum path = "/home/per/Knowledge/DBpedia/latest/genders_en.ttl.bz2";
+    const rootPath = "/home/per/Knowledge/DBpedia/latest";
     alias R = Bz2libFileInputRange;
 
+    import std.algorithm : filter, startsWith, endsWith;
+    import std.file : dirEntries, SpanMode;
+    import std.path : baseName;
     import std.stdio: writeln;
     import std.range: take;
     import std.algorithm.searching: count;
 
-    const lineBlockCount = 1000;
-    size_t lineNr = 0;
-    foreach (const line; new DecompressByLine!R(path))
+    foreach (const path; dirEntries(rootPath, SpanMode.depth).filter!(file => file.name.baseName.startsWith(`instance_types`))
+                                                             .filter!(file => file.name.endsWith(`.ttl.bz2`)))
     {
-        if (lineNr % lineBlockCount == 0)
+        writeln(`Checking `, path);
+        size_t lineNr = 0;
+        foreach (const line; new DecompressByLine!R(path))
         {
-            writeln(`Line `, lineNr, ` read containing:`, line);
+            lineNr += 1;
         }
-        lineNr += 1;
-    }
 
-    const lineCount = 5;
-    foreach (const line; new DecompressByLine!R(path).take(lineCount))
-    {
-        writeln(line);
+        writeln(path, ` line count: `, lineNr);
     }
 }
 

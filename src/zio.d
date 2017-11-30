@@ -543,11 +543,10 @@ unittest
 }
 
 /// benchmark DBpedia parsing
-// version(none)
+version(none)
 unittest
 {
     const rootPath = "/home/per/Knowledge/DBpedia/latest";
-    // alias R = ZlibFileInputRange;
     alias R = Bz2libFileInputRange;
 
     import std.algorithm : filter, startsWith, endsWith;

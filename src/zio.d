@@ -352,12 +352,14 @@ struct Bz2libFileInputRange
             import core.memory : pureMalloc;
             _buf = (cast(ubyte*)pureMalloc(chunkSize))[0 .. chunkSize];
         }
+
         loadNextChunk();
     }
 
     ~this() @trusted
     {
         BZ2_bzclose(&_f);       // TODO error handling?
+
         static if (!useGC)
         {
             import core.memory : pureFree;

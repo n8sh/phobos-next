@@ -90,15 +90,19 @@ class DecompressByLine(BlockInputRange)
 {
     private alias E = char;
 
-    /** If `range` is of type isBlockInputRange massive performance
-        optimizationss are possible especially when decoding compressed files.
-    */
+    /** If `range` is of type `isBlockInputRange` decoding compressed files will
+     * be much faster.
+     */
     this(in const(char)[] range,
-         E separator = '\n')
+         E separator = '\n',
+         in size_t initialCapacity = 80)
     {
         this._range = typeof(_range)(range);
         this._separator = separator;
-        // this._lbuf = typeof(_lbuf).withCapacity(80);
+        static if (__traits(hasMember, typeof(_lbuf), `withCapacity`))
+        {
+            this._lbuf = typeof(_lbuf).withCapacity(initialCapacity);
+        }
         popFront();
     }
 
@@ -133,7 +137,7 @@ class DecompressByLine(BlockInputRange)
                 {
                     const lineLength = hitPtr - currentFronts.ptr;
                     // dln(`hit: `, hit, " hitLength:", lineLength);
-                    _lbuf.put(currentFronts[0 .. lineLength]); // add everything to separator
+                    _lbuf.put(currentFronts[0 .. lineLength]); // add everything up to separator
                     _range._bufIx += lineLength + _separator.sizeof; // advancement + separator
                     if (_range.empty)
                     {

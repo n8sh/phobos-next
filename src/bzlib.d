@@ -71,7 +71,7 @@ else
 
     enum BZ_MAX_UNUSED = 5000;
 
-    alias void BZFILE;
+    struct BZFILE;
 
     BZFILE* BZ2_bzReadOpen(int*  bzerror,
                            FILE* f,

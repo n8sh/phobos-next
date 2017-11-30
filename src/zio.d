@@ -510,8 +510,6 @@ unittest
         }
         assert(count == 51716);
     }
-
-    assert(false);
 }
 
 version(none)

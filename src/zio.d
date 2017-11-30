@@ -129,14 +129,12 @@ class DecompressByLine(BlockInputRange)
                 {
                     import std.algorithm.searching : find;
                     const hit = currentFronts.find(_separator); // or use `indexOf`
-                    const hitPtr = hit.ptr;
-                    const hitLength = hit.length;
                 }
 
-                if (hitLength)
+                if (hit.length)
                 {
-                    const lineLength = hitPtr - currentFronts.ptr;
-                    // dln(`hit: `, hit, " hitLength:", lineLength);
+                    const lineLength = hit.ptr - currentFronts.ptr;
+                    // dln(`hit: `, hit, " hit.length:", lineLength);
                     _lbuf.put(currentFronts[0 .. lineLength]); // add everything up to separator
                     _range._bufIx += lineLength + _separator.sizeof; // advancement + separator
                     if (_range.empty)
@@ -332,6 +330,8 @@ struct Bz2libFileInputRange
     enum chunkSize = 128 * 1024; // 128K
     enum defaultExtension = `.bz2`;
 
+    enum useGC = true;
+
     @safe:
 
     this(in char[] path) @trusted
@@ -342,13 +342,27 @@ struct Bz2libFileInputRange
         {
             throw new Exception("Couldn't open file " ~ path.idup);
         }
-        _buf = new ubyte[chunkSize];
+
+        static if (useGC)
+        {
+            _buf = new ubyte[chunkSize];
+        }
+        else
+        {
+            import core.memory : pureMalloc;
+            _buf = (cast(ubyte*)pureMalloc(chunkSize))[0 .. chunkSize];
+        }
         loadNextChunk();
     }
 
     ~this() @trusted
     {
         BZ2_bzclose(&_f);       // TODO error handling?
+        static if (!useGC)
+        {
+            import core.memory : pureFree;
+            pureFree(_buf.ptr);
+        }
     }
 
     @disable this(this);

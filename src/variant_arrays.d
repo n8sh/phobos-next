@@ -250,7 +250,8 @@ private struct VariantArrays(Types...)
     scope ref inout(SomeKind) at(SomeKind)(in Ref ref_) inout return
         if (Ref.canReferenceType!SomeKind)
     {
-        assert(Ref.nrOfKind!SomeKind == ref_._kindNr);
+        assert(Ref.nrOfKind!SomeKind == ref_._kindNr,
+               "Ref is not of expected template type " ~ SomeKind.stringof);
         mixin(`return ` ~ arrayInstanceString!SomeKind ~ `[ref_.index];`);
     }
 

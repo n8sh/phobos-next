@@ -530,9 +530,7 @@ unittest
     import std.algorithm : filter, startsWith, endsWith;
     import std.file : dirEntries, SpanMode;
     import std.path : baseName;
-    import std.stdio: writeln;
-    import std.range: take;
-    import std.algorithm.searching: count;
+    import std.stdio : write, writeln, stdout;
 
     foreach (const path; dirEntries(rootPath, SpanMode.depth).filter!(file => file.name.baseName.startsWith(`instance_types`))
                                                              .filter!(file => file.name.endsWith(`.ttl.bz2`)))

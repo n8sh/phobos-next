@@ -359,7 +359,7 @@ struct Bz2libFileInputRange
 
     ~this() @trusted
     {
-        BZ2_bzclose(&_f);       // TODO error handling?
+        BZ2_bzclose(_f);       // TODO error handling?
 
         static if (!useGC)
         {
@@ -543,12 +543,12 @@ unittest
 }
 
 /// benchmark DBpedia parsing
-version(none)
+// version(none)
 unittest
 {
     const rootPath = "/home/per/Knowledge/DBpedia/latest";
-    alias R = ZlibFileInputRange;
-    // alias R = Bz2libFileInputRange;
+    // alias R = ZlibFileInputRange;
+    alias R = Bz2libFileInputRange;
 
     import std.algorithm : filter, startsWith, endsWith;
     import std.file : dirEntries, SpanMode;
@@ -556,8 +556,8 @@ unittest
     import std.stdio : write, writeln, stdout;
     import std.datetime : MonoTime;
 
-    foreach (const path; dirEntries(rootPath, SpanMode.depth).filter!(file => file.name.baseName.startsWith(`instance_types`))
-                                                             .filter!(file => file.name.endsWith(`.ttl.gz`)))
+    foreach (const path; dirEntries(rootPath, SpanMode.depth).filter!(file => (file.name.baseName.startsWith(`instance_types`) &&
+                                                                               file.name.endsWith(`.ttl.bz2`))))
     {
         write(`Checking `, path, ` ... `); stdout.flush();
 

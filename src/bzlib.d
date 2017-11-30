@@ -149,23 +149,23 @@ int BZ2_bzBuffToBuffDecompress(ubyte*        dest,
 
 const(char)* BZ2_bzlibVersion();
 
-BZFILE* BZ2_bzopen(const(char)* path,
-                   const(char)* mode);
+BZFILE* BZ2_bzopen(in const(char)* path,
+                   in const(char)* mode);
 
 BZFILE * BZ2_bzdopen(int          fd,
-                     const(char)* mode);
+                     in const(char)* mode);
 
-int BZ2_bzread(BZFILE* b,
-               void*   buf,
+int BZ2_bzread(scope BZFILE* b,
+               scope void*   buf,
                int     len);
 
-int BZ2_bzwrite(BZFILE* b,
-                void*   buf,
+int BZ2_bzwrite(scope BZFILE* b,
+                scope void*   buf,
                 int     len);
 
-int BZ2_bzflush(BZFILE* b);
+int BZ2_bzflush(scope BZFILE* b);
 
-void BZ2_bzclose(BZFILE* b);
+void BZ2_bzclose(scope BZFILE* b);
 
-const(char)* BZ2_bzerror(BZFILE *b,
+const(char)* BZ2_bzerror(scope BZFILE *b,
                          int    *errnum);

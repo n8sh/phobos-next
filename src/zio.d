@@ -74,9 +74,9 @@ private:
 }
 
 /** Is `true` iff `R` is a block input range.
-   TODO Move to std.range
+    TODO Move to std.range
  */
-template isBlockInputRange(R)
+private template isBlockInputRange(R)
 {
     import std.range : isInputRange;
     enum isBlockInputRange = (isInputRange!R &&

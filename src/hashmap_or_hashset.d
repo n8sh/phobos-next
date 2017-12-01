@@ -77,7 +77,8 @@ struct HashMapOrSet(K, V = void,
                     uint smallBinMinCapacity = 1,
                     uint capacityScaleNumerator = 2,
                     uint capacityScaleDenominator = 1)
-    if (smallBinMinCapacity >= 1) // no use having empty small bins
+    if (isHashable!K &&
+        smallBinMinCapacity >= 1) // no use having empty small bins
 {
     import std.conv : emplace;
     import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable;
@@ -1279,11 +1280,4 @@ pure unittest
     X t;
     t.reserveExtra(4096);
     assert(t.binCount == 8192);
-}
-
-/// range checking
-pure unittest
-{
-    import digestx.fnv : FNV;
-    alias X = HashMapOrSet!(ubyte[], void, null, FNV!(64, true)); // TODO should be disallowed
 }

@@ -323,7 +323,7 @@ pragma(inline, true):
     /** Index operator. */
     ref inout(T) opIndex(size_t i) inout @trusted return scope
     {
-        assert(i < _length, "Index >= than length being " ~ _length.stringof);
+        assert(i < _length);
         return _store.ptr[i];
     }
 

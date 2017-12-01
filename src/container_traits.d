@@ -267,3 +267,18 @@ version(none)
     static assert(mustAddGCRange!M);
     static assert(mustAddGCRange!(M[1]));
 }
+
+/** Is `true` iff `T` can be put in a hashset or hashmap. */
+template isHashable(T)
+{
+    import std.traits : hasAliasing;
+    enum isHashable = !hasAliasing!T;
+}
+
+@safe pure unittest
+{
+    static assert(isHashable!int);
+    static assert(isHashable!string);
+    static assert(!isHashable!(char[]));
+    static assert(!isHashable!(const(char)[]));
+}

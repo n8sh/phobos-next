@@ -466,6 +466,7 @@ public:
 
     import std.digest.digest : isDigest;
 
+    /// TODO use `isHashable`?
     void toDigest(Digest)(scope ref Digest digest) const nothrow @nogc
         if (isDigest!Digest)
     {

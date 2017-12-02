@@ -489,11 +489,11 @@ public:
 private:
     static if (memoryPacked)
     {
-        ubyte[dataMaxSize] _store;
+        immutable ubyte[dataMaxSize] _store;
     }
     else
     {
-        union
+        immutable union
         {
             ubyte[dataMaxSize] _store;
             void* alignDummy; // non-packed means good alignment. TODO check for maximum alignof of Types

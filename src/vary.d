@@ -489,10 +489,12 @@ public:
 private:
     static if (memoryPacked)
     {
+        // immutable to make hasAliasing!(VaryN!(...)) false
         immutable ubyte[dataMaxSize] _store;
     }
     else
     {
+        // immutable to make hasAliasing!(VaryN!(...)) false
         immutable union
         {
             ubyte[dataMaxSize] _store;
@@ -552,9 +554,19 @@ nothrow @nogc unittest
     assert(a.currentSize == 0);
 }
 
+/// aliasing traits
 nothrow @nogc unittest
 {
-    const a = FastVariant!(long, double)(1.0);
+    import std.traits : hasAliasing;
+    static assert(!hasAliasing!(FastVariant!(long, double)));
+    static assert(!hasAliasing!(FastVariant!(long, immutable(double)*)));
+    // TODO static assert(hasAliasing!(FastVariant!(long, double*)));
+}
+
+nothrow @nogc unittest
+{
+    alias V = FastVariant!(long, double);
+    const a = V(1.0);
 
     static assert(a.hasFixedSize);
 

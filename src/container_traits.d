@@ -272,8 +272,7 @@ version(none)
 template isHashable(T)
 {
     import std.traits : hasAliasing;
-    enum isHashable = (!hasAliasing!T ||
-                       __traits(hasMember, T, "toDigest")); // TODO find a better way
+    enum isHashable = !hasAliasing!T;
 }
 
 @safe pure unittest

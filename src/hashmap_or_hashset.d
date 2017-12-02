@@ -34,9 +34,6 @@ enum InsertionStatus
  *
  * TODO support uncopyable keys
  *
- * TODO assert that keys have only immutable indirections (!hasAliasing!K)
- * except for the ones marked with @NoGc
- *
  * TODO add extractElement that moves it out similar to
  * http://en.cppreference.com/w/cpp/container/unordered_set/extract
  *

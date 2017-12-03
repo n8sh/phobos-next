@@ -579,6 +579,7 @@ nothrow @nogc unittest
 {
     import std.traits : hasAliasing;
     static assert(!hasAliasing!(FastVariant!(long, double)));
+    static assert(!hasAliasing!(FastVariant!(long, string)));
     static assert(!hasAliasing!(FastVariant!(long, immutable(double)*)));
     static assert(hasAliasing!(FastVariant!(long, double*)));
 }

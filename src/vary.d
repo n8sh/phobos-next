@@ -33,9 +33,9 @@ private struct VaryN(bool memoryPacked = false, TypesParam...)
     enum maxTypesCount = 2^^(Ix.sizeof * 8) - 1; // maximum number of allowed type parameters
 
     import std.typecons : Unqual;
-    import std.meta : allSatisfy, staticIndexOf, staticMap, NoDuplicates;
+    import std.meta : anySatisfy, allSatisfy, staticIndexOf, staticMap, NoDuplicates;
     import core.stdc.string : memcpy, memset, memcmp;
-    import std.traits : StdCommonType = CommonType, isIntegral, hasIndirections, isCopyable;
+    import std.traits : StdCommonType = CommonType, isIntegral, hasIndirections, isCopyable, hasAliasing;
     import traits_ex : isComparable, isEquable, sizesOf, stringsOf, allSame;
 
 public:
@@ -48,6 +48,9 @@ public:
     enum typeSizes = sizesOf!Types;
     enum typeNames = stringsOf!Types;
     enum typeCount = Types.length;
+
+    /// Is `true` iff `this` may have aliasing through any of `Types`.
+    enum mayHaveAliasing = anySatisfy!(hasAliasing, Types);
 
     immutable static typeNamesRT = [typeNames]; // typeNames accessible at run-time, because `[typeNames]` is not @nogc
 
@@ -490,15 +493,15 @@ private:
     static if (memoryPacked)
     {
         // immutable to make hasAliasing!(VaryN!(...)) false
-        immutable ubyte[dataMaxSize] _store;
+        immutable(ubyte)[dataMaxSize] _store;
     }
     else
     {
         // immutable to make hasAliasing!(VaryN!(...)) false
-        immutable union
+        union
         {
-            ubyte[dataMaxSize] _store;
-            void* alignDummy; // non-packed means good alignment. TODO check for maximum alignof of Types
+            immutable(ubyte)[dataMaxSize] _store;
+            immutable(void)* alignDummy; // non-packed means good alignment. TODO check for maximum alignof of Types
         }
     }
     Ix _tix = Ix.max; // Type Index if != Ix.max
@@ -560,7 +563,7 @@ nothrow @nogc unittest
     import std.traits : hasAliasing;
     static assert(!hasAliasing!(FastVariant!(long, double)));
     static assert(!hasAliasing!(FastVariant!(long, immutable(double)*)));
-    // TODO static assert(hasAliasing!(FastVariant!(long, double*)));
+    static assert(hasAliasing!(FastVariant!(long, double*)));
 }
 
 nothrow @nogc unittest

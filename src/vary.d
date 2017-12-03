@@ -493,15 +493,32 @@ private:
     static if (memoryPacked)
     {
         // immutable to make hasAliasing!(VaryN!(...)) false
-        immutable(ubyte)[dataMaxSize] _store;
+        static if (mayHaveAliasing)
+        {
+            ubyte[dataMaxSize] _store;
+        }
+        else
+        {
+            // to please hasAliasing!(typeof(this)):
+            immutable(ubyte)[dataMaxSize] _store;
+        }
     }
     else
     {
         // immutable to make hasAliasing!(VaryN!(...)) false
         union
         {
-            immutable(ubyte)[dataMaxSize] _store;
-            immutable(void)* alignDummy; // non-packed means good alignment. TODO check for maximum alignof of Types
+            static if (mayHaveAliasing)
+            {
+                ubyte[dataMaxSize] _store;
+                void* alignDummy; // non-packed means good alignment. TODO check for maximum alignof of Types
+            }
+            else
+            {
+                // to please hasAliasing!(typeof(this)):
+                immutable(ubyte)[dataMaxSize] _store;
+                immutable(void)* alignDummy; // non-packed means good alignment. TODO check for maximum alignof of Types
+            }
         }
     }
     Ix _tix = Ix.max; // Type Index if != Ix.max

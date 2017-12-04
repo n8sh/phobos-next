@@ -76,7 +76,7 @@ private void digestPointer(Digest, T)(scope ref Digest digest,
 }
 
 /** Digest the struct `value` by digesting each member sequentially. */
-pragma(inline)
+pragma(inline)                  // DMD cannot inline
 private void digestStruct(Digest, T)(scope ref Digest digest,
                                      in auto ref T value)
     if (isDigest!Digest &&
@@ -126,7 +126,7 @@ private void digestRaw(Digest, T)(scope ref Digest digest,
  *
  * A faster alternative to `hashOf`.
  */
-pragma(inline)
+pragma(inline)                  // DMD cannot inline
 hash_t hashOf2(alias hasher, T)(in auto ref T value)
 {
     static if (__traits(compiles, { hash_t _ = hasher(value); }))

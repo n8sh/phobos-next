@@ -16,12 +16,7 @@ module digestion;
 import std.traits : hasMember, isScalarType, hasIndirections, isArray, isPointer;
 import std.digest.digest : isDigest;
 
-// TODO make inlining work for LDC
-version(LDC)
-{
-pragma(inline, true):           // TODO make this work
-}
-pragma(inline):                 // LDC can inline, DMD cannot
+pragma(inline, true):
 
 /** Digest `value` into `digest`.
  */
@@ -81,6 +76,7 @@ private void digestPointer(Digest, T)(scope ref Digest digest,
 }
 
 /** Digest the struct `value` by digesting each member sequentially. */
+pragma(inline)
 private void digestStruct(Digest, T)(scope ref Digest digest,
                                      in auto ref T value)
     if (isDigest!Digest &&
@@ -130,6 +126,7 @@ private void digestRaw(Digest, T)(scope ref Digest digest,
  *
  * A faster alternative to `hashOf`.
  */
+pragma(inline)
 hash_t hashOf2(alias hasher, T)(in auto ref T value)
 {
     static if (__traits(compiles, { hash_t _ = hasher(value); }))

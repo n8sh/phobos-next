@@ -1069,16 +1069,21 @@ private:
         static if (!X.hasValue)
         {
             X x;
+
             x.insert(11);
             x.insert(12);
             x.insert(13);
+
             import std.algorithm : count;
             assert(x.byElement.count == 3);
+
             X y;
             foreach (const ref e; x.byElement)
             {
                 y.insert(e);
             }
+
+            assert(y.byElement.count == 3);
             assert(x == y);
         }
 

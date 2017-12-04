@@ -590,6 +590,32 @@ struct HashMapOrSet(K, V = void,
         {
             return contains(key);
         }
+
+        static private struct ByElement
+        {
+            pragma(inline, true):
+            /// Get reference to front element (key and value).
+            @property scope ref inout(T) front()() inout return
+            {
+                return table.binElementsAt(binIx)[elementOffset];
+            }
+            public ElementRef _elementRef;
+            alias _elementRef this;
+        }
+
+        /// Returns forward range that iterates through the values of `this`.
+        @property scope inout(ByElement) byElement()() inout @trusted return // template-lazy
+        {
+            auto result = typeof(return)(inout(ElementRef)(&this));
+            (cast(ByElement)result).initFirstNonEmptyBin(); // dirty cast because inout problem
+            return result;
+        }
+        /// ditto
+        pragma(inline, true)
+        scope inout(ByElement) opSlice()() inout return // template-lazy
+        {
+            return byElement();
+        }
     }
 
     static if (hasValue)        // HashMap

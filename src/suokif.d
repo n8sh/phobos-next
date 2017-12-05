@@ -38,7 +38,7 @@ enum TOK
 struct Token
 {
     TOK tok;
-    string src;                 // optional source slice
+    const const(char)[] src;                 // optional source slice
 }
 
 /** SUO_KIF Expression. */
@@ -73,7 +73,7 @@ struct SUOKIFParser
 {
     import std.algorithm : among;
 
-    private alias Src = string;
+    private alias Src = const(char)[];
 
     @safe pure:
 
@@ -447,7 +447,7 @@ unittest
     import std.path : expandTilde, pathSplitter;
     import std.file: dirEntries, SpanMode;
     import std.conv : to;
-    import std.datetime.datetime : StopWatch, AutoStart, Duration;
+    import std.datetime.stopwatch : StopWatch, AutoStart, Duration;
     import std.algorithm : endsWith, canFind;
     import std.utf;
 
@@ -467,7 +467,7 @@ unittest
                 write(`Reading SUO-KIF `, filePath, ` ... `);
                 import std.file : readText;
                 auto sw = StopWatch(AutoStart.yes);
-                foreach (const ref topExpr; SUOKIFParser(cast(string)filePath.rawReadNullTerminated()))
+                foreach (const ref topExpr; SUOKIFParser(cast(SUOKIFParser.Src)filePath.rawReadNullTerminated()))
                 {
                     // TOOD use topExpr
                 }

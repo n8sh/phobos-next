@@ -110,7 +110,7 @@ struct SUOKIFParser
     }
 
     pragma(inline, true)
-    ref Expr front()            // TODO return scope
+    ref Expr front() return scope
     {
         assert(!empty);
         return exprs.back;

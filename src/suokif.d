@@ -38,7 +38,7 @@ enum TOK
 struct Token
 {
     TOK tok;
-    const const(char)[] src;                 // optional source slice
+    const(char)[] src;          // optional source slice
 }
 
 /** SUO_KIF Expression. */

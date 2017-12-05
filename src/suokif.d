@@ -447,7 +447,7 @@ unittest
     import std.path : expandTilde, pathSplitter;
     import std.file: dirEntries, SpanMode;
     import std.conv : to;
-    import std.datetime : StopWatch, AutoStart, Duration;
+    import std.datetime.datetime : StopWatch, AutoStart, Duration;
     import std.algorithm : endsWith, canFind;
     import std.utf;
 

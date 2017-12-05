@@ -1,4 +1,4 @@
-import std.stdio, std.conv, std.random, std.datetime;
+import std.stdio, std.conv, std.random, std.datetime.datetime;
 
 ulong lookup(in uint[uint] m, in uint[] b) @safe
 {

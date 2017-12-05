@@ -308,7 +308,7 @@ unittest
         auto z = setIntersectionFast!(less)(x[], y[]).collect!A;
     }
 
-    import std.datetime : benchmark, Duration;
+    import std.datetime.datetime : benchmark, Duration;
     immutable testCount = 10;
     auto r = benchmark!(testSetIntersection,
                         testSetIntersectionNew)(testCount);

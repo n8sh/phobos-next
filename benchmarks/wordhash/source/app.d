@@ -1,7 +1,7 @@
 void main()
 {
     import std.stdio;
-    import std.datetime : MonoTime;
+    import std.datetime.datetime : MonoTime;
     import std.algorithm : max;
     import digestx.fnv : FNV;
 

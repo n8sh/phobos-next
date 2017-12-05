@@ -1,6 +1,6 @@
 void main(string[] args)
 {
-    import std.datetime : benchmark;
+    import std.datetime.datetime : benchmark;
     import std.meta : AliasSeq;
     import std.variant : Algebraic;
     import vary;

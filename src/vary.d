@@ -683,7 +683,7 @@ unittest
     // static assert(FastVariant!(int, float).sizeof == 4 + 1);
     // static assert(FastVariant!(char[2], wchar[2]).sizeof == 2 * 2 + 1);
 
-    import std.datetime : Date, TimeOfDay;
+    import std.datetime.datetime : Date, TimeOfDay;
     alias C = FastVariant!(string,
                         // fixed length strings: small string optimizations (SSOs)
                         int, float,

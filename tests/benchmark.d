@@ -42,7 +42,7 @@ fileRead                                                          27.1K   36.9K
  */
 module std.benchmark;
 
-import std.algorithm, std.datetime, std.range, std.stdio, std.traits, std.typecons;
+import std.algorithm, std.datetime.datetime, std.range, std.stdio, std.traits, std.typecons;
 version(unittest) import std.random;
 
 debug = std_benchmark;
@@ -776,14 +776,14 @@ unittest
 }
 
 /++
-   Aliases from $(D std.datetime).
+   Aliases from $(D std.datetime.datetime).
   +/
-alias std.datetime.AutoStart AutoStart;
+alias std.datetime.datetime.AutoStart AutoStart;
 /// ditto
-alias std.datetime.StopWatch StopWatch;
+alias std.datetime.datetime.StopWatch StopWatch;
 /// ditto
-alias std.datetime.ComparingBenchmarkResult ComparingBenchmarkResult;
+alias std.datetime.datetime.ComparingBenchmarkResult ComparingBenchmarkResult;
 /// ditto
-alias std.datetime.comparingBenchmark comparingBenchmark;
+alias std.datetime.datetime.comparingBenchmark comparingBenchmark;
 /// ditto
-alias std.datetime.measureTime measureTime;
+alias std.datetime.datetime.measureTime measureTime;

@@ -224,7 +224,7 @@ unittest
 
     const path = "/home/per/Knowledge/DBpedia/latest/instance_types_en.ttl";
 
-    import std.datetime: StopWatch;
+    import std.datetime.datetime: StopWatch;
 
     double d1, d2;
 

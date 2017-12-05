@@ -278,7 +278,7 @@ version(benchmark)
         import std.algorithm.sorting : sort, SwapStrategy, isSorted;
         import std.algorithm.comparison : min, max, equal;
         import std.range : retro;
-        import std.datetime : StopWatch, AutoStart, TickDuration;
+        import std.datetime.datetime : StopWatch, AutoStart, TickDuration;
         auto sw = StopWatch();
         immutable nMax = 5;
 

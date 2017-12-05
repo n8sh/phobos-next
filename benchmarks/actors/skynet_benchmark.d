@@ -33,7 +33,7 @@ class MyFiber : Fiber
 
 unittest {
     import std.stdio : writeln;
-    import std.datetime : StopWatch, AutoStart;
+    import std.datetime.datetime : StopWatch, AutoStart;
     auto sw = StopWatch(AutoStart.yes);
     auto a = new MyFiber(0, 0);
     a.call();

@@ -3,7 +3,7 @@
  */
 
 import std.stdio : write, writeln, writef, writefln;
-import std.datetime : MonoTime;
+import std.datetime.datetime : MonoTime;
 
 extern(C++)
 class NodeCxxClass

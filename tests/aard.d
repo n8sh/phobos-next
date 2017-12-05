@@ -15,7 +15,7 @@ void main(string[] args)
 
     GC.disable;
 
-    import std.datetime: StopWatch;
+    import std.datetime.datetime: StopWatch;
     StopWatch sw;
 
     enum n = 1;

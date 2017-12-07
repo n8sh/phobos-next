@@ -1,18 +1,22 @@
 @safe pure nothrow:
 
+import std.array : Appender;
+
 class Db
 {
+    Appender!(Node[]) nodes;
+    Appender!(Edge[]) edges;
 }
 
-/// Atom.
-abstract class Atom
+/// Zing.
+abstract class Zing
 {
     @safe pure nothrow:
     abstract inout(Db) db() inout;           // get up-reference
 }
 
 /// Graph node.
-class Node : Atom
+class Node : Zing
 {
     @safe pure nothrow:
     this(Db db)
@@ -27,7 +31,7 @@ class Node : Atom
 }
 
 /// Graph edge.
-class Edge : Atom
+class Edge : Zing
 {
     @safe pure nothrow:
     this(Db db)

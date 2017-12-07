@@ -404,6 +404,7 @@ struct HashMapOrSet(K, V = void,
 
     /** Insert `element`, being either a key, value (map-case) or a just a key (set-case).
      */
+    pragma(inline, true)
     InsertionStatus insert(T element)
     {
         reserveExtra(1);

@@ -31,10 +31,14 @@ class Node : Zing
 
 class Text : Node
 {
+    @safe pure nothrow:
+
     this(Db db)
     {
         super(db);
     }
+
+    string text;
 }
 
 class Edge : Zing

@@ -32,27 +32,23 @@ class Node : Zing
 class Text : Node
 {
     @safe pure nothrow:
-
     this(Db db, string text)
     {
         super(db);
         this.text = text;
     }
-
-    string text;
+    const string text;
 }
 
 class Number(T) : Node
 {
     @safe pure nothrow:
-
     this(Db db, T value)
     {
         super(db);
         this.value = value;
     }
-
-    T value;
+    const T value;
 }
 
 class Edge : Zing

@@ -8,6 +8,7 @@ class Db
 {
     Appender!(Node[]) nodes;
     Appender!(Edge[]) edges;
+    Appender!(SuperEdge[]) superEdges;
 }
 
 interface Entity
@@ -63,6 +64,21 @@ class Edge : Entity
     {
         _db = db;
         db.edges.put(this);
+    }
+
+    pragma(inline, true)
+    override final inout(Db) db() inout { return _db; }
+    private Db _db;             // up-reference
+}
+
+class SuperEdge : Entity
+{
+    @safe pure nothrow:
+
+    this(Db db)
+    {
+        _db = db;
+        db.superEdges.put(this);
     }
 
     pragma(inline, true)

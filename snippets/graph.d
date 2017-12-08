@@ -17,7 +17,9 @@ abstract class Zing
 class Node : Zing
 {
     @safe pure nothrow:
+
     this(Db db) { _db = db; }
+
     pragma(inline, true)
     override final inout(Db) db() inout { return _db; }
     private Db _db;             // up-reference
@@ -26,7 +28,9 @@ class Node : Zing
 class Edge : Zing
 {
     @safe pure nothrow:
+
     this(Db db) { _db = db; }
+
     pragma(inline, true)
     override final inout(Db) db() inout { return _db; }
     private Db _db;             // up-reference

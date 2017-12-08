@@ -8,41 +8,48 @@ class Db
     Appender!(Edge[]) edges;
 }
 
-/// Zing.
 abstract class Zing
 {
     @safe pure nothrow:
     abstract inout(Db) db() inout;           // get up-reference
 }
 
-/// Graph node.
 class Node : Zing
 {
     @safe pure nothrow:
-    this(Db db)
-    {
-        _db = db;
-    }
+
+    this(Db db) { _db = db; }
 
     pragma(inline, true)
     override final inout(Db) db() inout { return _db; }
-
     private Db _db;             // up-reference
 }
 
-/// Graph edge.
 class Edge : Zing
 {
     @safe pure nothrow:
-    this(Db db)
-    {
-        _db = db;
-    }
+
+    this(Db db) { _db = db; }
 
     pragma(inline, true)
     override final inout(Db) db() inout { return _db; }
-
     private Db _db;             // up-reference
+}
+
+class Relation(uint arity) : Edge
+    if (arity >= 2)
+{
+    @safe pure nothrow:
+    this(Db db) { super(db); }
+    Zing[arity] actors;
+}
+
+class Fn(uint arity) : Edge
+    if (arity >= 1)
+{
+    @safe pure nothrow:
+    this(Db db) { super(db); }
+    Zing[arity] params;
 }
 
 @safe pure nothrow unittest
@@ -50,4 +57,6 @@ class Edge : Zing
     Db db = new Db();
     Node node = new Node(db);
     Edge edge = new Edge(db);
+    auto rel2 = new Relation!2(db);
+    auto fn1 = new Fn!1(db);
 }

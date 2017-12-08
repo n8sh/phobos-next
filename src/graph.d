@@ -10,13 +10,13 @@ class Db
     Appender!(Edge[]) edges;
 }
 
-interface Atom
+interface Entity
 {
     @safe pure nothrow:
     abstract inout(Db) db() inout;           // get up-reference
 }
 
-class Node : Atom
+class Node : Entity
 {
     @safe pure nothrow:
 
@@ -55,7 +55,7 @@ class Number(T) : Node
     const T value;
 }
 
-class Edge : Atom
+class Edge : Entity
 {
     @safe pure nothrow:
 
@@ -80,7 +80,7 @@ class Rela(uint arity) : Edge
         super(db);
     }
 
-    Atom[arity] actors;
+    Entity[arity] actors;
 }
 
 class Func(uint arity) : Edge
@@ -93,7 +93,7 @@ class Func(uint arity) : Edge
         super(db);
     }
 
-    Atom[arity] params;
+    Entity[arity] params;
 }
 
 @safe pure nothrow unittest

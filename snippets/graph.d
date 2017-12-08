@@ -29,6 +29,14 @@ class Node : Zing
     private Db _db;             // up-reference
 }
 
+class Text : Node
+{
+    this(Db db)
+    {
+        super(db);
+    }
+}
+
 class Edge : Zing
 {
     @safe pure nothrow:

@@ -43,6 +43,7 @@ class Text : Node
     Lang lang;
 }
 
+/// Number with numerical type `T`.
 class Number(T) : Node
 {
     @safe pure nothrow:

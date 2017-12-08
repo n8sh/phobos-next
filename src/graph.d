@@ -2,6 +2,8 @@
 
 import std.array : Appender;
 
+import languages;
+
 class Db
 {
     Appender!(Node[]) nodes;
@@ -32,12 +34,13 @@ class Node : Zing
 class Text : Node
 {
     @safe pure nothrow:
-    this(Db db, string text)
+    this(Db db, string text, Lang lang)
     {
         super(db);
         this.text = text;
     }
     const string text;
+    Lang lang;
 }
 
 class Number(T) : Node

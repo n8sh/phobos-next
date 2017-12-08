@@ -36,7 +36,7 @@ class Edge : Zing
     private Db _db;             // up-reference
 }
 
-class Relation(uint arity) : Edge
+class Rela(uint arity) : Edge
     if (arity >= 2)
 {
     @safe pure nothrow:
@@ -46,7 +46,7 @@ class Relation(uint arity) : Edge
     Zing[arity] actors;
 }
 
-class Function(uint arity) : Edge
+class Func(uint arity) : Edge
     if (arity >= 1)
 {
     @safe pure nothrow:
@@ -61,6 +61,6 @@ class Function(uint arity) : Edge
     Db db = new Db();
     Node node = new Node(db);
     Edge edge = new Edge(db);
-    auto rel2 = new Relation!2(db);
-    auto fn1 = new Function!1(db);
+    auto rel2 = new Rela!2(db);
+    auto fn1 = new Func!1(db);
 }

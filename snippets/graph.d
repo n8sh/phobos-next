@@ -18,7 +18,11 @@ class Node : Zing
 {
     @safe pure nothrow:
 
-    this(Db db) { _db = db; }
+    this(Db db)
+    {
+        _db = db;
+        db.nodes.put(this);
+    }
 
     pragma(inline, true)
     override final inout(Db) db() inout { return _db; }
@@ -29,7 +33,11 @@ class Edge : Zing
 {
     @safe pure nothrow:
 
-    this(Db db) { _db = db; }
+    this(Db db)
+    {
+        _db = db;
+        db.edges.put(this);
+    }
 
     pragma(inline, true)
     override final inout(Db) db() inout { return _db; }
@@ -41,7 +49,10 @@ class Rela(uint arity) : Edge
 {
     @safe pure nothrow:
 
-    this(Db db) { super(db); }
+    this(Db db)
+    {
+        super(db);
+    }
 
     Zing[arity] actors;
 }
@@ -51,7 +62,10 @@ class Func(uint arity) : Edge
 {
     @safe pure nothrow:
 
-    this(Db db) { super(db); }
+    this(Db db)
+    {
+        super(db);
+    }
 
     Zing[arity] params;
 }

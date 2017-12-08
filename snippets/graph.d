@@ -46,7 +46,7 @@ class Relation(uint arity) : Edge
     Zing[arity] actors;
 }
 
-class Fn(uint arity) : Edge
+class Function(uint arity) : Edge
     if (arity >= 1)
 {
     @safe pure nothrow:
@@ -62,5 +62,5 @@ class Fn(uint arity) : Edge
     Node node = new Node(db);
     Edge edge = new Edge(db);
     auto rel2 = new Relation!2(db);
-    auto fn1 = new Fn!1(db);
+    auto fn1 = new Function!1(db);
 }

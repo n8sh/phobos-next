@@ -10,13 +10,13 @@ class Db
     Appender!(Edge[]) edges;
 }
 
-abstract class Zing
+abstract class Atom
 {
     @safe pure nothrow:
     abstract inout(Db) db() inout;           // get up-reference
 }
 
-class Node : Zing
+class Node : Atom
 {
     @safe pure nothrow:
 
@@ -54,7 +54,7 @@ class Number(T) : Node
     const T value;
 }
 
-class Edge : Zing
+class Edge : Atom
 {
     @safe pure nothrow:
 
@@ -79,7 +79,7 @@ class Rela(uint arity) : Edge
         super(db);
     }
 
-    Zing[arity] actors;
+    Atom[arity] actors;
 }
 
 class Func(uint arity) : Edge
@@ -92,7 +92,7 @@ class Func(uint arity) : Edge
         super(db);
     }
 
-    Zing[arity] params;
+    Atom[arity] params;
 }
 
 @safe pure nothrow unittest

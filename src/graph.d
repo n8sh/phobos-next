@@ -10,7 +10,7 @@ class Db
     Appender!(Edge[]) edges;
 }
 
-abstract class Atom
+interface Atom
 {
     @safe pure nothrow:
     abstract inout(Db) db() inout;           // get up-reference

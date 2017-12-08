@@ -42,7 +42,7 @@ class Text : Node
     string text;
 }
 
-class Value(T) : Node
+class Number(T) : Node
 {
     @safe pure nothrow:
 

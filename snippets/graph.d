@@ -40,7 +40,9 @@ class Relation(uint arity) : Edge
     if (arity >= 2)
 {
     @safe pure nothrow:
+
     this(Db db) { super(db); }
+
     Zing[arity] actors;
 }
 
@@ -48,7 +50,9 @@ class Fn(uint arity) : Edge
     if (arity >= 1)
 {
     @safe pure nothrow:
+
     this(Db db) { super(db); }
+
     Zing[arity] params;
 }
 

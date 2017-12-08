@@ -61,6 +61,6 @@ class Func(uint arity) : Edge
     Db db = new Db();
     Node node = new Node(db);
     Edge edge = new Edge(db);
-    auto rel2 = new Rela!2(db);
-    auto fn1 = new Func!1(db);
+    auto rela2 = new Rela!2(db);
+    auto func1 = new Func!1(db);
 }

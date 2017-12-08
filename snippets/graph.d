@@ -33,12 +33,26 @@ class Text : Node
 {
     @safe pure nothrow:
 
-    this(Db db)
+    this(Db db, string text)
     {
         super(db);
+        this.text = text;
     }
 
     string text;
+}
+
+class Value(T) : Node
+{
+    @safe pure nothrow:
+
+    this(Db db, T value)
+    {
+        super(db);
+        this.value = value;
+    }
+
+    T value;
 }
 
 class Edge : Zing

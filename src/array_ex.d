@@ -1298,12 +1298,21 @@ private struct Array(E,
     /// ditto
     static if (isOrdered!ordering)
     {
-        const pure @nogc: // indexing and slicing must be `const` when ordered
+        const pure: // indexing and slicing must be `const` when ordered
 
         /// Slice operator must be const when ordered.
         auto opSlice() return scope
         {
-            return (cast(const(E)[])slice).assumeSorted!comp;
+            static if (is(E == class))
+            {
+                // TODO remove this workaround when else branch works for classes
+                import std.algorithm.sorting : SortedRange;
+                return cast(SortedRange!(const(E)[], comp))((cast(E[])slice).assumeSorted!comp);
+            }
+            else
+            {
+                return (cast(const(E)[])slice).assumeSorted!comp;
+            }
         }
         /// ditto
         auto opSlice(this This)(size_t i, size_t j) return scope // const because mutation only via `op.*Assign`
@@ -1316,21 +1325,21 @@ private struct Array(E,
         @trusted:
 
         /// Index operator must be const to preserve ordering.
-        ref const(E) opIndex(size_t i) return scope
+        ref const(E) opIndex(size_t i) return scope @nogc
         {
             assert(i < this.length);
             return ptr[i];
         }
 
         /// Get front element (as constant reference to preserve ordering).
-        ref const(E) front() return scope
+        ref const(E) front() return scope @nogc
         {
             assert(!empty);
             return ptr[0];
         }
 
         /// Get back element (as constant reference to preserve ordering).
-        ref const(E) back() return scope
+        ref const(E) back() return scope @nogc
         {
             assert(!empty);
             return ptr[this.length - 1];

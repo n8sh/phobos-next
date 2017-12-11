@@ -1306,8 +1306,7 @@ private struct Array(E,
             static if (is(E == class))
             {
                 // TODO remove this workaround when else branch works for classes
-                import std.algorithm.sorting : SortedRange;
-                return cast(SortedRange!(const(E)[], comp))((cast(E[])slice).assumeSorted!comp);
+                return (cast(E[])slice).assumeSorted!comp;
             }
             else
             {

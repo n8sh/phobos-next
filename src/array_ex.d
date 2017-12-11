@@ -1300,6 +1300,8 @@ private struct Array(E,
     {
         const pure: // indexing and slicing must be `const` when ordered
 
+        @trusted:
+
         /// Slice operator must be const when ordered.
         auto opSlice() return scope
         {
@@ -1320,8 +1322,6 @@ private struct Array(E,
             return (cast(const(E)[])slice[i .. j]).assumeSorted!comp;
         }
         private alias This = typeof(this);
-
-        @trusted:
 
         /// Index operator must be const to preserve ordering.
         ref const(E) opIndex(size_t i) return scope @nogc

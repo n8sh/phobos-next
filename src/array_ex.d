@@ -1301,7 +1301,7 @@ private struct Array(E,
         const pure: // indexing and slicing must be `const` when ordered
 
         /// Slice operator must be const when ordered.
-        auto opSlice() return scope @trusted
+        auto opSlice() return scope @trusted // TODO remove @trusted?
         {
             static if (is(E == class))
             {
@@ -1314,7 +1314,7 @@ private struct Array(E,
             }
         }
         /// ditto
-        auto opSlice(this This)(size_t i, size_t j) return scope @trusted // const because mutation only via `op.*Assign`
+        auto opSlice(this This)(size_t i, size_t j) return scope @trusted // TODO remove @trusted?
         {
             import std.range : assumeSorted;
             return (cast(const(E)[])slice[i .. j]).assumeSorted!comp;

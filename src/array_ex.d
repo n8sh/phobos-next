@@ -1300,10 +1300,8 @@ private struct Array(E,
     {
         const pure: // indexing and slicing must be `const` when ordered
 
-        @trusted:
-
         /// Slice operator must be const when ordered.
-        auto opSlice() return scope
+        auto opSlice() return scope @trusted
         {
             static if (is(E == class))
             {
@@ -1316,7 +1314,7 @@ private struct Array(E,
             }
         }
         /// ditto
-        auto opSlice(this This)(size_t i, size_t j) return scope // const because mutation only via `op.*Assign`
+        auto opSlice(this This)(size_t i, size_t j) return scope @trusted // const because mutation only via `op.*Assign`
         {
             import std.range : assumeSorted;
             return (cast(const(E)[])slice[i .. j]).assumeSorted!comp;
@@ -1324,21 +1322,21 @@ private struct Array(E,
         private alias This = typeof(this);
 
         /// Index operator must be const to preserve ordering.
-        ref const(E) opIndex(size_t i) return scope @nogc
+        ref const(E) opIndex(size_t i) return scope @nogc @trusted
         {
             assert(i < this.length);
             return ptr[i];
         }
 
         /// Get front element (as constant reference to preserve ordering).
-        ref const(E) front() return scope @nogc
+        ref const(E) front() return scope @nogc @trusted
         {
             assert(!empty);
             return ptr[0];
         }
 
         /// Get back element (as constant reference to preserve ordering).
-        ref const(E) back() return scope @nogc
+        ref const(E) back() return scope @nogc @trusted
         {
             assert(!empty);
             return ptr[this.length - 1];

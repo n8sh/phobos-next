@@ -33,7 +33,7 @@ void digestAny(Digest, T)(ref Digest digest,
     {
         digestRaw(digest, value);
     }
-    else static if (is(T == class) && // a class is memory-wise
+    else static if (is(T == class) || // a class is memory-wise
                     isPointer!T)      // just a pointer. consistent with opCmp
     {
         digestPointer(digest, value);

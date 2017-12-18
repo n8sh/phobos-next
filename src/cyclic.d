@@ -169,7 +169,7 @@ mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast() this) c
         copy.start = 0;
         copy.size = to - from;
 
-        foreach (i; 0 .. copy.size)
+        foreach (const i; 0 .. copy.size)
         {
             copy.array[i] = array[(i + start + from) % array.length];
         }
@@ -180,7 +180,7 @@ mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast() this) c
     {
         void opIndexUnary(string op)()
         {
-            foreach (i; 0 .. size)
+            foreach (const i; 0 .. size)
             {
                 mixin(op ~ "array[(i + start) % array.length];");
             }
@@ -197,7 +197,7 @@ mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast() this) c
             immutable size_t to = range[1];
             validateRange(range);
 
-            foreach (i; 0 .. to - from)
+            foreach (const i; 0 .. to - from)
             {
                 mixin(op ~ "array[(i + start + from) % array.length];");
             }
@@ -205,7 +205,7 @@ mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast() this) c
 
         void opIndexAssign(U)(U val)
         {
-            foreach (i; 0 .. size)
+            foreach (const i; 0 .. size)
             {
                 array[(i + start) % array.length] = val;
             }
@@ -222,7 +222,7 @@ mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast() this) c
             immutable size_t to = range[1];
             validateRange(range);
 
-            foreach (i; 0 .. to - from)
+            foreach (const i; 0 .. to - from)
             {
                 array[(i + start + from) % array.length] = val;
             }
@@ -230,7 +230,7 @@ mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast() this) c
 
         void opIndexOpAssign(string op, U)(U val)
         {
-            foreach (i; 0 .. size)
+            foreach (const i; 0 .. size)
             {
                 mixin("array[(i + start) % array.length] " ~ op ~ "= val;");
             }
@@ -247,7 +247,7 @@ mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast() this) c
             immutable size_t to = range[1];
             validateRange(range);
 
-            foreach (i; 0 .. to - from)
+            foreach (const i; 0 .. to - from)
             {
                 mixin("array[(i + start + from) % array.length] " ~ op ~ "= val;");
             }
@@ -336,7 +336,7 @@ mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast() this) c
 
     void removeBack(int howMany)
     {
-        foreach (i; 0 .. howMany)
+        foreach (const i; 0 .. howMany)
         {
             popBack();
         }
@@ -497,7 +497,7 @@ public:
         }
         if (val > size)
         {
-            foreach (i; size .. val)
+            foreach (const i; size .. val)
             {
                 array[(start + i) % array.length] = T.init;
             }
@@ -506,7 +506,7 @@ public:
         {
             static if (hasElaborateDestructor!T)
             {
-                foreach (i; val .. size)
+                foreach (const i; val .. size)
                 {
                     destroy(array[(start + i) % array.length]);
                 }
@@ -519,7 +519,7 @@ public:
     {
         static if (hasElaborateDestructor!T)
         {
-            foreach (i; 0 .. size)
+            foreach (const i; 0 .. size)
             {
                 destroy(array[(start + i) % array.length]);
             }
@@ -760,7 +760,7 @@ private T staticError(T, Args...)(auto ref Args args) @trusted if (is(T : Error)
     uint dMask;
 
     auto arr = CyclicArray!S(cast(S[])[]);
-    foreach (i; 0 .. 8)
+    foreach (const i; 0 .. 8)
     {
         arr.insertBack(S(i, &dMask));
     }
@@ -1093,22 +1093,22 @@ unittest
     a.length = 8;
     assert(a.length == 8);
     assert(Dumb.init.x == 5);
-    foreach (i; 0 .. 5)
+    foreach (const i; 0 .. 5)
     {
         assert(a[i].x == 10);
     }
-    foreach (i; 5 .. a.length)
+    foreach (const i; 5 .. a.length)
     {
         assert(a[i].x == Dumb.init.x);
     }
 
     a[] = Dumb(1);
     a.length = 20;
-    foreach (i; 0 .. 8)
+    foreach (const i; 0 .. 8)
     {
         assert(a[i].x == 1);
     }
-    foreach (i; 8 .. a.length)
+    foreach (const i; 8 .. a.length)
     {
         assert(a[i].x == Dumb.init.x);
     }

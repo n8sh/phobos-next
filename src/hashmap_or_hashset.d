@@ -441,7 +441,7 @@ struct HashMapOrSet(K, V = void,
         size_t elementOffset = 0;
         foreach (const ref e; elements)
         {
-            if (keyOf(e) == key) { break; }
+            if (keyOf(e) is key) { break; }
             elementOffset += 1;
         }
         return elementOffset;

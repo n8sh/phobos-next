@@ -47,13 +47,14 @@ mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast() this) c
     }
 
     void insertBack(Range)(Range rhs)
-        if (__traits(compiles, ElementType!Range) && is(ElementType!Range : T))
+        if (__traits(compiles, ElementType!Range) &&
+            is(ElementType!Range : T))
+    {
+        foreach (c; rhs)
         {
-            foreach (c; rhs)
-            {
-                put(c);
-            }
+            put(c);
         }
+    }
 
     alias stableInsertBack = insertBack;
     alias insert = insertBack;
@@ -451,7 +452,7 @@ public:
         }
 
         this(Range)(Range val)
-        if (__traits(compiles, ElementType!Range) && is(ElementType!Range : T))
+            if (__traits(compiles, ElementType!Range) && is(ElementType!Range : T))
         {
             foreach (ref v; val)
             {
@@ -571,12 +572,12 @@ public:
 
     void opOpAssign(string op : "~", Range)(Range rhs)
         if (__traits(compiles, ElementType!Range) && is(ElementType!Range : T))
+    {
+        foreach (c; rhs)
         {
-            foreach (c; rhs)
-            {
-                put(c);
-            }
+            put(c);
         }
+    }
 
     static if (len == 0)
     {

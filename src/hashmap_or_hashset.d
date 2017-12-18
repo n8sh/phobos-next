@@ -471,7 +471,7 @@ struct HashMapOrSet(K, V = void,
                 /* TODO Rust does the same in its `insert()` at
                  * https://doc.rust-lang.org/std/collections/struct.HashMap.html
                  */
-                if (elements[elementOffset].value != valueOf(element)) // if different value
+                if (elements[elementOffset].value !is valueOf(element)) // if different value (or identity for classes)
                 {
                     // replace value
                     static if (needsMove!V)
@@ -1318,6 +1318,57 @@ pure unittest
     auto vp = K.init in s;
     static assert(is(typeof(vp) == V*));
     assert((*vp) == V.init);
+
+    s.remove(K.init);
+    assert(K.init !in s);
+
+    X t;
+    t.reserveExtra(4096);
+    assert(t.binCount == 8192);
+}
+
+/// class as value
+pure unittest
+{
+    import std.exception : assertThrown, assertNotThrown;
+    import core.exception : RangeError;
+    import digestx.fnv : FNV;
+
+    immutable n = 11;
+
+    alias K = uint;
+    class V
+    {
+        this(uint data)
+        {
+            this.data = data;
+        }
+        uint data;
+    }
+
+    alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
+
+    auto s = X.withCapacity(n);
+
+    void dummy(ref V value) {}
+
+    assertThrown!RangeError(dummy(s[K.init]));
+
+    foreach (immutable uint i; 0 .. n)
+    {
+        s[i] = new V(i);
+        assertNotThrown!RangeError(dummy(s[i]));
+    }
+
+    foreach (immutable uint i; 0 .. n)
+    {
+        s.remove(i);
+        assertThrown!RangeError(dummy(s[i]));
+    }
+
+    s[K.init] = V.init;
+    auto vp = K.init in s;
+    static assert(is(typeof(vp) == V*));
 
     s.remove(K.init);
     assert(K.init !in s);

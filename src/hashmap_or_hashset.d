@@ -124,7 +124,7 @@ struct HashMapOrSet(K, V = void,
         /** Type of value stored. */
         alias ValueType = V;
 
-        enum keyEqualPred = "a.key == b";
+        enum keyEqualPred = "a.key is b";
     }
     else                        // HashSet
     {
@@ -142,7 +142,7 @@ struct HashMapOrSet(K, V = void,
             return element;
         }
 
-        enum keyEqualPred = "a == b";
+        enum keyEqualPred = "a is b";
     }
 
     alias ElementType = T;
@@ -323,7 +323,7 @@ struct HashMapOrSet(K, V = void,
                 {
                     auto elementFound = element.key in rhs;
                     if (!elementFound) { return false; }
-                    if ((*elementFound) != element.value) { return false; }
+                    if ((*elementFound) !is element.value) { return false; }
                 }
                 else
                 {
@@ -741,7 +741,7 @@ struct HashMapOrSet(K, V = void,
         {
             import std.algorithm.searching : countUntil;
             immutable binIx = keyToBinIx(key);
-            immutable ptrdiff_t elementOffset = binElementsAt(binIx).countUntil!(_ => _.key == key); // TODO functionize
+            immutable ptrdiff_t elementOffset = binElementsAt(binIx).countUntil!(_ => _.key is key); // TODO functionize
             if (elementOffset != -1) // elementFound
             {
                 return binElementsAt(binIx)[elementOffset].value;
@@ -1176,7 +1176,7 @@ private:
             {
                 auto keyPtr = aElement.key in x1;
                 assert(keyPtr);
-                assert((*keyPtr) == aElement.value);
+                assert((*keyPtr) is aElement.value);
             }
         }
 
@@ -1224,7 +1224,7 @@ private:
             assert(elementFound);
             static if (X.hasValue)
             {
-                assert(*elementFound == element.value);
+                assert(*elementFound is element.value);
             }
 
             assert(x1.remove(key));

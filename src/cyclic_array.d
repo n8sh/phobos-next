@@ -5,7 +5,7 @@ import std.container.array : Array;
 import std.range;
 import std.traits : isMutable, hasElaborateDestructor;
 
-mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast() this) copy;")
+private mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast() this) copy;")
 {
     size_t capacity() const @property @nogc @safe
     {

@@ -202,7 +202,7 @@ public:
         }
         else
         {
-            T result;
+            inout(T) result;
             (cast(ubyte*)&result)[0 .. T.sizeof] = _store[0 .. T.sizeof];
             return result;
         }

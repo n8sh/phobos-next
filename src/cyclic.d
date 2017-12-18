@@ -1,9 +1,9 @@
 module cyclic;
 
-import std.algorithm;
-import std.container.array;
+import std.algorithm : max;
+import std.container.array : Array;
 import std.range;
-import std.traits;
+import std.traits : isMutable, hasElaborateDestructor;
 
 import core.exception;
 

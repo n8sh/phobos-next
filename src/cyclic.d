@@ -41,14 +41,18 @@ mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast() this) c
     void insertBack(size_t n)(T[n] rhs)
     {
         foreach (c; rhs)
+        {
             put(c);
+        }
     }
 
     void insertBack(Range)(Range rhs)
         if (__traits(compiles, ElementType!Range) && is(ElementType!Range : T))
         {
             foreach (c; rhs)
+            {
                 put(c);
+            }
         }
 
     alias stableInsertBack = insertBack;
@@ -71,7 +75,9 @@ mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast() this) c
         if (size == 0)
             throw staticError!CyclicRangeError("trying to pop an empty array", __FILE__, __LINE__);
         static if (hasElaborateDestructor!T)
+        {
             destroy(array[start]);
+        }
         start = (start + 1) % array.length;
         size--;
     }
@@ -100,7 +106,9 @@ mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast() this) c
             throw staticError!CyclicRangeError("trying to pop an empty array", __FILE__, __LINE__);
         size--;
         static if (hasElaborateDestructor!T)
+        {
             destroy(array[(start + size) % array.length]);
+        }
     }
 
     ref auto back() @property
@@ -162,7 +170,9 @@ mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast() this) c
         copy.size = to - from;
 
         foreach (i; 0 .. copy.size)
+        {
             copy.array[i] = array[(i + start + from) % array.length];
+        }
         return copy;
     }
 
@@ -171,7 +181,9 @@ mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast() this) c
         void opIndexUnary(string op)()
         {
             foreach (i; 0 .. size)
+            {
                 mixin(op ~ "array[(i + start) % array.length];");
+            }
         }
 
         auto opIndexUnary(string op)(size_t i)
@@ -186,13 +198,17 @@ mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast() this) c
             validateRange(range);
 
             foreach (i; 0 .. to - from)
+            {
                 mixin(op ~ "array[(i + start + from) % array.length];");
+            }
         }
 
         void opIndexAssign(U)(U val)
         {
             foreach (i; 0 .. size)
+            {
                 array[(i + start) % array.length] = val;
+            }
         }
 
         void opIndexAssign(U)(U val, size_t i)
@@ -207,13 +223,17 @@ mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast() this) c
             validateRange(range);
 
             foreach (i; 0 .. to - from)
+            {
                 array[(i + start + from) % array.length] = val;
+            }
         }
 
         void opIndexOpAssign(string op, U)(U val)
         {
             foreach (i; 0 .. size)
+            {
                 mixin("array[(i + start) % array.length] " ~ op ~ "= val;");
+            }
         }
 
         void opIndexOpAssign(string op, U)(U val, size_t i)
@@ -228,7 +248,9 @@ mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast() this) c
             validateRange(range);
 
             foreach (i; 0 .. to - from)
+            {
                 mixin("array[(i + start + from) % array.length] " ~ op ~ "= val;");
+            }
         }
     }
 
@@ -315,7 +337,9 @@ mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast() this) c
     void removeBack(int howMany)
     {
         foreach (i; 0 .. howMany)
+        {
             popBack();
+        }
     }
 }
 
@@ -386,7 +410,9 @@ public:
             static if (len != 0)
                 static assert(n <= len);
             foreach (ref v; val)
+            {
                 put(v);
+            }
         }
 
         this(Range)(Range val)
@@ -395,7 +421,9 @@ public:
             array = Array!T();
             reserve(max(8, 4096 / T.sizeof));
             foreach (ref v; val)
+            {
                 put(v);
+            }
         }
 
         this(Args...)(Args val)
@@ -403,7 +431,9 @@ public:
             array = Array!T();
             reserve(max(8, 4096 / T.sizeof));
             foreach (ref v; val)
+            {
                 put(v);
+            }
         }
     }
     else
@@ -411,22 +441,30 @@ public:
         this(size_t n)(T[n] val)
         {
             static if (len != 0)
+            {
                 static assert(n <= len);
+            }
             foreach (ref v; val)
+            {
                 put(v);
+            }
         }
 
         this(Range)(Range val)
         if (__traits(compiles, ElementType!Range) && is(ElementType!Range : T))
         {
             foreach (ref v; val)
+            {
                 put(v);
+            }
         }
 
         this(Args...)(Args val)
         {
             foreach (ref v; val)
+            {
                 put(v);
+            }
         }
     }
 
@@ -460,13 +498,19 @@ public:
         if (val > size)
         {
             foreach (i; size .. val)
+            {
                 array[(start + i) % array.length] = T.init;
+            }
         }
         else if (val < size)
         {
             static if (hasElaborateDestructor!T)
+            {
                 foreach (i; val .. size)
+                {
                     destroy(array[(start + i) % array.length]);
+                }
+            }
         }
         return size = val;
     }
@@ -474,8 +518,12 @@ public:
     void clear()
     {
         static if (hasElaborateDestructor!T)
+        {
             foreach (i; 0 .. size)
+            {
                 destroy(array[(start + i) % array.length]);
+            }
+        }
         start = 0; // optimize clears
         size = 0;
     }
@@ -510,7 +558,9 @@ public:
     void opOpAssign(string op : "~", size_t n)(T[n] rhs)
     {
         foreach (c; rhs)
+        {
             put(c);
+        }
     }
 
     void opOpAssign(string op : "~", size_t n)(CyclicArray!(T, n) rhs)
@@ -523,7 +573,9 @@ public:
         if (__traits(compiles, ElementType!Range) && is(ElementType!Range : T))
         {
             foreach (c; rhs)
+            {
                 put(c);
+            }
         }
 
     static if (len == 0)
@@ -709,7 +761,9 @@ private T staticError(T, Args...)(auto ref Args args) @trusted if (is(T : Error)
 
     auto arr = CyclicArray!S(cast(S[])[]);
     foreach (i; 0 .. 8)
+    {
         arr.insertBack(S(i, &dMask));
+    }
     // don't check dMask now as S may be copied multiple times (it's ok?)
     {
         assert(arr.length == 8);
@@ -938,7 +992,9 @@ unittest
     assert(array[5] == 1);
 
     foreach (ref v; array.byRef)
+    {
         v = 42;
+    }
 
     assert(array[5] == 42);
 }
@@ -1024,33 +1080,47 @@ unittest
     assert(a.capacity >= a.length);
     immutable cap = a.capacity;
     foreach (ref e; a)
+    {
         e.x = 10;
+    }
     a.length = 5;
     assert(a.length == 5);
     foreach (ref e; a)
+    {
         assert(e.x == 10);
+    }
 
     a.length = 8;
     assert(a.length == 8);
     assert(Dumb.init.x == 5);
     foreach (i; 0 .. 5)
+    {
         assert(a[i].x == 10);
+    }
     foreach (i; 5 .. a.length)
+    {
         assert(a[i].x == Dumb.init.x);
+    }
 
     a[] = Dumb(1);
     a.length = 20;
     foreach (i; 0 .. 8)
+    {
         assert(a[i].x == 1);
+    }
     foreach (i; 8 .. a.length)
+    {
         assert(a[i].x == Dumb.init.x);
+    }
 
     // check if overlapping elements properly initialized
     a.length = 1;
     a.length = 20;
     assert(a[0].x == 1);
     foreach (e; a[1 .. $])
+    {
         assert(e.x == Dumb.init.x);
+    }
 }
 
 @system unittest

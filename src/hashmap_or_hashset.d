@@ -604,6 +604,12 @@ struct HashMapOrSet(K, V = void,
             alias _elementRef this;
         }
 
+        version(unittest)
+        {
+            import std.range : isInputRange;
+            static assert(isInputRange!ByElement);
+        }
+
         /// Returns forward range that iterates through the values of `this`.
         @property scope inout(ByElement) byElement()() inout @trusted return // template-lazy
         {

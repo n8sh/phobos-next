@@ -1472,5 +1472,4 @@ pure unittest
     // foreach (e; x.byKeyValue)
     // {
     // }
-
 }

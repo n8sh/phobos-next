@@ -600,7 +600,7 @@ struct HashMapOrSet(K, V = void,
         {
             pragma(inline, true):
             /// Get reference to front element (key and value).
-            @property auto ref front()() // TODO scope return
+            @property scope auto ref front()() return
             {
                 return table.binElementsAt(binIx)[elementOffset];
             }
@@ -661,7 +661,7 @@ struct HashMapOrSet(K, V = void,
         {
             pragma(inline, true):
             /// Get reference to key of front element.
-            @property const auto ref front()() // key access must be const. TODO scope return
+            @property scope const auto ref front()() return // key access must be const
             {
                 return table.binElementsAt(binIx)[elementOffset].key;
             }
@@ -689,7 +689,7 @@ struct HashMapOrSet(K, V = void,
         {
             pragma(inline, true):
             /// Get reference to value of front element.
-            @property auto ref front()() // template-lazy property. TODO scope return
+            @property scope auto ref front()() return // template-lazy property
             {
                 return table.binElementsAt(binIx)[elementOffset].value;
             }
@@ -717,7 +717,7 @@ struct HashMapOrSet(K, V = void,
         {
             pragma(inline, true):
             /// Get reference to front element (key and value).
-            @property auto ref front()() // TODO scope return
+            @property scope auto ref front()() return
             {
                 return table.binElementsAt(binIx)[elementOffset];
             }

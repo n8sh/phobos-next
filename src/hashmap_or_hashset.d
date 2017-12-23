@@ -610,7 +610,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Returns forward range that iterates through the values of `this`.
-        @property auto byElement()() inout @trusted // template-lazy
+        @property auto byElement()() inout // template-lazy
         {
             static if (isMutable!(typeof(this)))
             {
@@ -670,16 +670,17 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Returns forward range that iterates through the keys of `this`.
-        @property auto byKey()() @trusted // template-lazy property. TODO scope return
+        @property auto byKey()() // template-lazy property. TODO scope return
         {
-            static if (isMutable!(typeof(this)))
-            {
-                alias This = MutableThis;
-            }
-            else
-            {
-                alias This = ConstThis;
-            }
+            alias This = typeof(this);
+            auto result = ByKey!This((ElementRef!This(cast(This*)&this)));
+            result.initFirstNonEmptyBin();
+            return result;
+        }
+
+        @property auto byKey()() const // template-lazy property. TODO scope return
+        {
+            alias This = typeof(this);
             auto result = ByKey!This((ElementRef!This(cast(This*)&this)));
             result.initFirstNonEmptyBin();
             return result;
@@ -698,7 +699,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Returns forward range that iterates through the values of `this`.
-        @property auto byValue()() @trusted // template-lazy property. TODO scope return
+        @property auto byValue()() // template-lazy property. TODO scope return
         {
             static if (isMutable!(typeof(this)))
             {
@@ -726,7 +727,8 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Returns forward range that iterates through the keys and values of `this`.
-        @property auto byKeyValue()() @trusted // template-lazy property. TODO scope return
+        @property auto byKeyValue()()
+        // template-lazy property. TODO scope return
         {
             static if (isMutable!(typeof(this)))
             {
@@ -1137,6 +1139,9 @@ private:
 
             assert(y.byElement.count == 3);
             assert(x == y);
+
+            const z = X();
+            assert(z.byElement.count == 0);
         }
 
         import container_traits : mustAddGCRange;
@@ -1441,9 +1446,9 @@ pure unittest
     alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
     const x = X();
 
-    // foreach (e; x.byKey)
-    // {
-    // }
+    foreach (e; x.byKey)
+    {
+    }
 
     // foreach (e; x.byValue)
     // {

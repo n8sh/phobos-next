@@ -726,8 +726,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Returns forward range that iterates through the keys and values of `this`.
-        @property auto byKeyValue()() inout
-        // template-lazy property. TODO scope return
+        @property auto byKeyValue()() inout // template-lazy property. TODO scope return
         {
             static if (isMutable!(typeof(this)))
             {

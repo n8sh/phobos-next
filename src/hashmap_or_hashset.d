@@ -614,7 +614,6 @@ struct HashMapOrSet(K, V = void,
 
             version(unittest)
             {
-                pragma(msg, "ByElement: ", HashMapOrSetType);
                 // static assert(isInputRange!(typeof(this)));
             }
         }

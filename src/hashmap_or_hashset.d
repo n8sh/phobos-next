@@ -1142,6 +1142,9 @@ private:
 
             const z = X();
             assert(z.byElement.count == 0);
+
+            immutable w = X();
+            assert(w.byElement.count == 0);
         }
 
         import container_traits : mustAddGCRange;

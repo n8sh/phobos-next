@@ -83,10 +83,6 @@ struct HashMapOrSet(K, V = void,
     import std.algorithm.comparison : max;
     import std.algorithm.mutation : move, moveEmplace;
     import emplace_all : moveEmplaceAllNoReset;
-    version(unittest)
-    {
-        import std.range : isInputRange;
-    }
     // TODO activate and use import prime_modulo;
 
     /** In the hash map case, `V` is non-void, and a value is stored alongside
@@ -611,11 +607,6 @@ struct HashMapOrSet(K, V = void,
             public ElementRef!HashMapOrSetType _elementRef;
 
             alias _elementRef this;
-
-            version(unittest)
-            {
-                // static assert(isInputRange!(typeof(this)));
-            }
         }
 
         /// Returns forward range that iterates through the values of `this`.
@@ -676,11 +667,6 @@ struct HashMapOrSet(K, V = void,
             }
             public ElementRef!HashMapOrSetType _elementRef;
             alias _elementRef this;
-
-            version(unittest)
-            {
-                static assert(isInputRange!(typeof(this)));
-            }
         }
 
         /// Returns forward range that iterates through the keys of `this`.
@@ -709,11 +695,6 @@ struct HashMapOrSet(K, V = void,
             }
             public ElementRef!HashMapOrSetType _elementRef;
             alias _elementRef this;
-
-            version(unittest)
-            {
-                static assert(isInputRange!(typeof(this)));
-            }
         }
 
         /// Returns forward range that iterates through the values of `this`.

@@ -1432,7 +1432,7 @@ pure unittest
     assert(t.binCount == 8192);
 }
 
-/// constness
+/// constness inference
 pure unittest
 {
     import digestx.fnv : FNV;
@@ -1449,13 +1449,16 @@ pure unittest
 
     foreach (e; x.byKey)
     {
+        static assert(is(typeof(e) == const(X.KeyType)));
     }
 
-    // foreach (e; x.byValue)
-    // {
-    // }
+    foreach (e; x.byValue)
+    {
+        static assert(is(typeof(e) == const(X.ValueType)));
+    }
 
-    // foreach (e; x.byKeyValue)
-    // {
-    // }
+    foreach (e; x.byKeyValue)
+    {
+        static assert(is(typeof(e) == const(X.ElementType)));
+    }
 }

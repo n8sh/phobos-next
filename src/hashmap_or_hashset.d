@@ -670,7 +670,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Returns forward range that iterates through the keys of `this`.
-        @property auto byKey()() inout // template-lazy property. TODO scope return
+        @property scope auto byKey()() inout return // template-lazy property
         {
             static if (isMutable!(typeof(this)))
             {
@@ -698,7 +698,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Returns forward range that iterates through the values of `this`.
-        @property auto byValue()() inout // template-lazy property. TODO scope return
+        @property scope auto byValue()() inout return // template-lazy property
         {
             static if (isMutable!(typeof(this)))
             {
@@ -726,7 +726,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Returns forward range that iterates through the keys and values of `this`.
-        @property auto byKeyValue()() inout // template-lazy property. TODO scope return
+        @property scope auto byKeyValue()() inout return // template-lazy property
         {
             static if (isMutable!(typeof(this)))
             {
@@ -742,7 +742,7 @@ struct HashMapOrSet(K, V = void,
         }
         /// ditto
         pragma(inline, true)
-        scope auto opSlice()()  // template-lazy. TODO scope return
+        scope auto opSlice()() return  // template-lazy
         {
             return byKeyValue();
         }

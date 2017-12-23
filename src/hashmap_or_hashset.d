@@ -78,16 +78,24 @@ struct HashMapOrSet(K, V = void,
         smallBinMinCapacity >= 1) // no use having empty small bins
 {
     import std.conv : emplace;
-    import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable;
+    import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable, isMutable;
+    import std.meta : Unqual;
     import std.algorithm.comparison : max;
     import std.algorithm.mutation : move, moveEmplace;
     import emplace_all : moveEmplaceAllNoReset;
+    version(unittest)
+    {
+        import std.range : isInputRange;
+    }
     // TODO activate and use import prime_modulo;
 
     /** In the hash map case, `V` is non-void, and a value is stored alongside
      * the key of type `K`.
      */
     enum hasValue = !is(V == void);
+
+    alias MutableThis = Unqual!(typeof(this));
+    alias ConstThis = const(MutableThis);
 
     pragma(inline):
 
@@ -539,9 +547,9 @@ struct HashMapOrSet(K, V = void,
 
     /** Element reference (and in turn range iterator).
      */
-    static private struct ElementRef
+    static private struct ElementRef(HashMapOrSetType)
     {
-        HashMapOrSet* table;
+        HashMapOrSetType* table;
         size_t binIx;           // index to bin inside table
         size_t elementOffset;   // offset to element inside bin
 
@@ -592,34 +600,43 @@ struct HashMapOrSet(K, V = void,
             return contains(key);
         }
 
-        static private struct ByElement
+        static private struct ByElement(HashMapOrSetType)
         {
             pragma(inline, true):
             /// Get reference to front element (key and value).
-            @property scope ref inout(T) front()() inout return
+            @property auto ref front()() // TODO scope return
             {
                 return table.binElementsAt(binIx)[elementOffset];
             }
-            public ElementRef _elementRef;
-            alias _elementRef this;
-        }
+            public ElementRef!HashMapOrSetType _elementRef;
 
-        version(unittest)
-        {
-            import std.range : isInputRange;
-            static assert(isInputRange!ByElement);
+            alias _elementRef this;
+
+            version(unittest)
+            {
+                pragma(msg, "ByElement: ", HashMapOrSetType);
+                // static assert(isInputRange!(typeof(this)));
+            }
         }
 
         /// Returns forward range that iterates through the values of `this`.
-        @property scope inout(ByElement) byElement()() inout @trusted return // template-lazy
+        @property auto byElement()() inout @trusted // template-lazy
         {
-            auto result = typeof(return)(inout(ElementRef)(&this));
-            (cast(ByElement)result).initFirstNonEmptyBin(); // dirty cast because inout problem
+            static if (isMutable!(typeof(this)))
+            {
+                alias This = MutableThis;
+            }
+            else
+            {
+                alias This = ConstThis;
+            }
+            auto result = ByElement!This((ElementRef!This(cast(This*)&this)));
+            result.initFirstNonEmptyBin();
             return result;
         }
         /// ditto
         pragma(inline, true)
-        scope inout(ByElement) opSlice()() inout return // template-lazy
+        scope auto opSlice()() inout return // template-lazy
         {
             return byElement();
         }
@@ -650,80 +667,102 @@ struct HashMapOrSet(K, V = void,
             }
         }
 
-        static private struct ByKey
+        static private struct ByKey(HashMapOrSetType)
         {
             pragma(inline, true):
             /// Get reference to key of front element.
-            @property scope ref inout(K) front()() inout return
+            @property const auto ref front()() // key access must be const. TODO scope return
             {
                 return table.binElementsAt(binIx)[elementOffset].key;
             }
-            public ElementRef _elementRef;
+            public ElementRef!HashMapOrSetType _elementRef;
             alias _elementRef this;
-        }
 
-        version(unittest)
-        {
-            import std.range : isInputRange;
-            static assert(isInputRange!ByKey);
+            version(unittest)
+            {
+                static assert(isInputRange!(typeof(this)));
+            }
         }
 
         /// Returns forward range that iterates through the keys of `this`.
-        @property scope inout(ByKey) byKey()() inout @trusted return // template-lazy property
+        @property auto byKey()() @trusted // template-lazy property. TODO scope return
         {
-            auto result = typeof(return)(inout(ElementRef)(&this));
-            (cast(ByKey)result).initFirstNonEmptyBin(); // dirty cast because inout problem
+            static if (isMutable!(typeof(this)))
+            {
+                alias This = MutableThis;
+            }
+            else
+            {
+                alias This = ConstThis;
+            }
+            auto result = ByKey!This((ElementRef!This(cast(This*)&this)));
+            result.initFirstNonEmptyBin();
             return result;
         }
 
-        static private struct ByValue
+        static private struct ByValue(HashMapOrSetType)
         {
             pragma(inline, true):
             /// Get reference to value of front element.
-            @property scope ref inout(V) front()() inout return // template-lazy property
+            @property auto ref front()() // template-lazy property. TODO scope return
             {
                 return table.binElementsAt(binIx)[elementOffset].value;
             }
-            public ElementRef _elementRef;
+            public ElementRef!HashMapOrSetType _elementRef;
             alias _elementRef this;
-        }
 
-        version(unittest)
-        {
-            import std.range : isInputRange;
-            // TODO static assert(isInputRange!ByValue);
+            version(unittest)
+            {
+                static assert(isInputRange!(typeof(this)));
+            }
         }
 
         /// Returns forward range that iterates through the values of `this`.
-        @property scope inout(ByValue) byValue()() inout @trusted return // template-lazy
+        @property auto byValue()() @trusted // template-lazy property. TODO scope return
         {
-            auto result = typeof(return)(inout(ElementRef)(&this));
-            (cast(ByValue)result).initFirstNonEmptyBin(); // dirty cast because inout problem
+            static if (isMutable!(typeof(this)))
+            {
+                alias This = MutableThis;
+            }
+            else
+            {
+                alias This = ConstThis;
+            }
+            auto result = ByValue!This((ElementRef!This(cast(This*)&this)));
+            result.initFirstNonEmptyBin();
             return result;
         }
 
-        static private struct ByKeyValue
+        static private struct ByKeyValue(HashMapOrSetType)
         {
             pragma(inline, true):
             /// Get reference to front element (key and value).
-            @property scope ref inout(T) front()() inout return
+            @property auto ref front()() // TODO scope return
             {
                 return table.binElementsAt(binIx)[elementOffset];
             }
-            public ElementRef _elementRef;
+            public ElementRef!HashMapOrSetType _elementRef;
             alias _elementRef this;
         }
 
-        /// Returns forward range that iterates through the values of `this`.
-        @property scope inout(ByKeyValue) byKeyValue()() inout @trusted return // template-lazy
+        /// Returns forward range that iterates through the keys and values of `this`.
+        @property auto byKeyValue()() @trusted // template-lazy property. TODO scope return
         {
-            auto result = typeof(return)(inout(ElementRef)(&this));
-            (cast(ByKeyValue)result).initFirstNonEmptyBin(); // dirty cast because inout problem
+            static if (isMutable!(typeof(this)))
+            {
+                alias This = MutableThis;
+            }
+            else
+            {
+                alias This = ConstThis;
+            }
+            auto result = ByKeyValue!This((ElementRef!This(cast(This*)&this)));
+            result.initFirstNonEmptyBin();
             return result;
         }
         /// ditto
         pragma(inline, true)
-        scope inout(ByKeyValue) opSlice()() inout return // template-lazy
+        scope auto opSlice()()  // template-lazy. TODO scope return
         {
             return byKeyValue();
         }
@@ -1094,6 +1133,20 @@ private:
             x.insert(13);
 
             import std.algorithm : count;
+            auto xr = x.byElement;
+
+            alias R = typeof(xr);
+            import std.range : isInputRange;
+            import std.traits : ReturnType;
+            static assert(is(typeof(R.init) == R));
+            static assert(is(ReturnType!((R xr) => xr.empty) == bool));
+            auto f = xr.front;
+            static assert(is(typeof((R xr) => xr.front)));
+            static assert(!is(ReturnType!((R xr) => xr.front) == void));
+            static assert(is(typeof((R xr) => xr.popFront)));
+
+            static assert(isInputRange!(typeof(xr)));
+
             assert(x.byElement.count == 3);
 
             X y;
@@ -1357,10 +1410,7 @@ pure unittest
     alias K = uint;
     class V
     {
-        this(uint data)
-        {
-            this.data = data;
-        }
+        this(uint data) { this.data = data; }
         uint data;
     }
 
@@ -1394,4 +1444,33 @@ pure unittest
     X t;
     t.reserveExtra(4096);
     assert(t.binCount == 8192);
+}
+
+/// constness
+pure unittest
+{
+    import digestx.fnv : FNV;
+
+    alias K = uint;
+    class V
+    {
+        this(uint data) { this.data = data; }
+        uint data;
+    }
+
+    alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
+    const x = X();
+
+    // foreach (e; x.byKey)
+    // {
+    // }
+
+    // foreach (e; x.byValue)
+    // {
+    // }
+
+    // foreach (e; x.byKeyValue)
+    // {
+    // }
+
 }

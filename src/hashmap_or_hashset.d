@@ -1432,7 +1432,7 @@ pure unittest
     assert(t.binCount == 8192);
 }
 
-/// constness inference
+/// constness inference of ranges
 pure unittest
 {
     import digestx.fnv : FNV;

@@ -943,7 +943,7 @@ struct StaticBitArray(uint len, Block = size_t)
         StaticBitArray result;
         for (size_t i = 0; i < dim; ++i)
         {
-            result.ptr[i] = ~this.ptr[i];
+            result.ptr[i] = cast(ubyte)(~this.ptr[i]);
         }
         immutable rem = len & (bitsPerBlock-1); // number of rest bits in last block
         if (rem < bitsPerBlock) // rest bits in last block

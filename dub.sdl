@@ -11,7 +11,7 @@ authors "Per Nordlöw <per.nordlow@gmail.com>"
 
 # dependency "arsd" version="~master"
 
-dflags "-vcolumns" "-dip25"
+dflags "-vcolumns" "-dip25" "-transition=intpromote"     # "-dip1000"
 libs "z" "bz2" "zstd"
 # TODO lflags "-ltcmalloc"
 

@@ -174,7 +174,7 @@ struct HashMapOrSet(K, V = void,
         {
             typeof(this) that;  // TODO if `isForwardRange` count elements
         }
-        foreach (const ref element; elements)
+        foreach (ref element; elements)
         {
             that.insert(element);
         }

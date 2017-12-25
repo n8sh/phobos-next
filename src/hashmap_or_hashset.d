@@ -174,7 +174,7 @@ struct HashMapOrSet(K, V = void,
         {
             typeof(this) that;  // TODO if `isForwardRange` count elements
         }
-        foreach (immutable ref element; elements)
+        foreach (const ref element; elements)
         {
             that.insert(element);
         }
@@ -1221,7 +1221,7 @@ private:
             import basic_array : Array = BasicArray;
             Array!(X.ElementType) a1;
 
-            foreach (immutable ref key; x1.byKey)
+            foreach (const ref key; x1.byKey)
             {
                 auto keyPtr = key in x1;
                 assert(keyPtr);

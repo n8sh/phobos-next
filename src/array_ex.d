@@ -439,9 +439,10 @@ private struct Array(E,
     }
 
     /// Calculate D associative array (AA) key hash.
-    size_t toHash() const
-        @trusted pure
+    size_t toHash()() const     // template-lazy
+        @trusted
     {
+        pragma(msg, "WARNING: using toHash() when we should use toDigest instead");
         import core.internal.hash : hashOf;
         static if (isCopyable!E)
         {

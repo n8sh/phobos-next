@@ -165,6 +165,7 @@ struct HashMapOrSet(K, V = void,
     static typeof(this) withElements(R)(R elements)
         if (isIterable!R)
     {
+        import std.range : hasLength;
         static if (hasLength!R)
         {
             typeof(this) that = withCapacity(elements.length);

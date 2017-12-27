@@ -37,14 +37,14 @@ struct UniqueRange(Source)
     @property bool empty() const { return _frontIx == _backIx; }
 
     /// Front element.
-    @property auto ref inout(E) front() inout return // TODO scope
+    @property scope auto ref inout(E) front() inout return
     {
         assert(!empty);
         return _source[_frontIx];
     }
 
     /// Back element.
-    @property auto ref inout(E) back() inout return // TODO scope
+    @property scope auto ref inout(E) back() inout return
     {
         assert(!empty);
         return _source[_backIx - 1];

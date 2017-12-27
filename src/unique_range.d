@@ -350,7 +350,8 @@ template filterUnique(alias predicate) if (is(typeof(unaryFun!predicate)))
     import std.range.primitives : isInputRange;
     import std.traits : Unqual;
 
-    auto filterUnique(Range)(Range range) if (isInputRange!(Unqual!Range))
+    auto filterUnique(Range)(Range range)
+        if (isInputRange!(Unqual!Range))
     {
         return FilterUniqueResult!(unaryFun!predicate, Range)(move(range));
     }

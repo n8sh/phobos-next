@@ -40,14 +40,14 @@ struct UniqueRange(Source)
     @property scope auto ref inout(E) front() inout return @trusted
     {
         assert(!empty);
-        return cast(inout(E))_source[_frontIx]; // TODO remove cast
+        return cast(inout(E))_source[_frontIx]; // TODO remove cast. needed when E is class
     }
 
     /// Back element.
     @property scope auto ref inout(E) back() inout return @trusted
     {
         assert(!empty);
-        return cast(inout(E))_source[_backIx - 1]; // TODO remove cast
+        return cast(inout(E))_source[_backIx - 1]; // TODO remove cast. needed when E is class
     }
 
     /// Pop front element.

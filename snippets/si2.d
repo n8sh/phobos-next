@@ -172,16 +172,16 @@ struct SIB(alias Exp_, U)
     alias Exp_ Exp;
 
     // generate a usable name string
-    static if(Exp.LenD == 1) private enum sLen = Exp.LenN.stringof; else private enum sLen = Exp.LenN.stringof~"/"~Exp.LenD.stringof;
-    static if(Exp.MasD == 1) private enum sMas = Exp.MasN.stringof; else private enum sMas = Exp.MasN.stringof~"/"~Exp.MasD.stringof;
-    static if(Exp.TimD == 1) private enum sTim = Exp.TimN.stringof; else private enum sTim = Exp.TimN.stringof~"/"~Exp.TimD.stringof;
-    static if(Exp.TmpD == 1) private enum sTmp = Exp.TmpN.stringof; else private enum sTmp = Exp.TmpN.stringof~"/"~Exp.TmpD.stringof;
-    static if(Exp.CurD == 1) private enum sCur = Exp.CurN.stringof; else private enum sCur = Exp.CurN.stringof~"/"~Exp.CurD.stringof;
+    static if (Exp.LenD == 1) private enum sLen = Exp.LenN.stringof; else private enum sLen = Exp.LenN.stringof~"/"~Exp.LenD.stringof;
+    static if (Exp.MasD == 1) private enum sMas = Exp.MasN.stringof; else private enum sMas = Exp.MasN.stringof~"/"~Exp.MasD.stringof;
+    static if (Exp.TimD == 1) private enum sTim = Exp.TimN.stringof; else private enum sTim = Exp.TimN.stringof~"/"~Exp.TimD.stringof;
+    static if (Exp.TmpD == 1) private enum sTmp = Exp.TmpN.stringof; else private enum sTmp = Exp.TmpN.stringof~"/"~Exp.TmpD.stringof;
+    static if (Exp.CurD == 1) private enum sCur = Exp.CurN.stringof; else private enum sCur = Exp.CurN.stringof~"/"~Exp.CurD.stringof;
     /// The type name
     version(FullSI)
     {
-    static if(Exp.LumD == 1) private enum sLum = Exp.LumN.stringof; else private enum sLum = Exp.LumN.stringof~"/"~Exp.LumD.stringof;
-    static if(Exp.MolD == 1) private enum sMol = Exp.MolN.stringof; else private enum sMol = Exp.MolN.stringof~"/"~Exp.MolD.stringof;
+    static if (Exp.LumD == 1) private enum sLum = Exp.LumN.stringof; else private enum sLum = Exp.LumN.stringof~"/"~Exp.LumD.stringof;
+    static if (Exp.MolD == 1) private enum sMol = Exp.MolN.stringof; else private enum sMol = Exp.MolN.stringof~"/"~Exp.MolD.stringof;
     public enum Stringof = "SI!("~sLen~","~sMas~","~sTim~","~sTmp~","~sCur~","~sLum~","~sMol~","~U.stringof~")";
     }
     else public enum Stringof = "SI!("~sLen~","~sMas~","~sTim~","~sTmp~","~sCur~","~U.stringof~")";
@@ -225,7 +225,7 @@ struct SIB(alias Exp_, U)
     }
     private template Mul(T)
     {
-        static if(is(T : U))
+        static if (is(T : U))
             alias This Mul;
         else
             alias SIB!(Batch!(
@@ -249,7 +249,7 @@ struct SIB(alias Exp_, U)
     }
     private template Div(T)
     {
-        static if(is(T : U))
+        static if (is(T : U))
             alias This Div;
         else
             alias SIB!(Batch!(
@@ -312,15 +312,15 @@ struct SIB(alias Exp_, U)
 
     int opCmp(This that)
     {
-        if(this.value < that.value) return -1;
-        if(this.value > that.value) return +1;
+        if (this.value < that.value) return -1;
+        if (this.value > that.value) return +1;
         return 0;
     }
 
     int opCmp(U that)
     {
-        if(this.value < that) return -1;
-        if(this.value > that) return +1;
+        if (this.value < that) return -1;
+        if (this.value > that) return +1;
         return 0;
     }
 
@@ -343,7 +343,7 @@ struct SIB(alias Exp_, U)
 
     version(FullSI) private enum unitless2 = Exp.LumN == 0 && Exp.MolN == 0;
     else private enum unitless2 = true;
-    static if(Exp.LenN == 0 && Exp.MasN == 0 && Exp.TimN == 0 && Exp.TmpN == 0 && Exp.CurN == 0 && unitless2)
+    static if (Exp.LenN == 0 && Exp.MasN == 0 && Exp.TimN == 0 && Exp.TmpN == 0 && Exp.CurN == 0 && unitless2)
         alias value this;
     else
     {
@@ -352,12 +352,12 @@ struct SIB(alias Exp_, U)
         /// non-Homomorphic math operators
         auto opMul(T)(T that)
         {
-            static if(is(T : U)) return Mul!(T)(this.value * that);
+            static if (is(T : U)) return Mul!(T)(this.value * that);
             else return Mul!(T)(this.value * that.value);
         }
         auto opDiv(T)(T that)    ///
         {
-            static if(is(T : U)) return Div!(T)(this.value / that);
+            static if (is(T : U)) return Div!(T)(this.value / that);
             else return Div!(T)(this.value / that.value);
         }
     }
@@ -365,7 +365,7 @@ struct SIB(alias Exp_, U)
     /// test if these are close enough
     bool Near(This that, int count = 5)
     {
-        static if(isFloatingPoint!(U))
+        static if (isFloatingPoint!(U))
             return std.math.feqrel!(U)(this.value,that.value) + count >= U.mant_dig;
         else
             return this.value == that.value;
@@ -380,7 +380,7 @@ struct SIB(alias Exp_, U)
     /// convert to real from type "s"
     U opDispatch(string s)()
     {
-        static if(!is(Unit!(s).type)) static assert(0, "SI has no member named "~s~" nor is it a known type");
+        static if (!is(Unit!(s).type)) static assert(0, "SI has no member named "~s~" nor is it a known type");
         else
         {
             static assert(This.Alike!(Unit!(s).type), "Can't convert type "~This.Stringof~" to \""~s~"\" of type "~Unit!(s).type.Stringof);
@@ -395,7 +395,7 @@ struct OfType
 {
     static auto opDispatch(string s, U)(U v) ///
     {
-        static if(!is(Unit!(s).type)) static assert(0, "OfType."~s~" is not a known type");
+        static if (!is(Unit!(s).type)) static assert(0, "OfType."~s~" is not a known type");
         else return Unit!(s).type.Using!(U)(cast(U)(v * Unit!(s).mul));
     }
 }

@@ -707,9 +707,9 @@ struct HashMapOrSet(K, V = void,
         {
             pragma(inline, true):
             /// Get reference to value of front element.
-            @property scope auto ref front()() return // template-lazy property
+            @property scope auto ref front()() return @trusted // template-lazy property. TODO remove @trusted
             {
-                return table.binElementsAt(binIx)[elementOffset].value;
+                return cast(ValueType)table.binElementsAt(binIx)[elementOffset].value; // TODO remove cast
             }
             public ElementRef!HashMapOrSetType _elementRef;
             alias _elementRef this;
@@ -737,6 +737,7 @@ struct HashMapOrSet(K, V = void,
             /// Get reference to front element (key and value).
             @property scope auto ref front()() return
             {
+                pragma(msg, typeof(table.binElementsAt(binIx)[elementOffset]));
                 return table.binElementsAt(binIx)[elementOffset];
             }
             public ElementRef!HashMapOrSetType _elementRef;
@@ -1474,7 +1475,7 @@ pure nothrow unittest
 
     foreach (e; x.byValue)
     {
-        static assert(is(typeof(e) == const(X.ValueType)));
+        static assert(is(typeof(e) == X.ValueType));
     }
 
     foreach (e; x.byKeyValue)
@@ -1485,7 +1486,7 @@ pure nothrow unittest
     }
 }
 
-/// class mutability
+/// class value mutability
 pure nothrow unittest
 {
     import digestx.fnv : FNV;
@@ -1502,12 +1503,12 @@ pure nothrow unittest
 
     foreach (e; x.byValue)
     {
-        // TODO static assert(is(typeof(e) == X.ValueType));
+        static assert(is(typeof(e) == X.ValueType));
     }
 
     foreach (e; x.byKeyValue)
     {
         static assert(is(typeof(e.key) == const(X.KeyType)));
-        // TODO static assert(is(typeof(e.value) == X.ValueType));
+        // static assert(is(typeof(e.value) == X.ValueType));
     }
 }

@@ -604,9 +604,13 @@ struct HashMapOrSet(K, V = void,
             static if (is(ElementType == class))
             {
                 /// Get reference to front element (key and value).
-                @property scope auto front()() return
+                @property scope auto front()() return @trusted
                 {
-                    return cast(ElementType)table.binElementsAt(binIx)[elementOffset]; // cast away const from `HashMapOrSetType`
+                    /* cast away const from `HashMapOrSetType` for classes
+                     * because class elements are currently hashed and compared
+                     * compared using their identity (pointer value) `is`
+                     */
+                    return cast(ElementType)table.binElementsAt(binIx)[elementOffset];
                 }
             }
             else

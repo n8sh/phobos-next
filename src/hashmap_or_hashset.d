@@ -1488,17 +1488,19 @@ pure nothrow unittest
 {
     import digestx.fnv : FNV;
 
-    class Kl
+    alias K = uint;
+    class V
     {
         this(uint data) { this.data = data; }
         uint data;
     }
 
-    alias X = HashMapOrSet!(Kl, void, null, FNV!(64, true));
+    alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
     auto x = X();
 
-    foreach (e; x.byElement)
+    foreach (e; x.byKeyValue)
     {
-        static assert(is(typeof(e) == X.ElementType));
+        static assert(is(typeof(e.key) == const(X.KeyType)));
+        static assert(is(typeof(e.value) == const(X.ValueType)));
     }
 }

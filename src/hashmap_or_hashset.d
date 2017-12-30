@@ -1453,7 +1453,7 @@ pure nothrow @nogc unittest
 }
 
 /// constness inference of ranges
-pure unittest
+pure nothrow unittest
 {
     import digestx.fnv : FNV;
 
@@ -1484,7 +1484,7 @@ pure unittest
 }
 
 /// class mutability
-pure unittest
+pure nothrow unittest
 {
     import digestx.fnv : FNV;
 

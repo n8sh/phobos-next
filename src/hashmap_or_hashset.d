@@ -599,12 +599,25 @@ struct HashMapOrSet(K, V = void,
 
         static private struct ByElement(HashMapOrSetType)
         {
-            pragma(inline, true):
-            /// Get reference to front element (key and value).
-            @property scope auto ref front()() return
+        pragma(inline, true):
+
+            static if (is(ElementType == class))
             {
-                return table.binElementsAt(binIx)[elementOffset];
+                /// Get reference to front element (key and value).
+                @property scope auto front()() return
+                {
+                    return cast(ElementType)table.binElementsAt(binIx)[elementOffset]; // cast away const from `HashMapOrSetType`
+                }
             }
+            else
+            {
+                /// Get reference to front element (key and value).
+                @property scope auto front()()
+                {
+                    return table.binElementsAt(binIx)[elementOffset];
+                }
+            }
+
             public ElementRef!HashMapOrSetType _elementRef;
 
             alias _elementRef this;
@@ -1461,5 +1474,25 @@ pure unittest
     foreach (e; x.byKeyValue)
     {
         static assert(is(typeof(e) == const(X.ElementType)));
+    }
+}
+
+/// class mutability
+pure unittest
+{
+    import digestx.fnv : FNV;
+
+    class Kl
+    {
+        this(uint data) { this.data = data; }
+        uint data;
+    }
+
+    alias X = HashMapOrSet!(Kl, void, null, FNV!(64, true));
+    auto x = X();
+
+    foreach (e; x.byElement)
+    {
+        static assert(is(typeof(e) == X.ElementType));
     }
 }

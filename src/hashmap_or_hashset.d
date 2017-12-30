@@ -1479,6 +1479,8 @@ pure nothrow unittest
 
     foreach (e; x.byKeyValue)
     {
+        static assert(is(typeof(e.key) == const(X.KeyType)));
+        static assert(is(typeof(e.value) == const(X.ValuType)));
         static assert(is(typeof(e) == const(X.ElementType)));
     }
 }
@@ -1501,6 +1503,6 @@ pure nothrow unittest
     foreach (e; x.byKeyValue)
     {
         static assert(is(typeof(e.key) == const(X.KeyType)));
-        static assert(is(typeof(e.value) == const(X.ValueType)));
+        // static assert(is(typeof(e.value) == X.ValueType));
     }
 }

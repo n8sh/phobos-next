@@ -1108,7 +1108,9 @@ private:
 
 }
 
-@safe pure nothrow @nogc unittest
+@safe:
+
+pure nothrow @nogc unittest
 {
     import std.algorithm.comparison : equal;
     import digestx.fnv : FNV;
@@ -1358,7 +1360,7 @@ private:
 }
 
 /// range checking
-pure unittest
+@trusted pure unittest
 {
     import std.exception : assertThrown, assertNotThrown;
     import core.exception : RangeError;
@@ -1403,7 +1405,7 @@ pure unittest
 }
 
 /// class as value
-pure unittest
+@trusted pure unittest
 {
     import std.exception : assertThrown, assertNotThrown;
     import core.exception : RangeError;

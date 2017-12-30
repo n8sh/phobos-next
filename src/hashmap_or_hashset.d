@@ -1480,7 +1480,7 @@ pure nothrow unittest
     foreach (e; x.byKeyValue)
     {
         static assert(is(typeof(e.key) == const(X.KeyType)));
-        static assert(is(typeof(e.value) == const(X.ValuType)));
+        static assert(is(typeof(e.value) == const(X.ValueType)));
         static assert(is(typeof(e) == const(X.ElementType)));
     }
 }
@@ -1500,9 +1500,14 @@ pure nothrow unittest
     alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
     auto x = X();
 
+    foreach (e; x.byValue)
+    {
+        // TODO static assert(is(typeof(e) == X.ValueType));
+    }
+
     foreach (e; x.byKeyValue)
     {
         static assert(is(typeof(e.key) == const(X.KeyType)));
-        // static assert(is(typeof(e.value) == X.ValueType));
+        // TODO static assert(is(typeof(e.value) == X.ValueType));
     }
 }

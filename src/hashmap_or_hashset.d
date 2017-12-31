@@ -701,7 +701,7 @@ struct HashMapOrSet(K, V = void,
             /// Get reference to value of front element.
             @property scope auto ref front()() return @trusted // template-lazy property. TODO remove @trusted
             {
-                return cast(ValueType)table.binElementsAt(binIx)[elementOffset].value; // TODO remove cast
+                return *(cast(ValueType*)(&table.binElementsAt(binIx)[elementOffset].value)); // TODO remove reinterpret cast
             }
             public ElementRef!HashMapOrSetType _elementRef;
             alias _elementRef this;

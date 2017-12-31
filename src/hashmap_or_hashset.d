@@ -104,6 +104,12 @@ struct HashMapOrSet(K, V = void,
             V value;
         }
 
+        struct CT
+        {
+            const K key;
+            V value;
+        }
+
         /// Get key part of element.
         static auto ref inout(K) keyOf()(auto ref return inout(T) element)
         {
@@ -735,30 +741,39 @@ struct HashMapOrSet(K, V = void,
         {
             pragma(inline, true):
             /// Get reference to front element (key and value).
-            @property scope auto ref front()() return
+            @property scope auto ref front()() return @trusted
             {
-                pragma(msg, typeof(table.binElementsAt(binIx)[elementOffset]));
-                return table.binElementsAt(binIx)[elementOffset];
+                static if (isMutable!(HashMapOrSetType))
+                {
+                    alias E = CT;
+                }
+                else
+                {
+                    alias E = const(T);
+                }
+                return cast(E)table.binElementsAt(binIx)[elementOffset]; // TODO remove cast
             }
             public ElementRef!HashMapOrSetType _elementRef;
             alias _elementRef this;
         }
 
         /// Returns forward range that iterates through the keys and values of `this`.
-        @property scope auto byKeyValue()() inout return // template-lazy property
+        @property scope auto byKeyValue()() return // template-lazy property
         {
-            static if (isMutable!(typeof(this)))
-            {
-                alias This = MutableThis;
-            }
-            else
-            {
-                alias This = ConstThis;
-            }
+            alias This = MutableThis;
             auto result = ByKeyValue!This((ElementRef!This(cast(This*)&this)));
             result.initFirstNonEmptyBin();
             return result;
         }
+        /// ditto
+        @property scope auto byKeyValue()() const return // template-lazy property
+        {
+            alias This = ConstThis;
+            auto result = ByKeyValue!This((ElementRef!This(cast(This*)&this)));
+            result.initFirstNonEmptyBin();
+            return result;
+        }
+
         /// ditto
         pragma(inline, true)
         scope auto opSlice()() return  // template-lazy
@@ -1509,6 +1524,6 @@ pure nothrow unittest
     foreach (e; x.byKeyValue)
     {
         static assert(is(typeof(e.key) == const(X.KeyType)));
-        // static assert(is(typeof(e.value) == X.ValueType));
+        static assert(is(typeof(e.value) == X.ValueType));
     }
 }

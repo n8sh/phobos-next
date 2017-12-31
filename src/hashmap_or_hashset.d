@@ -636,14 +636,7 @@ struct HashMapOrSet(K, V = void,
         /// Returns forward range that iterates through the values of `this`.
         @property auto byElement()() inout // template-lazy
         {
-            static if (isMutable!(typeof(this)))
-            {
-                alias This = MutableThis;
-            }
-            else
-            {
-                alias This = ConstThis;
-            }
+            alias This = ConstThis;
             auto result = ByElement!This((ElementRef!This(cast(This*)&this)));
             result.initFirstNonEmptyBin();
             return result;
@@ -696,14 +689,7 @@ struct HashMapOrSet(K, V = void,
         /// Returns forward range that iterates through the keys of `this`.
         @property scope auto byKey()() inout return // template-lazy property
         {
-            static if (isMutable!(typeof(this)))
-            {
-                alias This = MutableThis;
-            }
-            else
-            {
-                alias This = ConstThis;
-            }
+            alias This = ConstThis;
             auto result = ByKey!This((ElementRef!This(cast(This*)&this)));
             result.initFirstNonEmptyBin();
             return result;
@@ -724,14 +710,7 @@ struct HashMapOrSet(K, V = void,
         /// Returns forward range that iterates through the values of `this`.
         @property scope auto byValue()() inout return // template-lazy property
         {
-            static if (isMutable!(typeof(this)))
-            {
-                alias This = MutableThis;
-            }
-            else
-            {
-                alias This = ConstThis;
-            }
+            alias This = ConstThis;
             auto result = ByValue!This((ElementRef!This(cast(This*)&this)));
             result.initFirstNonEmptyBin();
             return result;

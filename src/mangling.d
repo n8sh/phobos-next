@@ -215,7 +215,7 @@ R decodeCxxExpression(R)(Demangler!R x)
 {
     if (x.show) dln("rest: ", x.r);
     R exp;
-    assert(false, "TODO");
+    assert(0, "TODO");
 }
 
 /** See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.array-type */
@@ -1090,7 +1090,7 @@ R decodeCxxLocalName(R)(Demangler!R x)
         x.r.skipOver('E');
         if (x.r.skipOver('D'))
         {
-            assert(false, "TODO Decode C++0x Closure Type (lambda)"); // see https://mentorembedded.github.io/cxx-abi/abi.html#closure-types
+            assert(0, "TODO Decode C++0x Closure Type (lambda)"); // see https://mentorembedded.github.io/cxx-abi/abi.html#closure-types
         }
         else
         {

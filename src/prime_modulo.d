@@ -39,7 +39,7 @@ PrimeIndex ceilToNearestPrime(ref size_t value,
             return primeIndex;
         }
     }
-    assert(false, "Parameter value is too large");
+    assert(0, "Parameter value is too large");
 }
 
 /// small modulos

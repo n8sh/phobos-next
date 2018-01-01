@@ -86,7 +86,7 @@ struct ByLineFast(Char, Terminator)
         }
         if (ungetc(c, mutableFP) != c)
         {
-            assert(false, "Bug in cstdlib implementation");
+            assert(0, "Bug in cstdlib implementation");
         }
         return false;
     }

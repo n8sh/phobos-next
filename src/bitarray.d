@@ -123,7 +123,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
             }
             else
             {
-                assert(false, "Unsupported Block size " ~ Block.sizeof.stringof);
+                assert(0, "Unsupported Block size " ~ Block.sizeof.stringof);
             }
         }
         return typeof(return)(n);

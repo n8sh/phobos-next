@@ -3685,7 +3685,7 @@ class Dir : File
                 else
                 {
                     immutable subClassName = sub.classinfo.name;
-                    assert(false, "Unknown sub File class " ~ subClassName); // TODO Exception
+                    assert(0, "Unknown sub File class " ~ subClassName); // TODO Exception
                 }
             }
         }
@@ -3729,7 +3729,7 @@ class Dir : File
                     switch (subClassName)
                     {
                     default:
-                        assert(false, "Unknown File parent class " ~ subClassName); // TODO Exception
+                        assert(0, "Unknown File parent class " ~ subClassName); // TODO Exception
                     case "Dir":
                         auto subDir = new Dir(this, gstats);
                         unpacker.unpack(subDir); sub = subDir;

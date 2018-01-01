@@ -40,7 +40,7 @@ auto ref match(Handlers...)(Variant v)
             return Handler();
         }
     }
-    assert(false, "No matching pattern");
+    assert(0, "No matching pattern");
 }
 
 unittest

@@ -1568,7 +1568,7 @@ Tuple!(R, size_t) findFirstOfAnyInOrder(alias pred = `a == b`, R)(R haystack, co
                                  needles[7]);
         default:
             import std.conv: to;
-            assert(false, `Too many keys ` ~ needles.length.to!string);
+            assert(0, `Too many keys ` ~ needles.length.to!string);
     }
 }
 

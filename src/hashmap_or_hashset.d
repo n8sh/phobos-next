@@ -907,7 +907,7 @@ struct HashMapOrSet(K, V = void,
      */
     ref typeof(this) rehash()() @trusted // template-lazy
     {
-        static assert(false, "TODO remove template parens of this functions and implement");
+        static assert(0, "TODO remove template parens of this functions and implement");
         // return this;
     }
 

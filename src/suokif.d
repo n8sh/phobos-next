@@ -263,7 +263,7 @@ private:
                 skipLineComment();  // TODO store comment in Token
                 if (_includeComments)
                 {
-                    assert(false, "change skipLineComment");
+                    assert(0, "change skipLineComment");
                     // exprs.put(Expr(Token(TOK.comment, src[0 .. 1])));
                 }
                 break;

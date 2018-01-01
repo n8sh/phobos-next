@@ -151,7 +151,7 @@ template mustAddGCRange(T)
     }
     else
     {
-        static assert(false, "Handle type " ~ T.stringof);
+        static assert(0, "Handle type " ~ T.stringof);
     }
 }
 

@@ -812,7 +812,7 @@ struct StaticBitArray(uint len, Block = size_t)
                 }
                 else
                 {
-                    assert(false, "Unsupported Block size " ~ Block.sizeof.stringof);
+                    assert(0, "Unsupported Block size " ~ Block.sizeof.stringof);
                 }
             }
             return typeof(return)(n);

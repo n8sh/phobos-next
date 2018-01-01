@@ -83,7 +83,7 @@ auto generator(alias func)()
             return new Generator!YieldedType(&func);
         }
     }
-    assert(false, format("%s does not have a Yields attribute",
+    assert(0, format("%s does not have a Yields attribute",
                          func.stringof));
 }
 

@@ -970,7 +970,7 @@ private struct Array(E,
                 }
                 else if (overlaps(this[], values[]))
                 {
-                    assert(false, `TODO Handle overlapping arrays`);
+                    assert(0, `TODO Handle overlapping arrays`);
                 }
                 else
                 {

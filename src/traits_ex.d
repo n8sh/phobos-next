@@ -11,7 +11,7 @@
 */
 module traits_ex;
 
-import std.traits: isArray, ParameterTypeTuple, isStaticArray, isDynamicArray, isSomeChar, isSomeString, isExpressions, isIntegral, isSigned, isUnsigned;
+import std.traits: isArray, ParameterTypeTuple, isStaticArray, isDynamicArray, isSomeChar, isSomeString, isExpressions, isIntegral, isSigned, isUnsigned, isAssignable;
 import std.range: ElementType, isForwardRange, isRandomAccessRange, isInputRange, isBidirectionalRange, isOutputRange, isIterable;
 import std.typecons : Tuple;
 
@@ -294,11 +294,17 @@ enum isIterableOfSomeString(R) = (isIterable!R && isSomeString!(ElementType!R));
 enum isRandomAccessRangeOf(R, E) = isRandomAccessRange!R && is(ElementType!R == E);
 enum isForwardRangeOf(R, E) = isForwardRange!R && is(ElementType!R == E);
 enum isInputRangeOf(R, E) = isInputRange!R && is(ElementType!R == E);
-enum isInputRangeOfUnqual(R, E) = isInputRange!R && is(Unqual!(ElementType!R) == E);
+
+enum isInputRangeOfUnqual(R, E) = (isInputRange!R &&
+                                   is(Unqual!(ElementType!R) == E));
+
 enum isBidirectionalRangeOf(R, E) = isBidirectionalRange!R && is(ElementType!R == E);
 enum isOutputRangeOf(R, E) = isOutputRange!R && is(ElementType!R == E);
 enum isArrayOf(R, E) = isArray!R && is(ElementType!R == E);
 enum isArrayOfSomeString(R) = isArray!R && isSomeString!(ElementType!R);
+
+enum isSourceAssignableTo(R, E) = (isInputRange!R &&
+                                   isAssignable!(E, ElementType!R));
 
 /// TODO Move to Phobos?
 enum isSomeCharString(T) = (is(T == string) ||

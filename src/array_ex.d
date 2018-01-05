@@ -2825,7 +2825,22 @@ version(unittest)
     {
         Zing[] actors;
     }
-
-    alias A = SortedSetCopyingArray!Edge;
-    A x;
+    {
+        alias _ = UniqueArray!Edge;
+    }
+    {
+        alias _ = CopyingArray!Edge;
+    }
+    {
+        alias _ = SortedCopyingArray!Edge;
+    }
+    {
+        alias _ = SortedSetCopyingArray!Edge;
+    }
+    {
+        alias _ = SortedUniqueArray!Edge;
+    }
+    {
+        alias _ = SortedSetUniqueArray!Edge;
+    }
 }

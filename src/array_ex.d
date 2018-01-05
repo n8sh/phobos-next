@@ -2825,22 +2825,15 @@ version(unittest)
     {
         Zing[] actors;
     }
+
+    foreach (AT; AliasSeq!(UniqueArray,
+                           CopyingArray,
+                           SortedCopyingArray,
+                           SortedSetCopyingArray,
+                           SortedUniqueArray,
+                           SortedSetUniqueArray))
     {
-        alias _ = UniqueArray!Edge;
-    }
-    {
-        alias _ = CopyingArray!Edge;
-    }
-    {
-        alias _ = SortedCopyingArray!Edge;
-    }
-    {
-        alias _ = SortedSetCopyingArray!Edge;
-    }
-    {
-        alias _ = SortedUniqueArray!Edge;
-    }
-    {
-        alias _ = SortedSetUniqueArray!Edge;
+        alias A = AT!int;
+        A a;
     }
 }

@@ -2235,7 +2235,8 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             // assert(ss_.empty);
 
             auto ssC = Array!(E, assignment, ordering, supportGC, size_t, less).withLength(0);
-            immutable(int)[] i5 = [1, 2, 3, 4, 5].s[];
+            immutable int[5] i5_ = [1, 2, 3, 4, 5];
+            immutable(int)[] i5 = i5_[];
             ssC.insertBack(i5);
             assert(i5 == [1, 2, 3, 4, 5].s[]);
             assert(ssC[].equal(i5));
@@ -2811,4 +2812,20 @@ version(unittest)
     //     UniqueArray!U subs;
     // }
     // U u;
+}
+
+/// class element
+@safe pure nothrow unittest
+{
+    class Zing
+    {
+        void* raw;
+    }
+    class Edge : Zing
+    {
+        Zing[] actors;
+    }
+
+    alias A = UniqueArray!Edge;
+    A x;
 }

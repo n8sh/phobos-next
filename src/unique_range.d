@@ -17,6 +17,7 @@ struct UniqueRange(Source)
     if (hasLength!Source)       // TODO use traits `isArrayContainer` checking fo
 {
     import std.range : ElementType;
+    import std.traits : isArray;
     alias SourceRange = typeof(Source.init[]);
     alias E = ElementType!SourceRange;
 
@@ -66,17 +67,17 @@ struct UniqueRange(Source)
     /// Pop front element.
     void popFront()
     {
-        assert(!empty);
+        // assert(!empty);
         import std.range : popFront;
-        _sourceRange.popFront();
+        _sourceRange.popFront(); // checks for emptyness
     }
 
     /// Pop back element.
     void popBack()
     {
-        assert(!empty);
+        // assert(!empty);
         import std.range : popBack;
-        _sourceRange.popBack();
+        _sourceRange.popBack(); // xchecks for emptyness
     }
 
     // /// Pop front element and return it.

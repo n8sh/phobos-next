@@ -17,8 +17,8 @@ struct UniqueRange(Source)
     if (hasLength!Source)       // TODO use traits `isArrayContainer` checking fo
 {
     import std.range : ElementType;
-    alias Slice = typeof(Source.init[]);
-    alias E = ElementType!Slice;
+    alias SourceRange = typeof(Source.init[]);
+    alias E = ElementType!SourceRange;
 
     @disable this(this);        // not intended to be copied
 
@@ -28,96 +28,105 @@ struct UniqueRange(Source)
     this(Source source)
     {
         import std.algorithm.mutation : move;
-        _frontIx = 0;
-        _backIx = source.length;
         _source = move(source); // TODO remove `move` when compiler does it for us
+        _sourceRange = _source[];
     }
 
     /// Is `true` if range is empty.
-    @property bool empty() const { return _frontIx == _backIx; }
+    @property bool empty() const
+    {
+        import std.range : empty;
+        return _sourceRange.empty;
+    }
 
     /// Front element.
     @property scope auto ref inout(E) front() inout return @trusted
     {
         assert(!empty);
-        return cast(inout(E))_source[_frontIx]; // TODO remove cast. needed when E is class
+        import std.range : front;
+        return cast(inout(E))_sourceRange.front;
     }
 
     /// Back element.
     @property scope auto ref inout(E) back() inout return @trusted
     {
         assert(!empty);
-        return cast(inout(E))_source[_backIx - 1]; // TODO remove cast. needed when E is class
+        import std.range : back;
+        return cast(inout(E))_sourceRange.back;
     }
 
     /// Pop front element.
     void popFront()
     {
         assert(!empty);
-        _frontIx = _frontIx + 1;
+        import std.range : popFront;
+        _sourceRange.popFront();
     }
 
     /// Pop back element.
     void popBack()
     {
         assert(!empty);
-        _backIx = _backIx - 1;
+        import std.range : popBack;
+        _sourceRange.popBack();
     }
 
-    /// Pop front element and return it.
-    E frontPop()
-    {
-        assert(!empty);
-        import std.traits : hasIndirections;
-        static if (hasIndirections!E) // TODO better trait?
-        {
-            // import std.traits : Unqual;
-            // TODO reinterpret as typeof(*(cast(Unqual!E*)(&_source[_frontIx]))) iff `E` doesn't contain any immutable indirections
-            import std.algorithm.mutation : move;
-            return move(_source[_frontIx++]);
-        }
-        else
-        {
-            return _source[_frontIx++]; // no move needed
-        }
-    }
-    alias stealFront = frontPop;
+    // /// Pop front element and return it.
+    // E frontPop()
+    // {
+    //     assert(!empty);
+    //     import std.traits : hasIndirections;
+    //     static if (hasIndirections!E) // TODO better trait?
+    //     {
+    //         // import std.traits : Unqual;
+    //         // TODO reinterpret as typeof(*(cast(Unqual!E*)(&_source[_frontIx]))) iff `E` doesn't contain any immutable indirections
+    //         import std.algorithm.mutation : move;
+    //         return move(_source[_frontIx++]);
+    //     }
+    //     else
+    //     {
+    //         return _source[_frontIx++]; // no move needed
+    //     }
+    // }
+    // alias stealFront = frontPop;
 
-    /// Pop back element and return it.
-    E backPop()
-    {
-        assert(!empty);
-        import std.traits : hasIndirections;
-        static if (hasIndirections!E) // TODO better trait?
-        {
-            // import std.traits : Unqual;
-            // TODO reinterpret as typeof(*(cast(Unqual!E*)(&_source[_backIx]))) iff `E` doesn't contain any immutable indirections
-            import std.algorithm.mutation : move;
-            return move(_source[--_backIx]);
-        }
-        else
-        {
-            return _source[--_backIx]; // no move needed
-        }
-    }
-    alias stealBack = backPop;
+    // /// Pop back element and return it.
+    // E backPop()
+    // {
+    //     assert(!empty);
+    //     import std.traits : hasIndirections;
+    //     static if (hasIndirections!E) // TODO better trait?
+    //     {
+    //         // import std.traits : Unqual;
+    //         // TODO reinterpret as typeof(*(cast(Unqual!E*)(&_source[_backIx]))) iff `E` doesn't contain any immutable indirections
+    //         import std.algorithm.mutation : move;
+    //         return move(_source[--_backIx]);
+    //     }
+    //     else
+    //     {
+    //         return _source[--_backIx]; // no move needed
+    //     }
+    // }
+    // alias stealBack = backPop;
 
     /// Returns: shallow duplicate of `this`.
     version(none)               // TODO make compile
     {
         @property UniqueRange dup() const
         {
-            return typeof(this)(_frontIx, _backIx, _source.dup);
+            return typeof(this)(_source.dup);
         }
     }
 
     /// Length.
-    @property size_t length() const { return _backIx - _frontIx; }
+    static if (hasLength!(Source))
+    {
+        @property size_t length() const { return _sourceRange.length; }
+    }
 
 private:
-    size_t _frontIx;             // offset to front element
-    size_t _backIx;
     Source _source; // typically a non-reference count container type with disable copy construction
+    SourceRange _sourceRange;
 }
 
 /** Returns: A range of `Source` that owns its `source` (data container).
@@ -160,14 +169,16 @@ alias intoGenerator = intoUniqueRange;
     assert(cs.front == 13);
     assert(cs.back == 15);
 
-    assert(cs.frontPop() == 13);
-    assert(cs.length == 1);
-    assert(cs.front == 15);
-    assert(cs.back == 15);
+    // TODO:
+    // assert(cs.frontPop() == 13);
+    // assert(cs.length == 1);
+    // assert(cs.front == 15);
+    // assert(cs.back == 15);
 
-    assert(cs.backPop() == 15);
-    assert(cs.length == 0);
-    assert(cs.empty);
+    // TODO:
+    // assert(cs.backPop() == 15);
+    // assert(cs.length == 0);
+    // assert(cs.empty);
 }
 
 /// combined with Phobos ranges
@@ -175,6 +186,14 @@ alias intoGenerator = intoUniqueRange;
 {
     import array_ex : SA = UniqueArray;
     alias C = SA!int;
+    foreach (e; C.withElements(11, 13, 15, 17)
+                 .intoUniqueRange()
+                 .filterUnique!(_ => _ != 11)
+             .mapUnique!(_ => 2*_))
+    {
+        import dbgio;
+        dln(e);
+    }
     assert(C.withElements(11, 13, 15, 17)
             .intoUniqueRange()
             .filterUnique!(_ => _ != 11)

@@ -28,14 +28,16 @@ struct UniqueRange(Source)
     this(Source source)
     {
         import std.algorithm.mutation : move;
-        _source = move(source); // TODO remove `move` when compiler does it for us
+        move(source, _source); // TODO remove `move` when compiler does it for us
         _sourceRange = _source[];
+        dln("this:", _sourceRange);
     }
 
     /// Is `true` if range is empty.
     @property bool empty() const
     {
         import std.range : empty;
+        dln("empty:", _sourceRange);
         return _sourceRange.empty;
     }
 
@@ -44,6 +46,7 @@ struct UniqueRange(Source)
     {
         assert(!empty);
         import std.range : front;
+        dln("front:", _sourceRange);
         return cast(inout(E))_sourceRange.front;
     }
 
@@ -52,6 +55,7 @@ struct UniqueRange(Source)
     {
         assert(!empty);
         import std.range : back;
+        dln("back:", _sourceRange);
         return cast(inout(E))_sourceRange.back;
     }
 
@@ -61,6 +65,7 @@ struct UniqueRange(Source)
         assert(!empty);
         import std.range : popFront;
         _sourceRange.popFront();
+        dln("popFront:", _sourceRange);
     }
 
     /// Pop back element.
@@ -69,6 +74,7 @@ struct UniqueRange(Source)
         assert(!empty);
         import std.range : popBack;
         _sourceRange.popBack();
+        dln("popBack:", _sourceRange);
     }
 
     // /// Pop front element and return it.
@@ -150,6 +156,7 @@ alias intoGenerator = intoUniqueRange;
     alias C = SA!int;
 
     auto cs = C.withElements(11, 13, 15, 17).intoUniqueRange;
+    dln("xxx:", cs._sourceRange);
 
     static assert(isInputRange!(typeof(cs)));
     static assert(isIterable!(typeof(cs)));
@@ -186,14 +193,6 @@ alias intoGenerator = intoUniqueRange;
 {
     import array_ex : SA = UniqueArray;
     alias C = SA!int;
-    foreach (e; C.withElements(11, 13, 15, 17)
-                 .intoUniqueRange()
-                 .filterUnique!(_ => _ != 11)
-             .mapUnique!(_ => 2*_))
-    {
-        import dbgio;
-        dln(e);
-    }
     assert(C.withElements(11, 13, 15, 17)
             .intoUniqueRange()
             .filterUnique!(_ => _ != 11)

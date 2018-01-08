@@ -201,13 +201,17 @@ alias intoGenerator = intoUniqueRange;
 /// combined with Phobos ranges
 @safe pure nothrow unittest
 {
-    import array_ex : SA = UniqueArray;
+    import basic_array : SA = BasicArray;
     alias C = SA!int;
-    assert(C.withElements(11, 13, 15, 17)
-            .intoUniqueRange()
-            .filterUnique!(_ => _ != 11)
-            .mapUnique!(_ => 2*_)
-            .equal([2*13, 2*15, 2*17]));
+
+    auto ba = C.withLength(4);
+    ba[0 .. 4] = [11, 13, 15, 17].s[];
+    import std.algorithm.mutation : move;
+
+    assert(move(ba).intoUniqueRange()
+                   .filterUnique!(_ => _ != 11)
+           .mapUnique!(_ => 2*_)
+           .equal([2*13, 2*15, 2*17]));
 }
 
 import std.functional : unaryFun;
@@ -667,15 +671,21 @@ struct UniqueTake(Range)
 /// basics
 @safe pure nothrow @nogc unittest
 {
-    import array_ex : SA = UniqueArray;
+    import basic_array : SA = BasicArray;
     import std.range.primitives : isInputRange, isIterable;
     alias C = SA!int;
 
-    auto cs = C.withElements(11, 13, 15, 17).intoUniqueRange.takeUnique(2);
+    auto ba = C.withLength(2);
+    ba[0 .. 2] = [11, 13].s[];
+    import std.algorithm.mutation : move;
+    auto cs = move(ba).intoUniqueRange; // TODO withElements()
+
     assert(cs.front == 11);
     cs.popFront();
+
     assert(cs.front == 13);
     cs.popFront();
+
     assert(cs.empty);
 
     static assert(isInputRange!(typeof(cs)));

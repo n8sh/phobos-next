@@ -33,6 +33,15 @@ struct UniqueRange(Source)
         dln("this:", _sourceRange);
     }
 
+    /// Construct from reference to `source`, used by `intoUniqueRange`.
+    private this(ref Source source)
+    {
+        import std.algorithm.mutation : move;
+        move(source, _source); // TODO remove `move` when compiler does it for us
+        _sourceRange = _source[];
+        dln("this:", _sourceRange);
+    }
+
     /// Is `true` if range is empty.
     @property bool empty() const
     {
@@ -141,8 +150,7 @@ private:
 UniqueRange!Source intoUniqueRange(Source)(Source source)
     if (hasLength!Source)
 {
-    import std.algorithm.mutation : move;
-    return typeof(return)(move(source)); // TODO remove `move` when compiler does it for us
+    return typeof(return)(source); // construct from reference
 }
 
 /// A generator is a range which owns its state (typically a non-reference counted container).

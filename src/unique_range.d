@@ -30,7 +30,7 @@ struct UniqueRange(Source)
         import std.algorithm.mutation : move;
         move(source, _source); // TODO remove `move` when compiler does it for us
         _sourceRange = _source[];
-        dln("this:", _sourceRange);
+        // dln("this:", _sourceRange);
     }
 
     /// Construct from reference to `source`, used by `intoUniqueRange`.
@@ -39,14 +39,14 @@ struct UniqueRange(Source)
         import std.algorithm.mutation : move;
         move(source, _source); // TODO remove `move` when compiler does it for us
         _sourceRange = _source[];
-        dln("this:", _sourceRange);
+        // dln("this:", _sourceRange);
     }
 
     /// Is `true` if range is empty.
     @property bool empty() const
     {
         import std.range : empty;
-        dln("empty:", _sourceRange);
+        // dln("empty:", _sourceRange);
         return _sourceRange.empty;
     }
 
@@ -55,7 +55,7 @@ struct UniqueRange(Source)
     {
         assert(!empty);
         import std.range : front;
-        dln("front:", _sourceRange);
+        // dln("front:", _sourceRange);
         return cast(inout(E))_sourceRange.front;
     }
 
@@ -64,7 +64,7 @@ struct UniqueRange(Source)
     {
         assert(!empty);
         import std.range : back;
-        dln("back:", _sourceRange);
+        // dln("back:", _sourceRange);
         return cast(inout(E))_sourceRange.back;
     }
 
@@ -74,7 +74,7 @@ struct UniqueRange(Source)
         assert(!empty);
         import std.range : popFront;
         _sourceRange.popFront();
-        dln("popFront:", _sourceRange);
+        // dln("popFront:", _sourceRange);
     }
 
     /// Pop back element.
@@ -83,7 +83,7 @@ struct UniqueRange(Source)
         assert(!empty);
         import std.range : popBack;
         _sourceRange.popBack();
-        dln("popBack:", _sourceRange);
+        // dln("popBack:", _sourceRange);
     }
 
     // /// Pop front element and return it.
@@ -159,12 +159,14 @@ alias intoGenerator = intoUniqueRange;
 /// basics
 @safe pure nothrow @nogc unittest
 {
-    import array_ex : SA = UniqueArray;
+    import basic_array : SA = BasicArray;
     import std.range.primitives : isInputRange, isIterable;
     alias C = SA!int;
 
-    auto cs = C.withElements(11, 13, 15, 17).intoUniqueRange;
-    dln("xxx:", cs._sourceRange);
+    auto ba = C.withLength(4);
+    ba[0 .. 4] = [11, 13, 15, 17].s[];
+    import std.algorithm.mutation : move;
+    auto cs = move(ba).intoUniqueRange; // TODO withElements()
 
     static assert(isInputRange!(typeof(cs)));
     static assert(isIterable!(typeof(cs)));
@@ -693,4 +695,9 @@ InputRange findUnique(alias pred = "a == b", InputRange, Element)(InputRange hay
     }
     import std.algorithm.mutation : move;
     return move(haystack);
+}
+
+version(unittest)
+{
+    import array_help : s;
 }

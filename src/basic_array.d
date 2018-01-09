@@ -101,7 +101,8 @@ struct BasicArray(T,
         thatPtr._store.length = cast(CapacityType)length;
         foreach (immutable i, ref e; elements[])
         {
-            thatPtr._mptr[i] = cast(T)e; // TODO this is ugly!
+            thatPtr._mptr[i] = cast(T)e; // TODO restrict this function using a
+                                         // T-trait where this cast can be @trusted
         }
         return *thatPtr;
     }

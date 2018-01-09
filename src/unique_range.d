@@ -224,14 +224,9 @@ alias intoGenerator = intoUniqueRange;
 @safe pure nothrow unittest
 {
     import basic_array : SA = BasicArray;
-    alias C = SA!int;
-
-    auto ba = C.withLength(4);
-    ba[0 .. 4] = [11, 13, 15, 17].s[];
-    import std.algorithm.mutation : move;
-
-    assert(move(ba).intoUniqueRange()
-                   .filterUnique!(_ => _ != 11)
+    assert(SA!int([11, 13, 15, 17].s[])
+           .intoUniqueRange()
+           .filterUnique!(_ => _ != 11)
            .mapUnique!(_ => 2*_)
            .equal([2*13, 2*15, 2*17]));
 }

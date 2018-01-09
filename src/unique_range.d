@@ -693,10 +693,7 @@ struct UniqueTake(Range)
     import std.range.primitives : isInputRange, isIterable;
     alias C = SA!int;
 
-    auto ba = C.withLength(2);
-    ba[0 .. 2] = [11, 13].s[];
-    import std.algorithm.mutation : move;
-    auto cs = move(ba).intoUniqueRange; // TODO withElements()
+    auto cs = C([11, 13].s[]).intoUniqueRange;
 
     assert(cs.front == 11);
     cs.popFront();

@@ -662,7 +662,7 @@ struct UniqueTake(Range)
     }
 }
 
-/// basics
+/// array range
 @safe pure nothrow @nogc unittest
 {
     import basic_array : SA = BasicArray;
@@ -686,7 +686,7 @@ struct UniqueTake(Range)
     static assert(isIterable!(typeof(cs)));
 }
 
-/// range around HashSet
+/// hashset range
 @safe pure nothrow @nogc unittest
 {
     import std.algorithm.mutation : move;

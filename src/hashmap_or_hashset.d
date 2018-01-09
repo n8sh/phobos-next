@@ -233,7 +233,7 @@ struct HashMapOrSet(K, V = void,
     /// Duplicate.
     static if (isCopyable!T)
     {
-        typeof(this) dup()() @trusted // template-lazy
+        typeof(this) dup()() const @trusted // template-lazy
         {
             typeof(return) that;
 

@@ -172,7 +172,6 @@ private:
     Similar to Rust's `into_iter`.
  */
 UniqueRange!Source intoUniqueRange(Source)(Source source)
-    if (hasLength!Source)
 {
     return typeof(return)(source); // construct from reference
 }

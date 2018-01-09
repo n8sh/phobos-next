@@ -42,13 +42,22 @@ struct UniqueRange(Source)
     }
 
     /// Is `true` if range is empty.
-    @property bool empty() const
+    @property bool empty() const @trusted
     {
         static if (!__traits(hasMember, SourceRange, "empty"))
         {
             import std.range : empty;
         }
-        return _sourceRange.empty;
+        return (cast(Unqual!SourceRange)_sourceRange).empty; // TODO remove cast and @trusted when SortedRange.empty is const
+    }
+
+    /// Returns: length of `this`.
+    static if (hasLength!(typeof(Source.init[])))
+    {
+        @property size_t length() const @trusted
+        {
+            return (cast(Unqual!SourceRange)_sourceRange).length; // TODO remove cast and @trusted when SortedRange.empty is const
+        }
     }
 
     /// Front element.
@@ -155,12 +164,6 @@ struct UniqueRange(Source)
         {
             return typeof(return)(_source.dup);
         }
-    }
-
-    /// Returns: length of `this`.
-    static if (hasLength!(typeof(Source.init[])))
-    {
-        @property size_t length() const { return _sourceRange.length; }
     }
 
 private:

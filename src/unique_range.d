@@ -210,16 +210,14 @@ alias intoGenerator = intoUniqueRange;
     assert(cs.front == 13);
     assert(cs.back == 15);
 
-    // TODO:
-    // assert(cs.frontPop() == 13);
-    // assert(cs.length == 1);
-    // assert(cs.front == 15);
-    // assert(cs.back == 15);
+    assert(cs.frontPop() == 13);
+    assert(cs.length == 1);
+    assert(cs.front == 15);
+    assert(cs.back == 15);
 
-    // TODO:
-    // assert(cs.backPop() == 15);
-    // assert(cs.length == 0);
-    // assert(cs.empty);
+    assert(cs.backPop() == 15);
+    assert(cs.length == 0);
+    assert(cs.empty);
 }
 
 /// combined with Phobos ranges

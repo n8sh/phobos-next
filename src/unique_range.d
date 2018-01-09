@@ -72,6 +72,25 @@ struct UniqueRange(Source)
         _sourceRange.popFront(); // should include check for emptyness
     }
 
+    // /// Pop front element and return it.
+    // E frontPop()
+    // {
+    //     assert(!empty);
+    //     import std.traits : hasIndirections;
+    //     static if (hasIndirections!E) // TODO better trait?
+    //     {
+    //         // import std.traits : Unqual;
+    //         // TODO reinterpret as typeof(*(cast(Unqual!E*)(&_source[_frontIx]))) iff `E` doesn't contain any immutable indirections
+    //         import std.algorithm.mutation : move;
+    //         return move(_source[_frontIx++]);
+    //     }
+    //     else
+    //     {
+    //         return _source[_frontIx++]; // no move needed
+    //     }
+    // }
+    // alias stealFront = frontPop;
+
     static if (isBidirectionalRange!(typeof(Source.init[])))
     {
         /// Back element.
@@ -94,45 +113,26 @@ struct UniqueRange(Source)
             }
             _sourceRange.popBack(); // should include check for emptyness
         }
+
+        // /// Pop back element and return it.
+        // E backPop()
+        // {
+        //     assert(!empty);
+        //     import std.traits : hasIndirections;
+        //     static if (hasIndirections!E) // TODO better trait?
+        //     {
+        //         // import std.traits : Unqual;
+        //         // TODO reinterpret as typeof(*(cast(Unqual!E*)(&_source[_backIx]))) iff `E` doesn't contain any immutable indirections
+        //         import std.algorithm.mutation : move;
+        //         return move(_source[--_backIx]);
+        //     }
+        //     else
+        //     {
+        //         return _source[--_backIx]; // no move needed
+        //     }
+        // }
+        // alias stealBack = backPop;
     }
-
-    // /// Pop front element and return it.
-    // E frontPop()
-    // {
-    //     assert(!empty);
-    //     import std.traits : hasIndirections;
-    //     static if (hasIndirections!E) // TODO better trait?
-    //     {
-    //         // import std.traits : Unqual;
-    //         // TODO reinterpret as typeof(*(cast(Unqual!E*)(&_source[_frontIx]))) iff `E` doesn't contain any immutable indirections
-    //         import std.algorithm.mutation : move;
-    //         return move(_source[_frontIx++]);
-    //     }
-    //     else
-    //     {
-    //         return _source[_frontIx++]; // no move needed
-    //     }
-    // }
-    // alias stealFront = frontPop;
-
-    // /// Pop back element and return it.
-    // E backPop()
-    // {
-    //     assert(!empty);
-    //     import std.traits : hasIndirections;
-    //     static if (hasIndirections!E) // TODO better trait?
-    //     {
-    //         // import std.traits : Unqual;
-    //         // TODO reinterpret as typeof(*(cast(Unqual!E*)(&_source[_backIx]))) iff `E` doesn't contain any immutable indirections
-    //         import std.algorithm.mutation : move;
-    //         return move(_source[--_backIx]);
-    //     }
-    //     else
-    //     {
-    //         return _source[--_backIx]; // no move needed
-    //     }
-    // }
-    // alias stealBack = backPop;
 
     /// Returns: shallow duplicate of `this`.
     version(none)               // TODO make compile

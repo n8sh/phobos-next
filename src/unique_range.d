@@ -224,7 +224,8 @@ alias intoGenerator = intoUniqueRange;
 @safe pure nothrow unittest
 {
     import basic_array : SA = BasicArray;
-    assert(SA!int([11, 13, 15, 17].s[])
+    alias C = SA!int;
+    assert(C([11, 13, 15, 17].s[])
            .intoUniqueRange()
            .filterUnique!(_ => _ != 11)
            .mapUnique!(_ => 2*_)

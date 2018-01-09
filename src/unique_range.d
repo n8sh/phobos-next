@@ -186,10 +186,7 @@ alias intoGenerator = intoUniqueRange;
     import std.range.primitives : isInputRange, isIterable;
     alias C = SA!int;
 
-    auto ba = C.withLength(4);
-    ba[0 .. 4] = [11, 13, 15, 17].s[];
-    import std.algorithm.mutation : move;
-    auto cs = move(ba).intoUniqueRange; // TODO withElements()
+    auto cs = C([11, 13, 15, 17].s[]).intoUniqueRange;
 
     static assert(isInputRange!(typeof(cs)));
     static assert(isIterable!(typeof(cs)));

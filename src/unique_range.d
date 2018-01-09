@@ -712,13 +712,9 @@ struct UniqueTake(Range)
 {
     import std.algorithm.mutation : move;
     import hashset : HashSet;
-
     class C {}
-
     alias S = HashSet!C;
-    S s;
-
-    auto cs = move(s).intoUniqueRange;
+    auto cs = S().intoUniqueRange;
 }
 
 import std.functional : binaryFun;

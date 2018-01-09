@@ -92,7 +92,7 @@ struct BasicArray(T,
 
     /** Emplace `thatPtr` with elements copied from `elements`. */
     static ref typeof(this) emplaceWithCopiedElements()(typeof(this)* thatPtr, // template-lazy
-                                                        const const(T)[] elements) @system
+                                                        const(T)[] elements) @system
         if (isCopyable!T)
     {
         immutable length = elements.length;

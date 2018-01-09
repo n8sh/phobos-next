@@ -691,6 +691,10 @@ struct UniqueTake(Range)
 
     auto cs = C([11, 13].s).intoUniqueRange;
 
+    alias CS = typeof(cs);
+    static assert(isInputRange!(typeof(cs)));
+    static assert(isIterable!(typeof(cs)));
+
     assert(cs.front == 11);
     cs.popFront();
 
@@ -698,9 +702,6 @@ struct UniqueTake(Range)
     cs.popFront();
 
     assert(cs.empty);
-
-    static assert(isInputRange!(typeof(cs)));
-    static assert(isIterable!(typeof(cs)));
 }
 
 /// hashset range

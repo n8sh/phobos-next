@@ -686,7 +686,7 @@ struct UniqueTake(Range)
     static assert(isIterable!(typeof(cs)));
 }
 
-/// and range around HashSet
+/// range around HashSet
 @safe pure nothrow @nogc unittest
 {
     import std.algorithm.mutation : move;

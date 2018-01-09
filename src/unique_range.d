@@ -164,7 +164,7 @@ struct UniqueRange(Source)
     }
 
 private:
-    Source _source; // typically a non-reference count container type with disable copy construction
+    Source _source; // typically a non-reference counted container type with disable copy construction
     SourceRange _sourceRange;
 }
 

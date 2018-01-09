@@ -186,7 +186,7 @@ alias intoGenerator = intoUniqueRange;
     import std.range.primitives : isInputRange, isIterable;
     alias C = SA!int;
 
-    auto cs = C([11, 13, 15, 17].s[]).intoUniqueRange;
+    auto cs = C([11, 13, 15, 17].s).intoUniqueRange;
 
     static assert(isInputRange!(typeof(cs)));
     static assert(isIterable!(typeof(cs)));
@@ -221,7 +221,7 @@ alias intoGenerator = intoUniqueRange;
 {
     import basic_array : SA = BasicArray;
     alias C = SA!int;
-    assert(C([11, 13, 15, 17].s[])
+    assert(C([11, 13, 15, 17].s)
            .intoUniqueRange()
            .filterUnique!(_ => _ != 11)
            .mapUnique!(_ => 2*_)
@@ -689,7 +689,7 @@ struct UniqueTake(Range)
     import std.range.primitives : isInputRange, isIterable;
     alias C = SA!int;
 
-    auto cs = C([11, 13].s[]).intoUniqueRange;
+    auto cs = C([11, 13].s).intoUniqueRange;
 
     assert(cs.front == 11);
     cs.popFront();

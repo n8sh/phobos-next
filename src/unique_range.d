@@ -149,11 +149,11 @@ struct UniqueRange(Source)
     }
 
     /// Returns: shallow duplicate of `this`.
-    version(none)               // TODO make compile
+    static if (__traits(hasMember, Source, "dup"))
     {
-        @property UniqueRange dup() const
+        @property typeof(this) dup()() const // template-lazy
         {
-            return typeof(this)(_source.dup);
+            return typeof(return)(_source.dup);
         }
     }
 

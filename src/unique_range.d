@@ -77,7 +77,6 @@ struct UniqueRange(Source)
     {
         assert(!empty);
 
-        import std.algorithm.mutation : move;
         import std.traits : isCopyable, hasElaborateDestructor;
         static if (isCopyable!E &&
                    !hasElaborateDestructor!E)
@@ -89,6 +88,7 @@ struct UniqueRange(Source)
         else
         {
             static assert(false, "TODO if front is an l-value move it out and return it");
+            // import std.algorithm.mutation : move;
             // import std.traits : Unqual;
             // TODO reinterpret as typeof(*(cast(Unqual!E*)(&_source[_frontIx]))) iff `E` doesn't contain any immutable indirections
             // typeof(return) value = move(_sourceRange.front);
@@ -126,7 +126,6 @@ struct UniqueRange(Source)
         {
             assert(!empty);
 
-            import std.algorithm.mutation : move;
             import std.traits : isCopyable, hasElaborateDestructor;
             static if (isCopyable!E &&
                        !hasElaborateDestructor!E)
@@ -138,6 +137,7 @@ struct UniqueRange(Source)
             else
             {
                 static assert(false, "TODO if back is an l-value move it out and return it");
+                // import std.algorithm.mutation : move;
                 // import std.traits : Unqual;
                 // TODO reinterpret as typeof(*(cast(Unqual!E*)(&_source[_backIx]))) iff `E` doesn't contain any immutable indirections
                 // typeof(return) value = move(_sourceRange.back);

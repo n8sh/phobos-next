@@ -72,9 +72,9 @@ struct UniqueRange(Source)
         _sourceRange.popFront(); // should include check for emptyness
     }
 
-    /// Back element.
     static if (isBidirectionalRange!(typeof(Source.init[])))
     {
+        /// Back element.
         @property scope auto ref inout(E) back() inout return @trusted
         {
             assert(!empty);

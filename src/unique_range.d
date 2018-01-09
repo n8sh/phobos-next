@@ -187,6 +187,10 @@ alias intoGenerator = intoUniqueRange;
     alias C = SA!int;
 
     auto cs = C([11, 13, 15, 17].s).intoUniqueRange;
+    auto cs2 = cs.dup;
+
+    assert(cs == cs2);
+    assert(cs !is cs2);
 
     static assert(isInputRange!(typeof(cs)));
     static assert(isIterable!(typeof(cs)));

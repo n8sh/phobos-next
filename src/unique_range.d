@@ -44,7 +44,10 @@ struct UniqueRange(Source)
     /// Is `true` if range is empty.
     @property bool empty() const
     {
-        import std.range : empty;
+        static if (!__traits(hasMember, SourceRange, "empty"))
+        {
+            import std.range : empty;
+        }
         return _sourceRange.empty;
     }
 
@@ -74,7 +77,10 @@ struct UniqueRange(Source)
     void popFront()
     {
         // assert(!empty);
-        import std.range : popFront;
+        static if (!__traits(hasMember, SourceRange, "popFront"))
+        {
+            import std.range : popFront;
+        }
         _sourceRange.popFront(); // checks for emptyness
     }
 
@@ -82,7 +88,10 @@ struct UniqueRange(Source)
     void popBack()
     {
         // assert(!empty);
-        import std.range : popBack;
+        static if (!__traits(hasMember, SourceRange, "popBack"))
+        {
+            import std.range : popBack;
+        }
         _sourceRange.popBack(); // xchecks for emptyness
     }
 

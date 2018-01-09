@@ -76,23 +76,21 @@ struct UniqueRange(Source)
     /// Pop front element.
     void popFront()
     {
-        // assert(!empty);
         static if (!__traits(hasMember, SourceRange, "popFront"))
         {
             import std.range : popFront;
         }
-        _sourceRange.popFront(); // checks for emptyness
+        _sourceRange.popFront(); // should include check for emptyness
     }
 
     /// Pop back element.
     void popBack()
     {
-        // assert(!empty);
         static if (!__traits(hasMember, SourceRange, "popBack"))
         {
             import std.range : popBack;
         }
-        _sourceRange.popBack(); // xchecks for emptyness
+        _sourceRange.popBack(); // should include check for emptyness
     }
 
     // /// Pop front element and return it.

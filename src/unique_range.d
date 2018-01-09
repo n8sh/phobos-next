@@ -52,7 +52,10 @@ struct UniqueRange(Source)
     @property scope auto ref inout(E) front() inout return @trusted
     {
         assert(!empty);
-        import std.range : front;
+        static if (!__traits(hasMember, SourceRange, "front"))
+        {
+            import std.range : front;
+        }
         return cast(inout(E))_sourceRange.front;
     }
 
@@ -60,7 +63,10 @@ struct UniqueRange(Source)
     @property scope auto ref inout(E) back() inout return @trusted
     {
         assert(!empty);
-        import std.range : back;
+        static if (!__traits(hasMember, SourceRange, "back"))
+        {
+            import std.range : back;
+        }
         return cast(inout(E))_sourceRange.back;
     }
 
@@ -696,7 +702,7 @@ struct UniqueTake(Range)
 
     alias S = HashSet!C;
     S s;
-    // TODO auto cs = move(s).intoUniqueRange;
+    // auto cs = move(s).intoUniqueRange;
 }
 
 import std.functional : binaryFun;

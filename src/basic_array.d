@@ -99,9 +99,9 @@ struct BasicArray(T,
         thatPtr._store.ptr = typeof(this).allocate(length, false);
         thatPtr._store.capacity = cast(CapacityType)length;
         thatPtr._store.length = cast(CapacityType)length;
-        foreach (immutable i, const ref e; elements[])
+        foreach (immutable i, ref e; elements[])
         {
-            thatPtr._mptr[i] = e;
+            thatPtr._mptr[i] = cast(T)e; // TODO this is ugly!
         }
         return *thatPtr;
     }

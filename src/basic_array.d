@@ -155,7 +155,7 @@ struct BasicArray(T,
 
         /// Returns: shallow duplicate of `this`.
         pragma(inline)          // DMD cannot inline
-        @property BasicArray!(Unqual!T, Allocator, CapacityType) dup() const @trusted
+        @property BasicArray!(Unqual!T, Allocator, CapacityType) dup()() const @trusted // template-lazy
         {
             return typeof(this).withElements(this[]);
         }

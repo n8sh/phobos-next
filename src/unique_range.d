@@ -16,7 +16,7 @@ import std.range.primitives : hasLength;
 struct UniqueRange(Source)
     if (hasLength!Source)       // TODO use traits `isArrayContainer` checking fo
 {
-    import std.range : ElementType;
+    import std.range : ElementType, isBidirectionalRange;
     import std.traits : isArray;
     alias SourceRange = typeof(Source.init[]);
     alias E = ElementType!SourceRange;
@@ -59,18 +59,7 @@ struct UniqueRange(Source)
         {
             import std.range : front;
         }
-        return cast(inout(E))_sourceRange.front;
-    }
-
-    /// Back element.
-    @property scope auto ref inout(E) back() inout return @trusted
-    {
-        assert(!empty);
-        static if (!__traits(hasMember, SourceRange, "back"))
-        {
-            import std.range : back;
-        }
-        return cast(inout(E))_sourceRange.back;
+        return cast(inout(E))(cast(SourceRange)_sourceRange).front;
     }
 
     /// Pop front element.
@@ -83,14 +72,28 @@ struct UniqueRange(Source)
         _sourceRange.popFront(); // should include check for emptyness
     }
 
-    /// Pop back element.
-    void popBack()
+    /// Back element.
+    static if (isBidirectionalRange!(typeof(Source.init[])))
     {
-        static if (!__traits(hasMember, SourceRange, "popBack"))
+        @property scope auto ref inout(E) back() inout return @trusted
         {
-            import std.range : popBack;
+            assert(!empty);
+            static if (!__traits(hasMember, SourceRange, "back"))
+            {
+                import std.range : back;
+            }
+            return cast(inout(E))(cast(SourceRange)_sourceRange).back;
         }
-        _sourceRange.popBack(); // should include check for emptyness
+
+        /// Pop back element.
+        void popBack()
+        {
+            static if (!__traits(hasMember, SourceRange, "popBack"))
+            {
+                import std.range : popBack;
+            }
+            _sourceRange.popBack(); // should include check for emptyness
+        }
     }
 
     // /// Pop front element and return it.
@@ -140,8 +143,8 @@ struct UniqueRange(Source)
         }
     }
 
-    /// Length.
-    static if (hasLength!(Source))
+    /// Returns: length of `this`.
+    static if (hasLength!(typeof(Source.init[])))
     {
         @property size_t length() const { return _sourceRange.length; }
     }
@@ -709,7 +712,8 @@ struct UniqueTake(Range)
 
     alias S = HashSet!C;
     S s;
-    // auto cs = move(s).intoUniqueRange;
+
+    auto cs = move(s).intoUniqueRange;
 }
 
 import std.functional : binaryFun;

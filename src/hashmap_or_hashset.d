@@ -555,13 +555,20 @@ struct HashMapOrSet(K, V = void,
         HashMapOrSetType* table;
         size_t binIx;           // index to bin inside table
         size_t elementOffset;   // offset to element inside bin
+        size_t elementCounter;  // counter over number of elements popped
 
         pragma(inline, true):
 
         /// Check if empty.
-        @property bool empty() const
+        @property bool empty() const @safe pure nothrow @nogc
         {
             return binIx == table.binCount;
+        }
+
+        /// Get number of element left to pop.
+        @property size_t length() const @safe pure nothrow @nogc
+        {
+            return table.length - elementCounter;
         }
 
         void initFirstNonEmptyBin()
@@ -586,6 +593,7 @@ struct HashMapOrSet(K, V = void,
                 elementOffset = 0;
                 if (empty) { break; }
             }
+            elementCounter += 1;
         }
 
         @property typeof(this) save() // ForwardRange
@@ -603,6 +611,7 @@ struct HashMapOrSet(K, V = void,
             return contains(key);
         }
 
+        /// Range over elements.
         static private struct ByElement(HashMapOrSetType)
         {
         pragma(inline, true):

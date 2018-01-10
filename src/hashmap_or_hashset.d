@@ -1438,6 +1438,15 @@ pure nothrow @nogc unittest
         assertNotThrown!RangeError(dummy(s[i]));
     }
 
+    // test range
+    auto sr = s.byKeyValue;
+    assert(sr.length == n);
+    foreach (immutable uint i; 0 .. n)
+    {
+        sr.popFront();
+        assert(sr.length == n - i - 1);
+    }
+
     foreach (immutable uint i; 0 .. n)
     {
         s.remove(i);

@@ -7,7 +7,7 @@ import std.experimental.allocator.common;
  */
 struct PureMallocator
 {
-    import core.memory : pureMalloc, pureRealloc, pureFree;
+    import core.memory : pureMalloc, pureCalloc, pureRealloc, pureFree;
 
     pure:
 
@@ -29,6 +29,14 @@ struct PureMallocator
     {
         if (!bytes) return null;
         auto p = pureMalloc(bytes);
+        return p ? p[0 .. bytes] : null; // TODO can we use .ptr?
+    }
+
+    void[] zeroallocate(size_t bytes) shared
+        @trusted @nogc
+    {
+        if (!bytes) return null;
+        auto p = pureCalloc(bytes, 1);
         return p ? p[0 .. bytes] : null; // TODO can we use .ptr?
     }
 

@@ -10,6 +10,10 @@ version(unittest)
     import dbgio : dln;
 }
 
+/// Is `true` iff `T` is a set-like container.
+enum isSetLike(T) = (__traits(hasMember, T, `insert`) &&
+                     __traits(hasMember, T, `remove`));
+
 /** Returns: `r` eagerly in-place filtered on `predicate`.
     TODO Move to free function in array_ex.d to get @trusted access to private Array._mptr
  */
@@ -27,7 +31,7 @@ C filteredInplace(alias predicate, C)(C r) @trusted // TODO remove @trusted
     alias E = ElementType!C;
     alias MutableC = Unqual!C;
 
-    static if (__traits(hasMember, r, "ptr"))
+    static if (__traits(hasMember, r, `ptr`))
     {
         size_t dstIx = 0;           // destination index
 
@@ -55,7 +59,7 @@ C filteredInplace(alias predicate, C)(C r) @trusted // TODO remove @trusted
                 }
                 else
                 {
-                    static assert(0, "Cannot move elements in instance of " ~ C.stringof);
+                    static assert(0, `Cannot move elements in instance of ` ~ C.stringof);
                 }
                 dstIx += 1;
             }
@@ -68,7 +72,7 @@ C filteredInplace(alias predicate, C)(C r) @trusted // TODO remove @trusted
             }
         }
 
-        static if (__traits(hasMember, C, "shrinkTo"))
+        static if (__traits(hasMember, C, `shrinkTo`))
         {
             r.shrinkTo(dstIx);  // length will all always shrink
         }
@@ -77,7 +81,7 @@ C filteredInplace(alias predicate, C)(C r) @trusted // TODO remove @trusted
             r.length = dstIx;
         }
     }
-    else
+    else static if (isSetLike!C)
     {
         static assert(0, "Check if `r` has member insert and remove such as for " ~
                       C.stringof);

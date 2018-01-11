@@ -314,10 +314,11 @@ struct BasicArray(T,
     */
     private static MutableE* allocate(size_t initialCapacity, bool zero)
     {
+        immutable size_t numBytes = initialCapacity * T.sizeof;
+
         typeof(return) ptr = null;
         static if (!is(typeof(Allocator) == typeof(null)))
         {
-            immutable size_t numBytes = initialCapacity * T.sizeof;
             if (zero)
             {
                 static if (__traits(hasMember, Allocator, "zeroallocate"))
@@ -344,14 +345,14 @@ struct BasicArray(T,
             }
             else
             {
-                ptr = cast(typeof(return))malloc(initialCapacity * T.sizeof);
+                ptr = cast(typeof(return))malloc(numBytes);
             }
             assert(ptr, "Allocation failed");
         }
 
         static if (mustAddGCRange!T)
         {
-            gc_addRange(ptr, initialCapacity * T.sizeof);
+            gc_addRange(ptr, numBytes);
         }
 
         return ptr;

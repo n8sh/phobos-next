@@ -73,7 +73,7 @@ C filteredInplace(alias predicate, C)(C r) @trusted
     }
     else
     {
-        static assert(0, "Check");
+        static assert(0, "Check if r has member insert and remove such as for HashSet and HashMap");
     }
 
     return move(r);             // TODO remove move when compiler does it for us

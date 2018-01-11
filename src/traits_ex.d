@@ -697,10 +697,21 @@ enum bool isPurelyCallableWith(alias fun, T...) = (isPure!fun &&
     static assert(isPurelyCallableWith!(foo, int));
 }
 
-/** Check if $(D fun) is a @nogc function. */
+/** Check if $(D fun) is a @nogc function.
+    See also: http://forum.dlang.org/thread/dyumjfmxmstpgyxbozry@forum.dlang.org
+ */
 enum bool isNogc(alias fun) = (isCallable!fun &&
                                (functionAttributes!fun &
                                 FunctionAttribute.nogc));
+
+@safe pure nothrow @nogc unittest
+{
+    int foo(int x) @nogc pure nothrow { return x; }
+    static assert(isNogc!foo);
+
+    int goo(int x) pure nothrow { return x; }
+    // TODO static assert(!isNogc!goo);
+}
 
 /** Persistently Call Function $(D fun) with arguments $(D args).
 

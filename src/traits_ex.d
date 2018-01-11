@@ -697,6 +697,11 @@ enum bool isPurelyCallableWith(alias fun, T...) = (isPure!fun &&
     static assert(isPurelyCallableWith!(foo, int));
 }
 
+/** Check if $(D fun) is a pure function. */
+enum bool isNogc(alias fun) = (isCallable!fun &&
+                               (functionAttributes!fun &
+                                FunctionAttribute.nogc));
+
 /** Persistently Call Function $(D fun) with arguments $(D args).
 
     Hash Id Build-Timestamp (Code-Id because we currently have stable way of hashing-algorithms) is Constructed from Data Structure:

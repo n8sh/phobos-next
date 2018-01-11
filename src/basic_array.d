@@ -323,7 +323,7 @@ struct BasicArray(T,
             {
                 static if (__traits(hasMember, Allocator, "zeroallocate"))
                 {
-                    ptr = cast(typeof(return))Allocator.zeroallocate(numBytes).ptr;
+                    ptr = cast(typeof(return))Allocator.zeroallocate(numBytes);
                 }
                 else
                 {
@@ -334,7 +334,7 @@ struct BasicArray(T,
             }
             else
             {
-                ptr = cast(typeof(return))Allocator.allocate(numBytes).ptr;
+                ptr = cast(typeof(return))Allocator.allocate(numBytes);
             }
         }
         else

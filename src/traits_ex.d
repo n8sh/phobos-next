@@ -656,7 +656,7 @@ enum isCTEable(alias expr) = __traits(compiles, { enum id = expr; });
     static assert(!isCTEable!y);
 }
 
-import std.traits: hasFunctionAttributes, FunctionAttribute, isCallable, ParameterTypeTuple, Unqual;
+import std.traits: hasFunctionAttributes, isCallable, ParameterTypeTuple, Unqual;
 
 /** Returns $(D true) if $(D T) is not $(D const) or $(D immutable).
     Note that isConst is true for string, or immutable(char)[], because the

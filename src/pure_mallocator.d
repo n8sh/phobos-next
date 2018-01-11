@@ -7,14 +7,7 @@ import std.experimental.allocator.common;
  */
 struct PureMallocator
 {
-    static if (__VERSION__ >= 2076)
-    {
-        import core.memory : pureMalloc, pureRealloc, pureFree;
-    }
-    else
-    {
-        import memory_ex : pureMalloc, pureRealloc, pureFree;
-    }
+    import core.memory : pureMalloc, pureRealloc, pureFree;
 
     pure:
 
@@ -31,25 +24,25 @@ struct PureMallocator
     paradoxically, $(D malloc) is $(D @safe) but that's only useful to safe
     programs that can afford to leak memory allocated.
     */
-    @trusted @nogc
     void[] allocate(size_t bytes) shared
+        @trusted @nogc
     {
         if (!bytes) return null;
         auto p = pureMalloc(bytes);
-        return p ? p[0 .. bytes] : null;
+        return p ? p[0 .. bytes] : null; // TODO .ptr
     }
 
     /// Ditto
-    @system @nogc nothrow
     bool deallocate(void[] b) shared
+        @system @nogc nothrow
     {
         pureFree(b.ptr);
         return true;
     }
 
     /// Ditto
-    @system @nogc nothrow
     bool reallocate(ref void[] b, size_t s) shared
+        @system @nogc nothrow
     {
         if (!s)
         {

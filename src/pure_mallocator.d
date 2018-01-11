@@ -56,6 +56,7 @@ struct PureMallocator
     bool reallocate(ref void[] b, size_t s) shared
         @system @nogc nothrow
     {
+        import core.memory : pureRealloc;
         if (!s)
         {
             // fuzzy area in the C standard, see http://goo.gl/ZpWeSE
@@ -64,7 +65,6 @@ struct PureMallocator
             b = null;
             return true;
         }
-        import core.memory : pureRealloc;
         auto p = cast(ubyte*) pureRealloc(b.ptr, s);
         if (!p) return false;
         b = p[0 .. s];

@@ -70,7 +70,7 @@ C filteredInplace(alias predicate, C)(C r) @trusted // TODO remove @trusted
 
         static if (__traits(hasMember, C, "shrinkTo"))
         {
-            r.shrinkTo(dstIx);
+            r.shrinkTo(dstIx);  // length will all always shrink
         }
         else
         {

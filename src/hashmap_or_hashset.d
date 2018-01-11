@@ -13,7 +13,8 @@ enum InsertionStatus
 
 /** Hash set (or map) storing (key) elements of type `K` and values of type `V`.
  *
- * Uses small-size-optimized (SSO) arrays as bins.
+ * Uses small-size-optimized (SSO) arrays as bins, which provides a more stable
+ * worst-case performance than open-addressing.
  *
  * Params:
  *      K = key type.

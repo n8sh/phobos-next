@@ -13,7 +13,7 @@ version(unittest)
 /** Returns: `r` eagerly in-place filtered on `predicate`.
     TODO Move to free function in array_ex.d to get @trusted access to private Array._mptr
  */
-C filteredInplace(alias predicate, C)(C r) @trusted
+C filteredInplace(alias predicate, C)(C r) @trusted // TODO remove @trusted
     if (is(typeof(unaryFun!predicate)) &&
         hasIndexing!C)          // TODO extend to `isArrayContainer`!C eller `isRandomAccessContainer!C`
 {
@@ -27,8 +27,7 @@ C filteredInplace(alias predicate, C)(C r) @trusted
     alias E = ElementType!C;
     alias MutableC = Unqual!C;
 
-
-    static if (is(typeof(r.ptr)))
+    static if (__traits(hasMember, r, "ptr"))
     {
         size_t dstIx = 0;           // destination index
 
@@ -69,18 +68,26 @@ C filteredInplace(alias predicate, C)(C r) @trusted
             }
         }
 
-        r.shrinkTo(dstIx);
+        static if (__traits(hasMember, C, "shrinkTo"))
+        {
+            r.shrinkTo(dstIx);
+        }
+        else
+        {
+            r.length = dstIx;
+        }
     }
     else
     {
-        static assert(0, "Check if r has member insert and remove such as for HashSet and HashMap");
+        static assert(0, "Check if `r` has member insert and remove such as for " ~
+                      C.stringof);
     }
 
     return move(r);             // TODO remove move when compiler does it for us
 }
 
 /** Filter `r` eagerly in-place using `predicate`. */
-void filterInplace(alias predicate, C)(ref C r)
+void filterInplace(alias predicate, C)(ref C r) @trusted // TODO remove @trusted
     if (is(typeof(unaryFun!predicate)) &&
         hasIndexing!C)          // TODO extend to `isArrayContainer`!C eller `isRandomAccessContainer!C`
 {
@@ -93,10 +100,13 @@ void filterInplace(alias predicate, C)(ref C r)
     import std.algorithm.mutation : move;
     import std.meta : AliasSeq;
     import unique_range : intoUniqueRange;
-    import array_ex : UniqueArray, SortedSetUniqueArray;
+    import basic_array : BasicArray;
+    import array_ex : SortedSetUniqueArray;
 
     alias E = int;
-    foreach (C; AliasSeq!(UniqueArray, SortedSetUniqueArray))
+    foreach (C; AliasSeq!(BasicArray// ,
+                          // TODO SortedSetUniqueArray
+                 ))
     {
         alias A = C!E;
 
@@ -111,32 +121,35 @@ void filterInplace(alias predicate, C)(ref C r)
 
         // few elements triggers small-array optimization
         immutable E[2] c2 = [3, 11];
-        auto a2 = A.withElements(2, 3, 11, 12);
-        assert(a2.isSmall);
+        auto a2 = A([2, 3, 11, 12].s);
         assert(move(a2).filteredInplace!(_ => _ & 1)
                        .intoUniqueRange()
                        .equal(c2[]));
 
         // odd elements
         immutable E[6] c6 = [3, 11, 13, 15, 17, 19];
-        auto a6 = A.withElements(3, 11, 12, 13, 14, 15, 16, 17, 18, 19);
-        assert(a6.isLarge);
+        auto a6 = A([3, 11, 12, 13, 14, 15, 16, 17, 18, 19].s);
         assert(move(a6).filteredInplace!(_ => _ & 1)
                        .intoUniqueRange()
                        .equal(c6[]));
 
         // elements less than or equal to limit
         immutable E[7] c7 = [3, 11, 12, 13, 14, 15, 16];
-        auto a7 = A.withElements(3, 11, 12, 13, 14, 15, 16, 17, 18, 19);
-        assert(a7.isLarge);
+        auto a7 = A([3, 11, 12, 13, 14, 15, 16, 17, 18, 19].s
+            );
         assert(move(a7).filteredInplace!(_ => _ <= 16)
                        .intoUniqueRange()
                        .equal(c7[]));
 
-        auto a3 = A.withElements(2, 4, 11);
+        auto a3 = A([2, 4, 11].s);
         a3.filterInplace!(_ => _ & 1);
         assert(a3.length == 1);
         assert(a3[0] == 11);
     }
 
+}
+
+version(unittest)
+{
+    import array_help : s;
 }

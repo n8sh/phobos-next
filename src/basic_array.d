@@ -1,7 +1,6 @@
 module basic_array;
 
 import std.traits : Unqual;
-import container_traits : mustAddGCRange, needsMove;
 
 /** Array type with deterministic control of memory. The memory allocated for
     the array is reclaimed as soon as possible; there is no reliance on the
@@ -35,6 +34,8 @@ struct BasicArray(T,
     import std.conv : emplace;
 
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
+
+    import container_traits : mustAddGCRange, needsMove;
 
     /// Mutable element type.
     private alias MutableE = Unqual!T;
@@ -1334,6 +1335,7 @@ private enum bool isRefIterable(T) = is(typeof({ foreach (ref elem; T.init) {} }
 
 version(unittest)
 {
+    import container_traits : mustAddGCRange, needsMove;
     import array_help : s;
     import dbgio;
 }

@@ -282,3 +282,7 @@ template isHashable(T)
     static assert(!isHashable!(char[]));
     static assert(!isHashable!(const(char)[]));
 }
+
+/// Is `true` iff `T` is a set-like container.
+enum isSetLike(T) = (__traits(hasMember, T, `insert`) &&
+                     __traits(hasMember, T, `remove`));

@@ -819,9 +819,13 @@ private:
     /** For more convenient construction. */
     struct Store
     {
+        import traits_ex : isNogc;
         // defined here https://dlang.org/phobos/std_experimental_allocator_gc_allocator.html#.GCAllocator
         // import std.experimental.allocator.gc_allocator : GCAllocator;
-        static if (is(Allocator == std.experimental.allocator.gc_allocator.GCAllocator)) // TODO use isNogc
+        static if (Allocator !is null &&
+                   !isNogc!(Allocator.allocate)//  &&
+                   // is(Allocator == std.experimental.allocator.gc_allocator.GCAllocator)
+            ) // TODO use isNogc
         {
             T* ptr;             // GC-allocated store pointer
         }

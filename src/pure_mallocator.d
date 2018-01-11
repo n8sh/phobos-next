@@ -7,8 +7,6 @@ import std.experimental.allocator.common;
  */
 struct PureMallocator
 {
-    import core.memory : pureMalloc, pureCalloc, pureRealloc, pureFree;
-
     pure:
 
     /**
@@ -28,6 +26,7 @@ struct PureMallocator
     void[] allocate(size_t bytes) shared
         @trusted @nogc
     {
+        import core.memory : pureMalloc;
         if (!bytes) return null;
         auto p = pureMalloc(bytes);
         return p ? p[0 .. bytes] : null; // TODO can we use p.ptr to avoid range-checking?
@@ -37,6 +36,7 @@ struct PureMallocator
     void[] zeroallocate(size_t bytes) shared
         @trusted @nogc
     {
+        import core.memory : pureCalloc;
         if (!bytes) return null;
         auto p = pureCalloc(bytes, 1);
         return p ? p[0 .. bytes] : null; // TODO can we use p.ptr to avoid range-checking?
@@ -47,6 +47,7 @@ struct PureMallocator
     bool deallocate(void[] b) shared
         @system @nogc nothrow
     {
+        import core.memory : pureFree;
         pureFree(b.ptr);
         return true;
     }
@@ -63,6 +64,7 @@ struct PureMallocator
             b = null;
             return true;
         }
+        import core.memory : pureRealloc;
         auto p = cast(ubyte*) pureRealloc(b.ptr, s);
         if (!p) return false;
         b = p[0 .. s];

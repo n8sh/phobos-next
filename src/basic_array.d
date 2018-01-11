@@ -29,7 +29,7 @@ struct BasicArray(T,
 {
     import std.range : isInputRange, isIterable, ElementType, isInfinite;
     import std.traits : Unqual, hasElaborateDestructor, hasIndirections, hasAliasing,
-        isMutable, TemplateOf, isArray, isAssignable, isCopyable;
+        isMutable, TemplateOf, isArray, isAssignable, isCopyable, isType, hasFunctionAttributes;
     import std.algorithm : move, moveEmplace, moveEmplaceAll;
     import std.conv : emplace;
 
@@ -315,15 +315,21 @@ struct BasicArray(T,
     private static MutableE* allocate(size_t initialCapacity, bool zero)
     {
         typeof(return) ptr = null;
-        if (zero)
+        static if (isType!Allocator)
         {
-            ptr = cast(typeof(return))calloc(initialCapacity, T.sizeof);
         }
         else
         {
-            ptr = cast(typeof(return))malloc(initialCapacity * T.sizeof);
+            if (zero)
+            {
+                ptr = cast(typeof(return))calloc(initialCapacity, T.sizeof);
+            }
+            else
+            {
+                ptr = cast(typeof(return))malloc(initialCapacity * T.sizeof);
+            }
+            assert(ptr, "Allocation failed");
         }
-        assert(ptr, "Allocation failed");
 
         static if (mustAddGCRange!T)
         {
@@ -828,7 +834,7 @@ private:
     /** For more convenient construction. */
     struct Store
     {
-        static if (Allocator !is null &&
+        static if (isType!Allocator &&
                    !hasFunctionAttributes!(Allocator.allocate, "@nogc"))
         {
             T* ptr;             // GC-allocated store pointer
@@ -1309,6 +1315,15 @@ unittest
 
     auto y = x;
     assert(y == z);
+}
+
+/// GCAllocator
+@trusted pure nothrow unittest
+{
+    import std.experimental.allocator.gc_allocator : GCAllocator;
+    alias T = int;
+    alias A = BasicArray!(T, GCAllocator);
+    A a;
 }
 
 /// construct with slices as element types

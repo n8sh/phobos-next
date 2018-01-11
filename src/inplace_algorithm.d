@@ -3,16 +3,13 @@ module inplace_algorithm;
 import std.functional : unaryFun;
 
 import typecons_ex : hasIndexing;
+import container_traits : isSetLike;
 
 version(unittest)
 {
     import std.algorithm.comparison : equal;
     import dbgio : dln;
 }
-
-/// Is `true` iff `T` is a set-like container.
-enum isSetLike(T) = (__traits(hasMember, T, `insert`) &&
-                     __traits(hasMember, T, `remove`));
 
 /** Returns: `r` eagerly in-place filtered on `predicate`.
     TODO Move to free function in array_ex.d to get @trusted access to private Array._mptr

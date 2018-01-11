@@ -29,7 +29,7 @@ struct PureMallocator
     {
         if (!bytes) return null;
         auto p = pureMalloc(bytes);
-        return p ? p[0 .. bytes] : null; // TODO .ptr
+        return p ? p[0 .. bytes] : null; // TODO can we use .ptr?
     }
 
     /// Ditto

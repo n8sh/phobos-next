@@ -656,7 +656,7 @@ enum isCTEable(alias expr) = __traits(compiles, { enum id = expr; });
     static assert(!isCTEable!y);
 }
 
-import std.traits: functionAttributes, FunctionAttribute, isCallable, ParameterTypeTuple, Unqual;
+import std.traits: hasFunctionAttributes, FunctionAttribute, isCallable, ParameterTypeTuple, Unqual;
 
 /** Returns $(D true) if $(D T) is not $(D const) or $(D immutable).
     Note that isConst is true for string, or immutable(char)[], because the
@@ -682,9 +682,7 @@ enum bool haveCommonType(Types...) = !is(CommonType!Types == void);
 }
 
 /** Check if $(D fun) is a pure function. */
-enum bool isPure(alias fun) = (isCallable!fun &&
-                               (functionAttributes!fun &
-                                FunctionAttribute.pure_));
+enum bool isPure(alias fun) = hasFunctionAttributes!(fun, `pure`);
 
 /** Check if $(D fun) is a function purely callable with arguments T. */
 enum bool isPurelyCallableWith(alias fun, T...) = (isPure!fun &&
@@ -699,10 +697,8 @@ enum bool isPurelyCallableWith(alias fun, T...) = (isPure!fun &&
 
 /** Check if $(D fun) is a @nogc function.
     See also: http://forum.dlang.org/thread/dyumjfmxmstpgyxbozry@forum.dlang.org
- */
-enum bool isNogc(alias fun) = (isCallable!fun &&
-                               (functionAttributes!fun &
-                                FunctionAttribute.nogc));
+*/
+enum bool isNogc(alias fun) = hasFunctionAttributes!(fun, `@nogc`);
 
 @safe pure nothrow @nogc unittest
 {

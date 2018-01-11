@@ -697,7 +697,7 @@ enum bool isPurelyCallableWith(alias fun, T...) = (isPure!fun &&
     static assert(isPurelyCallableWith!(foo, int));
 }
 
-/** Check if $(D fun) is a pure function. */
+/** Check if $(D fun) is a @nogc function. */
 enum bool isNogc(alias fun) = (isCallable!fun &&
                                (functionAttributes!fun &
                                 FunctionAttribute.nogc));

@@ -3,7 +3,6 @@ module inplace_algorithm;
 import std.functional : unaryFun;
 
 import typecons_ex : hasIndexing;
-import container_traits : isSetLike;
 
 version(unittest)
 {
@@ -77,11 +76,6 @@ C filteredInplace(alias predicate, C)(C r) @trusted // TODO remove @trusted
         {
             r.length = dstIx;
         }
-    }
-    else static if (isSetLike!C)
-    {
-        static assert(0, "Check if `r` has member insert and remove such as for " ~
-                      C.stringof);
     }
 
     return move(r);             // TODO remove move when compiler does it for us
